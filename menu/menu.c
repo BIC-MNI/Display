@@ -175,6 +175,7 @@ public  DEF_MENU_FUNCTION( push_menu )
 
     if( menu_window->menu.depth >= MAX_MENU_DEPTH )
     {
+        PRINT_ERROR( "Max menu depth\n" );
         status = ERROR;
     }
     else
