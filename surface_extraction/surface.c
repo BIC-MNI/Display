@@ -255,8 +255,6 @@ private  Boolean  find_close_voxel_containing_value( volume, voxels_done, value,
     Status                                status;
     Boolean                               found, voxel_done, voxel_contains;
     Boolean                               voxel_contains_value();
-    Boolean                               are_voxel_corners_active();
-    Boolean                               active;
     QUEUE_STRUCT( voxel_index_struct )    voxels_to_check;
     voxel_index_struct                    indices, insert;
     bitlist_struct                        voxels_searched;
@@ -293,35 +291,27 @@ private  Boolean  find_close_voxel_containing_value( volume, voxels_done, value,
     {
         get_next_voxel_from_queue( &voxels_to_check, &indices );
 
-        active = are_voxel_corners_active( volume,
-                                           indices.i[X_AXIS],
-                                           indices.i[Y_AXIS],
-                                           indices.i[Z_AXIS] );
+        voxel_contains = voxel_contains_value( volume,
+                                               indices.i[X_AXIS],
+                                               indices.i[Y_AXIS],
+                                               indices.i[Z_AXIS], value );
 
-        if( active )
+        voxel_done = is_voxel_done( volume, voxels_done, &indices );
+
+        if( voxel_contains && !voxel_done )
         {
-            voxel_contains = voxel_contains_value( volume,
-                                      indices.i[X_AXIS],
-                                      indices.i[Y_AXIS],
-                                      indices.i[Z_AXIS], value );
-
-            voxel_done = is_voxel_done( volume, voxels_done, &indices );
-
-            if( voxel_contains && !voxel_done )
-            {
-                found_indices->i[X_AXIS] = indices.i[X_AXIS];
-                found_indices->i[Y_AXIS] = indices.i[Y_AXIS];
-                found_indices->i[Z_AXIS] = indices.i[Z_AXIS];
-                found = TRUE;
-            }
-            else if( voxel_contains || !voxel_done )
-            {
-                add_voxel_neighbours( volume,
-                                      indices.i[X_AXIS],
-                                      indices.i[Y_AXIS],
-                                      indices.i[Z_AXIS],
-                                      &voxels_searched, &voxels_to_check );
-            }
+            found_indices->i[X_AXIS] = indices.i[X_AXIS];
+            found_indices->i[Y_AXIS] = indices.i[Y_AXIS];
+            found_indices->i[Z_AXIS] = indices.i[Z_AXIS];
+            found = TRUE;
+        }
+        else if( voxel_contains || !voxel_done )
+        {
+            add_voxel_neighbours( volume,
+                                  indices.i[X_AXIS],
+                                  indices.i[Y_AXIS],
+                                  indices.i[Z_AXIS],
+                                  &voxels_searched, &voxels_to_check );
         }
     }
 
@@ -1087,7 +1077,7 @@ Real   current_realtime_seconds();
                      indices.i[X_AXIS], indices.i[Y_AXIS], indices.i[Z_AXIS] );
     }
 
-next_time = current_realtime_seconds() + 10.0;
+next_time = current_realtime_seconds() + 5.0;
 count = 100;
 
     while( status == OK && voxels_remaining(&voxels_to_check) )
@@ -1099,7 +1089,7 @@ count = 100;
 
             if( current_realtime_seconds() >= next_time )
             {
-                next_time = current_realtime_seconds() + 10.0;
+                next_time = current_realtime_seconds() + 5.0;
                 PRINT( "Voxels in queue %d\n", NUMBER_IN_QUEUE(voxels_to_check) );
             }
         }
