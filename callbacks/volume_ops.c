@@ -58,7 +58,6 @@ private  void  change_current_slice_by_one(
                 rebuild_cursor( slice_window, 0 );
                 rebuild_cursor( slice_window, 1 );
                 rebuild_cursor( slice_window, 2 );
-                set_slice_window_update( slice_window, axis_index );
 
                 if( update_cursor_from_voxel( slice_window ) )
                 {
