@@ -1,6 +1,5 @@
 Progress_threshold = 1000;
 
-Initial_background_colour = WHITE;
 Initial_background_colour = DARK_SLATE_GREY;
 
 Event_timeout_min = 0.5;
@@ -145,10 +144,6 @@ Cursor_colour = 3;
 Cursor_rgb_colour = BLUE;
 Show_cursor_contours = FALSE;
 Cursor_contour_thickness = 3;
-Cursor_colour_on_surface = 1;
-Cursor_colour_off_surface = 3;
-Cursor_rgb_colour_on_surface = RED;
-Cursor_rgb_colour_off_surface = BLUE;
 Cursor_beep_on_surface = 0;
 Cursor_size_factor = 0.05;
 Cursor_axis_size = 50.0;
@@ -176,7 +171,6 @@ Min_cursor_angle_diff = 5.0;
 Cursor_pick_distance = 10.0;
 
 Extracted_surface_colour = WHITE;
-Display_surface_in_slices = FALSE;
 
 Default_surface_property = 0.3 0.3 0.4   10.0 1.0;
 
