@@ -1,6 +1,14 @@
 
 #include  <display.h>
 
+private  void  get_slice_viewport(
+    display_struct    *slice_window,
+    int               view_index,
+    int               *x_min,
+    int               *x_max,
+    int               *y_min,
+    int               *y_max );
+
 public  void  initialize_slice_window_view(
     display_struct    *slice_window )
 {
@@ -270,7 +278,6 @@ public  void  convert_voxel_to_pixel(
 {
     Volume            volume;
     display_struct    *slice_window;
-    int               x_min, x_max, y_min, y_max;
     Real              x_real_pixel, y_real_pixel;
     Real              origin[MAX_DIMENSIONS];
     Real              x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];;
@@ -287,11 +294,8 @@ public  void  convert_voxel_to_pixel(
                         slice_window->slice.slice_views[view_index].y_scaling,
                         &x_real_pixel, &y_real_pixel );
 
-        get_slice_viewport( display, view_index,
-                            &x_min, &x_max, &y_min, &y_max );
-
-        *x_pixel = x_real_pixel + (Real) x_min;
-        *y_pixel = y_real_pixel + (Real) y_min;
+        *x_pixel = x_real_pixel;
+        *y_pixel = y_real_pixel;
     }
     else
     {
@@ -378,7 +382,7 @@ public  void   get_slice_window_partitions(
     *top_slice_height = y_size - *bottom_slice_height;
 }
 
-public  void  get_slice_viewport(
+private  void  get_slice_viewport(
     display_struct    *slice_window,
     int               view_index,
     int               *x_min,
@@ -474,8 +478,8 @@ public  void  get_text_display_viewport(
 
     *x_min = 0;
     *x_max = left_panel_width-1;
-    *y_min = Slice_divider_bottom;
-    *y_max = text_panel_height - 1 - Slice_divider_top;
+    *y_min = 0;
+    *y_max = text_panel_height - 1;
 }
 
 public  void  get_slice_divider_intersection(
@@ -946,4 +950,42 @@ public  int  get_arbitrary_view_index(
         return( slice_window->slice.cross_section_index );
     else
         return( 0 );
+}
+
+public  void  get_slice_model_viewport(
+    display_struct   *slice_window,
+    int              model,
+    int              *x_min,
+    int              *x_max,
+    int              *y_min,
+    int              *y_max )
+{
+    int   x_size, y_size;
+
+    switch( model )
+    {
+    case FULL_WINDOW_MODEL:
+        G_get_window_size( slice_window->window, &x_size, &y_size );
+        *x_min = 0;
+        *x_max = x_size-1;
+        *y_min = 0;
+        *y_max = y_size-1;
+        break;
+
+    case SLICE_MODEL1:
+    case SLICE_MODEL2:
+    case SLICE_MODEL3:
+    case SLICE_MODEL4:
+        get_slice_viewport( slice_window, model - SLICE_MODEL1,
+                            x_min, x_max, y_min, y_max );
+        break;
+
+    case COLOUR_BAR_MODEL:
+        get_colour_bar_viewport( slice_window, x_min, x_max, y_min, y_max );
+        break;
+
+    case SLICE_READOUT_MODEL:
+        get_text_display_viewport( slice_window, x_min, x_max, y_min, y_max );
+        break;
+    }
 }
