@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice_3d.c,v 1.5 1995-07-31 19:54:26 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice_3d.c,v 1.6 1995-08-14 18:08:59 david Exp $";
 #endif
 
 
@@ -203,7 +203,7 @@ public  void  set_volume_cross_section_visibility(
     display_struct  *slice_window;
 
     display = get_three_d_window( display );
-    state = get_n_volumes(display) > 0;
+    state = state && get_n_volumes(display) > 0;
 
     if( get_slice_window( display, &slice_window ) )
     {

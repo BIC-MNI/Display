@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.17 1995-07-31 19:53:46 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.18 1995-08-14 18:08:50 david Exp $";
 #endif
 
 #include  <display.h>
@@ -67,7 +67,7 @@ public  void  delete_atlas(
     for_less( axis, 0, N_DIMENSIONS )
     {
         if( atlas->slice_lookup[axis] != (atlas_position_struct **) 0 )
-            FREE( atlas->slice_lookup[axis] )
+            FREE( atlas->slice_lookup[axis] );
     }
 
     if( atlas->n_pixel_maps > 0 )
@@ -260,7 +260,7 @@ public  void  regenerate_atlas_lookup(
     for_less( axis, 0, N_DIMENSIONS )
     {
         if( atlas->slice_lookup[axis] != (atlas_position_struct **) 0 )
-            FREE( atlas->slice_lookup[axis] )
+            FREE( atlas->slice_lookup[axis] );
 
         ALLOC( atlas->slice_lookup[axis], sizes[axis] );
 

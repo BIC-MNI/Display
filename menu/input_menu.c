@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.119 1995-08-10 14:50:14 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.120 1995-08-14 18:08:57 david Exp $";
 #endif
 
 #include  <display.h>
@@ -71,6 +71,7 @@ MENU_F(descend_selected) \
 MENU_F(ascend_selected) \
 MENU_F(change_background_colour) \
 MENU_F(create_3d_slice) \
+MENU_F(create_3d_slice_profile) \
 MENU_F(save_slice_image) \
 MENU_F(save_slice_window) \
 MENU_F(toggle_slice_visibility) \

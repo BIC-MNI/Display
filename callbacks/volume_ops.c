@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.95 1995-08-10 14:33:19 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.96 1995-08-14 18:08:51 david Exp $";
 #endif
 
 
@@ -194,14 +194,18 @@ public  DEF_MENU_UPDATE(colour_code_objects )
             current_object_exists(display) );
 }
 
-/* ARGSUSED */
-
-public  DEF_MENU_FUNCTION(create_3d_slice)
+private  void  create_scaled_slice(
+    display_struct   *display,
+    BOOLEAN          scale_slice_flag )
 {
     display_struct   *slice_window;
     int              x_index, y_index, axis_index, view_index;
     Real             current_voxel[N_DIMENSIONS];
+    Real             scale_factor, value, min_value;
     object_struct    *object;
+    quadmesh_struct  *quadmesh;
+    Point            point;
+    int              m, n, i, j;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 &&
@@ -211,15 +215,58 @@ public  DEF_MENU_FUNCTION(create_3d_slice)
                               &x_index, &y_index, &axis_index ) )
 
     {
+        if( scale_slice_flag )
+        {
+            Status  status;
+
+            print( "Enter scaling: " );
+            status = input_real( stdin, &scale_factor );
+            (void) input_newline( stdin );
+            if( status != OK )
+                return;
+        }
+
         get_current_voxel( slice_window,
                         get_current_volume_index(slice_window), current_voxel );
         object = create_3d_slice_quadmesh( get_volume(display), axis_index,
                                            current_voxel[axis_index] );
 
+        if( scale_slice_flag )
+        {
+            quadmesh = get_quadmesh_ptr( object );
+            m = quadmesh->m;
+            n = quadmesh->n;
+            min_value = get_volume_real_min( get_volume(slice_window) );
+            for_less( i, 0, m )
+            for_less( j, 0, n )
+            {
+                (void) get_quadmesh_point( quadmesh, i, j, &point );
+                evaluate_volume_in_world( get_volume(display),
+                                          Point_x(point),
+                                          Point_y(point),
+                                          Point_z(point), 0, FALSE,
+                                          min_value, &value,
+                                          NULL, NULL, NULL,
+                                          NULL, NULL, NULL, NULL, NULL, NULL );
+                Point_coord(point,axis_index) += scale_factor *
+                                                 (value - min_value);
+                set_quadmesh_point( quadmesh, i, j, &point, NULL );
+            }
+
+            compute_quadmesh_normals( quadmesh );
+        }
+
         colour_code_an_object( display, object );
 
         add_object_to_current_model( display, object );
     }
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(create_3d_slice)
+{
+    create_scaled_slice( display, FALSE );
 
     return( OK );
 }
@@ -227,6 +274,22 @@ public  DEF_MENU_FUNCTION(create_3d_slice)
 /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(create_3d_slice)
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(create_3d_slice_profile)
+{
+    create_scaled_slice( display, TRUE );
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(create_3d_slice_profile)
 {
     return( get_n_volumes(display) > 0 );
 }

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/cursor/cursor.c,v 1.13 1995-07-31 19:53:57 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/cursor/cursor.c,v 1.14 1995-08-14 18:08:52 david Exp $";
 #endif
 
 
@@ -59,6 +59,8 @@ public  void  update_cursor(
 
     make_origin_transform( &display->three_d.cursor.origin,
                            &get_model_info(model)->transform );
+
+    rebuild_cursor_position_model( display );
 
     ++display->models_changed_id;
 }

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.42 1995-07-31 19:53:51 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.43 1995-08-14 18:08:51 david Exp $";
 #endif
 
 
@@ -227,7 +227,8 @@ public  DEF_MENU_FUNCTION(save_label_data)
             status = save_label_volume( filename,
                       slice_window->slice.volumes[
                       get_current_volume_index(slice_window)].labels_filename,
-                      get_label_volume(slice_window) );
+                      get_label_volume(slice_window),
+                      Crop_label_volumes_threshold );
 
         print( "Done\n" );
     }

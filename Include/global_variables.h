@@ -338,4 +338,12 @@ START_GLOBALS
 
     DEF_GLOBAL( Initial_slice_continuity, int, -1 )
 
+    DEF_GLOBAL_COLOUR( Cursor_pos_colour )
+    DEF_GLOBAL( Cursor_pos_x_origin, int, 400 )
+    DEF_GLOBAL( Cursor_pos_y_origin, int, 30 )
+    DEF_GLOBAL_STRING( Cursor_pos_title, "Cursor Pos:" )
+    DEF_GLOBAL_STRING( Cursor_pos_format, "%.1f %.1f %.1f" )
+
+    DEF_GLOBAL( Crop_label_volumes_threshold, Real, 0.8 )
+
 END_GLOBALS

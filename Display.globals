@@ -1,6 +1,6 @@
 Progress_threshold = 1000;
-Alloc_checking_enabled = TRUE;
 Alloc_checking_enabled = FALSE;
+Alloc_checking_enabled = TRUE;
 
 Initial_background_colour = DARK_SLATE_GREY;
 

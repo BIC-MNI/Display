@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_bar.c,v 1.21 1995-07-31 19:54:19 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_bar.c,v 1.22 1995-08-14 18:08:58 david Exp $";
 #endif
 
 #include  <display.h>
@@ -371,13 +371,10 @@ public  BOOLEAN  mouse_within_colour_bar(
              (x <= colour_bar->left_offset +
                    colour_bar->bar_width + colour_bar->tick_width);
 
-    if( within )
-    {
-        if( bottom == top )
-            *ratio = 0.0;
-        else
-            *ratio = (y - bottom) / (top - bottom);
-    }
+    if( bottom == top )
+        *ratio = 0.0;
+    else
+        *ratio = (y - bottom) / (top - bottom);
 
     return( within );
 }

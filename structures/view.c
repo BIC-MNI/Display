@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/view.c,v 1.28 1995-08-11 18:11:27 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/view.c,v 1.29 1995-08-14 18:09:00 david Exp $";
 #endif
 
 #include <display.h>
@@ -243,7 +243,7 @@ public  void  transform_world_to_model_vector(
     Real        x, y, z;
 
     compute_transform_inverse( &view->modeling_transform, &inverse );
-    transform_vector( &view->modeling_transform,
+    transform_vector( &inverse,
                       Vector_x(*v), Vector_y(*v), Vector_z(*v),
                       &x, &y, &z);
     fill_Vector( *transformed_vector, x, y, z );

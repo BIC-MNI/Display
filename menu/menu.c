@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.36 1995-07-31 19:54:15 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.37 1995-08-14 18:08:57 david Exp $";
 #endif
 
 
@@ -220,6 +220,8 @@ public  Status  initialize_menu(
     add_object_to_model( model, menu->menu_name_text );
 
     update_menu_name_text( menu_window );
+
+    rebuild_cursor_position_model( menu_window );
 
     return( status );
 }

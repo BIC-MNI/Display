@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/pick_object.c,v 1.18 1995-07-31 19:54:03 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/pick_object.c,v 1.19 1995-08-14 18:08:54 david Exp $";
 #endif
 
 
@@ -102,8 +102,8 @@ public  BOOLEAN  get_mouse_scene_intersection(
 
     if( G_get_mouse_position_0_to_1( display->window, &x, &y ) )
     {
-        convert_mouse_to_ray( &display->three_d.view, x, y,
-                              &origin, &direction );
+        convert_screen_to_ray( &display->three_d.view, x, y,
+                               &origin, &direction );
 
         transform_world_to_model( &display->three_d.view, &origin,
                                   &transformed_origin );

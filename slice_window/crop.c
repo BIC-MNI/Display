@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/crop.c,v 1.6 1995-07-31 19:54:23 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/crop.c,v 1.7 1995-08-14 18:08:59 david Exp $";
 #endif
 
 #include  <display.h>
@@ -45,10 +45,10 @@ public  void  set_crop_filename(
     (void) strcpy( slice_window->slice.crop.filename, filename );
 }
 
-public  void  crop_and_load_volume(
-    display_struct   *slice_window )
+public  Status  create_cropped_volume_to_file(
+    display_struct   *slice_window,
+    char             cropped_filename[] )
 {
-    STRING                cropped_filename;
     char                  command[10*MAX_STRING_LENGTH];
     Volume                file_volume, volume;
     volume_input_struct   volume_input;
@@ -65,7 +65,7 @@ public  void  crop_and_load_volume(
     if( strlen( slice_window->slice.crop.filename ) == 0 )
     {
         print( "You have not set the crop filename yet.\n" );
-        return;
+        return( ERROR );
     }
 
     if( start_volume_input( slice_window->slice.crop.filename, 3,
@@ -78,7 +78,7 @@ public  void  crop_and_load_volume(
         print( "Error in cropping MINC file: %s\n",
                slice_window->slice.crop.filename );
 
-        return;
+        return( ERROR );
     }
 
     volume = get_volume( slice_window );
@@ -129,10 +129,6 @@ public  void  crop_and_load_volume(
     delete_volume_input( &volume_input );
     delete_volume( file_volume );
 
-    (void) tmpnam( cropped_filename );
-
-    (void) strcat( cropped_filename, ".mnc" );
-
     (void) sprintf( command, Crop_volume_command,
                     slice_window->slice.crop.filename,
                     cropped_filename,
@@ -147,17 +143,31 @@ public  void  crop_and_load_volume(
     {
         print( "Error cropping volume: %s\n",
                slice_window->slice.crop.filename );
-        return;
+        return( ERROR );
     }
 
-    (void) load_graphics_file( get_three_d_window(slice_window),
-                               cropped_filename, FALSE );
+    return( OK );
+}
 
-    remove_file( cropped_filename );
+public  void  crop_and_load_volume(
+    display_struct   *slice_window )
+{
+    STRING                cropped_filename;
 
-    slice_window->slice.crop.crop_visible = FALSE;
+    (void) tmpnam( cropped_filename );
+    (void) strcat( cropped_filename, ".mnc" );
 
-    set_crop_box_update( slice_window, -1 );
+    if( create_cropped_volume_to_file( slice_window, cropped_filename ) == OK )
+    {
+        (void) load_graphics_file( get_three_d_window(slice_window),
+                                   cropped_filename, FALSE );
+
+        remove_file( cropped_filename );
+
+        slice_window->slice.crop.crop_visible = FALSE;
+
+        set_crop_box_update( slice_window, -1 );
+    }
 }
 
 public  void  toggle_slice_crop_box_visibility(

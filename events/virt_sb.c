@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/virt_sb.c,v 1.24 1995-07-31 19:54:05 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/virt_sb.c,v 1.25 1995-08-14 18:08:54 david Exp $";
 #endif
 
 
@@ -290,10 +290,10 @@ private  BOOLEAN  perform_cursor_translation(
         fill_Vector( axis_direction, 0.0, 0.0, 0.0 );
         Vector_coord( axis_direction, best_axis ) = 1.0;
 
-        convert_mouse_to_ray( &display->three_d.view,
-                              Point_x(new_screen_origin),
-                              Point_y(new_screen_origin),
-                              &ray_origin, &ray_direction );
+        convert_screen_to_ray( &display->three_d.view,
+                               Point_x(new_screen_origin),
+                               Point_y(new_screen_origin),
+                               &ray_origin, &ray_direction );
         transform_world_to_model( &display->three_d.view, &ray_origin,
                                   &transformed_origin );
         transform_world_to_model_vector( &display->three_d.view,

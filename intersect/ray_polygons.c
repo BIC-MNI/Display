@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/intersect/ray_polygons.c,v 1.13 1995-07-31 19:54:09 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/intersect/ray_polygons.c,v 1.14 1995-08-14 18:08:55 david Exp $";
 #endif
 
 
@@ -37,7 +37,8 @@ public  BOOLEAN  intersect_ray_with_objects_hierarchy(
     intersects = FALSE;
     closest_dist = 1.0e30;
 
-    initialize_object_traverse( &object_traverse, N_MODELS, display->models );
+    initialize_object_traverse( &object_traverse, 1,
+                                &display->models[THREED_MODEL] );
 
     while( get_next_object_traverse(&object_traverse,&current_object) )
     {

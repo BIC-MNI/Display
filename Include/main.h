@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_main_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/main.h,v 1.14 1995-07-31 19:53:44 david Exp $";
+static char display_main_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/main.h,v 1.15 1995-08-14 18:08:49 david Exp $";
 #endif
 
 #include  <display_types.h>
@@ -38,6 +38,7 @@ static char display_main_rcsid[] = "$Header: /private-cvsroot/visualization/Disp
 #define  MENU_BUTTONS_MODEL     0
 #define  SELECTED_MODEL         1
 #define  UTILITY_MODEL          2
+#define  CURSOR_POS_MODEL       3
 
 /* for slice windows */
 

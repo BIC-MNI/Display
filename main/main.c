@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.46 1995-07-31 19:54:11 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.47 1995-08-14 18:08:56 david Exp $";
 #endif
 
 #include  <display.h>
@@ -286,6 +286,7 @@ private  void      initialize_global_colours()
     Brush_outline_colour = GREEN;
     Histogram_colour = WHITE;
     Menu_name_colour = GREEN;
+    Cursor_pos_colour = GREEN;
 }
 
 private  void      initialize_view_to_fit(

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice_events.c,v 1.37 1995-07-31 19:54:22 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice_events.c,v 1.38 1995-08-14 18:08:59 david Exp $";
 #endif
 
 
@@ -63,6 +63,9 @@ private  BOOLEAN  mouse_is_near_low_limit(
     display_struct   *slice_window );
 private  BOOLEAN  mouse_is_near_high_limit(
     display_struct   *slice_window );
+private  BOOLEAN  get_nearest_mouse_colour_bar_value(
+    display_struct   *slice_window,
+    Real             *value );
 
 public  void  initialize_slice_window_events(
     display_struct    *slice_window )
@@ -642,7 +645,7 @@ private  void  update_limit(
     Volume                volume;
     colour_coding_struct  *colour_coding;
 
-    if( get_mouse_colour_bar_value( slice_window, &value ) &&
+    if( get_nearest_mouse_colour_bar_value( slice_window, &value ) &&
         get_slice_window_volume( slice_window, &volume ) )
     {
         get_volume_real_range( volume, &volume_min, &volume_max );
@@ -726,6 +729,39 @@ private  BOOLEAN  get_mouse_colour_bar_value(
         *value = INTERPOLATE( ratio, min_value, max_value );
         found = TRUE;
     }
+
+    return( found );
+}
+
+private  BOOLEAN  get_nearest_mouse_colour_bar_value(
+    display_struct   *slice_window,
+    Real             *value )
+{
+    int                   x, y;
+    Real                  ratio, min_value, max_value;
+    Volume                volume;
+    BOOLEAN               found;
+
+    found = FALSE;
+
+    if( G_get_mouse_position( slice_window->window, &x, &y ) &&
+        get_slice_window_volume( slice_window, &volume ) )
+    {
+        (void) mouse_within_colour_bar( slice_window, (Real) x, (Real) y,
+                                        &ratio );
+
+        if( ratio < 0.0 )
+            ratio = 0.0;
+        else if( ratio > 1.0 )
+            ratio = 1.0;
+
+        get_volume_real_range( volume, &min_value, &max_value );
+        *value = INTERPOLATE( ratio, min_value, max_value );
+
+        found = TRUE;
+    }
+    else
+        found = FALSE;
 
     return( found );
 }
