@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.110 1996-07-04 13:56:02 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.111 1996-10-18 18:22:12 david Exp $";
 #endif
 
 #include  <display.h>
@@ -1527,7 +1527,8 @@ private  void  create_composite(
     pixels_struct   *composite )
 {
     Colour   *src, *dest, empty, c1, c2;
-    Real     r1, g1, b1, a1, r2, g2, b2, a2, alpha, one_minus_alpha;
+    int      r1, g1, b1, a1, r2, g2, b2, a2, weight;
+    int      r, g, b, a;
     int      i, n_pixels, slice, x_min, x_max, y_min, y_max, x, y;
 
     if( n_slices == 0 )
@@ -1602,29 +1603,36 @@ private  void  create_composite(
                 c1 = *dest;
                 c2 = *src;
                 if( c2 != empty &&
-                    (a2 = (Real) get_Colour_a( c2 )) != 0.0 )
+                    (a2 = get_Colour_a( c2 )) != 0 )
                 {
-                    if( a2 == 255.0 )
+                    a1 = get_Colour_a( c1 );
+                    if( a2 == 255 || a1 == 0 )
                         *dest = *src;
                     else
                     {
-                        r1 = (Real) get_Colour_r( c1 );
-                        g1 = (Real) get_Colour_g( c1 );
-                        b1 = (Real) get_Colour_b( c1 );
-                        a1 = (Real) get_Colour_a( c1 );
+                        r1 = get_Colour_r( c1 );
+                        g1 = get_Colour_g( c1 );
+                        b1 = get_Colour_b( c1 );
 
-                        r2 = (Real) get_Colour_r( c2 );
-                        g2 = (Real) get_Colour_g( c2 );
-                        b2 = (Real) get_Colour_b( c2 );
+                        r2 = get_Colour_r( c2 );
+                        g2 = get_Colour_g( c2 );
+                        b2 = get_Colour_b( c2 );
 
-                        alpha = a2 / 255.0;
-                        one_minus_alpha = 1.0 - alpha;
+                        weight = (255 - a2) * a1;
+                        a2 *= 255;
+                        r = a2 * r2 + weight * r1;
+                        g = a2 * g2 + weight * g1;
+                        b = a2 * b2 + weight * b1;
+                        a = a2 + weight;
+                        if( a > 0 )
+                        {
+                            r /= a;
+                            g /= a;
+                            b /= a;
+                            a /= 255;
+                        }
 
-                        *dest = make_rgba_Colour(
-                                (int) (one_minus_alpha * r1 + alpha * r2),
-                                (int) (one_minus_alpha * g1 + alpha * g2),
-                                (int) (one_minus_alpha * b1 + alpha * b2),
-                                (int) (one_minus_alpha * a1 + alpha * a2));
+                        *dest = make_rgba_Colour( r, g, b, a );
                     }
                 }
 
