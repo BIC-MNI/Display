@@ -5,7 +5,7 @@ static    DEF_EVENT_FUNCTION( pick_point );
 
 private  Bitplane_types   get_surface_curve_bitplane()
 {
-    if( Surface_curve_overlay_flag )
+    if( Surface_curve_overlay_flag && G_has_overlay_planes() )
         return( OVERLAY_PLANES );
     else
         return( NORMAL_PLANES );
@@ -18,7 +18,7 @@ public  void  initialize_surface_curve(
     lines_struct   *lines;
     model_struct   *model;
 
-    if( Surface_curve_overlay_flag )
+    if( get_surface_curve_bitplane() == OVERLAY_PLANES )
         model = get_graphics_model( display, OVERLAY_MODEL );
     else
         model = get_graphics_model( display, MISCELLANEOUS_MODEL );

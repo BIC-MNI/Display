@@ -99,8 +99,12 @@ private  Real  weighted_distance(
 
             factor = angle / PI;
 
+            dist = dist * (1.0 + curvature_weight * factor);
+
+#ifdef  DSF
             dist = dist * (1.0 + curvature_weight * factor) /
                           (1.0 + curvature_weight);
+#endif
         }
     }
 
