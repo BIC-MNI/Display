@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.40 1995-10-19 15:52:01 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.41 1996-04-10 17:19:26 david Exp $";
 #endif
 
 #include  <display.h>
@@ -69,6 +69,10 @@ public  void  initialize_voxel_labeling(
     slice_window->slice.segmenting.mouse_scale_factor =
                                                Initial_mouse_scale_factor;
     slice_window->slice.painting_view_index = -1;
+    slice_window->slice.segmenting.fast_updating_allowed =
+                           Default_fast_painting_flag;
+    slice_window->slice.segmenting.cursor_follows_paintbrush =
+                           Default_cursor_follows_paintbrush_flag;
 }
 
 public  void  delete_voxel_labeling(
@@ -252,6 +256,8 @@ private  int  sweep_paint_labels(
                                 &volume_index2, &view_index ) &&
         volume_index == volume_index2 )
     {
+        if( slice_window->slice.segmenting.cursor_follows_paintbrush )
+            set_voxel_cursor_from_mouse_position( slice_window );
         paint_labels( slice_window, volume_index, view_index,
                       start_voxel, end_voxel, label );
     }
@@ -642,7 +648,8 @@ private  void  paint_labels(
                 max_voxel[c] = sizes[c] - 1;
         }
 
-        if( radius[axis] == 0.0 &&
+        if( slice_window->slice.segmenting.fast_updating_allowed &&
+            radius[axis] == 0.0 &&
             label_volume != NULL &&
             is_label_volume_initialized( label_volume ) &&
             !slice_window->slice.volumes[volume_index].

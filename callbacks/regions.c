@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.34 1995-10-19 15:50:55 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.35 1996-04-10 17:19:21 david Exp $";
 #endif
 
 
@@ -107,19 +107,45 @@ public  DEF_MENU_UPDATE(set_paint_z_brush_radius )
 
 public  DEF_MENU_FUNCTION( set_current_paint_label )
 {
-    int             label;
+    int             label, axis_index, volume_index;
+    Real            voxel[N_DIMENSIONS];
+    int             int_voxel[N_DIMENSIONS];
+    Volume          label_volume;
     display_struct  *slice_window;
+    BOOLEAN         done;
 
     if( get_slice_window( display, &slice_window ) )
     {
-        print( "Enter current paint label: " );
+        done = FALSE;
 
-        if( input_int( stdin, &label ) == OK &&
-            label >= 0 && label < get_num_labels(slice_window,
-                            get_current_volume_index(slice_window)) )
+        if( get_voxel_under_mouse( display, &volume_index, &axis_index, voxel ))
+        {
+            label_volume = get_nth_label_volume( display, volume_index );
+            convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+            label = get_volume_label_data( label_volume, int_voxel );
+            if( label != 0 )
+                done = TRUE;
+        }
+
+        if( !done )
+        {
+            print( "Enter current paint label: " );
+
+            if( input_int( stdin, &label ) == OK &&
+                label >= 0 && label < get_num_labels(slice_window,
+                                get_current_volume_index(slice_window)) )
+                done = TRUE;
+
+            (void) input_newline( stdin );
+        }
+
+        if( done )
+        {
             slice_window->slice.current_paint_label = label;
 
-        (void) input_newline( stdin );
+            print( "Paint label set to: %d\n",
+                   slice_window->slice.current_paint_label );
+        }
     }
 
     return( OK );
@@ -614,3 +640,72 @@ public  DEF_MENU_UPDATE(translate_labels_arbitrary )
 {
     return( get_n_volumes(display) > 0 );
 }
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( toggle_fast_update )
+{
+    display_struct  *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        slice_window->slice.segmenting.fast_updating_allowed =
+                       !slice_window->slice.segmenting.fast_updating_allowed;
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_fast_update )
+{
+    BOOLEAN          fast_flag, state;
+    display_struct   *slice_window;
+
+    state = get_slice_window( display, &slice_window );
+
+    if( state )
+        fast_flag = slice_window->slice.segmenting.fast_updating_allowed;
+    else
+        fast_flag = Default_fast_painting_flag;
+
+    set_menu_text_on_off( menu_window, menu_entry, fast_flag );
+
+    return( state );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( toggle_cursor_follows_paintbrush )
+{
+    display_struct  *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        slice_window->slice.segmenting.cursor_follows_paintbrush =
+                     !slice_window->slice.segmenting.cursor_follows_paintbrush;
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_cursor_follows_paintbrush )
+{
+    BOOLEAN          follow_flag, state;
+    display_struct   *slice_window;
+
+    state = get_slice_window( display, &slice_window );
+
+    if( state )
+        follow_flag = slice_window->slice.segmenting.cursor_follows_paintbrush;
+    else
+        follow_flag = Default_cursor_follows_paintbrush_flag;
+
+    set_menu_text_on_off( menu_window, menu_entry, follow_flag );
+
+    return( state );
+}
+

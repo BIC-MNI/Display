@@ -293,6 +293,8 @@ polygons
     transient 'g'    reverse_normals                   "Reverse Normals"
     transient 'h'    make_tetrahedral_sphere           "Make Tetrahedral Sphere"
 
+    transient 'z'    coalesce_current_polygons         "Coalesce Polygons"
+    transient 'x'    separate_current_polygons         "Separate Polygons"
     transient 'c'    smooth_current_polygon            "Smooth Polygon"
     transient 'v'    average_normals_for_polygon       "Average Normals"
 }
@@ -387,10 +389,13 @@ segmenting
     transient 'x'    erode_labels                     "Erode 3D"
     transient 'c'    dilate_labels                    "Dilate 3D"
     transient 'v'    calculate_volume                 "Calculate Volume"
-    transient 'n'    copy_labels_from_lower_slice  "Copy from Lt/Inf/Post Slice"
     transient 'b'    toggle_display_labels           "Show Labels: %s"
+    transient 'n'    copy_labels_from_lower_slice  "Copy from Lt/Inf/Post Slice"
 
     transient '1'    translate_labels                 "Translate Labels"
+    transient '2'    toggle_fast_update               "Fast update: %s"
+    transient '3'    toggle_cursor_follows_paintbrush "Cursor follows: %s"
+    transient '4'    toggle_cursor_visibility         "Cursor vis: %s"
     transient '5'    toggle_connectivity              "Connectivity: %d"
     transient '6'    label_connected_3d               "Fill 3D"
 

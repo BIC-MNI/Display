@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.127 1996-02-28 16:04:17 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.128 1996-04-10 17:19:25 david Exp $";
 #endif
 
 #include  <display.h>
@@ -146,7 +146,9 @@ MENU_F(paint_invis_colour) \
 MENU_F(paint_vis_colour) \
 MENU_F(set_vis_paint_colour) \
 MENU_F(set_invis_paint_colour) \
-MENU_F(set_n_paint_polygons)
+MENU_F(set_n_paint_polygons) \
+MENU_F(coalesce_current_polygons) \
+MENU_F(separate_current_polygons)
 
 #define MENU3 \
 MENU_F(input_polygons_bintree) \
@@ -225,6 +227,9 @@ MENU_F(translate_labels_arbitrary)
 MENU_F(calculate_volume) \
 MENU_F(toggle_current_volume) \
 MENU_F(delete_current_volume) \
+MENU_F(toggle_fast_update) \
+MENU_F(toggle_cursor_follows_paintbrush) \
+MENU_F(toggle_cursor_visibility) \
 MENU_F(set_paint_xy_brush_radius) \
 MENU_F(set_paint_z_brush_radius) \
 MENU_F(copy_labels_from_lower_slice) \

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/polygon_ops.c,v 1.63 1995-12-19 15:46:15 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/polygon_ops.c,v 1.64 1996-04-10 17:19:19 david Exp $";
 #endif
 
  
@@ -510,6 +510,73 @@ public  DEF_MENU_FUNCTION( print_polygons_surface_area )
 /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(print_polygons_surface_area )
+{
+    return( current_object_is_this_type(display,POLYGONS) ||
+            current_object_is_this_type(display,MODEL) );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( coalesce_current_polygons )
+{
+    Real              line_thickness;
+    polygons_struct   *polygons;
+
+    if( get_current_polygons( display, &polygons ) )
+    {
+        coalesce_object_points( &polygons->n_points, &polygons->points,
+                                polygons->end_indices[polygons->n_items-1],
+                                polygons->indices );
+
+        REALLOC( polygons->normals, polygons->n_points );
+
+        if( polygons->colour_flag == PER_VERTEX_COLOURS )
+            REALLOC( polygons->colours, polygons->n_points );
+
+        compute_polygon_normals( polygons );
+
+        graphics_models_have_changed( display );
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(coalesce_current_polygons )
+{
+    return( current_object_is_this_type(display,POLYGONS) ||
+            current_object_is_this_type(display,MODEL) );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( separate_current_polygons )
+{
+    Real              line_thickness;
+    polygons_struct   *polygons;
+
+    if( get_current_polygons( display, &polygons ) )
+    {
+        separate_object_points( &polygons->n_points, &polygons->points,
+                                polygons->end_indices[polygons->n_items-1],
+                                polygons->indices );
+        REALLOC( polygons->normals, polygons->n_points );
+
+        if( polygons->colour_flag == PER_VERTEX_COLOURS )
+            REALLOC( polygons->colours, polygons->n_points );
+
+        compute_polygon_normals( polygons );
+
+        graphics_models_have_changed( display );
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(separate_current_polygons )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );

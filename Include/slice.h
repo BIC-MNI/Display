@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.68 1995-12-19 15:46:10 david Exp $";
+static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.69 1996-04-10 17:19:17 david Exp $";
 #endif
 
 #include  <volume_io.h>
@@ -36,6 +36,8 @@ typedef  struct
     int               *y_starts;
     int               x_mouse_start, y_mouse_start;
     Real              mouse_scale_factor;
+    BOOLEAN           fast_updating_allowed;
+    BOOLEAN           cursor_follows_paintbrush;
 } segmenting_struct;
 
 typedef struct
@@ -167,6 +169,8 @@ typedef  struct
 
     lines_struct           unscaled_histogram_lines;
     object_struct          *histogram_object;
+
+    BOOLEAN                cursor_visibility;
 
     int                    cross_section_index;
     BOOLEAN                cross_section_visibility;

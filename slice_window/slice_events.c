@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice_events.c,v 1.40 1995-12-19 15:46:35 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice_events.c,v 1.41 1996-04-10 17:19:30 david Exp $";
 #endif
 
 #include  <display.h>
@@ -47,8 +47,6 @@ static    DEF_EVENT_FUNCTION( terminate_picking_low_limit );
 static    DEF_EVENT_FUNCTION( terminate_picking_high_limit );
 static    DEF_EVENT_FUNCTION( terminate_picking_both_limits );
 
-private  void  set_voxel_cursor(
-    display_struct    *slice_window );
 private  void  update_limit(
     display_struct   *slice_window,
     BOOLEAN          low_limit_flag,
@@ -143,7 +141,7 @@ private  DEF_EVENT_FUNCTION( left_mouse_down )
                                        TERMINATE_INTERACTION_EVENT,
                                        terminate_picking_voxel );
 
-            set_voxel_cursor( display );
+            set_voxel_cursor_from_mouse_position( display );
         }
     }
     else if( mouse_is_near_low_limit( display ) )
@@ -289,7 +287,7 @@ private  void  set_slice_voxel_position(
 
 /* ----------------------------------------------------------------------- */
 
-private  void  set_voxel_cursor(
+public  void  set_voxel_cursor_from_mouse_position(
     display_struct    *slice_window )
 {
     int    volume_index, axis_index;
@@ -308,7 +306,7 @@ private  void  update_voxel_cursor(
     int    x, y, x_prev, y_prev;
 
     if( pixel_mouse_moved( slice_window, &x, &y, &x_prev, &y_prev ) )
-        set_voxel_cursor( slice_window );
+        set_voxel_cursor_from_mouse_position( slice_window );
 }
 
 /* ARGSUSED */

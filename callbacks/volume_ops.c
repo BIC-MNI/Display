@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.102 1996-02-21 15:41:32 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.103 1996-04-10 17:19:20 david Exp $";
 #endif
 
 
@@ -1300,4 +1300,40 @@ public  DEF_MENU_UPDATE(toggle_shift_key )
                            menu_window->menu.shift_key_down, "Up", "Down" );
 
     return( TRUE );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(toggle_cursor_visibility)
+{
+    int              view;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        slice_window->slice.cursor_visibility =
+                                       !slice_window->slice.cursor_visibility;
+        for_less( view, 0, N_SLICE_VIEWS )
+            slice_window->slice.slice_views[view].update_cursor_flag = TRUE;
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_cursor_visibility )
+{
+    BOOLEAN          state, visible;
+    display_struct   *slice_window;
+
+    state = get_slice_window(display,&slice_window);
+
+    if( state )
+        visible = slice_window->slice.cursor_visibility;
+    else
+        visible = TRUE;
+
+    set_menu_text_on_off( menu_window, menu_entry, visible );
+    return( state );
 }

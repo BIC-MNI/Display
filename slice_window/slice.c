@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.107 1996-02-28 16:04:18 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.108 1996-04-10 17:19:29 david Exp $";
 #endif
 
 
@@ -75,6 +75,8 @@ private  void  initialize_slice_window(
 
     slice_window->slice.n_volumes = 0;
     slice_window->slice.current_volume_index = -1;
+
+    slice_window->slice.cursor_visibility = ON;
 
     slice_window->slice.share_labels_flag = Initial_share_labels;
     slice_window->slice.degrees_continuity = Initial_slice_continuity;

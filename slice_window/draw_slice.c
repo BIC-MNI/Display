@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.105 1996-02-27 19:17:11 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.106 1996-04-10 17:19:27 david Exp $";
 #endif
 
 #include  <display.h>
@@ -791,14 +791,27 @@ public  void  rebuild_slice_cursor(
     int            x_min, x_max, y_min, y_max;
     Real           hor_pixel_start, hor_pixel_end;
     Real           vert_pixel_start, vert_pixel_end;
+    int            volume, n_volumes;
+    BOOLEAN        visible;
 
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
 
     obj1 = model->objects[2*slice_window->slice.n_volumes+CURSOR_INDEX1];
     obj2 = model->objects[2*slice_window->slice.n_volumes+CURSOR_INDEX2];
 
-    if( get_n_volumes( slice_window ) == 0 )
-    {    
+    n_volumes = get_n_volumes( slice_window );
+    visible = FALSE;
+    for_less( volume, 0, n_volumes )
+    {
+        if( get_slice_visibility(slice_window,volume,view_index) )
+        {
+            visible = TRUE;
+            break;
+        }
+    }
+
+    if( !visible || !slice_window->slice.cursor_visibility )
+    {
         set_object_visibility( obj1, FALSE );
         set_object_visibility( obj2, FALSE );
         return;
