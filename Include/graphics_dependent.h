@@ -120,6 +120,7 @@ typedef  struct
     view_types    current_view_type;
     Transform     projection_matrices[(int) N_VIEW_TYPES];
     Transform     viewing_matrices[(int) N_VIEW_TYPES];
+    Boolean       this_frame_initialized;
 } window_struct;
 
 #define  N_LIGHTS  8

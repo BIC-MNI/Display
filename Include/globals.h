@@ -7,7 +7,12 @@ START_GLOBALS
     DEF_GLOBAL( Initial_background_colour, Colour, 0.0 )
 
     DEF_GLOBAL( Progress_threshold, int, 1000 )
+
+    DEF_GLOBAL( Maximum_display_time, Real, 0.5 )
     DEF_GLOBAL( Event_timeout, Real, 0.1 )
+    DEF_GLOBAL( Size_of_interrupted, int, 1000 )
+    DEF_GLOBAL( Interval_of_check, int, 100 )
+
     DEF_GLOBAL( Initial_perspective_flag, Boolean, TRUE )
     DEF_GLOBAL( Closest_front_plane, Real, 1.0e-5 )
     DEF_GLOBAL( Initial_render_mode, int, 1 )
