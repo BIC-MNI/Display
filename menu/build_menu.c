@@ -12,10 +12,10 @@ typedef  struct
 } position_struct;
 
 private   position_struct   positions[] = {
-                                 {(char) LEFT_ARROW_KEY, 5.0, 0.0, 0.5, FALSE},
-                                 {(char) DOWN_ARROW_KEY, 5.5, 0.0, 0.5, FALSE},
-                                 {(char) RIGHT_ARROW_KEY, 6.0, 0.0, 0.5, FALSE},
-                                 {(char) UP_ARROW_KEY, 5.5, 1.0, 0.5, FALSE},
+                                 {(char) LEFT_ARROW_KEY, 5.5, 0.0, 0.5, FALSE},
+                                 {(char) DOWN_ARROW_KEY, 6.0, 0.0, 0.5, FALSE},
+                                 {(char) RIGHT_ARROW_KEY, 6.5, 0.0, 0.5, FALSE},
+                                 {(char) UP_ARROW_KEY, 6.0, 1.0, 0.5, FALSE},
 
                                              {' ', 1.0, 0.0, 3.0, FALSE },
 
@@ -24,24 +24,29 @@ private   position_struct   positions[] = {
                                              {'c', 2.0, 1.0, 1.0, TRUE },
                                              {'v', 3.0, 1.0, 1.0, TRUE },
                                              {'b', 4.0, 1.0, 1.0, TRUE },
+                                             {'n', 5.0, 1.0, 1.0, TRUE },
 
                                              {'a', 0.0, 2.0, 1.0, TRUE },
                                              {'s', 1.0, 2.0, 1.0, TRUE },
                                              {'d', 2.0, 2.0, 1.0, TRUE },
                                              {'f', 3.0, 2.0, 1.0, TRUE },
                                              {'g', 4.0, 2.0, 1.0, TRUE },
+                                             {'h', 5.0, 2.0, 1.0, TRUE },
 
                                              {'q', 0.0, 3.0, 1.0, TRUE },
                                              {'w', 1.0, 3.0, 1.0, TRUE },
                                              {'e', 2.0, 3.0, 1.0, TRUE },
                                              {'r', 3.0, 3.0, 1.0, TRUE },
                                              {'t', 4.0, 3.0, 1.0, TRUE },
+                                             {'y', 5.0, 3.0, 1.0, TRUE },
 
                                              {'1', 0.0, 4.0, 1.0, TRUE },
                                              {'2', 1.0, 4.0, 1.0, TRUE },
                                              {'3', 2.0, 4.0, 1.0, TRUE },
                                              {'4', 3.0, 4.0, 1.0, TRUE },
                                              {'5', 4.0, 4.0, 1.0, TRUE },
+                                             {'6', 5.0, 4.0, 1.0, TRUE },
+                                             {'7', 6.0, 4.0, 1.0, TRUE }
                                           };
 
 static    Status   create_menu_text();
