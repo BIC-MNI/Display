@@ -113,36 +113,6 @@ public  DEF_MENU_UPDATE(convert_line_to_spline_points )   /* ARGSUSED */
     return( OK );
 }
  
-public  DEF_MENU_FUNCTION( deform_line_to_volume )   /* ARGSUSED */
-{
-    volume_struct     *volume;
-    lines_struct      *lines;
-    deform_struct     deform;
-
-    if( get_current_lines( display, &lines ) &&
-        get_slice_window_volume( display, &volume ) )
-    {
-        if( typein_deformation_parameters( lines->n_points, &deform ) == OK )
-        {
-            deform.deform_data.volume = volume;
-            deform_lines( lines, &deform );
-
-            delete_deformation_parameters( &deform );
-
-            set_update_required( display, NORMAL_PLANES );
-
-            print( "Done deforming lines.\n" );
-        }
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(deform_line_to_volume )   /* ARGSUSED */
-{
-    return( OK );
-}
-
 public  DEF_MENU_FUNCTION( make_line_circle )   /* ARGSUSED */
 {
     Point             centre;

@@ -1,11 +1,4 @@
-#include  <def_mni.h>
-
-public  Status  io_tag_point(
-    FILE            *file,
-    IO_types        io_direction,
-    volume_struct   *volume,
-    Real            default_size,
-    marker_struct   *marker );
+#include  <def_display.h>
 
 public  Status   input_landmark_file(
     volume_struct  *volume,

@@ -71,15 +71,18 @@ public  void  initialize_slice_models(
     add_object_to_model( model, object );
 
     object = create_object( PIXELS );
-    initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, RGB_PIXEL );
+    initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, 1.0, 1.0,
+                       RGB_PIXEL );
     add_object_to_model( model, object );
 
     object = create_object( PIXELS );
-    initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, RGB_PIXEL );
+    initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, 1.0, 1.0,
+                       RGB_PIXEL );
     add_object_to_model( model, object );
 
     object = create_object( PIXELS );
-    initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, RGB_PIXEL );
+    initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, 1.0, 1.0,
+                       RGB_PIXEL );
     add_object_to_model( model, object );
 
     for_inclusive( i, CURSOR1_INDEX, CURSOR3_INDEX )

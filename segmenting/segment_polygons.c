@@ -7,7 +7,7 @@ private  void  modify_polygon(
     Boolean           set_visibility_flag,
     Boolean           new_visibility,
     Boolean           set_colour_flag,
-    Colour            *colour );
+    Colour            colour );
 private  Boolean  should_modify_polygon(
     polygons_struct   *polygons,
     int               poly,
@@ -27,7 +27,7 @@ public  void  set_visibility_around_poly(
     Boolean          set_visibility_flag,
     Boolean          new_visibility,
     Boolean          set_colour_flag,
-    Colour           *colour )
+    Colour           colour )
 {
     int                   i, index, neigh, size, n_done;
     unsigned char         *polygons_done_flags;
@@ -98,13 +98,13 @@ private  void  modify_polygon(
     Boolean           set_visibility_flag,
     Boolean           new_visibility,
     Boolean           set_colour_flag,
-    Colour            *colour )
+    Colour            colour )
 {
     if( set_visibility_flag )
         polygons->visibilities[poly] = new_visibility;
 
     if( set_colour_flag )
-        polygons->colours[poly] = *colour;
+        polygons->colours[poly] = colour;
 }
 
 private  Boolean  should_modify_polygon(

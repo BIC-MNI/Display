@@ -264,7 +264,9 @@ surface_curves
     transient 's'    close_surface_line           "Close Curve"
     transient 'f'    start_surface_line           "Start Surf Curve"
     transient 'd'    end_surface_line             "End Surf Curve"
+
     transient 'z'    make_surface_line_permanent  "Permanent Curve"
+    transient 'x'    set_line_curvature_weight    "Curv Weight: %g"
 }
 
 surface_fitting

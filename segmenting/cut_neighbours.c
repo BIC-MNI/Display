@@ -15,36 +15,44 @@ private  void  cut_polygon_neighbours_by_lines(
     lines_struct      *lines )
 {
     int              line, i, size, poly, point_index, vertex_index;
+    int              first_vertex;
     Point            point;
     progress_struct  progress;
 
     for_less( line, 0, lines->n_items )
     {
-        point = lines->points[lines->indices
-                         [POINT_INDEX(lines->end_indices,line,0)]];
+        size = GET_OBJECT_SIZE( *lines, line );
 
-        if( lookup_polygon_vertex( polygons, &point, &point_index ) &&
-            find_polygon_with_vertex( polygons, point_index,
-                                      &poly, &vertex_index ) )
+        first_vertex = 0;
+        do
         {
-            size = GET_OBJECT_SIZE( *lines, line );
+            point = lines->points[lines->indices
+                         [POINT_INDEX(lines->end_indices,line,first_vertex)]];
 
-            initialize_progress_report( &progress, FALSE, size-1,
-                                       "Cutting Neighbours" );
-
-            for_less( i, 1, size )
-            {
-                point = lines->points[lines->indices
-                                    [POINT_INDEX(lines->end_indices,line,i)]];
-                cut_neighbour( polygons, new_neighbours, poly, vertex_index,
-                               &point, &poly, &vertex_index );
-                update_progress_report( &progress, i );
-            }
-
-            terminate_progress_report( &progress );
+            ++first_vertex;
         }
+        while( first_vertex < size &&
+               !(lookup_polygon_vertex( polygons, &point, &point_index ) &&
+                 find_polygon_with_vertex( polygons, point_index,
+                                           &poly, &vertex_index )) );
+
+        initialize_progress_report( &progress, FALSE, size,
+                                   "Cutting Neighbours" );
+
+        for_less( i, first_vertex, size )
+        {
+            point = lines->points[lines->indices
+                                [POINT_INDEX(lines->end_indices,line,i)]];
+            cut_neighbour( polygons, new_neighbours, poly, vertex_index,
+                           &point, &poly, &vertex_index );
+            update_progress_report( &progress, i+1 );
+        }
+
+        terminate_progress_report( &progress );
     }
 }
+
+#define  MAX_POLYS   2000
 
 private  void  cut_neighbour(
     polygons_struct   *polygons,
@@ -55,84 +63,94 @@ private  void  cut_neighbour(
     int               *next_poly,
     int               *next_vertex_index )
 {
-    int        point_index, size, dir, edge;
-    int        current_poly, current_index_within_poly, neighbour;
-    int        neighbour_point_index, neighbour_index_within_poly;
-    Boolean    found, at_least_one_neighbour;
+    int        prev_point_index, point_index, size, edge;
+    int        i, p, v, step, neighbour, n_polys, prev_vertex_index;
+    Boolean    found;
+    int        polys[MAX_POLYS];
 
-    point_index = polygons->indices[
-             POINT_INDEX( polygons->end_indices, poly, vertex_index )];
+    n_polys = get_polygons_around_vertex( polygons, poly, vertex_index,
+                                          polys, MAX_POLYS );
 
-    size = GET_OBJECT_SIZE( *polygons, poly );
-
-    for( dir = -1;  dir <= 1;  dir +=2 )
+    found = FALSE;
+    for_less( i, 0, n_polys )
     {
-        current_poly = poly;
-        current_index_within_poly = vertex_index;
-        neighbour_index_within_poly = (vertex_index + size + dir)
-                                       % size;
-        neighbour_point_index = polygons->indices[
-                   POINT_INDEX( polygons->end_indices, poly,
-                                neighbour_index_within_poly )];
+        size = GET_OBJECT_SIZE( *polygons, polys[i] );
 
-        found = TRUE;
-
-        at_least_one_neighbour = FALSE;
-
-        while( !EQUAL_POINTS( polygons->points[neighbour_point_index],*point) )
+        for_less( p, 0, size )
         {
-            if( !find_next_edge_around_point( polygons,
-                            current_poly, current_index_within_poly,
-                            neighbour_index_within_poly,
-                            &current_poly, &current_index_within_poly,
-                            &neighbour_index_within_poly ) ||
-                current_poly == poly )
+            point_index = polygons->indices[
+                           POINT_INDEX( polygons->end_indices, polys[i], p )];
+            if( EQUAL_POINTS( *point, polygons->points[point_index] ) )
             {
-                found = FALSE;
+                *next_poly = polys[i];
+                *next_vertex_index = p;
+                found = TRUE;
                 break;
             }
-
-            neighbour_point_index = polygons->indices[
-                   POINT_INDEX( polygons->end_indices, current_poly,
-                                neighbour_index_within_poly )];
-
-            at_least_one_neighbour = TRUE;
         }
-
-        if( found || (current_poly == poly && at_least_one_neighbour) )
+        if( found )
             break;
     }
 
     if( found )
     {
-        if( neighbour_index_within_poly == 
-            (current_index_within_poly + 1) % size )
-            edge = current_index_within_poly;
-        else
-            edge = neighbour_index_within_poly;
+        prev_point_index = polygons->indices[
+                     POINT_INDEX( polygons->end_indices, poly, vertex_index ) ];
+        prev_vertex_index = find_vertex_index( polygons, *next_poly,
+                                               prev_point_index );
 
-        *next_poly = current_poly;
-        *next_vertex_index = neighbour_index_within_poly;
-
-        neighbour = polygons->neighbours
-                     [POINT_INDEX(polygons->end_indices,current_poly,edge)];
-
-        if( neighbour != -1 )
+        if( (*next_vertex_index - prev_vertex_index + size) % size <= size / 2 )
         {
-            new_neighbours[
-                  POINT_INDEX(polygons->end_indices,current_poly,edge)] = -1;
-            edge = find_edge_index( polygons, neighbour, point_index,
-                     polygons->indices[
-                       POINT_INDEX( polygons->end_indices, current_poly,
-                                    neighbour_index_within_poly )] );
-            if( edge >= 0 )
-                new_neighbours
-                      [POINT_INDEX(polygons->end_indices,neighbour,edge)] = -1;
+            step = 1;
+        }
+        else
+        {
+            step = -1;
+        }
+
+        v = prev_vertex_index;
+
+        while( v != *next_vertex_index )
+        {
+            if( step == 1 )
+                edge = v;
+            else
+                edge = (v - 1 + size) % size;
+
+            neighbour = polygons->neighbours
+                         [POINT_INDEX(polygons->end_indices,*next_poly,edge)];
+
+            if( neighbour != -1 )
+            {
+                new_neighbours[
+                  POINT_INDEX(polygons->end_indices,*next_poly,edge)] = -1;
+
+                edge = find_edge_index( polygons, neighbour,
+                         polygons->indices[
+                            POINT_INDEX(polygons->end_indices,*next_poly,edge)],
+                         polygons->indices[
+                            POINT_INDEX(polygons->end_indices,*next_poly,
+                                       (edge+1)%size)] );
+                if( edge >= 0 )
+                    new_neighbours
+                       [POINT_INDEX(polygons->end_indices,neighbour,edge)] = -1;
+                else
+                {
+                    print( "Error in cut_neighbour 2.\n" );
+                }
+            }
+
+            v += step;
+            if( v == -1 )
+                v = size - 1;
+            else if( v == size )
+                v = 0;
         }
     }
     else
     {
-        print( "Error in cut_neighbour.\n" );
+        *next_poly = poly;
+        *next_vertex_index = vertex_index;
     }
 }
 

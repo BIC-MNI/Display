@@ -291,3 +291,27 @@ public  DEF_MENU_UPDATE(create_film_loop )      /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( save_image )      /* ARGSUSED */
+{
+    Status  status;
+    String  filename;
+
+    status = OK;
+
+    print( "Enter filename: " );
+
+    if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+    {
+        status = save_window_to_file( display, filename );
+    }
+
+    (void) input_newline( stdin );
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(save_image )      /* ARGSUSED */
+{
+    return( OK );
+}

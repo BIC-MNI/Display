@@ -378,3 +378,43 @@ public  DEF_MENU_UPDATE(make_unit_sphere )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( reset_polygon_neighbours )   /* ARGSUSED */
+{
+    polygons_struct   *polygons;
+
+    if( get_current_polygons( display, &polygons ) )
+    {
+        if( polygons->neighbours != (int *) NULL )
+            FREE( polygons->neighbours );
+        polygons->neighbours = (int *) NULL;
+
+        check_polygons_neighbours_computed( polygons );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(reset_polygon_neighbours )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( cut_polygon_neighbours )   /* ARGSUSED */
+{
+    polygons_struct   *polygons;
+
+    if( get_current_polygons( display, &polygons ) )
+    {
+        print( "Cutting polygon neighbours:\n" );
+        cut_polygon_neighbours_from_lines( display, polygons );
+        print( "...done\n" );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(cut_polygon_neighbours )   /* ARGSUSED */
+{
+    return( OK );
+}

@@ -8,7 +8,7 @@ typedef  struct
 
 private  Boolean  find_shortest_path(
     polygons_struct   *polygons,
-    Boolean           snap_to_vertex,
+    Real              line_curvature_weight,
     Point             *p1,
     int               poly1,
     Point             *p2,
@@ -27,7 +27,7 @@ private  void  create_path(
 
 public  Boolean  distance_along_polygons(
     polygons_struct   *polygons,
-    Boolean           snap_to_vertex,
+    Real              line_curvature_weight,
     Point             *p1,
     int               poly1,
     Point             *p2,
@@ -43,7 +43,7 @@ public  Boolean  distance_along_polygons(
 
     check_polygons_neighbours_computed( polygons );
 
-    found = find_shortest_path( polygons, snap_to_vertex,
+    found = find_shortest_path( polygons, line_curvature_weight,
                                 p1, poly1, p2, poly2, dist,
                                 &last_vertex, vertices);
 
@@ -64,9 +64,27 @@ typedef  struct
     int   poly_index;
 } queue_struct;
 
+private  Real  weighted_distance(
+    Real   line_curvature_weight,
+    Point  *p1,
+    Point  *p2,
+    Point  *p3 )
+{
+    Real  dist;
+
+    dist = distance_between_points( p2, p3 );
+
+    if( line_curvature_weight > 0.0 )
+    {
+        dist += line_curvature_weight * distance_from_line( p2, p1, p3 );
+    }
+
+    return( dist );
+}
+
 private  Boolean  find_shortest_path(
     polygons_struct   *polygons,
-    Boolean           snap_to_vertex,
+    Real              line_curvature_weight,
     Point             *p1,
     int               poly1,
     Point             *p2,
@@ -75,14 +93,15 @@ private  Boolean  find_shortest_path(
     int               *last_vertex,
     vertex_struct     vertices[] )
 {
-    int                    i, p, size, point_index, poly_index;
-    int                    dir, index_within_poly, neighbour_index_within_poly;
-    int                    neighbour_point_index, current_index_within_poly;
-    int                    current_poly, n_done, vertex_index;
+    int                    i, p, size, point_index, next_point_index;
     Real                   dist;
-    Boolean                found_vertex, found;
+    Boolean                found_path;
+    Point                  current_point, previous_point;
     queue_struct           entry;
+    int                    n_polys, *polys;
     PRIORITY_QUEUE_STRUCT( queue_struct )   queue;
+
+    ALLOC( polys, polygons->n_items );
 
     for_less( i, 0, polygons->n_points )
     {
@@ -94,134 +113,96 @@ private  Boolean  find_shortest_path(
 
     size = GET_OBJECT_SIZE( *polygons, poly2 );
 
-    if( snap_to_vertex )
-    {
-        for_less( p, 0, size )
-        {
-            point_index = polygons->indices[
-                             POINT_INDEX( polygons->end_indices, poly2, p )];
-            if( EQUAL_POINTS( *p2, polygons->points[point_index] ) )
-                break;
-        }
-        if( p >= size )
-        {
-            print( "Error in find_shortest_path.\n" );
-            vertex_index = 0;
-        }
-        else
-            vertex_index = p;
-    }
-
     for_less( p, 0, size )
     {
-        if( !snap_to_vertex || p == vertex_index ||
-            p == (vertex_index+1) % size ||
-            p == (vertex_index-1+size) % size )
-        {
-            point_index = polygons->indices[
-                         POINT_INDEX( polygons->end_indices, poly2, p )];
-            dist = distance_between_points( &polygons->points[point_index],
-                                            p2 );
+        point_index = polygons->indices[
+                     POINT_INDEX( polygons->end_indices, poly2, p )];
 
-            vertices[point_index].from_point = -1;
-            vertices[point_index].distance = dist;
-            entry.index_within_poly = p;
-            entry.poly_index = poly2;
-            INSERT_IN_PRIORITY_QUEUE( queue, entry, -dist );
-        }
+        dist = distance_between_points( &polygons->points[point_index],
+                                        p2 );
+
+        vertices[point_index].from_point = -1;
+        vertices[point_index].distance = dist;
+        entry.index_within_poly = p;
+        entry.poly_index = poly2;
+        INSERT_IN_PRIORITY_QUEUE( queue, entry, -dist );
     }
 
-    found_vertex = FALSE;
+    found_path = FALSE;
 
     while( !IS_PRIORITY_QUEUE_EMPTY( queue ) )
     {
         REMOVE_FROM_PRIORITY_QUEUE( queue, entry, dist );
 
-        if( found_vertex && dist > *path_dist )
+        point_index = polygons->indices[
+                     POINT_INDEX( polygons->end_indices, entry.poly_index,
+                                  entry.index_within_poly )];
+
+        if( found_path && vertices[point_index].distance > *path_dist )
             break;
 
-        index_within_poly = entry.index_within_poly;
-        poly_index = entry.poly_index;
-        point_index = polygons->indices[
-           POINT_INDEX( polygons->end_indices, poly_index, index_within_poly )];
+        current_point = polygons->points[point_index];
+        if( vertices[point_index].from_point == -1 )
+            previous_point = *p2;
+        else
+            previous_point = polygons->points[vertices[point_index].from_point];
 
-        size = GET_OBJECT_SIZE( *polygons, poly_index );
+        n_polys = get_polygons_around_vertex( polygons, entry.poly_index,
+                                              entry.index_within_poly, polys,
+                                              polygons->n_items );
 
-        for( dir = -1;  dir <= 1;  dir +=2 )
+        for_less( i, 0, n_polys )
         {
-            neighbour_index_within_poly = (index_within_poly + size + dir)
-                                           % size;
-            neighbour_point_index = polygons->indices[
-                       POINT_INDEX( polygons->end_indices, poly_index,
-                                    neighbour_index_within_poly )];
+            size = GET_OBJECT_SIZE( *polygons, polys[i] );
 
-            current_index_within_poly = index_within_poly;
-            current_poly = poly_index;
-            n_done = 0;
-
-            do
+            for_less( p, 0, size )
             {
-                ++n_done;
+                next_point_index = polygons->indices[
+                             POINT_INDEX( polygons->end_indices, polys[i], p )];
 
-                if( current_poly == poly1 )
+                if( vertices[next_point_index].from_point == -2 ||
+                    vertices[next_point_index].distance >
+                    vertices[point_index].distance )
                 {
-                    dist = distance_between_points(
-                                  &polygons->points[point_index], p1 )
-                               + vertices[point_index].distance;
+                    dist = vertices[point_index].distance +
+                       weighted_distance( line_curvature_weight,
+                                          &previous_point, &current_point,
+                                          &polygons->points[next_point_index] );
 
-                    if( (!found_vertex || dist < *path_dist) &&
-                        (!snap_to_vertex ||
-                         EQUAL_POINTS(polygons->points[point_index],*p1)) )
+                    if( vertices[next_point_index].from_point == -2 ||
+                        dist < vertices[next_point_index].distance )
                     {
-                        found_vertex = TRUE;
-                        *path_dist = dist;
-                        *last_vertex = point_index;
-                    }
-                }
-
-                dist = vertices[point_index].distance +
-                       distance_between_points(
-                                   &polygons->points[point_index],
-                                   &polygons->points[neighbour_point_index] );
-
-                if( vertices[neighbour_point_index].from_point == -2 ||
-                    dist < vertices[neighbour_point_index].distance )
-                {
-                    vertices[neighbour_point_index].distance = dist;   
-                    vertices[neighbour_point_index].from_point = point_index;   
-
-                    if( !found_vertex || dist < *path_dist )
-                    {
-                        entry.index_within_poly = neighbour_index_within_poly;
-                        entry.poly_index = current_poly;
+                        vertices[next_point_index].from_point = point_index;
+                        vertices[next_point_index].distance = dist;
+                        entry.index_within_poly = p;
+                        entry.poly_index = polys[i];
                         INSERT_IN_PRIORITY_QUEUE( queue, entry, -dist );
                     }
                 }
 
-                found = find_next_edge_around_point( polygons,
-                                current_poly, current_index_within_poly,
-                                neighbour_index_within_poly,
-                                &current_poly, &current_index_within_poly,
-                                &neighbour_index_within_poly );
-
-                if( found )
+                if( polys[i] == poly1 )
                 {
-                    neighbour_point_index = polygons->indices[
-                           POINT_INDEX( polygons->end_indices, current_poly,
-                                        neighbour_index_within_poly )];
+                    dist = vertices[next_point_index].distance +
+                           weighted_distance( line_curvature_weight,
+                              &current_point,
+                              &polygons->points[next_point_index], p1 );
+
+                    if( !found_path || dist < *path_dist )
+                    {
+                        found_path = TRUE;
+                        *path_dist = dist;
+                        *last_vertex = next_point_index;
+                    }
                 }
             }
-            while( found && current_poly != poly_index &&
-                   (polygons->visibilities == (Smallest_int *) 0 ||
-                    polygons->visibilities[current_poly]) );
-
-            if( current_poly == poly_index && n_done > 1 )   break;
         }
     }
 
     DELETE_PRIORITY_QUEUE( queue );
 
-    return( found_vertex );
+    FREE( polys );
+
+    return( found_path );
 }
 
 private  void  create_path(

@@ -20,6 +20,8 @@ public  void  initialize_surface_curve(
     add_object_to_model( model, object );
 
     display->three_d.surface_curve.lines = lines;
+    display->three_d.surface_curve.line_curvature_weight =
+                                           Line_curvature_weight;
     display->three_d.surface_curve.n_points_alloced = 0;
     display->three_d.surface_curve.n_indices_alloced = 0;
     display->three_d.surface_curve.n_end_indices_alloced = 0;
@@ -72,10 +74,11 @@ private  void  add_point_to_curve(
     if( info->prev_point_exists )
     {
         if( distance_along_polygons( polygons,
-                                     &info->prev_point,
-                                     info->prev_poly_index,
-                                     point, poly_index,
-                                     &dist, info->lines ) )
+                     display->three_d.surface_curve.line_curvature_weight,
+                     &info->prev_point,
+                     info->prev_poly_index,
+                     point, poly_index,
+                     &dist, info->lines ) )
         {
             print( "Distance %g\n", dist );
             set_update_required( display, OVERLAY_PLANES );
@@ -83,9 +86,11 @@ private  void  add_point_to_curve(
     }
 
     if( !display->three_d.surface_curve.prev_point_exists )
+    {
         display->three_d.surface_curve.first_poly_index = poly_index;
-        
-    display->three_d.surface_curve.prev_point_exists = TRUE;
+        display->three_d.surface_curve.prev_point_exists = TRUE;
+    }
+
     display->three_d.surface_curve.prev_polygons = polygons;
     display->three_d.surface_curve.prev_poly_index = poly_index;
     display->three_d.surface_curve.prev_point = *point;
@@ -99,7 +104,7 @@ public  void  close_surface_curve(
 
     info = &display->three_d.surface_curve;
 
-    if( info->prev_point_exists )
+    if( info->prev_point_exists && info->lines->n_points > 0 )
     {
         point = info->lines->points[0];
         add_point_to_curve( display, info->prev_polygons, 

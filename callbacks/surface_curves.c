@@ -60,3 +60,35 @@ public  DEF_MENU_UPDATE(make_surface_line_permanent)   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( set_line_curvature_weight )   /* ARGSUSED */
+{
+    Real        weight;
+
+    print( "The current line curvature weight is: %g\n",
+           display->three_d.surface_curve.line_curvature_weight );
+
+    print( "Enter the new value: " );
+
+    if( input_real( stdin, &weight ) == OK )
+    {
+        display->three_d.surface_curve.line_curvature_weight = weight;
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+
+public  DEF_MENU_UPDATE(set_line_curvature_weight )   /* ARGSUSED */
+{
+    String  text;
+
+    (void) sprintf( text, label,
+                    display->three_d.surface_curve.line_curvature_weight );
+
+    set_menu_text( menu_window, menu_entry, text );
+
+    return( OK );
+}

@@ -20,7 +20,8 @@ public  DEF_MENU_FUNCTION( reset_polygon_visibility )   /* ARGSUSED */
         if( polygons->colour_flag == PER_ITEM_COLOURS )
         {
             for_less( i, 0, polygons->n_items )
-                polygons->colours[i] = Visible_segmenting_colour;
+                polygons->colours[i] =
+                              display->three_d.surface_edit.visible_colour;
         }
 
         set_update_required( display, NORMAL_PLANES );
@@ -79,6 +80,82 @@ public  DEF_MENU_UPDATE(set_n_paint_polygons)   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION( set_vis_paint_colour )   /* ARGSUSED */
+{
+    Status      status;
+    String      string;
+    Colour      colour;
+
+    convert_colour_to_string( display->three_d.surface_edit.visible_colour,
+                              string );
+
+    print( "The current visible paint colour is: %s\n", string );
+
+    print( "Enter the new colour name or r g b: " );
+
+    status = input_line( stdin, string, MAX_STRING_LENGTH );
+
+    if( status == OK )
+    {
+        colour = convert_string_to_colour( string );
+
+        display->three_d.surface_edit.visible_colour = colour;
+
+        convert_colour_to_string( display->three_d.surface_edit.visible_colour,
+                                  string );
+
+        print( "The new visible paint colour is: %s\n", string );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(set_vis_paint_colour)   /* ARGSUSED */
+{
+    set_menu_text_with_colour( menu_window, menu_entry, label,
+                               display->three_d.surface_edit.visible_colour );
+
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( set_invis_paint_colour )   /* ARGSUSED */
+{
+    Status      status;
+    String      string;
+    Colour      colour;
+
+    convert_colour_to_string( display->three_d.surface_edit.invisible_colour,
+                              string );
+
+    print( "The current invisible paint colour is: %s\n", string );
+
+    print( "Enter the new colour name or r g b: " );
+
+    status = input_line( stdin, string, MAX_STRING_LENGTH );
+
+    if( status == OK )
+    {
+        colour = convert_string_to_colour( string );
+
+        display->three_d.surface_edit.invisible_colour = colour;
+
+        convert_colour_to_string(display->three_d.surface_edit.invisible_colour,
+                                 string );
+
+        print( "The new invisible paint colour is: %s\n", string );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(set_invis_paint_colour)   /* ARGSUSED */
+{
+    set_menu_text_with_colour( menu_window, menu_entry, label,
+                               display->three_d.surface_edit.invisible_colour );
+
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( set_connected_invisible )   /* ARGSUSED */
 {
     polygons_struct  *polygons;
@@ -88,8 +165,8 @@ public  DEF_MENU_FUNCTION( set_connected_invisible )   /* ARGSUSED */
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
         set_visibility_around_poly( polygons, poly_index, polygons->n_items,
-                                    TRUE, OFF, TRUE,
-                                    &Invisible_segmenting_colour );
+                            TRUE, OFF, TRUE,
+                            display->three_d.surface_edit.invisible_colour );
 
         set_update_required( display, NORMAL_PLANES );
     }
@@ -113,7 +190,7 @@ public  DEF_MENU_FUNCTION( paint_invisible )   /* ARGSUSED */
         set_visibility_around_poly( polygons, poly_index,
                        display->three_d.surface_edit.n_paint_polygons,
                        TRUE, OFF,
-                       TRUE, &Invisible_segmenting_colour );
+                       TRUE, display->three_d.surface_edit.invisible_colour );
 
         set_update_required( display, NORMAL_PLANES );
     }
@@ -137,7 +214,7 @@ public  DEF_MENU_FUNCTION( paint_visible )   /* ARGSUSED */
         set_visibility_around_poly( polygons, poly_index,
                          display->three_d.surface_edit.n_paint_polygons,
                          TRUE, TRUE,
-                         TRUE, &Visible_segmenting_colour );
+                         TRUE, display->three_d.surface_edit.visible_colour );
 
         set_update_required( display, NORMAL_PLANES );
     }
@@ -159,8 +236,8 @@ public  DEF_MENU_FUNCTION( set_connected_vis_colour )   /* ARGSUSED */
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
         set_visibility_around_poly( polygons, poly_index, polygons->n_items,
-                                    FALSE, OFF, TRUE,
-                                    &Visible_segmenting_colour );
+                                FALSE, OFF, TRUE,
+                                display->three_d.surface_edit.visible_colour );
 
         set_update_required( display, NORMAL_PLANES );
     }
@@ -182,8 +259,8 @@ public  DEF_MENU_FUNCTION( set_connected_invis_colour )   /* ARGSUSED */
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
         set_visibility_around_poly( polygons, poly_index, polygons->n_items,
-                                    FALSE, OFF, TRUE,
-                                    &Invisible_segmenting_colour );
+                            FALSE, OFF, TRUE,
+                            display->three_d.surface_edit.invisible_colour );
 
         set_update_required( display, NORMAL_PLANES );
     }
@@ -206,7 +283,8 @@ public  DEF_MENU_FUNCTION( paint_invis_colour )   /* ARGSUSED */
     {
         set_visibility_around_poly( polygons, poly_index,
                        display->three_d.surface_edit.n_paint_polygons,
-                       FALSE, OFF, TRUE, &Invisible_segmenting_colour );
+                       FALSE, OFF, TRUE,
+                       display->three_d.surface_edit.invisible_colour );
 
         set_update_required( display, NORMAL_PLANES );
     }
@@ -229,7 +307,8 @@ public  DEF_MENU_FUNCTION( paint_vis_colour )   /* ARGSUSED */
     {
         set_visibility_around_poly( polygons, poly_index,
                          display->three_d.surface_edit.n_paint_polygons,
-                         FALSE, OFF, TRUE, &Visible_segmenting_colour );
+                         FALSE, OFF, TRUE,
+                         display->three_d.surface_edit.visible_colour );
 
         set_update_required( display, NORMAL_PLANES );
     }
@@ -255,8 +334,8 @@ public  DEF_MENU_FUNCTION( set_visibility_from_colour )   /* ARGSUSED */
         {
             polygons->visibilities[i] =
                 (polygons->colour_flag != PER_ITEM_COLOURS ||
-                 !equal_colours(Invisible_segmenting_colour,
-                                polygons->colours[i]) );
+                 display->three_d.surface_edit.invisible_colour !=
+                 polygons->colours[i] );
         }
 
         set_update_required( display, NORMAL_PLANES );
@@ -282,8 +361,8 @@ public  DEF_MENU_FUNCTION( set_invis_colour_to_invis )   /* ARGSUSED */
 
         for_less( i, 0, polygons->n_items )
         {
-            if( equal_colours(Invisible_segmenting_colour,
-                              polygons->colours[i]) )
+            if( display->three_d.surface_edit.invisible_colour ==
+                polygons->colours[i] )
             {
                 polygons->visibilities[i] = FALSE;
             }
@@ -314,7 +393,8 @@ public  DEF_MENU_FUNCTION( set_vis_to_invis_colour )   /* ARGSUSED */
             if( polygons->visibilities == (Smallest_int *) 0 ||
                 polygons->visibilities[i] )
             {
-                polygons->colours[i] = Invisible_segmenting_colour;
+                polygons->colours[i] =
+                         display->three_d.surface_edit.invisible_colour;
             }
         }
 
@@ -343,7 +423,8 @@ public  DEF_MENU_FUNCTION( set_vis_to_vis_colour )   /* ARGSUSED */
             if( polygons->visibilities == (Smallest_int *) 0 ||
                 polygons->visibilities[i] )
             {
-                polygons->colours[i] = Visible_segmenting_colour;
+                polygons->colours[i] =
+                             display->three_d.surface_edit.visible_colour;
             }
         }
 

@@ -235,10 +235,12 @@ START_GLOBALS
 
     DEF_GLOBAL( Surface_curve_colour, Colour, 0.0 )
     DEF_GLOBAL( Surface_curve_thickness, int, 3 )
+    DEF_GLOBAL( Line_curvature_weight, Real, 0.5 )
 
     DEF_GLOBAL( N_painting_polygons, int, 100 )
     DEF_GLOBAL( Visible_segmenting_colour, Colour, 0.0 )
     DEF_GLOBAL( Invisible_segmenting_colour, Colour, 0.0 )
+    DEF_GLOBAL( Snap_to_polygon_vertex, Boolean, TRUE )
 
     DEF_GLOBAL( N_fitting_samples, int, 10000 )
     DEF_GLOBAL( Isovalue_factor, Real, 1.0 )

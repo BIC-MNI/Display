@@ -148,6 +148,7 @@
                        MENU_FUNCTION(reset_segmenting) \
                        MENU_FUNCTION(set_segmenting_threshold) \
                        MENU_FUNCTION(make_surface_line_permanent) \
+                       MENU_FUNCTION(set_line_curvature_weight) \
                        MENU_FUNCTION(start_surface_line) \
                        MENU_FUNCTION(end_surface_line) \
                        MENU_FUNCTION(close_surface_line) \

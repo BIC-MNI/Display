@@ -149,6 +149,7 @@ typedef  struct
 typedef  struct
 {
     Boolean          picking_points;
+    Real             line_curvature_weight;
     lines_struct     *lines;
     int              n_points_alloced;
     int              n_indices_alloced;

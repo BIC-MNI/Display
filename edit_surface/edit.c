@@ -12,6 +12,8 @@ public  void  initialize_surface_edit(
     surface_edit->n_undos_alloced = 0;
     surface_edit->n_invisible = 0;
     surface_edit->n_invisible_alloced = 0;
+    surface_edit->visible_colour = Visible_segmenting_colour;
+    surface_edit->invisible_colour = Invisible_segmenting_colour;
 }
 
 public  void  delete_surface_edit(

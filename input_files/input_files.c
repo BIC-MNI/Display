@@ -50,10 +50,10 @@ public  Status  load_graphics_file(
     {
         (void) get_slice_window_volume( display, &volume );
         status = input_landmark_file( volume, filename_no_z,
-                                      model,
-                                      &display->three_d.default_marker_colour,
+                                      display->three_d.default_marker_colour,
                                       display->three_d.default_marker_size,
-                                      display->three_d.default_marker_type );
+                                      display->three_d.default_marker_type,
+                                      &model->n_objects, &model->objects );
     }
     else if( string_ends_in(filename_no_z,".cnt") )
     {

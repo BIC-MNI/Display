@@ -60,7 +60,7 @@ public  void  generate_tube(
 
     for_less( i, 0, n_around )
     {
-        angle = (double) i / (double) n_around * 2.0 * PI;
+        angle = (double) (n_around - 1 - i) / (double) n_around * 2.0 * PI;
         x[i] = radius * cos( angle );
         y[i] = radius * sin( angle );
     }
