@@ -87,6 +87,9 @@ typedef  struct
     lines_struct           unscaled_histogram_lines;
     object_struct          *histogram_object;
 
+    int                    cross_section_index;
+    BOOLEAN                cross_section_visibility;
+
 } slice_window_struct;
 
 
