@@ -90,7 +90,7 @@ private  Status   create_box( object )
         lines->end_indices[0] = 4;
         lines->end_indices[1] = 8;
         lines->end_indices[2] = 12;
-        lines->end_indices[2] = 16;
+        lines->end_indices[3] = 16;
 
         lines->indices[0] = 0;
         lines->indices[1] = 1;
