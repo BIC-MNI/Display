@@ -234,6 +234,8 @@ public  void  initialize_slice_window(
     slice_window->slice.cross_section_index = OBLIQUE_VIEW_INDEX;
     slice_window->slice.cross_section_visibility = FALSE;
     slice_window->slice.cross_section_vector_present = FALSE;
+
+    slice_window->slice.render_storage = initialize_render_storage();
 }
 
 private  void  free_slice_window(
@@ -250,6 +252,8 @@ public  void  delete_slice_window(
     delete_volume( slice->original_labels );
 
     delete_atlas( &slice->atlas );
+
+    delete_render_storage( slice->render_storage );
 }
 
 private  void  free_slice_window(
