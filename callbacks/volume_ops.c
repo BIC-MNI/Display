@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.101 1996-02-13 18:58:26 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.102 1996-02-21 15:41:32 david Exp $";
 #endif
 
 
@@ -676,6 +676,7 @@ public  DEF_MENU_FUNCTION(print_voxel_origin)
         convert_voxel_to_world( get_volume(slice_window), voxel,
                                 &xw, &yw, &zw );
 
+        print( "Current voxel origin: %g %g %g\n", voxel[0], voxel[1],voxel[2]);
         print( "Current world origin: %g %g %g\n", xw, yw, zw );
     }
 
@@ -707,11 +708,17 @@ public  DEF_MENU_FUNCTION(print_slice_plane)
         convert_voxel_vector_to_world( get_volume(slice_window),
                                        perp_axis, &xw, &yw, &zw );
 
+        fill_Vector( normal, perp_axis[0], perp_axis[1], perp_axis[2] );
+        NORMALIZE_VECTOR( normal, normal );
+
+        print( "View: %2d    Voxel Perpendicular: %g %g %g\n",
+               view_index,
+               Vector_x(normal), Vector_y(normal), Vector_z(normal) );
+
         fill_Vector( normal, xw, yw, zw );
         NORMALIZE_VECTOR( normal, normal );
 
-        print( "View: %d    Perpendicular: %g %g %g\n",
-               view_index,
+        print( "            World Perpendicular: %g %g %g\n",
                Vector_x(normal), Vector_y(normal), Vector_z(normal) );
     }
 
@@ -729,20 +736,31 @@ public  DEF_MENU_UPDATE(print_slice_plane)
 
 public  DEF_MENU_FUNCTION(type_in_voxel_origin)
 {
+    STRING           type;
     Real             voxel[MAX_DIMENSIONS], xw, yw, zw;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        print( "Enter x y z world coordinate: " );
+        print( "Enter x y z world coordinate and v|w: " );
 
         if( input_real( stdin, &xw ) == OK &&
             input_real( stdin, &yw ) == OK &&
-            input_real( stdin, &zw ) == OK )
+            input_real( stdin, &zw ) == OK &&
+            input_string( stdin, &type, ' ' ) == OK )
         {
-            convert_world_to_voxel( get_volume(slice_window), xw, yw, zw,
-                                    voxel );
+            if( type[0] == 'w' )
+            {
+                convert_world_to_voxel( get_volume(slice_window), xw, yw, zw,
+                                        voxel );
+            }
+            else
+            {
+                voxel[0] = xw;
+                voxel[1] = yw;
+                voxel[2] = zw;
+            }
 
             if( set_current_voxel( slice_window,
                         get_current_volume_index(slice_window), voxel ) )
@@ -750,6 +768,8 @@ public  DEF_MENU_FUNCTION(type_in_voxel_origin)
                 if( update_cursor_from_voxel( slice_window ) )
                     set_update_required( display, NORMAL_PLANES );
             }
+
+            delete_string( type );
         }
 
         (void) input_newline( stdin );
@@ -771,26 +791,40 @@ public  DEF_MENU_FUNCTION(type_in_slice_plane)
 {
     int              view_index;
     Real             perp_axis[MAX_DIMENSIONS], xw, yw, zw;
+    STRING           type;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 &&
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
-        print( "View %d:  enter x y z plane normal in world coordinate: ",
+        print( "View %d:  enter x y z plane normal in world coordinate\n",
                view_index );
+        print( "and v or w for voxel or world: " );
 
         if( input_real( stdin, &xw ) == OK &&
             input_real( stdin, &yw ) == OK &&
-            input_real( stdin, &zw ) == OK )
+            input_real( stdin, &zw ) == OK &&
+            input_string( stdin, &type, ' ' ) == OK )
         {
-            convert_world_vector_to_voxel( get_volume(slice_window), xw, yw, zw,
-                                    perp_axis );
+            if( type[0] == 'w' )
+            {
+                convert_world_vector_to_voxel( get_volume(slice_window),
+                                               xw, yw, zw, perp_axis );
+            }
+            else
+            {
+                perp_axis[0] = xw;
+                perp_axis[1] = yw;
+                perp_axis[2] = zw;
+            }
 
             set_slice_plane_perp_axis( slice_window,
                                        get_current_volume_index(slice_window),
                                        view_index, perp_axis);
             reset_slice_view( slice_window, view_index );
+
+            delete_string( type );
         }
 
         (void) input_newline( stdin );

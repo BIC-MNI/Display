@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.37 1995-12-19 15:46:36 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.38 1996-02-21 15:41:41 david Exp $";
 #endif
 
 
@@ -295,8 +295,8 @@ private  void  match_view_scale_and_translation(
         x_scale = current_x_scale * x_len / current_x_len;
         y_scale = current_y_scale * y_len / current_y_len;
 
-#define DEBUG
 #ifdef DEBUG
+#define DEBUG
 #define  TOL 1.0e-3
 
         if( !numerically_close( current_x_scale * ref_x_axis[X], x_scale * x_axis_x, TOL ) ||

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.105 1995-12-19 15:46:34 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.106 1996-02-21 15:41:39 david Exp $";
 #endif
 
 
@@ -694,7 +694,7 @@ private  void  render_more_slices(
 {
     BOOLEAN  first_render, did_one, finished;
     BOOLEAN  interrupted, view_was_interrupted[N_SLICE_VIEWS];
-    BOOLEAN  no_viewport_changed;
+    BOOLEAN  no_viewport_changed, incremental_flag;
     BOOLEAN  *update_flag_ptr, *update_in_progress;
     int      view, v, v_index, view_index, which_volume;
     int      slice_is_visible, n_pixels_drawn;
@@ -728,7 +728,10 @@ private  void  render_more_slices(
     {
         end_time = -1.0;
         event_time = -1.0;
+        incremental_flag = FALSE;
     }
+    else
+        incremental_flag = TRUE;
 
     interrupted = FALSE;
     n_volumes = slice_window->slice.n_volumes;
@@ -784,14 +787,16 @@ private  void  render_more_slices(
                             {
                                 n_pixels_drawn =
                                       rebuild_slice_pixels_for_volume(
-                                          slice_window, v, view, interrupted,
+                                          slice_window, v, view,
+                                          incremental_flag, interrupted,
                                           !(*update_flag_ptr), &finished );
                             }
                             else
                             {
                                 n_pixels_drawn =
                                       rebuild_label_slice_pixels_for_volume(
-                                          slice_window, v, view, interrupted,
+                                          slice_window, v, view,
+                                          incremental_flag, interrupted,
                                           !(*update_flag_ptr), &finished );
                             }
 
@@ -805,9 +810,9 @@ private  void  render_more_slices(
                                 time_to_create = current_time - prev_time;
                                 prev_time = current_time;
 
-                                if( n_pixels_drawn >= slice_window->slice.
-                                         volumes[v].
-                                         views[view].n_pixels_redraw / 2 )
+                                if( incremental_flag &&
+                                    n_pixels_drawn >= slice_window->slice.
+                                       volumes[v].views[view].n_pixels_redraw/2)
                                 {
                                     if( time_to_create < slice_window->slice.
                                          allowable_slice_update_time / 0.5 )

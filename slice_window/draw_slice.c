@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.103 1995-12-19 15:46:29 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.104 1996-02-21 15:41:38 david Exp $";
 #endif
 
 #include  <display.h>
@@ -989,6 +989,7 @@ private  int  render_slice_to_pixels(
     Filter_types          filter_type,
     int                   continuity,
     pixels_struct         *pixels,
+    BOOLEAN               incremental_flag,
     BOOLEAN               interrupted,
     BOOLEAN               continuing_flag,
     BOOLEAN               *finished )
@@ -1104,12 +1105,18 @@ private  int  render_slice_to_pixels(
             if( edge_index == 0 || edge_index == 2 )
             {
                 height = (x_max - x_min + 1);
-                width = n_pixels_redraw / height;
+                if( incremental_flag )
+                    width = n_pixels_redraw / height;
+                else
+                    width = pixels->y_size;
             }
             else
             {
                 height = (y_max - y_min + 1);
-                width = n_pixels_redraw / height;
+                if( incremental_flag )
+                    width = n_pixels_redraw / height;
+                else
+                    width = pixels->x_size;
             }
 
             if( width < 1 )
@@ -1142,9 +1149,16 @@ private  int  render_slice_to_pixels(
         }
         else
         {
-            width = (int) sqrt( n_pixels_redraw );
-            if( width < 1 )
-                width = 1;
+            if( !incremental_flag )
+            {
+                width = MAX( pixels->x_size, pixels->y_size );
+            }
+            else
+            {
+                width = (int) sqrt( n_pixels_redraw ) + 1;
+                if( width < 1 )
+                    width = 1;
+            }
 
             get_current_voxel( slice_window, volume_index, current_voxel );
             convert_voxel_to_pixel( slice_window, volume_index, view_index,
@@ -1316,6 +1330,7 @@ public  int  rebuild_slice_pixels_for_volume(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
+    BOOLEAN           incremental_flag,
     BOOLEAN           interrupted,
     BOOLEAN           continuing_flag,
     BOOLEAN           *finished )
@@ -1333,7 +1348,7 @@ public  int  rebuild_slice_pixels_for_volume(
                             slice_window->slice.volumes[volume_index].
                                       views[view_index].filter_type,
                             slice_window->slice.degrees_continuity,
-                            pixels,
+                            pixels, incremental_flag,
                             interrupted, continuing_flag, finished ) );
 }
 
@@ -1674,6 +1689,7 @@ public  int  rebuild_label_slice_pixels_for_volume(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
+    BOOLEAN           incremental_flag,
     BOOLEAN           interrupted,
     BOOLEAN           continuing_flag,
     BOOLEAN           *finished )
@@ -1687,7 +1703,7 @@ public  int  rebuild_label_slice_pixels_for_volume(
                             slice_window->slice.volumes[volume_index].
                                                    label_colour_table,
                             NEAREST_NEIGHBOUR,
-                            -1, pixels,
+                            -1, pixels, incremental_flag,
                             interrupted, continuing_flag, finished ) );
 }
 

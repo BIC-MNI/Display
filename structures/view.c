@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/view.c,v 1.30 1995-10-19 15:52:32 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/view.c,v 1.31 1996-02-21 15:41:43 david Exp $";
 #endif
 
 #include <display.h>
@@ -54,7 +54,7 @@ public  void  assign_view_direction(
 
     if( null_Vector( &view->y_axis ) )
     {
-        create_noncolinear_vector( &view->line_of_sight, &view->x_axis );
+        create_orthogonal_vector( &view->line_of_sight, &view->x_axis );
         CROSS_VECTORS( view->y_axis, view->x_axis, view->line_of_sight );
     }
 

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.31 1995-11-02 20:58:42 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.32 1996-02-21 15:41:40 david Exp $";
 #endif
 
 
@@ -549,7 +549,7 @@ private  void  colour_code_points(
     int                   n_points,
     Point                 points[] )
 {
-    int      i, int_voxel[MAX_DIMENSIONS], label, volume_index;
+    int      i, int_voxel[MAX_DIMENSIONS], label, volume_index, view_index;
     Real     val, voxel[MAX_DIMENSIONS];
     Volume   volume, label_volume;
     Colour   colour, volume_colour;
@@ -574,6 +574,15 @@ private  void  colour_code_points(
         for_less( volume_index, 0, slice_window->slice.n_volumes )
         {
             if( slice_window->slice.volumes[volume_index].opacity == 0.0 )
+                continue;
+
+            for_less( view_index, 0, N_SLICE_VIEWS )
+            {
+                if( get_slice_visibility(slice_window,volume_index,view_index))
+                    break;
+            }
+
+            if( view_index == N_SLICE_VIEWS )
                 continue;
 
             volume = get_nth_volume( slice_window, volume_index );
