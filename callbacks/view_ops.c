@@ -337,3 +337,59 @@ public  DEF_MENU_UPDATE(save_image )      /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( toggle_stereo_mode )      /* ARGSUSED */
+{
+    display->three_d.view.stereo_flag = !display->three_d.view.stereo_flag;
+
+    if( display->three_d.view.stereo_flag )
+        G_set_background_colour( display->window, BLACK );
+
+    update_view( display );
+
+    set_update_required( display, NORMAL_PLANES );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(toggle_stereo_mode )      /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( set_eye_separation )      /* ARGSUSED */
+{
+    Real   eye_separation;
+
+    print( "Current eye separation: %g\n",
+           display->three_d.view.eye_separation );
+
+    print( "Enter new eye separation: " );
+
+    if( input_real( stdin, &eye_separation ) == OK )
+    {
+        display->three_d.view.eye_separation = eye_separation;
+
+        update_view( display );
+
+        set_update_required( display, NORMAL_PLANES );
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_eye_separation )      /* ARGSUSED */
+{
+    STRING           text;
+    Real             separation;
+
+    separation = display->three_d.view.eye_separation;
+
+    (void) sprintf( text, label, separation );
+
+    set_menu_text( menu_window, menu_entry, text );
+
+    return( OK );
+}
