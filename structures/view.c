@@ -1,6 +1,7 @@
 #include <def_standard.h>
 #include <def_graphics.h>
 #include <def_geometry.h>
+#include <def_globals.h>
 
 public  void  initialize_view( view )
     view_struct  *view;
@@ -11,12 +12,13 @@ public  void  initialize_view( view )
     void            make_identity_transform();
     void            assign_view_direction();
 
-    view->perspective_flag = FALSE;
+    view->perspective_flag = Initial_perspective_flag;
     view->origin = origin;
     assign_view_direction( view, &line_of_sight, &hor );
     view->front_distance = 0.05;
-    view->perspective_distance = 3.0;
+    view->perspective_distance = 2.0;
     view->back_distance = 2.0;
+    view->desired_aspect = 0.0;
     view->window_width = 1.0;
     view->window_height = 1.0;
 
