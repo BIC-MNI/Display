@@ -282,6 +282,8 @@ segmenting
 
 surface_curves
 {
+    transient 'r'    pick_surface_point_on_line   "Pick Line Point"
+
     transient 'a'    reset_surface_line           "Reset Curves"
     transient 's'    close_surface_line           "Close Curve"
     transient 'f'    start_surface_line           "Start Surf Curve"

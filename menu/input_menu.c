@@ -194,6 +194,7 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(close_surface_line) \
                        MENU_FUNCTION(reset_surface_line) \
                        MENU_FUNCTION(set_surface_curve_curvature) \
+                       MENU_FUNCTION(pick_surface_point_on_line) \
                        MENU_FUNCTION(colour_code_objects) \
                        MENU_FUNCTION(set_label_colour_ratio) \
                        MENU_FUNCTION(set_contour_colour_map) \

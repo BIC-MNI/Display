@@ -39,7 +39,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
     status = OK;
 
     if( get_current_polygons(display,&polygons) &&
-        polygons->bintree == (bintree_struct *) 0 )
+        polygons->bintree == (bintree_struct_ptr) 0 )
     {
         print( "Enter filename: " );
 
@@ -52,7 +52,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
                                                     BINARY_FORMAT, &file );
 
         if( status == OK )
-            ALLOC( polygons->bintree, 1 );
+            polygons->bintree = allocate_bintree();
 
         if( status == OK )
         {
@@ -84,7 +84,7 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
     status = OK;
 
     if( get_current_polygons(display,&polygons) &&
-        polygons->bintree != (bintree_struct *) 0 )
+        polygons->bintree != (bintree_struct_ptr) 0 )
     {
         print( "Enter filename: " );
 
@@ -124,8 +124,8 @@ public  DEF_MENU_FUNCTION( create_bintree_for_polygons )   /* ARGSUSED */
 
     if( get_current_polygons(display,&polygons) )
     {
-        if( polygons->bintree != (bintree_struct *) 0 )
-            delete_polygons_bintree( polygons );
+        if( polygons->bintree != (bintree_struct_ptr) 0 )
+            delete_the_bintree( (bintree_struct **) (&polygons->bintree) );
 
         create_polygons_bintree( polygons,
                      ROUND( (Real) polygons->n_items * Bintree_size_factor ) );
@@ -204,7 +204,7 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
 
         compute_polygon_normals( polygons );
 
-        delete_polygons_bintree( polygons );
+        delete_the_bintree( (bintree_struct **) (&polygons->bintree) );
 
         set_update_required( display, NORMAL_PLANES );
 
@@ -235,7 +235,7 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon_with_volume )   /* ARGSUSED */
 
         compute_polygon_normals( polygons );
 
-        delete_polygons_bintree( polygons );
+        delete_the_bintree( (bintree_struct **) (&polygons->bintree) );
 
         set_update_required( display, NORMAL_PLANES );
 
