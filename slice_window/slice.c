@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.102 1995-09-26 14:25:43 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.103 1995-10-03 17:21:40 david Exp $";
 #endif
 
 
@@ -24,12 +24,12 @@ private  void  initialize_slice_window(
 
 public  void  create_slice_window(
     display_struct   *display,
-    char             filename[],
+    STRING           filename,
     Volume           volume )
 {
     display_struct   *slice_window, *menu_window;
     int              sizes[N_DIMENSIONS];
-    STRING           title;
+    char             title[EXTREMELY_LARGE_STRING_SIZE];
 
     get_volume_sizes( volume, sizes );
 
@@ -165,6 +165,7 @@ private  void  delete_slice_window_volume_stuff(
     delete_volume( slice_window->slice.volumes[volume_index].volume );
     delete_slice_colour_coding( &slice_window->slice, volume_index );
     delete_slice_models_for_volume( slice_window, volume_index );
+    delete_string( slice_window->slice.volumes[volume_index].filename );
 
     for_less( i, volume_index, slice_window->slice.n_volumes-1 )
         slice_window->slice.volumes[i] = slice_window->slice.volumes[i+1];
@@ -206,9 +207,10 @@ public  void  delete_slice_window(
 
     delete_atlas( &slice_window->slice.atlas );
     delete_voxel_labeling( &slice_window->slice );
+    delete_crop_box( slice_window );
 }
 
-public  char  *get_volume_filename(
+public  STRING  get_volume_filename(
     display_struct    *slice_window,
     int               volume_index )
 {
@@ -217,7 +219,7 @@ public  char  *get_volume_filename(
 
 public  void  add_slice_window_volume(
     display_struct    *display,
-    char              filename[],
+    STRING            filename,
     Volume            volume )
 {
     display_struct         *slice_window;
@@ -243,7 +245,7 @@ public  void  add_slice_window_volume(
     info->volume = volume;
     copy_general_transform( get_voxel_to_world_transform(volume),
                             &info->original_transform );
-    (void) strcpy( info->filename, filename );
+    info->filename = create_string( filename );
     info->display_labels = Initial_display_labels;
     info->opacity = 1.0;
 
