@@ -375,6 +375,8 @@ public  Boolean   get_slice_window_volume( graphics, volume )
             volume_set = TRUE;
         }
     }
+    else
+        *volume = (volume_struct *) 0;
 
     return( volume_set );
 }
