@@ -28,6 +28,7 @@ root
     transient 'c'      lines                        'Lines' 
     transient 'v'      surface_curves               'Surface Curves' 
     transient 'b'      markers                      'Markers' 
+    transient 'n'      georges                      'Georges Sulci' 
  
     permanent '2'      magnify_view                 'Magnify 3D' 
     permanent '3'      translate_view               'Translate 3D' 
@@ -91,8 +92,6 @@ create_surface
  
 slice_view 
 { 
-    transient '5'    prev_current_volume             'Prev Volume' 
- 
     transient 'q'    toggle_cross_section_visibility 'Toggle Plane Visibility' 
     transient 'w'    rotate_slice_axes               'Rotate Slice' 
     transient 'e'    pick_slice_angle_point          'Pick Slice Angle' 
@@ -198,7 +197,7 @@ render_3d
  
     transient 'v'    toggle_line_curve_flag       'Lines as Curves: %s' 
     transient 'c'    toggle_marker_label_flag     'Marker Labels: %s' 
-    transient 'z'    set_n_curve_segments         'Set # Curve Segments: %d' 
+    transient 'z'    set_n_curve_segments         'Set # Curve Segments' 
  
     transient 'q'    change_background_colour     'Change Background' 
     transient 'w'    toggle_double_buffer_threed  '3D DblBuf: %s' 
@@ -402,18 +401,12 @@ translate_labels
  
 volume_transform 
 { 
-    transient '1'    prev_volume_visible             'Prev Visible' 
-    transient '5'    shrink_volume                   'Scale Down Volume' 
-    transient '6'    magnify_volume                  'Scale Up Volume' 
-    transient '7'    insert_volume_as_labels         'Insert Volume as Labels' 
-
     transient 'q'    next_volume_visible             'Visible: %d' 
     transient 'w'    transform_current_volume        'Xform Volume Frm File' 
     transient 'e'    reset_volume_transform          'Reset Vol Xform' 
     transient 'r'    set_volume_translation_step     'Trans Step: %g' 
     transient 't'    set_volume_rotation_step        'Rot Step: %g' 
     transient 'y'    save_current_volume_transform   'Save Volume Xform' 
-    transient 'u'    set_volume_scale_step           'Scale Step: %g' 
  
     transient 'a'    translate_volume_plus_x          'Trans + X' 
     transient 's'    translate_volume_plus_y          'Trans + Y' 
@@ -447,3 +440,10 @@ volume_config
     transient 'd'    toggle_incremental_slice_update 'Increm Update: %s' 
 } 
 
+georges
+{
+    transient 'a'    georges_menu1                   'Select Sulci'
+    transient 's'    georges_menu2                   'Option 2'
+    transient 'd'    georges_menu3                   'Option 3'
+    transient 'f'    georges_menu4                   'Option 4'
+}

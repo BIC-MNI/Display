@@ -1,4 +1,15 @@
-2001-05-26  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
+2001-05-26  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca
+
+	* David-RCS-update: Update the repository with the checked-out
+	file versions as well as files that do not already have an RCS
+	file.  Tagged as David-RCS-update.
+
+	* Documentation/Makefile: Replaced symlink with target file.
+
+	* boucl1_e1.mnc.gz:
+	* boucl1_e2.mnc.gz: Removed symlinks to nonexistent files.
+
+2001-05-26  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca
 
 	* David-RCS: Import the RCS files from David's source.  Since
 	David's home directory was damaged, this copy comes from a late
