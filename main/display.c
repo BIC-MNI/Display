@@ -33,7 +33,7 @@ private  void  display_objects_recursive( window,
     update_interrupted_struct    *interrupt;
     Boolean                      *past_last_object;
 {
-    int            i, n_items_done, next_item;
+    int            i;
     model_struct   *model;
     void           G_set_view_type();
     void           G_set_render();
@@ -42,6 +42,8 @@ private  void  display_objects_recursive( window,
     void           G_draw_polygons();
     void           G_draw_volume();
     Real           current_realtime_seconds();
+    Boolean        object_is_continuing;
+    Boolean        G_events_pending();
 
     G_set_render( window, render );
     G_set_view_type( window, view_type );
@@ -50,10 +52,13 @@ private  void  display_objects_recursive( window,
     {
         if( object_list[i]->visibility )
         {
+            object_is_continuing = FALSE;
+
             if( interrupt->last_was_interrupted &&
                 !(*past_last_object) &&
                 object_list[i] == interrupt->object_interrupted )
             {
+                object_is_continuing = TRUE;
                 *past_last_object = TRUE;
             }
 
@@ -61,7 +66,8 @@ private  void  display_objects_recursive( window,
                 || object_list[i]->object_type == MODEL )
             {
                 if( !(interrupt->current_interrupted) &&
-                    current_realtime_seconds() > interrupt->interrupt_at )
+                    current_realtime_seconds() > interrupt->interrupt_at &&
+                    G_events_pending() )
                 {
                     interrupt->current_interrupted = TRUE;
                     interrupt->object_interrupted = object_list[i];
@@ -92,18 +98,18 @@ private  void  display_objects_recursive( window,
 
                 case LINES:
                     G_draw_lines( window, object_list[i]->ptr.lines, render,
-                                  &interrupt->current_interrupted, &n_items_done, &next_item );
+                                  interrupt, object_is_continuing );
                     break;
 
                 case POLYGONS:
                     G_draw_polygons( window, object_list[i]->ptr.polygons,
-                                     render, &interrupt->current_interrupted,
-                                     &n_items_done, &next_item );
+                                     render, interrupt,
+                                     object_is_continuing );
                     break;
 
                 case VOLUME:
                     G_draw_volume( window, object_list[i]->ptr.volume, render,
-                                   &interrupt->current_interrupted, &n_items_done, &next_item);
+                                   interrupt, object_is_continuing );
                     break;
                 }
 
@@ -112,8 +118,6 @@ private  void  display_objects_recursive( window,
                     if( object_list[i]->object_type != MODEL )
                     {
                         interrupt->object_interrupted = object_list[i];
-                        interrupt->n_items_done = n_items_done;
-                        interrupt->next_item = next_item;
                     }
                     break;
                 }

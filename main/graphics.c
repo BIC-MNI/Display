@@ -234,7 +234,7 @@ public  void  update_graphics( graphics, interrupt )
     void          display_objects();
     void          display_frame_info();
     void          format_time();
-    Real          start, end, interrupt_at;
+    Real          start, end;
     Real          current_realtime_seconds();
 
     if( interrupt->last_was_interrupted )
