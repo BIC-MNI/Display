@@ -29,6 +29,7 @@ public  Status  initialize_surface_extraction( graphics )
     if( status == OK )
     {
         surface_extraction->polygons = object->ptr.polygons;
+        status = create_bitlist( 0, &surface_extraction->voxels_queued );
     }
 
     if( status == OK )
