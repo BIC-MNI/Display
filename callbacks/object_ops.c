@@ -255,10 +255,12 @@ public  DEF_MENU_UPDATE(create_model )     /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION( delete_current_object )     /* ARGSUSED */
+private  Boolean  remove_current_object_from_hierarchy( graphics, object )
+    graphics_struct  *graphics;
+    object_struct    **object;
 {
+    Boolean          removed;
     int              obj_index;
-    object_struct    *object;
     model_struct     *current_model;
     model_struct     *get_current_model();
     Boolean          get_current_object();
@@ -268,23 +270,17 @@ public  DEF_MENU_FUNCTION( delete_current_object )     /* ARGSUSED */
     void             graphics_models_have_changed();
     void             set_current_object_index();
     Status           remove_object_from_model();
-    Status           delete_object();
-
-    status = OK;
 
     if( !current_object_is_top_level( graphics ) &&
-        get_current_object( graphics, &object ) )
+        get_current_object( graphics, object ) )
     {
-        is_a_marker = (object->object_type == MARKER);
+        is_a_marker = ((*object)->object_type == MARKER);
 
         obj_index = get_current_object_index( graphics );
 
         current_model = get_current_model( graphics );
 
         status = remove_object_from_model( current_model, obj_index );
-
-        if( status == OK )
-            status = delete_object( object );
 
         if( status == OK )
         {
@@ -294,13 +290,31 @@ public  DEF_MENU_FUNCTION( delete_current_object )     /* ARGSUSED */
                 obj_index = current_model->n_objects - 1;
 
             set_current_object_index( graphics, obj_index );
-
-            graphics_models_have_changed( graphics );
-
-            if( is_a_marker )
-                regenerate_voxel_labels( graphics );
         }
+
+        graphics_models_have_changed( graphics );
+
+        if( is_a_marker )
+            regenerate_voxel_labels( graphics );
+
+        removed = TRUE;
     }
+    else
+        removed = FALSE;
+
+    return( removed );
+}
+
+public  DEF_MENU_FUNCTION( delete_current_object )     /* ARGSUSED */
+{
+    Status           status;
+    object_struct    *object;
+    Status           delete_object();
+
+    status = OK;
+
+    if( remove_current_object_from_hierarchy( graphics, &object ) )
+        status = delete_object( object );
 
     return( status );
 }
@@ -346,6 +360,75 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(set_current_object_colour )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( cut_object )   /* ARGSUSED */
+{
+    Status          status;
+    object_struct   *object;
+    model_struct    *cut_model;
+    model_struct    *get_graphics_model();
+    Status          add_object_to_model();
+
+    status = OK;
+
+    if( remove_current_object_from_hierarchy( graphics, &object ) )
+    {
+        cut_model = get_graphics_model( graphics, CUT_BUFFER_MODEL );
+
+        status = add_object_to_model( cut_model, object );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(cut_object )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( paste_object )   /* ARGSUSED */
+{
+    Status          status;
+    Status          add_object_to_model();
+    Status          remove_object_from_model();
+    int             n_objects;
+    object_struct   *object;
+    model_struct    *cut_model, *current_model;
+    model_struct    *get_current_model();
+    model_struct    *get_graphics_model();
+    void            graphics_models_have_changed();
+    void            rebuild_selected_list();
+
+    status = OK;
+
+    cut_model = get_graphics_model( graphics, CUT_BUFFER_MODEL );
+    current_model = get_current_model( graphics );
+    n_objects = cut_model->n_objects;
+
+    while( cut_model->n_objects > 0 )
+    {
+        object = cut_model->object_list[0];
+
+        if( status == OK )
+            status = add_object_to_model( current_model, object );
+
+        if( status == OK )
+            status = remove_object_from_model( cut_model, 0 );
+    }
+
+    if( n_objects > 0 )
+    {
+        graphics_models_have_changed( graphics );
+        rebuild_selected_list( graphics, menu_window );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(paste_object )   /* ARGSUSED */
 {
     return( OK );
 }
