@@ -169,17 +169,14 @@ public  void  rebuild_probe(
 {
     model_struct   *model;
     Boolean        active;
-    volume_struct  *volume;
+    Volume         volume;
     int            i, x_voxel, y_voxel, z_voxel, view_index, max_index;
     Real           x_tal_voxel, y_tal_voxel, z_tal_voxel;
     Real           x_talairach, y_talairach, z_talairach;
     text_struct    *text;
-    int            nx, ny, nz;
+    int            sizes[N_DIMENSIONS];
     Real           value;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
-/*
-    int            x_file, y_file, z_file;
-*/
 
     active = get_voxel_in_slice_window( slice_window,
                                         &x_voxel, &y_voxel, &z_voxel,
@@ -190,10 +187,10 @@ public  void  rebuild_probe(
     get_slice_viewport( slice_window, -1, &x_min, &x_max, &y_min, &y_max );
 
     if( get_slice_window_volume( slice_window, &volume ) )
-        get_volume_size( volume, &nx, &ny, &nz );
+        get_volume_sizes( volume, sizes );
 
     convert_voxel_to_talairach( (Real) x_voxel, (Real) y_voxel, (Real) z_voxel,
-                                nx, ny, nz,
+                                sizes[X], sizes[Y], sizes[Z],
                                 &x_tal_voxel, &y_tal_voxel, &z_tal_voxel );
 
     convert_talairach_to_mm( x_tal_voxel, y_tal_voxel, z_tal_voxel,
@@ -247,8 +244,8 @@ public  void  rebuild_probe(
                                 z_talairach );
                 break;
             case VAL_PROBE_INDEX:
-                value = (Real) GET_VOLUME_DATA( *get_volume(slice_window),
-                                                x_voxel, y_voxel, z_voxel );
+                GET_VOXEL_3D( value, get_volume(slice_window),
+                              x_voxel, y_voxel, z_voxel );
                 (void) sprintf( text->string, Slice_probe_val_format, value );
                 break;
 
@@ -486,8 +483,8 @@ private  void  render_slice_to_pixels(
     Real                  x_scale,
     Real                  y_scale )
 {
-    volume_struct         *volume;
-    int                   *temporary_indices;
+    Volume                volume;
+    int                   *temporary_indices, sizes[N_DIMENSIONS];
     int                   start_volume_index, volume_index;
     Boolean               fast_lookup_present, display_activity;
     Colour                **fast_lookup;
@@ -496,6 +493,7 @@ private  void  render_slice_to_pixels(
     int                   prev_y_offset, y_offset;
     int                   x_size, y_size;
     int                   val, min_value;
+    Real                  min_val, max_val;
     int                   label, new_label;
     int                   voxel_indices[3];
     unsigned char         *label_ptr;
@@ -505,8 +503,12 @@ private  void  render_slice_to_pixels(
     Colour                *pixel_ptr;
     Real                  dx, dy;
     Colour                *lookup;
+    void                  *void_ptr;
 
     volume = get_volume( slice_window );
+    get_volume_sizes( volume, sizes );
+    get_volume_voxel_range( volume, &min_val, &max_val );
+    min_value = (int) min_val;
     temporary_indices = slice_window->slice.temporary_indices;
     fast_lookup_present = slice_window->slice.fast_lookup_present;
     fast_lookup = slice_window->slice.fast_lookup;
@@ -536,7 +538,7 @@ private  void  render_slice_to_pixels(
     start_volume_index = IJK( voxel_indices[X],
                               voxel_indices[Y],
                               voxel_indices[Z],
-                              volume->sizes[Y], volume->sizes[Z] );
+                              sizes[Y], sizes[Z] );
 
     for_less( x, 0, x_size )
     {
@@ -544,18 +546,22 @@ private  void  render_slice_to_pixels(
         temporary_indices[x] = IJK( voxel_indices[X],
                                     voxel_indices[Y],
                                     voxel_indices[Z],
-                                    volume->sizes[Y], volume->sizes[Z] ) -
+                                    sizes[Y], sizes[Z] ) -
                                start_volume_index;
     }
 
     voxel_indices[x_index] = start_indices[x_index];
 
-    if( volume->data_type == UNSIGNED_BYTE )
-        byte_data = volume->byte_data[0][0];
-    else
-        short_data = volume->short_data[0][0];
+    GET_VOXEL_PTR_3D( void_ptr, volume, 0, 0, 0 );
 
-    min_value = volume->min_value;
+    if( volume->data_type == UNSIGNED_BYTE )
+        byte_data = void_ptr;
+    else if( volume->data_type == UNSIGNED_SHORT )
+        short_data = void_ptr;
+    else
+    {
+        HANDLE_INTERNAL_ERROR( "Invalid data type for rendering.\n" );
+    }
 
     label = ACTIVE_BIT;
 
@@ -596,7 +602,7 @@ private  void  render_slice_to_pixels(
             start_volume_index = IJK( voxel_indices[X],
                                       voxel_indices[Y],
                                       voxel_indices[Z],
-                                      volume->sizes[Y], volume->sizes[Z] );
+                                      sizes[Y], sizes[Z] );
 
             prev_x_offset = -100000;
 
@@ -643,10 +649,6 @@ private  void  render_slice_to_pixels(
     }
 
     {
-        int   sizes[3];
-
-        get_volume_size( volume, &sizes[X], &sizes[Y], &sizes[Z] );
-
         blend_in_atlas( &slice_window->slice.atlas, pixels->data.pixels_rgb,
                         x_size, y_size,
                         start_indices, x_index, y_index, axis_index, dx, dy,
