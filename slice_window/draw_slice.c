@@ -787,6 +787,7 @@ private  void  render_slice_to_pixels(
                     RGB_PIXEL, FALSE, (unsigned short **) NULL,
                     slice_window->slice.colour_tables,
                     make_rgba_Colour( 0, 0, 0, 0 ),
+                    slice_window->slice.render_storage,
                     &n_alloced, pixels );
     }
     else
@@ -804,6 +805,7 @@ private  void  render_slice_to_pixels(
                     RGB_PIXEL, FALSE, (unsigned short **) NULL,
                     slice_window->slice.colour_tables,
                     make_rgba_Colour( 0, 0, 0, 0 ),
+                    slice_window->slice.render_storage,
                     &n_alloced, pixels );
 
     }
