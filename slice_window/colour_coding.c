@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.41 1997-02-20 16:12:14 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.42 1997-03-06 01:34:05 david Exp $";
 #endif
 
 
@@ -140,6 +140,9 @@ private  void  realloc_label_colour_table(
         }
         n_up *= 2;
     }
+
+    if( n_labels >= 256 )
+        set_colour_of_label( slice_window, volume_index, 255, BLACK );
 }
 
 private  BOOLEAN  find_similar_labels(
