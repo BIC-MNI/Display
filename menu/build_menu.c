@@ -265,3 +265,21 @@ private  Status   create_menu_box( menu_window, key )
 
     return( status );
 }
+
+public  Boolean   point_within_menu_key_entry( menu_window, key, x, y )
+    graphics_struct  *menu_window;
+    int              key;
+    Real             x;
+    Real             y;
+{
+    Real      x1, y1, x2, y2, length;
+
+    compute_origin( &menu_window->menu, key, &x1, &y1, &length );
+
+    x2 = x1 + length * menu_window->menu.n_chars_per_unit_across *
+              menu_window->menu.character_width;
+    y2 = y1 + menu_window->menu.n_lines_in_entry *
+              menu_window->menu.character_height;
+
+    return( x >= x1 && x <= x2 && y >= y1 && y <= y2 );
+}
