@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.38 1996-05-23 13:48:29 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.39 1996-07-02 12:56:14 david Exp $";
 #endif
 
 
@@ -339,16 +339,32 @@ public  DEF_MENU_FUNCTION( change_labels_in_range )
 {
     display_struct  *slice_window;
     Status          status;
-    int             src_label, dest_label, range_changed[2][N_DIMENSIONS];
+    int             src_min, src_max, dest_label;
+    int             range_changed[2][N_DIMENSIONS];
     Real            min_threshold, max_threshold;
+    STRING          line;
     Volume          volume;
 
     if( get_slice_window( display, &slice_window ) &&
         get_slice_window_volume( slice_window, &volume ) )
     {
         status = OK;
-        print( "Label to change from: " );
-        status = input_int( stdin, &src_label );
+        print( "Label or range to change from: " );
+
+        status = input_line( stdin, &line );
+
+        if( status == OK )
+        {
+            if( sscanf( line, "%d %d", &src_min, &src_max ) != 2 )
+            {
+                if( sscanf( line, "%d", &src_min ) == 1 )
+                    src_max = src_min;
+                else
+                    status = ERROR;
+            }
+
+            delete_string( line );
+        }
 
         if( status == OK )
         {
@@ -370,7 +386,7 @@ public  DEF_MENU_FUNCTION( change_labels_in_range )
         if( status == OK )
         {
             modify_labels_in_range( volume, get_label_volume(slice_window),
-                                    src_label, dest_label,
+                                    src_min, src_max, dest_label,
                                     min_threshold, max_threshold,
                                     range_changed );
             delete_slice_undo( &slice_window->slice.undo,

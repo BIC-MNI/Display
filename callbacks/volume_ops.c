@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.105 1996-05-17 19:38:08 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.106 1996-07-02 12:56:13 david Exp $";
 #endif
 
 
@@ -367,7 +367,8 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)
             input_real( stdin, &y_width ) == OK &&
             input_real( stdin, &z_width ) == OK &&
             input_nonwhite_character( stdin, &ch ) == OK &&
-            (x_width > 1.0 || y_width > 1.0 || z_width > 1.0) )
+            (ch == 'w' ||
+             x_width > 1.0 || y_width > 1.0 || z_width > 1.0) )
         {
             (void) sprintf( label, "Box Filtered at %g,%g,%g,%c: %s",
                             x_width, y_width, z_width, ch,

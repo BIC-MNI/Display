@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/colour_coding.c,v 1.23 1996-05-24 18:43:08 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/colour_coding.c,v 1.24 1996-07-02 12:56:12 david Exp $";
 #endif
 
 
@@ -24,6 +24,8 @@ static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks
 public  DEF_MENU_FUNCTION(set_colour_limits )
 {
     int              volume_index;
+    STRING           line;
+    BOOLEAN          do_it;
     Real             min_value, max_value;
     display_struct   *slice_window;
 
@@ -40,20 +42,31 @@ public  DEF_MENU_FUNCTION(set_colour_limits )
 
         print( "Enter new values: " );
 
-        if( input_real( stdin, &min_value ) == OK &&
-            input_real( stdin, &max_value ) == OK )
+        if( input_line( stdin, &line ) == OK )
         {
-            change_colour_coding_range( slice_window,
-                                        volume_index, min_value, max_value);
+            do_it = TRUE;
+            if( sscanf( line, "%lf %lf", &min_value, &max_value ) != 2 )
+            {
+                if( sscanf( line, "%lf", &min_value ) != 1 )
+                    do_it = FALSE;
+                else
+                    max_value = min_value;
+            }
 
-            print( "    New limits:\t%g\t%g\n",
+            if( do_it )
+            {
+                change_colour_coding_range( slice_window,
+                                            volume_index, min_value, max_value);
+
+                print( "    New limits:\t%g\t%g\n",
                    slice_window->slice.volumes[volume_index].
                                                   colour_coding.min_value,
                    slice_window->slice.volumes[volume_index].
                                                   colour_coding.max_value );
-        }
+            }
 
-        (void) input_newline( stdin );
+            delete_string( line );
+        }
     }
 
     return( OK );

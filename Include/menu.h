@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_menu_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/menu.h,v 1.21 1996-04-19 13:24:46 david Exp $";
+static char display_menu_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/menu.h,v 1.22 1996-07-02 12:56:09 david Exp $";
 #endif
 
 #include  <volume_io.h>
@@ -35,8 +35,8 @@ typedef  menu_function_type  (*menu_function_pointer);
    display_struct    *menu_window, \
    menu_entry_struct *menu_entry )
 
-typedef  BOOLEAN   menu_update_type( struct display_struct    *, \
-                                     struct display_struct    *, \
+typedef  BOOLEAN   menu_update_type( struct display_struct    *,
+                                     struct display_struct    *,
                                      struct menu_entry_struct * );
 
 typedef  menu_update_type  (*menu_update_pointer);

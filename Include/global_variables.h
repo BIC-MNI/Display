@@ -1,5 +1,5 @@
 START_GLOBALS
-    DEF_GLOBAL( Alloc_checking_enabled, BOOLEAN, TRUE )
+    DEF_GLOBAL( Alloc_checking_enabled, BOOLEAN, FALSE )
 
     DEF_GLOBAL_COLOUR( Initial_background_colour )
 
@@ -255,7 +255,7 @@ START_GLOBALS
     DEF_GLOBAL( Polygon_bintree_threshold, int, -1 )
     DEF_GLOBAL( Bintree_size_factor, Real, 0.3 )
 
-    DEF_GLOBAL( Save_format, int, 1 )
+    DEF_GLOBAL( Save_format, int, 0 )
 
     DEF_GLOBAL( Max_smoothing_distance, Real, 0.5 )
     DEF_GLOBAL( Smoothing_ratio, Real, 0.5 )

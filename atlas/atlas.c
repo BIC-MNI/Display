@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.20 1996-04-19 13:24:52 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.21 1996-07-02 12:56:11 david Exp $";
 #endif
 
 #include  <display.h>
@@ -37,7 +37,9 @@ private  BOOLEAN  find_appropriate_atlas_image(
     Real                    *x_atlas_to_voxel,
     Real                    *y_atlas_to_voxel );
 
-private  const  Real  ATLAS_THICKNESS[N_DIMENSIONS] = { 0.67, 0.86, 1.5 };
+private  const  int   ATLAS_SIZE[N_DIMENSIONS] = { 256, 256, 80 };
+private  const  Real  ATLAS_STEPS[N_DIMENSIONS] = { 0.67, 0.86, 1.5 };
+private  const  Real  ATLAS_STARTS[N_DIMENSIONS] = {  -86.095, -126.51, -37.5 };
 
 public  void  initialize_atlas(
     atlas_struct   *atlas )
@@ -320,7 +322,7 @@ private  atlas_position_struct  *get_closest_atlas_slice(
                                             atlas->pages[i].axis_position );
 
             if( dist <= atlas->slice_tolerance[axis] &&
-                (closest_so_far == (atlas_position_struct *) 0 ||
+                (closest_so_far == NULL ||
                  dist < min_dist) )
             {
                 closest_so_far = &atlas->pages[i];
@@ -383,8 +385,8 @@ public  BOOLEAN  render_atlas_slice_to_pixels(
         !find_appropriate_atlas_image( atlas->pixel_maps,
                       atlas->slice_lookup[axis_index]
                   [ROUND(voxel_start_indices[axis_index])],
-                  (Real) x_volume_size / x_pixel_to_voxel / ATLAS_THICKNESS[a1],
-                  (Real) y_volume_size / y_pixel_to_voxel / ATLAS_THICKNESS[a2],
+                  (Real) x_volume_size / x_pixel_to_voxel / ATLAS_STEPS[a1],
+                  (Real) y_volume_size / y_pixel_to_voxel / ATLAS_STEPS[a2],
                   &atlas_image, &atlas_x_size, &atlas_y_size,
                   &x_atlas_to_voxel, &y_atlas_to_voxel ) )
     {
@@ -396,16 +398,16 @@ public  BOOLEAN  render_atlas_slice_to_pixels(
     lookup = get_8bit_rgb_pixel_lookup();
 
     x_pixel_start = voxel_start_indices[a1] / x_pixel_to_voxel /
-                    x_atlas_to_voxel / ATLAS_THICKNESS[a1];
+                    x_atlas_to_voxel / ATLAS_STEPS[a1];
     y_pixel_start = voxel_start_indices[a2] / y_pixel_to_voxel /
-                    y_atlas_to_voxel / ATLAS_THICKNESS[a2];
+                    y_atlas_to_voxel / ATLAS_STEPS[a2];
 
     ALLOC( x_pixels, image_x_size );
 
     for_less( x, 0, image_x_size )
     {
         x_pixels[x] = ROUND( x_pixel_start + (Real) x / x_atlas_to_voxel /
-                                             ATLAS_THICKNESS[a1] );
+                                             ATLAS_STEPS[a1] );
         if( axis_index != X && atlas->flipped[axis_index] )
             x_pixels[x] = atlas_x_size - 1 - x_pixels[x];
     }
@@ -415,7 +417,7 @@ public  BOOLEAN  render_atlas_slice_to_pixels(
         pixels = &image[IJ(y,0,image_x_size)];
 
         y_pixel = ROUND( y_pixel_start + (Real) y / y_atlas_to_voxel /
-                                         ATLAS_THICKNESS[a2] );
+                                         ATLAS_STEPS[a2] );
 
         if( y_pixel >= 0 && y_pixel < atlas_y_size )
         {

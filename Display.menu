@@ -113,7 +113,6 @@ slice_view
 
     transient '1'    create_3d_slice_profile         "Create 3D profile"
     transient '2'    set_current_volume_opacity      "Vol Opacity: %g"
-    transient '5'    toggle_incremental_slice_update "Increm Update: %s"
     transient '6'    toggle_double_buffer_slice      "Slice DblBuf: %s"
 }
 
@@ -444,4 +443,5 @@ volume_config
 
     transient 'a'    toggle_share_labels             "Share Labels: %s"
     transient 's'    toggle_slice_interpolation      "Interp: %s"
+    transient 'd'    toggle_incremental_slice_update "Increm Update: %s"
 }

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/call_globals.c,v 1.14 1995-10-19 15:50:17 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/call_globals.c,v 1.15 1996-07-02 12:56:12 david Exp $";
 #endif
 
 
@@ -61,7 +61,7 @@ public  DEF_MENU_UPDATE(menu_set_global_variable )
 
 public  DEF_MENU_FUNCTION( show_memory )
 {
-#ifndef linux
+#if !defined(linux) && !defined(__sun)
     struct  mallinfo   m;
 
     m = mallinfo();

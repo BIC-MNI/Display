@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.111 1996-05-24 18:43:18 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.112 1996-07-02 12:56:20 david Exp $";
 #endif
 
 
@@ -285,6 +285,11 @@ public  void  add_slice_window_volume(
     {
         get_current_voxel( slice_window, get_current_volume_index(slice_window),
                            current_voxel );
+
+        for_less( axis, 0, N_DIMENSIONS )
+            slice_window->slice.volumes[slice_window->slice.n_volumes - 1].
+                              current_voxel[axis] = -1.0e20;
+
         (void) set_current_voxel( slice_window,
                                   get_current_volume_index(slice_window),
                                   current_voxel );
