@@ -71,20 +71,15 @@ private  void  update_voxel_cursor( slice_window )
     graphics_struct   *slice_window;
 {
     int               x, y, z, axis_index;
-    Boolean           get_voxel_in_slice_window();
+    Boolean           get_voxel_in_slice();
     Boolean           set_current_voxel();
-    Boolean           update_cursor_from_voxel();
 
-    if( get_voxel_in_slice_window( slice_window, &x, &y, &z, &axis_index ) )
+    if( get_voxel_in_slice( slice_window, &x, &y, &z, &axis_index ) )
     {
         if( set_current_voxel( slice_window, x, y, z ) )
         {
-            slice_window->update_required = TRUE;
-        }
-
-        if( update_cursor_from_voxel( slice_window ) )
-        {
             slice_window->associated[THREE_D_WINDOW]->update_required = TRUE;
+            slice_window->update_required = TRUE;
         }
     }
 }

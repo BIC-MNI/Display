@@ -12,7 +12,7 @@ public  DEF_MENU_FUNCTION( make_view_fit )      /* ARGSUSED */
     if( get_range_of_object( graphics->models[THREED_MODEL],
                               TRUE, &min_limit, &max_limit ) )
     {
-        fit_view_to_domain( &graphics->view, &min_limit, &max_limit );
+        fit_view_to_domain( &graphics->three_d.view, &min_limit, &max_limit );
 
         update_view( graphics );
 
@@ -134,7 +134,7 @@ public  DEF_MENU_UPDATE(back_view )      /* ARGSUSED */
 public  DEF_MENU_FUNCTION( left_view )      /* ARGSUSED */
 {
     static  Vector   line_of_sight = { 1.0, 0.0, 0.0 };
-    static  Vector   horizontal = { 0.0, 0.0, 1.0 };
+    static  Vector   horizontal = { 0.0, -1.0, 0.0 };
     void  update_view();
     void  reset_view_parameters();
 
@@ -155,7 +155,7 @@ public  DEF_MENU_UPDATE(left_view )      /* ARGSUSED */
 public  DEF_MENU_FUNCTION( right_view )      /* ARGSUSED */
 {
     static  Vector   line_of_sight = { -1.0, 0.0, 0.0 };
-    static  Vector   horizontal = { 0.0, 0.0, -1.0 };
+    static  Vector   horizontal = { 0.0, 1.0, 0.0 };
     void  update_view();
     void  reset_view_parameters();
 
@@ -177,7 +177,8 @@ public  DEF_MENU_FUNCTION( toggle_perspective )      /* ARGSUSED */
 {
     void  update_view();
 
-    graphics->view.perspective_flag = !graphics->view.perspective_flag;
+    graphics->three_d.view.perspective_flag =
+         !graphics->three_d.view.perspective_flag;
 
     update_view( graphics );
 
@@ -190,7 +191,7 @@ public  DEF_MENU_UPDATE(toggle_perspective )      /* ARGSUSED */
 {
     void  set_text_boolean();
 
-    set_text_boolean( format, text, graphics->view.perspective_flag,
+    set_text_boolean( format, text, graphics->three_d.view.perspective_flag,
                       "Parallel", "Perspective" );
 
     menu_window->update_required = TRUE;

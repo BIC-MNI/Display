@@ -5,14 +5,33 @@ public  void  initialize_translation( graphics )
     graphics_struct  *graphics;
 {
     DECL_EVENT_FUNCTION( start_translation );
-    void                 install_action_table_function();
+    DECL_EVENT_FUNCTION( turn_off_translation );
+    void                 add_action_table_function();
     void                 terminate_any_interactions();
 
     terminate_any_interactions( graphics );
 
-    install_action_table_function( &graphics->action_table,
-                                   LEFT_MOUSE_DOWN_EVENT,
-                                   start_translation );
+    add_action_table_function( &graphics->action_table,
+                               TERMINATE_EVENT,
+                               turn_off_translation );
+
+    add_action_table_function( &graphics->action_table,
+                               MIDDLE_MOUSE_DOWN_EVENT,
+                               start_translation );
+}
+
+private  DEF_EVENT_FUNCTION( turn_off_translation )
+    /* ARGSUSED */
+{
+    void   remove_action_table_function();
+
+    remove_action_table_function( &graphics->action_table,
+                                  TERMINATE_EVENT );
+
+    remove_action_table_function( &graphics->action_table,
+                                  MIDDLE_MOUSE_DOWN_EVENT );
+
+    return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( start_translation )
@@ -32,7 +51,7 @@ private  DEF_EVENT_FUNCTION( start_translation )
                                handle_mouse_movement );
 
     add_action_table_function( &graphics->action_table,
-                               LEFT_MOUSE_UP_EVENT,
+                               MIDDLE_MOUSE_UP_EVENT,
                                terminate_translation );
 
     add_action_table_function( &graphics->action_table,
@@ -63,7 +82,7 @@ private  DEF_EVENT_FUNCTION( terminate_translation )
     remove_action_table_function( &graphics->action_table,
                                   MOUSE_MOVEMENT_EVENT );
     remove_action_table_function( &graphics->action_table,
-                                  LEFT_MOUSE_UP_EVENT );
+                                  MIDDLE_MOUSE_UP_EVENT );
     remove_action_table_function( &graphics->action_table,
                                   TERMINATE_EVENT );
 
@@ -103,7 +122,7 @@ private  void  perform_translation( graphics )
     SUB_POINTS( delta, graphics->mouse_position,
                        graphics->prev_mouse_position );
 
-    get_screen_axes( &graphics->view, &hor, &vert );
+    get_screen_axes( &graphics->three_d.view, &hor, &vert );
 
     SCALE_VECTOR( hor, hor, Point_x(delta) );
     SCALE_VECTOR( vert, vert, Point_y(delta) );

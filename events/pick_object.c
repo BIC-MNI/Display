@@ -54,11 +54,11 @@ private  DEF_EVENT_FUNCTION( terminate_picking_polygon )
     /* ARGSUSED */
 {
     void   remove_events();
-    void   pick_point_under_mouse();
+    void   pick_voxel_under_mouse();
 
     remove_events( &graphics->action_table );
 
-    pick_point_under_mouse( graphics );
+    pick_voxel_under_mouse( graphics );
 
     return( OK );
 }
@@ -66,23 +66,26 @@ private  DEF_EVENT_FUNCTION( terminate_picking_polygon )
 private  DEF_EVENT_FUNCTION( update_picked_polygon )
     /* ARGSUSED */
 {
-    void             pick_point_under_mouse();
+    void             pick_voxel_under_mouse();
 
-    pick_point_under_mouse( graphics );
+    pick_voxel_under_mouse( graphics );
 
     return( OK );
 }
 
-public  Boolean  get_mouse_scene_intersection( graphics, intersection )
+public  Boolean  get_voxel_in_three_d( graphics, x, y, z )
     graphics_struct   *graphics;
-    Point             *intersection;
+    int               *x, *y, *z;
 {
     Boolean          found;
-    Point            origin, transformed_origin;
+    Point            origin, transformed_origin, intersection_point;
     Vector           direction, transformed_direction;
     void             convert_mouse_to_ray();
     void             transform_world_to_model();
     void             transform_world_to_model_vector();
+    graphics_struct  *slice_window;
+
+    found = FALSE;
 
     convert_mouse_to_ray( &graphics->three_d.view, &graphics->mouse_position,
                             &origin, &direction );
@@ -92,28 +95,37 @@ public  Boolean  get_mouse_scene_intersection( graphics, intersection )
     transform_world_to_model_vector( &graphics->three_d.view, &direction,
                                      &transformed_direction );
 
-    found = intersect_ray_with_polygons( graphics, &transformed_origin,
-                                         &transformed_direction,
-                                         intersection );
+    if( intersect_ray_with_polygons( graphics, &transformed_origin,
+                                     &transformed_direction,
+                                     &intersection_point ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        if( slice_window != (graphics_struct *) 0 )
+        {
+            if( convert_point_to_voxel( slice_window, &intersection_point,
+                                        x, y, z ) )
+            {
+                found = TRUE;
+            }
+        }
+    }
+
     return( found );
 }
 
-private  void  pick_point_under_mouse( graphics )
+private  void  pick_voxel_under_mouse( graphics )
     graphics_struct   *graphics;
 {
-    Point            intersection_point;
+    int              x, y, z;
     Boolean          set_current_voxel();
-    void             update_cursor();
 
-    if( get_mouse_scene_intersection( graphics, &intersection_point ) )
+    if( get_voxel_in_three_d( graphics, &x, &y, &z ) )
     {
-        graphics->three_d.cursor.origin = intersection_point;
-        update_cursor( graphics );
-        graphics->update_required = TRUE;
-
-        if( update_voxel_from_cursor( graphics->associated[SLICE_WINDOW] ) )
+        if( set_current_voxel( graphics->associated[SLICE_WINDOW], x, y, z ) )
         {
             graphics->associated[SLICE_WINDOW]->update_required = TRUE;
+            graphics->update_required = TRUE;
         }
     }
 }

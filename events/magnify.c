@@ -5,13 +5,33 @@ public  void  initialize_magnification( graphics )
     graphics_struct  *graphics;
 {
     DECL_EVENT_FUNCTION( start_magnification );
-    void                 install_action_table_function();
+    DECL_EVENT_FUNCTION( turn_off_magnification );
+    void                 add_action_table_function();
     void                 terminate_any_interactions();
 
     terminate_any_interactions( graphics );
-    install_action_table_function( &graphics->action_table,
-                                   LEFT_MOUSE_DOWN_EVENT,
-                                   start_magnification );
+
+    add_action_table_function( &graphics->action_table,
+                               TERMINATE_EVENT,
+                               turn_off_magnification );
+
+    add_action_table_function( &graphics->action_table,
+                               MIDDLE_MOUSE_DOWN_EVENT,
+                               start_magnification );
+}
+
+private  DEF_EVENT_FUNCTION( turn_off_magnification )
+    /* ARGSUSED */
+{
+    void    remove_action_table_function();
+
+    remove_action_table_function( &graphics->action_table,
+                                  TERMINATE_EVENT );
+
+    remove_action_table_function( &graphics->action_table,
+                                  MIDDLE_MOUSE_DOWN_EVENT );
+
+    return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( start_magnification )
@@ -31,7 +51,7 @@ private  DEF_EVENT_FUNCTION( start_magnification )
                                handle_mouse_movement );
 
     add_action_table_function( &graphics->action_table,
-                               LEFT_MOUSE_UP_EVENT,
+                               MIDDLE_MOUSE_UP_EVENT,
                                terminate_magnification );
 
     add_action_table_function( &graphics->action_table,
@@ -62,7 +82,7 @@ private  DEF_EVENT_FUNCTION( terminate_magnification )
     remove_action_table_function( &graphics->action_table,
                                   MOUSE_MOVEMENT_EVENT );
     remove_action_table_function( &graphics->action_table,
-                                  LEFT_MOUSE_UP_EVENT );
+                                  MIDDLE_MOUSE_UP_EVENT );
     remove_action_table_function( &graphics->action_table,
                                   TERMINATE_EVENT );
 
@@ -101,7 +121,7 @@ private  void  perform_magnification( graphics )
 
     factor = exp( -delta * log( 2.0 ) );
 
-    magnify_view_size( &graphics->view, factor );
+    magnify_view_size( &graphics->three_d.view, factor );
 
     graphics->update_required = TRUE;
 

@@ -45,53 +45,53 @@ public  Status  delete_voxel_queue( voxel_queue )
     return( status );
 }
 
-/* ------------------ Voxel flag, 1 bit flag structure --------------- */
+/* ------------------ Voxels done, 1 bit flag structure --------------- */
 
-public  Status  initialize_voxel_flags( voxel_flags, n_voxels )
-    bitlist_struct  *voxel_flags;
+public  Status  initialize_voxels_done( voxels_done, n_voxels )
+    bitlist_struct  *voxels_done;
     int             n_voxels;
 {
     Status   status;
 
-    status = create_bitlist( n_voxels, voxel_flags );
+    status = create_bitlist( n_voxels, voxels_done );
 
     return( status );
 }
 
-public  Status  delete_voxel_flags( voxel_flags )
-    bitlist_struct  *voxel_flags;
+public  Status  delete_voxels_done( voxels_done )
+    bitlist_struct  *voxels_done;
 {
     Status   status;
 
-    status = delete_bitlist( voxel_flags );
+    status = delete_bitlist( voxels_done );
 
     return( status );
 }
 
-public  void  clear_voxel_flags( voxel_flags )
-    bitlist_struct  *voxel_flags;
+public  void  clear_voxels_done( voxels_done )
+    bitlist_struct  *voxels_done;
 {
-    zero_bitlist( voxel_flags );
+    zero_bitlist( voxels_done );
 }
 
-public  Boolean  get_voxel_flag( volume, voxel_flags, indices )
+public  Boolean  is_voxel_done( volume, voxels_done, indices )
     volume_struct       *volume;
-    bitlist_struct      *voxel_flags;
+    bitlist_struct      *voxels_done;
     voxel_index_struct  *indices;
 {
-    return( get_bitlist_bit( voxel_flags, ijk( indices->i[X_AXIS],
+    return( get_bitlist_bit( voxels_done, ijk( indices->i[X_AXIS],
                                                indices->i[Y_AXIS],
                                                indices->i[Z_AXIS],
                                                volume->size[Y_AXIS]-1,
                                                volume->size[Z_AXIS]-1 ) ) );
 }
 
-public  Status  set_voxel_flag( volume, voxel_flags, indices )
+public  Status  mark_voxel_done( volume, voxels_done, indices )
     volume_struct       *volume;
-    bitlist_struct      *voxel_flags;
+    bitlist_struct      *voxels_done;
     voxel_index_struct  *indices;
 {
-    set_bitlist_bit( voxel_flags, ijk( indices->i[X_AXIS],
+    set_bitlist_bit( voxels_done, ijk( indices->i[X_AXIS],
                                        indices->i[Y_AXIS],
                                        indices->i[Z_AXIS],
                                        volume->size[Y_AXIS]-1,
@@ -100,12 +100,12 @@ public  Status  set_voxel_flag( volume, voxel_flags, indices )
     return( OK );
 }
 
-public  Status  reset_voxel_flag( volume, voxel_flags, indices )
+public  Status  mark_voxel_not_done( volume, voxels_done, indices )
     volume_struct       *volume;
-    bitlist_struct      *voxel_flags;
+    bitlist_struct      *voxels_done;
     voxel_index_struct  *indices;
 {
-    set_bitlist_bit( voxel_flags, ijk( indices->i[X_AXIS],
+    set_bitlist_bit( voxels_done, ijk( indices->i[X_AXIS],
                                        indices->i[Y_AXIS],
                                        indices->i[Z_AXIS],
                                        volume->size[Y_AXIS]-1,
@@ -155,7 +155,7 @@ public  Status  delete_edge_points( hash_table )
     return( status );
 }
 
-private  void  get_edge_point_keys( volume, voxel, edge_intersected, keys )
+public  void  get_edge_point_keys( volume, voxel, edge_intersected, keys )
     volume_struct        *volume;
     voxel_index_struct   *voxel;
     int                  edge_intersected;
@@ -194,8 +194,6 @@ public  Boolean  lookup_edge_point_id( volume, hash_table,
     return( exists );
 }
 
-#define  LEVEL  1000
-
 public  Status  record_edge_point_id( volume, hash_table,
                                       voxel, edge_intersected, edge_point_id )
     volume_struct       *volume;
@@ -217,40 +215,6 @@ public  Status  record_edge_point_id( volume, hash_table,
     if( status == OK )
     {
         status = insert_in_hash_table( hash_table, keys, (char *) edge_info );
-    }
-
-#ifdef STATS
-{
-    static   int   current_size = 0;
-
-    if( hash_table->n_entries / LEVEL != current_size )
-    {
-        PRINT( "Edge table %d\n", hash_table->n_entries );
-        current_size = hash_table->n_entries / LEVEL;
-    }
-}
-#endif
-
-    return( status );
-}
-
-public  Status  remove_edge_point( volume, hash_table, voxel, edge_intersected )
-    volume_struct       *volume;
-    hash_table_struct   *hash_table;
-    voxel_index_struct  *voxel;
-    int                 edge_intersected;
-{
-    Status               status;
-    int                  keys[2];
-    edge_point_struct    *edge_info;
-
-    status = OK;
-
-    get_edge_point_keys( volume, voxel, edge_intersected, keys );
-
-    if( remove_from_hash_table( hash_table, keys, (char **) &edge_info ) )
-    {
-        FREE1( status, edge_info );
     }
 
     return( status );

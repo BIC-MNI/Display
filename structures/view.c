@@ -203,6 +203,27 @@ public  void  transform_point_to_world( view, p, transformed_point )
     transform_point( &view->modeling_transform, &scaled, transformed_point );
 }
 
+public  void  transform_world_to_model( view, p, transformed_point )
+    view_struct   *view;
+    Point         *p;
+    Point         *transformed_point;
+{
+    void   inverse_transform_point();
+
+    inverse_transform_point( &view->modeling_transform, p, transformed_point );
+}
+
+public  void  transform_world_to_model_vector( view, v, transformed_vector )
+    view_struct   *view;
+    Vector        *v;
+    Vector        *transformed_vector;
+{
+    void   inverse_transform_vector();
+
+    inverse_transform_vector( &view->modeling_transform, v,
+                              transformed_vector );
+}
+
 public  void  transform_world_to_screen( view, p, transformed_point )
     view_struct   *view;
     Point         *p;
@@ -236,7 +257,7 @@ public  void  set_model_scale( view, sx, sy, sz )
     view->scale_factors[Z_AXIS] = sz;
 }
 
-public  void  convert_mouse_to_line( view, mouse, origin, direction )
+public  void  convert_mouse_to_ray( view, mouse, origin, direction )
     view_struct   *view;
     Point         *mouse;
     Point         *origin;

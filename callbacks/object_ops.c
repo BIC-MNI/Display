@@ -206,3 +206,53 @@ public  DEF_MENU_UPDATE(ascend_selected )     /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( toggle_object_visibility )     /* ARGSUSED */
+{
+    object_struct    *current_object;
+    Boolean          get_current_object();
+    void             rebuild_selected_list();
+
+    if( get_current_object( graphics, &current_object ) )
+    {
+        current_object->visibility = !current_object->visibility;
+
+        rebuild_selected_list( graphics, menu_window );
+
+        graphics->update_required = TRUE;
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(toggle_object_visibility )     /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( create_model )     /* ARGSUSED */
+{
+    object_struct    *current_object;
+    Boolean          get_current_object();
+    void             rebuild_selected_list();
+    Status           status;
+    Status           create_model_after_current();
+
+    status = OK;
+
+    if( get_current_object( graphics, &current_object ) )
+    {
+        status = create_model_after_current( graphics );
+
+        rebuild_selected_list( graphics, menu_window );
+
+        graphics->update_required = TRUE;
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(create_model )     /* ARGSUSED */
+{
+    return( OK );
+}

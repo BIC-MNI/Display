@@ -53,8 +53,7 @@ public  Status  initialize_three_d_window( graphics )
 
     update_view( graphics );
 
-    status = initialize_surface_extraction(
-                               &graphics->three_d.surface_extraction );
+    status = initialize_surface_extraction( graphics );
 
     if( status == OK )
     {
@@ -75,8 +74,11 @@ private  void  initialize_three_d_events( graphics )
     DECL_EVENT_FUNCTION( handle_resize_three_d );
     void                 add_action_table_function();
     void                 initialize_virtual_spaceball();
+    void                 initialize_picking_polygon();
 
     initialize_virtual_spaceball( graphics );
+
+    initialize_picking_polygon( graphics );
 
     add_action_table_function( &graphics->action_table, WINDOW_RESIZE_EVENT,
                                handle_resize_three_d );
@@ -97,18 +99,18 @@ private  DEF_EVENT_FUNCTION( handle_resize_three_d )
     return( OK );
 }
 
-public  Status  delete_three_d( three_d )
-    three_d_window_struct  *three_d;
+public  Status  delete_three_d( graphics )
+    graphics_struct  *graphics;
 {
     Status    status;
     Status    terminate_current_object();
     Status    delete_surface_extraction();
 
-    status = terminate_current_object( &three_d->current_object );
+    status = terminate_current_object( &graphics->three_d.current_object );
 
     if( status == OK )
     {
-        status = delete_surface_extraction( &three_d->surface_extraction );
+        status = delete_surface_extraction( graphics );
     }
 
     return( status );
