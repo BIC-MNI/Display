@@ -27,6 +27,7 @@ private  DEF_EVENT_FUNCTION( add_to_surface )    /* ARGSUSED */
 {
     Status     status;
     Status     extract_more_surface();
+    void       set_update_required();
 
     status = OK;
 
@@ -35,7 +36,7 @@ private  DEF_EVENT_FUNCTION( add_to_surface )    /* ARGSUSED */
     {
         status = extract_more_surface( graphics );
 
-        graphics->update_required = TRUE;
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
