@@ -78,6 +78,10 @@
                        MENU_FUNCTION(generate_regions) \
                        MENU_FUNCTION(reset_segmenting) \
                        MENU_FUNCTION(set_segmenting_threshold) \
+                       MENU_FUNCTION(make_surface_line_permanent) \
+                       MENU_FUNCTION(start_surface_line) \
+                       MENU_FUNCTION(end_surface_line) \
+                       MENU_FUNCTION(reset_surface_line) \
                 
 
 typedef  struct
