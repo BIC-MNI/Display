@@ -40,7 +40,7 @@ private  void   fit_view_to_points( view, n_points, points )
     Point         points[];
 {
     int    i, c;
-    Real   size;
+    Real   size, centre_z;
     Point  min_coord, max_coord, centre, range;
     void   perspective_fit_points();
     void   orthogonal_fit_points();
@@ -75,7 +75,7 @@ private  void   fit_view_to_points( view, n_points, points )
 
     if( size == 0.0 )  size = 1.0;
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, 2 )
     {
         if( Point_coord(range,c) == 0.0 )
         {
@@ -84,6 +84,11 @@ private  void   fit_view_to_points( view, n_points, points )
             Point_coord(range,c) = size;
         }
     }
+
+    centre_z = (Point_z(min_coord) + Point_z(max_coord)) / 2.0;
+    Point_z(min_coord) = centre_z - size / 2.0;
+    Point_z(max_coord) = centre_z + size / 2.0;
+    Point_z(range) = size;
 
     INTERPOLATE_POINTS( centre, min_coord, max_coord, 0.5 );
 

@@ -31,6 +31,7 @@ display_obj = \
            callbacks/quit.o \
            callbacks/render_ops.o \
            callbacks/view_ops.o \
+           callbacks/volume_ops.o \
            current_obj/current_obj.o \
            events/clip_plane.o \
            events/magnify.o \
@@ -43,8 +44,15 @@ display_obj = \
            menu/menu_input.o \
            menu/menu_update.o \
            menu/selected.o \
+           $(C_UTILS_SRC)/bitlist.o \
+           $(C_UTILS_SRC)/lines.o \
+           $(C_UTILS_SRC)/mr_io.o \
            $(C_UTILS_SRC)/objects.o \
            $(C_UTILS_SRC)/object_io.o \
+           $(C_UTILS_SRC)/resample.o \
+           $(C_UTILS_SRC)/roi_io.o \
+           $(C_UTILS_SRC)/string.o \
+           $(C_UTILS_SRC)/volume.o \
            $(C_UTILS_SRC)/time.o
 
 display_lint = $(display_obj:.o=.ln)

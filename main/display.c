@@ -29,8 +29,9 @@ private  void  display_objects_recursive( window, n_objects, object_list,
     void           G_set_view_type();
     void           G_set_render();
     void           G_draw_text();
-    void           G_draw_polygons();
     void           G_draw_lines();
+    void           G_draw_polygons();
+    void           G_draw_volume();
 
     G_set_render( window, render );
     G_set_view_type( window, view_type );
@@ -62,6 +63,10 @@ private  void  display_objects_recursive( window, n_objects, object_list,
 
             case POLYGONS:
                 G_draw_polygons( window, object_list[i]->ptr.polygons, render );
+                break;
+
+            case VOLUME:
+                G_draw_volume( window, object_list[i]->ptr.volume, render );
                 break;
             }
         }
