@@ -186,6 +186,7 @@ polygons
 {
     transient 'q'    load_polygons_visibilities      "Load Visibilities"
     transient 'w'    save_polygons_visibilities      "Save Visibilities"
+    transient 'e'    set_polygon_line_thickness      "Set Line Thickness"
     transient 'r'    make_polygon_sphere             "Make Polygons Sphere"
     transient 't'    subdivide_current_polygon       "Subdivide Polygons"
     transient 'y'    scan_current_polygon_to_volume  "Scan Polygons to Volume"

@@ -21,6 +21,7 @@ Initial_shading_type = 1;
 Initial_light_switch = TRUE;
 
 Slice_double_buffer_flag = TRUE;
+Slice_readout_plane = 1;
 
 Display_frame_info = FALSE;
 Display_update_min = 1.0;
@@ -98,6 +99,8 @@ Viewport_min_x_size = 0.1;
 Viewport_min_y_size = 0.1;
 Viewport_feedback_colour = GREEN;
 
+Slice_magnification_step = 1.2;
+
 Slice_divider_colour = BLUE;
 Slice_divider_left = 5;
 Slice_divider_right = 5;
@@ -106,6 +109,7 @@ Slice_divider_bottom = 25;
 Slice_divider_x_position = 0.5;
 Slice_divider_y_position = 0.5;
 Slice_text_colour = RED;
+Readout_text_colour = 1;
 Slice_text_font = 0;
 Slice_text_font_size = 18.0;
 Slice_index_offset = 50.0 -15.0 0;
@@ -124,6 +128,7 @@ Slice_probe_z_transformed_format   = "Z     = %4d";
 Slice_probe_x_talairach_format     = "X tal = %6.1f mm";
 Slice_probe_y_talairach_format     = "Y tal = %6.1f mm";
 Slice_probe_z_talairach_format     = "Z tal = %6.1f mm";
+Slice_probe_voxel_format           = "Voxel = %4g";
 Slice_probe_val_format             = "Value = %4g";
 Slice_probe_x_file_format          = "X file= %4d";
 Slice_probe_y_file_format          = "Y file= %4d";
@@ -173,7 +178,7 @@ Max_cursor_angle = 20.0;
 Min_cursor_angle_diff = 5.0;
 Cursor_pick_distance = 10.0;
 
-Extracted_surface_colour = 1.0 1.0 1.0;
+Extracted_surface_colour = WHITE;
 Display_surface_in_slices = FALSE;
 
 Default_surface_property = 0.3 0.3 0.4   10.0 1.0;
@@ -276,8 +281,8 @@ Initial_atlas_transparent_threshold = 220;
 Initial_atlas_tolerance_x = 1.0;
 Initial_atlas_tolerance_y = 1.0;
 Initial_atlas_tolerance_z = 1.0;
-Atlas_filename = /nil/david/Talairach/Talairach_atlas.list
 Atlas_filename = /nil/david/Display/Talairach_atlas.list
+Atlas_filename = /nil/david/Talairach/Talairach_atlas.list
 Default_atlas_state = FALSE;
 
 Marker_threshold = 1.5;
