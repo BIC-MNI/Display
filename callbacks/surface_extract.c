@@ -100,10 +100,9 @@ public  DEF_MENU_FUNCTION(make_surface_permanent)   /* ARGSUSED */
 {
     Status         status;
     Status         reset_surface_extraction();
-    Status         add_object_to_model();
+    Status         add_object_to_current_model();
     Status         create_object();
     volume_struct  *volume;
-    model_struct   *get_current_model();
     object_struct  *object;
 
     status = OK;
@@ -119,7 +118,7 @@ public  DEF_MENU_FUNCTION(make_surface_permanent)   /* ARGSUSED */
             *(object->ptr.polygons) =
                   *(graphics->three_d.surface_extraction.polygons);
 
-            status = add_object_to_model( get_current_model(graphics), object );
+            status = add_object_to_current_model( graphics, object );
         }
 
         ALLOC( status, graphics->three_d.surface_extraction.polygons->colours,

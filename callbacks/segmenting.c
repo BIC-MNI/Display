@@ -424,6 +424,7 @@ private  void  set_slice_activity( graphics, activity )
     volume_struct    *volume;
     int              slice_index[3], axis_index;
     void             set_slice_window_update();
+    void             set_activity_for_slice();
     void             reset_slice_activity();
     graphics_struct  *slice_window;
     void             set_update_required();

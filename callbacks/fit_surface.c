@@ -372,11 +372,9 @@ public  DEF_MENU_FUNCTION(create_surface_model)   /* ARGSUSED */
 {
     Status                  status;
     Status                  create_model_of_surface();
-    Status                  add_object_to_model();
+    Status                  add_object_to_current_model();
     surface_fitting_struct  *surface_fitting;
     object_struct           *object;
-    model_struct            *get_current_model();
-    void                    graphics_models_have_changed();
 
     surface_fitting = &graphics->three_d.surface_fitting;
 
@@ -387,10 +385,7 @@ public  DEF_MENU_FUNCTION(create_surface_model)   /* ARGSUSED */
                                       Surface_model_resolution, &object );
 
     if( status == OK )
-        status = add_object_to_model( get_current_model(graphics), object );
-
-    if( status == OK )
-        graphics_models_have_changed( graphics );
+        status = add_object_to_current_model( graphics, object );
 
     return( OK );
 }

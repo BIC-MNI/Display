@@ -69,7 +69,8 @@ START_GLOBALS
     DEF_GLOBAL( Monitor_widths_to_eye, Real, 1.5 )
 
     DEF_GLOBAL( Default_marker_type, int, 0 )
-    DEF_GLOBAL( Default_marker_id, int, 1 )
+    DEF_GLOBAL( Default_marker_structure_id, int, 1 )
+    DEF_GLOBAL( Default_marker_patient_id, int, 1 )
     DEF_GLOBAL( Default_marker_size, Real, 1.5 )
     DEF_GLOBAL( Default_marker_colour, Colour, 0.0 )
     DEF_GLOBAL_STRING( Default_marker_label, "Marker" )

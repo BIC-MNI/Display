@@ -85,12 +85,10 @@ public  DEF_MENU_FUNCTION( convert_line_to_spline_points )   /* ARGSUSED */
     Status          status;
     Status          create_line_spline();
     Status          create_object();
-    Status          add_object_to_model();
-    void            graphics_models_have_changed();
+    Status          add_object_to_current_model();
     object_struct   *current_object, *object;
     Boolean         get_current_object();
     lines_struct    new_lines;
-    model_struct    *get_current_model();
     render_struct   *render;
     render_struct   *get_main_render();
 
@@ -111,9 +109,7 @@ public  DEF_MENU_FUNCTION( convert_line_to_spline_points )   /* ARGSUSED */
         if( status == OK )
         {
             *(object->ptr.lines) = new_lines;
-            status = add_object_to_model( get_current_model(graphics), object );
-
-            graphics_models_have_changed( graphics );
+            status = add_object_to_current_model( graphics, object );
         }
     }
 

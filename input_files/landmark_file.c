@@ -66,7 +66,6 @@ public  Status  io_tag_point( file, io_direction, volume, marker )
     void     convert_talairach_to_voxel();
     void     get_volume_size();
     int      nx, ny, nz;
-    int      patient_id = 0;
 
     status = OK;
 
@@ -131,10 +130,12 @@ public  Status  io_tag_point( file, io_direction, volume, marker )
         status = io_real( file, io_direction, ASCII_FORMAT, &marker->size );
 
     if( status == OK )
-        status = io_int( file, io_direction, ASCII_FORMAT, &marker->id );
+        status = io_int( file, io_direction, ASCII_FORMAT,
+                         &marker->structure_id );
 
     if( status == OK )
-        status = io_int( file, io_direction, ASCII_FORMAT, &patient_id );
+        status = io_int( file, io_direction, ASCII_FORMAT,
+                         &marker->patient_id );
 
     if( io_direction == WRITE_FILE )
     {

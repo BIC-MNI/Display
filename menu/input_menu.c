@@ -117,12 +117,14 @@
                        MENU_FUNCTION(create_marker_at_cursor) \
                        MENU_FUNCTION(set_cursor_to_marker) \
                        MENU_FUNCTION(save_markers) \
-                       MENU_FUNCTION(set_default_marker_id) \
+                       MENU_FUNCTION(set_default_marker_structure_id) \
+                       MENU_FUNCTION(set_default_marker_patient_id) \
                        MENU_FUNCTION(set_default_marker_type) \
                        MENU_FUNCTION(set_default_marker_colour) \
                        MENU_FUNCTION(set_default_marker_label) \
                        MENU_FUNCTION(set_default_marker_size) \
-                       MENU_FUNCTION(change_marker_id) \
+                       MENU_FUNCTION(change_marker_structure_id) \
+                       MENU_FUNCTION(change_marker_patient_id) \
                        MENU_FUNCTION(change_marker_label) \
                        MENU_FUNCTION(change_marker_size) \
                        MENU_FUNCTION(change_marker_position) \

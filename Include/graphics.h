@@ -52,7 +52,8 @@ typedef  struct
     cursor_contours_struct     cursor_contours;
     surface_curve_struct       surface_curve;
     surface_fitting_struct     surface_fitting;
-    int                        default_marker_id;
+    int                        default_marker_structure_id;
+    int                        default_marker_patient_id;
     Marker_types               default_marker_type;
     Real                       default_marker_size;
     Colour                     default_marker_colour;

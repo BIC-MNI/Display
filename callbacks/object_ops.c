@@ -437,8 +437,8 @@ public  DEF_MENU_FUNCTION( cut_object )   /* ARGSUSED */
     Status          status;
     object_struct   *object;
     model_struct    *cut_model;
-    model_struct    *get_graphics_model();
     Status          add_object_to_model();
+    model_struct    *get_graphics_model();
 
     status = OK;
 

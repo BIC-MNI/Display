@@ -61,9 +61,8 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
 {
     Status          status;
     Status          create_object();
-    Status          add_object_to_model();
+    Status          add_object_to_current_model();
     object_struct   *object;
-    model_struct    *get_current_model();
     Boolean         get_voxel_corresponding_to_point();
     void            get_position_pointed_to();
     void            regenerate_voxel_labels();
@@ -79,9 +78,12 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
         object->ptr.marker->type = graphics->three_d.default_marker_type;
         object->ptr.marker->colour = graphics->three_d.default_marker_colour;
         object->ptr.marker->size = graphics->three_d.default_marker_size;
-        object->ptr.marker->id = graphics->three_d.default_marker_id;
+        object->ptr.marker->structure_id =
+                            graphics->three_d.default_marker_structure_id;
+        object->ptr.marker->patient_id =
+                            graphics->three_d.default_marker_patient_id;
 
-        status = add_object_to_model( get_current_model(graphics), object );
+        status = add_object_to_current_model( graphics, object );
 
         regenerate_voxel_labels( graphics );
     }
@@ -192,20 +194,20 @@ public  void  markers_have_changed( graphics )
     graphics_models_have_changed( graphics );
 }
 
-public  DEF_MENU_FUNCTION( set_default_marker_id )   /* ARGSUSED */
+public  DEF_MENU_FUNCTION( set_default_marker_structure_id )   /* ARGSUSED */
 {
     int             id;
 
     PRINT( "The current default marker id is: %d\n",
-           graphics->three_d.default_marker_id );
+           graphics->three_d.default_marker_structure_id );
 
     PRINT( "Enter the new value: " );
 
     if( input_int( stdin, &id ) == OK )
     {
-        graphics->three_d.default_marker_id = id;
+        graphics->three_d.default_marker_structure_id = id;
         PRINT( "The new default marker id is: %d\n",
-               graphics->three_d.default_marker_id );
+               graphics->three_d.default_marker_structure_id );
 
     }
 
@@ -214,12 +216,46 @@ public  DEF_MENU_FUNCTION( set_default_marker_id )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_default_marker_id )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(set_default_marker_structure_id )   /* ARGSUSED */
 {
     String  text;
     void    set_menu_text();
 
-    (void) sprintf( text, label, graphics->three_d.default_marker_id );
+    (void) sprintf( text, label, graphics->three_d.default_marker_structure_id);
+
+    set_menu_text( menu_window, menu_entry, text );
+
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( set_default_marker_patient_id )   /* ARGSUSED */
+{
+    int             id;
+
+    PRINT( "The current default marker id is: %d\n",
+           graphics->three_d.default_marker_patient_id );
+
+    PRINT( "Enter the new value: " );
+
+    if( input_int( stdin, &id ) == OK )
+    {
+        graphics->three_d.default_marker_patient_id = id;
+        PRINT( "The new default marker id is: %d\n",
+               graphics->three_d.default_marker_patient_id );
+
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_default_marker_patient_id )   /* ARGSUSED */
+{
+    String  text;
+    void    set_menu_text();
+
+    (void) sprintf( text, label, graphics->three_d.default_marker_patient_id );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -388,7 +424,7 @@ public  DEF_MENU_UPDATE(set_default_marker_label )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION( change_marker_id )   /* ARGSUSED */
+public  DEF_MENU_FUNCTION( change_marker_structure_id )   /* ARGSUSED */
 {
     int             id;
     marker_struct   *marker;
@@ -396,15 +432,16 @@ public  DEF_MENU_FUNCTION( change_marker_id )   /* ARGSUSED */
 
     if( get_current_marker(graphics,&marker) )
     {
-        PRINT( "The current value of this marker id is: %d\n", marker->id );
+        PRINT( "The current value of this marker id is: %d\n",
+               marker->structure_id );
 
         PRINT( "Enter the new value: " );
 
         if( input_int( stdin, &id ) == OK )
         {
-            marker->id = id;
+            marker->structure_id = id;
             PRINT( "The new value of this marker id is: %d\n",
-               marker->id );
+               marker->structure_id );
             rebuild_selected_list( graphics, menu_window );
         }
 
@@ -414,7 +451,39 @@ public  DEF_MENU_FUNCTION( change_marker_id )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(change_marker_id )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(change_marker_structure_id )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( change_marker_patient_id )   /* ARGSUSED */
+{
+    int             id;
+    marker_struct   *marker;
+    void            rebuild_selected_list();
+
+    if( get_current_marker(graphics,&marker) )
+    {
+        PRINT( "The current value of this marker id is: %d\n",
+               marker->patient_id );
+
+        PRINT( "Enter the new value: " );
+
+        if( input_int( stdin, &id ) == OK )
+        {
+            marker->patient_id = id;
+            PRINT( "The new value of this marker id is: %d\n",
+               marker->patient_id );
+            rebuild_selected_list( graphics, menu_window );
+        }
+
+        (void) input_newline( stdin );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(change_marker_patient_id )   /* ARGSUSED */
 {
     return( OK );
 }

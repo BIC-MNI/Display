@@ -292,6 +292,7 @@ private  Status  change_current_slice_by_one( graphics, delta )
     void             get_current_voxel();
     void             rebuild_probe();
     void             rebuild_cursor();
+    void             set_update_required();
 
     status = OK;
 
@@ -318,6 +319,13 @@ private  Status  change_current_slice_by_one( graphics, delta )
                 rebuild_cursor( slice_window, 1 );
                 rebuild_cursor( slice_window, 2 );
                 set_slice_window_update( slice_window, axis_index );
+
+                if( update_cursor_from_voxel( slice_window ) )
+                {
+                    set_update_required( slice_window->
+                                         associated[THREE_D_WINDOW],
+                                         OVERLAY_PLANES );
+                }
             }
         }
     }

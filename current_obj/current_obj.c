@@ -159,12 +159,18 @@ public  Boolean  get_current_object( graphics, current_object )
     return( current_object_exists );
 }
 
-public  Status  initialize_current_object( current_object )
-    selection_struct   *current_object;
+public  Status  initialize_current_object( graphics )
+    graphics_struct   *graphics;
 {
-    current_object->n_levels_alloced = 0;
-    current_object->max_levels = 0;
-    current_object->current_level = 0;
+    Status   push_current_object();
+
+    graphics->three_d.current_object.n_levels_alloced = 0;
+    graphics->three_d.current_object.max_levels = 0;
+    graphics->three_d.current_object.current_level = 0;
+
+    /* start off below top level */
+
+    (void) push_current_object( graphics );
 
     return( OK );
 }
@@ -238,7 +244,9 @@ public  Boolean  current_object_is_top_level( graphics )
 public  Status  pop_current_object( graphics )
     graphics_struct   *graphics;
 {
-    if( !current_object_is_top_level(graphics) )
+    /* don't allow popping up to the top level */
+
+    if( graphics->three_d.current_object.current_level > 1 )
     {
         --graphics->three_d.current_object.current_level;
     }

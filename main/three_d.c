@@ -30,7 +30,8 @@ public  Status  initialize_three_d_window( graphics )
 
     three_d = &graphics->three_d;
 
-    three_d->default_marker_id = Default_marker_id;
+    three_d->default_marker_structure_id = Default_marker_structure_id;
+    three_d->default_marker_patient_id = Default_marker_patient_id;
     three_d->default_marker_type = (int) Default_marker_type;
     three_d->default_marker_size = Default_marker_size;
     three_d->default_marker_colour = Default_marker_colour;
@@ -75,7 +76,7 @@ public  Status  initialize_three_d_window( graphics )
         status = initialize_surface_extraction( graphics );
 
     if( status == OK )
-        status = initialize_current_object( &graphics->three_d.current_object );
+        status = initialize_current_object( graphics );
 
     if( status == OK )
         status = initialize_cursor( graphics );
@@ -138,6 +139,30 @@ public  Status  delete_three_d( graphics )
 
     if( status == OK )
         status = delete_surface_fitting( &graphics->three_d.surface_fitting );
+
+    return( status );
+}
+
+public  Status  add_object_to_current_model( graphics, object )
+    graphics_struct   *graphics;
+    object_struct     *object;
+{
+    Status         status;
+    model_struct   *model;
+    model_struct   *get_current_model();
+    Status         add_object_to_model();
+    void           set_current_object_index();
+    void           graphics_models_have_changed();
+
+    model = get_current_model( graphics );
+
+    status = add_object_to_model( model, object );
+
+    if( status == OK )
+        set_current_object_index( graphics, model->n_objects-1 );
+
+    if( status == OK )
+        graphics_models_have_changed( graphics );
 
     return( status );
 }
