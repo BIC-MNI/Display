@@ -194,7 +194,6 @@ private  save_labels_as_tags(
 {
     Status         status;
     FILE           *file;
-    int            i;
     String         filename;
 
     print( "Enter filename to save: " );
@@ -312,16 +311,23 @@ private  void  copy_labels_from_adjacent_slice(
     display_struct   *display,
     int              src_offset )
 {
-    int              dest_index[N_DIMENSIONS], src_index[N_DIMENSIONS];
+    Real             real_dest_index[N_DIMENSIONS];
+    int              src_index[N_DIMENSIONS], dest_index[N_DIMENSIONS];
     int              axis_index;
     display_struct   *slice_window;
     Volume           volume;
 
-    if( get_voxel_under_mouse( display, &dest_index[0], &dest_index[1],
-                               &dest_index[2], &axis_index ) &&
+    if( get_voxel_under_mouse( display,
+                               &real_dest_index[0],
+                               &real_dest_index[1],
+                               &real_dest_index[2], &axis_index ) &&
         get_slice_window_volume( display, &volume) &&
         get_slice_window( display, &slice_window ) )
     {
+        dest_index[X] = ROUND( real_dest_index[X] );
+        dest_index[Y] = ROUND( real_dest_index[Y] );
+        dest_index[Z] = ROUND( real_dest_index[Z] );
+
         src_index[X] = 0;
         src_index[Y] = 0;
         src_index[Z] = 0;

@@ -220,7 +220,7 @@ private  void  update_translation(
 {
     if( perform_cursor_translation( display ) )
     {
-        set_update_required( display, OVERLAY_PLANES );
+        set_update_required( display, get_cursor_bitplanes() );
 
         if( update_voxel_from_cursor( display->associated[SLICE_WINDOW] ) )
         {

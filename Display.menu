@@ -75,16 +75,22 @@ slice
 
 colour_coding
 {
-    transient 'r'    set_colour_limits               "Range"
+    transient 'q'    set_nearest_neighbour           "Nearest Neighbour"
+    transient 'w'    set_linear_interpolation        "Linear Int Filter"
+    transient 'e'    set_box_filter                  "Box Filter"
+    transient 'r'    set_triangle_filter             "Triangle Filter"
+    transient 't'    set_gaussian_filter             "Gaussian Filter"
 
     transient 'g'    set_contour_colour_map          "Contour"
     transient 'f'    set_hot_metal                   "Hot Metal"
     transient 'd'    set_gray_scale                  "Gray Scale"
     transient 's'    set_spectral                    "Spectral"
+    transient 'a'    set_filter_half_width           "Filter Width"
 
     transient 'z'    set_under_colour                "Under Col: %s"
     transient 'x'    set_over_colour                 "Over Col: %s"
     transient 'c'    set_label_colour_ratio          "Label Ratio: %g"
+    transient 'v'    set_colour_limits               "Range"
 }
 
 view
@@ -219,7 +225,7 @@ markers
     transient 'r'    change_marker_patient_id    "Chg Patient Id"
     transient 't'    change_marker_type          "Chg Marker Type"
 
-    transient 'a'    save_markers                "Save Mrkrs as .lmk"
+    transient 'a'    save_markers                "Save Mrkrs as .tag"
     transient 's'    load_file                   "Load Markers"
     transient 'd'    set_cursor_to_marker        "Move to Marker"
     transient 'f'    create_marker_at_cursor     "Create Marker"
@@ -321,8 +327,8 @@ deform
 
 region_painting
 {
-    transient 'q'    load_labels                     "Load .lmk as Labels"
-    transient 'w'    save_labels                     "Save Labels as .lmk"
+    transient 'q'    load_labels                     "Load .tag as Labels"
+    transient 'w'    save_labels                     "Save Labels .tag"
     transient 'e'    copy_labels_from_lower_slice  "Copy from Lt/Inf/Post Slice"
     transient 'r'    copy_labels_from_higher_slice "Copy from Rt/Sup/Ant Slice"
     transient 't'    save_current_label             "Save Current Label"

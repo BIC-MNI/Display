@@ -132,7 +132,7 @@ private  void  pick_point_under_mouse(
                                    display->associated[MENU_WINDOW] );
         }
 
-        set_update_required( display, OVERLAY_PLANES );
+        set_update_required( display, get_cursor_bitplanes() );
 
         if( update_voxel_from_cursor( display->associated[SLICE_WINDOW] ) )
         {

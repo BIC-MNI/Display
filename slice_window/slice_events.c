@@ -161,10 +161,11 @@ private  DEF_EVENT_FUNCTION( handle_update_voxel )     /* ARGSUSED */
 private  void  update_voxel_cursor(
     display_struct    *slice_window )
 {
-    int               c, indices[N_DIMENSIONS], axis_index;
+    int    c, axis_index;
+    Real   indices[N_DIMENSIONS];
 
     if( get_voxel_in_slice_window( slice_window, &indices[X],
-                 &indices[Y], &indices[Z], &axis_index ) )
+                                   &indices[Y], &indices[Z], &axis_index ) )
     {
         for_less( c, 0, N_DIMENSIONS )
         {
@@ -282,8 +283,8 @@ private  void  perform_translation(
         dx = x2 - x1;
         dy = y2 - y1;
 
-        slice_window->slice.slice_views[view_index].x_offset += dx;
-        slice_window->slice.slice_views[view_index].y_offset += dy;
+        slice_window->slice.slice_views[view_index].x_trans += dx;
+        slice_window->slice.slice_views[view_index].y_trans += dy;
 
         set_slice_window_update( slice_window, view_index );
 
@@ -462,9 +463,6 @@ private  Boolean  get_mouse_colour_bar_value(
     {
         get_volume_range( volume, &min_value, &max_value );
         *value = INTERPOLATE( ratio, min_value, max_value );
-
-        *value = (Real) ROUND( *value );
-
         found = TRUE;
     }
 

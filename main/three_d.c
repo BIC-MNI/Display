@@ -109,6 +109,7 @@ public  void  delete_three_d(
     delete_surface_extraction( display );
     delete_surface_fitting( &display->three_d.surface_fitting );
     delete_deformation( &display->three_d.deform );
+    delete_cursor_plane_outline( display );
 }
 
 public  void  add_object_to_current_model(

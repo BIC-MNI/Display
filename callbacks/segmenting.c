@@ -15,7 +15,8 @@ private  void   set_connected_activity(
 public  DEF_MENU_FUNCTION( label_point )   /* ARGSUSED */
 {
     Status   status;
-    int      id, x, y, z, axis_index;
+    int      id, axis_index;
+    Real     x, y, z;
 
     status = OK;
 
@@ -28,7 +29,8 @@ public  DEF_MENU_FUNCTION( label_point )   /* ARGSUSED */
         (void) input_newline( stdin );
 
         if( status == OK )
-            add_point_label( display->associated[SLICE_WINDOW], x, y, z, id);
+            add_point_label( display->associated[SLICE_WINDOW],
+                             ROUND(x), ROUND(y), ROUND(z), id);
     }
 
     return( status );
@@ -42,12 +44,13 @@ public  DEF_MENU_UPDATE(label_point )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_voxel_inactive )   /* ARGSUSED */
 {
     Volume         volume;
-    int            x, y, z, axis_index;
+    Real           x, y, z;
+    int            axis_index;
 
     if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) &&
         get_slice_window_volume( display, &volume ) )
     {
-        set_voxel_activity_flag( volume, x, y, z, FALSE );
+        set_voxel_activity_flag( volume, ROUND(x), ROUND(y), ROUND(z), FALSE );
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
@@ -64,12 +67,13 @@ public  DEF_MENU_UPDATE(set_voxel_inactive )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_voxel_active )   /* ARGSUSED */
 {
     Volume         volume;
-    int            x, y, z, axis_index;
+    Real           x, y, z;
+    int            axis_index;
 
     if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) &&
         get_slice_window_volume( display, &volume ) )
     {
-        set_voxel_activity_flag( volume, x, y, z, TRUE );
+        set_voxel_activity_flag( volume, ROUND(x), ROUND(y), ROUND(z), TRUE );
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
@@ -85,7 +89,8 @@ public  DEF_MENU_UPDATE(set_voxel_active )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( generate_regions )   /* ARGSUSED */
 {
-    int      voxel_index[3], voxel_axes[3];
+    Real     voxel_index[3];
+    int      voxel_axes[3], int_index[N_DIMENSIONS];
 
     if( !min_max_present(display) )
         get_min_max( display );
@@ -98,8 +103,11 @@ public  DEF_MENU_FUNCTION( generate_regions )   /* ARGSUSED */
         voxel_axes[0] = (voxel_axes[2] + 1) % N_DIMENSIONS;
         voxel_axes[1] = (voxel_axes[2] + 2) % N_DIMENSIONS;
 
+        int_index[X] = ROUND( voxel_index[X] );
+        int_index[Y] = ROUND( voxel_index[Y] );
+        int_index[Z] = ROUND( voxel_index[Z] );
         generate_segmentation( display->associated[SLICE_WINDOW],
-                               voxel_index, voxel_axes );
+                               int_index, voxel_axes );
 
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
@@ -394,7 +402,8 @@ private  void  set_slice_activity(
     Boolean            activity )
 {
     Volume           volume;
-    int              slice_index[3], axis_index;
+    Real             slice_index[N_DIMENSIONS];
+    int              axis_index;
     display_struct   *slice_window;
 
     if( get_voxel_under_mouse( display, &slice_index[0], &slice_index[1],
@@ -403,8 +412,8 @@ private  void  set_slice_activity(
     {
         slice_window = display->associated[SLICE_WINDOW];
 
-        set_activity_for_slice( volume, axis_index, slice_index[axis_index],
-                                activity );
+        set_activity_for_slice( volume, axis_index,
+                                ROUND(slice_index[axis_index]), activity );
 
         set_slice_window_update( slice_window, 0 );
         set_slice_window_update( slice_window, 1 );
@@ -441,7 +450,8 @@ private  void   set_connected_activity(
     Boolean          desired_activity )
 {
     Volume           volume;
-    int              slice_index[3], axis_index;
+    Real             slice_index[N_DIMENSIONS];
+    int              axis_index, int_index[N_DIMENSIONS];
     display_struct   *slice_window;
 
     if( get_voxel_under_mouse( display, &slice_index[0], &slice_index[1],
@@ -450,7 +460,10 @@ private  void   set_connected_activity(
     {
         slice_window = display->associated[SLICE_WINDOW];
 
-        set_connected_voxels_activity( volume, axis_index, slice_index,
+        int_index[X] = ROUND( slice_index[X] );
+        int_index[Y] = ROUND( slice_index[Y] );
+        int_index[Z] = ROUND( slice_index[Z] );
+        set_connected_voxels_activity( volume, axis_index, int_index,
                           slice_window->slice.segmenting.min_threshold,
                           slice_window->slice.segmenting.max_threshold,
                           slice_window->slice.segmenting.connectivity,
@@ -465,7 +478,8 @@ private  void   set_connected_activity(
 public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
 {
     Volume           volume;
-    int              x, y, z, axis_index;
+    Real             x, y, z;
+    int              axis_index;
     display_struct   *slice_window;
 
     if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) &&
@@ -473,9 +487,9 @@ public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
     {
         slice_window = display->associated[SLICE_WINDOW];
 
-        print( "Filling 3d from %d %d %d\n", x, y, z );
+        print( "Filling 3d from %d %d %d\n", ROUND(x), ROUND(y), ROUND(z) );
 
-        fill_connected_voxels_3d( volume, x, y, z,
+        fill_connected_voxels_3d( volume, ROUND(x), ROUND(y), ROUND(z),
                                   slice_window->slice.segmenting.min_threshold,
                                   slice_window->slice.segmenting.max_threshold);
 

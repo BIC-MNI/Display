@@ -54,24 +54,31 @@ public  void  rebuild_cursor_icon(
 
 public  void  update_cursor_colour(
     display_struct   *display,
-    Colour           *colour )
+    Colour           colour )
 {
     model_struct    *model;
 
     model = get_graphics_model( display, CURSOR_MODEL );
 
-    get_lines_ptr(model->objects[BOX_INDEX])->colours[0] = *colour;
+    get_lines_ptr(model->objects[BOX_INDEX])->colours[0] = colour;
 }
 
 private  void   create_box(
     object_struct  **object )
 {
+    Colour         col;
     lines_struct   *lines;
 
     *object = create_object( LINES );
 
     lines = get_lines_ptr( *object );
-    initialize_lines( lines, Cursor_colour );
+
+    if( get_cursor_bitplanes() == OVERLAY_PLANES )
+        col = Cursor_colour;
+    else
+        col = Cursor_rgb_colour;
+
+    initialize_lines( lines, col );
 
     ALLOC( lines->points, 8 );
     ALLOC( lines->end_indices, 4 );
@@ -142,12 +149,20 @@ private  void   create_axis(
     int            axis_index )
 {
     static Colour  axis_colours[N_DIMENSIONS] = { 1, 2, 3 };
+    static Colour  rgb_axis_colours[N_DIMENSIONS] = { RED, GREEN, BLUE };
+    Colour         col;
     static Point   dummy = { 0.0, 0.0, 0.0 };
     lines_struct   *lines;
 
     *object = create_object( LINES );
     lines = get_lines_ptr( *object );
-    initialize_lines( lines, axis_colours[axis_index] );
+
+    if( get_cursor_bitplanes() == OVERLAY_PLANES )
+        col = axis_colours[axis_index];
+    else
+        col = rgb_axis_colours[axis_index];
+
+    initialize_lines( lines, col );
 
     add_point_to_line( lines, &dummy );
     add_point_to_line( lines, &dummy );

@@ -25,7 +25,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Ambient_light_colour, Colour, WHITE )
     DEF_GLOBAL( Directional_light_colour, Colour, WHITE )
-    DEF_GLOBAL( Light_direction, Vector, 0.0 )
+    DEF_GLOBAL3( Light_direction, Vector, 1.0, -1.0, -1.0 )
 
     DEF_GLOBAL( Menu_window_width, int, 850 )
     DEF_GLOBAL( Menu_window_height, int, 260 )
@@ -60,8 +60,8 @@ START_GLOBALS
     DEF_GLOBAL( Initial_y_scale, Real, 1.0 )
     DEF_GLOBAL( Initial_z_scale, Real, 1.0 )
 
-    DEF_GLOBAL( Default_line_of_sight, Vector, 0.0 )
-    DEF_GLOBAL( Default_horizontal, Vector, 0.0 )
+    DEF_GLOBAL3( Default_line_of_sight, Vector, 0.0, 0.0, -1.0 )
+    DEF_GLOBAL3( Default_horizontal, Vector, 1.0, 0.0, 0.0 )
 
     DEF_GLOBAL( Monitor_widths_to_eye, Real, 1.2 )
 
@@ -100,8 +100,8 @@ START_GLOBALS
     DEF_GLOBAL( Slice_text_colour, Colour, RED )
     DEF_GLOBAL( Slice_text_font, int, 0 )
     DEF_GLOBAL( Slice_text_font_size, Real, 18.0 )
-    DEF_GLOBAL( Slice_index_offset, Point, 0.0 )
-    DEF_GLOBAL( Readout_text_colour, int, 1 )
+    DEF_GLOBAL3( Slice_index_offset, Point, 50.0, -15.0, 0.0 )
+    DEF_GLOBAL( Readout_text_colour, int, 2 )
     DEF_GLOBAL( Readout_text_rgb_colour, Colour, GREEN )
     DEF_GLOBAL_STRING( Slice_index_x_format, "X = %8g" )
     DEF_GLOBAL_STRING( Slice_index_y_format, "Y = %8g" )
@@ -150,7 +150,7 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_start_pixel_y, int, 3 )
     DEF_GLOBAL( Cursor_end_pixel_y, int, 30 )
     DEF_GLOBAL( Cursor_start_pixel_z, int, 3 )
-    DEF_GLOBAL( Cursor_end_pixel_z, int, 30 )
+    DEF_GLOBAL( Cursor_end_pixel_z, int, 10 )
     DEF_GLOBAL( Slice_cursor_colour, Colour, RED )
     DEF_GLOBAL( Cursor_mouse_threshold, Real, 0.0 )
     DEF_GLOBAL( Max_cursor_angle, Real, 20.0 )
@@ -159,7 +159,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Extracted_surface_colour, Colour, WHITE )
     DEF_GLOBAL( Display_surface_in_slices, Boolean, FALSE )
-    DEF_GLOBAL( Default_surface_property, Surfprop, 0.0 )
+    DEF_GLOBAL5( Default_surface_property, Surfprop, 0.3, 0.3, 0.4, 10.0, 1.0 )
 
     DEF_GLOBAL( Min_voxels_per_update, int, 10 )
     DEF_GLOBAL( Max_voxels_per_update, int, 100000 )
@@ -234,9 +234,9 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_bitplanes, int, 0 )
 
     DEF_GLOBAL( Surface_curve_colour, Colour, MAGENTA )
-    DEF_GLOBAL( Surface_curve_overlay_flag, Boolean, TRUE )
+    DEF_GLOBAL( Surface_curve_overlay_flag, Boolean, FALSE )
     DEF_GLOBAL( Surface_curve_thickness, int, 3 )
-    DEF_GLOBAL( Line_curvature_weight, Real, 0.5 )
+    DEF_GLOBAL( Line_curvature_weight, Real, 0.0 )
 
     DEF_GLOBAL( N_painting_polygons, int, 100 )
     DEF_GLOBAL( Visible_segmenting_colour, Colour, GREEN )
@@ -280,5 +280,6 @@ START_GLOBALS
     DEF_GLOBAL( Default_paint_label, int, 1 )
 
     DEF_GLOBAL( Volume_continuity, int, 0 )
+    DEF_GLOBAL( Convert_volumes_to_byte, Boolean, TRUE )
 
 END_GLOBALS

@@ -56,10 +56,10 @@ private  void  scan_convert_marker(
     Volume           volume,
     marker_struct    *marker )
 {
-    Real           xl, xh, yl, yh, zl, zh;
-    int            xvl, xvh, yvl, yvh, zvl, zvh;
+    Real           low[N_DIMENSIONS], high[N_DIMENSIONS];
+    int            min_voxel[N_DIMENSIONS], max_voxel[N_DIMENSIONS];
     Real           voxel[N_DIMENSIONS];
-    int            label;
+    int            c, label;
 
     label = lookup_label_colour( slice_window, marker->colour );
 
@@ -67,26 +67,34 @@ private  void  scan_convert_marker(
                             Point_x(marker->position) - marker->size,
                             Point_y(marker->position) - marker->size,
                             Point_z(marker->position) - marker->size,
-                            &xl, &yl, &zl );
+                            &low[X], &low[Y], &low[Z] );
 
     convert_world_to_voxel( volume,
                             Point_x(marker->position) + marker->size,
                             Point_y(marker->position) + marker->size,
                             Point_z(marker->position) + marker->size,
-                            &xh, &yh, &zh );
+                            &high[X], &high[Y], &high[Z] );
 
-    xvl = CEILING( xl );
-    xvh = (int) xh;
-    yvl = CEILING( yl );
-    yvh = (int) yh;
-    zvl = CEILING( zl );
-    zvh = (int) zh;
-
-    for_inclusive( voxel[X], xvl, xvh )
+    for_less( c, 0, N_DIMENSIONS )
     {
-        for_inclusive( voxel[Y], yvl, yvh )
+        if( IS_INT(low[c]) )
+            min_voxel[c] = (int) low[c];
+        else
+            min_voxel[c] = (int) low[c] + 1;
+        max_voxel[c] = (int) high[c];
+
+        if( min_voxel[c] > max_voxel[c] )
         {
-            for_inclusive( voxel[Z], zvl, zvh )
+            min_voxel[c] = ROUND( (low[c] + high[c]) / 2.0 );
+            max_voxel[c] = min_voxel[c];
+        }
+    }
+
+    for_inclusive( voxel[X], min_voxel[X], max_voxel[X] )
+    {
+        for_inclusive( voxel[Y], min_voxel[Y], max_voxel[Y] )
+        {
+            for_inclusive( voxel[Z], min_voxel[Z], max_voxel[Z] )
             {
                 if( voxel_is_within_volume( volume, voxel ) )
 

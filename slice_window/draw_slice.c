@@ -426,7 +426,7 @@ private  void  render_slice_to_pixels(
     int                   volume_index;
     int                   *x_offsets, *y_offsets;
     Real                  voxel_pos[N_DIMENSIONS];
-    Colour                **fast_lookup, *colour_table;
+    Colour                **colour_tables, *colour_table;
     int                   x_index, y_index, axis_index;
     int                   x, y;
     Real                  min_voxel, max_voxel;
@@ -440,7 +440,7 @@ private  void  render_slice_to_pixels(
 
     volume = get_volume( slice_window );
     get_volume_sizes( volume, sizes );
-    fast_lookup = slice_window->slice.fast_lookup;
+    colour_tables = slice_window->slice.colour_tables;
 
     if( pixels->x_size > 0 && pixels->y_size > 0 )
         delete_pixels( pixels );
@@ -459,8 +459,10 @@ private  void  render_slice_to_pixels(
                         &x_min, &x_max, &y_min, &y_max );
 
     get_volume_voxel_range( volume, &min_voxel, &max_voxel );
-    colour_table = fast_lookup[ACTIVE_BIT];
-    colour_table -= (int) min_voxel;
+    colour_table = colour_tables[ACTIVE_BIT];
+
+    if( (int) min_voxel > 0 )
+        colour_table -= (int) min_voxel;
 
     create_volume_slice(
                     slice_window->slice.slice_views[view_index].filter_type,

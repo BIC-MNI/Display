@@ -145,6 +145,12 @@ public  model_info_struct  *get_model_info(
     return( (model_info_struct *) model->extra_ptr );
 }
 
+public  Bitplane_types  get_model_bitplanes(
+    model_struct   *model )
+{
+    return( get_model_info(model)->bitplanes );
+}
+
 public  void  create_model_after_current(
     display_struct   *display )
 {
@@ -189,6 +195,11 @@ public  void  terminate_display_model(
     FREE( model_info );
 }
 
+public  Bitplane_types  get_cursor_bitplanes()
+{
+    return( (Bitplane_types) Cursor_bitplanes );
+}
+
 private  void  initialize_graphics_window(
     display_struct   *display )
 {
@@ -227,7 +238,8 @@ private  void  initialize_graphics_window(
         model_info->view_type = view_type;
 
         if( display->window_type == THREE_D_WINDOW &&
-            (i == OVERLAY_MODEL || i == CURSOR_MODEL) )
+            (i == OVERLAY_MODEL ||
+             (i == CURSOR_MODEL && get_cursor_bitplanes() == OVERLAY_PLANES)) )
         {
             model_info->bitplanes = OVERLAY_PLANES;
         }

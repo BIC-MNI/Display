@@ -32,6 +32,18 @@ public  void  initialize_cursor_plane_outline(
     make_cursor_contours( display );
 }
 
+public  void  delete_cursor_plane_outline(
+    display_struct    *display )
+{
+    if( !IS_STACK_EMPTY(
+           display->three_d.cursor_contours.object_traverse.stack ) )
+    {
+        terminate_object_traverse(
+                  &display->three_d.cursor_contours.object_traverse );
+    }
+
+}
+
 private  void  make_cursor_contours(
     display_struct   *display )
 {
@@ -120,12 +132,7 @@ private  void   start_new_axis(
 
     contours = &display->three_d.cursor_contours;
 
-    if( !IS_STACK_EMPTY(
-           display->three_d.cursor_contours.object_traverse.stack ) )
-    {
-        terminate_object_traverse(
-                  &display->three_d.cursor_contours.object_traverse );
-    }
+    delete_cursor_plane_outline( display );
 
     initialize_object_traverse( &contours->object_traverse,
                                 N_MODELS, display->models );

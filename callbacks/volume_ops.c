@@ -57,7 +57,8 @@ private  void  change_current_slice_by_one(
 {
     display_struct   *slice_window;
     Volume           volume;
-    int              index[3], sizes[N_DIMENSIONS], axis_index;
+    Real             index[N_DIMENSIONS];
+    int              sizes[N_DIMENSIONS], axis_index;
 
     if( get_axis_index_under_mouse( display, &axis_index ) &&
         get_slice_window_volume( display, &volume ) )
@@ -66,15 +67,13 @@ private  void  change_current_slice_by_one(
 
         get_volume_sizes( volume, sizes );
 
-        get_current_voxel( slice_window,
-                           &index[X], &index[Y], &index[Z] );
+        get_current_voxel( slice_window, &index[X], &index[Y], &index[Z] );
 
-        index[axis_index] += delta;
+        index[axis_index] += (Real) delta;
 
-        if( index[axis_index] >= 0 && index[axis_index] < sizes[axis_index] )
+        if( voxel_is_within_volume( volume, index ) )
         {
-            if( set_current_voxel( slice_window, index[X], index[Y],
-                                   index[Z] ) )
+            if( set_current_voxel( slice_window, index[X], index[Y], index[Z] ))
             {
                 rebuild_probe( slice_window );
                 rebuild_cursor( slice_window, 0 );
@@ -86,7 +85,7 @@ private  void  change_current_slice_by_one(
                 {
                     set_update_required( slice_window->
                                          associated[THREE_D_WINDOW],
-                                         OVERLAY_PLANES );
+                                         get_cursor_bitplanes() );
                 }
             }
         }
@@ -126,9 +125,9 @@ public  DEF_MENU_FUNCTION(double_slice_voxels)   /* ARGSUSED */
     {
         slice_window = display->associated[SLICE_WINDOW];
 
-        slice_window->slice.slice_views[view_index].x_scale *=
+        slice_window->slice.slice_views[view_index].x_scaling *=
                                                  Slice_magnification_step;
-        slice_window->slice.slice_views[view_index].y_scale *=
+        slice_window->slice.slice_views[view_index].y_scaling *=
                                                  Slice_magnification_step;
         set_slice_window_update( slice_window, view_index );
         set_update_required( slice_window, NORMAL_PLANES );
@@ -151,9 +150,9 @@ public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
     {
         slice_window = display->associated[SLICE_WINDOW];
 
-        slice_window->slice.slice_views[view_index].x_scale /=
+        slice_window->slice.slice_views[view_index].x_scaling /=
                                                    Slice_magnification_step;
-        slice_window->slice.slice_views[view_index].y_scale /=
+        slice_window->slice.slice_views[view_index].y_scaling /=
                                                    Slice_magnification_step;
         set_slice_window_update( slice_window, view_index );
         set_update_required( slice_window, NORMAL_PLANES );
@@ -309,7 +308,7 @@ public  DEF_MENU_FUNCTION(create_3d_slice)   /* ARGSUSED */
 
         object = create_3d_slice_quadmesh( get_volume(slice_window),
                       axis_index,
-                      (Real) slice_window->slice.slice_index[axis_index] );
+                      slice_window->slice.slice_index[axis_index] );
 
         colour_code_object( display, object );
 

@@ -176,6 +176,12 @@
                        MENU_FUNCTION(set_spectral) \
                        MENU_FUNCTION(set_under_colour) \
                        MENU_FUNCTION(set_over_colour) \
+                       MENU_FUNCTION(set_nearest_neighbour) \
+                       MENU_FUNCTION(set_linear_interpolation) \
+                       MENU_FUNCTION(set_box_filter) \
+                       MENU_FUNCTION(set_triangle_filter) \
+                       MENU_FUNCTION(set_gaussian_filter) \
+                       MENU_FUNCTION(set_filter_half_width) \
                        MENU_FUNCTION(set_model_parameters) \
                        MENU_FUNCTION(convert_to_new_representation) \
                        MENU_FUNCTION(load_model_parameters) \

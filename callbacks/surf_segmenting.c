@@ -482,7 +482,7 @@ private  void  crop_surface(
             slice_window = display->associated[SLICE_WINDOW];
             fill_Point( position, 0.0, 0.0, 0.0 );
             Point_coord(position,axis_index) =
-                      (Real) slice_window->slice.slice_index[axis_index];
+                      slice_window->slice.slice_index[axis_index];
             convert_voxel_to_world( get_volume(slice_window),
                                     Point_x(position),
                                     Point_y(position),

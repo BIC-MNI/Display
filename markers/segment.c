@@ -146,6 +146,8 @@ private  void  classify(
                 if( marker2->structure_id < Marker_segment_id )
                     marker2->structure_id += Marker_segment_id;
                 marker2->colour = marker1->colour;
+                marker2->patient_id = marker1->patient_id;
+                (void) strcpy( marker2->label, marker1->label );
                 closest_dist[i] = dist;
                 if( !in_queue[i] )
                 {
@@ -263,36 +265,8 @@ private  Real  get_threshold_distance(
     display_struct   *display )
 {
     Real            threshold;
-    Volume          volume;
-    Point           position0, position1;
-    Real            x, y, z;
-    Real            x_w, y_w, z_w;
-    int             sizes[N_DIMENSIONS];
 
     threshold = display->three_d.marker_segmentation.threshold_distance;
-
-/*
-    if( get_slice_window_volume( display, &volume ) )
-    {
-        get_volume_sizes( volume, sizes );
-
-        convert_talairach_to_voxel( 0.0, 0.0, 0.0, sizes[X], sizes[Y], sizes[Z],
-                                    &x, &y, &z );
-
-        convert_voxel_to_world( volume, x, y, z, &x_w, &y_w, &z_w );
-        fill_Point( position0, x_w, y_w, z_w );
-
-        convert_talairach_to_voxel( 1.0, 1.0, 1.0, sizes[X], sizes[Y], sizes[Z],
-                                    &x, &y, &z );
-
-        convert_voxel_to_world( volume, x, y, z, &x_w, &y_w, &z_w );
-        fill_Point( position1, x_w, y_w, z_w );
-
-        threshold *= (ABS(Point_x(position0) - Point_x(position1)) +
-                      ABS(Point_y(position0) - Point_y(position1)) +
-                      ABS(Point_z(position0) - Point_z(position1))) / 3.0;
-    }
-*/
 
     return( threshold );
 }

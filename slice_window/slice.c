@@ -54,6 +54,7 @@ private  void  set_cursor_colour(
 {
     Real      indices[N_DIMENSIONS];
     int       int_indices[N_DIMENSIONS];
+    Colour    col;
     Real      value;
 
     if( get_isosurface_value( slice_window->associated[THREE_D_WINDOW], &value))
@@ -67,14 +68,20 @@ private  void  set_cursor_colour(
             voxel_contains_value( get_volume(slice_window), int_indices[X],
                                   int_indices[Y], int_indices[Z], value ))
         {
-            update_cursor_colour( slice_window->associated[THREE_D_WINDOW],
-                                  &Cursor_colour_on_surface );
+            if( get_cursor_bitplanes() )
+                col = Cursor_colour_on_surface;
+            else
+                col = Cursor_rgb_colour_on_surface;
         }
         else
         {
-            update_cursor_colour( slice_window->associated[THREE_D_WINDOW],
-                                  &Cursor_colour_off_surface );
+            if( get_cursor_bitplanes() )
+                col = Cursor_colour_off_surface;
+            else
+                col = Cursor_rgb_colour_off_surface;
         }
+
+        update_cursor_colour( slice_window->associated[THREE_D_WINDOW], col );
     }
 }
 
@@ -212,7 +219,12 @@ public  void  initialize_slice_window(
     initialize_voxel_labeling( slice_window );
 
     for_less( c, 0, N_DIMENSIONS )
+    {
+        slice_window->slice.slice_views[c].filter_type =
+                           (Filter_types) Default_filter_type;
+        slice_window->slice.slice_views[c].filter_width = Default_filter_width;
         slice_window->slice.slice_views[c].update_flag = TRUE;
+    }
 
     slice_window->slice.next_to_update = X;
 

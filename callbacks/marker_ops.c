@@ -441,26 +441,31 @@ public  DEF_MENU_UPDATE(set_default_marker_label )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( change_marker_structure_id )   /* ARGSUSED */
 {
-    int             id;
-    marker_struct   *marker;
+    int                     id;
+    marker_struct           *marker;
+    object_struct           *current_object, *object;
+    object_traverse_struct  object_traverse;
 
-    if( get_current_marker(display,&marker) )
+    print( "Enter the new structure id: " );
+
+    if( input_int( stdin, &id ) == OK &&
+        get_current_object( display, &current_object ) )
     {
-        print( "The current value of this marker id is: %d\n",
-               marker->structure_id );
+        initialize_object_traverse( &object_traverse, 1, &current_object );
 
-        print( "Enter the new value: " );
-
-        if( input_int( stdin, &id ) == OK )
+        while( get_next_object_traverse(&object_traverse,&object) )
         {
-            marker->structure_id = id;
-            print( "The new value of this marker id is: %d\n",
-               marker->structure_id );
-            rebuild_selected_list( display, menu_window );
+            if( object->object_type == MARKER )
+            {
+                marker = get_marker_ptr( object );
+                marker->structure_id = id;
+            }
         }
 
-        (void) input_newline( stdin );
+        rebuild_selected_list( display, menu_window );
     }
+
+    (void) input_newline( stdin );
 
     return( OK );
 }
@@ -472,26 +477,31 @@ public  DEF_MENU_UPDATE(change_marker_structure_id )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( change_marker_patient_id )   /* ARGSUSED */
 {
-    int             id;
-    marker_struct   *marker;
+    int                     id;
+    marker_struct           *marker;
+    object_struct           *current_object, *object;
+    object_traverse_struct  object_traverse;
 
-    if( get_current_marker(display,&marker) )
+    print( "Enter the new patient id: " );
+
+    if( input_int( stdin, &id ) == OK &&
+        get_current_object( display, &current_object ) )
     {
-        print( "The current value of this marker id is: %d\n",
-               marker->patient_id );
+        initialize_object_traverse( &object_traverse, 1, &current_object );
 
-        print( "Enter the new value: " );
-
-        if( input_int( stdin, &id ) == OK )
+        while( get_next_object_traverse(&object_traverse,&object) )
         {
-            marker->patient_id = id;
-            print( "The new value of this marker id is: %d\n",
-               marker->patient_id );
-            rebuild_selected_list( display, menu_window );
+            if( object->object_type == MARKER )
+            {
+                marker = get_marker_ptr( object );
+                marker->patient_id = id;
+            }
         }
 
-        (void) input_newline( stdin );
+        rebuild_selected_list( display, menu_window );
     }
+
+    (void) input_newline( stdin );
 
     return( OK );
 }

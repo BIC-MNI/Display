@@ -54,8 +54,7 @@ typedef  struct
     Volume                 original_volume;
     Volume                 volume;
 
-    Boolean                fast_lookup_present;
-    Colour                 *fast_lookup[NUM_LABELS];
+    Colour                 *colour_tables[NUM_LABELS];
     Real                   label_colour_ratio;
     Boolean                label_colours_used[NUM_LABELS];
     Colour                 label_colours[NUM_LABELS];

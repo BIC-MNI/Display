@@ -278,7 +278,7 @@ public  void  blend_in_atlas(
     Colour        image[],
     int           image_x_size,
     int           image_y_size,
-    int           voxel_start_indices[3],
+    Real          voxel_start_indices[N_DIMENSIONS],
     int           a1,
     int           a2,
     int           axis_index,
@@ -301,10 +301,10 @@ public  void  blend_in_atlas(
     if( !atlas->enabled || atlas->opacity <= 0.0 ||
         atlas->slice_lookup[axis_index] == (atlas_position_struct **) 0 ||
         atlas->slice_lookup[axis_index]
-            [voxel_start_indices[axis_index]] == (atlas_position_struct *) 0 ||
+        [ROUND(voxel_start_indices[axis_index])] == (atlas_position_struct *) 0 ||
         !find_appropriate_atlas_image( atlas->pixel_maps,
                       atlas->slice_lookup[axis_index]
-                      [voxel_start_indices[axis_index]],
+                      [ROUND(voxel_start_indices[axis_index])],
                       x_volume_size / x_pixel_to_voxel / ATLAS_THICKNESS[a1],
                       y_volume_size / y_pixel_to_voxel / ATLAS_THICKNESS[a2],
                       &atlas_image, &atlas_x_size, &atlas_y_size,

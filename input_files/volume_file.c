@@ -1,4 +1,4 @@
-#include  <def_mni.h>
+#include  <def_display.h>
 
 public  Status   input_volume_file(
     char           filename[],
@@ -7,7 +7,8 @@ public  Status   input_volume_file(
     Status         status;
     static String  dim_names[] = { MIxspace, MIyspace, MIzspace };
 
-    status = input_volume( filename, dim_names, volume );
+    status = input_volume( filename, dim_names, Convert_volumes_to_byte,
+                           volume );
 
     if( get_volume_n_dimensions( *volume ) != N_DIMENSIONS )
     {

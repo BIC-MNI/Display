@@ -91,35 +91,30 @@ public  DEF_MENU_UPDATE(stop_deforming_object )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( set_deformation_boundary )   /* ARGSUSED */
 {
-    Real   threshold;
+    Real   min_val, max_val, grad_threshold, angle, tolerance;
     char   ch;
 
-    print( "Current boundary threshold: %g\n",
-          display->three_d.deform.deform.boundary_definition.min_isovalue );
-    print( "Enter new value and boundary_dir[+,-,or none]: " );
+    print( "Current boundary: min %g max %g  grad_mag %g  min_dot %g max_dot %g tol %g\n",
+          display->three_d.deform.deform.boundary_definition.min_isovalue,
+          display->three_d.deform.deform.boundary_definition.max_isovalue,
+          display->three_d.deform.deform.boundary_definition.gradient_threshold,
+          display->three_d.deform.deform.boundary_definition.min_dot_product,
+          display->three_d.deform.deform.boundary_definition.max_dot_product,
+          display->three_d.deform.deform.boundary_definition.tolerance );
 
-    if( input_real( stdin, &threshold ) == OK &&
-        input_nonwhite_character( stdin, &ch ) == OK )
+    print( "Enter min_val, max_val, grad_mag_threshold, angle, [+,-,or none] tolerance: " );
+
+    if( input_real( stdin, &min_val ) == OK &&
+        input_real( stdin, &max_val ) == OK &&
+        input_real( stdin, &grad_threshold ) == OK &&
+        input_real( stdin, &angle ) == OK &&
+        input_nonwhite_character( stdin, &ch ) == OK &&
+        input_real( stdin, &tolerance ) == OK )
     {
-        display->three_d.deform.deform.boundary_definition.min_isovalue =
-               threshold;
-        display->three_d.deform.deform.boundary_definition.max_isovalue =
-               threshold;
-        switch( ch )
-        {
-        case '-':  
-            display->three_d.deform.deform.boundary_definition.normal_direction=
-                   TOWARDS_LOWER;
-            break;
-        case '+':  
-            display->three_d.deform.deform.boundary_definition.normal_direction=
-                   TOWARDS_HIGHER;
-            break;
-        default:  
-            display->three_d.deform.deform.boundary_definition.normal_direction=
-                   ANY_DIRECTION;
-            break;
-        }
+        set_boundary_definition( &display->three_d.deform.deform.
+                                          boundary_definition,
+                                 min_val, max_val, grad_threshold, angle, ch,
+                                 tolerance );
     }
 
     (void) input_newline( stdin );

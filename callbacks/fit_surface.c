@@ -60,18 +60,19 @@ public  DEF_MENU_UPDATE(delete_all_surface_points)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(add_surface_point)   /* ARGSUSED */
 {
-    int      x, y, z, axis_index;
+    int      axis_index;
+    Real     x, y, z;
     Real     x_w, y_w, z_w;
     Point    point;
 
     if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) )
     {
-        convert_voxel_to_world( get_volume(display),
-                                (Real) x, (Real) y, (Real) z,
+        convert_voxel_to_world( get_volume(display), x, y, z,
                                 &x_w, &y_w, &z_w );
         fill_Point( point, x_w, y_w, z_w );
 
-        set_voxel_label_flag( get_volume(display), x, y, z, TRUE );
+        set_voxel_label_flag( get_volume(display),
+                              ROUND(x), ROUND(y), ROUND(z), TRUE );
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
@@ -91,17 +92,18 @@ public  DEF_MENU_UPDATE(add_surface_point)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(delete_surface_point)   /* ARGSUSED */
 {
-    int      x, y, z, axis_index;
+    int      axis_index;
+    Real     x, y, z;
     Real     x_w, y_w, z_w;
     Point    point;
 
     if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) )
     {
-        convert_voxel_to_world( get_volume(display),
-                                (Real) x, (Real) y, (Real) z,
+        convert_voxel_to_world( get_volume(display), x, y, z,
                                 &x_w, &y_w, &z_w );
         fill_Point( point, x_w, y_w, z_w );
-        set_voxel_label_flag( get_volume(display), x, y, z, FALSE );
+        set_voxel_label_flag( get_volume(display),
+                              ROUND(x), ROUND(y), ROUND(z), FALSE );
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 2 );

@@ -112,7 +112,8 @@ private  void  paint_labels_at_point(
     int      label, axis, a1, a2, value;
     int      int_x_brush_radius, int_y_brush_radius, int_z_brush_radius;
     int      dx, dy, dz;
-    int      indices[N_DIMENSIONS], ind[N_DIMENSIONS];
+    Real     indices[N_DIMENSIONS];
+    int      ind[N_DIMENSIONS];
     Boolean  update_required;
 
     if( get_slice_window_volume( slice_window, &volume ) &&
@@ -145,15 +146,15 @@ private  void  paint_labels_at_point(
 
         for_inclusive( dx, -int_x_brush_radius, int_x_brush_radius )
         {
-            ind[a1] = indices[a1] + dx;
+            ind[a1] = ROUND(indices[a1]) + dx;
             x_term = dx * dx / x_brush_radius_squared;
             for_inclusive( dy, -int_y_brush_radius, int_y_brush_radius )
             {
-                ind[a2] = indices[a2] + dy;
+                ind[a2] = ROUND(indices[a2]) + dy;
                 y_term = dy * dy / y_brush_radius_squared;
                 for_inclusive( dz, -int_z_brush_radius, int_z_brush_radius )
                 {
-                    ind[axis] = indices[axis] + dz;
+                    ind[axis] = ROUND(indices[axis]) + dz;
                     z_term = dz * dz / z_brush_radius_squared;
 
                     if( x_term + y_term + z_term <= 1.0 &&
