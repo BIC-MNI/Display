@@ -2,8 +2,9 @@
 
 typedef  struct
 {
-    Real   distance;
-    int    from_point;
+    int             changed;
+    Real            distance;
+    int             from_point;
 } vertex_struct;
 
 public  Boolean  distance_along_polygons( polygons, p1, poly1, p2, poly2,
@@ -54,15 +55,18 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
     int                    point_index1, point_index2, delta;
     Real                   dist, distance1, dist_sum;
     Real                   distance_between_points();
-    Boolean                found, changed;
+    Boolean                found, changed, iteration;
 
     for_less( i, 0, polygons->n_points )
     {
         vertices[i].from_point = -2;
         vertices[i].distance = -1.0;
+        vertices[i].changed = -1;
     }
 
     size = GET_OBJECT_SIZE( *polygons, poly1 );
+
+    iteration = 0;
 
     for_less( e, 0, size )
     {
@@ -72,6 +76,7 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
 
         vertices[point_index].from_point = -1;
         vertices[point_index].distance = dist;
+        vertices[point_index].changed = iteration;
     }
 
     found = FALSE;
@@ -79,9 +84,10 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
 
     while( changed )
     {
-        static  int   count = 0;
-        ++count;
-        (void) fprintf( stderr, "Iteration %d\n", count );
+        ++iteration;
+
+        (void) fprintf( stderr, "Iteration %d\n", iteration );
+
         changed = FALSE;
 
         for_less( poly, 0, polygons->n_items )
@@ -92,13 +98,16 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
             {
                 point_index1 = polygons->indices[
                                 POINT_INDEX(polygons->end_indices,poly,i1)];
-                distance1 = vertices[point_index1].distance;
 
-                if( vertices[point_index1].from_point != -2 &&
-                    (!found || distance1 < *path_dist) )
+                if( vertices[point_index1].changed >= iteration-1 )
                 {
-                    for( delta = -1;  delta <= 1;  delta += 2 )
+                    distance1 = vertices[point_index1].distance;
+
+                    if( vertices[point_index1].from_point != -2 &&
+                        (!found || distance1 < *path_dist) )
                     {
+                        for( delta = -1;  delta <= 1;  delta += 2 )
+                        {
                         i2 = (i1 + delta + size) % size;
                         point_index2 = polygons->indices[
                                 POINT_INDEX(polygons->end_indices,poly,i2)];
@@ -113,11 +122,13 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
                             if( vertices[point_index2].from_point == -2 ||
                                 dist_sum < vertices[point_index2].distance )
                             {
+                                vertices[point_index2].changed = iteration;
                                 vertices[point_index2].distance = dist_sum;
                                 vertices[point_index2].from_point =
                                                        point_index1;
                                 changed = TRUE;
                             }
+                        }
                         }
                     }
                 }
