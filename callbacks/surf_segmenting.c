@@ -358,6 +358,32 @@ public  DEF_MENU_UPDATE(set_vis_to_invis_colour)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( crop_above_plane )   /* ARGSUSED */
 {
+    int              axis_index;
+    Point            position;
+    polygons_struct  *polygons;
+    graphics_struct  *slice_window;
+    Boolean          get_axis_view_index_under_mouse();
+    void             graphics_models_have_changed();
+    void             crop_polygons_visibilities();
+    void             convert_voxel_to_point();
+
+    if( get_current_polygons(graphics,&polygons) &&
+        get_axis_view_index_under_mouse( graphics, &axis_index ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+        fill_Point( position, 0.0, 0.0, 0.0 );
+        Point_coord(position,axis_index) =
+                  (Real) slice_window->slice.slice_index[axis_index];
+        convert_voxel_to_point( slice_window,
+                                Point_x(position),
+                                Point_y(position),
+                                Point_z(position),
+                                &position );
+        crop_polygons_visibilities( polygons, axis_index,
+                                    Point_coord(position,axis_index), TRUE );
+        graphics_models_have_changed( graphics );
+    }
+
     return( OK );
 }
 
@@ -368,6 +394,32 @@ public  DEF_MENU_UPDATE(crop_above_plane)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( crop_below_plane )   /* ARGSUSED */
 {
+    int              axis_index;
+    Point            position;
+    polygons_struct  *polygons;
+    graphics_struct  *slice_window;
+    Boolean          get_axis_view_index_under_mouse();
+    void             graphics_models_have_changed();
+    void             crop_polygons_visibilities();
+    void             convert_voxel_to_point();
+
+    if( get_current_polygons(graphics,&polygons) &&
+        get_axis_view_index_under_mouse( graphics, &axis_index ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+        fill_Point( position, 0.0, 0.0, 0.0 );
+        Point_coord(position,axis_index) =
+                  (Real) slice_window->slice.slice_index[axis_index];
+        convert_voxel_to_point( slice_window,
+                                Point_x(position),
+                                Point_y(position),
+                                Point_z(position),
+                                &position );
+        crop_polygons_visibilities( polygons, axis_index,
+                                    Point_coord(position,axis_index), FALSE );
+        graphics_models_have_changed( graphics );
+    }
+
     return( OK );
 }
 
