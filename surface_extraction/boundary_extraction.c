@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.21 1996-04-19 17:38:52 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.22 1996-05-08 18:46:36 david Exp $";
 #endif
 
 #include  <display.h>
@@ -138,12 +138,13 @@ private  void  add_face(
     int                         offset,
     BOOLEAN                     inside_flags[3][3][3],
     BOOLEAN                     valid_flags[3][3][3],
-    polygons_struct             *polygons )
+    polygons_struct             *polygons,
+    int                         poly_index )
 {
-    int                  a1, a2, point_index, ind, dim;
-    int                  n_indices, point_indices[4], x, y;
+    int                  a1, a2, point_index, ind, dim, start_index;
+    int                  point_indices[4], x, y;
     int                  sizes[N_DIMENSIONS];
-    voxel_index_struct   corner_index;
+    int                  corner_index[N_DIMENSIONS];
     Real                 voxel[N_DIMENSIONS], xw, yw, zw;
     Real                 voxel_normal[N_DIMENSIONS], separations[N_DIMENSIONS];
     Point                point;
@@ -157,14 +158,14 @@ private  void  add_face(
     {
         a1 = (c + 1) % N_DIMENSIONS;
         a2 = (c + 2) % N_DIMENSIONS;
-        corner_index.i[c] = (short) indices[c];
+        corner_index[c] = indices[c];
         voxel[c] = -1.0;
     }
     else
     {
         a1 = (c + 2) % N_DIMENSIONS;
         a2 = (c + 1) % N_DIMENSIONS;
-        corner_index.i[c] = (short) (indices[c] + 1);
+        corner_index[c] = indices[c] + 1;
         voxel[c] = 1.0;
     }
 
@@ -177,57 +178,183 @@ private  void  add_face(
     for_less( x, indices[a1], indices[a1] + 2 )
     for_less( y, indices[a2], indices[a2] + 2 )
     {
-        corner_index.i[a1] = (short) x;
-        corner_index.i[a2] = (short) y;
+        corner_index[a1] = x;
+        corner_index[a2] = y;
+
         if( !lookup_edge_point_id( sizes,
                                    &surface_extraction->edge_points,
-                                   &corner_index, 0, &point_index ) )
+                                   corner_index[X],
+                                   corner_index[Y],
+                                   corner_index[Z],
+                                   0, &point_index ) )
         {
             point_index = polygons->n_points;
 
             record_edge_point_id( sizes, &surface_extraction->edge_points,
-                                  &corner_index, 0, point_index );
-            voxel[X] = (Real) corner_index.i[X] - 0.5;
-            voxel[Y] = (Real) corner_index.i[Y] - 0.5;
-            voxel[Z] = (Real) corner_index.i[Z] - 0.5;
+                                  corner_index[X],
+                                  corner_index[Y],
+                                  corner_index[Z],
+                                  0, point_index );
+            voxel[X] = (Real) corner_index[X] - 0.5;
+            voxel[Y] = (Real) corner_index[Y] - 0.5;
+            voxel[Z] = (Real) corner_index[Z] - 0.5;
             convert_voxel_to_world( volume, voxel, &xw, &yw, &zw );
             fill_Point( point, xw, yw, zw );
 
-            get_vertex_normal( separations,
-                               (int) corner_index.i[X] - indices[X],
-                               (int) corner_index.i[Y] - indices[Y],
-                               (int) corner_index.i[Z] - indices[Z],
-                               inside_flags, valid_flags, voxel_normal );
-
-            convert_voxel_vector_to_world( volume, voxel_normal,
-                                           &xw, &yw, &zw );
-            fill_Vector( normal, xw, yw, zw );
-            NORMALIZE_VECTOR( normal, normal );
-
+            SET_ARRAY_SIZE( polygons->normals, polygons->n_points,
+                            polygons->n_points+1, DEFAULT_CHUNK_SIZE );
             ADD_ELEMENT_TO_ARRAY( polygons->points, polygons->n_points,
                                   point, DEFAULT_CHUNK_SIZE );
-            --polygons->n_points;
-            ADD_ELEMENT_TO_ARRAY( polygons->normals, polygons->n_points,
-                                  normal, DEFAULT_CHUNK_SIZE );
         }
+
+        get_vertex_normal( separations,
+                           corner_index[X] - indices[X],
+                           corner_index[Y] - indices[Y],
+                           corner_index[Z] - indices[Z],
+                           inside_flags, valid_flags, voxel_normal );
+
+        convert_voxel_vector_to_world( volume, voxel_normal, &xw, &yw, &zw );
+        fill_Vector( normal, xw, yw, zw );
+        NORMALIZE_VECTOR( normal, normal );
+
+        polygons->normals[point_index] = normal;
 
         point_indices[ind] = point_index;
         ++ind;
     }
 
-    n_indices = NUMBER_INDICES( *polygons );
+    if( poly_index == polygons->n_items )
+    {
+        start_index = NUMBER_INDICES( *polygons );
+        ADD_ELEMENT_TO_ARRAY( polygons->end_indices, polygons->n_items,
+                              start_index+4, DEFAULT_CHUNK_SIZE );
 
-    ADD_ELEMENT_TO_ARRAY( polygons->indices, n_indices,
-                          point_indices[0], DEFAULT_CHUNK_SIZE);
-    ADD_ELEMENT_TO_ARRAY( polygons->indices, n_indices,
-                          point_indices[1], DEFAULT_CHUNK_SIZE);
-    ADD_ELEMENT_TO_ARRAY( polygons->indices, n_indices,
-                          point_indices[3], DEFAULT_CHUNK_SIZE);
-    ADD_ELEMENT_TO_ARRAY( polygons->indices, n_indices,
-                          point_indices[2], DEFAULT_CHUNK_SIZE);
+        SET_ARRAY_SIZE( polygons->indices, start_index, start_index+4,
+                        DEFAULT_CHUNK_SIZE );
+    }
+    else
+        start_index = POINT_INDEX( polygons->end_indices, poly_index, 0 );
 
-    ADD_ELEMENT_TO_ARRAY( polygons->end_indices, polygons->n_items,
-                          n_indices, DEFAULT_CHUNK_SIZE );
+    polygons->indices[start_index+0] = point_indices[0];
+    polygons->indices[start_index+1] = point_indices[1];
+    polygons->indices[start_index+2] = point_indices[3];
+    polygons->indices[start_index+3] = point_indices[2];
+}
+
+private  void  get_inside_flags(
+    Volume                      volume,
+    Volume                      label_volume,
+    surface_extraction_struct   *surface_extraction,
+    int                         voxel[],
+    BOOLEAN                     first_time_flag,
+    BOOLEAN                     inside_flags[3][3][3],
+    BOOLEAN                     valid_flags[3][3][3] )
+{
+    int              sizes[N_DIMENSIONS], tx, ty, tz, dx, dy, dz, sum;
+    int              min_x, min_y, min_z, max_x, max_y, max_z;
+    BOOLEAN          on_boundary;
+    Real             value, label;
+    Real             min_value, max_value, min_label, max_label;
+
+    get_volume_sizes( volume, sizes );
+
+    min_x = 0;
+    min_y = 0;
+    min_z = 0;
+    max_x = 2;
+    max_y = 2;
+    max_z = 2;
+    on_boundary = FALSE;
+
+    if( voxel[X] == 0 )
+    {
+        min_x = 1;
+        on_boundary = TRUE;
+    }
+    if( voxel[Y] == 0 )
+    {
+        min_y = 1;
+        on_boundary = TRUE;
+    }
+    if( voxel[Z] == 0 )
+    {
+        min_z = 1;
+        on_boundary = TRUE;
+    }
+
+    if( voxel[X] == sizes[X]-1 )
+    {
+        max_x = 1;
+        on_boundary = TRUE;
+    }
+    if( voxel[Y] == sizes[Y]-1 )
+    {
+        max_y = 1;
+        on_boundary = TRUE;
+    }
+    if( voxel[Z] == sizes[Z]-1 )
+    {
+        max_z = 1;
+        on_boundary = TRUE;
+    }
+
+    if( on_boundary && first_time_flag )
+    {
+        for_inclusive( dx, 0, 2 )
+        for_inclusive( dy, 0, 2 )
+        for_inclusive( dz, 0, 2 )
+        {
+            inside_flags[dx][dy][dz] = FALSE;
+            valid_flags[dx][dy][dz] = TRUE;
+        }
+    }
+
+    min_value = surface_extraction->min_value;
+    max_value = surface_extraction->max_value;
+
+    if( label_volume != NULL &&
+        surface_extraction->min_invalid_label <=
+        surface_extraction->max_invalid_label )
+    {
+        min_label = surface_extraction->min_invalid_label;
+        max_label = surface_extraction->max_invalid_label;
+    }
+    else
+        label_volume = NULL;
+
+    for_inclusive( dx, min_x, max_x )
+    for_inclusive( dy, min_y, max_y )
+    for_inclusive( dz, min_z, max_z )
+    {
+        sum = (dx == 1) + (dy == 1) + (dz == 1);
+
+        if( first_time_flag )
+        {
+            if( sum < 2 )
+                continue;
+        }
+        else
+        {
+            if( sum >= 2 )
+                continue;
+        }
+
+        tx = voxel[X] + dx - 1;
+        ty = voxel[Y] + dy - 1;
+        tz = voxel[Z] + dz - 1;
+
+        value = get_volume_real_value( volume, tx, ty, tz, 0, 0 );
+
+        inside_flags[dx][dy][dz] = (min_value <= value && value <= max_value);
+
+        if( label_volume != NULL )
+        {
+            label = (Real) get_3D_volume_label_data( label_volume, tx, ty, tz );
+            valid_flags[dx][dy][dz] = label < min_label || label > max_label;
+        }
+        else
+            valid_flags[dx][dy][dz] = TRUE;
+    }
 }
 
 public  BOOLEAN  extract_voxel_boundary_surface(
@@ -236,70 +363,75 @@ public  BOOLEAN  extract_voxel_boundary_surface(
     surface_extraction_struct   *surface_extraction,
     int                         voxel[] )
 {
-    int      dim, offset, sizes[N_DIMENSIONS], tx, ty, tz, dx, dy, dz;
-    Real     value, label;
-    BOOLEAN  contains_surface;
-    BOOLEAN  inside_flags[3][3][3];
-    BOOLEAN  valid_flags[3][3][3];
+    int              dim, offset, sizes[N_DIMENSIONS];
+    int              face_index, poly_index, size, start_index, p;
+    BOOLEAN          modified, face_exists, should_exist;
+    BOOLEAN          inside_flags[3][3][3];
+    BOOLEAN          valid_flags[3][3][3];
+    polygons_struct  *polygons;
 
     get_volume_sizes( volume, sizes );
+    polygons = surface_extraction->polygons;
 
-    for_inclusive( dx, -1, 1 )
-    for_inclusive( dy, -1, 1 )
-    for_inclusive( dz, -1, 1 )
-    {
-        tx = voxel[X] + dx;
-        ty = voxel[Y] + dy;
-        tz = voxel[Z] + dz;
+    get_inside_flags( volume, label_volume, surface_extraction,
+                      voxel, TRUE, inside_flags, valid_flags );
 
-        if( tx >= 0 && tx < sizes[X] &&
-            ty >= 0 && ty < sizes[Y] &&
-            tz >= 0 && tz < sizes[Z] )
-        {
-            value = get_volume_real_value( volume, tx, ty, tz, 0, 0 );
-
-            inside_flags[dx+1][dy+1][dz+1] =
-                    surface_extraction->min_value <= value &&
-                    value <= surface_extraction->max_value;
-
-            if( label_volume != NULL &&
-                surface_extraction->min_invalid_label <=
-                surface_extraction->max_invalid_label )
-            {
-                label = (Real) get_3D_volume_label_data( label_volume,
-                                                         tx, ty, tz );
-                valid_flags[dx+1][dy+1][dz+1] =
-                          ( surface_extraction->min_invalid_label <= label &&
-                            label <= surface_extraction->max_invalid_label );
-            }
-            else
-                valid_flags[dx+1][dy+1][dz+1] = TRUE;
-        }
-        else
-        {
-            inside_flags[dx+1][dy+1][dz+1] = FALSE;
-            valid_flags[dx+1][dy+1][dz+1] = TRUE;
-        }
-    }
-
-    if( !inside_flags[1][1][1] )
-        return( FALSE );
-
-    contains_surface = FALSE;
+    modified = FALSE;
 
     for_less( dim, 0, N_DIMENSIONS )
     {
         for( offset = -1;  offset <= 1;  offset += 2 )
         {
-            if( face_is_boundary( inside_flags, valid_flags, dim, offset ) )
+            face_index = 2 * dim + (offset+1) / 2;
+            face_exists = lookup_edge_point_id( sizes,
+                                                &surface_extraction->faces_done,
+                                                voxel[X], voxel[Y], voxel[Z],
+                                                face_index, &poly_index );
+            should_exist = face_is_boundary( inside_flags, valid_flags, dim,
+                                             offset );
+
+            if( should_exist && !face_exists )
             {
-                add_face( surface_extraction, volume, voxel, dim, offset,
-                          inside_flags, valid_flags,
-                          surface_extraction->polygons );
-                contains_surface = TRUE;
+                if( IS_QUEUE_EMPTY( surface_extraction->deleted_faces ) )
+                    poly_index = polygons->n_items;
+                else
+                {
+                    REMOVE_FROM_QUEUE( surface_extraction->deleted_faces,
+                                       poly_index );
+                }
+
+                get_inside_flags( volume, label_volume, surface_extraction,
+                                  voxel, FALSE, inside_flags, valid_flags );
+
+                add_face( surface_extraction, volume, voxel, dim,
+                          offset, inside_flags, valid_flags,
+                          polygons, poly_index );
+
+                record_edge_point_id( sizes,
+                                      &surface_extraction->faces_done,
+                                      voxel[X], voxel[Y], voxel[Z],
+                                      face_index, poly_index );
+
+                modified = TRUE;
+            }
+            else if( !should_exist && face_exists )
+            {
+                remove_edge_point( sizes,
+                                   &surface_extraction->faces_done,
+                                   voxel[X], voxel[Y], voxel[Z],
+                                   face_index );
+
+                INSERT_IN_QUEUE( surface_extraction->deleted_faces, poly_index);
+
+                size = GET_OBJECT_SIZE( *polygons, poly_index );
+                start_index = POINT_INDEX( polygons->end_indices, poly_index,0);
+                for_less( p, 0, size )
+                    polygons->indices[start_index+p] = 0;
+
+                modified = TRUE;
             }
         }
     }
 
-    return( contains_surface );
+    return( modified );
 }
