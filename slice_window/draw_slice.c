@@ -326,7 +326,7 @@ public  void  rebuild_slice_pixels( graphics, view_index )
     }
 
     render_slice_to_pixels( graphics->slice.temporary_indices,
-                   pixels, axis_index, x_index, y_index, graphics->slice.volume,
+                   pixels, x_index, y_index, graphics->slice.volume,
                    graphics->slice.fast_lookup_present,
                    graphics->slice.fast_lookup,
                    &graphics->slice.colour_coding,
@@ -485,7 +485,7 @@ public  void  rebuild_cursor( graphics, view_index )
     fill_Point( lines->points[7], x_end + end_pixel[x_index], y_centre, 0.0 );
 }
 
-private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
+private  void  render_slice_to_pixels( temporary_indices, pixels,
                                        x_index, y_index, volume,
                                        fast_lookup_present, fast_lookup,
                                        colour_coding, start_indices,
@@ -493,7 +493,7 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
                                        x_scale, y_scale )
     int                   temporary_indices[];
     pixels_struct         *pixels;
-    int                   axis_index, x_index, y_index;
+    int                   x_index, y_index;
     volume_struct         *volume;
     Boolean               fast_lookup_present;
     Pixel_colour          *fast_lookup[];
@@ -504,13 +504,12 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
 {
     Status          status;
     int             new_size, old_size;
-    int             x, y, prev_x;
+    int             x, y, prev_x_offset, x_offset, prev_y_offset, y_offset;
     int             x_size, y_size;
     int             val, min_value;
     int             lookup_index;
-    int             x_voxel, y_voxel, z_voxel;
-    int             *x_voxel_ptr, *y_voxel_ptr;
-    unsigned char   *volume_ptr;
+    int             voxel_indices[3];
+    unsigned char   *volume_ptr, *start_volume_ptr;
     int             new_lookup_index;
     Colour          col;
     Pixel_colour    pixel_col, *pixel_ptr;
@@ -518,7 +517,6 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
     Pixel_colour    *lookup;
     Pixel_colour    get_voxel_colour();
     void            get_colour_coding();
-    Boolean         activity_flag, label_flag;
     Pixel_colour    *bogus_fast_lookup[4];
 
     if( !fast_lookup_present )
@@ -562,31 +560,26 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
                         DEFAULT_CHUNK_SIZE );
     }
     
-    switch( axis_index )
-    {
-    case 0:  x_voxel = start_indices[axis_index];  break;
-    case 1:  y_voxel = start_indices[axis_index];  break;
-    case 2:  z_voxel = start_indices[axis_index];  break;
-    }
+    voxel_indices[X] = start_indices[X];
+    voxel_indices[Y] = start_indices[Y];
+    voxel_indices[Z] = start_indices[Z];
 
-    switch( x_index )
-    {
-    case 0:  x_voxel_ptr = &x_voxel;  break;
-    case 1:  x_voxel_ptr = &y_voxel;  break;
-    case 2:  x_voxel_ptr = &z_voxel;  break;
-    }
-
-    switch( y_index )
-    {
-    case 0:  y_voxel_ptr = &x_voxel;  break;
-    case 1:  y_voxel_ptr = &y_voxel;  break;
-    case 2:  y_voxel_ptr = &z_voxel;  break;
-    }
+    start_volume_ptr = GET_VOLUME_PTR( *volume,
+                                       voxel_indices[X],
+                                       voxel_indices[Y],
+                                       voxel_indices[Z] );
 
     for_less( x, 0, x_size )
     {
-        temporary_indices[x] = start_indices[x_index] + x * dx;
+        voxel_indices[x_index] = ROUND( start_indices[x_index] + x * dx );
+        volume_ptr = GET_VOLUME_PTR( *volume,
+                                     voxel_indices[X],
+                                     voxel_indices[Y],
+                                     voxel_indices[Z] );
+        temporary_indices[x] = (int) (volume_ptr - start_volume_ptr);
     }
+
+    voxel_indices[x_index] = start_indices[x_index];
 
     min_value = volume->min_value;
 
@@ -595,51 +588,71 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
     if( !Display_activities )
         lookup = fast_lookup[0];
 
+    prev_y_offset = -1000000;
+
     for_less( y, 0, y_size )
     {
         pixel_ptr = &pixels->pixels[y * x_size];
 
-        *y_voxel_ptr = start_indices[y_index] + y * dy;
+        y_offset = ROUND( start_indices[y_index] + y * dy );
 
-        prev_x = -1;
-
-        for_less( x, 0, x_size )
+        if( y_offset == prev_y_offset )
         {
-            *x_voxel_ptr = temporary_indices[x];
-
-            if( *x_voxel_ptr != prev_x )
+            for_less( x, 0, x_size )
             {
-                volume_ptr = GET_VOLUME_PTR( *volume,
-                                             x_voxel, y_voxel, z_voxel );
-                if( Display_activities )
-                {
-                    new_lookup_index = GET_VOLUME_AUX_DATA_AT_PTR( *volume,
-                                                                   volume_ptr );
-                    new_lookup_index >>= 6;
-                    new_lookup_index ^= 1;
+                *pixel_ptr = *(pixel_ptr-x_size);
+                ++pixel_ptr;
+            }
+        }
+        else
+        {
+            prev_y_offset = y_offset;
 
-                    if( lookup_index != new_lookup_index )
+            voxel_indices[y_index] = y_offset;
+            start_volume_ptr = GET_VOLUME_PTR( *volume, voxel_indices[X],
+                                               voxel_indices[Y],
+                                               voxel_indices[Z] );
+
+            prev_x_offset = -100000;
+
+            for_less( x, 0, x_size )
+            {
+                x_offset = temporary_indices[x];
+
+                if( x_offset != prev_x_offset )
+                {
+                    prev_x_offset = x_offset;
+
+                    volume_ptr = start_volume_ptr + x_offset;
+
+                    if( Display_activities )
                     {
-                        lookup = fast_lookup[new_lookup_index];
-                        lookup_index = new_lookup_index;
+                        new_lookup_index = GET_VOLUME_AUX_DATA_AT_PTR( *volume,
+                                                                   volume_ptr );
+                        new_lookup_index >>= 6;
+                        new_lookup_index ^= 1;
+
+                        if( lookup_index != new_lookup_index )
+                        {
+                            lookup = fast_lookup[new_lookup_index];
+                            lookup_index = new_lookup_index;
+                        }
+                    }
+
+                    val = GET_VOLUME_DATA_AT_PTR( *volume, volume_ptr );
+
+                    if( fast_lookup_present )
+                        pixel_col = lookup[val-min_value];
+                    else
+                    {
+                        get_colour_coding( colour_coding, (Real) val, &col );
+                        COLOUR_TO_PIXEL( col, pixel_col );
                     }
                 }
 
-                val = GET_VOLUME_DATA_AT_PTR( *volume, volume_ptr );
-
-                if( fast_lookup_present )
-                    pixel_col = lookup[val-min_value];
-                else
-                {
-                    get_colour_coding( colour_coding, (Real) val, &col );
-                    COLOUR_TO_PIXEL( col, pixel_col );
-                }
-
-                prev_x = *x_voxel_ptr;
+                *pixel_ptr = pixel_col;
+                ++pixel_ptr;
             }
-
-            *pixel_ptr = pixel_col;
-            ++pixel_ptr;
         }
     }
 }
