@@ -275,7 +275,6 @@ private  void  fast_paint_labels(
     int            value, sizes[N_DIMENSIONS];
     Real           min_threshold, max_threshold, volume_value;
     int            ind[N_DIMENSIONS];
-    Real           voxel[MAX_DIMENSIONS];
     pixels_struct  *pixels;
     int            x_min, x_max, y_min, y_max;
     Real           x, y, x_offset, x_scale, y_offset, y_scale;
@@ -301,41 +300,8 @@ private  void  fast_paint_labels(
     get_slice_viewport( slice_window, view_index,
                         &x_min, &x_max, &y_min, &y_max );
 
-    get_current_voxel( slice_window, voxel );
-
-    voxel[a1] = 0.0;
-    voxel[a2] = 0.0;
-    convert_voxel_to_pixel( slice_window, view_index,
-                            voxel, &x_trans, &y_trans );
-
-    voxel[a1] = 1.0;
-    convert_voxel_to_pixel( slice_window, view_index,
-                            voxel, &x, &y );
-
-    if( x == x_trans && y != y_trans )
-    {
-        int  tmp;
-        tmp = a1;
-        a1 = a2;
-        a2 = tmp;
-        y_scale = y - y_trans;
-
-        voxel[a1] = 1.0;
-        voxel[a2] = 0.0;
-        convert_voxel_to_pixel( slice_window, view_index,
-                                voxel, &x, &y );
-        x_scale = x - x_trans;
-    }
-    else
-    {
-        x_scale = x - x_trans;
-
-        voxel[a1] = 0.0;
-        voxel[a2] = 1.0;
-        convert_voxel_to_pixel( slice_window, view_index,
-                                voxel, &x, &y );
-        y_scale = y - y_trans;
-    }
+    get_voxel_to_pixel_transform( slice_window, view_index, &a1, &a2,
+                                  &x_scale, &x_trans, &y_scale, &y_trans );
 
     if( x_scale >= 0.0 )
         x_offset = 0.5;
@@ -585,28 +551,26 @@ private   void    add_point_to_contour(
     int              a1,
     int              a2,
     int              axis,
+    Real             x_scale,
+    Real             x_trans,
+    Real             y_scale,
+    Real             y_trans,
     int              voxel[],
     Directions       dir,
     lines_struct     *lines )
 {
-    int     c, x_pixel, y_pixel;
+    int     x_pixel, y_pixel, next_dir;
     Real    real_x_pixel, real_y_pixel;
-    Real    real_voxel[N_DIMENSIONS];
     Point   point;
 
-    for_less( c, 0, N_DIMENSIONS )
-        real_voxel[c] = (Real) voxel[c];
+    next_dir = (dir + 1) % N_DIRECTIONS;
 
-    real_voxel[a1] += (Real) dx[dir] / 2.0;
-    real_voxel[a2] += (Real) dy[dir] / 2.0;
-
-    dir = (dir + 1) % N_DIRECTIONS;
-
-    real_voxel[a1] += (Real) dx[dir] / 2.0;
-    real_voxel[a2] += (Real) dy[dir] / 2.0;
-
-    convert_voxel_to_pixel( slice_window, axis, real_voxel,
-                            &real_x_pixel, &real_y_pixel );
+    real_x_pixel = x_scale * ((Real) voxel[a1] +
+                              (Real) (dx[dir] + (Real) dx[next_dir]) / 2.0) +
+                   x_trans;
+    real_y_pixel = y_scale * ((Real) voxel[a2] +
+                              (Real) (dy[dir] + (Real) dy[next_dir]) / 2.0) +
+                   y_trans;
 
     x_pixel = ROUND( real_x_pixel );
     y_pixel = ROUND( real_y_pixel );
@@ -651,6 +615,7 @@ private  void  get_brush_contour(
     display_struct    *slice_window,
     int               x_centre_pixel,
     int               y_centre_pixel,
+    int               view_index,
     int               a1,
     int               a2,
     int               axis,
@@ -662,6 +627,10 @@ private  void  get_brush_contour(
 {
     int          current_voxel[N_DIMENSIONS];
     Directions   dir;
+    Real         x_scale, x_trans, y_scale, y_trans;
+
+    get_voxel_to_pixel_transform( slice_window, view_index, &a1, &a2,
+                                  &x_scale, &x_trans, &y_scale, &y_trans );
 
     current_voxel[X] = start_voxel[X];
     current_voxel[Y] = start_voxel[Y];
@@ -671,7 +640,8 @@ private  void  get_brush_contour(
     do
     {
         add_point_to_contour( slice_window, x_centre_pixel, y_centre_pixel,
-                              a1, a2, axis, current_voxel, dir, lines );
+                              a1, a2, axis, x_scale, x_trans, y_scale, y_trans,
+                              current_voxel, dir, lines );
 
         dir = (dir + 1) % N_DIRECTIONS;
 
@@ -722,8 +692,8 @@ private  void   update_brush(
         if( start_voxel[a1] > ROUND( centre[a1] ) )
             --start_voxel[a1];
 
-        get_brush_contour( slice_window, x, y, a1, a2, axis, centre, radius,
-                           start_voxel, POSITIVE_X, lines );
+        get_brush_contour( slice_window, x, y, view, a1, a2, axis,
+                           centre, radius, start_voxel, POSITIVE_X, lines );
 
         set_update_required( slice_window, NORMAL_PLANES );
     }

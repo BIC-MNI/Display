@@ -138,22 +138,36 @@ public  void  set_slice_window_all_update(
 }
 
 public  void  update_slice_window(
-    display_struct   *display )
+    display_struct   *slice_window )
 {
-    int   view;
+    BOOLEAN  changed;
+    int      view;
 
     for_less( view, 0, N_SLICE_VIEWS )
     {
-        if( display->slice.slice_views[view].update_flag )
+        changed = FALSE;
+
+        update_slice_pixel_visibilities( slice_window, view );
+
+        if( slice_window->slice.slice_views[view].update_flag )
         {
-            rebuild_slice_pixels( display, view );
-            display->slice.slice_views[view].update_flag = FALSE;
+            rebuild_slice_pixels( slice_window, view );
+            slice_window->slice.slice_views[view].update_flag = FALSE;
+            changed = TRUE;
         }
 
-        if( display->slice.slice_views[view].update_labels_flag )
+        if( slice_window->slice.slice_views[view].update_labels_flag )
         {
-            rebuild_label_slice_pixels( display, view );
-            display->slice.slice_views[view].update_labels_flag = FALSE;
+            rebuild_label_slice_pixels( slice_window, view );
+            slice_window->slice.slice_views[view].update_labels_flag = FALSE;
+            changed = TRUE;
+        }
+
+        if( changed ||
+            slice_window->slice.slice_views[view].update_composite_flag )
+        {
+            composite_volume_and_labels( slice_window, view );
+            slice_window->slice.slice_views[view].update_composite_flag = FALSE;
         }
     }
 }
@@ -204,6 +218,7 @@ public  void  initialize_slice_window(
                                           Default_filter_width;
         slice_window->slice.slice_views[view].update_flag = TRUE;
         slice_window->slice.slice_views[view].update_labels_flag = TRUE;
+        slice_window->slice.slice_views[view].update_composite_flag = TRUE;
     }
 
     slice_window->slice.next_to_update = X;

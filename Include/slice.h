@@ -24,6 +24,7 @@ typedef  struct
     int           used_viewport_y_size;
     BOOLEAN       update_flag;
     BOOLEAN       update_labels_flag;
+    BOOLEAN       update_composite_flag;
     Filter_types  filter_type;
     Real          filter_width;
 } slice_view_struct;
@@ -59,6 +60,7 @@ typedef  struct
 
     Volume                 volume;
 
+    BOOLEAN                using_transparency;
     int                    n_labels;
     int                    offset;
     Colour                 *colour_table;
