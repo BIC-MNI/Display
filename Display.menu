@@ -122,6 +122,7 @@ volume_cropping
     transient 'd'    load_cropped_volume             "Crop and Load"
     transient 'f'    set_crop_box_filename           "Set Crop Filename"
     transient 'x'    reset_slice_crop                "Reset Crop Position"
+    transient 'r'    crop_volume_to_file             "Crop To File"
 }
 
 delete_current_volume_menu

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.118 1995-07-31 19:54:14 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.119 1995-08-10 14:50:14 david Exp $";
 #endif
 
 #include  <display.h>
@@ -103,6 +103,7 @@ MENU_F(next_volume_visible) \
 MENU_F(pick_crop_box_edge) \
 MENU_F(set_crop_box_filename) \
 MENU_F(load_cropped_volume) \
+MENU_F(crop_volume_to_file) \
 MENU_F(reset_current_slice_view) \
 MENU_F(toggle_share_labels) \
 MENU_F(load_label_data) \
