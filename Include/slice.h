@@ -24,6 +24,9 @@ typedef  struct
 
     slice_view_struct      slice_views[3];
 
+    int                    *temporary_indices;
+    int                    temporary_indices_alloced;
+
 } slice_window_struct;
 
 
