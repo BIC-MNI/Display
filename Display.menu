@@ -343,13 +343,14 @@ region_painting
     transient 'r'    copy_labels_from_higher_slice "Copy from Rt/Sup/Ant Slice"
     transient 't'    save_current_label              "Save Current Label"
 
-    transient 'a'    set_label_colour                "Set Paint Label Colour"
-    transient 's'    set_current_paint_label         "Set Paint Label: %d"
+    transient 'a'    set_label_colour                "Set Paint Lbl Colour"
+    transient 's'    set_current_paint_label         "Set Paint Lbl: %d"
     transient 'f'    set_paint_x_brush_radius        "X Radius: %g"
     transient 'g'    set_paint_y_brush_radius        "Y Radius: %g"
     transient 'h'    set_paint_z_brush_radius        "Out-plane Rad: %g"
 
     transient 'z'    reset_segmenting                "Clear All Labels"
+    transient 'x'    calculate_volume                "Calculate Volume"
     transient 'c'    toggle_display_labels           "Show Labels: %s"
     transient 'v'    change_labels_in_range          "Change Labels"
     transient 'b'    get_labeled_boundary            "Create Label Boundary"
