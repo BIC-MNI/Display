@@ -41,8 +41,10 @@ public  void  set_marker_threshold( seg, threshold )
     }
 }
 
-private  Boolean  markers_are_neighbours( seg, i, j, closest_dists, dist )
+private  Boolean  markers_are_neighbours( seg, threshold_distance,
+                                          i, j, closest_dists, dist )
     marker_segment_struct  *seg;
+    Real                   threshold_distance;
     int                    i;
     int                    j;
     Real                   closest_dists[];
@@ -52,7 +54,7 @@ private  Boolean  markers_are_neighbours( seg, i, j, closest_dists, dist )
 
     dist_to_marker = seg->distances[i][j];
 
-    neigh_flag = (dist_to_marker <= seg->threshold_distance);
+    neigh_flag = (dist_to_marker <= threshold_distance);
 
     if( neigh_flag )
     {
@@ -75,8 +77,9 @@ private  Boolean  markers_are_neighbours( seg, i, j, closest_dists, dist )
 }
 
 
-private  void  classify( seg, model, n_indices, indices )
+private  void  classify( seg, threshold_distance, model, n_indices, indices )
     marker_segment_struct    *seg;
+    Real                     threshold_distance;
     model_struct             *model;
     int                      n_indices;
     int                      indices[];
@@ -142,7 +145,8 @@ private  void  classify( seg, model, n_indices, indices )
 
         for_less( i, 0, model->n_objects )
         {
-            if( markers_are_neighbours( seg, marker_index, i, closest_dist,
+            if( markers_are_neighbours( seg, threshold_distance,
+                                        marker_index, i, closest_dist,
                                         &dist ) &&
                 (closest_dist[i] < 0.0 || dist < closest_dist[i]) )
             {
@@ -208,14 +212,14 @@ private  void  set_up_new_model( seg, model )
     }
 }
 
-public  void  make_guess_classification( seg, model )
+public  void  make_guess_classification( seg, threshold_dist, model )
     marker_segment_struct    *seg;
+    Real                     threshold_dist;
     model_struct             *model;
 {
     Status                status;
-    int                   i, j, n_ids, *marker_indices;
-    marker_struct         *marker1, *marker2;
-    Real                  dist;
+    int                   i, n_ids, *marker_indices;
+    marker_struct         *marker;
     Real                  distance_between_points();
     static  Colour        colours[] = { {RED_COL}, {GREEN_COL}, {BLUE_COL},
                                         {CYAN_COL}, {MAGENTA_COL},
@@ -231,10 +235,10 @@ public  void  make_guess_classification( seg, model )
     {
         if( model->object_list[i]->object_type == MARKER )
         {
-            marker1 = model->object_list[i]->ptr.marker;
+            marker = model->object_list[i]->ptr.marker;
 
-            if( marker1->structure_id >= Marker_segment_id )
-                marker1->structure_id -= Marker_segment_id;
+            if( marker->structure_id >= Marker_segment_id )
+                marker->structure_id -= Marker_segment_id;
 
         }
     }
@@ -246,17 +250,17 @@ public  void  make_guess_classification( seg, model )
     {
         if( model->object_list[i]->object_type == MARKER )
         {
-            marker1 = model->object_list[i]->ptr.marker;
+            marker = model->object_list[i]->ptr.marker;
 
-            if( marker1->structure_id < Marker_segment_id )
+            if( marker->structure_id < Marker_segment_id )
             {
-                marker1->structure_id = Marker_segment_id + n_ids + 1;
-                marker1->colour = colours[n_ids % SIZEOF_STATIC_ARRAY(colours)];
+                marker->structure_id = Marker_segment_id + n_ids + 1;
+                marker->colour = colours[n_ids % SIZEOF_STATIC_ARRAY(colours)];
 
                 ADD_ELEMENT_TO_ARRAY( status, n_ids, marker_indices, i,
                                       DEFAULT_CHUNK_SIZE );
 
-                classify( seg, model, n_ids, marker_indices );
+                classify( seg, threshold_dist, model, n_ids, marker_indices );
             }
         }
 
@@ -269,11 +273,58 @@ public  void  make_guess_classification( seg, model )
         FREE( status, marker_indices );
 }
 
+private  Real  get_threshold_distance( graphics )
+    graphics_struct  *graphics;
+{
+    Real            threshold;
+    volume_struct   *volume;
+    Point           position0, position1;
+    int             nx, ny, nz;
+    void            get_volume_size();
+    void            convert_talairach_to_voxel();
+    void            convert_voxel_to_point();
+
+    threshold = graphics->three_d.marker_segmentation.threshold_distance;
+
+    if( get_slice_window_volume( graphics, &volume ) )
+    {
+        get_volume_size( volume, &nx, &ny, &nz );
+
+        convert_talairach_to_voxel( 0.0, 0.0, 0.0, nx, ny, nz,
+                                    &Point_x(position0),
+                                    &Point_y(position0),
+                                    &Point_z(position0) );
+
+        convert_voxel_to_point( volume,
+                                Point_x(position0),
+                                Point_y(position0),
+                                Point_z(position0), &position0 );
+
+        convert_talairach_to_voxel( 1.0, 1.0, 1.0, nx, ny, nz,
+                                    &Point_x(position1),
+                                    &Point_y(position1),
+                                    &Point_z(position1) );
+
+        convert_voxel_to_point( volume,
+                                Point_x(position1),
+                                Point_y(position1),
+                                Point_z(position1), &position1 );
+
+        threshold *= (ABS(Point_x(position0) - Point_x(position1)) +
+                      ABS(Point_y(position0) - Point_y(position1)) +
+                      ABS(Point_z(position0) - Point_z(position1))) / 3.0;
+    }
+
+    return( threshold );
+}
+
 public  void  segment_markers( graphics, model )
     graphics_struct  *graphics;
     model_struct     *model;
 {
-    marker_segment_struct            *seg;
+    Real                      threshold_distance;
+    Real                      get_threshold_distance();
+    marker_segment_struct     *seg;
 
     seg = &graphics->three_d.marker_segmentation;
 
@@ -283,11 +334,13 @@ public  void  segment_markers( graphics, model )
         seg->must_be_reinitialized = TRUE;
     }
 
+    threshold_distance = get_threshold_distance( graphics );
+
     if( seg->must_be_reinitialized )
     {
-        make_guess_classification( seg, model );
+        make_guess_classification( seg, threshold_distance, model );
         seg->must_be_reinitialized = FALSE;
     }
     else
-        classify( seg, model, 0, (int *) NULL );
+        classify( seg, threshold_distance, model, 0, (int *) NULL );
 }
