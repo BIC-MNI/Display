@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.48 1996-11-25 14:56:23 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.49 1996-12-09 20:21:34 david Exp $";
 #endif
 
 
@@ -414,16 +414,16 @@ private  int  add_polygon_to_list(
 
         if( point_ids[p] == INVALID_ID )
         {
-            corner_index[X] = voxel_index[X] + pt->coord[X];
-            corner_index[Y] = voxel_index[Y] + pt->coord[Y];
-            corner_index[Z] = voxel_index[Z] + pt->coord[Z];
-
             point_ids[p] = create_surface_point( volume, corner_values,
                                          surface_extraction->binary_flag,
                                          surface_extraction->min_value,
                                          surface_extraction->max_value,
-                                         polygons, pt->coord, corner_index,
+                                         polygons, pt->coord, voxel_index,
                                          pt->edge_intersected, &pt_class );
+
+            corner_index[X] = voxel_index[X] + pt->coord[X];
+            corner_index[Y] = voxel_index[Y] + pt->coord[Y];
+            corner_index[Z] = voxel_index[Z] + pt->coord[Z];
 
             add_point_id_to_relevant_edges( sizes, pt,
                            corner_index, point_ids[p], pt_class,
@@ -478,15 +478,18 @@ private  int   create_surface_point(
     int       pt_index;
     Real      x_w, y_w, z_w;
     Real      dx, dy, dz;
-    Real      voxel_pos[MAX_DIMENSIONS];
+    Real      edge_point[MAX_DIMENSIONS];
     Point     point;
     Vector    normal;
     Real      ignored;
-    Point     iso_point;
 
-    *pt_class = get_isosurface_point( corner_values, voxel, edge_intersected,
+    *pt_class = get_isosurface_point( corner_values, offset, edge_intersected,
                                       binary_flag, min_value, max_value,
-                                      &iso_point );
+                                      edge_point );
+
+    edge_point[0] += (Real) voxel[0];
+    edge_point[1] += (Real) voxel[1];
+    edge_point[2] += (Real) voxel[2];
 
     if( *pt_class < 0 )
     {
@@ -495,11 +498,7 @@ private  int   create_surface_point(
 
     /* ------------------- compute point position ------------------- */
 
-    voxel_pos[X] = (Real) Point_x(iso_point);
-    voxel_pos[Y] = (Real) Point_y(iso_point);
-    voxel_pos[Z] = (Real) Point_z(iso_point);
-
-    convert_voxel_to_world( volume, voxel_pos, &x_w, &y_w, &z_w );
+    convert_voxel_to_world( volume, edge_point, &x_w, &y_w, &z_w );
     fill_Point( point, x_w, y_w, z_w );
 
     /* --------------------- now get normal ---------------------- */

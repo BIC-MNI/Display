@@ -259,6 +259,19 @@ box:
 \item[\menutwo{File}{Load Colour Map}]  Prompts for a filename and
         loads the current label colour map as an ascii file, with a default
         suffix of \ident{.map}.
+\item[\menutwo{File}{Load UserDef ColCode}]  Prompts for a filename and
+        loads the current user defined colour map as an ascii file,
+        with a default suffix of \ident{.ccd}.  It automatically switches
+        the colour coding mode to user defined, in order to reflect the
+        new map loaded from the file.  Each line in file contains a position
+        and a colour.  The first position in the file must be 0, the last
+        must be 1, and the intermediate ones must be monotonically increasing.
+        The colours may be specified as 3 or 4 space separated values in the
+        range 0 to 1, or as one of the predefined colour names.  For instance,
+        the gray colour scale is equivalent to a file with two lines, the
+        first being {\bf 0  black}, the second being {\bf 1 white}.
+
+        
 \item[\menutwo{File}{Save 3D Window}]  Prompts for a filename and saves the
       image contents of the 3D window to the file, in .rgb format.  Before
       doing this, make sure the window is up to date and not in the process of
@@ -455,6 +468,11 @@ create new volumes that are cropped to this region.
                  colour coding method for the current volume, where the scale
                  ranges from black through to the current over colour, which
                  can be any valid colour.
+\item[\menutwo{Colour Coding}{UserDef ColCode}]  Selects the
+                 colour coding method for the current volume, where the scale
+                 is defined by the user as any piecewise linear function.
+                 At present the only way to specify this function is through
+                 the \menutwo{File}{Load UserDef ColCode} function.
 \item[\menutwo{Colour Coding}{Contour}]  Selects the rarely used contour
                                     colour coding method for the current volume.
 \item[\menutwo{Colour Coding}{Range}]  Prompts the user to type in the lower

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.132 1996-09-24 19:30:41 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.133 1996-12-09 20:21:30 david Exp $";
 #endif
 
 #include  <display.h>
@@ -260,6 +260,8 @@ MENU_F(set_red) \
 MENU_F(set_green) \
 MENU_F(set_blue) \
 MENU_F(set_arbitrary_colour_scale) \
+MENU_F(set_user_defined_colour_scale) \
+MENU_F(load_user_defined_colour_scale) \
 MENU_F(set_under_colour) \
 MENU_F(set_over_colour) \
 MENU_F(set_nearest_neighbour) \

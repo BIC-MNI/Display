@@ -57,6 +57,7 @@ file
     transient 'e'    load_labels                     "Load Labels .tag"
     transient 'r'    save_labels                     "Save Labels .tag"
     transient 't'    save_current_label              "Save Curr Lbl .tag"
+    transient 'y'    load_user_defined_colour_scale  "Load UserDef ColCode"
 
     transient 'a'    save_markers                    "Save Mrkrs as .tag"
     transient 's'    save_slice_image                "Save Slice Image"
@@ -135,6 +136,7 @@ delete_current_volume_menu
 
 colour_coding
 {
+    transient 'q'    set_user_defined_colour_scale   "UserDef ColCode"
     transient 'w'    set_arbitrary_colour_scale      "Arb Colour (Over)"
     transient 'e'    set_red                         "Red"
     transient 'r'    set_green                       "Green"

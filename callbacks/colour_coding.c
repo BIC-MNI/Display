@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/colour_coding.c,v 1.24 1996-07-02 12:56:12 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/colour_coding.c,v 1.25 1996-12-09 20:21:24 david Exp $";
 #endif
 
 
@@ -92,7 +92,7 @@ private  void  set_the_colour_coding_type(
         colour_coding = &slice_window->slice.volumes
                  [get_current_volume_index(slice_window)].colour_coding;
 
-        colour_coding->type = type;
+        set_colour_coding_type( colour_coding, type );
 
         colour_coding_has_changed( slice_window,
                       get_current_volume_index(slice_window), UPDATE_SLICE );
@@ -223,6 +223,22 @@ public  DEF_MENU_FUNCTION(set_arbitrary_colour_scale )
 /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_arbitrary_colour_scale )
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_user_defined_colour_scale )
+{
+    set_the_colour_coding_type( display, USER_DEFINED_COLOUR_MAP );
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_user_defined_colour_scale )
 {
     return( get_n_volumes(display) > 0 );
 }
@@ -671,6 +687,49 @@ public  DEF_MENU_FUNCTION(load_colour_map )
 /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(load_colour_map )
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(load_user_defined_colour_scale )
+{
+    STRING          filename;
+    display_struct  *slice_window;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
+    {
+        print( "Enter name of piecewise colour coding file to load: " );
+        if( input_string( stdin, &filename, ' ' ) == OK )
+        {
+            if( load_user_defined_colour_coding( slice_window, filename ) == OK)
+            {
+                set_colour_coding_type( &slice_window->slice.volumes[
+                        get_current_volume_index(slice_window)].colour_coding,
+                        USER_DEFINED_COLOUR_MAP );
+            }
+
+            colour_coding_has_changed( slice_window,
+                                       get_current_volume_index(slice_window),
+                                       UPDATE_SLICE );
+
+            set_slice_window_all_update( slice_window,
+                       get_current_volume_index(slice_window), UPDATE_SLICE );
+
+        }
+        (void) input_newline( stdin );
+
+        delete_string( filename );
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(load_user_defined_colour_scale )
 {
     return( get_n_volumes(display) > 0 );
 }
