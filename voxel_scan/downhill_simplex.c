@@ -3,7 +3,7 @@
 #include  <def_alloc.h>
 #include  <def_minimization.h>
 
-#define DEBUGP( x )
+#define DEBUGP( x ) x
 
 const double ALPHA = 1.0;
 const double BETA = 0.5;
@@ -183,6 +183,9 @@ public  void  amoeba( fit_data, ndim, ftol, max_funk, n_funk, out_parameters )
             ytry = amotry( fit_data, fit_data->p, fit_data->y,
                            fit_data->psum, fit_data->ptry,
                            ndim, ihi, n_funk, GAMMA );
+
+            if( ytry == fit_data->y[ihi] )
+                DEBUGP( PRINT( "Successfully expanded %g\n", ytry ); )
         }
         else if( ytry >= fit_data->y[inhi] )
         {
