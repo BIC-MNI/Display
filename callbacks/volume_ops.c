@@ -349,7 +349,7 @@ public  DEF_MENU_FUNCTION(redo_histogram)      /* ARGSUSED */
 
         compute_histogram( slice_window, axis_index, ROUND(slice), FALSE );
 
-        set_update_required( slice_window, NORMAL_PLANES );
+        set_slice_viewport_update( slice_window, COLOUR_BAR_MODEL );
     }
 
 }
@@ -377,7 +377,7 @@ public  DEF_MENU_FUNCTION(redo_histogram_labeled)      /* ARGSUSED */
 
         compute_histogram( slice_window, axis_index, ROUND(slice), TRUE );
 
-        set_update_required( slice_window, NORMAL_PLANES );
+        set_slice_viewport_update( slice_window, COLOUR_BAR_MODEL );
     }
 
 }

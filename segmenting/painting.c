@@ -281,7 +281,6 @@ private  void  fast_paint_labels(
     int              a2,
     int              axis,
     Real             start_voxel[],
-    Real             end_voxel[],
     int              min_voxel[],
     int              max_voxel[],
     Vector           *scaled_delta,
@@ -293,9 +292,9 @@ private  void  fast_paint_labels(
     Real           min_threshold, max_threshold, volume_value;
     int            ind[N_DIMENSIONS], new_n_starts, *y_starts, y_inc, x_inc;
     pixels_struct  *pixels;
-    Real           x, y, x_offset, x_scale, y_offset, y_scale;
+    Real           x_offset, x_scale, y_offset, y_scale;
     Real           x_trans, y_trans;
-    Real           real_x_start, real_x_end, real_y_start, real_y_end;
+    Real           real_x_start, real_x_end, real_y_start;
     int            i, j, x_start, x_end, y_start, y_end;
     Colour         colour;
     BOOLEAN        update_required;
@@ -487,9 +486,8 @@ private  void  paint_labels(
             !slice_window->slice.slice_views[view_index].update_labels_flag )
         {
             fast_paint_labels( slice_window, view_index, a1, a2, axis,
-                               start_voxel, end_voxel,
-                               min_voxel, max_voxel, &scaled_delta, radius,
-                               label );
+                               start_voxel, min_voxel, max_voxel,
+                               &scaled_delta, radius, label );
         }
         else
         {
@@ -583,12 +581,10 @@ static  int  dx[N_DIRECTIONS] = { 1,  0, -1,  0 };
 static  int  dy[N_DIRECTIONS] = { 0,  1,  0, -1 };
 
 private   void    add_point_to_contour(
-    display_struct   *slice_window,
     int              x_centre_pixel,
     int              y_centre_pixel,
     int              a1,
     int              a2,
-    int              axis,
     Real             x_scale,
     Real             x_trans,
     Real             y_scale,
@@ -656,7 +652,6 @@ private  void  get_brush_contour(
     int               view_index,
     int               a1,
     int               a2,
-    int               axis,
     Real              centre[N_DIMENSIONS],
     Real              radius[N_DIMENSIONS],
     int               start_voxel[N_DIMENSIONS],
@@ -677,8 +672,8 @@ private  void  get_brush_contour(
 
     do
     {
-        add_point_to_contour( slice_window, x_centre_pixel, y_centre_pixel,
-                              a1, a2, axis, x_scale, x_trans, y_scale, y_trans,
+        add_point_to_contour( x_centre_pixel, y_centre_pixel,
+                              a1, a2, x_scale, x_trans, y_scale, y_trans,
                               current_voxel, dir, lines );
 
         dir = (dir + 1) % N_DIRECTIONS;
@@ -730,7 +725,7 @@ private  void   update_brush(
         if( start_voxel[a1] > ROUND( centre[a1] ) )
             --start_voxel[a1];
 
-        get_brush_contour( slice_window, x, y, view, a1, a2, axis,
+        get_brush_contour( slice_window, x, y, view, a1, a2,
                            centre, radius, start_voxel, POSITIVE_X, lines );
 
         set_slice_viewport_update( slice_window, SLICE_MODEL1 + view );

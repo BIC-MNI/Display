@@ -7,7 +7,7 @@ public  void  initialize_slice_histogram(
     object_struct  *object;
     model_struct   *model;
 
-    model = get_graphics_model( slice_window, HISTOGRAM_MODEL );
+    model = get_graphics_model( slice_window, COLOUR_BAR_MODEL );
 
     object = create_object( LINES );
     add_object_to_model( model, object );

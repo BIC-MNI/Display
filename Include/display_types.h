@@ -4,6 +4,8 @@
 #include  <deform.h>
 #include  <graphics.h>
 
+#define  N_MODELS    7
+
 typedef  struct
 {
     BOOLEAN     perspective_flag;

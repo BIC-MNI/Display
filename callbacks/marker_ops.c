@@ -115,8 +115,7 @@ public  DEF_MENU_FUNCTION( set_cursor_to_marker )   /* ARGSUSED */
 
         if( slice_window != (display_struct  *) 0 )
         {
-            if( update_voxel_from_cursor( slice_window ) )
-                set_update_required( slice_window, NORMAL_PLANES );
+            (void) update_voxel_from_cursor( slice_window );
         }
     }
 

@@ -123,7 +123,7 @@ public  void  set_slice_window_update(
         if( type == UPDATE_LABELS || type == UPDATE_BOTH )
             slice_window->slice.slice_views[view_index].update_labels_flag =
                                                                        TRUE;
-        set_update_required( slice_window, NORMAL_PLANES );
+        set_slice_viewport_update( slice_window, SLICE_MODEL1 + view_index );
     }
 }
 
@@ -172,6 +172,32 @@ public  void  update_slice_window(
     }
 }
 
+public  void  set_slice_viewport_update(
+    display_struct   *slice_window,
+    int              model_number )
+{
+    int   i;
+
+    slice_window->slice.viewport_update_flags[model_number][0] = TRUE;
+    slice_window->slice.viewport_update_flags[model_number][1] = TRUE;
+
+    if( model_number == FULL_WINDOW_MODEL )
+    {
+        for_less( i, 0, N_MODELS )
+        {
+            if( get_model_bitplanes( get_graphics_model(slice_window,i) ) ==
+                                                            NORMAL_PLANES )
+            {
+                slice_window->slice.viewport_update_flags[i][0] = TRUE;
+                slice_window->slice.viewport_update_flags[i][1] = TRUE;
+            }
+        }
+    }
+
+    set_update_required( slice_window, get_model_bitplanes(
+                              get_graphics_model(slice_window,model_number)) );
+}
+
 public  void  create_slice_window(
     display_struct   *display,
     char             filename[],
@@ -202,11 +228,12 @@ public  void  create_slice_window(
 public  void  initialize_slice_window(
     display_struct    *slice_window )
 {
-    int        view;
+    int        i, view;
+
+    G_set_automatic_clear_state( slice_window->window, OFF );
 
     slice_window->slice.volume = (Volume) NULL;
 
-    initialize_slice_histogram( slice_window );
     initialize_slice_window_events( slice_window );
     initialize_voxel_labeling( slice_window );
 
@@ -225,6 +252,7 @@ public  void  initialize_slice_window(
 
     slice_window->slice.display_labels = Initial_display_labels;
 
+    initialize_slice_histogram( slice_window );
     initialize_slice_colour_coding( slice_window );
 
     initialize_slice_models( slice_window );
@@ -247,6 +275,12 @@ public  void  initialize_slice_window(
     slice_window->slice.cross_section_vector_present = FALSE;
 
     slice_window->slice.render_storage = initialize_render_storage();
+
+    for_less( i, 0, N_MODELS )
+    {
+        slice_window->slice.viewport_update_flags[i][0] = TRUE;
+        slice_window->slice.viewport_update_flags[i][1] = TRUE;
+    }
 }
 
 private  void  free_slice_window(
@@ -258,7 +292,6 @@ public  void  delete_slice_window(
     free_slice_window( slice );
 
     delete_slice_colour_coding( slice );
-
     delete_slice_histogram( slice );
 
     delete_volume( slice->original_volume );

@@ -23,12 +23,13 @@
 
 /* for slice windows */
 
-#define  SLICE_MODEL            0
-#define  COLOUR_BAR_MODEL       1
-#define  SLICE_READOUT_MODEL    2
-#define  HISTOGRAM_MODEL        3
-
-#define  N_MODELS               5
+#define  FULL_WINDOW_MODEL      0
+#define  SLICE_MODEL1           1
+#define  SLICE_MODEL2           2
+#define  SLICE_MODEL3           3
+#define  SLICE_MODEL4           4
+#define  COLOUR_BAR_MODEL       5
+#define  SLICE_READOUT_MODEL    6
 
 typedef  enum  { THREE_D_WINDOW,
                  MENU_WINDOW,

@@ -9,6 +9,7 @@ private  Real  get_y_pos(
 
 typedef enum
 {
+    HISTOGRAM,
     BAR,
     TICKS,
     FIRST_TEXT
@@ -79,7 +80,8 @@ typedef  struct
 public  void  rebuild_colour_bar(
     display_struct   *slice_window )
 {
-    int                 i, x_min, x_max, y_min, y_max;
+    int                 i;
+    int                 x_min, x_max, y_min, y_max;
     Real                x, y, bottom, top, range, delta;
     Real                ratio, last_y, next_y, value, min_value, max_value;
     Real                start_threshold, end_threshold;
@@ -108,8 +110,6 @@ public  void  rebuild_colour_bar(
 
     colour_bar = &slice_window->slice.colour_bar;
 
-    get_colour_bar_viewport( slice_window, &x_min, &x_max, &y_min, &y_max );
-
     (void) get_slice_window_volume( slice_window, &volume );
 
     get_volume_real_range( volume, &min_value, &max_value );
@@ -121,10 +121,13 @@ public  void  rebuild_colour_bar(
 
     /* rebuild the points */
 
+    get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,
+                              &x_min, &x_max, &y_min, &y_max );
+
     quadmesh = get_quadmesh_ptr( model->objects[BAR] );
 
-    bottom = y_min + colour_bar->bottom_offset;
-    top = y_max - colour_bar->top_offset;
+    bottom = colour_bar->bottom_offset;
+    top = y_max - y_min - colour_bar->top_offset;
 
     for_less( i, 0, quadmesh->m )
     {
@@ -135,10 +138,10 @@ public  void  rebuild_colour_bar(
         y = INTERPOLATE( ratio, bottom, top );
 
         fill_Point( quadmesh->points[IJ(i,1,2)],
-                    x_min + colour_bar->left_offset, y, 0.0 );
+                    colour_bar->left_offset, y, 0.0 );
 
         fill_Point( quadmesh->points[IJ(i,0,2)],
-                    x_min + colour_bar->left_offset + colour_bar->bar_width,
+                    colour_bar->left_offset + colour_bar->bar_width,
                     y, 0.0 );
 
         /* set the colours */
@@ -160,7 +163,7 @@ public  void  rebuild_colour_bar(
     lines->n_points = 0;
     lines->n_items = 0;
 
-    x_tick_start = x_min + colour_bar->left_offset + colour_bar->bar_width;
+    x_tick_start = colour_bar->left_offset + colour_bar->bar_width;
     x_tick_end = x_tick_start + colour_bar->tick_width;
 
     while( model->n_objects > FIRST_TEXT )
@@ -238,7 +241,7 @@ public  void  rebuild_colour_bar(
             start_new_line( lines );
 
             if( numbers[i].priority == 2 )
-                x = x_min + colour_bar->left_offset;
+                x = colour_bar->left_offset;
             else
                 x = x_tick_start;
 
@@ -269,6 +272,8 @@ public  void  rebuild_colour_bar(
 
     if( n_numbers > 0 )
         FREE( numbers );
+
+    set_slice_viewport_update( slice_window, COLOUR_BAR_MODEL );
 }
 
 private  Real  get_y_pos(
@@ -289,17 +294,18 @@ public  int  get_colour_bar_y_pos(
     display_struct      *slice_window,
     Real                value )
 {
-    int                 x_min, x_max, y_min, y_max;
+    int                 x_min, y_min, x_max, y_max;
     Real                top, bottom, min_value, max_value;
     colour_bar_struct   *colour_bar;
 
     colour_bar = &slice_window->slice.colour_bar;
 
-    get_colour_bar_viewport( slice_window, &x_min, &x_max, &y_min, &y_max );
     get_volume_real_range( get_volume(slice_window), &min_value, &max_value );
+    get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,
+                              &x_min, &x_max, &y_min, &y_max );
     
-    bottom = (Real) y_min + colour_bar->bottom_offset;
-    top    = (Real) y_max - colour_bar->top_offset;
+    bottom = colour_bar->bottom_offset;
+    top    = y_max - y_min - colour_bar->top_offset;
 
     return( ROUND(get_y_pos( value, min_value, max_value, bottom, top )) );
 }
@@ -318,16 +324,19 @@ public  BOOLEAN  mouse_within_colour_bar(
     if( is_an_rgb_volume(get_volume(slice_window)) )
         return( FALSE );
 
+    get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,
+                              &x_min, &x_max, &y_min, &y_max );
+
+    x -= x_min;
+    y -= y_min;
+
     colour_bar = &slice_window->slice.colour_bar;
 
-    get_colour_bar_viewport( slice_window, &x_min, &x_max, &y_min, &y_max );
+    bottom = (Real) colour_bar->bottom_offset;
+    top = (Real) y_max - y_min - colour_bar->top_offset;
 
-    bottom = (Real) y_min + colour_bar->bottom_offset;
-    top = (Real) y_max - colour_bar->top_offset;
-
-    within = y >= bottom && y <= top &&
-             ((Real) x_min + colour_bar->left_offset <= x) &&
-             (x <= (Real) x_min + colour_bar->left_offset +
+    within = y >= bottom && y <= top && colour_bar->left_offset <= x &&
+             (x <= colour_bar->left_offset +
                    colour_bar->bar_width + colour_bar->tick_width);
 
     if( within )
@@ -350,9 +359,10 @@ public  void  get_histogram_space(
     colour_bar_struct   *colour_bar;
 
     colour_bar = &slice_window->slice.colour_bar;
-    get_colour_bar_viewport( slice_window, &x_min, &x_max, &y_min, &y_max );
+    get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,
+                              &x_min, &x_max, &y_min, &y_max );
 
-    *x1 = x_min + colour_bar->left_offset + colour_bar->bar_width +
+    *x1 = colour_bar->left_offset + colour_bar->bar_width +
           colour_bar->tick_width;
-    *x2 = x_max;
+    *x2 = x_max - x_min;
 }

@@ -393,7 +393,7 @@ public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )  /* ARGSUSED */
 
         G_set_double_buffer_state( slice_window->window, double_buffer );
 
-        set_update_required( slice_window, NORMAL_PLANES );
+        set_slice_viewport_update( slice_window, FULL_WINDOW_MODEL );
     }
 
     return( OK );
@@ -433,7 +433,7 @@ public  DEF_MENU_FUNCTION( change_background_colour )  /* ARGSUSED */
         if( get_slice_window( display, &slice_window ) )
         {
             G_set_background_colour( slice_window->window, col );
-            set_update_required( slice_window, NORMAL_PLANES );
+            set_slice_viewport_update( slice_window, FULL_WINDOW_MODEL );
         }
     }
 

@@ -387,12 +387,66 @@ public  void  update_graphics(
     }
 }
 
+private  void  draw_in_viewports(
+    display_struct               *display,
+    update_interrupted_struct    *interrupt,
+    Bitplane_types               bitplanes,
+    BOOLEAN                      *past_last_object )
+{
+    int           i, x_min, x_max, y_min, y_max;
+    BOOLEAN       draw_model, redrawing_whole_window;
+
+    redrawing_whole_window = FALSE;
+
+    for_less( i, 0, N_MODELS )
+    {
+        if( display->window_type == SLICE_WINDOW &&
+            get_model_bitplanes(get_graphics_model(display,i)) == bitplanes )
+        {
+            draw_model = display->slice.viewport_update_flags[i][0];
+
+            if( draw_model )
+            {
+                get_slice_model_viewport( display, i, &x_min, &x_max,
+                                          &y_min, &y_max );
+                G_set_viewport( display->window, x_min, x_max, y_min, y_max );
+                if( !redrawing_whole_window )
+                    G_clear_viewport( display->window,
+                                      display->window->background_colour );
+
+                if( i == FULL_WINDOW_MODEL )
+                    redrawing_whole_window = TRUE;
+
+                if( bitplanes == NORMAL_PLANES &&
+                    G_get_double_buffer_state( display->window ) )
+                {
+                    display->slice.viewport_update_flags[i][0] =
+                          display->slice.viewport_update_flags[i][1];
+                    display->slice.viewport_update_flags[i][1] = FALSE;
+                }
+                else
+                    display->slice.viewport_update_flags[i][0] = FALSE;
+            }
+        }
+        else
+            draw_model = TRUE;
+
+        if( draw_model )
+        {
+            display_objects( display->window, display->models[i],
+                             interrupt, bitplanes, past_last_object );
+        }
+
+        if( interrupt != NULL && interrupt->current_interrupted )
+            break;
+    }
+}
+
 private  void  update_graphics_overlay_planes_only(
     display_struct       *display,
     BOOLEAN              display_flag )
 {
     BOOLEAN       past_last_object;
-    int           i;
 
     if( G_has_overlay_planes() )
     {
@@ -402,12 +456,8 @@ private  void  update_graphics_overlay_planes_only(
         {
             past_last_object = FALSE;
 
-            for_less( i, 0, N_MODELS )
-            {
-                display_objects( display->window, display->models[i],
-                             (update_interrupted_struct *) 0, OVERLAY_PLANES,
-                             &past_last_object );
-            }
+            draw_in_viewports( display, (update_interrupted_struct *) 0,
+                               OVERLAY_PLANES, &past_last_object );
         }
 
         G_update_window( display->window );
@@ -422,14 +472,11 @@ private  void  update_graphics_normal_planes_only(
     display_struct               *display,
     update_interrupted_struct    *interrupt )
 {
-    int           i;
     Real          start, end;
     BOOLEAN       past_last_object;
 
     if( interrupt->last_was_interrupted )
-    {
         G_append_to_last_update( display->window );
-    }
 
     if( display->window_type == SLICE_WINDOW )
         update_slice_window( display );
@@ -442,14 +489,7 @@ private  void  update_graphics_normal_planes_only(
     interrupt->current_interrupted = FALSE;
     past_last_object = FALSE;
 
-    for_less( i, 0, N_MODELS )
-    {
-        display_objects( display->window, display->models[i],
-                         interrupt, NORMAL_PLANES, &past_last_object );
-
-        if( interrupt->current_interrupted )
-            break;
-    }
+    draw_in_viewports( display, interrupt, NORMAL_PLANES, &past_last_object );
 
     interrupt->last_was_interrupted = interrupt->current_interrupted;
 

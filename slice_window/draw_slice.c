@@ -1,36 +1,15 @@
 
 #include  <display.h>
 
-typedef  enum  { DIVIDER_INDEX,
-                 SLICE1_INDEX,
-                 LABEL_SLICE1_INDEX,
-                 COMPOSITE_SLICE1_INDEX,
-                 SLICE2_INDEX,
-                 LABEL_SLICE2_INDEX,
-                 COMPOSITE_SLICE2_INDEX,
-                 SLICE3_INDEX,
-                 LABEL_SLICE3_INDEX,
-                 COMPOSITE_SLICE3_INDEX,
-                 SLICE4_INDEX,
-                 LABEL_SLICE4_INDEX,
-                 COMPOSITE_SLICE4_INDEX,
-                 CROSS_SECTION1_INDEX,
-                 CROSS_SECTION2_INDEX,
-                 CROSS_SECTION3_INDEX,
-                 CROSS_SECTION4_INDEX,
-                 CURSOR1_INDEX1,
-                 CURSOR1_INDEX2,
-                 CURSOR2_INDEX1,
-                 CURSOR2_INDEX2,
-                 CURSOR3_INDEX1,
-                 CURSOR3_INDEX2,
-                 CURSOR4_INDEX1,
-                 CURSOR4_INDEX2,
-                 TEXT1_INDEX,
-                 TEXT2_INDEX,
-                 TEXT3_INDEX,
-                 TEXT4_INDEX,
-                 N_SLICE_MODELS } Slice_model_indices;
+typedef  enum  { SLICE_INDEX,
+                 LABEL_SLICE_INDEX,
+                 COMPOSITE_SLICE_INDEX,
+                 CROSS_SECTION_INDEX,
+                 CURSOR_INDEX1,
+                 CURSOR_INDEX2,
+                 TEXT_INDEX } Slice_model_indices;
+
+typedef  enum  { DIVIDER_INDEX } Full_window_indices;
 
 typedef enum { X_VOXEL_PROBE_INDEX,
                Y_VOXEL_PROBE_INDEX,
@@ -46,14 +25,14 @@ typedef enum { X_VOXEL_PROBE_INDEX,
 public  void  initialize_slice_models(
     display_struct    *slice_window )
 {
-    int            i, view;
+    int            i, view, p;
     Point          point;
     lines_struct   *lines;
     object_struct  *object;
     model_struct   *model;
     Colour         colour;
 
-    model = get_graphics_model( slice_window, SLICE_MODEL );
+    model = get_graphics_model( slice_window, FULL_WINDOW_MODEL );
 
     object = create_object( LINES );
     lines = get_lines_ptr( object );
@@ -77,16 +56,18 @@ public  void  initialize_slice_models(
     slice_window->slice.using_transparency = Use_transparency_hardware &&
                                              G_has_transparency_mode();
 
-    for_less( view, 0, 3 * N_SLICE_VIEWS )
-    {
-        object = create_object( PIXELS );
-        initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, 1.0, 1.0,
-                           RGB_PIXEL );
-        add_object_to_model( model, object );
-    }
-
     for_less( view, 0, N_SLICE_VIEWS )
     {
+        model = get_graphics_model( slice_window, SLICE_MODEL1 + view );
+
+        for_less( p, 0, 3 )
+        {
+            object = create_object( PIXELS );
+            initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, 1.0, 1.0,
+                               RGB_PIXEL );
+            add_object_to_model( model, object );
+        }
+
         /* --- make cross section */
 
         object = create_object( LINES );
@@ -107,10 +88,7 @@ public  void  initialize_slice_models(
 
         set_object_visibility( object, FALSE );
         add_object_to_model( model, object );
-    }
 
-    for_less( view, 0, N_SLICE_VIEWS )
-    {
         /* --- make inner cursor */
 
         object = create_object( LINES );
@@ -152,10 +130,7 @@ public  void  initialize_slice_models(
             lines->indices[i] = i;
 
         add_object_to_model( model, object );
-    }
 
-    for_less( view, 0, N_SLICE_VIEWS )
-    {
         object = create_object( TEXT );
 
         get_text_ptr(object)->font = (Font_types) Slice_text_font;
@@ -203,7 +178,7 @@ public  void  rebuild_slice_divider(
     int            colour_bar_height;
     int            x_size, y_size;
 
-    model = get_graphics_model(slice_window,SLICE_MODEL);
+    model = get_graphics_model( slice_window, FULL_WINDOW_MODEL );
     points = get_lines_ptr(model->objects[DIVIDER_INDEX])->points;
     G_get_window_size( slice_window->window, &x_size, &y_size );
 
@@ -225,6 +200,8 @@ public  void  rebuild_slice_divider(
                            0.0 );
     fill_Point( points[5], (Real) (x_size-1),       (Real) bottom_slice_height,
                            0.0 );
+
+    set_slice_viewport_update( slice_window, FULL_WINDOW_MODEL );
 }
 
 public  Bitplane_types  get_slice_readout_bitplanes()
@@ -252,7 +229,8 @@ public  void  rebuild_probe(
 
     active = get_voxel_in_slice_window( slice_window, voxel, &view_index );
 
-    get_text_display_viewport( slice_window, &x_min, &x_max, &y_min, &y_max );
+    get_slice_model_viewport( slice_window, SLICE_READOUT_MODEL,
+                              &x_min, &x_max, &y_min, &y_max );
 
     if( get_slice_window_volume( slice_window, &volume ) )
         get_volume_sizes( volume, sizes );
@@ -279,9 +257,9 @@ public  void  rebuild_probe(
 
     for_less( i, 0, N_READOUT_MODELS )
     {
-        x_pos = x_min + Probe_x_pos + (i - X_VOXEL_PROBE_INDEX) * Probe_x_delta;
-        y_pos = y_max - Probe_y_pos - (i - X_VOXEL_PROBE_INDEX) * Probe_y_delta
-                - (int) ((i - X_VOXEL_PROBE_INDEX) / 3) * Probe_y_pos;
+        x_pos = Probe_x_pos + i * Probe_x_delta;
+        y_pos = Probe_y_pos + (N_READOUT_MODELS-1-i) * Probe_y_delta +
+                ((N_READOUT_MODELS-1-i) / 3) * Probe_y_pos;
 
         text = get_text_ptr( model->objects[i] );
 
@@ -334,7 +312,7 @@ public  void  rebuild_probe(
         fill_Point( text->origin, x_pos, y_pos, 0.0 );
     }
 
-    set_update_required( slice_window, get_slice_readout_bitplanes() );
+    set_slice_viewport_update( slice_window, SLICE_READOUT_MODEL );
 }
 
 private  void  get_cursor_size(
@@ -422,8 +400,8 @@ private  void  rebuild_one_slice_cross_section(
     lines_struct   *lines;
     Real           current_voxel[N_DIMENSIONS];
 
-    model = get_graphics_model(slice_window,SLICE_MODEL);
-    object = model->objects[CROSS_SECTION1_INDEX+view_index];
+    model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
+    object = model->objects[CROSS_SECTION_INDEX];
 
     section_index = slice_window->slice.cross_section_index;
 
@@ -496,15 +474,15 @@ private  void  rebuild_one_slice_cross_section(
         y2 += EXTRA_PIXELS * dy / len;
     }
 
-    get_slice_viewport( slice_window, view_index,
-                        &x_min, &x_max, &y_min, &y_max );
+    get_slice_model_viewport( slice_window, SLICE_MODEL1 + view_index,
+                              &x_min, &x_max, &y_min, &y_max );
 
     fill_Point( origin, x1, y1, 0.0 );
     fill_Vector( direction, x2 - x1, y2 - y1, 0.0 );
 
     if( !clip_line_to_box( &origin, &direction, 
-                           (Real) x_min, (Real) x_max,
-                           (Real) y_min, (Real) y_max,
+                           0.0, (Real) (x_max - x_min),
+                           0.0, (Real) (y_max - y_min),
                            -1.0, 1.0, &t_min, &t_max ) )
     {
         t_min = 0.0;
@@ -526,6 +504,8 @@ private  void  rebuild_one_slice_cross_section(
 
     fill_Point( lines->points[0], Point_x(p1), Point_y(p1), 0.0 );
     fill_Point( lines->points[1], Point_x(p2), Point_y(p2), 0.0 );
+
+    set_slice_viewport_update( slice_window, SLICE_MODEL1 + view_index );
 }
 
 public  void  rebuild_slice_cross_sections(
@@ -552,10 +532,10 @@ private  void  rebuild_cursor(
     Real           hor_pixel_start, hor_pixel_end;
     Real           vert_pixel_start, vert_pixel_end;
 
-    model = get_graphics_model(slice_window,SLICE_MODEL);
+    model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
 
-    lines1 = get_lines_ptr( model->objects[CURSOR1_INDEX1+2*view_index] );
-    lines2 = get_lines_ptr( model->objects[CURSOR1_INDEX1+2*view_index+1] );
+    lines1 = get_lines_ptr( model->objects[CURSOR_INDEX1] );
+    lines2 = get_lines_ptr( model->objects[CURSOR_INDEX2] );
 
     get_current_voxel( slice_window, current_voxel );
 
@@ -598,35 +578,35 @@ private  void  rebuild_cursor(
     get_cursor_size( view_index, &hor_pixel_start, &hor_pixel_end,
                      &vert_pixel_start, &vert_pixel_end );
 
-    get_slice_viewport( slice_window, view_index,
-                        &x_min, &x_max, &y_min, &y_max );
+    get_slice_model_viewport( slice_window, SLICE_MODEL1 + view_index,
+                              &x_min, &x_max, &y_min, &y_max );
 
-    if( x_centre < x_min )
+    if( x_centre < 0 )
     {
-        dx = x_min - x_centre;
-        x_centre = x_min;
+        dx = - x_centre;
+        x_centre = 0;
         x_left += dx;
         x_right += dx;
     }
-    else if( x_centre > x_max )
+    else if( x_centre > x_max - x_min )
     {
-        dx = x_max - x_centre;
-        x_centre = x_max;
+        dx = x_max - x_min - x_centre;
+        x_centre = x_max - x_min;
         x_left += dx;
         x_right += dx;
     }
 
-    if( y_centre < y_min )
+    if( y_centre < 0 )
     {
-        dy = y_min - y_centre;
-        y_centre = y_min;
+        dy = - y_centre;
+        y_centre = 0;
         y_top += dy;
         y_bottom += dy;
     }
-    else if( y_centre > y_max )
+    else if( y_centre > y_max - y_min )
     {
-        dy = y_max - y_centre;
-        y_centre = y_max;
+        dy = y_max - y_min - y_centre;
+        y_centre = y_max - y_min;
         y_top += dy;
         y_bottom += dy;
     }
@@ -659,6 +639,8 @@ private  void  rebuild_cursor(
     fill_Point( lines2->points[13],x_centre-1.0, y_bottom-vert_pixel_end,0.0);
     fill_Point( lines2->points[14],x_centre+1.0, y_bottom-vert_pixel_start,0.0);
     fill_Point( lines2->points[15],x_centre+1.0, y_bottom-vert_pixel_end,0.0);
+
+    set_slice_viewport_update( slice_window, SLICE_MODEL1 + view_index );
 }
 
 public  void  rebuild_cursors(
@@ -676,9 +658,9 @@ public  object_struct  *get_slice_pixels_object(
 {
     model_struct   *model;
 
-    model = get_graphics_model(slice_window,SLICE_MODEL);
+    model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
 
-    return( model->objects[SLICE1_INDEX+3*view_index] );
+    return( model->objects[SLICE_INDEX] );
 }
 
 public  object_struct  *get_label_slice_pixels_object(
@@ -687,9 +669,9 @@ public  object_struct  *get_label_slice_pixels_object(
 {
     model_struct   *model;
 
-    model = get_graphics_model(slice_window,SLICE_MODEL);
+    model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
 
-    return( model->objects[SLICE1_INDEX+3*view_index+1] );
+    return( model->objects[LABEL_SLICE_INDEX] );
 }
 
 public  object_struct  *get_composite_slice_pixels_object(
@@ -698,9 +680,9 @@ public  object_struct  *get_composite_slice_pixels_object(
 {
     model_struct   *model;
 
-    model = get_graphics_model(slice_window,SLICE_MODEL);
+    model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
 
-    return( model->objects[SLICE1_INDEX+3*view_index+2] );
+    return( model->objects[COMPOSITE_SLICE_INDEX] );
 }
 
 private  void  render_slice_to_pixels(
@@ -725,8 +707,8 @@ private  void  render_slice_to_pixels(
     x_scale = slice_window->slice.slice_views[view_index].x_scaling;
     y_scale = slice_window->slice.slice_views[view_index].y_scaling;
 
-    get_slice_viewport( slice_window, view_index,
-                        &x_min, &x_max, &y_min, &y_max );
+    get_slice_model_viewport( slice_window, SLICE_MODEL1 + view_index,
+                              &x_min, &x_max, &y_min, &y_max );
 
     volume = get_volume( slice_window );
 
@@ -754,9 +736,6 @@ private  void  render_slice_to_pixels(
                     slice_window->slice.render_storage,
                     &n_alloced, pixels );
 
-    pixels->x_position += x_min;
-    pixels->y_position += y_min;
-
     x_size = pixels->x_size;
     y_size = pixels->y_size;
 
@@ -774,18 +753,18 @@ private  void  render_slice_to_pixels(
             return;
 
         (void) convert_slice_pixel_to_voxel( volume,
-                        pixels->x_position - x_min, pixels->y_position - y_min,
+                        pixels->x_position, pixels->y_position,
                         origin, x_axis, y_axis,
                         x_trans, y_trans, x_scale, y_scale, v1 );
         (void) convert_slice_pixel_to_voxel( volume,
-                        pixels->x_position+1 - x_min, pixels->y_position-y_min,
+                        pixels->x_position+1, pixels->y_position,
                         origin, x_axis, y_axis,
                         x_trans, y_trans, x_scale, y_scale, v2 );
 
         dx = v2[x_index] - v1[x_index];
 
         (void) convert_slice_pixel_to_voxel( volume,
-                        pixels->x_position - x_min, pixels->y_position+1-y_min,
+                        pixels->x_position, pixels->y_position+1,
                         origin, x_axis, y_axis,
                         x_trans, y_trans, x_scale, y_scale, v2 );
 
@@ -811,7 +790,6 @@ public  void  rebuild_slice_pixels(
     object_struct  *pixels_object;
     pixels_struct  *pixels;
     int            axis_index, x_index, y_index;
-    int            x_min, x_max, y_min, y_max;
     text_struct    *text;
     char           *format;
     int            x_pos, y_pos;
@@ -825,14 +803,14 @@ public  void  rebuild_slice_pixels(
     if( visibility )
         render_slice_to_pixels( slice_window, view_index, pixels );
 
-    model = get_graphics_model(slice_window,SLICE_MODEL);
+    model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
 
     if( slice_has_ortho_axes( slice_window, view_index,
                               &x_index, &y_index, &axis_index ) )
     {
-        set_object_visibility( model->objects[TEXT1_INDEX+view_index], TRUE );
+        set_object_visibility( model->objects[TEXT_INDEX], TRUE );
 
-        text = get_text_ptr( model->objects[TEXT1_INDEX+view_index] );
+        text = get_text_ptr( model->objects[TEXT_INDEX] );
 
         switch( axis_index )
         {
@@ -845,16 +823,13 @@ public  void  rebuild_slice_pixels(
 
         (void) sprintf( text->string, format, current_voxel[axis_index] + 1.0 );
 
-        get_slice_viewport( slice_window,
-                            view_index, &x_min, &x_max, &y_min, &y_max );
-
-        x_pos = x_min + (int) Point_x(Slice_index_offset);
-        y_pos = y_min + (int) Point_y(Slice_index_offset);
+        x_pos = (int) Point_x(Slice_index_offset);
+        y_pos = (int) Point_y(Slice_index_offset);
 
         fill_Point( text->origin, x_pos, y_pos, 0.0 );
     }
     else
-        set_object_visibility( model->objects[TEXT1_INDEX+view_index], FALSE );
+        set_object_visibility( model->objects[TEXT_INDEX], FALSE );
 
     rebuild_cursor( slice_window, view_index );
     rebuild_one_slice_cross_section( slice_window, view_index );
@@ -968,6 +943,8 @@ public  void  composite_volume_and_labels(
         create_composite( slice_window->slice.label_colour_opacity,
             get_pixels_ptr(get_slice_pixels_object( slice_window, view_index )),
             label_pixels, composite_pixels );
+
+        set_slice_viewport_update( slice_window, SLICE_MODEL1 + view_index );
     }
 }
 
@@ -994,8 +971,8 @@ private  void  render_label_slice_to_pixels(
     x_scale = slice_window->slice.slice_views[view_index].x_scaling;
     y_scale = slice_window->slice.slice_views[view_index].y_scaling;
 
-    get_slice_viewport( slice_window, view_index,
-                        &x_min, &x_max, &y_min, &y_max );
+    get_slice_model_viewport( slice_window, SLICE_MODEL1 + view_index,
+                              &x_min, &x_max, &y_min, &y_max );
 
     label_volume = get_label_volume( slice_window );
 
@@ -1016,8 +993,7 @@ private  void  render_label_slice_to_pixels(
                 slice_window->slice.render_storage,
                 &n_alloced, label_pixels );
 
-    label_pixels->x_position += x_min;
-    label_pixels->y_position += y_min;
+    set_slice_viewport_update( slice_window, SLICE_MODEL1 + view_index );
 }
 
 public  void  rebuild_label_slice_pixels(

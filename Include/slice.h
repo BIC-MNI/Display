@@ -4,6 +4,7 @@
 
 #include  <volume_io.h>
 #include  <atlas.h>
+#include  <display_types.h>
 
 #define   N_SLICE_VIEWS   4
 
@@ -84,6 +85,7 @@ typedef  struct
 
     Real                   x_brush_radius, y_brush_radius, z_brush_radius;
     int                    current_paint_label;
+    int                    painting_view_index;
     object_struct          *brush_outline;
     slice_undo_struct      undo;
 
@@ -94,6 +96,8 @@ typedef  struct
     BOOLEAN                cross_section_visibility;
     BOOLEAN                cross_section_vector_present;
     Real                   cross_section_vector[MAX_DIMENSIONS];
+
+    BOOLEAN                viewport_update_flags[N_MODELS][2];
 
 } slice_window_struct;
 
