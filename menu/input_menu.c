@@ -169,6 +169,15 @@
                        MENU_FUNCTION(fit_surface) \
                        MENU_FUNCTION(create_surface_model) \
                        MENU_FUNCTION(scan_model_to_voxels) \
+                       MENU_FUNCTION(set_atlas_on_or_off) \
+                       MENU_FUNCTION(set_atlas_opacity) \
+                       MENU_FUNCTION(set_atlas_transparent_threshold) \
+                       MENU_FUNCTION(flip_atlas_x) \
+                       MENU_FUNCTION(flip_atlas_y) \
+                       MENU_FUNCTION(flip_atlas_z) \
+                       MENU_FUNCTION(set_atlas_tolerance_x) \
+                       MENU_FUNCTION(set_atlas_tolerance_y) \
+                       MENU_FUNCTION(set_atlas_tolerance_z) \
                 
 
 typedef  struct
