@@ -10,6 +10,9 @@ root
     permanent 'y'    move_slice_minus   "- Slice"
     permanent '7'    quit               "Quit"
 
+    permanent '+'    move_slice_plus    "+ Slice"
+    permanent '-'    move_slice_minus   "- Slice"
+
     transient 'q'    slice          "Slice"
     transient 'w'    view           "View"
     transient 'e'    render         "Render"
@@ -50,14 +53,17 @@ file
 
 extract
 {
-    transient 'q'    get_labeled_boundary                "Create Label Boundary"
     transient 'w'    set_surface_extract_x_max_distance  "X Dist: %d"
     transient 'e'    set_surface_extract_y_max_distance  "Y Dist: %d"
     transient 'r'    set_surface_extract_z_max_distance  "Z Dist: %d"
 
-    transient 'z'    set_isovalue                        "Set Isovalue"
+    transient 'a'    start_volume_isosurface             "Volume Isosurface"
+    transient 's'    start_volume_binary_isosurface      "Volume Bin-Isosurface"
+    transient 'd'    get_voxelated_surface               "Volume Voxelate"
+    transient 'g'    start_label_binary_isosurface       "Label Bin-Isosurface"
+    transient 'h'    get_voxelated_label_surface         "Label Voxelate"
+
     transient 'x'    reset_surface                       "Reset Surface"
-    transient 'c'    start_surface                       "Start Surface"
     transient 'v'    toggle_surface_extraction           "Extracting: %s"
     transient 'b'    make_surface_permanent              "Make Perm"
 }
@@ -65,8 +71,6 @@ extract
 slice
 {
     transient 'q'    toggle_cross_section_visibility "Toggle Plane Visibility"
-    transient 'r'    halve_slice_voxels             "Decrease Size"
-    transient 't'    double_slice_voxels            "Increase Size"
 
     transient 'a'    toggle_slice_visibility        "Toggle Slice Visibility"
     transient 'd'    create_3d_slice                "Create 3D Slice"
@@ -256,12 +260,6 @@ markers
 
 segmenting
 {
-    transient '1'    invert_activity            "Invert Activity"
-
-    transient 'q'    load_active_voxels         "Load Activity"
-    transient 'w'    save_active_voxels         "Save Activity"
-    transient 'e'    reset_3d_segmenting        "Reset 3D Segmentation"
-    transient 'r'    do_3d_segmenting           "Do 3D Segmentation"
     transient 't'    set_segmenting_threshold   "Set Threshold"
 
     transient 'a'    load_label_data            "Load Labels"
@@ -341,7 +339,7 @@ region_painting
     transient 'x'    calculate_volume                "Calculate Volume"
     transient 'c'    toggle_display_labels           "Show Labels: %s"
     transient 'v'    change_labels_in_range          "Change Labels"
-    transient 'b'    get_labeled_boundary            "Create Label Boundary"
+    transient 'b'    get_voxelated_label_surface     "Create Label Boundary"
     transient 'n'    set_segmenting_threshold        "Set Threshold"
 }
 
@@ -365,7 +363,7 @@ francesco
     transient 'x'    calculate_volume                "Calculate Volume"
     transient 'c'    toggle_display_labels           "Show Labels: %s"
     transient 'v'    change_labels_in_range          "Change Labels"
-    transient 'b'    get_labeled_boundary            "Create Label Boundary"
+    transient 'b'    get_voxelated_label_surface     "Create Label Boundary"
     transient 'n'    set_segmenting_threshold        "Set Threshold"
 
     transient '1'    translate_labels_arbitrary      "Big Translate"
