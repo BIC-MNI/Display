@@ -142,6 +142,8 @@ public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
                         graphics->three_d.surface_fitting.parameters );
 
     graphics->three_d.surface_fitting.n_samples = N_fitting_samples;
+    graphics->three_d.surface_fitting.gradient_strength_factor =
+                                      Gradient_strength_factor;
     graphics->three_d.surface_fitting.curvature_factor = Curvature_factor;
     graphics->three_d.surface_fitting.surface_point_distance_factor =
                                       Surface_point_distance_factor;
@@ -354,7 +356,10 @@ public  DEF_MENU_FUNCTION(convert_to_new_representation)   /* ARGSUSED */
     Status                    status;
     Status                    input_nonwhite_character();
     Status                    convert_to_new_surface_representation();
+    int                       i;
+    double                    *new_descriptors;
     Surface_representations   new_rep;
+    surface_rep_struct        *surface_rep;
     char                      ch;
 
     PRINT( "Enter new surface representation type ['q' or 's']: " );
@@ -377,12 +382,32 @@ public  DEF_MENU_FUNCTION(convert_to_new_representation)   /* ARGSUSED */
         }
     }
 
+    if( status == OK && !lookup_surface_representation( new_rep, &surface_rep ))
+    {
+        PRINT( "Could not find representation.\n" );
+        status = ERROR;
+    }
+
+    if( status == OK )
+    {
+        ALLOC1( status, new_descriptors, surface_rep->n_descriptors, double );
+
+        for_less( i, 0, surface_rep->n_descriptors )
+        {
+            PRINT( "Enter descriptor[%d]: ", i+1 );
+            (void) scanf( "%lf", &new_descriptors[i] );
+        }
+    }
+
     if( status == OK )
     {
         status = convert_to_new_surface_representation(
-                       &graphics->three_d.surface_fitting, new_rep );
+                       &graphics->three_d.surface_fitting, surface_rep,
+                       new_descriptors );
     }
-    
+
+    if( status == OK )
+        FREE1( status, new_descriptors );
    
     return( status );
 }
