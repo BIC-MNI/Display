@@ -27,6 +27,8 @@ static    DEF_EVENT_FUNCTION( terminate_picking_low_limit );
 static    DEF_EVENT_FUNCTION( terminate_picking_high_limit );
 static    DEF_EVENT_FUNCTION( terminate_picking_both_limits );
 
+private  void  set_voxel_cursor(
+    display_struct    *slice_window );
 private  void  update_window_size(
     display_struct    *slice_window );
 private  void  update_limit(
@@ -98,6 +100,8 @@ private  DEF_EVENT_FUNCTION( left_mouse_down )    /* ARGSUSED */
             add_action_table_function( &display->action_table,
                                        TERMINATE_INTERACTION_EVENT,
                                        terminate_picking_voxel );
+
+            set_voxel_cursor( display );
         }
     }
     else if( mouse_is_near_low_limit( display ) )
@@ -242,17 +246,25 @@ private  void  set_slice_voxel_position(
 
 /* ----------------------------------------------------------------------- */
 
-private  void  update_voxel_cursor(
+private  void  set_voxel_cursor(
     display_struct    *slice_window )
 {
-    int    axis_index, x, y, x_prev, y_prev;
+    int    axis_index;
     Real   voxel[N_DIMENSIONS];
 
-    if( pixel_mouse_moved( slice_window, &x, &y, &x_prev, &y_prev ) &&
-        get_voxel_in_slice_window( slice_window, voxel, &axis_index ) )
+    if( get_voxel_in_slice_window( slice_window, voxel, &axis_index ) )
     {
         set_slice_voxel_position( slice_window, voxel );
     }
+}
+
+private  void  update_voxel_cursor(
+    display_struct    *slice_window )
+{
+    int    x, y, x_prev, y_prev;
+
+    if( pixel_mouse_moved( slice_window, &x, &y, &x_prev, &y_prev ) )
+        set_voxel_cursor( slice_window );
 }
 
 private  DEF_EVENT_FUNCTION( terminate_picking_voxel )     /* ARGSUSED */
