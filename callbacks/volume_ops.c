@@ -1,6 +1,7 @@
 
 #include  <def_graphics.h>
 #include  <def_math.h>
+#include  <def_stdio.h>
 
 private  Boolean  get_current_volume( graphics, volume )
     graphics_struct   *graphics;
@@ -141,8 +142,10 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
     Status           create_graphics_window();
     volume_struct    *volume;
     graphics_struct  *slice_window;
-    void             set_slice_window_volume();
+    Status           set_slice_window_volume();
     void             rebuild_slice_models();
+
+    status = OK;
 
     if( get_current_volume( graphics, &volume ) &&
         graphics->associated[SLICE_WINDOW] == (graphics_struct *) 0 )
@@ -158,7 +161,7 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
             graphics->associated[SLICE_WINDOW] = slice_window;
             menu_window->associated[SLICE_WINDOW] = slice_window;
 
-            set_slice_window_volume( slice_window, volume );
+            status = set_slice_window_volume( slice_window, volume );
 
             rebuild_slice_models( slice_window );
 
@@ -166,7 +169,7 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
         }
     }
 
-    return( OK );
+    return( status );
 }
 
 public  DEF_MENU_UPDATE(open_slice_window )   /* ARGSUSED */
@@ -326,6 +329,214 @@ public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(halve_slice_voxels )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(turn_voxel_on)   /* ARGSUSED */
+{
+    Status           status;
+    graphics_struct  *slice_window;
+    int              x, y, z, axis_index;
+    void             set_voxel_activity();
+
+    status = OK;
+
+    slice_window = graphics->associated[SLICE_WINDOW];
+
+    if( get_current_voxel( slice_window, &x, &y, &z, &axis_index ) )
+    {
+        set_voxel_activity( slice_window->slice.volume,
+                            &slice_window->slice.voxel_activity, x, y, z,
+                            ON );
+
+        rebuild_slice_pixels( slice_window, axis_index );
+
+        slice_window->update_required = TRUE;
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(turn_voxel_on )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(turn_voxel_off)   /* ARGSUSED */
+{
+    Status           status;
+    graphics_struct  *slice_window;
+    int              x, y, z, axis_index;
+    void             set_voxel_activity();
+
+    status = OK;
+
+    slice_window = graphics->associated[SLICE_WINDOW];
+
+    if( get_current_voxel( slice_window, &x, &y, &z, &axis_index ) )
+    {
+        set_voxel_activity( slice_window->slice.volume,
+                            &slice_window->slice.voxel_activity, x, y, z,
+                            OFF );
+
+        rebuild_slice_pixels( slice_window, axis_index );
+
+        slice_window->update_required = TRUE;
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(turn_voxel_off )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(save_inactive_voxels)   /* ARGSUSED */
+{
+    FILE             *file;
+    Status           status;
+    Status           open_output_file();
+    Status           close_file();
+    Status           io_int();
+    Status           io_newline();
+    volume_struct    *volume;
+    bitlist_struct   *voxel_activity;
+    int              x, y, z;
+    Boolean          get_voxel_activity();
+    String           filename;
+
+    status = OK;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        (void) printf( "Enter filename: " );
+        (void) scanf( "%s", filename );
+
+        status = open_output_file( filename, &file );
+
+        if( status == OK )
+        {
+            voxel_activity = &graphics->associated[SLICE_WINDOW]->slice.
+                             voxel_activity;
+
+            for_less( x, 0, volume->size[X_AXIS] )
+            {
+                for_less( y, 0, volume->size[Y_AXIS] )
+                {
+                    for_less( z, 0, volume->size[Z_AXIS] )
+                    {
+                        if( !get_voxel_activity( volume, voxel_activity,
+                                                 x, y, z ) )
+                        {
+                            if( status == OK )
+                            {
+                                status = io_int( file, OUTPUTTING, ASCII_FORMAT,
+                                                 &x );
+                            }
+
+                            if( status == OK )
+                            {
+                                status = io_int( file, OUTPUTTING, ASCII_FORMAT,
+                                                 &y );
+                            }
+
+                            if( status == OK )
+                            {
+                                status = io_int( file, OUTPUTTING, ASCII_FORMAT,
+                                                 &z );
+                            }
+
+                            if( status == OK )
+                            {
+                                status = io_newline( file, OUTPUTTING,
+                                                     ASCII_FORMAT );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if( status == OK )
+        {
+            status = close_file( file );
+        }
+
+        PRINT( "Done\n" );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(save_inactive_voxels )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(load_inactive_voxels)   /* ARGSUSED */
+{
+    FILE             *file;
+    Status           status;
+    Status           open_input_file();
+    Status           close_file();
+    Status           io_int();
+    volume_struct    *volume;
+    bitlist_struct   *voxel_activity;
+    int              x, y, z;
+    Boolean          get_voxel_activity();
+    String           filename;
+    void             rebuild_slice_models();
+
+    status = OK;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        (void) printf( "Enter filename: " );
+        (void) scanf( "%s", filename );
+
+        status = open_input_file( filename, &file );
+
+        voxel_activity = &graphics->associated[SLICE_WINDOW]->slice.
+                            voxel_activity;
+
+        while( status == OK &&
+               io_int( file, INPUTTING, ASCII_FORMAT, &x ) == OK )
+        {
+            status = io_int( file, INPUTTING, ASCII_FORMAT, &y );
+
+            if( status == OK )
+            {
+                status = io_int( file, INPUTTING, ASCII_FORMAT, &z );
+            }
+
+            if( status == OK )
+            {
+                set_voxel_activity( volume, voxel_activity, x, y, z, FALSE );
+            }
+        }
+
+        if( status == OK )
+        {
+            status = close_file( file );
+        }
+
+
+        if( status == OK )
+        {
+            rebuild_slice_models( graphics->associated[SLICE_WINDOW] );
+
+            graphics->associated[SLICE_WINDOW]->update_required = TRUE;
+        }
+
+        PRINT( "Done\n" );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(load_inactive_voxels )   /* ARGSUSED */
 {
     return( OK );
 }

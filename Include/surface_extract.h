@@ -3,11 +3,12 @@
 #define  DEF_SURFACE_EXTRACT
 
 #include  <def_hash.h>
+#include  <def_bitlist.h>
 #include  <def_queue.h>
 
 typedef  struct
 {
-    int   voxel_indices[N_DIMENSIONS];
+    int   i[N_DIMENSIONS];
 } voxel_index_struct;
 
 typedef  struct
@@ -17,12 +18,14 @@ typedef  struct
 
 typedef  struct
 {
-    Boolean                              extraction_started;
+    Boolean                              extraction_in_progress;
     Real                                 isovalue;
     Boolean                              isovalue_selected;
 
     hash_table_struct                    edge_points;
-    hash_table_struct                    voxels_done;
+
+    int                                  n_voxels_alloced;
+    bitlist_struct                       voxels_done;
 
     QUEUE_STRUCT( voxel_index_struct )   voxels_to_do;
     

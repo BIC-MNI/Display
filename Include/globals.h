@@ -100,6 +100,8 @@ START_GLOBALS
     DEF_GLOBAL( Max_surface_error, Real, 0.1 )
 
     DEF_GLOBAL( Normal_towards_lower, Boolean, TRUE )
+
+    DEF_GLOBAL( Inactive_voxel_colour, Colour, 0.0 )
 END_GLOBALS
          
 #endif

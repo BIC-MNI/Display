@@ -105,6 +105,9 @@ typedef  unsigned  long  Pixel_colour;
              (pixel) = RGB_255_TO_PIXEL( r_int, g_int, b_int ); \
          }
 
+#define  COLOUR_TO_PIXEL( col, pixel ) \
+         RGB_TO_PIXEL( Colour_r(col), Colour_g(col), Colour_b(col), pixel )
+
 #define  ACCESS_PIXEL( array, x, y, size_x ) \
          (array)[(x) + (size_x) * (y)]
 
