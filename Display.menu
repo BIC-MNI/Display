@@ -8,6 +8,7 @@ root
     permanent '='      move_slice_plus              "+ Slice"
     permanent '-'      move_slice_minus             "- Slice"
 
+    transient 'q'      volume_config                "Volume Config"
     transient 'w'      view_3d                      "3D View"
     transient 'e'      render_3d                    "3D Render"
     transient 'r'      objects                      "Objects"
@@ -19,6 +20,7 @@ root
     transient 'd'      colour_coding                "Colour Coding"
     transient 'f'      segmenting                   "Segmenting"
     transient 'g'      create_surface               "Create Surface"
+    transient 'h'      volume_cropping              "Volume Cropping"
 
     transient 'z'      polygons                     "Polygons"
     transient 'x'      surface_segmentation         "Surface Segmentation"
@@ -72,9 +74,6 @@ file
 
 create_surface
 {
-    transient 'w'    set_surface_extract_x_max_distance  "X Dist: %d"
-    transient 'e'    set_surface_extract_y_max_distance  "Y Dist: %d"
-    transient 'r'    set_surface_extract_z_max_distance  "Z Dist: %d"
     transient 'y'    set_surface_invalid_label_range     "Set Invalid Lbl Range"
 
     transient 'a'    start_volume_isosurface             "Volume Isosurface"
@@ -100,7 +99,7 @@ slice_view
 
     transient 'a'    create_3d_slice                 "Create 3D Slice"
     transient 's'    toggle_slice_visibility         "Toggle Slice Visibility"
-    transient 'd'    toggle_slice_cross_section_visibility "Toggle Slice Crs-Sect"
+    transient 'd'  toggle_slice_cross_section_visibility "Toggle Slice Crs-Sect"
     transient 'f'    reset_current_slice_view        "Reset Slice View"
     transient 'g'    redo_histogram                  "Recompute Histogram"
     transient 'h'    redo_histogram_labeled          "Histogram of Labeled"
@@ -112,23 +111,20 @@ slice_view
     transient 'b'    type_in_voxel_origin            "Type In Origin"
     transient 'n'    type_in_slice_plane             "Type In Plane Normal"
 
-    transient '1'    delete_current_volume_menu      "Delete Volume"
-    transient '5'    volume_cropping                 "Volume Cropping"
+    transient '1'    create_3d_slice_profile         "Create 3D profile"
+    transient '2'    set_current_volume_opacity      "Vol Opacity: %g"
+    transient '5'    toggle_incremental_slice_update "Increm Update: %s"
     transient '6'    toggle_double_buffer_slice      "Slice DblBuf: %s"
 }
 
 volume_cropping
 {
     transient 'a'    toggle_slice_crop_visibility    "Visibility: %s"
-    transient 's'    pick_crop_box_edge              "Pick Crop Edge"
+    transient 's'    pick_crop_box_edge              "Pick Crop Box"
     transient 'd'    load_cropped_volume             "Crop and Load"
-    transient 'f'    set_crop_box_filename           "Set Crop Filename"
+    transient 'f'    set_crop_box_filename           "Set Crop Source"
     transient 'x'    reset_slice_crop                "Reset Crop Position"
     transient 'r'    crop_volume_to_file             "Crop To File"
-
-    transient 'y'    toggle_incremental_slice_update "Increm Update: %s"
-
-    transient 'q'    create_3d_slice_profile         "Create 3D profile"
 }
 
 delete_current_volume_menu
@@ -139,13 +135,9 @@ delete_current_volume_menu
 
 colour_coding
 {
-    transient 'q'    set_nearest_neighbour           "Nearest Neighbour"
-    transient 'w'    set_linear_interpolation        "Linear Int Filter"
-    transient 'e'    set_box_filter                  "Box Filter"
-    transient 'r'    set_triangle_filter             "Triangle Filter"
-    transient 't'    set_gaussian_filter             "Gaussian Filter"
-    transient 'y'    set_filter_half_width           "Filter Width"
-    transient 'u'    set_current_volume_opacity      "Vol Opacity: %g"
+    transient 'e'    set_red                         "Red"
+    transient 'r'    set_green                       "Green"
+    transient 't'    set_blue                        "Blue"
 
     transient 'a'    colour_code_objects             "Colour Code Objects"
     transient 's'    set_spectral                    "Spectral"
@@ -160,17 +152,6 @@ colour_coding
     transient 'v'    toggle_display_labels           "Show Labels: %s"
     transient 'b'    set_label_colour                "Set Paint Lbl Colour"
     transient 'n'    set_slice_window_n_labels       "Num Labels: %d"
-
-    transient '1'    toggle_share_labels             "Share Labels: %s"
-    transient '5'    extra_colour_codes              "Extra Colour Codes"
-}
-
-extra_colour_codes
-{
-    transient 's'    set_red                         "Red"
-    transient 'd'    set_green                       "Green"
-    transient 'f'    set_blue                        "Blue"
-    transient 'n'    toggle_slice_interpolation      "Interp: %s"
 }
 
 view_3d
@@ -434,4 +415,19 @@ volume_transform
     transient 'b'    rotate_volume_minus_y             "Rot - Y"
     transient 'n'    rotate_volume_minus_z             "Rot - Z"
 
+}
+
+volume_config
+{
+    transient '1'    delete_current_volume_menu      "Delete Volume"
+
+    transient 'q'    set_nearest_neighbour           "Nearest Neighbour"
+    transient 'w'    set_linear_interpolation        "Linear Int Filter"
+    transient 'e'    set_box_filter                  "Box Filter"
+    transient 'r'    set_triangle_filter             "Triangle Filter"
+    transient 't'    set_gaussian_filter             "Gaussian Filter"
+    transient 'y'    set_filter_half_width           "Filter Width"
+
+    transient 'a'    toggle_share_labels             "Share Labels: %s"
+    transient 's'    toggle_slice_interpolation      "Interp: %s"
 }
