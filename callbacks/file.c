@@ -13,7 +13,7 @@ public  DEF_MENU_FUNCTION( load_file )   /* ARGSUSED */
     (void) input_newline( stdin );
 
     if( status == OK )
-        status = load_graphics_file( display, filename );
+        status = load_graphics_file( display, filename, FALSE );
 
     if( status == OK )
         graphics_models_have_changed( display );

@@ -19,10 +19,8 @@ public  void  initialize_surface_extraction(
     surface_extraction->y_voxel_max_distance = Default_y_voxel_max_distance;
     surface_extraction->z_voxel_max_distance = Default_z_voxel_max_distance;
 
-    surface_extraction->valid_min_label = 0.0;
-    surface_extraction->valid_max_label = -1.0;
-    surface_extraction->valid_out_min_label = 0.0;
-    surface_extraction->valid_out_max_label = -1.0;
+    surface_extraction->min_invalid_label = 0.0;
+    surface_extraction->max_invalid_label = -1.0;
 
     object = create_object( POLYGONS );
 
@@ -158,20 +156,11 @@ public  int  get_n_voxels(
     return( n_voxels );
 }
 
-public  void  set_valid_out_label_for_surface_extraction(
+public  void  set_invalid_label_range_for_surface_extraction(
     display_struct  *display,
     int             min_label,
     int             max_label )
 {
-    display->three_d.surface_extraction.valid_out_min_label = min_label;
-    display->three_d.surface_extraction.valid_out_max_label = max_label;
-}
-
-public  void  set_valid_label_for_surface_extraction(
-    display_struct  *display,
-    int             min_label,
-    int             max_label )
-{
-    display->three_d.surface_extraction.valid_min_label = min_label;
-    display->three_d.surface_extraction.valid_max_label = max_label;
+    display->three_d.surface_extraction.min_invalid_label = min_label;
+    display->three_d.surface_extraction.max_invalid_label = max_label;
 }

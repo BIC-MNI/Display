@@ -164,9 +164,10 @@ public  void  initialize_slice_models(
 
         object = create_object( TEXT );
 
-        get_text_ptr(object)->font = (Font_types) Slice_text_font;
-        get_text_ptr(object)->size = Slice_text_font_size;
-        get_text_ptr(object)->colour = Slice_text_colour;
+        initialize_text( get_text_ptr(object), NULL,
+                         Slice_text_colour,
+                         (Font_types) Slice_text_font, Slice_text_font_size );
+
         add_object_to_model( model, object );
     }
 
@@ -179,11 +180,15 @@ public  void  initialize_slice_models(
     else
         colour = Readout_text_rgb_colour;
 
-    for_inclusive( i, 0, N_READOUT_MODELS )
+    for_less( i, 0, N_READOUT_MODELS )
     {
         object = create_object( TEXT );
 
-        get_text_ptr(object)->colour = colour;
+        initialize_text( get_text_ptr(object), NULL,
+                         colour,
+                         (Font_types) Slice_readout_text_font,
+                         Slice_readout_text_font_size );
+
         add_object_to_model( model, object );
     }
 }

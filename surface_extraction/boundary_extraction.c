@@ -4,6 +4,9 @@ private  BOOLEAN  face_is_boundary(
     Volume          volume,
     Real            min_value,
     Real            max_value,
+    Volume          label_volume,
+    Real            min_invalid_label,
+    Real            max_invalid_label,
     int             indices[N_DIMENSIONS],
     int             c,
     int             offset );
@@ -21,6 +24,9 @@ public  void  create_voxelated_surface(
     Volume           volume,
     Real             min_value,
     Real             max_value,
+    Volume           label_volume,
+    Real             min_invalid_label,
+    Real             max_invalid_label,
     polygons_struct  *polygons )
 {
     int                          indices[N_DIMENSIONS], sizes[N_DIMENSIONS];
@@ -66,8 +72,10 @@ public  void  create_voxelated_surface(
                 {
                     for( offset = -1;  offset <= 1;  offset += 2 )
                     {
-                        if( face_is_boundary( volume,
-                                              min_value, max_value,
+                        if( face_is_boundary( volume, min_value, max_value,
+                                              label_volume,
+                                              min_invalid_label,
+                                              max_invalid_label,
                                               indices, c,offset) )
                         {
                             add_face( volume, indices, c, offset,
@@ -99,14 +107,17 @@ private  BOOLEAN  face_is_boundary(
     Volume          volume,
     Real            min_value,
     Real            max_value,
+    Volume          label_volume,
+    Real            min_invalid_label,
+    Real            max_invalid_label,
     int             indices[N_DIMENSIONS],
     int             c,
     int             offset )
 {
     BOOLEAN  inside, neigh_inside;
     BOOLEAN  boundary_flag;
-    Real     value;
-    int      neigh_indices[N_DIMENSIONS];
+    Real     value, label;
+    int      n_invalid, neigh_indices[N_DIMENSIONS];
 
     boundary_flag = FALSE;
 
@@ -123,12 +134,37 @@ private  BOOLEAN  face_is_boundary(
 
         if( int_voxel_is_within_volume( volume, neigh_indices ) )
         {
-            value = get_volume_real_value( volume, neigh_indices[X],
-                             neigh_indices[Y], neigh_indices[Z], 0, 0 );
-            neigh_inside = min_value <= value && value <= max_value;
+            boundary_flag = TRUE;
 
-            if( inside != neigh_inside )
-                boundary_flag = TRUE;
+            if( label_volume != NULL && min_invalid_label <= max_invalid_label )
+            {
+                n_invalid = 0;
+
+                label = (Real) get_volume_label_data( label_volume, indices );
+                if( min_invalid_label <= label && label <= max_invalid_label )
+                    ++n_invalid;
+
+                label = (Real) get_volume_label_data( label_volume,
+                                                      neigh_indices );
+                if( min_invalid_label <= label && label <= max_invalid_label )
+                    ++n_invalid;
+
+                if( n_invalid == 2 ||
+                    (n_invalid == 1 && !Voxel_validity_if_mixed) )
+                {
+                    boundary_flag =  FALSE;
+                }
+            }
+
+            if( boundary_flag )
+            {
+                value = get_volume_real_value( volume, neigh_indices[X],
+                                 neigh_indices[Y], neigh_indices[Z], 0, 0 );
+                neigh_inside = min_value <= value && value <= max_value;
+
+                if( inside == neigh_inside )
+                    boundary_flag = FALSE;
+            }
         }
         else
             boundary_flag = TRUE;

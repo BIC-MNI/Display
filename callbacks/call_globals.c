@@ -32,6 +32,7 @@ public  DEF_MENU_UPDATE(menu_set_global_variable )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( show_memory )  /* ARGSUSED */
 {
+#ifndef linux
     struct  mallinfo   m;
 
     m = mallinfo();
@@ -48,6 +49,7 @@ public  DEF_MENU_FUNCTION( show_memory )  /* ARGSUSED */
     print( "space in free ordinary blocks  : %d\n", m.fordblks );
     print( "space penalty if keep option   : %d\n", m.keepcost );
     print( "\n" );
+#endif
 
     return( OK );
 }

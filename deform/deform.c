@@ -34,9 +34,9 @@ private  DEF_EVENT_FUNCTION( deform_object )    /* ARGSUSED */
         display->three_d.deform.deform.deform_data.label_volume =
                                                get_label_volume( display );
 
+/*
         if( display->three_d.deform.using_simulated_annealing )
         {
-/*
             switch( display->three_d.deform.deforming_object->object_type )
             {
             case LINES:
@@ -52,9 +52,9 @@ private  DEF_EVENT_FUNCTION( deform_object )    /* ARGSUSED */
             case POLYGONS:
                 break;
             }
-*/
         }
         else
+*/
         {
             ++display->three_d.deform.iteration;
             switch( display->three_d.deform.deforming_object->object_type )
@@ -117,15 +117,15 @@ public  void  turn_on_deformation(
             display->three_d.deform.iteration = 0;
         }
 
+/*
         if( use_simulated_annealling )
         {
-/*
             initialize_deform_line_annealing( 
                   get_lines_ptr(display->three_d.deform.deforming_object),
                   &display->three_d.deform.deform,
                   &display->three_d.deform.anneal );
-*/
         }
+*/
 
         if( object->object_type == POLYGONS &&
             check_correct_deformation_polygons( get_polygons_ptr(object),

@@ -224,14 +224,13 @@ private  BOOLEAN  get_brush(
     int              *axis,
     Real             radius[] )
 {
+    int      c;
     BOOLEAN  okay;
     Real     separations[MAX_DIMENSIONS];
 
     okay = FALSE;
 
-    if( slice_window->slice.x_brush_radius > 0.0 &&
-        slice_window->slice.y_brush_radius > 0.0 &&
-        slice_has_ortho_axes( slice_window, volume_index, view_index,
+    if( slice_has_ortho_axes( slice_window, volume_index, view_index,
                               a1, a2, axis ) )
     {
         get_volume_separations( get_nth_volume(slice_window,volume_index),
@@ -239,10 +238,17 @@ private  BOOLEAN  get_brush(
 
         radius[*a1] = slice_window->slice.x_brush_radius /
                       ABS( separations[*a1] );
+
         radius[*a2] = slice_window->slice.y_brush_radius /
                       ABS( separations[*a2] );
         radius[*axis] = slice_window->slice.z_brush_radius /
                       ABS( separations[*axis] );
+
+        for_less( c, 0, N_DIMENSIONS )
+        {
+            if( radius[c] != 0.0 && radius[c] < 1.0 )
+                radius[c] = 1.0;
+        }
 
         okay = TRUE;
     }
@@ -256,43 +262,71 @@ private  BOOLEAN  inside_swept_brush(
     Real       radius[],
     int        voxel[] )
 {
-    int    c;
-    Real   d, mag, t;
-    Point  voxel_offset;
+    int      c, n_non_zero;
+    Real     d, mag, t, t_min, t_max;
+    Point    voxel_offset, voxel_origin;
+    Vector   delta;
+    BOOLEAN  inside;
+
+    n_non_zero = 0;
 
     for_less( c, 0, N_DIMENSIONS )
     {
         if( radius[c] == 0.0 )
             Vector_coord(voxel_offset,c) = 0.0;
         else
+        {
             Vector_coord(voxel_offset,c) =
                                 ((Real) voxel[c] - origin[c]) / radius[c];
-    }
-
-    if( scaled_delta != (Vector *) NULL )
-        d = DOT_VECTORS( *scaled_delta, *scaled_delta );
-    else
-        d = 0.0;
-
-    if( d != 0.0 )
-    {
-        t = DOT_VECTORS( voxel_offset, *scaled_delta ) / d;
-
-        if( t < 0.0 )
-            t = 0.0;
-        else if( t > 1.0 )
-            t = 1.0;
-
-        for_less( c, 0, N_DIMENSIONS )
-        {
-            Vector_coord( voxel_offset, c ) -=
-                                    t * Vector_coord(*scaled_delta,c);
+            ++n_non_zero;
         }
     }
 
-    mag = DOT_VECTORS( voxel_offset, voxel_offset );
+    if( n_non_zero == 0 )
+    {
+        if( scaled_delta == NULL )
+        {
+            fill_Vector( delta, 0.0, 0.0, 0.0 );
+            scaled_delta = &delta;
+        }
 
-    return( mag <= 1.0 );
+        fill_Point( voxel_origin, origin[X], origin[Y], origin[Z] );
+        inside = clip_line_to_box( &voxel_origin, scaled_delta,
+                              (Real) voxel[X] - 0.5, (Real) voxel[X] + 0.5,
+                              (Real) voxel[Y] - 0.5, (Real) voxel[Y] + 0.5,
+                              (Real) voxel[Z] - 0.5, (Real) voxel[Z] + 0.5,
+                              &t_min, &t_max ) &&
+                 t_min <= 1.0 && t_max >= 0.0;
+    }
+    else
+    {
+        if( scaled_delta != (Vector *) NULL )
+            d = DOT_VECTORS( *scaled_delta, *scaled_delta );
+        else
+            d = 0.0;
+
+        if( d != 0.0 )
+        {
+            t = DOT_VECTORS( voxel_offset, *scaled_delta ) / d;
+
+            if( t < 0.0 )
+                t = 0.0;
+            else if( t > 1.0 )
+                t = 1.0;
+
+            for_less( c, 0, N_DIMENSIONS )
+            {
+                Vector_coord( voxel_offset, c ) -=
+                                        t * Vector_coord(*scaled_delta,c);
+            }
+        }
+
+        mag = DOT_VECTORS( voxel_offset, voxel_offset );
+
+        inside = (mag <= 1.0);
+    }
+
+    return( inside );
 }
 
 private  void  fast_paint_labels(
@@ -474,11 +508,9 @@ private  void  paint_labels(
 
         for_less( c, 0, N_DIMENSIONS )
         {
-            if( radius[c] == 0.0 )
-                Vector_coord(scaled_delta,c) = 0.0;
-            else
-                Vector_coord(scaled_delta,c) = (end_voxel[c] - start_voxel[c])
-                                               / radius[c];
+            Vector_coord(scaled_delta,c) = end_voxel[c] - start_voxel[c];
+            if( radius[c] != 0.0 )
+                Vector_coord(scaled_delta,c) /= radius[c];
         }
 
         for_less( c, 0, N_DIMENSIONS )
@@ -739,9 +771,7 @@ private  void   update_brush(
     delete_lines( lines );
     initialize_lines( lines, Brush_outline_colour );
 
-    if( slice_window->slice.x_brush_radius > 0.0 &&
-        slice_window->slice.y_brush_radius > 0.0 &&
-        get_brush_voxel_centre( slice_window, x, y, centre,
+    if( get_brush_voxel_centre( slice_window, x, y, centre,
                                 &volume_index, &view ) &&
         get_brush( slice_window, volume_index, view, &a1, &a2, &axis, radius ) )
     {

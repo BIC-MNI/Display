@@ -108,10 +108,11 @@ public  DEF_MENU_UPDATE(set_segmenting_threshold )   /* ARGSUSED */
     return( slice_window_exists(display) );
 }
 
-public  DEF_MENU_FUNCTION(load_label_data)   /* ARGSUSED */
+public  Status  input_label_volume_file(
+    display_struct   *display,
+    char             *filename )
 {
     Status           status;
-    STRING           filename;
     display_struct   *slice_window;
 
     status = OK;
@@ -119,26 +120,42 @@ public  DEF_MENU_FUNCTION(load_label_data)   /* ARGSUSED */
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        print( "Enter filename to load: " );
-
-        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
-
-        (void) input_newline( stdin );
-
-        if( status == OK )
-            status = load_label_volume( filename,
-                                        get_label_volume(slice_window) );
+        status = load_label_volume( filename,
+                                    get_label_volume(slice_window) );
 
         if( status == OK )
             (void) strcpy( slice_window->slice.volumes[
                       get_current_volume_index(slice_window)].labels_filename,
                       filename );
 
-        print( "Done\n" );
         delete_slice_undo( &slice_window->slice.undo,
                            get_current_volume_index(slice_window) );
+
         set_slice_window_all_update( slice_window,
                      get_current_volume_index(slice_window), UPDATE_LABELS );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_FUNCTION(load_label_data)   /* ARGSUSED */
+{
+    Status           status;
+    STRING           filename;
+
+    status = OK;
+
+    if( get_n_volumes(display) > 0 )
+    {
+        print( "Enter filename to load: " );
+
+        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+        (void) input_newline( stdin );
+
+        status = input_label_volume_file( display, filename );
+
+        print( "Done\n" );
     }
 
     return( status );
@@ -179,6 +196,152 @@ public  DEF_MENU_FUNCTION(save_label_data)   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(save_label_data )   /* ARGSUSED */
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+public  Status input_tag_label_file(
+    display_struct   *display,
+    char             filename[] )
+{
+    Status         status;
+    BOOLEAN        landmark_format;
+    FILE           *file;
+    display_struct *slice_window;
+    Volume         volume;
+
+    status = OK;
+
+    if( get_slice_window_volume( display, &volume ) &&
+        get_slice_window( display, &slice_window ) )
+    {
+        landmark_format = filename_extension_matches( filename,
+                             get_default_landmark_file_suffix() );
+
+        status = open_file_with_default_suffix( filename,
+                            get_default_tag_file_suffix(),
+                            READ_FILE, ASCII_FORMAT, &file );
+
+        if( status == OK )
+        {
+            if( landmark_format )
+                status = input_landmarks_as_labels( file, volume,
+                                        get_label_volume(slice_window) );
+            else
+                status = input_tags_as_labels( file, volume,
+                                        get_label_volume(slice_window) );
+        }
+
+        if( status == OK )
+            status = close_file( file );
+
+        delete_slice_undo( &slice_window->slice.undo,
+                           get_current_volume_index(slice_window) );
+
+        set_slice_window_all_update( slice_window,
+                 get_current_volume_index(slice_window), UPDATE_LABELS  );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
+{
+    Status         status;
+    STRING         filename;
+
+    if( get_n_volumes(display) > 0 )
+    {
+        print( "Enter filename: " );
+        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        {
+            status = input_tag_label_file( display, filename );
+
+            print( "Done loading.\n" );
+        }
+
+        (void) input_newline( stdin );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(load_labels )   /* ARGSUSED */
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+private  save_labels_as_tags(
+    display_struct  *display,
+    display_struct  *slice_window,
+    int             desired_label )
+{
+    Status         status;
+    FILE           *file;
+    STRING         filename;
+
+    print( "Enter filename to save: " );
+    if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+    {
+        status = open_file_with_default_suffix( filename,
+                         get_default_tag_file_suffix(),
+                         WRITE_FILE, ASCII_FORMAT, &file );
+
+        if( status == OK )
+            status = output_labels_as_tags( file,
+                      get_volume(slice_window),
+                      get_label_volume(slice_window),
+                      desired_label,
+                      display->three_d.default_marker_size,
+                      display->three_d.default_marker_patient_id );
+
+        if( status == OK )
+            status = close_file( file );
+
+        print( "Done saving.\n" );
+    }
+
+    (void) input_newline( stdin );
+}
+
+public  DEF_MENU_FUNCTION( save_labels )   /* ARGSUSED */
+{
+    display_struct *slice_window;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
+    {
+        save_labels_as_tags( display, slice_window, -1 );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(save_labels )   /* ARGSUSED */
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+public  DEF_MENU_FUNCTION( save_current_label )   /* ARGSUSED */
+{
+    display_struct *slice_window;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
+    {
+        if( slice_window->slice.current_paint_label > 0 )
+        {
+            save_labels_as_tags( display, slice_window,
+                                 slice_window->slice.current_paint_label );
+        }
+        else
+            print( "You first have to set the current label > 0.\n" );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(save_current_label )   /* ARGSUSED */
 {
     return( get_n_volumes(display) > 0 );
 }

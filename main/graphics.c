@@ -119,6 +119,7 @@ public  void  terminate_graphics( void )
 
 public  Status  create_graphics_window(
     window_types      window_type,
+    BOOLEAN           double_buffering,
     display_struct    **display,
     char              title[],
     int               width,
@@ -128,7 +129,8 @@ public  Status  create_graphics_window(
 
     get_new_display( display );
 
-    status = G_create_window( title, -1, -1, width, height, 
+    status = G_create_window( title, -1, -1, width, height,
+                              FALSE, double_buffering, TRUE, 2,
                               &(*display)->window );
 
     G_set_background_colour( (*display)->window, Initial_background_colour );
@@ -257,7 +259,8 @@ private  void  initialize_graphics_window(
 
         if( display->window_type == THREE_D_WINDOW &&
             (i == OVERLAY_MODEL ||
-             (i == CURSOR_MODEL && get_cursor_bitplanes() == OVERLAY_PLANES)) )
+             (i == CURSOR_MODEL && get_cursor_bitplanes() == OVERLAY_PLANES)) &&
+            G_has_overlay_planes() )
         {
             model_info->bitplanes = OVERLAY_PLANES;
         }
@@ -274,12 +277,9 @@ private  void  initialize_graphics_window(
         model->n_objects = 0;
         (void) strcpy( model->filename, "Top Level" );
 
-        initialize_render( &model_info->render );
-
         if( display->window_type == THREE_D_WINDOW && i == THREED_MODEL )
         {
-            model_info->render.render_lines_as_curves =
-                                           Initial_line_curves_flag;
+            initialize_render_3D( &model_info->render );
         }
 
         if( display->window_type == THREE_D_WINDOW && i == OVERLAY_MODEL )

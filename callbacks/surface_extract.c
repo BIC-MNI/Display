@@ -16,15 +16,11 @@ private  void  start_surface(
         return;
 
     if( use_label_flag )
-    {
         volume = get_label_volume( display );
-        label_volume = volume;
-    }
     else
-    {
         volume = get_volume( display );
-        label_volume = get_label_volume( display );
-    }
+
+    label_volume = get_label_volume( display );
 
     if( volume == NULL )
         return;
@@ -178,7 +174,7 @@ private  void   voxelate_surface(
     BOOLEAN          use_label_volume )
 {
     object_struct    *object;
-    Volume           volume;
+    Volume           volume, label_volume;
     STRING           line;
     Real             min_value, max_value;
 
@@ -189,6 +185,8 @@ private  void   voxelate_surface(
         volume = get_label_volume( display );
     else
         volume = get_volume( display );
+
+    label_volume = get_label_volume( display );
 
     if( volume == NULL )
         return;
@@ -207,8 +205,11 @@ private  void   voxelate_surface(
 
     object = create_object( POLYGONS );
 
-    create_voxelated_surface( volume,
-               min_value, max_value, get_polygons_ptr(object) );
+    create_voxelated_surface( volume, min_value, max_value,
+                              label_volume,
+                       display->three_d.surface_extraction.min_invalid_label,
+                       display->three_d.surface_extraction.max_invalid_label,
+                              get_polygons_ptr(object) );
 
     add_object_to_model( get_current_model(display), object );
 
@@ -304,16 +305,17 @@ public  DEF_MENU_UPDATE(set_surface_extract_z_max_distance )   /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_surface_valid_range )   /* ARGSUSED */
+public  DEF_MENU_FUNCTION( set_surface_invalid_label_range )   /* ARGSUSED */
 {
     Real     min_label, max_label;
 
-    print( "Enter min label and max label: " );
+    print( "Enter min label and max label corresponding to invalid voxels: " );
 
     if( input_real( stdin, &min_label ) == OK &&
         input_real( stdin, &max_label ) == OK )
     {
-        set_valid_label_for_surface_extraction( display, min_label, max_label );
+        set_invalid_label_range_for_surface_extraction( display,
+                                                        min_label, max_label );
     }
 
     (void) input_newline( stdin );
@@ -321,30 +323,7 @@ public  DEF_MENU_FUNCTION( set_surface_valid_range )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_surface_valid_range )   /* ARGSUSED */
-{
-    return( TRUE );
-}
-
-public  DEF_MENU_FUNCTION( set_surface_valid_out_range )   /* ARGSUSED */
-{
-    Real     min_label, max_label;
-
-    print( "Enter min out label and max out label: " );
-
-    if( input_real( stdin, &min_label ) == OK &&
-        input_real( stdin, &max_label ) == OK )
-    {
-        set_valid_out_label_for_surface_extraction(
-                                     display, min_label, max_label );
-    }
-
-    (void) input_newline( stdin );
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(set_surface_valid_out_range )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(set_surface_invalid_label_range )   /* ARGSUSED */
 {
     return( TRUE );
 }

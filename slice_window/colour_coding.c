@@ -65,23 +65,32 @@ private  void  realloc_label_colour_table(
     display_struct    *slice_window,
     int               volume_index )
 {
-    int              ind;
-    int              label, n_labels;
-    static Colour    default_colours[] = { RED, GREEN, BLUE,
-                                           CYAN, MAGENTA, YELLOW,
-                                           BLUE_VIOLET, DEEP_PINK,
-                                           GREEN_YELLOW, LIGHT_SEA_GREEN,
-                                           MEDIUM_TURQUOISE, PURPLE };
+    int       label, n_labels, n_colours, ind;
+    Colour    colours[100];
 
     n_labels = get_num_labels( slice_window, volume_index );
     ALLOC( slice_window->slice.volumes[volume_index].label_colour_table,
            n_labels );
 
+    n_colours = 0;
+    colours[n_colours++] = RED;
+    colours[n_colours++] = GREEN;
+    colours[n_colours++] = BLUE;
+    colours[n_colours++] = CYAN;
+    colours[n_colours++] = MAGENTA;
+    colours[n_colours++] = YELLOW;
+    colours[n_colours++] = BLUE_VIOLET;
+    colours[n_colours++] = DEEP_PINK;
+    colours[n_colours++] = GREEN_YELLOW;
+    colours[n_colours++] = LIGHT_SEA_GREEN;
+    colours[n_colours++] = MEDIUM_TURQUOISE;
+    colours[n_colours++] = PURPLE;
+
     for_less( label, 1, n_labels )
     {
-        ind = (label - 1) % SIZEOF_STATIC_ARRAY(default_colours);
-        set_colour_of_label( slice_window, volume_index, label,
-                             default_colours[ind] );
+        ind = (label - 1) % n_colours;
+
+        set_colour_of_label( slice_window, volume_index, label, colours[ind] );
     }
 
     set_colour_of_label( slice_window, volume_index, 0,

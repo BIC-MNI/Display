@@ -68,8 +68,7 @@ create_surface
     transient 'w'    set_surface_extract_x_max_distance  "X Dist: %g"
     transient 'e'    set_surface_extract_y_max_distance  "Y Dist: %g"
     transient 'r'    set_surface_extract_z_max_distance  "Z Dist: %g"
-    transient 't'    set_surface_valid_range             "Set Valid Range"
-    transient 'y'    set_surface_valid_out_range         "Set Valid Out Range"
+    transient 'y'    set_surface_invalid_label_range     "Set Invalid Lbl Range"
 
     transient 'a'    start_volume_isosurface             "Volume Isosurface"
     transient 's'    start_volume_binary_isosurface      "Volume Bin-Isosurface"

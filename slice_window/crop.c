@@ -133,7 +133,7 @@ public  void  crop_and_load_volume(
     }
 
     (void) load_graphics_file( get_three_d_window(slice_window),
-                               cropped_filename );
+                               cropped_filename, FALSE );
 
     remove_file( cropped_filename );
 
@@ -244,12 +244,12 @@ private  DEF_EVENT_FUNCTION( start_picking_box )    /* ARGSUSED */
         y_mouse -= y_min;
 
         volume_index = get_current_volume_index(display);
-        (void) convert_voxel_to_pixel( display, volume_index, view_index,
-                                       display->slice.crop.limits[0],
-                                       &x_low, &y_low );
-        (void) convert_voxel_to_pixel( display, volume_index, view_index,
-                                       display->slice.crop.limits[1],
-                                       &x_high, &y_high );
+        convert_voxel_to_pixel( display, volume_index, view_index,
+                                display->slice.crop.limits[0],
+                                &x_low, &y_low );
+        convert_voxel_to_pixel( display, volume_index, view_index,
+                                display->slice.crop.limits[1],
+                                &x_high, &y_high );
 
         limit_being_moved = 0;
         axis_being_moved = x_index;

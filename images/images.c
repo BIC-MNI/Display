@@ -1,5 +1,4 @@
 #include  <display.h>
-#include  <rgb_files.h>
 
 public  Status   save_window_to_file(
     display_struct  *display,

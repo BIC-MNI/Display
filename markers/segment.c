@@ -210,13 +210,29 @@ public  void  make_guess_classification(
 {
     int                   i, n_ids, *marker_indices;
     marker_struct         *marker;
-    static  Colour        colours[] = { RED, GREEN, BLUE,
-                                        CYAN, MAGENTA,
-                                        YELLOW, WHITE,
-                                        LIGHT_BLUE, ORANGE,
-                                        BLACK, BLUE_VIOLET,
-                                        DARK_SEA_GREEN, NAVY_BLUE };
+    static  BOOLEAN       first = TRUE;
+    static  Colour        colours[13];
     progress_struct       progress;
+
+    if( first )
+    {
+        first = FALSE;
+        i = 0;
+
+        colours[i++] = RED;
+        colours[i++] = GREEN;
+        colours[i++] = BLUE;
+        colours[i++] = CYAN;
+        colours[i++] = MAGENTA;
+        colours[i++] = YELLOW;
+        colours[i++] = WHITE;
+        colours[i++] = LIGHT_BLUE;
+        colours[i++] = ORANGE;
+        colours[i++] = BLACK;
+        colours[i++] = BLUE_VIOLET;
+        colours[i++] = DARK_SEA_GREEN;
+        colours[i++] = NAVY_BLUE;
+    }
 
     n_ids = 0;
 

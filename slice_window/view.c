@@ -10,7 +10,7 @@ public  void  initialize_slice_window_view(
     display_struct    *slice_window,
     int               volume_index )
 {
-    int      axis, view;
+    int      axis, view, x_min, x_max, y_min, y_max;
     Real     cosine, sine;
     Real     separations[MAX_DIMENSIONS];
 
@@ -27,6 +27,18 @@ public  void  initialize_slice_window_view(
             slice_window->slice.volumes[volume_index].views[view].y_axis[axis]
                                                                = 0.0;
         }
+
+        get_slice_viewport( slice_window, view,
+                            &x_min, &x_max, &y_min, &y_max);
+
+        slice_window->slice.slice_views[view].used_viewport_x_size =
+                                                              x_max - x_min + 1;
+        slice_window->slice.slice_views[view].used_viewport_y_size =
+                                                              y_max - y_min + 1;
+        slice_window->slice.slice_views[view].prev_viewport_x_size =
+                                                              x_max - x_min + 1;
+        slice_window->slice.slice_views[view].prev_viewport_y_size =
+                                                              y_max - y_min + 1;
     }
 
     slice_window->slice.volumes[volume_index].views[0].

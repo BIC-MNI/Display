@@ -18,7 +18,8 @@ public  void  create_slice_window(
     (void) sprintf( title, "%s [%d * %d * %d]", filename,
                     sizes[X], sizes[Y], sizes[Z] );
 
-    (void) create_graphics_window( SLICE_WINDOW, &slice_window, title, 0, 0 );
+    (void) create_graphics_window( SLICE_WINDOW, Slice_double_buffer_flag,
+                                   &slice_window, title, 0, 0 );
 
     menu_window = display->associated[MENU_WINDOW];
 

@@ -377,7 +377,7 @@ public  DEF_MENU_UPDATE(toggle_double_buffer_threed )  /* ARGSUSED */
     set_menu_text_on_off( menu_window, menu_entry,
                           G_get_double_buffer_state(display->window) );
 
-    return( TRUE );
+    return( G_can_switch_double_buffering() );
 }
 
 public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )  /* ARGSUSED */
@@ -409,7 +409,7 @@ public  DEF_MENU_UPDATE(toggle_double_buffer_slice )  /* ARGSUSED */
     set_menu_text_on_off( menu_window, menu_entry, state &&
                           G_get_double_buffer_state( slice_window->window ) );
 
-    return( state );
+    return( state && G_can_switch_double_buffering() );
 }
 
 public  DEF_MENU_FUNCTION( change_background_colour )  /* ARGSUSED */

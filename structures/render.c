@@ -4,12 +4,25 @@
 public  void  initialize_render(
     render_struct  *render )
 {
+    render->shaded_mode = TRUE;
+    render->shading_type = (Shading_types) GOURAUD_SHADING;
+    render->master_light_switch = FALSE;
+    render->backface_flag = FALSE;
+    render->two_sided_surface_flag = FALSE;
+    render->render_lines_as_curves = FALSE;
+    render->show_marker_labels = FALSE;
+    render->n_curve_segments = Initial_n_curve_segments;
+}
+
+public  void  initialize_render_3D(
+    render_struct  *render )
+{
     render->shaded_mode = Initial_render_mode;
     render->shading_type = (Shading_types) Initial_shading_type;
     render->master_light_switch = Initial_light_switch;
     render->backface_flag = Initial_backface_flag;
     render->two_sided_surface_flag = Initial_2_sided_flag;
-    render->render_lines_as_curves = FALSE;
+    render->render_lines_as_curves = Initial_line_curves_flag;
     render->show_marker_labels = FALSE;
     render->n_curve_segments = Initial_n_curve_segments;
 }

@@ -3,13 +3,14 @@
 
 public  Status  load_graphics_file( 
     display_struct   *display,
-    char             filename[] )
+    char             filename[],
+    BOOLEAN          is_label_file )
 {
     Status                   status;
     object_struct            *object;
     model_struct             *model;
     int                      n_items;
-    Volume                   volume, volume_read_in;
+    Volume                   volume_read_in;
     object_struct            *current_object;
     object_traverse_struct   object_traverse;
     BOOLEAN                  volume_present;
@@ -33,10 +34,25 @@ public  Status  load_graphics_file(
         filename_extension_matches(filename,"iff") ||
         filename_extension_matches(filename,"fre") )
     {
-        status = input_volume_file( filename, &volume_read_in );
+        if( !is_label_file )
+        {
+            status = input_volume_file( filename, &volume_read_in );
 
-        if( status == OK )
-            volume_present = TRUE;
+            if( status == OK )
+                volume_present = TRUE;
+        }
+        else
+        {
+            if( get_n_volumes(display) == 0 )
+            {
+                print( "No volume to load labels for.\n" );
+                status = ERROR;
+            }
+            else
+            {
+                status = input_label_volume_file( display, filename );
+            }
+        }
     }
     else if( filename_extension_matches(filename,"cnt") )
     {
@@ -50,13 +66,22 @@ public  Status  load_graphics_file(
     }
     else
     {
-        (void) get_slice_window_volume( display, &volume );
-        status = input_objects_any_format( volume, filename,
-                                 display->three_d.default_marker_colour,
-                                 display->three_d.default_marker_size,
-                                 display->three_d.default_marker_type,
-                                 &model->n_objects,
-                                 &model->objects );
+        if( filename_extension_matches( filename,
+                                        get_default_tag_file_suffix() ) ||
+            filename_extension_matches( filename,
+                                        get_default_landmark_file_suffix() ) )
+        {
+            status = input_tag_label_file( display, filename );
+        }
+        else
+        {
+            status = input_objects_any_format( get_volume(display), filename,
+                                     display->three_d.default_marker_colour,
+                                     display->three_d.default_marker_size,
+                                     display->three_d.default_marker_type,
+                                     &model->n_objects,
+                                     &model->objects );
+        }
     }
 
     if( status == OK )
@@ -103,7 +128,7 @@ public  Status  load_graphics_file(
         }
     }
 
-    if( model->n_objects > 0 )
+    if( status == OK && model->n_objects > 0 )
     {
         model = get_current_model( display );
 
@@ -120,24 +145,6 @@ public  Status  load_graphics_file(
         {
             set_current_object_index( display, model->n_objects-1 );
         }
-
-        if( !get_range_of_object( display->models[THREED_MODEL], FALSE,
-                                  &display->three_d.min_limit,
-                                  &display->three_d.max_limit ) )
-        {
-            fill_Point( display->three_d.min_limit, 0.0, 0.0, 0.0 );
-            fill_Point( display->three_d.max_limit, 1.0, 1.0, 1.0 );
-            print( "No objects range.\n" );
-        }
-
-        ADD_POINTS( display->three_d.centre_of_objects,
-                    display->three_d.min_limit,
-                    display->three_d.max_limit );
-        SCALE_POINT( display->three_d.centre_of_objects,
-                     display->three_d.centre_of_objects,
-                     0.5 );
-
-        reset_cursor( display );
 
         rebuild_selected_list( display, display->associated[MENU_WINDOW] );
     }

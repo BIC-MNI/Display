@@ -1,6 +1,6 @@
 #include  <display.h>
 
-#define  FUNCTION_LIST \
+#define  FIRST \
 MENU_F(exit_program) \
 MENU_F(show_memory) \
 MENU_F(pop_menu) \
@@ -117,7 +117,9 @@ MENU_F(paint_invis_colour) \
 MENU_F(paint_vis_colour) \
 MENU_F(set_vis_paint_colour) \
 MENU_F(set_invis_paint_colour) \
-MENU_F(set_n_paint_polygons) \
+MENU_F(set_n_paint_polygons)
+
+#define SECOND \
 MENU_F(input_polygons_bintree) \
 MENU_F(create_bintree_for_polygons) \
 MENU_F(create_normals_for_polygon) \
@@ -242,6 +244,8 @@ MENU_F(set_atlas_tolerance_y) \
 MENU_F(set_atlas_tolerance_z) \
 MENU_F(mark_vertices) \
 MENU_F(flip_object)
+
+#define  FUNCTION_LIST  FIRST SECOND
                 
 
 typedef  struct

@@ -28,10 +28,8 @@ typedef  struct
     BOOLEAN                              binary_flag;
     Real                                 min_value;
     Real                                 max_value;
-    Real                                 valid_min_label;
-    Real                                 valid_max_label;
-    Real                                 valid_out_min_label;
-    Real                                 valid_out_max_label;
+    Real                                 min_invalid_label;
+    Real                                 max_invalid_label;
 
     hash_table_struct                    edge_points;
 

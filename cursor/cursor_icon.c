@@ -149,7 +149,6 @@ private  void   create_axis(
     int            axis_index )
 {
     static Colour  axis_colours[N_DIMENSIONS] = { 1, 2, 3 };
-    static Colour  rgb_axis_colours[N_DIMENSIONS] = { RED, GREEN, BLUE };
     Colour         col;
     static Point   dummy = { 0.0, 0.0, 0.0 };
     lines_struct   *lines;
@@ -160,7 +159,14 @@ private  void   create_axis(
     if( get_cursor_bitplanes() == OVERLAY_PLANES )
         col = axis_colours[axis_index];
     else
-        col = rgb_axis_colours[axis_index];
+    {
+        switch( axis_index )
+        {
+        case X:  col = RED;    break;
+        case Y:  col = GREEN;  break;
+        case Z:  col = BLUE;   break;
+        }
+    }
 
     initialize_lines( lines, col );
 

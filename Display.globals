@@ -9,6 +9,7 @@ Event_timeout_factor = 0.5;
 Min_interval_between_events = 0.01;
 Max_background_seconds = 0.2;
 Maximum_display_time = 0.3;
+Size_of_interrupted = 200000000;
 Size_of_interrupted = 250;
 Interval_of_check = 250;
 
@@ -18,6 +19,8 @@ Closest_front_plane = 1.0e-5;
 Initial_render_mode = FALSE;
 Initial_shading_type = 1;
 Initial_light_switch = TRUE;
+
+Graphics_double_buffer_flag = TRUE;
 
 Slice_double_buffer_flag = TRUE;
 Slice_readout_plane = 0;
@@ -293,3 +296,5 @@ Convert_volumes_to_byte = FALSE;
 Undo_enabled = TRUE;
 
 Use_transparency_hardware = TRUE;
+
+Voxel_validity_if_mixed = FALSE;

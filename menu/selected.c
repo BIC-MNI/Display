@@ -76,7 +76,8 @@ private  void  get_box_limits(
 {
     int            width;
 
-    width = (int) G_get_text_length( label, FIXED_FONT, 0.0 );
+    width = (int) G_get_text_length( label, Menu_window_font,
+                                     Menu_window_font_size );
 
     if( width <= 0 )
         width = 20;

@@ -1,6 +1,8 @@
 #include  <display.h>
 
 private  void      initialize_global_colours();
+private  void      initialize_view_to_fit(
+    display_struct  *display );
 
 #define  HARD_CODED_DISPLAY_DIRECTORY1    "/usr/local/mni/lib"
 #define  HARD_CODED_DISPLAY_DIRECTORY2    "/usr/local/lib"
@@ -33,6 +35,7 @@ int  main( argc, argv )
     Status           status;
     STRING           globals_filename, runtime_directory;
     char             *title;
+    BOOLEAN          next_is_label_volume;
 
     if( argc == 1 )
         title = argv[0];
@@ -131,13 +134,31 @@ int  main( argc, argv )
     {
         initialize_argument_processing( argc, argv );
 
+        next_is_label_volume = FALSE;
+
         while( get_string_argument( "", &filename ) )
         {
-            status = load_graphics_file( graphics, filename );
-            if( status != OK )
-                print( "Error loading %s\n", filename );
+            if( strcmp( filename, "-label" ) == 0 )
+            {
+                if( next_is_label_volume )
+                    print( "Ignoring extraneous -label\n" );
+                next_is_label_volume = TRUE;
+            }
+            else
+            {
+                status = load_graphics_file( graphics, filename,
+                                             next_is_label_volume );
+                if( status != OK )
+                    print( "Error loading %s\n", filename );
+                next_is_label_volume = FALSE;
+            }
         }
+
+        if( next_is_label_volume )
+            print( "Ignoring extraneous -label\n" );
     }
+
+    initialize_view_to_fit( graphics );
 
     if( status == OK )
         rebuild_selected_list( graphics, menu );
@@ -209,4 +230,64 @@ private  void      initialize_global_colours()
     Brush_outline_colour = WHITE;
     Histogram_colour = WHITE;
     Menu_name_colour = GREEN;
+}
+
+private  void      initialize_view_to_fit(
+    display_struct  *display )
+{
+    int      i, c, x, y, z;
+    Real     voxel[N_DIMENSIONS], world[N_DIMENSIONS];
+    int      sizes[N_DIMENSIONS];
+    Volume   volume;
+    BOOLEAN  found;
+
+    found = get_range_of_object( display->models[THREED_MODEL], FALSE,
+                                 &display->three_d.min_limit,
+                                 &display->three_d.max_limit );
+
+    for_less( i, 0, get_n_volumes(display) )
+    {
+        volume = get_nth_volume( display, i );
+
+        get_volume_sizes( volume, sizes );
+
+        for_less( x, 0, 2 )
+        for_less( y, 0, 2 )
+        for_less( z, 0, 2 )
+        {
+            voxel[X] = -0.5 + (Real) sizes[X] * (Real) x;
+            voxel[Y] = -0.5 + (Real) sizes[Y] * (Real) y;
+            voxel[Z] = -0.5 + (Real) sizes[Z] * (Real) z;
+
+            convert_voxel_to_world( volume, voxel,
+                                    &world[X], &world[Y], &world[Z] );
+
+            for_less( c, 0, N_DIMENSIONS )
+            {
+                if( !found ||
+                    world[c] < Point_coord(display->three_d.min_limit,c) )
+                    Point_coord(display->three_d.min_limit,c) = world[c];
+                if( !found ||
+                    world[c] > Point_coord(display->three_d.max_limit,c) )
+                    Point_coord(display->three_d.max_limit,c) = world[c];
+            }
+            
+            found = TRUE;
+        }
+    }
+
+    if( !found )
+    {
+        fill_Point( display->three_d.min_limit, -1.0, -1.0, -1.0 );
+        fill_Point( display->three_d.max_limit, 1.0, 1.0, 1.0 );
+    }
+
+    ADD_POINTS( display->three_d.centre_of_objects,
+                display->three_d.min_limit,
+                display->three_d.max_limit );
+    SCALE_POINT( display->three_d.centre_of_objects,
+                 display->three_d.centre_of_objects,
+                 0.5 );
+
+    reset_cursor( display );
 }

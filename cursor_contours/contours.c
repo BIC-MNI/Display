@@ -56,7 +56,7 @@ private  void  make_cursor_contours(
     display_struct   *display )
 {
     int             axis;
-    static Colour   colours[N_DIMENSIONS] = { RED, GREEN, BLUE };
+    Colour          col;
     object_struct   *object;
     lines_struct    *lines;
     model_struct    *model;
@@ -70,7 +70,13 @@ private  void  make_cursor_contours(
     {
         object = create_object( LINES );
         lines = get_lines_ptr( object );
-        initialize_lines( lines, colours[axis] );
+        switch( axis )
+        {
+        case X:  col = RED;    break;
+        case Y:  col = GREEN;  break;
+        case Z:  col = BLUE;   break;
+        }
+        initialize_lines( lines, col );
         lines->line_thickness = (float) Cursor_contour_thickness;
 
         add_object_to_model( model, object );

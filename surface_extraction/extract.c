@@ -68,23 +68,14 @@ private  BOOLEAN  get_voxel_values(
                 value = get_volume_real_value( volume, voxel[X], voxel[Y],
                                                voxel[Z], 0, 0 );
 
-                if( label_volume != NULL )
+                if( label_volume != NULL &&
+                    surface_extraction->min_invalid_label <=
+                    surface_extraction->max_invalid_label )
                 {
                     label = (Real) get_volume_label_data( label_volume, voxel );
-                    if( surface_extraction->valid_min_label <=
-                        surface_extraction->valid_max_label )
-                    {
-                        if( label < surface_extraction->valid_min_label ||
-                            label > surface_extraction->valid_max_label ) 
-                            ++n_invalid;
-                    }
-                    else if( surface_extraction->valid_out_min_label <=
-                             surface_extraction->valid_out_max_label )
-                    {
-                        if( label >= surface_extraction->valid_out_min_label ||
-                            label <= surface_extraction->valid_out_max_label )
-                            ++n_invalid;
-                    }
+                    if( surface_extraction->min_invalid_label <= label &&
+                        label <= surface_extraction->max_invalid_label ) 
+                        ++n_invalid;
                 }
 
                 corner_values[x][y][z] = value;
@@ -106,8 +97,8 @@ public  BOOLEAN  voxel_contains_surface(
     surface_extraction_struct   *surface_extraction,
     int                         voxel_index[] )
 {
-    BOOLEAN                below, above;
-    Real                   corner_values[2][2][2];
+    BOOLEAN                below, above, this_below;
+    Real                   corner_values[2][2][2], val;
     int                    x, y, z;
 
     if( !get_voxel_values( volume, label_volume, surface_extraction,
@@ -123,14 +114,27 @@ public  BOOLEAN  voxel_contains_surface(
         {
             for_less( z, 0, 2 )
             {
-                if( corner_values[x][y][z] >= surface_extraction->min_value )
+                val = corner_values[x][y][z];
+                if( surface_extraction->binary_flag )
+                {
+                    this_below = (val < surface_extraction->min_value ||
+                                  val > surface_extraction->max_value);
+                }
+                else
+                {
+                    if( val == surface_extraction->min_value )
+                        return( TRUE );
+
+                    this_below = (val < surface_extraction->min_value);
+                }
+                
+                if( !this_below )
                 {
                     if( below )
                         return( TRUE );
                     above = TRUE;
                 }
-                else if( corner_values[x][y][z] <=
-                         surface_extraction->max_value )
+                else
                 {
                     if( above )
                         return( TRUE );
