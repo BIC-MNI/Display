@@ -132,9 +132,9 @@ private  BOOLEAN  find_close_voxel_containing_range(
 
     get_volume_sizes( volume, sizes );
 
-    insert.i[X] = MIN( x, sizes[X]-2 );
-    insert.i[Y] = MIN( y, sizes[Y]-2 );
-    insert.i[Z] = MIN( z, sizes[Z]-2 );
+    insert.i[X] = (int) MIN( x, sizes[X]-2 );
+    insert.i[Y] = (int) MIN( y, sizes[Y]-2 );
+    insert.i[Z] = (int) MIN( z, sizes[Z]-2 );
 
     found = FALSE;
 

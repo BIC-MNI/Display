@@ -156,7 +156,7 @@ public  unsigned_byte  get_voxel_done_flag(
     return( flag );
 }
 
-public  Status  set_voxel_done_flag(
+public  void  set_voxel_done_flag(
     Volume              volume,
     unsigned_byte       voxel_done_flags[],
     voxel_index_struct  *indices,

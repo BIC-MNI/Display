@@ -7,7 +7,7 @@ private  BOOLEAN  face_is_boundary(
     int             indices[N_DIMENSIONS],
     int             c,
     int             offset );
-private  Status  add_face(
+private  void  add_face(
     Volume               volume,
     int                  indices[N_DIMENSIONS],
     int                  c,
@@ -168,7 +168,7 @@ private  int  get_point_index(
     return( point_index );
 }
 
-private  Status  add_face(
+private  void  add_face(
     Volume               volume,
     int                  indices[N_DIMENSIONS],
     int                  c,
