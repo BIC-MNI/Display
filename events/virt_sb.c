@@ -5,6 +5,7 @@ public  void  initialize_virtual_spaceball( graphics )
     graphics_struct  *graphics;
 {
     DECL_EVENT_FUNCTION( start_virtual_spaceball );
+    DECL_EVENT_FUNCTION( turn_off_virtual_spaceball );
     void                 add_action_table_function();
     void                 terminate_any_interactions();
 
@@ -13,6 +14,21 @@ public  void  initialize_virtual_spaceball( graphics )
     add_action_table_function( &graphics->action_table,
                                LEFT_MOUSE_DOWN_EVENT,
                                start_virtual_spaceball );
+
+    add_action_table_function( &graphics->action_table,
+                               TERMINATE_EVENT,
+                               turn_off_virtual_spaceball );
+}
+
+private  DEF_EVENT_FUNCTION( turn_off_virtual_spaceball )
+    /* ARGSUSED */
+{
+    void         remove_action_table_function();
+
+    remove_action_table_function( &graphics->action_table,
+                                  LEFT_MOUSE_DOWN_EVENT );
+
+    remove_action_table_function( &graphics->action_table, TERMINATE_EVENT );
 }
 
 private  DEF_EVENT_FUNCTION( start_virtual_spaceball )

@@ -70,22 +70,19 @@ private  DEF_EVENT_FUNCTION( handle_update_voxel )
 private  void  update_voxel_cursor( slice_window )
     graphics_struct   *slice_window;
 {
-    int               x, y;
     int               axis, indices[N_DIMENSIONS];
     Point             new_origin;
-    void              get_mouse_in_pixels();
     void              get_voxel_centre();
-    Boolean           convert_pixel_to_voxel();
+    Boolean           get_current_voxel();
     graphics_struct   *graphics;
     void              update_cursor();
     void              rebuild_slice_pixels();
 
     graphics = slice_window->associated[THREE_D_WINDOW];
 
-    get_mouse_in_pixels( slice_window, &slice_window->mouse_position, &x, &y );
-
-    if( convert_pixel_to_voxel( slice_window, x, y,
-                  &indices[X_AXIS], &indices[Y_AXIS], &indices[Z_AXIS] ) )
+    if( get_current_voxel( slice_window,
+                           &indices[X_AXIS], &indices[Y_AXIS],
+                           &indices[Z_AXIS], &axis ) )
     {
         get_voxel_centre( slice_window,
                           indices[X_AXIS], indices[Y_AXIS], indices[Z_AXIS],

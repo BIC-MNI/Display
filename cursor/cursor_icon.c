@@ -19,6 +19,9 @@ public  Status  rebuild_cursor_icon( graphics )
     object_struct   *object;
     model_struct    *model;
     model_struct    *get_graphics_model();
+    Real            box_size[N_DIMENSIONS];
+    volume_struct   *volume;
+    Boolean         get_slice_window_volume();
     void            fill_in_box_points();
     void            fill_in_axis_points();
 
@@ -48,8 +51,18 @@ public  Status  rebuild_cursor_icon( graphics )
 
     if( status == OK )
     {
-        fill_in_box_points( graphics->three_d.cursor.box_size,
-                            model->object_list[BOX_INDEX] );
+        box_size[X_AXIS] = graphics->three_d.cursor.box_size;
+        box_size[Y_AXIS] = graphics->three_d.cursor.box_size;
+        box_size[Z_AXIS] = graphics->three_d.cursor.box_size;
+
+        if( get_slice_window_volume( graphics, &volume ) )
+        {
+            box_size[X_AXIS] *= volume->slice_thickness[X_AXIS];
+            box_size[Y_AXIS] *= volume->slice_thickness[Y_AXIS];
+            box_size[Z_AXIS] *= volume->slice_thickness[Z_AXIS];
+        }
+
+        fill_in_box_points( box_size, model->object_list[BOX_INDEX] );
         fill_in_axis_points( graphics->three_d.cursor.axis_size,
                              X_AXIS, model->object_list[X_AXIS_INDEX] );
         fill_in_axis_points( graphics->three_d.cursor.axis_size,
@@ -104,24 +117,34 @@ private  Status   create_box( object )
 }
 
 private  void  fill_in_box_points( size, object )
-    Real           size;
+    Real           size[];
     object_struct  *object;
 {
-    Real           half_size;
+    Real           half_size[N_DIMENSIONS];
     lines_struct   *lines;
 
     lines = object->ptr.lines;
 
-    half_size = size / 2.0;
+    half_size[X_AXIS] = size[X_AXIS] / 2.0;
+    half_size[Y_AXIS] = size[Y_AXIS] / 2.0;
+    half_size[Z_AXIS] = size[Z_AXIS] / 2.0;
 
-    fill_Point( lines->points[0], -half_size, -half_size, -half_size );
-    fill_Point( lines->points[1], -half_size, -half_size,  half_size );
-    fill_Point( lines->points[2], -half_size,  half_size, -half_size );
-    fill_Point( lines->points[3], -half_size,  half_size,  half_size );
-    fill_Point( lines->points[4],  half_size, -half_size, -half_size );
-    fill_Point( lines->points[5],  half_size, -half_size,  half_size );
-    fill_Point( lines->points[6],  half_size,  half_size, -half_size );
-    fill_Point( lines->points[7],  half_size,  half_size,  half_size );
+    fill_Point( lines->points[0],
+                -half_size[X_AXIS], -half_size[Y_AXIS], -half_size[Z_AXIS] );
+    fill_Point( lines->points[1],
+                -half_size[X_AXIS], -half_size[Y_AXIS],  half_size[Z_AXIS] );
+    fill_Point( lines->points[2],
+                -half_size[X_AXIS],  half_size[Y_AXIS], -half_size[Z_AXIS] );
+    fill_Point( lines->points[3],
+                -half_size[X_AXIS],  half_size[Y_AXIS],  half_size[Z_AXIS] );
+    fill_Point( lines->points[4],
+                 half_size[X_AXIS], -half_size[Y_AXIS], -half_size[Z_AXIS] );
+    fill_Point( lines->points[5],
+                 half_size[X_AXIS], -half_size[Y_AXIS],  half_size[Z_AXIS] );
+    fill_Point( lines->points[6],
+                 half_size[X_AXIS],  half_size[Y_AXIS], -half_size[Z_AXIS] );
+    fill_Point( lines->points[7],
+                 half_size[X_AXIS],  half_size[Y_AXIS],  half_size[Z_AXIS] );
 }
 
 private  Status   create_axis( object, axis_index )

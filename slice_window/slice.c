@@ -15,14 +15,20 @@ public  Status  initialize_slice_window( graphics )
 
     status = initialize_slice_models( graphics );
 
+    if( status == OK )
+    {
+        status = create_bitlist( 0, &graphics->slice.voxel_activity );
+    }
+
     return( status );
 }
 
-public  void  set_slice_window_volume( graphics, volume )
+public  Status  set_slice_window_volume( graphics, volume )
     graphics_struct   *graphics;
     volume_struct     *volume;
 {
-    int              c, x_index, y_index;
+    Status           status;
+    int              c, x_index, y_index, n_voxels;
     Real             factor, min_thickness, max_thickness;
     void             get_2d_slice_axes();
 
@@ -63,6 +69,18 @@ public  void  set_slice_window_volume( graphics, volume )
         graphics->slice.slice_views[c].y_scale = factor *
                                   volume->slice_thickness[y_index];
     }
+
+    n_voxels = volume->size[X_AXIS] * volume->size[Y_AXIS] *
+               volume->size[Z_AXIS];
+
+    status = delete_bitlist( &graphics->slice.voxel_activity );
+
+    if( status == OK )
+    {
+        status = create_bitlist( n_voxels, &graphics->slice.voxel_activity );
+    }
+
+    return( status );
 }
 
 public  Boolean   get_slice_window_volume( graphics, volume )
@@ -89,7 +107,11 @@ public  Boolean   get_slice_window_volume( graphics, volume )
 public  Status  delete_slice_window( slice_window )
     slice_window_struct   *slice_window;
 {
-    return( OK );
+    Status   status;
+
+    status = delete_bitlist( &slice_window->voxel_activity );
+
+    return( status );
 }
 
 public  Boolean  slice_window_has_volume( graphics )
@@ -131,14 +153,16 @@ public  Boolean  find_slice_view_mouse_is_in( graphics, x_pixel, y_pixel,
     return( found );
 }
 
-public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z )
+public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z,
+                                         axis_index )
     graphics_struct   *graphics;
     int               x_pixel, y_pixel;
     int               *x, *y, *z;
+    int               *axis_index;
 {
     Boolean  found;
     Real     x_scale, y_scale;
-    int      axis_index, x_index, y_index;
+    int      x_index, y_index;
     int      start_indices[N_DIMENSIONS];
     int      voxel_indices[N_DIMENSIONS];
     int      x_pixel_start, x_pixel_end, y_pixel_start, y_pixel_end;
@@ -147,10 +171,9 @@ public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z )
 
     found = FALSE;
 
-    if( find_slice_view_mouse_is_in( graphics, x_pixel, y_pixel,
-                                         &axis_index ) )
+    if( find_slice_view_mouse_is_in( graphics, x_pixel, y_pixel, axis_index ) )
     {
-        get_slice_view( graphics, axis_index, &x_scale, &y_scale,
+        get_slice_view( graphics, *axis_index, &x_scale, &y_scale,
                         &x_pixel_start, &y_pixel_start,
                         &x_pixel_end, &y_pixel_end,
                         start_indices );
@@ -158,9 +181,9 @@ public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z )
         if( x_pixel >= x_pixel_start && x_pixel <= x_pixel_end &&
             y_pixel >= y_pixel_start && y_pixel <= y_pixel_end )
         {
-            get_2d_slice_axes( axis_index, &x_index, &y_index );
+            get_2d_slice_axes( *axis_index, &x_index, &y_index );
 
-            voxel_indices[axis_index] = start_indices[axis_index];
+            voxel_indices[*axis_index] = start_indices[*axis_index];
 
             voxel_indices[x_index] = start_indices[x_index] +
                                         (x_pixel - x_pixel_start) / x_scale;
@@ -397,4 +420,40 @@ public   void     get_2d_slice_axes( axis_index, x_index, y_index )
         *y_index = Y_AXIS;
         break;
     }
+}
+
+public  Boolean  get_current_voxel( graphics, x, y, z, axis_index )
+    graphics_struct   *graphics;
+    int               *x, *y, *z;
+    int               *axis_index;
+{
+    void       get_mouse_in_pixels();
+    int        x_mouse, y_mouse;
+    Boolean    convert_pixel_to_voxel();
+
+    get_mouse_in_pixels( graphics, &graphics->mouse_position,
+                         &x_mouse, &y_mouse );
+
+    return( convert_pixel_to_voxel( graphics, x_mouse, y_mouse, x, y, z,
+                                    axis_index ) );
+}
+
+public  Boolean  get_voxel_activity( volume, voxel_activity, x, y, z )
+    volume_struct   *volume;
+    bitlist_struct  *voxel_activity;
+    int             x, y, z;
+{
+    return( !get_bitlist_bit( voxel_activity,
+                      ijk(x,y,z,volume->size[Y_AXIS],volume->size[Z_AXIS]) ) );
+}
+
+public  void  set_voxel_activity( volume, voxel_activity, x, y, z, value )
+    volume_struct   *volume;
+    bitlist_struct  *voxel_activity;
+    int             x, y, z;
+    Boolean         value;
+{
+    set_bitlist_bit( voxel_activity,
+                     ijk(x,y,z,volume->size[Y_AXIS],volume->size[Z_AXIS]),
+                     !value );
 }

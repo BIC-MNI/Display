@@ -134,16 +134,13 @@ public  void  rebuild_probe( graphics )
     model_struct   *model;
     model_struct   *get_graphics_model();
     Boolean        active;
-    int            x, y, i, x_voxel, y_voxel, z_voxel;
+    int            i, x_voxel, y_voxel, z_voxel, axis;
     text_struct    *text;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
     void           get_slice_viewport();
-    void           get_mouse_in_pixels();
+    Boolean        get_current_voxel();
 
-    get_mouse_in_pixels( graphics, &graphics->mouse_position, &x, &y );
-
-    active = convert_pixel_to_voxel( graphics, x, y, &x_voxel,
-                                     &y_voxel, &z_voxel );
+    active = get_current_voxel( graphics, &x_voxel, &y_voxel, &z_voxel, &axis );
 
     model = get_graphics_model(graphics,SLICE_MODEL);
 
@@ -213,6 +210,7 @@ public  void  rebuild_slice_pixels( graphics, axis_index )
                     &x_pixel_end, &y_pixel_end, voxel_indices );
 
     render_slice_to_pixels( pixels, axis_index, graphics->slice.volume,
+                   &graphics->slice.voxel_activity,
                    voxel_indices,
                    x_pixel_start, x_pixel_end, y_pixel_start, y_pixel_end,
                    x_scale, y_scale );
@@ -249,7 +247,6 @@ public  void  rebuild_cursor( graphics, axis_index )
     model_struct   *get_graphics_model();
     int            x_index, y_index, x_start, y_start, x_end, y_end;
     int            x_centre, y_centre, dx, dy;
-    void           render_slice_to_pixels();
     lines_struct   *lines;
     int            x, y;
     void           get_2d_slice_axes();
@@ -321,19 +318,20 @@ public  void  rebuild_cursor( graphics, axis_index )
 }
 
 private  void  render_slice_to_pixels( pixels, axis_index, volume,
-                              start_indices,
+                              voxel_activity, start_indices,
                               x_left, x_right, y_bottom, y_top,
                               x_scale, y_scale )
     pixels_struct    *pixels;
     int              axis_index;
     volume_struct    *volume;
+    bitlist_struct   *voxel_activity;
     int              start_indices[N_DIMENSIONS];
     int              x_left, x_right, y_bottom, y_top;
     Real             x_scale, y_scale;
 {
     Status          status;
     int             indices[N_DIMENSIONS];
-    int             x_index, y_index, x, y;
+    int             x_index, y_index, x, y, prev_x, prev_y;
     int             x_size, y_size;
     Pixel_colour    pixel_col;
     Real            dx, dy;
@@ -370,6 +368,9 @@ private  void  render_slice_to_pixels( pixels, axis_index, volume,
 
     indices[axis_index] = start_indices[axis_index];
 
+    prev_x = -1;
+    prev_y = -1;
+
     for_inclusive( x, x_left, x_right )
     {
         indices[x_index] = start_indices[x_index] + (x - x_left) * dx;
@@ -378,27 +379,42 @@ private  void  render_slice_to_pixels( pixels, axis_index, volume,
         {
             indices[y_index] = start_indices[y_index] + (y - y_bottom) * dy;
 
-            get_voxel_colour( volume, indices[0], indices[1],
-                              indices[2], &pixel_col );
+            if( indices[x_index] != prev_x || indices[y_index] != prev_y )
+            {
+                get_voxel_colour( volume, voxel_activity,
+                                  indices[0], indices[1], indices[2],
+                                  &pixel_col );
 
-            ACCESS_PIXEL( pixels->pixels, x - x_left, y - y_bottom, x_size ) =
-                 pixel_col;
+                prev_x = indices[x_index];
+                prev_y = indices[y_index];
+            }
+
+            ACCESS_PIXEL( pixels->pixels, x - x_left,y - y_bottom, x_size ) =
+                     pixel_col;
         }
     }
 }
 
-private  void  get_voxel_colour( volume, x, y, z, pixel_col )
+private  void  get_voxel_colour( volume, voxel_activity, x, y, z, pixel_col )
     volume_struct   *volume;
+    bitlist_struct  *voxel_activity;
     int             x, y, z;
     Pixel_colour    *pixel_col;
 {
     Real   val, r, g, b;
 
-    val = ACCESS_VOLUME_DATA( *volume, x, y, z );
+    if( !get_voxel_activity( volume, voxel_activity, x, y, z ) )
+    {
+        COLOUR_TO_PIXEL( Inactive_voxel_colour, *pixel_col );
+    }
+    else
+    {
+        val = ACCESS_VOLUME_DATA( *volume, x, y, z );
 
-    r = (val - volume->min_value) / (volume->max_value - volume->min_value);
-    g = r;
-    b = r;
+        r = (val - volume->min_value) / (volume->max_value - volume->min_value);
+        g = r;
+        b = r;
 
-    RGB_TO_PIXEL( r, g, b, *pixel_col );
+        RGB_TO_PIXEL( r, g, b, *pixel_col );
+    }
 }

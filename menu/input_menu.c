@@ -7,6 +7,8 @@
                        MENU_FUNCTION(pop_menu) \
                        MENU_FUNCTION(push_menu) \
                        MENU_FUNCTION(load_file) \
+                       MENU_FUNCTION(save_file) \
+                       MENU_FUNCTION(create_model) \
                        MENU_FUNCTION(reset_view) \
                        MENU_FUNCTION(make_view_fit) \
                        MENU_FUNCTION(toggle_perspective) \
@@ -43,6 +45,15 @@
                        MENU_FUNCTION(toggle_object_visibility) \
                        MENU_FUNCTION(set_slice_transform) \
                        MENU_FUNCTION(open_slice_window) \
+                       MENU_FUNCTION(start_surface) \
+                       MENU_FUNCTION(toggle_surface_extraction) \
+                       MENU_FUNCTION(reset_surface) \
+                       MENU_FUNCTION(double_slice_voxels) \
+                       MENU_FUNCTION(halve_slice_voxels) \
+                       MENU_FUNCTION(turn_voxel_on) \
+                       MENU_FUNCTION(turn_voxel_off) \
+                       MENU_FUNCTION(load_inactive_voxels) \
+                       MENU_FUNCTION(save_inactive_voxels) \
                 
 
 typedef  struct
