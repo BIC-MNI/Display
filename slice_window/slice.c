@@ -123,6 +123,41 @@ public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z )
     return( found );
 }
 
+private  int  voxel_to_pixel( x_min, x_offset, x_scale, voxel )
+    int   x_min, x_offset;
+    Real  x_scale;
+    int   voxel;
+{
+    return( x_min + x_offset + (Real) voxel / x_scale );
+}
+
+public  void  convert_voxel_to_pixel( graphics, axis_index, x_voxel, y_voxel,
+                                      x_pixel, y_pixel )
+    graphics_struct   *graphics;
+    int               axis_index;
+    int               x_voxel, y_voxel;
+    int               *x_pixel, *y_pixel;
+{
+    int      x_index, y_index;
+    int      x_min, x_max, y_min, y_max;
+    void     get_slice_view();
+    void     get_2d_slice_axes();
+
+    get_2d_slice_axes( axis_index, &x_index, &y_index );
+
+    get_slice_viewport( graphics, axis_index, &x_min, &x_max, &y_min, &y_max );
+
+    *x_pixel = voxel_to_pixel( x_min,
+                               graphics->slice.slice_views[axis_index].x_offset,
+                               graphics->slice.slice_views[axis_index].x_scale,
+                               x_voxel );
+
+    *y_pixel = voxel_to_pixel( y_min,
+                               graphics->slice.slice_views[axis_index].y_offset,
+                               graphics->slice.slice_views[axis_index].y_scale,
+                               y_voxel );
+}
+
 public  void  get_slice_viewport( graphics, axis_index,
                                   x_min, x_max, y_min, y_max )
     graphics_struct   *graphics;
@@ -191,10 +226,10 @@ public  void  get_slice_view( graphics, axis_index,
 
     get_slice_viewport( graphics, axis_index, &x_min, &x_max, &y_min, &y_max );
 
-    *x_pixel = x_min + x_offset;
+    *x_pixel = voxel_to_pixel( x_min, x_offset, x_scale, 0 );
     indices[x_axis_index] = 0;
 
-    *x_pixel_end = x_min + x_offset + (Real) (x_size - 1) / x_scale;
+    *x_pixel_end = voxel_to_pixel( x_min, x_offset, x_scale, x_size-1 );
     if( *x_pixel_end > x_max )
     {
         *x_pixel_end = x_max;
@@ -211,10 +246,10 @@ public  void  get_slice_view( graphics, axis_index,
         }
     }
 
-    *y_pixel = y_min + y_offset;
+    *y_pixel = voxel_to_pixel( y_min, y_offset, y_scale, 0 );
     indices[y_axis_index] = 0;
 
-    *y_pixel_end = y_min + y_offset + (Real) (y_size - 1) / y_scale;
+    *y_pixel_end = voxel_to_pixel( y_min, y_offset, y_scale, y_size-1 );
     if( *y_pixel_end > y_max )
     {
         *y_pixel_end = y_max;

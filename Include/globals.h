@@ -85,11 +85,19 @@ START_GLOBALS
 
     DEF_GLOBAL( Cursor_colour, Colour, 0.0 )
     DEF_GLOBAL( Cursor_size_factor, Real, 0.05 )
+    DEF_GLOBAL( Cursor_axis_size, Real, 10.0 )
+    DEF_GLOBAL( Cursor_start_pixel, int, 3 )
+    DEF_GLOBAL( Cursor_end_pixel, int, 10 )
+    DEF_GLOBAL( Slice_cursor_colour, Colour, 0.0 )
 
     DEF_GLOBAL( Extracted_surface_colour, Colour, 0.0 )
     DEF_GLOBAL( Default_surface_property, Surfprop, 0.0 )
 
-    DEF_GLOBAL( Voxels_per_update, int, 100 )
+    DEF_GLOBAL( Min_voxels_per_update, int, 50 )
+    DEF_GLOBAL( Max_voxels_per_update, int, 300 )
+    DEF_GLOBAL( Max_seconds_per_voxel_update, Real, 1.0 )
+    DEF_GLOBAL( Max_surface_refinements, int, 5 )
+    DEF_GLOBAL( Max_surface_error, Real, 0.1 )
 
     DEF_GLOBAL( Normal_towards_lower, Boolean, TRUE )
 END_GLOBALS

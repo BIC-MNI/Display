@@ -5,14 +5,14 @@ public  void  initialize_virtual_spaceball( graphics )
     graphics_struct  *graphics;
 {
     DECL_EVENT_FUNCTION( start_virtual_spaceball );
-    void                 install_action_table_function();
+    void                 add_action_table_function();
     void                 terminate_any_interactions();
 
     terminate_any_interactions( graphics );
 
-    install_action_table_function( &graphics->action_table,
-                                   LEFT_MOUSE_DOWN_EVENT,
-                                   start_virtual_spaceball );
+    add_action_table_function( &graphics->action_table,
+                               LEFT_MOUSE_DOWN_EVENT,
+                               start_virtual_spaceball );
 }
 
 private  DEF_EVENT_FUNCTION( start_virtual_spaceball )

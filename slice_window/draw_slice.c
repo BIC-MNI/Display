@@ -7,13 +7,16 @@
 #define  X_SLICE_INDEX      1
 #define  Y_SLICE_INDEX      2
 #define  Z_SLICE_INDEX      3
-#define  X_TEXT_INDEX       4
-#define  Y_TEXT_INDEX       5
-#define  Z_TEXT_INDEX       6
-#define  X_PROBE_INDEX      7
-#define  Y_PROBE_INDEX      8
-#define  Z_PROBE_INDEX      9
-#define  VAL_PROBE_INDEX   10
+#define  X_CURSOR_INDEX     4
+#define  Y_CURSOR_INDEX     5
+#define  Z_CURSOR_INDEX     6
+#define  X_TEXT_INDEX       7
+#define  Y_TEXT_INDEX       8
+#define  Z_TEXT_INDEX       9
+#define  X_PROBE_INDEX     10
+#define  Y_PROBE_INDEX     11
+#define  Z_PROBE_INDEX     12
+#define  VAL_PROBE_INDEX   13
 
 public  Status  initialize_slice_models( graphics )
     graphics_struct   *graphics;
@@ -52,6 +55,31 @@ public  Status  initialize_slice_models( graphics )
 
     status = create_object( &object, PIXELS );
     status = add_object_to_model( model, object );
+
+    for_inclusive( i, X_CURSOR_INDEX, Z_CURSOR_INDEX )
+    {
+        status = create_lines_object( &object, &Slice_cursor_colour,
+                                      8, 4, 8 );
+
+        lines = object->ptr.lines;
+        lines->end_indices[0] = 2;
+        lines->end_indices[1] = 4;
+        lines->end_indices[2] = 6;
+        lines->end_indices[3] = 8;
+        lines->indices[0] = 0;
+        lines->indices[1] = 1;
+        lines->indices[2] = 2;
+        lines->indices[3] = 3;
+        lines->indices[4] = 4;
+        lines->indices[5] = 5;
+        lines->indices[6] = 6;
+        lines->indices[7] = 7;
+
+        if( status == OK )
+        {
+            status = add_object_to_model( model, object );
+        }
+    }
 
     for_inclusive( i, X_TEXT_INDEX, VAL_PROBE_INDEX )
     {
@@ -173,6 +201,7 @@ public  void  rebuild_slice_pixels( graphics, axis_index )
     char           *format;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
     void           get_slice_viewport();
+    void           rebuild_cursor();
 
     model = get_graphics_model(graphics,SLICE_MODEL);
 
@@ -206,6 +235,89 @@ public  void  rebuild_slice_pixels( graphics, axis_index )
     y_pos = y_min + (int) Point_y(Slice_index_offset);
 
     fill_Point( text->origin, x_pos, y_pos, 0.0 );
+
+    rebuild_cursor( graphics, X_AXIS );
+    rebuild_cursor( graphics, Y_AXIS );
+    rebuild_cursor( graphics, Z_AXIS );
+}
+
+public  void  rebuild_cursor( graphics, axis_index )
+    graphics_struct   *graphics;
+    int               axis_index;
+{
+    model_struct   *model;
+    model_struct   *get_graphics_model();
+    int            x_index, y_index, x_start, y_start, x_end, y_end;
+    int            x_centre, y_centre, dx, dy;
+    void           render_slice_to_pixels();
+    lines_struct   *lines;
+    int            x, y;
+    void           get_2d_slice_axes();
+    void           convert_voxel_to_pixel();
+    int            x_min, x_max, y_min, y_max;
+    void           get_slice_viewport();
+
+    model = get_graphics_model(graphics,SLICE_MODEL);
+
+    lines = model->object_list[X_CURSOR_INDEX+axis_index]->ptr.lines;
+
+    get_2d_slice_axes( axis_index, &x_index, &y_index );
+
+    x = graphics->slice.slice_views[x_index].slice_index;
+    y = graphics->slice.slice_views[y_index].slice_index;
+
+    convert_voxel_to_pixel( graphics, axis_index, x, y, &x_start, &y_start );
+    convert_voxel_to_pixel( graphics, axis_index, x+1, y+1, &x_end, &y_end );
+
+    --x_end;
+    --y_end;
+
+    x_centre = (x_start + x_end) / 2;
+    y_centre = (y_start + y_end) / 2;
+
+    get_slice_viewport( graphics, axis_index, &x_min, &x_max, &y_min, &y_max );
+
+    if( x_centre < x_min )
+    {
+        dx = x_min - x_centre;
+        x_centre = x_min;
+        x_start += dx;
+        x_end += dx;
+    }
+    else if( x_centre > x_max )
+    {
+        dx = x_max - x_centre;
+        x_centre = x_max;
+        x_start += dx;
+        x_end += dx;
+    }
+
+    if( y_centre < y_min )
+    {
+        dy = y_min - y_centre;
+        y_centre = y_min;
+        y_start += dy;
+        y_end += dy;
+    }
+    else if( y_centre > y_max )
+    {
+        dy = y_max - y_centre;
+        y_centre = y_max;
+        y_start += dy;
+        y_end += dy;
+    }
+
+    fill_Point( lines->points[0], x_centre, y_end + Cursor_start_pixel, 0.0 );
+    fill_Point( lines->points[1], x_centre, y_end + Cursor_end_pixel, 0.0 );
+
+    fill_Point( lines->points[2], x_centre, y_start - Cursor_start_pixel, 0.0 );
+    fill_Point( lines->points[3], x_centre, y_start - Cursor_end_pixel, 0.0 );
+
+    fill_Point( lines->points[4], x_start - Cursor_start_pixel, y_centre, 0.0 );
+    fill_Point( lines->points[5], x_start - Cursor_end_pixel, y_centre, 0.0 );
+
+    fill_Point( lines->points[6], x_end + Cursor_start_pixel, y_centre, 0.0 );
+    fill_Point( lines->points[7], x_end + Cursor_end_pixel, y_centre, 0.0 );
 }
 
 private  void  render_slice_to_pixels( pixels, axis_index, volume,

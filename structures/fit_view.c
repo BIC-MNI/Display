@@ -94,7 +94,7 @@ private  void   fit_view_to_points( view, n_points, points )
 
     if( view->perspective_flag )
     {
-        perspective_fit_points( view, &max_coord, &centre, n_points, points );
+        perspective_fit_points( view, &centre, n_points, points );
     }
     else
     {
@@ -113,7 +113,7 @@ private  void  orthogonal_fit_points( view, centre, range )
     Point   eye;
     Vector  x_axis, y_axis, line_of_sight;
     Vector  delta_x, delta_y, delta_z;
-    Real    x_scale, y_scale, scale;
+    Real    x_scale, y_scale, scale_factor;
 
     eye = view->origin;
     x_axis = view->x_axis;
@@ -146,20 +146,19 @@ private  void  orthogonal_fit_points( view, centre, range )
         view->desired_aspect = y_scale / x_scale;
     }
 
-    scale = MAX( x_scale, y_scale );
+    scale_factor = MAX( x_scale, y_scale );
 
-    view->window_width *= scale;
-    view->window_height *= scale;
+    view->window_width *= scale_factor;
+    view->window_height *= scale_factor;
     view->perspective_distance = Point_z(*range);
 
     view->front_distance = 0.0;
-    view->back_distance = 2.5 * Vector_z(*range);
+    view->back_distance = 2.0 * (Point_z(*centre) - dz);
 }
 
-private  void  perspective_fit_points( view, max_coord, centre,
+private  void  perspective_fit_points( view, centre,
                                        n_points, points )
     view_struct   *view;
-    Point         *max_coord;
     Point         *centre;
     int           n_points;
     Point         points[];
@@ -232,6 +231,6 @@ private  void  perspective_fit_points( view, max_coord, centre,
     view->window_height *= ratio;
     view->perspective_distance = new_persp_dist;
 
-    view->back_distance = FACTOR * (Point_z(*max_coord) - dz);
+    view->back_distance = 2.0 * (Point_z(*centre) - dz);
     view->front_distance = 0.0;
 }

@@ -4,6 +4,7 @@
 #include  <def_graphics_types.h>
 #include  <def_menu.h>
 #include  <def_slice.h>
+#include  <def_surface_extract.h>
 
 /* for graphics windows */
 
@@ -16,6 +17,10 @@
 #define  MENU_BUTTONS_MODEL     0
 #define  SELECTED_MODEL         1
 
+/* for slice windows */
+
+#define  SLICE_MODEL            0
+
 #define  N_MODELS               3
 
 typedef  enum  { THREE_D_WINDOW,
@@ -27,13 +32,14 @@ typedef  enum  { THREE_D_WINDOW,
 
 typedef  struct
 {
-    cursor_struct          cursor;
-    view_struct            view;
-    light_struct           lights[N_LIGHTS];
-    selection_struct       current_object;
-    Point                  min_limit;
-    Point                  max_limit;
-    Point                  centre_of_objects;
+    cursor_struct              cursor;
+    view_struct                view;
+    light_struct               lights[N_LIGHTS];
+    selection_struct           current_object;
+    Point                      min_limit;
+    Point                      max_limit;
+    Point                      centre_of_objects;
+    surface_extraction_struct  surface_extraction;
 } three_d_window_struct;
 
 

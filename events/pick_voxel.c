@@ -6,11 +6,11 @@ public  void  initialize_voxel_selection( graphics )
     graphics_struct  *graphics;
 {
     DECL_EVENT_FUNCTION( start_picking_voxel );
-    void                 install_action_table_function();
+    void                 add_action_table_function();
 
-    install_action_table_function( &graphics->action_table,
-                                   LEFT_MOUSE_DOWN_EVENT,
-                                   start_picking_voxel );
+    add_action_table_function( &graphics->action_table,
+                               LEFT_MOUSE_DOWN_EVENT,
+                               start_picking_voxel );
 }
 
 private  DEF_EVENT_FUNCTION( start_picking_voxel )
@@ -19,7 +19,6 @@ private  DEF_EVENT_FUNCTION( start_picking_voxel )
     DECL_EVENT_FUNCTION( handle_update_voxel );
     DECL_EVENT_FUNCTION( end_picking_voxel );
     void                 add_action_table_function();
-    void                 install_action_table_function();
     void                 update_voxel_cursor();
     void                 push_action_table();
 
@@ -29,13 +28,15 @@ private  DEF_EVENT_FUNCTION( start_picking_voxel )
                                NO_EVENT,
                                handle_update_voxel );
 
-    install_action_table_function( &graphics->action_table,
-                                   LEFT_MOUSE_UP_EVENT,
-                                   end_picking_voxel );
+    add_action_table_function( &graphics->action_table,
+                               LEFT_MOUSE_UP_EVENT,
+                               end_picking_voxel );
 
     graphics->prev_mouse_position = graphics->mouse_position;
 
     update_voxel_cursor( graphics );
+
+    return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( end_picking_voxel )
@@ -58,7 +59,7 @@ private  DEF_EVENT_FUNCTION( handle_update_voxel )
     Boolean  mouse_moved();
     void     update_voxel_cursor();
 
-    if( mouse_moved(graphics) )
+    if( mouse_moved(graphics) || graphics->update_required )
     {
         update_voxel_cursor( graphics );
     }

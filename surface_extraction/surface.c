@@ -694,9 +694,9 @@ private  int   create_point( volume, isovalue, tris, voxel, edge_intersected,
     Point_classes       *pt_class;
 {
     Status    status;
-    int       x, y, z, pt_index;
-    Real      x_bar, y_bar, z_bar, dx, dy, dz;
-    Real      val1, val2, alpha;
+    int       i, x, y, z, pt_index;
+    Real      u_bar[N_DIMENSIONS], dx, dy, dz;
+    Real      alpha1, alpha2, val1, val2, val, alpha;
     Point     point;
     Vector    normal;
     int       corner[N_DIMENSIONS];
@@ -737,20 +737,9 @@ private  int   create_point( volume, isovalue, tris, voxel, edge_intersected,
         alpha = val1 / (val1 - val2);
     }
 
-    fill_Point( point, (Real) voxel->i[X_AXIS],
-                       (Real) voxel->i[Y_AXIS],
-                       (Real) voxel->i[Z_AXIS] )
-
-    Point_coord( point, edge_intersected ) += alpha;
-
-    x = (int) Point_x( point );
-    y = (int) Point_y( point );
-    z = (int) Point_z( point );
-
-    x_bar = FRACTION( Point_x(point) );
-    y_bar = FRACTION( Point_y(point) );
-    z_bar = FRACTION( Point_z(point) );
-
+    x = voxel->i[X_AXIS];
+    y = voxel->i[Y_AXIS];
+    z = voxel->i[Z_AXIS];
 
     c000 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y-1, z-1 );
     c001 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y-1, z+0 );
@@ -773,69 +762,134 @@ private  int   create_point( volume, isovalue, tris, voxel, edge_intersected,
     c033 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+2, z+2 );
 
 
-    c100 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y-1, z-1 );
-    c101 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y-1, z+0 );
-    c102 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y-1, z+1 );
-    c103 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y-1, z+2 );
+    c100 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y-1, z-1 );
+    c101 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y-1, z+0 );
+    c102 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y-1, z+1 );
+    c103 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y-1, z+2 );
 
-    c110 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+0, z-1 );
-    c111 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+0, z+0 );
-    c112 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+0, z+1 );
-    c113 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+0, z+2 );
+    c110 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y+0, z-1 );
+    c111 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y+0, z+0 );
+    c112 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y+0, z+1 );
+    c113 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y+0, z+2 );
 
-    c120 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+1, z-1 );
-    c121 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+1, z+0 );
-    c122 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+1, z+1 );
-    c123 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+1, z+2 );
+    c120 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y+1, z-1 );
+    c121 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y+1, z+0 );
+    c122 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y+1, z+1 );
+    c123 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y+1, z+2 );
 
-    c130 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+2, z-1 );
-    c131 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+2, z+0 );
-    c132 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+2, z+1 );
-    c133 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+2, z+2 );
-
-
-    c200 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y-1, z-1 );
-    c201 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y-1, z+0 );
-    c202 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y-1, z+1 );
-    c203 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y-1, z+2 );
-
-    c210 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+0, z-1 );
-    c211 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+0, z+0 );
-    c212 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+0, z+1 );
-    c213 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+0, z+2 );
-
-    c220 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+1, z-1 );
-    c221 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+1, z+0 );
-    c222 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+1, z+1 );
-    c223 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+1, z+2 );
-
-    c230 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+2, z-1 );
-    c231 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+2, z+0 );
-    c232 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+2, z+1 );
-    c233 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+2, z+2 );
+    c130 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y+2, z-1 );
+    c131 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y+2, z+0 );
+    c132 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y+2, z+1 );
+    c133 = (Real) ACCESS_VOLUME_DATA( *volume, x+0, y+2, z+2 );
 
 
-    c300 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y-1, z-1 );
-    c301 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y-1, z+0 );
-    c302 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y-1, z+1 );
-    c303 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y-1, z+2 );
+    c200 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y-1, z-1 );
+    c201 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y-1, z+0 );
+    c202 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y-1, z+1 );
+    c203 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y-1, z+2 );
 
-    c310 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+0, z-1 );
-    c311 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+0, z+0 );
-    c312 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+0, z+1 );
-    c313 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+0, z+2 );
+    c210 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y+0, z-1 );
+    c211 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y+0, z+0 );
+    c212 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y+0, z+1 );
+    c213 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y+0, z+2 );
 
-    c320 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+1, z-1 );
-    c321 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+1, z+0 );
-    c322 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+1, z+1 );
-    c323 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+1, z+2 );
+    c220 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y+1, z-1 );
+    c221 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y+1, z+0 );
+    c222 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y+1, z+1 );
+    c223 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y+1, z+2 );
 
-    c330 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+2, z-1 );
-    c331 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+2, z+0 );
-    c332 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+2, z+1 );
-    c333 = (Real) ACCESS_VOLUME_DATA( *volume, x-1, y+2, z+2 );
+    c230 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y+2, z-1 );
+    c231 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y+2, z+0 );
+    c232 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y+2, z+1 );
+    c233 = (Real) ACCESS_VOLUME_DATA( *volume, x+1, y+2, z+2 );
+
+
+    c300 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y-1, z-1 );
+    c301 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y-1, z+0 );
+    c302 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y-1, z+1 );
+    c303 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y-1, z+2 );
+
+    c310 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y+0, z-1 );
+    c311 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y+0, z+0 );
+    c312 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y+0, z+1 );
+    c313 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y+0, z+2 );
+
+    c320 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y+1, z-1 );
+    c321 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y+1, z+0 );
+    c322 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y+1, z+1 );
+    c323 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y+1, z+2 );
+
+    c330 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y+2, z-1 );
+    c331 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y+2, z+0 );
+    c332 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y+2, z+1 );
+    c333 = (Real) ACCESS_VOLUME_DATA( *volume, x+2, y+2, z+2 );
+
+    u_bar[X_AXIS] = 0.0;
+    u_bar[Y_AXIS] = 0.0;
+    u_bar[Z_AXIS] = 0.0;
+
+    alpha1 = 0.0;
+    alpha2 = 1.0;
+
+    for_less( i, 0, Max_surface_refinements )
+    {
+        u_bar[edge_intersected] = alpha;
+
+        CUBIC_TRIVAR( c, u_bar[X_AXIS], u_bar[Y_AXIS], u_bar[Z_AXIS],
+                      val );
+
+        val = isovalue - val;
+
+        if( (alpha == 0.0 && val != val1) ||
+            (alpha == 1.0 && val != val2) )
+        {
+            HANDLE_INTERNAL_ERROR( "Surface refinement val\n" );
+        }
+
+        if( (val1 <= 0.0 && val <= 0.0) ||
+            (val1 >= 0.0 && val >= 0.0) )
+        {
+            val1 = val;
+            alpha1 = alpha;
+        }
+        else
+        {
+            val2 = val;
+            alpha2 = alpha;
+        }
+
+        if( val1 != val2 )
+        {
+            alpha = alpha1 + val1 / (val1 - val2) * (alpha2 - alpha1);
+        }
+        else if( val != 0.0 )
+        {
+            HANDLE_INTERNAL_ERROR( "Surface refinement\n" );
+        }
+
+        if( alpha < 0.0 || alpha > 1.0 )
+        {
+            HANDLE_INTERNAL_ERROR( "Surface refinement alpha\n" );
+        }
+
+        if( ABS(val) < Max_surface_error )
+        {
+            break;
+        }
+    }
+
+    fill_Point( point, (Real) voxel->i[X_AXIS],
+                       (Real) voxel->i[Y_AXIS],
+                       (Real) voxel->i[Z_AXIS] )
+
+    Point_coord( point, edge_intersected ) += alpha;
+
+    u_bar[X_AXIS] = FRACTION( Point_x(point) );
+    u_bar[Y_AXIS] = FRACTION( Point_y(point) );
+    u_bar[Z_AXIS] = FRACTION( Point_z(point) );
   
-    CUBIC_TRIVAR_DERIV( c, x_bar, y_bar, z_bar, dx, dy, dz );
+    CUBIC_TRIVAR_DERIV( c, u_bar[X_AXIS], u_bar[Y_AXIS], u_bar[Z_AXIS],
+                        dx, dy, dz );
 
     fill_Vector( normal, dx, dy, dz );
 

@@ -6,14 +6,33 @@ public  void  initialize_front_clipping( graphics )
     graphics_struct  *graphics;
 {
     DECL_EVENT_FUNCTION( start_front_clipping );
-    void                 install_action_table_function();
+    DECL_EVENT_FUNCTION( turn_off_front_clipping );
+    void                 add_action_table_function();
     void                 terminate_any_interactions();
 
     terminate_any_interactions( graphics );
 
-    install_action_table_function( &graphics->action_table,
-                                   LEFT_MOUSE_DOWN_EVENT,
-                                   start_front_clipping );
+    add_action_table_function( &graphics->action_table,
+                               TERMINATE_EVENT,
+                               turn_off_front_clipping );
+
+    add_action_table_function( &graphics->action_table,
+                               LEFT_MOUSE_DOWN_EVENT,
+                               start_front_clipping );
+}
+
+private  DEF_EVENT_FUNCTION( turn_off_front_clipping )
+    /* ARGSUSED */
+{
+    void    remove_action_table_function();
+
+    remove_action_table_function( &graphics->action_table,
+                                  LEFT_MOUSE_DOWN_EVENT );
+
+    remove_action_table_function( &graphics->action_table,
+                                  TERMINATE_EVENT );
+
+    return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( start_front_clipping )
@@ -96,13 +115,33 @@ public  void  initialize_back_clipping( graphics )
     graphics_struct  *graphics;
 {
     DECL_EVENT_FUNCTION( start_back_clipping );
-    void                 install_action_table_function();
+    DECL_EVENT_FUNCTION( turn_off_back_clipping );
+    void                 add_action_table_function();
     void                 terminate_any_interactions();
 
     terminate_any_interactions( graphics );
-    install_action_table_function( &graphics->action_table,
-                                   LEFT_MOUSE_DOWN_EVENT,
-                                   start_back_clipping );
+
+    add_action_table_function( &graphics->action_table,
+                               TERMINATE_EVENT,
+                               turn_off_back_clipping );
+
+    add_action_table_function( &graphics->action_table,
+                               LEFT_MOUSE_DOWN_EVENT,
+                               start_back_clipping );
+}
+
+private  DEF_EVENT_FUNCTION( turn_off_back_clipping )
+    /* ARGSUSED */
+{
+    void   remove_action_table_function();
+
+    remove_action_table_function( &graphics->action_table,
+                                  TERMINATE_EVENT );
+
+    remove_action_table_function( &graphics->action_table,
+                                  LEFT_MOUSE_DOWN_EVENT );
+
+    return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( start_back_clipping )

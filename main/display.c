@@ -39,6 +39,7 @@ private  void  display_objects_recursive( window,
     void           G_set_render();
     void           G_draw_text();
     void           G_draw_lines();
+    void           G_draw_pixels();
     void           G_draw_polygons();
     void           G_draw_volume();
     void           G_push_transform();
@@ -96,19 +97,23 @@ private  void  display_objects_recursive( window,
                     G_set_view_type( window, view_type );
                     break;
 
-                case TEXT:
-                    G_draw_text( window, object_list[i]->ptr.text, render );
-                    break;
-
                 case LINES:
                     G_draw_lines( window, object_list[i]->ptr.lines, render,
                                   interrupt, object_is_continuing );
+                    break;
+
+                case PIXELS:
+                    G_draw_pixels( window, object_list[i]->ptr.pixels );
                     break;
 
                 case POLYGONS:
                     G_draw_polygons( window, object_list[i]->ptr.polygons,
                                      render, interrupt,
                                      object_is_continuing );
+                    break;
+
+                case TEXT:
+                    G_draw_text( window, object_list[i]->ptr.text, render );
                     break;
 
                 case VOLUME:

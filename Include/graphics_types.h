@@ -127,7 +127,8 @@ typedef  struct
 typedef  struct
 {
     Point   origin;
-    Real    size;
+    Real    box_size;
+    Real    axis_size;
 } cursor_struct;
 
 #endif

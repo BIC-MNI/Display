@@ -7,24 +7,52 @@ public  void  start_picking_viewport( graphics )
 {
     DECL_EVENT_FUNCTION( pick_first_corner_point );
     DECL_EVENT_FUNCTION( show_rectangle_at_mouse );
-    void                 install_action_table_function();
+    DECL_EVENT_FUNCTION( terminate_picking_viewport );
     void                 push_action_table();
+    void                 add_action_table_function();
+    void                 terminate_any_interactions();
 
-    push_action_table( &graphics->action_table, NO_EVENT );
     push_action_table( &graphics->action_table, LEFT_MOUSE_DOWN_EVENT );
     push_action_table( &graphics->action_table, LEFT_MOUSE_UP_EVENT );
     push_action_table( &graphics->action_table, TERMINATE_EVENT );
 
-    install_action_table_function( &graphics->action_table,
-                                   LEFT_MOUSE_DOWN_EVENT,
-                                   pick_first_corner_point );
+    add_action_table_function( &graphics->action_table,
+                               TERMINATE_EVENT,
+                               terminate_picking_viewport );
 
-    install_action_table_function( &graphics->action_table,
-                                   NO_EVENT,
-                                   show_rectangle_at_mouse );
+    add_action_table_function( &graphics->action_table,
+                               LEFT_MOUSE_DOWN_EVENT,
+                               pick_first_corner_point );
+
+
+    add_action_table_function( &graphics->action_table, NO_EVENT,
+                               show_rectangle_at_mouse );
 
     graphics->prev_mouse_position = graphics->mouse_position;
     graphics->update_required = TRUE;
+}
+
+private  void  remove_events( action_table )
+    action_table_struct  *action_table;
+{
+    void   remove_action_table_function();
+    void   pop_action_table();
+
+    remove_action_table_function( action_table, NO_EVENT );
+
+    pop_action_table( action_table, LEFT_MOUSE_DOWN_EVENT );
+    pop_action_table( action_table, LEFT_MOUSE_UP_EVENT );
+    pop_action_table( action_table, TERMINATE_EVENT );
+}
+
+private  DEF_EVENT_FUNCTION( terminate_picking_viewport )
+    /* ARGSUSED */
+{
+    void   remove_events();
+
+    remove_events( &graphics->action_table );
+
+    return( OK );
 }
 
 private  get_coordinates( p1, p2, x_min, y_min, x_max, y_max )
@@ -91,18 +119,22 @@ private  DEF_EVENT_FUNCTION( pick_first_corner_point )
 {
     DECL_EVENT_FUNCTION( done_picking_viewport );
     DECL_EVENT_FUNCTION( show_picked_viewport );
+    void                 remove_action_table_function();
+    void                 add_action_table_function();
 
     graphics->viewport_picking.first_corner = graphics->mouse_position;
 
     graphics->prev_mouse_position = graphics->mouse_position;
 
-    install_action_table_function( &graphics->action_table,
-                                   LEFT_MOUSE_UP_EVENT,
-                                   done_picking_viewport );
+    add_action_table_function( &graphics->action_table,
+                               LEFT_MOUSE_UP_EVENT,
+                               done_picking_viewport );
 
-    install_action_table_function( &graphics->action_table,
-                                   NO_EVENT,
-                                   show_picked_viewport );
+    remove_action_table_function( &graphics->action_table, NO_EVENT );
+
+    add_action_table_function( &graphics->action_table,
+                               NO_EVENT,
+                               show_picked_viewport );
 
     graphics->update_required = TRUE;
 
@@ -137,12 +169,8 @@ private  DEF_EVENT_FUNCTION( done_picking_viewport )
     void   adjust_view_for_aspect();
     void   update_view();
     Real   x_min, y_min, x_max, y_max;
-    void   pop_action_table();
 
-    pop_action_table( &graphics->action_table, NO_EVENT );
-    pop_action_table( &graphics->action_table, LEFT_MOUSE_DOWN_EVENT );
-    pop_action_table( &graphics->action_table, LEFT_MOUSE_UP_EVENT );
-    pop_action_table( &graphics->action_table, TERMINATE_EVENT );
+    remove_events( &graphics->action_table );
 
     get_coordinates( &graphics->viewport_picking.first_corner,
                      &graphics->mouse_position,

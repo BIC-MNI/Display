@@ -11,8 +11,8 @@ public  Status  initialize_cursor( graphics )
     void            update_cursor();
 
     graphics->three_d.cursor.origin = graphics->three_d.centre_of_objects;
-    graphics->three_d.cursor.size = Cursor_size_factor *
-                                    size_of_domain( graphics );
+    graphics->three_d.cursor.box_size = 1.0;
+    graphics->three_d.cursor.axis_size = Cursor_axis_size;
 
     status = rebuild_cursor_icon( graphics );
 

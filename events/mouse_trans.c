@@ -5,14 +5,33 @@ public  void  initialize_translation( graphics )
     graphics_struct  *graphics;
 {
     DECL_EVENT_FUNCTION( start_translation );
-    void                 install_action_table_function();
+    DECL_EVENT_FUNCTION( turn_off_translation );
+    void                 add_action_table_function();
     void                 terminate_any_interactions();
 
     terminate_any_interactions( graphics );
 
-    install_action_table_function( &graphics->action_table,
-                                   LEFT_MOUSE_DOWN_EVENT,
-                                   start_translation );
+    add_action_table_function( &graphics->action_table,
+                               TERMINATE_EVENT,
+                               turn_off_translation );
+
+    add_action_table_function( &graphics->action_table,
+                               LEFT_MOUSE_DOWN_EVENT,
+                               start_translation );
+}
+
+private  DEF_EVENT_FUNCTION( turn_off_translation )
+    /* ARGSUSED */
+{
+    void   remove_action_table_function();
+
+    remove_action_table_function( &graphics->action_table,
+                                  TERMINATE_EVENT );
+
+    remove_action_table_function( &graphics->action_table,
+                                  LEFT_MOUSE_DOWN_EVENT );
+
+    return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( start_translation )

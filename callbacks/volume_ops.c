@@ -142,6 +142,7 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
     int              c;
     volume_struct    *volume;
     graphics_struct  *slice_window;
+    void             rebuild_slice_models();
 
     if( get_current_volume( graphics, &volume ) &&
         graphics->associated[SLICE_WINDOW] == (graphics_struct *) 0 )
@@ -165,6 +166,8 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
             graphics->associated[SLICE_WINDOW] = slice_window;
             menu_window->associated[SLICE_WINDOW] = slice_window;
 
+            rebuild_slice_models( slice_window );
+
             slice_window->update_required = TRUE;
         }
     }
@@ -173,6 +176,180 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(open_slice_window )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(start_surface )   /* ARGSUSED */
+{
+    int            x, y, z;
+    Point          origin;
+    Boolean        get_current_volume();
+    void           start_surface_extraction_at_point();
+    volume_struct  *volume;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        origin = graphics->three_d.cursor.origin;
+
+        x = (int) ( Point_x(origin) );
+        if( x == volume->size[X_AXIS]-1 )
+        {
+            --x;
+        }
+
+        y = (int) ( Point_y(origin) );
+        if( y == volume->size[Y_AXIS]-1 )
+        {
+            --y;
+        }
+
+        z = (int) ( Point_z(origin) );
+        if( z == volume->size[Z_AXIS]-1 )
+        {
+            --z;
+        }
+
+
+        start_surface_extraction_at_point( graphics, x, y, z );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(start_surface )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(toggle_surface_extraction)   /* ARGSUSED */
+{
+    void           start_surface_extraction();
+    void           stop_surface_extraction();
+    volume_struct  *volume;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        if( graphics->three_d.surface_extraction.extraction_in_progress )
+        {
+            stop_surface_extraction( graphics );
+        }
+        else
+        {
+            start_surface_extraction( graphics );
+        }
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(toggle_surface_extraction )   /* ARGSUSED */
+{
+    void  set_text_on_off();
+
+    set_text_on_off( format, text,
+              graphics->three_d.surface_extraction.extraction_in_progress );
+
+    menu_window->update_required = TRUE;
+
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
+{
+    Status         status;
+    Status         reset_surface_extraction();
+    volume_struct  *volume;
+
+    status = OK;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        status = reset_surface_extraction( graphics );
+
+        graphics->update_required = TRUE;
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(reset_surface )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(double_slice_voxels)   /* ARGSUSED */
+{
+    Status           status;
+    volume_struct    *volume;
+    graphics_struct  *slice_window;
+    Point            *mouse;
+    int              x, y, axis_index;
+    void             get_mouse_in_pixels();
+    Boolean          find_slice_view_mouse_is_in();
+    void             rebuild_slice_pixels();
+
+    status = OK;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        mouse = &slice_window->mouse_position;
+
+        get_mouse_in_pixels( slice_window, mouse, &x, &y );
+
+        if( find_slice_view_mouse_is_in( slice_window, x, y, &axis_index ) )
+        {
+            slice_window->slice.slice_views[axis_index].x_scale *= 0.5;
+            slice_window->slice.slice_views[axis_index].y_scale *= 0.5;
+            rebuild_slice_pixels( slice_window, axis_index );
+            slice_window->update_required = TRUE;
+        }
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(double_slice_voxels )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
+{
+    Status           status;
+    volume_struct    *volume;
+    graphics_struct  *slice_window;
+    Point            *mouse;
+    int              x, y, axis_index;
+    void             get_mouse_in_pixels();
+    Boolean          find_slice_view_mouse_is_in();
+    void             rebuild_slice_pixels();
+
+    status = OK;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        mouse = &slice_window->mouse_position;
+
+        get_mouse_in_pixels( slice_window, mouse, &x, &y );
+
+        if( find_slice_view_mouse_is_in( slice_window, x, y, &axis_index ) )
+        {
+            slice_window->slice.slice_views[axis_index].x_scale *= 2.0;
+            slice_window->slice.slice_views[axis_index].y_scale *= 2.0;
+            rebuild_slice_pixels( slice_window, axis_index );
+            slice_window->update_required = TRUE;
+        }
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(halve_slice_voxels )   /* ARGSUSED */
 {
     return( OK );
 }

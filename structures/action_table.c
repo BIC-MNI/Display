@@ -26,8 +26,8 @@ private  void  set_action_table_function( action_table, event_type, function )
     t->actions[i] = function;
 }
 
-public  void  install_action_table_function( action_table, event_type,
-                                             function )
+private  void  install_action_table_function( action_table, event_type,
+                                              function )
     action_table_struct   *action_table;
     event_types           event_type;
     event_function_type   function;
@@ -174,17 +174,10 @@ public  void  initialize_action_table( action_table )
     action_table_struct   *action_table;
 {
     event_types           event;
-    void                  initialize_virtual_spaceball();
-    void                  initialize_window_events();
-    void                  initialize_mouse_events();
 
     for_enum( event, NUM_EVENT_TYPES, event_types )
     {
         action_table->event_info[(int)event].stack_index = 0;
         action_table->event_info[(int)event].last_index[0] = -1;
     }
-
-    initialize_mouse_events( action_table );
-    initialize_virtual_spaceball( action_table );
-    initialize_window_events( action_table );
 }
