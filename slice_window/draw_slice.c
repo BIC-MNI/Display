@@ -650,6 +650,8 @@ private  void  render_slice_to_pixels( slice_window, pixels,
         }
     }
 
+#ifdef TALAIRACH_OVERLAY
+
     if( x_index == X && y_index == Y && start_indices[Z] == 26 )
     {
         void   blend_in_talairach_image();
@@ -657,8 +659,10 @@ private  void  render_slice_to_pixels( slice_window, pixels,
         blend_in_talairach_image( pixels->pixels, x_size, y_size,
                                   start_indices, dx, dy, volume->sizes[X] );
     }
+#endif
 }
 
+#ifdef TALAIRACH_OVERLAY
 private  Boolean  images_read_in = FALSE;
 
 #define  N_IMAGES   4
@@ -750,9 +754,9 @@ private  Boolean  find_talairach_image( desired_size, image, image_size,
 }
 
 
-private  void  blend_in_talairach_image( pixels, x_size, y_size,
+private  void  blend_in_talairach_image( voxel_pixels, x_size, y_size,
                    start_indices, dx, dy, x_volume_size )
-    Pixel_colour   pixels[];
+    Pixel_colour   voxel_pixels[];
     int            x_size;
     int            y_size;
     int            start_indices[];
@@ -764,7 +768,7 @@ private  void  blend_in_talairach_image( pixels, x_size, y_size,
     int            x_pixel, y_pixel, x_pixel_start, y_pixel_start;
     int            r_tal, g_tal, b_tal, r_vox, g_vox, b_vox;
     int            r, g, b;
-    Pixel_colour   *image, voxel_pixel, tal_pixel;
+    Pixel_colour   *image, *pixels, voxel_pixel, tal_pixel;
 
     if( !find_talairach_image( ROUND( x_volume_size / dx ),
                                &image, &image_size, &image_multiplier ) )
@@ -781,54 +785,42 @@ private  void  blend_in_talairach_image( pixels, x_size, y_size,
 
     for_less( y, 0, y_size )
     {
-        if( y % image_multiplier == 0 )
+        pixels = &voxel_pixels[IJ(y,0,x_size)];
+
+        y_pixel = y_pixel_start + y / image_multiplier;
+
+        if( y_pixel >= 0 && y_pixel < image_size )
         {
-            y_pixel = y_pixel_start + y / image_multiplier;
-
-            if( y_pixel < 0 )  y_pixel = 0;
-            if( y_pixel >= image_size )  y_pixel = image_size-1;
-
             for_less( x, 0, x_size )
             {
                 x_pixel = x_pixel_start + x / image_multiplier;
 
-                if( x_pixel < 0 )  x_pixel = 0;
-                if( x_pixel >= image_size )  x_pixel = image_size-1;
-
-                voxel_pixel = *pixels;
-                r_vox = Pixel_colour_r(voxel_pixel);
-                g_vox = Pixel_colour_g(voxel_pixel);
-                b_vox = Pixel_colour_b(voxel_pixel);
-
-                tal_pixel = image[IJ(y_pixel,x_pixel,image_size)];
-                r_tal = Pixel_colour_r(tal_pixel);
-                g_tal = Pixel_colour_g(tal_pixel);
-                b_tal = Pixel_colour_b(tal_pixel);
-
-                if( r_tal > Talairach_opacity_threshold &&
-                    g_tal > Talairach_opacity_threshold &&
-                    b_tal > Talairach_opacity_threshold )
+                if( x_pixel >= 0 && x_pixel < image_size )
                 {
-                    *pixels = voxel_pixel;
-                }
-                else
-                {
-                    r = ROUND( r_vox + (r_tal - r_vox) * Talairach_opacity );
-                    g = ROUND( g_vox + (g_tal - g_vox) * Talairach_opacity );
-                    b = ROUND( b_vox + (b_tal - b_vox) * Talairach_opacity );
-                    *pixels = RGB_255_TO_PIXEL( r, g, b );
+                    tal_pixel = image[IJ(y_pixel,x_pixel,image_size)];
+                    r_tal = Pixel_colour_r(tal_pixel);
+                    g_tal = Pixel_colour_g(tal_pixel);
+                    b_tal = Pixel_colour_b(tal_pixel);
+
+                    if( r_tal <= Talairach_opacity_threshold ||
+                        g_tal <= Talairach_opacity_threshold ||
+                        b_tal <= Talairach_opacity_threshold )
+                    {
+                        voxel_pixel = *pixels;
+                        r_vox = Pixel_colour_r(voxel_pixel);
+                        g_vox = Pixel_colour_g(voxel_pixel);
+                        b_vox = Pixel_colour_b(voxel_pixel);
+
+                        r = ROUND( r_vox + (r_tal - r_vox) * Talairach_opacity);
+                        g = ROUND( g_vox + (g_tal - g_vox) * Talairach_opacity);
+                        b = ROUND( b_vox + (b_tal - b_vox) * Talairach_opacity);
+                        *pixels = RGB_255_TO_PIXEL( r, g, b );
+                    }
                 }
 
-                ++pixels;
-            }
-        }
-        else
-        {
-            for_less( x, 0, x_size )
-            {
-                *pixels = pixels[-x_size];
                 ++pixels;
             }
         }
     }
 }
+#endif
