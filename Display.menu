@@ -5,6 +5,7 @@ root
     permanent '2'    magnify_view       "Magnify"
     permanent '3'    translate_view     "Translate"
     permanent '4'    rotate_view        "Rotate"
+    permanent '5'    region_painting    "Region Painting"
     permanent '6'    move_slice_plus    "+ Slice"
     permanent 'y'    move_slice_minus   "- Slice"
     permanent '7'    quit               "Quit"
@@ -63,8 +64,8 @@ extract
 
 slice
 {
-    transient 'r'    halve_slice_voxels             "Halve Size"
-    transient 't'    double_slice_voxels            "Double Size"
+    transient 'r'    halve_slice_voxels             "Decrease Size"
+    transient 't'    double_slice_voxels            "Increase Size"
 
     transient 'd'    create_3d_slice                "Create 3D Slice"
     transient 'g'    toggle_lock_slice              "Lock/Unlock Slice"
@@ -306,11 +307,30 @@ atlas
 
 deform
 {
-    transient 's'    start_annealling_deforming_object "Start Annealling"
-    transient 'd'    start_deforming_object          "Start Deformation"
-    transient 'f'    stop_deforming_object           "Stop Deformation"
+    transient 'x'    set_annealing_parameters         "Set Annealing Parms"
+    transient 'c'    start_annealing_deforming_object "Start Annealing"
+
+    transient 'd'    start_deforming_object           "Start Deformation"
+    transient 'f'    stop_deforming_object            "Stop Deformation"
 
     transient 'w'    set_deformation_model           "Set Model"
     transient 'e'    set_deformation_boundary        "Set Boundary"
     transient 'r'    set_deformation_parameters      "Set Parameters"
+}
+
+region_painting
+{
+    transient 'q'    load_labels                     "Load .lmk as Labels"
+    transient 'w'    save_labels                     "Save Labels as .lmk"
+    transient 'e'    copy_labels_from_lower_slice  "Copy from Lt/Inf/Post Slice"
+    transient 'r'    copy_labels_from_higher_slice "Copy from Rt/Sup/Ant Slice"
+
+    transient 'a'    set_label_colour                "Set Paint Label Colour"
+    transient 's'    set_current_paint_label         "Set Paint Label: %d"
+    transient 'f'    set_paint_x_brush_radius        "X Radius: %g"
+    transient 'g'    set_paint_y_brush_radius        "Y Radius: %g"
+    transient 'h'    set_paint_z_brush_radius        "Out-plane Rad: %g"
+
+    transient 'z'    reset_segmenting                "Clear All Labels"
+    transient 'c'    toggle_display_labels           "Show Labels: %s"
 }
