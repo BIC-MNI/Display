@@ -1,7 +1,7 @@
 
 #include  <display.h>
 
-#define    TOO_MANY_COLOURS_FOR_LABELS  10000
+#define    MAX_LABEL_COLOUR_TABLE_SIZE    2000000
 
 private  void   set_colour_of_label(
     display_struct    *slice_window,
@@ -30,15 +30,23 @@ public  void  initialize_slice_colour_coding(
     }
 }
 
+public  int  get_num_labels(
+    display_struct   *slice_window )
+{
+    if( slice_window == NULL )
+        return( NUM_LABELS );
+    else
+        return( slice_window->slice.n_labels );
+}
+
 public  void  set_colour_coding_for_new_volume(
     display_struct    *slice_window )
 {
     Real             low_limit, high_limit;
     Real             min_voxel, max_voxel;
     Real             min_value, max_value;
-    int              label, ind;
+    int              label, ind, n_labels;
     Volume           volume;
-    BOOLEAN          too_many;
     Colour           col;
     static Colour    default_colours[] = { RED, GREEN, BLUE,
                                            CYAN, MAGENTA, YELLOW,
@@ -56,39 +64,37 @@ public  void  set_colour_coding_for_new_volume(
 
     get_volume_voxel_range( volume, &min_voxel, &max_voxel );
 
-    too_many = ((int) max_voxel - (int) min_voxel + 1 >
-                TOO_MANY_COLOURS_FOR_LABELS);
+    n_labels = MAX_LABEL_COLOUR_TABLE_SIZE /
+               ((int) max_voxel - (int) min_voxel + 1);
 
-    if( too_many )
-        slice_window->slice.n_labels = 1;
-    else
-        slice_window->slice.n_labels = NUM_LABELS;
+    if( n_labels < 1 )
+        n_labels = 1;
+    else if( n_labels > NUM_LABELS )
+        n_labels = NUM_LABELS;
+
+    slice_window->slice.n_labels = n_labels;
 
     set_colour_of_label( slice_window, 0, WHITE );
 
-    if( too_many )
+    for_less( label, 1, n_labels )
     {
-        for_less( label, 1, NUM_LABELS )
-        {
-            slice_window->slice.colour_tables[label] = 
-                 slice_window->slice.colour_tables[0];
-        }
+        ind = (label - 1) % SIZEOF_STATIC_ARRAY(default_colours);
+
+        col = default_colours[ind];
+        if( label & get_active_bit() )
+            col = SCALE_COLOUR( col, 0.5 );
+
+        set_colour_of_label( slice_window, label, col );
     }
-    else
-    {
-        for_less( label, 1, NUM_LABELS )
-        {
-            ind = (label - 1) % SIZEOF_STATIC_ARRAY(default_colours);
 
-            col = default_colours[ind];
-            if( label & get_active_bit() )
-                col = SCALE_COLOUR( col, 0.5 );
-
-            set_colour_of_label( slice_window, label, col );
-        }
-
+    if( get_label_bit() < n_labels )
         set_colour_of_label( slice_window, get_label_bit(),
                              Labeled_voxel_colour );
+
+    for_less( label, n_labels, NUM_LABELS )
+    {
+        slice_window->slice.colour_tables[label] = 
+             slice_window->slice.colour_tables[0];
     }
 
     get_volume_real_range( volume, &min_value, &max_value );
@@ -182,7 +188,7 @@ public  int  lookup_label_colour(
     found_colour = FALSE;
     found_empty = FALSE;
 
-    for_less( i, 1, MIN( get_active_bit(), slice_window->slice.n_labels ) )
+    for_less( i, 1, MIN( get_active_bit(), get_num_labels(slice_window) ) )
     {
         label = i;
 
@@ -262,7 +268,7 @@ public  void  rebuild_colour_table_for_label(
     Colour           colour;
     Real             min_voxel, max_voxel;
 
-    if( label >= slice_window->slice.n_labels )
+    if( label >= get_num_labels(slice_window) )
         return;
 
     get_volume_voxel_range( get_volume(slice_window), &min_voxel, &max_voxel );
@@ -287,7 +293,7 @@ public  void  rebuild_colour_tables(
 {
     int              label;
 
-    for_less( label, 0, slice_window->slice.n_labels )
+    for_less( label, 0, get_num_labels(slice_window) )
     {
         if( slice_window->slice.colour_tables[label] != (Colour *) 0 )
             rebuild_colour_table_for_label( slice_window, label );

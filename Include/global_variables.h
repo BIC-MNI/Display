@@ -214,6 +214,7 @@ START_GLOBALS
     DEF_GLOBAL( Colour_bar_text_font, int, 1 )
     DEF_GLOBAL( Colour_bar_text_size, Real, 10.0 )
     DEF_GLOBAL( Colour_bar_limit_colour, Colour, GREEN )
+    DEF_GLOBAL( Colour_bar_range_colour, Colour, RED )
     DEF_GLOBAL( Colour_bar_desired_intervals, int, 5 )
     DEF_GLOBAL( Colour_bar_closest_text, Real, 10.0 )
     DEF_GLOBAL_STRING( Colour_bar_number_format, "%g" )

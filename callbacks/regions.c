@@ -127,7 +127,7 @@ public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
         print( "Enter the label number and colour for this label: " );
 
         if( input_int( stdin, &label ) == OK &&
-            label >= 1 && label < NUM_LABELS )
+            label >= 1 && label < get_num_labels(slice_window) )
         {
             if( input_line( stdin, line, MAX_STRING_LENGTH ) == OK )
             {

@@ -45,7 +45,7 @@ public  void  create_voxelated_surface(
     }
 
     initialize_progress_report( &progress, FALSE,
-                                sizes[X] * sizes[Y] * sizes[Z],
+                                sizes[X] * sizes[Z],
                                 "Extracting boundary" );
 
     for_less( indices[Z], 0, sizes[Z] )
@@ -77,8 +77,8 @@ public  void  create_voxelated_surface(
                 }
             }
 
-            update_progress_report( &progress, sizes[Y] *
-                     (indices[X]+1 + indices[Z] * sizes[X]) );
+            update_progress_report( &progress, 
+                                    indices[X] + 1 + indices[Z] * sizes[X] );
         }
     }
 
@@ -142,7 +142,8 @@ private  int  get_point_index(
     int                  ***point_lookup,
     int                  x,
     int                  y,
-    int                  z )
+    int                  z,
+    int                  z_slice )
 {
     int           point_index;
     Real          x_w, y_w, z_w, voxel[MAX_DIMENSIONS];
@@ -156,7 +157,7 @@ private  int  get_point_index(
         point_lookup[z][x][y] = point_index;
         voxel[X] = (Real) x - 0.5;
         voxel[Y] = (Real) y - 0.5;
-        voxel[Z] = (Real) z - 0.5;
+        voxel[Z] = (Real) (z + z_slice) - 0.5;
         convert_voxel_to_world( volume, voxel, &x_w, &y_w, &z_w );
         fill_Point( point, x_w, y_w, z_w );
         ADD_ELEMENT_TO_ARRAY( polygons->points, polygons->n_points,
@@ -198,28 +199,32 @@ private  Status  add_face(
     point_ids[0] = get_point_index( volume, polygons, point_lookup,
                                     point_indices[0],
                                     point_indices[1],
-                                    point_indices[2] - indices[Z] );
+                                    point_indices[2] - indices[Z],
+                                    indices[Z] );
 
     point_indices[a1] = indices[a1];
     point_indices[a2] = indices[a2] + 1;
     point_ids[1] = get_point_index( volume, polygons, point_lookup,
                                     point_indices[0],
                                     point_indices[1],
-                                    point_indices[2] - indices[Z] );
+                                    point_indices[2] - indices[Z],
+                                    indices[Z] );
 
     point_indices[a1] = indices[a1] + 1;
     point_indices[a2] = indices[a2] + 1;
     point_ids[2] = get_point_index( volume, polygons, point_lookup,
                                     point_indices[0],
                                     point_indices[1],
-                                    point_indices[2] - indices[Z] );
+                                    point_indices[2] - indices[Z],
+                                    indices[Z] );
 
     point_indices[a1] = indices[a1] + 1;
     point_indices[a2] = indices[a2];
     point_ids[3] = get_point_index( volume, polygons, point_lookup,
                                     point_indices[0],
                                     point_indices[1],
-                                    point_indices[2] - indices[Z] );
+                                    point_indices[2] - indices[Z],
+                                    indices[Z] );
 
     n_indices = NUMBER_INDICES( *polygons );
 

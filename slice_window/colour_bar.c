@@ -83,7 +83,7 @@ public  void  rebuild_colour_bar(
     Real                x, y, bottom, top, range, delta;
     Real                ratio, last_y, next_y, value, min_value, max_value;
     Real                start_threshold, end_threshold;
-    Real                x_tick_start, x_tick_end;
+    Real                x_tick_start, x_tick_end, mult_value;
     Point               point;
     Colour              colour;
     colour_bar_struct   *colour_bar;
@@ -166,10 +166,15 @@ public  void  rebuild_colour_bar(
 
     n_numbers = 0;
 
+    mult_value = round_to_nearest_multiple( min_value, delta );
+    while( mult_value <= min_value )
+         mult_value = round_to_nearest_multiple( mult_value + delta, delta );
+
     value = min_value;
-    while( value < max_value )
+    while( value <= max_value )
     {
         entry.value = value;
+
         if( (value == start_threshold || value == end_threshold) )
             entry.priority = 2;
         else if( value == min_value || value == max_value )
@@ -179,26 +184,17 @@ public  void  rebuild_colour_bar(
            
         ADD_ELEMENT_TO_ARRAY( numbers, n_numbers, entry, DEFAULT_CHUNK_SIZE );
 
-        if( value < start_threshold && value + delta > start_threshold )
-        {
-            entry.value = start_threshold;
-            entry.priority = 2;
-            ADD_ELEMENT_TO_ARRAY( numbers, n_numbers, entry,
-                                  DEFAULT_CHUNK_SIZE );
-        }
-
-        if( value < end_threshold && value + delta > end_threshold )
-        {
-            entry.value = end_threshold;
-            entry.priority = 2;
-            ADD_ELEMENT_TO_ARRAY( numbers, n_numbers, entry,
-                                  DEFAULT_CHUNK_SIZE );
-        }
-
-        if( value < max_value && value + delta > max_value )
+        if( value < start_threshold && mult_value >= start_threshold )
+            value = start_threshold;
+        else if( value < end_threshold && mult_value >= end_threshold )
+            value = end_threshold;
+        else if( value < max_value && mult_value >= max_value )
             value = max_value;
         else
-            value += delta;
+        {
+            value = mult_value;
+            mult_value = round_to_nearest_multiple( mult_value + delta, delta );
+        }
     }
 
     last_y = 0.0;
@@ -212,13 +208,15 @@ public  void  rebuild_colour_bar(
             next_y = get_y_pos( numbers[i+1].value, min_value, max_value,
                                 bottom, top );
 
-        if( (n_numbers == 0 || y - last_y > Colour_bar_closest_text) &&
+        if( (i == 0 || y - last_y > Colour_bar_closest_text) &&
             (i == n_numbers-1 ||
                 next_y - y > Colour_bar_closest_text ||
                 numbers[i].priority > numbers[i+1].priority ) )
         {
             if( numbers[i].priority == 2 )
                 colour = Colour_bar_limit_colour;
+            else if( numbers[i].priority == 1 )
+                colour = Colour_bar_range_colour;
             else
                 colour = Colour_bar_text_colour;
 

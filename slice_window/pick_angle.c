@@ -15,6 +15,8 @@ private  void  update_picking_angle(
 public  void  start_picking_slice_angle(
     display_struct    *slice_window )
 {
+    terminate_any_interactions( slice_window );
+
     push_action_table( &slice_window->action_table, NO_EVENT );
     push_action_table( &slice_window->action_table,
                        TERMINATE_INTERACTION_EVENT);
@@ -99,7 +101,7 @@ private  void  set_slice_angle(
     Real       separations[MAX_DIMENSIONS], factor, mag, scale;
     Real       new_axis[MAX_DIMENSIONS];
     Point      origin, in_plane_point;
-    Vector     current_normal, plane_normal, x_axis, y_axis, current_in_plane;
+    Vector     current_normal, plane_normal, x_axis, current_in_plane;
     Vector     offset, new_normal, in_plane;
 
     if( !convert_pixel_to_voxel( slice_window, x_pixel, y_pixel, voxel,
