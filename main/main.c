@@ -13,10 +13,12 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.50 1995-10-19 15:51:42 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.51 1995-12-04 15:39:53 david Exp $";
 #endif
 
 #include  <display.h>
+
+#define  MAX_TITLE_LENGTH   200
 
 private  void      initialize_global_colours();
 private  void      initialize_view_to_fit(
@@ -66,6 +68,8 @@ int  main(
     STRING           variable_name, variable_value;
     BOOLEAN          next_is_label_volume;
 
+    set_alloc_checking( TRUE );
+
     if( argc == 1 )
         title = create_string( argv[0] );
     else
@@ -77,6 +81,9 @@ int  main(
                 concat_to_string( &title, " " );
 
             concat_to_string( &title, argv[i] );
+
+            if( string_length( title ) >= MAX_TITLE_LENGTH )
+                break;
         }
     }
 
@@ -275,7 +282,8 @@ private  void      initialize_global_colours()
     Colour_above = WHITE;
     Colour_bar_tick_colour = WHITE;
     Colour_bar_text_colour = WHITE;
-    Colour_bar_limit_colour = GREEN;
+    Colour_bar_min_limit_colour = GREEN;
+    Colour_bar_max_limit_colour = CYAN;
     Colour_bar_range_colour = RED;
     Surface_curve_colour = MAGENTA;
     Visible_segmenting_colour = GREEN;
