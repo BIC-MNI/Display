@@ -78,7 +78,10 @@ int  main( argc, argv )
         status = main_event_loop();
     }
 
-    (void) terminate_graphics();
+    if( status == OK )
+    {
+        status = terminate_graphics();
+    }
 
     output_alloc_to_file( ".alloc_stats" );
 

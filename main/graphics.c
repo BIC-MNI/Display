@@ -5,7 +5,7 @@
 #include  <def_globals.h>
 #include  <def_alloc.h>
 
-private  graphics_struct  **windows;
+private  graphics_struct  **windows = (graphics_struct **) 0;
 private  int              n_windows = 0;
 
 public  int  get_list_of_windows( graphics )
@@ -85,6 +85,58 @@ private  Status  free_graphics( graphics )
         --n_windows;
 
         FREE1( status, graphics );
+    }
+
+    return( status );
+}
+
+private  Status  delete_graphics_list()
+{
+    Status    status;
+
+    if( windows != (graphics_struct **) 0 )
+    {
+        FREE1( status, windows );
+    }
+
+    return( status );
+}
+
+public  Status  initialize_graphics()
+{
+    Status   status;
+    Status   G_initialize();
+
+    status = G_initialize();
+
+    return( status );
+}
+
+public  Status  terminate_graphics()
+{
+    Status            status;
+    Status            G_terminate();
+    Status            delete_graphics_window();
+    graphics_struct   **graphics_windows;
+
+    status = OK;
+
+    while( get_list_of_windows( &graphics_windows ) > 0 )
+    {
+        if( status == OK )
+        {
+            status = delete_graphics_window( graphics_windows[0] );
+        }
+    }
+
+    if( status == OK )
+    {
+        status = delete_graphics_list();
+    }
+
+    if( status == OK )
+    {
+        status = G_terminate();
     }
 
     return( status );
@@ -361,7 +413,7 @@ private  Status  terminate_graphics_window( graphics )
         }
     }
 
-    if( status == OK && graphics->window_type == MENU_WINDOW )
+    if( status == OK && graphics->window_type == THREE_D_WINDOW )
     {
         status = delete_three_d( graphics );
     }
