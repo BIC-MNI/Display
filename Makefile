@@ -64,6 +64,7 @@ display_obj = \
            $(C_UTILS_SRC)/alloc.o \
            $(C_UTILS_SRC)/bitlist.o \
            $(C_UTILS_SRC)/colours.o \
+           $(C_UTILS_SRC)/geometry.o \
            $(C_UTILS_SRC)/graphics_io.o \
            $(C_UTILS_SRC)/hash_table.o \
            $(C_UTILS_SRC)/lines.o \
