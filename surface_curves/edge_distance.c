@@ -66,7 +66,7 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
     int                    i, p, size, point_index, poly_index;
     int                    dir, index_within_poly, neighbour_index_within_poly;
     int                    neighbour_point_index, current_index_within_poly;
-    int                    current_poly, current_poly_size, n_done;
+    int                    current_poly, n_done;
     Real                   dist;
     Real                   distance_between_points();
     Boolean                found;
@@ -123,7 +123,6 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
 
             current_index_within_poly = index_within_poly;
             current_poly = poly_index;
-            current_poly_size = size;
             n_done = 0;
 
             do
@@ -172,8 +171,6 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
 
                 if( found )
                 {
-                    current_poly_size = GET_OBJECT_SIZE(*polygons,current_poly);
-
                     neighbour_point_index = polygons->indices[
                            POINT_INDEX( polygons->end_indices, current_poly,
                                         neighbour_index_within_poly )];

@@ -20,6 +20,7 @@ public  Status  initialize_three_d_window( graphics )
     Status                 status;
     Status                 initialize_current_object();
     Status                 initialize_surface_extraction();
+    Status                 initialize_surface_fitting();
     Status                 initialize_cursor();
     Status                 initialize_surface_curve();
     void                   initialize_surface_edit();
@@ -58,7 +59,10 @@ public  Status  initialize_three_d_window( graphics )
 
     initialize_surface_edit( &graphics->three_d.surface_edit );
 
-    status = initialize_surface_extraction( graphics );
+    status =initialize_surface_fitting( &graphics->three_d.surface_fitting );
+
+    if( status == OK )
+        status = initialize_surface_extraction( graphics );
 
     if( status == OK )
         status = initialize_current_object( &graphics->three_d.current_object );
@@ -111,19 +115,19 @@ public  Status  delete_three_d( graphics )
     Status    status;
     Status    terminate_current_object();
     Status    delete_surface_extraction();
+    Status    delete_surface_fitting();
     Status    delete_surface_edit();
 
     status = terminate_current_object( &graphics->three_d.current_object );
 
     if( status == OK )
-    {
         status = delete_surface_edit( &graphics->three_d.surface_edit );
-    }
 
     if( status == OK )
-    {
         status = delete_surface_extraction( graphics );
-    }
+
+    if( status == OK )
+        status = delete_surface_fitting( &graphics->three_d.surface_fitting );
 
     return( status );
 }

@@ -5,6 +5,7 @@
 #include  <def_menu.h>
 #include  <def_slice.h>
 #include  <def_surface_extract.h>
+#include  <def_surface_fitting.h>
 
 /* for graphics windows */
 
@@ -43,6 +44,7 @@ typedef  struct
     surface_edit_struct        surface_edit;
     cursor_contours_struct     cursor_contours;
     surface_curve_struct       surface_curve;
+    surface_fitting_struct     surface_fitting;
 } three_d_window_struct;
 
 
@@ -52,7 +54,7 @@ typedef  struct  graphics_struct
 
     struct  graphics_struct    *associated[N_WINDOW_TYPES];
 
-    three_d_window_struct      three_d;    /* union of three */
+    three_d_window_struct      three_d;    /* should be a union of three */
     menu_window_struct         menu;
     slice_window_struct        slice;
 

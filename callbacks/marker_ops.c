@@ -13,9 +13,7 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
     Status          add_object_to_model();
     object_struct   *object;
     void            graphics_models_have_changed();
-    void            set_update_required();
     model_struct    *get_current_model();
-    void            rebuild_selected_list();
     Boolean         get_voxel_corresponding_to_point();
 
     status = create_object( &object, MARKER );
@@ -57,9 +55,6 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
         if( status == OK )
         {
             graphics_models_have_changed( graphics );
-
-            rebuild_selected_list( graphics, menu_window );
-            set_update_required( menu_window, NORMAL_PLANES );
         }
     }
 

@@ -264,7 +264,7 @@ public  void  rebuild_slice_pixels( graphics, view_index )
                    x_pixel_start, x_pixel_end, y_pixel_start, y_pixel_end,
                    x_scale, y_scale );
 
-    print_cursor = convert_point_to_voxel( graphics,
+    print_cursor = get_voxel_corresponding_to_point( graphics,
             &graphics->associated[THREE_D_WINDOW]->three_d.cursor.origin,
             &real_pos[X_AXIS], &real_pos[Y_AXIS], &real_pos[Z_AXIS] );
 

@@ -190,6 +190,18 @@ START_GLOBALS
     DEF_GLOBAL( Visible_segmenting_colour, Colour, 0.0 )
     DEF_GLOBAL( Invisible_segmenting_colour, Colour, 0.0 )
 
+    DEF_GLOBAL( N_fitting_samples, int, 10000 )
+    DEF_GLOBAL( Gradient_strength_factor, Real, 1.0 )
+    DEF_GLOBAL( Curvature_factor, Real, 0.0 )
+    DEF_GLOBAL( Surface_point_distance_threshold, Real, 1.0 )
+    DEF_GLOBAL( Surface_point_distance_factor, Real, 1.0 )
+    DEF_GLOBAL( Fitting_tolerance, Real, 1.0e-4 )
+    DEF_GLOBAL( Max_fitting_evaluations, int, 10 )
+    DEF_GLOBAL( Surface_model_resolution, int, 30 )
+
+    DEF_GLOBAL( Max_voxel_scan_distance, Real, 0.5 )
+    DEF_GLOBAL( Max_parametric_scan_distance, Real, 0.05 )
+
 END_GLOBALS
          
 #endif

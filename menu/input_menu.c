@@ -113,6 +113,16 @@
                        MENU_FUNCTION(set_hot_metal) \
                        MENU_FUNCTION(set_gray_scale) \
                        MENU_FUNCTION(set_spectral) \
+                       MENU_FUNCTION(set_model_parameters) \
+                       MENU_FUNCTION(convert_to_new_representation) \
+                       MENU_FUNCTION(load_model_parameters) \
+                       MENU_FUNCTION(save_model_parameters) \
+                       MENU_FUNCTION(delete_all_surface_points) \
+                       MENU_FUNCTION(add_surface_point) \
+                       MENU_FUNCTION(delete_surface_point) \
+                       MENU_FUNCTION(fit_surface) \
+                       MENU_FUNCTION(create_surface_model) \
+                       MENU_FUNCTION(scan_model_to_voxels) \
                 
 
 typedef  struct

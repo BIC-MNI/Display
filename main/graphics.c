@@ -340,7 +340,12 @@ public  Boolean  graphics_update_required( graphics )
 public  void  graphics_models_have_changed( graphics )
     graphics_struct  *graphics;
 {
+    void   rebuild_selected_list();
+
+    rebuild_selected_list( graphics, graphics->associated[MENU_WINDOW] );
+
     set_update_required( graphics, NORMAL_PLANES );
+    set_update_required( graphics->associated[MENU_WINDOW], NORMAL_PLANES );
 
     ++graphics->models_changed_id;
 }
@@ -691,8 +696,6 @@ public  Status  load_graphics_file( graphics, filename )
 
         status = initialize_cursor( graphics );
     }
-
-    set_update_required( graphics, NORMAL_PLANES );
 
     return( status );
 }

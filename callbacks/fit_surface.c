@@ -53,6 +53,21 @@ public  DEF_MENU_UPDATE(set_model_parameters)   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION(delete_all_surface_points)   /* ARGSUSED */
+{
+    Status   status;
+    Status   delete_surface_fitting_points();
+
+    status = delete_surface_fitting_points( &graphics->three_d.surface_fitting);
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(delete_all_surface_points)   /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION(add_surface_point)   /* ARGSUSED */
 {
     Status   status;

@@ -1,25 +1,20 @@
 
-#include  <def_graphics.h>
+#include  <def_objects.h>
 #include  <def_minimization.h>
+#include  <def_surface_fitting.h>
 
-const  double  BIG_NUMBER = 1.0e30;
+private  const  double  BIG_NUMBER = 1.0e30;
 
-public  double   evaluate_fit( evaluation_ptr, parameters )
-    void            *evaluation_ptr;
-    double          parameters[];
+public  double   evaluate_fit_in_volume( volume, fit_data, parameters )
+    volume_struct           *volume;
+    surface_fitting_struct  *fit_data;
+    double                  parameters[];
 {
     int                     i, j, ni, nj, n_samples, n_fitting_samples;
     double                  fit, measure_of_fit, sum;
     double                  u, v;
     double                  distance_measure();
     double                  evaluate_fit_at_uv();
-    graphics_struct         *graphics;
-    surface_fitting_struct  *fit_data;
-    Real                    get_random_0_to_1();
-
-    graphics = (graphics_struct *) evaluation_ptr;
-
-    fit_data = &graphics->three_d.surface_fitting;
 
     n_fitting_samples = fit_data->n_samples;
 
@@ -45,7 +40,7 @@ public  double   evaluate_fit( evaluation_ptr, parameters )
             {
                 v = (double) j / (double) nj;
 
-                fit = evaluate_fit_at_uv( graphics, fit_data,
+                fit = evaluate_fit_at_uv( volume, fit_data,
                                           parameters, u, v );
                 sum += fit;
                 ++n_samples;
@@ -62,8 +57,8 @@ public  double   evaluate_fit( evaluation_ptr, parameters )
     return( measure_of_fit );
 }
 
-private  double   evaluate_fit_at_uv( graphics, fit_data, parameters, u, v )
-    graphics_struct         *graphics;
+private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
+    volume_struct           *volume;
     surface_fitting_struct  *fit_data;
     double                  parameters[];
     double                  u, v;
@@ -74,17 +69,14 @@ private  double   evaluate_fit_at_uv( graphics, fit_data, parameters, u, v )
     double   dxuu, dyuu, dzuu, dxvv, dyvv, dzvv;
     double   dxu, dyu, dzu, dxv, dyv, dzv;
     double   dist;
-    const    double  PI_SQUARED = PI * PI;
-    const    double  FOUR_PI_SQUARED = 4.0 * PI_SQUARED;
+    double   get_radius_of_curvature();
     int      i;
-    volume_struct  *volume;
     Vector   surface_normal, function_deriv;
     Real     evaluate_volume_at_point();
     void     get_surface_normal_from_derivs();
 
     fit_data->surface_representation->evaluate_surface_at_uv( u, v,
-                                 fit_data->descriptors,
-                                 parameters, &x, &y, &z,
+                                 fit_data->descriptors, parameters, &x, &y, &z,
                                  &dxu, &dyu, &dzu, &dxv, &dyv, &dzv,
                                  &dxuu, &dyuu, &dzuu, &dxvv, &dyvv, &dzvv );
 
@@ -92,7 +84,7 @@ private  double   evaluate_fit_at_uv( graphics, fit_data, parameters, u, v )
 
     if( fit_data->gradient_strength_factor > 0.0 )
     {
-        if( get_slice_window_volume( graphics, &volume ) &&
+        if( volume != (volume_struct *) 0 &&
             point_is_within_volume( volume, x, y, z ) )
         {
             (void) evaluate_volume_at_point( volume, x, y, z, &dx, &dy, &dz );
@@ -116,13 +108,12 @@ private  double   evaluate_fit_at_uv( graphics, fit_data, parameters, u, v )
 
     if( fit_data->curvature_factor > 0.0 )
     {
-        u_curvature = PI_SQUARED / sqrt( dxuu*dxuu + dyuu*dyuu + dzuu*dzuu );
-        v_curvature = FOUR_PI_SQUARED /
-                      sqrt( dxvv*dxvv + dyvv*dyvv + dzvv*dzvv );
+        u_curvature = get_radius_of_curvature( dxu, dyu, dzu, dxuu, dyuu, dzuu);
+        v_curvature = get_radius_of_curvature( dxv, dyv, dzv, dxvv, dyvv, dzvv);
 
-        curvature = sqrt( u_curvature * v_curvature );
+        curvature = MIN( u_curvature, v_curvature );
 
-        fit += fit_data->curvature_factor * curvature;
+        fit += -fit_data->curvature_factor * curvature;
     }
 
     for_less( i, 0, fit_data->n_surface_points )
@@ -164,4 +155,47 @@ private  double  distance_measure( n_surface_points,
         sum /= (double) n_surface_points;
 
     return( sum );
+}
+
+private  double  get_radius_of_curvature( dx, dy, dz, ddx, ddy, ddz )
+    double   dx;
+    double   dy;
+    double   dz;
+    double   ddx;
+    double   ddy;
+    double   ddz;
+{
+    double  radius_of_curvature;
+    double  x_cross, y_cross, z_cross, mag_cross, mag_deriv;
+    void    cross_product();
+
+    cross_product( dx, dy, dz, ddx, ddy, ddz, &x_cross, &y_cross, &z_cross );
+
+    mag_cross = sqrt( x_cross * x_cross + y_cross * y_cross + z_cross*z_cross );
+
+    mag_deriv = sqrt( dx * dx + dy * dy + dz * dz );
+
+    radius_of_curvature = mag_deriv * mag_deriv * mag_deriv;
+
+    if( mag_cross > 0.0 )
+        radius_of_curvature /= mag_cross;
+
+    return( radius_of_curvature );
+}
+
+private  void   cross_product( x1, y1, z1, x2, y2, z2,
+                               x_cross, y_cross, z_cross )
+    double  x1;
+    double  y1;
+    double  z1;
+    double  x2;
+    double  y2;
+    double  z2;
+    double  *x_cross;
+    double  *y_cross;
+    double  *z_cross;
+{
+    *x_cross = y1 * z2 - y2 * z1;
+    *y_cross = z1 * x2 - z2 * x1;
+    *z_cross = x1 * y2 - x2 * y1;
 }

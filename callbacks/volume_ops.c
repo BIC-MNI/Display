@@ -93,7 +93,6 @@ public  Boolean  get_axis_view_index_under_mouse( graphics, axis_index )
 public  DEF_MENU_FUNCTION( advance_slice )   /* ARGSUSED */
 {
     volume_struct   *volume;
-    void            rebuild_selected_list();
     void            graphics_models_have_changed();
     int             nx, ny, nz;
     void            get_volume_size();
@@ -107,12 +106,11 @@ public  DEF_MENU_FUNCTION( advance_slice )   /* ARGSUSED */
         {
             volume->current_slice = 0;
         }
+
         volume->slice_visibilities[volume->current_slice] = ON;
 
-        rebuild_selected_list( graphics, menu_window );
+        graphics_models_have_changed( graphics );
     }
-
-    graphics_models_have_changed( graphics );
 
     return( OK );
 }
@@ -125,7 +123,6 @@ public  DEF_MENU_UPDATE(advance_slice )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( retreat_slice )   /* ARGSUSED */
 {
     volume_struct   *volume;
-    void            rebuild_selected_list();
     void            graphics_models_have_changed();
     int             nx, ny, nz;
     void            get_volume_size();
@@ -141,10 +138,8 @@ public  DEF_MENU_FUNCTION( retreat_slice )   /* ARGSUSED */
         }
         volume->slice_visibilities[volume->current_slice] = ON;
 
-        rebuild_selected_list( graphics, menu_window );
+        graphics_models_have_changed( graphics );
     }
-
-    graphics_models_have_changed( graphics );
 
     return( OK );
 }
@@ -157,7 +152,6 @@ public  DEF_MENU_UPDATE(retreat_slice )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( next_marked_slice )   /* ARGSUSED */
 {
     volume_struct   *volume;
-    void            rebuild_selected_list();
     void            graphics_models_have_changed();
     int             i, nx, ny, nz;
     void            get_volume_size();
@@ -183,10 +177,8 @@ public  DEF_MENU_FUNCTION( next_marked_slice )   /* ARGSUSED */
             volume->slice_visibilities[volume->current_slice] = ON;
         }
 
-        rebuild_selected_list( graphics, menu_window );
+        graphics_models_have_changed( graphics );
     }
-
-    graphics_models_have_changed( graphics );
 
     return( OK );
 }
@@ -199,7 +191,6 @@ public  DEF_MENU_UPDATE(next_marked_slice )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( prev_marked_slice )   /* ARGSUSED */
 {
     volume_struct   *volume;
-    void            rebuild_selected_list();
     void            graphics_models_have_changed();
     int             i, nx, ny, nz;
     void            get_volume_size();
@@ -225,10 +216,8 @@ public  DEF_MENU_FUNCTION( prev_marked_slice )   /* ARGSUSED */
             volume->slice_visibilities[volume->current_slice] = ON;
         }
 
-        rebuild_selected_list( graphics, menu_window );
+        graphics_models_have_changed( graphics );
     }
-
-    graphics_models_have_changed( graphics );
 
     return( OK );
 }
@@ -241,7 +230,7 @@ public  DEF_MENU_UPDATE(prev_marked_slice )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( toggle_marked_slice )   /* ARGSUSED */
 {
     volume_struct   *volume;
-    void            graphics_models_have_changed();
+    void            set_update_required();
 
     if( get_current_volume(graphics,&volume) )
     {
@@ -257,7 +246,7 @@ public  DEF_MENU_FUNCTION( toggle_marked_slice )   /* ARGSUSED */
         }
     }
 
-    graphics_models_have_changed( graphics );
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -582,6 +571,8 @@ public  DEF_MENU_FUNCTION(reset_activities)   /* ARGSUSED */
         set_all_voxel_activity_flags( volume, TRUE );
 
         set_slice_window_update( slice_window, 0 );
+        set_slice_window_update( slice_window, 1 );
+        set_slice_window_update( slice_window, 2 );
     }
 
     return( OK );
@@ -665,7 +656,7 @@ public  DEF_MENU_FUNCTION(reset_slice_transform )   /* ARGSUSED */
 {
     volume_struct   *volume;
     void            make_identity_transform();
-    void            graphics_models_have_changed();
+    void            set_update_required();
 
     if( get_current_volume(graphics,&volume) )
     {
@@ -673,7 +664,7 @@ public  DEF_MENU_FUNCTION(reset_slice_transform )   /* ARGSUSED */
                                      volume->current_slice] );
     }
 
-    graphics_models_have_changed( graphics );
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -753,6 +744,7 @@ public  DEF_MENU_FUNCTION(colour_code_objects )   /* ARGSUSED */
     object_traverse_struct  object_traverse;
     Status                  initialize_object_traverse();
     void                    colour_code_object();
+    void                    set_update_required();
 
     status = OK;
 
@@ -786,7 +778,7 @@ public  DEF_MENU_FUNCTION(colour_code_objects )   /* ARGSUSED */
             }
         }
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );

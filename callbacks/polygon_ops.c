@@ -188,7 +188,7 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
     Status            compute_polygon_normals();
     Status            delete_polygons_bintree();
     polygons_struct   *polygons;
-    void              graphics_models_have_changed();
+    void              set_update_required();
 
     status = OK;
 
@@ -203,7 +203,7 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
         if( status == OK )
             status = delete_polygons_bintree( polygons );
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
 
         PRINT( "Done smoothing polygon.\n" );
     }

@@ -8,7 +8,7 @@ public  DEF_MENU_FUNCTION( reset_polygon_visibility )   /* ARGSUSED */
 {
     int              i;
     polygons_struct  *polygons;
-    void             graphics_models_have_changed();
+    void             set_update_required();
     void             set_polygons_visibilities();
 
     if( get_current_polygons(graphics,&polygons) )
@@ -21,7 +21,7 @@ public  DEF_MENU_FUNCTION( reset_polygon_visibility )   /* ARGSUSED */
                 polygons->colours[i] = Visible_segmenting_colour;
         }
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( OK );
@@ -37,7 +37,7 @@ public  DEF_MENU_FUNCTION( remove_invisible_parts_of_polygon )   /* ARGSUSED */
     Status           status;
     Status           remove_invisible_polygons();
     polygons_struct  *polygons;
-    void             graphics_models_have_changed();
+    void             set_update_required();
 
     status = OK;
 
@@ -45,7 +45,7 @@ public  DEF_MENU_FUNCTION( remove_invisible_parts_of_polygon )   /* ARGSUSED */
     {
         status = remove_invisible_polygons( polygons );
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -87,7 +87,7 @@ public  DEF_MENU_FUNCTION( set_connected_invisible )   /* ARGSUSED */
     polygons_struct  *polygons;
     int              poly_index;
     Point            intersection_point;
-    void             graphics_models_have_changed();
+    void             set_update_required();
     Status           status;
     Status           set_visibility_around_poly();
 
@@ -100,7 +100,7 @@ public  DEF_MENU_FUNCTION( set_connected_invisible )   /* ARGSUSED */
                 polygons->n_items,
                 TRUE, OFF, TRUE, &Invisible_segmenting_colour );
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -118,7 +118,7 @@ public  DEF_MENU_FUNCTION( paint_invisible )   /* ARGSUSED */
     polygons_struct  *polygons;
     int              poly_index;
     Point            point;
-    void             graphics_models_have_changed();
+    void             set_update_required();
 
     status = OK;
 
@@ -130,7 +130,7 @@ public  DEF_MENU_FUNCTION( paint_invisible )   /* ARGSUSED */
                        TRUE, OFF,
                        TRUE, &Invisible_segmenting_colour );
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -148,7 +148,7 @@ public  DEF_MENU_FUNCTION( paint_visible )   /* ARGSUSED */
     polygons_struct  *polygons;
     int              poly_index;
     Point            point;
-    void             graphics_models_have_changed();
+    void             set_update_required();
 
     status = OK;
 
@@ -160,7 +160,7 @@ public  DEF_MENU_FUNCTION( paint_visible )   /* ARGSUSED */
                          TRUE, TRUE,
                          TRUE, &Visible_segmenting_colour );
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -176,7 +176,7 @@ public  DEF_MENU_FUNCTION( set_connected_vis_colour )   /* ARGSUSED */
     polygons_struct  *polygons;
     int              poly_index;
     Point            intersection_point;
-    void             graphics_models_have_changed();
+    void             set_update_required();
     Status           status;
     Status           set_visibility_around_poly();
 
@@ -189,7 +189,7 @@ public  DEF_MENU_FUNCTION( set_connected_vis_colour )   /* ARGSUSED */
                  polygons->n_items,
                  FALSE, OFF, TRUE, &Visible_segmenting_colour );
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -205,7 +205,7 @@ public  DEF_MENU_FUNCTION( set_connected_invis_colour )   /* ARGSUSED */
     polygons_struct  *polygons;
     int              poly_index;
     Point            intersection_point;
-    void             graphics_models_have_changed();
+    void             set_update_required();
     Status           status;
     Status           set_visibility_around_poly();
 
@@ -218,7 +218,7 @@ public  DEF_MENU_FUNCTION( set_connected_invis_colour )   /* ARGSUSED */
                polygons->n_items,
                FALSE, OFF, TRUE, &Invisible_segmenting_colour );
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -236,7 +236,7 @@ public  DEF_MENU_FUNCTION( paint_invis_colour )   /* ARGSUSED */
     polygons_struct  *polygons;
     int              poly_index;
     Point            point;
-    void             graphics_models_have_changed();
+    void             set_update_required();
 
     status = OK;
 
@@ -248,7 +248,7 @@ public  DEF_MENU_FUNCTION( paint_invis_colour )   /* ARGSUSED */
                        FALSE, OFF,
                        TRUE, &Invisible_segmenting_colour );
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -266,7 +266,7 @@ public  DEF_MENU_FUNCTION( paint_vis_colour )   /* ARGSUSED */
     polygons_struct  *polygons;
     int              poly_index;
     Point            point;
-    void             graphics_models_have_changed();
+    void             set_update_required();
 
     status = OK;
 
@@ -278,7 +278,7 @@ public  DEF_MENU_FUNCTION( paint_vis_colour )   /* ARGSUSED */
                          FALSE, OFF,
                          TRUE, &Visible_segmenting_colour );
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -295,7 +295,7 @@ public  DEF_MENU_FUNCTION( set_visibility_from_colour )   /* ARGSUSED */
     Status           status;
     Status           create_polygons_visibilities();
     polygons_struct  *polygons;
-    void             graphics_models_have_changed();
+    void             set_update_required();
 
     status = OK;
 
@@ -311,7 +311,7 @@ public  DEF_MENU_FUNCTION( set_visibility_from_colour )   /* ARGSUSED */
                                 &polygons->colours[i]) );
         }
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -328,7 +328,7 @@ public  DEF_MENU_FUNCTION( set_invis_colour_to_invis )   /* ARGSUSED */
     Status           status;
     Status           create_polygons_visibilities();
     polygons_struct  *polygons;
-    void             graphics_models_have_changed();
+    void             set_update_required();
 
     status = OK;
 
@@ -346,7 +346,7 @@ public  DEF_MENU_FUNCTION( set_invis_colour_to_invis )   /* ARGSUSED */
             }
         }
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -363,7 +363,7 @@ public  DEF_MENU_FUNCTION( set_vis_to_invis_colour )   /* ARGSUSED */
     Status           status;
     Status           set_polygon_per_item_colours();
     polygons_struct  *polygons;
-    void             graphics_models_have_changed();
+    void             set_update_required();
 
     status = OK;
 
@@ -380,7 +380,7 @@ public  DEF_MENU_FUNCTION( set_vis_to_invis_colour )   /* ARGSUSED */
             }
         }
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -397,7 +397,7 @@ public  DEF_MENU_FUNCTION( set_vis_to_vis_colour )   /* ARGSUSED */
     Status           status;
     Status           set_polygon_per_item_colours();
     polygons_struct  *polygons;
-    void             graphics_models_have_changed();
+    void             set_update_required();
 
     status = OK;
 
@@ -414,7 +414,7 @@ public  DEF_MENU_FUNCTION( set_vis_to_vis_colour )   /* ARGSUSED */
             }
         }
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -462,7 +462,7 @@ private  void  crop_surface( graphics, above_flag )
     polygons_struct  *polygons;
     graphics_struct  *slice_window;
     Boolean          get_axis_view_index_under_mouse();
-    void             graphics_models_have_changed();
+    void             set_update_required();
     void             crop_polygons_visibilities();
     void             convert_voxel_to_point();
 
@@ -499,7 +499,7 @@ private  void  crop_surface( graphics, above_flag )
         }
 
         crop_polygons_visibilities( polygons, axis_index, pos, above_flag );
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 }
 
@@ -529,7 +529,7 @@ public  DEF_MENU_FUNCTION( load_polygons_visibilities )   /* ARGSUSED */
     Status           status;
     Status           io_polygons_visibilities();
     polygons_struct  *polygons;
-    void             graphics_models_have_changed();
+    void             set_update_required();
 
     status = OK;
 
@@ -537,7 +537,7 @@ public  DEF_MENU_FUNCTION( load_polygons_visibilities )   /* ARGSUSED */
     {
         status = io_polygons_visibilities( polygons, READ_FILE );
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );

@@ -1,4 +1,5 @@
-#include  <def_graphics.h>
+#include  <def_alloc.h>
+#include  <def_surface_fitting.h>
 
 const  Surface_representations  INITIAL_REPRESENTATION = SUPERQUADRIC;
 
@@ -23,9 +24,8 @@ public  Status  initialize_surface_fitting( surface_fitting )
     return( status );
 }
 
-private  Status  alloc_surface_fitting_parameters( surface_fitting, rep_type )
+public  Status  alloc_surface_fitting_parameters( surface_fitting )
     surface_fitting_struct   *surface_fitting;
-    Surface_representations  rep_type;
 {
     int     n_parameters;
     Status  status;
@@ -56,7 +56,7 @@ private  Status  alloc_surface_fitting_parameters( surface_fitting, rep_type )
     return( status );
 }
 
-private  Status  free_surface_fitting_parameters( surface_fitting )
+public  Status  free_surface_fitting_parameters( surface_fitting )
     surface_fitting_struct  *surface_fitting;
 {
     Status  status;
@@ -195,22 +195,4 @@ public  Status  convert_to_new_surface_representation( surface_fitting,
         FREE1( status, prev_descriptors );
 
     return( status );
-}
-
-public  double   evaluate_fit( evaluation_ptr, parameters )
-    void            *evaluation_ptr;
-    double          parameters[];
-{
-    double                  evaluate_fit_in_volume();
-    volume_struct           *volume;
-    graphics_struct         *graphics;
-    surface_fitting_struct  *fit_data;
-
-    graphics = (graphics_struct *) evaluation_ptr;
-
-    fit_data = &graphics->three_d.surface_fitting;
-
-    (void) get_slice_window_volume( graphics, &volume );
-
-    return( evaluate_fit_in_volume( volume, fit_data, parameters ) );
 }

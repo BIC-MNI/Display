@@ -395,44 +395,24 @@ public  void  convert_voxel_to_pixel( graphics, view_index, x_voxel, y_voxel,
                                y_scale, y_voxel );
 }
 
-public  void  convert_voxel_to_point( graphics, x, y, z, centre )
-    graphics_struct   *graphics;
-    Real              x, y, z;
-    Point             *centre;
-{
-    Real    dx, dy, dz;
-    void    get_volume_slice_thickness();
-
-    get_volume_slice_thickness( graphics->slice.volume, &dx, &dy, &dz );
-
-    fill_Point( *centre, x * dx, y * dy, z * dz );
-}
-
-public  Boolean  convert_point_to_voxel( graphics, point, x, y, z )
+public  Boolean  get_voxel_corresponding_to_point( graphics, point, x, y, z )
     graphics_struct   *graphics;
     Point             *point;
     Real              *x, *y, *z;
 {
     volume_struct   *volume;
     Boolean         converted;
-    int             nx, ny, nz;
-    Real            dx, dy, dz;
-    void            get_volume_slice_thickness();
+    void            convert_point_to_voxel();
 
     converted = FALSE;
 
     if( get_slice_window_volume( graphics, &volume ) )
     {
-        get_volume_size( volume, &nx, &ny, &nz );
-        get_volume_slice_thickness( volume, &dx, &dy, &dz );
+        convert_point_to_voxel( volume,
+                            Point_x(*point), Point_y(*point), Point_z(*point),
+                            x, y, z );
 
-        *x = Point_x(*point) / dx;
-        *y = Point_y(*point) / dy;
-        *z = Point_z(*point) / dz;
-
-        converted = (*x >= -0.5 && *x < (Real) nx + 0.5 &&
-                     *y >= -0.5 && *y < (Real) ny + 0.5 &&
-                     *z >= -0.5 && *z < (Real) nz + 0.5 );
+        converted = voxel_is_within_volume( volume, *x, *y, *z );
     }
 
     return( converted );
@@ -640,7 +620,8 @@ public  Boolean  get_voxel_in_three_d_window( graphics, x, y, z )
 
         if( slice_window != (graphics_struct *) 0 )
         {
-            if( convert_point_to_voxel( slice_window, &intersection_point,
+            if( get_voxel_corresponding_to_point( slice_window,
+                                        &intersection_point,
                                         &xr, &yr, &zr ) )
             {
                 *x = ROUND( xr );
@@ -777,7 +758,8 @@ public  Boolean  update_cursor_from_voxel( slice_window )
 
     get_current_voxel( slice_window, &x, &y, &z );
 
-    convert_voxel_to_point( slice_window, (Real) x, (Real) y, (Real) z,
+    convert_voxel_to_point( slice_window->slice.volume,
+                            (Real) x, (Real) y, (Real) z,
                             &new_origin );
 
     if( !EQUAL_POINTS( new_origin, graphics->three_d.cursor.origin ) )
@@ -812,7 +794,7 @@ public  Boolean  update_voxel_from_cursor( slice_window )
     {
         graphics = slice_window->associated[THREE_D_WINDOW];
 
-        if( convert_point_to_voxel( slice_window,
+        if( get_voxel_corresponding_to_point( slice_window,
                                     &graphics->three_d.cursor.origin,
                                     &x, &y, &z ) )
         {

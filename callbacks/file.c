@@ -7,11 +7,14 @@ public  DEF_MENU_FUNCTION( load_file )   /* ARGSUSED */
 {
     Status   load_graphics_file();
     String   filename;
+    void     graphics_models_have_changed();
 
     (void) printf( "Enter filename: " );
     (void) scanf( "%s", filename );
 
     (void) load_graphics_file( graphics, filename );
+
+    graphics_models_have_changed( graphics );
 
     return( OK );
 }
