@@ -11,7 +11,7 @@ public  Status  load_graphics_file(
     model_struct             *model;
     String                   filename_no_z;
     int                      n_items, len;
-    volume_struct            *volume, volume_read_in;
+    Volume                   volume, volume_read_in;
     object_struct            *current_object;
     object_traverse_struct   object_traverse;
     Boolean                  volume_present;
@@ -165,11 +165,11 @@ public  Status  load_graphics_file(
     {
         if( !get_slice_window_volume( display, &volume ) )
         {
-            create_slice_window( display, &volume_read_in );
+            create_slice_window( display, filename, volume_read_in );
         }
         else
         {
-            set_slice_window_volume( display, &volume_read_in );
+            set_slice_window_volume( display, volume_read_in );
         }
     }
 
