@@ -92,6 +92,10 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
 
         for_less( poly, 0, polygons->n_items )
         {
+            if( polygons->visibilities != (Smallest_int *) 0 &&
+                !polygons->visibilities[poly] )
+                continue;
+
             size = GET_OBJECT_SIZE( *polygons, poly );
 
             for_less( i1, 0, size )
