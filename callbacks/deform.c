@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/deform.c,v 1.15 1995-07-31 19:53:55 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/deform.c,v 1.16 1995-10-19 15:50:55 david Exp $";
 #endif
 
  
@@ -182,9 +182,11 @@ public  DEF_MENU_FUNCTION( set_deformation_model )
     print("Enter up_to_n_points, model_weight, deformation_model, \n" );
     print("      min and max curvature: ");
 
+    model_name = NULL;
+
     if( input_int( stdin, &up_to_n_points ) == OK &&
         input_real( stdin, &model_weight ) == OK &&
-        input_string( stdin, model_name, MAX_STRING_LENGTH, ' ' ) == OK &&
+        input_string( stdin, &model_name, ' ' ) == OK &&
         input_real( stdin, &min_curvature ) == OK &&
         input_real( stdin, &max_curvature ) == OK )
     {
@@ -193,6 +195,8 @@ public  DEF_MENU_FUNCTION( set_deformation_model )
                            up_to_n_points, model_weight, model_name,
                            min_curvature, max_curvature );
     }
+
+    delete_string( model_name );
 
     (void) input_newline( stdin );
 
@@ -220,7 +224,7 @@ public  DEF_MENU_FUNCTION( set_deformation_original_positions )
     status = OK;
     print("Enter none|original_position_filename max_offset: " );
 
-    if( input_string( stdin, position_filename, MAX_STRING_LENGTH, ' ' ) == OK&&
+    if( input_string( stdin, &position_filename, ' ' ) == OK &&
         input_real( stdin, &max_position_offset ) == OK )
     {
         if( get_current_object( display, &object ) &&
@@ -242,6 +246,8 @@ public  DEF_MENU_FUNCTION( set_deformation_original_positions )
     }
 
     (void) input_newline( stdin );
+
+    delete_string( position_filename );
 
     return( status );
 }

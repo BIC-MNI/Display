@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/intersect/plane_polygons.c,v 1.11 1995-07-31 19:54:08 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/intersect/plane_polygons.c,v 1.12 1995-10-19 15:51:38 david Exp $";
 #endif
 
 

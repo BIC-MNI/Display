@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surface_extract.c,v 1.26 1995-09-19 18:24:07 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surface_extract.c,v 1.27 1995-10-19 15:50:39 david Exp $";
 #endif
 
 
@@ -251,13 +251,16 @@ private  void   voxelate_surface(
 
     print( "Enter value or range to get boundary of: " );
 
-    if( input_line( stdin, line, MAX_STRING_LENGTH ) != OK )
+    if( input_line( stdin, &line ) != OK )
         return;
 
     if( sscanf( line, "%lf %lf\n", &min_value, &max_value ) != 2 )
     {
         if( sscanf( line, "%lf\n", &min_value ) != 1 )
+        {
+            delete_string( line );
             return;
+        }
         max_value = min_value;
     }
 
@@ -272,6 +275,8 @@ private  void   voxelate_surface(
     add_object_to_model( get_current_model(display), object );
 
     graphics_models_have_changed( display );
+
+    delete_string( line );
 }
 
 /* ARGSUSED */

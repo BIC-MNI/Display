@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/three_d.c,v 1.30 1995-08-21 17:15:13 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/three_d.c,v 1.31 1995-10-19 15:51:43 david Exp $";
 #endif
 
 
@@ -38,7 +38,7 @@ public  void  initialize_three_d_window(
     three_d->default_marker_type = (int) Default_marker_type;
     three_d->default_marker_size = Default_marker_size;
     three_d->default_marker_colour = Default_marker_colour;
-    (void) strcpy( three_d->default_marker_label, Default_marker_label );
+    three_d->default_marker_label = create_string( Default_marker_label );
 
     initialize_view( &three_d->view, &line_of_sight, &horizontal );
     three_d->view.perspective_flag = Initial_perspective_flag;
@@ -127,6 +127,7 @@ private  DEF_EVENT_FUNCTION( handle_resize_three_d )
 public  void  delete_three_d(
     display_struct  *display )
 {
+    delete_string( display->three_d.default_marker_label );
     delete_marker_segmentation( &display->three_d.marker_segmentation );
     terminate_current_object( &display->three_d.current_object );
     delete_surface_edit( &display->three_d.surface_edit );

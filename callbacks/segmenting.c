@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.45 1995-09-26 14:25:34 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.46 1995-10-19 15:50:30 david Exp $";
 #endif
 
 
@@ -144,7 +144,7 @@ public  DEF_MENU_UPDATE(set_segmenting_threshold )
 
 public  Status  input_label_volume_file(
     display_struct   *display,
-    char             *filename )
+    STRING           filename )
 {
     Status           status;
     display_struct   *slice_window;
@@ -158,9 +158,11 @@ public  Status  input_label_volume_file(
                                     get_label_volume(slice_window) );
 
         if( status == OK )
-            (void) strcpy( slice_window->slice.volumes[
+        {
+            replace_string( &slice_window->slice.volumes[
                       get_current_volume_index(slice_window)].labels_filename,
-                      filename );
+                      create_string(filename) );
+        }
 
         delete_slice_undo( &slice_window->slice.undo,
                            get_current_volume_index(slice_window) );
@@ -185,11 +187,13 @@ public  DEF_MENU_FUNCTION(load_label_data)
     {
         print( "Enter filename to load: " );
 
-        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+        status = input_string( stdin, &filename, ' ' );
 
         (void) input_newline( stdin );
 
         status = input_label_volume_file( display, filename );
+
+        delete_string( filename );
 
         print( "Done\n" );
     }
@@ -219,7 +223,7 @@ public  DEF_MENU_FUNCTION(save_label_data)
     {
         print( "Enter filename to save: " );
 
-        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+        status = input_string( stdin, &filename, ' ' );
 
         (void) input_newline( stdin );
 
@@ -229,6 +233,8 @@ public  DEF_MENU_FUNCTION(save_label_data)
                       get_current_volume_index(slice_window)].labels_filename,
                       get_label_volume(slice_window),
                       Crop_label_volumes_threshold );
+
+        delete_string( filename );
 
         print( "Done\n" );
     }
@@ -245,7 +251,7 @@ public  DEF_MENU_UPDATE(save_label_data )
 
 public  Status input_tag_label_file(
     display_struct   *display,
-    char             filename[] )
+    STRING           filename )
 {
     Status         status;
     BOOLEAN        landmark_format;
@@ -297,7 +303,7 @@ public  DEF_MENU_FUNCTION( load_labels )
     if( get_n_volumes(display) > 0 )
     {
         print( "Enter filename: " );
-        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == OK )
         {
             (void) input_tag_label_file( display, filename );
 
@@ -305,6 +311,8 @@ public  DEF_MENU_FUNCTION( load_labels )
         }
 
         (void) input_newline( stdin );
+
+        delete_string( filename );
     }
 
     return( OK );
@@ -327,7 +335,7 @@ private  void   save_labels_as_tags(
     STRING         filename;
 
     print( "Enter filename to save: " );
-    status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+    status = input_string( stdin, &filename, ' ' );
     (void) input_newline( stdin );
 
     if( status == OK && check_clobber_file_default_suffix( filename,
@@ -350,6 +358,8 @@ private  void   save_labels_as_tags(
 
         print( "Done saving.\n" );
     }
+
+    delete_string( filename );
 }
 
 /* ARGSUSED */

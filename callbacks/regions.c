@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.33 1995-07-31 19:53:55 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.34 1995-10-19 15:50:55 david Exp $";
 #endif
 
 
@@ -163,7 +163,7 @@ public  DEF_MENU_FUNCTION( set_label_colour )
             label >= 1 && label < get_num_labels(slice_window,
                             get_current_volume_index(slice_window)) )
         {
-            if( input_line( stdin, line, MAX_STRING_LENGTH ) == OK )
+            if( input_line( stdin, &line ) == OK )
             {
                 col = convert_string_to_colour( line );
 
@@ -174,6 +174,7 @@ public  DEF_MENU_FUNCTION( set_label_colour )
                 set_slice_window_all_update( slice_window,
                        get_current_volume_index(slice_window), UPDATE_LABELS );
             }
+            delete_string( line );
         }
         else
             (void) input_newline( stdin );

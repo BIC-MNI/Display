@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/cursor_pos.c,v 1.1 1995-09-27 18:15:53 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/cursor_pos.c,v 1.2 1995-10-19 15:51:58 david Exp $";
 #endif
 
 #include  <display.h>
@@ -37,7 +37,7 @@ private  void  create_cursor_pos_text(
     initialize_text( text, &origin, Cursor_pos_colour,
                      Menu_window_font, Menu_window_font_size );
 
-    (void) strcpy( text->string, Cursor_pos_title );
+    replace_string( &text->string, create_string(Cursor_pos_title) );
 
     add_object_to_model( model, object );
 
@@ -53,7 +53,7 @@ private  void  create_cursor_pos_text(
     initialize_text( text, &origin, Cursor_pos_colour,
                      Menu_window_font, Menu_window_font_size );
 
-    (void) strcpy( text->string, "" );
+    replace_string( &text->string, create_string(NULL) );
 
     add_object_to_model( model, object );
 }
@@ -64,6 +64,7 @@ public  void  rebuild_cursor_position_model(
     text_struct     *text;
     model_struct    *cursor_pos_model;
     display_struct  *menu_window;
+    char            buffer[EXTREMELY_LARGE_STRING_SIZE];
 
     menu_window = display->associated[MENU_WINDOW];
 
@@ -77,10 +78,12 @@ public  void  rebuild_cursor_position_model(
 
     text = get_text_ptr( cursor_pos_model->objects[1] );
 
-    (void) sprintf( text->string, Cursor_pos_format,
+    (void) sprintf( buffer, Cursor_pos_format,
                     Point_x(display->three_d.cursor.origin),
                     Point_y(display->three_d.cursor.origin),
                     Point_z(display->three_d.cursor.origin) );
+
+    replace_string( &text->string, create_string(buffer) );
 
     set_update_required( menu_window, NORMAL_PLANES );
 }

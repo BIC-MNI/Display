@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.18 1995-08-14 18:08:50 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.19 1995-10-19 15:50:11 david Exp $";
 #endif
 
 #include  <display.h>
@@ -23,8 +23,8 @@ private  atlas_position_struct  *get_closest_atlas_slice(
     Real          slice_position,
     atlas_struct  *atlas );
 private  Status  input_pixel_map(
-    char           default_directory[],
-    char           image_filename[],
+    STRING       default_directory,
+    STRING       image_filename,
     pixels_struct  *pixels );
 private  BOOLEAN  find_appropriate_atlas_image(
     pixels_struct           *atlas_images,
@@ -92,7 +92,7 @@ public  void  delete_atlas(
 
 private  Status  input_atlas(
     atlas_struct   *atlas,
-    char           filename[] )
+    STRING         filename )
 {
     Status           status;
     FILE             *file;
@@ -103,7 +103,7 @@ private  Status  input_atlas(
     STRING           atlas_directory;
     progress_struct  progress;
 
-    extract_directory( filename, atlas_directory );
+    atlas_directory = extract_directory( filename );
 
     status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
 
@@ -113,8 +113,7 @@ private  Status  input_atlas(
         atlas->n_pages = 0;
         image_filenames = (STRING *) 0;
 
-        while( input_string( file, image_filename, MAX_STRING_LENGTH, ' ' )
-                                                      == OK )
+        while( input_string( file, &image_filename, ' ' ) == OK )
         {
             status = ERROR;
 
@@ -133,8 +132,7 @@ private  Status  input_atlas(
 
             for_less( pixel_index, 0, atlas->n_pixel_maps )
             {
-                if( strcmp( image_filenames[pixel_index], image_filename )
-                            == 0 )
+                if( equal_strings(image_filenames[pixel_index],image_filename) )
                     break;
             }
 
@@ -143,8 +141,7 @@ private  Status  input_atlas(
                 SET_ARRAY_SIZE( image_filenames,
                                 atlas->n_pixel_maps, atlas->n_pixel_maps+1,
                                 DEFAULT_CHUNK_SIZE );
-                (void) strcpy( image_filenames[atlas->n_pixel_maps],
-                               image_filename );
+                image_filenames[atlas->n_pixel_maps] = image_filename;
                 SET_ARRAY_SIZE( atlas->pixel_maps,
                                 atlas->n_pixel_maps, atlas->n_pixel_maps+1,
                                     DEFAULT_CHUNK_SIZE );
@@ -200,7 +197,12 @@ private  Status  input_atlas(
     }
 
     if( status == OK && atlas->n_pixel_maps > 0 )
+    {
+        for_less( pixel_index, 0, atlas->n_pixel_maps )
+            delete_string( image_filenames[pixel_index] );
+
         FREE( image_filenames );
+    }
 
     if( status == OK )
         atlas->input = TRUE;
@@ -208,12 +210,14 @@ private  Status  input_atlas(
     if( status != OK )
         print( "Error inputting atlas.\n" );
 
+    delete_string( atlas_directory );
+
     return( status );
 }
 
 private  Status  input_pixel_map(
-    char           default_directory[],
-    char           image_filename[],
+    STRING         default_directory,
+    STRING         image_filename,
     pixels_struct  *pixels )
 {
     Status         status;
@@ -223,8 +227,8 @@ private  Status  input_pixel_map(
     BOOLEAN        eof;
     FILE           *file;
 
-    get_absolute_filename( image_filename, default_directory,
-                           absolute_filename );
+    absolute_filename = get_absolute_filename( image_filename,
+                                               default_directory );
 
     status = open_file( absolute_filename, READ_FILE, BINARY_FORMAT, &file );
 
@@ -241,6 +245,8 @@ private  Status  input_pixel_map(
 
     if( status == OK )
         status = close_file( file );
+
+    delete_string( absolute_filename );
 
     return( status );
 }

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/call_globals.c,v 1.13 1995-07-31 19:53:48 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/call_globals.c,v 1.14 1995-10-19 15:50:17 david Exp $";
 #endif
 
 
@@ -29,15 +29,20 @@ public  DEF_MENU_FUNCTION( menu_set_global_variable )
 
     print( "variable_name [= value]: " );
 
-    status = input_string( stdin, input_str, MAX_STRING_LENGTH, '\n' );
+    status = input_string( stdin, &input_str, '\n' );
 
     if( status == OK )
     {
-        status = change_global_variable( input_str, variable_name, new_value );
-    }
+        status = change_global_variable( input_str,
+                                         &variable_name, &new_value );
 
-    if( status == OK )
-        print( "%s = %s\n", variable_name, new_value );
+        if( status == OK )
+            print( "%s = %s\n", variable_name, new_value );
+
+        delete_string( variable_name );
+        delete_string( new_value );
+        delete_string( input_str );
+    }
 
     if( status != OK )
         print( "Error in setting global variable\n" );

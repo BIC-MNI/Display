@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/marker_ops.c,v 1.37 1995-09-13 13:25:15 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/marker_ops.c,v 1.38 1995-10-19 15:50:20 david Exp $";
 #endif
 
 
@@ -53,7 +53,8 @@ public  void  set_marker_to_defaults(
     marker->type = display->three_d.default_marker_type;
     marker->colour = display->three_d.default_marker_colour;
     marker->size = display->three_d.default_marker_size;
-    (void) strcpy( marker->label, display->three_d.default_marker_label );
+    delete_string( marker->label );
+    marker->label = create_string( display->three_d.default_marker_label );
     marker->structure_id = display->three_d.default_marker_structure_id;
     marker->patient_id = display->three_d.default_marker_patient_id;
 }
@@ -81,7 +82,7 @@ private  void  get_position_pointed_to(
 public  void  create_marker_at_position(
     display_struct    *display,
     Point             *position,
-    char              label[] )
+    STRING            label )
 {
     object_struct   *object;
     marker_struct   *marker;
@@ -89,12 +90,14 @@ public  void  create_marker_at_position(
     object = create_object( MARKER );
     marker = get_marker_ptr( object );
 
+    initialize_marker( marker, BOX_MARKER, WHITE );
+
     marker->position = *position;
 
     set_marker_to_defaults( display, marker );
 
-    if( label != (char *) NULL )
-        (void) strcpy( marker->label, label );
+    if( label != NULL )
+        replace_string( &marker->label, create_string( label ) );
 
     add_object_to_current_model( display, object );
 }
@@ -107,7 +110,7 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )
 
     get_position_pointed_to( display, &position );
 
-    create_marker_at_position( display, &position, (char *) NULL );
+    create_marker_at_position( display, &position, NULL );
 
     return( OK );
 }
@@ -166,13 +169,13 @@ public  DEF_MENU_FUNCTION( save_markers )
     int                     n_tags;
     Real                    **tags, *weights;
     int                     *structure_ids, *patient_ids;
-    char                    **labels;
+    STRING                  *labels;
 
     object = get_current_model_object( display );
 
     print( "Enter filename: " );
 
-    status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+    status = input_string( stdin, &filename, ' ' );
 
     (void) input_newline( stdin );
 
@@ -202,7 +205,7 @@ public  DEF_MENU_FUNCTION( save_markers )
                 SET_ARRAY_SIZE( patient_ids, n_tags, n_tags+1,
                                 DEFAULT_CHUNK_SIZE);
                 SET_ARRAY_SIZE( labels, n_tags, n_tags+1, DEFAULT_CHUNK_SIZE);
-                ALLOC( labels[n_tags], strlen(marker->label)+1 );
+                labels[n_tags] = create_string( marker->label );
 
                 tags[n_tags][X] = Point_x(marker->position);
                 tags[n_tags][Y] = Point_y(marker->position);
@@ -210,7 +213,6 @@ public  DEF_MENU_FUNCTION( save_markers )
                 weights[n_tags] = marker->size;
                 structure_ids[n_tags] = marker->structure_id;
                 patient_ids[n_tags] = marker->patient_id;
-                (void) strcpy( labels[n_tags], marker->label );
                 ++n_tags;
             }
         }
@@ -234,6 +236,8 @@ public  DEF_MENU_FUNCTION( save_markers )
 
     if( status == OK )
         status = close_file( file );
+
+    delete_string( filename );
 
     print( "Done.\n" );
 
@@ -356,26 +360,31 @@ public  DEF_MENU_FUNCTION( set_default_marker_colour )
     STRING      string;
     Colour      colour;
 
-    convert_colour_to_string( display->three_d.default_marker_colour,
-                              string );
+    string = convert_colour_to_string( display->three_d.default_marker_colour );
 
     print( "The current default marker colour is: %s\n", string );
 
+    delete_string( string );
+
     print( "Enter the new colour name or 3 or 4 colour components: " );
 
-    status = input_line( stdin, string, MAX_STRING_LENGTH );
+    status = input_line( stdin, &string );
 
     if( status == OK )
         colour = convert_string_to_colour( string );
+
+    delete_string( string );
 
     if( status == OK )
     {
         display->three_d.default_marker_colour = colour;
 
-        convert_colour_to_string( display->three_d.default_marker_colour,
-                                  string );
+        string = convert_colour_to_string(
+                     display->three_d.default_marker_colour );
 
         print( "The new default marker colour is: %s\n", string );
+
+        delete_string( string );
     }
 
     return( status );
@@ -419,7 +428,7 @@ public  DEF_MENU_FUNCTION( set_default_marker_type )
 
 public  DEF_MENU_UPDATE(set_default_marker_type )
 {
-    char    *name;
+    STRING    name;
 
     switch( display->three_d.default_marker_type )
     {
@@ -453,11 +462,11 @@ public  DEF_MENU_FUNCTION( set_default_marker_label )
 
     print( "Enter the new default label: " );
 
-    status = input_string( stdin, label, MAX_STRING_LENGTH, ' ' );
+    status = input_string( stdin, &label, ' ' );
 
     if( status == OK )
     {
-        (void) strcpy( display->three_d.default_marker_label, label );
+        replace_string( &display->three_d.default_marker_label, label );
         print( "The new default marker label is: %s\n",
                display->three_d.default_marker_label );
     }
@@ -666,9 +675,9 @@ public  DEF_MENU_FUNCTION( change_marker_label )
 
         print( "Enter the new label: " );
 
-        if( input_string( stdin, label, MAX_STRING_LENGTH, ' ' ) == OK )
+        if( input_string( stdin, &label, ' ' ) == OK )
         {
-            (void) strcpy( marker->label, label );
+            replace_string( &marker->label, label );
             print( "The new marker label is: %s\n", marker->label );
             graphics_models_have_changed( display );
         }

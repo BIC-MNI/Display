@@ -141,7 +141,7 @@ private  void   delete_to_do_list(
 
 #define  INVALID_DIST   255
 
-private  unsigned char  ***make_distance_transform(
+private  Smallest_int  ***make_distance_transform(
     Volume    volume,
     int       n_dimensions,
     int       axis,
@@ -156,7 +156,7 @@ private  unsigned char  ***make_distance_transform(
     int                 this_dist, dist, new_value;
     BOOLEAN             changed, found;
     BOOLEAN             x_okay, y_okay, away_from_boundary;
-    unsigned char       ***distance[2];
+    Smallest_int        ***distance[2];
     int                 which;
     bitlist_3d_struct   to_do[2];
 
@@ -319,8 +319,8 @@ public  void  initialize_segmenting_3d(
     int                axis,
     Real               min_threshold,
     Real               max_threshold,
-    unsigned char      ****distance_transform,
-    unsigned char      ****cuts,
+    Smallest_int       ****distance_transform,
+    Smallest_int       ****cuts,
     bitlist_3d_struct  *to_do )
 {
     int      label, dist, cut, x, y, z;
@@ -421,8 +421,8 @@ private  void  propagate_neighbour_cut(
 
 public  BOOLEAN  expand_labels_3d(
     Volume             label_volume,
-    unsigned char      ***distance_transform,
-    unsigned char      ***cuts,
+    Smallest_int       ***distance_transform,
+    Smallest_int       ***cuts,
     bitlist_3d_struct  *to_do,
     int                n_dimensions,
     int                voxel_pos,
@@ -436,7 +436,7 @@ public  BOOLEAN  expand_labels_3d(
     BOOLEAN            x_okay, y_okay, away_from_boundary;
     BOOLEAN            changed, better, user_set_it;
     Classes            class, new_class, neigh_class, best_class;
-    unsigned char      ***new_cuts, ***new_labels;
+    Smallest_int       ***new_cuts, ***new_labels;
     int                min_range[MAX_DIMENSIONS], max_range[MAX_DIMENSIONS];
     progress_struct    progress;
     bitlist_3d_struct  next_to_do;

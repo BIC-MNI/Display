@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_bar.c,v 1.22 1995-08-14 18:08:58 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_bar.c,v 1.23 1995-10-19 15:52:07 david Exp $";
 #endif
 
 #include  <display.h>
@@ -105,6 +105,7 @@ public  void  rebuild_colour_bar(
     Real                start_threshold, end_threshold;
     Real                x_tick_start, x_tick_end, mult_value;
     Point               point;
+    char                buffer[EXTREMELY_LARGE_STRING_SIZE];
     Colour              colour;
     colour_bar_struct   *colour_bar;
     lines_struct        *lines;
@@ -286,8 +287,10 @@ public  void  rebuild_colour_bar(
             fill_Point( text->origin, x_tick_end,
                         y - G_get_text_height( text->font, text->size ) / 2.0,
                         0.0 );
-            (void) sprintf( text->string, Colour_bar_number_format,
+            (void) sprintf( buffer, Colour_bar_number_format,
                             numbers[i].value );
+
+            text->string = create_string( buffer );
 
             add_object_to_model( model, object );
 

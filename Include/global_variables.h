@@ -87,7 +87,7 @@ START_GLOBALS
     DEF_GLOBAL( Default_marker_patient_id, int, 1 )
     DEF_GLOBAL( Default_marker_size, Real, 1.0 )
     DEF_GLOBAL_COLOUR( Default_marker_colour )
-    DEF_GLOBAL_STRING( Default_marker_label, "Marker" )
+    DEF_GLOBAL( Default_marker_label, STRING, "Marker" )
     DEF_GLOBAL( Marker_pick_size, Real, 3.0 )
 
     DEF_GLOBAL( N_selected_displayed, int, 12 )
@@ -123,19 +123,19 @@ START_GLOBALS
     DEF_GLOBAL3( Slice_index_offset, Point, 10.0, 5.0, 0.0 )
     DEF_GLOBAL( Readout_text_colour, int, 2 )
     DEF_GLOBAL_COLOUR( Readout_text_rgb_colour )
-    DEF_GLOBAL_STRING( Slice_index_x_format, "X = %8g" )
-    DEF_GLOBAL_STRING( Slice_index_y_format, "Y = %8g" )
-    DEF_GLOBAL_STRING( Slice_index_z_format, "Z = %8g" )
-    DEF_GLOBAL_STRING( Slice_probe_volume_index_format, "VI %2d" )
-    DEF_GLOBAL_STRING( Slice_probe_x_voxel_format, "Xv %6.1f" )
-    DEF_GLOBAL_STRING( Slice_probe_y_voxel_format, "Yv %6.1f" )
-    DEF_GLOBAL_STRING( Slice_probe_z_voxel_format, "Zv %6.1f" )
-    DEF_GLOBAL_STRING( Slice_probe_x_world_format, "Xw %6.1f" )
-    DEF_GLOBAL_STRING( Slice_probe_y_world_format, "Yw %6.1f" )
-    DEF_GLOBAL_STRING( Slice_probe_z_world_format, "Zw %6.1f" )
-    DEF_GLOBAL_STRING( Slice_probe_voxel_format,   "Vx %6.4g" )
-    DEF_GLOBAL_STRING( Slice_probe_val_format,     "Vl %6.4g" )
-    DEF_GLOBAL_STRING( Slice_probe_label_format,   "Lb %6d" )
+    DEF_GLOBAL( Slice_index_x_format, STRING, "X = %8g" )
+    DEF_GLOBAL( Slice_index_y_format, STRING, "Y = %8g" )
+    DEF_GLOBAL( Slice_index_z_format, STRING, "Z = %8g" )
+    DEF_GLOBAL( Slice_probe_volume_index_format, STRING, "VI %2d" )
+    DEF_GLOBAL( Slice_probe_x_voxel_format, STRING, "Xv %6.1f" )
+    DEF_GLOBAL( Slice_probe_y_voxel_format, STRING, "Yv %6.1f" )
+    DEF_GLOBAL( Slice_probe_z_voxel_format, STRING, "Zv %6.1f" )
+    DEF_GLOBAL( Slice_probe_x_world_format, STRING, "Xw %6.1f" )
+    DEF_GLOBAL( Slice_probe_y_world_format, STRING, "Yw %6.1f" )
+    DEF_GLOBAL( Slice_probe_z_world_format, STRING, "Zw %6.1f" )
+    DEF_GLOBAL( Slice_probe_voxel_format,   STRING, "Vx %6.4g" )
+    DEF_GLOBAL( Slice_probe_val_format,     STRING, "Vl %6.4g" )
+    DEF_GLOBAL( Slice_probe_label_format,   STRING, "Lb %6d" )
     DEF_GLOBAL( Probe_x_pos, int, 2 )
     DEF_GLOBAL( Probe_y_pos, int, 5 )
     DEF_GLOBAL( Probe_x_delta, int, 0 )
@@ -230,7 +230,7 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Colour_bar_range_colour )
     DEF_GLOBAL( Colour_bar_desired_intervals, int, 5 )
     DEF_GLOBAL( Colour_bar_closest_text, Real, 10.0 )
-    DEF_GLOBAL_STRING( Colour_bar_number_format, "%g" )
+    DEF_GLOBAL( Colour_bar_number_format, STRING, "%g" )
 
     DEF_GLOBAL( Normal_towards_lower, BOOLEAN, TRUE )
 
@@ -245,7 +245,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Output_every, int, 0 )
 
-    DEF_GLOBAL_STRING( Tmp_surface_name, "" )
+    DEF_GLOBAL( Tmp_surface_name, STRING, "" )
 
     DEF_GLOBAL( Marching_cubes_method, int, 1 )
     DEF_GLOBAL( Default_x_voxel_max_distance, int, 100000 )
@@ -300,7 +300,7 @@ START_GLOBALS
     DEF_GLOBAL( Initial_atlas_tolerance_x, Real, 1.0 )
     DEF_GLOBAL( Initial_atlas_tolerance_y, Real, 1.0 )
     DEF_GLOBAL( Initial_atlas_tolerance_z, Real, 1.0 )
-    DEF_GLOBAL_STRING( Atlas_filename, "/avgbrain/atlas/talairach/obj/Talairach_atlas.list" )
+    DEF_GLOBAL( Atlas_filename, STRING, "/avgbrain/atlas/talairach/obj/Talairach_atlas.list" )
     DEF_GLOBAL( Default_atlas_state, BOOLEAN, FALSE )
 
     DEF_GLOBAL( Marker_threshold, Real, 1.5 )
@@ -338,7 +338,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Use_transparency_hardware, BOOLEAN, TRUE )
 
-    DEF_GLOBAL_STRING( Crop_volume_command, "mincreshape %s %s -start %d,%d,%d -count %d,%d,%d" )
+    DEF_GLOBAL( Crop_volume_command, STRING, "mincreshape %s %s -start %d,%d,%d -count %d,%d,%d" )
 
     DEF_GLOBAL( Crop_volumes_on_input, BOOLEAN, FALSE )
     DEF_GLOBAL( Crop_if_smaller, Real, 0.75 )
@@ -348,8 +348,8 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Cursor_pos_colour )
     DEF_GLOBAL( Cursor_pos_x_origin, int, 400 )
     DEF_GLOBAL( Cursor_pos_y_origin, int, 30 )
-    DEF_GLOBAL_STRING( Cursor_pos_title, "Cursor Pos:" )
-    DEF_GLOBAL_STRING( Cursor_pos_format, "%.1f %.1f %.1f" )
+    DEF_GLOBAL( Cursor_pos_title, STRING, "Cursor Pos:" )
+    DEF_GLOBAL( Cursor_pos_format, STRING, "%.1f %.1f %.1f" )
 
     DEF_GLOBAL( Crop_label_volumes_threshold, Real, 0.8 )
 

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/view_ops.c,v 1.34 1995-07-31 19:53:53 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/view_ops.c,v 1.35 1995-10-19 15:50:43 david Exp $";
 #endif
 
 
@@ -379,7 +379,9 @@ public  DEF_MENU_FUNCTION( create_film_loop )
 
     print( "Enter base_filename, axis_index, and n_steps: " );
 
-    if( input_string( stdin, base_filename, MAX_STRING_LENGTH, ' ' ) == OK &&
+    base_filename = NULL;
+
+    if( input_string( stdin, &base_filename, ' ' ) == OK &&
         input_int( stdin, &axis_index ) == OK &&
         input_int( stdin, &n_steps ) == OK &&
         axis_index >= 0 && axis_index < N_DIMENSIONS && n_steps > 1 )
@@ -394,6 +396,8 @@ public  DEF_MENU_FUNCTION( create_film_loop )
     }
 
     (void) input_newline( stdin );
+
+    delete_string( base_filename );
 
     return( status );
 }
@@ -416,13 +420,15 @@ public  DEF_MENU_FUNCTION( save_image )
 
     print( "Enter filename: " );
 
-    if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+    if( input_string( stdin, &filename, ' ' ) == OK )
     {
         status = save_window_to_file( display, filename, 0, -1, 0, -1 );
         print( "Done saving image to %s.\n", filename );
     }
 
     (void) input_newline( stdin );
+
+    delete_string( filename );
 
     return( status );
 }

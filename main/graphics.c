@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.67 1995-08-21 17:15:12 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.68 1995-10-19 15:51:41 david Exp $";
 #endif
 
 
@@ -141,7 +141,7 @@ public  Status  create_graphics_window(
     window_types      window_type,
     BOOLEAN           double_buffering,
     display_struct    **display,
-    char              title[],
+    STRING            title,
     int               width,
     int               height )
 {
@@ -200,7 +200,8 @@ public  void  create_model_after_current(
     initialize_display_model( get_model_ptr(new_model) );
     initialize_3D_model_info( model );
 
-    (void) strcpy( get_model_ptr(new_model)->filename, "Created" );
+    replace_string( &get_model_ptr(new_model)->filename,
+                    create_string("Created") );
 
     add_object_to_model( model, new_model );
 }
@@ -306,7 +307,7 @@ private  void  initialize_graphics_window(
         }
 
         model->n_objects = 0;
-        (void) strcpy( model->filename, "Top Level" );
+        replace_string( &model->filename, create_string("Top Level") );
 
         if( display->window_type == THREE_D_WINDOW && i == THREED_MODEL )
         {
@@ -388,17 +389,20 @@ private  void  display_frame_info(
     Real             update_time )
 {
     text_struct   frame_text;
+    char          buffer[EXTREMELY_LARGE_STRING_SIZE];
     STRING        frame_time_str;
+    Point         origin;
     model_struct  *model;
 
-    (void) sprintf( frame_text.string, "%d: ", frame_number );
+    fill_Point( origin, Frame_info_x, Frame_info_y, 0.0 );
 
-    format_time( frame_time_str, "%g %s", update_time );
+    initialize_text( &frame_text, &origin, WHITE, FIXED_FONT, 0.0 );
 
-    (void) strcat( frame_text.string, frame_time_str );
+    (void) sprintf( buffer, "%d: ", frame_number );
 
-    fill_Point( frame_text.origin, Frame_info_x, Frame_info_y, 0.0 );
-    frame_text.colour = WHITE;
+    frame_time_str = format_time( "%g %s", update_time );
+
+    frame_text.string = concat_strings( buffer, frame_time_str );
 
     G_set_view_type( display->window, PIXEL_VIEW );
 
@@ -406,6 +410,9 @@ private  void  display_frame_info(
 
     set_render_info( display->window, &get_model_info(model)->render );
     G_draw_text( display->window, &frame_text );
+
+    delete_string( frame_time_str );
+    delete_text( &frame_text );
 }
 
 public  void  update_graphics(

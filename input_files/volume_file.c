@@ -13,13 +13,13 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/input_files/volume_file.c,v 1.18 1995-07-31 19:54:08 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/input_files/volume_file.c,v 1.19 1995-10-19 15:51:34 david Exp $";
 #endif
 
 #include  <display.h>
 
 public  Status   input_volume_file(
-    char           filename[],
+    STRING         filename,
     Volume         *volume_ptr )
 {
     Status              status;

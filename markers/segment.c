@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/markers/segment.c,v 1.12 1995-07-31 19:54:13 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/markers/segment.c,v 1.13 1995-10-19 15:51:46 david Exp $";
 #endif
 
 #include  <display.h>
@@ -166,7 +166,8 @@ private  void  classify(
                     marker2->structure_id += Marker_segment_id;
                 marker2->colour = marker1->colour;
                 marker2->patient_id = marker1->patient_id;
-                (void) strcpy( marker2->label, marker1->label );
+                replace_string( &marker2->label,
+                                create_string(marker1->label) );
                 closest_dist[i] = dist;
                 if( !in_queue[i] )
                 {

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/polygon_ops.c,v 1.61 1995-09-13 13:25:16 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/polygon_ops.c,v 1.62 1995-10-19 15:50:25 david Exp $";
 #endif
 
  
@@ -63,7 +63,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )
     {
         print( "Enter filename: " );
 
-        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+        status = input_string( stdin, &filename, ' ' );
 
         (void) input_newline( stdin );
 
@@ -82,6 +82,8 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )
 
         if( status == OK )
             status = close_file( file );
+
+        delete_string( filename );
 
         print( "Done.\n" );
     }
@@ -113,7 +115,7 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )
     {
         print( "Enter filename: " );
 
-        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+        status = input_string( stdin, &filename, ' ' );
 
         (void) input_newline( stdin );
 
@@ -132,6 +134,8 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )
 
         if( status == OK )
             status = close_file( file );
+
+        delete_string( filename );
 
         print( "Done.\n" );
     }

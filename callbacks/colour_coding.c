@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/colour_coding.c,v 1.19 1995-07-31 19:53:48 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/colour_coding.c,v 1.20 1995-10-19 15:50:18 david Exp $";
 #endif
 
 
@@ -215,7 +215,7 @@ public  DEF_MENU_FUNCTION(set_under_colour )
     {
         print( "Enter under colour name or 3 or 4 colour components:" );
 
-        status = input_line( stdin, line, MAX_STRING_LENGTH );
+        status = input_line( stdin, &line );
 
         if( status == OK )
         {
@@ -228,6 +228,8 @@ public  DEF_MENU_FUNCTION(set_under_colour )
             colour_coding_has_changed( slice_window,
                       get_current_volume_index(slice_window), UPDATE_SLICE );
         }
+
+        delete_string( line );
     }
 
     return( status );
@@ -271,7 +273,7 @@ public  DEF_MENU_FUNCTION(set_over_colour )
     {
         print( "Enter over colour name or 3 or 4 colour components:" );
 
-        status = input_line( stdin, line, MAX_STRING_LENGTH );
+        status = input_line( stdin, &line );
 
         if( status == OK )
         {
@@ -284,6 +286,8 @@ public  DEF_MENU_FUNCTION(set_over_colour )
             colour_coding_has_changed( slice_window,
                       get_current_volume_index(slice_window), UPDATE_SLICE );
         }
+
+        delete_string( line );
     }
 
     return( status );
@@ -587,11 +591,13 @@ public  DEF_MENU_FUNCTION(save_colour_map )
     {
         print( "Enter name of colour map file to save: " );
 
-        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == OK )
         {
             (void) save_label_colour_map( slice_window, filename );
         }
         (void) input_newline( stdin );
+
+        delete_string( filename );
     }
 
     return( OK );
@@ -615,7 +621,7 @@ public  DEF_MENU_FUNCTION(load_colour_map )
         get_n_volumes(slice_window) > 0 )
     {
         print( "Enter name of colour map file to load: " );
-        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == OK )
         {
             (void) load_label_colour_map( slice_window, filename );
             set_slice_window_all_update( slice_window,
@@ -623,6 +629,8 @@ public  DEF_MENU_FUNCTION(load_colour_map )
 
         }
         (void) input_newline( stdin );
+
+        delete_string( filename );
     }
 
     return( OK );

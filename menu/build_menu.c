@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/build_menu.c,v 1.29 1995-07-31 19:54:14 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/build_menu.c,v 1.30 1995-10-19 15:51:47 david Exp $";
 #endif
 
 
@@ -22,7 +22,7 @@ static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/buil
 typedef  struct
 {
     int       key;
-    char      *key_name;
+    STRING    key_name;
     Real      x_pos, y_pos, length;
     BOOLEAN   in_slanted_part_of_keyboard;
 } position_struct;
@@ -84,9 +84,8 @@ private  void   compute_origin(
     Real                 *x2,
     Real                 *y2,
     Real                 *length );
-private  void  get_key_string(
-    int   key,
-    char  string[] );
+private  STRING  get_key_string(
+    int     key );
 private  void   create_menu_box(
     display_struct    *menu_window,
     int               key );
@@ -153,9 +152,10 @@ private  void   create_menu_text(
 
         if( i == 0 )
         {
-            get_key_string( menu_entry->key, key_string );
+            key_string = get_key_string( menu_entry->key );
             x += G_get_text_length( key_string, Menu_window_font,
                                     Menu_window_font_size );
+            delete_string( key_string );
         }
 
         fill_Point( origin, x, y, 0.0 );
@@ -258,20 +258,22 @@ private  void   compute_origin(
     }
 }
 
-private  void  get_key_string(
-    int   key,
-    char  string[] )
+private  STRING  get_key_string(
+    int      key )
 {
+    char              buffer[EXTREMELY_LARGE_STRING_SIZE];
+    STRING            string;
     position_struct   *desc;
 
     if( lookup_key( key, &desc ) )
     {
-        (void) sprintf( string, "%s ", desc->key_name );
+        (void) sprintf( buffer, "%s ", desc->key_name );
+        string = create_string( buffer );
     }
     else
-    {
-        string[0] = (char) 0;
-    }
+        string = create_string( NULL );
+
+    return( string );
 }
 
 public  Real  get_size_of_menu_text_area(
@@ -347,10 +349,6 @@ private  void   create_menu_character(
 
     object = create_object( TEXT );
 
-    text = get_text_ptr( object );
-
-    get_key_string( key, text->string );
-
     compute_origin( &menu_window->menu, key, &x, &y, (Real *) 0, (Real *) 0,
                     &length );
 
@@ -361,8 +359,12 @@ private  void   create_menu_character(
                     Y_menu_text_offset,
                 0.0 );
 
+    text = get_text_ptr( object );
+
     initialize_text( text, &origin, Menu_key_colour, Menu_window_font,
                      Menu_window_font_size );
+
+    replace_string( &text->string, get_key_string( key ) );
 
     model = get_graphics_model( menu_window, MENU_BUTTONS_MODEL );
 

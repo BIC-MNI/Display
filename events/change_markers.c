@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/change_markers.c,v 1.5 1995-07-31 19:54:05 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/change_markers.c,v 1.6 1995-10-19 15:51:27 david Exp $";
 #endif
 
 
@@ -199,8 +199,8 @@ private  DEF_EVENT_FUNCTION( done_picking_markers )
                     marker->type = display->three_d.default_marker_type;
                     marker->colour = display->three_d.default_marker_colour;
                     marker->size = display->three_d.default_marker_size;
-                    (void) strcpy( marker->label,
-                                   display->three_d.default_marker_label );
+                    replace_string( &marker->label,
+                        create_string(display->three_d.default_marker_label) );
                     marker->structure_id =
                                    display->three_d.default_marker_structure_id;
                     marker->patient_id =

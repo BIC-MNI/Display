@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/file.c,v 1.18 1995-09-13 13:25:15 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/file.c,v 1.19 1995-10-19 15:50:19 david Exp $";
 #endif
 
 
@@ -28,7 +28,7 @@ public  DEF_MENU_FUNCTION( load_file )
 
     print( "Enter filename: " );
 
-    status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+    status = input_string( stdin, &filename, ' ' );
 
     (void) input_newline( stdin );
 
@@ -37,6 +37,8 @@ public  DEF_MENU_FUNCTION( load_file )
 
     if( status == OK )
         graphics_models_have_changed( display );
+
+    delete_string( filename );
 
     return( status );
 }
@@ -64,7 +66,7 @@ public  DEF_MENU_FUNCTION( save_file )
     {
         print( "Enter filename: " );
 
-        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+        status = input_string( stdin, &filename, ' ' );
 
         (void) input_newline( stdin );
 
@@ -89,6 +91,8 @@ public  DEF_MENU_FUNCTION( save_file )
                                            n_objects, object_list );
             print( "Done saving.\n" );
         }
+
+        delete_string( filename );
     }
 
     return( status );

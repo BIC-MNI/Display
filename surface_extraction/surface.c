@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/surface.c,v 1.52 1995-07-31 19:54:35 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/surface.c,v 1.53 1995-10-19 15:52:38 david Exp $";
 #endif
 
 
@@ -329,7 +329,7 @@ private  void  possibly_output(
     static   int  count  = 0;
     Status   status;
     FILE     *file;
-    STRING   name;
+    char     buffer[EXTREMELY_LARGE_STRING_SIZE];
 
     if( Output_every > 0 )
     {
@@ -341,9 +341,9 @@ private  void  possibly_output(
         if( p->n_items > count * Output_every )
         {
             ++count;
-            (void) sprintf( name, Tmp_surface_name, count );
+            (void) sprintf( buffer, Tmp_surface_name, count );
 
-            status = open_file_with_default_suffix( name, "obj",
+            status = open_file_with_default_suffix( buffer, "obj",
                                             WRITE_FILE, BINARY_FORMAT, &file );
 
             if( status == OK )

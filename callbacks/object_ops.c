@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/object_ops.c,v 1.48 1995-07-31 19:53:50 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/object_ops.c,v 1.49 1995-10-19 15:50:24 david Exp $";
 #endif
 
 
@@ -278,9 +278,9 @@ public  DEF_MENU_FUNCTION( change_model_name )
     {
         print( "Enter the new model name: " );
 
-        if( input_string( stdin, name, MAX_STRING_LENGTH, ' ' ) == OK )
+        if( input_string( stdin, &name, ' ' ) == OK )
         {
-            (void) strcpy( get_model_ptr(current_object)->filename, name );
+            replace_string( &get_model_ptr(current_object)->filename, name );
         }
 
         (void) input_newline( stdin );
@@ -367,7 +367,6 @@ public  DEF_MENU_UPDATE(delete_current_object )
 
 public  DEF_MENU_FUNCTION( set_current_object_colour )
 {
-    Status          status;
     object_struct   *current_object;
     Colour          col;
     STRING          line;
@@ -377,9 +376,8 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )
     {
         print( "Enter colour name or 3 or 4 colour components:" );
 
-        status = input_line( stdin, line, MAX_STRING_LENGTH );
 
-        if( status == OK )
+        if( input_line( stdin, &line ) == OK )
         {
             col = convert_string_to_colour( line );
 
@@ -388,6 +386,8 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )
             set_update_required( display, NORMAL_PLANES );
             rebuild_selected_list( display, menu_window );
         }
+
+        delete_string( line );
     }
 
     return( OK );
@@ -505,7 +505,7 @@ public  DEF_MENU_FUNCTION( mark_vertices )
     object_struct  *object;
     int            i, n_points;
     Point          *points;
-    STRING         label;
+    char           label[EXTREMELY_LARGE_STRING_SIZE];
 
     if( get_current_object( display, &object ) &&
         object->object_type == LINES )

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/text.c,v 1.5 1995-07-31 19:54:16 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/text.c,v 1.6 1995-10-19 15:51:57 david Exp $";
 #endif
 
 
@@ -24,7 +24,7 @@ public  void  set_menu_text_real(
     menu_entry_struct  *menu_entry,
     Real               value )
 {
-    STRING           text;
+    char  text[EXTREMELY_LARGE_STRING_SIZE];
 
     (void) sprintf( text, menu_entry->label, value );
 
@@ -36,7 +36,7 @@ public  void  set_menu_text_int(
     menu_entry_struct  *menu_entry,
     int                value )
 {
-    STRING           text;
+    char  text[EXTREMELY_LARGE_STRING_SIZE];
 
     (void) sprintf( text, menu_entry->label, value );
 
@@ -47,10 +47,10 @@ public  void  set_menu_text_boolean(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
     BOOLEAN            value,
-    char               off_str[],
-    char               on_str[] )
+    STRING             off_str,
+    STRING             on_str )
 {
-    STRING           text;
+    char  text[EXTREMELY_LARGE_STRING_SIZE];
 
     if( value )
         (void) sprintf( text, menu_entry->label, on_str );
@@ -73,11 +73,14 @@ public  void  set_menu_text_with_colour(
     menu_entry_struct  *menu_entry,
     Colour             colour )
 {
-    STRING           text, name;
+    STRING           name;
+    char             text[EXTREMELY_LARGE_STRING_SIZE];
 
-    convert_colour_to_string( colour, name );
+    name = convert_colour_to_string( colour );
 
     (void) sprintf( text, menu_entry->label, name );
+
+    delete_string( name );
 
     set_menu_text( menu_window, menu_entry, text );
 }
@@ -85,9 +88,9 @@ public  void  set_menu_text_with_colour(
 public  void  set_menu_text_string(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
-    char               str[] )
+    STRING             str )
 {
-    STRING           text;
+    char  text[EXTREMELY_LARGE_STRING_SIZE];
 
     (void) sprintf( text, menu_entry->label, str );
 

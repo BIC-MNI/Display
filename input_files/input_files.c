@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/input_files/input_files.c,v 1.25 1995-09-26 14:25:38 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/input_files/input_files.c,v 1.26 1995-10-19 15:51:33 david Exp $";
 #endif
 
 
@@ -21,7 +21,7 @@ static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/input_fil
 
 public  Status  load_graphics_file( 
     display_struct   *display,
-    char             filename[],
+    STRING           filename,
     BOOLEAN          is_label_file )
 {
     Status                   status;
@@ -31,7 +31,7 @@ public  Status  load_graphics_file(
     Volume                   volume_read_in;
     object_struct            *current_object;
     object_traverse_struct   object_traverse;
-    STRING                   volume_description;
+    char                     volume_description[EXTREMELY_LARGE_STRING_SIZE];
     BOOLEAN                  volume_present;
     display_struct           *slice_window;
 
@@ -43,7 +43,7 @@ public  Status  load_graphics_file(
     initialize_display_model( model );
     initialize_3D_model_info( model );
 
-    (void) strcpy( model->filename, filename );
+    replace_string( &model->filename, create_string(filename) );
 
     volume_present = FALSE;
 

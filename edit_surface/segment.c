@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/edit_surface/segment.c,v 1.13 1995-07-31 19:54:00 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/edit_surface/segment.c,v 1.14 1995-10-19 15:51:13 david Exp $";
 #endif
 
 
@@ -245,7 +245,7 @@ private  void  display_path(
     int               path[] )
 {
     int     i, p, start_index, end_index;
-    STRING  number;
+    char    number[EXTREMELY_LARGE_STRING_SIZE];
     Point   centroid;
 
     for_less( i, 0, path_length )

@@ -1,5 +1,9 @@
 #include  <display.h>
 
+#ifndef lint
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/cursor/contours.c,v 1.8 1995-10-19 15:51:03 david Exp $";
+#endif
+
 public  void  create_cursor_contours(
     display_struct   *display )
 {

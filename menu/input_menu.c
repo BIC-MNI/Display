@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.122 1995-09-26 14:25:40 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.123 1995-10-19 15:51:51 david Exp $";
 #endif
 
 #include  <display.h>
@@ -329,11 +329,11 @@ private  void  create_menu(
     int                      n_menus,
     menu_definition_struct   *menus );
 private  int  lookup_menu_name(
-    char                      menu_name[],
+    STRING                    menu_name,
     int                       n_menus,
     menu_definition_struct    menus[] );
 private  BOOLEAN  lookup_menu_action(
-    char                   action_name[],
+    STRING                 action_name,
     menu_function_pointer  *action,
     menu_update_pointer    *update_action );
 
@@ -372,15 +372,12 @@ private  Status  input_menu(
     n_menus = 0;
 
     while( status == OK &&
-           input_string( file, menu_entry.menu_name, MAX_STRING_LENGTH, ' ' )
-           == OK )
+           input_string( file, &menu_entry.menu_name, ' ' ) == OK )
     {
         status = input_menu_entry( file, &menu_entry );
         if( status == OK )
         {
-            SET_ARRAY_SIZE( menus, n_menus, n_menus+1, 10 );
-            menus[n_menus] = menu_entry;
-            ++n_menus;
+            ADD_ELEMENT_TO_ARRAY( menus, n_menus, menu_entry, 10 );
         }
     }
 
@@ -429,15 +426,14 @@ private  Status  input_key_action(
 
     if( status == OK )
     {
-        status = input_string( file, action->action_name, MAX_STRING_LENGTH,
-                               ' ' );
+        status = input_string( file, &action->action_name, ' ' );
     }
 
     if( status == OK )
         status = skip_input_until( file, '"' );
 
     if( status == OK )
-        status = input_string( file, action->label, MAX_STRING_LENGTH, '"' );
+        status = input_string( file, &action->label, '"' );
 
     return( status );
 }
@@ -449,17 +445,17 @@ private  Status  input_special_character(
     STRING  str;
     Status  status;
 
-    status = input_string( file, str, MAX_STRING_LENGTH, '\'' );
+    status = input_string( file, &str, '\'' );
 
     if( status == OK )
     {
-        if( strcmp( str, "left" ) == 0 )
+        if( equal_strings( str, "left" ) )
             *ch = LEFT_ARROW_KEY;
-        else if( strcmp( str, "right" ) == 0 )
+        else if( equal_strings( str, "right" ) )
             *ch = RIGHT_ARROW_KEY;
-        else if( strcmp( str, "up" ) == 0 )
+        else if( equal_strings( str, "up" ) )
             *ch = UP_ARROW_KEY;
-        else if( strcmp( str, "down" ) == 0 )
+        else if( equal_strings( str, "down" ) )
             *ch = DOWN_ARROW_KEY;
         else if( sscanf( str, "%d", ch ) != 1 )
         {
@@ -467,6 +463,8 @@ private  Status  input_special_character(
             status = ERROR;
         }
     }
+
+    delete_string( str );
 
     return( status );
 }
@@ -491,20 +489,19 @@ private  Status  input_menu_entry(
 
         do
         {
-            status = input_string( file, permanent_string, MAX_STRING_LENGTH,
-                                   ' ' );
+            status = input_string( file, &permanent_string, ' ' );
 
             if( status == OK )
             {
-                if( strcmp( permanent_string, "}" ) == 0 )
+                if( equal_strings( permanent_string, "}" ) )
                 {
                     found_brace = TRUE;
                 }
-                else if( strcmp( permanent_string, "permanent" ) == 0 )
+                else if( equal_strings( permanent_string, "permanent" ) )
                 {
                     permanent_flag = TRUE;
                 }
-                else if( strcmp( permanent_string, "transient" ) == 0 )
+                else if( equal_strings( permanent_string, "transient" ) )
                 {
                     permanent_flag = FALSE;
                 }
@@ -514,6 +511,8 @@ private  Status  input_menu_entry(
                     status = ERROR;
                 }
             }
+
+            delete_string( permanent_string );
 
             if( status == OK && !found_brace )
             {
@@ -541,13 +540,23 @@ private  void  free_input_menu(
     int                      n_menus,
     menu_definition_struct   *menus )
 {
-    int      i;
+    int      i, j;
+
     if( n_menus > 0 )
     {
         for_less( i, 0, n_menus )
         {
+            delete_string( menus[i].menu_name );
             if( menus[i].n_entries > 0 )
+            {
+                for_less( j, 0, menus[i].n_entries )
+                {
+                    delete_string( menus[i].entries[j].action_name );
+                    delete_string( menus[i].entries[j].label );
+                }
+
                 FREE( menus[i].entries );
+            }
         }
 
         FREE( menus );
@@ -581,8 +590,8 @@ private  void  create_menu(
             menu->entries[entry_index].permanent_flag =
                           menus[i].entries[c].permanent_flag;
             menu->entries[entry_index].key = menus[i].entries[c].key;
-            (void) strcpy( menu->entries[entry_index].label,
-                           menus[i].entries[c].label );
+            menu->entries[entry_index].label = create_string(
+                                                 menus[i].entries[c].label );
             ++entry_index;
         }
     }
@@ -593,7 +602,7 @@ private  void  create_menu(
 
     for_less( c, 0, menus[0].n_entries )
         menu->entries[0].children[c] = menus[0].entries[c].menu_entry;
-    (void) strcpy( menu->entries[0].label, "Top Level Display" );
+    menu->entries[0].label = create_string( "Top Level Display" );
 
     for_less( i, 0, n_menus )
     {
@@ -634,7 +643,7 @@ private  void  create_menu(
 }
 
 private  int  lookup_menu_name(
-    char                      menu_name[],
+    STRING                    menu_name,
     int                       n_menus,
     menu_definition_struct    menus[] )
 {
@@ -642,10 +651,8 @@ private  int  lookup_menu_name(
 
     for_less( i, 0, n_menus )
     {
-        if( strcmp( menu_name, menus[i].menu_name ) == 0 )
-        {
+        if( equal_strings( menu_name, menus[i].menu_name ) )
             break;
-        }
     }
 
     if( i >= n_menus )
@@ -657,13 +664,13 @@ private  int  lookup_menu_name(
 }
 
 private  BOOLEAN  lookup_menu_action(
-    char                   action_name[],
+    STRING                 action_name,
     menu_function_pointer  *action,
     menu_update_pointer    *update_action )
 {
     BOOLEAN  found;
     int      i;
-    char     *table_name;
+    STRING   table_name;
 
     found = FALSE;
 
@@ -675,7 +682,7 @@ private  BOOLEAN  lookup_menu_action(
             ++table_name;
         }
 
-        if( strncmp( action_name, table_name, strlen(action_name) ) == 0 )
+        if( strncmp( action_name, table_name, string_length(action_name) ) == 0)
         {
             *action = actions[i].action;
             *update_action = actions[i].update_action;
@@ -697,6 +704,8 @@ private  void  delete_menu_entry(
     BOOLEAN             top_flag,
     menu_entry_struct   *entry )
 {
+    delete_string( entry->label );
+
     if( !top_flag )
         FREE( entry->text_list );
 

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/immediate_mode/draw_immed.c,v 1.14 1995-07-31 19:54:07 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/immediate_mode/draw_immed.c,v 1.15 1995-10-19 15:51:31 david Exp $";
 #endif
 
 
@@ -120,15 +120,18 @@ public  void  draw_text_3d(
     display_struct    *display,
     Point             *origin,
     Colour            colour,
-    char              str[] )
+    STRING            str )
 {
     text_struct    text;
 
     G_set_view_type( display->window, MODEL_VIEW );
 
+    initialize_text( &text, origin, colour, FIXED_FONT, 0.0 );
+
     text.origin = *origin;
-    text.colour = colour;
-    (void) strcpy( text.string, str );
+    text.string = create_string( str );
 
     G_draw_text( display->window, &text );
+
+    delete_text( &text );
 }

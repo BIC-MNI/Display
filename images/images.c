@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/images/images.c,v 1.8 1995-07-31 19:53:59 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/images/images.c,v 1.9 1995-10-19 15:51:11 david Exp $";
 #endif
 
 #include  <display.h>
@@ -21,7 +21,7 @@ static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/images/im
 
 public  Status   save_window_to_file(
     display_struct  *display,
-    char            filename[],
+    STRING          filename,
     int             x_min,
     int             x_max,
     int             y_min,

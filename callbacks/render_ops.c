@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/render_ops.c,v 1.28 1995-07-31 19:53:51 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/render_ops.c,v 1.29 1995-10-19 15:50:26 david Exp $";
 #endif
 
 
@@ -481,7 +481,7 @@ public  DEF_MENU_FUNCTION( change_background_colour )
 
     print( "Enter colour name or 3 or 4 colour components:" );
 
-    status = input_line( stdin, line, MAX_STRING_LENGTH );
+    status = input_line( stdin, &line );
 
     if( status == OK )
     {
@@ -496,6 +496,8 @@ public  DEF_MENU_FUNCTION( change_background_colour )
             set_slice_viewport_update( slice_window, FULL_WINDOW_MODEL );
         }
     }
+
+    delete_string( line );
 
     return( OK );
 }

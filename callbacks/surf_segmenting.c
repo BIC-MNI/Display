@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surf_segmenting.c,v 1.29 1995-07-31 19:53:52 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surf_segmenting.c,v 1.30 1995-10-19 15:50:38 david Exp $";
 #endif
 
 
@@ -116,26 +116,32 @@ public  DEF_MENU_FUNCTION( set_vis_paint_colour )
     STRING      string;
     Colour      colour;
 
-    convert_colour_to_string( display->three_d.surface_edit.visible_colour,
-                              string );
+    string = convert_colour_to_string(
+                 display->three_d.surface_edit.visible_colour );
 
     print( "The current visible paint colour is: %s\n", string );
 
+    delete_string( string );
+
     print( "Enter the new colour name or 3 or 4 colour components: " );
 
-    status = input_line( stdin, string, MAX_STRING_LENGTH );
+    status = input_line( stdin, &string );
 
     if( status == OK )
     {
         colour = convert_string_to_colour( string );
 
+        delete_string( string );
+
         display->three_d.surface_edit.visible_colour = colour;
 
-        convert_colour_to_string( display->three_d.surface_edit.visible_colour,
-                                  string );
+        string = convert_colour_to_string(
+                    display->three_d.surface_edit.visible_colour );
 
         print( "The new visible paint colour is: %s\n", string );
     }
+
+    delete_string( string );
 
     return( status );
 }
@@ -158,26 +164,32 @@ public  DEF_MENU_FUNCTION( set_invis_paint_colour )
     STRING      string;
     Colour      colour;
 
-    convert_colour_to_string( display->three_d.surface_edit.invisible_colour,
-                              string );
+    string = convert_colour_to_string(
+                   display->three_d.surface_edit.invisible_colour );
 
     print( "The current invisible paint colour is: %s\n", string );
 
+    delete_string( string );
+
     print( "Enter the new colour name or 3 or 4 colour components: " );
 
-    status = input_line( stdin, string, MAX_STRING_LENGTH );
+    status = input_line( stdin, &string );
 
     if( status == OK )
     {
         colour = convert_string_to_colour( string );
 
+        delete_string( string );
+
         display->three_d.surface_edit.invisible_colour = colour;
 
-        convert_colour_to_string(display->three_d.surface_edit.invisible_colour,
-                                 string );
+        string = convert_colour_to_string(
+                     display->three_d.surface_edit.invisible_colour );
 
         print( "The new invisible paint colour is: %s\n", string );
     }
+
+    delete_string( string );
 
     return( status );
 }
@@ -657,7 +669,7 @@ private  Status  io_polygons_visibilities(
 
     print( "Enter filename: " );
 
-    status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+    status = input_string( stdin, &filename, ' ' );
 
     (void) input_newline( stdin );
 
@@ -672,6 +684,8 @@ private  Status  io_polygons_visibilities(
 
     if( status == OK )
         status = close_file( file );
+
+    delete_string( filename );
 
     return( status );
 }

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/crop.c,v 1.7 1995-08-14 18:08:59 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/crop.c,v 1.8 1995-10-19 15:52:16 david Exp $";
 #endif
 
 #include  <display.h>
@@ -34,22 +34,29 @@ public  void  initialize_crop_box(
         slice_window->slice.crop.limits[1][c] = 0.0;
     }
 
-    slice_window->slice.crop.filename[0] = (char) 0;
+    slice_window->slice.crop.filename = create_string( NULL );
     slice_window->slice.crop.crop_visible = FALSE;
+}
+
+public  void  delete_crop_box(
+    display_struct   *slice_window )
+{
+    delete_string( slice_window->slice.crop.filename );
 }
 
 public  void  set_crop_filename(
     display_struct   *slice_window,
-    char             filename[] )
+    STRING           filename )
 {
-    (void) strcpy( slice_window->slice.crop.filename, filename );
+    delete_string( slice_window->slice.crop.filename );
+    slice_window->slice.crop.filename = create_string( filename );
 }
 
 public  Status  create_cropped_volume_to_file(
     display_struct   *slice_window,
-    char             cropped_filename[] )
+    STRING           cropped_filename )
 {
-    char                  command[10*MAX_STRING_LENGTH];
+    char                  command[EXTREMELY_LARGE_STRING_SIZE];
     Volume                file_volume, volume;
     volume_input_struct   volume_input;
     Real                  xw, yw, zw;
@@ -62,7 +69,7 @@ public  Status  create_cropped_volume_to_file(
     int                   int_min_voxel[MAX_DIMENSIONS];
     int                   int_max_voxel[MAX_DIMENSIONS];
 
-    if( strlen( slice_window->slice.crop.filename ) == 0 )
+    if( string_length( slice_window->slice.crop.filename ) == 0 )
     {
         print( "You have not set the crop filename yet.\n" );
         return( ERROR );
@@ -152,10 +159,12 @@ public  Status  create_cropped_volume_to_file(
 public  void  crop_and_load_volume(
     display_struct   *slice_window )
 {
-    STRING                cropped_filename;
+    char        tmp_name[L_tmpnam];
+    STRING      cropped_filename;
 
-    (void) tmpnam( cropped_filename );
-    (void) strcat( cropped_filename, ".mnc" );
+    (void) tmpnam( tmp_name );
+
+    cropped_filename = concat_strings( tmp_name, ".mnc" );
 
     if( create_cropped_volume_to_file( slice_window, cropped_filename ) == OK )
     {
@@ -168,6 +177,8 @@ public  void  crop_and_load_volume(
 
         set_crop_box_update( slice_window, -1 );
     }
+
+    delete_string( cropped_filename );
 }
 
 public  void  toggle_slice_crop_box_visibility(

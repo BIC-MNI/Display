@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.103 1995-10-03 17:21:40 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.104 1995-10-19 15:52:10 david Exp $";
 #endif
 
 
@@ -930,10 +930,7 @@ public  void  update_slice_window(
                 slice_window->slice.slice_views[view].sub_region_specified ||
                 slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0])
             {
-                if( slice_window->slice.slice_views[view].sub_region_specified )
-                    slice_window->slice.slice_views[view].use_sub_region =FALSE;
-                slice_window->slice.slice_views[view].sub_region_specified =
-                                                                  FALSE;
+                slice_window->slice.slice_views[view].use_sub_region = FALSE;
             }
 
             set_slice_window_update( slice_window, -1, view, UPDATE_BOTH );
@@ -960,6 +957,16 @@ public  void  update_slice_window(
                      slice_window->slice.slice_views[view].y_max;
             }
         }
+
+        /*--- for now this is an effective way to get around a bug,
+              but the real solution is a simple change in the above logic,
+              The bug occurs when slice painting is started while the
+              slices are being updated and the system is in double buffer
+              mode. */
+
+        if( !slice_window->slice.slice_views[view].prev_sub_region_specified &&
+            original_sub_region_specified[view] )
+            one_buffer_flag[view] = FALSE;
     }
 
     if( slice_window->slice.update_slice_dividers_flag )

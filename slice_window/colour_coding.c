@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.29 1995-09-26 14:25:45 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.30 1995-10-19 15:52:17 david Exp $";
 #endif
 
 
@@ -56,7 +56,7 @@ private  void  delete_slice_labels(
         delete_volume( slice->volumes[volume_index].labels );
 
     slice->volumes[volume_index].labels = NULL;
-    slice->volumes[volume_index].labels_filename[0] = (char) 0;
+    delete_string( slice->volumes[volume_index].labels_filename );
 
     FREE( slice->volumes[volume_index].label_colour_table );
 }
@@ -192,6 +192,8 @@ private  void  create_colour_coding(
     else
         type = NC_LONG;
 
+    delete_string( slice->volumes[volume_index].labels_filename );
+
     /*--- this will break if you change the number of labels for a shared
           volume.  Later I will rewrite this code to handle this case */
 
@@ -199,14 +201,15 @@ private  void  create_colour_coding(
         find_similar_labels( slice_window, volume_index, &orig_index ) )
     {
         slice->volumes[volume_index].labels = slice->volumes[orig_index].labels;
-        (void) strcpy( slice->volumes[volume_index].labels_filename,
-                       slice->volumes[orig_index].labels_filename );
+        slice->volumes[volume_index].labels_filename =
+                    create_string( slice->volumes[orig_index].labels_filename );
     }
     else
     {
         slice->volumes[volume_index].labels = create_label_volume(
                           get_nth_volume( slice_window, volume_index ), type );
-        slice->volumes[volume_index].labels_filename[0] = (char) 0;
+
+        slice->volumes[volume_index].labels_filename = create_string( NULL );
 
         set_volume_voxel_range( slice->volumes[volume_index].labels, 0.0,
                             (Real) slice->volumes[volume_index].n_labels-1.0 );
@@ -271,7 +274,9 @@ public  void  initialize_slice_colour_coding(
     slice_window->slice.volumes[volume_index].label_colour_table =
                                                  (Colour *) NULL;
     slice_window->slice.volumes[volume_index].labels = (Volume) NULL;
-    slice_window->slice.volumes[volume_index].labels_filename[0] = (char) 0;
+
+    slice_window->slice.volumes[volume_index].labels_filename =
+                                       create_string( NULL );
 
     alloc_colour_table( slice_window, volume_index );
     rebuild_colour_table( slice_window, volume_index );
@@ -686,14 +691,14 @@ public  void  colour_code_an_object(
         colour_code_object_points( slice_window, Volume_continuity, object );
 }
 
-public  char    *get_default_colour_map_suffix()
+public  STRING    get_default_colour_map_suffix()
 {
     return( DEFAULT_COLOUR_MAP_SUFFIX );
 }
 
 public  Status  load_label_colour_map(
     display_struct   *slice_window,
-    char             filename[] )
+    STRING           filename )
 {
     Status   status;
     FILE     *file;
@@ -737,7 +742,7 @@ public  Status  load_label_colour_map(
 
 public  Status  save_label_colour_map(
     display_struct   *slice_window,
-    char             filename[] )
+    STRING           filename )
 {
     Status   status;
     FILE     *file;

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/film_loop.c,v 1.17 1995-07-31 19:54:02 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/film_loop.c,v 1.18 1995-10-19 15:51:19 david Exp $";
 #endif
 
 
@@ -22,14 +22,13 @@ static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/fi
 private    DEF_EVENT_FUNCTION( check_updated );
 
 private  Status  create_film_loop_header(
-    char   base_filename[],
-    int    window_width,
-    int    window_height,
-    int    n_steps );
-private  void  create_frame_filename(
-    char   base_filename[],
-    int    step,
-    char   frame_filename[] );
+    STRING   base_filename,
+    int      window_width,
+    int      window_height,
+    int      n_steps );
+private  STRING  create_frame_filename(
+    STRING  base_filename,
+    int     step );
 private  Status  save_image_to_file(
     display_struct    *display );
 private  void  display_next_frame(
@@ -37,7 +36,7 @@ private  void  display_next_frame(
 
 public  Status  start_film_loop(
     display_struct   *display,
-    char             base_filename[],
+    STRING           base_filename,
     int              axis_index,
     int              n_steps )
 {
@@ -63,7 +62,7 @@ public  Status  start_film_loop(
 
     display->three_d.film_loop.x_size = x_size;
     display->three_d.film_loop.y_size = y_size;
-    (void) strcpy( display->three_d.film_loop.base_filename, base_filename );
+    display->three_d.film_loop.base_filename = create_string( base_filename );
 
     status = create_film_loop_header( base_filename, x_size, y_size, n_steps );
 
@@ -75,6 +74,8 @@ private  void  end_film_loop(
 {
     remove_action_table_function( &display->action_table, NO_EVENT,
                                   check_updated );
+
+    delete_string( display->three_d.film_loop.base_filename );
 
     print( "Done film loop.\n" );
 }
@@ -118,10 +119,10 @@ private  DEF_EVENT_FUNCTION( check_updated )
 }
 
 private  Status  create_film_loop_header(
-    char   base_filename[],
-    int    window_width,
-    int    window_height,
-    int    n_steps )
+    STRING   base_filename,
+    int      window_width,
+    int      window_height,
+    int      n_steps )
 {
     Status  status;
     int     i;
@@ -130,8 +131,7 @@ private  Status  create_film_loop_header(
     STRING  frame_filename;
     STRING  no_dirs;
 
-    (void) strcpy( header_name, base_filename );   
-    (void) strcat( header_name, ".flm" );   
+    header_name = concat_strings( base_filename, ".flm" );
 
     status = open_file( header_name, WRITE_FILE, ASCII_FORMAT, &file );
 
@@ -150,29 +150,37 @@ private  Status  create_film_loop_header(
 
     for_less( i, 0, n_steps )
     {
-        create_frame_filename( base_filename, i+1, frame_filename );
+        frame_filename = create_frame_filename( base_filename, i+1 );
 
-        remove_directories_from_filename( frame_filename, no_dirs );
+        no_dirs = remove_directories_from_filename( frame_filename );
 
         if( status == OK )
             status = output_string( file, no_dirs );
 
         if( status == OK )
             status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
+
+        delete_string( frame_filename );
+        delete_string( no_dirs );
     }
 
     if( status == OK )
         status = close_file( file );
 
+    delete_string( header_name );
+
     return( status );
 }
 
-private  void  create_frame_filename(
-    char   base_filename[],
-    int    step,
-    char   frame_filename[] )
+private  STRING  create_frame_filename(
+    STRING   base_filename,
+    int      step )
 {
-    (void) sprintf( frame_filename, "%s_%d.rgb", base_filename, step );
+    char     buffer[EXTREMELY_LARGE_STRING_SIZE];
+
+    (void) sprintf( buffer, "%s_%d.rgb", base_filename, step );
+
+    return( create_string( buffer ) );
 }
 
 private  Status  save_image_to_file(
@@ -181,11 +189,13 @@ private  Status  save_image_to_file(
     Status         status;
     STRING         frame_filename;
 
-    create_frame_filename( display->three_d.film_loop.base_filename,
-                           display->three_d.film_loop.current_step,
-                           frame_filename );
+    frame_filename = create_frame_filename(
+                           display->three_d.film_loop.base_filename,
+                           display->three_d.film_loop.current_step );
 
     status = save_window_to_file( display, frame_filename, 0, -1, 0, -1 );
+
+    delete_string( frame_filename );
 
     return( status );
 }

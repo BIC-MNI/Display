@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.101 1995-09-26 14:25:42 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.102 1995-10-19 15:52:08 david Exp $";
 #endif
 
 #include  <display.h>
@@ -355,6 +355,7 @@ public  void  rebuild_probe(
     int            sizes[N_DIMENSIONS];
     Real           value, voxel_value;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
+    char           buffer[EXTREMELY_LARGE_STRING_SIZE];
 
     active = get_voxel_in_slice_window( slice_window, voxel, &volume_index,
                                         &view_index );
@@ -401,50 +402,53 @@ public  void  rebuild_probe(
             switch( i )
             {
             case VOLUME_INDEX:
-                (void) sprintf( text->string, Slice_probe_volume_index_format,
+                (void) sprintf( buffer, Slice_probe_volume_index_format,
                                 volume_index + 1 );
                 break;
             case X_VOXEL_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_x_voxel_format,
+                (void) sprintf( buffer, Slice_probe_x_voxel_format,
                                 voxel[X] );
                 break;
             case Y_VOXEL_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_y_voxel_format,
+                (void) sprintf( buffer, Slice_probe_y_voxel_format,
                                 voxel[Y] );
                 break;
             case Z_VOXEL_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_z_voxel_format,
+                (void) sprintf( buffer, Slice_probe_z_voxel_format,
                                 voxel[Z] );
                 break;
 
             case X_WORLD_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_x_world_format,
+                (void) sprintf( buffer, Slice_probe_x_world_format,
                                 x_world );
                 break;
             case Y_WORLD_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_y_world_format,
+                (void) sprintf( buffer, Slice_probe_y_world_format,
                                 y_world );
                 break;
             case Z_WORLD_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_z_world_format,
+                (void) sprintf( buffer, Slice_probe_z_world_format,
                                 z_world );
                 break;
             case VOXEL_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_voxel_format,
+                (void) sprintf( buffer, Slice_probe_voxel_format,
                                 voxel_value );
                 break;
             case VAL_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_val_format, value );
+                (void) sprintf( buffer, Slice_probe_val_format, value );
                 break;
             case LABEL_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_label_format, label );
+                (void) sprintf( buffer, Slice_probe_label_format, label );
                 break;
             }
         }
         else
         {
-            text->string[0] = (char) 0;
+            buffer[0] = END_OF_STRING;
         }
+
+        delete_string( text->string );
+        text->string = create_string( buffer );
 
         fill_Point( text->origin, x_pos, y_pos, 0.0 );
     }
@@ -553,6 +557,18 @@ public  void  rebuild_slice_unfinished_flag(
     fill_Point( points[5], x_size-1.0-width, width, 0.0 );
     fill_Point( points[6], x_size-1.0-width, y_size-1.0-width, 0.0 );
     fill_Point( points[7], width, y_size-1.0-width, 0.0 );
+}
+
+public  BOOLEAN  get_slice_unfinished_flag_visibility(
+    display_struct    *slice_window,
+    int               view_index )
+{
+    model_struct      *model;
+    object_struct     *object;
+
+    model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
+    object = model->objects[2*slice_window->slice.n_volumes+UNFINISHED_BAR];
+    return( get_object_visibility( object ) );
 }
 
 public  void  set_slice_unfinished_flag_visibility(
@@ -1329,7 +1345,8 @@ public  void  rebuild_slice_text(
     int            axis_index, x_index, y_index;
     object_struct  *text_object;
     text_struct    *text;
-    char           *format;
+    char           buffer[EXTREMELY_LARGE_STRING_SIZE];
+    STRING         format;
     int            x_pos, y_pos;
     Real           current_voxel[N_DIMENSIONS];
 
@@ -1355,7 +1372,9 @@ public  void  rebuild_slice_text(
         get_current_voxel( slice_window,
                       get_current_volume_index(slice_window), current_voxel );
 
-        (void) sprintf( text->string, format, current_voxel[axis_index] );
+        (void) sprintf( buffer, format, current_voxel[axis_index] );
+
+        replace_string( &text->string, create_string(buffer) );
 
         x_pos = (int) Point_x(Slice_index_offset);
         y_pos = (int) Point_y(Slice_index_offset);

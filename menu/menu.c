@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.37 1995-08-14 18:08:57 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.38 1995-10-19 15:51:52 david Exp $";
 #endif
 
 
@@ -113,11 +113,11 @@ private  void  remove_menu_actions(
 
 public  Status  initialize_menu(
     display_struct    *menu_window,
-    char              default_directory1[],
-    char              default_directory2[],
-    char              default_directory3[],
-    char              default_directory4[],
-    char              menu_filename[] )
+    STRING            default_directory1,
+    STRING            default_directory2,
+    STRING            default_directory3,
+    STRING            default_directory4,
+    STRING            menu_filename )
 {
     Status               status;
     STRING               filename;
@@ -153,40 +153,46 @@ public  Status  initialize_menu(
 
     if( file_exists( menu_filename ) )
     {
-        (void) strcpy( filename, menu_filename );
+        filename = create_string( menu_filename );
         found = TRUE;
     }
 
     if( !found )
     {
-        get_absolute_filename( menu_filename, default_directory1, filename );
+        filename = get_absolute_filename( menu_filename, default_directory1 );
 
         found = file_exists( filename );
     }
 
     if( !found )
     {
-        get_absolute_filename( menu_filename, default_directory2, filename);
+        delete_string( filename );
+
+        filename = get_absolute_filename( menu_filename, default_directory2 );
 
         found = file_exists( filename );
     }
 
     if( !found )
     {
-        get_absolute_filename( menu_filename, default_directory3, filename);
+        delete_string( filename );
+
+        filename = get_absolute_filename( menu_filename, default_directory3 );
 
         found = file_exists( filename );
     }
 
     if( !found )
     {
-        get_absolute_filename( menu_filename, default_directory4, filename);
+        delete_string( filename );
+
+        filename = get_absolute_filename( menu_filename, default_directory4 );
 
         found = file_exists( filename );
     }
 
     if( !found )
-        (void) strcpy( menu_filename, filename );
+        filename = create_string( menu_filename );
 
     status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
 
@@ -222,6 +228,8 @@ public  Status  initialize_menu(
     update_menu_name_text( menu_window );
 
     rebuild_cursor_position_model( menu_window );
+
+    delete_string( filename );
 
     return( status );
 }
@@ -530,26 +538,29 @@ public  void  pop_menu_one_level(
 public  void   set_menu_text(
     display_struct      *menu_window,
     menu_entry_struct   *menu_entry,
-    char                text[] )
+    STRING              text )
 {
-    int                 line, i, n_chars, len, n_chars_across;
-    char                *text_ptr;
+    int                 i, line, n_chars, len, n_chars_across;
+    STRING              *text_ptr;
     menu_window_struct  *menu;
 
     menu = &menu_window->menu;
 
-    len = strlen( text );
+    len = string_length( text );
     n_chars = 0;
 
     for_less( line, 0, menu->n_lines_in_entry )
     {
-        i = 0;
-        text_ptr = get_text_ptr(menu_entry->text_list[line])->string;
+        text_ptr = &get_text_ptr(menu_entry->text_list[line])->string;
+        delete_string( *text_ptr );
+        *text_ptr = create_string( NULL );
 
         n_chars_across = menu_entry->n_chars_across;
 
         if( line == 0 )
             n_chars_across = ROUND( n_chars_across - Menu_key_character_offset);
+
+        i = 0;
 
         while( n_chars < len && i < n_chars_across )
         {
@@ -563,11 +574,10 @@ public  void   set_menu_text(
                 break;
             }
 
-            text_ptr[i] = text[n_chars];
-            ++i;
+            concat_char_to_string( text_ptr, text[n_chars] );
             ++n_chars;
+            ++i;
         }
-        text_ptr[i] = (char) 0;
     }
 
     set_update_required( menu_window, NORMAL_PLANES );
@@ -596,10 +606,12 @@ public  void  update_all_menu_text(
 private  void  update_menu_name_text(
     display_struct   *menu_window )
 {
+    STRING       new_value;
     text_struct  *text;
 
     text = get_text_ptr( menu_window->menu.menu_name_text );
+    new_value = menu_window->menu.stack[menu_window->menu.depth]->label;
 
-    (void) strcpy( text->string,
-                   menu_window->menu.stack[menu_window->menu.depth]->label );
+    if( !equal_strings( text->string, new_value ) )
+    replace_string( &text->string, create_string(new_value) );
 }

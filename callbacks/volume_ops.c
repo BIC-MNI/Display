@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.98 1995-09-26 14:25:34 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.99 1995-10-19 15:50:44 david Exp $";
 #endif
 
 
@@ -256,7 +256,8 @@ private  void  create_scaled_slice(
             compute_quadmesh_normals( quadmesh );
         }
 
-        colour_code_an_object( display, object );
+        if( !scale_slice_flag )
+            colour_code_an_object( display, object );
 
         add_object_to_current_model( display, object );
     }
@@ -300,7 +301,7 @@ public  DEF_MENU_FUNCTION(resample_slice_window_volume)
 {
     int              sizes[N_DIMENSIONS];
     int              new_nx, new_ny, new_nz;
-    char             label[1000];
+    char             label[EXTREMELY_LARGE_STRING_SIZE];
     display_struct   *slice_window;
     Volume           volume, resampled_volume;
 
@@ -350,7 +351,7 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)
     char             ch;
     Real             x_width, y_width, z_width;
     Real             separations[N_DIMENSIONS];
-    char             label[1000];
+    char             label[EXTREMELY_LARGE_STRING_SIZE];
     display_struct   *slice_window;
     Volume           volume, resampled_volume;
 
@@ -522,12 +523,14 @@ public  DEF_MENU_FUNCTION(set_crop_box_filename)
     {
         print( "Enter crop filename: " );
 
-        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == OK )
         {
             set_crop_filename( slice_window, filename );
         }
 
         (void) input_newline( stdin );
+
+        delete_string( filename );
     }
 
     return( OK );
@@ -572,13 +575,15 @@ public  DEF_MENU_FUNCTION(crop_volume_to_file)
     {
         print( "Enter filename to create: " );
 
-        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == OK )
         {
             if( create_cropped_volume_to_file( slice_window, filename ) == OK )
                 print( "Created %s.\n", filename );
         }
 
         (void) input_newline( stdin );
+
+        delete_string( filename );
     }
 
     return( OK );
@@ -1088,14 +1093,12 @@ public  DEF_MENU_FUNCTION(toggle_slice_interpolation)
     if( get_slice_window( display, &slice_window ) )
     {
         continuity = slice_window->slice.degrees_continuity;
-        ++continuity;
-        if( continuity == 1 )
-            continuity = -1;
-/*
+        if( continuity == -1 )
+            continuity = 0;
+        else if( continuity == 0 )  
             continuity = 2;
-        else if( continuity == 3 )  
+        else if( continuity == 2 )  
             continuity = -1;
-*/
 
         slice_window->slice.degrees_continuity = continuity;
 
@@ -1111,7 +1114,7 @@ public  DEF_MENU_UPDATE(toggle_slice_interpolation )
 {
     int              continuity;
     display_struct   *slice_window;
-    char             *name;
+    STRING           name;
 
     if( get_slice_window( display, &slice_window ) )
         continuity = slice_window->slice.degrees_continuity;
@@ -1148,7 +1151,7 @@ public  DEF_MENU_FUNCTION( save_slice_image )
     {
         print( "Enter filename: " );
 
-        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == OK )
         {
             get_slice_viewport( slice_window, view_index,
                                 &x_min, &x_max, &y_min, &y_max );
@@ -1160,6 +1163,8 @@ public  DEF_MENU_FUNCTION( save_slice_image )
         }
 
         (void) input_newline( stdin );
+
+        delete_string( filename );
     }
 
     return( status );
@@ -1187,7 +1192,7 @@ public  DEF_MENU_FUNCTION( save_slice_window )
     {
         print( "Enter filename: " );
 
-        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == OK )
         {
             G_get_window_size( slice_window->window, &x_size, &y_size );
 
@@ -1198,6 +1203,8 @@ public  DEF_MENU_FUNCTION( save_slice_window )
         }
 
         (void) input_newline( stdin );
+
+        delete_string( filename );
     }
 
     return( status );
@@ -1221,12 +1228,14 @@ public  DEF_MENU_FUNCTION( transform_current_volume )
     {
         print( "Enter transform filename: " );
 
-        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == OK )
         {
             transform_current_volume_from_file( slice_window, filename );
         }
 
         (void) input_newline( stdin );
+
+        delete_string( filename );
     }
 
     return( OK );

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.33 1995-09-26 14:25:45 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.34 1995-10-19 15:52:18 david Exp $";
 #endif
 
 
@@ -1594,7 +1594,7 @@ public  void  slice_view_has_changed(
 
 public  void  transform_current_volume_from_file(
     display_struct   *display,
-    char             filename[] )
+    STRING           filename )
 {
     Volume             volume;
     General_transform  file_transform, *volume_transform, concated;

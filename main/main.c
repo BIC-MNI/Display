@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.49 1995-09-26 14:25:39 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.50 1995-10-19 15:51:42 david Exp $";
 #endif
 
 #include  <display.h>
@@ -33,9 +33,9 @@ private  void      initialize_view_to_fit(
 #define   DISPLAY_GLOBALS_FILENAME   "Display.globals"
 
 public  Status  change_global_variable(
-    char   str[],
-    char   variable_name[],
-    char   new_value[] )
+    STRING   str,
+    STRING   *variable_name,
+    STRING   *new_value )
 {
     return( set_or_get_global_variable(
                    SIZEOF_STATIC_ARRAY(display_globals),
@@ -43,8 +43,8 @@ public  Status  change_global_variable(
 }
 
 public  Status  set_global_variable_value(
-    char   variable_name[],
-    char   new_value[] )
+    STRING   variable_name,
+    STRING   new_value )
 {
     return( set_global_variable( SIZEOF_STATIC_ARRAY(display_globals),
                                  display_globals, variable_name, new_value ) );
@@ -54,83 +54,67 @@ int  main(
     int     argc,
     char    *argv[] )
 {
-    int              i, len, view;
-    char             *filename;
+    int              i, view;
+    STRING           filename;
     display_struct   *graphics;
     display_struct   *menu, *slice_window;
     Status           status;
     STRING           globals_filename, runtime_directory;
+    int              n_directories;
+    STRING           *directories;
     STRING           title;
-    char             *variable_name, *variable_value;
+    STRING           variable_name, variable_value;
     BOOLEAN          next_is_label_volume;
 
     if( argc == 1 )
-        (void) strcpy( title, argv[0] );
+        title = create_string( argv[0] );
     else
     {
-        len = 0;
-        (void) strcpy( title, "" );
+        title = create_string( NULL );
         for_less( i, 1, argc )
         {
-            if( len + (int) strlen( argv[i] ) + 1 > MAX_STRING_LENGTH )
-                break;
             if( i > 1 )
-                (void) strcat( title, " " );
-            (void) strcat( title, argv[i] );
-            len += (int) strlen( argv[i] ) + 1;
+                concat_to_string( &title, " " );
+
+            concat_to_string( &title, argv[i] );
         }
     }
 
     initialize_global_colours();
 
     if( getenv( "DISPLAY_DIRECTORY" ) != (char *) NULL )
-        (void) strcpy( runtime_directory, getenv( "DISPLAY_DIRECTORY" ) );
+        runtime_directory = create_string( getenv( "DISPLAY_DIRECTORY" ) );
     else
-        extract_directory( argv[0], runtime_directory );
+        runtime_directory = extract_directory( argv[0] );
 
-    (void) sprintf( globals_filename, "%s/%s", HARD_CODED_DISPLAY_DIRECTORY2,
-                    DISPLAY_GLOBALS_FILENAME );
+    n_directories = 0;
 
-    if( file_exists( globals_filename ) )
+    ADD_ELEMENT_TO_ARRAY( directories, n_directories,
+                          HARD_CODED_DISPLAY_DIRECTORY2, DEFAULT_CHUNK_SIZE );
+    ADD_ELEMENT_TO_ARRAY( directories, n_directories,
+                          HARD_CODED_DISPLAY_DIRECTORY1, DEFAULT_CHUNK_SIZE );
+    ADD_ELEMENT_TO_ARRAY( directories, n_directories,
+                          runtime_directory, DEFAULT_CHUNK_SIZE );
+    ADD_ELEMENT_TO_ARRAY( directories, n_directories,
+                          getenv("HOME"), DEFAULT_CHUNK_SIZE );
+    ADD_ELEMENT_TO_ARRAY( directories, n_directories, ".", DEFAULT_CHUNK_SIZE );
+
+    for_less( i, 0, n_directories )
     {
-        status = input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
-                                     display_globals, globals_filename );
+        globals_filename = get_absolute_filename( DISPLAY_GLOBALS_FILENAME,
+                                                  directories[i] );
+
+        if( file_exists( globals_filename ) )
+        {
+            status = input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
+                                         display_globals, globals_filename );
+        }
+
+        delete_string( globals_filename );
     }
 
-    (void) sprintf( globals_filename, "%s/%s", HARD_CODED_DISPLAY_DIRECTORY1,
-                    DISPLAY_GLOBALS_FILENAME );
-
-    if( file_exists( globals_filename ) )
-    {
-        status = input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
-                                     display_globals, globals_filename );
-    }
-
-    (void) sprintf( globals_filename, "%s/%s", runtime_directory,
-                    DISPLAY_GLOBALS_FILENAME );
-
-    if( file_exists( globals_filename ) )
-    {
-        status = input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
-                                     display_globals, globals_filename );
-    }
-
-    (void) sprintf( globals_filename, "%s/%s", getenv("HOME"),
-                    DISPLAY_GLOBALS_FILENAME );
-
-    if( file_exists( globals_filename ) )
-    {
-        status = input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
-                                     display_globals, globals_filename );
-    }
-
-    (void) strcpy( globals_filename, DISPLAY_GLOBALS_FILENAME );
-
-    if( file_exists( globals_filename ) )
-    {
-        status = input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
-                                     display_globals, globals_filename );
-    }
+    if( n_directories > 0 )
+        FREE( directories );
 
     set_alloc_checking( Alloc_checking_enabled );
 
@@ -154,6 +138,8 @@ int  main(
                                          Menu_window_height );
     }
 
+    delete_string( title );
+
     if( status == OK )
     {
         graphics->associated[THREE_D_WINDOW] = graphics;
@@ -171,6 +157,8 @@ int  main(
                                   MENU_FILENAME );
     }
 
+    delete_string( runtime_directory );
+
     if( status == OK )
     {
         initialize_argument_processing( argc, argv );
@@ -179,13 +167,13 @@ int  main(
 
         while( get_string_argument( "", &filename ) )
         {
-            if( strcmp( filename, "-label" ) == 0 )
+            if( equal_strings( filename, "-label" ) )
             {
                 if( next_is_label_volume )
                     print( "Ignoring extraneous -label\n" );
                 next_is_label_volume = TRUE;
             }
-            else if( strcmp( filename, "-global" ) == 0 )
+            else if( equal_strings( filename, "-global" ) )
             {
                 if( !get_string_argument( "", &variable_name ) ||
                     !get_string_argument( "", &variable_value ) )
@@ -244,6 +232,9 @@ int  main(
 
     if( status == OK )
         delete_marching_cubes_table();
+
+    delete_global_variables( SIZEOF_STATIC_ARRAY(display_globals),
+                             display_globals );
 
     output_alloc_to_file( ".alloc_stats" );
 

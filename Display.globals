@@ -12,6 +12,7 @@ Maximum_display_time = 0.3;
 Size_of_interrupted = 200000000;
 Size_of_interrupted = 250;
 Interval_of_check = 250;
+Initial_incremental_update = TRUE;
 
 Initial_total_slice_update_time1 = 0.0;
 Initial_total_slice_update_time2 = 0.0;

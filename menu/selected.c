@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/selected.c,v 1.12 1995-07-31 19:54:16 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/selected.c,v 1.13 1995-10-19 15:51:53 david Exp $";
 #endif
 
 
@@ -71,14 +71,15 @@ private  void  create_selected_text(
 private  void  set_text_entry(
     display_struct    *menu_window,
     int               index,
-    char              name[],
+    STRING            name,
     Colour            col )
 {
     model_struct   *model;
 
     model = get_graphics_model( menu_window, SELECTED_MODEL );
 
-    (void) strcpy( get_text_ptr(model->objects[index+1])->string, name );
+    replace_string( &get_text_ptr(model->objects[index+1])->string,
+                    create_string(name) );
     set_object_visibility( model->objects[index+1], ON );
     
     get_text_ptr(model->objects[index+1])->colour = col;
@@ -86,7 +87,7 @@ private  void  set_text_entry(
 
 private  void  get_box_limits(
     int            index,
-    char           label[],
+    STRING         label,
     int            *x_min,
     int            *x_max,
     int            *y_min,
@@ -114,7 +115,7 @@ private  void  get_box_limits(
 private  void  set_current_box(
     model_struct   *selected_model,
     int            index,
-    char           label[] )
+    STRING         label )
 {
     int            x_start, x_end, y_start, y_end;
     Point          *points;
@@ -162,16 +163,20 @@ private  void  get_model_objects_visible(
     }
 }
 
-private  void  get_object_label(
+private  STRING  get_object_label(
     object_struct   *object,
-    int             index,
-    char            label[] )
+    int             index )
 {
+    char      buffer[EXTREMELY_LARGE_STRING_SIZE];
     STRING    name;
 
-    get_object_name( object, name );
+    name = get_object_name( object );
 
-    (void) sprintf( label, "%3d: %s", index, name );
+    (void) sprintf( buffer, "%3d: %s", index, name );
+
+    delete_string( name );
+
+    return( create_string( buffer ) );
 }
 
 public  void  rebuild_selected_list(
@@ -199,7 +204,7 @@ public  void  rebuild_selected_list(
 
     for_less( i, start_index, start_index + n_objects )
     {
-        get_object_label( model->objects[i], i, label );
+        label = get_object_label( model->objects[i], i );
 
         if( get_object_visibility( model->objects[i] ) )
         {
@@ -213,6 +218,8 @@ public  void  rebuild_selected_list(
 
         if( i == selected_index )
             set_current_box( selected_model, i - start_index, label );
+
+        delete_string( label );
     }
 
     set_update_required( menu_window, NORMAL_PLANES );
@@ -234,10 +241,12 @@ public  BOOLEAN  mouse_is_on_object_name(
 
     for_less( i, start_index, start_index + n_objects )
     {
-        get_object_label( model->objects[i], i, label );
+        label = get_object_label( model->objects[i], i );
 
         get_box_limits( i - start_index, label,
                         &x_min, &x_max, &y_min, &y_max );
+
+        delete_string( label );
 
         if( x_min <= x && x <= x_max && y_min <= y && y <= y_max )
         {
