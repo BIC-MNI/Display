@@ -1,93 +1,73 @@
-include ../C_dev/Makefile.include
+.SUFFIXES: .ln
 
-OPT = -g
+OPT = -O
 
-INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/portia/usr/include
+C_utils = ../C_src/utilities
 
-#LIBS = -L/@/portia/usr/lib -lgl -lm
-LIBS = -lgl -lm
+Includes = -I. -I../marching_cubes/Include -I$(C_utils)/Include -I/@/portia/usr/include
+CFLAGS = $(OPT) $(Includes)
+LINTFLAGS = $(Includes)
+LIBS = -L/@/portia/usr/lib -lgl -lm
 
-graphics_obj = graphics_lib/GL_graphics.o \
+.c.ln:
+	lint $(LINTFLAGS) -c $< -o $@
+
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	\rm -f *.o *.ln
+
+clean_o:
+	\rm -f *.o
+
+clean_ln:
+	\rm -f *.ln
+
+graphics_obj = GL_graphics.o \
+               render.o \
                globals.o \
-               structures/action_table.o \
-               structures/colour_coding.o \
-               structures/event_struct.o \
-               structures/fit_view.o \
-               structures/lights.o \
-               structures/render.o \
-               structures/view.o \
-               $(C_UTILS_SRC)/files.o \
-               $(C_UTILS_SRC)/points.o \
-               $(C_UTILS_SRC)/progress.o \
-               $(C_UTILS_SRC)/transforms.o
+               transforms.o \
+               view.o \
+               $(C_utils)/files.o \
+               $(C_utils)/points.o \
+               $(C_utils)/progress.o
 
 display_obj = \
-           main/main.o \
-           main/display.o \
-           main/event_loop.o \
-           main/graphics.o \
-           main/three_d.o \
+           main.o \
            $(graphics_obj) \
-           callbacks/file.o \
-           callbacks/globals.o \
-           callbacks/object_ops.o \
-           callbacks/quit.o \
-           callbacks/render_ops.o \
-           callbacks/view_ops.o \
-           callbacks/volume_ops.o \
-           current_obj/current_obj.o \
-           surface_extraction/data_structs.o \
-           surface_extraction/surface.o \
-           surface_extraction/surface_events.o \
-           events/clip_plane.o \
-           events/magnify.o \
-           events/mouse.o \
-           events/mouse_trans.o \
-           events/pick_polygon.o \
-           events/pick_view.o \
-           events/pick_voxel.o \
-           events/virt_sb.o \
-           events/window_man.o \
-           events/utilities.o \
-           immediate_mode/draw_immed.o \
-           intersect/intersect.o \
-           cursor/cursor.o \
-           cursor/cursor_icon.o \
-           menu/build_menu.o \
-           menu/menu.o \
-           menu/input_menu.o \
-           menu/menu_update.o \
-           menu/selected.o \
-           slice_window/draw_slice.o \
-           slice_window/slice.o \
-           slice_window/slice_events.o \
-           $(C_UTILS_SRC)/alloc.o \
-           $(C_UTILS_SRC)/bitlist.o \
-           $(C_UTILS_SRC)/colours.o \
-           $(C_UTILS_SRC)/geometry.o \
-           $(C_UTILS_SRC)/graphics_io.o \
-           $(C_UTILS_SRC)/hash_table.o \
-           $(C_UTILS_SRC)/lines.o \
-           $(C_UTILS_SRC)/marching_cubes.o \
-           $(C_UTILS_SRC)/mr_io.o \
-           $(C_UTILS_SRC)/objects.o \
-           $(C_UTILS_SRC)/object_io.o \
-           $(C_UTILS_SRC)/pixels.o \
-           $(C_UTILS_SRC)/polygons.o \
-           $(C_UTILS_SRC)/random_order.o \
-           $(C_UTILS_SRC)/random.o \
-           $(C_UTILS_SRC)/resample.o \
-           $(C_UTILS_SRC)/roi_io.o \
-           $(C_UTILS_SRC)/string.o \
-           $(C_UTILS_SRC)/volume.o \
-           $(C_UTILS_SRC)/time.o
+           graphics.o \
+           display.o \
+           graphics_io.o \
+           event_struct.o \
+           action_table.o \
+           event_loop.o \
+           lights.o \
+           quit.o \
+           fit_view.o \
+           mouse.o \
+           virt_sb.o \
+           magnify.o \
+           clip_plane.o \
+           mouse_trans.o \
+           window_man.o \
+           menu.o \
+           menu_update.o \
+           build_menu.o \
+           menu_input.o \
+           object_ops.o \
+           render_ops.o \
+           view_ops.o \
+           $(C_utils)/objects.o \
+           $(C_utils)/object_io.o \
+           $(C_utils)/time.o
 
 display_lint = $(display_obj:.o=.ln)
 
-globals.o:  Include/def_globals.h
+globals.o:  def_globals.h
 
 test_obj = test.o \
-           $(C_UTILS_SRC)/time.o \
+           $(C_utils)/time.o \
            $(graphics_obj)
 
 test_lint = $(test_obj:.o=.ln)
@@ -95,15 +75,11 @@ test_lint = $(test_obj:.o=.ln)
 display: $(display_obj)
 	$(CC) $(CFLAGS) $(display_obj) -o $@ $(LIBS)
 
-display.pixie:
-	@\rm -f display.Counts
-	@pixie display -o $@
-
 lint_display: $(display_lint)
-	$(LINT) -u $(LINTFLAGS) $(display_lint)
+	lint -u $(LINTFLAGS) $(display_lint)
 
 test: $(test_obj)
 	$(CC) $(CFLAGS) $(test_obj) -o $@ $(LIBS)
 
 lint_test: $(test_lint)
-	$(LINT) -u $(LINTFLAGS) $(test_lint)
+	lint -u $(LINTFLAGS) $(test_lint)
