@@ -31,13 +31,13 @@ public  Status  reset_segmentation( slice_window )
     graphics_struct   *slice_window;
 {
     Status   status;
-    void     set_all_voxel_activities();
-    void     set_all_voxel_inactivities();
+    void     set_all_voxel_activity_flags();
+    void     set_all_voxel_label_flags();
 
     status = delete_all_labels( &slice_window->slice.segmenting );
 
-    set_all_voxel_activities( slice_window->slice.volume, TRUE );
-    set_all_voxel_inactivities( slice_window->slice.volume, FALSE );
+    set_all_voxel_activity_flags( slice_window->slice.volume, TRUE );
+    set_all_voxel_label_flags( slice_window->slice.volume, FALSE );
 
     return( status );
 }
@@ -47,8 +47,8 @@ public  Status  add_point_label( slice_window, x, y, z, id )
 {
     Status        status;
     label_struct  label;
-    void          set_voxel_activity();
-    void          set_voxel_inactivity();
+    void          set_voxel_label_flag();
+    void          set_voxel_activity_flag();
 
     label.voxel_indices[X_AXIS] = x;
     label.voxel_indices[Y_AXIS] = y;
@@ -61,9 +61,9 @@ public  Status  add_point_label( slice_window, x, y, z, id )
                           label, label_struct, DEFAULT_CHUNK_SIZE );
 
     if( id == 1 )
-        set_voxel_activity( slice_window->slice.volume, x, y, z, TRUE );
+        set_voxel_label_flag( slice_window->slice.volume, x, y, z, TRUE );
     else
-        set_voxel_inactivity( slice_window->slice.volume, x, y, z, TRUE );
+        set_voxel_activity_flag( slice_window->slice.volume, x, y, z, FALSE );
 
     return( status );
 }

@@ -18,12 +18,11 @@ public  Status  disconnect_components( volume, voxel_indices, axis,
     int             max_threshold;
 {
     Status        status;
-    int           conn_length, val, i;
-    void          create_distance_transform();
+    int           val, i;
     void          assign_region_flags();
     pixel_struct  **pixels;
     int           x, y, index[3], size[3];
-    void          set_voxel_inactivity();
+    void          set_voxel_activity_flag();
     void          get_volume_size();
     Status        label_components();
 
@@ -68,11 +67,11 @@ public  Status  disconnect_components( volume, voxel_indices, axis,
             index[axis[Y_AXIS]] = y;
 
             if( pixels[x][y].label != REGION_OF_INTEREST )
-                set_voxel_inactivity( volume, index[0], index[1], index[2],
-                                      TRUE );
+                set_voxel_activity_flag( volume, index[0], index[1], index[2],
+                                         FALSE );
             else
-                set_voxel_inactivity( volume, index[0], index[1], index[2],
-                                      FALSE );
+                set_voxel_activity_flag( volume, index[0], index[1], index[2],
+                                         TRUE );
         }
     }
 
