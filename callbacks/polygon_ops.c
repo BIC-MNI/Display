@@ -287,10 +287,10 @@ public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
     Status            deform_polygons();
     Status            compute_polygon_normals();
     Status            delete_polygons_bintree();
-    Real              boundary_factor, max_step, search_width;
-    Real              min_size, min_isovalue, max_isovalue;
+    Real              boundary_factor, max_step, max_search_distance;
+    Real              search_increment, min_size, min_isovalue, max_isovalue;
     Real              stop_threshold;
-    int               max_iterations, n_samples;
+    int               max_iterations;
     volume_struct     *volume;
     polygons_struct   *polygons;
     void              set_update_required();
@@ -300,15 +300,15 @@ public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
     if( get_current_polygons( graphics, &polygons ) &&
         get_current_volume( graphics, &volume ) )
     {
-        PRINT( "Enter boundary_factor, max_step, search_width,\n" );
-        PRINT( "      n_samples, min_size,\n" );
+        PRINT( "Enter boundary_factor, max_step, max_search_distance,\n" );
+        PRINT( "      search_increment, min_size,\n" );
         PRINT( "      min_isovalue, max_isovalue,\n" );
         PRINT( "      max_iterations, stop_threshold: " );
 
         if( input_real( stdin, &boundary_factor ) == OK &&
             input_real( stdin, &max_step ) == OK &&
-            input_real( stdin, &search_width ) == OK &&
-            input_int( stdin, &n_samples ) == OK &&
+            input_real( stdin, &max_search_distance ) == OK &&
+            input_real( stdin, &search_increment ) == OK &&
             input_real( stdin, &min_size ) == OK &&
             input_real( stdin, &min_isovalue ) == OK &&
             input_real( stdin, &max_isovalue ) == OK &&
@@ -317,7 +317,8 @@ public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
         {
             status = deform_polygons( polygons, volume,
                                       boundary_factor, max_step,
-                                      search_width, n_samples, min_size,
+                                      max_search_distance, search_increment,
+                                      min_size,
                                       min_isovalue, max_isovalue,
                                       max_iterations, stop_threshold );
 

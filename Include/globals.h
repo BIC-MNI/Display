@@ -185,6 +185,7 @@ START_GLOBALS
     DEF_GLOBAL( User_defined_n_intervals, int, 10 )
     DEF_GLOBAL( User_defined_min_colour, Colour, 0.0 )
     DEF_GLOBAL( User_defined_max_colour, Colour, 0.0 )
+    DEF_GLOBAL( User_defined_colour_coding_flip, Boolean, FALSE )
     DEF_GLOBAL( Colour_above, Colour, 0.0 )
     DEF_GLOBAL( Colour_coding_type, int, 0 )
     DEF_GLOBAL( User_defined_interpolation_space, int, 0 )
@@ -233,6 +234,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Max_smoothing_distance, Real, 1.0 )
     DEF_GLOBAL( Smoothing_ratio, Real, 0.3 )
+    DEF_GLOBAL( Smoothing_normal_ratio, Real, 0.5 )
     DEF_GLOBAL( Smoothing_threshold, Real, 0.05 )
 
     DEF_GLOBAL( Surface_curve_colour, Colour, 0.0 )
@@ -259,8 +261,13 @@ START_GLOBALS
     DEF_GLOBAL( Max_voxel_scan_distance, Real, 0.5 )
     DEF_GLOBAL( Max_parametric_scan_distance, Real, 0.05 )
 
-    DEF_GLOBAL( Talairach_opacity, Real, 0.5 )
-    DEF_GLOBAL( Talairach_opacity_threshold, int, 230 )
+    DEF_GLOBAL( Initial_atlas_opacity, Real, 0.5 )
+    DEF_GLOBAL( Initial_atlas_transparent_threshold, int, 230 )
+    DEF_GLOBAL( Initial_atlas_tolerance_x, Real, 1.0 )
+    DEF_GLOBAL( Initial_atlas_tolerance_y, Real, 1.0 )
+    DEF_GLOBAL( Initial_atlas_tolerance_z, Real, 1.0 )
+    DEF_GLOBAL_STRING( Atlas_filename, "" )
+    DEF_GLOBAL( Default_atlas_state, Boolean, FALSE )
 
 END_GLOBALS
          

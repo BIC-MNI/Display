@@ -120,6 +120,9 @@
                        MENU_FUNCTION(smooth_current_lines) \
                        MENU_FUNCTION(make_current_line_tube) \
                        MENU_FUNCTION(convert_line_to_spline_points) \
+                       MENU_FUNCTION(make_line_circle) \
+                       MENU_FUNCTION(deform_line_to_volume) \
+                       MENU_FUNCTION(subdivide_current_lines) \
                        MENU_FUNCTION(save_polygons_bintree) \
                        MENU_FUNCTION(create_marker_at_cursor) \
                        MENU_FUNCTION(set_cursor_to_marker) \
