@@ -82,9 +82,12 @@ typedef  struct
 #define  Surfprop_se( surfprop )  ((surfprop).se)
 #define  Surfprop_t( surfprop )  ((surfprop).t)
 
-typedef  Matrix  Transform;
+typedef  struct
+{
+    Matrix    m;
+} Transform;
 
-#define  Matrix_elem( t, i, j ) ((t)[i][j])
+#define  Transform_elem( t, i, j ) ((t).m[j][i])
 
 typedef  long  Window_id;
 
