@@ -180,6 +180,9 @@ START_GLOBALS
     DEF_GLOBAL( Smoothing_ratio, Real, 0.3 )
     DEF_GLOBAL( Smoothing_threshold, Real, 0.05 )
 
+    DEF_GLOBAL( Surface_curve_colour, Colour, 0.0 )
+    DEF_GLOBAL( Surface_curve_thickness, int, 3 )
+
 END_GLOBALS
          
 #endif
