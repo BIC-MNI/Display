@@ -1,6 +1,7 @@
 See INSTALL for generic installation instructions.
 
 		Required Libraries
+		------------------
 
 Display requires several libraries to be installed before it
 can successfully be configured and built.  Please install all
@@ -16,8 +17,15 @@ of the following before continuing.
 	see http://reality.sgi.com/opengl/glut3/
 
 
+		Missing X libraries?
+		--------------------
+
+Recent build on linux required adding -lXi -lXext -lXt
+to the link line.
+
 
 		Configuring Display
+		-------------------
 
 Often, you can configure and build Display simply:
 

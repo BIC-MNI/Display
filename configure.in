@@ -107,7 +107,7 @@ dnl Checks for library functions.
 smr_CHECK_LIB(malloc,,
 [Extended Malloc library], mallinfo, malloc.h)
 if test "$malloc_LIBS"; then
-    AC_DEFINE(HAVE_MALLINFO)
+    AC_DEFINE(HAVE_MALLINFO,1,[define if function mallinfo() is available])
     AC_SUBST(malloc_CFLAGS)
     AC_SUBST(malloc_LIBS)
 fi

@@ -8,6 +8,7 @@ Let us know if something goes wrong.
     automake: configure.in: installing [...]
     warning: AC_TRY_RUN called without default to allow cross compiling
     required file \`./ltconfig' not found
+    required file \`./ltmain.sh' not found
 
 
 

@@ -1,3 +1,8 @@
+2001-06-04  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
+
+	* configure.in: Use 3-argument AC_DEFINE for HAVE_MALLINFO;
+	otherwise autoheader gives error.
+
 2001-05-27  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
 
 	* release-1_3_2: Tag added.  The package built contains identical
