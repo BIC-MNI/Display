@@ -5,6 +5,8 @@
 
 #define DEBUGP( x ) x
 
+const double INITIAL_FACTOR = 1.05;
+
 const double ALPHA = 1.0;
 const double BETA = 0.5;
 const double GAMMA = 2.0;
@@ -27,7 +29,7 @@ private  void  get_psum( ndim, p, psum )
 }
 
 private  double  amotry( fit_data,
-                         p, y, psum, ptry, ndim, ihi, nfunk, fac )
+                         p, y, psum, ptry, ndim, ihi, nfunk, fac, success )
     minimization_struct       *fit_data;
     double                    **p;
     double                    y[];
@@ -37,6 +39,7 @@ private  double  amotry( fit_data,
     int                       ihi;
     int                       *nfunk;
     double                    fac;
+    Boolean                   *success;
 {
     int      j;
     double   fac1, fac2, ytry;
@@ -59,7 +62,10 @@ private  double  amotry( fit_data,
             psum[j] += ptry[j] - p[ihi][j];
             p[ihi][j] = ptry[j];
         }
+        *success = TRUE;
     }
+    else
+        *success = FALSE;
 
     return( ytry );
 }
@@ -100,7 +106,7 @@ public  Status  initialize_amoeba( fit_data, evaluation_ptr,
         if( fit_data->p[j][j-1] == 0.0 )
             fit_data->p[j][j-1] = 1.0;
         else
-            fit_data->p[j][j-1] *= 1.01;
+            fit_data->p[j][j-1] *= INITIAL_FACTOR;
     }
 
     for_less( i, 0, ndim + 1 )
@@ -141,6 +147,7 @@ public  void  amoeba( fit_data, ndim, ftol, max_funk, n_funk, out_parameters )
     int     i, j, ilo, ihi, inhi;
     double  ytry, ysave, rtol, amotry();
     double  evaluate_fit();
+    Boolean success;
 
     *n_funk = 0;
 
@@ -175,17 +182,21 @@ public  void  amoeba( fit_data, ndim, ftol, max_funk, n_funk, out_parameters )
 
         ytry = amotry( fit_data, 
                        fit_data->p, fit_data->y, fit_data->psum, fit_data->ptry,
-                       ndim, ihi, n_funk, -ALPHA );
+                       ndim, ihi, n_funk, -ALPHA, &success );
 
         if( ytry <= fit_data->y[ilo] )
         {
             DEBUGP( PRINT( "Successfully mirrored %g\n", ytry ); )
             ytry = amotry( fit_data, fit_data->p, fit_data->y,
                            fit_data->psum, fit_data->ptry,
-                           ndim, ihi, n_funk, GAMMA );
+                           ndim, ihi, n_funk, GAMMA, &success );
 
-            if( ytry == fit_data->y[ihi] )
+            if( success )
+            {
+                void  print_ranges();
                 DEBUGP( PRINT( "Successfully expanded %g\n", ytry ); )
+                DEBUGP( print_ranges( ndim, fit_data->p ); )
+            }
         }
         else if( ytry >= fit_data->y[inhi] )
         {
@@ -193,9 +204,10 @@ public  void  amoeba( fit_data, ndim, ftol, max_funk, n_funk, out_parameters )
             ysave = fit_data->y[ihi];
             ytry = amotry( fit_data, fit_data->p, fit_data->y,
                            fit_data->psum, fit_data->ptry,
-                           ndim, ihi, n_funk, BETA );
+                           ndim, ihi, n_funk, BETA, &success );
             if( ytry >= ysave )
             {
+                DEBUGP( PRINT( "Contracting around smallest.\n" ); )
                 for_less( i, 0, ndim+1 )
                 {
                     if( i != ilo )
@@ -218,6 +230,30 @@ public  void  amoeba( fit_data, ndim, ftol, max_funk, n_funk, out_parameters )
     }
 
     for_less( i, 0, ndim )
-        out_parameters[i] = fit_data->psum[i] / (double) (ndim + 1);
+        out_parameters[i] = fit_data->p[ilo][i];
 
+}
+
+private  void  print_ranges( ndim, p )
+    int     ndim;
+    double  **p;
+{
+    int     i, j;
+    double  min, max;
+
+    for_less( j, 0, ndim )
+    {
+        min = 0.0;
+        max = 0.0;
+
+        for_less( i, 0, ndim+1 )
+        {
+            if( i == 0 || p[i][j] < min )  min = p[i][j];
+            if( i == 0 || p[i][j] > max )  max = p[i][j];
+        }
+
+        PRINT( " %g %g ###", min, max );
+    }
+
+    PRINT( "\n" );
 }
