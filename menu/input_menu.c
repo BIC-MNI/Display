@@ -96,6 +96,10 @@
                        MENU_FUNCTION(paint_invisible) \
                        MENU_FUNCTION(paint_visible) \
                        MENU_FUNCTION(remove_invisible_parts_of_polygon) \
+                       MENU_FUNCTION(colour_code_objects) \
+                       MENU_FUNCTION(set_hot_metal) \
+                       MENU_FUNCTION(set_gray_scale) \
+                       MENU_FUNCTION(set_spectral) \
                 
 
 typedef  struct
