@@ -55,6 +55,7 @@ typedef  struct
     Pixel_colour   colour_above_pixel;
 
     Colour_spaces  interpolation_space;
+    int            colour_table_size;
     Pixel_colour   *colour_table;
 } colour_coding_struct;
 

@@ -203,9 +203,7 @@ lint_timing: $(timing_ln)
 
 # -------
 
-test_gl_obj = test_gl.o \
-              alloc.o \
-              colours.o
+test_gl_obj = test_gl.o
 
 test_gl_ln = $(test_gl_obj:.o=.ln)
 

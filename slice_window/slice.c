@@ -47,6 +47,8 @@ public  Status  initialize_slice_window( graphics )
         status = initialize_colour_coding( &graphics->slice.colour_coding );
     }
 
+    graphics->slice.fast_lookup_present = FALSE;
+
     return( status );
 }
 
@@ -58,9 +60,10 @@ public  Status  set_slice_window_volume( graphics, volume )
     Status           initialize_voxel_flags();
     Status           initialize_voxel_done_flags();
     Status           update_cursor_size();
-    int              c, x_index, y_index;
+    int              c, x_index, y_index, num_entries;
     Real             factor, min_thickness, max_thickness;
-    void             set_colour_coding_range();
+    void             change_colour_coding_range();
+    void             update_fast_lookup();
 
     graphics->slice.volume = volume;
 
@@ -109,8 +112,18 @@ public  Status  set_slice_window_volume( graphics, volume )
                                   volume->slice_thickness[y_index];
     }
 
-    set_colour_coding_range( &graphics->slice.colour_coding,
-                             volume->min_value, volume->max_value );
+    num_entries = (int) graphics->slice.volume->max_value -
+                  (int) graphics->slice.volume->min_value + 1;
+
+    graphics->slice.fast_lookup_present =
+                  (num_entries <= Max_fast_colour_lookup);
+
+    if( status == OK && graphics->slice.fast_lookup_present )
+        ALLOC1( status, graphics->slice.fast_lookup, num_entries,
+                Pixel_colour );
+
+    change_colour_coding_range( graphics,
+                                volume->min_value, volume->max_value );
 
     if( status == OK )
     {
@@ -128,6 +141,31 @@ public  Status  set_slice_window_volume( graphics, volume )
     }
 
     return( status );
+}
+
+public  void  change_colour_coding_range( graphics, min_value, max_value )
+    graphics_struct   *graphics;
+    Real              min_value, max_value;
+{
+    int              val, min_val, max_val;
+    void             set_colour_coding_range();
+    Pixel_colour     get_colour_coding();
+
+    set_colour_coding_range( &graphics->slice.colour_coding,
+                             min_value, max_value );
+
+    if( graphics->slice.fast_lookup_present )
+    {
+        min_val = (int) graphics->slice.volume->min_value;
+        max_val = (int) graphics->slice.volume->max_value;
+   
+        for_inclusive( val, min_val, max_val )
+        {
+            graphics->slice.fast_lookup[val-min_val] =
+                    get_colour_coding( &graphics->slice.colour_coding,
+                                       (Real) val );
+        }
+    }
 }
 
 public  Boolean   get_slice_window_volume( graphics, volume )
@@ -163,6 +201,9 @@ public  Status  delete_slice_window( slice_window )
     {
         FREE1( status, slice_window->temporary_indices );
     }
+
+    if( status == OK && slice_window->fast_lookup_present )
+        FREE1( status, slice_window->fast_lookup );
 
     return( status );
 }

@@ -123,6 +123,7 @@ START_GLOBALS
     DEF_GLOBAL( Edge_point_threshold, Real, 1.0 )
     DEF_GLOBAL( Edge_point_new_density, Real, 0.5 )
 
+    DEF_GLOBAL( Max_fast_colour_lookup, int, 100000 )
     DEF_GLOBAL( Colour_table_size, int, 1000 )
     DEF_GLOBAL( Colour_below, Colour, 0.0 )
     DEF_GLOBAL( Min_colour, Colour, 0.0 )

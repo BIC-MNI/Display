@@ -247,6 +247,8 @@ public  void  rebuild_slice_pixels( graphics, view_index )
 
     render_slice_to_pixels( graphics->slice.temporary_indices,
                    pixels, axis_index, x_index, y_index, graphics->slice.volume,
+                   graphics->slice.fast_lookup_present,
+                   graphics->slice.fast_lookup,
                    &graphics->slice.colour_coding,
                    voxel_indices,
                    x_pixel_start, x_pixel_end, y_pixel_start, y_pixel_end,
@@ -355,14 +357,17 @@ public  void  rebuild_cursor( graphics, view_index )
 }
 
 private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
-                                       x_index, y_index,
-                                       volume, colour_coding, start_indices,
+                                       x_index, y_index, volume,
+                                       fast_lookup_present, fast_lookup,
+                                       colour_coding, start_indices,
                                        x_left, x_right, y_bottom, y_top,
                                        x_scale, y_scale )
     int                   temporary_indices[];
     pixels_struct         *pixels;
     int                   axis_index, x_index, y_index;
     volume_struct         *volume;
+    Boolean               fast_lookup_present;
+    Pixel_colour          fast_lookup[];
     colour_coding_struct  *colour_coding;
     int                   start_indices[N_DIMENSIONS];
     int                   x_left, x_right, y_bottom, y_top;
@@ -440,7 +445,9 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
 
             if( indices[y_index] != prev_y )
             {
-                pixel_col = get_voxel_colour( volume, colour_coding,
+                pixel_col = get_voxel_colour( volume,
+                                              fast_lookup_present,
+                                              fast_lookup, colour_coding,
                                               indices[0], indices[1],
                                               indices[2] );
 
@@ -452,8 +459,11 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
     }
 }
 
-private  Pixel_colour  get_voxel_colour( volume, colour_coding, x, y, z )
+private  Pixel_colour  get_voxel_colour( volume, fast_lookup_present,
+                                         fast_lookup,colour_coding, x, y, z )
     volume_struct         *volume;
+    Boolean               fast_lookup_present;
+    Pixel_colour          fast_lookup[];
     colour_coding_struct  *colour_coding;
     int                   x, y, z;
 {
@@ -483,7 +493,10 @@ private  Pixel_colour  get_voxel_colour( volume, colour_coding, x, y, z )
     {
         val = GET_VOLUME_DATA( *volume, x, y, z );
 
-        pixel_col = get_colour_coding( colour_coding, (Real) val );
+        if( fast_lookup_present )
+            pixel_col = fast_lookup[val-(int)volume->min_value];
+        else
+            pixel_col = get_colour_coding( colour_coding, (Real) val );
     }
 
     return( pixel_col );

@@ -22,6 +22,9 @@ typedef  struct
 typedef  struct
 {
     volume_struct          *volume;
+
+    Boolean                fast_lookup_present;
+    Pixel_colour           *fast_lookup;
     colour_coding_struct   colour_coding;
 
     int                    x_split, y_split;

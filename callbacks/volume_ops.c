@@ -642,7 +642,7 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
     Real             min_value, max_value;
     graphics_struct  *slice_window;
     void             rebuild_slice_models();
-    void             set_colour_coding_range();
+    void             change_colour_coding_range();
     void             set_update_required();
 
     if( get_current_volume(graphics,&volume) )
@@ -658,8 +658,7 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
         if( scanf( "%f %f", &min_value, &max_value ) == 2 &&
             min_value <= max_value )
         {
-            set_colour_coding_range( &slice_window->slice.colour_coding,
-                                     min_value, max_value );
+            change_colour_coding_range( slice_window, min_value, max_value );
 
             PRINT( "    New limits:\t%g\t%g\n",
                    slice_window->slice.colour_coding.min_value,
