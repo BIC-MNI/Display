@@ -307,8 +307,8 @@ private  int  extract_polygons(
         voxel_flags = VOXEL_COMPLETELY_DONE;
     }
 
-    (void) set_voxel_done_flag( volume, surface_extraction->voxel_done_flags,
-                                voxel_index, voxel_flags );
+    set_voxel_done_flag( volume, surface_extraction->voxel_done_flags,
+                         voxel_index, voxel_flags );
 
     return( n_nondegenerate_polys > 0 );
 }
