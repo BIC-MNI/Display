@@ -78,8 +78,10 @@ private  void  update_rotation(
     if( perform_rotation( display ) &&
         get_slice_window( display, &slice_window ) )
     {
-        reset_slice_view( slice_window, OBLIQUE_VIEW_INDEX );
-        set_slice_window_update( slice_window, OBLIQUE_VIEW_INDEX );
+        reset_slice_view( slice_window,
+                          get_arbitrary_view_index(slice_window) );
+        set_slice_window_update( slice_window,
+                                 get_arbitrary_view_index(slice_window) );
     }
 }
 
@@ -119,7 +121,8 @@ private  void  transform_slice_axes(
 
     volume = get_volume( slice_window );
 
-    get_slice_plane( slice_window, OBLIQUE_VIEW_INDEX, origin, x_axis, y_axis );
+    get_slice_plane( slice_window, get_arbitrary_view_index(slice_window),
+                     origin, x_axis, y_axis );
 
     get_volume_separations( volume, separations );
 
@@ -193,7 +196,8 @@ private  void  transform_slice_axes(
         y_axis[Z] /= len;
     }
 
-    set_slice_plane( slice_window, OBLIQUE_VIEW_INDEX, x_axis, y_axis );
+    set_slice_plane( slice_window, get_arbitrary_view_index(slice_window),
+                     x_axis, y_axis );
 }
 
 private  BOOLEAN  perform_rotation(
