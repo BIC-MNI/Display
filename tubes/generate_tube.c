@@ -70,41 +70,27 @@ public  void  generate_tube( n_points, points, n_around, radius,
 
     wrap_around = EQUAL_POINTS( points[0], points[n_points-1] );
 
-    if( wrap_around )
-        get_direction( n_points, points, n_points-2, wrap_around, &prev_dir );
-    else
-        fill_Vector( prev_dir, 0.0, 0.0, 0.0 );
-
     get_direction( n_points, points, 0, wrap_around, &dir );
     get_noncolinear_vector( &dir, &hor );
 
+    if( wrap_around )
+        get_direction( n_points, points, n_points-2, wrap_around, &prev_dir );
+    else
+        prev_dir = dir;
+
     for_less( i, 0, n_points )
     {
-/*
-        if( DOT_VECTORS( dir, prev_dir ) < 0.0 )
-            SCALE_VECTOR( hor, hor, -1.0 );
-*/
-
-        CROSS_VECTORS( vert, dir, hor );
-
-        if( null_Vector(&vert) )
-        {
-            if( DOT_VECTORS( hor, dir ) < 0.0 )
-                CROSS_VECTORS( vert, dir, prev_dir )
-            else
-                CROSS_VECTORS( vert, prev_dir, dir )
-        }
-
+        CROSS_VECTORS( vert, prev_dir, hor );
         NORMALIZE_VECTOR( vert, vert );
 
-        CROSS_VECTORS( hor, vert, dir );
+        CROSS_VECTORS( hor, vert, prev_dir );
         NORMALIZE_VECTOR( hor, hor );
 
         ADD_VECTORS( normal, prev_dir, dir );
         NORMALIZE_VECTOR( normal, normal );
 
-        project_vector_to_plane( &hor, &normal, &hor );
-        project_vector_to_plane( &vert, &normal, &vert );
+        project_vector_to_plane( &hor, &prev_dir, &normal, &hor );
+        project_vector_to_plane( &vert, &prev_dir, &normal, &vert );
 
         fill_in_ellipse_points( &tube_points[IJ(i,0,n_around)],
                                 &tube_normals[IJ(i,0,n_around)],
@@ -148,5 +134,32 @@ private  void   fill_in_ellipse_points( tube_points, tube_normals, centre,
 
         ADD_POINT_VECTOR( tube_points[i], *centre, offset );
         NORMALIZE_VECTOR( tube_normals[i], offset );
+    }
+}
+
+
+public  void  project_vector_to_plane( v, direction, normal, projected )
+    Vector   *v;
+    Vector   *direction;
+    Vector   *normal;
+    Vector   *projected;
+{
+    Vector   offset;
+    Real     t, n_dot_d, n_dot_v;
+
+    n_dot_d = DOT_VECTORS( *normal, *direction );
+
+    if( n_dot_d == 0.0 )
+    {
+        (void) fprintf( stderr, "Error in project_vector_to_plane\n" );
+    }
+    else
+    {
+        n_dot_v = DOT_VECTORS( *normal, *v );
+
+        t =  - n_dot_v / n_dot_d;
+
+        SCALE_VECTOR( offset, *direction, t );
+        ADD_VECTORS( *projected, *v, offset );
     }
 }

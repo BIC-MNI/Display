@@ -23,6 +23,8 @@ public  void  draw_2d_line( graphics, view_type, colour, x1, y1, x2, y2 )
                                     };
     void      G_set_view_type();
     void      G_draw_lines();
+    void           G_set_render();
+    render_struct  *get_main_render();
 
     G_set_view_type( &graphics->window, view_type );
 
@@ -31,7 +33,9 @@ public  void  draw_2d_line( graphics, view_type, colour, x1, y1, x2, y2 )
 
     lines.colour = *colour;
 
-    G_draw_lines( &graphics->window, &lines,
+    G_set_render( &graphics->window, get_main_render(graphics) );
+
+    G_draw_lines( &graphics->window, &lines, get_main_render(graphics),
                   (update_interrupted_struct *) 0, FALSE );
 }
 
@@ -55,6 +59,8 @@ public  void  draw_2d_rectangle( graphics, view_type, colour, x1, y1, x2, y2 )
                                     };
     void      G_set_view_type();
     void      G_draw_lines();
+    void           G_set_render();
+    render_struct  *get_main_render();
 
     G_set_view_type( &graphics->window, view_type );
 
@@ -65,7 +71,8 @@ public  void  draw_2d_rectangle( graphics, view_type, colour, x1, y1, x2, y2 )
 
     lines.colour = *colour;
 
-    G_draw_lines( &graphics->window, &lines,
+    G_set_render( &graphics->window, get_main_render(graphics) );
+    G_draw_lines( &graphics->window, &lines, get_main_render(graphics),
                   (update_interrupted_struct *) 0, FALSE );
 }
 
@@ -87,7 +94,7 @@ public  void  draw_polygons( graphics, polygons )
                      (update_interrupted_struct *) 0, FALSE );
 }
 
-private  render_struct  *get_main_render( graphics )
+public  render_struct  *get_main_render( graphics )
     graphics_struct   *graphics;
 {
     return( &graphics->models[THREED_MODEL]->ptr.model->render );

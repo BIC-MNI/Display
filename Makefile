@@ -34,15 +34,17 @@ display_obj = \
            main/graphics.o \
            main/three_d.o \
            main/transforms.o \
+           $(graphics_obj) \
            callbacks/file.o \
            callbacks/call_globals.o \
-           $(graphics_obj) \
            callbacks/object_ops.o \
            callbacks/quit.o \
+           callbacks/line_ops.o \
            callbacks/marker_ops.o \
            callbacks/render_ops.o \
            callbacks/segmenting.o \
            callbacks/surface_ops.o \
+           callbacks/surface_curves.o \
            callbacks/view_ops.o \
            callbacks/volume_ops.o \
            current_obj/current_obj.o \
@@ -80,9 +82,14 @@ display_obj = \
            segmenting/connect.o \
            segmenting/cut.o \
            segmenting/segmenting.o \
+           segmenting/visibility.o \
            slice_window/draw_slice.o \
            slice_window/slice.o \
            slice_window/slice_events.o \
+           surface_curves/events.o \
+           surface_curves/edge_distance.o \
+           tubes/convert_lines.o \
+           tubes/generate_tube.o \
            alloc.o \
            arguments.o \
            build_bintree.o \
@@ -104,6 +111,7 @@ display_obj = \
            path_surface.o \
            pixels.o \
            polygons.o \
+           quadmesh.o \
            random_order.o \
            random.o \
            resample.o \
@@ -276,3 +284,24 @@ add_lines: $(add_lines_obj)
 
 lint_add_lines: $(add_lines_ln)
 	$(LINT) -u $(LINTFLAGS) $(add_lines_ln)
+
+# -------
+
+tube_obj = test_tube.c \
+                 alloc.o \
+                 files.o \
+                 geometry.o \
+                 object_io.o \
+                 points.o \
+                 tubes/generate_tube.o \
+                 colours.o \
+                 stdio_decomp.o
+
+tube_ln = $(tube_obj:.o=.ln)
+
+test_tube: $(tube_obj)
+	$(CC) -g $(INCLUDE) $(tube_obj) -o $@ $(LIBS)
+
+
+lint_tube: $(tube_ln)
+	$(LINT) -u $(LINTFLAGS) $(tube_ln)

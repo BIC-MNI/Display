@@ -30,8 +30,8 @@ public  Boolean  distance_along_polygons( polygons, p1, poly1, p2, poly2,
 
     if( found )
     {
-        status = create_path( polygons, p1, p2, last_vertex,
-                              vertices, lines );
+        status = create_path( polygons, p1, p2, lines->n_points == 0,
+                              last_vertex, vertices, lines );
     }
 
     if( status == OK )
@@ -64,15 +64,15 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
         vertices[i].changed = -1;
     }
 
-    size = GET_OBJECT_SIZE( *polygons, poly1 );
+    size = GET_OBJECT_SIZE( *polygons, poly2 );
 
     iteration = 0;
 
     for_less( e, 0, size )
     {
         point_index = polygons->indices[
-                         POINT_INDEX( polygons->end_indices, poly1, e )];
-        dist = distance_between_points( &polygons->points[point_index], p1 );
+                         POINT_INDEX( polygons->end_indices, poly2, e )];
+        dist = distance_between_points( &polygons->points[point_index], p2 );
 
         vertices[point_index].from_point = -1;
         vertices[point_index].distance = dist;
@@ -139,17 +139,17 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
             }
         }
 
-        size = GET_OBJECT_SIZE( *polygons, poly2 );
+        size = GET_OBJECT_SIZE( *polygons, poly1 );
 
         for_less( e, 0, size )
         {
             point_index = polygons->indices[
-                             POINT_INDEX( polygons->end_indices, poly2, e )];
+                             POINT_INDEX( polygons->end_indices, poly1, e )];
 
             if( vertices[point_index].from_point >= -1 )
             {
                 dist = distance_between_points( &polygons->points[point_index],
-                                                p2 )
+                                                p1 )
                        + vertices[point_index].distance;
 
                 if( !found || dist < *path_dist )
@@ -165,10 +165,12 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
     return( found );
 }
 
-private  Status  create_path( polygons, p1, p2, last_vertex, vertices, lines )
+private  Status  create_path( polygons, p1, p2, first_flag,
+                              last_vertex, vertices, lines )
     polygons_struct   *polygons;
     Point             *p1;
     Point             *p2;
+    Boolean           first_flag;
     int               last_vertex;
     vertex_struct     vertices[];
     lines_struct      *lines;
@@ -177,10 +179,15 @@ private  Status  create_path( polygons, p1, p2, last_vertex, vertices, lines )
     Status          begin_adding_points_to_line();
     Status          add_point_to_line();
 
-    status = begin_adding_points_to_line( lines );
+    status = OK;
 
-    if( status == OK )
-        status = add_point_to_line( lines, p2 );
+    if( first_flag )
+    {
+        status = begin_adding_points_to_line( lines );
+
+        if( status == OK )
+            status = add_point_to_line( lines, p1 );
+    }
 
     while( status == OK && last_vertex >= 0 )
     {
@@ -189,7 +196,7 @@ private  Status  create_path( polygons, p1, p2, last_vertex, vertices, lines )
     }
 
     if( status == OK )
-        status = add_point_to_line( lines, p1 );
+        status = add_point_to_line( lines, p2 );
 
     return( status );
 }

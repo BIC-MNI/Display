@@ -40,6 +40,8 @@ START_GLOBALS
     DEF_GLOBAL( Menu_character_width, Real, 20.0 )
     DEF_GLOBAL( Initial_2_sided_flag, Boolean, TRUE )
     DEF_GLOBAL( Initial_backface_flag, Boolean, FALSE )
+    DEF_GLOBAL( Initial_line_curves_flag, Boolean, FALSE )
+    DEF_GLOBAL( Initial_n_curve_segments, int, 4 )
     DEF_GLOBAL( Visibility_on_input, Boolean, FALSE )
 
     DEF_GLOBAL( Initial_x_scale, Real, 1.0 )

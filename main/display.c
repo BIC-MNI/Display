@@ -47,6 +47,7 @@ private  void  display_objects_recursive( window, bitplanes,
     void           G_draw_marker();
     void           G_draw_pixels();
     void           G_draw_polygons();
+    void           G_draw_quadmesh();
     void           G_draw_volume();
     void           G_push_transform();
     void           G_pop_transform();
@@ -128,6 +129,12 @@ private  void  display_objects_recursive( window, bitplanes,
 
                 case POLYGONS:
                     G_draw_polygons( window, object_list[i]->ptr.polygons,
+                                     render, interrupt,
+                                     object_is_continuing );
+                    break;
+
+                case QUADMESH:
+                    G_draw_quadmesh( window, object_list[i]->ptr.quadmesh,
                                      render, interrupt,
                                      object_is_continuing );
                     break;
