@@ -36,6 +36,7 @@ typedef  struct
     char             *ptr_to_global;
     String           variable_name;
     variable_types   type;
+    Boolean          initialized_from_file;
 } global_struct;
 
 #define  START_GLOBALS   static  global_struct  globals[] = {
@@ -43,7 +44,7 @@ typedef  struct
 
 #define  DEF_GLOBAL( variable, type, initial ) \
        { \
-           (char *) &variable, "variable", type/**/_type \
+           (char *) &variable, "variable", type/**/_type, FALSE \
        },
 
 #endif
@@ -64,6 +65,8 @@ START_GLOBALS
     DEF_GLOBAL( Initial_render_mode, int, 1 )
     DEF_GLOBAL( Initial_shading_type, int, 1 )
     DEF_GLOBAL( Initial_light_switch, Boolean, TRUE )
+    DEF_GLOBAL( Frame_number_x, Real, 0.8 )
+    DEF_GLOBAL( Frame_number_y, Real, 0.1 )
 END_GLOBALS
          
 
