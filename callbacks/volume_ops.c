@@ -12,10 +12,9 @@ public  BOOLEAN  get_slice_view_index_under_mouse(
 
     found = FALSE;
 
-    if( get_slice_window_volume( display, &volume ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_slice_window_volume( slice_window, &volume ) )
     {
-        slice_window = display->associated[SLICE_WINDOW];
-
         if( G_get_mouse_position( slice_window->window, &x, &y ) &&
             find_slice_view_mouse_is_in( slice_window, x, y, view_index ) )
         {
@@ -35,14 +34,13 @@ private  void  change_current_slice_by_one(
     Real             voxel[N_DIMENSIONS];
     int              sizes[N_DIMENSIONS], axis_index;
 
-    if( get_axis_index_under_mouse( display, &axis_index ) &&
+    if( get_slice_window( display, &slice_window ) &&
+        get_axis_index_under_mouse( display, &axis_index ) &&
         get_slice_window_volume( display, &volume ) )
     {
-        slice_window = display->associated[SLICE_WINDOW];
-
         get_volume_sizes( volume, sizes );
 
-        get_current_voxel( slice_window, voxel );
+        get_current_voxel( slice_window, -1, voxel );
 
         voxel[axis_index] = (Real) ROUND( voxel[axis_index] + (Real) delta );
 
@@ -52,8 +50,7 @@ private  void  change_current_slice_by_one(
             {
                 if( update_cursor_from_voxel( slice_window ) )
                 {
-                    set_update_required( slice_window->
-                                         associated[THREE_D_WINDOW],
+                    set_update_required( get_three_d_window(slice_window),
                                          get_cursor_bitplanes() );
                 }
             }
@@ -93,8 +90,8 @@ public  DEF_MENU_FUNCTION(toggle_slice_visibility)   /* ARGSUSED */
     if( get_slice_window( display, &slice_window ) &&
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
-        set_slice_visibility( slice_window, view_index,
-                              !get_slice_visibility(slice_window,view_index) );
+        set_slice_visibility( slice_window, -1, view_index,
+                            !get_slice_visibility(slice_window,-1,view_index) );
     }
 
     return( OK );
@@ -132,7 +129,7 @@ public  DEF_MENU_FUNCTION(reset_current_slice_view)   /* ARGSUSED */
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
         reset_slice_view( slice_window, view_index );
-        set_slice_window_update( slice_window, view_index, UPDATE_BOTH );
+        set_slice_window_update( slice_window, -1, view_index, UPDATE_BOTH );
     }
 
     return( OK );
@@ -156,7 +153,7 @@ public  DEF_MENU_FUNCTION(colour_code_objects )   /* ARGSUSED */
 
         while( get_next_object_traverse(&object_traverse,&object) )
         {
-            colour_code_an_object( display, object );
+            colour_code_an_object( display, -1, object );
         }
 
         set_update_required( display, NORMAL_PLANES );
@@ -180,15 +177,15 @@ public  DEF_MENU_FUNCTION(create_3d_slice)   /* ARGSUSED */
 
     if( get_slice_window( display, &slice_window ) &&
         get_slice_view_index_under_mouse( slice_window, &view_index ) &&
-        slice_has_ortho_axes( slice_window, view_index,
+        slice_has_ortho_axes( slice_window, -1, view_index,
                               &x_index, &y_index, &axis_index ) )
     {
-        get_current_voxel( slice_window, current_voxel );
+        get_current_voxel( slice_window, -1, current_voxel );
         object = create_3d_slice_quadmesh( get_volume(display),
                                            axis_index,
                                            current_voxel[axis_index] );
 
-        colour_code_an_object( display, object );
+        colour_code_an_object( display, -1, object );
 
         add_object_to_current_model( display, object );
     }
@@ -211,34 +208,22 @@ public  DEF_MENU_FUNCTION(resample_slice_window_volume)   /* ARGSUSED */
     if( get_slice_window_volume( display, &volume ) &&
         get_slice_window( display, &slice_window ) )
     {
-        get_volume_sizes( slice_window->slice.original_volume, sizes );
+        get_volume_sizes( volume, sizes );
+
         print( "The original volume is %d by %d by %d.\n",
                sizes[X], sizes[Y], sizes[Z] );
-
-
-        if( volume != slice_window->slice.original_volume )
-        {
-            get_volume_sizes( volume, sizes );
-            print( "Currently resampled to %d by %d by %d.\n",
-                   sizes[X], sizes[Y], sizes[Z] );
-        }
 
         print( "Enter desired resampled size: " );
 
         if( input_int( stdin, &new_nx ) == OK &&
             input_int( stdin, &new_ny ) == OK &&
-            input_int( stdin, &new_nz ) == OK )
+            input_int( stdin, &new_nz ) == OK &&
+            (new_nx > 0 || new_ny > 0 || new_nz > 0) )
         {
-            if( new_nx > 0 || new_ny > 0 || new_nz > 0 )
-            {
-                resampled_volume = smooth_resample_volume(
-                                        slice_window->slice.original_volume,
-                                        new_nx, new_ny, new_nz );
-            }
-            else
-                resampled_volume = slice_window->slice.original_volume;
+            resampled_volume = smooth_resample_volume(
+                                        volume, new_nx, new_ny, new_nz );
 
-            set_slice_window_volume( slice_window, resampled_volume );
+            add_slice_window_volume( slice_window, resampled_volume );
         }
 
         (void) input_newline( stdin );
@@ -263,15 +248,15 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
     if( get_slice_window_volume( display, &volume ) &&
         get_slice_window( display, &slice_window ) )
     {
-        get_volume_separations( slice_window->slice.original_volume,
-                                separations );
+        get_volume_separations( volume, separations );
 
         print( "Enter box filter  x_width, y_width, z_width, v/w: " );
 
         if( input_real( stdin, &x_width ) == OK &&
             input_real( stdin, &y_width ) == OK &&
             input_real( stdin, &z_width ) == OK &&
-            input_nonwhite_character( stdin, &ch ) == OK )
+            input_nonwhite_character( stdin, &ch ) == OK &&
+            (x_width > 1.0 || y_width > 1.0 || z_width > 1.0) )
         {
             if( ch == 'w' )
             {
@@ -280,17 +265,11 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
                 z_width /= ABS( separations[Z] );
             }
 
-            if( x_width > 1.0 || y_width > 1.0 || z_width > 1.0 )
-            {
-                resampled_volume = create_box_filtered_volume(
-                                        slice_window->slice.original_volume,
+            resampled_volume = create_box_filtered_volume( volume,
                                         NC_BYTE, FALSE, 0.0, 0.0,
                                         x_width, y_width, z_width );
-            }
-            else
-                resampled_volume = slice_window->slice.original_volume;
 
-            set_slice_window_volume( slice_window, resampled_volume );
+            add_slice_window_volume( slice_window, resampled_volume );
         }
 
         (void) input_newline( stdin );
@@ -394,7 +373,7 @@ public  DEF_MENU_FUNCTION(print_voxel_origin)      /* ARGSUSED */
 
     if( get_slice_window( display, &slice_window ) )
     {
-        get_current_voxel( slice_window, voxel );
+        get_current_voxel( slice_window, -1, voxel );
 
         convert_voxel_to_world( get_volume(slice_window), voxel,
                                 &xw, &yw, &zw );
@@ -418,7 +397,7 @@ public  DEF_MENU_FUNCTION(print_slice_plane)      /* ARGSUSED */
     if( get_slice_window( display, &slice_window ) &&
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
-        get_slice_perp_axis( slice_window, view_index, perp_axis );
+        get_slice_perp_axis( slice_window, -1, view_index, perp_axis );
         convert_voxel_vector_to_world( get_volume(slice_window),
                                        perp_axis, &xw, &yw, &zw );
 
@@ -487,10 +466,9 @@ public  DEF_MENU_FUNCTION(type_in_slice_plane)      /* ARGSUSED */
             convert_world_vector_to_voxel( get_volume(slice_window), xw, yw, zw,
                                     perp_axis );
 
-            set_slice_plane_perp_axis( slice_window, view_index, perp_axis );
+            set_slice_plane_perp_axis( slice_window, -1, view_index, perp_axis);
             reset_slice_view( slice_window, view_index );
-
-            set_slice_window_update( slice_window, view_index, UPDATE_BOTH );
+            set_slice_window_update( slice_window, -1, view_index, UPDATE_BOTH);
         }
 
         (void) input_newline( stdin );
@@ -511,7 +489,7 @@ public  DEF_MENU_FUNCTION(toggle_slice_cross_section_visibility)  /* ARGSUSED */
         slice_window->slice.cross_section_visibility =
                              !slice_window->slice.cross_section_visibility;
         rebuild_slice_cross_sections( slice_window );
-        set_slice_window_all_update( slice_window, -1, UPDATE_BOTH );
+        set_slice_viewport_update( slice_window, FULL_WINDOW_MODEL );
     }
 }
 
