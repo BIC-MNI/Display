@@ -120,6 +120,9 @@ typedef  struct
 {
     int              n_paint_polygons;
 
+    Colour           visible_colour;
+    Colour           invisible_colour;
+
     polygons_struct  *polygons;
     Boolean          polygons_set;
     int              n_vertices;
@@ -150,6 +153,7 @@ typedef  struct
     int              n_points_alloced;
     int              n_indices_alloced;
     int              n_end_indices_alloced;
+    int              first_poly_index;
     Boolean          prev_point_exists;
     Point            prev_point;
     int              prev_poly_index;
