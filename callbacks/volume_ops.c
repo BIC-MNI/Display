@@ -979,9 +979,12 @@ public  DEF_MENU_FUNCTION(toggle_slice_interpolation)
         continuity = slice_window->slice.degrees_continuity;
         ++continuity;
         if( continuity == 1 )
-            continuity = 2;
-        else if( continuity == 3 )
             continuity = -1;
+/*
+            continuity = 2;
+        else if( continuity == 3 )  
+            continuity = -1;
+*/
 
         slice_window->slice.degrees_continuity = continuity;
 
@@ -1008,7 +1011,6 @@ public  DEF_MENU_UPDATE(toggle_slice_interpolation )
     {
     case 0:   name = "trilinear";   break;
     case 2:   name = "tricubic";   break;
-
     case -1:
     default:  name = "near neigh";   break;
     }

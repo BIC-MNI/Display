@@ -281,7 +281,7 @@ private  BOOLEAN  perform_cursor_translation(
         transform_world_to_model_vector( &display->three_d.view,
                                          &ray_direction,
                                          &transformed_direction );
-        moved = intersect_lines_3d(
+        moved = get_nearest_point_on_lines(
                      &display->three_d.cursor.origin,
                      &axis_direction,
                      &transformed_origin, &transformed_direction, &new_cursor );

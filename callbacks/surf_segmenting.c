@@ -47,7 +47,9 @@ public  DEF_MENU_FUNCTION( remove_invisible_parts_of_polygon )
 
     if( get_current_polygons(display,&polygons) )
     {
-        remove_invisible_polygons( polygons );
+        remove_invisible_polygons( polygons, polygons->visibilities );
+
+        create_polygons_visibilities( polygons );
 
         set_update_required( display, NORMAL_PLANES );
     }

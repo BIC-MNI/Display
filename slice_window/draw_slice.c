@@ -310,10 +310,11 @@ public  void  rebuild_probe(
 
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
 
-        voxel_value = get_volume_voxel_value( volume,
-                      int_voxel[X], int_voxel[Y], int_voxel[Z], 0, 0 );
+        (void) evaluate_volume( volume, voxel, NULL,
+                                slice_window->slice.degrees_continuity,
+                                FALSE, 0.0, &value, NULL, NULL );
 
-        value = CONVERT_VOXEL_TO_VALUE( get_volume(slice_window), voxel_value );
+        voxel_value = CONVERT_VALUE_TO_VOXEL( volume, value );
 
         label = get_volume_label_data( get_nth_label_volume(
                                                     slice_window,volume_index),

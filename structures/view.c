@@ -207,10 +207,12 @@ public  void  transform_world_to_model(
     Point         *p,
     Point         *transformed_point )
 {
-    Real   x, y, z;
+    Transform   inverse;
+    Real        x, y, z;
 
-    inverse_transform_point( &view->modeling_transform,
-                             Point_x(*p), Point_y(*p), Point_z(*p), &x, &y, &z);
+    compute_transform_inverse( &view->modeling_transform, &inverse );
+    transform_point( &inverse, Point_x(*p), Point_y(*p), Point_z(*p),
+                     &x, &y, &z);
     fill_Point( *transformed_point, x, y, z );
 }
 
@@ -219,11 +221,13 @@ public  void  transform_world_to_model_vector(
     Vector        *v,
     Vector        *transformed_vector )
 {
-    Real  x, y, z;
+    Transform   inverse;
+    Real        x, y, z;
 
-    inverse_transform_vector( &view->modeling_transform,
-                              Vector_x(*v), Vector_y(*v), Vector_z(*v),
-                              &x, &y, &z);
+    compute_transform_inverse( &view->modeling_transform, &inverse );
+    transform_vector( &view->modeling_transform,
+                      Vector_x(*v), Vector_y(*v), Vector_z(*v),
+                      &x, &y, &z);
     fill_Vector( *transformed_vector, x, y, z );
 }
 
