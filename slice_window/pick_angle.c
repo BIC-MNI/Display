@@ -173,7 +173,7 @@ private  void  set_slice_angle(
     get_slice_perp_axis( slice_window, view_index, perp_axis );
     create_slice_axes( view_index, axis, perp_axis, x_axis, y_axis );
 
-    set_slice_plane( slice_window, OBLIQUE_VIEW_INDEX, x_axis, y_axis );
+    set_slice_plane( slice_window, OBLIQUE_VIEW_INDEX, perp_axis, axis );
     reset_slice_view( slice_window, OBLIQUE_VIEW_INDEX );
     set_slice_window_update( slice_window, OBLIQUE_VIEW_INDEX );
 }
