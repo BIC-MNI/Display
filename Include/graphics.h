@@ -11,6 +11,7 @@ typedef  struct
     Vector      x_axis, y_axis, line_of_sight;
     Real        front_distance, back_distance;
     Real        perspective_distance;
+    Real        desired_aspect;
     Real        window_width, window_height;
     Transform   modeling_transform;
 } view_struct;
@@ -42,6 +43,8 @@ typedef  enum  {
                    MIDDLE_MOUSE_UP_EVENT,
                    RIGHT_MOUSE_DOWN_EVENT,
                    RIGHT_MOUSE_UP_EVENT,
+                   WINDOW_REDRAW_EVENT,
+                   WINDOW_RESIZE_EVENT,
                    NUM_EVENT_TYPES
                } event_types;
 
@@ -66,9 +69,19 @@ typedef  struct
 
 typedef  Status  (*event_function_type)();
 
+#define  MAX_ACTION_STACK  5
+#define  MAX_ACTIONS       10
+
 typedef  struct
 {
-    event_function_type   actions[(int) NUM_EVENT_TYPES];
+    int                   stack_index;
+    int                   last_index[MAX_ACTION_STACK];
+    event_function_type   actions[MAX_ACTIONS];
+} action_table_entry;
+
+typedef  struct
+{
+    action_table_entry  event_info[(int) NUM_EVENT_TYPES];
 } action_table_struct;
 
 #include  <def_objects.h>
@@ -90,6 +103,7 @@ typedef  struct
 } graphics_struct;
 
 #define  DECL_EVENT_FUNCTION( f )  Status   f()
+
 #define  DEF_EVENT_FUNCTION( f )   Status   f( graphics, event ) \
                                                 graphics_struct  *graphics; \
                                                 event_struct     *event;
