@@ -297,9 +297,9 @@ public  void  rebuild_slice_pixels( graphics, view_index )
 
     model = get_graphics_model(graphics,SLICE_MODEL);
 
-    axis_index = graphics->slice.slice_views[view_index].axis_map[Z_AXIS];
-    x_index = graphics->slice.slice_views[view_index].axis_map[X_AXIS];
-    y_index = graphics->slice.slice_views[view_index].axis_map[Y_AXIS];
+    axis_index = graphics->slice.slice_views[view_index].axis_map[Z];
+    x_index = graphics->slice.slice_views[view_index].axis_map[X];
+    y_index = graphics->slice.slice_views[view_index].axis_map[Y];
 
     pixels = model->object_list[SLICE1_INDEX+view_index]->ptr.pixels;
 
@@ -336,7 +336,7 @@ public  void  rebuild_slice_pixels( graphics, view_index )
 
     print_cursor = get_voxel_corresponding_to_point( graphics,
             &graphics->associated[THREE_D_WINDOW]->three_d.cursor.origin,
-            &real_pos[X_AXIS], &real_pos[Y_AXIS], &real_pos[Z_AXIS] );
+            &real_pos[X], &real_pos[Y], &real_pos[Z] );
 
     if( print_cursor &&
         real_pos[axis_index] == (Real) ((int) real_pos[axis_index]) )
@@ -350,9 +350,9 @@ public  void  rebuild_slice_pixels( graphics, view_index )
     {
         switch( axis_index )
         {
-        case X_AXIS:  format = Slice_index_xc_format;  break;
-        case Y_AXIS:  format = Slice_index_yc_format;  break;
-        case Z_AXIS:  format = Slice_index_zc_format;  break;
+        case X:  format = Slice_index_xc_format;  break;
+        case Y:  format = Slice_index_yc_format;  break;
+        case Z:  format = Slice_index_zc_format;  break;
         }
 
         (void) sprintf( text->text, format,
@@ -366,18 +366,18 @@ public  void  rebuild_slice_pixels( graphics, view_index )
         {
             switch( axis_index )
             {
-            case X_AXIS:  format = Slice_index_x_locked_format;  break;
-            case Y_AXIS:  format = Slice_index_y_locked_format;  break;
-            case Z_AXIS:  format = Slice_index_z_locked_format;  break;
+            case X:  format = Slice_index_x_locked_format;  break;
+            case Y:  format = Slice_index_y_locked_format;  break;
+            case Z:  format = Slice_index_z_locked_format;  break;
             }
         }
         else
         {
             switch( axis_index )
             {
-            case X_AXIS:  format = Slice_index_x_format;  break;
-            case Y_AXIS:  format = Slice_index_y_format;  break;
-            case Z_AXIS:  format = Slice_index_z_format;  break;
+            case X:  format = Slice_index_x_format;  break;
+            case Y:  format = Slice_index_y_format;  break;
+            case Z:  format = Slice_index_z_format;  break;
             }
         }
 
@@ -415,8 +415,8 @@ public  void  rebuild_cursor( graphics, view_index )
 
     model = get_graphics_model(graphics,SLICE_MODEL);
 
-    x_index = graphics->slice.slice_views[view_index].axis_map[X_AXIS];
-    y_index = graphics->slice.slice_views[view_index].axis_map[Y_AXIS];
+    x_index = graphics->slice.slice_views[view_index].axis_map[X];
+    y_index = graphics->slice.slice_views[view_index].axis_map[Y];
 
     lines = model->object_list[CURSOR1_INDEX+view_index]->ptr.lines;
 
@@ -464,13 +464,13 @@ public  void  rebuild_cursor( graphics, view_index )
         y_end += dy;
     }
 
-    start_pixel[X_AXIS] = Cursor_start_pixel_x;
-    start_pixel[Y_AXIS] = Cursor_start_pixel_y;
-    start_pixel[Z_AXIS] = Cursor_start_pixel_z;
+    start_pixel[X] = Cursor_start_pixel_x;
+    start_pixel[Y] = Cursor_start_pixel_y;
+    start_pixel[Z] = Cursor_start_pixel_z;
 
-    end_pixel[X_AXIS] = Cursor_end_pixel_x;
-    end_pixel[Y_AXIS] = Cursor_end_pixel_y;
-    end_pixel[Z_AXIS] = Cursor_end_pixel_z;
+    end_pixel[X] = Cursor_end_pixel_x;
+    end_pixel[Y] = Cursor_end_pixel_y;
+    end_pixel[Z] = Cursor_end_pixel_z;
 
     fill_Point( lines->points[0], x_centre, y_end + start_pixel[y_index], 0.0 );
     fill_Point( lines->points[1], x_centre, y_end + end_pixel[y_index], 0.0 );
