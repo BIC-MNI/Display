@@ -1,0 +1,452 @@
+"\
+root\
+{\
+    permanent ' '      pop_menu                     'Pop Menu'\
+    permanent '7'      quit                         'Quit'\
+\
+    permanent '+'      move_slice_plus              '+ Slice'\
+    permanent '='      move_slice_plus              '+ Slice'\
+    permanent '-'      move_slice_minus             '- Slice'\
+\
+    transient 'q'      volume_config                'Volume Config'\
+    transient 'w'      view_3d                      '3D View'\
+    transient 'e'      render_3d                    '3D Render'\
+    transient 'r'      objects                      'Objects'\
+    transient 't'      file                         'File'\
+    transient 'y'      volume_transform             'Volume Transform'\
+    transient 'u'      translate_labels             'Translate Labels'\
+\
+    transient 'a'      atlas                        'Atlas'\
+    transient 's'      slice_view                   'Slice View'\
+    transient 'd'      colour_coding                'Colour Coding'\
+    transient 'f'      segmenting                   'Segmenting'\
+    transient 'g'      create_surface               'Create Surface'\
+    transient 'h'      volume_cropping              'Volume Cropping'\
+\
+    transient 'z'      polygons                     'Polygons'\
+    transient 'x'      surface_segmentation         'Surface Segmentation'\
+    transient 'c'      lines                        'Lines'\
+    transient 'v'      surface_curves               'Surface Curves'\
+    transient 'b'      markers                      'Markers'\
+    transient 'n'      deform                       'Deformation'\
+\
+    permanent '2'      magnify_view                 'Magnify 3D'\
+    permanent '3'      translate_view               'Translate 3D'\
+    permanent '4'      rotate_view                  'Rotate 3D'\
+\
+    permanent '\left'  ascend_selected              'Up'\
+    permanent '\right' descend_selected             'Down'\
+    permanent '\down'  advance_selected             'Next'\
+    permanent '\up'    retreat_selected             'Prev'\
+}\
+\
+quit\
+{\
+    transient 'z'    exit_program                   'Really Quit'\
+    transient 'v'    pop_menu                       'Don't Quit'\
+\
+    transient 'a'    menu_set_global_variable       'Global Var'\
+    transient 't'    show_memory                    'Show Memory'\
+}\
+\
+file\
+{\
+\
+    transient '1'    toggle_crop_labels_on_output    'Crop Save Lbls: %s'\
+    transient 'q'    load_label_data                 'Load Labels .mnc'\
+    transient 'w'    save_label_data                 'Save Labels .mnc'\
+    transient 'e'    load_labels                     'Load Labels .tag'\
+    transient 'r'    save_labels                     'Save Labels .tag'\
+    transient 't'    save_current_label              'Save Curr Lbl .tag'\
+    transient 'y'    load_user_defined_colour_scale  'Load UserDef ColCode'\
+\
+    transient 'a'    save_markers                    'Save Mrkrs as .tag'\
+    transient 's'    save_slice_image                'Save Slice Image'\
+    transient 'f'    load_file                       'Load File'\
+    transient 'd'    save_file                       'Save File'\
+    transient 'g'    save_slice_window               'Save Slice Window'\
+    transient 'h'    save_image                      'Save 3D Window'\
+\
+    transient 'z'    load_polygons_visibilities      'Load Poly Visib.'\
+    transient 'x'    save_polygons_visibilities      'Save Poly Visib.'\
+    transient 'c'    save_polygons_bintree           'Save Bintree'\
+    transient 'v'    input_polygons_bintree          'Load Bintree'\
+    transient 'b'    save_colour_map                 'Save Colour Map'\
+    transient 'n'    load_colour_map                 'Load Colour Map'\
+}\
+\
+create_surface\
+{\
+    transient 'y'    set_surface_invalid_label_range     'Set Invalid Lbl Range'\
+\
+    transient 'a'    start_volume_isosurface             'Volume Isosurface'\
+    transient 's'    start_volume_binary_isosurface      'Volume Bin-Isosurface'\
+    transient 'd'    get_voxelated_surface               'Volume Voxelate'\
+    transient 'g'    start_label_binary_isosurface       'Label Bin-Isosurface'\
+    transient 'h'    get_voxelated_label_surface         'Label Voxelate'\
+\
+    transient 'x'    reset_surface                       'Reset Surface'\
+    transient 'v'    toggle_surface_extraction           'Extracting: %s'\
+    transient 'b'    make_surface_permanent              'Make Perm'\
+}\
+\
+slice_view\
+{\
+    transient 'q'    toggle_cross_section_visibility 'Toggle Plane Visibility'\
+    transient 'w'    rotate_slice_axes               'Rotate Slice'\
+    transient 'e'    pick_slice_angle_point          'Pick Slice Angle'\
+    transient 'r'    next_volume_visible             'Visible: %d'\
+    transient 't'    toggle_current_volume           'Curr Volume: %d'\
+    transient 'y'    set_current_arbitrary_view      'Set Current Arb. View'\
+    transient 'u'    toggle_slice_anchor             'Toggle Slice Anchor'\
+\
+    transient 'a'    create_3d_slice                 'Create 3D Slice'\
+    transient 's'    toggle_slice_visibility         'Toggle Slice Visibility'\
+    transient 'd'  toggle_slice_cross_section_visibility 'Toggle Slice Crs-Sect'\
+    transient 'f'    reset_current_slice_view        'Reset Slice View'\
+    transient 'g'    redo_histogram                  'Recompute Histogram'\
+    transient 'h'    redo_histogram_labeled          'Histogram of Labeled'\
+\
+    transient 'z'    resample_slice_window_volume    'Resample Volume'\
+    transient 'x'    box_filter_slice_window_volume  'Box Filter Volume'\
+    transient 'c'    print_voxel_origin              'Print Origin'\
+    transient 'v'    print_slice_plane               'Print Plane Normal'\
+    transient 'b'    type_in_voxel_origin            'Type In Origin'\
+    transient 'n'    type_in_slice_plane             'Type In Plane Normal'\
+\
+    transient '1'    create_3d_slice_profile         'Create 3D profile'\
+    transient '2'    set_current_volume_opacity      'Vol Opacity: %g'\
+    transient '6'    toggle_double_buffer_slice      'Slice DblBuf: %s'\
+}\
+\
+volume_cropping\
+{\
+    transient 'a'    toggle_slice_crop_visibility    'Visibility: %s'\
+    transient 's'    pick_crop_box_edge              'Pick Crop Box'\
+    transient 'd'    load_cropped_volume             'Crop and Load'\
+    transient 'f'    set_crop_box_filename           'Set Crop Source'\
+    transient 'x'    reset_slice_crop                'Reset Crop Position'\
+    transient 'r'    crop_volume_to_file             'Crop To File'\
+}\
+\
+delete_current_volume_menu\
+{\
+    transient 'b'    delete_current_volume           'Really Delete'\
+    transient 'q'    pop_menu                        'Don't Delete'\
+}\
+\
+colour_coding\
+{\
+    transient 'q'    set_user_defined_colour_scale   'UserDef ColCode'\
+    transient 'w'    set_arbitrary_colour_scale      'Arb Colour (Over)'\
+    transient 'e'    set_red                         'Red'\
+    transient 'r'    set_green                       'Green'\
+    transient 't'    set_blue                        'Blue'\
+\
+    transient 'a'    colour_code_objects             'Colour Code Objects'\
+    transient 's'    set_spectral                    'Spectral'\
+    transient 'd'    set_gray_scale                  'Gray Scale'\
+    transient 'f'    set_hot_metal                   'Hot Metal'\
+    transient 'g'    set_contour_colour_map          'Contour'\
+    transient 'h'    set_colour_limits               'Range'\
+\
+    transient 'z'    set_under_colour                'Under Col: %s'\
+    transient 'x'    set_over_colour                 'Over Col: %s'\
+    transient 'c'    set_label_colour_ratio          'Label Opacity: %g'\
+    transient 'v'    toggle_display_labels           'Show Labels: %s'\
+    transient 'b'    set_label_colour                'Set Paint Lbl Colour'\
+    transient 'n'    set_slice_window_n_labels       'Num Labels: %d'\
+}\
+\
+view_3d\
+{\
+    transient 'a'    reset_view              'Reset View'\
+    transient 's'    make_view_fit           'Fit View'\
+    transient 'd'    toggle_perspective      'Proj: %s'\
+    transient 'f'    front_clipping          'Front Plane'\
+    transient 'g'    back_clipping           'Back Plane'\
+    transient 'h'    print_view              'Print View'\
+\
+    transient 'z'    front_view              'Front View'\
+    transient 'x'    back_view               'Back View'\
+    transient 'c'    left_view               'Left View'\
+    transient 'v'    right_view              'Right View'\
+    transient 'b'    top_view                'Top View'\
+    transient 'n'    bottom_view             'Bottom View'\
+\
+    transient 'q'    pick_view_rectangle     'Pick View'\
+    transient 'w'    create_film_loop        'Film Loop'\
+    transient 'e'    type_in_3D_origin       'Type-in Cursor Pos'\
+    transient 'r'    toggle_stereo_mode      'Toggle Stereo'\
+    transient 't'    set_eye_separation      'Eye Width: %g'\
+    transient 'y'    right_tilted_view       'Right Tilt View'\
+    transient 'u'    left_tilted_view        'Left Tilt View'\
+}\
+\
+render_3d\
+{\
+    transient 'a'    toggle_render_mode           'Mode: %s'\
+    transient 's'    toggle_shading               'Shading: %s'\
+    transient 'd'    toggle_lights                'Lights: %s'\
+    transient 'f'    toggle_two_sided             '2 Sided: %s'\
+    transient 'g'    toggle_backfacing            'Backface: %s'\
+\
+    transient 'v'    toggle_line_curve_flag       'Lines as Curves: %s'\
+    transient 'c'    toggle_marker_label_flag     'Marker Labels: %s'\
+    transient 'z'    set_n_curve_segments         'Set # Curve Segments'\
+\
+    transient 'q'    change_background_colour     'Change Background'\
+    transient 'w'    toggle_double_buffer_threed  '3D DblBuf: %s'\
+}\
+\
+objects\
+{\
+    transient 'a'    set_current_object_surfprop 'Change Surface Property'\
+    transient 's'    flip_object                 'Flip Object'\
+    transient 'g'    toggle_object_visibility    'Toggle Visible'\
+    transient 'd'    cut_object                  'Cut Object'\
+    transient 'f'    paste_object                'Paste Object'\
+\
+    transient 'z'    make_all_invisible          'Invisible'\
+    transient 'x'    make_all_visible            'Visible'\
+    transient 'c'    advance_visible             'Next Visible'\
+    transient 'v'    retreat_visible             'Previous Visible'\
+    transient 'b'    mark_vertices               'Show Vertices'\
+\
+    transient 'q'    delete_object_menu          'Delete Object'\
+    transient 'w'    scan_current_object_to_volume 'Scan Object to Volume'\
+    transient 'e'    set_current_object_colour   'Change Colour'\
+    transient 'r'    change_model_name           'Change Model Name'\
+    transient 't'    create_model                'Create Model'\
+}\
+\
+lines\
+{\
+    transient 'a'    set_line_widths                  'Set Line Width'\
+    transient 'd'    smooth_current_lines             'Smooth Lines'\
+    transient 'f'    make_current_line_tube           'Create Tube'\
+    transient 's'    convert_line_to_spline_points    'Spline Line'\
+\
+    transient 'z'    convert_markers_to_lines         'Convert Markers'\
+    transient 'x'    make_line_circle                 'Make Line Circle'\
+    transient 'c'    subdivide_current_lines          'Subdivide Line'\
+    transient 'v'    convert_markers_to_closed_lines  'Convert Closed Markers'\
+}\
+\
+delete_object_menu\
+{\
+    transient 'b'    delete_current_object     'Really Delete'\
+    transient 'q'    pop_menu                  'Don't Delete'\
+}\
+\
+surface_segmentation\
+{\
+    transient '5'    set_invis_colour_to_invis         'Invis Col -> Invis'\
+\
+    transient 'q'    reset_polygon_visibility          'Reset Visible'\
+    transient 'w'    set_visibility_from_colour        'Set Coloured Visible'\
+    transient 'e'    remove_invisible_parts_of_polygon 'Remove Invisible'\
+    transient 'r'    crop_above_plane                  'Crop Above'\
+    transient 't'    crop_below_plane                  'Crop Below'\
+    transient 'y'    reset_polygon_neighbours          'Reset Neighbours'\
+\
+    transient 'a'    set_vis_to_invis_colour           'Vis -> Invis Colour'\
+    transient 's'    set_vis_to_vis_colour             'Vis -> Vis Colour'\
+    transient 'd'    paint_invisible                   'Paint Invisible'\
+    transient 'f'    paint_visible                     'Paint Visible'\
+    transient 'g'    set_vis_paint_colour              'Vis Col: %s'\
+    transient 'h'    set_invis_paint_colour            'Invis: %s'\
+\
+    transient 'z'    set_connected_vis_colour          'Connected Vis Colour'\
+    transient 'x'    set_connected_invis_colour        'Connected Invis Colour'\
+    transient 'c'    paint_invis_colour                'Paint Invis Colour'\
+    transient 'v'    paint_vis_colour                  'Paint Vis Colour'\
+    transient 'b'    set_n_paint_polygons              'Paint size: %d polygons'\
+\
+    transient '1'    cut_polygon_neighbours            'Cut Neighbours'\
+}\
+\
+polygons\
+{\
+    transient 'w'    print_polygons_surface_area       'Print Surface Area'\
+    transient 'e'    set_polygon_line_thickness        'Set Line Thickness'\
+    transient 'r'    make_polygon_sphere               'Make Quad Ellipsoid'\
+    transient 't'    subdivide_current_polygon         'Subdivide Polygons'\
+\
+    transient 'a'    create_bintree_for_polygons       'Create Bintree'\
+    transient 'd'    create_normals_for_polygon        'Compute Normals'\
+    transient 'f'    reverse_polygons_order            'Reverse Polygons'\
+    transient 'g'    reverse_normals                   'Reverse Normals'\
+    transient 'h'    make_tetrahedral_sphere           'Make Tetrahedral Ellipsoid'\
+\
+    transient 'z'    coalesce_current_polygons         'Coalesce Polygons'\
+    transient 'x'    separate_current_polygons         'Separate Polygons'\
+    transient 'c'    smooth_current_polygon            'Smooth Polygon'\
+    transient 'v'    average_normals_for_polygon       'Average Normals'\
+}\
+\
+markers\
+{\
+    transient '4'    copy_defaults_to_markers           'Defaults -> Many'\
+    transient '5'    copy_defaults_to_marker            'Defaults -> Current'\
+\
+    transient 'q'    change_marker_size          'Chg Marker Size'\
+    transient 'w'    change_marker_label         'Chg Marker Label'\
+    transient 'e'    change_marker_structure_id  'Chg Structure Id'\
+    transient 'r'    change_marker_patient_id    'Chg Patient Id'\
+    transient 't'    change_marker_type          'Chg Marker Type'\
+    transient 'u'    change_marker_position      'Change Marker Position'\
+\
+    transient 'd'    set_cursor_to_marker        'Move to Marker'\
+    transient 'f'    create_marker_at_cursor     'Create Marker'\
+    transient 'g'    move_cursor_to_home         'Move Cursor Home'\
+    transient 'h'    delete_object_menu          'Delete Object'\
+\
+\
+    transient 'z'    set_default_marker_size           'Default Size: %g'\
+    transient 'x'    set_default_marker_label          'Def Label: %s'\
+    transient 'c'    set_default_marker_colour         'Def Colour: %s'\
+    transient 'v'    set_default_marker_structure_id   'Def Struct Id: %d'\
+    transient 'b'    set_default_marker_patient_id     'Def Patient Id: %d'\
+    transient 'n'    set_default_marker_type           'Default Type: %s'\
+}\
+\
+surface_curves\
+{\
+    transient 'r'    pick_surface_point_on_line   'Pick Line Point'\
+\
+    transient 'a'    reset_surface_line           'Reset Curves'\
+    transient 's'    close_surface_line           'Close Curve'\
+    transient 'f'    start_surface_line           'Start Surf Curve'\
+    transient 'd'    end_surface_line             'End Surf Curve'\
+\
+    transient 'z'    make_surface_line_permanent  'Permanent Curve'\
+    transient 'x'    set_line_curvature_weight    'Curv Weight: %g'\
+    transient 'c'    set_surface_curve_curvature  'Set Crv'tre Limits'\
+}\
+\
+atlas\
+{\
+    transient 's'    set_atlas_transparent_threshold 'Set Transparent Threshold'\
+    transient 'd'    set_atlas_opacity               'Set Opacity'\
+    transient 'f'    set_atlas_on_or_off             'Atlas State: %s'\
+\
+    transient 'w'    flip_atlas_x                    'Flip X'\
+    transient 'e'    flip_atlas_y                    'Flip Y'\
+    transient 'r'    flip_atlas_z                    'Flip Z'\
+\
+    transient 'x'    set_atlas_tolerance_x           'Set Tolerance X'\
+    transient 'c'    set_atlas_tolerance_y           'Set Tolerance Y'\
+    transient 'v'    set_atlas_tolerance_z           'Set Tolerance Z'\
+}\
+\
+deform\
+{\
+    transient 'd'    start_deforming_object               'Start Deformation'\
+    transient 'f'    stop_deforming_object                'Stop Deformation'\
+\
+    transient 'q'    set_deformation_original_positions   'Set Original Pos'\
+    transient 'w'    set_deformation_model                'Set Model'\
+    transient 'e'    set_deformation_boundary             'Set Boundary'\
+    transient 'r'    set_deformation_parameters           'Set Parameters'\
+\
+    transient 'x'    reset_deformation_model              'Reset Model'\
+    transient 'v'    show_deformation_model               'Show Model'\
+}\
+\
+segmenting\
+{\
+    transient 'q'    label_voxel                      'Label Voxel'\
+    transient 'w'    clear_voxel                      'Clear Voxel'\
+    transient 'e'    label_connected                  'Label Fill'\
+    transient 'r'    label_connected_no_threshold     'Label Fill No Thrs'\
+    transient 't'    clear_connected                  'Clear Fill'\
+    transient 'y'    set_segmenting_threshold         'Set Threshold'\
+    transient 'u'    change_labels_in_range           'Change Labels'\
+\
+    transient 'a'    label_slice                      'Label Slice'\
+    transient 's'    clear_slice_confirm              'Clear Slice'\
+    transient 'd'    set_current_paint_label          'Set Paint Lbl: %d'\
+    transient 'f'    set_paint_xy_brush_radius        'XY Radius: %g'\
+    transient 'g'    set_paint_z_brush_radius         'Out-plane Rad: %g'\
+    transient 'h'    copy_labels_from_higher_slice 'Copy from Rt/Sup/Ant Slice'\
+\
+    transient 'z'    reset_segmenting_confirm         'Clear All Labels'\
+    transient 'x'    erode_labels                     'Erode 3D'\
+    transient 'c'    dilate_labels                    'Dilate 3D'\
+    transient 'v'    calculate_volume                 'Calculate Volume'\
+    transient 'b'    toggle_display_labels           'Show Labels: %s'\
+    transient 'n'    copy_labels_from_lower_slice  'Copy from Lt/Inf/Post Slice'\
+\
+    transient '1'    set_current_erase_label          'Set Erase Lbl: %d'\
+    transient '2'    toggle_fast_update               'Fast Update: %s'\
+    transient '3'    toggle_cursor_follows_paintbrush 'Cursor Follows: %s'\
+    transient '4'    toggle_cursor_visibility         'Cursor Vis: %s'\
+    transient '5'    toggle_connectivity              'Connectivity: %d'\
+    transient '6'    label_connected_3d               'Fill 3D'\
+\
+    transient '7'    undo_slice_labels                'Undo'\
+}\
+\
+reset_segmenting_confirm\
+{\
+    transient 'q'    pop_menu                          'Cancel'\
+    transient 'b'    reset_segmenting                 'Yes, Clear Labels'\
+}\
+\
+clear_slice_confirm\
+{\
+    transient 'q'    pop_menu                          'Cancel'\
+    transient 'b'    clear_slice                       'Yes, Clear Slice'\
+}\
+\
+translate_labels\
+{\
+    transient 'e'    translate_labels_up              'Trans ^'\
+    transient 's'    translate_labels_left            'Trans <'\
+    transient 'd'    translate_labels_right           'Trans >'\
+    transient 'x'    translate_labels_down            'Trans v'\
+    transient 'a'    translate_labels_arbitrary       'Big Translate'\
+}\
+\
+volume_transform\
+{\
+    transient 'q'    next_volume_visible             'Visible: %d'\
+    transient 'w'    transform_current_volume        'Xform Volume Frm File'\
+    transient 'e'    reset_volume_transform          'Reset Vol Xform'\
+    transient 'r'    set_volume_translation_step     'Trans Step: %g'\
+    transient 't'    set_volume_rotation_step        'Rot Step: %g'\
+    transient 'y'    save_current_volume_transform   'Save Volume Xform'\
+\
+    transient 'a'    translate_volume_plus_x          'Trans + X'\
+    transient 's'    translate_volume_plus_y          'Trans + Y'\
+    transient 'd'    translate_volume_plus_z          'Trans + Z'\
+    transient 'f'    rotate_volume_plus_x             'Rot + X'\
+    transient 'g'    rotate_volume_plus_y             'Rot + Y'\
+    transient 'h'    rotate_volume_plus_z             'Rot + Z'\
+\
+    transient 'z'    translate_volume_minus_x          'Trans - X'\
+    transient 'x'    translate_volume_minus_y          'Trans - Y'\
+    transient 'c'    translate_volume_minus_z          'Trans - Z'\
+    transient 'v'    rotate_volume_minus_x             'Rot - X'\
+    transient 'b'    rotate_volume_minus_y             'Rot - Y'\
+    transient 'n'    rotate_volume_minus_z             'Rot - Z'\
+\
+}\
+\
+volume_config\
+{\
+    transient '1'    delete_current_volume_menu      'Delete Volume'\
+\
+    transient 'q'    set_nearest_neighbour           'Nearest Neighbour'\
+    transient 'w'    set_linear_interpolation        'Linear Int Filter'\
+    transient 'e'    set_box_filter                  'Box Filter'\
+    transient 'r'    set_triangle_filter             'Triangle Filter'\
+    transient 't'    set_gaussian_filter             'Gaussian Filter'\
+    transient 'y'    set_filter_half_width           'Filter Width'\
+\
+    transient 'a'    toggle_share_labels             'Share Labels: %s'\
+    transient 's'    toggle_slice_interpolation      'Interp: %s'\
+    transient 'd'    toggle_incremental_slice_update 'Increm Update: %s'\
+}\
+"
