@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.24 1996-05-23 13:48:34 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.25 1996-05-23 15:00:38 david Exp $";
 #endif
 
 #include  <display.h>
@@ -323,7 +323,7 @@ private  void  get_inside_flags(
     inside_ptr = &inside_flags[0][0][0];
     labels_ptr = &labels[0][0][0];
 
-    for_less( i, 0, 8 )
+    for_less( i, 0, 27 )
     {
         value = *values_ptr++;
 
