@@ -186,7 +186,7 @@ public  void  rebuild_probe( graphics )
             case VAL_PROBE_INDEX:
                 (void) sprintf( text->text, Slice_probe_val_format,
                         (Real) GET_VOLUME_DATA( *graphics->slice.volume,
-                                                x_file, y_file, z_file) );
+                                                x_voxel, y_voxel, z_voxel) );
                 break;
             }
         }
@@ -450,6 +450,7 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
     Real            dx, dy;
     Pixel_colour    get_voxel_colour();
     Pixel_colour    get_colour_coding();
+    Boolean         activity_flag, inactivity_flag;
 
     status = OK;
 
@@ -512,15 +513,31 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
 
             if( indices[x_index] != prev_x )
             {
-#ifdef ACTIVITIES
 #define ACTIVITIES
-                pixel_col = get_voxel_colour( volume,
-                                              fast_lookup_present,
-                                              fast_lookup, colour_coding,
-                                              indices[0], indices[1],
-                                              indices[2] );
-#else
-
+#ifdef  ACTIVITIES
+                if( Display_activities &&
+                    (!(activity_flag=get_voxel_activity_flag( volume,
+                                    indices[0], indices[1], indices[2] )) ||
+                     (inactivity_flag=get_voxel_inactivity_flag( volume,
+                                    indices[0], indices[1], indices[2] )) ) )
+                {
+                    if( activity_flag )
+                    {
+                        COLOUR_TO_PIXEL( Inactive_voxel_colour, pixel_col );
+                    }
+                    else if( inactivity_flag )
+                    {
+                        COLOUR_TO_PIXEL( Inactive_and_not_active_voxel_colour,
+                                         pixel_col );
+                    }
+                    else
+                    {
+                        COLOUR_TO_PIXEL( Not_active_voxel_colour, pixel_col );
+                    }
+                }
+                else
+#endif
+                {
                 val = GET_VOLUME_DATA( *volume,
                                        indices[0], indices[1], indices[2]);
 
@@ -528,7 +545,7 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
                     pixel_col = fast_lookup[val-min_value];
                 else
                     pixel_col = get_colour_coding( colour_coding, (Real) val );
-#endif
+                }
 
                 prev_x = indices[x_index];
             }
