@@ -966,3 +966,55 @@ public  DEF_MENU_UPDATE(next_volume_visible)
 
     return( get_n_volumes(display) > 0 );
 }
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(toggle_slice_interpolation)
+{
+    int              view_index, volume_index, continuity;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        continuity = slice_window->slice.degrees_continuity;
+        ++continuity;
+        if( continuity == 1 )
+            continuity = 2;
+        else if( continuity == 3 )
+            continuity = -1;
+
+        slice_window->slice.degrees_continuity = continuity;
+
+        set_slice_window_all_update( slice_window, -1, UPDATE_SLICE );
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_slice_interpolation )
+{
+    int              continuity;
+    display_struct   *slice_window;
+    char             *name;
+
+    if( get_slice_window( display, &slice_window ) )
+        continuity = slice_window->slice.degrees_continuity;
+    else
+        continuity = Initial_slice_continuity;
+
+    switch( continuity )
+    {
+    case 0:   name = "trilinear";   break;
+    case 2:   name = "tricubic";   break;
+
+    case -1:
+    default:  name = "near neigh";   break;
+    }
+
+    set_menu_text( menu_window, menu_entry, name );
+
+    return( TRUE );
+}
+
