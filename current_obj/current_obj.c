@@ -203,5 +203,9 @@ public  Status  pop_current_object( graphics )
         POP_STACK( graphics->three_d.current_object, entry );
     }
 
+#ifdef lint
+    if( entry.object_index )   {}
+#endif
+
     return( OK );
 }
