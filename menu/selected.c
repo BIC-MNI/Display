@@ -20,6 +20,9 @@ private  void  create_selected_text(
     ALLOC( lines->end_indices, 1 );
     ALLOC( lines->indices, 5 );
 
+    lines->n_points = 4;
+    lines->n_items = 1;
+
     lines->indices[0] = 0;
     lines->indices[1] = 1;
     lines->indices[2] = 2;

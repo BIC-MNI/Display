@@ -63,7 +63,6 @@ public  void  initialize_colour_bar(
 
     lines = get_lines_ptr( object );
     lines->colour_flag = PER_ITEM_COLOURS;
-    ALLOC( lines->colours, 1 );
     lines->line_thickness = 1;
     lines->n_points = 0;
     lines->n_items = 0;
@@ -201,9 +200,6 @@ public  void  rebuild_colour_bar(
         else
             value += delta;
     }
-
-    if( lines->n_items == 0 )
-        ALLOC( lines->colours, 1 );
 
     last_y = 0.0;
 

@@ -105,7 +105,11 @@
                        MENU_FUNCTION(load_polygons_visibilities) \
                        MENU_FUNCTION(smooth_current_polygon) \
                        MENU_FUNCTION(smooth_current_polygon_with_volume) \
-                       MENU_FUNCTION(deform_polygon_to_volume) \
+                       MENU_FUNCTION(start_deforming_object) \
+                       MENU_FUNCTION(stop_deforming_object) \
+                       MENU_FUNCTION(set_deformation_boundary) \
+                       MENU_FUNCTION(set_deformation_model) \
+                       MENU_FUNCTION(set_deformation_parameters) \
                        MENU_FUNCTION(reverse_polygons_order) \
                        MENU_FUNCTION(smooth_current_lines) \
                        MENU_FUNCTION(make_current_line_tube) \

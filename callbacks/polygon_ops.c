@@ -238,41 +238,6 @@ public  DEF_MENU_UPDATE(reverse_polygons_order )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
-{
-    volume_struct     *volume;
-    polygons_struct   *polygons;
-    deform_struct     deform;
-
-    if( get_current_polygons( display, &polygons ) &&
-        get_slice_window_volume( display, &volume ) )
-    {
-        if( typein_deformation_parameters( polygons->n_points, &deform ) == OK )
-        {
-            deform.deform_data.volume = volume;
-
-            deform_polygons( polygons, &deform );
-
-            delete_deformation_parameters( &deform );
-
-            compute_polygon_normals( polygons );
-
-            delete_polygons_bintree( polygons );
-
-            set_update_required( display, NORMAL_PLANES );
-
-            print( "Done deforming polygon.\n" );
-        }
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(deform_polygon_to_volume )   /* ARGSUSED */
-{
-    return( OK );
-}
-
 public  DEF_MENU_FUNCTION( make_polygon_sphere )   /* ARGSUSED */
 {
     Point             centre;

@@ -7,6 +7,7 @@ Event_timeout_min = 0.5;
 Event_timeout_factor = 0.5;
 Min_interval_between_events = 0.01;
 Max_background_seconds = 0.2;
+Maximum_display_time = -10.0;
 Maximum_display_time = 0.3;
 Size_of_interrupted = 250;
 Interval_of_check = 250;

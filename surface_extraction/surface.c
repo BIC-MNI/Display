@@ -39,13 +39,14 @@ public  void  start_surface_extraction_at_point(
     int                y,
     int                z )
 {
+    volume_struct               *volume;
     surface_extraction_struct   *surface_extraction;
     voxel_index_struct          voxel_indices;
 
     surface_extraction = &display->three_d.surface_extraction;
 
-    if( cube_is_within_volume(
-             &display->associated[SLICE_WINDOW]->slice.volume, x, y, z ) )
+    if( get_slice_window_volume( display, &volume ) &&
+        cube_is_within_volume( volume, x, y, z ) )
     {
         display->three_d.surface_extraction.x_starting_voxel = x;
         display->three_d.surface_extraction.y_starting_voxel = y;
@@ -64,15 +65,13 @@ public  void  start_surface_extraction_at_point(
                      &display->three_d.surface_extraction.voxels_to_do,
                      &voxel_indices );
 
-                reset_voxel_flag(
-                         &display->associated[SLICE_WINDOW]->slice.volume,
+                reset_voxel_flag( volume,
                          &display->three_d.surface_extraction.voxels_queued,
                          &voxel_indices );
             }
         }
 
-        if( find_close_voxel_containing_value(
-                  &display->associated[SLICE_WINDOW]->slice.volume,
+        if( find_close_voxel_containing_value( volume,
                   display->three_d.surface_extraction.voxel_done_flags,
                   display->three_d.surface_extraction.isovalue,
                   &display->three_d.surface_extraction,
@@ -82,7 +81,7 @@ public  void  start_surface_extraction_at_point(
                          &display->three_d.surface_extraction.voxels_to_do,
                          &voxel_indices );
 
-            set_voxel_flag( &display->associated[SLICE_WINDOW]->slice.volume,
+            set_voxel_flag( volume,
                             &display->three_d.surface_extraction.voxels_queued,
                             &voxel_indices );
 
@@ -173,7 +172,7 @@ public  void  extract_more_surface(
     n_voxels_done = 0;
 
     surface_extraction = &display->three_d.surface_extraction;
-    volume = &display->associated[SLICE_WINDOW]->slice.volume;
+    volume = get_volume( display );
 
     stop_time = current_realtime_seconds() + Max_seconds_per_voxel_update;
 

@@ -114,7 +114,8 @@ private  void  perform_translation(
 
         ADD_VECTORS( delta, hor, vert );
 
-        make_translation_transform( &delta, &transform );
+        make_translation_transform( Vector_x(delta), Vector_y(delta),
+                                    Vector_z(delta), &transform );
 
         transform_model( display, &transform );
 

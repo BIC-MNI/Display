@@ -35,8 +35,8 @@ public  void  reset_segmentation(
 {
     delete_all_labels( &slice_window->slice.segmenting );
 
-    set_all_voxel_activity_flags( &slice_window->slice.volume, TRUE );
-    set_all_voxel_label_flags( &slice_window->slice.volume, FALSE );
+    set_all_voxel_activity_flags( get_volume(slice_window), TRUE );
+    set_all_voxel_label_flags( get_volume(slice_window), FALSE );
 }
 
 public  void  add_point_label(
@@ -57,7 +57,7 @@ public  void  add_point_label(
                           slice_window->slice.segmenting.n_labels,
                           label, DEFAULT_CHUNK_SIZE );
 
-    set_voxel_label_flag( &slice_window->slice.volume, x, y, z, TRUE );
+    set_voxel_label_flag( get_volume(slice_window), x, y, z, TRUE );
 }
 
 public  void  generate_segmentation(
@@ -65,7 +65,7 @@ public  void  generate_segmentation(
     int               voxel_indices[3],
     int               voxel_axes[3] )
 {
-    disconnect_components( &slice_window->slice.volume,
+    disconnect_components( get_volume(slice_window),
                            voxel_indices, voxel_axes,
                            slice_window->slice.segmenting.n_labels,
                            slice_window->slice.segmenting.labels,

@@ -72,9 +72,13 @@ private  void   create_box(
 
     lines = get_lines_ptr( *object );
     initialize_lines( lines, Cursor_colour );
+
     ALLOC( lines->points, 8 );
     ALLOC( lines->end_indices, 4 );
     ALLOC( lines->indices, 16 );
+
+    lines->n_points = 8;
+    lines->n_items = 4;
 
     lines->end_indices[0] = 4;
     lines->end_indices[1] = 8;

@@ -236,19 +236,14 @@ private  void  colour_code_points(
 
     for_less( i, 0, n_points )
     {
-        if( evaluate_volume_in_world( volume,
-                                      Point_x(points[i]),
-                                      Point_y(points[i]),
-                                      Point_z(points[i]), FALSE,
-                                      &val, (Real *) 0,
-                                      (Real *) 0, (Real *) 0) )
-        {
-            (*colours)[i] = get_colour_code( colour_coding, val );
-        }
-        else
-        {
-            (*colours)[i] = BLACK;
-        }
+        (void) evaluate_volume_in_world( volume,
+                                         Point_x(points[i]),
+                                         Point_y(points[i]),
+                                         Point_z(points[i]), FALSE,
+                                         &val, (Real *) 0,
+                                         (Real *) 0, (Real *) 0 );
+
+        (*colours)[i] = get_colour_code( colour_coding, val );
     }
 }
 
@@ -305,7 +300,7 @@ public  DEF_MENU_FUNCTION(create_3d_slice)   /* ARGSUSED */
 
         axis_index = slice_window->slice.slice_views[view_index].axis_map[Z];
 
-        object = create_3d_slice_quadmesh( &slice_window->slice.volume,
+        object = create_3d_slice_quadmesh( get_volume(slice_window),
                       axis_index,
                       (Real) slice_window->slice.slice_index[axis_index] );
 
@@ -318,6 +313,58 @@ public  DEF_MENU_FUNCTION(create_3d_slice)   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(create_3d_slice)    /* ARGSUSED */
+{
+    return( OK );
+}
+
+
+public  DEF_MENU_FUNCTION(resample_slice_window_volume)   /* ARGSUSED */
+{
+    int              nx, ny, nz;
+    int              new_nx, new_ny, new_nz;
+    display_struct   *slice_window;
+    volume_struct    *volume, *resampled_volume;
+
+    if( get_slice_window_volume( display, &volume ) &&
+        get_slice_window( display, &slice_window ) )
+    {
+        print( "The original volume is %d by %d by %d.\n",
+               slice_window->slice.original_volume.sizes[X],
+               slice_window->slice.original_volume.sizes[Y],
+               slice_window->slice.original_volume.sizes[Z] );
+
+        get_volume_size( volume, &nx, &ny, &nz );
+
+        if( volume != &slice_window->slice.original_volume )
+            print( "Currently resampled to %d by %d by %d.\n",
+                   nx, ny, nz );
+
+        print( "Enter desired resampled size: " );
+
+        if( input_int( stdin, &new_nx ) == OK &&
+            input_int( stdin, &new_ny ) == OK &&
+            input_int( stdin, &new_nz ) == OK )
+        {
+            if( new_nx > 0 || new_ny > 0 || new_nz > 0 )
+            {
+                ALLOC( resampled_volume, 1 );
+                smooth_resample_volume( &slice_window->slice.original_volume,
+                                        new_nx, new_ny, new_nz,
+                                        resampled_volume );
+            }
+            else
+                resampled_volume = &slice_window->slice.original_volume;
+
+            set_slice_window_volume( slice_window, resampled_volume );
+        }
+
+        (void) input_newline( stdin );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(resample_slice_window_volume)    /* ARGSUSED */
 {
     return( OK );
 }

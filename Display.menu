@@ -27,6 +27,7 @@ root
     transient 'c'    lines                  "Lines"
     transient 'v'    surface_curves         "Surface Curves"
     transient 'b'    colour_coding          "Colour Coding"
+    transient 'n'    deform                 "Deformation"
 
     permanent '\left'    ascend_selected           "Up"
     permanent '\right'   descend_selected          "Down"
@@ -148,7 +149,6 @@ lines
 
     transient 'x'    make_line_circle                 "Make Line Circle"
     transient 'c'    subdivide_current_lines          "Subdivide Line"
-    transient 'v'    deform_line_to_volume            "Deform Line to Volume"
 }
 
 delete_object_menu
@@ -198,7 +198,6 @@ polygons
     transient 'x'    input_polygons_bintree                "Load Bintree"
     transient 'c'    smooth_current_polygon                "Smooth Polygon"
     transient 'v'    smooth_current_polygon_with_volume    "Smooth Polygon w/Volume"
-    transient 'b'    deform_polygon_to_volume       "Deform Polygon w/Volume"
 }
 
 markers
@@ -294,4 +293,14 @@ atlas
     transient 'x'    set_atlas_tolerance_x           "Set Tolerance X"
     transient 'c'    set_atlas_tolerance_y           "Set Tolerance Y"
     transient 'v'    set_atlas_tolerance_z           "Set Tolerance Z"
+}
+
+deform
+{
+    transient 'd'    start_deforming_object          "Start Deformation"
+    transient 'f'    stop_deforming_object           "Stop Deformation"
+
+    transient 'w'    set_deformation_model           "Set Model"
+    transient 'e'    set_deformation_boundary        "Set Boundary"
+    transient 'r'    set_deformation_parameters      "Set Parameters"
 }

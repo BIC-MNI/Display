@@ -374,7 +374,6 @@ private  void  update_graphics_normal_planes_only(
     if( interrupt->last_was_interrupted )
     {
         G_append_to_last_update( display->window );
-        (void) printf( "Append to last\n" );
     }
 
     if( display->window_type == SLICE_WINDOW )
@@ -397,9 +396,6 @@ private  void  update_graphics_normal_planes_only(
     }
 
     interrupt->last_was_interrupted = interrupt->current_interrupted;
-
-    if( interrupt->last_was_interrupted )
-        (void) printf( "Interrupted.\n" );
 
     end = current_realtime_seconds();
 

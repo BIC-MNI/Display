@@ -66,14 +66,12 @@ public  DEF_MENU_FUNCTION(add_surface_point)   /* ARGSUSED */
 
     if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) )
     {
-        convert_voxel_to_world(
-                         &display->associated[SLICE_WINDOW]->slice.volume,
+        convert_voxel_to_world( get_volume(display),
                                 (Real) x, (Real) y, (Real) z,
                                 &x_w, &y_w, &z_w );
         fill_Point( point, x_w, y_w, z_w );
 
-        set_voxel_label_flag( &display->associated[SLICE_WINDOW]->slice.volume,
-                              x, y, z, TRUE );
+        set_voxel_label_flag( get_volume(display), x, y, z, TRUE );
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
@@ -99,13 +97,11 @@ public  DEF_MENU_FUNCTION(delete_surface_point)   /* ARGSUSED */
 
     if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) )
     {
-        convert_voxel_to_world(
-                         &display->associated[SLICE_WINDOW]->slice.volume,
-                         (Real) x, (Real) y, (Real) z,
-                         &x_w, &y_w, &z_w );
+        convert_voxel_to_world( get_volume(display),
+                                (Real) x, (Real) y, (Real) z,
+                                &x_w, &y_w, &z_w );
         fill_Point( point, x_w, y_w, z_w );
-        set_voxel_label_flag( &display->associated[SLICE_WINDOW]->slice.volume,
-                              x, y, z, FALSE );
+        set_voxel_label_flag( get_volume(display), x, y, z, FALSE );
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
@@ -222,14 +218,12 @@ public  DEF_MENU_FUNCTION(load_surface_points)   /* ARGSUSED */
             add_surface_fitting_point(
                              &display->three_d.surface_fitting, &point );
 
-            convert_world_to_voxel(
-                         &display->associated[SLICE_WINDOW]->slice.volume,
+            convert_world_to_voxel( get_volume(display),
                          Point_x(point), Point_y(point), Point_z(point),
                          &x, &y, &z );
 
-            set_voxel_label_flag(
-                           &display->associated[SLICE_WINDOW]->slice.volume,
-                           ROUND(x), ROUND(y), ROUND(z), TRUE );
+            set_voxel_label_flag( get_volume(display),
+                                  ROUND(x), ROUND(y), ROUND(z), TRUE );
         }
     }
 

@@ -72,6 +72,8 @@ public  void  initialize_three_d_window(
     initialize_cursor( display );
 
     initialize_surface_curve( display );
+
+    initialize_deformation( &display->three_d.deform );
 }
 
 private    DEF_EVENT_FUNCTION( handle_resize_three_d );
@@ -106,6 +108,7 @@ public  void  delete_three_d(
     delete_surface_edit( &display->three_d.surface_edit );
     delete_surface_extraction( display );
     delete_surface_fitting( &display->three_d.surface_fitting );
+    delete_deformation( &display->three_d.deform );
 }
 
 public  void  add_object_to_current_model(

@@ -155,6 +155,8 @@ private  void  get_min_max(
         max = -1;
     }
 
+    (void) input_newline( stdin );
+
     display->associated[SLICE_WINDOW]->slice.segmenting.min_threshold = min;
     display->associated[SLICE_WINDOW]->slice.segmenting.max_threshold = max;
 }

@@ -39,6 +39,12 @@ public  void  display_objects(
     }
 }
 
+private  void  draw_one_object(
+    window_struct                *window,
+    object_struct                *object,
+    update_interrupted_struct    *interrupt,
+    Boolean                      *past_last_object );
+
 private  void  display_objects_recursive(
     window_struct                *window,
     Bitplane_types               bitplanes,
@@ -51,7 +57,6 @@ private  void  display_objects_recursive(
     Boolean                      *past_last_object )
 {
     int                  i;
-    Boolean              object_is_continuing;
     model_struct         *model;
     model_info_struct    *model_info;
 
@@ -63,73 +68,68 @@ private  void  display_objects_recursive(
     {
         if( object_list[i]->visibility )
         {
-            object_is_continuing = FALSE;
-
-            if( interrupt != (update_interrupted_struct *) 0 &&
-                interrupt->last_was_interrupted &&
-                !(*past_last_object) &&
-                object_list[i] == interrupt->object_interrupted )
+            if( object_list[i]->object_type == MODEL )
             {
-                object_is_continuing = TRUE;
-                *past_last_object = TRUE;
+                model = get_model_ptr( object_list[i] );
+                model_info = get_model_info( model );
+
+                if( model_info->bitplanes == bitplanes )
+                {
+                    display_objects_recursive( window, bitplanes,
+                                               model->n_objects,
+                                               model->objects,
+                                               &model_info->render,
+                                               model_info->view_type,
+                                               &model_info->transform,
+                                               interrupt,
+                                               past_last_object );
+
+                    set_render_info( window, render );
+                    G_set_view_type( window, view_type );
+                }
             }
-
-            if( interrupt == (update_interrupted_struct *) 0 ||
-                !interrupt->last_was_interrupted ||
-                *past_last_object ||
-                object_list[i]->object_type == MODEL )
+            else
             {
-/*
-                if( interrupt != (update_interrupted_struct *) 0 &&
-                    !interrupt->current_interrupted &&
-                    current_realtime_seconds() > interrupt->interrupt_at &&
-                    G_events_pending() )
-                {
-                    interrupt->current_interrupted = TRUE;
-                    interrupt->object_interrupted = object_list[i];
-                    interrupt->n_items_done = 0;
-                    interrupt->next_item = 0;
-                    break;
-                }
-*/
-
-                if( object_list[i]->object_type == MODEL )
-                {
-                    model = get_model_ptr( object_list[i] );
-                    model_info = get_model_info( model );
-
-                    if( model_info->bitplanes == bitplanes )
-                    {
-                        display_objects_recursive( window, bitplanes,
-                                                   model->n_objects,
-                                                   model->objects,
-                                                   &model_info->render,
-                                                   model_info->view_type,
-                                                   &model_info->transform,
-                                                   interrupt,
-                                                   past_last_object );
-
-                        set_render_info( window, render );
-                        G_set_view_type( window, view_type );
-                    }
-                }
-                else
-                {
-                    draw_object( window, object_list[i] );
-                }
-
-                if( interrupt != (update_interrupted_struct *) 0 &&
-                    interrupt->current_interrupted )
-                {
-                    if( object_list[i]->object_type != MODEL )
-                    {
-                        interrupt->object_interrupted = object_list[i];
-                    }
-                    break;
-                }
+                draw_one_object( window, object_list[i], interrupt,
+                                 past_last_object );
             }
         }
+
+        if( interrupt != (update_interrupted_struct *) NULL &&
+            interrupt->current_interrupted )
+            break;
     }
 
     G_pop_transform( window );
+}
+
+private  void  draw_one_object(
+    window_struct                *window,
+    object_struct                *object,
+    update_interrupted_struct    *interrupt,
+    Boolean                      *past_last_object )
+{
+    Boolean  continuing;
+
+    continuing = (G_get_drawing_interrupt_state(window) &&
+                  interrupt != (update_interrupted_struct *) 0 &&
+                  interrupt->last_was_interrupted);
+
+    if( continuing && object == interrupt->object_interrupted )
+    {
+        *past_last_object = TRUE;
+    }
+
+    if( !continuing || *past_last_object )
+    {
+        draw_object( window, object );
+
+        if( G_get_drawing_interrupt_state(window) &&
+            interrupt != (update_interrupted_struct *) 0 &&
+            G_get_interrupt_occurred( window ) )
+        {
+            interrupt->current_interrupted = TRUE;
+            interrupt->object_interrupted = object;
+        }
+    }
 }

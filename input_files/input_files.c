@@ -115,7 +115,10 @@ public  Status  load_graphics_file(
                     check_polygons_neighbours_computed( polygons );
             }
         }
+    }
 
+    if( model->n_objects > 0 )
+    {
         model = get_current_model( display );
 
         add_object_to_model( model, object );
@@ -154,10 +157,19 @@ public  Status  load_graphics_file(
             markers_have_changed( display );
 
         rebuild_selected_list( display, display->associated[MENU_WINDOW] );
+    }
+    else
+        delete_model( model );
 
-        if( volume_present && !get_slice_window_volume( display, &volume ) )
+    if( volume_present )
+    {
+        if( !get_slice_window_volume( display, &volume ) )
         {
             create_slice_window( display, &volume_read_in );
+        }
+        else
+        {
+            set_slice_window_volume( display, &volume_read_in );
         }
     }
 

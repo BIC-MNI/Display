@@ -25,5 +25,8 @@ public  Status   input_volume_file(
 
     status = input_volume( filename, volume );
 
+    if( status == OK )
+        alloc_auxiliary_data( volume );
+
     return( status );
 }

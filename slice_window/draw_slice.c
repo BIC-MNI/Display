@@ -18,10 +18,12 @@
 #define  Y_TALAIRACH_PROBE_INDEX       14
 #define  Z_TALAIRACH_PROBE_INDEX       15
 #define  VAL_PROBE_INDEX               16
+#define  MAX_MODEL_INDEX               17
+/*
 #define  X_FILE_PROBE_INDEX            17
 #define  Y_FILE_PROBE_INDEX            18
 #define  Z_FILE_PROBE_INDEX            19
-#define  MAX_MODEL_INDEX               19
+*/
 
 private  void  render_slice_to_pixels(
     display_struct        *slice_window,
@@ -196,10 +198,12 @@ public  void  rebuild_probe(
 
     max_index = VAL_PROBE_INDEX;
 
+/*
     for_inclusive( i, X_FILE_PROBE_INDEX, Z_FILE_PROBE_INDEX )
     {
         set_object_visibility( model->objects[i], OFF );
     }
+*/
 
     for_inclusive( i, X_TRANSFORMED_PROBE_INDEX, max_index )
     {
@@ -240,7 +244,7 @@ public  void  rebuild_probe(
                                 z_talairach );
                 break;
             case VAL_PROBE_INDEX:
-                value = (Real) GET_VOLUME_DATA( slice_window->slice.volume,
+                value = (Real) GET_VOLUME_DATA( *get_volume(slice_window),
                                                 x_voxel, y_voxel, z_voxel );
                 (void) sprintf( text->string, Slice_probe_val_format, value );
                 break;
@@ -499,7 +503,7 @@ private  void  render_slice_to_pixels(
     Real                  dx, dy;
     Colour                *lookup;
 
-    volume = &slice_window->slice.volume;
+    volume = get_volume( slice_window );
     temporary_indices = slice_window->slice.temporary_indices;
     fast_lookup_present = slice_window->slice.fast_lookup_present;
     fast_lookup = slice_window->slice.fast_lookup;

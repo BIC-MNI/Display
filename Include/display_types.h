@@ -174,4 +174,12 @@ typedef  struct
     object_traverse_struct   object_traverse;
 } cursor_contours_struct;
 
+typedef struct
+{
+    deform_struct     deform;
+    object_struct     *deforming_object;
+    int               iteration;
+    Boolean           in_progress;
+}  deformation_struct;
+
 #endif

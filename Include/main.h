@@ -55,6 +55,7 @@ typedef  struct
     Colour                     default_marker_colour;
     String                     default_marker_label;
     marker_segment_struct      marker_segmentation;
+    deformation_struct         deform;
 } three_d_window_struct;
 
 
