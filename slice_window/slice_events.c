@@ -373,7 +373,7 @@ private  void  update_voxel_zoom(
 
         scale_slice_view( slice_window, view_index, scale_factor );
 
-        set_slice_window_update( slice_window, view_index );
+        set_slice_window_update( slice_window, view_index, UPDATE_BOTH );
     }
 }
 
@@ -413,7 +413,7 @@ private  void  perform_translation(
 
         translate_slice_view( slice_window, view_index, dx, dy );
 
-        set_slice_window_update( slice_window, view_index );
+        set_slice_window_update( slice_window, view_index, UPDATE_BOTH );
 
         record_mouse_pixel_position( slice_window );
     }
