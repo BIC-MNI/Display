@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.37 1996-05-17 19:38:16 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.38 1996-07-04 14:24:03 david Exp $";
 #endif
 
 
@@ -85,36 +85,59 @@ private  void  realloc_label_colour_table(
     display_struct    *slice_window,
     int               volume_index )
 {
-    int       label, n_labels, n_colours, ind;
-    Colour    colours[100];
+    int       n_labels, n_colours, n_around, n_up, u, a;
+    Colour    col;
+    Real      r, g, b, hue, sat;
 
     n_labels = get_num_labels( slice_window, volume_index );
     ALLOC( slice_window->slice.volumes[volume_index].label_colour_table,
            n_labels );
 
     n_colours = 0;
-    colours[n_colours++] = RED;
-    colours[n_colours++] = GREEN;
-    colours[n_colours++] = BLUE;
-    colours[n_colours++] = CYAN;
-    colours[n_colours++] = MAGENTA;
-    colours[n_colours++] = YELLOW;
-    colours[n_colours++] = BLUE_VIOLET;
-    colours[n_colours++] = DEEP_PINK;
-    colours[n_colours++] = GREEN_YELLOW;
-    colours[n_colours++] = LIGHT_SEA_GREEN;
-    colours[n_colours++] = MEDIUM_TURQUOISE;
-    colours[n_colours++] = PURPLE;
-
-    for_less( label, 1, n_labels )
-    {
-        ind = (label - 1) % n_colours;
-
-        set_colour_of_label( slice_window, volume_index, label, colours[ind] );
-    }
-
-    set_colour_of_label( slice_window, volume_index, 0,
+    set_colour_of_label( slice_window, volume_index, n_colours++,
                          make_rgba_Colour(0,0,0,0) );
+    set_colour_of_label( slice_window, volume_index, n_colours++, RED );
+    set_colour_of_label( slice_window, volume_index, n_colours++, GREEN );
+    set_colour_of_label( slice_window, volume_index, n_colours++, BLUE );
+    set_colour_of_label( slice_window, volume_index, n_colours++, CYAN );
+    set_colour_of_label( slice_window, volume_index, n_colours++, MAGENTA );
+    set_colour_of_label( slice_window, volume_index, n_colours++, YELLOW );
+    set_colour_of_label( slice_window, volume_index, n_colours++, BLUE_VIOLET );
+    set_colour_of_label( slice_window, volume_index, n_colours++, DEEP_PINK );
+    set_colour_of_label( slice_window, volume_index, n_colours++, GREEN_YELLOW);
+    set_colour_of_label( slice_window, volume_index, n_colours++,
+                         LIGHT_SEA_GREEN );
+    set_colour_of_label( slice_window, volume_index, n_colours++,
+                         MEDIUM_TURQUOISE);
+    set_colour_of_label( slice_window, volume_index, n_colours++, PURPLE );
+
+    n_around = 12;
+    n_up = 1;
+    while( n_colours < n_labels )
+    {
+        for_less( u, 0, n_up )
+        {
+            if( (u % 2) == 1 )
+                continue;
+
+            for_less( a, 0, n_around )
+            {
+                hue = (Real) a / (Real) n_around;
+                sat = 0.2 + (0.5 - 0.2) * ((Real) u / (Real) n_up);
+
+                hsl_to_rgb( hue, 1.0, sat, &r, &g, &b );
+                col = make_Colour_0_1( r, g, b );
+
+                if( n_colours < n_labels )
+                {
+                    set_colour_of_label( slice_window, volume_index,
+                                         n_colours, col );
+                    ++n_colours;
+                }
+            }
+        }
+        n_up *= 2;
+    }
 }
 
 private  BOOLEAN  find_similar_labels(
