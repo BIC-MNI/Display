@@ -1,11 +1,11 @@
 include $(SRC_DIRECTORY)/Graphics/Makefile.include
-include $(SRC_DIRECTORY)/David/Makefile.include
 
+OPT = $(OPT_g)
 OPT = $(OPT_O)
 
 LDFLAGS =
 
-INCLUDE = -IInclude $(DLIB_INCLUDE) $(GRAPHICS_INCLUDE)
+INCLUDE = -IInclude $(GRAPHICS_INCLUDE)
 
 PROTOTYPE_FILE = Include/display_prototypes.h
 
@@ -22,12 +22,11 @@ display_src = \
            atlas/$(ARCH_DIR)/atlas.c \
            input_files/$(ARCH_DIR)/input_files.c \
            input_files/$(ARCH_DIR)/volume_file.c \
-           deform/$(ARCH_DIR)/deform.c \
            callbacks/$(ARCH_DIR)/atlas.c \
            callbacks/$(ARCH_DIR)/call_globals.c \
            callbacks/$(ARCH_DIR)/colour_coding.c \
-           callbacks/$(ARCH_DIR)/deform.c \
            callbacks/$(ARCH_DIR)/file.c \
+           callbacks/$(ARCH_DIR)/georges.c \
            callbacks/$(ARCH_DIR)/line_ops.c \
            callbacks/$(ARCH_DIR)/object_ops.c \
            callbacks/$(ARCH_DIR)/marker_ops.c \
@@ -115,7 +114,7 @@ menu/$(ARCH_DIR)/menu.o menu/$(ARCH_DIR)/menu.u: \
 
 display_obj = $(display_src:.c=.o)
 
-LINT_LIBS = $(DLIB_LINT_LIBS) $(GRAPHICS_LINT_LIBS)
+LINT_LIBS = $(GRAPHICS_LINT_LIBS)
 
 display_lint = $(display_src:.c=.ln)
 
@@ -123,27 +122,26 @@ lint_display: $(PROTOTYPE_FILE) $(display_lint)
 	@$(LINT) $(LINTFLAGS) $(display_lint) $(LINT_LIBS)
 
 Display.irisgl: $(PROTOTYPE_FILE) $(display_obj) Display.menu
-	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(DLIB_LIBS) \
-                          $(IRISGL_GRAPHICS_LIBS)
+	$(CC) $(LDFLAGS) $(display_obj) -o $@  $(IRISGL_GRAPHICS_LIBS)
 
 Display-O3.irisgl: $(PROTOTYPE_FILE) $(display_obj:.o=.u) Display.menu
-	$(CC) $(LDFLAGS) -O3 $(display_obj:.o=.u) -o $@ $(DLIB_LIBS-O3) \
+	$(CC) $(LDFLAGS) -O3 $(display_obj:.o=.u) -o $@ \
                           $(IRISGL_GRAPHICS_LIBS-O3)
 
 Display.opengl: $(PROTOTYPE_FILE) $(display_obj) Display.menu
-	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(DLIB_LIBS) \
+	$(CC) $(LDFLAGS) $(display_obj) -o $@ \
                           $(OPENGL_GRAPHICS_LIBS)
 
 Display-O3.opengl: $(PROTOTYPE_FILE) $(display_obj:.o=.u) Display.menu
-	$(CC) $(LDFLAGS) -O3 $(display_obj:.o=.u) -o $@ $(DLIB_LIBS-O3) \
+	$(CC) $(LDFLAGS) -O3 $(display_obj:.o=.u) -o $@ \
                           $(OPENGL_GRAPHICS_LIBS-O3)
 
 Display.mesa: $(PROTOTYPE_FILE) $(display_obj) Display.menu
-	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(DLIB_LIBS) \
+	$(CC) $(LDFLAGS) $(display_obj) -o $@ \
                           $(MESA_GRAPHICS_LIBS)
 
 Display-O3.mesa: $(PROTOTYPE_FILE) $(display_obj:.o=.u) Display.menu
-	$(CC) $(LDFLAGS) -O3 $(display_obj:.o=.u) -o $@ $(DLIB_LIBS-O3) \
+	$(CC) $(LDFLAGS) -O3 $(display_obj:.o=.u) -o $@ \
                           $(MESA_GRAPHICS_LIBS-O3)
 
 list_all_objects:
