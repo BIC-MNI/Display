@@ -250,3 +250,144 @@ public  DEF_MENU_UPDATE(scan_model_to_voxels)   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION(load_model_parameters)   /* ARGSUSED */
+{
+    Status   status;
+    int      i, n_parameters;
+    double   *tmp_parameters;
+    String   filename;
+    FILE     *file;
+    Status   open_file();
+    Status   io_double();
+    Status   close_file();
+
+    PRINT( "Enter filename: " );
+    (void) scanf( "%s", filename );
+
+    status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
+
+    if( status == OK )
+    {
+        n_parameters = graphics->three_d.surface_fitting.
+           surface_representation->
+           get_num_parameters( graphics->three_d.surface_fitting.descriptors );
+
+        ALLOC1( status, tmp_parameters, n_parameters, double );
+    }
+
+    if( status == OK )
+    {
+        for_less( i, 0, n_parameters )
+        {
+            status = io_double( file, READ_FILE, ASCII_FORMAT,
+                                &tmp_parameters[i] );
+            if( status != OK )  break;
+        }
+    }
+
+    if( status == OK )
+        status = close_file( file );
+
+    if( status == OK )
+    {
+        for_less( i, 0, n_parameters )
+            graphics->three_d.surface_fitting.parameters[i] = tmp_parameters[i];
+
+        FREE1( status, tmp_parameters );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(load_model_parameters)   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(save_model_parameters)   /* ARGSUSED */
+{
+    Status   status;
+    int      i, n_parameters;
+    String   filename;
+    FILE     *file;
+    Status   open_file();
+    Status   io_double();
+    Status   io_newline();
+    Status   close_file();
+
+    PRINT( "Enter filename: " );
+    (void) scanf( "%s", filename );
+
+    status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
+
+    n_parameters = graphics->three_d.surface_fitting.
+           surface_representation->
+           get_num_parameters( graphics->three_d.surface_fitting.descriptors );
+
+    if( status == OK )
+    {
+        for_less( i, 0, n_parameters )
+        {
+            status = io_double( file, WRITE_FILE, ASCII_FORMAT,
+                         &graphics->three_d.surface_fitting.parameters[i] );
+            if( status == OK && i % 4 == 3 )
+                status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
+
+            if( status != OK )  break;
+        }
+    }
+
+    if( status == OK )
+        status = close_file( file );
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(save_model_parameters)   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(convert_to_new_representation)   /* ARGSUSED */
+{
+    Status                    status;
+    Status                    input_nonwhite_character();
+    Status                    convert_to_new_surface_representation();
+    Surface_representations   new_rep;
+    char                      ch;
+
+    PRINT( "Enter new surface representation type ['q' or 's']: " );
+
+    status = input_nonwhite_character( stdin, &ch );
+
+    if( status == OK )
+    {
+        switch( ch )
+        {
+        case 'q':
+        case 'Q':   new_rep = SUPERQUADRIC;   break;
+
+        case 's':
+        case 'S':   new_rep = SPLINE;   break;
+
+        default:    PRINT( "Invalid type: %c.\n", ch );
+                    status = ERROR;
+                    break;
+        }
+    }
+
+    if( status == OK )
+    {
+        status = convert_to_new_surface_representation(
+                       &graphics->three_d.surface_fitting, new_rep );
+    }
+    
+   
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(convert_to_new_representation)   /* ARGSUSED */
+{
+    return( OK );
+}
