@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.40 1996-12-09 20:21:32 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.41 1997-02-20 16:12:14 david Exp $";
 #endif
 
 
@@ -22,7 +22,6 @@ static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_win
 #define    MAX_LABEL_COLOUR_TABLE_SIZE    2000000
 
 #define    DEFAULT_COLOUR_MAP_SUFFIX                    "map"
-#define    DEFAULT_USER_DEFINED_COLOUR_CODE_SUFFIX      "ccd"
 
 private  void  rebuild_colour_table(
     display_struct    *slice_window,
@@ -736,11 +735,6 @@ public  STRING    get_default_colour_map_suffix( void )
     return( DEFAULT_COLOUR_MAP_SUFFIX );
 }
 
-public  STRING    get_default_user_def_colour_code_suffix( void )
-{
-    return( DEFAULT_USER_DEFINED_COLOUR_CODE_SUFFIX );
-}
-
 public  Status  load_label_colour_map(
     display_struct   *slice_window,
     STRING           filename )
@@ -876,55 +870,10 @@ public  Status  load_user_defined_colour_coding(
     STRING           filename )
 {
     Status   status;
-    FILE     *file;
-    Real     pos, *positions;
-    Colour   col, *colours;
-    STRING   line;
-    int      n_colours;
 
-    if( open_file_with_default_suffix( filename,
-                                      get_default_user_def_colour_code_suffix(),
-                                      READ_FILE, ASCII_FORMAT, &file ) != OK )
-        return( ERROR );
-
-    n_colours = 0;
-    colours = NULL;
-    positions = NULL;
-
-    status = OK;
-    while( input_real( file, &pos ) == OK )
-    {
-        if( input_line( file, &line ) != OK )
-        {
-            print_error( "Error loading user defined colour coding.\n" );
-            status = ERROR;
-            break;
-        }
-
-        col = convert_string_to_colour( line );
-
-        delete_string( line );
-
-        ADD_ELEMENT_TO_ARRAY( colours, n_colours, col, DEFAULT_CHUNK_SIZE );
-        --n_colours;
-        ADD_ELEMENT_TO_ARRAY( positions, n_colours, pos, DEFAULT_CHUNK_SIZE );
-    }
-
-    (void) close_file( file );
-
-    if( status == OK &&
-        !set_colour_coding_user_defined( &slice_window->slice.volumes[
-                  get_current_volume_index(slice_window)].colour_coding,
-                  n_colours, colours, positions, RGB_SPACE ) )
-    {
-        status = ERROR;
-    }
-
-    if( n_colours > 0 )
-    {
-        FREE( colours );
-        FREE( positions );
-    }
+    status = input_user_defined_colour_coding( &slice_window->slice.volumes[
+                         get_current_volume_index(slice_window)].colour_coding,
+                         filename );
 
     return( status );
 }
