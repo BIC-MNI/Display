@@ -14,7 +14,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.24 1997-08-01 14:47:47 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.25 1997-09-12 18:14:20 david Exp $";
 #endif
 
 #include  <display.h>
@@ -108,9 +108,9 @@ private  Volume  convert_pixels_to_volume(
                      (Real) pixels->y_size;
 
     world_000[x_index] = ATLAS_STARTS[x_index] - ATLAS_STEPS[x_index] / 2.0 +
-                            separations[x_index] / 0.5;
+                            separations[x_index] / 2.0;
     world_000[y_index] = ATLAS_STARTS[y_index] - ATLAS_STEPS[y_index] / 2.0 +
-                            separations[y_index] / 0.5;
+                            separations[y_index] / 2.0;
     world_000[axis_index] = slice_position;
 
     set_volume_separations( volume, separations );
