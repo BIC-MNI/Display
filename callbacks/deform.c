@@ -3,7 +3,7 @@
 
 public  DEF_MENU_FUNCTION( start_deforming_object )   /* ARGSUSED */
 {
-    volume_struct     *volume;
+    Volume            volume;
     object_struct     *object;
 
     if( get_slice_window_volume( display, &volume ) &&
