@@ -326,6 +326,7 @@ private   void    add_point_to_contour(
     lines_struct     *lines )
 {
     int     c, x_pixel, y_pixel;
+    Real    real_x_pixel, real_y_pixel;
     Real    real_voxel[N_DIMENSIONS];
     Point   point;
 
@@ -341,7 +342,10 @@ private   void    add_point_to_contour(
     real_voxel[a2] += (Real) dy[dir] / 2.0;
 
     convert_voxel_to_pixel( slice_window, axis, real_voxel,
-                            &x_pixel, &y_pixel );
+                            &real_x_pixel, &real_y_pixel );
+
+    x_pixel = ROUND( real_x_pixel );
+    y_pixel = ROUND( real_y_pixel );
 
     if( x_pixel < x_centre_pixel )
         x_pixel -= Brush_outline_offset;
