@@ -230,6 +230,25 @@ box:
 \item[\menutwo{File}{Save Markers as .tag}]  Prompts for a filename and
         saves any markers at or under the current object to the file
         in tag file format.
+\item[\menutwo{File}{Save Colour Map}]  Prompts for a filename and
+        saves the current label colour map as an ascii file, with a default
+        suffix of \ident{.map}.
+\item[\menutwo{File}{Load Colour Map}]  Prompts for a filename and
+        loads the current label colour map as an ascii file, with a default
+        suffix of \ident{.map}.
+\item[\menutwo{File}{Save 3D Window}]  Prompts for a filename and saves the
+      contents of the 3D window to the file, in .rgb format.  Before doing
+      this, make sure the window is up to date and not in the process of
+      drawing.
+\item[\menutwo{File}{Save Slice Window}]  Prompts for a filename and saves the
+      contents of the slice window to the file, in .rgb format.  Before doing
+      this, make sure the window is up to date and not in the process of
+      drawing.
+\item[\menutwo{File}{Save Slice Image}]  If the mouse is pointing to one
+      of the four slice viewports, prompts for a filename and saves the
+      contents of the slice viewport to the file, in .rgb format.  Before doing
+      this, make sure the window is up to date and not in the process of
+      drawing.
 
 \item[\menutwo{File}{Load Poly Visib.}]  Not for general use.
 \item[\menutwo{File}{Save Poly Visib.}]  Not for general use.
@@ -329,7 +348,9 @@ box:
 
 \begin{description}
 \item[\menuthree{Slice}{Volume Cropping}{Visibility:}]  Toggles the visibility
-       of the volume crop box in the slice planes.
+       of the volume crop box in the slice planes.  Note that the position
+       of the volume crop box is relative to the current volume, so changing
+       the current volume will change the appearance of the crop box.
 \item[\menuthree{Slice}{Volume Cropping}{Reset Crop Position}]  Resets the
        volume crop box to the entire volume of the current volume.
 \item[\menuthree{Slice}{Volume Cropping}{Pick Crop Edge}]  After pressing this
@@ -400,6 +421,23 @@ box:
      coding parameters of the loaded volumes.
 \end{description}
 
+\subsubsection{Extra Colour Code Menu}
+
+\begin{description}
+\item[\menuthree{Slice}{Extra Colour Codes}{Red}]  Sets the colour
+       coding method to range from black to full red.
+\item[\menuthree{Slice}{Extra Colour Codes}{Green}]  Sets the colour
+       coding method to range from black to full green.
+\item[\menuthree{Slice}{Extra Colour Codes}{Blue}]  Sets the colour
+       coding method to range from black to full blue.
+\item[\menuthree{Slice}{Extra Colour Codes}{Slice Interp:}]
+       Toggles the slice interpolation method among the choices of
+       nearest neighbour (default), trilinear, and tricubic.  Note that the
+       latter two, while producing smoother images, will cause the slice
+       window to take many seconds or even a minute to update, depending
+       on the size of window.
+\end{description}
+
 \subsection{Segmenting Menu}
 
 This menu contains all the controls for modifying the current label volume,
@@ -420,6 +458,12 @@ at the same time, erasing will be performed, by storing the value 0.
     used for painting, where 0 erases.
 \item[\menutwo{Segmenting}{XY Radius}]  Prompts for the in-slice 
     brush radius used in painting on the volume slices (right mouse button).
+    Any voxel whose centre is within the radius of the brush is painted.
+    For this reason, any brush radius smaller than half the slice separation is
+    treated as being half the slice separation.  A radius
+    of zero is a special case, where, if any part of a voxel intersects the
+    mouse, then the voxel is painted.  This gives the most fine control over
+    painting.
 \item[\menutwo{Segmenting}{Out-Plane Radius}]  Prompts for the brush
     radius in the direction perpendicular to the slice plane.  This
     defaults to zero, for slice-by-slice painting.
@@ -654,10 +698,6 @@ purposes.
       the user desires to see the full extent of all objects.
 \item[\menutwo{3D View}{Parallel/Perspective}]  Toggles between a
       parallel and perspective view of the 3D objects.
-\item[\menutwo{3D View}{Save Image}]  Prompts for a filename and saves the
-      contents of the 3D window to the file, in .rgb format.  Before doing
-      this, make sure the window is up to date and not in the process of
-      drawing.
 \item[\menutwo{3D View}{Film Loop}]  Creates a movie of the 3D window.
       Prompts for a filename prefix, an axis index (0-2), and a number
       of frames.  The objects are spun around the specified index saving
