@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.47 1995-12-19 15:46:16 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.48 1996-01-23 17:52:09 david Exp $";
 #endif
 
 
@@ -635,15 +635,16 @@ public  DEF_MENU_FUNCTION(dilate_labels)
         if( input_int( stdin, &min_outside_label ) == OK &&
             input_int( stdin, &max_outside_label ) == OK )
         {
-            (void) dilate_labeled_voxels_3d( get_volume(display),
+            (void) dilate_voxels_3d( get_volume(display),
                                   get_label_volume(display),
-                                  get_current_paint_label(display),
-                                  get_current_paint_label(display),
+                                  (Real) get_current_paint_label(display),
+                                  (Real) get_current_paint_label(display),
                                   0.0, -1.0,
-                                  min_outside_label, max_outside_label,
+                                  (Real) min_outside_label,
+                                  (Real) max_outside_label,
                                   slice_window->slice.segmenting.min_threshold,
                                   slice_window->slice.segmenting.max_threshold,
-                                  get_current_paint_label(display),
+                                  (Real) get_current_paint_label(display),
                                   slice_window->slice.segmenting.connectivity );
 
             delete_slice_undo( &slice_window->slice.undo,
@@ -686,15 +687,16 @@ public  DEF_MENU_FUNCTION(erode_labels)
         {
             if( min_outside_label <= max_outside_label )
                 set_value = MAX( min_outside_label, 0 );
-            (void) dilate_labeled_voxels_3d( get_volume(display),
+            (void) dilate_voxels_3d( get_volume(display),
                                   get_label_volume(display),
-                                  min_outside_label, max_outside_label,
+                                  (Real) min_outside_label,
+                                  (Real) max_outside_label,
                                   0.0, -1.0,
-                                  get_current_paint_label(display),
-                                  get_current_paint_label(display),
+                                  (Real) get_current_paint_label(display),
+                                  (Real) get_current_paint_label(display),
                                   slice_window->slice.segmenting.min_threshold,
                                   slice_window->slice.segmenting.max_threshold,
-                                  set_value,
+                                  (Real) set_value,
                                   slice_window->slice.segmenting.connectivity );
 
             delete_slice_undo( &slice_window->slice.undo,
