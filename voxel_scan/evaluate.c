@@ -23,7 +23,8 @@ public  double   evaluate_fit( evaluation_ptr, parameters )
 
     n_fitting_samples = fit_data->n_samples;
 
-    if( !parameters_are_valid(parameters) )
+    if( !fit_data->surface_representation->
+              are_parameters_valid(fit_data->descriptors, parameters) )
     {
         measure_of_fit = BIG_NUMBER;
     }
@@ -67,7 +68,6 @@ private  double   evaluate_fit_at_uv( graphics, fit_data, parameters, u, v )
     double                  parameters[];
     double                  u, v;
 {
-    void     evaluate_parametric_surface();
     double   surface_estimate, curvature, fit, u_curvature, v_curvature;
     double   x, y, z;
     Real     dx, dy, dz;
@@ -78,10 +78,13 @@ private  double   evaluate_fit_at_uv( graphics, fit_data, parameters, u, v )
     const    double  FOUR_PI_SQUARED = 4.0 * PI_SQUARED;
     int      i;
     volume_struct  *volume;
-    Vector   du, dv, surface_normal, function_deriv;
+    Vector   surface_normal, function_deriv;
     Real     evaluate_volume_at_point();
+    void     get_surface_normal_from_derivs();
 
-    evaluate_parametric_surface( u, v, parameters, &x, &y, &z,
+    fit_data->surface_representation->evaluate_surface_at_uv( u, v,
+                                 fit_data->descriptors,
+                                 parameters, &x, &y, &z,
                                  &dxu, &dyu, &dzu, &dxv, &dyv, &dzv,
                                  &dxuu, &dyuu, &dzuu, &dxvv, &dyvv, &dzvv );
 
@@ -90,17 +93,8 @@ private  double   evaluate_fit_at_uv( graphics, fit_data, parameters, u, v )
     {
         (void) evaluate_volume_at_point( volume, x, y, z, &dx, &dy, &dz );
 
-        Vector_x(du) = dxu;
-        Vector_y(du) = dyu;
-        Vector_z(du) = dzu;
-
-        Vector_x(dv) = dxv;
-        Vector_y(dv) = dyv;
-        Vector_z(dv) = dzv;
-
-        CROSS_VECTORS( surface_normal, dv, du );
-
-        NORMALIZE_VECTOR( surface_normal, surface_normal );
+        get_surface_normal_from_derivs( dxu, dyu, dzu, dxv, dyv, dzv,
+                                        &surface_normal );
 
         fill_Vector( function_deriv, dx, dy, dz );
 
