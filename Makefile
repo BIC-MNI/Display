@@ -1,6 +1,6 @@
 include ../C_dev/Makefile.include
 
-OPT = -g
+OPT = -O
 
 INCLUDE = -IInclude -I../marching_cubes/Include -I$(C_UTILS_INCLUDE) -I/@/portia/usr/include
 
@@ -27,6 +27,7 @@ display_obj = \
            main/graphics.o \
            $(graphics_obj) \
            graphics_io.o \
+           callbacks/file.o \
            callbacks/object_ops.o \
            callbacks/quit.o \
            callbacks/render_ops.o \
@@ -44,7 +45,9 @@ display_obj = \
            menu/menu_input.o \
            menu/menu_update.o \
            menu/selected.o \
+           $(C_UTILS_SRC)/alloc.o \
            $(C_UTILS_SRC)/bitlist.o \
+           $(C_UTILS_SRC)/colours.o \
            $(C_UTILS_SRC)/lines.o \
            $(C_UTILS_SRC)/mr_io.o \
            $(C_UTILS_SRC)/objects.o \
