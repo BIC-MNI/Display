@@ -34,9 +34,8 @@ START_GLOBALS
     DEF_GLOBAL( Initial_y_scale, Real, 1.0 )
     DEF_GLOBAL( Initial_z_scale, Real, 1.0 )
 
-    DEF_GLOBAL( Default_line_of_sight_x, Real, 0.0 )
-    DEF_GLOBAL( Default_line_of_sight_y, Real, 0.0 )
-    DEF_GLOBAL( Default_line_of_sight_z, Real, -1.0 )
+    DEF_GLOBAL( Default_line_of_sight, Vector, 0.0 )
+    DEF_GLOBAL( Default_horizontal, Vector, 0.0 )
 
     DEF_GLOBAL( Monitor_widths_to_eye, Real, 1.5 )
 END_GLOBALS
