@@ -224,8 +224,7 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
     volume_struct    *volume;
     graphics_struct  *slice_window;
     Status           set_slice_window_volume();
-    void             rebuild_slice_models();
-    void             set_update_required();
+    void             set_slice_window_update();
 
     status = OK;
 
@@ -245,9 +244,9 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
 
             status = set_slice_window_volume( slice_window, volume );
 
-            rebuild_slice_models( slice_window );
-
-            set_update_required( slice_window, NORMAL_PLANES );
+            set_slice_window_update( slice_window, 0 );
+            set_slice_window_update( slice_window, 1 );
+            set_slice_window_update( slice_window, 2 );
         }
     }
 
@@ -382,8 +381,7 @@ public  DEF_MENU_FUNCTION(load_labeled_voxels)   /* ARGSUSED */
     Status           close_file();
     volume_struct    *volume;
     String           filename;
-    void             rebuild_slice_models();
-    void             set_update_required();
+    void             set_slice_window_update();
 
     status = OK;
 
@@ -402,10 +400,9 @@ public  DEF_MENU_FUNCTION(load_labeled_voxels)   /* ARGSUSED */
 
         if( status == OK )
         {
-            rebuild_slice_models( graphics->associated[SLICE_WINDOW] );
-
-            set_update_required( graphics->associated[SLICE_WINDOW],
-                                 NORMAL_PLANES );
+            set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
+            set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
+            set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
         }
 
         PRINT( "Done\n" );
@@ -464,8 +461,7 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
     Status           close_file();
     volume_struct    *volume;
     String           filename;
-    void             rebuild_slice_models();
-    void             set_update_required();
+    void             set_slice_window_update();
 
     status = OK;
 
@@ -484,10 +480,9 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
 
         if( status == OK )
         {
-            rebuild_slice_models( graphics->associated[SLICE_WINDOW] );
-
-            set_update_required( graphics->associated[SLICE_WINDOW],
-                                 NORMAL_PLANES );
+            set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
+            set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
+            set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
         }
 
         PRINT( "Done\n" );
@@ -506,9 +501,8 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
     volume_struct    *volume;
     Real             min_value, max_value;
     graphics_struct  *slice_window;
-    void             rebuild_slice_models();
+    void             set_slice_window_update();
     void             change_colour_coding_range();
-    void             set_update_required();
 
     if( get_current_volume(graphics,&volume) )
     {
@@ -529,9 +523,9 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
                    slice_window->slice.colour_coding.min_value,
                    slice_window->slice.colour_coding.max_value );
 
-            rebuild_slice_models( slice_window );
-
-            set_update_required( slice_window, NORMAL_PLANES );
+            set_slice_window_update( slice_window, 0 );
+            set_slice_window_update( slice_window, 1 );
+            set_slice_window_update( slice_window, 2 );
         }
     }
 
@@ -547,7 +541,7 @@ public  DEF_MENU_FUNCTION(reset_activities)   /* ARGSUSED */
 {
     volume_struct    *volume;
     void             set_all_voxel_activity_flags();
-    void             rebuild_slice_models();
+    void             set_slice_window_update();
     graphics_struct  *slice_window;
     void             set_update_required();
 
@@ -557,9 +551,7 @@ public  DEF_MENU_FUNCTION(reset_activities)   /* ARGSUSED */
 
         set_all_voxel_activity_flags( volume, TRUE );
 
-        rebuild_slice_models( slice_window );
-
-        set_update_required( slice_window, NORMAL_PLANES );
+        set_slice_window_update( slice_window, 0 );
     }
 
     return( OK );
@@ -727,6 +719,193 @@ public  DEF_MENU_FUNCTION(output_slice_transforms )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(output_slice_transforms )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(colour_code_objects )   /* ARGSUSED */
+{
+    object_struct           *object, *current_object;
+    volume_struct           *volume;
+    colour_coding_struct    *colour_coding;
+    Status                  status;
+    object_traverse_struct  object_traverse;
+    Status                  initialize_object_traverse();
+    void                    colour_code_object();
+
+    status = OK;
+
+    if( get_current_object(graphics,&current_object) &&
+        get_slice_window_volume( graphics, &volume ) )
+    {
+        colour_coding =
+                 &graphics->associated[SLICE_WINDOW]->slice.colour_coding;
+
+        status = initialize_object_traverse( &object_traverse, 1,
+                                             &current_object );
+
+        while( get_next_object_traverse(&object_traverse,&object) )
+        {
+            if( object->object_type == POLYGONS )
+            {
+                colour_code_object( colour_coding, volume,
+                                    &object->ptr.polygons->colour_flag,
+                                    &object->ptr.polygons->colours,
+                                    object->ptr.polygons->n_points,
+                                    object->ptr.polygons->points );
+            }
+            else if( object->object_type == QUADMESH )
+            {
+                colour_code_object( colour_coding, volume,
+                                    &object->ptr.quadmesh->colour_flag,
+                                    &object->ptr.quadmesh->colours,
+                                    object->ptr.quadmesh->m *
+                                    object->ptr.quadmesh->n,
+                                    object->ptr.quadmesh->points );
+            }
+        }
+
+        graphics_models_have_changed( graphics );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(colour_code_objects )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+private  void  colour_code_object( colour_coding, volume,
+                                   colour_flag, colours, n_points, points )
+    colour_coding_struct  *colour_coding;
+    volume_struct         *volume;
+    Colour_flags          *colour_flag;
+    Colour                *colours[];
+    int                   n_points;
+    Point                 points[];
+{
+    Status   status;
+    int      i;
+    Real     val;
+    Real     interpolate_volume();
+    void     get_colour_coding();
+
+    if( *colour_flag != PER_VERTEX_COLOURS )
+    {
+        FREE1( status, *colours );
+
+        if( status == OK )
+            ALLOC1( status, *colours, n_points, Colour );
+        *colour_flag = PER_VERTEX_COLOURS;
+    }
+
+    for_less( i, 0, n_points )
+    {
+        val = interpolate_volume( volume,
+                                  Point_x(points[i]),
+                                  Point_y(points[i]),
+                                  Point_z(points[i]) );
+
+        get_colour_coding( colour_coding, val, &(*colours)[i] );
+    }
+}
+
+public  DEF_MENU_FUNCTION(set_hot_metal )   /* ARGSUSED */
+{
+    graphics_struct         *slice_window;
+    volume_struct           *volume;
+    colour_coding_struct    *colour_coding;
+    void                    build_hot_metal_coding();
+    void                    set_slice_window_update();
+    void                    graphics_models_have_changed();
+    void                    rebuild_fast_lookup();
+
+    if( get_slice_window_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+        colour_coding = &slice_window->slice.colour_coding;
+
+        build_hot_metal_coding( colour_coding );
+
+        rebuild_fast_lookup( slice_window );
+
+        set_slice_window_update( slice_window, 0 );
+        set_slice_window_update( slice_window, 1 );
+        set_slice_window_update( slice_window, 2 );
+        graphics_models_have_changed( graphics );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_hot_metal )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(set_gray_scale )   /* ARGSUSED */
+{
+    graphics_struct         *slice_window;
+    volume_struct           *volume;
+    colour_coding_struct    *colour_coding;
+    void                    build_gray_scale_coding();
+    void                    set_slice_window_update();
+    void                    graphics_models_have_changed();
+    void                    rebuild_fast_lookup();
+
+    if( get_slice_window_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+        colour_coding = &slice_window->slice.colour_coding;
+
+        build_gray_scale_coding( colour_coding );
+
+        rebuild_fast_lookup( slice_window );
+
+        set_slice_window_update( slice_window, 0 );
+        set_slice_window_update( slice_window, 1 );
+        set_slice_window_update( slice_window, 2 );
+        graphics_models_have_changed( graphics );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_gray_scale )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(set_spectral )   /* ARGSUSED */
+{
+    graphics_struct         *slice_window;
+    volume_struct           *volume;
+    colour_coding_struct    *colour_coding;
+    void                    build_spectral_coding();
+    void                    set_slice_window_update();
+    void                    graphics_models_have_changed();
+    void                    rebuild_fast_lookup();
+
+    if( get_slice_window_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+        colour_coding = &slice_window->slice.colour_coding;
+
+        build_spectral_coding( colour_coding );
+
+        rebuild_fast_lookup( slice_window );
+
+        set_slice_window_update( slice_window, 0 );
+        set_slice_window_update( slice_window, 1 );
+        set_slice_window_update( slice_window, 2 );
+        graphics_models_have_changed( graphics );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_spectral )   /* ARGSUSED */
 {
     return( OK );
 }

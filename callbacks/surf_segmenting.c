@@ -6,6 +6,7 @@
 
 public  DEF_MENU_FUNCTION( reset_polygon_visibility )   /* ARGSUSED */
 {
+    int              i;
     polygons_struct  *polygons;
     void             graphics_models_have_changed();
     void             set_polygons_visibilities();
@@ -13,6 +14,12 @@ public  DEF_MENU_FUNCTION( reset_polygon_visibility )   /* ARGSUSED */
     if( get_current_polygons(graphics,&polygons) )
     {
         set_polygons_visibilities( polygons, TRUE );
+
+        if( polygons->colour_flag == PER_ITEM_COLOURS )
+        {
+            for_less( i, 0, polygons->n_items )
+                polygons->colours[i] = Visible_segmenting_colour;
+        }
 
         graphics_models_have_changed( graphics );
     }
@@ -90,7 +97,8 @@ public  DEF_MENU_FUNCTION( set_connected_invisible )   /* ARGSUSED */
                                       &intersection_point ) )
     {
         status = set_visibility_around_poly( polygons, poly_index,
-                    polygons->n_items, FALSE, FALSE, (Colour *) 0 );
+                polygons->n_items,
+                TRUE, OFF, TRUE, &Invisible_segmenting_colour );
 
         graphics_models_have_changed( graphics );
     }
@@ -118,8 +126,9 @@ public  DEF_MENU_FUNCTION( paint_invisible )   /* ARGSUSED */
                                       &point ) )
     {
         status = set_visibility_around_poly( polygons, poly_index,
-                       graphics->three_d.surface_edit.n_paint_polygons, FALSE,
-                       FALSE, (Colour *) 0 );
+                       graphics->three_d.surface_edit.n_paint_polygons,
+                       TRUE, OFF,
+                       TRUE, &Invisible_segmenting_colour );
 
         graphics_models_have_changed( graphics );
     }
@@ -147,8 +156,9 @@ public  DEF_MENU_FUNCTION( paint_visible )   /* ARGSUSED */
                                       &point ) )
     {
         status = set_visibility_around_poly( polygons, poly_index,
-                         graphics->three_d.surface_edit.n_paint_polygons, TRUE,
-                         FALSE, (Colour *) 0 );
+                         graphics->three_d.surface_edit.n_paint_polygons,
+                         TRUE, TRUE,
+                         TRUE, &Visible_segmenting_colour );
 
         graphics_models_have_changed( graphics );
     }
@@ -176,7 +186,8 @@ public  DEF_MENU_FUNCTION( set_connected_vis_colour )   /* ARGSUSED */
                                       &intersection_point ) )
     {
         status = set_visibility_around_poly( polygons, poly_index,
-                 polygons->n_items, FALSE, TRUE, &Visible_segmenting_colour );
+                 polygons->n_items,
+                 FALSE, OFF, TRUE, &Visible_segmenting_colour );
 
         graphics_models_have_changed( graphics );
     }
@@ -204,7 +215,8 @@ public  DEF_MENU_FUNCTION( set_connected_invis_colour )   /* ARGSUSED */
                                       &intersection_point ) )
     {
         status = set_visibility_around_poly( polygons, poly_index,
-               polygons->n_items, FALSE, TRUE, &Invisible_segmenting_colour );
+               polygons->n_items,
+               FALSE, OFF, TRUE, &Invisible_segmenting_colour );
 
         graphics_models_have_changed( graphics );
     }
@@ -232,7 +244,8 @@ public  DEF_MENU_FUNCTION( paint_invis_colour )   /* ARGSUSED */
                                       &point ) )
     {
         status = set_visibility_around_poly( polygons, poly_index,
-                       graphics->three_d.surface_edit.n_paint_polygons, FALSE,
+                       graphics->three_d.surface_edit.n_paint_polygons,
+                       FALSE, OFF,
                        TRUE, &Invisible_segmenting_colour );
 
         graphics_models_have_changed( graphics );
@@ -261,7 +274,8 @@ public  DEF_MENU_FUNCTION( paint_vis_colour )   /* ARGSUSED */
                                       &point ) )
     {
         status = set_visibility_around_poly( polygons, poly_index,
-                         graphics->three_d.surface_edit.n_paint_polygons, FALSE,
+                         graphics->three_d.surface_edit.n_paint_polygons,
+                         FALSE, OFF,
                          TRUE, &Visible_segmenting_colour );
 
         graphics_models_have_changed( graphics );
