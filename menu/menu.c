@@ -13,10 +13,11 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.44 2001-08-12 00:40:25 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.45 2001-08-16 23:04:07 stever Exp $";
 #endif
 
 
+#include  <config.h>
 #include  <display.h>
 
 static    DEF_EVENT_FUNCTION( handle_character_down );
