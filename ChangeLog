@@ -1,3 +1,7 @@
+2005-02-02  Andrew Janke <rotor@bic.mni.mcgill.ca>
+ 	* Added OSX build support for Native OpenGL/GLUT
+        * Added epm-header.in for binary builds
+
 2004-06-29  Bert Vincent <bert@bic.mni.mcgill.ca>
 	* Stubbed out copy_x_colours.c in the Graphics/GLUT_windows 
 	directory.  This function appears to be unnecessary in 99% of
