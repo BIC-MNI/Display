@@ -60,7 +60,7 @@ Initial_backface_flag = TRUE;
 Initial_line_curves_flag = FALSE;
 Initial_n_curve_segments = 8;
 
-Segmenting_connectivity = 1;
+Segmenting_connectivity = 0;
 
 Visibility_on_input = TRUE;
 
@@ -226,9 +226,7 @@ Colour_bar_number_format = "%g";
 Normal_towards_lower = TRUE;
 
 Initial_display_labels = TRUE;
-Inactive_voxel_colour = Green;
 Labeled_voxel_colour = Magenta;
-Inactive_and_labeled_voxel_colour = Yellow;
 Label_colour_display_ratio = 0.2;
 
 Use_cursor_origin = TRUE;
@@ -240,7 +238,7 @@ Tmp_surface_name = "tmp_surface/tmp_%d.obj";
 
 Marching_cubes_method = 1;
 
-Polygon_bintree_threshold = 100000000;
+Polygon_bintree_threshold = 100;
 Compute_neighbours_on_input = FALSE;
 Bintree_size_factor = 0.5;
 
@@ -253,7 +251,7 @@ Smoothing_threshold = 0.01;
 
 Surface_curve_colour = MAGENTA;
 Surface_curve_thickness = 3;
-Surface_curve_overlay_flag = FALSE;
+Surface_curve_overlay_flag = TRUE;
 Line_curvature_weight = 0.0;
 
 N_painting_polygons = 100;
