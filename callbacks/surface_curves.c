@@ -92,3 +92,31 @@ public  DEF_MENU_UPDATE(set_line_curvature_weight )   /* ARGSUSED */
 
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( set_surface_curve_curvature )   /* ARGSUSED */
+{
+    Real        min_curve, max_curve;
+
+    print( "The current surface curve curvature limits are: %g %g\n",
+           display->three_d.surface_curve.min_curvature,
+           display->three_d.surface_curve.min_curvature );
+
+    print( "Enter the new value: " );
+
+    if( input_real( stdin, &min_curve ) == OK &&
+        input_real( stdin, &max_curve ) == OK )
+    {
+        display->three_d.surface_curve.min_curvature = min_curve;
+        display->three_d.surface_curve.max_curvature = max_curve;
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+
+public  DEF_MENU_UPDATE(set_surface_curve_curvature )   /* ARGSUSED */
+{
+    return( OK );
+}
