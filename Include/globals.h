@@ -89,6 +89,10 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_start_pixel, int, 3 )
     DEF_GLOBAL( Cursor_end_pixel, int, 10 )
     DEF_GLOBAL( Slice_cursor_colour, Colour, 0.0 )
+    DEF_GLOBAL( Cursor_mouse_threshold, Real, 0.02 )
+    DEF_GLOBAL( Max_cursor_angle, Real, 10.0 )
+    DEF_GLOBAL( Min_cursor_angle_diff, Real, 20.0 )
+    DEF_GLOBAL( Cursor_pick_distance, Real, 0.02 )
 
     DEF_GLOBAL( Extracted_surface_colour, Colour, 0.0 )
     DEF_GLOBAL( Default_surface_property, Surfprop, 0.0 )
@@ -98,10 +102,23 @@ START_GLOBALS
     DEF_GLOBAL( Max_seconds_per_voxel_update, Real, 1.0 )
     DEF_GLOBAL( Max_surface_refinements, int, 5 )
     DEF_GLOBAL( Max_surface_error, Real, 0.1 )
+    DEF_GLOBAL( Edge_point_threshold, Real, 1.0 )
+    DEF_GLOBAL( Edge_point_new_density, Real, 0.5 )
+
+    DEF_GLOBAL( Colour_table_size, int, 1000 )
+    DEF_GLOBAL( Colour_below, Colour, 0.0 )
+    DEF_GLOBAL( Min_colour, Colour, 0.0 )
+    DEF_GLOBAL( Max_colour, Colour, 0.0 )
+    DEF_GLOBAL( Colour_above, Colour, 0.0 )
+    DEF_GLOBAL( Interpolation_space, int, 0 )
 
     DEF_GLOBAL( Normal_towards_lower, Boolean, TRUE )
 
     DEF_GLOBAL( Inactive_voxel_colour, Colour, 0.0 )
+    DEF_GLOBAL( Inactive_and_not_active_voxel_colour, Colour, 0.0 )
+    DEF_GLOBAL( Not_active_voxel_colour, Colour, 0.0 )
+
+    DEF_GLOBAL( Use_cursor_origin, Boolean, TRUE )
 END_GLOBALS
          
 #endif
