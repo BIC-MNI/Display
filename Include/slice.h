@@ -75,6 +75,7 @@ typedef  struct
     Real                   current_voxel[N_DIMENSIONS];
     slice_view_struct      slice_views[N_SLICE_VIEWS];
     int                    next_to_update;
+    void                   *render_storage;
 
     segmenting_struct      segmenting;
     atlas_struct           atlas;

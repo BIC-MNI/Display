@@ -79,17 +79,8 @@ public  void  set_colour_coding_for_new_volume(
     for_less( label, 1, n_labels )
     {
         ind = (label - 1) % SIZEOF_STATIC_ARRAY(default_colours);
-
-        col = default_colours[ind];
-        if( label & get_active_bit() )
-            col = SCALE_COLOUR( col, 0.5 );
-
-        set_colour_of_label( slice_window, label, col );
+        set_colour_of_label( slice_window, label, default_colours[ind] );
     }
-
-    if( get_label_bit() < n_labels )
-        set_colour_of_label( slice_window, get_label_bit(),
-                             Labeled_voxel_colour );
 
     for_less( label, n_labels, NUM_LABELS )
     {
@@ -176,52 +167,6 @@ public  void   add_new_label(
 {
     set_colour_of_label( slice_window, label, colour );
     slice_window->slice.label_colours_set[label] = TRUE;
-}
-
-public  int  lookup_label_colour(
-    display_struct    *slice_window,
-    Colour            colour )
-{
-    BOOLEAN   found_colour, found_empty;
-    int       i, first_empty, label;
-
-    found_colour = FALSE;
-    found_empty = FALSE;
-
-    for_less( i, 1, MIN( get_active_bit(), get_num_labels(slice_window) ) )
-    {
-        label = i;
-
-        if( slice_window->slice.label_colours != (Colour *) NULL )
-        {
-            if( equal_colours( slice_window->slice.label_colours[label],
-                               colour ) )
-            {
-                found_colour = TRUE;
-                break;
-            }
-        }
-
- 
-        if( !found_empty && !slice_window->slice.label_colours_set[label] )
-        {
-            found_empty = TRUE;
-            first_empty = label;
-        }
-    }
-
-    if( !found_colour )
-    {
-        if( found_empty )
-        {
-            label = first_empty;
-            add_new_label( slice_window, label, colour );
-        }
-        else
-            label = get_label_bit();
-    }
-
-    return( label );
 }
 
 private  Colour  apply_label_colour(
