@@ -6,11 +6,11 @@ public  void  initialize_voxel_selection( graphics )
     graphics_struct  *graphics;
 {
     DECL_EVENT_FUNCTION( start_picking_voxel );
-    void                 add_action_table_function();
+    void                 install_action_table_function();
 
-    add_action_table_function( &graphics->action_table,
-                               LEFT_MOUSE_DOWN_EVENT,
-                               start_picking_voxel );
+    install_action_table_function( &graphics->action_table,
+                                   LEFT_MOUSE_DOWN_EVENT,
+                                   start_picking_voxel );
 }
 
 private  DEF_EVENT_FUNCTION( start_picking_voxel )
@@ -18,36 +18,33 @@ private  DEF_EVENT_FUNCTION( start_picking_voxel )
 {
     DECL_EVENT_FUNCTION( handle_update_voxel );
     DECL_EVENT_FUNCTION( end_picking_voxel );
-    void                 add_action_table_function();
+    void                 install_action_table_function();
     void                 update_voxel_cursor();
     void                 push_action_table();
 
+    push_action_table( &graphics->action_table, NO_EVENT );
     push_action_table( &graphics->action_table, LEFT_MOUSE_UP_EVENT );
 
-    add_action_table_function( &graphics->action_table,
-                               NO_EVENT,
-                               handle_update_voxel );
+    install_action_table_function( &graphics->action_table,
+                                   NO_EVENT,
+                                   handle_update_voxel );
 
-    add_action_table_function( &graphics->action_table,
-                               LEFT_MOUSE_UP_EVENT,
-                               end_picking_voxel );
+    install_action_table_function( &graphics->action_table,
+                                   LEFT_MOUSE_UP_EVENT,
+                                   end_picking_voxel );
 
     graphics->prev_mouse_position = graphics->mouse_position;
 
     update_voxel_cursor( graphics );
-
-    return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( end_picking_voxel )
     /* ARGSUSED */
 {
     void    pop_action_table();
-    void    remove_action_table_function();
     void    update_voxel_cursor();
 
-    remove_action_table_function( &graphics->action_table, NO_EVENT );
-
+    pop_action_table( &graphics->action_table, NO_EVENT );
     pop_action_table( &graphics->action_table, LEFT_MOUSE_UP_EVENT );
 
     update_voxel_cursor( graphics );
@@ -59,7 +56,7 @@ private  DEF_EVENT_FUNCTION( handle_update_voxel )
     Boolean  mouse_moved();
     void     update_voxel_cursor();
 
-    if( mouse_moved(graphics) || graphics->update_required )
+    if( mouse_moved(graphics) )
     {
         update_voxel_cursor( graphics );
     }
@@ -70,15 +67,39 @@ private  DEF_EVENT_FUNCTION( handle_update_voxel )
 private  void  update_voxel_cursor( slice_window )
     graphics_struct   *slice_window;
 {
-    int               x, y, z, axis_index;
-    Boolean           get_voxel_in_slice();
-    Boolean           set_current_voxel();
+    int               x, y;
+    int               i, j, k;
+    Point             new_origin;
+    void              get_mouse_in_pixels();
+    Boolean           convert_pixel_to_voxel();
+    graphics_struct   *graphics;
+    void              update_cursor();
 
-    if( get_voxel_in_slice( slice_window, &x, &y, &z, &axis_index ) )
+    graphics = slice_window->associated[THREE_D_WINDOW];
+
+    get_mouse_in_pixels( slice_window, &slice_window->mouse_position, &x, &y );
+
+    if( convert_pixel_to_voxel( slice_window, x, y, &i, &j, &k ) )
     {
-        if( set_current_voxel( slice_window, x, y, z ) )
+        fill_Point( new_origin, (Real) i, (Real) j, (Real) k );
+
+        if( !EQUAL_POINTS( new_origin, graphics->three_d.cursor.origin ) )
         {
-            slice_window->associated[THREE_D_WINDOW]->update_required = TRUE;
+            graphics->three_d.cursor.origin = new_origin;
+
+            update_cursor( graphics );
+
+            graphics->update_required = TRUE;
+        }
+
+        if( i != slice_window->slice.slice_views[X_AXIS].slice_index ||
+            j != slice_window->slice.slice_views[Y_AXIS].slice_index ||
+            k != slice_window->slice.slice_views[Z_AXIS].slice_index )
+        {
+            slice_window->slice.slice_views[X_AXIS].slice_index = i;
+            slice_window->slice.slice_views[Y_AXIS].slice_index = j;
+            slice_window->slice.slice_views[Z_AXIS].slice_index = k;
+
             slice_window->update_required = TRUE;
         }
     }

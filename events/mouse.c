@@ -36,3 +36,12 @@ public  Boolean  mouse_moved( graphics )
 
     return( moved );
 }
+
+public  void  get_mouse_in_pixels( graphics, mouse, x, y )
+    graphics_struct  *graphics;
+    Point            *mouse;
+    int              *x, *y;
+{
+    *x = (int) ( (Real) graphics->window.x_size * Point_x(*mouse) );
+    *y = (int) ( (Real) graphics->window.y_size * Point_y(*mouse) );
+}
