@@ -1,7 +1,9 @@
 
 #include  <display.h>
 
-public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_colour_limits )
 {
     int              volume_index;
     Real             min_value, max_value;
@@ -40,7 +42,9 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_colour_limits )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_colour_limits )
 {
     return( get_n_volumes(display) > 0 );
 }
@@ -65,91 +69,121 @@ private  void  set_the_colour_coding_type(
     }
 }
 
-public  DEF_MENU_FUNCTION(set_contour_colour_map )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_contour_colour_map )
 {
     set_the_colour_coding_type( display, CONTOUR_COLOUR_MAP );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_contour_colour_map )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_contour_colour_map )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(set_hot_metal )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_hot_metal )
 {
     set_the_colour_coding_type( display, HOT_METAL );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_hot_metal )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_hot_metal )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(set_gray_scale )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_gray_scale )
 {
     set_the_colour_coding_type( display, GRAY_SCALE );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_gray_scale )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_gray_scale )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(set_red )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_red )
 {
     set_the_colour_coding_type( display, RED_COLOUR_MAP );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_red )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_red )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(set_green )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_green )
 {
     set_the_colour_coding_type( display, GREEN_COLOUR_MAP );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_green )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_green )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(set_blue )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_blue )
 {
     set_the_colour_coding_type( display, BLUE_COLOUR_MAP );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_blue )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_blue )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(set_spectral )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_spectral )
 {
     set_the_colour_coding_type( display, SPECTRAL );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_spectral )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_spectral )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(set_under_colour )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_under_colour )
 {
     Status                  status;
     display_struct          *slice_window;
@@ -181,7 +215,9 @@ public  DEF_MENU_FUNCTION(set_under_colour )   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(set_under_colour )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_under_colour )
 {
     BOOLEAN          active;
     display_struct   *slice_window;
@@ -201,7 +237,9 @@ public  DEF_MENU_UPDATE(set_under_colour )   /* ARGSUSED */
     return( active );
 }
 
-public  DEF_MENU_FUNCTION(set_over_colour )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_over_colour )
 {
     Status                  status;
     display_struct          *slice_window;
@@ -233,7 +271,9 @@ public  DEF_MENU_FUNCTION(set_over_colour )   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(set_over_colour )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_over_colour )
 {
     BOOLEAN          active;
     display_struct   *slice_window;
@@ -254,7 +294,9 @@ public  DEF_MENU_UPDATE(set_over_colour )   /* ARGSUSED */
     return( active );
 }
 
-public  DEF_MENU_FUNCTION(set_label_colour_ratio )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_label_colour_ratio )
 {
     Real             opacity;
     display_struct   *slice_window;
@@ -277,7 +319,9 @@ public  DEF_MENU_FUNCTION(set_label_colour_ratio )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_label_colour_ratio )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_label_colour_ratio )
 {
     BOOLEAN          state;
     Real             opacity;
@@ -317,62 +361,84 @@ private  void  set_filter_type(
     }
 }
 
-public  DEF_MENU_FUNCTION(set_nearest_neighbour )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_nearest_neighbour )
 {
     set_filter_type( display, NEAREST_NEIGHBOUR );
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_nearest_neighbour )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_nearest_neighbour )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(set_linear_interpolation )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_linear_interpolation )
 {
     set_filter_type( display, LINEAR_INTERPOLATION );
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_linear_interpolation )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_linear_interpolation )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(set_box_filter )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_box_filter )
 {
     set_filter_type( display, BOX_FILTER );
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_box_filter )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_box_filter )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(set_triangle_filter )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_triangle_filter )
 {
     set_filter_type( display, TRIANGLE_FILTER );
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_triangle_filter )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_triangle_filter )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(set_gaussian_filter )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_gaussian_filter )
 {
     set_filter_type( display, GAUSSIAN_FILTER );
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_gaussian_filter )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_gaussian_filter )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(set_filter_half_width )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_filter_half_width )
 {
     int             view_index, volume_index;
     display_struct  *slice_window;
@@ -406,12 +472,16 @@ public  DEF_MENU_FUNCTION(set_filter_half_width )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_filter_half_width )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_filter_half_width )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(set_slice_window_n_labels )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_slice_window_n_labels )
 {
     int             n_labels;
     display_struct  *slice_window;
@@ -435,7 +505,9 @@ public  DEF_MENU_FUNCTION(set_slice_window_n_labels )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_slice_window_n_labels )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_slice_window_n_labels )
 {
     BOOLEAN          state;
     int              n_labels;
@@ -455,7 +527,9 @@ public  DEF_MENU_UPDATE(set_slice_window_n_labels )   /* ARGSUSED */
     return( state );
 }
 
-public  DEF_MENU_FUNCTION(toggle_share_labels )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(toggle_share_labels )
 {
     display_struct  *slice_window;
 
@@ -468,7 +542,9 @@ public  DEF_MENU_FUNCTION(toggle_share_labels )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_share_labels )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_share_labels )
 {
     BOOLEAN          state;
     display_struct   *slice_window;
