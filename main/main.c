@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.57 1996-09-24 19:30:40 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.58 1996-10-02 19:13:10 david Exp $";
 #endif
 
 #include  <display.h>
@@ -137,7 +137,8 @@ int  main(
     G_set_transparency_state( graphics->window, Graphics_transparency_flag);
 
     if( create_graphics_window( MENU_WINDOW, ON, &menu, title,
-                                Menu_window_width, Menu_window_height ) != OK )
+                                Initial_menu_window_width,
+                                Initial_menu_window_height ) != OK )
         return( 1 );
 
     delete_string( title );
