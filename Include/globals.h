@@ -64,11 +64,34 @@ START_GLOBALS
     DEF_GLOBAL( Viewport_min_x_size, Real, 0.1 )
     DEF_GLOBAL( Viewport_min_y_size, Real, 0.1 )
 
-    DEF_GLOBAL( Slice_split_colour, Colour, 0.0 )
-    DEF_GLOBAL( Slice_split_border, int, 5 )
+    DEF_GLOBAL( Slice_divider_colour, Colour, 0.0 )
+    DEF_GLOBAL( Slice_divider_left, int, 5 )
+    DEF_GLOBAL( Slice_divider_right, int, 5 )
+    DEF_GLOBAL( Slice_divider_top, int, 5 )
+    DEF_GLOBAL( Slice_divider_bottom, int, 25 )
+    DEF_GLOBAL( Slice_text_colour, Colour, 0.0 )
+    DEF_GLOBAL( Slice_index_offset, Point, 0.0 )
+    DEF_GLOBAL_STRING( Slice_index_x_format, "" )
+    DEF_GLOBAL_STRING( Slice_index_y_format, "" )
+    DEF_GLOBAL_STRING( Slice_index_z_format, "" )
+    DEF_GLOBAL_STRING( Slice_probe_x_format, "" )
+    DEF_GLOBAL_STRING( Slice_probe_y_format, "" )
+    DEF_GLOBAL_STRING( Slice_probe_z_format, "" )
+    DEF_GLOBAL_STRING( Slice_probe_val_format, "" )
+    DEF_GLOBAL( Probe_x_pos, int, 10 )
+    DEF_GLOBAL( Probe_y_pos, int, 10 )
+    DEF_GLOBAL( Probe_x_delta, int, 20 )
+    DEF_GLOBAL( Probe_y_delta, int, 20 )
 
     DEF_GLOBAL( Cursor_colour, Colour, 0.0 )
     DEF_GLOBAL( Cursor_size_factor, Real, 0.05 )
+
+    DEF_GLOBAL( Extracted_surface_colour, Colour, 0.0 )
+    DEF_GLOBAL( Default_surface_property, Surfprop, 0.0 )
+
+    DEF_GLOBAL( Voxels_per_update, int, 100 )
+
+    DEF_GLOBAL( Normal_towards_lower, Boolean, TRUE )
 END_GLOBALS
          
 #endif
