@@ -10,26 +10,6 @@
 
 #define   OBLIQUE_VIEW_INDEX    (N_SLICE_VIEWS-1)
 
-typedef enum { UPDATE_SLICE, UPDATE_LABELS, UPDATE_BOTH } Update_types;
-
-typedef  struct
-{
-    BOOLEAN       visibility;
-    Real          x_axis[N_DIMENSIONS];
-    Real          y_axis[N_DIMENSIONS];
-    Real          x_trans, y_trans;
-    Real          x_scaling, y_scaling;
-    int           prev_viewport_x_size;
-    int           prev_viewport_y_size;
-    int           used_viewport_x_size;
-    int           used_viewport_y_size;
-    BOOLEAN       update_flag;
-    BOOLEAN       update_labels_flag;
-    BOOLEAN       update_composite_flag;
-    Filter_types  filter_type;
-    Real          filter_width;
-} slice_view_struct;
-
 typedef  struct
 {
     Real              min_threshold;
@@ -51,34 +31,65 @@ typedef struct
 
 typedef  struct
 {
+    int              volume_index;
     int              axis_index;
     int              slice_index;
     int              **saved_labels;
 } slice_undo_struct;
 
+typedef enum { UPDATE_SLICE, UPDATE_LABELS, UPDATE_BOTH } Update_types;
+
 typedef  struct
 {
-    Volume                 original_volume;
-    Volume                 labels;
-
     Volume                 volume;
-
-    BOOLEAN                using_transparency;
+    Volume                 labels;
     int                    n_labels;
     int                    offset;
     Colour                 *colour_table;
     Colour                 *label_colour_table;
     Real                   label_colour_opacity;
     colour_coding_struct   colour_coding;
-    colour_bar_struct      colour_bar;
     BOOLEAN                display_labels;
+    Real                   opacity;
+    Real                   current_voxel[N_DIMENSIONS];
+
+    struct
+    {
+        BOOLEAN                visibility;
+        Real                   x_axis[N_DIMENSIONS];
+        Real                   y_axis[N_DIMENSIONS];
+        Real                   x_trans, y_trans;
+        Real                   x_scaling, y_scaling;
+        BOOLEAN                update_flag;
+        BOOLEAN                update_labels_flag;
+        Filter_types           filter_type;
+        Real                   filter_width;
+    }  views[N_SLICE_VIEWS];
+} loaded_volume_struct;
+
+typedef  struct
+{
+    int           prev_viewport_x_size;
+    int           prev_viewport_y_size;
+    int           used_viewport_x_size;
+    int           used_viewport_y_size;
+    BOOLEAN       update_composite_flag;
+} slice_view_struct;
+
+typedef  struct
+{
+    int                    n_volumes;
+    loaded_volume_struct   *volumes;
+    int                    current_volume_index;
+
+    colour_bar_struct      colour_bar;
+
+    BOOLEAN                using_transparency;
+
+    slice_view_struct      slice_views[N_SLICE_VIEWS];
+    void                   *render_storage;
 
     Real                   x_split, y_split;
-
-    Real                   current_voxel[N_DIMENSIONS];
-    slice_view_struct      slice_views[N_SLICE_VIEWS];
-    int                    next_to_update;
-    void                   *render_storage;
 
     segmenting_struct      segmenting;
     atlas_struct           atlas;
