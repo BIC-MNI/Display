@@ -68,7 +68,7 @@ START_GLOBALS
     DEF_GLOBAL( Default_marker_type, int, 0 )
     DEF_GLOBAL( Default_marker_structure_id, int, 1 )
     DEF_GLOBAL( Default_marker_patient_id, int, 1 )
-    DEF_GLOBAL( Default_marker_size, Real, 0.5 )
+    DEF_GLOBAL( Default_marker_size, Real, 1.0 )
     DEF_GLOBAL( Default_marker_colour, Colour, GREEN )
     DEF_GLOBAL_STRING( Default_marker_label, "Marker" )
     DEF_GLOBAL( Marker_pick_size, Real, 3.0 )
@@ -184,7 +184,7 @@ START_GLOBALS
     DEF_GLOBAL( Initial_colour_coding_type, int, 1 )
     DEF_GLOBAL( User_defined_interpolation_space, int, 1 )
     DEF_GLOBAL( Default_filter_type, int, 0 )
-    DEF_GLOBAL( Default_filter_width, int, 3.0 )
+    DEF_GLOBAL( Default_filter_width, int, 4.0 )
 
     DEF_GLOBAL( Colour_bar_resolution, int, 137 )
     DEF_GLOBAL( Colour_bar_top_offset, Real, 10.0 )

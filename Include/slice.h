@@ -42,17 +42,15 @@ typedef struct
     int              desired_n_intervals;
 } colour_bar_struct;
 
-#define  N_AUXILIARY_VOXEL_BYTES   1
-#define  LABEL_BIT                 128
-#define  ACTIVE_BIT                64
-#define  LOWER_AUXILIARY_BITS      63
-
-#define  NUM_LABELS   (1 << (8*N_AUXILIARY_VOXEL_BYTES) )
+#define  NUM_LABELS   256
 
 typedef  struct
 {
     Volume                 original_volume;
+    Volume                 original_labels;
+
     Volume                 volume;
+    Volume                 labels;
 
     Colour                 *colour_tables[NUM_LABELS];
     Real                   label_colour_ratio;

@@ -199,6 +199,8 @@ public  void  create_slice_window(
     menu_window->associated[SLICE_WINDOW] = slice_window;
 
     slice_window->slice.original_volume = volume;
+    slice_window->slice.original_labels = create_label_volume(
+                        get_volume_n_dimensions(volume), sizes );
 
     set_slice_window_volume( slice_window,
                              slice_window->slice.original_volume );
@@ -255,6 +257,7 @@ public  void  delete_slice_window(
     free_slice_window( slice );
 
     delete_volume( slice->original_volume );
+    delete_volume( slice->original_labels );
 }
 
 private  void  free_slice_window(
@@ -266,6 +269,7 @@ private  void  free_slice_window(
         slice->volume != slice->original_volume )
     {
         delete_volume( slice->volume );
+        delete_volume( slice->labels );
     }
 }
 
@@ -273,7 +277,7 @@ public  void  set_slice_window_volume(
     display_struct    *slice_window,
     Volume            volume )
 {
-    int        c;
+    int        c, sizes[MAX_DIMENSIONS];
     Real       thickness[N_DIMENSIONS];
 
     free_slice_window( &slice_window->slice );
@@ -288,6 +292,9 @@ public  void  set_slice_window_volume(
     }
 
     slice_window->slice.volume = volume;
+    get_volume_sizes( volume, sizes );
+    slice_window->slice.labels = create_label_volume(
+                    get_volume_n_dimensions(volume), sizes );
 
     for_less( c, 0, N_DIMENSIONS )
         slice_window->slice.slice_views[c].update_flag = TRUE;
