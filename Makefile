@@ -188,3 +188,21 @@ timing: $(timing_obj)
 
 lint_timing: $(timing_ln)
 	$(LINT) -u $(LINTFLAGS) $(timing_ln)
+
+# -------
+
+test_gl_obj = test_gl.c \
+              alloc.o \
+              colours.o \
+              files.o \
+              string.o \
+              time.o
+
+test_gl_ln = $(test_gl_obj)
+
+test_gl: $(test_gl_obj)
+	$(CC) -O $(INCLUDE) $(test_gl_obj) -o $@ $(LIBS)
+
+
+lint_test_gl: $(test_gl_ln)
+	$(LINT) -u $(LINTFLAGS) $(test_gl_ln)
