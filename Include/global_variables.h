@@ -315,4 +315,10 @@ START_GLOBALS
     DEF_GLOBAL( Histogram_x_scale, Real, 1.0 )
     DEF_GLOBAL( Histogram_smoothness_ratio, Real, 0.02 )
 
+    DEF_GLOBAL( Menu_name_colour, Colour, GREEN )
+    DEF_GLOBAL( Menu_name_x, Real, 5.0 )
+    DEF_GLOBAL( Menu_name_y, Real, 20.0 )
+    DEF_GLOBAL( Menu_name_font, int, 1 )
+    DEF_GLOBAL( Menu_name_font_size, Real, 12.0 )
+
 END_GLOBALS

@@ -19,6 +19,8 @@ private  Status  handle_mouse_press_in_menu(
     display_struct      *menu_window,
     Real                x,
     Real                y );
+private  void  update_menu_name_text(
+    display_struct   *menu_window );
 
 private  void  set_menu_key_entry(
     menu_window_struct     *menu,
@@ -92,7 +94,7 @@ private  void  remove_menu_actions(
 }
 
 public  Status  initialize_menu(
-    display_struct    *display,
+    display_struct    *menu_window,
     char              default_directory1[],
     char              default_directory2[],
     char              menu_filename[] )
@@ -100,12 +102,14 @@ public  Status  initialize_menu(
     Status               status;
     STRING               filename;
     menu_window_struct   *menu;
+    Point                position;
+    model_struct         *model;
     int                  ch;
     FILE                 *file;
 
-    initialize_resize_events( display );
+    initialize_resize_events( menu_window );
 
-    menu = &display->menu;
+    menu = &menu_window->menu;
 
     menu->shift_key_down = FALSE;
 
@@ -152,14 +156,23 @@ public  Status  initialize_menu(
 
     if( status == OK )
     {
-        build_menu( display );
+        build_menu( menu_window );
 
         add_menu_actions( menu, &menu->entries[0] );
 
-        set_update_required( display, NORMAL_PLANES );
+        set_update_required( menu_window, NORMAL_PLANES );
 
         status = close_file( file );
     }
+
+    model = get_graphics_model( menu_window, UTILITY_MODEL );
+    menu->menu_name_text = create_object( TEXT );
+    fill_Point( position, Menu_name_x, Menu_name_y, 0.0 );
+    initialize_text( get_text_ptr(menu->menu_name_text),
+                     &position,
+                     Menu_name_colour, Menu_name_font, Menu_name_font_size );
+
+    add_object_to_model( model, menu->menu_name_text );
 
     return( status );
 }
@@ -377,6 +390,8 @@ public  DEF_MENU_FUNCTION( push_menu )      /* ARGSUSED */
 
         add_menu_actions( &menu_window->menu, menu_entry );
 
+        update_menu_name_text( menu_window );
+
         set_update_required( menu_window, NORMAL_PLANES );
     }
 
@@ -412,6 +427,8 @@ public  void  pop_menu_one_level(
 
         add_menu_actions( &menu_window->menu,
                           menu_window->menu.stack[menu_window->menu.depth] );
+
+        update_menu_name_text( menu_window );
 
         set_update_required( menu_window, NORMAL_PLANES );
     }
@@ -480,4 +497,15 @@ public  void  update_all_menu_text(
         if( menu_entry != (menu_entry_struct *) 0 )
             status = update_menu_text( display, menu_entry );
     }
+}
+
+private  void  update_menu_name_text(
+    display_struct   *menu_window )
+{
+    text_struct  *text;
+
+    text = get_text_ptr( menu_window->menu.menu_name_text );
+
+    (void) strcpy( text->string,
+                   menu_window->menu.stack[menu_window->menu.depth]->label );
 }

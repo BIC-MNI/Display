@@ -63,6 +63,8 @@ typedef  struct
     menu_entry_struct    *key_menus[N_CHARACTERS];
 
     BOOLEAN              shift_key_down;
+
+    object_struct        *menu_name_text;
 } menu_window_struct;
 
 #endif
