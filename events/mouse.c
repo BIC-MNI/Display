@@ -23,3 +23,16 @@ private  DEF_EVENT_FUNCTION(  mouse_movement_event )     /* ARGSUSED */
 
     return( OK );
 }
+
+public  Boolean  mouse_moved( graphics )
+    graphics_struct  *graphics;
+{
+    Boolean   moved;
+
+    moved = !EQUAL_POINTS( graphics->mouse_position,
+                           graphics->prev_mouse_position );
+
+    graphics->prev_mouse_position = graphics->mouse_position;
+
+    return( moved );
+}
