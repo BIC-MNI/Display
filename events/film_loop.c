@@ -120,6 +120,7 @@ private  Status  create_film_loop_header( base_filename, window_width,
     Status  open_output_file();
     Status  io_int();
     Status  output_string();
+    Status  io_colour();
     Status  io_newline();
     Status  close_file();
     String  header_name;
@@ -141,6 +142,12 @@ private  Status  create_film_loop_header( base_filename, window_width,
     if( status == OK )
     {
         status = io_int( file, OUTPUTTING, ASCII_FORMAT, &window_height );
+    }
+
+    if( status == OK )
+    {
+        status = io_colour( file, OUTPUTTING, ASCII_FORMAT,
+                            &Initial_background_colour );
     }
 
     if( status == OK )
@@ -184,25 +191,75 @@ private  void  create_frame_filename( base_filename, step, frame_filename )
 private  Status  save_image_to_file( graphics )
     graphics_struct   *graphics;
 {
-    Status  status;
-    Status  open_output_file();
-    Status  io_binary_data();
-    Status  close_file();
-    void    G_read_pixels();
-    FILE    *file;
-    String  frame_filename;
-    void    create_frame_filename();
+    Status         status;
+    Status         open_output_file();
+    Status         io_binary_data();
+    Status         io_int();
+    Status         close_file();
+    void           G_read_pixels();
+    FILE           *file;
+    String         frame_filename;
+    void           create_frame_filename();
+    int            x_min, x_max, y_min, y_max;
+    void           get_pixel_bounds();
+    void           shift_pixels();
 
     G_read_pixels( &graphics->window,
                    0, graphics->three_d.film_loop.x_size-1,
                    0, graphics->three_d.film_loop.y_size-1,
                    graphics->three_d.film_loop.image_storage );
 
+    get_pixel_bounds( graphics->three_d.film_loop.x_size,
+                      graphics->three_d.film_loop.y_size,
+                      graphics->three_d.film_loop.image_storage,
+                      &x_min, &x_max, &y_min, &y_max );
+
+    if( (x_max - x_min) & 1 == 0 )
+    {
+        if( x_min > 0 )
+            --x_min;
+        else
+            ++x_max;
+    }
+
+    if( (y_max - y_min) & 1 == 0 )
+    {
+        if( y_min > 0 )
+            --y_min;
+        else
+            ++y_max;
+    }
+
+    shift_pixels( graphics->three_d.film_loop.x_size,
+                  graphics->three_d.film_loop.y_size,
+                  x_min, x_max, y_min, y_max,
+                  graphics->three_d.film_loop.image_storage );
+
     create_frame_filename( graphics->three_d.film_loop.base_filename,
                            graphics->three_d.film_loop.current_step,
                            frame_filename );
 
     status = open_output_file( frame_filename, &file );
+
+    if( status == OK )
+    {
+        status = io_int( file, OUTPUTTING, ASCII_FORMAT, &x_min );
+    }
+
+    if( status == OK )
+    {
+        status = io_int( file, OUTPUTTING, ASCII_FORMAT, &x_max );
+    }
+
+    if( status == OK )
+    {
+        status = io_int( file, OUTPUTTING, ASCII_FORMAT, &y_min );
+    }
+
+    if( status == OK )
+    {
+        status = io_int( file, OUTPUTTING, ASCII_FORMAT, &y_max );
+    }
 
     if( status == OK )
     {
@@ -228,4 +285,113 @@ private  void  display_next_frame( graphics )
 
     apply_transform_in_view_space( graphics,
                                    &graphics->three_d.film_loop.transform );
+}
+
+private  void  get_pixel_bounds( x_size, y_size, pixels,
+                                 x_min, x_max, y_min, y_max )
+    int           x_size, y_size;
+    Pixel_colour  *pixels;
+    int           *x_min;
+    int           *x_max;
+    int           *y_min;
+    int           *y_max;
+{
+    int            x, y;
+    Boolean        found_a_pixel;
+    Pixel_colour   background;
+
+    background = ACCESS_PIXEL( pixels, 0, 0, x_size );
+
+    *x_min = -1;
+    found_a_pixel = FALSE;
+
+    do
+    {
+        ++(*x_min);
+
+        for_less( y, 0, y_size )
+        {
+            if( ACCESS_PIXEL( pixels, *x_min, y, x_size ) != background )
+            {
+                found_a_pixel = TRUE;
+                break;
+            }
+        }
+
+    } while( !found_a_pixel );
+
+    *x_max = x_size;
+    found_a_pixel = FALSE;
+
+    do
+    {
+        --(*x_min);
+
+        for_less( y, 0, y_size )
+        {
+            if( ACCESS_PIXEL( pixels, *x_max, y, x_size ) != background )
+            {
+                found_a_pixel = TRUE;
+                break;
+            }
+        }
+
+    } while( !found_a_pixel );
+
+    *y_min = -1;
+    found_a_pixel = FALSE;
+
+    do
+    {
+        ++(*y_min);
+
+        for_less( x, 0, x_size )
+        {
+            if( ACCESS_PIXEL( pixels, x, *y_min, x_size ) != background )
+            {
+                found_a_pixel = TRUE;
+                break;
+            }
+        }
+
+    } while( !found_a_pixel );
+
+    *y_max = y_size;
+    found_a_pixel = FALSE;
+
+    do
+    {
+        --(*y_max);
+
+        for_less( x, 0, x_size )
+        {
+            if( ACCESS_PIXEL( pixels, x, *y_max, x_size ) != background )
+            {
+                found_a_pixel = TRUE;
+                break;
+            }
+        }
+
+    } while( !found_a_pixel );
+}
+
+private  void  shift_pixels( x_size, y_size,
+                             x_min, x_max, y_min, y_max, pixels )
+    int           x_size, y_size;
+    int           x_min, x_max, y_min, y_max;
+    Pixel_colour  *pixels;
+{
+    int   new_x_size;
+    int   x, y;
+
+    new_x_size = x_max - x_min + 1;
+
+    for_inclusive( y, y_min, y_max )
+    {
+        for_inclusive( x, x_min, x_max )
+        {
+            ACCESS_PIXEL( pixels, x-x_min, y-y_min, new_x_size ) =
+            ACCESS_PIXEL( pixels, x, y, x_size );
+        }
+    }
 }
