@@ -2,12 +2,8 @@
 #include  <def_display.h>
 
 private  void  colour_code_object(
-    colour_coding_struct  *colour_coding,
-    volume_struct         *volume,
-    Colour_flags          *colour_flag,
-    Colour                *colours[],
-    int                   n_points,
-    Point                 points[] );
+    display_struct   *display,
+    object_struct    *object );
 
 public  Boolean  get_slice_view_index_under_mouse(
     display_struct   *display,
@@ -197,45 +193,17 @@ public  DEF_MENU_UPDATE(toggle_lock_slice)    /* ARGSUSED */
 public  DEF_MENU_FUNCTION(colour_code_objects )   /* ARGSUSED */
 {
     object_struct           *object, *current_object;
-    polygons_struct         *polygons;
-    quadmesh_struct         *quadmesh;
-    lines_struct            *lines;
     volume_struct           *volume;
-    colour_coding_struct    *colour_coding;
     object_traverse_struct  object_traverse;
 
     if( get_current_object(display,&current_object) &&
         get_slice_window_volume( display, &volume ) )
     {
-        colour_coding =
-                 &display->associated[SLICE_WINDOW]->slice.colour_coding;
-
         initialize_object_traverse( &object_traverse, 1, &current_object );
 
         while( get_next_object_traverse(&object_traverse,&object) )
         {
-            if( object->object_type == POLYGONS )
-            {
-                polygons = get_polygons_ptr( object );
-                colour_code_object( colour_coding, volume,
-                                    &polygons->colour_flag, &polygons->colours,
-                                    polygons->n_points, polygons->points );
-            }
-            else if( object->object_type == QUADMESH )
-            {
-                quadmesh = get_quadmesh_ptr( object );
-                colour_code_object( colour_coding, volume,
-                                    &quadmesh->colour_flag, &quadmesh->colours,
-                                    quadmesh->m * quadmesh->n,
-                                    quadmesh->points );
-            }
-            else if( object->object_type == LINES )
-            {
-                lines = get_lines_ptr( object );
-                colour_code_object( colour_coding, volume,
-                                    &lines->colour_flag, &lines->colours,
-                                    lines->n_points, lines->points );
-            }
+            colour_code_object( display, object );
         }
 
         set_update_required( display, NORMAL_PLANES );
@@ -249,7 +217,7 @@ public  DEF_MENU_UPDATE(colour_code_objects )   /* ARGSUSED */
     return( OK );
 }
 
-private  void  colour_code_object(
+private  void  colour_code_points(
     colour_coding_struct  *colour_coding,
     volume_struct         *volume,
     Colour_flags          *colour_flag,
@@ -268,13 +236,89 @@ private  void  colour_code_object(
 
     for_less( i, 0, n_points )
     {
-        (void) evaluate_volume_in_world( volume,
-                                         Point_x(points[i]),
-                                         Point_y(points[i]),
-                                         Point_z(points[i]), FALSE,
-                                         &val, (Real *) 0,
-                                         (Real *) 0, (Real *) 0);
-
-        (*colours)[i] = get_colour_code( colour_coding, val );
+        if( evaluate_volume_in_world( volume,
+                                      Point_x(points[i]),
+                                      Point_y(points[i]),
+                                      Point_z(points[i]), FALSE,
+                                      &val, (Real *) 0,
+                                      (Real *) 0, (Real *) 0) )
+        {
+            (*colours)[i] = get_colour_code( colour_coding, val );
+        }
+        else
+        {
+            (*colours)[i] = BLACK;
+        }
     }
 }
+
+private  void  colour_code_object(
+    display_struct   *display,
+    object_struct    *object )
+{
+    polygons_struct         *polygons;
+    quadmesh_struct         *quadmesh;
+    lines_struct            *lines;
+    volume_struct           *volume;
+    colour_coding_struct    *colour_coding;
+
+    if( get_slice_window_volume( display, &volume ) )
+    {
+        colour_coding = &display->associated[SLICE_WINDOW]->slice.colour_coding;
+
+        switch( object->object_type )
+        {
+        case POLYGONS:
+            polygons = get_polygons_ptr( object );
+            colour_code_points( colour_coding, volume,
+                                &polygons->colour_flag, &polygons->colours,
+                                polygons->n_points, polygons->points );
+            break;
+
+        case QUADMESH:
+            quadmesh = get_quadmesh_ptr( object );
+            colour_code_points( colour_coding, volume,
+                                &quadmesh->colour_flag, &quadmesh->colours,
+                                quadmesh->m * quadmesh->n,
+                                quadmesh->points );
+            break;
+
+        case LINES:
+            lines = get_lines_ptr( object );
+            colour_code_points( colour_coding, volume,
+                                &lines->colour_flag, &lines->colours,
+                                lines->n_points, lines->points );
+            break;
+        }
+    }
+}
+
+public  DEF_MENU_FUNCTION(create_3d_slice)   /* ARGSUSED */
+{
+    display_struct   *slice_window;
+    int              axis_index, view_index;
+    object_struct    *object;
+
+    if( get_slice_view_index_under_mouse( display, &view_index ) )
+    {
+        slice_window = display->associated[SLICE_WINDOW];
+
+        axis_index = slice_window->slice.slice_views[view_index].axis_map[Z];
+
+        object = create_3d_slice_quadmesh( &slice_window->slice.volume,
+                      axis_index,
+                      (Real) slice_window->slice.slice_index[axis_index] );
+
+        colour_code_object( display, object );
+
+        add_object_to_current_model( display, object );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(create_3d_slice)    /* ARGSUSED */
+{
+    return( OK );
+}
+
