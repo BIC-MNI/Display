@@ -1,6 +1,7 @@
 #ifndef  DEF_DISPLAY_TYPES
 #define  DEF_DISPLAY_TYPES
 
+#include  <deform.h>
 #include  <graphics.h>
 
 typedef  struct

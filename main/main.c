@@ -7,7 +7,7 @@
 
 #define  GLOBALS_LOOKUP_NAME  display_globals
 #include  <globals.h>
-#define   REGISTER_GLOBALS_FILENAME   "display.globals"
+#define   DISPLAY_GLOBALS_FILENAME   "display.globals"
 
 public  Status  change_global_variable(
     char   str[],
@@ -31,8 +31,6 @@ int  main( argc, argv )
     STRING           globals_filename, runtime_directory;
     char             *title;
 
-    set_alloc_checking( Alloc_checking_enabled );
-
     if( argc == 1 )
         title = argv[0];
     else
@@ -44,7 +42,7 @@ int  main( argc, argv )
         (void) strcpy( runtime_directory, argv[0] );
 
     (void) sprintf( globals_filename, "%s/%s", HARD_CODED_DISPLAY_DIRECTORY,
-                    REGISTER_GLOBALS_FILENAME );
+                    DISPLAY_GLOBALS_FILENAME );
 
     if( file_exists( globals_filename ) )
     {
@@ -53,7 +51,7 @@ int  main( argc, argv )
     }
 
     (void) sprintf( globals_filename, "%s/%s", getenv("DISPLAY_DIRECTORY"),
-                    REGISTER_GLOBALS_FILENAME );
+                    DISPLAY_GLOBALS_FILENAME );
 
     if( file_exists( globals_filename ) )
     {
@@ -62,7 +60,7 @@ int  main( argc, argv )
     }
 
     (void) sprintf( globals_filename, "%s/%s", argv[0],
-                    REGISTER_GLOBALS_FILENAME );
+                    DISPLAY_GLOBALS_FILENAME );
 
     if( file_exists( globals_filename ) )
     {
@@ -70,13 +68,15 @@ int  main( argc, argv )
                                      display_globals, globals_filename );
     }
 
-    (void) strcpy( globals_filename, REGISTER_GLOBALS_FILENAME );
+    (void) strcpy( globals_filename, DISPLAY_GLOBALS_FILENAME );
 
     if( file_exists( globals_filename ) )
     {
         status = input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
                                      display_globals, globals_filename );
     }
+
+    set_alloc_checking( Alloc_checking_enabled );
 
     status = OK;
 

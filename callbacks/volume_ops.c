@@ -452,7 +452,10 @@ public  DEF_MENU_FUNCTION(type_in_voxel_origin)      /* ARGSUSED */
                                     voxel );
 
             if( set_current_voxel( slice_window, voxel ) )
+            {
                 set_slice_window_all_update( slice_window );
+                set_update_required( display, NORMAL_PLANES );
+            }
         }
 
         (void) input_newline( stdin );

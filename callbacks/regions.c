@@ -239,13 +239,13 @@ public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
         {
             clear_flag = TRUE;
 
-            strip_blanks( filename, filename );
+            strip_outer_blanks( filename, filename );
 
             index = find_character( filename, ' ' );
             if( index >= 0 )
             {
                 filename[index] = (char) 0;
-                strip_blanks( &filename[index+1], clear_string );
+                strip_outer_blanks( &filename[index+1], clear_string );
                 if( strlen( clear_string ) != 0 )
                     clear_flag = FALSE;
             }

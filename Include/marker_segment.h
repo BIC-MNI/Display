@@ -1,7 +1,7 @@
 #ifndef  DEF_MARKER_SEGMENT
 #define  DEF_MARKER_SEGMENT
 
-#include  <mni.h>
+#include  <volume_io.h>
 
 typedef struct
 {

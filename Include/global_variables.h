@@ -301,6 +301,7 @@ START_GLOBALS
     DEF_GLOBAL( Brush_outline_colour, Colour, WHITE )
     DEF_GLOBAL( Brush_outline_offset, int, 0 )
     DEF_GLOBAL( Snap_brush_to_centres, BOOLEAN, TRUE )
+    DEF_GLOBAL( Undo_enabled, BOOLEAN, TRUE )
 
     DEF_GLOBAL( Volume_continuity, int, 0 )
     DEF_GLOBAL( Convert_volumes_to_byte, BOOLEAN, TRUE )

@@ -2,7 +2,7 @@
 #ifndef  DEF_SLICE
 #define  DEF_SLICE
 
-#include  <mni.h>
+#include  <volume_io.h>
 #include  <atlas.h>
 
 #define   N_SLICE_VIEWS   4

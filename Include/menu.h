@@ -2,7 +2,7 @@
 #ifndef  DEF_MENU
 #define  DEF_MENU
 
-#include  <mni.h>
+#include  <volume_io.h>
 
 typedef  Status   menu_function_type();
 

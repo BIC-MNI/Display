@@ -107,7 +107,7 @@ public  BOOLEAN  voxel_contains_surface(
     surface_extraction_struct   *surface_extraction,
     int                         voxel_index[] )
 {
-    BOOLEAN                contains, below, above;
+    BOOLEAN                below, above;
     Real                   corner_values[2][2][2];
     int                    x, y, z;
 
@@ -151,12 +151,10 @@ public  BOOLEAN  extract_voxel_surface(
     voxel_index_struct          *voxel_index,
     BOOLEAN                     first_voxel )
 {
-    BOOLEAN                valid;
     voxel_point_type       *points_list;
     Real                   corner_values[2][2][2];
-    Real                   value, label;
     int                    n_polys, n_nondegenerate_polys;
-    int                    x, y, z, *sizes, voxel[N_DIMENSIONS];
+    int                    *sizes, voxel[N_DIMENSIONS];
 
     voxel[X] = voxel_index->i[X];
     voxel[Y] = voxel_index->i[Y];

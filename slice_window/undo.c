@@ -28,7 +28,8 @@ public  void  record_slice_labels(
     Volume          label_volume;
     display_struct  *slice_window;
 
-    if( get_slice_window( display, &slice_window ) )
+    if( Undo_enabled &&
+        get_slice_window( display, &slice_window ) )
     {
         delete_slice_undo( &slice_window->slice.undo );
 

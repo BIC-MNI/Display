@@ -276,7 +276,7 @@ private  Status  process_menu(
                           menu_entry );
 
     if( status == OK )
-        status = update_menu_text( display, menu_entry );
+        update_all_menu_text( display );
 
     return( status );
 }
@@ -461,4 +461,23 @@ public  void   set_menu_text(
     }
 
     set_update_required( menu_window, NORMAL_PLANES );
+}
+
+public  void  update_all_menu_text(
+    display_struct   *display )
+{
+    Status              status;
+    int                 key;
+    display_struct      *menu_window;
+    menu_entry_struct   *menu_entry;
+
+    menu_window = display->associated[MENU_WINDOW];
+
+    for_less( key, 0, N_CHARACTERS )
+    {
+        menu_entry = get_menu_key_entry( &menu_window->menu, key );
+
+        if( menu_entry != (menu_entry_struct *) 0 )
+            status = update_menu_text( display, menu_entry );
+    }
 }

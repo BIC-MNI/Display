@@ -41,6 +41,7 @@ quit
     transient 'v'    pop_menu                       "Don't Quit"
 
     transient 'a'    menu_set_global_variable       "Global Var"
+    transient 't'    show_memory                    "Show Memory"
 }
 
 file

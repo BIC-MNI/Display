@@ -32,8 +32,6 @@ static    DEF_EVENT_FUNCTION( terminate_picking_both_limits );
 
 private  void  set_voxel_cursor(
     display_struct    *slice_window );
-private  void  update_window_size(
-    display_struct    *slice_window );
 private  void  update_limit(
     display_struct   *slice_window,
     BOOLEAN          low_limit_flag,
@@ -51,8 +49,6 @@ private  BOOLEAN  mouse_is_near_high_limit(
 public  void  initialize_slice_window_events(
     display_struct    *slice_window )
 {
-    update_window_size( slice_window );
-
     add_action_table_function( &slice_window->action_table, WINDOW_RESIZE_EVENT,
                                window_size_changed );
     add_action_table_function( &slice_window->action_table, WINDOW_REDRAW_EVENT,
@@ -448,19 +444,6 @@ private  DEF_EVENT_FUNCTION( update_translation )      /* ARGSUSED */
 
 /* ----------------------------------------------------------------------- */
 
-private  void  update_window_size(
-    display_struct    *slice_window )
-{
-#ifdef OLD   /* ------------------- */
-    int   x_size, y_size;
-
-    G_get_window_size( slice_window->window, &x_size, &y_size );
-
-    slice_window->slice.x_split = x_size * Slice_divider_x_position;
-    slice_window->slice.y_split = y_size * Slice_divider_y_position;
-#endif  /* ------------------- */
-}
-
 private  DEF_EVENT_FUNCTION( update_probe )     /* ARGSUSED */
 {
     int  x, y, x_prev, y_prev;
@@ -489,8 +472,6 @@ private  DEF_EVENT_FUNCTION( handle_redraw_overlay )     /* ARGSUSED */
 private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
 {
     int   view;
-
-    update_window_size( display );
 
     for_less( view, 0, N_SLICE_VIEWS )
         resize_slice_view( display, view );
