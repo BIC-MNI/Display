@@ -60,6 +60,25 @@ where each file is one of:
 
 \subsection{MRI Files at the MNI}
 
+The following are the standard available datasets:
+
+\begin{itemize}
+\item[Normal MRI] 305 normal brains in the files:  {\tt /avgbrain/brain/autoreg/filename.mni}, and
+\item[Average MRI] the average of the 305 brains in the file {\tt /avgbrain/brain/images/norm\_avg\_305\_mri256.mnc}.
+\end{itemize}
+
+Note that the first set above may be compressed, signified by a filename of
+the form {\tt filename.mni.Z} and {\tt filename.mni.z}.  In the former case
+display can read the files directly.  In the latter case, you must first
+uncompress the file before it may be used:
+
+\begin{verbatim}
+cd /scratch
+cp /avgbrain/brain/autoreg/filename.mni.z .
+gunzip filename.mni.z
+display filename.mni
+\end{verbatim}
+
 \section{\display Windows}
 
 \postscriptfig{display.ps}{7in}{Clockwise from top left:
@@ -325,11 +344,23 @@ menu is selected:
         marker.
 \item[\menuthree{Markers}{Delete Object}{Really Delete}]  Deletes the current object in the
         object hierarchy.
-\item[\menutwo{Markers}{Defaults -> Current}]  Copies the default marker
-        values to the current object, if it is a marker.
 \item[\menutwo{Markers}{Classify Markers}]  Attempts to group markers by
         relative proximity, generating a different colour and structure id
         for each group.
+\item[\menutwo{Markers}{Segment Thresh}]  Prompts for and sets the distance
+        threshold which determines if two markers are close enough to belong
+        to the same group.  Default is 1.5.
+\item[\menutwo{Markers}{Pick Modify Marker}]  Allows the user to draw a
+        rectangle on the 3D view of the markers and change all the markers
+        within the rectangle to the default settings.  This is done by
+        pressing and holding the left button, sweeping out a rectangle, and
+        when the left button is let go, the defaults are copied to the
+        markers.
+\item[\menutwo{Markers}{Defaults -> Current}]  Copies the default marker
+        values to the current object, if it is a marker.
+\item[\menutwo{Markers}{Defaults->Many}]  Copies the default marker values to
+        all markers which have the same patient id and structure id as the
+        current object, if it is a marker.
 \end{description}
 
 \subsection{View Menu}
