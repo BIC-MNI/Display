@@ -6,8 +6,6 @@ public  void  display_objects( window, object, interrupt )
     object_struct               *object;
     update_interrupted_struct   *interrupt;
 {
-    void           G_set_render();
-    void           G_set_view_type();
     void           display_objects_recursive();
     Boolean        past_last_object;
 
@@ -18,18 +16,20 @@ public  void  display_objects( window, object, interrupt )
                                object->ptr.model->object_list,
                                &object->ptr.model->render,
                                object->ptr.model->view_type,
+                               &object->ptr.model->transform,
                                interrupt, &past_last_object );
 }
 
 private  void  display_objects_recursive( window,
                                           n_objects, object_list,
-                                          render, view_type,
+                                          render, view_type, transform,
                                           interrupt, past_last_object )
     window_struct                *window;
     int                          n_objects;
     object_struct                *object_list[];
     render_struct                *render;
     view_types                   view_type;
+    Transform                    *transform;
     update_interrupted_struct    *interrupt;
     Boolean                      *past_last_object;
 {
@@ -41,12 +41,15 @@ private  void  display_objects_recursive( window,
     void           G_draw_lines();
     void           G_draw_polygons();
     void           G_draw_volume();
+    void           G_push_transform();
+    void           G_pop_transform();
     Real           current_realtime_seconds();
     Boolean        object_is_continuing;
     Boolean        G_events_pending();
 
     G_set_render( window, render );
     G_set_view_type( window, view_type );
+    G_push_transform( window, transform );
 
     for_less( i, 0, n_objects )
     {
@@ -86,6 +89,7 @@ private  void  display_objects_recursive( window,
                                                model->object_list,
                                                &model->render,
                                                model->view_type,
+                                               &model->transform,
                                                interrupt, past_last_object );
 
                     G_set_render( window, render );
@@ -124,4 +128,6 @@ private  void  display_objects_recursive( window,
             }
         }
     }
+
+    G_pop_transform( window );
 }

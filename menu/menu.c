@@ -140,19 +140,19 @@ private  DEF_EVENT_FUNCTION( handle_character )
     char               key_pressed;
     menu_entry_struct  *menu_entry;
     Status             process_menu();
+    graphics_struct    *menu_window;
 
     status = OK;
 
-    graphics = graphics->menu_window;
+    menu_window = graphics->associated[MENU_WINDOW];
 
     key_pressed = event->event_data.key_pressed;
 
-    menu_entry = get_menu_key_entry( &graphics->menu_window->menu,
-                                     (int) key_pressed );
+    menu_entry = get_menu_key_entry( &menu_window->menu, (int) key_pressed );
 
     if( menu_entry != (menu_entry_struct *) 0 )
     {
-        status = process_menu( graphics, menu_entry );
+        status = process_menu( menu_window, menu_entry );
     }
 
     return( status );
@@ -168,7 +168,8 @@ private  Status  process_menu( graphics, menu_entry )
 
     function = menu_entry->action;
 
-    status = (*function)( graphics->graphics_window, graphics->menu_window,
+    status = (*function)( graphics->associated[THREE_D_WINDOW],
+                          graphics->associated[MENU_WINDOW],
                           menu_entry );
 
     if( status == OK )
@@ -188,8 +189,8 @@ public  Status  update_menu_text( graphics, menu_entry )
 
     update_function = menu_entry->update_action;
 
-    status = (*update_function)( graphics->graphics_window,
-                                 graphics->menu_window,
+    status = (*update_function)( graphics->associated[THREE_D_WINDOW],
+                                 graphics->associated[MENU_WINDOW],
                                  menu_entry,
                                  menu_entry->label,
                                  menu_entry->text->ptr.text->text );

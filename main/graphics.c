@@ -132,64 +132,27 @@ public  model_struct  *get_graphics_model( graphics, model_index )
 private  Status  initialize_graphics_window( graphics )
     graphics_struct   *graphics;
 {
-    static         Vector    line_of_sight = { 0.0, 0.0, -1.0 };
-    static         Vector    horizontal = { 1.0, 0.0, 0.0 };
     int            i;
-    void           initialize_view();
-    void           adjust_view_for_aspect();
-    void           G_define_view();
-    void           initialize_lights();
-    void           G_define_light();
-    void           G_set_light_state();
     void           initialize_action_table();
-    void           initialize_virtual_spaceball();
     void           initialize_window_events();
     void           initialize_mouse_events();
     void           initialize_render();
+    void           make_identity_transform();
     void           initialize_objects();
     void           initialize_menu_actions();
     void           initialize_slice_window();
+    Status         initialize_three_d_window();
     Status         status;
     Status         create_object();
     view_types     view_type;
-    Status         initialize_current_object();
     model_struct   *model;
     model_struct   *get_graphics_model();
-    void           reset_view_parameters();
-    void           update_view();
-
-    initialize_view( &graphics->view, &line_of_sight, &horizontal );
-    adjust_view_for_aspect( &graphics->view, &graphics->window );
-    G_define_view( &graphics->window, &graphics->view );
-
-    initialize_lights( graphics->lights );
-
-    graphics->point_position.line_active = FALSE;
-
-    G_define_light( &graphics->window, &graphics->lights[0], 0 );
-    G_define_light( &graphics->window, &graphics->lights[1], 1 );
-
-    G_set_light_state( &graphics->window, 0, graphics->lights[0].state );
-    G_set_light_state( &graphics->window, 1, graphics->lights[1].state );
 
     initialize_action_table( &graphics->action_table );
 
     initialize_mouse_events( graphics );
     initialize_window_events( graphics );
     initialize_menu_actions( graphics );
-
-    if( graphics->window_type == GRAPHICS_WINDOW )
-    {
-        initialize_virtual_spaceball( graphics );
-    }
-
-    fill_Point( graphics->min_limit, 0.0, 0.0, 0.0 );
-    fill_Point( graphics->max_limit, 1.0, 1.0, 1.0 );
-
-    ADD_POINTS( graphics->centre_of_objects, graphics->min_limit,
-                graphics->max_limit );
-    SCALE_POINT( graphics->centre_of_objects, graphics->centre_of_objects,
-                 0.5 );
 
     status = OK;
 
@@ -208,7 +171,7 @@ private  Status  initialize_graphics_window( graphics )
 
             switch( graphics->window_type )
             {
-            case GRAPHICS_WINDOW:  view_type = MODEL_VIEW;   break;
+            case THREE_D_WINDOW:   view_type = MODEL_VIEW;   break;
             case MENU_WINDOW:      view_type = PIXEL_VIEW;   break;
             case SLICE_WINDOW:     view_type = PIXEL_VIEW;   break;
             }
@@ -218,12 +181,13 @@ private  Status  initialize_graphics_window( graphics )
             (void) strcpy( model->filename, "Top Level" );
 
             initialize_render( &model->render );
+            make_identity_transform( &model->transform );
         }
     }
 
-    if( status == OK )
+    if( status == OK && graphics->window_type == THREE_D_WINDOW )
     {
-        status = initialize_current_object( graphics );
+        status = initialize_three_d_window( graphics );
     }
 
     if( status == OK && graphics->window_type == SLICE_WINDOW )
@@ -233,11 +197,6 @@ private  Status  initialize_graphics_window( graphics )
 
     if( status == OK )
     {
-        reset_view_parameters( graphics, &Default_line_of_sight,
-                               &Default_horizontal );
-
-        update_view( graphics );
-
         graphics->frame_number = 0;
         graphics->update_required = FALSE;
         graphics->update_interrupted.last_was_interrupted = FALSE;
@@ -361,9 +320,9 @@ private  Status  terminate_graphics_window( graphics )
     int      i;
     Status   status;
     Status   delete_object();
+    Status   delete_three_d();
     Status   delete_menu();
     Status   delete_slice_window_info();
-    Status   terminate_current_object();
 
     status = OK;
 
@@ -375,9 +334,9 @@ private  Status  terminate_graphics_window( graphics )
         }
     }
 
-    if( status == OK )
+    if( status == OK && graphics->window_type == MENU_WINDOW )
     {
-        status = terminate_current_object( graphics );
+        status = delete_three_d( &graphics->three_d );
     }
 
     if( status == OK && graphics->window_type == MENU_WINDOW )
@@ -396,9 +355,9 @@ private  Status  terminate_graphics_window( graphics )
 public  void  update_view( graphics )
     graphics_struct  *graphics;
 {
-    void   G_define_view();
+    void   G_define_3D_view();
 
-    G_define_view( &graphics->window, &graphics->view );
+    G_define_3D_view( &graphics->window, &graphics->three_d.view );
 }
 
 public  void  reset_view_parameters( graphics, line_of_sight, horizontal )
@@ -411,12 +370,15 @@ public  void  reset_view_parameters( graphics, line_of_sight, horizontal )
     void   set_model_scale();
     void   fit_view_to_domain();
 
-    initialize_view( &graphics->view, line_of_sight, horizontal );
-    set_model_scale( &graphics->view,
+    initialize_view( &graphics->three_d.view,
+                     line_of_sight, horizontal );
+    set_model_scale( &graphics->three_d.view,
                      Initial_x_scale, Initial_y_scale, Initial_z_scale );
-    adjust_view_for_aspect( &graphics->view, &graphics->window );
-    fit_view_to_domain( &graphics->view, &graphics->min_limit,
-                        &graphics->max_limit );
+    adjust_view_for_aspect( &graphics->three_d.view,
+                            &graphics->window );
+    fit_view_to_domain( &graphics->three_d.view,
+                        &graphics->three_d.min_limit,
+                        &graphics->three_d.max_limit );
 }
 
 public  void  transform_model( graphics, transform )
@@ -425,8 +387,8 @@ public  void  transform_model( graphics, transform )
 {
     void  concat_transforms();
 
-    concat_transforms( &graphics->view.modeling_transform,
-                       &graphics->view.modeling_transform,
+    concat_transforms( &graphics->three_d.view.modeling_transform,
+                       &graphics->three_d.view.modeling_transform,
                        transform );
 }
 
@@ -445,6 +407,7 @@ public  Status  load_graphics_file( graphics, filename )
     Boolean          get_range_of_object();
     void             rebuild_selected_list();
     void             set_current_object_index();
+    Status           initialize_cursor();
 
     status = create_object( &object, MODEL );
 
@@ -494,27 +457,42 @@ public  Status  load_graphics_file( graphics, filename )
 
     if( status == OK )
     {
-        rebuild_selected_list( graphics, graphics->menu_window );
+        rebuild_selected_list( graphics, graphics->associated[MENU_WINDOW] );
     }
 
     if( status == OK )
     {
         if( !get_range_of_object( graphics->models[THREED_MODEL], FALSE,
-                                  &graphics->min_limit, &graphics->max_limit ) )
+                                  &graphics->three_d.min_limit,
+                                  &graphics->three_d.max_limit ) )
         {
-            fill_Point( graphics->min_limit, 0.0, 0.0, 0.0 );
-            fill_Point( graphics->max_limit, 1.0, 1.0, 1.0 );
+            fill_Point( graphics->three_d.min_limit, 0.0, 0.0, 0.0 );
+            fill_Point( graphics->three_d.max_limit, 1.0, 1.0, 1.0 );
             PRINT( "No objects range.\n" );
         }
 
-        ADD_POINTS( graphics->centre_of_objects, graphics->min_limit,
-                    graphics->max_limit );
-        SCALE_POINT( graphics->centre_of_objects,
-                     graphics->centre_of_objects,
+        ADD_POINTS( graphics->three_d.centre_of_objects,
+                    graphics->three_d.min_limit,
+                    graphics->three_d.max_limit );
+        SCALE_POINT( graphics->three_d.centre_of_objects,
+                     graphics->three_d.centre_of_objects,
                      0.5 );
+
+        status = initialize_cursor( graphics );
     }
 
     graphics->update_required = TRUE;
 
     return( status );
+}
+
+public  Real  size_of_domain( graphics )
+    graphics_struct   *graphics;
+{
+    Vector   diff;
+
+    SUB_POINTS( diff, graphics->three_d.max_limit,
+                           graphics->three_d.min_limit );
+
+    return( MAGNITUDE(diff) );
 }

@@ -32,7 +32,7 @@ int  main( argc, argv )
 
     if( status == OK )
     {
-        status = create_graphics_window( GRAPHICS_WINDOW,
+        status = create_graphics_window( THREE_D_WINDOW,
                                          &graphics, argv[1], 0, 0 );
     }
 
@@ -45,13 +45,13 @@ int  main( argc, argv )
 
     if( status == OK )
     {
-        graphics->graphics_window = graphics;
-        graphics->menu_window = menu;
-        graphics->slice_window = (graphics_struct *) 0;
+        graphics->associated[THREE_D_WINDOW] = graphics;
+        graphics->associated[MENU_WINDOW] = menu;
+        graphics->associated[SLICE_WINDOW] = (graphics_struct *) 0;
 
-        menu->graphics_window = graphics;
-        menu->menu_window = menu;
-        menu->slice_window = (graphics_struct *) 0;
+        menu->associated[THREE_D_WINDOW] = graphics;
+        menu->associated[MENU_WINDOW] = menu;
+        menu->associated[SLICE_WINDOW] = (graphics_struct *) 0;
 
         status = initialize_menu( menu );
     }
@@ -79,9 +79,10 @@ int  main( argc, argv )
         status = main_event_loop();
     }
 
-    if( status == OK && graphics->slice_window != (graphics_struct *) 0 )
+    if( status == OK &&
+        graphics->associated[SLICE_WINDOW] != (graphics_struct *) 0 )
     {
-        status = delete_graphics_window( graphics->slice_window );
+        status = delete_graphics_window( graphics->associated[SLICE_WINDOW] );
     }
 
     if( status == OK )
