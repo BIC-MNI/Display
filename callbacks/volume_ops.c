@@ -274,3 +274,75 @@ public  DEF_MENU_UPDATE(reset_surface )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION(double_slice_voxels)   /* ARGSUSED */
+{
+    Status           status;
+    volume_struct    *volume;
+    graphics_struct  *slice_window;
+    Point            *mouse;
+    int              x, y, axis_index;
+    void             get_mouse_in_pixels();
+    Boolean          find_slice_view_mouse_is_in();
+
+    status = OK;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        mouse = &slice_window->mouse_position;
+
+        get_mouse_in_pixels( slice_window, mouse, &x, &y );
+
+        if( find_slice_view_mouse_is_in( slice_window, x, y, &axis_index ) )
+        {
+            slice_window->slice.slice_views[axis_index].x_scale *= 0.5;
+            slice_window->slice.slice_views[axis_index].y_scale *= 0.5;
+            slice_window->update_required = TRUE;
+        }
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(double_slice_voxels )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
+{
+    Status           status;
+    volume_struct    *volume;
+    graphics_struct  *slice_window;
+    Point            *mouse;
+    int              x, y, axis_index;
+    void             get_mouse_in_pixels();
+    Boolean          find_slice_view_mouse_is_in();
+
+    status = OK;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        mouse = &slice_window->mouse_position;
+
+        get_mouse_in_pixels( slice_window, mouse, &x, &y );
+
+        if( find_slice_view_mouse_is_in( slice_window, x, y, &axis_index ) )
+        {
+            slice_window->slice.slice_views[axis_index].x_scale *= 2.0;
+            slice_window->slice.slice_views[axis_index].y_scale *= 2.0;
+            slice_window->update_required = TRUE;
+        }
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(halve_slice_voxels )   /* ARGSUSED */
+{
+    return( OK );
+}
