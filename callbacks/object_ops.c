@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/object_ops.c,v 1.53 1996-05-24 18:43:08 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/object_ops.c,v 1.54 1996-09-12 17:06:13 david Exp $";
 #endif
 
 
@@ -534,20 +534,20 @@ public  DEF_MENU_UPDATE(mark_vertices )
 public  DEF_MENU_FUNCTION( flip_object )
 {
     object_struct  *object;
-    int            i, n_points;
+    int            i, n_points, n_normals;
     Point          *points;
     Vector         *normals;
 
     if( get_current_object( display, &object ) )
     {
         n_points = get_object_points( object, &points );
-        (void) get_object_normals( object, &normals );
+        n_normals = get_object_normals( object, &normals );
 
         for_less( i, 0, n_points )
-        {
             Point_x(points[i]) *= -1.0f;
+
+        for_less( i, 0, n_normals )
             Vector_x(normals[i]) *= -1.0f;
-        }
 
         if( object->object_type == POLYGONS )
             reverse_polygons_vertices( get_polygons_ptr(object) );
