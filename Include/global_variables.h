@@ -17,7 +17,7 @@ START_GLOBALS
     DEF_GLOBAL( Initial_perspective_flag, BOOLEAN, FALSE )
     DEF_GLOBAL( Perspective_distance_factor, Real, 2.0 )
     DEF_GLOBAL( Closest_front_plane, Real, 1.0e-5 )
-    DEF_GLOBAL( Initial_render_mode, BOOLEAN, FALSE )
+    DEF_GLOBAL( Initial_render_mode, BOOLEAN, TRUE )
     DEF_GLOBAL( Initial_shading_type, int, 1 )
     DEF_GLOBAL( Initial_light_switch, BOOLEAN, TRUE )
     DEF_GLOBAL( Slice_double_buffer_flag, BOOLEAN, TRUE )
@@ -67,7 +67,7 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Menu_key_colour )
     DEF_GLOBAL( Menu_key_character_offset, Real, 2.0 )
     DEF_GLOBAL( Initial_2_sided_flag, BOOLEAN, FALSE )
-    DEF_GLOBAL( Initial_backface_flag, BOOLEAN, TRUE )
+    DEF_GLOBAL( Initial_backface_flag, BOOLEAN, FALSE )
     DEF_GLOBAL( Initial_line_curves_flag, BOOLEAN, FALSE )
     DEF_GLOBAL( Initial_n_curve_segments, int, 8 )
 
@@ -365,5 +365,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Crop_label_volumes_threshold, Real, 0.9 )
     DEF_GLOBAL( Initial_crop_labels_on_output, BOOLEAN, TRUE )
+
+    DEF_GLOBAL( Duplicate_boundary_vertices, BOOLEAN, FALSE )
 
 END_GLOBALS

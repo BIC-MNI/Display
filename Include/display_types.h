@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/display_types.h,v 1.18 1996-04-19 13:24:42 david Exp $";
+static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/display_types.h,v 1.19 1997-03-23 21:11:36 david Exp $";
 #endif
 
 #include  <deform.h>
@@ -36,7 +36,7 @@ typedef  struct
     Real        scale_factors[N_DIMENSIONS];
     Transform   modeling_transform;
     BOOLEAN     stereo_flag;
-    Real        eye_separation;
+    Real        eye_separation_ratio;
 } view_struct;
 
 typedef  struct

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/view.c,v 1.33 1997-01-20 02:15:08 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/view.c,v 1.34 1997-03-23 21:11:45 david Exp $";
 #endif
 
 #include <display.h>
@@ -29,7 +29,7 @@ public  void  initialize_view(
     view->origin = origin;
     assign_view_direction( view, line_of_sight, horizontal );
     view->front_distance = 0.01;
-    view->perspective_distance = 4.0;
+    view->perspective_distance = 1.0;
     view->back_distance = 2.0;
     view->desired_aspect = 0.0;
     view->window_width = 1.0;
@@ -41,7 +41,7 @@ public  void  initialize_view(
     make_identity_transform( &view->modeling_transform );
 
     view->stereo_flag = FALSE;
-    view->eye_separation = 0.5;
+    view->eye_separation_ratio = 0.07;
 }
 
 public  void  assign_view_direction(
@@ -130,7 +130,7 @@ public  void  adjust_view_for_aspect(
     view_struct    *view,
     window_struct  *window )
 {
-    Real    width, height;
+    Real    width, height, prev_width;
     Real    new_aspect;
     Real    prev_persp_dist, eye_offset;
     Vector  eye_offset_vector;
@@ -164,15 +164,13 @@ public  void  adjust_view_for_aspect(
         height = width * new_aspect;
     }
 
+    prev_width = view->window_width;
+    prev_persp_dist = view->perspective_distance;
+
     view->window_width = width;
     view->window_height = height;
 
-    prev_persp_dist = view->perspective_distance;
-
-    view->perspective_distance = width * Perspective_distance_factor *
-                                 G_get_monitor_widths_to_eye() *
-                                 (Real) G_get_monitor_width() /
-                                 (Real) x_size;
+    view->perspective_distance *= width / prev_width;
 
     eye_offset = prev_persp_dist - view->perspective_distance;
 
@@ -355,12 +353,13 @@ public  void  magnify_view_size(
     view_struct  *view,
     Real         factor )
 {
-    Real      dist;
+    Real      dist, mid_dist;
     Vector    offset;
 
     if( view->perspective_flag || view->stereo_flag )
     {
-        dist = (1.0 - 1.0 / factor) * view->perspective_distance;
+        mid_dist = (view->front_distance + view->back_distance) / 2.0;
+        dist = (1.0 - 1.0 / factor) * mid_dist;
         SCALE_VECTOR( offset, view->line_of_sight, dist );
         ADD_POINT_VECTOR( view->origin, view->origin, offset);
     }

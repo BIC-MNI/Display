@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/view_ops.c,v 1.39 1997-01-20 02:53:45 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/view_ops.c,v 1.40 1997-03-23 21:11:38 david Exp $";
 #endif
 
 
@@ -473,14 +473,14 @@ public  DEF_MENU_FUNCTION( set_eye_separation )
 {
     Real   eye_separation;
 
-    print( "Current eye separation: %g\n",
-           display->three_d.view.eye_separation );
+    print( "Current eye separation / perspective distance ratio: %g\n",
+           display->three_d.view.eye_separation_ratio );
 
-    print( "Enter new eye separation: " );
+    print( "Enter new eye separation_ratio: " );
 
     if( input_real( stdin, &eye_separation ) == OK )
     {
-        display->three_d.view.eye_separation = eye_separation;
+        display->three_d.view.eye_separation_ratio = eye_separation;
 
         update_view( display );
 
@@ -497,7 +497,7 @@ public  DEF_MENU_FUNCTION( set_eye_separation )
 public  DEF_MENU_UPDATE(set_eye_separation )
 {
     set_menu_text_real( menu_window, menu_entry,
-                        display->three_d.view.eye_separation );
+                        display->three_d.view.eye_separation_ratio );
 
     return( TRUE );
 }

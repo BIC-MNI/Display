@@ -160,6 +160,12 @@ colour_coding \
  \
 view_3d \
 { \
+    transient '1'    type_in_view_origin                'Set Eye' \
+    transient '5'    type_in_view_line_of_sight         'Set Line of Sight' \
+    transient '6'    type_in_view_up_dir                'Set Up Dir' \
+    transient 'y'    type_in_view_window_width          'Set Window Width' \
+    transient 'u'    type_in_view_perspective_distance  'Set Persp Distance' \
+ \
     transient 'a'    reset_view              'Reset View' \
     transient 's'    make_view_fit           'Fit View' \
     transient 'd'    toggle_perspective      'Proj: %s' \
@@ -179,8 +185,6 @@ view_3d \
     transient 'e'    type_in_3D_origin       'Type-in Cursor Pos' \
     transient 'r'    toggle_stereo_mode      'Toggle Stereo' \
     transient 't'    set_eye_separation      'Eye Width: %g' \
-    transient 'y'    right_tilted_view       'Right Tilt View' \
-    transient 'u'    left_tilted_view        'Left Tilt View' \
 } \
  \
 render_3d \

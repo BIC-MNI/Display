@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.54 1996-05-24 19:10:12 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.55 1997-03-23 21:11:38 david Exp $";
 #endif
 
 
@@ -225,7 +225,7 @@ public  DEF_MENU_UPDATE(load_label_data )
 public  DEF_MENU_FUNCTION(save_label_data)
 {
     Status           status;
-    STRING           filename;
+    STRING           filename, backup_filename;
     display_struct   *slice_window;
     Real             crop_threshold;
 
@@ -247,16 +247,34 @@ public  DEF_MENU_FUNCTION(save_label_data)
             else
                 crop_threshold = Crop_label_volumes_threshold;
 
-            status = save_label_volume( filename,
-                      slice_window->slice.volumes[
-                      get_current_volume_index(slice_window)].labels_filename,
-                      get_label_volume(slice_window),
-                      crop_threshold );
+            status = make_backup_file( filename, &backup_filename );
+
+            if( status == OK )
+            {
+                status = save_label_volume( filename,
+                          slice_window->slice.volumes[
+                          get_current_volume_index(slice_window)].
+                                     labels_filename,
+                          get_label_volume(slice_window), crop_threshold );
+
+                cleanup_backup_file( filename, backup_filename, status );
+            }
+
+            if( status == OK )
+                print( "Done\n" );
+            else
+            {
+                print( "\n" );
+                print( "###############################################\n" );
+                print( "#                                             #\n" );
+                print( "#  Error:  Labels were NOT saved.             #\n" );
+                print( "#                                             #\n" );
+                print( "###############################################\n" );
+                print( "\n" );
+            }
         }
 
         delete_string( filename );
-
-        print( "Done\n" );
     }
 
     return( status );

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.73 1996-11-25 14:56:13 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.74 1997-03-23 21:11:41 david Exp $";
 #endif
 
 
@@ -629,7 +629,8 @@ public  void  update_view(
                    display->three_d.view.perspective_flag,
                    display->three_d.view.perspective_distance,
                    display->three_d.view.stereo_flag,
-                   display->three_d.view.eye_separation,
+                   display->three_d.view.eye_separation_ratio *
+                   display->three_d.view.perspective_distance,
                    display->three_d.view.window_width,
                    display->three_d.view.window_height );
     G_set_modeling_transform( display->window,

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.40 1996-09-24 19:30:35 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.41 1997-03-23 21:11:39 david Exp $";
 #endif
 
 
@@ -107,7 +107,7 @@ public  DEF_MENU_UPDATE(set_paint_z_brush_radius )
 
 public  DEF_MENU_FUNCTION( set_current_paint_label )
 {
-    int             label, axis_index, volume_index;
+    int             label, view_index, volume_index;
     Real            voxel[N_DIMENSIONS];
     int             int_voxel[N_DIMENSIONS];
     display_struct  *slice_window;
@@ -117,7 +117,9 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )
     {
         done = FALSE;
 
-        if( get_voxel_under_mouse( display, &volume_index, &axis_index, voxel ))
+        if( G_is_mouse_in_window( slice_window->window ) &&
+            get_voxel_in_slice_window( slice_window, voxel,
+                                       &volume_index, &view_index ) )
         {
             convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
             label = get_voxel_label( slice_window, volume_index,

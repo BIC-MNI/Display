@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.40 1996-11-25 14:56:15 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.41 1997-03-23 21:11:43 david Exp $";
 #endif
 
 
@@ -170,6 +170,10 @@ private  DEF_EVENT_FUNCTION( handle_menu_resize )
     return( OK );
 }
 
+static  STRING default_menu_string =
+#include "Display.menu.include"
+;
+
 public  Status  initialize_menu(
     display_struct    *menu_window,
     STRING            default_directory1,
@@ -183,9 +187,10 @@ public  Status  initialize_menu(
     menu_window_struct   *menu;
     Point                position;
     model_struct         *model;
-    int                  ch;
+    int                  ch, i, dir, len;
     FILE                 *file;
     BOOLEAN              found;
+    STRING               directories[5];
 
     menu = &menu_window->menu;
 
@@ -206,52 +211,51 @@ public  Status  initialize_menu(
     for_less( ch, 0, N_CHARACTERS )
         set_menu_key_entry( menu, ch, NULL );
 
-    found = FALSE;
+    directories[0] = "";
+    directories[1] = default_directory1;
+    directories[2] = default_directory2;
+    directories[3] = default_directory3;
+    directories[4] = default_directory4;
 
-    if( file_exists( menu_filename ) )
+
+
+    for_less( dir, 0, 5 )
     {
-        filename = create_string( menu_filename );
-        found = TRUE;
-    }
+        filename = get_absolute_filename( menu_filename, directories[dir] );
 
-    if( !found )
-    {
-        filename = get_absolute_filename( menu_filename, default_directory1 );
+        if( getenv("DISABLE_MENU") == NULL && file_exists( filename ) )
+            break;
 
-        found = file_exists( filename );
-    }
-
-    if( !found )
-    {
         delete_string( filename );
-
-        filename = get_absolute_filename( menu_filename, default_directory2 );
-
-        found = file_exists( filename );
     }
+
+    found = dir < 5;
 
     if( !found )
     {
-        delete_string( filename );
+        filename = get_temporary_filename();
 
-        filename = get_absolute_filename( menu_filename, default_directory3 );
+        if( open_file( filename, WRITE_FILE, ASCII_FORMAT, &file ) != OK )
+        {
+            print_error(
+                "Cannot open temporary Display.menu file for write: %s\n",
+                filename );
+            return( ERROR );
+        }
 
-        found = file_exists( filename );
+        len = string_length( default_menu_string );
+        for_less( i, 0, len )
+            (void) output_character( file, default_menu_string[i] );
+
+        (void) close_file( file );
     }
-
-    if( !found )
-    {
-        delete_string( filename );
-
-        filename = get_absolute_filename( menu_filename, default_directory4 );
-
-        found = file_exists( filename );
-    }
-
-    if( !found )
-        filename = create_string( menu_filename );
 
     status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
+
+    if( !found )                    /*--- if this temporary file */
+        remove_file( filename );
+
+    delete_string( filename );
 
     if( status == OK )
     {
@@ -285,8 +289,6 @@ public  Status  initialize_menu(
     update_menu_name_text( menu_window );
 
     rebuild_cursor_position_model( menu_window );
-
-    delete_string( filename );
 
     return( status );
 }

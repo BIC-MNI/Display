@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/fit_view.c,v 1.19 1996-04-19 13:25:36 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/fit_view.c,v 1.20 1997-03-23 21:11:45 david Exp $";
 #endif
 
 
@@ -199,11 +199,6 @@ private  void  perspective_fit_points(
 
     z_min = 0.0;
 
-    eye = view->origin;
-    x_axis = view->x_axis;
-    y_axis = view->y_axis;
-    line_of_sight = view->line_of_sight;
-
     for_less( i, 0, n_points )
     {
         for_inclusive( c, X, Y )
@@ -236,6 +231,11 @@ private  void  perspective_fit_points(
     dy = (Real) Point_y(*centre);
     dz = z_min;
 
+    eye = view->origin;
+    x_axis = view->x_axis;
+    y_axis = view->y_axis;
+    line_of_sight = view->line_of_sight;
+
     SCALE_VECTOR( delta_x, x_axis, dx );
     SCALE_VECTOR( delta_y, y_axis, dy );
     SCALE_VECTOR( delta_z, line_of_sight, dz );
@@ -255,5 +255,5 @@ private  void  perspective_fit_points(
     view->perspective_distance = new_persp_dist;
 
     view->back_distance = 2.0 * ((Real) Point_z(*centre) - dz);
-    view->front_distance = 0.0;
+    view->front_distance = Closest_front_plane;
 }

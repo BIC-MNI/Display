@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.49 1996-12-09 20:21:34 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.50 1997-03-23 21:11:46 david Exp $";
 #endif
 
 
@@ -76,6 +76,9 @@ private  BOOLEAN  get_voxel_values(
     Real        value, label;
     int         x, y, z, voxel[MAX_DIMENSIONS], n_invalid;
 
+    if( !volume_is_alloced( volume ) )
+        return( FALSE );
+
     n_invalid = 0;
 
     for_less( x, 0, 2 )
@@ -93,7 +96,13 @@ private  BOOLEAN  get_voxel_values(
                     surface_extraction->min_invalid_label <=
                     surface_extraction->max_invalid_label )
                 {
-                    label = (Real) get_volume_label_data( label_volume, voxel );
+                    if( label_volume == NULL ||
+                        !volume_is_alloced( label_volume ) )
+                        label = 0.0;
+                    else
+                        label = (Real) get_volume_label_data( label_volume,
+                                                              voxel );
+
                     if( surface_extraction->min_invalid_label <= label &&
                         label <= surface_extraction->max_invalid_label ) 
                     {
