@@ -44,6 +44,7 @@ typedef  struct
     BOOLEAN           volumes_alloced;
     Volume            distance_transform;
     Volume            cuts;
+    bitlist_3d_struct to_do;
     int               n_dimensions;
     int               voxel_pos;
     int               axis;
