@@ -10,6 +10,8 @@ typedef  struct
 private  BOOLEAN  find_shortest_path(
     polygons_struct   *polygons,
     Real              curvature_weight,
+    Real              min_curvature,
+    Real              max_curvature,
     Point             *p1,
     int               poly1,
     Point             *p2,
@@ -29,6 +31,8 @@ private  void  create_path(
 public  BOOLEAN  distance_along_polygons(
     polygons_struct   *polygons,
     Real              curvature_weight,
+    Real              min_curvature,
+    Real              max_curvature,
     Point             *p1,
     int               poly1,
     Point             *p2,
@@ -45,8 +49,9 @@ public  BOOLEAN  distance_along_polygons(
     check_polygons_neighbours_computed( polygons );
 
     found = find_shortest_path( polygons, curvature_weight,
+                                min_curvature, max_curvature,
                                 p1, poly1, p2, poly2, dist,
-                                &last_vertex, vertices);
+                                &last_vertex, vertices );
 
     if( found )
     {
@@ -117,9 +122,39 @@ typedef  struct
     int   poly_index;
 } queue_struct;
 
+enum  { NOT_DONE_YET, VALID_VERTEX, INVALID_VERTEX } Vertex_curvature_classes;
+
+private   void   check_validity_tested(
+    polygons_struct   *polygons,
+    int               poly,
+    int               vertex,
+    int               point_index,
+    Real              min_curvature,
+    Real              max_curvature,
+    Smallest_int      vertex_validity[] )
+{
+    Real    curvature, base_length;
+    Point   centroid;
+    Vector  normal;
+
+    if( vertex_validity[point_index] == NOT_DONE_YET )
+    {
+        compute_polygon_point_centroid( polygons, poly, vertex,
+                                 point_index, &centroid, &normal,
+                                 &base_length, &curvature );
+
+        if( min_curvature <= curvature && curvature <= max_curvature )
+            vertex_validity[point_index] = VALID_VERTEX;
+        else
+            vertex_validity[point_index] = INVALID_VERTEX;
+    }
+}
+
 private  BOOLEAN  find_shortest_path(
     polygons_struct   *polygons,
     Real              curvature_weight,
+    Real              min_curvature,
+    Real              max_curvature,
     Point             *p1,
     int               poly1,
     Point             *p2,
@@ -130,10 +165,22 @@ private  BOOLEAN  find_shortest_path(
 {
     int                    i, p, size, point_index, next_point_index;
     Real                   dist;
+    Smallest_int           *vertex_validity;
     BOOLEAN                found_path;
     queue_struct           entry;
     int                    n_polys, *polys;
     PRIORITY_QUEUE_STRUCT( queue_struct )   queue;
+
+    ALLOC( vertex_validity, polygons->n_points );
+
+    if( min_curvature < max_curvature )
+    {
+        for_less( i, 0, polygons->n_points )
+            vertex_validity[i] = NOT_DONE_YET;
+    }
+    else
+        for_less( i, 0, polygons->n_points )
+            vertex_validity[i] = VALID_VERTEX;
 
     ALLOC( polys, polygons->n_items );
 
@@ -152,14 +199,19 @@ private  BOOLEAN  find_shortest_path(
         point_index = polygons->indices[
                      POINT_INDEX( polygons->end_indices, poly2, p )];
 
-        dist = distance_between_points( &polygons->points[point_index],
-                                        p2 );
+        check_validity_tested( polygons, poly2, p, point_index,
+                               min_curvature, max_curvature, vertex_validity );
 
-        vertices[point_index].from_point = -1;
-        vertices[point_index].distance = dist;
-        entry.index_within_poly = p;
-        entry.poly_index = poly2;
-        INSERT_IN_PRIORITY_QUEUE( queue, entry, -dist );
+        if( vertex_validity[point_index] == VALID_VERTEX )
+        {
+            dist = distance_between_points( &polygons->points[point_index], p2);
+
+            vertices[point_index].from_point = -1;
+            vertices[point_index].distance = dist;
+            entry.index_within_poly = p;
+            entry.poly_index = poly2;
+            INSERT_IN_PRIORITY_QUEUE( queue, entry, -dist );
+        }
     }
 
     found_path = FALSE;
@@ -187,6 +239,13 @@ private  BOOLEAN  find_shortest_path(
             {
                 next_point_index = polygons->indices[
                              POINT_INDEX( polygons->end_indices, polys[i], p )];
+
+                check_validity_tested( polygons, polys[i], p, next_point_index,
+                                       min_curvature, max_curvature,
+                                       vertex_validity );
+
+                if( vertex_validity[next_point_index] != VALID_VERTEX )
+                    continue;
 
                 if( vertices[next_point_index].from_point == -2 ||
                     vertices[next_point_index].distance >
@@ -228,6 +287,9 @@ private  BOOLEAN  find_shortest_path(
     DELETE_PRIORITY_QUEUE( queue );
 
     FREE( polys );
+
+    if( vertex_validity != NULL )
+        FREE( vertex_validity );
 
     return( found_path );
 }
