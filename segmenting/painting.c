@@ -95,7 +95,9 @@ private  int  scale_y_mouse(
     return( y );
 }
 
-private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( right_mouse_down )
 {
     int             x_pixel, y_pixel, label, axis_index, volume_index;
     display_struct  *slice_window;
@@ -150,7 +152,9 @@ private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( end_painting )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( end_painting )
 {
     int   volume_index;
 
@@ -177,7 +181,9 @@ private  DEF_EVENT_FUNCTION( end_painting )     /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_update_painting )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update_painting )
 {
     (void) update_paint_labels( display );
 
@@ -296,8 +302,8 @@ private  BOOLEAN  get_brush(
 
         for_less( c, 0, N_DIMENSIONS )
         {
-            if( radius[c] != 0.0 && radius[c] < 1.0 )
-                radius[c] = 1.0;
+            if( radius[c] != 0.0 && radius[c] < 0.5 )
+                radius[c] = 0.5;
         }
 
         okay = TRUE;
