@@ -3,17 +3,19 @@
 #include <def_geometry.h>
 #include <def_globals.h>
 
-public  void  initialize_view( view )
+public  void  initialize_view( view, view_x, view_y, view_z )
     view_struct  *view;
+    Real         view_x, view_y, view_z;
 {
     static  Point   origin = { 0.0, 0.0, 1.0 };
-    static  Vector  line_of_sight = { 0.0, 0.0, -1.0 };
     static  Vector  hor = { 1.0, 0.0, 0.0 };
-    void            make_identity_transform();
+    Vector          line_of_sight;
     void            assign_view_direction();
+    void            make_identity_transform();
 
     view->perspective_flag = Initial_perspective_flag;
     view->origin = origin;
+    fill_Vector( line_of_sight, view_x, view_y, view_z );
     assign_view_direction( view, &line_of_sight, &hor );
     view->front_distance = Closest_front_plane;
     view->perspective_distance = 2.0;
@@ -30,8 +32,18 @@ public  void  assign_view_direction( view, line_of_sight, hor )
     Vector         *line_of_sight;
     Vector         *hor;
 {
+    Boolean   null_Vector();
+    void      create_noncolinear_vector();
+
     NORMALIZE_VECTOR( view->line_of_sight, *line_of_sight );
     CROSS_VECTORS( view->y_axis, *hor, view->line_of_sight );
+
+    if( null_Vector( &view->y_axis ) )
+    {
+        create_noncolinear_vector( &view->line_of_sight, &view->x_axis );
+        CROSS_VECTORS( view->y_axis, view->x_axis, view->line_of_sight );
+    }
+
     NORMALIZE_VECTOR( view->y_axis, view->y_axis );
     CROSS_VECTORS( view->x_axis, view->line_of_sight, view->y_axis );
     NORMALIZE_VECTOR( view->x_axis, view->x_axis );
@@ -134,4 +146,21 @@ public  void  get_screen_axes( view, hor, vert )
 {
     SCALE_VECTOR( *hor, view->x_axis, view->window_width );
     SCALE_VECTOR( *vert, view->y_axis, view->window_height );
+}
+
+public  void  scale_modeling_transform( view, sx, sy, sz )
+    view_struct   *view;
+    Real          sx, sy, sz;
+{
+    Transform   scale_transform;
+    void        make_identity_transform();
+    void        concat_transforms();
+
+    make_identity_transform( &scale_transform );
+    Transform_elem( scale_transform, 0, 0 ) = sx;
+    Transform_elem( scale_transform, 1, 1 ) = sy;
+    Transform_elem( scale_transform, 2, 2 ) = sz;
+
+    concat_transforms( &view->modeling_transform, &scale_transform,
+                       &view->modeling_transform );
 }

@@ -12,7 +12,7 @@ typedef  struct
     Point       origin;
     Vector      x_axis, y_axis, line_of_sight;
     Real        front_distance, back_distance;
-    Real        perspective_distance;
+    Real        pixels_from_screen;
     Real        desired_aspect;
     Real        window_width, window_height;
     Transform   modeling_transform;
@@ -111,7 +111,6 @@ typedef  struct  graphics_struct
 
 #define  DEF_EVENT_FUNCTION( f )   Status   f( graphics, event ) \
                                                 graphics_struct  *graphics; \
-                                                event_struct     *event; \
-                                                   /* ARGSUSED */
+                                                event_struct     *event;
 
 #endif
