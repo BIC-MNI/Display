@@ -81,8 +81,6 @@ START_GLOBALS
     DEF_GLOBAL_STRING( Default_marker_label, "Marker" )
     DEF_GLOBAL( Marker_pick_size, Real, 3.0 )
 
-    DEF_GLOBAL( N_expansion_voxels, int, 1 )
-
     DEF_GLOBAL( N_selected_displayed, int, 12 )
     DEF_GLOBAL( Selected_x_origin, Real, 650.0 )
     DEF_GLOBAL( Selected_y_origin, Real, 240.0 )
@@ -324,6 +322,5 @@ START_GLOBALS
     DEF_GLOBAL( Menu_name_font_size, Real, 12.0 )
 
     DEF_GLOBAL( Use_transparency_hardware, BOOLEAN, TRUE )
-    DEF_GLOBAL( Use_software_transparency, BOOLEAN, TRUE )
 
 END_GLOBALS
