@@ -186,7 +186,8 @@ public  Status  extract_more_surface( graphics )
     Status                      reset_voxel_flag();
     Status                      set_voxel_done_flag();
     Status                      delete_edge_points_no_longer_needed();
-    void    possibly_output();
+    void                        possibly_output();
+    void                        stop_surface_extraction();
 
     status = OK;
 
@@ -240,6 +241,13 @@ public  Status  extract_more_surface( graphics )
                         &surface_extraction->voxels_to_do );
             }
         }
+    }
+
+    if( n_voxels_done > 0 &&
+        voxels_remaining( &surface_extraction->voxels_to_do ) )
+    {
+        PRINT( "Surface extraction finished\n" );
+        stop_surface_extraction( graphics );
     }
 
     return( status );

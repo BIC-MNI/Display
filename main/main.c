@@ -29,6 +29,7 @@ int  main( argc, argv )
     void             rebuild_selected_list();
     void             set_update_required();
     void             output_alloc_to_file();
+    Status           delete_marching_cubes_table();
 
     if( getenv("DISPLAY_DIRECTORY") != (char *) 0 )
     {
@@ -106,6 +107,11 @@ int  main( argc, argv )
     }
 
     (void) terminate_graphics();
+
+    if( status == OK )
+    {
+        status = delete_marching_cubes_table();
+    }
 
     output_alloc_to_file( ".alloc_stats" );
 

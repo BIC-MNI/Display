@@ -70,15 +70,23 @@ private  DEF_EVENT_FUNCTION( handle_update_voxel )
 private  void  update_voxel_cursor( slice_window )
     graphics_struct   *slice_window;
 {
-    int               x, y, z, axis_index;
+    int               c, indices[N_DIMENSIONS], axis_index;
     Boolean           get_voxel_in_slice_window();
     Boolean           set_current_voxel();
     Boolean           update_cursor_from_voxel();
     void              set_update_required();
 
-    if( get_voxel_in_slice_window( slice_window, &x, &y, &z, &axis_index ) )
+    if( get_voxel_in_slice_window( slice_window, &indices[X_AXIS],
+                 &indices[Y_AXIS], &indices[Z_AXIS], &axis_index ) )
     {
-        if( set_current_voxel( slice_window, x, y, z ) )
+        for_less( c, 0, N_DIMENSIONS )
+        {
+            if( slice_window->slice.slice_locked[c] )
+                indices[c] = slice_window->slice.slice_index[c];
+        }
+
+        if( set_current_voxel( slice_window, indices[X_AXIS], indices[Y_AXIS],
+                               indices[Z_AXIS] ) )
         {
             set_update_required( slice_window, NORMAL_PLANES );
         }

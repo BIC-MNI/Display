@@ -52,6 +52,7 @@ private  Status  clear_surface_extraction( graphics )
     void                        clear_voxel_done_flags();
     surface_extraction_struct   *surface_extraction;
     volume_struct               *volume;
+    Status                      delete_polygons();
 
     surface_extraction = &graphics->three_d.surface_extraction;
 
@@ -60,6 +61,11 @@ private  Status  clear_surface_extraction( graphics )
     surface_extraction->n_voxels_with_surface = 0;
 
     status = initialize_edge_points( &surface_extraction->edge_points );
+
+    if( status == OK )
+    {
+        status = delete_polygons( surface_extraction->polygons );
+    }
 
     if( status == OK )
     {

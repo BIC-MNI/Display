@@ -1,6 +1,7 @@
 include ../C_dev/Makefile.include
 
-OPT = -g
+DEFINES = -DNO_DEBUG_ALLOC
+OPT = $(DEFINES)   -O
 
 #INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/yorick/usr/include
 INCLUDE = -IInclude -I$(C_UTILS_INCLUDE)
@@ -35,6 +36,7 @@ display_obj = \
            $(graphics_obj) \
            callbacks/object_ops.o \
            callbacks/quit.o \
+           callbacks/marker_ops.o \
            callbacks/render_ops.o \
            callbacks/surface_ops.o \
            callbacks/view_ops.o \
@@ -125,11 +127,17 @@ display_ngx: $(display_obj)
 display: $(display_obj)
 	$(CC) $(CFLAGS) $(display_obj) -o $@ $(LIBS)
 
-display.pixie: display
-	rm display
+FORCE:
+
+display.pixie:  FORCE
+	if( -e display ) rm display
 	make display LIBS="-lgl -lm"
 	@\rm -f display.Counts
 	@pixie display -o $@
+
+prof:
+	prof -pixie display -proc >&! profiling/procedures
+	prof -pixie display -heavy >&! profiling/heavy
 
 lint_display: $(display_lint)
 	@echo "Global lint started"
@@ -206,7 +214,8 @@ lint_timing: $(timing_ln)
 
 # -------
 
-test_gl_obj = test_gl.o
+test_gl_obj = test_gl.o \
+              time.o
 
 test_gl_ln = $(test_gl_obj:.o=.ln)
 
@@ -219,7 +228,7 @@ lint_test_gl: $(test_gl_ln)
 
 # -------
 
-reassemble_obj = reassemble.c \
+fix_obj = reassemble.c \
                  alloc.c \
                  bintree.c \
                  build_bintree.c \
@@ -239,3 +248,23 @@ reassemble: $(reassemble_obj)
 
 lint_reassemble: $(reassemble_ln)
 	$(LINT) -u $(LINTFLAGS) $(reassemble_ln)
+
+# -------
+
+add_lines_obj = add_lines.c \
+                 alloc.o \
+                 files.o \
+                 object_io.o \
+                 lines.o \
+                 progress.o \
+                 time.o \
+                 colours.o
+
+add_lines_ln = $(add_lines_obj:.o=.ln)
+
+add_lines: $(add_lines_obj)
+	$(CC) -g $(INCLUDE) $(add_lines_obj) -o $@ $(LIBS)
+
+
+lint_add_lines: $(add_lines_ln)
+	$(LINT) -u $(LINTFLAGS) $(add_lines_ln)

@@ -385,8 +385,6 @@ private  Boolean  square_contains_value( volume, indices, axis_index, isovalue )
     int      x_index, y_index, square_indices[N_DIMENSIONS];
     Real     val;
     Boolean  less, more;
-    int      x_file, y_file, z_file;
-    void     convert_to_file_space();
 
     x_index = (axis_index + 1) % N_DIMENSIONS;
     y_index = (axis_index + 2) % N_DIMENSIONS;
@@ -401,14 +399,10 @@ private  Boolean  square_contains_value( volume, indices, axis_index, isovalue )
         for_less( square_indices[y_index], indices[y_index],
                   indices[y_index]+2 )
         {
-            convert_to_file_space( volume,
-                                   square_indices[X_AXIS],
-                                   square_indices[Y_AXIS],
-                                   square_indices[Z_AXIS],
-                                   &x_file, &y_file, &z_file );
-
             val = (Real) GET_VOLUME_DATA( *volume,
-                                          x_file, y_file, z_file );
+                                          square_indices[X_AXIS],
+                                          square_indices[Y_AXIS],
+                                          square_indices[Z_AXIS] );
             if( val < isovalue )
                 less = TRUE;
             else if( val > isovalue )

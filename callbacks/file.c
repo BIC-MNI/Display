@@ -48,7 +48,7 @@ public  DEF_MENU_FUNCTION( save_file )   /* ARGSUSED */
             object_list = &current_object;
         }
 
-        status = output_graphics_file( filename, (file_formats) Save_format,
+        status = output_graphics_file( filename, (File_formats) Save_format,
                                        n_objects, object_list );
     }
 

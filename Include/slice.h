@@ -27,6 +27,7 @@ typedef  struct
     int                    x_split, y_split;
 
     int                    slice_index[N_DIMENSIONS];
+    Boolean                slice_locked[N_DIMENSIONS];
     slice_view_struct      slice_views[3];
 
     int                    *temporary_indices;

@@ -44,6 +44,7 @@ private  void  display_objects_recursive( window, bitplanes,
     void           G_set_render();
     void           G_draw_text();
     void           G_draw_lines();
+    void           G_draw_marker();
     void           G_draw_pixels();
     void           G_draw_polygons();
     void           G_draw_volume();
@@ -113,6 +114,11 @@ private  void  display_objects_recursive( window, bitplanes,
                 case LINES:
                     G_draw_lines( window, object_list[i]->ptr.lines,
                                   interrupt, object_is_continuing );
+                    break;
+
+                case MARKER:
+                    G_draw_marker( window, object_list[i]->ptr.marker,
+                                   render );
                     break;
 
                 case PIXELS:

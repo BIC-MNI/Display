@@ -101,7 +101,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
     polygons_struct   *polygons;
     String            filename;
     FILE              *file;
-    Status            open_input_file();
+    Status            open_file();
     Status            io_bintree();
     Status            close_file();
 
@@ -113,7 +113,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
         PRINT( "Enter filename: " );
         (void) scanf( "%s", filename );
 
-        status = open_input_file( filename, &file );
+        status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
         {
@@ -122,7 +122,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
 
         if( status == OK )
         {
-            status = io_bintree( file, INPUTTING, BINARY_FORMAT,
+            status = io_bintree( file, READ_FILE, BINARY_FORMAT,
                                  polygons->n_items, polygons->bintree );
         }
 
@@ -148,7 +148,7 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
     polygons_struct   *polygons;
     String            filename;
     FILE              *file;
-    Status            open_output_file();
+    Status            open_file();
     Status            io_bintree();
     Status            close_file();
 
@@ -160,11 +160,11 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
         PRINT( "Enter filename: " );
         (void) scanf( "%s", filename );
 
-        status = open_output_file( filename, &file );
+        status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
         {
-            status = io_bintree( file, OUTPUTTING, BINARY_FORMAT,
+            status = io_bintree( file, WRITE_FILE, BINARY_FORMAT,
                                  polygons->n_items, polygons->bintree );
         }
 

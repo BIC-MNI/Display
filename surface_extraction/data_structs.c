@@ -136,7 +136,7 @@ public  Status  initialize_voxel_done_flags( voxel_done_flags, n_voxels )
     Status   status;
     void     clear_voxel_done_flags();
 
-    ALLOC1( status, *voxel_done_flags, n_voxels / 2, unsigned_byte );
+    ALLOC1( status, *voxel_done_flags, (n_voxels + 1) / 2, unsigned_byte );
 
     if( status == OK )
     {

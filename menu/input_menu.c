@@ -80,6 +80,7 @@
                        MENU_FUNCTION(save_markers) \
                        MENU_FUNCTION(lock_slice) \
                        MENU_FUNCTION(unlock_slice) \
+                       MENU_FUNCTION(delete_current_object) \
                 
 
 typedef  struct
@@ -499,14 +500,18 @@ private  Status  lookup_menu_action( action_name, action, update_action )
     return( status );
 }
 
-private  Status  delete_menu_entry( entry )
+private  Status  delete_menu_entry( top_flag, entry )
+    Boolean             top_flag;
     menu_entry_struct   *entry;
 {
     Status  status;
 
     status = OK;
 
-    if( entry->n_children > 0 )
+    if( !top_flag )
+        FREE1( status, entry->text_list );
+
+    if( status == OK && entry->n_children > 0 )
     {
         FREE1( status, entry->children );
     }
@@ -526,7 +531,7 @@ public  Status  delete_menu( menu )
     {
         if( status == OK )
         {
-            status = delete_menu_entry( &menu->entries[i] );
+            status = delete_menu_entry( i == 0, &menu->entries[i] );
         }
     }
 

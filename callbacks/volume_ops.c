@@ -456,7 +456,7 @@ public  DEF_MENU_FUNCTION(save_inactive_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
-    Status           open_output_file();
+    Status           open_file();
     Status           close_file();
     Status           io_binary_data();
     volume_struct    *volume;
@@ -469,11 +469,11 @@ public  DEF_MENU_FUNCTION(save_inactive_voxels)   /* ARGSUSED */
         (void) printf( "Enter filename: " );
         (void) scanf( "%s", filename );
 
-        status = open_output_file( filename, &file );
+        status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
         {
-            status = io_binary_data( file, OUTPUTTING,
+            status = io_binary_data( file, WRITE_FILE,
                                      (char *) volume->inactive_voxels.bits,
                                      sizeof( volume->inactive_voxels.bits[0]),
                                      volume->inactive_voxels.n_words );
@@ -499,7 +499,7 @@ public  DEF_MENU_FUNCTION(load_inactive_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
-    Status           open_input_file();
+    Status           open_file();
     Status           io_binary_data();
     Status           close_file();
     volume_struct    *volume;
@@ -514,11 +514,11 @@ public  DEF_MENU_FUNCTION(load_inactive_voxels)   /* ARGSUSED */
         (void) printf( "Enter filename: " );
         (void) scanf( "%s", filename );
 
-        status = open_input_file( filename, &file );
+        status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
         {
-            status = io_binary_data( file, INPUTTING,
+            status = io_binary_data( file, READ_FILE,
                                      (char *) volume->inactive_voxels.bits,
                                      sizeof( volume->inactive_voxels.bits[0]),
                                      volume->inactive_voxels.n_words );
@@ -552,7 +552,7 @@ public  DEF_MENU_FUNCTION(save_active_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
-    Status           open_output_file();
+    Status           open_file();
     Status           close_file();
     Status           io_binary_data();
     volume_struct    *volume;
@@ -565,11 +565,11 @@ public  DEF_MENU_FUNCTION(save_active_voxels)   /* ARGSUSED */
         (void) printf( "Enter filename: " );
         (void) scanf( "%s", filename );
 
-        status = open_output_file( filename, &file );
+        status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
         {
-            status = io_binary_data( file, OUTPUTTING,
+            status = io_binary_data( file, WRITE_FILE,
                                      (char *) volume->active_voxels.bits,
                                      sizeof( volume->active_voxels.bits[0]),
                                      volume->active_voxels.n_words );
@@ -595,7 +595,7 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
-    Status           open_input_file();
+    Status           open_file();
     Status           io_binary_data();
     Status           close_file();
     volume_struct    *volume;
@@ -610,11 +610,11 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
         (void) printf( "Enter filename: " );
         (void) scanf( "%s", filename );
 
-        status = open_input_file( filename, &file );
+        status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
         {
-            status = io_binary_data( file, INPUTTING,
+            status = io_binary_data( file, READ_FILE,
                                      (char *) volume->active_voxels.bits,
                                      sizeof( volume->active_voxels.bits[0]),
                                      volume->active_voxels.n_words );

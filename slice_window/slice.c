@@ -68,7 +68,6 @@ public  Status  set_slice_window_volume( graphics, volume )
     Real             factor, min_thickness, max_thickness;
     Real             thickness[N_DIMENSIONS];
     void             change_colour_coding_range();
-    void             update_fast_lookup();
     void             get_volume_size();
     void             get_volume_slice_thickness();
 
@@ -83,6 +82,7 @@ public  Status  set_slice_window_volume( graphics, volume )
         graphics->slice.slice_views[c].x_offset = 0;
         graphics->slice.slice_views[c].y_offset = 0;
         graphics->slice.slice_index[c] = (int) (size[c] / 2);
+        graphics->slice.slice_locked[c] = FALSE;
     }
 
     graphics->associated[THREE_D_WINDOW]->three_d.cursor.box_size[X_AXIS] =
@@ -354,9 +354,9 @@ public  void  convert_voxel_to_pixel( graphics, view_index, x_voxel, y_voxel,
                                y_scale, y_voxel );
 }
 
-private  void  get_voxel_centre( graphics, x, y, z, centre )
+public  void  convert_voxel_to_point( graphics, x, y, z, centre )
     graphics_struct   *graphics;
-    int               x, y, z;
+    Real              x, y, z;
     Point             *centre;
 {
     Real    dx, dy, dz;
@@ -364,9 +364,7 @@ private  void  get_voxel_centre( graphics, x, y, z, centre )
 
     get_volume_slice_thickness( graphics->slice.volume, &dx, &dy, &dz );
 
-    fill_Point( *centre, (Real) x * dx,
-                         (Real) y * dy,
-                         (Real) z * dz );
+    fill_Point( *centre, x * dx, y * dy, z * dz );
 }
 
 public  Boolean  convert_point_to_voxel( graphics, point, x, y, z )
@@ -729,7 +727,7 @@ public  Boolean  update_cursor_from_voxel( slice_window )
     int               x, y, z;
     Boolean           changed;
     Point             new_origin;
-    void              get_voxel_centre();
+    void              convert_voxel_to_point();
     graphics_struct   *graphics;
     void              update_cursor();
     void              set_cursor_colour();
@@ -739,7 +737,8 @@ public  Boolean  update_cursor_from_voxel( slice_window )
 
     get_current_voxel( slice_window, &x, &y, &z );
 
-    get_voxel_centre( slice_window, x, y, z, &new_origin );
+    convert_voxel_to_point( slice_window, (Real) x, (Real) y, (Real) z,
+                            &new_origin );
 
     if( !EQUAL_POINTS( new_origin, graphics->three_d.cursor.origin ) )
     {

@@ -122,7 +122,7 @@ private  Status  create_film_loop_header( base_filename, window_width,
     Status  status;
     int     i;
     FILE    *file;
-    Status  open_output_file();
+    Status  open_file();
     Status  io_int();
     Status  output_string();
     Status  io_colour();
@@ -137,27 +137,27 @@ private  Status  create_film_loop_header( base_filename, window_width,
     (void) strcpy( header_name, base_filename );   
     (void) strcat( header_name, ".flm" );   
 
-    status = open_output_file( header_name, &file );
+    status = open_file( header_name, WRITE_FILE, ASCII_FORMAT, &file );
 
     if( status == OK )
     {
-        status = io_int( file, OUTPUTTING, ASCII_FORMAT, &window_width );
+        status = io_int( file, WRITE_FILE, ASCII_FORMAT, &window_width );
     }
 
     if( status == OK )
     {
-        status = io_int( file, OUTPUTTING, ASCII_FORMAT, &window_height );
+        status = io_int( file, WRITE_FILE, ASCII_FORMAT, &window_height );
     }
 
     if( status == OK )
     {
-        status = io_colour( file, OUTPUTTING, ASCII_FORMAT,
+        status = io_colour( file, WRITE_FILE, ASCII_FORMAT,
                             &Initial_background_colour );
     }
 
     if( status == OK )
     {
-        status = io_newline( file, OUTPUTTING, ASCII_FORMAT );
+        status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
     }
 
     for_less( i, 0, n_steps )
@@ -173,7 +173,7 @@ private  Status  create_film_loop_header( base_filename, window_width,
 
         if( status == OK )
         {
-            status = io_newline( file, OUTPUTTING, ASCII_FORMAT );
+            status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
         }
     }
 
@@ -197,7 +197,7 @@ private  Status  save_image_to_file( graphics )
     graphics_struct   *graphics;
 {
     Status         status;
-    Status         open_output_file();
+    Status         open_file();
     Status         output_frame();
     Status         close_file();
     void           G_read_pixels();
@@ -237,7 +237,7 @@ private  Status  save_image_to_file( graphics )
                            graphics->three_d.film_loop.current_step,
                            frame_filename );
 
-    status = open_output_file( frame_filename, &file );
+    status = open_file( frame_filename, WRITE_FILE, BINARY_FORMAT, &file );
 
     if( status == OK )
     {
@@ -372,21 +372,21 @@ private  Status  output_frame( file, pixels, x_size, x_min, x_max, y_min,
 
     background = ACCESS_PIXEL( pixels, 0, 0, x_size );
 
-    status = io_int( file, OUTPUTTING, BINARY_FORMAT, &x_min );
+    status = io_int( file, WRITE_FILE, BINARY_FORMAT, &x_min );
 
     if( status == OK )
     {
-        status = io_int( file, OUTPUTTING, BINARY_FORMAT, &x_max );
+        status = io_int( file, WRITE_FILE, BINARY_FORMAT, &x_max );
     }
 
     if( status == OK )
     {
-        status = io_int( file, OUTPUTTING, BINARY_FORMAT, &y_min );
+        status = io_int( file, WRITE_FILE, BINARY_FORMAT, &y_min );
     }
 
     if( status == OK )
     {
-        status = io_int( file, OUTPUTTING, BINARY_FORMAT, &y_max );
+        status = io_int( file, WRITE_FILE, BINARY_FORMAT, &y_max );
     }
 
     if( status == OK )
@@ -420,7 +420,7 @@ private  Status  output_frame( file, pixels, x_size, x_min, x_max, y_min,
     {
         if( status == OK )
         {
-            status = io_int( file, OUTPUTTING, BINARY_FORMAT, &start[y-y_min] );
+            status = io_int( file, WRITE_FILE, BINARY_FORMAT, &start[y-y_min] );
         }
 
         n_pixels = end[y-y_min] - start[y-y_min] + 1;
@@ -432,7 +432,7 @@ private  Status  output_frame( file, pixels, x_size, x_min, x_max, y_min,
 
         if( status == OK )
         {
-            status = io_int( file, OUTPUTTING, BINARY_FORMAT, &n_pixels );
+            status = io_int( file, WRITE_FILE, BINARY_FORMAT, &n_pixels );
         }
     }
 
@@ -442,7 +442,7 @@ private  Status  output_frame( file, pixels, x_size, x_min, x_max, y_min,
 
         if( status == OK && n_pixels > 0 )
         {
-            status = io_binary_data( file, OUTPUTTING,
+            status = io_binary_data( file, WRITE_FILE,
                         (char *) &ACCESS_PIXEL(pixels,start[y-y_min],y,x_size),
                         sizeof( pixels[0] ), n_pixels );
         }

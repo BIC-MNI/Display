@@ -98,9 +98,10 @@ public  void  set_current_object_index( graphics, index )
 {
     if( !current_object_is_top_level(graphics) )
     {
-        if( index >= 0 &&
-            index < TOP_OF_STACK( graphics->three_d.current_object ).
-                            model_object->ptr.model->n_objects )
+        if( index == 0 ||
+            (index >= 0 &&
+             index < TOP_OF_STACK( graphics->three_d.current_object ).
+                            model_object->ptr.model->n_objects) )
         {
             TOP_OF_STACK( graphics->three_d.current_object ).object_index =
                                                              index;

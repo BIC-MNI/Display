@@ -211,6 +211,7 @@ public  void  rebuild_slice_pixels( graphics, view_index )
     int            voxel_indices[N_DIMENSIONS];
     int            x_pixel_start, x_pixel_end;
     int            x_size, y_pixel_start, y_pixel_end;
+    int            file_index[N_DIMENSIONS];
     void           get_slice_view();
     void           render_slice_to_pixels();
     text_struct    *text;
@@ -278,6 +279,14 @@ public  void  rebuild_slice_pixels( graphics, view_index )
 
     text = model->object_list[TEXT1_INDEX+view_index]->ptr.text;
 
+    convert_to_file_space( graphics->slice.volume,
+                           graphics->slice.slice_index[X_AXIS],
+                           graphics->slice.slice_index[Y_AXIS],
+                           graphics->slice.slice_index[Z_AXIS],
+                           &file_index[X_AXIS], &file_index[Y_AXIS],
+                           &file_index[Z_AXIS] );
+
+
     if( print_cursor )
     {
         switch( axis_index )
@@ -287,22 +296,32 @@ public  void  rebuild_slice_pixels( graphics, view_index )
         case Z_AXIS:  format = Slice_index_zc_format;  break;
         }
 
-        (void) sprintf( text->text, format,
-                        graphics->slice.slice_index[axis_index],
+        (void) sprintf( text->text, format, file_index[axis_index],
                         real_pos[axis_index] );
 
     }
     else
     {
-        switch( axis_index )
+        if( graphics->slice.slice_locked[axis_index] )
         {
-        case X_AXIS:  format = Slice_index_x_format;  break;
-        case Y_AXIS:  format = Slice_index_y_format;  break;
-        case Z_AXIS:  format = Slice_index_z_format;  break;
+            switch( axis_index )
+            {
+            case X_AXIS:  format = Slice_index_x_locked_format;  break;
+            case Y_AXIS:  format = Slice_index_y_locked_format;  break;
+            case Z_AXIS:  format = Slice_index_z_locked_format;  break;
+            }
+        }
+        else
+        {
+            switch( axis_index )
+            {
+            case X_AXIS:  format = Slice_index_x_format;  break;
+            case Y_AXIS:  format = Slice_index_y_format;  break;
+            case Z_AXIS:  format = Slice_index_z_format;  break;
+            }
         }
 
-        (void) sprintf( text->text, format,
-                        graphics->slice.slice_index[axis_index] );
+        (void) sprintf( text->text, format, file_index[axis_index] );
 
     }
 
@@ -326,6 +345,7 @@ public  void  rebuild_cursor( graphics, view_index )
     model_struct   *get_graphics_model();
     int            x_index, y_index, x_start, y_start, x_end, y_end;
     int            x_centre, y_centre, dx, dy;
+    Real           start_pixel[N_DIMENSIONS], end_pixel[N_DIMENSIONS];
     lines_struct   *lines;
     int            x, y;
     void           convert_voxel_to_pixel();
@@ -383,17 +403,25 @@ public  void  rebuild_cursor( graphics, view_index )
         y_end += dy;
     }
 
-    fill_Point( lines->points[0], x_centre, y_end + Cursor_start_pixel, 0.0 );
-    fill_Point( lines->points[1], x_centre, y_end + Cursor_end_pixel, 0.0 );
+    start_pixel[X_AXIS] = Cursor_start_pixel_x;
+    start_pixel[Y_AXIS] = Cursor_start_pixel_y;
+    start_pixel[Z_AXIS] = Cursor_start_pixel_z;
 
-    fill_Point( lines->points[2], x_centre, y_start - Cursor_start_pixel, 0.0 );
-    fill_Point( lines->points[3], x_centre, y_start - Cursor_end_pixel, 0.0 );
+    end_pixel[X_AXIS] = Cursor_end_pixel_x;
+    end_pixel[Y_AXIS] = Cursor_end_pixel_y;
+    end_pixel[Z_AXIS] = Cursor_end_pixel_z;
 
-    fill_Point( lines->points[4], x_start - Cursor_start_pixel, y_centre, 0.0 );
-    fill_Point( lines->points[5], x_start - Cursor_end_pixel, y_centre, 0.0 );
+    fill_Point( lines->points[0], x_centre, y_end + start_pixel[y_index], 0.0 );
+    fill_Point( lines->points[1], x_centre, y_end + end_pixel[y_index], 0.0 );
 
-    fill_Point( lines->points[6], x_end + Cursor_start_pixel, y_centre, 0.0 );
-    fill_Point( lines->points[7], x_end + Cursor_end_pixel, y_centre, 0.0 );
+    fill_Point( lines->points[2], x_centre, y_start-start_pixel[y_index], 0.0 );
+    fill_Point( lines->points[3], x_centre, y_start-end_pixel[y_index], 0.0 );
+
+    fill_Point( lines->points[4], x_start-start_pixel[x_index], y_centre, 0.0 );
+    fill_Point( lines->points[5], x_start-end_pixel[x_index], y_centre, 0.0 );
+
+    fill_Point( lines->points[6], x_end + start_pixel[x_index], y_centre, 0.0 );
+    fill_Point( lines->points[7], x_end + end_pixel[x_index], y_centre, 0.0 );
 }
 
 private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
@@ -457,15 +485,8 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
 
     if( status == OK )
     {
-        if( new_size > 0 )
-        {
-            CHECK_ALLOC1( status, pixels->pixels, old_size, new_size,
-                          Pixel_colour, DEFAULT_CHUNK_SIZE );
-        }
-        else if( old_size > 0 )
-        {
-            FREE1( status, pixels->pixels );
-        }
+        CHECK_ALLOC1( status, pixels->pixels, old_size, new_size,
+                      Pixel_colour, DEFAULT_CHUNK_SIZE );
     }
 
     indices[axis_index] = start_indices[axis_index];
@@ -491,13 +512,14 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
 
             if( indices[x_index] != prev_x )
             {
-/*
+#ifdef ACTIVITIES
+#define ACTIVITIES
                 pixel_col = get_voxel_colour( volume,
                                               fast_lookup_present,
                                               fast_lookup, colour_coding,
                                               indices[0], indices[1],
                                               indices[2] );
-*/
+#else
 
                 val = GET_VOLUME_DATA( *volume,
                                        indices[0], indices[1], indices[2]);
@@ -506,6 +528,7 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
                     pixel_col = fast_lookup[val-min_value];
                 else
                     pixel_col = get_colour_coding( colour_coding, (Real) val );
+#endif
 
                 prev_x = indices[x_index];
             }

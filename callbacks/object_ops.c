@@ -263,3 +263,57 @@ public  DEF_MENU_UPDATE(create_model )     /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( delete_current_object )     /* ARGSUSED */
+{
+    int              obj_index;
+    object_struct    *object;
+    model_struct     *current_model;
+    model_struct     *get_current_model();
+    Boolean          get_current_object();
+    void             rebuild_selected_list();
+    Status           status;
+    void             set_update_required();
+    void             set_current_object_index();
+    Status           remove_object_from_model();
+    Status           delete_object();
+
+    status = OK;
+
+    if( !current_object_is_top_level( graphics ) &&
+        get_current_object( graphics, &object ) )
+    {
+        obj_index = get_current_object_index( graphics );
+
+        current_model = get_current_model( graphics );
+
+        status = remove_object_from_model( current_model, obj_index );
+
+        if( status == OK )
+        {
+            status = delete_object( object );
+        }
+
+        if( status == OK )
+        {
+            if( current_model->n_objects == 0 )
+                obj_index = 0;
+            else if( obj_index >= current_model->n_objects )
+                obj_index = current_model->n_objects - 1;
+
+            set_current_object_index( graphics, obj_index );
+
+            rebuild_selected_list( graphics, menu_window );
+            set_update_required( menu_window, NORMAL_PLANES );
+
+            set_update_required( graphics, NORMAL_PLANES );
+        }
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(delete_current_object )     /* ARGSUSED */
+{
+    return( OK );
+}

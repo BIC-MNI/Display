@@ -9,13 +9,11 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
     Status          create_object();
     Status          input_string();
     Status          add_object_to_model();
-    Point           origin;
     object_struct   *object;
     void            set_update_required();
     model_struct    *get_current_model();
     void            rebuild_selected_list();
     Boolean         convert_point_to_voxel();
-    graphics_struct *slice_window;
 
     status = create_object( &object, MARKER );
 
@@ -28,9 +26,11 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
 
     if( status == OK )
     {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
 #ifdef NO
+        graphics_struct  *slice_window;
+        Point            origin;
+
+        slice_window = graphics->associated[SLICE_WINDOW];
         if( slice_window != (graphics_struct *) 0 &&
             convert_point_to_voxel( graphics, &graphics->three_d.cursor.origin,
                                     &Point_x(origin), &Point_y(origin),
@@ -118,7 +118,7 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
     Status          input_string();
     String          filename;
     FILE            *file;
-    Status          open_output_file();
+    Status          open_file();
     Status          output_marker();
     Status          close_file();
 
@@ -130,7 +130,7 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
 
     if( status == OK )
     {
-        status = open_output_file( filename, &file );
+        status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
     }
 
     if( status == OK )
@@ -173,16 +173,16 @@ private  Status  output_marker( file, marker )
     status = OK;
 
     if( status == OK )
-        status = io_point( file, OUTPUTTING, ASCII_FORMAT, &marker->position );
+        status = io_point( file, WRITE_FILE, ASCII_FORMAT, &marker->position );
 
     if( status == OK )
-        status = io_int( file, OUTPUTTING, ASCII_FORMAT, &patient_id );
+        status = io_int( file, WRITE_FILE, ASCII_FORMAT, &patient_id );
 
     if( status == OK )
-        status = io_int( file, OUTPUTTING, ASCII_FORMAT, &feature_id );
+        status = io_int( file, WRITE_FILE, ASCII_FORMAT, &feature_id );
 
     if( status == OK )
-        status = io_newline( file, OUTPUTTING, ASCII_FORMAT );
+        status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
 
     return( status );
 }

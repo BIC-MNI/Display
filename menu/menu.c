@@ -115,7 +115,7 @@ public  Status  initialize_menu( graphics, runtime_directory )
     String               filename;
     char                 *menu_filename = "menu.dat";
     char                 *getenv();
-    Status               open_input_file();
+    Status               open_file();
     Status               close_file();
     FILE                 *file;
 
@@ -142,12 +142,12 @@ public  Status  initialize_menu( graphics, runtime_directory )
     }
 
     if( file_exists( menu_filename ) )
-        status = open_input_file( menu_filename, &file );
+        status = open_file( menu_filename, READ_FILE, ASCII_FORMAT, &file );
     else
     {
         get_absolute_filename( menu_filename, runtime_directory, filename );
 
-        status = open_input_file( filename, &file );
+        status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
     }
 
     if( status == OK )

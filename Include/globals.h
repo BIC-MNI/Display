@@ -74,6 +74,9 @@ START_GLOBALS
     DEF_GLOBAL_STRING( Slice_index_x_format, "" )
     DEF_GLOBAL_STRING( Slice_index_y_format, "" )
     DEF_GLOBAL_STRING( Slice_index_z_format, "" )
+    DEF_GLOBAL_STRING( Slice_index_x_locked_format, "" )
+    DEF_GLOBAL_STRING( Slice_index_y_locked_format, "" )
+    DEF_GLOBAL_STRING( Slice_index_z_locked_format, "" )
     DEF_GLOBAL_STRING( Slice_index_xc_format, "" )
     DEF_GLOBAL_STRING( Slice_index_yc_format, "" )
     DEF_GLOBAL_STRING( Slice_index_zc_format, "" )
@@ -112,8 +115,12 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_beep_on_surface, int, 1 )
     DEF_GLOBAL( Cursor_size_factor, Real, 0.05 )
     DEF_GLOBAL( Cursor_axis_size, Real, 10.0 )
-    DEF_GLOBAL( Cursor_start_pixel, int, 3 )
-    DEF_GLOBAL( Cursor_end_pixel, int, 10 )
+    DEF_GLOBAL( Cursor_start_pixel_x, int, 3 )
+    DEF_GLOBAL( Cursor_end_pixel_x, int, 10 )
+    DEF_GLOBAL( Cursor_start_pixel_y, int, 3 )
+    DEF_GLOBAL( Cursor_end_pixel_y, int, 10 )
+    DEF_GLOBAL( Cursor_start_pixel_z, int, 3 )
+    DEF_GLOBAL( Cursor_end_pixel_z, int, 10 )
     DEF_GLOBAL( Slice_cursor_colour, Colour, 0.0 )
     DEF_GLOBAL( Cursor_mouse_threshold, Real, 0.02 )
     DEF_GLOBAL( Max_cursor_angle, Real, 10.0 )
@@ -162,6 +169,8 @@ START_GLOBALS
 
     DEF_GLOBAL( Marker_colour, Colour, 1.0 )
     DEF_GLOBAL( Marker_size, Real, 1.0 )
+
+    DEF_GLOBAL( Save_format, int, 1 )
 
 END_GLOBALS
          
