@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.53 1996-05-24 18:43:09 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.54 1996-05-24 19:10:12 david Exp $";
 #endif
 
 
@@ -828,7 +828,6 @@ public  DEF_MENU_UPDATE(toggle_crop_labels_on_output)
 {
     BOOLEAN          state, set;
     display_struct   *slice_window;
-    int              n_neigh;
 
     state = get_slice_window( display, &slice_window );
 
