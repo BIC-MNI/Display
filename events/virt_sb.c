@@ -332,19 +332,28 @@ private  Boolean  perform_cursor_translation( graphics )
             Point_coord(pt,axis_index) += 1.0;
             transform_point_to_screen( &graphics->three_d.view, &pt,
                                        &pt_screen );
-            SUB_POINTS( axis_screen[axis_index], pt, cursor_screen );
+            SUB_POINTS( axis_screen[axis_index], pt_screen, cursor_screen );
             mag_axis[axis_index] = MAGNITUDE( axis_screen[axis_index] );
-            dot_prod[axis_index] =
+
+            if( mag_axis[axis_index] == 0.0 )
+            {
+                dot_prod[axis_index] = 0.0;
+                angle[axis_index] = 90.0;
+            }
+            else
+            {
+                dot_prod[axis_index] =
                          DOT_VECTORS( mouse_dir,axis_screen[axis_index]) /
                          mag_mouse / mag_axis[axis_index];
-            angle[axis_index] = acos( (double) dot_prod[axis_index] )
-                                * RAD_TO_DEG;
+                angle[axis_index] = acos( (double) ABS(dot_prod[axis_index]) )
+                                    * RAD_TO_DEG;
+            }
         }
 
         best_axis = X_AXIS;
         for_inclusive( axis_index, Y_AXIS, Z_AXIS )
         {
-            if( dot_prod[axis_index] > dot_prod[best_axis] )
+            if( ABS(dot_prod[axis_index]) > ABS(dot_prod[best_axis]) )
             {
                 best_axis = axis_index;
             }
@@ -353,7 +362,7 @@ private  Boolean  perform_cursor_translation( graphics )
         a1 = (best_axis + 1) % N_DIMENSIONS;
         a2 = (best_axis + 2) % N_DIMENSIONS;
 
-        if( dot_prod[a1] > dot_prod[a2] )
+        if( ABS(dot_prod[a1]) > ABS(dot_prod[a2]) )
             second_best_axis = a1;
         else
             second_best_axis = a2;
@@ -372,8 +381,9 @@ private  Boolean  perform_cursor_translation( graphics )
         prev_mouse_dist = DOT_VECTORS( prev_offset, axis_screen[best_axis] ) /
                           mag_axis[best_axis];
         dist = mouse_dist - prev_mouse_dist;
+        dist = mouse_dist;
         SCALE_VECTOR( offset, axis_screen[best_axis], dist );
-        ADD_POINT_VECTOR( new_screen_origin, graphics->mouse_position, offset );
+        ADD_POINT_VECTOR( new_screen_origin, cursor_screen, offset );
 
         fill_Vector( axis_direction, 0.0, 0.0, 0.0 );
         Vector_coord( axis_direction, best_axis ) = 1.0;

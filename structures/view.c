@@ -236,7 +236,7 @@ public  void  transform_world_to_screen( view, p, transformed_point )
                 p, transformed_point );
 }
 
-public  void  transform_point_to_screen( view, p, transformed_point )
+public  void  transform_point_to_view_space( view, p, transformed_point )
     view_struct   *view;
     Point         *p;
     Point         *transformed_point;
@@ -246,6 +246,33 @@ public  void  transform_point_to_screen( view, p, transformed_point )
 
     transform_point_to_world( view, p, transformed_point );
     transform_world_to_screen( view, transformed_point, transformed_point );
+}
+
+public  void  transform_point_to_screen( view, p, transformed_point )
+    view_struct   *view;
+    Point         *p;
+    Point         *transformed_point;
+{
+    Point  tmp;
+    Real   x, y, z_factor;
+    void   transform_point_to_view_space();
+
+    transform_point_to_view_space( view, p, &tmp );
+
+    x = Point_x(tmp);
+    y = Point_y(tmp);
+
+    if( view->perspective_flag )
+    {
+        z_factor = Point_z(tmp) / view->perspective_distance;
+        x /= z_factor;
+        y /= z_factor;
+    }
+
+    x = (x + view->window_width / 2.0 ) / view->window_width;
+    y = (y + view->window_height / 2.0 ) / view->window_height;
+
+    fill_Point( *transformed_point, x, y, 0.0 );
 }
 
 public  void  set_model_scale( view, sx, sy, sz )

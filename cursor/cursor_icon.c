@@ -19,6 +19,8 @@ public  Status  rebuild_cursor_icon( graphics )
     object_struct   *object;
     model_struct    *model;
     model_struct    *get_graphics_model();
+    Real            box_size[N_DIMENSIONS];
+    volume_struct   *volume;
     Boolean         get_slice_window_volume();
     void            fill_in_box_points();
     void            fill_in_axis_points();
@@ -49,8 +51,18 @@ public  Status  rebuild_cursor_icon( graphics )
 
     if( status == OK )
     {
-        fill_in_box_points( graphics->three_d.cursor.box_size,
-                            model->object_list[BOX_INDEX] );
+        box_size[X_AXIS] = graphics->three_d.cursor.box_size;
+        box_size[Y_AXIS] = graphics->three_d.cursor.box_size;
+        box_size[Z_AXIS] = graphics->three_d.cursor.box_size;
+
+        if( get_slice_window_volume( graphics, &volume ) )
+        {
+            box_size[X_AXIS] *= volume->slice_thickness[X_AXIS];
+            box_size[Y_AXIS] *= volume->slice_thickness[Y_AXIS];
+            box_size[Z_AXIS] *= volume->slice_thickness[Z_AXIS];
+        }
+
+        fill_in_box_points( box_size, model->object_list[BOX_INDEX] );
         fill_in_axis_points( graphics->three_d.cursor.axis_size,
                              X_AXIS, model->object_list[X_AXIS_INDEX] );
         fill_in_axis_points( graphics->three_d.cursor.axis_size,
@@ -60,18 +72,6 @@ public  Status  rebuild_cursor_icon( graphics )
     }
 
     return( status );
-}
-
-public  void  update_cursor_colour( graphics, colour )
-    graphics_struct  *graphics;
-    Colour           *colour;
-{
-    model_struct    *model;
-    model_struct    *get_graphics_model();
-
-    model = get_graphics_model( graphics, CURSOR_MODEL );
-
-    model->object_list[BOX_INDEX]->ptr.lines->colour = *colour;
 }
 
 private  Status   create_box( object )

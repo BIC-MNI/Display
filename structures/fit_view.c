@@ -44,11 +44,11 @@ private  void   fit_view_to_points( view, n_points, points )
     Point  min_coord, max_coord, centre, range;
     void   perspective_fit_points();
     void   orthogonal_fit_points();
-    void   transform_point_to_screen();
+    void   transform_point_to_view_space();
 
     for_less( i, 0, n_points )
     {
-        transform_point_to_screen( view, &points[i], &points[i] );
+        transform_point_to_view_space( view, &points[i], &points[i] );
     }
 
     min_coord = points[0];
@@ -113,7 +113,7 @@ private  void  orthogonal_fit_points( view, centre, range )
     Point   eye;
     Vector  x_axis, y_axis, line_of_sight;
     Vector  delta_x, delta_y, delta_z;
-    Real    x_scale, y_scale, scale;
+    Real    x_scale, y_scale, scale_factor;
 
     eye = view->origin;
     x_axis = view->x_axis;
@@ -146,10 +146,10 @@ private  void  orthogonal_fit_points( view, centre, range )
         view->desired_aspect = y_scale / x_scale;
     }
 
-    scale = MAX( x_scale, y_scale );
+    scale_factor = MAX( x_scale, y_scale );
 
-    view->window_width *= scale;
-    view->window_height *= scale;
+    view->window_width *= scale_factor;
+    view->window_height *= scale_factor;
     view->perspective_distance = Point_z(*range);
 
     view->front_distance = 0.0;
