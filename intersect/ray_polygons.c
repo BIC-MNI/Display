@@ -31,7 +31,7 @@ public  Boolean  intersect_ray_with_polygons( graphics, ray_origin,
 
         BEGIN_TRAVERSE_OBJECT( status, object )
 
-            if( OBJECT->object_type == POLYGONS )
+            if( OBJECT->object_type == POLYGONS && OBJECT->visibility )
             {
                 if( intersect_ray_polygons( ray_origin, ray_direction,
                                             OBJECT->ptr.polygons,
