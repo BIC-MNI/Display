@@ -49,12 +49,12 @@ public  Status  disconnect_components( volume, voxel_indices, axis,
     {
         if( labels[i].voxel_indices[axis[Z_AXIS]] == voxel_indices[Z_AXIS] )
         {
-            pixels[labels[i].voxel_indices[X_AXIS]]
-                  [labels[i].voxel_indices[Y_AXIS]].label = labels[i].id;
+            pixels[labels[i].voxel_indices[axis[X_AXIS]]]
+                  [labels[i].voxel_indices[axis[Y_AXIS]]].label = labels[i].id;
         }
     }
 
-    status = label_components( size[X_AXIS], size[Y_AXIS], pixels,
+    status = label_components( size[axis[X_AXIS]], size[axis[Y_AXIS]], pixels,
                                REGION_OF_INTEREST );
 
     index[axis[Z_AXIS]] = voxel_indices[axis[Z_AXIS]];

@@ -49,6 +49,7 @@ typedef  struct
 
     Colour_coding_types   type;
 
+    int                   user_defined_n_intervals;
     Colour                user_defined_min_colour;
     Colour                user_defined_max_colour;
     Colour_spaces         user_defined_interpolation_space;

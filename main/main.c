@@ -32,6 +32,12 @@ int  main( argc, argv )
     void             set_update_required();
     void             output_alloc_to_file();
     Status           delete_marching_cubes_table();
+    char             *title;
+
+    if( argc == 1 )
+        title = argv[0];
+    else
+        title = argv[1];
 
     if( getenv("DISPLAY_DIRECTORY") != (char *) 0 )
     {
@@ -54,12 +60,12 @@ int  main( argc, argv )
     if( status == OK )
     {
         status = create_graphics_window( THREE_D_WINDOW,
-                                         &graphics, argv[1], 0, 0 );
+                                         &graphics, title, 0, 0 );
     }
 
     if( status == OK )
     {
-        status = create_graphics_window( MENU_WINDOW, &menu, argv[1],
+        status = create_graphics_window( MENU_WINDOW, &menu, title,
                                          Menu_window_width,
                                          Menu_window_height );
     }

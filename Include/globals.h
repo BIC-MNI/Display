@@ -25,6 +25,11 @@ START_GLOBALS
     DEF_GLOBAL( Display_update_min, Real, 0.0 )
     DEF_GLOBAL( Frame_info_x, Real, 0.8 )
     DEF_GLOBAL( Frame_info_y, Real, 0.1 )
+
+    DEF_GLOBAL( Ambient_light_colour, Colour, 0.0 )
+    DEF_GLOBAL( Directional_light_colour, Colour, 0.0 )
+    DEF_GLOBAL( Light_direction, Vector, 0.0 )
+
     DEF_GLOBAL( Menu_window_width, int, 400 )
     DEF_GLOBAL( Menu_window_height, int, 150 )
     DEF_GLOBAL( Menu_window_font, int, 0 )
@@ -49,6 +54,9 @@ START_GLOBALS
     DEF_GLOBAL( Initial_backface_flag, Boolean, FALSE )
     DEF_GLOBAL( Initial_line_curves_flag, Boolean, FALSE )
     DEF_GLOBAL( Initial_n_curve_segments, int, 4 )
+
+    DEF_GLOBAL( Segmenting_connectivity, int, 0 )
+
     DEF_GLOBAL( Visibility_on_input, Boolean, FALSE )
 
     DEF_GLOBAL( Initial_x_scale, Real, 1.0 )
@@ -107,6 +115,9 @@ START_GLOBALS
     DEF_GLOBAL_STRING( Slice_probe_y_talairach_format, "" )
     DEF_GLOBAL_STRING( Slice_probe_z_talairach_format, "" )
     DEF_GLOBAL_STRING( Slice_probe_val_format, "" )
+    DEF_GLOBAL_STRING( Slice_probe_x_file_format, "" )
+    DEF_GLOBAL_STRING( Slice_probe_y_file_format, "" )
+    DEF_GLOBAL_STRING( Slice_probe_z_file_format, "" )
     DEF_GLOBAL( Probe_x_pos, int, 10 )
     DEF_GLOBAL( Probe_y_pos, int, 10 )
     DEF_GLOBAL( Probe_x_delta, int, 20 )

@@ -43,20 +43,32 @@ public  void  rebuild_colour_coding( colour_coding )
 private  void  build_user_defined_coding( colour_coding )
     colour_coding_struct  *colour_coding;
 {
-    void    rebuild_colour_map();
-    static  colour_point  desc[2];
+    Status           status;
+    void             rebuild_colour_map();
+    colour_point     *desc;
+    int              i, n_intervals;
 
-    desc[0].position = 0.0;
-    desc[0].colour = colour_coding->user_defined_min_colour;
-    desc[0].interpolation_space =
-                 colour_coding->user_defined_interpolation_space;
+    n_intervals = colour_coding->user_defined_n_intervals;
 
-    desc[1].position = 1.0;
-    desc[1].colour = colour_coding->user_defined_max_colour;
-    desc[1].interpolation_space =
-                 colour_coding->user_defined_interpolation_space;
+    ALLOC( status, desc, n_intervals * 2 );
 
-    rebuild_colour_map( colour_coding, 2, desc );
+    if( status == OK )
+    {
+        for_less( i, 0, n_intervals )
+        {
+            desc[2*i+0].position = (Real) i / (Real) n_intervals;
+            desc[2*i+0].colour = colour_coding->user_defined_min_colour;
+            desc[2*i+0].interpolation_space =
+                         colour_coding->user_defined_interpolation_space;
+
+            desc[2*i+1].position = (Real) (i+1) / (Real) n_intervals;
+            desc[2*i+1].colour = colour_coding->user_defined_max_colour;
+            desc[2*i+1].interpolation_space =
+                         colour_coding->user_defined_interpolation_space;
+        }
+
+        rebuild_colour_map( colour_coding, 2 * n_intervals, desc );
+    }
 }
 
 public  void  build_gray_scale_coding( colour_coding )
@@ -191,9 +203,7 @@ private  void  interpolate_colours( first_entry, last_entry, table,
         b = b0 + (b1 - b0) * ratio;
 
         if( interpolation_space == HSL_SPACE )
-        {
             hsl_to_rgb( r, g, b, &r, &g, &b );
-        }
 
         fill_Colour( table[i], r, g, b );
     }

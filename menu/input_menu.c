@@ -74,11 +74,14 @@
                        MENU_FUNCTION(load_active_voxels) \
                        MENU_FUNCTION(save_active_voxels) \
                        MENU_FUNCTION(set_voxel_inactive) \
+                       MENU_FUNCTION(set_voxel_active) \
                        MENU_FUNCTION(load_labeled_voxels) \
                        MENU_FUNCTION(save_labeled_voxels) \
                        MENU_FUNCTION(reset_activities) \
                        MENU_FUNCTION(set_connected_inactive) \
-                       MENU_FUNCTION(reset_slice_activities) \
+                       MENU_FUNCTION(set_connected_active) \
+                       MENU_FUNCTION(set_slice_active) \
+                       MENU_FUNCTION(set_slice_inactive) \
                        MENU_FUNCTION(label_connected_3d) \
                        MENU_FUNCTION(expand_labeled_3d) \
                        MENU_FUNCTION(set_colour_limits) \

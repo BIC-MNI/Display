@@ -64,6 +64,33 @@ public  DEF_MENU_UPDATE(set_voxel_inactive )   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION( set_voxel_active )   /* ARGSUSED */
+{
+    Status         status;
+    volume_struct  *volume;
+    int            x, y, z, axis_index;
+    void           set_voxel_activity_flag();
+    void           set_slice_window_update();
+
+    status = OK;
+
+    if( get_voxel_under_mouse( graphics, &x, &y, &z, &axis_index ) &&
+        get_slice_window_volume( graphics, &volume ) )
+    {
+        set_voxel_activity_flag( volume, x, y, z, TRUE );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(set_voxel_active )   /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( generate_regions )   /* ARGSUSED */
 {
     Status   status;
@@ -362,7 +389,37 @@ public  DEF_MENU_UPDATE(reset_activities )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(reset_slice_activities)   /* ARGSUSED */
+public  DEF_MENU_FUNCTION(set_slice_active)   /* ARGSUSED */
+{
+    void             set_slice_activity();
+
+    set_slice_activity( graphics, TRUE );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_slice_active )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(set_slice_inactive)   /* ARGSUSED */
+{
+    void             set_slice_activity();
+
+    set_slice_activity( graphics, FALSE );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_slice_inactive )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+private  void  set_slice_activity( graphics, activity )
+    graphics_struct    *graphics;
+    Boolean            activity;
 {
     volume_struct    *volume;
     int              slice_index[3], axis_index;
@@ -377,26 +434,50 @@ public  DEF_MENU_FUNCTION(reset_slice_activities)   /* ARGSUSED */
     {
         slice_window = graphics->associated[SLICE_WINDOW];
 
-        reset_slice_activity( volume, axis_index, slice_index[axis_index] );
+        set_activity_for_slice( volume, axis_index, slice_index[axis_index],
+                                activity );
 
         set_slice_window_update( slice_window, 0 );
         set_slice_window_update( slice_window, 1 );
         set_slice_window_update( slice_window, 2 );
     }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(reset_slice_activities )   /* ARGSUSED */
-{
-    return( OK );
 }
 
 public  DEF_MENU_FUNCTION(set_connected_inactive)   /* ARGSUSED */
 {
+    void             set_connected_activity();
+
+    set_connected_activity( graphics, FALSE );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_connected_inactive )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(set_connected_active)   /* ARGSUSED */
+{
+    void             set_connected_activity();
+
+    set_connected_activity( graphics, TRUE );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_connected_active )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+private  void   set_connected_activity( graphics, desired_activity )
+    graphics_struct  *graphics;
+    Boolean          desired_activity;
+{
     volume_struct    *volume;
     int              slice_index[3], axis_index;
-    void             set_connected_voxels_inactive();
+    void             set_connected_voxels_activity();
     void             set_slice_window_update();
     graphics_struct  *slice_window;
     void             set_update_required();
@@ -407,21 +488,16 @@ public  DEF_MENU_FUNCTION(set_connected_inactive)   /* ARGSUSED */
     {
         slice_window = graphics->associated[SLICE_WINDOW];
 
-        set_connected_voxels_inactive( volume, axis_index, slice_index,
+        set_connected_voxels_activity( volume, axis_index, slice_index,
                           slice_window->slice.segmenting.min_threshold,
-                          slice_window->slice.segmenting.max_threshold );
+                          slice_window->slice.segmenting.max_threshold,
+                          slice_window->slice.segmenting.connectivity,
+                          desired_activity );
 
         set_slice_window_update( slice_window, 0 );
         set_slice_window_update( slice_window, 1 );
         set_slice_window_update( slice_window, 2 );
     }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(set_connected_inactive )   /* ARGSUSED */
-{
-    return( OK );
 }
 
 public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */

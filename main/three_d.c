@@ -43,6 +43,10 @@ public  Status  initialize_three_d_window( graphics )
 
     initialize_lights( three_d->lights );
 
+    three_d->lights[0].colour = Ambient_light_colour;
+    three_d->lights[1].colour = Directional_light_colour;
+    three_d->lights[1].direction = Light_direction;
+
     G_define_light( &graphics->window, &three_d->lights[0], 0 );
     G_define_light( &graphics->window, &three_d->lights[1], 1 );
 

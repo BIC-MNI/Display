@@ -89,10 +89,11 @@ public  Status  generate_segmentation( slice_window, voxel_indices, voxel_axes )
     return( status );
 }
 
-public  void  reset_slice_activity( volume, axis_index, position )
+public  void  set_activity_for_slice( volume, axis_index, position, activity )
     volume_struct  *volume;
     int            axis_index;
     int            position;
+    Boolean        activity;
 {
     int     voxel[3], sizes[3], a1, a2;
     void    get_volume_size();
@@ -110,7 +111,7 @@ public  void  reset_slice_activity( volume, axis_index, position )
         for_less( voxel[a2], 0, sizes[a2] )
         {
             set_voxel_activity_flag( volume, voxel[0], voxel[1], voxel[2],
-                                     TRUE );
+                                     activity );
         }
     }
 }
@@ -120,20 +121,27 @@ typedef struct
     int  x, y;
 } slice_position;
 
-public  void  set_connected_voxels_inactive( volume, axis_index, position,
-                                             min_threshold, max_threshold )
-    volume_struct  *volume;
-    int            axis_index;
-    int            position[3];
-    int            min_threshold;
-    int            max_threshold;
+public  void  set_connected_voxels_activity( volume, axis_index, position,
+                                             min_threshold, max_threshold,
+                                             connectivity,
+                                             desired_activity )
+    volume_struct     *volume;
+    int               axis_index;
+    int               position[3];
+    int               min_threshold;
+    int               max_threshold;
+    Neighbour_types   connectivity;
+    Boolean           desired_activity;
 {
-    int                             voxel[3], sizes[3], a1, a2, x, y, dx, dy;
+    int                             voxel[3], sizes[3], a1, a2, x, y;
+    int                             dir, n_dirs, *dx, *dy;
     void                            get_volume_size();
     void                            set_voxel_activity_flag();
     Status                          status;
     slice_position                  entry;
     QUEUE_STRUCT( slice_position )  queue;
+
+    n_dirs = get_neighbour_directions( connectivity, &dx, &dy );
 
     get_volume_size( volume, &sizes[0], &sizes[1], &sizes[2] );
 
@@ -146,11 +154,11 @@ public  void  set_connected_voxels_inactive( volume, axis_index, position,
 
     INITIALIZE_QUEUE( queue );
 
-    if( value_in_range( 
-                 (int) GET_VOLUME_DATA( *volume, voxel[0], voxel[1], voxel[2]),
-                 min_threshold, max_threshold ) )
+    if( should_change_this_one( volume, voxel[0], voxel[1], voxel[2],
+                                min_threshold, max_threshold, desired_activity))
     {
-        set_voxel_activity_flag( volume, voxel[0], voxel[1], voxel[2], FALSE );
+        set_voxel_activity_flag( volume, voxel[0], voxel[1], voxel[2],
+                                 desired_activity );
         entry.x = voxel[a1];
         entry.y = voxel[a2];
         INSERT_IN_QUEUE( status, queue, entry );
@@ -163,28 +171,21 @@ public  void  set_connected_voxels_inactive( volume, axis_index, position,
         x = entry.x;
         y = entry.y;
 
-        for_inclusive( dx, -1, 1 )
+        for_less( dir, 0, n_dirs )
         {
-            for_inclusive( dy, -1, 1 )
+            voxel[a1] = x + dx[dir];
+            voxel[a2] = y + dy[dir];
+
+            if( voxel[a1] >= 0 && voxel[a1] < sizes[a1] &&
+                voxel[a2] >= 0 && voxel[a2] < sizes[a2] &&
+                should_change_this_one( volume, voxel[0], voxel[1], voxel[2],
+                                min_threshold, max_threshold, desired_activity))
             {
-                voxel[a1] = x + dx;
-                voxel[a2] = y + dy;
-                if( (dx != 0 || dy != 0) &&
-                    voxel[a1] >= 0 && voxel[a1] < sizes[a1] &&
-                    voxel[a2] >= 0 && voxel[a2] < sizes[a2] &&
-                    get_voxel_activity_flag( volume, voxel[0], voxel[1],
-                                             voxel[2] ) &&
-                    value_in_range(
-                         (int) GET_VOLUME_DATA( *volume, voxel[0], voxel[1],
-                                                voxel[2]),
-                         min_threshold, max_threshold ) )
-                {
-                    set_voxel_activity_flag( volume, voxel[0], voxel[1],
-                                             voxel[2], FALSE );
-                    entry.x = voxel[a1];
-                    entry.y = voxel[a2];
-                    INSERT_IN_QUEUE( status, queue, entry );
-                }
+                set_voxel_activity_flag( volume, voxel[0], voxel[1],
+                                         voxel[2], desired_activity );
+                entry.x = voxel[a1];
+                entry.y = voxel[a2];
+                INSERT_IN_QUEUE( status, queue, entry );
             }
         }
     }
@@ -193,10 +194,51 @@ public  void  set_connected_voxels_inactive( volume, axis_index, position,
         DELETE_QUEUE( status, queue );
 }
 
-private  Boolean  value_in_range( value, min_threshold, max_threshold )
-    int   value;
-    int   min_threshold;
-    int   max_threshold;
+private  Boolean  should_change_this_one( volume, x, y, z,
+                                          min_threshold, max_threshold,
+                                          desired_activity )
+    volume_struct   *volume;
+    int             x, y, z;
+    int             min_threshold;
+    int             max_threshold;
+    Boolean         desired_activity;
 {
-    return( min_threshold <= value && value <= max_threshold );
+    int   value;
+
+    value = (int) GET_VOLUME_DATA( *volume, x, y, z );
+
+    return( desired_activity != get_voxel_activity_flag( volume, x, y, z ) &&
+            min_threshold <= value && value <= max_threshold );
+}
+
+private   int   Dx4[4] = { 1, 0, -1,  0 };
+private   int   Dy4[4] = { 0, 1,  0, -1 };
+
+private   int   Dx8[8] = {  1,  1,  0, -1, -1, -1,  0,  1 };
+private   int   Dy8[8] = {  0,  1,  1,  1,  0, -1, -1, -1 };
+
+
+public  int  get_neighbour_directions( connectivity, dx, dy )
+    Neighbour_types   connectivity;
+    int               *dx[];
+    int               *dy[];
+{
+    int   n_dirs;
+
+    switch( connectivity )
+    {
+    case  FOUR_NEIGHBOURS:
+        *dx = Dx4;
+        *dy = Dy4;
+        n_dirs = 4;
+        break;
+
+    case  EIGHT_NEIGHBOURS:
+        *dx = Dx8;
+        *dy = Dy8;
+        n_dirs = 8;
+        break;
+    }
+
+    return( n_dirs );
 }

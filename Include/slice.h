@@ -21,12 +21,15 @@ typedef  struct
     int   id;
 } label_struct;
 
+typedef  enum  { FOUR_NEIGHBOURS, EIGHT_NEIGHBOURS } Neighbour_types;
+
 typedef  struct
 {
-    int            n_labels;
-    label_struct   *labels;
-    int            min_threshold;
-    int            max_threshold;
+    int               n_labels;
+    label_struct      *labels;
+    int               min_threshold;
+    int               max_threshold;
+    Neighbour_types   connectivity;
 } segmenting_struct;
 
 typedef struct
@@ -55,6 +58,7 @@ typedef  struct
     int                    slice_index[N_DIMENSIONS];
     Boolean                slice_locked[N_DIMENSIONS];
     slice_view_struct      slice_views[3];
+    int                    next_to_update;
 
     int                    *temporary_indices;
     int                    temporary_indices_alloced;

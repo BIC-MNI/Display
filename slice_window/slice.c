@@ -23,9 +23,9 @@ public  Status  initialize_slice_window( graphics )
     initialize_slice_window_events( graphics );
 
     for_less( c, 0, N_DIMENSIONS )
-    {
         graphics->slice.slice_views[c].update_flag = TRUE;
-    }
+
+    graphics->slice.next_to_update = X_AXIS;
 
     graphics->slice.slice_views[0].axis_map[0]  = Slice_view1_axis1;
     graphics->slice.slice_views[0].axis_flip[0] = Slice_view1_flip1;
@@ -836,7 +836,7 @@ public  void  update_slice_window( graphics )
     int   c;
     void  rebuild_slice_pixels();
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, 3 )
     {
         if( graphics->slice.slice_views[c].update_flag )
         {
@@ -844,6 +844,7 @@ public  void  update_slice_window( graphics )
             graphics->slice.slice_views[c].update_flag = FALSE;
         }
     }
+
 }
 
 public  Status  create_slice_window( graphics, volume )

@@ -23,6 +23,8 @@ public  Status  initialize_surface_fitting( surface_fitting )
         status = alloc_surface_fitting_parameters( surface_fitting,
                                                    (double *) 0 );
 
+    surface_fitting->n_surface_points = 0;
+
     return( status );
 }
 

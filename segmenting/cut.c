@@ -42,6 +42,7 @@ public  Status  label_components( x_size, y_size, pixels, label_of_interest )
     int           x, y;
     int           cut_num, min_cut;
     void          perform_cut();
+    void          expand_label_of_interest();
 
     status = OK;
 
@@ -54,6 +55,8 @@ public  Status  label_components( x_size, y_size, pixels, label_of_interest )
 (void) printf( "Cut %d\n", min_cut );
 
     perform_cut( x_size, y_size, pixels, label_of_interest, min_cut );
+
+    expand_label_of_interest( x_size, y_size, pixels, label_of_interest );
 
 #ifdef OLD
     if( min_cut > 0 )
@@ -385,20 +388,74 @@ private  void  perform_cut( x_size, y_size, pixels, label_of_interest,
     int            label_of_interest;
     int            global_cutoff;
 {
-    int                            x, y;
     void                           expand_region();
 
     expand_region( x_size, y_size, pixels, label_of_interest, TRUE,
                    global_cutoff );
+}
+
+private  void  expand_label_of_interest( x_size, y_size, pixels,
+                                         label_of_interest )
+    int            x_size;
+    int            y_size;
+    pixel_struct   **pixels;
+    int            label_of_interest;
+{
+    int                            x, y, nx, ny;
+    int                            dir;
+    Status                         status;
+    voxel_struct                   insert, entry;
+    QUEUE_STRUCT( voxel_struct )   queue;
+    void                           get_neighbours_influence_cut();
+
+    INITIALIZE_QUEUE( queue );
 
     for_less( x, 0, x_size )
     {
         for_less( y, 0, y_size )
         {
-            if( pixels[x][y].inside && pixels[x][y].cutoff == 0 )
-                pixels[x][y].label = label_of_interest;
+            if( pixels[x][y].label == label_of_interest ) 
+            {
+                pixels[x][y].queued = TRUE;
+                insert.x = x;
+                insert.y = y;
+                INSERT_IN_QUEUE( status, queue, insert );
+            }
+            else
+            {
+                pixels[x][y].queued = FALSE;
+            }
         }
     }
+
+    while( !IS_QUEUE_EMPTY( queue ) )
+    {
+        REMOVE_FROM_QUEUE( queue, entry );
+
+        x = entry.x;
+        y = entry.y;
+
+        for_less( dir, 0, N_8_NEIGHBOURS )
+        {
+            nx = x + Dx8[dir];
+            ny = y + Dy8[dir];
+
+            if( nx >= 0 && nx < x_size &&
+                ny >= 0 && ny < y_size &&
+                pixels[nx][ny].inside &&
+                pixels[nx][ny].cutoff == 0 &&
+                !pixels[nx][ny].queued )
+            {
+                pixels[nx][ny].label = label_of_interest;
+                pixels[nx][ny].queued = TRUE;
+                insert.x = nx;
+                insert.y = ny;
+                INSERT_IN_QUEUE( status, queue, insert );
+            }
+        }
+    }
+
+    DELETE_QUEUE( status, queue );
 }
 
 #ifdef OLD
