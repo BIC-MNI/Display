@@ -117,7 +117,7 @@ display_ngx: $(display_obj)
 display: $(display_obj)
 	$(CC) $(CFLAGS) $(display_obj) -o $@ $(LIBS)
 
-display.pixie:
+display.pixie: display
 	@\rm -f display.Counts
 	@pixie display -o $@
 
@@ -171,3 +171,17 @@ test_bintree: $(bintree_obj)
 
 lint_bintree: $(bintree_ln)
 	$(LINT) -u $(LINTFLAGS) $(bintree_ln)
+
+# -------
+
+timing_obj = timing.c \
+             time.c
+
+timing_ln = $(timing_obj)
+
+timing: $(timing_obj)
+	$(CC) -O $(INCLUDE) $(timing_obj) -o $@ $(LIBS)
+
+
+lint_timing: $(timing_ln)
+	$(LINT) -u $(LINTFLAGS) $(timing_ln)
