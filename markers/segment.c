@@ -21,12 +21,26 @@ public  void  delete_marker_segmentation( seg )
     }
 }
 
-private  Boolean  markers_are_neighbours( seg, i, j, dist )
+private  Boolean  markers_are_neighbours( seg, i, j, closest_dists, dist )
     marker_segment_struct  *seg;
     int                    i;
     int                    j;
+    Real                   closest_dists[];
     Real                   *dist;
 {
+    Boolean   neigh_flag, dist_to_marker;
+
+    dist_to_marker = seg->distances[i][j];
+
+    neigh_flag = (dist_to_marker <= Marker_threshold);
+
+    if( neigh_flag )
+    {
+        *dist = MAX( dist_to_marker, closest_dists[i] );
+    }
+
+    return( neigh_flag );
+#ifdef OLD
     Boolean   neigh_flag;
 
     *dist = seg->distances[i][j];
@@ -37,6 +51,7 @@ private  Boolean  markers_are_neighbours( seg, i, j, dist )
         *dist = 1.0;
 
     return( neigh_flag );
+#endif
 }
 
 public  void  segment_markers( graphics, model )
@@ -121,16 +136,16 @@ public  void  segment_markers( graphics, model )
 
         for_less( i, 0, model->n_objects )
         {
-            if( markers_are_neighbours( seg, marker_index, i, &dist ) &&
-                (closest_dist[i] < 0.0 ||
-                 closest_dist[marker_index] + dist < closest_dist[i]) )
+            if( markers_are_neighbours( seg, marker_index, i, closest_dist,
+                                        &dist ) &&
+                (closest_dist[i] < 0.0 || dist < closest_dist[i]) )
             {
                 marker2 = model->object_list[i]->ptr.marker;
                 marker2->structure_id = marker1->structure_id;
                 if( marker2->structure_id < Marker_segment_id )
                     marker2->structure_id += Marker_segment_id;
                 marker2->colour = marker1->colour;
-                closest_dist[i] = closest_dist[marker_index] + dist;
+                closest_dist[i] = dist;
                 if( !in_queue[i] )
                 {
                     INSERT_IN_PRIORITY_QUEUE( status, queue, i,
