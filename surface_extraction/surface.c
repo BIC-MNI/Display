@@ -360,7 +360,7 @@ public  void  extract_more_triangles( graphics )
     stop_time = current_realtime_seconds() + Max_seconds_per_voxel_update;
 
     while( (n_voxels_done < Min_voxels_per_update ||
-           (n_voxels_done < Max_voxels_per_update ||
+           (n_voxels_done < Max_voxels_per_update &&
             current_realtime_seconds() < stop_time) ) &&
            voxels_remaining( &surface_extraction->voxels_to_do ) )
     {
@@ -397,6 +397,8 @@ private  Boolean   check_voxel( volume, voxel_activity, surface_extraction,
     voxel_index_struct     corner_points[3];
     Real                   corner_values[2][2][2];
     Boolean                active, connected;
+    Boolean                tri_done[4], changed;
+    int                    n_done;
     Boolean                are_voxel_corners_active();
     int                    n_tris, n_nondegenerate_tris, tri, p, next_end;
     int                    x, y, z, pt_index;
@@ -439,6 +441,20 @@ private  Boolean   check_voxel( volume, voxel_activity, surface_extraction,
 
         for_less( tri, 0, n_tris )
         {
+            tri_done[tri] = FALSE;
+        }
+
+        changed = TRUE;
+        n_done = 0;
+
+        while( n_done < n_tris && changed )
+        {
+            changed = FALSE;
+
+            for_less( tri, 0, n_tris )
+            {
+            if( !tri_done[tri] )
+            {
             connected = (poly->n_items == 0);
 
             for_less( p, 0, 3 )
@@ -493,6 +509,10 @@ private  Boolean   check_voxel( volume, voxel_activity, surface_extraction,
                         }
                     }
                 }
+
+                ++n_done;
+                tri_done[tri] = TRUE;
+                changed = TRUE;
             }
 
             if( connected && point_id[0] != point_id[1] &&
@@ -520,6 +540,8 @@ private  Boolean   check_voxel( volume, voxel_activity, surface_extraction,
                 }
 
                 ++n_nondegenerate_tris;
+            }
+            }
             }
         }
     }
