@@ -142,9 +142,9 @@ public  void  initialize_action_table( action_table )
     action_table_struct   *action_table;
 {
     event_types           event;
+    void                  initialize_virtual_spaceball();
+    void                  initialize_window_events();
     DECL_EVENT_FUNCTION(   mouse_movement_event );
-    DECL_EVENT_FUNCTION(   initialize_mouse_movement );
-    DECL_EVENT_FUNCTION(   initialize_virtual_spaceball );
     DECL_EVENT_FUNCTION(   keyboard_event );
     DECL_EVENT_FUNCTION(   left_mouse_down_event );
     DECL_EVENT_FUNCTION(   middle_mouse_down_event );
@@ -158,14 +158,15 @@ public  void  initialize_action_table( action_table )
 
     add_action_table_function( action_table, MOUSE_MOVEMENT_EVENT,
                                mouse_movement_event );
-    add_action_table_function( action_table, LEFT_MOUSE_DOWN_EVENT,
-                               left_mouse_down_event );
     add_action_table_function( action_table, MIDDLE_MOUSE_DOWN_EVENT,
                                middle_mouse_down_event );
     add_action_table_function( action_table, RIGHT_MOUSE_DOWN_EVENT,
                                right_mouse_down_event );
     add_action_table_function( action_table, KEYBOARD_EVENT,
                                keyboard_event );
+
+    initialize_virtual_spaceball( action_table );
+    initialize_window_events( action_table );
 }
 
 private  DEF_EVENT_FUNCTION(  keyboard_event )     /* ARGSUSED */
