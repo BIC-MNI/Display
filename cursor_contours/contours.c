@@ -64,9 +64,9 @@ private  void  make_cursor_contours(
     if( get_cursor_contour_bitplane() == OVERLAY_PLANES )
         model = get_graphics_model( display, OVERLAY_MODEL );
     else
-        model = get_graphics_model( display, THREED_MODEL );
+        model = get_graphics_model( display, MISCELLANEOUS_MODEL );
 
-    for_less( axis, 0, 3 )
+    for_less( axis, 0, N_DIMENSIONS )
     {
         object = create_object( LINES );
         lines = get_lines_ptr( object );
@@ -125,7 +125,7 @@ private  void   initialize_contour(
 
     contours = &display->three_d.cursor_contours;
 
-    for_less( axis, 0, 3 )
+    for_less( axis, 0, N_DIMENSIONS )
     {
         contours->contours[axis].lines->n_points = 0;
         contours->contours[axis].lines->n_items = 0;
