@@ -70,12 +70,8 @@ private  BOOLEAN  get_voxel_values(
 
                 if( label_volume == NULL )
                 {
-                    if( (value < surface_extraction->min_value ||
-                         value > surface_extraction->max_value) &&
-                        surface_extraction->valid_out_min_label <=
-                        surface_extraction->valid_out_max_label &&
-                        (value < surface_extraction->valid_out_min_label ||
-                         value > surface_extraction->valid_out_max_label) )
+                    if( value < surface_extraction->min_value ||
+                         value > surface_extraction->max_value )
                     {
                         valid = FALSE;
                     }
@@ -85,9 +81,18 @@ private  BOOLEAN  get_voxel_values(
                     label = (Real) get_volume_label_data( label_volume, voxel );
 
                     if( surface_extraction->valid_min_label <=
-                        surface_extraction->valid_max_label &&
-                        (label < surface_extraction->valid_min_label ||
-                         label > surface_extraction->valid_max_label) )
+                        surface_extraction->valid_max_label )
+                    {
+                        if( label < surface_extraction->valid_min_label ||
+                            label > surface_extraction->valid_max_label ) 
+                        {
+                            valid = FALSE;
+                        }
+                    }
+                    else if( surface_extraction->valid_out_min_label <=
+                             surface_extraction->valid_out_max_label &&
+                             (label < surface_extraction->valid_out_min_label ||
+                              label > surface_extraction->valid_out_max_label) )
                     {
                         valid = FALSE;
                     }
