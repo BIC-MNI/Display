@@ -1,6 +1,6 @@
 include ../C_dev/Makefile.include
 
-OPT = -O
+OPT = -g
 
 #INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/yorick/usr/include
 INCLUDE = -IInclude -I$(C_UTILS_INCLUDE)
@@ -126,6 +126,8 @@ display: $(display_obj)
 	$(CC) $(CFLAGS) $(display_obj) -o $@ $(LIBS)
 
 display.pixie: display
+	rm display
+	make display LIBS="-lgl -lm"
 	@\rm -f display.Counts
 	@pixie display -o $@
 

@@ -185,7 +185,7 @@ private  Status  input_key_action( file, action )
     key_action_struct   *action;
 {
     Status    status;
-    int       ch;
+    char      ch;
     Status    input_string();
     Status    input_character();
     Status    skip_input_until();

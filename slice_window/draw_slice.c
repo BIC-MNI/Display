@@ -219,6 +219,9 @@ public  void  rebuild_slice_pixels( graphics, view_index )
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
     void           get_slice_viewport();
     void           rebuild_cursor();
+    Boolean        print_cursor;
+    Real           real_pos[N_DIMENSIONS];
+    void           convert_real_to_file_space();
 
     model = get_graphics_model(graphics,SLICE_MODEL);
 
@@ -259,17 +262,49 @@ public  void  rebuild_slice_pixels( graphics, view_index )
                    x_pixel_start, x_pixel_end, y_pixel_start, y_pixel_end,
                    x_scale, y_scale );
 
-    text = model->object_list[TEXT1_INDEX+view_index]->ptr.text;
+    print_cursor = convert_point_to_voxel( graphics,
+            &graphics->associated[THREE_D_WINDOW]->three_d.cursor.origin,
+            &real_pos[X_AXIS], &real_pos[Y_AXIS], &real_pos[Z_AXIS] );
 
-    switch( axis_index )
+    if( print_cursor )
     {
-    case X_AXIS:  format = Slice_index_x_format;  break;
-    case Y_AXIS:  format = Slice_index_y_format;  break;
-    case Z_AXIS:  format = Slice_index_z_format;  break;
+        convert_real_to_file_space( graphics->slice.volume,
+                     real_pos[X_AXIS], real_pos[Y_AXIS], real_pos[Z_AXIS],
+                     &real_pos[X_AXIS], &real_pos[Y_AXIS], &real_pos[Z_AXIS] );
+
+        if( real_pos[axis_index] == (Real) ((int) real_pos[axis_index]) )
+            print_cursor = FALSE;
     }
 
-    (void) sprintf( text->text, format,
-                    graphics->slice.slice_index[axis_index] );
+    text = model->object_list[TEXT1_INDEX+view_index]->ptr.text;
+
+    if( print_cursor )
+    {
+        switch( axis_index )
+        {
+        case X_AXIS:  format = Slice_index_xc_format;  break;
+        case Y_AXIS:  format = Slice_index_yc_format;  break;
+        case Z_AXIS:  format = Slice_index_zc_format;  break;
+        }
+
+        (void) sprintf( text->text, format,
+                        graphics->slice.slice_index[axis_index],
+                        real_pos[axis_index] );
+
+    }
+    else
+    {
+        switch( axis_index )
+        {
+        case X_AXIS:  format = Slice_index_x_format;  break;
+        case Y_AXIS:  format = Slice_index_y_format;  break;
+        case Z_AXIS:  format = Slice_index_z_format;  break;
+        }
+
+        (void) sprintf( text->text, format,
+                        graphics->slice.slice_index[axis_index] );
+
+    }
 
     get_slice_viewport( graphics, view_index, &x_min, &x_max, &y_min, &y_max );
 

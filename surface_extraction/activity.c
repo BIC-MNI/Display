@@ -171,6 +171,7 @@ private  void  connect_active_voxels( volume, isovalue, start_voxel )
     voxel_index_struct     *start_voxel;
 {
     Status                                status;
+    int                                   nx, ny, nz;
     Boolean                               voxel_contains_value();
     Boolean                               active;
     Boolean                               are_any_voxel_corners_inactive();
@@ -187,13 +188,16 @@ private  void  connect_active_voxels( volume, isovalue, start_voxel )
     void                                  add_voxel_neighbours();
     void                                  set_voxel_corners_active();
     void                                  initialize_voxel_queue();
+    void                                  get_volume_size();
 int    count;
 Real   next_time;
 Real   current_realtime_seconds();
 
-    indices.i[X_AXIS] = MIN( start_voxel->i[X_AXIS], volume->size[X_AXIS]-2 );
-    indices.i[Y_AXIS] = MIN( start_voxel->i[Y_AXIS], volume->size[Y_AXIS]-2 );
-    indices.i[Z_AXIS] = MIN( start_voxel->i[Z_AXIS], volume->size[Z_AXIS]-2 );
+    get_volume_size( volume, &nx, &ny, &nz );
+
+    indices.i[X_AXIS] = MIN( start_voxel->i[X_AXIS], nx );
+    indices.i[Y_AXIS] = MIN( start_voxel->i[Y_AXIS], ny );
+    indices.i[Z_AXIS] = MIN( start_voxel->i[Z_AXIS], nz );
 
     status = initialize_voxel_flags( &voxels_searched, get_n_voxels( volume ) );
 
@@ -298,11 +302,17 @@ public  void  set_slice_activities( volume, axis, index, value )
 {
     int   x_index, y_index, x_size, y_size;
     int   indices[N_DIMENSIONS];
+    int   size[N_DIMENSIONS];
+    void  get_volume_size();
 
     x_index = (axis + 1) % N_DIMENSIONS;
     y_index = (axis + 2) % N_DIMENSIONS;
-    x_size = volume->size[x_index];
-    y_size = volume->size[y_index];
+
+    get_volume_size( volume,
+                     &size[X_AXIS], &size[Y_AXIS], &size[Z_AXIS] );
+
+    x_size = size[x_index];
+    y_size = size[y_index];
 
     indices[axis] = index;
 
@@ -326,11 +336,17 @@ public  void  generate_slice_activity( volume, isovalue, axis_index,
     int      x_index, y_index, x_size, y_size, indices[N_DIMENSIONS];
     int      corner_indices[N_DIMENSIONS];
     void     set_voxel_activity();
+    int      size[N_DIMENSIONS];
+    void     get_volume_size();
 
     x_index = (axis_index + 1) % N_DIMENSIONS;
     y_index = (axis_index + 2) % N_DIMENSIONS;
-    x_size = volume->size[x_index];
-    y_size = volume->size[y_index];
+
+    get_volume_size( volume,
+                     &size[X_AXIS], &size[Y_AXIS], &size[Z_AXIS] );
+
+    x_size = size[x_index];
+    y_size = size[y_index];
 
     indices[axis_index] = slice_index;
     corner_indices[axis_index] = slice_index;
@@ -369,6 +385,8 @@ private  Boolean  square_contains_value( volume, indices, axis_index, isovalue )
     int      x_index, y_index, square_indices[N_DIMENSIONS];
     Real     val;
     Boolean  less, more;
+    int      x_file, y_file, z_file;
+    void     convert_to_file_space();
 
     x_index = (axis_index + 1) % N_DIMENSIONS;
     y_index = (axis_index + 2) % N_DIMENSIONS;
@@ -383,10 +401,14 @@ private  Boolean  square_contains_value( volume, indices, axis_index, isovalue )
         for_less( square_indices[y_index], indices[y_index],
                   indices[y_index]+2 )
         {
+            convert_to_file_space( volume,
+                                   square_indices[X_AXIS],
+                                   square_indices[Y_AXIS],
+                                   square_indices[Z_AXIS],
+                                   &x_file, &y_file, &z_file );
+
             val = (Real) GET_VOLUME_DATA( *volume,
-                                          square_indices[X_AXIS],
-                                          square_indices[Y_AXIS],
-                                          square_indices[Z_AXIS] );
+                                          x_file, y_file, z_file );
             if( val < isovalue )
                 less = TRUE;
             else if( val > isovalue )
@@ -409,6 +431,7 @@ public  void  set_connected_slice_inactivity( graphics, x, y, z, axis_index,
     QUEUE_STRUCT( voxel_index_struct )    voxels_to_check;
     voxel_index_struct                    indices;
     int                                   n_voxels;
+    int                                   nx, ny, nz;
     bitlist_struct                        voxels_searched;
     volume_struct                         *volume;
     Status                                set_voxel_flag();
@@ -421,16 +444,17 @@ public  void  set_connected_slice_inactivity( graphics, x, y, z, axis_index,
     void                                  add_square_neighbours();
     void                                  set_voxel_inactivity();
     void                                  initialize_voxel_queue();
+    void                                  get_volume_size();
 
     volume = graphics->associated[SLICE_WINDOW]->slice.volume;
 
-    indices.i[X_AXIS] = MIN( x, volume->size[X_AXIS]-2 );
-    indices.i[Y_AXIS] = MIN( y, volume->size[Y_AXIS]-2 );
-    indices.i[Z_AXIS] = MIN( z, volume->size[Z_AXIS]-2 );
+    get_volume_size( volume, &nx, &ny, &nz );
 
-    n_voxels = volume->size[X_AXIS] *
-               volume->size[Y_AXIS] *
-               volume->size[Z_AXIS];
+    indices.i[X_AXIS] = MIN( x, nx-2 );
+    indices.i[Y_AXIS] = MIN( y, ny-2 );
+    indices.i[Z_AXIS] = MIN( z, nz-2 );
+
+    n_voxels = nx * ny * nz;
 
     status = initialize_voxel_flags( &voxels_searched, n_voxels );
 

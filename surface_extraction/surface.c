@@ -88,6 +88,7 @@ public  Boolean  find_close_voxel_containing_value( volume, voxel_done_flags,
 {
     Status                                status;
     Boolean                               found, voxel_contains;
+    int                                   nx, ny, nz;
     unsigned_byte                         voxel_done;
     unsigned_byte                         get_voxel_done_flag();
     Boolean                               voxel_contains_value();
@@ -102,10 +103,13 @@ public  Boolean  find_close_voxel_containing_value( volume, voxel_done_flags,
     void                                  initialize_voxel_queue();
     void                                  get_next_voxel_from_queue();
     void                                  add_voxel_neighbours();
+    void                                  get_volume_size();
 
-    insert.i[X_AXIS] = MIN( x, volume->size[X_AXIS]-2 );
-    insert.i[Y_AXIS] = MIN( y, volume->size[Y_AXIS]-2 );
-    insert.i[Z_AXIS] = MIN( z, volume->size[Z_AXIS]-2 );
+    get_volume_size( volume, &nx, &ny, &nz );
+
+    insert.i[X_AXIS] = MIN( x, nx-2 );
+    insert.i[Y_AXIS] = MIN( y, ny-2 );
+    insert.i[Z_AXIS] = MIN( z, nz-2 );
 
     found = FALSE;
 

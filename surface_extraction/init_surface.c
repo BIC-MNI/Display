@@ -219,12 +219,14 @@ public  int  get_n_voxels( volume )
     volume_struct  *volume;
 {
     int   n_voxels;
+    int   nx, ny, nz;
+    void  get_volume_size();
 
     if( volume != (volume_struct *) 0 )
     {
-        n_voxels = (volume->size[X_AXIS] - 1) *
-                   (volume->size[Y_AXIS] - 1) *
-                   (volume->size[Z_AXIS] - 1);
+        get_volume_size( volume, &nx, &ny, &nz );
+
+        n_voxels = (nx - 1) * (ny - 1) * (nz - 1);
     }
     else
     {

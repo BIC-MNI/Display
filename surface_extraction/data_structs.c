@@ -80,11 +80,15 @@ public  Boolean  get_voxel_flag( volume, voxel_flags, indices )
     bitlist_struct      *voxel_flags;
     voxel_index_struct  *indices;
 {
+    int   nx, ny, nz;
+    void  get_volume_size();
+
+    get_volume_size( volume, &nx, &ny, &nz );
+
     return( get_bitlist_bit( voxel_flags, IJK( indices->i[X_AXIS],
                                                indices->i[Y_AXIS],
                                                indices->i[Z_AXIS],
-                                               volume->size[Y_AXIS]-1,
-                                               volume->size[Z_AXIS]-1 ) ) );
+                                               ny-1, nz-1 ) ) );
 }
 
 public  Status  set_voxel_flag( volume, voxel_flags, indices )
@@ -92,11 +96,15 @@ public  Status  set_voxel_flag( volume, voxel_flags, indices )
     bitlist_struct      *voxel_flags;
     voxel_index_struct  *indices;
 {
+    int   nx, ny, nz;
+    void  get_volume_size();
+
+    get_volume_size( volume, &nx, &ny, &nz );
+
     set_bitlist_bit( voxel_flags, IJK( indices->i[X_AXIS],
                                        indices->i[Y_AXIS],
                                        indices->i[Z_AXIS],
-                                       volume->size[Y_AXIS]-1,
-                                       volume->size[Z_AXIS]-1 ),     ON );
+                                       ny-1, nz-1 ),     ON );
 
     return( OK );
 }
@@ -106,11 +114,15 @@ public  Status  reset_voxel_flag( volume, voxel_flags, indices )
     bitlist_struct      *voxel_flags;
     voxel_index_struct  *indices;
 {
+    int   nx, ny, nz;
+    void  get_volume_size();
+
+    get_volume_size( volume, &nx, &ny, &nz );
+
     set_bitlist_bit( voxel_flags, IJK( indices->i[X_AXIS],
                                        indices->i[Y_AXIS],
                                        indices->i[Z_AXIS],
-                                       volume->size[Y_AXIS]-1,
-                                       volume->size[Z_AXIS]-1 ),     OFF );
+                                       ny-1, nz-1 ),     OFF );
 
     return( OK );
 }
@@ -168,9 +180,13 @@ public  unsigned_byte  get_voxel_done_flag( volume, voxel_done_flags, indices )
 {
     int            index, byte_index;
     unsigned_byte  flag;
+    int            nx, ny, nz;
+    void           get_volume_size();
+
+    get_volume_size( volume, &nx, &ny, &nz );
 
     index = IJK( indices->i[X_AXIS], indices->i[Y_AXIS], indices->i[Z_AXIS],
-                 volume->size[Y_AXIS]-1, volume->size[Z_AXIS]-1 );
+                 ny-1, nz-1 );
 
     byte_index = index >> 1;
 
@@ -189,9 +205,14 @@ public  Status  set_voxel_done_flag( volume, voxel_done_flags, indices, flag )
     unsigned_byte       flag;
 {
     int            index, byte_index;
+    int            nx, ny, nz;
+    void           get_volume_size();
+
+    get_volume_size( volume, &nx, &ny, &nz );
+
 
     index = IJK( indices->i[X_AXIS], indices->i[Y_AXIS], indices->i[Z_AXIS],
-                 volume->size[Y_AXIS]-1, volume->size[Z_AXIS]-1 );
+                 ny-1, nz-1 );
 
     byte_index = index >> 1;
 
@@ -252,11 +273,13 @@ private  void  get_edge_point_keys( volume, voxel, edge_intersected, keys )
     int                  edge_intersected;
     int                  keys[];
 {
-    keys[0] = IJK( voxel->i[X_AXIS],
-                   voxel->i[Y_AXIS],
-                   voxel->i[Z_AXIS],
-                   volume->size[Y_AXIS],
-                   volume->size[Z_AXIS] );
+    int   nx, ny, nz;
+    void  get_volume_size();
+
+    get_volume_size( volume, &nx, &ny, &nz );
+
+    keys[0] = IJK( voxel->i[X_AXIS], voxel->i[Y_AXIS], voxel->i[Z_AXIS],
+                   ny, nz );
 
     keys[1] = edge_intersected;
 }

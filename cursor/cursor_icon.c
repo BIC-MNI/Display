@@ -18,7 +18,6 @@ public  Status  rebuild_cursor_icon( graphics )
     object_struct   *object;
     model_struct    *model;
     model_struct    *get_graphics_model();
-    Boolean         get_slice_window_volume();
     void            fill_in_box_points();
     void            fill_in_axis_points();
 

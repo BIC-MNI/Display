@@ -460,6 +460,7 @@ public  void  get_slice_view( graphics, view_index, x_scale, y_scale,
     int   x_size, y_size;
     int   x_min, x_max, y_min, y_max;
     int   size[N_DIMENSIONS];
+    Real  start_offset;
     void  get_slice_scale();
     void  get_slice_viewport();
     void  get_volume_size();
@@ -494,8 +495,19 @@ public  void  get_slice_view( graphics, view_index, x_scale, y_scale,
 
     if( *x_pixel < x_min )
     {
-        *x_pixel = x_min;
-        indices[x_axis_index] = (int) (- (Real) x_offset / *x_scale );
+        start_offset = -(Real) x_offset / *x_scale;
+        indices[x_axis_index] = (int) start_offset;
+
+        if( start_offset != (Real) indices[x_axis_index] )
+        {
+            ++indices[x_axis_index];
+            *x_pixel = voxel_to_pixel( x_min, x_offset, *x_scale,
+                                       indices[x_axis_index] );
+        }
+        else
+        {
+            *x_pixel = x_min;
+        }
 
         if( indices[x_axis_index] >= x_size )
         {
@@ -514,8 +526,19 @@ public  void  get_slice_view( graphics, view_index, x_scale, y_scale,
 
     if( *y_pixel < y_min )
     {
-        *y_pixel = y_min;
-        indices[y_axis_index] = (int) (- (Real) y_offset / *y_scale );
+        start_offset = -(Real) y_offset / *y_scale;
+        indices[y_axis_index] = (int) start_offset;
+
+        if( start_offset != (Real) indices[y_axis_index] )
+        {
+            ++indices[y_axis_index];
+            *y_pixel = voxel_to_pixel( y_min, y_offset, *y_scale,
+                                       indices[y_axis_index] );
+        }
+        else
+        {
+            *y_pixel = y_min;
+        }
 
         if( indices[y_axis_index] >= y_size )
         {

@@ -8,11 +8,8 @@
 
 typedef  struct
 {
-    int       axis_index;
-    int       axis_index1;
-    Boolean   flip1;
-    int       axis_index2;
-    Boolean   flip2;
+    int       axis_map[N_DIMENSIONS];
+    Boolean   axis_flip[N_DIMENSIONS];
     int       x_offset, y_offset;
     Real      x_scale, y_scale;
     Boolean   update_flag;

@@ -38,12 +38,15 @@ public  DEF_MENU_FUNCTION( advance_slice )   /* ARGSUSED */
     volume_struct   *volume;
     void            rebuild_selected_list();
     void            set_update_required();
+    int             nx, ny, nz;
+    void            get_volume_size();
 
     if( get_current_volume(graphics,&volume) )
     {
         volume->slice_visibilities[volume->current_slice] = OFF;
         ++volume->current_slice;
-        if( volume->current_slice >= volume->size[Z_AXIS] )
+        get_volume_size( volume, &nx, &ny, &nz );
+        if( volume->current_slice >= nz )
         {
             volume->current_slice = 0;
         }
@@ -67,6 +70,8 @@ public  DEF_MENU_FUNCTION( retreat_slice )   /* ARGSUSED */
     volume_struct   *volume;
     void            rebuild_selected_list();
     void            set_update_required();
+    int             nx, ny, nz;
+    void            get_volume_size();
 
     if( get_current_volume(graphics,&volume) )
     {
@@ -74,7 +79,8 @@ public  DEF_MENU_FUNCTION( retreat_slice )   /* ARGSUSED */
         --volume->current_slice;
         if( volume->current_slice < 0 )
         {
-            volume->current_slice = volume->size[Z_AXIS]-1;
+            get_volume_size( volume, &nx, &ny, &nz );
+            volume->current_slice = nz-1;
         }
         volume->slice_visibilities[volume->current_slice] = ON;
 
@@ -186,7 +192,7 @@ public  DEF_MENU_UPDATE(open_slice_window )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(start_surface )   /* ARGSUSED */
 {
-    int            x, y, z;
+    Real           x, y, z;
     Boolean        get_current_volume();
     void           start_surface_extraction_at_point();
     volume_struct  *volume;
@@ -196,7 +202,8 @@ public  DEF_MENU_FUNCTION(start_surface )   /* ARGSUSED */
         if( convert_point_to_voxel( graphics, &graphics->three_d.cursor.origin,
                                     &x, &y, &z ) )
         {
-            start_surface_extraction_at_point( graphics, x, y, z );
+            start_surface_extraction_at_point( graphics, ROUND(x), ROUND(y),
+                                               ROUND(z) );
         }
     }
 
@@ -735,7 +742,7 @@ public  DEF_MENU_UPDATE(reset_activities )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(generate_activities )   /* ARGSUSED */
 {
-    int              x, y, z;
+    Real             x, y, z;
     Boolean          get_current_volume();
     void             generate_activity_from_point();
     volume_struct    *volume;
@@ -750,7 +757,8 @@ public  DEF_MENU_FUNCTION(generate_activities )   /* ARGSUSED */
                                     &graphics->three_d.cursor.origin,
                                     &x, &y, &z ) )
         {
-            generate_activity_from_point( graphics, x, y, z );
+            generate_activity_from_point( graphics, ROUND(x), ROUND(y),
+                                          ROUND(z) );
 
             rebuild_slice_models( slice_window );
 
