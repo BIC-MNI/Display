@@ -1,32 +1,11 @@
-.SUFFIXES: .ln
+include ../C_dev/Makefile.include
 
-OPT = -O
+OPT = -g
 
-C_utils = ../C_src/utilities
+INCLUDE = -IInclude -I../marching_cubes/Include -I$(C_UTILS_INCLUDE) -I/@/portia/usr/include
 
-Includes = -IInclude -I../marching_cubes/Include -I$(C_utils)/Include -I/@/portia/usr/include
-CFLAGS = $(OPT) $(Includes)
-LINTFLAGS = $(Includes)
-LIBS = -L/@/portia/usr/lib -lgl -lm
-
-LINT = lint
-
-.c.ln:
-	$(LINT) $(LINTFLAGS) -c $<
-	@if( "`echo $@ | sed -e 's/.*\///'`" != "$@" ) \
-            mv `echo $@ | sed -e 's/.*\///'` $@
-
-.c.o:
-	$(CC) $(CFLAGS) -c $< -o $@
-
-clean:
-	\rm -f *.o */*.o *.ln */*.ln
-
-clean_o:
-	\rm -f *.o
-
-clean_ln:
-	\rm -f *.ln
+#LIBS = -L/@/portia/usr/lib -lgl -lm
+LIBS = -lgl -lm
 
 graphics_obj = graphics_lib/GL_graphics.o \
                globals.o \
@@ -37,9 +16,9 @@ graphics_obj = graphics_lib/GL_graphics.o \
                structures/render.o \
                structures/transforms.o \
                structures/view.o \
-               $(C_utils)/files.o \
-               $(C_utils)/points.o \
-               $(C_utils)/progress.o
+               $(C_UTILS_SRC)/files.o \
+               $(C_UTILS_SRC)/points.o \
+               $(C_UTILS_SRC)/progress.o
 
 display_obj = \
            main/main.o \
@@ -52,6 +31,7 @@ display_obj = \
            callbacks/quit.o \
            callbacks/render_ops.o \
            callbacks/view_ops.o \
+           current_obj/current_obj.o \
            events/clip_plane.o \
            events/magnify.o \
            events/mouse.o \
@@ -62,16 +42,17 @@ display_obj = \
            menu/menu.o \
            menu/menu_input.o \
            menu/menu_update.o \
-           $(C_utils)/objects.o \
-           $(C_utils)/object_io.o \
-           $(C_utils)/time.o
+           menu/selected.o \
+           $(C_UTILS_SRC)/objects.o \
+           $(C_UTILS_SRC)/object_io.o \
+           $(C_UTILS_SRC)/time.o
 
 display_lint = $(display_obj:.o=.ln)
 
 globals.o:  Include/def_globals.h
 
 test_obj = test.o \
-           $(C_utils)/time.o \
+           $(C_UTILS_SRC)/time.o \
            $(graphics_obj)
 
 test_lint = $(test_obj:.o=.ln)
