@@ -9,8 +9,8 @@ public  void  start_picking_viewport( graphics )
     DECL_EVENT_FUNCTION( show_rectangle_at_mouse );
     void                 install_action_table_function();
     void                 push_action_table();
-    void                 add_action_table_function();
 
+    push_action_table( &graphics->action_table, NO_EVENT );
     push_action_table( &graphics->action_table, LEFT_MOUSE_DOWN_EVENT );
     push_action_table( &graphics->action_table, LEFT_MOUSE_UP_EVENT );
     push_action_table( &graphics->action_table, TERMINATE_EVENT );
@@ -19,9 +19,9 @@ public  void  start_picking_viewport( graphics )
                                    LEFT_MOUSE_DOWN_EVENT,
                                    pick_first_corner_point );
 
-
-    add_action_table_function( &graphics->action_table, NO_EVENT,
-                               show_rectangle_at_mouse );
+    install_action_table_function( &graphics->action_table,
+                                   NO_EVENT,
+                                   show_rectangle_at_mouse );
 
     graphics->prev_mouse_position = graphics->mouse_position;
     graphics->update_required = TRUE;
@@ -77,8 +77,8 @@ private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
         get_coordinates( &graphics->mouse_position, &graphics->mouse_position,
                          &x1, &y1, &x2, &y2 );
 
-        draw_2d_rectangle( graphics, SCREEN_VIEW, &Viewport_feedback_colour,
-                           x1, y1, x2, y2 );
+        draw_2d_rectangle( graphics, &Viewport_feedback_colour, x1, y1,
+                           x2, y2 );
 
         graphics->update_required = TRUE;
     }
@@ -91,8 +91,6 @@ private  DEF_EVENT_FUNCTION( pick_first_corner_point )
 {
     DECL_EVENT_FUNCTION( done_picking_viewport );
     DECL_EVENT_FUNCTION( show_picked_viewport );
-    void                 install_action_table_function();
-    void                 add_action_table_function();
 
     graphics->viewport_picking.first_corner = graphics->mouse_position;
 
@@ -123,8 +121,8 @@ private  DEF_EVENT_FUNCTION( show_picked_viewport )
                          &graphics->mouse_position,
                          &x1, &y1, &x2, &y2 );
 
-        draw_2d_rectangle( graphics, SCREEN_VIEW,
-                           &Viewport_feedback_colour, x1, y1, x2, y2 );
+        draw_2d_rectangle( graphics, &Viewport_feedback_colour, x1, y1,
+                           x2, y2 );
 
         graphics->update_required = TRUE;
     }
@@ -140,10 +138,8 @@ private  DEF_EVENT_FUNCTION( done_picking_viewport )
     void   update_view();
     Real   x_min, y_min, x_max, y_max;
     void   pop_action_table();
-    void   remove_action_table_function();
 
-    remove_action_table_function( &graphics->action_table, NO_EVENT );
-
+    pop_action_table( &graphics->action_table, NO_EVENT );
     pop_action_table( &graphics->action_table, LEFT_MOUSE_DOWN_EVENT );
     pop_action_table( &graphics->action_table, LEFT_MOUSE_UP_EVENT );
     pop_action_table( &graphics->action_table, TERMINATE_EVENT );
@@ -152,9 +148,9 @@ private  DEF_EVENT_FUNCTION( done_picking_viewport )
                      &graphics->mouse_position,
                      &x_min, &y_min, &x_max, &y_max );
 
-    set_view_rectangle( &graphics->three_d.view, x_min, x_max, y_min, y_max );
+    set_view_rectangle( &graphics->view, x_min, x_max, y_min, y_max );
 
-    adjust_view_for_aspect( &graphics->three_d.view, &graphics->window );
+    adjust_view_for_aspect( &graphics->view, &graphics->window );
 
     update_view( graphics );
 
