@@ -1,5 +1,6 @@
 
 #include  <def_stdio.h>
+#include  <def_globals.h>
 #include  <def_graphics.h>
 
 public  DEF_MENU_FUNCTION( load_file )   /* ARGSUSED */
@@ -47,9 +48,11 @@ public  DEF_MENU_FUNCTION( save_file )   /* ARGSUSED */
             object_list = &current_object;
         }
 
-        status = output_graphics_file( filename, BINARY_FORMAT,
+        status = output_graphics_file( filename, (file_formats) Save_format,
                                        n_objects, object_list );
     }
+
+    PRINT( "Done saving.\n" );
 
     return( status );
 }
