@@ -83,6 +83,9 @@
                        MENU_FUNCTION(start_surface_line) \
                        MENU_FUNCTION(end_surface_line) \
                        MENU_FUNCTION(reset_surface_line) \
+                       MENU_FUNCTION(paint_invisible) \
+                       MENU_FUNCTION(paint_visible) \
+                       MENU_FUNCTION(remove_invisible_parts_of_polygon) \
                 
 
 typedef  struct

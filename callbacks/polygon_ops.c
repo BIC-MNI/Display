@@ -4,7 +4,7 @@
 #include  <def_math.h>
 #include  <def_stdio.h>
 
-private  Boolean  get_current_polygons( graphics, polygons )
+public  Boolean  get_current_polygons( graphics, polygons )
     graphics_struct     *graphics;
     polygons_struct     **polygons;
 {
