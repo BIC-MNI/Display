@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/view_ops.c,v 1.38 1996-05-24 18:43:10 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/view_ops.c,v 1.39 1997-01-20 02:53:45 david Exp $";
 #endif
 
 
@@ -516,21 +516,30 @@ public  DEF_MENU_FUNCTION( print_view )
                      (Real) Point_y(display->three_d.view.origin),
                      (Real) Point_z(display->three_d.view.origin),
                       &x, &y, &z );
-    print( "Origin       : %g %g %g\n", x, y, z );
+    print( "-eye  %g %g %g\n", x, y, z );
 
     transform_vector( &inverse_model,
                       (Real) Vector_x(display->three_d.view.line_of_sight),
                       (Real) Vector_y(display->three_d.view.line_of_sight),
                       (Real) Vector_z(display->three_d.view.line_of_sight),
                       &x, &y, &z );
-    print( "Line of sight: %g %g %g\n", x, y, z );
+    print( "-view %g %g %g  ", x, y, z );
 
     transform_vector( &inverse_model,
                       (Real) Vector_x(display->three_d.view.y_axis),
                       (Real) Vector_y(display->three_d.view.y_axis),
                       (Real) Vector_z(display->three_d.view.y_axis),
                       &x, &y, &z );
-    print( "Up Direction : %g %g %g\n", x, y, z );
+    print( "   %g %g %g\n", x, y, z );
+
+    print( "-window_width %g\n",
+           display->three_d.view.window_width );
+
+    if( display->three_d.view.perspective_flag );
+    {
+        print( "-perspective_distance %g\n",
+               display->three_d.view.perspective_distance );
+    }
 
     return( OK );
 }
@@ -567,6 +576,167 @@ public  DEF_MENU_FUNCTION(type_in_3D_origin)
 /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(type_in_3D_origin)
+{
+    return( TRUE );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(type_in_view_origin)
+{
+    Real             x, y, z;
+
+    print( "Enter x y z eye coordinate: " );
+
+    if( input_real( stdin, &x ) == OK &&
+        input_real( stdin, &y ) == OK &&
+        input_real( stdin, &z ) == OK )
+    {
+        transform_point( &display->three_d.view.modeling_transform,
+                         x, y, z, &x, &y, &z );
+        fill_Point( display->three_d.view.origin, x, y, z );
+        update_view( display );
+        set_update_required( display, NORMAL_PLANES );
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(type_in_view_origin)
+{
+    return( TRUE );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(type_in_view_line_of_sight)
+{
+    Real      x, y, z;
+    Vector    line_of_sight, hor;
+
+    print( "Enter x y z line_of_sight coordinate: " );
+
+    if( input_real( stdin, &x ) == OK &&
+        input_real( stdin, &y ) == OK &&
+        input_real( stdin, &z ) == OK )
+    {
+        transform_vector( &display->three_d.view.modeling_transform,
+                          x, y, z, &x, &y, &z );
+        fill_Vector( line_of_sight, x, y, z );
+        NORMALIZE_VECTOR( line_of_sight, line_of_sight );
+        hor = display->three_d.view.x_axis;
+        assign_view_direction( &display->three_d.view, &line_of_sight, &hor );
+        update_view( display );
+        set_update_required( display, NORMAL_PLANES );
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(type_in_view_line_of_sight)
+{
+    return( TRUE );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(type_in_view_up_dir)
+{
+    Real      x, y, z;
+    Vector    line_of_sight, up, hor;
+
+    print( "Enter x y z up coordinate: " );
+
+    if( input_real( stdin, &x ) == OK &&
+        input_real( stdin, &y ) == OK &&
+        input_real( stdin, &z ) == OK )
+    {
+        transform_vector( &display->three_d.view.modeling_transform,
+                          x, y, z, &x, &y, &z );
+        fill_Vector( up, x, y, z );
+        line_of_sight = display->three_d.view.line_of_sight;
+        CROSS_VECTORS( hor, line_of_sight, up );
+        assign_view_direction( &display->three_d.view, &line_of_sight, &hor );
+        update_view( display );
+        set_update_required( display, NORMAL_PLANES );
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(type_in_view_up_dir)
+{
+    return( TRUE );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(type_in_view_window_width)
+{
+    Real      width, scale;
+
+    print( "Current window width: %g\n", display->three_d.view.window_width );
+    print( "Enter window width: " );
+
+    if( input_real( stdin, &width ) == OK &&
+        width > 0.0 )
+    {
+        scale = width / display->three_d.view.window_width;
+        display->three_d.view.window_width = width;
+        display->three_d.view.window_height *= scale;
+        update_view( display );
+        set_update_required( display, NORMAL_PLANES );
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(type_in_view_window_width)
+{
+    return( TRUE );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(type_in_view_perspective_distance)
+{
+    Real      dist;
+
+    print( "Current perspective distance: %g\n",
+           display->three_d.view.perspective_distance );
+    print( "Enter perspective distance: " );
+
+    if( input_real( stdin, &dist ) == OK && dist > 0.0 )
+    {
+        display->three_d.view.perspective_distance = dist;
+        update_view( display );
+        set_update_required( display, NORMAL_PLANES );
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(type_in_view_perspective_distance)
 {
     return( TRUE );
 }
