@@ -5,7 +5,6 @@
 #include  <def_objects.h>
 #include  <def_queue.h>
 #include  <def_stack.h>
-#include  <def_colours.h>
 
 typedef  struct
 {
@@ -36,27 +35,6 @@ typedef  struct
     Real          spot_exponent;
     Real          spot_angle;
 } light_struct;
-
-typedef  struct
-{
-    Colour         colour_below;
-
-    Colour         min_colour;
-    Real           min_value;
-
-    Colour         max_colour;
-    Real           max_value;
-
-    Colour         colour_above;
-
-    Real           size_over_range;
-
-    Pixel_colour   colour_below_pixel;
-    Pixel_colour   colour_above_pixel;
-
-    Colour_spaces  interpolation_space;
-    Pixel_colour   *colour_table;
-} colour_coding_struct;
 
 typedef  enum  {
                    NO_EVENT,
@@ -149,8 +127,7 @@ typedef  struct
 typedef  struct
 {
     Point   origin;
-    Real    box_size;
-    Real    axis_size;
+    Real    size;
 } cursor_struct;
 
 #endif
