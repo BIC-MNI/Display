@@ -68,6 +68,8 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(double_slice_voxels) \
                        MENU_FUNCTION(halve_slice_voxels) \
                        MENU_FUNCTION(reset_current_slice_view) \
+                       MENU_FUNCTION(load_label_data) \
+                       MENU_FUNCTION(save_label_data) \
                        MENU_FUNCTION(load_active_voxels) \
                        MENU_FUNCTION(save_active_voxels) \
                        MENU_FUNCTION(invert_activity) \

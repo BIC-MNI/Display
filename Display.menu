@@ -261,6 +261,8 @@ segmenting
     transient 'r'    do_3d_segmenting           "Do 3D Segmentation"
     transient 't'    set_segmenting_threshold   "Set Threshold"
 
+    transient 'a'    load_label_data            "Load Labels"
+    transient 's'    save_label_data            "Save Labels"
     transient 'd'    label_voxel                "Label Voxel"
     transient 'f'    clear_voxel                "Clear Voxel"
     transient 'g'    label_connected            "Label Connected"
