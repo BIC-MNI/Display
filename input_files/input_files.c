@@ -6,7 +6,6 @@ public  Status  load_graphics_file(
     char             filename[] )
 {
     Status                   status;
-    display_struct           *slice_window;
     object_struct            *object;
     model_struct             *model;
     int                      n_items;
@@ -146,16 +145,7 @@ public  Status  load_graphics_file(
         delete_object( object );
 
     if( status == OK && volume_present )
-    {
-        if( !get_slice_window_volume( display, &volume ) )
-        {
-            create_slice_window( display, filename, volume_read_in );
-        }
-        else if( get_slice_window( display, &slice_window ) )
-        {
-            set_slice_window_original_volume( slice_window, volume_read_in );
-        }
-    }
+        add_slice_window_volume( display, filename, volume_read_in );
 
     return( status );
 }

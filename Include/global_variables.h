@@ -105,7 +105,7 @@ START_GLOBALS
     DEF_GLOBAL( Slice_divider_x_position, Real, 0.5 )
     DEF_GLOBAL( Slice_divider_y_position, Real, 0.5 )
     DEF_GLOBAL( Left_panel_width, int, 90 )
-    DEF_GLOBAL( Text_panel_height, int, 160 )
+    DEF_GLOBAL( Text_panel_height, int, 170 )
     DEF_GLOBAL( Slice_text_colour, Colour, GREEN )
     DEF_GLOBAL( Slice_text_font, int, 0 )
     DEF_GLOBAL( Slice_text_font_size, Real, 18.0 )
@@ -115,6 +115,7 @@ START_GLOBALS
     DEF_GLOBAL_STRING( Slice_index_x_format, "X = %8g" )
     DEF_GLOBAL_STRING( Slice_index_y_format, "Y = %8g" )
     DEF_GLOBAL_STRING( Slice_index_z_format, "Z = %8g" )
+    DEF_GLOBAL_STRING( Slice_probe_volume_index_format, "VI: %2d" )
     DEF_GLOBAL_STRING( Slice_probe_x_voxel_format, "Xv: %6.1f" )
     DEF_GLOBAL_STRING( Slice_probe_y_voxel_format, "Yv: %6.1f" )
     DEF_GLOBAL_STRING( Slice_probe_z_voxel_format, "Zv: %6.1f" )
@@ -124,7 +125,7 @@ START_GLOBALS
     DEF_GLOBAL_STRING( Slice_probe_voxel_format,   "Vx: %6.4g" )
     DEF_GLOBAL_STRING( Slice_probe_val_format,     "Vl: %6.4g" )
     DEF_GLOBAL_STRING( Slice_probe_label_format,   "Lb: %6d" )
-    DEF_GLOBAL( Probe_x_pos, int, 5 )
+    DEF_GLOBAL( Probe_x_pos, int, 2 )
     DEF_GLOBAL( Probe_y_pos, int, 5 )
     DEF_GLOBAL( Probe_x_delta, int, 0 )
     DEF_GLOBAL( Probe_y_delta, int, 15 )
@@ -175,6 +176,7 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_pick_distance, Real, 10.0 )
 
     DEF_GLOBAL( Slice_cross_section_colour, Colour, GREEN )
+    DEF_GLOBAL( Slice_crop_box_colour, Colour, GREEN )
 
     DEF_GLOBAL( Extracted_surface_colour, Colour, WHITE )
     DEF_GLOBAL5( Default_surface_property, Surfprop, 0.3, 0.3, 0.4, 10.0, 1.0 )
@@ -222,6 +224,7 @@ START_GLOBALS
     DEF_GLOBAL( Normal_towards_lower, BOOLEAN, TRUE )
 
     DEF_GLOBAL( Initial_display_labels, BOOLEAN, TRUE )
+    DEF_GLOBAL( Initial_share_labels, BOOLEAN, TRUE )
     DEF_GLOBAL( Initial_num_labels, int, 256 )
     DEF_GLOBAL( Label_colour_opacity, Real, 0.7 )
 
@@ -252,7 +255,7 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_bitplanes, int, 0 )
 
     DEF_GLOBAL( Surface_curve_colour, Colour, MAGENTA )
-    DEF_GLOBAL( Surface_curve_overlay_flag, BOOLEAN, TRUE )
+    DEF_GLOBAL( Surface_curve_overlay_flag, BOOLEAN, FALSE )
     DEF_GLOBAL( Surface_curve_thickness, Real, 3.0 )
     DEF_GLOBAL( Line_curvature_weight, Real, 0.0 )
     DEF_GLOBAL( Min_surface_curve_curvature, Real, 0.0 )
@@ -304,7 +307,7 @@ START_GLOBALS
     DEF_GLOBAL( Undo_enabled, BOOLEAN, TRUE )
 
     DEF_GLOBAL( Volume_continuity, int, 0 )
-    DEF_GLOBAL( Convert_volumes_to_byte, BOOLEAN, FALSE )
+    DEF_GLOBAL( Convert_volumes_to_byte, BOOLEAN, TRUE )
 
     DEF_GLOBAL( Move_slice_speed, Real, 0.25 )
     DEF_GLOBAL( Pixels_per_double_size, Real, 100.0 )
@@ -322,5 +325,7 @@ START_GLOBALS
     DEF_GLOBAL( Menu_name_font_size, Real, 12.0 )
 
     DEF_GLOBAL( Use_transparency_hardware, BOOLEAN, TRUE )
+
+    DEF_GLOBAL_STRING( Crop_volume_command, "mincreshape %s %s -start %d,%d,%d -count %d,%d,%d" )
 
 END_GLOBALS

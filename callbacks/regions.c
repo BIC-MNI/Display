@@ -87,7 +87,8 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )   /* ARGSUSED */
         print( "Enter current paint label: " );
 
         if( input_int( stdin, &label ) == OK &&
-            label >= 0 && label < get_num_labels(slice_window) )
+            label >= 0 && label < get_num_labels(slice_window,
+                            get_current_volume_index(slice_window)) )
             slice_window->slice.current_paint_label = label;
 
         (void) input_newline( stdin );
@@ -121,18 +122,22 @@ public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
     STRING           line;
     Colour           col;
 
-    if( get_slice_window( display, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
     {
         print( "Enter the label number and colour for this label: " );
 
         if( input_int( stdin, &label ) == OK &&
-            label >= 1 && label < get_num_labels(slice_window) )
+            label >= 1 && label < get_num_labels(slice_window,
+                            get_current_volume_index(slice_window)) )
         {
             if( input_line( stdin, line, MAX_STRING_LENGTH ) == OK )
             {
                 col = convert_string_to_colour( line );
 
-                set_colour_of_label( slice_window, label, col );
+                set_colour_of_label( slice_window,
+                                get_current_volume_index(slice_window),
+                                label, col );
 
                 set_slice_window_all_update( slice_window,
                        get_current_volume_index(slice_window), UPDATE_LABELS );
@@ -147,7 +152,7 @@ public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_label_colour )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 private  save_labels_as_tags(
@@ -187,22 +192,26 @@ public  DEF_MENU_FUNCTION( save_labels )   /* ARGSUSED */
 {
     display_struct *slice_window;
 
-    if( get_slice_window( display, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
+    {
         save_labels_as_tags( display, slice_window, -1 );
+    }
 
     return( OK );
 }
 
 public  DEF_MENU_UPDATE(save_labels )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION( save_current_label )   /* ARGSUSED */
 {
     display_struct *slice_window;
 
-    if( get_slice_window( display, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
     {
         if( slice_window->slice.current_paint_label > 0 )
         {
@@ -218,7 +227,7 @@ public  DEF_MENU_FUNCTION( save_current_label )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(save_current_label )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
@@ -256,9 +265,11 @@ public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
             if( status == OK )
                 status = close_file( file );
 
-            delete_slice_undo( &slice_window->slice.undo );
+            delete_slice_undo( &slice_window->slice.undo,
+                               get_current_volume_index(slice_window) );
 
-            set_slice_window_all_update( slice_window, UPDATE_LABELS  );
+            set_slice_window_all_update( slice_window,
+                     get_current_volume_index(slice_window), UPDATE_LABELS  );
             print( "Done loading.\n" );
         }
 
@@ -270,7 +281,7 @@ public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(load_labels )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 private  void  copy_labels_from_adjacent_slice(
@@ -280,15 +291,18 @@ private  void  copy_labels_from_adjacent_slice(
     Real             real_dest_index[MAX_DIMENSIONS];
     int              src_index[N_DIMENSIONS], dest_index[MAX_DIMENSIONS];
     int              view_index, x_index, y_index, axis_index;
+    int              volume_index;
     display_struct   *slice_window;
     Volume           volume;
 
-    if( get_voxel_under_mouse( display, real_dest_index, &view_index ) &&
-        get_slice_window_volume( display, &volume) &&
-        get_slice_window( display, &slice_window ) &&
-        slice_has_ortho_axes( slice_window, view_index,
+    if( get_slice_window( display, &slice_window ) &&
+        get_voxel_under_mouse( display, &volume_index,
+                               &view_index, real_dest_index ) &&
+        slice_has_ortho_axes( slice_window, volume_index, view_index,
                               &x_index, &y_index, &axis_index ) )
     {
+        volume = get_nth_volume( slice_window, volume_index );
+
         convert_real_to_int_voxel( N_DIMENSIONS, real_dest_index, dest_index );
 
         src_index[X] = 0;
@@ -298,18 +312,20 @@ private  void  copy_labels_from_adjacent_slice(
 
         if( int_voxel_is_within_volume( volume, src_index ) )
         {
-            record_slice_labels( display, axis_index, dest_index[axis_index] );
+            record_slice_labels( display, volume_index, axis_index,
+                                 dest_index[axis_index] );
 
             copy_labels_slice_to_slice(
                          volume,
-                         get_label_volume(slice_window),
+                         get_nth_label_volume(slice_window,volume_index),
                          axis_index,
                          src_index[axis_index],
                          dest_index[axis_index],
                          slice_window->slice.segmenting.min_threshold,
                          slice_window->slice.segmenting.max_threshold );
 
-            set_slice_window_all_update( slice_window, UPDATE_LABELS );
+            set_slice_window_all_update( slice_window, volume_index,
+                                         UPDATE_LABELS );
         }
     }
 }
@@ -323,7 +339,7 @@ public  DEF_MENU_FUNCTION( copy_labels_from_lower_slice )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(copy_labels_from_lower_slice )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION( copy_labels_from_higher_slice )   /* ARGSUSED */
@@ -335,17 +351,22 @@ public  DEF_MENU_FUNCTION( copy_labels_from_higher_slice )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(copy_labels_from_higher_slice )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION( toggle_display_labels )   /* ARGSUSED */
 {
     display_struct  *slice_window;
 
-    if( get_slice_window( display, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
     {
-        slice_window->slice.display_labels =!slice_window->slice.display_labels;
-        set_slice_window_all_update( slice_window, UPDATE_LABELS );
+        slice_window->slice.volumes[get_current_volume_index(slice_window)].
+                        display_labels =
+           !slice_window->slice.volumes[get_current_volume_index(slice_window)].
+                           display_labels;
+        set_slice_window_all_update( slice_window,
+                        get_current_volume_index(slice_window), UPDATE_LABELS );
     }
 
     return( OK );
@@ -356,10 +377,12 @@ public  DEF_MENU_UPDATE(toggle_display_labels )   /* ARGSUSED */
     BOOLEAN          display_labels, state;
     display_struct   *slice_window;
 
-    state = get_slice_window( display, &slice_window );
+    state = get_slice_window( display, &slice_window ) &&
+            get_n_volumes(slice_window) > 0;
 
     if( state )
-        display_labels = slice_window->slice.display_labels;
+        display_labels = slice_window->slice.
+                volumes[get_current_volume_index(slice_window)].display_labels;
     else
         display_labels = Initial_display_labels;
 
@@ -405,8 +428,10 @@ public  DEF_MENU_FUNCTION( change_labels_in_range )   /* ARGSUSED */
             modify_labels_in_range( volume, get_label_volume(slice_window),
                                     src_label, dest_label,
                                     min_threshold, max_threshold );
-            delete_slice_undo( &slice_window->slice.undo );
-            set_slice_window_all_update( slice_window, UPDATE_LABELS );
+            delete_slice_undo( &slice_window->slice.undo,
+                               get_current_volume_index(slice_window) );
+            set_slice_window_all_update( slice_window,
+                       get_current_volume_index(slice_window), UPDATE_LABELS );
         }
     }
 
@@ -415,7 +440,7 @@ public  DEF_MENU_FUNCTION( change_labels_in_range )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(change_labels_in_range )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 private  void  calculate_label_volume(
@@ -461,7 +486,8 @@ public  DEF_MENU_FUNCTION( calculate_volume )   /* ARGSUSED */
     int             n_voxels;
     Real            cubic_millimetres;
 
-    if( get_slice_window( display, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
     {
         calculate_label_volume( get_label_volume(slice_window),
                                 slice_window->slice.current_paint_label,
@@ -479,19 +505,22 @@ public  DEF_MENU_FUNCTION( calculate_volume )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(calculate_volume )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION( flip_labels_in_x )   /* ARGSUSED */
 {
     display_struct  *slice_window;
 
-    if( get_slice_window( display, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
     {
         flip_labels_around_zero( get_label_volume( slice_window ) );
-        delete_slice_undo( &slice_window->slice.undo );
+        delete_slice_undo( &slice_window->slice.undo,
+                           get_current_volume_index(slice_window) );
 
-        set_slice_window_all_update( slice_window, UPDATE_LABELS );
+        set_slice_window_all_update( slice_window,
+                        get_current_volume_index(slice_window), UPDATE_LABELS );
     }
 
     return( OK );
@@ -499,7 +528,7 @@ public  DEF_MENU_FUNCTION( flip_labels_in_x )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(flip_labels_in_x )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 private  void  translate_labels_callback(
@@ -511,10 +540,12 @@ private  void  translate_labels_callback(
     int             view_index, axis_index, x_index, y_index;
     int             delta[N_DIMENSIONS];
 
-    if( get_slice_view_index_under_mouse( display, &view_index ) &&
-        get_slice_window( display, &slice_window ) &&
-        slice_has_ortho_axes( slice_window, view_index,
-                              &x_index, &y_index, &axis_index ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 &&
+        get_slice_view_index_under_mouse( display, &view_index ) &&
+        slice_has_ortho_axes( slice_window,
+                       get_current_volume_index( slice_window ), view_index,
+                       &x_index, &y_index, &axis_index ) )
     {
         delta[X] = 0;
         delta[Y] = 0;
@@ -523,10 +554,12 @@ private  void  translate_labels_callback(
         delta[x_index] = x_delta;
         delta[y_index] = y_delta;
 
-        translate_labels( get_label_volume( slice_window ), delta );
-        delete_slice_undo( &slice_window->slice.undo );
+        translate_labels( get_label_volume(slice_window), delta );
+        delete_slice_undo( &slice_window->slice.undo,
+                           get_current_volume_index(slice_window) );
 
-        set_slice_window_all_update( slice_window, UPDATE_LABELS );
+        set_slice_window_all_update( slice_window,
+                        get_current_volume_index(slice_window), UPDATE_LABELS);
     }
 }
 
@@ -539,7 +572,7 @@ public  DEF_MENU_FUNCTION( translate_labels_up )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(translate_labels_up )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION( translate_labels_down )   /* ARGSUSED */
@@ -551,7 +584,7 @@ public  DEF_MENU_FUNCTION( translate_labels_down )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(translate_labels_down )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION( translate_labels_left )   /* ARGSUSED */
@@ -563,7 +596,7 @@ public  DEF_MENU_FUNCTION( translate_labels_left )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(translate_labels_left )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION( translate_labels_right )   /* ARGSUSED */
@@ -575,14 +608,20 @@ public  DEF_MENU_FUNCTION( translate_labels_right )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(translate_labels_right )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION( undo_slice_labels )   /* ARGSUSED */
 {
-    undo_slice_labels_if_any( display );
-    set_slice_window_all_update( display->associated[SLICE_WINDOW],
-                                 UPDATE_LABELS );
+    int   volume_index;
+
+    volume_index = undo_slice_labels_if_any( display );
+
+    if( volume_index >= 0 )
+    {
+        set_slice_window_all_update( display->associated[SLICE_WINDOW],
+                                     volume_index, UPDATE_LABELS );
+    }
 
     return( OK );
 }
@@ -597,7 +636,8 @@ public  DEF_MENU_FUNCTION( translate_labels_arbitrary )   /* ARGSUSED */
     int              delta[MAX_DIMENSIONS];
     display_struct   *slice_window;
 
-    if( get_slice_window( display, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
     {
         print( "Enter offset to translate for x, y and z: " );
 
@@ -605,9 +645,9 @@ public  DEF_MENU_FUNCTION( translate_labels_arbitrary )   /* ARGSUSED */
             input_int( stdin, &delta[Y] ) == OK &&
             input_int( stdin, &delta[Z] ) == OK )
         {
-            translate_labels( get_label_volume( slice_window ), delta );
-            set_slice_window_all_update( display->associated[SLICE_WINDOW],
-                                         UPDATE_LABELS );
+            translate_labels( get_label_volume(slice_window), delta );
+            set_slice_window_all_update( slice_window,
+                        get_current_volume_index(slice_window), UPDATE_LABELS );
         }
 
         (void) input_newline( stdin );
@@ -618,5 +658,5 @@ public  DEF_MENU_FUNCTION( translate_labels_arbitrary )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(translate_labels_arbitrary )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }

@@ -1,8 +1,9 @@
 #include  <display.h>
 
-#define  HARD_CODED_DISPLAY_DIRECTORY     "/usr/local/lib"
-#define  GLOBALS_FILENAME                 "display.globals"
-#define  MENU_FILENAME                    "display.menu"
+#define  HARD_CODED_DISPLAY_DIRECTORY1    "/usr/local/mni/lib"
+#define  HARD_CODED_DISPLAY_DIRECTORY2    "/usr/local/lib"
+#define  GLOBALS_FILENAME                 "Display.globals"
+#define  MENU_FILENAME                    "Display.menu"
 
 
 #define  GLOBALS_LOOKUP_NAME  display_globals
@@ -39,9 +40,9 @@ int  main( argc, argv )
     if( getenv( "DISPLAY_DIRECTORY" ) != (char *) NULL )
         (void) strcpy( runtime_directory, getenv( "DISPLAY_DIRECTORY" ) );
     else
-        (void) strcpy( runtime_directory, argv[0] );
+        extract_directory( argv[0], runtime_directory );
 
-    (void) sprintf( globals_filename, "%s/%s", HARD_CODED_DISPLAY_DIRECTORY,
+    (void) sprintf( globals_filename, "%s/%s", HARD_CODED_DISPLAY_DIRECTORY2,
                     DISPLAY_GLOBALS_FILENAME );
 
     if( file_exists( globals_filename ) )
@@ -50,7 +51,7 @@ int  main( argc, argv )
                                      display_globals, globals_filename );
     }
 
-    (void) sprintf( globals_filename, "%s/%s", getenv("DISPLAY_DIRECTORY"),
+    (void) sprintf( globals_filename, "%s/%s", HARD_CODED_DISPLAY_DIRECTORY1,
                     DISPLAY_GLOBALS_FILENAME );
 
     if( file_exists( globals_filename ) )
@@ -59,7 +60,16 @@ int  main( argc, argv )
                                      display_globals, globals_filename );
     }
 
-    (void) sprintf( globals_filename, "%s/%s", argv[0],
+    (void) sprintf( globals_filename, "%s/%s", runtime_directory,
+                    DISPLAY_GLOBALS_FILENAME );
+
+    if( file_exists( globals_filename ) )
+    {
+        status = input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
+                                     display_globals, globals_filename );
+    }
+
+    (void) sprintf( globals_filename, "%s/%s", getenv("HOME"),
                     DISPLAY_GLOBALS_FILENAME );
 
     if( file_exists( globals_filename ) )
@@ -106,7 +116,9 @@ int  main( argc, argv )
         menu->associated[SLICE_WINDOW] = (display_struct *) 0;
 
         status = initialize_menu( menu, runtime_directory,
-                                  HARD_CODED_DISPLAY_DIRECTORY,
+                                  getenv( "HOME" ),
+                                  HARD_CODED_DISPLAY_DIRECTORY1,
+                                  HARD_CODED_DISPLAY_DIRECTORY2,
                                   MENU_FILENAME );
     }
 

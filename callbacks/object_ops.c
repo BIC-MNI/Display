@@ -469,12 +469,13 @@ public  DEF_MENU_FUNCTION( scan_current_object_to_volume )   /* ARGSUSED */
     display_struct    *slice_window;
 
     if( get_current_object( display, &current_object ) &&
-        get_slice_window( display, &slice_window ) )
+        get_slice_window( display, &slice_window ) &&
+        get_n_volumes( slice_window ) > 0 )
     {
         if( Clear_before_polygon_scan )
             set_all_volume_label_data( get_label_volume(slice_window), 0 );
 
-        scan_object_to_volume( slice_window, current_object );
+        scan_object_to_current_volume( slice_window, current_object );
 
         print( " done.\n" );
 
@@ -487,5 +488,5 @@ public  DEF_MENU_FUNCTION( scan_current_object_to_volume )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(scan_current_object_to_volume )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) && current_object_exists(display) );
+    return( get_n_volumes(display) > 0 && current_object_exists(display) );
 }

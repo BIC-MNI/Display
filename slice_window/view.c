@@ -6,20 +6,16 @@ private  void  update_all_slice_axes(
     int               volume_index,
     int               view_index );
 
-private  void  get_slice_viewport(
-    display_struct    *slice_window,
-    int               view_index,
-    int               *x_min,
-    int               *x_max,
-    int               *y_min,
-    int               *y_max );
-
 public  void  initialize_slice_window_view(
     display_struct    *slice_window,
     int               volume_index )
 {
-    int              axis, view;
-    Real             cosine, sine;
+    int      axis, view;
+    Real     cosine, sine;
+    Real     separations[MAX_DIMENSIONS];
+
+    get_volume_separations( get_nth_volume(slice_window,volume_index),
+                            separations );
 
     for_less( view, 0, N_SLICE_VIEWS )
     {
@@ -34,19 +30,19 @@ public  void  initialize_slice_window_view(
     }
 
     slice_window->slice.volumes[volume_index].views[0].
-                                    x_axis[Slice_view1_axis1] = 1.0;
+              x_axis[Slice_view1_axis1] = SIGN(separations[Slice_view1_axis1]);
     slice_window->slice.volumes[volume_index].views[0].
-                                    y_axis[Slice_view1_axis2] = 1.0;
+              y_axis[Slice_view1_axis2] = SIGN(separations[Slice_view1_axis2]);
 
     slice_window->slice.volumes[volume_index].views[1].
-                                    x_axis[Slice_view2_axis1] = 1.0;
+              x_axis[Slice_view2_axis1] = SIGN(separations[Slice_view2_axis1]);
     slice_window->slice.volumes[volume_index].views[1].
-                                    y_axis[Slice_view2_axis2] = 1.0;
+              y_axis[Slice_view2_axis2] = SIGN(separations[Slice_view2_axis2]);
 
     slice_window->slice.volumes[volume_index].views[2].
-                                    x_axis[Slice_view3_axis1] = 1.0;
+              x_axis[Slice_view3_axis1] = SIGN(separations[Slice_view3_axis1]);
     slice_window->slice.volumes[volume_index].views[2].
-                                    y_axis[Slice_view3_axis2] = 1.0;
+              y_axis[Slice_view3_axis2] = SIGN(separations[Slice_view3_axis2]);
 
     cosine = cos( 45.0 * DEG_TO_RAD );
     sine = sin( 45.0 * DEG_TO_RAD );
@@ -54,16 +50,16 @@ public  void  initialize_slice_window_view(
     slice_window->slice.volumes[volume_index].
                                 views[OBLIQUE_VIEW_INDEX].visibility = FALSE;
     slice_window->slice.volumes[volume_index].
-                                views[OBLIQUE_VIEW_INDEX].x_axis[X] = cosine;
+            views[OBLIQUE_VIEW_INDEX].x_axis[X] = cosine * SIGN(separations[X]);
     slice_window->slice.volumes[volume_index].
-                                views[OBLIQUE_VIEW_INDEX].x_axis[Y] = sine;
+            views[OBLIQUE_VIEW_INDEX].x_axis[Y] = sine * SIGN(separations[Y]);
     slice_window->slice.volumes[volume_index].
                                 views[OBLIQUE_VIEW_INDEX].x_axis[Z] = 0.0;
 
     slice_window->slice.volumes[volume_index].
-                                views[OBLIQUE_VIEW_INDEX].y_axis[X] = -sine;
+            views[OBLIQUE_VIEW_INDEX].y_axis[X] = -sine * SIGN(separations[X]);
     slice_window->slice.volumes[volume_index].
-                                views[OBLIQUE_VIEW_INDEX].y_axis[Y] = cosine;
+            views[OBLIQUE_VIEW_INDEX].y_axis[Y] = cosine * SIGN(separations[Y]);
     slice_window->slice.volumes[volume_index].
                                 views[OBLIQUE_VIEW_INDEX].y_axis[Z] = 0.0;
 }
@@ -217,12 +213,15 @@ private  void  match_view_scale_and_translation(
         slice_window->slice.volumes[volume_index].views[view].y_scaling =
                                                                 y_scale;
     }
+
+    slice_view_has_changed( slice_window, view );
 }
 
 public  void  reset_slice_view(
     display_struct    *slice_window,
     int               view )
 {
+    BOOLEAN found_one;
     Volume  volume;
     Real    x1, x2, y1, y2, x_offset, y_offset;
     int     int_x1, int_x2, int_y1, int_y2, current_volume_index;
@@ -247,8 +246,13 @@ public  void  reset_slice_view(
     get_slice_plane( slice_window, current_volume_index, view,
                      current_origin, current_x_axis, current_y_axis );
 
+    found_one = FALSE;
+
     for_less( volume_index, 0, slice_window->slice.n_volumes )
     {
+        if( !get_slice_visibility( slice_window, volume_index, view ) )
+            continue;
+
         get_slice_plane( slice_window, volume_index, view,
                          origin, x_axis, y_axis );
 
@@ -281,7 +285,7 @@ public  void  reset_slice_view(
         int_y1 = FLOOR( y1 );
         int_y2 = CEILING( y2 );
 
-        if( volume_index == 0 )
+        if( !found_one )
         {
             x_min = int_x1;
             x_max = int_x2;
@@ -299,9 +303,11 @@ public  void  reset_slice_view(
             if( int_y2 > y_max )
                 y_max = int_y2;
         }
+
+        found_one = TRUE;
     }
 
-    if( x_min == x_max || y_min == y_max )
+    if( !found_one || x_min == x_max || y_min == y_max )
     {
         x_trans = 0.0;
         y_trans = 0.0;
@@ -346,6 +352,8 @@ public  void  reset_slice_view(
                                        (x_max_vp - x_min_vp + 1);
     slice_window->slice.slice_views[view].prev_viewport_y_size =
                                        (y_max_vp - y_min_vp + 1);
+
+    slice_view_has_changed( slice_window, view );
 }
 
 public  void  resize_slice_view(
@@ -385,6 +393,8 @@ public  void  resize_slice_view(
                                           (x_max - x_min + 1);
     slice_window->slice.slice_views[view].prev_viewport_y_size =
                                           (y_max - y_min + 1);
+
+    slice_view_has_changed( slice_window, view );
 }
 
 public  void  scale_slice_view(
@@ -406,6 +416,8 @@ public  void  scale_slice_view(
              &slice_window->slice.volumes[volume_index].views[view].x_scaling,
              &slice_window->slice.volumes[volume_index].views[view].y_scaling );
     }
+
+    slice_view_has_changed( slice_window, view );
 }
 
 public  void  translate_slice_view(
@@ -421,6 +433,8 @@ public  void  translate_slice_view(
         slice_window->slice.volumes[volume_index].views[view].x_trans += dx;
         slice_window->slice.volumes[volume_index].views[view].y_trans += dy;
     }
+
+    slice_view_has_changed( slice_window, view );
 }
 
 public  BOOLEAN  find_slice_view_mouse_is_in(
@@ -525,8 +539,6 @@ public  void  convert_voxel_to_pixel(
           slice_window->slice.volumes[volume_index].views[view_index].x_scaling,
           slice_window->slice.volumes[volume_index].views[view_index].y_scaling,
           &x_real_pixel, &y_real_pixel );
-        check_mapping( display, volume_index, view_index, x_real_pixel,
-                       y_real_pixel, voxel );
 
         *x_pixel = x_real_pixel;
         *y_pixel = y_real_pixel;
@@ -619,7 +631,7 @@ public  void   get_slice_window_partitions(
     *top_slice_height = y_size - *bottom_slice_height;
 }
 
-private  void  get_slice_viewport(
+public  void  get_slice_viewport(
     display_struct    *slice_window,
     int               view_index,
     int               *x_min,
@@ -670,6 +682,11 @@ private  void  get_slice_viewport(
         *y_max = bottom_slice_height - 1 - Slice_divider_top;
         break;
     }
+
+    if( *x_max < *x_min )
+        *x_max = *x_min;
+    if( *y_max < *y_min )
+        *y_max = *y_min;
 }
 
 public  void  get_colour_bar_viewport(
@@ -768,7 +785,8 @@ public  void  set_slice_divider_position(
         for_less( view, 0, N_SLICE_VIEWS )
             resize_slice_view( slice_window, view );
 
-        rebuild_slice_models( slice_window );
+        update_all_slice_models( slice_window );
+        set_slice_window_all_update( slice_window, -1, UPDATE_BOTH );
     }
 }
 
@@ -788,7 +806,8 @@ public  BOOLEAN  get_volume_corresponding_to_pixel(
     {
         if( slice_window->slice.volumes[*volume_index].opacity > 0.0 &&
             convert_pixel_to_voxel( slice_window, *volume_index, x, y,
-                                    voxel, view_index ) )
+                                    voxel, view_index ) &&
+            get_slice_visibility( slice_window, *volume_index, *view_index ) )
         {
             break;
         }
@@ -939,6 +958,15 @@ public  BOOLEAN  set_current_voxel(
                     {
                         set_slice_window_update( slice_window, volume_index,
                                                  view, UPDATE_BOTH );
+
+                        if( volume_index ==
+                            get_current_volume_index(slice_window) )
+                        {
+                            set_slice_cross_section_update( slice_window, view);
+                            set_crop_box_update( slice_window, view );
+                            set_atlas_update( slice_window, view );
+                            set_slice_text_update( slice_window, view );
+                        }
                     }
                 }
             }
@@ -947,13 +975,8 @@ public  BOOLEAN  set_current_voxel(
         }
     }
 
-    if( changed )
-    {
-        rebuild_volume_cross_section( slice_window );
-        rebuild_slice_cross_sections( slice_window );
-        rebuild_probe( slice_window );
-        rebuild_cursors( slice_window );
-    }
+    set_slice_cursor_update( slice_window, -1 );
+    set_probe_update( slice_window );
 
     return( changed );
 }
@@ -1015,7 +1038,7 @@ public  void  set_slice_plane_perp_axis(
     Real     separations[MAX_DIMENSIONS];
     Real     perp[MAX_DIMENSIONS];
     Vector   axis, vect, new_axis, tmp;
-    int      x_index, y_index;
+    int      x_index, y_index, view;
     int      c, max_axis;
 
     get_volume_separations( get_nth_volume(slice_window,volume_index),
@@ -1118,39 +1141,9 @@ public  void  set_slice_plane_perp_axis(
     update_all_slice_axes( slice_window, volume_index, view_index );
 
     rebuild_volume_cross_section( slice_window );
-    rebuild_slice_cross_sections( slice_window );
-}
 
-public  void  check_mapping(
-    display_struct  *slice_window,
-    int             volume_index,
-    int             view_index,
-    Real            x_start,
-    Real            y_start,
-    Real            voxel[] )
-{
-#ifdef  DEBUG
-    Real   test_voxel[MAX_DIMENSIONS];
-    Real   origin[MAX_DIMENSIONS];
-    Real   x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
-
-    get_slice_plane( slice_window, volume_index,
-                     view_index, origin, x_axis, y_axis );
-
-    (void)  convert_slice_pixel_to_voxel( get_nth_volume(slice_window,
-                                          volume_index), x_start, y_start,
-         origin, x_axis, y_axis,
-         slice_window->slice.volumes[volume_index].views[view_index].x_trans,
-         slice_window->slice.volumes[volume_index].views[view_index].y_trans,
-         slice_window->slice.volumes[volume_index].views[view_index].x_scaling,
-         slice_window->slice.volumes[volume_index].views[view_index].y_scaling,
-         test_voxel );
-
-    if( !numerically_close( voxel[0], test_voxel[0], 1.0e-2 ) ||
-        !numerically_close( voxel[1], test_voxel[1], 1.0e-2 ) ||
-        !numerically_close( voxel[2], test_voxel[2], 1.0e-2 ) )
-        handle_internal_error( "Dang it all." );
-#endif
+    for_less( view, 0, N_SLICE_VIEWS )
+        slice_view_has_changed( slice_window, view );
 }
 
 public  void  set_slice_plane(
@@ -1216,21 +1209,30 @@ public  void  get_slice_plane(
         for_less( c, 0, N_DIMENSIONS )
             origin[c] = factor * perp_axis[c] / separations[c];
     }
-
-{
-    Real  dot1, dot2;
-    dot1 = 0.0;
-    dot2 = 0.0;
-    for_less( c, 0, N_DIMENSIONS )
-    {
-        dot1 += origin[c] * separations[c] * perp_axis[c];
-        dot2 += voxel[c] * separations[c] * perp_axis[c];
-    }
-
-    if( !numerically_close( dot1, dot2, 1.0e-2 ) )
-        handle_internal_error( "Getting Closer" );
 }
 
+public  BOOLEAN  get_slice_view_index_under_mouse(
+    display_struct   *display,
+    int              *view_index )
+{
+    BOOLEAN          found;
+    Volume           volume;
+    display_struct   *slice_window;
+    int              x, y;
+
+    found = FALSE;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_slice_window_volume( slice_window, &volume ) )
+    {
+        if( G_get_mouse_position( slice_window->window, &x, &y ) &&
+            find_slice_view_mouse_is_in( slice_window, x, y, view_index ) )
+        {
+            found = TRUE;
+        }
+    }
+
+    return( found );
 }
 
 public  BOOLEAN  get_axis_index_under_mouse(
@@ -1389,17 +1391,16 @@ public  BOOLEAN  update_voxel_from_cursor(
 
     changed = FALSE;
 
-    if( get_slice_window(slice_window,&slice_window) )
+    if( get_slice_window(slice_window,&slice_window) &&
+        get_n_volumes(slice_window) > 0 )
     {
         display = get_three_d_window( slice_window );
 
-        if( get_voxel_corresponding_to_point( slice_window,
+        (void) get_voxel_corresponding_to_point( slice_window,
                                     &display->three_d.cursor.origin,
-                                    voxel ) )
-        {
-            volume_index = get_current_volume_index( slice_window );
-            changed = set_current_voxel( slice_window, volume_index, voxel );
-        }
+                                    voxel );
+        volume_index = get_current_volume_index( slice_window );
+        changed = set_current_voxel( slice_window, volume_index, voxel );
     }
 
     return( changed );
@@ -1473,4 +1474,22 @@ public  void  update_all_slice_axes_views(
 
     for_less( view, 0, N_SLICE_VIEWS )
         update_all_slice_axes( slice_window, volume_index, view );
+}
+
+public  void  slice_view_has_changed(
+    display_struct   *display,
+    int              view )
+{
+    display_struct   *slice_window;
+
+    if( !get_slice_window( display, &slice_window ) )
+        return;
+
+    set_slice_cursor_update( slice_window, view );
+    set_slice_cross_section_update( slice_window, view );
+    set_crop_box_update( slice_window, view );
+    set_probe_update( slice_window );
+    set_atlas_update( slice_window, view );
+
+    set_slice_window_update( slice_window, -1, view, UPDATE_BOTH );
 }

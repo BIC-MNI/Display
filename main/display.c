@@ -25,7 +25,7 @@ public  void  display_objects(
     model = get_model_ptr( object );
     model_info = get_model_info( model );
 
-    if( model_info->bitplanes == bitplanes )
+    if( get_object_visibility( object ) && model_info->bitplanes == bitplanes )
     {
         display_objects_recursive( window, bitplanes,
                                    model->n_objects,

@@ -464,7 +464,7 @@ private  void  crop_surface(
     BOOLEAN          above_flag )
 {
     char             ch;
-    int              axis_index;
+    int              axis_index, volume_index;
     Real             pos;
     Real             voxel[MAX_DIMENSIONS], world[MAX_DIMENSIONS];
     polygons_struct  *polygons;
@@ -472,13 +472,13 @@ private  void  crop_surface(
 
     if( get_current_polygons(display,&polygons) )
     {
-        if( get_axis_index_under_mouse( display, &axis_index ) &&
+        if( get_axis_index_under_mouse( display, &volume_index, &axis_index ) &&
             get_slice_window( display, &slice_window ) )
         {
-            get_current_voxel( slice_window, voxel );
+            get_current_voxel( slice_window, volume_index, voxel );
 
-            convert_voxel_to_world( get_volume(slice_window), voxel,
-                                    &world[X], &world[Y], &world[Z] );
+            convert_voxel_to_world( get_nth_volume(slice_window,volume_index),
+                                    voxel, &world[X], &world[Y], &world[Z] );
             pos = world[axis_index];
         }
         else

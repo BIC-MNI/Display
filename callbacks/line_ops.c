@@ -296,9 +296,9 @@ private  void  convert_to_lines(
 
                 for_less( c, 0, N_DIMENSIONS )
                 {
-                    Point_coord(point,c) = CUBIC_UNIVAR( 
+                    Point_coord(point,c) = cubic_interpolate( ratio,
                      Point_coord(p1,c), Point_coord(p2,c), Point_coord(p3,c),
-                     Point_coord(p4,c), ratio );
+                     Point_coord(p4,c) );
                 }
                 lines->points[i] = point;
             }

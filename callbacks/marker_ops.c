@@ -44,15 +44,14 @@ private  void  get_position_pointed_to(
     display_struct   *display,
     Point            *pos )
 {
-    int             axis_index;
+    int             axis_index, volume_index;
     Real            voxel[MAX_DIMENSIONS];
     Real            x_w, y_w, z_w;
-    Volume          volume;
 
-    if( get_voxel_under_mouse( display, voxel, &axis_index ) &&
-        get_slice_window_volume( display, &volume ) )
+    if( get_voxel_under_mouse( display, &volume_index, &axis_index, voxel ) )
     {
-        convert_voxel_to_world( volume, voxel, &x_w, &y_w, &z_w );
+        convert_voxel_to_world( get_nth_volume(display,volume_index),
+                                voxel, &x_w, &y_w, &z_w );
         fill_Point( *pos, x_w, y_w, z_w );
     }
     else

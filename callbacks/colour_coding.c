@@ -3,17 +3,20 @@
 
 public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
 {
-    Volume           volume;
+    int              volume_index;
     Real             min_value, max_value;
     display_struct   *slice_window;
 
-    if( get_slice_window_volume(display,&volume) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
     {
-        slice_window = display->associated[SLICE_WINDOW];
+        volume_index = get_current_volume_index( slice_window );
 
         print( "Current limits:\t%g\t%g\n",
-               slice_window->slice.colour_coding.min_value,
-               slice_window->slice.colour_coding.max_value );
+               slice_window->slice.volumes[volume_index].
+                                             colour_coding.min_value,
+               slice_window->slice.volumes[volume_index].
+                                             colour_coding.max_value );
 
         print( "Enter new values: " );
 
@@ -21,11 +24,14 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
             input_real( stdin, &max_value ) == OK &&
             min_value <= max_value )
         {
-            change_colour_coding_range( slice_window, min_value, max_value );
+            change_colour_coding_range( slice_window,
+                                        volume_index, min_value, max_value);
 
             print( "    New limits:\t%g\t%g\n",
-                   slice_window->slice.colour_coding.min_value,
-                   slice_window->slice.colour_coding.max_value );
+                   slice_window->slice.volumes[volume_index].
+                                                  colour_coding.min_value,
+                   slice_window->slice.volumes[volume_index].
+                                                  colour_coding.max_value );
         }
 
         (void) input_newline( stdin );
@@ -36,7 +42,7 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_colour_limits )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 private  void  set_the_colour_coding_type(
@@ -44,17 +50,18 @@ private  void  set_the_colour_coding_type(
     Colour_coding_types  type )
 {
     display_struct          *slice_window;
-    Volume                  volume;
     colour_coding_struct    *colour_coding;
 
-    if( get_slice_window_volume( display, &volume ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
     {
-        slice_window = display->associated[SLICE_WINDOW];
-        colour_coding = &slice_window->slice.colour_coding;
+        colour_coding = &slice_window->slice.volumes
+                 [get_current_volume_index(slice_window)].colour_coding;
 
         colour_coding->type = type;
 
-        colour_coding_has_changed( slice_window, UPDATE_SLICE );
+        colour_coding_has_changed( slice_window,
+                      get_current_volume_index(slice_window), UPDATE_SLICE );
     }
 }
 
@@ -67,7 +74,7 @@ public  DEF_MENU_FUNCTION(set_contour_colour_map )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_contour_colour_map )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION(set_hot_metal )   /* ARGSUSED */
@@ -79,7 +86,7 @@ public  DEF_MENU_FUNCTION(set_hot_metal )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_hot_metal )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION(set_gray_scale )   /* ARGSUSED */
@@ -91,7 +98,43 @@ public  DEF_MENU_FUNCTION(set_gray_scale )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_gray_scale )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
+}
+
+public  DEF_MENU_FUNCTION(set_red )   /* ARGSUSED */
+{
+    set_the_colour_coding_type( display, RED_COLOUR_MAP );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_red )   /* ARGSUSED */
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+public  DEF_MENU_FUNCTION(set_green )   /* ARGSUSED */
+{
+    set_the_colour_coding_type( display, GREEN_COLOUR_MAP );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_green )   /* ARGSUSED */
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+public  DEF_MENU_FUNCTION(set_blue )   /* ARGSUSED */
+{
+    set_the_colour_coding_type( display, BLUE_COLOUR_MAP );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_blue )   /* ARGSUSED */
+{
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION(set_spectral )   /* ARGSUSED */
@@ -103,20 +146,20 @@ public  DEF_MENU_FUNCTION(set_spectral )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_spectral )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION(set_under_colour )   /* ARGSUSED */
 {
     Status                  status;
     display_struct          *slice_window;
-    Volume                  volume;
     STRING                  line;
     Colour                  col;
 
     status = OK;
 
-    if( get_slice_window_volume( display, &volume ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
     {
         print( "Enter under colour name or r g b:" );
 
@@ -126,12 +169,12 @@ public  DEF_MENU_FUNCTION(set_under_colour )   /* ARGSUSED */
         {
             col = convert_string_to_colour( line );
 
-            slice_window = display->associated[SLICE_WINDOW];
+            set_colour_coding_under_colour( &slice_window->slice.
+                 volumes[get_current_volume_index(slice_window)].colour_coding,
+                 col );
 
-            set_colour_coding_under_colour( &slice_window->slice.colour_coding,
-                                            col );
-
-            colour_coding_has_changed( slice_window, UPDATE_SLICE );
+            colour_coding_has_changed( slice_window,
+                      get_current_volume_index(slice_window), UPDATE_SLICE );
         }
     }
 
@@ -144,13 +187,14 @@ public  DEF_MENU_UPDATE(set_under_colour )   /* ARGSUSED */
     display_struct   *slice_window;
     Colour           col;
 
-    active = get_slice_window( display, &slice_window );
+    active = get_slice_window( display, &slice_window ) &&
+             get_n_volumes(slice_window) > 0;
 
     if( !active )
         col = WHITE;
     else
-        col = get_colour_coding_under_colour(
-                        &slice_window->slice.colour_coding );
+        col = get_colour_coding_under_colour( &slice_window->slice.
+               volumes[get_current_volume_index(slice_window)].colour_coding );
 
     set_menu_text_with_colour( menu_window, menu_entry, col );
 
@@ -161,13 +205,13 @@ public  DEF_MENU_FUNCTION(set_over_colour )   /* ARGSUSED */
 {
     Status                  status;
     display_struct          *slice_window;
-    Volume                  volume;
     STRING                  line;
     Colour                  col;
 
     status = OK;
 
-    if( get_slice_window_volume( display, &volume ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
     {
         print( "Enter over colour name or r g b:" );
 
@@ -177,12 +221,12 @@ public  DEF_MENU_FUNCTION(set_over_colour )   /* ARGSUSED */
         {
             col = convert_string_to_colour( line );
 
-            slice_window = display->associated[SLICE_WINDOW];
+            set_colour_coding_over_colour( &slice_window->slice.
+                volumes[get_current_volume_index(slice_window)].colour_coding,
+                col );
 
-            set_colour_coding_over_colour( &slice_window->slice.colour_coding,
-                                           col );
-
-            colour_coding_has_changed( slice_window, UPDATE_SLICE );
+            colour_coding_has_changed( slice_window,
+                      get_current_volume_index(slice_window), UPDATE_SLICE );
         }
     }
 
@@ -195,13 +239,15 @@ public  DEF_MENU_UPDATE(set_over_colour )   /* ARGSUSED */
     display_struct   *slice_window;
     Colour           col;
 
-    active = get_slice_window( display, &slice_window );
+    active = get_slice_window( display, &slice_window ) &&
+             get_n_volumes(slice_window) > 0;
 
     if( !active )
         col = WHITE;
     else
         col = get_colour_coding_over_colour(
-                        &slice_window->slice.colour_coding );
+               &slice_window->slice.
+               volumes[get_current_volume_index(slice_window)].colour_coding );
 
     set_menu_text_with_colour( menu_window, menu_entry, col );
 
@@ -210,19 +256,19 @@ public  DEF_MENU_UPDATE(set_over_colour )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(set_label_colour_ratio )   /* ARGSUSED */
 {
-    Volume           volume;
     Real             opacity;
     display_struct   *slice_window;
 
-    if( get_slice_window_volume(display,&volume) &&
-        get_slice_window( display, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
     {
         print( "Enter new label colour opacity: " );
 
         if( input_real( stdin, &opacity ) == OK &&
             opacity >= 0.0 && opacity <= 1.0 )
         {
-            set_label_opacity( slice_window, opacity );
+            set_label_opacity( slice_window,
+                      get_current_volume_index(slice_window), opacity );
         }
 
         (void) input_newline( stdin );
@@ -237,10 +283,12 @@ public  DEF_MENU_UPDATE(set_label_colour_ratio )   /* ARGSUSED */
     Real             opacity;
     display_struct   *slice_window;
 
-    state = get_slice_window( display, &slice_window );
+    state = get_slice_window( display, &slice_window ) &&
+            get_n_volumes(slice_window) > 0;
 
     if( state )
-        opacity = slice_window->slice.label_colour_opacity;
+        opacity = slice_window->slice.volumes
+              [get_current_volume_index(slice_window)].label_colour_opacity;
     else
         opacity = 0.0;
 
@@ -257,7 +305,8 @@ private  void  set_filter_type(
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
-        get_axis_index_under_mouse( display, &view_index ) )
+        get_slice_view_index_under_mouse( display, &view_index ) &&
+        get_n_volumes(slice_window) > 0 )
     {
         volume_index = get_current_volume_index( slice_window );
         slice_window->slice.volumes[volume_index].views[view_index].filter_type
@@ -276,7 +325,7 @@ public  DEF_MENU_FUNCTION(set_nearest_neighbour )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_nearest_neighbour )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION(set_linear_interpolation )   /* ARGSUSED */
@@ -287,7 +336,7 @@ public  DEF_MENU_FUNCTION(set_linear_interpolation )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_linear_interpolation )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION(set_box_filter )   /* ARGSUSED */
@@ -298,7 +347,7 @@ public  DEF_MENU_FUNCTION(set_box_filter )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_box_filter )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION(set_triangle_filter )   /* ARGSUSED */
@@ -309,7 +358,7 @@ public  DEF_MENU_FUNCTION(set_triangle_filter )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_triangle_filter )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION(set_gaussian_filter )   /* ARGSUSED */
@@ -320,7 +369,7 @@ public  DEF_MENU_FUNCTION(set_gaussian_filter )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_gaussian_filter )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION(set_filter_half_width )   /* ARGSUSED */
@@ -330,7 +379,8 @@ public  DEF_MENU_FUNCTION(set_filter_half_width )   /* ARGSUSED */
     Real            filter_width;
 
     if( get_slice_window( display, &slice_window ) &&
-        get_axis_index_under_mouse( display, &view_index ) )
+        get_slice_view_index_under_mouse( display, &view_index ) &&
+        get_n_volumes(slice_window) > 0 )
     {
         volume_index = get_current_volume_index( slice_window );
 
@@ -352,11 +402,13 @@ public  DEF_MENU_FUNCTION(set_filter_half_width )   /* ARGSUSED */
 
         (void) input_newline( stdin );
     }
+
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(set_filter_half_width )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) );
+    return( get_n_volumes(display) > 0 );
 }
 
 public  DEF_MENU_FUNCTION(set_slice_window_n_labels )   /* ARGSUSED */
@@ -364,19 +416,23 @@ public  DEF_MENU_FUNCTION(set_slice_window_n_labels )   /* ARGSUSED */
     int             n_labels;
     display_struct  *slice_window;
 
-    if( get_slice_window( display, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
     {
         print( "Enter number of labels: " );
 
         if( input_int( stdin, &n_labels ) == OK )
         {
-            set_slice_window_number_labels( slice_window, n_labels );
+            set_slice_window_number_labels( slice_window,
+                         get_current_volume_index(slice_window), n_labels );
             set_slice_window_all_update( slice_window,
                      get_current_volume_index(slice_window), UPDATE_LABELS );
         }
 
         (void) input_newline( stdin );
     }
+
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(set_slice_window_n_labels )   /* ARGSUSED */
@@ -385,11 +441,42 @@ public  DEF_MENU_UPDATE(set_slice_window_n_labels )   /* ARGSUSED */
     int              n_labels;
     display_struct   *slice_window;
 
-    state = get_slice_window( display, &slice_window );
+    state = get_slice_window( display, &slice_window ) &&
+            get_n_volumes(slice_window) > 0;
 
-    n_labels = get_num_labels( display );
+    if( state )
+        n_labels = get_num_labels( display,
+                                   get_current_volume_index(slice_window));
+    else
+        n_labels = Initial_num_labels;
 
     set_menu_text_int( menu_window, menu_entry, n_labels );
+
+    return( state );
+}
+
+public  DEF_MENU_FUNCTION(toggle_share_labels )   /* ARGSUSED */
+{
+    display_struct  *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        slice_window->slice.share_labels_flag = 
+                             !slice_window->slice.share_labels_flag;
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(toggle_share_labels )   /* ARGSUSED */
+{
+    BOOLEAN          state;
+    display_struct   *slice_window;
+
+    state = get_slice_window( display, &slice_window );
+
+    set_menu_text_on_off( menu_window, menu_entry,
+                          state && slice_window->slice.share_labels_flag );
 
     return( state );
 }

@@ -97,6 +97,8 @@ public  Status  initialize_menu(
     display_struct    *menu_window,
     char              default_directory1[],
     char              default_directory2[],
+    char              default_directory3[],
+    char              default_directory4[],
     char              menu_filename[] )
 {
     Status               status;
@@ -106,6 +108,7 @@ public  Status  initialize_menu(
     model_struct         *model;
     int                  ch;
     FILE                 *file;
+    BOOLEAN              found;
 
     initialize_resize_events( menu_window );
 
@@ -126,22 +129,44 @@ public  Status  initialize_menu(
     menu->character_width = Menu_character_width;
     menu->character_height = Menu_character_height;
 
+    found = FALSE;
+
     if( file_exists( menu_filename ) )
     {
         (void) strcpy( filename, menu_filename );
+        found = TRUE;
     }
-    else
+
+    if( !found )
     {
         get_absolute_filename( menu_filename, default_directory1, filename );
 
-        if( !file_exists( filename ) )
-        {
-            get_absolute_filename( menu_filename, default_directory2, filename);
-
-            if( !file_exists( filename ) )
-                (void) strcpy( filename, menu_filename );
-        }
+        found = file_exists( filename );
     }
+
+    if( !found )
+    {
+        get_absolute_filename( menu_filename, default_directory2, filename);
+
+        found = file_exists( filename );
+    }
+
+    if( !found )
+    {
+        get_absolute_filename( menu_filename, default_directory3, filename);
+
+        found = file_exists( filename );
+    }
+
+    if( !found )
+    {
+        get_absolute_filename( menu_filename, default_directory4, filename);
+
+        found = file_exists( filename );
+    }
+
+    if( !found )
+        (void) strcpy( menu_filename, filename );
 
     status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
 
@@ -330,23 +355,31 @@ private  Status  handle_mouse_press_in_menu(
     Real                x,
     Real                y )
 {
+    display_struct      *three_d;
     Status              status;
     int                 key;
-    object_struct       *object;
+    object_struct       *object, *current;
 
     status = OK;
+
+    three_d = get_three_d_window( menu_window );
 
     if( lookup_key_for_mouse_position( menu_window, x, y, &key ) )
     {
         status = handle_menu_for_key( menu_window, key );
     }
-    else if( mouse_is_on_object_name( menu_window->associated[THREE_D_WINDOW],
-                                      x, y, &object ) )
+    else if( mouse_is_on_object_name( three_d, x, y, &object ) )
     {
-        set_current_object( menu_window->associated[THREE_D_WINDOW],
-                            object );
-        rebuild_selected_list( menu_window->associated[THREE_D_WINDOW],
-                               menu_window );
+        if( get_current_object( three_d, &current ) &&
+            current == object && get_object_type(object) == MODEL )
+        {
+            push_current_object( three_d );
+        }
+        else
+            set_current_object( three_d, object );
+
+        rebuild_selected_list( three_d, menu_window );
+        update_all_menu_text( menu_window );
     }
 
 

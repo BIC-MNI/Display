@@ -17,7 +17,7 @@ public  DEF_MENU_FUNCTION( start_deforming_object )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(start_deforming_object )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) &&
+    return( get_n_volumes(display) > 0 &&
             (current_object_is_this_type( display, LINES ) ||
              current_object_is_this_type( display, POLYGONS )) );
 }
@@ -38,7 +38,7 @@ public  DEF_MENU_FUNCTION( start_annealing_deforming_object )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(start_annealing_deforming_object )   /* ARGSUSED */
 {
-    return( slice_window_exists(display) &&
+    return( get_n_volumes(display) > 0 &&
             (current_object_is_this_type( display, LINES ) ||
              current_object_is_this_type( display, POLYGONS )) );
 }

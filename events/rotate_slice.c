@@ -13,9 +13,7 @@ private  BOOLEAN  perform_rotation(
 public  void  initialize_rotating_slice(
     display_struct   *display )
 {
-    display_struct  *slice_window;
-
-    if( !get_slice_window( display, &slice_window ) )
+    if( get_n_volumes(display) == 0 )
         return;
 
     set_volume_cross_section_visibility( display, ON );
@@ -80,9 +78,6 @@ private  void  update_rotation(
     {
         reset_slice_view( slice_window,
                           get_arbitrary_view_index(slice_window) );
-        set_slice_window_update( slice_window,
-                                 get_arbitrary_view_index(slice_window),
-                                 UPDATE_BOTH );
     }
 }
 
@@ -121,7 +116,8 @@ private  void  transform_slice_axes(
 
     volume = get_volume( slice_window );
 
-    get_slice_plane( slice_window, get_arbitrary_view_index(slice_window),
+    get_slice_plane( slice_window,get_current_volume_index( slice_window ),
+                     get_arbitrary_view_index(slice_window),
                      origin, x_axis, y_axis );
 
     get_volume_separations( volume, separations );
@@ -163,7 +159,8 @@ private  void  transform_slice_axes(
         y_axis[Z] /= len;
     }
 
-    set_slice_plane( slice_window, get_arbitrary_view_index(slice_window),
+    set_slice_plane( slice_window,get_current_volume_index( slice_window ),
+                     get_arbitrary_view_index(slice_window),
                      x_axis, y_axis );
 }
 

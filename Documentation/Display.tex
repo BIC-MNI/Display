@@ -4,7 +4,7 @@
 \author{David MacDonald}
 
 \newcommand{\ident}[1]{{\bf\tt #1}\ }
-\newcommand{\display}{\ident{display}}
+\newcommand{\display}{\ident{Display}}
 \newcommand{\menu}[1]{{\scriptsize \fbox{\bf #1}}}
 \newcommand{\menutwo}[2]{{\scriptsize \fbox{\bf #1}/\fbox{\bf #2}}}
 \newcommand{\menuthree}[3]{{\scriptsize \fbox{\bf #1}/\fbox{\bf #2}/\fbox{\bf #3}}}
@@ -36,7 +36,7 @@ on keystrokes and mouse selection.
 The command syntax is:
 
 \begin{verbatim}
-    display  [file1]  [file2]  ... [filen]
+    Display  [file1]  [file2]  ... [filen]
 \end{verbatim}
 
 where each file is one of:
@@ -58,15 +58,16 @@ where each file is one of:
 The following are the standard available datasets:
 
 \begin{itemize}
-\item[Normal MRI] 305 normal brains in the files:  \ident{/avgbrain/brain/autoreg/filename.mnc}, and
-\item[Average MRI] the average of the 305 brains in the file
+\item[Normal MRI] 305 normal brains in the files:  \ident{/avgbrain/brain/autoreg/\-filename.mnc}, and
+\item[Average MRI] the average of the 305 brains in the file \\
 \ident{/avgbrain/brain/images/norm\_avg\_305\_mri256.mnc}, or a lower
-resolution version in \ident{/avgbrain/brain/images/norm\_avg\_305\_mri.mnc}.
+resolution version in \\
+\ident{/avgbrain/brain/images/\-norm\_avg\_305\_mri.mnc}.
 \end{itemize}
 
 Note that the above files are generally compressed.  If the file ends in
 \ .z, then it is compressed and the full name of the file, including the
-\ .z, must be specified to display.
+\ .z, must be specified to \display.
 
 \section{\display Windows}
 
@@ -79,8 +80,8 @@ are created when the program is run):
 \begin{itemize}
 \item[3D window:]  contains the 3D objects, such as surfaces, lines,
                   and markers,
-\item[slice window:]  shows up to 4 views of slices through the volume
-                      (if a volume is loaded),
+\item[slice window:]  shows up to 4 views of slices through one or more volumes
+                      (if volumes are loaded),
 \item[menu window:]  shows the current menu configuration,
 \item[text entry:]  this is the shell window or xterm from which \display was
                    run and in which all text must be typed, e.g. filenames,
@@ -91,7 +92,7 @@ are created when the program is run):
 
 The menu window (centre in Figure \ref{windows}) represents the layout
 of the left side of the keyboard.  A menu entry is selected by hitting the
-corresponding key in any of the 3 display windows (not the text window)
+corresponding key in any of the 3 \display windows (not the text window)
 or pointing to the entry
 in the menu window with the mouse and clicking the left button.
 The space bar or middle mouse
@@ -140,9 +141,11 @@ mouse operations are available:
 
 \subsection{Slice Window}
 
-The slice window displays slices of the volume, with various colour coding
-options.  The slice window carries around another volume of the same size
-as the loaded volume, which is referred to as the {\bf label volume}.
+The slice window displays slices of the loaded volumes, with various
+colour coding
+options.  For each loaded volume, the slice window carries around another
+volume of the same size as the loaded volume, which is referred to as the
+{\bf label volume}.
 This functions as a coloured overlay for storing and displaying the results
 of manual segmentation of the volume.
 In the slice window, the following mouse operations are available:
@@ -150,9 +153,9 @@ In the slice window, the following mouse operations are available:
 \begin{itemize}
 \item[Left Button]  Sets the position of the 4 slices.
 \item[Middle Button]  Moving the mouse up or down while holding down the
-                      middle button changes the current volume slice.
-\item[Right Button]  Paints a region of the volume slice with the current
-                     brush size.
+                      middle button changes the current volume slice position.
+\item[Right Button]  Paints a region of the current volume slice with the
+                     current brush size.
 \item[Alt-Left Button]  While holding down the \ident{shift}, \ident{ctrl},
                         or \ident{alt} key, the left button translates the
                         position of the slice within the viewport.
@@ -160,7 +163,8 @@ In the slice window, the following mouse operations are available:
                         or \ident{alt} key, holding down the middle button
                         and moving the mouse up or down changes the
                         magnification of the current slice.
-\item[Colour Bar]  The limits of the colour bar can be moved by pressing
+\item[Colour Bar]  The limits of the colour bar for the current volume
+                   can be moved by pressing
                    the left mouse button on the bar near the desired limit.
                    Pressing the middle button on the colour bar will allow
                    both limits to be moved simultaneously.
@@ -208,19 +212,19 @@ box:
         a model object.  This selection cannot be used to save a volume
         file (\ident{.mnc})
 \item[\menutwo{File}{Load Labels .mnc}]  Prompts for a filename and
-        loads the volume file as the label volume for the slice window
+        loads the volume file as the label volume for the current slice window
         volume.
-        The volume loaded must be exactly the same size as the slice
+        The volume loaded must be exactly the same size as the current slice
         window volume.
 \item[\menutwo{File}{Save Labels .mnc}]  Prompts for a filename and
-        saves the label volume.
+        saves the label volume of the current volume.
 \item[\menutwo{File}{Load Labels .tag}]  Prompts for a filename and
-        loads the tags file into the label volume.  Note that it does not
-        clear the label volume, so the resulting labels are the union
-        of the current labels and the loaded tags.  Also, it does not check
-        that this is a valid label file, e.g., whether sizes match.
+        loads the tags file into the current label volume.  Note that it does
+        not clear the current label volume, so the resulting labels are the
+        union of the current labels and the loaded tags.  Also, it does not
+        check that this is a valid label file, e.g., whether sizes match.
 \item[\menutwo{File}{Save Labels .tag}]  Prompts for a filename and
-        saves the label volume as a tag file.  For large regions
+        saves the current label volume as a tag file.  For large regions
         this may create very large ascii files, and it may be more
         efficient to save as \ident{.mnc}.
 \item[\menutwo{File}{Save Markers as .tag}]  Prompts for a filename and
@@ -238,31 +242,36 @@ box:
 \begin{description}
 \item[\menu{+ Slice}]  Changes the current slice to the next slice.
 \item[\menu{- Slice}]  Changes the current slice to the previous slice.
+\item[\menutwo{Slice}{Curr Volume}]  If more than one volume is loaded, then
+       this button increases the current volume index.  For many operations,
+       the current volume is used as the target volume.  This button allows
+       selection of which of the multiple loaded volumes to perform
+       subsequent operations on.
 \item[\menutwo{Slice}{Reset Slice View}]  If the mouse is in the slice
    window and is pointing to one of the 4 slices, then the view for
    that slice is reset and resized to fit the viewport.
 \item[\menutwo{Slice}{Toggle Slice Visib}]  If the mouse is in the slice
    window and is pointing to one of the 4 slices, then the visibility
-   of that slice is toggled.
+   of that slice for the current volume is toggled.
 \item[\menutwo{Slice}{Box Filter Volume}]  Prompts for 3 box filter
        widths and another specifier.  If the specifier is the
        character ``w'', then the
        filter widths are assumed to be in world coordinates, otherwise
-       it is assumed to be voxel coordinates.  The volume is resampled
+       it is assumed to be voxel coordinates.  The current volume is resampled
        using a box filter.  Giving the values ``0 0 0 v'' resets to the
        original loaded volume.
 \item[\menutwo{Slice}{Resample Volume}]  Prompts for 3 size parameter and
-       resamples the volume to the given size.  Entering 0 0 0 resets to
-       the original volume.  Creates a smaller volume by box
+       resamples the current volume to the given size.
+       Creates a smaller volume by box
        filtering.  It is preferable to use \menutwo{Slice}{Box Filter Volume}.
 \item[\menutwo{Slice}{Create 3D Slice}]  Creates a rendering of the slice
        pointed to by the mouse, in the 3D window.
 \item[\menutwo{Slice}{Recompute Histogram}]  Creates a histogram of
-       values in the volume, which it displays in the slice window near
+       values in the current volume, which it displays in the slice window near
        the colour coding bar.
        If the mouse is pointing to a slice in the slice window, then a
-       histogram of that slice only is displayed.
-\item[\menutwo{Slice}{Histogram of Label}]  Sames as
+       histogram of that slice only of the current volume is displayed.
+\item[\menutwo{Slice}{Histogram of Label}]  Same as
        \menutwo{Slice}{Recompute Histogram}, but only includes values
        which are in labeled (segmented) regions.
 \item[\menutwo{Slice}{Slice DblBuf:}]  Toggles between single and double buffer
@@ -271,16 +280,17 @@ box:
        mode has less colour resolution but updates smoothly.  Single
        buffer mode is generally only used when taking snapshots of the
        window, where maximum colour resolution is desirable.
-\item[\menutwo{Slice}{Toggle Plane Visib}]  The fourth slice view in
-       the slice window is an arbitrarily oriented plane.  This menu
-       selection toggles the visibility of this cross section plane in
+\item[\menutwo{Slice}{Toggle Plane Visib}]  
+       This menu
+       selection toggles the visibility of the current cross section plane in
        the 3D window.
 \item[\menutwo{Slice}{Set Current Arb. View}]  Each of the four slices can
        be oriented to an arbitrary angle.  By pointing to one of the slices
        and selecting this menu option, the user can set the current view,
        which is the one that the following slicing commands operate on.
 \item[\menutwo{Slice}{Toggle Slice Crs-Sect}]  Turns on and off the cross
-       section visibility of the current view slice.
+       section visibility in the three views which are not the current
+       arbitrary view.
 \item[\menutwo{Slice}{Rotate Slice}]  After selecting this entry,
        the middle mouse button in the 3D window will control rotation
        of the arbitrarily oriented slice, updating the current
@@ -305,75 +315,109 @@ box:
 \item[\menutwo{Slice}{Type In Plane Normal}]  If the mouse is pointing to
        one of the four slices, prompts the user to type in a world
        space x, y, and z, and orients the slice plane to this normal.
+\item[\menutwo{Slice}{Visible:}]  Makes only one volume visible, cycling
+       through all loaded volumes as the button is pressed.  Whichever volume
+       is made visible is set to the current volume.
+\item[\menutwo{Slice}{Delete Volume}]  Brings up a submenu that allows the
+       user to delete the current volume.
+\item[\menutwo{Slice}{Volume Cropping}]  Brings up a submenu that allows the
+       user to define a subregion of the volume and to load another volume
+       cropped to the subregion.
+\end{description}
+
+\subsubsection{Volume Cropping Menu}
+
+\begin{description}
+\item[\menuthree{Slice}{Volume Cropping}{Visibility:}]  Toggles the visibility
+       of the volume crop box in the slice planes.
+\item[\menuthree{Slice}{Volume Cropping}{Reset Crop Position}]  Resets the
+       volume crop box to the entire volume of the current volume.
+\item[\menuthree{Slice}{Volume Cropping}{Pick Crop Edge}]  After pressing this
+       selection, an edge of the crop box in the slice window can be moved
+       by pressing the left mouse button and dragging the edge to the desired
+       position.
+\item[\menuthree{Slice}{Volume Cropping}{Set Crop Filename}]  Prompts the
+       user to type in the name of the file which will be cropped according to
+       the crop box.
+\item[\menuthree{Slice}{Volume Cropping}{Crop and Load}]  Crops the current
+       crop filename with the current crop box volume limits, and loads the
+       cropped file.
 \end{description}
 
 \subsection{Colour Coding Menu}
 
 \begin{description}
 \item[\menutwo{Colour Coding}{Spectral}]  Selects the spectral colour coding
-                                          method for the slice volume.
+                                          method for the current volume.
 \item[\menutwo{Colour Coding}{Gray Scale}]  Selects the gray scale colour coding
-                                          method for the slice volume.
+                                          method for the current volume.
 \item[\menutwo{Colour Coding}{Hot Metal}]  Selects the hot metal colour coding
-                                          method for the slice volume.
+                                          method for the current volume.
 \item[\menutwo{Colour Coding}{Contour}]  Selects the rarely used contour
-                                    colour coding method for the slice volume.
+                                    colour coding method for the current volume.
 \item[\menutwo{Colour Coding}{Range}]  Prompts the user to type in the lower
-                                    and upper colour coding limits.
+                        and upper colour coding limits for the current volume.
 \item[\menutwo{Colour Coding}{Under Colour}]  Prompts the user to type in
-                                   the colour for values below the low limit.
+               the colour for values in the current volume below the low limit.
 \item[\menutwo{Colour Coding}{Over Colour}]  Prompts the user to type in
-                                   the colour for values above the high limit.
+               the colour for values in the current volume above the high limit.
 \item[\menutwo{Colour Coding}{Nearest Neighbour}]  Sets the filter type of
-                       the slice under the mouse to nearest neighbour (this is
-                       the default).
+                       the current volume slice under the mouse to nearest
+                       neighbour (this is the default).
 \item[\menutwo{Colour Coding}{Linear Int Filter}]  Sets the filter type of
-                       the slice under the mouse to linear interpolation
+                       the current volume slice under the mouse to
+                       linear interpolation
                        between the two nearest slices.
 \item[\menutwo{Colour Coding}{Box Filter}]  Sets the filter type of
-                       the slice under the mouse to a box filter.
+                       the current volume slice under the mouse to a box filter.
 \item[\menutwo{Colour Coding}{Triangle Filter}]  Sets the filter type of
-                       the slice under the mouse to a triangle filter.
+                      the current volume slice under the mouse to a
+                      triangle filter.
 \item[\menutwo{Colour Coding}{Gaussian Filter}]  Sets the filter type of
-                       the slice under the mouse to a gaussian filter.
+                      the current volume slice under the mouse to a
+                      gaussian filter.
 \item[\menutwo{Colour Coding}{Filter Width}]  Prompts the user for
-                      the filter full width half max.  Only applies to box,
-                      triangle, and gaussian filters.
+                      the current volume slice filter full width half max.
+                      Only applies to box, triangle, and gaussian filters.
 \item[\menutwo{Colour Coding}{Label Ratio}]  Prompts the user to type in the
                       intensity of the coloured labels superimposed on the 
-                      volume slices ($0 <= value <= 1$).
+                      current volume slices \\
+                      ($0 <= value <= 1$).
 \item[\menutwo{Colour Coding}{Show Labels}]  Toggles between showing
-                      the label volume superimposed on the loaded
+                      the label volume superimposed on the current
                       volume or not showing it.
 \item[\menutwo{Colour Coding}{Set Paint Lbl Colr}]  Prompts for a
                       label value and a colour, and sets the displayed
-                      colour of this label.
+                      colour of this label for the current volume.
 \item[\menutwo{Colour Coding}{Num Labels}]  Prompts for the number
-                      of labels desired, and recreates the label volume
+                      of labels desired, and recreates the current label volume
                       with this number.  Depending on the number of labels,
                       the volume may be a byte, short, or long valued volume.
-                      Note that this effectively clears the label volume.
+                      Note that this effectively clears the current
+                      label volume.
 \item[\menutwo{Colour Coding}{Colour Code Object}]  Changes the
      colours of the current object according to the current colour
-     coding parameters of the volume.
+     coding parameters of the loaded volumes.
 \end{description}
 
 \subsection{Segmenting Menu}
 
-This menu contains all the controls for modifying the label volume,
-which is overlaid on the loaded volume.  At each voxel in the loaded
-volume, there is an associated value in the range 0 to 255, which is
-stored in the label volume.  Segmenting consists of painting regions
-of the label volume to change the values from the default of 0.
+This menu contains all the controls for modifying the current label volume,
+which is overlaid on the current volume.  At each voxel in the current
+volume, there is an associated integer value, which is
+stored in the current label volume.  Segmenting consists of painting regions
+of a label volume to change the values from the default of 0.
 When the right mouse button is pressed over a slice in the slice
-window, the current paint label value is painted into the label
-volume.  If the \ident{control} key or \ident{shift} key is held down
+window, the current paint label value is painted into the label volume of the
+most recently loaded visible volume.  If the \ident{control} key or
+\ident{shift} key is held down
 at the same time, erasing will be performed, by storing the value 0.
 
 \begin{description}
-\item[\menutwo{Segmenting}{Clear All Labels}]  Sets all labels to 0.
+\item[\menutwo{Segmenting}{Clear All Labels}]  Sets all labels of the
+         current volume to 0.
 \item[\menutwo{Segmenting}{Set Paint Label}]  Sets the current label
-    used for painting, must be between 0 and 255, where 0 erases.
+    used for painting, where 0 erases.
 \item[\menutwo{Segmenting}{XY Radius}]  Prompts for the in-slice 
     brush radius used in painting on the volume slices (right mouse button).
 \item[\menutwo{Segmenting}{Out-Plane Radius}]  Prompts for the brush
@@ -388,7 +432,7 @@ at the same time, erasing will be performed, by storing the value 0.
 \item[\menutwo{Segmenting}{Clear Slice}]  Sets the label of the 
     entire slice pointed to by the mouse to 0.
 \item[\menutwo{Segmenting}{Set Threshold}]  Prompts for a minimum and
-    maximum volume value, and uses these limits for subsequent segmentation
+    maximum volume val\-ue, and uses these limits for subsequent segmentation
     operations.  When painting with the right mouse button, only
     voxels whose values are within this range are affected.  By
     default, there is no segmenting threshold, which can be specified
@@ -399,7 +443,7 @@ at the same time, erasing will be performed, by storing the value 0.
     voxels on this slice connected
     to the starting voxel are assigned the current paint label, by a
     flood fill algorithm.
-\item[\menutwo{Segmenting}{Label Fill No Thrs}]  Sames as
+\item[\menutwo{Segmenting}{Label Fill No Thrs}]  Same as
     \menutwo{Segmenting}{Label Fill}, except ignoring the threshold.
     If the mouse is pointing to a voxel has a label not equal to the
     current paint label, then all
@@ -411,6 +455,19 @@ at the same time, erasing will be performed, by storing the value 0.
     has a nonzero label, then all similar voxels on this slice connected
     to the starting voxel are assigned the paint label 0, by a
     flood fill algorithm.
+\item[\menutwo{Segmenting}{Connectivity}]  Toggles between 8,26-neighbour
+    and 4,6-neighbour connectivity in 2D,3D operations such as fill,
+    dilate, and erode.  
+\item[\menutwo{Segmenting}{Erode 3D}]  Prompts the user for a label range
+    which corresponds to outside the labels of interest, and erodes regions
+    of the current paint label which are neighbouring the typed in label
+    range.  Typically the user will type in ``0 -1'' to specify all labels
+    which are not equal to the current paint label.
+\item[\menutwo{Segmenting}{Dilate 3D}]  Prompts the user for a label range
+    which corresponds to outside the labels of interest, and dilates regions
+    of the current paint label which are neighbouring the typed in label
+    range.  Typically the user will type in ``0 -1'' to specify all labels
+    which are not equal to the current paint label.
 \item[\menutwo{Segmenting}{Copy from Rt/Sup/Ant}]  If the mouse is
     pointing to a slice in the slice window, then the labels of the
     neighbouring slice are copied to this slice.
@@ -435,10 +492,6 @@ at the same time, erasing will be performed, by storing the value 0.
     all similar voxels in the entire volume which are connected to
     this one are assigned the current paint label.
     This may take a few seconds to a minute.
-\item[\menutwo{Segmenting}{Expand 3D}]  This is a grow operation,
-    where all zero-labeled voxels in the volume which are next to
-    a voxel of the current paint label are assigned the label.
-    This takes a few seconds to perform.
 \item[\menutwo{Segmenting}{Calculate Volume}]  Calculates the
     total volume of all voxels which have the current paint label.
     This takes a few seconds to perform.
@@ -469,7 +522,7 @@ at the same time, erasing will be performed, by storing the value 0.
 
 \subsection{Create Surface}
 
-This menu is used to create surfaces from the volume.  Surfaces created
+This menu is used to create surfaces from the current volume.  Surfaces created
 from this menu should subsequently have their appearance smoothed by
 the use of \menutwo{Polygons}{Compute Normals} or
 \menutwo{Polygons}{Average Normals}.
@@ -506,13 +559,13 @@ the use of \menutwo{Polygons}{Compute Normals} or
     faces of voxels, the boundaries between inside voxels and outside
     voxels, as defined by the value range specified.  This may take
     up to a minute to perform.
-\item[\menutwo{Create Surface}{Label Bin-Isosurf}]  Sames as
+\item[\menutwo{Create Surface}{Label Bin-Isosurf}]  Same as
     \menutwo{Create Surface}{Volume Bin-Isosurf} except operates on
     the label volume.  For instance, if the user has painted a region
     with label 1, then to create a 3D isosurface of this region, select
     this menu option, and type in ``1 1'' for the min and max values.
-\item[\menutwo{Create Surface}{Label Voxelate}]  Sames as
-    \menutwo{Create Surface}{Volume Voxelate} except operates on
+\item[\menutwo{Create Surface}{Label Voxelate}]  Same as
+    \menutwo{Create Surface}{Volume Voxelate} exc\-ept it operates on
     the label volume.  For instance, if the user has painted a region
     with label 1, then to create a 3D voxelated surface of this region,
     select this menu option, and type in ``1 1'' for the min and max values.
@@ -565,7 +618,7 @@ purposes.
 
 \begin{description}
 \item[\menutwo{3D View}{Magnify 3D}]
-      Sets the mode where the middle mouse button and left/right movement
+      Sets the mode where the middle mouse button and left/\-right movement
       in the 3D window magnify the view.
       Once the 3D view menu is chosen, this button will usually be
       available, even after popping out of the 3D view menu.

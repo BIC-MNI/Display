@@ -70,6 +70,9 @@ private  void  update_this_type_of_windows(
     {
         if( windows[i]->window_type == window_type )
         {
+            if( window_type == SLICE_WINDOW )
+                update_slice_window( windows[i] );
+
             if( graphics_normal_planes_update_required( windows[i] ) )
                 windows[i]->update_interrupted.last_was_interrupted = FALSE;
 

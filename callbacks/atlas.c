@@ -6,11 +6,12 @@ public  DEF_MENU_FUNCTION( set_atlas_on_or_off )   /* ARGSUSED */
     BOOLEAN          state;
     display_struct   *slice_window;
 
-    if( get_slice_window( display, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
     {
         state = !slice_window->slice.atlas.enabled;
         set_atlas_state( slice_window, state );
-        set_slice_window_all_update( slice_window, -1, UPDATE_SLICE );
+        set_atlas_update( slice_window, -1 );
     }
 
     return( OK );
@@ -18,15 +19,16 @@ public  DEF_MENU_FUNCTION( set_atlas_on_or_off )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_atlas_on_or_off )   /* ARGSUSED */
 {
-    BOOLEAN          state;
+    BOOLEAN          valid;
     display_struct   *slice_window;
 
-    state = get_slice_window( display, &slice_window );
+    valid = get_slice_window( display, &slice_window ) &&
+            get_n_volumes(slice_window) > 0;
 
     set_menu_text_on_off( menu_window, menu_entry,
-                          state && slice_window->slice.atlas.enabled );
+                          valid && slice_window->slice.atlas.enabled );
 
-    return( state );
+    return( valid );
 }
 
 public  DEF_MENU_FUNCTION( set_atlas_opacity )   /* ARGSUSED */
@@ -41,7 +43,7 @@ public  DEF_MENU_FUNCTION( set_atlas_opacity )   /* ARGSUSED */
             opacity <= 1.0 )
         {
             slice_window->slice.atlas.opacity = opacity;
-            set_slice_window_all_update( slice_window, -1, UPDATE_SLICE );
+            set_atlas_update( slice_window, -1 );
         }
         (void) input_newline( stdin );
     }
@@ -65,7 +67,7 @@ public  DEF_MENU_FUNCTION( set_atlas_transparent_threshold )   /* ARGSUSED */
         if( input_int( stdin, &threshold ) == OK && threshold >= 0 )
         {
             slice_window->slice.atlas.transparent_threshold = threshold;
-            set_slice_window_all_update( slice_window, -1, UPDATE_SLICE );
+            set_atlas_update( slice_window, -1 );
         }
         (void) input_newline( stdin );
     }
@@ -90,7 +92,7 @@ private  void  flip_atlas_on_an_axis(
                              !slice_window->slice.atlas.flipped[axis];
         if( axis == X )
             regenerate_atlas_lookup( slice_window );
-        set_slice_window_all_update( slice_window, -1, UPDATE_SLICE );
+        set_atlas_update( slice_window, -1 );
     }
 }
 
@@ -143,7 +145,7 @@ private  void  set_atlas_tolerance(
             slice_window->slice.atlas.slice_tolerance[axis] =
                              distance_tolerance;
             regenerate_atlas_lookup( slice_window );
-            set_slice_window_all_update( slice_window, -1, UPDATE_SLICE );
+            set_atlas_update( slice_window, -1 );
         }
         (void) input_newline( stdin );
     }
