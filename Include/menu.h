@@ -14,11 +14,11 @@ typedef  menu_function_type  (*menu_function_pointer);
                                                menu_entry_struct *menu_entry )
 
 
-typedef  Status   menu_update_type();
+typedef  BOOLEAN   menu_update_type();
 
 typedef  menu_update_type  (*menu_update_pointer);
 
-#define  DEF_MENU_UPDATE(m)  Status GLUE(menu_update_,m)( \
+#define  DEF_MENU_UPDATE(m)  BOOLEAN GLUE(menu_update_,m)( \
                                        display_struct    *display, \
                                        display_struct    *menu_window, \
                                        menu_entry_struct *menu_entry, \
@@ -29,6 +29,7 @@ typedef  struct  menu_entry_struct
     BOOLEAN                     permanent_flag;
     int                         key;
     STRING                      label;
+    BOOLEAN                     is_active;
     int                         current_depth;
     int                         n_children;
     int                         n_chars_across;
