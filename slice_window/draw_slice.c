@@ -467,11 +467,13 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
     Real                  x_scale, y_scale;
 {
     Status          status;
-    int             new_size, old_size, indices[N_DIMENSIONS];
+    int             new_size, old_size;
     int             x, y, prev_x;
     int             x_size, y_size;
     int             val, min_value;
     int             lookup_index;
+    int             x_voxel, y_voxel, z_voxel;
+    int             *x_voxel_ptr, *y_voxel_ptr;
     Colour          col;
     Pixel_colour    pixel_col, *pixel_ptr;
     Real            dx, dy;
@@ -516,8 +518,27 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
         SET_ARRAY_SIZE( status, pixels->pixels, old_size, new_size,
                         DEFAULT_CHUNK_SIZE );
     }
+    
+    switch( axis_index )
+    {
+    case 0:  x_voxel = start_indices[axis_index];  break;
+    case 1:  y_voxel = start_indices[axis_index];  break;
+    case 2:  z_voxel = start_indices[axis_index];  break;
+    }
 
-    indices[axis_index] = start_indices[axis_index];
+    switch( x_index )
+    {
+    case 0:  x_voxel_ptr = &x_voxel;  break;
+    case 1:  x_voxel_ptr = &y_voxel;  break;
+    case 2:  x_voxel_ptr = &z_voxel;  break;
+    }
+
+    switch( y_index )
+    {
+    case 0:  y_voxel_ptr = &x_voxel;  break;
+    case 1:  y_voxel_ptr = &y_voxel;  break;
+    case 2:  y_voxel_ptr = &z_voxel;  break;
+    }
 
     for_less( x, 0, x_size )
     {
@@ -530,22 +551,22 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
     {
         pixel_ptr = &pixels->pixels[y * x_size];
 
-        indices[y_index] = start_indices[y_index] + y * dy;
+        *y_voxel_ptr = start_indices[y_index] + y * dy;
 
         prev_x = -1;
 
         for_less( x, 0, x_size )
         {
-            indices[x_index] = temporary_indices[x];
+            *x_voxel_ptr = temporary_indices[x];
 
-            if( indices[x_index] != prev_x )
+            if( *x_voxel_ptr != prev_x )
             {
                 if( Display_activities )
                 {
                     activity_flag = get_voxel_activity_flag( volume,
-                                      indices[0], indices[1], indices[2] );
+                                           x_voxel, y_voxel, z_voxel );
                     label_flag = get_voxel_label_flag( volume,
-                                      indices[0], indices[1], indices[2] );
+                                           x_voxel, y_voxel, z_voxel );
 
                     if( activity_flag )
                     {
@@ -567,8 +588,7 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
                     lookup_index = 0;
                 }
 
-                val = GET_VOLUME_DATA( *volume,
-                                       indices[0], indices[1], indices[2]);
+                val = GET_VOLUME_DATA( *volume, x_voxel, y_voxel, z_voxel );
 
                 if( fast_lookup_present )
                     pixel_col = fast_lookup[lookup_index][val-min_value];
@@ -578,7 +598,7 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
                     COLOUR_TO_PIXEL( col, pixel_col );
                 }
 
-                prev_x = indices[x_index];
+                prev_x = *x_voxel_ptr;
             }
 
             *pixel_ptr = pixel_col;
