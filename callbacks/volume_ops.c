@@ -388,3 +388,115 @@ public  DEF_MENU_UPDATE(redo_histogram_labeled)      /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION(print_voxel_origin)      /* ARGSUSED */
+{
+    Real             voxel[MAX_DIMENSIONS], xw, yw, zw;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        get_current_voxel( slice_window, voxel );
+
+        convert_voxel_to_world( get_volume(slice_window), voxel,
+                                &xw, &yw, &zw );
+
+        print( "Current world origin: %g %g %g\n", xw, yw, zw );
+    }
+}
+
+public  DEF_MENU_UPDATE(print_voxel_origin)      /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(print_slice_plane)      /* ARGSUSED */
+{
+    display_struct   *slice_window;
+    Vector           normal;
+    int              view_index;
+    Real             perp_axis[MAX_DIMENSIONS], xw, yw, zw;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_slice_view_index_under_mouse( slice_window, &view_index ) )
+    {
+        get_slice_perp_axis( slice_window, view_index, perp_axis );
+        convert_voxel_vector_to_world( get_volume(slice_window),
+                                       perp_axis, &xw, &yw, &zw );
+
+        fill_Vector( normal, xw, yw, zw );
+        NORMALIZE_VECTOR( normal, normal );
+
+        print( "View: %d    Perpendicular: %g %g %g\n",
+               view_index,
+               Vector_x(normal), Vector_y(normal), Vector_z(normal) );
+    }
+}
+
+public  DEF_MENU_UPDATE(print_slice_plane)      /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(type_in_voxel_origin)      /* ARGSUSED */
+{
+    Real             voxel[MAX_DIMENSIONS], xw, yw, zw;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        print( "Enter x y z world coordinate: " );
+
+        if( input_real( stdin, &xw ) == OK &&
+            input_real( stdin, &yw ) == OK &&
+            input_real( stdin, &zw ) == OK )
+        {
+            convert_world_to_voxel( get_volume(slice_window), xw, yw, zw,
+                                    voxel );
+
+            if( set_current_voxel( slice_window, voxel ) )
+                set_slice_window_all_update( slice_window );
+        }
+
+        (void) input_newline( stdin );
+    }
+}
+
+public  DEF_MENU_UPDATE(type_in_voxel_origin)      /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(type_in_slice_plane)      /* ARGSUSED */
+{
+    int              view_index;
+    Real             perp_axis[MAX_DIMENSIONS], xw, yw, zw;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_slice_view_index_under_mouse( slice_window, &view_index ) )
+    {
+        print( "View %d:  enter x y z plane normal in world coordinate: ",
+               view_index );
+
+        if( input_real( stdin, &xw ) == OK &&
+            input_real( stdin, &yw ) == OK &&
+            input_real( stdin, &zw ) == OK )
+        {
+            convert_world_vector_to_voxel( get_volume(slice_window), xw, yw, zw,
+                                    perp_axis );
+
+            set_slice_plane_perp_axis( slice_window, view_index, perp_axis );
+            reset_slice_view( slice_window, view_index );
+
+            set_slice_window_update( slice_window, view_index );
+        }
+
+        (void) input_newline( stdin );
+    }
+}
+
+public  DEF_MENU_UPDATE(type_in_slice_plane)      /* ARGSUSED */
+{
+    return( OK );
+}

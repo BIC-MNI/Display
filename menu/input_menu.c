@@ -144,6 +144,10 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(save_markers) \
                        MENU_FUNCTION(pick_marker_defaults) \
                        MENU_FUNCTION(move_cursor_to_home) \
+                       MENU_FUNCTION(type_in_voxel_origin) \
+                       MENU_FUNCTION(type_in_slice_plane) \
+                       MENU_FUNCTION(print_voxel_origin) \
+                       MENU_FUNCTION(print_slice_plane) \
                        MENU_FUNCTION(set_marker_segmentation_threshold) \
                        MENU_FUNCTION(set_default_marker_structure_id) \
                        MENU_FUNCTION(set_default_marker_patient_id) \

@@ -96,7 +96,11 @@ slice_view
     transient 'h'    redo_histogram_labeled          "Histogram of Labeled"
 
     transient 'z'    resample_slice_window_volume    "Resample Volume"
-    transient 'b'    box_filter_slice_window_volume  "Box Filter Volume"
+    transient 'x'    box_filter_slice_window_volume  "Box Filter Volume"
+    transient 'c'    print_voxel_origin              "Print Origin"
+    transient 'v'    print_slice_plane               "Print Plane Normal"
+    transient 'b'    type_in_voxel_origin            "Type In Origin"
+    transient 'n'    type_in_slice_plane             "Type In Plane Normal"
 }
 
 colour_coding
