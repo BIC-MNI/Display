@@ -121,6 +121,11 @@
                        MENU_FUNCTION(delete_all_surface_points) \
                        MENU_FUNCTION(add_surface_point) \
                        MENU_FUNCTION(delete_surface_point) \
+                       MENU_FUNCTION(save_surface_points) \
+                       MENU_FUNCTION(load_surface_points) \
+                       MENU_FUNCTION(show_all_surface_points) \
+                       MENU_FUNCTION(delete_surface_point) \
+                       MENU_FUNCTION(delete_surface_point) \
                        MENU_FUNCTION(fit_surface) \
                        MENU_FUNCTION(create_surface_model) \
                        MENU_FUNCTION(scan_model_to_voxels) \
