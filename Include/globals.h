@@ -4,6 +4,8 @@
 #include  <def_global_macros.h>
 
 START_GLOBALS
+    DEF_GLOBAL( Initial_background_colour, Colour, 0.0 )
+
     DEF_GLOBAL( Progress_threshold, int, 1000 )
     DEF_GLOBAL( Event_timeout, Real, 0.1 )
     DEF_GLOBAL( Initial_perspective_flag, Boolean, TRUE )
