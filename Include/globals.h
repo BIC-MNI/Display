@@ -60,6 +60,10 @@ typedef  struct
 
 START_GLOBALS
     DEF_GLOBAL( Initial_perspective_flag, Boolean, TRUE )
+    DEF_GLOBAL( Closest_front_plane, Real, 1.0e-5 )
+    DEF_GLOBAL( Initial_render_mode, int, 1 )
+    DEF_GLOBAL( Initial_shading_type, int, 1 )
+    DEF_GLOBAL( Initial_light_switch, Boolean, TRUE )
 END_GLOBALS
          
 
