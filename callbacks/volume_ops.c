@@ -517,11 +517,7 @@ public  DEF_MENU_FUNCTION(load_inactive_voxels)   /* ARGSUSED */
             }
         }
 
-        if( status == OK )
-        {
-            status = close_file( file );
-        }
-
+        status = close_file( file );
 
         if( status == OK )
         {
@@ -540,3 +536,46 @@ public  DEF_MENU_UPDATE(load_inactive_voxels )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
+{
+    volume_struct    *volume;
+    Real             min_value, max_value;
+    graphics_struct  *slice_window;
+    void             rebuild_slice_models();
+    void             set_colour_coding_range();
+
+    if( get_current_volume(graphics,&volume) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        PRINT( "Current limits:\t%g\t%g\n",
+               slice_window->slice.colour_coding.min_value,
+               slice_window->slice.colour_coding.max_value );
+
+        PRINT( "Enter new values: " );
+
+        if( scanf( "%f %f", &min_value, &max_value ) == 2 &&
+            min_value <= max_value )
+        {
+            set_colour_coding_range( &slice_window->slice.colour_coding,
+                                     min_value, max_value );
+
+            PRINT( "    New limits:\t%g\t%g\n",
+                   slice_window->slice.colour_coding.min_value,
+                   slice_window->slice.colour_coding.max_value );
+
+            rebuild_slice_models( slice_window );
+
+            slice_window->update_required = TRUE;
+        }
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_colour_limits )   /* ARGSUSED */
+{
+    return( OK );
+}
+
