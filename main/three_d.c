@@ -74,11 +74,8 @@ private  void  initialize_three_d_events( graphics )
     DECL_EVENT_FUNCTION( handle_resize_three_d );
     void                 add_action_table_function();
     void                 initialize_virtual_spaceball();
-    void                 initialize_picking_polygon();
 
     initialize_virtual_spaceball( graphics );
-
-    initialize_picking_polygon( graphics );
 
     add_action_table_function( &graphics->action_table, WINDOW_RESIZE_EVENT,
                                handle_resize_three_d );
