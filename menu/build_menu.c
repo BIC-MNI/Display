@@ -1,5 +1,5 @@
 
-#include  <def_string.h>
+#include  <string.h>
 #include  <def_graphics.h>
 #include  <def_globals.h>
 
@@ -17,24 +17,23 @@ private   position_struct   positions[] = {
                                              {'c', 2, 1 },
                                              {'v', 3, 1 },
                                              {'b', 4, 1 },
-
                                              {'a', 0, 2 },
                                              {'s', 1, 2 },
                                              {'d', 2, 2 },
                                              {'f', 3, 2 },
                                              {'g', 4, 2 },
-
                                              {'q', 0, 3 },
                                              {'w', 1, 3 },
                                              {'e', 2, 3 },
                                              {'r', 3, 3 },
                                              {'t', 4, 3 },
-
+/*
                                              {'1', 0, 4 },
                                              {'2', 1, 4 },
                                              {'3', 2, 4 },
                                              {'4', 3, 4 },
                                              {'5', 4, 4 },
+*/
                                           };
 
 public  Status  build_menu( menu_window )
@@ -73,27 +72,19 @@ private  Status   create_menu_text( menu_window, menu_entry )
     menu_entry_struct *menu_entry;
 {
     Status          status;
-    Status          create_object();
+    Status          create_object_struct();
     text_struct     *text;
-    Status          add_object_to_model();
+    void            add_object_to_list();
     void            compute_origin();
-    Status          update_menu_text();
-    model_struct    *model;
-    model_struct    *get_graphics_model();
 
-    status = create_object( &menu_entry->text, TEXT );
+    status = create_object_struct( &menu_entry->text, TEXT );
 
     if( status == OK )
     {
         menu_entry->text->visibility = FALSE;
 
-        model = get_graphics_model( menu_window, MENU_BUTTONS_MODEL );
+        add_object_to_list( &menu_window->model.objects, menu_entry->text );
 
-        status = add_object_to_model( model, menu_entry->text );
-    }
-
-    if( status == OK )
-    {
         text = menu_entry->text->ptr.text;
 
         compute_origin( menu_entry->key, &text->origin );
@@ -101,8 +92,6 @@ private  Status   create_menu_text( menu_window, menu_entry )
         Point_y(text->origin) += Y_menu_text_offset;
         fill_Colour( text->colour, 1.0, 1.0, 1.0 );
         (void) strcpy( text->text, menu_entry->label );
-
-        status = update_menu_text( menu_window, menu_entry );
     }
 
     return( status );
@@ -134,11 +123,9 @@ private  void   compute_origin( key, origin )
     else
     {
         fill_Point( *origin, X_menu_origin +
-                             (Real) positions[i].x_pos * X_menu_dx +
-                             (Real) positions[i].y_pos * Y_menu_dx,
+                             (Real) positions[i].x_pos * X_menu_delta,
                              Y_menu_origin +
-                             (Real) positions[i].x_pos * X_menu_dy +
-                             (Real) positions[i].y_pos * Y_menu_dy,
+                             (Real) positions[i].y_pos * Y_menu_delta,
                              0.0 );
     }
 }
@@ -148,47 +135,40 @@ private  Status   create_menu_box( menu_window, key )
     char              key;
 {
     Status          status;
-    Status          create_object();
+    Status          create_object_struct();
     object_struct   *object;
     lines_struct    *lines;
-    Status          add_object_to_model();
+    void            add_object_to_list();
     void            compute_origin();
     Point           origin;
     Real            x1, y1, x2, y2;
-    model_struct    *model;
-    model_struct    *get_graphics_model();
 
-    status = create_object( &object, LINES );
+    status = create_object_struct( &object, LINES );
 
     if( status == OK )
     {
-        model = get_graphics_model( menu_window, MENU_BUTTONS_MODEL );
+        add_object_to_list( &menu_window->model.objects, object );
 
-        status = add_object_to_model( model, object );
-    }
-
-    if( status == OK )
-    {
         lines = object->ptr.lines;
 
         lines->n_points = 4;
-        lines->n_items = 1;
+        lines->n_lines = 1;
 
         fill_Colour( lines->colour, 1.0, 1.0, 1.0 );
 
-        CALLOC1( status, lines->points, lines->n_points, Point );
+        CALLOC( status, lines->points, lines->n_points, Point );
     }
 
     if( status == OK )
     {
-        CALLOC1( status, lines->end_indices, lines->n_items, int );
+        CALLOC( status, lines->last_indices, lines->n_lines, int );
     }
 
     if( status == OK )
     {
-        lines->end_indices[0] = 5;
+        lines->last_indices[0] = 5;
 
-        CALLOC1( status, lines->indices, lines->end_indices[0], int );
+        CALLOC( status, lines->indices, lines->last_indices[0], int );
 
         compute_origin( key, &origin );
 
