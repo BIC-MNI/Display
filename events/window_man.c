@@ -1,16 +1,16 @@
 
 #include  <def_graphics.h>
 
-public  void  initialize_window_events( graphics )
-    graphics_struct  *graphics;
+public  void  initialize_window_events( action_table )
+    action_table_struct  *action_table;
 {
     DECL_EVENT_FUNCTION( handle_resize );
     DECL_EVENT_FUNCTION( handle_redraw );
     void                 add_action_table_function();
 
-    add_action_table_function( &graphics->action_table, WINDOW_RESIZE_EVENT,
+    add_action_table_function( action_table, WINDOW_RESIZE_EVENT,
                                handle_resize );
-    add_action_table_function( &graphics->action_table, WINDOW_REDRAW_EVENT,
+    add_action_table_function( action_table, WINDOW_REDRAW_EVENT,
                                handle_redraw );
 }
 
@@ -25,13 +25,17 @@ private  DEF_EVENT_FUNCTION( handle_redraw )
 private  DEF_EVENT_FUNCTION( handle_resize )
     /* ARGSUSED */
 {
+    Real   aspect;
     void   G_update_window_size();
+    Real   G_get_window_aspect();
     void   adjust_view_for_aspect();
     void   update_view();
 
     G_update_window_size( &graphics->window );
 
-    adjust_view_for_aspect( &graphics->view, &graphics->window );
+    aspect = G_get_window_aspect( &graphics->window );
+
+    adjust_view_for_aspect( &graphics->view, aspect );
 
     update_view( graphics );
 
