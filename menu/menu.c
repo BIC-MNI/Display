@@ -18,8 +18,6 @@ private  Status  handle_mouse_press_in_menu(
     display_struct      *menu_window,
     Real                x,
     Real                y );
-private  void  pop_menu_one_level(
-    display_struct   *menu_window );
 
 private  void  set_menu_key_entry(
     menu_window_struct     *menu,
@@ -377,7 +375,7 @@ public  DEF_MENU_UPDATE(pop_menu )      /* ARGSUSED */
     return( OK );
 }
 
-private  void  pop_menu_one_level(
+public  void  pop_menu_one_level(
     display_struct   *menu_window )
 {
     if( menu_window->menu.depth > 0 )
