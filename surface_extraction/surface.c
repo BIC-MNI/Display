@@ -390,14 +390,18 @@ private  Boolean   check_voxel( volume, voxel_activity, surface_extraction,
     voxel_index_struct          *voxel_index;
 {
     Status                 status;
+    Boolean                lookup_edge_point_id();
+    Status                 record_edge_point_id();
     polygons_struct        *poly;
     triangle_point_type    *points_list;
+    voxel_index_struct     corner_points[3];
     Real                   corner_values[2][2][2];
-    Boolean                active;
+    Boolean                active, connected;
     Boolean                are_voxel_corners_active();
     int                    n_tris, n_nondegenerate_tris, tri, p, next_end;
     int                    x, y, z, pt_index;
     int                    point_id[3];
+    Point_classes          pt_class;
 
     active = are_voxel_corners_active( volume, voxel_activity,
                                        voxel_index->i[X_AXIS],
@@ -435,20 +439,63 @@ private  Boolean   check_voxel( volume, voxel_activity, surface_extraction,
 
         for_less( tri, 0, n_tris )
         {
+            connected = (poly->n_items == 0);
+
             for_less( p, 0, 3 )
             {
                 pt_index = 3 * tri + p;
-                point_id[p] = get_edge_point_id(
-                                      volume,
-                                      surface_extraction->triangles,
-                                      surface_extraction->isovalue,
-                                      &surface_extraction->edge_points,
-                                      voxel_index,
-                                      points_list[pt_index].coord,
-                                      points_list[pt_index].edge_intersected );
+
+                corner_points[p].i[X_AXIS] = voxel_index->i[X_AXIS] +
+                                   points_list[pt_index].coord[X_AXIS];
+                corner_points[p].i[Y_AXIS] = voxel_index->i[Y_AXIS] +
+                                   points_list[pt_index].coord[Y_AXIS];
+                corner_points[p].i[Z_AXIS] = voxel_index->i[Z_AXIS] +
+                                   points_list[pt_index].coord[Z_AXIS];
+
+                if( lookup_edge_point_id( volume,
+                                       &surface_extraction->edge_points,
+                                       &corner_points[p],
+                                       points_list[pt_index].edge_intersected,
+                                       &point_id[p] ) )
+                {
+                    connected = TRUE;
+                }
+                else
+                {
+                    point_id[p] = -1;
+                }
             }
 
-            if( point_id[0] != point_id[1] &&
+            if( connected )
+            {
+                for_less( p, 0, 3 )
+                {
+                    pt_index = 3 * tri + p;
+
+                    if( point_id[p] < 0 )
+                    {
+                        point_id[p] = create_point( volume,
+                                 surface_extraction->isovalue,
+                                 surface_extraction->triangles,
+                                 &corner_points[p],
+                                 points_list[pt_index].edge_intersected,
+                                 &pt_class );
+
+                        status = record_edge_point_id( volume,
+                                     &surface_extraction->edge_points,
+                                     &corner_points[p],
+                                     points_list[pt_index].edge_intersected,
+                                     point_id[p] );
+
+                        if( status != OK )
+                        {
+                            point_id[p] = -123456789;
+                        }
+                    }
+                }
+            }
+
+            if( connected && point_id[0] != point_id[1] &&
                 point_id[1] != point_id[2] &&
                 point_id[2] != point_id[0] )
             {
@@ -765,46 +812,6 @@ private  int   create_point( volume, isovalue, tris, voxel, edge_intersected,
     }
 
     return( pt_index );
-}
-
-public  int  get_edge_point_id( volume, tris, isovalue, hash_table,
-                                 voxel, offset_coord,
-                                 edge_intersected )
-    volume_struct       *volume;
-    polygons_struct     *tris;
-    Real                isovalue;
-    hash_table_struct   *hash_table;
-    voxel_index_struct  *voxel;
-    int                 offset_coord[N_DIMENSIONS];
-    int                 edge_intersected;
-{
-    int                 point_id;
-    Status              status;
-    Boolean             lookup_edge_point_id();
-    Status              record_edge_point_id();
-    voxel_index_struct  corner;
-    Point_classes       pt_class;
-
-    corner.i[X_AXIS] = voxel->i[X_AXIS] + offset_coord[X_AXIS];
-    corner.i[Y_AXIS] = voxel->i[Y_AXIS] + offset_coord[Y_AXIS];
-    corner.i[Z_AXIS] = voxel->i[Z_AXIS] + offset_coord[Z_AXIS];
-
-    if( !lookup_edge_point_id( volume, hash_table, &corner, edge_intersected,
-                               &point_id ) )
-    {
-        point_id = create_point( volume, isovalue, tris, &corner,
-                                 edge_intersected, &pt_class );
-
-        status = record_edge_point_id( volume, hash_table,
-                                       &corner, edge_intersected, point_id );
-
-        if( status != OK )
-        {
-            point_id = -123456789;
-        }
-    }
-
-    return( point_id );
 }
 
 public  int  get_n_voxels( volume )
