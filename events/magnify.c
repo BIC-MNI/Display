@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/magnify.c,v 1.16 1995-10-19 15:51:20 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/magnify.c,v 1.17 1997-01-20 02:11:23 david Exp $";
 #endif
 
 
@@ -125,7 +125,7 @@ private  BOOLEAN  perform_magnification(
     {
         delta = x - x_prev;
 
-        factor = exp( -delta * log( 2.0 ) );
+        factor = exp( delta * log( 2.0 ) );
 
         magnify_view_size( &display->three_d.view, factor );
 

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/view.c,v 1.32 1996-04-19 13:25:37 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/view.c,v 1.33 1997-01-20 02:15:08 david Exp $";
 #endif
 
 #include <display.h>
@@ -360,15 +360,15 @@ public  void  magnify_view_size(
 
     if( view->perspective_flag || view->stereo_flag )
     {
-        dist = (1.0 - factor) * view->perspective_distance;
+        dist = (1.0 - 1.0 / factor) * view->perspective_distance;
         SCALE_VECTOR( offset, view->line_of_sight, dist );
         ADD_POINT_VECTOR( view->origin, view->origin, offset);
     }
     else
     {
-        view->window_width *= factor;
-        view->window_height *= factor;
-        view->perspective_distance *= factor;
+        view->window_width /= factor;
+        view->window_height /= factor;
+        view->perspective_distance /= factor;
     }
 }
 

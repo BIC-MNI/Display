@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.134 1997-01-16 19:04:50 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.135 1997-01-20 02:09:56 david Exp $";
 #endif
 
 #include  <display.h>
@@ -30,6 +30,11 @@ MENU_F(create_model) \
 MENU_F(change_model_name) \
 MENU_F(reset_view) \
 MENU_F(print_view) \
+MENU_F(type_in_view_origin) \
+MENU_F(type_in_view_line_of_sight) \
+MENU_F(type_in_view_up_dir) \
+MENU_F(type_in_view_window_width) \
+MENU_F(type_in_view_perspective_distance) \
 MENU_F(toggle_stereo_mode) \
 MENU_F(set_eye_separation) \
 MENU_F(save_image) \
