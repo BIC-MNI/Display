@@ -1,9 +1,9 @@
 
-#include  <def_stdio.h>
+#include  <def_files.h>
 #include  <def_string.h>
 #include  <def_graphics.h>
 #include  <def_globals.h>
-#include  <def_alloc.h>
+#include  <def_arrays.h>
 
 static   Status   initialize_graphics_window();
 static   void     update_graphics_normal_planes_only();
@@ -46,13 +46,11 @@ private  Status  get_new_graphics( graphics )
 {
     Status   status;
 
-    CHECK_ALLOC1( status, windows, n_windows, n_windows+1, graphics_struct *,
-                  DEFAULT_CHUNK_SIZE );
+    SET_ARRAY_SIZE( status, windows, n_windows, n_windows+1,
+                    DEFAULT_CHUNK_SIZE );
 
     if( status == OK )
-    {
-        ALLOC1( status, windows[n_windows], 1, graphics_struct );
-    }
+        ALLOC( status, windows[n_windows], 1 );
 
     if( status == OK )
     {
@@ -89,7 +87,7 @@ private  Status  free_graphics( graphics )
 
         --n_windows;
 
-        FREE1( status, graphics );
+        FREE( status, graphics );
     }
 
     return( status );
@@ -100,9 +98,7 @@ private  Status  delete_graphics_list()
     Status    status;
 
     if( windows != (graphics_struct **) 0 )
-    {
-        FREE1( status, windows );
-    }
+        FREE( status, windows );
 
     return( status );
 }

@@ -1,6 +1,6 @@
 
 #include  <def_graphics.h>
-#include  <def_alloc.h>
+#include  <def_arrays.h>
 
 public  void  initialize_segmenting( segmenting )
     segmenting_struct  *segmenting;
@@ -20,7 +20,7 @@ public  Status  delete_all_labels( segmenting )
 
     if( segmenting->n_labels > 0 )
     {
-        FREE1( status, segmenting->labels );
+        FREE( status, segmenting->labels );
         segmenting->n_labels = 0;
     }
 
@@ -58,7 +58,7 @@ public  Status  add_point_label( slice_window, x, y, z, id )
     ADD_ELEMENT_TO_ARRAY( status,
                           slice_window->slice.segmenting.n_labels,
                           slice_window->slice.segmenting.labels,
-                          label, label_struct, DEFAULT_CHUNK_SIZE );
+                          label, DEFAULT_CHUNK_SIZE );
 
     if( id == 1 )
         set_voxel_label_flag( slice_window->slice.volume, x, y, z, TRUE );

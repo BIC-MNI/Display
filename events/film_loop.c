@@ -1,6 +1,6 @@
 
 #include  <def_graphics.h>
-#include  <def_stdio.h>
+#include  <def_files.h>
 #include  <def_string.h>
 #include  <def_globals.h>
 
@@ -44,8 +44,7 @@ public  Status  start_film_loop( graphics, base_filename, axis_index, n_steps )
     graphics->three_d.film_loop.y_size = y_size;
     (void) strcpy( graphics->three_d.film_loop.base_filename, base_filename );
 
-    ALLOC1( status, graphics->three_d.film_loop.image_storage,
-             x_size * y_size, Pixel_colour );
+    ALLOC( status, graphics->three_d.film_loop.image_storage, x_size * y_size );
 
     if( status == OK )
     {
@@ -65,7 +64,7 @@ private  Status  end_film_loop( graphics )
     remove_action_table_function( &graphics->action_table, NO_EVENT,
                                   check_updated );
 
-    FREE1( status, graphics->three_d.film_loop.image_storage );
+    FREE( status, graphics->three_d.film_loop.image_storage );
 
     PRINT( "Done film loop.\n" );
 
@@ -376,29 +375,19 @@ private  Status  output_frame( file, pixels, x_size, x_min, x_max, y_min,
     status = io_int( file, WRITE_FILE, BINARY_FORMAT, &x_min );
 
     if( status == OK )
-    {
         status = io_int( file, WRITE_FILE, BINARY_FORMAT, &x_max );
-    }
 
     if( status == OK )
-    {
         status = io_int( file, WRITE_FILE, BINARY_FORMAT, &y_min );
-    }
 
     if( status == OK )
-    {
         status = io_int( file, WRITE_FILE, BINARY_FORMAT, &y_max );
-    }
 
     if( status == OK )
-    {
-        ALLOC1( status, start, y_max - y_min + 1, int );
-    }
+        ALLOC( status, start, y_max - y_min + 1 );
 
     if( status == OK )
-    {
-        ALLOC1( status, end, y_max - y_min + 1, int );
-    }
+        ALLOC( status, end, y_max - y_min + 1 );
 
     for_inclusive( y, y_min, y_max )
     {

@@ -4,6 +4,7 @@
 #include  <def_marching_cubes.h>
 #include  <def_splines.h>
 #include  <def_bitlist.h>
+#include  <def_files.h>
 
 static    Status   clear_surface_extraction();
 
@@ -33,7 +34,7 @@ public  Status  initialize_surface_extraction( graphics )
 
         surface_extraction->polygons->colour_flag = ONE_COLOUR;
 
-        ALLOC1( status, surface_extraction->polygons->colours, 1, Colour );
+        ALLOC( status, surface_extraction->polygons->colours, 1 );
     }
 
     if( status == OK )
@@ -81,7 +82,7 @@ private  Status  clear_surface_extraction( graphics )
 
         empty_polygons_struct( surface_extraction->polygons );
 
-        ALLOC1( status, surface_extraction->polygons->colours, 1, Colour );
+        ALLOC( status, surface_extraction->polygons->colours, 1 );
 
         surface_extraction->polygons->colours[0] = Extracted_surface_colour;
         surface_extraction->polygons->surfprop = Default_surface_property;

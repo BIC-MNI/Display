@@ -1,7 +1,8 @@
 
-#include  <def_standard.h>
+#include  <def_mni.h>
 #include  <def_alloc.h>
 #include  <def_minimization.h>
+#include  <def_files.h>
 
 #define DEBUGP( x ) x
 
@@ -83,16 +84,16 @@ public  Status  initialize_amoeba( fit_data, evaluation_ptr,
 
     fit_data->evaluation_ptr = evaluation_ptr;
 
-    ALLOC2( status, fit_data->p, ndim+1, ndim, double );
+    ALLOC2D( status, fit_data->p, ndim+1, ndim );
 
     if( status == OK )
-        ALLOC1( status, fit_data->y, ndim+1, double );
+        ALLOC( status, fit_data->y, ndim+1 );
 
     if( status == OK )
-        ALLOC1( status, fit_data->psum, ndim, double );
+        ALLOC( status, fit_data->psum, ndim );
 
     if( status == OK )
-        ALLOC1( status, fit_data->ptry, ndim, double );
+        ALLOC( status, fit_data->ptry, ndim );
 
 
     for_less( i, 0, ndim )
@@ -122,16 +123,16 @@ public  Status  terminate_amoeba( fit_data )
 {
     Status   status;
 
-    FREE2( status, fit_data->p );
+    FREE2D( status, fit_data->p );
 
     if( status == OK )
-        FREE1( status, fit_data->y );
+        FREE( status, fit_data->y );
 
     if( status == OK )
-        FREE1( status, fit_data->psum );
+        FREE( status, fit_data->psum );
 
     if( status == OK )
-        FREE1( status, fit_data->ptry );
+        FREE( status, fit_data->ptry );
 
     return( status );
 }

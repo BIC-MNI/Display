@@ -44,7 +44,7 @@ private  Status  create_quadmesh_of_surface( surface_rep, descriptors,
 
     get_default_surfprop( &quadmesh->surfprop );
     quadmesh->colour_flag = ONE_COLOUR;
-    ALLOC1( status, quadmesh->colours, 1, Colour );
+    ALLOC( status, quadmesh->colours, 1 );
 
     if( status == OK )
     {
@@ -56,11 +56,11 @@ private  Status  create_quadmesh_of_surface( surface_rep, descriptors,
         quadmesh->m_closed = FALSE;
         quadmesh->n_closed = FALSE;
 
-        ALLOC1( status, quadmesh->points, m * n, Point );
+        ALLOC( status, quadmesh->points, m * n );
     }
 
     if( status == OK )
-        ALLOC1( status, quadmesh->normals, m * n, Vector );
+        ALLOC( status, quadmesh->normals, m * n );
 
     for_less( i, 0, m )
     {

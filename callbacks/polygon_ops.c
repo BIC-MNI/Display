@@ -2,7 +2,7 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 #include  <def_math.h>
-#include  <def_stdio.h>
+#include  <def_files.h>
 
 public  Boolean  get_current_polygons( graphics, polygons )
     graphics_struct     *graphics;
@@ -60,9 +60,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
         status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
-        {
-            ALLOC1( status, polygons->bintree, 1, bintree_struct );
-        }
+            ALLOC( status, polygons->bintree, 1 );
 
         if( status == OK )
         {
@@ -71,9 +69,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
         }
 
         if( status == OK )
-        {
             status = close_file( file );
-        }
 
         PRINT( "Done.\n" );
     }

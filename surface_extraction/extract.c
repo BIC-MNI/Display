@@ -4,6 +4,7 @@
 #include  <def_marching_cubes.h>
 #include  <def_splines.h>
 #include  <def_bitlist.h>
+#include  <def_arrays.h>
 
 #define  INVALID_ID   -1
 
@@ -276,8 +277,8 @@ private  int  add_polygon_to_list( volume, surface_extraction, voxel_index,
         current_end = NUMBER_INDICES( *polygons );
         next_end = current_end + actual_size;
 
-        CHECK_ALLOC1( status, polygons->indices, current_end,
-                      next_end, int, DEFAULT_CHUNK_SIZE );
+        SET_ARRAY_SIZE( status, polygons->indices, current_end,
+                        next_end, DEFAULT_CHUNK_SIZE );
 
         if( status == OK )
         {
@@ -288,7 +289,7 @@ private  int  add_polygon_to_list( volume, surface_extraction, voxel_index,
 
             ADD_ELEMENT_TO_ARRAY( status, polygons->n_items,
                                   polygons->end_indices,
-                                  next_end, int, DEFAULT_CHUNK_SIZE );
+                                  next_end, DEFAULT_CHUNK_SIZE );
         }
     }
 
@@ -370,15 +371,15 @@ private  int   create_point( volume, isovalue, polygons, voxel,
 
     /* ------------------- store point and normal  ------------------- */
 
-    CHECK_ALLOC1( status, polygons->points,
-                  polygons->n_points, polygons->n_points+1,
-                  Point, DEFAULT_CHUNK_SIZE );
+    SET_ARRAY_SIZE( status, polygons->points,
+                    polygons->n_points, polygons->n_points+1,
+                    DEFAULT_CHUNK_SIZE );
 
     if( status == OK )
     {
-        CHECK_ALLOC1( status, polygons->normals,
-                      polygons->n_points, polygons->n_points+1,
-                      Vector, DEFAULT_CHUNK_SIZE );
+        SET_ARRAY_SIZE( status, polygons->normals,
+                        polygons->n_points, polygons->n_points+1,
+                        DEFAULT_CHUNK_SIZE );
     }
 
     if( status == OK )

@@ -1,5 +1,6 @@
 #include  <def_objects.h>
 #include  <def_priority_queue.h>
+#include  <def_arrays.h>
 
 typedef  struct
 {
@@ -26,7 +27,7 @@ public  Boolean  distance_along_polygons( polygons, p1, poly1, p2, poly2,
     int             last_vertex;
     vertex_struct   *vertices;
 
-    ALLOC1( status, vertices, polygons->n_points, vertex_struct );
+    ALLOC( status, vertices, polygons->n_points );
 
     if( status == OK )
         status = check_polygons_neighbours_computed( polygons );
@@ -41,7 +42,7 @@ public  Boolean  distance_along_polygons( polygons, p1, poly1, p2, poly2,
     }
 
     if( status == OK )
-        FREE1( status, vertices );
+        FREE( status, vertices );
 
     return( found );
 }
@@ -94,7 +95,7 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
         vertices[point_index].distance = dist;
         entry.index_within_poly = p;
         entry.poly_index = poly2;
-        INSERT_IN_PRIORITY_QUEUE( status, queue, queue_struct, entry, -dist );
+        INSERT_IN_PRIORITY_QUEUE( status, queue, entry, -dist );
     }
 
     found = FALSE;
@@ -158,8 +159,7 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
                     {
                         entry.index_within_poly = neighbour_index_within_poly;
                         entry.poly_index = current_poly;
-                        INSERT_IN_PRIORITY_QUEUE( status, queue, queue_struct,
-                                                  entry, -dist );
+                        INSERT_IN_PRIORITY_QUEUE( status, queue, entry, -dist );
                     }
                 }
 

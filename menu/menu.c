@@ -2,6 +2,7 @@
 #include  <def_graphics.h>
 #include  <def_string.h>
 #include  <def_globals.h>
+#include  <def_files.h>
 
 static    void    turn_off_menu_entry();
 static    DECL_EVENT_FUNCTION( handle_character );

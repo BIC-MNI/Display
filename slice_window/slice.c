@@ -137,8 +137,7 @@ public  Status  set_slice_window_volume( graphics, volume )
     {
         for_less( i, 0, NUM_LOOKUPS )
         {
-            ALLOC1( status, graphics->slice.fast_lookup[i], num_entries,
-                    Pixel_colour );
+            ALLOC( status, graphics->slice.fast_lookup[i], num_entries );
         }
     }
 
@@ -244,13 +243,13 @@ public  Status  delete_slice_window( slice_window )
 
     if( status == OK && slice_window->temporary_indices_alloced > 0 )
     {
-        FREE1( status, slice_window->temporary_indices );
+        FREE( status, slice_window->temporary_indices );
     }
 
     if( status == OK && slice_window->fast_lookup_present )
     {
         for_less( i, 0, NUM_LOOKUPS )
-            FREE1( status, slice_window->fast_lookup[i] );
+            FREE( status, slice_window->fast_lookup[i] );
     }
 
     return( status );

@@ -1,8 +1,8 @@
 
 #include  <def_graphics.h>
 #include  <def_globals.h>
-#include  <def_stdio.h>
-#include  <def_alloc.h>
+#include  <def_files.h>
+#include  <def_arrays.h>
 
 #define  DIVIDER_INDEX      0
 #define  SLICE1_INDEX       1
@@ -241,9 +241,9 @@ public  void  rebuild_slice_pixels( graphics, view_index )
 
     if( x_size > graphics->slice.temporary_indices_alloced )
     {
-        CHECK_ALLOC1( status, graphics->slice.temporary_indices,
-                      graphics->slice.temporary_indices_alloced,
-                      x_size, int, DEFAULT_CHUNK_SIZE );
+        SET_ARRAY_SIZE( status, graphics->slice.temporary_indices,
+                        graphics->slice.temporary_indices_alloced,
+                        x_size, DEFAULT_CHUNK_SIZE );
 
         if( status == OK )
         {
@@ -489,8 +489,8 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
 
     if( status == OK )
     {
-        CHECK_ALLOC1( status, pixels->pixels, old_size, new_size,
-                      Pixel_colour, DEFAULT_CHUNK_SIZE );
+        SET_ARRAY_SIZE( status, pixels->pixels, old_size, new_size,
+                        DEFAULT_CHUNK_SIZE );
     }
 
     indices[axis_index] = start_indices[axis_index];

@@ -3,6 +3,8 @@
 #include  <def_globals.h>
 #include  <def_bitlist.h>
 #include  <def_alloc.h>
+#include  <def_queue.h>
+#include  <def_files.h>
 
 /* ------------------ Voxel queue ------------------------ */
 
@@ -18,7 +20,7 @@ public  Status   insert_in_voxel_queue( voxel_queue, voxel_indices )
 {
     Status   status;
 
-    INSERT_IN_QUEUE( status, *voxel_queue, voxel_index_struct, *voxel_indices );
+    INSERT_IN_QUEUE( status, *voxel_queue, *voxel_indices );
 
     return( status );
 }
@@ -140,7 +142,7 @@ public  Status  initialize_voxel_done_flags( voxel_done_flags, n_voxels )
 
     if( n_voxels > 0 )
     {
-        ALLOC1( status, *voxel_done_flags, (n_voxels + 1) / 2, unsigned_byte );
+        ALLOC( status, *voxel_done_flags, (n_voxels + 1) / 2 );
 
         if( status == OK )
         {
@@ -159,9 +161,7 @@ public  Status  delete_voxel_done_flags( voxel_done_flags )
     status = OK;
 
     if( voxel_done_flags != (unsigned_byte *) 0 )
-    {
-        FREE1( status, voxel_done_flags );
-    }
+        FREE( status, voxel_done_flags );
 
     return( status );
 }
@@ -259,9 +259,9 @@ public  Status  delete_edge_points( hash_table )
     status = OK;
 
     while( status == OK && get_next_hash_entry( hash_table, &hash_ptr,
-                                                (char **) &edge_info ) )
+                                                (void **) &edge_info ) )
     {
-        FREE1( status, edge_info );
+        FREE( status, edge_info );
     }
 
     if( status == OK )
@@ -303,7 +303,7 @@ public  Boolean  lookup_edge_point_id( volume, hash_table,
 
     get_edge_point_keys( volume, voxel, edge_intersected, keys );
 
-    exists = lookup_in_hash_table( hash_table, keys, (char **) &edge_info );
+    exists = lookup_in_hash_table( hash_table, keys, (void **) &edge_info );
 
     if( exists )
     {
@@ -329,14 +329,12 @@ public  Status  record_edge_point_id( volume, hash_table,
 
     get_edge_point_keys( volume, voxel, edge_intersected, keys );
 
-    ALLOC1( status, edge_info, 1, edge_point_struct );
+    ALLOC( status, edge_info, 1 );
 
     edge_info->point_index = edge_point_id;
 
     if( status == OK )
-    {
-        status = insert_in_hash_table( hash_table, keys, (char *) edge_info );
-    }
+        status = insert_in_hash_table( hash_table, keys, (void *) edge_info );
 
 #ifdef STATS
 {
@@ -367,10 +365,8 @@ public  Status  remove_edge_point( volume, hash_table, voxel, edge_intersected )
 
     get_edge_point_keys( volume, voxel, edge_intersected, keys );
 
-    if( remove_from_hash_table( hash_table, keys, (char **) &edge_info ) )
-    {
-        FREE1( status, edge_info );
-    }
+    if( remove_from_hash_table( hash_table, keys, (void **) &edge_info ) )
+        FREE( status, edge_info );
 
     return( status );
 }

@@ -2,7 +2,7 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 #include  <def_math.h>
-#include  <def_stdio.h>
+#include  <def_files.h>
 
 static    void     get_min_max();
 static    Boolean  min_max_present();

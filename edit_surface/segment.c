@@ -1,8 +1,9 @@
 
 #include  <def_graphics.h>
-#include  <def_stdio.h>
+#include  <def_files.h>
 #include  <def_globals.h>
 #include  <def_colours.h>
+#include  <def_arrays.h>
 
 static    DECL_EVENT_FUNCTION( start_segmenting );
 static    DECL_EVENT_FUNCTION( terminate_segmenting );
@@ -140,7 +141,7 @@ private  Status   add_polygon_under_mouse( graphics )
                                             surface_edit->n_vertices_alloced,
                                             surface_edit->n_vertices,
                                             surface_edit->vertices, poly_index,
-                                            int, DEFAULT_CHUNK_SIZE );
+                                            DEFAULT_CHUNK_SIZE );
         }
     }
 
@@ -192,9 +193,7 @@ private  Status  segment_polygons( graphics, segmented )
     }
 
     if( status == OK && path_length > 0 )
-    {
-        FREE1( status, path );
-    }
+        FREE( status, path );
 
     return( status );
 }
@@ -242,13 +241,13 @@ private  Status   create_complete_path( n_vertices, vertices, polygons,
             for_less( p, 0, len-1 )
             {
                 ADD_ELEMENT_TO_ARRAY( status, *path_length, *path,
-                                      poly_path[p], int, DEFAULT_CHUNK_SIZE );
+                                      poly_path[p], DEFAULT_CHUNK_SIZE );
             }
         }
 
         if( status == OK && len > 0 )
         {
-            FREE1( status, poly_path );
+            FREE( status, poly_path );
         }
     }
 

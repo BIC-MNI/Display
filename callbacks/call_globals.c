@@ -1,5 +1,6 @@
 
 #include  <def_graphics.h>
+#include  <def_files.h>
 
 public  DEF_MENU_FUNCTION( menu_set_global_variable )  /* ARGSUSED */
 {
@@ -10,7 +11,7 @@ public  DEF_MENU_FUNCTION( menu_set_global_variable )  /* ARGSUSED */
 
     (void) printf( "variable_name [= value]: " );
 
-    status = input_string( stdin, input_str, '\n' );
+    status = input_string( stdin, input_str, MAX_STRING_LENGTH, '\n' );
 
     if( status == OK )
     {
@@ -19,14 +20,10 @@ public  DEF_MENU_FUNCTION( menu_set_global_variable )  /* ARGSUSED */
     }
 
     if( status == OK )
-    {
         PRINT( "%s = %s\n", variable_name, new_value );
-    }
 
     if( status != OK )
-    {
         PRINT_ERROR( "Error in setting global variable\n" );
-    }
 
     return( status );
 }

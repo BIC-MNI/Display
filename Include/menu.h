@@ -2,7 +2,7 @@
 #ifndef  DEF_MENU
 #define  DEF_MENU
 
-#include  <def_standard.h>
+#include  <def_mni.h>
 
 typedef  Status   menu_function_type();
 

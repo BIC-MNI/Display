@@ -2,7 +2,7 @@
 #ifndef  DEF_SURFACE_FITTING
 #define  DEF_SURFACE_FITTING
 
-#include  <def_standard.h>
+#include  <def_mni.h>
 #include  <def_geometry.h>
 #include  <def_surface_rep.h>
 

@@ -1,6 +1,7 @@
 
 #include  <def_graphics.h>
 #include  <def_globals.h>
+#include  <def_files.h>
 
 public  DEF_MENU_FUNCTION( make_view_fit )      /* ARGSUSED */
 {

@@ -54,10 +54,10 @@ public  void  generate_tube( n_points, points, n_around, radius,
     Boolean  wrap_around;
     void     get_direction();
 
-    ALLOC1( status, x, n_around, Real );
+    ALLOC( status, x, n_around );
 
     if( status == OK )
-        ALLOC1( status, y, n_around, Real );
+        ALLOC( status, y, n_around );
 
     if( status == OK )
     {
@@ -106,10 +106,10 @@ public  void  generate_tube( n_points, points, n_around, radius,
         }
     }
 
-    FREE1( status, x );
+    FREE( status, x );
 
     if( status == OK )
-        FREE1( status, y );
+        FREE( status, y );
 }
 
 private  void   fill_in_ellipse_points( tube_points, tube_normals, centre,

@@ -88,7 +88,7 @@ private   void   create_distance_transform( x_size, y_size, pixels )
             {
                 insert.x = x;
                 insert.y = y;
-                INSERT_IN_QUEUE( status, queue, voxel_struct, insert );
+                INSERT_IN_QUEUE( status, queue, insert );
                 pixels[x][y].queued = TRUE;
                 pixels[x][y].dist_transform = 1;
             }
@@ -120,7 +120,7 @@ private   void   create_distance_transform( x_size, y_size, pixels )
             {
                 insert.x = nx;
                 insert.y = ny;
-                INSERT_IN_QUEUE( status, queue, voxel_struct, insert );
+                INSERT_IN_QUEUE( status, queue, insert );
                 pixels[nx][ny].queued = TRUE;
                 pixels[nx][ny].dist_transform = dist;
             }
@@ -183,7 +183,7 @@ private  Boolean  find_other_label_connected( x_size, y_size, pixels,
                 pixels[x][y].dist_from_region = 0;
                 insert.x = x;
                 insert.y = y;
-                INSERT_IN_QUEUE( status, queue, voxel_struct, insert );
+                INSERT_IN_QUEUE( status, queue, insert );
             }
             else
             {
@@ -220,7 +220,7 @@ private  Boolean  find_other_label_connected( x_size, y_size, pixels,
                 {
                     insert.x = nx;
                     insert.y = ny;
-                    INSERT_IN_QUEUE( status, queue, voxel_struct, insert );
+                    INSERT_IN_QUEUE( status, queue, insert );
                 }
             }
         }
@@ -288,7 +288,7 @@ private   Status   add_a_cut( x_size, y_size, pixels, x, y )
 
     path_length = pixels[x][y].dist_from_region + 1;
 
-    ALLOC1( status, path, path_length, voxel_struct );
+    ALLOC( status, path, path_length );
 
     if( status == OK )
         status = find_path( x_size, y_size, pixels, x, y, path );
@@ -319,7 +319,7 @@ private   Status   add_a_cut( x_size, y_size, pixels, x, y )
                                path_index );
 
     if( status == OK )
-        FREE1( status, path )
+        FREE( status, path )
 
     return( status );
 }
@@ -404,7 +404,7 @@ private   void   shrink_boundary_to_path( x_size, y_size, pixels )
             {
                 insert.x = x;
                 insert.y = y;
-                INSERT_IN_QUEUE( status, queue, voxel_struct, insert );
+                INSERT_IN_QUEUE( status, queue, insert );
                 pixels[x][y].queued = TRUE;
                 pixels[x][y].path_dist_transform = 1;
 
@@ -441,7 +441,7 @@ pixels[x][y].label = 1;
             {
                 insert.x = nx;
                 insert.y = ny;
-                INSERT_IN_QUEUE( status, queue, voxel_struct, insert );
+                INSERT_IN_QUEUE( status, queue, insert );
                 pixels[nx][ny].queued = TRUE;
                 pixels[nx][ny].path_dist_transform = dist;
 
@@ -808,7 +808,7 @@ private  void  expand_region_of_interest( x_size, y_size, pixels,
             {
                 insert.x = x;
                 insert.y = y;
-                INSERT_IN_QUEUE( status, queue, voxel_struct, insert );
+                INSERT_IN_QUEUE( status, queue, insert );
                 pixels[x][y].queued = TRUE;
             }
             else
@@ -838,7 +838,7 @@ private  void  expand_region_of_interest( x_size, y_size, pixels,
             {
                 insert.x = nx;
                 insert.y = ny;
-                INSERT_IN_QUEUE( status, queue, voxel_struct, insert );
+                INSERT_IN_QUEUE( status, queue, insert );
                 pixels[nx][ny].queued = TRUE;
                 pixels[nx][ny].label = label_of_interest;
             }

@@ -34,7 +34,7 @@ public  void  draw_2d_line( graphics, view_type, colour, x1, y1, x2, y2 )
     fill_Point( end_points[0], x1, y1, 0.0 );
     fill_Point( end_points[1], x2, y2, 0.0 );
 
-    ALLOC1( status, lines.colours, 1, Colour );
+    ALLOC( status, lines.colours, 1 );
 
     if( status == OK )
     {
@@ -44,6 +44,7 @@ public  void  draw_2d_line( graphics, view_type, colour, x1, y1, x2, y2 )
 
         G_draw_lines( &graphics->window, &lines, get_main_render(graphics),
                       (update_interrupted_struct *) 0, FALSE );
+        FREE( status, lines.colours );
     }
 }
 
@@ -79,7 +80,7 @@ public  void  draw_2d_rectangle( graphics, view_type, colour, x1, y1, x2, y2 )
     fill_Point( corners[2], x2, y2, 0.0 );
     fill_Point( corners[3], x1, y2, 0.0 );
 
-    ALLOC1( status, lines.colours, 1, Colour );
+    ALLOC( status, lines.colours, 1 );
 
     if( status == OK )
     {
@@ -88,6 +89,7 @@ public  void  draw_2d_rectangle( graphics, view_type, colour, x1, y1, x2, y2 )
         G_set_render( &graphics->window, get_main_render(graphics) );
         G_draw_lines( &graphics->window, &lines, get_main_render(graphics),
                       (update_interrupted_struct *) 0, FALSE );
+        FREE( status, lines.colours );
     }
 }
 

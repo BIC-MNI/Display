@@ -1,4 +1,3 @@
-#include <def_standard.h>
 #include <def_graphics.h>
 #include <def_geometry.h>
 #include <def_globals.h>

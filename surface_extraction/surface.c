@@ -4,6 +4,7 @@
 #include  <def_marching_cubes.h>
 #include  <def_splines.h>
 #include  <def_bitlist.h>
+#include  <def_files.h>
 
 static    Status   delete_edge_points_no_longer_needed();
 static    void     possibly_output();
@@ -313,8 +314,6 @@ public  void  add_voxel_neighbours( volume, x, y, z, surface_only, isovalue,
         }
     }
 }
-
-#include <def_stdio.h>
 
 private  void  possibly_output( p )
     polygons_struct  *p;

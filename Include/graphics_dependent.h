@@ -1,7 +1,7 @@
 #ifndef  DEF_GRAPHICS_DEPENDENT
 #define  DEF_GRAPHICS_DEPENDENT
 
-#include <def_standard.h>
+#include <def_mni.h>
 #include <def_geom_structs.h>
 
 #define  window   GL_window

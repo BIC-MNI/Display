@@ -1,5 +1,6 @@
 
 #include  <def_graphics.h>
+#include  <def_files.h>
 
 public  DEF_MENU_FUNCTION( reverse_normals )   /* ARGSUSED */
 {
@@ -306,20 +307,23 @@ public  DEF_MENU_UPDATE(delete_current_object )     /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
 {
+    Status          status;
     object_struct   *current_object;
     Boolean         get_current_object();
     void            set_object_colour();
     void            set_update_required();
     Colour          col;
     String          line;
-    void            input_line();
+
+    status = OK;
 
     if( get_current_object( graphics, &current_object ) )
     {
         PRINT( "Enter colour name or r g b:" );
-        input_line( stdin, line );
+        status = input_line( stdin, line, MAX_STRING_LENGTH );
 
-        if( lookup_colour( line, &col ) ||
+        if( status == OK &&
+            lookup_colour( line, &col ) ||
             sscanf( line, "%f %f %f", &Colour_r(col), &Colour_g(col),
                     &Colour_b(col) ) == 3 )
         {
@@ -329,7 +333,7 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
         }
     }
 
-    return( OK );
+    return( status );
 }
 
 public  DEF_MENU_UPDATE(set_current_object_colour )   /* ARGSUSED */

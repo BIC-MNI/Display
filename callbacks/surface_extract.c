@@ -1,7 +1,7 @@
 
 #include  <def_graphics.h>
 #include  <def_math.h>
-#include  <def_stdio.h>
+#include  <def_files.h>
 
 public  DEF_MENU_FUNCTION(start_surface )   /* ARGSUSED */
 {
@@ -122,8 +122,8 @@ public  DEF_MENU_FUNCTION(make_surface_permanent)   /* ARGSUSED */
             status = add_object_to_model( get_current_model(graphics), object );
         }
 
-        ALLOC1( status, graphics->three_d.surface_extraction.polygons->colours,
-                1, Colour );
+        ALLOC( status, graphics->three_d.surface_extraction.polygons->colours,
+               1 );
         graphics->three_d.surface_extraction.polygons->n_items = 0;
         graphics->three_d.surface_extraction.polygons->n_points = 0;
 

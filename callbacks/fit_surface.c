@@ -2,7 +2,7 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 #include  <def_math.h>
-#include  <def_stdio.h>
+#include  <def_files.h>
 #include  <def_minimization.h>
 
 public  DEF_MENU_FUNCTION(set_model_parameters)   /* ARGSUSED */
@@ -19,7 +19,7 @@ public  DEF_MENU_FUNCTION(set_model_parameters)   /* ARGSUSED */
                         graphics->three_d.surface_fitting.parameters );
     PRINT( "\n" );
 
-    ALLOC1( status, tmp_parameters, n_parameters, double );
+    ALLOC( status, tmp_parameters, n_parameters );
 
     PRINT( "Enter new values of parameters: " );
     for_less( i, 0, n_parameters )
@@ -43,7 +43,7 @@ public  DEF_MENU_FUNCTION(set_model_parameters)   /* ARGSUSED */
     }
 
     if( status == OK )
-        FREE1( status, tmp_parameters );
+        FREE( status, tmp_parameters );
 
     return( status );
 }
@@ -168,10 +168,9 @@ public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
     status = OK;
 
     if( graphics->three_d.surface_fitting.n_surface_points > 0 )
-        ALLOC1( status,
+        ALLOC( status,
                 graphics->three_d.surface_fitting.surface_point_distances,
-                graphics->three_d.surface_fitting.n_surface_points,
-                Real );
+                graphics->three_d.surface_fitting.n_surface_points );
 
     if( status == OK )
         status = initialize_amoeba( &minimization, (void *) graphics,
@@ -187,8 +186,8 @@ public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
         status = terminate_amoeba( &minimization );
 
     if( status == OK && graphics->three_d.surface_fitting.n_surface_points > 0 )
-        FREE1( status,
-                graphics->three_d.surface_fitting.surface_point_distances );
+        FREE( status,
+              graphics->three_d.surface_fitting.surface_point_distances );
 
     PRINT( "Resulting parameters: " );
     display_parameters( &graphics->three_d.surface_fitting,
@@ -290,7 +289,7 @@ public  DEF_MENU_FUNCTION(load_model_parameters)   /* ARGSUSED */
            surface_representation->
            get_num_parameters( graphics->three_d.surface_fitting.descriptors );
 
-        ALLOC1( status, tmp_parameters, n_parameters, double );
+        ALLOC( status, tmp_parameters, n_parameters );
     }
 
     if( status == OK )
@@ -311,7 +310,7 @@ public  DEF_MENU_FUNCTION(load_model_parameters)   /* ARGSUSED */
         for_less( i, 0, n_parameters )
             graphics->three_d.surface_fitting.parameters[i] = tmp_parameters[i];
 
-        FREE1( status, tmp_parameters );
+        FREE( status, tmp_parameters );
     }
 
     return( status );
@@ -405,7 +404,7 @@ public  DEF_MENU_FUNCTION(convert_to_new_representation)   /* ARGSUSED */
 
     if( status == OK )
     {
-        ALLOC1( status, new_descriptors, surface_rep->n_descriptors, double );
+        ALLOC( status, new_descriptors, surface_rep->n_descriptors );
 
         for_less( i, 0, surface_rep->n_descriptors )
         {
@@ -422,7 +421,7 @@ public  DEF_MENU_FUNCTION(convert_to_new_representation)   /* ARGSUSED */
     }
 
     if( status == OK )
-        FREE1( status, new_descriptors );
+        FREE( status, new_descriptors );
    
     return( status );
 }

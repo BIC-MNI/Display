@@ -1,5 +1,6 @@
-#include  <def_alloc.h>
+#include  <def_arrays.h>
 #include  <def_surface_fitting.h>
+#include  <def_files.h>
 
 const  Surface_representations  INITIAL_REPRESENTATION = SUPERQUADRIC;
 
@@ -34,9 +35,8 @@ public  Status  alloc_surface_fitting_parameters( surface_fitting )
 
     if( surface_fitting->surface_representation->n_descriptors > 0 )
     {
-        ALLOC1( status, surface_fitting->descriptors,
-                surface_fitting->surface_representation->n_descriptors, 
-                double );
+        ALLOC( status, surface_fitting->descriptors,
+               surface_fitting->surface_representation->n_descriptors );
     }
 
     if( status == OK )
@@ -50,7 +50,7 @@ public  Status  alloc_surface_fitting_parameters( surface_fitting )
         n_parameters = surface_fitting->surface_representation->
                        get_num_parameters( surface_fitting->descriptors );
 
-        ALLOC1( status, surface_fitting->parameters, n_parameters, double );
+        ALLOC( status, surface_fitting->parameters, n_parameters );
     }
 
     return( status );
@@ -61,12 +61,12 @@ public  Status  free_surface_fitting_parameters( surface_fitting )
 {
     Status  status;
 
-    FREE1( status, surface_fitting->parameters );
+    FREE( status, surface_fitting->parameters );
 
     if( status == OK &&
         surface_fitting->surface_representation->n_descriptors > 0 )
     {
-        FREE1( status, surface_fitting->descriptors );
+        FREE( status, surface_fitting->descriptors );
     }
 
     return( status );
@@ -80,7 +80,7 @@ public  Status  delete_surface_fitting( surface_fitting )
     status = free_surface_fitting_parameters( surface_fitting );
 
     if( status == OK && surface_fitting->n_surface_points > 0 )
-        FREE1( status, surface_fitting->surface_points );
+        FREE( status, surface_fitting->surface_points );
 
     return( status );
 }
@@ -107,7 +107,7 @@ public  Status  add_surface_fitting_point( surface_fitting, point )
 
     ADD_ELEMENT_TO_ARRAY( status, surface_fitting->n_surface_points,
                           surface_fitting->surface_points, *point,
-                          Point, DEFAULT_CHUNK_SIZE );
+                          DEFAULT_CHUNK_SIZE );
 
     return( status );
 }
@@ -135,8 +135,8 @@ public  Status  delete_surface_fitting_point( surface_fitting, point )
     if( index >= 0 )
     {
         DELETE_ELEMENT_FROM_ARRAY( status, surface_fitting->n_surface_points,
-                              surface_fitting->surface_points, index,
-                              Point, DEFAULT_CHUNK_SIZE );
+                                   surface_fitting->surface_points, index,
+                                   DEFAULT_CHUNK_SIZE );
     }
 
     return( status );
@@ -151,7 +151,7 @@ public  Status  delete_surface_fitting_points( surface_fitting )
 
     if( surface_fitting->n_surface_points > 0 )
     {
-        FREE1( status, surface_fitting->surface_points );
+        FREE( status, surface_fitting->surface_points );
 
         surface_fitting->n_surface_points = 0;
     }
@@ -189,10 +189,10 @@ public  Status  convert_to_new_surface_representation( surface_fitting,
     }
     
     if( status == OK )
-        FREE1( status, prev_parameters );
+        FREE( status, prev_parameters );
     
     if( status == OK )
-        FREE1( status, prev_descriptors );
+        FREE( status, prev_descriptors );
 
     return( status );
 }

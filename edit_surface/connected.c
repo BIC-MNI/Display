@@ -1,8 +1,9 @@
 
 #include  <def_graphics.h>
-#include  <def_stdio.h>
+#include  <def_files.h>
 #include  <def_globals.h>
 #include  <def_colours.h>
+#include  <def_arrays.h>
 
 static    DECL_EVENT_FUNCTION( pick_start_point );
 static    DECL_EVENT_FUNCTION( terminate_connected );
@@ -92,7 +93,7 @@ private  Status  make_connected_invisible( polygons, poly_index )
     n_alloced = 0;
 
     ADD_ELEMENT_TO_ARRAY_WITH_SIZE( status, n_alloced, n_queued, queue,
-                                    poly_index, int, DEFAULT_CHUNK_SIZE );
+                                    poly_index, DEFAULT_CHUNK_SIZE );
 
     while( n_queued > 0 )
     {
@@ -118,16 +119,14 @@ if( neighbour >= polygons->n_items )
                 if( status == OK )
                 {
                     ADD_ELEMENT_TO_ARRAY_WITH_SIZE( status, n_alloced, n_queued,
-                                 queue, neighbour, int, DEFAULT_CHUNK_SIZE );
+                                 queue, neighbour, DEFAULT_CHUNK_SIZE );
                 }
             }
         }
     }
 
     if( status == OK && n_alloced > 0 )
-    {
-        FREE1( status, queue );
-    }
+        FREE( status, queue );
 
     return( status );
 }

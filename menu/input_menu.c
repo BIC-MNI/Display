@@ -1,6 +1,7 @@
 #include  <def_string.h>
 #include  <def_graphics.h>
-#include  <def_alloc.h>
+#include  <def_arrays.h>
+#include  <def_files.h>
 
 #define  FUNCTION_LIST \
                        MENU_FUNCTION(exit_program) \
@@ -206,13 +207,13 @@ private  Status  input_menu( file, n_menus_ptr, menus_ptr )
     n_menus = 0;
 
     while( status == OK &&
-           input_string( file, menu_entry.menu_name, ' ' ) == OK )
+           input_string( file, menu_entry.menu_name, MAX_STRING_LENGTH, ' ' )
+           == OK )
     {
         status = input_menu_entry( file, &menu_entry );
         if( status == OK )
         {
-            CHECK_ALLOC1( status, menus, n_menus, n_menus+1,
-                          menu_definition_struct, 10 );
+            SET_ARRAY_SIZE( status, menus, n_menus, n_menus+1, 10 );
         }
 
         if( status == OK )
@@ -266,18 +267,15 @@ private  Status  input_key_action( file, action )
 
     if( status == OK )
     {
-        status = input_string( file, action->action_name, ' ' );
+        status = input_string( file, action->action_name, MAX_STRING_LENGTH,
+                               ' ' );
     }
 
     if( status == OK )
-    {
         status = skip_input_until( file, '"' );
-    }
 
     if( status == OK )
-    {
-        status = input_string( file, action->label, '"' );
-    }
+        status = input_string( file, action->label, MAX_STRING_LENGTH, '"' );
 
     return( status );
 }
@@ -303,7 +301,8 @@ private  Status  input_menu_entry( file, menu_entry )
 
         do
         {
-            status = input_string( file, permanent_string, ' ' );
+            status = input_string( file, permanent_string, MAX_STRING_LENGTH,
+                                   ' ' );
 
             if( status == OK )
             {
@@ -328,10 +327,9 @@ private  Status  input_menu_entry( file, menu_entry )
 
             if( status == OK && !found_brace )
             {
-                CHECK_ALLOC1( status, menu_entry->entries,
-                              menu_entry->n_entries,
-                              menu_entry->n_entries+1,
-                              key_action_struct, 1 );
+                SET_ARRAY_SIZE( status, menu_entry->entries,
+                                menu_entry->n_entries,
+                                menu_entry->n_entries+1, 1 );
 
                 if( status == OK )
                 {
@@ -363,12 +361,10 @@ private  Status  free_input_menu( n_menus, menus )
         for_less( i, 0, n_menus )
         {
             if( status == OK && menus[i].n_entries > 0 )
-            {
-                FREE1( status, menus[i].entries );
-            }
+                FREE( status, menus[i].entries );
         }
 
-        FREE1( status, menus );
+        FREE( status, menus );
     }
 
     return( status );
@@ -397,7 +393,7 @@ private  Status  create_menu( menu, n_menus, menus )
 
     menu->n_entries = n_entries;
 
-    ALLOC1( status, menu->entries, menu->n_entries, menu_entry_struct );
+    ALLOC( status, menu->entries, menu->n_entries );
 
     if( status == OK )
     {
@@ -419,9 +415,7 @@ private  Status  create_menu( menu, n_menus, menus )
 
         menu->entries[0].n_children = menus[0].n_entries;
 
-        ALLOC1( status,
-                 menu->entries[0].children,
-                 menu->entries[0].n_children, menu_entry_struct * );
+        ALLOC( status, menu->entries[0].children, menu->entries[0].n_children );
     }
 
     if( status == OK )
@@ -443,10 +437,8 @@ private  Status  create_menu( menu, n_menus, menus )
                 if( menu_index >= 0 )
                 {
                     menu_entry->n_children = menus[menu_index].n_entries;
-                    ALLOC1( status,
-                             menu_entry->children,
-                             menu_entry->n_children,
-                             menu_entry_struct * );
+                    ALLOC( status, menu_entry->children,
+                           menu_entry->n_children );
 
                     if( status == OK )
                     {
@@ -553,12 +545,10 @@ private  Status  delete_menu_entry( top_flag, entry )
     status = OK;
 
     if( !top_flag )
-        FREE1( status, entry->text_list );
+        FREE( status, entry->text_list );
 
     if( status == OK && entry->n_children > 0 )
-    {
-        FREE1( status, entry->children );
-    }
+        FREE( status, entry->children );
 
     return( status );
 }
@@ -581,7 +571,7 @@ public  Status  delete_menu( menu )
 
     if( status == OK )
     {
-        FREE1( status,  menu->entries );
+        FREE( status, menu->entries );
     }
 
     return( status );

@@ -2,7 +2,7 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 #include  <def_math.h>
-#include  <def_stdio.h>
+#include  <def_files.h>
 
 public  DEF_MENU_FUNCTION( reset_polygon_visibility )   /* ARGSUSED */
 {
@@ -567,7 +567,7 @@ private  Status  io_polygons_visibilities( polygons, io_flag )
     {
         PRINT( "Enter filename: " );
 
-        status = input_string( stdin, filename, ' ' );
+        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
     }
 
     if( status == OK )

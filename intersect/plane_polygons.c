@@ -1,4 +1,5 @@
 
+#include  <def_arrays.h>
 #include  <def_graphics.h>
 
 static    Status   intersect_plane_polygons();
@@ -117,24 +118,23 @@ public  Boolean  intersect_plane_one_polygon( plane_normal, plane_constant,
 
         ADD_ELEMENT_TO_ARRAY_WITH_SIZE( status,
                  *n_points_alloced, lines->n_points, lines->points,
-                 points[0], Point, DEFAULT_CHUNK_SIZE );
+                 points[0], DEFAULT_CHUNK_SIZE );
         ADD_ELEMENT_TO_ARRAY_WITH_SIZE( status,
                  *n_points_alloced, lines->n_points, lines->points,
-                 points[1], Point, DEFAULT_CHUNK_SIZE );
+                 points[1], DEFAULT_CHUNK_SIZE );
 
         n_indices = NUMBER_INDICES( *lines );
 
         ADD_ELEMENT_TO_ARRAY_WITH_SIZE( status,
                  *n_indices_alloced, n_indices, lines->indices,
-                 point_index, int, DEFAULT_CHUNK_SIZE );
+                 point_index, DEFAULT_CHUNK_SIZE );
         ADD_ELEMENT_TO_ARRAY_WITH_SIZE( status,
                  *n_indices_alloced, n_indices, lines->indices,
-                 point_index+1, int, DEFAULT_CHUNK_SIZE );
+                 point_index+1, DEFAULT_CHUNK_SIZE );
 
         ADD_ELEMENT_TO_ARRAY_WITH_SIZE( status,
                  *n_end_indices_alloced, lines->n_items,
-                 lines->end_indices,
-                 n_indices, int, DEFAULT_CHUNK_SIZE );
+                 lines->end_indices, n_indices, DEFAULT_CHUNK_SIZE );
     }
 
     return( intersects );

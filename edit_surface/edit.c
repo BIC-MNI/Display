@@ -24,21 +24,21 @@ public  Status  delete_surface_edit( surface_edit )
 
     if( surface_edit->n_vertices_alloced > 0 )
     {
-        FREE1( status, surface_edit->vertices );
+        FREE( status, surface_edit->vertices );
         surface_edit->n_vertices = 0;
         surface_edit->n_vertices_alloced = 0;
     }
 
     if( surface_edit->n_undos_alloced > 0 )
     {
-        FREE1( status, surface_edit->undo_indices );
+        FREE( status, surface_edit->undo_indices );
         surface_edit->n_undos = 0;
         surface_edit->n_undos_alloced = 0;
     }
 
     if( surface_edit->n_invisible_alloced > 0 )
     {
-        FREE1( status, surface_edit->invisible_indices );
+        FREE( status, surface_edit->invisible_indices );
         surface_edit->n_invisible = 0;
         surface_edit->n_invisible_alloced = 0;
     }

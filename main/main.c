@@ -1,4 +1,4 @@
-#include  <def_stdio.h>
+#include  <def_files.h>
 #include  <def_string.h>
 #include  <def_graphics.h>
 #include  <def_globals.h>
@@ -8,7 +8,6 @@ int  main( argc, argv )
     int     argc;
     char    *argv[];
 {
-    arguments_struct arguments;
     char             *filename;
     String           runtime_directory;
     void             extract_directory();
@@ -74,12 +73,9 @@ int  main( argc, argv )
 
     if( status == OK )
     {
-        status = initialize_argument_processing( argc, argv, &arguments );
-    }
+        initialize_argument_processing( argc, argv );
 
-    if( status == OK )
-    {
-        while( get_string_argument( &arguments, "", &filename ) )
+        while( get_string_argument( "", &filename ) )
         {
             status = load_graphics_file( graphics, filename );
         }

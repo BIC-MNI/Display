@@ -1,5 +1,6 @@
 
 #include  <def_graphics.h>
+#include  <def_files.h>
 
 private  object_struct  *get_model_object( graphics )
     graphics_struct   *graphics;

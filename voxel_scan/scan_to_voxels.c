@@ -1,4 +1,4 @@
-#include  <def_stdio.h>
+#include  <def_files.h>
 #include  <def_graphics.h>
 
 int  n_evals;
@@ -27,7 +27,7 @@ public  void  scan_to_voxels( surface_rep, descriptors,
                     max_voxel_distance, max_parametric_scan_distance );
 
     PRINT( "%d evaluations", n_evals );
-    (void) fflush( stdout );
+    (void) flush_file( stdout );
 }
 
 private  void  recursive_scan( surface_rep, descriptors, volume, parameters,

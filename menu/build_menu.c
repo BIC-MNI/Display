@@ -2,6 +2,7 @@
 #include  <def_string.h>
 #include  <def_graphics.h>
 #include  <def_globals.h>
+#include  <def_files.h>
 
 typedef  struct
 {
@@ -84,8 +85,7 @@ private  Status   create_menu_text( menu_window, menu_entry )
     model_struct    *model;
     model_struct    *get_graphics_model();
 
-    ALLOC1( status, menu_entry->text_list, menu_window->menu.n_lines_in_entry,
-            object_struct * );
+    ALLOC( status, menu_entry->text_list, menu_window->menu.n_lines_in_entry );
 
     for_less( i, 0, menu_window->menu.n_lines_in_entry )
     {
@@ -200,23 +200,24 @@ private  Status   create_menu_box( menu_window, key )
 
         lines->colour_flag = ONE_COLOUR;
 
-        ALLOC1( status, lines->colours, 1, Colour );
-
-        fill_Colour( lines->colours[0], 1.0, 1.0, 1.0 );
-
-        ALLOC1( status, lines->points, lines->n_points, Point );
+        ALLOC( status, lines->colours, 1 );
     }
 
     if( status == OK )
     {
-        ALLOC1( status, lines->end_indices, lines->n_items, int );
+        fill_Colour( lines->colours[0], 1.0, 1.0, 1.0 );
+
+        ALLOC( status, lines->points, lines->n_points );
     }
+
+    if( status == OK )
+        ALLOC( status, lines->end_indices, lines->n_items );
 
     if( status == OK )
     {
         lines->end_indices[0] = 5;
 
-        ALLOC1( status, lines->indices, lines->end_indices[0], int );
+        ALLOC( status, lines->indices, lines->end_indices[0] );
 
         compute_origin( &menu_window->menu, key, &origin );
 

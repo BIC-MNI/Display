@@ -1,6 +1,6 @@
 
 #include  <def_graphics.h>
-#include  <def_stdio.h>
+#include  <def_files.h>
 #include  <def_globals.h>
 
 static    Status          output_marker();
@@ -22,7 +22,8 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
     {
         PRINT( "Enter label for marker: " );
 
-        status = input_string( stdin, object->ptr.marker->label, '\n' );
+        status = input_string( stdin, object->ptr.marker->label,
+                               MAX_STRING_LENGTH, '\n' );
     }
 
     if( status == OK )
@@ -125,7 +126,7 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
 
     PRINT( "Enter filename: " );
 
-    status = input_string( stdin, filename, ' ' );
+    status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
     if( status == OK )
     {

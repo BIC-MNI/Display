@@ -1,7 +1,7 @@
 #ifndef  DEF_GRAPHICS_TYPES
 #define  DEF_GRAPHICS_TYPES
 
-#include  <def_standard.h>
+#include  <def_mni.h>
 #include  <def_objects.h>
 #include  <def_queue.h>
 #include  <def_stack.h>

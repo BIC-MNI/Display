@@ -28,8 +28,7 @@ public  Status  disconnect_components( volume, voxel_indices, axis,
 
     get_volume_size( volume, &size[X_AXIS], &size[Y_AXIS], &size[Z_AXIS] );
 
-    ALLOC2( status, pixels, size[axis[X_AXIS]], size[axis[Y_AXIS]],
-            pixel_struct );
+    ALLOC2D( status, pixels, size[axis[X_AXIS]], size[axis[Y_AXIS]] );
 
     index[axis[Z_AXIS]] = voxel_indices[axis[Z_AXIS]];
     for_less( x, 0, size[axis[X_AXIS]] )
@@ -75,7 +74,7 @@ public  Status  disconnect_components( volume, voxel_indices, axis,
         }
     }
 
-    FREE2( status, pixels );
+    FREE2D( status, pixels );
 
     return( status );
 }

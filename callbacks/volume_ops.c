@@ -1,7 +1,7 @@
 
 #include  <def_graphics.h>
 #include  <def_math.h>
-#include  <def_stdio.h>
+#include  <def_files.h>
 
 public  Boolean  get_current_volume( graphics, volume )
     graphics_struct   *graphics;
@@ -804,24 +804,26 @@ private  void  colour_code_object( colour_coding, volume,
     Real     evaluate_volume_at_point();
     void     get_colour_coding();
 
+    status = OK;
+
     if( *colour_flag != PER_VERTEX_COLOURS )
     {
-        FREE1( status, *colours );
-
-        if( status == OK )
-            ALLOC1( status, *colours, n_points, Colour );
+        REALLOC( status, *colours, n_points );
         *colour_flag = PER_VERTEX_COLOURS;
     }
 
-    for_less( i, 0, n_points )
+    if( status == OK )
     {
-        val = evaluate_volume_at_point( volume,
-                                        Point_x(points[i]),
-                                        Point_y(points[i]),
-                                        Point_z(points[i]),
-                                        (Real *) 0, (Real *) 0, (Real *) 0 );
+        for_less( i, 0, n_points )
+        {
+            val = evaluate_volume_at_point( volume,
+                                            Point_x(points[i]),
+                                            Point_y(points[i]),
+                                            Point_z(points[i]),
+                                            (Real *) 0, (Real *) 0, (Real *) 0);
 
-        get_colour_coding( colour_coding, val, &(*colours)[i] );
+            get_colour_coding( colour_coding, val, &(*colours)[i] );
+        }
     }
 }
 

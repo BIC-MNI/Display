@@ -2,6 +2,7 @@
 #include  <def_graphics.h>
 #include  <def_alloc.h>
 #include  <def_queue.h>
+#include  <def_files.h>
 
 public  Status  set_visibility_around_poly( polygons, poly,
                                             max_polys_to_do,
@@ -41,8 +42,7 @@ public  Status  set_visibility_around_poly( polygons, poly,
             status = check_polygons_neighbours_computed( polygons );
 
         if( status == OK )
-            ALLOC1( status, polygons_done_flags, polygons->n_items,
-                    unsigned char );
+            ALLOC( status, polygons_done_flags, polygons->n_items );
 
         if( status == OK )
         {
@@ -51,7 +51,7 @@ public  Status  set_visibility_around_poly( polygons, poly,
             for_less( i, 0, polygons->n_items )
                 polygons_done_flags[i] = FALSE;
 
-            INSERT_IN_QUEUE( status, queue, int, poly );
+            INSERT_IN_QUEUE( status, queue, poly );
             polygons_done_flags[poly] = TRUE;
 
             n_done = 0;
@@ -77,7 +77,7 @@ public  Status  set_visibility_around_poly( polygons, poly,
                                                set_visibility_flag,
                                                new_visibility ) )
                     {
-                        INSERT_IN_QUEUE( status, queue, int, neigh );
+                        INSERT_IN_QUEUE( status, queue, neigh );
                         polygons_done_flags[neigh] = TRUE;
                     }
                 }
@@ -90,7 +90,7 @@ public  Status  set_visibility_around_poly( polygons, poly,
             DELETE_QUEUE( status, queue );
 
         if( status == OK )
-            FREE1( status, polygons_done_flags );
+            FREE( status, polygons_done_flags );
     }
 
     return( status );

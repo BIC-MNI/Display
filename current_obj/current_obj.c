@@ -181,8 +181,7 @@ public  Status  push_current_object( graphics )
         entry.object_index = 0;
         entry.model_object = current_object;
 
-        PUSH_STACK( status, graphics->three_d.current_object, selection_entry,
-                    entry );
+        PUSH_STACK( status, graphics->three_d.current_object, entry );
     }
 
     return( status );

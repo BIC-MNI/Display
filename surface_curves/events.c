@@ -4,6 +4,7 @@
 #include  <def_marching_cubes.h>
 #include  <def_splines.h>
 #include  <def_bitlist.h>
+#include  <def_files.h>
 
 static    DECL_EVENT_FUNCTION( pick_point );
 
@@ -160,7 +161,7 @@ public  void  make_surface_curve_permanent( graphics )
                                           object );
         }
 
-        ALLOC1( status, info->lines->colours, 1, Colour );
+        ALLOC( status, info->lines->colours, 1 );
 
         info->lines->n_points = 0;
         info->lines->n_items = 0;

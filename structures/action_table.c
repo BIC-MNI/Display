@@ -1,5 +1,4 @@
 
-#include  <def_standard.h>
 #include  <def_graphics.h>
 
 #ifdef NOT_NEEDED
