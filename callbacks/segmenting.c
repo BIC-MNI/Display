@@ -402,9 +402,26 @@ public  DEF_MENU_UPDATE(invert_activity )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION(reset_3d_segmenting)   /* ARGSUSED */
 {
     display_struct   *slice_window;
+    int              axis_index, voxel_pos, n_dimensions;
+    Real             voxel[MAX_DIMENSIONS];
 
     if( get_slice_window( display, &slice_window) )
-        restart_segmenting_3d( slice_window );
+    {
+        if( get_voxel_under_mouse( display, voxel, &axis_index ) )
+        {
+            voxel_pos = ROUND( voxel[axis_index] );
+            n_dimensions = 2;
+        }
+        else
+        {
+            voxel_pos = -1;
+            axis_index = -1;
+            n_dimensions = 3;
+        }
+
+        restart_segmenting_3d( slice_window, n_dimensions, voxel_pos,
+                               axis_index );
+    }
 
     return( OK );
 }
