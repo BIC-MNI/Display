@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.63 2001-08-12 00:40:25 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.64 2005-04-03 03:38:12 stever Exp $";
 #endif
 
 #include  <display.h>
@@ -21,6 +21,10 @@ static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main
 private  STRING   version = "1.3      Aug 25, 1998";
 
 #define  MAX_TITLE_LENGTH   200
+
+/* These two globals are required for SEAL's LibSul/SULGRAPHDATA */
+int debug = 1;
+int verbose = 1;
 
 private  void      initialize_global_colours( void );
 private  void      initialize_view_to_fit(
