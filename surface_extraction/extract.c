@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.45 1996-05-24 19:43:41 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.46 1996-09-04 13:27:59 david Exp $";
 #endif
 
 
@@ -68,8 +68,9 @@ private  BOOLEAN  get_voxel_values(
     int                         voxel_index[],
     Real                        corner_values[2][2][2] )
 {
-    Real                   value, label;
-    int                    x, y, z, voxel[MAX_DIMENSIONS], n_invalid;
+    BOOLEAN     valid;
+    Real        value, label;
+    int         x, y, z, voxel[MAX_DIMENSIONS], n_invalid;
 
     n_invalid = 0;
 
@@ -83,9 +84,7 @@ private  BOOLEAN  get_voxel_values(
                 voxel[Y] = voxel_index[Y] + y;
                 voxel[Z] = voxel_index[Z] + z;
 
-                value = get_volume_real_value( volume, voxel[X], voxel[Y],
-                                               voxel[Z], 0, 0 );
-
+                valid = TRUE;
                 if( label_volume != NULL &&
                     surface_extraction->min_invalid_label <=
                     surface_extraction->max_invalid_label )
@@ -93,7 +92,19 @@ private  BOOLEAN  get_voxel_values(
                     label = (Real) get_volume_label_data( label_volume, voxel );
                     if( surface_extraction->min_invalid_label <= label &&
                         label <= surface_extraction->max_invalid_label ) 
-                        ++n_invalid;
+                    {
+                        valid = FALSE;
+                        if( !Set_invalid_to_zero )
+                            ++n_invalid;
+                    }
+                }
+
+                if( !valid && Set_invalid_to_zero )
+                    value = 0.0;
+                else
+                {
+                    value = get_volume_real_value( volume, voxel[X], voxel[Y],
+                                                   voxel[Z], 0, 0 );
                 }
 
                 corner_values[x][y][z] = value;
