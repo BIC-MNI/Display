@@ -322,6 +322,41 @@ public  DEF_MENU_UPDATE(set_visibility_from_colour)   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION( set_invis_colour_to_invis )   /* ARGSUSED */
+{
+    int              i;
+    Status           status;
+    Status           create_polygons_visibilities();
+    polygons_struct  *polygons;
+    void             graphics_models_have_changed();
+
+    status = OK;
+
+    if( get_current_polygons(graphics,&polygons) && 
+        polygons->colour_flag == PER_ITEM_COLOURS )
+    {
+        status = create_polygons_visibilities( polygons );
+
+        for_less( i, 0, polygons->n_items )
+        {
+            if( equal_colours(&Invisible_segmenting_colour,
+                              &polygons->colours[i]) )
+            {
+                polygons->visibilities[i] = FALSE;
+            }
+        }
+
+        graphics_models_have_changed( graphics );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(set_invis_colour_to_invis)   /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( set_vis_to_invis_colour )   /* ARGSUSED */
 {
     int              i;
@@ -352,6 +387,40 @@ public  DEF_MENU_FUNCTION( set_vis_to_invis_colour )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(set_vis_to_invis_colour)   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( set_vis_to_vis_colour )   /* ARGSUSED */
+{
+    int              i;
+    Status           status;
+    Status           set_polygon_per_item_colours();
+    polygons_struct  *polygons;
+    void             graphics_models_have_changed();
+
+    status = OK;
+
+    if( get_current_polygons(graphics,&polygons) )
+    {
+        status = set_polygon_per_item_colours( polygons );
+
+        for_less( i, 0, polygons->n_items )
+        {
+            if( polygons->visibilities == (Smallest_int *) 0 ||
+                polygons->visibilities[i] )
+            {
+                polygons->colours[i] = Visible_segmenting_colour;
+            }
+        }
+
+        graphics_models_have_changed( graphics );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(set_vis_to_vis_colour)   /* ARGSUSED */
 {
     return( OK );
 }
@@ -426,4 +495,85 @@ public  DEF_MENU_FUNCTION( crop_below_plane )   /* ARGSUSED */
 public  DEF_MENU_UPDATE(crop_below_plane)   /* ARGSUSED */
 {
     return( OK );
+}
+
+public  DEF_MENU_FUNCTION( save_polygons_visibilities )   /* ARGSUSED */
+{
+    Status           status;
+    Status           io_polygons_visibilities();
+    polygons_struct  *polygons;
+
+    status = OK;
+
+    if( get_current_polygons(graphics,&polygons) )
+    {
+        status = io_polygons_visibilities( polygons, WRITE_FILE );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(save_polygons_visibilities)   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( load_polygons_visibilities )   /* ARGSUSED */
+{
+    Status           status;
+    Status           io_polygons_visibilities();
+    polygons_struct  *polygons;
+    void             graphics_models_have_changed();
+
+    status = OK;
+
+    if( get_current_polygons(graphics,&polygons) )
+    {
+        status = io_polygons_visibilities( polygons, READ_FILE );
+
+        graphics_models_have_changed( graphics );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(load_polygons_visibilities)   /* ARGSUSED */
+{
+    return( OK );
+}
+
+private  Status  io_polygons_visibilities( polygons, io_flag )
+    polygons_struct  *polygons;
+    IO_types         io_flag;
+{
+    Status           status;
+    Status           open_file();
+    Status           io_binary_data();
+    Status           close_file();
+    Status           create_polygons_visibilities();
+    Status           input_string();
+    String           filename;
+    FILE             *file;
+
+    status = create_polygons_visibilities( polygons );
+
+    if( status == OK )
+    {
+        PRINT( "Enter filename: " );
+
+        status = input_string( stdin, filename, ' ' );
+    }
+
+    if( status == OK )
+        status = open_file( filename, io_flag, BINARY_FORMAT, &file );
+
+    if( status == OK )
+        status = io_binary_data( file, io_flag, polygons->visibilities,
+                                 sizeof(polygons->visibilities[0]),
+                                 polygons->n_items );
+
+    if( status == OK )
+        status = close_file( file );
+
+    return( status );
 }
