@@ -4,7 +4,6 @@ Alloc_checking_enabled = FALSE;
 
 Initial_background_colour = DARK_SLATE_GREY;
 
-Event_timeout_min = 0.5;
 Event_timeout_factor = 0.5;
 Min_interval_between_events = 0.01;
 Max_background_seconds = 0.2;
@@ -16,7 +15,6 @@ Initial_incremental_update = TRUE;
 
 Initial_total_slice_update_time1 = 0.0;
 Initial_total_slice_update_time2 = 0.0;
-Slice_event_check_time = 0.1;
 Initial_total_slice_update_time1 = 0.2;
 Initial_total_slice_update_time2 = 2.0;
 Initial_slice_update_time = 0.02;
