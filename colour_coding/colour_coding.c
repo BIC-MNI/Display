@@ -1,5 +1,6 @@
 
 #include  <def_graphics.h>
+#include  <def_globals.h>
 
 typedef struct {
     Real           position;
@@ -46,6 +47,7 @@ private  void  build_user_defined_coding( colour_coding )
     Status           status;
     void             rebuild_colour_map();
     colour_point     *desc;
+    Colour           min_colour, max_colour;
     int              i, n_intervals;
 
     n_intervals = colour_coding->user_defined_n_intervals;
@@ -56,13 +58,24 @@ private  void  build_user_defined_coding( colour_coding )
     {
         for_less( i, 0, n_intervals )
         {
+            if( User_defined_colour_coding_flip && i % 2 == 1 )
+            {
+                min_colour = colour_coding->user_defined_max_colour;
+                max_colour = colour_coding->user_defined_min_colour;
+            }
+            else
+            {
+                min_colour = colour_coding->user_defined_min_colour;
+                max_colour = colour_coding->user_defined_max_colour;
+            }
+
             desc[2*i+0].position = (Real) i / (Real) n_intervals;
-            desc[2*i+0].colour = colour_coding->user_defined_min_colour;
+            desc[2*i+0].colour = min_colour;
             desc[2*i+0].interpolation_space =
                          colour_coding->user_defined_interpolation_space;
 
             desc[2*i+1].position = (Real) (i+1) / (Real) n_intervals;
-            desc[2*i+1].colour = colour_coding->user_defined_max_colour;
+            desc[2*i+1].colour = max_colour;
             desc[2*i+1].interpolation_space =
                          colour_coding->user_defined_interpolation_space;
         }
