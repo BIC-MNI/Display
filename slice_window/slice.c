@@ -42,6 +42,13 @@ public  Volume  get_label_volume(
         return( (Volume) NULL );
 }
 
+public  BOOLEAN  slice_window_exists(
+    display_struct   *display )
+{
+    return( display != (display_struct *) NULL &&
+            display->associated[SLICE_WINDOW] != (display_struct *) NULL );
+}
+
 public  BOOLEAN  get_slice_window(
     display_struct   *display,
     display_struct   **slice_window )
@@ -50,8 +57,7 @@ public  BOOLEAN  get_slice_window(
 
     exists = FALSE;
 
-    if( display != (display_struct *) NULL &&
-        display->associated[SLICE_WINDOW] != (display_struct *) NULL )
+    if( slice_window_exists( display ) )
     {
         *slice_window = display->associated[SLICE_WINDOW];
         exists = TRUE;
