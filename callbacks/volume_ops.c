@@ -396,6 +396,7 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
 {
     int              sizes[N_DIMENSIONS];
     Real             x_width, y_width, z_width;
+    Real             separations[N_DIMENSIONS];
     display_struct   *slice_window;
     Volume           volume, resampled_volume;
 
@@ -403,6 +404,8 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
         get_slice_window( display, &slice_window ) )
     {
         get_volume_sizes( slice_window->slice.original_volume, sizes );
+        get_volume_separations( slice_window->slice.original_volume,
+                                separations );
 
         print( "Enter box filter  x_width, y_width, z_width: " );
 
@@ -410,7 +413,8 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
             input_real( stdin, &y_width ) == OK &&
             input_real( stdin, &z_width ) == OK )
         {
-            if( x_width > 1.0 || y_width > 1.0 || z_width > 1.0 )
+            if( x_width > separations[X] || y_width > separations[Y] ||
+                z_width > separations[Z] )
             {
                 resampled_volume = create_box_filtered_volume(
                                         slice_window->slice.original_volume,
