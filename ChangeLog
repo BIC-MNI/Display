@@ -1,0 +1,8 @@
+2001-05-26  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
+
+	* David-RCS: Import the RCS files from David's source.  Since
+	David's home directory was damaged, this copy comes from a late
+	1998 tape copy of ~david/Source/Display; the top-level directory
+	is dated 1998-11-05.  This ChangeLog file is the only addition.
+	Tagged as David-RCS.
+
