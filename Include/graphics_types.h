@@ -204,4 +204,17 @@ typedef  struct
     object_traverse_struct   object_traverse;
 } cursor_contours_struct;
 
+typedef  struct
+{
+    Boolean          picking_points;
+    lines_struct     *lines;
+    int              n_points_alloced;
+    int              n_indices_alloced;
+    int              n_end_indices_alloced;
+    Boolean          prev_point_exists;
+    Point            prev_point;
+    int              prev_poly_index;
+    polygons_struct  *prev_polygons;
+} surface_curve_struct;
+
 #endif

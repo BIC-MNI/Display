@@ -42,6 +42,7 @@ typedef  struct
     film_loop_struct           film_loop;
     surface_edit_struct        surface_edit;
     cursor_contours_struct     cursor_contours;
+    surface_curve_struct       surface_curve;
 } three_d_window_struct;
 
 

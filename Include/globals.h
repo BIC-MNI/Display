@@ -183,6 +183,8 @@ START_GLOBALS
     DEF_GLOBAL( Surface_curve_colour, Colour, 0.0 )
     DEF_GLOBAL( Surface_curve_thickness, int, 3 )
 
+    DEF_GLOBAL( N_painting_polygons, int, 100 )
+
 END_GLOBALS
          
 #endif
