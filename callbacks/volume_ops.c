@@ -104,21 +104,64 @@ public  DEF_MENU_UPDATE(retreat_slice )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(set_slice_transform )   /* ARGSUSED */
+public  DEF_MENU_FUNCTION( next_marked_slice )   /* ARGSUSED */
 {
     volume_struct   *volume;
-    Real            degrees, x_offset, y_offset;
-    void            create_2d_transform();
+    void            rebuild_selected_list();
+    void            graphics_models_have_changed();
+    int             i, nx, ny, nz;
+    void            get_volume_size();
+
+    if( get_current_volume(graphics,&volume) )
+    {
+        get_volume_size( volume, &nx, &ny, &nz );
+
+        i = volume->current_slice;
+
+        do
+        {
+            ++i;
+            if( i >= nz )
+                i = 0;
+        } while( i != volume->current_slice && !volume->slice_marked_flags[i] );
+
+        if( i != volume->current_slice )
+        {
+            volume->slice_visibilities[volume->current_slice] = OFF;
+
+            volume->current_slice = i;
+            volume->slice_visibilities[volume->current_slice] = ON;
+        }
+
+        rebuild_selected_list( graphics, menu_window );
+    }
+
+    graphics_models_have_changed( graphics );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(next_marked_slice )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( toggle_marked_slice )   /* ARGSUSED */
+{
+    volume_struct   *volume;
     void            graphics_models_have_changed();
 
     if( get_current_volume(graphics,&volume) )
     {
-        PRINT( "Enter degrees, x_off, y_off: " );
-        if( scanf( "%f %f %f", &degrees, &x_offset, &y_offset ) == 3 )
+        if( volume->slice_marked_flags[volume->current_slice] )
         {
-            create_2d_transform( &volume->slice_transforms[
-                                 volume->current_slice],
-                                 degrees, x_offset, y_offset );
+            volume->slice_visibilities[volume->current_slice] = OFF;
+            volume->slice_marked_flags[volume->current_slice] = OFF;
+        }
+        else
+        {
+            volume->slice_visibilities[volume->current_slice] = ON;
+            volume->slice_marked_flags[volume->current_slice] = ON;
         }
     }
 
@@ -127,32 +170,9 @@ public  DEF_MENU_FUNCTION(set_slice_transform )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_slice_transform )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(toggle_marked_slice )   /* ARGSUSED */
 {
     return( OK );
-}
-
-private  void  create_2d_transform( transform, degrees, x_offset, y_offset )
-    Transform   *transform;
-    Real        degrees;
-    Real        x_offset;
-    Real        y_offset;
-{
-    Real   c, s;
-    void   make_identity_transform();
-
-    make_identity_transform( transform );
-
-    c = cos( (double) degrees * DEG_TO_RAD );
-    s = sin( (double) degrees * DEG_TO_RAD );
-
-    Transform_elem(*transform,0,0) = c;
-    Transform_elem(*transform,0,1) = s;
-    Transform_elem(*transform,1,0) = -s;
-    Transform_elem(*transform,1,1) = c;
-
-    Transform_elem(*transform,0,3) = x_offset;
-    Transform_elem(*transform,1,3) = y_offset;
 }
 
 public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
@@ -592,6 +612,118 @@ public  DEF_MENU_FUNCTION(unlock_slice)   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(unlock_slice)    /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(set_slice_transform )   /* ARGSUSED */
+{
+    volume_struct   *volume;
+    Real            degrees, x_offset, y_offset;
+    void            create_2d_transform();
+    void            graphics_models_have_changed();
+
+    if( get_current_volume(graphics,&volume) )
+    {
+        PRINT( "Enter degrees, x_off, y_off: " );
+        if( scanf( "%f %f %f", &degrees, &x_offset, &y_offset ) == 3 )
+        {
+            create_2d_transform( &volume->slice_transforms[
+                                 volume->current_slice],
+                                 degrees, x_offset, y_offset );
+        }
+    }
+
+    graphics_models_have_changed( graphics );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_slice_transform )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+private  void  create_2d_transform( transform, degrees, x_offset, y_offset )
+    Transform   *transform;
+    Real        degrees;
+    Real        x_offset;
+    Real        y_offset;
+{
+    Real   c, s;
+    void   make_identity_transform();
+
+    make_identity_transform( transform );
+
+    c = cos( (double) degrees * DEG_TO_RAD );
+    s = sin( (double) degrees * DEG_TO_RAD );
+
+    Transform_elem(*transform,0,0) = c;
+    Transform_elem(*transform,0,1) = s;
+    Transform_elem(*transform,1,0) = -s;
+    Transform_elem(*transform,1,1) = c;
+
+    Transform_elem(*transform,0,3) = x_offset;
+    Transform_elem(*transform,1,3) = y_offset;
+}
+
+public  DEF_MENU_FUNCTION(output_slice_transforms )   /* ARGSUSED */
+{
+    volume_struct   *volume;
+    int             z, nx, ny, nz;
+    FILE            *file;
+    Status          status;
+    Status          open_file();
+    Status          io_real();
+    Status          io_newline();
+    Status          close_file();
+    String          filename;
+    Real            degrees, x_trans, y_trans;
+    void            get_volume_size();
+    void            convert_2d_transform_to_rotation_translation();
+
+    status = OK;
+
+    if( get_current_volume(graphics,&volume) )
+    {
+        PRINT( "Enter filename: " );
+        scanf( "%s", filename );
+
+        status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
+
+        if( status == OK )
+        {
+            get_volume_size( volume, &nx, &ny, &nz );
+
+            for_less( z, 0, nz )
+            {
+                convert_2d_transform_to_rotation_translation(
+                        &volume->slice_transforms[z], &degrees,
+                        &x_trans, &y_trans );
+
+                status = io_real( file, WRITE_FILE, ASCII_FORMAT, &degrees );
+
+                if( status == OK )
+                    status = io_real( file, WRITE_FILE, ASCII_FORMAT, &x_trans);
+
+                if( status == OK )
+                    status = io_real( file, WRITE_FILE, ASCII_FORMAT, &y_trans);
+
+                if( status == OK )
+                    status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
+            }
+        }
+
+        if( status == OK )
+            status = close_file( file );
+
+        PRINT( "Done\n" );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(output_slice_transforms )   /* ARGSUSED */
 {
     return( OK );
 }
