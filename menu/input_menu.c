@@ -133,6 +133,7 @@
                        MENU_FUNCTION(change_marker_position) \
                        MENU_FUNCTION(change_marker_type) \
                        MENU_FUNCTION(toggle_lock_slice) \
+                       MENU_FUNCTION(resample_slice_window_volume) \
                        MENU_FUNCTION(delete_current_object) \
                        MENU_FUNCTION(label_point) \
                        MENU_FUNCTION(generate_regions) \

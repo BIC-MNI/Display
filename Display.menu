@@ -62,11 +62,13 @@ extract
 
 slice
 {
-    transient 'r'    halve_slice_voxels         "Halve Size"
-    transient 't'    double_slice_voxels        "Double Size"
+    transient 'r'    halve_slice_voxels             "Halve Size"
+    transient 't'    double_slice_voxels            "Double Size"
 
-    transient 'd'    create_3d_slice            "Create 3D Slice"
-    transient 'g'    toggle_lock_slice          "Lock/Unlock Slice"
+    transient 'd'    create_3d_slice                "Create 3D Slice"
+    transient 'g'    toggle_lock_slice              "Lock/Unlock Slice"
+
+    transient 'z'    resample_slice_window_volume   "Resample Volume"
 }
 
 colour_coding
