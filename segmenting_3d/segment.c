@@ -6,11 +6,11 @@ typedef  enum  { SAME, INCREASING, NUM_CLASSES } Classes;
 
 #define  FACE_NEIGHBOURS
 
-#define  EDGE_NEIGHBOURS
 #undef   EDGE_NEIGHBOURS
+#define  EDGE_NEIGHBOURS
 
-#define  CORNER_NEIGHBOURS
 #undef   CORNER_NEIGHBOURS
+#define  CORNER_NEIGHBOURS
 
 private  int  neighbour_deltas[][N_DIMENSIONS] = {
 
@@ -59,10 +59,14 @@ private  int  neighbour_deltas[][N_DIMENSIONS] = {
 
 private  Volume  make_distance_transform(
     Volume    volume,
+    int       n_dimensions,
+    int       axis,
+    int       min_range[],
+    int       max_range[],
     Real      min_threshold,
     Real      max_threshold )
 {
-    int      i, x, y, z, nx, ny, nz, sizes[MAX_DIMENSIONS];
+    int      i, x, y, z, neigh[MAX_DIMENSIONS];
     int      iteration;
     Real     value;
     int      this_dist, dist, min_neighbour, new_value;
@@ -71,13 +75,12 @@ private  Volume  make_distance_transform(
 
     distance = copy_volume_definition( volume, NC_BYTE, FALSE, 0.0, 255.0 );
     new_distance = copy_volume_definition( volume, NC_BYTE, FALSE, 0.0, 255.0 );
-    get_volume_sizes( volume, sizes );
 
-    for_less( x, 0, sizes[X] )
+    for_inclusive( x, min_range[X], max_range[X] )
     {
-        for_less( y, 0, sizes[Y] )
+        for_inclusive( y, min_range[Y], max_range[Y] )
         {
-            for_less( z, 0, sizes[Z] )
+            for_inclusive( z, min_range[Z], max_range[Z] )
             {
                 SET_VOXEL_3D( distance, x, y, z, 0.0 );
             }
@@ -90,11 +93,11 @@ private  Volume  make_distance_transform(
         ++iteration;
         print( "Distance Transform Iteration: %d\n", iteration );
         changed = FALSE;
-        for_less( x, 0, sizes[X] )
+        for_inclusive( x, min_range[X], max_range[X] )
         {
-            for_less( y, 0, sizes[Y] )
+            for_inclusive( y, min_range[Y], max_range[Y] )
             {
-                for_less( z, 0, sizes[Z] )
+                for_inclusive( z, min_range[Z], max_range[Z] )
                 {
                     GET_VALUE_3D( value, volume, x, y, z );
                     GET_VOXEL_3D( this_dist, distance, x, y, z );
@@ -108,15 +111,19 @@ private  Volume  make_distance_transform(
 
                     first = TRUE;
                     min_neighbour = 0;
-                    FOR_LOOP_NEIGHBOURS( i, x, y, z, nx, ny, nz )
-#ifndef TWO_D
-                        if( nz < 0 || nz >= sizes[Z] )
+                    FOR_LOOP_NEIGHBOURS( i, x, y, z,
+                                         neigh[X], neigh[Y], neigh[Z] )
+                        if( n_dimensions == 2 &&
+                            (neigh[axis] < min_range[axis] ||
+                             neigh[axis] > max_range[axis]) )
                             continue;
-#endif
 
-                        if( nx < 0 || nx >= sizes[X] ||
-                            ny < 0 || ny >= sizes[Y] ||
-                            nz < 0 || nz >= sizes[Z] )
+                        if( neigh[X] < min_range[X] ||
+                            neigh[X] > max_range[X] ||
+                            neigh[Y] < min_range[Y] ||
+                            neigh[Y] > max_range[Y] ||
+                            neigh[Z] < min_range[Z] ||
+                            neigh[Z] > max_range[Z] )
                         {
                             min_neighbour = 0;
                             first = FALSE;
@@ -124,8 +131,10 @@ private  Volume  make_distance_transform(
                         }
                         else
                         {
-                            GET_VALUE_3D( value, volume, nx, ny, nz );
-                            GET_VOXEL_3D( dist, distance, nx, ny, nz );
+                            GET_VALUE_3D( value, volume,
+                                          neigh[X], neigh[Y], neigh[Z] );
+                            GET_VOXEL_3D( dist, distance,
+                                          neigh[X], neigh[Y], neigh[Z] );
                             if( dist == 0 && min_threshold <= value &&
                                 value <= max_threshold )
                                 continue;
@@ -154,11 +163,11 @@ private  Volume  make_distance_transform(
 
         if( changed )
         {
-            for_less( x, 0, sizes[X] )
+            for_inclusive( x, min_range[X], max_range[X] )
             {
-                for_less( y, 0, sizes[Y] )
+                for_inclusive( y, min_range[Y], max_range[Y] )
                 {
-                    for_less( z, 0, sizes[Z] )
+                    for_inclusive( z, min_range[Z], max_range[Z] )
                     {
                         GET_VOXEL_3D( dist, new_distance, x, y, z );
                         SET_VOXEL_3D( distance, x, y, z, dist );
@@ -187,29 +196,60 @@ private  int  create_cut_class(
     return( NUM_CLASSES * cut + (int) class );
 }
 
+private  void  get_voxel_range(
+    Volume    volume,
+    int       n_dimensions,
+    int       voxel_pos,
+    int       axis,
+    int       min_range[],
+    int       max_range[] )
+{
+    int  c, sizes[MAX_DIMENSIONS];
+
+    get_volume_sizes( volume, sizes );
+
+    for_less( c, 0, get_volume_n_dimensions(volume) )
+    {
+        min_range[c] = 0;
+        max_range[c] = sizes[c]-1;
+    }
+
+    if( n_dimensions == 2 )
+    {
+        min_range[axis] = voxel_pos;
+        max_range[axis] = voxel_pos;
+    }
+}
+
 public  void  initialize_segmenting_3d(
     Volume    volume,
     Volume    label_volume,
+    int       n_dimensions,
+    int       voxel_pos,
+    int       axis,
     Real      min_threshold,
     Real      max_threshold,
     Volume    *distance_transform,
     Volume    *cuts )
 {
-    int      label, dist, cut, x, y, z, sizes[MAX_DIMENSIONS];
+    int      label, dist, cut, x, y, z;
+    int      min_range[MAX_DIMENSIONS], max_range[MAX_DIMENSIONS];
 
-    *distance_transform = make_distance_transform( volume,
+    get_voxel_range( volume, n_dimensions, voxel_pos, axis,
+                     min_range, max_range );
+
+    *distance_transform = make_distance_transform( volume, n_dimensions,
+                                                   axis, min_range, max_range,
                                                    min_threshold,
                                                    max_threshold );
 
     *cuts = copy_volume_definition( label_volume, NC_BYTE, FALSE, 0.0, 255.0 );
 
-    get_volume_sizes( volume, sizes );
-
-    for_less( x, 0, sizes[X] )
+    for_inclusive( x, min_range[X], max_range[X] )
     {
-        for_less( y, 0, sizes[Y] )
+        for_inclusive( y, min_range[Y], max_range[Y] )
         {
-            for_less( z, 0, sizes[Z] )
+            for_inclusive( z, min_range[Z], max_range[Z] )
             {
                 GET_VOXEL_3D( label, label_volume, x, y, z );
                 if( label & USER_SET_BIT )
@@ -287,16 +327,20 @@ private  void  propagate_neighbour_cut(
 public  BOOLEAN  expand_labels_3d(
     Volume    label_volume,
     Volume    distance_transform,
-    Volume    cuts )
+    Volume    cuts,
+    int       n_dimensions,
+    int       voxel_pos,
+    int       axis )
 {
-    int      i, x, y, z, nx, ny, nz, sizes[MAX_DIMENSIONS];
-    int      label, dist, cut;
-    int      neigh_dist, neigh_cut;
-    int      best_label, neigh_label, best_cut;
-    int      new_cut;
-    BOOLEAN  changed, better, user_set_it;
-    Classes  class, new_class, neigh_class, best_class;
-    Volume   new_cuts, new_labels;
+    int              i, x, y, z, nx, ny, nz, x_size, y_size;
+    int              label, dist, cut;
+    int              neigh_dist, neigh_cut;
+    int              best_label, neigh_label, best_cut;
+    int              new_cut;
+    BOOLEAN          changed, better, user_set_it;
+    Classes          class, new_class, neigh_class, best_class;
+    Volume           new_cuts, new_labels;
+    int              min_range[MAX_DIMENSIONS], max_range[MAX_DIMENSIONS];
     progress_struct  progress;
 
     new_cuts = copy_volume_definition( label_volume,
@@ -304,18 +348,21 @@ public  BOOLEAN  expand_labels_3d(
     new_labels = copy_volume_definition( label_volume,
                                          NC_BYTE, FALSE, 0.0, 255.0 );
 
-    get_volume_sizes( label_volume, sizes );
+    get_voxel_range( label_volume, n_dimensions, voxel_pos, axis,
+                     min_range, max_range );
 
     changed = FALSE;
 
-    initialize_progress_report( &progress, FALSE, sizes[X] * sizes[Y],
+    x_size = max_range[X] - min_range[X] + 1;
+    y_size = max_range[Y] - min_range[Y] + 1;
+    initialize_progress_report( &progress, FALSE, x_size * y_size,
                                 "Expanding Labels" );
 
-    for_less( x, 0, sizes[X] )
+    for_inclusive( x, min_range[X], max_range[X] )
     {
-        for_less( y, 0, sizes[Y] )
+        for_inclusive( y, min_range[Y], max_range[Y] )
         {
-            for_less( z, 0, sizes[Z] )
+            for_inclusive( z, min_range[Z], max_range[Z] )
             {
                 GET_VOXEL_3D( label, label_volume, x, y, z );
                 user_set_it = FALSE;
@@ -334,9 +381,9 @@ public  BOOLEAN  expand_labels_3d(
                 if( dist != 0 && !user_set_it )
                 {
                     FOR_LOOP_NEIGHBOURS( i, x, y, z, nx, ny, nz )
-                        if( nx >= 0 && nx < sizes[X] &&
-                            ny >= 0 && ny < sizes[Y] &&
-                            nz >= 0 && nz < sizes[Z] )
+                        if( nx >= min_range[X] && nx <= max_range[X] &&
+                            ny >= min_range[Y] && ny <= max_range[Y] &&
+                            nz >= min_range[Z] && nz <= max_range[Z] )
                         {
                             GET_VOXEL_3D( neigh_dist,
                                           distance_transform,
@@ -401,7 +448,8 @@ public  BOOLEAN  expand_labels_3d(
                 cut = create_cut_class( best_cut, best_class );
                 SET_VOXEL_3D( new_cuts, x, y, z, cut );
             }
-            update_progress_report( &progress, x * sizes[Y] + y + 1 );
+            update_progress_report( &progress, (x - min_range[X]) * y_size +
+                                                y - min_range[Y] + 1 );
         }
     }
 
@@ -409,11 +457,11 @@ public  BOOLEAN  expand_labels_3d(
 
     if( changed )
     {
-        for_less( x, 0, sizes[X] )
+        for_inclusive( x, min_range[X], max_range[X] )
         {
-            for_less( y, 0, sizes[Y] )
+            for_inclusive( y, min_range[Y], max_range[Y] )
             {
-                for_less( z, 0, sizes[Z] )
+                for_inclusive( z, min_range[Z], max_range[Z] )
                 {
                     GET_VOXEL_3D( label, new_labels, x, y, z );
                     SET_VOXEL_3D( label_volume, x, y, z, label );
