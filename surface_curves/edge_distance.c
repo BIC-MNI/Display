@@ -47,7 +47,7 @@ public  Boolean  distance_along_polygons(
     if( found )
     {
         create_path( polygons, p1, p2, lines->n_points == 0,
-                              last_vertex, vertices, lines );
+                     last_vertex, vertices, lines );
     }
 
     FREE( vertices );
@@ -203,17 +203,60 @@ private  void  create_path(
     vertex_struct     vertices[],
     lines_struct      *lines )
 {
+    Boolean  prev_exists;
+    Point    prev;
+
+    prev_exists = FALSE;
+
     if( first_flag )
     {
         start_new_line( lines );
+
         add_point_to_line( lines, p1 );
+
+        prev_exists = TRUE;
+        prev = *p1;
     }
 
     while( last_vertex >= 0 )
     {
-        add_point_to_line( lines, &polygons->points[last_vertex] );
+        if( !prev_exists ||
+            !EQUAL_POINTS( prev, polygons->points[last_vertex] ) )
+        {
+            add_point_to_line( lines, &polygons->points[last_vertex] );
+            prev_exists = TRUE;
+            prev = polygons->points[last_vertex];
+        }
         last_vertex = vertices[last_vertex].from_point;
     }
 
-    add_point_to_line( lines, p2 );
+    if( !prev_exists || !EQUAL_POINTS( prev, *p2 ) )
+        add_point_to_line( lines, p2 );
+}
+
+public  void  find_polygon_vertex_nearest_point(
+    polygons_struct  *polygons,
+    int              poly,
+    Point            *point,
+    Point            *closest_vertex )
+{
+    int    size, p;
+    Real   dist, closest_dist;
+    Point  vertex;
+
+    size = GET_OBJECT_SIZE( *polygons, poly );
+    closest_dist = 0.0;  /* for lint */
+
+    for_less( p, 0, size )
+    {
+        vertex = polygons->points[
+                  polygons->indices[POINT_INDEX(polygons->end_indices,poly,p)]];
+        dist = distance_between_points( point, &vertex );
+
+        if( p == 0 || dist < closest_dist )
+        {
+            *closest_vertex = vertex;
+            closest_dist = dist;
+        }
+    }
 }
