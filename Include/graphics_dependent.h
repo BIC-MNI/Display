@@ -96,7 +96,13 @@ typedef  unsigned  long   Lcolour;
 typedef  struct
 {
     Window_id     window_id;
+    int           x_origin, y_origin;          
+    int           x_size, y_size;          
     Lcolour       background_colour;
+    Transform     eye_to_world_matrix;
+    Transform     viewing_matrix;
 } window_struct;
+
+#define  N_LIGHTS  8
 
 #endif

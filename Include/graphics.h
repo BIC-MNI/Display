@@ -11,9 +11,7 @@ typedef  struct
 {
     Boolean     perspective_flag;
     Point       origin;
-    Vector      line_of_sight;
-    Vector      horizontal;
-    Vector      up;
+    Vector      x_axis, y_axis, line_of_sight;
     Real        front_distance, back_distance;
     Real        perspective_distance;
     Real        window_width, window_height;
@@ -32,8 +30,6 @@ typedef  struct
     light_types   light_type;
     Colour        colour;
     Vector        direction;
-    Vector        x_axis;
-    Vector        y_axis;
     Point         position;
     Real          spot_exponent;
     Real          spot_angle;
@@ -102,6 +98,7 @@ typedef  struct
 
     render_struct        render;
     object_struct        *objects;
+    Point                centre_of_objects;
 
     int                  update_required;
 } graphics_struct;
