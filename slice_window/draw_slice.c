@@ -192,6 +192,14 @@ public  void  rebuild_slice_divider(
                            0.0 );
 }
 
+public  Bitplane_types  get_slice_readout_bitplanes()
+{
+    if( G_has_overlay_planes() )
+        return( (Bitplane_types) Slice_readout_plane );
+    else
+        return( NORMAL_PLANES );
+}
+
 public  void  rebuild_probe(
     display_struct    *slice_window )
 {
@@ -291,7 +299,7 @@ public  void  rebuild_probe(
         fill_Point( text->origin, x_pos, y_pos, 0.0 );
     }
 
-    set_update_required( slice_window, (Bitplane_types) Slice_readout_plane );
+    set_update_required( slice_window, get_slice_readout_bitplanes() );
 }
 
 private  void  get_cursor_size(
@@ -481,7 +489,9 @@ public  void  rebuild_slice_pixels(
     display_struct    *slice_window,
     int               view_index )
 {
+    BOOLEAN        visibility;
     model_struct   *model;
+    object_struct  *pixels_object;
     pixels_struct  *pixels;
     int            axis_index, x_index, y_index;
     int            x_min, x_max, y_min, y_max;
@@ -490,9 +500,14 @@ public  void  rebuild_slice_pixels(
     int            x_pos, y_pos;
     Real           current_voxel[N_DIMENSIONS];
 
-    pixels = get_pixels_ptr( get_slice_pixels_object(slice_window,view_index) );
+    pixels_object = get_slice_pixels_object(slice_window,view_index);
+    pixels = get_pixels_ptr( pixels_object );
 
-    if( get_slice_visibility( slice_window, view_index ) )
+    visibility = get_slice_visibility( slice_window, view_index );
+
+    set_object_visibility( pixels_object, visibility );
+
+    if( visibility )
         render_slice_to_pixels( slice_window, view_index, pixels );
 
     model = get_graphics_model(slice_window,SLICE_MODEL);
@@ -536,23 +551,13 @@ private  void  render_slice_to_pixels(
     int                   view_index,
     pixels_struct         *pixels )
 {
-    Volume                volume;
-    int                   n_label_alloced;
-    unsigned short        label_table[MAX_LABELS];
-    unsigned short        *label_ptr;
-    pixels_struct         label_pixels;
-    Colour                *colour_table;
-    int                   i;
-    Real                  min_voxel, max_voxel;
+    Volume                volume, label_volume;
     int                   x_size, y_size;
-    int                   label, n_alloced;
+    int                   n_alloced;
     Real                  x_trans, y_trans, x_scale, y_scale;
     Real                  origin[MAX_DIMENSIONS];
     Real                  x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
-    Colour                *pixel_ptr;
     int                   x_min, x_max, y_min, y_max;
-
-    volume = get_volume( slice_window );
 
     if( pixels->x_size > 0 && pixels->y_size > 0 )
         delete_pixels( pixels );
@@ -567,15 +572,35 @@ private  void  render_slice_to_pixels(
     get_slice_viewport( slice_window, view_index,
                         &x_min, &x_max, &y_min, &y_max );
 
-    get_volume_voxel_range( volume, &min_voxel, &max_voxel );
-    colour_table = slice_window->slice.colour_tables[0];
-
-    if( (int) min_voxel > 0 )
-        colour_table -= (int) min_voxel;
+    volume = get_volume( slice_window );
+    label_volume = get_label_volume( slice_window );
 
     get_slice_plane( slice_window, view_index, origin, x_axis, y_axis );
 
-    create_volume_slice(
+    if( slice_window->slice.display_labels &&
+        label_volume->data != (void *) NULL )
+    {
+        create_volume_slice(
+
+                    label_volume, NEAREST_NEIGHBOUR, 0.0,
+                    origin, x_axis, y_axis,
+                    x_trans, y_trans, x_scale, y_scale,
+
+                    volume,
+                    slice_window->slice.slice_views[view_index].filter_type,
+                    slice_window->slice.slice_views[view_index].filter_width,
+                    origin, x_axis, y_axis,
+                    x_trans, y_trans, x_scale, y_scale,
+
+                    x_max - x_min + 1, y_max - y_min + 1,
+                    RGB_PIXEL, FALSE, (unsigned short **) NULL,
+                    slice_window->slice.colour_tables,
+                    make_rgba_Colour( 0, 0, 0, 0 ),
+                    &n_alloced, pixels );
+    }
+    else
+    {
+        create_volume_slice(
                     volume,
                     slice_window->slice.slice_views[view_index].filter_type,
                     slice_window->slice.slice_views[view_index].filter_width,
@@ -586,61 +611,17 @@ private  void  render_slice_to_pixels(
                     0.0, 0.0, 0.0, 0.0,
                     x_max - x_min + 1, y_max - y_min + 1,
                     RGB_PIXEL, FALSE, (unsigned short **) NULL,
-                    &colour_table, make_rgba_Colour( 0, 0, 0, 0 ),
+                    slice_window->slice.colour_tables,
+                    make_rgba_Colour( 0, 0, 0, 0 ),
                     &n_alloced, pixels );
+
+    }
 
     pixels->x_position += x_min;
     pixels->y_position += y_min;
 
     x_size = pixels->x_size;
     y_size = pixels->y_size;
-
-    /* now do the label colour compositing */
-
-    if( slice_window->slice.display_labels &&
-        get_label_volume(slice_window)->data != (void *) NULL &&
-        x_size > 0 && y_size > 0 )
-    {
-        for_less( i, 0, MAX_LABELS )
-            label_table[i] = i;
-
-        label_ptr = label_table;
-
-        n_label_alloced = 0;
-
-        create_volume_slice( get_label_volume(slice_window),
-                    slice_window->slice.slice_views[view_index].filter_type,
-                    slice_window->slice.slice_views[view_index].filter_width,
-                    origin, x_axis, y_axis,
-                    x_trans, y_trans, x_scale, y_scale,
-                    (Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
-                    (Real *) 0, (Real *) 0, (Real *) 0,
-                    0.0, 0.0, 0.0, 0.0,
-                    x_max - x_min + 1, y_max - y_min + 1,
-                    COLOUR_INDEX_16BIT_PIXEL, FALSE, &label_ptr,
-                    (Colour **) NULL, 0,
-                    &n_label_alloced, &label_pixels );
-
-        label_ptr = label_pixels.data.pixels_16bit_colour_index;
-        pixel_ptr = pixels->data.pixels_rgb;
-
-        for_less( i, 0, x_size * y_size )
-        {
-            label = *label_ptr;
-            ++label_ptr;
-
-            if( label != 0 )
-            {
-                *pixel_ptr = apply_label_colour( slice_window, *pixel_ptr,
-                                                 label );
-            }
-
-            ++pixel_ptr;
-        }
-
-        if( n_label_alloced > 0 )
-            delete_pixels( &label_pixels );
-    }
 
     /* --- now blend in the talaiarch atlas */
 
