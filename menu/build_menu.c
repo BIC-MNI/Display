@@ -45,7 +45,10 @@ private   position_struct   positions[] = {
                            {'4', "4", 3.0, 4.0, 1.0, TRUE },
                            {'5', "5", 4.0, 4.0, 1.0, TRUE },
                            {'6', "6", 5.0, 4.0, 1.0, TRUE },
-                           {'7', "7", 6.0, 4.0, 1.0, TRUE }
+                           {'7', "7", 6.0, 4.0, 1.0, TRUE },
+
+                           {'+', "+", 6.2, 2.0, 0.4, TRUE },
+                           {'-', "-", 6.7, 2.0, 0.4, TRUE }
                          };
 
 private  void   create_menu_text(
@@ -86,8 +89,11 @@ public  void  build_menu(
 
     for_less( i, 0, SIZEOF_STATIC_ARRAY(positions) )
     {
-        create_menu_box( menu_window, positions[i].key );
-        create_menu_character( menu_window, positions[i].key );
+        if( positions[i].length > 0.0 )
+        {
+            create_menu_box( menu_window, positions[i].key );
+            create_menu_character( menu_window, positions[i].key );
+        }
     }
 
     for_less( i, 1, menu_window->menu.n_entries )
@@ -189,6 +195,16 @@ private  void   compute_origin(
         print( "Character %c\n", key );
         HANDLE_INTERNAL_ERROR( "Unrecognized menu key\n" );
     }
+    else if( desc->length <= 0.0 )
+    {
+        *x1 = 0.0;
+        if( x2 != (Real *) NULL )
+            *x2 = 0.0;
+        *y1 = 0.0;
+        if( y2 != (Real *) NULL )
+            *y2 = 0.0;
+        *length = 0.0;
+    }
     else
     {
         x_dx = menu->x_dx +
@@ -209,13 +225,13 @@ private  void   compute_origin(
 
         *length = desc->length;
 
-        if( x2 != (Real *) 0 )
+        if( x2 != (Real *) NULL )
         {
             *x2 = *x1 + *length * menu->n_chars_per_unit_across *
                         menu->character_width;
         }
 
-        if( y2 != (Real *) 0 )
+        if( y2 != (Real *) NULL )
         {
             *y2 = *y1 + menu->n_lines_in_entry *
                         menu->character_height;
@@ -344,7 +360,10 @@ private  BOOLEAN   point_within_menu_key_entry(
 
     compute_origin( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length );
 
-    return( x >= x1 && x <= x2 && y >= y1 && y <= y2 );
+    if( length <= 0.0 )
+        return( FALSE );
+    else
+        return( x >= x1 && x <= x2 && y >= y1 && y <= y2 );
 }
 
 public  BOOLEAN   lookup_key_for_mouse_position(

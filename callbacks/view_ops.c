@@ -3,39 +3,11 @@
 
 public  DEF_MENU_FUNCTION( make_view_fit )      /* ARGSUSED */
 {
-    BOOLEAN found;
-    int     c;
-    Point   min_limit, max_limit;
-    Point   misc_min_limit, misc_max_limit;
+    fit_view_to_visible_models( display );
 
-    found = get_range_of_object( display->models[THREED_MODEL],
-                                 TRUE, &min_limit, &max_limit );
+    update_view( display );
 
-    if( !found )
-    {
-        found = get_range_of_object( display->models[MISCELLANEOUS_MODEL],
-                                     TRUE, &min_limit, &max_limit );
-    }
-    else if( get_range_of_object( display->models[MISCELLANEOUS_MODEL],
-                                 TRUE, &misc_min_limit, &misc_max_limit ) )
-    {
-        for_less( c, 0, N_DIMENSIONS )
-        {
-            if( Point_coord(misc_min_limit,c) < Point_coord(min_limit,c) )
-                Point_coord(min_limit,c) = Point_coord(misc_min_limit,c);
-            if( Point_coord(misc_max_limit,c) > Point_coord(max_limit,c) )
-                Point_coord(max_limit,c) = Point_coord(misc_max_limit,c);
-        }
-    }
-
-    if( found )
-    {
-        fit_view_to_domain( &display->three_d.view, &min_limit, &max_limit );
-
-        update_view( display );
-
-        set_update_required( display, NORMAL_PLANES );
-    }
+    set_update_required( display, NORMAL_PLANES );
 
     return( OK );
 }

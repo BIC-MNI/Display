@@ -141,10 +141,6 @@ START_GLOBALS
     DEF_GLOBAL( Show_cursor_contours, BOOLEAN, FALSE )
     DEF_GLOBAL( Cursor_contour_overlay_flag, BOOLEAN, FALSE )
     DEF_GLOBAL( Cursor_contour_thickness, int, 3 )
-    DEF_GLOBAL( Cursor_colour_on_surface, Colour, 1 )
-    DEF_GLOBAL( Cursor_colour_off_surface, Colour, 3 )
-    DEF_GLOBAL( Cursor_rgb_colour_on_surface, Colour, RED )
-    DEF_GLOBAL( Cursor_rgb_colour_off_surface, Colour, BLUE )
     DEF_GLOBAL( Cursor_beep_on_surface, int, 0 )
     DEF_GLOBAL( Cursor_size_factor, Real, 0.05 )
     DEF_GLOBAL( Cursor_axis_size, Real, 50.0 )
@@ -177,7 +173,6 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_pick_distance, Real, 10.0 )
 
     DEF_GLOBAL( Extracted_surface_colour, Colour, WHITE )
-    DEF_GLOBAL( Display_surface_in_slices, BOOLEAN, FALSE )
     DEF_GLOBAL5( Default_surface_property, Surfprop, 0.3, 0.3, 0.4, 10.0, 1.0 )
 
     DEF_GLOBAL( Min_voxels_per_update, int, 10 )

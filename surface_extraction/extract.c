@@ -35,7 +35,9 @@ private  int  add_polygon_to_list(
     edge_point_info             edge_point_list[2][2][2][N_DIMENSIONS] );
 private  int   create_surface_point(
     Volume              volume,
-    Real                isovalue,
+    BOOLEAN             binary_flag,
+    Real                min_value,
+    Real                max_value,
     polygons_struct     *polygons,
     voxel_index_struct  *voxel,
     int                 edge_intersected,
@@ -64,10 +66,10 @@ public  BOOLEAN  extract_voxel_surface(
                 voxel[Y] = voxel_index->i[Y] + y;
                 voxel[Z] = voxel_index->i[Z] + z;
 
-                GET_VOXEL_3D( value, volume, voxel[X], voxel[Y], voxel[Z] );
-                value = CONVERT_VOXEL_TO_VALUE( volume, value );
+                GET_VALUE_3D( value, volume, voxel[X], voxel[Y], voxel[Z] );
 
-                if( value >= surface_extraction->isovalue &&
+                if( surface_extraction->min_value <= value &&
+                    value <= surface_extraction->min_value &&
                     !get_voxel_activity_flag( label_volume, voxel ) )
                 {
                     value = 0.0;
@@ -81,8 +83,9 @@ public  BOOLEAN  extract_voxel_surface(
     n_polys = compute_isosurface_in_voxel(
                        (Marching_cubes_methods) Marching_cubes_method,
                        corner_values,
-                       surface_extraction->isovalue,
-                       surface_extraction->isovalue,
+                       surface_extraction->binary_flag,
+                       surface_extraction->min_value,
+                       surface_extraction->max_value,
                        &sizes, &points_list );
 
     if( n_polys > 0 )
@@ -265,7 +268,9 @@ private  int  add_polygon_to_list(
             corner_index.i[Z] = voxel_index->i[Z] + pt->coord[Z];
 
             point_ids[p] = create_surface_point( volume,
-                                         surface_extraction->isovalue,
+                                         surface_extraction->binary_flag,
+                                         surface_extraction->min_value,
+                                         surface_extraction->max_value,
                                          polygons, &corner_index,
                                          pt->edge_intersected, &pt_class );
 
@@ -309,7 +314,9 @@ private  int  add_polygon_to_list(
 
 private  int   create_surface_point(
     Volume              volume,
-    Real                isovalue,
+    BOOLEAN             binary_flag,
+    Real                min_value,
+    Real                max_value,
     polygons_struct     *polygons,
     voxel_index_struct  *voxel,
     int                 edge_intersected,
@@ -338,7 +345,8 @@ private  int   create_surface_point(
     GET_VALUE_3D( val2, volume, corner[X], corner[Y], corner[Z] );
 
     *pt_class = get_isosurface_point( &point1, val1, &point2, val2,
-                                      isovalue, isovalue, &iso_point );
+                                      binary_flag, min_value, max_value,
+                                      &iso_point );
 
     if( *pt_class < 0 )
     {

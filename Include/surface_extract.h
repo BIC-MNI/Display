@@ -21,9 +21,13 @@ typedef QUEUE_STRUCT( voxel_index_struct )   voxel_queue_struct;
 
 typedef  struct
 {
+    Volume                               volume;
+    Volume                               label_volume;
+
     BOOLEAN                              extraction_in_progress;
-    Real                                 isovalue;
-    BOOLEAN                              isovalue_selected;
+    BOOLEAN                              binary_flag;
+    Real                                 min_value;
+    Real                                 max_value;
 
     hash_table_struct                    edge_points;
 

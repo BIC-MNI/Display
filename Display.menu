@@ -1,57 +1,67 @@
 root
 {
-    permanent ' '    pop_menu           "Pop Menu"
-    permanent '1'    rotate_slice_axes  "Rotate Slice"
-    permanent '2'    magnify_view       "Magnify"
-    permanent '3'    translate_view     "Translate"
-    permanent '4'    rotate_view        "Rotate"
-    permanent '5'    region_painting    "Region Painting"
-    permanent '6'    move_slice_plus    "+ Slice"
-    permanent 'y'    move_slice_minus   "- Slice"
-    permanent '7'    quit               "Quit"
+    permanent ' '      pop_menu                     "Pop Menu"
+    permanent '7'      quit                         "Quit"
 
-    permanent '+'    move_slice_plus    "+ Slice"
-    permanent '-'    move_slice_minus   "- Slice"
+    permanent '+'      move_slice_plus              "+ Slice"
+    permanent '-'      move_slice_minus             "- Slice"
 
-    transient 'q'    slice          "Slice"
-    transient 'w'    view           "View"
-    transient 'e'    render         "Render"
-    transient 'r'    objects        "Objects"
-    transient 't'    file           "File"
-    transient 'u'    francesco      "Francesco"
+    transient 'w'      view_3d                      "3D View"
+    transient 'e'      render_3d                    "3D Render"
+    transient 'r'      objects                      "Objects"
+    transient 't'      file                         "File"
 
-    transient 'a'    menu_set_global_variable   "Global Var"
-    transient 's'    polygons                   "Polygons"
-    transient 'd'    extract                    "Extract"
-    transient 'f'    markers                    "Markers"
-    transient 'g'    segmenting                 "Segmenting"
-    transient 'h'    atlas                      "Atlas"
+    transient 'a'      atlas                        "Atlas"
+    transient 's'      slice_view                   "Slice View"
+    transient 'd'      colour_coding                "Colour Coding"
+    transient 'f'      segmenting                   "Segmenting"
+    transient 'g'      create_surface               "Create Surface"
 
-    transient 'x'    surface_segmentation   "Surface Segmentation"
-    transient 'c'    lines                  "Lines"
-    transient 'v'    surface_curves         "Surface Curves"
-    transient 'b'    colour_coding          "Colour Coding"
-    transient 'n'    deform                 "Deformation"
+    transient 'z'      polygons                     "Polygons"
+    transient 'x'      surface_segmentation         "Surface Segmentation"
+    transient 'c'      lines                        "Lines"
+    transient 'v'      surface_curves               "Surface Curves"
+    transient 'b'      markers                      "Markers"
+    transient 'n'      deform                       "Deformation"
 
-    permanent '\left'    ascend_selected           "Up"
-    permanent '\right'   descend_selected          "Down"
-    permanent '\down'      advance_selected        "Next"
-    permanent '\up'    retreat_selected            "Prev"
+    permanent '2'      magnify_view                 "Magnify 3D"
+    permanent '3'      translate_view               "Translate 3D"
+    permanent '4'      rotate_view                  "Rotate 3D"
+
+    permanent '\left'  ascend_selected              "Up"
+    permanent '\right' descend_selected             "Down"
+    permanent '\down'  advance_selected             "Next"
+    permanent '\up'    retreat_selected             "Prev"
 }
 
 quit
 {
-    transient 'z'    exit_program   "Really Quit"
-    transient 'v'    pop_menu       "Don't Quit"
+    transient 'z'    exit_program                   "Really Quit"
+    transient 'v'    pop_menu                       "Don't Quit"
+
+    transient 'a'    menu_set_global_variable       "Global Var"
 }
 
 file
 {
-    transient 'f'    load_file                 "Load File"
-    transient 'd'    save_file                 "Save File"
+
+    transient 'q'    load_label_data                 "Load Labels .mnc"
+    transient 'w'    save_label_data                 "Save Labels .mnc"
+    transient 'e'    load_labels                     "Load Labels .tag"
+    transient 'r'    save_labels                     "Save Labels .tag"
+    transient 't'    save_current_label              "Save Curr Lbl .tag"
+
+    transient 'a'    save_markers                    "Save Mrkrs as .tag"
+    transient 'f'    load_file                       "Load File"
+    transient 'd'    save_file                       "Save File"
+
+    transient 'z'    load_polygons_visibilities      "Load Poly Visib."
+    transient 'x'    save_polygons_visibilities      "Save Poly Visib."
+    transient 'c'    save_polygons_bintree           "Save Bintree"
+    transient 'v'    input_polygons_bintree          "Load Bintree"
 }
 
-extract
+create_surface
 {
     transient 'w'    set_surface_extract_x_max_distance  "X Dist: %d"
     transient 'e'    set_surface_extract_y_max_distance  "Y Dist: %d"
@@ -68,17 +78,22 @@ extract
     transient 'b'    make_surface_permanent              "Make Perm"
 }
 
-slice
+slice_view
 {
     transient 'q'    toggle_cross_section_visibility "Toggle Plane Visibility"
+    transient 'w'    rotate_slice_axes               "Rotate Slice"
+    transient 'e'    pick_slice_angle_point          "Pick Slice Angle"
+    transient 'r'    create_3d_slice                 "Create 3D Slice"
 
-    transient 'a'    toggle_slice_visibility        "Toggle Slice Visibility"
-    transient 'd'    create_3d_slice                "Create 3D Slice"
-    transient 'f'    pick_slice_angle_point         "Pick Slice Angle"
+    transient 'a'    toggle_double_buffer_slice      "Slice DblBuf: %s"
+    transient 's'    toggle_slice_visibility         "Toggle Slice Visibility"
+    transient 'f'    reset_current_slice_view        "Reset Slice View"
 
-    transient 'z'    resample_slice_window_volume   "Resample Volume"
-    transient 'v'    reset_current_slice_view       "Reset Slice View"
-    transient 'b'    box_filter_slice_window_volume "Box Filter Volume"
+    transient 'g'    redo_histogram_labeled          "Histogram of Labeled"
+    transient 'h'    redo_histogram                  "Recompute Histogram"
+
+    transient 'z'    resample_slice_window_volume    "Resample Volume"
+    transient 'b'    box_filter_slice_window_volume  "Box Filter Volume"
 }
 
 colour_coding
@@ -88,20 +103,23 @@ colour_coding
     transient 'e'    set_box_filter                  "Box Filter"
     transient 'r'    set_triangle_filter             "Triangle Filter"
     transient 't'    set_gaussian_filter             "Gaussian Filter"
+    transient 'y'    set_filter_half_width           "Filter Width"
 
-    transient 'g'    set_contour_colour_map          "Contour"
-    transient 'f'    set_hot_metal                   "Hot Metal"
-    transient 'd'    set_gray_scale                  "Gray Scale"
+    transient 'a'    colour_code_objects             "Colour Code Objects"
     transient 's'    set_spectral                    "Spectral"
-    transient 'a'    set_filter_half_width           "Filter Width"
+    transient 'd'    set_gray_scale                  "Gray Scale"
+    transient 'f'    set_hot_metal                   "Hot Metal"
+    transient 'g'    set_contour_colour_map          "Contour"
+    transient 'h'    set_colour_limits               "Range"
 
     transient 'z'    set_under_colour                "Under Col: %s"
     transient 'x'    set_over_colour                 "Over Col: %s"
     transient 'c'    set_label_colour_ratio          "Label Ratio: %g"
-    transient 'v'    set_colour_limits               "Range"
+    transient 'v'    toggle_display_labels           "Show Labels: %s"
+    transient 'b'    set_label_colour                "Set Paint Lbl Colour"
 }
 
-view
+view_3d
 {
     transient 'a'    reset_view              "Reset View"
     transient 's'    make_view_fit           "Fit View"
@@ -123,21 +141,20 @@ view
     transient 't'    set_eye_separation      "Eye Width: %g"
 }
 
-render
+render_3d
 {
-    transient 'a'    toggle_render_mode        "%s"
-    transient 's'    toggle_shading            "%s"
-    transient 'd'    toggle_lights             "Lights: %s"
-    transient 'f'    toggle_two_sided          "2 Sided: %s"
-    transient 'g'    toggle_backfacing         "Backface: %s"
+    transient 'a'    toggle_render_mode           "%s"
+    transient 's'    toggle_shading               "%s"
+    transient 'd'    toggle_lights                "Lights: %s"
+    transient 'f'    toggle_two_sided             "2 Sided: %s"
+    transient 'g'    toggle_backfacing            "Backface: %s"
 
-    transient 'v'    toggle_line_curve_flag    "Lines as Curves: %s"
-    transient 'c'    toggle_marker_label_flag  "Marker Labels: %s"
-    transient 'z'    set_n_curve_segments      "Set # Curve Segments"
+    transient 'v'    toggle_line_curve_flag       "Lines as Curves: %s"
+    transient 'c'    toggle_marker_label_flag     "Marker Labels: %s"
+    transient 'z'    set_n_curve_segments         "Set # Curve Segments"
 
     transient 'q'    change_background_colour     "Change Background"
     transient 'w'    toggle_double_buffer_threed  "3D DblBuf: %s"
-    transient 'e'    toggle_double_buffer_slice   "Slice DblBuf: %s"
 }
 
 objects
@@ -155,7 +172,6 @@ objects
     transient 'b'    mark_vertices               "Show Vertices"
 
     transient 'q'    delete_object_menu          "Delete Object"
-    transient 'w'    colour_code_objects         "Colour Code Objects"
     transient 'e'    set_current_object_colour   "Change Colour"
     transient 'r'    change_model_name           "Change Model Name"
     transient 't'    create_model                "Create Model"
@@ -181,50 +197,47 @@ delete_object_menu
 
 surface_segmentation
 {
-    transient '5'    set_invis_colour_to_invis          "Invis Col -> Invis"
+    transient '5'    set_invis_colour_to_invis         "Invis Col -> Invis"
 
-    transient 'q'    reset_polygon_visibility           "Reset Visible"
-    transient 'w'    set_visibility_from_colour         "Set Coloured Visible"
-    transient 'e'    remove_invisible_parts_of_polygon  "Remove Invisible"
-    transient 'r'    crop_above_plane                   "Crop Above"
-    transient 't'    crop_below_plane                   "Crop Below"
+    transient 'q'    reset_polygon_visibility          "Reset Visible"
+    transient 'w'    set_visibility_from_colour        "Set Coloured Visible"
+    transient 'e'    remove_invisible_parts_of_polygon "Remove Invisible"
+    transient 'r'    crop_above_plane                  "Crop Above"
+    transient 't'    crop_below_plane                  "Crop Below"
+    transient 'y'    reset_polygon_neighbours          "Reset Neighbours"
 
-    transient 'a'    set_vis_to_invis_colour            "Vis -> Invis Colour"
-    transient 's'    set_vis_to_vis_colour              "Vis -> Vis Colour"
-    transient 'd'    paint_invisible                    "Paint Invisible"
-    transient 'f'    paint_visible                      "Paint Visible"
-    transient 'g'    set_vis_paint_colour               "Vis Col: %s"
-    transient 'h'    set_invis_paint_colour             "Invis: %s"
+    transient 'a'    set_vis_to_invis_colour           "Vis -> Invis Colour"
+    transient 's'    set_vis_to_vis_colour             "Vis -> Vis Colour"
+    transient 'd'    paint_invisible                   "Paint Invisible"
+    transient 'f'    paint_visible                     "Paint Visible"
+    transient 'g'    set_vis_paint_colour              "Vis Col: %s"
+    transient 'h'    set_invis_paint_colour            "Invis: %s"
 
-    transient 'z'    set_connected_vis_colour       "Connected Vis Colour"
-    transient 'x'    set_connected_invis_colour     "Connected Invis Colour"
-    transient 'c'    paint_invis_colour             "Paint Invis Colour"
-    transient 'v'    paint_vis_colour               "Paint Vis Colour"
-    transient 'b'    set_n_paint_polygons           "Paint size: %d polygons"
+    transient 'z'    set_connected_vis_colour          "Connected Vis Colour"
+    transient 'x'    set_connected_invis_colour        "Connected Invis Colour"
+    transient 'c'    paint_invis_colour                "Paint Invis Colour"
+    transient 'v'    paint_vis_colour                  "Paint Vis Colour"
+    transient 'b'    set_n_paint_polygons              "Paint size: %d polygons"
+
+    transient '1'    cut_polygon_neighbours            "Cut Neighbours"
 }
 
 polygons
 {
-    transient 'q'    load_polygons_visibilities      "Load Visibilities"
-    transient 'w'    save_polygons_visibilities      "Save Visibilities"
-    transient 'e'    set_polygon_line_thickness      "Set Line Thickness"
-    transient 'r'    make_polygon_sphere             "Make Polygons Sphere"
-    transient 't'    subdivide_current_polygon       "Subdivide Polygons"
-    transient 'y'    scan_current_polygon_to_volume  "Scan Polygons to Volume"
+    transient 'e'    set_polygon_line_thickness        "Set Line Thickness"
+    transient 'r'    make_polygon_sphere               "Make Polygons Sphere"
+    transient 't'    subdivide_current_polygon         "Subdivide Polygons"
+    transient 'y'    scan_current_polygon_to_volume    "Scan Polygons to Volume"
 
-    transient 'a'    create_bintree_for_polygons  "Create Bintree"
-    transient 'd'    create_normals_for_polygon   "Compute Normals"
-    transient 'f'    reverse_polygons_order       "Reverse Polygons"
-    transient 'g'    reverse_normals              "Reverse Normals"
-    transient 'h'    make_tetrahedral_sphere      "Make Tetrahedral Sphere"
+    transient 'a'    create_bintree_for_polygons       "Create Bintree"
+    transient 'd'    create_normals_for_polygon        "Compute Normals"
+    transient 'f'    reverse_polygons_order            "Reverse Polygons"
+    transient 'g'    reverse_normals                   "Reverse Normals"
+    transient 'h'    make_tetrahedral_sphere           "Make Tetrahedral Sphere"
 
 
-    transient 'z'    save_polygons_bintree                 "Save Bintree"
-    transient 'x'    input_polygons_bintree                "Load Bintree"
-    transient 'c'    smooth_current_polygon                "Smooth Polygon"
-    transient 'v'    average_normals_for_polygon           "Average Normals"
-    transient 'b'    reset_polygon_neighbours              "Reset Neighbours"
-    transient 'n'    cut_polygon_neighbours                "Cut Neighbours"
+    transient 'c'    smooth_current_polygon            "Smooth Polygon"
+    transient 'v'    average_normals_for_polygon       "Average Normals"
 }
 
 markers
@@ -242,8 +255,6 @@ markers
     transient 't'    change_marker_type          "Chg Marker Type"
     transient 'u'    change_marker_position      "Change Marker Position"
 
-    transient 'a'    save_markers                "Save Mrkrs as .tag"
-    transient 's'    load_file                   "Load Markers"
     transient 'd'    set_cursor_to_marker        "Move to Marker"
     transient 'f'    create_marker_at_cursor     "Create Marker"
     transient 'g'    move_cursor_to_home         "Move Cursor Home"
@@ -256,25 +267,6 @@ markers
     transient 'v'    set_default_marker_structure_id   "Def Struct Id: %d"
     transient 'b'    set_default_marker_patient_id     "Def Patient Id: %d"
     transient 'n'    set_default_marker_type           "Default Type: %s"
-}
-
-segmenting
-{
-    transient 't'    set_segmenting_threshold   "Set Threshold"
-
-    transient 'a'    load_label_data            "Load Labels"
-    transient 's'    save_label_data            "Save Labels"
-    transient 'd'    label_voxel                "Label Voxel"
-    transient 'f'    clear_voxel                "Clear Voxel"
-    transient 'g'    label_connected            "Label Connected"
-    transient 'h'    clear_connected            "Clear Connected"
-
-    transient 'z'    reset_segmenting           "Reset Segmenting"
-    transient 'x'    reset_activities           "Reset Activities"
-    transient 'c'    label_slice                "Label Slice"
-    transient 'v'    clear_slice                "Clear Slice"
-    transient 'b'    label_connected_3d         "Fill 3D"
-    transient 'n'    expand_labeled_3d          "Expand 3D"
 }
 
 surface_curves
@@ -308,8 +300,8 @@ atlas
 
 deform
 {
-    transient 'd'    start_deforming_object           "Start Deformation"
-    transient 'f'    stop_deforming_object            "Stop Deformation"
+    transient 'd'    start_deforming_object               "Start Deformation"
+    transient 'f'    stop_deforming_object                "Stop Deformation"
 
     transient 'q'    set_deformation_original_positions   "Set Original Pos"
     transient 'w'    set_deformation_model                "Set Model"
@@ -320,61 +312,33 @@ deform
     transient 'v'    show_deformation_model               "Show Model"
 }
 
-region_painting
+segmenting
 {
-    transient 'q'    load_labels                     "Load .tag as Labels"
-    transient 'w'    save_labels                     "Save Labels .tag"
-    transient 'e'    copy_labels_from_lower_slice  "Copy from Lt/Inf/Post Slice"
-    transient 'r'    copy_labels_from_higher_slice "Copy from Rt/Sup/Ant Slice"
-    transient 't'    save_current_label              "Save Current Label"
-    transient 'u'    clear_slice                     "Clear Slice"
+    transient 'q'    label_voxel                      "Label Voxel"
+    transient 'w'    clear_voxel                      "Clear Voxel"
+    transient 'e'    label_connected                  "Label Fill"
+    transient 'r'    label_connected_no_threshold     "Label Fill No Thrs"
+    transient 't'    clear_connected                  "Clear Fill"
+    transient 'y'    set_segmenting_threshold         "Set Threshold"
+    transient 'u'    change_labels_in_range           "Change Labels"
 
-    transient 'a'    set_label_colour                "Set Paint Lbl Colour"
-    transient 's'    set_current_paint_label         "Set Paint Lbl: %d"
-    transient 'd'    label_connected                 "Label Connected"
-    transient 'f'    set_paint_xy_brush_radius       "XY Radius: %g"
-    transient 'h'    set_paint_z_brush_radius        "Out-plane Rad: %g"
+    transient 'a'    label_slice                      "Label Slice"
+    transient 's'    clear_slice                      "Clear Slice"
+    transient 'd'    set_current_paint_label          "Set Paint Lbl: %d"
+    transient 'f'    set_paint_xy_brush_radius        "XY Radius: %g"
+    transient 'g'    set_paint_z_brush_radius         "Out-plane Rad: %g"
+    transient 'h'    copy_labels_from_higher_slice "Copy from Rt/Sup/Ant Slice"
 
-    transient 'z'    reset_segmenting                "Clear All Labels"
-    transient 'x'    calculate_volume                "Calculate Volume"
-    transient 'c'    toggle_display_labels           "Show Labels: %s"
-    transient 'v'    change_labels_in_range          "Change Labels"
-    transient 'b'    get_voxelated_label_surface     "Create Label Boundary"
-    transient 'n'    set_segmenting_threshold        "Set Threshold"
-}
+    transient 'z'    reset_segmenting                 "Clear All Labels"
+    transient 'x'    label_connected_3d               "Fill 3D"
+    transient 'c'    expand_labeled_3d                "Expand 3D"
+    transient 'v'    calculate_volume                 "Calculate Volume"
+    transient 'n'    copy_labels_from_lower_slice  "Copy from Lt/Inf/Post Slice"
 
-francesco
-{
-    transient 'q'    load_labels                     "Load .tag as Labels"
-    transient 'w'    redo_histogram                  "Recompute Histogram"
-    transient 'e'    copy_labels_from_lower_slice  "Copy from Lt/Inf/Post Slice"
-    transient 'r'    copy_labels_from_higher_slice "Copy from Rt/Sup/Ant Slice"
-    transient 't'    save_current_label              "Save Current Label"
-    transient 'u'    clear_slice                     "Clear Slice"
-
-    transient 'a'    set_label_colour                "Set Paint Lbl Colour"
-    transient 's'    set_current_paint_label         "Set Paint Lbl: %d"
-    transient 'd'    label_connected                 "Label Connected"
-    transient 'f'    set_paint_xy_brush_radius       "XY Radius: %g"
-    transient 'g'    set_paint_z_brush_radius        "Out-plane Rad: %g"
-    transient 'h'    save_labels                     "Save Labels .tag"
-
-    transient 'z'    reset_segmenting                "Clear All Labels"
-    transient 'x'    calculate_volume                "Calculate Volume"
-    transient 'c'    toggle_display_labels           "Show Labels: %s"
-    transient 'v'    change_labels_in_range          "Change Labels"
-    transient 'b'    get_voxelated_label_surface     "Create Label Boundary"
-    transient 'n'    set_segmenting_threshold        "Set Threshold"
-
-    transient '1'    translate_labels_arbitrary      "Big Translate"
-    transient '2'    redo_histogram_labeled          "Histogram of Labeled"
-    transient '3'    label_connected                 "Fill Thresholded"
-    transient '4'    label_connected_no_threshold    "Fill Not Thresholded"
-    transient '5'    clear_connected                 "Fill Clear"
-    transient '7'    undo_slice_labels               "Undo"
-
-    transient '\up'  translate_labels_up             "Trans ^"
-    transient '\down' translate_labels_down          "Trans v"
-    transient '\left'  translate_labels_left         "Trans <"
-    transient '\right'    translate_labels_right     "Trans >"
+    transient '1'    translate_labels_up              "Trans ^"
+    transient '2'    translate_labels_down            "Trans v"
+    transient '3'    translate_labels_left            "Trans <"
+    transient '4'    translate_labels_right           "Trans >"
+    transient '5'    translate_labels_arbitrary       "Big Translate"
+    transient '7'    undo_slice_labels                "Undo"
 }

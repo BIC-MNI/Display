@@ -1,10 +1,11 @@
 
 #include  <display.h>
 
-private  BOOLEAN  find_close_voxel_containing_value(
+private  BOOLEAN  find_close_voxel_containing_range(
     Volume                     volume,
     unsigned_byte              voxel_done_flags[],
-    Real                       value,
+    Real                       min_value,
+    Real                       max_value,
     surface_extraction_struct  *surface_extraction,
     int                        x,
     int                        y,
@@ -16,7 +17,8 @@ private  void  add_voxel_neighbours(
     int                                 y,
     int                                 z,
     BOOLEAN                             surface_only,
-    Real                                isovalue,
+    Real                                min_value,
+    Real                                max_value,
     surface_extraction_struct           *surface_extraction,
     bitlist_struct                      *voxels_queued,
     voxel_queue_struct                  *voxel_queue );
@@ -35,50 +37,50 @@ private  void  delete_edge_points_no_longer_needed(
 
 public  void  start_surface_extraction_at_point(
     display_struct     *display,
+    Volume             volume,
+    Volume             label_volume,
+    BOOLEAN            binary_flag,
+    Real               min_value,
+    Real               max_value,
     int                x,
     int                y,
     int                z )
 {
     int                         indices[N_DIMENSIONS];
-    Volume                      volume;
     surface_extraction_struct   *surface_extraction;
     voxel_index_struct          voxel_indices;
 
     surface_extraction = &display->three_d.surface_extraction;
+    surface_extraction->volume = volume;
+    surface_extraction->label_volume = label_volume;
+    surface_extraction->binary_flag = binary_flag;
+    surface_extraction->min_value = min_value;
+    surface_extraction->max_value = max_value;
 
     indices[X] = x;
     indices[Y] = y;
     indices[Z] = z;
-    if( get_slice_window_volume( display, &volume ) &&
-        int_voxel_is_within_volume( volume, indices ) )
+    if( int_voxel_is_within_volume( volume, indices ) )
     {
         display->three_d.surface_extraction.x_starting_voxel = x;
         display->three_d.surface_extraction.y_starting_voxel = y;
         display->three_d.surface_extraction.z_starting_voxel = z;
 
-        if( !surface_extraction->isovalue_selected )
+        while( voxels_remaining(
+                 &display->three_d.surface_extraction.voxels_to_do ) )
         {
-            set_isosurface_value( surface_extraction );
-        }
-        else
-        {
-            while( voxels_remaining(
-                     &display->three_d.surface_extraction.voxels_to_do ) )
-            {
-                get_next_voxel_from_queue( 
-                     &display->three_d.surface_extraction.voxels_to_do,
+            get_next_voxel_from_queue( 
+                 &display->three_d.surface_extraction.voxels_to_do,
+                 &voxel_indices );
+
+            reset_voxel_flag( volume,
+                     &display->three_d.surface_extraction.voxels_queued,
                      &voxel_indices );
-
-                reset_voxel_flag( volume,
-                         &display->three_d.surface_extraction.voxels_queued,
-                         &voxel_indices );
-            }
         }
 
-        if( find_close_voxel_containing_value( volume,
+        if( find_close_voxel_containing_range( volume,
                   display->three_d.surface_extraction.voxel_done_flags,
-                  display->three_d.surface_extraction.isovalue,
-                  &display->three_d.surface_extraction,
+                  min_value, max_value, &display->three_d.surface_extraction,
                   x, y, z, &voxel_indices ) )
         {
             insert_in_voxel_queue(
@@ -94,10 +96,11 @@ public  void  start_surface_extraction_at_point(
     }
 }
 
-private  BOOLEAN  find_close_voxel_containing_value(
+private  BOOLEAN  find_close_voxel_containing_range(
     Volume                     volume,
     unsigned_byte              voxel_done_flags[],
-    Real                       value,
+    Real                       min_value,
+    Real                       max_value,
     surface_extraction_struct  *surface_extraction,
     int                        x,
     int                        y,
@@ -106,7 +109,7 @@ private  BOOLEAN  find_close_voxel_containing_value(
 {
     BOOLEAN                   found, voxel_contains;
     int                       sizes[MAX_DIMENSIONS], voxel[MAX_DIMENSIONS];
-    unsigned_byte             voxel_done;
+    BOOLEAN                   voxel_done;
     voxel_queue_struct        voxels_to_check;
     voxel_index_struct        indices, insert;
     bitlist_struct            voxels_searched;
@@ -134,7 +137,8 @@ private  BOOLEAN  find_close_voxel_containing_value(
         voxel[X] = indices.i[X];
         voxel[Y] = indices.i[Y];
         voxel[Z] = indices.i[Z];
-        voxel_contains = voxel_contains_value( volume, voxel, value );
+        voxel_contains = voxel_contains_range( volume, voxel,
+                                               min_value, max_value );
 
         voxel_done = get_voxel_done_flag( volume, voxel_done_flags, &indices );
 
@@ -151,7 +155,7 @@ private  BOOLEAN  find_close_voxel_containing_value(
                                   indices.i[X],
                                   indices.i[Y],
                                   indices.i[Z],
-                                  (BOOLEAN) voxel_done, value,
+                                  voxel_done, min_value, max_value,
                                   surface_extraction,
                                   &voxels_searched, &voxels_to_check );
         }
@@ -176,8 +180,8 @@ public  void  extract_more_surface(
     n_voxels_done = 0;
 
     surface_extraction = &display->three_d.surface_extraction;
-    volume = get_volume( display );
-    label_volume = get_label_volume( display );
+    volume = surface_extraction->volume;
+    label_volume = surface_extraction->label_volume;
 
     stop_time = current_realtime_seconds() + Max_seconds_per_voxel_update;
 
@@ -205,17 +209,11 @@ public  void  extract_more_surface(
                                  surface_extraction->voxel_done_flags,
                                  &surface_extraction->edge_points );
 
-            if( Display_surface_in_slices )
-            {
-                label_voxel_as_done( label_volume,
-                                     voxel_index.i[X],
-                                     voxel_index.i[Y],
-                                     voxel_index.i[Z] );
-            }
-
             add_voxel_neighbours( volume,
                         voxel_index.i[X], voxel_index.i[Y], voxel_index.i[Z],
-                        TRUE, surface_extraction->isovalue,
+                        TRUE,
+                        surface_extraction->min_value,
+                        surface_extraction->max_value,
                         surface_extraction,
                         &surface_extraction->voxels_queued,
                         &surface_extraction->voxels_to_do );
@@ -235,7 +233,8 @@ private  void  add_voxel_neighbours(
     int                             y,
     int                             z,
     BOOLEAN                         surface_only,
-    Real                            isovalue,
+    Real                            min_value,
+    Real                            max_value,
     surface_extraction_struct       *surface_extraction,
     bitlist_struct                  *voxels_queued,
     voxel_queue_struct              *voxel_queue )
@@ -267,7 +266,8 @@ private  void  add_voxel_neighbours(
                 {
                     set_voxel_flag( volume, voxels_queued, &neighbour);
                     if( !surface_only ||
-                        voxel_contains_value( volume, indices, isovalue ) )
+                        voxel_contains_range( volume, indices,
+                                              min_value, max_value ) )
                     {
                         insert_in_voxel_queue( voxel_queue, &neighbour );
                     }

@@ -25,14 +25,6 @@ private  DEF_EVENT_FUNCTION( add_to_surface )    /* ARGSUSED */
         extract_more_surface( display );
 
         graphics_models_have_changed( display );
-
-        if( Display_surface_in_slices )
-        {
-            rebuild_slice_models( display->associated[SLICE_WINDOW] );
-
-            set_update_required( display->associated[SLICE_WINDOW],
-                                 NORMAL_PLANES );
-        }
     }
 
     return( OK );

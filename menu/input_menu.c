@@ -59,25 +59,22 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(toggle_object_visibility) \
                        MENU_FUNCTION(cut_object) \
                        MENU_FUNCTION(paste_object) \
-                       MENU_FUNCTION(start_surface) \
+                       MENU_FUNCTION(start_volume_isosurface) \
+                       MENU_FUNCTION(start_volume_binary_isosurface) \
+                       MENU_FUNCTION(start_label_binary_isosurface) \
+                       MENU_FUNCTION(get_voxelated_surface) \
+                       MENU_FUNCTION(get_voxelated_label_surface) \
                        MENU_FUNCTION(toggle_surface_extraction) \
                        MENU_FUNCTION(make_surface_permanent) \
                        MENU_FUNCTION(reset_surface) \
                        MENU_FUNCTION(set_surface_extract_x_max_distance) \
                        MENU_FUNCTION(set_surface_extract_y_max_distance) \
                        MENU_FUNCTION(set_surface_extract_z_max_distance) \
-                       MENU_FUNCTION(get_labeled_boundary) \
-                       MENU_FUNCTION(double_slice_voxels) \
-                       MENU_FUNCTION(halve_slice_voxels) \
                        MENU_FUNCTION(reset_current_slice_view) \
                        MENU_FUNCTION(load_label_data) \
                        MENU_FUNCTION(save_label_data) \
-                       MENU_FUNCTION(load_active_voxels) \
-                       MENU_FUNCTION(save_active_voxels) \
-                       MENU_FUNCTION(invert_activity) \
                        MENU_FUNCTION(clear_voxel) \
                        MENU_FUNCTION(label_voxel) \
-                       MENU_FUNCTION(reset_activities) \
                        MENU_FUNCTION(clear_connected) \
                        MENU_FUNCTION(label_connected) \
                        MENU_FUNCTION(label_connected_no_threshold) \
@@ -86,7 +83,6 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(label_connected_3d) \
                        MENU_FUNCTION(expand_labeled_3d) \
                        MENU_FUNCTION(set_colour_limits) \
-                       MENU_FUNCTION(set_isovalue) \
                        MENU_FUNCTION(create_film_loop) \
                        MENU_FUNCTION(reset_polygon_visibility) \
                        MENU_FUNCTION(set_polygon_line_thickness) \
@@ -182,8 +178,6 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(save_labels) \
                        MENU_FUNCTION(save_current_label) \
                        MENU_FUNCTION(load_labels) \
-                       MENU_FUNCTION(reset_3d_segmenting) \
-                       MENU_FUNCTION(do_3d_segmenting) \
                        MENU_FUNCTION(reset_segmenting) \
                        MENU_FUNCTION(set_segmenting_threshold) \
                        MENU_FUNCTION(make_surface_line_permanent) \

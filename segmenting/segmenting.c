@@ -12,8 +12,6 @@ private  BOOLEAN  should_change_this_one(
 public  void  initialize_segmenting(
     segmenting_struct  *segmenting )
 {
-    segmenting->n_labels = 0;
-    segmenting->labels = (label_struct *) 0;
     segmenting->min_threshold = 0.0;
     segmenting->max_threshold = -1.0;
     segmenting->connectivity = (Neighbour_types) Segmenting_connectivity;
@@ -24,54 +22,13 @@ public  int  get_label_bit()
     return( (get_max_label() + 1) >> 1 );
 }
 
-public  void  delete_all_labels(
-    segmenting_struct  *segmenting )
+public  void  clear_all_labels(
+    display_struct    *display )
 {
-    if( segmenting->n_labels > 0 )
-    {
-        FREE( segmenting->labels );
-        segmenting->n_labels = 0;
-    }
-}
+    display_struct    *slice_window;
 
-public  void  reset_segmentation(
-    display_struct    *slice_window )
-{
-    delete_all_labels( &slice_window->slice.segmenting );
-
-    set_all_volume_label_data( get_label_volume(slice_window), 0 );
-}
-
-public  void  add_point_label(
-    display_struct   *slice_window,
-    int              voxel[],
-    int              id )
-{
-    label_struct  label;
-
-    label.voxel_indices[X] = voxel[X];
-    label.voxel_indices[Y] = voxel[Y];
-    label.voxel_indices[Z] = voxel[Z];
-    label.id = id;
-
-    ADD_ELEMENT_TO_ARRAY( slice_window->slice.segmenting.labels,
-                          slice_window->slice.segmenting.n_labels,
-                          label, DEFAULT_CHUNK_SIZE );
-
-    set_voxel_label_flag( get_label_volume(slice_window), voxel, TRUE );
-}
-
-public  void  generate_segmentation(
-    display_struct    *slice_window,
-    int               voxel_indices[],
-    int               voxel_axes[] )
-{
-    disconnect_components( get_volume(slice_window),
-                           voxel_indices, voxel_axes,
-                           slice_window->slice.segmenting.n_labels,
-                           slice_window->slice.segmenting.labels,
-                           slice_window->slice.segmenting.min_threshold,
-                           slice_window->slice.segmenting.max_threshold );
+    if( get_slice_window( display, &slice_window ) )
+        set_all_volume_label_data( get_label_volume(slice_window), 0 );
 }
 
 public  void  set_labels_on_slice(

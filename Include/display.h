@@ -4,7 +4,6 @@
 #include  <deform.h>
 #include  <globals.h>
 #include  <minimization.h>
-#include  <connect.h>
 #include  <main.h>
 #include  <marching_cubes.h>
 #include  <module.h>

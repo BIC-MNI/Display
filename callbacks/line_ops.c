@@ -73,7 +73,7 @@ public  DEF_MENU_FUNCTION( make_current_line_tube )   /* ARGSUSED */
         (void) input_newline( stdin );
 
         if( status == OK )
-            convert_lines_to_tubes( display, lines, n_around, radius );
+            convert_lines_to_tubes_objects( display, lines, n_around, radius );
 
         if( status == OK )
             graphics_models_have_changed( display );

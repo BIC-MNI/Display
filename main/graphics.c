@@ -512,6 +512,38 @@ public  void  update_view(
                               &display->three_d.view.modeling_transform );
 }
 
+public  void  fit_view_to_visible_models(
+    display_struct   *display )
+{
+    int     c;
+    Point   min_limit, max_limit;
+    Point   misc_min_limit, misc_max_limit;
+
+    if( !get_range_of_object( display->models[THREED_MODEL],
+                              TRUE, &min_limit, &max_limit ) )
+    {
+        if( !get_range_of_object( display->models[MISCELLANEOUS_MODEL],
+                                  TRUE, &min_limit, &max_limit ) )
+        {
+            fill_Point( min_limit, -1.0, -1.0, -1.0 );
+            fill_Point( max_limit,  1.0,  1.0,  1.0 );
+        }
+    }
+    else if( get_range_of_object( display->models[MISCELLANEOUS_MODEL],
+                                  TRUE, &misc_min_limit, &misc_max_limit ) )
+    {
+        for_less( c, 0, N_DIMENSIONS )
+        {
+            if( Point_coord(misc_min_limit,c) < Point_coord(min_limit,c) )
+                Point_coord(min_limit,c) = Point_coord(misc_min_limit,c);
+            if( Point_coord(misc_max_limit,c) > Point_coord(max_limit,c) )
+                Point_coord(max_limit,c) = Point_coord(misc_max_limit,c);
+        }
+    }
+
+    fit_view_to_domain( &display->three_d.view, &min_limit, &max_limit );
+}
+
 public  void  reset_view_parameters(
     display_struct   *display,
     Vector           *line_of_sight,
@@ -523,9 +555,7 @@ public  void  reset_view_parameters(
     set_model_scale( &display->three_d.view,
                      Initial_x_scale, Initial_y_scale, Initial_z_scale );
     adjust_view_for_aspect( &display->three_d.view, display->window );
-    fit_view_to_domain( &display->three_d.view,
-                        &display->three_d.min_limit,
-                        &display->three_d.max_limit );
+    fit_view_to_visible_models( display );
 }
 
 public  Real  size_of_domain(

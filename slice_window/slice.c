@@ -60,41 +60,6 @@ public  BOOLEAN  get_slice_window(
     return( exists );
 }
 
-private  void  set_cursor_colour(
-    display_struct   *slice_window )
-{
-    Real      indices[N_DIMENSIONS];
-    int       int_indices[N_DIMENSIONS];
-    Colour    col;
-    Real      value;
-
-    if( get_isosurface_value( slice_window->associated[THREE_D_WINDOW], &value))
-    {
-        get_current_voxel( slice_window, indices );
-
-        convert_real_to_int_voxel( N_DIMENSIONS, indices, int_indices );
-
-        if( int_voxel_is_within_volume( get_volume(slice_window), int_indices)&&
-            voxel_contains_value( get_volume(slice_window), int_indices,
-                                  value ))
-        {
-            if( get_cursor_bitplanes() )
-                col = Cursor_colour_on_surface;
-            else
-                col = Cursor_rgb_colour_on_surface;
-        }
-        else
-        {
-            if( get_cursor_bitplanes() )
-                col = Cursor_colour_off_surface;
-            else
-                col = Cursor_rgb_colour_off_surface;
-        }
-
-        update_cursor_colour( slice_window->associated[THREE_D_WINDOW], col );
-    }
-}
-
 public  BOOLEAN  update_cursor_from_voxel(
     display_struct    *slice_window )
 {
@@ -114,8 +79,6 @@ public  BOOLEAN  update_cursor_from_voxel(
     if( !EQUAL_POINTS( new_origin, display->three_d.cursor.origin ) )
     {
         display->three_d.cursor.origin = new_origin;
-
-        set_cursor_colour( slice_window );
 
         update_cursor( display );
 
@@ -147,8 +110,6 @@ public  BOOLEAN  update_voxel_from_cursor(
                                     voxel ) )
         {
             changed = set_current_voxel( slice_window, voxel );
-
-            set_cursor_colour( slice_window );
         }
     }
 
@@ -234,7 +195,6 @@ public  void  initialize_slice_window(
     initialize_slice_histogram( slice_window );
     initialize_slice_window_events( slice_window );
     initialize_voxel_labeling( slice_window );
-    initialize_3d_segmenting( slice_window );
 
     for_less( view, 0, N_SLICE_VIEWS )
     {

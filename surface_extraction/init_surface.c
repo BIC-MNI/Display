@@ -41,7 +41,6 @@ private  void  clear_surface_extraction(
     surface_extraction = &display->three_d.surface_extraction;
 
     surface_extraction->extraction_in_progress = FALSE;
-    surface_extraction->isovalue_selected = FALSE;
     surface_extraction->n_voxels_with_surface = 0;
 
     initialize_edge_points( &surface_extraction->edge_points );
@@ -100,46 +99,6 @@ public  void  reset_surface_extraction(
     clear_surface_extraction( display );
 }
 
-public  void  set_isosurface_value(
-    surface_extraction_struct   *surface_extraction )
-{
-    Real   value;
-
-    if( !surface_extraction->extraction_in_progress )
-    {
-        print( "Enter isosurface value: " );
-        if( input_real( stdin, &value ) == OK && value >= 0.0 )
-        {
-            if( value == (Real) ((int) value) )
-            {
-                value = value + 0.0001;
-            }
-
-            surface_extraction->isovalue = value;
-            surface_extraction->isovalue_selected = TRUE;
-        }
-
-        (void) input_newline( stdin );
-    }
-}
-
-public  void  check_if_isosurface_value_set(
-    surface_extraction_struct   *surface_extraction )
-{
-    if( !surface_extraction->isovalue_selected )
-        set_isosurface_value( surface_extraction );
-}
-
-public  BOOLEAN  get_isosurface_value(
-    display_struct     *display,
-    Real               *value )
-{
-    if( display->three_d.surface_extraction.isovalue_selected )
-        *value = display->three_d.surface_extraction.isovalue;
-
-    return( display->three_d.surface_extraction.isovalue_selected );
-}
-
 public  void  start_surface_extraction(
     display_struct     *display )
 {
@@ -147,11 +106,7 @@ public  void  start_surface_extraction(
 
     surface_extraction = &display->three_d.surface_extraction;
 
-    if( !surface_extraction->extraction_in_progress &&
-        surface_extraction->isovalue_selected )
-    {
-        surface_extraction->extraction_in_progress = TRUE;
-    }
+    surface_extraction->extraction_in_progress = TRUE;
 }
 
 public  void  stop_surface_extraction(

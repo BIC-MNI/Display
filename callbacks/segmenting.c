@@ -56,9 +56,14 @@ public  DEF_MENU_UPDATE(clear_voxel )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( reset_segmenting )   /* ARGSUSED */
 {
-    reset_segmentation( display->associated[SLICE_WINDOW] );
-    delete_slice_undo( &display->associated[SLICE_WINDOW]->slice.undo );
-    set_slice_window_all_update( display->associated[SLICE_WINDOW] );
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        clear_all_labels( slice_window );
+        delete_slice_undo( &slice_window->slice.undo );
+        set_slice_window_all_update( slice_window );
+    }
 
     return( OK );
 }
@@ -156,115 +161,6 @@ public  DEF_MENU_FUNCTION(save_label_data)   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(save_label_data )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(save_active_voxels)   /* ARGSUSED */
-{
-    FILE             *file;
-    Status           status;
-    STRING           filename;
-    display_struct   *slice_window;
-
-    status = OK;
-
-    if( get_slice_window( display, &slice_window ) )
-    {
-        print( "Enter filename: " );
-
-        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
-
-        (void) input_newline( stdin );
-
-        if( status == OK )
-            status = open_file_with_default_suffix( filename, "act",
-                                            WRITE_FILE, BINARY_FORMAT, &file );
-
-        if( status == OK )
-            status = io_volume_label_bit( file, WRITE_FILE,
-                                          get_label_volume(slice_window),
-                                          get_active_bit() );
-
-        if( status == OK )
-            status = close_file( file );
-
-        print( "Done\n" );
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(save_active_voxels )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
-{
-    FILE             *file;
-    Status           status;
-    STRING           filename;
-    display_struct   *slice_window;
-
-    status = OK;
-
-    if( get_slice_window( display, &slice_window ) )
-    {
-        print( "Enter filename: " );
-
-        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
-
-        (void) input_newline( stdin );
-
-        if( status == OK )
-            status = open_file_with_default_suffix( filename, "act", READ_FILE,
-                                                    BINARY_FORMAT, &file );
-
-        if( status == OK )
-            status = io_volume_label_bit( file, READ_FILE,
-                                          get_label_volume(slice_window),
-                                          get_active_bit() );
-
-        if( status == OK )
-            status = close_file( file );
-
-        if( status == OK )
-        {
-            delete_slice_undo( &display->associated[SLICE_WINDOW]->slice.undo );
-            set_slice_window_all_update( display->associated[SLICE_WINDOW] );
-        }
-
-        print( "Done\n" );
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(load_active_voxels )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(reset_activities)   /* ARGSUSED */
-{
-    Volume           volume;
-    display_struct   *slice_window;
-
-    if( get_slice_window_volume( display, &volume ) )
-    {
-        slice_window = display->associated[SLICE_WINDOW];
-
-        set_all_voxel_activity_flags( get_label_volume(slice_window), TRUE );
-
-        delete_slice_undo( &display->associated[SLICE_WINDOW]->slice.undo );
-        set_slice_window_all_update( slice_window );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(reset_activities )   /* ARGSUSED */
 {
     return( OK );
 }
@@ -455,98 +351,6 @@ public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(expand_labeled_3d )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(invert_activity)   /* ARGSUSED */
-{
-    int              voxel[MAX_DIMENSIONS], sizes[MAX_DIMENSIONS];
-    BOOLEAN          activity;
-    Volume           volume;
-    display_struct   *slice_window;
-
-    if( get_slice_window_volume( display, &volume) )
-    {
-        print( "Inverting activity\n" );
-        get_volume_sizes( volume, sizes );
-
-        for_less( voxel[X], 0, sizes[X] )
-        {
-            for_less( voxel[Y], 0, sizes[Y] )
-            {
-                for_less( voxel[Z], 0, sizes[Z] )
-                {
-                    activity = get_voxel_activity_flag(
-                                     get_label_volume(display), voxel );
-                    set_voxel_activity_flag( get_label_volume(display),
-                                     voxel, !activity );
-                }
-            }
-        }
-
-        print( "Done\n" );
-
-        slice_window = display->associated[SLICE_WINDOW];
-        delete_slice_undo( &slice_window->slice.undo );
-        set_slice_window_all_update( slice_window );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(invert_activity )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(reset_3d_segmenting)   /* ARGSUSED */
-{
-    display_struct   *slice_window;
-    int              axis_index, voxel_pos, n_dimensions;
-    Real             voxel[MAX_DIMENSIONS];
-
-    if( get_slice_window( display, &slice_window) )
-    {
-        if( get_voxel_under_mouse( display, voxel, &axis_index ) )
-        {
-            voxel_pos = ROUND( voxel[axis_index] );
-            n_dimensions = 2;
-        }
-        else
-        {
-            voxel_pos = -1;
-            axis_index = -1;
-            n_dimensions = 3;
-        }
-
-        restart_segmenting_3d( slice_window, n_dimensions, voxel_pos,
-                               axis_index );
-        delete_slice_undo( &slice_window->slice.undo );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(reset_3d_segmenting )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(do_3d_segmenting)   /* ARGSUSED */
-{
-    display_struct   *slice_window;
-
-    if( get_slice_window( display, &slice_window) )
-    {
-        delete_slice_undo( &slice_window->slice.undo );
-        one_iteration_segmenting( slice_window );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(do_3d_segmenting )   /* ARGSUSED */
 {
     return( OK );
 }

@@ -118,29 +118,29 @@ public  DEF_MENU_UPDATE(set_current_paint_label )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
 {
     display_struct   *slice_window;
+    int              label;
     STRING           line;
     Colour           col;
 
     if( get_slice_window( display, &slice_window ) )
     {
-        if( slice_window->slice.current_paint_label <= 0 )
+        print( "Enter the label number and colour for this label: " );
+
+        if( input_int( stdin, &label ) == OK &&
+            label >= 1 && label < NUM_LABELS )
         {
-            print( "First you must set the current paint label to > 0.\n" );
-            return( OK );
+            if( input_line( stdin, line, MAX_STRING_LENGTH ) == OK )
+            {
+                col = convert_string_to_colour( line );
+
+                add_new_label( slice_window,
+                               slice_window->slice.current_paint_label, col );
+
+                set_slice_window_all_update( display->associated[SLICE_WINDOW] );
+            }
         }
-
-        print( "Enter the colour for label %d: ",
-               slice_window->slice.current_paint_label );
-
-        if( input_line( stdin, line, MAX_STRING_LENGTH ) == OK )
-        {
-            col = convert_string_to_colour( line );
-
-            add_new_label( slice_window,
-                           slice_window->slice.current_paint_label, col );
-
-            set_slice_window_all_update( display->associated[SLICE_WINDOW] );
-        }
+        else
+            (void) input_newline( stdin );
     }
 
     return( OK );
