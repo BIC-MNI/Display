@@ -32,15 +32,15 @@ private  void  get_position_pointed_to(
     display_struct   *display,
     Point            *pos )
 {
-    int             x, y, z, axis_index;
+    int             axis_index;
+    Real            x, y, z;
     Real            x_w, y_w, z_w;
     Volume          volume;
 
     if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) &&
         get_slice_window_volume( display, &volume ) )
     {
-        convert_voxel_to_world( volume, (Real) x, (Real) y, (Real) z,
-                                &x_w, &y_w, &z_w );
+        convert_voxel_to_world( volume, x, y, z, &x_w, &y_w, &z_w );
         fill_Point( *pos, x_w, y_w, z_w );
     }
     else
@@ -107,7 +107,7 @@ public  DEF_MENU_FUNCTION( set_cursor_to_marker )   /* ARGSUSED */
         display->three_d.cursor.origin = get_marker_ptr(object)->position;
 
         update_cursor( display );
-        set_update_required( display, OVERLAY_PLANES );
+        set_update_required( display, get_cursor_bitplanes() );
 
         if( slice_window != (display_struct  *) 0 )
         {
