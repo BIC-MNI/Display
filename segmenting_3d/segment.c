@@ -1,12 +1,16 @@
 #include  <mni.h>
 
-typedef  enum  { DECREASING, SAME, INCREASING } Classes;
+typedef  enum  { SAME, INCREASING, NUM_CLASSES } Classes;
 
 #define  USER_SET_BIT    128
 
 #define  FACE_NEIGHBOURS
+
 #define  EDGE_NEIGHBOURS
+#undef   EDGE_NEIGHBOURS
+
 #define  CORNER_NEIGHBOURS
+#undef   CORNER_NEIGHBOURS
 
 private  int  neighbour_deltas[][N_DIMENSIONS] = {
 
@@ -16,11 +20,11 @@ private  int  neighbour_deltas[][N_DIMENSIONS] = {
       {  0,  1,  0 },
       {  0, -1,  0 },
       {  0,  0,  1 },
-      {  0,  0, -1 },
+      {  0,  0, -1 }
 #endif
 
 #ifdef  EDGE_NEIGHBOURS
-      {  1,  1,  0 },
+      , {  1,  1,  0 },
       {  1, -1,  0 },
       { -1,  1,  0 },
       { -1, -1,  0 },
@@ -31,11 +35,11 @@ private  int  neighbour_deltas[][N_DIMENSIONS] = {
       {  0,  1,  1 },
       {  0,  1, -1 },
       {  0, -1,  1 },
-      {  0, -1, -1 },
+      {  0, -1, -1 }
 #endif
 
 #ifdef  CORNER_NEIGHBOURS
-      {  1,  1,  1 },
+      , {  1,  1,  1 },
       {  1,  1, -1 },
       {  1, -1,  1 },
       {  1, -1, -1 },
@@ -61,7 +65,7 @@ private  Volume  make_distance_transform(
     int      i, x, y, z, nx, ny, nz, sizes[MAX_DIMENSIONS];
     int      iteration;
     Real     value;
-    int      voxel, this_dist, dist, min_neighbour, new_value;
+    int      this_dist, dist, min_neighbour, new_value;
     BOOLEAN  changed, first;
     Volume   distance, new_distance;
 
@@ -75,14 +79,7 @@ private  Volume  make_distance_transform(
         {
             for_less( z, 0, sizes[Z] )
             {
-                GET_VALUE_3D( value, volume, x, y, z );
-
-                if( min_threshold <= value && value <= max_threshold )
-                    voxel = 1.0;
-                else
-                    voxel = 0.0;
-
-                SET_VOXEL_3D( distance, x, y, z, voxel );
+                SET_VOXEL_3D( distance, x, y, z, 0.0 );
             }
         }
     }
@@ -99,42 +96,50 @@ private  Volume  make_distance_transform(
             {
                 for_less( z, 0, sizes[Z] )
                 {
+                    GET_VALUE_3D( value, volume, x, y, z );
                     GET_VOXEL_3D( this_dist, distance, x, y, z );
 
-                    if( this_dist != 0 )
+                    if( value < min_threshold || value > max_threshold ||
+                        this_dist != 0 )
                     {
-                        min_neighbour = 0;
-                        first = TRUE;
-                        FOR_LOOP_NEIGHBOURS( i, x, y, z, nx, ny, nz )
-#ifdef TWO_D
-                            if( nz < 0 || nz >= sizes[Z] )
-                                continue;
+                        SET_VOXEL_3D( new_distance, x, y, z, this_dist );
+                        continue;
+                    }
+
+                    first = TRUE;
+                    min_neighbour = 0;
+                    FOR_LOOP_NEIGHBOURS( i, x, y, z, nx, ny, nz )
+#ifndef TWO_D
+                        if( nz < 0 || nz >= sizes[Z] )
+                            continue;
 #endif
 
-                            if( nx < 0 || nx >= sizes[X] ||
-                                ny < 0 || ny >= sizes[Y] ||
-                                nz < 0 || nz >= sizes[Z] )
+                        if( nx < 0 || nx >= sizes[X] ||
+                            ny < 0 || ny >= sizes[Y] ||
+                            nz < 0 || nz >= sizes[Z] )
+                        {
+                            min_neighbour = 0;
+                            first = FALSE;
+                            break;
+                        }
+                        else
+                        {
+                            GET_VALUE_3D( value, volume, nx, ny, nz );
+                            GET_VOXEL_3D( dist, distance, nx, ny, nz );
+                            if( dist == 0 && min_threshold <= value &&
+                                value <= max_threshold )
+                                continue;
+                            if( first || dist < min_neighbour )
                             {
-                                min_neighbour = 0;
+                                min_neighbour = dist;
                                 first = FALSE;
-                                break;
-                            }
-                            else
-                            {
-                                GET_VOXEL_3D( dist, distance, nx, ny, nz );
-                                if( first || dist < min_neighbour )
-                                {
-                                    min_neighbour = dist;
-                                    first = FALSE;
-                                    if( dist == 0 )
-                                        break;
-                                }
+                                if( dist == 0 )
+                                    break;
                             }
                         }
                     }
 
-                    if( this_dist != 0 && min_neighbour != 0 &&
-                        this_dist != min_neighbour + 1 )
+                    if( !first && this_dist != min_neighbour + 1 )
                     {
                         new_value = min_neighbour + 1;
                         changed = TRUE;
@@ -171,15 +176,15 @@ private  int  get_cut_class(
     int       cut,
     Classes   *class )
 {
-    *class = (Classes) (cut % 3);
-    return( cut / 3 );
+    *class = (Classes) (cut % NUM_CLASSES);
+    return( cut / NUM_CLASSES );
 }
 
 private  int  create_cut_class(
     int       cut,
     Classes   class )
 {
-    return( 3 * cut + (int) class );
+    return( NUM_CLASSES * cut + (int) class );
 }
 
 public  void  initialize_segmenting_3d(
@@ -251,40 +256,31 @@ private  void  propagate_neighbour_cut(
         }
         else if( bound_dist == neigh_bound_dist )
         {
-            *new_cut = bound_dist;
+            *new_cut = MIN( neigh_cut, bound_dist );
             *new_class = SAME;
         }
         else
         {
-            *new_cut = neigh_bound_dist;
-            *new_class = DECREASING;
+            *new_cut = neigh_cut;
+            *new_class = SAME;
         }
         break;
 
     case  SAME:
-        if( bound_dist >= neigh_cut )
+        if( bound_dist >= neigh_bound_dist )
         {
-            *new_cut = neigh_cut;
+            *new_cut = MIN( neigh_cut, neigh_bound_dist );
             *new_class = SAME;
         }
         else
         {
             *new_cut = neigh_cut;
-            *new_class = DECREASING;
+            *new_class = SAME;
         }
         break;
 
-    case DECREASING:
-        if( bound_dist >= neigh_bound_dist )
-        {
-            *new_cut = neigh_bound_dist;
-            *new_class = SAME;
-        }
-        else
-        {
-            *new_cut = neigh_cut;
-            *new_class = DECREASING;
-        }
+    default:
+        HANDLE_INTERNAL_ERROR( "propagate_cuts" );
     }
 }
 
