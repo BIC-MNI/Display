@@ -4,6 +4,7 @@
 #include  <def_standard.h>
 #include  <def_objects.h>
 #include  <def_menu.h>
+#include  <def_cursor.h>
 #include  <def_slice.h>
 #include  <def_queue.h>
 #include  <def_stack.h>
