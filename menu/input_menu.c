@@ -13,12 +13,16 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.137 1997-08-01 14:47:52 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.138 1997-08-13 13:22:41 david Exp $";
 #endif
 
 #include  <display.h>
 
 #define  MENU1 \
+MENU_F(georges_menu1) \
+MENU_F(georges_menu2) \
+MENU_F(georges_menu3) \
+MENU_F(georges_menu4) \
 MENU_F(exit_program) \
 MENU_F(show_memory) \
 MENU_F(pop_menu) \
