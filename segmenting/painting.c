@@ -245,6 +245,7 @@ private  void  paint_labels(
     int      a1, a2, axis, label, value, c, sizes[N_DIMENSIONS];
     int      min_voxel[N_DIMENSIONS], max_voxel[N_DIMENSIONS];
     Real     min_limit, max_limit;
+    Real     min_threshold, max_threshold, volume_value;
     Real     radius[N_DIMENSIONS];
     Vector   scaled_delta;
     int      ind[N_DIMENSIONS];
@@ -254,6 +255,8 @@ private  void  paint_labels(
         get_brush( slice_window, view_index, &a1, &a2, &axis, radius ) )
     {
         label_volume = get_label_volume( slice_window );
+        min_threshold = slice_window->slice.segmenting.min_threshold;
+        max_threshold = slice_window->slice.segmenting.max_threshold;
         update_required = FALSE;
         get_volume_sizes( volume, sizes );
 
@@ -300,11 +303,21 @@ private  void  paint_labels(
                                             radius, ind ) )
                     {
                         value = get_volume_label_data( label_volume, ind );
-                        if( value != label )
+                        if( value == label )
+                            continue;
+
+                        if( min_threshold < max_threshold )
                         {
-                            set_volume_label_data( label_volume, ind, label );
-                            update_required = TRUE;
+                            GET_VALUE_3D( volume_value, volume,
+                                          ind[X], ind[Y], ind[Z] );
+
+                            if( volume_value < min_threshold ||
+                                volume_value > max_threshold )
+                                continue;
                         }
+
+                        set_volume_label_data( label_volume, ind, label );
+                        update_required = TRUE;
                     }
                 }
             }

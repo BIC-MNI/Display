@@ -444,3 +444,63 @@ public  DEF_MENU_UPDATE(change_labels_in_range )   /* ARGSUSED */
 {
     return( OK );
 }
+
+private  void  calculate_label_volume(
+    Volume    label_volume,
+    int       label,
+    int       *n_voxels,
+    Real      *cubic_mm )
+{
+    int   x, y, z, sizes[MAX_DIMENSIONS];
+    int   n_vox;
+    Real  separations[MAX_DIMENSIONS];
+
+    get_volume_sizes( label_volume, sizes );
+    n_vox = 0;
+
+    for_less( x, 0, sizes[X] )
+    {
+        for_less( y, 0, sizes[Y] )
+        {
+            for_less( z, 0, sizes[Z] )
+            {
+                if( get_3D_volume_label_data( label_volume, x, y, z ) == label )
+                    ++n_vox;
+            }
+        }
+    }
+
+    get_volume_separations( label_volume, separations );
+
+    *n_voxels = n_vox;
+    *cubic_mm = (Real) n_vox * separations[X] * separations[Y] * separations[Z];
+}
+
+public  DEF_MENU_FUNCTION( calculate_volume )   /* ARGSUSED */
+{
+    display_struct  *slice_window;
+    Status          status;
+    Volume          volume;
+    int             n_voxels;
+    Real            cubic_millimetres;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        calculate_label_volume( get_label_volume(slice_window),
+                                slice_window->slice.current_paint_label,
+                                &n_voxels, &cubic_millimetres );
+
+        print( "Region %d:    number of voxels: %d\n",
+                  slice_window->slice.current_paint_label, n_voxels );
+        print( "             cubic millimetres: %g\n", cubic_millimetres );
+        print( "             cubic centimetres: %g\n",
+               cubic_millimetres / 1000.0 );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(calculate_volume )   /* ARGSUSED */
+{
+    return( OK );
+}
