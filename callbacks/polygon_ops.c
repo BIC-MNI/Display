@@ -287,7 +287,7 @@ public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
     Status            deform_polygons();
     Status            compute_polygon_normals();
     Status            delete_polygons_bintree();
-    Real              image_factor, max_gradient_step;
+    Real              max_gradient_step, max_position_error;
     Real              min_isovalue, max_isovalue;
     Real              max_smoothing_step, smoothing_factor, stop_threshold;
     int               max_iterations;
@@ -300,13 +300,13 @@ public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
     if( get_current_polygons( graphics, &polygons ) &&
         get_current_volume( graphics, &volume ) )
     {
-        PRINT( "Enter image_factor, max_gradient_step,\n" );
+        PRINT( "Enter max_gradient_step, max_position_error,\n" );
         PRINT( "      min_isovalue, max_isovalue,\n" );
         PRINT( "      smoothing_factor, max_smoothing_step, max_iterations,\n");
         PRINT( "      stop_threshold: " );
 
-        if( input_real( stdin, &image_factor ) == OK &&
-            input_real( stdin, &max_gradient_step ) == OK &&
+        if( input_real( stdin, &max_gradient_step ) == OK &&
+            input_real( stdin, &max_position_error ) == OK &&
             input_real( stdin, &min_isovalue ) == OK &&
             input_real( stdin, &max_isovalue ) == OK &&
             input_real( stdin, &smoothing_factor ) == OK &&
@@ -314,9 +314,9 @@ public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
             input_int( stdin, &max_iterations ) == OK &&
             input_real( stdin, &stop_threshold ) == OK )
         {
-            status = deform_polygons( polygons, volume, image_factor,
-                                      max_gradient_step, min_isovalue,
-                                      max_isovalue,
+            status = deform_polygons( polygons, volume,
+                                      max_gradient_step, max_position_error,
+                                      min_isovalue, max_isovalue,
                                       smoothing_factor, max_smoothing_step,
                                       max_iterations, stop_threshold );
 
