@@ -111,6 +111,9 @@ private  Status   create_menu_text( menu_window, menu_entry )
         {
             text = menu_entry->text_list[i]->ptr.text;
 
+            text->font = Menu_window_font;
+            text->size = Menu_window_font_size;
+
             compute_origin( &menu_window->menu, menu_entry->key, &x, &y,
                             &length );
             fill_Point( text->origin,
