@@ -118,10 +118,11 @@ public  void  rebuild_slice_models( graphics )
     void  rebuild_slice_divider();
     void  rebuild_probe();
     void  set_slice_window_update();
+    void  rebuild_colour_bar();
 
     rebuild_slice_divider( graphics );
-
     rebuild_probe( graphics );
+    rebuild_colour_bar( graphics );
 
     set_slice_window_update( graphics, 0 );
     set_slice_window_update( graphics, 1 );
