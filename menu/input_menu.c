@@ -13,16 +13,12 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.141 2001-05-27 00:19:49 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.142 2005-04-03 03:39:58 stever Exp $";
 #endif
 
 #include  <display.h>
 
 #define  MENU1 \
-MENU_F(georges_menu1) \
-MENU_F(georges_menu2) \
-MENU_F(georges_menu3) \
-MENU_F(georges_menu4) \
 MENU_F(exit_program) \
 MENU_F(show_memory) \
 MENU_F(pop_menu) \
@@ -306,8 +302,25 @@ MENU_F(set_volume_scale_step) \
 MENU_F(insert_volume_as_labels) \
 MENU_F(save_current_volume_transform)
 
-#define  FUNCTION_LIST  MENU1 MENU2 MENU3 MENU4
-                
+#define MENU_SEAL \
+MENU_F(sulci_menu1) \
+MENU_F(sulci_menu2) \
+MENU_F(sulci_menu3) \
+MENU_F(sulci_menu4) \
+MENU_F(sulci_menu5) \
+MENU_F(sulci_menu6) \
+MENU_F(sulci_menu7) \
+MENU_F(sulci_menu8) \
+MENU_F(sulci_menu9) \
+MENU_F(choose_invisible) \
+MENU_F(sulci_menu10) \
+MENU_F(smalls_invisible) \
+
+#if USE_SEAL
+#  define  FUNCTION_LIST  MENU1 MENU2 MENU3 MENU4 MENU_SEAL
+#else
+#  define  FUNCTION_LIST  MENU1 MENU2 MENU3 MENU4
+#endif                
 
 typedef  struct
 {
