@@ -24,7 +24,6 @@ root
     transient 'g'    segmenting                 "Segmenting"
     transient 'h'    atlas                      "Atlas"
 
-    transient 'z'    surface_fitting        "Surface Fitting"
     transient 'x'    surface_segmentation   "Surface Segmentation"
     transient 'c'    lines                  "Lines"
     transient 'v'    surface_curves         "Surface Curves"
@@ -289,25 +288,6 @@ surface_curves
 
     transient 'z'    make_surface_line_permanent  "Permanent Curve"
     transient 'x'    set_line_curvature_weight    "Curv Weight: %g"
-}
-
-surface_fitting
-{
-    transient 'w'    convert_to_new_representation  "New Representation"
-    transient 'e'    load_model_parameters          "Load Parameters"
-    transient 'r'    save_model_parameters          "Save Parameters"
-
-    transient 'a'    scan_model_to_voxels           "Scan Model to Voxels"
-    transient 's'    create_surface_model           "Create Surf Model"
-    transient 'd'    set_model_parameters           "Set Model Parameters"
-    transient 'f'    fit_surface                    "Fit Surface"
-
-    transient 'z'    show_all_surface_points        "Show Surf Points"
-    transient 'x'    delete_all_surface_points      "Delete All Surf Points"
-    transient 'c'    delete_surface_point           "Delete Surface Point"
-    transient 'v'    add_surface_point              "Add Surface Point"
-    transient 'b'    save_surface_points            "Save Surface Points"
-    transient 'g'    load_surface_points            "Load Surface Points"
 }
 
 atlas

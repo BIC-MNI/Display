@@ -204,22 +204,7 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(set_triangle_filter) \
                        MENU_FUNCTION(set_gaussian_filter) \
                        MENU_FUNCTION(set_filter_half_width) \
-                       MENU_FUNCTION(set_model_parameters) \
-                       MENU_FUNCTION(convert_to_new_representation) \
-                       MENU_FUNCTION(load_model_parameters) \
-                       MENU_FUNCTION(save_model_parameters) \
-                       MENU_FUNCTION(delete_all_surface_points) \
-                       MENU_FUNCTION(add_surface_point) \
-                       MENU_FUNCTION(delete_surface_point) \
-                       MENU_FUNCTION(save_surface_points) \
-                       MENU_FUNCTION(load_surface_points) \
-                       MENU_FUNCTION(show_all_surface_points) \
-                       MENU_FUNCTION(delete_surface_point) \
-                       MENU_FUNCTION(delete_surface_point) \
-                       MENU_FUNCTION(fit_surface) \
                        MENU_FUNCTION(change_labels_in_range) \
-                       MENU_FUNCTION(create_surface_model) \
-                       MENU_FUNCTION(scan_model_to_voxels) \
                        MENU_FUNCTION(scan_current_polygon_to_volume) \
                        MENU_FUNCTION(set_atlas_on_or_off) \
                        MENU_FUNCTION(set_atlas_opacity) \
