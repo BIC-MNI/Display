@@ -302,7 +302,7 @@ START_GLOBALS
     DEF_GLOBAL( Move_slice_speed, Real, 0.25 )
     DEF_GLOBAL( Pixels_per_double_size, Real, 100.0 )
 
-    DEF_GLOBAL( Clear_before_polygon_scan, BOOLEAN, TRUE )
+    DEF_GLOBAL( Clear_before_polygon_scan, BOOLEAN, FALSE )
 
     DEF_GLOBAL( Histogram_colour, Colour, WHITE )
     DEF_GLOBAL( Histogram_x_scale, Real, 1.0 )
