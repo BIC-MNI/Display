@@ -96,6 +96,16 @@ public  void  rebuild_colour_bar(
     number_entry        entry, *numbers;
     model_struct        *model;
 
+    object = slice_window->models[COLOUR_BAR_MODEL];
+
+    if( is_an_rgb_volume(get_volume(slice_window)) )
+    {
+        set_object_visibility( object, OFF );
+        return;
+    }
+    else
+        set_object_visibility( object, ON );
+
     colour_bar = &slice_window->slice.colour_bar;
 
     get_colour_bar_viewport( slice_window, &x_min, &x_max, &y_min, &y_max );
@@ -304,6 +314,9 @@ public  BOOLEAN  mouse_within_colour_bar(
     Real                top, bottom;
     BOOLEAN             within;
     colour_bar_struct   *colour_bar;
+
+    if( is_an_rgb_volume(get_volume(slice_window)) )
+        return( FALSE );
 
     colour_bar = &slice_window->slice.colour_bar;
 
