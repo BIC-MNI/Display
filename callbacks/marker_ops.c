@@ -28,6 +28,18 @@ private  Boolean  get_current_marker( display, marker )
     return( found );
 }
 
+public  void  set_marker_to_defaults(
+    display_struct  *display,
+    marker_struct   *marker )
+{
+    marker->type = display->three_d.default_marker_type;
+    marker->colour = display->three_d.default_marker_colour;
+    marker->size = display->three_d.default_marker_size;
+    (void) strcpy( marker->label, display->three_d.default_marker_label );
+    marker->structure_id = display->three_d.default_marker_structure_id;
+    marker->patient_id = display->three_d.default_marker_patient_id;
+}
+
 private  void  get_position_pointed_to(
     display_struct   *display,
     Point            *pos )
@@ -61,13 +73,7 @@ public  void  create_marker_at_position(
 
     marker->position = *position;
 
-    (void) strcpy( marker->label, display->three_d.default_marker_label );
-
-    marker->type = display->three_d.default_marker_type;
-    marker->colour = display->three_d.default_marker_colour;
-    marker->size = display->three_d.default_marker_size;
-    marker->structure_id = display->three_d.default_marker_structure_id;
-    marker->patient_id = display->three_d.default_marker_patient_id;
+    set_marker_to_defaults( display, marker );
 
     add_object_to_current_model( display, object );
 
@@ -630,12 +636,7 @@ public  DEF_MENU_FUNCTION( copy_defaults_to_marker )   /* ARGSUSED */
 
     if( get_current_marker(display,&marker) )
     {
-        marker->type = display->three_d.default_marker_type;
-        marker->colour = display->three_d.default_marker_colour;
-        marker->size = display->three_d.default_marker_size;
-        (void) strcpy( marker->label, display->three_d.default_marker_label );
-        marker->structure_id = display->three_d.default_marker_structure_id;
-        marker->patient_id = display->three_d.default_marker_patient_id;
+        set_marker_to_defaults( display, marker );
 
         graphics_models_have_changed( display );
     }
@@ -644,6 +645,50 @@ public  DEF_MENU_FUNCTION( copy_defaults_to_marker )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(copy_defaults_to_marker )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( copy_defaults_to_markers )   /* ARGSUSED */
+{
+    int                     patient_id, structure_id;
+    marker_struct           *marker;
+    object_struct           *object, *current_object;
+    object_traverse_struct  object_traverse;
+
+    if( get_current_marker(display,&marker) )
+    {
+        patient_id = marker->patient_id;
+        structure_id = marker->structure_id;
+        if( structure_id >= Marker_segment_id )
+            structure_id -= Marker_segment_id;
+
+        object = display->models[THREED_MODEL];
+        initialize_object_traverse( &object_traverse, 1, &object );
+
+        while( get_next_object_traverse(&object_traverse, &current_object) )
+        {
+            if( current_object->object_type == MARKER &&
+                current_object->visibility )
+            {
+                marker = get_marker_ptr( current_object );
+
+                if( marker->patient_id == patient_id &&
+                    (marker->structure_id == structure_id ||
+                     marker->structure_id == structure_id + Marker_segment_id) )
+                {
+                    set_marker_to_defaults( display, marker );
+                }
+            }
+        }
+
+        graphics_models_have_changed( display );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(copy_defaults_to_markers )   /* ARGSUSED */
 {
     return( OK );
 }
@@ -697,5 +742,32 @@ public  DEF_MENU_UPDATE(set_marker_segmentation_threshold )   /* ARGSUSED */
 
     set_menu_text( menu_window, menu_entry, text );
 
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( pick_marker_defaults )      /* ARGSUSED */
+{
+    start_picking_markers( display );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(pick_marker_defaults )      /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( move_cursor_to_home )      /* ARGSUSED */
+{
+    display->three_d.cursor.origin = Cursor_home;
+    update_cursor( display );
+
+    set_update_required( display, get_cursor_bitplanes() );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(move_cursor_to_home )      /* ARGSUSED */
+{
     return( OK );
 }

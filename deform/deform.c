@@ -9,7 +9,9 @@ public  void  initialize_deformation(
     initialize_deformation_parameters( &deform->deform );
     deform->deform.degrees_continuity = Volume_continuity;
 
+/*
     set_default_line_annealing_parameters( &deform->anneal );
+*/
 }
 
 public  void  delete_deformation(
@@ -31,6 +33,7 @@ private  DEF_EVENT_FUNCTION( deform_object )    /* ARGSUSED */
 
         if( display->three_d.deform.using_simulated_annealing )
         {
+/*
             switch( display->three_d.deform.deforming_object->object_type )
             {
             case LINES:
@@ -46,6 +49,7 @@ private  DEF_EVENT_FUNCTION( deform_object )    /* ARGSUSED */
             case POLYGONS:
                 break;
             }
+*/
         }
         else
         {
@@ -110,15 +114,27 @@ public  void  turn_on_deformation(
 
         if( use_simulated_annealling )
         {
+/*
             initialize_deform_line_annealing( 
                   get_lines_ptr(display->three_d.deform.deforming_object),
                   &display->three_d.deform.deform,
                   &display->three_d.deform.anneal );
+*/
         }
 
-        display->three_d.deform.in_progress = TRUE;
-        add_action_table_function( &display->action_table, NO_EVENT,
-                                   deform_object );
+        if( object->object_type == POLYGONS &&
+            check_correct_deformation_polygons( get_polygons_ptr(object),
+                                                &display->three_d.deform.
+                                                deform.deformation_model ) ||
+            object->object_type == LINES &&
+            check_correct_deformation_lines( get_lines_ptr(object),
+                                             &display->three_d.deform.
+                                             deform.deformation_model ) )
+        {
+            display->three_d.deform.in_progress = TRUE;
+            add_action_table_function( &display->action_table, NO_EVENT,
+                                       deform_object );
+        }
     }
 }
 
@@ -129,9 +145,11 @@ public  void  turn_off_deformation(
     {
         print( "Stopping deformation.\n" );
 
+/*
         if( display->three_d.deform.using_simulated_annealing )
             terminate_deform_line_annealing( &display->three_d.deform.deform,
                                              &display->three_d.deform.anneal );
+*/
 
         display->three_d.deform.in_progress = FALSE;
         remove_action_table_function( &display->action_table, NO_EVENT,

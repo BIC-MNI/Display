@@ -130,59 +130,24 @@ public  DEF_MENU_UPDATE(set_deformation_boundary )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_deformation_model )   /* ARGSUSED */
 {
     Real           model_weight, min_curvature, max_curvature;
-    Real           max_position_offset;
-    int            n_points;
-    Point          *points;
-    String         model_name, position_filename;
+    int            up_to_n_points;
+    String         model_name;
     Status         status;
-    object_struct  *object;
 
     status = OK;
-    print("Enter new model_weight, deformation_model, min and max curvature,");
-    print("      and none|original_position_filename max_offset: " );
+    print("Enter up_to_n_points, model_weight, deformation_model, \n" );
+    print("      min and max curvature: ");
 
-    if( input_real( stdin, &model_weight ) == OK &&
+    if( input_int( stdin, &up_to_n_points ) == OK &&
+        input_real( stdin, &model_weight ) == OK &&
         input_string( stdin, model_name, MAX_STRING_LENGTH, ' ' ) == OK &&
         input_real( stdin, &min_curvature ) == OK &&
-        input_real( stdin, &max_curvature ) == OK &&
-        input_string( stdin, position_filename, MAX_STRING_LENGTH, ' ' ) == OK &&
-        input_real( stdin, &max_position_offset ) == OK )
+        input_real( stdin, &max_curvature ) == OK )
     {
-        delete_deformation_parameters( &display->three_d.deform.deform );
-
-        display->three_d.deform.deform.model_weight = model_weight;
-        display->three_d.deform.deform.deformation_model.min_curvature_offset =
-                               min_curvature;
-        display->three_d.deform.deform.deformation_model.max_curvature_offset =
-                               max_curvature;
-        display->three_d.deform.deform.deformation_model.max_position_offset =
-                               max_position_offset;
-
-        if( get_current_object( display, &object ) &&
-            (object->object_type == LINES || object->object_type == POLYGONS) )
-        {
-            status = get_deformation_model( model_name, object,
-                           &display->three_d.deform.deform.deformation_model );
-        }
-        else
-        {
-            print( "Set the current object to be deformed.\n" );
-            status = ERROR;
-        }
-    }
-
-    if( status == OK )
-    {
-        if( strcmp( position_filename, "none" ) == 0 )
-            display->three_d.deform.deform.deformation_model.
-                     position_constrained = FALSE;
-        else
-        {
-            n_points = get_object_points( object, &points );
-            status = input_original_positions( &display->three_d.deform.
-                          deform.deformation_model, position_filename,
-                          n_points );
-        }
+        status = add_deformation_model(
+                           &display->three_d.deform.deform.deformation_model,
+                           up_to_n_points, model_weight, model_name,
+                           min_curvature, max_curvature );
     }
 
     (void) input_newline( stdin );
@@ -191,6 +156,49 @@ public  DEF_MENU_FUNCTION( set_deformation_model )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(set_deformation_model )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( set_deformation_original_positions )   /* ARGSUSED */
+{
+    Real           max_position_offset;
+    int            n_points;
+    Point          *points;
+    String         position_filename;
+    Status         status;
+    object_struct  *object;
+
+    status = OK;
+    print("Enter none|original_position_filename max_offset: " );
+
+    if( input_string( stdin, position_filename, MAX_STRING_LENGTH, ' ' ) == OK&&
+        input_real( stdin, &max_position_offset ) == OK )
+    {
+        if( get_current_object( display, &object ) &&
+            (object->object_type == LINES || object->object_type == POLYGONS) )
+        {
+            n_points = get_object_points( object, &points );
+
+            status = input_original_positions( &display->three_d.deform.
+                                           deform.deformation_model,
+                                           position_filename,
+                                           max_position_offset,
+                                           n_points );
+        }
+        else
+        {
+            print( "Set the current object to be deformed.\n" );
+            status = ERROR;
+        }
+    }
+
+    (void) input_newline( stdin );
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(set_deformation_original_positions )   /* ARGSUSED */
 {
     return( OK );
 }
@@ -221,6 +229,32 @@ public  DEF_MENU_FUNCTION( set_deformation_parameters )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(set_deformation_parameters )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( reset_deformation_model )   /* ARGSUSED */
+{
+    delete_deformation_model(&display->three_d.deform.deform.deformation_model);
+    initialize_deformation_model(
+                  &display->three_d.deform.deform.deformation_model );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(reset_deformation_model )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( show_deformation_model )   /* ARGSUSED */
+{
+    print_deformation_model( &display->three_d.deform.deform.deformation_model);
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(show_deformation_model )   /* ARGSUSED */
 {
     return( OK );
 }

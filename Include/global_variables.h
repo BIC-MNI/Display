@@ -90,6 +90,7 @@ START_GLOBALS
     DEF_GLOBAL( Viewport_min_y_size, Real, 0.1 )
 
     DEF_GLOBAL( Slice_magnification_step, Real, 1.2 )
+    DEF_GLOBAL( Slice_fit_oversize, Real, 0.1 )
     DEF_GLOBAL( Slice_divider_colour, Colour, BLUE )
     DEF_GLOBAL( Slice_divider_left, int, 5 )
     DEF_GLOBAL( Slice_divider_right, int, 5 )
@@ -134,6 +135,7 @@ START_GLOBALS
     DEF_GLOBAL( Slice_view3_axis2, int, 1 )
     DEF_GLOBAL( Slice_view3_axis3, int, 2 )
 
+    DEF_GLOBAL3( Cursor_home, Point, 0.0, 0.0, 0.0 )
     DEF_GLOBAL( Cursor_colour, Colour, 3 )
     DEF_GLOBAL( Cursor_rgb_colour, Colour, BLUE )
     DEF_GLOBAL( Show_cursor_contours, Boolean, FALSE )
@@ -278,6 +280,10 @@ START_GLOBALS
     DEF_GLOBAL( Default_y_brush_radius, Real, 3.0 )
     DEF_GLOBAL( Default_z_brush_radius, Real, 0.0 )
     DEF_GLOBAL( Default_paint_label, int, 1 )
+    DEF_GLOBAL( Draw_brush_outline, Boolean, TRUE )
+    DEF_GLOBAL( Brush_outline_colour, Colour, WHITE )
+    DEF_GLOBAL( Brush_outline_offset, int, 0 )
+    DEF_GLOBAL( Snap_brush_to_centres, Boolean, TRUE )
 
     DEF_GLOBAL( Volume_continuity, int, 0 )
     DEF_GLOBAL( Convert_volumes_to_byte, Boolean, TRUE )

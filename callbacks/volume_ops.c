@@ -116,21 +116,37 @@ public  DEF_MENU_UPDATE(move_slice_minus )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(double_slice_voxels)   /* ARGSUSED */
+private  void  scale_slice_voxels(
+    display_struct   *display,
+    int              view_index,
+    Real             scale_factor )
 {
     display_struct   *slice_window;
-    int              view_index;
+    int              x_min, x_max, y_min, y_max;
+
+    slice_window = display->associated[SLICE_WINDOW];
+
+    get_slice_viewport( slice_window, view_index,
+                        &x_min, &x_max, &y_min, &y_max );
+
+    scale_slice_about_viewport_centre( scale_factor,
+         x_max - x_min + 1, y_max - y_min + 1,
+         &slice_window->slice.slice_views[view_index].x_scaling,
+         &slice_window->slice.slice_views[view_index].y_scaling,
+         &slice_window->slice.slice_views[view_index].x_trans,
+         &slice_window->slice.slice_views[view_index].y_trans );
+
+    set_slice_window_update( slice_window, view_index );
+    set_update_required( slice_window, NORMAL_PLANES );
+}
+
+public  DEF_MENU_FUNCTION(double_slice_voxels)   /* ARGSUSED */
+{
+    int      view_index;
 
     if( get_slice_view_index_under_mouse( display, &view_index ) )
     {
-        slice_window = display->associated[SLICE_WINDOW];
-
-        slice_window->slice.slice_views[view_index].x_scaling *=
-                                                 Slice_magnification_step;
-        slice_window->slice.slice_views[view_index].y_scaling *=
-                                                 Slice_magnification_step;
-        set_slice_window_update( slice_window, view_index );
-        set_update_required( slice_window, NORMAL_PLANES );
+        scale_slice_voxels( display, view_index, Slice_magnification_step );
     }
 
     return( OK );
@@ -143,19 +159,12 @@ public  DEF_MENU_UPDATE(double_slice_voxels )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
 {
-    display_struct   *slice_window;
-    int              view_index;
+    int      view_index;
 
     if( get_slice_view_index_under_mouse( display, &view_index ) )
     {
-        slice_window = display->associated[SLICE_WINDOW];
-
-        slice_window->slice.slice_views[view_index].x_scaling /=
-                                                   Slice_magnification_step;
-        slice_window->slice.slice_views[view_index].y_scaling /=
-                                                   Slice_magnification_step;
-        set_slice_window_update( slice_window, view_index );
-        set_update_required( slice_window, NORMAL_PLANES );
+        scale_slice_voxels( display, view_index,
+                            1.0 / Slice_magnification_step );
     }
 
     return( OK );

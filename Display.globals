@@ -142,6 +142,7 @@ Slice_view3_axis1 = 0;
 Slice_view3_axis2 = 1;
 Slice_view3_axis3 = 2;
 
+Cursor_home = 0 0 0;
 Cursor_bitplanes = 0;
 Cursor_colour = 3;
 Cursor_rgb_colour = BLUE;

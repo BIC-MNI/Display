@@ -54,7 +54,7 @@ public  void  set_colour_coding_for_new_volume(
 
     get_volume_voxel_range( volume, &min_voxel, &max_voxel );
 
-    get_volume_range( volume, &min_value, &max_value );
+    get_volume_real_range( volume, &min_value, &max_value );
 
     rebuild_colour_tables( slice_window );
 

@@ -1,50 +1,50 @@
 #include  <def_display.h>
 
 #define  FUNCTION_LIST \
-                       MENU_FUNCTION(exit_program) \
-                       MENU_FUNCTION(pop_menu) \
-                       MENU_FUNCTION(push_menu) \
-                       MENU_FUNCTION(load_file) \
-                       MENU_FUNCTION(save_file) \
-                       MENU_FUNCTION(create_model) \
-                       MENU_FUNCTION(change_model_name) \
-                       MENU_FUNCTION(reset_view) \
-                       MENU_FUNCTION(save_image) \
-                       MENU_FUNCTION(make_view_fit) \
-                       MENU_FUNCTION(toggle_perspective) \
-                       MENU_FUNCTION(toggle_render_mode) \
-                       MENU_FUNCTION(toggle_shading) \
-                       MENU_FUNCTION(toggle_lights) \
-                       MENU_FUNCTION(toggle_two_sided) \
-                       MENU_FUNCTION(toggle_backfacing) \
-                       MENU_FUNCTION(toggle_line_curve_flag) \
-                       MENU_FUNCTION(toggle_marker_label_flag) \
-                       MENU_FUNCTION(toggle_double_buffer_threed) \
-                       MENU_FUNCTION(toggle_double_buffer_slice) \
-                       MENU_FUNCTION(set_n_curve_segments) \
-                       MENU_FUNCTION(make_all_invisible) \
-                       MENU_FUNCTION(make_all_visible) \
-                       MENU_FUNCTION(advance_visible) \
-                       MENU_FUNCTION(retreat_visible) \
-                       MENU_FUNCTION(reverse_normals) \
-                       MENU_FUNCTION(set_current_object_colour) \
-                       MENU_FUNCTION(set_current_object_surfprop) \
-                       MENU_FUNCTION(centre_view) \
-                       MENU_FUNCTION(magnify_view) \
-                       MENU_FUNCTION(translate_view) \
-                       MENU_FUNCTION(rotate_view) \
-                       MENU_FUNCTION(front_clipping) \
-                       MENU_FUNCTION(back_clipping) \
-                       MENU_FUNCTION(top_view) \
-                       MENU_FUNCTION(bottom_view) \
-                       MENU_FUNCTION(front_view) \
-                       MENU_FUNCTION(back_view) \
-                       MENU_FUNCTION(left_view) \
-                       MENU_FUNCTION(right_view) \
-                       MENU_FUNCTION(advance_selected) \
-                       MENU_FUNCTION(retreat_selected) \
-                       MENU_FUNCTION(descend_selected) \
-                       MENU_FUNCTION(ascend_selected) \
+MENU_FUNCTION(exit_program) \
+MENU_FUNCTION(pop_menu) \
+MENU_FUNCTION(push_menu) \
+MENU_FUNCTION(load_file) \
+MENU_FUNCTION(save_file) \
+MENU_FUNCTION(create_model) \
+MENU_FUNCTION(change_model_name) \
+MENU_FUNCTION(reset_view) \
+MENU_FUNCTION(save_image) \
+MENU_FUNCTION(make_view_fit) \
+MENU_FUNCTION(toggle_perspective) \
+MENU_FUNCTION(toggle_render_mode) \
+MENU_FUNCTION(toggle_shading) \
+MENU_FUNCTION(toggle_lights) \
+MENU_FUNCTION(toggle_two_sided) \
+MENU_FUNCTION(toggle_backfacing) \
+MENU_FUNCTION(toggle_line_curve_flag) \
+MENU_FUNCTION(toggle_marker_label_flag) \
+MENU_FUNCTION(toggle_double_buffer_threed) \
+MENU_FUNCTION(toggle_double_buffer_slice) \
+MENU_FUNCTION(set_n_curve_segments) \
+MENU_FUNCTION(make_all_invisible) \
+MENU_FUNCTION(make_all_visible) \
+MENU_FUNCTION(advance_visible) \
+MENU_FUNCTION(retreat_visible) \
+MENU_FUNCTION(reverse_normals) \
+MENU_FUNCTION(set_current_object_colour) \
+MENU_FUNCTION(set_current_object_surfprop) \
+MENU_FUNCTION(centre_view) \
+MENU_FUNCTION(magnify_view) \
+MENU_FUNCTION(translate_view) \
+MENU_FUNCTION(rotate_view) \
+MENU_FUNCTION(front_clipping) \
+MENU_FUNCTION(back_clipping) \
+MENU_FUNCTION(top_view) \
+MENU_FUNCTION(bottom_view) \
+MENU_FUNCTION(front_view) \
+MENU_FUNCTION(back_view) \
+MENU_FUNCTION(left_view) \
+MENU_FUNCTION(right_view) \
+MENU_FUNCTION(advance_selected) \
+MENU_FUNCTION(retreat_selected) \
+MENU_FUNCTION(descend_selected) \
+MENU_FUNCTION(ascend_selected) \
                        MENU_FUNCTION(create_3d_slice) \
                        MENU_FUNCTION(move_slice_plus) \
                        MENU_FUNCTION(move_slice_minus) \
@@ -113,12 +113,13 @@
                        MENU_FUNCTION(smooth_current_polygon) \
                        MENU_FUNCTION(smooth_current_polygon_with_volume) \
                        MENU_FUNCTION(start_deforming_object) \
-                       MENU_FUNCTION(start_annealing_deforming_object) \
-                       MENU_FUNCTION(set_annealing_parameters) \
                        MENU_FUNCTION(stop_deforming_object) \
                        MENU_FUNCTION(set_deformation_boundary) \
                        MENU_FUNCTION(set_deformation_model) \
                        MENU_FUNCTION(set_deformation_parameters) \
+                       MENU_FUNCTION(set_deformation_original_positions) \
+                       MENU_FUNCTION(show_deformation_model) \
+                       MENU_FUNCTION(reset_deformation_model) \
                        MENU_FUNCTION(reverse_polygons_order) \
                        MENU_FUNCTION(smooth_current_lines) \
                        MENU_FUNCTION(make_current_line_tube) \

@@ -317,9 +317,6 @@ atlas
 
 deform
 {
-    transient 'x'    set_annealing_parameters         "Set Annealing Parms"
-    transient 'c'    start_annealing_deforming_object "Start Annealing"
-
     transient 'd'    start_deforming_object           "Start Deformation"
     transient 'f'    stop_deforming_object            "Stop Deformation"
 
@@ -327,6 +324,9 @@ deform
     transient 'w'    set_deformation_model                "Set Model"
     transient 'e'    set_deformation_boundary             "Set Boundary"
     transient 'r'    set_deformation_parameters           "Set Parameters"
+
+    transient 'x'    reset_deformation_model              "Reset Model"
+    transient 'v'    show_deformation_model               "Show Model"
 }
 
 region_painting

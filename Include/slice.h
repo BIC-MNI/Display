@@ -74,6 +74,7 @@ typedef  struct
 
     Real                   x_brush_radius, y_brush_radius, z_brush_radius;
     int                    current_paint_label;
+    object_struct          *brush_outline;
 
 } slice_window_struct;
 

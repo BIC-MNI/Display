@@ -5,7 +5,7 @@ public  void  initialize_slice_window_view(
     display_struct    *slice_window )
 {
     Volume           volume;
-    int              c;
+    int              c, view, x_index, y_index, x_min, x_max, y_min, y_max;
     int              size[N_DIMENSIONS];
     Real             thickness[N_DIMENSIONS];
 
@@ -30,10 +30,24 @@ public  void  initialize_slice_window_view(
         {
             slice_window->slice.slice_index[c] = size[c] / 2.0;
             slice_window->slice.slice_locked[c] = FALSE;
-            slice_window->slice.slice_views[c].x_trans = 0.0;
-            slice_window->slice.slice_views[c].y_trans = 0.0;
-            slice_window->slice.slice_views[c].x_scaling = 1.0;
-            slice_window->slice.slice_views[c].y_scaling = 1.0;
+        }
+
+        for_less( view, 0, N_DIMENSIONS )
+        {
+            x_index = slice_window->slice.slice_views[view].axis_map[X];
+            y_index = slice_window->slice.slice_views[view].axis_map[Y];
+
+            get_slice_viewport( slice_window, view,
+                                &x_min, &x_max, &y_min, &y_max );
+
+            fit_volume_slice_to_viewport( volume, x_index, y_index,
+               FALSE, FALSE,
+               x_max - x_min + 1, y_max - y_min + 1,
+               Slice_fit_oversize,
+               &slice_window->slice.slice_views[view].x_scaling,
+               &slice_window->slice.slice_views[view].y_scaling,
+               &slice_window->slice.slice_views[view].x_trans,
+               &slice_window->slice.slice_views[view].y_trans );
         }
 
         slice_window->associated[THREE_D_WINDOW]->three_d.cursor.box_size[X] =

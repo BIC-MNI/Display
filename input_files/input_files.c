@@ -7,78 +7,57 @@ public  Status  load_graphics_file(
 {
     Status                   status;
     display_struct           *slice_window;
-    File_formats             format;
     object_struct            *object;
     model_struct             *model;
-    String                   filename_no_z;
-    int                      n_items, len;
+    int                      n_items;
     Volume                   volume, volume_read_in;
     object_struct            *current_object;
     object_traverse_struct   object_traverse;
     Boolean                  volume_present;
     Boolean                  markers_present;
 
-    (void) strcpy( filename_no_z, filename );
-    len = strlen( filename );
-
-    if( filename[len-2] == '.' && filename[len-1] == 'Z' )
-        filename_no_z[len-2] = (char) 0;
-
     object = create_object( MODEL );
 
-    print( "Inputting %s.\n", filename_no_z );
+    print( "Inputting %s.\n", filename );
 
     model = get_model_ptr( object );
     initialize_display_model( model );
 
-    (void) strcpy( model->filename, filename_no_z );
+    (void) strcpy( model->filename, filename );
 
     volume_present = FALSE;
 
     status = OK;
 
-    if( string_ends_in(filename_no_z,".mnc") ||
-        string_ends_in(filename_no_z,".mni") ||
-        string_ends_in(filename_no_z,".nil") ||
-        string_ends_in(filename_no_z,".iff") ||
-        string_ends_in(filename_no_z,".fre") )
+    if( filename_extension_matches(filename,"mnc") ||
+        filename_extension_matches(filename,"mni") ||
+        filename_extension_matches(filename,"nil") ||
+        filename_extension_matches(filename,"iff") ||
+        filename_extension_matches(filename,"fre") )
     {
-        status = input_volume_file( filename_no_z, &volume_read_in );
+        status = input_volume_file( filename, &volume_read_in );
 
         volume_present = TRUE;
     }
-    else if( string_ends_in(filename_no_z,".lmk") )
-    {
-        (void) get_slice_window_volume( display, &volume );
-        status = input_landmark_file( volume, filename_no_z,
-                                      display->three_d.default_marker_colour,
-                                      display->three_d.default_marker_size,
-                                      display->three_d.default_marker_type,
-                                      &model->n_objects, &model->objects );
-    }
-    else if( string_ends_in(filename_no_z,".tag") )
-    {
-        status = input_tag_file( filename_no_z,
-                                 display->three_d.default_marker_colour,
-                                 display->three_d.default_marker_size,
-                                 display->three_d.default_marker_type,
-                                 &model->n_objects, &model->objects );
-    }
-    else if( string_ends_in(filename_no_z,".cnt") )
+    else if( filename_extension_matches(filename,"cnt") )
     {
         print( "Cannot read .cnt files.\n" );
         status = ERROR;
     }
-    else if( string_ends_in(filename_no_z,".roi") )
+    else if( filename_extension_matches(filename,"roi") )
     {
         print( "Cannot read .roi files.\n" );
         status = ERROR;
     }
     else
     {
-        status = input_graphics_file( filename_no_z, &format,
-                                      &model->n_objects,
-                                      &model->objects );
+        (void) get_slice_window_volume( display, &volume );
+        status = input_objects_any_format( volume, filename,
+                                 display->three_d.default_marker_colour,
+                                 display->three_d.default_marker_size,
+                                 display->three_d.default_marker_type,
+                                 &model->n_objects,
+                                 &model->objects );
     }
 
     if( status == OK )

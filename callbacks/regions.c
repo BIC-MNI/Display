@@ -271,8 +271,8 @@ public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
         print( "Enter filename to load: " );
         if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
         {
-            landmark_format = 
-               string_ends_in( filename, get_default_landmark_file_suffix());
+            landmark_format = filename_extension_matches( filename,
+                                 get_default_landmark_file_suffix() );
 
             status = open_file_with_default_suffix( filename,
                                 get_default_tag_file_suffix(),
