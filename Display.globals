@@ -1,0 +1,281 @@
+Progress_threshold = 1000;
+
+Initial_background_colour = BLACK;
+Initial_background_colour = DARK_SLATE_GREY;
+
+Event_timeout_min = 0.5;
+Event_timeout_factor = 0.5;
+Min_interval_between_events = 0.01;
+Max_background_seconds = 0.2;
+Maximum_display_time = 0.3;
+Size_of_interrupted = 250;
+Interval_of_check = 250;
+
+Initial_perspective_flag = FALSE;
+Closest_front_plane = 1.0e-5;
+
+Initial_render_mode = 0;
+Initial_shading_type = 1;
+Initial_light_switch = TRUE;
+
+Slice_double_buffer_flag = TRUE;
+
+Display_frame_info = FALSE;
+Display_update_min = 1.0;
+Frame_info_x = 10.0;
+Frame_info_y = 10.0;
+
+Ambient_light_colour = White;
+Directional_light_colour = White;
+Light_direction = 1.0 -1.0 -1.0;
+
+Menu_window_width = 850.0;
+Menu_window_height = 260.0;
+
+Menu_window_font = 1;
+Menu_window_font_size = 10.0;
+Menu_character_height = 20.0;
+Menu_character_width = 7.5;
+Menu_character_colour = Cyan;
+Menu_key_colour = White;
+Menu_key_character_offset = 2.0;
+Menu_n_chars_per_entry = 10;
+Menu_n_lines_per_entry = 2;
+Menu_box_colour = White;
+
+X_menu_origin = 70.0;
+X_menu_dx  = 10.0;
+X_menu_dy  = 0.0;
+X_menu_text_offset = 5.0;
+
+Y_menu_origin = 10.0;
+Y_menu_dx  = -15.0;
+Y_menu_dy  = 10.0;
+Y_menu_text_offset = 15.0;
+
+
+Initial_2_sided_flag = FALSE;
+Initial_backface_flag = TRUE;
+Initial_line_curves_flag = FALSE;
+Initial_n_curve_segments = 8;
+
+Segmenting_connectivity = 1;
+
+Visibility_on_input = TRUE;
+
+Initial_x_scale = 1.0;
+Initial_y_scale = 1.0;
+Initial_z_scale = 1.0;
+
+Default_line_of_sight = 0.0 0.0 -1.0;
+Default_horizontal = 1.0 0.0 0.0;
+
+Monitor_widths_to_eye = 1.2;
+
+Default_marker_type = 0;
+Default_marker_structure_id = 1;
+Default_marker_patient_id = 1;
+Default_marker_colour = Green;
+Default_marker_size = 0.5;
+Default_marker_label = "Marker";
+Marker_pick_size = 3.0;
+
+N_expansion_voxels = 1;
+
+N_selected_displayed = 12;
+Selected_x_origin = 650.0;
+Selected_y_origin = 240.0;
+Selected_colour = Green;
+Visible_colour = White;
+Invisible_colour = 0.4 0.4 0.4;
+Character_height_in_pixels = 10;
+Selected_box_x_offset = 2.0;
+Selected_box_y_offset = 2.0;
+
+Viewport_min_x_size = 0.1;
+Viewport_min_y_size = 0.1;
+Viewport_feedback_colour = GREEN;
+
+Slice_divider_colour = BLUE;
+Slice_divider_left = 5;
+Slice_divider_right = 5;
+Slice_divider_top = 5;
+Slice_divider_bottom = 25;
+Slice_divider_x_position = 0.5;
+Slice_divider_y_position = 0.5;
+Slice_text_colour = RED;
+Slice_text_font = 0;
+Slice_text_font_size = 18.0;
+Slice_index_offset = 50.0 -15.0 0;
+Slice_index_x_format = "X = %4d";
+Slice_index_y_format = "Y = %4d";
+Slice_index_z_format = "Z = %4d";
+Slice_index_x_locked_format = "Fixed X = %4d";
+Slice_index_y_locked_format = "Fixed Y = %4d";
+Slice_index_z_locked_format = "Fixed Z = %4d";
+Slice_index_xc_format = "X = %4d (%8.2f)";
+Slice_index_yc_format = "Y = %4d (%8.2f)";
+Slice_index_zc_format = "Z = %4d (%8.2f)";
+Slice_probe_x_transformed_format   = "X     = %4d";
+Slice_probe_y_transformed_format   = "Y     = %4d";
+Slice_probe_z_transformed_format   = "Z     = %4d";
+Slice_probe_x_talairach_format     = "X tal = %6.1f mm";
+Slice_probe_y_talairach_format     = "Y tal = %6.1f mm";
+Slice_probe_z_talairach_format     = "Z tal = %6.1f mm";
+Slice_probe_val_format             = "Value = %4g";
+Slice_probe_x_file_format          = "X file= %4d";
+Slice_probe_y_file_format          = "Y file= %4d";
+Slice_probe_z_file_format          = "Z file= %4d";
+Probe_x_pos = 100;
+Probe_y_pos = 10;
+Probe_x_delta = 0;
+Probe_y_delta = 20;
+Slice_view1_axis1 = 1;
+Slice_view1_flip1 = FALSE;
+Slice_view1_axis2 = 2;
+Slice_view1_flip2 = FALSE;
+Slice_view1_axis3 = 0;
+Slice_view1_flip3 = FALSE;
+
+Slice_view2_axis1 = 0;
+Slice_view2_flip1 = FALSE;
+Slice_view2_axis2 = 2;
+Slice_view2_flip2 = FALSE;
+Slice_view2_axis3 = 1;
+Slice_view2_flip3 = FALSE;
+
+Slice_view3_axis1 = 0;
+Slice_view3_flip1 = FALSE;
+Slice_view3_axis2 = 1;
+Slice_view3_flip2 = FALSE;
+Slice_view3_axis3 = 2;
+Slice_view3_flip3 = FALSE;
+
+Cursor_colour = BLUE;
+Show_cursor_contours = FALSE;
+Cursor_contour_thickness = 3;
+Cursor_colour_on_surface = RED;
+Cursor_colour_off_surface = BLUE;
+Cursor_beep_on_surface = 0;
+Cursor_size_factor = 0.05;
+Cursor_axis_size = 50.0;
+Slice_cursor_colour = RED;
+Cursor_start_pixel_x = 3;
+Cursor_end_pixel_x = 30;
+Cursor_start_pixel_y = 3;
+Cursor_end_pixel_y = 30;
+Cursor_start_pixel_z = 3;
+Cursor_end_pixel_z = 10;
+Cursor_mouse_threshold = 0.00
+Max_cursor_angle = 20.0;
+Min_cursor_angle_diff = 5.0;
+Cursor_pick_distance = 10.0;
+
+Extracted_surface_colour = 1.0 1.0 1.0;
+Display_surface_in_slices = FALSE;
+
+Default_surface_property = 0.3 0.3 0.4   10.0 1.0;
+
+Min_voxels_per_update = 10;
+Max_voxels_per_update = 100000;
+Max_seconds_per_voxel_update = 1.0;
+Max_surface_refinements = 0;
+Max_surface_error = 0.02;
+Edge_point_threshold = 0.25;
+Edge_point_new_density = 0.125;
+Default_x_voxel_max_distance = 1000000;
+Default_y_voxel_max_distance = 1000000;
+Default_z_voxel_max_distance = 1000000;
+
+Max_fast_colour_lookup = 100000;
+Colour_table_size = 1000;
+Colour_coding_type = 0;
+Colour_below = DARK_SLATE_GREY;
+Colour_below = Black;
+User_defined_n_intervals = 4;
+User_defined_min_colour = Black;
+User_defined_max_colour = White;
+User_defined_interpolation_space = 1;
+User_defined_colour_coding_flip = TRUE;
+Colour_above = White;
+
+Colour_bar_resolution = 137;
+Colour_bar_top_offset = 10.0;
+Colour_bar_bottom_offset = 10.0;
+Colour_bar_left_offset = 10.0;
+Colour_bar_width = 20.0;
+Colour_bar_tick_width = 5.0;
+Colour_bar_tick_colour = WHITE;
+Colour_bar_text_colour = WHITE;
+Colour_bar_text_font = 1;
+Colour_bar_text_size = 10.0;
+Colour_bar_limit_colour = Green;
+Colour_bar_desired_intervals = 5;
+Colour_bar_closest_text = 10.0;
+Colour_bar_number_format = "%g";
+
+Normal_towards_lower = TRUE;
+
+Display_activities = TRUE;
+Inactive_voxel_colour = Green;
+Labeled_voxel_colour = Magenta;
+Inactive_and_labeled_voxel_colour = Yellow;
+Label_colour_display_ratio = 1.0;
+
+Use_cursor_origin = TRUE;
+
+One_active_flag = FALSE;
+
+Output_every = 0;
+Tmp_surface_name = "tmp_surface/tmp_%d.obj";
+
+Marching_cubes_method = 1;
+
+Polygon_bintree_threshold = 100;
+Compute_neighbours_on_input = FALSE;
+Bintree_size_factor = 0.2;
+
+Save_format = 1;
+
+Max_smoothing_distance = 0.3;
+Smoothing_ratio = 0.3;
+Smoothing_normal_ratio = 1.0;
+Smoothing_threshold = 0.01;
+
+Surface_curve_colour = MAGENTA;
+Surface_curve_thickness = 3;
+
+N_painting_polygons = 100;
+Visible_segmenting_colour = GREEN;
+Invisible_segmenting_colour = BLACK;
+
+N_fitting_samples = 2000;
+Curvature_factor = 0.5;
+Fitting_isovalue = 1000.0;
+Isovalue_factor = 0.0;
+Gradient_strength_factor = 1.0;
+Gradient_strength_exponent = 1.0;
+Surface_point_distance_factor = 1.0;
+Surface_point_distance_threshold = 1.0;
+Fitting_tolerance = 1.0e-4;
+Max_fitting_evaluations = 50;
+Surface_model_resolution = 30;
+Minimization_method = 1;
+Max_parameter_delta = 1.0;
+
+Max_voxel_scan_distance = 2.0;
+Max_parametric_scan_distance = 0.1;
+Scanned_polygons_label = 1;
+Max_polygon_scan_distance = 2.0;
+
+Initial_atlas_opacity = 1.0;
+Initial_atlas_transparent_threshold = 220;
+Initial_atlas_tolerance_x = 1.0;
+Initial_atlas_tolerance_y = 1.0;
+Initial_atlas_tolerance_z = 1.0;
+Atlas_filename = /nil/david/Talairach/Talairach_atlas.list
+Default_atlas_state = FALSE;
+
+Marker_threshold = 1.5;
+Marker_segment_id = 1000;
+Use_marker_distances = TRUE;
