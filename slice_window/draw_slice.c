@@ -11,15 +11,17 @@
 #define  TEXT1_INDEX                    7
 #define  TEXT2_INDEX                    8
 #define  TEXT3_INDEX                    9
-#define  X_TRANSFORMED_PROBE_INDEX     10
-#define  Y_TRANSFORMED_PROBE_INDEX     11
-#define  Z_TRANSFORMED_PROBE_INDEX     12
-#define  X_TALAIRACH_PROBE_INDEX       13
-#define  Y_TALAIRACH_PROBE_INDEX       14
-#define  Z_TALAIRACH_PROBE_INDEX       15
-#define  VOXEL_PROBE_INDEX             16
-#define  VAL_PROBE_INDEX               17
-#define  MAX_MODEL_INDEX               18
+#define  N_SLICE_MODELS                10
+
+#define  X_TRANSFORMED_PROBE_INDEX     0
+#define  Y_TRANSFORMED_PROBE_INDEX     1
+#define  Z_TRANSFORMED_PROBE_INDEX     2
+#define  X_TALAIRACH_PROBE_INDEX       3
+#define  Y_TALAIRACH_PROBE_INDEX       4
+#define  Z_TALAIRACH_PROBE_INDEX       5
+#define  VOXEL_PROBE_INDEX             6
+#define  VAL_PROBE_INDEX               7
+#define  N_READOUT_MODELS              8
 
 private  void  render_slice_to_pixels(
     display_struct        *slice_window,
@@ -120,11 +122,15 @@ public  void  initialize_slice_models(
         add_object_to_model( model, object );
     }
 
-    for_inclusive( i, X_TRANSFORMED_PROBE_INDEX, MAX_MODEL_INDEX )
+    /* --- initialize readout values */
+
+    model = get_graphics_model( slice_window, SLICE_READOUT_MODEL );
+
+    for_inclusive( i, 0, N_READOUT_MODELS )
     {
         object = create_object( TEXT );
 
-        get_text_ptr(object)->colour = Slice_text_colour;
+        get_text_ptr(object)->colour = Readout_text_colour;
         add_object_to_model( model, object );
     }
 }
@@ -178,8 +184,6 @@ public  void  rebuild_probe(
                                         &x_voxel, &y_voxel, &z_voxel,
                                         &view_index );
 
-    model = get_graphics_model(slice_window,SLICE_MODEL);
-
     get_slice_viewport( slice_window, -1, &x_min, &x_max, &y_min, &y_max );
 
     if( get_slice_window_volume( slice_window, &volume ) )
@@ -198,7 +202,11 @@ public  void  rebuild_probe(
         value = CONVERT_VOXEL_TO_VALUE( get_volume(slice_window), voxel_value );
     }
 
-    for_less( i, X_TRANSFORMED_PROBE_INDEX, MAX_MODEL_INDEX )
+    /* --- do slice readout models */
+
+    model = get_graphics_model( slice_window, SLICE_READOUT_MODEL );
+
+    for_less( i, 0, N_READOUT_MODELS )
     {
         x_pos = x_min + Probe_x_pos + (i - X_TRANSFORMED_PROBE_INDEX)
                                        * Probe_x_delta;
@@ -237,7 +245,7 @@ public  void  rebuild_probe(
                                 z_talairach );
                 break;
             case VOXEL_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_val_format,
+                (void) sprintf( text->string, Slice_probe_voxel_format,
                                 voxel_value );
                 break;
             case VAL_PROBE_INDEX:
@@ -252,6 +260,8 @@ public  void  rebuild_probe(
 
         fill_Point( text->origin, x_pos, y_pos, 0.0 );
     }
+
+    set_update_required( slice_window, (Bitplane_types) Slice_readout_plane );
 }
 
 public  void  rebuild_slice_pixels(
@@ -386,8 +396,8 @@ public  void  rebuild_cursor(
     x = slice_window->slice.slice_index[x_index];
     y = slice_window->slice.slice_index[y_index];
 
-    convert_voxel_to_pixel( slice_window, view_index, x, y, &x_start, &y_start );
-    convert_voxel_to_pixel( slice_window, view_index, x+1, y+1, &x_end, &y_end );
+    convert_voxel_to_pixel( slice_window, view_index, x, y, &x_start, &y_start);
+    convert_voxel_to_pixel( slice_window, view_index, x+1, y+1, &x_end, &y_end);
 
     --x_end;
     --y_end;
@@ -395,7 +405,8 @@ public  void  rebuild_cursor(
     x_centre = (x_start + x_end) / 2;
     y_centre = (y_start + y_end) / 2;
 
-    get_slice_viewport( slice_window, view_index, &x_min, &x_max, &y_min, &y_max );
+    get_slice_viewport( slice_window, view_index,
+                        &x_min, &x_max, &y_min, &y_max );
 
     if( x_centre < x_min )
     {
