@@ -4,8 +4,6 @@
 #include  <def_globals.h>
 #include  <def_string.h>
 
-static    Status          io_tag_point();
-
 private  Boolean  get_current_marker( graphics, marker )
     graphics_struct   *graphics;
     marker_struct     **marker;
@@ -65,10 +63,9 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
     Status          create_object();
     Status          add_object_to_model();
     object_struct   *object;
-    void            graphics_models_have_changed();
+    void            markers_have_changed();
     model_struct    *get_current_model();
     Boolean         get_voxel_corresponding_to_point();
-    void            regenerate_voxel_labels();
     void            get_position_pointed_to();
 
     status = create_object( &object, MARKER );
@@ -86,9 +83,7 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
 
         status = add_object_to_model( get_current_model(graphics), object );
 
-        graphics_models_have_changed( graphics );
-
-        regenerate_voxel_labels( graphics );
+        markers_have_changed( graphics );
     }
 
     return( status );
@@ -140,10 +135,9 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
     void                    update_cursor();
     String                  filename;
     FILE                    *file;
-    Status                  open_file();
-    Status                  close_file();
     object_traverse_struct  object_traverse;
     Status                  initialize_object_traverse();
+    Status                  io_tag_point();
 
     object = get_current_model_object( graphics );
 
@@ -157,7 +151,8 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
         volume = (volume_struct *) 0;
 
     if( status == OK )
-        status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
+        status = open_file_with_default_suffix( filename, "lmk", WRITE_FILE,
+                                                ASCII_FORMAT, &file );
 
     if( status == OK )
     {
@@ -187,180 +182,14 @@ public  DEF_MENU_UPDATE(save_markers )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION( load_markers )   /* ARGSUSED */
+public  void  markers_have_changed( graphics )
+    graphics_struct  *graphics;
 {
-    Status                  status;
-    object_struct           *object;
-    Status                  create_object();
-    marker_struct           marker;
-    model_struct            *model;
-    model_struct            *get_current_model();
-    volume_struct           *volume;
-    String                  filename;
-    FILE                    *file;
-    Status                  open_file();
-    Status                  close_file();
-    void                    graphics_models_have_changed();
-    void                    rebuild_selected_list();
-    void                    regenerate_voxel_labels();
-
-    model = get_current_model( graphics );
-
-    PRINT( "Enter filename: " );
-
-    status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
-
-    (void) input_newline( stdin );
-
-    if( !get_slice_window_volume( graphics, &volume ) )
-        volume = (volume_struct *) 0;
-
-    if( status == OK )
-        status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
-
-    if( status == OK )
-    {
-        while( io_tag_point( file, READ_FILE, volume, &marker ) == OK )
-        {
-            status = create_object( &object, MARKER );
-
-            if( status == OK )
-            {
-                marker.colour = graphics->three_d.default_marker_colour;
-                *(object->ptr.marker) = marker;
-                status = add_object_to_model( model, object );
-            }
-        }
-    }
-
-    if( status == OK )
-        status = close_file( file );
-
+    void    regenerate_voxel_labels();
+    void    graphics_models_have_changed();
 
     regenerate_voxel_labels( graphics );
     graphics_models_have_changed( graphics );
-    rebuild_selected_list( graphics, menu_window );
-
-    PRINT( "Done.\n" );
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(load_markers )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-private  Status  io_tag_point( file, io_direction, volume, marker )
-    FILE            *file;
-    IO_types        io_direction;
-    volume_struct   *volume;
-    marker_struct   *marker;
-{
-    Status   status;
-    Status   io_point();
-    Status   io_newline();
-    Status   io_int();
-    Status   io_real();
-    Status   io_quoted_string();
-    String   line;
-    void     strip_blanks();
-    Point    position;
-    void     convert_point_to_voxel();
-    void     convert_voxel_to_point();
-    void     convert_voxel_to_talairach();
-    void     convert_talairach_to_voxel();
-    void     get_volume_size();
-    int      nx, ny, nz;
-    int      patient_id = 0;
-
-    status = OK;
-
-    if( io_direction == WRITE_FILE )
-    {
-        if( volume == (volume_struct *) 0 )
-        {
-            position = marker->position;
-        }
-        else
-        {
-            convert_point_to_voxel( volume,
-                                    Point_x(marker->position),
-                                    Point_y(marker->position),
-                                    Point_z(marker->position),
-                                    &Point_x(position),
-                                    &Point_y(position),
-                                    &Point_z(position) );
-
-            get_volume_size( volume, &nx, &ny, &nz );
-
-            convert_voxel_to_talairach( Point_x(position),
-                                        Point_y(position),
-                                        Point_z(position),
-                                        nx, ny, nz,
-                                        &Point_x(position),
-                                        &Point_y(position),
-                                        &Point_z(position) );
-        }
-    }
-
-    if( status == OK )
-        status = io_point( file, io_direction, ASCII_FORMAT, &position );
-
-    if( io_direction == READ_FILE )
-    {
-        if( volume == (volume_struct *) 0 )
-        {
-            position = marker->position;
-        }
-        else
-        {
-            get_volume_size( volume, &nx, &ny, &nz );
-
-            convert_talairach_to_voxel( Point_x(position),
-                                        Point_y(position),
-                                        Point_z(position),
-                                        nx, ny, nz,
-                                        &Point_x(position),
-                                        &Point_y(position),
-                                        &Point_z(position) );
-
-            convert_voxel_to_point( volume,
-                                    Point_x(position),
-                                    Point_y(position),
-                                    Point_z(position),
-                                    &marker->position );
-        }
-    }
-
-    if( status == OK )
-        status = io_real( file, io_direction, ASCII_FORMAT, &marker->size );
-
-    if( status == OK )
-        status = io_int( file, io_direction, ASCII_FORMAT, &marker->id );
-
-    if( status == OK )
-        status = io_int( file, io_direction, ASCII_FORMAT, &patient_id );
-
-    if( io_direction == WRITE_FILE )
-    {
-        if( status == OK && strlen(marker->label) > 0 )
-            status = io_quoted_string( file, io_direction, ASCII_FORMAT,
-                                       marker->label, MAX_STRING_LENGTH );
-    }
-    else
-    {
-        if( status == OK )
-            status = input_line( file, line, MAX_STRING_LENGTH );
-
-        if( status == OK )
-            strip_blanks( line, marker->label );
-    }
-
-    if( status == OK )
-        status = io_newline( file, io_direction, ASCII_FORMAT );
-
-    return( status );
 }
 
 public  DEF_MENU_FUNCTION( set_default_marker_id )   /* ARGSUSED */
@@ -465,15 +294,10 @@ public  DEF_MENU_FUNCTION( set_default_marker_colour )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_default_marker_colour )   /* ARGSUSED */
 {
-    String  text, name;
-    void    set_menu_text();
-    void    convert_colour_to_string();
+    void    set_menu_text_with_colour();
 
-    convert_colour_to_string( &graphics->three_d.default_marker_colour, name );
-
-    (void) sprintf( text, label, name );
-
-    set_menu_text( menu_window, menu_entry, text );
+    set_menu_text_with_colour( menu_window, menu_entry, label,
+                     &graphics->three_d.default_marker_colour );
 
     return( OK );
 }
@@ -599,7 +423,6 @@ public  DEF_MENU_FUNCTION( change_marker_type )   /* ARGSUSED */
 {
     int             type;
     marker_struct   *marker;
-    void            rebuild_selected_list();
     void            graphics_models_have_changed();
 
     if( get_current_marker(graphics,&marker) )
@@ -615,7 +438,6 @@ public  DEF_MENU_FUNCTION( change_marker_type )   /* ARGSUSED */
             PRINT( "The new value of this marker type is: %d\n",
                (int) marker->type );
             graphics_models_have_changed( graphics );
-            rebuild_selected_list( graphics, menu_window );
         }
 
         (void) input_newline( stdin );
@@ -633,8 +455,7 @@ public  DEF_MENU_FUNCTION( change_marker_size )   /* ARGSUSED */
 {
     Real            size;
     marker_struct   *marker;
-    void            graphics_models_have_changed();
-    void            regenerate_voxel_labels();
+    void            markers_have_changed();
 
     if( get_current_marker(graphics,&marker) )
     {
@@ -646,8 +467,7 @@ public  DEF_MENU_FUNCTION( change_marker_size )   /* ARGSUSED */
         {
             marker->size = size;
             PRINT( "The new size of this marker is: %g\n", marker->size );
-            graphics_models_have_changed( graphics );
-            regenerate_voxel_labels( graphics );
+            markers_have_changed( graphics );
         }
 
         (void) input_newline( stdin );
@@ -664,9 +484,7 @@ public  DEF_MENU_UPDATE(change_marker_size )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( change_marker_position )   /* ARGSUSED */
 {
     marker_struct   *marker;
-    void            rebuild_selected_list();
-    void            regenerate_voxel_labels();
-    void            get_position_pointed_to();
+    void            markers_have_changed();
 
     if( get_current_marker(graphics,&marker) )
     {
@@ -677,9 +495,7 @@ public  DEF_MENU_FUNCTION( change_marker_position )   /* ARGSUSED */
                Point_y(marker->position),
                Point_z(marker->position) );
 
-        rebuild_selected_list( graphics, menu_window );
-        graphics_models_have_changed( graphics );
-        regenerate_voxel_labels( graphics );
+        markers_have_changed( graphics );
     }
 
     return( OK );
@@ -694,7 +510,6 @@ public  DEF_MENU_FUNCTION( change_marker_label )   /* ARGSUSED */
 {
     String          label;
     marker_struct   *marker;
-    void            rebuild_selected_list();
     void            graphics_models_have_changed();
 
     if( get_current_marker(graphics,&marker) )
@@ -708,7 +523,6 @@ public  DEF_MENU_FUNCTION( change_marker_label )   /* ARGSUSED */
             (void) strcpy( marker->label, label );
             PRINT( "The new marker label is: %s\n", marker->label );
             graphics_models_have_changed( graphics );
-            rebuild_selected_list( graphics, menu_window );
         }
 
         (void) input_newline( stdin );
