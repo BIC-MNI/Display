@@ -1,6 +1,24 @@
 #ifndef  DEF_MAIN
 #define  DEF_MAIN
 
+/* ----------------------------------------------------------------------------
+@COPYRIGHT  :
+              Copyright 1993,1994,1995 David MacDonald,
+              McConnell Brain Imaging Centre,
+              Montreal Neurological Institute, McGill University.
+              Permission to use, copy, modify, and distribute this
+              software and its documentation for any purpose and without
+              fee is hereby granted, provided that the above copyright
+              notice appear in all copies.  The author and McGill University
+              make no representations about the suitability of this
+              software for any purpose.  It is provided "as is" without
+              express or implied warranty.
+---------------------------------------------------------------------------- */
+
+#ifndef lint
+static char display_main_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/main.h,v 1.14 1995-07-31 19:53:44 david Exp $";
+#endif
+
 #include  <display_types.h>
 #include  <menu.h>
 #include  <slice.h>
