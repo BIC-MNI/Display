@@ -4,6 +4,7 @@
 #include  <def_standard.h>
 #include  <def_objects.h>
 #include  <def_menu.h>
+#include  <def_slice.h>
 #include  <def_queue.h>
 #include  <def_stack.h>
 
@@ -39,6 +40,7 @@ typedef  struct
 
 typedef  enum  {
                    NO_EVENT,
+                   TERMINATE_EVENT,
                    KEYBOARD_EVENT,
                    MOUSE_MOVEMENT_EVENT,
                    LEFT_MOUSE_DOWN_EVENT,
@@ -97,18 +99,19 @@ typedef  struct
 
 #define  THREED_MODEL           0
 #define  POINT_POSITION_MODEL   1
+#define  CURSOR_MODEL           2
 
 /* for menu windows */
 
 #define  MENU_BUTTONS_MODEL     0
 #define  SELECTED_MODEL         1
 
-#define  N_MODELS               2
+#define  N_MODELS               3
 
 typedef  struct
 {
-    int           object_index;
-    model_struct  *model;
+    int            object_index;
+    object_struct  *model_object;
 } selection_entry;
 
 typedef  STACK_STRUCT( selection_entry )   selection_struct;
@@ -124,12 +127,26 @@ typedef  struct
     Boolean        current_interrupted;
 } update_interrupted_struct;
 
+typedef  struct
+{
+    Point   first_corner;
+    Point   second_corner;
+} viewport_picking_struct;
+
+typedef  enum  { GRAPHICS_WINDOW, MENU_WINDOW, SLICE_WINDOW }
+               window_types;
+
 typedef  struct  graphics_struct
 {
-    struct  graphics_struct  *menu_window;
+    window_types             window_type;
+
     struct  graphics_struct  *graphics_window;
+    struct  graphics_struct  *menu_window;
+    struct  graphics_struct  *slice_window;
 
     menu_window_struct     menu;
+
+    slice_window_struct    slice;
 
     window_struct          window;
     Point                  mouse_position;
@@ -138,6 +155,7 @@ typedef  struct  graphics_struct
     light_struct           lights[N_LIGHTS];
     action_table_struct    action_table;
     point_position_struct  point_position;
+    cursor_struct          cursor;
 
     object_struct          *models[N_MODELS];
 
@@ -150,6 +168,8 @@ typedef  struct  graphics_struct
     int                    frame_number;
     Boolean                    update_required;
     update_interrupted_struct  update_interrupted;
+
+    viewport_picking_struct    viewport_picking;
 } graphics_struct;
 
 #define  DECL_EVENT_FUNCTION( f )  eft   f

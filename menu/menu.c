@@ -1,6 +1,6 @@
 
 #include  <def_graphics.h>
-#include  <string.h>
+#include  <def_string.h>
 
 #ifdef  NOT_NEEDED
 private  DEF_MENU_FUNCTION( null_function )   /* ARGSUSED */
@@ -98,16 +98,8 @@ public  Status  initialize_menu( graphics )
     Status               read_menu();
     Status               build_menu();
     int                  ch;
-    DECL_EVENT_FUNCTION( handle_character );
-    void                 add_action_table_function();
 
-    menu = &graphics->menu_window->menu;
-
-    add_action_table_function( &graphics->menu_window->action_table,
-                               KEYBOARD_EVENT,
-                               handle_character );
-    add_action_table_function( &graphics->graphics_window->action_table,
-                               KEYBOARD_EVENT, handle_character );
+    menu = &graphics->menu;
 
     for_less( ch, 0, N_CHARACTERS )
     {
@@ -122,14 +114,24 @@ public  Status  initialize_menu( graphics )
 
     if( status == OK )
     {
-        status = build_menu( graphics->menu_window );
+        status = build_menu( graphics );
 
         add_menu_actions( menu, &menu->entries[0] );
 
-        graphics->menu_window->update_required = TRUE;
+        graphics->update_required = TRUE;
     }
 
     return( status );
+}
+
+public  void  initialize_menu_actions( graphics )
+    graphics_struct   *graphics;
+{
+    DECL_EVENT_FUNCTION( handle_character );
+    void                 add_action_table_function();
+
+    add_action_table_function( &graphics->action_table, KEYBOARD_EVENT,
+                               handle_character );
 }
 
 private  DEF_EVENT_FUNCTION( handle_character )

@@ -59,6 +59,12 @@ START_GLOBALS
 
     DEF_GLOBAL( Contour_min_thickness, int, 0 )
     DEF_GLOBAL( Contour_boundary_threshold, Real, 0.0 )
+
+    DEF_GLOBAL( Viewport_feedback_colour, Colour, 0.0 )
+    DEF_GLOBAL( Viewport_min_x_size, Real, 0.1 )
+    DEF_GLOBAL( Viewport_min_y_size, Real, 0.1 )
+
+    DEF_GLOBAL( Slice_split_colour, Colour, 0.0 )
 END_GLOBALS
          
 #endif

@@ -20,10 +20,6 @@ int  main( argc, argv )
     void             reset_view_parameters();
     void             update_view();
     void             set_model_scale();
-    int              i;
-    model_struct     *model;
-    model_struct     *get_graphics_model();
-    Boolean          get_range_of_object();
     void             rebuild_selected_list();
     void             output_alloc_to_file();
 
@@ -36,12 +32,13 @@ int  main( argc, argv )
 
     if( status == OK )
     {
-        status = create_graphics_window( &graphics, argv[1], 0, 0 );
+        status = create_graphics_window( GRAPHICS_WINDOW,
+                                         &graphics, argv[1], 0, 0 );
     }
 
     if( status == OK )
     {
-        status = create_graphics_window( &menu, argv[1],
+        status = create_graphics_window( MENU_WINDOW, &menu, argv[1],
                                          Menu_window_width,
                                          Menu_window_height );
     }
@@ -50,44 +47,23 @@ int  main( argc, argv )
     {
         graphics->graphics_window = graphics;
         graphics->menu_window = menu;
+        graphics->slice_window = (graphics_struct *) 0;
+
         menu->graphics_window = graphics;
         menu->menu_window = menu;
-
-        for_less( i, 0, N_MODELS )
-        {
-            model = get_graphics_model( graphics, i );
-            model->view_type = MODEL_VIEW;
-        }
-
-        for_less( i, 0, N_MODELS )
-        {
-            model = get_graphics_model( menu, i );
-            model->view_type = PIXEL_VIEW;
-        }
+        menu->slice_window = (graphics_struct *) 0;
 
         status = initialize_menu( menu );
-    }
-
-    if( status == OK )
-    {
-        rebuild_selected_list( graphics, menu );
-    }
-
-    if( status == OK )
-    {
-        fill_Point( graphics->min_limit, 0.0, 0.0, 0.0 );
-        fill_Point( graphics->max_limit, 1.0, 1.0, 1.0 );
-
-        ADD_POINTS( graphics->centre_of_objects, graphics->min_limit,
-                    graphics->max_limit );
-        SCALE_POINT( graphics->centre_of_objects,
-                     graphics->centre_of_objects,
-                     0.5 );
     }
 
     if( status == OK && argc > 1 )
     {
         status = load_graphics_file( graphics, argv[1] );
+    }
+
+    if( status == OK )
+    {
+        rebuild_selected_list( graphics, menu );
     }
 
     if( status == OK )
@@ -101,6 +77,11 @@ int  main( argc, argv )
     if( status == OK )
     {
         status = main_event_loop();
+    }
+
+    if( status == OK && graphics->slice_window != (graphics_struct *) 0 )
+    {
+        status = delete_graphics_window( graphics->slice_window );
     }
 
     if( status == OK )

@@ -38,7 +38,7 @@ public  DEF_MENU_FUNCTION( advance_slice )   /* ARGSUSED */
     {
         volume->slice_visibilities[volume->current_slice] = OFF;
         ++volume->current_slice;
-        if( volume->current_slice >= volume->nz )
+        if( volume->current_slice >= volume->size[Z_AXIS] )
         {
             volume->current_slice = 0;
         }
@@ -68,7 +68,7 @@ public  DEF_MENU_FUNCTION( retreat_slice )   /* ARGSUSED */
         --volume->current_slice;
         if( volume->current_slice < 0 )
         {
-            volume->current_slice = volume->nz-1;
+            volume->current_slice = volume->size[Z_AXIS]-1;
         }
         volume->slice_visibilities[volume->current_slice] = ON;
 
@@ -139,6 +139,7 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
 {
     Status           status;
     Status           create_graphics_window();
+    int              c;
     volume_struct    *volume;
     graphics_struct  *slice_window;
 
@@ -151,6 +152,12 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
         if( status == OK )
         {
             slice_window->slice.volume = volume;
+
+            for_less( c, 0, N_DIMENSIONS )
+            {
+                slice_window->slice.slice_views[c].slice_index =
+                      (int) (volume->size[c] / 2);
+            }
 
             slice_window->graphics_window = graphics;
             slice_window->menu_window = menu_window;

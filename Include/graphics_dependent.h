@@ -75,6 +75,27 @@ typedef  struct
                 Colour_b(colour) = (b); \
             }
 
+typedef  unsigned  long  Pixel_colour;
+
+#define  RGB_TO_PIXEL( r, g, b, pixel ) \
+         { \
+             int   r_int, g_int, b_int; \
+ \
+             r_int = (int) ((r) * 256.0); \
+             if( r_int > 255 )  r_int = 255; \
+ \
+             g_int = (int) ((g) * 256.0); \
+             if( g_int > 255 )  g_int = 255; \
+ \
+             b_int = (int) ((b) * 256.0); \
+             if( b_int > 255 )  b_int = 255; \
+ \
+             (pixel) = (r_int | (g_int << 8) | (b_int << 16)); \
+         }
+
+#define  ACCESS_PIXEL( array, x, y, size_x ) \
+         (array)[(x) + (size_x) * (y)]
+
 typedef  struct
 {
     float   a, d, s;

@@ -1,6 +1,6 @@
 include ../C_dev/Makefile.include
 
-OPT = -O
+OPT = -g
 
 INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/portia/usr/include
 
@@ -14,11 +14,11 @@ graphics_obj = graphics_lib/GL_graphics.o \
                structures/fit_view.o \
                structures/lights.o \
                structures/render.o \
-               structures/transforms.o \
                structures/view.o \
                $(C_UTILS_SRC)/files.o \
                $(C_UTILS_SRC)/points.o \
-               $(C_UTILS_SRC)/progress.o
+               $(C_UTILS_SRC)/progress.o \
+               $(C_UTILS_SRC)/transforms.o
 
 display_obj = \
            main/main.o \
@@ -49,6 +49,8 @@ display_obj = \
            menu/input_menu.o \
            menu/menu_update.o \
            menu/selected.o \
+           slice_window/slice.o \
+           slice_window/draw_slice.o \
            $(C_UTILS_SRC)/alloc.o \
            $(C_UTILS_SRC)/bitlist.o \
            $(C_UTILS_SRC)/colours.o \

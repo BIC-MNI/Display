@@ -209,7 +209,6 @@ public  DEF_MENU_UPDATE(ascend_selected )     /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_object_visibility )     /* ARGSUSED */
 {
-    Status           status;
     object_struct    *current_object;
     Boolean          get_current_object();
     void             rebuild_selected_list();
@@ -223,7 +222,7 @@ public  DEF_MENU_FUNCTION( toggle_object_visibility )     /* ARGSUSED */
         graphics->update_required = TRUE;
     }
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(toggle_object_visibility )     /* ARGSUSED */

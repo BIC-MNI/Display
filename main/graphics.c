@@ -1,6 +1,6 @@
 
 #include  <def_stdio.h>
-#include  <string.h>
+#include  <def_string.h>
 #include  <def_graphics.h>
 #include  <def_globals.h>
 #include  <def_alloc.h>
@@ -90,7 +90,9 @@ private  Status  free_graphics( graphics )
     return( status );
 }
 
-public  Status  create_graphics_window( graphics, title, width, height )
+public  Status  create_graphics_window( window_type, graphics,
+                                        title, width, height )
+    window_types      window_type;
     graphics_struct   **graphics;
     char              title[];
     int               width, height;
@@ -109,6 +111,7 @@ public  Status  create_graphics_window( graphics, title, width, height )
 
     if( status == OK )
     {
+        (*graphics)->window_type = window_type;
         status = initialize_graphics_window( *graphics );
     }
     else
@@ -139,13 +142,21 @@ private  Status  initialize_graphics_window( graphics )
     void           G_define_light();
     void           G_set_light_state();
     void           initialize_action_table();
+    void           initialize_virtual_spaceball();
+    void           initialize_window_events();
+    void           initialize_mouse_events();
     void           initialize_render();
     void           initialize_objects();
+    void           initialize_menu_actions();
+    void           initialize_slice_window();
     Status         status;
     Status         create_object();
+    view_types     view_type;
     Status         initialize_current_object();
     model_struct   *model;
     model_struct   *get_graphics_model();
+    void           reset_view_parameters();
+    void           update_view();
 
     initialize_view( &graphics->view, &line_of_sight, &horizontal );
     adjust_view_for_aspect( &graphics->view, &graphics->window );
@@ -163,6 +174,23 @@ private  Status  initialize_graphics_window( graphics )
 
     initialize_action_table( &graphics->action_table );
 
+    initialize_mouse_events( graphics );
+    initialize_window_events( graphics );
+    initialize_menu_actions( graphics );
+
+    if( graphics->window_type == GRAPHICS_WINDOW )
+    {
+        initialize_virtual_spaceball( graphics );
+    }
+
+    fill_Point( graphics->min_limit, 0.0, 0.0, 0.0 );
+    fill_Point( graphics->max_limit, 1.0, 1.0, 1.0 );
+
+    ADD_POINTS( graphics->centre_of_objects, graphics->min_limit,
+                graphics->max_limit );
+    SCALE_POINT( graphics->centre_of_objects, graphics->centre_of_objects,
+                 0.5 );
+
     status = OK;
 
     for_less( i, 0, N_MODELS )
@@ -177,6 +205,16 @@ private  Status  initialize_graphics_window( graphics )
             model = get_graphics_model( graphics, i );
 
             model->n_objects = 0;
+
+            switch( graphics->window_type )
+            {
+            case GRAPHICS_WINDOW:  view_type = MODEL_VIEW;   break;
+            case MENU_WINDOW:      view_type = PIXEL_VIEW;   break;
+            case SLICE_WINDOW:     view_type = PIXEL_VIEW;   break;
+            }
+
+            model->view_type = view_type;
+            model->n_objects = 0;
             (void) strcpy( model->filename, "Top Level" );
 
             initialize_render( &model->render );
@@ -188,9 +226,22 @@ private  Status  initialize_graphics_window( graphics )
         status = initialize_current_object( graphics );
     }
 
-    graphics->frame_number = 0;
-    graphics->update_required = FALSE;
-    graphics->update_interrupted.last_was_interrupted = FALSE;
+    if( status == OK && graphics->window_type == SLICE_WINDOW )
+    {
+        initialize_slice_window( graphics );
+    }
+
+    if( status == OK )
+    {
+        reset_view_parameters( graphics, &Default_line_of_sight,
+                               &Default_horizontal );
+
+        update_view( graphics );
+
+        graphics->frame_number = 0;
+        graphics->update_required = FALSE;
+        graphics->update_interrupted.last_was_interrupted = FALSE;
+    }
 
     return( status );
 }
@@ -234,8 +285,14 @@ public  void  update_graphics( graphics, interrupt )
     void          display_objects();
     void          display_frame_info();
     void          format_time();
+    void          update_slice_window();
     Real          start, end;
     Real          current_realtime_seconds();
+
+    if( graphics->window_type == SLICE_WINDOW )
+    {
+        update_slice_window( graphics );
+    }
 
     if( interrupt->last_was_interrupted )
     {
@@ -305,6 +362,7 @@ private  Status  terminate_graphics_window( graphics )
     Status   status;
     Status   delete_object();
     Status   delete_menu();
+    Status   delete_slice_window_info();
     Status   terminate_current_object();
 
     status = OK;
@@ -322,9 +380,14 @@ private  Status  terminate_graphics_window( graphics )
         status = terminate_current_object( graphics );
     }
 
-    if( status == OK && graphics == graphics->menu_window )
+    if( status == OK && graphics->window_type == MENU_WINDOW )
     {
         status = delete_menu( &graphics->menu );
+    }
+
+    if( status == OK && graphics->window_type == SLICE_WINDOW )
+    {
+        status = delete_slice_window_info( &graphics->slice );
     }
 
     return( status );

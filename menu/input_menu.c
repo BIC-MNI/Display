@@ -42,6 +42,7 @@
                        MENU_FUNCTION(pick_view_rectangle) \
                        MENU_FUNCTION(toggle_object_visibility) \
                        MENU_FUNCTION(set_slice_transform) \
+                       MENU_FUNCTION(open_slice_window) \
                 
 
 typedef  struct
