@@ -109,6 +109,8 @@
                        MENU_FUNCTION(input_polygons_bintree) \
                        MENU_FUNCTION(create_bintree_for_polygons) \
                        MENU_FUNCTION(create_normals_for_polygon) \
+                       MENU_FUNCTION(make_polygon_sphere) \
+                       MENU_FUNCTION(subdivide_current_polygon) \
                        MENU_FUNCTION(save_polygons_visibilities) \
                        MENU_FUNCTION(load_polygons_visibilities) \
                        MENU_FUNCTION(smooth_current_polygon) \
