@@ -1,4 +1,5 @@
-include ../Graphics/Makefile.include
+include $(LIB_DIRECTORY)/Graphics/Makefile.include
+include $(LIB_DIRECTORY)/David/Makefile.include
 
 OPT = $(OPT_O) -Wf,-XNd11000
 
@@ -8,8 +9,9 @@ OPT_O = -O
 IMAGE_DIR = /usr/people/4Dgifts/iristools
 IMAGE_LIB = ../RGB_files/librgb_files.a $(IMAGE_DIR)/libimage/libimage.a
 
-INCLUDE = -IInclude -I../Modules/Include $(GRAPHICS_INCLUDE) \
-          $(C_UTILS_INCLUDE) \
+INCLUDE = -IInclude \
+          $(DLIB_INCLUDE) \
+          $(GRAPHICS_INCLUDE) \
           -I../RGB_files
 
 PROTOTYPE_FILE = Include/display_prototypes.h
@@ -90,7 +92,6 @@ display_obj = \
            cursor_contours/contours.o \
            segmenting/cut_neighbours.o \
            segmenting/expand_3d.o \
-           segmenting/fill_3d.o \
            segmenting/labels.o \
            segmenting/regions.o \
            segmenting/segmenting.o \
@@ -117,23 +118,21 @@ display_obj = \
            structures/view.o \
            structures/window.o
 
-MODULE_LIBS = -L../Modules \
-              -ldeform -lgeometry -lnumerical -lmarching \
-              -lsurface -ldata_structures -L/usr/lib
-
+LIBS = $(IMAGE_LIB) $(DLIB_LIBS) $(GRAPHICS_LIBS)
+LIBS_2D = $(IMAGE_LIB) $(DLIB_LIBS) $(GRAPHICS_LIBS_2D)
+LINT_LIBS = $(DLIB_LINT_LIBS) $(GRAPHICS_LINT_LIBS)
 
 display_lint = $(display_obj:.o=.ln)
 
 lint_display: $(PROTOTYPE_FILE) $(display_lint)
 	@echo "Global lint started"
-	@$(LINT) -u $(LINTFLAGS) $(display_lint) $(MODULE_LIBS) $(GRAPHICS_LINT_LIBS) | filter_lint
+	@$(LINT) -u $(LINTFLAGS) $(display_lint) $(LINT_LIBS) | filter_lint
 
 $(DISPLAY): $(PROTOTYPE_FILE) $(display_obj)
-	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(IMAGE_LIB) \
-              $(MODULE_LIBS) $(GRAPHICS_LIBS)
+	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(LIBS)
 
 $(DISPLAY)_2d: $(PROTOTYPE_FILE) $(display_obj)
-	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(MODULE_LIBS) $(GRAPHICS_LIBS_2D)
+	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(LIBS_2D)
 
 list_all_objects:
 	@echo $(display_obj) $(display_obj:.o=.ln)
@@ -145,8 +144,9 @@ display.pixie:  $(DISPLAY)
 	@pixie display -o $@
 
 prof:
-	prof -pixie display -proc >&! profiling/procedures
-	prof -pixie display -heavy >&! profiling/heavy
+	prof -quit 200 -pixie display -proc >&! profiling/procedures
+	prof -quit 200 -pixie display -heavy >&! profiling/heavy
+	prof -pixie -gprof display >&! profiling/gprof
 
 #-----------------
 
