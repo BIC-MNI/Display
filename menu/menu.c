@@ -6,6 +6,8 @@
 
 static    void    turn_off_menu_entry();
 static    DECL_EVENT_FUNCTION( handle_character );
+static    DECL_EVENT_FUNCTION( left_mouse_press );
+static    DECL_EVENT_FUNCTION( middle_mouse_press );
 static    Status             process_menu();
 
 private  void  set_menu_key_entry( menu, ch, menu_entry )
@@ -37,9 +39,7 @@ private  void  turn_on_menu_entry( menu, menu_entry )
     }
 
     for_less( i, 0, menu->n_lines_in_entry )
-    {
         menu_entry->text_list[i]->visibility = TRUE;
-    }
 
     menu_entry->current_depth = menu->depth;
 
@@ -53,9 +53,7 @@ private  void  turn_off_menu_entry( menu, menu_entry )
     int                 i;
 
     for_less( i, 0, menu->n_lines_in_entry )
-    {
         menu_entry->text_list[i]->visibility = FALSE;
-    }
 
     set_menu_key_entry( menu, menu_entry->key, (menu_entry_struct *) 0 );
 }
@@ -161,21 +159,26 @@ public  Status  initialize_menu( graphics, runtime_directory )
     return( status );
 }
 
-public  void  initialize_menu_actions( graphics )
-    graphics_struct   *graphics;
+public  void  initialize_menu_actions( menu_window )
+    graphics_struct   *menu_window;
 {
     void                 add_action_table_function();
 
-    add_action_table_function( &graphics->action_table, KEYBOARD_EVENT,
+    add_action_table_function( &menu_window->action_table, KEYBOARD_EVENT,
                                handle_character );
+
+    add_action_table_function( &menu_window->action_table,
+                               LEFT_MOUSE_DOWN_EVENT, left_mouse_press );
+    add_action_table_function( &menu_window->action_table,
+                               MIDDLE_MOUSE_DOWN_EVENT, middle_mouse_press );
 }
 
 private  DEF_EVENT_FUNCTION( handle_character )
 {
     Status             status;
     int                key_pressed;
-    menu_entry_struct  *menu_entry;
     graphics_struct    *menu_window;
+    Status             handle_menu_for_key();
 
     status = OK;
 
@@ -183,7 +186,21 @@ private  DEF_EVENT_FUNCTION( handle_character )
 
     key_pressed = event->event_data.key_pressed;
 
-    menu_entry = get_menu_key_entry( &menu_window->menu, key_pressed );
+    status = handle_menu_for_key( menu_window, key_pressed );
+
+    return( status );
+}
+
+private  Status  handle_menu_for_key( menu_window, key )
+    graphics_struct     *menu_window;
+    int                 key;
+{
+    Status             status;
+    menu_entry_struct  *menu_entry;
+
+    status = OK;
+
+    menu_entry = get_menu_key_entry( &menu_window->menu, key );
 
     if( menu_entry != (menu_entry_struct *) 0 )
     {
@@ -215,6 +232,44 @@ private  Status  process_menu( graphics, menu_entry )
     return( status );
 }
 
+private  DEF_EVENT_FUNCTION( left_mouse_press )    /* ARGSUSED */
+{
+    Status  status;
+    Status  handle_mouse_press_in_menu();
+    void    get_mouse_in_pixels();
+    int     x, y;
+
+    get_mouse_in_pixels( graphics, &graphics->mouse_position, &x, &y );
+
+    status = handle_mouse_press_in_menu( graphics, (Real) x, (Real) y );
+
+    return( status );
+}
+
+private  DEF_EVENT_FUNCTION( middle_mouse_press )    /* ARGSUSED */
+{
+    void    pop_menu_one_level();
+
+    pop_menu_one_level( graphics );
+
+    return( OK );
+}
+
+private  Status  handle_mouse_press_in_menu( menu_window, x, y )
+    graphics_struct     *menu_window;
+    Real                x, y;
+{
+    Status              status;
+    int                 key;
+
+    status = OK;
+
+    if( lookup_key_for_mouse_position( menu_window, x, y, &key ) )
+        status = handle_menu_for_key( menu_window, key );
+
+    return( status );
+}
+
 public  Status  update_menu_text( graphics, menu_entry )
     graphics_struct     *graphics;
     menu_entry_struct   *menu_entry;
@@ -237,7 +292,7 @@ void  set_menu_text( menu_window, menu_entry, text )
     menu_entry_struct   *menu_entry;
     char                text[];
 {
-    int                 line, i, n_chars, len;
+    int                 line, i, n_chars, len, n_chars_across;
     char                *text_ptr;
     menu_window_struct  *menu;
     void                set_update_required();
@@ -251,12 +306,19 @@ void  set_menu_text( menu_window, menu_entry, text )
     {
         i = 0;
         text_ptr = menu_entry->text_list[line]->ptr.text->text;
-        while( n_chars < len && i < menu_entry->n_chars_across )
+
+        n_chars_across = menu_entry->n_chars_across;
+
+        if( line == 0 )
+            n_chars_across = ROUND( n_chars_across - Menu_key_character_offset);
+
+        while( n_chars < len && i < n_chars_across )
         {
             if( text[n_chars] == '\n' ||
                 (text[n_chars] == ' ' &&
                  (len - n_chars-1) <=
-                 (menu->n_lines_in_entry-line-1) * menu_entry->n_chars_across) )
+                 (menu->n_lines_in_entry-line-1) * menu_entry->n_chars_across
+                 - Menu_key_character_offset) )
             {
                 ++n_chars;
                 break;
@@ -315,6 +377,21 @@ public  DEF_MENU_UPDATE(push_menu )      /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( pop_menu )      /* ARGSUSED */
 {
+    void  pop_menu_one_level();
+
+    pop_menu_one_level( menu_window );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(pop_menu )      /* ARGSUSED */
+{
+    return( OK );
+}
+
+private  void  pop_menu_one_level( menu_window )
+    graphics_struct  *menu_window;
+{
     void    set_update_required();
 
     if( menu_window->menu.depth > 0 )
@@ -329,11 +406,4 @@ public  DEF_MENU_FUNCTION( pop_menu )      /* ARGSUSED */
 
         set_update_required( menu_window, NORMAL_PLANES );
     }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(pop_menu )      /* ARGSUSED */
-{
-    return( OK );
 }
