@@ -144,11 +144,8 @@ public  void  initialize_action_table( action_table )
     event_types           event;
     void                  initialize_virtual_spaceball();
     void                  initialize_window_events();
-    DECL_EVENT_FUNCTION(   mouse_movement_event );
+    void                  initialize_mouse_events();
     DECL_EVENT_FUNCTION(   keyboard_event );
-    DECL_EVENT_FUNCTION(   left_mouse_down_event );
-    DECL_EVENT_FUNCTION(   middle_mouse_down_event );
-    DECL_EVENT_FUNCTION(   right_mouse_down_event );
 
     for_enum( event, NUM_EVENT_TYPES, event_types )
     {
@@ -156,15 +153,10 @@ public  void  initialize_action_table( action_table )
         action_table->event_info[(int)event].last_index[0] = -1;
     }
 
-    add_action_table_function( action_table, MOUSE_MOVEMENT_EVENT,
-                               mouse_movement_event );
-    add_action_table_function( action_table, MIDDLE_MOUSE_DOWN_EVENT,
-                               middle_mouse_down_event );
-    add_action_table_function( action_table, RIGHT_MOUSE_DOWN_EVENT,
-                               right_mouse_down_event );
     add_action_table_function( action_table, KEYBOARD_EVENT,
                                keyboard_event );
 
+    initialize_mouse_events( action_table );
     initialize_virtual_spaceball( action_table );
     initialize_window_events( action_table );
 }
@@ -173,64 +165,6 @@ private  DEF_EVENT_FUNCTION(  keyboard_event )     /* ARGSUSED */
 {
     PRINT( "%c", event->event_data.key_pressed );
     (void) fflush( stdout );
-
-    return( OK );
-}
-
-private  DEF_EVENT_FUNCTION(  mouse_movement_event )     /* ARGSUSED */
-{
-    graphics->mouse_position = event->event_data.mouse_position;
-
-    return( OK );
-}
-
-private  DEF_EVENT_FUNCTION(  left_mouse_down_event )     /* ARGSUSED */
-{
-    PRINT( "LEFT Mouse\n" );
-
-    return( OK );
-}
-
-private  DEF_EVENT_FUNCTION(  middle_mouse_down_event )     /* ARGSUSED */
-{
-    PRINT( "MIDDLE Mouse\n" );
-
-    return( ERROR );
-}
-
-private  DEF_EVENT_FUNCTION(  right_mouse_down_event )     /* ARGSUSED */
-{
-    object_struct  *objects;
-
-    objects = graphics->objects;
-
-    if( objects != (object_struct *) 0 )
-    {
-        while( objects != (object_struct *) 0 && objects->visibility == OFF )
-        {
-            objects = objects->next;
-        }
-
-        if( objects == (object_struct *) 0 )
-        {
-            graphics->objects->visibility = ON;
-        }
-        else
-        {
-            objects->visibility = OFF;
-
-            if( objects->next == (object_struct *) 0 )
-            {
-                graphics->objects->visibility = ON;
-            }
-            else
-            {
-                objects->next->visibility = ON;
-            }
-        }
-
-        graphics->update_required = TRUE;
-    }
 
     return( OK );
 }
