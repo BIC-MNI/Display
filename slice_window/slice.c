@@ -3,7 +3,7 @@
 
 public  Boolean   get_slice_window_volume(
     display_struct   *display,
-    volume_struct    **volume )
+    Volume           *volume )
 {
     Boolean  volume_set;
 
@@ -14,17 +14,17 @@ public  Boolean   get_slice_window_volume(
     }
     else
     {
-        *volume = (volume_struct *) 0;
+        *volume = (Volume) NULL;
         volume_set = FALSE;
     }
 
     return( volume_set );
 }
 
-public  volume_struct   *get_volume(
+public  Volume   get_volume(
     display_struct   *display )
 {
-    volume_struct  *volume;
+    Volume      volume;
 
     (void) get_slice_window_volume( display, &volume );
 
@@ -52,15 +52,16 @@ public  Boolean  get_slice_window(
 private  void  set_cursor_colour(
     display_struct   *slice_window )
 {
-    int       x, y, z;
+    int       indices[N_DIMENSIONS];
     Real      value;
 
     if( get_isosurface_value( slice_window->associated[THREE_D_WINDOW], &value))
     {
-        get_current_voxel( slice_window, &x, &y, &z );
+        get_current_voxel( slice_window, &indices[X], &indices[Y], &indices[Z]);
 
-        if( cube_is_within_volume( get_volume(slice_window), x, y, z ) &&
-            voxel_contains_value( get_volume(slice_window), x, y, z, value ))
+        if( cube_is_within_volume( get_volume(slice_window), indices ) &&
+            voxel_contains_value( get_volume(slice_window), indices[X],
+                                  indices[Y], indices[Z], value ))
         {
             update_cursor_colour( slice_window->associated[THREE_D_WINDOW],
                                   &Cursor_colour_on_surface );
@@ -168,16 +169,17 @@ public  void  update_slice_window(
 
 public  void  create_slice_window(
     display_struct   *display,
-    volume_struct    *volume )
+    char             filename[],
+    Volume           volume )
 {
     display_struct   *slice_window, *menu_window;
-    int              nx, ny, nz;
+    int              sizes[N_DIMENSIONS];
     String           title;
 
-    get_volume_size( volume, &nx, &ny, &nz );
+    get_volume_sizes( volume, sizes );
 
-    (void) sprintf( title, "%s [%d * %d * %d]", volume->filename,
-                    nx, ny, nz );
+    (void) sprintf( title, "%s [%d * %d * %d]", filename,
+                    sizes[X], sizes[Y], sizes[Z] );
 
     (void) create_graphics_window( SLICE_WINDOW, &slice_window, title, 0, 0 );
 
@@ -189,10 +191,10 @@ public  void  create_slice_window(
     display->associated[SLICE_WINDOW] = slice_window;
     menu_window->associated[SLICE_WINDOW] = slice_window;
 
-    slice_window->slice.original_volume = *volume;
+    slice_window->slice.original_volume = volume;
 
     set_slice_window_volume( slice_window,
-                             &slice_window->slice.original_volume );
+                             slice_window->slice.original_volume );
 
     set_slice_window_update( slice_window, 0 );
     set_slice_window_update( slice_window, 1 );
@@ -204,7 +206,7 @@ public  void  initialize_slice_window(
 {
     int        c;
 
-    slice_window->slice.volume = (volume_struct *) NULL;
+    slice_window->slice.volume = (Volume) NULL;
 
     slice_window->slice.temporary_indices_alloced = 0;
 
@@ -234,7 +236,7 @@ public  void  delete_slice_window(
 {
     free_slice_window( slice );
 
-    delete_volume( &slice->original_volume );
+    delete_volume( slice->original_volume );
 }
 
 private  void  free_slice_window(
@@ -247,24 +249,23 @@ private  void  free_slice_window(
         FREE( slice->temporary_indices );
     }
 
-    if( slice->volume != (volume_struct *) NULL &&
-        slice->volume != &slice->original_volume )
+    if( slice->volume != (Volume) NULL &&
+        slice->volume != slice->original_volume )
     {
         delete_volume( slice->volume );
-        FREE( slice->volume );
     }
 }
 
 public  void  set_slice_window_volume(
     display_struct    *slice_window,
-    volume_struct     *volume )
+    Volume            volume )
 {
     int        c;
     Real       thickness[N_DIMENSIONS];
 
     free_slice_window( &slice_window->slice );
 
-    if( slice_window->slice.volume != (volume_struct *) NULL )
+    if( slice_window->slice.volume != (Volume) NULL )
     {
         delete_voxel_flags( &slice_window->associated[THREE_D_WINDOW]->
                             three_d.surface_extraction.voxels_queued );
@@ -286,8 +287,7 @@ public  void  set_slice_window_volume(
 
     initialize_slice_window_view( slice_window );
 
-    get_volume_slice_thickness( volume, &thickness[X], &thickness[Y],
-                                        &thickness[Z] );
+    get_volume_separations( volume, thickness );
 
     slice_window->associated[THREE_D_WINDOW]->three_d.cursor.box_size[X] =
                           ABS( thickness[X] );
