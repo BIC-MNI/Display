@@ -342,15 +342,15 @@ public  void  rebuild_probe(
                 break;
             case X_VOXEL_PROBE_INDEX:
                 (void) sprintf( text->string, Slice_probe_x_voxel_format,
-                                voxel[X]+1.0 );
+                                voxel[X] );
                 break;
             case Y_VOXEL_PROBE_INDEX:
                 (void) sprintf( text->string, Slice_probe_y_voxel_format,
-                                voxel[Y]+1.0 );
+                                voxel[Y] );
                 break;
             case Z_VOXEL_PROBE_INDEX:
                 (void) sprintf( text->string, Slice_probe_z_voxel_format,
-                                voxel[Z]+1.0 );
+                                voxel[Z] );
                 break;
 
             case X_WORLD_PROBE_INDEX:
