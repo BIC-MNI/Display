@@ -263,8 +263,6 @@ private  void  initialize_graphics_window(
     display->update_required[NORMAL_PLANES] = FALSE;
     display->update_required[OVERLAY_PLANES] = FALSE;
     display->update_interrupted.last_was_interrupted = FALSE;
-    display->update_interrupted.size_of_interrupted = Size_of_interrupted;
-    display->update_interrupted.interval_of_check = Interval_of_check;
 }
 
 public  void  set_update_required(
@@ -382,6 +380,7 @@ private  void  update_graphics_normal_planes_only(
     start = current_realtime_seconds();
 
     interrupt->interrupt_at = start + Maximum_display_time;
+    G_set_interrupt_time( display->window, interrupt->interrupt_at );
 
     interrupt->current_interrupted = FALSE;
 
