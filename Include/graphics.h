@@ -113,6 +113,17 @@ typedef  struct
 
 typedef  STACK_STRUCT( selection_entry )   selection_struct;
 
+typedef  struct
+{
+    Boolean        last_was_interrupted;
+    object_struct  *object_interrupted;
+    int            n_items_done;
+    int            next_item;
+    Real           interrupt_at;
+
+    Boolean        current_interrupted;
+} update_interrupted_struct;
+
 typedef  struct  graphics_struct
 {
     struct  graphics_struct  *menu_window;
@@ -137,7 +148,8 @@ typedef  struct  graphics_struct
     Point                  centre_of_objects;
 
     int                    frame_number;
-    int                    update_required;
+    Boolean                    update_required;
+    update_interrupted_struct  update_interrupted;
 } graphics_struct;
 
 #define  DECL_EVENT_FUNCTION( f )  eft   f
