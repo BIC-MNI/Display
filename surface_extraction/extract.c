@@ -304,7 +304,7 @@ private  int   create_point( volume, isovalue, polygons, voxel,
 {
     Status    status;
     int       i, x, y, z, pt_index;
-    Real      u_bar[N_DIMENSIONS], dx, dy, dz;
+    Real      u_bar[N_DIMENSIONS], dx, dy, dz, x_bar, y_bar, z_bar;
     Real      alpha1, alpha2, val1, val2, val, alpha;
     Point     point;
     Vector    normal;
@@ -492,9 +492,12 @@ private  int   create_point( volume, isovalue, polygons, voxel,
     }
 
     u_bar[edge_intersected] = alpha;
+
+    x_bar = u_bar[X_AXIS];
+    y_bar = u_bar[Y_AXIS];
+    z_bar = u_bar[Z_AXIS];
   
-    CUBIC_TRIVAR_DERIV( c, u_bar[X_AXIS], u_bar[Y_AXIS], u_bar[Z_AXIS],
-                        dx, dy, dz );
+    CUBIC_TRIVAR_DERIV( c, x_bar, y_bar, z_bar, dx, dy, dz );
 
     fill_Vector( normal, dx, dy, dz );
 
