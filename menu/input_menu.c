@@ -22,6 +22,7 @@
                        MENU_FUNCTION(advance_visible) \
                        MENU_FUNCTION(retreat_visible) \
                        MENU_FUNCTION(reverse_normals) \
+                       MENU_FUNCTION(set_current_object_colour) \
                        MENU_FUNCTION(centre_view) \
                        MENU_FUNCTION(magnify_view) \
                        MENU_FUNCTION(translate_view) \
