@@ -9,7 +9,7 @@
 \newcommand{\menutwo}[2]{\fbox{\sc\bf #1}/\fbox{\sc\bf #2}}
 \newcommand{\menuthree}[3]{\fbox{\sc\bf #1}/\fbox{\sc\bf #2}/\fbox{\sc\bf #3}}
 
-%\psdraft
+\psdraft
 
 \begin{document}
 
@@ -604,6 +604,10 @@ purposes.
                the current position in the object hierarchy, and clears
 \item[\menutwo{Objects}{Flip Object}]  Mirror images the current object
                around the $X = 0$ plane.
+\item[\menutwo{Objects}{Scan Object to Volume}]  Causes the intersection
+     of the current object with the volume to be displayed in the
+     slice window, by assigning the current paint label to any voxel
+     which is touching the object.
 \item[\menutwo{Objects}{Show Vertices}]  Not for general use.
 \end{description}
 
@@ -722,10 +726,6 @@ purposes.
 \item[\menutwo{Polygons}{Set Line Thickness}]  Prompts for a line thickness
      value used in displaying the current polygons in wireframe mode.
      Default value is 1.
-\item[\menutwo{Polygons}{Scan Polygons to Volume}]  Causes the intersection
-     of the polygons surface with the volume to be displayed in the
-     slice window, by assigning the current paint label to any voxel
-     which is touching the polygons surface.
 \item[\menutwo{Polygons}{Subdivide Polygons}]  Not for general use.
 \item[\menutwo{Polygons}{Create Bintree}]  Not for general use.
 \item[\menutwo{Polygons}{Reverse Polygons}]  Not for general use.
