@@ -36,7 +36,7 @@ typedef  struct
     int                                  n_voxels_with_surface;
 
     int                                  n_voxels_alloced;
-    bitlist_struct                       voxels_queued;
+    bitlist_3d_struct                    voxels_queued;
     unsigned_byte                        *voxel_done_flags;
 
     voxel_queue_struct                   voxels_to_do;

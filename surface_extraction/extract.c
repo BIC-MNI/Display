@@ -19,7 +19,7 @@ private  int  extract_polygons(
     int                         sizes[],
     voxel_point_type            points_list[] );
 private  void  add_point_id_to_relevant_edges(
-    Volume              volume,
+    int                 sizes[],
     voxel_point_type    *edge_info,
     voxel_index_struct  *pt_index,
     int                 pt_id,
@@ -201,9 +201,10 @@ private  int  extract_polygons(
     voxel_index_struct     corner_index;
     int                    id, next_index;
     edge_point_info        edge_point_list[2][2][2][N_DIMENSIONS];
-    int                    n_nondegenerate_polys, poly, p;
+    int                    n_added_polys, poly, p;
     int                    x, y, z, axis;
     int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
+    int                    volume_sizes[N_DIMENSIONS];
     BOOLEAN                changed, connected;
     unsigned_byte          all_done_value, voxel_flags;
 
@@ -221,11 +222,13 @@ private  int  extract_polygons(
         }
     }
 
-    voxel_flags = get_voxel_done_flag( volume,
+    get_volume_sizes( volume, volume_sizes );
+
+    voxel_flags = get_voxel_done_flag( volume_sizes,
                                        surface_extraction->voxel_done_flags,
                                        voxel_index );
 
-    n_nondegenerate_polys = 0;
+    n_added_polys = 0;
     all_done_value = (VOXEL_COMPLETELY_DONE >> (4 - n_polys));
 
     do
@@ -241,19 +244,17 @@ private  int  extract_polygons(
             {
                 pt = &poly_points[p];
 
-                if( !edge_point_list[pt->coord[X]]
-                                    [pt->coord[Y]]
-                                    [pt->coord[Z]]
+                if( !edge_point_list[pt->coord[X]][pt->coord[Y]][pt->coord[Z]]
                                     [pt->edge_intersected].checked )
                 {
-                    corner_index.i[X] = voxel_index->i[X] +
-                                             pt->coord[X];
-                    corner_index.i[Y] = voxel_index->i[Y] +
-                                             pt->coord[Y];
-                    corner_index.i[Z] = voxel_index->i[Z] +
-                                             pt->coord[Z];
+                    edge_point_list[pt->coord[X]][pt->coord[Y]][pt->coord[Z]]
+                                   [pt->edge_intersected].checked = TRUE;
 
-                    if( !lookup_edge_point_id( volume,
+                    corner_index.i[X] = voxel_index->i[X] + pt->coord[X];
+                    corner_index.i[Y] = voxel_index->i[Y] + pt->coord[Y];
+                    corner_index.i[Z] = voxel_index->i[Z] + pt->coord[Z];
+
+                    if( !lookup_edge_point_id( volume_sizes,
                                     &surface_extraction->edge_points,
                                     &corner_index,
                                     pt->edge_intersected, &id ) )
@@ -261,9 +262,7 @@ private  int  extract_polygons(
                         id = INVALID_ID;
                     }
 
-                    edge_point_list[pt->coord[X]]
-                                   [pt->coord[Y]]
-                                   [pt->coord[Z]]
+                    edge_point_list[pt->coord[X]][pt->coord[Y]][pt->coord[Z]]
                                    [pt->edge_intersected].id = id;
                 }
 
@@ -294,7 +293,7 @@ private  int  extract_polygons(
                                          sizes[poly], poly_points,
                                          edge_point_list ) )
                 {
-                    ++n_nondegenerate_polys;
+                    ++n_added_polys;
                 }
                 changed = TRUE;
                 voxel_flags |= (1 << poly);
@@ -310,10 +309,10 @@ private  int  extract_polygons(
         voxel_flags = VOXEL_COMPLETELY_DONE;
     }
 
-    set_voxel_done_flag( volume, surface_extraction->voxel_done_flags,
+    set_voxel_done_flag( volume_sizes, surface_extraction->voxel_done_flags,
                          voxel_index, voxel_flags );
 
-    return( n_nondegenerate_polys > 0 );
+    return( n_added_polys > 0 );
 }
 
 private  int  add_polygon_to_list(
@@ -329,6 +328,7 @@ private  int  add_polygon_to_list(
     voxel_index_struct     corner_index;
     int                    current_end, next_index, p, next_end, actual_size;
     int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
+    int                    sizes[N_DIMENSIONS];
     BOOLEAN                non_degenerate;
     Point_classes          pt_class;
 
@@ -336,6 +336,8 @@ private  int  add_polygon_to_list(
     {
         HANDLE_INTERNAL_ERROR( "Size" );
     }
+
+    get_volume_sizes( volume, sizes );
 
     polygons = surface_extraction->polygons;
 
@@ -361,7 +363,7 @@ private  int  add_polygon_to_list(
                                          polygons, &corner_index,
                                          pt->edge_intersected, &pt_class );
 
-            add_point_id_to_relevant_edges( volume, pt,
+            add_point_id_to_relevant_edges( sizes, pt,
                            &corner_index, point_ids[p], pt_class,
                            edge_point_list, &surface_extraction->edge_points );
         }
@@ -486,7 +488,7 @@ private  int   create_surface_point(
 }
 
 private  void  add_point_id_to_relevant_edges(
-    Volume              volume,
+    int                 sizes[],
     voxel_point_type    *edge_info,
     voxel_index_struct  *pt_index,
     int                 pt_id,
@@ -494,7 +496,7 @@ private  void  add_point_id_to_relevant_edges(
     edge_point_info     edge_point_list[2][2][2][N_DIMENSIONS],
     hash_table_struct   *edge_points )
 {
-    int                 axis;
+    int                 axis, stored_id;
     int                 cache_pt[N_DIMENSIONS];
     voxel_index_struct  corner;
 
@@ -518,8 +520,13 @@ private  void  add_point_id_to_relevant_edges(
             if( corner.i[axis] > 0 )
             {
                 --corner.i[axis];
-                record_edge_point_id( volume, edge_points, &corner,
-                                      axis, pt_id );
+                if( !lookup_edge_point_id( sizes, edge_points, &corner,
+                                           axis, &stored_id ) )
+                {
+                    record_edge_point_id( sizes, edge_points, &corner,
+                                          axis, pt_id );
+                }
+
                 ++corner.i[axis];
             }
 
@@ -537,7 +544,12 @@ private  void  add_point_id_to_relevant_edges(
                 ++cache_pt[axis];
             }
 
-            record_edge_point_id( volume, edge_points, &corner, axis, pt_id );
+            if( !lookup_edge_point_id( sizes, edge_points, &corner,
+                                       axis, &stored_id ) )
+            {
+                record_edge_point_id( sizes, edge_points, &corner, axis,
+                                      pt_id );
+            }
 
             edge_point_list[cache_pt[X]]
                            [cache_pt[Y]]
@@ -551,7 +563,7 @@ private  void  add_point_id_to_relevant_edges(
     }
     else
     {
-        record_edge_point_id( volume, edge_points, pt_index,
+        record_edge_point_id( sizes, edge_points, pt_index,
                               edge_info->edge_intersected, pt_id );
 
         edge_point_list[edge_info->coord[X]]

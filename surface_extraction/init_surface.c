@@ -99,6 +99,7 @@ public  void  initialize_surface_extraction_for_volume(
     Volume            volume,
     Volume            label_volume )
 {
+    int                         sizes[N_DIMENSIONS];
     surface_extraction_struct   *surface_extraction;
 
     surface_extraction = &display->three_d.surface_extraction;
@@ -112,10 +113,11 @@ public  void  initialize_surface_extraction_for_volume(
 
         initialize_voxel_queue( &surface_extraction->voxels_to_do );
         initialize_edge_points( &surface_extraction->edge_points );
-        initialize_voxel_flags( &surface_extraction->voxels_queued,
-                                get_n_voxels(get_volume(display)) );
+
+        get_volume_sizes( volume, sizes );
+        initialize_voxel_flags( &surface_extraction->voxels_queued, sizes );
         initialize_voxel_done_flags( &surface_extraction->voxel_done_flags,
-                                get_n_voxels(get_volume(display)) );
+                                     get_n_voxels(volume) );
     }
 }
 
