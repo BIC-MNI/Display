@@ -257,6 +257,8 @@ public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
             if( status == OK )
                 status = close_file( file );
 
+            delete_slice_undo( &slice_window->slice.undo );
+
             set_slice_window_all_update( slice_window );
             print( "Done loading.\n" );
         }
@@ -297,6 +299,8 @@ private  void  copy_labels_from_adjacent_slice(
 
         if( int_voxel_is_within_volume( volume, src_index ) )
         {
+            record_slice_labels( display, axis_index, dest_index[axis_index] );
+
             copy_labels_slice_to_slice(
                          volume,
                          get_label_volume(slice_window),
@@ -403,6 +407,7 @@ public  DEF_MENU_FUNCTION( change_labels_in_range )   /* ARGSUSED */
             modify_labels_in_range( volume, get_label_volume(slice_window),
                                     src_label, dest_label,
                                     min_threshold, max_threshold );
+            delete_slice_undo( &slice_window->slice.undo );
             set_slice_window_all_update( slice_window );
         }
     }
@@ -486,6 +491,7 @@ public  DEF_MENU_FUNCTION( flip_labels_in_x )   /* ARGSUSED */
     if( get_slice_window( display, &slice_window ) )
     {
         flip_labels_around_zero( get_label_volume( slice_window ) );
+        delete_slice_undo( &slice_window->slice.undo );
 
         set_slice_window_all_update( slice_window );
     }
@@ -498,7 +504,7 @@ public  DEF_MENU_UPDATE(flip_labels_in_x )   /* ARGSUSED */
     return( OK );
 }
 
-private  void translate_labels_callback(
+private  void  translate_labels_callback(
     display_struct   *display,
     int              x_delta,
     int              y_delta )
@@ -508,7 +514,7 @@ private  void translate_labels_callback(
     int             delta[N_DIMENSIONS];
 
     if( get_slice_view_index_under_mouse( display, &view_index ) &&
-         get_slice_window( display, &slice_window ) &&
+        get_slice_window( display, &slice_window ) &&
         slice_has_ortho_axes( slice_window, view_index,
                               &x_index, &y_index, &axis_index ) )
     {
@@ -520,6 +526,7 @@ private  void translate_labels_callback(
         delta[y_index] = y_delta;
 
         translate_labels( get_label_volume( slice_window ), delta );
+        delete_slice_undo( &slice_window->slice.undo );
 
         set_slice_window_all_update( slice_window );
     }
@@ -569,6 +576,48 @@ public  DEF_MENU_FUNCTION( translate_labels_right )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(translate_labels_right )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( undo_slice_labels )   /* ARGSUSED */
+{
+    undo_slice_labels_if_any( display );
+    set_slice_window_all_update( display->associated[SLICE_WINDOW] );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(undo_slice_labels )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( translate_labels_arbitrary )   /* ARGSUSED */
+{
+    int              delta[MAX_DIMENSIONS];
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        print( "Enter offset to translate for x, y and z: " );
+
+        if( input_int( stdin, &delta[X] ) == OK &&
+            input_int( stdin, &delta[Y] ) == OK &&
+            input_int( stdin, &delta[Z] ) == OK )
+        {
+            translate_labels( get_label_volume( slice_window ), delta );
+            undo_slice_labels_if_any( display );
+            set_slice_window_all_update( display->associated[SLICE_WINDOW] );
+        }
+
+        (void) input_newline( stdin );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(translate_labels_arbitrary )   /* ARGSUSED */
 {
     return( OK );
 }
