@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  void  initialize_slice_window_view(
     display_struct    *slice_window )
@@ -99,16 +99,13 @@ public  Boolean  convert_pixel_to_voxel(
     display_struct    *display,
     int               x_pixel,
     int               y_pixel,
-    Real              *x,
-    Real              *y,
-    Real              *z,
+    Real              voxel[],
     int               *view_index )
 {
     Boolean           found;
     Volume            volume;
     display_struct    *slice_window;
     int               x_min, x_max, y_min, y_max;
-    Real              slice_position[N_DIMENSIONS];
 
     found = FALSE;
 
@@ -129,16 +126,7 @@ public  Boolean  convert_pixel_to_voxel(
                     slice_window->slice.slice_views[*view_index].y_trans,
                     slice_window->slice.slice_views[*view_index].x_scaling,
                     slice_window->slice.slice_views[*view_index].y_scaling,
-                    slice_position );
-
-        if( found )
-        {
-            *x = slice_position[X];
-            *y = slice_position[Y];
-            *z = slice_position[Z];
-
-            found = TRUE;
-        }
+                    voxel );
     }
 
     return( found );
@@ -191,12 +179,9 @@ public  void  convert_voxel_to_pixel(
 public  Boolean  get_voxel_corresponding_to_point(
     display_struct    *display,
     Point             *point,
-    Real              *x,
-    Real              *y,
-    Real              *z )
+    Real              voxel[] )
 {
     Volume          volume;
-    Real            pos[N_DIMENSIONS];
     Boolean         converted;
 
     converted = FALSE;
@@ -205,12 +190,9 @@ public  Boolean  get_voxel_corresponding_to_point(
     {
         convert_world_to_voxel( volume,
                             Point_x(*point), Point_y(*point), Point_z(*point),
-                            x, y, z );
+                            voxel );
 
-        pos[X] = *x;
-        pos[Y] = *y;
-        pos[Z] = *z;
-        converted = voxel_is_within_volume( volume, pos );
+        converted = voxel_is_within_volume( volume, voxel );
     }
 
     return( converted );
@@ -261,9 +243,7 @@ public  void  get_slice_viewport(
 
 public  Boolean  get_voxel_in_slice_window(
     display_struct    *display,
-    Real              *x,
-    Real              *y,
-    Real              *z,
+    Real              voxel[],
     int               *view_index )
 {
     display_struct    *slice_window;
@@ -274,7 +254,7 @@ public  Boolean  get_voxel_in_slice_window(
 
     (void) G_get_mouse_position( slice_window->window, &x_mouse, &y_mouse );
 
-    found = convert_pixel_to_voxel( slice_window, x_mouse, y_mouse, x, y, z,
+    found = convert_pixel_to_voxel( slice_window, x_mouse, y_mouse, voxel,
                                     view_index );
 
     return( found );
@@ -282,9 +262,7 @@ public  Boolean  get_voxel_in_slice_window(
 
 public  Boolean  get_voxel_in_three_d_window(
     display_struct    *display,
-    Real              *x,
-    Real              *y,
-    Real              *z )
+    Real              voxel[] )
 {
     Boolean          found;
     object_struct    *object;
@@ -300,7 +278,7 @@ public  Boolean  get_voxel_in_three_d_window(
     {
         found = get_voxel_corresponding_to_point( slice_window,
                                                   &intersection_point,
-                                                  x, y, z );
+                                                  voxel );
     }
 
     return( found );
@@ -308,9 +286,7 @@ public  Boolean  get_voxel_in_three_d_window(
 
 public  Boolean  get_voxel_under_mouse(
     display_struct    *display,
-    Real              *x,
-    Real              *y,
-    Real              *z,
+    Real              voxel[],
     int               *view_index )
 {
     display_struct    *three_d, *slice_window;
@@ -322,11 +298,11 @@ public  Boolean  get_voxel_under_mouse(
         found = FALSE;
     else if( G_is_mouse_in_window( slice_window->window ) )
     {
-        found = get_voxel_in_slice_window( display, x, y, z, view_index );
+        found = get_voxel_in_slice_window( display, voxel, view_index );
     }
     else if( G_is_mouse_in_window( three_d->window ) )
     {
-        found = get_voxel_in_three_d_window( three_d, x, y, z );
+        found = get_voxel_in_three_d_window( three_d, voxel );
         *view_index = 2;
     }
     else
@@ -339,28 +315,19 @@ public  Boolean  get_voxel_under_mouse(
 
 public  void  get_current_voxel(
     display_struct    *slice_window,
-    Real              *x,
-    Real              *y,
-    Real              *z )
+    Real              voxel[] )
 {
-    *x = slice_window->slice.slice_index[X];
-    *y = slice_window->slice.slice_index[Y];
-    *z = slice_window->slice.slice_index[Z];
+    voxel[X] = slice_window->slice.slice_index[X];
+    voxel[Y] = slice_window->slice.slice_index[Y];
+    voxel[Z] = slice_window->slice.slice_index[Z];
 }
 
 public  Boolean  set_current_voxel(
     display_struct    *slice_window,
-    Real              x,
-    Real              y,
-    Real              z )
+    Real              voxel[] )
 {
     Boolean           changed;
-    Real              indices[N_DIMENSIONS];
     int               i, j, axis_index;
-
-    indices[X] = x;
-    indices[Y] = y;
-    indices[Z] = z;
 
     changed = FALSE;
 
@@ -368,9 +335,9 @@ public  Boolean  set_current_voxel(
     {
         axis_index = slice_window->slice.slice_views[i].axis_map[Z];
 
-        if( indices[axis_index] != slice_window->slice.slice_index[axis_index] )
+        if( voxel[axis_index] != slice_window->slice.slice_index[axis_index] )
         {
-            slice_window->slice.slice_index[axis_index] = indices[axis_index];
+            slice_window->slice.slice_index[axis_index] = voxel[axis_index];
 
             for_less( j, i, N_DIMENSIONS )
             {

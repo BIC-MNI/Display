@@ -2,8 +2,8 @@
 #ifndef  DEF_SLICE
 #define  DEF_SLICE
 
-#include  <def_mni.h>
-#include  <def_atlas.h>
+#include  <mni.h>
+#include  <atlas.h>
 
 typedef  struct
 {
