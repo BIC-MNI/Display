@@ -1,7 +1,18 @@
 2001-08-11  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
 
+	* main/Makefile.am (AM_CFLAGS): Define HARD_CODED_DISPLAY_DIRECTORY1
+	dynamically.
+
+	* main/main.c (main): Exit if cannot load menu file.  Remove
+	#define for HARD_CODED_DISPLAY_DIRECTORY1.
+
+	* menu/menu.c: Disable the compiled-in default_menu_string if
+	--disable-menu-fallback supplied at configure time.
+	(initialize_menu): Emit error if the menu file cannot be found,
+	and no compiled-in fallback is available.
+
 	* configure.in: Use AC_PREREQ to force autoconf 2.50.
-	Bump version to 1.3.4.
+	Bump version to 1.3.4.  Add --disable-menu-fallback option.
 
 	* NEWS:
 	* README.CVS: Update.

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.62 2001-05-27 00:19:47 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.63 2001-08-12 00:40:25 stever Exp $";
 #endif
 
 #include  <display.h>
@@ -26,7 +26,8 @@ private  void      initialize_global_colours( void );
 private  void      initialize_view_to_fit(
     display_struct  *display );
 
-#define  HARD_CODED_DISPLAY_DIRECTORY1    "/usr/local/mni/lib"
+/* The first directory is set using compiler flag -D */
+/*#define  HARD_CODED_DISPLAY_DIRECTORY1    "/usr/local/mni/lib"*/
 #define  HARD_CODED_DISPLAY_DIRECTORY2    "/usr/local/lib"
 #define  GLOBALS_FILENAME                 "Display.globals"
 #define  MENU_FILENAME                    "Display.menu"
@@ -151,11 +152,12 @@ int  main(
     menu->associated[MENU_WINDOW] = menu;
     menu->associated[SLICE_WINDOW] = (display_struct *) 0;
 
-    (void) initialize_menu( menu, runtime_directory,
-                            getenv( "HOME" ),
-                            HARD_CODED_DISPLAY_DIRECTORY1,
-                            HARD_CODED_DISPLAY_DIRECTORY2,
-                            MENU_FILENAME );
+    if( initialize_menu( menu, runtime_directory,
+			 getenv( "HOME" ),
+			 HARD_CODED_DISPLAY_DIRECTORY1,
+			 HARD_CODED_DISPLAY_DIRECTORY2,
+			 MENU_FILENAME ) != OK )
+	return 1;
 
     delete_string( runtime_directory );
 

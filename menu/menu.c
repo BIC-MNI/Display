@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.43 2001-05-27 00:19:49 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.44 2001-08-12 00:40:25 stever Exp $";
 #endif
 
 
@@ -170,9 +170,19 @@ private  DEF_EVENT_FUNCTION( handle_menu_resize )
     return( OK );
 }
 
-static  STRING default_menu_string =
-#include "Display.menu.include"
+
+
+/* Allow builder to disable compiled-in menu.  In this case, Display.menu needs
+ * to be installed.  The current mac OSX compiler fails here.  (July 2001).
+ */
+static STRING default_menu_string = 
+#if DISPLAY_DISABLE_MENU_FALLBACK
+    NULL
+#else
+#   include "Display.menu.include"
+#endif
 ;
+
 
 public  Status  initialize_menu(
     display_struct    *menu_window,
@@ -231,6 +241,14 @@ public  Status  initialize_menu(
 
     if( !found )
     {
+	if( default_menu_string == NULL ) 
+	{
+            print_error(
+                "Cannot find menu file %s and no compiled-in fallback\n",
+                menu_filename );
+            return( ERROR );
+        }
+
         filename = get_temporary_filename();
 
         if( open_file( filename, WRITE_FILE, ASCII_FORMAT, &file ) != OK )

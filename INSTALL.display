@@ -55,5 +55,18 @@ For example, if you need to look in /usr/local/lib as well as
 will do the trick.
 
 
+
+		Build Failure with menu/menu.c
+		------------------------------
+
+In July 2001, the compiler shipped with Apple Mac OSX systems failed
+to compile this file.  To work around this, you should re-run the
+configure script, adding "--disable-menu-fallback" to the configure
+options chosen.  After building, you need to copy the file
+"Display.menu" to /usr/local/lib, or $(prefix)/lib, where $(prefix)
+means the value set using "configure --prefix=...".
+
+
+
 Good luck.
 
