@@ -5,7 +5,8 @@ EXTRA_DIST = INSTALL.display \
 	Hardware/supports_gl.c Include/atlas.h Include/display.h \
 	Include/display_prototypes.h Include/display_types.h \
 	Include/global_variables.h Include/main.h Include/menu.h \
-	Include/slice.h Include/surface_extract.h
+	Include/slice.h Include/surface_extract.h \
+	$(m4_files)
 
 SUBDIRS = Graphics \
 	markers \
@@ -31,8 +32,6 @@ SUBDIRS = Graphics \
 	voxel_scan \
 	Documentation
 
-
-#INCLUDE = -IInclude $(GRAPHICS_INCLUDE)
 
 PROTOTYPE_FILE = Include/display_prototypes.h
 
@@ -157,6 +156,8 @@ display_src = \
 
 display_obj = $(display_src:.c=.o)
 
+
+m4_files = m4/smr_OPTIONAL_LIB.m4 m4/smr_REQUIRED_LIB.m4 m4/smr_WITH_BUILD_PATH.m4
 
 
 #$(PROTOTYPE_FILE): $(display_src)
