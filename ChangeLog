@@ -1,3 +1,11 @@
+2003-12-20  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
+
+	* configure.in: Add X libraries to definition of GL_LIBS.
+	Set version to 1.3.8.
+
+	* Makefile.am (Display_LDADD): Don't add X libraries, as
+	they now come with GL_LIBS.
+
 2003-11-17  Steve ROBBINS  <stever@bic.mni.mcgill.ca>
 
 	* configure.in: Run autoupdate.  Set version to 1.3.7.

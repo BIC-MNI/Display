@@ -32,6 +32,10 @@ SUBDIRS = Graphics \
 	voxel_scan \
 	Documentation
 
+m4_files = \
+	m4/smr_OPTIONAL_LIB.m4 \
+	m4/smr_REQUIRED_LIB.m4 \
+	m4/smr_WITH_BUILD_PATH.m4
 
 PROTOTYPE_FILE = Include/display_prototypes.h
 
@@ -52,7 +56,6 @@ CLEANFILES = dummy.c Display.menu
 Display_LDFLAGS = $(X_LIBS)
 Display_LDADD = $(display_obj) \
 	Graphics/libbicgl.a $(GL_LIBS) \
-	$(X_PRE_LIBS) -lX11 -lXmu $(X_EXTRA_LIBS) \
 	$(MNI_LIBS) $(malloc_LIBS)
 
 Display_DEPENDENCIES = Display.menu $(display_obj)
@@ -153,11 +156,8 @@ display_src = \
            structures/view.c \
            structures/window.c
 
-
 display_obj = $(display_src:.c=.o)
 
-
-m4_files = m4/smr_OPTIONAL_LIB.m4 m4/smr_REQUIRED_LIB.m4 m4/smr_WITH_BUILD_PATH.m4
 
 
 #$(PROTOTYPE_FILE): $(display_src)
