@@ -13,14 +13,16 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/event_loop.c,v 1.25 1998-02-20 15:00:05 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/event_loop.c,v 1.26 1998-04-07 18:43:15 david Exp $";
 #endif
 
 
 #include  <display.h>
 
-private  Status   process_no_events_for_all_windows( void );
-private  void     update_all_required_windows( void );
+private  Status   process_no_events_for_three_d_windows( void );
+private  void     update_all_three_d_windows( void );
+private  Status   process_no_events_for_slice_windows( void );
+private  void     update_all_slice_windows( void );
 private  Status   perform_action(
     display_struct   *display,
     Event_types      event_type,
@@ -201,24 +203,43 @@ public  void  initialize_window_callbacks(
     G_set_window_quit_function( window, quit_callback, NULL);
 }
 
-private  void  update_all(
+private  void  update_all_three_d(
     void   *void_ptr )
 {
     Status   status;
 
-    status = process_no_events_for_all_windows();
+    status = process_no_events_for_three_d_windows();
 
     if( status == QUIT )
         quit_program();
 
-    update_all_required_windows();
+    update_all_three_d_windows();
 
-    G_add_timer_function( Min_interval_between_updates, update_all, NULL );
+    G_add_timer_function( Min_interval_between_updates, update_all_three_d,
+                          NULL );
+}
+
+private  void  update_all_slice(
+    void   *void_ptr )
+{
+    Status   status;
+
+    status = process_no_events_for_slice_windows();
+
+    if( status == QUIT )
+        quit_program();
+
+    update_all_slice_windows();
+
+    G_add_timer_function( Slice_update_time, update_all_slice, NULL );
 }
 
 public  Status   main_event_loop( void )
 {
-    G_add_timer_function( Min_interval_between_updates, update_all, NULL );
+    G_add_timer_function( Min_interval_between_updates, update_all_three_d,
+                          NULL );
+    G_add_timer_function( Slice_update_time, update_all_slice,
+                          NULL );
 
     G_main_loop();
 
@@ -232,12 +253,42 @@ public  BOOLEAN  window_is_up_to_date(
             !display->update_interrupted.last_was_interrupted );
 }
 
-private  void  update_all_required_windows( void )
+private  void  update_all_three_d_windows( void )
 {
     update_this_type_of_windows( MENU_WINDOW );
-    update_this_type_of_windows( SLICE_WINDOW );
     update_this_type_of_windows( THREE_D_WINDOW );
 }
+
+private  void  update_all_slice_windows( void )
+{
+    update_this_type_of_windows( SLICE_WINDOW );
+}
+
+#ifdef DEBUG
+private  void  debug_update( void )
+{
+    static  BOOLEAN  first = TRUE;
+    static  Real  start_time;
+    static  int   count;
+    Real  end_time;
+
+    if( first )
+    {
+        first = FALSE;
+        start_time = current_realtime_seconds();
+        count = 0;
+    }
+
+    ++count;
+    if( count == 20 )
+    {
+        end_time = current_realtime_seconds();
+        print( "FPS: %6.2g\n", (Real) count / (end_time - start_time) );
+        count = 0;
+        start_time = end_time;
+    }
+}
+#endif
 
 private  void  update_this_type_of_windows(
     window_types   window_type )
@@ -254,12 +305,17 @@ private  void  update_this_type_of_windows(
             if( window_type == SLICE_WINDOW )
                 update_slice_window( windows[i] );
 
+#ifdef DEBUG
+            if( window_type == SLICE_WINDOW )
+                debug_update();
+#endif
+
             update_graphics( windows[i], &windows[i]->update_interrupted );
         }
     }
 }
 
-private  Status  process_no_events_for_all_windows( void )
+private  Status  process_no_events_for_three_d_windows( void )
 {
     Status            status;
     int               i, n_windows;
@@ -270,7 +326,25 @@ private  Status  process_no_events_for_all_windows( void )
     n_windows = get_list_of_windows( &windows );
 
     for_less( i, 0, n_windows )
-        status = perform_action( windows[i], NO_EVENT, 0 );
+        if( windows[i]->window_type != SLICE_WINDOW )
+            status = perform_action( windows[i], NO_EVENT, 0 );
+
+    return( status );
+}
+
+private  Status  process_no_events_for_slice_windows( void )
+{
+    Status            status;
+    int               i, n_windows;
+    display_struct    **windows;
+
+    status = OK;
+
+    n_windows = get_list_of_windows( &windows );
+
+    for_less( i, 0, n_windows )
+        if( windows[i]->window_type == SLICE_WINDOW )
+            status = perform_action( windows[i], NO_EVENT, 0 );
 
     return( status );
 }
