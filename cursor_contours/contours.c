@@ -71,7 +71,7 @@ private  void  make_cursor_contours(
         object = create_object( LINES );
         lines = get_lines_ptr( object );
         initialize_lines( lines, colours[axis] );
-        lines->line_thickness = Cursor_contour_thickness;
+        lines->line_thickness = (float) Cursor_contour_thickness;
 
         add_object_to_model( model, object );
 

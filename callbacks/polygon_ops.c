@@ -435,3 +435,22 @@ public  DEF_MENU_UPDATE(set_polygon_line_thickness )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( print_polygons_surface_area )   /* ARGSUSED */
+{
+    Real              surface_area;
+    polygons_struct   *polygons;
+
+    if( get_current_polygons( display, &polygons ) )
+    {
+        surface_area = get_polygons_surface_area( polygons );
+        print( "Surface area of polygons: %g\n", surface_area );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(print_polygons_surface_area )   /* ARGSUSED */
+{
+    return( OK );
+}

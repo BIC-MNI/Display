@@ -67,6 +67,8 @@ create_surface
     transient 'w'    set_surface_extract_x_max_distance  "X Dist: %d"
     transient 'e'    set_surface_extract_y_max_distance  "Y Dist: %d"
     transient 'r'    set_surface_extract_z_max_distance  "Z Dist: %d"
+    transient 't'    set_surface_valid_range             "Set Valid Range"
+    transient 'y'    set_surface_valid_out_range         "Set Valid Out Range"
 
     transient 'a'    start_volume_isosurface             "Volume Isosurface"
     transient 's'    start_volume_binary_isosurface      "Volume Bin-Isosurface"
@@ -229,6 +231,7 @@ surface_segmentation
 
 polygons
 {
+    transient 'w'    print_polygons_surface_area       "Print Surface Area"
     transient 'e'    set_polygon_line_thickness        "Set Line Thickness"
     transient 'r'    make_polygon_sphere               "Make Polygons Sphere"
     transient 't'    subdivide_current_polygon         "Subdivide Polygons"
@@ -238,7 +241,6 @@ polygons
     transient 'f'    reverse_polygons_order            "Reverse Polygons"
     transient 'g'    reverse_normals                   "Reverse Normals"
     transient 'h'    make_tetrahedral_sphere           "Make Tetrahedral Sphere"
-
 
     transient 'c'    smooth_current_polygon            "Smooth Polygon"
     transient 'v'    average_normals_for_polygon       "Average Normals"

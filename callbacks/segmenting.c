@@ -341,6 +341,7 @@ public  DEF_MENU_UPDATE(label_connected_3d )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
 {
+    int              orig_label;
     Volume           volume;
     display_struct   *slice_window;
 
@@ -348,20 +349,26 @@ public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
     {
         slice_window = display->associated[SLICE_WINDOW];
 
-        print( "Expanding 3d labeled voxels\n" );
+        print( "Enter label to change from: " );
 
-        expand_labeled_voxels_3d( get_volume(display),
+        if( input_int( stdin, &orig_label ) == OK )
+        {
+            expand_labeled_voxels_3d( get_volume(display),
                                   get_label_volume(display),
+                                  orig_label,
                                   get_current_paint_label(display),
                                   slice_window->slice.segmenting.min_threshold,
                                   slice_window->slice.segmenting.max_threshold,
                                   N_expansion_voxels );
 
-        delete_slice_undo( &slice_window->slice.undo );
+            delete_slice_undo( &slice_window->slice.undo );
 
-        print( "Done\n" );
+            print( "Done\n" );
 
-        set_slice_window_all_update( slice_window );
+            set_slice_window_all_update( slice_window );
+        }
+
+        (void) input_newline( stdin );
     }
 
     return( OK );

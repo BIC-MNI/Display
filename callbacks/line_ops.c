@@ -290,16 +290,16 @@ public  DEF_MENU_FUNCTION( set_line_widths )   /* ARGSUSED */
 {
     Status          status;
     lines_struct    *lines;
-    int             width;
+    Real            width;
 
     status = OK;
 
     if( get_current_lines( display, &lines ) )
     {
         print( "Enter line width: " );
-        if( input_int( stdin, &width ) == OK )
+        if( input_real( stdin, &width ) == OK )
         {
-            lines->line_thickness = width;
+            lines->line_thickness = (float) width;
             set_update_required( display, NORMAL_PLANES );
         }
 

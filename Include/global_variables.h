@@ -1,4 +1,6 @@
 START_GLOBALS
+    DEF_GLOBAL( Alloc_checking_enabled, BOOLEAN, TRUE )
+
     DEF_GLOBAL( Initial_background_colour, Colour, DARK_SLATE_GREY )
 
     DEF_GLOBAL( Progress_threshold, int, 1000 )
