@@ -987,6 +987,7 @@ public  BOOLEAN  set_current_voxel(
     }
 
     set_slice_cross_section_update( slice_window, -1 );
+    rebuild_volume_cross_section( slice_window );
     set_slice_cursor_update( slice_window, -1 );
     set_probe_update( slice_window );
 

@@ -125,6 +125,8 @@ int  main(
         status = create_graphics_window( THREE_D_WINDOW,
                                          Graphics_double_buffer_flag,
                                          &graphics, title, 0, 0 );
+
+        G_set_transparency_state( graphics->window, Graphics_transparency_flag);
     }
 
     if( status == OK )

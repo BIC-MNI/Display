@@ -482,12 +482,19 @@ public  DEF_MENU_FUNCTION( print_view )
     Transform   inverse_model;
 
     get_inverse_model_transform( display, &inverse_model );
+
+    transform_point( &inverse_model,
+                      Point_x(display->three_d.view.origin),
+                      Point_y(display->three_d.view.origin),
+                      Point_z(display->three_d.view.origin),
+                      &x, &y, &z );
+    print( "Origin       : %g %g %g\n", x, y, z );
+
     transform_vector( &inverse_model,
                       Vector_x(display->three_d.view.line_of_sight),
                       Vector_y(display->three_d.view.line_of_sight),
                       Vector_z(display->three_d.view.line_of_sight),
                       &x, &y, &z );
-
     print( "Line of sight: %g %g %g\n", x, y, z );
 
     transform_vector( &inverse_model,
@@ -495,7 +502,7 @@ public  DEF_MENU_FUNCTION( print_view )
                       Vector_y(display->three_d.view.y_axis),
                       Vector_z(display->three_d.view.y_axis),
                       &x, &y, &z );
-    print( "Up Direction: %g %g %g\n", x, y, z );
+    print( "Up Direction : %g %g %g\n", x, y, z );
 
     return( OK );
 }

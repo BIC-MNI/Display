@@ -1,6 +1,6 @@
 Progress_threshold = 1000;
-Alloc_checking_enabled = FALSE;
 Alloc_checking_enabled = TRUE;
+Alloc_checking_enabled = FALSE;
 
 Initial_background_colour = DARK_SLATE_GREY;
 
@@ -21,6 +21,7 @@ Initial_shading_type = 1;
 Initial_light_switch = TRUE;
 
 Graphics_double_buffer_flag = TRUE;
+Graphics_transparency_flag = TRUE;
 
 Slice_double_buffer_flag = TRUE;
 Slice_readout_plane = 0;
