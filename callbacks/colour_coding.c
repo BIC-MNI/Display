@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/colour_coding.c,v 1.20 1995-10-19 15:50:18 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/colour_coding.c,v 1.21 1995-11-02 21:00:07 david Exp $";
 #endif
 
 
@@ -583,6 +583,7 @@ public  DEF_MENU_UPDATE(toggle_share_labels )
 
 public  DEF_MENU_FUNCTION(save_colour_map )
 {
+    Status          status;
     STRING          filename;
     display_struct  *slice_window;
 
@@ -591,11 +592,14 @@ public  DEF_MENU_FUNCTION(save_colour_map )
     {
         print( "Enter name of colour map file to save: " );
 
-        if( input_string( stdin, &filename, ' ' ) == OK )
+        status = input_string( stdin, &filename, ' ' );
+        (void) input_newline( stdin );
+
+        if( status == OK && check_clobber_file_default_suffix( filename,
+                                           get_default_colour_map_suffix() ) )
         {
             (void) save_label_colour_map( slice_window, filename );
         }
-        (void) input_newline( stdin );
 
         delete_string( filename );
     }
