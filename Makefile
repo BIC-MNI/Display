@@ -110,6 +110,7 @@ display_obj = \
            slice_window/slice.o \
            slice_window/slice_3d.o \
            slice_window/slice_events.o \
+           slice_window/undo.o \
            slice_window/view.o \
            surface_curves/events.o \
            surface_curves/edge_distance.o \
