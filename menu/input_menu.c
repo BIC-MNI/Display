@@ -110,6 +110,7 @@
                        MENU_FUNCTION(create_bintree_for_polygons) \
                        MENU_FUNCTION(create_normals_for_polygon) \
                        MENU_FUNCTION(make_polygon_sphere) \
+                       MENU_FUNCTION(make_unit_sphere) \
                        MENU_FUNCTION(subdivide_current_polygon) \
                        MENU_FUNCTION(save_polygons_visibilities) \
                        MENU_FUNCTION(load_polygons_visibilities) \
