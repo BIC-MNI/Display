@@ -198,13 +198,14 @@ public  DEF_MENU_FUNCTION( toggle_perspective )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_perspective )      /* ARGSUSED */
 {
-    void  set_text_boolean();
-    void  set_update_required();
+    void      set_text_boolean();
+    String    text;
+    void      set_menu_text();
 
-    set_text_boolean( format, text, graphics->three_d.view.perspective_flag,
+    set_text_boolean( label, text, graphics->three_d.view.perspective_flag,
                       "Parallel", "Perspective" );
 
-    set_update_required( menu_window, NORMAL_PLANES );
+    set_menu_text( menu_window, menu_entry, text );
 
     return( OK );
 }

@@ -1,6 +1,7 @@
 
 #include  <def_graphics.h>
 #include  <def_string.h>
+#include  <def_globals.h>
 
 #ifdef  NOT_NEEDED
 private  DEF_MENU_FUNCTION( null_function )   /* ARGSUSED */
@@ -38,6 +39,7 @@ private  void  turn_on_menu_entry( menu, menu_entry )
     menu_window_struct     *menu;
     menu_entry_struct      *menu_entry;
 {
+    int                 i;
     menu_entry_struct   *previous;
     void                turn_off_menu_entry();
 
@@ -47,7 +49,11 @@ private  void  turn_on_menu_entry( menu, menu_entry )
         turn_off_menu_entry( menu, previous );
     }
 
-    menu_entry->text->visibility = TRUE;
+    for_less( i, 0, menu->n_lines_in_entry )
+    {
+        menu_entry->text_list[i]->visibility = TRUE;
+    }
+
     menu_entry->current_depth = menu->depth;
 
     set_menu_key_entry( menu, (int) menu_entry->key, menu_entry );
@@ -57,7 +63,12 @@ private  void  turn_off_menu_entry( menu, menu_entry )
     menu_window_struct  *menu;
     menu_entry_struct   *menu_entry;
 {
-    menu_entry->text->visibility = FALSE;
+    int                 i;
+
+    for_less( i, 0, menu->n_lines_in_entry )
+    {
+        menu_entry->text_list[i]->visibility = FALSE;
+    }
 
     set_menu_key_entry( menu, (int) menu_entry->key,
                         (menu_entry_struct *) 0 );
@@ -90,8 +101,9 @@ private  void  remove_menu_actions( menu, menu_entry )
     }
 }
 
-public  Status  initialize_menu( graphics )
+public  Status  initialize_menu( graphics, runtime_directory )
     graphics_struct   *graphics;
+    char              runtime_directory[];
 {
     Status               status;
     menu_window_struct   *menu;
@@ -99,6 +111,12 @@ public  Status  initialize_menu( graphics )
     Status               build_menu();
     int                  ch;
     void                 set_update_required();
+    void                 get_absolute_filename();
+    String               filename;
+    char                 *menu_filename = "menu.dat";
+    Status               open_input_file();
+    Status               close_file();
+    FILE                 *file;
 
     menu = &graphics->menu;
 
@@ -107,11 +125,33 @@ public  Status  initialize_menu( graphics )
         set_menu_key_entry( menu, ch, (menu_entry_struct *) 0 );
     }
 
-    status = read_menu( menu, "menu.dat" );
+    menu->x_dx = X_menu_dx;
+    menu->x_dy = X_menu_dy;
+    menu->y_dx = Y_menu_dx;
+    menu->y_dy = Y_menu_dy;
 
-    menu->depth = 0;
-    menu->stack[0] = &menu->entries[0];
-    menu->entries[0].current_depth = 0;
+    menu->n_chars_across_entry = Menu_n_chars_per_entry;
+    menu->n_lines_in_entry = Menu_n_lines_per_entry;
+    menu->character_width = Menu_character_width;
+    menu->character_height = Menu_character_height;
+
+    if( file_exists( menu_filename ) )
+        status = open_input_file( menu_filename, &file );
+    else
+    {
+        get_absolute_filename( menu_filename, runtime_directory, filename );
+
+        status = open_input_file( filename, &file );
+    }
+
+    if( status == OK )
+    {
+        status = read_menu( menu, file );
+
+        menu->depth = 0;
+        menu->stack[0] = &menu->entries[0];
+        menu->entries[0].current_depth = 0;
+    }
 
     if( status == OK )
     {
@@ -120,6 +160,11 @@ public  Status  initialize_menu( graphics )
         add_menu_actions( menu, &menu->entries[0] );
 
         set_update_required( graphics, NORMAL_PLANES );
+    }
+
+    if( status == OK )
+    {
+        status = close_file( file );
     }
 
     return( status );
@@ -193,10 +238,49 @@ public  Status  update_menu_text( graphics, menu_entry )
     status = (*update_function)( graphics->associated[THREE_D_WINDOW],
                                  graphics->associated[MENU_WINDOW],
                                  menu_entry,
-                                 menu_entry->label,
-                                 menu_entry->text->ptr.text->text );
+                                 menu_entry->label );
 
     return( status );
+}
+
+void  set_menu_text( menu_window, menu_entry, text )
+    graphics_struct     *menu_window;
+    menu_entry_struct   *menu_entry;
+    char                text[];
+{
+    int                 line, i, n_chars, len;
+    char                *text_ptr;
+    menu_window_struct  *menu;
+    void                set_update_required();
+
+    menu = &menu_window->menu;
+
+    len = strlen( text );
+    n_chars = 0;
+
+    for_less( line, 0, menu->n_lines_in_entry )
+    {
+        i = 0;
+        text_ptr = menu_entry->text_list[line]->ptr.text->text;
+        while( n_chars < len && i < menu->n_chars_across_entry )
+        {
+            if( text[n_chars] == '\n' ||
+                (text[n_chars] == ' ' &&
+                 (len - n_chars-1) <=
+                 (menu->n_lines_in_entry-line-1) * menu->n_chars_across_entry) )
+            {
+                ++n_chars;
+                break;
+            }
+
+            text_ptr[i] = text[n_chars];
+            ++i;
+            ++n_chars;
+        }
+        text_ptr[i] = (char) 0;
+    }
+
+    set_update_required( menu_window, NORMAL_PLANES );
 }
 
 public  DEF_MENU_FUNCTION( push_menu )      /* ARGSUSED */

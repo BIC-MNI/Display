@@ -1,4 +1,5 @@
 #include  <def_stdio.h>
+#include  <def_string.h>
 #include  <def_graphics.h>
 #include  <def_globals.h>
 #include  <def_arguments.h>
@@ -9,6 +10,9 @@ int  main( argc, argv )
 {
     arguments_struct arguments;
     char             *filename;
+    char             *getenv();
+    String           runtime_directory;
+    void             extract_directory();
     graphics_struct  *graphics;
     graphics_struct  *menu;
     Status           status;
@@ -26,7 +30,16 @@ int  main( argc, argv )
     void             set_update_required();
     void             output_alloc_to_file();
 
-    status = initialize_globals();
+    if( getenv("DISPLAY_DIRECTORY") != (char *) 0 )
+    {
+        (void) strcpy( runtime_directory, getenv("DISPLAY_DIRECTORY") );
+    }
+    else
+    {
+        extract_directory( argv[0], runtime_directory );
+    }
+
+    status = initialize_globals( runtime_directory );
 
     if( status == OK )
     {
@@ -56,7 +69,7 @@ int  main( argc, argv )
         menu->associated[MENU_WINDOW] = menu;
         menu->associated[SLICE_WINDOW] = (graphics_struct *) 0;
 
-        status = initialize_menu( menu );
+        status = initialize_menu( menu, runtime_directory );
     }
 
     if( status == OK )

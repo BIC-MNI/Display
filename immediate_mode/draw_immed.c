@@ -4,7 +4,7 @@
 
 public  void  draw_2d_line( graphics, view_type, colour, x1, y1, x2, y2 )
     graphics_struct   *graphics;
-    view_types        view_type;
+    View_types        view_type;
     Colour            *colour;
     Real              x1, y1, x2, y2;
 {
@@ -36,7 +36,7 @@ public  void  draw_2d_line( graphics, view_type, colour, x1, y1, x2, y2 )
 
 public  void  draw_2d_rectangle( graphics, view_type, colour, x1, y1, x2, y2 )
     graphics_struct   *graphics;
-    view_types        view_type;
+    View_types        view_type;
     Colour            *colour;
     Real              x1, y1, x2, y2;
 {

@@ -33,7 +33,7 @@ private  void  display_objects_recursive( window, bitplanes,
     int                          n_objects;
     object_struct                *object_list[];
     render_struct                *render;
-    view_types                   view_type;
+    View_types                   view_type;
     Transform                    *transform;
     update_interrupted_struct    *interrupt;
     Boolean                      *past_last_object;

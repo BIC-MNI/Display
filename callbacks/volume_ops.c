@@ -231,13 +231,14 @@ public  DEF_MENU_FUNCTION(toggle_surface_extraction)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_surface_extraction )   /* ARGSUSED */
 {
-    void  set_text_on_off();
-    void  set_update_required();
+    void      set_text_on_off();
+    String    text;
+    void      set_menu_text();
 
-    set_text_on_off( format, text,
+    set_text_on_off( label, text,
               graphics->three_d.surface_extraction.extraction_in_progress );
 
-    set_update_required( menu_window, NORMAL_PLANES );
+    set_menu_text( menu_window, menu_entry, text );
 
     return( OK );
 }

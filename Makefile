@@ -2,7 +2,8 @@ include ../C_dev/Makefile.include
 
 OPT = -O
 
-INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/yorick/usr/include
+#INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/yorick/usr/include
+INCLUDE = -IInclude -I$(C_UTILS_INCLUDE)
 
 #LIBS = -L/@/portia/usr/lib -lgl -lm
 LIBS = -lgl_s -lm

@@ -54,22 +54,23 @@ public  DEF_MENU_UPDATE(toggle_render_mode )  /* ARGSUSED */
 {
     object_struct   *get_model_object();
     object_struct   *model_object;
-    void            set_update_required();
+    String          text;
+    void            set_menu_text();
 
     model_object = get_model_object( graphics );
 
     switch( model_object->ptr.model->render.render_mode )
     {
     case WIREFRAME_MODE:
-        (void) sprintf( text, format, "Wireframe" );
+        (void) sprintf( text, label, "Wireframe" );
         break;
 
     case SHADED_MODE:
-        (void) sprintf( text, format, "Shaded" );
+        (void) sprintf( text, label, "Shaded" );
         break;
     }
 
-    set_update_required( menu_window, NORMAL_PLANES );
+    set_menu_text( menu_window, menu_entry, text );
 
     return( OK );
 }
@@ -112,22 +113,23 @@ public  DEF_MENU_UPDATE(toggle_shading )  /* ARGSUSED */
 {
     object_struct   *get_model_object();
     object_struct   *model_object;
-    void            set_update_required();
+    String          text;
+    void            set_menu_text();
 
     model_object = get_model_object( graphics );
 
     switch( model_object->ptr.model->render.shading_type )
     {
     case FLAT_SHADING:
-        (void) sprintf( text, format, "Flat" );
+        (void) sprintf( text, label, "Flat" );
         break;
 
     case GOURAUD_SHADING:
-        (void) sprintf( text, format, "Gouraud" );
+        (void) sprintf( text, label, "Gouraud" );
         break;
     }
 
-    set_update_required( menu_window, NORMAL_PLANES );
+    set_menu_text( menu_window, menu_entry, text );
 
     return( OK );
 }
@@ -163,14 +165,15 @@ public  DEF_MENU_UPDATE(toggle_lights )  /* ARGSUSED */
     void            set_text_on_off();
     object_struct   *get_model_object();
     object_struct   *model_object;
-    void            set_update_required();
+    String          text;
+    void            set_menu_text();
 
     model_object = get_model_object( graphics );
 
-    set_text_on_off( format, text,
+    set_text_on_off( label, text,
                      model_object->ptr.model->render.master_light_switch );
 
-    set_update_required( menu_window, NORMAL_PLANES );
+    set_menu_text( menu_window, menu_entry, text );
 
     return( OK );
 }
@@ -206,14 +209,15 @@ public  DEF_MENU_UPDATE(toggle_two_sided )  /* ARGSUSED */
     void            set_text_on_off();
     object_struct   *get_model_object();
     object_struct   *model_object;
-    void            set_update_required();
+    String          text;
+    void            set_menu_text();
 
     model_object = get_model_object( graphics );
 
-    set_text_on_off( format, text,
+    set_text_on_off( label, text,
                      model_object->ptr.model->render.two_sided_surface_flag );
 
-    set_update_required( menu_window, NORMAL_PLANES );
+    set_menu_text( menu_window, menu_entry, text );
 
     return( OK );
 }
@@ -249,14 +253,15 @@ public  DEF_MENU_UPDATE(toggle_backfacing )  /* ARGSUSED */
     void            set_text_on_off();
     object_struct   *get_model_object();
     object_struct   *model_object;
-    void            set_update_required();
+    String          text;
+    void            set_menu_text();
 
     model_object = get_model_object( graphics );
 
-    set_text_on_off( format, text,
+    set_text_on_off( label, text,
                      model_object->ptr.model->render.backface_flag );
 
-    set_update_required( menu_window, NORMAL_PLANES );
+    set_menu_text( menu_window, menu_entry, text );
 
     return( OK );
 }

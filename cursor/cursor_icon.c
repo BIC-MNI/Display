@@ -1,7 +1,6 @@
 
 #include  <def_graphics.h>
 #include  <def_globals.h>
-#include  <def_colours.h>
 
 #define  BOX_INDEX     0
 #define  X_AXIS_INDEX  1

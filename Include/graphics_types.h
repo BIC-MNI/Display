@@ -6,6 +6,7 @@
 #include  <def_queue.h>
 #include  <def_stack.h>
 #include  <def_colours.h>
+#include  <def_graphics_dependent.h>
 
 typedef  struct
 {

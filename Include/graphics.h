@@ -9,7 +9,7 @@
 /* for graphics windows */
 
 #define  CURSOR_MODEL           0
-#define  UNUSED_MODEL           1
+#define  OVERLAY_MODEL          1
 #define  THREED_MODEL           2
 
 /* for menu windows */

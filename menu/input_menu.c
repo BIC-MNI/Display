@@ -112,26 +112,18 @@ typedef  struct
     key_action_struct   *entries;
 } menu_definition_struct;
 
-public  Status  read_menu( menu, filename )
+public  Status  read_menu( menu, file )
     menu_window_struct   *menu;
-    char                 filename[];
+    FILE                 *file;
 {
     Status                   status;
-    Status                   open_input_file();
     Status                   input_menu();
     Status                   create_menu();
     Status                   free_input_menu();
-    Status                   close_file();
-    FILE                     *file;
     int                      n_menus;
     menu_definition_struct   *menus;
 
-    status = open_input_file( filename, &file );
-
-    if( status == OK )
-    {
-        status = input_menu( file, &n_menus, &menus );
-    }
+    status = input_menu( file, &n_menus, &menus );
 
     if( status == OK )
     {
@@ -141,11 +133,6 @@ public  Status  read_menu( menu, filename )
     if( status == OK )
     {
         status = free_input_menu( n_menus, menus );
-    }
-
-    if( status == OK )
-    {
-        status = close_file( file );
     }
 
     return( status );

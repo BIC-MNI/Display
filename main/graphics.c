@@ -225,7 +225,7 @@ private  Status  initialize_graphics_window( graphics )
     Status         initialize_three_d_window();
     Status         status;
     Status         create_object();
-    view_types     view_type;
+    View_types     view_type;
     model_struct   *model;
     model_struct   *get_graphics_model();
 
@@ -264,9 +264,8 @@ private  Status  initialize_graphics_window( graphics )
             model->view_type = view_type;
 
             if( graphics->window_type == THREE_D_WINDOW &&
-                i == CURSOR_MODEL )
+                (i == OVERLAY_MODEL || i == CURSOR_MODEL) )
             {
-                model->bitplanes = NORMAL_PLANES;
                 model->bitplanes = OVERLAY_PLANES;
             }
             else

@@ -18,12 +18,11 @@ typedef  Status   menu_update_type();
 
 typedef  menu_update_type  (*menu_update_pointer);
 
-#define  DEF_MENU_UPDATE(m)  Status menu_update_/**/m( graphics, menu_window, menu_entry, format, text ) \
+#define  DEF_MENU_UPDATE(m)  Status menu_update_/**/m( graphics, menu_window, menu_entry, label ) \
                                        graphics_struct   *graphics; \
                                        graphics_struct   *menu_window; \
                                        menu_entry_struct *menu_entry; \
-                                       char              format[]; \
-                                       char              text[];
+                                       char              label[]; \
 
 typedef  struct  menu_entry_struct
 {
@@ -36,7 +35,7 @@ typedef  struct  menu_entry_struct
     struct  menu_entry_struct   **children;
     menu_function_pointer       action;
     menu_update_pointer         update_action;
-    object_struct               *text;
+    object_struct               **text_list;
 } menu_entry_struct;
 
 #define  MAX_MENU_DEPTH     10
@@ -44,6 +43,17 @@ typedef  struct  menu_entry_struct
 
 typedef  struct
 {
+    Real                 x_dx;
+    Real                 x_dy;
+    Real                 y_dx;
+    Real                 y_dy;
+
+    int                  n_chars_across_entry;
+    int                  n_lines_in_entry;
+
+    Real                 character_height;
+    Real                 character_width;
+
     int                  n_entries;
     menu_entry_struct    *entries;
 
@@ -52,8 +62,5 @@ typedef  struct
 
     menu_entry_struct    *key_menus[N_CHARACTERS];
 } menu_window_struct;
-
-
-
 
 #endif
