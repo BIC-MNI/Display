@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.87 1995-07-31 19:54:21 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.88 1995-08-22 14:31:29 david Exp $";
 #endif
 
 
@@ -242,6 +242,8 @@ public  void  add_slice_window_volume(
         info->views[view].update_labels_flag = TRUE;
         info->views[view].filter_type = (Filter_types) Default_filter_type;
         info->views[view].filter_width = Default_filter_width;
+        info->views[view].n_pixels_redraw = Initial_n_pixels_redraw;
+        info->views[view].update_in_progress = FALSE;
     }
 
     initialize_slice_models_for_volume( slice_window, volume_index );
@@ -645,9 +647,12 @@ private  BOOLEAN  slice_will_be_updated(
 public  void  update_slice_window(
     display_struct   *slice_window )
 {
-    BOOLEAN  force_redraw_slice, slice_is_being_updated;
-    BOOLEAN  sub_region_specified;
-    int      x_sub_min, x_sub_max, y_sub_min, y_sub_max, i, n_bufs;
+    BOOLEAN  force_recreate_slice[N_SLICE_VIEWS];
+    BOOLEAN  slice_is_being_updated[N_SLICE_VIEWS];
+    BOOLEAN  sub_region_specified[N_SLICE_VIEWS];
+    int      x_sub_min[N_SLICE_VIEWS], x_sub_max[N_SLICE_VIEWS];
+    int      y_sub_min[N_SLICE_VIEWS], y_sub_max[N_SLICE_VIEWS];
+    int      i, n_bufs;
     int      view, v;
 
     if( slice_window->slice.update_slice_dividers_flag )
@@ -670,17 +675,49 @@ public  void  update_slice_window(
 
     for_less( view, 0, N_SLICE_VIEWS )
     {
-        slice_is_being_updated = slice_will_be_updated( slice_window, view );
+        slice_is_being_updated[view] = slice_will_be_updated( slice_window,
+                                                              view );
+    }
 
-        sub_region_specified = slice_window->slice.slice_views[view].
+    for_less( view, 0, N_SLICE_VIEWS )
+    {
+        if( slice_window->slice.slice_views[view].update_cursor_flag )
+        {
+            rebuild_slice_cursor( slice_window, view );
+            slice_window->slice.slice_views[view].update_cursor_flag = FALSE;
+        }
+
+        if( slice_window->slice.slice_views[view].update_text_flag )
+        {
+            rebuild_slice_text( slice_window, view );
+            slice_window->slice.slice_views[view].update_text_flag = FALSE;
+        }
+
+        if( slice_window->slice.slice_views[view].update_cross_section_flag )
+        {
+            rebuild_slice_cross_section( slice_window, view );
+            slice_window->slice.slice_views[view].update_cross_section_flag =
+                                                             FALSE;
+        }
+
+        if( slice_window->slice.slice_views[view].update_crop_flag )
+        {
+            rebuild_slice_crop_box( slice_window, view );
+            slice_window->slice.slice_views[view].update_crop_flag = FALSE;
+        }
+    }
+
+    for_less( view, 0, N_SLICE_VIEWS )
+    {
+        sub_region_specified[view] = slice_window->slice.slice_views[view].
                                              sub_region_specified;
 
-        if( sub_region_specified )
+        if( sub_region_specified[view] )
         {
-            x_sub_min = slice_window->slice.slice_views[view].x_min;
-            x_sub_max = slice_window->slice.slice_views[view].x_max;
-            y_sub_min = slice_window->slice.slice_views[view].y_min;
-            y_sub_max = slice_window->slice.slice_views[view].y_max;
+            x_sub_min[view] = slice_window->slice.slice_views[view].x_min;
+            x_sub_max[view] = slice_window->slice.slice_views[view].x_max;
+            y_sub_min[view] = slice_window->slice.slice_views[view].y_min;
+            y_sub_max[view] = slice_window->slice.slice_views[view].y_max;
 
             n_bufs = (G_get_double_buffer_state( slice_window->window ) ? 2 :1);
 
@@ -717,33 +754,36 @@ public  void  update_slice_window(
             }
         }
 
-        force_redraw_slice = sub_region_specified;
+        force_recreate_slice[view] = sub_region_specified[view];
 
-        if( force_redraw_slice &&
-            (slice_is_being_updated ||
+        if( force_recreate_slice[view] &&
+            (slice_is_being_updated[view] ||
              slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0]) )
         {
             slice_window->slice.slice_views[view].sub_region_specified = FALSE;
         }
 
         if( slice_window->slice.slice_views[view].prev_sub_region_specified &&
-            slice_is_being_updated )
+            slice_is_being_updated[view] )
         {
-            force_redraw_slice = TRUE;
+            force_recreate_slice[view] = TRUE;
         }
 
         update_slice_pixel_visibilities( slice_window, view );
+    }
 
-        for_less( v, 0, slice_window->slice.n_volumes )
+    for_less( v, 0, slice_window->slice.n_volumes )
+    {
+        for_less( view, 0, N_SLICE_VIEWS )
         {
-            if( force_redraw_slice ||
+            if( force_recreate_slice[view] ||
                 slice_window->slice.volumes[v].views[view].update_flag )
             {
                 rebuild_slice_pixels_for_volume( slice_window, v, view );
                 slice_window->slice.volumes[v].views[view].update_flag = FALSE;
             }
 
-            if( force_redraw_slice ||
+            if( force_recreate_slice[view] ||
                 slice_window->slice.volumes[v].views[view].update_labels_flag )
             {
                 rebuild_label_slice_pixels_for_volume( slice_window, v, view );
@@ -751,51 +791,29 @@ public  void  update_slice_window(
                                                           FALSE;
             }
         }
+    }
 
-        if( slice_window->slice.slice_views[view].update_cursor_flag )
-        {
-            rebuild_slice_cursor( slice_window, view );
-            slice_window->slice.slice_views[view].update_cursor_flag = FALSE;
-        }
-
-        if( slice_window->slice.slice_views[view].update_text_flag )
-        {
-            rebuild_slice_text( slice_window, view );
-            slice_window->slice.slice_views[view].update_text_flag = FALSE;
-        }
-
-        if( slice_window->slice.slice_views[view].update_cross_section_flag )
-        {
-            rebuild_slice_cross_section( slice_window, view );
-            slice_window->slice.slice_views[view].update_cross_section_flag =
-                                                             FALSE;
-        }
-
-        if( slice_window->slice.slice_views[view].update_crop_flag )
-        {
-            rebuild_slice_crop_box( slice_window, view );
-            slice_window->slice.slice_views[view].update_crop_flag = FALSE;
-        }
-
+    for_less( view, 0, N_SLICE_VIEWS )
+    {
         if( slice_window->slice.slice_views[view].update_atlas_flag )
         {
             rebuild_atlas_slice_pixels( slice_window, view );
             slice_window->slice.slice_views[view].update_atlas_flag = FALSE;
         }
 
-        if( slice_is_being_updated ||
-            force_redraw_slice ||
+        if( slice_is_being_updated[view] ||
+            force_recreate_slice[view] ||
             slice_window->slice.slice_views[view].update_composite_flag )
         {
             composite_volume_and_labels( slice_window, view );
             slice_window->slice.slice_views[view].update_composite_flag = FALSE;
         }
 
-        if( slice_is_being_updated )
+        if( slice_is_being_updated[view] )
         {
             set_slice_viewport_update( slice_window, SLICE_MODEL1 + view );
         }
-        else if( force_redraw_slice )
+        else if( force_recreate_slice[view] )
         {
             slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0] =
                                                                      TRUE;
@@ -822,11 +840,11 @@ public  void  update_slice_window(
             }
  
             slice_window->slice.slice_views[view].prev_sub_region_specified[0] =
-                                                     sub_region_specified;
-            slice_window->slice.slice_views[view].prev_x_min[0] = x_sub_min;
-            slice_window->slice.slice_views[view].prev_x_max[0] = x_sub_max;
-            slice_window->slice.slice_views[view].prev_y_min[0] = y_sub_min;
-            slice_window->slice.slice_views[view].prev_y_max[0] = y_sub_max;
+                                                     sub_region_specified[view];
+            slice_window->slice.slice_views[view].prev_x_min[0]=x_sub_min[view];
+            slice_window->slice.slice_views[view].prev_x_max[0]=x_sub_max[view];
+            slice_window->slice.slice_views[view].prev_y_min[0]=y_sub_min[view];
+            slice_window->slice.slice_views[view].prev_y_max[0] = y_sub_max[view];
         }
     }
 }
