@@ -699,6 +699,49 @@ private  void  add_voxel_neighbours( volume, x, y, z, voxels_done, voxel_queue )
     }
 }
 
+private  void  add_square_neighbours( volume, x, y, z, axis_index,
+                                      voxels_done, voxel_queue )
+    volume_struct                       *volume;
+    int                                 x, y, z;
+    int                                 axis_index;
+    bitlist_struct                      *voxels_done;
+    QUEUE_STRUCT(voxel_index_struct)    *voxel_queue;
+{
+    Status                status;
+    int                   axis, dir;
+    voxel_index_struct    neighbour;
+
+    status = OK;
+
+    for_less( axis, 0, N_DIMENSIONS )
+    {
+        for( dir = -1;  dir <= 1;  dir += 2 )
+        {
+            if( axis != axis_index )
+            {
+                neighbour.i[X_AXIS] = x;
+                neighbour.i[Y_AXIS] = y;
+                neighbour.i[Z_AXIS] = z;
+                neighbour.i[axis] += dir;
+
+                if( cube_is_within_volume( volume,
+                                           neighbour.i[X_AXIS],
+                                           neighbour.i[Y_AXIS],
+                                           neighbour.i[Z_AXIS] ) &&
+                    !is_voxel_done( volume, voxels_done, &neighbour ) )
+                {
+                    status = mark_voxel_done( volume, voxels_done, &neighbour );
+                    if( status == OK )
+                    {
+                        status = insert_in_voxel_queue( voxel_queue,
+                                                        &neighbour );
+                    }
+                }
+            }
+        }
+    }
+}
+
 private  int   create_point( volume, isovalue, tris, voxel, edge_intersected,
                              pt_class )
     volume_struct       *volume;
@@ -990,6 +1033,46 @@ public  Boolean  are_any_voxel_corners_inactive( volume, x, y, z )
             get_voxel_inactivity_flag( volume, x+1, y+1, z+1 ) );
 }
 
+public  Boolean  are_any_square_corners_inactive( volume, x, y, z, axis_index )
+    volume_struct   *volume;
+    int             x, y, z;
+    int             axis_index;
+{
+    Boolean  inactive;
+    int      indices[N_DIMENSIONS], corner_indices[N_DIMENSIONS];
+    int      x_index, y_index;
+
+    x_index = (axis_index + 1) % N_DIMENSIONS;
+    y_index = (axis_index + 2) % N_DIMENSIONS;
+
+    indices[X_AXIS] = x;
+    indices[Y_AXIS] = y;
+    indices[Z_AXIS] = z;
+
+    corner_indices[axis_index] = indices[axis_index];
+
+    inactive = FALSE;
+
+    for_less( corner_indices[x_index], indices[x_index], indices[x_index]+2 )
+    {
+        for_less( corner_indices[y_index], indices[y_index],
+                  indices[y_index]+2 )
+        {
+            if( get_voxel_inactivity_flag( volume, corner_indices[X_AXIS],
+                                                   corner_indices[Y_AXIS],
+                                                   corner_indices[Z_AXIS] ) )
+            {
+                inactive = TRUE;
+                break;
+            }
+        }
+
+        if( inactive ) break;
+    }
+
+    return( inactive );
+}
+
 public  void  generate_activity_from_point( graphics, x, y, z )
     graphics_struct    *graphics;
     int                x, y, z;
@@ -1149,4 +1232,213 @@ private  void  set_voxel_corners_active( volume, x, y, z )
     set_voxel_activity( volume, x+1, y  , z+1, TRUE );
     set_voxel_activity( volume, x+1, y+1, z  , TRUE );
     set_voxel_activity( volume, x+1, y+1, z+1, TRUE );
+}
+
+public  void  set_slice_activities( volume, axis, index, value )
+    volume_struct   *volume;
+    int             axis;
+    int             index;
+    Boolean         value;
+{
+    int   x_index, y_index, x_size, y_size;
+    int   indices[N_DIMENSIONS];
+
+    x_index = (axis + 1) % N_DIMENSIONS;
+    y_index = (axis + 2) % N_DIMENSIONS;
+    x_size = volume->size[x_index];
+    y_size = volume->size[y_index];
+
+    indices[axis] = index;
+
+    for_less( indices[x_index], 0, x_size )
+    {
+        for_less( indices[y_index], 0, y_size )
+        {
+            set_voxel_activity( volume, indices[X_AXIS], indices[Y_AXIS],
+                                indices[Z_AXIS], value );
+        }
+    }
+}
+
+public  void  generate_slice_activity( volume, isovalue, axis_index,
+                                       slice_index )
+    volume_struct    *volume;
+    Real             isovalue;
+    int              axis_index;
+    int              slice_index;
+{
+    int      x_index, y_index, x_size, y_size, indices[N_DIMENSIONS];
+    int      corner_indices[N_DIMENSIONS];
+    void     set_voxel_activity();
+
+    x_index = (axis_index + 1) % N_DIMENSIONS;
+    y_index = (axis_index + 2) % N_DIMENSIONS;
+    x_size = volume->size[x_index];
+    y_size = volume->size[y_index];
+
+    indices[axis_index] = slice_index;
+    corner_indices[axis_index] = slice_index;
+
+    for_less( indices[x_index], 0, x_size-1 )
+    {
+        for_less( indices[y_index], 0, y_size-1 )
+        {
+            if( !are_any_square_corners_inactive( volume, indices[X_AXIS],
+                           indices[Y_AXIS], indices[Z_AXIS], axis_index ) &&
+                square_contains_value( volume, indices, axis_index, isovalue ) )
+            {
+                for_less( corner_indices[x_index], indices[x_index],
+                          indices[x_index]+2 )
+                {
+                    for_less( corner_indices[y_index], indices[y_index],
+                              indices[y_index]+2 )
+                    {
+                        set_voxel_activity( volume,
+                                            corner_indices[X_AXIS],
+                                            corner_indices[Y_AXIS],
+                                            corner_indices[Z_AXIS], TRUE );
+                    }
+                }
+            }
+        }
+    }
+}
+
+private  Boolean  square_contains_value( volume, indices, axis_index, isovalue )
+    volume_struct    *volume;
+    int              indices[N_DIMENSIONS];
+    int              axis_index;
+    Real             isovalue;
+{
+    int      x_index, y_index, square_indices[N_DIMENSIONS];
+    Real     val;
+    Boolean  less, more;
+
+    x_index = (axis_index + 1) % N_DIMENSIONS;
+    y_index = (axis_index + 2) % N_DIMENSIONS;
+
+    less = FALSE;
+    more = FALSE;
+
+    square_indices[axis_index] = indices[axis_index];
+
+    for_less( square_indices[x_index], indices[x_index], indices[x_index]+2 )
+    {
+        for_less( square_indices[y_index], indices[y_index],
+                  indices[y_index]+2 )
+        {
+            val = (Real) ACCESS_VOLUME_DATA( *volume,
+                                             square_indices[X_AXIS],
+                                             square_indices[Y_AXIS],
+                                             square_indices[Z_AXIS] );
+            if( val < isovalue )
+                less = TRUE;
+            else if( val > isovalue )
+                more = TRUE;
+        }
+    }
+
+    return( less && more );
+}
+
+public  void  set_connected_slice_activity( graphics, x, y, z, axis_index,
+                                             activity )
+    graphics_struct  *graphics;
+    int              x, y, z;
+    int              axis_index;
+    Boolean          activity;
+{
+    Status                                status;
+    Boolean                               square_contains_value();
+    Boolean                               active;
+    Boolean                               are_any_square_corners_inactive();
+    QUEUE_STRUCT( voxel_index_struct )    voxels_to_check;
+    voxel_index_struct                    indices;
+    int                                   corner_indices[N_DIMENSIONS];
+    int                                   x_index, y_index;
+    bitlist_struct                        voxels_searched;
+    Real                                  isovalue;
+    volume_struct                         *volume;
+    Status                                mark_voxel_done();
+    Status                                delete_voxels_done();
+    Status                                insert_in_voxel_queue();
+    Status                                delete_voxel_queue();
+    Status                                initialize_voxels_done();
+    void                                  initialize_voxels_queue();
+    void                                  get_next_voxel_from_queue();
+    void                                  add_square_neighbours();
+
+    volume = graphics->associated[SLICE_WINDOW]->slice.volume;
+    isovalue = graphics->three_d.surface_extraction.isovalue;
+
+    indices.i[X_AXIS] = MIN( x, volume->size[X_AXIS]-2 );
+    indices.i[Y_AXIS] = MIN( y, volume->size[Y_AXIS]-2 );
+    indices.i[Z_AXIS] = MIN( z, volume->size[Z_AXIS]-2 );
+
+    x_index = (axis_index + 1) % N_DIMENSIONS;
+    y_index = (axis_index + 2) % N_DIMENSIONS;
+
+    status = initialize_voxels_done( &voxels_searched, get_n_voxels( volume ) );
+
+    initialize_voxel_queue( &voxels_to_check );
+
+    if( status == OK )
+    {
+        status = insert_in_voxel_queue( &voxels_to_check, &indices );
+    }
+
+    if( status == OK )
+    {
+        status = mark_voxel_done( volume, &voxels_searched, &indices );
+    }
+
+    while( status == OK && voxels_remaining(&voxels_to_check) )
+    {
+        get_next_voxel_from_queue( &voxels_to_check, &indices );
+
+        active = !are_any_square_corners_inactive( volume, indices.i[X_AXIS],
+                                         indices.i[Y_AXIS], indices.i[Z_AXIS],
+                                         axis_index );
+
+        if( active )
+        {
+            if( square_contains_value(volume, indices.i, axis_index, isovalue) )
+            {
+                if( status == OK )
+                {
+                     for_less( x, 0, 2 )
+                     {
+                         for_less( y, 0, 2 )
+                         {
+                             corner_indices[x_index] = indices.i[x_index] + x;
+                             corner_indices[y_index] = indices.i[y_index] + y;
+                             corner_indices[axis_index] = indices.i[axis_index];
+
+                             set_voxel_activity( volume,
+                                                 corner_indices[X_AXIS],
+                                                 corner_indices[Y_AXIS],
+                                                 corner_indices[Z_AXIS],
+                                                 activity );
+                         }
+                     }
+                }
+
+                add_square_neighbours( volume,
+                                       indices.i[X_AXIS],
+                                       indices.i[Y_AXIS],
+                                       indices.i[Z_AXIS], axis_index,
+                                       &voxels_searched, &voxels_to_check );
+            }
+        }
+    }
+
+    if( status == OK )
+    {
+        status = delete_voxels_done( &voxels_searched );
+    }
+
+    if( status == OK )
+    {
+        status = delete_voxel_queue( &voxels_to_check );
+    }
 }
