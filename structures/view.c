@@ -72,6 +72,46 @@ public  void  get_view_centre( view, centre )
     ADD_POINT_VECTOR( *centre, view->origin, offset_vector );
 }
 
+public  void  get_screen_centre( view, centre )
+    view_struct   *view;
+    Point         *centre;
+{
+    Real    offset;
+    Vector  offset_vector;
+
+    offset = view->perspective_distance;
+
+    SCALE_VECTOR( offset_vector, view->line_of_sight, offset );
+    ADD_POINT_VECTOR( *centre, view->origin, offset_vector );
+}
+
+public  void  get_screen_axes( view, hor, vert )
+    view_struct   *view;
+    Vector        *hor;
+    Vector        *vert;
+{
+    SCALE_VECTOR( *hor, view->x_axis, view->window_width );
+    SCALE_VECTOR( *vert, view->y_axis, view->window_height );
+}
+
+public  void  get_screen_point( view, x, y, point )
+    view_struct  *view;
+    Real         x, y;
+    Point        *point;
+{
+    Vector   hor, vert;
+
+    get_screen_axes( view, &hor, &vert );
+
+    SCALE_VECTOR( hor, hor, x - 0.5 );
+    SCALE_VECTOR( vert, vert, y - 0.5 );
+
+    get_screen_centre( view, point );
+
+    ADD_POINT_VECTOR( *point, *point, hor );
+    ADD_POINT_VECTOR( *point, *point, vert );
+}
+
 public  void  adjust_view_for_aspect( view, window )
     view_struct    *view;
     window_struct  *window;
@@ -187,15 +227,6 @@ public  void  transform_point_to_screen( view, p, transformed_point )
     transform_world_to_screen( view, transformed_point, transformed_point );
 }
 
-public  void  get_screen_axes( view, hor, vert )
-    view_struct   *view;
-    Vector        *hor;
-    Vector        *vert;
-{
-    SCALE_VECTOR( *hor, view->x_axis, view->window_width );
-    SCALE_VECTOR( *vert, view->y_axis, view->window_height );
-}
-
 public  void  set_model_scale( view, sx, sy, sz )
     view_struct   *view;
     Real          sx, sy, sz;
@@ -262,4 +293,34 @@ public  void  magnify_view_size( view, factor )
         view->window_height *= factor;
         view->perspective_distance *= factor;
     }
+}
+
+public  void  set_view_rectangle( view, x_min, x_max, y_min, y_max )
+    view_struct   *view;
+    Real          x_min, x_max, y_min, y_max;
+{
+    Real   window_width, window_height, prev_dist;
+    Real   x, y;
+    Point  new_centre;
+    Vector to_eye;
+
+    window_width = (x_max - x_min) * view->window_width;
+    window_height = (y_max - y_min) * view->window_height;
+
+    x = (x_min + x_max) / 2.0;
+    y = (y_min + y_max) / 2.0;
+
+    get_screen_point( view, x, y, &new_centre );
+
+    prev_dist = view->perspective_distance;
+    view->perspective_distance *= window_width / view->window_width;
+    view->window_width = window_width;
+    view->window_height = window_height;
+    view->front_distance += view->perspective_distance - prev_dist;
+    view->back_distance += view->perspective_distance - prev_dist;
+
+    SCALE_VECTOR( to_eye, view->line_of_sight, -view->perspective_distance );
+    ADD_POINT_VECTOR( view->origin, new_centre, to_eye );
+
+    view->desired_aspect = window_height / window_width;
 }
