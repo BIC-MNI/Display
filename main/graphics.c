@@ -284,6 +284,8 @@ private  Status  terminate_graphics_window( graphics )
     int      i;
     Status   status;
     Status   delete_object();
+    Status   delete_menu();
+    Status   terminate_current_object();
 
     status = OK;
 
@@ -293,6 +295,16 @@ private  Status  terminate_graphics_window( graphics )
         {
             status = delete_object( graphics->models[i] );
         }
+    }
+
+    if( status == OK )
+    {
+        status = terminate_current_object( graphics );
+    }
+
+    if( status == OK && graphics == graphics->menu_window )
+    {
+        status = delete_menu( &graphics->menu );
     }
 
     return( status );

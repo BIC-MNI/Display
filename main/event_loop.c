@@ -17,6 +17,11 @@ public  Status   main_event_loop()
         update_all_required_windows();
     }
 
+    if( status == QUIT )
+    {
+        status = OK;
+    }
+
     return( status );
 }
 

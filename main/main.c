@@ -25,6 +25,7 @@ int  main( argc, argv )
     model_struct     *get_graphics_model();
     Boolean          get_range_of_object();
     void             rebuild_selected_list();
+    void             output_alloc_to_file();
 
     status = initialize_globals();
 
@@ -109,8 +110,15 @@ int  main( argc, argv )
 
     if( status == OK )
     {
+        status = delete_graphics_window( menu );
+    }
+
+    if( status == OK )
+    {
         status = G_terminate();
     }
+
+    output_alloc_to_file( ".alloc_stats" );
 
     return( (int) status );
 }
