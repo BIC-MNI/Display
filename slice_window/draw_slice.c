@@ -649,4 +649,161 @@ private  void  render_slice_to_pixels( slice_window, pixels,
             }
         }
     }
+
+    if( x_index == X && y_index == Y && start_indices[Z] == 26 )
+    {
+        void   blend_in_talairach_image();
+
+        blend_in_talairach_image( pixels->pixels, x_size, y_size,
+                                  start_indices, dx, dy, volume->sizes[X] );
+    }
+}
+
+private  Boolean  images_read_in = FALSE;
+private  Boolean  images_exist = FALSE;
+
+#define  N_IMAGES   3
+
+private  pixels_struct  images[N_IMAGES];
+
+private  check_read_in()
+{
+    static  char  *filenames[N_IMAGES] = {
+                "/nil/david/Talairach/resampled_128.obj",
+                "/nil/david/Talairach/resampled_256.obj",
+                "/nil/david/Talairach/resampled_512.obj" };
+    Status        status;
+    Status        input_object_type();
+    Status        io_pixels();
+    int           i;
+    FILE          *file;
+    File_formats  format;
+    object_types  type;
+    Boolean       eof;
+
+    if( !images_read_in )
+    {
+        images_read_in = TRUE;
+        status = OK;
+
+        for_less( i, 0, N_IMAGES )
+        {
+            (void) printf( "Reading Talairach images [%d/%d].\n",i+1, N_IMAGES);
+
+            if( status == OK )
+                status = open_file( filenames[i], READ_FILE, BINARY_FORMAT,
+                                    &file );
+
+            if( status == OK )
+                status = input_object_type( file, &type, &format, &eof );
+
+            if( status == OK && !eof && type == PIXELS )
+                status = io_pixels( file, READ_FILE, format, &images[i] );
+
+            if( status == OK )
+                status = close_file( file );
+        }
+
+        if( status == OK )
+            images_exist = TRUE;
+    }
+}
+
+
+private  void  blend_in_talairach_image( pixels, x_size, y_size,
+                   start_indices, dx, dy, x_volume_size )
+    Pixel_colour   pixels[];
+    int            x_size;
+    int            y_size;
+    int            start_indices[];
+    Real           dx;
+    Real           dy;
+    int            x_volume_size;
+{
+    int            x, y, image_index, image_size;
+    int            x_pixel, y_pixel, x_pixel_start, y_pixel_start;
+    int            r_tal, g_tal, b_tal, r_vox, g_vox, b_vox;
+    int            r, g, b;
+    Pixel_colour   *image, voxel_pixel, tal_pixel;
+
+    check_read_in();
+
+    if( !images_exist )
+        return;
+
+    image_index = -1;
+
+    if( x_volume_size != 128 && x_volume_size != 256 )
+        return;
+
+    x_pixel_start = start_indices[X] / dx;
+    y_pixel_start = start_indices[Y] / dy;
+
+    if( x_volume_size == 256 )
+    {
+        dx /= 2.0;
+        dy /= 2.0;
+    }
+
+    if( dx == 1.0 )
+    {
+        image_index = 0;
+        image_size = 128;
+    }
+    else if( dx == 0.5 )
+    {
+        image_index = 1;
+        image_size = 256;
+    }
+    else if( dx == 0.25 )
+    {
+        image_index = 2;
+        image_size = 512;
+    }
+    else
+        return;
+
+    image = images[image_index].pixels;
+
+    for_less( y, 0, y_size )
+    {
+        y_pixel = y_pixel_start + y;
+
+        if( y_pixel < 0 )  y_pixel = 0;
+        if( y_pixel >= image_size )  y_pixel = image_size-1;
+
+        for_less( x, 0, x_size )
+        {
+            x_pixel = x_pixel_start + x;
+
+            if( x_pixel < 0 )  x_pixel = 0;
+            if( x_pixel >= image_size )  x_pixel = image_size-1;
+
+            voxel_pixel = *pixels;
+            r_vox = Pixel_colour_r(voxel_pixel);
+            g_vox = Pixel_colour_g(voxel_pixel);
+            b_vox = Pixel_colour_b(voxel_pixel);
+
+            tal_pixel = image[IJ(y_pixel,x_pixel,image_size)];
+            r_tal = Pixel_colour_r(tal_pixel);
+            g_tal = Pixel_colour_g(tal_pixel);
+            b_tal = Pixel_colour_b(tal_pixel);
+
+            if( r_tal > Talairach_opacity_threshold &&
+                g_tal > Talairach_opacity_threshold &&
+                b_tal > Talairach_opacity_threshold )
+            {
+                *pixels = voxel_pixel;
+            }
+            else
+            {
+                r = ROUND( r_vox + (r_tal - r_vox) * Talairach_opacity );
+                g = ROUND( g_vox + (g_tal - g_vox) * Talairach_opacity );
+                b = ROUND( b_vox + (b_tal - b_vox) * Talairach_opacity );
+                *pixels = RGB_255_TO_PIXEL( r, g, b );
+            }
+
+            ++pixels;
+        }
+    }
 }
