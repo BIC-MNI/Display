@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/surface.c,v 1.62 1996-05-24 18:43:21 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/surface.c,v 1.63 1996-05-24 19:43:18 david Exp $";
 #endif
 
 
@@ -31,7 +31,6 @@ private  BOOLEAN  find_close_voxel_containing_range(
 private  void  add_voxel_neighbours(
     Volume                              volume,
     Volume                              label_volume,
-    int                                 sizes[],
     int                                 x,
     int                                 y,
     int                                 z,
@@ -233,7 +232,7 @@ private  BOOLEAN  find_close_voxel_containing_range(
         }
         else if( voxel_contains || voxel_done == 0 )
         {
-            add_voxel_neighbours( volume, label_volume, sizes,
+            add_voxel_neighbours( volume, label_volume,
                                   voxel[X], voxel[Y], voxel[Z],
                                   voxel_done, surface_extraction,
                                   &voxels_searched, &voxels_to_check );
@@ -488,7 +487,7 @@ public  BOOLEAN  extract_more_surface(
                                      surf->voxel_done_flags,
                                      &surf->edge_points );
 
-                add_voxel_neighbours( volume, label_volume, sizes,
+                add_voxel_neighbours( volume, label_volume,
                             voxel_index[X], voxel_index[Y], voxel_index[Z],
                             TRUE, surf,
                             &surf->voxel_state,
@@ -575,7 +574,6 @@ public  void  tell_surface_extraction_label_changed(
 private  void  add_voxel_neighbours(
     Volume                          volume,
     Volume                          label_volume,
-    int                             sizes[],
     int                             x,
     int                             y,
     int                             z,

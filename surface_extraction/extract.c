@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.44 1996-05-17 19:38:19 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.45 1996-05-24 19:43:41 david Exp $";
 #endif
 
 
@@ -213,7 +213,7 @@ public  BOOLEAN  extract_voxel_surface(
 
     if( surface_extraction->voxellate_flag )
     {
-        found = extract_voxel_boundary_surface( volume, label_volume,
+        found = extract_voxel_boundary_surface( volume,
                                                 surface_extraction, voxel );
     }
     else

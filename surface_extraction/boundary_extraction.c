@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.26 1996-05-24 18:43:20 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.27 1996-05-24 19:43:41 david Exp $";
 #endif
 
 #include  <display.h>
@@ -374,7 +374,6 @@ public  void  read_voxellation_block(
 
 public  BOOLEAN  extract_voxel_boundary_surface(
     Volume                      volume,
-    Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel[] )
 {
