@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.112 1996-11-25 14:56:20 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.113 1997-08-01 14:47:54 david Exp $";
 #endif
 
 #include  <display.h>
@@ -783,10 +783,9 @@ public  void  rebuild_slice_cursor(
 {
     model_struct   *model;
     object_struct  *obj1, *obj2;
-    int            c, x_index, y_index, axis, volume_index;
+    int            x_index, y_index, axis, volume_index;
     Real           x_left, x_right, y_bottom, y_top, dx, dy;
     Real           x_centre, y_centre, tmp;
-    Real           tmp_voxel[N_DIMENSIONS];
     lines_struct   *lines1, *lines2;
     Real           current_voxel[N_DIMENSIONS];
     int            x_min, x_max, y_min, y_max;
@@ -832,9 +831,6 @@ public  void  rebuild_slice_cursor(
     if( slice_has_ortho_axes( slice_window, volume_index,
                               view_index, &x_index, &y_index, &axis ) )
     {
-        for_less( c, 0, N_DIMENSIONS )
-            tmp_voxel[c] = (Real) ROUND( current_voxel[c] );
-
         current_voxel[x_index] += 0.5;
         convert_voxel_to_pixel( slice_window, volume_index, view_index,
                                 current_voxel, &x_right, &y_centre );

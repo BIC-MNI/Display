@@ -14,7 +14,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.23 1996-07-04 13:55:48 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.24 1997-08-01 14:47:47 david Exp $";
 #endif
 
 #include  <display.h>
@@ -75,8 +75,7 @@ private  Volume  convert_pixels_to_volume(
                                                       };
     Volume   volume;
     Real     separations[2];
-    Real     bottom_left[2];
-    Real     world_corner[N_DIMENSIONS];
+    Real     world_000[N_DIMENSIONS];
 
     for_less( dim, 0, 2 )
         dim_names[dim] = XYZ_dimension_names[dim_orders[axis_index][dim]];
@@ -108,15 +107,14 @@ private  Volume  convert_pixels_to_volume(
     separations[1] = ATLAS_STEPS[y_index] * (Real) ATLAS_SIZE[y_index] /
                      (Real) pixels->y_size;
 
-    bottom_left[0] = -0.5;
-    bottom_left[1] = -0.5;
-
-    world_corner[x_index] = ATLAS_STARTS[x_index] - ATLAS_STEPS[x_index] / 2.0;
-    world_corner[y_index] = ATLAS_STARTS[y_index] - ATLAS_STEPS[y_index] / 2.0;
-    world_corner[axis_index] = slice_position;
+    world_000[x_index] = ATLAS_STARTS[x_index] - ATLAS_STEPS[x_index] / 2.0 +
+                            separations[x_index] / 0.5;
+    world_000[y_index] = ATLAS_STARTS[y_index] - ATLAS_STEPS[y_index] / 2.0 +
+                            separations[y_index] / 0.5;
+    world_000[axis_index] = slice_position;
 
     set_volume_separations( volume, separations );
-    set_volume_translation( volume, bottom_left, world_corner );
+    set_volume_starts( volume, world_000 );
 
     return( volume );
 }

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.136 1997-03-23 21:11:42 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.137 1997-08-01 14:47:52 david Exp $";
 #endif
 
 #include  <display.h>
@@ -167,14 +167,6 @@ MENU_F(subdivide_current_polygon) \
 MENU_F(save_polygons_visibilities) \
 MENU_F(load_polygons_visibilities) \
 MENU_F(smooth_current_polygon) \
-MENU_F(start_deforming_object) \
-MENU_F(stop_deforming_object) \
-MENU_F(set_deformation_boundary) \
-MENU_F(set_deformation_model) \
-MENU_F(set_deformation_parameters) \
-MENU_F(set_deformation_original_positions) \
-MENU_F(show_deformation_model) \
-MENU_F(reset_deformation_model) \
 MENU_F(reverse_polygons_order) \
 MENU_F(print_polygons_surface_area) \
 MENU_F(smooth_current_lines) \

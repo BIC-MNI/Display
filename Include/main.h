@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_main_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/main.h,v 1.16 1996-02-28 16:04:12 david Exp $";
+static char display_main_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/main.h,v 1.17 1997-08-01 14:47:46 david Exp $";
 #endif
 
 #include  <display_types.h>
@@ -75,7 +75,6 @@ typedef  struct
     Real                       default_marker_size;
     Colour                     default_marker_colour;
     STRING                     default_marker_label;
-    deformation_struct         deform;
     object_struct              *volume_outline;
     object_struct              *cross_section;
 } three_d_window_struct;

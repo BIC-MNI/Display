@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/three_d.c,v 1.33 1996-04-19 13:25:13 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/three_d.c,v 1.34 1997-08-01 14:47:51 david Exp $";
 #endif
 
 
@@ -92,8 +92,6 @@ public  void  initialize_three_d_window(
 
     initialize_surface_curve( display );
 
-    initialize_deformation( &display->three_d.deform );
-
     initialize_volume_cross_section( display );
 }
 
@@ -130,7 +128,6 @@ public  void  delete_three_d(
     terminate_current_object( &display->three_d.current_object );
     delete_surface_edit( &display->three_d.surface_edit );
     delete_surface_extraction( display );
-    delete_deformation( &display->three_d.deform );
     delete_cursor_plane_outline( display );
 }
 

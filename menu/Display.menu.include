@@ -28,7 +28,6 @@ root \
     transient 'c'      lines                        'Lines' \
     transient 'v'      surface_curves               'Surface Curves' \
     transient 'b'      markers                      'Markers' \
-    transient 'n'      deform                       'Deformation' \
  \
     permanent '2'      magnify_view                 'Magnify 3D' \
     permanent '3'      translate_view               'Translate 3D' \
@@ -342,20 +341,6 @@ atlas \
     transient 'x'    set_atlas_tolerance_x           'Set Tolerance X' \
     transient 'c'    set_atlas_tolerance_y           'Set Tolerance Y' \
     transient 'v'    set_atlas_tolerance_z           'Set Tolerance Z' \
-} \
- \
-deform \
-{ \
-    transient 'd'    start_deforming_object               'Start Deformation' \
-    transient 'f'    stop_deforming_object                'Stop Deformation' \
- \
-    transient 'q'    set_deformation_original_positions   'Set Original Pos' \
-    transient 'w'    set_deformation_model                'Set Model' \
-    transient 'e'    set_deformation_boundary             'Set Boundary' \
-    transient 'r'    set_deformation_parameters           'Set Parameters' \
- \
-    transient 'x'    reset_deformation_model              'Reset Model' \
-    transient 'v'    show_deformation_model               'Show Model' \
 } \
  \
 segmenting \

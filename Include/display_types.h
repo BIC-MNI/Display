@@ -16,10 +16,9 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/display_types.h,v 1.19 1997-03-23 21:11:36 david Exp $";
+static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/display_types.h,v 1.20 1997-08-01 14:47:45 david Exp $";
 #endif
 
-#include  <deform.h>
 #include  <graphics.h>
 
 #define  N_MODELS    7
@@ -203,15 +202,5 @@ typedef  struct
     int                      poly_index;
     object_traverse_struct   object_traverse;
 } cursor_contours_struct;
-
-typedef struct
-{
-    deform_struct     deform;
-    object_struct     *deforming_object;
-    int               iteration;
-    BOOLEAN           in_progress;
-    BOOLEAN           using_simulated_annealing;
-    anneal_struct     anneal;
-}  deformation_struct;
 
 #endif

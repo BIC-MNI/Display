@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.115 1996-11-25 14:56:21 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.116 1997-08-01 14:47:55 david Exp $";
 #endif
 
 
@@ -755,7 +755,7 @@ private  void  render_more_slices(
     BOOLEAN          viewport_has_changed[] )
 {
     BOOLEAN  first_render, did_one, finished;
-    BOOLEAN  interrupted, view_was_interrupted[N_SLICE_VIEWS];
+    BOOLEAN  interrupted;
     BOOLEAN  viewport_pixels_modified[N_SLICE_VIEWS];
     BOOLEAN  no_viewport_changed, incremental_flag;
     BOOLEAN  *update_flag_ptr, *update_in_progress;
@@ -768,7 +768,6 @@ private  void  render_more_slices(
     no_viewport_changed = TRUE;
     for_less( view, 0, N_SLICE_VIEWS )
     {
-        view_was_interrupted[view] = FALSE;
         viewport_pixels_modified[view] = FALSE;
 
         if( viewport_has_changed[view] )
