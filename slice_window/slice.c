@@ -25,7 +25,7 @@ public  Status  initialize_slice_window( graphics )
     for_less( c, 0, N_DIMENSIONS )
         graphics->slice.slice_views[c].update_flag = TRUE;
 
-    graphics->slice.next_to_update = X_AXIS;
+    graphics->slice.next_to_update = X;
 
     graphics->slice.slice_views[0].axis_map[0]  = Slice_view1_axis1;
     graphics->slice.slice_views[0].axis_flip[0] = Slice_view1_flip1;
@@ -86,9 +86,9 @@ public  Status  set_slice_window_volume( graphics, volume )
 
     graphics->slice.volume = volume;
 
-    get_volume_size( volume, &size[X_AXIS], &size[Y_AXIS], &size[Z_AXIS] );
-    get_volume_slice_thickness( volume, &thickness[X_AXIS], &thickness[Y_AXIS],
-                                        &thickness[Z_AXIS] );
+    get_volume_size( volume, &size[X], &size[Y], &size[Z] );
+    get_volume_slice_thickness( volume, &thickness[X], &thickness[Y],
+                                        &thickness[Z] );
 
     for_less( c, 0, N_DIMENSIONS )
     {
@@ -98,17 +98,17 @@ public  Status  set_slice_window_volume( graphics, volume )
         graphics->slice.slice_locked[c] = FALSE;
     }
 
-    graphics->associated[THREE_D_WINDOW]->three_d.cursor.box_size[X_AXIS] =
-                          thickness[X_AXIS];
-    graphics->associated[THREE_D_WINDOW]->three_d.cursor.box_size[Y_AXIS] =
-                          thickness[Y_AXIS];
-    graphics->associated[THREE_D_WINDOW]->three_d.cursor.box_size[Z_AXIS] =
-                          thickness[Z_AXIS];
+    graphics->associated[THREE_D_WINDOW]->three_d.cursor.box_size[X] =
+                          thickness[X];
+    graphics->associated[THREE_D_WINDOW]->three_d.cursor.box_size[Y] =
+                          thickness[Y];
+    graphics->associated[THREE_D_WINDOW]->three_d.cursor.box_size[Z] =
+                          thickness[Z];
 
     status = update_cursor_size( graphics->associated[THREE_D_WINDOW] );
 
-    min_thickness = thickness[X_AXIS];
-    max_thickness = thickness[X_AXIS];
+    min_thickness = thickness[X];
+    max_thickness = thickness[X];
 
     for_less( c, 1, N_DIMENSIONS )
     {
@@ -122,8 +122,8 @@ public  Status  set_slice_window_volume( graphics, volume )
 
     for_less( c, 0, N_DIMENSIONS )
     {
-        x_index = graphics->slice.slice_views[c].axis_map[X_AXIS];
-        y_index = graphics->slice.slice_views[c].axis_map[Y_AXIS];
+        x_index = graphics->slice.slice_views[c].axis_map[X];
+        y_index = graphics->slice.slice_views[c].axis_map[Y];
 
         graphics->slice.slice_views[c].x_scale = factor * thickness[x_index];
 
@@ -336,11 +336,11 @@ public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z,
             y_pixel >= y_pixel_start && y_pixel <= y_pixel_end )
         {
             axis_index =
-                graphics->slice.slice_views[*view_index].axis_map[Z_AXIS];
+                graphics->slice.slice_views[*view_index].axis_map[Z];
             x_index =
-                graphics->slice.slice_views[*view_index].axis_map[X_AXIS];
+                graphics->slice.slice_views[*view_index].axis_map[X];
             y_index =
-                graphics->slice.slice_views[*view_index].axis_map[Y_AXIS];
+                graphics->slice.slice_views[*view_index].axis_map[Y];
 
             voxel_indices[axis_index] = start_indices[axis_index];
 
@@ -349,9 +349,9 @@ public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z,
             voxel_indices[y_index] = start_indices[y_index] +
                                         (y_pixel - y_pixel_start) / y_scale;
 
-            *x = voxel_indices[X_AXIS];
-            *y = voxel_indices[Y_AXIS];
-            *z = voxel_indices[Z_AXIS];
+            *x = voxel_indices[X];
+            *y = voxel_indices[Y];
+            *z = voxel_indices[Z];
 
             found = TRUE;
         }
@@ -386,16 +386,16 @@ public  void  convert_voxel_to_pixel( graphics, view_index, x_voxel, y_voxel,
 
     get_slice_scale( graphics, view_index, &x_scale, &y_scale );
 
-    x_index = graphics->slice.slice_views[view_index].axis_map[X_AXIS];
-    y_index = graphics->slice.slice_views[view_index].axis_map[Y_AXIS];
+    x_index = graphics->slice.slice_views[view_index].axis_map[X];
+    y_index = graphics->slice.slice_views[view_index].axis_map[Y];
 
     get_volume_size( graphics->slice.volume,
-                     &size[X_AXIS], &size[Y_AXIS], &size[Z_AXIS] );
+                     &size[X], &size[Y], &size[Z] );
 
-    if( graphics->slice.slice_views[view_index].axis_flip[X_AXIS] )
+    if( graphics->slice.slice_views[view_index].axis_flip[X] )
         x_voxel = size[x_index] - 1 - x_voxel;
 
-    if( graphics->slice.slice_views[view_index].axis_flip[Y_AXIS] )
+    if( graphics->slice.slice_views[view_index].axis_flip[Y] )
         y_voxel = size[y_index] - 1 - y_voxel;
 
     *x_pixel = voxel_to_pixel( x_min,
@@ -496,9 +496,9 @@ public  void  get_slice_view( graphics, view_index, x_scale, y_scale,
     void  get_slice_viewport();
     void  get_volume_size();
 
-    axis_index = graphics->slice.slice_views[view_index].axis_map[Z_AXIS];
-    x_axis_index = graphics->slice.slice_views[view_index].axis_map[X_AXIS];
-    y_axis_index = graphics->slice.slice_views[view_index].axis_map[Y_AXIS];
+    axis_index = graphics->slice.slice_views[view_index].axis_map[Z];
+    x_axis_index = graphics->slice.slice_views[view_index].axis_map[X];
+    y_axis_index = graphics->slice.slice_views[view_index].axis_map[Y];
 
     indices[axis_index] = graphics->slice.slice_index[axis_index];
 
@@ -508,7 +508,7 @@ public  void  get_slice_view( graphics, view_index, x_scale, y_scale,
     get_slice_scale( graphics, view_index, x_scale, y_scale );
 
     get_volume_size( graphics->slice.volume,
-                     &size[X_AXIS], &size[Y_AXIS], &size[Z_AXIS] );
+                     &size[X], &size[Y], &size[Z] );
 
     x_size = size[x_axis_index];
     y_size = size[y_axis_index];
@@ -577,13 +577,13 @@ public  void  get_slice_view( graphics, view_index, x_scale, y_scale,
         }
     }
 
-    if( graphics->slice.slice_views[view_index].axis_flip[X_AXIS] )
+    if( graphics->slice.slice_views[view_index].axis_flip[X] )
     {
         indices[x_axis_index] = x_size - 1 - indices[x_axis_index];
         *x_scale = -(*x_scale);
     }
 
-    if( graphics->slice.slice_views[view_index].axis_flip[Y_AXIS] )
+    if( graphics->slice.slice_views[view_index].axis_flip[Y] )
     {
         indices[y_axis_index] = y_size - 1 - indices[y_axis_index];
         *y_scale = -(*y_scale);
@@ -681,9 +681,9 @@ public  void  get_current_voxel( slice_window, x, y, z )
     graphics_struct   *slice_window;
     int               *x, *y, *z;
 {
-    *x = slice_window->slice.slice_index[X_AXIS];
-    *y = slice_window->slice.slice_index[Y_AXIS];
-    *z = slice_window->slice.slice_index[Z_AXIS];
+    *x = slice_window->slice.slice_index[X];
+    *y = slice_window->slice.slice_index[Y];
+    *z = slice_window->slice.slice_index[Z];
 }
 
 public  Boolean  set_current_voxel( slice_window, x, y, z )
@@ -694,15 +694,15 @@ public  Boolean  set_current_voxel( slice_window, x, y, z )
     int               i, j, axis_index, indices[N_DIMENSIONS];
     void              set_slice_window_update();
 
-    indices[X_AXIS] = x;
-    indices[Y_AXIS] = y;
-    indices[Z_AXIS] = z;
+    indices[X] = x;
+    indices[Y] = y;
+    indices[Z] = z;
 
     changed = FALSE;
 
     for_less( i, 0, N_DIMENSIONS )
     {
-        axis_index = slice_window->slice.slice_views[i].axis_map[Z_AXIS];
+        axis_index = slice_window->slice.slice_views[i].axis_map[Z];
 
         if( indices[axis_index] != slice_window->slice.slice_index[axis_index] )
         {
@@ -710,7 +710,7 @@ public  Boolean  set_current_voxel( slice_window, x, y, z )
 
             for_less( j, i, N_DIMENSIONS )
             {
-                if( slice_window->slice.slice_views[j].axis_map[Z_AXIS] ==
+                if( slice_window->slice.slice_views[j].axis_map[Z] ==
                     axis_index)
                 {
                     set_slice_window_update( slice_window, j );
