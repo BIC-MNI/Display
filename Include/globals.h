@@ -4,6 +4,7 @@
 #include  <def_global_macros.h>
 
 START_GLOBALS
+    DEF_GLOBAL( Progress_threshold, int, 1000 )
     DEF_GLOBAL( Event_timeout, Real, 0.1 )
     DEF_GLOBAL( Initial_perspective_flag, Boolean, TRUE )
     DEF_GLOBAL( Closest_front_plane, Real, 1.0e-5 )
