@@ -28,6 +28,10 @@ START_GLOBALS
     DEF_GLOBAL( Display_update_min, Real, 1.0 )
     DEF_GLOBAL( Frame_info_x, Real, 10.0 )
     DEF_GLOBAL( Frame_info_y, Real, 10.0 )
+    DEF_GLOBAL( Initial_n_pixels_redraw, int, 100 )
+    DEF_GLOBAL( Initial_slice_update_time, Real, 0.01 )
+    DEF_GLOBAL( Initial_total_slice_update_time1, Real, 0.1 )
+    DEF_GLOBAL( Initial_total_slice_update_time2, Real, 1.0 )
 
     DEF_GLOBAL_COLOUR( Volume_outline_colour )
     DEF_GLOBAL_COLOUR( Cross_section_colour )

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.93 1995-08-24 13:45:08 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.94 1995-08-25 19:48:02 david Exp $";
 #endif
 
 #include  <display.h>
@@ -939,17 +939,18 @@ private  void  render_slice_to_pixels(
 public  void  rebuild_slice_pixels_for_volume(
     display_struct    *slice_window,
     int               volume_index,
-    int               view_index )
+    int               view_index,
+    BOOLEAN           out_of_time_flag )
 {
     object_struct  *pixels_object;
     pixels_struct  *pixels;
 
-    if( get_slice_visibility( slice_window, volume_index, view_index ) )
-    {
-        pixels_object = get_slice_pixels_object( slice_window, volume_index,
-                                                 view_index );
-        pixels = get_pixels_ptr( pixels_object );
+    pixels_object = get_slice_pixels_object( slice_window, volume_index,
+                                             view_index );
+    pixels = get_pixels_ptr( pixels_object );
 
+    if( !out_of_time_flag )
+    {
         render_slice_to_pixels( slice_window, volume_index, view_index,
                                 get_nth_volume( slice_window, volume_index ),
                                 slice_window->slice.volumes[volume_index].
@@ -958,6 +959,19 @@ public  void  rebuild_slice_pixels_for_volume(
                                           views[view_index].filter_type,
                                 slice_window->slice.degrees_continuity,
                                 pixels );
+        slice_window->slice.volumes[volume_index].views[view_index].
+                                                 update_in_progress = FALSE;
+    }
+    else
+    {
+        if( pixels->x_size > 0 && pixels->y_size > 0 )
+        {
+            delete_pixels( pixels );
+            pixels->x_size = 0;
+            pixels->y_size = 0;
+        }
+        slice_window->slice.volumes[volume_index].views[view_index].
+                                                 update_in_progress = TRUE;
     }
 }
 
@@ -1277,22 +1291,36 @@ public  void  composite_volume_and_labels(
 public  void  rebuild_label_slice_pixels_for_volume(
     display_struct    *slice_window,
     int               volume_index,
-    int               view_index )
+    int               view_index,
+    BOOLEAN           out_of_time_flag )
 {
-    BOOLEAN        visibility;
+    pixels_struct   *pixels;
 
-    visibility = get_label_visibility( slice_window, volume_index, view_index );
-
-    if( visibility )
+    pixels = get_pixels_ptr( get_label_slice_pixels_object(
+                                   slice_window, volume_index, view_index ) );
+    if( !out_of_time_flag )
     {
         render_slice_to_pixels( slice_window, volume_index, view_index,
                                 get_nth_volume( slice_window, volume_index ),
                                 slice_window->slice.volumes[volume_index].
                                                        label_colour_table,
                                 NEAREST_NEIGHBOUR,
-                                -1,
-                                get_pixels_ptr( get_label_slice_pixels_object(
-                                   slice_window, volume_index, view_index ) ) );
+                                -1, pixels );
+
+        slice_window->slice.volumes[volume_index].views[view_index].
+                                     labels_update_in_progress = FALSE;
+    }
+    else
+    {
+        if( pixels->x_size > 0 && pixels->y_size > 0 )
+        {
+            delete_pixels( pixels );
+            pixels->x_size = 0;
+            pixels->y_size = 0;
+        }
+
+        slice_window->slice.volumes[volume_index].views[view_index].
+                                         labels_update_in_progress = TRUE;
     }
 }
 
