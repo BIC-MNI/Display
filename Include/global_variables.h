@@ -6,8 +6,8 @@ START_GLOBALS
     DEF_GLOBAL( Progress_threshold, int, 1000 )
 
     DEF_GLOBAL( Maximum_display_time, Real, 0.3 )
-    DEF_GLOBAL( Min_interval_between_events, Real, 0.01 )
-    DEF_GLOBAL( Min_interval_between_updates, Real, 0.1 )
+    DEF_GLOBAL( Min_interval_between_events, Real, 0.03 )
+    DEF_GLOBAL( Min_interval_between_updates, Real, 0.02 )
     DEF_GLOBAL( Max_background_seconds, Real, 0.2 )
     DEF_GLOBAL( Event_timeout_factor, Real, 0.5 )
     DEF_GLOBAL( Size_of_interrupted, int, 250 )

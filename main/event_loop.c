@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/event_loop.c,v 1.26 1998-04-07 18:43:15 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/event_loop.c,v 1.27 1998-06-29 15:01:33 david Exp $";
 #endif
 
 
@@ -203,8 +203,7 @@ public  void  initialize_window_callbacks(
     G_set_window_quit_function( window, quit_callback, NULL);
 }
 
-private  void  update_all_three_d(
-    void   *void_ptr )
+private  void  update_all_three_d( void )
 {
     Status   status;
 
@@ -214,13 +213,9 @@ private  void  update_all_three_d(
         quit_program();
 
     update_all_three_d_windows();
-
-    G_add_timer_function( Min_interval_between_updates, update_all_three_d,
-                          NULL );
 }
 
-private  void  update_all_slice(
-    void   *void_ptr )
+private  void  update_all_slice( void )
 {
     Status   status;
 
@@ -230,16 +225,19 @@ private  void  update_all_slice(
         quit_program();
 
     update_all_slice_windows();
+}
 
-    G_add_timer_function( Slice_update_time, update_all_slice, NULL );
+private  void  update_all(
+    void   *void_ptr )
+{
+    update_all_three_d();
+    update_all_slice();
+    G_add_timer_function( Min_interval_between_updates, update_all, NULL );
 }
 
 public  Status   main_event_loop( void )
 {
-    G_add_timer_function( Min_interval_between_updates, update_all_three_d,
-                          NULL );
-    G_add_timer_function( Slice_update_time, update_all_slice,
-                          NULL );
+    G_add_timer_function( Min_interval_between_updates, update_all, NULL );
 
     G_main_loop();
 

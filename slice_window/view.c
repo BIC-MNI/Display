@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.39 1996-04-19 13:25:30 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.40 1998-06-29 15:01:37 david Exp $";
 #endif
 
 
@@ -1598,30 +1598,43 @@ private  void  update_all_slice_axes(
     int    v, axis;
     Real   x_axis_x, x_axis_y, x_axis_z, y_axis_x, y_axis_y, y_axis_z;
     Real   x_mag, y_mag, x_axis[N_DIMENSIONS], y_axis[N_DIMENSIONS];
+    Real   ref_x_axis[N_DIMENSIONS], ref_y_axis[N_DIMENSIONS];
 
     for_less( axis, 0, N_DIMENSIONS )
     {
-        x_axis[axis] = slice_window->slice.volumes[volume_index].
-                     views[view_index].x_axis[axis];
-        y_axis[axis] = slice_window->slice.volumes[volume_index].
-                     views[view_index].y_axis[axis];
+        ref_x_axis[axis] = slice_window->slice.volumes[volume_index].
+                           views[view_index].x_axis[axis];
+        ref_y_axis[axis] = slice_window->slice.volumes[volume_index].
+                            views[view_index].y_axis[axis];
     }
 
     convert_voxel_vector_to_world( get_nth_volume(slice_window,volume_index),
-                                   x_axis, &x_axis_x, &x_axis_y, &x_axis_z );
+                            ref_x_axis, &x_axis_x, &x_axis_y, &x_axis_z );
 
     convert_voxel_vector_to_world( get_nth_volume(slice_window,volume_index),
-                                   y_axis, &y_axis_x, &y_axis_y, &y_axis_z );
+                            ref_y_axis, &y_axis_x, &y_axis_y, &y_axis_z );
 
     for_less( v, 0, slice_window->slice.n_volumes )
     {
         if( v == volume_index )
             continue;
 
-        convert_world_vector_to_voxel(get_nth_volume(slice_window,v),
+        if( volumes_are_same_grid( get_nth_volume(slice_window,volume_index),
+                                   get_nth_volume(slice_window,v) ) )
+        {
+            for_less( axis, 0, N_DIMENSIONS )
+            {
+                x_axis[axis] = ref_x_axis[axis];
+                y_axis[axis] = ref_y_axis[axis];
+            }
+        }
+        else
+        {
+            convert_world_vector_to_voxel(get_nth_volume(slice_window,v),
                                       x_axis_x, x_axis_y, x_axis_z, x_axis );
-        convert_world_vector_to_voxel(get_nth_volume(slice_window,v),
+            convert_world_vector_to_voxel(get_nth_volume(slice_window,v),
                                       y_axis_x, y_axis_y, y_axis_z, y_axis );
+        }
 
         x_mag = sqrt( x_axis[X] * x_axis[X] + x_axis[Y] * x_axis[Y] +
                       x_axis[Z] * x_axis[Z] );

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/three_d.c,v 1.37 1998-03-18 21:17:57 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/three_d.c,v 1.38 1998-06-29 15:01:34 david Exp $";
 #endif
 
 
@@ -83,6 +83,9 @@ public  void  initialize_three_d_window(
     initialize_surface_curve( display );
 
     initialize_volume_cross_section( display );
+
+    G_set_window_update_min_interval( display->window,
+                                      Min_interval_between_updates );
 }
 
 public  void  define_lights(
