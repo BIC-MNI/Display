@@ -64,59 +64,18 @@ START_GLOBALS
     DEF_GLOBAL( Viewport_min_x_size, Real, 0.1 )
     DEF_GLOBAL( Viewport_min_y_size, Real, 0.1 )
 
-    DEF_GLOBAL( Slice_divider_colour, Colour, 0.0 )
-    DEF_GLOBAL( Slice_divider_left, int, 5 )
-    DEF_GLOBAL( Slice_divider_right, int, 5 )
-    DEF_GLOBAL( Slice_divider_top, int, 5 )
-    DEF_GLOBAL( Slice_divider_bottom, int, 25 )
-    DEF_GLOBAL( Slice_text_colour, Colour, 0.0 )
-    DEF_GLOBAL( Slice_index_offset, Point, 0.0 )
-    DEF_GLOBAL_STRING( Slice_index_x_format, "" )
-    DEF_GLOBAL_STRING( Slice_index_y_format, "" )
-    DEF_GLOBAL_STRING( Slice_index_z_format, "" )
-    DEF_GLOBAL_STRING( Slice_probe_x_format, "" )
-    DEF_GLOBAL_STRING( Slice_probe_y_format, "" )
-    DEF_GLOBAL_STRING( Slice_probe_z_format, "" )
-    DEF_GLOBAL_STRING( Slice_probe_val_format, "" )
-    DEF_GLOBAL( Probe_x_pos, int, 10 )
-    DEF_GLOBAL( Probe_y_pos, int, 10 )
-    DEF_GLOBAL( Probe_x_delta, int, 20 )
-    DEF_GLOBAL( Probe_y_delta, int, 20 )
+    DEF_GLOBAL( Slice_split_colour, Colour, 0.0 )
+    DEF_GLOBAL( Slice_split_border, int, 5 )
 
     DEF_GLOBAL( Cursor_colour, Colour, 0.0 )
     DEF_GLOBAL( Cursor_size_factor, Real, 0.05 )
-    DEF_GLOBAL( Cursor_axis_size, Real, 10.0 )
-    DEF_GLOBAL( Cursor_start_pixel, int, 3 )
-    DEF_GLOBAL( Cursor_end_pixel, int, 10 )
-    DEF_GLOBAL( Slice_cursor_colour, Colour, 0.0 )
-    DEF_GLOBAL( Cursor_mouse_threshold, Real, 0.02 )
-    DEF_GLOBAL( Max_cursor_angle, Real, 10.0 )
-    DEF_GLOBAL( Min_cursor_angle_diff, Real, 20.0 )
-    DEF_GLOBAL( Cursor_pick_distance, Real, 0.02 )
 
     DEF_GLOBAL( Extracted_surface_colour, Colour, 0.0 )
     DEF_GLOBAL( Default_surface_property, Surfprop, 0.0 )
 
-    DEF_GLOBAL( Min_voxels_per_update, int, 50 )
-    DEF_GLOBAL( Max_voxels_per_update, int, 300 )
-    DEF_GLOBAL( Max_seconds_per_voxel_update, Real, 1.0 )
-    DEF_GLOBAL( Max_surface_refinements, int, 5 )
-    DEF_GLOBAL( Max_surface_error, Real, 0.1 )
-    DEF_GLOBAL( Edge_point_threshold, Real, 1.0 )
-    DEF_GLOBAL( Edge_point_new_density, Real, 0.5 )
-
-    DEF_GLOBAL( Colour_table_size, int, 1000 )
-    DEF_GLOBAL( Colour_below, Colour, 0.0 )
-    DEF_GLOBAL( Min_colour, Colour, 0.0 )
-    DEF_GLOBAL( Max_colour, Colour, 0.0 )
-    DEF_GLOBAL( Colour_above, Colour, 0.0 )
-    DEF_GLOBAL( Interpolation_space, int, 0 )
+    DEF_GLOBAL( Voxels_per_update, int, 100 )
 
     DEF_GLOBAL( Normal_towards_lower, Boolean, TRUE )
-
-    DEF_GLOBAL( Inactive_voxel_colour, Colour, 0.0 )
-
-    DEF_GLOBAL( Use_cursor_origin, Boolean, TRUE )
 END_GLOBALS
          
 #endif
