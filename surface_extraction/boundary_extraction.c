@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.29 1997-01-15 16:37:31 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.30 1997-01-20 14:14:59 david Exp $";
 #endif
 
 #include  <display.h>
@@ -130,15 +130,203 @@ private  void   get_vertex_normal(
     }
 }
 
+private  int  check_unique_face_set(
+    int       face_dim,
+    int       x_face,
+    int       y_face,
+    int       face_dir,
+    BOOLEAN   inside_flags[2][2][2] )
+{
+    static  struct
+    {
+        int   face_dim;
+        int   x_or_y_face;
+        int   face_dir;
+    }
+           cycles[6][4] =
+                 {
+                     { { Y, 0, 1 }, { Z, 1, 1 }, { Y, 1, 0 }, { Z, 0, 0 } },
+                     { { Z, 0, 1 }, { X, 1, 1 }, { Z, 1, 0 }, { X, 0, 0 } },
+                     { { X, 0, 1 }, { Y, 1, 1 }, { X, 1, 0 }, { Y, 0, 0 } },
+                     { { Z, 0, 1 }, { Y, 1, 1 }, { Z, 1, 0 }, { Y, 0, 0 } },
+                     { { X, 0, 1 }, { Z, 1, 1 }, { X, 1, 0 }, { Z, 0, 0 } },
+                     { { Y, 0, 1 }, { X, 1, 1 }, { Y, 1, 0 }, { X, 0, 0 } }
+                 };
+
+    BOOLEAN  faces_present[N_DIMENSIONS][2][2][2];
+    int      set_number[N_DIMENSIONS][2][2][2];
+    int      dim, x, y, dir, n_connected, conn_index, edge_index;
+    int      i, ind, test_dir, test_dim;
+    int      other_dim, which;
+    int      a1, a2, v1[N_DIMENSIONS], v2[N_DIMENSIONS];
+    int      cur_dim, cur_a1, cur_a2, cur_x, cur_y, cur_dir;
+    int      rot_dim, lut;
+    int      test_x_face, test_y_face, test_a1, test_a2;
+    int      n_found, n_sets;
+    static   struct
+     {
+         int dim, x, y, dir;
+     }  list[24];
+
+    for_less( dim, 0, N_DIMENSIONS )
+    for_less( x, 0, 2 )
+    for_less( y, 0, 2 )
+    for_less( dir, 0, 2 )
+    {
+        a1 = (dim + 1) % N_DIMENSIONS;
+        a2 = (dim + 2) % N_DIMENSIONS;
+        v1[a1] = x;
+        v2[a1] = x;
+
+        v1[a2] = y;
+        v2[a2] = y;
+
+        v1[dim] = 1 - dir;
+        v2[dim] = dir;
+
+        faces_present[dim][x][y][dir] =
+                                  inside_flags[v1[0]][v1[1]][v1[2]] &&
+                                  !inside_flags[v2[0]][v2[1]][v2[2]];
+        set_number[dim][x][y][dir] = -1;
+    }
+
+    if( !faces_present[face_dim][x_face][y_face][face_dir] )
+        handle_internal_error( "!faces_present" );
+
+    n_sets = 0;
+    for_less( dim, 0, N_DIMENSIONS )
+    for_less( x, 0, 2 )
+    for_less( y, 0, 2 )
+    for_less( dir, 0, 2 )
+    {
+        if( !faces_present[dim][x][y][dir] ||
+             set_number[dim][x][y][dir] >= 0 )
+        {
+            continue;
+        }
+
+        set_number[dim][x][y][dir] = n_sets;
+
+        n_connected = 1;
+        list[0].dim = dim;
+        list[0].x = x;
+        list[0].y = y;
+        list[0].dir = dir;
+
+        conn_index = 0;
+
+        while( conn_index < n_connected )
+        {
+            cur_dim = list[conn_index].dim;
+            cur_a1 = (cur_dim + 1) % N_DIMENSIONS;
+            cur_a2 = (cur_dim + 2) % N_DIMENSIONS;
+            cur_x = list[conn_index].x;
+            cur_y = list[conn_index].y;
+            cur_dir = list[conn_index].dir;
+            ++conn_index;
+
+            n_found = 0;
+            for_less( lut, 0, 6 )
+            {
+                rot_dim = lut % 3;
+                for_less( ind, 0, 4 )
+                {
+                    if( cycles[lut][ind].face_dim == cur_dim &&
+                        (rot_dim == cur_a1 &&
+                         cur_y == cycles[lut][ind].x_or_y_face  ||
+                         rot_dim == cur_a2 &&
+                         cur_x == cycles[lut][ind].x_or_y_face) &&
+                        cycles[lut][ind].face_dir == 1 - cur_dir )
+                        break;
+                }
+
+                if( ind >= 4 )
+                    continue;
+
+                ++n_found;
+
+                for_less( i, 1, 4 )
+                {
+                    which = (ind + i) % 4;
+
+                    test_dim = cycles[lut][which].face_dim;
+                    test_dir = cycles[lut][which].face_dir;
+                    test_a1 = (test_dim + 1) % N_DIMENSIONS;
+                    test_a2 = (test_dim + 2) % N_DIMENSIONS;
+                    other_dim = 3 - rot_dim - test_dim;
+                    if( test_a1 == other_dim )
+                    {
+                        test_x_face = cycles[lut][which].x_or_y_face;
+                        if( rot_dim == cur_a1 )
+                            test_y_face = cur_x;
+                        else if( rot_dim == cur_a2 )
+                            test_y_face = cur_y;
+                        else
+                            handle_internal_error( "rot_dim" );
+                    }
+                    else if( test_a2 == other_dim )
+                    {
+                        test_y_face = cycles[lut][which].x_or_y_face;
+                        if( rot_dim == cur_a1 )
+                            test_x_face = cur_x;
+                        else if( rot_dim == cur_a2 )
+                            test_x_face = cur_y;
+                        else
+                            handle_internal_error( "rot_dim" );
+                    }
+                    else
+                        handle_internal_error( "test[other_dim]" );
+
+                    if( faces_present[test_dim][test_x_face][test_y_face]
+                                     [test_dir])
+                    {
+                        if( set_number[test_dim][test_x_face][test_y_face]
+                                      [test_dir] < 0 )
+                        {
+                            set_number[test_dim][test_x_face][test_y_face]
+                                      [test_dir]
+                                                              = n_sets;
+                            list[n_connected].dim = test_dim;
+                            list[n_connected].x = test_x_face;
+                            list[n_connected].y = test_y_face;
+                            list[n_connected].dir = test_dir;
+                            ++n_connected;
+                        }
+                        break;
+                    }
+                }
+
+                if( i == 4 )
+                {
+                    handle_internal_error( "i == 4" );
+                }
+            }
+
+            if( n_found != 2 )
+                handle_internal_error( "lut" );
+        }
+
+        ++n_sets;
+    }
+
+    edge_index = set_number[face_dim][x_face][y_face][face_dir];
+
+    return( edge_index );
+}
+
 private  int  determine_edge_index(
     int                         x,
     int                         y,
     int                         z,
+    int                         face_dim,
+    int                         face_offset,
     BOOLEAN                     inside[3][3][3] )
 {
-    int        dx, dy, dz, tx, ty, tz, corner_offset[N_DIMENSIONS];
-    int        xo, yo, zo;
-    BOOLEAN    connected[3][3][3];
+    int        a1, a2, x_face, y_face, dir, edge_index;
+    int        corner_offset[N_DIMENSIONS], dx, dy, dz;
+    int        other[N_DIMENSIONS];
+    int        pos[2][N_DIMENSIONS];
+    BOOLEAN    inside_flags[2][2][2];
 
     if( !Duplicate_boundary_vertices )
         return( 0 );
@@ -147,48 +335,35 @@ private  int  determine_edge_index(
     corner_offset[Y] = y;
     corner_offset[Z] = z;
 
-    for_less( dx, 0, 3 )
-    for_less( dy, 0, 3 )
-    for_less( dz, 0, 3 )
-        connected[dx][dy][dz] = FALSE;
-    connected[1][1][1] = TRUE;
+    other[0] = (x == 0) ? 0 : 2;
+    other[1] = (y == 0) ? 0 : 2;
+    other[2] = (z == 0) ? 0 : 2;
 
-    xo = (x == 0) ? 0 : 2;
-    yo = (y == 0) ? 0 : 2;
-    zo = (z == 0) ? 0 : 2;
+    pos[0][0] = MIN( 1, other[0] );
+    pos[0][1] = MIN( 1, other[1] );
+    pos[0][2] = MIN( 1, other[2] );
+    pos[1][0] = MAX( 1, other[0] );
+    pos[1][1] = MAX( 1, other[1] );
+    pos[1][2] = MAX( 1, other[2] );
 
-    if( inside[xo][1][1] )   connected[xo][1][1] = TRUE;
-    if( inside[1][yo][1] )   connected[1][yo][1] = TRUE;
-    if( inside[1][1][zo] )   connected[1][1][zo] = TRUE;
-    if( (connected[xo][1][1] || connected[1][yo][1]) && inside[xo][yo][1] )
-        connected[xo][yo][1] = TRUE;
-    if( (connected[xo][1][1] || connected[1][1][zo]) && inside[xo][1][zo] )
-        connected[xo][1][zo] = TRUE;
-    if( (connected[1][yo][1] || connected[1][1][zo]) && inside[1][yo][zo] )
-        connected[1][yo][zo] = TRUE;
+    a1 = (face_dim+1) % N_DIMENSIONS;
+    a2 = (face_dim+2) % N_DIMENSIONS;
 
-    if( (connected[xo][yo][1] || connected[xo][1][zo] || connected[1][yo][zo])
-        && inside[xo][yo][zo] )
-        connected[xo][yo][zo] = TRUE;
+    x_face = (other[a1] == 0) ? 1 : 0;
+    y_face = (other[a2] == 0) ? 1 : 0;
+    dir = (face_offset == -1) ? 0 : 1;
 
     for_less( dx, 0, 2 )
     for_less( dy, 0, 2 )
     for_less( dz, 0, 2 )
     {
-        tx = (dx == 0) ? MIN( 1, xo ) : MAX( 1, xo );
-        ty = (dy == 0) ? MIN( 1, yo ) : MAX( 1, yo );
-        tz = (dz == 0) ? MIN( 1, zo ) : MAX( 1, zo );
-
-        if( inside[tx][ty][tz] )
-        {
-            if( connected[tx][ty][tz] )
-                return( 0 );
-            else
-                return( 1 );
-        }
+        inside_flags[dx][dy][dz] = inside[pos[dx][0]][pos[dy][1]][pos[dz][2]];
     }
 
-    return( 0 );
+    edge_index = check_unique_face_set( face_dim, x_face, y_face, dir,
+                                        inside_flags );
+
+    return( edge_index );
 }
 
 private  void  add_face(
@@ -239,7 +414,7 @@ private  void  add_face(
         edge_index = determine_edge_index( corner_index[0] - indices[0],
                                            corner_index[1] - indices[1],
                                            corner_index[2] - indices[2],
-                                           inside_flags );
+                                           c, offset, inside_flags );
 
         if( !lookup_edge_point_id( sizes,
                                    &surface_extraction->edge_points,
