@@ -262,6 +262,17 @@ private  Status  initialize_graphics_window( graphics )
             }
 
             model->view_type = view_type;
+
+            if( graphics->window_type == THREE_D_WINDOW &&
+                i == CURSOR_MODEL )
+            {
+                model->overlay_flag = TRUE;
+            }
+            else
+            {
+                model->overlay_flag = FALSE;
+            }
+
             model->n_objects = 0;
             (void) strcpy( model->filename, "Top Level" );
 
@@ -331,8 +342,14 @@ public  void  update_graphics( graphics, interrupt )
     void          display_objects();
     void          display_frame_info();
     void          format_time();
+    void          update_slice_window();
     Real          start, end;
     Real          current_realtime_seconds();
+
+    if( graphics->window_type == SLICE_WINDOW )
+    {
+        update_slice_window( graphics );
+    }
 
     if( interrupt->last_was_interrupted )
     {
