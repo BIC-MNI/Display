@@ -231,6 +231,7 @@ public  void  initialize_slice_window(
 
     slice_window->slice.volume = (Volume) NULL;
 
+    initialize_slice_histogram( slice_window );
     initialize_slice_window_events( slice_window );
     initialize_voxel_labeling( slice_window );
     initialize_3d_segmenting( slice_window );
@@ -286,6 +287,7 @@ private  void  free_slice_window(
     if( slice->volume != (Volume) NULL &&
         slice->volume != slice->original_volume )
     {
+        delete_slice_undo( &slice->undo );
         delete_volume( slice->volume );
         delete_volume( slice->labels );
     }
@@ -351,6 +353,8 @@ public  void  set_slice_window_volume(
 
     rebuild_volume_cross_section( slice_window );
     rebuild_volume_outline( slice_window );
+
+    clear_histogram( slice_window );
 
     delete_slice_undo( &slice_window->slice.undo );
 }

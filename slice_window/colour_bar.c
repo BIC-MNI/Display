@@ -45,14 +45,11 @@ public  void  initialize_colour_bar(
     object = create_object( QUADMESH );
 
     quadmesh = get_quadmesh_ptr( object );
-    n_vertices = 2 * Colour_bar_resolution;
-    quadmesh->colour_flag = PER_VERTEX_COLOURS;
-    quadmesh->m_closed = FALSE;
-    quadmesh->n_closed = FALSE;
-    quadmesh->m = Colour_bar_resolution;
-    quadmesh->n = 2;
+    initialize_quadmesh( quadmesh, WHITE, NULL, Colour_bar_resolution, 2 );
 
-    ALLOC( quadmesh->colours, n_vertices );
+    quadmesh->colour_flag = PER_VERTEX_COLOURS;
+    n_vertices = 2 * Colour_bar_resolution;
+    REALLOC( quadmesh->colours, n_vertices );
     ALLOC( quadmesh->points, n_vertices );
 
     quadmesh->normals = (Vector *) NULL;
@@ -62,6 +59,8 @@ public  void  initialize_colour_bar(
     object = create_object( LINES );
 
     lines = get_lines_ptr( object );
+    initialize_lines( lines, WHITE );
+    delete_lines( lines );
     lines->colour_flag = PER_ITEM_COLOURS;
     lines->line_thickness = 1;
     lines->n_points = 0;
@@ -277,6 +276,25 @@ private  Real  get_y_pos(
         return( 0.0 );
 }
 
+public  int  get_colour_bar_y_pos(
+    display_struct      *slice_window,
+    Real                value )
+{
+    int                 x_min, x_max, y_min, y_max;
+    Real                top, bottom, min_value, max_value;
+    colour_bar_struct   *colour_bar;
+
+    colour_bar = &slice_window->slice.colour_bar;
+
+    get_colour_bar_viewport( slice_window, &x_min, &x_max, &y_min, &y_max );
+    get_volume_real_range( get_volume(slice_window), &min_value, &max_value );
+    
+    bottom = (Real) y_min + colour_bar->bottom_offset;
+    top    = (Real) y_max - colour_bar->top_offset;
+
+    return( ROUND(get_y_pos( value, min_value, max_value, bottom, top )) );
+}
+
 public  BOOLEAN  mouse_within_colour_bar(
     display_struct      *slice_window,
     Real                x,
@@ -309,4 +327,20 @@ public  BOOLEAN  mouse_within_colour_bar(
     }
 
     return( within );
+}
+
+public  void  get_histogram_space(
+    display_struct      *slice_window,
+    int                 *x1,
+    int                 *x2 )
+{
+    int                 x_min, x_max, y_min, y_max;
+    colour_bar_struct   *colour_bar;
+
+    colour_bar = &slice_window->slice.colour_bar;
+    get_colour_bar_viewport( slice_window, &x_min, &x_max, &y_min, &y_max );
+
+    *x1 = x_min + colour_bar->left_offset + colour_bar->bar_width +
+          colour_bar->tick_width;
+    *x2 = x_max;
 }

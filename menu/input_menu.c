@@ -161,6 +161,8 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(change_marker_type) \
                        MENU_FUNCTION(resample_slice_window_volume) \
                        MENU_FUNCTION(box_filter_slice_window_volume) \
+                       MENU_FUNCTION(redo_histogram) \
+                       MENU_FUNCTION(redo_histogram_labeled) \
                        MENU_FUNCTION(pick_slice_angle_point) \
                        MENU_FUNCTION(delete_current_object) \
                        MENU_FUNCTION(toggle_display_labels) \

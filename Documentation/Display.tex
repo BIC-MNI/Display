@@ -67,17 +67,9 @@ The following are the standard available datasets:
 \item[Average MRI] the average of the 305 brains in the file {\tt /avgbrain/brain/images/norm\_avg\_305\_mri256.mnc}.
 \end{itemize}
 
-Note that the first set above may be compressed, signified by a filename of
-the form {\tt filename.mni.Z} and {\tt filename.mni.z}.  In the former case
-display can read the files directly.  In the latter case, you must first
-uncompress the file before it may be used:
-
-\begin{verbatim}
-cd /scratch
-cp /avgbrain/brain/autoreg/filename.mni.z .
-gunzip filename.mni.z
-display filename.mni
-\end{verbatim}
+Note that the above files are generally compressed.  If the file ends in
+\ .z, then it is compressed and the full name of the file, including the
+\ .z, must be specified to display.
 
 \section{\display Windows}
 

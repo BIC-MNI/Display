@@ -35,6 +35,8 @@ public  void  clear_histogram(
 
 private  void  compute_histogram_lines(
     Volume           volume,
+    Volume           label_volume,
+    BOOLEAN          labeled_only,
     int              axis_index,
     int              voxel_index,
     Real             width_ratio,
@@ -77,8 +79,12 @@ private  void  compute_histogram_lines(
         {
             for_less( z, start[Z], end[Z] )
             {
-                GET_VALUE_3D( value, volume, x, y, z );
-                add_to_histogram( &histogram, value );
+                if( !labeled_only ||
+                    get_3D_volume_label_data( label_volume, x, y, z ) != 0 )
+                {
+                    GET_VALUE_3D( value, volume, x, y, z );
+                    add_to_histogram( &histogram, value );
+                }
             }
 
             if( axis_index < 0 )
@@ -137,7 +143,8 @@ public  void  resize_histogram(
 public  void  compute_histogram(
     display_struct   *slice_window,
     int              axis_index,
-    int              voxel_index )
+    int              voxel_index,
+    BOOLEAN          labeled_only )
 {
     int            i;
     lines_struct   *unscaled_lines, *lines;
@@ -145,6 +152,7 @@ public  void  compute_histogram(
     clear_histogram( slice_window );
 
     compute_histogram_lines( get_volume(slice_window),
+                             get_label_volume(slice_window), labeled_only,
                              axis_index, voxel_index,
                              Histogram_smoothness_ratio,
                              &slice_window->slice.unscaled_histogram_lines );

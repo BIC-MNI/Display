@@ -11,7 +11,8 @@ public  object_struct   *create_3d_slice_quadmesh(
     object = create_object( QUADMESH );
     quadmesh =  get_quadmesh_ptr( object );
 
-    create_slice_quadmesh( volume, axis_index, voxel_position, quadmesh );
+    create_slice_quadmesh( volume, axis_index, voxel_position, -1, -1,
+                           quadmesh );
 
     return( object );
 }

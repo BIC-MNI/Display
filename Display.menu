@@ -346,7 +346,7 @@ region_painting
 francesco
 {
     transient 'q'    load_labels                     "Load .tag as Labels"
-    transient 'w'    save_labels                     "Save Labels .tag"
+    transient 'w'    redo_histogram                  "Recompute Histogram"
     transient 'e'    copy_labels_from_lower_slice  "Copy from Lt/Inf/Post Slice"
     transient 'r'    copy_labels_from_higher_slice "Copy from Rt/Sup/Ant Slice"
     transient 't'    save_current_label              "Save Current Label"
@@ -357,7 +357,7 @@ francesco
     transient 'd'    label_connected                 "Label Connected"
     transient 'f'    set_paint_xy_brush_radius       "XY Radius: %g"
     transient 'g'    set_paint_z_brush_radius        "Out-plane Rad: %g"
-    transient 'h'    flip_labels_in_x                "Flip Labels X"
+    transient 'h'    save_labels                     "Save Labels .tag"
 
     transient 'z'    reset_segmenting                "Clear All Labels"
     transient 'x'    calculate_volume                "Calculate Volume"
@@ -367,6 +367,7 @@ francesco
     transient 'n'    set_segmenting_threshold        "Set Threshold"
 
     transient '1'    translate_labels_arbitrary      "Big Translate"
+    transient '2'    redo_histogram_labeled          "Histogram of Labeled"
     transient '3'    label_connected                 "Fill Thresholded"
     transient '4'    label_connected_no_threshold    "Fill Not Thresholded"
     transient '5'    clear_connected                 "Fill Clear"

@@ -497,6 +497,8 @@ private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
 
     rebuild_slice_models( display );
 
+    resize_histogram( display );
+
     set_update_required( display, NORMAL_PLANES );
     set_update_required( display, OVERLAY_PLANES );
 

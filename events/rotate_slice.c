@@ -213,8 +213,9 @@ private  BOOLEAN  perform_rotation(
                                  x, y, &transform ) &&
         get_slice_window( display, &slice_window ) )
     {
-        compute_transform_inverse( &display->three_d.view.modeling_transform,
-                                   &inverse );
+        (void) compute_transform_inverse(
+                      &display->three_d.view.modeling_transform,
+                      &inverse );
 
         concat_transforms( &transform_in_space,
                            &display->three_d.view.modeling_transform,

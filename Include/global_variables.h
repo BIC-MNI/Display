@@ -307,4 +307,8 @@ START_GLOBALS
 
     DEF_GLOBAL( Clear_before_polygon_scan, BOOLEAN, TRUE )
 
+    DEF_GLOBAL( Histogram_colour, Colour, WHITE )
+    DEF_GLOBAL( Histogram_x_scale, Real, 1.0 )
+    DEF_GLOBAL( Histogram_smoothness_ratio, Real, 0.02 )
+
 END_GLOBALS

@@ -273,19 +273,13 @@ private  void   create_menu_box(
     add_object_to_model( model, object );
 
     lines = get_lines_ptr( object );
+    initialize_lines( lines, Menu_box_colour );
 
     lines->line_thickness = 1;
     lines->n_points = 4;
     lines->n_items = 1;
 
-    lines->colour_flag = ONE_COLOUR;
-
-    ALLOC( lines->colours, 1 );
-
-    lines->colours[0] = Menu_box_colour;
-
     ALLOC( lines->points, lines->n_points );
-
     ALLOC( lines->end_indices, lines->n_items );
 
     lines->end_indices[0] = 5;

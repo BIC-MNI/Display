@@ -25,6 +25,7 @@
 #define  SLICE_MODEL            0
 #define  COLOUR_BAR_MODEL       1
 #define  SLICE_READOUT_MODEL    2
+#define  HISTOGRAM_MODEL        3
 
 #define  N_MODELS               5
 

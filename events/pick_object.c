@@ -84,9 +84,10 @@ public  BOOLEAN  get_mouse_scene_intersection(
         transform_world_to_model_vector( &display->three_d.view, &direction,
                                          &transformed_direction );
 
-        found = intersect_ray_with_objects( display, &transformed_origin,
-                                            &transformed_direction,
-                                            object, object_index, intersection);
+        found = intersect_ray_with_objects_hierarchy(
+                      display, &transformed_origin,
+                      &transformed_direction,
+                      object, object_index, intersection);
     }
     return( found );
 }
