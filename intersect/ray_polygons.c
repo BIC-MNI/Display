@@ -59,19 +59,12 @@ public  Boolean  intersect_ray_polygons( ray_origin, ray_direction,
     int       i;
     Boolean   intersects;
     Boolean   intersect_ray_polygon();
-    Boolean   intersect_ray_with_bintree();
 
-    if( polygons->bintree != (bintree_struct *) 0 )
-    {
-        intersects = intersect_ray_with_bintree( ray_origin, ray_direction,
-                                                 polygons->bintree, polygons,
-                                                 dist );
-    }
-    else
-    {
-        intersects = FALSE;
+    intersects = FALSE;
 
-        for_less( i, 0, polygons->n_items )
+    for_less( i, 0, polygons->n_items )
+    {
+        if( GET_OBJECT_SIZE( *polygons, i ) == 3 )
         {
             if( intersect_ray_polygon( ray_origin, ray_direction,
                                        dist, polygons, i ) )
@@ -190,7 +183,10 @@ private  Boolean  point_within_polygon( pt, n_points, points, polygon_normal )
     }
     else
     {
+        intersects = FALSE;
+/*
         intersects = point_within_polygon_2d( pt, i1, i2, n_points, points );
+*/
     }
 
     return( intersects );
@@ -241,112 +237,6 @@ private  Boolean  point_within_triangle_2d( pt, i1, i2, points )
                 alpha = (u0 - beta * u2) / u1;
                 intersects = ( (alpha >= 0.0) && ((alpha+beta) <= 1.0) );
             }
-        }
-    }
-
-    return( intersects );
-}
-
-private  Boolean  point_within_polygon_2d( pt, i1, i2, n_points, points )
-    Point   *pt;
-    int     i1, i2;
-    int     n_points;
-    Point   points[];
-{
-    Boolean  intersects;
-    Real     x, y, x1, y1, x2, y2, x_inter, dy;
-    int      i;
-    Boolean  up, down, cross;
-
-    x = Point_coord( *pt, i1 );
-    y = Point_coord( *pt, i2 );
-
-    up = FALSE;
-    down = FALSE;
-    cross = FALSE;
-
-    intersects = FALSE;
-
-    x2 = Point_coord(points[n_points-1],i1);
-    y2 = Point_coord(points[n_points-1],i2);
-
-    for_less( i, 0, n_points )
-    {
-        x1 = x2;
-        y1 = y2;
-
-        x2 = Point_coord(points[i],i1);
-        y2 = Point_coord(points[i],i2);
-
-        if( !( (y1 > y && y2 > y) || (y1 < y && y2 < y) || (x1 > x && x2 > x)) )
-        {
-            dy = y2 - y1;
-
-            if( dy == 0.0 )
-            {
-                if( y1 == y && ( (x1 <= x && x2 >= x) ||
-                                 (x1 >= x && x2 <= x) ) )
-                {
-                    intersects = TRUE;
-                    break;
-                }
-            }
-            else
-            {
-                if( y1 == y )
-                {
-                    if( y2 > y )
-                    {
-                        up = !up;
-                    }
-                    else
-                    {
-                        down = !down;
-                    }
-                }
-                else if( y2 == y )
-                {
-                    if( y1 > y )
-                    {
-                        up = !up;
-                    }
-                    else
-                    {
-                        down = !down;
-                    }
-                }
-                else if( x1 <= x && x2 <= x )
-                {
-                    cross = !cross;
-                }
-                else
-                {
-                    x_inter = x1 + (y - y1) / dy * (x2 - x1);
-
-                    if( x_inter == x )
-                    {
-                        intersects = TRUE;
-                        break;
-                    }
-                    else if( x_inter < x )
-                    {
-                        cross = !cross;
-                    }
-                }
-            }
-        }
-    }
-
-    if( !intersects )
-    {
-        if( up != down )
-        {
-            HANDLE_INTERNAL_ERROR( "up and down" );
-        }
-
-        if( cross != up )
-        {
-            intersects = TRUE;
         }
     }
 
