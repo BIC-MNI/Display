@@ -40,31 +40,41 @@ private  void  change_current_slice_by_one(
     }
 }
 
-public  DEF_MENU_FUNCTION(move_slice_plus)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(move_slice_plus)
 {
     change_current_slice_by_one( display, 1 );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(move_slice_plus )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(move_slice_plus )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(move_slice_minus)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(move_slice_minus)
 {
     change_current_slice_by_one( display, -1 );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(move_slice_minus )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(move_slice_minus )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(toggle_slice_visibility)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(toggle_slice_visibility)
 {
     int              view_index, volume_index;
     display_struct   *slice_window;
@@ -81,12 +91,16 @@ public  DEF_MENU_FUNCTION(toggle_slice_visibility)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_slice_visibility )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_slice_visibility )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(toggle_cross_section_visibility)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(toggle_cross_section_visibility)
 {
     display_struct   *slice_window;
 
@@ -99,12 +113,16 @@ public  DEF_MENU_FUNCTION(toggle_cross_section_visibility)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_cross_section_visibility )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_cross_section_visibility )
 {
     return( slice_window_exists(display) );
 }
 
-public  DEF_MENU_FUNCTION(reset_current_slice_view)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(reset_current_slice_view)
 {
     int              view_index;
     display_struct   *slice_window;
@@ -119,12 +137,16 @@ public  DEF_MENU_FUNCTION(reset_current_slice_view)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(reset_current_slice_view )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(reset_current_slice_view )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(colour_code_objects )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(colour_code_objects )
 {
     object_struct           *object, *current_object;
     Volume                  volume;
@@ -146,13 +168,17 @@ public  DEF_MENU_FUNCTION(colour_code_objects )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(colour_code_objects )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(colour_code_objects )
 {
     return( get_n_volumes(display) > 0 &&
             current_object_exists(display) );
 }
 
-public  DEF_MENU_FUNCTION(create_3d_slice)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(create_3d_slice)
 {
     display_struct   *slice_window;
     int              x_index, y_index, axis_index, view_index;
@@ -180,15 +206,20 @@ public  DEF_MENU_FUNCTION(create_3d_slice)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(create_3d_slice)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(create_3d_slice)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(resample_slice_window_volume)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(resample_slice_window_volume)
 {
     int              sizes[N_DIMENSIONS];
     int              new_nx, new_ny, new_nz;
+    char             label[1000];
     display_struct   *slice_window;
     Volume           volume, resampled_volume;
 
@@ -210,8 +241,12 @@ public  DEF_MENU_FUNCTION(resample_slice_window_volume)   /* ARGSUSED */
             resampled_volume = smooth_resample_volume(
                                         volume, new_nx, new_ny, new_nz );
 
-            add_slice_window_volume( slice_window, "Resampled",
-                                     resampled_volume );
+            (void) sprintf( label, "Subsampled to %d,%d,%d: %s",
+                            new_nx, new_ny, new_nz,
+                            get_volume_filename(slice_window,
+                                   get_current_volume_index(slice_window) ) );
+
+            add_slice_window_volume( slice_window, label, resampled_volume );
         }
 
         (void) input_newline( stdin );
@@ -220,16 +255,21 @@ public  DEF_MENU_FUNCTION(resample_slice_window_volume)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(resample_slice_window_volume)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(resample_slice_window_volume)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)
 {
     char             ch;
     Real             x_width, y_width, z_width;
     Real             separations[N_DIMENSIONS];
+    char             label[1000];
     display_struct   *slice_window;
     Volume           volume, resampled_volume;
 
@@ -246,6 +286,11 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
             input_nonwhite_character( stdin, &ch ) == OK &&
             (x_width > 1.0 || y_width > 1.0 || z_width > 1.0) )
         {
+            (void) sprintf( label, "Box Filtered at %g,%g,%g,%c: %s",
+                            x_width, y_width, z_width, ch,
+                            get_volume_filename(slice_window,
+                                   get_current_volume_index(slice_window) ) );
+
             if( ch == 'w' )
             {
                 x_width /= ABS( separations[X] );
@@ -257,8 +302,7 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
                                         NC_BYTE, FALSE, 0.0, 0.0,
                                         x_width, y_width, z_width );
 
-            add_slice_window_volume( slice_window, "Box Filtered",
-                                     resampled_volume );
+            add_slice_window_volume( slice_window, label, resampled_volume );
         }
 
         (void) input_newline( stdin );
@@ -267,12 +311,16 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(box_filter_slice_window_volume)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(box_filter_slice_window_volume)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(pick_slice_angle_point)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(pick_slice_angle_point)
 {
     display_struct   *slice_window;
 
@@ -285,24 +333,32 @@ public  DEF_MENU_FUNCTION(pick_slice_angle_point)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(pick_slice_angle_point)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(pick_slice_angle_point)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION( rotate_slice_axes )      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( rotate_slice_axes )
 {
     initialize_rotating_slice( display );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(rotate_slice_axes )      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(rotate_slice_axes )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(reset_slice_crop)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(reset_slice_crop)
 {
     display_struct   *slice_window;
 
@@ -314,12 +370,16 @@ public  DEF_MENU_FUNCTION(reset_slice_crop)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(reset_slice_crop)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(reset_slice_crop)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(toggle_slice_crop_visibility)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(toggle_slice_crop_visibility)
 {
     display_struct   *slice_window;
 
@@ -331,7 +391,9 @@ public  DEF_MENU_FUNCTION(toggle_slice_crop_visibility)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_slice_crop_visibility)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_slice_crop_visibility)
 {
     display_struct   *slice_window;
     BOOLEAN          visible;
@@ -346,7 +408,9 @@ public  DEF_MENU_UPDATE(toggle_slice_crop_visibility)    /* ARGSUSED */
     return( slice_window_exists(display) );
 }
 
-public  DEF_MENU_FUNCTION(pick_crop_box_edge)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(pick_crop_box_edge)
 {
     display_struct   *slice_window;
 
@@ -359,12 +423,16 @@ public  DEF_MENU_FUNCTION(pick_crop_box_edge)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(pick_crop_box_edge)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(pick_crop_box_edge)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(set_crop_box_filename)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_crop_box_filename)
 {
     display_struct   *slice_window;
     STRING           filename;
@@ -384,12 +452,16 @@ public  DEF_MENU_FUNCTION(set_crop_box_filename)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_crop_box_filename)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_crop_box_filename)
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION(load_cropped_volume)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(load_cropped_volume)
 {
     display_struct   *slice_window;
 
@@ -401,7 +473,9 @@ public  DEF_MENU_FUNCTION(load_cropped_volume)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(load_cropped_volume)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(load_cropped_volume)
 {
     return( slice_window_exists(display) );
 }
@@ -438,31 +512,41 @@ private  void  do_histogram(
     }
 }
 
-public  DEF_MENU_FUNCTION(redo_histogram)      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(redo_histogram)
 {
     do_histogram( display, FALSE );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(redo_histogram)      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(redo_histogram)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(redo_histogram_labeled)      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(redo_histogram_labeled)
 {
     do_histogram( display, TRUE );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(redo_histogram_labeled)      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(redo_histogram_labeled)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(print_voxel_origin)      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(print_voxel_origin)
 {
     Real             voxel[MAX_DIMENSIONS], xw, yw, zw;
     display_struct   *slice_window;
@@ -482,12 +566,16 @@ public  DEF_MENU_FUNCTION(print_voxel_origin)      /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(print_voxel_origin)      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(print_voxel_origin)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(print_slice_plane)      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(print_slice_plane)
 {
     display_struct   *slice_window;
     Vector           normal;
@@ -514,12 +602,16 @@ public  DEF_MENU_FUNCTION(print_slice_plane)      /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(print_slice_plane)      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(print_slice_plane)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(type_in_voxel_origin)      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(type_in_voxel_origin)
 {
     Real             voxel[MAX_DIMENSIONS], xw, yw, zw;
     display_struct   *slice_window;
@@ -550,12 +642,16 @@ public  DEF_MENU_FUNCTION(type_in_voxel_origin)      /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(type_in_voxel_origin)      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(type_in_voxel_origin)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(type_in_slice_plane)      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(type_in_slice_plane)
 {
     int              view_index;
     Real             perp_axis[MAX_DIMENSIONS], xw, yw, zw;
@@ -587,12 +683,16 @@ public  DEF_MENU_FUNCTION(type_in_slice_plane)      /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(type_in_slice_plane)      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(type_in_slice_plane)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(toggle_slice_cross_section_visibility)  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(toggle_slice_cross_section_visibility)
 {
     display_struct   *slice_window;
 
@@ -606,12 +706,16 @@ public  DEF_MENU_FUNCTION(toggle_slice_cross_section_visibility)  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_slice_cross_section_visibility)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_slice_cross_section_visibility)
 {
     return( slice_window_exists(display) );
 }
 
-public  DEF_MENU_FUNCTION(set_current_arbitrary_view)  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_current_arbitrary_view)
 {
     int              view_index;
     display_struct   *slice_window;
@@ -631,12 +735,16 @@ public  DEF_MENU_FUNCTION(set_current_arbitrary_view)  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_current_arbitrary_view)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_current_arbitrary_view)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(toggle_slice_anchor)  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(toggle_slice_anchor)
 {
     int              c, view_index;
     Vector           axis;
@@ -670,12 +778,16 @@ public  DEF_MENU_FUNCTION(toggle_slice_anchor)  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_slice_anchor)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_slice_anchor)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(delete_current_volume)  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(delete_current_volume)
 {
     display_struct   *slice_window;
 
@@ -689,12 +801,16 @@ public  DEF_MENU_FUNCTION(delete_current_volume)  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(delete_current_volume)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(delete_current_volume)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(toggle_current_volume)  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(toggle_current_volume)
 {
     int              current;
     display_struct   *slice_window;
@@ -710,7 +826,9 @@ public  DEF_MENU_FUNCTION(toggle_current_volume)  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_current_volume)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_current_volume)
 {
     int              current_index;
 
@@ -724,7 +842,9 @@ public  DEF_MENU_UPDATE(toggle_current_volume)    /* ARGSUSED */
     return( get_n_volumes(display) > 1 );
 }
 
-public  DEF_MENU_FUNCTION(set_current_volume_opacity)  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(set_current_volume_opacity)
 {
     int              current;
     Real             opacity;
@@ -752,7 +872,9 @@ public  DEF_MENU_FUNCTION(set_current_volume_opacity)  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_current_volume_opacity)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_current_volume_opacity)
 {
     Real             opacity;
     int              current_index;
@@ -801,7 +923,9 @@ private  int  get_current_visible_volume(
     return( current_visible );
 }
 
-public  DEF_MENU_FUNCTION(next_volume_visible)  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(next_volume_visible)
 {
     int              current, view, volume_index;
     display_struct   *slice_window;
@@ -833,7 +957,9 @@ public  DEF_MENU_FUNCTION(next_volume_visible)  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(next_volume_visible)    /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(next_volume_visible)
 {
     set_menu_text_int( menu_window, menu_entry,
                        get_current_visible_volume(display) + 1 );

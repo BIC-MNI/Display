@@ -53,6 +53,7 @@ typedef enum { UPDATE_SLICE, UPDATE_LABELS, UPDATE_BOTH } Update_types;
 
 typedef  struct
 {
+    STRING                 filename;
     Volume                 volume;
     Volume                 labels;
     STRING                 labels_filename;
