@@ -94,11 +94,11 @@ private  void  initialize_three_d_events( graphics )
 {
     void                 add_action_table_function();
     void                 initialize_virtual_spaceball();
-    void                 initialize_picking_polygon();
+    void                 initialize_picking_object();
 
     initialize_virtual_spaceball( graphics );
 
-    initialize_picking_polygon( graphics );
+    initialize_picking_object( graphics );
 
     add_action_table_function( &graphics->action_table, WINDOW_RESIZE_EVENT,
                                handle_resize_three_d );
