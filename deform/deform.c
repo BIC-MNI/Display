@@ -6,20 +6,8 @@ public  void  initialize_deformation(
     deform->deforming_object = (object_struct *) 0;
     deform->in_progress = FALSE;
 
-    deform->deform.deform_data.type = VOLUME_DATA;
-    deform->deform.model_weight = 0.5;
-    deform->deform.deformation_model.model_type = POINT_SPHERE_MODEL;
-    deform->deform.deformation_model.min_curvature_offset = -0.3;
-    deform->deform.deformation_model.max_curvature_offset = 0.3;
-    deform->deform.deformation_model.position_constrained = FALSE;
-    deform->deform.fractional_step = 0.4;
-    deform->deform.max_step = 0.5;
+    initialize_deformation_parameters( &deform->deform );
     deform->deform.degrees_continuity = Volume_continuity;
-    deform->deform.boundary_definition.min_isovalue = 100.0;
-    deform->deform.boundary_definition.max_isovalue = 100.0;
-    deform->deform.boundary_definition.normal_direction = TOWARDS_LOWER;
-    deform->deform.max_iterations = 1000000;
-    deform->deform.stop_threshold = 0.0;
 
     set_default_line_annealing_parameters( &deform->anneal );
 }

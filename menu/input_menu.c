@@ -105,6 +105,7 @@
                        MENU_FUNCTION(reset_polygon_neighbours) \
                        MENU_FUNCTION(cut_polygon_neighbours) \
                        MENU_FUNCTION(make_polygon_sphere) \
+                       MENU_FUNCTION(make_tetrahedral_sphere) \
                        MENU_FUNCTION(make_unit_sphere) \
                        MENU_FUNCTION(subdivide_current_polygon) \
                        MENU_FUNCTION(save_polygons_visibilities) \

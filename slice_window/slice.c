@@ -218,6 +218,8 @@ public  void  initialize_slice_window(
 
     slice_window->slice.next_to_update = X;
 
+    slice_window->slice.display_labels = Initial_display_labels;
+
     initialize_slice_colour_coding( slice_window );
 
     initialize_slice_models( slice_window );

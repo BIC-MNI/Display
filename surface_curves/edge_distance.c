@@ -8,7 +8,7 @@ typedef  struct
 
 private  Boolean  find_shortest_path(
     polygons_struct   *polygons,
-    Real              line_curvature_weight,
+    Real              curvature_weight,
     Point             *p1,
     int               poly1,
     Point             *p2,
@@ -27,7 +27,7 @@ private  void  create_path(
 
 public  Boolean  distance_along_polygons(
     polygons_struct   *polygons,
-    Real              line_curvature_weight,
+    Real              curvature_weight,
     Point             *p1,
     int               poly1,
     Point             *p2,
@@ -43,7 +43,7 @@ public  Boolean  distance_along_polygons(
 
     check_polygons_neighbours_computed( polygons );
 
-    found = find_shortest_path( polygons, line_curvature_weight,
+    found = find_shortest_path( polygons, curvature_weight,
                                 p1, poly1, p2, poly2, dist,
                                 &last_vertex, vertices);
 
@@ -58,33 +58,63 @@ public  Boolean  distance_along_polygons(
     return( found );
 }
 
+private  Real  weighted_distance(
+    polygons_struct  *polygons,
+    Real             curvature_weight,
+    int              from_point_index,
+    int              next_poly_index,
+    int              next_vertex_index )
+{
+    Real   dist, angle, factor;
+    int    size, edge, next_point_index, next_vertex, prev_vertex;
+
+    next_point_index = polygons->indices[ POINT_INDEX( polygons->end_indices,
+                                   next_poly_index, next_vertex_index )];
+    dist = distance_between_points( &polygons->points[from_point_index],
+                                    &polygons->points[next_point_index] );
+
+    if( curvature_weight > 0.0 )
+    {
+        size = GET_OBJECT_SIZE( *polygons, next_poly_index );
+        next_vertex = (next_vertex_index + 1) % size;
+        prev_vertex = (next_vertex_index - 1 + size) % size;
+
+        if( polygons->indices[ POINT_INDEX( polygons->end_indices,
+                        next_poly_index, next_vertex )] == from_point_index )
+        {
+            edge = next_vertex_index;
+        }
+        else if( polygons->indices[ POINT_INDEX( polygons->end_indices,
+                          next_poly_index, prev_vertex )] == from_point_index )
+        {
+            edge = prev_vertex;
+        }
+        else
+            edge = -1;
+
+        if( edge != -1 )
+        {
+            angle = get_polygon_edge_angle( polygons, next_poly_index, edge );
+
+            factor = angle / PI;
+
+            dist = dist * (1.0 + curvature_weight * factor) /
+                          (1.0 + curvature_weight);
+        }
+    }
+
+    return( dist );
+}
+
 typedef  struct
 {
     int   index_within_poly;
     int   poly_index;
 } queue_struct;
 
-private  Real  weighted_distance(
-    Real   line_curvature_weight,
-    Point  *p1,
-    Point  *p2,
-    Point  *p3 )
-{
-    Real  dist;
-
-    dist = distance_between_points( p2, p3 );
-
-    if( line_curvature_weight > 0.0 )
-    {
-        dist += line_curvature_weight * distance_from_line( p2, p1, p3 );
-    }
-
-    return( dist );
-}
-
 private  Boolean  find_shortest_path(
     polygons_struct   *polygons,
-    Real              line_curvature_weight,
+    Real              curvature_weight,
     Point             *p1,
     int               poly1,
     Point             *p2,
@@ -96,7 +126,6 @@ private  Boolean  find_shortest_path(
     int                    i, p, size, point_index, next_point_index;
     Real                   dist;
     Boolean                found_path;
-    Point                  current_point, previous_point;
     queue_struct           entry;
     int                    n_polys, *polys;
     PRIORITY_QUEUE_STRUCT( queue_struct )   queue;
@@ -141,12 +170,6 @@ private  Boolean  find_shortest_path(
         if( found_path && vertices[point_index].distance > *path_dist )
             break;
 
-        current_point = polygons->points[point_index];
-        if( vertices[point_index].from_point == -1 )
-            previous_point = *p2;
-        else
-            previous_point = polygons->points[vertices[point_index].from_point];
-
         n_polys = get_polygons_around_vertex( polygons, entry.poly_index,
                                               entry.index_within_poly, polys,
                                               polygons->n_items );
@@ -165,9 +188,9 @@ private  Boolean  find_shortest_path(
                     vertices[point_index].distance )
                 {
                     dist = vertices[point_index].distance +
-                       weighted_distance( line_curvature_weight,
-                                          &previous_point, &current_point,
-                                          &polygons->points[next_point_index] );
+                       weighted_distance( polygons, curvature_weight,
+                                          point_index,
+                                          polys[i], p );
 
                     if( vertices[next_point_index].from_point == -2 ||
                         dist < vertices[next_point_index].distance )
@@ -183,8 +206,7 @@ private  Boolean  find_shortest_path(
                 if( polys[i] == poly1 )
                 {
                     dist = vertices[next_point_index].distance +
-                           weighted_distance( line_curvature_weight,
-                              &current_point,
+                           distance_between_points(
                               &polygons->points[next_point_index], p1 );
 
                     if( !found_path || dist < *path_dist )

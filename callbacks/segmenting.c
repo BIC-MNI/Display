@@ -41,7 +41,7 @@ public  DEF_MENU_UPDATE(label_point )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( set_voxel_inactive )   /* ARGSUSED */
 {
-    volume_struct  *volume;
+    Volume         volume;
     int            x, y, z, axis_index;
 
     if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) &&
@@ -63,7 +63,7 @@ public  DEF_MENU_UPDATE(set_voxel_inactive )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( set_voxel_active )   /* ARGSUSED */
 {
-    volume_struct  *volume;
+    Volume         volume;
     int            x, y, z, axis_index;
 
     if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) &&
@@ -175,7 +175,7 @@ public  DEF_MENU_FUNCTION(save_labeled_voxels)   /* ARGSUSED */
 {
     FILE               *file;
     Status             status;
-    volume_struct      *volume;
+    Volume             volume;
     String             filename;
 
     status = OK;
@@ -214,7 +214,7 @@ public  DEF_MENU_FUNCTION(load_labeled_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
-    volume_struct    *volume;
+    Volume           volume;
     String           filename;
 
     status = OK;
@@ -260,7 +260,7 @@ public  DEF_MENU_FUNCTION(save_active_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
-    volume_struct    *volume;
+    Volume           volume;
     String           filename;
 
     status = OK;
@@ -299,7 +299,7 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
-    volume_struct    *volume;
+    Volume           volume;
     String           filename;
 
     status = OK;
@@ -343,7 +343,7 @@ public  DEF_MENU_UPDATE(load_active_voxels )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(reset_activities)   /* ARGSUSED */
 {
-    volume_struct    *volume;
+    Volume           volume;
     display_struct   *slice_window;
 
     if( get_slice_window_volume( display, &volume ) )
@@ -393,7 +393,7 @@ private  void  set_slice_activity(
     display_struct     *display,
     Boolean            activity )
 {
-    volume_struct    *volume;
+    Volume           volume;
     int              slice_index[3], axis_index;
     display_struct   *slice_window;
 
@@ -440,7 +440,7 @@ private  void   set_connected_activity(
     display_struct   *display,
     Boolean          desired_activity )
 {
-    volume_struct    *volume;
+    Volume           volume;
     int              slice_index[3], axis_index;
     display_struct   *slice_window;
 
@@ -464,7 +464,7 @@ private  void   set_connected_activity(
 
 public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
 {
-    volume_struct    *volume;
+    Volume           volume;
     int              x, y, z, axis_index;
     display_struct   *slice_window;
 
@@ -496,7 +496,7 @@ public  DEF_MENU_UPDATE(label_connected_3d )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
 {
-    volume_struct    *volume;
+    Volume           volume;
     display_struct   *slice_window;
 
     if( get_slice_window_volume( display, &volume) )
@@ -527,20 +527,21 @@ public  DEF_MENU_UPDATE(expand_labeled_3d )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(invert_activity)   /* ARGSUSED */
 {
-    int              x, y, z;
-    volume_struct    *volume;
+    int              x, y, z, sizes[N_DIMENSIONS];
+    Volume           volume;
     Boolean          activity;
     display_struct   *slice_window;
 
     if( get_slice_window_volume( display, &volume) )
     {
         print( "Inverting activity\n" );
+        get_volume_sizes( volume, sizes );
 
-        for_less( x, 0, volume->sizes[X] )
+        for_less( x, 0, sizes[X] )
         {
-            for_less( y, 0, volume->sizes[Y] )
+            for_less( y, 0, sizes[Y] )
             {
-                for_less( z, 0, volume->sizes[Z] )
+                for_less( z, 0, sizes[Z] )
                 {
                     activity = get_voxel_activity_flag( volume, x, y, z );
                     set_voxel_activity_flag( volume, x, y, z, !activity );

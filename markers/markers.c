@@ -9,7 +9,7 @@ public  Boolean  update_current_marker(
     object_traverse_struct  object_traverse;
     Boolean                 found;
     object_struct           *object, *closest_marker;
-    volume_struct           *volume;
+    Volume                  volume;
     Point                   voxel_pos;
     Real                    x_w, y_w, z_w;
     Real                    dist, closest_dist;

@@ -4,7 +4,7 @@ public  Status   input_landmark_file(
     Volume         volume,
     char           filename[],
     model_struct   *model,
-    Colour         *marker_colour,
+    Colour         marker_colour,
     Real           default_size,
     Marker_types   default_type )
 {
@@ -21,7 +21,7 @@ public  Status   input_landmark_file(
         while( io_tag_point( file, READ_FILE, volume, default_size,
                              &marker ) == OK )
         {
-            marker.colour = *marker_colour;
+            marker.colour = marker_colour;
             marker.type = default_type;
 
             object = create_object( MARKER );

@@ -123,7 +123,7 @@ public  DEF_MENU_FUNCTION(show_all_surface_points)   /* ARGSUSED */
 {
     int            i;
     Real           x, y, z;
-    volume_struct  *volume;
+    Volume         volume;
 
     if( get_slice_window_volume( display, &volume ) )
     {
@@ -343,7 +343,7 @@ public  DEF_MENU_UPDATE(create_surface_model)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(scan_model_to_voxels)   /* ARGSUSED */
 {
-    volume_struct  *volume;
+    Volume           volume;
 
     if( get_slice_window_volume( display, &volume ) )
     {

@@ -25,11 +25,10 @@ int  main( argc, argv )
     char    *argv[];
 {
     char             *filename;
-    String           runtime_directory;
     display_struct   *graphics;
     display_struct   *menu;
     Status           status;
-    String           globals_filename;
+    String           globals_filename, runtime_directory;
     char             *title;
 
     if( argc == 1 )
@@ -37,25 +36,47 @@ int  main( argc, argv )
     else
         title = argv[1];
 
-    if( getenv("DISPLAY_DIRECTORY") != (char *) 0 )
-    {
-        (void) strcpy( runtime_directory, getenv("DISPLAY_DIRECTORY") );
-    }
+    if( getenv( "DISPLAY_DIRECTORY" ) != (char *) NULL )
+        (void) strcpy( runtime_directory, getenv( "DISPLAY_DIRECTORY" ) );
     else
-    {
-        extract_directory( argv[0], runtime_directory );
-    }
+        (void) strcpy( runtime_directory, argv[0] );
 
-    get_absolute_filename( REGISTER_GLOBALS_FILENAME, runtime_directory,
-                           globals_filename );
-
-    status = OK;
+    (void) sprintf( globals_filename, "%s/%s", HARD_CODED_DISPLAY_DIRECTORY,
+                    REGISTER_GLOBALS_FILENAME );
 
     if( file_exists( globals_filename ) )
     {
         status = input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
                                      display_globals, globals_filename );
     }
+
+    (void) sprintf( globals_filename, "%s/%s", getenv("DISPLAY_DIRECTORY"),
+                    REGISTER_GLOBALS_FILENAME );
+
+    if( file_exists( globals_filename ) )
+    {
+        status = input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
+                                     display_globals, globals_filename );
+    }
+
+    (void) sprintf( globals_filename, "%s/%s", argv[0],
+                    REGISTER_GLOBALS_FILENAME );
+
+    if( file_exists( globals_filename ) )
+    {
+        status = input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
+                                     display_globals, globals_filename );
+    }
+
+    (void) strcpy( globals_filename, REGISTER_GLOBALS_FILENAME );
+
+    if( file_exists( globals_filename ) )
+    {
+        status = input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
+                                     display_globals, globals_filename );
+    }
+
+    status = OK;
 
     if( status == OK )
     {

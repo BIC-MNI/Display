@@ -102,7 +102,7 @@ public  void  rebuild_colour_bar(
 
     (void) get_slice_window_volume( slice_window, &volume );
 
-    get_volume_voxel_range( volume, &min_value, &max_value );
+    get_volume_range( volume, &min_value, &max_value );
 
     start_threshold = (Real) slice_window->slice.colour_coding.min_value;
     end_threshold = (Real) slice_window->slice.colour_coding.max_value;
@@ -155,6 +155,7 @@ public  void  rebuild_colour_bar(
 
     while( model->n_objects > FIRST_TEXT )
     {
+        delete_object( model->objects[model->n_objects-1] );
         remove_object_from_model( model, FIRST_TEXT );
     }
 

@@ -263,24 +263,26 @@ private  Real  get_threshold_distance(
     display_struct   *display )
 {
     Real            threshold;
-    volume_struct   *volume;
+    Volume          volume;
     Point           position0, position1;
     Real            x, y, z;
     Real            x_w, y_w, z_w;
-    int             nx, ny, nz;
+    int             sizes[N_DIMENSIONS];
 
     threshold = display->three_d.marker_segmentation.threshold_distance;
 
     if( get_slice_window_volume( display, &volume ) )
     {
-        get_volume_size( volume, &nx, &ny, &nz );
+        get_volume_sizes( volume, sizes );
 
-        convert_talairach_to_voxel( 0.0, 0.0, 0.0, nx, ny, nz, &x, &y, &z );
+        convert_talairach_to_voxel( 0.0, 0.0, 0.0, sizes[X], sizes[Y], sizes[Z],
+                                    &x, &y, &z );
 
         convert_voxel_to_world( volume, x, y, z, &x_w, &y_w, &z_w );
         fill_Point( position0, x_w, y_w, z_w );
 
-        convert_talairach_to_voxel( 1.0, 1.0, 1.0, nx, ny, nz, &x, &y, &z );
+        convert_talairach_to_voxel( 1.0, 1.0, 1.0, sizes[X], sizes[Y], sizes[Z],
+                                    &x, &y, &z );
 
         convert_voxel_to_world( volume, x, y, z, &x_w, &y_w, &z_w );
         fill_Point( position1, x_w, y_w, z_w );

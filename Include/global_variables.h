@@ -286,4 +286,6 @@ START_GLOBALS
     DEF_GLOBAL( Default_z_brush_radius, Real, 0.0 )
     DEF_GLOBAL( Default_paint_label, int, 1 )
 
+    DEF_GLOBAL( Volume_continuity, int, 1 )
+
 END_GLOBALS

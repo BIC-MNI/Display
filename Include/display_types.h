@@ -185,6 +185,8 @@ typedef struct
     object_struct     *deforming_object;
     int               iteration;
     Boolean           in_progress;
+    Boolean           using_simulated_annealing;
+    anneal_struct     anneal;
 }  deformation_struct;
 
 #endif

@@ -68,6 +68,8 @@ private  DEF_EVENT_FUNCTION( start_segmenting )
                                pick_surface_polygon );
 
     fill_Point( display->prev_mouse_position, -1.0, -1.0, -1.0 );
+
+    return( OK );
 }
 
 private  void  remove_events(

@@ -34,7 +34,7 @@ private  void  get_position_pointed_to(
 {
     int             x, y, z, axis_index;
     Real            x_w, y_w, z_w;
-    volume_struct   *volume;
+    Volume          volume;
 
     if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) &&
         get_slice_window_volume( display, &volume ) )
@@ -128,7 +128,7 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
 {
     Status                  status;
     object_struct           *object, *current_object;
-    volume_struct           *volume;
+    Volume                  volume;
     String                  filename;
     FILE                    *file;
     object_traverse_struct  object_traverse;
@@ -142,7 +142,7 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
     (void) input_newline( stdin );
 
     if( !get_slice_window_volume( display, &volume ) )
-        volume = (volume_struct *) 0;
+        volume = (Volume) NULL;
 
     if( status == OK )
         status = open_file_with_default_suffix( filename, "lmk", WRITE_FILE,

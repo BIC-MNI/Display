@@ -212,11 +212,7 @@ private  DEF_EVENT_FUNCTION( update_probe )     /* ARGSUSED */
     int  x, y, x_prev, y_prev;
 
     if( pixel_mouse_moved(display,&x,&y,&x_prev,&y_prev) )
-    {
         rebuild_probe( display );
-
-        set_update_required( display, NORMAL_PLANES );
-    }
 
     return( OK );
 }
@@ -389,7 +385,7 @@ private  void  update_limit(
     if( get_mouse_colour_bar_value( slice_window, &value ) &&
         get_slice_window_volume( slice_window, &volume ) )
     {
-        get_volume_voxel_range( volume, &volume_min, &volume_max );
+        get_volume_range( volume, &volume_min, &volume_max );
 
         colour_coding = &slice_window->slice.colour_coding;
         min_value = colour_coding->min_value;
@@ -464,7 +460,7 @@ private  Boolean  get_mouse_colour_bar_value(
         mouse_within_colour_bar( slice_window, (Real) x, (Real) y, &ratio ) &&
         get_slice_window_volume( slice_window, &volume ) )
     {
-        get_volume_voxel_range( volume, &min_value, &max_value );
+        get_volume_range( volume, &min_value, &max_value );
         *value = INTERPOLATE( ratio, min_value, max_value );
 
         *value = (Real) ROUND( *value );

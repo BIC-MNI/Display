@@ -571,7 +571,8 @@ private  void  render_slice_to_pixels(
     if( fast_lookup_present )
         lookup = fast_lookup[label];
 
-    if( Display_activities && volume->labels != (unsigned char ***) NULL )
+    if( slice_window->slice.display_labels &&
+        volume->labels != (unsigned char ***) NULL )
     {
         label_ptr = volume->labels[0][0];
         display_activity = TRUE;

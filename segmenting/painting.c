@@ -105,45 +105,70 @@ private  void  paint_labels_at_point(
     int              y )
 {
     Volume   volume;
-    Real     brush_size, brush_size_squared;
-    int      label, axis_index, a1, a2, value, int_brush_size;
-    int      brush_size_squared, dx, dy;
+    Real     x_brush_radius, y_brush_radius, z_brush_radius;
+    Real     x_brush_radius_squared, y_brush_radius_squared;
+    Real     x_term, y_term, z_term;
+    Real     z_brush_radius_squared;
+    int      label, axis, a1, a2, value;
+    int      int_x_brush_radius, int_y_brush_radius, int_z_brush_radius;
+    int      dx, dy, dz;
     int      indices[N_DIMENSIONS], ind[N_DIMENSIONS];
     Boolean  update_required;
 
     if( get_slice_window_volume( slice_window, &volume ) &&
         convert_pixel_to_voxel( slice_window, x, y, &indices[X], &indices[Y],
-                                &indices[Z], &axis_index ) )
+                                &indices[Z], &axis ) )
     {
         update_required = FALSE;
 
-        a1 = (axis_index + 1) % N_DIMENSIONS;
-        a2 = (axis_index + 2) % N_DIMENSIONS;
-        brush_size = slice_window->slice.brush_size;
-        brush_size_squared = brush_size * brush_size;
+        a1 = (axis + 1) % N_DIMENSIONS;
+        a2 = (axis + 2) % N_DIMENSIONS;
+        x_brush_radius = slice_window->slice.x_brush_radius;
+        y_brush_radius = slice_window->slice.y_brush_radius;
+        z_brush_radius = slice_window->slice.z_brush_radius;
+
+        if( x_brush_radius <= 0.0 )
+            x_brush_radius = 0.0000001;
+        if( y_brush_radius <= 0.0 )
+            y_brush_radius = 0.0000001;
+        if( z_brush_radius <= 0.0 )
+            z_brush_radius = 0.0000001;
+
+        x_brush_radius_squared = x_brush_radius * x_brush_radius;
+        y_brush_radius_squared = y_brush_radius * y_brush_radius;
+        z_brush_radius_squared = z_brush_radius * z_brush_radius;
+
+        int_x_brush_radius = CEILING( x_brush_radius );
+        int_y_brush_radius = CEILING( y_brush_radius );
+        int_z_brush_radius = CEILING( z_brush_radius );
         label = slice_window->slice.current_paint_label;
-        ind[axis_index] = indices[axis_index];
 
-        int_brush_size = CEILING( brush_size );
-
-        for_inclusive( dx, -int_brush_size, int_brush_size )
+        for_inclusive( dx, -int_x_brush_radius, int_x_brush_radius )
         {
             ind[a1] = indices[a1] + dx;
-            for_inclusive( dy, -int_brush_size, int_brush_size )
+            x_term = dx * dx / x_brush_radius_squared;
+            for_inclusive( dy, -int_y_brush_radius, int_y_brush_radius )
             {
                 ind[a2] = indices[a2] + dy;
-                if( (Real) (dy * dy + dx * dx) <= brush_size_squared &&
-                    cube_is_within_volume( volume, ind ) )
+                y_term = dy * dy / y_brush_radius_squared;
+                for_inclusive( dz, -int_z_brush_radius, int_z_brush_radius )
                 {
-                    value = get_volume_auxiliary_data( volume, ind[X],
-                                                       ind[Y], ind[Z] );
-                    if( (value & LOWER_AUXILIARY_BITS) != label )
+                    ind[axis] = indices[axis] + dz;
+                    z_term = dz * dz / z_brush_radius_squared;
+
+                    if( x_term + y_term + z_term <= 1.0 &&
+                        cube_is_within_volume( volume, ind ) )
                     {
-                        value = value & (~LOWER_AUXILIARY_BITS);
-                        value = value | label;
-                        set_volume_auxiliary_data( volume, ind[X],
-                                                   ind[Y], ind[Z], value );
-                        update_required = TRUE;
+                        value = get_volume_auxiliary_data( volume, ind[X],
+                                                       ind[Y], ind[Z] );
+                        if( (value & LOWER_AUXILIARY_BITS) != label )
+                        {
+                            value = value & (~LOWER_AUXILIARY_BITS);
+                            value = value | label;
+                            set_volume_auxiliary_data( volume, ind[X],
+                                                       ind[Y], ind[Z], value );
+                            update_required = TRUE;
+                        }
                     }
                 }
             }
@@ -154,6 +179,44 @@ private  void  paint_labels_at_point(
             set_slice_window_update( slice_window, 0 );
             set_slice_window_update( slice_window, 1 );
             set_slice_window_update( slice_window, 2 );
+        }
+    }
+}
+
+public  void  copy_labels_slice_to_slice(
+    Volume           volume,
+    int              axis,
+    int              src_voxel,
+    int              dest_voxel )
+{
+    int   x, y, a1, a2, value;
+    int   sizes[N_DIMENSIONS], src_indices[N_DIMENSIONS];
+    int   dest_indices[N_DIMENSIONS];
+
+    get_volume_sizes( volume, sizes );
+    a1 = (axis + 1) % N_DIMENSIONS;
+    a2 = (axis + 2) % N_DIMENSIONS;
+
+    src_indices[axis] = src_voxel;
+    dest_indices[axis] = dest_voxel;
+
+    for_less( x, 0, sizes[a1] )
+    {
+        src_indices[a1] = x;
+        dest_indices[a1] = x;
+        for_less( y, 0, sizes[a2] )
+        {
+            src_indices[a2] = y;
+            dest_indices[a2] = y;
+
+            value = get_volume_auxiliary_data( volume,
+                                               src_indices[X],
+                                               src_indices[Y],
+                                               src_indices[Z] );
+
+            set_volume_auxiliary_data( volume, dest_indices[X],
+                                               dest_indices[Y],
+                                               dest_indices[Z], value );
         }
     }
 }

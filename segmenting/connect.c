@@ -12,7 +12,8 @@ public  void  disconnect_components(
     int             min_threshold,
     int             max_threshold )
 {
-    int           val, i;
+    Real          val;
+    int           i;
     pixel_struct  **pixels;
     int           x, y, index[N_DIMENSIONS], size[N_DIMENSIONS];
     Boolean       inside;
@@ -32,6 +33,7 @@ public  void  disconnect_components(
             if( get_voxel_activity_flag( volume, index[0], index[1], index[2]))
             {
                 GET_VOXEL_3D( val, volume, index[0], index[1], index[2] );
+                val = CONVERT_VOXEL_TO_VALUE( volume, val );
 
                 inside = (val >= min_threshold && val <=max_threshold);
             }

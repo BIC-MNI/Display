@@ -242,7 +242,8 @@ private  void  colour_code_points(
         (void) evaluate_volume_in_world( volume,
                                          Point_x(points[i]),
                                          Point_y(points[i]),
-                                         Point_z(points[i]), FALSE,
+                                         Point_z(points[i]), Volume_continuity,
+                                         FALSE,
                                          &val, (Real *) 0,
                                          (Real *) 0, (Real *) 0 );
 

@@ -35,7 +35,7 @@ private  void  clear_surface_extraction(
     display_struct     *display )
 {
     surface_extraction_struct   *surface_extraction;
-    volume_struct               *volume;
+    Volume                      volume;
 
     surface_extraction = &display->three_d.surface_extraction;
 
@@ -161,16 +161,16 @@ public  void  stop_surface_extraction(
 }
 
 public  int  get_n_voxels(
-    volume_struct  *volume )
+    Volume            volume )
 {
     int   n_voxels;
-    int   nx, ny, nz;
+    int   sizes[N_DIMENSIONS];
 
-    if( volume != (volume_struct *) 0 )
+    if( volume != (Volume) NULL )
     {
-        get_volume_size( volume, &nx, &ny, &nz );
+        get_volume_sizes( volume, sizes );
 
-        n_voxels = (nx - 1) * (ny - 1) * (nz - 1);
+        n_voxels = (sizes[X] - 1) * (sizes[Y] - 1) * (sizes[Z] - 1);
     }
     else
     {

@@ -17,13 +17,15 @@ private  Real  get_distance_from_voxel(
 private  Boolean  find_appropriate_atlas_image(
     pixels_struct           *atlas_images,
     atlas_position_struct   *atlas_page,
-    int                     x_volume_size,
-    int                     y_volume_size,
+    Real                    x_n_pixels,
+    Real                    y_n_pixels,
     unsigned char           *atlas_image[],
     int                     *atlas_x_size,
     int                     *atlas_y_size,
-    int                     *atlas_multiplier_x,
-    int                     *atlas_multiplier_y );
+    Real                    *x_atlas_to_voxel,
+    Real                    *y_atlas_to_voxel );
+
+private  const  Real  ATLAS_THICKNESS[N_DIMENSIONS] = { 0.67, 0.86, 1.5 };
 
 public  void  initialize_atlas(
     atlas_struct   *atlas )
@@ -297,16 +299,18 @@ public  void  blend_in_atlas(
     int           a1,
     int           a2,
     int           axis_index,
-    Real          dx,
-    Real          dy,
+    Real          x_pixel_to_voxel,
+    Real          y_pixel_to_voxel,
     int           x_volume_size,
     int           y_volume_size )
 {
     int            x, y, atlas_x_size, atlas_y_size;
-    int            atlas_multiplier_x, atlas_multiplier_y;
-    int            x_pixel, y_pixel, x_pixel_start, y_pixel_start;
+    Real           x_atlas_to_voxel, y_atlas_to_voxel;
+    int            x_pixel, y_pixel;
+    Real           x_pixel_start, y_pixel_start;
     int            r_atlas, g_atlas, b_atlas, r_voxel, g_voxel, b_voxel;
     int            r, g, b, transparent_threshold;
+    int            *x_pixels;
     Colour         voxel_pixel, atlas_pixel, *lookup, *pixels;
     unsigned  char *atlas_image;
     Real           opacity;
@@ -318,10 +322,10 @@ public  void  blend_in_atlas(
         !find_appropriate_atlas_image( atlas->pixel_maps,
                       atlas->slice_lookup[axis_index]
                       [voxel_start_indices[axis_index]],
-                      ROUND( x_volume_size / dx),
-                      ROUND( y_volume_size / dy), 
+                      x_volume_size / x_pixel_to_voxel / ATLAS_THICKNESS[a1],
+                      y_volume_size / y_pixel_to_voxel / ATLAS_THICKNESS[a2],
                       &atlas_image, &atlas_x_size, &atlas_y_size,
-                      &atlas_multiplier_x, &atlas_multiplier_y ) )
+                      &x_atlas_to_voxel, &y_atlas_to_voxel ) )
     {
         return;
     }
@@ -330,20 +334,29 @@ public  void  blend_in_atlas(
     transparent_threshold = atlas->transparent_threshold;
     lookup = get_8bit_rgb_pixel_lookup();
 
-    x_pixel_start = voxel_start_indices[a1] / dx / atlas_multiplier_x;
-    y_pixel_start = voxel_start_indices[a2] / dy / atlas_multiplier_y;
+    x_pixel_start = voxel_start_indices[a1] / x_pixel_to_voxel /
+                    x_atlas_to_voxel / ATLAS_THICKNESS[a1];
+    y_pixel_start = voxel_start_indices[a2] / y_pixel_to_voxel /
+                    y_atlas_to_voxel / ATLAS_THICKNESS[a2];
+
+    ALLOC( x_pixels, image_x_size );
+
+    for_less( x, 0, image_x_size )
+        x_pixels[x] = ROUND( x_pixel_start + x / x_atlas_to_voxel /
+                                             ATLAS_THICKNESS[a1] );
 
     for_less( y, 0, image_y_size )
     {
         pixels = &image[IJ(y,0,image_x_size)];
 
-        y_pixel = y_pixel_start + y * dy / atlas_multiplier_y;
+        y_pixel = ROUND( y_pixel_start + y / y_atlas_to_voxel /
+                                         ATLAS_THICKNESS[a2] );
 
         if( y_pixel >= 0 && y_pixel < atlas_y_size )
         {
             for_less( x, 0, image_x_size )
             {
-                x_pixel = x_pixel_start + x * dx / atlas_multiplier_x;
+                x_pixel = x_pixels[x];
 
                 if( x_pixel >= 0 && x_pixel < atlas_x_size )
                 {
@@ -373,18 +386,20 @@ public  void  blend_in_atlas(
             }
         }
     }
+
+    FREE( x_pixels );
 }
 
 private  Boolean  find_appropriate_atlas_image(
     pixels_struct           *atlas_images,
     atlas_position_struct   *atlas_page,
-    int                     x_volume_size,
-    int                     y_volume_size,
+    Real                    x_n_pixels,
+    Real                    y_n_pixels,
     unsigned char           *atlas_image[],
     int                     *atlas_x_size,
     int                     *atlas_y_size,
-    int                     *atlas_multiplier_x,
-    int                     *atlas_multiplier_y )
+    Real                    *x_atlas_to_voxel,
+    Real                    *y_atlas_to_voxel )
 {
     int             i, image_index;
     pixels_struct   *pixels;
@@ -395,8 +410,8 @@ private  Boolean  find_appropriate_atlas_image(
     {
         pixels = &atlas_images[atlas_page->pixel_map_indices[i]];
 
-        if( pixels->x_size <= x_volume_size &&
-            pixels->y_size <= y_volume_size &&
+        if( pixels->x_size <= x_n_pixels &&
+            pixels->y_size <= y_n_pixels &&
             (image_index < 0 || pixels->x_size > *atlas_x_size ||
              pixels->y_size > *atlas_y_size) )
         {
@@ -411,8 +426,8 @@ private  Boolean  find_appropriate_atlas_image(
         *atlas_image =
               atlas_images[atlas_page->pixel_map_indices[image_index]].
                            data.pixels_8bit_colour_index;
-        *atlas_multiplier_x = x_volume_size / *atlas_x_size;
-        *atlas_multiplier_y = y_volume_size / *atlas_y_size;
+        *x_atlas_to_voxel = x_n_pixels / *atlas_x_size;
+        *y_atlas_to_voxel = y_n_pixels / *atlas_y_size;
     }
 
     return( image_index >= 0 );

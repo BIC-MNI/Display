@@ -5,8 +5,9 @@ public  Status   input_volume_file(
     Volume         *volume )
 {
     Status         status;
+    static String  dim_names[] = { MIxspace, MIyspace, MIzspace };
 
-    status = input_volume( filename, volume );
+    status = input_volume( filename, dim_names, volume );
 
     if( get_volume_n_dimensions( *volume ) != N_DIMENSIONS )
     {

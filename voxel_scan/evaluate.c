@@ -322,7 +322,8 @@ private  double   evaluate_fit_at_uv(
     {
         if( volume != (Volume) NULL )
         {
-            if( evaluate_volume_in_world( volume, x, y, z, TRUE, &val,
+            if( evaluate_volume_in_world( volume, x, y, z, Volume_continuity,
+                                          TRUE, &val,
                                           (Real *) 0, (Real *) 0, (Real *) 0 ) )
             {
                 surface_estimate = ABS( val - fit_data->isovalue );
@@ -338,8 +339,8 @@ private  double   evaluate_fit_at_uv(
     {
         if( volume != (Volume) NULL )
         {
-            if( evaluate_volume_in_world( volume, x, y, z, TRUE, &val,
-                                          &dx, &dy, &dz ) )
+            if( evaluate_volume_in_world( volume, x, y, z, Volume_continuity,
+                                          TRUE, &val, &dx, &dy, &dz ) )
             {
                 get_surface_normal_from_derivs( dxu, dyu, dzu, dxv, dyv, dzv,
                                                 &surface_normal );

@@ -197,6 +197,7 @@ polygons
     transient 'd'    create_normals_for_polygon   "Compute Normals"
     transient 'f'    reverse_polygons_order       "Reverse Polygons"
     transient 'g'    reverse_normals              "Reverse Normals"
+    transient 'h'    make_tetrahedral_sphere      "Make Tetrahedral Sphere"
 
 
     transient 'z'    save_polygons_bintree                 "Save Bintree"

@@ -60,6 +60,7 @@ typedef  struct
     Colour                 label_colours[NUM_LABELS];
     colour_coding_struct   colour_coding;
     colour_bar_struct      colour_bar;
+    Boolean                display_labels;
 
     int                    x_split, y_split;
 

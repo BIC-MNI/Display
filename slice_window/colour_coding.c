@@ -5,7 +5,8 @@ public  void  initialize_slice_colour_coding(
     display_struct    *slice_window )
 {
     initialize_colour_coding( &slice_window->slice.colour_coding,
-                              GRAY_SCALE, Colour_below, Colour_above,
+                              (Colour_coding_types) Initial_colour_coding_type,
+                              Colour_below, Colour_above,
                               0.0, 1.0 );
 
     initialize_colour_bar( slice_window );
@@ -17,9 +18,13 @@ public  void  initialize_slice_colour_coding(
 public  void  set_colour_coding_for_new_volume(
     display_struct    *slice_window )
 {
+    Real             low_limit, high_limit;
+    Real             min_voxel, max_voxel;
     Real             min_value, max_value;
     int              label, num_entries;
     Volume           volume;
+    static Colour    default_colours[] = { RED, GREEN, BLUE, CYAN, MAGENTA,
+                                           YELLOW };
 
     (void) get_slice_window_volume( slice_window, &volume );
 
@@ -32,28 +37,31 @@ public  void  set_colour_coding_for_new_volume(
     }
 
     add_new_label( slice_window, ACTIVE_BIT, WHITE );
-
     add_new_label( slice_window, ACTIVE_BIT | LABEL_BIT, Labeled_voxel_colour);
-
     add_new_label( slice_window, LABEL_BIT, Inactive_and_labeled_voxel_colour);
-
     add_new_label( slice_window, 0, Inactive_voxel_colour );
 
-    get_volume_voxel_range( volume, &min_value, &max_value );
-    num_entries = (int) max_value - (int) min_value + 1;
+    for_less( label, 0, SIZEOF_STATIC_ARRAY(default_colours) )
+    {
+        add_new_label( slice_window, ACTIVE_BIT | (label+1),
+                       default_colours[label] );
+    }
+
+    get_volume_voxel_range( volume, &min_voxel, &max_voxel );
+    num_entries = (int) max_voxel - (int) min_voxel + 1;
+
+    get_volume_range( volume, &min_value, &max_value );
 
     slice_window->slice.fast_lookup_present =
                   (num_entries <= Max_fast_colour_lookup);
 
-    if( slice_window->slice.fast_lookup_present )
-    {
-        create_fast_lookup( slice_window, 0 );
-        create_fast_lookup( slice_window, ACTIVE_BIT );
-        create_fast_lookup( slice_window, LABEL_BIT );
-        create_fast_lookup( slice_window, ACTIVE_BIT | LABEL_BIT );
-    }
+    rebuild_fast_lookup( slice_window );
 
-    change_colour_coding_range( slice_window, min_value, max_value );
+    low_limit = min_value + Initial_low_limit_position *
+                (max_value - min_value);
+    high_limit = min_value + Initial_high_limit_position *
+                 (max_value - min_value);
+    change_colour_coding_range( slice_window, low_limit, high_limit );
 
     rebuild_colour_bar( slice_window );
 }
@@ -110,12 +118,12 @@ public  void  create_fast_lookup(
     display_struct    *slice_window,
     int               label )
 {
-    Real             min_value, max_value;
+    Real             min_voxel, max_voxel;
 
-    get_volume_voxel_range( slice_window->slice.volume, &min_value, &max_value);
+    get_volume_voxel_range( slice_window->slice.volume, &min_voxel, &max_voxel);
 
     ALLOC( slice_window->slice.fast_lookup[label], 
-           (int) max_value - (int) min_value + 1 );
+           (int) max_voxel - (int) min_voxel + 1 );
 }
 
 public  void   add_new_label(
@@ -183,17 +191,19 @@ public  void  rebuild_fast_lookup_for_label(
     display_struct    *slice_window,
     int               label )
 {
-    int              val;
+    int              voxel;
+    Real             value;
     Colour           colour;
-    Real             min_value, max_value;
+    Real             min_voxel, max_voxel;
 
-    get_volume_voxel_range( slice_window->slice.volume, &min_value, &max_value);
+    get_volume_voxel_range( get_volume(slice_window), &min_voxel, &max_voxel );
 
-    for_inclusive( val, (int) min_value, (int) max_value )
+    for_inclusive( voxel, (int) min_voxel, (int) max_voxel )
     {
-        colour = get_slice_colour_coding( slice_window, val, label );
+        value = CONVERT_VOXEL_TO_VALUE( get_volume(slice_window), voxel );
+        colour = get_slice_colour_coding( slice_window, value, label );
 
-        slice_window->slice.fast_lookup[label][val-(int) min_value] = colour;
+        slice_window->slice.fast_lookup[label][voxel-(int) min_voxel] = colour;
     }
 }
 
@@ -206,6 +216,12 @@ public  void  rebuild_fast_lookup(
     {
         for_less( label, 0, NUM_LABELS )
         {
+            if( slice_window->slice.label_colours_used[label] &&
+                slice_window->slice.fast_lookup[label] == (Colour *) 0 )
+            {
+                create_fast_lookup( slice_window, label );
+            }
+
             if( slice_window->slice.fast_lookup[label] != (Colour *) 0 )
                 rebuild_fast_lookup_for_label( slice_window, label );
         }

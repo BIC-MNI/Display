@@ -4,7 +4,7 @@ public  double   evaluate_graphics_fit(
     void            *evaluation_ptr,
     double          parameters[] )
 {
-    volume_struct           *volume;
+    Volume                  volume;
     display_struct          *display;
     surface_fitting_struct  *fit_data;
 
@@ -26,7 +26,7 @@ public  double   evaluate_graphics_fit_with_range(
     double          v_max,
     Real            surface_point_distances[] )
 {
-    volume_struct           *volume;
+    Volume                  volume;
     display_struct          *display;
     surface_fitting_struct  *fit_data;
 

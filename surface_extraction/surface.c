@@ -2,7 +2,7 @@
 #include  <def_display.h>
 
 private  Boolean  find_close_voxel_containing_value(
-    volume_struct              *volume,
+    Volume                     volume,
     unsigned_byte              voxel_done_flags[],
     Real                       value,
     surface_extraction_struct  *surface_extraction,
@@ -11,7 +11,7 @@ private  Boolean  find_close_voxel_containing_value(
     int                        z,
     voxel_index_struct         *found_indices );
 private  void  add_voxel_neighbours(
-    volume_struct                       *volume,
+    Volume                              volume,
     int                                 x,
     int                                 y,
     int                                 z,
@@ -28,7 +28,7 @@ private  Boolean  cube_is_within_distance(
 private  void  possibly_output(
     polygons_struct  *p );
 private  void  delete_edge_points_no_longer_needed(
-    volume_struct       *volume,
+    Volume              volume,
     voxel_index_struct  *voxel_index,
     unsigned_byte       voxel_done_flags[],
     hash_table_struct   *edge_points );
@@ -39,14 +39,18 @@ public  void  start_surface_extraction_at_point(
     int                y,
     int                z )
 {
-    volume_struct               *volume;
+    int                         indices[N_DIMENSIONS];
+    Volume                      volume;
     surface_extraction_struct   *surface_extraction;
     voxel_index_struct          voxel_indices;
 
     surface_extraction = &display->three_d.surface_extraction;
 
+    indices[X] = x;
+    indices[Y] = y;
+    indices[Z] = z;
     if( get_slice_window_volume( display, &volume ) &&
-        cube_is_within_volume( volume, x, y, z ) )
+        cube_is_within_volume( volume, indices ) )
     {
         display->three_d.surface_extraction.x_starting_voxel = x;
         display->three_d.surface_extraction.y_starting_voxel = y;
@@ -91,7 +95,7 @@ public  void  start_surface_extraction_at_point(
 }
 
 private  Boolean  find_close_voxel_containing_value(
-    volume_struct              *volume,
+    Volume                     volume,
     unsigned_byte              voxel_done_flags[],
     Real                       value,
     surface_extraction_struct  *surface_extraction,
@@ -101,17 +105,17 @@ private  Boolean  find_close_voxel_containing_value(
     voxel_index_struct         *found_indices )
 {
     Boolean                   found, voxel_contains;
-    int                       nx, ny, nz;
+    int                       sizes[N_DIMENSIONS];
     unsigned_byte             voxel_done;
     voxel_queue_struct        voxels_to_check;
     voxel_index_struct        indices, insert;
     bitlist_struct            voxels_searched;
 
-    get_volume_size( volume, &nx, &ny, &nz );
+    get_volume_sizes( volume, sizes );
 
-    insert.i[X] = MIN( x, nx-2 );
-    insert.i[Y] = MIN( y, ny-2 );
-    insert.i[Z] = MIN( z, nz-2 );
+    insert.i[X] = MIN( x, sizes[X]-2 );
+    insert.i[Y] = MIN( y, sizes[Y]-2 );
+    insert.i[Z] = MIN( z, sizes[Z]-2 );
 
     found = FALSE;
 
@@ -166,7 +170,7 @@ public  void  extract_more_surface(
     int                         n_voxels_done;
     voxel_index_struct          voxel_index;
     surface_extraction_struct   *surface_extraction;
-    volume_struct               *volume;
+    Volume                      volume;
     Real                        stop_time;
 
     n_voxels_done = 0;
@@ -224,17 +228,18 @@ public  void  extract_more_surface(
 }
 
 private  void  add_voxel_neighbours(
-    volume_struct                       *volume,
-    int                                 x,
-    int                                 y,
-    int                                 z,
-    Boolean                             surface_only,
-    Real                                isovalue,
-    surface_extraction_struct           *surface_extraction,
+    Volume                          volume,
+    int                             x,
+    int                             y,
+    int                             z,
+    Boolean                         surface_only,
+    Real                            isovalue,
+    surface_extraction_struct       *surface_extraction,
     bitlist_struct                      *voxels_queued,
     voxel_queue_struct                  *voxel_queue )
 {
     int                      x_offset, y_offset, z_offset;
+    int                      indices[N_DIMENSIONS];
     voxel_index_struct       neighbour;
 
     for_inclusive( x_offset, -1, 1 )
@@ -247,11 +252,11 @@ private  void  add_voxel_neighbours(
             for_inclusive( z_offset, -1, 1 )
             {
                 neighbour.i[Z] = z + z_offset;
+                indices[X] = neighbour.i[X];
+                indices[Y] = neighbour.i[Y];
+                indices[Z] = neighbour.i[Z];
                 if( (x_offset != 0 || y_offset != 0 || z_offset != 0) &&
-                    cube_is_within_volume( volume,
-                                           neighbour.i[X],
-                                           neighbour.i[Y],
-                                           neighbour.i[Z] ) &&
+                    cube_is_within_volume( volume, indices ) &&
                     cube_is_within_distance( surface_extraction,
                                              neighbour.i[X],
                                              neighbour.i[Y],
@@ -331,7 +336,7 @@ private  void  possibly_output(
 }
 
 private  void  delete_edge_points_no_longer_needed(
-    volume_struct       *volume,
+    Volume              volume,
     voxel_index_struct  *voxel_index,
     unsigned_byte       voxel_done_flags[],
     hash_table_struct   *edge_points )
@@ -341,6 +346,7 @@ private  void  delete_edge_points_no_longer_needed(
     Boolean             all_four_done;
     Boolean             voxel_done[3][3][3];
     voxel_index_struct  indices;
+    int                 int_indices[N_DIMENSIONS];
 
     for_inclusive( dx, -1, 1 )
     {
@@ -351,9 +357,11 @@ private  void  delete_edge_points_no_longer_needed(
             for_inclusive( dz, -1, 1 )
             {
                 indices.i[Z] = voxel_index->i[Z] + dz;
+                int_indices[X] = indices.i[X];
+                int_indices[Y] = indices.i[Y];
+                int_indices[Z] = indices.i[Z];
 
-                if( !cube_is_within_volume( volume, indices.i[X],
-                             indices.i[Y], indices.i[Z] ) ||
+                if( !cube_is_within_volume( volume, int_indices ) ||
                     get_voxel_done_flag( volume, voxel_done_flags, &indices )
                     == VOXEL_COMPLETELY_DONE )
                 {

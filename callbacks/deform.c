@@ -203,23 +203,21 @@ public  DEF_MENU_UPDATE(set_deformation_model )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_deformation_parameters )   /* ARGSUSED */
 {
     Real           fractional_step, max_step, max_search_distance;
-    Real           search_increment, min_size;
+    int            degrees_continuity;
 
     print("Enter fractional_step, max_step, max_search_distance,\n" );
-    print("      search_increment, min_size: " );
+    print("      degrees_continuity: " );
 
     if( input_real( stdin, &fractional_step ) == OK &&
         input_real( stdin, &max_step ) == OK &&
         input_real( stdin, &max_search_distance ) == OK &&
-        input_real( stdin, &search_increment ) == OK &&
-        input_real( stdin, &min_size ) == OK )
+        input_int( stdin, &degrees_continuity ) == OK )
     {
         display->three_d.deform.deform.fractional_step = fractional_step;
         display->three_d.deform.deform.max_step = max_step;
         display->three_d.deform.deform.max_search_distance =
                                                   max_search_distance;
-        display->three_d.deform.deform.search_increment = search_increment;
-        display->three_d.deform.deform.min_size = min_size;
+        display->three_d.deform.deform.degrees_continuity = degrees_continuity;
     }
 
     (void) input_newline( stdin );

@@ -18,7 +18,8 @@ public  void  fill_connected_voxels_3d(
     xyz_struct                   entry;
     QUEUE_STRUCT( xyz_struct )   queue;
     bitlist_3d_struct            bitlist;
-    int                          n_done, val;
+    int                          n_done;
+    Real                         val;
     const  Real                  update_every = 10.0;
     Real                         next_message_time;
 
@@ -32,6 +33,7 @@ public  void  fill_connected_voxels_3d(
     if( get_voxel_activity_flag( volume, x, y, z ) )
     {
         GET_VOXEL_3D( val, volume, x, y, z );
+        val = CONVERT_VOXEL_TO_VALUE( volume, val );
         if( val >= min_threshold && val <= max_threshold )
         {
             set_voxel_label_flag( volume, x, y, z, TRUE );
@@ -73,6 +75,7 @@ public  void  fill_connected_voxels_3d(
                 if( get_voxel_activity_flag( volume, tx, ty, tz ) )
                 {
                     GET_VOXEL_3D( val, volume, tx, ty, tz );
+                    val = CONVERT_VOXEL_TO_VALUE( volume, val );
                     if( val >= min_threshold && val <= max_threshold )
                     {
                         set_voxel_label_flag( volume, tx, ty, tz, TRUE );

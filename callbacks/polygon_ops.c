@@ -280,6 +280,46 @@ public  DEF_MENU_UPDATE(make_polygon_sphere )   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION( make_tetrahedral_sphere )   /* ARGSUSED */
+{
+    Point             centre;
+    Real              x_size, y_size, z_size;
+    int               n_triangles;
+    object_struct     *object;
+
+    print( "Enter x_centre, y_centre, z_centre, x_size, y_size, z_size,\n" );
+    print( "      n_triangles: " );
+    
+    if( input_float( stdin, &Point_x(centre) ) == OK &&
+        input_float( stdin, &Point_y(centre) ) == OK &&
+        input_float( stdin, &Point_z(centre) ) == OK &&
+        input_real( stdin, &x_size ) == OK &&
+        input_real( stdin, &y_size ) == OK &&
+        input_real( stdin, &z_size ) == OK &&
+        input_int( stdin, &n_triangles ) == OK )
+    {
+        object = create_object( POLYGONS );
+
+        create_tetrahedral_sphere( &centre, x_size, y_size, z_size,
+                                   n_triangles, get_polygons_ptr(object) );
+
+        get_polygons_ptr(object)->colours[0] = WHITE;
+        get_default_surfprop( &get_polygons_ptr(object)->surfprop );
+        compute_polygon_normals( get_polygons_ptr(object) );
+
+        add_object_to_current_model( display, object );
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(make_tetrahedral_sphere )   /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( subdivide_current_polygon )   /* ARGSUSED */
 {
     polygons_struct   *polygons;

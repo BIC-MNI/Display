@@ -124,16 +124,24 @@ public  DEF_MENU_FUNCTION(get_labeled_boundary)   /* ARGSUSED */
 {
     object_struct    *object;
     Volume           volume;
+    int              label;
 
     if( get_slice_window_volume( display, &volume ) )
     {
-        object = create_object( POLYGONS );
+        print( "Enter label value to get boundary of: " );
 
-        extract_boundary_of_labeled_voxels( volume, get_polygons_ptr(object) );
+        if( input_int( stdin, &label ) == OK &&
+            label >= 0 && label < NUM_LABELS )
+        {
+            object = create_object( POLYGONS );
 
-        add_object_to_model( get_current_model(display), object );
+            extract_boundary_of_labeled_voxels( volume, label,
+                                                get_polygons_ptr(object) );
 
-        graphics_models_have_changed( display );
+            add_object_to_model( get_current_model(display), object );
+
+            graphics_models_have_changed( display );
+        }
     }
 
     return( OK );

@@ -55,6 +55,14 @@ public  Status  load_graphics_file(
                                       display->three_d.default_marker_type,
                                       &model->n_objects, &model->objects );
     }
+    else if( string_ends_in(filename_no_z,".tag") )
+    {
+        status = input_tag_file( filename_no_z,
+                                 display->three_d.default_marker_colour,
+                                 display->three_d.default_marker_size,
+                                 display->three_d.default_marker_type,
+                                 &model->n_objects, &model->objects );
+    }
     else if( string_ends_in(filename_no_z,".cnt") )
     {
         print( "Cannot read .cnt files.\n" );

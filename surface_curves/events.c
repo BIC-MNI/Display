@@ -3,6 +3,14 @@
 
 static    DEF_EVENT_FUNCTION( pick_point );
 
+private  Bitplane_types   get_surface_curve_bitplane()
+{
+    if( Surface_curve_overlay_flag )
+        return( OVERLAY_PLANES );
+    else
+        return( NORMAL_PLANES );
+}
+
 public  void  initialize_surface_curve(
     display_struct     *display )
 {
@@ -10,7 +18,10 @@ public  void  initialize_surface_curve(
     lines_struct   *lines;
     model_struct   *model;
 
-    model = get_graphics_model( display, OVERLAY_MODEL );
+    if( Surface_curve_overlay_flag )
+        model = get_graphics_model( display, OVERLAY_MODEL );
+    else
+        model = get_graphics_model( display, THREED_MODEL );
 
     object = create_object( LINES );
     lines = get_lines_ptr( object );
@@ -46,7 +57,7 @@ public  void  start_surface_curve(
         display->three_d.surface_curve.prev_point_exists = FALSE;
         display->three_d.surface_curve.picking_points = TRUE;
 
-        set_update_required( display, OVERLAY_PLANES );
+        set_update_required( display, get_surface_curve_bitplane() );
     }
 }
 
@@ -81,7 +92,7 @@ private  void  add_point_to_curve(
                      &dist, info->lines ) )
         {
             print( "Distance %g\n", dist );
-            set_update_required( display, OVERLAY_PLANES );
+            set_update_required( display, get_surface_curve_bitplane() );
         }
     }
 
@@ -143,7 +154,7 @@ public  void  reset_surface_curve(
     if( display->three_d.surface_curve.picking_points )
         end_surface_curve( display );
 
-    set_update_required( display, OVERLAY_PLANES );
+    set_update_required( display, get_surface_curve_bitplane() );
 }
 
 public  void  make_surface_curve_permanent(
@@ -172,6 +183,6 @@ public  void  make_surface_curve_permanent(
         info->prev_point_exists = FALSE;
 
         set_update_required( display, NORMAL_PLANES );
-        set_update_required( display, OVERLAY_PLANES );
+        set_update_required( display, get_surface_curve_bitplane() );
     }
 }

@@ -155,9 +155,14 @@ public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
     String           line;
     Colour           col;
 
-    if( get_slice_window( display, &slice_window ) &&
-        slice_window->slice.current_paint_label > 0 )
+    if( get_slice_window( display, &slice_window ) )
     {
+        if( slice_window->slice.current_paint_label <= 0 )
+        {
+            print( "First you must set the current paint label to > 0.\n" );
+            return( OK );
+        }
+
         print( "Enter the colour for label %d: ",
                slice_window->slice.current_paint_label );
 
@@ -182,53 +187,82 @@ public  DEF_MENU_UPDATE(set_label_colour )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION( save_labels )   /* ARGSUSED */
+private  save_labels_as_landmarks(
+    display_struct  *display,
+    display_struct  *slice_window,
+    int             desired_label )
 {
     Status         status;
     FILE           *file;
     int            i;
     String         filename;
-    display_struct *slice_window;
-    Volume         volume;
     Colour         colour_table[LOWER_AUXILIARY_BITS+1];
 
-    if( get_slice_window_volume( display, &volume ) &&
-        get_slice_window( display, &slice_window ) )
+    print( "Enter filename to save: " );
+    if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
     {
-        print( "Enter filename to save: " );
-        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        for_less( i, 0, LOWER_AUXILIARY_BITS+1 )
         {
-            for_less( i, 0, LOWER_AUXILIARY_BITS+1 )
-            {
-                if( slice_window->slice.label_colours_used[i|ACTIVE_BIT] )
-                    colour_table[i] = slice_window->slice.
-                                        label_colours[i|ACTIVE_BIT];
-                else
-                    colour_table[i] = BLACK;
-            }
-
-            status = open_file_with_default_suffix( filename, "lmk",
-                                            WRITE_FILE, ASCII_FORMAT, &file );
-
-            if( status == OK )
-                status = output_labels_as_landmarks( file, volume,
-                      display->three_d.default_marker_size,
-                      display->three_d.default_marker_patient_id,
-                      colour_table );
-
-            if( status == OK )
-            status = close_file( file );
-
-            print( "Done saving.\n" );
+            if( slice_window->slice.label_colours_used[i|ACTIVE_BIT] )
+                colour_table[i] = slice_window->slice.
+                                    label_colours[i|ACTIVE_BIT];
+            else
+                colour_table[i] = BLACK;
         }
 
-        (void) input_newline( stdin );
+        status = open_file_with_default_suffix( filename, "lmk",
+                                        WRITE_FILE, ASCII_FORMAT, &file );
+
+        if( status == OK )
+            status = output_labels_as_landmarks( file, get_volume(slice_window),
+                  desired_label,
+                  display->three_d.default_marker_size,
+                  display->three_d.default_marker_patient_id,
+                  colour_table );
+
+        if( status == OK )
+            status = close_file( file );
+
+        print( "Done saving.\n" );
     }
+
+    (void) input_newline( stdin );
+}
+
+public  DEF_MENU_FUNCTION( save_labels )   /* ARGSUSED */
+{
+    display_struct *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+        save_labels_as_landmarks( display, slice_window, -1 );
 
     return( OK );
 }
 
 public  DEF_MENU_UPDATE(save_labels )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( save_current_label )   /* ARGSUSED */
+{
+    display_struct *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        if( slice_window->slice.current_paint_label > 0 )
+        {
+            save_labels_as_landmarks( display, slice_window,
+                                      slice_window->slice.current_paint_label );
+        }
+        else
+            print( "You first have to set the current label > 0.\n" );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(save_current_label )   /* ARGSUSED */
 {
     return( OK );
 }

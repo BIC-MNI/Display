@@ -293,3 +293,5 @@ Default_x_brush_radius = 3.0;
 Default_y_brush_radius = 3.0;
 Default_z_brush_radius = 0.0;
 Default_paint_label = 1;
+
+Volume_continuity = 0;

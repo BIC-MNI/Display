@@ -4,7 +4,7 @@ typedef  skiplist_struct  point_lookup_struct;
 
 private  Boolean  face_is_boundary(
     Volume          volume,
-    int             sizes[N_DIMENSIONS],
+    int             label,
     int             indices[N_DIMENSIONS],
     int             c,
     int             offset );
@@ -22,6 +22,7 @@ private  Status  add_face(
 
 public  void  extract_boundary_of_labeled_voxels(
     Volume           volume,
+    int              label,
     polygons_struct  *polygons )
 {
     int                          indices[N_DIMENSIONS], sizes[N_DIMENSIONS];
@@ -51,7 +52,7 @@ public  void  extract_boundary_of_labeled_voxels(
                 {
                     for( offset = -1;  offset <= 1;  offset += 2 )
                     {
-                        if( face_is_boundary( volume, sizes, indices, c,offset))
+                        if( face_is_boundary( volume, label, indices, c,offset))
                         {
                             add_face( volume, indices, c, offset,
                                       polygons, &point_lookup );
@@ -82,31 +83,38 @@ public  void  extract_boundary_of_labeled_voxels(
 
 private  Boolean  face_is_boundary(
     Volume          volume,
-    int             sizes[N_DIMENSIONS],
+    int             label,
     int             indices[N_DIMENSIONS],
     int             c,
     int             offset )
 {
+    Boolean  inside, neigh_inside;
     Boolean  boundary_flag;
     int      neigh_indices[N_DIMENSIONS];
 
     boundary_flag = FALSE;
 
-    if( get_voxel_label_flag( volume, indices[0], indices[1], indices[2] ) )
+    inside = (get_volume_auxiliary_data( volume, indices[0], indices[1],
+                      indices[2] ) & LOWER_AUXILIARY_BITS) == label;
+
+    if( inside )
     {
         neigh_indices[0] = indices[0];
         neigh_indices[1] = indices[1];
         neigh_indices[2] = indices[2];
         neigh_indices[c] += offset;
 
-        if( neigh_indices[0] < 0 || neigh_indices[0] >= sizes[0] ||
-            neigh_indices[1] < 0 || neigh_indices[1] >= sizes[1] ||
-            neigh_indices[2] < 0 || neigh_indices[2] >= sizes[2] ||
-            !get_voxel_label_flag( volume, neigh_indices[0], neigh_indices[1],
-                                   neigh_indices[2] ) )
+        if( cube_is_within_volume( volume, neigh_indices ) )
         {
-            boundary_flag = TRUE;
+            neigh_inside = (get_volume_auxiliary_data( volume,
+                     neigh_indices[0], neigh_indices[1], neigh_indices[2] ) &
+                            LOWER_AUXILIARY_BITS) == label;
+
+            if( inside != neigh_inside )
+                boundary_flag = TRUE;
         }
+        else
+            boundary_flag = TRUE;
     }
 
     return( boundary_flag );

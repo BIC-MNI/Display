@@ -35,8 +35,7 @@ public  void  reset_segmentation(
 {
     delete_all_labels( &slice_window->slice.segmenting );
 
-    set_all_voxel_activity_flags( get_volume(slice_window), TRUE );
-    set_all_voxel_label_flags( get_volume(slice_window), FALSE );
+    set_all_volume_auxiliary_data( get_volume(slice_window), ACTIVE_BIT );
 }
 
 public  void  add_point_label(
@@ -179,9 +178,10 @@ private  Boolean  should_change_this_one(
     int             max_threshold,
     Boolean         desired_activity )
 {
-    int   value;
+    Real   value;
 
     GET_VOXEL_3D( value, volume, x, y, z );
+    value = CONVERT_VOXEL_TO_VALUE( volume, value );
 
     return( desired_activity != get_voxel_activity_flag( volume, x, y, z ) &&
             min_threshold <= value && value <= max_threshold );
