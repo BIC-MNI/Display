@@ -878,11 +878,14 @@ private  int   create_point( volume, isovalue, tris, voxel, edge_intersected,
         }
     }
 
-    fill_Point( point, (Real) voxel->i[X_AXIS],
-                       (Real) voxel->i[Y_AXIS],
+    fill_Point( point, (Real) voxel->i[X_AXIS], (Real) voxel->i[Y_AXIS],
                        (Real) voxel->i[Z_AXIS] )
 
     Point_coord( point, edge_intersected ) += alpha;
+
+    Point_x(point) *= volume->slice_thickness[X_AXIS];
+    Point_y(point) *= volume->slice_thickness[Y_AXIS];
+    Point_z(point) *= volume->slice_thickness[Z_AXIS];
 
     u_bar[X_AXIS] = FRACTION( Point_x(point) );
     u_bar[Y_AXIS] = FRACTION( Point_y(point) );
@@ -892,6 +895,10 @@ private  int   create_point( volume, isovalue, tris, voxel, edge_intersected,
                         dx, dy, dz );
 
     fill_Vector( normal, dx, dy, dz );
+
+    Vector_x(normal) /= volume->slice_thickness[X_AXIS];
+    Vector_y(normal) /= volume->slice_thickness[Y_AXIS];
+    Vector_z(normal) /= volume->slice_thickness[Z_AXIS];
 
     NORMALIZE_VECTOR( normal, normal );
 
