@@ -13,6 +13,7 @@ public  Status  set_visibility_around_poly( polygons, poly,
     int                   i, index, neigh, size, n_done;
     Status                status;
     Status                create_polygon_neighbours();
+    Status                create_polygons_visibilities();
     unsigned char         *polygons_done_flags;
     QUEUE_STRUCT( int )   queue;
 
