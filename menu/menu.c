@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.39 1996-04-19 13:25:19 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.40 1996-11-25 14:56:15 david Exp $";
 #endif
 
 
@@ -111,6 +111,65 @@ private  void  remove_menu_actions(
     }
 }
 
+private  void  initialize_menu_parameters(
+    display_struct    *menu_window )
+{
+    int                 x_size, y_size;
+    Real                x_scale, y_scale, scale;
+    menu_window_struct  *menu;
+
+    menu = &menu_window->menu;
+
+    G_get_window_size( menu_window->window, &x_size, &y_size );
+
+    x_scale = (Real) x_size / (Real) menu->default_x_size;
+    y_scale = (Real) y_size / (Real) menu->default_y_size;
+
+    scale = MIN( x_scale, y_scale );
+
+    menu->x_dx = scale * X_menu_dx;
+    menu->x_dy = scale * X_menu_dy;
+    menu->y_dx = scale * Y_menu_dx;
+    menu->y_dy = scale * Y_menu_dy;
+    menu->n_chars_per_unit_across = Menu_n_chars_per_entry;
+    menu->n_lines_in_entry = Menu_n_lines_per_entry;
+    menu->character_width = scale * Menu_character_width;
+    menu->character_height = scale * Menu_character_height;
+    menu->character_offset = scale * Menu_key_character_offset;
+    menu->x_menu_text_offset = scale * X_menu_text_offset;
+    menu->y_menu_text_offset = scale * Y_menu_text_offset;
+    menu->x_menu_origin = scale * X_menu_origin;
+    menu->y_menu_origin = scale * Y_menu_origin;
+    menu->cursor_pos_x_origin = scale * Cursor_pos_x_origin;
+    menu->cursor_pos_y_origin = scale * Cursor_pos_y_origin;
+    menu->selected_x_origin = scale * Selected_x_origin;
+    menu->selected_y_origin = scale * Selected_y_origin;
+    menu->selected_x_offset = scale * Selected_box_x_offset;
+    menu->selected_y_offset = scale * Selected_box_y_offset;
+    menu->selected_box_height = scale * Character_height_in_pixels;
+    menu->x_menu_name = scale * Menu_name_x;
+    menu->y_menu_name = scale * Menu_name_y;
+    menu->font_size = scale * Menu_window_font_size;
+}
+
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_menu_resize )
+{
+    display_struct  *menu_window, *three_d;
+
+    three_d = display->associated[THREE_D_WINDOW];
+    menu_window = three_d->associated[MENU_WINDOW];
+
+    initialize_menu_parameters( menu_window );
+    rebuild_menu( menu_window );
+    rebuild_cursor_position_model( three_d );
+    update_menu_name_text( menu_window );
+    rebuild_selected_list( three_d, menu_window );
+
+    return( OK );
+}
+
 public  Status  initialize_menu(
     display_struct    *menu_window,
     STRING            default_directory1,
@@ -128,26 +187,24 @@ public  Status  initialize_menu(
     FILE                 *file;
     BOOLEAN              found;
 
+    menu = &menu_window->menu;
+
     G_set_transparency_state( menu_window->window, OFF );
 
     initialize_resize_events( menu_window );
 
-    menu = &menu_window->menu;
+    add_action_table_function( &menu_window->action_table, WINDOW_RESIZE_EVENT,
+                               handle_menu_resize );
+
+    menu->default_x_size = Canonical_menu_window_width;
+    menu->default_y_size = Canonical_menu_window_height;
+
+    initialize_menu_parameters( menu_window );
 
     menu->shift_key_down = FALSE;
 
     for_less( ch, 0, N_CHARACTERS )
-        set_menu_key_entry( menu, ch, (menu_entry_struct *) 0 );
-
-    menu->x_dx = X_menu_dx;
-    menu->x_dy = X_menu_dy;
-    menu->y_dx = Y_menu_dx;
-    menu->y_dy = Y_menu_dy;
-
-    menu->n_chars_per_unit_across = Menu_n_chars_per_entry;
-    menu->n_lines_in_entry = Menu_n_lines_per_entry;
-    menu->character_width = Menu_character_width;
-    menu->character_height = Menu_character_height;
+        set_menu_key_entry( menu, ch, NULL );
 
     found = FALSE;
 
@@ -218,11 +275,10 @@ public  Status  initialize_menu(
 
     model = get_graphics_model( menu_window, UTILITY_MODEL );
     menu->menu_name_text = create_object( TEXT );
-    fill_Point( position, Menu_name_x, Menu_name_y, 0.0 );
-    initialize_text( get_text_ptr(menu->menu_name_text),
-                     &position,
+    fill_Point( position, menu->x_menu_name, menu->y_menu_name, 0.0 );
+    initialize_text( get_text_ptr(menu->menu_name_text), &position,
                      Menu_name_colour, (Font_types) Menu_name_font,
-                     Menu_name_font_size );
+                     menu->font_size );
 
     add_object_to_model( model, menu->menu_name_text );
 
@@ -560,7 +616,7 @@ public  void   set_menu_text(
 
         if( line == 0 )
             n_chars_across = ROUND( (Real) n_chars_across -
-                                    Menu_key_character_offset );
+                                    menu->character_offset );
 
         i = 0;
 
@@ -570,7 +626,7 @@ public  void   set_menu_text(
                 (text[n_chars] == ' ' &&
                  (len - n_chars-1) <=
                  (menu->n_lines_in_entry-line-1) * menu_entry->n_chars_across
-                 - ROUND(Menu_key_character_offset)) )
+                 - ROUND(menu->character_offset)) )
             {
                 ++n_chars;
                 break;
@@ -612,8 +668,13 @@ private  void  update_menu_name_text(
     text_struct  *text;
 
     text = get_text_ptr( menu_window->menu.menu_name_text );
+
+    fill_Point( text->origin, menu_window->menu.x_menu_name,
+                menu_window->menu.y_menu_name, 0.0 );
+    text->size = menu_window->menu.font_size;
+
     new_value = menu_window->menu.stack[menu_window->menu.depth]->label;
 
     if( !equal_strings( text->string, new_value ) )
-    replace_string( &text->string, create_string(new_value) );
+        replace_string( &text->string, create_string(new_value) );
 }

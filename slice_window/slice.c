@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.114 1996-09-24 19:30:44 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.115 1996-11-25 14:56:21 david Exp $";
 #endif
 
 
@@ -1043,7 +1043,8 @@ public  void  update_slice_window(
               mode. */
 
         if( !slice_window->slice.slice_views[view].prev_sub_region_specified &&
-            original_sub_region_specified[view] )
+            original_sub_region_specified[view] &&
+            slice_window->slice.incremental_update_allowed )
             one_buffer_flag[view] = FALSE;
     }
 

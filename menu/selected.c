@@ -13,14 +13,15 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/selected.c,v 1.14 1996-04-19 13:25:19 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/selected.c,v 1.15 1996-11-25 14:56:15 david Exp $";
 #endif
 
 
 #include  <display.h>
 
 private  void  create_selected_text(
-    model_struct   *model )
+    menu_window_struct  *menu,
+    model_struct        *model )
 {
     int            i;
     object_struct  *object;
@@ -57,12 +58,12 @@ private  void  create_selected_text(
         text = get_text_ptr( object );
 
         fill_Point( origin,
-                    Selected_x_origin,
-                    Selected_y_origin - Menu_character_height * (Real) i,
+                    menu->selected_x_origin,
+                    menu->selected_y_origin - menu->character_height * (Real) i,
                     0.0 );
 
         initialize_text( text, &origin, BLACK,
-                         (Font_types) Menu_window_font, Menu_window_font_size );
+                         (Font_types) Menu_window_font, menu->font_size );
 
         add_object_to_model( model, object );
     }
@@ -86,41 +87,44 @@ private  void  set_text_entry(
 }
 
 private  void  get_box_limits(
-    int            index,
-    STRING         label,
-    int            *x_min,
-    int            *x_max,
-    int            *y_min,
-    int            *y_max )
+    menu_window_struct  *menu,
+    int                 index,
+    STRING              label,
+    int                 *x_min,
+    int                 *x_max,
+    int                 *y_min,
+    int                 *y_max )
 {
     int            width;
 
     width = (int) G_get_text_length( label, (Font_types) Menu_window_font,
-                                     Menu_window_font_size );
+                                     menu->font_size );
 
     if( width <= 0 )
         width = 20;
 
-    *x_min = ROUND( Selected_x_origin );
-    *y_min = ROUND( Selected_y_origin - Menu_character_height * (Real) index );
+    *x_min = ROUND( menu->selected_x_origin );
+    *y_min = ROUND( menu->selected_y_origin -
+                    menu->character_height * (Real) index );
     *x_max = *x_min + width;
-    *y_max = *y_min + Character_height_in_pixels;
+    *y_max = ROUND( (Real) *y_min + menu->selected_box_height);
 
-    *x_min -= Selected_box_x_offset;
-    *x_max += Selected_box_x_offset;
-    *y_min -= Selected_box_y_offset;
-    *y_max += Selected_box_y_offset;
+    *x_min = ROUND( (Real) *x_min - menu->selected_x_offset );
+    *x_max = ROUND( (Real) *x_max + menu->selected_x_offset );
+    *y_min = ROUND( (Real) *y_min - menu->selected_y_offset );
+    *y_max = ROUND( (Real) *y_max + menu->selected_y_offset );
 }
 
 private  void  set_current_box(
-    model_struct   *selected_model,
-    int            index,
-    STRING         label )
+    menu_window_struct  *menu,
+    model_struct        *selected_model,
+    int                 index,
+    STRING              label )
 {
     int            x_start, x_end, y_start, y_end;
     Point          *points;
 
-    get_box_limits( index, label, &x_start, &x_end, &y_start, &y_end );
+    get_box_limits( menu, index, label, &x_start, &x_end, &y_start, &y_end );
 
     points = get_lines_ptr(selected_model->objects[0])->points;
 
@@ -187,11 +191,12 @@ public  void  rebuild_selected_list(
     Colour         col;
     STRING         label;
     model_struct   *selected_model, *model;
+    text_struct    *text;
 
     selected_model = get_graphics_model( menu_window, SELECTED_MODEL );
 
     if( selected_model->n_objects == 0 )
-        create_selected_text( selected_model );
+        create_selected_text( &menu_window->menu, selected_model );
 
     for_less( i, 0, N_selected_displayed+1 )
         set_object_visibility( selected_model->objects[i], OFF );
@@ -217,9 +222,19 @@ public  void  rebuild_selected_list(
         set_text_entry( menu_window, i - start_index, label, col );
 
         if( i == selected_index )
-            set_current_box( selected_model, i - start_index, label );
+            set_current_box( &menu_window->menu,
+                             selected_model, i - start_index, label );
 
         delete_string( label );
+
+        text = get_text_ptr( selected_model->objects[i-start_index+1] );
+        text->size = menu_window->menu.font_size;
+        fill_Point( text->origin,
+                    menu_window->menu.selected_x_origin,
+                    menu_window->menu.selected_y_origin -
+                    menu_window->menu.character_height *
+                    (Real) (i - start_index),
+                    0.0 );
     }
 
     set_update_required( menu_window, NORMAL_PLANES );
@@ -235,6 +250,9 @@ public  BOOLEAN  mouse_is_on_object_name(
     int            x_min, x_max, y_min, y_max;
     STRING         label;
     model_struct   *model;
+    display_struct *menu_window;
+
+    menu_window = display->associated[MENU_WINDOW];
 
     model = get_current_model( display );
     get_model_objects_visible( display, &start_index, &n_objects );
@@ -243,7 +261,7 @@ public  BOOLEAN  mouse_is_on_object_name(
     {
         label = get_object_label( model->objects[i], i );
 
-        get_box_limits( i - start_index, label,
+        get_box_limits( &menu_window->menu, i - start_index, label,
                         &x_min, &x_max, &y_min, &y_max );
 
         delete_string( label );

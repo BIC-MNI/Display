@@ -13,13 +13,14 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/cursor_pos.c,v 1.3 1996-04-19 13:25:20 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/cursor_pos.c,v 1.4 1996-11-25 14:56:16 david Exp $";
 #endif
 
 #include  <display.h>
 
 private  void  create_cursor_pos_text(
-    model_struct   *model )
+    menu_window_struct  *menu,
+    model_struct        *model )
 {
     object_struct  *object;
     Point          origin;
@@ -31,11 +32,11 @@ private  void  create_cursor_pos_text(
     text = get_text_ptr( object );
 
     fill_Point( origin,
-                Cursor_pos_x_origin,
-                Cursor_pos_y_origin, 0.0 );
+                menu->cursor_pos_x_origin,
+                menu->cursor_pos_y_origin, 0.0 );
 
     initialize_text( text, &origin, Cursor_pos_colour,
-                     (Font_types) Menu_window_font, Menu_window_font_size );
+                     (Font_types) Menu_window_font, menu->font_size );
 
     replace_string( &text->string, create_string(Cursor_pos_title) );
 
@@ -47,11 +48,11 @@ private  void  create_cursor_pos_text(
     text = get_text_ptr( object );
 
     fill_Point( origin,
-                (Real) Cursor_pos_x_origin,
-                (Real) Cursor_pos_y_origin - (Real) Menu_character_height, 0.0);
+                menu->cursor_pos_x_origin,
+                menu->cursor_pos_y_origin - menu->character_height, 0.0 );
 
     initialize_text( text, &origin, Cursor_pos_colour,
-                     (Font_types) Menu_window_font, Menu_window_font_size );
+                     (Font_types) Menu_window_font, menu->font_size );
 
     replace_string( &text->string, create_string(NULL) );
 
@@ -74,9 +75,20 @@ public  void  rebuild_cursor_position_model(
     cursor_pos_model = get_graphics_model( menu_window, CURSOR_POS_MODEL );
 
     if( cursor_pos_model->n_objects == 0 )
-        create_cursor_pos_text( cursor_pos_model );
+        create_cursor_pos_text( &menu_window->menu, cursor_pos_model );
+
+    text = get_text_ptr( cursor_pos_model->objects[0] );
+    text->size = menu_window->menu.font_size;
+    fill_Point( text->origin,
+                menu_window->menu.cursor_pos_x_origin,
+                menu_window->menu.cursor_pos_y_origin, 0.0 );
 
     text = get_text_ptr( cursor_pos_model->objects[1] );
+    text->size = menu_window->menu.font_size;
+    fill_Point( text->origin,
+                menu_window->menu.cursor_pos_x_origin,
+                menu_window->menu.cursor_pos_y_origin -
+                menu_window->menu.character_height, 0.0 );
 
     (void) sprintf( buffer, Cursor_pos_format,
                     Point_x(display->three_d.cursor.origin),

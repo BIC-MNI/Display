@@ -43,8 +43,10 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Directional_light_colour )
     DEF_GLOBAL3( Light_direction, Vector, 1.0f, -1.0f, -1.0f )
 
-    DEF_GLOBAL( Menu_window_width, int, 850 )
-    DEF_GLOBAL( Menu_window_height, int, 260 )
+    DEF_GLOBAL( Initial_menu_window_width, int, 850 )
+    DEF_GLOBAL( Initial_menu_window_height, int, 260 )
+    DEF_GLOBAL( Canonical_menu_window_width, int, 850 )
+    DEF_GLOBAL( Canonical_menu_window_height, int, 260 )
     DEF_GLOBAL( Menu_window_font, int, 1 )
     DEF_GLOBAL( Menu_window_font_size, Real, 10.0 )
     DEF_GLOBAL( X_menu_origin, Real, 70.0 )
@@ -96,9 +98,9 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Selected_colour )
     DEF_GLOBAL_COLOUR( Visible_colour )
     DEF_GLOBAL_COLOUR( Invisible_colour )
-    DEF_GLOBAL( Character_height_in_pixels, int, 10 )
-    DEF_GLOBAL( Selected_box_x_offset, int, 2 )
-    DEF_GLOBAL( Selected_box_y_offset, int, 2 )
+    DEF_GLOBAL( Character_height_in_pixels, Real, 10.0 )
+    DEF_GLOBAL( Selected_box_x_offset, Real, 2.0 )
+    DEF_GLOBAL( Selected_box_y_offset, Real, 2.0 )
 
     DEF_GLOBAL_COLOUR( Viewport_feedback_colour )
     DEF_GLOBAL( Viewport_min_x_size, Real, 0.1 )
@@ -345,8 +347,8 @@ START_GLOBALS
     DEF_GLOBAL( Initial_slice_continuity, int, -1 )
 
     DEF_GLOBAL_COLOUR( Cursor_pos_colour )
-    DEF_GLOBAL( Cursor_pos_x_origin, int, 400 )
-    DEF_GLOBAL( Cursor_pos_y_origin, int, 30 )
+    DEF_GLOBAL( Cursor_pos_x_origin, Real, 400.0 )
+    DEF_GLOBAL( Cursor_pos_y_origin, Real, 30.0 )
     DEF_GLOBAL( Cursor_pos_title, STRING, "Cursor Pos:" )
     DEF_GLOBAL( Cursor_pos_format, STRING, "%.1f %.1f %.1f" )
 

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/build_menu.c,v 1.31 1996-04-19 13:25:14 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/build_menu.c,v 1.32 1996-11-25 14:56:14 david Exp $";
 #endif
 
 
@@ -76,7 +76,7 @@ private  void   create_menu_text(
 private  BOOLEAN  lookup_key(
     int              key,
     position_struct  **desc );
-private  void   compute_origin(
+private  void   compute_key_position(
     menu_window_struct   *menu,
     int                  key,
     Real                 *x1,
@@ -86,10 +86,10 @@ private  void   compute_origin(
     Real                 *length );
 private  STRING  get_key_string(
     int     key );
-private  void   create_menu_box(
+private  object_struct   *create_menu_box(
     display_struct    *menu_window,
     int               key );
-private  void   create_menu_character(
+private  object_struct   *create_menu_character(
     display_struct    *menu_window,
     int               key );
 private  BOOLEAN   point_within_menu_key_entry(
@@ -97,36 +97,72 @@ private  BOOLEAN   point_within_menu_key_entry(
     int              key,
     Real             x,
     Real             y );
+private  void   set_menu_text_position(
+    display_struct    *menu_window,
+    menu_entry_struct *menu_entry );
+private  void   set_menu_box_position(
+    display_struct    *menu_window,
+    int               key,
+    object_struct     *box_object );
+private  void   set_menu_character_position(
+    display_struct    *menu_window,
+    int               key,
+    object_struct     *text_object );
 
 /* -------------------------------------------------------------------- */
 
 public  void  build_menu(
     display_struct    *menu_window )
 {
-    int      i;
+    int      i, key;
 
     for_less( i, 0, SIZEOF_STATIC_ARRAY(positions) )
     {
         if( positions[i].length > 0.0 )
         {
-            create_menu_box( menu_window, positions[i].key );
-            create_menu_character( menu_window, positions[i].key );
+            key = positions[i].key;
+            menu_window->menu.box_objects[key] =
+                                   create_menu_box( menu_window, key );
+            menu_window->menu.text_objects[key] =
+                                   create_menu_character( menu_window, key );
         }
     }
 
     for_less( i, 1, menu_window->menu.n_entries )
         create_menu_text( menu_window, &menu_window->menu.entries[i] );
+
+    rebuild_menu( menu_window );
 }
+
+public  void  rebuild_menu(
+    display_struct    *menu_window )
+{
+    int      i, key;
+
+    for_less( i, 0, SIZEOF_STATIC_ARRAY(positions) )
+    {
+        if( positions[i].length > 0.0 )
+        {
+            key = positions[i].key;
+            set_menu_box_position( menu_window, key,
+                                   menu_window->menu.box_objects[key] );
+            set_menu_character_position( menu_window, key,
+                                     menu_window->menu.text_objects[key] );
+        }
+    }
+
+    for_less( i, 1, menu_window->menu.n_entries )
+        set_menu_text_position( menu_window, &menu_window->menu.entries[i] );
+}
+
 
 private  void   create_menu_text(
     display_struct    *menu_window,
     menu_entry_struct *menu_entry )
 {
-    Real            x, y, length;
     int             i;
     Point           origin;
     text_struct     *text;
-    STRING          key_string;
     model_struct    *model;
 
     ALLOC( menu_entry->text_list, menu_window->menu.n_lines_in_entry );
@@ -143,34 +179,55 @@ private  void   create_menu_text(
 
         text = get_text_ptr( menu_entry->text_list[i] );
 
-        compute_origin( &menu_window->menu, menu_entry->key, &x, &y,
-                        (Real *) 0, (Real *) 0, &length );
-        x += X_menu_text_offset;
+        fill_Point( origin, 0.0, 0.0, 0.0 );
+
+        initialize_text( text, &origin, Menu_character_colour,
+                         (Font_types) Menu_window_font,
+                         menu_window->menu.font_size );
+    }
+
+    set_menu_text_position( menu_window, menu_entry );
+
+    set_menu_text( menu_window, menu_entry, menu_entry->label );
+
+    update_menu_text( menu_window, menu_entry );
+}
+
+private  void   set_menu_text_position(
+    display_struct    *menu_window,
+    menu_entry_struct *menu_entry )
+{
+    Real            x, y, length;
+    int             i;
+    text_struct     *text;
+    STRING          key_string;
+
+    for_less( i, 0, menu_window->menu.n_lines_in_entry )
+    {
+        text = get_text_ptr( menu_entry->text_list[i] );
+
+        compute_key_position( &menu_window->menu, menu_entry->key, &x, &y,
+                              NULL, NULL, &length );
+
+        x += menu_window->menu.x_menu_text_offset;
         y += (Real) (menu_window->menu.n_lines_in_entry - i) *
              menu_window->menu.character_height -
-             Y_menu_text_offset;
+             menu_window->menu.y_menu_text_offset;
 
         if( i == 0 )
         {
             key_string = get_key_string( menu_entry->key );
             x += G_get_text_length( key_string, (Font_types) Menu_window_font,
-                                    Menu_window_font_size );
+                                    menu_window->menu.font_size );
             delete_string( key_string );
         }
 
-        fill_Point( origin, x, y, 0.0 );
-
-        initialize_text( text, &origin, Menu_character_colour,
-                         (Font_types) Menu_window_font,
-                         Menu_window_font_size );
-
-        menu_entry->n_chars_across = (int)
-               ( length * (Real) menu_window->menu.n_chars_per_unit_across );
+        fill_Point( text->origin, x, y, 0.0 );
+        text->size = menu_window->menu.font_size;
     }
 
-    set_menu_text( menu_window, menu_entry, menu_entry->label );
-
-    update_menu_text( menu_window, menu_entry );
+    menu_entry->n_chars_across = (int)
+                 (length * (Real) menu_window->menu.n_chars_per_unit_across);
 }
 
 private  BOOLEAN  lookup_key(
@@ -195,7 +252,7 @@ private  BOOLEAN  lookup_key(
     return( found );
 }
 
-private  void   compute_origin(
+private  void   compute_key_position(
     menu_window_struct   *menu,
     int                  key,
     Real                 *x1,
@@ -218,24 +275,22 @@ private  void   compute_origin(
     else if( desc->length <= 0.0 )
     {
         *x1 = 0.0;
-        if( x2 != (Real *) NULL )
+        if( x2 != NULL )
             *x2 = 0.0;
         *y1 = 0.0;
-        if( y2 != (Real *) NULL )
+        if( y2 != NULL )
             *y2 = 0.0;
         *length = 0.0;
     }
     else
     {
-        x_dx = menu->x_dx +
-               (Real) menu->n_chars_per_unit_across *
+        x_dx = menu->x_dx + (Real) menu->n_chars_per_unit_across *
                menu->character_width;
-        y_dy = menu->y_dy +
-               (Real) menu->n_lines_in_entry *
+        y_dy = menu->y_dy + (Real) menu->n_lines_in_entry *
                menu->character_height;
 
-        *x1 = X_menu_origin + (Real) desc->x_pos * x_dx;
-        *y1 = Y_menu_origin + (Real) desc->y_pos * y_dy;
+        *x1 = menu->x_menu_origin + (Real) desc->x_pos * x_dx;
+        *y1 = menu->y_menu_origin + (Real) desc->y_pos * y_dy;
 
         if( desc->in_slanted_part_of_keyboard )
         {
@@ -245,16 +300,15 @@ private  void   compute_origin(
 
         *length = desc->length;
 
-        if( x2 != (Real *) NULL )
+        if( x2 != NULL )
         {
             *x2 = *x1 + *length * (Real) menu->n_chars_per_unit_across *
                         menu->character_width;
         }
 
-        if( y2 != (Real *) NULL )
+        if( y2 != NULL )
         {
-            *y2 = *y1 + (Real) menu->n_lines_in_entry *
-                        menu->character_height;
+            *y2 = *y1 + (Real) menu->n_lines_in_entry * menu->character_height;
         }
     }
 }
@@ -285,7 +339,7 @@ public  Real  get_size_of_menu_text_area(
     Real          size, x1, y1, x2, y2, length;
     text_struct   *text;
 
-    compute_origin( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length );
+    compute_key_position( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length);
 
     text = get_text_ptr(
                 menu_window->menu.key_menus[key]->text_list[line_number] );
@@ -295,13 +349,12 @@ public  Real  get_size_of_menu_text_area(
     return( size );
 }
 
-private  void   create_menu_box(
+private  object_struct   *create_menu_box(
     display_struct    *menu_window,
     int               key )
 {
     object_struct   *object;
     lines_struct    *lines;
-    Real            x1, y1, x2, y2, length;
     model_struct    *model;
 
     object = create_object( LINES );
@@ -324,21 +377,34 @@ private  void   create_menu_box(
 
     ALLOC( lines->indices, lines->end_indices[0] );
 
-    compute_origin( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length );
-
-    fill_Point( lines->points[0], x1, y1, 0.0 );
-    fill_Point( lines->points[1], x2, y1, 0.0 );
-    fill_Point( lines->points[2], x2, y2, 0.0 );
-    fill_Point( lines->points[3], x1, y2, 0.0 );
-
     lines->indices[0] = 0;
     lines->indices[1] = 1;
     lines->indices[2] = 2;
     lines->indices[3] = 3;
     lines->indices[4] = 0;
+
+    return( object );
 }
 
-private  void   create_menu_character(
+private  void   set_menu_box_position(
+    display_struct    *menu_window,
+    int               key,
+    object_struct     *box_object )
+{
+    lines_struct    *lines;
+    Real            x1, y1, x2, y2, length;
+
+    lines = get_lines_ptr( box_object );
+
+    compute_key_position( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length);
+
+    fill_Point( lines->points[0], x1, y1, 0.0 );
+    fill_Point( lines->points[1], x2, y1, 0.0 );
+    fill_Point( lines->points[2], x2, y2, 0.0 );
+    fill_Point( lines->points[3], x1, y2, 0.0 );
+}
+
+private  object_struct   *create_menu_character(
     display_struct    *menu_window,
     int               key )
 {
@@ -350,27 +416,50 @@ private  void   create_menu_character(
 
     object = create_object( TEXT );
 
-    compute_origin( &menu_window->menu, key, &x, &y, (Real *) 0, (Real *) 0,
-                    &length );
+    compute_key_position( &menu_window->menu, key, &x, &y, NULL, NULL, &length);
 
     fill_Point( origin,
-                x + X_menu_text_offset,
+                x + menu_window->menu.x_menu_text_offset,
                 y + (Real) menu_window->menu.n_lines_in_entry *
                     menu_window->menu.character_height -
-                    Y_menu_text_offset,
+                    menu_window->menu.y_menu_text_offset,
                 0.0 );
 
     text = get_text_ptr( object );
 
     initialize_text( text, &origin, Menu_key_colour,
                      (Font_types) Menu_window_font,
-                     Menu_window_font_size );
+                     menu_window->menu.font_size );
 
     replace_string( &text->string, get_key_string( key ) );
 
     model = get_graphics_model( menu_window, MENU_BUTTONS_MODEL );
 
     add_object_to_model( model, object );
+
+    return( object );
+}
+
+private  void   set_menu_character_position(
+    display_struct    *menu_window,
+    int               key,
+    object_struct     *text_object )
+{
+    Real            x, y, length;
+    text_struct     *text;
+
+    text = get_text_ptr( text_object );
+
+    compute_key_position( &menu_window->menu, key, &x, &y, NULL, NULL, &length);
+
+    fill_Point( text->origin,
+                x + menu_window->menu.x_menu_text_offset,
+                y + (Real) menu_window->menu.n_lines_in_entry *
+                    menu_window->menu.character_height -
+                    menu_window->menu.y_menu_text_offset,
+                0.0 );
+
+    text->size = menu_window->menu.font_size;
 }
 
 private  BOOLEAN   point_within_menu_key_entry(
@@ -381,7 +470,7 @@ private  BOOLEAN   point_within_menu_key_entry(
 {
     Real      x1, y1, x2, y2, length;
 
-    compute_origin( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length );
+    compute_key_position( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length);
 
     if( length <= 0.0 )
         return( FALSE );

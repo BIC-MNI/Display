@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.72 1996-09-24 19:30:39 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.73 1996-11-25 14:56:13 david Exp $";
 #endif
 
 
@@ -331,11 +331,6 @@ private  void  initialize_graphics_window(
 
     if( display->window_type == THREE_D_WINDOW )
         initialize_three_d_window( display );
-
-/*
-    if( display->window_type == SLICE_WINDOW )
-        initialize_slice_window( display );
-*/
 
     if( display->window_type == MENU_WINDOW )
         initialize_menu_window( display );

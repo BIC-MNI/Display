@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.111 1996-10-18 18:22:12 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.112 1996-11-25 14:56:20 david Exp $";
 #endif
 
 #include  <display.h>
@@ -1660,6 +1660,14 @@ private  BOOLEAN  composite_is_visible(
                 return( TRUE );
 
             if( get_label_visibility( slice_window, i, view ) )
+                return( TRUE );
+
+            if( get_Colour_a_0_1( get_colour_coding_under_colour(
+                     &slice_window->slice.volumes[i].colour_coding ) ) < 1.0 )
+                return( TRUE );
+
+            if( get_Colour_a_0_1( get_colour_coding_over_colour(
+                     &slice_window->slice.volumes[i].colour_coding ) ) < 1.0 )
                 return( TRUE );
         }
     }

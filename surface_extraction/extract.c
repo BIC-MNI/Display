@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.47 1996-09-24 19:30:48 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.48 1996-11-25 14:56:23 david Exp $";
 #endif
 
 
@@ -198,6 +198,7 @@ private  BOOLEAN  extract_voxel_marching_cubes_surface(
 
     n_polys = compute_isosurface_in_voxel(
                        (Marching_cubes_methods) Marching_cubes_method,
+                       voxel[X], voxel[Y], voxel[Z],
                        corner_values,
                        surface_extraction->binary_flag,
                        surface_extraction->min_value,
@@ -477,30 +478,13 @@ private  int   create_surface_point(
     int       pt_index;
     Real      x_w, y_w, z_w;
     Real      dx, dy, dz;
-    Real      val1, val2, voxel_pos[MAX_DIMENSIONS];
+    Real      voxel_pos[MAX_DIMENSIONS];
     Point     point;
     Vector    normal;
-    int       corner[N_DIMENSIONS];
     Real      ignored;
-    Point     point1, point2, iso_point;
+    Point     iso_point;
 
-    corner[X] = voxel[X];
-    corner[Y] = voxel[Y];
-    corner[Z] = voxel[Z];
-    fill_Point( point1, (Real) corner[X], (Real) corner[Y], (Real) corner[Z] );
-
-    ++corner[edge_intersected];
-    fill_Point( point2, (Real) corner[X], (Real) corner[Y], (Real) corner[Z] );
-
-    corner[X] = offset[X];
-    corner[Y] = offset[Y];
-    corner[Z] = offset[Z];
-
-    val1 = corner_values[corner[X]][corner[Y]][corner[Z]];
-    ++corner[edge_intersected];
-    val2 = corner_values[corner[X]][corner[Y]][corner[Z]];
-
-    *pt_class = get_isosurface_point( &point1, val1, &point2, val2,
+    *pt_class = get_isosurface_point( corner_values, voxel, edge_intersected,
                                       binary_flag, min_value, max_value,
                                       &iso_point );
 

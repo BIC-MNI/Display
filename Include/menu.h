@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_menu_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/menu.h,v 1.22 1996-07-02 12:56:09 david Exp $";
+static char display_menu_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/menu.h,v 1.23 1996-11-25 14:56:08 david Exp $";
 #endif
 
 #include  <volume_io.h>
@@ -66,6 +66,9 @@ typedef  struct  menu_entry_struct
 
 typedef  struct
 {
+    int                  default_x_size;
+    int                  default_y_size;
+
     Real                 x_dx;
     Real                 x_dy;
     Real                 y_dx;
@@ -76,6 +79,26 @@ typedef  struct
 
     Real                 character_height;
     Real                 character_width;
+    Real                 character_offset;
+    Real                 selected_box_height;
+
+    Real                 x_menu_name;
+    Real                 y_menu_name;
+
+    Real                 x_menu_origin;
+    Real                 y_menu_origin;
+
+    Real                 selected_x_origin;
+    Real                 selected_y_origin;
+    Real                 selected_x_offset;
+    Real                 selected_y_offset;
+
+    Real                 cursor_pos_x_origin;
+    Real                 cursor_pos_y_origin;
+
+    Real                 x_menu_text_offset;
+    Real                 y_menu_text_offset;
+    Real                 font_size;
 
     int                  n_entries;
     menu_entry_struct    *entries;
@@ -84,10 +107,13 @@ typedef  struct
     menu_entry_struct    *stack[MAX_MENU_DEPTH];
 
     menu_entry_struct    *key_menus[N_CHARACTERS];
+    object_struct        *box_objects[N_CHARACTERS];
+    object_struct        *text_objects[N_CHARACTERS];
 
     BOOLEAN              shift_key_down;
 
     object_struct        *menu_name_text;
+
 } menu_window_struct;
 
 #endif
