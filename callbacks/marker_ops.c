@@ -57,14 +57,14 @@ private  void  get_position_pointed_to( graphics, pos )
     }
 }
 
-public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
+public  Status  create_marker_at_position( graphics, position )
+    graphics_struct   *graphics;
+    Point             *position;
 {
     Status          status;
     Status          create_object();
     Status          add_object_to_current_model();
     object_struct   *object;
-    Boolean         get_voxel_corresponding_to_point();
-    void            get_position_pointed_to();
     void            render_marker_to_volume();
     void            set_slice_window_update();
 
@@ -72,10 +72,11 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
 
     if( status == OK )
     {
-        get_position_pointed_to( graphics, &object->ptr.marker->position );
+        object->ptr.marker->position = *position;
 
         (void) strcpy( object->ptr.marker->label,
                        graphics->three_d.default_marker_label );
+
         object->ptr.marker->type = graphics->three_d.default_marker_type;
         object->ptr.marker->colour = graphics->three_d.default_marker_colour;
         object->ptr.marker->size = graphics->three_d.default_marker_size;
@@ -92,6 +93,19 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
         set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
         set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
     }
+
+    return( status );
+}
+
+public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
+{
+    Status          status;
+    Point           position;
+    void            get_position_pointed_to();
+
+    get_position_pointed_to( graphics, &position );
+
+    status = create_marker_at_position( graphics, &position );
 
     return( status );
 }

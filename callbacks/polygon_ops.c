@@ -288,45 +288,27 @@ public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
     Status            deform_polygons();
     Status            compute_polygon_normals();
     Status            delete_polygons_bintree();
-    Real              boundary_factor, max_step, max_search_distance;
-    Real              search_increment, min_size;
-    Real              stop_threshold;
-    int               max_iterations;
-    boundary_definition_struct  boundary;
     volume_struct     *volume;
     polygons_struct   *polygons;
+    deform_struct     deform;
     void              set_update_required();
+    Status            typein_deformation_parameters();
+    Status            delete_deformation_parameters();
+
 
     status = OK;
 
     if( get_current_polygons( graphics, &polygons ) &&
         get_current_volume( graphics, &volume ) )
     {
-        PRINT( "Enter boundary_factor, max_step, max_search_distance,\n" );
-        PRINT( "      search_increment, min_size,\n" );
-        PRINT( "      min_isovalue, max_isovalue,\n" );
-        PRINT( "      variable_threshold_flag, variable_threshold,\n" );
-        PRINT( "      max_iterations, stop_threshold: " );
-
-        if( input_real( stdin, &boundary_factor ) == OK &&
-            input_real( stdin, &max_step ) == OK &&
-            input_real( stdin, &max_search_distance ) == OK &&
-            input_real( stdin, &search_increment ) == OK &&
-            input_real( stdin, &min_size ) == OK &&
-            input_real( stdin, &boundary.min_isovalue ) == OK &&
-            input_real( stdin, &boundary.max_isovalue ) == OK &&
-            input_int( stdin, &boundary.variable_threshold_flag ) == OK &&
-            input_real( stdin, &boundary.variable_threshold ) == OK &&
-            input_int( stdin, &max_iterations ) == OK &&
-            input_real( stdin, &stop_threshold ) == OK )
+        if( typein_deformation_parameters( polygons->n_points, &deform ) == OK )
         {
-            boundary.gradient_flag = FALSE;
+            deform.deform_data.volume = volume;
 
-            status = deform_polygons( polygons, volume,
-                                      boundary_factor, max_step,
-                                      max_search_distance, search_increment,
-                                      min_size, &boundary,
-                                      max_iterations, stop_threshold );
+            status = deform_polygons( polygons, &deform );
+
+            if( status == OK )
+                status = delete_deformation_parameters( &deform );
 
             if( status == OK )
                 status = compute_polygon_normals( polygons );
@@ -338,8 +320,6 @@ public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
 
             PRINT( "Done deforming polygon.\n" );
         }
-
-        (void) input_newline( stdin );
     }
 
     return( status );
@@ -443,7 +423,7 @@ public  DEF_MENU_FUNCTION( scan_current_polygon_to_volume )   /* ARGSUSED */
     void              scan_polygons_to_voxels();
     polygons_struct   *polygons;
     volume_struct     *volume;
-    void              set_all_volume_auxiliary_data_bit();
+    void              set_all_voxel_label_flags();
     void              set_slice_window_update();
 
     status = OK;
@@ -451,8 +431,7 @@ public  DEF_MENU_FUNCTION( scan_current_polygon_to_volume )   /* ARGSUSED */
     if( get_current_polygons( graphics, &polygons ) &&
         get_current_volume( graphics, &volume ) )
     {
-        set_all_volume_auxiliary_data_bit( volume, Scanned_polygons_label,
-                                           FALSE );
+        set_all_voxel_label_flags( volume, FALSE );
 
         scan_polygons_to_voxels( polygons, volume,
                                  Scanned_polygons_label | ACTIVE_BIT,

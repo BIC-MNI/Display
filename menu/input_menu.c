@@ -189,6 +189,7 @@
                        MENU_FUNCTION(set_atlas_tolerance_x) \
                        MENU_FUNCTION(set_atlas_tolerance_y) \
                        MENU_FUNCTION(set_atlas_tolerance_z) \
+                       MENU_FUNCTION(mark_vertices) \
                 
 
 typedef  struct

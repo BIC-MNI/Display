@@ -37,10 +37,8 @@ public  Boolean  extract_voxel_surface( volume, surface_extraction,
         {
             for_less( z, 0, 2 )
             {
-                value = (Real) GET_VOLUME_DATA( *volume,
-                                                voxel_index->i[X]+x,
-                                                voxel_index->i[Y]+y,
-                                                voxel_index->i[Z]+z );
+                GET_VOLUME_DATA( value, *volume, voxel_index->i[X]+x,
+                                 voxel_index->i[Y]+y, voxel_index->i[Z]+z );
 
                 if( value >= surface_extraction->isovalue &&
                     !get_voxel_activity_flag( volume,
@@ -315,19 +313,20 @@ private  int   create_point( volume, isovalue, polygons, voxel,
     Vector    normal;
     int       corner[N_DIMENSIONS];
     void      convert_voxel_to_point();
-    Real      evaluate_volume_at_point();
+    Real      ignored;
+    Boolean   evaluate_volume_at_point();
 
     corner[X] = voxel->i[X];
     corner[Y] = voxel->i[Y];
     corner[Z] = voxel->i[Z];
 
-    val1 = isovalue - (Real) GET_VOLUME_DATA( *volume,
-                             corner[X], corner[Y], corner[Z] );
+    GET_VOLUME_DATA( val1, *volume, corner[X], corner[Y], corner[Z] );
+    val1 = isovalue - val1;
 
     ++corner[edge_intersected];
 
-    val2 = isovalue - (Real) GET_VOLUME_DATA( *volume,
-                             corner[X], corner[Y], corner[Z] );
+    GET_VOLUME_DATA( val2, *volume, corner[X], corner[Y], corner[Z] );
+    val2 = isovalue - val2;
 
     if( val1 == 0.0 )
     {
@@ -360,6 +359,7 @@ private  int   create_point( volume, isovalue, polygons, voxel,
 
     (void) evaluate_volume_at_point( volume,
                                Point_x(point), Point_y(point), Point_z(point),
+                               FALSE, &ignored,
                                &dx, &dy, &dz );
 
     fill_Vector( normal, dx, dy, dz );

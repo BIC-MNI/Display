@@ -22,7 +22,7 @@ public  Status  fill_connected_voxels_3d( volume, x, y, z,
     xyz_struct                   entry;
     QUEUE_STRUCT( xyz_struct )   queue;
     bitlist_3d_struct            bitlist;
-    int                          n_done;
+    int                          n_done, val;
     const  Real                  update_every = 10.0;
     Real                         next_message_time;
     Real                         current_realtime_seconds();
@@ -36,15 +36,18 @@ public  Status  fill_connected_voxels_3d( volume, x, y, z,
         INITIALIZE_QUEUE( queue );
 
         set_bitlist_bit_3d( &bitlist, x, y, z, TRUE );
-        if( get_voxel_activity_flag( volume, x, y, z ) &&
-            (int) GET_VOLUME_DATA( *volume, x, y, z ) >= max_threshold )
+        if( get_voxel_activity_flag( volume, x, y, z ) )
         {
-            set_voxel_label_flag( volume, x, y, z, TRUE );
+            GET_VOLUME_DATA( val, *volume, x, y, z );
+            if( val >= max_threshold )
+            {
+                set_voxel_label_flag( volume, x, y, z, TRUE );
 
-            entry.x = x;
-            entry.y = y;
-            entry.z = z;
-            INSERT_IN_QUEUE( status, queue, entry );
+                entry.x = x;
+                entry.y = y;
+                entry.z = z;
+                INSERT_IN_QUEUE( status, queue, entry );
+            }
         }
     }
 
@@ -75,16 +78,18 @@ public  Status  fill_connected_voxels_3d( volume, x, y, z,
             {
                 set_bitlist_bit_3d( &bitlist, tx, ty, tz, TRUE );
 
-                if( get_voxel_activity_flag( volume, tx, ty, tz ) &&
-                    (int) GET_VOLUME_DATA( *volume, tx, ty, tz ) >=
-                    max_threshold )
+                if( get_voxel_activity_flag( volume, tx, ty, tz ) )
                 {
-                    set_voxel_label_flag( volume, tx, ty, tz, TRUE );
-                    entry.x = tx;
-                    entry.y = ty;
-                    entry.z = tz;
-                    if( status == OK )
-                        INSERT_IN_QUEUE( status, queue, entry );
+                    GET_VOLUME_DATA( val, *volume, tx, ty, tz );
+                    if( val >= max_threshold )
+                    {
+                        set_voxel_label_flag( volume, tx, ty, tz, TRUE );
+                        entry.x = tx;
+                        entry.y = ty;
+                        entry.z = tz;
+                        if( status == OK )
+                            INSERT_IN_QUEUE( status, queue, entry );
+                    }
                 }
             }
         }

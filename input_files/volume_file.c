@@ -24,6 +24,7 @@ public  Status   input_volume_file( filename, n_objects, object_list )
         volume->sizes[Z] = 0;
         (void) strcpy( volume->filename, filename );
         volume->activity_filename[0] = (char) 0;
+        volume->activity_threshold = 0.0;
         volume->axis_map[X] = X;
         volume->axis_map[Y] = Y;
         volume->axis_map[Z] = Z;

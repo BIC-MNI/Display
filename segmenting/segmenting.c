@@ -201,7 +201,7 @@ private  Boolean  should_change_this_one( volume, x, y, z,
 {
     int   value;
 
-    value = (int) GET_VOLUME_DATA( *volume, x, y, z );
+    GET_VOLUME_DATA( value, *volume, x, y, z );
 
     return( desired_activity != get_voxel_activity_flag( volume, x, y, z ) &&
             min_threshold <= value && value <= max_threshold );

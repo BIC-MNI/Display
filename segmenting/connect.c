@@ -41,7 +41,7 @@ public  Status  disconnect_components( volume, voxel_indices, axis,
 
             if( get_voxel_activity_flag( volume, index[0], index[1], index[2]))
             {
-                val = GET_VOLUME_DATA( *volume, index[0], index[1], index[2] );
+                GET_VOLUME_DATA( val, *volume, index[0], index[1], index[2] );
 
                 inside = (val >= min_threshold && val <=max_threshold);
             }

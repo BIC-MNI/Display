@@ -502,3 +502,34 @@ public  DEF_MENU_UPDATE(paste_object )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( mark_vertices )   /* ARGSUSED */
+{
+    Status         status;
+    object_struct  *object;
+    int            i, n_points;
+    Point          *points;
+    Status         create_marker_at_position();
+
+    status = OK;
+
+    if( get_current_object( graphics, &object ) &&
+        object->object_type == LINES )
+    {
+        n_points = object->ptr.lines->n_points;
+        points = object->ptr.lines->points;
+
+        for_less( i, 0, n_points )
+        {
+            if( status == OK )
+                status = create_marker_at_position( graphics, &points[i] );
+        }
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(mark_vertices )   /* ARGSUSED */
+{
+    return( OK );
+}

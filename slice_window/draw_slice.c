@@ -163,6 +163,7 @@ public  void  rebuild_probe( graphics )
     Real           x_talairach, y_talairach, z_talairach;
     text_struct    *text;
     int            nx, ny, nz;
+    Real           value;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
     int            x_file, y_file, z_file;
     void           get_slice_viewport();
@@ -244,9 +245,9 @@ public  void  rebuild_probe( graphics )
                                 z_talairach );
                 break;
             case VAL_PROBE_INDEX:
-                (void) sprintf( text->text, Slice_probe_val_format,
-                        (Real) GET_VOLUME_DATA( *graphics->slice.volume,
-                                                x_voxel, y_voxel, z_voxel) );
+                GET_VOLUME_DATA( value, *graphics->slice.volume,
+                                 x_voxel, y_voxel, z_voxel );
+                (void) sprintf( text->text, Slice_probe_val_format, value );
                 break;
 
             case X_FILE_PROBE_INDEX:
@@ -635,7 +636,7 @@ private  void  render_slice_to_pixels( slice_window, pixels,
                         }
                     }
 
-                    val = GET_VOLUME_DATA_AT_PTR( *volume, volume_ptr );
+                    GET_VOLUME_DATA_AT_PTR( val, *volume, volume_ptr );
 
                     if( fast_lookup_present )
                         pixel_col = lookup[val-min_value];

@@ -646,7 +646,7 @@ private  void  colour_code_object( colour_coding, volume,
     Status   status;
     int      i;
     Real     val;
-    Real     evaluate_volume_at_point();
+    Boolean  evaluate_volume_at_point();
     void     get_colour_coding();
 
     status = OK;
@@ -661,11 +661,12 @@ private  void  colour_code_object( colour_coding, volume,
     {
         for_less( i, 0, n_points )
         {
-            val = evaluate_volume_at_point( volume,
-                                            Point_x(points[i]),
-                                            Point_y(points[i]),
-                                            Point_z(points[i]),
-                                            (Real *) 0, (Real *) 0, (Real *) 0);
+            (void) evaluate_volume_at_point( volume,
+                                             Point_x(points[i]),
+                                             Point_y(points[i]),
+                                             Point_z(points[i]), FALSE,
+                                             &val, (Real *) 0,
+                                             (Real *) 0, (Real *) 0);
 
             get_colour_coding( colour_coding, val, &(*colours)[i] );
         }
