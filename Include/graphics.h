@@ -2,10 +2,7 @@
 #define  DEF_GRAPHICS
 
 #include  <def_standard.h>
-#include  <def_geometry.h>
-
-#define  OFF  0
-#define  ON   1
+#include  <def_objects.h>
 
 typedef  struct
 {
@@ -34,17 +31,6 @@ typedef  struct
     Real          spot_exponent;
     Real          spot_angle;
 } light_struct;
-
-typedef  enum  { WIREFRAME_MODE, SHADED_MODE } render_modes;
-
-typedef  enum  { FLAT_SHADING, GOURAUD_SHADING, PHONG_SHADING } shading_types;
-
-typedef  struct
-{
-    render_modes    render_mode;
-    shading_types   shading_type;
-    Boolean         master_light_switch;
-}  render_struct;
 
 typedef  enum  {
                    NO_EVENT,

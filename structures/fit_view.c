@@ -29,92 +29,83 @@ private  void   fit_view_to_points( view, n_points, points )
     int           n_points;
     Point         points[];
 {
+    int    i, c;
+    Real   size;
+    Point  min_coord, max_coord, centre, range;
     void   perspective_fit_points();
     void   orthogonal_fit_points();
-
-    if( view->perspective_flag )
-    {
-    }
-    else
-    {
-        orthogonal_fit_points( view, n_points, points );
-    }
-}
-
-private  void  orthogonal_fit_points( view, n_points, points )
-    view_struct   *view;
-    int           n_points;
-    Point         points[];
-{
-    int     i, c;
-    Real    min_coord[N_DIMENSIONS], max_coord[N_DIMENSIONS];
-    Real    range[N_DIMENSIONS];
-    Real    centre_x, centre_y, centre_z;
-    Real    dx, dy, dz, size;
-    Point   eye;
-    Vector  x_axis, y_axis, line_of_sight;
-    Vector  delta_x, delta_y, delta_z;
-    Real    x_scale, y_scale, scale;
-    void    transform_point_to_screen();
+    void   transform_point_to_screen();
 
     for_less( i, 0, n_points )
     {
         transform_point_to_screen( view, &points[i], &points[i] );
     }
 
-    min_coord[0] = Point_x(points[0]);
-    min_coord[1] = Point_y(points[0]);
-    min_coord[2] = Point_z(points[0]);
-
-    max_coord[0] = Point_x(points[0]);
-    max_coord[1] = Point_y(points[0]);
-    max_coord[2] = Point_z(points[0]);
+    min_coord = points[0];
+    max_coord = points[0];
 
     for_less( i, 1, n_points )
     {
         for_less( c, 0, N_DIMENSIONS )
         {
-            if( min_coord[c] > Point_coord( points[i], c ) )
+            if( Point_coord(min_coord,c) > Point_coord( points[i], c ) )
             {
-                min_coord[c] = Point_coord( points[i], c );
+                Point_coord(min_coord,c) = Point_coord( points[i], c );
             }
-            if( max_coord[c] < Point_coord( points[i], c ) )
+            if( Point_coord(max_coord,c) < Point_coord( points[i], c ) )
             {
-                max_coord[c] = Point_coord( points[i], c );
+                Point_coord(max_coord,c) = Point_coord( points[i], c );
             }
         }
     }
 
-    range[0] = max_coord[0] - min_coord[0];
-    range[1] = max_coord[1] - min_coord[1];
-    range[2] = max_coord[2] - min_coord[2];
+    SUB_POINTS( range, max_coord, min_coord );
 
-    size = sqrt( range[0]*range[0] + range[1]*range[1] + range[2]*range[2] );
+    size = MAGNITUDE( range );
 
     if( size == 0.0 )  size = 1.0;
 
     for_less( c, 0, N_DIMENSIONS )
     {
-        if( range[c] == 0.0 )
+        if( Point_coord(range,c) == 0.0 )
         {
-            min_coord[c] -= size / 2.0;
-            max_coord[c] += size / 2.0;
-            range[c] = size;
+            Point_coord(min_coord,c) -= size / 2.0;
+            Point_coord(max_coord,c) += size / 2.0;
+            Point_coord(range,c) = size;
         }
     }
 
-    centre_x = (min_coord[0] + max_coord[0]) / 2.0;
-    centre_y = (min_coord[1] + max_coord[1]) / 2.0;
-    centre_z = (min_coord[2] + max_coord[2]) / 2.0;
+    INTERPOLATE_POINTS( centre, min_coord, max_coord, 0.5 );
+
+    if( view->perspective_flag )
+    {
+        perspective_fit_points( view, &max_coord, &centre, n_points, points );
+    }
+    else
+    {
+        orthogonal_fit_points( view, &centre, &range );
+    }
+}
+
+private  void  orthogonal_fit_points( view, centre, range )
+    view_struct   *view;
+    Point         *centre;
+    Vector        *range;
+{
+    Real    dx, dy, dz;
+    Point   eye;
+    Vector  x_axis, y_axis, line_of_sight;
+    Vector  delta_x, delta_y, delta_z;
+    Real    x_scale, y_scale, scale;
 
     eye = view->origin;
     x_axis = view->x_axis;
     y_axis = view->y_axis;
     line_of_sight = view->line_of_sight;
 
-    dx = centre_x - Point_x(eye);
-    dy = centre_y - Point_y(eye);
-    dz = centre_z - range[2] - Point_z(eye);
+    dx = Point_x(*centre);
+    dy = Point_y(*centre);
+    dz = Point_z(*centre) - Point_z(*range);
 
     SCALE_VECTOR( delta_x, x_axis, dx );
     SCALE_VECTOR( delta_y, y_axis, dy );
@@ -126,8 +117,8 @@ private  void  orthogonal_fit_points( view, n_points, points )
 
     view->origin = eye;
 
-    x_scale = range[0] * FACTOR / view->window_width;
-    y_scale = range[1] * FACTOR / view->window_height;
+    x_scale = Point_x(*range) * FACTOR / view->window_width;
+    y_scale = Point_y(*range) * FACTOR / view->window_height;
 
     scale = MAX( x_scale, y_scale );
 
@@ -136,5 +127,77 @@ private  void  orthogonal_fit_points( view, n_points, points )
     view->perspective_distance *= scale;
 
     view->front_distance = 0.0;
-    view->back_distance = 2.5 * range[2];
+    view->back_distance = 2.5 * Vector_z(*range);
+}
+
+private  void  perspective_fit_points( view, max_coord, centre,
+                                       n_points, points )
+    view_struct   *view;
+    Point         *max_coord;
+    Point         *centre;
+    int           n_points;
+    Point         points[];
+{
+    int     i, c;
+    Real    z_min, z_pos, dist;
+    Real    dx, dy, dz, off_centre, width;
+    Point   eye;
+    Vector  x_axis, y_axis, line_of_sight;
+    Vector  delta_x, delta_y, delta_z;
+
+    z_min = 0.0;
+
+    eye = view->origin;
+    x_axis = view->x_axis;
+    y_axis = view->y_axis;
+    line_of_sight = view->line_of_sight;
+
+    for_less( i, 0, n_points )
+    {
+        for_inclusive( c, X_AXIS, Y_AXIS )
+        {
+            if( c == X_AXIS )
+            {
+                off_centre = Point_x(points[i]) - Point_x(*centre);
+                width = view->window_width;
+            }
+            else
+            {
+                off_centre = Point_y(points[i]) - Point_y(*centre);
+                width = view->window_height;
+            }
+
+            dist = FACTOR * off_centre * view->perspective_distance /
+                                         (width/2.0);
+
+            if( dist < 0.0 )
+            {
+                dist = -dist;
+            }
+
+            z_pos = Point_z(points[i]) - dist;
+
+            if( (i == 0 && c == X_AXIS) || z_pos < z_min )
+            {
+                z_min = z_pos;
+            }
+        }
+    }
+
+    dx = Point_x(*centre);
+    dy = Point_y(*centre);
+    dz = z_min;
+
+    SCALE_VECTOR( delta_x, x_axis, dx );
+    SCALE_VECTOR( delta_y, y_axis, dy );
+    SCALE_VECTOR( delta_z, line_of_sight, dz );
+
+    ADD_POINT_VECTOR( eye, eye, delta_x );
+    ADD_POINT_VECTOR( eye, eye, delta_y );
+    ADD_POINT_VECTOR( eye, eye, delta_z );
+
+    view->origin = eye;
+
+    view->back_distance = FACTOR * (Point_z(*max_coord) - dz);
+    view->front_distance = view->back_distance * 1.0e-5;
 }
