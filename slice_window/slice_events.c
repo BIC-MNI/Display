@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 static    DEF_EVENT_FUNCTION( window_size_changed );
 static    DEF_EVENT_FUNCTION( handle_redraw );
@@ -162,19 +162,17 @@ private  void  update_voxel_cursor(
     display_struct    *slice_window )
 {
     int    c, axis_index;
-    Real   indices[N_DIMENSIONS];
+    Real   voxel[N_DIMENSIONS];
 
-    if( get_voxel_in_slice_window( slice_window, &indices[X],
-                                   &indices[Y], &indices[Z], &axis_index ) )
+    if( get_voxel_in_slice_window( slice_window, voxel, &axis_index ) )
     {
         for_less( c, 0, N_DIMENSIONS )
         {
             if( slice_window->slice.slice_locked[c] )
-                indices[c] = slice_window->slice.slice_index[c];
+                voxel[c] = slice_window->slice.slice_index[c];
         }
 
-        if( set_current_voxel( slice_window, indices[X], indices[Y],
-                               indices[Z] ) )
+        if( set_current_voxel( slice_window, voxel ) )
         {
             set_update_required( slice_window, NORMAL_PLANES );
         }
@@ -186,7 +184,7 @@ private  void  update_voxel_cursor(
         }
 
         if( update_current_marker( slice_window->associated[THREE_D_WINDOW],
-                                   indices[X], indices[Y], indices[Z] ) )
+                                   voxel ) )
         {
             rebuild_selected_list( slice_window->associated[THREE_D_WINDOW],
                                    slice_window->associated[MENU_WINDOW] );
@@ -237,6 +235,10 @@ private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
 {
     update_window_size( display );
 
+    fit_slice_to_view( display, 0 );
+    fit_slice_to_view( display, 1 );
+    fit_slice_to_view( display, 2 );
+
     rebuild_slice_models( display );
 
     set_update_required( display, NORMAL_PLANES );
@@ -283,8 +285,7 @@ private  void  perform_translation(
         dx = x2 - x1;
         dy = y2 - y1;
 
-        slice_window->slice.slice_views[view_index].x_trans += dx;
-        slice_window->slice.slice_views[view_index].y_trans += dy;
+        translate_slice_view( slice_window, view_index, dx, dy );
 
         set_slice_window_update( slice_window, view_index );
 
