@@ -1,5 +1,7 @@
 
+#include  <stdio.h>
 #include  <def_graphics.h>
+#include  <def_globals.h>
 
 public  Status  create_graphics_window( graphics )
     graphics_struct   *graphics;
@@ -54,16 +56,39 @@ private  void  initialize_graphics_window( graphics )
     initialize_render( &graphics->render );
     initialize_objects( &graphics->objects );
 
+    graphics->frame_number = 0;
     graphics->update_required = FALSE;
+}
+
+private  void  display_frame_number( graphics )
+    graphics_struct   *graphics;
+{
+    void          G_set_view_type();
+    void          G_draw_text();
+    text_struct   frame_number;
+
+    (void) sprintf( frame_number.text, "%d", graphics->frame_number );
+
+    fill_Point( frame_number.origin, Frame_number_x, Frame_number_y, 0.0 );
+    fill_Colour( frame_number.colour, 1.0, 1.0, 1.0 );
+
+    G_set_view_type( &graphics->window, SCREEN_VIEW );
+
+    G_draw_text( &graphics->window, &frame_number, &graphics->render );
 }
 
 public  void  update_graphics( graphics )
     graphics_struct   *graphics;
 {
-    void   G_update_window();
-    void   display_objects();
+    void          G_update_window();
+    void          display_objects();
+    void          display_frame_number();
 
     display_objects( &graphics->window, graphics->objects, &graphics->render );
+
+    ++graphics->frame_number;
+
+    display_frame_number( graphics );
 
     G_update_window( &graphics->window );
 
