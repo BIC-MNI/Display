@@ -113,8 +113,10 @@ view
     transient 'n'    bottom_view             "Bottom View"
 
     transient 'q'    pick_view_rectangle     "Pick View"
-    transient 'e'    create_film_loop        "Film Loop"
-    transient 'r'    save_image              "Save Image"
+    transient 'w'    create_film_loop        "Film Loop"
+    transient 'e'    save_image              "Save Image"
+    transient 'r'    toggle_stereo_mode      "Toggle Stereo"
+    transient 't'    set_eye_separation      "Eye Width: %g"
 }
 
 render

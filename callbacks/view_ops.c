@@ -343,7 +343,7 @@ public  DEF_MENU_FUNCTION( toggle_stereo_mode )      /* ARGSUSED */
     display->three_d.view.stereo_flag = !display->three_d.view.stereo_flag;
 
     if( display->three_d.view.stereo_flag )
-        G_set_background_colour( display->window, BLACK );
+        G_set_background_colour( display->window, WHITE );
 
     update_view( display );
 

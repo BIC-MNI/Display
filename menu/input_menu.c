@@ -9,6 +9,8 @@ MENU_FUNCTION(save_file) \
 MENU_FUNCTION(create_model) \
 MENU_FUNCTION(change_model_name) \
 MENU_FUNCTION(reset_view) \
+MENU_FUNCTION(toggle_stereo_mode) \
+MENU_FUNCTION(set_eye_separation) \
 MENU_FUNCTION(save_image) \
 MENU_FUNCTION(make_view_fit) \
 MENU_FUNCTION(toggle_perspective) \

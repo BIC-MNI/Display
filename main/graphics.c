@@ -481,6 +481,8 @@ public  void  update_view(
                    display->three_d.view.back_distance,
                    display->three_d.view.perspective_flag,
                    display->three_d.view.perspective_distance,
+                   display->three_d.view.stereo_flag,
+                   display->three_d.view.eye_separation,
                    display->three_d.view.window_width,
                    display->three_d.view.window_height );
     G_set_modeling_transform( display->window,

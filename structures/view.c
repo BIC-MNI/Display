@@ -330,7 +330,7 @@ public  void  magnify_view_size(
     Real      dist;
     Vector    offset;
 
-    if( view->perspective_flag )
+    if( view->perspective_flag || view->stereo_flag )
     {
         dist = (1.0 - factor) * view->perspective_distance;
         SCALE_VECTOR( offset, view->line_of_sight, dist );

@@ -14,6 +14,8 @@ typedef  struct
     Real        window_width, window_height;
     Real        scale_factors[N_DIMENSIONS];
     Transform   modeling_transform;
+    BOOLEAN     stereo_flag;
+    Real        eye_separation;
 } view_struct;
 
 typedef  struct
