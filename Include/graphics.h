@@ -3,6 +3,8 @@
 
 #include  <def_standard.h>
 #include  <def_objects.h>
+#include  <def_menu.h>
+#include  <def_queue.h>
 
 typedef  struct
 {
@@ -61,11 +63,7 @@ typedef  struct
 
 } event_struct;
 
-typedef  struct
-{
-    int           head, tail;
-    event_struct  *events;
-} event_queue_struct;
+typedef  QUEUE_STRUCT( event_struct )   event_queue_struct;
 
 typedef  Status  eft();
 
@@ -86,10 +84,13 @@ typedef  struct
     action_table_entry  event_info[(int) NUM_EVENT_TYPES];
 } action_table_struct;
 
-#include  <def_objects.h>
-
-typedef  struct
+typedef  struct  graphics_struct
 {
+    struct  graphics_struct  *menu_window;
+    struct  graphics_struct  *graphics_window;
+
+    menu_window_struct   menu;
+
     window_struct        window;
     Point                mouse_position;
     Point                prev_mouse_position;
