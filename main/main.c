@@ -1,5 +1,4 @@
 #include  <stdio.h>
-#include  <math.h>
 #include  <def_graphics.h>
 #include  <def_globals.h>
 
@@ -20,8 +19,9 @@ int  main( argc, argv )
     Status           G_terminate();
     Status           make_all_invisible();
     void             reset_view_parameters();
+    void             scale_modeling_transform();
     void             update_view();
-    void             get_range_of_objects();
+    Boolean          get_range_of_objects();
 
     if( argc != 2 )
     {
@@ -38,12 +38,14 @@ int  main( argc, argv )
 
     if( status == OK )
     {
-        status = create_graphics_window( &graphics );
+        status = create_graphics_window( &graphics, argv[1], 0, 0 );
     }
 
     if( status == OK )
     {
-        status = create_graphics_window( &menu );
+        status = create_graphics_window( &menu, argv[1],
+                                         Menu_window_width,
+                                         Menu_window_height );
     }
 
     if( status == OK )
@@ -81,13 +83,22 @@ int  main( argc, argv )
 
     if( status == OK )
     {
-        get_range_of_objects( graphics->model.objects, &graphics->min_limit,
-                              &graphics->max_limit );
+        if( !get_range_of_objects( graphics->model.objects, FALSE,
+                                  &graphics->min_limit, &graphics->max_limit ) )
+        {
+            fill_Point( graphics->min_limit, 0.0, 0.0, 0.0 );
+            fill_Point( graphics->max_limit, 1.0, 1.0, 1.0 );
+            PRINT( "No objects range.\n" );
+        }
 
         ADD_POINTS( graphics->centre_of_objects, graphics->min_limit,
                     graphics->max_limit );
-        SCALE_POINT( graphics->centre_of_objects, graphics->centre_of_objects,
+        SCALE_POINT( graphics->centre_of_objects,
+                     graphics->centre_of_objects,
                      0.5 );
+
+        scale_modeling_transform( &graphics->view, Initial_x_scale,
+                                  Initial_y_scale, Initial_z_scale );
 
         reset_view_parameters( graphics );
 
