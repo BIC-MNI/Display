@@ -298,8 +298,6 @@ public  DEF_MENU_FUNCTION( make_polygon_sphere )   /* ARGSUSED */
                                 n_up, n_around, FALSE,
                                 get_polygons_ptr(object) );
 
-        ALLOC( get_polygons_ptr(object)->colours, 1 );
-
         get_polygons_ptr(object)->colours[0] = WHITE;
         get_default_surfprop( &get_polygons_ptr(object)->surfprop );
         compute_polygon_normals( get_polygons_ptr(object) );
