@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.17 1995-10-19 15:52:35 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.18 1996-04-10 13:59:35 david Exp $";
 #endif
 
 #include  <display.h>
@@ -47,10 +47,12 @@ public  void  create_voxelated_surface(
     Real             max_invalid_label,
     polygons_struct  *polygons )
 {
-    int                          indices[N_DIMENSIONS], sizes[N_DIMENSIONS];
-    int                          c, offset, x, y, z;
-    progress_struct              progress;
-    int                          **point_lookup[2], **tmp;
+    int                 indices[N_DIMENSIONS], sizes[N_DIMENSIONS];
+    int                 c, offset, x, y, z;
+    progress_struct     progress;
+    int                 **point_lookup[2], **tmp;
+    Real                value;
+    BOOLEAN             inside;
 
     initialize_polygons( polygons, WHITE, (Surfprop *) NULL );
 
@@ -86,6 +88,12 @@ public  void  create_voxelated_surface(
         {
             for_less( indices[Y], 0, sizes[Y] )
             {
+                value = get_volume_real_value( volume,
+                                  indices[X], indices[Y], indices[Z], 0, 0 );
+                inside = min_value <= value && value <= max_value;
+                if( !inside )
+                    continue;
+
                 for_less( c, 0, N_DIMENSIONS )
                 {
                     for( offset = -1;  offset <= 1;  offset += 2 )
@@ -132,61 +140,54 @@ private  BOOLEAN  face_is_boundary(
     int             c,
     int             offset )
 {
-    BOOLEAN  inside, neigh_inside;
+    BOOLEAN  neigh_inside;
     BOOLEAN  boundary_flag;
     Real     value, label;
     int      n_invalid, neigh_indices[N_DIMENSIONS];
 
     boundary_flag = FALSE;
 
-    value = get_volume_real_value( volume, indices[X], indices[Y], indices[Z],
-                                   0, 0 );
-    inside = min_value <= value && value <= max_value;
+    neigh_indices[0] = indices[0];
+    neigh_indices[1] = indices[1];
+    neigh_indices[2] = indices[2];
+    neigh_indices[c] += offset;
 
-    if( inside )
+    if( int_voxel_is_within_volume( volume, neigh_indices ) )
     {
-        neigh_indices[0] = indices[0];
-        neigh_indices[1] = indices[1];
-        neigh_indices[2] = indices[2];
-        neigh_indices[c] += offset;
+        boundary_flag = TRUE;
 
-        if( int_voxel_is_within_volume( volume, neigh_indices ) )
+        if( label_volume != NULL && min_invalid_label <= max_invalid_label )
         {
-            boundary_flag = TRUE;
+            n_invalid = 0;
 
-            if( label_volume != NULL && min_invalid_label <= max_invalid_label )
+            label = (Real) get_volume_label_data( label_volume, indices );
+            if( min_invalid_label <= label && label <= max_invalid_label )
+                ++n_invalid;
+
+            label = (Real) get_volume_label_data( label_volume,
+                                                  neigh_indices );
+            if( min_invalid_label <= label && label <= max_invalid_label )
+                ++n_invalid;
+
+            if( n_invalid == 2 ||
+                (n_invalid == 1 && !Voxel_validity_if_mixed) )
             {
-                n_invalid = 0;
-
-                label = (Real) get_volume_label_data( label_volume, indices );
-                if( min_invalid_label <= label && label <= max_invalid_label )
-                    ++n_invalid;
-
-                label = (Real) get_volume_label_data( label_volume,
-                                                      neigh_indices );
-                if( min_invalid_label <= label && label <= max_invalid_label )
-                    ++n_invalid;
-
-                if( n_invalid == 2 ||
-                    (n_invalid == 1 && !Voxel_validity_if_mixed) )
-                {
-                    boundary_flag =  FALSE;
-                }
-            }
-
-            if( boundary_flag )
-            {
-                value = get_volume_real_value( volume, neigh_indices[X],
-                                 neigh_indices[Y], neigh_indices[Z], 0, 0 );
-                neigh_inside = min_value <= value && value <= max_value;
-
-                if( inside == neigh_inside )
-                    boundary_flag = FALSE;
+                boundary_flag =  FALSE;
             }
         }
-        else
-            boundary_flag = TRUE;
+
+        if( boundary_flag )
+        {
+            value = get_volume_real_value( volume, neigh_indices[X],
+                             neigh_indices[Y], neigh_indices[Z], 0, 0 );
+            neigh_inside = min_value <= value && value <= max_value;
+
+            if( neigh_inside )
+                boundary_flag = FALSE;
+        }
     }
+    else
+        boundary_flag = TRUE;
 
     return( boundary_flag );
 }
