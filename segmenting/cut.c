@@ -36,13 +36,20 @@ public  Status  label_components( x_size, y_size, pixels, label_of_interest )
 {
     Status        status;
     int           x, y;
-    int           cut_num;
+    int           cut_num, min_cut;
 
     status = OK;
 
     cut_num = 0;
 
     create_distance_transform( x_size, y_size, pixels );
+
+    min_cut = get_minimum_cut( x_size, y_size, pixels, label_of_interest );
+
+#ifdef OLD
+    if( min_cut > 0 )
+    {
+    }
 
     while( find_other_label_connected( x_size, y_size, pixels,
                                        label_of_interest,&x,&y) &&
@@ -58,6 +65,7 @@ public  Status  label_components( x_size, y_size, pixels, label_of_interest )
 
     if( status == OK )
         expand_region_of_interest( x_size, y_size, pixels, label_of_interest );
+#endif
 
     return( status );
 }
@@ -155,6 +163,130 @@ Boolean  is_border_pixel( x_size, y_size, pixels, x, y )
     return( FALSE );
 }
 
+private  int  get_minimum_cut( x_size, y_size, pixels, label_of_interest )
+    int            x_size;
+    int            y_size;
+    pixel_struct   **pixels;
+    int            label_of_interest;
+{
+    int                            x, y, nx, ny, dist, cut, min_cut;
+    int                            dir;
+    Status                         status;
+    voxel_struct                   insert, entry;
+    QUEUE_STRUCT( voxel_struct )   queue;
+
+    INITIALIZE_QUEUE( queue );
+
+    for_less( x, 0, x_size )
+    {
+        for_less( y, 0, y_size )
+        {
+            if( pixels[x][y].label != INVALID_LABEL &&
+                pixels[x][y].label != label_of_interest )
+            {
+                pixels[x][y].cutoff = -pixels[x][y].dist_transform;
+                pixels[x][y].queued = TRUE;
+                insert.x = x;
+                insert.y = y;
+                INSERT_IN_QUEUE( status, queue, insert );
+            }
+            else
+            {
+                pixels[x][y].cutoff = pixels[x][y].dist_transform;
+                pixels[x][y].queued = FALSE;
+            }
+        }
+    }
+
+    while( !IS_QUEUE_EMPTY( queue ) )
+    {
+        REMOVE_FROM_QUEUE( queue, entry );
+
+        x = entry.x;
+        y = entry.y;
+        pixels[x][y].queued = FALSE;
+
+        for_less( dir, 0, N_8_NEIGHBOURS )
+        {
+            nx = x + Dx8[dir];
+            ny = y + Dy8[dir];
+
+            if( nx >= 0 && nx < x_size &&
+                ny >= 0 && ny < y_size &&
+                pixels[nx][ny].inside )
+            {
+                if( cut_decreased( &pixels[x][y], &pixels[nx][ny], &cut ) )
+                {
+                    pixels[nx][ny].cutoff = cut;
+
+                    if( !pixels[nx][ny].queued &&
+                        pixels[nx][ny].label != label_of_interest )
+                    {
+                        pixels[nx][ny].queued = TRUE;
+                        insert.x = nx;
+                        insert.y = ny;
+                        INSERT_IN_QUEUE( status, queue, insert );
+                    }
+                }
+            }
+        }
+    }
+
+    DELETE_QUEUE( status, queue );
+
+    min_cut = 0;
+
+    for_less( x, 0, x_size )
+    {
+        for_less( y, 0, y_size )
+        {
+            if( pixels[x][y].label == label_of_interest )
+            {
+                cut = ABS( pixels[x][y].cutoff );
+
+                if( cut < pixels[x][y].dist_transform && cut > min_cut )
+                {
+                    min_cut = cut;
+                }
+            }
+        }
+    }
+
+(void) printf( "Min cut %d\n", min_cut );
+    return( min_cut );
+}
+
+private  Boolean  cut_decreased( neighbour_pixel, this_pixel, new_cut )
+    pixel_struct   *neighbour_pixel;
+    pixel_struct   *this_pixel;
+    int            *new_cut;
+{
+    Boolean  cut_changed;
+    int      neigh_cut;
+
+    neigh_cut = neighbour_pixel->cutoff;
+
+    if( neigh_cut < 0 )
+    {
+        if( this_pixel->dist_transform == -neigh_cut + 1 &&
+            this_pixel->dist_transform > ABS(this_pixel->cutoff) )
+        {
+            *new_cut = neigh_cut - 1;
+            cut_changed = TRUE;
+        }
+        else
+            cut_changed = FALSE;
+    }
+    else
+    {
+        *new_cut = MIN( this_pixel->dist_transform, neigh_cut );
+        cut_changed = ( *new_cut > this_pixel->cutoff );
+    }
+
+    return( cut_changed );
+}
+
+#ifdef OLD
 private  Boolean  find_other_label_connected( x_size, y_size, pixels,
                                           label_of_interest, x_label, y_label )
     int            x_size;
@@ -847,3 +979,4 @@ private  void  expand_region_of_interest( x_size, y_size, pixels,
 
     DELETE_QUEUE( status, queue );
 }
+#endif
