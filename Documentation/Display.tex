@@ -4,16 +4,21 @@
 \author{David MacDonald}
 
 \newcommand{\display}{{\bf\tt display}\ }
-\newcommand{\menu}[1]{{\sc\bf #1}\ }
-\newcommand{\menutwo}[2]{{\sc\bf #1/#2}\ }
-\newcommand{\menuthree}[3]{{\sc\bf #1/#2/#3}\ }
+\newcommand{\menu}[1]{\fbox{\sc\bf #1}}
+\newcommand{\menutwo}[2]{\fbox{\sc\bf #1}/\fbox{\sc\bf #2}}
+\newcommand{\menuthree}[3]{\fbox{\sc\bf #1}/\fbox{\sc\bf #2}/\fbox{\sc\bf #3}}
 
 %\psdraft
 
 \begin{document}
 
 \maketitle
+
+\newpage
+
 \tableofcontents
+
+\newpage
 
 \section{Introduction}
 
@@ -22,11 +27,12 @@ three dimensional objects,
 mainly human cortical surfaces and sulcal curves.  It has since evolved to
 include MRI and PET volume display and manipulation and a variety of other
 features.  The user interface is a non-standard menu oriented system.
+
+\section{Running \display}
+
 \display runs on any of the Silicon Graphics (SGI) workstations:
 {\tt portia}, {\tt priam}, {\tt lear}, {\tt duncan}, {\tt grumio},
 {\tt phebe}, {\tt quince}, and {\tt ursula}.
-
-\section{Running \display}
 
 The command syntax is:
 
@@ -49,15 +55,16 @@ where each file is one of:
 
 \item[Tags:]  contains a list of 3D points tagged on a volume.  This format
              supercedes the landmark format and should be used for all
-             lists of points, positions, etc.  usually ends in {\tt .tag}.
+             lists of points, positions, etc., and usually ends in {\tt .tag}.
 \end{itemize}
 
-\section{\display windows}
+\section{\display Windows}
 
-\postscriptfig{display.ps}{7in}{7in}{Clockwise from top left:
+\postscriptfig{display.ps}{7in}{Clockwise from top left:
 3D window, slice window, menu window, text entry window \label{windows}}
 
-Figure \ref{windows} shows the four windows created and used by \display :
+Figure \ref{windows} shows the four windows used by \display (three of which
+are created when the program is run):
 
 \begin{itemize}
 \item[3D window:]  contains the 3D objects, such as surfaces, lines,
@@ -70,7 +77,7 @@ Figure \ref{windows} shows the four windows created and used by \display :
                    numerical parameters, etc.
 \end{itemize}
 
-\section{Menu system}
+\section{Menu and Interaction System}
 
 The menu window (bottom right in Figure \ref{windows}) represents the layout
 of the left side of the keyboard.  A menu entry is selected by hitting the
@@ -88,30 +95,31 @@ In these cases, the mouse must be positioned on the relevant slice and the
 keyboard character corresponding to the menu entry pressed.
 When the user is prompted to type in a colour, either the name of a colour,
 such as {\tt red}, {\tt yellow}, or {\tt pink}, or a numerical colour,
-such as {\tt 0.3 0.7 0.7} may be typed in.  The following is a brief
+such as \mbox{\tt 0.3 0.7 0.7} may be typed in.  The following is a brief
 description of most useful menu items.  Much of the menu is devoted towards
 the author's research and is therefore not applicable to the average 
-user, and are not described herein.
+user, and is not described herein.
 
-\section{Menu Window}
+\subsection{Menu Window}
 
 The menu window contains the representation of the partial keyboard, and
 displays the object hierarchy.  All objects loaded and created in \display,
 with the exception of volumes are displayed in the object hierarchy.  The
-arrow keys are used to move around in the this hierarchy and to select the
+arrow keys are used to move around in this hierarchy and to select the
 current object.
 
-\section{3D Window}
+\subsection{3D Window}
 
 In the 3D window, the following mouse operations are available:
 
 \begin{itemize}
-\item[Left Button]  Points to a position on a surface or marker.
-\item[Middle Button]  Rotates, translates, or magnifies the view, depending
+\item[Left Button]  Points to a position on a surface or to a marker
+                    (tag point).
+\item[Middle Button]  Rotates, translates, or magnifies the 3D view, depending
                       on the menu button pressed.
 \end{itemize}
 
-\section{Slice Window}
+\subsection{Slice Window}
 
 In the slice window, the following mouse operations are available:
 
@@ -127,7 +135,9 @@ In the slice window, the following mouse operations are available:
                    both limits to be moved simultaneously.
 \end{itemize}
 
-\section{Slice Menu}
+\section{Menus}
+
+\subsection{Slice Menu}
 
 \begin{description}
 \item[\menu{+ Slice}]  Changes the current slice to the next slice.
@@ -143,7 +153,7 @@ In the slice window, the following mouse operations are available:
        under the mouse, in the 3D window.
 \end{description}
 
-\section{Colour Coding Menu}
+\subsection{Colour Coding Menu}
 
 \begin{description}
 \item[\menutwo{Colour Coding}{Spectral}]  Selects the spectral colour coding
@@ -180,7 +190,7 @@ In the slice window, the following mouse operations are available:
                       triangle, and gaussian filters.
 \end{description}
 
-\section{Region Painting Menu}
+\subsection{Region Painting Menu}
 
 \begin{description}
 \item[\menutwo{Region Painting}{Set Paint Label}]  Sets the current label
@@ -203,7 +213,7 @@ In the slice window, the following mouse operations are available:
     radius in the perpendicular to plane direction.
 \end{description}
 
-\section{Atlas Menu}
+\subsection{Atlas Menu}
 
 \begin{description}
 \item[\menutwo{Atlas}{Atlas State}]  Toggles between displaying scanned images
@@ -228,7 +238,7 @@ In the slice window, the following mouse operations are available:
 \item[\menutwo{Atlas}{Flip Z}]  Flips the transverse atlas pages.
 \end{description}
 
-\section{Object Hierarchy}
+\subsection{Object Hierarchy}
 
 \begin{description}
 \item[\menu{Up Arrow}]  Sets the current object to the one before
@@ -241,7 +251,7 @@ In the slice window, the following mouse operations are available:
                 the current object, if the current object is a model.
 \end{description}
 
-\section{File Menu}
+\subsection{File Menu}
 
 \begin{description}
 \item[\menutwo{File}{Load File}]  Prompts for a filename and loads the file.
@@ -250,7 +260,7 @@ In the slice window, the following mouse operations are available:
         a model object.
 \end{description}
 
-\section{3D Viewing}
+\subsection{3D Viewing}
 
 The following three menu entries are always available no matter which sub
 menu is selected:
@@ -265,7 +275,7 @@ menu is selected:
                        trackball fashion.
 \end{description}
 
-\section{Markers Menu}
+\subsection{Markers Menu}
 
 \begin{description}
 \item[\menutwo{Markers}{Create Marker}]  If the mouse is in the slice window
@@ -320,7 +330,7 @@ menu is selected:
         for each group.
 \end{description}
 
-\section{View Menu}
+\subsection{View Menu}
 
 \begin{description}
 \item[\menutwo{View}{Reset View}]  Resets the 3D window view to the default,
@@ -335,7 +345,7 @@ menu is selected:
                                  within the window.
 \end{description}
 
-\section{Render Menu}
+\subsection{Render Menu}
 
 \begin{description}
 \item[\menutwo{Render}{Wireframe or Shaded}]  Toggles the display mode of the
@@ -357,7 +367,7 @@ menu is selected:
         for the markers in the 3D window.
 \end{description}
 
-\section{Objects Menu}
+\subsection{Objects Menu}
 
 \begin{description}
 \item[\menuthree{Objects}{Delete Object}{Really Delete}]  Deletes the current
