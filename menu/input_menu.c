@@ -56,6 +56,8 @@
                        MENU_FUNCTION(menu_set_global_variable) \
                        MENU_FUNCTION(pick_view_rectangle) \
                        MENU_FUNCTION(toggle_object_visibility) \
+                       MENU_FUNCTION(cut_object) \
+                       MENU_FUNCTION(paste_object) \
                        MENU_FUNCTION(output_slice_transforms) \
                        MENU_FUNCTION(open_slice_window) \
                        MENU_FUNCTION(start_surface) \
@@ -109,6 +111,9 @@
                        MENU_FUNCTION(save_markers) \
                        MENU_FUNCTION(set_default_marker_id) \
                        MENU_FUNCTION(set_default_marker_type) \
+                       MENU_FUNCTION(set_default_marker_colour) \
+                       MENU_FUNCTION(set_default_marker_label) \
+                       MENU_FUNCTION(set_default_marker_size) \
                        MENU_FUNCTION(change_marker_id) \
                        MENU_FUNCTION(change_marker_label) \
                        MENU_FUNCTION(change_marker_size) \
