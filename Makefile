@@ -2,7 +2,7 @@ include ../C_dev/Makefile.include
 
 OPT = -O
 
-INCLUDE = -IInclude -I../marching_cubes/Include -I$(C_UTILS_INCLUDE) -I/@/portia/usr/include
+INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/portia/usr/include
 
 #LIBS = -L/@/portia/usr/lib -lgl -lm
 LIBS = -lgl -lm
@@ -28,6 +28,7 @@ display_obj = \
            $(graphics_obj) \
            graphics_io.o \
            callbacks/file.o \
+           callbacks/globals.o \
            callbacks/object_ops.o \
            callbacks/quit.o \
            callbacks/render_ops.o \
@@ -38,11 +39,14 @@ display_obj = \
            events/magnify.o \
            events/mouse.o \
            events/mouse_trans.o \
+           events/pick_view.o \
            events/virt_sb.o \
            events/window_man.o \
+           events/utilities.o \
+           immediate_mode/draw_immed.o \
            menu/build_menu.o \
            menu/menu.o \
-           menu/menu_input.o \
+           menu/input_menu.o \
            menu/menu_update.o \
            menu/selected.o \
            $(C_UTILS_SRC)/alloc.o \
@@ -52,6 +56,8 @@ display_obj = \
            $(C_UTILS_SRC)/mr_io.o \
            $(C_UTILS_SRC)/objects.o \
            $(C_UTILS_SRC)/object_io.o \
+           $(C_UTILS_SRC)/random_order.o \
+           $(C_UTILS_SRC)/random.o \
            $(C_UTILS_SRC)/resample.o \
            $(C_UTILS_SRC)/roi_io.o \
            $(C_UTILS_SRC)/string.o \

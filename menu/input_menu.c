@@ -41,6 +41,7 @@
                        MENU_FUNCTION(menu_set_global_variable) \
                        MENU_FUNCTION(pick_view_rectangle) \
                        MENU_FUNCTION(toggle_object_visibility) \
+                       MENU_FUNCTION(set_slice_transform) \
                 
 
 typedef  struct
