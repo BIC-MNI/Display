@@ -224,7 +224,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Compute_neighbours_on_input, BOOLEAN, FALSE )
     DEF_GLOBAL( Polygon_bintree_threshold, int, 100 )
-    DEF_GLOBAL( Bintree_size_factor, Real, 1.0 )
+    DEF_GLOBAL( Bintree_size_factor, Real, 0.3 )
 
     DEF_GLOBAL( Save_format, int, 1 )
 
