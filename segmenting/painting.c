@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.38 1995-08-21 14:05:39 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.39 1995-09-26 14:25:41 david Exp $";
 #endif
 
 #include  <display.h>
@@ -68,6 +68,7 @@ public  void  initialize_voxel_labeling(
     slice_window->slice.segmenting.n_starts_alloced = 0;
     slice_window->slice.segmenting.mouse_scale_factor =
                                                Initial_mouse_scale_factor;
+    slice_window->slice.painting_view_index = -1;
 }
 
 public  void  delete_voxel_labeling(
@@ -192,6 +193,7 @@ private  DEF_EVENT_FUNCTION( end_painting )
                                   display->slice.brush_outline );
 
         delete_object( display->slice.brush_outline );
+        display->slice.painting_view_index = -1;
     }
 
     set_slice_window_all_update( display, volume_index, UPDATE_LABELS );

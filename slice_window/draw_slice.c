@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.100 1995-09-13 13:25:21 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.101 1995-09-26 14:25:42 david Exp $";
 #endif
 
 #include  <display.h>
@@ -377,7 +377,7 @@ public  void  rebuild_probe(
                                 slice_window->slice.degrees_continuity,
                                 FALSE, 0.0, &value, NULL, NULL );
 
-        voxel_value = CONVERT_VALUE_TO_VOXEL( volume, value );
+        voxel_value = convert_value_to_voxel( volume, value );
 
         label = get_volume_label_data( get_nth_label_volume(
                                                     slice_window,volume_index),
@@ -982,7 +982,8 @@ private  int  render_slice_to_pixels(
     int                   x_centre, y_centre, edge_index;
     int                   x_sub_min, x_sub_max, y_sub_min, y_sub_max;
     int                   x, y, height, *n_alloced_ptr;
-    Colour                empty;
+    int                   r, g, b, opacity;
+    Colour                empty, colour;
     Real                  x_pixel, y_pixel;
     Real                  x_trans, y_trans, x_scale, y_scale;
     Real                  current_voxel[MAX_DIMENSIONS];
@@ -1209,6 +1210,26 @@ private  int  render_slice_to_pixels(
 
             pixels->x_position += x_sub_min;
             pixels->y_position += y_sub_min;
+
+            if( is_an_rgb_volume( volume ) &&
+                slice_window->slice.volumes[volume_index].opacity != 1.0 )
+            {
+                opacity = ROUND( 255.0 *
+                            slice_window->slice.volumes[volume_index].opacity );
+
+                for_inclusive( x, x_min, x_max )
+                {
+                    for_inclusive( y, y_min, y_max )
+                    {
+                        colour = PIXEL_RGB_COLOUR( *pixels, x, y );
+                        r = get_Colour_r( colour );
+                        g = get_Colour_g( colour );
+                        b = get_Colour_b( colour );
+                        colour = make_rgba_Colour( r, g, b, opacity );
+                        PIXEL_RGB_COLOUR( *pixels, x, y ) = colour;
+                    }
+                }
+            }
 
             n_pixels_drawn = (x_max - x_min + 1) * (y_max - y_min + 1);
         }

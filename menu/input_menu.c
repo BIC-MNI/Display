@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.121 1995-09-22 17:29:52 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.122 1995-09-26 14:25:40 david Exp $";
 #endif
 
 #include  <display.h>
@@ -205,6 +205,7 @@ MENU_F(set_current_volume_opacity) \
 MENU_F(resample_slice_window_volume) \
 MENU_F(box_filter_slice_window_volume) \
 MENU_F(reset_volume_transform) \
+MENU_F(toggle_incremental_slice_update) \
 MENU_F(transform_current_volume) \
 MENU_F(redo_histogram) \
 MENU_F(redo_histogram_labeled) \

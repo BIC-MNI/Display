@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.28 1995-09-13 13:25:23 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.29 1995-09-26 14:25:45 david Exp $";
 #endif
 
 
@@ -421,7 +421,7 @@ private  void  rebuild_colour_table(
 
     for_inclusive( voxel, (int) min_voxel, (int) max_voxel )
     {
-        value = CONVERT_VOXEL_TO_VALUE( volume, voxel );
+        value = convert_voxel_to_value( volume, voxel );
         colour = get_colour_code( &slice_window->slice.volumes[volume_index].
                                   colour_coding, value );
 

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.32 1995-09-13 13:25:24 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.33 1995-09-26 14:25:45 david Exp $";
 #endif
 
 
@@ -24,16 +24,73 @@ private  void  update_all_slice_axes(
     int               volume_index,
     int               view_index );
 
+private  void  set_orthogonal_slice_window_view(
+    display_struct    *slice_window,
+    int               view,
+    int               volume_index )
+{
+    int      axis;
+    Real     cosine, sine;
+    Real     separations[MAX_DIMENSIONS];
+
+    for_less( axis, 0, N_DIMENSIONS )
+    {
+        slice_window->slice.volumes[volume_index].views[view].x_axis[axis]
+                                                           = 0.0;
+        slice_window->slice.volumes[volume_index].views[view].y_axis[axis]
+                                                           = 0.0;
+    }
+
+    get_volume_separations( get_nth_volume(slice_window,volume_index),
+                            separations );
+
+    switch( view )
+    {
+    case 0:
+        slice_window->slice.volumes[volume_index].views[0].
+              x_axis[Slice_view1_axis1] = SIGN(separations[Slice_view1_axis1]);
+        slice_window->slice.volumes[volume_index].views[0].
+              y_axis[Slice_view1_axis2] = SIGN(separations[Slice_view1_axis2]);
+        break;
+
+    case 1:
+        slice_window->slice.volumes[volume_index].views[1].
+              x_axis[Slice_view2_axis1] = SIGN(separations[Slice_view2_axis1]);
+        slice_window->slice.volumes[volume_index].views[1].
+              y_axis[Slice_view2_axis2] = SIGN(separations[Slice_view2_axis2]);
+        break;
+
+    case 2:
+        slice_window->slice.volumes[volume_index].views[2].
+              x_axis[Slice_view3_axis1] = SIGN(separations[Slice_view3_axis1]);
+        slice_window->slice.volumes[volume_index].views[2].
+              y_axis[Slice_view3_axis2] = SIGN(separations[Slice_view3_axis2]);
+        break;
+
+    case 3:
+        cosine = cos( 45.0 * DEG_TO_RAD );
+        sine = sin( 45.0 * DEG_TO_RAD );
+
+        slice_window->slice.volumes[volume_index].
+                    views[3].x_axis[X] = cosine * SIGN(separations[X]);
+        slice_window->slice.volumes[volume_index].
+                    views[3].x_axis[Y] = sine * SIGN(separations[Y]);
+        slice_window->slice.volumes[volume_index].views[3].x_axis[Z] = 0.0;
+
+        slice_window->slice.volumes[volume_index].
+                    views[3].y_axis[X] = -sine * SIGN(separations[X]);
+        slice_window->slice.volumes[volume_index].
+                    views[3].y_axis[Y] = cosine * SIGN(separations[Y]);
+        slice_window->slice.volumes[volume_index].views[3].y_axis[Z] = 0.0;
+        break;
+    }
+}
+
 public  void  initialize_slice_window_view(
     display_struct    *slice_window,
     int               volume_index )
 {
     int      axis, view, x_min, x_max, y_min, y_max;
-    Real     cosine, sine;
-    Real     separations[MAX_DIMENSIONS];
-
-    get_volume_separations( get_nth_volume(slice_window,volume_index),
-                            separations );
 
     for_less( view, 0, N_SLICE_VIEWS )
     {
@@ -62,41 +119,12 @@ public  void  initialize_slice_window_view(
                                                      n_pixels_alloced = 0;
         slice_window->slice.volumes[volume_index].views[view].
                                                      n_label_pixels_alloced = 0;
+
+        set_orthogonal_slice_window_view( slice_window, view, volume_index );
     }
-
-    slice_window->slice.volumes[volume_index].views[0].
-              x_axis[Slice_view1_axis1] = SIGN(separations[Slice_view1_axis1]);
-    slice_window->slice.volumes[volume_index].views[0].
-              y_axis[Slice_view1_axis2] = SIGN(separations[Slice_view1_axis2]);
-
-    slice_window->slice.volumes[volume_index].views[1].
-              x_axis[Slice_view2_axis1] = SIGN(separations[Slice_view2_axis1]);
-    slice_window->slice.volumes[volume_index].views[1].
-              y_axis[Slice_view2_axis2] = SIGN(separations[Slice_view2_axis2]);
-
-    slice_window->slice.volumes[volume_index].views[2].
-              x_axis[Slice_view3_axis1] = SIGN(separations[Slice_view3_axis1]);
-    slice_window->slice.volumes[volume_index].views[2].
-              y_axis[Slice_view3_axis2] = SIGN(separations[Slice_view3_axis2]);
-
-    cosine = cos( 45.0 * DEG_TO_RAD );
-    sine = sin( 45.0 * DEG_TO_RAD );
 
     slice_window->slice.volumes[volume_index].
                                 views[OBLIQUE_VIEW_INDEX].visibility = FALSE;
-    slice_window->slice.volumes[volume_index].
-            views[OBLIQUE_VIEW_INDEX].x_axis[X] = cosine * SIGN(separations[X]);
-    slice_window->slice.volumes[volume_index].
-            views[OBLIQUE_VIEW_INDEX].x_axis[Y] = sine * SIGN(separations[Y]);
-    slice_window->slice.volumes[volume_index].
-                                views[OBLIQUE_VIEW_INDEX].x_axis[Z] = 0.0;
-
-    slice_window->slice.volumes[volume_index].
-            views[OBLIQUE_VIEW_INDEX].y_axis[X] = -sine * SIGN(separations[X]);
-    slice_window->slice.volumes[volume_index].
-            views[OBLIQUE_VIEW_INDEX].y_axis[Y] = cosine * SIGN(separations[Y]);
-    slice_window->slice.volumes[volume_index].
-                                views[OBLIQUE_VIEW_INDEX].y_axis[Z] = 0.0;
 }
 
 public  void  set_slice_visibility(
@@ -278,6 +306,9 @@ public  void  reset_slice_view(
                         &x_min_vp, &x_max_vp, &y_min_vp, &y_max_vp );
 
     current_volume_index = get_current_volume_index( slice_window );
+
+    update_all_slice_axes( slice_window, current_volume_index, view );
+
     get_slice_plane( slice_window, current_volume_index, view,
                      current_origin, current_x_axis, current_y_axis );
 
@@ -1559,4 +1590,54 @@ public  void  slice_view_has_changed(
     set_atlas_update( slice_window, view );
 
     set_slice_window_update( slice_window, -1, view, UPDATE_BOTH );
+}
+
+public  void  transform_current_volume_from_file(
+    display_struct   *display,
+    char             filename[] )
+{
+    Volume             volume;
+    General_transform  file_transform, *volume_transform, concated;
+    display_struct     *slice_window;
+
+    if( !get_slice_window( display, &slice_window ) )
+        return;
+
+    if( input_transform_file( filename, &file_transform ) != OK )
+        return;
+
+    volume = get_volume( slice_window );
+
+    volume_transform = get_voxel_to_world_transform( volume );
+
+    concat_general_transforms( volume_transform, &file_transform, &concated );
+
+    set_voxel_to_world_transform( volume, &concated );
+
+    delete_general_transform( &file_transform );
+
+    update_all_slice_axes_views( slice_window, 0 );
+}
+
+public  void  reset_current_volume_transform(
+    display_struct   *display )
+{
+    Volume             volume;
+    General_transform  *original_transform;
+    display_struct     *slice_window;
+
+    if( !get_slice_window( display, &slice_window ) )
+        return;
+
+    volume = get_volume( slice_window );
+
+    original_transform = &slice_window->slice.volumes
+                   [get_current_volume_index(slice_window)].original_transform;
+
+    set_voxel_to_world_transform( volume, original_transform );
+
+    copy_general_transform( get_voxel_to_world_transform(volume),
+                            original_transform );
+
+    update_all_slice_axes_views( slice_window, 0 );
 }

@@ -6,7 +6,7 @@ START_GLOBALS
     DEF_GLOBAL( Progress_threshold, int, 1000 )
 
     DEF_GLOBAL( Maximum_display_time, Real, 0.3 )
-    DEF_GLOBAL( Check_event_time, Real, 0.05 )
+    DEF_GLOBAL( Check_event_time, Real, 0.2 )
     DEF_GLOBAL( Event_timeout_min, Real, 0.5 )
     DEF_GLOBAL( Min_interval_between_events, Real, 0.01 )
     DEF_GLOBAL( Max_background_seconds, Real, 0.2 )
@@ -33,6 +33,7 @@ START_GLOBALS
     DEF_GLOBAL( Initial_total_slice_update_time1, Real, 0.5 )
     DEF_GLOBAL( Initial_total_slice_update_time2, Real, 2.0 )
     DEF_GLOBAL( Slice_event_check_time, Real, 0.25 )
+    DEF_GLOBAL( Initial_incremental_update, BOOLEAN, TRUE )
 
     DEF_GLOBAL_COLOUR( Volume_outline_colour )
     DEF_GLOBAL_COLOUR( Cross_section_colour )

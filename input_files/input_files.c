@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/input_files/input_files.c,v 1.24 1995-07-31 19:54:07 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/input_files/input_files.c,v 1.25 1995-09-26 14:25:38 david Exp $";
 #endif
 
 
@@ -86,6 +86,12 @@ public  Status  load_graphics_file(
              get_slice_window( display, &slice_window ) )
     {
         status = load_label_colour_map( slice_window, filename );
+    }
+    else if( filename_extension_matches(filename,
+                    get_default_transform_file_suffix()) )
+    {
+        transform_current_volume_from_file( display, filename );
+        status = OK;
     }
     else if( filename_extension_matches(filename,"roi") )
     {

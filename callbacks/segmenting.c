@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.44 1995-09-13 13:25:16 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.45 1995-09-26 14:25:34 david Exp $";
 #endif
 
 
@@ -625,7 +625,7 @@ public  DEF_MENU_FUNCTION(dilate_labels)
         if( input_int( stdin, &min_outside_label ) == OK &&
             input_int( stdin, &max_outside_label ) == OK )
         {
-            dilate_labeled_voxels_3d( get_volume(display),
+            (void) dilate_labeled_voxels_3d( get_volume(display),
                                   get_label_volume(display),
                                   get_current_paint_label(display),
                                   get_current_paint_label(display),
@@ -676,7 +676,7 @@ public  DEF_MENU_FUNCTION(erode_labels)
         {
             if( min_outside_label <= max_outside_label )
                 set_value = MAX( min_outside_label, 0 );
-            dilate_labeled_voxels_3d( get_volume(display),
+            (void) dilate_labeled_voxels_3d( get_volume(display),
                                   get_label_volume(display),
                                   min_outside_label, max_outside_label,
                                   0.0, -1.0,

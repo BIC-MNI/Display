@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.48 1995-08-28 14:22:10 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.49 1995-09-26 14:25:39 david Exp $";
 #endif
 
 #include  <display.h>
@@ -54,10 +54,10 @@ int  main(
     int     argc,
     char    *argv[] )
 {
-    int              i, len;
+    int              i, len, view;
     char             *filename;
     display_struct   *graphics;
-    display_struct   *menu;
+    display_struct   *menu, *slice_window;
     Status           status;
     STRING           globals_filename, runtime_directory;
     STRING           title;
@@ -212,6 +212,12 @@ int  main(
 
         if( next_is_label_volume )
             print( "Ignoring extraneous -label\n" );
+
+        if( get_slice_window( graphics, &slice_window ) )
+        {
+            for_less( view, 0, N_SLICE_VIEWS )
+                reset_slice_view( slice_window, view );
+        }
     }
 
     initialize_view_to_fit( graphics );

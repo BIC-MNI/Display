@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.101 1995-09-25 14:16:24 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.102 1995-09-26 14:25:43 david Exp $";
 #endif
 
 
@@ -714,7 +714,11 @@ private  void  render_more_slices(
     end_time = current_time + update_time;
     event_time = current_time + Slice_event_check_time;
 
-    if( !slice_window->slice.incremental_update_allowed || update_time <= 0.0 )
+    /*--- if currently painting or incremental update not desired, then
+          don't interrupt the slice recreation */
+
+    if( slice_window->slice.painting_view_index >= 0 ||
+        !slice_window->slice.incremental_update_allowed || update_time <= 0.0 )
     {
         end_time = -1.0;
         event_time = -1.0;

@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.66 1995-09-22 17:27:01 david Exp $";
+static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.67 1995-09-26 14:25:32 david Exp $";
 #endif
 
 #include  <volume_io.h>
@@ -179,6 +179,7 @@ typedef  struct
 
     BOOLEAN                viewport_update_flags[N_MODELS][2];
 
+    BOOLEAN                incremental_update_allowed;
     Real                   allowable_slice_update_time;
     Real                   total_slice_update_time1;
     Real                   total_slice_update_time2;
