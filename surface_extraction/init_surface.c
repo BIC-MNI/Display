@@ -158,6 +158,11 @@ public  void  set_isosurface_value( surface_extraction )
         PRINT( "Enter isosurface value: " );
         if( scanf( "%f", &value ) == 1 && value >= 0.0 )
         {
+            if( value == (Real) ((int) value) )
+            {
+                value = value + 0.0001;
+            }
+
             surface_extraction->isovalue = value;
             surface_extraction->isovalue_selected = TRUE;
         }

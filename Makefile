@@ -1,11 +1,11 @@
 include ../C_dev/Makefile.include
 
-OPT = -g
+OPT = -O
 
 INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/yorick/usr/include
 
 #LIBS = -L/@/portia/usr/lib -lgl -lm
-LIBS = -lgl -lm
+LIBS = -lgl_s -lm
 
 graphics_obj = graphics_lib/GL_graphics.o \
                globals.o \
@@ -161,8 +161,10 @@ bintree_obj = test_bintree.o \
               bintree.o \
               alloc.o \
               time.o \
+              intersect.o \
               files.o \
               points.o \
+              progress.o \
               random.o \
               geometry.o \
               intersect/intersect.o \
@@ -195,11 +197,11 @@ lint_timing: $(timing_ln)
 
 # -------
 
-test_gl_obj = test_gl.c \
-              alloc.c \
-              colours.c
+test_gl_obj = test_gl.o \
+              alloc.o \
+              colours.o
 
-test_gl_ln = $(test_gl_obj)
+test_gl_ln = $(test_gl_obj:.o=.ln)
 
 test_gl: $(test_gl_obj)
 	$(CC) -g $(INCLUDE) $(test_gl_obj) -o $@ $(LIBS)

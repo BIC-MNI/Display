@@ -383,10 +383,10 @@ private  Boolean  square_contains_value( volume, indices, axis_index, isovalue )
         for_less( square_indices[y_index], indices[y_index],
                   indices[y_index]+2 )
         {
-            val = (Real) ACCESS_VOLUME_DATA( *volume,
-                                             square_indices[X_AXIS],
-                                             square_indices[Y_AXIS],
-                                             square_indices[Z_AXIS] );
+            val = (Real) GET_VOLUME_DATA( *volume,
+                                          square_indices[X_AXIS],
+                                          square_indices[Y_AXIS],
+                                          square_indices[Z_AXIS] );
             if( val < isovalue )
                 less = TRUE;
             else if( val > isovalue )

@@ -180,8 +180,8 @@ public  void  rebuild_probe( graphics )
                 break;
             case VAL_PROBE_INDEX:
                 (void) sprintf( text->text, Slice_probe_val_format,
-                        (Real) ACCESS_VOLUME_DATA( *graphics->slice.volume,
-                                                   x_voxel, y_voxel, z_voxel) );
+                        (Real) GET_VOLUME_DATA( *graphics->slice.volume,
+                                                x_voxel, y_voxel, z_voxel) );
                 break;
             }
         }
@@ -484,7 +484,7 @@ private  Pixel_colour  get_voxel_colour( volume, colour_coding, x, y, z )
     }
     else
     {
-        val = ACCESS_VOLUME_DATA( *volume, x, y, z );
+        val = GET_VOLUME_DATA( *volume, x, y, z );
 
         pixel_col = get_colour_coding( colour_coding, (Real) val );
     }
