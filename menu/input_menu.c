@@ -33,7 +33,6 @@ MENU_F(retreat_visible) \
 MENU_F(reverse_normals) \
 MENU_F(set_current_object_colour) \
 MENU_F(set_current_object_surfprop) \
-MENU_F(centre_view) \
 MENU_F(magnify_view) \
 MENU_F(translate_view) \
 MENU_F(rotate_view) \
@@ -124,7 +123,6 @@ MENU_F(subdivide_current_polygon) \
 MENU_F(save_polygons_visibilities) \
 MENU_F(load_polygons_visibilities) \
 MENU_F(smooth_current_polygon) \
-MENU_F(smooth_current_polygon_with_volume) \
 MENU_F(start_deforming_object) \
 MENU_F(stop_deforming_object) \
 MENU_F(set_deformation_boundary) \
@@ -182,7 +180,6 @@ MENU_F(translate_labels_down) \
 MENU_F(translate_labels_left) \
 MENU_F(translate_labels_right) \
 MENU_F(translate_labels_arbitrary) \
-MENU_F(flip_labels_in_x) \
 MENU_F(calculate_volume) \
 MENU_F(set_paint_xy_brush_radius) \
 MENU_F(set_paint_z_brush_radius) \
