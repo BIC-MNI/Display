@@ -262,6 +262,8 @@ private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
     double   get_radius_of_curvature();
     Vector   surface_normal, function_deriv;
     Real     evaluate_volume_at_point();
+    void     convert_point_to_voxel();
+    Real     x_voxel, y_voxel, z_voxel;
     void     get_surface_normal_from_derivs();
     void     apply_surface_point_to_distances();
 
@@ -277,16 +279,34 @@ private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
         if( volume != (volume_struct *) 0 &&
             point_is_within_volume( volume, x, y, z ) )
         {
-            (void) evaluate_volume_at_point( volume, x, y, z, &dx, &dy, &dz );
+            convert_point_to_voxel( volume, (Real) x, (Real) y, (Real) z,
+                                    &x_voxel, &y_voxel, &z_voxel );
 
-            get_surface_normal_from_derivs( dxu, dyu, dzu, dxv, dyv, dzv,
-                                            &surface_normal );
+            if( get_voxel_activity_flag( volume, ROUND(x_voxel),
+                                         ROUND(y_voxel), ROUND(z_voxel) ))
+            {
+                (void) evaluate_volume_at_point( volume, x, y, z,
+                                                 &dx, &dy, &dz );
 
-            fill_Vector( function_deriv, dx, dy, dz );
+                get_surface_normal_from_derivs( dxu, dyu, dzu, dxv, dyv, dzv,
+                                                &surface_normal );
 
-            surface_estimate = -DOT_VECTORS( function_deriv, surface_normal );
+                fill_Vector( function_deriv, dx, dy, dz );
 
-            if( surface_estimate > 0.0 )  surface_estimate = -surface_estimate;
+                surface_estimate = -DOT_VECTORS( function_deriv,
+                                                 surface_normal );
+
+                if( surface_estimate < 0.0 )
+                    surface_estimate = -surface_estimate;
+
+                if( fit_data->gradient_strength_exponent != 1.0 )
+                    surface_estimate = pow( surface_estimate,
+                           (double) fit_data->gradient_strength_exponent );
+
+                surface_estimate = -surface_estimate;
+            }
+            else
+                surface_estimate = BIG_NUMBER;
         }
         else
         {
