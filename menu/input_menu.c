@@ -252,13 +252,15 @@ private  Status  input_key_action( file, action )
     Status    input_string();
     Status    input_character();
     Status    skip_input_until();
+    Status    input_three_digit_character();
 
     status = skip_input_until( file, '\'' );
 
     if( status == OK )
-    {
         status = input_character( file, &ch );
-    }
+
+    if( status == OK && ch == '\\' )
+        status = input_three_digit_character( file, &ch );
 
     if( status == OK )
     {
@@ -287,6 +289,41 @@ private  Status  input_key_action( file, action )
 
     if( status == OK )
         status = input_string( file, action->label, MAX_STRING_LENGTH, '"' );
+
+    return( status );
+}
+
+private  Status  input_three_digit_character( file, ch )
+    FILE   *file;
+    char   *ch;
+{
+    int     i, code;
+    char    digit;
+    Status  status;
+
+    status = OK;
+
+    code = 0;
+
+    for_less( i, 0, 3 )
+    {
+        if( status == OK )
+            status = input_character( file, &digit );
+
+        if( status == OK && digit < '0' || digit > '9' )
+        {
+            PRINT_ERROR( "Error inputting 3-digit character.\n" );
+            status = ERROR;
+        }
+
+        if( status == OK )
+            code = 10 * code + digit - '0';
+    }
+
+    if( code > 127 )
+        code -= 256;
+
+    *ch = (char) code;
 
     return( status );
 }
