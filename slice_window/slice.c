@@ -205,10 +205,16 @@ private  void  get_slice_view( graphics, axis_index,
     *x_pixel = x_min + x_offset;
     indices[x_axis_index] = 0;
 
+    *x_pixel_end = x_min + x_offset + (Real) (x_size - 1) / x_scale;
+    if( *x_pixel_end > x_max )
+    {
+        *x_pixel_end = x_max;
+    }
+
     if( *x_pixel < x_min )
     {
         *x_pixel = x_min;
-        indices[x_axis_index] = ROUND( - (Real) x_offset / x_scale );
+        indices[x_axis_index] = (int) (- (Real) x_offset * x_scale );
 
         if( indices[x_axis_index] >= x_size )
         {
@@ -216,25 +222,25 @@ private  void  get_slice_view( graphics, axis_index,
         }
     }
 
-    *x_pixel_end = MIN( ROUND(x_min + x_offset + (Real) (x_size - 1) / x_scale),
-                        x_max );
-
     *y_pixel = y_min + y_offset;
     indices[y_axis_index] = 0;
+
+    *y_pixel_end = y_min + y_offset + (Real) (y_size - 1) / y_scale;
+    if( *y_pixel_end > y_max )
+    {
+        *y_pixel_end = y_max;
+    }
 
     if( *y_pixel < y_min )
     {
         *y_pixel = y_min;
-        indices[y_axis_index] = ROUND( - (Real) y_offset / y_scale );
+        indices[y_axis_index] = (int) (- (Real) y_offset * y_scale );
 
         if( indices[y_axis_index] >= y_size )
         {
             *y_pixel = y_max + 1;
         }
     }
-
-    *y_pixel_end = MIN( ROUND(y_min + y_offset + (Real) (y_size - 1) / y_scale),
-                        y_max );
 }
 
 public   void     get_2d_slice_axes( axis_index, x_index, y_index )
