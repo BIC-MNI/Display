@@ -3,12 +3,18 @@
 #include  <def_colours.h>
 #include  <def_globals.h>
 
+static    Status   create_cursor_contours();
+static    DECL_EVENT_FUNCTION( check_update_contour );
+static    Boolean  add_to_contour();
+static    Status   initialize_contour();
+static    Boolean  contour_not_finished();
+static    Status   start_new_axis();
+static    polygons_struct    *get_next_polygons();
+static    Status             advance_polygon();
+
 public  Status  initialize_cursor_plane_outline( graphics )
     graphics_struct   *graphics;
 {
-    Status   create_cursor_contours();
-
-    DECL_EVENT_FUNCTION( check_update_contour );
     void   add_action_table_function();
 
     add_action_table_function( &graphics->action_table, NO_EVENT,
@@ -67,8 +73,6 @@ private  DEF_EVENT_FUNCTION( check_update_contour )
     Real     end_time;
     Real     current_realtime_seconds();
     Boolean  found;
-    Boolean  add_to_contour();
-    Status   initialize_contour();
     void     set_update_required();
 
     status = OK;
@@ -105,7 +109,6 @@ private  Status   initialize_contour( graphics )
     graphics_struct  *graphics;
 {
     Status                  status;
-    Status                  start_new_axis();
     int                     axis;
     cursor_contours_struct  *contours;
 
@@ -130,7 +133,6 @@ private  Status   start_new_axis( graphics )
     Status                  status;
     cursor_contours_struct  *contours;
     Status                  initialize_object_traverse();
-    polygons_struct         *get_next_polygons();
 
     contours = &graphics->three_d.cursor_contours;
 
@@ -177,7 +179,6 @@ private  Boolean  contour_not_finished( graphics )
 private  Boolean  add_to_contour( graphics )
     graphics_struct  *graphics;
 {
-    Status                  advance_polygon();
     Boolean                 found;
     Boolean                 intersect_plane_one_polygon();
     Vector                  plane_normal;
@@ -211,7 +212,6 @@ private  Status  advance_polygon( graphics )
     graphics_struct  *graphics;
 {
     Status                  status;
-    Status                  start_new_axis();
     cursor_contours_struct  *contours;
 
     status = OK;
