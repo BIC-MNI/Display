@@ -70,6 +70,7 @@
                        MENU_FUNCTION(create_bintree_for_polygons) \
                        MENU_FUNCTION(create_normals_for_polygon) \
                        MENU_FUNCTION(smooth_current_polygon) \
+                       MENU_FUNCTION(smooth_current_lines) \
                        MENU_FUNCTION(save_polygons_bintree) \
                        MENU_FUNCTION(create_marker_at_cursor) \
                        MENU_FUNCTION(set_cursor_to_marker) \
