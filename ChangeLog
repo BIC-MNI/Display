@@ -1,3 +1,7 @@
+2005-04-03  Andrew L Janke  <a.janke@gmail.com>
+
+	* Added GL/GLU/GLUT m4 macros to EXTRA_DIST
+
 2005-04-02  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
 
 	* configure.in: Restore AM_PROG_LIBTOOL to link using libtool.

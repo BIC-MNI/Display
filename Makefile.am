@@ -34,6 +34,12 @@ SUBDIRS = Graphics \
 	Documentation
 
 m4_files = \
+   m4/acx_pthread.m4 \
+   m4/ax_check_gl.m4 \
+   m4/ax_check_glu.m4 \
+   m4/ax_check_glut.m4 \
+   m4/ax_lang_compiler_ms.m4 \
+   m4/lf_link_headers.m4 \
 	m4/mni_REQUIRE_LIB.m4 \
 	m4/mni_REQUIRE_MNILIBS.m4 \
 	m4/mni_REQUIRE_OPENINVENTOR.m4 \

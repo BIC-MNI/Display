@@ -51,7 +51,7 @@ if test x$with_seal = xyes ; then
               [define to enable sulcal labelling using SEAL])
 fi
 
-# get OpenGL stuff
+dnl get OpenGL stuff
 AX_CHECK_GL
 AX_CHECK_GLU
 AX_CHECK_GLUT
