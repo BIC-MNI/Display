@@ -177,5 +177,5 @@ endif
 
 Display.menu: menu/Display.menu.include
 	sed -e 's/\\//g' -e 's/\"//'    \
-		< $(top_srcdir)/menu/Display.menu.include    > $@
+		< $(top_builddir)/menu/Display.menu.include    > $@
 
