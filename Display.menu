@@ -163,6 +163,7 @@ lines
 
     transient 'x'    make_line_circle                 "Make Line Circle"
     transient 'c'    subdivide_current_lines          "Subdivide Line"
+    transient 'z'    convert_markers_to_lines         "Convert Markers"
 }
 
 delete_object_menu

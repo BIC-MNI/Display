@@ -483,8 +483,6 @@ private  void  calculate_label_volume(
 public  DEF_MENU_FUNCTION( calculate_volume )   /* ARGSUSED */
 {
     display_struct  *slice_window;
-    Status          status;
-    Volume          volume;
     int             n_voxels;
     Real            cubic_millimetres;
 

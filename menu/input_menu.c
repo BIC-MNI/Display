@@ -128,6 +128,7 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(reset_deformation_model) \
                        MENU_FUNCTION(reverse_polygons_order) \
                        MENU_FUNCTION(smooth_current_lines) \
+                       MENU_FUNCTION(convert_markers_to_lines) \
                        MENU_FUNCTION(make_current_line_tube) \
                        MENU_FUNCTION(convert_line_to_spline_points) \
                        MENU_FUNCTION(make_line_circle) \

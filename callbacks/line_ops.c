@@ -1,5 +1,6 @@
 
 #include  <display.h>
+#include  <splines.h>
 
 private  BOOLEAN  get_current_lines(
     display_struct    *display,
@@ -166,6 +167,107 @@ public  DEF_MENU_FUNCTION( subdivide_current_lines )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(subdivide_current_lines )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( convert_markers_to_lines )   /* ARGSUSED */
+{
+    lines_struct            *lines;
+    int                     i, c, n_markers, curr_index;
+    Real                    dist, curr_dist, ratio, next_dist;
+    Real                    desired_dist;
+    Point                   *markers, point;
+    int                     n_points;
+    object_struct           *object, *current_object;
+    object_traverse_struct  object_traverse;
+
+
+    current_object = get_current_model_object( display );
+
+    n_markers = 0;
+
+    initialize_object_traverse( &object_traverse, 1, &current_object );
+
+    while( get_next_object_traverse(&object_traverse,&object) )
+    {
+        if( object->object_type == MARKER )
+        {
+            ADD_ELEMENT_TO_ARRAY( markers, n_markers,
+                                  get_marker_ptr(object)->position,
+                                  DEFAULT_CHUNK_SIZE );
+        }
+    }
+
+    if( n_markers >= 3 )
+    {
+        dist = 0.0;
+        for_less( i, 0, n_markers )
+            dist += distance_between_points( &markers[i],
+                                             &markers[(i+1)%n_markers] );
+
+        print( "Enter number of points desired: " );
+
+        if( input_int( stdin, &n_points ) == OK )
+        {
+            object = create_object( LINES );
+            lines = get_lines_ptr( object );
+            initialize_lines( lines, WHITE );
+            lines->n_points = n_points;
+            lines->n_items = 1;
+
+            ALLOC( lines->points, lines->n_points );
+            ALLOC( lines->end_indices, 1 );
+            ALLOC( lines->indices, lines->n_points+1 );
+
+            lines->end_indices[0] = n_points+1;
+
+            for_less( i, 0, n_points+1 )
+                lines->indices[i] = i % n_points;
+
+            curr_index = 0;
+            curr_dist = 0.0;
+            next_dist = distance_between_points( &markers[0], &markers[1] );
+
+            for_less( i, 0, n_points )
+            {
+                desired_dist = (Real) i / (Real) n_points * dist;
+
+                while( desired_dist >= next_dist )
+                {
+                    ++curr_index;
+                    curr_dist = next_dist;
+                    next_dist += distance_between_points( &markers[curr_index],
+                                          &markers[(curr_index+1)%n_markers] );
+                }
+
+                ratio = (desired_dist - curr_dist) / (next_dist - curr_dist);
+                for_less( c, 0, N_DIMENSIONS )
+                {
+                    Point_coord(point,c) = CUBIC_UNIVAR( 
+                     Point_coord(markers[(curr_index-1+n_markers)%n_markers],c),
+                     Point_coord(markers[curr_index],c),
+                     Point_coord(markers[(curr_index+1)%n_markers],c),
+                     Point_coord(markers[(curr_index+2)%n_markers],c),
+                     ratio );
+                }
+                lines->points[i] = point;
+            }
+
+            add_object_to_current_model( display, object );
+        }
+
+
+        (void) input_newline( stdin );
+    }
+
+    if( n_markers > 0 )
+        FREE( markers );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(convert_markers_to_lines )   /* ARGSUSED */
 {
     return( OK );
 }
