@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.58 2001-06-05 15:32:52 neelin Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.59 2001-06-05 15:59:21 neelin Exp $";
 #endif
 
 
@@ -252,9 +252,7 @@ public  DEF_MENU_FUNCTION(save_label_data)
             if( status == OK )
             {
                 status = save_label_volume( filename,
-                          slice_window->slice.volumes[
-                          get_current_volume_index(slice_window)].
-                                     labels_filename,
+                          backup_filename,
                           get_label_volume(slice_window), crop_threshold );
 
                 cleanup_backup_file( filename, backup_filename, status );
