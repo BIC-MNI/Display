@@ -4,9 +4,8 @@
 private    DEF_EVENT_FUNCTION( start_translation );
 private    DEF_EVENT_FUNCTION( turn_off_translation );
 private    DEF_EVENT_FUNCTION( handle_update );
-private    DEF_EVENT_FUNCTION( handle_mouse_movement );
 private    DEF_EVENT_FUNCTION( terminate_translation );
-private  void  perform_translation(
+private  BOOLEAN  perform_translation(
     display_struct   *display );
 
 public  void  initialize_translation(
@@ -43,10 +42,6 @@ private  DEF_EVENT_FUNCTION( start_translation )     /* ARGSUSED */
                                handle_update );
 
     add_action_table_function( &display->action_table,
-                               MOUSE_MOVEMENT_EVENT,
-                               handle_mouse_movement );
-
-    add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_UP_EVENT,
                                terminate_translation );
 
@@ -59,49 +54,48 @@ private  DEF_EVENT_FUNCTION( start_translation )     /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_translation )    /* ARGSUSED */
+private  void  update_translation(
+    display_struct  *display )
 {
-    perform_translation( display );
-
-    if( graphics_update_required( display ) )
+    if( perform_translation( display ) )
     {
         update_view( display );
+        set_update_required( display, NORMAL_PLANES );
     }
+}
+
+private  DEF_EVENT_FUNCTION( terminate_translation )    /* ARGSUSED */
+{
+    update_translation( display );
     
     remove_action_table_function( &display->action_table,
                                   NO_EVENT, handle_update );
     remove_action_table_function( &display->action_table,
-                                  MOUSE_MOVEMENT_EVENT, handle_mouse_movement );
-    remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_translation );
     remove_action_table_function( &display->action_table,
-                                  TERMINATE_INTERACTION_EVENT, terminate_translation );
-
-    return( OK );
-}
-
-private  DEF_EVENT_FUNCTION( handle_mouse_movement )      /* ARGSUSED */
-{
-    perform_translation( display );
+                                  TERMINATE_INTERACTION_EVENT,
+                                  terminate_translation );
 
     return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( handle_update )      /* ARGSUSED */
 {
-    if( graphics_update_required( display ) )
-        update_view( display );
+    update_translation( display );
 
     return( OK );
 }
 
-private  void  perform_translation(
+private  BOOLEAN  perform_translation(
     display_struct   *display )
 {
+    BOOLEAN        moved;
     Real           x, y, x_prev, y_prev;
     Vector         delta, hor, vert;
     Transform      transform;
+
+    moved = FALSE;
 
     if( mouse_moved( display, &x, &y, &x_prev, &y_prev ) )
     {
@@ -119,6 +113,8 @@ private  void  perform_translation(
 
         transform_model( display, &transform );
 
-        set_update_required( display, NORMAL_PLANES );
+        moved = TRUE;
     }
+
+    return( moved );
 }

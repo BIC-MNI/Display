@@ -253,21 +253,17 @@ segmenting
 
     transient 'q'    load_active_voxels         "Load Activity"
     transient 'w'    save_active_voxels         "Save Activity"
-    transient 'e'    load_labeled_voxels        "Load Labeled"
-    transient 'r'    save_labeled_voxels        "Save Labeled"
     transient 't'    set_segmenting_threshold   "Set Threshold"
 
-    transient 'a'    generate_regions           "Generate Regions"
-    transient 's'    label_point                "Label Point"
-    transient 'd'    set_voxel_inactive         "Set Voxel Inactive"
-    transient 'f'    set_voxel_active           "Set Voxel Active"
-    transient 'g'    set_connected_inactive     "Set Conn Inactive"
-    transient 'h'    set_connected_active       "Set Conn Active"
+    transient 'd'    label_voxel                "Label Voxel"
+    transient 'f'    clear_voxel                "Clear Voxel"
+    transient 'g'    label_connected            "Label Connected"
+    transient 'h'    clear_connected            "Clear Connected"
 
     transient 'z'    reset_segmenting           "Reset Segmenting"
     transient 'x'    reset_activities           "Reset Activities"
-    transient 'c'    set_slice_active           "Set Slice Active"
-    transient 'v'    set_slice_inactive         "Set Slice Inactive"
+    transient 'c'    label_slice                "Label Slice"
+    transient 'v'    clear_slice                "Clear Slice"
     transient 'b'    label_connected_3d         "Fill 3D"
     transient 'n'    expand_labeled_3d          "Expand 3D"
 }

@@ -44,6 +44,14 @@ public  void  delete_cursor_plane_outline(
 
 }
 
+private  Bitplane_types   get_cursor_contour_bitplane()
+{
+    if( Cursor_contour_overlay_flag )
+        return( OVERLAY_PLANES );
+    else
+        return( NORMAL_PLANES );
+}
+
 private  void  make_cursor_contours(
     display_struct   *display )
 {
@@ -53,7 +61,10 @@ private  void  make_cursor_contours(
     lines_struct    *lines;
     model_struct    *model;
 
-    model = get_graphics_model( display, OVERLAY_MODEL );
+    if( get_cursor_contour_bitplane() == OVERLAY_PLANES )
+        model = get_graphics_model( display, OVERLAY_MODEL );
+    else
+        model = get_graphics_model( display, THREED_MODEL );
 
     for_less( axis, 0, 3 )
     {
@@ -100,7 +111,7 @@ private  DEF_EVENT_FUNCTION( check_update_contour )
         }
 
         if( found )
-            set_update_required( display, OVERLAY_PLANES );
+            set_update_required( display, get_cursor_contour_bitplane() );
     }
 
     return( OK );

@@ -20,6 +20,17 @@ private  void   update_brush(
     int               x,
     int               y );
 
+public  int  get_current_paint_label(
+    display_struct    *display )
+{
+    display_struct    *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+        return( slice_window->slice.current_paint_label );
+    else
+        return( 0 );
+}
+
 public  void  initialize_voxel_labeling(
     display_struct    *slice_window )
 {
@@ -205,7 +216,7 @@ private  void  paint_labels_at_point(
             }
         }
 
-        label = slice_window->slice.current_paint_label;
+        label = get_current_paint_label( slice_window );
 
         for_inclusive( ind[X], min_voxel[X], max_voxel[X] )
         {

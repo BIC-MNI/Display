@@ -235,7 +235,7 @@ Marching_cubes_method = 1;
 
 Polygon_bintree_threshold = 100;
 Compute_neighbours_on_input = FALSE;
-Bintree_size_factor = 0.2;
+Bintree_size_factor = 0.5;
 
 Save_format = 1;
 

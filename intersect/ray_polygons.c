@@ -68,9 +68,10 @@ public  BOOLEAN  intersect_ray_polygons(
 
     if( polygons->bintree != (bintree_struct *) 0 )
     {
-        intersects = intersect_ray_with_bintree( ray_origin, ray_direction,
-                                                 polygons->bintree, polygons,
-                                                 poly_index, dist );
+        intersects = (intersect_ray_with_bintree( ray_origin, ray_direction,
+                                                  polygons->bintree, polygons,
+                                                  poly_index, dist,
+                                                  (Real **) NULL ) > 0);
     }
     else
     {

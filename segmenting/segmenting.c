@@ -5,8 +5,8 @@ private  BOOLEAN  should_change_this_one(
     Volume          volume,
     Volume          label_volume,
     int             voxel[],
-    int             min_threshold,
-    int             max_threshold,
+    Real            min_threshold,
+    Real            max_threshold,
     BOOLEAN         desired_activity );
 
 public  void  initialize_segmenting(
@@ -14,8 +14,8 @@ public  void  initialize_segmenting(
 {
     segmenting->n_labels = 0;
     segmenting->labels = (label_struct *) 0;
-    segmenting->min_threshold = -1;
-    segmenting->max_threshold = -1;
+    segmenting->min_threshold = 0.0;
+    segmenting->max_threshold = -1.0;
     segmenting->connectivity = (Neighbour_types) Segmenting_connectivity;
 }
 
@@ -74,11 +74,11 @@ public  void  generate_segmentation(
                            slice_window->slice.segmenting.max_threshold );
 }
 
-public  void  set_activity_for_slice(
+public  void  set_labels_on_slice(
     Volume         label_volume,
     int            axis_index,
     int            position,
-    BOOLEAN        activity )
+    int            label )
 {
     int     voxel[N_DIMENSIONS], sizes[N_DIMENSIONS], a1, a2;
 
@@ -93,7 +93,7 @@ public  void  set_activity_for_slice(
     {
         for_less( voxel[a2], 0, sizes[a2] )
         {
-            set_voxel_activity_flag( label_volume, voxel, activity );
+            set_volume_label_data( label_volume, voxel, label );
         }
     }
 }
@@ -103,15 +103,15 @@ typedef struct
     int  x, y;
 } slice_position;
 
-public  void  set_connected_voxels_activity(
+public  void  set_connected_voxels_labels(
     Volume            volume,
     Volume            label_volume,
     int               axis_index,
     int               position[3],
-    int               min_threshold,
-    int               max_threshold,
+    Real              min_threshold,
+    Real              max_threshold,
     Neighbour_types   connectivity,
-    BOOLEAN           desired_activity )
+    int               label )
 {
     int                             voxel[N_DIMENSIONS], sizes[N_DIMENSIONS];
     int                             a1, a2, x, y;
@@ -133,9 +133,9 @@ public  void  set_connected_voxels_activity(
     INITIALIZE_QUEUE( queue );
 
     if( should_change_this_one( volume, label_volume, voxel,
-                                min_threshold, max_threshold, desired_activity))
+                                min_threshold, max_threshold, label))
     {
-        set_voxel_activity_flag( label_volume, voxel, desired_activity );
+        set_volume_label_data( label_volume, voxel, label );
         entry.x = voxel[a1];
         entry.y = voxel[a2];
         INSERT_IN_QUEUE( queue, entry );
@@ -156,9 +156,9 @@ public  void  set_connected_voxels_activity(
             if( voxel[a1] >= 0 && voxel[a1] < sizes[a1] &&
                 voxel[a2] >= 0 && voxel[a2] < sizes[a2] &&
                 should_change_this_one( volume, label_volume, voxel,
-                                min_threshold, max_threshold, desired_activity))
+                                        min_threshold, max_threshold, label))
             {
-                set_voxel_activity_flag( label_volume, voxel, desired_activity);
+                set_volume_label_data( label_volume, voxel, label);
                 entry.x = voxel[a1];
                 entry.y = voxel[a2];
                 INSERT_IN_QUEUE( queue, entry );
@@ -173,16 +173,17 @@ private  BOOLEAN  should_change_this_one(
     Volume          volume,
     Volume          label_volume,
     int             voxel[],
-    int             min_threshold,
-    int             max_threshold,
-    BOOLEAN         desired_activity )
+    Real            min_threshold,
+    Real            max_threshold,
+    int             desired_label )
 {
     Real   value;
 
     GET_VALUE_3D( value, volume, voxel[X], voxel[Y], voxel[Z] );
 
-    return( desired_activity != get_voxel_activity_flag( label_volume, voxel )
-            && min_threshold <= value && value <= max_threshold );
+    return( desired_label != get_volume_label_data( label_volume, voxel )
+            && (min_threshold > max_threshold ||
+                min_threshold <= value && value <= max_threshold) );
 }
 
 private   int   Dx4[4] = { 1, 0, -1,  0 };

@@ -139,6 +139,7 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_colour, Colour, 3 )
     DEF_GLOBAL( Cursor_rgb_colour, Colour, BLUE )
     DEF_GLOBAL( Show_cursor_contours, BOOLEAN, FALSE )
+    DEF_GLOBAL( Cursor_contour_overlay_flag, BOOLEAN, FALSE )
     DEF_GLOBAL( Cursor_contour_thickness, int, 3 )
     DEF_GLOBAL( Cursor_colour_on_surface, Colour, 1 )
     DEF_GLOBAL( Cursor_colour_off_surface, Colour, 3 )

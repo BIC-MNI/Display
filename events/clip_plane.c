@@ -4,14 +4,12 @@
 private    DEF_EVENT_FUNCTION( start_front_clipping );
 private    DEF_EVENT_FUNCTION( turn_off_front_clipping );
 private    DEF_EVENT_FUNCTION( handle_update_front );
-private    DEF_EVENT_FUNCTION( handle_mouse_movement_front );
 private    DEF_EVENT_FUNCTION( terminate_front_clipping );
 private    DEF_EVENT_FUNCTION( start_back_clipping );
 private    DEF_EVENT_FUNCTION( turn_off_back_clipping );
 private    DEF_EVENT_FUNCTION( handle_update_back );
-private    DEF_EVENT_FUNCTION( handle_mouse_movement_back );
 private    DEF_EVENT_FUNCTION( terminate_back_clipping );
-private  void  perform_clipping(
+private  BOOLEAN  perform_clipping(
     display_struct   *display,
     BOOLEAN          front_flag );
 
@@ -51,10 +49,6 @@ private  DEF_EVENT_FUNCTION( start_front_clipping )
                                handle_update_front );
 
     add_action_table_function( &display->action_table,
-                               MOUSE_MOVEMENT_EVENT,
-                               handle_mouse_movement_front );
-
-    add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_UP_EVENT,
                                terminate_front_clipping );
 
@@ -67,21 +61,24 @@ private  DEF_EVENT_FUNCTION( start_front_clipping )
     return( OK );
 }
 
+private  void  update_clipping(
+    display_struct   *display,
+    BOOLEAN          front_flag )
+{
+    if( perform_clipping( display, front_flag ) )
+    {
+        update_view( display );
+        set_update_required( display, NORMAL_PLANES );
+    }
+}
+
 private  DEF_EVENT_FUNCTION( terminate_front_clipping )
     /* ARGSUSED */
 {
-    perform_clipping( display, TRUE );
-
-    if( graphics_update_required( display ) )
-    {
-        update_view( display );
-    }
+    update_clipping( display, TRUE );
     
     remove_action_table_function( &display->action_table,
                                   NO_EVENT, turn_off_front_clipping );
-    remove_action_table_function( &display->action_table,
-                                  MOUSE_MOVEMENT_EVENT,
-                                  handle_mouse_movement_front );
     remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_front_clipping );
@@ -92,17 +89,9 @@ private  DEF_EVENT_FUNCTION( terminate_front_clipping )
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_mouse_movement_front )      /* ARGSUSED */
-{
-    perform_clipping( display, TRUE );
-
-    return( OK );
-}
-
 private  DEF_EVENT_FUNCTION( handle_update_front )      /* ARGSUSED */
 {
-    if( graphics_update_required( display ) )
-        update_view( display );
+    update_clipping( display, TRUE );
 
     return( OK );
 }
@@ -143,10 +132,6 @@ private  DEF_EVENT_FUNCTION( start_back_clipping )
                                handle_update_back );
 
     add_action_table_function( &display->action_table,
-                               MOUSE_MOVEMENT_EVENT,
-                               handle_mouse_movement_back );
-
-    add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_UP_EVENT,
                                terminate_back_clipping );
 
@@ -162,16 +147,10 @@ private  DEF_EVENT_FUNCTION( start_back_clipping )
 private  DEF_EVENT_FUNCTION( terminate_back_clipping )
     /* ARGSUSED */
 {
-    perform_clipping( display, FALSE );
-
-    if( graphics_update_required( display ) )
-        update_view( display );
+    update_clipping( display, FALSE );
     
     remove_action_table_function( &display->action_table,
                                   NO_EVENT, handle_update_back );
-    remove_action_table_function( &display->action_table,
-                                  MOUSE_MOVEMENT_EVENT,
-                                  handle_mouse_movement_back );
     remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_back_clipping );
@@ -182,27 +161,22 @@ private  DEF_EVENT_FUNCTION( terminate_back_clipping )
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_mouse_movement_back )      /* ARGSUSED */
-{
-    perform_clipping( display, FALSE );
-
-    return( OK );
-}
-
 private  DEF_EVENT_FUNCTION( handle_update_back )      /* ARGSUSED */
 {
-    if( graphics_update_required( display ) )
-        update_view( display );
+    update_clipping( display, FALSE );
 
     return( OK );
 }
 
-private  void  perform_clipping(
+private  BOOLEAN  perform_clipping(
     display_struct   *display,
     BOOLEAN          front_flag )
 {
+    BOOLEAN   moved;
     Real      x, y, x_prev, y_prev;
     Real      delta, dist;
+
+    moved = FALSE;
 
     if( mouse_moved( display, &x, &y, &x_prev, &y_prev ) )
     {
@@ -236,6 +210,8 @@ private  void  perform_clipping(
             }
         }
     
-        set_update_required( display, NORMAL_PLANES );
+        moved = TRUE;
     }
+
+    return( moved );
 }

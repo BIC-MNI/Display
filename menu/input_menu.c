@@ -67,15 +67,13 @@ MENU_FUNCTION(ascend_selected) \
                        MENU_FUNCTION(load_active_voxels) \
                        MENU_FUNCTION(save_active_voxels) \
                        MENU_FUNCTION(invert_activity) \
-                       MENU_FUNCTION(set_voxel_inactive) \
-                       MENU_FUNCTION(set_voxel_active) \
-                       MENU_FUNCTION(load_labeled_voxels) \
-                       MENU_FUNCTION(save_labeled_voxels) \
+                       MENU_FUNCTION(clear_voxel) \
+                       MENU_FUNCTION(label_voxel) \
                        MENU_FUNCTION(reset_activities) \
-                       MENU_FUNCTION(set_connected_inactive) \
-                       MENU_FUNCTION(set_connected_active) \
-                       MENU_FUNCTION(set_slice_active) \
-                       MENU_FUNCTION(set_slice_inactive) \
+                       MENU_FUNCTION(clear_connected) \
+                       MENU_FUNCTION(label_connected) \
+                       MENU_FUNCTION(label_slice) \
+                       MENU_FUNCTION(clear_slice) \
                        MENU_FUNCTION(label_connected_3d) \
                        MENU_FUNCTION(expand_labeled_3d) \
                        MENU_FUNCTION(set_colour_limits) \
@@ -153,8 +151,6 @@ MENU_FUNCTION(ascend_selected) \
                        MENU_FUNCTION(resample_slice_window_volume) \
                        MENU_FUNCTION(box_filter_slice_window_volume) \
                        MENU_FUNCTION(delete_current_object) \
-                       MENU_FUNCTION(label_point) \
-                       MENU_FUNCTION(generate_regions) \
                        MENU_FUNCTION(toggle_display_labels) \
                        MENU_FUNCTION(set_paint_x_brush_radius) \
                        MENU_FUNCTION(set_paint_y_brush_radius) \

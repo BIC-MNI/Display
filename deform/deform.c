@@ -171,7 +171,7 @@ public  void  turn_off_deformation(
                   get_polygons_ptr(display->three_d.deform.deforming_object),
                   get_volume(slice_window),
                   get_label_volume(slice_window),
-                  slice_window->slice.current_paint_label,
+                  get_current_paint_label(slice_window),
                   Max_polygon_scan_distance );
 
             print( "--- done.\n" );

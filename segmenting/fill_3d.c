@@ -7,9 +7,11 @@ typedef struct
 
 public  void  fill_connected_voxels_3d(
     Volume          volume,
+    Volume          label_volume,
     int             voxel[],
-    int             min_threshold,
-    int             max_threshold )
+    int             label,
+    Real            min_threshold,
+    Real            max_threshold )
 {
     int                          x, y, z, tx, ty, tz, dx, dy, dz;
     int                          sizes[N_DIMENSIONS];
@@ -29,13 +31,13 @@ public  void  fill_connected_voxels_3d(
     INITIALIZE_QUEUE( queue );
 
     set_bitlist_bit_3d( &bitlist, voxel[X], voxel[Y], voxel[Z], TRUE );
-    if( get_voxel_activity_flag( volume, voxel ) )
+    if( get_volume_label_data( label_volume, voxel ) != label )
     {
-        GET_VOXEL_3D( val, volume, voxel[X], voxel[Y], voxel[Z] );
-        val = CONVERT_VOXEL_TO_VALUE( volume, val );
-        if( val >= min_threshold && val <= max_threshold )
+        GET_VALUE_3D( val, volume, voxel[X], voxel[Y], voxel[Z] );
+        if( min_threshold > max_threshold ||
+            val >= min_threshold && val <= max_threshold )
         {
-            set_voxel_label_flag( volume, voxel, TRUE );
+            set_volume_label_data( label_volume, voxel, label );
 
             entry.x = voxel[X];
             entry.y = voxel[Y];
@@ -74,13 +76,13 @@ public  void  fill_connected_voxels_3d(
                 voxel_index[X] = tx;
                 voxel_index[Y] = ty;
                 voxel_index[Z] = tz;
-                if( get_voxel_activity_flag( volume, voxel ) )
+                if( get_volume_label_data( label_volume, voxel_index ) != label)
                 {
-                    GET_VOXEL_3D( val, volume, tx, ty, tz );
-                    val = CONVERT_VOXEL_TO_VALUE( volume, val );
-                    if( val >= min_threshold && val <= max_threshold )
+                    GET_VALUE_3D( val, volume, tx, ty, tz );
+                    if( min_threshold > max_threshold ||
+                        val >= min_threshold && val <= max_threshold )
                     {
-                        set_voxel_label_flag( volume, voxel_index, TRUE );
+                        set_volume_label_data( label_volume, voxel_index,label);
                         entry.x = tx;
                         entry.y = ty;
                         entry.z = tz;

@@ -3,45 +3,14 @@
 
 private  void  get_min_max(
     display_struct   *display );
-private  BOOLEAN  min_max_present(
-    display_struct   *display );
-private  void  set_slice_activity(
+private  void  set_slice_labels(
     display_struct     *display,
-    BOOLEAN            activity );
-private  void   set_connected_activity(
+    int                label );
+private  void   set_connected_labels(
     display_struct   *display,
-    BOOLEAN          desired_activity );
+    int              label );
 
-public  DEF_MENU_FUNCTION( label_point )   /* ARGSUSED */
-{
-    Status   status;
-    int      id, axis_index, int_voxel[MAX_DIMENSIONS];
-    Real     voxel[MAX_DIMENSIONS];
-
-    status = OK;
-
-    if( get_voxel_under_mouse( display, voxel, &axis_index ) )
-    {
-        print( "Enter id: " );
-
-        status = input_int( stdin, &id );
-        (void) input_newline( stdin );
-
-        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-
-        if( status == OK )
-            add_point_label( display->associated[SLICE_WINDOW], int_voxel, id );
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(label_point )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION( set_voxel_inactive )   /* ARGSUSED */
+public  DEF_MENU_FUNCTION( label_voxel )   /* ARGSUSED */
 {
     Real           voxel[MAX_DIMENSIONS];
     int            axis_index, int_voxel[MAX_DIMENSIONS];
@@ -49,7 +18,8 @@ public  DEF_MENU_FUNCTION( set_voxel_inactive )   /* ARGSUSED */
     if( get_voxel_under_mouse( display, voxel, &axis_index ) )
     {
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-        set_voxel_activity_flag( get_label_volume(display), int_voxel, FALSE );
+        set_volume_label_data( get_label_volume(display), int_voxel,
+                               get_current_paint_label(display) );
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
@@ -58,12 +28,12 @@ public  DEF_MENU_FUNCTION( set_voxel_inactive )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_voxel_inactive )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(label_voxel )   /* ARGSUSED */
 {
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION( set_voxel_active )   /* ARGSUSED */
+public  DEF_MENU_FUNCTION( clear_voxel )   /* ARGSUSED */
 {
     Real           voxel[MAX_DIMENSIONS];
     int            axis_index, int_voxel[MAX_DIMENSIONS];
@@ -71,7 +41,7 @@ public  DEF_MENU_FUNCTION( set_voxel_active )   /* ARGSUSED */
     if( get_voxel_under_mouse( display, voxel, &axis_index ) )
     {
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-        set_voxel_activity_flag( get_label_volume(display), int_voxel, TRUE );
+        set_volume_label_data( get_label_volume(display), int_voxel, 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
@@ -80,39 +50,7 @@ public  DEF_MENU_FUNCTION( set_voxel_active )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_voxel_active )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION( generate_regions )   /* ARGSUSED */
-{
-    Real     voxel[3];
-    int      voxel_axes[3], int_voxel[N_DIMENSIONS];
-
-    if( !min_max_present(display) )
-        get_min_max( display );
-
-    if( min_max_present(display) &&
-        get_voxel_under_mouse( display, voxel, &voxel_axes[2] ) )
-    {
-        voxel_axes[0] = (voxel_axes[2] + 1) % N_DIMENSIONS;
-        voxel_axes[1] = (voxel_axes[2] + 2) % N_DIMENSIONS;
-
-        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-
-        generate_segmentation( display->associated[SLICE_WINDOW],
-                               int_voxel, voxel_axes );
-
-        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(generate_regions )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(clear_voxel )   /* ARGSUSED */
 {
     return( OK );
 }
@@ -148,117 +86,17 @@ public  DEF_MENU_UPDATE(set_segmenting_threshold )   /* ARGSUSED */
 private  void  get_min_max(
     display_struct   *display )
 {
-    int      min, max;
+    Real      min, max;
 
     print( "Enter min and max threshold: " );
 
-    if( input_int( stdin, &min ) != OK || input_int( stdin, &max ) != OK )
+    if( input_real( stdin, &min ) == OK && input_real( stdin, &max ) == OK )
     {
-        min = -1;
-        max = -1;
+        display->associated[SLICE_WINDOW]->slice.segmenting.min_threshold = min;
+        display->associated[SLICE_WINDOW]->slice.segmenting.max_threshold = max;
     }
 
     (void) input_newline( stdin );
-
-    display->associated[SLICE_WINDOW]->slice.segmenting.min_threshold = min;
-    display->associated[SLICE_WINDOW]->slice.segmenting.max_threshold = max;
-}
-
-private  BOOLEAN  min_max_present(
-    display_struct   *display )
-{
-    return( 
-     display->associated[SLICE_WINDOW]->slice.segmenting.min_threshold >= 0 &&
-     display->associated[SLICE_WINDOW]->slice.segmenting.max_threshold >= 0 &&
-     display->associated[SLICE_WINDOW]->slice.segmenting.min_threshold <=
-     display->associated[SLICE_WINDOW]->slice.segmenting.max_threshold );
-}
-
-public  DEF_MENU_FUNCTION(save_labeled_voxels)   /* ARGSUSED */
-{
-    FILE               *file;
-    Status             status;
-    STRING             filename;
-    display_struct     *slice_window;
-
-    status = OK;
-
-    if( get_slice_window( display, &slice_window ) )
-    {
-        print( "Enter filename: " );
-
-        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
-
-        (void) input_newline( stdin );
-
-        if( status == OK )
-            status = open_file_with_default_suffix( filename, "lbl",
-                                          WRITE_FILE, BINARY_FORMAT, &file );
-
-        if( status == OK )
-            status = io_volume_label_bit( file, WRITE_FILE,
-                                          get_label_volume(slice_window),
-                                          get_label_bit() );
-
-        if( status == OK )
-            status = close_file( file );
-
-        print( "Done\n" );
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(save_labeled_voxels )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(load_labeled_voxels)   /* ARGSUSED */
-{
-    FILE             *file;
-    Status           status;
-    STRING           filename;
-    display_struct   *slice_window;
-
-    status = OK;
-
-    if( get_slice_window( display, &slice_window ) )
-    {
-        print( "Enter filename: " );
-
-        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
-
-        (void) input_newline( stdin );
-
-        if( status == OK )
-            status = open_file_with_default_suffix( filename, "lbl",
-                                             READ_FILE, BINARY_FORMAT, &file );
-
-        if( status == OK )
-            status = io_volume_label_bit( file, READ_FILE,
-                                          get_label_volume(slice_window),
-                                          get_label_bit() );
-
-        if( status == OK )
-            status = close_file( file );
-
-        if( status == OK )
-        {
-            set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-            set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-            set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
-        }
-
-        print( "Done\n" );
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(load_labeled_voxels )   /* ARGSUSED */
-{
-    return( OK );
 }
 
 public  DEF_MENU_FUNCTION(save_active_voxels)   /* ARGSUSED */
@@ -372,33 +210,33 @@ public  DEF_MENU_UPDATE(reset_activities )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(set_slice_active)   /* ARGSUSED */
+public  DEF_MENU_FUNCTION(label_slice)   /* ARGSUSED */
 {
-    set_slice_activity( display, TRUE );
+    set_slice_labels( display, get_current_paint_label(display) );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_slice_active )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(label_slice )   /* ARGSUSED */
 {
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(set_slice_inactive)   /* ARGSUSED */
+public  DEF_MENU_FUNCTION(clear_slice)   /* ARGSUSED */
 {
-    set_slice_activity( display, FALSE );
+    set_slice_labels( display, 0 );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_slice_inactive )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(clear_slice )   /* ARGSUSED */
 {
     return( OK );
 }
 
-private  void  set_slice_activity(
+private  void  set_slice_labels(
     display_struct     *display,
-    BOOLEAN            activity )
+    int                label )
 {
     Real             voxel[MAX_DIMENSIONS];
     int              axis_index, int_voxel[MAX_DIMENSIONS];
@@ -409,9 +247,9 @@ private  void  set_slice_activity(
         slice_window = display->associated[SLICE_WINDOW];
 
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-        set_activity_for_slice( get_label_volume(slice_window),
-                                axis_index, int_voxel[axis_index],
-                                activity );
+        set_labels_on_slice( get_label_volume(slice_window),
+                             axis_index, int_voxel[axis_index],
+                             label );
 
         set_slice_window_update( slice_window, 0 );
         set_slice_window_update( slice_window, 1 );
@@ -419,33 +257,33 @@ private  void  set_slice_activity(
     }
 }
 
-public  DEF_MENU_FUNCTION(set_connected_inactive)   /* ARGSUSED */
+public  DEF_MENU_FUNCTION(clear_connected)   /* ARGSUSED */
 {
-    set_connected_activity( display, FALSE );
+    set_connected_labels( display, 0 );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_connected_inactive )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(clear_connected )   /* ARGSUSED */
 {
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(set_connected_active)   /* ARGSUSED */
+public  DEF_MENU_FUNCTION(label_connected)   /* ARGSUSED */
 {
-    set_connected_activity( display, TRUE );
+    set_connected_labels( display, get_current_paint_label(display) );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_connected_active )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(label_connected )   /* ARGSUSED */
 {
     return( OK );
 }
 
-private  void   set_connected_activity(
+private  void   set_connected_labels(
     display_struct   *display,
-    BOOLEAN          desired_activity )
+    int              label )
 {
     Real             voxel[MAX_DIMENSIONS];
     int              axis_index, int_voxel[MAX_DIMENSIONS];
@@ -457,13 +295,13 @@ private  void   set_connected_activity(
 
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
 
-        set_connected_voxels_activity( get_volume(slice_window),
+        set_connected_voxels_labels( get_volume(slice_window),
                           get_label_volume(slice_window),
                           axis_index, int_voxel,
                           slice_window->slice.segmenting.min_threshold,
                           slice_window->slice.segmenting.max_threshold,
                           slice_window->slice.segmenting.connectivity,
-                          desired_activity );
+                          label );
 
         set_slice_window_update( slice_window, 0 );
         set_slice_window_update( slice_window, 1 );
@@ -486,7 +324,9 @@ public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
         print( "Filling 3d from %d %d %d\n",
                int_voxel[X], int_voxel[Y], int_voxel[Z] );
 
-        fill_connected_voxels_3d( get_label_volume(slice_window), int_voxel,
+        fill_connected_voxels_3d( get_volume(slice_window),
+                                  get_label_volume(slice_window), int_voxel,
+                                  get_current_paint_label(slice_window),
                                   slice_window->slice.segmenting.min_threshold,
                                   slice_window->slice.segmenting.max_threshold);
 
@@ -516,10 +356,12 @@ public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
 
         print( "Expanding 3d labeled voxels\n" );
 
-        expand_labeled_voxels_3d( get_label_volume(display),
-                 slice_window->slice.segmenting.min_threshold,
-                 slice_window->slice.segmenting.max_threshold,
-                 N_expansion_voxels );
+        expand_labeled_voxels_3d( get_volume(display),
+                                  get_label_volume(display),
+                                  get_current_paint_label(display),
+                                  slice_window->slice.segmenting.min_threshold,
+                                  slice_window->slice.segmenting.max_threshold,
+                                  N_expansion_voxels );
 
         print( "Done\n" );
 

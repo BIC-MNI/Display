@@ -4,9 +4,8 @@
 static    DEF_EVENT_FUNCTION( start_magnification );
 static    DEF_EVENT_FUNCTION( turn_off_magnification );
 static    DEF_EVENT_FUNCTION( handle_update );
-static    DEF_EVENT_FUNCTION( handle_mouse_movement );
 static    DEF_EVENT_FUNCTION( terminate_magnification );
-private  void  perform_magnification(
+private  BOOLEAN  perform_magnification(
     display_struct   *display );
 
 public  void  initialize_magnification(
@@ -43,10 +42,6 @@ private  DEF_EVENT_FUNCTION( start_magnification ) /* ARGSUSED */
                                handle_update );
 
     add_action_table_function( &display->action_table,
-                               MOUSE_MOVEMENT_EVENT,
-                               handle_mouse_movement );
-
-    add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_UP_EVENT,
                                terminate_magnification );
 
@@ -59,18 +54,22 @@ private  DEF_EVENT_FUNCTION( start_magnification ) /* ARGSUSED */
     return( OK );
 }
 
+private  void  update_magnification(
+    display_struct   *display )
+{
+    if( perform_magnification( display ) )
+    {
+        update_view( display );
+        set_update_required( display, NORMAL_PLANES );
+    }
+}
+
 private  DEF_EVENT_FUNCTION( terminate_magnification )    /* ARGSUSED */
 {
-    perform_magnification( display );
-
-    if( graphics_update_required( display ) )
-        update_view( display );
+    update_magnification( display );
     
     remove_action_table_function( &display->action_table,
                                   NO_EVENT, handle_update );
-    remove_action_table_function( &display->action_table,
-                                  MOUSE_MOVEMENT_EVENT,
-                                  handle_mouse_movement );
     remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_magnification );
@@ -81,27 +80,20 @@ private  DEF_EVENT_FUNCTION( terminate_magnification )    /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_mouse_movement )      /* ARGSUSED */
-{
-    perform_magnification( display );
-
-    return( OK );
-}
-
 private  DEF_EVENT_FUNCTION( handle_update )      /* ARGSUSED */
 {
-    if( graphics_update_required( display ) )
-    {
-        update_view( display );
-    }
+    update_magnification( display );
 
     return( OK );
 }
 
-private  void  perform_magnification(
+private  BOOLEAN  perform_magnification(
     display_struct   *display )
 {
+    BOOLEAN   moved;
     Real      x, y, x_prev, y_prev, delta, factor;
+
+    moved = FALSE;
 
     if( mouse_moved( display, &x, &y, &x_prev, &y_prev ) )
     {
@@ -111,6 +103,8 @@ private  void  perform_magnification(
 
         magnify_view_size( &display->three_d.view, factor );
 
-        set_update_required( display, NORMAL_PLANES );
+        moved = TRUE;
     }
+
+    return( moved );
 }

@@ -378,9 +378,8 @@ public  DEF_MENU_FUNCTION( make_unit_sphere )   /* ARGSUSED */
 {
     Point             centre;
     int               n_up;
-    BOOLEAN           set_to_zero_flag;
     Real              x_radius, y_radius, z_radius;
-    Real              max_curvature;
+    Real              max_curvature, low_threshold;
     object_struct     *object;
     polygons_struct   *polygons;
     polygons_struct   *sphere;
@@ -388,12 +387,12 @@ public  DEF_MENU_FUNCTION( make_unit_sphere )   /* ARGSUSED */
     if( get_current_polygons( display, &polygons ) &&
         get_tessellation_of_polygons_sphere( polygons, &n_up ) )
     {
-        print( "Enter set_to_zero_flag, max_curvature," );
+        print( "Enter max_curvature, low_threshold," );
         print( "      x_centre, y_centre, z_centre," );
         print( "      x_radius, y_radius, z_radius: " );
     
-        if( input_int( stdin, &set_to_zero_flag ) == OK &&
-            input_real( stdin, &max_curvature ) == OK &&
+        if( input_real( stdin, &max_curvature ) == OK &&
+            input_real( stdin, &low_threshold ) == OK &&
             input_float( stdin, &Point_x(centre) ) == OK &&
             input_float( stdin, &Point_y(centre) ) == OK &&
             input_float( stdin, &Point_z(centre) ) == OK &&
@@ -408,7 +407,7 @@ public  DEF_MENU_FUNCTION( make_unit_sphere )   /* ARGSUSED */
                                     n_up, 2 * n_up, FALSE, sphere );
  
             colour_polygons_by_curvature( polygons, sphere,
-                                          max_curvature, set_to_zero_flag );
+                                          max_curvature, low_threshold );
 
             get_default_surfprop( &sphere->surfprop );
             compute_polygon_normals( sphere );

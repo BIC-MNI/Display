@@ -29,8 +29,8 @@ typedef  struct
 {
     int               n_labels;
     label_struct      *labels;
-    int               min_threshold;
-    int               max_threshold;
+    Real              min_threshold;
+    Real              max_threshold;
     Neighbour_types   connectivity;
 } segmenting_struct;
 
