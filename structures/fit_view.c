@@ -94,7 +94,7 @@ private  void   fit_view_to_points( view, n_points, points )
 
     if( view->perspective_flag )
     {
-        perspective_fit_points( view, &max_coord, &centre, n_points, points );
+        perspective_fit_points( view, &centre, n_points, points );
     }
     else
     {
@@ -156,10 +156,9 @@ private  void  orthogonal_fit_points( view, centre, range )
     view->back_distance = 2.0 * (Point_z(*centre) - dz);
 }
 
-private  void  perspective_fit_points( view, max_coord, centre,
+private  void  perspective_fit_points( view, centre,
                                        n_points, points )
     view_struct   *view;
-    Point         *max_coord;
     Point         *centre;
     int           n_points;
     Point         points[];
