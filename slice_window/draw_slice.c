@@ -13,9 +13,8 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.92 1995-07-31 19:54:20 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.93 1995-08-24 13:45:08 david Exp $";
 #endif
-
 
 #include  <display.h>
 
@@ -876,9 +875,12 @@ private  void  render_slice_to_pixels(
     display_struct        *slice_window,
     int                   volume_index,
     int                   view_index,
+    Volume                volume,
+    Colour                colour_table[],
+    Filter_types          filter_type,
+    int                   continuity,
     pixels_struct         *pixels )
 {
-    Volume                volume;
     int                   n_alloced;
     int                   x_sub_min, x_sub_max, y_sub_min, y_sub_max;
     Real                  x_trans, y_trans, x_scale, y_scale;
@@ -905,21 +907,17 @@ private  void  render_slice_to_pixels(
     x_trans -= (Real) x_sub_min;
     y_trans -= (Real) y_sub_min;
 
-    volume = get_nth_volume( slice_window, volume_index );
-
     get_slice_plane( slice_window, volume_index, view_index,
                      origin, x_axis, y_axis );
 
     if( is_an_rgb_volume(volume ) )
         colour_map = NULL;
     else
-        colour_map = &slice_window->slice.volumes[volume_index].colour_table;
+        colour_map = &colour_table;
 
     n_alloced = 0;
     create_volume_slice(
-                    volume,
-                    slice_window->slice.volumes[volume_index].views[view_index]
-                                                        .filter_type,
+                    volume, filter_type,
                     slice_window->slice.volumes[volume_index].views[view_index]
                                                         .filter_width,
                     origin, x_axis, y_axis,
@@ -928,7 +926,7 @@ private  void  render_slice_to_pixels(
                     (Real *) 0, (Real *) 0, (Real *) 0,
                     0.0, 0.0, 0.0, 0.0,
                     x_sub_max - x_sub_min + 1, y_sub_max - y_sub_min + 1,
-                    RGB_PIXEL, slice_window->slice.degrees_continuity,
+                    RGB_PIXEL, continuity,
                     (unsigned short **) NULL, colour_map,
                     make_rgba_Colour( 0, 0, 0, 0 ),
                     slice_window->slice.render_storage,
@@ -953,6 +951,12 @@ public  void  rebuild_slice_pixels_for_volume(
         pixels = get_pixels_ptr( pixels_object );
 
         render_slice_to_pixels( slice_window, volume_index, view_index,
+                                get_nth_volume( slice_window, volume_index ),
+                                slice_window->slice.volumes[volume_index].
+                                                          colour_table,
+                                slice_window->slice.volumes[volume_index].
+                                          views[view_index].filter_type,
+                                slice_window->slice.degrees_continuity,
                                 pixels );
     }
 }
@@ -1270,64 +1274,6 @@ public  void  composite_volume_and_labels(
                                        composite_pixels );
 }
 
-private  void  render_label_slice_to_pixels(
-    display_struct        *slice_window,
-    int                   volume_index,
-    int                   view_index )
-{
-    Volume                label_volume;
-    int                   n_alloced;
-    Real                  x_trans, y_trans, x_scale, y_scale;
-    Real                  origin[MAX_DIMENSIONS];
-    Real                  x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
-    int                   x_sub_min, x_sub_max, y_sub_min, y_sub_max;
-    pixels_struct         *label_pixels;
-
-    label_pixels = get_pixels_ptr( get_label_slice_pixels_object(
-                                   slice_window, volume_index, view_index ) );
-
-    if( label_pixels->x_size > 0 && label_pixels->y_size > 0 )
-        delete_pixels( label_pixels );
-
-    x_trans = slice_window->slice.volumes[volume_index].views[view_index]
-                                                       .x_trans;
-    y_trans = slice_window->slice.volumes[volume_index].views[view_index]
-                                                       .y_trans;
-    x_scale = slice_window->slice.volumes[volume_index].views[view_index]
-                                                       .x_scaling;
-    y_scale = slice_window->slice.volumes[volume_index].views[view_index]
-                                                       .y_scaling;
-
-    (void) get_slice_subviewport( slice_window, view_index,
-                                  &x_sub_min, &x_sub_max,
-                                  &y_sub_min, &y_sub_max );
-
-    x_trans -= (Real) x_sub_min;
-    y_trans -= (Real) y_sub_min;
-    label_volume = get_nth_label_volume( slice_window, volume_index );
-
-    get_slice_plane( slice_window, volume_index, view_index,
-                     origin, x_axis, y_axis );
-
-    n_alloced = 0;
-    create_volume_slice(
-                label_volume, NEAREST_NEIGHBOUR, 0.0,
-                origin, x_axis, y_axis,
-                x_trans, y_trans, x_scale, y_scale,
-                (Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
-                (Real *) 0, (Real *) 0, (Real *) 0,
-                0.0, 0.0, 0.0, 0.0,
-                x_sub_max - x_sub_min + 1, y_sub_max - y_sub_min + 1,
-                RGB_PIXEL, -1, (unsigned short **) NULL,
-                &slice_window->slice.volumes[volume_index].label_colour_table,
-                make_rgba_Colour( 0, 0, 0, 0 ),
-                slice_window->slice.render_storage,
-                &n_alloced, label_pixels );
-
-    label_pixels->x_position += x_sub_min;
-    label_pixels->y_position += y_sub_min;
-}
-
 public  void  rebuild_label_slice_pixels_for_volume(
     display_struct    *slice_window,
     int               volume_index,
@@ -1338,7 +1284,16 @@ public  void  rebuild_label_slice_pixels_for_volume(
     visibility = get_label_visibility( slice_window, volume_index, view_index );
 
     if( visibility )
-        render_label_slice_to_pixels( slice_window, volume_index, view_index );
+    {
+        render_slice_to_pixels( slice_window, volume_index, view_index,
+                                get_nth_volume( slice_window, volume_index ),
+                                slice_window->slice.volumes[volume_index].
+                                                       label_colour_table,
+                                NEAREST_NEIGHBOUR,
+                                -1,
+                                get_pixels_ptr( get_label_slice_pixels_object(
+                                   slice_window, volume_index, view_index ) ) );
+    }
 }
 
 public  void  update_slice_pixel_visibilities(
