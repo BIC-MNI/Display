@@ -183,12 +183,15 @@ private  void  apply_transform( graphics, transform )
 {
     void    make_transform_in_coordinate_system();
     Vector  z_axis;
+    Point   centre;
     void    get_view_z_axis();
+    void    get_view_centre();
     void    transform_model();
 
     get_view_z_axis( &graphics->view, &z_axis );
+    get_view_centre( &graphics->view, &centre );
 
-    make_transform_in_coordinate_system( &graphics->centre_of_objects,
+    make_transform_in_coordinate_system( &centre,
                                          &graphics->view.x_axis,
                                          &graphics->view.y_axis,
                                          &z_axis,

@@ -164,7 +164,7 @@ private  void  display_frame_info( graphics, frame_number, update_time )
     String        frame_time_str;
     void          format_time();
 
-    (void) sprintf( frame_text.text, "%d ", frame_number );
+    (void) sprintf( frame_text.text, "%d: ", frame_number );
 
     format_time( frame_time_str, "%g %s", update_time );
 

@@ -7,14 +7,11 @@ public  void  initialize_mouse_events( action_table )
     action_table_struct   *action_table;
 {
     DECL_EVENT_FUNCTION(   mouse_movement_event );
-    DECL_EVENT_FUNCTION(   middle_mouse_down_event );
     DECL_EVENT_FUNCTION(   right_mouse_down_event );
     void                   add_action_table_function();
 
     add_action_table_function( action_table, MOUSE_MOVEMENT_EVENT,
                                mouse_movement_event );
-    add_action_table_function( action_table, MIDDLE_MOUSE_DOWN_EVENT,
-                               middle_mouse_down_event );
     add_action_table_function( action_table, RIGHT_MOUSE_DOWN_EVENT,
                                right_mouse_down_event );
 }
@@ -24,13 +21,6 @@ private  DEF_EVENT_FUNCTION(  mouse_movement_event )     /* ARGSUSED */
     graphics->mouse_position = event->event_data.mouse_position;
 
     return( OK );
-}
-
-private  DEF_EVENT_FUNCTION(  middle_mouse_down_event )     /* ARGSUSED */
-{
-    PRINT( "MIDDLE Mouse pressed, exitting.\n" );
-
-    return( ERROR );
 }
 
 private  DEF_EVENT_FUNCTION(  right_mouse_down_event )     /* ARGSUSED */

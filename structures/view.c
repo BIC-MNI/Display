@@ -61,6 +61,19 @@ public  void  get_view_z_axis( view, z_axis )
     Vector_z(*z_axis) = - Vector_z(view->line_of_sight);
 }
 
+public  void  get_view_centre( view, centre )
+    view_struct   *view;
+    Point         *centre;
+{
+    Real    offset;
+    Vector  offset_vector;
+
+    offset = (view->front_distance + view->back_distance) / 2.0;
+
+    SCALE_VECTOR( offset_vector, view->line_of_sight, offset );
+    ADD_POINT_VECTOR( *centre, view->origin, offset_vector );
+}
+
 public  void  adjust_view_for_aspect( view, window )
     view_struct    *view;
     window_struct  *window;
