@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.25 1995-07-31 19:54:24 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.26 1995-08-20 05:07:33 david Exp $";
 #endif
 
 
@@ -317,7 +317,7 @@ public  BOOLEAN  label_volume_exists(
 
     label = get_label_volume( display );
 
-    return( label != NULL && label->data != NULL );
+    return( label != NULL && volume_is_alloced( label ) );
 }
 
 public  BOOLEAN  get_label_visibility(
@@ -331,7 +331,7 @@ public  BOOLEAN  get_label_visibility(
 
     return( get_slice_visibility( slice_window, volume_index, view_index ) &&
             slice_window->slice.volumes[volume_index].display_labels &&
-            label != NULL && label->data != NULL );
+            label != NULL && volume_is_alloced( label ) );
 }
 
 public  int  get_num_labels(
@@ -598,7 +598,7 @@ private  void  colour_code_points(
             }
 
             if( slice_window->slice.volumes[volume_index].display_labels &&
-                label_volume != NULL && label_volume->data != NULL )
+                label_volume != NULL && volume_is_alloced( label_volume ) )
             {
                 convert_world_to_voxel( volume,
                                         Point_x(points[i]),

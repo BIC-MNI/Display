@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.36 1995-07-31 19:54:18 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.37 1995-08-20 05:07:33 david Exp $";
 #endif
 
 #include  <display.h>
@@ -641,7 +641,7 @@ private  void  paint_labels(
         }
 
         if( radius[axis] == 0.0 &&
-            label_volume != NULL && label_volume->data != NULL &&
+            label_volume != NULL && volume_is_alloced( label_volume ) &&
             !slice_window->slice.volumes[volume_index].
                              views[view_index].update_labels_flag )
         {
