@@ -478,6 +478,12 @@ private  void  calculate_label_volume(
 
     *n_voxels = n_vox;
     *cubic_mm = (Real) n_vox * separations[X] * separations[Y] * separations[Z];
+    *cubic_mm = ABS( *cubic_mm );
+
+    print( "Voxel size: %g mm by %g mm by %g mm\n",
+           ABS( separations[X] ),
+           ABS( separations[Y] ),
+           ABS( separations[Z] ) );
 }
 
 public  DEF_MENU_FUNCTION( calculate_volume )   /* ARGSUSED */
