@@ -250,7 +250,7 @@ private  BOOLEAN  remove_current_object_from_hierarchy(
 
         current_model = get_current_model( display );
 
-        remove_object_from_model( current_model, obj_index );
+        remove_ith_object_from_model( current_model, obj_index );
 
         if( current_model->n_objects == 0 )
             obj_index = 0;
@@ -390,7 +390,7 @@ public  DEF_MENU_FUNCTION( paste_object )   /* ARGSUSED */
 
         add_object_to_model( current_model, object );
 
-        remove_object_from_model( cut_model, 0 );
+        remove_ith_object_from_model( cut_model, 0 );
     }
 
     if( n_objects > 0 )

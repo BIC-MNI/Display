@@ -199,6 +199,7 @@ MENU_FUNCTION(ascend_selected) \
                        MENU_FUNCTION(delete_surface_point) \
                        MENU_FUNCTION(delete_surface_point) \
                        MENU_FUNCTION(fit_surface) \
+                       MENU_FUNCTION(change_labels_in_range) \
                        MENU_FUNCTION(create_surface_model) \
                        MENU_FUNCTION(scan_model_to_voxels) \
                        MENU_FUNCTION(scan_current_polygon_to_volume) \
