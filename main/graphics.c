@@ -1,6 +1,6 @@
 
 #include  <def_stdio.h>
-#include  <string.h>
+#include  <def_string.h>
 #include  <def_graphics.h>
 #include  <def_globals.h>
 #include  <def_alloc.h>
