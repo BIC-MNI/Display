@@ -169,7 +169,7 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
         smooth_polygon( polygons, Max_smoothing_distance,
                         Smoothing_ratio, Smoothing_threshold,
                         Smoothing_normal_ratio,
-                        FALSE, (volume_struct *) 0, 0, 0 );
+                        FALSE, (Volume) NULL, 0, 0 );
 
         compute_polygon_normals( polygons );
 
@@ -191,7 +191,7 @@ public  DEF_MENU_UPDATE(smooth_current_polygon )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( smooth_current_polygon_with_volume )   /* ARGSUSED */
 {
     polygons_struct   *polygons;
-    volume_struct     *volume;
+    Volume            volume;
 
     if( get_current_polygons( display, &polygons ) &&
         get_slice_window_volume( display, &volume ) )
@@ -304,7 +304,7 @@ public  DEF_MENU_UPDATE(subdivide_current_polygon )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( scan_current_polygon_to_volume )   /* ARGSUSED */
 {
     polygons_struct   *polygons;
-    volume_struct     *volume;
+    Volume            volume;
 
     if( get_current_polygons( display, &polygons ) &&
         get_slice_window_volume( display, &volume ) )
