@@ -167,6 +167,7 @@ START_GLOBALS
     DEF_GLOBAL( Max_fast_colour_lookup, int, 100000 )
     DEF_GLOBAL( Colour_table_size, int, 1000 )
     DEF_GLOBAL( Colour_below, Colour, 0.0 )
+    DEF_GLOBAL( User_defined_n_intervals, int, 10 )
     DEF_GLOBAL( User_defined_min_colour, Colour, 0.0 )
     DEF_GLOBAL( User_defined_max_colour, Colour, 0.0 )
     DEF_GLOBAL( Colour_above, Colour, 0.0 )
