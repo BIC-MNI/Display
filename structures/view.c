@@ -15,7 +15,7 @@ public  void  initialize_view( view )
     view->perspective_flag = Initial_perspective_flag;
     view->origin = origin;
     assign_view_direction( view, &line_of_sight, &hor );
-    view->front_distance = 0.05;
+    view->front_distance = Closest_front_plane;
     view->perspective_distance = 2.0;
     view->back_distance = 2.0;
     view->desired_aspect = 0.0;
@@ -125,4 +125,13 @@ public  void  transform_point_to_screen( view, p, transformed_point )
 
     transform_point_to_world( view, p, transformed_point );
     transform_world_to_screen( view, transformed_point, transformed_point );
+}
+
+public  void  get_screen_axes( view, hor, vert )
+    view_struct   *view;
+    Vector        *hor;
+    Vector        *vert;
+{
+    SCALE_VECTOR( *hor, view->x_axis, view->window_width );
+    SCALE_VECTOR( *vert, view->y_axis, view->window_height );
 }

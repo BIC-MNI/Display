@@ -154,7 +154,7 @@ private  Status   create_menu_box( menu_window, key )
         lines = object->ptr.lines;
 
         lines->n_points = 4;
-        lines->n_lines = 1;
+        lines->n_items = 1;
 
         fill_Colour( lines->colour, 1.0, 1.0, 1.0 );
 
@@ -163,14 +163,14 @@ private  Status   create_menu_box( menu_window, key )
 
     if( status == OK )
     {
-        CALLOC( status, lines->last_indices, lines->n_lines, int );
+        CALLOC( status, lines->end_indices, lines->n_items, int );
     }
 
     if( status == OK )
     {
-        lines->last_indices[0] = 5;
+        lines->end_indices[0] = 5;
 
-        CALLOC( status, lines->indices, lines->last_indices[0], int );
+        CALLOC( status, lines->indices, lines->end_indices[0], int );
 
         compute_origin( key, &origin );
 

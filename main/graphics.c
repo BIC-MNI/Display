@@ -145,8 +145,8 @@ private  void  initialize_graphics_window( graphics )
 
     initialize_action_table( &graphics->action_table );
 
-    initialize_render( &graphics->render );
-    initialize_objects( &graphics->objects );
+    initialize_render( &graphics->model.render );
+    initialize_objects( &graphics->model.objects );
 
     graphics->frame_number = 0;
     graphics->update_required = FALSE;
@@ -164,9 +164,9 @@ private  void  display_frame_number( graphics )
     fill_Point( frame_number.origin, Frame_number_x, Frame_number_y, 0.0 );
     fill_Colour( frame_number.colour, 1.0, 1.0, 1.0 );
 
-    G_set_view_type( &graphics->window, SCREEN_VIEW );
+    G_set_view_type( &graphics->window, PIXEL_VIEW );
 
-    G_draw_text( &graphics->window, &frame_number, &graphics->render );
+    G_draw_text( &graphics->window, &frame_number, &graphics->model.render );
 }
 
 public  void  update_graphics( graphics )
@@ -176,11 +176,14 @@ public  void  update_graphics( graphics )
     void          display_objects();
     void          display_frame_number();
 
-    display_objects( &graphics->window, graphics->objects, &graphics->render );
+    display_objects( &graphics->window, &graphics->model );
 
     ++graphics->frame_number;
 
-    display_frame_number( graphics );
+    if( Display_frame_number )
+    {
+        display_frame_number( graphics );
+    }
 
     G_update_window( &graphics->window );
 
@@ -216,7 +219,7 @@ private  Status  terminate_graphics_window( graphics )
     Status   status;
     Status   delete_object_struct();
 
-    status = delete_object_struct( &graphics->objects );
+    status = delete_object_struct( &graphics->model.objects );
 
     return( status );
 }
@@ -227,4 +230,30 @@ public  void  update_view( graphics )
     void   G_define_view();
 
     G_define_view( &graphics->window, &graphics->view );
+}
+
+public  void  reset_view_parameters( graphics )
+    graphics_struct  *graphics;
+{
+    void   adjust_view_for_aspect();
+    Real   G_get_window_aspect();
+    void   initialize_view();
+    void   fit_view_to_domain();
+
+    initialize_view( &graphics->view );
+    adjust_view_for_aspect( &graphics->view,
+                            G_get_window_aspect(&graphics->window) );
+    fit_view_to_domain( &graphics->view, &graphics->min_limit,
+                        &graphics->max_limit );
+}
+
+public  void  transform_model( graphics, transform )
+    graphics_struct   *graphics;
+    Transform         *transform;
+{
+    void  concat_transforms();
+
+    concat_transforms( &graphics->view.modeling_transform,
+                       &graphics->view.modeling_transform,
+                       transform );
 }

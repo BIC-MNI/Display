@@ -33,45 +33,6 @@ private  DEF_EVENT_FUNCTION(  middle_mouse_down_event )     /* ARGSUSED */
     return( ERROR );
 }
 
-#ifdef OLD
-private  DEF_EVENT_FUNCTION(  right_mouse_down_event )     /* ARGSUSED */
-{
-    object_struct  *objects;
-
-    objects = graphics->objects;
-
-    if( objects != (object_struct *) 0 )
-    {
-        while( objects != (object_struct *) 0 && objects->visibility == OFF )
-        {
-            objects = objects->next;
-        }
-
-        if( objects == (object_struct *) 0 )
-        {
-            graphics->objects->visibility = ON;
-        }
-        else
-        {
-            objects->visibility = OFF;
-
-            if( objects->next == (object_struct *) 0 )
-            {
-                graphics->objects->visibility = ON;
-            }
-            else
-            {
-                objects->next->visibility = ON;
-            }
-        }
-
-        graphics->update_required = TRUE;
-    }
-
-    return( OK );
-}
-#endif
-
 private  DEF_EVENT_FUNCTION(  right_mouse_down_event )     /* ARGSUSED */
 {
     void                  add_action_table_function();

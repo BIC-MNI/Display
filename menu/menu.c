@@ -167,19 +167,6 @@ private  Status  process_menu( graphics, menu_entry )
     return( status );
 }
 
-public  DEF_MENU_FUNCTION( toggle_perspective )
-{
-    void  update_view();
-
-    graphics->view.perspective_flag = !graphics->view.perspective_flag;
-
-    update_view( graphics );
-
-    graphics->update_required = TRUE;
-
-    return( OK );
-}
-
 public  DEF_MENU_FUNCTION( push_menu )
 {
     Status   status;
@@ -220,17 +207,6 @@ public  DEF_MENU_FUNCTION( pop_menu )
 
         menu_window->update_required = TRUE;
     }
-
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION( reverse_normals )
-{
-    void  reverse_object_normals();
-
-    reverse_object_normals( graphics->model.objects );
-
-    graphics->update_required = TRUE;
 
     return( OK );
 }

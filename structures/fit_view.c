@@ -4,14 +4,23 @@
 
 #define  FACTOR  1.2
 
-public  void  fit_view_to_domain( view, x_min, y_min, z_min,
-                                  x_max, y_max, z_max )
+public  void  fit_view_to_domain( view, min_limit, max_limit )
     view_struct   *view;
-    Real          x_min, y_min, z_min;
-    Real          x_max, y_max, z_max;
+    Point         *min_limit;
+    Point         *max_limit;
 {
     Point     points[8];
     void      fit_view_to_points();
+    Real      x_min, y_min, z_min;
+    Real      x_max, y_max, z_max;
+
+    x_min = Point_x( *min_limit );
+    y_min = Point_y( *min_limit );
+    z_min = Point_z( *min_limit );
+
+    x_max = Point_x( *max_limit );
+    y_max = Point_y( *max_limit );
+    z_max = Point_z( *max_limit );
 
     fill_Point( points[0], x_min, y_min, z_min );
     fill_Point( points[1], x_min, y_min, z_max );
@@ -123,13 +132,22 @@ private  void  orthogonal_fit_points( view, centre, range )
     x_scale = Point_x(*range) * FACTOR / view->window_width;
     y_scale = Point_y(*range) * FACTOR / view->window_height;
 
+    if( x_scale == 0.0 )
+    {
+        view->desired_aspect = 1.0;
+    }
+    else
+    {
+        view->desired_aspect = y_scale / x_scale;
+    }
+
     scale = MAX( x_scale, y_scale );
 
     view->window_width *= scale;
     view->window_height *= scale;
-    view->perspective_distance *= scale;
+    view->perspective_distance = Point_z(*range);
 
-    view->front_distance = 0.0;
+    view->front_distance = Closest_front_plane;
     view->back_distance = 2.5 * Vector_z(*range);
 }
 
@@ -142,7 +160,7 @@ private  void  perspective_fit_points( view, max_coord, centre,
     Point         points[];
 {
     int     i, c;
-    Real    z_min, z_pos, dist;
+    Real    z_min, z_pos, dist, ratio, new_persp_dist;
     Real    dx, dy, dz, off_centre, width;
     Point   eye;
     Vector  x_axis, y_axis, line_of_sight;
@@ -200,6 +218,14 @@ private  void  perspective_fit_points( view, max_coord, centre,
     ADD_POINT_VECTOR( eye, eye, delta_z );
 
     view->origin = eye;
+
+    new_persp_dist = Point_z(*centre) - z_min;
+
+    ratio = new_persp_dist / view->perspective_distance;
+
+    view->window_width *= ratio;
+    view->window_height *= ratio;
+    view->perspective_distance = new_persp_dist;
 
     view->back_distance = FACTOR * (Point_z(*max_coord) - dz);
     view->front_distance = Closest_front_plane;

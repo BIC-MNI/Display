@@ -22,6 +22,30 @@ private  void  set_action_table_function( action_table, event_type, function )
     t->actions[i] = function;
 }
 
+public  void  install_action_table_function( action_table, event_type,
+                                             function )
+    action_table_struct   *action_table;
+    event_types           event_type;
+    event_function_type   function;
+{
+    action_table_entry    *t;
+    event_function_type   *actions_list;
+
+    if( get_event_actions( action_table, event_type, &actions_list ) == 0 )
+    {
+        t = &action_table->event_info[(int)event_type];
+
+        if( t->last_index[t->stack_index] >= MAX_ACTIONS-1 )
+        {
+            HANDLE_INTERNAL_ERROR( "add action table function" );
+        }
+
+        ++t->last_index[t->stack_index];
+    }
+
+    set_action_table_function( action_table, event_type, function );
+}
+
 public  void  add_action_table_function( action_table, event_type, function )
     action_table_struct   *action_table;
     event_types           event_type;
@@ -145,7 +169,6 @@ public  void  initialize_action_table( action_table )
     void                  initialize_virtual_spaceball();
     void                  initialize_window_events();
     void                  initialize_mouse_events();
-    DECL_EVENT_FUNCTION(   keyboard_event );
 
     for_enum( event, NUM_EVENT_TYPES, event_types )
     {
@@ -153,18 +176,7 @@ public  void  initialize_action_table( action_table )
         action_table->event_info[(int)event].last_index[0] = -1;
     }
 
-    add_action_table_function( action_table, KEYBOARD_EVENT,
-                               keyboard_event );
-
     initialize_mouse_events( action_table );
     initialize_virtual_spaceball( action_table );
     initialize_window_events( action_table );
-}
-
-private  DEF_EVENT_FUNCTION(  keyboard_event )     /* ARGSUSED */
-{
-    PRINT( "%c", event->event_data.key_pressed );
-    (void) fflush( stdout );
-
-    return( OK );
 }

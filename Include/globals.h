@@ -1,73 +1,31 @@
 #ifndef  DEF_GLOBALS
 #define  DEF_GLOBALS
 
-#include  <def_geometry.h>
-
-#undef  START_GLOBALS
-#undef  END_GLOBALS
-#undef  DEF_GLOBAL
-
-
-#ifdef  IN_GLOBALS_FILE
-
-#ifdef  DEFINING_GLOBALS
-
-#define  START_GLOBALS
-#define  END_GLOBALS
-
-#define  DEF_GLOBAL( variable, type, initial ) \
-    type  variable = initial;
-
-#else
-
-typedef  enum {
-                 Boolean_type,
-                 int_type,
-                 Real_type,
-                 String_type,
-                 Point_type,
-                 Vector_type,
-                 Colour_type,
-                 Surfprop_type
-              } variable_types;
-
-typedef  struct 
-{
-    char             *ptr_to_global;
-    String           variable_name;
-    variable_types   type;
-    Boolean          initialized_from_file;
-} global_struct;
-
-#define  START_GLOBALS   static  global_struct  globals[] = {
-#define  END_GLOBALS                                        };
-
-#define  DEF_GLOBAL( variable, type, initial ) \
-       { \
-           (char *) &variable, "variable", type/**/_type, FALSE \
-       },
-
-#endif
-
-#else
-
-#define  START_GLOBALS
-#define  END_GLOBALS
-
-#define  DEF_GLOBAL( variable, type, initial ) \
-         extern  type  variable;
-
-#endif
+#include  <def_global_macros.h>
 
 START_GLOBALS
+    DEF_GLOBAL( Event_timeout, Real, 0.1 )
     DEF_GLOBAL( Initial_perspective_flag, Boolean, TRUE )
     DEF_GLOBAL( Closest_front_plane, Real, 1.0e-5 )
     DEF_GLOBAL( Initial_render_mode, int, 1 )
     DEF_GLOBAL( Initial_shading_type, int, 1 )
     DEF_GLOBAL( Initial_light_switch, Boolean, TRUE )
+    DEF_GLOBAL( Display_frame_number, Boolean, FALSE )
     DEF_GLOBAL( Frame_number_x, Real, 0.8 )
     DEF_GLOBAL( Frame_number_y, Real, 0.1 )
+    DEF_GLOBAL( X_menu_origin, Real, 10.0 )
+    DEF_GLOBAL( X_menu_dx, Real, 50.0 )
+    DEF_GLOBAL( X_menu_dy, Real, 0.0 )
+    DEF_GLOBAL( X_menu_box_size, Real, 40.0 )
+    DEF_GLOBAL( X_menu_text_offset, Real, 2.0 )
+    DEF_GLOBAL( Y_menu_origin, Real, 10.0 )
+    DEF_GLOBAL( Y_menu_dx, Real, -4.0 )
+    DEF_GLOBAL( Y_menu_dy, Real, 20.0 )
+    DEF_GLOBAL( Y_menu_box_size, Real, 15.0 )
+    DEF_GLOBAL( Y_menu_text_offset, Real, 2.0 )
+    DEF_GLOBAL( Initial_2_sided_flag, Boolean, TRUE )
+    DEF_GLOBAL( Initial_backface_flag, Boolean, FALSE )
+    DEF_GLOBAL( Visibility_on_input, Boolean, FALSE )
 END_GLOBALS
          
-
 #endif

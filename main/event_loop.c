@@ -1,7 +1,6 @@
 
 #include  <def_graphics.h>
-
-#define  EVENT_TIMEOUT  0.1
+#include  <def_globals.h>
 
 public  Status   main_event_loop()
 {
@@ -52,7 +51,7 @@ Status  process_events()
 
     status = OK;
 
-    stop_time = current_realtime_seconds() + EVENT_TIMEOUT;
+    stop_time = current_realtime_seconds() + Event_timeout;
 
     do
     {

@@ -23,8 +23,7 @@ private  void  display_objects_recursive( window, objects, render, view_type )
     void           G_set_view_type();
     void           G_set_render();
     void           G_draw_text();
-    void           G_draw_triangles();
-    void           G_draw_rectangles();
+    void           G_draw_polygons();
     void           G_draw_lines();
 
     G_set_render( window, render );
@@ -54,12 +53,8 @@ private  void  display_objects_recursive( window, objects, render, view_type )
                 G_draw_lines( window, objects->ptr.lines, render );
                 break;
 
-            case TRIANGLES:
-                G_draw_triangles( window, objects->ptr.triangles, render );
-                break;
-
-            case RECTANGLES:
-                G_draw_rectangles( window, objects->ptr.rectangles, render );
+            case POLYGONS:
+                G_draw_polygons( window, objects->ptr.polygons, render );
                 break;
             }
         }

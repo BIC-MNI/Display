@@ -1,28 +1,27 @@
 #include  <stdio.h>
 #include  <math.h>
 #include  <def_graphics.h>
-
-#define  X_SIZE  256.0
-#define  Y_SIZE  256.0
-#define  Z_SIZE  64.0
+#include  <def_globals.h>
 
 int  main( argc, argv )
     int     argc;
     char    *argv[];
 {
     graphics_struct  *graphics;
+    graphics_struct  *menu;
     Status           status;
     Status           G_initialize();
     Status           initialize_globals();
+    Status           initialize_menu();
     Status           input_graphics_file();
     Status           create_graphics_window();
     Status           delete_graphics_window();
     Status           main_event_loop();
     Status           G_terminate();
-    void             fit_view_to_domain();
+    Status           make_all_invisible();
+    void             reset_view_parameters();
     void             update_view();
     void             get_range_of_objects();
-    Point            min_coord, max_coord;
 
     if( argc != 2 )
     {
@@ -44,9 +43,27 @@ int  main( argc, argv )
 
     if( status == OK )
     {
+        status = create_graphics_window( &menu );
+    }
+
+    if( status == OK )
+    {
+        graphics->graphics_window = graphics;
+        graphics->menu_window = menu;
+        menu->graphics_window = graphics;
+        menu->menu_window = menu;
+
+        graphics->model.view_type = MODEL_VIEW;
+        menu->model.view_type = PIXEL_VIEW;
+
+        status = initialize_menu( menu );
+    }
+
+    if( status == OK )
+    {
         PRINT( "Inputting objects.\n" );
 
-        status = input_graphics_file( argv[1], &graphics->objects );
+        status = input_graphics_file( argv[1], &graphics->model.objects );
 
         graphics->update_required = TRUE;
 
@@ -55,19 +72,24 @@ int  main( argc, argv )
 
     if( status == OK )
     {
-        get_range_of_objects( graphics->objects, &min_coord, &max_coord );
+        if( !Visibility_on_input )
+        {
+            status = make_all_invisible( graphics, menu,
+                                         (menu_entry_struct *) 0);
+        }
+    }
 
-        ADD_POINTS( graphics->centre_of_objects, min_coord, max_coord );
+    if( status == OK )
+    {
+        get_range_of_objects( graphics->model.objects, &graphics->min_limit,
+                              &graphics->max_limit );
+
+        ADD_POINTS( graphics->centre_of_objects, graphics->min_limit,
+                    graphics->max_limit );
         SCALE_POINT( graphics->centre_of_objects, graphics->centre_of_objects,
                      0.5 );
 
-        fit_view_to_domain( &graphics->view,
-                            Point_x(min_coord),
-                            Point_y(min_coord),
-                            Point_z(min_coord),
-                            Point_x(max_coord),
-                            Point_y(max_coord),
-                            Point_z(max_coord) );
+        reset_view_parameters( graphics );
 
         update_view( graphics );
     }

@@ -98,8 +98,9 @@ typedef  struct  graphics_struct
     light_struct         lights[N_LIGHTS];
     action_table_struct  action_table;
 
-    render_struct        render;
-    object_struct        *objects;
+    model_struct         model;
+    Point                min_limit;
+    Point                max_limit;
     Point                centre_of_objects;
 
     int                  frame_number;
@@ -110,6 +111,7 @@ typedef  struct  graphics_struct
 
 #define  DEF_EVENT_FUNCTION( f )   Status   f( graphics, event ) \
                                                 graphics_struct  *graphics; \
-                                                event_struct     *event;
+                                                event_struct     *event; \
+                                                   /* ARGSUSED */
 
 #endif
