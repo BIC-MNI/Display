@@ -142,6 +142,7 @@ public  DEF_MENU_FUNCTION( deform_line_to_volume )   /* ARGSUSED */
     Real              search_increment, min_isovalue, max_isovalue;
     Real              stop_threshold, min_size;
     int               max_iterations;
+    Boolean           one_d_search_flag;
     volume_struct     *volume;
     lines_struct      *lines;
     void              set_update_required();
@@ -151,12 +152,13 @@ public  DEF_MENU_FUNCTION( deform_line_to_volume )   /* ARGSUSED */
     if( get_current_lines( graphics, &lines ) &&
         get_current_volume( graphics, &volume ) )
     {
-        PRINT( "Enter boundary_factor, max_step, max_search_distance,\n" );
-        PRINT( "      search_increment, min_size\n" );
+        PRINT( "Enter 1D_search_flag, boundary_factor, max_step,\n" );
+        PRINT( "      max_search_distance, search_increment, min_size\n" );
         PRINT( "      min_isovalue, max_isovalue,\n" );
         PRINT( "      max_iterations, stop_threshold: " );
 
-        if( input_real( stdin, &boundary_factor ) == OK &&
+        if( input_int( stdin, &one_d_search_flag ) == OK &&
+            input_real( stdin, &boundary_factor ) == OK &&
             input_real( stdin, &max_step ) == OK &&
             input_real( stdin, &max_search_distance ) == OK &&
             input_real( stdin, &search_increment ) == OK &&
@@ -166,7 +168,7 @@ public  DEF_MENU_FUNCTION( deform_line_to_volume )   /* ARGSUSED */
             input_int( stdin, &max_iterations ) == OK &&
             input_real( stdin, &stop_threshold ) == OK )
         {
-            status = deform_lines( lines, volume,
+            status = deform_lines( lines, volume, one_d_search_flag,
                                    boundary_factor, max_step,
                                    max_search_distance, search_increment,
                                    min_size, min_isovalue, max_isovalue,

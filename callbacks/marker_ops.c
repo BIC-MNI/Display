@@ -170,7 +170,7 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
             if( current_object->object_type == MARKER &&
                 current_object->visibility )
             {
-                status = io_tag_point( file, WRITE_FILE, volume,
+                status = io_tag_point( file, WRITE_FILE, volume, 0.0,
                                        current_object->ptr.marker );
             }
         }
@@ -606,6 +606,31 @@ public  DEF_MENU_FUNCTION( change_marker_label )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(change_marker_label )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( copy_defaults_to_marker )   /* ARGSUSED */
+{
+    marker_struct   *marker;
+    void            graphics_models_have_changed();
+
+    if( get_current_marker(graphics,&marker) )
+    {
+        marker->type = graphics->three_d.default_marker_type;
+        marker->colour = graphics->three_d.default_marker_colour;
+        marker->size = graphics->three_d.default_marker_size;
+        (void) strcpy( marker->label, graphics->three_d.default_marker_label );
+        marker->structure_id = graphics->three_d.default_marker_structure_id;
+        marker->patient_id = graphics->three_d.default_marker_patient_id;
+
+        graphics_models_have_changed( graphics );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(copy_defaults_to_marker )   /* ARGSUSED */
 {
     return( OK );
 }

@@ -16,6 +16,7 @@ public  Status  initialize_slice_window( graphics )
     int     c, label;
     void    initialize_segmenting();
     void    rebuild_colour_coding();
+    void    initialize_atlas();
 
     graphics->slice.volume = (volume_struct *) 0;
 
@@ -85,6 +86,7 @@ public  Status  initialize_slice_window( graphics )
         status = add_new_label( graphics, 0, &Inactive_voxel_colour );
 
     initialize_segmenting( &graphics->slice.segmenting );
+    initialize_atlas( &graphics->slice.atlas );
 
     return( status );
 }
@@ -97,6 +99,7 @@ public  Status  set_slice_window_volume( graphics, volume )
     Status           initialize_voxel_flags();
     Status           initialize_voxel_done_flags();
     Status           update_cursor_size();
+    Status           set_colour_coding_per_index_range();
     int              c, x_index, y_index, num_entries;
     int              size[N_DIMENSIONS];
     Real             factor, min_thickness, max_thickness;
@@ -106,6 +109,7 @@ public  Status  set_slice_window_volume( graphics, volume )
     void             get_volume_slice_thickness();
     void             rebuild_colour_bar();
     Status           create_fast_lookup();
+    void             set_atlas_state();
 
     graphics->slice.volume = volume;
 
@@ -190,6 +194,12 @@ public  Status  set_slice_window_volume( graphics, volume )
                     get_n_voxels(graphics->slice.volume) );
     }
 
+    if( status == OK )
+        status = set_colour_coding_per_index_range(
+                        &graphics->slice.colour_coding,
+                        volume->min_value, volume->max_value );
+
+    set_atlas_state( graphics, Default_atlas_state );
     rebuild_colour_bar( graphics );
 
     return( status );
@@ -367,6 +377,15 @@ public  Boolean   get_slice_window_volume( graphics, volume )
     }
 
     return( volume_set );
+}
+
+public  Boolean  get_slice_window( graphics, slice_window )
+    graphics_struct  *graphics;
+    graphics_struct  **slice_window;
+{
+    *slice_window = graphics->associated[SLICE_WINDOW];
+
+    return( *slice_window != (graphics_struct *) 0 );
 }
 
 public  Status  delete_slice_window( slice_window )
@@ -953,8 +972,15 @@ public  void  set_slice_window_update( graphics, view_index )
 {
     void  set_update_required();
 
-    graphics->slice.slice_views[view_index].update_flag = TRUE;
-    set_update_required( graphics, NORMAL_PLANES );
+#ifndef  BUG
+    if( graphics != (graphics_struct *) 0 )
+    {
+#endif
+        graphics->slice.slice_views[view_index].update_flag = TRUE;
+        set_update_required( graphics, NORMAL_PLANES );
+#ifndef  BUG
+    }
+#endif
 }
 
 public  void  update_slice_window( graphics )

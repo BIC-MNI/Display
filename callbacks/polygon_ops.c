@@ -291,6 +291,7 @@ public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
     Real              search_increment, min_size, min_isovalue, max_isovalue;
     Real              stop_threshold;
     int               max_iterations;
+    Boolean           one_d_flag;
     volume_struct     *volume;
     polygons_struct   *polygons;
     void              set_update_required();
@@ -300,12 +301,13 @@ public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
     if( get_current_polygons( graphics, &polygons ) &&
         get_current_volume( graphics, &volume ) )
     {
-        PRINT( "Enter boundary_factor, max_step, max_search_distance,\n" );
+        PRINT( "Enter 1dflag, boundary_factor, max_step, max_search_distance,\n" );
         PRINT( "      search_increment, min_size,\n" );
         PRINT( "      min_isovalue, max_isovalue,\n" );
         PRINT( "      max_iterations, stop_threshold: " );
 
-        if( input_real( stdin, &boundary_factor ) == OK &&
+        if( input_int( stdin, &one_d_flag ) == OK &&
+            input_real( stdin, &boundary_factor ) == OK &&
             input_real( stdin, &max_step ) == OK &&
             input_real( stdin, &max_search_distance ) == OK &&
             input_real( stdin, &search_increment ) == OK &&
@@ -315,7 +317,7 @@ public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
             input_int( stdin, &max_iterations ) == OK &&
             input_real( stdin, &stop_threshold ) == OK )
         {
-            status = deform_polygons( polygons, volume,
+            status = deform_polygons( polygons, volume, one_d_flag,
                                       boundary_factor, max_step,
                                       max_search_distance, search_increment,
                                       min_size,

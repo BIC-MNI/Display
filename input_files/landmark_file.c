@@ -4,12 +4,13 @@
 
 public  Status   input_landmark_file( volume,
                                       filename, n_objects, object_list,
-                                      marker_colour )
+                                      marker_colour, default_size )
     volume_struct  *volume;
     char           filename[];
     int            *n_objects;
     object_struct  ***object_list;
     Colour         *marker_colour;
+    Real           default_size;
 {
     Status                  status;
     Status                  add_object_to_list();
@@ -26,7 +27,8 @@ public  Status   input_landmark_file( volume,
 
     if( status == OK )
     {
-        while( io_tag_point( file, READ_FILE, volume, &marker ) == OK )
+        while( io_tag_point( file, READ_FILE, volume, default_size,
+                             &marker ) == OK )
         {
             status = create_object( &object, MARKER );
 
@@ -46,10 +48,11 @@ public  Status   input_landmark_file( volume,
     return( status );
 }
 
-public  Status  io_tag_point( file, io_direction, volume, marker )
+public  Status  io_tag_point( file, io_direction, volume, default_size, marker )
     FILE            *file;
     IO_types        io_direction;
     volume_struct   *volume;
+    Real            default_size;
     marker_struct   *marker;
 {
     Status   status;
@@ -138,7 +141,7 @@ public  Status  io_tag_point( file, io_direction, volume, marker )
         else
         {
             status = io_real( file, io_direction, ASCII_FORMAT, &marker->size );
-            marker->size = 1.0;
+            marker->size = default_size;
         }
     }
 #else

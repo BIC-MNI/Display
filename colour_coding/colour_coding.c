@@ -11,6 +11,8 @@ typedef struct {
 public  void  rebuild_colour_coding( colour_coding )
     colour_coding_struct   *colour_coding;
 {
+    int    i, index, n_entries;
+    Real   range;
     void   build_gray_scale_coding();
     void   build_hot_metal_coding();
     void   build_contour_coding();
@@ -37,6 +39,31 @@ public  void  rebuild_colour_coding( colour_coding )
 
     case  CONTOUR_COLOUR_MAP:
         build_contour_coding( colour_coding );
+        break;
+
+    case  PER_INDEX_COLOUR_MAP:
+        if( colour_coding->min_index <= colour_coding->max_index )
+        {
+            n_entries = colour_coding->colour_table_size;
+            range = colour_coding->max_value - colour_coding->min_value;
+            for_less( i, 0, n_entries )
+            {
+                index = (int) ( ((Real) i + 0.5) / (Real) n_entries * range +
+                                colour_coding->min_value + 0.5 );
+
+                if( index < colour_coding->min_index ||
+                    index > colour_coding->max_index )
+                {
+                     colour_coding->colour_table[i] = BLACK;
+                }
+                else
+                {
+                     colour_coding->colour_table[i] =
+                           colour_coding->per_index_colours
+                                [index-colour_coding->min_index];
+                }
+            }
+        }
         break;
     }
 }

@@ -326,6 +326,7 @@ public  void  rebuild_slice_pixels( slice_window, view_index )
     }
 
     render_slice_to_pixels( slice_window, pixels, x_index, y_index,
+                            axis_index,
                             voxel_indices, x_pixel_start, x_pixel_end,
                             y_pixel_start, y_pixel_end, x_scale, y_scale );
 
@@ -482,12 +483,13 @@ public  void  rebuild_cursor( graphics, view_index )
 }
 
 private  void  render_slice_to_pixels( slice_window, pixels,
-                                       x_index, y_index, start_indices,
+                                       x_index, y_index, axis_index,
+                                       start_indices,
                                        x_left, x_right, y_bottom, y_top,
                                        x_scale, y_scale )
     graphics_struct       *slice_window;
     pixels_struct         *pixels;
-    int                   x_index, y_index;
+    int                   x_index, y_index, axis_index;
     int                   start_indices[N_DIMENSIONS];
     int                   x_left, x_right, y_bottom, y_top;
     Real                  x_scale, y_scale;
@@ -510,6 +512,7 @@ private  void  render_slice_to_pixels( slice_window, pixels,
     Real                  dx, dy;
     Pixel_colour          *lookup;
     void                  get_slice_colour_coding();
+    void                  blend_in_atlas();
 
     status = OK;
 
@@ -650,177 +653,15 @@ private  void  render_slice_to_pixels( slice_window, pixels,
         }
     }
 
-#ifdef TALAIRACH_OVERLAY
-
-    if( x_index == X && y_index == Y && start_indices[Z] == 26 )
     {
-        void   blend_in_talairach_image();
+        int   sizes[3];
+        void  get_volume_size();
 
-        blend_in_talairach_image( pixels->data.pixels24, x_size, y_size,
-                                  start_indices, dx, dy, volume->sizes[X] );
-    }
-#endif
-}
+        get_volume_size( volume, &sizes[X], &sizes[Y], &sizes[Z] );
 
-#ifdef TALAIRACH_OVERLAY
-private  Boolean  images_read_in = FALSE;
-
-#define  N_IMAGES   4
-
-private  struct
-{
-    Boolean        exists;
-    int            image_size;
-    char           *filename;
-    pixels_struct  image;
-}   image_info[N_IMAGES] =
-     {
-       { FALSE, 128, "/nil/david/Talairach/resampled_128.obj", { 0 } },
-       { FALSE, 256, "/nil/david/Talairach/resampled_256.obj", { 0 } },
-       { FALSE, 512, "/nil/david/Talairach/resampled_512.obj", { 0 } },
-       { FALSE, 1024, "/nil/david/Talairach/resampled_1024.obj", { 0 } },
-     };
-
-private  void  check_images_read_in()
-{
-    Status        status;
-    Status        input_object_type();
-    Status        io_pixels();
-    int           i;
-    FILE          *file;
-    File_formats  format;
-    object_types  type;
-    Boolean       eof;
-
-    if( !images_read_in )
-    {
-        images_read_in = TRUE;
-
-        for_less( i, 0, N_IMAGES )
-        {
-            status = OK;
-
-            (void) printf( "Reading Talairach images [%d/%d].\n",i+1, N_IMAGES);
-
-            if( status == OK )
-                status = open_file( image_info[i].filename, READ_FILE,
-                                    BINARY_FORMAT, &file );
-
-            if( status == OK )
-                status = input_object_type( file, &type, &format, &eof );
-
-            if( status == OK && !eof && type == PIXELS )
-                status = io_pixels( file, READ_FILE, format,
-                                    &image_info[i].image );
-
-            if( status == OK )
-                status = close_file( file );
-
-            image_info[i].exists = (status == OK);
-        }
+        blend_in_atlas( &slice_window->slice.atlas, pixels->data.pixels24,
+                        x_size, y_size,
+                        start_indices, x_index, y_index, axis_index, dx, dy,
+                        sizes[x_index], sizes[y_index] );
     }
 }
-
-private  Boolean  find_talairach_image( desired_size, image, image_size,
-                                        image_multiplier )
-    int            desired_size;
-    Pixel_colour   *image[];
-    int            *image_size;
-    int            *image_multiplier;
-{
-    int   i, image_index;
-
-    check_images_read_in();
-
-    image_index = -1;
-
-    for_less( i, 0, N_IMAGES )
-    {
-        if( image_info[i].exists && image_info[i].image_size <= desired_size &&
-            (image_index < 0 || image_info[i].image_size > *image_size) )
-        {
-            image_index = i;
-            *image_size = image_info[i].image_size;
-        }
-    }
-
-    if( image_index >= 0 )
-    {
-        *image = image_info[image_index].image.pixels;
-        *image_multiplier = desired_size / *image_size;
-    }
-
-    return( image_index >= 0 );
-}
-
-
-private  void  blend_in_talairach_image( voxel_pixels, x_size, y_size,
-                   start_indices, dx, dy, x_volume_size )
-    Pixel_colour   voxel_pixels[];
-    int            x_size;
-    int            y_size;
-    int            start_indices[];
-    Real           dx;
-    Real           dy;
-    int            x_volume_size;
-{
-    int            x, y, image_size, image_multiplier;
-    int            x_pixel, y_pixel, x_pixel_start, y_pixel_start;
-    int            r_tal, g_tal, b_tal, r_vox, g_vox, b_vox;
-    int            r, g, b;
-    Pixel_colour   *image, *pixels, voxel_pixel, tal_pixel;
-
-    if( !find_talairach_image( ROUND( x_volume_size / dx ),
-                               &image, &image_size, &image_multiplier ) )
-        return;
-
-    x_pixel_start = start_indices[X] / dx;
-    y_pixel_start = start_indices[Y] / dy;
-
-    if( x_volume_size == 256 )
-    {
-        dx /= 2.0;
-        dy /= 2.0;
-    }
-
-    for_less( y, 0, y_size )
-    {
-        pixels = &voxel_pixels[IJ(y,0,x_size)];
-
-        y_pixel = y_pixel_start + y / image_multiplier;
-
-        if( y_pixel >= 0 && y_pixel < image_size )
-        {
-            for_less( x, 0, x_size )
-            {
-                x_pixel = x_pixel_start + x / image_multiplier;
-
-                if( x_pixel >= 0 && x_pixel < image_size )
-                {
-                    tal_pixel = image[IJ(y_pixel,x_pixel,image_size)];
-                    r_tal = Pixel_colour_r(tal_pixel);
-                    g_tal = Pixel_colour_g(tal_pixel);
-                    b_tal = Pixel_colour_b(tal_pixel);
-
-                    if( r_tal <= Talairach_opacity_threshold ||
-                        g_tal <= Talairach_opacity_threshold ||
-                        b_tal <= Talairach_opacity_threshold )
-                    {
-                        voxel_pixel = *pixels;
-                        r_vox = Pixel_colour_r(voxel_pixel);
-                        g_vox = Pixel_colour_g(voxel_pixel);
-                        b_vox = Pixel_colour_b(voxel_pixel);
-
-                        r = ROUND( r_vox + (r_tal - r_vox) * Talairach_opacity);
-                        g = ROUND( g_vox + (g_tal - g_vox) * Talairach_opacity);
-                        b = ROUND( b_vox + (b_tal - b_vox) * Talairach_opacity);
-                        *pixels = RGB_255_TO_PIXEL( r, g, b );
-                    }
-                }
-
-                ++pixels;
-            }
-        }
-    }
-}
-#endif

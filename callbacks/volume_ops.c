@@ -613,6 +613,14 @@ public  DEF_MENU_FUNCTION(colour_code_objects )   /* ARGSUSED */
                                     object->ptr.quadmesh->n,
                                     object->ptr.quadmesh->points );
             }
+            else if( object->object_type == LINES )
+            {
+                colour_code_object( colour_coding, volume,
+                                    &object->ptr.lines->colour_flag,
+                                    &object->ptr.lines->colours,
+                                    object->ptr.lines->n_points,
+                                    object->ptr.lines->points );
+            }
         }
 
         set_update_required( graphics, NORMAL_PLANES );

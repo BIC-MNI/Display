@@ -5,6 +5,7 @@
 #include  <def_bitlist.h>
 #include  <def_objects.h>
 #include  <def_graphics_types.h>
+#include  <def_atlas.h>
 
 typedef  struct
 {
@@ -67,6 +68,7 @@ typedef  struct
     int                    temporary_indices_alloced;
 
     segmenting_struct      segmenting;
+    atlas_struct           atlas;
 
 } slice_window_struct;
 

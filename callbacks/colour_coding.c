@@ -123,6 +123,18 @@ public  DEF_MENU_UPDATE(set_user_defined_colour_coding )   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION(set_per_index_colour_coding )   /* ARGSUSED */
+{
+    set_colour_coding_type( graphics, PER_INDEX_COLOUR_MAP );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_per_index_colour_coding )   /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION(set_under_colour )   /* ARGSUSED */
 {
     Status                  status;
@@ -380,23 +392,25 @@ public  DEF_MENU_UPDATE(set_label_colour_ratio )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(input_colour_map )   /* ARGSUSED */
+public  DEF_MENU_FUNCTION(input_per_index_colour_map )   /* ARGSUSED */
 {
-    Status           status;
-    volume_struct    *volume;
-    int              id, voxel_value;
-    FILE             *file;
-    graphics_struct  *slice_window;
-    Colour           colour;
-    String           filename, line;
-    void             rebuild_colour_bar();
-    void             set_slice_window_update();
+    Status                 status;
+    volume_struct          *volume;
+    colour_coding_struct   *colour_coding;
+    int                    id, voxel_value;
+    FILE                   *file;
+    graphics_struct        *slice_window;
+    Colour                 colour;
+    String                 filename, line;
+    void                   colour_coding_has_changed();
+    void                   set_per_index_colour();
 
     status = OK;
 
     if( get_current_volume(graphics,&volume) )
     {
         slice_window = graphics->associated[SLICE_WINDOW];
+        colour_coding = &slice_window->slice.colour_coding;
 
         PRINT( "Enter filename of colour map: " );
         
@@ -408,16 +422,17 @@ public  DEF_MENU_FUNCTION(input_colour_map )   /* ARGSUSED */
             status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
 
         while( status == OK &&
-               input_int( file, &id ) == OK &&
-               input_int( file, &voxel_value ) == OK &&
-               input_line( file, line, MAX_STRING_LENGTH ) == OK &&
-               convert_string_to_colour( line, &colour ) == OK )
+               input_int( file, &id ) == OK )
         {
-            if( slice_window->slice.fast_lookup_present )
+            if( input_int( file, &voxel_value ) == OK &&
+                input_line( file, line, MAX_STRING_LENGTH ) == OK &&
+                convert_string_to_colour( line, &colour ) == OK )
             {
-                COLOUR_TO_PIXEL( colour,
-                  slice_window->slice.fast_lookup[ACTIVE_BIT][voxel_value -
-                           slice_window->slice.volume->min_value] )
+                set_per_index_colour( colour_coding, voxel_value, &colour );
+            }
+            else
+            {
+                PRINT( "Error on line with id=%d\n", id );
             }
         }
 
@@ -426,17 +441,14 @@ public  DEF_MENU_FUNCTION(input_colour_map )   /* ARGSUSED */
 
         if( status == OK )
         {
-            rebuild_colour_bar( slice_window );
-            set_slice_window_update( slice_window, 0 );
-            set_slice_window_update( slice_window, 1 );
-            set_slice_window_update( slice_window, 2 );
+            colour_coding_has_changed( slice_window );
         }
     }
 
     return( status );
 }
 
-public  DEF_MENU_UPDATE(input_colour_map )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(input_per_index_colour_map )   /* ARGSUSED */
 {
     return( OK );
 }

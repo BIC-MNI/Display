@@ -355,12 +355,21 @@ private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
 
     if( fit_data->curvature_factor > 0.0 )
     {
-#ifdef CURVATURE
+#define CURVATURE
+#ifdef  CURVATURE
         u_curvature = get_radius_of_curvature( dxu, dyu, dzu, dxuu, dyuu, dzuu);
         v_curvature = get_radius_of_curvature( dxv, dyv, dzv, dxvv, dyvv, dzvv);
 
+/*
         curvature = -MIN( u_curvature, v_curvature );
-#elif NORMAL
+*/
+        if( u_curvature < fit_data->curvature_factor ||
+            v_curvature < fit_data->curvature_factor )
+            curvature = BIG_NUMBER;
+        else
+            curvature = 0.0;
+#else
+#ifdef NORMAL
         Vector   du, dv;
 
         fill_Vector( du, dxu, dyu, dzu );
@@ -389,6 +398,7 @@ private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
             mag_dv = 1.0;
 
         curvature = mag_duu / mag_du + mag_dvv / mag_dv;
+#endif
 #endif
 
         fit += fit_data->curvature_factor * curvature;

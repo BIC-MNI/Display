@@ -39,7 +39,7 @@ typedef  struct
 } light_struct;
 
 typedef enum { GRAY_SCALE, HOT_METAL, SPECTRAL, USER_DEFINED,
-               CONTOUR_COLOUR_MAP }
+               CONTOUR_COLOUR_MAP, PER_INDEX_COLOUR_MAP }
              Colour_coding_types;
 
 typedef  struct
@@ -61,6 +61,10 @@ typedef  struct
 
     int                   colour_table_size;
     Colour                *colour_table;
+
+    int                   min_index;
+    int                   max_index;
+    Colour                *per_index_colours;
 } colour_coding_struct;
 
 typedef  enum  {

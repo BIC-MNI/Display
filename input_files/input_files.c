@@ -69,7 +69,10 @@ public  Status  load_graphics_file( graphics, filename )
             status = input_landmark_file( volume, filename_no_z,
                                           &model->n_objects,
                                           &model->object_list,
-                                          &Default_marker_colour );
+                                          &graphics->three_d.
+                                               default_marker_colour,
+                                          graphics->three_d.
+                                               default_marker_size );
         }
         else if( string_ends_in(filename_no_z,".cnt") )
         {

@@ -260,6 +260,8 @@ START_GLOBALS
 
     DEF_GLOBAL( Max_voxel_scan_distance, Real, 0.5 )
     DEF_GLOBAL( Max_parametric_scan_distance, Real, 0.05 )
+    DEF_GLOBAL( Scanned_polygons_label, int, 1 )
+    DEF_GLOBAL( Max_polygon_scan_distance, Real, 2.0 )
 
     DEF_GLOBAL( Initial_atlas_opacity, Real, 0.5 )
     DEF_GLOBAL( Initial_atlas_transparent_threshold, int, 230 )

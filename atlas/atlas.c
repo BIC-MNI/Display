@@ -33,7 +33,7 @@ private  Status  input_atlas( atlas, filename )
     String   *image_filenames, image_filename;
     char     axis_letter;
     Real     mm_position;
-    int      i, axis_index;
+    int      pixel_index, page_index, axis_index;
     void     extract_directory();
     String   atlas_directory;
 
@@ -64,13 +64,14 @@ private  Status  input_atlas( atlas, filename )
 
             if( status == OK )
             {
-                for_less( i, 0, atlas->n_pixel_maps )
+                for_less( pixel_index, 0, atlas->n_pixel_maps )
                 {
-                    if( strcmp( image_filenames[i], image_filename ) == 0 )
+                    if( strcmp( image_filenames[pixel_index], image_filename )
+                                == 0 )
                         break;
                 }
 
-                if( i == atlas->n_pixel_maps )
+                if( pixel_index == atlas->n_pixel_maps )
                 {
                     SET_ARRAY_SIZE( status, image_filenames,
                                     atlas->n_pixel_maps, atlas->n_pixel_maps+1,
@@ -85,7 +86,14 @@ private  Status  input_atlas( atlas, filename )
                     ++atlas->n_pixel_maps;
                 }
 
-                if( status == OK )
+                for_less( page_index, 0, atlas->n_pages )
+                {
+                    if( atlas->pages[page_index].axis == axis_index &&
+                        atlas->pages[page_index].axis_position == mm_position )
+                        break;
+                }
+
+                if( status == OK && page_index == atlas->n_pages )
                 {
                     SET_ARRAY_SIZE( status, atlas->pages,
                                     atlas->n_pages, atlas->n_pages+1,
@@ -93,12 +101,13 @@ private  Status  input_atlas( atlas, filename )
                     atlas->pages[atlas->n_pages].axis = axis_index;
                     atlas->pages[atlas->n_pages].axis_position = mm_position;
                     atlas->pages[atlas->n_pages].n_resolutions = 0;
-                    ADD_ELEMENT_TO_ARRAY( status,
-                          atlas->pages[atlas->n_pages].n_resolutions,
-                          atlas->pages[atlas->n_pages].pixel_map_indices,
-                          i, DEFAULT_CHUNK_SIZE );
                     ++atlas->n_pages;
                 }
+
+                ADD_ELEMENT_TO_ARRAY( status,
+                      atlas->pages[page_index].n_resolutions,
+                      atlas->pages[page_index].pixel_map_indices,
+                      pixel_index, DEFAULT_CHUNK_SIZE );
             }
         }
     }
@@ -118,6 +127,7 @@ private  Status  input_atlas( atlas, filename )
 }
 
 private  Status  input_pixel_map( default_directory, image_filename, pixels )
+    char           default_directory[];
     char           image_filename[];
     pixels_struct  *pixels;
 {

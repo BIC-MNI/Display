@@ -178,6 +178,7 @@
                        MENU_FUNCTION(fit_surface) \
                        MENU_FUNCTION(create_surface_model) \
                        MENU_FUNCTION(scan_model_to_voxels) \
+                       MENU_FUNCTION(scan_current_polygon_to_volume) \
                        MENU_FUNCTION(set_atlas_on_or_off) \
                        MENU_FUNCTION(set_atlas_opacity) \
                        MENU_FUNCTION(set_atlas_transparent_threshold) \
