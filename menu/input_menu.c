@@ -17,6 +17,8 @@
                        MENU_FUNCTION(toggle_lights) \
                        MENU_FUNCTION(toggle_two_sided) \
                        MENU_FUNCTION(toggle_backfacing) \
+                       MENU_FUNCTION(toggle_line_curve_flag) \
+                       MENU_FUNCTION(set_n_curve_segments) \
                        MENU_FUNCTION(make_all_invisible) \
                        MENU_FUNCTION(make_all_visible) \
                        MENU_FUNCTION(advance_visible) \
