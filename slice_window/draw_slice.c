@@ -1,78 +1,273 @@
 
 #include  <def_graphics.h>
+#include  <def_globals.h>
+#include  <def_stdio.h>
 
-public  void  draw_slice( graphics, axis_index, x_pixel_start, y_pixel_start,
-                          x_pixel_end, y_pixel_end, voxel_indices )
+#define  DIVIDER_INDEX      0
+#define  X_SLICE_INDEX      1
+#define  Y_SLICE_INDEX      2
+#define  Z_SLICE_INDEX      3
+#define  X_TEXT_INDEX       4
+#define  Y_TEXT_INDEX       5
+#define  Z_TEXT_INDEX       6
+#define  X_PROBE_INDEX      7
+#define  Y_PROBE_INDEX      8
+#define  Z_PROBE_INDEX      9
+#define  VAL_PROBE_INDEX   10
+
+public  Status  initialize_slice_models( graphics )
     graphics_struct   *graphics;
-    int               axis_index;
-    int               x_pixel_start, y_pixel_start;
-    int               x_pixel_end, y_pixel_end;
-    int               voxel_indices[N_DIMENSIONS];
 {
-    slice_window_struct  *slice;
-    void                 draw_pixels();
+    Status         status;
+    int            i;
+    Status         create_object();
+    Status         create_lines_object();
+    lines_struct   *lines;
+    object_struct  *object;
+    model_struct   *model;
+    model_struct   *get_graphics_model();
+    Status         add_object_to_model();
+    void           rebuild_slice_models();
 
-    slice = &graphics->slice;
+    model = get_graphics_model( graphics, SLICE_MODEL );
 
-    draw_pixels( graphics, axis_index, slice->volume, voxel_indices,
-                 x_pixel_start, x_pixel_end, y_pixel_start, y_pixel_end,
-                 graphics->slice.slice_views[axis_index].x_scale,
-                 graphics->slice.slice_views[axis_index].y_scale );
+    status = create_lines_object( &object, &Slice_divider_colour,
+                                  4, 2, 4 );
+
+    lines = object->ptr.lines;
+    lines->end_indices[0] = 2;
+    lines->end_indices[1] = 4;
+    lines->indices[0] = 0;
+    lines->indices[1] = 1;
+    lines->indices[2] = 2;
+    lines->indices[3] = 3;
+
+    status = add_object_to_model( model, object );
+
+    status = create_object( &object, PIXELS );
+    status = add_object_to_model( model, object );
+
+    status = create_object( &object, PIXELS );
+    status = add_object_to_model( model, object );
+
+    status = create_object( &object, PIXELS );
+    status = add_object_to_model( model, object );
+
+    for_inclusive( i, X_TEXT_INDEX, VAL_PROBE_INDEX )
+    {
+        status = create_object( &object, TEXT );
+        if( status == OK )
+        {
+            object->ptr.text->colour = Slice_text_colour;
+            status = add_object_to_model( model, object );
+        }
+    }
+
+    return( status );
 }
 
-#define  BLOCK_SIZE  256
+public  void  rebuild_slice_models( graphics )
+    graphics_struct   *graphics;
+{
+    void  rebuild_slice_divider();
+    void  rebuild_slice_pixels();
+    void  rebuild_probe();
 
-private  void  draw_pixels( graphics, axis_index, volume, start_indices,
-                            x_left, x_right, y_bottom, y_top, x_scale, y_scale )
-    graphics_struct  *graphics;
+    rebuild_slice_divider( graphics );
+
+    rebuild_probe( graphics );
+
+    rebuild_slice_pixels( graphics, X_AXIS );
+    rebuild_slice_pixels( graphics, Y_AXIS );
+    rebuild_slice_pixels( graphics, Z_AXIS );
+}
+
+public  void  rebuild_slice_divider( graphics )
+    graphics_struct   *graphics;
+{
+    model_struct   *model;
+    model_struct   *get_graphics_model();
+    Point          *points;
+
+    model = get_graphics_model(graphics,SLICE_MODEL);
+    points = model->object_list[DIVIDER_INDEX]->ptr.lines->points;
+
+    fill_Point( points[0], (Real) graphics->slice.x_split, 0.0, 0.0 );
+    fill_Point( points[1], (Real) graphics->slice.x_split,
+                           (Real) (graphics->window.y_size-1), 0.0 );
+    fill_Point( points[2], 0.0, (Real) graphics->slice.y_split, 0.0 );
+    fill_Point( points[3], (Real) (graphics->window.x_size-1),
+                           (Real) graphics->slice.y_split, 0.0 );
+}
+
+public  void  rebuild_probe( graphics )
+    graphics_struct   *graphics;
+{
+    model_struct   *model;
+    model_struct   *get_graphics_model();
+    Boolean        active;
+    int            x, y, i, x_voxel, y_voxel, z_voxel;
+    text_struct    *text;
+    int            x_pos, y_pos, x_min, x_max, y_min, y_max;
+    void           get_slice_viewport();
+    void           get_mouse_in_pixels();
+
+    get_mouse_in_pixels( graphics, &graphics->mouse_position, &x, &y );
+
+    active = convert_pixel_to_voxel( graphics, x, y, &x_voxel,
+                                     &y_voxel, &z_voxel );
+
+    model = get_graphics_model(graphics,SLICE_MODEL);
+
+    get_slice_viewport( graphics, -1, &x_min, &x_max, &y_min, &y_max );
+
+    for_inclusive( i, X_PROBE_INDEX, VAL_PROBE_INDEX )
+    {
+        x_pos = x_min + Probe_x_pos + (i - X_PROBE_INDEX) * Probe_x_delta;
+        y_pos = y_max - Probe_y_pos - (i - X_PROBE_INDEX) * Probe_y_delta;
+
+        text = model->object_list[i]->ptr.text;
+
+        if( active )
+        {
+            switch( i )
+            {
+            case X_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_x_format, x_voxel );
+                break;
+            case Y_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_y_format, y_voxel );
+                break;
+            case Z_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_z_format, z_voxel );
+                break;
+            case VAL_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_val_format,
+                        (Real) ACCESS_VOLUME_DATA( *graphics->slice.volume,
+                                                   x_voxel, y_voxel, z_voxel) );
+                break;
+            }
+        }
+        else
+        {
+            text->text[0] = (char) 0;
+        }
+
+        fill_Point( text->origin, x_pos, y_pos, 0.0 );
+    }
+}
+
+public  void  rebuild_slice_pixels( graphics, axis_index )
+    graphics_struct   *graphics;
+    int               axis_index;
+{
+    model_struct   *model;
+    model_struct   *get_graphics_model();
+    pixels_struct  *pixels;
+    int            voxel_indices[N_DIMENSIONS];
+    int            x_pixel_start, x_pixel_end;
+    int            y_pixel_start, y_pixel_end;
+    void           get_slice_view();
+    void           render_slice_to_pixels();
+    text_struct    *text;
+    char           *format;
+    int            x_pos, y_pos, x_min, x_max, y_min, y_max;
+    void           get_slice_viewport();
+
+    model = get_graphics_model(graphics,SLICE_MODEL);
+
+    pixels = model->object_list[X_SLICE_INDEX+axis_index]->ptr.pixels;
+
+    get_slice_view( graphics, axis_index,
+                    &x_pixel_start, &y_pixel_start,
+                    &x_pixel_end, &y_pixel_end, voxel_indices );
+
+    render_slice_to_pixels( pixels, axis_index, graphics->slice.volume,
+                   voxel_indices,
+                   x_pixel_start, x_pixel_end, y_pixel_start, y_pixel_end,
+                   graphics->slice.slice_views[axis_index].x_scale,
+                   graphics->slice.slice_views[axis_index].y_scale );
+
+    text = model->object_list[X_TEXT_INDEX+axis_index]->ptr.text;
+
+    switch( axis_index )
+    {
+    case X_AXIS:  format = Slice_index_x_format;  break;
+    case Y_AXIS:  format = Slice_index_y_format;  break;
+    case Z_AXIS:  format = Slice_index_z_format;  break;
+    }
+
+    (void) sprintf( text->text, format,
+                    graphics->slice.slice_views[axis_index].slice_index );
+
+    get_slice_viewport( graphics, axis_index, &x_min, &x_max, &y_min, &y_max );
+
+    x_pos = x_min + (int) Point_x(Slice_index_offset);
+    y_pos = y_min + (int) Point_y(Slice_index_offset);
+
+    fill_Point( text->origin, x_pos, y_pos, 0.0 );
+}
+
+private  void  render_slice_to_pixels( pixels, axis_index, volume,
+                              start_indices,
+                              x_left, x_right, y_bottom, y_top,
+                              x_scale, y_scale )
+    pixels_struct    *pixels;
     int              axis_index;
     volume_struct    *volume;
     int              start_indices[N_DIMENSIONS];
     int              x_left, x_right, y_bottom, y_top;
     Real             x_scale, y_scale;
 {
+    Status          status;
     int             indices[N_DIMENSIONS];
     int             x_index, y_index, x, y;
-    int             x_pixel, y_pixel, x_end_pixel, y_end_pixel, x_size;
+    int             x_size, y_size;
     Pixel_colour    pixel_col;
-    Pixel_colour    pixels[BLOCK_SIZE*BLOCK_SIZE];
-    void            G_write_pixels();
     void            get_voxel_colour();
+    void            get_2d_slice_axes();
 
-    x_index = (axis_index + 1) % N_DIMENSIONS;
-    y_index = (axis_index + 2) % N_DIMENSIONS;
+    status = OK;
+
+    if( pixels->x_min <= pixels->x_max && pixels->y_min <= pixels->y_max )
+    {
+        FREE1( status, pixels->pixels );
+    }
+
+    pixels->x_min = x_left;
+    pixels->x_max = x_right;
+    pixels->y_min = y_bottom;
+    pixels->y_max = y_top;
+
+    x_size = x_right - x_left + 1;
+    y_size = y_top - y_bottom + 1;
+
+    if( status == OK )
+    {
+        if( x_size > 0 && y_size > 0 )
+        {
+            CALLOC1( status, pixels->pixels, x_size * y_size, Pixel_colour );
+        }
+    }
+
+    get_2d_slice_axes( axis_index, &x_index, &y_index );
 
     indices[axis_index] = start_indices[axis_index];
 
-    for( x_pixel = x_left;  x_pixel <= x_right;  x_pixel += BLOCK_SIZE )
+    for_inclusive( x, x_left, x_right )
     {
-        x_end_pixel = MIN( x_pixel + BLOCK_SIZE - 1, x_right );
-        x_size = x_end_pixel - x_pixel + 1;
-        for( y_pixel = y_bottom;  y_pixel <= y_top;  y_pixel += BLOCK_SIZE )
+        indices[x_index] = start_indices[x_index] + x_scale * (x - x_left);
+
+        for_inclusive( y, y_bottom, y_top )
         {
-            y_end_pixel = MIN( y_pixel + BLOCK_SIZE - 1, y_top );
+            indices[y_index] = start_indices[y_index] +
+                               y_scale * (y - y_bottom);
 
-            indices[x_index] = start_indices[x_index] + x_pixel - x_left;
+            get_voxel_colour( volume, indices[0], indices[1],
+                              indices[2], &pixel_col );
 
-            for_inclusive( x, x_pixel, x_end_pixel )
-            {
-                indices[y_index] = start_indices[y_index] + y_pixel - y_bottom;
-                for_inclusive( y, y_pixel, y_end_pixel )
-                {
-                    get_voxel_colour( volume, indices[0], indices[1],
-                                      indices[2], &pixel_col );
-
-                    ACCESS_PIXEL( pixels, x - x_pixel, y - y_pixel,
-                                  x_size ) = pixel_col;
-
-                    ++indices[y_index];
-                }
-                ++indices[x_index];
-            }
-
-            G_write_pixels( &graphics->window,
-                            x_pixel, y_pixel, x_end_pixel, y_end_pixel,
-                            pixels );
+            ACCESS_PIXEL( pixels->pixels, x - x_left, y - y_bottom, x_size ) =
+                 pixel_col;
         }
     }
 }

@@ -8,6 +8,7 @@ public  void  initialize_slice_window_events( graphics )
     DECL_EVENT_FUNCTION( window_size_changed );
     DECL_EVENT_FUNCTION( handle_redraw );
     DECL_EVENT_FUNCTION( start_translate );
+    DECL_EVENT_FUNCTION( update_probe );
     void                 add_action_table_function();
     void                 update_window_size();
     void                 initialize_voxel_selection();
@@ -21,6 +22,10 @@ public  void  initialize_slice_window_events( graphics )
     add_action_table_function( &graphics->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT,
                                start_translate );
+    add_action_table_function( &graphics->action_table, NO_EVENT,
+                               update_probe );
+
+    fill_Point( graphics->prev_mouse_position, 0.0, 0.0, 0.0 );
 
     initialize_voxel_selection( graphics );
 }
@@ -37,6 +42,22 @@ private  void  update_window_size( graphics )
     graphics->slice.y_split = y_size / 2;
 }
 
+private  DEF_EVENT_FUNCTION( update_probe )
+    /* ARGSUSED */
+{
+    void     rebuild_probe();
+    Boolean  mouse_moved();
+
+    if( mouse_moved( graphics ) )
+    {
+        rebuild_probe( graphics );
+
+        graphics->update_required = TRUE;
+    }
+
+    return( OK );
+}
+
 private  DEF_EVENT_FUNCTION( handle_redraw )
     /* ARGSUSED */
 {
@@ -46,7 +67,14 @@ private  DEF_EVENT_FUNCTION( handle_redraw )
 
 private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
 {
+    void  update_window_size();
+    void  rebuild_slice_models();
+
     update_window_size( graphics );
+
+    rebuild_slice_models( graphics );
+
+    graphics->update_required = TRUE;
 
     return( OK );
 }
@@ -109,6 +137,7 @@ private  void  perform_translation( graphics )
     int        axis_index, x1, y1, x2, y2, dx, dy;
     Boolean    find_slice_view_mouse_is_in();
     void       get_mouse_in_pixels();
+    void       rebuild_slice_pixels();
 
     get_mouse_in_pixels( graphics, &graphics->prev_mouse_position, &x1, &y1 );
 
@@ -121,6 +150,8 @@ private  void  perform_translation( graphics )
 
         graphics->slice.slice_views[axis_index].x_offset += dx;
         graphics->slice.slice_views[axis_index].y_offset += dy;
+
+        rebuild_slice_pixels( graphics, axis_index );
     }
 
     graphics->update_required = TRUE;
