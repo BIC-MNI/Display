@@ -25,29 +25,13 @@ typedef  struct
     Real          filter_width;
 } slice_view_struct;
 
-typedef  struct
-{
-    int   voxel_indices[N_DIMENSIONS];
-    int   id;
-} label_struct;
-
 typedef  enum  { FOUR_NEIGHBOURS, EIGHT_NEIGHBOURS } Neighbour_types;
 
 typedef  struct
 {
-    int               n_labels;
-    label_struct      *labels;
     Real              min_threshold;
     Real              max_threshold;
     Neighbour_types   connectivity;
-
-    BOOLEAN           segmenting_started;
-    unsigned char     ***distance_transform;
-    unsigned char     ***cuts;
-    bitlist_3d_struct to_do;
-    int               n_dimensions;
-    int               voxel_pos;
-    int               axis;
 } segmenting_struct;
 
 typedef struct
@@ -77,9 +61,10 @@ typedef  struct
     Volume                 volume;
     Volume                 labels;
 
+    int                    n_labels;
     Colour                 *colour_tables[NUM_LABELS];
     Real                   label_colour_ratio;
-    BOOLEAN                label_colours_used[NUM_LABELS];
+    BOOLEAN                label_colours_set[NUM_LABELS];
     Colour                 label_colours[NUM_LABELS];
     colour_coding_struct   colour_coding;
     colour_bar_struct      colour_bar;
@@ -98,6 +83,9 @@ typedef  struct
     int                    current_paint_label;
     object_struct          *brush_outline;
     slice_undo_struct      undo;
+
+    lines_struct           unscaled_histogram_lines;
+    object_struct          *histogram_object;
 
 } slice_window_struct;
 

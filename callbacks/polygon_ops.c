@@ -414,15 +414,15 @@ public  DEF_MENU_UPDATE(cut_polygon_neighbours )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( set_polygon_line_thickness )   /* ARGSUSED */
 {
-    int               line_thickness;
+    Real              line_thickness;
     polygons_struct   *polygons;
 
     if( get_current_polygons( display, &polygons ) )
     {
         print( "Enter line thickness: " );
-        if( input_int( stdin, &line_thickness ) )
+        if( input_real( stdin, &line_thickness ) )
         {
-            polygons->line_thickness = line_thickness;
+            polygons->line_thickness = (float) line_thickness;
             graphics_models_have_changed( display );
         }
         (void) input_newline( stdin );

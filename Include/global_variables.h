@@ -141,7 +141,7 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_rgb_colour, Colour, BLUE )
     DEF_GLOBAL( Show_cursor_contours, BOOLEAN, FALSE )
     DEF_GLOBAL( Cursor_contour_overlay_flag, BOOLEAN, FALSE )
-    DEF_GLOBAL( Cursor_contour_thickness, int, 3 )
+    DEF_GLOBAL( Cursor_contour_thickness, Real, 3.0 )
     DEF_GLOBAL( Cursor_beep_on_surface, int, 0 )
     DEF_GLOBAL( Cursor_size_factor, Real, 0.05 )
     DEF_GLOBAL( Cursor_axis_size, Real, 50.0 )
@@ -248,7 +248,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Surface_curve_colour, Colour, MAGENTA )
     DEF_GLOBAL( Surface_curve_overlay_flag, BOOLEAN, TRUE )
-    DEF_GLOBAL( Surface_curve_thickness, int, 3 )
+    DEF_GLOBAL( Surface_curve_thickness, Real, 3.0 )
     DEF_GLOBAL( Line_curvature_weight, Real, 0.0 )
     DEF_GLOBAL( Min_surface_curve_curvature, Real, 0.0 )
     DEF_GLOBAL( Max_surface_curve_curvature, Real, 0.0 )
