@@ -48,10 +48,9 @@ dummy.c:
 
 CLEANFILES = dummy.c
 
-
 Display_LDADD = $(display_obj) Graphics/libbicgl.a \
-	-lglut -lGL -lGLU \
-	$(X_LIBS) $(X_PRE_LIBS) -lX11 -lXmu $(X_EXTRA_LIBS) \
+	$(X_LIBS) $(X_PRE_LIBS) \
+	-lglut -lGL -lGLU -lX11 -lXmu $(X_EXTRA_LIBS) \
 	$(MNI_LIBS) $(malloc_LIBS) -lm
 
 Display_DEPENDENCIES = Display.menu $(display_obj)

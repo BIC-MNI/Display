@@ -27,6 +27,17 @@ dnl       released yet as of the time that I write this.  Therefore, I
 dnl       am including it here for the time being
 
 
+dnl The pretty formatter falls into an infinite loop on MacOSX.
+dnl I believe it is due to some oddity of "expr".
+pushdef([AC_HELP_STRING],
+[
+AC_DIVERT_PUSH(AC_DIVERSION_NOTICE)dnl
+# This is from AC_HELP_STRING
+$3="  $1    $2"
+AC_DIVERT_POP()dnl
+])
+
+
 dnl AC_HELP_STRING
 dnl --------------
 dnl
@@ -42,7 +53,7 @@ dnl The resulting string in HELP-STRING is suitable for use in other
 dnl macros that require a help string (e.g. AC_ARG_WITH).
 dnl 
 dnl AC_DEFUN(AC_HELP_STRING,
-pushdef([AC_HELP_STRING],
+pushdef([AC_HELP_STRING_bogus],
 [
 dnl 
 dnl Here is the sample string from the Autoconf manual (Node: External
