@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char surface_extract_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/surface_extract.h,v 1.24 1996-05-17 19:38:03 david Exp $";
+static char surface_extract_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/surface_extract.h,v 1.25 1996-05-23 13:48:24 david Exp $";
 #endif
 
 #include  <bicpl.h>
@@ -61,13 +61,14 @@ typedef  struct
     unsigned_byte                        *voxel_done_flags;
     voxel_queue_struct                   voxels_to_do;
 
-    int                                  starting_voxel[N_DIMENSIONS];
+    int                                  current_voxel[N_DIMENSIONS];
     int                                  min_limits[N_DIMENSIONS];
     int                                  max_limits[N_DIMENSIONS];
     int                                  min_changed_limits[N_DIMENSIONS];
     int                                  max_changed_limits[N_DIMENSIONS];
+    int                                  min_modified[N_DIMENSIONS];
+    int                                  max_modified[N_DIMENSIONS];
     int                                  not_changed_since[N_DIMENSIONS];
-    BOOLEAN                              labels_changed;
 
     polygons_struct                      *polygons;
 } surface_extraction_struct;

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.37 1996-04-19 13:25:00 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.38 1996-05-23 13:48:29 david Exp $";
 #endif
 
 
@@ -339,7 +339,7 @@ public  DEF_MENU_FUNCTION( change_labels_in_range )
 {
     display_struct  *slice_window;
     Status          status;
-    int             src_label, dest_label;
+    int             src_label, dest_label, range_changed[2][N_DIMENSIONS];
     Real            min_threshold, max_threshold;
     Volume          volume;
 
@@ -371,11 +371,14 @@ public  DEF_MENU_FUNCTION( change_labels_in_range )
         {
             modify_labels_in_range( volume, get_label_volume(slice_window),
                                     src_label, dest_label,
-                                    min_threshold, max_threshold );
+                                    min_threshold, max_threshold,
+                                    range_changed );
             delete_slice_undo( &slice_window->slice.undo,
                                get_current_volume_index(slice_window) );
             set_slice_window_all_update( slice_window,
                        get_current_volume_index(slice_window), UPDATE_LABELS );
+            tell_surface_extraction_range_of_labels_changed( display,
+                       get_current_volume_index(slice_window), range_changed );
         }
     }
 

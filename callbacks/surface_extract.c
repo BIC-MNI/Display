@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surface_extract.c,v 1.30 1996-05-17 19:38:07 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surface_extract.c,v 1.31 1996-05-23 13:48:28 david Exp $";
 #endif
 
 
@@ -226,6 +226,8 @@ public  DEF_MENU_FUNCTION(make_surface_permanent)
 
         *(get_polygons_ptr(object)) =
                   *(display->three_d.surface_extraction.polygons);
+
+        remove_empty_polygons( get_polygons_ptr(object) );
 
         ALLOC( display->three_d.surface_extraction.polygons->colours, 1 );
         display->three_d.surface_extraction.polygons->n_items = 0;

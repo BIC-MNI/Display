@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/polygon_ops.c,v 1.66 1996-05-17 19:38:06 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/polygon_ops.c,v 1.67 1996-05-23 13:48:27 david Exp $";
 #endif
 
  
@@ -523,6 +523,12 @@ public  DEF_MENU_FUNCTION( coalesce_current_polygons )
 
     if( get_current_polygons( display, &polygons ) )
     {
+        if( polygons == display->three_d.surface_extraction.polygons )
+        {
+            print( "Cannot coalesce in progress surface extraction.\n" );
+            return( OK );
+        }
+
         coalesce_object_points( &polygons->n_points, &polygons->points,
                                 polygons->end_indices[polygons->n_items-1],
                                 polygons->indices );
@@ -556,6 +562,12 @@ public  DEF_MENU_FUNCTION( separate_current_polygons )
 
     if( get_current_polygons( display, &polygons ) )
     {
+        if( polygons == display->three_d.surface_extraction.polygons )
+        {
+            print( "Cannot separate in progress surface extraction.\n" );
+            return( OK );
+        }
+
         separate_object_points( &polygons->n_points, &polygons->points,
                                 polygons->end_indices[polygons->n_items-1],
                                 polygons->indices );

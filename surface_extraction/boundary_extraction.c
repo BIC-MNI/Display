@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.23 1996-05-17 19:38:18 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.24 1996-05-23 13:48:34 david Exp $";
 #endif
 
 #include  <display.h>
@@ -250,9 +250,10 @@ private  void  get_inside_flags(
     BOOLEAN                     valid_flags[3][3][3] )
 {
     int              sizes[N_DIMENSIONS];
-    int              dx, dy, dz, tx, ty, tz;
+    int              i, dx, dy, dz, tx, ty, tz;
+    BOOLEAN          *valid_ptr, *inside_ptr;
     Real             values[3][3][3], value, label;
-    Real             labels[3][3][3];
+    Real             labels[3][3][3], *values_ptr, *labels_ptr;
     Real             min_value, max_value, min_label, max_label;
 
     get_volume_sizes( volume, sizes );
@@ -317,21 +318,26 @@ private  void  get_inside_flags(
     min_value = surface_extraction->min_value;
     max_value = surface_extraction->max_value;
 
-    for_inclusive( dx, 0, 2 )
-    for_inclusive( dy, 0, 2 )
-    for_inclusive( dz, 0, 2 )
-    {
-        value = values[dx][dy][dz];
+    values_ptr = &values[0][0][0];
+    valid_ptr = &valid_flags[0][0][0];
+    inside_ptr = &inside_flags[0][0][0];
+    labels_ptr = &labels[0][0][0];
 
-        inside_flags[dx][dy][dz] = (min_value <= value && value <= max_value);
+    for_less( i, 0, 8 )
+    {
+        value = *values_ptr++;
+
+        *inside_ptr++ = (min_value <= value && value <= max_value);
 
         if( label_volume != NULL )
         {
-            label = labels[dx][dy][dz];
-            valid_flags[dx][dy][dz] = label < min_label || label > max_label;
+            label = *labels_ptr++;
+            *valid_ptr = label < min_label || label > max_label;
         }
         else
-            valid_flags[dx][dy][dz] = TRUE;
+            *valid_ptr = TRUE;
+
+        ++valid_ptr;
     }
 }
 

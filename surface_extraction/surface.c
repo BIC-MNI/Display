@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/surface.c,v 1.59 1996-05-21 14:04:05 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/surface.c,v 1.60 1996-05-23 13:48:34 david Exp $";
 #endif
 
 
@@ -88,7 +88,6 @@ public  void  start_surface_extraction_at_point(
     surface_extraction->voxellate_flag = voxellate_flag;
     surface_extraction->min_value = min_value;
     surface_extraction->max_value = max_value;
-    surface_extraction->labels_changed = FALSE;
 
     indices[X] = x;
     indices[Y] = y;
@@ -111,17 +110,19 @@ public  void  start_surface_extraction_at_point(
                                    surface_extraction->min_limits[dim];
         surface_extraction->max_changed_limits[dim] =
                                    surface_extraction->max_limits[dim];
+        surface_extraction->min_modified[dim] = 0;
+        surface_extraction->max_modified[dim] = -1;
         surface_extraction->not_changed_since[dim] =
                                    surface_extraction->min_limits[dim];
 
         if( voxellate_flag )
         {
-            surface_extraction->starting_voxel[dim] =
+            surface_extraction->current_voxel[dim] =
                                     surface_extraction->min_limits[dim];
         }
         else
         {
-            surface_extraction->starting_voxel[dim] = indices[dim];
+            surface_extraction->current_voxel[dim] = indices[dim];
         }
     }
 
@@ -248,22 +249,14 @@ private  BOOLEAN  find_close_voxel_containing_range(
 public  BOOLEAN  some_voxels_remaining_to_do(
     surface_extraction_struct   *surface_extraction )
 {
-    int       dim;
     BOOLEAN   remaining_to_do;
 
     if( surface_extraction->voxellate_flag )
     {
-        remaining_to_do = TRUE;
-
-        for_less( dim, 0, N_DIMENSIONS )
-        {
-            if( surface_extraction->min_changed_limits[dim] >
-                surface_extraction->max_changed_limits[dim] )
-            {
-                remaining_to_do = FALSE;
-                break;
-            }
-        }
+        remaining_to_do = surface_extraction->min_changed_limits[X] <=
+                          surface_extraction->max_changed_limits[X] ||
+                          surface_extraction->min_modified[X] <=
+                          surface_extraction->max_modified[X];
     }
     else
         remaining_to_do = voxels_remaining( &surface_extraction->voxels_to_do );
@@ -271,11 +264,65 @@ public  BOOLEAN  some_voxels_remaining_to_do(
     return( remaining_to_do );
 }
 
+private  void  update_changed_limits(
+    surface_extraction_struct  *ext )
+{
+    int   dim, min_range[N_DIMENSIONS], max_range[N_DIMENSIONS];
+
+    if( ext->min_modified[X] > ext->max_modified[X] )
+        return;
+
+    for_less( dim, 0, N_DIMENSIONS )
+    {
+        min_range[dim] = MAX( ext->min_limits[dim], ext->min_modified[dim]-1 );
+        max_range[dim] = MIN( ext->max_limits[dim], ext->max_modified[dim]+1 );
+    }
+
+    if( ext->min_changed_limits[X] > ext->max_changed_limits[X] )
+    {
+        for_less( dim, 0, N_DIMENSIONS )
+        {
+            ext->min_changed_limits[dim] = min_range[dim];
+            ext->max_changed_limits[dim] = max_range[dim];
+            ext->not_changed_since[dim] = min_range[dim];
+            ext->current_voxel[dim] = min_range[dim];
+        }
+    }
+    else
+    {
+        if( min_range[X] <= ext->current_voxel[X] )
+        {
+            if( max_range[X] >= ext->current_voxel[X] )
+            {
+                for_less( dim, 0, N_DIMENSIONS )
+                    ext->not_changed_since[dim] = ext->current_voxel[dim];
+            }
+            else if( max_range[X] >= ext->not_changed_since[X] )
+            {
+                ext->not_changed_since[X] = max_range[X]+1;
+                for_less( dim, 1, N_DIMENSIONS )
+                    ext->not_changed_since[dim] = ext->min_modified[dim];
+            }
+        }
+
+        for_less( dim, 0, N_DIMENSIONS )
+        {
+            if( min_range[dim] < ext->min_changed_limits[dim] )
+                ext->min_changed_limits[dim] = min_range[dim];
+            if( max_range[dim] > ext->max_changed_limits[dim] )
+                ext->max_changed_limits[dim] = max_range[dim];
+        }
+    }
+
+    ext->min_modified[X] = 0;
+    ext->max_modified[X] = -1;
+}
+
 public  BOOLEAN  extract_more_surface(
     display_struct    *display )
 {
     int                         dim, n_voxels_done, sizes[N_DIMENSIONS];
-    int                         voxel_index[N_DIMENSIONS];
+    int                         voxel_index[N_DIMENSIONS], last_changed_dim;
     surface_extraction_struct   *surface_extraction;
     Volume                      volume, label_volume;
     Real                        stop_time;
@@ -290,19 +337,12 @@ public  BOOLEAN  extract_more_surface(
     label_volume = surface_extraction->label_volume;
     voxellate_flag = surface_extraction->voxellate_flag;
 
+    if( voxellate_flag )
+        update_changed_limits( surface_extraction );
+
     get_volume_sizes( volume, sizes );
 
     stop_time = current_realtime_seconds() + Max_seconds_per_voxel_update;
-
-    if( surface_extraction->labels_changed )
-    {
-        surface_extraction->labels_changed = FALSE;
-        for_less( dim, 0, N_DIMENSIONS )
-        {
-            surface_extraction->not_changed_since[dim] =
-                                surface_extraction->starting_voxel[dim];
-        }
-    }
 
     while( (n_voxels_done < Min_voxels_per_update ||
            (n_voxels_done < Max_voxels_per_update &&
@@ -311,26 +351,28 @@ public  BOOLEAN  extract_more_surface(
     {
         if( voxellate_flag )
         {
-            voxel_index[X] = surface_extraction->starting_voxel[X];
-            voxel_index[Y] = surface_extraction->starting_voxel[Y];
-            voxel_index[Z] = surface_extraction->starting_voxel[Z];
+            voxel_index[X] = surface_extraction->current_voxel[X];
+            voxel_index[Y] = surface_extraction->current_voxel[Y];
+            voxel_index[Z] = surface_extraction->current_voxel[Z];
             dim = N_DIMENSIONS-1;
             while( dim >= 0 )
             {
-                ++surface_extraction->starting_voxel[dim];
-                if( surface_extraction->starting_voxel[dim] <=
+                ++surface_extraction->current_voxel[dim];
+                if( surface_extraction->current_voxel[dim] <=
                     surface_extraction->max_changed_limits[dim] )
                     break;
 
-                surface_extraction->starting_voxel[dim] =
+                surface_extraction->current_voxel[dim] =
                                  surface_extraction->min_changed_limits[dim];
 
                 --dim;
             }
 
+            last_changed_dim = dim;
+
             for_less( dim, 0, N_DIMENSIONS )
             {
-                if( surface_extraction->starting_voxel[dim] !=
+                if( surface_extraction->current_voxel[dim] !=
                     surface_extraction->not_changed_since[dim] )
                     break;
             }
@@ -342,6 +384,40 @@ public  BOOLEAN  extract_more_surface(
                     surface_extraction->min_changed_limits[dim] = 0;
                     surface_extraction->max_changed_limits[dim] = -1;
                 }
+            }
+            else if( last_changed_dim < 0 &&
+                     surface_extraction->not_changed_since[X] <
+                     surface_extraction->max_changed_limits[X] )
+            {
+                surface_extraction->max_changed_limits[X] =
+                                surface_extraction->not_changed_since[X];
+
+                if( surface_extraction->not_changed_since[Y] !=
+                    surface_extraction->min_changed_limits[Y] ||
+                    surface_extraction->not_changed_since[Z] !=
+                    surface_extraction->min_changed_limits[Z] )
+                {
+                    ++surface_extraction->max_changed_limits[X];
+                }
+
+                for_less( dim, 0, N_DIMENSIONS )
+                {
+                    surface_extraction->not_changed_since[dim] =
+                                surface_extraction->min_changed_limits[dim];
+                }
+            }
+            else if( last_changed_dim == 0 &&
+                     surface_extraction->current_voxel[X] ==
+                     surface_extraction->min_changed_limits[X]+1 &&
+                     surface_extraction->not_changed_since[X] ==
+                     surface_extraction->min_changed_limits[X] &&
+                     surface_extraction->not_changed_since[Y] ==
+                     surface_extraction->min_changed_limits[Y] &&
+                     surface_extraction->not_changed_since[Z] ==
+                     surface_extraction->min_changed_limits[Z] )
+            {
+                ++surface_extraction->min_changed_limits[X];
+                ++surface_extraction->not_changed_since[X];
             }
         }
         else
@@ -408,42 +484,23 @@ public  void  tell_surface_extraction_range_of_labels_changed(
     if( surface_extraction->volume == label_volume ||
         surface_extraction->label_volume == label_volume )
     {
-        surface_extraction->labels_changed = TRUE;
-
-        for_less( dim, 0, N_DIMENSIONS )
-        {
-            if( range[0][dim] <= surface_extraction->min_limits[dim] )
-                range[0][dim] = surface_extraction->min_limits[dim]+1;
-            if( range[1][dim] >= surface_extraction->max_limits[dim] )
-                range[1][dim] = surface_extraction->max_limits[dim]-1;
-        }
-
-        if( surface_extraction->min_changed_limits[X] >
-            surface_extraction->max_changed_limits[X] )
+        if( surface_extraction->min_modified[X] >
+            surface_extraction->max_modified[X] )
         {
             for_less( dim, 0, N_DIMENSIONS )
             {
-                surface_extraction->min_changed_limits[dim] = range[0][dim]-1;
-                surface_extraction->max_changed_limits[dim] = range[1][dim]+1;
-                surface_extraction->starting_voxel[dim] = range[0][dim]-1;
+                surface_extraction->min_modified[dim] = range[0][dim];
+                surface_extraction->max_modified[dim] = range[1][dim];
             }
         }
         else
         {
             for_less( dim, 0, N_DIMENSIONS )
             {
-                if( range[0][dim] <=
-                               surface_extraction->min_changed_limits[dim] )
-                {
-                    surface_extraction->min_changed_limits[dim] =
-                               range[0][dim]-1;
-                }
-                if( range[1][dim] >=
-                               surface_extraction->max_changed_limits[dim] )
-                {
-                    surface_extraction->max_changed_limits[dim] =
-                               range[1][dim]+1;
-                }
+                if( range[0][dim] < surface_extraction->min_modified[dim] )
+                    surface_extraction->min_modified[dim] = range[0][dim];
+                if( range[1][dim] > surface_extraction->max_modified[dim] )
+                    surface_extraction->max_modified[dim] = range[1][dim];
             }
         }
     }
@@ -604,4 +661,78 @@ private  void  delete_edge_points_no_longer_needed(
             }
         }
     }
+}
+
+public  void  remove_empty_polygons(
+    polygons_struct  *polygons )
+{
+    int    new_n_polys, new_indices, size, v, poly, p1, p2, old_indices;
+    int    *new_point_index, new_n_points, p;
+
+    new_n_polys = 0;
+    new_indices = 0;
+    old_indices = 0;
+
+    /*--- remove any polygons that have less than 3 vertices, or all vertices
+          are the same */
+
+    for_less( poly, 0, polygons->n_items )
+    {
+        size = GET_OBJECT_SIZE( *polygons, poly );
+
+        for_less( v, 0, size-1 )
+        {
+            p1 = polygons->indices[old_indices+v];
+            p2 = polygons->indices[old_indices+v+1];
+            if( p1 != p2 )
+                break;
+        }
+
+        /*--- if not degenerate polygon, keep it in the set */
+
+        if( size >= 3 || v < size-1 )
+        {
+            for_less( v, 0, size )
+            {
+                polygons->indices[new_indices+v] =
+                              polygons->indices[old_indices+v];
+            }
+
+            new_indices += size;
+            polygons->end_indices[new_n_polys] = new_indices;
+            ++new_n_polys;
+        }
+
+        old_indices += size;
+    }
+
+    polygons->n_items = new_n_polys;
+
+    /*--- remove any unused vertices */
+
+    ALLOC( new_point_index, polygons->n_points );
+    for_less( p, 0, polygons->n_points )
+        new_point_index[p] = FALSE;
+
+    for_less( v, 0, new_indices )
+        new_point_index[polygons->indices[v]] = TRUE;
+
+    new_n_points = 0;
+    for_less( p, 0, polygons->n_points )
+    {
+        if( new_point_index[p] )
+        {
+            new_point_index[p] = new_n_points;
+            polygons->points[new_n_points] = polygons->points[p];
+            polygons->normals[new_n_points] = polygons->normals[p];
+            ++new_n_points;
+        }
+    }
+
+    for_less( v, 0, new_indices )
+        polygons->indices[v] = new_point_index[polygons->indices[v]];
+
+    polygons->n_points = new_n_points;
+
+    FREE( new_point_index );
 }

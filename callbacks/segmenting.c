@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.51 1996-05-17 19:38:07 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.52 1996-05-23 13:48:28 david Exp $";
 #endif
 
 
@@ -149,6 +149,7 @@ public  Status  input_label_volume_file(
     display_struct   *display,
     STRING           filename )
 {
+    int              range[2][N_DIMENSIONS];
     Status           status;
     display_struct   *slice_window;
 
@@ -172,6 +173,14 @@ public  Status  input_label_volume_file(
 
         set_slice_window_all_update( slice_window,
                      get_current_volume_index(slice_window), UPDATE_LABELS );
+
+        range[0][X] = 0;
+        range[0][Y] = 0;
+        range[0][Z] = 0;
+        get_volume_sizes( get_volume(slice_window), range[1] );
+        tell_surface_extraction_range_of_labels_changed( display, 
+                              get_current_volume_index(slice_window),
+                              range );
     }
 
     return( status );
@@ -581,6 +590,7 @@ private  void   set_connected_labels(
 public  DEF_MENU_FUNCTION(label_connected_3d)
 {
     Real             voxel[MAX_DIMENSIONS];
+    int              range_changed[2][N_DIMENSIONS];
     int              view_index, int_voxel[MAX_DIMENSIONS];
     int              label_under_mouse, desired_label, volume_index;
     display_struct   *slice_window;
@@ -608,13 +618,17 @@ public  DEF_MENU_FUNCTION(label_connected_3d)
                                label_under_mouse, label_under_mouse,
                                desired_label,
                                slice_window->slice.segmenting.min_threshold,
-                               slice_window->slice.segmenting.max_threshold );
+                               slice_window->slice.segmenting.max_threshold,
+                               range_changed );
 
         delete_slice_undo( &slice_window->slice.undo, volume_index );
 
         print( "Done\n" );
 
         set_slice_window_all_update( slice_window, volume_index, UPDATE_LABELS);
+
+        tell_surface_extraction_range_of_labels_changed( display,
+                                               volume_index, range_changed );
     }
 
     return( OK );
@@ -632,6 +646,7 @@ public  DEF_MENU_UPDATE(label_connected_3d )
 public  DEF_MENU_FUNCTION(dilate_labels)
 {
     int              min_outside_label, max_outside_label;
+    int              range_changed[2][N_DIMENSIONS];
     Volume           volume;
     display_struct   *slice_window;
 
@@ -653,7 +668,8 @@ public  DEF_MENU_FUNCTION(dilate_labels)
                                   slice_window->slice.segmenting.min_threshold,
                                   slice_window->slice.segmenting.max_threshold,
                                   (Real) get_current_paint_label(display),
-                                  slice_window->slice.segmenting.connectivity );
+                                  slice_window->slice.segmenting.connectivity,
+                                  range_changed );
 
             delete_slice_undo( &slice_window->slice.undo,
                                get_current_volume_index(slice_window) );
@@ -662,6 +678,9 @@ public  DEF_MENU_FUNCTION(dilate_labels)
 
             set_slice_window_all_update( slice_window,
                      get_current_volume_index(slice_window), UPDATE_LABELS );
+
+            tell_surface_extraction_range_of_labels_changed( display,
+                     get_current_volume_index(slice_window), range_changed );
         }
 
         (void) input_newline( stdin );
@@ -682,6 +701,7 @@ public  DEF_MENU_UPDATE(dilate_labels )
 public  DEF_MENU_FUNCTION(erode_labels)
 {
     int              min_outside_label, max_outside_label, set_value;
+    int              range_changed[2][N_DIMENSIONS];
     Volume           volume;
     display_struct   *slice_window;
 
@@ -705,7 +725,8 @@ public  DEF_MENU_FUNCTION(erode_labels)
                                   slice_window->slice.segmenting.min_threshold,
                                   slice_window->slice.segmenting.max_threshold,
                                   (Real) set_value,
-                                  slice_window->slice.segmenting.connectivity );
+                                  slice_window->slice.segmenting.connectivity,
+                                  range_changed );
 
             delete_slice_undo( &slice_window->slice.undo,
                                get_current_volume_index(slice_window) );
@@ -714,6 +735,9 @@ public  DEF_MENU_FUNCTION(erode_labels)
 
             set_slice_window_all_update( slice_window,
                      get_current_volume_index(slice_window), UPDATE_LABELS );
+
+            tell_surface_extraction_range_of_labels_changed( display,
+                     get_current_volume_index(slice_window), range_changed );
         }
 
         (void) input_newline( stdin );
