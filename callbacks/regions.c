@@ -331,10 +331,14 @@ private  void  copy_labels_from_adjacent_slice(
 
         if( int_voxel_is_within_volume( volume, src_index ) )
         {
-            copy_labels_slice_to_slice( get_label_volume(slice_window),
-                                        axis_index,
-                                        src_index[axis_index],
-                                        dest_index[axis_index] );
+            copy_labels_slice_to_slice(
+                         volume,
+                         get_label_volume(slice_window),
+                         axis_index,
+                         src_index[axis_index],
+                         dest_index[axis_index],
+                         slice_window->slice.segmenting.min_threshold,
+                         slice_window->slice.segmenting.max_threshold );
 
             set_slice_window_all_update( slice_window );
         }

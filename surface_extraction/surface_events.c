@@ -24,7 +24,7 @@ private  DEF_EVENT_FUNCTION( add_to_surface )    /* ARGSUSED */
     {
         extract_more_surface( display );
 
-        set_update_required( display, NORMAL_PLANES );
+        graphics_models_have_changed( display );
 
         if( Display_surface_in_slices )
         {

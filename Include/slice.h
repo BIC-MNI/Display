@@ -41,9 +41,9 @@ typedef  struct
     Real              max_threshold;
     Neighbour_types   connectivity;
 
-    BOOLEAN           volumes_alloced;
-    Volume            distance_transform;
-    Volume            cuts;
+    BOOLEAN           segmenting_started;
+    unsigned char     ***distance_transform;
+    unsigned char     ***cuts;
     bitlist_3d_struct to_do;
     int               n_dimensions;
     int               voxel_pos;

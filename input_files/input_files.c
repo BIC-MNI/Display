@@ -81,7 +81,12 @@ public  Status  load_graphics_file(
 
         while( get_next_object_traverse(&object_traverse,&current_object) )
         {
-            if( current_object->object_type == MARKER )
+            if( current_object != object &&
+                current_object->object_type == MODEL )
+            {
+                initialize_model_info( get_model_ptr(current_object) );
+            }
+            else if( current_object->object_type == MARKER )
             {
                 markers_present = TRUE;
             }

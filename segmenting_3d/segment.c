@@ -86,6 +86,20 @@ private  void   set_to_do_list(
                         z - min_range[Z], TRUE );
 }
 
+private  void   set_to_do_list_neighbours_no_check(
+    int                 min_range[],
+    bitlist_3d_struct   *to_do,
+    int                 x,
+    int                 y,
+    int                 z )
+{
+    int   i, nx, ny, nz;
+
+    FOR_LOOP_NEIGHBOURS( i, x, y, z, nx, ny, nz )
+        set_to_do_list( min_range, to_do, nx, ny, nz );
+    }
+}
+
 private  void   set_to_do_list_neighbours(
     int                 min_range[],
     int                 max_range[],
@@ -125,6 +139,8 @@ private  void   delete_to_do_list(
     delete_bitlist_3d( to_do );
 }
 
+#define  INVALID_DIST   255
+
 private  unsigned char  ***make_distance_transform(
     Volume    volume,
     int       n_dimensions,
@@ -134,14 +150,19 @@ private  unsigned char  ***make_distance_transform(
     Real      min_threshold,
     Real      max_threshold )
 {
-    int                 i, x, y, z, neigh[MAX_DIMENSIONS];
+    int                 i, x, y, z, nx, ny, nz, *neigh[MAX_DIMENSIONS];
     int                 iteration;
     Real                value;
-    int                 this_dist, dist, min_neighbour, new_value;
-    BOOLEAN             changed, first;
+    int                 this_dist, dist, new_value;
+    BOOLEAN             changed, found;
+    BOOLEAN             x_okay, y_okay, away_from_boundary;
     unsigned char       ***distance[2];
     int                 which;
     bitlist_3d_struct   to_do[2];
+
+    neigh[X] = &nx;
+    neigh[Y] = &ny;
+    neigh[Z] = &nz;
 
     ALLOC3D( distance[0], max_range[X]+1, max_range[Y]+1, max_range[Z]+1 );
     ALLOC3D( distance[1], max_range[X]+1, max_range[Y]+1, max_range[Z]+1 );
@@ -157,8 +178,14 @@ private  unsigned char  ***make_distance_transform(
         {
             for_inclusive( z, min_range[Z], max_range[Z] )
             {
-                distance[which][x][y][z] = 0;
-                set_to_do_list( min_range, &to_do[which], x, y, z );
+                GET_VALUE_3D( value, volume, x, y, z );
+                if( min_threshold <= value && value <= max_threshold )
+                {
+                    set_to_do_list( min_range, &to_do[which], x, y, z );
+                    distance[which][x][y][z] = INVALID_DIST;
+                }
+                else
+                    distance[which][x][y][z] = 0;
             }
         }
     }
@@ -172,69 +199,57 @@ private  unsigned char  ***make_distance_transform(
         changed = FALSE;
         for_inclusive( x, min_range[X], max_range[X] )
         {
+            x_okay = x > min_range[X] && x < max_range[X];
             for_inclusive( y, min_range[Y], max_range[Y] )
             {
+                y_okay = x_okay && y > min_range[Y] && y < max_range[Y];
                 for_inclusive( z, min_range[Z], max_range[Z] )
                 {
                     this_dist = distance[which][x][y][z];
-                    if( !must_do_voxel( min_range, &to_do[which], x, y, z ) )
+                    if( this_dist != INVALID_DIST ||
+                        !must_do_voxel( min_range, &to_do[which], x, y, z ) )
                     {
                         distance[1-which][x][y][z] = this_dist;
                         continue;
                     }
 
-                    GET_VALUE_3D( value, volume, x, y, z );
-                    if( value < min_threshold || value > max_threshold ||
-                        this_dist != 0 )
-                    {
-                        distance[1-which][x][y][z] = this_dist;
-                        continue;
-                    }
+                    away_from_boundary = y_okay &&
+                                         z > min_range[Z] && z < max_range[Z];
 
-                    first = TRUE;
-                    min_neighbour = 0;
-                    FOR_LOOP_NEIGHBOURS( i, x, y, z,
-                                         neigh[X], neigh[Y], neigh[Z] )
+                    found = FALSE;
+                    FOR_LOOP_NEIGHBOURS( i, x, y, z, nx, ny, nz )
                         if( n_dimensions == 2 &&
-                            (neigh[axis] < min_range[axis] ||
-                             neigh[axis] > max_range[axis]) )
+                            (*(neigh[axis]) < min_range[axis] ||
+                             *(neigh[axis]) > max_range[axis]) )
                             continue;
 
-                        if( neigh[X] < min_range[X] ||
-                            neigh[X] > max_range[X] ||
-                            neigh[Y] < min_range[Y] ||
-                            neigh[Y] > max_range[Y] ||
-                            neigh[Z] < min_range[Z] ||
-                            neigh[Z] > max_range[Z] )
+                        if( !away_from_boundary &&
+                            (nx < min_range[X] || nx > max_range[X] ||
+                             ny < min_range[Y] || ny > max_range[Y] ||
+                             nz < min_range[Z] || nz > max_range[Z]) )
                         {
-                            min_neighbour = 0;
-                            first = FALSE;
-                            break;
+                            dist = INVALID_DIST;
                         }
                         else
+                            dist =distance[which][nx][ny][nz];
+
+                        if( dist == iteration-1 )
                         {
-                            GET_VALUE_3D( value, volume,
-                                          neigh[X], neigh[Y], neigh[Z] );
-                            dist =distance[which][neigh[X]][neigh[Y]][neigh[Z]];
-                            if( dist == 0 && min_threshold <= value &&
-                                value <= max_threshold )
-                                continue;
-                            if( first || dist < min_neighbour )
-                            {
-                                min_neighbour = dist;
-                                first = FALSE;
-                                if( dist == 0 )
-                                    break;
-                            }
+                            found = TRUE;
+                            break;
                         }
                     }
 
-                    if( !first && this_dist != min_neighbour + 1 )
+                    if( found )
                     {
-                        new_value = min_neighbour + 1;
+                        new_value = iteration;
                         changed = TRUE;
-                        set_to_do_list_neighbours( min_range, max_range,
-                                                   &to_do[1-which], x, y, z );
+                        if( away_from_boundary )
+                            set_to_do_list_neighbours_no_check( min_range,
+                                                    &to_do[1-which], x, y, z );
+                        else
+                            set_to_do_list_neighbours( min_range, max_range,
+                                                  &to_do[1-which], x, y, z );
                     }
                     else
                         new_value = this_dist;
@@ -418,6 +433,7 @@ public  BOOLEAN  expand_labels_3d(
     int                neigh_dist, neigh_cut;
     int                best_label, neigh_label, best_cut;
     int                new_cut;
+    BOOLEAN            x_okay, y_okay, away_from_boundary;
     BOOLEAN            changed, better, user_set_it;
     Classes            class, new_class, neigh_class, best_class;
     unsigned char      ***new_cuts, ***new_labels;
@@ -442,10 +458,15 @@ public  BOOLEAN  expand_labels_3d(
 
     for_inclusive( x, min_range[X], max_range[X] )
     {
+        x_okay = x > min_range[X] && x < max_range[X];
         for_inclusive( y, min_range[Y], max_range[Y] )
         {
+            y_okay = x_okay && y > min_range[Y] && y < max_range[Y];
             for_inclusive( z, min_range[Z], max_range[Z] )
             {
+                away_from_boundary = y_okay &&
+                                     z > min_range[Z] && z < max_range[Z];
+
                 GET_VOXEL_3D( label, label_volume, x, y, z );
                 user_set_it = FALSE;
                 if( (label & USER_SET_BIT) != 0 )
@@ -459,23 +480,28 @@ public  BOOLEAN  expand_labels_3d(
                 best_cut = cut;
                 best_class = class;
 
-                if( must_do_voxel( min_range, to_do, x, y, z ) &&
-                    dist != 0 && !user_set_it )
+                if( dist != 0 && !user_set_it &&
+                    must_do_voxel( min_range, to_do, x, y, z ) )
                 {
                     FOR_LOOP_NEIGHBOURS( i, x, y, z, nx, ny, nz )
-                        if( nx >= min_range[X] && nx <= max_range[X] &&
+                        if( away_from_boundary ||
+                            nx >= min_range[X] && nx <= max_range[X] &&
                             ny >= min_range[Y] && ny <= max_range[Y] &&
                             nz >= min_range[Z] && nz <= max_range[Z] )
                         {
                             neigh_dist = distance_transform[nx][ny][nz];
 
+                            if( neigh_dist == 0 )
+                                continue;
+
                             GET_VOXEL_3D( neigh_label, label_volume,
                                           nx, ny, nz );
+
+                            if( neigh_label == 0 )
+                                continue;
+
                             if( (neigh_label & USER_SET_BIT) != 0 )
                                 neigh_label -= USER_SET_BIT;
-
-                            if( neigh_dist == 0 || neigh_label == 0 )
-                                continue;
 
                             neigh_cut = get_cut_class( cuts[nx][ny][nz],
                                                        &neigh_class );
@@ -489,11 +515,9 @@ public  BOOLEAN  expand_labels_3d(
                             if( new_class < best_class )
                                 better = TRUE;
                             else if( new_class == best_class &&
-                                     new_cut > best_cut )
-                                better = TRUE;
-                            else if( new_class == best_class &&
-                                     new_cut == best_cut &&
-                                     neigh_label < best_label )
+                                     (new_cut > best_cut ||
+                                      new_cut == best_cut &&
+                                      neigh_label < best_label) )
                                 better = TRUE;
                             else
                                 better = FALSE;
@@ -514,8 +538,13 @@ public  BOOLEAN  expand_labels_3d(
                 {
                     new_labels[x][y][z] = best_label | USER_SET_BIT;
                     changed = TRUE;
-                    set_to_do_list_neighbours( min_range, max_range,
-                                               &next_to_do, x, y, z );
+                    if( away_from_boundary )
+                        set_to_do_list_neighbours_no_check(
+                                                   min_range,
+                                                   &next_to_do, x, y, z );
+                    else
+                        set_to_do_list_neighbours( min_range, max_range,
+                                                   &next_to_do, x, y, z );
                 }
                 else
                 {

@@ -329,14 +329,18 @@ private  void  paint_labels(
 }
 
 public  void  copy_labels_slice_to_slice(
+    Volume           volume,
     Volume           label_volume,
     int              axis,
     int              src_voxel,
-    int              dest_voxel )
+    int              dest_voxel,
+    Real             min_threshold,
+    Real             max_threshold )
 {
     int   x, y, a1, a2, value;
     int   sizes[N_DIMENSIONS], src_indices[N_DIMENSIONS];
     int   dest_indices[N_DIMENSIONS];
+    Real  volume_value;
 
     get_volume_sizes( label_volume, sizes );
     a1 = (axis + 1) % N_DIMENSIONS;
@@ -355,6 +359,15 @@ public  void  copy_labels_slice_to_slice(
             dest_indices[a2] = y;
 
             value = get_volume_label_data( label_volume, src_indices );
+
+            if( min_threshold < max_threshold )
+            {
+                GET_VALUE_3D( volume_value, volume,
+                            dest_indices[X], dest_indices[Y], dest_indices[Z] );
+                if( volume_value < min_threshold ||
+                    volume_value > max_threshold )
+                    value = 0;
+            }
 
             set_volume_label_data( label_volume, dest_indices, value );
         }

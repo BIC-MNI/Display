@@ -6,10 +6,14 @@ typedef  enum  { DIVIDER_INDEX,
                  SLICE2_INDEX,
                  SLICE3_INDEX,
                  SLICE4_INDEX,
-                 CURSOR1_INDEX,
-                 CURSOR2_INDEX,
-                 CURSOR3_INDEX,
-                 CURSOR4_INDEX,
+                 CURSOR1_INDEX1,
+                 CURSOR1_INDEX2,
+                 CURSOR2_INDEX1,
+                 CURSOR2_INDEX2,
+                 CURSOR3_INDEX1,
+                 CURSOR3_INDEX2,
+                 CURSOR4_INDEX1,
+                 CURSOR4_INDEX2,
                  TEXT1_INDEX,
                  TEXT2_INDEX,
                  TEXT3_INDEX,
@@ -73,29 +77,45 @@ public  void  initialize_slice_models(
 
     for_less( view, 0, N_SLICE_VIEWS )
     {
+        /* --- make inner cursor */
+
         object = create_object( LINES );
         lines = get_lines_ptr( object );
-        initialize_lines( lines, Slice_cursor_colour );
-
-        ALLOC( lines->points, 8 );
-        ALLOC( lines->end_indices, 4 );
-        ALLOC( lines->indices, 8 );
+        initialize_lines( lines, Slice_cursor_colour1 );
 
         lines->n_points = 8;
         lines->n_items = 4;
 
-        lines->end_indices[0] = 2;
-        lines->end_indices[1] = 4;
-        lines->end_indices[2] = 6;
-        lines->end_indices[3] = 8;
-        lines->indices[0] = 0;
-        lines->indices[1] = 1;
-        lines->indices[2] = 2;
-        lines->indices[3] = 3;
-        lines->indices[4] = 4;
-        lines->indices[5] = 5;
-        lines->indices[6] = 6;
-        lines->indices[7] = 7;
+        ALLOC( lines->points, lines->n_points );
+        ALLOC( lines->end_indices, lines->n_items );
+        ALLOC( lines->indices, lines->n_points );
+
+        for_less( i, 0, lines->n_items )
+            lines->end_indices[i] = 2 * i + 2;
+
+        for_less( i, 0, lines->n_points )
+            lines->indices[i] = i;
+
+        add_object_to_model( model, object );
+
+        /* --- make outer cursor */
+
+        object = create_object( LINES );
+        lines = get_lines_ptr( object );
+        initialize_lines( lines, Slice_cursor_colour2 );
+
+        lines->n_points = 16;
+        lines->n_items = 8;
+
+        ALLOC( lines->points, lines->n_points );
+        ALLOC( lines->end_indices, lines->n_items );
+        ALLOC( lines->indices, lines->n_points );
+
+        for_less( i, 0, lines->n_items )
+            lines->end_indices[i] = 2 * i + 2;
+
+        for_less( i, 0, lines->n_points )
+            lines->indices[i] = i;
 
         add_object_to_model( model, object );
     }
@@ -322,7 +342,7 @@ private  void  rebuild_cursor(
     Real           x_left, x_right, y_bottom, y_top, dx, dy;
     Real           x_centre, y_centre;
     Real           tmp_voxel[N_DIMENSIONS];
-    lines_struct   *lines;
+    lines_struct   *lines1, *lines2;
     Real           current_voxel[N_DIMENSIONS];
     int            x_min, x_max, y_min, y_max;
     Real           hor_pixel_start, hor_pixel_end;
@@ -330,7 +350,8 @@ private  void  rebuild_cursor(
 
     model = get_graphics_model(slice_window,SLICE_MODEL);
 
-    lines = get_lines_ptr( model->objects[CURSOR1_INDEX+view_index] );
+    lines1 = get_lines_ptr( model->objects[CURSOR1_INDEX1+2*view_index] );
+    lines2 = get_lines_ptr( model->objects[CURSOR1_INDEX1+2*view_index+1] );
 
     get_current_voxel( slice_window, current_voxel );
 
@@ -406,14 +427,34 @@ private  void  rebuild_cursor(
         y_bottom += dy;
     }
 
-    fill_Point( lines->points[0], x_right + hor_pixel_start, y_centre, 0.0 );
-    fill_Point( lines->points[1], x_right + hor_pixel_end, y_centre, 0.0 );
-    fill_Point( lines->points[2], x_left - hor_pixel_start, y_centre, 0.0 );
-    fill_Point( lines->points[3], x_left - hor_pixel_end, y_centre, 0.0 );
-    fill_Point( lines->points[4], x_centre, y_top + vert_pixel_start, 0.0 );
-    fill_Point( lines->points[5], x_centre, y_top + vert_pixel_end, 0.0 );
-    fill_Point( lines->points[6], x_centre, y_bottom - vert_pixel_start, 0.0 );
-    fill_Point( lines->points[7], x_centre, y_bottom - vert_pixel_end, 0.0 );
+    fill_Point( lines1->points[0], x_right + hor_pixel_start, y_centre, 0.0 );
+    fill_Point( lines1->points[1], x_right + hor_pixel_end, y_centre, 0.0 );
+    fill_Point( lines1->points[2], x_left - hor_pixel_start, y_centre, 0.0 );
+    fill_Point( lines1->points[3], x_left - hor_pixel_end, y_centre, 0.0 );
+    fill_Point( lines1->points[4], x_centre, y_top + vert_pixel_start, 0.0 );
+    fill_Point( lines1->points[5], x_centre, y_top + vert_pixel_end, 0.0 );
+    fill_Point( lines1->points[6], x_centre, y_bottom - vert_pixel_start, 0.0 );
+    fill_Point( lines1->points[7], x_centre, y_bottom - vert_pixel_end, 0.0 );
+
+    fill_Point( lines2->points[0], x_right + hor_pixel_start, y_centre-1.0,0.0);
+    fill_Point( lines2->points[1], x_right + hor_pixel_end, y_centre-1.0, 0.0 );
+    fill_Point( lines2->points[2], x_right + hor_pixel_start, y_centre+1.0,0.0);
+    fill_Point( lines2->points[3], x_right + hor_pixel_end, y_centre+1.0, 0.0 );
+
+    fill_Point( lines2->points[4], x_left - hor_pixel_start, y_centre-1.0, 0.0);
+    fill_Point( lines2->points[5], x_left - hor_pixel_end, y_centre-1.0, 0.0 );
+    fill_Point( lines2->points[6], x_left - hor_pixel_start, y_centre+1.0, 0.0);
+    fill_Point( lines2->points[7], x_left - hor_pixel_end, y_centre+1.0, 0.0 );
+
+    fill_Point( lines2->points[8], x_centre-1.0, y_top + vert_pixel_start, 0.0);
+    fill_Point( lines2->points[9], x_centre-1.0, y_top + vert_pixel_end, 0.0 );
+    fill_Point( lines2->points[10],x_centre+1.0, y_top + vert_pixel_start, 0.0);
+    fill_Point( lines2->points[11],x_centre+1.0, y_top + vert_pixel_end, 0.0 );
+
+    fill_Point( lines2->points[12],x_centre-1.0, y_bottom-vert_pixel_start,0.0);
+    fill_Point( lines2->points[13],x_centre-1.0, y_bottom-vert_pixel_end,0.0);
+    fill_Point( lines2->points[14],x_centre+1.0, y_bottom-vert_pixel_start,0.0);
+    fill_Point( lines2->points[15],x_centre+1.0, y_bottom-vert_pixel_end,0.0);
 }
 
 public  void  rebuild_cursors(

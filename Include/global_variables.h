@@ -169,7 +169,8 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_vert_start_3, Real, 10.0 )
     DEF_GLOBAL( Cursor_vert_end_3, Real, 30.0 )
 
-    DEF_GLOBAL( Slice_cursor_colour, Colour, RED )
+    DEF_GLOBAL( Slice_cursor_colour1, Colour, RED )
+    DEF_GLOBAL( Slice_cursor_colour2, Colour, GREEN )
     DEF_GLOBAL( Cursor_mouse_threshold, Real, 0.0 )
     DEF_GLOBAL( Max_cursor_angle, Real, 20.0 )
     DEF_GLOBAL( Min_cursor_angle_diff, Real, 5.0 )

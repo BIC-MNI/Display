@@ -3,18 +3,18 @@
 public  void  initialize_3d_segmenting(
     display_struct   *slice_window )
 {
-    slice_window->slice.segmenting.volumes_alloced = FALSE;
+    slice_window->slice.segmenting.segmenting_started = FALSE;
 }
 
 public  void  delete_3d_segmenting(
     display_struct   *slice_window )
 {
-    if( slice_window->slice.segmenting.volumes_alloced )
+    if( slice_window->slice.segmenting.segmenting_started )
     {
-        delete_volume( slice_window->slice.segmenting.distance_transform );
-        delete_volume( slice_window->slice.segmenting.cuts );
+        FREE3D( slice_window->slice.segmenting.distance_transform );
+        FREE3D( slice_window->slice.segmenting.cuts );
         delete_bitlist_3d( &slice_window->slice.segmenting.to_do );
-        slice_window->slice.segmenting.volumes_alloced = FALSE;
+        slice_window->slice.segmenting.segmenting_started = FALSE;
     }
 }
 
@@ -26,7 +26,7 @@ public  void  restart_segmenting_3d(
 {
     delete_3d_segmenting( slice_window );
 
-    slice_window->slice.segmenting.volumes_alloced = TRUE;
+    slice_window->slice.segmenting.segmenting_started = TRUE;
     slice_window->slice.segmenting.n_dimensions = n_dimensions;
     slice_window->slice.segmenting.voxel_pos = voxel_pos;
     slice_window->slice.segmenting.axis = axis;
@@ -45,7 +45,7 @@ public  void  restart_segmenting_3d(
 public  void  one_iteration_segmenting(
     display_struct   *slice_window )
 {
-    if( !slice_window->slice.segmenting.volumes_alloced )
+    if( !slice_window->slice.segmenting.segmenting_started )
     {
         print( "No segmenting to do.\n" );
         return;

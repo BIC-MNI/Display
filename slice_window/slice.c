@@ -233,6 +233,7 @@ public  void  initialize_slice_window(
 
     initialize_slice_window_events( slice_window );
     initialize_voxel_labeling( slice_window );
+    initialize_3d_segmenting( slice_window );
 
     for_less( view, 0, N_SLICE_VIEWS )
     {

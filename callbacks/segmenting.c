@@ -92,6 +92,69 @@ private  void  get_min_max(
     (void) input_newline( stdin );
 }
 
+public  DEF_MENU_FUNCTION(load_label_data)   /* ARGSUSED */
+{
+    Status           status;
+    STRING           filename;
+    display_struct   *slice_window;
+
+    status = OK;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        print( "Enter filename to load: " );
+
+        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+        (void) input_newline( stdin );
+
+        if( status == OK )
+            status = load_label_volume( filename,
+                                        get_label_volume(slice_window) );
+
+        print( "Done\n" );
+        set_slice_window_all_update( display->associated[SLICE_WINDOW] );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(load_label_data )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(save_label_data)   /* ARGSUSED */
+{
+    Status           status;
+    STRING           filename;
+    display_struct   *slice_window;
+
+    status = OK;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        print( "Enter filename to save: " );
+
+        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+        (void) input_newline( stdin );
+
+        if( status == OK )
+            status = save_label_volume( filename,
+                                        get_label_volume(slice_window) );
+
+        print( "Done\n" );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(save_label_data )   /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION(save_active_voxels)   /* ARGSUSED */
 {
     FILE             *file;

@@ -159,6 +159,7 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(pick_slice_angle_point) \
                        MENU_FUNCTION(delete_current_object) \
                        MENU_FUNCTION(toggle_display_labels) \
+                       MENU_FUNCTION(calculate_volume) \
                        MENU_FUNCTION(set_paint_x_brush_radius) \
                        MENU_FUNCTION(set_paint_y_brush_radius) \
                        MENU_FUNCTION(set_paint_z_brush_radius) \

@@ -30,6 +30,7 @@ public  void  set_colour_coding_for_new_volume(
     Real             min_value, max_value;
     int              label;
     Volume           volume;
+    Colour           col;
     static Colour    default_colours[] = { RED, GREEN, BLUE, CYAN, MAGENTA,
                                            YELLOW };
 
@@ -50,6 +51,8 @@ public  void  set_colour_coding_for_new_volume(
     for_less( label, 0, SIZEOF_STATIC_ARRAY(default_colours) )
     {
         add_new_label( slice_window, (label+1), default_colours[label] );
+        col = SCALE_COLOUR( default_colours[label], 0.5 );
+        add_new_label( slice_window, (label+1) + 128, col );
     }
 
     get_volume_voxel_range( volume, &min_voxel, &max_voxel );

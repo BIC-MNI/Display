@@ -8,14 +8,14 @@ public  void  initialize_segmenting_3d(
     int       axis,
     Real      min_threshold,
     Real      max_threshold,
-    Volume    *distance_transform,
-    Volume    *cuts,
+    unsigned char      ****distance_transform,
+    unsigned char      ****cuts,
     bitlist_3d_struct  *to_do );
 
 public  BOOLEAN  expand_labels_3d(
-    Volume    label_volume,
-    Volume    distance_transform,
-    Volume    cuts,
+    Volume             label_volume,
+    unsigned char      ***distance_transform,
+    unsigned char      ***cuts,
     bitlist_3d_struct  *to_do,
     int       n_dimensions,
     int       voxel_pos,
@@ -29,7 +29,8 @@ int  main(
 {
     Status               status;
     char                 *input_volume_filename;
-    Volume               volume, label_volume, dist_transform, cuts;
+    Volume               volume, label_volume;
+    unsigned char        ***dist_transform, ***cuts;
     bitlist_3d_struct    to_do;
     int                  iteration;
 
@@ -60,8 +61,6 @@ int  main(
 
     print_volume( "Volume", volume, 0 );
     print_volume( "Labels", label_volume, '0' );
-    print_volume( "Dist", dist_transform, '0' );
-    print_volume( "Cuts", cuts, '0' );
 
     while( expand_labels_3d( label_volume, dist_transform, cuts, &to_do,
                              2, 0, Z ) )
@@ -70,7 +69,6 @@ int  main(
         print( "Done iteration %d\n", iteration );
 
         print_volume( "--- Labels", label_volume, '0' );
-        print_volume( "--- Cuts", cuts, '0' );
     }
 
     print_volume( "Labels", label_volume, '0' );

@@ -168,12 +168,10 @@ public  void  create_model_after_current(
     add_object_to_model( model, new_model );
 }
 
-public  void  initialize_display_model(
+public  void  initialize_model_info(
     model_struct   *model )
 {
     model_info_struct  *model_info;
-
-    initialize_model( model );
 
     ALLOC( model_info, 1 );
 
@@ -183,6 +181,13 @@ public  void  initialize_display_model(
     model_info->bitplanes = NORMAL_PLANES;
     initialize_render( &model_info->render );
     make_identity_transform( &model_info->transform );
+}
+
+public  void  initialize_display_model(
+    model_struct   *model )
+{
+    initialize_model( model );
+    initialize_model_info( model );
 }
 
 public  void  terminate_display_model(
