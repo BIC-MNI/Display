@@ -59,15 +59,25 @@ public  Boolean  intersect_ray_polygons( ray_origin, ray_direction,
     int       i;
     Boolean   intersects;
     Boolean   intersect_ray_polygon();
+    Boolean   intersect_ray_with_bintree();
 
-    intersects = FALSE;
-
-    for_less( i, 0, polygons->n_items )
+    if( polygons->bintree != (bintree_struct *) 0 )
     {
-        if( intersect_ray_polygon( ray_origin, ray_direction,
-                                   dist, polygons, i ) )
+        intersects = intersect_ray_with_bintree( ray_origin, ray_direction,
+                                                 polygons->bintree, polygons,
+                                                 dist );
+    }
+    else
+    {
+        intersects = FALSE;
+
+        for_less( i, 0, polygons->n_items )
         {
-            intersects = TRUE;
+            if( intersect_ray_polygon( ray_origin, ray_direction,
+                                       dist, polygons, i ) )
+            {
+                intersects = TRUE;
+            }
         }
     }
 
