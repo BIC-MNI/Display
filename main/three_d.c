@@ -21,6 +21,7 @@ public  Status  initialize_three_d_window( graphics )
     Status                 initialize_current_object();
     Status                 initialize_surface_extraction();
     Status                 initialize_cursor();
+    Status                 initialize_surface_curve();
     void                   initialize_surface_edit();
     void                   reset_view_parameters();
     three_d_window_struct  *three_d;
@@ -60,14 +61,13 @@ public  Status  initialize_three_d_window( graphics )
     status = initialize_surface_extraction( graphics );
 
     if( status == OK )
-    {
         status = initialize_current_object( &graphics->three_d.current_object );
-    }
 
     if( status == OK )
-    {
         status = initialize_cursor( graphics );
-    }
+
+    if( status == OK )
+        status = initialize_surface_curve( graphics );
 
     return( status );
 }
