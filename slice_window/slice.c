@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.116 1997-08-01 14:47:55 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.117 1998-02-20 15:00:09 david Exp $";
 #endif
 
 
@@ -100,6 +100,7 @@ private  void  initialize_slice_window(
     slice_window->slice.volume_rotation_step = Initial_volume_rotation_step;
     slice_window->slice.volume_translation_step =
                                          Initial_volume_translation_step;
+    slice_window->slice.volume_scale_step = Initial_volume_scale_step;
 
     slice_window->slice.incremental_update_allowed = Initial_incremental_update;
 
@@ -741,13 +742,10 @@ private  BOOLEAN  is_slice_continuing(
 }
 
 private  BOOLEAN  time_is_up(
-    Real    event_time,
     Real    end_time,
     Real    current_time )
 {
-    return( end_time >= 0.0 &&
-            (current_time > end_time ||
-             current_time > event_time && G_events_pending()) );
+    return( end_time >= 0.0 && current_time > end_time );
 }
 
 private  void  render_more_slices(
@@ -762,7 +760,7 @@ private  void  render_more_slices(
     int      view, v, v_index, view_index, which_volume;
     int      slice_is_visible, n_pixels_drawn;
     int      current_update_volume, current_update_view, n_volumes;
-    Real     update_time, end_time, current_time, event_time, prev_time;
+    Real     update_time, end_time, current_time, prev_time;
     Real     time_to_create;
 
     no_viewport_changed = TRUE;
@@ -781,7 +779,6 @@ private  void  render_more_slices(
 
     current_time = current_realtime_seconds();
     end_time = current_time + update_time;
-    event_time = current_time + Slice_event_check_time;
 
     /*--- if currently painting or incremental update not desired, then
           don't interrupt the slice recreation */
@@ -790,7 +787,6 @@ private  void  render_more_slices(
         !slice_window->slice.incremental_update_allowed || update_time <= 0.0 )
     {
         end_time = -1.0;
-        event_time = -1.0;
         incremental_flag = FALSE;
     }
     else
@@ -899,8 +895,7 @@ private  void  render_more_slices(
 
 
                                 if( !finished &&
-                                     time_is_up( event_time, end_time,
-                                                 current_time ) )
+                                     time_is_up( end_time, current_time ) )
                                 {
                                     if( !interrupted )
                                     {

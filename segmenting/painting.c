@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.46 1996-09-24 19:30:42 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.47 1998-02-20 15:00:08 david Exp $";
 #endif
 
 #include  <display.h>
@@ -146,7 +146,7 @@ private  DEF_EVENT_FUNCTION( right_mouse_down )
 
     record_slice_under_mouse( slice_window, volume_index );
 
-    if( is_shift_key_pressed( slice_window ) )
+    if( is_shift_key_pressed() )
         label = slice_window->slice.current_erase_label;
     else
         label = get_current_paint_label( slice_window );
@@ -274,7 +274,7 @@ private  int  update_paint_labels(
 
     if( pixel_mouse_moved(slice_window,&x,&y,&x_prev,&y_prev) )
     {
-        if( is_shift_key_pressed( slice_window ) )
+        if( is_shift_key_pressed() )
             label = slice_window->slice.current_erase_label;
         else
             label = get_current_paint_label( slice_window );

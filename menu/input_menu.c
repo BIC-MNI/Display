@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.138 1997-08-13 13:22:41 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.139 1998-02-20 15:00:07 david Exp $";
 #endif
 
 #include  <display.h>
@@ -296,8 +296,11 @@ MENU_F(rotate_volume_plus_y) \
 MENU_F(rotate_volume_minus_y) \
 MENU_F(rotate_volume_plus_z) \
 MENU_F(rotate_volume_minus_z) \
+MENU_F(magnify_volume) \
+MENU_F(shrink_volume) \
 MENU_F(set_volume_rotation_step) \
 MENU_F(set_volume_translation_step) \
+MENU_F(set_volume_scale_step) \
 MENU_F(save_current_volume_transform)
 
 #define  FUNCTION_LIST  MENU1 MENU2 MENU3 MENU4

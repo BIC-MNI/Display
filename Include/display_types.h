@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/display_types.h,v 1.20 1997-08-01 14:47:45 david Exp $";
+static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/display_types.h,v 1.21 1998-02-20 14:59:58 david Exp $";
 #endif
 
 #include  <graphics.h>
@@ -62,6 +62,29 @@ typedef  struct
 }  render_struct;
 
 struct display_struct;
+
+typedef  enum  {
+                   NO_EVENT,
+                   TERMINATE_INTERACTION_EVENT,
+                   KEY_DOWN_EVENT,
+                   KEY_UP_EVENT,
+                   MOUSE_MOVEMENT_EVENT,
+                   LEFT_MOUSE_DOWN_EVENT,
+                   LEFT_MOUSE_UP_EVENT,
+                   MIDDLE_MOUSE_DOWN_EVENT,
+                   MIDDLE_MOUSE_UP_EVENT,
+                   RIGHT_MOUSE_DOWN_EVENT,
+                   RIGHT_MOUSE_UP_EVENT,
+                   REDRAW_OVERLAY_EVENT,
+                   WINDOW_REDRAW_EVENT,
+                   WINDOW_RESIZE_EVENT,
+                   WINDOW_ICONIZED_EVENT,
+                   WINDOW_DEICONIZED_EVENT,
+                   WINDOW_QUIT_EVENT,
+                   WINDOW_LEAVE_EVENT,
+                   WINDOW_ENTER_EVENT,
+                   N_EVENT_TYPES
+               } Event_types;
 
 typedef  Status  (*event_function_type)( struct display_struct *,
                                          Event_types,

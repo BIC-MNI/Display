@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/three_d.c,v 1.35 1998-02-18 18:47:14 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/three_d.c,v 1.36 1998-02-20 15:00:06 david Exp $";
 #endif
 
 
@@ -56,16 +56,7 @@ public  void  initialize_three_d_window(
     three_d->lights[0].colour = Directional_light_colour;
     three_d->lights[0].direction = Light_direction;
 
-    G_set_ambient_light( display->window, Ambient_light_colour );
-    G_define_light( display->window, 0,
-                    three_d->lights[0].light_type,
-                    three_d->lights[0].colour,
-                    &three_d->lights[0].direction,
-                    &three_d->lights[0].position,
-                    three_d->lights[0].spot_exponent,
-                    three_d->lights[0].spot_angle );
-
-    G_set_light_state( display->window, 0, three_d->lights[0].state );
+    define_lights( display );
 
     fill_Point( three_d->min_limit, 0.0, 0.0, 0.0 );
     fill_Point( three_d->max_limit, 1.0, 1.0, 1.0 );
@@ -92,6 +83,25 @@ public  void  initialize_three_d_window(
     initialize_surface_curve( display );
 
     initialize_volume_cross_section( display );
+}
+
+public  void  define_lights(
+    display_struct   *display )
+{
+    three_d_window_struct  *three_d;
+
+    three_d = &display->three_d;
+
+    G_set_ambient_light( display->window, Ambient_light_colour );
+    G_define_light( display->window, 0,
+                    three_d->lights[0].light_type,
+                    three_d->lights[0].colour,
+                    &three_d->lights[0].direction,
+                    &three_d->lights[0].position,
+                    three_d->lights[0].spot_exponent,
+                    three_d->lights[0].spot_angle );
+
+    G_set_light_state( display->window, 0, three_d->lights[0].state );
 }
 
 private    DEF_EVENT_FUNCTION( handle_resize_three_d );

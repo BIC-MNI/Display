@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice_events.c,v 1.42 1996-04-19 13:25:28 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice_events.c,v 1.43 1998-02-20 15:00:10 david Exp $";
 #endif
 
 #include  <display.h>
@@ -116,7 +116,7 @@ private  DEF_EVENT_FUNCTION( left_mouse_down )
         push_action_table( &display->action_table, NO_EVENT );
         push_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT);
 
-        if( is_shift_key_pressed( display ) )
+        if( is_shift_key_pressed() )
         {
             add_action_table_function( &display->action_table,
                                        NO_EVENT, update_translation );
@@ -197,7 +197,7 @@ private  DEF_EVENT_FUNCTION( middle_mouse_down )
         push_action_table( &display->action_table, NO_EVENT );
         push_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT);
 
-        if( is_shift_key_pressed( display ) )
+        if( is_shift_key_pressed() )
         {
             add_action_table_function( &display->action_table,
                                        NO_EVENT, update_slice_zooming );

@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_menu_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/menu.h,v 1.23 1996-11-25 14:56:08 david Exp $";
+static char display_menu_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/menu.h,v 1.24 1998-02-20 14:59:59 david Exp $";
 #endif
 
 #include  <volume_io.h>
@@ -109,8 +109,6 @@ typedef  struct
     menu_entry_struct    *key_menus[N_CHARACTERS];
     object_struct        *box_objects[N_CHARACTERS];
     object_struct        *text_objects[N_CHARACTERS];
-
-    BOOLEAN              shift_key_down;
 
     object_struct        *menu_name_text;
 

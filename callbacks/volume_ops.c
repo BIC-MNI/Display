@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.107 1996-12-09 20:21:24 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.108 1998-02-20 15:00:02 david Exp $";
 #endif
 
 
@@ -1292,8 +1292,7 @@ public  DEF_MENU_UPDATE(toggle_incremental_slice_update)
 
 public  DEF_MENU_FUNCTION( toggle_shift_key )
 {
-    menu_window->menu.shift_key_down = !menu_window->menu.shift_key_down;
-
+    print( "Obsolete function:  Cannot toggle shift key\n" );
     return( OK );
 }
 
@@ -1301,10 +1300,7 @@ public  DEF_MENU_FUNCTION( toggle_shift_key )
 
 public  DEF_MENU_UPDATE(toggle_shift_key )
 {
-    set_menu_text_boolean( menu_window, menu_entry,
-                           menu_window->menu.shift_key_down, "Up", "Down" );
-
-    return( TRUE );
+    return( FALSE );
 }
 
 /* ARGSUSED */

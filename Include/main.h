@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_main_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/main.h,v 1.17 1997-08-01 14:47:46 david Exp $";
+static char display_main_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/main.h,v 1.18 1998-02-20 14:59:59 david Exp $";
 #endif
 
 #include  <display_types.h>
@@ -90,7 +90,7 @@ typedef  struct  display_struct
     menu_window_struct         menu;
     slice_window_struct        slice;
 
-    window_struct              *window;
+    Gwindow                    window;
     Point                      prev_mouse_position;
     action_table_struct        action_table;
     int                        models_changed_id;

@@ -6,9 +6,8 @@ START_GLOBALS
     DEF_GLOBAL( Progress_threshold, int, 1000 )
 
     DEF_GLOBAL( Maximum_display_time, Real, 0.3 )
-    DEF_GLOBAL( Check_event_time, Real, 0.2 )
-    DEF_GLOBAL( Event_timeout_min, Real, 0.5 )
     DEF_GLOBAL( Min_interval_between_events, Real, 0.01 )
+    DEF_GLOBAL( Min_interval_between_updates, Real, 0.1 )
     DEF_GLOBAL( Max_background_seconds, Real, 0.2 )
     DEF_GLOBAL( Event_timeout_factor, Real, 0.5 )
     DEF_GLOBAL( Size_of_interrupted, int, 250 )
@@ -32,7 +31,6 @@ START_GLOBALS
     DEF_GLOBAL( Initial_slice_update_time, Real, 0.01 )
     DEF_GLOBAL( Initial_total_slice_update_time1, Real, 0.5 )
     DEF_GLOBAL( Initial_total_slice_update_time2, Real, 2.0 )
-    DEF_GLOBAL( Slice_event_check_time, Real, 0.25 )
     DEF_GLOBAL( Initial_incremental_update, BOOLEAN, FALSE )
 
     DEF_GLOBAL_COLOUR( Volume_outline_colour )
@@ -357,6 +355,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Initial_volume_rotation_step, Real, 1.0 )
     DEF_GLOBAL( Initial_volume_translation_step, Real, 1.0 )
+    DEF_GLOBAL( Initial_volume_scale_step, Real, 1.05 )
 
     DEF_GLOBAL( Enable_volume_caching, BOOLEAN, TRUE )
     DEF_GLOBAL( Volume_cache_threshold, int, -1 )

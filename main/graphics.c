@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.74 1997-03-23 21:11:41 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.75 1998-02-20 15:00:05 david Exp $";
 #endif
 
 
@@ -44,12 +44,12 @@ public  int  get_list_of_windows(
 }
 
 public  display_struct  *lookup_window(
-    window_struct   *window )
+    Gwindow   window )
 {
     int              i;
     display_struct   *display;
 
-    display = (display_struct *) 0;
+    display = NULL;
 
     for_less( i, 0, n_windows )
     {
@@ -339,6 +339,8 @@ private  void  initialize_graphics_window(
     display->update_required[NORMAL_PLANES] = FALSE;
     display->update_required[OVERLAY_PLANES] = FALSE;
     display->update_interrupted.last_was_interrupted = FALSE;
+
+    initialize_window_callbacks( display );
 }
 
 public  void  set_update_required(

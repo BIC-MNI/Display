@@ -196,7 +196,7 @@ render_3d \
  \
     transient 'v'    toggle_line_curve_flag       'Lines as Curves: %s' \
     transient 'c'    toggle_marker_label_flag     'Marker Labels: %s' \
-    transient 'z'    set_n_curve_segments         'Set # Curve Segments' \
+    transient 'z'    set_n_curve_segments         'Set # Curve Segments: %d' \
  \
     transient 'q'    change_background_colour     'Change Background' \
     transient 'w'    toggle_double_buffer_threed  '3D DblBuf: %s' \
@@ -400,12 +400,17 @@ translate_labels \
  \
 volume_transform \
 { \
+    transient '1'    next_volume_visible             'Visible: %d' \
+    transient '5'    shrink_volume                   'Scale Down Volume' \
+    transient '6'    magnify_volume                  'Scale Up Volume' \
+\
     transient 'q'    next_volume_visible             'Visible: %d' \
     transient 'w'    transform_current_volume        'Xform Volume Frm File' \
     transient 'e'    reset_volume_transform          'Reset Vol Xform' \
     transient 'r'    set_volume_translation_step     'Trans Step: %g' \
     transient 't'    set_volume_rotation_step        'Rot Step: %g' \
     transient 'y'    save_current_volume_transform   'Save Volume Xform' \
+    transient 'u'    set_volume_scale_step           'Scale Step: %g' \
  \
     transient 'a'    translate_volume_plus_x          'Trans + X' \
     transient 's'    translate_volume_plus_y          'Trans + Y' \

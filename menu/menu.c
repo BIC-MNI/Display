@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.41 1997-03-23 21:11:43 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.42 1998-02-20 15:00:07 david Exp $";
 #endif
 
 
@@ -206,8 +206,6 @@ public  Status  initialize_menu(
 
     initialize_menu_parameters( menu_window );
 
-    menu->shift_key_down = FALSE;
-
     for_less( ch, 0, N_CHARACTERS )
         set_menu_key_entry( menu, ch, NULL );
 
@@ -313,27 +311,6 @@ public  void  initialize_menu_window(
                                MIDDLE_MOUSE_DOWN_EVENT, middle_mouse_press );
 }
 
-private  BOOLEAN   is_shift_key(
-    int   key )
-{
-    return( key == LEFT_SHIFT_KEY ||
-            key == RIGHT_SHIFT_KEY ||
-            key == LEFT_CTRL_KEY ||
-            key == RIGHT_CTRL_KEY ||
-            key == LEFT_ALT_KEY ||
-            key == RIGHT_ALT_KEY );
-}
-
-public  BOOLEAN  is_shift_key_pressed(
-    display_struct     *display )
-{
-    display_struct     *menu_window;
-
-    menu_window = display->associated[MENU_WINDOW];
-
-    return( menu_window->menu.shift_key_down );
-}
-
 /* ARGSUSED */
 
 private  DEF_EVENT_FUNCTION( handle_character_down )
@@ -345,10 +322,7 @@ private  DEF_EVENT_FUNCTION( handle_character_down )
 
     menu_window = display->associated[MENU_WINDOW];
 
-    if( is_shift_key( key_pressed ) )
-        menu_window->menu.shift_key_down = TRUE;
-    else
-        status = handle_menu_for_key( menu_window, key_pressed );
+    status = handle_menu_for_key( menu_window, key_pressed );
 
     return( status );
 }
@@ -357,11 +331,6 @@ private  DEF_EVENT_FUNCTION( handle_character_down )
 
 private  DEF_EVENT_FUNCTION( handle_leaving_window )
 {
-    display_struct     *menu_window;
-
-    menu_window = display->associated[MENU_WINDOW];
-    menu_window->menu.shift_key_down = FALSE;
-
     return( OK );
 }
 
@@ -369,14 +338,6 @@ private  DEF_EVENT_FUNCTION( handle_leaving_window )
 
 private  DEF_EVENT_FUNCTION( handle_character_up )
 {
-    display_struct     *menu_window;
-
-    if( is_shift_key( key_pressed ) )
-    {
-        menu_window = display->associated[MENU_WINDOW];
-        menu_window->menu.shift_key_down = FALSE;
-    }
-
     return( OK );
 }
 

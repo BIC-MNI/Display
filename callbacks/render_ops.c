@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/render_ops.c,v 1.32 1996-05-24 18:43:09 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/render_ops.c,v 1.33 1998-02-20 15:00:01 david Exp $";
 #endif
 
 
@@ -417,6 +417,8 @@ public  DEF_MENU_FUNCTION( toggle_double_buffer_threed )
     double_buffer = !G_get_double_buffer_state( display->window );
 
     G_set_double_buffer_state( display->window, double_buffer );
+
+    define_lights( display );
 
     set_update_required( display, NORMAL_PLANES );
 

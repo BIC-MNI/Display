@@ -13,13 +13,13 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/display.c,v 1.28 1995-10-19 15:51:40 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/display.c,v 1.29 1998-02-20 15:00:04 david Exp $";
 #endif
 
 #include  <display.h>
 
 private  void  display_objects_recursive(
-    window_struct                *window,
+    Gwindow                      window,
     Bitplane_types               bitplanes,
     int                          n_objects,
     object_struct                *object_list[],
@@ -30,7 +30,7 @@ private  void  display_objects_recursive(
     BOOLEAN                      *past_last_object );
 
 public  void  display_objects(
-    window_struct               *window,
+    Gwindow                     window,
     object_struct               *object,
     update_interrupted_struct   *interrupt,
     Bitplane_types              bitplanes,
@@ -55,13 +55,13 @@ public  void  display_objects(
 }
 
 private  void  draw_one_object(
-    window_struct                *window,
+    Gwindow                      window,
     object_struct                *object,
     update_interrupted_struct    *interrupt,
     BOOLEAN                      *past_last_object );
 
 private  void  display_objects_recursive(
-    window_struct                *window,
+    Gwindow                      window,
     Bitplane_types               bitplanes,
     int                          n_objects,
     object_struct                *object_list[],
@@ -123,7 +123,7 @@ private  void  display_objects_recursive(
 }
 
 private  void  draw_one_object(
-    window_struct                *window,
+    Gwindow                      window,
     object_struct                *object,
     update_interrupted_struct    *interrupt,
     BOOLEAN                      *past_last_object )

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_transform_ops.c,v 1.1 1998-02-17 04:23:44 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_transform_ops.c,v 1.2 1998-02-20 15:00:02 david Exp $";
 #endif
 
 
@@ -134,6 +134,33 @@ private  void  rotate_current_volume(
     linear_transform_volume( slice_window, &linear_transform );
 }
 
+private  void  scale_current_volume(
+    display_struct  *display,
+    int             dir )
+{
+    display_struct  *slice_window;
+    Transform       scale_trans, linear_transform;
+    Real            scale;
+    Point           origin;
+
+    if( !get_slice_window( display, &slice_window ) )
+        return;
+
+    if( dir < 0 )
+        scale = 1.0 / slice_window->slice.volume_scale_step;
+    else
+        scale = slice_window->slice.volume_scale_step;
+
+    make_scale_transform( scale, scale, scale, &scale_trans );
+
+    get_cursor_origin( display, &origin );
+
+    make_transform_relative_to_point( &origin, &scale_trans,
+                                      &linear_transform );
+
+    linear_transform_volume( slice_window, &linear_transform );
+}
+
 /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( translate_volume_plus_x)
@@ -226,6 +253,38 @@ public  DEF_MENU_FUNCTION( translate_volume_minus_z)
 /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(translate_volume_minus_z )
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( magnify_volume)
+{
+    scale_current_volume( display, +1 );
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(magnify_volume )
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( shrink_volume)
+{
+    scale_current_volume( display, -1 );
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(shrink_volume )
 {
     return( get_n_volumes(display) > 0 );
 }
@@ -358,6 +417,45 @@ public  DEF_MENU_UPDATE(set_volume_rotation_step )
         step = slice_window->slice.volume_rotation_step;
     else
         step = Initial_volume_rotation_step;
+
+    set_menu_text_real( menu_window, menu_entry, step );
+
+    return( TRUE );
+
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_volume_scale_step)
+{
+    Real            new_step;
+    display_struct  *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        print( "Current scale step: %g\n",
+               slice_window->slice.volume_scale_step );
+        print( "Enter scale step: " );
+        if( input_real( stdin, &new_step ) == OK )
+            slice_window->slice.volume_scale_step = new_step;
+
+        (void) input_newline( stdin );
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_volume_scale_step )
+{
+    Real            step;
+    display_struct  *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+        step = slice_window->slice.volume_scale_step;
+    else
+        step = Initial_volume_scale_step;
 
     set_menu_text_real( menu_window, menu_entry, step );
 

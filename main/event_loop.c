@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/event_loop.c,v 1.24 1995-10-19 15:51:41 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/event_loop.c,v 1.25 1998-02-20 15:00:05 david Exp $";
 #endif
 
 
@@ -28,36 +28,199 @@ private  Status   perform_action(
 private  void  update_this_type_of_windows(
     window_types   window_type );
 
-public  Status   main_event_loop( void )
+private  void  quit_program( void )
+{
+    print( "Quitting Display\n" );
+
+    exit( 0 );
+}
+
+private  void  handle_event(
+    Event_types   event,
+    Gwindow       window,
+    int           key_pressed )
 {
     Status          status;
-    Event_types     event_type;
-    int             key_pressed;
-    window_struct   *window;
     display_struct  *display;
 
-    status = OK;
+    display = lookup_window( window );
 
-    while( status != QUIT )
-    {
-        event_type = G_get_event( &window, &key_pressed );
+    if( display == NULL )
+        return;
 
-        if( event_type != NO_EVENT )
-        {
-            display = lookup_window( window );
+    status = perform_action( display, event, key_pressed );
 
-            if( display != (display_struct *) 0 )
-                status = perform_action( display, event_type, key_pressed );
-  
-        }
-        else
-        {
-            if( status != QUIT )
-                status = process_no_events_for_all_windows();
+    if( status == QUIT )
+        quit_program();
+}
 
-            update_all_required_windows();
-        }
-    }
+private  void  update_callback(
+    Gwindow   window,
+    void      *data )
+{
+    handle_event( WINDOW_REDRAW_EVENT, window, 0 );
+}
+
+private  void  resize_callback(
+    Gwindow   window,
+    int       x,
+    int       y,
+    int       x_size,
+    int       y_size,
+    void      *data )
+{
+    handle_event( WINDOW_RESIZE_EVENT, window, 0 );
+}
+
+private  void  key_down_callback(
+    Gwindow   window,
+    int       key,
+    void      *data )
+{
+    handle_event( KEY_DOWN_EVENT, window, key );
+}
+
+private  void  mouse_movement_callback(
+    Gwindow   window,
+    int       x,
+    int       y,
+    void      *data )
+{
+    handle_event( MOUSE_MOVEMENT_EVENT, window, 0 );
+}
+
+private  void  left_down_callback(
+    Gwindow   window,
+    int       x,
+    int       y,
+    void      *data )
+{
+    handle_event( LEFT_MOUSE_DOWN_EVENT, window, 0 );
+}
+
+private  void  left_up_callback(
+    Gwindow   window,
+    int       x,
+    int       y,
+    void      *data )
+{
+    handle_event( LEFT_MOUSE_UP_EVENT, window, 0 );
+}
+
+private  void  middle_down_callback(
+    Gwindow   window,
+    int       x,
+    int       y,
+    void      *data )
+{
+    handle_event( MIDDLE_MOUSE_DOWN_EVENT, window, 0 );
+}
+
+private  void  middle_up_callback(
+    Gwindow   window,
+    int       x,
+    int       y,
+    void      *data )
+{
+    handle_event( MIDDLE_MOUSE_UP_EVENT, window, 0 );
+}
+
+private  void  right_down_callback( Gwindow   window,
+    int       x,
+    int       y,
+    void      *data )
+{
+    handle_event( RIGHT_MOUSE_DOWN_EVENT, window, 0 );
+}
+
+private  void  right_up_callback(
+    Gwindow   window,
+    int       x,
+    int       y,
+    void      *data )
+{
+    handle_event( RIGHT_MOUSE_UP_EVENT, window, 0 );
+}
+
+private  void  iconify_callback(
+    Gwindow   window,
+    void      *data )
+{
+    handle_event( WINDOW_ICONIZED_EVENT, window, 0 );
+}
+
+private  void  deiconify_callback(
+    Gwindow   window,
+    void      *data )
+{
+    handle_event( WINDOW_DEICONIZED_EVENT, window, 0 );
+}
+
+private  void  enter_callback(
+    Gwindow   window,
+    void      *data )
+{
+    handle_event( WINDOW_ENTER_EVENT, window, 0 );
+}
+
+private  void  leave_callback(
+    Gwindow   window,
+    void      *data )
+{
+    handle_event( WINDOW_LEAVE_EVENT, window, 0 );
+}
+
+private  void  quit_callback(
+    Gwindow   window,
+    void      *data )
+{
+    handle_event( WINDOW_QUIT_EVENT, window, 0 );
+}
+
+public  void  initialize_window_callbacks(
+    display_struct    *display_window )
+{
+    Gwindow   window;
+
+    window = display_window->window;
+
+    G_set_update_function( window, update_callback, NULL );
+    G_set_resize_function( window, resize_callback, NULL);
+    G_set_key_down_function( window, key_down_callback, NULL);
+    G_set_mouse_movement_function( window, mouse_movement_callback, NULL);
+    G_set_left_mouse_down_function( window, left_down_callback, NULL);
+    G_set_left_mouse_up_function( window, left_up_callback, NULL);
+    G_set_middle_mouse_down_function( window, middle_down_callback, NULL);
+    G_set_middle_mouse_up_function( window, middle_up_callback, NULL);
+    G_set_right_mouse_down_function( window, right_down_callback, NULL);
+    G_set_right_mouse_up_function( window, right_up_callback, NULL);
+    G_set_iconify_function( window, iconify_callback, NULL);
+    G_set_deiconify_function( window, deiconify_callback, NULL);
+    G_set_window_enter_function( window, enter_callback, NULL);
+    G_set_window_leave_function( window, leave_callback, NULL);
+    G_set_window_quit_function( window, quit_callback, NULL);
+}
+
+private  void  update_all(
+    void   *void_ptr )
+{
+    Status   status;
+
+    status = process_no_events_for_all_windows();
+
+    if( status == QUIT )
+        quit_program();
+
+    update_all_required_windows();
+
+    G_add_timer_function( Min_interval_between_updates, update_all, NULL );
+}
+
+public  Status   main_event_loop( void )
+{
+    G_add_timer_function( Min_interval_between_updates, update_all, NULL );
+
+    G_main_loop();
 
     return( OK );
 }
@@ -135,3 +298,11 @@ private  Status   perform_action(
 
     return( status );
 }
+
+public  BOOLEAN  is_shift_key_pressed( void )
+{
+    return( G_get_shift_key_state() ||
+            G_get_ctrl_key_state() ||
+            G_get_alt_key_state() );
+}
+
