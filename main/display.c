@@ -124,11 +124,21 @@ private  void  draw_one_object(
     {
         draw_object( window, object );
 
+if( get_object_type(object) == LINES &&
+    get_lines_ptr(object)->n_points > 0 &&
+    get_lines_ptr(object)->n_points != 4 &&
+    get_lines_ptr(object)->n_points != 8 )
+{
+    print( "  Lines: %d\n", get_lines_ptr(object)->n_points );
+}
+
         if( G_get_drawing_interrupt_state(window) &&
             interrupt != (update_interrupted_struct *) 0 &&
             G_get_interrupt_occurred( window ) )
         {
             interrupt->current_interrupted = TRUE;
+            G_clear_drawing_interrupt_flag( window );
+print( "draw_one_object:interrupted.\n" );
             interrupt->object_interrupted = object;
         }
     }
