@@ -75,6 +75,8 @@ private  void  update_voxel_cursor( slice_window )
     Boolean           set_current_voxel();
     Boolean           update_cursor_from_voxel();
     void              set_update_required();
+    Boolean           update_current_marker();
+    void              rebuild_selected_list();
 
     if( get_voxel_in_slice_window( slice_window, &indices[X],
                  &indices[Y], &indices[Z], &axis_index ) )
@@ -95,6 +97,16 @@ private  void  update_voxel_cursor( slice_window )
         {
             set_update_required( slice_window->associated[THREE_D_WINDOW],
                                  OVERLAY_PLANES );
+        }
+
+        if( update_current_marker( slice_window->associated[THREE_D_WINDOW],
+                                   indices[X], indices[Y], indices[Z] ) )
+        {
+            rebuild_selected_list( slice_window->associated[THREE_D_WINDOW],
+                                   slice_window->associated[MENU_WINDOW] );
+
+            set_update_required( slice_window->associated[MENU_WINDOW],
+                                 NORMAL_PLANES );
         }
     }
 }
