@@ -158,6 +158,9 @@ public  void  compute_histogram(
 
     clear_histogram( slice_window );
 
+    if( is_an_rgb_volume(get_volume(slice_window)) )
+        return;
+
     compute_histogram_lines( get_volume(slice_window),
                              get_label_volume(slice_window), labeled_only,
                              axis_index, voxel_index,
