@@ -50,9 +50,6 @@ private  void  change_current_slice_by_one(
         {
             if( set_current_voxel( slice_window, voxel ))
             {
-                rebuild_probe( slice_window );
-                rebuild_cursors( slice_window );
-
                 if( update_cursor_from_voxel( slice_window ) )
                 {
                     set_update_required( slice_window->
@@ -497,6 +494,47 @@ public  DEF_MENU_FUNCTION(type_in_slice_plane)      /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(type_in_slice_plane)      /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(toggle_slice_cross_section_visibility)  /* ARGSUSED */
+{
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        slice_window->slice.cross_section_visibility =
+                             !slice_window->slice.cross_section_visibility;
+        rebuild_slice_cross_sections( slice_window );
+        set_slice_window_all_update( slice_window );
+    }
+}
+
+public  DEF_MENU_UPDATE(toggle_slice_cross_section_visibility)    /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(set_current_arbitrary_view)  /* ARGSUSED */
+{
+    int              view_index;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_slice_view_index_under_mouse( slice_window, &view_index ) )
+    {
+        print( "Current arbitrary view is now: %d\n", view_index );
+
+        slice_window->slice.cross_section_index = view_index;
+        rebuild_slice_cross_sections( slice_window );
+        rebuild_volume_cross_section( slice_window );
+        set_slice_window_all_update( slice_window );
+        set_update_required( display, NORMAL_PLANES );
+    }
+}
+
+public  DEF_MENU_UPDATE(set_current_arbitrary_view)    /* ARGSUSED */
 {
     return( OK );
 }

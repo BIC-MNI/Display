@@ -51,180 +51,182 @@ MENU_FUNCTION(retreat_selected) \
 MENU_FUNCTION(descend_selected) \
 MENU_FUNCTION(ascend_selected) \
 MENU_FUNCTION(change_background_colour) \
-                       MENU_FUNCTION(create_3d_slice) \
-                       MENU_FUNCTION(toggle_slice_visibility) \
-                       MENU_FUNCTION(toggle_cross_section_visibility) \
-                       MENU_FUNCTION(rotate_slice_axes) \
-                       MENU_FUNCTION(move_slice_plus) \
-                       MENU_FUNCTION(move_slice_minus) \
-                       MENU_FUNCTION(menu_set_global_variable) \
-                       MENU_FUNCTION(pick_view_rectangle) \
-                       MENU_FUNCTION(toggle_object_visibility) \
-                       MENU_FUNCTION(cut_object) \
-                       MENU_FUNCTION(paste_object) \
-                       MENU_FUNCTION(set_surface_valid_range) \
-                       MENU_FUNCTION(set_surface_valid_out_range) \
-                       MENU_FUNCTION(start_volume_isosurface) \
-                       MENU_FUNCTION(start_volume_binary_isosurface) \
-                       MENU_FUNCTION(start_label_binary_isosurface) \
-                       MENU_FUNCTION(get_voxelated_surface) \
-                       MENU_FUNCTION(get_voxelated_label_surface) \
-                       MENU_FUNCTION(toggle_surface_extraction) \
-                       MENU_FUNCTION(make_surface_permanent) \
-                       MENU_FUNCTION(reset_surface) \
-                       MENU_FUNCTION(set_surface_extract_x_max_distance) \
-                       MENU_FUNCTION(set_surface_extract_y_max_distance) \
-                       MENU_FUNCTION(set_surface_extract_z_max_distance) \
-                       MENU_FUNCTION(reset_current_slice_view) \
-                       MENU_FUNCTION(load_label_data) \
-                       MENU_FUNCTION(save_label_data) \
-                       MENU_FUNCTION(clear_voxel) \
-                       MENU_FUNCTION(label_voxel) \
-                       MENU_FUNCTION(clear_connected) \
-                       MENU_FUNCTION(label_connected) \
-                       MENU_FUNCTION(label_connected_no_threshold) \
-                       MENU_FUNCTION(label_slice) \
-                       MENU_FUNCTION(clear_slice) \
-                       MENU_FUNCTION(label_connected_3d) \
-                       MENU_FUNCTION(expand_labeled_3d) \
-                       MENU_FUNCTION(set_colour_limits) \
-                       MENU_FUNCTION(create_film_loop) \
-                       MENU_FUNCTION(reset_polygon_visibility) \
-                       MENU_FUNCTION(set_polygon_line_thickness) \
-                       MENU_FUNCTION(set_visibility_from_colour) \
-                       MENU_FUNCTION(remove_invisible_parts_of_polygon) \
-                       MENU_FUNCTION(crop_above_plane) \
-                       MENU_FUNCTION(crop_below_plane) \
-                       MENU_FUNCTION(set_vis_to_invis_colour) \
-                       MENU_FUNCTION(set_vis_to_vis_colour) \
-                       MENU_FUNCTION(set_invis_colour_to_invis) \
-                       MENU_FUNCTION(set_connected_invisible) \
-                       MENU_FUNCTION(paint_invisible) \
-                       MENU_FUNCTION(paint_visible) \
-                       MENU_FUNCTION(set_connected_vis_colour) \
-                       MENU_FUNCTION(set_connected_invis_colour) \
-                       MENU_FUNCTION(paint_invis_colour) \
-                       MENU_FUNCTION(paint_vis_colour) \
-                       MENU_FUNCTION(set_vis_paint_colour) \
-                       MENU_FUNCTION(set_invis_paint_colour) \
-                       MENU_FUNCTION(set_n_paint_polygons) \
-                       MENU_FUNCTION(input_polygons_bintree) \
-                       MENU_FUNCTION(create_bintree_for_polygons) \
-                       MENU_FUNCTION(create_normals_for_polygon) \
-                       MENU_FUNCTION(average_normals_for_polygon) \
-                       MENU_FUNCTION(reset_polygon_neighbours) \
-                       MENU_FUNCTION(cut_polygon_neighbours) \
-                       MENU_FUNCTION(make_polygon_sphere) \
-                       MENU_FUNCTION(make_tetrahedral_sphere) \
-                       MENU_FUNCTION(subdivide_current_polygon) \
-                       MENU_FUNCTION(save_polygons_visibilities) \
-                       MENU_FUNCTION(load_polygons_visibilities) \
-                       MENU_FUNCTION(smooth_current_polygon) \
-                       MENU_FUNCTION(smooth_current_polygon_with_volume) \
-                       MENU_FUNCTION(start_deforming_object) \
-                       MENU_FUNCTION(stop_deforming_object) \
-                       MENU_FUNCTION(set_deformation_boundary) \
-                       MENU_FUNCTION(set_deformation_model) \
-                       MENU_FUNCTION(set_deformation_parameters) \
-                       MENU_FUNCTION(set_deformation_original_positions) \
-                       MENU_FUNCTION(show_deformation_model) \
-                       MENU_FUNCTION(reset_deformation_model) \
-                       MENU_FUNCTION(reverse_polygons_order) \
-                       MENU_FUNCTION(print_polygons_surface_area) \
-                       MENU_FUNCTION(smooth_current_lines) \
-                       MENU_FUNCTION(set_line_widths) \
-                       MENU_FUNCTION(convert_markers_to_lines) \
-                       MENU_FUNCTION(make_current_line_tube) \
-                       MENU_FUNCTION(convert_line_to_spline_points) \
-                       MENU_FUNCTION(make_line_circle) \
-                       MENU_FUNCTION(subdivide_current_lines) \
-                       MENU_FUNCTION(save_polygons_bintree) \
-                       MENU_FUNCTION(create_marker_at_cursor) \
-                       MENU_FUNCTION(set_cursor_to_marker) \
-                       MENU_FUNCTION(save_markers) \
-                       MENU_FUNCTION(pick_marker_defaults) \
-                       MENU_FUNCTION(move_cursor_to_home) \
-                       MENU_FUNCTION(type_in_voxel_origin) \
-                       MENU_FUNCTION(type_in_slice_plane) \
-                       MENU_FUNCTION(print_voxel_origin) \
-                       MENU_FUNCTION(print_slice_plane) \
-                       MENU_FUNCTION(set_marker_segmentation_threshold) \
-                       MENU_FUNCTION(set_default_marker_structure_id) \
-                       MENU_FUNCTION(set_default_marker_patient_id) \
-                       MENU_FUNCTION(set_default_marker_type) \
-                       MENU_FUNCTION(set_default_marker_colour) \
-                       MENU_FUNCTION(set_default_marker_label) \
-                       MENU_FUNCTION(set_default_marker_size) \
-                       MENU_FUNCTION(copy_defaults_to_marker) \
-                       MENU_FUNCTION(copy_defaults_to_markers) \
-                       MENU_FUNCTION(classify_markers) \
-                       MENU_FUNCTION(change_marker_structure_id) \
-                       MENU_FUNCTION(change_marker_patient_id) \
-                       MENU_FUNCTION(change_marker_label) \
-                       MENU_FUNCTION(change_marker_size) \
-                       MENU_FUNCTION(change_marker_position) \
-                       MENU_FUNCTION(change_marker_type) \
-                       MENU_FUNCTION(resample_slice_window_volume) \
-                       MENU_FUNCTION(box_filter_slice_window_volume) \
-                       MENU_FUNCTION(redo_histogram) \
-                       MENU_FUNCTION(redo_histogram_labeled) \
-                       MENU_FUNCTION(pick_slice_angle_point) \
-                       MENU_FUNCTION(delete_current_object) \
-                       MENU_FUNCTION(toggle_display_labels) \
-                       MENU_FUNCTION(undo_slice_labels) \
-                       MENU_FUNCTION(translate_labels_up) \
-                       MENU_FUNCTION(translate_labels_down) \
-                       MENU_FUNCTION(translate_labels_left) \
-                       MENU_FUNCTION(translate_labels_right) \
-                       MENU_FUNCTION(translate_labels_arbitrary) \
-                       MENU_FUNCTION(flip_labels_in_x) \
-                       MENU_FUNCTION(calculate_volume) \
-                       MENU_FUNCTION(set_paint_xy_brush_radius) \
-                       MENU_FUNCTION(set_paint_z_brush_radius) \
-                       MENU_FUNCTION(copy_labels_from_lower_slice) \
-                       MENU_FUNCTION(copy_labels_from_higher_slice) \
-                       MENU_FUNCTION(set_current_paint_label) \
-                       MENU_FUNCTION(set_label_colour) \
-                       MENU_FUNCTION(save_labels) \
-                       MENU_FUNCTION(save_current_label) \
-                       MENU_FUNCTION(load_labels) \
-                       MENU_FUNCTION(reset_segmenting) \
-                       MENU_FUNCTION(set_segmenting_threshold) \
-                       MENU_FUNCTION(make_surface_line_permanent) \
-                       MENU_FUNCTION(set_line_curvature_weight) \
-                       MENU_FUNCTION(start_surface_line) \
-                       MENU_FUNCTION(end_surface_line) \
-                       MENU_FUNCTION(close_surface_line) \
-                       MENU_FUNCTION(reset_surface_line) \
-                       MENU_FUNCTION(set_surface_curve_curvature) \
-                       MENU_FUNCTION(pick_surface_point_on_line) \
-                       MENU_FUNCTION(colour_code_objects) \
-                       MENU_FUNCTION(set_label_colour_ratio) \
-                       MENU_FUNCTION(set_contour_colour_map) \
-                       MENU_FUNCTION(set_hot_metal) \
-                       MENU_FUNCTION(set_gray_scale) \
-                       MENU_FUNCTION(set_spectral) \
-                       MENU_FUNCTION(set_under_colour) \
-                       MENU_FUNCTION(set_over_colour) \
-                       MENU_FUNCTION(set_nearest_neighbour) \
-                       MENU_FUNCTION(set_linear_interpolation) \
-                       MENU_FUNCTION(set_box_filter) \
-                       MENU_FUNCTION(set_triangle_filter) \
-                       MENU_FUNCTION(set_gaussian_filter) \
-                       MENU_FUNCTION(set_filter_half_width) \
-                       MENU_FUNCTION(change_labels_in_range) \
-                       MENU_FUNCTION(scan_current_object_to_volume) \
-                       MENU_FUNCTION(set_atlas_on_or_off) \
-                       MENU_FUNCTION(set_atlas_opacity) \
-                       MENU_FUNCTION(set_atlas_transparent_threshold) \
-                       MENU_FUNCTION(flip_atlas_x) \
-                       MENU_FUNCTION(flip_atlas_y) \
-                       MENU_FUNCTION(flip_atlas_z) \
-                       MENU_FUNCTION(set_atlas_tolerance_x) \
-                       MENU_FUNCTION(set_atlas_tolerance_y) \
-                       MENU_FUNCTION(set_atlas_tolerance_z) \
-                       MENU_FUNCTION(mark_vertices) \
-                       MENU_FUNCTION(flip_object) \
+MENU_FUNCTION(create_3d_slice) \
+MENU_FUNCTION(toggle_slice_visibility) \
+MENU_FUNCTION(toggle_cross_section_visibility) \
+MENU_FUNCTION(toggle_slice_cross_section_visibility) \
+MENU_FUNCTION(set_current_arbitrary_view) \
+MENU_FUNCTION(rotate_slice_axes) \
+MENU_FUNCTION(move_slice_plus) \
+MENU_FUNCTION(move_slice_minus) \
+MENU_FUNCTION(menu_set_global_variable) \
+MENU_FUNCTION(pick_view_rectangle) \
+MENU_FUNCTION(toggle_object_visibility) \
+MENU_FUNCTION(cut_object) \
+MENU_FUNCTION(paste_object) \
+MENU_FUNCTION(set_surface_valid_range) \
+MENU_FUNCTION(set_surface_valid_out_range) \
+MENU_FUNCTION(start_volume_isosurface) \
+MENU_FUNCTION(start_volume_binary_isosurface) \
+MENU_FUNCTION(start_label_binary_isosurface) \
+MENU_FUNCTION(get_voxelated_surface) \
+MENU_FUNCTION(get_voxelated_label_surface) \
+MENU_FUNCTION(toggle_surface_extraction) \
+MENU_FUNCTION(make_surface_permanent) \
+MENU_FUNCTION(reset_surface) \
+MENU_FUNCTION(set_surface_extract_x_max_distance) \
+MENU_FUNCTION(set_surface_extract_y_max_distance) \
+MENU_FUNCTION(set_surface_extract_z_max_distance) \
+MENU_FUNCTION(reset_current_slice_view) \
+MENU_FUNCTION(load_label_data) \
+MENU_FUNCTION(save_label_data) \
+MENU_FUNCTION(clear_voxel) \
+MENU_FUNCTION(label_voxel) \
+MENU_FUNCTION(clear_connected) \
+MENU_FUNCTION(label_connected) \
+MENU_FUNCTION(label_connected_no_threshold) \
+MENU_FUNCTION(label_slice) \
+MENU_FUNCTION(clear_slice) \
+MENU_FUNCTION(label_connected_3d) \
+MENU_FUNCTION(expand_labeled_3d) \
+MENU_FUNCTION(set_colour_limits) \
+MENU_FUNCTION(create_film_loop) \
+MENU_FUNCTION(reset_polygon_visibility) \
+MENU_FUNCTION(set_polygon_line_thickness) \
+MENU_FUNCTION(set_visibility_from_colour) \
+MENU_FUNCTION(remove_invisible_parts_of_polygon) \
+MENU_FUNCTION(crop_above_plane) \
+MENU_FUNCTION(crop_below_plane) \
+MENU_FUNCTION(set_vis_to_invis_colour) \
+MENU_FUNCTION(set_vis_to_vis_colour) \
+MENU_FUNCTION(set_invis_colour_to_invis) \
+MENU_FUNCTION(set_connected_invisible) \
+MENU_FUNCTION(paint_invisible) \
+MENU_FUNCTION(paint_visible) \
+MENU_FUNCTION(set_connected_vis_colour) \
+MENU_FUNCTION(set_connected_invis_colour) \
+MENU_FUNCTION(paint_invis_colour) \
+MENU_FUNCTION(paint_vis_colour) \
+MENU_FUNCTION(set_vis_paint_colour) \
+MENU_FUNCTION(set_invis_paint_colour) \
+MENU_FUNCTION(set_n_paint_polygons) \
+MENU_FUNCTION(input_polygons_bintree) \
+MENU_FUNCTION(create_bintree_for_polygons) \
+MENU_FUNCTION(create_normals_for_polygon) \
+MENU_FUNCTION(average_normals_for_polygon) \
+MENU_FUNCTION(reset_polygon_neighbours) \
+MENU_FUNCTION(cut_polygon_neighbours) \
+MENU_FUNCTION(make_polygon_sphere) \
+MENU_FUNCTION(make_tetrahedral_sphere) \
+MENU_FUNCTION(subdivide_current_polygon) \
+MENU_FUNCTION(save_polygons_visibilities) \
+MENU_FUNCTION(load_polygons_visibilities) \
+MENU_FUNCTION(smooth_current_polygon) \
+MENU_FUNCTION(smooth_current_polygon_with_volume) \
+MENU_FUNCTION(start_deforming_object) \
+MENU_FUNCTION(stop_deforming_object) \
+MENU_FUNCTION(set_deformation_boundary) \
+MENU_FUNCTION(set_deformation_model) \
+MENU_FUNCTION(set_deformation_parameters) \
+MENU_FUNCTION(set_deformation_original_positions) \
+MENU_FUNCTION(show_deformation_model) \
+MENU_FUNCTION(reset_deformation_model) \
+MENU_FUNCTION(reverse_polygons_order) \
+MENU_FUNCTION(print_polygons_surface_area) \
+MENU_FUNCTION(smooth_current_lines) \
+MENU_FUNCTION(set_line_widths) \
+MENU_FUNCTION(convert_markers_to_lines) \
+MENU_FUNCTION(make_current_line_tube) \
+MENU_FUNCTION(convert_line_to_spline_points) \
+MENU_FUNCTION(make_line_circle) \
+MENU_FUNCTION(subdivide_current_lines) \
+MENU_FUNCTION(save_polygons_bintree) \
+MENU_FUNCTION(create_marker_at_cursor) \
+MENU_FUNCTION(set_cursor_to_marker) \
+MENU_FUNCTION(save_markers) \
+MENU_FUNCTION(pick_marker_defaults) \
+MENU_FUNCTION(move_cursor_to_home) \
+MENU_FUNCTION(type_in_voxel_origin) \
+MENU_FUNCTION(type_in_slice_plane) \
+MENU_FUNCTION(print_voxel_origin) \
+MENU_FUNCTION(print_slice_plane) \
+MENU_FUNCTION(set_marker_segmentation_threshold) \
+MENU_FUNCTION(set_default_marker_structure_id) \
+MENU_FUNCTION(set_default_marker_patient_id) \
+MENU_FUNCTION(set_default_marker_type) \
+MENU_FUNCTION(set_default_marker_colour) \
+MENU_FUNCTION(set_default_marker_label) \
+MENU_FUNCTION(set_default_marker_size) \
+MENU_FUNCTION(copy_defaults_to_marker) \
+MENU_FUNCTION(copy_defaults_to_markers) \
+MENU_FUNCTION(classify_markers) \
+MENU_FUNCTION(change_marker_structure_id) \
+MENU_FUNCTION(change_marker_patient_id) \
+MENU_FUNCTION(change_marker_label) \
+MENU_FUNCTION(change_marker_size) \
+MENU_FUNCTION(change_marker_position) \
+MENU_FUNCTION(change_marker_type) \
+MENU_FUNCTION(resample_slice_window_volume) \
+MENU_FUNCTION(box_filter_slice_window_volume) \
+MENU_FUNCTION(redo_histogram) \
+MENU_FUNCTION(redo_histogram_labeled) \
+MENU_FUNCTION(pick_slice_angle_point) \
+MENU_FUNCTION(delete_current_object) \
+MENU_FUNCTION(toggle_display_labels) \
+MENU_FUNCTION(undo_slice_labels) \
+MENU_FUNCTION(translate_labels_up) \
+MENU_FUNCTION(translate_labels_down) \
+MENU_FUNCTION(translate_labels_left) \
+MENU_FUNCTION(translate_labels_right) \
+MENU_FUNCTION(translate_labels_arbitrary) \
+MENU_FUNCTION(flip_labels_in_x) \
+MENU_FUNCTION(calculate_volume) \
+MENU_FUNCTION(set_paint_xy_brush_radius) \
+MENU_FUNCTION(set_paint_z_brush_radius) \
+MENU_FUNCTION(copy_labels_from_lower_slice) \
+MENU_FUNCTION(copy_labels_from_higher_slice) \
+MENU_FUNCTION(set_current_paint_label) \
+MENU_FUNCTION(set_label_colour) \
+MENU_FUNCTION(save_labels) \
+MENU_FUNCTION(save_current_label) \
+MENU_FUNCTION(load_labels) \
+MENU_FUNCTION(reset_segmenting) \
+MENU_FUNCTION(set_segmenting_threshold) \
+MENU_FUNCTION(make_surface_line_permanent) \
+MENU_FUNCTION(set_line_curvature_weight) \
+MENU_FUNCTION(start_surface_line) \
+MENU_FUNCTION(end_surface_line) \
+MENU_FUNCTION(close_surface_line) \
+MENU_FUNCTION(reset_surface_line) \
+MENU_FUNCTION(set_surface_curve_curvature) \
+MENU_FUNCTION(pick_surface_point_on_line) \
+MENU_FUNCTION(colour_code_objects) \
+MENU_FUNCTION(set_label_colour_ratio) \
+MENU_FUNCTION(set_contour_colour_map) \
+MENU_FUNCTION(set_hot_metal) \
+MENU_FUNCTION(set_gray_scale) \
+MENU_FUNCTION(set_spectral) \
+MENU_FUNCTION(set_under_colour) \
+MENU_FUNCTION(set_over_colour) \
+MENU_FUNCTION(set_nearest_neighbour) \
+MENU_FUNCTION(set_linear_interpolation) \
+MENU_FUNCTION(set_box_filter) \
+MENU_FUNCTION(set_triangle_filter) \
+MENU_FUNCTION(set_gaussian_filter) \
+MENU_FUNCTION(set_filter_half_width) \
+MENU_FUNCTION(change_labels_in_range) \
+MENU_FUNCTION(scan_current_object_to_volume) \
+MENU_FUNCTION(set_atlas_on_or_off) \
+MENU_FUNCTION(set_atlas_opacity) \
+MENU_FUNCTION(set_atlas_transparent_threshold) \
+MENU_FUNCTION(flip_atlas_x) \
+MENU_FUNCTION(flip_atlas_y) \
+MENU_FUNCTION(flip_atlas_z) \
+MENU_FUNCTION(set_atlas_tolerance_x) \
+MENU_FUNCTION(set_atlas_tolerance_y) \
+MENU_FUNCTION(set_atlas_tolerance_z) \
+MENU_FUNCTION(mark_vertices) \
+MENU_FUNCTION(flip_object)
                 
 
 typedef  struct

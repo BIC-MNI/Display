@@ -87,9 +87,12 @@ slice_view
     transient 'w'    rotate_slice_axes               "Rotate Slice"
     transient 'e'    pick_slice_angle_point          "Pick Slice Angle"
     transient 'r'    create_3d_slice                 "Create 3D Slice"
+    transient 'y'    set_current_arbitrary_view      "Set Current Arb. View"
 
     transient 'a'    toggle_double_buffer_slice      "Slice DblBuf: %s"
     transient 's'    toggle_slice_visibility         "Toggle Slice Visibility"
+    transient 'd'    toggle_slice_cross_section_visibility
+                                                  "Toggle Slice Crs-Sect"
     transient 'f'    reset_current_slice_view        "Reset Slice View"
 
     transient 'g'    redo_histogram                  "Recompute Histogram"
