@@ -184,7 +184,7 @@ public  void  rebuild_colour_bar(
     n_numbers = 0;
 
     mult_value = round_to_nearest_multiple( min_value, delta );
-    while( mult_value <= min_value )
+    while( mult_value <= min_value && delta > 0.0 )
          mult_value = round_to_nearest_multiple( mult_value + delta, delta );
 
     value = min_value;
@@ -212,6 +212,9 @@ public  void  rebuild_colour_bar(
             value = mult_value;
             mult_value = round_to_nearest_multiple( mult_value + delta, delta );
         }
+
+        if( delta <= 0.0 )
+            break;
     }
 
     last_y = 0.0;

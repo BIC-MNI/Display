@@ -617,7 +617,7 @@ public  void  update_slice_window(
     BOOLEAN  force_redraw_slice, slice_is_being_updated;
     BOOLEAN  sub_region_specified;
     int      x_sub_min, x_sub_max, y_sub_min, y_sub_max, i, n_bufs;
-    int      view, v, x_min, x_max, y_min, y_max;
+    int      view, v;
 
     if( slice_window->slice.update_slice_dividers_flag )
     {

@@ -1,4 +1,5 @@
 #include  <display.h>
+#include  <images.h>
 
 public  Status   save_window_to_file(
     display_struct  *display,

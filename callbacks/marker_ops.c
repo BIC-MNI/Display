@@ -313,7 +313,7 @@ public  DEF_MENU_FUNCTION( set_default_marker_colour )   /* ARGSUSED */
 
     print( "The current default marker colour is: %s\n", string );
 
-    print( "Enter the new colour name or r g b: " );
+    print( "Enter the new colour name or 3 or 4 colour components: " );
 
     status = input_line( stdin, string, MAX_STRING_LENGTH );
 

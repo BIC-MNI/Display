@@ -332,4 +332,7 @@ START_GLOBALS
 
     DEF_GLOBAL_STRING( Crop_volume_command, "mincreshape %s %s -start %d,%d,%d -count %d,%d,%d" )
 
+    DEF_GLOBAL( Crop_volumes_on_input, BOOLEAN, FALSE )
+    DEF_GLOBAL( Crop_if_smaller, Real, 0.75 )
+
 END_GLOBALS

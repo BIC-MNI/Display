@@ -2,13 +2,16 @@
 
 public  Status   input_volume_file(
     char           filename[],
-    Volume         *volume )
+    Volume         *volume_ptr )
 {
     Status              status;
     nc_type             nc_data_type;
     BOOLEAN             signed_flag;
-    Real                voxel_min, voxel_max;
+    Real                voxel_min, voxel_max, size_factor;
     minc_input_options  options;
+    int                 dim, limits[2][MAX_DIMENSIONS];
+    int                 sizes[MAX_DIMENSIONS];
+    Volume              volume, cropped_volume;
 
     if( Convert_volumes_to_byte )
     {
@@ -30,16 +33,48 @@ public  Status   input_volume_file(
 
     status = input_volume( filename, 3, XYZ_dimension_names,
                            nc_data_type, signed_flag, voxel_min, voxel_max,
-                           TRUE, volume, &options );
+                           TRUE, &volume, &options );
 
-    if( status == OK &&
-        get_volume_n_dimensions( *volume ) != N_DIMENSIONS )
+    if( status == OK && get_volume_n_dimensions( volume ) != N_DIMENSIONS )
     {
         print( "Volume %s has %d dimensions, should have %d\n",
-               filename, get_volume_n_dimensions(*volume), N_DIMENSIONS );
-        delete_volume( *volume );
+               filename, get_volume_n_dimensions(volume), N_DIMENSIONS );
+        delete_volume( volume );
         status = ERROR;
     }
+
+    if( Crop_volumes_on_input )
+    {
+        if( !find_volume_crop_bounds( volume, -1.0e30, 0.0, limits ) )
+        {
+            for_less( dim, 0, N_DIMENSIONS )
+            {
+                limits[0][dim] = 0;
+                limits[1][dim] = 0;
+            }
+        }
+
+        size_factor = 1.0;
+        get_volume_sizes( volume, sizes );
+
+        for_less( dim, 0, N_DIMENSIONS )
+        {
+            size_factor *= (Real) (limits[1][dim] - limits[0][dim] + 1) /
+                           (Real) sizes[dim];
+        }
+
+        if( size_factor <= Crop_if_smaller )
+        {
+            print( "Cropping volume to %3.0f %% size.\n",
+                   size_factor * 100.0 + 0.5 );
+            cropped_volume = create_cropped_volume( volume, limits );
+            delete_volume( volume );
+            volume = cropped_volume;
+        }
+    }
+
+    if( status == OK )
+        *volume_ptr = volume;
 
     return( status );
 }

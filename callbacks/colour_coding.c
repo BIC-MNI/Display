@@ -161,7 +161,7 @@ public  DEF_MENU_FUNCTION(set_under_colour )   /* ARGSUSED */
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        print( "Enter under colour name or r g b:" );
+        print( "Enter under colour name or 3 or 4 colour components:" );
 
         status = input_line( stdin, line, MAX_STRING_LENGTH );
 
@@ -213,7 +213,7 @@ public  DEF_MENU_FUNCTION(set_over_colour )   /* ARGSUSED */
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        print( "Enter over colour name or r g b:" );
+        print( "Enter over colour name or 3 or 4 colour components:" );
 
         status = input_line( stdin, line, MAX_STRING_LENGTH );
 

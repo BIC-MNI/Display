@@ -87,7 +87,7 @@ public  DEF_MENU_FUNCTION( set_vis_paint_colour )   /* ARGSUSED */
 
     print( "The current visible paint colour is: %s\n", string );
 
-    print( "Enter the new colour name or r g b: " );
+    print( "Enter the new colour name or 3 or 4 colour components: " );
 
     status = input_line( stdin, string, MAX_STRING_LENGTH );
 
@@ -125,7 +125,7 @@ public  DEF_MENU_FUNCTION( set_invis_paint_colour )   /* ARGSUSED */
 
     print( "The current invisible paint colour is: %s\n", string );
 
-    print( "Enter the new colour name or r g b: " );
+    print( "Enter the new colour name or 3 or 4 colour components: " );
 
     status = input_line( stdin, string, MAX_STRING_LENGTH );
 

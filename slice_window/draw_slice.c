@@ -879,9 +879,9 @@ private  void  render_slice_to_pixels(
     y_scale = slice_window->slice.volumes[volume_index].views[view_index]
                                                                     .y_scaling;
 
-    get_slice_subviewport( slice_window, view_index,
-                           &x_sub_min, &x_sub_max,
-                           &y_sub_min, &y_sub_max );
+    (void) get_slice_subviewport( slice_window, view_index,
+                                  &x_sub_min, &x_sub_max,
+                                  &y_sub_min, &y_sub_max );
 
     x_trans -= (Real) x_sub_min;
     y_trans -= (Real) y_sub_min;
@@ -972,7 +972,7 @@ public  void  rebuild_slice_text(
         get_current_voxel( slice_window,
                       get_current_volume_index(slice_window), current_voxel );
 
-        (void) sprintf( text->string, format, current_voxel[axis_index] + 1.0 );
+        (void) sprintf( text->string, format, current_voxel[axis_index] );
 
         x_pos = (int) Point_x(Slice_index_offset);
         y_pos = (int) Point_y(Slice_index_offset);
@@ -1279,9 +1279,9 @@ private  void  render_label_slice_to_pixels(
     y_scale = slice_window->slice.volumes[volume_index].views[view_index]
                                                        .y_scaling;
 
-    get_slice_subviewport( slice_window, view_index,
-                           &x_sub_min, &x_sub_max,
-                           &y_sub_min, &y_sub_max );
+    (void) get_slice_subviewport( slice_window, view_index,
+                                  &x_sub_min, &x_sub_max,
+                                  &y_sub_min, &y_sub_max );
 
     x_trans -= (Real) x_sub_min;
     y_trans -= (Real) y_sub_min;

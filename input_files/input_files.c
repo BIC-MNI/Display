@@ -66,10 +66,11 @@ public  Status  load_graphics_file(
     }
     else
     {
-        if( filename_extension_matches( filename,
-                                        get_default_tag_file_suffix() ) ||
-            filename_extension_matches( filename,
-                                        get_default_landmark_file_suffix() ) )
+        if( is_label_file &&
+            (filename_extension_matches( filename,
+                                         get_default_tag_file_suffix() ) ||
+             filename_extension_matches( filename,
+                                         get_default_landmark_file_suffix()) ) )
         {
             status = input_tag_label_file( display, filename );
         }

@@ -419,7 +419,7 @@ public  DEF_MENU_FUNCTION( change_background_colour )  /* ARGSUSED */
     Colour            col;
     STRING            line;
 
-    print( "Enter colour name or r g b:" );
+    print( "Enter colour name or 3 or 4 colour components:" );
 
     status = input_line( stdin, line, MAX_STRING_LENGTH );
 

@@ -352,9 +352,9 @@ private  Colour  apply_label_colour(
         b2 = get_Colour_b_0_1(label_col);
         a2 = get_Colour_a_0_1(label_col);
 
-        r = a1 * r1 * (1.0 - a2) + a2 * r2;
-        g = a1 * g1 * (1.0 - a2) + a2 * g2;
-        b = a1 * b1 * (1.0 - a2) + a2 * b2;
+        r = r1 * (1.0 - a2) + a2 * r2;
+        g = g1 * (1.0 - a2) + a2 * g2;
+        b = b1 * (1.0 - a2) + a2 * b2;
         a = a1 * (1.0 - a2) + a2 * a2;
 
         col = make_rgba_Colour_0_1( r, g, b, a );

@@ -24,17 +24,24 @@ public  Status  change_global_variable(
                    display_globals, str, variable_name, new_value ) );
 }
 
+public  Status  set_global_variable_value(
+    char   variable_name[],
+    char   new_value[] )
+{
+    return( set_global_variable( SIZEOF_STATIC_ARRAY(display_globals),
+                                 display_globals, variable_name, new_value ) );
+}
 
-int  main( argc, argv )
-    int     argc;
-    char    *argv[];
+int  main(
+    int     argc,
+    char    *argv[] )
 {
     char             *filename;
     display_struct   *graphics;
     display_struct   *menu;
     Status           status;
     STRING           globals_filename, runtime_directory;
-    char             *title;
+    char             *title, *variable_name, *variable_value;
     BOOLEAN          next_is_label_volume;
 
     if( argc == 1 )
@@ -143,6 +150,21 @@ int  main( argc, argv )
                 if( next_is_label_volume )
                     print( "Ignoring extraneous -label\n" );
                 next_is_label_volume = TRUE;
+            }
+            else if( strcmp( filename, "-global" ) == 0 )
+            {
+                if( !get_string_argument( "", &variable_name ) ||
+                    !get_string_argument( "", &variable_value ) )
+                {
+                    print_error( "Error in arguments after -global.\n" );
+                    return( 1 );
+                }
+
+                if( set_global_variable_value( variable_name, variable_value )
+                                                     != OK )
+                {
+                    print("Error setting global variable from command line.\n");
+                }
             }
             else
             {
