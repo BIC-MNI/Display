@@ -550,7 +550,7 @@ private  void  render_slice_to_pixels( slice_window, pixels,
 
     if( status == OK )
     {
-        SET_ARRAY_SIZE( status, pixels->pixels, old_size, new_size,
+        SET_ARRAY_SIZE( status, pixels->data.pixels24, old_size, new_size,
                         DEFAULT_CHUNK_SIZE );
     }
     
@@ -586,7 +586,7 @@ private  void  render_slice_to_pixels( slice_window, pixels,
 
     for_less( y, 0, y_size )
     {
-        pixel_ptr = &pixels->pixels[y * x_size];
+        pixel_ptr = &pixels->data.pixels24[y * x_size];
 
         y_offset = start_indices[y_index] + (int) (y * dy);
 
@@ -656,7 +656,7 @@ private  void  render_slice_to_pixels( slice_window, pixels,
     {
         void   blend_in_talairach_image();
 
-        blend_in_talairach_image( pixels->pixels, x_size, y_size,
+        blend_in_talairach_image( pixels->data.pixels24, x_size, y_size,
                                   start_indices, dx, dy, volume->sizes[X] );
     }
 #endif

@@ -74,6 +74,7 @@ START_GLOBALS
     DEF_GLOBAL( Default_marker_size, Real, 1.5 )
     DEF_GLOBAL( Default_marker_colour, Colour, 0.0 )
     DEF_GLOBAL_STRING( Default_marker_label, "Marker" )
+    DEF_GLOBAL( Marker_pick_size, Real, 3.0 )
 
     DEF_GLOBAL( N_expansion_voxels, int, 6 )
 
@@ -96,6 +97,8 @@ START_GLOBALS
     DEF_GLOBAL( Slice_divider_right, int, 5 )
     DEF_GLOBAL( Slice_divider_top, int, 5 )
     DEF_GLOBAL( Slice_divider_bottom, int, 25 )
+    DEF_GLOBAL( Slice_divider_x_position, Real, 0.5 )
+    DEF_GLOBAL( Slice_divider_y_position, Real, 0.5 )
     DEF_GLOBAL( Slice_text_colour, Colour, 0.0 )
     DEF_GLOBAL( Slice_text_font, int, 0 )
     DEF_GLOBAL( Slice_text_font_size, Real, 18.0 )
@@ -255,6 +258,9 @@ START_GLOBALS
 
     DEF_GLOBAL( Max_voxel_scan_distance, Real, 0.5 )
     DEF_GLOBAL( Max_parametric_scan_distance, Real, 0.05 )
+
+    DEF_GLOBAL( Talairach_opacity, Real, 0.5 )
+    DEF_GLOBAL( Talairach_opacity_threshold, int, 230 )
 
 END_GLOBALS
          

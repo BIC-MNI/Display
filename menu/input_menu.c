@@ -153,6 +153,7 @@
                        MENU_FUNCTION(set_over_colour) \
                        MENU_FUNCTION(set_user_defined_min_colour) \
                        MENU_FUNCTION(set_user_defined_max_colour) \
+                       MENU_FUNCTION(input_colour_map) \
                        MENU_FUNCTION(set_model_parameters) \
                        MENU_FUNCTION(convert_to_new_representation) \
                        MENU_FUNCTION(load_model_parameters) \

@@ -75,10 +75,11 @@ public  Status  initialize_slice_window( graphics )
 
     if( status == OK )
         status = add_new_label( graphics, ACTIVE_BIT | LABEL_BIT,
-                                &Inactive_and_labeled_voxel_colour );
+                                &Labeled_voxel_colour );
 
     if( status == OK )
-        status = add_new_label( graphics, LABEL_BIT, &Labeled_voxel_colour );
+        status = add_new_label( graphics, LABEL_BIT,
+                                &Inactive_and_labeled_voxel_colour );
 
     if( status == OK )
         status = add_new_label( graphics, 0, &Inactive_voxel_colour );

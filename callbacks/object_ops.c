@@ -409,15 +409,14 @@ public  DEF_MENU_FUNCTION( set_current_object_surfprop )   /* ARGSUSED */
 
     if( get_current_object( graphics, &current_object ) )
     {
-        PRINT( "Enter ambient, diffuse, specular, and shininess:" );
+        PRINT( "Enter ambient, diffuse, specular, shininess, opacity:" );
 
         if( input_real( stdin, &Surfprop_a(spr) ) == OK &&
             input_real( stdin, &Surfprop_d(spr) ) == OK &&
             input_real( stdin, &Surfprop_s(spr) ) == OK &&
-            input_real( stdin, &Surfprop_se(spr) ) == OK )
+            input_real( stdin, &Surfprop_se(spr) ) == OK &&
+            input_real( stdin, &Surfprop_t(spr) ) == OK )
         {
-            Surfprop_t(spr) = 0.0;
-
             set_object_surfprop( current_object, &spr );
 
             set_update_required( graphics, NORMAL_PLANES );

@@ -101,6 +101,69 @@ public  int  get_current_object_index( graphics )
     return( index );
 }
 
+public  void  set_current_object( graphics, object )
+    graphics_struct   *graphics;
+    object_struct     *object;
+{
+    Status             status;
+    Status             push_current_object();
+    Status             pop_current_object();
+    Boolean            found, done;
+    selection_struct   *current_selection;
+    object_struct      *current_object;
+
+    current_selection = &graphics->three_d.current_object;
+
+    current_selection->current_level = 1;
+    current_selection->max_levels = 1;
+    current_selection->stack[0].object_index = 0;
+
+    found = FALSE;
+    done = FALSE;
+    status = OK;
+
+    while( status == OK && !found && !done )
+    {
+        if( get_current_object( graphics, &current_object ) &&
+            current_object == object )
+        {
+            found = TRUE;
+        }
+        else if( current_object->object_type == MODEL &&
+                 current_object->ptr.model->n_objects > 0 )
+        {
+            status = push_current_object( graphics );
+            current_selection->stack[current_selection->current_level-1].
+                    object_index = 0;
+        }
+        else
+        {
+            while( current_selection->current_level > 1 &&
+                   current_selection->stack[current_selection->current_level-1].
+                    object_index >=
+                   current_selection->stack[current_selection->current_level-1].
+                   model_object->ptr.model->n_objects-1 )
+            {
+                status = pop_current_object( graphics );
+            }
+
+            if( current_selection->current_level == 1 &&
+                current_selection->stack[current_selection->current_level-1].
+                    object_index >=
+                 current_selection->stack[0].model_object->ptr.model->
+                                                                  n_objects-1 )
+            {
+                done = TRUE;
+            }
+            else
+            {
+                ++current_selection->stack[current_selection->current_level-1].
+                    object_index;
+            }
+        }
+    }
+}
+
 public  void  set_current_object_index( graphics, index )
     graphics_struct   *graphics;
     int               index;

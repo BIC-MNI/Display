@@ -206,8 +206,8 @@ private  void  update_window_size( graphics )
     x_size = graphics->window.x_size;
     y_size = graphics->window.y_size;
 
-    graphics->slice.x_split = x_size / 2;
-    graphics->slice.y_split = y_size / 2;
+    graphics->slice.x_split = x_size * Slice_divider_x_position;
+    graphics->slice.y_split = y_size * Slice_divider_y_position;
 }
 
 private  DEF_EVENT_FUNCTION( update_probe )

@@ -21,9 +21,10 @@ public  Status  load_graphics_file( graphics, filename )
     model_struct             *model;
     model_struct             *get_current_model();
     Boolean                  get_range_of_object();
+    String                   filename_no_z;
     void                     rebuild_selected_list();
     void                     set_current_object_index();
-    int                      n_items;
+    int                      n_items, len;
     Status                   create_polygons_bintree();
     Status                   check_polygons_neighbours_computed();
     Status                   initialize_cursor();
@@ -37,44 +38,50 @@ public  Status  load_graphics_file( graphics, filename )
     Boolean                  markers_present;
     Status                   create_slice_window();
 
+    (void) strcpy( filename_no_z, filename );
+    len = strlen( filename );
+
+    if( filename[len-2] == '.' && filename[len-1] == 'Z' )
+        filename_no_z[len-2] = (char) 0;
+
     status = create_object( &object, MODEL );
 
     if( status == OK )
     {
-        PRINT( "Inputting %s.\n", filename );
+        PRINT( "Inputting %s.\n", filename_no_z );
 
         model = object->ptr.model;
 
-        (void) strcpy( model->filename, filename );
+        (void) strcpy( model->filename, filename_no_z );
 
-        if( string_ends_in(filename,".mni") ||
-            string_ends_in(filename,".nil") ||
-            string_ends_in(filename,".iff") ||
-            string_ends_in(filename,".fre") )
+        if( string_ends_in(filename_no_z,".mni") ||
+            string_ends_in(filename_no_z,".nil") ||
+            string_ends_in(filename_no_z,".iff") ||
+            string_ends_in(filename_no_z,".fre") )
         {
-            status = input_volume_file( filename,
+            status = input_volume_file( filename_no_z,
                                         &model->n_objects,
                                         &model->object_list );
         }
-        else if( string_ends_in(filename,".lmk") )
+        else if( string_ends_in(filename_no_z,".lmk") )
         {
             (void) get_slice_window_volume( graphics, &volume );
-            status = input_landmark_file( volume, filename,
+            status = input_landmark_file( volume, filename_no_z,
                                           &model->n_objects,
                                           &model->object_list,
                                           &Default_marker_colour );
         }
-        else if( string_ends_in(filename,".cnt") )
+        else if( string_ends_in(filename_no_z,".cnt") )
         {
             PRINT( "Cannot read .cnt files.\n" );
         }
-        else if( string_ends_in(filename,".roi") )
+        else if( string_ends_in(filename_no_z,".roi") )
         {
             PRINT( "Cannot read .roi files.\n" );
         }
         else
         {
-            status = input_graphics_file( filename, &format,
+            status = input_graphics_file( filename_no_z, &format,
                                           &model->n_objects,
                                           &model->object_list );
         }
