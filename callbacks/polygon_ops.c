@@ -160,6 +160,38 @@ public  DEF_MENU_UPDATE(create_normals_for_polygon )   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION( average_normals_for_polygon )   /* ARGSUSED */
+{
+    int               i, n_iters;
+    Real              neighbour_weight;
+    polygons_struct   *polygons;
+
+    if( get_current_polygons(display,&polygons) )
+    {
+        print( "Enter #iterations  neighbour_weight: " );
+
+        if( input_int( stdin, &n_iters ) == OK &&
+            input_real( stdin, &neighbour_weight ) == OK )
+        {
+            for_less( i, 0, n_iters )
+                average_polygon_normals( polygons, neighbour_weight );
+
+            graphics_models_have_changed( display );
+        }
+
+        (void) input_newline( stdin );
+
+        print( "Done averaging polygon normals.\n" );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(average_normals_for_polygon )   /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
 {
     polygons_struct   *polygons;
