@@ -135,7 +135,7 @@ view_3d
 {
     transient 'a'    reset_view              "Reset View"
     transient 's'    make_view_fit           "Fit View"
-    transient 'd'    toggle_perspective      "%s"
+    transient 'd'    toggle_perspective      "Proj: %s"
     transient 'f'    front_clipping          "Front Plane"
     transient 'g'    back_clipping           "Back Plane"
     transient 'h'    print_view              "Print View"
