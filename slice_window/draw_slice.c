@@ -21,6 +21,10 @@
 #define  Y_TALAIRACH_PROBE_INDEX       14
 #define  Z_TALAIRACH_PROBE_INDEX       15
 #define  VAL_PROBE_INDEX               16
+#define  X_FILE_PROBE_INDEX            17
+#define  Y_FILE_PROBE_INDEX            18
+#define  Z_FILE_PROBE_INDEX            19
+#define  MAX_MODEL_INDEX               19
 
 static    void           render_slice_to_pixels();
 
@@ -99,7 +103,7 @@ public  Status  initialize_slice_models( graphics )
         }
     }
 
-    for_inclusive( i, X_TRANSFORMED_PROBE_INDEX, VAL_PROBE_INDEX )
+    for_inclusive( i, X_TRANSFORMED_PROBE_INDEX, MAX_MODEL_INDEX )
     {
         status = create_object( &object, TEXT );
         if( status == OK )
@@ -154,17 +158,19 @@ public  void  rebuild_probe( graphics )
     model_struct   *get_graphics_model();
     Boolean        active;
     volume_struct  *volume;
-    int            i, x_voxel, y_voxel, z_voxel, view_index;
+    int            i, x_voxel, y_voxel, z_voxel, view_index, max_index;
     Real           x_tal_voxel, y_tal_voxel, z_tal_voxel;
     Real           x_talairach, y_talairach, z_talairach;
     text_struct    *text;
     int            nx, ny, nz;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
+    int            x_file, y_file, z_file;
     void           get_slice_viewport();
     Boolean        get_voxel_in_slice_window();
     void           convert_voxel_to_talairach();
     void           convert_talairach_to_mm();
     void           get_volume_size();
+    void           convert_to_file_space();
 
     active = get_voxel_in_slice_window( graphics, &x_voxel, &y_voxel, &z_voxel,
                                         &view_index );
@@ -183,7 +189,23 @@ public  void  rebuild_probe( graphics )
     convert_talairach_to_mm( x_tal_voxel, y_tal_voxel, z_tal_voxel,
                              &x_talairach, &y_talairach, &z_talairach );
 
-    for_inclusive( i, X_TRANSFORMED_PROBE_INDEX, VAL_PROBE_INDEX )
+    if( volume->mapping_present )
+    {
+        convert_to_file_space( volume, x_voxel, y_voxel, z_voxel,
+                                &x_file, &y_file, &z_file );
+        max_index = MAX_MODEL_INDEX;
+    }
+    else
+    {
+        max_index = VAL_PROBE_INDEX;
+    }
+
+    for_inclusive( i, X_FILE_PROBE_INDEX, Z_FILE_PROBE_INDEX )
+    {
+        model->object_list[i]->visibility = volume->mapping_present;
+    }
+
+    for_inclusive( i, X_TRANSFORMED_PROBE_INDEX, max_index )
     {
         x_pos = x_min + Probe_x_pos + (i - X_TRANSFORMED_PROBE_INDEX)
                                        * Probe_x_delta;
@@ -226,6 +248,20 @@ public  void  rebuild_probe( graphics )
                         (Real) GET_VOLUME_DATA( *graphics->slice.volume,
                                                 x_voxel, y_voxel, z_voxel) );
                 break;
+
+            case X_FILE_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_x_file_format,
+                                x_file+1 );
+                break;
+            case Y_FILE_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_y_file_format,
+                                y_file+1 );
+                break;
+            case Z_FILE_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_z_file_format,
+                                z_file+1 );
+                break;
+
             }
         }
         else
