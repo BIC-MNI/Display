@@ -5,12 +5,6 @@
 #include  <def_splines.h>
 #include  <def_bitlist.h>
 
-#define  INITIAL_SIZE         1000
-#define  ENLARGE_THRESHOLD    1.0
-#define  ENLARGE_DENSITY      0.5
-
-typedef  enum  { ON_FIRST_CORNER, ON_EDGE, ON_SECOND_CORNER } Point_classes;
-
 public  Status  initialize_surface_extraction( graphics )
     graphics_struct    *graphics;
 {
@@ -18,6 +12,9 @@ public  Status  initialize_surface_extraction( graphics )
     void                        empty_polygons_struct();
     Status                      initialize_edge_points();
     Status                      initialize_voxels_done();
+    Status                      create_object();
+    Status                      add_object_to_model();
+    object_struct               *object;
     void                        initialize_voxel_queue();
     void                        install_surface_extraction();
     surface_extraction_struct   *surface_extraction;
@@ -35,11 +32,31 @@ public  Status  initialize_surface_extraction( graphics )
                                          get_n_voxels(graphics->slice.volume) );
     }
 
+    if( graphics->models[SURFACE_MODEL]->ptr.model->n_objects < 1 )
+    {
+        if( status == OK )
+        {
+            status = create_object( &object, POLYGONS );
+        }
+
+        if( status == OK )
+        {
+            status = add_object_to_model(
+                         graphics->models[SURFACE_MODEL]->ptr.model,
+                         object );
+        }
+
+        if( status == OK )
+        {
+            surface_extraction->triangles = object->ptr.polygons;
+        }
+    }
+
     if( status == OK )
     {
         initialize_voxel_queue( &surface_extraction->voxels_to_do );
 
-        empty_polygons_struct( &surface_extraction->triangles,
+        empty_polygons_struct( surface_extraction->triangles,
                                &Extracted_surface_colour,
                                &Default_surface_property );
 
@@ -56,7 +73,6 @@ public  Status  delete_surface_extraction( graphics )
     Status                      delete_edge_points();
     Status                      delete_voxels_done();
     Status                      delete_voxel_queue();
-    Status                      delete_polygons();
     surface_extraction_struct   *surface_extraction;
     void                        uninstall_surface_extraction();
 
@@ -74,11 +90,6 @@ public  Status  delete_surface_extraction( graphics )
     if( status == OK )
     {
         status = delete_voxel_queue( &surface_extraction->voxels_to_do );
-    }
-
-    if( status == OK )
-    {
-        status = delete_polygons( &surface_extraction->triangles );
     }
 
     return( status );
@@ -218,45 +229,6 @@ public  void  stop_surface_extraction( graphics )
     }
 }
 
-public  void  install_surface_extraction( graphics )
-    graphics_struct    *graphics;
-{
-    void                    add_action_table_function();
-    DECL_EVENT_FUNCTION(    add_to_surface );
-
-    add_action_table_function( &graphics->action_table, NO_EVENT,
-                               add_to_surface );
-}
-
-public  void  uninstall_surface_extraction( graphics )
-    graphics_struct    *graphics;
-{
-    void   remove_action_table_function();
-
-    remove_action_table_function( &graphics->action_table, NO_EVENT );
-}
-
-private  DEF_EVENT_FUNCTION( add_to_surface )    /* ARGSUSED */
-{
-    void     extract_more_triangles();
-    void     display_triangles();
-
-    if( graphics->three_d.surface_extraction.extraction_in_progress &&
-        voxels_remaining( &graphics->three_d.surface_extraction.voxels_to_do ) )
-    {
-        extract_more_triangles( graphics );
-
-        graphics->update_required = TRUE;
-    }
-
-    if( graphics->update_required )
-    {
-        display_triangles( graphics );
-    }
-
-    return( OK );
-}
-
 private  Boolean  find_close_voxel_containing_value( volume, voxel_activity,
                         value,
                         x, y, z, found_indices )
@@ -348,46 +320,6 @@ private  Boolean  find_close_voxel_containing_value( volume, voxel_activity,
     return( found );
 }
 
-private  void   initialize_voxel_queue( voxel_queue )
-    QUEUE_STRUCT( voxel_index_struct )  *voxel_queue;
-{
-    INITIALIZE_QUEUE( *voxel_queue );
-}
-
-private  Status   insert_in_voxel_queue( voxel_queue, voxel_indices )
-    QUEUE_STRUCT( voxel_index_struct )  *voxel_queue;
-    voxel_index_struct                  *voxel_indices;
-{
-    Status   status;
-
-    INSERT_IN_QUEUE( status, *voxel_queue, voxel_index_struct, *voxel_indices );
-
-    return( status );
-}
-
-private  void   get_next_voxel_from_queue( voxel_queue, voxel_indices )
-    QUEUE_STRUCT( voxel_index_struct )  *voxel_queue;
-    voxel_index_struct                  *voxel_indices;
-{
-    REMOVE_FROM_QUEUE( *voxel_queue, *voxel_indices );
-}
-
-private  Boolean  voxels_remaining( voxel_queue )
-    QUEUE_STRUCT( voxel_index_struct )  *voxel_queue;
-{
-    return( !IS_QUEUE_EMPTY( *voxel_queue ) );
-}
-
-private  Status  delete_voxel_queue( voxel_queue )
-    QUEUE_STRUCT( voxel_index_struct )  *voxel_queue;
-{
-    Status   status;
-
-    DELETE_QUEUE( status, *voxel_queue );
-
-    return( status );
-}
-
 public  void  extract_more_triangles( graphics )
     graphics_struct   *graphics;
 {
@@ -427,53 +359,6 @@ public  void  extract_more_triangles( graphics )
                     &surface_extraction->voxels_to_do );
         }
     }
-}
-
-private  Status  initialize_voxels_done( voxels_done, n_voxels )
-    bitlist_struct  *voxels_done;
-    int             n_voxels;
-{
-    Status   status;
-
-    status = create_bitlist( n_voxels, voxels_done );
-
-    return( status );
-}
-
-private  Status  delete_voxels_done( voxels_done )
-    bitlist_struct  *voxels_done;
-{
-    Status   status;
-
-    status = delete_bitlist( voxels_done );
-
-    return( status );
-}
-
-private  Boolean  is_voxel_done( volume, voxels_done, indices )
-    volume_struct       *volume;
-    bitlist_struct      *voxels_done;
-    voxel_index_struct  *indices;
-{
-    return( get_bitlist_bit( voxels_done, ijk( indices->i[X_AXIS],
-                                               indices->i[Y_AXIS],
-                                               indices->i[Z_AXIS],
-                                               volume->size[Y_AXIS]-1,
-                                               volume->size[Z_AXIS]-1 ) ) );
-}
-
-private  Status  mark_voxel_done( volume, voxels_done, indices )
-    volume_struct       *volume;
-    bitlist_struct      *voxels_done;
-    voxel_index_struct  *indices;
-{
-    set_bitlist_bit( voxels_done, ijk( indices->i[X_AXIS],
-                                       indices->i[Y_AXIS],
-                                       indices->i[Z_AXIS],
-                                       volume->size[Y_AXIS]-1,
-                                       volume->size[Z_AXIS]-1 ),     ON );
-
-    return( OK );
 }
 
 private  Boolean   check_voxel( volume, voxel_activity, surface_extraction,
@@ -523,7 +408,7 @@ private  Boolean   check_voxel( volume, voxel_activity, surface_extraction,
 
     if( active && n_tris > 0 )
     {
-        poly = &surface_extraction->triangles;
+        poly = surface_extraction->triangles;
 
         status = OK;
 
@@ -534,7 +419,7 @@ private  Boolean   check_voxel( volume, voxel_activity, surface_extraction,
                 pt_index = 3 * tri + p;
                 point_id[p] = get_edge_point_id(
                                       volume,
-                                      &surface_extraction->triangles,
+                                      surface_extraction->triangles,
                                       surface_extraction->isovalue,
                                       &surface_extraction->edge_points,
                                       voxel_index,
@@ -615,104 +500,6 @@ private  void  add_voxel_neighbours( volume, x, y, z, voxels_done, voxel_queue )
             }
         }
     }
-}
-
-private  Status  initialize_edge_points( hash_table )
-    hash_table_struct  *hash_table;
-{
-    Status     status;
-
-    status = initialize_hash_table( hash_table,
-                                    2, INITIAL_SIZE, ENLARGE_THRESHOLD,
-                                    ENLARGE_DENSITY );
-
-    return( status );
-}
-
-private  Status  delete_edge_points( hash_table )
-    hash_table_struct  *hash_table;
-{
-    Status               status;
-    hash_table_pointer   hash_ptr;
-    edge_point_struct    *edge_info;
-
-    initialize_hash_pointer( &hash_ptr );
-
-    status = OK;
-
-    while( status == OK && get_next_hash_entry( hash_table, &hash_ptr,
-                                                (char **) &edge_info ) )
-    {
-        FREE1( status, edge_info );
-    }
-
-    if( status == OK )
-    {
-        status = delete_hash_table( hash_table );
-    }
-
-    return( status );
-}
-
-private  void  get_edge_point_keys( volume, voxel, edge_intersected, keys )
-    volume_struct        *volume;
-    voxel_index_struct   *voxel;
-    int                  edge_intersected;
-    int                  keys[];
-{
-    keys[0] = ijk( voxel->i[X_AXIS],
-                   voxel->i[Y_AXIS],
-                   voxel->i[Z_AXIS],
-                   volume->size[Y_AXIS],
-                   volume->size[Z_AXIS] );
-
-    keys[1] = edge_intersected;
-}
-
-private  int  get_edge_point_id( volume, tris, isovalue, hash_table,
-                                 voxel, offset_coord,
-                                 edge_intersected )
-    volume_struct       *volume;
-    polygons_struct     *tris;
-    Real                isovalue;
-    hash_table_struct   *hash_table;
-    voxel_index_struct  *voxel;
-    int                 offset_coord[N_DIMENSIONS];
-    int                 edge_intersected;
-{
-    Status               status;
-    int                  point_id, keys[2];
-    edge_point_struct    *edge_info;
-    Point_classes        pt_class;
-    voxel_index_struct   corner;
-
-    corner.i[X_AXIS] = voxel->i[X_AXIS] + offset_coord[X_AXIS];
-    corner.i[Y_AXIS] = voxel->i[Y_AXIS] + offset_coord[Y_AXIS];
-    corner.i[Z_AXIS] = voxel->i[Z_AXIS] + offset_coord[Z_AXIS];
-
-    get_edge_point_keys( volume, &corner, edge_intersected, keys );
-
-    if( lookup_in_hash_table( hash_table, keys, (char **) &edge_info ) )
-    {
-        point_id = edge_info->point_index;
-    }
-    else
-    {
-        point_id = create_point( volume, isovalue, tris, &corner,
-                                 edge_intersected, &pt_class );
-
-        CALLOC1( status, edge_info, 1, edge_point_struct );
-
-        edge_info->point_index = point_id;
-
-        if( status == OK )
-        {
-            status = insert_in_hash_table( hash_table, keys,
-                                           (char *) edge_info );
-        }
-    }
-
-    return( point_id );
 }
 
 private  int   create_point( volume, isovalue, tris, voxel, edge_intersected,
@@ -959,12 +746,44 @@ private  int   create_point( volume, isovalue, tris, voxel, edge_intersected,
     return( pt_index );
 }
 
-private  void  display_triangles( graphics )
-    graphics_struct  *graphics;
+public  int  get_edge_point_id( volume, tris, isovalue, hash_table,
+                                 voxel, offset_coord,
+                                 edge_intersected )
+    volume_struct       *volume;
+    polygons_struct     *tris;
+    Real                isovalue;
+    hash_table_struct   *hash_table;
+    voxel_index_struct  *voxel;
+    int                 offset_coord[N_DIMENSIONS];
+    int                 edge_intersected;
 {
-    void  draw_polygons();
+    int                 point_id;
+    Status              status;
+    Boolean             lookup_edge_point_id();
+    Status              record_edge_point_id();
+    voxel_index_struct  corner;
+    Point_classes       pt_class;
 
-    draw_polygons( graphics, &graphics->three_d.surface_extraction.triangles );
+    corner.i[X_AXIS] = voxel->i[X_AXIS] + offset_coord[X_AXIS];
+    corner.i[Y_AXIS] = voxel->i[Y_AXIS] + offset_coord[Y_AXIS];
+    corner.i[Z_AXIS] = voxel->i[Z_AXIS] + offset_coord[Z_AXIS];
+
+    if( !lookup_edge_point_id( volume, hash_table, &corner, edge_intersected,
+                               &point_id ) )
+    {
+        point_id = create_point( volume, isovalue, tris, &corner,
+                                 edge_intersected, &pt_class );
+
+        status = record_edge_point_id( volume, hash_table,
+                                       &corner, edge_intersected, point_id );
+
+        if( status != OK )
+        {
+            point_id = -123456789;
+        }
+    }
+
+    return( point_id );
 }
 
 public  int  get_n_voxels( volume )
