@@ -11,7 +11,7 @@ typedef  struct
 } edge_point_info;
 
 private  int  extract_polygons(
-    volume_struct               *volume,
+    Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     voxel_index_struct          *voxel_index,
     Boolean                     first_voxel,
@@ -19,7 +19,7 @@ private  int  extract_polygons(
     int                         sizes[],
     voxel_point_type            points_list[] );
 private  void  add_point_id_to_relevant_edges(
-    volume_struct       *volume,
+    Volume              volume,
     voxel_point_type    *edge_info,
     voxel_index_struct  *pt_index,
     int                 pt_id,
@@ -27,14 +27,14 @@ private  void  add_point_id_to_relevant_edges(
     edge_point_info     edge_point_list[2][2][2][N_DIMENSIONS],
     hash_table_struct   *edge_points );
 private  int  add_polygon_to_list(
-    volume_struct               *volume,
+    Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     voxel_index_struct          *voxel_index,
     int                         size,
     voxel_point_type            points_list[],
     edge_point_info             edge_point_list[2][2][2][N_DIMENSIONS] );
 private  int   create_surface_point(
-    volume_struct       *volume,
+    Volume              volume,
     Real                isovalue,
     polygons_struct     *polygons,
     voxel_index_struct  *voxel,
@@ -42,7 +42,7 @@ private  int   create_surface_point(
     Point_classes       *pt_class );
 
 public  Boolean  extract_voxel_surface(
-    volume_struct               *volume,
+    Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     voxel_index_struct          *voxel_index,
     Boolean                     first_voxel )
@@ -59,8 +59,8 @@ public  Boolean  extract_voxel_surface(
         {
             for_less( z, 0, 2 )
             {
-                value = (Real) GET_VOLUME_DATA( *volume, voxel_index->i[X]+x,
-                                 voxel_index->i[Y]+y, voxel_index->i[Z]+z );
+                GET_VOXEL_3D( value, volume, voxel_index->i[X]+x,
+                              voxel_index->i[Y]+y, voxel_index->i[Z]+z );
 
                 if( value >= surface_extraction->isovalue &&
                     !get_voxel_activity_flag( volume,
@@ -95,7 +95,7 @@ public  Boolean  extract_voxel_surface(
 }
 
 private  int  extract_polygons(
-    volume_struct               *volume,
+    Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     voxel_index_struct          *voxel_index,
     Boolean                     first_voxel,
@@ -223,7 +223,7 @@ private  int  extract_polygons(
 }
 
 private  int  add_polygon_to_list(
-    volume_struct               *volume,
+    Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     voxel_index_struct          *voxel_index,
     int                         size,
@@ -304,7 +304,7 @@ private  int  add_polygon_to_list(
 }
 
 private  int   create_surface_point(
-    volume_struct       *volume,
+    Volume              volume,
     Real                isovalue,
     polygons_struct     *polygons,
     voxel_index_struct  *voxel,
@@ -324,12 +324,12 @@ private  int   create_surface_point(
     corner[Y] = voxel->i[Y];
     corner[Z] = voxel->i[Z];
 
-    val1 = (Real) GET_VOLUME_DATA( *volume, corner[X], corner[Y], corner[Z] );
+    GET_VOXEL_3D( val1, volume, corner[X], corner[Y], corner[Z] );
     val1 = isovalue - val1;
 
     ++corner[edge_intersected];
 
-    val2 = (Real) GET_VOLUME_DATA( *volume, corner[X], corner[Y], corner[Z] );
+    GET_VOXEL_3D( val2, volume, corner[X], corner[Y], corner[Z] );
     val2 = isovalue - val2;
 
     if( val1 == 0.0 )
@@ -394,7 +394,7 @@ private  int   create_surface_point(
 }
 
 private  void  add_point_id_to_relevant_edges(
-    volume_struct       *volume,
+    Volume              volume,
     voxel_point_type    *edge_info,
     voxel_index_struct  *pt_index,
     int                 pt_id,

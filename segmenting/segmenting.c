@@ -2,7 +2,7 @@
 #include  <def_display.h>
 
 private  Boolean  should_change_this_one(
-    volume_struct   *volume,
+    Volume          volume,
     int             x,
     int             y,
     int             z,
@@ -74,14 +74,14 @@ public  void  generate_segmentation(
 }
 
 public  void  set_activity_for_slice(
-    volume_struct  *volume,
+    Volume         volume,
     int            axis_index,
     int            position,
     Boolean        activity )
 {
-    int     voxel[3], sizes[3], a1, a2;
+    int     voxel[N_DIMENSIONS], sizes[N_DIMENSIONS], a1, a2;
 
-    get_volume_size( volume, &sizes[0], &sizes[1], &sizes[2] );
+    get_volume_sizes( volume, sizes );
 
     voxel[axis_index] = position;
 
@@ -104,7 +104,7 @@ typedef struct
 } slice_position;
 
 public  void  set_connected_voxels_activity(
-    volume_struct     *volume,
+    Volume            volume,
     int               axis_index,
     int               position[3],
     int               min_threshold,
@@ -112,14 +112,15 @@ public  void  set_connected_voxels_activity(
     Neighbour_types   connectivity,
     Boolean           desired_activity )
 {
-    int                             voxel[3], sizes[3], a1, a2, x, y;
+    int                             voxel[N_DIMENSIONS], sizes[N_DIMENSIONS];
+    int                             a1, a2, x, y;
     int                             dir, n_dirs, *dx, *dy;
     slice_position                  entry;
     QUEUE_STRUCT( slice_position )  queue;
 
     n_dirs = get_neighbour_directions( connectivity, &dx, &dy );
 
-    get_volume_size( volume, &sizes[0], &sizes[1], &sizes[2] );
+    get_volume_sizes( volume, sizes );
 
     voxel[0] = position[0];
     voxel[1] = position[1];
@@ -170,7 +171,7 @@ public  void  set_connected_voxels_activity(
 }
 
 private  Boolean  should_change_this_one(
-    volume_struct   *volume,
+    Volume          volume,
     int             x,
     int             y,
     int             z,
@@ -180,7 +181,7 @@ private  Boolean  should_change_this_one(
 {
     int   value;
 
-    value = GET_VOLUME_DATA( *volume, x, y, z );
+    GET_VOXEL_3D( value, volume, x, y, z );
 
     return( desired_activity != get_voxel_activity_flag( volume, x, y, z ) &&
             min_threshold <= value && value <= max_threshold );

@@ -4,7 +4,7 @@
 #define  REGION_OF_INTEREST    1
 
 public  void  disconnect_components(
-    volume_struct   *volume,
+    Volume          volume,
     int             voxel_indices[3],
     int             axis[3],
     int             n_labels,
@@ -14,10 +14,10 @@ public  void  disconnect_components(
 {
     int           val, i;
     pixel_struct  **pixels;
-    int           x, y, index[3], size[3];
+    int           x, y, index[N_DIMENSIONS], size[N_DIMENSIONS];
     Boolean       inside;
 
-    get_volume_size( volume, &size[X], &size[Y], &size[Z] );
+    get_volume_sizes( volume, size );
 
     ALLOC2D( pixels, size[axis[X]], size[axis[Y]] );
 
@@ -31,7 +31,7 @@ public  void  disconnect_components(
 
             if( get_voxel_activity_flag( volume, index[0], index[1], index[2]))
             {
-                val = GET_VOLUME_DATA( *volume, index[0], index[1], index[2] );
+                GET_VOXEL_3D( val, volume, index[0], index[1], index[2] );
 
                 inside = (val >= min_threshold && val <=max_threshold);
             }

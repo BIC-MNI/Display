@@ -6,7 +6,7 @@ typedef struct
 } xyz_struct;
 
 public  void  fill_connected_voxels_3d(
-    volume_struct   *volume,
+    Volume          volume,
     int             x,
     int             y,
     int             z,
@@ -14,7 +14,7 @@ public  void  fill_connected_voxels_3d(
     int             max_threshold )
 {
     int                          tx, ty, tz, dx, dy, dz;
-    int                          nx, ny, nz;
+    int                          sizes[N_DIMENSIONS];
     xyz_struct                   entry;
     QUEUE_STRUCT( xyz_struct )   queue;
     bitlist_3d_struct            bitlist;
@@ -22,16 +22,16 @@ public  void  fill_connected_voxels_3d(
     const  Real                  update_every = 10.0;
     Real                         next_message_time;
 
-    get_volume_size( volume, &nx, &ny, &nz );
+    get_volume_sizes( volume, sizes );
 
-    create_bitlist_3d( nx, ny, nz, &bitlist );
+    create_bitlist_3d( sizes[X], sizes[Y], sizes[Z], &bitlist );
 
     INITIALIZE_QUEUE( queue );
 
     set_bitlist_bit_3d( &bitlist, x, y, z, TRUE );
     if( get_voxel_activity_flag( volume, x, y, z ) )
     {
-        val = GET_VOLUME_DATA( *volume, x, y, z );
+        GET_VOXEL_3D( val, volume, x, y, z );
         if( val >= min_threshold && val <= max_threshold )
         {
             set_voxel_label_flag( volume, x, y, z, TRUE );
@@ -63,16 +63,16 @@ public  void  fill_connected_voxels_3d(
             ty = y + dy;
             tz = z + dz;
 
-            if( tx >= 0 && tx < nx &&
-                ty >= 0 && ty < ny &&
-                tz >= 0 && tz < nz &&
+            if( tx >= 0 && tx < sizes[X] &&
+                ty >= 0 && ty < sizes[Y] &&
+                tz >= 0 && tz < sizes[Z] &&
                 !get_bitlist_bit_3d( &bitlist, tx, ty, tz ) )
             {
                 set_bitlist_bit_3d( &bitlist, tx, ty, tz, TRUE );
 
                 if( get_voxel_activity_flag( volume, tx, ty, tz ) )
                 {
-                    val = GET_VOLUME_DATA( *volume, tx, ty, tz );
+                    GET_VOXEL_3D( val, volume, tx, ty, tz );
                     if( val >= min_threshold && val <= max_threshold )
                     {
                         set_voxel_label_flag( volume, tx, ty, tz, TRUE );
