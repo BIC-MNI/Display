@@ -96,6 +96,7 @@ public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z )
     int               *x, *y, *z;
 {
     Boolean  found;
+    Real     x_scale, y_scale;
     int      axis_index, x_index, y_index;
     int      start_indices[N_DIMENSIONS];
     int      voxel_indices[N_DIMENSIONS];
@@ -118,12 +119,15 @@ public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z )
         {
             get_2d_slice_axes( axis_index, &x_index, &y_index );
 
+            x_scale = graphics->slice.slice_views[axis_index].x_scale;
+            y_scale = graphics->slice.slice_views[axis_index].y_scale;
+
             voxel_indices[axis_index] = start_indices[axis_index];
 
             voxel_indices[x_index] = start_indices[x_index] +
-                                        (x_pixel - x_pixel_start);
+                                        (x_pixel - x_pixel_start) * x_scale;
             voxel_indices[y_index] = start_indices[y_index] +
-                                        (y_pixel - y_pixel_start);
+                                        (y_pixel - y_pixel_start) * y_scale;
 
             *x = voxel_indices[X_AXIS];
             *y = voxel_indices[Y_AXIS];
@@ -180,6 +184,7 @@ private  void  get_slice_view( graphics, axis_index,
     int   x_offset, y_offset;
     int   x_size, y_size;
     int   x_min, x_max, y_min, y_max;
+    Real  x_scale, y_scale;
     void  get_slice_viewport();
     void  get_2d_slice_axes();
 
@@ -187,6 +192,8 @@ private  void  get_slice_view( graphics, axis_index,
 
     x_offset = graphics->slice.slice_views[axis_index].x_offset;
     y_offset = graphics->slice.slice_views[axis_index].y_offset;
+    x_scale = graphics->slice.slice_views[axis_index].x_scale;
+    y_scale = graphics->slice.slice_views[axis_index].y_scale;
 
     get_2d_slice_axes( axis_index, &x_axis_index, &y_axis_index );
 
@@ -201,15 +208,16 @@ private  void  get_slice_view( graphics, axis_index,
     if( *x_pixel < x_min )
     {
         *x_pixel = x_min;
-        indices[x_axis_index] = -x_offset;
-    }
-    else if( *x_pixel > x_max )
-    {
-        *x_pixel = x_max;
-        indices[x_axis_index] = x_max - x_min - x_offset;
+        indices[x_axis_index] = ROUND( - (Real) x_offset / x_scale );
+
+        if( indices[x_axis_index] >= x_size )
+        {
+            *x_pixel = x_max + 1;
+        }
     }
 
-    *x_pixel_end = MIN( x_min + x_offset + x_size - 1, x_max );
+    *x_pixel_end = MIN( ROUND(x_min + x_offset + (Real) (x_size - 1) / x_scale),
+                        x_max );
 
     *y_pixel = y_min + y_offset;
     indices[y_axis_index] = 0;
@@ -217,15 +225,16 @@ private  void  get_slice_view( graphics, axis_index,
     if( *y_pixel < y_min )
     {
         *y_pixel = y_min;
-        indices[y_axis_index] = -y_offset;
-    }
-    else if( *y_pixel > y_max )
-    {
-        *y_pixel = y_max;
-        indices[y_axis_index] = y_max - y_min - y_offset;
+        indices[y_axis_index] = ROUND( - (Real) y_offset / y_scale );
+
+        if( indices[y_axis_index] >= y_size )
+        {
+            *y_pixel = y_max + 1;
+        }
     }
 
-    *y_pixel_end = MIN( y_min + y_offset + y_size - 1, y_max );
+    *y_pixel_end = MIN( ROUND(y_min + y_offset + (Real) (y_size - 1) / y_scale),
+                        y_max );
 }
 
 public   void     get_2d_slice_axes( axis_index, x_index, y_index )
