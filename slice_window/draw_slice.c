@@ -208,8 +208,6 @@ public  void  rebuild_probe(
 
         label = get_volume_label_data( get_label_volume(slice_window),
                                        int_voxel );
-
-        label = label & get_max_label();
     }
 
     /* --- do slice readout models */
