@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/surface.c,v 1.56 1996-04-30 12:33:35 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/surface.c,v 1.57 1996-05-15 15:34:47 david Exp $";
 #endif
 
 
@@ -27,7 +27,7 @@ private  BOOLEAN  find_close_voxel_containing_range(
     int                        x,
     int                        y,
     int                        z,
-    voxel_index_struct         *found_indices );
+    int                        found_indices[] );
 private  void  add_voxel_neighbours(
     Volume                              volume,
     Volume                              label_volume,
@@ -42,7 +42,7 @@ private  void  add_voxel_neighbours(
 private  void  delete_edge_points_no_longer_needed(
     surface_extraction_struct       *surface_extraction,
     Volume                          volume,
-    voxel_index_struct              *voxel_index,
+    int                             voxel_index[],
     unsigned_byte                   voxel_done_flags[],
     hash_table_struct               *edge_points );
 
@@ -71,11 +71,12 @@ public  void  start_surface_extraction_at_point(
     int                y,
     int                z )
 {
-    int                         dim, dist, sizes[N_DIMENSIONS];
+    int                         dim, sizes[N_DIMENSIONS];
     int                         indices[N_DIMENSIONS];
     surface_extraction_struct   *surface_extraction;
-    voxel_index_struct          voxel_indices;
+    int                         voxel_indices[N_DIMENSIONS];
     int                         offset;
+    int                         min_crop[N_DIMENSIONS], max_crop[N_DIMENSIONS];
 
     get_volume_sizes( volume, sizes );
 
@@ -97,26 +98,18 @@ public  void  start_surface_extraction_at_point(
     else
         offset = 1;
 
+    get_volume_crop_limits( display, min_crop, max_crop );
+
     for_less( dim, 0, N_DIMENSIONS )
     {
-        dist = surface_extraction->voxel_distances[dim];
-
-        if( dist > 0 )
-        {
-            surface_extraction->min_limits[dim] = MAX( 0, indices[dim] - dist );
-            surface_extraction->max_limits[dim] =
-                          MIN( sizes[dim]-1-offset, indices[dim] + dist );
-        }
-        else
-        {
-            surface_extraction->min_limits[dim] = 0;
-            surface_extraction->max_limits[dim] = sizes[dim]-1-offset;
-        }
+        surface_extraction->min_limits[dim] = min_crop[dim];
+        surface_extraction->max_limits[dim] = MIN( sizes[dim]-1-offset,
+                                                   max_crop[dim] );
 
         if( voxellate_flag )
         {
             surface_extraction->starting_voxel[dim] =
-                        surface_extraction->min_limits[dim];
+                                    surface_extraction->min_limits[dim];
         }
         else
         {
@@ -124,7 +117,22 @@ public  void  start_surface_extraction_at_point(
         }
     }
 
-    if( !voxellate_flag )
+    if( !surface_voxel_is_within_volume( surface_extraction, indices ) )
+    {
+        /*--- turn off surface extraction */
+
+        surface_extraction->volume = NULL;
+        surface_extraction->label_volume = NULL;
+        print( "Starting voxel is not within crop limits.\n" );
+        return;
+    }
+
+    if( voxellate_flag )
+    {
+        initialize_edge_points( &surface_extraction->faces_done );
+        INITIALIZE_QUEUE( surface_extraction->deleted_faces );
+    }
+    else
     {
         initialize_voxel_queue( &surface_extraction->voxels_to_do );
         initialize_voxel_done_flags( &surface_extraction->voxel_done_flags,
@@ -137,23 +145,20 @@ public  void  start_surface_extraction_at_point(
                             surface_extraction->max_limits );
     initialize_edge_points( &surface_extraction->edge_points );
 
-    if( !surface_voxel_is_within_volume( surface_extraction, indices ) )
-        return;
-
     surface_extraction->n_voxels_with_surface = 0;
 
     if( !voxellate_flag )
     {
         if( find_close_voxel_containing_range( volume, label_volume,
                   surface_extraction->voxel_done_flags, surface_extraction,
-                  x, y, z, &voxel_indices ) )
+                  x, y, z, voxel_indices ) )
         {
             insert_in_voxel_queue( &surface_extraction->voxels_to_do,
-                                   &voxel_indices );
+                                   voxel_indices );
 
             set_voxel_flag( &surface_extraction->voxel_state,
                             surface_extraction->min_limits,
-                            &voxel_indices );
+                            voxel_indices );
 
             start_surface_extraction( display );
         }
@@ -172,20 +177,20 @@ private  BOOLEAN  find_close_voxel_containing_range(
     int                        x,
     int                        y,
     int                        z,
-    voxel_index_struct         *found_indices )
+    int                        found_indices[] )
 {
     BOOLEAN                   found, voxel_contains;
-    int                       sizes[MAX_DIMENSIONS], voxel[MAX_DIMENSIONS];
+    int                       sizes[MAX_DIMENSIONS], voxel[N_DIMENSIONS];
     BOOLEAN                   voxel_done;
     voxel_queue_struct        voxels_to_check;
-    voxel_index_struct        indices, insert;
+    int                       insert[N_DIMENSIONS];
     bitlist_3d_struct         voxels_searched;
 
     get_volume_sizes( volume, sizes );
 
-    insert.i[X] = (short) MIN( x, sizes[X]-2 );
-    insert.i[Y] = (short) MIN( y, sizes[Y]-2 );
-    insert.i[Z] = (short) MIN( z, sizes[Z]-2 );
+    insert[X] = MIN( x, sizes[X]-2 );
+    insert[Y] = MIN( y, sizes[Y]-2 );
+    insert[Z] = MIN( z, sizes[Z]-2 );
 
     found = FALSE;
 
@@ -194,37 +199,32 @@ private  BOOLEAN  find_close_voxel_containing_range(
 
     initialize_voxel_queue( &voxels_to_check );
 
-    insert_in_voxel_queue( &voxels_to_check, &insert );
+    insert_in_voxel_queue( &voxels_to_check, insert );
 
-    set_voxel_flag( &voxels_searched, surface_extraction->min_limits, &insert );
+    set_voxel_flag( &voxels_searched, surface_extraction->min_limits, insert );
 
     while( !found && voxels_remaining(&voxels_to_check) )
     {
-        get_next_voxel_from_queue( &voxels_to_check, &indices );
+        get_next_voxel_from_queue( &voxels_to_check, voxel );
 
-        voxel[X] = (int) indices.i[X];
-        voxel[Y] = (int) indices.i[Y];
-        voxel[Z] = (int) indices.i[Z];
         voxel_contains = voxel_contains_surface( volume, label_volume,
                                                  surface_extraction, voxel );
 
         voxel_done = (int) get_voxel_done_flag( surface_extraction->min_limits,
                                                 surface_extraction->max_limits,
-                                                voxel_done_flags, &indices );
+                                                voxel_done_flags, voxel );
 
         if( voxel_contains && voxel_done == 0 )
         {
-            found_indices->i[X] = indices.i[X];
-            found_indices->i[Y] = indices.i[Y];
-            found_indices->i[Z] = indices.i[Z];
+            found_indices[X] = voxel[X];
+            found_indices[Y] = voxel[Y];
+            found_indices[Z] = voxel[Z];
             found = TRUE;
         }
         else if( voxel_contains || voxel_done == 0 )
         {
             add_voxel_neighbours( volume, label_volume, sizes,
-                                  (int) indices.i[X],
-                                  (int) indices.i[Y],
-                                  (int) indices.i[Z],
+                                  voxel[X], voxel[Y], voxel[Z],
                                   voxel_done, surface_extraction,
                                   &voxels_searched, &voxels_to_check );
         }
@@ -244,11 +244,11 @@ public  BOOLEAN  some_voxels_remaining_to_do(
 
     if( surface_extraction->voxellate_flag )
     {
-        remaining_to_do = surface_extraction->starting_voxel[X] < 
+        remaining_to_do = surface_extraction->starting_voxel[X] <=
                           surface_extraction->max_limits[X] ||
-                          surface_extraction->starting_voxel[Y] < 
+                          surface_extraction->starting_voxel[Y] <=
                           surface_extraction->max_limits[Y] ||
-                          surface_extraction->starting_voxel[Z] < 
+                          surface_extraction->starting_voxel[Z] <=
                           surface_extraction->max_limits[Z];
     }
     else
@@ -257,15 +257,17 @@ public  BOOLEAN  some_voxels_remaining_to_do(
     return( remaining_to_do );
 }
 
-public  void  extract_more_surface(
+public  BOOLEAN  extract_more_surface(
     display_struct    *display )
 {
     int                         dim, n_voxels_done, sizes[N_DIMENSIONS];
-    voxel_index_struct          voxel_index;
+    int                         voxel_index[N_DIMENSIONS];
     surface_extraction_struct   *surface_extraction;
     Volume                      volume, label_volume;
     Real                        stop_time;
-    BOOLEAN                     voxellate_flag;
+    BOOLEAN                     voxellate_flag, changed;
+
+    changed = FALSE;
 
     n_voxels_done = 0;
 
@@ -285,18 +287,15 @@ public  void  extract_more_surface(
     {
         if( voxellate_flag )
         {
-            voxel_index.i[X] = (short) surface_extraction->starting_voxel[X];
-            voxel_index.i[Y] = (short) surface_extraction->starting_voxel[Y];
-            voxel_index.i[Z] = (short) surface_extraction->starting_voxel[Z];
+            voxel_index[X] = surface_extraction->starting_voxel[X];
+            voxel_index[Y] = surface_extraction->starting_voxel[Y];
+            voxel_index[Z] = surface_extraction->starting_voxel[Z];
             dim = N_DIMENSIONS-1;
             while( dim >= 0 )
             {
                 ++surface_extraction->starting_voxel[dim];
                 if( surface_extraction->starting_voxel[dim] <=
                     surface_extraction->max_limits[dim] )
-                    break;
-
-                if( dim == 0 )                 /* finished all voxels */
                     break;
 
                 surface_extraction->starting_voxel[dim] =
@@ -308,29 +307,30 @@ public  void  extract_more_surface(
         else
         {
             get_next_voxel_from_queue( &surface_extraction->voxels_to_do,
-                                       &voxel_index );
+                                       voxel_index );
         }
 
         if( !voxellate_flag )
             reset_voxel_flag( &surface_extraction->voxel_state,
-                              surface_extraction->min_limits,  &voxel_index);
+                              surface_extraction->min_limits,  voxel_index );
 
         if( extract_voxel_surface( volume, label_volume,
-                                   surface_extraction, &voxel_index,
+                                   surface_extraction, voxel_index,
                             surface_extraction->n_voxels_with_surface == 0) )
         {
+            changed = TRUE;
+
             ++surface_extraction->n_voxels_with_surface;
 
             if( !voxellate_flag )
             {
                 delete_edge_points_no_longer_needed( surface_extraction,
-                                     volume, &voxel_index,
+                                     volume, voxel_index,
                                      surface_extraction->voxel_done_flags,
                                      &surface_extraction->edge_points );
 
                 add_voxel_neighbours( volume, label_volume, sizes,
-                            (int) voxel_index.i[X], (int) voxel_index.i[Y],
-                            (int) voxel_index.i[Z],
+                            voxel_index[X], voxel_index[Y], voxel_index[Z],
                             TRUE, surface_extraction,
                             &surface_extraction->voxel_state,
                             &surface_extraction->voxels_to_do );
@@ -346,6 +346,8 @@ public  void  extract_more_surface(
         stop_surface_extraction( display );
         update_all_menu_text( display );
     }
+
+    return( changed );
 }
 
 private  void  add_voxel_neighbours(
@@ -361,40 +363,36 @@ private  void  add_voxel_neighbours(
     voxel_queue_struct              *voxel_queue )
 {
     int                      x_offset, y_offset, z_offset;
-    int                      indices[N_DIMENSIONS];
-    voxel_index_struct       neighbour;
+    int                      neighbour[N_DIMENSIONS];
 
     for_inclusive( x_offset, -1, 1 )
     {
-        indices[X] = x + x_offset;
+        neighbour[X] = x + x_offset;
 
         for_inclusive( y_offset, -1, 1 )
         {
-            indices[Y] = y + y_offset;
+            neighbour[Y] = y + y_offset;
             for_inclusive( z_offset, -1, 1 )
             {
-                indices[Z] = z + z_offset;
-                neighbour.i[X] = (short) indices[X];
-                neighbour.i[Y] = (short) indices[Y];
-                neighbour.i[Z] = (short) indices[Z];
+                neighbour[Z] = z + z_offset;
                 if( (x_offset != 0 || y_offset != 0 || z_offset != 0) &&
                     surface_voxel_is_within_volume( surface_extraction,
-                                                    indices ) &&
+                                                    neighbour ) &&
                     !get_voxel_flag( voxels_queued,
                                      surface_extraction->min_limits,
-                                     &neighbour ) &&
+                                     neighbour ) &&
                     get_voxel_done_flag( surface_extraction->min_limits,
                                          surface_extraction->max_limits,
                                          surface_extraction->voxel_done_flags,
-                                         &neighbour ) != VOXEL_COMPLETELY_DONE )
+                                         neighbour ) != VOXEL_COMPLETELY_DONE )
                 {
                     set_voxel_flag( voxels_queued,
-                                    surface_extraction->min_limits, &neighbour);
+                                    surface_extraction->min_limits, neighbour );
                     if( !surface_only ||
                         voxel_contains_surface( volume, label_volume,
-                                                surface_extraction, indices ) )
+                                                surface_extraction, neighbour ))
                     {
-                        insert_in_voxel_queue( voxel_queue, &neighbour );
+                        insert_in_voxel_queue( voxel_queue, neighbour );
                     }
                 }
             }
@@ -405,7 +403,7 @@ private  void  add_voxel_neighbours(
 private  void  delete_edge_points_no_longer_needed(
     surface_extraction_struct       *surface_extraction,
     Volume                          volume,
-    voxel_index_struct              *voxel_index,
+    int                             voxel_index[],
     unsigned_byte                   voxel_done_flags[],
     hash_table_struct               *edge_points )
 {
@@ -413,30 +411,26 @@ private  void  delete_edge_points_no_longer_needed(
     int                 x, y, dx, dy, dz;
     BOOLEAN             all_four_done;
     BOOLEAN             voxel_done[3][3][3];
-    voxel_index_struct  indices;
-    int                 int_indices[N_DIMENSIONS];
+    int                 indices[N_DIMENSIONS];
     int                 sizes[N_DIMENSIONS];
 
     get_volume_sizes( volume, sizes );
 
     for_inclusive( dx, -1, 1 )
     {
-        int_indices[X] = (int) voxel_index->i[X] + dx;
+        indices[X] = voxel_index[X] + dx;
         for_inclusive( dy, -1, 1 )
         {
-            int_indices[Y] = (int) voxel_index->i[Y] + dy;
+            indices[Y] = voxel_index[Y] + dy;
             for_inclusive( dz, -1, 1 )
             {
-                int_indices[Z] = (int) voxel_index->i[Z] + dz;
-                indices.i[X] = (short) int_indices[X];
-                indices.i[Y] = (short) int_indices[Y];
-                indices.i[Z] = (short) int_indices[Z];
+                indices[Z] = voxel_index[Z] + dz;
 
                 if( !surface_voxel_is_within_volume( surface_extraction,
-                                                     int_indices ) ||
+                                                     indices ) ||
                     get_voxel_done_flag( surface_extraction->min_limits,
                                          surface_extraction->max_limits,
-                                         voxel_done_flags, &indices )
+                                         voxel_done_flags, indices )
                                               == VOXEL_COMPLETELY_DONE )
                 {
                     voxel_done[dx+1][dy+1][dz+1] = TRUE;
@@ -464,13 +458,13 @@ private  void  delete_edge_points_no_longer_needed(
                 {
                     for_less( dy, 0, 2 )
                     {
-                        indices.i[axis_index] = 1;
-                        indices.i[a1] = (short) (x+dx);
-                        indices.i[a2] = (short) (y+dy);
+                        indices[axis_index] = 1;
+                        indices[a1] = x + dx;
+                        indices[a2] = y + dy;
 
-                        if( !voxel_done[indices.i[X]]
-                                       [indices.i[Y]]
-                                       [indices.i[Z]] )
+                        if( !voxel_done[indices[X]]
+                                       [indices[Y]]
+                                       [indices[Z]] )
                         {
                             all_four_done = FALSE;
                             break;
@@ -480,11 +474,12 @@ private  void  delete_edge_points_no_longer_needed(
 
                 if( all_four_done )
                 {
-                    indices.i[axis_index] = voxel_index->i[axis_index];
-                    indices.i[a1] = (short) ((int) voxel_index->i[a1] + x);
-                    indices.i[a2] = (short) ((int) voxel_index->i[a2] + y);
+                    indices[axis_index] = voxel_index[axis_index];
+                    indices[a1] = voxel_index[a1] + x;
+                    indices[a2] = voxel_index[a2] + y;
 
-                    remove_edge_point( sizes, edge_points, &indices,
+                    remove_edge_point( sizes, edge_points,
+                                       indices[X], indices[Y], indices[Z],
                                        axis_index );
                 }
             }

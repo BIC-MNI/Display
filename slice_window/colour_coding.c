@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.35 1996-04-26 12:49:01 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.36 1996-05-15 15:34:12 david Exp $";
 #endif
 
 
@@ -588,6 +588,12 @@ private  void  colour_code_points(
             volume = get_nth_volume( slice_window, volume_index );
             label_volume = get_nth_label_volume( slice_window, volume_index );
 
+            convert_world_to_voxel( volume,
+                                    (Real) Point_x(points[i]),
+                                    (Real) Point_y(points[i]),
+                                    (Real) Point_z(points[i]), voxel );
+
+
             if( is_an_rgb_volume( volume ) )
             {
                 convert_real_to_int_voxel( get_volume_n_dimensions(volume),
@@ -598,36 +604,34 @@ private  void  colour_code_points(
                                   volume, int_voxel[0], int_voxel[1],
                                   int_voxel[2], 0, 0 );
                 }
+                else
+                    volume_colour = get_colour_coding_under_colour(
+                               &slice_window->slice.volumes[volume_index].
+                                        colour_coding );
             }
             else
             {
-                evaluate_volume_in_world( volume,
-                                          (Real) Point_x(points[i]),
-                                          (Real) Point_y(points[i]),
-                                          (Real) Point_z(points[i]),
-                                          continuity, FALSE,
-                                          get_volume_real_min(volume),
-                                          &val,
-                                          NULL, NULL, NULL,
-                                          NULL, NULL, NULL, NULL, NULL, NULL );
+                (void) evaluate_volume( volume, voxel, NULL,
+                                        continuity, FALSE,
+                                        get_volume_real_min(volume),
+                                        &val, NULL, NULL );
             }
+
+            label = 0;
 
             if( slice_window->slice.volumes[volume_index].display_labels &&
                 is_label_volume_initialized( label_volume ) )
             {
-                convert_world_to_voxel( volume,
-                                        (Real) Point_x(points[i]),
-                                        (Real) Point_y(points[i]),
-                                        (Real) Point_z(points[i]), voxel );
                 convert_real_to_int_voxel( get_volume_n_dimensions(volume),
                                            voxel, int_voxel );
 
-                label = get_voxel_label( slice_window, volume_index,
-                                         int_voxel[X], int_voxel[Y],
-                                         int_voxel[Z] );
+                if( int_voxel_is_within_volume( volume, int_voxel ) )
+                {
+                    label = get_voxel_label( slice_window, volume_index,
+                                             int_voxel[X], int_voxel[Y],
+                                             int_voxel[Z] );
+                }
             }
-            else
-                label = 0;
 
             if( is_an_rgb_volume( volume ) )
             {

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/init_surface.c,v 1.29 1996-04-30 12:33:35 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/init_surface.c,v 1.30 1996-05-15 15:34:59 david Exp $";
 #endif
 
 
@@ -30,12 +30,8 @@ public  void  initialize_surface_extraction(
 
     surface_extraction = &display->three_d.surface_extraction;
 
-    surface_extraction->volume = (Volume) NULL;
-    surface_extraction->label_volume = (Volume) NULL;
-
-    surface_extraction->voxel_distances[X] = Default_x_voxel_max_distance;
-    surface_extraction->voxel_distances[Y] = Default_y_voxel_max_distance;
-    surface_extraction->voxel_distances[Z] = Default_z_voxel_max_distance;
+    surface_extraction->volume = NULL;
+    surface_extraction->label_volume = NULL;
 
     surface_extraction->min_invalid_label = 0.0;
     surface_extraction->max_invalid_label = -1.0;
@@ -81,7 +77,12 @@ public  void  delete_surface_extraction(
     {
         delete_edge_points( &surface_extraction->edge_points );
         delete_voxel_flags( &surface_extraction->voxel_state );
-        if( !surface_extraction->voxellate_flag )
+        if( surface_extraction->voxellate_flag )
+        {
+            delete_edge_points( &surface_extraction->faces_done );
+            DELETE_QUEUE( surface_extraction->deleted_faces );
+        }
+        else
         {
             delete_voxel_done_flags( surface_extraction->voxel_done_flags );
             delete_voxel_queue( &surface_extraction->voxels_to_do );
