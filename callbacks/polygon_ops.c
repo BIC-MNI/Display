@@ -295,7 +295,6 @@ public  DEF_MENU_FUNCTION( make_polygon_sphere )   /* ARGSUSED */
                                 get_polygons_ptr(object) );
 
         get_polygons_ptr(object)->colours[0] = WHITE;
-        get_default_surfprop( &get_polygons_ptr(object)->surfprop );
         compute_polygon_normals( get_polygons_ptr(object) );
 
         add_object_to_current_model( display, object );
@@ -335,7 +334,6 @@ public  DEF_MENU_FUNCTION( make_tetrahedral_sphere )   /* ARGSUSED */
                                    n_triangles, get_polygons_ptr(object) );
 
         get_polygons_ptr(object)->colours[0] = WHITE;
-        get_default_surfprop( &get_polygons_ptr(object)->surfprop );
         compute_polygon_normals( get_polygons_ptr(object) );
 
         add_object_to_current_model( display, object );

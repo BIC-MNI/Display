@@ -89,6 +89,8 @@ typedef  struct
 
     int                    cross_section_index;
     BOOLEAN                cross_section_visibility;
+    BOOLEAN                cross_section_vector_present;
+    Real                   cross_section_vector[MAX_DIMENSIONS];
 
 } slice_window_struct;
 

@@ -3,9 +3,8 @@
 
 private  BOOLEAN  find_close_voxel_containing_range(
     Volume                     volume,
+    Volume                     label_volume,
     unsigned_byte              voxel_done_flags[],
-    Real                       min_value,
-    Real                       max_value,
     surface_extraction_struct  *surface_extraction,
     int                        x,
     int                        y,
@@ -13,12 +12,11 @@ private  BOOLEAN  find_close_voxel_containing_range(
     voxel_index_struct         *found_indices );
 private  void  add_voxel_neighbours(
     Volume                              volume,
+    Volume                              label_volume,
     int                                 x,
     int                                 y,
     int                                 z,
     BOOLEAN                             surface_only,
-    Real                                min_value,
-    Real                                max_value,
     surface_extraction_struct           *surface_extraction,
     bitlist_struct                      *voxels_queued,
     voxel_queue_struct                  *voxel_queue );
@@ -78,9 +76,9 @@ public  void  start_surface_extraction_at_point(
                      &voxel_indices );
         }
 
-        if( find_close_voxel_containing_range( volume,
+        if( find_close_voxel_containing_range( volume, label_volume,
                   display->three_d.surface_extraction.voxel_done_flags,
-                  min_value, max_value, &display->three_d.surface_extraction,
+                  &display->three_d.surface_extraction,
                   x, y, z, &voxel_indices ) )
         {
             insert_in_voxel_queue(
@@ -100,9 +98,8 @@ public  void  start_surface_extraction_at_point(
 
 private  BOOLEAN  find_close_voxel_containing_range(
     Volume                     volume,
+    Volume                     label_volume,
     unsigned_byte              voxel_done_flags[],
-    Real                       min_value,
-    Real                       max_value,
     surface_extraction_struct  *surface_extraction,
     int                        x,
     int                        y,
@@ -139,8 +136,8 @@ private  BOOLEAN  find_close_voxel_containing_range(
         voxel[X] = indices.i[X];
         voxel[Y] = indices.i[Y];
         voxel[Z] = indices.i[Z];
-        voxel_contains = voxel_contains_range( volume, voxel,
-                                               min_value, max_value );
+        voxel_contains = voxel_contains_surface( volume, label_volume,
+                                                 surface_extraction, voxel );
 
         voxel_done = get_voxel_done_flag( volume, voxel_done_flags, &indices );
 
@@ -153,11 +150,11 @@ private  BOOLEAN  find_close_voxel_containing_range(
         }
         else if( voxel_contains || !voxel_done )
         {
-            add_voxel_neighbours( volume,
+            add_voxel_neighbours( volume, label_volume,
                                   indices.i[X],
                                   indices.i[Y],
                                   indices.i[Z],
-                                  voxel_done, min_value, max_value,
+                                  voxel_done,
                                   surface_extraction,
                                   &voxels_searched, &voxels_to_check );
         }
@@ -211,11 +208,9 @@ public  void  extract_more_surface(
                                  surface_extraction->voxel_done_flags,
                                  &surface_extraction->edge_points );
 
-            add_voxel_neighbours( volume,
+            add_voxel_neighbours( volume, label_volume,
                         voxel_index.i[X], voxel_index.i[Y], voxel_index.i[Z],
                         TRUE,
-                        surface_extraction->min_value,
-                        surface_extraction->max_value,
                         surface_extraction,
                         &surface_extraction->voxels_queued,
                         &surface_extraction->voxels_to_do );
@@ -231,12 +226,11 @@ public  void  extract_more_surface(
 
 private  void  add_voxel_neighbours(
     Volume                          volume,
+    Volume                          label_volume,
     int                             x,
     int                             y,
     int                             z,
     BOOLEAN                         surface_only,
-    Real                            min_value,
-    Real                            max_value,
     surface_extraction_struct       *surface_extraction,
     bitlist_struct                  *voxels_queued,
     voxel_queue_struct              *voxel_queue )
@@ -268,8 +262,8 @@ private  void  add_voxel_neighbours(
                 {
                     set_voxel_flag( volume, voxels_queued, &neighbour);
                     if( !surface_only ||
-                        voxel_contains_range( volume, indices,
-                                              min_value, max_value ) )
+                        voxel_contains_surface( volume, label_volume,
+                                                surface_extraction, indices ) )
                     {
                         insert_in_voxel_queue( voxel_queue, &neighbour );
                     }

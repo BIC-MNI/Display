@@ -112,7 +112,6 @@ private  void  transform_slice_axes(
     Transform        *transform )
 {
     Volume  volume;
-    Real    x0, y0, z0;
     Real    len;
     Real    separations[MAX_DIMENSIONS];
     Real    origin[MAX_DIMENSIONS];
@@ -126,30 +125,11 @@ private  void  transform_slice_axes(
 
     get_volume_separations( volume, separations );
 
-    x_axis[X] /= ABS( separations[X] );
-    x_axis[Y] /= ABS( separations[Y] );
-    x_axis[Z] /= ABS( separations[Z] );
-    y_axis[X] /= ABS( separations[X] );
-    y_axis[Y] /= ABS( separations[Y] );
-    y_axis[Z] /= ABS( separations[Z] );
-
-    origin[X] = 0.0;
-    origin[Y] = 0.0;
-    origin[Z] = 0.0;
-    convert_voxel_to_world( volume, origin, &x0, &y0, &z0 );
-
-    convert_voxel_to_world( volume, x_axis,
+    convert_voxel_vector_to_world( volume, x_axis,
                         &world_x_axis[X], &world_x_axis[Y], &world_x_axis[Z] );
-    convert_voxel_to_world( volume, y_axis,
+
+    convert_voxel_vector_to_world( volume, y_axis,
                         &world_y_axis[X], &world_y_axis[Y], &world_y_axis[Z] );
-
-    world_x_axis[X] -= x0;
-    world_x_axis[Y] -= y0;
-    world_x_axis[Z] -= z0;
-
-    world_y_axis[X] -= x0;
-    world_y_axis[Y] -= y0;
-    world_y_axis[Z] -= z0;
 
     transform_vector( transform,
                       world_x_axis[X], world_x_axis[Y], world_x_axis[Z],
@@ -158,27 +138,13 @@ private  void  transform_slice_axes(
                       world_y_axis[X], world_y_axis[Y], world_y_axis[Z],
                       &world_y_axis[X], &world_y_axis[Y], &world_y_axis[Z] );
 
-    convert_world_to_voxel( volume,
-                            world_x_axis[X], world_x_axis[Y], world_x_axis[Z],
-                            x_axis );
-    convert_world_to_voxel( volume,
-                            world_y_axis[X], world_y_axis[Y], world_y_axis[Z],
-                            y_axis );
-    convert_world_to_voxel( volume, 0.0, 0.0, 0.0, origin );
+    convert_world_vector_to_voxel( volume,
+                      world_x_axis[X], world_x_axis[Y], world_x_axis[Z],
+                      x_axis );
 
-    x_axis[X] -= origin[X];
-    x_axis[Y] -= origin[Y];
-    x_axis[Z] -= origin[Z];
-    y_axis[X] -= origin[X];
-    y_axis[Y] -= origin[Y];
-    y_axis[Z] -= origin[Z];
-
-    x_axis[X] *= ABS( separations[X] );
-    x_axis[Y] *= ABS( separations[Y] );
-    x_axis[Z] *= ABS( separations[Z] );
-    y_axis[X] *= ABS( separations[X] );
-    y_axis[Y] *= ABS( separations[Y] );
-    y_axis[Z] *= ABS( separations[Z] );
+    convert_world_vector_to_voxel( volume,
+                      world_y_axis[X], world_y_axis[Y], world_y_axis[Z],
+                      y_axis );
 
     len = sqrt(x_axis[X]*x_axis[X] + x_axis[Y]*x_axis[Y] + x_axis[Z]*x_axis[Z]);
     if( len > 0.0 )

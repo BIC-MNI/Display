@@ -227,6 +227,7 @@ public  void  initialize_slice_window(
 
     slice_window->slice.cross_section_index = OBLIQUE_VIEW_INDEX;
     slice_window->slice.cross_section_visibility = FALSE;
+    slice_window->slice.cross_section_vector_present = FALSE;
 }
 
 private  void  free_slice_window(

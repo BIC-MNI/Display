@@ -36,7 +36,8 @@ public  Status  load_graphics_file(
     {
         status = input_volume_file( filename, &volume_read_in );
 
-        volume_present = TRUE;
+        if( status == OK )
+            volume_present = TRUE;
     }
     else if( filename_extension_matches(filename,"cnt") )
     {
@@ -144,7 +145,7 @@ public  Status  load_graphics_file(
     else
         delete_object( object );
 
-    if( volume_present )
+    if( status == OK && volume_present )
     {
         if( !get_slice_window_volume( display, &volume ) )
         {

@@ -24,7 +24,6 @@ public  void  fill_connected_voxels_3d(
     QUEUE_STRUCT( xyz_struct )   queue;
     bitlist_3d_struct            checked_flags, change_flags;
     int                          n_done;
-    Real                         val;
     const  Real                  update_every = 10.0;
     Real                         next_message_time;
 

@@ -26,7 +26,7 @@ public  void  initialize_surface_curve(
     object = create_object( LINES );
     lines = get_lines_ptr( object );
     initialize_lines( lines, Surface_curve_colour );
-    lines->line_thickness = Surface_curve_thickness;
+    lines->line_thickness = (float) Surface_curve_thickness;
 
     add_object_to_model( model, object );
 
@@ -53,7 +53,7 @@ public  void  start_surface_curve(
         display->three_d.surface_curve.lines->colours[0] =
                                                   Surface_curve_colour;
         display->three_d.surface_curve.lines->line_thickness =
-                                                  Surface_curve_thickness;
+                                             (float) Surface_curve_thickness;
         display->three_d.surface_curve.lines->n_points = 0;
         display->three_d.surface_curve.lines->n_items = 0;
         display->three_d.surface_curve.prev_point_exists = FALSE;

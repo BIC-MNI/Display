@@ -12,7 +12,7 @@ public  object_struct   *create_3d_slice_quadmesh(
     quadmesh =  get_quadmesh_ptr( object );
 
     create_slice_quadmesh( volume, axis_index, voxel_position, -1, -1,
-                           quadmesh );
+                           0.0, 0.0, 0.0, 0.0, quadmesh );
 
     return( object );
 }

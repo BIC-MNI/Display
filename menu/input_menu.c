@@ -171,6 +171,7 @@ MENU_FUNCTION(box_filter_slice_window_volume) \
 MENU_FUNCTION(redo_histogram) \
 MENU_FUNCTION(redo_histogram_labeled) \
 MENU_FUNCTION(pick_slice_angle_point) \
+MENU_FUNCTION(toggle_slice_anchor) \
 MENU_FUNCTION(delete_current_object) \
 MENU_FUNCTION(toggle_display_labels) \
 MENU_FUNCTION(undo_slice_labels) \

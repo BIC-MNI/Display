@@ -370,6 +370,34 @@ private  void  get_cursor_size(
     }
 }
 
+public  void  get_slice_cross_section_direction(
+    display_struct    *slice_window,
+    int               view_index,
+    int               section_index,
+    Vector            *in_plane_axis )
+{
+    int            c;
+    Real           perp_axis[N_DIMENSIONS], separations[N_DIMENSIONS];
+    Real           plane_axis[N_DIMENSIONS];
+    Vector         plane_normal, perp_normal;
+
+    get_volume_separations( get_volume(slice_window), separations );
+    get_slice_perp_axis( slice_window, section_index, perp_axis );
+    get_slice_perp_axis( slice_window, view_index, plane_axis );
+
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        separations[c] = ABS( separations[c] );
+        Vector_coord( plane_normal, c ) = plane_axis[c] * separations[c];
+        Vector_coord( perp_normal, c ) = perp_axis[c] * separations[c];
+    }
+
+    CROSS_VECTORS( *in_plane_axis, plane_normal, perp_normal );
+
+    for_less( c, 0, N_DIMENSIONS )
+        Vector_coord( *in_plane_axis, c ) /= separations[c];
+}
+
 #define  EXTRA_PIXELS   10
 
 private  void  rebuild_one_slice_cross_section(
@@ -380,11 +408,10 @@ private  void  rebuild_one_slice_cross_section(
     int            sizes[N_DIMENSIONS];
     int            c, section_index, x_min, x_max, y_min, y_max;
     Real           x1, y1, x2, y2, dx, dy, len, t_min, t_max;
-    Real           perp_axis[N_DIMENSIONS], separations[N_DIMENSIONS];
-    Real           plane_axis[N_DIMENSIONS];
+    Real           separations[N_DIMENSIONS];
     Real           voxel1[N_DIMENSIONS], voxel2[N_DIMENSIONS];
     Point          origin, v1, v2, p1, p2;
-    Vector         plane_normal, perp_normal, in_plane_axis, direction;
+    Vector         in_plane_axis, direction;
     object_struct  *object;
     lines_struct   *lines;
     Real           current_voxel[N_DIMENSIONS];
@@ -410,27 +437,21 @@ private  void  rebuild_one_slice_cross_section(
 
     get_current_voxel( slice_window, current_voxel );
     get_volume_separations( get_volume(slice_window), separations );
-    get_slice_perp_axis( slice_window, section_index, perp_axis );
-    get_slice_perp_axis( slice_window, view_index, plane_axis );
 
     for_less( c, 0, N_DIMENSIONS )
     {
         separations[c] = ABS( separations[c] );
         Point_coord( origin, c ) = current_voxel[c];
-        Vector_coord( plane_normal, c ) = plane_axis[c] * separations[c];
-        Vector_coord( perp_normal, c ) = perp_axis[c] * separations[c];
     }
 
-    CROSS_VECTORS( in_plane_axis, plane_normal, perp_normal );
+    get_slice_cross_section_direction( slice_window, view_index, section_index,
+                                       &in_plane_axis );
 
     if( null_Vector( &in_plane_axis ) )
     {
         set_object_visibility( object, FALSE );
         return;
     }
-
-    for_less( c, 0, N_DIMENSIONS )
-        Vector_coord( in_plane_axis, c ) /= separations[c];
 
     get_volume_sizes( get_volume(slice_window), sizes );
 

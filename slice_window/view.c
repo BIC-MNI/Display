@@ -689,17 +689,39 @@ public  void  set_slice_plane_perp_axis(
     Real     used_y_axis[MAX_DIMENSIONS];
     Real     separations[MAX_DIMENSIONS];
     Real     perp[MAX_DIMENSIONS];
-    Real     test_perp[MAX_DIMENSIONS];
+    Vector   axis, vect, new_axis, tmp;
     int      x_index, y_index;
     int      c, max_axis;
 
     get_volume_separations( get_volume(slice_window), separations );
 
+    for_less( c, 0, N_DIMENSIONS )
+        separations[c] = ABS( separations[c] );
+
+    for_less( c, 0, N_DIMENSIONS )
+        perp[c] = voxel_perp[c] * separations[c];
+
+    if( slice_window->slice.cross_section_vector_present )
+    {
+        for_less( c, 0, N_DIMENSIONS )
+        {
+            Vector_coord(axis,c) = perp[c];
+            Vector_coord(vect,c) =
+                 slice_window->slice.cross_section_vector[c] * separations[c];
+        }
+
+        CROSS_VECTORS( tmp, vect, axis );
+        CROSS_VECTORS( new_axis, vect, tmp );
+        if( DOT_VECTORS( new_axis, axis ) < 0.0 )
+            SCALE_VECTOR( new_axis, new_axis, -1.0 );
+
+        for_less( c, 0, N_DIMENSIONS )
+            perp[c] = Vector_coord( new_axis, c );
+    }
+
     max_value = 0.0;
     for_less( c, 0, N_DIMENSIONS )
     {
-        separations[c] = ABS( separations[c] );
-        perp[c] = voxel_perp[c] * separations[c];
         if( c == 0 || ABS(perp[c]) > max_value )
         {
             max_value = ABS(perp[c]);
@@ -764,9 +786,6 @@ public  void  set_slice_plane_perp_axis(
         slice_window->slice.slice_views[view_index].x_axis[c] = used_x_axis[c];
         slice_window->slice.slice_views[view_index].y_axis[c] = used_y_axis[c];
     }
-
-    get_voxel_axis_perpendicular( get_volume(slice_window),
-                                  used_x_axis, used_y_axis, test_perp );
 
     rebuild_volume_cross_section( slice_window );
     rebuild_slice_cross_sections( slice_window );

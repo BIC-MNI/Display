@@ -28,7 +28,8 @@ public  Status   input_volume_file(
                            nc_data_type, signed_flag, voxel_min, voxel_max,
                            TRUE, volume, (minc_input_options *) NULL );
 
-    if( get_volume_n_dimensions( *volume ) != N_DIMENSIONS )
+    if( status == OK &&
+        get_volume_n_dimensions( *volume ) != N_DIMENSIONS )
     {
         print( "Volume %s has %d dimensions, should have %d\n",
                filename, get_volume_n_dimensions(*volume), N_DIMENSIONS );

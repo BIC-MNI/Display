@@ -134,30 +134,50 @@ private  void  set_slice_angle(
     if( null_Vector(&plane_normal) )
         return;
 
-    /*--- find the x_axis and the projection of the new normal into the plane */
+    /*--- find the axis in the plane */
 
     SUB_POINTS( x_axis, in_plane_point, origin );
-    NORMALIZE_VECTOR( x_axis, x_axis );
-    CROSS_VECTORS( in_plane, x_axis, plane_normal );
 
-    factor = DOT_VECTORS( current_normal, plane_normal ) /
-             DOT_VECTORS( plane_normal, plane_normal );
+    if( slice_window->slice.cross_section_vector_present )
+    {
+        Vector  axis1;
 
-    /*--- add the plane normal component of the oblique plane normal */
+        for_less( c, 0, N_DIMENSIONS )
+        {
+            Vector_coord( axis1, c ) =
+              slice_window->slice.cross_section_vector[c] * separations[c];
+        }
+        CROSS_VECTORS( new_normal, axis1, x_axis );
+    }
+    else
+    {
+        /*--- find the projection of the new normal into the plane */
 
-    SCALE_VECTOR( offset, plane_normal, factor );
-    SUB_VECTORS( current_in_plane, current_normal, offset );
-    mag = MAGNITUDE( current_in_plane );
-    if( mag == 0.0 )
+        NORMALIZE_VECTOR( x_axis, x_axis );
+        CROSS_VECTORS( in_plane, x_axis, plane_normal );
+
+        factor = DOT_VECTORS( current_normal, plane_normal ) /
+                 DOT_VECTORS( plane_normal, plane_normal );
+
+        /*--- add the plane normal component of the oblique plane normal */
+
+        SCALE_VECTOR( offset, plane_normal, factor );
+        SUB_VECTORS( current_in_plane, current_normal, offset );
+        mag = MAGNITUDE( current_in_plane );
+        if( mag == 0.0 )
+            return;
+
+        if( DOT_VECTORS( in_plane, current_in_plane ) < 0.0 )
+            SCALE_VECTOR( in_plane, in_plane, -1.0 );
+
+        scale = MAGNITUDE( in_plane ) / mag;
+        SCALE_VECTOR( offset, offset, scale );
+
+        ADD_VECTORS( new_normal, in_plane, offset );
+    }
+
+    if( null_Vector( &new_normal ) )
         return;
-
-    if( DOT_VECTORS( in_plane, current_in_plane ) < 0.0 )
-        SCALE_VECTOR( in_plane, in_plane, -1.0 );
-
-    scale = MAGNITUDE( in_plane ) / mag;
-    SCALE_VECTOR( offset, offset, scale );
-
-    ADD_VECTORS( new_normal, in_plane, offset );
 
     for_less( c, 0, N_DIMENSIONS )
         new_axis[c] = Vector_coord( new_normal, c ) / separations[c];

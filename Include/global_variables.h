@@ -175,6 +175,8 @@ START_GLOBALS
     DEF_GLOBAL( Min_cursor_angle_diff, Real, 5.0 )
     DEF_GLOBAL( Cursor_pick_distance, Real, 10.0 )
 
+    DEF_GLOBAL( Slice_cross_section_colour, Colour, GREEN )
+
     DEF_GLOBAL( Extracted_surface_colour, Colour, WHITE )
     DEF_GLOBAL5( Default_surface_property, Surfprop, 0.3, 0.3, 0.4, 10.0, 1.0 )
 

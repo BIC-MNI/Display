@@ -167,7 +167,7 @@ private  BOOLEAN  find_shortest_path(
     int                    i, p, size, point_index, next_point_index;
     Real                   dist;
     Smallest_int           *vertex_validity;
-    BOOLEAN                found_path;
+    BOOLEAN                found_path, closed;
     queue_struct           entry;
     int                    n_polys, *polys;
     PRIORITY_QUEUE_STRUCT( queue_struct )   queue;
@@ -230,7 +230,7 @@ private  BOOLEAN  find_shortest_path(
 
         n_polys = get_polygons_around_vertex( polygons, entry.poly_index,
                                               entry.index_within_poly, polys,
-                                              polygons->n_items );
+                                              polygons->n_items, &closed );
 
         for_less( i, 0, n_polys )
         {

@@ -41,17 +41,49 @@ public  void  initialize_atlas(
     atlas->n_pages = 0;
 }
 
+public  void  delete_atlas(
+    atlas_struct   *atlas )
+{
+    int    axis, p;
+
+    for_less( axis, 0, N_DIMENSIONS )
+    {
+        if( atlas->slice_lookup[axis] != (atlas_position_struct **) 0 )
+            FREE( atlas->slice_lookup[axis] )
+    }
+
+    if( atlas->n_pixel_maps > 0 )
+    {
+        for_less( p, 0, atlas->n_pixel_maps )
+            delete_pixels( &atlas->pixel_maps[p] );
+
+        FREE( atlas->pixel_maps );
+    }
+
+    if( atlas->n_pages > 0 )
+    {
+        for_less( p, 0, atlas->n_pages )
+        {
+            if( atlas->pages[p].n_resolutions > 0 )
+                FREE( atlas->pages[p].pixel_map_indices );
+        }
+
+        FREE( atlas->pages );
+    }
+}
+
 private  Status  input_atlas(
     atlas_struct   *atlas,
     char           filename[] )
 {
-    Status   status;
-    FILE     *file;
-    STRING   *image_filenames, image_filename;
-    char     axis_letter;
-    Real     mm_position;
-    int      pixel_index, page_index, axis_index;
-    STRING   atlas_directory;
+    Status           status;
+    FILE             *file;
+    STRING           *image_filenames, image_filename;
+    char             axis_letter;
+    Real             mm_position;
+    int              pixel_index, page_index, axis_index;
+    STRING           atlas_directory;
+    progress_struct  progress;
 
     extract_directory( filename, atlas_directory );
 
@@ -98,9 +130,6 @@ private  Status  input_atlas(
                 SET_ARRAY_SIZE( atlas->pixel_maps,
                                 atlas->n_pixel_maps, atlas->n_pixel_maps+1,
                                     DEFAULT_CHUNK_SIZE );
-                if( input_pixel_map( atlas_directory, image_filename,
-                               &atlas->pixel_maps[atlas->n_pixel_maps] ) != OK )
-                    break;
 
                 ++atlas->n_pixel_maps;
             }
@@ -132,6 +161,25 @@ private  Status  input_atlas(
 
     if( status == OK )
         status = close_file( file );
+
+    if( status == OK )
+    {
+        initialize_progress_report( &progress, FALSE, atlas->n_pixel_maps,
+                                    "Reading Atlas" );
+
+        for_less( pixel_index, 0, atlas->n_pixel_maps )
+        {
+            status = input_pixel_map( atlas_directory,
+                                      image_filenames[pixel_index],
+                                      &atlas->pixel_maps[pixel_index] );
+            if( status != OK )
+                break;
+
+            update_progress_report( &progress, pixel_index+1 );
+        }
+
+        terminate_progress_report( &progress );
+    }
 
     if( status == OK && atlas->n_pixel_maps > 0 )
         FREE( image_filenames );
@@ -270,14 +318,10 @@ public  void  set_atlas_state(
 
     if( state && !slice_window->slice.atlas.input )
     {
-        print( "Inputting atlas..." );
-        (void) flush_file( stdout );
         status = input_atlas( &slice_window->slice.atlas, Atlas_filename );
 
         if( status == OK )
             regenerate_atlas_lookup( slice_window );
-
-        print( "done\n" );
     }
 
     slice_window->slice.atlas.enabled = state;

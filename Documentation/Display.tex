@@ -268,17 +268,36 @@ box:
        the slice window is an arbitrarily oriented plane.  This menu
        selection toggles the visibility of this cross section plane in
        the 3D window.
+\item[\menutwo{Slice}{Set Current Arb. View}]  Each of the four slices can
+       be oriented to an arbitrary angle.  By pointing to one of the slices
+       and selecting this menu option, the user can set the current view,
+       which is the one that the following slicing commands operate on.
+\item[\menutwo{Slice}{Toggle Slice Crs-Sect}]  Turns on and off the cross
+       section visibility of the current view slice.
 \item[\menutwo{Slice}{Rotate Slice}]  After selecting this entry,
        the middle mouse button in the 3D window will control rotation
-       of the arbitrarily oriented slice, updating the fourth slice
-       view in the slice window accordingly.
+       of the arbitrarily oriented slice, updating the current
+       view slice in the slice window.
 \item[\menutwo{Slice}{Pick Slice Angle}]  Instead of rotating the
-       slice in the 3D window, the orientation of the fourth slice
-       view can be chosen from within the slice window.  After
-       selecting this menu entry while pointing to a slice view, the left
-       mouse button selects a position on the slice.  The line through
-       the slice cursur and this position is used to define the slice
-       plane of the fourth slice view.
+       slice in the 3D window, the orientation of the current view slice
+       can be chosen from within the slice window.  After
+       selecting this menu entry, the left
+       mouse button selects a position on one of the other slices.  The
+       line through the slice cursur and this position is used to define
+       the slice plane of the current view slice.
+\item[\menutwo{Slice}{Toggle Slice Anchor}]  Turns on and off the anchoring
+       of the current view slice to pass through the cross section of the
+       current slice view.  This is used to constrain a slice plane to pass
+       through a given vector.
+\item[\menutwo{Slice}{Print Origin}]  Prints the cursor location in world
+       space to the text window.
+\item[\menutwo{Slice}{Print Plane Normal}]  Prints the world space normal of
+       the slice currently under the mouse.
+\item[\menutwo{Slice}{Type In Origin}]  Prompts the user to type in a world
+       space x, y, and z, and moves the cursor to this point.
+\item[\menutwo{Slice}{Type In Plane Normal}]  If the mouse is pointing to
+       one of the four slices, prompts the user to type in a world
+       space x, y, and z, and orients the slice plane to this normal.
 \end{description}
 
 \subsection{Colour Coding Menu}

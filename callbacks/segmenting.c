@@ -14,9 +14,9 @@ private  void   set_connected_labels(
 public  DEF_MENU_FUNCTION( label_voxel )   /* ARGSUSED */
 {
     Real           voxel[MAX_DIMENSIONS];
-    int            axis_index, int_voxel[MAX_DIMENSIONS];
+    int            view_index, int_voxel[MAX_DIMENSIONS];
 
-    if( get_voxel_under_mouse( display, voxel, &axis_index ) )
+    if( get_voxel_under_mouse( display, voxel, &view_index ) )
     {
         record_slice_under_mouse( display );
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
@@ -36,9 +36,9 @@ public  DEF_MENU_UPDATE(label_voxel )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( clear_voxel )   /* ARGSUSED */
 {
     Real           voxel[MAX_DIMENSIONS];
-    int            axis_index, int_voxel[MAX_DIMENSIONS];
+    int            view_index, int_voxel[MAX_DIMENSIONS];
 
-    if( get_voxel_under_mouse( display, voxel, &axis_index ) )
+    if( get_voxel_under_mouse( display, voxel, &view_index ) )
     {
         record_slice_under_mouse( display );
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
@@ -194,10 +194,14 @@ private  void  set_slice_labels(
     int                label )
 {
     Real             voxel[MAX_DIMENSIONS];
-    int              axis_index, int_voxel[MAX_DIMENSIONS];
+    int              view_index, int_voxel[MAX_DIMENSIONS];
+    int              x_index, y_index, axis_index;
     display_struct   *slice_window;
 
-    if( get_voxel_under_mouse( display, voxel, &axis_index ) )
+    if( get_voxel_under_mouse( display, voxel, &view_index ) &&
+        get_slice_window( display, &slice_window ) &&
+        slice_has_ortho_axes( slice_window, view_index,
+                              &x_index, &y_index, &axis_index ) )
     {
         record_slice_under_mouse( display );
 
@@ -254,12 +258,16 @@ private  void   set_connected_labels(
     BOOLEAN          use_threshold )
 {
     Real             voxel[MAX_DIMENSIONS], min_threshold, max_threshold;
-    int              axis_index, int_voxel[MAX_DIMENSIONS];
+    int              view_index, int_voxel[MAX_DIMENSIONS];
     int              label_under_mouse;
+    int              x_index, y_index, axis_index;
     int              min_label_threshold, max_label_threshold;
     display_struct   *slice_window;
 
-    if( get_voxel_under_mouse( display, voxel, &axis_index ) )
+    if( get_voxel_under_mouse( display, voxel, &view_index ) &&
+        get_slice_window( display, &slice_window ) &&
+        slice_has_ortho_axes( slice_window, view_index,
+                              &x_index, &y_index, &axis_index ) )
     {
         record_slice_under_mouse( display );
         slice_window = display->associated[SLICE_WINDOW];
@@ -298,11 +306,11 @@ private  void   set_connected_labels(
 public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
 {
     Real             voxel[MAX_DIMENSIONS];
-    int              axis_index, int_voxel[MAX_DIMENSIONS];
+    int              view_index, int_voxel[MAX_DIMENSIONS];
     int              label_under_mouse, desired_label;
     display_struct   *slice_window;
 
-    if( get_voxel_under_mouse( display, voxel, &axis_index ) &&
+    if( get_voxel_under_mouse( display, voxel, &view_index ) &&
         get_slice_window( display, &slice_window ) )
     {
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );

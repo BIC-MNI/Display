@@ -538,3 +538,39 @@ public  DEF_MENU_UPDATE(set_current_arbitrary_view)    /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION(toggle_slice_anchor)  /* ARGSUSED */
+{
+    int              c, view_index;
+    Vector           axis;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        if( slice_window->slice.cross_section_vector_present ||
+            !get_slice_view_index_under_mouse( slice_window, &view_index ) ||
+            view_index == get_arbitrary_view_index( slice_window ) )
+        {
+            slice_window->slice.cross_section_vector_present = FALSE;
+            print( "Slice anchor turned off\n" );
+        }
+        else
+        {
+            slice_window->slice.cross_section_vector_present = TRUE;
+            print( "Setting slice anchor to view index: %d\n", view_index );
+
+            get_slice_cross_section_direction( slice_window, view_index,
+                           get_arbitrary_view_index( slice_window ),
+                           &axis );
+
+            for_less( c, 0, N_DIMENSIONS )
+                slice_window->slice.cross_section_vector[c] =
+                                                     Vector_coord(axis,c);
+        }
+    }
+}
+
+public  DEF_MENU_UPDATE(toggle_slice_anchor)    /* ARGSUSED */
+{
+    return( OK );
+}

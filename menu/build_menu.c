@@ -292,7 +292,7 @@ private  void   create_menu_box(
     lines = get_lines_ptr( object );
     initialize_lines( lines, Menu_box_colour );
 
-    lines->line_thickness = 1;
+    lines->line_thickness = 1.0;
     lines->n_points = 4;
     lines->n_items = 1;
 

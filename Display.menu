@@ -88,6 +88,7 @@ slice_view
     transient 'e'    pick_slice_angle_point          "Pick Slice Angle"
     transient 'r'    create_3d_slice                 "Create 3D Slice"
     transient 'y'    set_current_arbitrary_view      "Set Current Arb. View"
+    transient 'u'    toggle_slice_anchor             "Toggle Slice Anchor"
 
     transient 'a'    toggle_double_buffer_slice      "Slice DblBuf: %s"
     transient 's'    toggle_slice_visibility         "Toggle Slice Visibility"

@@ -31,6 +31,8 @@ int  main( argc, argv )
     STRING           globals_filename, runtime_directory;
     char             *title;
 
+    set_alloc_checking( Alloc_checking_enabled );
+
     if( argc == 1 )
         title = argv[0];
     else

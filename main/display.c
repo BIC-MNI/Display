@@ -60,6 +60,8 @@ private  void  display_objects_recursive(
 
     set_render_info( window, render );
     G_set_view_type( window, view_type );
+    G_set_zbuffer_state( window,
+                         view_type == WORLD_VIEW || view_type == MODEL_VIEW );
     G_push_transform( window, transform );
 
     for_less( i, 0, n_objects )
@@ -84,6 +86,8 @@ private  void  display_objects_recursive(
 
                     set_render_info( window, render );
                     G_set_view_type( window, view_type );
+                    G_set_zbuffer_state( window,
+                         view_type == WORLD_VIEW || view_type == MODEL_VIEW );
                 }
             }
             else

@@ -43,19 +43,16 @@ private  int   create_surface_point(
     int                 edge_intersected,
     Point_classes       *pt_class );
 
-public  BOOLEAN  extract_voxel_surface(
+private  BOOLEAN  get_voxel_values(
     Volume                      volume,
     Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
-    voxel_index_struct          *voxel_index,
-    BOOLEAN                     first_voxel )
+    int                         voxel_index[],
+    Real                        corner_values[2][2][2] )
 {
     BOOLEAN                valid;
-    voxel_point_type       *points_list;
-    Real                   corner_values[2][2][2];
     Real                   value, label;
-    int                    n_polys, n_nondegenerate_polys;
-    int                    x, y, z, *sizes, voxel[MAX_DIMENSIONS];
+    int                    x, y, z, voxel[MAX_DIMENSIONS];
 
     valid = TRUE;
 
@@ -65,9 +62,9 @@ public  BOOLEAN  extract_voxel_surface(
         {
             for_less( z, 0, 2 )
             {
-                voxel[X] = voxel_index->i[X] + x;
-                voxel[Y] = voxel_index->i[Y] + y;
-                voxel[Z] = voxel_index->i[Z] + z;
+                voxel[X] = voxel_index[X] + x;
+                voxel[Y] = voxel_index[Y] + y;
+                voxel[Z] = voxel_index[Z] + z;
 
                 GET_VALUE_3D( value, volume, voxel[X], voxel[Y], voxel[Z] );
 
@@ -101,7 +98,72 @@ public  BOOLEAN  extract_voxel_surface(
         }
     }
 
-    if( !valid )
+    return( valid );
+}
+
+public  BOOLEAN  voxel_contains_surface(
+    Volume                      volume,
+    Volume                      label_volume,
+    surface_extraction_struct   *surface_extraction,
+    int                         voxel_index[] )
+{
+    BOOLEAN                contains, below, above;
+    Real                   corner_values[2][2][2];
+    int                    x, y, z;
+
+    if( !get_voxel_values( volume, label_volume, surface_extraction,
+                           voxel_index, corner_values ) )
+        return( FALSE );
+
+    below = FALSE;
+    above = FALSE;
+
+    for_less( x, 0, 2 )
+    {
+        for_less( y, 0, 2 )
+        {
+            for_less( z, 0, 2 )
+            {
+                if( corner_values[x][y][z] >= surface_extraction->min_value )
+                {
+                    if( below )
+                        return( TRUE );
+                    above = TRUE;
+                }
+                else if( corner_values[x][y][z] <=
+                         surface_extraction->max_value )
+                {
+                    if( above )
+                        return( TRUE );
+                    below = TRUE;
+                }
+            }
+        }
+    }
+
+    return( FALSE );
+}
+
+public  BOOLEAN  extract_voxel_surface(
+    Volume                      volume,
+    Volume                      label_volume,
+    surface_extraction_struct   *surface_extraction,
+    voxel_index_struct          *voxel_index,
+    BOOLEAN                     first_voxel )
+{
+    BOOLEAN                valid;
+    voxel_point_type       *points_list;
+    Real                   corner_values[2][2][2];
+    Real                   value, label;
+    int                    n_polys, n_nondegenerate_polys;
+    int                    x, y, z, *sizes, voxel[N_DIMENSIONS];
+
+    voxel[X] = voxel_index->i[X];
+    voxel[Y] = voxel_index->i[Y];
+    voxel[Z] = voxel_index->i[Z];
+
+    if( !get_voxel_values( volume, label_volume, surface_extraction,
+                           voxel, corner_values ) )
         return( FALSE );
 
     n_polys = compute_isosurface_in_voxel(

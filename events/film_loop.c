@@ -133,7 +133,7 @@ private  Status  create_film_loop_header(
     {
         create_frame_filename( base_filename, i+1, frame_filename );
 
-        strip_off_directories( frame_filename, no_dirs );
+        remove_directories_from_filename( frame_filename, no_dirs );
 
         if( status == OK )
             status = output_string( file, no_dirs );
