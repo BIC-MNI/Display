@@ -187,7 +187,7 @@ public  DEF_MENU_UPDATE(set_label_colour )   /* ARGSUSED */
     return( OK );
 }
 
-private  save_labels_as_landmarks(
+private  save_labels_as_tags(
     display_struct  *display,
     display_struct  *slice_window,
     int             desired_label )
@@ -196,29 +196,19 @@ private  save_labels_as_landmarks(
     FILE           *file;
     int            i;
     String         filename;
-    Colour         colour_table[LOWER_AUXILIARY_BITS+1];
 
     print( "Enter filename to save: " );
     if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
     {
-        for_less( i, 0, LOWER_AUXILIARY_BITS+1 )
-        {
-            if( slice_window->slice.label_colours_used[i|ACTIVE_BIT] )
-                colour_table[i] = slice_window->slice.
-                                    label_colours[i|ACTIVE_BIT];
-            else
-                colour_table[i] = BLACK;
-        }
-
-        status = open_file_with_default_suffix( filename, "lmk",
-                                        WRITE_FILE, ASCII_FORMAT, &file );
+        status = open_file_with_default_suffix( filename,
+                         get_default_tag_file_suffix(),
+                         WRITE_FILE, ASCII_FORMAT, &file );
 
         if( status == OK )
-            status = output_labels_as_landmarks( file, get_volume(slice_window),
-                  desired_label,
-                  display->three_d.default_marker_size,
-                  display->three_d.default_marker_patient_id,
-                  colour_table );
+            status = output_labels_as_tags( file, get_volume(slice_window),
+                      desired_label,
+                      display->three_d.default_marker_size,
+                      display->three_d.default_marker_patient_id );
 
         if( status == OK )
             status = close_file( file );
@@ -234,7 +224,7 @@ public  DEF_MENU_FUNCTION( save_labels )   /* ARGSUSED */
     display_struct *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
-        save_labels_as_landmarks( display, slice_window, -1 );
+        save_labels_as_tags( display, slice_window, -1 );
 
     return( OK );
 }
@@ -252,8 +242,8 @@ public  DEF_MENU_FUNCTION( save_current_label )   /* ARGSUSED */
     {
         if( slice_window->slice.current_paint_label > 0 )
         {
-            save_labels_as_landmarks( display, slice_window,
-                                      slice_window->slice.current_paint_label );
+            save_labels_as_tags( display, slice_window,
+                                 slice_window->slice.current_paint_label );
         }
         else
             print( "You first have to set the current label > 0.\n" );
@@ -270,6 +260,7 @@ public  DEF_MENU_UPDATE(save_current_label )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
 {
     Status         status;
+    Boolean        landmark_format;
     FILE           *file;
     String         filename;
     display_struct *slice_window;
@@ -281,11 +272,20 @@ public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
         print( "Enter filename to load: " );
         if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
         {
-            status = open_file_with_default_suffix( filename, "lmk",
-                                            READ_FILE, ASCII_FORMAT, &file );
+            landmark_format = 
+               string_ends_in( filename, get_default_landmark_file_suffix());
+
+            status = open_file_with_default_suffix( filename,
+                                get_default_tag_file_suffix(),
+                                READ_FILE, ASCII_FORMAT, &file );
 
             if( status == OK )
-                status = input_landmarks_as_labels( file, volume );
+            {
+                if( landmark_format )
+                    status = input_landmarks_as_labels( file, volume );
+                else
+                    status = input_tags_as_labels( file, volume );
+            }
 
             if( status == OK )
                 status = close_file( file );

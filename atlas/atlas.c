@@ -1,19 +1,13 @@
 #include  <def_display.h>
 
 private  atlas_position_struct  *get_closest_atlas_slice(
-    int           voxel_index,
-    int           sizes[3],
     int           axis,
+    Real          slice_position,
     atlas_struct  *atlas );
 private  Status  input_pixel_map(
     char           default_directory[],
     char           image_filename[],
     pixels_struct  *pixels );
-private  Real  get_distance_from_voxel(
-    int   voxel_index,
-    int   sizes[3],
-    int   axis_index,
-    Real  mm_coordinate );
 private  Boolean  find_appropriate_atlas_image(
     pixels_struct           *atlas_images,
     atlas_position_struct   *atlas_page,
@@ -185,6 +179,7 @@ public  void  regenerate_atlas_lookup(
 {
     Volume            volume;
     atlas_struct      *atlas;
+    Real              voxel[N_DIMENSIONS], world[N_DIMENSIONS];
     int               sizes[N_DIMENSIONS], axis, i;
 
     (void) get_slice_window_volume( slice_window, &volume );
@@ -200,16 +195,32 @@ public  void  regenerate_atlas_lookup(
 
         for_less( i, 0, sizes[axis] )
         {
+            voxel[X] = 0.0;
+            voxel[Y] = 0.0;
+            voxel[Z] = 0.0;
+            voxel[axis] = (Real) i;
+            convert_voxel_to_world( volume, voxel[X], voxel[Y], voxel[Z],
+                                    &world[X], &world[Y], &world[Z] );
             atlas->slice_lookup[axis][i] = get_closest_atlas_slice(
-                                              i, sizes, axis, atlas );
+                                              axis, world[axis], atlas );
         }
     }
 }
 
+private  Real  get_distance_from_voxel(
+    Real  slice_position,
+    Real  mm_coordinate )
+{
+    Real   distance;
+
+    distance = ABS( slice_position - mm_coordinate );
+
+    return( distance );
+}
+
 private  atlas_position_struct  *get_closest_atlas_slice(
-    int           voxel_index,
-    int           sizes[3],
     int           axis,
+    Real          slice_position,
     atlas_struct  *atlas )
 {
     int                     i;
@@ -223,7 +234,7 @@ private  atlas_position_struct  *get_closest_atlas_slice(
     {
         if( atlas->pages[i].axis == axis )
         {
-            dist = get_distance_from_voxel( voxel_index, sizes, axis,
+            dist = get_distance_from_voxel( slice_position,
                                             atlas->pages[i].axis_position );
 
             if( dist <= atlas->slice_tolerance[axis] &&
@@ -237,34 +248,6 @@ private  atlas_position_struct  *get_closest_atlas_slice(
     }
 
     return( closest_so_far );
-}
-
-private  Real  get_distance_from_voxel(
-    int   voxel_index,
-    int   sizes[3],
-    int   axis_index,
-    Real  mm_coordinate )
-{
-    Real   voxel_indices[3], tal_voxel[3], tal_mm[3];
-    Real   distance;
-
-    voxel_indices[X] = 0;
-    voxel_indices[Y] = 0;
-    voxel_indices[Z] = 0;
-    voxel_indices[axis_index] = (Real) voxel_index;
-
-    convert_voxel_to_talairach( (Real) voxel_indices[X],
-                                (Real) voxel_indices[Y],
-                                (Real) voxel_indices[Z],
-                                sizes[X], sizes[Y], sizes[Z],
-                                &tal_voxel[X], &tal_voxel[Y], &tal_voxel[Z] );
-
-    convert_talairach_to_mm( tal_voxel[X], tal_voxel[Y], tal_voxel[Z],
-                             &tal_mm[X], &tal_mm[Y], &tal_mm[Z] );
-
-    distance = ABS( tal_mm[axis_index] - mm_coordinate );
-
-    return( distance );
 }
 
 public  void  set_atlas_state(

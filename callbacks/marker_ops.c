@@ -131,7 +131,12 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
     Volume                  volume;
     String                  filename;
     FILE                    *file;
+    marker_struct           *marker;
     object_traverse_struct  object_traverse;
+    int                     n_tags;
+    Real                    **tags, *weights;
+    int                     *structure_ids, *patient_ids;
+    char                    **labels;
 
     object = get_current_model_object( display );
 
@@ -144,10 +149,7 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
     if( !get_slice_window_volume( display, &volume ) )
         volume = (Volume) NULL;
 
-    if( status == OK )
-        status = open_file_with_default_suffix( filename, "lmk", WRITE_FILE,
-                                                ASCII_FORMAT, &file );
-
+    n_tags = 0;
     if( status == OK )
     {
         initialize_object_traverse( &object_traverse, 1, &object );
@@ -157,10 +159,43 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
             if( current_object->object_type == MARKER &&
                 current_object->visibility )
             {
-                status = io_tag_point( file, WRITE_FILE, volume, 0.0,
-                                       get_marker_ptr(current_object) );
+                marker = get_marker_ptr(current_object);
+                SET_ARRAY_SIZE( tags, n_tags, n_tags+1, DEFAULT_CHUNK_SIZE);
+                ALLOC( tags[n_tags], N_DIMENSIONS );
+                SET_ARRAY_SIZE( weights, n_tags, n_tags+1, DEFAULT_CHUNK_SIZE);
+                SET_ARRAY_SIZE( structure_ids, n_tags, n_tags+1,
+                                DEFAULT_CHUNK_SIZE);
+                SET_ARRAY_SIZE( patient_ids, n_tags, n_tags+1,
+                                DEFAULT_CHUNK_SIZE);
+                SET_ARRAY_SIZE( labels, n_tags, n_tags+1, DEFAULT_CHUNK_SIZE);
+                ALLOC( labels[n_tags], strlen(marker->label)+1 );
+
+                tags[n_tags][X] = Point_x(marker->position);
+                tags[n_tags][Y] = Point_y(marker->position);
+                tags[n_tags][Z] = Point_z(marker->position);
+                weights[n_tags] = marker->size;
+                structure_ids[n_tags] = marker->structure_id;
+                patient_ids[n_tags] = marker->patient_id;
+                (void) strcpy( labels[n_tags], marker->label );
+                ++n_tags;
             }
         }
+    }
+
+    if( status == OK )
+        status = open_file_with_default_suffix( filename,
+                              get_default_tag_file_suffix(), WRITE_FILE,
+                              ASCII_FORMAT, &file );
+
+    if( status == OK )
+        status = output_tag_points( file, (char *) NULL, 1, n_tags,
+                                    tags, (Real **) NULL, weights,
+                                    structure_ids, patient_ids, labels );
+
+    if( n_tags > 0 )
+    {
+        free_tag_points( 1, n_tags, tags, (Real **) NULL,
+                         weights, structure_ids, patient_ids, labels );
     }
 
     if( status == OK )

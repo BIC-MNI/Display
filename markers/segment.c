@@ -271,6 +271,7 @@ private  Real  get_threshold_distance(
 
     threshold = display->three_d.marker_segmentation.threshold_distance;
 
+/*
     if( get_slice_window_volume( display, &volume ) )
     {
         get_volume_sizes( volume, sizes );
@@ -291,6 +292,7 @@ private  Real  get_threshold_distance(
                       ABS(Point_y(position0) - Point_y(position1)) +
                       ABS(Point_z(position0) - Point_z(position1))) / 3.0;
     }
+*/
 
     return( threshold );
 }
