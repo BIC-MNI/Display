@@ -85,27 +85,40 @@ typedef  struct
     action_table_entry  event_info[(int) NUM_EVENT_TYPES];
 } action_table_struct;
 
+typedef  struct
+{
+    Boolean       line_active;
+    Point         line_origin;
+    Point         line_direction;
+} point_position_struct;
+
+#define  THREED_MODEL           0
+#define  POINT_POSITION_MODEL   1
+
+#define  N_MODELS               2
+
 typedef  struct  graphics_struct
 {
     struct  graphics_struct  *menu_window;
     struct  graphics_struct  *graphics_window;
 
-    menu_window_struct   menu;
+    menu_window_struct     menu;
 
-    window_struct        window;
-    Point                mouse_position;
-    Point                prev_mouse_position;
-    view_struct          view;
-    light_struct         lights[N_LIGHTS];
-    action_table_struct  action_table;
+    window_struct          window;
+    Point                  mouse_position;
+    Point                  prev_mouse_position;
+    view_struct            view;
+    light_struct           lights[N_LIGHTS];
+    action_table_struct    action_table;
+    point_position_struct  point_position;
 
-    model_struct         model;
-    Point                min_limit;
-    Point                max_limit;
-    Point                centre_of_objects;
+    model_struct           models[N_MODELS];
+    Point                  min_limit;
+    Point                  max_limit;
+    Point                  centre_of_objects;
 
-    int                  frame_number;
-    int                  update_required;
+    int                    frame_number;
+    int                    update_required;
 } graphics_struct;
 
 #define  DECL_EVENT_FUNCTION( f )  eft   f
