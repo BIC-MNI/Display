@@ -187,10 +187,24 @@ public  DEF_MENU_UPDATE(fit_surface)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(create_surface_model)   /* ARGSUSED */
 {
-    Status  status;
+    Status                  status;
+    Status                  create_model_of_surface();
+    Status                  add_object_to_model();
+    surface_fitting_struct  *surface_fitting;
+    object_struct           *object;
+    model_struct            *get_current_model();
+    void                    graphics_models_have_changed();
 
-    status = create_model_of_surface( graphics, Surface_model_resolution,
-                                      Surface_model_resolution );
+    surface_fitting = &graphics->three_d.surface_fitting;
+
+    status = create_model_of_surface( surface_fitting->surface_representation,
+                                      surface_fitting->descriptors,
+                                      surface_fitting->parameters,
+                                      Surface_model_resolution,
+                                      Surface_model_resolution, &object );
+
+    if( status == OK )
+        status = add_object_to_model( get_current_model(graphics), object );
 
     if( status == OK )
         graphics_models_have_changed( graphics );
@@ -216,9 +230,12 @@ public  DEF_MENU_FUNCTION(scan_model_to_voxels)   /* ARGSUSED */
 
         PRINT( "Scanning to voxels " );
         (void) fflush( stdout );
-        scan_to_voxels( volume, graphics->three_d.surface_fitting.parameters,
-                        Max_voxel_scan_distance,
-                        Max_parametric_scan_distance );
+        scan_to_voxels(
+                 graphics->three_d.surface_fitting.surface_representation,
+                 graphics->three_d.surface_fitting.descriptors,
+                 volume, graphics->three_d.surface_fitting.parameters,
+                 Max_voxel_scan_distance,
+                 Max_parametric_scan_distance );
         PRINT( " done.\n" );
 
         set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
