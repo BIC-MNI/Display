@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.49 1996-04-02 18:15:31 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.50 1996-04-17 17:50:11 david Exp $";
 #endif
 
 
@@ -40,9 +40,10 @@ public  DEF_MENU_FUNCTION( label_voxel )
     {
         record_slice_under_mouse( slice_window, volume_index );
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-        set_volume_label_data( get_nth_label_volume(slice_window,volume_index),
-                               int_voxel,
-                               get_current_paint_label(slice_window) );
+        set_voxel_label( slice_window, volume_index,
+                         int_voxel[X],
+                         int_voxel[Y],
+                         int_voxel[Z], get_current_paint_label(slice_window) );
         set_slice_window_all_update( slice_window, volume_index,
                                      UPDATE_LABELS );
     }
@@ -70,8 +71,8 @@ public  DEF_MENU_FUNCTION( clear_voxel )
     {
         record_slice_under_mouse( slice_window, volume_index );
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-        set_volume_label_data( get_nth_label_volume(slice_window,volume_index),
-                               int_voxel, 0 );
+        set_voxel_label( slice_window, volume_index,
+                         int_voxel[X], int_voxel[Y], int_voxel[Z], 0 );
         set_slice_window_all_update( slice_window, volume_index,
                                      UPDATE_LABELS );
     }
@@ -464,7 +465,7 @@ private  void  set_slice_labels(
         record_slice_under_mouse( display, volume_index );
 
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-        set_labels_on_slice( get_nth_label_volume(slice_window,volume_index),
+        set_labels_on_slice( slice_window, volume_index,
                              axis_index, int_voxel[axis_index],
                              label );
 
@@ -554,14 +555,15 @@ private  void   set_connected_labels(
 
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
 
-        label_under_mouse = get_volume_label_data(
-                  get_nth_label_volume(slice_window,volume_index), int_voxel );
+        label_under_mouse = get_voxel_label( slice_window, volume_index,
+                                             int_voxel[X],
+                                             int_voxel[Y],
+                                             int_voxel[Z] );
 
         min_label_threshold = label_under_mouse;
         max_label_threshold = label_under_mouse;
 
-        set_connected_voxels_labels( get_nth_volume(slice_window,volume_index),
-                          get_nth_label_volume(slice_window,volume_index),
+        set_connected_voxels_labels( slice_window, volume_index,
                           axis_index, int_voxel,
                           min_threshold, max_threshold,
                           min_label_threshold, max_label_threshold,
@@ -586,8 +588,10 @@ public  DEF_MENU_FUNCTION(label_connected_3d)
     {
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
 
-        label_under_mouse = get_volume_label_data(
-                 get_nth_label_volume(slice_window,volume_index), int_voxel );
+        label_under_mouse = get_voxel_label( slice_window, volume_index,
+                                             int_voxel[X],
+                                             int_voxel[Y],
+                                             int_voxel[Z] );
 
         desired_label = get_current_paint_label( slice_window );
 

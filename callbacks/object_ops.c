@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/object_ops.c,v 1.49 1995-10-19 15:50:24 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/object_ops.c,v 1.50 1996-04-17 17:50:10 david Exp $";
 #endif
 
 
@@ -578,7 +578,7 @@ public  DEF_MENU_FUNCTION( scan_current_object_to_volume )
         get_n_volumes( slice_window ) > 0 )
     {
         if( Clear_before_polygon_scan )
-            set_all_volume_label_data( get_label_volume(slice_window), 0 );
+            clear_labels( slice_window, get_current_volume_index(slice_window));
 
         scan_object_to_current_volume( slice_window, current_object );
 

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.41 1996-04-10 17:19:26 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.42 1996-04-17 17:50:21 david Exp $";
 #endif
 
 #include  <display.h>
@@ -427,7 +427,7 @@ private  void  fast_paint_labels(
     Real             radius[],
     int              label )
 {
-    Volume         volume, label_volume;
+    Volume         volume;
     int            value, sizes[N_DIMENSIONS], tmp;
     Real           min_threshold, max_threshold, volume_value;
     int            ind[N_DIMENSIONS], new_n_starts, *y_starts, y_inc, x_inc;
@@ -440,7 +440,6 @@ private  void  fast_paint_labels(
     Colour         colour;
     BOOLEAN        update_required;
  
-    label_volume = get_nth_label_volume( slice_window, volume_index );
     volume = get_nth_volume( slice_window, volume_index );
     min_threshold = slice_window->slice.segmenting.min_threshold;
     max_threshold = slice_window->slice.segmenting.max_threshold;
@@ -552,7 +551,9 @@ private  void  fast_paint_labels(
             if( inside_swept_brush( start_voxel, scaled_delta,
                                     radius, ind ) )
             {
-                value = get_volume_label_data( label_volume, ind );
+                value = get_voxel_label( slice_window, volume_index,
+                                         ind[X], ind[Y], ind[Z] );
+
                 if( value == label )
                     continue;
 
@@ -566,7 +567,8 @@ private  void  fast_paint_labels(
                         continue;
                 }
 
-                set_volume_label_data( label_volume, ind, label );
+                set_voxel_label( slice_window, volume_index,
+                                 ind[X], ind[Y], ind[Z], label );
 
                 for_less( i, x_start, x_end )
                 {
@@ -671,7 +673,9 @@ private  void  paint_labels(
                         if( inside_swept_brush( start_voxel, &scaled_delta,
                                                 radius, ind ) )
                         {
-                            value = get_volume_label_data( label_volume, ind );
+                            value = get_voxel_label( slice_window, volume_index,
+                                                     ind[X], ind[Y], ind[Z] );
+
                             if( value == label )
                                 continue;
 
@@ -685,7 +689,8 @@ private  void  paint_labels(
                                     continue;
                             }
 
-                            set_volume_label_data( label_volume, ind, label );
+                            set_voxel_label( slice_window, volume_index,
+                                             ind[X], ind[Y], ind[Z], label );
 
                             update_required = TRUE;
                         }
@@ -920,12 +925,15 @@ private  void   update_brush(
 }
 
 public  void  flip_labels_around_zero(
-    Volume    label_volume )
+    display_struct  *slice_window )
 {
     int             label_x, label_x_opp;
     int             int_voxel[MAX_DIMENSIONS], sizes[MAX_DIMENSIONS];
     int             int_voxel_opp[MAX_DIMENSIONS];
     Real            voxel[MAX_DIMENSIONS], flip_voxel;
+    Volume          label_volume;
+
+    label_volume = get_label_volume( slice_window );
 
     convert_world_to_voxel( label_volume, 0.0, 0.0, 0.0, voxel );
 
@@ -948,22 +956,30 @@ public  void  flip_labels_around_zero(
             {
                 int_voxel_opp[Z] = int_voxel[Z];
 
-                label_x = get_volume_label_data( label_volume, int_voxel );
-                label_x_opp = get_volume_label_data( label_volume,
-                                                     int_voxel_opp );
+                label_x = get_voxel_label( slice_window,
+                                 get_current_volume_index(slice_window),
+                                 int_voxel[X], int_voxel[Y], int_voxel[Z] );
+                label_x_opp = get_voxel_label( slice_window,
+                        get_current_volume_index(slice_window),
+                        int_voxel_opp[X], int_voxel_opp[Y], int_voxel_opp[Z] );
 
-                set_volume_label_data( label_volume, int_voxel_opp,
-                                       label_x );
-                set_volume_label_data( label_volume, int_voxel,
-                                       label_x_opp );
+                set_voxel_label( slice_window,
+                                 get_current_volume_index(slice_window),
+                                 int_voxel_opp[X], int_voxel_opp[Y],
+                                 int_voxel_opp[Z], label_x );
+                set_voxel_label( slice_window,
+                                 get_current_volume_index(slice_window),
+                                 int_voxel[X], int_voxel[Y], int_voxel[Z],
+                                 label_x_opp );
             }
         }
     }
 }
 
 public  void  translate_labels(
-    Volume    label_volume,
-    int       delta[] )
+    display_struct   *slice_window,
+    int              volume_index,
+    int              delta[] )
 {
     int               c, label;
     int               src_voxel[MAX_DIMENSIONS], dest_voxel[MAX_DIMENSIONS];
@@ -971,6 +987,9 @@ public  void  translate_labels(
     int               first[MAX_DIMENSIONS], last[MAX_DIMENSIONS];
     int               increment[MAX_DIMENSIONS];
     progress_struct   progress;
+    Volume            label_volume;
+
+    label_volume = get_nth_label_volume( slice_window, volume_index );
 
     get_volume_sizes( label_volume, sizes );
 
@@ -1009,11 +1028,16 @@ public  void  translate_labels(
                 src_voxel[Z] = dest_voxel[Z] - delta[Z];
 
                 if( int_voxel_is_within_volume( label_volume, src_voxel ) )
-                    label = get_volume_label_data( label_volume, src_voxel );
+                {
+                    label = get_voxel_label( slice_window, volume_index,
+                                 src_voxel[X], src_voxel[Y], src_voxel[Z] );
+                }
                 else
                     label = 0;
 
-                set_volume_label_data( label_volume, dest_voxel, label );
+                set_voxel_label( slice_window, volume_index,
+                                 dest_voxel[X], dest_voxel[Y], dest_voxel[Z],
+                                 label );
             }
 
             update_progress_report( &progress, dest_voxel[X] * sizes[Y] +
@@ -1025,18 +1049,22 @@ public  void  translate_labels(
 }
 
 public  void  copy_labels_slice_to_slice(
-    Volume           volume,
-    Volume           label_volume,
+    display_struct   *slice_window,
+    int              volume_index,
     int              axis,
     int              src_voxel,
     int              dest_voxel,
     Real             min_threshold,
     Real             max_threshold )
 {
-    int   x, y, a1, a2, value;
-    int   sizes[N_DIMENSIONS], src_indices[N_DIMENSIONS];
-    int   dest_indices[N_DIMENSIONS];
-    Real  volume_value;
+    int               x, y, a1, a2, value;
+    int               sizes[N_DIMENSIONS], src_indices[N_DIMENSIONS];
+    int               dest_indices[N_DIMENSIONS];
+    Real              volume_value;
+    Volume            volume, label_volume;
+
+    volume = get_nth_volume( slice_window, volume_index );
+    label_volume = get_nth_label_volume( slice_window, volume_index );
 
     get_volume_sizes( label_volume, sizes );
     a1 = (axis + 1) % N_DIMENSIONS;
@@ -1054,7 +1082,9 @@ public  void  copy_labels_slice_to_slice(
             src_indices[a2] = y;
             dest_indices[a2] = y;
 
-            value = get_volume_label_data( label_volume, src_indices );
+            value = get_voxel_label( slice_window, volume_index,
+                                     src_indices[X], src_indices[Y],
+                                     src_indices[Z] );
 
             if( min_threshold < max_threshold )
             {
@@ -1066,7 +1096,9 @@ public  void  copy_labels_slice_to_slice(
                     value = 0;
             }
 
-            set_volume_label_data( label_volume, dest_indices, value );
+            set_voxel_label( slice_window, volume_index,
+                             dest_indices[X], dest_indices[Y], dest_indices[Z],
+                             value );
         }
     }
 }

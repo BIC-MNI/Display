@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.106 1996-04-10 17:19:27 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.107 1996-04-17 17:50:22 david Exp $";
 #endif
 
 #include  <display.h>
@@ -380,9 +380,8 @@ public  void  rebuild_probe(
 
         voxel_value = convert_value_to_voxel( volume, value );
 
-        label = get_volume_label_data( get_nth_label_volume(
-                                                    slice_window,volume_index),
-                                       int_voxel );
+        label = get_voxel_label( slice_window, volume_index,
+                                 int_voxel[X], int_voxel[Y], int_voxel[Z] );
     }
 
     /* --- do slice readout models */

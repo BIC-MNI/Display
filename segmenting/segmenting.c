@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/segmenting.c,v 1.23 1995-10-19 15:52:00 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/segmenting.c,v 1.24 1996-04-17 17:50:21 david Exp $";
 #endif
 
 
@@ -33,18 +33,19 @@ public  void  clear_all_labels(
     display_struct    *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
-        set_all_volume_label_data( get_label_volume(slice_window), 0 );
+        clear_labels( slice_window, get_current_volume_index(slice_window) );
 }
 
 public  void  set_labels_on_slice(
-    Volume         label_volume,
-    int            axis_index,
-    int            position,
-    int            label )
+    display_struct  *slice_window,
+    int             volume_index,
+    int             axis_index,
+    int             position,
+    int             label )
 {
     int     voxel[N_DIMENSIONS], sizes[N_DIMENSIONS], a1, a2;
 
-    get_volume_sizes( label_volume, sizes );
+    get_volume_sizes( get_nth_label_volume(slice_window,volume_index), sizes );
 
     voxel[axis_index] = position;
 
@@ -55,7 +56,8 @@ public  void  set_labels_on_slice(
     {
         for_less( voxel[a2], 0, sizes[a2] )
         {
-            set_volume_label_data( label_volume, voxel, label );
+            set_voxel_label( slice_window, volume_index,
+                             voxel[X], voxel[Y], voxel[Z], label );
         }
     }
 }
@@ -66,8 +68,8 @@ typedef struct
 } slice_position;
 
 public  void  set_connected_voxels_labels(
-    Volume            volume,
-    Volume            label_volume,
+    display_struct    *slice_window,
+    int               volume_index,
     int               axis_index,
     int               position[],
     Real              min_threshold,
@@ -82,6 +84,10 @@ public  void  set_connected_voxels_labels(
     int                             dir, n_dirs, *dx, *dy;
     slice_position                  entry;
     QUEUE_STRUCT( slice_position )  queue;
+    Volume                          volume, label_volume;
+
+    volume = get_nth_volume( slice_window, volume_index );
+    label_volume = get_nth_label_volume( slice_window, volume_index );
 
     n_dirs = get_neighbour_directions( connectivity, &dx, &dy );
 
@@ -101,7 +107,8 @@ public  void  set_connected_voxels_labels(
                                 label_min_threshold, label_max_threshold,
                                 label) )
     {
-        set_volume_label_data( label_volume, voxel, label );
+        set_voxel_label( slice_window, volume_index,
+                         voxel[X], voxel[Y], voxel[Z], label );
         entry.x = voxel[a1];
         entry.y = voxel[a2];
         INSERT_IN_QUEUE( queue, entry );
@@ -126,7 +133,8 @@ public  void  set_connected_voxels_labels(
                                      label_min_threshold, label_max_threshold,
                                      label))
             {
-                set_volume_label_data( label_volume, voxel, label);
+                set_voxel_label( slice_window, volume_index,
+                                 voxel[X], voxel[Y], voxel[Z], label );
                 entry.x = voxel[a1];
                 entry.y = voxel[a2];
                 INSERT_IN_QUEUE( queue, entry );

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/undo.c,v 1.7 1995-10-19 15:52:29 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/undo.c,v 1.8 1996-04-17 17:50:25 david Exp $";
 #endif
 
 #include  <display.h>
@@ -75,7 +75,8 @@ public  void  record_slice_labels(
             {
                 slice_window->slice.undo.
                     saved_labels[voxel[x_index]][voxel[y_index]] =
-                         get_volume_label_data( label_volume, voxel );
+                         get_voxel_label( display, volume_index,
+                                          voxel[X], voxel[Y], voxel[Z] );
             }
         }
     }
@@ -139,9 +140,10 @@ public  int  undo_slice_labels_if_any(
         {
             for_less( voxel[y_index], 0, sizes[y_index] )
             {
-                set_volume_label_data( label_volume, voxel,
-                            slice_window->slice.undo.
-                                saved_labels[voxel[x_index]][voxel[y_index]] );
+                set_voxel_label( display, volume_index,
+                                 voxel[X], voxel[Y], voxel[Z],
+                                 slice_window->slice.undo.
+                                 saved_labels[voxel[x_index]][voxel[y_index]] );
             }
         }
 

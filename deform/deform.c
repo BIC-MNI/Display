@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/deform/deform.c,v 1.22 1995-10-19 15:51:10 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/deform/deform.c,v 1.23 1996-04-17 17:50:13 david Exp $";
 #endif
 
 #include  <display.h>
@@ -186,7 +186,7 @@ public  void  turn_off_deformation(
         {
             print( "Scanning polygons to voxels: \n" );
 
-            set_all_volume_label_data( get_label_volume(display), 0 );
+            clear_labels( slice_window, get_current_volume_index(slice_window));
 
             scan_polygons_to_voxels(
                   get_polygons_ptr(display->three_d.deform.deforming_object),

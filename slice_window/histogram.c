@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/histogram.c,v 1.11 1995-10-19 15:52:22 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/histogram.c,v 1.12 1996-04-17 17:50:25 david Exp $";
 #endif
 
 #include  <display.h>
@@ -58,8 +58,8 @@ public  void  clear_histogram(
 }
 
 private  void  compute_histogram_lines(
-    Volume           volume,
-    Volume           label_volume,
+    display_struct   *slice_window,
+    int              volume_index,
     BOOLEAN          labeled_only,
     int              axis_index,
     int              voxel_index,
@@ -71,6 +71,9 @@ private  void  compute_histogram_lines(
     Real               min_value, max_value, value, window_width;
     histogram_struct   histogram;
     progress_struct    progress;
+    Volume             volume;
+
+    volume = get_nth_volume( slice_window, volume_index );
 
     get_volume_real_range( volume, &min_value, &max_value );
     get_volume_sizes( volume, sizes );
@@ -104,7 +107,7 @@ private  void  compute_histogram_lines(
             for_less( z, start[Z], end[Z] )
             {
                 if( !labeled_only ||
-                    get_3D_volume_label_data( label_volume, x, y, z ) != 0 )
+                    get_voxel_label( slice_window, volume_index, x, y, z ) != 0)
                 {
                     value = get_volume_real_value( volume, x, y, z, 0, 0 );
                     add_to_histogram( &histogram, value );
@@ -181,9 +184,9 @@ public  void  compute_histogram(
         is_an_rgb_volume(volume) )
         return;
 
-    compute_histogram_lines( volume,
-                             get_label_volume(slice_window), labeled_only,
-                             axis_index, voxel_index,
+    compute_histogram_lines( slice_window,
+                             get_current_volume_index(slice_window),
+                             labeled_only, axis_index, voxel_index,
                              Histogram_smoothness_ratio,
                              &slice_window->slice.unscaled_histogram_lines );
 

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.35 1996-04-10 17:19:21 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.36 1996-04-17 17:50:12 david Exp $";
 #endif
 
 
@@ -110,7 +110,6 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )
     int             label, axis_index, volume_index;
     Real            voxel[N_DIMENSIONS];
     int             int_voxel[N_DIMENSIONS];
-    Volume          label_volume;
     display_struct  *slice_window;
     BOOLEAN         done;
 
@@ -120,9 +119,9 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )
 
         if( get_voxel_under_mouse( display, &volume_index, &axis_index, voxel ))
         {
-            label_volume = get_nth_label_volume( display, volume_index );
             convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-            label = get_volume_label_data( label_volume, int_voxel );
+            label = get_voxel_label( slice_window, volume_index,
+                                     int_voxel[X], int_voxel[Y], int_voxel[Z] );
             if( label != 0 )
                 done = TRUE;
         }
@@ -133,7 +132,7 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )
 
             if( input_int( stdin, &label ) == OK &&
                 label >= 0 && label < get_num_labels(slice_window,
-                                get_current_volume_index(slice_window)) )
+                                      get_current_volume_index(slice_window)) )
                 done = TRUE;
 
             (void) input_newline( stdin );
@@ -248,8 +247,7 @@ private  void  copy_labels_from_adjacent_slice(
                                  dest_index[axis_index] );
 
             copy_labels_slice_to_slice(
-                         volume,
-                         get_nth_label_volume(slice_window,volume_index),
+                         display, volume_index,
                          axis_index,
                          src_index[axis_index],
                          dest_index[axis_index],
@@ -392,14 +390,18 @@ public  DEF_MENU_UPDATE(change_labels_in_range )
 }
 
 private  void  calculate_label_volume(
-    Volume    label_volume,
-    int       label,
-    int       *n_voxels,
-    Real      *cubic_mm )
+    display_struct  *slice_window,
+    int             volume_index,
+    int             label,
+    int             *n_voxels,
+    Real            *cubic_mm )
 {
-    int   x, y, z, sizes[MAX_DIMENSIONS];
-    int   n_vox;
-    Real  separations[MAX_DIMENSIONS];
+    int     x, y, z, sizes[MAX_DIMENSIONS];
+    int     n_vox;
+    Real    separations[MAX_DIMENSIONS];
+    Volume  label_volume;
+
+    label_volume = get_nth_label_volume(slice_window,volume_index);
 
     get_volume_sizes( label_volume, sizes );
     n_vox = 0;
@@ -410,7 +412,8 @@ private  void  calculate_label_volume(
         {
             for_less( z, 0, sizes[Z] )
             {
-                if( get_3D_volume_label_data( label_volume, x, y, z ) == label )
+                if( get_voxel_label( slice_window, volume_index,
+                                     x, y, z ) == label )
                     ++n_vox;
             }
         }
@@ -439,7 +442,8 @@ public  DEF_MENU_FUNCTION( calculate_volume )
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        calculate_label_volume( get_label_volume(slice_window),
+        calculate_label_volume( slice_window,
+                                get_current_volume_index(slice_window),
                                 slice_window->slice.current_paint_label,
                                 &n_voxels, &cubic_millimetres );
 
@@ -469,7 +473,7 @@ public  DEF_MENU_FUNCTION( flip_labels_in_x )
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        flip_labels_around_zero( get_label_volume( slice_window ) );
+        flip_labels_around_zero( slice_window );
         delete_slice_undo( &slice_window->slice.undo,
                            get_current_volume_index(slice_window) );
 
@@ -510,7 +514,8 @@ private  void  translate_labels_callback(
         delta[x_index] = x_delta;
         delta[y_index] = y_delta;
 
-        translate_labels( get_label_volume(slice_window), delta );
+        translate_labels( slice_window, get_current_volume_index(slice_window),
+                          delta );
         delete_slice_undo( &slice_window->slice.undo,
                            get_current_volume_index(slice_window) );
 
@@ -623,7 +628,8 @@ public  DEF_MENU_FUNCTION( translate_labels_arbitrary )
             input_int( stdin, &delta[Y] ) == OK &&
             input_int( stdin, &delta[Z] ) == OK )
         {
-            translate_labels( get_label_volume(slice_window), delta );
+            translate_labels( slice_window,
+                              get_current_volume_index(slice_window), delta );
             set_slice_window_all_update( slice_window,
                         get_current_volume_index(slice_window), UPDATE_LABELS );
         }

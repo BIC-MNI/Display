@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/polygon_ops.c,v 1.64 1996-04-10 17:19:19 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/polygon_ops.c,v 1.65 1996-04-17 17:50:11 david Exp $";
 #endif
 
  
@@ -519,7 +519,6 @@ public  DEF_MENU_UPDATE(print_polygons_surface_area )
 
 public  DEF_MENU_FUNCTION( coalesce_current_polygons )
 {
-    Real              line_thickness;
     polygons_struct   *polygons;
 
     if( get_current_polygons( display, &polygons ) )
@@ -553,7 +552,6 @@ public  DEF_MENU_UPDATE(coalesce_current_polygons )
 
 public  DEF_MENU_FUNCTION( separate_current_polygons )
 {
-    Real              line_thickness;
     polygons_struct   *polygons;
 
     if( get_current_polygons( display, &polygons ) )

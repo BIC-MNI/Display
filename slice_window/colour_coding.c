@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.32 1996-02-21 15:41:40 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.33 1996-04-17 17:50:23 david Exp $";
 #endif
 
 
@@ -621,7 +621,9 @@ private  void  colour_code_points(
                 convert_real_to_int_voxel( get_volume_n_dimensions(volume),
                                            voxel, int_voxel );
 
-                label = get_volume_label_data( label_volume, int_voxel );
+                label = get_voxel_label( slice_window, volume_index,
+                                         int_voxel[X], int_voxel[Y],
+                                         int_voxel[Z] );
             }
             else
                 label = 0;
@@ -791,4 +793,36 @@ public  Status  save_label_colour_map(
     (void) close_file( file );
 
     return( status );
+}
+
+public  void  clear_labels(
+    display_struct   *display,
+    int              volume_index )
+{
+    set_all_volume_label_data( get_nth_label_volume(display,volume_index),
+                               0 );
+}
+
+public  int  get_voxel_label(
+    display_struct   *display,
+    int              volume_index,
+    int              x,
+    int              y,
+    int              z )
+{
+    return( get_3D_volume_label_data(
+                     get_nth_label_volume(display,volume_index),
+                     x, y, z ) );
+}
+
+public  void  set_voxel_label(
+    display_struct   *display,
+    int              volume_index,
+    int              x,
+    int              y,
+    int              z,
+    int              label )
+{
+    set_volume_label_data_5d( get_nth_label_volume(display,volume_index),
+                              x, y, z, 0, 0, label );
 }
