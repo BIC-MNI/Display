@@ -240,7 +240,7 @@ Tmp_surface_name = "tmp_surface/tmp_%d.obj";
 
 Marching_cubes_method = 1;
 
-Polygon_bintree_threshold = 100;
+Polygon_bintree_threshold = 100000000;
 Compute_neighbours_on_input = FALSE;
 Bintree_size_factor = 0.5;
 
@@ -283,8 +283,7 @@ Initial_atlas_transparent_threshold = 220;
 Initial_atlas_tolerance_x = 1.0;
 Initial_atlas_tolerance_y = 1.0;
 Initial_atlas_tolerance_z = 1.0;
-Atlas_filename = /nil/david/Display/Talairach_atlas.list
-Atlas_filename = /nil/david/Talairach/Talairach_atlas.list
+Atlas_filename = /avgbrain/atlas/talairach/obj/Talairach_atlas.list;
 Default_atlas_state = FALSE;
 
 Marker_threshold = 1.5;

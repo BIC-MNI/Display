@@ -55,6 +55,9 @@ private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
                                end_painting );
 
     (void) G_get_mouse_position( display->window, &x_pixel, &y_pixel );
+
+    record_slice_under_mouse( display );
+
     sweep_paint_labels( display, x_pixel, y_pixel, x_pixel, y_pixel );
 
     if( Draw_brush_outline )
@@ -575,12 +578,13 @@ public  void  translate_labels(
     Volume    label_volume,
     int       delta[] )
 {
-    int      c, label;
-    int      src_voxel[MAX_DIMENSIONS], dest_voxel[MAX_DIMENSIONS];
-    int      sizes[MAX_DIMENSIONS];
-    int      first[MAX_DIMENSIONS], last[MAX_DIMENSIONS];
-    int      increment[MAX_DIMENSIONS];
-    int      int_voxel_opp[MAX_DIMENSIONS];
+    int               c, label;
+    int               src_voxel[MAX_DIMENSIONS], dest_voxel[MAX_DIMENSIONS];
+    int               sizes[MAX_DIMENSIONS];
+    int               first[MAX_DIMENSIONS], last[MAX_DIMENSIONS];
+    int               increment[MAX_DIMENSIONS];
+    int               int_voxel_opp[MAX_DIMENSIONS];
+    progress_struct   progress;
 
     get_volume_sizes( label_volume, sizes );
 
@@ -599,6 +603,9 @@ public  void  translate_labels(
             increment[c] = 1;
         }
     }
+
+    initialize_progress_report( &progress, FALSE, sizes[X] * sizes[Y],
+                                "Translating Labels" );
 
     for( dest_voxel[X] = first[X];  dest_voxel[X] != last[X];
          dest_voxel[X] += increment[X] )
@@ -622,6 +629,11 @@ public  void  translate_labels(
 
                 set_volume_label_data( label_volume, dest_voxel, label );
             }
+
+            update_progress_report( &progress, dest_voxel[X] * sizes[Y] +
+                                               dest_voxel[Y] + 1 );
         }
     }
+
+    terminate_progress_report( &progress );
 }

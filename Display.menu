@@ -15,6 +15,7 @@ root
     transient 'e'    render         "Render"
     transient 'r'    objects        "Objects"
     transient 't'    file           "File"
+    transient 'u'    francesco      "Francesco"
 
     transient 'a'    menu_set_global_variable   "Global Var"
     transient 's'    polygons                   "Polygons"
@@ -350,8 +351,7 @@ region_painting
     transient 'a'    set_label_colour                "Set Paint Lbl Colour"
     transient 's'    set_current_paint_label         "Set Paint Lbl: %d"
     transient 'd'    label_connected                 "Label Connected"
-    transient 'f'    set_paint_x_brush_radius        "X Radius: %g"
-    transient 'g'    set_paint_y_brush_radius        "Y Radius: %g"
+    transient 'f'    set_paint_xy_brush_radius       "XY Radius: %g"
     transient 'h'    set_paint_z_brush_radius        "Out-plane Rad: %g"
 
     transient 'z'    reset_segmenting                "Clear All Labels"
@@ -360,4 +360,39 @@ region_painting
     transient 'v'    change_labels_in_range          "Change Labels"
     transient 'b'    get_labeled_boundary            "Create Label Boundary"
     transient 'n'    set_segmenting_threshold        "Set Threshold"
+}
+
+francesco
+{
+    transient 'q'    load_labels                     "Load .tag as Labels"
+    transient 'w'    save_labels                     "Save Labels .tag"
+    transient 'e'    copy_labels_from_lower_slice  "Copy from Lt/Inf/Post Slice"
+    transient 'r'    copy_labels_from_higher_slice "Copy from Rt/Sup/Ant Slice"
+    transient 't'    save_current_label              "Save Current Label"
+    transient 'u'    clear_slice                     "Clear Slice"
+
+    transient 'a'    set_label_colour                "Set Paint Lbl Colour"
+    transient 's'    set_current_paint_label         "Set Paint Lbl: %d"
+    transient 'd'    label_connected                 "Label Connected"
+    transient 'f'    set_paint_xy_brush_radius       "XY Radius: %g"
+    transient 'g'    set_paint_z_brush_radius        "Out-plane Rad: %g"
+    transient 'h'    flip_labels_in_x                "Flip Labels X"
+
+    transient 'z'    reset_segmenting                "Clear All Labels"
+    transient 'x'    calculate_volume                "Calculate Volume"
+    transient 'c'    toggle_display_labels           "Show Labels: %s"
+    transient 'v'    change_labels_in_range          "Change Labels"
+    transient 'b'    get_labeled_boundary            "Create Label Boundary"
+    transient 'n'    set_segmenting_threshold        "Set Threshold"
+
+    transient '1'    translate_labels_arbitrary      "Big Translate"
+    transient '3'    label_connected                 "Fill Thresholded"
+    transient '4'    label_connected_no_threshold    "Fill Not Thresholded"
+    transient '5'    clear_connected                 "Fill Clear"
+    transient '7'    undo_slice_labels               "Undo"
+
+    transient '\up'  translate_labels_up             "Trans ^"
+    transient '\down' translate_labels_down          "Trans v"
+    transient '\left'  translate_labels_left         "Trans <"
+    transient '\right'    translate_labels_right     "Trans >"
 }

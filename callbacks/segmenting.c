@@ -18,6 +18,7 @@ public  DEF_MENU_FUNCTION( label_voxel )   /* ARGSUSED */
 
     if( get_voxel_under_mouse( display, voxel, &axis_index ) )
     {
+        record_slice_under_mouse( display );
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
         set_volume_label_data( get_label_volume(display), int_voxel,
                                get_current_paint_label(display) );
@@ -39,6 +40,7 @@ public  DEF_MENU_FUNCTION( clear_voxel )   /* ARGSUSED */
 
     if( get_voxel_under_mouse( display, voxel, &axis_index ) )
     {
+        record_slice_under_mouse( display );
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
         set_volume_label_data( get_label_volume(display), int_voxel, 0 );
         set_slice_window_all_update( display->associated[SLICE_WINDOW] );
@@ -55,6 +57,7 @@ public  DEF_MENU_UPDATE(clear_voxel )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( reset_segmenting )   /* ARGSUSED */
 {
     reset_segmentation( display->associated[SLICE_WINDOW] );
+    delete_slice_undo( &display->associated[SLICE_WINDOW]->slice.undo );
     set_slice_window_all_update( display->associated[SLICE_WINDOW] );
 
     return( OK );
@@ -114,6 +117,7 @@ public  DEF_MENU_FUNCTION(load_label_data)   /* ARGSUSED */
                                         get_label_volume(slice_window) );
 
         print( "Done\n" );
+        delete_slice_undo( &display->associated[SLICE_WINDOW]->slice.undo );
         set_slice_window_all_update( display->associated[SLICE_WINDOW] );
     }
 
@@ -227,6 +231,7 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
 
         if( status == OK )
         {
+            delete_slice_undo( &display->associated[SLICE_WINDOW]->slice.undo );
             set_slice_window_all_update( display->associated[SLICE_WINDOW] );
         }
 
@@ -252,6 +257,7 @@ public  DEF_MENU_FUNCTION(reset_activities)   /* ARGSUSED */
 
         set_all_voxel_activity_flags( get_label_volume(slice_window), TRUE );
 
+        delete_slice_undo( &display->associated[SLICE_WINDOW]->slice.undo );
         set_slice_window_all_update( slice_window );
     }
 
@@ -297,6 +303,8 @@ private  void  set_slice_labels(
 
     if( get_voxel_under_mouse( display, voxel, &axis_index ) )
     {
+        record_slice_under_mouse( display );
+
         slice_window = display->associated[SLICE_WINDOW];
 
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
@@ -355,6 +363,7 @@ private  void   set_connected_labels(
 
     if( get_voxel_under_mouse( display, voxel, &axis_index ) )
     {
+        record_slice_under_mouse( display );
         slice_window = display->associated[SLICE_WINDOW];
 
         if( use_threshold )
@@ -402,6 +411,8 @@ public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
                                   slice_window->slice.segmenting.min_threshold,
                                   slice_window->slice.segmenting.max_threshold);
 
+        delete_slice_undo( &slice_window->slice.undo );
+
         print( "Done\n" );
 
         set_slice_window_all_update( slice_window );
@@ -432,6 +443,8 @@ public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
                                   slice_window->slice.segmenting.min_threshold,
                                   slice_window->slice.segmenting.max_threshold,
                                   N_expansion_voxels );
+
+        delete_slice_undo( &slice_window->slice.undo );
 
         print( "Done\n" );
 
@@ -475,6 +488,7 @@ public  DEF_MENU_FUNCTION(invert_activity)   /* ARGSUSED */
         print( "Done\n" );
 
         slice_window = display->associated[SLICE_WINDOW];
+        delete_slice_undo( &slice_window->slice.undo );
         set_slice_window_all_update( slice_window );
     }
 
@@ -508,6 +522,7 @@ public  DEF_MENU_FUNCTION(reset_3d_segmenting)   /* ARGSUSED */
 
         restart_segmenting_3d( slice_window, n_dimensions, voxel_pos,
                                axis_index );
+        delete_slice_undo( &slice_window->slice.undo );
     }
 
     return( OK );
@@ -523,7 +538,10 @@ public  DEF_MENU_FUNCTION(do_3d_segmenting)   /* ARGSUSED */
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window) )
+    {
+        delete_slice_undo( &slice_window->slice.undo );
         one_iteration_segmenting( slice_window );
+    }
 
     return( OK );
 }

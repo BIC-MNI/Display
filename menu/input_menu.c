@@ -80,6 +80,7 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(reset_activities) \
                        MENU_FUNCTION(clear_connected) \
                        MENU_FUNCTION(label_connected) \
+                       MENU_FUNCTION(label_connected_no_threshold) \
                        MENU_FUNCTION(label_slice) \
                        MENU_FUNCTION(clear_slice) \
                        MENU_FUNCTION(label_connected_3d) \
@@ -162,9 +163,15 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(pick_slice_angle_point) \
                        MENU_FUNCTION(delete_current_object) \
                        MENU_FUNCTION(toggle_display_labels) \
+                       MENU_FUNCTION(undo_slice_labels) \
+                       MENU_FUNCTION(translate_labels_up) \
+                       MENU_FUNCTION(translate_labels_down) \
+                       MENU_FUNCTION(translate_labels_left) \
+                       MENU_FUNCTION(translate_labels_right) \
+                       MENU_FUNCTION(translate_labels_arbitrary) \
+                       MENU_FUNCTION(flip_labels_in_x) \
                        MENU_FUNCTION(calculate_volume) \
-                       MENU_FUNCTION(set_paint_x_brush_radius) \
-                       MENU_FUNCTION(set_paint_y_brush_radius) \
+                       MENU_FUNCTION(set_paint_xy_brush_radius) \
                        MENU_FUNCTION(set_paint_z_brush_radius) \
                        MENU_FUNCTION(copy_labels_from_lower_slice) \
                        MENU_FUNCTION(copy_labels_from_higher_slice) \

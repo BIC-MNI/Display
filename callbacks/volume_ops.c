@@ -1,7 +1,7 @@
 
 #include  <display.h>
 
-private  void  colour_code_object(
+private  void  colour_code_an_object(
     display_struct   *display,
     object_struct    *object );
 
@@ -213,7 +213,7 @@ public  DEF_MENU_FUNCTION(colour_code_objects )   /* ARGSUSED */
 
         while( get_next_object_traverse(&object_traverse,&object) )
         {
-            colour_code_object( display, object );
+            colour_code_an_object( display, object );
         }
 
         set_update_required( display, NORMAL_PLANES );
@@ -227,53 +227,10 @@ public  DEF_MENU_UPDATE(colour_code_objects )   /* ARGSUSED */
     return( OK );
 }
 
-private  void  colour_code_points(
-    colour_coding_struct  *colour_coding,
-    Volume                volume,
-    Colour_flags          *colour_flag,
-    Colour                *colours[],
-    int                   n_points,
-    Point                 points[] )
-{
-    int      i;
-    Real     val;
-
-    if( *colour_flag != PER_VERTEX_COLOURS )
-    {
-        if( n_points > 0 )
-        {
-            REALLOC( *colours, n_points );
-        }
-        else
-        {
-            FREE( *colours );
-        }
-        *colour_flag = PER_VERTEX_COLOURS;
-    }
-
-    for_less( i, 0, n_points )
-    {
-        evaluate_3D_volume_in_world( volume,
-                                     Point_x(points[i]),
-                                     Point_y(points[i]),
-                                     Point_z(points[i]), Volume_continuity,
-                                     &val, (Real *) NULL,
-                                     (Real *) NULL, (Real *) NULL,
-                                     (Real *) NULL, (Real *) NULL,
-                                     (Real *) NULL, (Real *) NULL,
-                                     (Real *) NULL, (Real *) NULL );
-
-        (*colours)[i] = get_colour_code( colour_coding, val );
-    }
-}
-
-private  void  colour_code_object(
+private  void  colour_code_an_object(
     display_struct   *display,
     object_struct    *object )
 {
-    polygons_struct         *polygons;
-    quadmesh_struct         *quadmesh;
-    lines_struct            *lines;
     Volume                  volume;
     colour_coding_struct    *colour_coding;
 
@@ -281,30 +238,7 @@ private  void  colour_code_object(
     {
         colour_coding = &display->associated[SLICE_WINDOW]->slice.colour_coding;
 
-        switch( object->object_type )
-        {
-        case POLYGONS:
-            polygons = get_polygons_ptr( object );
-            colour_code_points( colour_coding, volume,
-                                &polygons->colour_flag, &polygons->colours,
-                                polygons->n_points, polygons->points );
-            break;
-
-        case QUADMESH:
-            quadmesh = get_quadmesh_ptr( object );
-            colour_code_points( colour_coding, volume,
-                                &quadmesh->colour_flag, &quadmesh->colours,
-                                quadmesh->m * quadmesh->n,
-                                quadmesh->points );
-            break;
-
-        case LINES:
-            lines = get_lines_ptr( object );
-            colour_code_points( colour_coding, volume,
-                                &lines->colour_flag, &lines->colours,
-                                lines->n_points, lines->points );
-            break;
-        }
+        colour_code_object( volume, Volume_continuity, colour_coding, object );
     }
 }
 
@@ -325,7 +259,7 @@ public  DEF_MENU_FUNCTION(create_3d_slice)   /* ARGSUSED */
                                            axis_index,
                                            current_voxel[axis_index] );
 
-        colour_code_object( display, object );
+        colour_code_an_object( display, object );
 
         add_object_to_current_model( display, object );
     }

@@ -262,6 +262,8 @@ public  void  initialize_slice_window(
     slice_window->slice.current_paint_label = Default_paint_label;
 
     set_atlas_state( slice_window, Default_atlas_state );
+
+    initialize_slice_undo( &slice_window->slice.undo );
 }
 
 private  void  free_slice_window(
@@ -349,6 +351,8 @@ public  void  set_slice_window_volume(
 
     rebuild_volume_cross_section( slice_window );
     rebuild_volume_outline( slice_window );
+
+    delete_slice_undo( &slice_window->slice.undo );
 }
 
 public  void  set_voxel_label_flag(

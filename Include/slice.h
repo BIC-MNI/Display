@@ -60,6 +60,13 @@ typedef struct
     int              desired_n_intervals;
 } colour_bar_struct;
 
+typedef  struct
+{
+    int              axis_index;
+    int              slice_index;
+    int              **saved_labels;
+} slice_undo_struct;
+
 #define  NUM_LABELS   256
 
 typedef  struct
@@ -90,6 +97,7 @@ typedef  struct
     Real                   x_brush_radius, y_brush_radius, z_brush_radius;
     int                    current_paint_label;
     object_struct          *brush_outline;
+    slice_undo_struct      undo;
 
 } slice_window_struct;
 

@@ -66,63 +66,67 @@ private  Status  input_atlas(
         while( input_string( file, image_filename, MAX_STRING_LENGTH, ' ' )
                                                       == OK )
         {
-            status = input_nonwhite_character( file, &axis_letter );
+            status = ERROR;
 
-            if( status == OK && axis_letter >= 'x' && axis_letter <= 'z' )
+            if( input_nonwhite_character( file, &axis_letter ) != OK )
+                break;
+
+            if( axis_letter >= 'x' && axis_letter <= 'z' )
                 axis_index = axis_letter - 'x';
-            else if( status == OK && axis_letter >= 'X' && axis_letter <= 'Z' )
+            else if( axis_letter >= 'X' && axis_letter <= 'Z' )
                 axis_index = axis_letter - 'X';
             else
-                status = ERROR;
+                break;
 
-            if( status == OK )
-                status = input_real( file, &mm_position );
+            if( input_real( file, &mm_position ) != OK )
+                break;
 
-            if( status == OK )
+            for_less( pixel_index, 0, atlas->n_pixel_maps )
             {
-                for_less( pixel_index, 0, atlas->n_pixel_maps )
-                {
-                    if( strcmp( image_filenames[pixel_index], image_filename )
-                                == 0 )
-                        break;
-                }
-
-                if( pixel_index == atlas->n_pixel_maps )
-                {
-                    SET_ARRAY_SIZE( image_filenames,
-                                    atlas->n_pixel_maps, atlas->n_pixel_maps+1,
-                                    DEFAULT_CHUNK_SIZE );
-                    (void) strcpy( image_filenames[atlas->n_pixel_maps],
-                                   image_filename );
-                    SET_ARRAY_SIZE( atlas->pixel_maps,
-                                    atlas->n_pixel_maps, atlas->n_pixel_maps+1,
-                                    DEFAULT_CHUNK_SIZE );
-                    status = input_pixel_map( atlas_directory, image_filename,
-                                  &atlas->pixel_maps[atlas->n_pixel_maps] );
-                    ++atlas->n_pixel_maps;
-                }
-
-                for_less( page_index, 0, atlas->n_pages )
-                {
-                    if( atlas->pages[page_index].axis == axis_index &&
-                        atlas->pages[page_index].axis_position == mm_position )
-                        break;
-                }
-
-                if( status == OK && page_index == atlas->n_pages )
-                {
-                    SET_ARRAY_SIZE( atlas->pages, atlas->n_pages,
-                                    atlas->n_pages+1, DEFAULT_CHUNK_SIZE );
-                    atlas->pages[atlas->n_pages].axis = axis_index;
-                    atlas->pages[atlas->n_pages].axis_position = mm_position;
-                    atlas->pages[atlas->n_pages].n_resolutions = 0;
-                    ++atlas->n_pages;
-                }
-
-                ADD_ELEMENT_TO_ARRAY(atlas->pages[page_index].pixel_map_indices,
-                                     atlas->pages[page_index].n_resolutions,
-                                     pixel_index, DEFAULT_CHUNK_SIZE );
+                if( strcmp( image_filenames[pixel_index], image_filename )
+                            == 0 )
+                    break;
             }
+
+            if( pixel_index == atlas->n_pixel_maps )
+            {
+                SET_ARRAY_SIZE( image_filenames,
+                                atlas->n_pixel_maps, atlas->n_pixel_maps+1,
+                                DEFAULT_CHUNK_SIZE );
+                (void) strcpy( image_filenames[atlas->n_pixel_maps],
+                               image_filename );
+                SET_ARRAY_SIZE( atlas->pixel_maps,
+                                atlas->n_pixel_maps, atlas->n_pixel_maps+1,
+                                    DEFAULT_CHUNK_SIZE );
+                if( input_pixel_map( atlas_directory, image_filename,
+                               &atlas->pixel_maps[atlas->n_pixel_maps] ) != OK )
+                    break;
+
+                ++atlas->n_pixel_maps;
+            }
+
+            for_less( page_index, 0, atlas->n_pages )
+            {
+                if( atlas->pages[page_index].axis == axis_index &&
+                    atlas->pages[page_index].axis_position == mm_position )
+                    break;
+            }
+
+            if( page_index == atlas->n_pages )
+            {
+                SET_ARRAY_SIZE( atlas->pages, atlas->n_pages,
+                                atlas->n_pages+1, DEFAULT_CHUNK_SIZE );
+                atlas->pages[atlas->n_pages].axis = axis_index;
+                atlas->pages[atlas->n_pages].axis_position = mm_position;
+                atlas->pages[atlas->n_pages].n_resolutions = 0;
+                ++atlas->n_pages;
+            }
+
+            ADD_ELEMENT_TO_ARRAY(atlas->pages[page_index].pixel_map_indices,
+                                 atlas->pages[page_index].n_resolutions,
+                                 pixel_index, DEFAULT_CHUNK_SIZE );
+
+            status = OK;
         }
     }
 
@@ -132,7 +136,8 @@ private  Status  input_atlas(
     if( status == OK && atlas->n_pixel_maps > 0 )
         FREE( image_filenames );
 
-    atlas->input = TRUE;
+    if( status == OK )
+        atlas->input = TRUE;
 
     if( status != OK )
         print( "Error inputting atlas.\n" );

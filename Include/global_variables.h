@@ -170,7 +170,7 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_vert_end_3, Real, 30.0 )
 
     DEF_GLOBAL( Slice_cursor_colour1, Colour, RED )
-    DEF_GLOBAL( Slice_cursor_colour2, Colour, GREEN )
+    DEF_GLOBAL( Slice_cursor_colour2, Colour, BLUE )
     DEF_GLOBAL( Cursor_mouse_threshold, Real, 0.0 )
     DEF_GLOBAL( Max_cursor_angle, Real, 20.0 )
     DEF_GLOBAL( Min_cursor_angle_diff, Real, 5.0 )
@@ -285,7 +285,7 @@ START_GLOBALS
     DEF_GLOBAL( Initial_atlas_tolerance_x, Real, 1.0 )
     DEF_GLOBAL( Initial_atlas_tolerance_y, Real, 1.0 )
     DEF_GLOBAL( Initial_atlas_tolerance_z, Real, 1.0 )
-    DEF_GLOBAL_STRING( Atlas_filename, "/nil/david/Talairach/Talairach_atlas.list" )
+    DEF_GLOBAL_STRING( Atlas_filename, "/avgbrain/atlas/talairach/obj/Talairach_atlas.list" )
     DEF_GLOBAL( Default_atlas_state, BOOLEAN, FALSE )
 
     DEF_GLOBAL( Marker_threshold, Real, 1.5 )
