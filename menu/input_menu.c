@@ -81,6 +81,7 @@
                        MENU_FUNCTION(set_isovalue) \
                        MENU_FUNCTION(create_film_loop) \
                        MENU_FUNCTION(reset_polygon_visibility) \
+                       MENU_FUNCTION(set_polygon_line_thickness) \
                        MENU_FUNCTION(set_visibility_from_colour) \
                        MENU_FUNCTION(remove_invisible_parts_of_polygon) \
                        MENU_FUNCTION(crop_above_plane) \
