@@ -4,7 +4,7 @@
 public  DEF_MENU_FUNCTION(start_surface )   /* ARGSUSED */
 {
     Real           x, y, z;
-    volume_struct  *volume;
+    Volume         volume;
 
     if( get_slice_window_volume( display, &volume ) )
     {
@@ -27,7 +27,7 @@ public  DEF_MENU_UPDATE(start_surface )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(toggle_surface_extraction)   /* ARGSUSED */
 {
-    volume_struct  *volume;
+    Volume                  volume;
 
     if( get_slice_window_volume( display, &volume ) )
     {
@@ -54,7 +54,7 @@ public  DEF_MENU_UPDATE(toggle_surface_extraction )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
 {
-    volume_struct  *volume;
+    Volume                  volume;
 
     if( get_slice_window_volume( display, &volume ) )
     {
@@ -79,7 +79,7 @@ public  DEF_MENU_UPDATE(reset_surface )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(make_surface_permanent)   /* ARGSUSED */
 {
-    volume_struct  *volume;
+    Volume         volume;
     object_struct  *object;
 
     if( get_slice_window_volume( display, &volume ) &&
@@ -123,7 +123,7 @@ public  DEF_MENU_UPDATE(set_isovalue )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION(get_labeled_boundary)   /* ARGSUSED */
 {
     object_struct    *object;
-    volume_struct    *volume;
+    Volume           volume;
 
     if( get_slice_window_volume( display, &volume ) )
     {

@@ -3,7 +3,7 @@
 typedef  skiplist_struct  point_lookup_struct;
 
 private  Boolean  face_is_boundary(
-    volume_struct   *volume,
+    Volume          volume,
     int             sizes[N_DIMENSIONS],
     int             indices[N_DIMENSIONS],
     int             c,
@@ -13,7 +13,7 @@ private  void  initialize_point_lookup(
 private  void  terminate_point_lookup(
     point_lookup_struct  *point_lookup );
 private  Status  add_face(
-    volume_struct        *volume,
+    Volume               volume,
     int                  indices[N_DIMENSIONS],
     int                  c,
     int                  offset,
@@ -21,10 +21,11 @@ private  Status  add_face(
     point_lookup_struct  *point_lookup );
 
 public  void  extract_boundary_of_labeled_voxels(
-    volume_struct    *volume,
+    Volume           volume,
     polygons_struct  *polygons )
 {
-    int                          indices[3], sizes[3], c, offset;
+    int                          indices[N_DIMENSIONS], sizes[N_DIMENSIONS];
+    int                          c, offset;
     point_lookup_struct          point_lookup;
     progress_struct              progress;
 
@@ -32,7 +33,7 @@ public  void  extract_boundary_of_labeled_voxels(
 
     get_default_surfprop( &polygons->surfprop );
 
-    get_volume_size( volume, &sizes[X], &sizes[Y], &sizes[Z] );
+    get_volume_sizes( volume, sizes );
 
     initialize_point_lookup( &point_lookup );
 
@@ -80,7 +81,7 @@ public  void  extract_boundary_of_labeled_voxels(
 }
 
 private  Boolean  face_is_boundary(
-    volume_struct   *volume,
+    Volume          volume,
     int             sizes[N_DIMENSIONS],
     int             indices[N_DIMENSIONS],
     int             c,
@@ -169,7 +170,7 @@ private  void  terminate_point_lookup(
 }
 
 private  int  get_point_index(
-    volume_struct        *volume,
+    Volume               volume,
     polygons_struct      *polygons,
     point_lookup_struct  *point_lookup,
     int                  x,
@@ -206,7 +207,7 @@ private  int  get_point_index(
 }
 
 private  Status  add_face(
-    volume_struct        *volume,
+    Volume               volume,
     int                  indices[N_DIMENSIONS],
     int                  c,
     int                  offset,
