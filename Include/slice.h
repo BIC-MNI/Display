@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.62 1995-08-28 14:22:07 david Exp $";
+static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.63 1995-08-29 22:10:30 david Exp $";
 #endif
 
 #include  <volume_io.h>
@@ -118,16 +118,18 @@ typedef  struct
     BOOLEAN       update_atlas_flag;
     BOOLEAN       update_composite_flag;
 
+    BOOLEAN       use_sub_region;
+
     BOOLEAN       sub_region_specified;
     int           x_min;
     int           x_max;
     int           y_min;
     int           y_max;
-    BOOLEAN       prev_sub_region_specified[2];
-    int           prev_x_min[2];
-    int           prev_x_max[2];
-    int           prev_y_min[2];
-    int           prev_y_max[2];
+    BOOLEAN       prev_sub_region_specified;
+    int           prev_x_min;
+    int           prev_x_max;
+    int           prev_y_min;
+    int           prev_y_max;
 } slice_view_struct;
 
 typedef  struct
