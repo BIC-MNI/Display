@@ -20,8 +20,6 @@ public  void  initialize_deformation(
     deform->deform.boundary_definition.min_isovalue = 100.0;
     deform->deform.boundary_definition.max_isovalue = 100.0;
     deform->deform.boundary_definition.normal_direction = TOWARDS_LOWER;
-    deform->deform.boundary_definition.gradient_flag = FALSE;
-    deform->deform.boundary_definition.variable_threshold_flag = FALSE;
     deform->deform.max_iterations = 1000000;
     deform->deform.stop_threshold = 0.0;
 }
