@@ -35,7 +35,6 @@ display_obj = \
            callbacks/object_ops.o \
            callbacks/quit.o \
            callbacks/render_ops.o \
-           callbacks/surface_ops.o \
            callbacks/view_ops.o \
            callbacks/volume_ops.o \
            current_obj/current_obj.o \
@@ -45,9 +44,6 @@ display_obj = \
            surface_extraction/extract.o \
            surface_extraction/surface.o \
            surface_extraction/surface_events.o \
-           edit_surface/connected.o \
-           edit_surface/edit.o \
-           edit_surface/segment.o \
            events/clip_plane.o \
            events/film_loop.o \
            events/magnify.o \
@@ -80,12 +76,10 @@ display_obj = \
            geometry.o \
            graphics_io.o \
            hash_table.o \
-           intersect.o \
            lines.o \
            marching_cubes.o \
            marching_no_holes.o \
            mr_io.o \
-           neighbours.o \
            objects.o \
            object_io.o \
            pixels.o \
@@ -95,7 +89,6 @@ display_obj = \
            resample.o \
            roi_io.o \
            string.o \
-           surface_path.o \
            volume.o \
            time.o
 
@@ -117,7 +110,7 @@ display_ngx: $(display_obj)
 display: $(display_obj)
 	$(CC) $(CFLAGS) $(display_obj) -o $@ $(LIBS)
 
-display.pixie: display
+display.pixie:
 	@\rm -f display.Counts
 	@pixie display -o $@
 
