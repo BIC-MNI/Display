@@ -40,7 +40,7 @@ public  void  initialize_colour_bar(
     model_info->render.shaded_mode = ON;
     model_info->render.shading_type = GOURAUD_SHADING;
     model_info->render.master_light_switch = OFF;
-    model_info->render.backface_flag = ON;
+    model_info->render.backface_flag = OFF;
 
     object = create_object( QUADMESH );
 
@@ -54,7 +54,8 @@ public  void  initialize_colour_bar(
 
     ALLOC( quadmesh->colours, n_vertices );
     ALLOC( quadmesh->points, n_vertices );
-    ALLOC( quadmesh->normals, n_vertices );
+
+    quadmesh->normals = (Vector *) NULL;
 
     add_object_to_model( model, object );  
 
@@ -125,10 +126,10 @@ public  void  rebuild_colour_bar(
 
         y = INTERPOLATE( ratio, bottom, top );
 
-        fill_Point( quadmesh->points[IJ(i,0,2)],
+        fill_Point( quadmesh->points[IJ(i,1,2)],
                     x_min + colour_bar->left_offset, y, 0.0 );
 
-        fill_Point( quadmesh->points[IJ(i,1,2)],
+        fill_Point( quadmesh->points[IJ(i,0,2)],
                     x_min + colour_bar->left_offset + colour_bar->bar_width,
                     y, 0.0 );
 

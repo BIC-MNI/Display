@@ -59,7 +59,6 @@ private  void  scan_convert_marker(
     Real           xl, xh, yl, yh, zl, zh;
     int            xvl, xvh, yvl, yvh, zvl, zvh, x_voxel, y_voxel, z_voxel;
     int            label;
-    unsigned char  *aux_ptr;
 
     label = lookup_label_colour( slice_window, marker->colour );
 
@@ -92,12 +91,8 @@ private  void  scan_convert_marker(
                             (Real) x_voxel, (Real) y_voxel, (Real) z_voxel) )
 
                 {
-#ifdef  LATER
-                    aux_ptr = GET_VOLUME_AUX_PTR( *volume,
-                                                  x_voxel, y_voxel, z_voxel );
-
-                    *aux_ptr = label;
-#endif
+                    set_volume_auxiliary_data( volume, x_voxel, y_voxel,
+                                               z_voxel, label );
                 }
             }
         }

@@ -56,6 +56,9 @@ public  void  initialize_slice_models(
     ALLOC( lines->end_indices, 2 );
     ALLOC( lines->indices, 4 );
 
+    lines->n_points = 4;
+    lines->n_items = 2;
+
     lines->end_indices[0] = 2;
     lines->end_indices[1] = 4;
     lines->indices[0] = 0;
@@ -66,12 +69,15 @@ public  void  initialize_slice_models(
     add_object_to_model( model, object );
 
     object = create_object( PIXELS );
+    initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, RGB_PIXEL );
     add_object_to_model( model, object );
 
     object = create_object( PIXELS );
+    initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, RGB_PIXEL );
     add_object_to_model( model, object );
 
     object = create_object( PIXELS );
+    initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, RGB_PIXEL );
     add_object_to_model( model, object );
 
     for_inclusive( i, CURSOR1_INDEX, CURSOR3_INDEX )
@@ -83,6 +89,9 @@ public  void  initialize_slice_models(
         ALLOC( lines->points, 8 );
         ALLOC( lines->end_indices, 4 );
         ALLOC( lines->indices, 8 );
+
+        lines->n_points = 8;
+        lines->n_items = 4;
 
         lines->end_indices[0] = 2;
         lines->end_indices[1] = 4;
@@ -473,7 +482,7 @@ private  void  render_slice_to_pixels(
     volume_struct         *volume;
     int                   *temporary_indices;
     int                   start_volume_index, volume_index;
-    Boolean               fast_lookup_present;
+    Boolean               fast_lookup_present, display_activity;
     Colour                **fast_lookup;
     int                   old_size;
     int                   x, y, prev_x_offset, x_offset;
@@ -482,6 +491,7 @@ private  void  render_slice_to_pixels(
     int                   val, min_value;
     int                   label, new_label;
     int                   voxel_indices[3];
+    unsigned char         *label_ptr;
     unsigned char         *byte_data;
     unsigned short        *short_data;
     Colour                col;
@@ -545,6 +555,16 @@ private  void  render_slice_to_pixels(
     if( fast_lookup_present )
         lookup = fast_lookup[label];
 
+    if( Display_activities && volume->labels != (unsigned char ***) NULL )
+    {
+        label_ptr = volume->labels[0][0];
+        display_activity = TRUE;
+    }
+    else
+    {
+        display_activity = FALSE;
+    }
+
     prev_y_offset = -1000000;
 
     for_less( y, 0, y_size )
@@ -582,11 +602,10 @@ private  void  render_slice_to_pixels(
                     prev_x_offset = x_offset;
 
                     volume_index = start_volume_index + x_offset;
-#ifdef NOT_YET
-                    if( Display_activities )
+
+                    if( display_activity )
                     {
-                        new_label = GET_VOLUME_AUX_DATA_AT_PTR( *volume,
-                                                                volume_ptr );
+                        new_label = label_ptr[volume_index];
                         if( label != new_label && fast_lookup_present )
                         {
                             lookup = fast_lookup[new_label];
@@ -596,8 +615,6 @@ private  void  render_slice_to_pixels(
                         }
                     }
 
-                    GET_VOLUME_DATA_AT_PTR( val, *volume, volume_ptr );
-#endif
                     if( volume->data_type == UNSIGNED_BYTE )
                         val = (int) byte_data[volume_index];
                     else

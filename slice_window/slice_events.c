@@ -106,6 +106,7 @@ private  DEF_EVENT_FUNCTION( middle_mouse_down )     /* ARGSUSED */
 
     if( get_slice_view_index_under_mouse( display, &view_index ) )
     {
+        push_action_table( &display->action_table, NO_EVENT );
         add_action_table_function( &display->action_table,
                                    NO_EVENT, update_translation );
 
@@ -250,13 +251,14 @@ private  DEF_EVENT_FUNCTION( terminate_translation )    /* ARGSUSED */
     perform_translation( display );
 
     remove_action_table_function( &display->action_table,
-                                  MOUSE_MOVEMENT_EVENT, update_translation );
+                                  NO_EVENT, update_translation );
     remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_translation );
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_translation );
+    pop_action_table( &display->action_table, NO_EVENT );
 
     return( OK );
 }
@@ -286,11 +288,11 @@ private  void  perform_translation(
         slice_window->slice.slice_views[view_index].y_offset += dy;
 
         set_slice_window_update( slice_window, view_index );
+
+        record_mouse_pixel_position( slice_window );
     }
 
     set_update_required( slice_window, NORMAL_PLANES );
-
-    record_mouse_pixel_position( slice_window );
 }
 
 private  DEF_EVENT_FUNCTION( end_picking_low_limit )     /* ARGSUSED */

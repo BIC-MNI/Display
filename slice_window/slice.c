@@ -174,16 +174,17 @@ public  Colour  get_slice_colour_coding(
     int               value,
     int               label )
 {
-    Colour           col, tmp_col, mult, scaled_col;
+    Colour           col, label_col, mult, scaled_col;
 
     col = get_colour_code( &slice_window->slice.colour_coding, (Real) value );
 
     if( label != ACTIVE_BIT )
     {
-        tmp_col = slice_window->slice.label_colours[label];
-        MULT_COLOURS( mult, tmp_col, col );
+        label_col = slice_window->slice.label_colours[label];
+        MULT_COLOURS( mult, label_col, col );
         mult = SCALE_COLOUR( mult, 1.0-slice_window->slice.label_colour_ratio);
-        scaled_col = SCALE_COLOUR( col, slice_window->slice.label_colour_ratio);
+        scaled_col = SCALE_COLOUR( label_col,
+                                   slice_window->slice.label_colour_ratio);
         ADD_COLOURS( col, mult, scaled_col );
     }
 
