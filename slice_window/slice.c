@@ -166,17 +166,26 @@ public  void  set_slice_window_update(
     }
 }
 
+public  void  set_slice_window_all_update(
+    display_struct   *slice_window )
+{
+    int  view;
+
+    for_less( view, 0, N_SLICE_VIEWS )
+        set_slice_window_update( slice_window, view );
+}
+
 public  void  update_slice_window(
     display_struct   *display )
 {
-    int   c;
+    int   view;
 
-    for_less( c, 0, 3 )
+    for_less( view, 0, N_SLICE_VIEWS )
     {
-        if( display->slice.slice_views[c].update_flag )
+        if( display->slice.slice_views[view].update_flag )
         {
-            rebuild_slice_pixels( display, c );
-            display->slice.slice_views[c].update_flag = FALSE;
+            rebuild_slice_pixels( display, view );
+            display->slice.slice_views[view].update_flag = FALSE;
         }
     }
 
@@ -212,27 +221,26 @@ public  void  create_slice_window(
     set_slice_window_volume( slice_window,
                              slice_window->slice.original_volume );
 
-    set_slice_window_update( slice_window, 0 );
-    set_slice_window_update( slice_window, 1 );
-    set_slice_window_update( slice_window, 2 );
+    set_slice_window_all_update( slice_window );
 }
 
 public  void  initialize_slice_window(
     display_struct    *slice_window )
 {
-    int        c;
+    int        view;
 
     slice_window->slice.volume = (Volume) NULL;
 
     initialize_slice_window_events( slice_window );
     initialize_voxel_labeling( slice_window );
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( view, 0, N_SLICE_VIEWS )
     {
-        slice_window->slice.slice_views[c].filter_type =
+        slice_window->slice.slice_views[view].filter_type =
                            (Filter_types) Default_filter_type;
-        slice_window->slice.slice_views[c].filter_width = Default_filter_width;
-        slice_window->slice.slice_views[c].update_flag = TRUE;
+        slice_window->slice.slice_views[view].filter_width =
+                                          Default_filter_width;
+        slice_window->slice.slice_views[view].update_flag = TRUE;
     }
 
     slice_window->slice.next_to_update = X;
@@ -284,7 +292,7 @@ public  void  set_slice_window_volume(
     display_struct    *slice_window,
     Volume            volume )
 {
-    int        c, sizes[MAX_DIMENSIONS];
+    int        view, sizes[MAX_DIMENSIONS];
     Real       thickness[N_DIMENSIONS];
 
     free_slice_window( &slice_window->slice );
@@ -306,8 +314,8 @@ public  void  set_slice_window_volume(
     else
         slice_window->slice.labels = create_label_volume( volume );
 
-    for_less( c, 0, N_DIMENSIONS )
-        slice_window->slice.slice_views[c].update_flag = TRUE;
+    for_less( view, 0, N_SLICE_VIEWS )
+        slice_window->slice.slice_views[view].update_flag = TRUE;
 
     slice_window->slice.next_to_update = X;
 
