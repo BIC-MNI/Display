@@ -7,6 +7,7 @@ public  Status  initialize_slice_window( graphics )
 {
     Status  status;
     Status  initialize_slice_models();
+    Status  initialize_colour_coding();
     void    initialize_slice_window_events();
 
     graphics->slice.volume = (volume_struct *) 0;
@@ -20,6 +21,11 @@ public  Status  initialize_slice_window( graphics )
         status = create_bitlist( 0, &graphics->slice.voxel_activity );
     }
 
+    if( status == OK )
+    {
+        status = initialize_colour_coding( &graphics->slice.colour_coding );
+    }
+
     return( status );
 }
 
@@ -31,6 +37,7 @@ public  Status  set_slice_window_volume( graphics, volume )
     int              c, x_index, y_index, n_voxels;
     Real             factor, min_thickness, max_thickness;
     void             get_2d_slice_axes();
+    void             set_colour_coding_range();
 
     graphics->slice.volume = volume;
 
@@ -70,6 +77,9 @@ public  Status  set_slice_window_volume( graphics, volume )
                                   volume->slice_thickness[y_index];
     }
 
+    set_colour_coding_range( &graphics->slice.colour_coding,
+                             volume->min_value, volume->max_value );
+
     n_voxels = volume->size[X_AXIS] * volume->size[Y_AXIS] *
                volume->size[Z_AXIS];
 
@@ -108,8 +118,14 @@ public  Status  delete_slice_window( slice_window )
     slice_window_struct   *slice_window;
 {
     Status   status;
+    Status   delete_colour_coding();
 
     status = delete_bitlist( &slice_window->voxel_activity );
+
+    if( status == OK )
+    {
+        status = delete_colour_coding( &slice_window->colour_coding );
+    }
 
     return( status );
 }
@@ -261,9 +277,13 @@ public  Boolean  convert_point_to_voxel( graphics, point, x, y, z )
 
     if( get_slice_window_volume( graphics, &volume ) )
     {
-        *x = (int) (Point_x(*point) / volume->slice_thickness[X_AXIS]);
-        *y = (int) (Point_y(*point) / volume->slice_thickness[Y_AXIS]);
-        *z = (int) (Point_z(*point) / volume->slice_thickness[Z_AXIS]);
+        *x = ROUND( Point_x(*point) / volume->slice_thickness[X_AXIS] );
+        *y = ROUND( Point_y(*point) / volume->slice_thickness[Y_AXIS] );
+        *z = ROUND( Point_z(*point) / volume->slice_thickness[Z_AXIS] );
+
+        if( *x == volume->size[X_AXIS] )  *x = volume->size[X_AXIS]-1;
+        if( *y == volume->size[Y_AXIS] )  *y = volume->size[Y_AXIS]-1;
+        if( *z == volume->size[Z_AXIS] )  *z = volume->size[Z_AXIS]-1;
 
         converted = (*x >= 0 && *x < volume->size[X_AXIS]-1 &&
                      *y >= 0 && *y < volume->size[Y_AXIS]-1 &&
@@ -456,4 +476,49 @@ public  void  set_voxel_activity( volume, voxel_activity, x, y, z, value )
     set_bitlist_bit( voxel_activity,
                      ijk(x,y,z,volume->size[Y_AXIS],volume->size[Z_AXIS]),
                      !value );
+}
+
+public  void  set_current_voxel( slice_window, x, y, z )
+    graphics_struct   *slice_window;
+    int               x, y, z;
+{
+    int               axis, indices[N_DIMENSIONS];
+    Point             new_origin;
+    void              get_voxel_centre();
+    graphics_struct   *graphics;
+    void              update_cursor();
+    void              rebuild_slice_pixels();
+
+    graphics = slice_window->associated[THREE_D_WINDOW];
+
+    indices[X_AXIS] = x;
+    indices[Y_AXIS] = y;
+    indices[Z_AXIS] = z;
+
+    get_voxel_centre( slice_window,
+                      indices[X_AXIS], indices[Y_AXIS], indices[Z_AXIS],
+                      &new_origin );
+
+    if( !EQUAL_POINTS( new_origin, graphics->three_d.cursor.origin ) )
+    {
+        graphics->three_d.cursor.origin = new_origin;
+
+        update_cursor( graphics );
+
+        graphics->update_required = TRUE;
+    }
+
+    for_less( axis, 0, N_DIMENSIONS )
+    {
+        if( indices[axis] !=
+               slice_window->slice.slice_views[axis].slice_index )
+        {
+            slice_window->slice.slice_views[axis].slice_index =
+                                                         indices[axis];
+
+            rebuild_slice_pixels( slice_window, axis );
+
+            slice_window->update_required = TRUE;
+        }
+    }
 }
