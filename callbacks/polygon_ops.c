@@ -472,3 +472,67 @@ public  DEF_MENU_UPDATE(scan_current_polygon_to_volume )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( make_unit_sphere )   /* ARGSUSED */
+{
+    Status            status;
+    Status            compute_polygon_normals();
+    Status            create_sphere_from_polygons();
+    Status            create_object();
+    Status            add_object_to_current_model();
+    Point             centre;
+    Boolean           offset_flag;
+    Real              x_radius, y_radius, z_radius, offset_factor;
+    Real              max_curvature;
+    object_struct     *object;
+    polygons_struct   *polygons;
+    void              get_default_surfprop();
+
+    status = OK;
+
+    if( get_current_polygons( graphics, &polygons ) )
+    {
+        PRINT( "Enter offset_flag, offset, max_curvature," );
+        PRINT( "      x_centre, y_centre, z_centre," );
+        PRINT( "      x_radius, y_radius, z_radius: " );
+    
+        if( input_int( stdin, &offset_flag ) == OK &&
+            input_real( stdin, &offset_factor ) == OK &&
+            input_real( stdin, &max_curvature ) == OK &&
+            input_real( stdin, &Point_x(centre) ) == OK &&
+            input_real( stdin, &Point_y(centre) ) == OK &&
+            input_real( stdin, &Point_z(centre) ) == OK &&
+            input_real( stdin, &x_radius ) == OK &&
+            input_real( stdin, &y_radius ) == OK &&
+            input_real( stdin, &z_radius ) == OK )
+        {
+            status = create_object( &object, POLYGONS );
+ 
+            if( status == OK )
+                status = create_sphere_from_polygons( polygons,
+                             object->ptr.polygons, &centre,
+                             x_radius, y_radius, z_radius, max_curvature,
+                             offset_flag, offset_factor );
+
+
+            if( status == OK )
+            {
+                get_default_surfprop( &object->ptr.polygons->surfprop );
+
+                status = compute_polygon_normals( object->ptr.polygons );
+            }
+
+            if( status == OK )
+                status = add_object_to_current_model( graphics, object );
+        }
+
+        (void) input_newline( stdin );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(make_unit_sphere )   /* ARGSUSED */
+{
+    return( OK );
+}
