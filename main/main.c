@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.51 1995-12-04 15:39:53 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.52 1995-12-18 14:39:23 david Exp $";
 #endif
 
 #include  <display.h>
@@ -165,6 +165,26 @@ int  main(
     }
 
     delete_string( runtime_directory );
+
+    if( !Enable_volume_caching )
+        set_n_bytes_cache_threshold( -1 );
+    else
+    {
+        if( Volume_cache_threshold >= 0 )
+            set_n_bytes_cache_threshold( Volume_cache_threshold );
+
+        if( Volume_cache_size >= 0 )
+            set_default_max_bytes_in_cache( Volume_cache_size );
+
+        if( Volume_cache_block_size > 0 )
+        {
+            int   dim, block_sizes[MAX_DIMENSIONS];
+
+            for_less( dim, 0, MAX_DIMENSIONS )
+                block_sizes[dim] = Volume_cache_block_size;
+            set_default_cache_block_sizes( block_sizes );
+        }
+    }
 
     if( status == OK )
     {
