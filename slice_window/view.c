@@ -75,10 +75,7 @@ public  void  set_slice_visibility(
     {
         slice_window->slice.slice_views[view].visibility = visibility;
 
-        set_object_visibility( get_slice_pixels_object( slice_window,view ),
-                               visibility );
-
-        set_slice_window_update( slice_window, view );
+        set_slice_window_update( slice_window, view, UPDATE_BOTH );
     }
 }
 
@@ -617,7 +614,7 @@ public  BOOLEAN  set_current_voxel(
                                            &x_index, &y_index, &axis ) ||
                     axis == i )
                 {
-                    set_slice_window_update( slice_window, view );
+                    set_slice_window_update( slice_window, view, UPDATE_BOTH );
                 }
             }
 

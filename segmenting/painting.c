@@ -257,6 +257,170 @@ private  BOOLEAN  inside_swept_brush(
     return( mag <= 1.0 );
 }
 
+private  void  fast_paint_labels(
+    display_struct   *slice_window,
+    int              view_index,
+    int              a1,
+    int              a2,
+    int              axis,
+    Real             start_voxel[],
+    Real             end_voxel[],
+    int              min_voxel[],
+    int              max_voxel[],
+    Vector           *scaled_delta,
+    Real             radius[],
+    int              label )
+{
+    Volume         volume, label_volume;
+    int            value, sizes[N_DIMENSIONS];
+    Real           min_threshold, max_threshold, volume_value;
+    int            ind[N_DIMENSIONS];
+    Real           voxel[MAX_DIMENSIONS];
+    pixels_struct  *pixels;
+    int            x_min, x_max, y_min, y_max;
+    Real           x, y, x_offset, x_scale, y_offset, y_scale;
+    Real           x_trans, y_trans;
+    Real           real_x_start, real_x_end, real_y_start, real_y_end;
+    int            i, j, x_start, x_end, y_start, y_end;
+    Colour         colour;
+    BOOLEAN        update_required;
+ 
+    label_volume = get_label_volume( slice_window );
+    volume = get_volume( slice_window );
+    min_threshold = slice_window->slice.segmenting.min_threshold;
+    max_threshold = slice_window->slice.segmenting.max_threshold;
+    update_required = FALSE;
+
+    get_volume_sizes( volume, sizes );
+
+    pixels = get_pixels_ptr( get_label_slice_pixels_object(
+                                        slice_window, view_index ) );
+
+    colour = get_colour_of_label( slice_window, label );
+
+    get_slice_viewport( slice_window, view_index,
+                        &x_min, &x_max, &y_min, &y_max );
+
+    get_current_voxel( slice_window, voxel );
+
+    voxel[a1] = 0.0;
+    voxel[a2] = 0.0;
+    convert_voxel_to_pixel( slice_window, view_index,
+                            voxel, &x_trans, &y_trans );
+
+    voxel[a1] = 1.0;
+    convert_voxel_to_pixel( slice_window, view_index,
+                            voxel, &x, &y );
+
+    if( x == x_trans && y != y_trans )
+    {
+        int  tmp;
+        tmp = a1;
+        a1 = a2;
+        a2 = tmp;
+        y_scale = y - y_trans;
+
+        voxel[a1] = 1.0;
+        voxel[a2] = 0.0;
+        convert_voxel_to_pixel( slice_window, view_index,
+                                voxel, &x, &y );
+        x_scale = x - x_trans;
+    }
+    else
+    {
+        x_scale = x - x_trans;
+
+        voxel[a1] = 0.0;
+        voxel[a2] = 1.0;
+        convert_voxel_to_pixel( slice_window, view_index,
+                                voxel, &x, &y );
+        y_scale = y - y_trans;
+    }
+
+    if( x_scale >= 0.0 )
+        x_offset = 0.5;
+    else
+        x_offset = -0.5;
+
+    if( y_scale >= 0.0 )
+        y_offset = 0.5;
+    else
+        y_offset = -0.5;
+
+    x_trans -= (Real) pixels->x_position;
+    y_trans -= (Real) pixels->y_position;
+
+    ind[axis] = min_voxel[axis];
+
+    for_inclusive( ind[a1], min_voxel[a1], max_voxel[a1] )
+    {
+        real_x_start = x_scale * ((Real) ind[a1] - x_offset) + x_trans;
+        real_x_end = x_scale * ((Real) ind[a1] + x_offset) + x_trans;
+
+        x_start = CEILING( real_x_start );
+        x_end = IS_INT(real_x_end) ? (int) real_x_end
+                                   : CEILING(real_x_end);
+
+        if( x_start < 0 )
+            x_start = 0;
+        if( x_end > pixels->x_size )
+            x_end = pixels->x_size;
+
+        for_inclusive( ind[a2], min_voxel[a2], max_voxel[a2] )
+        {
+            real_y_start = y_scale * ((Real) ind[a2] - y_offset) +
+                           y_trans;
+            real_y_end = y_scale * ((Real) ind[a2] + y_offset) +
+                           y_trans;
+
+            y_start = CEILING( real_y_start );
+            y_end = IS_INT(real_y_end) ? (int) real_y_end
+                                       : CEILING(real_y_end);
+
+            if( y_start < 0 )
+                y_start = 0;
+            if( y_end > pixels->y_size )
+                y_end = pixels->y_size;
+
+            if( inside_swept_brush( start_voxel, scaled_delta,
+                                    radius, ind ) )
+            {
+                value = get_volume_label_data( label_volume, ind );
+                if( value == label )
+                    continue;
+
+                if( min_threshold < max_threshold )
+                {
+                    GET_VALUE_3D( volume_value, volume,
+                                  ind[X], ind[Y], ind[Z] );
+
+                    if( volume_value < min_threshold ||
+                        volume_value > max_threshold )
+                        continue;
+                }
+
+                set_volume_label_data( label_volume, ind, label );
+
+                for_less( i, x_start, x_end )
+                {
+                    for_less( j, y_start, y_end )
+                    {
+                        PIXEL_RGB_COLOUR( *pixels, i, j ) = colour;
+                    }
+                }
+
+                update_required = TRUE;
+            }
+        }
+    }
+
+    if( update_required )
+    {
+        slice_window->slice.slice_views[view_index].update_composite_flag =TRUE;
+        set_update_required( slice_window, NORMAL_PLANES );
+    }
+}
+
 private  void  paint_labels(
     display_struct   *slice_window,
     int              view_index,
@@ -272,15 +436,7 @@ private  void  paint_labels(
     Real           radius[N_DIMENSIONS];
     Vector         scaled_delta;
     int            ind[N_DIMENSIONS];
-    Real           voxel[MAX_DIMENSIONS];
-    pixels_struct  *pixels;
-    int            x_min, x_max, y_min, y_max;
-    Real           x, y, x_offset, x_scale, y_offset, y_scale;
-    Real           x_trans, y_trans;
-    Real           real_x_start, real_x_end, real_y_start, real_y_end;
-    int            i, j, x_start, x_end, y_start, y_end;
-    Colour         colour;
-    BOOLEAN        update_required, fast_updating;
+    BOOLEAN        update_required;
  
     if( get_slice_window_volume( slice_window, &volume ) &&
         get_brush( slice_window, view_index, &a1, &a2, &axis, radius ) )
@@ -322,151 +478,51 @@ private  void  paint_labels(
                 max_voxel[c] = sizes[c] - 1;
         }
 
-        fast_updating = (radius[axis] == 0.0 &&
-             get_label_volume( slice_window )->data != NULL &&
-             !slice_window->slice.slice_views[view_index].update_labels_flag );
-
-        if( fast_updating )
+        if( radius[axis] == 0.0 &&
+            label_volume != NULL && label_volume->data != NULL &&
+            !slice_window->slice.slice_views[view_index].update_labels_flag )
         {
-            pixels = get_pixels_ptr( get_label_slice_pixels_object(
-                                                slice_window, view_index ) );
-
-            colour = get_colour_of_label( slice_window, label );
-
-            get_slice_viewport( slice_window, view_index,
-                                &x_min, &x_max, &y_min, &y_max );
-
-            get_current_voxel( slice_window, voxel );
-
-            voxel[a1] = 0.0;
-            voxel[a2] = 0.0;
-            convert_voxel_to_pixel( slice_window, view_index,
-                                    voxel, &x_trans, &y_trans );
-
-            voxel[a1] = 1.0;
-            convert_voxel_to_pixel( slice_window, view_index,
-                                    voxel, &x, &y );
-
-            if( x == x_trans && y != y_trans )
-            {
-                int  tmp;
-                tmp = a1;
-                a1 = a2;
-                a2 = tmp;
-                y_scale = y - y_trans;
-
-                voxel[a1] = 1.0;
-                voxel[a2] = 0.0;
-                convert_voxel_to_pixel( slice_window, view_index,
-                                        voxel, &x, &y );
-                x_scale = x - x_trans;
-            }
-            else
-            {
-                x_scale = x - x_trans;
-
-                voxel[a1] = 0.0;
-                voxel[a2] = 1.0;
-                convert_voxel_to_pixel( slice_window, view_index,
-                                        voxel, &x, &y );
-                y_scale = y - y_trans;
-            }
-
-            if( x_scale >= 0.0 )
-                x_offset = 0.5;
-            else
-                x_offset = -0.5;
-
-            if( y_scale >= 0.0 )
-                y_offset = 0.5;
-            else
-                y_offset = -0.5;
-
-            x_trans -= (Real) pixels->x_position;
-            y_trans -= (Real) pixels->y_position;
+            fast_paint_labels( slice_window, view_index, a1, a2, axis,
+                               start_voxel, end_voxel,
+                               min_voxel, max_voxel, &scaled_delta, radius,
+                               label );
         }
-
-        for_inclusive( ind[a1], min_voxel[a1], max_voxel[a1] )
+        else
         {
-            if( fast_updating )
+            for_inclusive( ind[a1], min_voxel[a1], max_voxel[a1] )
             {
-                real_x_start = x_scale * ((Real) ind[a1] - x_offset) + x_trans;
-                real_x_end = x_scale * ((Real) ind[a1] + x_offset) + x_trans;
-
-                x_start = CEILING( real_x_start );
-                x_end = IS_INT(real_x_end) ? (int) real_x_end
-                                           : CEILING(real_x_end);
-
-                if( x_start < 0 )
-                    x_start = 0;
-                if( x_end > pixels->x_size )
-                    x_end = pixels->x_size;
-            }
-
-            for_inclusive( ind[a2], min_voxel[a2], max_voxel[a2] )
-            {
-                if( fast_updating )
+                for_inclusive( ind[a2], min_voxel[a2], max_voxel[a2] )
                 {
-                    real_y_start = y_scale * ((Real) ind[a2] - y_offset) +
-                                   y_trans;
-                    real_y_end = y_scale * ((Real) ind[a2] + y_offset) +
-                                   y_trans;
-
-                    y_start = CEILING( real_y_start );
-                    y_end = IS_INT(real_y_end) ? (int) real_y_end
-                                               : CEILING(real_y_end);
-
-                    if( y_start < 0 )
-                        y_start = 0;
-                    if( y_end > pixels->y_size )
-                        y_end = pixels->y_size;
-                }
-
-                for_inclusive( ind[axis], min_voxel[axis], max_voxel[axis] )
-                {
-                    if( inside_swept_brush( start_voxel, &scaled_delta,
-                                            radius, ind ) )
+                    for_inclusive( ind[axis], min_voxel[axis], max_voxel[axis] )
                     {
-                        value = get_volume_label_data( label_volume, ind );
-                        if( value == label )
-                            continue;
-
-                        if( min_threshold < max_threshold )
+                        if( inside_swept_brush( start_voxel, &scaled_delta,
+                                                radius, ind ) )
                         {
-                            GET_VALUE_3D( volume_value, volume,
-                                          ind[X], ind[Y], ind[Z] );
-
-                            if( volume_value < min_threshold ||
-                                volume_value > max_threshold )
+                            value = get_volume_label_data( label_volume, ind );
+                            if( value == label )
                                 continue;
-                        }
 
-                        set_volume_label_data( label_volume, ind, label );
-
-                        if( fast_updating )
-                        {
-                            for_less( i, x_start, x_end )
+                            if( min_threshold < max_threshold )
                             {
-                                for_less( j, y_start, y_end )
-                                {
-                                    PIXEL_RGB_COLOUR( *pixels, i, j ) = colour;
-                                }
-                            }
-                        }
+                                GET_VALUE_3D( volume_value, volume,
+                                              ind[X], ind[Y], ind[Z] );
 
-                        update_required = TRUE;
+                                if( volume_value < min_threshold ||
+                                    volume_value > max_threshold )
+                                    continue;
+                            }
+
+                            set_volume_label_data( label_volume, ind, label );
+
+                            update_required = TRUE;
+                        }
                     }
                 }
             }
         }
 
         if( update_required )
-        {
-            if( fast_updating )
-                set_update_required( slice_window, NORMAL_PLANES );
-            else
-                set_slice_window_all_update( slice_window, UPDATE_LABELS );
-        }
+            set_slice_window_all_update( slice_window, UPDATE_LABELS );
     }
 }
 
