@@ -73,21 +73,24 @@ private  Status   create_menu_text( menu_window, menu_entry )
     menu_entry_struct *menu_entry;
 {
     Status          status;
-    Status          create_object_struct();
+    Status          create_object();
     text_struct     *text;
-    void            add_object_to_list();
+    Status          add_object_to_model();
     void            compute_origin();
     Status          update_menu_text();
 
-    status = create_object_struct( &menu_entry->text, TEXT );
+    status = create_object( menu_entry->text, TEXT );
 
     if( status == OK )
     {
         menu_entry->text->visibility = FALSE;
 
-        add_object_to_list( &menu_window->models[THREED_MODEL].objects,
-                            menu_entry->text );
+        status = add_object_to_model( &menu_window->models[THREED_MODEL],
+                                      menu_entry->text );
+    }
 
+    if( status == OK )
+    {
         text = menu_entry->text->ptr.text;
 
         compute_origin( menu_entry->key, &text->origin );
@@ -95,6 +98,7 @@ private  Status   create_menu_text( menu_window, menu_entry )
         Point_y(text->origin) += Y_menu_text_offset;
         fill_Colour( text->colour, 1.0, 1.0, 1.0 );
         (void) strcpy( text->text, menu_entry->label );
+
         status = update_menu_text( menu_window, menu_entry );
     }
 
@@ -141,22 +145,25 @@ private  Status   create_menu_box( menu_window, key )
     char              key;
 {
     Status          status;
-    Status          create_object_struct();
-    object_struct   *object;
+    Status          create_object();
+    object_struct   object;
     lines_struct    *lines;
-    void            add_object_to_list();
+    Status          add_object_to_model();
     void            compute_origin();
     Point           origin;
     Real            x1, y1, x2, y2;
 
-    status = create_object_struct( &object, LINES );
+    status = create_object( &object, LINES );
 
     if( status == OK )
     {
-        add_object_to_list( &menu_window->models[THREED_MODEL].objects,
-                            object );
+        status = add_object_to_model( &menu_window->models[THREED_MODEL],
+                                      &object );
+    }
 
-        lines = object->ptr.lines;
+    if( status == OK )
+    {
+        lines = object.ptr.lines;
 
         lines->n_points = 4;
         lines->n_items = 1;

@@ -159,6 +159,8 @@ private  void  initialize_graphics_window( graphics )
 
     graphics->frame_number = 0;
     graphics->update_required = FALSE;
+
+    INITIALIZE_STACK( graphics->current_object );
 }
 
 private  void  display_frame_info( graphics, frame_number, update_time )
