@@ -162,7 +162,7 @@ public  DEF_MENU_UPDATE(create_normals_for_polygon )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( average_normals_for_polygon )   /* ARGSUSED */
 {
-    int               i, n_iters;
+    int               n_iters;
     Real              neighbour_weight;
     polygons_struct   *polygons;
 
@@ -173,8 +173,7 @@ public  DEF_MENU_FUNCTION( average_normals_for_polygon )   /* ARGSUSED */
         if( input_int( stdin, &n_iters ) == OK &&
             input_real( stdin, &neighbour_weight ) == OK )
         {
-            for_less( i, 0, n_iters )
-                average_polygon_normals( polygons, neighbour_weight );
+            average_polygon_normals( polygons, n_iters, neighbour_weight );
 
             graphics_models_have_changed( display );
         }

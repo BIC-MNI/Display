@@ -67,7 +67,6 @@ typedef  struct
     int                    x_split, y_split;
 
     Real                   slice_index[N_DIMENSIONS];
-    BOOLEAN                slice_locked[N_DIMENSIONS];
     slice_view_struct      slice_views[3];
     int                    next_to_update;
 

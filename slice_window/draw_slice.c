@@ -269,38 +269,86 @@ public  void  rebuild_probe(
     set_update_required( slice_window, (Bitplane_types) Slice_readout_plane );
 }
 
+private  void  get_cursor_size(
+    int    slice_index,
+    Real   *hor_start,
+    Real   *hor_end,
+    Real   *vert_start,
+    Real   *vert_end )
+{
+    switch( slice_index )
+    {
+    case 0:
+        *hor_start = Cursor_hor_start_0;
+        *hor_end = Cursor_hor_end_0;
+        *vert_start = Cursor_vert_start_0;
+        *vert_end = Cursor_vert_end_0;
+        break;
+
+    case 1:
+        *hor_start = Cursor_hor_start_1;
+        *hor_end = Cursor_hor_end_1;
+        *vert_start = Cursor_vert_start_1;
+        *vert_end = Cursor_vert_end_1;
+        break;
+
+    case 2:
+        *hor_start = Cursor_hor_start_2;
+        *hor_end = Cursor_hor_end_2;
+        *vert_start = Cursor_vert_start_2;
+        *vert_end = Cursor_vert_end_2;
+        break;
+    }
+}
+
 public  void  rebuild_cursor(
     display_struct    *slice_window,
     int               view_index )
 {
     model_struct   *model;
-    int            x_start, y_start, x_end, y_end;
+    int            c, x_left, y_left, x_right, y_right;
+    int            x_bottom, y_bottom, x_top, y_top;
     int            x_centre, y_centre, dx, dy;
-    Real           start_pixel[N_DIMENSIONS], end_pixel[N_DIMENSIONS];
+    int            hor_dx, hor_dy, vert_dx, vert_dy, len_hor, len_vert;
     lines_struct   *lines;
-    Real           x, y;
-    int            axis, x_index, y_index;
+    Real           current_voxel[N_DIMENSIONS];
     int            x_min, x_max, y_min, y_max;
+    Real           tmp_voxel[MAX_DIMENSIONS];
+    Real           origin[MAX_DIMENSIONS];
+    Real           x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
+    Real           hor_pixel_start, hor_pixel_end;
+    Real           vert_pixel_start, vert_pixel_end;
 
     model = get_graphics_model(slice_window,SLICE_MODEL);
 
-    get_slice_axes( slice_window, view_index, &x_index, &y_index, &axis );
+    get_slice_plane( slice_window, view_index, origin, x_axis, y_axis );
 
     lines = get_lines_ptr( model->objects[CURSOR1_INDEX+view_index] );
 
-    x = slice_window->slice.slice_index[x_index];
-    y = slice_window->slice.slice_index[y_index];
+    get_current_voxel( slice_window, current_voxel );
 
-    convert_voxel_to_pixel( slice_window, view_index, x - 0.5, y - 0.5,
-                            &x_start, &y_start);
-    convert_voxel_to_pixel( slice_window, view_index, x + 0.5, y + 0.5,
-                            &x_end, &y_end);
+    convert_voxel_to_pixel( slice_window, view_index, current_voxel,
+                            &x_centre, &y_centre );
 
-    --x_end;
-    --y_end;
+    for_less( c, 0, N_DIMENSIONS )
+        tmp_voxel[c] = current_voxel[c] - 0.5 * x_axis[c];
+    convert_voxel_to_pixel( slice_window, view_index, tmp_voxel,
+                            &x_left, &y_left);
 
-    x_centre = (x_start + x_end) / 2;
-    y_centre = (y_start + y_end) / 2;
+    for_less( c, 0, N_DIMENSIONS )
+        tmp_voxel[c] = current_voxel[c] + 0.5 * x_axis[c];
+    convert_voxel_to_pixel( slice_window, view_index, tmp_voxel,
+                            &x_right, &y_right);
+
+    for_less( c, 0, N_DIMENSIONS )
+        tmp_voxel[c] = current_voxel[c] - 0.5 * y_axis[c];
+    convert_voxel_to_pixel( slice_window, view_index, tmp_voxel,
+                            &x_bottom, &y_bottom);
+
+    for_less( c, 0, N_DIMENSIONS )
+        tmp_voxel[c] = current_voxel[c] + 0.5 * y_axis[c];
+    convert_voxel_to_pixel( slice_window, view_index, tmp_voxel,
+                            &x_top, &y_top);
 
     get_slice_viewport( slice_window, view_index,
                         &x_min, &x_max, &y_min, &y_max );
@@ -309,51 +357,80 @@ public  void  rebuild_cursor(
     {
         dx = x_min - x_centre;
         x_centre = x_min;
-        x_start += dx;
-        x_end += dx;
+        x_left += dx;
+        x_right += dx;
+        x_top += dx;
+        x_bottom += dx;
     }
     else if( x_centre > x_max )
     {
         dx = x_max - x_centre;
         x_centre = x_max;
-        x_start += dx;
-        x_end += dx;
+        x_left += dx;
+        x_right += dx;
+        x_top += dx;
+        x_bottom += dx;
     }
 
     if( y_centre < y_min )
     {
         dy = y_min - y_centre;
         y_centre = y_min;
-        y_start += dy;
-        y_end += dy;
+        y_left += dy;
+        y_right += dy;
+        y_top += dy;
+        y_bottom += dy;
     }
     else if( y_centre > y_max )
     {
         dy = y_max - y_centre;
         y_centre = y_max;
-        y_start += dy;
-        y_end += dy;
+        y_left += dy;
+        y_right += dy;
+        y_top += dy;
+        y_bottom += dy;
     }
 
-    start_pixel[X] = Cursor_start_pixel_x;
-    start_pixel[Y] = Cursor_start_pixel_y;
-    start_pixel[Z] = Cursor_start_pixel_z;
+    hor_dx = x_right - x_centre;
+    hor_dy = y_right - y_centre;
+    len_hor = sqrt( hor_dx * hor_dx + hor_dy * hor_dy );
+    if( len_hor != 0.0 )
+    {
+        hor_dx /= len_hor;
+        hor_dy /= len_hor;
+    }
 
-    end_pixel[X] = Cursor_end_pixel_x;
-    end_pixel[Y] = Cursor_end_pixel_y;
-    end_pixel[Z] = Cursor_end_pixel_z;
+    vert_dx = x_top - x_centre;
+    vert_dy = y_top - y_centre;
+    len_vert = sqrt( vert_dx * vert_dx + vert_dy * vert_dy );
+    if( len_vert != 0.0 )
+    {
+        vert_dx /= len_vert;
+        vert_dy /= len_vert;
+    }
 
-    fill_Point( lines->points[0], x_centre, y_end + start_pixel[y_index], 0.0 );
-    fill_Point( lines->points[1], x_centre, y_end + end_pixel[y_index], 0.0 );
+    get_cursor_size( view_index, &hor_pixel_start, &hor_pixel_end,
+                     &vert_pixel_start, &vert_pixel_end );
 
-    fill_Point( lines->points[2], x_centre, y_start-start_pixel[y_index], 0.0 );
-    fill_Point( lines->points[3], x_centre, y_start-end_pixel[y_index], 0.0 );
+    fill_Point( lines->points[0], x_right + hor_pixel_start * hor_dx,
+                                  y_right + hor_pixel_start * hor_dy, 0.0 );
+    fill_Point( lines->points[1], x_right + hor_pixel_end * hor_dx,
+                                  y_right + hor_pixel_end * hor_dy, 0.0 );
 
-    fill_Point( lines->points[4], x_start-start_pixel[x_index], y_centre, 0.0 );
-    fill_Point( lines->points[5], x_start-end_pixel[x_index], y_centre, 0.0 );
+    fill_Point( lines->points[2], x_left - hor_pixel_start * hor_dx,
+                                  y_left - hor_pixel_start * hor_dy, 0.0 );
+    fill_Point( lines->points[3], x_left - hor_pixel_end * hor_dx,
+                                  y_left - hor_pixel_end * hor_dy, 0.0 );
 
-    fill_Point( lines->points[6], x_end + start_pixel[x_index], y_centre, 0.0 );
-    fill_Point( lines->points[7], x_end + end_pixel[x_index], y_centre, 0.0 );
+    fill_Point( lines->points[4], x_bottom - vert_pixel_start * vert_dx,
+                                  y_bottom - vert_pixel_start * vert_dy, 0.0 );
+    fill_Point( lines->points[5], x_bottom - vert_pixel_end * vert_dx,
+                                  y_bottom - vert_pixel_end * vert_dy, 0.0 );
+
+    fill_Point( lines->points[6], x_top + vert_pixel_start * vert_dx,
+                                  y_top + vert_pixel_start * vert_dy, 0.0 );
+    fill_Point( lines->points[7], x_top + vert_pixel_end * vert_dx,
+                                  y_top + vert_pixel_end * vert_dy, 0.0 );
 }
 
 public  void  rebuild_slice_pixels(
@@ -367,46 +444,42 @@ public  void  rebuild_slice_pixels(
     text_struct    *text;
     char           *format;
     int            x_pos, y_pos;
+    Real           current_voxel[N_DIMENSIONS];
 
     model = get_graphics_model(slice_window,SLICE_MODEL);
-
-    get_slice_axes( slice_window, view_index, &x_index, &y_index, &axis_index );
 
     pixels = get_pixels_ptr( model->objects[SLICE1_INDEX+view_index] );
 
     render_slice_to_pixels( slice_window, view_index, pixels );
 
-    text = get_text_ptr( model->objects[TEXT1_INDEX+view_index] );
+    if( slice_has_ortho_axes( slice_window, view_index,
+                              &x_index, &y_index, &axis_index ) )
+    {
+        set_object_visibility( model->objects[TEXT1_INDEX+view_index], TRUE );
 
-    if( slice_window->slice.slice_locked[axis_index] )
-    {
-        switch( axis_index )
-        {
-        case X:  format = Slice_index_x_locked_format;  break;
-        case Y:  format = Slice_index_y_locked_format;  break;
-        case Z:  format = Slice_index_z_locked_format;  break;
-        }
-    }
-    else
-    {
+        text = get_text_ptr( model->objects[TEXT1_INDEX+view_index] );
+
         switch( axis_index )
         {
         case X:  format = Slice_index_x_format;  break;
         case Y:  format = Slice_index_y_format;  break;
         case Z:  format = Slice_index_z_format;  break;
         }
+
+        get_current_voxel( slice_window, current_voxel );
+
+        (void) sprintf( text->string, format, current_voxel[axis_index] + 1.0 );
+
+        get_slice_viewport( slice_window,
+                            view_index, &x_min, &x_max, &y_min, &y_max );
+
+        x_pos = x_min + (int) Point_x(Slice_index_offset);
+        y_pos = y_min + (int) Point_y(Slice_index_offset);
+
+        fill_Point( text->origin, x_pos, y_pos, 0.0 );
     }
-
-    (void) sprintf( text->string, format,
-                    slice_window->slice.slice_index[axis_index] + 1.0 );
-
-    get_slice_viewport( slice_window,
-                        view_index, &x_min, &x_max, &y_min, &y_max );
-
-    x_pos = x_min + (int) Point_x(Slice_index_offset);
-    y_pos = y_min + (int) Point_y(Slice_index_offset);
-
-    fill_Point( text->origin, x_pos, y_pos, 0.0 );
+    else
+        set_object_visibility( model->objects[TEXT1_INDEX+view_index], FALSE );
 
     rebuild_cursor( slice_window, 0 );
     rebuild_cursor( slice_window, 1 );
@@ -533,32 +606,11 @@ private  void  render_slice_to_pixels(
         Real  v1[N_DIMENSIONS], v2[N_DIMENSIONS];
         Real  dx, dy;
         int   sizes[N_DIMENSIONS];
-        int   c, x_index, y_index, axis_index;
+        int   x_index, y_index, axis_index;
 
-        x_index = -1;
-        y_index = -1;
-        for_less( c, 0, get_volume_n_dimensions(volume) )
-        {
-            if( x_axis[c] != 0.0 )
-            {
-                if( x_index != -1 )
-                    return;
-                x_index = c;
-            }
-            if( y_axis[c] != 0.0 )
-            {
-                if( y_index != -1 )
-                    return;
-                y_index = c;
-            }
-        }
-
-        if( x_index == y_index )
+        if( !slice_has_ortho_axes( slice_window, view_index,
+                                   &x_index, &y_index, &axis_index ) )
             return;
-
-        axis_index = N_DIMENSIONS - x_index - y_index;
-
-        get_volume_sizes( volume, sizes );
 
         (void) convert_slice_pixel_to_voxel( volume,
                         pixels->x_position - x_min, pixels->y_position - y_min,
@@ -577,6 +629,8 @@ private  void  render_slice_to_pixels(
                         x_trans, y_trans, x_scale, y_scale, v2 );
 
         dy = v2[y_index] - v1[y_index];
+
+        get_volume_sizes( volume, sizes );
 
         blend_in_atlas( &slice_window->slice.atlas,
                         pixels->data.pixels_rgb,

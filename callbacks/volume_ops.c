@@ -30,27 +30,6 @@ public  BOOLEAN  get_slice_view_index_under_mouse(
     return( found );
 }
 
-public  BOOLEAN  get_axis_index_under_mouse(
-    display_struct   *display,
-    int              *axis_index )
-{
-    BOOLEAN          found;
-    int              view_index;
-    display_struct   *slice_window;
-
-    found = get_slice_view_index_under_mouse( display, &view_index );
-
-    if( found )
-    {
-        slice_window = display->associated[SLICE_WINDOW];
-
-        *axis_index = 
-             slice_window->slice.slice_views[view_index].axis_map[Z];
-    }
-
-    return( found );
-}
-
 private  void  change_current_slice_by_one(
     display_struct   *display,
     int              delta )
@@ -186,32 +165,6 @@ public  DEF_MENU_UPDATE(reset_current_slice_view )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(toggle_lock_slice)   /* ARGSUSED */
-{
-    display_struct   *slice_window;
-    int              axis_index, view_index;
-
-    if( get_slice_view_index_under_mouse( display, &view_index ) )
-    {
-        slice_window = display->associated[SLICE_WINDOW];
-
-        axis_index = 
-           slice_window->slice.slice_views[view_index].axis_map[Z];
-        slice_window->slice.slice_locked[axis_index] =
-            !slice_window->slice.slice_locked[axis_index];
-
-        set_slice_window_update( slice_window, view_index );
-        set_update_required( slice_window, NORMAL_PLANES );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(toggle_lock_slice)    /* ARGSUSED */
-{
-    return( OK );
-}
-
 public  DEF_MENU_FUNCTION(colour_code_objects )   /* ARGSUSED */
 {
     object_struct           *object, *current_object;
@@ -316,18 +269,19 @@ private  void  colour_code_object(
 public  DEF_MENU_FUNCTION(create_3d_slice)   /* ARGSUSED */
 {
     display_struct   *slice_window;
-    int              axis_index, view_index;
+    int              x_index, y_index, axis_index, view_index;
+    Real             current_voxel[N_DIMENSIONS];
     object_struct    *object;
 
-    if( get_slice_view_index_under_mouse( display, &view_index ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_slice_view_index_under_mouse( slice_window, &view_index ) &&
+        slice_has_ortho_axes( slice_window, view_index,
+                              &x_index, &y_index, &axis_index ) )
     {
-        slice_window = display->associated[SLICE_WINDOW];
-
-        axis_index = slice_window->slice.slice_views[view_index].axis_map[Z];
-
-        object = create_3d_slice_quadmesh( get_volume(slice_window),
-                      axis_index,
-                      slice_window->slice.slice_index[axis_index] );
+        get_current_voxel( slice_window, current_voxel );
+        object = create_3d_slice_quadmesh( get_volume(display),
+                                           axis_index,
+                                           current_voxel[axis_index] );
 
         colour_code_object( display, object );
 

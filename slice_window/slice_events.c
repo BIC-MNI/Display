@@ -217,9 +217,6 @@ private  void  set_slice_voxel_position(
             clipped_voxel[c] = (Real) sizes[c] - 0.5;
         else
             clipped_voxel[c] = voxel[c];
-
-        if( slice_window->slice.slice_locked[c] )
-            clipped_voxel[c] = slice_window->slice.slice_index[c];
     }
 
     if( set_current_voxel( slice_window, clipped_voxel ) )
@@ -293,9 +290,10 @@ private  DEF_EVENT_FUNCTION( handle_update_voxel )     /* ARGSUSED */
 private  void  update_voxel_slice(
     display_struct    *slice_window )
 {
-    int        view_index, dy, x, y, x_prev, y_prev, axis;
-    int        x_index, y_index, sizes[MAX_DIMENSIONS];
+    int        view_index, dy, x, y, x_prev, y_prev;
+    int        c, sizes[MAX_DIMENSIONS];
     Real       voxel[MAX_DIMENSIONS];
+    Real       perp_axis[N_DIMENSIONS];
 
     if( pixel_mouse_moved( slice_window, &x, &y, &x_prev, &y_prev ) &&
         find_slice_view_mouse_is_in( slice_window, x, y, &view_index ) )
@@ -306,13 +304,12 @@ private  void  update_voxel_slice(
         {
             get_current_voxel( slice_window, voxel );
 
-            get_slice_axes( slice_window, view_index, &x_index, &y_index,&axis);
+            get_slice_perp_axis( slice_window, view_index, perp_axis );
 
-            voxel[axis] += (Real) dy * Move_slice_speed;
+            for_less( c, 0, N_DIMENSIONS )
+                voxel[c] += (Real) dy * Move_slice_speed * perp_axis[c];
 
-            get_volume_sizes( get_volume(slice_window), sizes );
-
-            if( voxel[axis] < (Real) sizes[axis] - 0.5 )
+            if( voxel_is_within_volume( get_volume(slice_window), voxel ) )
                 set_slice_voxel_position( slice_window, voxel );
         }
     }

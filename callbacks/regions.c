@@ -323,10 +323,10 @@ private  void  copy_labels_from_adjacent_slice(
 
     if( get_voxel_under_mouse( display, real_dest_index, &view_index ) &&
         get_slice_window_volume( display, &volume) &&
-        get_slice_window( display, &slice_window ) )
+        get_slice_window( display, &slice_window ) &&
+        slice_has_ortho_axes( slice_window, view_index,
+                              &x_index, &y_index, &axis_index ) )
     {
-        get_slice_axes( slice_window, view_index, &x_index, &y_index,
-                                      &axis_index );
         convert_real_to_int_voxel( N_DIMENSIONS, real_dest_index, dest_index );
 
         src_index[X] = 0;

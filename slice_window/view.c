@@ -30,7 +30,6 @@ public  void  initialize_slice_window_view(
         {
             axis = slice_window->slice.slice_views[view].axis_map[Z];
             slice_window->slice.slice_index[view] = size[axis] / 2.0;
-            slice_window->slice.slice_locked[view] = FALSE;
         }
 
         for_less( view, 0, N_DIMENSIONS )
@@ -52,15 +51,12 @@ public  void  reset_slice_view(
     int               view )
 {
     Volume  volume;
-    int     axis, x_index, y_index;
     int     x_min, x_max, y_min, y_max;
     Real    origin[MAX_DIMENSIONS];
     Real    x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];;
 
     if( get_slice_window_volume( slice_window, &volume ) )
     {
-        get_slice_axes( slice_window, view, &x_index, &y_index, &axis );
-
         get_slice_viewport( slice_window, view,
                             &x_min, &x_max, &y_min, &y_max );
 
@@ -228,16 +224,13 @@ public  BOOLEAN  convert_pixel_to_voxel(
 public  void  convert_voxel_to_pixel(
     display_struct    *display,
     int               view_index,
-    Real              x_voxel,
-    Real              y_voxel,
+    Real              voxel[],
     int               *x_pixel,
     int               *y_pixel )
 {
     Volume            volume;
     display_struct    *slice_window;
-    int               axis, x_index, y_index;
     int               x_min, x_max, y_min, y_max;
-    Real              voxel_position[N_DIMENSIONS];
     Real              x_real_pixel, y_real_pixel;
     Real              origin[MAX_DIMENSIONS];
     Real              x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];;
@@ -245,15 +238,9 @@ public  void  convert_voxel_to_pixel(
     if( get_slice_window( display, &slice_window ) &&
         get_slice_window_volume( display, &volume ) )
     {
-        get_slice_axes( slice_window, view_index, &x_index, &y_index, &axis );
-        voxel_position[x_index] = x_voxel;
-        voxel_position[y_index] = y_voxel;
-        voxel_position[axis]= slice_window->slice.slice_index[axis];
-
         get_slice_plane( slice_window, view_index, origin, x_axis, y_axis );
 
-        convert_voxel_to_slice_pixel( volume, voxel_position,
-                        origin, x_axis, y_axis,
+        convert_voxel_to_slice_pixel( volume, voxel, origin, x_axis, y_axis,
                         slice_window->slice.slice_views[view_index].x_trans,
                         slice_window->slice.slice_views[view_index].y_trans,
                         slice_window->slice.slice_views[view_index].x_scaling,
@@ -438,9 +425,12 @@ public  BOOLEAN  set_current_voxel(
 
             for_less( view, 0, N_DIMENSIONS )
             {
-                get_slice_axes( slice_window, view, &x_index, &y_index, &axis );
-                if( axis == i )
+                if( !slice_has_ortho_axes( slice_window, view,
+                                           &x_index, &y_index, &axis ) ||
+                    axis == i )
+                {
                     set_slice_window_update( slice_window, view );
+                }
             }
 
             changed = TRUE;
@@ -489,4 +479,85 @@ public  void  get_slice_plane(
     y_axis[Y] = 0.0;
     y_axis[Z] = 0.0;
     y_axis[y_index] = 1.0;
+}
+
+public  void  get_slice_perp_axis(
+    display_struct   *slice_window,
+    int              view_index,
+    Real             perp_axis[N_DIMENSIONS] )
+{
+    Real     origin[N_DIMENSIONS];
+    Real     x_axis[N_DIMENSIONS];
+    Real     y_axis[N_DIMENSIONS];
+    int      c, a1, a2;
+
+    get_slice_plane( slice_window, view_index, origin, x_axis, y_axis );
+
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        a1 = (c + 1) % N_DIMENSIONS;
+        a2 = (c + 2) % N_DIMENSIONS;
+        perp_axis[c] = x_axis[a1] * y_axis[a2] - x_axis[a2] * y_axis[a1];
+    }
+}
+
+public  BOOLEAN  get_axis_index_under_mouse(
+    display_struct   *display,
+    int              *axis_index )
+{
+    BOOLEAN          found;
+    int              view_index;
+    display_struct   *slice_window;
+
+    found = get_slice_view_index_under_mouse( display, &view_index );
+
+    if( found )
+    {
+        slice_window = display->associated[SLICE_WINDOW];
+
+        *axis_index =
+             slice_window->slice.slice_views[view_index].axis_map[Z];
+    }
+
+    return( found );
+}
+
+public  BOOLEAN  slice_has_ortho_axes(
+    display_struct   *slice_window,
+    int              view_index,
+    int              *x_index,
+    int              *y_index,
+    int              *axis_index )
+{
+    Real     origin[N_DIMENSIONS];
+    Real     x_axis[N_DIMENSIONS];
+    Real     y_axis[N_DIMENSIONS];
+    int      c;
+
+    get_slice_plane( slice_window, view_index, origin, x_axis, y_axis );
+
+    *x_index = -1;
+    *y_index = -1;
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        if( x_axis[c] != 0.0 )
+        {
+            if( *x_index != -1 )
+                return( FALSE );
+            *x_index = c;
+        }
+        if( y_axis[c] != 0.0 )
+        {
+            if( *y_index != -1 )
+                return( FALSE );
+            *y_index = c;
+        }
+    }
+
+    if( *x_index == *y_index )
+        return( FALSE );
+
+    *axis_index = N_DIMENSIONS - *x_index - *y_index;
+
+    return( TRUE );
 }

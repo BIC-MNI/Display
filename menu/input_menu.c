@@ -101,6 +101,7 @@ MENU_FUNCTION(ascend_selected) \
                        MENU_FUNCTION(input_polygons_bintree) \
                        MENU_FUNCTION(create_bintree_for_polygons) \
                        MENU_FUNCTION(create_normals_for_polygon) \
+                       MENU_FUNCTION(average_normals_for_polygon) \
                        MENU_FUNCTION(reset_polygon_neighbours) \
                        MENU_FUNCTION(cut_polygon_neighbours) \
                        MENU_FUNCTION(make_polygon_sphere) \
@@ -147,7 +148,6 @@ MENU_FUNCTION(ascend_selected) \
                        MENU_FUNCTION(change_marker_size) \
                        MENU_FUNCTION(change_marker_position) \
                        MENU_FUNCTION(change_marker_type) \
-                       MENU_FUNCTION(toggle_lock_slice) \
                        MENU_FUNCTION(resample_slice_window_volume) \
                        MENU_FUNCTION(box_filter_slice_window_volume) \
                        MENU_FUNCTION(delete_current_object) \

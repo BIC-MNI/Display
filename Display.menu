@@ -68,7 +68,6 @@ slice
     transient 't'    double_slice_voxels            "Increase Size"
 
     transient 'd'    create_3d_slice                "Create 3D Slice"
-    transient 'g'    toggle_lock_slice              "Lock/Unlock Slice"
 
     transient 'z'    resample_slice_window_volume   "Resample Volume"
     transient 'v'    reset_current_slice_view       "Reset Slice View"
@@ -211,7 +210,7 @@ polygons
     transient 'z'    save_polygons_bintree                 "Save Bintree"
     transient 'x'    input_polygons_bintree                "Load Bintree"
     transient 'c'    smooth_current_polygon                "Smooth Polygon"
-    transient 'v'    smooth_current_polygon_with_volume    "Smooth Polygon w/Volume"
+    transient 'v'    average_normals_for_polygon           "Average Normals"
     transient 'b'    reset_polygon_neighbours              "Reset Neighbours"
     transient 'n'    cut_polygon_neighbours                "Cut Neighbours"
 }

@@ -476,14 +476,10 @@ private  void  crop_surface(
 
     if( get_current_polygons(display,&polygons) )
     {
-        if( get_axis_index_under_mouse( display, &axis_index ) )
+        if( get_axis_index_under_mouse( display, &axis_index ) &&
+            get_slice_window( display, &slice_window ) )
         {
-            slice_window = display->associated[SLICE_WINDOW];
-
-            voxel[X] = 0.0;
-            voxel[Y] = 0.0;
-            voxel[Z] = 0.0;
-            voxel[axis_index] = slice_window->slice.slice_index[axis_index];
+            get_current_voxel( slice_window, voxel );
 
             convert_voxel_to_world( get_volume(slice_window), voxel,
                                     &world[X], &world[Y], &world[Z] );

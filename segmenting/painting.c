@@ -321,23 +321,26 @@ private   void    add_point_to_contour(
     int              a1,
     int              a2,
     int              axis,
-    int              voxel[N_DIMENSIONS],
+    int              voxel[],
     Directions       dir,
     lines_struct     *lines )
 {
-    int     x_pixel, y_pixel;
-    Real    x_voxel, y_voxel;
+    int     c, x_pixel, y_pixel;
+    Real    real_voxel[N_DIMENSIONS];
     Point   point;
 
-    x_voxel = (Real) voxel[a1] + (Real) dx[dir] / 2.0;
-    y_voxel = (Real) voxel[a2] + (Real) dy[dir] / 2.0;
+    for_less( c, 0, N_DIMENSIONS )
+        real_voxel[c] = (Real) voxel[c];
+
+    real_voxel[a1] += (Real) dx[dir] / 2.0;
+    real_voxel[a2] += (Real) dy[dir] / 2.0;
 
     dir = (dir + 1) % N_DIRECTIONS;
 
-    x_voxel += (Real) dx[dir] / 2.0;
-    y_voxel += (Real) dy[dir] / 2.0;
+    real_voxel[a1] += (Real) dx[dir] / 2.0;
+    real_voxel[a2] += (Real) dy[dir] / 2.0;
 
-    convert_voxel_to_pixel( slice_window, axis, x_voxel, y_voxel,
+    convert_voxel_to_pixel( slice_window, axis, real_voxel,
                             &x_pixel, &y_pixel );
 
     if( x_pixel < x_centre_pixel )
