@@ -13,7 +13,8 @@ int  main( argc, argv )
     graphics_struct  graphics;
     Status           status;
     Status           G_initialize();
-    Status           input_file();
+    Status           initialize_globals();
+    Status           input_graphics_file();
     Status           create_graphics_window();
     Status           delete_graphics_window();
     Status           main_event_loop();
@@ -29,15 +30,23 @@ int  main( argc, argv )
         (void) abort();
     }
 
-    status = G_initialize();
+    status = initialize_globals();
 
-    status = create_graphics_window( &graphics );
+    if( status == OK )
+    {
+        status = G_initialize();
+    }
+
+    if( status == OK )
+    {
+        status = create_graphics_window( &graphics );
+    }
 
     if( status == OK )
     {
         PRINT( "Inputting objects.\n" );
 
-        status = input_file( argv[1], &graphics.objects );
+        status = input_graphics_file( argv[1], &graphics.objects );
 
         graphics.update_required = TRUE;
 
