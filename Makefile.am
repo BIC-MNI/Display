@@ -6,6 +6,7 @@ EXTRA_DIST = INSTALL.display \
 	Include/display_prototypes.h Include/display_types.h \
 	Include/global_variables.h Include/main.h Include/menu.h \
 	Include/slice.h Include/surface_extract.h \
+	epm-header.in \
 	$(m4_files)
 
 SUBDIRS = Graphics \
@@ -60,7 +61,7 @@ CLEANFILES = dummy.c Display.menu
 
 Display_LDFLAGS = $(X_LIBS)
 Display_LDADD = $(display_obj) \
-	Graphics/libbicgl.a $(GL_LIBS) \
+	Graphics/libbicgl.a $(GL_LIBS) $(GLU_LIBS) $(GLUT_LIBS) \
 	$(MNI_LIBS) $(malloc_LIBS)
 
 Display_DEPENDENCIES = Display.menu $(display_obj)

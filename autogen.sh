@@ -17,7 +17,6 @@ fi
 set -e
 aclocal -I m4
 autoheader
-libtoolize --automake
 automake --add-missing
 autoconf
 
