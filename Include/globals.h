@@ -89,6 +89,10 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_start_pixel, int, 3 )
     DEF_GLOBAL( Cursor_end_pixel, int, 10 )
     DEF_GLOBAL( Slice_cursor_colour, Colour, 0.0 )
+    DEF_GLOBAL( Cursor_mouse_threshold, Real, 0.02 )
+    DEF_GLOBAL( Max_cursor_angle, Real, 10.0 )
+    DEF_GLOBAL( Min_cursor_angle_diff, Real, 20.0 )
+    DEF_GLOBAL( Cursor_pick_distance, Real, 0.02 )
 
     DEF_GLOBAL( Extracted_surface_colour, Colour, 0.0 )
     DEF_GLOBAL( Default_surface_property, Surfprop, 0.0 )
