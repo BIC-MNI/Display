@@ -48,6 +48,8 @@
                        MENU_FUNCTION(start_surface) \
                        MENU_FUNCTION(toggle_surface_extraction) \
                        MENU_FUNCTION(reset_surface) \
+                       MENU_FUNCTION(double_slice_voxels) \
+                       MENU_FUNCTION(halve_slice_voxels) \
                 
 
 typedef  struct
