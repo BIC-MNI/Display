@@ -174,6 +174,8 @@ public  Status  initialize_menu(
 
     add_object_to_model( model, menu->menu_name_text );
 
+    update_menu_name_text( menu_window );
+
     return( status );
 }
 
@@ -514,6 +516,8 @@ public  void  update_all_menu_text(
         if( menu_entry != (menu_entry_struct *) 0 )
             update_menu_text( display, menu_entry );
     }
+
+    set_update_required( menu_window, NORMAL_PLANES );
 }
 
 private  void  update_menu_name_text(

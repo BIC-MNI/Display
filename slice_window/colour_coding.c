@@ -3,11 +3,6 @@
 
 #define    MAX_LABEL_COLOUR_TABLE_SIZE    2000000
 
-private  void   set_colour_of_label(
-    display_struct    *slice_window,
-    int               label,
-    Colour            colour );
-
 public  void  initialize_slice_colour_coding(
     display_struct    *slice_window )
 {
@@ -24,10 +19,7 @@ public  void  initialize_slice_colour_coding(
     slice_window->slice.n_labels = NUM_LABELS;
 
     for_less( label, 0, NUM_LABELS )
-    {
         slice_window->slice.colour_tables[label] = (Colour *) 0;
-        slice_window->slice.label_colours_set[label] = FALSE;
-    }
 }
 
 public  int  get_num_labels(
@@ -47,7 +39,6 @@ public  void  set_colour_coding_for_new_volume(
     Real             min_value, max_value;
     int              label, ind, n_labels;
     Volume           volume;
-    Colour           col;
     static Colour    default_colours[] = { RED, GREEN, BLUE,
                                            CYAN, MAGENTA, YELLOW,
                                            BLUE_VIOLET, DEEP_PINK,
@@ -57,10 +48,7 @@ public  void  set_colour_coding_for_new_volume(
     (void) get_slice_window_volume( slice_window, &volume );
 
     for_less( label, 0, NUM_LABELS )
-    {
         slice_window->slice.colour_tables[label] = (Colour *) 0;
-        slice_window->slice.label_colours_set[label] = FALSE;
-    }
 
     get_volume_voxel_range( volume, &min_voxel, &max_voxel );
 
@@ -147,7 +135,7 @@ private  void  create_colour_table_for_label(
     slice_window->slice.colour_tables[label] = ptr - (int) min_voxel;
 }
 
-private  void   set_colour_of_label(
+public  void   set_colour_of_label(
     display_struct    *slice_window,
     int               label,
     Colour            colour )
@@ -158,15 +146,6 @@ private  void   set_colour_of_label(
         create_colour_table_for_label( slice_window, label );
 
     rebuild_colour_table_for_label( slice_window, label );
-}
-
-public  void   add_new_label(
-    display_struct    *slice_window,
-    int               label,
-    Colour            colour )
-{
-    set_colour_of_label( slice_window, label, colour );
-    slice_window->slice.label_colours_set[label] = TRUE;
 }
 
 private  Colour  apply_label_colour(

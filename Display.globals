@@ -1,5 +1,6 @@
 Progress_threshold = 1000;
 Alloc_checking_enabled = FALSE;
+Alloc_checking_enabled = TRUE;
 
 Initial_background_colour = DARK_SLATE_GREY;
 
@@ -60,7 +61,7 @@ Initial_backface_flag = TRUE;
 Initial_line_curves_flag = FALSE;
 Initial_n_curve_segments = 8;
 
-Segmenting_connectivity = 0;
+Segmenting_connectivity = 1;
 
 Visibility_on_input = TRUE;
 
@@ -221,7 +222,6 @@ Colour_bar_number_format = "%g";
 Normal_towards_lower = TRUE;
 
 Initial_display_labels = TRUE;
-Labeled_voxel_colour = Magenta;
 Label_colour_display_ratio = 0.2;
 
 Use_cursor_origin = TRUE;

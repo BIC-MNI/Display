@@ -535,7 +535,7 @@ public  DEF_MENU_FUNCTION( change_marker_size )   /* ARGSUSED */
 
         print( "Enter the new value: " );
 
-        if( input_real( stdin, &size ) == OK && size > 0.0 )
+        if( input_real( stdin, &size ) == OK && size >= 0.0 )
         {
             marker->size = size;
             print( "The new size of this marker is: %g\n", marker->size );

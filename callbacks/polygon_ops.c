@@ -71,7 +71,8 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(input_polygons_bintree )   /* ARGSUSED */
 {
-    return( current_object_is_this_type(display,POLYGONS) );
+    return( current_object_is_this_type(display,POLYGONS) ||
+            current_object_is_this_type(display,MODEL) );
 }
 
 public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
@@ -115,7 +116,8 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(save_polygons_bintree )   /* ARGSUSED */
 {
-    return( current_object_is_this_type(display,POLYGONS) );
+    return( current_object_is_this_type(display,POLYGONS) ||
+            current_object_is_this_type(display,MODEL) );
 }
 
 public  DEF_MENU_FUNCTION( create_bintree_for_polygons )   /* ARGSUSED */
@@ -137,7 +139,8 @@ public  DEF_MENU_FUNCTION( create_bintree_for_polygons )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(create_bintree_for_polygons )   /* ARGSUSED */
 {
-    return( current_object_is_this_type(display,POLYGONS) );
+    return( current_object_is_this_type(display,POLYGONS) ||
+            current_object_is_this_type(display,MODEL) );
 }
 
 public  DEF_MENU_FUNCTION( create_normals_for_polygon )   /* ARGSUSED */
@@ -157,7 +160,8 @@ public  DEF_MENU_FUNCTION( create_normals_for_polygon )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(create_normals_for_polygon )   /* ARGSUSED */
 {
-    return( current_object_is_this_type(display,POLYGONS) );
+    return( current_object_is_this_type(display,POLYGONS) ||
+            current_object_is_this_type(display,MODEL) );
 }
 
 public  DEF_MENU_FUNCTION( average_normals_for_polygon )   /* ARGSUSED */
@@ -188,7 +192,8 @@ public  DEF_MENU_FUNCTION( average_normals_for_polygon )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(average_normals_for_polygon )   /* ARGSUSED */
 {
-    return( current_object_is_this_type(display,POLYGONS) );
+    return( current_object_is_this_type(display,POLYGONS) ||
+            current_object_is_this_type(display,MODEL) );
 }
 
 public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
@@ -216,7 +221,8 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(smooth_current_polygon )   /* ARGSUSED */
 {
-    return( current_object_is_this_type(display,POLYGONS) );
+    return( current_object_is_this_type(display,POLYGONS) ||
+            current_object_is_this_type(display,MODEL) );
 }
 
 public  DEF_MENU_FUNCTION( smooth_current_polygon_with_volume )   /* ARGSUSED */
@@ -247,7 +253,8 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon_with_volume )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(smooth_current_polygon_with_volume )   /* ARGSUSED */
 {
-    return( current_object_is_this_type(display,POLYGONS) &&
+    return( current_object_is_this_type(display,POLYGONS) ||
+            current_object_is_this_type(display,MODEL) &&
             slice_window_exists(display) );
 }
 
@@ -267,7 +274,8 @@ public  DEF_MENU_FUNCTION( reverse_polygons_order )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(reverse_polygons_order )   /* ARGSUSED */
 {
-    return( current_object_is_this_type(display,POLYGONS) );
+    return( current_object_is_this_type(display,POLYGONS) ||
+            current_object_is_this_type(display,MODEL) );
 }
 
 public  DEF_MENU_FUNCTION( make_polygon_sphere )   /* ARGSUSED */
@@ -368,7 +376,8 @@ public  DEF_MENU_FUNCTION( subdivide_current_polygon )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(subdivide_current_polygon )   /* ARGSUSED */
 {
-    return( current_object_is_this_type(display,POLYGONS) );
+    return( current_object_is_this_type(display,POLYGONS) ||
+            current_object_is_this_type(display,MODEL) );
 }
 
 public  DEF_MENU_FUNCTION( reset_polygon_neighbours )   /* ARGSUSED */
@@ -411,7 +420,8 @@ public  DEF_MENU_FUNCTION( cut_polygon_neighbours )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(cut_polygon_neighbours )   /* ARGSUSED */
 {
-    return( current_object_is_this_type(display,POLYGONS) );
+    return( current_object_is_this_type(display,POLYGONS) ||
+            current_object_is_this_type(display,MODEL) );
 }
 
 public  DEF_MENU_FUNCTION( set_polygon_line_thickness )   /* ARGSUSED */
@@ -435,7 +445,8 @@ public  DEF_MENU_FUNCTION( set_polygon_line_thickness )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_polygon_line_thickness )   /* ARGSUSED */
 {
-    return( current_object_is_this_type(display,POLYGONS) );
+    return( current_object_is_this_type(display,POLYGONS) ||
+            current_object_is_this_type(display,MODEL) );
 }
 
 public  DEF_MENU_FUNCTION( print_polygons_surface_area )   /* ARGSUSED */
@@ -454,5 +465,6 @@ public  DEF_MENU_FUNCTION( print_polygons_surface_area )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(print_polygons_surface_area )   /* ARGSUSED */
 {
-    return( current_object_is_this_type(display,POLYGONS) );
+    return( current_object_is_this_type(display,POLYGONS) ||
+            current_object_is_this_type(display,MODEL) );
 }

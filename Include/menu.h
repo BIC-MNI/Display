@@ -9,9 +9,9 @@ typedef  Status   menu_function_type();
 typedef  menu_function_type  (*menu_function_pointer);
 
 #define  DEF_MENU_FUNCTION( m )  Status m( \
-                                               display_struct    *display, \
-                                               display_struct    *menu_window, \
-                                               menu_entry_struct *menu_entry )
+   display_struct    *display, \
+   display_struct    *menu_window, \
+   menu_entry_struct *menu_entry )
 
 
 typedef  BOOLEAN   menu_update_type();

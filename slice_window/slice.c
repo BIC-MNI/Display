@@ -182,7 +182,7 @@ public  void  create_slice_window(
     menu_window->associated[SLICE_WINDOW] = slice_window;
 
     slice_window->slice.original_volume = volume;
-    slice_window->slice.original_labels = create_label_volume( volume );
+    slice_window->slice.labels = create_label_volume( volume, NC_BYTE );
 
     set_slice_window_volume( slice_window,
                              slice_window->slice.original_volume );
@@ -249,7 +249,7 @@ public  void  delete_slice_window(
     delete_slice_histogram( slice );
 
     delete_volume( slice->original_volume );
-    delete_volume( slice->original_labels );
+    delete_volume( slice->labels );
 
     delete_atlas( &slice->atlas );
 
@@ -266,7 +266,6 @@ private  void  free_slice_window(
         slice->volume != slice->original_volume )
     {
         delete_volume( slice->volume );
-        delete_volume( slice->labels );
     }
 }
 
@@ -290,11 +289,6 @@ public  void  set_slice_window_volume(
 
     slice_window->slice.volume = volume;
     get_volume_sizes( volume, sizes );
-
-    if( volume == slice_window->slice.original_volume )
-        slice_window->slice.labels = slice_window->slice.original_labels;
-    else
-        slice_window->slice.labels = create_label_volume( volume );
 
     for_less( view, 0, N_SLICE_VIEWS )
         slice_window->slice.slice_views[view].update_flag = TRUE;

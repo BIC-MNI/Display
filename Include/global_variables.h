@@ -223,7 +223,6 @@ START_GLOBALS
     DEF_GLOBAL( Normal_towards_lower, BOOLEAN, TRUE )
 
     DEF_GLOBAL( Initial_display_labels, BOOLEAN, TRUE )
-    DEF_GLOBAL( Labeled_voxel_colour, Colour, MAGENTA )
     DEF_GLOBAL( Label_colour_display_ratio, Real, 0.2 )
 
     DEF_GLOBAL( Use_cursor_origin, BOOLEAN, TRUE )

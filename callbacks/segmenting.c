@@ -363,6 +363,7 @@ public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
                                   get_current_paint_label(display),
                                   slice_window->slice.segmenting.min_threshold,
                                   slice_window->slice.segmenting.max_threshold,
+                                  slice_window->slice.segmenting.connectivity,
                                   N_expansion_voxels );
 
             delete_slice_undo( &slice_window->slice.undo );
@@ -381,4 +382,48 @@ public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
 public  DEF_MENU_UPDATE(expand_labeled_3d )   /* ARGSUSED */
 {
     return( slice_window_exists(display) );
+}
+
+public  DEF_MENU_FUNCTION(toggle_connectivity)   /* ARGSUSED */
+{
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window) )
+    {
+        if( slice_window->slice.segmenting.connectivity == FOUR_NEIGHBOURS )
+            slice_window->slice.segmenting.connectivity = EIGHT_NEIGHBOURS;
+        else
+            slice_window->slice.segmenting.connectivity = FOUR_NEIGHBOURS;
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(toggle_connectivity )   /* ARGSUSED */
+{
+    BOOLEAN          state;
+    display_struct   *slice_window;
+    Neighbour_types  connectivity;
+    int              n_neigh;
+
+    state = get_slice_window( display, &slice_window );
+
+    if( state )
+        connectivity = slice_window->slice.segmenting.connectivity;
+    else
+        connectivity = (Neighbour_types) Segmenting_connectivity;
+
+    switch( connectivity )
+    {
+    case  FOUR_NEIGHBOURS:
+        n_neigh = 4; 
+        break;
+    case  EIGHT_NEIGHBOURS:
+        n_neigh = 8; 
+        break;
+    }
+
+    set_menu_text_int( menu_window, menu_entry, n_neigh );
+
+    return( state );
 }

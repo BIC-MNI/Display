@@ -188,14 +188,14 @@ public  BOOLEAN  get_current_object(
     object_struct     **current_object )
 {
     int               object_index;
-    BOOLEAN           current_object_exists;
+    BOOLEAN           exists;
     model_struct      *model;
     selection_entry   *entry;
 
     if( current_object_is_top_level(display) )
     {
         *current_object = display->models[THREED_MODEL];
-        current_object_exists = TRUE;
+        exists = TRUE;
     }
     else
     {
@@ -206,16 +206,16 @@ public  BOOLEAN  get_current_object(
         if( object_index >= 0 && object_index < model->n_objects )
         {
             *current_object = model->objects[object_index];
-            current_object_exists = TRUE;
+            exists = TRUE;
         }
         else
         {
             *current_object = (object_struct *) 0;
-            current_object_exists = FALSE;
+            exists = FALSE;
         }
     }
 
-    return( current_object_exists );
+    return( exists );
 }
 
 public  void  initialize_current_object(

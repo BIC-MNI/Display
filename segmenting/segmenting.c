@@ -9,11 +9,6 @@ public  void  initialize_segmenting(
     segmenting->connectivity = (Neighbour_types) Segmenting_connectivity;
 }
 
-public  int  get_label_bit()
-{
-    return( (get_max_label() + 1) >> 1 );
-}
-
 public  void  clear_all_labels(
     display_struct    *display )
 {

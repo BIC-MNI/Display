@@ -352,6 +352,7 @@ segmenting
     transient 'b'    toggle_display_labels           "Show Labels: %s"
 
     transient '1'    translate_labels                 "Translate Labels"
+    transient '5'    toggle_connectivity              "Connectivity: %d"
 
     transient '7'    undo_slice_labels                "Undo"
 }

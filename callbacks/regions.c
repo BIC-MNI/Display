@@ -132,7 +132,7 @@ public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
             {
                 col = convert_string_to_colour( line );
 
-                add_new_label( slice_window, label, col );
+                set_colour_of_label( slice_window, label, col );
 
                 set_slice_window_all_update( display->associated[SLICE_WINDOW]);
             }
@@ -223,35 +223,18 @@ public  DEF_MENU_UPDATE(save_current_label )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
 {
     Status         status;
-    int            index;
-    BOOLEAN        landmark_format, clear_flag;
+    BOOLEAN        landmark_format;
     FILE           *file;
-    STRING         clear_string, filename;
+    STRING         filename;
     display_struct *slice_window;
     Volume         volume;
 
     if( get_slice_window_volume( display, &volume ) &&
         get_slice_window( display, &slice_window ) )
     {
-        print( "Enter filename [noclear]: " );
-        if( input_line( stdin, filename, MAX_STRING_LENGTH ) == OK )
+        print( "Enter filename: " );
+        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
         {
-            clear_flag = TRUE;
-
-            strip_outer_blanks( filename, filename );
-
-            index = find_character( filename, ' ' );
-            if( index >= 0 )
-            {
-                filename[index] = (char) 0;
-                strip_outer_blanks( &filename[index+1], clear_string );
-                if( strlen( clear_string ) != 0 )
-                    clear_flag = FALSE;
-            }
-
-            if( clear_flag )
-                set_all_volume_label_data( get_label_volume( slice_window ),0);
-
             landmark_format = filename_extension_matches( filename,
                                  get_default_landmark_file_suffix() );
 
@@ -277,6 +260,8 @@ public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
             set_slice_window_all_update( slice_window );
             print( "Done loading.\n" );
         }
+
+        (void) input_newline( stdin );
     }
 
     return( OK );

@@ -132,6 +132,8 @@ int  main( argc, argv )
 
         update_view( graphics );
 
+        update_all_menu_text( graphics );
+
         set_update_required( graphics, NORMAL_PLANES );
     }
 

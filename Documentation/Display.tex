@@ -215,7 +215,9 @@ box:
 \item[\menutwo{File}{Save Labels .mnc}]  Prompts for a filename and
         saves the label volume.
 \item[\menutwo{File}{Load Labels .tag}]  Prompts for a filename and
-        loads the tags file into the label volume.
+        loads the tags file into the label volume.  Note that it does not
+        clear the label volume, so the resulting labels are the union
+        of the current labels and the loaded tags.
 \item[\menutwo{File}{Save Labels .tag}]  Prompts for a filename and
         saves the label volume as a tag file.  For large regions
         this may create very large ascii files, and it may be more

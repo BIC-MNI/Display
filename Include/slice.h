@@ -56,10 +56,9 @@ typedef  struct
 typedef  struct
 {
     Volume                 original_volume;
-    Volume                 original_labels;
+    Volume                 labels;
 
     Volume                 volume;
-    Volume                 labels;
 
     int                    n_labels;
     Colour                 *colour_tables[NUM_LABELS];
