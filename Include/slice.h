@@ -15,6 +15,20 @@ typedef  struct
     Boolean   update_flag;
 } slice_view_struct;
 
+typedef  struct
+{
+    int   voxel_indices[3];
+    int   id;
+} label_struct;
+
+typedef  struct
+{
+    int            n_labels;
+    label_struct   *labels;
+    int            min_threshold;
+    int            max_threshold;
+} segmenting_struct;
+
 
 typedef  struct
 {
@@ -32,6 +46,8 @@ typedef  struct
 
     int                    *temporary_indices;
     int                    temporary_indices_alloced;
+
+    segmenting_struct      segmenting;
 
 } slice_window_struct;
 

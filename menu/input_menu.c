@@ -81,6 +81,10 @@
                        MENU_FUNCTION(lock_slice) \
                        MENU_FUNCTION(unlock_slice) \
                        MENU_FUNCTION(delete_current_object) \
+                       MENU_FUNCTION(label_point) \
+                       MENU_FUNCTION(generate_regions) \
+                       MENU_FUNCTION(reset_segmenting) \
+                       MENU_FUNCTION(set_segmenting_threshold) \
                 
 
 typedef  struct

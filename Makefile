@@ -1,7 +1,8 @@
 include ../C_dev/Makefile.include
 
-DEFINES = -DNO_DEBUG_ALLOC
-OPT = $(DEFINES)   -O
+OPT_g = -g
+OPT_O = -DNO_DEBUG_ALLOC  -O
+OPT = $(OPT_g)
 
 #INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/yorick/usr/include
 INCLUDE = -IInclude -I$(C_UTILS_INCLUDE)
@@ -38,6 +39,7 @@ display_obj = \
            callbacks/quit.o \
            callbacks/marker_ops.o \
            callbacks/render_ops.o \
+           callbacks/segmenting.o \
            callbacks/surface_ops.o \
            callbacks/view_ops.o \
            callbacks/volume_ops.o \
@@ -71,6 +73,9 @@ display_obj = \
            menu/input_menu.o \
            menu/menu_update.o \
            menu/selected.o \
+           segmenting/connect.o \
+           segmenting/cut.o \
+           segmenting/segmenting.o \
            slice_window/draw_slice.o \
            slice_window/slice.o \
            slice_window/slice_events.o \

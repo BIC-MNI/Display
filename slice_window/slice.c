@@ -10,6 +10,7 @@ public  Status  initialize_slice_window( graphics )
     Status  initialize_colour_coding();
     void    initialize_slice_window_events();
     int     c;
+    void    initialize_segmenting();
 
     graphics->slice.volume = (volume_struct *) 0;
 
@@ -51,6 +52,8 @@ public  Status  initialize_slice_window( graphics )
     }
 
     graphics->slice.fast_lookup_present = FALSE;
+
+    initialize_segmenting( &graphics->slice.segmenting );
 
     return( status );
 }
