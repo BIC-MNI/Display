@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.100 1995-12-19 15:46:17 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.101 1996-02-13 18:58:26 david Exp $";
 #endif
 
 
@@ -1247,4 +1247,23 @@ public  DEF_MENU_UPDATE(toggle_incremental_slice_update)
     set_menu_text_on_off( menu_window, menu_entry, state );
 
     return( slice_window_exists(display) );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( toggle_shift_key )
+{
+    menu_window->menu.shift_key_down = !menu_window->menu.shift_key_down;
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_shift_key )
+{
+    set_menu_text_boolean( menu_window, menu_entry,
+                           menu_window->menu.shift_key_down, "Up", "Down" );
+
+    return( TRUE );
 }
