@@ -21,7 +21,8 @@
 #define  Z_TALAIRACH_PROBE_INDEX       5
 #define  VOXEL_PROBE_INDEX             6
 #define  VAL_PROBE_INDEX               7
-#define  N_READOUT_MODELS              8
+#define  LABEL_PROBE_INDEX             8
+#define  N_READOUT_MODELS              9
 
 private  void  render_slice_to_pixels(
     display_struct        *slice_window,
@@ -172,7 +173,7 @@ public  void  rebuild_probe(
     model_struct   *model;
     Boolean        active;
     Volume         volume;
-    int            i, x_voxel, y_voxel, z_voxel, view_index;
+    int            label, i, x_voxel, y_voxel, z_voxel, view_index;
     Real           x_tal_voxel, y_tal_voxel, z_tal_voxel;
     Real           x_talairach, y_talairach, z_talairach;
     text_struct    *text;
@@ -200,6 +201,9 @@ public  void  rebuild_probe(
     {
         GET_VOXEL_3D( voxel_value, volume, x_voxel, y_voxel, z_voxel );
         value = CONVERT_VOXEL_TO_VALUE( get_volume(slice_window), voxel_value );
+        label = get_volume_auxiliary_data( get_volume(slice_window),
+                                           x_voxel, y_voxel, z_voxel );
+        label = label & LOWER_AUXILIARY_BITS;
     }
 
     /* --- do slice readout models */
@@ -250,6 +254,9 @@ public  void  rebuild_probe(
                 break;
             case VAL_PROBE_INDEX:
                 (void) sprintf( text->string, Slice_probe_val_format, value );
+                break;
+            case LABEL_PROBE_INDEX:
+                (void) sprintf( text->string, Slice_probe_label_format, label );
                 break;
             }
         }
@@ -474,6 +481,7 @@ private  void  render_slice_to_pixels(
     Real                  y_scale )
 {
     Volume                volume;
+    Data_types            data_type;
     int                   *temporary_indices, sizes[N_DIMENSIONS];
     int                   start_volume_index, volume_index;
     Boolean               fast_lookup_present, display_activity;
@@ -487,8 +495,10 @@ private  void  render_slice_to_pixels(
     int                   label, new_label;
     int                   voxel_indices[3];
     unsigned char         *label_ptr;
-    unsigned char         *byte_data;
-    unsigned short        *short_data;
+    unsigned char         *unsigned_byte_data;
+    char                  *signed_byte_data;
+    unsigned short        *unsigned_short_data;
+    short                 *signed_short_data;
     Colour                col;
     Colour                *pixel_ptr;
     Real                  dx, dy;
@@ -544,13 +554,16 @@ private  void  render_slice_to_pixels(
 
     GET_VOXEL_PTR_3D( void_ptr, volume, 0, 0, 0 );
 
-    if( volume->data_type == UNSIGNED_BYTE )
-        byte_data = void_ptr;
-    else if( volume->data_type == UNSIGNED_SHORT )
-        short_data = void_ptr;
-    else
+    data_type = volume->data_type;
+    switch( data_type )
     {
+    case  UNSIGNED_BYTE:  unsigned_byte_data = void_ptr;  break;
+    case  SIGNED_BYTE:    signed_byte_data = void_ptr;  break;
+    case  UNSIGNED_SHORT: unsigned_short_data = void_ptr;  break;
+    case  SIGNED_SHORT:   signed_short_data = void_ptr;  break;
+    default:
         HANDLE_INTERNAL_ERROR( "Invalid data type for rendering.\n" );
+        break;
     }
 
     label = ACTIVE_BIT;
@@ -618,10 +631,21 @@ private  void  render_slice_to_pixels(
                         }
                     }
 
-                    if( volume->data_type == UNSIGNED_BYTE )
-                        val = (int) byte_data[volume_index];
-                    else
-                        val = (int) short_data[volume_index];
+                    switch( data_type )
+                    {
+                    case UNSIGNED_BYTE:
+                        val = (int) unsigned_byte_data[volume_index];
+                        break;
+                    case SIGNED_BYTE:
+                        val = (int) signed_byte_data[volume_index];
+                        break;
+                    case UNSIGNED_SHORT:
+                        val = (int) unsigned_short_data[volume_index];
+                        break;
+                    case SIGNED_SHORT:
+                        val = (int) signed_short_data[volume_index];
+                        break;
+                    }
 
                     if( fast_lookup_present )
                         col = lookup[val-min_value];

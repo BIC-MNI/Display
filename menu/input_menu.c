@@ -112,7 +112,8 @@
                        MENU_FUNCTION(smooth_current_polygon) \
                        MENU_FUNCTION(smooth_current_polygon_with_volume) \
                        MENU_FUNCTION(start_deforming_object) \
-                       MENU_FUNCTION(start_annealling_deforming_object) \
+                       MENU_FUNCTION(start_annealing_deforming_object) \
+                       MENU_FUNCTION(set_annealing_parameters) \
                        MENU_FUNCTION(stop_deforming_object) \
                        MENU_FUNCTION(set_deformation_boundary) \
                        MENU_FUNCTION(set_deformation_model) \
@@ -147,6 +148,15 @@
                        MENU_FUNCTION(delete_current_object) \
                        MENU_FUNCTION(label_point) \
                        MENU_FUNCTION(generate_regions) \
+                       MENU_FUNCTION(set_paint_x_brush_radius) \
+                       MENU_FUNCTION(set_paint_y_brush_radius) \
+                       MENU_FUNCTION(set_paint_z_brush_radius) \
+                       MENU_FUNCTION(copy_labels_from_lower_slice) \
+                       MENU_FUNCTION(copy_labels_from_higher_slice) \
+                       MENU_FUNCTION(set_current_paint_label) \
+                       MENU_FUNCTION(set_label_colour) \
+                       MENU_FUNCTION(save_labels) \
+                       MENU_FUNCTION(load_labels) \
                        MENU_FUNCTION(reset_segmenting) \
                        MENU_FUNCTION(set_segmenting_threshold) \
                        MENU_FUNCTION(make_surface_line_permanent) \

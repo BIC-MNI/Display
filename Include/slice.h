@@ -74,6 +74,9 @@ typedef  struct
     segmenting_struct      segmenting;
     atlas_struct           atlas;
 
+    Real                   x_brush_radius, y_brush_radius, z_brush_radius;
+    int                    current_paint_label;
+
 } slice_window_struct;
 
 

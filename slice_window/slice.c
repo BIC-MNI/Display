@@ -211,6 +211,7 @@ public  void  initialize_slice_window(
     slice_window->slice.temporary_indices_alloced = 0;
 
     initialize_slice_window_events( slice_window );
+    initialize_voxel_labeling( slice_window );
 
     for_less( c, 0, N_DIMENSIONS )
         slice_window->slice.slice_views[c].update_flag = TRUE;
@@ -224,6 +225,11 @@ public  void  initialize_slice_window(
     initialize_segmenting( &slice_window->slice.segmenting );
     initialize_atlas( &slice_window->slice.atlas );
     initialize_slice_window_view( slice_window );
+
+    slice_window->slice.x_brush_radius = Default_x_brush_radius;
+    slice_window->slice.y_brush_radius = Default_y_brush_radius;
+    slice_window->slice.z_brush_radius = Default_z_brush_radius;
+    slice_window->slice.current_paint_label = Default_paint_label;
 
     set_atlas_state( slice_window, Default_atlas_state );
 }
