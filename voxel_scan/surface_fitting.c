@@ -28,7 +28,7 @@ public  Status  initialize_surface_fitting( surface_fitting )
 public  Status  alloc_surface_fitting_parameters( surface_fitting )
     surface_fitting_struct   *surface_fitting;
 {
-    int     n_parameters;
+    int     i, n_parameters;
     Status  status;
 
     status = OK;
@@ -53,6 +53,22 @@ public  Status  alloc_surface_fitting_parameters( surface_fitting )
         ALLOC( status, surface_fitting->parameters, n_parameters );
     }
 
+    if( status == OK )
+        ALLOC( status, surface_fitting->max_parameter_deltas, n_parameters );
+
+    if( status == OK )
+        ALLOC( status, surface_fitting->parameter_deltas, n_parameters );
+
+    if( status == OK )
+    {
+        for_less( i, 0, n_parameters )
+        {
+            surface_fitting->max_parameter_deltas[i] = 1.0;
+            surface_fitting->parameter_deltas[i] = 0.25 *
+                          surface_fitting->max_parameter_deltas[i];
+        }
+    }
+
     return( status );
 }
 
@@ -62,6 +78,12 @@ public  Status  free_surface_fitting_parameters( surface_fitting )
     Status  status;
 
     FREE( status, surface_fitting->parameters );
+
+    if( status == OK )
+        FREE( status, surface_fitting->max_parameter_deltas );
+
+    if( status == OK )
+        FREE( status, surface_fitting->parameter_deltas );
 
     if( status == OK &&
         surface_fitting->surface_representation->n_descriptors > 0 )

@@ -151,8 +151,10 @@ private  double  distance_measure( n_surface_points,
             sum += dist;
     }
 
+#ifdef AVERAGE_NOT_SUM
     if( n_surface_points > 0 )
         sum /= (double) n_surface_points;
+#endif
 
     return( sum );
 }

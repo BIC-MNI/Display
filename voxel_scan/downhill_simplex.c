@@ -31,27 +31,26 @@ private  void  get_psum( ndim, p, psum )
 
 private  double  amotry( fit_data,
                          p, y, psum, ptry, ndim, ihi, nfunk, fac, success )
-    minimization_struct       *fit_data;
-    double                    **p;
-    double                    y[];
-    double                    psum[];
-    double                    ptry[];
-    int                       ndim;
-    int                       ihi;
-    int                       *nfunk;
-    double                    fac;
-    Boolean                   *success;
+    downhill_simplex_struct       *fit_data;
+    double                        **p;
+    double                        y[];
+    double                        psum[];
+    double                        ptry[];
+    int                           ndim;
+    int                           ihi;
+    int                           *nfunk;
+    double                        fac;
+    Boolean                       *success;
 {
     int      j;
     double   fac1, fac2, ytry;
-    double   evaluate_fit();
 
     fac1 = (1.0 - fac) / ndim;
     fac2 = fac1 - fac;
     for_less( j, 0, ndim )
         ptry[j] = psum[j] * fac1 - p[ihi][j] * fac2;
     
-    ytry = evaluate_fit( fit_data->evaluation_ptr, ptry );
+    ytry = fit_data->evaluate_fit_function( fit_data->evaluation_ptr, ptry );
 
     ++(*nfunk);
 
@@ -71,17 +70,18 @@ private  double  amotry( fit_data,
     return( ytry );
 }
 
-public  Status  initialize_amoeba( fit_data, evaluation_ptr,
-                                   initial_parameters, ndim )
-    minimization_struct      *fit_data;
-    void                     *evaluation_ptr;
-    double                   initial_parameters[];
-    int                      ndim;
+public  Status  initialize_amoeba( fit_data, ndim, initial_parameters,
+                                   evaluate_fit_function, evaluation_ptr )
+    downhill_simplex_struct      *fit_data;
+    int                          ndim;
+    double                       initial_parameters[];
+    double                       (*evaluate_fit_function)();
+    void                         *evaluation_ptr;
 {
     int      i, j;
     Status   status;
-    double   evaluate_fit();
 
+    fit_data->evaluate_fit_function = evaluate_fit_function;
     fit_data->evaluation_ptr = evaluation_ptr;
 
     ALLOC2D( status, fit_data->p, ndim+1, ndim );
@@ -111,7 +111,8 @@ public  Status  initialize_amoeba( fit_data, evaluation_ptr,
     }
 
     for_less( i, 0, ndim + 1 )
-        fit_data->y[i] = evaluate_fit( evaluation_ptr, fit_data->p[i] );
+        fit_data->y[i] = fit_data->evaluate_fit_function( evaluation_ptr,
+                                                          fit_data->p[i] );
 
     get_psum( ndim, fit_data->p, fit_data->psum );
 
@@ -119,7 +120,7 @@ public  Status  initialize_amoeba( fit_data, evaluation_ptr,
 }
 
 public  Status  terminate_amoeba( fit_data )
-    minimization_struct  *fit_data;
+    downhill_simplex_struct  *fit_data;
 {
     Status   status;
 
@@ -138,16 +139,15 @@ public  Status  terminate_amoeba( fit_data )
 }
 
 public  void  amoeba( fit_data, ndim, ftol, max_funk, n_funk, out_parameters )
-    minimization_struct  *fit_data;
-    int                  ndim;
-    double               ftol;
-    int                  max_funk;
-    int                  *n_funk;
-    double               out_parameters[];
+    downhill_simplex_struct  *fit_data;
+    int                      ndim;
+    double                   ftol;
+    int                      max_funk;
+    int                      *n_funk;
+    double                   out_parameters[];
 {
     int     i, j, ilo, ihi, inhi;
     double  ytry, ysave, rtol, amotry();
-    double  evaluate_fit();
     Boolean success;
 
     *n_funk = 0;
@@ -219,8 +219,9 @@ public  void  amoeba( fit_data, ndim, ftol, max_funk, n_funk, out_parameters )
                               0.5 * ( fit_data->p[i][j] + fit_data->p[ilo][j] );
                             fit_data->p[i][j] = fit_data->psum[j];
                         }
-                        fit_data->y[i] = evaluate_fit( fit_data->evaluation_ptr,
-                                                       fit_data->psum );
+                        fit_data->y[i] = fit_data->evaluate_fit_function(
+                                               fit_data->evaluation_ptr,
+                                               fit_data->psum );
                     }
                 }
 
