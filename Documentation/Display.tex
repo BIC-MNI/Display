@@ -1,14 +1,15 @@
 \documentstyle[david,psfig]{article}
 
-\title{Display - 3D and Volume Program}
+\title{{\bf Display} - Program for Display and Segmentation of Surfaces and Volumes}
 \author{David MacDonald}
 
-\newcommand{\display}{{\bf\tt display}\ }
+\newcommand{\ident}[1]{{\bf\tt #1}\ }
+\newcommand{\display}{\ident{display}}
 \newcommand{\menu}[1]{\fbox{\sc\bf #1}}
 \newcommand{\menutwo}[2]{\fbox{\sc\bf #1}/\fbox{\sc\bf #2}}
 \newcommand{\menuthree}[3]{\fbox{\sc\bf #1}/\fbox{\sc\bf #2}/\fbox{\sc\bf #3}}
 
-\psdraft
+%\psdraft
 
 \begin{document}
 
@@ -25,15 +26,13 @@
 \display is a program originally designed to display and manipulate
 three dimensional objects,
 mainly human cortical surfaces and sulcal curves.  It has since evolved to
-include MRI and PET volume display and manipulation and a variety of other
-features.  The user interface is a non-standard menu oriented system.
+include MRI and PET volume display and segmentation and a variety of other
+features.  The user interface is a non-standard menu oriented system, based
+on keystrokes and mouse selection.
 
 \section{Running \display}
 
-\display runs on any of the Silicon Graphics (SGI) workstations:
-{\tt portia}, {\tt priam}, {\tt lear}, {\tt duncan}, {\tt grumio},
-{\tt phebe}, {\tt quince}, and {\tt ursula}.
-
+\display runs only on Silicon Graphics (SGI) workstations.
 The command syntax is:
 
 \begin{verbatim}
@@ -44,18 +43,14 @@ where each file is one of:
 
 \begin{itemize}
 
-\item[Volume:]  contains an MRI, PET, or other 3D volume, and usually ends
-                    in {\tt .mnc},
+\item[Volume:]  contains an MRI, PET, or other 3D volume, and ends
+                    in \ident{.mnc},
 
-\item[3D object:]  contains 3D surfaces, lines, or other objects, and usually
-                    ends in {\tt .obj},
+\item[3D object:]  contains 3D surfaces, lines, or other objects, and
+                    ends in \ident{.obj},
 
-\item[Landmarks:]  contains a list of 3D points tagged on a volume.  This is
-                  an obsolete format and usually ends in {\tt .lmk}, or
-
-\item[Tags:]  contains a list of 3D points tagged on a volume.  This format
-             supercedes the landmark format and should be used for all
-             lists of points, positions, etc., and usually ends in {\tt .tag}.
+\item[Tags:]  contains a list of 3D points, such as those chosen from a volume.
+              and ends in \ident{.tag}.
 \end{itemize}
 
 \subsection{MRI Files at the MNI}
@@ -63,8 +58,10 @@ where each file is one of:
 The following are the standard available datasets:
 
 \begin{itemize}
-\item[Normal MRI] 305 normal brains in the files:  {\tt /avgbrain/brain/autoreg/filename.mni}, and
-\item[Average MRI] the average of the 305 brains in the file {\tt /avgbrain/brain/images/norm\_avg\_305\_mri256.mnc}.
+\item[Normal MRI] 305 normal brains in the files:  \ident{/avgbrain/brain/autoreg/filename.mnc}, and
+\item[Average MRI] the average of the 305 brains in the file
+\ident{/avgbrain/brain/images/norm\_avg\_305\_mri256.mnc}, or a lower
+resolution version in \ident{/avgbrain/brain/images/norm\_avg\_305\_mri.mnc}.
 \end{itemize}
 
 Note that the above files are generally compressed.  If the file ends in
@@ -73,8 +70,8 @@ Note that the above files are generally compressed.  If the file ends in
 
 \section{\display Windows}
 
-\psfigure{display.ps}{7in}{Clockwise from top left:
-3D window, slice window, menu window, text entry window.}{windows}
+\psfigure{displaywindows.ps}{7in}{top left: 3D window, top right: slice window,
+centre: menu window, bottom: text entry window.}{windows}
 
 Figure \ref{windows} shows the four windows used by \display (three of which
 are created when the program is run):
@@ -82,8 +79,8 @@ are created when the program is run):
 \begin{itemize}
 \item[3D window:]  contains the 3D objects, such as surfaces, lines,
                   and markers,
-\item[slice window:]  shows 3 orthogonal views of slices through the volume
-                     (if one is loaded),
+\item[slice window:]  shows 3 or 4 views of slices through the volume
+                      (if a volume is loaded),
 \item[menu window:]  shows the current menu configuration,
 \item[text entry:]  this is the shell window or xterm from which \display was
                    run and in which all text must be typed, e.g. filenames,
@@ -95,7 +92,8 @@ are created when the program is run):
 The menu window (bottom right in Figure \ref{windows}) represents the layout
 of the left side of the keyboard.  A menu entry is selected by hitting the
 corresponding key in any of the 3 display windows or pointing to the entry
-with the mouse and clicking the left button.  The space bar or middle mouse
+in the menu window with the mouse and clicking the left button.
+The space bar or middle mouse
 button will pop back one level in the menu.  In the remainder of this document
 the following convention will be used to refer to menu selection:
 \menutwo{View}{Reset} means select the view menu, then select the reset button
@@ -103,15 +101,14 @@ from within the view menu.  Whenever text must be typed, such as in prompts
 for filenames, size and width parameters, etc., the mouse must be moved to the
 text entry window and the values typed, followed by the return key.
 Some menu items cannot be selected by the mouse because the mouse must be
-used to point to the object of the action, usually one of the 3 volume slices.
-In these cases, the mouse must be positioned on the relevant slice and the
+used to point to the object of the action, usually one of the 3 volume slices
+in the slice window.
+In these cases, the mouse must be positioned on the relevant slice in
+the slice window and the
 keyboard character corresponding to the menu entry pressed.
 When the user is prompted to type in a colour, either the name of a colour,
-such as {\tt red}, {\tt yellow}, or {\tt pink}, or a numerical colour,
-such as \mbox{\tt 0.3 0.7 0.7} may be typed in.  The following is a brief
-description of most useful menu items.  Much of the menu is devoted towards
-the author's research and is therefore not applicable to the average 
-user, and is not described herein.
+such as \ident{red}, \ident{yellow}, or \ident{pink}, or a numerical colour,
+such as \mbox{\ident{0.3 0.7 0.7}} may be typed in.
 
 \subsection{Menu Window}
 
@@ -123,17 +120,22 @@ current object.
 
 \subsection{3D Window}
 
-In the 3D window, the following mouse operations are available:
+The 3D window shows three dimensional objects such as surfaces and
+lines, with lighting and camera control.  In the 3D window, the following
+mouse operations are available:
 
 \begin{itemize}
 \item[Left Button]  Points to a position on a surface or to a marker
                     (tag point).
 \item[Middle Button]  Rotates, translates, or magnifies the 3D view, depending
-                      on the menu button pressed.
+                      on the current mode selected from the view 3D menu.
 \end{itemize}
 
 \subsection{Slice Window}
 
+The slice window displays slices of the volume, with various colour coding
+options.  There is also a colour overlay volume which is used during
+manual segmentation of the volume.
 In the slice window, the following mouse operations are available:
 
 \begin{itemize}
@@ -142,42 +144,130 @@ In the slice window, the following mouse operations are available:
                       middle button changes the current volume slice.
 \item[Right Button]  Paints a region of the volume slice with the current
                      brush size.
-\item[Alt-Left Button]  While holding down the {\bf shift}, {\bf ctrl},
-                        or {\bf alt} key, the left button translates the
+\item[Alt-Left Button]  While holding down the \ident{shift}, \ident{ctrl},
+                        or \ident{alt} key, the left button translates the
                         position of the slice within the viewport.
-\item[Alt-Right Button]  While holding down the {\bf shift}, {\bf ctrl},
-                        or {\bf alt} key, holding down the middle button,
+\item[Alt-Right Button]  While holding down the \ident{shift}, \ident{ctrl},
+                        or \ident{alt} key, holding down the middle button,
                         and moving the mouse up or down changes the
                         magnification of the current slice.
 \item[Colour Bar]  The limits of the colour bar can be moved by pressing
                    the left mouse button on the bar near the desired limit.
-                   Pressing the middle button below the low limit will allow
+                   Pressing the middle button on the colour bar will allow
                    both limits to be moved simultaneously.
 \end{itemize}
 
-\section{Menus}
+\section{Complete Menu Reference}
+
+The following is a complete listing of every menu selection, with a
+short description of each.
+Since this program is also part of a research tool, some selections are
+not relevant to most users, and will be simply be described as not for general
+use.  Fig. \ref{menu} shows the top level menu that is presented upon
+program start up, or after popping the menu to the top level.
+
+\psfigure{menu.ps}{7in}{Top level menu}{menu}
+
+\subsection{Current Object Menu}
+
+The 3D graphics objects, visible in the 3D window, are also presented
+in a hierarchical form in the menu window, as a tree structure with
+each element of the tree being the name of a 3D graphics object.
+There are 4 keys that can be used to navigate through the list, by
+moving a small box which points to the current object:
+
+\begin{description}
+\item[\menu{Up Arrow}]  Sets the current object to the one before
+                the current object.
+\item[\menu{Down Arrow}]  Sets the current object to the one after
+                the current object.
+\item[\menu{Left Arrow}]  Sets the current object to the one above
+                the current object.
+\item[\menu{Right Arrow}]  Sets the current object to the one below
+                the current object, if the current object is a model.
+\end{description}
+
+\subsection{File Menu}
+
+\begin{description}
+\item[\menutwo{File}{Load File}]  Prompts for a filename and loads the file.
+        If a volume file is loaded (ends in \ident{.mnc}), then the
+        slice window is opened, if not already opened.
+\item[\menutwo{File}{Save File}]  Prompts for a filename and saves to the file
+        the current object, or all objects under the current object, if it is
+        a model object.
+\item[\menutwo{File}{Load Labels .mnc}]  Prompts for a filename and
+        loads the volume file as labels overlaid on the slices.
+\item[\menutwo{File}{Save Labels .mnc}]  Prompts for a filename and
+        saves the segmenting labels.
+\item[\menutwo{File}{Load Labels .tag}]  Prompts for a filename and
+        loads the tags file as labels overlaid on the slices.
+\item[\menutwo{File}{Save Labels .tag}]  Prompts for a filename and
+        saves the segmenting labels as a tag file.  For large regions
+        this may create very large ascii files, and it may be more
+        efficient to save as \ident{.mnc}.
+\item[\menutwo{File}{Save Markers as .tag}]  Prompts for a filename and
+        saves any markers at or under the current object to the file
+        in tag file format.
+
+\item[\menutwo{File}{Load Poly Visib.}]  Not for general use.
+\item[\menutwo{File}{Save Poly Visib.}]  Not for general use.
+\item[\menutwo{File}{Save Bintree}]  Not for general use.
+\item[\menutwo{File}{Load Bintree}]  Not for general use.
+\end{description}
 
 \subsection{Slice Menu}
 
 \begin{description}
 \item[\menu{+ Slice}]  Changes the current slice to the next slice.
 \item[\menu{- Slice}]  Changes the current slice to the previous slice.
-\item[\menutwo{Slice}{Decrease Size}]  Decreases the magnification of the
-       volume slice underneath the mouse.
-\item[\menutwo{Slice}{Increase Size}]  Increases the magnification of the
-       volume slice underneath the mouse.
+\item[\menutwo{Slice}{Reset Slice View}]  If the mouse is in the slice
+   window and is pointing to one of the 4 slices, then the view for
+   that slice is reset and resized to fit the viewport.
+\item[\menutwo{Slice}{Toggle Slice Visib}]  If the mouse is in the slice
+   window and is pointing to one of the 4 slices, then the visibility
+   of that slice is toggled.
+\item[\menutwo{Slice}{Box Filter Volume}]  Prompts for 3 box filter
+       widths and another specifier.  If the specifier is the
+       character ``w'', then the
+       filter widths are assumed to be in world coordinates, otherwise
+       it is assumed to be voxel coordinates.  The volume is resampled
+       using a box filter.  Giving the values ``0 0 0'' resets to the
+       original loaded volume.
 \item[\menutwo{Slice}{Resample Volume}]  Prompts for 3 size parameter and
        resamples the volume to the given size.  Entering 0 0 0 resets to
-       the original volume.
+       the original volume.  Creates a smaller volume by box
+       filtering.  Preferably, use 
 \item[\menutwo{Slice}{Create 3D Slice}]  Creates a rendering of the slice
-       under the mouse, in the 3D window.
-\item[\menutwo{Slice}{Reset Slice View}]  Resets the view of the slice
-       to which the mouse is pointing to fill the viewport.
-\item[\menutwo{Slice}{Box Filter Volume}]  Prompts the user to type in
-       3 filter widths for x, y, and z and either the letter ``v'' or
-       ``w''.  If the letter is v then the filter widths are in voxels,
-       otherwise in world space, i.e. millimetres.  If the 3 widths are
-       zeros, then the original volume is restored.
+       pointed to by the mouse, in the 3D window.
+\item[\menutwo{Slice}{Recompute Histogram}]  Creates a histogram of
+       values in the volume, which it displays in the slice window.
+       If the mouse is pointing to a slice in the slice window, then a
+       histogram of that slice only is displayed.
+\item[\menutwo{Slice}{Histogram of Label}]  Sames as
+       \menutwo{Slice}{Recompute Histogram}, but only includes values
+       which are in labeled (segmented) regions.
+\item[\menutwo{Slice}{Slice DblBuf:}]  Toggles between single and double buffer
+       mode for the slice window.  Single buffer mode provides maximum
+       colour resolution, but flashes when updating.  Double buffer
+       mode has less colour resolution but updates smoothly.  Single
+       buffer mode is generally only used when taking snapshots of the
+       window, where maximum colour resolution is desirable.
+\item[\menutwo{Slice}{Toggle Plane Visib}]  The fourth slice view in
+       the slice window is an arbitrarily oriented plane.  This menu
+       selection toggles the visibility of this cross section plane in
+       the 3D window.
+\item[\menutwo{Slice}{Rotate Slice}]  After selecting this entry,
+       the middle mouse button in the 3D window will control rotation
+       of the arbitrarily oriented slice, updating the fourth slice
+       view in the slice window accordingly.
+\item[\menutwo{Slice}{Pick Slice Angle}]  Instead of rotating the
+       slice in the 3D window, the orientation of the fourth slice
+       view can be chosen from within the slice window.  After
+       selecting this menu entry while pointing to a slice view, the left
+       mouse button selects a position on the slice.  The line through
+       the slice cursur and this position is used to define the slice
+       plane of the fourth slice view.
 \end{description}
 
 \subsection{Colour Coding Menu}
@@ -193,9 +283,6 @@ In the slice window, the following mouse operations are available:
                                     colour coding method for the slice volume.
 \item[\menutwo{Colour Coding}{Range}]  Prompts the user to type in the lower
                                     and upper colour coding limits.
-\item[\menutwo{Colour Coding}{Label Ratio}]  Prompts the user to type in the
-                      intensity of the coloured labels superimposed on the 
-                      volume slices ($0 <= value <= 1$).
 \item[\menutwo{Colour Coding}{Under Colour}]  Prompts the user to type in
                                    the colour for values below the low limit.
 \item[\menutwo{Colour Coding}{Over Colour}]  Prompts the user to type in
@@ -215,32 +302,192 @@ In the slice window, the following mouse operations are available:
 \item[\menutwo{Colour Coding}{Filter Width}]  Prompts the user for
                       the filter full width half max.  Only applies to box,
                       triangle, and gaussian filters.
+\item[\menutwo{Colour Coding}{Label Ratio}]  Prompts the user to type in the
+                      intensity of the coloured labels superimposed on the 
+                      volume slices ($0 <= value <= 1$).
+\item[\menutwo{Colour Coding}{Show Labels}]  Toggles between showing
+                      the label volume superimposed on the loaded
+                      volume or not showing it.
+\item[\menutwo{Colour Coding}{Set Paint Lbl Colr}]  Prompts for a
+                      label value and a colour, and sets the displayed
+                      colour of this label.
+\item[\menutwo{Colour Coding}{Colour Code Object}]  Changes the
+     colours of the current object according to the current colour
+     coding parameters of the volume.
 \end{description}
 
-\subsection{Region Painting Menu}
+\subsection{Segmenting Menu}
+
+This menu contains all the controls for modifying the label volume,
+which is overlaid on the loaded volume.  At each voxel in the loaded
+volume, there is an associated value in the range 0 to 255, which is
+stored in the label volume.  Segmenting consists of painting regions
+of the label volume to change the values from the default of 0.
+When the right mouse button is pressed over a slice in the slice
+window, the current paint label value is painted into the label overlay
+volume.  If the \ident{control} key or \ident{shift} key is held down
+at the same time, erasing will be performed, by storing the value 0.
 
 \begin{description}
-\item[\menutwo{Region Painting}{Set Paint Label}]  Sets the current label
-    used for painting, must be between 0 and 63, where 0 erases.
-\item[\menutwo{Region Painting}{Set Paint Label Colour}]  Sets the colour
-    of the current label.
-\item[\menutwo{Region Painting}{Clear All Labels}]  Clears the labels from
-    the entire volume.
-\item[\menutwo{Region Painting}{Show Labels}]  Toggles between showing the
-    labels and not.
-\item[\menutwo{Region Painting}{Save Labels .tag}]  Saves the labels as tag
-    points.
-\item[\menutwo{Region Painting}{Save Current Label}]  Saves the current label
-    as tag points.
-\item[\menutwo{Region Painting}{X Radius}]  Prompts for the brush radius used
-    in painting on the volume slices (right mouse button).
-\item[\menutwo{Region Painting}{Y Radius}]  Prompts for the brush radius used
-    in painting on the volume slices (right mouse button).
-\item[\menutwo{Region Painting}{Out-Plane Radius}]  Prompts for the brush
-    radius in the perpendicular to plane direction.
+\item[\menutwo{Segmenting}{Clear All Labels}]  Sets all labels to 0.
+\item[\menutwo{Segmenting}{Set Paint Label}]  Sets the current label
+    used for painting, must be between 0 and 255, where 0 erases.
+\item[\menutwo{Segmenting}{XY Radius}]  Prompts for the in slice 
+    brush radius used in painting on the volume slices (right mouse button).
+\item[\menutwo{Segmenting}{Out-Plane Radius}]  Prompts for the brush
+    radius in the direction perpendicular to the slice plane.  This
+    defaults to zero, for slice-by-slice painting.
+\item[\menutwo{Segmenting}{Label Voxel}]  Sets the label of the voxel
+    underneath the mouse to the current paint label.
+\item[\menutwo{Segmenting}{Clear Voxel}]  Sets the label of the voxel
+    underneath the mouse to 0.
+\item[\menutwo{Segmenting}{Label Slice}]  Sets the label of the 
+    entire slice pointed to by the mouse to the current paint label.
+\item[\menutwo{Segmenting}{Clear Slice}]  Sets the label of the 
+    entire slice pointed to by the mouse to 0.
+\item[\menutwo{Segmenting}{Set Threshold}]  Prompts for a minimum and
+    maximum volume value, and uses these limits for subsequent segmentation
+    operations.  When painting with the right mouse button, only
+    voxels whose values are within this range are affected.  By
+    default, there is not segmenting threshold, which can be specified
+    by a max value which is less than the min value.
+\item[\menutwo{Segmenting}{Label Fill}]  If the mouse is pointing
+    to a voxel which is within the selected segmenting range and which
+    has a label of 0, then all similar voxels on this slice connected
+    to the starting voxel are assigned the current paint label, by a
+    flood fill algorithm.
+\item[\menutwo{Segmenting}{Label Fill No Thrs}]  Sames as
+    \menutwo{Segmenting}{Label Fill}, except ignoring the threshold.
+    If the mouse is pointing to a voxel which has a label of 0, then all
+    zero-labeled voxels on this slice connected
+    to the starting voxel are assigned the current paint label, by a
+    flood fill algorithm.
+\item[\menutwo{Segmenting}{Clear Fill}]  If the mouse is pointing
+    to a voxel which is within the selected segmenting range and which
+    has a nonzero label, then all similar voxels on this slice connected
+    to the starting voxel are assigned the paint label 0, by a
+    flood fill algorithm.
+\item[\menutwo{Segmenting}{Copy from Rt/Sup/Ant}]  If the mouse is
+    pointing to a slice in the slice window, then the labels of the
+    neighbouring slice are copied to this slice.
+    For transverse
+    slices, the neighbour is the slice just superior to this one.
+    For coronal
+    slices, the neighbour is the slice just anterior to this one.
+    For sagittal
+    slices, the neighbour is the slice just to the right of this one.
+\item[\menutwo{Segmenting}{Copy from Lt/Inf/Pos}]  If the mouse is
+    pointing to a slice in the slice window, then the labels of the
+    neighbouring slice are copied to this slice.
+    For transverse
+    slices, the neighbour is the slice just inferior to this one.
+    For coronal
+    slices, the neighbour is the slice just posterior to this one.
+    For sagittal
+    slices, the neighbour is the slice just to the left of this one.
+\item[\menutwo{Segmenting}{Fill 3D}]  If the mouse is pointing to a
+    voxel which has a zero label and is within the threshold, then
+    all similar voxels in the entire volume which are connected to
+    this one are labeled.  This may take a few seconds to a minute.
+\item[\menutwo{Segmenting}{Expand 3D}]  This is a grow operation,
+    where all zero-labeled voxels in the volume which are next to
+    a labeled voxel, are assigned the label.  This takes a few
+    seconds to perform.
+\item[\menutwo{Segmenting}{Calculate Volume}]  Calculates the
+    total volume of all voxels which have the current paint label.
+    This takes a few seconds to perform.
+\item[\menutwo{Segmenting}{Change Labels}]  Prompts for a source
+    and destination label value, as well as a volume value minimum and
+    maximum value.  All voxels which have the source label value and
+    are within the specified value range are changed to have the
+    destination label.  If the maximum value specified is less than
+    the minimum value, then this range is ignored, and the operation
+    simply changes all occurrences of the source label to the
+    destination label.
+\item[\menutwo{Segmenting}{Trans \^\ }]  Moves all labels in the
+    upwards direction of the slice pointed to by the mouse.  May take
+    up to a minute to perform.
+\item[\menutwo{Segmenting}{Trans v}]  Moves all labels in the
+    down direction of the slice pointed to by the mouse.  May take
+    up to a minute to perform.
+\item[\menutwo{Segmenting}{Trans <}]  Moves all labels in the
+    left direction of the slice pointed to by the mouse.  May take
+    up to a minute to perform.
+\item[\menutwo{Segmenting}{Trans >}]  Moves all labels in the
+    right direction of the slice pointed to by the mouse.  May take
+    up to a minute to perform.
+\item[\menutwo{Segmenting}{Big Translate}]  Prompts for 3 voxel
+    offsets and moves all labels by this amount.
+    May take up to a minute to perform.
+\end{description}
+
+\subsection{Create Surface}
+
+This menu is used to create surfaces from the volume.  Surfaces created
+from this menu should subsequently have their appearance smoothed by
+the use of \menutwo{Polygons}{Compute Normals} or
+\menutwo{Polygons}{Average Normals}.
+
+\begin{description}
+\item[\menutwo{Create Surface}{Volume Isosurface}]  Prompts for a
+    value, then starts extracting a polygonal surface from near the slice
+    cursor.  The surface is extracted to the 3D window and updated
+    periodically, while all program operations are still functional.
+\item[\menutwo{Create Surface}{Extracing}]  If a surface extraction
+    is in progress, this button toggles the extraction process on and
+    off.  This allows suspension and resumption of surface extraction.
+\item[\menutwo{Create Surface}{Reset Surface}]  Clears the current
+    surface extraction, if any.  This must be selected before starting
+    another surface creation method, e.g.,
+    \menutwo{Create Surface}{Volume Isosurface}.
+\item[\menutwo{Create Surface}{Make Perm}]  If a surface extraction
+    is in progress, the currently extracted surface is made a permanent
+    member of the 3D object hierarchy.
+\item[\menutwo{Create Surface}{Volume Bin-Isosurf}]  Prompts for two
+    values, specifying a volume value range, then starts extracting a
+    polygonal surface from near the slice
+    cursor.  This differs from \menutwo{Create Surface}{Volume Isosurface},
+    in that voxels are classified as in or out and the surface points are
+    exactly half way between an inside voxel and outside voxel.  Typically,
+    the user should use \menutwo{Create Surface}{Volume Isosurface}.
+    The surface is extracted to the 3D window and updated
+    periodically, while all program operations are still functional.
+\item[\menutwo{Create Surface}{Volume Voxelate}]  Prompts for two
+    values, specifying a volume value range, then creates a voxelated
+    surface.  A voxelated surface is one composed entirely of rectangular
+    faces of voxels, the boundaries between inside voxels and outside
+    voxels, as defined by the value range specified.  This may take
+    up to a minute to perform.
+\item[\menutwo{Create Surface}{Label Bin-Isosurf}]  Sames as
+    \menutwo{Create Surface}{Volume Bin-Isosurf} except operates on
+    the label volume.  For instance, if the user has painted a region
+    with label 1, then to create a 3D surface of this region, select
+    this menu option, and type in ``1 1'' for the min and max values.
+\item[\menutwo{Create Surface}{Label Voxelate}]  Sames as
+    \menutwo{Create Surface}{Volume Voxelate} except operates on
+    the label volume.  For instance, if the user has painted a region
+    with label 1, then to create a 3D voxelated surface of this region,
+    select this menu option, and type in ``1 1'' for the min and max values.
+\item[\menutwo{Create Surface}{X Dist}]  Prompts the user for the maximum
+    distance in the X direction from the starting point of the surface
+    that the surface is allowed to expand.  By default, this is disabled
+    by setting it to a very large value.
+\item[\menutwo{Create Surface}{Y Dist}]  Prompts the user for the maximum
+    distance in the Y direction from the starting point of the surface
+    that the surface is allowed to expand.  By default, this is disabled
+    by setting it to a very large value.
+\item[\menutwo{Create Surface}{Z Dist}]  Prompts the user for the maximum
+    distance in the Z direction from the starting point of the surface
+    that the surface is allowed to expand.  By default, this is disabled
+    by setting it to a very large value.
 \end{description}
 
 \subsection{Atlas Menu}
+
+This menu controls the display of the Talairach atlas overlaid on the
+the slice views.  The colour atlas book has been scanned into a digital
+format and can be overlaid on any volume for reference and comparison
+purposes.
 
 \begin{description}
 \item[\menutwo{Atlas}{Atlas State}]  Toggles between displaying scanned images
@@ -248,8 +495,9 @@ In the slice window, the following mouse operations are available:
         first time this is pressed there will be a delay of about 2 minutes
         while the data is read in.
 \item[\menutwo{Atlas}{Set Opacity}]  Prompts for the opacity of the atlas.
-        Values of 1 will not show the volume slice through the atlas, while
-        values near 0 will show a very transparent atlas on top of the volume.
+        A value of 1 will not show the volume slice through the atlas, while
+        values closer to 0 will show a more transparent atlas on top of the
+        volume.
 \item[\menutwo{Atlas}{Set Tolerance X}]  Sets the distance from the current
         sagittal slice that atlas pages must be within in order to be
         displayed.
@@ -259,47 +507,117 @@ In the slice window, the following mouse operations are available:
 \item[\menutwo{Atlas}{Set Tolerance Z}]  Sets the distance from the current
         transverse slice that atlas pages must be within in order to be
         displayed.
-\item[\menutwo{Atlas}{Set Transparent Threshold}]  Not needed.
+\item[\menutwo{Atlas}{Set Transparent Threshold}]  Not for general use.
 \item[\menutwo{Atlas}{Flip X}]  Flips the sagittal atlas pages.
 \item[\menutwo{Atlas}{Flip Y}]  Flips the coronal atlas pages.
 \item[\menutwo{Atlas}{Flip Z}]  Flips the transverse atlas pages.
 \end{description}
 
-\subsection{Object Hierarchy}
+\subsection{3D View Menu}
 
 \begin{description}
-\item[\menu{Up Arrow}]  Sets the current object to the one before
-                the current object.
-\item[\menu{Down Arrow}]  Sets the current object to the one after
-                the current object.
-\item[\menu{Left Arrow}]  Sets the current object to the one above
-                the current object.
-\item[\menu{Right Arrow}]  Sets the current object to the one below
-                the current object, if the current object is a model.
+\item[\menutwo{3D View}{Magnify 3D}]
+      Sets the mode where the middle mouse button and left/right movement
+      in the 3D window magnify the view.
+      Once the 3D view menu is chosen, this button will usually be
+      available, even after popping out of the 3D view menu.
+\item[\menutwo{3D View}{Translate 3D}]  
+      Sets the mode where the middle mouse button and movement
+      in the 3D window translate the objects in the view.
+      Once the 3D view menu is chosen, this button will usually be
+      available, even after popping out of the 3D view menu.
+\item[\menutwo{3D View}{Rotate 3D}]  Sets the mode where
+      the middle mouse button and movement in the 3D window rotate
+      the objects in a virtual trackball fashion.
+      Once the 3D view menu is chosen, this button will usually be
+      available, even after popping out of the 3D view menu.
+\item[\menutwo{3D View}{Front View}]  Selects a view of the front of
+      the objects.
+\item[\menutwo{3D View}{Back View}]  Selects a view of the back of
+      the objects.
+\item[\menutwo{3D View}{Left View}]  Selects a view of the left side of
+      the objects.
+\item[\menutwo{3D View}{Right View}]  Selects a view of the right side of
+      the objects.
+\item[\menutwo{3D View}{Top View}]  Selects a view of the top side of
+      the objects.
+\item[\menutwo{3D View}{Bottom View}]  Selects a view of the bottom side of
+      the objects.
+\item[\menutwo{3D View}{Reset View}]  Resets the view to a top view.
+\item[\menutwo{3D View}{Fit View}]  Without changing the view direction,
+      magnifies the objects to just fit inside the window.  Useful when
+      the user desires to see the full extent of all objects.
+\item[\menutwo{3D View}{Parallel/Perspective}]  Toggles between a
+      parallel and perspective view of the 3D objects.
+\item[\menutwo{3D View}{Front Plane}]  Not for general use.
+\item[\menutwo{3D View}{Back Plane}]  Not for general use.
+\item[\menutwo{3D View}{Toggle Stereo}]  Not for general use.
+\item[\menutwo{3D View}{Eye Width}]  Not for general use.
+\item[\menutwo{3D View}{Film Loop}]  Not for general use.
+\item[\menutwo{3D View}{Save Image}]  Not for general use.
+\item[\menutwo{3D View}{Pick View}]  Not for general use.
 \end{description}
 
-\subsection{File Menu}
+\subsection{Objects Menu}
 
 \begin{description}
-\item[\menutwo{File}{Load File}]  Prompts for a filename and loads the file.
-\item[\menutwo{File}{Save File}]  Prompts for a filename and saves to the file
-        the current object, or all objects under the current object, if it is
-        a model object.
+\item[\menuthree{Objects}{Delete Object}{Really Delete}]  Deletes the current
+        object.
+\item[\menuthree{Objects}{Delete Object}{Don't Delete}]  Changes mind and
+        does not delete the object.
+\item[\menutwo{Objects}{Change Colour}]  Prompts for a new colour for the
+        current object.
+\item[\menutwo{Objects}{Change Surface Prop}]  Prompts for an ambient
+        coefficient (0--1), a diffuse coefficient (0--1), a
+        specular coefficient (0--1), a specular exponent (0--100 or so),
+        and a an opacity (near 0 is transparent, 1 is fully opaque).
+        The currently selected object is assigned these lighting parameters.
+\item[\menutwo{Objects}{Invisible}]  Turns the current object invisible.
+\item[\menutwo{Objects}{Visible}]  Turns the current object visible.
+\item[\menutwo{Objects}{Toggle Visible}]  Toggles the visibility of
+        the current object.
+\item[\menutwo{Objects}{Next Visible}]  Turns the current object invisible,
+               and advances to the next object, making it visible.
+\item[\menutwo{Objects}{Prev Visible}]  Turns the current object invisible,
+               and advances to the previous object, making it visible.
+\item[\menutwo{Objects}{Create Model}]  Creates a model at the current
+               position in the hierarchy.  This is useful for grouping
+               objects into a single file.
+\item[\menutwo{Objects}{Change Model Name}]  Prompts for a name and
+               assigns this to the currently selected model in the object
+               hierarchy.
+\item[\menutwo{Objects}{Cut Object}]  Cuts the currently selected model
+               out of the object hierarchy and adds it to the cut buffer.
+\item[\menutwo{Objects}{Paste Object}]  Copies the entire cut buffer to
+               the current position in the object hierarchy, and clears
+\item[\menutwo{Objects}{Flip Object}]  Mirror images the current object
+               around the $X = 0$ plane.
+\item[\menutwo{Objects}{Show Vertices}]  Not for general use.
 \end{description}
 
-\subsection{3D Viewing}
-
-The following three menu entries are usually available no matter which sub
-menu is selected:
+\subsection{3D Render Menu}
 
 \begin{description}
-\item[\menu{Magnify}]  Causes the middle mouse button and left/right movement
-                       in the 3D window to magnify the view.
-\item[\menu{Translate}]  Causes the middle mouse button and movement
-                       in the 3D window to translate the objects in the view.
-\item[\menu{Rotate}]  Causes the middle mouse button and movement
-                       in the 3D window to rotate the objects in a virtual
-                       trackball fashion.
+\item[\menutwo{Render}{Change Background}]  Prompts for a colour to
+        set the background colour of the 3D window.
+\item[\menutwo{Render}{Wireframe or Shaded}]  Toggles the display mode of the
+        current object between a wireframe rendering and a solid, shaded 
+        rendering.  The default is wireframe.
+\item[\menutwo{Render}{Gouraud or Flat}]  Toggles the display mode of the
+        current object between a flat or smooth shading.
+\item[\menutwo{Render}{Lights}]  Toggles the lights on and off.  If lights
+        are off, all objects are coloured uniformly.
+\item[\menutwo{Render}{2 Sided}]  Not for general use.
+\item[\menutwo{Render}{Backface}]  Not for general use.
+\item[\menutwo{Render}{3D DblBuf}]  Toggles the double buffer mode of the
+        3D window.  If double buffering is on, the window is smoothly
+        updated, but the colour resolution may be poor.
+        When double buffering is off, the colour resolution improves, but
+        the 3D window flickers when updated.  When taking snapshots,
+        turn off double buffering so as to get the best colour resolution.
+\item[\menutwo{Render}{Marker Labels}]  Toggles the display of labels
+        for the markers in the 3D window.
+\item[\menutwo{Render}{Set \# Curve Segments}]  Not for general use.
 \end{description}
 
 \subsection{Markers Menu}
@@ -340,7 +658,7 @@ menu is selected:
 \item[\menutwo{Markers}{Save Mrkrs as .tag}]  Prompts the user to type in a
         filename.  If the current object is a model, all markers underneath
         it are saved to a file in .tag format, which can be later read by 
-        \display or the {\tt register} program.  If the current object is
+        \display or the \ident{register} program.  If the current object is
         a marker, then the marker and all markers at this position in the
         object hierarchy are saved to the file.
 \item[\menutwo{Markers}{Load Markers}]  Sames as the \menutwo{File}{Load},
@@ -372,62 +690,71 @@ menu is selected:
         current object, if it is a marker.
 \end{description}
 
-\subsection{View Menu}
+\subsection{Polygons Menu}
 
 \begin{description}
-\item[\menutwo{View}{Reset View}]  Resets the 3D window view to the default,
-        which corresponds to a top view of the brain surface.
-\item[\menutwo{View}{Front View}]  Sets the view to be a view from the front.
-\item[\menutwo{View}{Back View}]  Sets the view to be a view from the back.
-\item[\menutwo{View}{Left View}]  Sets the view to be a view from the left.
-\item[\menutwo{View}{Right View}]  Sets the view to be a view from the right.
-\item[\menutwo{View}{Top View}]  Sets the view to be a view from the top.
-\item[\menutwo{View}{Bottom View}]  Sets the view to be a view from the bottom.
-\item[\menutwo{View}{Fit View}]  Resizes the current 3D image to just fit
-                                 within the window.
+\item[\menutwo{Polygons}{Compute Normals}]  Computes normals for the
+     current polygon, for use in displaying a smooth lighted surface in
+     the 3D window. 
+\item[\menutwo{Polygons}{Average Normals}]  Prompts for a number of
+     iterations and a ratio value between 0 and 1.  The normals for the
+     polygon are computed, then the iterations are performed.  Each
+     iteration consists of smoothing each polygon vertex normal with
+     its neighbour vertex normals, based on the ratio value.  A value
+     of 0 causes no change in each iteration, where a value of 1
+     sets each vertex normal to the average of its neighbour vertex
+     normals.  Typically, use the values ``10 1'' for this selection.
+\item[\menutwo{Polygons}{Set Line Thickness}]  Prompts for a line thickness
+     value used in displaying the current polygons in wireframe mode.
+     Default value is 1.
+\item[\menutwo{Polygons}{Scan Polygons to Volume}]  Causes the intersection
+     of the polygons surface with the volume to be displayed in the
+     slice window, by assigning the current paint label to any voxel
+     which is touching the polygons surface.
+\item[\menutwo{Polygons}{Subdivide Polygons}]  Not for general use.
+\item[\menutwo{Polygons}{Create Bintree}]  Not for general use.
+\item[\menutwo{Polygons}{Reverse Polygons}]  Not for general use.
+\item[\menutwo{Polygons}{Reverse Normals}]  Not for general use.
+\item[\menutwo{Polygons}{Make Tetrahedral Sphere}]  Not for general use.
+\item[\menutwo{Polygons}{Smooth Polygon}]  Not for general use.
 \end{description}
 
-\subsection{Render Menu}
+\subsection{Surface Curves Menu}
+
+This menu is used to draw curves on surfaces, for the purposes of
+delineating sulci and gyri, or for drawing regions on the surface which
+can then be coloured.
 
 \begin{description}
-\item[\menutwo{Render}{Wireframe or Shaded}]  Toggles the display mode of the
-        current object between a wireframe rendering and a solid, shaded 
-        rendering.  The default is wireframe.
-\item[\menutwo{Render}{Gouraud or Flat}]  Toggles the display mode of the
-        current object between a flat or smooth shading.
-\item[\menutwo{Render}{Lights}]  Toggles the lights on and off.  If lights
-        are off, all objects are coloured uniformly.
-\item[\menutwo{Render}{Slice DblBuf}]  Toggles the double buffer mode of the
-        slice window.  If double buffering is on, the window is smoothly
-        updated, but the colour resolution may be poor.
-        When double buffering is off, the colour resolution improves, but
-        the slice window flickers when updated.  When taking snapshots,
-        turn off double buffering so as to get the best colour resolution.
-\item[\menutwo{Render}{3D DblBuf}]  Same as \menutwo{Render}{Slice DblBuf},
-        but for the 3D window.
-\item[\menutwo{Render}{Marker Labels}]  Toggles between displaying labels
-        for the markers in the 3D window.
+\item[\menutwo{Surface Curves}{Start Surf Curve}]  Enters curve drawing
+    mode.  Any left mouse click on the surface in the 3D window will
+    define a point on the surface.  Subsequent points on the surface are
+    connected by a line of shortest distance along the surface.
+\item[\menutwo{Surface Curves}{End Surf Curve}]  Exits from curve
+    drawing mode.
+\item[\menutwo{Surface Curves}{Close Curve}]  When in curve drawing mode
+    closes the curve by connecting the end of the curve with the
+    start of the curve.
+\item[\menutwo{Surface Curves}{Pick Line Point}]  Picks the closest point
+    on a line to the point under the mouse, and adds it to the current
+    surface curve.
+\item[\menutwo{Surface Curves}{Reset Curves}]  Clears the current curve.
+\item[\menutwo{Surface Curves}{Permanent Curve}]  Copies the current curve
+    into the object hierarchy.
+\item[\menutwo{Surface Curves}{Curve Weight}]  Prompts the user to type
+    in a curvature weight.  A value of -100 will tend to make surface
+    curves follow sulci, and a value of 0 (default) makes it just choose
+    shortest path along the surface.
+\item[\menutwo{Surface Curves}{Set Crv'tre Limits}]  Prompts the user
+    for a minimum and maximum curvature and contrains subsequent curves
+    to follow paths along the surface which stay within these surface
+    curvature limits.
 \end{description}
 
-\subsection{Objects Menu}
+\subsection{Surface Segmentation Menu}
 
-\begin{description}
-\item[\menuthree{Objects}{Delete Object}{Really Delete}]  Deletes the current
-        object.
-\item[\menutwo{Objects}{Change Colour}]  Prompts for a new colour for the
-        current object.
-\item[\menutwo{Objects}{Invisible}]  Turns the current object invisible.
-\item[\menutwo{Objects}{Visible}]  Turns the current object visible.
-\item[\menutwo{Objects}{Next Visible}]  Turns the current object invisible,
-               and advances to the next object, making it visible.
-\item[\menutwo{Objects}{Prev Visible}]  Turns the current object invisible,
-               and advances to the previous object, making it visible.
-\item[\menutwo{Objects}{Create Model}]  Creates a model at the current
-               position in the hierarchy.  This is useful for grouping
-               markers into a single file.
-\item[\menutwo{Objects}{Colour Code Object}]  Colour codes the current object
-               with the volume colour coding.  Useful for colour coding an
-               MRI surface with a PET volume.
-\end{description}
+This menu is used for segmenting the surface into various coloured regions
+or to make parts of the surface invisible.  It is still experimental and
+is therefore not for general usage.
 
 \end{document}
