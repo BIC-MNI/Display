@@ -17,13 +17,10 @@
 #define  X_TRANSFORMED_PROBE_INDEX     10
 #define  Y_TRANSFORMED_PROBE_INDEX     11
 #define  Z_TRANSFORMED_PROBE_INDEX     12
-#define  X_FILE_PROBE_INDEX            13
-#define  Y_FILE_PROBE_INDEX            14
-#define  Z_FILE_PROBE_INDEX            15
-#define  X_TALAIRACH_PROBE_INDEX       16
-#define  Y_TALAIRACH_PROBE_INDEX       17
-#define  Z_TALAIRACH_PROBE_INDEX       18
-#define  VAL_PROBE_INDEX               19
+#define  X_TALAIRACH_PROBE_INDEX       13
+#define  Y_TALAIRACH_PROBE_INDEX       14
+#define  Z_TALAIRACH_PROBE_INDEX       15
+#define  VAL_PROBE_INDEX               16
 
 static    void           render_slice_to_pixels();
 
@@ -160,10 +157,8 @@ public  void  rebuild_probe( graphics )
     text_struct    *text;
     int            nx, ny, nz;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
-    int            x_file, y_file, z_file;
     void           get_slice_viewport();
     Boolean        get_voxel_in_slice_window();
-    void           convert_to_file_space();
     void           convert_voxel_to_talairach();
     void           convert_talairach_to_mm();
     void           get_volume_size();
@@ -174,9 +169,6 @@ public  void  rebuild_probe( graphics )
     model = get_graphics_model(graphics,SLICE_MODEL);
 
     get_slice_viewport( graphics, -1, &x_min, &x_max, &y_min, &y_max );
-
-    convert_to_file_space( graphics->slice.volume, x_voxel, y_voxel, z_voxel,
-                           &x_file, &y_file, &z_file );
 
     if( get_slice_window_volume( graphics,  &volume ) )
         get_volume_size( volume, &nx, &ny, &nz );
@@ -212,19 +204,6 @@ public  void  rebuild_probe( graphics )
             case Z_TRANSFORMED_PROBE_INDEX:
                 (void) sprintf( text->text, Slice_probe_z_transformed_format,
                                 z_voxel+1 );
-                break;
-
-            case X_FILE_PROBE_INDEX:
-                (void) sprintf( text->text, Slice_probe_x_file_format,
-                                x_file+1 );
-                break;
-            case Y_FILE_PROBE_INDEX:
-                (void) sprintf( text->text, Slice_probe_y_file_format,
-                                y_file+1 );
-                break;
-            case Z_FILE_PROBE_INDEX:
-                (void) sprintf( text->text, Slice_probe_z_file_format,
-                                z_file+1 );
                 break;
 
             case X_TALAIRACH_PROBE_INDEX:
@@ -276,7 +255,6 @@ public  void  rebuild_slice_pixels( graphics, view_index )
     void           rebuild_cursor();
     Boolean        print_cursor;
     Real           real_pos[N_DIMENSIONS];
-    void           convert_real_to_file_space();
 
     model = get_graphics_model(graphics,SLICE_MODEL);
 
@@ -321,13 +299,9 @@ public  void  rebuild_slice_pixels( graphics, view_index )
             &graphics->associated[THREE_D_WINDOW]->three_d.cursor.origin,
             &real_pos[X_AXIS], &real_pos[Y_AXIS], &real_pos[Z_AXIS] );
 
-    if( print_cursor )
+    if( print_cursor &&
+        real_pos[axis_index] == (Real) ((int) real_pos[axis_index]) )
     {
-        convert_real_to_file_space( graphics->slice.volume,
-                     real_pos[X_AXIS], real_pos[Y_AXIS], real_pos[Z_AXIS],
-                     &real_pos[X_AXIS], &real_pos[Y_AXIS], &real_pos[Z_AXIS] );
-
-        if( real_pos[axis_index] == (Real) ((int) real_pos[axis_index]) )
             print_cursor = FALSE;
     }
 
