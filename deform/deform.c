@@ -40,24 +40,46 @@ private  DEF_EVENT_FUNCTION( deform_object )    /* ARGSUSED */
     {
         display->three_d.deform.deform.deform_data.volume =
                                                  get_volume( display );
-        ++display->three_d.deform.iteration;
-        switch( display->three_d.deform.deforming_object->object_type )
-        {
-        case LINES:
-            deform_lines_one_iteration(
-                 get_lines_ptr(display->three_d.deform.deforming_object),
-                 &display->three_d.deform.deform,
-                 display->three_d.deform.iteration );
-            break;
 
-        case POLYGONS:
-            delete_polygons_bintree(
-                 get_polygons_ptr(display->three_d.deform.deforming_object) );
-            deform_polygons_one_iteration(
-                 get_polygons_ptr(display->three_d.deform.deforming_object),
-                 &display->three_d.deform.deform,
-                 display->three_d.deform.iteration );
-            break;
+        if( display->three_d.deform.using_simulated_annealing )
+        {
+            switch( display->three_d.deform.deforming_object->object_type )
+            {
+            case LINES:
+                if( apply_simulated_annealing_deform_lines(
+                     get_lines_ptr(display->three_d.deform.deforming_object),
+                     &display->three_d.deform.deform,
+                     &display->three_d.deform.anneal ) )
+                {
+                     turn_off_deformation( display );
+                }
+                                
+                break;
+            case POLYGONS:
+                break;
+            }
+        }
+        else
+        {
+            ++display->three_d.deform.iteration;
+            switch( display->three_d.deform.deforming_object->object_type )
+            {
+            case LINES:
+                deform_lines_one_iteration(
+                     get_lines_ptr(display->three_d.deform.deforming_object),
+                     &display->three_d.deform.deform,
+                     display->three_d.deform.iteration );
+                break;
+
+            case POLYGONS:
+                delete_polygons_bintree(
+                   get_polygons_ptr(display->three_d.deform.deforming_object) );
+                deform_polygons_one_iteration(
+                     get_polygons_ptr(display->three_d.deform.deforming_object),
+                     &display->three_d.deform.deform,
+                     display->three_d.deform.iteration );
+                break;
+            }
         }
     } while( current_realtime_seconds() <= end_time );
 
@@ -68,7 +90,13 @@ private  DEF_EVENT_FUNCTION( deform_object )    /* ARGSUSED */
 
 public  void  turn_on_deformation(
     display_struct  *display,
-    object_struct   *object )
+    object_struct   *object,
+    Boolean         use_simulated_annealling,
+    Real            fifty_percent_threshold,
+    Real            temperature_factor,
+    Real            initial_random_distance,
+    Real            random_distance_step,
+    Real            min_random_distance )
 {
     Boolean        in_progress;
 
@@ -76,7 +104,7 @@ public  void  turn_on_deformation(
 
     if( !display->three_d.deform.in_progress )
     {
-        if( object->object_type == POLYGONS ||
+        if( (object->object_type == POLYGONS && !use_simulated_annealling) ||
             object->object_type == LINES )
         {
             in_progress = TRUE;
@@ -85,10 +113,29 @@ public  void  turn_on_deformation(
 
     if( in_progress )
     {
+        display->three_d.deform.deform.deform_data.volume =
+                                                 get_volume( display );
+
+        display->three_d.deform.using_simulated_annealing =
+                                         use_simulated_annealling;
+
         if( object != display->three_d.deform.deforming_object )
         {
             display->three_d.deform.deforming_object = object;
             display->three_d.deform.iteration = 0;
+        }
+
+        if( use_simulated_annealling )
+        {
+            initialize_deform_line_annealing( 
+                  get_lines_ptr(display->three_d.deform.deforming_object),
+                  &display->three_d.deform.deform,
+                  &display->three_d.deform.anneal,
+                  fifty_percent_threshold,
+                  temperature_factor,
+                  initial_random_distance,
+                  random_distance_step,
+                  min_random_distance );
         }
 
         display->three_d.deform.in_progress = TRUE;
@@ -102,6 +149,12 @@ public  void  turn_off_deformation(
 {
     if( display->three_d.deform.in_progress )
     {
+        print( "Stopping deformation.\n" );
+
+        if( display->three_d.deform.using_simulated_annealing )
+            terminate_deform_line_annealing( &display->three_d.deform.deform,
+                                             &display->three_d.deform.anneal );
+
         display->three_d.deform.in_progress = FALSE;
         remove_action_table_function( &display->action_table, NO_EVENT,
                                       deform_object );

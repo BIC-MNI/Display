@@ -50,8 +50,8 @@ typedef struct
 
 typedef  struct
 {
-    volume_struct          original_volume;
-    volume_struct          *volume;
+    Volume                 original_volume;
+    Volume                 volume;
 
     Boolean                fast_lookup_present;
     Colour                 *fast_lookup[NUM_LABELS];
