@@ -962,7 +962,6 @@ public  BOOLEAN  set_current_voxel(
                         if( volume_index ==
                             get_current_volume_index(slice_window) )
                         {
-                            set_slice_cross_section_update( slice_window, view);
                             set_crop_box_update( slice_window, view );
                             set_atlas_update( slice_window, view );
                             set_slice_text_update( slice_window, view );
@@ -975,6 +974,7 @@ public  BOOLEAN  set_current_voxel(
         }
     }
 
+    set_slice_cross_section_update( slice_window, -1 );
     set_slice_cursor_update( slice_window, -1 );
     set_probe_update( slice_window );
 

@@ -417,7 +417,8 @@ private  void  fast_paint_labels(
 
                 if( min_threshold < max_threshold )
                 {
-                    GET_VALUE_3D( volume_value, volume, ind[X], ind[Y], ind[Z]);
+                    volume_value = get_volume_real_value( volume,
+                                               ind[X], ind[Y], ind[Z], 0, 0 );
 
                     if( volume_value < min_threshold ||
                         volume_value > max_threshold )
@@ -529,8 +530,8 @@ private  void  paint_labels(
 
                             if( min_threshold < max_threshold )
                             {
-                                GET_VALUE_3D( volume_value, volume,
-                                              ind[X], ind[Y], ind[Z] );
+                                volume_value = get_volume_real_value( volume,
+                                              ind[X], ind[Y], ind[Z], 0, 0 );
 
                                 if( volume_value < min_threshold ||
                                     volume_value > max_threshold )
@@ -588,8 +589,9 @@ public  void  copy_labels_slice_to_slice(
 
             if( min_threshold < max_threshold )
             {
-                GET_VALUE_3D( volume_value, volume,
-                            dest_indices[X], dest_indices[Y], dest_indices[Z] );
+                volume_value = get_volume_real_value( volume,
+                            dest_indices[X], dest_indices[Y], dest_indices[Z],
+                            0, 0 );
                 if( volume_value < min_threshold ||
                     volume_value > max_threshold )
                     value = 0;

@@ -110,7 +110,8 @@ private  BOOLEAN  face_is_boundary(
 
     boundary_flag = FALSE;
 
-    GET_VALUE_3D( value, volume, indices[X], indices[Y], indices[Z] );
+    value = get_volume_real_value( volume, indices[X], indices[Y], indices[Z],
+                                   0, 0 );
     inside = min_value <= value && value <= max_value;
 
     if( inside )
@@ -122,8 +123,8 @@ private  BOOLEAN  face_is_boundary(
 
         if( int_voxel_is_within_volume( volume, neigh_indices ) )
         {
-            GET_VALUE_3D( value, volume, neigh_indices[X], neigh_indices[Y],
-                          neigh_indices[Z] );
+            value = get_volume_real_value( volume, neigh_indices[X],
+                             neigh_indices[Y], neigh_indices[Z], 0, 0 );
             neigh_inside = min_value <= value && value <= max_value;
 
             if( inside != neigh_inside )

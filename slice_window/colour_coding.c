@@ -153,7 +153,6 @@ private  void  create_colour_coding(
     int                   orig_index;
     nc_type               type;
     slice_window_struct   *slice;
-    Volume                label_volume;
 
     slice = &slice_window->slice;
 
@@ -552,9 +551,9 @@ private  void  colour_code_points(
                                            voxel, int_voxel );
                 if( int_voxel_is_within_volume( volume, int_voxel ) )
                 {
-                    GET_VOXEL_3D( volume_colour,
+                    volume_colour = (Colour) get_volume_voxel_value(
                                   volume, int_voxel[0], int_voxel[1],
-                                  int_voxel[2] );
+                                  int_voxel[2], 0, 0 );
                 }
             }
             else
@@ -562,7 +561,7 @@ private  void  colour_code_points(
                 evaluate_volume_in_world( volume,
                                           Point_x(points[i]),
                                           Point_y(points[i]),
-                                          Point_z(points[i]), continuity,
+                                          Point_z(points[i]), continuity, FALSE,
                                           get_volume_real_min(volume),
                                           &val,
                                           NULL, NULL, NULL,

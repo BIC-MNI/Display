@@ -88,7 +88,7 @@ private  void  compute_histogram_lines(
                 if( !labeled_only ||
                     get_3D_volume_label_data( label_volume, x, y, z ) != 0 )
                 {
-                    GET_VALUE_3D( value, volume, x, y, z );
+                    value = get_volume_real_value( volume, x, y, z, 0, 0 );
                     add_to_histogram( &histogram, value );
                 }
             }

@@ -178,7 +178,7 @@ private  unsigned char  ***make_distance_transform(
         {
             for_inclusive( z, min_range[Z], max_range[Z] )
             {
-                GET_VALUE_3D( value, volume, x, y, z );
+                value = get_volume_real_value( volume, x, y, z, 0, 0 );
                 if( min_threshold <= value && value <= max_threshold )
                 {
                     set_to_do_list( min_range, &to_do[which], x, y, z );
@@ -344,11 +344,11 @@ public  void  initialize_segmenting_3d(
         {
             for_inclusive( z, min_range[Z], max_range[Z] )
             {
-                GET_VOXEL_3D( label, label_volume, x, y, z );
+                label = (int) get_volume_voxel_value( volume, x, y, z, 0, 0 );
                 if( label & USER_SET_BIT )
                 {
                     label = 0;
-                    SET_VOXEL_3D( label_volume, x, y, z, label );
+                    set_volume_voxel_value( label_volume, x, y, z, 0, 0, 0.0 );
                 }
 
                 dist = (*distance_transform)[x][y][z];
@@ -467,7 +467,8 @@ public  BOOLEAN  expand_labels_3d(
                 away_from_boundary = y_okay &&
                                      z > min_range[Z] && z < max_range[Z];
 
-                GET_VOXEL_3D( label, label_volume, x, y, z );
+                label = (int) get_volume_voxel_value( label_volume, x, y, z,
+                                                      0, 0 );
                 user_set_it = FALSE;
                 if( (label & USER_SET_BIT) != 0 )
                     label -= USER_SET_BIT;
@@ -494,8 +495,8 @@ public  BOOLEAN  expand_labels_3d(
                             if( neigh_dist == 0 )
                                 continue;
 
-                            GET_VOXEL_3D( neigh_label, label_volume,
-                                          nx, ny, nz );
+                            neigh_label = (int) get_volume_voxel_value(
+                                          label_volume, nx, ny, nz, 0, 0 );
 
                             if( neigh_label == 0 )
                                 continue;
@@ -572,7 +573,8 @@ public  BOOLEAN  expand_labels_3d(
                 for_inclusive( z, min_range[Z], max_range[Z] )
                 {
                     label = new_labels[x][y][z];
-                    SET_VOXEL_3D( label_volume, x, y, z, label );
+                    set_volume_voxel_value( label_volume, x, y, z, 0, 0,
+                                            (Real) label );
                     cuts[x][y][z] = new_cuts[x][y][z];
                 }
             }

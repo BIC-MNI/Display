@@ -65,7 +65,8 @@ private  BOOLEAN  get_voxel_values(
                 voxel[Y] = voxel_index[Y] + y;
                 voxel[Z] = voxel_index[Z] + z;
 
-                GET_VALUE_3D( value, volume, voxel[X], voxel[Y], voxel[Z] );
+                value = get_volume_real_value( volume, voxel[X], voxel[Y],
+                                               voxel[Z], 0, 0 );
 
                 if( label_volume != NULL )
                 {
@@ -420,12 +421,12 @@ private  int   create_surface_point(
     corner[Z] = voxel->i[Z];
 
     fill_Point( point1, (Real) corner[X], (Real) corner[Y], (Real) corner[Z] );
-    GET_VALUE_3D( val1, volume, corner[X], corner[Y], corner[Z] );
+    val1 = get_volume_real_value( volume, corner[X], corner[Y], corner[Z], 0,0);
 
     ++corner[edge_intersected];
 
     fill_Point( point2, (Real) corner[X], (Real) corner[Y], (Real) corner[Z] );
-    GET_VALUE_3D( val2, volume, corner[X], corner[Y], corner[Z] );
+    val2 = get_volume_real_value( volume, corner[X], corner[Y], corner[Z], 0,0);
 
     *pt_class = get_isosurface_point( &point1, val1, &point2, val2,
                                       binary_flag, min_value, max_value,
@@ -449,7 +450,7 @@ private  int   create_surface_point(
 
     evaluate_volume_in_world( volume,
                               Point_x(point), Point_y(point), Point_z(point),
-                              Volume_continuity,
+                              Volume_continuity, FALSE,
                               get_volume_real_min(volume),
                               &ignored,
                               &dx, &dy, &dz,

@@ -30,7 +30,8 @@ public  void  modify_labels_in_range(
 
                 if( must_change && min_threshold < max_threshold )
                 {
-                    GET_VALUE_3D( value, volume, voxel[X], voxel[Y], voxel[Z] );
+                    value = get_volume_real_value( volume, voxel[X], voxel[Y],
+                                                   voxel[Z], 0, 0 );
                     if( value < min_threshold || value > max_threshold )
                         must_change = FALSE;
                 }
