@@ -1,8 +1,8 @@
 include ../C_dev/Makefile.include
 
-OPT = -O
+OPT = -g
 
-INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/yorick/usr/include
+INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/portia/usr/include
 
 #LIBS = -L/@/portia/usr/lib -lgl -lm
 LIBS = -lgl -lm
@@ -16,11 +16,10 @@ graphics_obj = graphics_lib/GL_graphics.o \
                structures/lights.o \
                structures/render.o \
                structures/view.o \
-               structures/window.o \
-               files.o \
-               points.o \
-               progress.o \
-               transforms.o
+               $(C_UTILS_SRC)/files.o \
+               $(C_UTILS_SRC)/points.o \
+               $(C_UTILS_SRC)/progress.o \
+               $(C_UTILS_SRC)/transforms.o
 
 display_obj = \
            main/main.o \
@@ -28,7 +27,6 @@ display_obj = \
            main/event_loop.o \
            main/graphics.o \
            main/three_d.o \
-           main/transforms.o \
            $(graphics_obj) \
            callbacks/file.o \
            callbacks/globals.o \
@@ -38,14 +36,10 @@ display_obj = \
            callbacks/view_ops.o \
            callbacks/volume_ops.o \
            current_obj/current_obj.o \
-           surface_extraction/activity.o \
            surface_extraction/data_structs.o \
-           surface_extraction/init_surface.o \
-           surface_extraction/extract.o \
            surface_extraction/surface.o \
            surface_extraction/surface_events.o \
            events/clip_plane.o \
-           events/film_loop.o \
            events/magnify.o \
            events/mouse.o \
            events/mouse_trans.o \
@@ -67,45 +61,35 @@ display_obj = \
            slice_window/draw_slice.o \
            slice_window/slice.o \
            slice_window/slice_events.o \
-           alloc.o \
-           build_bintree.o \
-           bintree.o \
-           search_bintree.o \
-           bitlist.o \
-           colours.o \
-           geometry.o \
-           graphics_io.o \
-           hash_table.o \
-           lines.o \
-           marching_cubes.o \
-           marching_no_holes.o \
-           mr_io.o \
-           objects.o \
-           object_io.o \
-           pixels.o \
-           polygons.o \
-           random_order.o \
-           random.o \
-           resample.o \
-           roi_io.o \
-           string.o \
-           volume.o \
-           time.o
+           $(C_UTILS_SRC)/alloc.o \
+           $(C_UTILS_SRC)/bitlist.o \
+           $(C_UTILS_SRC)/colours.o \
+           $(C_UTILS_SRC)/graphics_io.o \
+           $(C_UTILS_SRC)/hash_table.o \
+           $(C_UTILS_SRC)/lines.o \
+           $(C_UTILS_SRC)/marching_cubes.o \
+           $(C_UTILS_SRC)/mr_io.o \
+           $(C_UTILS_SRC)/objects.o \
+           $(C_UTILS_SRC)/object_io.o \
+           $(C_UTILS_SRC)/pixels.o \
+           $(C_UTILS_SRC)/polygons.o \
+           $(C_UTILS_SRC)/random_order.o \
+           $(C_UTILS_SRC)/random.o \
+           $(C_UTILS_SRC)/resample.o \
+           $(C_UTILS_SRC)/roi_io.o \
+           $(C_UTILS_SRC)/string.o \
+           $(C_UTILS_SRC)/volume.o \
+           $(C_UTILS_SRC)/time.o
 
 display_lint = $(display_obj:.o=.ln)
 
 globals.o:  Include/def_globals.h
 
-globals.ln:  Include/def_globals.h
-
 test_obj = test.o \
-           time.o \
+           $(C_UTILS_SRC)/time.o \
            $(graphics_obj)
 
 test_lint = $(test_obj:.o=.ln)
-
-display_ngx: $(display_obj)
-	$(CC) $(CFLAGS) $(display_obj) -o $@ $(LIBS)
 
 display: $(display_obj)
 	$(CC) $(CFLAGS) $(display_obj) -o $@ $(LIBS)
@@ -115,52 +99,10 @@ display.pixie:
 	@pixie display -o $@
 
 lint_display: $(display_lint)
-	@echo "Global lint started"
-	@$(LINT) -u $(LINTFLAGS) $(display_lint) | filter_lint
+	$(LINT) -u $(LINTFLAGS) $(display_lint)
 
 test: $(test_obj)
 	$(CC) $(CFLAGS) $(test_obj) -o $@ $(LIBS)
 
 lint_test: $(test_lint)
 	$(LINT) -u $(LINTFLAGS) $(test_lint)
-
-film_loop_obj = \
-                film_loop.o \
-                alloc.o \
-                files.o \
-                points.o \
-                object_io.o \
-                time.o \
-                transforms.o \
-                random.o \
-                random_order.o \
-                graphics_lib/GL_graphics.o
-
-film_loop_lint = $(film_loop_obj:.o=.ln)
-
-film_loop: $(film_loop_obj)
-	$(CC) $(CFLAGS) $(film_loop_obj) -o $@ $(LIBS)
-
-lint_film_loop: $(film_loop_lint)
-	$(LINT) -u $(LINTFLAGS) $(film_loop_lint)
-
-bintree_obj = test_bintree.o \
-              search_bintree.o \
-              bintree.o \
-              alloc.o \
-              time.o \
-              files.o \
-              points.o \
-              random.o \
-              geometry.o \
-              intersect/intersect.o \
-              build_bintree.o
-
-bintree_ln = $(bintree_obj:.o=.ln)
-
-test_bintree: $(bintree_obj)
-	$(CC) $(CFLAGS) $(bintree_obj) -o $@ $(LIBS)
-
-
-lint_bintree: $(bintree_ln)
-	$(LINT) -u $(LINTFLAGS) $(bintree_ln)
