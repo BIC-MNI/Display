@@ -4,19 +4,23 @@ OPT = -O
 
 C_utils = ../C_src/utilities
 
-Includes = -I. -I../marching_cubes/Include -I$(C_utils)/Include -I/@/portia/usr/include
+Includes = -IInclude -I../marching_cubes/Include -I$(C_utils)/Include -I/@/portia/usr/include
 CFLAGS = $(OPT) $(Includes)
 LINTFLAGS = $(Includes)
 LIBS = -L/@/portia/usr/lib -lgl -lm
 
+LINT = lint
+
 .c.ln:
-	lint $(LINTFLAGS) -c $< -o $@
+	$(LINT) $(LINTFLAGS) -c $<
+	@if( "`echo $@ | sed -e 's/.*\///'`" != "$@" ) \
+            mv `echo $@ | sed -e 's/.*\///'` $@
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	\rm -f *.o *.ln
+	\rm -f *.o */*.o *.ln */*.ln
 
 clean_o:
 	\rm -f *.o
@@ -24,47 +28,47 @@ clean_o:
 clean_ln:
 	\rm -f *.ln
 
-graphics_obj = GL_graphics.o \
-               render.o \
+graphics_obj = graphics_lib/GL_graphics.o \
                globals.o \
-               transforms.o \
-               view.o \
+               structures/action_table.o \
+               structures/event_struct.o \
+               structures/fit_view.o \
+               structures/lights.o \
+               structures/render.o \
+               structures/transforms.o \
+               structures/view.o \
                $(C_utils)/files.o \
                $(C_utils)/points.o \
                $(C_utils)/progress.o
 
 display_obj = \
-           main.o \
+           main/main.o \
+           main/display.o \
+           main/event_loop.o \
+           main/graphics.o \
            $(graphics_obj) \
-           graphics.o \
-           display.o \
            graphics_io.o \
-           event_struct.o \
-           action_table.o \
-           event_loop.o \
-           lights.o \
-           quit.o \
-           fit_view.o \
-           mouse.o \
-           virt_sb.o \
-           magnify.o \
-           clip_plane.o \
-           mouse_trans.o \
-           window_man.o \
-           menu.o \
-           menu_update.o \
-           build_menu.o \
-           menu_input.o \
-           object_ops.o \
-           render_ops.o \
-           view_ops.o \
+           callbacks/object_ops.o \
+           callbacks/quit.o \
+           callbacks/render_ops.o \
+           callbacks/view_ops.o \
+           events/clip_plane.o \
+           events/magnify.o \
+           events/mouse.o \
+           events/mouse_trans.o \
+           events/virt_sb.o \
+           events/window_man.o \
+           menu/build_menu.o \
+           menu/menu.o \
+           menu/menu_input.o \
+           menu/menu_update.o \
            $(C_utils)/objects.o \
            $(C_utils)/object_io.o \
            $(C_utils)/time.o
 
 display_lint = $(display_obj:.o=.ln)
 
-globals.o:  def_globals.h
+globals.o:  Include/def_globals.h
 
 test_obj = test.o \
            $(C_utils)/time.o \
@@ -76,10 +80,10 @@ display: $(display_obj)
 	$(CC) $(CFLAGS) $(display_obj) -o $@ $(LIBS)
 
 lint_display: $(display_lint)
-	lint -u $(LINTFLAGS) $(display_lint)
+	$(LINT) -u $(LINTFLAGS) $(display_lint)
 
 test: $(test_obj)
 	$(CC) $(CFLAGS) $(test_obj) -o $@ $(LIBS)
 
 lint_test: $(test_lint)
-	lint -u $(LINTFLAGS) $(test_lint)
+	$(LINT) -u $(LINTFLAGS) $(test_lint)
