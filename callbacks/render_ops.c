@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/render_ops.c,v 1.31 1996-05-17 19:38:06 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/render_ops.c,v 1.32 1996-05-24 18:43:09 david Exp $";
 #endif
 
 
@@ -368,7 +368,7 @@ public  DEF_MENU_FUNCTION( set_n_curve_segments )
     print( "Current number of curve segments is %d.\n",
             get_model_info(get_model_ptr(model_object))->
                                    render.n_curve_segments );
-    print( "Enter number of curve segments:" );
+    print( "Enter number of curve segments: " );
 
     if( input_int( stdin, &n_segments ) == OK && n_segments > 0 )
     {
@@ -478,7 +478,7 @@ public  DEF_MENU_FUNCTION( change_background_colour )
     Colour            col;
     STRING            line;
 
-    print( "Enter colour name or 3 or 4 colour components:" );
+    print( "Enter colour name or 3 or 4 colour components: " );
 
     status = input_line( stdin, &line );
 

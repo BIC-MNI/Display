@@ -1,7 +1,6 @@
 root
 {
     permanent ' '      pop_menu                     "Pop Menu"
-    permanent '6'      toggle_shift_key             "Shift Key: %s"
     permanent '7'      quit                         "Quit"
 
     permanent '+'      move_slice_plus              "+ Slice"
@@ -51,6 +50,7 @@ quit
 file
 {
 
+    transient '1'    toggle_crop_labels_on_output    "Crop Save Lbls: %s"
     transient 'q'    load_label_data                 "Load Labels .mnc"
     transient 'w'    save_label_data                 "Save Labels .mnc"
     transient 'e'    load_labels                     "Load Labels .tag"
@@ -135,6 +135,7 @@ delete_current_volume_menu
 
 colour_coding
 {
+    transient 'w'    set_arbitrary_colour_scale      "Arb Colour (Over)"
     transient 'e'    set_red                         "Red"
     transient 'r'    set_green                       "Green"
     transient 't'    set_blue                        "Blue"
@@ -172,6 +173,7 @@ view_3d
 
     transient 'q'    pick_view_rectangle     "Pick View"
     transient 'w'    create_film_loop        "Film Loop"
+    transient 'e'    type_in_3D_origin       "Type-in Cursor Pos"
     transient 'r'    toggle_stereo_mode      "Toggle Stereo"
     transient 't'    set_eye_separation      "Eye Width: %g"
     transient 'y'    right_tilted_view       "Right Tilt View"
@@ -265,14 +267,14 @@ polygons
 {
     transient 'w'    print_polygons_surface_area       "Print Surface Area"
     transient 'e'    set_polygon_line_thickness        "Set Line Thickness"
-    transient 'r'    make_polygon_sphere               "Make Polygons Sphere"
+    transient 'r'    make_polygon_sphere               "Make Quad Ellipsoid"
     transient 't'    subdivide_current_polygon         "Subdivide Polygons"
 
     transient 'a'    create_bintree_for_polygons       "Create Bintree"
     transient 'd'    create_normals_for_polygon        "Compute Normals"
     transient 'f'    reverse_polygons_order            "Reverse Polygons"
     transient 'g'    reverse_normals                   "Reverse Normals"
-    transient 'h'    make_tetrahedral_sphere           "Make Tetrahedral Sphere"
+    transient 'h'    make_tetrahedral_sphere           "Make Tetrahedral Ellipsoid"
 
     transient 'z'    coalesce_current_polygons         "Coalesce Polygons"
     transient 'x'    separate_current_polygons         "Separate Polygons"
@@ -360,7 +362,7 @@ segmenting
     transient 'u'    change_labels_in_range           "Change Labels"
 
     transient 'a'    label_slice                      "Label Slice"
-    transient 's'    clear_slice                      "Clear Slice"
+    transient 's'    clear_slice_confirm              "Clear Slice"
     transient 'd'    set_current_paint_label          "Set Paint Lbl: %d"
     transient 'f'    set_paint_xy_brush_radius        "XY Radius: %g"
     transient 'g'    set_paint_z_brush_radius         "Out-plane Rad: %g"
@@ -374,9 +376,9 @@ segmenting
     transient 'n'    copy_labels_from_lower_slice  "Copy from Lt/Inf/Post Slice"
 
     transient '1'    translate_labels                 "Translate Labels"
-    transient '2'    toggle_fast_update               "Fast update: %s"
-    transient '3'    toggle_cursor_follows_paintbrush "Cursor follows: %s"
-    transient '4'    toggle_cursor_visibility         "Cursor vis: %s"
+    transient '2'    toggle_fast_update               "Fast Update: %s"
+    transient '3'    toggle_cursor_follows_paintbrush "Cursor Follows: %s"
+    transient '4'    toggle_cursor_visibility         "Cursor Vis: %s"
     transient '5'    toggle_connectivity              "Connectivity: %d"
     transient '6'    label_connected_3d               "Fill 3D"
 
@@ -387,6 +389,12 @@ reset_segmenting_confirm
 {
     transient 'q'    pop_menu                          "Cancel"
     transient 'b'    reset_segmenting                 "Yes, Clear Labels"
+}
+
+clear_slice_confirm
+{
+    transient 'q'    pop_menu                          "Cancel"
+    transient 'b'    clear_slice                       "Yes, Clear Slice"
 }
 
 translate_labels

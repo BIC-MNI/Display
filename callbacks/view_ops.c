@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/view_ops.c,v 1.37 1996-04-19 13:24:58 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/view_ops.c,v 1.38 1996-05-24 18:43:10 david Exp $";
 #endif
 
 
@@ -538,6 +538,35 @@ public  DEF_MENU_FUNCTION( print_view )
 /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(print_view )
+{
+    return( TRUE );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(type_in_3D_origin)
+{
+    Real             xw, yw, zw;
+
+    print( "Enter x y z world coordinate: " );
+
+    if( input_real( stdin, &xw ) == OK &&
+        input_real( stdin, &yw ) == OK &&
+        input_real( stdin, &zw ) == OK )
+    {
+        fill_Point( display->three_d.cursor.origin, xw, yw, zw );
+        update_cursor( display );
+        set_update_required( display, get_cursor_bitplanes() );
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(type_in_3D_origin)
 {
     return( TRUE );
 }

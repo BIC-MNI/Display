@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/colour_coding.c,v 1.22 1995-12-19 15:46:13 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/colour_coding.c,v 1.23 1996-05-24 18:43:08 david Exp $";
 #endif
 
 
@@ -200,6 +200,22 @@ public  DEF_MENU_UPDATE(set_spectral )
 
 /* ARGSUSED */
 
+public  DEF_MENU_FUNCTION(set_arbitrary_colour_scale )
+{
+    set_the_colour_coding_type( display, SINGLE_COLOUR_SCALE );
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_arbitrary_colour_scale )
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+/* ARGSUSED */
+
 public  DEF_MENU_FUNCTION(set_under_colour )
 {
     Status                  status;
@@ -212,7 +228,7 @@ public  DEF_MENU_FUNCTION(set_under_colour )
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        print( "Enter under colour name or 3 or 4 colour components:" );
+        print( "Enter under colour name or 3 or 4 colour components: " );
 
         status = input_line( stdin, &line );
 
@@ -270,7 +286,7 @@ public  DEF_MENU_FUNCTION(set_over_colour )
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        print( "Enter over colour name or 3 or 4 colour components:" );
+        print( "Enter over colour name or 3 or 4 colour components: " );
 
         status = input_line( stdin, &line );
 

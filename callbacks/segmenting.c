@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.52 1996-05-23 13:48:28 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.53 1996-05-24 18:43:09 david Exp $";
 #endif
 
 
@@ -227,6 +227,7 @@ public  DEF_MENU_FUNCTION(save_label_data)
     Status           status;
     STRING           filename;
     display_struct   *slice_window;
+    Real             crop_threshold;
 
     status = OK;
 
@@ -241,11 +242,16 @@ public  DEF_MENU_FUNCTION(save_label_data)
 
         if( status == OK && check_clobber_file( filename ) )
         {
+            if( !slice_window->slice.crop_labels_on_output_flag )
+                crop_threshold = 0.0;
+            else
+                crop_threshold = Crop_label_volumes_threshold;
+
             status = save_label_volume( filename,
                       slice_window->slice.volumes[
                       get_current_volume_index(slice_window)].labels_filename,
                       get_label_volume(slice_window),
-                      Crop_label_volumes_threshold );
+                      crop_threshold );
         }
 
         delete_string( filename );
@@ -797,6 +803,41 @@ public  DEF_MENU_UPDATE(toggle_connectivity )
     }
 
     set_menu_text_int( menu_window, menu_entry, n_neigh );
+
+    return( state );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(toggle_crop_labels_on_output)
+{
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window) )
+    {
+        slice_window->slice.crop_labels_on_output_flag =
+                            !slice_window->slice.crop_labels_on_output_flag;
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_crop_labels_on_output)
+{
+    BOOLEAN          state, set;
+    display_struct   *slice_window;
+    int              n_neigh;
+
+    state = get_slice_window( display, &slice_window );
+
+    if( state )
+        set = slice_window->slice.crop_labels_on_output_flag;
+    else
+        set = Initial_crop_labels_on_output;
+
+    set_menu_text_on_off( menu_window, menu_entry, set );
 
     return( state );
 }

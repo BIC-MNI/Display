@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char surface_extract_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/surface_extract.h,v 1.25 1996-05-23 13:48:24 david Exp $";
+static char surface_extract_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/surface_extract.h,v 1.26 1996-05-24 18:43:04 david Exp $";
 #endif
 
 #include  <bicpl.h>
@@ -35,6 +35,8 @@ typedef  struct
 #define  VOXEL_COMPLETELY_DONE    15
 
 typedef QUEUE_STRUCT( voxel_index_struct )   voxel_queue_struct;
+
+#define  SURFACE_BLOCK_SIZE   8
 
 typedef  struct
 {
@@ -62,6 +64,9 @@ typedef  struct
     voxel_queue_struct                   voxels_to_do;
 
     int                                  current_voxel[N_DIMENSIONS];
+    int                                  min_block[N_DIMENSIONS];
+    int                                  max_block[N_DIMENSIONS];
+
     int                                  min_limits[N_DIMENSIONS];
     int                                  max_limits[N_DIMENSIONS];
     int                                  min_changed_limits[N_DIMENSIONS];
@@ -69,6 +74,13 @@ typedef  struct
     int                                  min_modified[N_DIMENSIONS];
     int                                  max_modified[N_DIMENSIONS];
     int                                  not_changed_since[N_DIMENSIONS];
+
+    BOOLEAN                              inside_flags[SURFACE_BLOCK_SIZE+2]
+                                                     [SURFACE_BLOCK_SIZE+2]
+                                                     [SURFACE_BLOCK_SIZE+2];
+    BOOLEAN                              valid_flags[SURFACE_BLOCK_SIZE+2]
+                                                    [SURFACE_BLOCK_SIZE+2]
+                                                    [SURFACE_BLOCK_SIZE+2];
 
     polygons_struct                      *polygons;
 } surface_extraction_struct;

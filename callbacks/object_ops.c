@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/object_ops.c,v 1.52 1996-05-17 19:38:05 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/object_ops.c,v 1.53 1996-05-24 18:43:08 david Exp $";
 #endif
 
 
@@ -373,7 +373,7 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )
     if( get_current_object( display, &current_object ) &&
         get_object_type(current_object) != MODEL )
     {
-        print( "Enter colour name or 3 or 4 colour components:" );
+        print( "Enter colour name or 3 or 4 colour components: " );
 
 
         if( input_line( stdin, &line ) == OK )
@@ -409,7 +409,7 @@ public  DEF_MENU_FUNCTION( set_current_object_surfprop )
 
     if( get_current_object( display, &current_object ) )
     {
-        print( "Enter ambient, diffuse, specular, shininess, opacity:" );
+        print( "Enter ambient, diffuse, specular, shininess, opacity: " );
 
         if( input_float( stdin, &Surfprop_a(spr) ) == OK &&
             input_float( stdin, &Surfprop_d(spr) ) == OK &&

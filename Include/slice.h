@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.70 1996-05-17 19:38:02 david Exp $";
+static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.71 1996-05-24 18:43:04 david Exp $";
 #endif
 
 #include  <volume_io.h>
@@ -147,6 +147,7 @@ typedef  struct
     loaded_volume_struct   *volumes;
     int                    current_volume_index;
 
+    BOOLEAN                crop_labels_on_output_flag;
     BOOLEAN                share_labels_flag;
     colour_bar_struct      colour_bar;
 

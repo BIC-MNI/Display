@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/surface.c,v 1.61 1996-05-23 15:33:49 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/surface.c,v 1.62 1996-05-24 18:43:21 david Exp $";
 #endif
 
 
@@ -105,8 +105,16 @@ public  void  start_surface_extraction_at_point(
         surf->min_limits[dim] = min_crop[dim];
         surf->max_limits[dim] = MIN( sizes[dim]-1-offset, max_crop[dim] );
 
-        surf->min_changed_limits[dim] = surf->min_limits[dim];
-        surf->max_changed_limits[dim] = surf->max_limits[dim];
+        if( !volume_is_alloced( volume ) && !volume_is_cached( volume ) )
+        {
+            surf->min_changed_limits[dim] = 0;
+            surf->max_changed_limits[dim] = -1;
+        }
+        else
+        {
+            surf->min_changed_limits[dim] = surf->min_limits[dim];
+            surf->max_changed_limits[dim] = surf->max_limits[dim];
+        }
         surf->min_modified[dim] = 0;
         surf->max_modified[dim] = -1;
         surf->not_changed_since[dim] = surf->min_limits[dim];
@@ -417,7 +425,7 @@ public  BOOLEAN  extract_more_surface(
 {
     int                         n_voxels_done, sizes[N_DIMENSIONS];
     int                         voxel_index[N_DIMENSIONS];
-    surface_extraction_struct   *surface_extraction;
+    surface_extraction_struct   *surf;
     Volume                      volume, label_volume;
     Real                        stop_time;
     BOOLEAN                     voxellate_flag, changed;
@@ -426,13 +434,13 @@ public  BOOLEAN  extract_more_surface(
 
     n_voxels_done = 0;
 
-    surface_extraction = &display->three_d.surface_extraction;
-    volume = surface_extraction->volume;
-    label_volume = surface_extraction->label_volume;
-    voxellate_flag = surface_extraction->voxellate_flag;
+    surf = &display->three_d.surface_extraction;
+    volume = surf->volume;
+    label_volume = surf->label_volume;
+    voxellate_flag = surf->voxellate_flag;
 
     if( voxellate_flag )
-        update_changed_limits( surface_extraction );
+        update_changed_limits( surf );
 
     get_volume_sizes( volume, sizes );
 
@@ -441,54 +449,61 @@ public  BOOLEAN  extract_more_surface(
     while( (n_voxels_done < Min_voxels_per_update ||
            (n_voxels_done < Max_voxels_per_update &&
            current_realtime_seconds() < stop_time) ) &&
-           some_voxels_remaining_to_do( surface_extraction ) )
+           some_voxels_remaining_to_do( surf ) )
     {
         if( voxellate_flag )
         {
-            voxel_index[X] = surface_extraction->current_voxel[X];
-            voxel_index[Y] = surface_extraction->current_voxel[Y];
-            voxel_index[Z] = surface_extraction->current_voxel[Z];
+            voxel_index[X] = surf->current_voxel[X];
+            voxel_index[Y] = surf->current_voxel[Y];
+            voxel_index[Z] = surf->current_voxel[Z];
 
-            advance_voxellated_index( surface_extraction );
+            if( voxel_index[X] == surf->min_block[X] &&
+                voxel_index[Y] == surf->min_block[Y] &&
+                voxel_index[Z] == surf->min_block[Z] )
+            {
+                read_voxellation_block( surf );
+            }
         }
         else
         {
-            get_next_voxel_from_queue( &surface_extraction->voxels_to_do,
-                                       voxel_index );
+            get_next_voxel_from_queue( &surf->voxels_to_do, voxel_index );
         }
 
         if( !voxellate_flag )
-            reset_voxel_flag( &surface_extraction->voxel_state,
-                              surface_extraction->min_limits,  voxel_index );
+            reset_voxel_flag( &surf->voxel_state,
+                              surf->min_limits,  voxel_index );
 
         if( extract_voxel_surface( volume, label_volume,
-                                   surface_extraction, voxel_index,
-                            surface_extraction->n_voxels_with_surface == 0) )
+                                   surf, voxel_index,
+                                   surf->n_voxels_with_surface == 0) )
         {
             changed = TRUE;
 
-            ++surface_extraction->n_voxels_with_surface;
+            ++surf->n_voxels_with_surface;
 
             if( !voxellate_flag )
             {
-                delete_edge_points_no_longer_needed( surface_extraction,
+                delete_edge_points_no_longer_needed( surf,
                                      volume, voxel_index,
-                                     surface_extraction->voxel_done_flags,
-                                     &surface_extraction->edge_points );
+                                     surf->voxel_done_flags,
+                                     &surf->edge_points );
 
                 add_voxel_neighbours( volume, label_volume, sizes,
                             voxel_index[X], voxel_index[Y], voxel_index[Z],
-                            TRUE, surface_extraction,
-                            &surface_extraction->voxel_state,
-                            &surface_extraction->voxels_to_do );
+                            TRUE, surf,
+                            &surf->voxel_state,
+                            &surf->voxels_to_do );
             }
         }
+
+        if( voxellate_flag )
+            advance_voxellated_index( surf );
 
         ++n_voxels_done;
     }
 
     if( !voxellate_flag &&
-        !some_voxels_remaining_to_do( surface_extraction ) )
+        !some_voxels_remaining_to_do( surf ) )
     {
         print( "Surface extraction finished\n" );
         stop_surface_extraction( display );
@@ -721,7 +736,7 @@ public  void  remove_empty_polygons(
 
         /*--- if not degenerate polygon, keep it in the set */
 
-        if( size >= 3 || v < size-1 )
+        if( size >= 3 && v < size-1 )
         {
             for_less( v, 0, size )
             {

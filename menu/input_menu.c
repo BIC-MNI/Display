@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.130 1996-05-17 19:38:13 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.131 1996-05-24 18:43:16 david Exp $";
 #endif
 
 #include  <display.h>
@@ -66,6 +66,7 @@ MENU_F(front_view) \
 MENU_F(back_view) \
 MENU_F(left_view) \
 MENU_F(right_view) \
+MENU_F(type_in_3D_origin) \
 MENU_F(advance_selected) \
 MENU_F(retreat_selected) \
 MENU_F(descend_selected) \
@@ -110,6 +111,7 @@ MENU_F(reset_current_slice_view) \
 MENU_F(toggle_share_labels) \
 MENU_F(load_label_data) \
 MENU_F(save_label_data) \
+MENU_F(toggle_crop_labels_on_output) \
 MENU_F(clear_voxel) \
 MENU_F(label_voxel) \
 MENU_F(clear_connected) \
@@ -256,6 +258,7 @@ MENU_F(set_spectral) \
 MENU_F(set_red) \
 MENU_F(set_green) \
 MENU_F(set_blue) \
+MENU_F(set_arbitrary_colour_scale) \
 MENU_F(set_under_colour) \
 MENU_F(set_over_colour) \
 MENU_F(set_nearest_neighbour) \

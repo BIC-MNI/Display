@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surface_extract.c,v 1.31 1996-05-23 13:48:28 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surface_extract.c,v 1.32 1996-05-24 18:43:10 david Exp $";
 #endif
 
 
@@ -43,17 +43,7 @@ private  void  start_surface(
     }
 
     if( use_label_flag )
-    {
-        /*--- force creation of the volume */
-
-        set_voxel_label( slice_window, get_current_volume_index(slice_window),
-                         0, 0, 0,
-                         get_voxel_label( slice_window,
-                                      get_current_volume_index(slice_window),
-                                      0, 0, 0 ) );
-
         volume = get_label_volume( slice_window );
-    }
     else
         volume = get_volume( slice_window );
 

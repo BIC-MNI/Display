@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/crop.c,v 1.10 1996-05-17 19:38:16 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/crop.c,v 1.11 1996-05-24 18:43:19 david Exp $";
 #endif
 
 #include  <display.h>
@@ -297,8 +297,8 @@ private  DEF_EVENT_FUNCTION( start_picking_box )
                                 &x_high, &y_high );
 
         slice_window->slice.crop.limit_being_moved[0] = -1;
-        slice_window->slice.crop.limit_being_moved[0] = -1;
-        slice_window->slice.crop.axis_being_moved[1] = -1;
+        slice_window->slice.crop.limit_being_moved[1] = -1;
+        slice_window->slice.crop.axis_being_moved[0] = -1;
         slice_window->slice.crop.axis_being_moved[1] = -1;
 
         dist_low = FABS( x_low - (Real) x_mouse );
@@ -409,7 +409,7 @@ private  void  set_slice_crop_position(
     int        x_min, x_max, y_min, y_max;
     Real       voxel[MAX_DIMENSIONS], origin[MAX_DIMENSIONS];
     Real       x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
-    Real       delta[MAX_DIMENSIONS];
+    Real       delta;
     BOOLEAN    changed;
 
     volume_index = get_current_volume_index( slice_window );
@@ -439,16 +439,12 @@ private  void  set_slice_crop_position(
     {
         for_less( dim, 0, N_DIMENSIONS )
         {
-            delta[dim] = voxel[dim] - slice_window->slice.crop.start_voxel[dim];
-            if( delta[dim] != 0.0 )
+            delta = voxel[dim] - slice_window->slice.crop.start_voxel[dim];
+            if( delta != 0.0 )
                 changed = TRUE;
             slice_window->slice.crop.start_voxel[dim] = voxel[dim];
-        }
-
-        for_less( limit, 0, 2 )
-        {
-            for_less( dim, 0, 2 )
-                slice_window->slice.crop.limits[limit][dim] += delta[dim];
+            slice_window->slice.crop.limits[0][dim] += delta;
+            slice_window->slice.crop.limits[1][dim] += delta;
         }
     }
     else

@@ -349,8 +349,6 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_pos_title, STRING, "Cursor Pos:" )
     DEF_GLOBAL( Cursor_pos_format, STRING, "%.1f %.1f %.1f" )
 
-    DEF_GLOBAL( Crop_label_volumes_threshold, Real, 0.8 )
-
     DEF_GLOBAL_COLOUR( Unfinished_flag_colour )
     DEF_GLOBAL( Unfinished_flag_width, Real, 5.0 )
 
@@ -361,5 +359,8 @@ START_GLOBALS
     DEF_GLOBAL( Volume_cache_threshold, int, -1 )
     DEF_GLOBAL( Volume_cache_size, int, -1 )
     DEF_GLOBAL( Volume_cache_block_size, int, -1 )
+
+    DEF_GLOBAL( Crop_label_volumes_threshold, Real, 0.9 )
+    DEF_GLOBAL( Initial_crop_labels_on_output, BOOLEAN, TRUE )
 
 END_GLOBALS
