@@ -280,3 +280,59 @@ public  DEF_MENU_UPDATE(reverse_polygons_order )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
+{
+    Status            status;
+    Status            deform_polygons();
+    Status            compute_polygon_normals();
+    Status            delete_polygons_bintree();
+    Real              image_factor, max_step, isovalue;
+    Real              smoothing_factor, stop_threshold;
+    int               max_iterations;
+    volume_struct     *volume;
+    polygons_struct   *polygons;
+    void              set_update_required();
+
+    status = OK;
+
+    if( get_current_polygons( graphics, &polygons ) &&
+        get_current_volume( graphics, &volume ) )
+    {
+        PRINT( "Enter image_factor, max_step, isovalue,\n" );
+        PRINT( "      smoothing_factor, max_iterations, stop_threshold: " );
+
+        if( input_real( stdin, &image_factor ) == OK &&
+            input_real( stdin, &max_step ) == OK &&
+            input_real( stdin, &isovalue ) == OK &&
+            input_real( stdin, &smoothing_factor ) == OK &&
+            input_int( stdin, &max_iterations ) == OK &&
+            input_real( stdin, &stop_threshold ) == OK )
+        {
+            status = deform_polygons( polygons, volume, image_factor,
+                                      max_step, isovalue,
+                                      smoothing_factor, max_iterations,
+                                      stop_threshold );
+
+            if( status == OK )
+                status = compute_polygon_normals( polygons );
+
+            if( status == OK )
+                status = delete_polygons_bintree( polygons );
+
+            set_update_required( graphics, NORMAL_PLANES );
+
+            PRINT( "Done deforming polygon.\n" );
+        }
+
+        (void) input_newline( stdin );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(deform_polygon_to_volume )   /* ARGSUSED */
+{
+    return( OK );
+}
+
