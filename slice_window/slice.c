@@ -117,8 +117,8 @@ public  Status  set_slice_window_volume( graphics, volume )
         graphics->slice.slice_views[c].y_scale = factor * thickness[y_index];
     }
 
-    num_entries = (int) graphics->slice.volume->max_value -
-                  (int) graphics->slice.volume->min_value + 1;
+    num_entries = graphics->slice.volume->max_value -
+                  graphics->slice.volume->min_value + 1;
 
     graphics->slice.fast_lookup_present =
                   (num_entries <= Max_fast_colour_lookup);
@@ -128,7 +128,8 @@ public  Status  set_slice_window_volume( graphics, volume )
                 Pixel_colour );
 
     change_colour_coding_range( graphics,
-                                volume->min_value, volume->max_value );
+                                (Real) volume->min_value,
+                                (Real) volume->max_value );
 
     if( status == OK )
     {
@@ -161,8 +162,8 @@ public  void  change_colour_coding_range( graphics, min_value, max_value )
 
     if( graphics->slice.fast_lookup_present )
     {
-        min_val = (int) graphics->slice.volume->min_value;
-        max_val = (int) graphics->slice.volume->max_value;
+        min_val = graphics->slice.volume->min_value;
+        max_val = graphics->slice.volume->max_value;
    
         for_inclusive( val, min_val, max_val )
         {
