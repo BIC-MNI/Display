@@ -1,11 +1,16 @@
 include ../Graphics/Makefile.include
 
-OPT = $(OPT_g) -Wf,-XNd10000
+OPT = $(OPT_O) -Wf,-XNd10000
 
 OPT_g = -g
 OPT_O = -O
 
-INCLUDE = -IInclude -I../Modules/Include $(GRAPHICS_INCLUDE) $(C_UTILS_INCLUDE)
+IMAGE_DIR = /usr/people/4Dgifts/iristools
+IMAGE_LIB = $(IMAGE_DIR)/libimage/libimage.a
+
+INCLUDE = -IInclude -I../Modules/Include $(GRAPHICS_INCLUDE) \
+          $(C_UTILS_INCLUDE) \
+          -I$(IMAGE_DIR)/include
 
 PROTOTYPE_FILE = Include/display_prototypes.h
 
@@ -47,6 +52,7 @@ display_obj = \
            edit_surface/edit.o \
            edit_surface/segment.o \
            images/images.o \
+           images/rgb_io.o \
            markers/markers.o \
            markers/segment.o \
            surface_extraction/boundary_extraction.o \
@@ -124,7 +130,8 @@ lint_display: $(PROTOTYPE_FILE) $(display_lint)
 	@$(LINT) -u $(LINTFLAGS) $(display_lint) $(MODULE_LIBS) $(GRAPHICS_LINT_LIBS) | filter_lint
 
 $(DISPLAY): $(PROTOTYPE_FILE) $(display_obj)
-	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(MODULE_LIBS) $(GRAPHICS_LIBS)
+	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(IMAGE_LIB) \
+              $(MODULE_LIBS) $(GRAPHICS_LIBS)
 
 $(DISPLAY)_2d: $(PROTOTYPE_FILE) $(display_obj)
 	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(MODULE_LIBS) $(GRAPHICS_LIBS_2D)
