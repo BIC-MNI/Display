@@ -39,7 +39,7 @@ private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
                                end_painting );
 
     
-    G_get_mouse_position( display->window, &x_pixel, &y_pixel );
+    (void) G_get_mouse_position( display->window, &x_pixel, &y_pixel );
     paint_labels_at_point( display, x_pixel, y_pixel );
     record_mouse_pixel_position( display );
 

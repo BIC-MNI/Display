@@ -368,7 +368,9 @@ private  int   create_surface_point(
     (void) evaluate_volume_in_world( volume,
                                Point_x(point), Point_y(point), Point_z(point),
                                Volume_continuity, FALSE, &ignored,
-                               &dx, &dy, &dz );
+                               &dx, &dy, &dz,
+                               (Real *) NULL, (Real *) NULL, (Real *) NULL,
+                               (Real *) NULL, (Real *) NULL, (Real *) NULL );
 
     fill_Vector( normal, dx, dy, dz );
 

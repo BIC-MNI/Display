@@ -75,7 +75,7 @@ private  void  set_current_box(
     Real           x_start, x_end, y_start, y_end;
     Point          *points;
 
-    width = (int) strwidth( label );
+    width = (int) G_get_text_length( label, FIXED_FONT, 0.0 );
 
     if( width <= 0 )
         width = 20;

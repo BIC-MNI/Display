@@ -1,7 +1,7 @@
 #ifndef  DEF_DISPLAY_TYPES
 #define  DEF_DISPLAY_TYPES
 
-#include  <def_mni.h>
+#include  <def_graphics.h>
 
 typedef  struct
 {

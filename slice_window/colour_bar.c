@@ -155,7 +155,7 @@ public  void  rebuild_colour_bar(
 
     while( model->n_objects > FIRST_TEXT )
     {
-        delete_object( model->objects[model->n_objects-1] );
+        delete_object( model->objects[FIRST_TEXT] );
         remove_object_from_model( model, FIRST_TEXT );
     }
 

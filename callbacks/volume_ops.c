@@ -244,8 +244,11 @@ private  void  colour_code_points(
                                          Point_y(points[i]),
                                          Point_z(points[i]), Volume_continuity,
                                          FALSE,
-                                         &val, (Real *) 0,
-                                         (Real *) 0, (Real *) 0 );
+                                         &val, (Real *) NULL,
+                                         (Real *) NULL, (Real *) NULL,
+                                         (Real *) NULL, (Real *) NULL,
+                                         (Real *) NULL, (Real *) NULL,
+                                         (Real *) NULL, (Real *) NULL );
 
         (*colours)[i] = get_colour_code( colour_coding, val );
     }

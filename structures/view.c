@@ -185,13 +185,17 @@ public  void  transform_point_to_world(
     Point         *p,
     Point         *transformed_point )
 {
-    Point  scaled;
+    Real   x_scaled, y_scaled, z_scaled;
+    Real   x, y, z;
 
-    Point_x(scaled) = view->scale_factors[X] * Point_x(*p);
-    Point_y(scaled) = view->scale_factors[Y] * Point_y(*p);
-    Point_z(scaled) = view->scale_factors[Z] * Point_z(*p);
+    x_scaled = view->scale_factors[X] * Point_x(*p);
+    y_scaled = view->scale_factors[Y] * Point_y(*p);
+    z_scaled = view->scale_factors[Z] * Point_z(*p);
 
-    transform_point( &view->modeling_transform, &scaled, transformed_point );
+    transform_point( &view->modeling_transform, x_scaled, y_scaled, z_scaled,
+                     &x, &y, &z );
+
+    fill_Point( *transformed_point, x, y, z );
 }
 
 public  void  transform_world_to_model(
@@ -199,7 +203,11 @@ public  void  transform_world_to_model(
     Point         *p,
     Point         *transformed_point )
 {
-    inverse_transform_point( &view->modeling_transform, p, transformed_point );
+    Real   x, y, z;
+
+    inverse_transform_point( &view->modeling_transform,
+                             Point_x(*p), Point_y(*p), Point_z(*p), &x, &y, &z);
+    fill_Point( *transformed_point, x, y, z );
 }
 
 public  void  transform_world_to_model_vector(
@@ -207,8 +215,12 @@ public  void  transform_world_to_model_vector(
     Vector        *v,
     Vector        *transformed_vector )
 {
-    inverse_transform_vector( &view->modeling_transform, v,
-                              transformed_vector );
+    Real  x, y, z;
+
+    inverse_transform_vector( &view->modeling_transform,
+                              Vector_x(*v), Vector_y(*v), Vector_z(*v),
+                              &x, &y, &z);
+    fill_Vector( *transformed_vector, x, y, z );
 }
 
 public  void  transform_world_to_screen(

@@ -251,7 +251,7 @@ Smoothing_threshold = 0.01;
 
 Surface_curve_colour = MAGENTA;
 Surface_curve_thickness = 3;
-Surface_curve_overlay_flag = TRUE;
+Surface_curve_overlay_flag = FALSE;
 
 N_painting_polygons = 100;
 Visible_segmenting_colour = GREEN;
