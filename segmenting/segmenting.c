@@ -2,6 +2,7 @@
 #include  <def_graphics.h>
 #include  <def_arrays.h>
 #include  <def_queue.h>
+#include  <def_globals.h>
 
 public  void  initialize_segmenting( segmenting )
     segmenting_struct  *segmenting;
@@ -10,6 +11,7 @@ public  void  initialize_segmenting( segmenting )
     segmenting->labels = (label_struct *) 0;
     segmenting->min_threshold = -1;
     segmenting->max_threshold = -1;
+    segmenting->connectivity = (Neighbour_types) Segmenting_connectivity;
 }
 
 public  Status  delete_all_labels( segmenting )
