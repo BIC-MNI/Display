@@ -6,6 +6,10 @@ typedef  enum  { DIVIDER_INDEX,
                  SLICE2_INDEX,
                  SLICE3_INDEX,
                  SLICE4_INDEX,
+                 CROSS_SECTION1_INDEX,
+                 CROSS_SECTION2_INDEX,
+                 CROSS_SECTION3_INDEX,
+                 CROSS_SECTION4_INDEX,
                  CURSOR1_INDEX1,
                  CURSOR1_INDEX2,
                  CURSOR2_INDEX1,
@@ -72,6 +76,30 @@ public  void  initialize_slice_models(
         object = create_object( PIXELS );
         initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, 1.0, 1.0,
                            RGB_PIXEL );
+        add_object_to_model( model, object );
+    }
+
+    for_less( view, 0, N_SLICE_VIEWS )
+    {
+        /* --- make cross section */
+
+        object = create_object( LINES );
+        lines = get_lines_ptr( object );
+        initialize_lines( lines, Slice_cross_section_colour );
+
+        lines->n_points = 2;
+        lines->n_items = 1;
+
+        ALLOC( lines->points, lines->n_points );
+        ALLOC( lines->end_indices, lines->n_items );
+        ALLOC( lines->indices, lines->n_points );
+
+        lines->end_indices[0] = 2;
+
+        for_less( i, 0, 2 )
+            lines->indices[i] = i;
+
+        set_object_visibility( object, FALSE );
         add_object_to_model( model, object );
     }
 
@@ -154,6 +182,7 @@ public  void  rebuild_slice_models(
     rebuild_slice_divider( slice_window );
     rebuild_probe( slice_window );
     rebuild_colour_bar( slice_window );
+    rebuild_slice_cross_sections( slice_window );
 
     set_slice_window_all_update( slice_window );
 }
@@ -339,6 +368,146 @@ private  void  get_cursor_size(
         *vert_end = Cursor_vert_end_3;
         break;
     }
+}
+
+#define  EXTRA_PIXELS   10
+
+private  void  rebuild_one_slice_cross_section(
+    display_struct    *slice_window,
+    int               view_index )
+{
+    model_struct   *model;
+    int            sizes[N_DIMENSIONS];
+    int            c, section_index, x_min, x_max, y_min, y_max;
+    Real           x1, y1, x2, y2, dx, dy, len, t_min, t_max;
+    Real           perp_axis[N_DIMENSIONS], separations[N_DIMENSIONS];
+    Real           plane_axis[N_DIMENSIONS];
+    Real           voxel1[N_DIMENSIONS], voxel2[N_DIMENSIONS];
+    Point          origin, v1, v2, p1, p2;
+    Vector         plane_normal, perp_normal, in_plane_axis, direction;
+    object_struct  *object;
+    lines_struct   *lines;
+    Real           current_voxel[N_DIMENSIONS];
+
+    model = get_graphics_model(slice_window,SLICE_MODEL);
+    object = model->objects[CROSS_SECTION1_INDEX+view_index];
+
+    section_index = slice_window->slice.cross_section_index;
+
+    if( view_index == section_index )
+    {
+        set_object_visibility( object, FALSE );
+        return;
+    }
+
+    set_object_visibility( object,
+                           slice_window->slice.cross_section_visibility );
+
+    if( !slice_window->slice.cross_section_visibility )
+        return;
+
+    lines = get_lines_ptr( object );
+
+    get_current_voxel( slice_window, current_voxel );
+    get_volume_separations( get_volume(slice_window), separations );
+    get_slice_perp_axis( slice_window, section_index, perp_axis );
+    get_slice_perp_axis( slice_window, view_index, plane_axis );
+
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        separations[c] = ABS( separations[c] );
+        Point_coord( origin, c ) = current_voxel[c];
+        Vector_coord( plane_normal, c ) = plane_axis[c] * separations[c];
+        Vector_coord( perp_normal, c ) = perp_axis[c] * separations[c];
+    }
+
+    CROSS_VECTORS( in_plane_axis, plane_normal, perp_normal );
+
+    if( null_Vector( &in_plane_axis ) )
+    {
+        set_object_visibility( object, FALSE );
+        return;
+    }
+
+    for_less( c, 0, N_DIMENSIONS )
+        Vector_coord( in_plane_axis, c ) /= separations[c];
+
+    get_volume_sizes( get_volume(slice_window), sizes );
+
+    if( !clip_line_to_box( &origin, &in_plane_axis,
+                           -0.5, (Real) sizes[X]-0.5,
+                           -0.5, (Real) sizes[Y]-0.5,
+                           -0.5, (Real) sizes[Z]-0.5,
+                           &t_min, &t_max ) )
+    {
+        set_object_visibility( object, FALSE );
+        return;
+    }
+
+    GET_POINT_ON_RAY( v1, origin, in_plane_axis, t_min );
+    GET_POINT_ON_RAY( v2, origin, in_plane_axis, t_max );
+
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        voxel1[c] = Point_coord(v1,c);
+        voxel2[c] = Point_coord(v2,c);
+    }
+
+    convert_voxel_to_pixel( slice_window, view_index, voxel1, &x1, &y1 );
+    convert_voxel_to_pixel( slice_window, view_index, voxel2, &x2, &y2 );
+
+    dx = x2 - x1;
+    dy = y2 - y1;
+
+    len = sqrt( dx * dx + dy * dy );
+
+    if( len >= 0.0 )
+    {
+        x1 -= EXTRA_PIXELS * dx / len;
+        y1 -= EXTRA_PIXELS * dy / len;
+        x2 += EXTRA_PIXELS * dx / len;
+        y2 += EXTRA_PIXELS * dy / len;
+    }
+
+    get_slice_viewport( slice_window, view_index,
+                        &x_min, &x_max, &y_min, &y_max );
+
+    fill_Point( origin, x1, y1, 0.0 );
+    fill_Vector( direction, x2 - x1, y2 - y1, 0.0 );
+
+    if( !clip_line_to_box( &origin, &direction, 
+                           (Real) x_min, (Real) x_max,
+                           (Real) y_min, (Real) y_max,
+                           -1.0, 1.0, &t_min, &t_max ) )
+    {
+        t_min = 0.0;
+        t_max = 0.0;
+    }
+
+    if( t_min < 0.0 )
+        t_min = 0.0;
+    else if( t_min > 1.0 )
+        t_min = 1.0;
+
+    if( t_max < 0.0 )
+        t_max = 0.0;
+    else if( t_max > 1.0 )
+        t_max = 1.0;
+
+    GET_POINT_ON_RAY( p1, origin, direction, t_min );
+    GET_POINT_ON_RAY( p2, origin, direction, t_max );
+
+    fill_Point( lines->points[0], Point_x(p1), Point_y(p1), 0.0 );
+    fill_Point( lines->points[1], Point_x(p2), Point_y(p2), 0.0 );
+}
+
+public  void  rebuild_slice_cross_sections(
+    display_struct   *slice_window )
+{
+    int   view;
+
+    for_less( view, 0, N_SLICE_VIEWS )
+        rebuild_one_slice_cross_section( slice_window, view );
 }
 
 private  void  rebuild_cursor(
@@ -541,7 +710,8 @@ public  void  rebuild_slice_pixels(
     else
         set_object_visibility( model->objects[TEXT1_INDEX+view_index], FALSE );
 
-    rebuild_cursors( slice_window );
+    rebuild_cursor( slice_window, view_index );
+    rebuild_one_slice_cross_section( slice_window, view_index );
 }
 
 #define  MAX_LABELS   256

@@ -574,12 +574,23 @@ public  BOOLEAN  get_voxel_under_mouse(
 }
 
 public  void  get_current_voxel(
-    display_struct    *slice_window,
+    display_struct    *display,
     Real              voxel[] )
 {
-    voxel[X] = slice_window->slice.current_voxel[X];
-    voxel[Y] = slice_window->slice.current_voxel[Y];
-    voxel[Z] = slice_window->slice.current_voxel[Z];
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        voxel[X] = slice_window->slice.current_voxel[X];
+        voxel[Y] = slice_window->slice.current_voxel[Y];
+        voxel[Z] = slice_window->slice.current_voxel[Z];
+    }
+    else
+    {
+        voxel[X] = 0.0;
+        voxel[Y] = 0.0;
+        voxel[Z] = 0.0;
+    }
 }
 
 public  BOOLEAN  set_current_voxel(
@@ -615,9 +626,46 @@ public  BOOLEAN  set_current_voxel(
     }
 
     if( changed )
+    {
         rebuild_volume_cross_section( slice_window );
+        rebuild_slice_cross_sections( slice_window );
+        rebuild_probe( slice_window );
+        rebuild_cursors( slice_window );
+    }
 
     return( changed );
+}
+
+private  void  get_voxel_axis_perpendicular(
+    Volume   volume,
+    Real     x_axis[],
+    Real     y_axis[],
+    Real     perp_axis[] )
+{
+    int      c, a1, a2;
+    Real     len, separations[MAX_DIMENSIONS];
+
+    get_volume_separations( volume, separations );
+
+    len = 0.0;
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        a1 = (c + 1) % N_DIMENSIONS;
+        a2 = (c + 2) % N_DIMENSIONS;
+        perp_axis[c] = x_axis[a1] * y_axis[a2] - x_axis[a2] * y_axis[a1];
+
+        perp_axis[c] *= ABS( separations[a1] * separations[a2] /
+                             separations[c] );
+
+        len += perp_axis[c] * perp_axis[c];
+    }
+
+    if( len != 0.0 )
+    {
+        len = sqrt( len );
+        for_less( c, 0, N_DIMENSIONS )
+            perp_axis[c] /= len;
+    }
 }
 
 public  void  get_slice_perp_axis(
@@ -625,42 +673,36 @@ public  void  get_slice_perp_axis(
     int              view_index,
     Real             perp_axis[N_DIMENSIONS] )
 {
-    int      c, a1, a2;
-
-    for_less( c, 0, N_DIMENSIONS )
-    {
-        a1 = (c + 1) % N_DIMENSIONS;
-        a2 = (c + 2) % N_DIMENSIONS;
-        perp_axis[c] = slice_window->slice.slice_views[view_index].x_axis[a1] *
-                       slice_window->slice.slice_views[view_index].y_axis[a2] -
-                       slice_window->slice.slice_views[view_index].x_axis[a2] *
-                       slice_window->slice.slice_views[view_index].y_axis[a1];
-    }
+    get_voxel_axis_perpendicular( get_volume(slice_window),
+        slice_window->slice.slice_views[view_index].x_axis,
+        slice_window->slice.slice_views[view_index].y_axis, perp_axis );
 }
 
-public  void  set_slice_plane(
+public  void  set_slice_plane_perp_axis(
     display_struct   *slice_window,
     int              view_index,
-    Real             x_axis[],
-    Real             y_axis[] )
+    Real             voxel_perp[] )
 {
-    Real  cross_prod, max_value;
-    Real  x, y, len_x_axis, len_y_axis;
-    Real  used_x_axis[MAX_DIMENSIONS];
-    Real  used_y_axis[MAX_DIMENSIONS];
-    int   x_index, y_index;
-    int   c, a1, a2, max_axis;
+    Real     max_value, len, sign;
+    Real     len_x_axis, len_y_axis, factor;
+    Real     used_x_axis[MAX_DIMENSIONS];
+    Real     used_y_axis[MAX_DIMENSIONS];
+    Real     separations[MAX_DIMENSIONS];
+    Real     perp[MAX_DIMENSIONS];
+    Real     test_perp[MAX_DIMENSIONS];
+    int      x_index, y_index;
+    int      c, max_axis;
+
+    get_volume_separations( get_volume(slice_window), separations );
 
     max_value = 0.0;
-
     for_less( c, 0, N_DIMENSIONS )
     {
-        a1 = (c + 1) % N_DIMENSIONS;
-        a2 = (c + 2) % N_DIMENSIONS;
-        cross_prod = ABS( x_axis[a1] * y_axis[a2] - x_axis[a2] * y_axis[a1] );
-        if( c == 0 || cross_prod > max_value )
+        separations[c] = ABS( separations[c] );
+        perp[c] = voxel_perp[c] * separations[c];
+        if( c == 0 || ABS(perp[c]) > max_value )
         {
-            max_value = cross_prod;
+            max_value = ABS(perp[c]);
             max_axis = c;
         }
     }
@@ -672,23 +714,30 @@ public  void  set_slice_plane(
     case Z: x_index = X;   y_index = Y;  break;
     }
 
-    if( x_axis[x_index] == 0.0 )
-    {
-        x = 1.0;
-        y = 0.0;
-    }
-    else
-    {
-        x = - y_axis[x_index] / x_axis[x_index];
-        y = 1.0;
-    }
+    used_x_axis[X] = 0.0;
+    used_x_axis[Y] = 0.0;
+    used_x_axis[Z] = 0.0;
+    used_x_axis[x_index] = 1.0;
+
+    len = perp[X] * perp[X] + perp[Y] * perp[Y] + perp[Z] * perp[Z];
+    if( len == 0.0 )
+        return;
+
+    factor = used_x_axis[x_index] * perp[x_index] / len;
+
+    for_less( c, 0, N_DIMENSIONS )
+        used_x_axis[c] -= factor * perp[c];
+
+    used_y_axis[X] = perp[Y] * used_x_axis[Z] - used_x_axis[Y] * perp[Z];
+    used_y_axis[Y] = perp[Z] * used_x_axis[X] - used_x_axis[Z] * perp[X];
+    used_y_axis[Z] = perp[X] * used_x_axis[Y] - used_x_axis[X] * perp[Y];
 
     len_x_axis = 0.0;
     len_y_axis = 0.0;
     for_less( c, 0, N_DIMENSIONS )
     {
-        used_y_axis[c] = x * x_axis[c] + y * y_axis[c];
-        used_x_axis[c] = y * x_axis[c] - x * y_axis[c];
+        used_x_axis[c] /= separations[c];
+        used_y_axis[c] /= separations[c];
         len_x_axis += used_x_axis[c] * used_x_axis[c];
         len_y_axis += used_y_axis[c] * used_y_axis[c];
     }
@@ -696,38 +745,45 @@ public  void  set_slice_plane(
     if( len_x_axis == 0.0 || len_y_axis == 0.0 )
         return;
 
-    if( used_x_axis[x_index] < 0.0 )
-    {
-        for_less( c, 0, N_DIMENSIONS )
-            used_x_axis[c] *= -1.0;
-    }
-
-    if( used_y_axis[y_index] < 0.0 )
-    {
-        for_less( c, 0, N_DIMENSIONS )
-            used_y_axis[c] *= -1.0;
-    }
-
     len_x_axis = sqrt( len_x_axis );
     len_y_axis = sqrt( len_y_axis );
 
+    if( used_y_axis[y_index] < 0.0 )
+        sign = -1.0;
+    else
+        sign = 1.0;
+
     for_less( c, 0, N_DIMENSIONS )
     {
-        slice_window->slice.slice_views[view_index].x_axis[c] =
-                                               used_x_axis[c] / len_x_axis;
-        slice_window->slice.slice_views[view_index].y_axis[c] =
-                                               used_y_axis[c] / len_y_axis;
+        used_x_axis[c] /= len_x_axis;
+        used_y_axis[c] /= sign * len_y_axis;
     }
 
-#ifdef DEBUG
     for_less( c, 0, N_DIMENSIONS )
     {
-        slice_window->slice.slice_views[view_index].x_axis[c] = x_axis[c];
-        slice_window->slice.slice_views[view_index].y_axis[c] = y_axis[c];
+        slice_window->slice.slice_views[view_index].x_axis[c] = used_x_axis[c];
+        slice_window->slice.slice_views[view_index].y_axis[c] = used_y_axis[c];
     }
-#endif
+
+    get_voxel_axis_perpendicular( get_volume(slice_window),
+                                  used_x_axis, used_y_axis, test_perp );
 
     rebuild_volume_cross_section( slice_window );
+    rebuild_slice_cross_sections( slice_window );
+}
+
+public  void  set_slice_plane(
+    display_struct   *slice_window,
+    int              view_index,
+    Real             x_axis[],
+    Real             y_axis[] )
+{
+    Real     perp[MAX_DIMENSIONS];
+
+    get_voxel_axis_perpendicular( get_volume(slice_window), x_axis, y_axis,
+                                  perp );
+
+    set_slice_plane_perp_axis( slice_window, view_index, perp );
 }
 
 public  void  get_slice_plane(
@@ -749,13 +805,15 @@ public  void  get_slice_plane(
 
     for_less( c, 0, N_DIMENSIONS )
     {
+        separations[c] = ABS( separations[c] );
+        perp_axis[c] *= separations[c];
         x_axis[c] = slice_window->slice.slice_views[view_index].x_axis[c];
         y_axis[c] = slice_window->slice.slice_views[view_index].y_axis[c];
     }
 
     voxel_dot_perp = 0.0;
     for_less( c, 0, N_DIMENSIONS )
-        voxel_dot_perp += voxel[c] * ABS(separations[c]) * perp_axis[c];
+        voxel_dot_perp += voxel[c] * separations[c] * perp_axis[c];
 
     perp_dot_perp = 0.0;
     for_less( c, 0, N_DIMENSIONS )
@@ -770,7 +828,7 @@ public  void  get_slice_plane(
     {
         factor = voxel_dot_perp / perp_dot_perp;
         for_less( c, 0, N_DIMENSIONS )
-            origin[c] = factor * perp_axis[c] / ABS(separations[c]);
+            origin[c] = factor * perp_axis[c] / separations[c];
     }
 }
 
@@ -828,4 +886,15 @@ public  BOOLEAN  slice_has_ortho_axes(
     *axis_index = N_DIMENSIONS - *x_index - *y_index;
 
     return( TRUE );
+}
+
+public  int  get_arbitrary_view_index(
+    display_struct   *display )
+{
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+        return( slice_window->slice.cross_section_index );
+    else
+        return( 0 );
 }

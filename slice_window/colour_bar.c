@@ -46,11 +46,12 @@ public  void  initialize_colour_bar(
 
     quadmesh = get_quadmesh_ptr( object );
     initialize_quadmesh( quadmesh, WHITE, NULL, Colour_bar_resolution, 2 );
+    FREE( quadmesh->normals );
+    quadmesh->normals = (Vector *) NULL;
 
     quadmesh->colour_flag = PER_VERTEX_COLOURS;
     n_vertices = 2 * Colour_bar_resolution;
     REALLOC( quadmesh->colours, n_vertices );
-    ALLOC( quadmesh->points, n_vertices );
 
     quadmesh->normals = (Vector *) NULL;
 

@@ -106,9 +106,7 @@ private  void   create_cross_section(
 {
     int               i, n_points;
     Real              voxels[2*MAX_DIMENSIONS][MAX_DIMENSIONS];
-    Real              zero_voxel[MAX_DIMENSIONS], z_axis_scaled[MAX_DIMENSIONS];
-    Real              x, y, z, nx, ny, nz, zx, zy, zz;
-    Real              separations[MAX_DIMENSIONS];
+    Real              x, y, z, nx, ny, nz;
     Vector            normal;
     polygons_struct   *polygons;
 
@@ -131,17 +129,9 @@ private  void   create_cross_section(
     polygons->n_points = n_points;
     polygons->end_indices[0] = n_points;
 
-    get_volume_separations( volume, separations );
-    for_less( i, 0, get_volume_n_dimensions(volume) )
-    {
-        zero_voxel[i] = 0.0;
-        z_axis_scaled[i] = z_axis[i] * ABS( separations[i] );
-    }
+    convert_voxel_vector_to_world( volume, z_axis, &nx, &ny, &nz );
 
-    convert_voxel_to_world( volume, z_axis_scaled, &nx, &ny, &nz );
-    convert_voxel_to_world( volume, zero_voxel, &zx, &zy, &zz );
-
-    fill_Vector( normal, nx - zx, ny - zy, nz - zz );
+    fill_Vector( normal, nx, ny, nz );
     NORMALIZE_VECTOR( normal, normal );
 
     for_less( i, 0, n_points )
@@ -167,9 +157,11 @@ public  void  rebuild_volume_cross_section(
         get_object_visibility(
             slice_window->associated[THREE_D_WINDOW]->three_d.cross_section ) )
     {
-        get_slice_plane( slice_window, OBLIQUE_VIEW_INDEX,
+        get_slice_plane( slice_window, get_arbitrary_view_index(slice_window),
                          origin, x_axis, y_axis );
-        get_slice_perp_axis( slice_window, OBLIQUE_VIEW_INDEX, z_axis );
+        get_slice_perp_axis( slice_window,
+                             get_arbitrary_view_index(slice_window),
+                             z_axis );
 
         create_cross_section( volume,
            slice_window->associated[THREE_D_WINDOW]->three_d.cross_section,

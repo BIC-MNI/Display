@@ -135,7 +135,7 @@ public  void  change_colour_coding_range(
     colour_coding_has_changed( slice_window );
 }
 
-public  void  create_colour_tables(
+private  void  create_colour_table_for_label(
     display_struct    *slice_window,
     int               label )
 {
@@ -158,7 +158,7 @@ private  void   set_colour_of_label(
     slice_window->slice.label_colours[label] = colour;
 
     if( slice_window->slice.colour_tables[label] == (Colour *) 0 )
-        create_colour_tables( slice_window, label );
+        create_colour_table_for_label( slice_window, label );
 
     rebuild_colour_table_for_label( slice_window, label );
 }

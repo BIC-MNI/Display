@@ -224,6 +224,9 @@ public  void  initialize_slice_window(
     set_atlas_state( slice_window, Default_atlas_state );
 
     initialize_slice_undo( &slice_window->slice.undo );
+
+    slice_window->slice.cross_section_index = OBLIQUE_VIEW_INDEX;
+    slice_window->slice.cross_section_visibility = FALSE;
 }
 
 private  void  free_slice_window(
@@ -313,7 +316,6 @@ public  void  set_slice_window_volume(
     set_atlas_state( slice_window, Default_atlas_state );
 
     rebuild_slice_models( slice_window );
-
     rebuild_volume_cross_section( slice_window );
     rebuild_volume_outline( slice_window );
 

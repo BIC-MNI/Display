@@ -56,7 +56,7 @@ private  DEF_EVENT_FUNCTION( start_picking_angle )    /* ARGSUSED */
         fill_Point( display->prev_mouse_position, 0.0, 0.0, 0.0 );
         update_picking_angle( display );
 
-        if( view_index == OBLIQUE_VIEW_INDEX )
+        if( view_index == get_arbitrary_view_index(display) )
             terminate_event( display ); 
     }
 
@@ -97,10 +97,10 @@ private  void  set_slice_angle(
     Real       origin_voxel[MAX_DIMENSIONS], voxel[MAX_DIMENSIONS];
     Real       perp_axis[MAX_DIMENSIONS], view_perp_axis[MAX_DIMENSIONS];
     Real       separations[MAX_DIMENSIONS], factor, mag, scale;
+    Real       new_axis[MAX_DIMENSIONS];
     Point      origin, in_plane_point;
-    Vector     current_normal, plane_normal, x_axis, y_axis, t;
-    Vector     in_plane_normal, offset, new_normal;
-    Real       x_voxel_axis[MAX_DIMENSIONS], y_voxel_axis[MAX_DIMENSIONS];
+    Vector     current_normal, plane_normal, x_axis, y_axis, current_in_plane;
+    Vector     offset, new_normal, in_plane;
 
     if( !convert_pixel_to_voxel( slice_window, x_pixel, y_pixel, voxel,
                                  &view_index ) )
@@ -113,7 +113,8 @@ private  void  set_slice_angle(
     get_current_voxel( slice_window, origin_voxel );
     get_volume_separations( get_volume(slice_window), separations );
     get_slice_perp_axis( slice_window, view_index, view_perp_axis );
-    get_slice_perp_axis( slice_window, OBLIQUE_VIEW_INDEX, perp_axis );
+    get_slice_perp_axis( slice_window, get_arbitrary_view_index(slice_window),
+                         perp_axis );
 
     /*--- convert the info to points and vectors in pseudo-world space */
 
@@ -137,38 +138,34 @@ private  void  set_slice_angle(
 
     SUB_POINTS( x_axis, in_plane_point, origin );
     NORMALIZE_VECTOR( x_axis, x_axis );
-    CROSS_VECTORS( in_plane_normal, x_axis, plane_normal );
+    CROSS_VECTORS( in_plane, x_axis, plane_normal );
+
     factor = DOT_VECTORS( current_normal, plane_normal ) /
              DOT_VECTORS( plane_normal, plane_normal );
 
     /*--- add the plane normal component of the oblique plane normal */
 
     SCALE_VECTOR( offset, plane_normal, factor );
-    SUB_VECTORS( t, current_normal, offset );
-    mag = MAGNITUDE( t );
+    SUB_VECTORS( current_in_plane, current_normal, offset );
+    mag = MAGNITUDE( current_in_plane );
     if( mag == 0.0 )
         return;
 
-    scale = MAGNITUDE( in_plane_normal ) / mag;
+    if( DOT_VECTORS( in_plane, current_in_plane ) < 0.0 )
+        SCALE_VECTOR( in_plane, in_plane, -1.0 );
+
+    scale = MAGNITUDE( in_plane ) / mag;
     SCALE_VECTOR( offset, offset, scale );
 
-    ADD_VECTORS( new_normal, in_plane_normal, offset );
-
-    CROSS_VECTORS( y_axis, new_normal, x_axis );
-
-    NORMALIZE_VECTOR( x_axis, x_axis );
-    NORMALIZE_VECTOR( y_axis, y_axis );
-
-    /*--- convert back to voxel coordinates */
+    ADD_VECTORS( new_normal, in_plane, offset );
 
     for_less( c, 0, N_DIMENSIONS )
-    {
-        x_voxel_axis[c] = Vector_coord( x_axis, c ) / separations[c];
-        y_voxel_axis[c] = Vector_coord( y_axis, c ) / separations[c];
-    }
+        new_axis[c] = Vector_coord( new_normal, c ) / separations[c];
 
-    set_slice_plane( slice_window, OBLIQUE_VIEW_INDEX,
-                     x_voxel_axis, y_voxel_axis );
-    reset_slice_view( slice_window, OBLIQUE_VIEW_INDEX );
-    set_slice_window_update( slice_window, OBLIQUE_VIEW_INDEX );
+    set_slice_plane_perp_axis( slice_window,
+                               get_arbitrary_view_index(slice_window),
+                               new_axis );
+    reset_slice_view( slice_window, get_arbitrary_view_index(slice_window) );
+    set_slice_window_update( slice_window,
+                             get_arbitrary_view_index(slice_window) );
 }

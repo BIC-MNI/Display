@@ -20,6 +20,12 @@ public  void  initialize_slice_histogram(
     initialize_lines( &slice_window->slice.unscaled_histogram_lines, WHITE );
 }
 
+public  void  delete_slice_histogram(
+    slice_window_struct   *slice )
+{
+    delete_lines( &slice->unscaled_histogram_lines );
+}
+
 public  void  clear_histogram(
     display_struct   *slice_window )
 {
