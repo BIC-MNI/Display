@@ -1,0 +1,41 @@
+Index: Display.menu.include
+===================================================================
+RCS file: /software/source/visualization/Display/menu/Display.menu.include,v
+retrieving revision 1.6
+diff -u -b -B -r1.6 Display.menu.include
+--- Display.menu.include	26 May 2001 23:04:02 -0000	1.6
++++ Display.menu.include	2 Apr 2005 20:48:41 -0000
+@@ -28,6 +28,7 @@
+     transient 'c'      lines                        'Lines' \
+     transient 'v'      surface_curves               'Surface Curves' \
+     transient 'b'      markers                      'Markers' \
++    transient 'n'      seal                         '3D Sulci' \
+  \
+     permanent '2'      magnify_view                 'Magnify 3D' \
+     permanent '3'      translate_view               'Translate 3D' \
+@@ -445,5 +446,25 @@
+     transient 'a'    toggle_share_labels             'Share Labels: %s' \
+     transient 's'    toggle_slice_interpolation      'Interp: %s' \
+     transient 'd'    toggle_incremental_slice_update 'Increm Update: %s' \
++} \
++ \
++seal \
++{ \
++    transient 'q'     sulci_menu1                'Load Graph' \
++ \
++    transient 'g'     sulci_menu2                'Get Morphometrics' \
++    transient 'b'     choose_invisible           'Unknown Invisible' \
++    transient 'r'     sulci_menu10               'Compare 2 Graphs' \
++    transient 's'     sulci_menu3                'Set Name' \
++    transient 'd'     sulci_menu7                'Add: %s' \
++    transient 'v'     sulci_menu4                'Scan To Vol' \
++    transient 'w'     sulci_menu5                'Init Guess' \
++    transient 'e'     sulci_menu9                'Find Side Branches' \
++    transient 'y'     sulci_menu6                'Save Graph' \
++    transient 'n'     toggle_display_labels      'Show Labels: %s' \
++    transient 'a'     sulci_menu8                'Anat List ?' \
++    transient 'z'     make_all_invisible         'Invisible' \
++    transient 'x'     make_all_visible           'Visible' \
++    transient 'c'     smalls_invisible           'Smalls Invisible' \
+ } \
+ "
