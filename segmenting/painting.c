@@ -133,12 +133,12 @@ private  BOOLEAN  get_brush_voxel_centre(
     int               x_pixel,
     int               y_pixel,
     Real              voxel[],
-    int               *axis )
+    int               *view_index )
 {
     BOOLEAN  inside;
 
     inside = convert_pixel_to_voxel( slice_window, x_pixel, y_pixel,
-                                     voxel, axis );
+                                     voxel, view_index );
 
     if( inside && Snap_brush_to_centres )
     {
@@ -156,27 +156,27 @@ private  void  paint_labels_at_point(
     int              y )
 {
     Volume   volume, label_volume;
-    int      label, axis, a1, a2, value, c, sizes[N_DIMENSIONS];
+    int      label, axis, value, c, sizes[N_DIMENSIONS];
     Real     delta, dx2, dy2, dz2;
     int      min_voxel[N_DIMENSIONS], max_voxel[N_DIMENSIONS];
     Real     min_limit, max_limit;
     Real     one_over_r2[N_DIMENSIONS], radius[N_DIMENSIONS];
     Real     voxel[N_DIMENSIONS], separations[MAX_DIMENSIONS];
     int      ind[N_DIMENSIONS];
+    int      x_index, y_index, view_index;
     BOOLEAN  update_required;
 
     if( get_slice_window_volume( slice_window, &volume ) &&
-        get_brush_voxel_centre( slice_window, x, y, voxel, &axis ) )
+        get_brush_voxel_centre( slice_window, x, y, voxel, &view_index ) )
     {
         label_volume = get_label_volume( slice_window );
 
         update_required = FALSE;
 
-        a1 = (axis + 1) % N_DIMENSIONS;
-        a2 = (axis + 2) % N_DIMENSIONS;
+        get_slice_axes( slice_window, view_index, &x_index, &y_index, &axis );
 
-        radius[a1] = slice_window->slice.x_brush_radius;
-        radius[a2] = slice_window->slice.y_brush_radius;
+        radius[x_index] = slice_window->slice.x_brush_radius;
+        radius[y_index] = slice_window->slice.y_brush_radius;
         radius[axis] = slice_window->slice.z_brush_radius;
 
         get_volume_separations( volume, separations );
@@ -226,11 +226,9 @@ private  void  paint_labels_at_point(
                         int_voxel_is_within_volume( volume, ind ) )
                     {
                         value = get_volume_label_data( label_volume, ind );
-                        if( (value & get_max_label()) != label )
+                        if( value != label )
                         {
-                            value = value & (~get_max_label());
-                            value = value | label;
-                            set_volume_label_data( label_volume, ind, value );
+                            set_volume_label_data( label_volume, ind, label );
                             update_required = TRUE;
                         }
                     }
@@ -371,6 +369,8 @@ private  void  get_brush_contour(
     display_struct    *slice_window,
     int               x_centre_pixel,
     int               y_centre_pixel,
+    int               a1,
+    int               a2,
     int               axis,
     Real              origin[N_DIMENSIONS],
     Real              one_over_r2[N_DIMENSIONS],
@@ -378,11 +378,8 @@ private  void  get_brush_contour(
     Directions        start_dir,
     lines_struct      *lines )
 {
-    int          a1, a2, current_voxel[N_DIMENSIONS];
+    int          current_voxel[N_DIMENSIONS];
     Directions   dir;
-
-    a1 = (axis + 1) % N_DIMENSIONS;
-    a2 = (axis + 2) % N_DIMENSIONS;
 
     current_voxel[X] = start_voxel[X];
     current_voxel[Y] = start_voxel[Y];
@@ -419,7 +416,7 @@ private  void   update_brush(
     int               y )
 {
     Real          voxel[N_DIMENSIONS], separations[MAX_DIMENSIONS];
-    int           c, axis, a1, a2, start_voxel[N_DIMENSIONS];
+    int           c, view, axis, a1, a2, start_voxel[N_DIMENSIONS];
     Real          one_over_r2[N_DIMENSIONS], radius[N_DIMENSIONS];
     Volume        volume;
     lines_struct  *lines;
@@ -429,12 +426,10 @@ private  void   update_brush(
     initialize_lines( lines, Brush_outline_colour );
 
     if( get_slice_window_volume( slice_window, &volume ) &&
-        get_brush_voxel_centre( slice_window, x, y, voxel, &axis ) )
+        get_brush_voxel_centre( slice_window, x, y, voxel, &view ) )
     {
+        get_slice_axes( slice_window, view, &a1, &a2, &axis );
         get_volume_separations( volume, separations );
-
-        a1 = (axis + 1) % N_DIMENSIONS;
-        a2 = (axis + 2) % N_DIMENSIONS;
 
         radius[a1] = slice_window->slice.x_brush_radius;
         radius[a2] = slice_window->slice.y_brush_radius;
@@ -460,7 +455,7 @@ private  void   update_brush(
         if( start_voxel[a1] < voxel[a1] )
             return;
 
-        get_brush_contour( slice_window, x, y, axis, voxel, one_over_r2,
+        get_brush_contour( slice_window, x, y, a1, a2, axis, voxel, one_over_r2,
                            start_voxel, POSITIVE_X, lines );
     }
 }    
