@@ -13,11 +13,58 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/intersect/ray_polygons.c,v 1.15 1995-10-19 15:51:39 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/intersect/ray_polygons.c,v 1.16 1996-04-02 18:15:35 david Exp $";
 #endif
 
 
 #include  <display.h>
+
+private  void  recursive_intersect_ray_with_objects_hierarchy(
+    object_struct     *current_object,
+    Point             *ray_origin,
+    Vector            *ray_direction,
+    Object_types      desired_object_type,
+    object_struct     **object,
+    int               *closest_object_index,
+    Real              *closest_dist,
+    BOOLEAN           *found )
+{
+    int                      i, object_index;
+    Real                     dist;
+    model_struct             *model;
+
+    if( !current_object->visibility )
+        return;
+
+    if( get_object_type(current_object) == MODEL )
+    {
+        model = get_model_ptr( current_object );
+
+        for_less( i, 0, model->n_objects )
+        {
+            recursive_intersect_ray_with_objects_hierarchy(
+                      model->objects[i], ray_origin, ray_direction,
+                      desired_object_type, object,
+                      closest_object_index, closest_dist, found );
+        }
+    }
+    else if( desired_object_type < 0 ||
+             desired_object_type == get_object_type(current_object) )
+    {
+        if( intersect_ray_with_object( ray_origin, ray_direction,
+                                       current_object, &object_index, &dist,
+                                       (Real **) NULL ) > 0 )
+        {
+            if( !*found || dist < *closest_dist )
+            {
+                *closest_dist = dist;
+                *closest_object_index = object_index;
+                *object = current_object;
+                *found = TRUE;
+            }
+        }
+    }
+}
 
 public  BOOLEAN  intersect_ray_with_objects_hierarchy(
     display_struct    *display,
@@ -28,38 +75,17 @@ public  BOOLEAN  intersect_ray_with_objects_hierarchy(
     int               *closest_object_index,
     Point             *intersection_point )
 {
-    int                      object_index;
     BOOLEAN                  intersects;
-    Real                     dist, closest_dist;
-    object_struct            *current_object;
-    object_traverse_struct   object_traverse;
+    Real                     closest_dist;
 
     intersects = FALSE;
     closest_dist = 1.0e30;
 
-    initialize_object_traverse( &object_traverse, 1,
-                                &display->models[THREED_MODEL] );
-
-    while( get_next_object_traverse(&object_traverse,&current_object) )
-    {
-        if( current_object->visibility &&
-            (desired_object_type == -1 ||
-             desired_object_type == get_object_type(current_object)) )
-        {
-            if( intersect_ray_with_object( ray_origin, ray_direction,
-                                           current_object, &object_index, &dist,
-                                           (Real **) NULL ) > 0 )
-            {
-                if( !intersects || dist < closest_dist )
-                {
-                    closest_dist = dist;
-                    *closest_object_index = object_index;
-                    *object = current_object;
-                    intersects = TRUE;
-                }
-            }
-        }
-    }
+    recursive_intersect_ray_with_objects_hierarchy(
+                   display->models[THREED_MODEL],
+                   ray_origin, ray_direction, desired_object_type,
+                   object, closest_object_index, &closest_dist,
+                   &intersects );
 
     if( intersects )
     {
