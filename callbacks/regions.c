@@ -87,7 +87,7 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )   /* ARGSUSED */
         print( "Enter current paint label: " );
 
         if( input_int( stdin, &label ) == OK &&
-            label >= 0 && label <= 255 )
+            label >= 0 && label < get_num_labels(slice_window) )
             slice_window->slice.current_paint_label = label;
 
         (void) input_newline( stdin );

@@ -31,17 +31,6 @@ public  Volume   get_volume(
     return( volume );
 }
 
-public  Volume  get_label_volume(
-    display_struct   *display )
-{
-    display_struct   *slice_window;
-
-    if( get_slice_window( display, &slice_window ) )
-        return( slice_window->slice.labels );
-    else
-        return( (Volume) NULL );
-}
-
 public  BOOLEAN  slice_window_exists(
     display_struct   *display )
 {
@@ -181,13 +170,7 @@ public  void  create_slice_window(
     display->associated[SLICE_WINDOW] = slice_window;
     menu_window->associated[SLICE_WINDOW] = slice_window;
 
-    slice_window->slice.original_volume = volume;
-    slice_window->slice.labels = create_label_volume( volume, NC_BYTE );
-
-    set_slice_window_volume( slice_window,
-                             slice_window->slice.original_volume );
-
-    set_slice_window_all_update( slice_window );
+    set_slice_window_original_volume( slice_window, volume );
 }
 
 public  void  initialize_slice_window(
@@ -246,10 +229,11 @@ public  void  delete_slice_window(
 {
     free_slice_window( slice );
 
+    delete_slice_colour_coding( slice );
+
     delete_slice_histogram( slice );
 
     delete_volume( slice->original_volume );
-    delete_volume( slice->labels );
 
     delete_atlas( &slice->atlas );
 
@@ -259,7 +243,6 @@ public  void  delete_slice_window(
 private  void  free_slice_window(
     slice_window_struct   *slice )
 {
-    delete_slice_colour_coding( slice );
     delete_slice_undo( &slice->undo );
 
     if( slice->volume != (Volume) NULL &&
@@ -327,4 +310,16 @@ public  void  set_slice_window_volume(
     clear_histogram( slice_window );
 
     delete_slice_undo( &slice_window->slice.undo );
+
+    set_slice_window_all_update( slice_window );
+}
+
+public  void  set_slice_window_original_volume(
+    display_struct    *slice_window,
+    Volume            volume )
+{
+    slice_window->slice.original_volume = volume;
+
+    set_slice_window_volume( slice_window,
+                             slice_window->slice.original_volume );
 }

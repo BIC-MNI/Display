@@ -223,6 +223,7 @@ START_GLOBALS
     DEF_GLOBAL( Normal_towards_lower, BOOLEAN, TRUE )
 
     DEF_GLOBAL( Initial_display_labels, BOOLEAN, TRUE )
+    DEF_GLOBAL( Initial_num_labels, int, 256 )
     DEF_GLOBAL( Label_colour_display_ratio, Real, 0.2 )
 
     DEF_GLOBAL( Use_cursor_origin, BOOLEAN, TRUE )
@@ -304,7 +305,7 @@ START_GLOBALS
     DEF_GLOBAL( Undo_enabled, BOOLEAN, TRUE )
 
     DEF_GLOBAL( Volume_continuity, int, 0 )
-    DEF_GLOBAL( Convert_volumes_to_byte, BOOLEAN, TRUE )
+    DEF_GLOBAL( Convert_volumes_to_byte, BOOLEAN, FALSE )
 
     DEF_GLOBAL( Move_slice_speed, Real, 0.25 )
     DEF_GLOBAL( Pixels_per_double_size, Real, 100.0 )

@@ -214,10 +214,9 @@ public  DEF_MENU_FUNCTION(set_label_colour_ratio )   /* ARGSUSED */
     Real             ratio;
     display_struct   *slice_window;
 
-    if( get_slice_window_volume(display,&volume) )
+    if( get_slice_window_volume(display,&volume) &&
+        get_slice_window( display, &slice_window ) )
     {
-        slice_window = display->associated[SLICE_WINDOW];
-
         print( "Enter new label colour ratio: " );
 
         if( input_real( stdin, &ratio ) == OK &&
@@ -353,4 +352,38 @@ public  DEF_MENU_FUNCTION(set_filter_half_width )   /* ARGSUSED */
 public  DEF_MENU_UPDATE(set_filter_half_width )   /* ARGSUSED */
 {
     return( slice_window_exists(display) );
+}
+
+public  DEF_MENU_FUNCTION(set_slice_window_n_labels )   /* ARGSUSED */
+{
+    int             n_labels;
+    display_struct  *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        print( "Enter number of labels: " );
+
+        if( input_int( stdin, &n_labels ) == OK )
+        {
+            set_slice_window_number_labels( slice_window, n_labels );
+            set_slice_window_all_update( slice_window );
+        }
+
+        (void) input_newline( stdin );
+    }
+}
+
+public  DEF_MENU_UPDATE(set_slice_window_n_labels )   /* ARGSUSED */
+{
+    BOOLEAN          state;
+    int              n_labels;
+    display_struct   *slice_window;
+
+    state = get_slice_window( display, &slice_window );
+
+    n_labels = get_num_labels( display );
+
+    set_menu_text_int( menu_window, menu_entry, n_labels );
+
+    return( state );
 }

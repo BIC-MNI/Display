@@ -136,6 +136,7 @@ MENU_F(print_polygons_surface_area) \
 MENU_F(smooth_current_lines) \
 MENU_F(set_line_widths) \
 MENU_F(convert_markers_to_lines) \
+MENU_F(convert_markers_to_closed_lines) \
 MENU_F(make_current_line_tube) \
 MENU_F(convert_line_to_spline_points) \
 MENU_F(make_line_circle) \

@@ -211,16 +211,6 @@ public  DEF_MENU_UPDATE(toggle_perspective )      /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( centre_view )      /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(centre_view )      /* ARGSUSED */
-{
-    return( TRUE );
-}
-
 public  DEF_MENU_FUNCTION( magnify_view )      /* ARGSUSED */
 {
     initialize_magnification( display );

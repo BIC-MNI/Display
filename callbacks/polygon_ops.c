@@ -225,39 +225,6 @@ public  DEF_MENU_UPDATE(smooth_current_polygon )   /* ARGSUSED */
             current_object_is_this_type(display,MODEL) );
 }
 
-public  DEF_MENU_FUNCTION( smooth_current_polygon_with_volume )   /* ARGSUSED */
-{
-    polygons_struct   *polygons;
-    Volume            volume;
-
-    if( get_current_polygons( display, &polygons ) &&
-        get_slice_window_volume( display, &volume ) )
-    {
-        smooth_polygon( polygons, Max_smoothing_distance,
-                                 Smoothing_ratio, Smoothing_threshold,
-                                 Smoothing_normal_ratio, TRUE, volume,
-            display->associated[SLICE_WINDOW]->slice.segmenting.min_threshold,
-            display->associated[SLICE_WINDOW]->slice.segmenting.max_threshold);
-
-        compute_polygon_normals( polygons );
-
-        delete_the_bintree( (bintree_struct **) (&polygons->bintree) );
-
-        set_update_required( display, NORMAL_PLANES );
-
-        print( "Done smoothing polygon.\n" );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(smooth_current_polygon_with_volume )   /* ARGSUSED */
-{
-    return( current_object_is_this_type(display,POLYGONS) ||
-            current_object_is_this_type(display,MODEL) &&
-            slice_window_exists(display) );
-}
-
 public  DEF_MENU_FUNCTION( reverse_polygons_order )   /* ARGSUSED */
 {
     polygons_struct   *polygons;

@@ -153,7 +153,7 @@ public  Status  load_graphics_file(
         }
         else if( get_slice_window( display, &slice_window ) )
         {
-            set_slice_window_volume( slice_window, volume_read_in );
+            set_slice_window_original_volume( slice_window, volume_read_in );
         }
     }
 

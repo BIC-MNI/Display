@@ -25,8 +25,6 @@ typedef  struct
     Real          filter_width;
 } slice_view_struct;
 
-typedef  enum  { FOUR_NEIGHBOURS, EIGHT_NEIGHBOURS } Neighbour_types;
-
 typedef  struct
 {
     Real              min_threshold;
@@ -51,8 +49,6 @@ typedef  struct
     int              **saved_labels;
 } slice_undo_struct;
 
-#define  NUM_LABELS   256
-
 typedef  struct
 {
     Volume                 original_volume;
@@ -61,9 +57,11 @@ typedef  struct
     Volume                 volume;
 
     int                    n_labels;
-    Colour                 *colour_tables[NUM_LABELS];
+    int                    n_distinct_colour_tables;
+    int                    offset;
+    Colour                 **colour_tables;
+    Colour                 *label_colours;
     Real                   label_colour_ratio;
-    Colour                 label_colours[NUM_LABELS];
     colour_coding_struct   colour_coding;
     colour_bar_struct      colour_bar;
     BOOLEAN                display_labels;

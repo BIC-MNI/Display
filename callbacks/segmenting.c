@@ -319,14 +319,14 @@ public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
                int_voxel[X], int_voxel[Y], int_voxel[Z],
                label_under_mouse, desired_label );
 
-        fill_connected_voxels_3d( get_volume(slice_window),
-                                  get_label_volume(slice_window),
-                                  slice_window->slice.segmenting.connectivity,
-                                  int_voxel,
-                                  label_under_mouse, label_under_mouse,
-                                  desired_label,
-                                  slice_window->slice.segmenting.min_threshold,
-                                  slice_window->slice.segmenting.max_threshold);
+        fill_connected_voxels( get_volume(slice_window),
+                               get_label_volume(slice_window),
+                               slice_window->slice.segmenting.connectivity,
+                               int_voxel,
+                               label_under_mouse, label_under_mouse,
+                               desired_label,
+                               slice_window->slice.segmenting.min_threshold,
+                               slice_window->slice.segmenting.max_threshold );
 
         delete_slice_undo( &slice_window->slice.undo );
 

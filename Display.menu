@@ -129,6 +129,7 @@ colour_coding
     transient 'c'    set_label_colour_ratio          "Label Ratio: %g"
     transient 'v'    toggle_display_labels           "Show Labels: %s"
     transient 'b'    set_label_colour                "Set Paint Lbl Colour"
+    transient 'n'    set_slice_window_n_labels       "Num Labels: %d"
 }
 
 view_3d
@@ -200,9 +201,10 @@ lines
     transient 'f'    make_current_line_tube           "Create Tube"
     transient 's'    convert_line_to_spline_points    "Spline Line"
 
+    transient 'z'    convert_markers_to_lines         "Convert Markers"
     transient 'x'    make_line_circle                 "Make Line Circle"
     transient 'c'    subdivide_current_lines          "Subdivide Line"
-    transient 'z'    convert_markers_to_lines         "Convert Markers"
+    transient 'v'    convert_markers_to_closed_lines  "Convert Closed Markers"
 }
 
 delete_object_menu

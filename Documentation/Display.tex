@@ -217,7 +217,8 @@ box:
 \item[\menutwo{File}{Load Labels .tag}]  Prompts for a filename and
         loads the tags file into the label volume.  Note that it does not
         clear the label volume, so the resulting labels are the union
-        of the current labels and the loaded tags.
+        of the current labels and the loaded tags.  Also, it does not check
+        that this is a valid label file, e.g., whether sizes match.
 \item[\menutwo{File}{Save Labels .tag}]  Prompts for a filename and
         saves the label volume as a tag file.  For large regions
         this may create very large ascii files, and it may be more
@@ -347,6 +348,11 @@ box:
 \item[\menutwo{Colour Coding}{Set Paint Lbl Colr}]  Prompts for a
                       label value and a colour, and sets the displayed
                       colour of this label.
+\item[\menutwo{Colour Coding}{Num Labels}]  Prompts for the number
+                      of labels desired, and recreates the label volume
+                      with this number.  Depending on the number of labels,
+                      the volume may be a byte, short, or long valued volume.
+                      Note that this effectively clears the label volume.
 \item[\menutwo{Colour Coding}{Colour Code Object}]  Changes the
      colours of the current object according to the current colour
      coding parameters of the volume.
