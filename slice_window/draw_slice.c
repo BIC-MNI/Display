@@ -148,8 +148,10 @@ public  void  rebuild_probe( graphics )
     int            i, x_voxel, y_voxel, z_voxel, view_index;
     text_struct    *text;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
+    int            x_file, y_file, z_file;
     void           get_slice_viewport();
     Boolean        get_voxel_in_slice_window();
+    void           convert_to_file_space();
 
     active = get_voxel_in_slice_window( graphics, &x_voxel, &y_voxel, &z_voxel,
                                         &view_index );
@@ -157,6 +159,9 @@ public  void  rebuild_probe( graphics )
     model = get_graphics_model(graphics,SLICE_MODEL);
 
     get_slice_viewport( graphics, -1, &x_min, &x_max, &y_min, &y_max );
+
+    convert_to_file_space( graphics->slice.volume, x_voxel, y_voxel, z_voxel,
+                           &x_file, &y_file, &z_file );
 
     for_inclusive( i, X_PROBE_INDEX, VAL_PROBE_INDEX )
     {
@@ -170,18 +175,18 @@ public  void  rebuild_probe( graphics )
             switch( i )
             {
             case X_PROBE_INDEX:
-                (void) sprintf( text->text, Slice_probe_x_format, x_voxel );
+                (void) sprintf( text->text, Slice_probe_x_format, x_file );
                 break;
             case Y_PROBE_INDEX:
-                (void) sprintf( text->text, Slice_probe_y_format, y_voxel );
+                (void) sprintf( text->text, Slice_probe_y_format, y_file );
                 break;
             case Z_PROBE_INDEX:
-                (void) sprintf( text->text, Slice_probe_z_format, z_voxel );
+                (void) sprintf( text->text, Slice_probe_z_format, z_file );
                 break;
             case VAL_PROBE_INDEX:
                 (void) sprintf( text->text, Slice_probe_val_format,
                         (Real) GET_VOLUME_DATA( *graphics->slice.volume,
-                                                x_voxel, y_voxel, z_voxel) );
+                                                x_file, y_file, z_file) );
                 break;
             }
         }
@@ -217,9 +222,9 @@ public  void  rebuild_slice_pixels( graphics, view_index )
 
     model = get_graphics_model(graphics,SLICE_MODEL);
 
-    axis_index = graphics->slice.slice_views[view_index].axis_index;
-    x_index = graphics->slice.slice_views[view_index].axis_index1;
-    y_index = graphics->slice.slice_views[view_index].axis_index2;
+    axis_index = graphics->slice.slice_views[view_index].axis_map[Z_AXIS];
+    x_index = graphics->slice.slice_views[view_index].axis_map[X_AXIS];
+    y_index = graphics->slice.slice_views[view_index].axis_map[Y_AXIS];
 
     pixels = model->object_list[SLICE1_INDEX+view_index]->ptr.pixels;
 
@@ -294,8 +299,8 @@ public  void  rebuild_cursor( graphics, view_index )
 
     model = get_graphics_model(graphics,SLICE_MODEL);
 
-    x_index = graphics->slice.slice_views[view_index].axis_index1;
-    y_index = graphics->slice.slice_views[view_index].axis_index2;
+    x_index = graphics->slice.slice_views[view_index].axis_map[X_AXIS];
+    y_index = graphics->slice.slice_views[view_index].axis_map[Y_AXIS];
 
     lines = model->object_list[CURSOR1_INDEX+view_index]->ptr.lines;
 
@@ -471,6 +476,7 @@ private  Pixel_colour  get_voxel_colour( volume, fast_lookup_present,
     Pixel_colour    get_colour_coding();
     int             val;
     Boolean         activity_flag, inactivity_flag;
+    int             get_volume_voxel_value();
 
     if( Display_activities &&
         (!(activity_flag=get_voxel_activity_flag( volume, x, y, z )) ||
@@ -491,7 +497,7 @@ private  Pixel_colour  get_voxel_colour( volume, fast_lookup_present,
     }
     else
     {
-        val = GET_VOLUME_DATA( *volume, x, y, z );
+        val = get_volume_voxel_value( volume, x, y, z);
 
         if( fast_lookup_present )
             pixel_col = fast_lookup[val-(int)volume->min_value];
