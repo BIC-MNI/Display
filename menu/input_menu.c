@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.133 1996-12-09 20:21:30 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.134 1997-01-16 19:04:50 david Exp $";
 #endif
 
 #include  <display.h>
@@ -337,9 +337,8 @@ typedef  struct
     key_action_struct   *entries;
 } menu_definition_struct;
 
-private  Status  input_special_character(
-    FILE   *file,
-    int    *ch );
+private  int  translate_key_name(
+    STRING    key_name );
 private  Status  input_menu_entry(
     FILE                     *file,
     menu_definition_struct   *menu_entry );
@@ -421,79 +420,53 @@ private  Status  input_key_action(
     FILE                *file,
     key_action_struct   *action )
 {
-    Status                 status;
-    char                   ch;
+    Status         status;
+    STRING         key_name;
 
-    status = skip_input_until( file, '\'' );
-
-    if( status == OK )
-        status = input_character( file, &ch );
+    status = input_quoted_string( file, &key_name );
 
     if( status == OK )
     {
-        if( ch == '\\' )
-        {
-            status = input_special_character( file, &action->key );
-        }
-        else
-        {
-            action->key = (int) ch;
-            if( action->key < 0 )
-                action->key += 128;
+        action->key = translate_key_name( key_name );
 
-            status = input_character( file, &ch );
-
-            if( status == OK && ch != '\'' )
-            {
-                print( "Expected '.\n" );
-                status = ERROR;
-            }
-        }
+        delete_string( key_name );
     }
 
     if( status == OK )
-    {
-        status = input_string( file, &action->action_name, ' ' );
-    }
+        status = input_possibly_quoted_string( file, &action->action_name );
 
     if( status == OK )
-        status = skip_input_until( file, '"' );
-
-    if( status == OK )
-        status = input_string( file, &action->label, '"' );
+        status = input_quoted_string( file, &action->label );
 
     return( status );
 }
 
-private  Status  input_special_character(
-    FILE   *file,
-    int    *ch )
+private  int  translate_key_name(
+    STRING    str )
 {
-    STRING  str;
-    Status  status;
+    int     key;
 
-    status = input_string( file, &str, '\'' );
-
-    if( status == OK )
+    if( equal_strings( str, "left" ) || equal_strings( str, "\\left" ) )
+        key = LEFT_ARROW_KEY;
+    else if( equal_strings( str, "right" ) || equal_strings( str, "\\right" ) )
+        key = RIGHT_ARROW_KEY;
+    else if( equal_strings( str, "up" ) || equal_strings( str, "\\up" ) )
+        key = UP_ARROW_KEY;
+    else if( equal_strings( str, "down" ) || equal_strings( str, "\\down" ) )
+        key = DOWN_ARROW_KEY;
+    else if( string_length( str ) == 1 )
     {
-        if( equal_strings( str, "left" ) )
-            *ch = LEFT_ARROW_KEY;
-        else if( equal_strings( str, "right" ) )
-            *ch = RIGHT_ARROW_KEY;
-        else if( equal_strings( str, "up" ) )
-            *ch = UP_ARROW_KEY;
-        else if( equal_strings( str, "down" ) )
-            *ch = DOWN_ARROW_KEY;
-        else if( sscanf( str, "%d", ch ) != 1 )
-        {
-            print( "Error in reading special character: \\%s\n", str );
-            status = ERROR;
-        }
+        key = (int) str[0];
+        if( key < 0 )
+            key += 128;
+    }
+    else
+    {
+        print( "Error in key name: \\%s\n", str );
+        key = (int) "]";
     }
 
-    delete_string( str );
-
-    return( status );
+    return( key );
 }
 
 private  Status  input_menu_entry(
