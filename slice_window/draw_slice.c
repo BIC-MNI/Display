@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.96 1995-08-30 15:27:34 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.97 1995-08-31 15:36:35 david Exp $";
 #endif
 
 #include  <display.h>
@@ -565,6 +565,10 @@ public  void  set_slice_unfinished_flag_visibility(
 
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
     object = model->objects[2*slice_window->slice.n_volumes+UNFINISHED_BAR];
+
+    if( get_object_visibility( object ) != state )
+        set_slice_viewport_update( slice_window, SLICE_MODEL1 + view_index );
+
     set_object_visibility( object, state );
 }
 
@@ -964,6 +968,16 @@ public  object_struct  *get_composite_slice_pixels_object(
                            COMPOSITE_SLICE_INDEX] );
 }
 
+private  BOOLEAN  time_is_up(
+    Real    event_time,
+    Real    end_time,
+    Real    current_time )
+{
+    return( end_time >= 0.0 &&
+            (current_time > end_time ||
+             current_time > event_time && G_events_pending()) );
+}
+
 private  void  render_slice_to_pixels(
     display_struct        *slice_window,
     int                   volume_index,
@@ -972,17 +986,41 @@ private  void  render_slice_to_pixels(
     Colour                colour_table[],
     Filter_types          filter_type,
     int                   continuity,
-    pixels_struct         *pixels )
+    pixels_struct         *pixels,
+    BOOLEAN               *interrupted,
+    BOOLEAN               continuing_flag,
+    Real                  event_time,
+    Real                  end_time )
 {
-    int                   n_alloced, x_centre, y_centre, x, y;
+    int                   n_pixels_redraw, n_pixels_drawn;
+    int                   width, x_min, x_max, y_min, y_max;
+    int                   n_alloced, x_centre, y_centre, edge_index;
     int                   x_sub_min, x_sub_max, y_sub_min, y_sub_max;
+    int                   x, y, height;
+    Colour                empty;
+    Real                  x_pixel, y_pixel;
     Real                  x_trans, y_trans, x_scale, y_scale;
+    Real                  current_voxel[MAX_DIMENSIONS];
     Real                  origin[MAX_DIMENSIONS];
     Real                  x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
+    Real                  current_time, previous_time, time_to_create;
+    BOOLEAN               first_flag;
     Colour                **colour_map;
+    loaded_volume_struct  *vol_info;
 
-    if( pixels->x_size > 0 && pixels->y_size > 0 )
-        delete_pixels( pixels );
+    if( !continuing_flag )
+    {
+        if( pixels->x_size > 0 && pixels->y_size > 0 )
+        {
+            delete_pixels( pixels );
+            pixels->x_size = 0;
+            pixels->y_size = 0;
+        }
+    }
+
+    current_time = current_realtime_seconds();
+
+    vol_info = &slice_window->slice.volumes[volume_index];
 
     x_trans = slice_window->slice.volumes[volume_index].views[view_index]
                                                                     .x_trans;
@@ -1008,9 +1046,13 @@ private  void  render_slice_to_pixels(
     else
         colour_map = &colour_table;
 
-    n_alloced = 0;
+    first_flag = !continuing_flag;
 
-    set_volume_slice_pixel_range(
+    if( first_flag )
+    {
+        n_alloced = 0;
+
+        set_volume_slice_pixel_range(
                     volume, filter_type,
                     slice_window->slice.volumes[volume_index].views[view_index]
                                                         .filter_width,
@@ -1022,20 +1064,107 @@ private  void  render_slice_to_pixels(
                     x_sub_max - x_sub_min + 1, y_sub_max - y_sub_min + 1,
                     RGB_PIXEL,
                     &n_alloced, pixels );
+    }
 
-    x_centre = pixels->x_size / 2;
-    y_centre = pixels->y_size / 2;
+    if( pixels->x_size <= 0 || pixels->y_size <= 0 )
+        return;
 
-    for_less( x, 0, pixels->x_size )
-        PIXEL_RGB_COLOUR( *pixels, x, y_centre ) = 0;
+    n_pixels_redraw = vol_info->views[view_index].n_pixels_redraw;
+    edge_index = vol_info->views[view_index].edge_index;
 
-    for_less( y, 0, pixels->y_size )
-        PIXEL_RGB_COLOUR( *pixels, x_centre, y ) = 0;
-
-    for_less( x, 0, 2 )
-    for_less( y, 0, 2 )
+    do
     {
-        create_volume_slice(
+        previous_time = current_time;
+
+        if( continuing_flag )
+        {
+            edge_index = (edge_index + 1) % 4;
+
+            if( edge_index == 0 || edge_index == 2 )
+            {
+                height = (vol_info->views[view_index].x_max_update - 
+                          vol_info->views[view_index].x_min_update + 1);
+                width = n_pixels_redraw / height;
+            }
+            else
+            {
+                height = (vol_info->views[view_index].y_max_update - 
+                          vol_info->views[view_index].y_min_update + 1);
+                width = n_pixels_redraw / height;
+            }
+
+            if( width < 1 )
+                width = 1;
+
+            x_min = vol_info->views[view_index].x_min_update;
+            x_max = vol_info->views[view_index].x_max_update;
+            y_min = vol_info->views[view_index].y_min_update;
+            y_max = vol_info->views[view_index].y_max_update;
+
+            switch( edge_index )
+            {
+            case 0:
+                y_max = y_min - 1;
+                y_min -= width;
+                break;
+
+            case 1:
+                x_min = x_max + 1;
+                x_max += width;
+                break;
+
+            case 2:
+                y_min = y_max + 1;
+                y_max += width;
+                break;
+
+            case 3:
+                x_max = x_min - 1;
+                x_min -= width;
+                break;
+            }
+        }
+        else
+        {
+            get_current_voxel( slice_window, volume_index, current_voxel );
+            convert_voxel_to_pixel( slice_window, volume_index, view_index,
+                                    current_voxel, &x_pixel, &y_pixel );
+
+            x_centre = ROUND( x_pixel ) - x_sub_min - pixels->x_position;
+            y_centre = ROUND( y_pixel ) - y_sub_min - pixels->y_position;
+
+            if( x_centre < 0 || x_centre >= pixels->x_size )
+                x_centre = pixels->x_size / 2;
+
+            if( y_centre < 0 || y_centre >= pixels->y_size )
+                y_centre = pixels->y_size / 2;
+
+            width = (int) sqrt( n_pixels_redraw );
+            if( width < 1 )
+                width = 1;
+
+            x_min = x_centre - width / 2;
+            x_max = x_min + width - 1;
+            y_min = y_centre - width / 2;
+            y_max = y_min + width - 1;
+
+            edge_index = 0;
+        }
+
+        if( x_min < 0 )
+            x_min = 0;
+        if( x_max >= pixels->x_size )
+            x_max = pixels->x_size-1;
+
+        if( y_min < 0 )
+            y_min = 0;
+        if( y_max >= pixels->y_size )
+            y_max = pixels->y_size-1;
+
+        if( x_min <= x_max && y_min <= y_max )
+        {
+            n_alloced = pixels->x_size * pixels->y_size;
+            create_volume_slice(
                     volume, filter_type,
                     slice_window->slice.volumes[volume_index].views[view_index]
                                                         .filter_width,
@@ -1045,26 +1174,102 @@ private  void  render_slice_to_pixels(
                     (Real *) 0, (Real *) 0, (Real *) 0,
                     0.0, 0.0, 0.0, 0.0,
                     x_sub_max - x_sub_min + 1, y_sub_max - y_sub_min + 1,
-                    (x == 0) ? 0 : x_centre + 1,
-                    (x == 0) ? x_centre-1 : pixels->x_size-1,
-                    (y == 0) ? 0 : y_centre + 1,
-                    (y == 0) ? y_centre-1 : pixels->y_size-1,
+                    x_min, x_max, y_min, y_max,
                     RGB_PIXEL, continuity,
                     (unsigned short **) NULL, colour_map,
                     make_rgba_Colour( 0, 0, 0, 0 ),
                     slice_window->slice.render_storage,
                     &n_alloced, pixels );
-    }
 
-    pixels->x_position += x_sub_min;
-    pixels->y_position += y_sub_min;
+            pixels->x_position += x_sub_min;
+            pixels->y_position += y_sub_min;
+
+            current_time = current_realtime_seconds();
+
+            if( time_is_up( event_time, end_time, current_time ) )
+                *interrupted = TRUE;
+
+            time_to_create = current_time - previous_time;
+
+            n_pixels_drawn = (x_max - x_min + 1) * (y_max - y_min + 1);
+
+            if( n_pixels_drawn >= n_pixels_redraw / 2 )
+            {
+                if( time_to_create <
+                    slice_window->slice.allowable_slice_update_time / 0.5 )
+                {
+                    n_pixels_redraw = MAX( 1, 2 * n_pixels_drawn );
+                }
+                else if( time_to_create >
+                    slice_window->slice.allowable_slice_update_time * 2.0 )
+                {
+                    n_pixels_redraw = MAX( 1, 0.5 * n_pixels_drawn );
+                }
+            }
+        }
+
+        if( !continuing_flag ||
+            x_min < vol_info->views[view_index].x_min_update )
+            vol_info->views[view_index].x_min_update = x_min;
+        if( !continuing_flag ||
+            x_max > vol_info->views[view_index].x_max_update )
+            vol_info->views[view_index].x_max_update = x_max;
+        if( !continuing_flag ||
+            y_min < vol_info->views[view_index].y_min_update )
+            vol_info->views[view_index].y_min_update = y_min;
+        if( !continuing_flag ||
+            y_max > vol_info->views[view_index].y_max_update )
+            vol_info->views[view_index].y_max_update = y_max;
+
+        continuing_flag = TRUE;
+    }
+    while( !(*interrupted) &&
+           (vol_info->views[view_index].x_min_update > 0 ||
+            vol_info->views[view_index].x_max_update < pixels->x_size-1 ||
+            vol_info->views[view_index].y_min_update > 0 ||
+            vol_info->views[view_index].y_max_update < pixels->y_size-1) );
+
+    vol_info->views[view_index].n_pixels_redraw = n_pixels_redraw;
+    vol_info->views[view_index].edge_index = edge_index;
+
+    if( first_flag &&
+        (vol_info->views[view_index].x_min_update > 0 ||
+         vol_info->views[view_index].x_max_update < pixels->x_size-1 ||
+         vol_info->views[view_index].y_min_update > 0 ||
+         vol_info->views[view_index].y_max_update < pixels->y_size-1) )
+    {
+        empty = make_rgba_Colour( 0, 0, 0, 0 );
+        for_less( y, 0, pixels->y_size )
+        {
+            for_less( x, 0, vol_info->views[view_index].x_min_update )
+                PIXEL_RGB_COLOUR( *pixels, x, y ) = empty;
+
+            for_less( x, vol_info->views[view_index].x_max_update+1,
+                      pixels->x_size )
+                PIXEL_RGB_COLOUR( *pixels, x, y ) = empty;
+        }
+
+        for_inclusive( x, vol_info->views[view_index].x_min_update,
+                          vol_info->views[view_index].x_max_update )
+        {
+            for_less( y, 0, vol_info->views[view_index].y_min_update )
+                PIXEL_RGB_COLOUR( *pixels, x, y ) = empty;
+
+            for_less( y, vol_info->views[view_index].y_max_update+1,
+                      pixels->y_size )
+                PIXEL_RGB_COLOUR( *pixels, x, y ) = empty;
+        }
+    }
 }
 
 public  void  rebuild_slice_pixels_for_volume(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
-    BOOLEAN           out_of_time_flag )
+    BOOLEAN           *interrupted,
+    BOOLEAN           continuing_flag,
+    Real              event_time,
+    Real              end_time )
 {
     object_struct  *pixels_object;
     pixels_struct  *pixels;
@@ -1073,30 +1278,15 @@ public  void  rebuild_slice_pixels_for_volume(
                                              view_index );
     pixels = get_pixels_ptr( pixels_object );
 
-    if( !out_of_time_flag )
-    {
-        render_slice_to_pixels( slice_window, volume_index, view_index,
-                                get_nth_volume( slice_window, volume_index ),
-                                slice_window->slice.volumes[volume_index].
-                                                          colour_table,
-                                slice_window->slice.volumes[volume_index].
-                                          views[view_index].filter_type,
-                                slice_window->slice.degrees_continuity,
-                                pixels );
-        slice_window->slice.volumes[volume_index].views[view_index].
-                                                 update_in_progress = FALSE;
-    }
-    else
-    {
-        if( pixels->x_size > 0 && pixels->y_size > 0 )
-        {
-            delete_pixels( pixels );
-            pixels->x_size = 0;
-            pixels->y_size = 0;
-        }
-        slice_window->slice.volumes[volume_index].views[view_index].
-                                                 update_in_progress = TRUE;
-    }
+    render_slice_to_pixels( slice_window, volume_index, view_index,
+                            get_nth_volume( slice_window, volume_index ),
+                            slice_window->slice.volumes[volume_index].
+                                                      colour_table,
+                            slice_window->slice.volumes[volume_index].
+                                      views[view_index].filter_type,
+                            slice_window->slice.degrees_continuity,
+                            pixels,
+                            interrupted, continuing_flag, event_time, end_time);
 }
 
 public  void  rebuild_slice_text(
@@ -1416,37 +1606,24 @@ public  void  rebuild_label_slice_pixels_for_volume(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
-    BOOLEAN           out_of_time_flag )
+    BOOLEAN           *interrupted,
+    BOOLEAN           continuing_flag,
+    Real              event_time,
+    Real              end_time )
 {
     pixels_struct   *pixels;
 
     pixels = get_pixels_ptr( get_label_slice_pixels_object(
                                    slice_window, volume_index, view_index ) );
-    if( !out_of_time_flag )
-    {
-        render_slice_to_pixels( slice_window, volume_index, view_index,
-                                get_nth_label_volume( slice_window,
-                                                      volume_index ),
-                                slice_window->slice.volumes[volume_index].
-                                                       label_colour_table,
-                                NEAREST_NEIGHBOUR,
-                                -1, pixels );
 
-        slice_window->slice.volumes[volume_index].views[view_index].
-                                     labels_update_in_progress = FALSE;
-    }
-    else
-    {
-        if( pixels->x_size > 0 && pixels->y_size > 0 )
-        {
-            delete_pixels( pixels );
-            pixels->x_size = 0;
-            pixels->y_size = 0;
-        }
-
-        slice_window->slice.volumes[volume_index].views[view_index].
-                                         labels_update_in_progress = TRUE;
-    }
+    render_slice_to_pixels( slice_window, volume_index, view_index,
+                            get_nth_label_volume( slice_window,
+                                                  volume_index ),
+                            slice_window->slice.volumes[volume_index].
+                                                   label_colour_table,
+                            NEAREST_NEIGHBOUR,
+                            -1, pixels,
+                            interrupted, continuing_flag, event_time, end_time);
 }
 
 public  void  update_slice_pixel_visibilities(

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.93 1995-08-30 15:27:13 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.94 1995-08-31 15:36:35 david Exp $";
 #endif
 
 
@@ -664,26 +664,10 @@ private  BOOLEAN  is_slice_continuing(
     return( continuing );
 }
 
-private  BOOLEAN  time_is_up(
-    Real             event_time,
-    Real             end_time )
-{
-    Real   current_time;
-
-    current_time = current_realtime_seconds();
-
-    if( current_time > end_time ||
-        current_time > event_time && G_events_pending() )
-        return( TRUE );
-    else
-        return( FALSE );
-}
-
 private  void  render_more_slices(
     display_struct   *slice_window,
     BOOLEAN          viewport_has_changed[] )
 {
-    BOOLEAN  interrupt_allowed;
     BOOLEAN  interrupted, view_was_interrupted[N_SLICE_VIEWS];
     BOOLEAN  no_viewport_changed;
     int      view, v;
@@ -706,8 +690,14 @@ private  void  render_more_slices(
     current_time = current_realtime_seconds();
     end_time = current_time + update_time;
     event_time = current_time + Slice_event_check_time;
+
+    if( update_time <= 0.0 )
+    {
+        end_time = -1.0;
+        event_time = -1.0;
+    }
+
     interrupted = FALSE;
-    interrupt_allowed = (update_time > 0.0);
 
     for_less( v, 0, slice_window->slice.n_volumes )
     {
@@ -717,15 +707,16 @@ private  void  render_more_slices(
                  slice_window->slice.volumes[v].views[view].update_in_progress)
                    && get_slice_visibility( slice_window, v, view ) )
             {
-                if( interrupt_allowed && !interrupted &&
-                    time_is_up( event_time, end_time ) )
-                    interrupted = TRUE;
+                rebuild_slice_pixels_for_volume( slice_window, v, view,
+                     &interrupted,
+                     !slice_window->slice.volumes[v].views[view].update_flag,
+                     event_time, end_time );
+
+                slice_window->slice.volumes[v].views[view].
+                                             update_in_progress = interrupted;
 
                 if( interrupted )
                     view_was_interrupted[view] = TRUE;
-
-                rebuild_slice_pixels_for_volume( slice_window, v, view,
-                                                 interrupted );
             }
             else
             {
@@ -740,15 +731,16 @@ private  void  render_more_slices(
                                            labels_update_in_progress) &&
                 get_label_visibility( slice_window, v, view ) )
             {
-                if( interrupt_allowed && !interrupted &&
-                    time_is_up( event_time, end_time ) )
-                    interrupted = TRUE;
+                rebuild_label_slice_pixels_for_volume( slice_window, v, view,
+                     &interrupted, !slice_window->slice.volumes[v].views[view].
+                                                      update_labels_flag,
+                     event_time, end_time );
+
+                slice_window->slice.volumes[v].views[view].
+                                     labels_update_in_progress = interrupted;
 
                 if( interrupted )
                     view_was_interrupted[view] = TRUE;
-
-                rebuild_label_slice_pixels_for_volume( slice_window, v, view,
-                                                       interrupted );
             }
             else
             {
