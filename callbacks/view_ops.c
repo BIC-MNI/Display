@@ -298,6 +298,7 @@ public  DEF_MENU_FUNCTION( save_image )      /* ARGSUSED */
     if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
     {
         status = save_window_to_file( display, filename );
+        print( "Done saving image to %s.\n", filename );
     }
 
     (void) input_newline( stdin );
@@ -363,5 +364,34 @@ public  DEF_MENU_UPDATE(set_eye_separation )      /* ARGSUSED */
 
     set_menu_text( menu_window, menu_entry, text );
 
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( print_view )      /* ARGSUSED */
+{
+    Real        x, y, z;
+    Transform   inverse_model;
+
+    get_inverse_model_transform( display, &inverse_model );
+    transform_vector( &inverse_model,
+                      Vector_x(display->three_d.view.line_of_sight),
+                      Vector_y(display->three_d.view.line_of_sight),
+                      Vector_z(display->three_d.view.line_of_sight),
+                      &x, &y, &z );
+
+    print( "Line of sight: %g %g %g\n", x, y, z );
+
+    transform_vector( &inverse_model,
+                      Vector_x(display->three_d.view.y_axis),
+                      Vector_y(display->three_d.view.y_axis),
+                      Vector_z(display->three_d.view.y_axis),
+                      &x, &y, &z );
+    print( "Up Direction: %g %g %g\n", x, y, z );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(print_view )      /* ARGSUSED */
+{
     return( OK );
 }
