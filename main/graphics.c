@@ -533,6 +533,7 @@ public  void  reset_view_parameters( graphics, line_of_sight, horizontal )
 
     initialize_view( &graphics->three_d.view,
                      line_of_sight, horizontal );
+    graphics->three_d.view.perspective_flag = Initial_perspective_flag;
     set_model_scale( &graphics->three_d.view,
                      Initial_x_scale, Initial_y_scale, Initial_z_scale );
     adjust_view_for_aspect( &graphics->three_d.view,

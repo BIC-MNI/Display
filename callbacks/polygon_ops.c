@@ -207,3 +207,25 @@ public  DEF_MENU_UPDATE(create_bintree_for_polygons )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( create_normals_for_polygon )   /* ARGSUSED */
+{
+    Status            status;
+    Status            compute_polygon_normals();
+    polygons_struct   *polygons;
+
+    status = OK;
+
+    if( get_current_polygons(graphics,&polygons) )
+    {
+        status = compute_polygon_normals( polygons );
+        PRINT( "Done computing polygon normals.\n" );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(create_normals_for_polygon )   /* ARGSUSED */
+{
+    return( OK );
+}

@@ -1,8 +1,9 @@
 include ../C_dev/Makefile.include
 
+OPT = $(OPT_g)
+
 OPT_g = -g
 OPT_O = -DNO_DEBUG_ALLOC  -O
-OPT = $(OPT_O)
 
 #INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/yorick/usr/include
 INCLUDE = -IInclude -I$(C_UTILS_INCLUDE)
@@ -21,6 +22,7 @@ graphics_obj = graphics_lib/GL_graphics.o \
                structures/view.o \
                structures/window.o \
                files.o \
+               stdio_decomp.o \
                points.o \
                progress.o \
                transforms.o
@@ -154,6 +156,7 @@ lint_test: $(test_lint)
 g_obj = \
                 graphics.o \
                 alloc.o \
+                colours.o \
                 files.o \
                 points.o \
                 object_io.o \
@@ -161,6 +164,7 @@ g_obj = \
                 transforms.o \
                 random.o \
                 random_order.o \
+                structures/view.o \
                 graphics_lib/GL_graphics.o
 
 g_lint = $(g_obj:.o=.ln)
@@ -215,6 +219,8 @@ lint_timing: $(timing_ln)
 # -------
 
 test_gl_obj = test_gl.o \
+              decomp.o \
+              fscanf.o \
               time.o
 
 test_gl_ln = $(test_gl_obj:.o=.ln)

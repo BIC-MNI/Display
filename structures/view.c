@@ -12,7 +12,7 @@ public  void  initialize_view( view, line_of_sight, horizontal )
     void            assign_view_direction();
     void            make_identity_transform();
 
-    view->perspective_flag = Initial_perspective_flag;
+    view->perspective_flag = FALSE;
     view->origin = origin;
     assign_view_direction( view, line_of_sight, horizontal );
     view->front_distance = 0.0;
@@ -118,6 +118,7 @@ public  void  adjust_view_for_aspect( view, window )
 {
     Real    width, height;
     Real    new_aspect;
+    Real    G_get_monitor_widths_to_eye();
     int     G_get_monitor_width();
     Real    prev_persp_dist, eye_offset;
     Vector  eye_offset_vector;
@@ -155,7 +156,7 @@ public  void  adjust_view_for_aspect( view, window )
 
     prev_persp_dist = view->perspective_distance;
 
-    view->perspective_distance = width * Monitor_widths_to_eye *
+    view->perspective_distance = width * G_get_monitor_widths_to_eye() *
                                  (Real) G_get_monitor_width() /
                                  (Real) window->x_size;
 
