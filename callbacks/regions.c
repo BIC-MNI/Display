@@ -497,3 +497,78 @@ public  DEF_MENU_UPDATE(flip_labels_in_x )   /* ARGSUSED */
 {
     return( OK );
 }
+
+private  void translate_labels_callback(
+    display_struct   *display,
+    int              x_delta,
+    int              y_delta )
+{
+    display_struct  *slice_window;
+    int             view_index, axis_index, x_index, y_index;
+    int             delta[N_DIMENSIONS];
+
+    if( get_slice_view_index_under_mouse( display, &view_index ) &&
+         get_slice_window( display, &slice_window ) &&
+        slice_has_ortho_axes( slice_window, view_index,
+                              &x_index, &y_index, &axis_index ) )
+    {
+        delta[X] = 0;
+        delta[Y] = 0;
+        delta[Z] = 0;
+
+        delta[x_index] = x_delta;
+        delta[y_index] = y_delta;
+
+        translate_labels( get_label_volume( slice_window ), delta );
+
+        set_slice_window_all_update( slice_window );
+    }
+}
+
+public  DEF_MENU_FUNCTION( translate_labels_up )   /* ARGSUSED */
+{
+    translate_labels_callback( display, 0, 1 );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(translate_labels_up )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( translate_labels_down )   /* ARGSUSED */
+{
+    translate_labels_callback( display, 0, -1 );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(translate_labels_down )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( translate_labels_left )   /* ARGSUSED */
+{
+    translate_labels_callback( display, -1, 0 );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(translate_labels_left )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( translate_labels_right )   /* ARGSUSED */
+{
+    translate_labels_callback( display, 1, 0 );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(translate_labels_right )   /* ARGSUSED */
+{
+    return( OK );
+}
