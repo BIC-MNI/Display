@@ -141,11 +141,15 @@ public  DEF_MENU_UPDATE(delete_surface_point)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
 {
-    int                  n_parameters;
+    int                  i, n_parameters;
     Status               status;
     Status               apply_simplex_minimization();
     void                 apply_one_parameter_minimization();
-    double               evaluate_graphics_fit();
+    double               evaluate_graphics_fit( void *, double [] );
+    double               evaluate_graphics_fit_with_range( void *, double [],
+                                  double, double, double, double, Real [] );
+    void                 evaluate_graphics_surface_point_distances( void *,
+                           double [], Real [], double, double, double, double );
     void                 display_parameters();
     const    double      TOLERANCE = 1.0e-4;
 
@@ -183,11 +187,21 @@ public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
             break;
 
         case ONE_PARAMETER_MINIMIZATION:
-            apply_one_parameter_minimization( 1, TOLERANCE, n_parameters,
-                        graphics->three_d.surface_fitting.parameters,
-                        graphics->three_d.surface_fitting.max_parameter_deltas,
-                        graphics->three_d.surface_fitting.parameter_deltas,
-                        evaluate_graphics_fit, (void *) graphics );
+            for_less( i, 0, n_parameters )
+            {
+                graphics->three_d.surface_fitting.max_parameter_deltas[i] =
+                        Max_parameter_delta;
+            }
+
+            apply_one_parameter_minimization(
+                       graphics->three_d.surface_fitting.surface_representation,
+                       graphics->three_d.surface_fitting.descriptors,
+                       1, TOLERANCE, n_parameters,
+                       graphics->three_d.surface_fitting.parameters,
+                       graphics->three_d.surface_fitting.max_parameter_deltas,
+                       graphics->three_d.surface_fitting.parameter_deltas,
+                       evaluate_graphics_surface_point_distances,
+                       evaluate_graphics_fit_with_range, (void *) graphics );
             break;
 
         default:
