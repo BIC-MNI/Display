@@ -356,4 +356,7 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Unfinished_flag_colour )
     DEF_GLOBAL( Unfinished_flag_width, Real, 5.0 )
 
+    DEF_GLOBAL( Initial_volume_rotation_step, Real, 1.0 )
+    DEF_GLOBAL( Initial_volume_translation_step, Real, 1.0 )
+
 END_GLOBALS
