@@ -1,8 +1,23 @@
+2001-05-27  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
+
+	* release-1_3_2: Tag added.  The package built contains identical
+	source code to that released as 1.3.1.
+
+	* Include/connect.h:
+	* Include/globals.h:
+	* Include/graphics.h:
+	* Include/graphics_dependent.h:
+	* Include/graphics_types.h:
+	* Include/marker_segment.h:
+	* Include/surface_fitting.h: Removed files.
+
 2001-05-26  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
 
 	* release-1_3_1: Unpack the release 1.3.1 tarfile overtop the
 	sources.  Release 1.3.1 was generated from David's 1.3 tarball;
-	most of the changes were related to the build.
+	most of the changes were related to the build.  Unfortunately,
+	the CVS repository that produced the distributed 1.3.1 release
+	is slightly different, so no tag exists for this release.
 
 	* Makefile:
 	* Documentation/Makefile:

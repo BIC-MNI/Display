@@ -1,6 +1,26 @@
 MNI-Display is an interactive program to display and segment 3 dimensional
 images, as well as to display and manipulate 3D geometric objects.
 
+The following libraries must be installed before building Display:
+
+  NetCDF and MINC 
+    - available at ftp://ftp.bic.mni.mcgill.ca/pub/minc/
+
+  bicpl
+    - available at ftp://ftp.bic.mni.mcgill.ca/pub/register+Display/
+
+  OpenGL or Mesa
+    - OpenGL may be included with your OS, or see http://www.opengl.org/
+    - Mesa is a replacement for OpenGL, often included in linux distributions
+      if not, see http://www.mesa3d.org/ 
+      (there is also a copy of Mesa on our ftp site
+       ftp://ftp.bic.mni.mcgill.ca/pub/register+Display/MesaLib-3.4.tar.gz)
+
+  GLUT
+    - a layer on top of OpenGL, may be included in your OS distribution
+    - if not, see http://reality.sgi.com/mjk/glut3/glut3.html
+
+
 See README.CVS, if you just checked-out the sources from CVS.
 
 See INSTALL.display and INSTALL for installation instructions.
