@@ -256,6 +256,8 @@ public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
     Status         reset_surface_extraction();
     volume_struct  *volume;
     void           set_update_required();
+    void           set_all_voxel_label_flags();
+    void           rebuild_slice_models();
 
     status = OK;
 
@@ -263,6 +265,12 @@ public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
     {
         status = reset_surface_extraction( graphics );
 
+        set_all_voxel_label_flags( volume, FALSE );
+
+        rebuild_slice_models( graphics->associated[SLICE_WINDOW] );
+
+        set_update_required( graphics->associated[SLICE_WINDOW],
+                             NORMAL_PLANES );
         set_update_required( graphics, NORMAL_PLANES );
     }
 
@@ -392,73 +400,13 @@ public  DEF_MENU_UPDATE(halve_slice_voxels )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(turn_voxel_on)   /* ARGSUSED */
-{
-    Status           status;
-    graphics_struct  *slice_window;
-    int              x, y, z, axis_index;
-    void             set_voxel_inactivity();
-    void             set_slice_window_update();
-    void             set_update_required();
-
-    status = OK;
-
-    if( get_voxel_under_mouse( graphics, &x, &y, &z, &axis_index ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        set_voxel_inactivity( slice_window->slice.volume, x, y, z, FALSE );
-
-        set_slice_window_update( slice_window, axis_index );
-
-        set_update_required( slice_window, NORMAL_PLANES );
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(turn_voxel_on )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(turn_voxel_off)   /* ARGSUSED */
-{
-    Status           status;
-    int              x, y, z, axis_index;
-    void             set_voxel_inactivity();
-    void             set_slice_window_update();
-    graphics_struct  *slice_window;
-    void             set_update_required();
-
-    status = OK;
-
-    if( get_voxel_under_mouse( graphics, &x, &y, &z, &axis_index ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        set_voxel_inactivity( slice_window->slice.volume, x, y, z, TRUE );
-
-        set_slice_window_update( slice_window, axis_index );
-
-        set_update_required( slice_window, NORMAL_PLANES );
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(turn_voxel_off )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(save_inactive_voxels)   /* ARGSUSED */
+public  DEF_MENU_FUNCTION(save_labeled_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
     Status           open_file();
     Status           close_file();
-    Status           io_binary_data();
+    Status           io_bitlist_3d();
     volume_struct    *volume;
     String           filename;
 
@@ -472,17 +420,10 @@ public  DEF_MENU_FUNCTION(save_inactive_voxels)   /* ARGSUSED */
         status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
-        {
-            status = io_binary_data( file, WRITE_FILE,
-                                     (char *) volume->inactive_voxels.bits,
-                                     sizeof( volume->inactive_voxels.bits[0]),
-                                     volume->inactive_voxels.n_words );
-        }
+            status = io_bitlist_3d( file, WRITE_FILE, &volume->label_flags );
 
         if( status == OK )
-        {
             status = close_file( file );
-        }
 
         PRINT( "Done\n" );
     }
@@ -490,17 +431,17 @@ public  DEF_MENU_FUNCTION(save_inactive_voxels)   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(save_inactive_voxels )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(save_labeled_voxels )   /* ARGSUSED */
 {
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(load_inactive_voxels)   /* ARGSUSED */
+public  DEF_MENU_FUNCTION(load_labeled_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
     Status           open_file();
-    Status           io_binary_data();
+    Status           io_bitlist_3d();
     Status           close_file();
     volume_struct    *volume;
     String           filename;
@@ -517,17 +458,10 @@ public  DEF_MENU_FUNCTION(load_inactive_voxels)   /* ARGSUSED */
         status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
-        {
-            status = io_binary_data( file, READ_FILE,
-                                     (char *) volume->inactive_voxels.bits,
-                                     sizeof( volume->inactive_voxels.bits[0]),
-                                     volume->inactive_voxels.n_words );
-        }
+            status = io_bitlist_3d( file, READ_FILE, &volume->label_flags );
 
         if( status == OK )
-        {
             status = close_file( file );
-        }
 
         if( status == OK )
         {
@@ -543,7 +477,7 @@ public  DEF_MENU_FUNCTION(load_inactive_voxels)   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(load_inactive_voxels )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(load_labeled_voxels )   /* ARGSUSED */
 {
     return( OK );
 }
@@ -554,7 +488,7 @@ public  DEF_MENU_FUNCTION(save_active_voxels)   /* ARGSUSED */
     Status           status;
     Status           open_file();
     Status           close_file();
-    Status           io_binary_data();
+    Status           io_bitlist_3d();
     volume_struct    *volume;
     String           filename;
 
@@ -568,17 +502,10 @@ public  DEF_MENU_FUNCTION(save_active_voxels)   /* ARGSUSED */
         status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
-        {
-            status = io_binary_data( file, WRITE_FILE,
-                                     (char *) volume->active_voxels.bits,
-                                     sizeof( volume->active_voxels.bits[0]),
-                                     volume->active_voxels.n_words );
-        }
+            status = io_bitlist_3d( file, WRITE_FILE, &volume->active_flags );
 
         if( status == OK )
-        {
             status = close_file( file );
-        }
 
         PRINT( "Done\n" );
     }
@@ -596,7 +523,7 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
     FILE             *file;
     Status           status;
     Status           open_file();
-    Status           io_binary_data();
+    Status           io_bitlist_3d();
     Status           close_file();
     volume_struct    *volume;
     String           filename;
@@ -613,17 +540,10 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
         status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
-        {
-            status = io_binary_data( file, READ_FILE,
-                                     (char *) volume->active_voxels.bits,
-                                     sizeof( volume->active_voxels.bits[0]),
-                                     volume->active_voxels.n_words );
-        }
+            status = io_bitlist_3d( file, READ_FILE, &volume->active_flags );
 
         if( status == OK )
-        {
             status = close_file( file );
-        }
 
         if( status == OK )
         {
@@ -686,37 +606,10 @@ public  DEF_MENU_UPDATE(set_colour_limits )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(reset_inactivities)   /* ARGSUSED */
-{
-    volume_struct    *volume;
-    void             set_all_voxel_inactivities();
-    void             rebuild_slice_models();
-    graphics_struct  *slice_window;
-    void             set_update_required();
-
-    if( get_current_volume( graphics, &volume ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        set_all_voxel_inactivities( volume, FALSE );
-
-        rebuild_slice_models( slice_window );
-
-        set_update_required( slice_window, NORMAL_PLANES );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(reset_inactivities )   /* ARGSUSED */
-{
-    return( OK );
-}
-
 public  DEF_MENU_FUNCTION(reset_activities)   /* ARGSUSED */
 {
     volume_struct    *volume;
-    void             set_all_voxel_activities();
+    void             set_all_voxel_activity_flags();
     void             rebuild_slice_models();
     graphics_struct  *slice_window;
     void             set_update_required();
@@ -725,7 +618,7 @@ public  DEF_MENU_FUNCTION(reset_activities)   /* ARGSUSED */
     {
         slice_window = graphics->associated[SLICE_WINDOW];
 
-        set_all_voxel_activities( volume, TRUE );
+        set_all_voxel_activity_flags( volume, TRUE );
 
         rebuild_slice_models( slice_window );
 
@@ -740,40 +633,6 @@ public  DEF_MENU_UPDATE(reset_activities )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(generate_activities )   /* ARGSUSED */
-{
-    Real             x, y, z;
-    Boolean          get_current_volume();
-    void             generate_activity_from_point();
-    volume_struct    *volume;
-    graphics_struct  *slice_window;
-    void             set_update_required();
-
-    if( get_current_volume( graphics, &volume ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        if( convert_point_to_voxel( slice_window,
-                                    &graphics->three_d.cursor.origin,
-                                    &x, &y, &z ) )
-        {
-            generate_activity_from_point( graphics, ROUND(x), ROUND(y),
-                                          ROUND(z) );
-
-            rebuild_slice_models( slice_window );
-
-            set_update_required( slice_window, NORMAL_PLANES );
-        }
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(generate_activities )   /* ARGSUSED */
-{
-    return( OK );
-}
-
 public  DEF_MENU_FUNCTION(set_isovalue )   /* ARGSUSED */
 {
     void             set_isosurface_value();
@@ -784,164 +643,6 @@ public  DEF_MENU_FUNCTION(set_isovalue )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(set_isovalue )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(turn_slice_on)   /* ARGSUSED */
-{
-    volume_struct    *volume;
-    void             set_slice_activities();
-    graphics_struct  *slice_window;
-    int              indices[N_DIMENSIONS], axis_index;
-    void             rebuild_slice_models();
-    void             set_update_required();
-
-    if( get_current_volume( graphics, &volume ) &&
-        get_voxel_under_mouse( graphics, &indices[X_AXIS], &indices[Y_AXIS],
-                               &indices[Z_AXIS], &axis_index ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        set_slice_activities( volume, axis_index, indices[axis_index], TRUE );
-
-        rebuild_slice_models( slice_window );
-
-        set_update_required( slice_window, NORMAL_PLANES );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(turn_slice_on )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(turn_slice_off)   /* ARGSUSED */
-{
-    volume_struct    *volume;
-    void             set_slice_activities();
-    graphics_struct  *slice_window;
-    int              indices[N_DIMENSIONS], axis_index;
-    void             rebuild_slice_models();
-    void             set_update_required();
-
-    if( get_current_volume( graphics, &volume ) &&
-        get_voxel_under_mouse( graphics, &indices[X_AXIS], &indices[Y_AXIS],
-                               &indices[Z_AXIS], &axis_index ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        set_slice_activities( volume, axis_index, indices[axis_index], FALSE );
-
-        rebuild_slice_models( slice_window );
-
-        set_update_required( slice_window, NORMAL_PLANES );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(turn_slice_off )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(set_connected_off )   /* ARGSUSED */
-{
-    int              x, y, z, axis_index;
-    Boolean          get_current_volume();
-    void             set_connected_slice_inactivity();
-    volume_struct    *volume;
-    graphics_struct  *slice_window;
-    void             set_update_required();
-
-    if( get_current_volume( graphics, &volume ) &&
-        get_voxel_under_mouse( graphics, &x, &y, &z, &axis_index ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        set_connected_slice_inactivity( graphics, x, y, z, axis_index, FALSE );
-
-        rebuild_slice_models( slice_window );
-
-        set_update_required( slice_window, NORMAL_PLANES );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(set_connected_off )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(set_connected_on )   /* ARGSUSED */
-{
-    int              x, y, z, axis_index;
-    Boolean          get_current_volume();
-    void             set_connected_slice_inactivity();
-    volume_struct    *volume;
-    graphics_struct  *slice_window;
-    void             set_update_required();
-
-    if( get_current_volume( graphics, &volume ) &&
-        get_voxel_under_mouse( graphics, &x, &y, &z, &axis_index ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        set_connected_slice_inactivity( graphics, x, y, z, axis_index, TRUE );
-
-        rebuild_slice_models( slice_window );
-
-        set_update_required( slice_window, NORMAL_PLANES );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(set_connected_on )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(generate_slice_activities )   /* ARGSUSED */
-{
-    int                         indices[N_DIMENSIONS], axis_index;
-    Boolean                     get_current_volume();
-    void                        generate_slice_activity();
-    volume_struct               *volume;
-    graphics_struct             *slice_window;
-    void                        set_isosurface_value();
-    surface_extraction_struct   *surface_extraction;
-    void                        set_update_required();
-
-    if( get_current_volume( graphics, &volume ) &&
-        get_voxel_under_mouse( graphics, &indices[X_AXIS], &indices[Y_AXIS],
-                               &indices[Z_AXIS], &axis_index ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        surface_extraction = &graphics->three_d.surface_extraction;
-
-        if( !surface_extraction->isovalue_selected )
-        {
-            set_isosurface_value( surface_extraction );
-        }
-
-        generate_slice_activity( volume, surface_extraction->isovalue,
-                                 axis_index, indices[axis_index] );
-
-        rebuild_slice_models( slice_window );
-
-        set_update_required( slice_window, NORMAL_PLANES );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(generate_slice_activities )   /* ARGSUSED */
 {
     return( OK );
 }

@@ -128,6 +128,7 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_pick_distance, Real, 0.02 )
 
     DEF_GLOBAL( Extracted_surface_colour, Colour, 0.0 )
+    DEF_GLOBAL( Display_surface_in_slices, Boolean, FALSE )
     DEF_GLOBAL( Default_surface_property, Surfprop, 0.0 )
 
     DEF_GLOBAL( Min_voxels_per_update, int, 50 )
@@ -150,8 +151,8 @@ START_GLOBALS
 
     DEF_GLOBAL( Display_activities, Boolean, FALSE )
     DEF_GLOBAL( Inactive_voxel_colour, Colour, 0.0 )
-    DEF_GLOBAL( Inactive_and_not_active_voxel_colour, Colour, 0.0 )
-    DEF_GLOBAL( Not_active_voxel_colour, Colour, 0.0 )
+    DEF_GLOBAL( Labeled_voxel_colour, Colour, 0.0 )
+    DEF_GLOBAL( Inactive_and_labeled_voxel_colour, Colour, 0.0 )
 
     DEF_GLOBAL( Use_cursor_origin, Boolean, TRUE )
 

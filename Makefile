@@ -2,7 +2,7 @@ include ../C_dev/Makefile.include
 
 OPT_g = -g
 OPT_O = -DNO_DEBUG_ALLOC  -O
-OPT = $(OPT_g)
+OPT = $(OPT_O)
 
 #INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/yorick/usr/include
 INCLUDE = -IInclude -I$(C_UTILS_INCLUDE)
@@ -126,15 +126,10 @@ test_obj = test.o \
 
 test_lint = $(test_obj:.o=.ln)
 
-display_ngx: $(display_obj)
-	$(CC) $(CFLAGS) $(display_obj) -o $@ $(LIBS)
-
 display: $(display_obj)
 	$(CC) $(CFLAGS) $(display_obj) -o $@ $(LIBS)
 
-FORCE:
-
-display.pixie:  FORCE
+display.pixie:  $(display_obj)
 	if( -e display ) rm display
 	make display LIBS="-lgl -lm"
 	@\rm -f display.Counts

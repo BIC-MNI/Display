@@ -28,6 +28,7 @@ private  DEF_EVENT_FUNCTION( add_to_surface )    /* ARGSUSED */
     Status     status;
     Status     extract_more_surface();
     void       set_update_required();
+    void       rebuild_slice_models();
 
     status = OK;
 
@@ -37,6 +38,14 @@ private  DEF_EVENT_FUNCTION( add_to_surface )    /* ARGSUSED */
         status = extract_more_surface( graphics );
 
         set_update_required( graphics, NORMAL_PLANES );
+
+        if( Display_surface_in_slices )
+        {
+            rebuild_slice_models( graphics->associated[SLICE_WINDOW] );
+
+            set_update_required( graphics->associated[SLICE_WINDOW],
+                                 NORMAL_PLANES );
+        }
     }
 
     return( status );

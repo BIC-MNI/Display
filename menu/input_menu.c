@@ -51,20 +51,11 @@
                        MENU_FUNCTION(reset_surface) \
                        MENU_FUNCTION(double_slice_voxels) \
                        MENU_FUNCTION(halve_slice_voxels) \
-                       MENU_FUNCTION(turn_voxel_on) \
-                       MENU_FUNCTION(turn_voxel_off) \
-                       MENU_FUNCTION(load_inactive_voxels) \
-                       MENU_FUNCTION(save_inactive_voxels) \
                        MENU_FUNCTION(load_active_voxels) \
                        MENU_FUNCTION(save_active_voxels) \
+                       MENU_FUNCTION(load_labeled_voxels) \
+                       MENU_FUNCTION(save_labeled_voxels) \
                        MENU_FUNCTION(reset_activities) \
-                       MENU_FUNCTION(reset_inactivities) \
-                       MENU_FUNCTION(generate_activities) \
-                       MENU_FUNCTION(turn_slice_on) \
-                       MENU_FUNCTION(turn_slice_off) \
-                       MENU_FUNCTION(generate_slice_activities) \
-                       MENU_FUNCTION(set_connected_off) \
-                       MENU_FUNCTION(set_connected_on) \
                        MENU_FUNCTION(set_colour_limits) \
                        MENU_FUNCTION(set_isovalue) \
                        MENU_FUNCTION(create_film_loop) \

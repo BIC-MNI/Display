@@ -29,13 +29,14 @@ typedef  struct
     int            max_threshold;
 } segmenting_struct;
 
+#define  NUM_LOOKUPS   4
 
 typedef  struct
 {
     volume_struct          *volume;
 
     Boolean                fast_lookup_present;
-    Pixel_colour           *fast_lookup;
+    Pixel_colour           *fast_lookup[NUM_LOOKUPS];
     colour_coding_struct   colour_coding;
 
     int                    x_split, y_split;

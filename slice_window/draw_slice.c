@@ -435,7 +435,7 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
     int                   axis_index, x_index, y_index;
     volume_struct         *volume;
     Boolean               fast_lookup_present;
-    Pixel_colour          fast_lookup[];
+    Pixel_colour          *fast_lookup[];
     colour_coding_struct  *colour_coding;
     int                   start_indices[N_DIMENSIONS];
     int                   x_left, x_right, y_bottom, y_top;
@@ -446,11 +446,12 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
     int             x, y, prev_x;
     int             x_size, y_size;
     int             val, min_value;
+    int             lookup_index;
     Pixel_colour    pixel_col, *pixel_ptr;
     Real            dx, dy;
     Pixel_colour    get_voxel_colour();
     Pixel_colour    get_colour_coding();
-    Boolean         activity_flag, inactivity_flag;
+    Boolean         activity_flag, label_flag;
 
     status = OK;
 
@@ -513,39 +514,40 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
 
             if( indices[x_index] != prev_x )
             {
-#define ACTIVITIES
-#ifdef  ACTIVITIES
-                if( Display_activities &&
-                    (!(activity_flag=get_voxel_activity_flag( volume,
-                                    indices[0], indices[1], indices[2] )) ||
-                     (inactivity_flag=get_voxel_inactivity_flag( volume,
-                                    indices[0], indices[1], indices[2] )) ) )
+                if( Display_activities )
                 {
+                    activity_flag = get_voxel_activity_flag( volume,
+                                      indices[0], indices[1], indices[2] );
+                    label_flag = get_voxel_label_flag( volume,
+                                      indices[0], indices[1], indices[2] );
+
                     if( activity_flag )
                     {
-                        COLOUR_TO_PIXEL( Inactive_voxel_colour, pixel_col );
-                    }
-                    else if( inactivity_flag )
-                    {
-                        COLOUR_TO_PIXEL( Inactive_and_not_active_voxel_colour,
-                                         pixel_col );
+                        if( label_flag )
+                            lookup_index = 2;
+                        else
+                            lookup_index = 0;
                     }
                     else
                     {
-                        COLOUR_TO_PIXEL( Not_active_voxel_colour, pixel_col );
+                        if( label_flag )
+                            lookup_index = 3;
+                        else
+                            lookup_index = 1;
                     }
                 }
                 else
-#endif
                 {
+                    lookup_index = 0;
+                }
+
                 val = GET_VOLUME_DATA( *volume,
                                        indices[0], indices[1], indices[2]);
 
                 if( fast_lookup_present )
-                    pixel_col = fast_lookup[val-min_value];
+                    pixel_col = fast_lookup[lookup_index][val-min_value];
                 else
                     pixel_col = get_colour_coding( colour_coding, (Real) val );
-                }
 
                 prev_x = indices[x_index];
             }
@@ -554,47 +556,4 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
             ++pixel_ptr;
         }
     }
-}
-
-private  Pixel_colour  get_voxel_colour( volume, fast_lookup_present,
-                                         fast_lookup,colour_coding, x, y, z )
-    volume_struct         *volume;
-    Boolean               fast_lookup_present;
-    Pixel_colour          fast_lookup[];
-    colour_coding_struct  *colour_coding;
-    int                   x, y, z;
-{
-    Pixel_colour    pixel_col;
-    Pixel_colour    get_colour_coding();
-    int             val;
-    Boolean         activity_flag, inactivity_flag;
-
-    if( Display_activities &&
-        (!(activity_flag=get_voxel_activity_flag( volume, x, y, z )) ||
-         (inactivity_flag=get_voxel_inactivity_flag( volume, x, y, z )) ) )
-    {
-        if( activity_flag )
-        {
-            COLOUR_TO_PIXEL( Inactive_voxel_colour, pixel_col );
-        }
-        else if( inactivity_flag )
-        {
-            COLOUR_TO_PIXEL( Inactive_and_not_active_voxel_colour, pixel_col );
-        }
-        else
-        {
-            COLOUR_TO_PIXEL( Not_active_voxel_colour, pixel_col );
-        }
-    }
-    else
-    {
-        val = GET_VOLUME_DATA( *volume, x, y, z);
-
-        if( fast_lookup_present )
-            pixel_col = fast_lookup[val-volume->min_value];
-        else
-            pixel_col = get_colour_coding( colour_coding, (Real) val );
-    }
-
-    return( pixel_col );
 }

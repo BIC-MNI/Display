@@ -66,7 +66,7 @@ public  Status  set_slice_window_volume( graphics, volume )
     Status           initialize_voxel_flags();
     Status           initialize_voxel_done_flags();
     Status           update_cursor_size();
-    int              c, x_index, y_index, num_entries;
+    int              i, c, x_index, y_index, num_entries;
     int              size[N_DIMENSIONS];
     Real             factor, min_thickness, max_thickness;
     Real             thickness[N_DIMENSIONS];
@@ -127,8 +127,13 @@ public  Status  set_slice_window_volume( graphics, volume )
                   (num_entries <= Max_fast_colour_lookup);
 
     if( status == OK && graphics->slice.fast_lookup_present )
-        ALLOC1( status, graphics->slice.fast_lookup, num_entries,
-                Pixel_colour );
+    {
+        for_less( i, 0, NUM_LOOKUPS )
+        {
+            ALLOC1( status, graphics->slice.fast_lookup[i], num_entries,
+                    Pixel_colour );
+        }
+    }
 
     change_colour_coding_range( graphics,
                                 (Real) volume->min_value,
@@ -156,8 +161,10 @@ public  void  change_colour_coding_range( graphics, min_value, max_value )
     graphics_struct   *graphics;
     Real              min_value, max_value;
 {
-    int              val, min_val, max_val;
+    int              i, val, min_val, max_val;
     void             set_colour_coding_range();
+    Colour           col, coded_col;
+    Pixel_colour     pix_colour;
     Pixel_colour     get_colour_coding();
 
     set_colour_coding_range( &graphics->slice.colour_coding,
@@ -168,11 +175,25 @@ public  void  change_colour_coding_range( graphics, min_value, max_value )
         min_val = graphics->slice.volume->min_value;
         max_val = graphics->slice.volume->max_value;
    
-        for_inclusive( val, min_val, max_val )
+        for_less( i, 0, NUM_LOOKUPS )
         {
-            graphics->slice.fast_lookup[val-min_val] =
-                    get_colour_coding( &graphics->slice.colour_coding,
-                                       (Real) val );
+            switch( i )
+            {
+            case 0:   col = WHITE;  break;
+            case 1:   col = Inactive_voxel_colour;  break;
+            case 2:   col = Labeled_voxel_colour;  break;
+            case 3:   col = Inactive_and_labeled_voxel_colour;  break;
+            }
+
+            for_inclusive( val, min_val, max_val )
+            {
+                pix_colour = get_colour_coding( &graphics->slice.colour_coding,
+                                                (Real) val );
+                PIXEL_TO_COLOUR( pix_colour, coded_col );
+                MULT_COLOURS( coded_col, col, coded_col );
+                COLOUR_TO_PIXEL( coded_col,
+                                 graphics->slice.fast_lookup[i][val-min_val] );
+            }
         }
     }
 }
@@ -201,6 +222,7 @@ public  Boolean   get_slice_window_volume( graphics, volume )
 public  Status  delete_slice_window( slice_window )
     slice_window_struct   *slice_window;
 {
+    int      i;
     Status   status;
     Status   delete_colour_coding();
 
@@ -212,7 +234,10 @@ public  Status  delete_slice_window( slice_window )
     }
 
     if( status == OK && slice_window->fast_lookup_present )
-        FREE1( status, slice_window->fast_lookup );
+    {
+        for_less( i, 0, NUM_LOOKUPS )
+            FREE1( status, slice_window->fast_lookup[i] );
+    }
 
     return( status );
 }

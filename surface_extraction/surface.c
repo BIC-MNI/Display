@@ -182,11 +182,13 @@ public  Status  extract_more_surface( graphics )
     Real                        stop_time;
     Real                        current_realtime_seconds();
     Status                      status;
-    Status                      set_voxel_flag(); Status                      reset_voxel_flag();
+    Status                      set_voxel_flag();
+    Status                      reset_voxel_flag();
     Status                      set_voxel_done_flag();
     Status                      delete_edge_points_no_longer_needed();
     void                        possibly_output();
     void                        stop_surface_extraction();
+    void                        label_voxel_as_done();
 
     status = OK;
 
@@ -226,6 +228,14 @@ public  Status  extract_more_surface( graphics )
                              volume, &voxel_index,
                              surface_extraction->voxel_done_flags,
                              &surface_extraction->edge_points );
+            }
+
+            if( status == OK && Display_surface_in_slices )
+            {
+                label_voxel_as_done( volume,
+                                     voxel_index.i[X_AXIS],
+                                     voxel_index.i[Y_AXIS],
+                                     voxel_index.i[Z_AXIS] );
             }
 
             if( status == OK )
