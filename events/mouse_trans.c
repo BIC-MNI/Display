@@ -1,37 +1,14 @@
 
 #include  <def_graphics.h>
 
-public  void  initialize_translation( graphics )
-    graphics_struct  *graphics;
+public  void  initialize_translation( action_table )
+    action_table_struct  *action_table;
 {
     DECL_EVENT_FUNCTION( start_translation );
-    DECL_EVENT_FUNCTION( turn_off_translation );
-    void                 add_action_table_function();
-    void                 terminate_any_interactions();
+    void                 install_action_table_function();
 
-    terminate_any_interactions( graphics );
-
-    add_action_table_function( &graphics->action_table,
-                               TERMINATE_EVENT,
-                               turn_off_translation );
-
-    add_action_table_function( &graphics->action_table,
-                               MIDDLE_MOUSE_DOWN_EVENT,
-                               start_translation );
-}
-
-private  DEF_EVENT_FUNCTION( turn_off_translation )
-    /* ARGSUSED */
-{
-    void   remove_action_table_function();
-
-    remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT );
-
-    remove_action_table_function( &graphics->action_table,
-                                  MIDDLE_MOUSE_DOWN_EVENT );
-
-    return( OK );
+    install_action_table_function( action_table, LEFT_MOUSE_DOWN_EVENT,
+                                   start_translation );
 }
 
 private  DEF_EVENT_FUNCTION( start_translation )
@@ -51,11 +28,7 @@ private  DEF_EVENT_FUNCTION( start_translation )
                                handle_mouse_movement );
 
     add_action_table_function( &graphics->action_table,
-                               MIDDLE_MOUSE_UP_EVENT,
-                               terminate_translation );
-
-    add_action_table_function( &graphics->action_table,
-                               TERMINATE_EVENT,
+                               LEFT_MOUSE_UP_EVENT,
                                terminate_translation );
 
     graphics->prev_mouse_position = graphics->mouse_position;
@@ -82,9 +55,7 @@ private  DEF_EVENT_FUNCTION( terminate_translation )
     remove_action_table_function( &graphics->action_table,
                                   MOUSE_MOVEMENT_EVENT );
     remove_action_table_function( &graphics->action_table,
-                                  MIDDLE_MOUSE_UP_EVENT );
-    remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT );
+                                  LEFT_MOUSE_UP_EVENT );
 
     return( OK );
 }
@@ -122,7 +93,7 @@ private  void  perform_translation( graphics )
     SUB_POINTS( delta, graphics->mouse_position,
                        graphics->prev_mouse_position );
 
-    get_screen_axes( &graphics->three_d.view, &hor, &vert );
+    get_screen_axes( &graphics->view, &hor, &vert );
 
     SCALE_VECTOR( hor, hor, Point_x(delta) );
     SCALE_VECTOR( vert, vert, Point_y(delta) );
