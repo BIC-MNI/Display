@@ -124,7 +124,7 @@ public  Status  initialize_voxel_done_flags( voxel_done_flags, n_voxels )
     Status   status;
     void     clear_voxel_done_flags();
 
-    CALLOC1( status, *voxel_done_flags, n_voxels / 2, unsigned_byte );
+    ALLOC1( status, *voxel_done_flags, n_voxels / 2, unsigned_byte );
 
     if( status == OK )
     {
@@ -301,7 +301,7 @@ public  Status  record_edge_point_id( volume, hash_table,
 
     get_edge_point_keys( volume, voxel, edge_intersected, keys );
 
-    CALLOC1( status, edge_info, 1, edge_point_struct );
+    ALLOC1( status, edge_info, 1, edge_point_struct );
 
     edge_info->point_index = edge_point_id;
 

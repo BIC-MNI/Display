@@ -46,7 +46,7 @@ private  Status  get_new_graphics( graphics )
 
     if( status == OK )
     {
-        CALLOC1( status, windows[n_windows], 1, graphics_struct );
+        ALLOC1( status, windows[n_windows], 1, graphics_struct );
     }
 
     if( status == OK )

@@ -357,7 +357,7 @@ private  Status  create_menu( menu, n_menus, menus )
 
     menu->n_entries = n_entries;
 
-    CALLOC1( status, menu->entries, menu->n_entries, menu_entry_struct );
+    ALLOC1( status, menu->entries, menu->n_entries, menu_entry_struct );
 
     if( status == OK )
     {
@@ -379,7 +379,7 @@ private  Status  create_menu( menu, n_menus, menus )
 
         menu->entries[0].n_children = menus[0].n_entries;
 
-        CALLOC1( status,
+        ALLOC1( status,
                  menu->entries[0].children,
                  menu->entries[0].n_children, menu_entry_struct * );
     }
@@ -403,7 +403,7 @@ private  Status  create_menu( menu, n_menus, menus )
                 if( menu_index >= 0 )
                 {
                     menu_entry->n_children = menus[menu_index].n_entries;
-                    CALLOC1( status,
+                    ALLOC1( status,
                              menu_entry->children,
                              menu_entry->n_children,
                              menu_entry_struct * );

@@ -1,5 +1,5 @@
 
-#include  <string.h>
+#include  <def_string.h>
 #include  <def_graphics.h>
 #include  <def_globals.h>
 
@@ -176,19 +176,19 @@ private  Status   create_menu_box( menu_window, key )
 
         fill_Colour( lines->colour, 1.0, 1.0, 1.0 );
 
-        CALLOC1( status, lines->points, lines->n_points, Point );
+        ALLOC1( status, lines->points, lines->n_points, Point );
     }
 
     if( status == OK )
     {
-        CALLOC1( status, lines->end_indices, lines->n_items, int );
+        ALLOC1( status, lines->end_indices, lines->n_items, int );
     }
 
     if( status == OK )
     {
         lines->end_indices[0] = 5;
 
-        CALLOC1( status, lines->indices, lines->end_indices[0], int );
+        ALLOC1( status, lines->indices, lines->end_indices[0], int );
 
         compute_origin( key, &origin );
 

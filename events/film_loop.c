@@ -38,7 +38,7 @@ public  Status  start_film_loop( graphics, base_filename, axis_index, n_steps )
     graphics->three_d.film_loop.y_size = y_size;
     (void) strcpy( graphics->three_d.film_loop.base_filename, base_filename );
 
-    CALLOC1( status, graphics->three_d.film_loop.image_storage,
+    ALLOC1( status, graphics->three_d.film_loop.image_storage,
              x_size * y_size, Pixel_colour );
 
     if( status == OK )
@@ -391,12 +391,12 @@ private  Status  output_frame( file, pixels, x_size, x_min, x_max, y_min,
 
     if( status == OK )
     {
-        CALLOC1( status, start, y_max - y_min + 1, int );
+        ALLOC1( status, start, y_max - y_min + 1, int );
     }
 
     if( status == OK )
     {
-        CALLOC1( status, end, y_max - y_min + 1, int );
+        ALLOC1( status, end, y_max - y_min + 1, int );
     }
 
     for_inclusive( y, y_min, y_max )
