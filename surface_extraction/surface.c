@@ -3,6 +3,7 @@
 #include  <def_globals.h>
 #include  <def_marching_cubes.h>
 #include  <def_splines.h>
+#include  <def_bitlist.h>
 
 #define  INITIAL_SIZE         1000
 #define  ENLARGE_THRESHOLD    1.0
@@ -30,7 +31,8 @@ public  Status  initialize_surface_extraction( graphics )
 
     if( status == OK )
     {
-        status = initialize_voxels_done( &surface_extraction->voxels_done );
+        status = initialize_voxels_done( &surface_extraction->voxels_done,
+                                         get_n_voxels(graphics->slice.volume) );
     }
 
     if( status == OK )
@@ -179,12 +181,29 @@ public  void  start_surface_extraction( graphics )
     graphics_struct    *graphics;
 {
     surface_extraction_struct   *surface_extraction;
+    Status                      status;
+    Status                      delete_voxels_done();
+    Status                      initialize_voxels_done();
 
     surface_extraction = &graphics->three_d.surface_extraction;
 
     if( !surface_extraction->extraction_in_progress &&
         surface_extraction->isovalue_selected )
     {
+        if( surface_extraction->n_voxels_alloced <
+            get_n_voxels(graphics->associated[SLICE_WINDOW]->slice.volume) )
+        {
+            status = delete_voxels_done( 
+                       &graphics->three_d.surface_extraction.voxels_done );
+
+            if( status == OK )
+            {
+                status = initialize_voxels_done( 
+                   &surface_extraction->voxels_done,
+               get_n_voxels(graphics->associated[SLICE_WINDOW]->slice.volume) );
+            }
+        }
+
         surface_extraction->extraction_in_progress = TRUE;
     }
 }
@@ -249,7 +268,7 @@ private  Boolean  find_close_voxel_containing_value( volume, value,
     Boolean                               voxel_contains_value();
     QUEUE_STRUCT( voxel_index_struct )    voxels_to_check;
     voxel_index_struct                    indices, insert;
-    hash_table_struct                     voxels_done;
+    bitlist_struct                        voxels_done;
     Status                                mark_voxel_done();
     Status                                delete_voxels_done();
     Status                                insert_in_voxel_queue();
@@ -265,7 +284,7 @@ private  Boolean  find_close_voxel_containing_value( volume, value,
 
     found = FALSE;
 
-    status = initialize_voxels_done( &voxels_done );
+    status = initialize_voxels_done( &voxels_done, get_n_voxels( volume ) );
 
     initialize_voxel_queue( &voxels_to_check );
 
@@ -396,65 +415,51 @@ public  void  extract_more_triangles( graphics )
     }
 }
 
-private  Status  initialize_voxels_done( voxels_done )
-    hash_table_struct  *voxels_done;
+private  Status  initialize_voxels_done( voxels_done, n_voxels )
+    bitlist_struct  *voxels_done;
+    int             n_voxels;
 {
     Status   status;
 
-    status = initialize_hash_table( voxels_done,
-                                    1, INITIAL_SIZE, ENLARGE_THRESHOLD,
-                                    ENLARGE_DENSITY );
+    status = create_bitlist( n_voxels, voxels_done );
 
     return( status );
 }
 
 private  Status  delete_voxels_done( voxels_done )
-    hash_table_struct  *voxels_done;
+    bitlist_struct  *voxels_done;
 {
     Status   status;
 
-    status = delete_hash_table( voxels_done );
+    status = delete_bitlist( voxels_done );
 
     return( status );
-}
-
-private  void  make_voxel_hash_keys( volume, indices, keys )
-    volume_struct       *volume;
-    voxel_index_struct  *indices;
-    int                 keys[];
-{
-    keys[0] = ijk( indices->i[X_AXIS],
-                   indices->i[Y_AXIS],
-                   indices->i[Z_AXIS],
-                   volume->size[Y_AXIS],
-                   volume->size[Z_AXIS] );
 }
 
 private  Boolean  is_voxel_done( volume, voxels_done, indices )
     volume_struct       *volume;
-    hash_table_struct   *voxels_done;
+    bitlist_struct      *voxels_done;
     voxel_index_struct  *indices;
 {
-    int   keys[1];
-
-    make_voxel_hash_keys( volume, indices, keys );
-
-    return( lookup_in_hash_table( voxels_done, keys, (char **) 0 ) );
+    return( get_bitlist_bit( voxels_done, ijk( indices->i[X_AXIS],
+                                               indices->i[Y_AXIS],
+                                               indices->i[Z_AXIS],
+                                               volume->size[Y_AXIS]-1,
+                                               volume->size[Z_AXIS]-1 ) ) );
 }
 
 private  Status  mark_voxel_done( volume, voxels_done, indices )
     volume_struct       *volume;
-    hash_table_struct   *voxels_done;
+    bitlist_struct      *voxels_done;
     voxel_index_struct  *indices;
 {
-    Status   status;
-    int      keys[1];
+    set_bitlist_bit( voxels_done, ijk( indices->i[X_AXIS],
+                                       indices->i[Y_AXIS],
+                                       indices->i[Z_AXIS],
+                                       volume->size[Y_AXIS]-1,
+                                       volume->size[Z_AXIS]-1 ),     ON );
 
-    make_voxel_hash_keys( volume, indices, keys );
-
-    status = insert_in_hash_table( voxels_done, keys, (char *) 0 );
-
-    return( status );
+    return( OK );
 }
 
 private  Boolean   check_voxel( volume, surface_extraction, voxel_index )
@@ -546,7 +551,7 @@ private  Boolean   check_voxel( volume, surface_extraction, voxel_index )
 private  void  add_voxel_neighbours( volume, x, y, z, voxels_done, voxel_queue )
     volume_struct                       *volume;
     int                                 x, y, z;
-    hash_table_struct                   *voxels_done;
+    bitlist_struct                      *voxels_done;
     QUEUE_STRUCT(voxel_index_struct)    *voxel_queue;
 {
     Status                   status;
@@ -934,4 +939,23 @@ private  void  display_triangles( graphics )
     void  draw_polygons();
 
     draw_polygons( graphics, &graphics->three_d.surface_extraction.triangles );
+}
+
+public  int  get_n_voxels( volume )
+    volume_struct  *volume;
+{
+    int   n_voxels;
+
+    if( volume != (volume_struct *) 0 )
+    {
+        n_voxels = (volume->size[X_AXIS] - 1) *
+                   (volume->size[Y_AXIS] - 1) *
+                   (volume->size[Z_AXIS] - 1);
+    }
+    else
+    {
+        n_voxels = 0;
+    }
+
+    return( n_voxels );
 }
