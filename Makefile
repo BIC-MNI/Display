@@ -1,16 +1,16 @@
 include ../Graphics/Makefile.include
 
-OPT = $(OPT_O) -Wf,-XNd10000
+OPT = $(OPT_O) -Wf,-XNd11000
 
 OPT_g = -g
 OPT_O = -O
 
 IMAGE_DIR = /usr/people/4Dgifts/iristools
-IMAGE_LIB = $(IMAGE_DIR)/libimage/libimage.a
+IMAGE_LIB = ../RGB_files/librgb_files.a $(IMAGE_DIR)/libimage/libimage.a
 
 INCLUDE = -IInclude -I../Modules/Include $(GRAPHICS_INCLUDE) \
           $(C_UTILS_INCLUDE) \
-          -I$(IMAGE_DIR)/include
+          -I../RGB_files
 
 PROTOTYPE_FILE = Include/display_prototypes.h
 
@@ -52,7 +52,6 @@ display_obj = \
            edit_surface/edit.o \
            edit_surface/segment.o \
            images/images.o \
-           images/rgb_io.o \
            markers/markers.o \
            markers/segment.o \
            surface_extraction/boundary_extraction.o \

@@ -2,9 +2,7 @@
 #ifndef  DEF_SURFACE_FITTING
 #define  DEF_SURFACE_FITTING
 
-#include  <mni.h>
-#include  <geometry.h>
-#include  <surface_rep.h>
+#include  <bicpl.h>
 
 typedef  struct
 {
