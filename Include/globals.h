@@ -39,6 +39,16 @@ START_GLOBALS
     DEF_GLOBAL( Default_horizontal, Vector, 0.0 )
 
     DEF_GLOBAL( Monitor_widths_to_eye, Real, 1.5 )
+
+    DEF_GLOBAL( N_selected_displayed, int, 3 )
+    DEF_GLOBAL( Selected_x_origin, Real, 0.0 )
+    DEF_GLOBAL( Selected_y_origin, Real, 0.0 )
+    DEF_GLOBAL( Selected_x_delta, Real, 0.0 )
+    DEF_GLOBAL( Selected_y_delta, Real, 0.0 )
+    DEF_GLOBAL( Selected_vis_colour, Colour, 0.0 )
+    DEF_GLOBAL( Selected_invis_colour, Colour, 0.0 )
+    DEF_GLOBAL( Unselected_vis_colour, Colour, 0.0 )
+    DEF_GLOBAL( Unselected_invis_colour, Colour, 0.0 )
 END_GLOBALS
          
 #endif
