@@ -75,11 +75,13 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
 
     if( status == OK )
     {
-        object->ptr.marker->label[0] = (char) 0;
         get_position_pointed_to( graphics, &object->ptr.marker->position );
+
+        (void) strcpy( object->ptr.marker->label,
+                       graphics->three_d.default_marker_label );
         object->ptr.marker->type = graphics->three_d.default_marker_type;
-        object->ptr.marker->colour = Marker_colour;
-        object->ptr.marker->size = Marker_size;
+        object->ptr.marker->colour = graphics->three_d.default_marker_colour;
+        object->ptr.marker->size = graphics->three_d.default_marker_size;
         object->ptr.marker->id = graphics->three_d.default_marker_id;
 
         status = add_object_to_model( get_current_model(graphics), object );
@@ -135,6 +137,7 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
     Status          status;
     object_struct   *object, *current_object;
     object_struct   *get_current_model_object();
+    volume_struct   *volume;
     void            update_cursor();
     Status          input_string();
     String          filename;
@@ -150,13 +153,13 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
 
     status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-    if( status == OK )
-        status = input_newline( stdin );
+    (void) input_newline( stdin );
+
+    if( !get_slice_window_volume( graphics, &volume ) )
+        volume = (volume_struct *) 0;
 
     if( status == OK )
-    {
         status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
-    }
 
     if( status == OK )
     {
@@ -167,7 +170,8 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
             if( current_object->object_type == MARKER &&
                 current_object->visibility )
             {
-                status = output_marker( file, current_object->ptr.marker );
+                status = output_marker( file, volume,
+                                        current_object->ptr.marker );
             }
         }
     }
@@ -187,8 +191,9 @@ public  DEF_MENU_UPDATE(save_markers )   /* ARGSUSED */
     return( OK );
 }
 
-private  Status  output_marker( file, marker )
+private  Status  output_marker( file, volume, marker )
     FILE            *file;
+    volume_struct   *volume;
     marker_struct   *marker;
 {
     Status   status;
@@ -197,12 +202,42 @@ private  Status  output_marker( file, marker )
     Status   io_int();
     Status   io_real();
     Status   io_quoted_string();
+    Point    position;
+    void     convert_point_to_voxel();
+    void     convert_voxel_to_talairach();
+    void     get_volume_size();
+    int      nx, ny, nz;
     int      patient_id = 0;
 
     status = OK;
 
+    if( volume == (volume_struct *) 0 )
+    {
+        position = marker->position;
+    }
+    else
+    {
+        convert_point_to_voxel( volume,
+                                Point_x(marker->position),
+                                Point_y(marker->position),
+                                Point_z(marker->position),
+                                &Point_x(position),
+                                &Point_y(position),
+                                &Point_z(position) );
+
+        get_volume_size( volume, &nx, &ny, &nz );
+
+        convert_voxel_to_talairach( Point_x(position),
+                                    Point_y(position),
+                                    Point_z(position),
+                                    nx, ny, nz,
+                                    &Point_x(position),
+                                    &Point_y(position),
+                                    &Point_z(position) );
+    }
+
     if( status == OK )
-        status = io_point( file, WRITE_FILE, ASCII_FORMAT, &marker->position );
+        status = io_point( file, WRITE_FILE, ASCII_FORMAT, &position );
 
     if( status == OK )
         status = io_real( file, WRITE_FILE, ASCII_FORMAT, &marker->size );
@@ -238,8 +273,9 @@ public  DEF_MENU_FUNCTION( set_default_marker_id )   /* ARGSUSED */
         PRINT( "The new default marker id is: %d\n",
                graphics->three_d.default_marker_id );
 
-        (void) input_newline( stdin );
     }
+
+    (void) input_newline( stdin );
 
     return( OK );
 }
@@ -250,6 +286,87 @@ public  DEF_MENU_UPDATE(set_default_marker_id )   /* ARGSUSED */
     void    set_menu_text();
 
     (void) sprintf( text, label, graphics->three_d.default_marker_id );
+
+    set_menu_text( menu_window, menu_entry, text );
+
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( set_default_marker_size )   /* ARGSUSED */
+{
+    Real        size;
+
+    PRINT( "The current default marker size is: %g\n",
+           graphics->three_d.default_marker_size );
+
+    PRINT( "Enter the new value: " );
+
+    if( input_real( stdin, &size ) == OK )
+    {
+        graphics->three_d.default_marker_size = size;
+        PRINT( "The new default marker size is: %g\n",
+               graphics->three_d.default_marker_size );
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_default_marker_size )   /* ARGSUSED */
+{
+    String  text;
+    void    set_menu_text();
+
+    (void) sprintf( text, label, graphics->three_d.default_marker_size );
+
+    set_menu_text( menu_window, menu_entry, text );
+
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( set_default_marker_colour )   /* ARGSUSED */
+{
+    Status      status;
+    String      string;
+    Colour      colour;
+    Status      convert_string_to_colour();
+    void        convert_colour_to_string();
+
+    convert_colour_to_string( &graphics->three_d.default_marker_colour,
+                              string );
+
+    PRINT( "The current default marker colour is: %s\n", string );
+
+    PRINT( "Enter the new colour name or r g b: " );
+
+    status = input_line( stdin, string, MAX_STRING_LENGTH );
+
+    if( status == OK )
+        status = convert_string_to_colour( string, &colour );
+
+    if( status == OK )
+    {
+        graphics->three_d.default_marker_colour = colour;
+
+        convert_colour_to_string( &graphics->three_d.default_marker_colour,
+                                  string );
+
+        PRINT( "The new default marker colour is: %s\n", string );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(set_default_marker_colour )   /* ARGSUSED */
+{
+    String  text, name;
+    void    set_menu_text();
+    void    convert_colour_to_string();
+
+    convert_colour_to_string( &graphics->three_d.default_marker_colour, name );
+
+    (void) sprintf( text, label, name );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -271,8 +388,9 @@ public  DEF_MENU_FUNCTION( set_default_marker_type )   /* ARGSUSED */
         PRINT( "The new default marker type is: %d\n",
                (int) graphics->three_d.default_marker_type );
 
-        (void) input_newline( stdin );
     }
+
+    (void) input_newline( stdin );
 
     return( OK );
 }
@@ -299,6 +417,42 @@ public  DEF_MENU_UPDATE(set_default_marker_type )   /* ARGSUSED */
     }
 
     (void) sprintf( text, label, name );
+
+    set_menu_text( menu_window, menu_entry, text );
+
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( set_default_marker_label )   /* ARGSUSED */
+{
+    Status       status;
+    String       label;
+
+    PRINT( "The current default marker label is: %s\n",
+                 graphics->three_d.default_marker_label );
+
+    PRINT( "Enter the new default label: " );
+
+    status = input_string( stdin, label, MAX_STRING_LENGTH, ' ' );
+
+    if( status == OK )
+    {
+        (void) strcpy( graphics->three_d.default_marker_label, label );
+        PRINT( "The new default marker label is: %s\n",
+               graphics->three_d.default_marker_label );
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_default_marker_label )   /* ARGSUSED */
+{
+    String  text;
+    void    set_menu_text();
+
+    (void) sprintf( text, label, graphics->three_d.default_marker_label );
 
     set_menu_text( menu_window, menu_entry, text );
 
