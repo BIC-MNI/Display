@@ -187,6 +187,7 @@ MENU_F(copy_labels_from_lower_slice) \
 MENU_F(copy_labels_from_higher_slice) \
 MENU_F(set_current_paint_label) \
 MENU_F(set_label_colour) \
+MENU_F(set_slice_window_n_labels) \
 MENU_F(save_labels) \
 MENU_F(save_current_label) \
 MENU_F(load_labels) \
