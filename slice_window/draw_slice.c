@@ -82,6 +82,16 @@ public  Status  initialize_slice_models( graphics )
         }
     }
 
+    for_inclusive( i, TEXT1_INDEX, TEXT3_INDEX )
+    {
+        status = create_object( &object, TEXT );
+        if( status == OK )
+        {
+            object->ptr.text->colour = Slice_text_colour;
+            status = add_object_to_model( model, object );
+        }
+    }
+
     for_inclusive( i, X_PROBE_INDEX, VAL_PROBE_INDEX )
     {
         status = create_object( &object, TEXT );

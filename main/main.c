@@ -23,6 +23,7 @@ int  main( argc, argv )
     void             update_view();
     void             set_model_scale();
     void             rebuild_selected_list();
+    void             set_update_required();
     void             output_alloc_to_file();
 
     status = initialize_globals();
@@ -82,6 +83,8 @@ int  main( argc, argv )
                                &Default_horizontal );
 
         update_view( graphics );
+
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     if( status == OK )
