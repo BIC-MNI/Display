@@ -648,3 +648,24 @@ public  DEF_MENU_UPDATE(copy_defaults_to_marker )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( classify_markers )   /* ARGSUSED */
+{
+    model_struct    *model;
+    model_struct    *get_current_model();
+    void            graphics_models_have_changed();
+    void            segment_markers();
+
+    model = get_current_model( graphics );
+
+    segment_markers( graphics, model );
+
+    graphics_models_have_changed( graphics );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(classify_markers )   /* ARGSUSED */
+{
+    return( OK );
+}

@@ -135,6 +135,7 @@
                        MENU_FUNCTION(set_default_marker_label) \
                        MENU_FUNCTION(set_default_marker_size) \
                        MENU_FUNCTION(copy_defaults_to_marker) \
+                       MENU_FUNCTION(classify_markers) \
                        MENU_FUNCTION(change_marker_structure_id) \
                        MENU_FUNCTION(change_marker_patient_id) \
                        MENU_FUNCTION(change_marker_label) \
