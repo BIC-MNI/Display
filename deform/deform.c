@@ -22,6 +22,8 @@ public  void  initialize_deformation(
     deform->deform.boundary_definition.normal_direction = TOWARDS_LOWER;
     deform->deform.max_iterations = 1000000;
     deform->deform.stop_threshold = 0.0;
+
+    set_default_line_annealing_parameters( &deform->anneal );
 }
 
 public  void  delete_deformation(
@@ -91,12 +93,7 @@ private  DEF_EVENT_FUNCTION( deform_object )    /* ARGSUSED */
 public  void  turn_on_deformation(
     display_struct  *display,
     object_struct   *object,
-    Boolean         use_simulated_annealling,
-    Real            fifty_percent_threshold,
-    Real            temperature_factor,
-    Real            initial_random_distance,
-    Real            random_distance_step,
-    Real            min_random_distance )
+    Boolean         use_simulated_annealling )
 {
     Boolean        in_progress;
 
@@ -130,12 +127,7 @@ public  void  turn_on_deformation(
             initialize_deform_line_annealing( 
                   get_lines_ptr(display->three_d.deform.deforming_object),
                   &display->three_d.deform.deform,
-                  &display->three_d.deform.anneal,
-                  fifty_percent_threshold,
-                  temperature_factor,
-                  initial_random_distance,
-                  random_distance_step,
-                  min_random_distance );
+                  &display->three_d.deform.anneal );
         }
 
         display->three_d.deform.in_progress = TRUE;
