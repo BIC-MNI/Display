@@ -510,6 +510,8 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
     int             lookup_index;
     int             x_voxel, y_voxel, z_voxel;
     int             *x_voxel_ptr, *y_voxel_ptr;
+    unsigned char   *volume_ptr;
+    int             new_lookup_index;
     Colour          col;
     Pixel_colour    pixel_col, *pixel_ptr;
     Real            dx, dy;
@@ -607,54 +609,23 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
 
             if( *x_voxel_ptr != prev_x )
             {
+                volume_ptr = GET_VOLUME_PTR( *volume,
+                                             x_voxel, y_voxel, z_voxel );
                 if( Display_activities )
                 {
-                    activity_flag = get_voxel_activity_flag( volume,
-                                         x_voxel, y_voxel, z_voxel );
-                    label_flag = get_voxel_label_flag( volume,
-                                           x_voxel, y_voxel, z_voxel );
+                    new_lookup_index = GET_VOLUME_AUX_DATA_AT_PTR( *volume,
+                                                                   volume_ptr );
+                    new_lookup_index >>= 6;
+                    new_lookup_index ^= 1;
 
-                    if( activity_flag )
+                    if( lookup_index != new_lookup_index )
                     {
-                        if( label_flag )
-                        {
-                            if( lookup_index != 2 )
-                            {
-                                lookup = fast_lookup[2];
-                                lookup_index = 2;
-                            }
-                        }
-                        else
-                        {
-                            if( lookup_index != 0 )
-                            {
-                                lookup = fast_lookup[0];
-                                lookup_index = 0;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if( label_flag )
-                        {
-                            if( lookup_index != 3 )
-                            {
-                                lookup = fast_lookup[3];
-                                lookup_index = 3;
-                            }
-                        }
-                        else
-                        {
-                            if( lookup_index != 1 )
-                            {
-                                lookup = fast_lookup[1];
-                                lookup_index = 1;
-                            }
-                        }
+                        lookup = fast_lookup[new_lookup_index];
+                        lookup_index = new_lookup_index;
                     }
                 }
 
-                val = GET_VOLUME_DATA( *volume, x_voxel, y_voxel, z_voxel );
+                val = GET_VOLUME_DATA_AT_PTR( *volume, volume_ptr );
 
                 if( fast_lookup_present )
                     pixel_col = lookup[val-min_value];
