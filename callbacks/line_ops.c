@@ -138,10 +138,10 @@ public  DEF_MENU_FUNCTION( deform_line_to_volume )   /* ARGSUSED */
 {
     Status            status;
     Status            deform_lines();
-    Real              boundary_factor, max_step, search_width;
-    Real              min_isovalue, max_isovalue;
+    Real              boundary_factor, max_step, max_search_distance;
+    Real              search_increment, min_isovalue, max_isovalue;
     Real              stop_threshold, min_size;
-    int               max_iterations, n_samples;
+    int               max_iterations;
     volume_struct     *volume;
     lines_struct      *lines;
     void              set_update_required();
@@ -151,14 +151,15 @@ public  DEF_MENU_FUNCTION( deform_line_to_volume )   /* ARGSUSED */
     if( get_current_lines( graphics, &lines ) &&
         get_current_volume( graphics, &volume ) )
     {
-        PRINT( "Enter boundary_factor, max_step, search_width,\n" );
-        PRINT( "      n_samples, min_size, min_isovalue, max_isovalue,\n" );
+        PRINT( "Enter boundary_factor, max_step, max_search_distance,\n" );
+        PRINT( "      search_increment, min_size\n" );
+        PRINT( "      min_isovalue, max_isovalue,\n" );
         PRINT( "      max_iterations, stop_threshold: " );
 
         if( input_real( stdin, &boundary_factor ) == OK &&
             input_real( stdin, &max_step ) == OK &&
-            input_real( stdin, &search_width ) == OK &&
-            input_int( stdin, &n_samples ) == OK &&
+            input_real( stdin, &max_search_distance ) == OK &&
+            input_real( stdin, &search_increment ) == OK &&
             input_real( stdin, &min_size ) == OK &&
             input_real( stdin, &min_isovalue ) == OK &&
             input_real( stdin, &max_isovalue ) == OK &&
@@ -166,9 +167,9 @@ public  DEF_MENU_FUNCTION( deform_line_to_volume )   /* ARGSUSED */
             input_real( stdin, &stop_threshold ) == OK )
         {
             status = deform_lines( lines, volume,
-                                   boundary_factor, max_step, search_width,
-                                   n_samples, min_size,
-                                   min_isovalue, max_isovalue,
+                                   boundary_factor, max_step,
+                                   max_search_distance, search_increment,
+                                   min_size, min_isovalue, max_isovalue,
                                    max_iterations, stop_threshold );
 
             set_update_required( graphics, NORMAL_PLANES );
