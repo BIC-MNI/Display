@@ -13,10 +13,12 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.53 1995-12-19 15:46:23 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.54 1996-01-15 17:38:06 david Exp $";
 #endif
 
 #include  <display.h>
+
+private  STRING   version = "1.0      Dec. 19, 1995";
 
 #define  MAX_TITLE_LENGTH   200
 
@@ -194,7 +196,12 @@ int  main(
 
         while( get_string_argument( "", &filename ) )
         {
-            if( equal_strings( filename, "-label" ) )
+            if( equal_strings( filename, "-version" ) )
+            {
+                print( "%s:  Version: %s\n", argv[0], version );
+                return( 0 );
+            }
+            else if( equal_strings( filename, "-label" ) )
             {
                 if( next_is_label_volume )
                     print( "Ignoring extraneous -label\n" );
