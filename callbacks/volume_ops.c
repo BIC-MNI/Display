@@ -809,7 +809,7 @@ private  void  colour_code_object( colour_coding, volume,
     Status   status;
     int      i;
     Real     val;
-    Real     interpolate_volume();
+    Real     evaluate_volume_at_point();
     void     get_colour_coding();
 
     if( *colour_flag != PER_VERTEX_COLOURS )
@@ -823,10 +823,11 @@ private  void  colour_code_object( colour_coding, volume,
 
     for_less( i, 0, n_points )
     {
-        val = interpolate_volume( volume,
-                                  Point_x(points[i]),
-                                  Point_y(points[i]),
-                                  Point_z(points[i]) );
+        val = evaluate_volume_at_point( volume,
+                                        Point_x(points[i]),
+                                        Point_y(points[i]),
+                                        Point_z(points[i]),
+                                        (Real *) 0, (Real *) 0, (Real *) 0 );
 
         get_colour_coding( colour_coding, val, &(*colours)[i] );
     }

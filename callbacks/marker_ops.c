@@ -16,7 +16,7 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
     void            set_update_required();
     model_struct    *get_current_model();
     void            rebuild_selected_list();
-    Boolean         convert_point_to_voxel();
+    Boolean         get_voxel_corresponding_to_point();
 
     status = create_object( &object, MARKER );
 
@@ -35,9 +35,10 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
 
         slice_window = graphics->associated[SLICE_WINDOW];
         if( slice_window != (graphics_struct *) 0 &&
-            convert_point_to_voxel( graphics, &graphics->three_d.cursor.origin,
-                                    &Point_x(origin), &Point_y(origin),
-                                    &Point_z(origin) ) )
+            get_voxel_corresponding_to_point( graphics,
+                            &graphics->three_d.cursor.origin,
+                            &Point_x(origin), &Point_y(origin),
+                            &Point_z(origin) ) )
         {
             object->ptr.marker->position = origin;
         }
@@ -84,7 +85,7 @@ public  DEF_MENU_FUNCTION( set_cursor_to_marker )   /* ARGSUSED */
         slice_window = graphics->associated[SLICE_WINDOW];
 
 #ifdef NO
-        convert_voxel_to_point( slice_window, 
+        convert_voxel_to_point( slice_window->slice.volume, 
                                 Point_x(object->ptr.marker->position),
                                 Point_y(object->ptr.marker->position),
                                 Point_z(object->ptr.marker->position),

@@ -12,10 +12,11 @@ public  DEF_MENU_FUNCTION(set_model_parameters)   /* ARGSUSED */
     double   *tmp_parameters;
     void     display_parameters();
 
-    n_parameters = graphics->three_d.surface_fitting.n_parameters;
-
+    n_parameters = graphics->three_d.surface_fitting.surface_representation->
+           get_num_parameters( graphics->three_d.surface_fitting.descriptors );
     PRINT( "Current parameters: " );
-    display_parameters( graphics->three_d.surface_fitting.parameters );
+    display_parameters( &graphics->three_d.surface_fitting,
+                        graphics->three_d.surface_fitting.parameters );
     PRINT( "\n" );
 
     ALLOC1( status, tmp_parameters, n_parameters, double );
@@ -37,7 +38,8 @@ public  DEF_MENU_FUNCTION(set_model_parameters)   /* ARGSUSED */
         for_less( i, 0, n_parameters )
             graphics->three_d.surface_fitting.parameters[i] = tmp_parameters[i];
         PRINT( "New parameters: " );
-        display_parameters( graphics->three_d.surface_fitting.parameters );
+        display_parameters( &graphics->three_d.surface_fitting,
+                            graphics->three_d.surface_fitting.parameters );
     }
 
     if( status == OK )
@@ -132,10 +134,12 @@ public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
     Status               terminate_amoeba();
     void                 display_parameters();
 
-    n_parameters = get_num_parameters();
+    n_parameters = graphics->three_d.surface_fitting.surface_representation->
+           get_num_parameters( graphics->three_d.surface_fitting.descriptors );
 
     PRINT( "Starting parameters: " );
-    display_parameters( graphics->three_d.surface_fitting.parameters );
+    display_parameters( &graphics->three_d.surface_fitting,
+                        graphics->three_d.surface_fitting.parameters );
 
     graphics->three_d.surface_fitting.n_samples = N_fitting_samples;
     graphics->three_d.surface_fitting.curvature_factor = Curvature_factor;
@@ -170,7 +174,8 @@ public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
                 graphics->three_d.surface_fitting.surface_point_distances );
 
     PRINT( "Resulting parameters: " );
-    display_parameters( graphics->three_d.surface_fitting.parameters );
+    display_parameters( &graphics->three_d.surface_fitting,
+                        graphics->three_d.surface_fitting.parameters );
        
     return( status );
 }
@@ -182,6 +187,14 @@ public  DEF_MENU_UPDATE(fit_surface)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(create_surface_model)   /* ARGSUSED */
 {
+    Status  status;
+
+    status = create_model_of_surface( graphics, Surface_model_resolution,
+                                      Surface_model_resolution );
+
+    if( status == OK )
+        graphics_models_have_changed( graphics );
+
     return( OK );
 }
 

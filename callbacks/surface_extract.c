@@ -12,8 +12,9 @@ public  DEF_MENU_FUNCTION(start_surface )   /* ARGSUSED */
 
     if( get_current_volume( graphics, &volume ) )
     {
-        if( convert_point_to_voxel( graphics, &graphics->three_d.cursor.origin,
-                                    &x, &y, &z ) )
+        if( get_voxel_corresponding_to_point( graphics,
+                                              &graphics->three_d.cursor.origin,
+                                              &x, &y, &z ) )
         {
             start_surface_extraction_at_point( graphics, ROUND(x), ROUND(y),
                                                ROUND(z) );

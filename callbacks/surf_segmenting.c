@@ -474,7 +474,7 @@ private  void  crop_surface( graphics, above_flag )
             fill_Point( position, 0.0, 0.0, 0.0 );
             Point_coord(position,axis_index) =
                       (Real) slice_window->slice.slice_index[axis_index];
-            convert_voxel_to_point( slice_window,
+            convert_voxel_to_point( slice_window->slice.volume,
                                     Point_x(position),
                                     Point_y(position),
                                     Point_z(position),
