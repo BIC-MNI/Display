@@ -106,12 +106,12 @@ typedef  struct
 }
 action_lookup_struct;
 
-#define  MENU_FUNCTION(f)    Status f(), menu_update_##f();
+#define  MENU_FUNCTION(f)    Status f(), GLUE(menu_update_,f)();
 
 FUNCTION_LIST
 
 #undef   MENU_FUNCTION
-#define  MENU_FUNCTION(f)    { #f, f, menu_update_##f },
+#define  MENU_FUNCTION(f)    { CREATE_STRING(f), f, GLUE(menu_update_,f) },
 
 static  action_lookup_struct   actions[] = {
                                                FUNCTION_LIST

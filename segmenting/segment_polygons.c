@@ -20,7 +20,9 @@ public  Status  set_visibility_around_poly( polygons, poly,
 
     if( polygons->n_items > 0 )
     {
-        if( polygons->neighbours == (int *) 0 )
+        status = create_polygons_visibilities( polygons );
+
+        if( status == OK && polygons->neighbours == (int *) 0 )
             status = create_polygon_neighbours( polygons->n_items,
                             polygons->indices, polygons->end_indices,
                             &polygons->neighbours );

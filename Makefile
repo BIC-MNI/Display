@@ -1,6 +1,6 @@
 include ../C_dev/Makefile.include
 
-OPT = $(OPT_g)
+OPT = $(OPT_O)
 
 OPT_g = -g
 OPT_O = -DNO_DEBUG_ALLOC  -O
@@ -176,6 +176,7 @@ g_obj = \
                 transforms.o \
                 random.o \
                 random_order.o \
+                stdio_decomp.o \
                 structures/view.o \
                 graphics_lib/GL_graphics.o
 
@@ -231,8 +232,7 @@ lint_timing: $(timing_ln)
 # -------
 
 test_gl_obj = test_gl.o \
-              decomp.o \
-              fscanf.o \
+              stdio_decomp.o \
               time.o
 
 test_gl_ln = $(test_gl_obj:.o=.ln)
@@ -307,3 +307,30 @@ test_tube: $(tube_obj)
 
 lint_tube: $(tube_ln)
 	$(LINT) -u $(LINTFLAGS) $(tube_ln)
+
+# -------
+
+buffer_obj = test_buffers.c \
+             stdio_decomp.o
+
+buffer_ln = $(buffer_obj:.o=.ln)
+
+test_buffers: $(buffer_obj)
+	$(CC) -g $(INCLUDE) $(buffer_obj) -o $@ $(LIBS)
+
+
+lint_buffer: $(buffer_ln)
+	$(LINT) -u $(LINTFLAGS) $(buffer_ln)
+
+# -------
+
+glhistory_obj = glhistory.c
+
+glhistory_ln = $(glhistory_obj:.o=.ln)
+
+glhistory: $(glhistory_obj)
+	$(CC) -g $(glhistory_obj) -o $@ $(LIBS)
+
+
+lint_glhistory: $(glhistory_ln)
+	$(LINT) -u $(LINTFLAGS) $(glhistory_ln)

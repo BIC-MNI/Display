@@ -690,7 +690,7 @@ public  DEF_MENU_FUNCTION(output_slice_transforms )   /* ARGSUSED */
     if( get_current_volume(graphics,&volume) )
     {
         PRINT( "Enter filename: " );
-        scanf( "%s", filename );
+        (void) scanf( "%s", filename );
 
         status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
 

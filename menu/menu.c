@@ -99,7 +99,6 @@ public  Status  initialize_menu( graphics, runtime_directory )
     void                 get_absolute_filename();
     String               filename;
     char                 *menu_filename = "menu.dat";
-    char                 *getenv();
     Status               open_file();
     Status               close_file();
     FILE                 *file;

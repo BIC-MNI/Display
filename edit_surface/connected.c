@@ -33,7 +33,6 @@ public  void  turn_off_connected_polygons( graphics )
 private  void  remove_events( action_table )
     action_table_struct   *action_table;
 {
-    DECL_EVENT_FUNCTION( terminate_connected );
     void   remove_action_table_function();
     void   pop_action_table();
 

@@ -10,7 +10,7 @@ static    void                 pick_point_under_mouse();
 public  void  initialize_picking_polygon( graphics )
     graphics_struct   *graphics;
 {
-    DECL_EVENT_FUNCTION( start_picking_polygon );
+    DECL_EVENT_FUNCTION(start_picking_polygon);
     void                 add_action_table_function();
 
     add_action_table_function( &graphics->action_table,

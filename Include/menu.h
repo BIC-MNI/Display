@@ -18,7 +18,7 @@ typedef  Status   menu_update_type();
 
 typedef  menu_update_type  (*menu_update_pointer);
 
-#define  DEF_MENU_UPDATE(m)  Status menu_update_##m( graphics, menu_window, menu_entry, label ) \
+#define  DEF_MENU_UPDATE(m)  Status GLUE(menu_update_,m)( graphics, menu_window, menu_entry, label ) \
                                        graphics_struct   *graphics; \
                                        graphics_struct   *menu_window; \
                                        menu_entry_struct *menu_entry; \

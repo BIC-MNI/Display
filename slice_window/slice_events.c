@@ -112,7 +112,6 @@ private  DEF_EVENT_FUNCTION( start_translate )
 private  DEF_EVENT_FUNCTION( terminate_translation )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION(  handle_mouse_movement );
     void   remove_action_table_function();
     void   update_view();
 

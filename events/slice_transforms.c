@@ -93,6 +93,7 @@ private  void  modify_slice_transform( graphics, transform )
     void           set_update_required();
     void           make_transform_relative_to_point();
     void           concat_transforms();
+    void           get_volume_size();
 
     if( get_current_volume( graphics, &volume ) )
     {
@@ -139,7 +140,7 @@ private  Boolean  compute_rotation( graphics, transform )
     Real           x1, x2, y1, y2, curr_angle, prev_angle;
     Real           compute_clockwise_rotation();
     Boolean        moved;
-    void           make_rotation_about_axis();
+    void           make_rotation_transform();
 
     moved = FALSE;
 
@@ -156,7 +157,7 @@ private  Boolean  compute_rotation( graphics, transform )
 
     if( prev_angle != curr_angle )
     {
-        make_rotation_about_axis( Z_AXIS, curr_angle - prev_angle, transform );
+        make_rotation_transform( curr_angle - prev_angle, Z_AXIS, transform );
         moved = TRUE;
     }
     else

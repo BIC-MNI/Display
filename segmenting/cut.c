@@ -687,7 +687,7 @@ private  int  get_dir( dx, dy )
     {
         (void) printf( "get_dir error\n" );
         d = 987654321;
-        (void) abort();
+        abort();
     }
 
     return( d );

@@ -40,7 +40,8 @@ typedef  struct
     Window_id       window_id;
     int             x_origin, y_origin;          
     int             x_size, y_size;          
-    Lcolour         background_colour;
+    Lcolour         background_colour_pixel;
+    Colour          background_colour;
     View_types      current_view_type;
     Transform       projection_matrices[(int) N_VIEW_TYPES];
     Transform       viewing_matrices[(int) N_VIEW_TYPES];

@@ -37,7 +37,6 @@ public  void  start_segmenting_polygons( graphics )
 private  void  turn_off_segmenting( action_table )
     action_table_struct   *action_table;
 {
-    DECL_EVENT_FUNCTION( terminate_segmenting );
     void   remove_action_table_function();
     void   pop_action_table();
 

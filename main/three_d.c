@@ -3,7 +3,6 @@
 #include  <def_string.h>
 #include  <def_graphics.h>
 #include  <def_globals.h>
-#include  <def_alloc.h>
 
 static    void                   initialize_three_d_events();
 

@@ -95,7 +95,7 @@ typedef  Status  event_function_decl();
 
 typedef  Status  (*event_function_type)();
 
-#define  DECL_EVENT_FUNCTION( f )  event_function_decl   f
+#define  DECL_EVENT_FUNCTION( f )  Status   f()
 
 #define  DEF_EVENT_FUNCTION( f )   Status   f( graphics, event ) \
                                                 graphics_struct  *graphics; \

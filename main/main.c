@@ -10,7 +10,6 @@ int  main( argc, argv )
 {
     arguments_struct arguments;
     char             *filename;
-    char             *getenv();
     String           runtime_directory;
     void             extract_directory();
     graphics_struct  *graphics;
