@@ -41,6 +41,7 @@ typedef  struct
     Point                      centre_of_objects;
     surface_extraction_struct  surface_extraction;
     film_loop_struct           film_loop;
+    surface_edit_struct        surface_edit;
 } three_d_window_struct;
 
 

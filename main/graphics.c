@@ -477,6 +477,9 @@ public  Status  load_graphics_file( graphics, filename )
     Boolean          get_range_of_object();
     void             rebuild_selected_list();
     void             set_current_object_index();
+    int              n_items;
+    Status           create_polygons_bintree();
+    Status           create_polygon_neighbours();
     Status           initialize_cursor();
 
     status = create_object( &object, MODEL );
@@ -504,6 +507,34 @@ public  Status  load_graphics_file( graphics, filename )
                 OBJECT->visibility = OFF;
             END_TRAVERSE_OBJECT
         }
+    }
+
+    if( status == OK )
+    {
+        BEGIN_TRAVERSE_OBJECT( status, object );
+            if( status == OK && OBJECT->object_type == POLYGONS )
+            {
+                polygons_struct   *polygons;
+
+                polygons = OBJECT->ptr.polygons;
+
+                n_items = polygons->n_items;
+
+                if( n_items > Polygon_bintree_threshold )
+                {
+                    status = create_polygons_bintree( polygons,
+                              ROUND( (Real) n_items * Bintree_size_factor ) );
+                }
+
+                if( Compute_neighbours_on_input )
+                {
+                    status = create_polygon_neighbours( polygons->n_items,
+                                                        polygons->indices,
+                                                        polygons->end_indices,
+                                                        &polygons->neighbours );
+                }
+            }
+        END_TRAVERSE_OBJECT
     }
 
     if( status == OK )

@@ -135,10 +135,11 @@ public  Status  delete_slice_window( slice_window )
     return( status );
 }
 
-public  Boolean  slice_window_has_volume( graphics )
+public  Boolean  slice_window_exists( graphics )
     graphics_struct   *graphics;
 {
-    return( graphics->slice.volume != (volume_struct *) 0 );
+    return( graphics != (graphics_struct *) 0 &&
+            graphics->associated[SLICE_WINDOW] != (graphics_struct *) 0 );
 }
 
 public  Boolean  find_slice_view_mouse_is_in( graphics, x_pixel, y_pixel,
@@ -154,7 +155,7 @@ public  Boolean  find_slice_view_mouse_is_in( graphics, x_pixel, y_pixel,
 
     found = FALSE;
 
-    if( slice_window_has_volume(graphics) )
+    if( slice_window_exists(graphics) )
     {
         for_less( c, 0, N_DIMENSIONS )
         {
@@ -447,7 +448,7 @@ public   void     get_2d_slice_axes( axis_index, x_index, y_index )
     }
 }
 
-public  Boolean  get_voxel_in_slice( graphics, x, y, z, axis_index )
+public  Boolean  get_voxel_in_slice_window( graphics, x, y, z, axis_index )
     graphics_struct   *graphics;
     int               *x, *y, *z;
     int               *axis_index;
@@ -469,6 +470,36 @@ public  Boolean  get_voxel_in_slice( graphics, x, y, z, axis_index )
     return( found );
 }
 
+public  Boolean  get_voxel_in_three_d_window( graphics, x, y, z )
+    graphics_struct   *graphics;
+    int               *x, *y, *z;
+{
+    Boolean          found;
+    polygons_struct  *polygons;
+    int              poly_index;
+    Point            intersection_point;
+    graphics_struct  *slice_window;
+
+    found = FALSE;
+
+    if( get_mouse_scene_intersection( graphics, &polygons, &poly_index,
+                                      &intersection_point ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        if( slice_window != (graphics_struct *) 0 )
+        {
+            if( convert_point_to_voxel( slice_window, &intersection_point,
+                                        x, y, z ) )
+            {
+                found = TRUE;
+            }
+        }
+    }
+
+    return( found );
+}
+
 public  Boolean  get_voxel_under_mouse( graphics, x, y, z, axis_index )
     graphics_struct   *graphics;
     int               *x, *y, *z;
@@ -476,19 +507,19 @@ public  Boolean  get_voxel_under_mouse( graphics, x, y, z, axis_index )
 {
     graphics_struct   *three_d, *slice_window;
     Boolean           found;
-    Boolean           get_voxel_in_slice();
-    Boolean           get_voxel_in_three_d();
+    Boolean           get_voxel_in_slice_window();
+    Boolean           get_voxel_in_three_d_window();
 
     three_d = graphics->associated[THREE_D_WINDOW];
     slice_window = graphics->associated[SLICE_WINDOW];
 
     if( G_is_mouse_in_window( &slice_window->window ) )
     {
-        found = get_voxel_in_slice( graphics, x, y, z, axis_index );
+        found = get_voxel_in_slice_window( graphics, x, y, z, axis_index );
     }
     else if( G_is_mouse_in_window( &three_d->window ) )
     {
-        found = get_voxel_in_three_d( three_d, x, y, z );
+        found = get_voxel_in_three_d_window( three_d, x, y, z );
         *axis_index = Z_AXIS;
     }
     else
@@ -499,38 +530,28 @@ public  Boolean  get_voxel_under_mouse( graphics, x, y, z, axis_index )
     return( found );
 }
 
+public  void  get_current_voxel( slice_window, x, y, z )
+    graphics_struct   *slice_window;
+    int               *x, *y, *z;
+{
+    *x = slice_window->slice.slice_views[X_AXIS].slice_index;
+    *y = slice_window->slice.slice_views[Y_AXIS].slice_index;
+    *z = slice_window->slice.slice_views[Z_AXIS].slice_index;
+}
+
 public  Boolean  set_current_voxel( slice_window, x, y, z )
     graphics_struct   *slice_window;
     int               x, y, z;
 {
     Boolean           changed;
     int               axis, indices[N_DIMENSIONS];
-    Point             new_origin;
-    void              get_voxel_centre();
-    graphics_struct   *graphics;
-    void              update_cursor();
     void              rebuild_slice_pixels();
-
-    graphics = slice_window->associated[THREE_D_WINDOW];
 
     indices[X_AXIS] = x;
     indices[Y_AXIS] = y;
     indices[Z_AXIS] = z;
 
-    get_voxel_centre( slice_window,
-                      indices[X_AXIS], indices[Y_AXIS], indices[Z_AXIS],
-                      &new_origin );
-
     changed = FALSE;
-
-    if( !EQUAL_POINTS( new_origin, graphics->three_d.cursor.origin ) )
-    {
-        graphics->three_d.cursor.origin = new_origin;
-
-        update_cursor( graphics );
-
-        changed = TRUE;
-    }
 
     for_less( axis, 0, N_DIMENSIONS )
     {
@@ -543,6 +564,99 @@ public  Boolean  set_current_voxel( slice_window, x, y, z )
             rebuild_slice_pixels( slice_window, axis );
 
             changed = TRUE;
+        }
+    }
+
+    return( changed );
+}
+
+private  void  set_cursor_colour( slice_window )
+    graphics_struct  *slice_window;
+{
+    int       x, y, z;
+    Real      value;
+    void      get_current_voxel();
+    Boolean   get_isosurface_value();
+    Boolean   voxel_contains_value();
+    void      update_cursor_colour();
+    void      G_ring_bell();
+
+    if( get_isosurface_value( slice_window->associated[THREE_D_WINDOW], &value))
+    {
+        get_current_voxel( slice_window, &x, &y, &z );
+
+        if( cube_is_within_volume( slice_window->slice.volume, x, y, z ) &&
+            voxel_contains_value( slice_window->slice.volume, x, y, z, value ) )
+        {
+            update_cursor_colour( slice_window->associated[THREE_D_WINDOW],
+                                  &Cursor_colour_on_surface );
+            G_ring_bell( Cursor_beep_on_surface );
+        }
+        else
+        {
+            update_cursor_colour( slice_window->associated[THREE_D_WINDOW],
+                                  &Cursor_colour_off_surface );
+        }
+    }
+}
+
+public  Boolean  update_cursor_from_voxel( slice_window )
+    graphics_struct   *slice_window;
+{
+    int               x, y, z;
+    Boolean           changed;
+    Point             new_origin;
+    void              get_voxel_centre();
+    graphics_struct   *graphics;
+    void              update_cursor();
+    void              set_cursor_colour();
+    void              get_current_voxel();
+
+    graphics = slice_window->associated[THREE_D_WINDOW];
+
+    get_current_voxel( slice_window, &x, &y, &z );
+
+    get_voxel_centre( slice_window, x, y, z, &new_origin );
+
+    if( !EQUAL_POINTS( new_origin, graphics->three_d.cursor.origin ) )
+    {
+        graphics->three_d.cursor.origin = new_origin;
+
+        set_cursor_colour( slice_window );
+
+        update_cursor( graphics );
+
+        changed = TRUE;
+    }
+    else
+    {
+        changed = FALSE;
+    }
+
+    return( changed );
+}
+
+public  Boolean  update_voxel_from_cursor( slice_window )
+    graphics_struct   *slice_window;
+{
+    int               x, y, z;
+    Boolean           changed;
+    graphics_struct   *graphics;
+    void              set_cursor_colour();
+
+    changed = FALSE;
+
+    if( slice_window_exists(slice_window) )
+    {
+        graphics = slice_window->associated[THREE_D_WINDOW];
+
+        if( convert_point_to_voxel( slice_window,
+                                    &graphics->three_d.cursor.origin,
+                                    &x, &y, &z ) )
+        {
+            changed = set_current_voxel( slice_window, x, y, z );
+
+            set_cursor_colour( slice_window );
         }
     }
 

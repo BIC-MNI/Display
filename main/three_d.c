@@ -19,7 +19,9 @@ public  Status  initialize_three_d_window( graphics )
     void                   initialize_three_d_events();
     Status                 status;
     Status                 initialize_current_object();
+    Status                 initialize_surface_extraction();
     Status                 initialize_cursor();
+    void                   initialize_surface_edit();
     void                   reset_view_parameters();
     three_d_window_struct  *three_d;
     void                   update_view();
@@ -52,7 +54,14 @@ public  Status  initialize_three_d_window( graphics )
 
     update_view( graphics );
 
-    status = initialize_current_object( &graphics->three_d.current_object );
+    initialize_surface_edit( &graphics->three_d.surface_edit );
+
+    status = initialize_surface_extraction( graphics );
+
+    if( status == OK )
+    {
+        status = initialize_current_object( &graphics->three_d.current_object );
+    }
 
     if( status == OK )
     {
@@ -68,8 +77,11 @@ private  void  initialize_three_d_events( graphics )
     DECL_EVENT_FUNCTION( handle_resize_three_d );
     void                 add_action_table_function();
     void                 initialize_virtual_spaceball();
+    void                 initialize_picking_polygon();
 
     initialize_virtual_spaceball( graphics );
+
+    initialize_picking_polygon( graphics );
 
     add_action_table_function( &graphics->action_table, WINDOW_RESIZE_EVENT,
                                handle_resize_three_d );
@@ -90,13 +102,25 @@ private  DEF_EVENT_FUNCTION( handle_resize_three_d )
     return( OK );
 }
 
-public  Status  delete_three_d( three_d )
-    three_d_window_struct  *three_d;
+public  Status  delete_three_d( graphics )
+    graphics_struct  *graphics;
 {
     Status    status;
     Status    terminate_current_object();
+    Status    delete_surface_extraction();
+    Status    delete_surface_edit();
 
-    status = terminate_current_object( &three_d->current_object );
+    status = terminate_current_object( &graphics->three_d.current_object );
+
+    if( status == OK )
+    {
+        status = delete_surface_edit( &graphics->three_d.surface_edit );
+    }
+
+    if( status == OK )
+    {
+        status = delete_surface_extraction( graphics );
+    }
 
     return( status );
 }

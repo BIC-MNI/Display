@@ -167,4 +167,21 @@ typedef  struct
     Pixel_colour  *image_storage;
 } film_loop_struct;
 
+typedef  struct
+{
+    polygons_struct  *polygons;
+    Boolean          polygons_set;
+    int              n_vertices;
+    int              n_vertices_alloced;
+    int              *vertices;
+
+    int              n_undos;
+    int              n_undos_alloced;
+    int              *undo_indices;
+
+    int              n_invisible;
+    int              n_invisible_alloced;
+    int              *invisible_indices;
+} surface_edit_struct;
+
 #endif

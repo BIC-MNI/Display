@@ -16,6 +16,7 @@ graphics_obj = graphics_lib/GL_graphics.o \
                structures/lights.o \
                structures/render.o \
                structures/view.o \
+               structures/window.o \
                files.o \
                points.o \
                progress.o \
@@ -34,6 +35,7 @@ display_obj = \
            callbacks/object_ops.o \
            callbacks/quit.o \
            callbacks/render_ops.o \
+           callbacks/surface_ops.o \
            callbacks/view_ops.o \
            callbacks/volume_ops.o \
            current_obj/current_obj.o \
@@ -43,6 +45,9 @@ display_obj = \
            surface_extraction/extract.o \
            surface_extraction/surface.o \
            surface_extraction/surface_events.o \
+           edit_surface/connected.o \
+           edit_surface/edit.o \
+           edit_surface/segment.o \
            events/clip_plane.o \
            events/film_loop.o \
            events/magnify.o \
@@ -67,15 +72,20 @@ display_obj = \
            slice_window/slice.o \
            slice_window/slice_events.o \
            alloc.o \
+           build_bintree.o \
+           bintree.o \
+           search_bintree.o \
            bitlist.o \
            colours.o \
            geometry.o \
            graphics_io.o \
            hash_table.o \
+           intersect.o \
            lines.o \
            marching_cubes.o \
            marching_no_holes.o \
            mr_io.o \
+           neighbours.o \
            objects.o \
            object_io.o \
            pixels.o \
@@ -85,12 +95,15 @@ display_obj = \
            resample.o \
            roi_io.o \
            string.o \
+           surface_path.o \
            volume.o \
            time.o
 
 display_lint = $(display_obj:.o=.ln)
 
 globals.o:  Include/def_globals.h
+
+globals.ln:  Include/def_globals.h
 
 test_obj = test.o \
            time.o \
@@ -109,7 +122,8 @@ display.pixie:
 	@pixie display -o $@
 
 lint_display: $(display_lint)
-	$(LINT) -u $(LINTFLAGS) $(display_lint)
+	@echo "Global lint started"
+	@$(LINT) -u $(LINTFLAGS) $(display_lint) | filter_lint
 
 test: $(test_obj)
 	$(CC) $(CFLAGS) $(test_obj) -o $@ $(LIBS)
@@ -136,3 +150,24 @@ film_loop: $(film_loop_obj)
 
 lint_film_loop: $(film_loop_lint)
 	$(LINT) -u $(LINTFLAGS) $(film_loop_lint)
+
+bintree_obj = test_bintree.o \
+              search_bintree.o \
+              bintree.o \
+              alloc.o \
+              time.o \
+              files.o \
+              points.o \
+              random.o \
+              geometry.o \
+              intersect/intersect.o \
+              build_bintree.o
+
+bintree_ln = $(bintree_obj:.o=.ln)
+
+test_bintree: $(bintree_obj)
+	$(CC) $(CFLAGS) $(bintree_obj) -o $@ $(LIBS)
+
+
+lint_bintree: $(bintree_ln)
+	$(LINT) -u $(LINTFLAGS) $(bintree_ln)

@@ -295,26 +295,29 @@ private  void  possibly_output( p )
     Status   io_polygons();
     Status   close_file();
 
-    if( (count-1) * Output_every > p->n_items )
+    if( Output_every > 0 )
     {
-        count = p->n_items / Output_every;
-    }
-
-    if( p->n_items > count * Output_every )
-    {
-        ++count;
-        (void) sprintf( name, Tmp_surface_name, count );
-
-        status = open_output_file( name, &file );
-
-        if( status == OK )
+        if( (count-1) * Output_every > p->n_items )
         {
-            status = io_polygons( file, OUTPUTTING, BINARY_FORMAT, p );
+            count = p->n_items / Output_every;
         }
 
-        if( status == OK )
+        if( p->n_items > count * Output_every )
         {
-            status = close_file( file );
+            ++count;
+            (void) sprintf( name, Tmp_surface_name, count );
+
+            status = open_output_file( name, &file );
+
+            if( status == OK )
+            {
+                status = io_polygons( file, OUTPUTTING, BINARY_FORMAT, p );
+            }
+
+            if( status == OK )
+            {
+                status = close_file( file );
+            }
         }
     }
 }

@@ -67,6 +67,11 @@
                        MENU_FUNCTION(set_colour_limits) \
                        MENU_FUNCTION(set_isovalue) \
                        MENU_FUNCTION(create_film_loop) \
+                       MENU_FUNCTION(set_edited_surface) \
+                       MENU_FUNCTION(start_segmenting_surface) \
+                       MENU_FUNCTION(reset_polygon_visibility) \
+                       MENU_FUNCTION(delete_connected_surface) \
+                       MENU_FUNCTION(input_polygons_bintree) \
                 
 
 typedef  struct

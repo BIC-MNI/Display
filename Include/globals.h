@@ -81,6 +81,9 @@ START_GLOBALS
     DEF_GLOBAL( Probe_y_delta, int, 20 )
 
     DEF_GLOBAL( Cursor_colour, Colour, 0.0 )
+    DEF_GLOBAL( Cursor_colour_on_surface, Colour, 0.0 )
+    DEF_GLOBAL( Cursor_colour_off_surface, Colour, 0.0 )
+    DEF_GLOBAL( Cursor_beep_on_surface, int, 1 )
     DEF_GLOBAL( Cursor_size_factor, Real, 0.05 )
     DEF_GLOBAL( Cursor_axis_size, Real, 10.0 )
     DEF_GLOBAL( Cursor_start_pixel, int, 3 )
@@ -124,6 +127,11 @@ START_GLOBALS
     DEF_GLOBAL_STRING( Tmp_surface_name, "" )
 
     DEF_GLOBAL( Marching_cubes_method, int, 1 )
+
+    DEF_GLOBAL( Compute_neighbours_on_input, Boolean, FALSE )
+    DEF_GLOBAL( Polygon_bintree_threshold, int, 100 )
+    DEF_GLOBAL( Bintree_size_factor, Real, 2.0 )
+
 END_GLOBALS
          
 #endif
