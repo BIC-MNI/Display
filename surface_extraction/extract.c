@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.46 1996-09-04 13:27:59 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.47 1996-09-24 19:30:48 david Exp $";
 #endif
 
 
@@ -31,6 +31,7 @@ typedef  struct
 private  int  extract_polygons(
     Volume                      volume,
     surface_extraction_struct   *surface_extraction,
+    Real                        corner_values[2][2][2],
     int                         voxel_index[],
     BOOLEAN                     first_voxel,
     int                         n_polys,
@@ -47,16 +48,19 @@ private  void  add_point_id_to_relevant_edges(
 private  int  add_polygon_to_list(
     Volume                      volume,
     surface_extraction_struct   *surface_extraction,
+    Real                        corner_values[2][2][2],
     int                         voxel_index[],
     int                         size,
     voxel_point_type            points_list[],
     edge_point_info             edge_point_list[2][2][2][N_DIMENSIONS] );
 private  int   create_surface_point(
     Volume              volume,
+    Real                corner_values[2][2][2],
     BOOLEAN             binary_flag,
     Real                min_value,
     Real                max_value,
     polygons_struct     *polygons,
+    int                 offset[],
     int                 voxel[],
     int                 edge_intersected,
     Point_classes       *pt_class );
@@ -203,7 +207,7 @@ private  BOOLEAN  extract_voxel_marching_cubes_surface(
     if( n_polys > 0 )
     {
         n_nondegenerate_polys = extract_polygons( volume, surface_extraction,
-                              voxel, first_voxel, n_polys, sizes, points_list );
+              corner_values, voxel, first_voxel, n_polys, sizes, points_list );
     }
     else
     {
@@ -240,6 +244,7 @@ public  BOOLEAN  extract_voxel_surface(
 private  int  extract_polygons(
     Volume                      volume,
     surface_extraction_struct   *surface_extraction,
+    Real                        corner_values[2][2][2],
     int                         voxel_index[],
     BOOLEAN                     first_voxel,
     int                         n_polys,
@@ -342,6 +347,7 @@ private  int  extract_polygons(
             if( connected )
             {
                 if( add_polygon_to_list( volume, surface_extraction,
+                                         corner_values,
                                          voxel_index, sizes[poly], poly_points,
                                          edge_point_list ) )
                 {
@@ -372,6 +378,7 @@ private  int  extract_polygons(
 private  int  add_polygon_to_list(
     Volume                      volume,
     surface_extraction_struct   *surface_extraction,
+    Real                        corner_values[2][2][2],
     int                         voxel_index[],
     int                         size,
     voxel_point_type            points_list[],
@@ -410,11 +417,11 @@ private  int  add_polygon_to_list(
             corner_index[Y] = voxel_index[Y] + pt->coord[Y];
             corner_index[Z] = voxel_index[Z] + pt->coord[Z];
 
-            point_ids[p] = create_surface_point( volume,
+            point_ids[p] = create_surface_point( volume, corner_values,
                                          surface_extraction->binary_flag,
                                          surface_extraction->min_value,
                                          surface_extraction->max_value,
-                                         polygons, corner_index,
+                                         polygons, pt->coord, corner_index,
                                          pt->edge_intersected, &pt_class );
 
             add_point_id_to_relevant_edges( sizes, pt,
@@ -457,10 +464,12 @@ private  int  add_polygon_to_list(
 
 private  int   create_surface_point(
     Volume              volume,
+    Real                corner_values[2][2][2],
     BOOLEAN             binary_flag,
     Real                min_value,
     Real                max_value,
     polygons_struct     *polygons,
+    int                 offset[],
     int                 voxel[],
     int                 edge_intersected,
     Point_classes       *pt_class )
@@ -478,14 +487,18 @@ private  int   create_surface_point(
     corner[X] = voxel[X];
     corner[Y] = voxel[Y];
     corner[Z] = voxel[Z];
-
     fill_Point( point1, (Real) corner[X], (Real) corner[Y], (Real) corner[Z] );
-    val1 = get_volume_real_value( volume, corner[X], corner[Y], corner[Z], 0,0);
 
     ++corner[edge_intersected];
-
     fill_Point( point2, (Real) corner[X], (Real) corner[Y], (Real) corner[Z] );
-    val2 = get_volume_real_value( volume, corner[X], corner[Y], corner[Z], 0,0);
+
+    corner[X] = offset[X];
+    corner[Y] = offset[Y];
+    corner[Z] = offset[Z];
+
+    val1 = corner_values[corner[X]][corner[Y]][corner[Z]];
+    ++corner[edge_intersected];
+    val2 = corner_values[corner[X]][corner[Y]][corner[Z]];
 
     *pt_class = get_isosurface_point( &point1, val1, &point2, val2,
                                       binary_flag, min_value, max_value,

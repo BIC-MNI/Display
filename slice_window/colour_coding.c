@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.38 1996-07-04 14:24:03 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.39 1996-09-24 19:30:46 david Exp $";
 #endif
 
 
@@ -110,6 +110,7 @@ private  void  realloc_label_colour_table(
     set_colour_of_label( slice_window, volume_index, n_colours++,
                          MEDIUM_TURQUOISE);
     set_colour_of_label( slice_window, volume_index, n_colours++, PURPLE );
+    set_colour_of_label( slice_window, volume_index, n_colours++, WHITE );
 
     n_around = 12;
     n_up = 1;

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/polygon_ops.c,v 1.67 1996-05-23 13:48:27 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/polygon_ops.c,v 1.68 1996-09-24 19:30:34 david Exp $";
 #endif
 
  
@@ -570,11 +570,10 @@ public  DEF_MENU_FUNCTION( separate_current_polygons )
 
         separate_object_points( &polygons->n_points, &polygons->points,
                                 polygons->end_indices[polygons->n_items-1],
-                                polygons->indices );
-        REALLOC( polygons->normals, polygons->n_points );
+                                polygons->indices,
+                                polygons->colour_flag, &polygons->colours );
 
-        if( polygons->colour_flag == PER_VERTEX_COLOURS )
-            REALLOC( polygons->colours, polygons->n_points );
+        REALLOC( polygons->normals, polygons->n_points );
 
         compute_polygon_normals( polygons );
 

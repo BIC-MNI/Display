@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.56 1996-04-19 13:25:12 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.57 1996-09-24 19:30:40 david Exp $";
 #endif
 
 #include  <display.h>
@@ -62,7 +62,6 @@ int  main(
     STRING           filename;
     display_struct   *graphics;
     display_struct   *menu, *slice_window;
-    Status           status;
     STRING           globals_filename, runtime_directory;
     int              n_directories;
     STRING           *directories;
@@ -116,8 +115,8 @@ int  main(
 
         if( file_exists( globals_filename ) )
         {
-            status = input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
-                                         display_globals, globals_filename );
+            (void) input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
+                                       display_globals, globals_filename );
         }
 
         delete_string( globals_filename );
@@ -128,120 +127,107 @@ int  main(
 
     set_alloc_checking( Alloc_checking_enabled );
 
-    status = OK;
+    initialize_graphics();
 
-    if( status == OK )
-    {
-        initialize_graphics();
+    if( create_graphics_window( THREE_D_WINDOW,
+                                Graphics_double_buffer_flag,
+                                &graphics, title, 0, 0 ) != OK )
+        return( 1 );
 
-        status = create_graphics_window( THREE_D_WINDOW,
-                                         Graphics_double_buffer_flag,
-                                         &graphics, title, 0, 0 );
+    G_set_transparency_state( graphics->window, Graphics_transparency_flag);
 
-        G_set_transparency_state( graphics->window, Graphics_transparency_flag);
-    }
-
-    if( status == OK )
-    {
-        status = create_graphics_window( MENU_WINDOW, ON, &menu, title,
-                                         Menu_window_width,
-                                         Menu_window_height );
-    }
+    if( create_graphics_window( MENU_WINDOW, ON, &menu, title,
+                                Menu_window_width, Menu_window_height ) != OK )
+        return( 1 );
 
     delete_string( title );
 
-    if( status == OK )
-    {
-        graphics->associated[THREE_D_WINDOW] = graphics;
-        graphics->associated[MENU_WINDOW] = menu;
-        graphics->associated[SLICE_WINDOW] = (display_struct *) 0;
+    graphics->associated[THREE_D_WINDOW] = graphics;
+    graphics->associated[MENU_WINDOW] = menu;
+    graphics->associated[SLICE_WINDOW] = (display_struct *) 0;
 
-        menu->associated[THREE_D_WINDOW] = graphics;
-        menu->associated[MENU_WINDOW] = menu;
-        menu->associated[SLICE_WINDOW] = (display_struct *) 0;
+    menu->associated[THREE_D_WINDOW] = graphics;
+    menu->associated[MENU_WINDOW] = menu;
+    menu->associated[SLICE_WINDOW] = (display_struct *) 0;
 
-        status = initialize_menu( menu, runtime_directory,
-                                  getenv( "HOME" ),
-                                  HARD_CODED_DISPLAY_DIRECTORY1,
-                                  HARD_CODED_DISPLAY_DIRECTORY2,
-                                  MENU_FILENAME );
-    }
+    (void) initialize_menu( menu, runtime_directory,
+                            getenv( "HOME" ),
+                            HARD_CODED_DISPLAY_DIRECTORY1,
+                            HARD_CODED_DISPLAY_DIRECTORY2,
+                            MENU_FILENAME );
 
     delete_string( runtime_directory );
 
-    if( status == OK )
+    initialize_argument_processing( argc, argv );
+
+    next_is_label_volume = FALSE;
+
+    while( get_string_argument( "", &filename ) )
     {
-        initialize_argument_processing( argc, argv );
-
-        next_is_label_volume = FALSE;
-
-        while( get_string_argument( "", &filename ) )
+        if( equal_strings( filename, "-version" ) )
         {
-            if( equal_strings( filename, "-version" ) )
+            print( "%s:  Version: %s\n", argv[0], version );
+            return( 0 );
+        }
+        else if( equal_strings( filename, "-label" ) )
+        {
+            if( next_is_label_volume )
+                print( "Ignoring extraneous -label\n" );
+            next_is_label_volume = TRUE;
+        }
+        else if( equal_strings( filename, "-global" ) )
+        {
+            if( !get_string_argument( "", &variable_name ) ||
+                !get_string_argument( "", &variable_value ) )
             {
-                print( "%s:  Version: %s\n", argv[0], version );
-                return( 0 );
+                print_error( "Error in arguments after -global.\n" );
+                return( 1 );
             }
-            else if( equal_strings( filename, "-label" ) )
-            {
-                if( next_is_label_volume )
-                    print( "Ignoring extraneous -label\n" );
-                next_is_label_volume = TRUE;
-            }
-            else if( equal_strings( filename, "-global" ) )
-            {
-                if( !get_string_argument( "", &variable_name ) ||
-                    !get_string_argument( "", &variable_value ) )
-                {
-                    print_error( "Error in arguments after -global.\n" );
-                    return( 1 );
-                }
 
-                if( set_global_variable_value( variable_name, variable_value )
-                                                     != OK )
-                {
-                    print("Error setting global variable from command line.\n");
-                }
+            if( set_global_variable_value( variable_name, variable_value )
+                                                 != OK )
+            {
+                print("Error setting global variable from command line.\n");
             }
+        }
+        else
+        {
+            if( !Enable_volume_caching )
+                set_n_bytes_cache_threshold( -1 );
             else
             {
-                if( !Enable_volume_caching )
-                    set_n_bytes_cache_threshold( -1 );
-                else
+                if( Volume_cache_threshold >= 0 )
+                    set_n_bytes_cache_threshold( Volume_cache_threshold );
+
+                if( Volume_cache_size >= 0 )
+                    set_default_max_bytes_in_cache( Volume_cache_size );
+
+                if( Volume_cache_block_size > 0 )
                 {
-                    if( Volume_cache_threshold >= 0 )
-                        set_n_bytes_cache_threshold( Volume_cache_threshold );
+                    int   dim, block_sizes[MAX_DIMENSIONS];
 
-                    if( Volume_cache_size >= 0 )
-                        set_default_max_bytes_in_cache( Volume_cache_size );
+                    for_less( dim, 0, MAX_DIMENSIONS )
+                        block_sizes[dim] = Volume_cache_block_size;
 
-                    if( Volume_cache_block_size > 0 )
-                    {
-                        int   dim, block_sizes[MAX_DIMENSIONS];
-
-                        for_less( dim, 0, MAX_DIMENSIONS )
-                            block_sizes[dim] = Volume_cache_block_size;
-
-                        set_default_cache_block_sizes( block_sizes );
-                    }
+                    set_default_cache_block_sizes( block_sizes );
                 }
-
-                status = load_graphics_file( graphics, filename,
-                                             next_is_label_volume );
-                if( status != OK )
-                    print( "Error loading %s\n", filename );
-                next_is_label_volume = FALSE;
             }
-        }
 
-        if( next_is_label_volume )
-            print( "Ignoring extraneous -label\n" );
+            if( load_graphics_file( graphics, filename,
+                                    next_is_label_volume ) != OK )
+                print( "Error loading %s\n", filename );
 
-        if( get_slice_window( graphics, &slice_window ) )
-        {
-            for_less( view, 0, N_SLICE_VIEWS )
-                reset_slice_view( slice_window, view );
+            next_is_label_volume = FALSE;
         }
+    }
+
+    if( next_is_label_volume )
+        print( "Ignoring extraneous -label\n" );
+
+    if( get_slice_window( graphics, &slice_window ) )
+    {
+        for_less( view, 0, N_SLICE_VIEWS )
+            reset_slice_view( slice_window, view );
     }
 
     if( !Enable_volume_caching )
@@ -266,38 +252,29 @@ int  main(
 
     initialize_view_to_fit( graphics );
 
-    if( status == OK )
-        rebuild_selected_list( graphics, menu );
+    rebuild_selected_list( graphics, menu );
 
-    if( status == OK )
-    {
-        reset_view_parameters( graphics, &Default_line_of_sight,
-                               &Default_horizontal );
+    reset_view_parameters( graphics, &Default_line_of_sight,
+                           &Default_horizontal );
 
-        update_view( graphics );
+    update_view( graphics );
 
-        update_all_menu_text( graphics );
+    update_all_menu_text( graphics );
 
-        set_update_required( graphics, NORMAL_PLANES );
-    }
+    set_update_required( graphics, NORMAL_PLANES );
 
-    if( status == OK )
-        status = main_event_loop();
+    (void) main_event_loop();
 
     terminate_graphics();
 
-    if( status == OK )
-        delete_marching_cubes_table();
+    delete_marching_cubes_table();
 
     delete_global_variables( SIZEOF_STATIC_ARRAY(display_globals),
                              display_globals );
 
     output_alloc_to_file( ".alloc_stats" );
 
-    if( status != OK )
-        print( "Program ended with error %d\n", (int) status );
-
-    return( (int) status );
+    return( 0 );
 }
 
 private  void      initialize_global_colours( void )

@@ -201,6 +201,7 @@ START_GLOBALS
     DEF_GLOBAL( Edge_point_threshold, Real, 0.25 )
     DEF_GLOBAL( Edge_point_new_density, Real, 0.125 )
     DEF_GLOBAL( Voxel_validity_if_mixed, BOOLEAN, FALSE )
+    DEF_GLOBAL( Set_invalid_to_zero, BOOLEAN, FALSE )
 
     DEF_GLOBAL( Max_fast_colour_lookup, int, 100000 )
     DEF_GLOBAL( Colour_table_size, int, 1000 )

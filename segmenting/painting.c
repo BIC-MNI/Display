@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.45 1996-07-18 13:54:46 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.46 1996-09-24 19:30:42 david Exp $";
 #endif
 
 #include  <display.h>
@@ -342,40 +342,27 @@ private  BOOLEAN  get_brush(
 
 private  BOOLEAN  inside_swept_brush(
     Real       origin[],
-    Vector     *scaled_delta,
+    Vector     *delta,
     Real       radius[],
     int        voxel[] )
 {
-    int      c, n_non_zero;
+    int      c;
     Real     d, mag, t, t_min, t_max;
     Point    voxel_offset, voxel_origin;
-    Vector   delta;
+    Vector   scaled_delta;
     BOOLEAN  inside;
 
-    n_non_zero = 0;
-
-    for_less( c, 0, N_DIMENSIONS )
+    if( radius[X] == 0.0 && radius[Y] == 0.0 && radius[Z] == 0.0 )
     {
-        if( radius[c] == 0.0 )
-            Vector_coord(voxel_offset,c) = 0.0f;
+        if( delta == NULL )
+        {
+            fill_Vector( scaled_delta, 0.0, 0.0, 0.0 );
+        }
         else
-        {
-            Vector_coord(voxel_offset,c) = (Point_coord_type)
-                               (((Real) voxel[c] - origin[c]) / radius[c]);
-            ++n_non_zero;
-        }
-    }
-
-    if( n_non_zero == 0 )
-    {
-        if( scaled_delta == NULL )
-        {
-            fill_Vector( delta, 0.0, 0.0, 0.0 );
-            scaled_delta = &delta;
-        }
+            scaled_delta = *delta;
 
         fill_Point( voxel_origin, origin[X], origin[Y], origin[Z] );
-        inside = clip_line_to_box( &voxel_origin, scaled_delta,
+        inside = clip_line_to_box( &voxel_origin, &scaled_delta,
                               (Real) voxel[X] - 0.5, (Real) voxel[X] + 0.5,
                               (Real) voxel[Y] - 0.5, (Real) voxel[Y] + 0.5,
                               (Real) voxel[Z] - 0.5, (Real) voxel[Z] + 0.5,
@@ -384,14 +371,34 @@ private  BOOLEAN  inside_swept_brush(
     }
     else
     {
-        if( scaled_delta != (Vector *) NULL )
-            d = DOT_VECTORS( *scaled_delta, *scaled_delta );
+        for_less( c, 0, N_DIMENSIONS )
+        {
+            if( radius[c] == 0.0 )
+                Vector_coord(voxel_offset,c) = 0.0f;
+            else
+                Vector_coord(voxel_offset,c) = (Point_coord_type)
+                               (((Real) voxel[c] - origin[c]) / radius[c]);
+        }
+
+        if( delta != NULL )
+        {
+            for_less( c, 0, N_DIMENSIONS )
+            {
+                if( radius[c] == 0.0 )
+                    Vector_coord(scaled_delta,c) = Vector_coord(*delta,c);
+                else
+                    Vector_coord(scaled_delta,c) = (Point_coord_type)
+                                          (RVector_coord(*delta,c) / radius[c]);
+            }
+
+            d = DOT_VECTORS( scaled_delta, scaled_delta );
+        }
         else
             d = 0.0;
 
         if( d != 0.0 )
         {
-            t = DOT_VECTORS( voxel_offset, *scaled_delta ) / d;
+            t = DOT_VECTORS( voxel_offset, scaled_delta ) / d;
 
             if( t < 0.0 )
                 t = 0.0;
@@ -401,7 +408,7 @@ private  BOOLEAN  inside_swept_brush(
             for_less( c, 0, N_DIMENSIONS )
             {
                 Vector_coord( voxel_offset, c ) -= (Point_coord_type) t *
-                                              Vector_coord(*scaled_delta,c);
+                                                 Vector_coord(scaled_delta,c);
             }
         }
 
@@ -423,7 +430,7 @@ private  void  fast_paint_labels(
     Real             start_voxel[],
     int              min_voxel[],
     int              max_voxel[],
-    Vector           *scaled_delta,
+    Vector           *delta,
     Real             radius[],
     int              label )
 {
@@ -548,8 +555,7 @@ private  void  fast_paint_labels(
             y_start = y_starts[ind[a2] - min_voxel[a2]+1];
             y_end = y_starts[ind[a2] - min_voxel[a2]+1 + y_inc];
 
-            if( inside_swept_brush( start_voxel, scaled_delta,
-                                    radius, ind ) )
+            if( inside_swept_brush( start_voxel, delta, radius, ind ) )
             {
                 value = get_voxel_label( slice_window, volume_index,
                                          ind[X], ind[Y], ind[Z] );
@@ -607,7 +613,7 @@ private  void  paint_labels(
     Real           min_limit, max_limit;
     Real           min_threshold, max_threshold, volume_value;
     Real           radius[N_DIMENSIONS];
-    Vector         scaled_delta;
+    Vector         delta;
     int            ind[N_DIMENSIONS];
     BOOLEAN        update_required;
  
@@ -623,10 +629,8 @@ private  void  paint_labels(
 
         for_less( c, 0, N_DIMENSIONS )
         {
-            Vector_coord(scaled_delta,c) = (Point_coord_type)
+            Vector_coord(delta,c) = (Point_coord_type)
                                        (end_voxel[c] - start_voxel[c]);
-            if( radius[c] != 0.0 )
-                Vector_coord(scaled_delta,c) /= (Point_coord_type) radius[c];
         }
 
         for_less( c, 0, N_DIMENSIONS )
@@ -661,7 +665,7 @@ private  void  paint_labels(
             fast_paint_labels( slice_window, volume_index, view_index,
                                a1, a2, axis,
                                start_voxel, min_voxel, max_voxel,
-                               &scaled_delta, radius, label );
+                               &delta, radius, label );
         }
         else
         {
@@ -671,7 +675,7 @@ private  void  paint_labels(
                 {
                     for_inclusive( ind[axis], min_voxel[axis], max_voxel[axis] )
                     {
-                        if( inside_swept_brush( start_voxel, &scaled_delta,
+                        if( inside_swept_brush( start_voxel, &delta,
                                                 radius, ind ) )
                         {
                             value = get_voxel_label( slice_window, volume_index,

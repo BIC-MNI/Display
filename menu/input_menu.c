@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.131 1996-05-24 18:43:16 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.132 1996-09-24 19:30:41 david Exp $";
 #endif
 
 #include  <display.h>
@@ -234,6 +234,7 @@ MENU_F(set_paint_z_brush_radius) \
 MENU_F(copy_labels_from_lower_slice) \
 MENU_F(copy_labels_from_higher_slice) \
 MENU_F(set_current_paint_label) \
+MENU_F(set_current_erase_label) \
 MENU_F(set_label_colour) \
 MENU_F(set_slice_window_n_labels) \
 MENU_F(save_labels) \

@@ -1,7 +1,6 @@
 Progress_threshold = 1000;
 Alloc_checking_enabled = FALSE;
 Alloc_checking_enabled = TRUE;
-Alloc_checking_enabled = FALSE;
 
 Initial_background_colour = DARK_SLATE_GREY;
 
@@ -279,7 +278,6 @@ Initial_atlas_transparent_threshold = 220;
 Initial_atlas_tolerance_x = 1.0;
 Initial_atlas_tolerance_y = 1.0;
 Initial_atlas_tolerance_z = 1.0;
-Atlas_filename = /avgbrain/atlas/talairach/obj/Talairach_atlas.list;
 Default_atlas_state = FALSE;
 
 Draw_brush_outline = TRUE;

@@ -13,6 +13,7 @@ root
     transient 'r'      objects                      "Objects"
     transient 't'      file                         "File"
     transient 'y'      volume_transform             "Volume Transform"
+    transient 'u'      translate_labels             "Translate Labels"
 
     transient 'a'      atlas                        "Atlas"
     transient 's'      slice_view                   "Slice View"
@@ -374,7 +375,7 @@ segmenting
     transient 'b'    toggle_display_labels           "Show Labels: %s"
     transient 'n'    copy_labels_from_lower_slice  "Copy from Lt/Inf/Post Slice"
 
-    transient '1'    translate_labels                 "Translate Labels"
+    transient '1'    set_current_erase_label          "Set Erase Lbl: %d"
     transient '2'    toggle_fast_update               "Fast Update: %s"
     transient '3'    toggle_cursor_follows_paintbrush "Cursor Follows: %s"
     transient '4'    toggle_cursor_visibility         "Cursor Vis: %s"

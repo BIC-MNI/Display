@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.71 1996-05-17 19:38:12 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.72 1996-09-24 19:30:39 david Exp $";
 #endif
 
 
@@ -545,7 +545,8 @@ private  void  update_graphics_normal_planes_only(
     update_interrupted_struct    *interrupt )
 {
     Real          start, end;
-    BOOLEAN       past_last_object;
+    int           i;
+    BOOLEAN       past_last_object, out_of_date;
 
     start = current_realtime_seconds();
 
@@ -572,6 +573,25 @@ private  void  update_graphics_normal_planes_only(
         G_update_window( display->window );
 
     display->update_required[NORMAL_PLANES] = FALSE;
+
+    if( display->window_type == SLICE_WINDOW &&
+        !display->update_interrupted.last_was_interrupted &&
+        G_get_double_buffer_state( display->window ) )
+    {
+        out_of_date = FALSE;
+        for_less( i, 0, N_MODELS )
+        {
+            if( get_model_bitplanes(get_graphics_model(display,i)) ==
+                                     NORMAL_PLANES &&
+                display->slice.viewport_update_flags[i][0] )
+            {
+                out_of_date = TRUE;
+            }
+        }
+
+        if( out_of_date )
+            display->update_required[NORMAL_PLANES] = TRUE;
+    }
 }
 
 public  void  delete_graphics_window(

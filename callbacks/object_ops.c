@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/object_ops.c,v 1.54 1996-09-12 17:06:13 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/object_ops.c,v 1.55 1996-09-24 19:30:33 david Exp $";
 #endif
 
 
@@ -506,11 +506,9 @@ public  DEF_MENU_FUNCTION( mark_vertices )
     Point          *points;
     char           label[EXTREMELY_LARGE_STRING_SIZE];
 
-    if( get_current_object( display, &object ) &&
-        object->object_type == LINES )
+    if( get_current_object( display, &object ) )
     {
-        n_points = get_lines_ptr(object)->n_points;
-        points = get_lines_ptr(object)->points;
+        n_points = get_object_points( object, &points );
 
         for_less( i, 0, n_points )
         {
@@ -526,7 +524,7 @@ public  DEF_MENU_FUNCTION( mark_vertices )
 
 public  DEF_MENU_UPDATE(mark_vertices )
 {
-    return( current_object_is_this_type(display,LINES) );
+    return( current_object_exists(display) );
 }
 
 /* ARGSUSED */

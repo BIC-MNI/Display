@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.39 1996-07-02 12:56:14 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.40 1996-09-24 19:30:35 david Exp $";
 #endif
 
 
@@ -164,6 +164,72 @@ public  DEF_MENU_UPDATE(set_current_paint_label )
         current_label = slice_window->slice.current_paint_label;
     else
         current_label = Default_paint_label;
+
+    set_menu_text_int( menu_window, menu_entry, current_label );
+
+    return( state );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_current_erase_label )
+{
+    int             label, axis_index, volume_index;
+    Real            voxel[N_DIMENSIONS];
+    int             int_voxel[N_DIMENSIONS];
+    display_struct  *slice_window;
+    BOOLEAN         done;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        done = FALSE;
+
+        if( get_voxel_under_mouse( display, &volume_index, &axis_index, voxel ))
+        {
+            convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+            label = get_voxel_label( slice_window, volume_index,
+                                     int_voxel[X], int_voxel[Y], int_voxel[Z] );
+            done = TRUE;
+        }
+
+        if( !done )
+        {
+            print( "Enter current erase label: " );
+
+            if( input_int( stdin, &label ) == OK &&
+                label >= 0 && label < get_num_labels(slice_window,
+                                      get_current_volume_index(slice_window)) )
+                done = TRUE;
+
+            (void) input_newline( stdin );
+        }
+
+        if( done )
+        {
+            slice_window->slice.current_erase_label = label;
+
+            print( "Erase label set to: %d\n",
+                   slice_window->slice.current_erase_label );
+        }
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_current_erase_label )
+{
+    BOOLEAN          state;
+    int              current_label;
+    display_struct   *slice_window;
+
+    state = get_slice_window( display, &slice_window );
+
+    if( state )
+        current_label = slice_window->slice.current_erase_label;
+    else
+        current_label = 0;
 
     set_menu_text_int( menu_window, menu_entry, current_label );
 

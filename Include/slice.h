@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.71 1996-05-24 18:43:04 david Exp $";
+static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.72 1996-09-24 19:30:30 david Exp $";
 #endif
 
 #include  <volume_io.h>
@@ -165,6 +165,7 @@ typedef  struct
 
     Real                   x_brush_radius, y_brush_radius, z_brush_radius;
     int                    current_paint_label;
+    int                    current_erase_label;
     int                    painting_view_index;
     object_struct          *brush_outline;
     slice_undo_struct      undo;
