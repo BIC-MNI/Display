@@ -5,6 +5,7 @@
 #include  <def_objects.h>
 #include  <def_menu.h>
 #include  <def_queue.h>
+#include  <def_stack.h>
 
 typedef  struct
 {
@@ -92,10 +93,25 @@ typedef  struct
     Point         line_direction;
 } point_position_struct;
 
+/* for graphics windows */
+
 #define  THREED_MODEL           0
 #define  POINT_POSITION_MODEL   1
 
+/* for menu windows */
+
+#define  MENU_BUTTONS_MODEL     0
+#define  SELECTED_MODEL         1
+
 #define  N_MODELS               2
+
+typedef  struct
+{
+    int           object_index;
+    model_struct  *model;
+} selection_entry;
+
+typedef  STACK_STRUCT( selection_entry )   selection_struct;
 
 typedef  struct  graphics_struct
 {
@@ -112,7 +128,10 @@ typedef  struct  graphics_struct
     action_table_struct    action_table;
     point_position_struct  point_position;
 
-    model_struct           models[N_MODELS];
+    object_struct          *models[N_MODELS];
+
+    selection_struct       current_object;
+
     Point                  min_limit;
     Point                  max_limit;
     Point                  centre_of_objects;
