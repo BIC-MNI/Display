@@ -295,7 +295,6 @@ public  DEF_MENU_FUNCTION( push_menu )      /* ARGSUSED */
 
     remove_menu_actions( &menu_window->menu,
                          menu_window->menu.stack[menu_window->menu.depth] );
-    turn_on_menu_entry( &menu_window->menu, menu_entry );
 
     if( menu_window->menu.depth >= MAX_MENU_DEPTH )
     {
