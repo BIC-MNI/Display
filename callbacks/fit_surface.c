@@ -141,13 +141,13 @@ public  DEF_MENU_UPDATE(delete_surface_point)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
 {
-    int                  n_parameters, n_fitting_evaluations;
+    int                  n_parameters;
     Status               status;
-    minimization_struct  minimization;
-    Status               initialize_amoeba();
-    void                 amoeba();
-    Status               terminate_amoeba();
+    Status               apply_simplex_minimization();
+    void                 apply_one_parameter_minimization();
+    double               evaluate_graphics_fit();
     void                 display_parameters();
+    const    double      TOLERANCE = 1.0e-4;
 
     n_parameters = graphics->three_d.surface_fitting.surface_representation->
            get_num_parameters( graphics->three_d.surface_fitting.descriptors );
@@ -173,18 +173,28 @@ public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
                 graphics->three_d.surface_fitting.n_surface_points );
 
     if( status == OK )
-        status = initialize_amoeba( &minimization, (void *) graphics,
-                                graphics->three_d.surface_fitting.parameters,
-                                n_parameters );
+    {
+        switch( (Minimization_methods) Minimization_method )
+        {
+        case DOWNHILL_SIMPLEX:
+            status = apply_simplex_minimization( n_parameters,
+                                  graphics->three_d.surface_fitting.parameters,
+                                  evaluate_graphics_fit, (void *) graphics );
+            break;
 
-    if( status == OK )
-        amoeba( &minimization, n_parameters, Fitting_tolerance,
-                Max_fitting_evaluations, &n_fitting_evaluations, 
-                graphics->three_d.surface_fitting.parameters );
+        case ONE_PARAMETER_MINIMIZATION:
+            apply_one_parameter_minimization( 1, TOLERANCE, n_parameters,
+                        graphics->three_d.surface_fitting.parameters,
+                        graphics->three_d.surface_fitting.max_parameter_deltas,
+                        graphics->three_d.surface_fitting.parameter_deltas,
+                        evaluate_graphics_fit, (void *) graphics );
+            break;
 
-    if( status == OK )
-        status = terminate_amoeba( &minimization );
-
+        default:
+            PRINT_ERROR( "Unrecognized minimization.\n" );
+        }
+    }
+  
     if( status == OK && graphics->three_d.surface_fitting.n_surface_points > 0 )
         FREE( status,
               graphics->three_d.surface_fitting.surface_point_distances );
