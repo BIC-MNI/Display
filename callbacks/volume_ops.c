@@ -424,7 +424,7 @@ public  DEF_MENU_FUNCTION(save_inactive_voxels)   /* ARGSUSED */
                 {
                     for_less( z, 0, volume->size[Z_AXIS] )
                     {
-                        if( !get_voxel_activity( volume, x, y, z ) )
+                        if( get_voxel_inactivity_flag( volume, x, y, z ) )
                         {
                             if( status == OK )
                             {
@@ -568,6 +568,104 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(set_colour_limits )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(reset_inactivities)   /* ARGSUSED */
+{
+    volume_struct    *volume;
+    void             set_all_voxel_inactivities();
+    void             rebuild_slice_models();
+    graphics_struct  *slice_window;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        set_all_voxel_inactivities( volume, FALSE );
+
+        rebuild_slice_models( slice_window );
+
+        slice_window->update_required = TRUE;
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(reset_inactivities )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(reset_activities)   /* ARGSUSED */
+{
+    volume_struct    *volume;
+    void             set_all_voxel_activities();
+    void             rebuild_slice_models();
+    graphics_struct  *slice_window;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        set_all_voxel_activities( volume, TRUE );
+
+        rebuild_slice_models( slice_window );
+
+        slice_window->update_required = TRUE;
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(reset_activities )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(generate_activities )   /* ARGSUSED */
+{
+    int              x, y, z;
+    Boolean          get_current_volume();
+    void             generate_activity_from_point();
+    volume_struct    *volume;
+    graphics_struct  *slice_window;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        if( convert_point_to_voxel( slice_window,
+                                    &graphics->three_d.cursor.origin,
+                                    &x, &y, &z ) )
+        {
+            generate_activity_from_point( graphics, x, y, z );
+
+            rebuild_slice_models( slice_window );
+
+            slice_window->update_required = TRUE;
+        }
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(generate_activities )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(set_isovalue )   /* ARGSUSED */
+{
+    void             set_isosurface_value();
+
+    set_isosurface_value( &graphics->three_d.surface_extraction );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_isovalue )   /* ARGSUSED */
 {
     return( OK );
 }
