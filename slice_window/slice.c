@@ -13,6 +13,7 @@ public  Status  initialize_slice_window( graphics )
     void    initialize_slice_window_events();
     int     c;
     void    initialize_segmenting();
+    void    build_default_colour_map();
 
     graphics->slice.volume = (volume_struct *) 0;
 
@@ -51,6 +52,10 @@ public  Status  initialize_slice_window( graphics )
     if( status == OK )
     {
         status = initialize_colour_coding( &graphics->slice.colour_coding );
+
+        build_default_colour_map( &graphics->slice.colour_coding,
+                                  &Min_colour, &Max_colour,
+                                  (Colour_spaces) Interpolation_space );
     }
 
     graphics->slice.fast_lookup_present = FALSE;
@@ -163,14 +168,22 @@ public  void  change_colour_coding_range( graphics, min_value, max_value )
     graphics_struct   *graphics;
     Real              min_value, max_value;
 {
-    int              i, val, min_val, max_val;
     void             set_colour_coding_range();
-    Colour           col, coded_col;
-    Pixel_colour     pix_colour;
-    Pixel_colour     get_colour_coding();
+    void             rebuild_fast_lookup();
 
     set_colour_coding_range( &graphics->slice.colour_coding,
                              min_value, max_value );
+
+    rebuild_fast_lookup( graphics );
+}
+
+public  void  rebuild_fast_lookup( graphics )
+    graphics_struct   *graphics;
+{
+    int              i, val, min_val, max_val;
+    void             set_colour_coding_range();
+    Colour           col, coded_col;
+    void             get_colour_coding();
 
     if( graphics->slice.fast_lookup_present )
     {
@@ -189,9 +202,8 @@ public  void  change_colour_coding_range( graphics, min_value, max_value )
 
             for_inclusive( val, min_val, max_val )
             {
-                pix_colour = get_colour_coding( &graphics->slice.colour_coding,
-                                                (Real) val );
-                PIXEL_TO_COLOUR( pix_colour, coded_col );
+                get_colour_coding( &graphics->slice.colour_coding,
+                                   (Real) val, &coded_col );
                 MULT_COLOURS( coded_col, col, coded_col );
                 COLOUR_TO_PIXEL( coded_col,
                                  graphics->slice.fast_lookup[i][val-min_val] );
@@ -818,7 +830,10 @@ public  void  set_slice_window_update( graphics, view_index )
     graphics_struct  *graphics;
     int              view_index;
 {
+    void  set_update_required();
+
     graphics->slice.slice_views[view_index].update_flag = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 }
 
 public  void  update_slice_window( graphics )

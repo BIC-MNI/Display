@@ -4,12 +4,15 @@
 #include  <def_queue.h>
 
 public  Status  set_visibility_around_poly( polygons, poly,
-                                            max_polys_to_do, visibility_flag,
+                                            max_polys_to_do,
+                                            set_visibility_flag,
+                                            new_visibility,
                                             set_colour_flag, colour )
     polygons_struct  *polygons;
     int              poly;
     int              max_polys_to_do;
-    Boolean          visibility_flag;
+    Boolean          set_visibility_flag;
+    Boolean          new_visibility;
     Boolean          set_colour_flag;
     Colour           *colour;
 {
@@ -20,12 +23,19 @@ public  Status  set_visibility_around_poly( polygons, poly,
     Status                set_polygon_per_item_colours();
     unsigned char         *polygons_done_flags;
     QUEUE_STRUCT( int )   queue;
+    void                  modify_polygon();
 
     status = OK;
 
-    if( polygons->n_items > 0 )
+    if( polygons->n_items > 0  &&
+        should_modify_polygon( polygons, poly, set_visibility_flag,
+                               new_visibility ) )
     {
-        status = create_polygons_visibilities( polygons );
+        if( set_visibility_flag )
+            status = create_polygons_visibilities( polygons );
+
+        if( status == OK && set_colour_flag )
+            status = set_polygon_per_item_colours( polygons );
 
         if( status == OK && polygons->neighbours == (int *) 0 )
             status = create_polygon_neighbours( polygons->n_items,
@@ -35,9 +45,6 @@ public  Status  set_visibility_around_poly( polygons, poly,
         if( status == OK )
             ALLOC1( status, polygons_done_flags, polygons->n_items,
                     unsigned char );
-
-        if( status == OK && set_colour_flag )
-            status = set_polygon_per_item_colours( polygons );
 
         if( status == OK )
         {
@@ -55,10 +62,8 @@ public  Status  set_visibility_around_poly( polygons, poly,
             {
                 REMOVE_FROM_QUEUE( queue, poly );
 
-                if( set_colour_flag )
-                    polygons->colours[poly] = *colour;
-                else
-                    polygons->visibilities[poly] = visibility_flag;
+                modify_polygon( polygons, poly, set_visibility_flag,
+                                new_visibility, set_colour_flag, colour );
 
                 ++n_done;
 
@@ -69,10 +74,10 @@ public  Status  set_visibility_around_poly( polygons, poly,
                     index = POINT_INDEX( polygons->end_indices, poly, i );
                     neigh = polygons->neighbours[index];
 
-                    if( neigh >= 0 &&
-                        !polygons_done_flags[neigh] &&
-                        (polygons->visibilities[neigh] ||
-                         (visibility_flag && !set_colour_flag) ) )
+                    if( neigh >= 0 && !polygons_done_flags[neigh] &&
+                        should_modify_polygon( polygons, neigh,
+                                               set_visibility_flag,
+                                               new_visibility ) )
                     {
                         INSERT_IN_QUEUE( status, queue, int, neigh );
                         polygons_done_flags[neigh] = TRUE;
@@ -91,4 +96,99 @@ public  Status  set_visibility_around_poly( polygons, poly,
     }
 
     return( status );
+}
+
+private  void  modify_polygon( polygons, poly, set_visibility_flag,
+                               new_visibility, set_colour_flag, colour )
+    polygons_struct   *polygons;
+    int               poly;
+    Boolean           set_visibility_flag;
+    Boolean           new_visibility;
+    Boolean           set_colour_flag;
+    Colour            *colour;
+{
+    if( set_visibility_flag )
+        polygons->visibilities[poly] = new_visibility;
+
+    if( set_colour_flag )
+        polygons->colours[poly] = *colour;
+}
+
+private  Boolean  should_modify_polygon( polygons, poly, set_visibility_flag,
+                                         new_visibility )
+    polygons_struct   *polygons;
+    int               poly;
+    Boolean           set_visibility_flag;
+    Boolean           new_visibility;
+{
+    Boolean  polygon_is_currently_visible;
+
+    polygon_is_currently_visible =
+               ( polygons->visibilities == (Smallest_int *) 0 ||
+                 polygons->visibilities[poly] );
+
+    if( !set_visibility_flag )
+        return( polygon_is_currently_visible );
+    else
+        return( polygon_is_currently_visible != new_visibility );
+}
+
+public  void  crop_polygons_visibilities( polygons, axis_index, position,
+                                          cropping_above )
+    polygons_struct  *polygons;
+    int              axis_index;
+    Real             position;
+    Boolean          cropping_above;
+{
+    Status  status;
+    Status  create_polygons_visibilities();
+    int     i;
+
+    status = create_polygons_visibilities( polygons );
+
+    if( status == OK )
+    {
+        for_less( i, 0, polygons->n_items )
+        {
+            if( polygon_on_invisible_side( polygons, i, axis_index, position,
+                                           cropping_above ) )
+            {
+                polygons->visibilities[i] = FALSE;
+            }
+        }
+    }
+}
+
+private  Boolean  polygon_on_invisible_side( polygons, poly_index, axis_index,
+                                             position, cropping_above )
+    polygons_struct  *polygons;
+    int              poly_index;
+    int              axis_index;
+    Real             position;
+    Boolean          cropping_above;
+{
+    Boolean  on_invisible_size_only;
+    int      i, point_index, size;
+    Real     coord;
+
+    size = GET_OBJECT_SIZE( *polygons, poly_index );
+
+    on_invisible_size_only = TRUE;
+
+    for_less( i, 0, size )
+    {
+        point_index = polygons->indices[
+                    POINT_INDEX(polygons->end_indices,poly_index,i)];
+
+        coord = Point_coord(polygons->points[point_index],axis_index);
+
+        if( coord < position && cropping_above ||
+            coord > position && !cropping_above )
+        {
+            on_invisible_size_only = FALSE;
+            break;
+        }
+    }
+
+    return( on_invisible_size_only );
 }

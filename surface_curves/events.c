@@ -50,7 +50,8 @@ public  void  start_surface_curve( graphics )
         add_action_table_function( &graphics->action_table,
                                    LEFT_MOUSE_DOWN_EVENT, pick_point );
 
-        graphics->three_d.surface_curve.lines->colour = Surface_curve_colour;
+        graphics->three_d.surface_curve.lines->colours[0] =
+                                                  Surface_curve_colour;
         graphics->three_d.surface_curve.lines->line_thickness =
                                                   Surface_curve_thickness;
         graphics->three_d.surface_curve.lines->n_points = 0;
@@ -158,6 +159,8 @@ public  void  make_surface_curve_permanent( graphics )
             status = add_object_to_model( get_current_model(graphics),
                                           object );
         }
+
+        ALLOC1( status, info->lines->colours, 1, Colour );
 
         info->lines->n_points = 0;
         info->lines->n_items = 0;

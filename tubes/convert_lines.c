@@ -28,7 +28,10 @@ public  Status  convert_lines_to_tubes( graphics, lines, n_around, radius )
         {
             quadmesh = object->ptr.quadmesh;
 
-            quadmesh->colour = lines->colour;
+            quadmesh->colour_flag = ONE_COLOUR;
+
+            ALLOC1( status, quadmesh->colours, 1, Colour );
+            quadmesh->colours[0] = lines->colours[0];
             get_default_surfprop( &quadmesh->surfprop );
 
             line_size = GET_OBJECT_SIZE( *lines, l );

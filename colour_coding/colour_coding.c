@@ -42,9 +42,11 @@ public  void  build_spectral_coding( colour_coding )
     colour_coding_struct  *colour_coding;
 {
     void    rebuild_colour_coding();
-    static  colour_point  desc[] = { {0.0,  { 0.0, 0.0, 1.0 }, HSL_SPACE },
-                                     {0.9,  { 1.0, 0.0, 0.0 }, HSL_SPACE },
-                                     {1.0,  { 1.0, 1.0, 1.0 }, RGB_SPACE } };
+    static  colour_point  desc[] = { {0.0,     { 0.0, 0.0, 1.0 }, HSL_SPACE },
+                                     {0.333,   { 0.0, 1.0, 0.0 }, HSL_SPACE },
+                                     {0.74,    { 1.0, 0.0, 0.0 }, HSL_SPACE },
+                                     {0.86,    { 1.0, 0.0, 1.0 }, HSL_SPACE },
+                                     {1.0,     { 1.0, 1.0, 1.0 }, HSL_SPACE } };
 
     rebuild_colour_coding( colour_coding, SIZEOF_STATIC_ARRAY(desc), desc );
 }
@@ -77,10 +79,10 @@ private  void  rebuild_colour_coding( colour_coding, n_points, points )
         if( i == 0 )
             first_entry = 0;
         else
-            first_entry = ROUND( points[i].position * (Real) n_entries );
+            first_entry = ROUND( points[i].position * (Real) (n_entries-1) );
 
         if( i < n_points-1 )
-            last_entry = ROUND( points[i+1].position * (Real) n_entries );
+            last_entry = ROUND( points[i+1].position * (Real) (n_entries-1) );
         else
             last_entry = n_entries - 1;
 
@@ -118,6 +120,11 @@ private  void  interpolate_colours( first_entry, last_entry, table,
     {
         rgb_to_hsl( r0, g0, b0, &r0, &g0, &b0 );
         rgb_to_hsl( r1, g1, b1, &r1, &g1, &b1 );
+
+        if( r0 == 1.0 && r1 < 0.5 )
+            r0 = 0.0;
+        if( r1 == 1.0 && r0 < 0.5 )
+            r1 = 0.0;
     }
 
     for_inclusive( i, first_entry, last_entry )

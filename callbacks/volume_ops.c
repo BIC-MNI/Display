@@ -40,6 +40,56 @@ public  Boolean  get_current_volume( graphics, volume )
     return( found );
 }
 
+public  Boolean  get_slice_view_index_under_mouse( graphics, view_index )
+    graphics_struct  *graphics;
+    int              *view_index;
+{
+    Boolean          found;
+    volume_struct    *volume;
+    graphics_struct  *slice_window;
+    Point            *mouse;
+    int              x, y;
+    void             get_mouse_in_pixels();
+    Boolean          find_slice_view_mouse_is_in();
+
+    found = FALSE;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        mouse = &slice_window->mouse_position;
+
+        get_mouse_in_pixels( slice_window, mouse, &x, &y );
+
+        if( find_slice_view_mouse_is_in( slice_window, x, y, view_index ) )
+            found = TRUE;
+    }
+
+    return( found );
+}
+
+public  Boolean  get_axis_view_index_under_mouse( graphics, axis_index )
+    graphics_struct  *graphics;
+    int              *axis_index;
+{
+    Boolean          found;
+    int              view_index;
+    graphics_struct  *slice_window;
+
+    found = get_slice_view_index_under_mouse( graphics, &view_index );
+
+    if( found )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        *axis_index = 
+             slice_window->slice.slice_views[view_index].axis_map[Z_AXIS];
+    }
+
+    return( found );
+}
+
 public  DEF_MENU_FUNCTION( advance_slice )   /* ARGSUSED */
 {
     volume_struct   *volume;
@@ -261,32 +311,22 @@ public  DEF_MENU_UPDATE(open_slice_window )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION(double_slice_voxels)   /* ARGSUSED */
 {
     Status           status;
-    volume_struct    *volume;
     graphics_struct  *slice_window;
-    Point            *mouse;
-    int              x, y, view_index;
-    void             get_mouse_in_pixels();
-    Boolean          find_slice_view_mouse_is_in();
+    int              view_index;
+    Boolean          get_slice_view_index_under_mouse();
     void             set_slice_window_update();
     void             set_update_required();
 
     status = OK;
 
-    if( get_current_volume( graphics, &volume ) )
+    if( get_slice_view_index_under_mouse( graphics, &view_index ) )
     {
         slice_window = graphics->associated[SLICE_WINDOW];
 
-        mouse = &slice_window->mouse_position;
-
-        get_mouse_in_pixels( slice_window, mouse, &x, &y );
-
-        if( find_slice_view_mouse_is_in( slice_window, x, y, &view_index ) )
-        {
-            slice_window->slice.slice_views[view_index].x_scale *= 2.0;
-            slice_window->slice.slice_views[view_index].y_scale *= 2.0;
-            set_slice_window_update( slice_window, view_index );
-            set_update_required( slice_window, NORMAL_PLANES );
-        }
+        slice_window->slice.slice_views[view_index].x_scale *= 2.0;
+        slice_window->slice.slice_views[view_index].y_scale *= 2.0;
+        set_slice_window_update( slice_window, view_index );
+        set_update_required( slice_window, NORMAL_PLANES );
     }
 
     return( status );
@@ -300,32 +340,22 @@ public  DEF_MENU_UPDATE(double_slice_voxels )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
 {
     Status           status;
-    volume_struct    *volume;
     graphics_struct  *slice_window;
-    Point            *mouse;
-    int              x, y, view_index;
-    void             get_mouse_in_pixels();
-    Boolean          find_slice_view_mouse_is_in();
+    int              view_index;
+    Boolean          get_slice_view_index_under_mouse();
     void             set_slice_window_update();
     void             set_update_required();
 
     status = OK;
 
-    if( get_current_volume( graphics, &volume ) )
+    if( get_slice_view_index_under_mouse( graphics, &view_index ) )
     {
         slice_window = graphics->associated[SLICE_WINDOW];
 
-        mouse = &slice_window->mouse_position;
-
-        get_mouse_in_pixels( slice_window, mouse, &x, &y );
-
-        if( find_slice_view_mouse_is_in( slice_window, x, y, &view_index ) )
-        {
-            slice_window->slice.slice_views[view_index].x_scale *= 0.5;
-            slice_window->slice.slice_views[view_index].y_scale *= 0.5;
-            set_slice_window_update( slice_window, view_index );
-            set_update_required( slice_window, NORMAL_PLANES );
-        }
+        slice_window->slice.slice_views[view_index].x_scale *= 0.5;
+        slice_window->slice.slice_views[view_index].y_scale *= 0.5;
+        set_slice_window_update( slice_window, view_index );
+        set_update_required( slice_window, NORMAL_PLANES );
     }
 
     return( status );
@@ -565,35 +595,26 @@ public  DEF_MENU_UPDATE(reset_activities )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION(toggle_lock_slice)   /* ARGSUSED */
 {
     Status           status;
-    volume_struct    *volume;
     graphics_struct  *slice_window;
-    Point            *mouse;
-    int              x, y, axis_index, view_index;
+    int              axis_index, view_index;
     void             get_mouse_in_pixels();
-    Boolean          find_slice_view_mouse_is_in();
+    Boolean          get_slice_view_index_under_mouse();
     void             set_slice_window_update();
     void             set_update_required();
 
     status = OK;
 
-    if( get_current_volume( graphics, &volume ) )
+    if( get_slice_view_index_under_mouse( graphics, &view_index ) )
     {
         slice_window = graphics->associated[SLICE_WINDOW];
 
-        mouse = &slice_window->mouse_position;
+        axis_index = 
+           slice_window->slice.slice_views[view_index].axis_map[Z_AXIS];
+        slice_window->slice.slice_locked[axis_index] =
+            !slice_window->slice.slice_locked[axis_index];
 
-        get_mouse_in_pixels( slice_window, mouse, &x, &y );
-
-        if( find_slice_view_mouse_is_in( slice_window, x, y, &view_index ) )
-        {
-            axis_index = 
-               slice_window->slice.slice_views[view_index].axis_map[Z_AXIS];
-            slice_window->slice.slice_locked[axis_index] =
-                !slice_window->slice.slice_locked[axis_index];
-
-            set_slice_window_update( slice_window, view_index );
-            set_update_required( slice_window, NORMAL_PLANES );
-        }
+        set_slice_window_update( slice_window, view_index );
+        set_update_required( slice_window, NORMAL_PLANES );
     }
 
     return( status );
@@ -818,7 +839,6 @@ public  DEF_MENU_FUNCTION(set_hot_metal )   /* ARGSUSED */
     colour_coding_struct    *colour_coding;
     void                    build_hot_metal_coding();
     void                    set_slice_window_update();
-    void                    graphics_models_have_changed();
     void                    rebuild_fast_lookup();
 
     if( get_slice_window_volume( graphics, &volume ) )
@@ -833,7 +853,6 @@ public  DEF_MENU_FUNCTION(set_hot_metal )   /* ARGSUSED */
         set_slice_window_update( slice_window, 0 );
         set_slice_window_update( slice_window, 1 );
         set_slice_window_update( slice_window, 2 );
-        graphics_models_have_changed( graphics );
     }
 
     return( OK );
@@ -851,7 +870,6 @@ public  DEF_MENU_FUNCTION(set_gray_scale )   /* ARGSUSED */
     colour_coding_struct    *colour_coding;
     void                    build_gray_scale_coding();
     void                    set_slice_window_update();
-    void                    graphics_models_have_changed();
     void                    rebuild_fast_lookup();
 
     if( get_slice_window_volume( graphics, &volume ) )
@@ -866,7 +884,6 @@ public  DEF_MENU_FUNCTION(set_gray_scale )   /* ARGSUSED */
         set_slice_window_update( slice_window, 0 );
         set_slice_window_update( slice_window, 1 );
         set_slice_window_update( slice_window, 2 );
-        graphics_models_have_changed( graphics );
     }
 
     return( OK );
@@ -884,7 +901,6 @@ public  DEF_MENU_FUNCTION(set_spectral )   /* ARGSUSED */
     colour_coding_struct    *colour_coding;
     void                    build_spectral_coding();
     void                    set_slice_window_update();
-    void                    graphics_models_have_changed();
     void                    rebuild_fast_lookup();
 
     if( get_slice_window_volume( graphics, &volume ) )
@@ -899,7 +915,6 @@ public  DEF_MENU_FUNCTION(set_spectral )   /* ARGSUSED */
         set_slice_window_update( slice_window, 0 );
         set_slice_window_update( slice_window, 1 );
         set_slice_window_update( slice_window, 2 );
-        graphics_models_have_changed( graphics );
     }
 
     return( OK );

@@ -198,7 +198,11 @@ private  Status   create_menu_box( menu_window, key )
         lines->n_points = 4;
         lines->n_items = 1;
 
-        fill_Colour( lines->colour, 1.0, 1.0, 1.0 );
+        lines->colour_flag = ONE_COLOUR;
+
+        ALLOC1( status, lines->colours, 1, Colour );
+
+        fill_Colour( lines->colours[0], 1.0, 1.0, 1.0 );
 
         ALLOC1( status, lines->points, lines->n_points, Point );
     }

@@ -36,8 +36,7 @@ public  DEF_MENU_FUNCTION( generate_regions )   /* ARGSUSED */
     Status   status;
     int      voxel_index[3], voxel_axes[3];
     Status   generate_segmentation();
-    void     set_update_required();
-    void     rebuild_slice_models();
+    void     set_slice_window_update();
 
     status = OK;
 
@@ -55,9 +54,9 @@ public  DEF_MENU_FUNCTION( generate_regions )   /* ARGSUSED */
         status = generate_segmentation( graphics->associated[SLICE_WINDOW],
                                         voxel_index, voxel_axes );
 
-        rebuild_slice_models( graphics->associated[SLICE_WINDOW] );
-        set_update_required( graphics->associated[SLICE_WINDOW],
-                             NORMAL_PLANES );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
     }
 
     return( status );
@@ -71,14 +70,14 @@ public  DEF_MENU_UPDATE(generate_regions )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( reset_segmenting )   /* ARGSUSED */
 {
     Status   status;
-    void     set_update_required();
-    void     rebuild_slice_models();
+    void     set_slice_window_update();
     Status   reset_segmentation();
 
     status = reset_segmentation( graphics->associated[SLICE_WINDOW] );
 
-    rebuild_slice_models( graphics->associated[SLICE_WINDOW] );
-    set_update_required( graphics->associated[SLICE_WINDOW], NORMAL_PLANES );
+    set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
+    set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
+    set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
 
     return( status );
 }

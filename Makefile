@@ -5,10 +5,8 @@ OPT = $(OPT_O)
 OPT_g = -g
 OPT_O = -DNO_DEBUG_ALLOC  -O
 
-#INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/yorick/usr/include
-INCLUDE = -IInclude -I$(C_UTILS_INCLUDE)
+INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -Igraphics_lib
 
-#LIBS = -L/@/portia/usr/lib -lgl -lm
 LIBS = -lgl_s -lm
 
 graphics_obj = graphics_lib/GL_graphics.o \
@@ -44,10 +42,12 @@ display_obj = \
            callbacks/polygon_ops.o \
            callbacks/render_ops.o \
            callbacks/segmenting.o \
+           callbacks/surf_segmenting.o \
            callbacks/surface_curves.o \
            callbacks/surface_extract.o \
            callbacks/view_ops.o \
            callbacks/volume_ops.o \
+           colour_coding/colour_coding.o \
            current_obj/current_obj.o \
            surface_extraction/activity.o \
            surface_extraction/data_structs.o \
@@ -84,7 +84,7 @@ display_obj = \
            segmenting/connect.o \
            segmenting/cut.o \
            segmenting/segmenting.o \
-           segmenting/visibility.o \
+           segmenting/segment_polygons.o \
            slice_window/draw_slice.o \
            slice_window/slice.o \
            slice_window/slice_events.o \
@@ -145,7 +145,7 @@ display: $(display_obj)
 
 display.pixie:  $(display_obj)
 	if( -e display ) rm display
-	make display LIBS="-lgl -lm"
+	make display LIBS="-lgl -lX11 -lm"
 	@\rm -f display.Counts
 	@pixie display -o $@
 

@@ -572,6 +572,7 @@ public  Status  load_graphics_file( graphics, filename )
 {
     Status           status;
     Status           input_graphics_file();
+    File_formats     format;
     Status           create_object();
     Status           push_current_object();
     Status           add_object_to_model();
@@ -600,7 +601,7 @@ public  Status  load_graphics_file( graphics, filename )
 
         (void) strcpy( model->filename, filename );
 
-        status = input_graphics_file( filename,
+        status = input_graphics_file( filename, &format,
                                       &model->n_objects,
                                       &model->object_list );
 

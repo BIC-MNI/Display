@@ -38,6 +38,7 @@ typedef  unsigned  long   Lcolour;
 typedef  struct
 {
     Window_id       window_id;
+    Boolean         double_buffer_flag;
     int             x_origin, y_origin;          
     int             x_size, y_size;          
     Lcolour         background_colour_pixel;

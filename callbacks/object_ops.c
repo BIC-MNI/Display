@@ -348,7 +348,7 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
 
         if( lookup_colour( line, &col ) ||
             sscanf( line, "%f %f %f", &Colour_r(col), &Colour_g(col),
-                    &Colour_b(col) ) )
+                    &Colour_b(col) ) == 3 )
         {
             set_object_colour( current_object, &col );
 

@@ -20,6 +20,7 @@ START_GLOBALS
     DEF_GLOBAL( Initial_render_mode, int, 1 )
     DEF_GLOBAL( Initial_shading_type, int, 1 )
     DEF_GLOBAL( Initial_light_switch, Boolean, TRUE )
+    DEF_GLOBAL( Slice_double_buffer_flag, Boolean, TRUE )
     DEF_GLOBAL( Display_frame_info, Boolean, FALSE )
     DEF_GLOBAL( Display_update_min, Real, 0.0 )
     DEF_GLOBAL( Frame_info_x, Real, 0.8 )
@@ -186,6 +187,8 @@ START_GLOBALS
     DEF_GLOBAL( Surface_curve_thickness, int, 3 )
 
     DEF_GLOBAL( N_painting_polygons, int, 100 )
+    DEF_GLOBAL( Visible_segmenting_colour, Colour, 0.0 )
+    DEF_GLOBAL( Invisible_segmenting_colour, Colour, 0.0 )
 
 END_GLOBALS
          

@@ -70,13 +70,27 @@
                        MENU_FUNCTION(set_colour_limits) \
                        MENU_FUNCTION(set_isovalue) \
                        MENU_FUNCTION(create_film_loop) \
-                       MENU_FUNCTION(set_edited_surface) \
-                       MENU_FUNCTION(start_segmenting_surface) \
                        MENU_FUNCTION(reset_polygon_visibility) \
-                       MENU_FUNCTION(delete_connected_surface) \
+                       MENU_FUNCTION(set_visibility_from_colour) \
+                       MENU_FUNCTION(remove_invisible_parts_of_polygon) \
+                       MENU_FUNCTION(crop_above_plane) \
+                       MENU_FUNCTION(crop_below_plane) \
+                       MENU_FUNCTION(set_vis_to_invis_colour) \
+                       MENU_FUNCTION(set_vis_to_vis_colour) \
+                       MENU_FUNCTION(set_invis_colour_to_invis) \
+                       MENU_FUNCTION(set_connected_invisible) \
+                       MENU_FUNCTION(paint_invisible) \
+                       MENU_FUNCTION(paint_visible) \
+                       MENU_FUNCTION(set_connected_vis_colour) \
+                       MENU_FUNCTION(set_connected_invis_colour) \
+                       MENU_FUNCTION(paint_invis_colour) \
+                       MENU_FUNCTION(paint_vis_colour) \
+                       MENU_FUNCTION(set_n_paint_polygons) \
                        MENU_FUNCTION(input_polygons_bintree) \
                        MENU_FUNCTION(create_bintree_for_polygons) \
                        MENU_FUNCTION(create_normals_for_polygon) \
+                       MENU_FUNCTION(save_polygons_visibilities) \
+                       MENU_FUNCTION(load_polygons_visibilities) \
                        MENU_FUNCTION(smooth_current_polygon) \
                        MENU_FUNCTION(smooth_current_lines) \
                        MENU_FUNCTION(make_current_line_tube) \
@@ -95,9 +109,6 @@
                        MENU_FUNCTION(start_surface_line) \
                        MENU_FUNCTION(end_surface_line) \
                        MENU_FUNCTION(reset_surface_line) \
-                       MENU_FUNCTION(paint_invisible) \
-                       MENU_FUNCTION(paint_visible) \
-                       MENU_FUNCTION(remove_invisible_parts_of_polygon) \
                        MENU_FUNCTION(colour_code_objects) \
                        MENU_FUNCTION(set_hot_metal) \
                        MENU_FUNCTION(set_gray_scale) \

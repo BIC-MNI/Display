@@ -40,24 +40,16 @@ typedef  struct
 
 typedef  struct
 {
-    Colour         colour_below;
-
-    Colour         min_colour;
     Real           min_value;
-
-    Colour         max_colour;
     Real           max_value;
 
+    Colour         colour_below;
     Colour         colour_above;
 
     Real           size_over_range;
 
-    Pixel_colour   colour_below_pixel;
-    Pixel_colour   colour_above_pixel;
-
-    Colour_spaces  interpolation_space;
     int            colour_table_size;
-    Pixel_colour   *colour_table;
+    Colour         *colour_table;
 } colour_coding_struct;
 
 typedef  enum  {
@@ -171,6 +163,8 @@ typedef  struct
 
 typedef  struct
 {
+    int              n_paint_polygons;
+
     polygons_struct  *polygons;
     Boolean          polygons_set;
     int              n_vertices;

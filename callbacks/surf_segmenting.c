@@ -427,31 +427,9 @@ public  DEF_MENU_UPDATE(set_vis_to_vis_colour)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( crop_above_plane )   /* ARGSUSED */
 {
-    int              axis_index;
-    Point            position;
-    polygons_struct  *polygons;
-    graphics_struct  *slice_window;
-    Boolean          get_axis_view_index_under_mouse();
-    void             graphics_models_have_changed();
-    void             crop_polygons_visibilities();
-    void             convert_voxel_to_point();
+    void   crop_surface();
 
-    if( get_current_polygons(graphics,&polygons) &&
-        get_axis_view_index_under_mouse( graphics, &axis_index ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-        fill_Point( position, 0.0, 0.0, 0.0 );
-        Point_coord(position,axis_index) =
-                  (Real) slice_window->slice.slice_index[axis_index];
-        convert_voxel_to_point( slice_window,
-                                Point_x(position),
-                                Point_y(position),
-                                Point_z(position),
-                                &position );
-        crop_polygons_visibilities( polygons, axis_index,
-                                    Point_coord(position,axis_index), TRUE );
-        graphics_models_have_changed( graphics );
-    }
+    crop_surface( graphics, TRUE );
 
     return( OK );
 }
@@ -463,7 +441,23 @@ public  DEF_MENU_UPDATE(crop_above_plane)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( crop_below_plane )   /* ARGSUSED */
 {
-    int              axis_index;
+    void   crop_surface();
+
+    crop_surface( graphics, FALSE );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(crop_below_plane)   /* ARGSUSED */
+{
+    return( OK );
+}
+
+private  void  crop_surface( graphics, above_flag )
+    graphics_struct  *graphics;
+{
+    int              ch, axis_index;
+    Real             pos;
     Point            position;
     polygons_struct  *polygons;
     graphics_struct  *slice_window;
@@ -472,29 +466,41 @@ public  DEF_MENU_FUNCTION( crop_below_plane )   /* ARGSUSED */
     void             crop_polygons_visibilities();
     void             convert_voxel_to_point();
 
-    if( get_current_polygons(graphics,&polygons) &&
-        get_axis_view_index_under_mouse( graphics, &axis_index ) )
+    if( get_current_polygons(graphics,&polygons) )
     {
-        slice_window = graphics->associated[SLICE_WINDOW];
-        fill_Point( position, 0.0, 0.0, 0.0 );
-        Point_coord(position,axis_index) =
-                  (Real) slice_window->slice.slice_index[axis_index];
-        convert_voxel_to_point( slice_window,
-                                Point_x(position),
-                                Point_y(position),
-                                Point_z(position),
-                                &position );
-        crop_polygons_visibilities( polygons, axis_index,
-                                    Point_coord(position,axis_index), FALSE );
+        if( get_axis_view_index_under_mouse( graphics, &axis_index ) )
+        {
+            slice_window = graphics->associated[SLICE_WINDOW];
+            fill_Point( position, 0.0, 0.0, 0.0 );
+            Point_coord(position,axis_index) =
+                      (Real) slice_window->slice.slice_index[axis_index];
+            convert_voxel_to_point( slice_window,
+                                    Point_x(position),
+                                    Point_y(position),
+                                    Point_z(position),
+                                    &position );
+            pos = Point_coord(position,axis_index);
+        }
+        else
+        {
+            PRINT( "Specify an axis: " );
+            while( (ch = getchar()) != '\n' && (ch < 'x' || ch > 'z') )
+            {}
+
+            if( ch != '\n' )
+                while( getchar() != '\n' )
+                {}
+
+            axis_index = ch - 'x';
+            if( axis_index < 0 || axis_index > 2 )
+                return;
+
+            pos = Point_coord(graphics->three_d.cursor.origin,axis_index);
+        }
+
+        crop_polygons_visibilities( polygons, axis_index, pos, above_flag );
         graphics_models_have_changed( graphics );
     }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(crop_below_plane)   /* ARGSUSED */
-{
-    return( OK );
 }
 
 public  DEF_MENU_FUNCTION( save_polygons_visibilities )   /* ARGSUSED */

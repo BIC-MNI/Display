@@ -39,69 +39,6 @@ public  Boolean  get_current_polygons( graphics, polygons )
     return( found );
 }
 
-public  DEF_MENU_FUNCTION( set_edited_surface )   /* ARGSUSED */
-{
-    polygons_struct   *polygons;
-    void              set_edited_polygons();
-
-    if( get_current_polygons(graphics,&polygons) )
-    {
-        set_edited_polygons( &graphics->three_d.surface_edit, polygons );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(set_edited_surface )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION( start_segmenting_surface )   /* ARGSUSED */
-{
-    void   start_segmenting_polygons();
-
-    start_segmenting_polygons( graphics );
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(start_segmenting_surface )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION( reset_polygon_visibility )   /* ARGSUSED */
-{
-    void   reset_edited_polygons();
-    void   graphics_models_have_changed();
-
-    reset_edited_polygons( &graphics->three_d.surface_edit );
-
-    graphics_models_have_changed( graphics );
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(reset_polygon_visibility )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION( set_connected_invisible )   /* ARGSUSED */
-{
-    void   turn_off_connected_polygons();
-
-    turn_off_connected_polygons( graphics );
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(set_connected_invisible )   /* ARGSUSED */
-{
-    return( OK );
-}
-
 public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
 {
     Status            status;

@@ -448,10 +448,11 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
     int             x_size, y_size;
     int             val, min_value;
     int             lookup_index;
+    Colour          col;
     Pixel_colour    pixel_col, *pixel_ptr;
     Real            dx, dy;
     Pixel_colour    get_voxel_colour();
-    Pixel_colour    get_colour_coding();
+    void            get_colour_coding();
     Boolean         activity_flag, label_flag;
 
     status = OK;
@@ -548,7 +549,10 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
                 if( fast_lookup_present )
                     pixel_col = fast_lookup[lookup_index][val-min_value];
                 else
-                    pixel_col = get_colour_coding( colour_coding, (Real) val );
+                {
+                    get_colour_coding( colour_coding, (Real) val, &col );
+                    COLOUR_TO_PIXEL( col, pixel_col );
+                }
 
                 prev_x = indices[x_index];
             }

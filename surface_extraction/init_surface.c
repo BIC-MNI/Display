@@ -30,8 +30,14 @@ public  Status  initialize_surface_extraction( graphics )
     if( status == OK )
     {
         surface_extraction->polygons = object->ptr.polygons;
-        status = create_bitlist( 0, &surface_extraction->voxels_queued );
+
+        surface_extraction->polygons->colour_flag = ONE_COLOUR;
+
+        ALLOC1( status, surface_extraction->polygons->colours, 1, Colour );
     }
+
+    if( status == OK )
+        status = create_bitlist( 0, &surface_extraction->voxels_queued );
 
     if( status == OK )
     {
@@ -75,7 +81,9 @@ private  Status  clear_surface_extraction( graphics )
 
         empty_polygons_struct( surface_extraction->polygons );
 
-        surface_extraction->polygons->colour = Extracted_surface_colour;
+        ALLOC1( status, surface_extraction->polygons->colours, 1, Colour );
+
+        surface_extraction->polygons->colours[0] = Extracted_surface_colour;
         surface_extraction->polygons->surfprop = Default_surface_property;
 
         clear_voxel_flags( &surface_extraction->voxels_queued );

@@ -1,8 +1,11 @@
 #include  <def_graphics.h>
+#include  <def_globals.h>
 
 public  void  initialize_surface_edit( surface_edit )
     surface_edit_struct   *surface_edit;
 {
+    surface_edit->n_paint_polygons = N_painting_polygons;
+
     surface_edit->polygons_set = FALSE;
     surface_edit->n_vertices = 0;
     surface_edit->n_vertices_alloced = 0;

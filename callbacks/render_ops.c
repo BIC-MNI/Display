@@ -392,3 +392,74 @@ public  DEF_MENU_UPDATE(set_n_curve_segments )  /* ARGSUSED */
 
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( toggle_double_buffer_threed )  /* ARGSUSED */
+{
+    void   G_set_double_buffer_state();
+    void   set_update_required();
+
+    graphics->window.double_buffer_flag =
+             !graphics->window.double_buffer_flag;
+
+    G_set_double_buffer_state( &graphics->window,
+                               graphics->window.double_buffer_flag );
+
+    set_update_required( graphics, NORMAL_PLANES );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(toggle_double_buffer_threed )  /* ARGSUSED */
+{
+    String          text;
+    void            set_menu_text();
+    void            set_text_on_off();
+
+    set_text_on_off( label, text, graphics->window.double_buffer_flag );
+    set_menu_text( menu_window, menu_entry, text );
+
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )  /* ARGSUSED */
+{
+    graphics_struct   *slice_window;
+    void              G_set_double_buffer_state();
+    void              set_update_required();
+
+    slice_window = graphics->associated[SLICE_WINDOW];
+
+    if( slice_window != (graphics_struct *) 0 )
+    {
+        slice_window->window.double_buffer_flag =
+                 !slice_window->window.double_buffer_flag;
+
+        G_set_double_buffer_state( &slice_window->window,
+                                   slice_window->window.double_buffer_flag );
+
+        set_update_required( slice_window, NORMAL_PLANES );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(toggle_double_buffer_slice )  /* ARGSUSED */
+{
+    graphics_struct *slice_window;
+    Boolean         state;
+    String          text;
+    void            set_menu_text();
+    void            set_text_on_off();
+
+    slice_window = graphics->associated[SLICE_WINDOW];
+
+    if( slice_window != (graphics_struct *) 0 )
+        state = slice_window->window.double_buffer_flag;
+    else
+        state = TRUE;
+
+    set_text_on_off( label, text, state );
+    set_menu_text( menu_window, menu_entry, text );
+
+    return( OK );
+}

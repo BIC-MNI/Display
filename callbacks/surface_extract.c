@@ -68,10 +68,9 @@ public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
     Status         status;
     Status         reset_surface_extraction();
     volume_struct  *volume;
-    void           set_update_required();
     void           graphics_models_have_changed();
     void           set_all_voxel_label_flags();
-    void           rebuild_slice_models();
+    void           set_slice_window_update();
 
     status = OK;
 
@@ -81,10 +80,10 @@ public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
 
         set_all_voxel_label_flags( volume, FALSE );
 
-        rebuild_slice_models( graphics->associated[SLICE_WINDOW] );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
 
-        set_update_required( graphics->associated[SLICE_WINDOW],
-                             NORMAL_PLANES );
         graphics_models_have_changed( graphics );
     }
 
@@ -122,6 +121,8 @@ public  DEF_MENU_FUNCTION(make_surface_permanent)   /* ARGSUSED */
             status = add_object_to_model( get_current_model(graphics), object );
         }
 
+        ALLOC1( status, graphics->three_d.surface_extraction.polygons->colours,
+                1, Colour );
         graphics->three_d.surface_extraction.polygons->n_items = 0;
         graphics->three_d.surface_extraction.polygons->n_points = 0;
 

@@ -70,7 +70,7 @@ public  void  update_cursor_colour( graphics, colour )
 
     model = get_graphics_model( graphics, CURSOR_MODEL );
 
-    model->object_list[BOX_INDEX]->ptr.lines->colour = *colour;
+    model->object_list[BOX_INDEX]->ptr.lines->colours[0] = *colour;
 }
 
 private  Status   create_box( object )
