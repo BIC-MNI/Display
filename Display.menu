@@ -306,6 +306,7 @@ atlas
 
 deform
 {
+    transient 's'    start_annealling_deforming_object "Start Annealling"
     transient 'd'    start_deforming_object          "Start Deformation"
     transient 'f'    stop_deforming_object           "Stop Deformation"
 

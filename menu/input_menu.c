@@ -112,6 +112,7 @@
                        MENU_FUNCTION(smooth_current_polygon) \
                        MENU_FUNCTION(smooth_current_polygon_with_volume) \
                        MENU_FUNCTION(start_deforming_object) \
+                       MENU_FUNCTION(start_annealling_deforming_object) \
                        MENU_FUNCTION(stop_deforming_object) \
                        MENU_FUNCTION(set_deformation_boundary) \
                        MENU_FUNCTION(set_deformation_model) \
