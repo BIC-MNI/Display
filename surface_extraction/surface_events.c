@@ -17,7 +17,9 @@ public  void  uninstall_surface_extraction(
                                   add_to_surface );
 }
 
-private  DEF_EVENT_FUNCTION( add_to_surface )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( add_to_surface )
 {
     if( display->three_d.surface_extraction.extraction_in_progress &&
         voxels_remaining( &display->three_d.surface_extraction.voxels_to_do ) )
