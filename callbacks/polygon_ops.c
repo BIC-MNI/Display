@@ -55,9 +55,14 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
         polygons->bintree == (bintree_struct *) 0 )
     {
         PRINT( "Enter filename: " );
-        (void) scanf( "%s", filename );
 
-        status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
+        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+        if( status == OK )
+            status = input_newline( stdin );
+
+        if( status == OK )
+            status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
             ALLOC( status, polygons->bintree, 1 );
@@ -98,9 +103,14 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
         polygons->bintree != (bintree_struct *) 0 )
     {
         PRINT( "Enter filename: " );
-        (void) scanf( "%s", filename );
 
-        status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
+        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+        if( status == OK )
+            status = input_newline( stdin );
+
+        if( status == OK )
+            status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
         {

@@ -24,7 +24,7 @@ public  DEF_MENU_FUNCTION(set_model_parameters)   /* ARGSUSED */
     PRINT( "Enter new values of parameters: " );
     for_less( i, 0, n_parameters )
     {
-        if( scanf( "%lf", &tmp_parameters[i] ) != 1 )
+        if( input_double( stdin, &tmp_parameters[i] ) != OK )
         {
             tmp_parameters[i] = graphics->three_d.surface_fitting.parameters[i];
             ch = getchar();
@@ -187,9 +187,14 @@ public  DEF_MENU_FUNCTION(save_surface_points)   /* ARGSUSED */
     Status   close_file();
 
     PRINT( "Enter filename: " );
-    (void) scanf( "%s", filename );
 
-    status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
+    status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+    if( status == OK )
+        status = input_newline( stdin );
+
+    if( status == OK )
+        status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
 
     if( status == OK )
     {
@@ -230,9 +235,14 @@ public  DEF_MENU_FUNCTION(load_surface_points)   /* ARGSUSED */
     void     set_slice_window_update();
 
     PRINT( "Enter filename: " );
-    (void) scanf( "%s", filename );
 
-    status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
+    status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+    if( status == OK )
+        status = input_newline( stdin );
+
+    if( status == OK )
+        status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
 
     while( status == OK )
     {
@@ -436,9 +446,14 @@ public  DEF_MENU_FUNCTION(load_model_parameters)   /* ARGSUSED */
     Status   close_file();
 
     PRINT( "Enter filename: " );
-    (void) scanf( "%s", filename );
 
-    status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
+    status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+    if( status == OK )
+        status = input_newline( stdin );
+
+    if( status == OK )
+        status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
 
     if( status == OK )
     {
@@ -490,9 +505,14 @@ public  DEF_MENU_FUNCTION(save_model_parameters)   /* ARGSUSED */
     Status   close_file();
 
     PRINT( "Enter filename: " );
-    (void) scanf( "%s", filename );
 
-    status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
+    status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+    if( status == OK )
+        status = input_newline( stdin );
+
+    if( status == OK )
+        status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
 
     n_parameters = graphics->three_d.surface_fitting.
            surface_representation->
@@ -566,7 +586,7 @@ public  DEF_MENU_FUNCTION(convert_to_new_representation)   /* ARGSUSED */
         for_less( i, 0, surface_rep->n_descriptors )
         {
             PRINT( "Enter descriptor[%d]: ", i+1 );
-            (void) scanf( "%lf", &new_descriptors[i] );
+            status = input_double( stdin, &new_descriptors[i] );
         }
     }
 

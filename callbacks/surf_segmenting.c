@@ -61,7 +61,9 @@ public  DEF_MENU_FUNCTION( set_n_paint_polygons )   /* ARGSUSED */
     int   n;
 
     PRINT( "Enter # paint polygons: " );
-    if( scanf( "%d", &n ) == 1 && n >= 0 )
+
+    if( input_int( stdin, &n ) == OK && n >= 0 &&
+        input_newline( stdin ) == OK )
     {
         graphics->three_d.surface_edit.n_paint_polygons = n;
     }
@@ -456,7 +458,8 @@ public  DEF_MENU_UPDATE(crop_below_plane)   /* ARGSUSED */
 private  void  crop_surface( graphics, above_flag )
     graphics_struct  *graphics;
 {
-    int              ch, axis_index;
+    char             ch;
+    int              axis_index;
     Real             pos;
     Point            position;
     polygons_struct  *polygons;
@@ -484,12 +487,12 @@ private  void  crop_surface( graphics, above_flag )
         else
         {
             PRINT( "Specify an axis: " );
-            while( (ch = getchar()) != '\n' && (ch < 'x' || ch > 'z') )
+            while( input_nonwhite_character( stdin, &ch ) == OK &&
+                   ch != '\n' && (ch < 'x' || ch > 'z') )
             {}
 
             if( ch != '\n' )
-                while( getchar() != '\n' )
-                {}
+                (void) input_newline( stdin );
 
             axis_index = ch - 'x';
             if( axis_index < 0 || axis_index > 2 )
@@ -569,6 +572,9 @@ private  Status  io_polygons_visibilities( polygons, io_flag )
 
         status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
     }
+
+    if( status == OK )
+        status = input_newline( stdin );
 
     if( status == OK )
         status = open_file( filename, io_flag, BINARY_FORMAT, &file );

@@ -181,7 +181,7 @@ public  void  rebuild_fast_lookup( graphics )
 {
     int              i, val, min_val, max_val;
     void             set_colour_coding_range();
-    Colour           col, coded_col;
+    Colour           col, coded_col, mult, scaled_col;
     void             get_colour_coding();
 
     if( graphics->slice.fast_lookup_present )
@@ -203,7 +203,15 @@ public  void  rebuild_fast_lookup( graphics )
             {
                 get_colour_coding( &graphics->slice.colour_coding,
                                    (Real) val, &coded_col );
-                MULT_COLOURS( coded_col, col, coded_col );
+
+                if( i != 0 )
+                {
+                    MULT_COLOURS( mult, col, coded_col );
+                    SCALE_COLOUR( mult, mult, 1.0 - Label_colour_display_ratio);
+                    SCALE_COLOUR( scaled_col, col, Label_colour_display_ratio );
+                    ADD_COLOURS( coded_col, mult, scaled_col );
+                }
+
                 COLOUR_TO_PIXEL( coded_col,
                                  graphics->slice.fast_lookup[i][val-min_val] );
             }

@@ -129,6 +129,9 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
     status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
     if( status == OK )
+        status = input_newline( stdin );
+
+    if( status == OK )
     {
         status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
     }

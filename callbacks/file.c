@@ -5,18 +5,25 @@
 
 public  DEF_MENU_FUNCTION( load_file )   /* ARGSUSED */
 {
+    Status   status;
     Status   load_graphics_file();
     String   filename;
     void     graphics_models_have_changed();
 
-    (void) printf( "Enter filename: " );
-    (void) scanf( "%s", filename );
+    PRINT( "Enter filename: " );
 
-    (void) load_graphics_file( graphics, filename );
+    status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-    graphics_models_have_changed( graphics );
+    if( status == OK )
+        status = input_newline( stdin );
 
-    return( OK );
+    if( status == OK )
+        status = load_graphics_file( graphics, filename );
+
+    if( status == OK )
+        graphics_models_have_changed( graphics );
+
+    return( status );
 }
 
 public  DEF_MENU_UPDATE(load_file )   /* ARGSUSED */
@@ -37,8 +44,12 @@ public  DEF_MENU_FUNCTION( save_file )   /* ARGSUSED */
 
     if( get_current_object( graphics, &current_object ) )
     {
-        (void) printf( "Enter filename: " );
-        (void) scanf( "%s", filename );
+        PRINT( "Enter filename: " );
+
+        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+        if( status == OK )
+            status = input_newline( stdin );
 
         if( current_object->object_type == MODEL )
         {
@@ -51,8 +62,9 @@ public  DEF_MENU_FUNCTION( save_file )   /* ARGSUSED */
             object_list = &current_object;
         }
 
-        status = output_graphics_file( filename, (File_formats) Save_format,
-                                       n_objects, object_list );
+        if( status == OK )
+            status = output_graphics_file( filename, (File_formats) Save_format,
+                                           n_objects, object_list );
     }
 
     PRINT( "Done saving.\n" );

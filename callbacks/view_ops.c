@@ -313,9 +313,12 @@ public  DEF_MENU_FUNCTION( create_film_loop )      /* ARGSUSED */
     Status  start_film_loop();
 
     PRINT( "Enter base_filename, axis_index, and n_steps: " );
-    if( scanf( "%s %d %d", base_filename, &axis_index, &n_steps ) == 3 &&
-        axis_index >= 0 && axis_index < N_DIMENSIONS &&
-        n_steps > 1 )
+
+    if( input_string( stdin, base_filename, MAX_STRING_LENGTH, ' ' ) == OK &&
+        input_int( stdin, &axis_index ) == OK &&
+        input_int( stdin, &n_steps ) == OK &&
+        input_newline( stdin ) == OK &&
+        axis_index >= 0 && axis_index < N_DIMENSIONS && n_steps > 1 )
     {
         status = start_film_loop( graphics, base_filename, axis_index,
                                   n_steps );

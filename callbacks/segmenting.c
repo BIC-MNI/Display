@@ -18,9 +18,15 @@ public  DEF_MENU_FUNCTION( label_point )   /* ARGSUSED */
     if( get_voxel_under_mouse( graphics, &x, &y, &z, &axis_index ) )
     {
         PRINT( "Enter id: " );
-        (void) scanf( "%d", &id );
-        status = add_point_label( graphics->associated[SLICE_WINDOW],
-                                  x, y, z, id);
+
+        status = input_int( stdin, &id );
+
+        if( status == OK )
+            status = input_newline( stdin );
+
+        if( status == OK )
+            status = add_point_label( graphics->associated[SLICE_WINDOW],
+                                      x, y, z, id);
     }
 
     return( status );
@@ -133,7 +139,7 @@ private  void  get_min_max( graphics )
 
     PRINT( "Enter min and max threshold: " );
 
-    if( scanf( "%d %d", &min, &max ) != 2 )
+    if( input_int( stdin, &min ) != OK || input_int( stdin, &max ) != OK )
     {
         min = -1;
         max = -1;
@@ -150,7 +156,7 @@ private  Boolean  min_max_present( graphics )
      graphics->associated[SLICE_WINDOW]->slice.segmenting.min_threshold >= 0 &&
      graphics->associated[SLICE_WINDOW]->slice.segmenting.max_threshold >= 0 &&
      graphics->associated[SLICE_WINDOW]->slice.segmenting.min_threshold <=
-      graphics->associated[SLICE_WINDOW]->slice.segmenting.max_threshold );
+     graphics->associated[SLICE_WINDOW]->slice.segmenting.max_threshold );
 }
 
 public  DEF_MENU_FUNCTION(save_labeled_voxels)   /* ARGSUSED */
@@ -167,10 +173,15 @@ public  DEF_MENU_FUNCTION(save_labeled_voxels)   /* ARGSUSED */
 
     if( get_current_volume( graphics, &volume ) )
     {
-        (void) printf( "Enter filename: " );
-        (void) scanf( "%s", filename );
+        PRINT( "Enter filename: " );
 
-        status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
+        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+        if( status == OK )
+            status = input_newline( stdin );
+
+        if( status == OK )
+            status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
             status = io_bitlist_3d( file, WRITE_FILE, &volume->label_flags );
@@ -204,10 +215,15 @@ public  DEF_MENU_FUNCTION(load_labeled_voxels)   /* ARGSUSED */
 
     if( get_current_volume( graphics, &volume ) )
     {
-        (void) printf( "Enter filename: " );
-        (void) scanf( "%s", filename );
+        PRINT( "Enter filename: " );
 
-        status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
+        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+        if( status == OK )
+            status = input_newline( stdin );
+
+        if( status == OK )
+            status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
             status = io_bitlist_3d( file, READ_FILE, &volume->label_flags );
@@ -247,10 +263,15 @@ public  DEF_MENU_FUNCTION(save_active_voxels)   /* ARGSUSED */
 
     if( get_current_volume( graphics, &volume ) )
     {
-        (void) printf( "Enter filename: " );
-        (void) scanf( "%s", filename );
+        PRINT( "Enter filename: " );
 
-        status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
+        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+        if( status == OK )
+            status = input_newline( stdin );
+
+        if( status == OK )
+            status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
             status = io_bitlist_3d( file, WRITE_FILE, &volume->active_flags );
@@ -284,10 +305,15 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
 
     if( get_current_volume( graphics, &volume ) )
     {
-        (void) printf( "Enter filename: " );
-        (void) scanf( "%s", filename );
+        PRINT( "Enter filename: " );
 
-        status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
+        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+        if( status == OK )
+            status = input_newline( stdin );
+
+        if( status == OK )
+            status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
             status = io_bitlist_3d( file, READ_FILE, &volume->active_flags );

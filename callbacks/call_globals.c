@@ -9,7 +9,7 @@ public  DEF_MENU_FUNCTION( menu_set_global_variable )  /* ARGSUSED */
     String   input_str, variable_name, new_value;
     Status   set_or_get_global_variable();
 
-    (void) printf( "variable_name [= value]: " );
+    PRINT( "variable_name [= value]: " );
 
     status = input_string( stdin, input_str, MAX_STRING_LENGTH, '\n' );
 

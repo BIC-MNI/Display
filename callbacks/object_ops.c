@@ -308,6 +308,7 @@ public  DEF_MENU_UPDATE(delete_current_object )     /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
 {
     Status          status;
+    Status          io_colour();
     object_struct   *current_object;
     Boolean         get_current_object();
     void            set_object_colour();
@@ -320,12 +321,12 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
     if( get_current_object( graphics, &current_object ) )
     {
         PRINT( "Enter colour name or r g b:" );
+
         status = input_line( stdin, line, MAX_STRING_LENGTH );
 
         if( status == OK &&
-            lookup_colour( line, &col ) ||
-            sscanf( line, "%f %f %f", &Colour_r(col), &Colour_g(col),
-                    &Colour_b(col) ) == 3 )
+            (lookup_colour( line, &col ) ||
+             io_colour( stdin, READ_FILE, ASCII_FORMAT, &col ) == OK) )
         {
             set_object_colour( current_object, &col );
 

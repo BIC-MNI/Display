@@ -255,7 +255,7 @@ private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
     double                  u, v;
 {
     double   surface_estimate, curvature, fit, u_curvature, v_curvature;
-    double   x, y, z;
+    double   x, y, z, sign_normal;
     Real     dx, dy, dz;
     double   dxuu, dyuu, dzuu, dxvv, dyvv, dzvv;
     double   dxu, dyu, dzu, dxv, dyv, dzv;
@@ -293,17 +293,29 @@ private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
 
                 fill_Vector( function_deriv, dx, dy, dz );
 
-                surface_estimate = -DOT_VECTORS( function_deriv,
-                                                 surface_normal );
+                surface_estimate = DOT_VECTORS( function_deriv,
+                                                surface_normal );
 
                 if( surface_estimate < 0.0 )
+                {
                     surface_estimate = -surface_estimate;
+                    sign_normal = 1.0;
+                }
+                else
+                {
+                    sign_normal = -1.0;
+                }
 
                 if( fit_data->gradient_strength_exponent != 1.0 )
-                    surface_estimate = pow( surface_estimate,
+                {
+                    if( fit_data->gradient_strength_exponent == 2.0 )
+                        surface_estimate = surface_estimate * surface_estimate;
+                    else
+                        surface_estimate = pow( surface_estimate,
                            (double) fit_data->gradient_strength_exponent );
+                }
 
-                surface_estimate = -surface_estimate;
+                surface_estimate = - sign_normal * surface_estimate;
             }
             else
                 surface_estimate = BIG_NUMBER;
@@ -318,12 +330,43 @@ private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
 
     if( fit_data->curvature_factor > 0.0 )
     {
+#ifdef CURVATURE
         u_curvature = get_radius_of_curvature( dxu, dyu, dzu, dxuu, dyuu, dzuu);
         v_curvature = get_radius_of_curvature( dxv, dyv, dzv, dxvv, dyvv, dzvv);
 
-        curvature = MIN( u_curvature, v_curvature );
+        curvature = -MIN( u_curvature, v_curvature );
+#elif NORMAL
+        Vector   du, dv;
 
-        fit += -fit_data->curvature_factor * curvature;
+        fill_Vector( du, dxu, dyu, dzu );
+        fill_Vector( dv, dxv, dyv, dzv );
+        NORMALIZE_VECTOR( du, du );
+        NORMALIZE_VECTOR( dv, dv );
+
+        curvature = DOT_VECTORS( du, dv );
+#else
+        Vector   du, dv, duu, dvv;
+        Real     mag_du, mag_dv, mag_duu, mag_dvv;
+
+        fill_Vector( du, dxu, dyu, dzu );
+        fill_Vector( dv, dxv, dyv, dzv );
+        fill_Vector( duu, dxuu, dyuu, dzuu );
+        fill_Vector( dvv, dxvv, dyvv, dzvv );
+        mag_du = MAGNITUDE( du );
+        mag_dv = MAGNITUDE( dv );
+        mag_duu = MAGNITUDE( duu );
+        mag_dvv = MAGNITUDE( dvv );
+
+        if( mag_du == 0.0 )
+            mag_du = 1.0;
+
+        if( mag_dv == 0.0 )
+            mag_dv = 1.0;
+
+        curvature = mag_duu / mag_du + mag_dvv / mag_dv;
+#endif
+
+        fit += fit_data->curvature_factor * curvature;
     }
 
     apply_surface_point_to_distances( x, y, z, fit_data,

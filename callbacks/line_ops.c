@@ -17,11 +17,17 @@ public  DEF_MENU_FUNCTION( smooth_current_lines )   /* ARGSUSED */
         current_object->object_type == LINES )
     {
         PRINT( "Enter smoothing distance: " );
-        (void) scanf( "%f", &smooth_distance );
 
-        status = smooth_lines( current_object->ptr.lines, smooth_distance );
+        status = input_real( stdin, &smooth_distance );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        if( status == OK )
+            status = input_newline( stdin );
+
+        if( status == OK )
+            status = smooth_lines( current_object->ptr.lines, smooth_distance );
+
+        if( status == OK )
+            set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -48,13 +54,22 @@ public  DEF_MENU_FUNCTION( make_current_line_tube )   /* ARGSUSED */
         current_object->object_type == LINES )
     {
         PRINT( "Enter n_around radius: " );
-        (void) scanf( "%d %f", &n_around, &radius );
 
-        status = convert_lines_to_tubes( graphics,
-                                         current_object->ptr.lines, n_around,
-                                         radius );
+        status = input_int( stdin, &n_around );
 
-        graphics_models_have_changed( graphics );
+        if( status == OK )
+            status = input_real( stdin, &radius );
+
+        if( status == OK )
+            status = input_newline( stdin );
+
+        if( status == OK )
+            status = convert_lines_to_tubes( graphics,
+                                             current_object->ptr.lines,
+                                             n_around, radius );
+
+        if( status == OK )
+            graphics_models_have_changed( graphics );
     }
 
     return( status );

@@ -354,7 +354,8 @@ public  DEF_MENU_FUNCTION( set_n_curve_segments )  /* ARGSUSED */
             model_object->ptr.model->render.n_curve_segments );
     PRINT( "Enter number of curve segments:" );
 
-    if( scanf( "%d", &n_segments ) == 1 && n_segments > 0 )
+    if( input_int( stdin, &n_segments ) == OK && n_segments > 0 &&
+        input_newline( stdin ) == OK )
     {
         status = initialize_object_traverse( &object_traverse, 1,
                                              &model_object );

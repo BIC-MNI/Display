@@ -11,10 +11,13 @@ typedef  struct
     double              *parameters;
     double              *descriptors;
     int                 n_samples;
+    double              *max_parameter_deltas;
+    double              *parameter_deltas;
     int                 n_surface_points;
     Point               *surface_points;
     Real                *surface_point_distances;
     Real                gradient_strength_factor;
+    Real                gradient_strength_exponent;
     Real                curvature_factor;
     Real                surface_point_distance_factor;
     Real                surface_point_distance_threshold;

@@ -373,7 +373,9 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
 
         PRINT( "Enter new values: " );
 
-        if( scanf( "%f %f", &min_value, &max_value ) == 2 &&
+        if( input_real( stdin, &min_value ) == OK &&
+            input_real( stdin, &max_value ) == OK &&
+            input_newline( stdin ) == OK &&
             min_value <= max_value )
         {
             change_colour_coding_range( slice_window, min_value, max_value );
@@ -507,9 +509,14 @@ public  DEF_MENU_FUNCTION(output_slice_transforms )   /* ARGSUSED */
     if( get_current_volume(graphics,&volume) )
     {
         PRINT( "Enter filename: " );
-        (void) scanf( "%s", filename );
 
-        status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
+        status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+        if( status == OK )
+            status = input_newline( stdin );
+
+        if( status == OK )
+            status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
 
         if( status == OK )
         {

@@ -75,7 +75,7 @@ public  Status  initialize_amoeba( fit_data, ndim, initial_parameters,
     downhill_simplex_struct      *fit_data;
     int                          ndim;
     double                       initial_parameters[];
-    double                       (*evaluate_fit_function)();
+    double                       (*evaluate_fit_function)( void *, double [] );
     void                         *evaluation_ptr;
 {
     int      i, j;

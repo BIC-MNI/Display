@@ -159,6 +159,7 @@ START_GLOBALS
     DEF_GLOBAL( Inactive_voxel_colour, Colour, 0.0 )
     DEF_GLOBAL( Labeled_voxel_colour, Colour, 0.0 )
     DEF_GLOBAL( Inactive_and_labeled_voxel_colour, Colour, 0.0 )
+    DEF_GLOBAL( Label_colour_display_ratio, Real, 1.0 )
 
     DEF_GLOBAL( Use_cursor_origin, Boolean, TRUE )
 
@@ -192,12 +193,15 @@ START_GLOBALS
 
     DEF_GLOBAL( N_fitting_samples, int, 10000 )
     DEF_GLOBAL( Gradient_strength_factor, Real, 1.0 )
+    DEF_GLOBAL( Gradient_strength_exponent, Real, 1.0 )
     DEF_GLOBAL( Curvature_factor, Real, 0.0 )
     DEF_GLOBAL( Surface_point_distance_threshold, Real, 1.0 )
     DEF_GLOBAL( Surface_point_distance_factor, Real, 1.0 )
     DEF_GLOBAL( Fitting_tolerance, Real, 1.0e-4 )
     DEF_GLOBAL( Max_fitting_evaluations, int, 10 )
     DEF_GLOBAL( Surface_model_resolution, int, 30 )
+    DEF_GLOBAL( Minimization_method, int, 0 )
+    DEF_GLOBAL( Max_parameter_delta, Real, 3.0 )
 
     DEF_GLOBAL( Max_voxel_scan_distance, Real, 0.5 )
     DEF_GLOBAL( Max_parametric_scan_distance, Real, 0.05 )

@@ -172,7 +172,7 @@ public  void  set_isosurface_value( surface_extraction )
     if( !surface_extraction->extraction_in_progress )
     {
         PRINT( "Enter isosurface value: " );
-        if( scanf( "%f", &value ) == 1 && value >= 0.0 )
+        if( input_real( stdin, &value ) == OK && value >= 0.0 )
         {
             if( value == (Real) ((int) value) )
             {

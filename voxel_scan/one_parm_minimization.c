@@ -25,13 +25,15 @@ public  void  one_parameter_minimization( parameters, which_parameter,
     const    double  TOLERANCE   = 1.0e-4;
     Boolean  done, halved;
     double   parameter_value, fit_here, fit_before, fit_after;
-    double   next_fit_before, next_fit_after;
+    double   next_fit_before, next_fit_after, best_fit_so_far;
 
     parameter_value = parameters[which_parameter];
 
     fit_here = (*evaluate_fit_function) ( evaluation_ptr, parameters,
                                 u_min, u_max, v_min, v_max,
                                 distances_without_this_parameter );
+
+    best_fit_so_far = fit_here;
 
     done = FALSE;
     halved = FALSE;
@@ -50,6 +52,7 @@ public  void  one_parameter_minimization( parameters, which_parameter,
 
         if( fit_after < fit_here || fit_before < fit_here )
         {
+            best_fit_so_far = MIN( fit_after, fit_before );
             done = TRUE;
         }
         else if( numerically_close( parameter_value,
@@ -65,7 +68,7 @@ public  void  one_parameter_minimization( parameters, which_parameter,
         }
     }
 
-    if( !halved && (fit_after < fit_here || fit_before < fit_here) )
+    if( !halved && best_fit_so_far < fit_here )
     {
         done = FALSE;
 
@@ -86,13 +89,17 @@ public  void  one_parameter_minimization( parameters, which_parameter,
                                 u_min, u_max, v_min, v_max,
                                 distances_without_this_parameter );
 
-            if( next_fit_after >= fit_here && next_fit_before >= fit_here )
+            if( next_fit_after >= best_fit_so_far &&
+                next_fit_before >= best_fit_so_far )
+            {
                 done = TRUE;
+            }
             else
             {
                 *delta_parameter *= 2.0;
                 fit_after = next_fit_after;
                 fit_before = next_fit_before;
+                best_fit_so_far = MIN( fit_after, fit_before );
 
                 if( *delta_parameter >= max_delta_parameter )
                     done = TRUE;
@@ -100,7 +107,7 @@ public  void  one_parameter_minimization( parameters, which_parameter,
         }
     }
 
-    if( fit_after < fit_before && fit_after < fit_here )
+    if( fit_after <= fit_before && fit_after < fit_here )
     {
         parameters[which_parameter] = parameter_value + *delta_parameter;
         *fitting_gain = fit_here - fit_after;
