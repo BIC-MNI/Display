@@ -206,21 +206,24 @@ public  DEF_MENU_UPDATE(set_deformation_original_positions )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_deformation_parameters )   /* ARGSUSED */
 {
     Real           fractional_step, max_step, max_search_distance;
+    Real           movement_threshold;
     int            degrees_continuity;
 
     print("Enter fractional_step, max_step, max_search_distance,\n" );
-    print("      degrees_continuity: " );
+    print("      degrees_continuity, movement_threshold: " );
 
     if( input_real( stdin, &fractional_step ) == OK &&
         input_real( stdin, &max_step ) == OK &&
         input_real( stdin, &max_search_distance ) == OK &&
-        input_int( stdin, &degrees_continuity ) == OK )
+        input_int( stdin, &degrees_continuity ) == OK &&
+        input_real( stdin, &movement_threshold ) == OK )
     {
         display->three_d.deform.deform.fractional_step = fractional_step;
         display->three_d.deform.deform.max_step = max_step;
         display->three_d.deform.deform.max_search_distance =
                                                   max_search_distance;
         display->three_d.deform.deform.degrees_continuity = degrees_continuity;
+        display->three_d.deform.deform.movement_threshold = movement_threshold;
     }
 
     (void) input_newline( stdin );

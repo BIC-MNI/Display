@@ -64,9 +64,7 @@ public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
 
         set_all_volume_label_data( get_label_volume(display), 0 );
 
-        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
+        set_slice_window_all_update( display->associated[SLICE_WINDOW] );
 
         graphics_models_have_changed( display );
     }

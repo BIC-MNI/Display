@@ -305,6 +305,13 @@ private  void  get_cursor_size(
         *vert_start = Cursor_vert_start_2;
         *vert_end = Cursor_vert_end_2;
         break;
+
+    case 3:
+        *hor_start = Cursor_hor_start_3;
+        *hor_end = Cursor_hor_end_3;
+        *vert_start = Cursor_vert_start_3;
+        *vert_end = Cursor_vert_end_3;
+        break;
     }
 }
 
@@ -313,50 +320,60 @@ private  void  rebuild_cursor(
     int               view_index )
 {
     model_struct   *model;
-    int            c;
-    Real           x_left, y_left, x_right, y_right;
-    Real           x_bottom, y_bottom, x_top, y_top;
-    Real           x_centre, y_centre, dx, dy;
-    Real           hor_dx, hor_dy, vert_dx, vert_dy, len_hor, len_vert;
+    int            c, x_index, y_index, axis;
+    Real           x_left, x_right, y_bottom, y_top, dx, dy;
+    Real           x_centre, y_centre;
+    Real           tmp_voxel[N_DIMENSIONS];
     lines_struct   *lines;
     Real           current_voxel[N_DIMENSIONS];
     int            x_min, x_max, y_min, y_max;
-    Real           tmp_voxel[MAX_DIMENSIONS];
-    Real           origin[MAX_DIMENSIONS];
-    Real           x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
     Real           hor_pixel_start, hor_pixel_end;
     Real           vert_pixel_start, vert_pixel_end;
 
     model = get_graphics_model(slice_window,SLICE_MODEL);
 
-    get_slice_plane( slice_window, view_index, origin, x_axis, y_axis );
-
     lines = get_lines_ptr( model->objects[CURSOR1_INDEX+view_index] );
 
     get_current_voxel( slice_window, current_voxel );
 
-    convert_voxel_to_pixel( slice_window, view_index, current_voxel,
-                            &x_centre, &y_centre );
+    if( slice_has_ortho_axes( slice_window, view_index,
+                              &x_index, &y_index, &axis ) )
+    {
+        for_less( c, 0, N_DIMENSIONS )
+            tmp_voxel[c] = ROUND( current_voxel[c] );
 
-    for_less( c, 0, N_DIMENSIONS )
-        tmp_voxel[c] = current_voxel[c] - 0.5 * x_axis[c];
-    convert_voxel_to_pixel( slice_window, view_index, tmp_voxel,
-                            &x_left, &y_left);
+        current_voxel[x_index] += 0.5;
+        convert_voxel_to_pixel( slice_window, view_index, current_voxel,
+                                &x_right, &y_centre );
+        current_voxel[x_index] -= 0.5;
 
-    for_less( c, 0, N_DIMENSIONS )
-        tmp_voxel[c] = current_voxel[c] + 0.5 * x_axis[c];
-    convert_voxel_to_pixel( slice_window, view_index, tmp_voxel,
-                            &x_right, &y_right);
+        current_voxel[x_index] -= 0.5;
+        convert_voxel_to_pixel( slice_window, view_index, current_voxel,
+                                &x_left, &y_centre );
+        current_voxel[x_index] += 0.5;
 
-    for_less( c, 0, N_DIMENSIONS )
-        tmp_voxel[c] = current_voxel[c] - 0.5 * y_axis[c];
-    convert_voxel_to_pixel( slice_window, view_index, tmp_voxel,
-                            &x_bottom, &y_bottom);
+        current_voxel[y_index] += 0.5;
+        convert_voxel_to_pixel( slice_window, view_index, current_voxel,
+                                &x_centre, &y_top );
+        current_voxel[y_index] -= 0.5;
 
-    for_less( c, 0, N_DIMENSIONS )
-        tmp_voxel[c] = current_voxel[c] + 0.5 * y_axis[c];
-    convert_voxel_to_pixel( slice_window, view_index, tmp_voxel,
-                            &x_top, &y_top);
+        current_voxel[y_index] -= 0.5;
+        convert_voxel_to_pixel( slice_window, view_index, current_voxel,
+                                &x_centre, &y_bottom );
+        current_voxel[y_index] += 0.5;
+    }
+    else
+    {
+        convert_voxel_to_pixel( slice_window, view_index, current_voxel,
+                                &x_centre, &y_centre );
+        x_left = x_centre;
+        x_right = x_centre;
+        y_bottom = y_centre;
+        y_top = y_centre;
+    }
+
+    get_cursor_size( view_index, &hor_pixel_start, &hor_pixel_end,
+                     &vert_pixel_start, &vert_pixel_end );
 
     get_slice_viewport( slice_window, view_index,
                         &x_min, &x_max, &y_min, &y_max );
@@ -367,8 +384,6 @@ private  void  rebuild_cursor(
         x_centre = x_min;
         x_left += dx;
         x_right += dx;
-        x_top += dx;
-        x_bottom += dx;
     }
     else if( x_centre > x_max )
     {
@@ -376,16 +391,12 @@ private  void  rebuild_cursor(
         x_centre = x_max;
         x_left += dx;
         x_right += dx;
-        x_top += dx;
-        x_bottom += dx;
     }
 
     if( y_centre < y_min )
     {
         dy = y_min - y_centre;
         y_centre = y_min;
-        y_left += dy;
-        y_right += dy;
         y_top += dy;
         y_bottom += dy;
     }
@@ -393,52 +404,18 @@ private  void  rebuild_cursor(
     {
         dy = y_max - y_centre;
         y_centre = y_max;
-        y_left += dy;
-        y_right += dy;
         y_top += dy;
         y_bottom += dy;
     }
 
-    hor_dx = x_right - x_centre;
-    hor_dy = y_right - y_centre;
-    len_hor = sqrt( hor_dx * hor_dx + hor_dy * hor_dy );
-    if( len_hor != 0.0 )
-    {
-        hor_dx /= len_hor;
-        hor_dy /= len_hor;
-    }
-
-    vert_dx = x_top - x_centre;
-    vert_dy = y_top - y_centre;
-    len_vert = sqrt( vert_dx * vert_dx + vert_dy * vert_dy );
-    if( len_vert != 0.0 )
-    {
-        vert_dx /= len_vert;
-        vert_dy /= len_vert;
-    }
-
-    get_cursor_size( view_index, &hor_pixel_start, &hor_pixel_end,
-                     &vert_pixel_start, &vert_pixel_end );
-
-    fill_Point( lines->points[0], x_right + hor_pixel_start * hor_dx,
-                                  y_right + hor_pixel_start * hor_dy, 0.0 );
-    fill_Point( lines->points[1], x_right + hor_pixel_end * hor_dx,
-                                  y_right + hor_pixel_end * hor_dy, 0.0 );
-
-    fill_Point( lines->points[2], x_left - hor_pixel_start * hor_dx,
-                                  y_left - hor_pixel_start * hor_dy, 0.0 );
-    fill_Point( lines->points[3], x_left - hor_pixel_end * hor_dx,
-                                  y_left - hor_pixel_end * hor_dy, 0.0 );
-
-    fill_Point( lines->points[4], x_bottom - vert_pixel_start * vert_dx,
-                                  y_bottom - vert_pixel_start * vert_dy, 0.0 );
-    fill_Point( lines->points[5], x_bottom - vert_pixel_end * vert_dx,
-                                  y_bottom - vert_pixel_end * vert_dy, 0.0 );
-
-    fill_Point( lines->points[6], x_top + vert_pixel_start * vert_dx,
-                                  y_top + vert_pixel_start * vert_dy, 0.0 );
-    fill_Point( lines->points[7], x_top + vert_pixel_end * vert_dx,
-                                  y_top + vert_pixel_end * vert_dy, 0.0 );
+    fill_Point( lines->points[0], x_right + hor_pixel_start, y_centre, 0.0 );
+    fill_Point( lines->points[1], x_right + hor_pixel_end, y_centre, 0.0 );
+    fill_Point( lines->points[2], x_left - hor_pixel_start, y_centre, 0.0 );
+    fill_Point( lines->points[3], x_left - hor_pixel_end, y_centre, 0.0 );
+    fill_Point( lines->points[4], x_centre, y_top + vert_pixel_start, 0.0 );
+    fill_Point( lines->points[5], x_centre, y_top + vert_pixel_end, 0.0 );
+    fill_Point( lines->points[6], x_centre, y_bottom - vert_pixel_start, 0.0 );
+    fill_Point( lines->points[7], x_centre, y_bottom - vert_pixel_end, 0.0 );
 }
 
 public  void  rebuild_cursors(

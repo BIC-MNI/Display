@@ -7,11 +7,12 @@ public  void  initialize_slice_window_view(
     Volume           volume;
     int              axis, view;
     int              size[N_DIMENSIONS];
-    Real             thickness[N_DIMENSIONS];
+    Real             separations[N_DIMENSIONS];
     Real             cosine, sine;
 
     for_less( view, 0, N_SLICE_VIEWS )
     {
+        slice_window->slice.slice_views[view].visibility = TRUE;
         for_less( axis, 0, N_DIMENSIONS )
         {
             slice_window->slice.slice_views[view].x_axis[axis] = 0.0;
@@ -31,13 +32,14 @@ public  void  initialize_slice_window_view(
     cosine = cos( 45.0 * DEG_TO_RAD );
     sine = sin( 45.0 * DEG_TO_RAD );
 
-    slice_window->slice.slice_views[3].x_axis[X] = cosine;
-    slice_window->slice.slice_views[3].x_axis[Y] = sine;
-    slice_window->slice.slice_views[3].x_axis[Z] = 0.0;
+    slice_window->slice.slice_views[OBLIQUE_VIEW_INDEX].visibility = FALSE;
+    slice_window->slice.slice_views[OBLIQUE_VIEW_INDEX].x_axis[X] = cosine;
+    slice_window->slice.slice_views[OBLIQUE_VIEW_INDEX].x_axis[Y] = sine;
+    slice_window->slice.slice_views[OBLIQUE_VIEW_INDEX].x_axis[Z] = 0.0;
 
-    slice_window->slice.slice_views[3].y_axis[X] = -sine;
-    slice_window->slice.slice_views[3].y_axis[Y] = cosine;
-    slice_window->slice.slice_views[3].y_axis[Z] = 0.0;
+    slice_window->slice.slice_views[OBLIQUE_VIEW_INDEX].y_axis[X] = -sine;
+    slice_window->slice.slice_views[OBLIQUE_VIEW_INDEX].y_axis[Y] = cosine;
+    slice_window->slice.slice_views[OBLIQUE_VIEW_INDEX].y_axis[Z] = 0.0;
 
     slice_window->slice.x_split = Slice_divider_x_position;
     slice_window->slice.y_split = Slice_divider_y_position;
@@ -45,7 +47,7 @@ public  void  initialize_slice_window_view(
     if( get_slice_window_volume( slice_window, &volume ) )
     {
         get_volume_sizes( volume, size );
-        get_volume_separations( volume, thickness );
+        get_volume_separations( volume, separations );
 
         for_less( axis, 0, N_DIMENSIONS )
             slice_window->slice.current_voxel[axis] = (size[axis] - 1) / 2.0;
@@ -54,14 +56,37 @@ public  void  initialize_slice_window_view(
             reset_slice_view( slice_window, view );
 
         slice_window->associated[THREE_D_WINDOW]->three_d.cursor.box_size[X] =
-                          ABS( thickness[X] );
+                          ABS( separations[X] );
         slice_window->associated[THREE_D_WINDOW]->three_d.cursor.box_size[Y] =
-                          ABS( thickness[Y] );
+                          ABS( separations[Y] );
         slice_window->associated[THREE_D_WINDOW]->three_d.cursor.box_size[Z] =
-                          ABS( thickness[Z] );
+                          ABS( separations[Z] );
 
         update_cursor_size( slice_window->associated[THREE_D_WINDOW] );
     }
+}
+
+public  void  set_slice_visibility(
+    display_struct    *slice_window,
+    int               view,
+    BOOLEAN           visibility )
+{
+    if( visibility != slice_window->slice.slice_views[view].visibility )
+    {
+        slice_window->slice.slice_views[view].visibility = visibility;
+
+        set_object_visibility( get_slice_pixels_object( slice_window,view ),
+                               visibility );
+
+        set_slice_window_update( slice_window, view );
+    }
+}
+
+public  BOOLEAN  get_slice_visibility(
+    display_struct    *slice_window,
+    int               view )
+{
+    return( slice_window->slice.slice_views[view].visibility );
 }
 
 public  void  reset_slice_view(
@@ -423,6 +448,52 @@ public  void  get_text_display_viewport(
     *y_max = text_panel_height - 1 - Slice_divider_top;
 }
 
+public  void  get_slice_divider_intersection(
+    display_struct    *slice_window,
+    int               *x,
+    int               *y )
+{
+    int  left_panel_width, left_slice_width, right_slice_width;
+    int  bottom_slice_height, top_slice_height, text_panel_height;
+    int  colour_bar_panel_height;
+
+    get_slice_window_partitions( slice_window,
+                                 &left_panel_width, &left_slice_width,
+                                 &right_slice_width,
+                                 &bottom_slice_height, &top_slice_height,
+                                 &text_panel_height, &colour_bar_panel_height );
+
+    *x = left_panel_width + left_slice_width;
+    *y = bottom_slice_height;
+}
+
+public  void  set_slice_divider_position(
+    display_struct    *slice_window,
+    int               x,
+    int               y )
+{
+    int  view;
+    int  left_panel_width, left_slice_width, right_slice_width;
+    int  bottom_slice_height, top_slice_height, text_panel_height;
+    int  colour_bar_panel_height;
+
+    get_slice_window_partitions( slice_window,
+                                 &left_panel_width, &left_slice_width,
+                                 &right_slice_width,
+                                 &bottom_slice_height, &top_slice_height,
+                                 &text_panel_height, &colour_bar_panel_height );
+
+    slice_window->slice.x_split = (Real) (x - left_panel_width) /
+                                  (Real) (left_slice_width + right_slice_width);
+    slice_window->slice.y_split = (Real) y /
+                              (Real) (bottom_slice_height + top_slice_height);
+
+    for_less( view, 0, N_SLICE_VIEWS )
+        resize_slice_view( slice_window, view );
+
+    rebuild_slice_models( slice_window );
+}
+
 public  BOOLEAN  get_voxel_in_slice_window(
     display_struct    *display,
     Real              voxel[],
@@ -568,11 +639,12 @@ public  void  set_slice_plane(
 {
     Real  cross_prod, max_value;
     Real  x, y, len_x_axis, len_y_axis;
-    Real  desired_y_axis[MAX_DIMENSIONS];
     Real  used_x_axis[MAX_DIMENSIONS];
     Real  used_y_axis[MAX_DIMENSIONS];
     int   x_index, y_index;
     int   c, a1, a2, max_axis;
+
+    max_value = 0.0;
 
     for_less( c, 0, N_DIMENSIONS )
     {
@@ -640,6 +712,14 @@ public  void  set_slice_plane(
                                                used_y_axis[c] / len_y_axis;
     }
 
+#ifdef DEBUG
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        slice_window->slice.slice_views[view_index].x_axis[c] = x_axis[c];
+        slice_window->slice.slice_views[view_index].y_axis[c] = y_axis[c];
+    }
+#endif
+
     rebuild_volume_cross_section( slice_window );
 }
 
@@ -651,8 +731,11 @@ public  void  get_slice_plane(
     Real             y_axis[] )
 {
     int    c;
+    Real   separations[MAX_DIMENSIONS];
     Real   voxel[MAX_DIMENSIONS], perp_axis[MAX_DIMENSIONS];
     Real   voxel_dot_perp, perp_dot_perp, factor;
+
+    get_volume_separations( get_volume(slice_window), separations );
 
     get_current_voxel( slice_window, voxel );
     get_slice_perp_axis( slice_window, view_index, perp_axis );
@@ -665,7 +748,7 @@ public  void  get_slice_plane(
 
     voxel_dot_perp = 0.0;
     for_less( c, 0, N_DIMENSIONS )
-        voxel_dot_perp += voxel[c] * perp_axis[c];
+        voxel_dot_perp += voxel[c] * ABS(separations[c]) * perp_axis[c];
 
     perp_dot_perp = 0.0;
     for_less( c, 0, N_DIMENSIONS )
@@ -680,7 +763,7 @@ public  void  get_slice_plane(
     {
         factor = voxel_dot_perp / perp_dot_perp;
         for_less( c, 0, N_DIMENSIONS )
-            origin[c] = factor * perp_axis[c];
+            origin[c] = factor * perp_axis[c] / ABS(separations[c]);
     }
 }
 

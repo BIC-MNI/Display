@@ -11,6 +11,7 @@
 
 typedef  struct
 {
+    BOOLEAN       visibility;
     Real          x_axis[N_DIMENSIONS];
     Real          y_axis[N_DIMENSIONS];
     Real          x_trans, y_trans;

@@ -392,9 +392,7 @@ public  DEF_MENU_FUNCTION( scan_current_polygon_to_volume )   /* ARGSUSED */
 
         print( " done.\n" );
 
-        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
+        set_slice_window_all_update( display->associated[SLICE_WINDOW] );
     }
 
     return( OK );

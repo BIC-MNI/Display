@@ -17,7 +17,7 @@ typedef  struct
     BOOLEAN                enabled;
     Real                   opacity;
     Real                   transparent_threshold;
-    Real                   slice_tolerance[3];
+    Real                   slice_tolerance[N_DIMENSIONS];
     BOOLEAN                flipped[3];
 
     int                    n_pixel_maps;
@@ -26,7 +26,7 @@ typedef  struct
     int                    n_pages;
     atlas_position_struct  *pages;
 
-    atlas_position_struct  **slice_lookup[3];
+    atlas_position_struct  **slice_lookup[N_DIMENSIONS];
 } atlas_struct;
 
 

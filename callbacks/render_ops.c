@@ -450,3 +450,36 @@ public  DEF_MENU_UPDATE(toggle_double_buffer_slice )  /* ARGSUSED */
 
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( change_background_colour )  /* ARGSUSED */
+{
+    Status            status;
+    display_struct    *slice_window;
+    Colour            col;
+    STRING            line;
+
+    print( "Enter colour name or r g b:" );
+
+    status = input_line( stdin, line, MAX_STRING_LENGTH );
+
+    if( status == OK )
+    {
+        col = convert_string_to_colour( line );
+
+        G_set_background_colour( display->window, col );
+        set_update_required( display, NORMAL_PLANES );
+
+        if( get_slice_window( display, &slice_window ) )
+        {
+            G_set_background_colour( slice_window->window, col );
+            set_update_required( slice_window, NORMAL_PLANES );
+        }
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(change_background_colour )  /* ARGSUSED */
+{
+    return( OK );
+}

@@ -18,7 +18,7 @@ public  void  initialize_surface_extraction(
 
     object = create_object( POLYGONS );
 
-    add_object_to_model( get_model_ptr(display->models[MISCELLANEOUS_MODEL]),
+    add_object_to_model( get_model_ptr(display->models[THREED_MODEL]),
                          object );
 
     surface_extraction->polygons = get_polygons_ptr( object );

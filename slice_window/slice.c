@@ -293,7 +293,7 @@ public  void  set_slice_window_volume(
     Volume            volume )
 {
     int        view, sizes[MAX_DIMENSIONS];
-    Real       thickness[N_DIMENSIONS];
+    Real       separations[N_DIMENSIONS];
 
     free_slice_window( &slice_window->slice );
 
@@ -323,14 +323,14 @@ public  void  set_slice_window_volume(
 
     initialize_slice_window_view( slice_window );
 
-    get_volume_separations( volume, thickness );
+    get_volume_separations( volume, separations );
 
     slice_window->associated[THREE_D_WINDOW]->three_d.cursor.box_size[X] =
-                          ABS( thickness[X] );
+                          ABS( separations[X] );
     slice_window->associated[THREE_D_WINDOW]->three_d.cursor.box_size[Y] =
-                          ABS( thickness[Y] );
+                          ABS( separations[Y] );
     slice_window->associated[THREE_D_WINDOW]->three_d.cursor.box_size[Z] =
-                          ABS( thickness[Z] );
+                          ABS( separations[Z] );
 
     update_cursor_size( slice_window->associated[THREE_D_WINDOW] );
 

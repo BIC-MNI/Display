@@ -9,6 +9,9 @@ static    DEF_EVENT_FUNCTION( update_probe );
 static    DEF_EVENT_FUNCTION( update_translation );
 static    DEF_EVENT_FUNCTION( terminate_translation );
 
+static    DEF_EVENT_FUNCTION( handle_update_slice_dividers );
+static    DEF_EVENT_FUNCTION( terminate_setting_slice_dividers );
+
 static    DEF_EVENT_FUNCTION( update_picking_slice );
 static    DEF_EVENT_FUNCTION( terminate_picking_slice );
 
@@ -38,6 +41,8 @@ private  void  update_limit(
 private  BOOLEAN  get_mouse_colour_bar_value(
     display_struct   *slice_window,
     Real             *value );
+private  BOOLEAN   mouse_is_near_slice_dividers(
+    display_struct   *slice_window );
 private  BOOLEAN  mouse_is_near_low_limit(
     display_struct   *slice_window );
 private  BOOLEAN  mouse_is_near_high_limit(
@@ -71,7 +76,23 @@ private  DEF_EVENT_FUNCTION( left_mouse_down )    /* ARGSUSED */
 {
     int          view_index;
 
-    if( get_slice_view_index_under_mouse( display, &view_index ) )
+    if( mouse_is_near_slice_dividers( display ) )
+    {
+        push_action_table( &display->action_table, NO_EVENT );
+        push_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT);
+
+        add_action_table_function( &display->action_table,
+                                   NO_EVENT,
+                                   handle_update_slice_dividers );
+
+        add_action_table_function( &display->action_table,
+                                   LEFT_MOUSE_UP_EVENT,
+                                   terminate_setting_slice_dividers );
+        add_action_table_function( &display->action_table,
+                                   TERMINATE_INTERACTION_EVENT,
+                                   terminate_setting_slice_dividers );
+    }
+    else if( get_slice_view_index_under_mouse( display, &view_index ) )
     {
         push_action_table( &display->action_table, NO_EVENT );
         push_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT);
@@ -695,3 +716,59 @@ private  BOOLEAN  mouse_is_near_high_limit(
 
     return( near );
 }
+
+#define  NEAR_ENOUGH  7
+
+private  BOOLEAN  mouse_is_near_slice_dividers(
+    display_struct   *slice_window )
+{
+    int       x, y, x_div, y_div, dx, dy;
+    BOOLEAN   near;
+
+    near = FALSE;
+
+    if( G_get_mouse_position( slice_window->window, &x, &y ) )
+    {
+        get_slice_divider_intersection( slice_window, &x_div, &y_div );
+
+        dx = x - x_div;
+        dy = y - y_div;
+        near = ABS(dx) < NEAR_ENOUGH && ABS(dy) < NEAR_ENOUGH;
+    }
+
+    return( near );
+}
+/* ----------------------------------------------------------------------- */
+
+private  void  update_slice_dividers(
+    display_struct    *slice_window )
+{
+    int    x, y, x_prev, y_prev;
+
+    if( pixel_mouse_moved( slice_window, &x, &y, &x_prev, &y_prev ) )
+    {
+        set_slice_divider_position( slice_window, x, y );
+    }
+}
+
+private  DEF_EVENT_FUNCTION( terminate_setting_slice_dividers )     /* ARGSUSED */
+{
+    update_slice_dividers( display );
+
+    pop_action_table( &display->action_table, NO_EVENT );
+    pop_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT );
+
+    remove_action_table_function( &display->action_table,
+                                  LEFT_MOUSE_UP_EVENT,
+                                  terminate_setting_slice_dividers );
+
+    return( OK );
+}
+
+private  DEF_EVENT_FUNCTION( handle_update_slice_dividers )     /* ARGSUSED */
+{
+    update_slice_dividers( display );
+
+    return( OK );
+}
+

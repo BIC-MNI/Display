@@ -3,6 +3,11 @@
 private  DEF_EVENT_FUNCTION( right_mouse_down );
 private  DEF_EVENT_FUNCTION( end_painting );
 private  DEF_EVENT_FUNCTION( handle_update_painting );
+private  void  paint_labels(
+    display_struct   *slice_window,
+    int              view_index,
+    Real             start_voxel[],
+    Real             end_voxel[] );
 private  void  update_paint_labels(
     display_struct  *display );
 private  void  sweep_paint_labels(
@@ -11,10 +16,6 @@ private  void  sweep_paint_labels(
     int               y1,
     int               x2,
     int               y2 );
-private  void  paint_labels_at_point(
-    display_struct   *slice_window,
-    int              x,
-    int              y );
 private  void   update_brush(
     display_struct    *slice_window,
     int               x,
@@ -54,7 +55,7 @@ private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
                                end_painting );
 
     (void) G_get_mouse_position( display->window, &x_pixel, &y_pixel );
-    paint_labels_at_point( display, x_pixel, y_pixel );
+    sweep_paint_labels( display, x_pixel, y_pixel, x_pixel, y_pixel );
 
     if( Draw_brush_outline )
     {
@@ -114,28 +115,6 @@ private  DEF_EVENT_FUNCTION( handle_update_painting )     /* ARGSUSED */
     return( OK );
 }
 
-private  void  sweep_paint_labels(
-    display_struct    *slice_window,
-    int               x1,
-    int               y1,
-    int               x2,
-    int               y2 )
-{
-    int         i, dx, dy, n, x, y;
-
-    dx = ABS( x2 - x1 );
-    dy = ABS( y2 - y1 );
-    n = MAX( dx, dy );
-
-    for_inclusive( i, 1, n )
-    {
-        x = ROUND( x1 + (Real) i / (Real) n * (x2 - x1) );
-        y = ROUND( y1 + (Real) i / (Real) n * (y2 - y1) );
-
-        paint_labels_at_point( slice_window, x, y );
-    }
-}
-
 private  BOOLEAN  get_brush_voxel_centre(
     display_struct    *slice_window,
     int               x_pixel,
@@ -158,111 +137,139 @@ private  BOOLEAN  get_brush_voxel_centre(
     return( inside );
 }
 
-private  void  paint_labels_at_point(
+private  void  sweep_paint_labels(
+    display_struct    *slice_window,
+    int               x1,
+    int               y1,
+    int               x2,
+    int               y2 )
+{
+    int         view_index;
+    Real        start_voxel[MAX_DIMENSIONS], end_voxel[MAX_DIMENSIONS];
+
+    if( get_brush_voxel_centre( slice_window, x1, y1, start_voxel,
+                                &view_index ) &&
+        get_brush_voxel_centre( slice_window, x2, y2, end_voxel,
+                                &view_index ) )
+    {
+        paint_labels( slice_window, view_index, start_voxel, end_voxel );
+    }
+}
+
+private  BOOLEAN  get_brush(
     display_struct   *slice_window,
-    int              x,
-    int              y )
+    int              view_index,
+    int              *a1,
+    int              *a2,
+    int              *axis,
+    Real             radius[] )
+{
+    BOOLEAN  okay;
+    Volume   volume;
+    Real     separations[MAX_DIMENSIONS];
+
+    okay = FALSE;
+
+    if( get_slice_window_volume( slice_window, &volume ) &&
+        slice_window->slice.x_brush_radius > 0.0 &&
+        slice_window->slice.y_brush_radius > 0.0 &&
+        slice_has_ortho_axes( slice_window, view_index, a1, a2, axis ) )
+    {
+        get_volume_separations( volume, separations );
+
+        radius[*a1] = slice_window->slice.x_brush_radius /
+                      ABS( separations[*a1] );
+        radius[*a2] = slice_window->slice.y_brush_radius /
+                      ABS( separations[*a2] );
+        radius[*axis] = slice_window->slice.z_brush_radius /
+                      ABS( separations[*axis] );
+
+        okay = TRUE;
+    }
+
+    return( okay );
+}
+
+private  BOOLEAN  inside_swept_brush(
+    Real       origin[],
+    Vector     *scaled_delta,
+    Real       radius[],
+    int        voxel[] )
+{
+    int    c;
+    Real   d, mag, t;
+    Point  voxel_offset;
+
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        if( radius[c] == 0.0 )
+            Vector_coord(voxel_offset,c) = 0.0;
+        else
+            Vector_coord(voxel_offset,c) =
+                                ((Real) voxel[c] - origin[c]) / radius[c];
+    }
+
+    if( scaled_delta != (Vector *) NULL )
+        d = DOT_VECTORS( *scaled_delta, *scaled_delta );
+    else
+        d = 0.0;
+
+    if( d != 0.0 )
+    {
+        t = DOT_VECTORS( voxel_offset, *scaled_delta ) / d;
+
+        if( t < 0.0 )
+            t = 0.0;
+        else if( t > 1.0 )
+            t = 1.0;
+
+        for_less( c, 0, N_DIMENSIONS )
+        {
+            Vector_coord( voxel_offset, c ) -=
+                                    t * Vector_coord(*scaled_delta,c);
+        }
+    }
+
+    mag = DOT_VECTORS( voxel_offset, voxel_offset );
+
+    return( mag <= 1.0 );
+}
+
+private  void  paint_labels(
+    display_struct   *slice_window,
+    int              view_index,
+    Real             start_voxel[],
+    Real             end_voxel[] )
 {
     Volume   volume, label_volume;
-    int      label, value, c, sizes[N_DIMENSIONS], n_zero, which_zero;
-    Real     len_x_axis, len_y_axis, len_z_axis;
+    int      a1, a2, axis, label, value, c, sizes[N_DIMENSIONS];
     int      min_voxel[N_DIMENSIONS], max_voxel[N_DIMENSIONS];
-    Real     min_limit, max_limit, ellipse[N_DIMENSIONS];
+    Real     min_limit, max_limit;
     Real     radius[N_DIMENSIONS];
-    Real     voxel[N_DIMENSIONS], separations[N_DIMENSIONS];
-    Real     origin[N_DIMENSIONS], z_axis[N_DIMENSIONS];
-    Real     x_axis[N_DIMENSIONS], y_axis[N_DIMENSIONS];
-    Real     delta[N_DIMENSIONS], tmp;
+    Vector   scaled_delta;
     int      ind[N_DIMENSIONS];
-    int      view_index;
     BOOLEAN  update_required;
 
     if( get_slice_window_volume( slice_window, &volume ) &&
-        get_brush_voxel_centre( slice_window, x, y, voxel, &view_index ) )
+        get_brush( slice_window, view_index, &a1, &a2, &axis, radius ) )
     {
         label_volume = get_label_volume( slice_window );
-
         update_required = FALSE;
-
-        get_slice_plane( slice_window, view_index, origin, x_axis, y_axis );
-        get_slice_perp_axis( slice_window, view_index, z_axis );
-
-        get_volume_separations( volume, separations );
         get_volume_sizes( volume, sizes );
 
-        radius[X] = slice_window->slice.x_brush_radius;
-        radius[Y] = slice_window->slice.y_brush_radius;
-        radius[Z] = slice_window->slice.z_brush_radius;
-
-        n_zero = 0;
         for_less( c, 0, N_DIMENSIONS )
         {
             if( radius[c] == 0.0 )
-            {
-                which_zero = c;
-                ++n_zero;
-            }
-        }
-
-        if( n_zero > 1 )
-            return;
-
-        if( n_zero == 1 )
-            radius[which_zero] = 1.0;
-
-        len_x_axis = 0.0;
-        len_y_axis = 0.0;
-        len_z_axis = 0.0;
-        for_less( c, 0, N_DIMENSIONS )
-        {
-            x_axis[c] /= separations[c];
-            y_axis[c] /= separations[c];
-            z_axis[c] /= separations[c];
-
-            len_x_axis += x_axis[c] * x_axis[c];
-            len_y_axis += y_axis[c] * y_axis[c];
-            len_z_axis += z_axis[c] * z_axis[c];
-        }
-
-        if( len_x_axis == 0.0 )
-            len_x_axis = 1.0;
-        else
-            len_x_axis = sqrt( len_x_axis );
-
-        if( len_y_axis == 0.0 )
-            len_y_axis = 1.0;
-        else
-            len_y_axis = sqrt( len_y_axis );
-
-        if( len_z_axis == 0.0 )
-            len_z_axis = 1.0;
-        else
-            len_z_axis = sqrt( len_z_axis );
-
-        for_less( c, 0, N_DIMENSIONS )
-        {
-            x_axis[c] /= len_x_axis;
-            y_axis[c] /= len_y_axis;
-            z_axis[c] /= len_z_axis;
+                Vector_coord(scaled_delta,c) = 0.0;
+            else
+                Vector_coord(scaled_delta,c) = (end_voxel[c] - start_voxel[c])
+                                               / radius[c];
         }
 
         for_less( c, 0, N_DIMENSIONS )
         {
-            min_limit = voxel[c] -
-                        radius[X] * ABS( x_axis[c] ) -
-                        radius[Y] * ABS( y_axis[c] ) -
-                        radius[Z] * ABS( z_axis[c] );
-            max_limit = voxel[c] +
-                        radius[X] * ABS( x_axis[c] ) +
-                        radius[Y] * ABS( y_axis[c] ) +
-                        radius[Z] * ABS( z_axis[c] );
-
-            if( min_limit > max_limit )
-            {
-                tmp = min_limit;
-                min_limit = max_limit;
-                max_limit = tmp;
-            }
+            min_limit = MIN( start_voxel[c], end_voxel[c] ) - radius[c];
+            max_limit = MAX( start_voxel[c], end_voxel[c] ) + radius[c];
 
             if( min_limit == max_limit )
             {
@@ -285,32 +292,12 @@ private  void  paint_labels_at_point(
 
         for_inclusive( ind[X], min_voxel[X], max_voxel[X] )
         {
-            delta[X] = (Real) ind[X] - voxel[X];
             for_inclusive( ind[Y], min_voxel[Y], max_voxel[Y] )
             {
-                delta[Y] = (Real) ind[Y] - voxel[Y];
                 for_inclusive( ind[Z], min_voxel[Z], max_voxel[Z] )
                 {
-                    delta[Z] = (Real) ind[Z] - voxel[Z];
-
-                    ellipse[X] = 0.0;
-                    ellipse[Y] = 0.0;
-                    ellipse[Z] = 0.0;
-                    for_less( c, 0, N_DIMENSIONS )
-                    {
-                        if( radius[X] > 0.0 )
-                            ellipse[X] += delta[c] * x_axis[c] / radius[X];
-                        if( radius[Y] > 0.0 )
-                            ellipse[Y] += delta[c] * y_axis[c] / radius[Y];
-                        if( radius[Z] > 0.0 )
-                            ellipse[Z] += delta[c] * z_axis[c] / radius[Z];
-                    }
-
-                    if( n_zero == 1 && ABS( ellipse[which_zero] ) > 0.5 )
-                        continue;
-
-                    if( ellipse[X] * ellipse[X] + ellipse[Y] * ellipse[Y] +
-                        ellipse[Z] * ellipse[Z] <= 1.0 )
+                    if( inside_swept_brush( start_voxel, &scaled_delta,
+                                            radius, ind ) )
                     {
                         value = get_volume_label_data( label_volume, ind );
                         if( value != label )
@@ -359,25 +346,6 @@ public  void  copy_labels_slice_to_slice(
             set_volume_label_data( label_volume, dest_indices, value );
         }
     }
-}
-
-private  BOOLEAN  inside_brush(
-    Real       origin[],
-    Real       one_over_r2[],
-    int        voxel[] )
-{
-    int    c;
-    Real   sum, delta;
-
-    sum = 0.0;
-
-    for_less( c, 0, N_DIMENSIONS )
-    {
-        delta = (Real) voxel[c] - origin[c];
-        sum += delta * delta * one_over_r2[c];
-    }
-
-    return( sum <= 1.0 );
 }
 
 typedef  enum  { POSITIVE_X, POSITIVE_Y, NEGATIVE_X, NEGATIVE_Y,
@@ -435,8 +403,8 @@ private   void    add_point_to_contour(
 }
 
 private  BOOLEAN  neighbour_is_inside(
-    Real       origin[],
-    Real       one_over_r2[],
+    Real       centre[],
+    Real       radius[],
     int        a1,
     int        a2,
     int        voxel[],
@@ -447,7 +415,7 @@ private  BOOLEAN  neighbour_is_inside(
     voxel[a1] += dx[dir];
     voxel[a2] += dy[dir];
 
-    inside = inside_brush( origin, one_over_r2, voxel );
+    inside = inside_swept_brush( centre, (Vector *) NULL, radius, voxel );
 
     voxel[a1] -= dx[dir];
     voxel[a2] -= dy[dir];
@@ -462,8 +430,8 @@ private  void  get_brush_contour(
     int               a1,
     int               a2,
     int               axis,
-    Real              origin[N_DIMENSIONS],
-    Real              one_over_r2[N_DIMENSIONS],
+    Real              centre[N_DIMENSIONS],
+    Real              radius[N_DIMENSIONS],
     int               start_voxel[N_DIMENSIONS],
     Directions        start_dir,
     lines_struct      *lines )
@@ -483,7 +451,7 @@ private  void  get_brush_contour(
 
         dir = (dir + 1) % N_DIRECTIONS;
 
-        while( neighbour_is_inside( origin, one_over_r2, a1, a2,
+        while( neighbour_is_inside( centre, radius, a1, a2,
                                     current_voxel, dir ) )
         {
             current_voxel[a1] += dx[dir];
@@ -505,49 +473,32 @@ private  void   update_brush(
     int               x,
     int               y )
 {
-    Real          voxel[N_DIMENSIONS], separations[MAX_DIMENSIONS];
-    int           c, view, axis, a1, a2, start_voxel[N_DIMENSIONS];
-    Real          one_over_r2[N_DIMENSIONS], radius[N_DIMENSIONS];
-    Volume        volume;
+    Real          centre[N_DIMENSIONS];
+    int           view, axis, a1, a2, start_voxel[N_DIMENSIONS];
+    Real          radius[N_DIMENSIONS];
     lines_struct  *lines;
 
     lines = get_lines_ptr( slice_window->slice.brush_outline );
     delete_lines( lines );
     initialize_lines( lines, Brush_outline_colour );
 
-    if( get_slice_window_volume( slice_window, &volume ) &&
-        slice_window->slice.x_brush_radius > 0.0 &&
+    if( slice_window->slice.x_brush_radius > 0.0 &&
         slice_window->slice.y_brush_radius > 0.0 &&
-        get_brush_voxel_centre( slice_window, x, y, voxel, &view ) &&
-        slice_has_ortho_axes( slice_window, view, &a1, &a2, &axis ) )
+        get_brush_voxel_centre( slice_window, x, y, centre, &view ) &&
+        get_brush( slice_window, view, &a1, &a2, &axis, radius ) )
     {
-        get_volume_separations( volume, separations );
+        start_voxel[a1] = ROUND( centre[a1] );
+        start_voxel[a2] = ROUND( centre[a2] );
+        start_voxel[axis] = ROUND( centre[axis] );
 
-        radius[a1] = slice_window->slice.x_brush_radius;
-        radius[a2] = slice_window->slice.y_brush_radius;
-        radius[axis] = slice_window->slice.z_brush_radius;
+        while( inside_swept_brush( centre, (Vector *) NULL, radius,
+                                   start_voxel ) )
+            ++start_voxel[a1];
 
-        for_less( c, 0, N_DIMENSIONS )
-        {
-            if( radius[c] <= 0.0 )
-                one_over_r2[c] = 0.0;
-            else
-                one_over_r2[c] = separations[c] * separations[c] /
-                                 radius[c] / radius[c];
-        }
-
-        start_voxel[a1] = (int) (voxel[a1] + radius[a1] / separations[a1]) + 2;
-        start_voxel[a2] = ROUND( voxel[a2] );
-        start_voxel[axis] = ROUND( voxel[axis] );
-
-        while( start_voxel[a1] >= voxel[a1] &&
-               !inside_brush( voxel, one_over_r2, start_voxel ) )
+        if( start_voxel[a1] > ROUND( centre[a1] ) )
             --start_voxel[a1];
 
-        if( start_voxel[a1] < voxel[a1] )
-            return;
-
-        get_brush_contour( slice_window, x, y, a1, a2, axis, voxel, one_over_r2,
+        get_brush_contour( slice_window, x, y, a1, a2, axis, centre, radius,
                            start_voxel, POSITIVE_X, lines );
     }
 }    

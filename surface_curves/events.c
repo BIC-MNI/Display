@@ -21,7 +21,7 @@ public  void  initialize_surface_curve(
     if( Surface_curve_overlay_flag )
         model = get_graphics_model( display, OVERLAY_MODEL );
     else
-        model = get_graphics_model( display, THREED_MODEL );
+        model = get_graphics_model( display, MISCELLANEOUS_MODEL );
 
     object = create_object( LINES );
     lines = get_lines_ptr( object );

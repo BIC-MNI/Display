@@ -123,12 +123,12 @@ private  void  transform_slice_axes(
 
     get_volume_separations( volume, separations );
 
-    x_axis[X] /= separations[X];
-    x_axis[Y] /= separations[Y];
-    x_axis[Z] /= separations[Z];
-    y_axis[X] /= separations[X];
-    y_axis[Y] /= separations[Y];
-    y_axis[Z] /= separations[Z];
+    x_axis[X] /= ABS( separations[X] );
+    x_axis[Y] /= ABS( separations[Y] );
+    x_axis[Z] /= ABS( separations[Z] );
+    y_axis[X] /= ABS( separations[X] );
+    y_axis[Y] /= ABS( separations[Y] );
+    y_axis[Z] /= ABS( separations[Z] );
 
     origin[X] = 0.0;
     origin[Y] = 0.0;
@@ -170,12 +170,12 @@ private  void  transform_slice_axes(
     y_axis[Y] -= origin[Y];
     y_axis[Z] -= origin[Z];
 
-    x_axis[X] *= separations[X];
-    x_axis[Y] *= separations[Y];
-    x_axis[Z] *= separations[Z];
-    y_axis[X] *= separations[X];
-    y_axis[Y] *= separations[Y];
-    y_axis[Z] *= separations[Z];
+    x_axis[X] *= ABS( separations[X] );
+    x_axis[Y] *= ABS( separations[Y] );
+    x_axis[Z] *= ABS( separations[Z] );
+    y_axis[X] *= ABS( separations[X] );
+    y_axis[Y] *= ABS( separations[Y] );
+    y_axis[Z] *= ABS( separations[Z] );
 
     len = sqrt(x_axis[X]*x_axis[X] + x_axis[Y]*x_axis[Y] + x_axis[Z]*x_axis[Z]);
     if( len > 0.0 )

@@ -73,9 +73,7 @@ public  DEF_MENU_FUNCTION(add_surface_point)   /* ARGSUSED */
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
 
         set_voxel_label_flag( get_volume(display), int_voxel, TRUE );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
+        set_slice_window_all_update( display->associated[SLICE_WINDOW] );
     }
     else
         point = display->three_d.cursor.origin;
@@ -103,9 +101,7 @@ public  DEF_MENU_FUNCTION(delete_surface_point)   /* ARGSUSED */
         fill_Point( point, x_w, y_w, z_w );
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
         set_voxel_label_flag( get_volume(display), int_voxel, FALSE );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
+        set_slice_window_all_update( display->associated[SLICE_WINDOW] );
     }
     else
         point = display->three_d.cursor.origin;
@@ -141,9 +137,7 @@ public  DEF_MENU_FUNCTION(show_all_surface_points)   /* ARGSUSED */
             set_voxel_label_flag( volume, int_voxel, TRUE );
         }
 
-        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
+        set_slice_window_all_update( display->associated[SLICE_WINDOW] );
     }
 
     return( OK );
@@ -231,9 +225,7 @@ public  DEF_MENU_FUNCTION(load_surface_points)   /* ARGSUSED */
         }
     }
 
-    set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-    set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-    set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
+    set_slice_window_all_update( display->associated[SLICE_WINDOW] );
 
     if( status == OK )
         status = close_file( file );
@@ -363,9 +355,7 @@ public  DEF_MENU_FUNCTION(scan_model_to_voxels)   /* ARGSUSED */
                  Max_parametric_scan_distance );
         print( " done.\n" );
 
-        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
+        set_slice_window_all_update( display->associated[SLICE_WINDOW] );
     }
 
     return( OK );

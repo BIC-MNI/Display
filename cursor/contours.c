@@ -10,7 +10,7 @@ public  void  create_cursor_contours(
 
     model = get_graphics_model( display, OVERLAY_MODEL );
 
-    for_less( axis, 0, 3 )
+    for_less( axis, 0, N_DIMENSIONS )
     {
         object = create_object( LINES );
         lines = get_lines_ptr( object );
@@ -39,7 +39,7 @@ public  void  update_cursor_contours(
     {
         contours = &display->three_d.cursor_contours;
 
-        for_less( axis, 0, 3 )
+        for_less( axis, 0, N_DIMENSIONS )
         {
             fill_Vector( plane_normal, 0.0, 0.0, 0.0 );
             Vector_coord(plane_normal,axis) = 1.0;

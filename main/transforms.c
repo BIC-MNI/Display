@@ -1,13 +1,13 @@
 
 #include  <display.h>
 
-public  void  apply_transform_in_view_space(
+public  void  convert_transform_to_view_space(
     display_struct    *display,
-    Transform         *transform )
+    Transform         *transform,
+    Transform         *view_space_transform )
 {
     Vector     z_axis;
     Point      centre;
-    Transform  transform_in_cs;
 
     get_view_z_axis( &display->three_d.view, &z_axis );
 
@@ -25,7 +25,16 @@ public  void  apply_transform_in_view_space(
                                          &display->three_d.view.x_axis,
                                          &display->three_d.view.y_axis,
                                          &z_axis,
-                                         transform, &transform_in_cs );
+                                         transform, view_space_transform );
+}
+
+public  void  apply_transform_in_view_space(
+    display_struct    *display,
+    Transform         *transform )
+{
+    Transform  transform_in_cs;
+
+    convert_transform_to_view_space( display, transform, &transform_in_cs );
 
     transform_model( display, &transform_in_cs );
 }

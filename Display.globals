@@ -108,8 +108,8 @@ Slice_divider_x_position = 0.5;
 Slice_divider_y_position = 0.5;
 Left_panel_width = 90;
 Text_panel_height = 150;
-Slice_text_colour = RED;
-Readout_text_colour = 1;
+Slice_text_colour = GREEN;
+Readout_text_colour = 2;
 Readout_text_rgb_colour = GREEN;
 Slice_text_font = 0;
 Slice_text_font_size = 18.0;
@@ -132,15 +132,12 @@ Probe_x_delta = 0;
 Probe_y_delta = 15;
 Slice_view1_axis1 = 1;
 Slice_view1_axis2 = 2;
-Slice_view1_axis3 = 0;
 
 Slice_view2_axis1 = 0;
 Slice_view2_axis2 = 2;
-Slice_view2_axis3 = 1;
 
 Slice_view3_axis1 = 0;
 Slice_view3_axis2 = 1;
-Slice_view3_axis3 = 2;
 
 Cursor_home = 0 0 0;
 Cursor_bitplanes = 0;
@@ -168,6 +165,10 @@ Cursor_hor_start_2 = 3.0;
 Cursor_hor_end_2 = 30.0;
 Cursor_vert_start_2 = 3.0;
 Cursor_vert_end_2 = 30.0;
+Cursor_hor_start_3 = 10.0;
+Cursor_hor_end_3 = 30.0;
+Cursor_vert_start_3 = 10.0;
+Cursor_vert_end_3 = 30.0;
 Cursor_mouse_threshold = 0.0;
 Max_cursor_angle = 20.0;
 Min_cursor_angle_diff = 5.0;

@@ -45,6 +45,7 @@ MENU_FUNCTION(advance_selected) \
 MENU_FUNCTION(retreat_selected) \
 MENU_FUNCTION(descend_selected) \
 MENU_FUNCTION(ascend_selected) \
+MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(create_3d_slice) \
                        MENU_FUNCTION(toggle_slice_visibility) \
                        MENU_FUNCTION(toggle_cross_section_visibility) \

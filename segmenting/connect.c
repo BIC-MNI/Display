@@ -5,8 +5,8 @@
 
 public  void  disconnect_components(
     Volume          volume,
-    int             voxel_indices[3],
-    int             axis[3],
+    int             voxel_indices[],
+    int             axis[],
     int             n_labels,
     label_struct    labels[],
     Real            min_threshold,

@@ -171,7 +171,7 @@ typedef  struct
 
 typedef  struct
 {
-    contour_struct           contours[3];
+    contour_struct           contours[N_DIMENSIONS];
     int                      models_changed_id;
     int                      axis;
     polygons_struct          *current_polygons;

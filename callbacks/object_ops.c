@@ -434,3 +434,35 @@ public  DEF_MENU_UPDATE(mark_vertices )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( flip_object )   /* ARGSUSED */
+{
+    object_struct  *object;
+    int            i, n_points;
+    Point          *points;
+    Vector         *normals;
+
+    if( get_current_object( display, &object ) )
+    {
+        n_points = get_object_points( object, &points );
+        (void) get_object_normals( object, &normals );
+
+        for_less( i, 0, n_points )
+        {
+            Point_x(points[i]) *= -1.0;
+            Vector_x(normals[i]) *= -1.0;
+        }
+
+        if( object->object_type == POLYGONS )
+            reverse_polygons_vertices( get_polygons_ptr(object) );
+
+        set_update_required( display, NORMAL_PLANES );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(flip_object )   /* ARGSUSED */
+{
+    return( OK );
+}

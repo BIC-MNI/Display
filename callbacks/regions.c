@@ -384,7 +384,7 @@ public  DEF_MENU_UPDATE(toggle_display_labels )   /* ARGSUSED */
     BOOLEAN          display_labels;
     display_struct   *slice_window;
 
-    if( get_slice_window( display, &slice_window ) )
+    if( !get_slice_window( display, &slice_window ) )
         display_labels = Initial_display_labels;
     else
         display_labels = slice_window->slice.display_labels;
@@ -393,5 +393,54 @@ public  DEF_MENU_UPDATE(toggle_display_labels )   /* ARGSUSED */
 
     set_menu_text( menu_window, menu_entry, text );
 
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( change_labels_in_range )   /* ARGSUSED */
+{
+    display_struct  *slice_window;
+    Status          status;
+    int             src_label, dest_label;
+    Real            min_threshold, max_threshold;
+    Volume          volume;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_slice_window_volume( slice_window, &volume ) )
+    {
+        status = OK;
+        print( "Label to change from: " );
+        status = input_int( stdin, &src_label );
+
+        if( status == OK )
+        {
+            print( "Label to change to: " );
+            status = input_int( stdin, &dest_label );
+        }
+
+        if( status == OK )
+        {
+            print( "Min and max of value range: " );
+            status = input_real( stdin, &min_threshold );
+        }
+
+        if( status == OK )
+            status = input_real( stdin, &max_threshold );
+
+        (void) input_newline( stdin );
+
+        if( status == OK )
+        {
+            modify_labels_in_range( volume, get_label_volume(slice_window),
+                                    src_label, dest_label,
+                                    min_threshold, max_threshold );
+            set_slice_window_all_update( slice_window );
+        }
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(change_labels_in_range )   /* ARGSUSED */
+{
     return( OK );
 }

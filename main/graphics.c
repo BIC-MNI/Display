@@ -269,6 +269,12 @@ private  void  initialize_graphics_window(
             model_info->render.master_light_switch = FALSE;
         }
 
+        if( display->window_type == THREE_D_WINDOW && i == MISCELLANEOUS_MODEL )
+        {
+            model_info->render.shaded_mode = TRUE;
+            model_info->render.backface_flag = FALSE;
+        }
+
         make_identity_transform( &model_info->transform );
     }
 

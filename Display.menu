@@ -129,6 +129,7 @@ render
     transient 'c'    toggle_marker_label_flag  "Marker Labels: %s"
     transient 'z'    set_n_curve_segments      "Set # Curve Segments"
 
+    transient 'q'    change_background_colour     "Change Background"
     transient 'w'    toggle_double_buffer_threed  "3D DblBuf: %s"
     transient 'e'    toggle_double_buffer_slice   "Slice DblBuf: %s"
 }

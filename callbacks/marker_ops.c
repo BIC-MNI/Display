@@ -83,9 +83,7 @@ public  void  create_marker_at_position(
 
     render_marker_to_volume( display, marker );
 
-    set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-    set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-    set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
+    set_slice_window_all_update( display->associated[SLICE_WINDOW] );
 }
 
 public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */

@@ -240,7 +240,14 @@ private  void  colour_code_points(
 
     if( *colour_flag != PER_VERTEX_COLOURS )
     {
-        REALLOC( *colours, n_points );
+        if( n_points > 0 )
+        {
+            REALLOC( *colours, n_points );
+        }
+        else
+        {
+            FREE( *colours );
+        }
         *colour_flag = PER_VERTEX_COLOURS;
     }
 
@@ -384,7 +391,6 @@ public  DEF_MENU_UPDATE(resample_slice_window_volume)    /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
 {
-    int              sizes[N_DIMENSIONS];
     char             ch;
     Real             x_width, y_width, z_width;
     Real             separations[N_DIMENSIONS];
@@ -394,7 +400,6 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
     if( get_slice_window_volume( display, &volume ) &&
         get_slice_window( display, &slice_window ) )
     {
-        get_volume_sizes( slice_window->slice.original_volume, sizes );
         get_volume_separations( slice_window->slice.original_volume,
                                 separations );
 
@@ -407,15 +412,16 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
         {
             if( ch == 'w' )
             {
-                x_width /= separations[X];
-                y_width /= separations[Y];
-                z_width /= separations[Z];
+                x_width /= ABS( separations[X] );
+                y_width /= ABS( separations[Y] );
+                z_width /= ABS( separations[Z] );
             }
 
             if( x_width > 1.0 || y_width > 1.0 || z_width > 1.0 )
             {
                 resampled_volume = create_box_filtered_volume(
                                         slice_window->slice.original_volume,
+                                        NC_BYTE, FALSE, 0.0, 0.0,
                                         x_width, y_width, z_width );
             }
             else

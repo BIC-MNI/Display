@@ -226,7 +226,7 @@ private  Status  add_face(
     polygons_struct      *polygons,
     point_lookup_struct  *point_lookup )
 {
-    int      a1, a2, point_ids[4], point_indices[3], n_indices, i;
+    int      a1, a2, point_ids[4], point_indices[N_DIMENSIONS], n_indices, i;
 
     if( offset == -1 )
     {

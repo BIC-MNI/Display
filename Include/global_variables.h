@@ -23,6 +23,10 @@ START_GLOBALS
     DEF_GLOBAL( Frame_info_x, Real, 10.0 )
     DEF_GLOBAL( Frame_info_y, Real, 10.0 )
 
+    DEF_GLOBAL( Volume_outline_colour, Colour, RED )
+    DEF_GLOBAL( Cross_section_colour, Colour, GREEN )
+    DEF_GLOBAL5( Cross_section_spr, Surfprop, 0.3, 0.6, 0.6, 40.0, 1.0 )
+
     DEF_GLOBAL( Ambient_light_colour, Colour, WHITE )
     DEF_GLOBAL( Directional_light_colour, Colour, WHITE )
     DEF_GLOBAL3( Light_direction, Vector, 1.0, -1.0, -1.0 )
@@ -159,6 +163,11 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_hor_end_2, Real, 30.0 )
     DEF_GLOBAL( Cursor_vert_start_2, Real, 3.0 )
     DEF_GLOBAL( Cursor_vert_end_2, Real, 30.0 )
+
+    DEF_GLOBAL( Cursor_hor_start_3, Real, 10.0 )
+    DEF_GLOBAL( Cursor_hor_end_3, Real, 30.0 )
+    DEF_GLOBAL( Cursor_vert_start_3, Real, 10.0 )
+    DEF_GLOBAL( Cursor_vert_end_3, Real, 30.0 )
 
     DEF_GLOBAL( Slice_cursor_colour, Colour, RED )
     DEF_GLOBAL( Cursor_mouse_threshold, Real, 0.0 )

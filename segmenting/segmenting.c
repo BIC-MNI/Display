@@ -63,8 +63,8 @@ public  void  add_point_label(
 
 public  void  generate_segmentation(
     display_struct    *slice_window,
-    int               voxel_indices[3],
-    int               voxel_axes[3] )
+    int               voxel_indices[],
+    int               voxel_axes[] )
 {
     disconnect_components( get_volume(slice_window),
                            voxel_indices, voxel_axes,
@@ -86,8 +86,8 @@ public  void  set_labels_on_slice(
 
     voxel[axis_index] = position;
 
-    a1 = (axis_index + 1) % 3;
-    a2 = (axis_index + 2) % 3;
+    a1 = (axis_index + 1) % N_DIMENSIONS;
+    a2 = (axis_index + 2) % N_DIMENSIONS;
 
     for_less( voxel[a1], 0, sizes[a1] )
     {
@@ -107,7 +107,7 @@ public  void  set_connected_voxels_labels(
     Volume            volume,
     Volume            label_volume,
     int               axis_index,
-    int               position[3],
+    int               position[],
     Real              min_threshold,
     Real              max_threshold,
     Neighbour_types   connectivity,
@@ -127,8 +127,8 @@ public  void  set_connected_voxels_labels(
     voxel[1] = position[1];
     voxel[2] = position[2];
 
-    a1 = (axis_index + 1) % 3;
-    a2 = (axis_index + 2) % 3;
+    a1 = (axis_index + 1) % N_DIMENSIONS;
+    a2 = (axis_index + 2) % N_DIMENSIONS;
 
     INITIALIZE_QUEUE( queue );
 

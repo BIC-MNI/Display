@@ -9,15 +9,6 @@ static    DEF_EVENT_FUNCTION( handle_update_translation );
 static    DEF_EVENT_FUNCTION( terminate_translation );
 private  BOOLEAN  perform_rotation(
     display_struct   *display );
-private  BOOLEAN  make_spaceball_transform(
-    Real       x1,
-    Real       y1,
-    Real       x2,
-    Real       y2,
-    Point      *centre,
-    Real       x_radius,
-    Real       y_radius,
-    Transform  *transform );
 private  BOOLEAN  perform_cursor_translation(
     display_struct   *display );
 private  BOOLEAN  mouse_close_to_cursor(
@@ -117,102 +108,24 @@ private  DEF_EVENT_FUNCTION( terminate_rotation )     /* ARGSUSED */
 private  BOOLEAN  perform_rotation(
     display_struct   *display )
 {
-    static  Point  centre = { 0.5, 0.5, 0.0 };
-    Real           x, y, x_radius, y_radius;
-    int            x_size, y_size;
-    Real           aspect;
+    Real           x, y;
     Transform      transform;
     BOOLEAN        moved;
 
     moved = FALSE;
 
-    G_get_window_size( display->window, &x_size, &y_size );
-    aspect = (Real) y_size / (Real) x_size;
-
-    if( aspect < 1.0 )
-    {
-        x_radius = 0.5 * aspect;
-        y_radius = 0.5;
-    }
-    else
-    {
-        x_radius = 0.5;
-        y_radius = 0.5 / aspect;
-    }
-
     if( G_get_mouse_position_0_to_1( display->window, &x, &y ) &&
-        make_spaceball_transform( Point_x(display->prev_mouse_position),
-                                  Point_y(display->prev_mouse_position),
-                                  x, y, &centre, x_radius, y_radius,
-                                  &transform ) )
+        get_spaceball_transform( display,
+                                 Point_x(display->prev_mouse_position),
+                                 Point_y(display->prev_mouse_position),
+                                 x, y, &transform ) )
     {
-        apply_transform_in_view_space( display, &transform );
-        moved = TRUE;
-
+        transform_model( display, &transform );
         record_mouse_position( display );
+        moved = TRUE;
     }
 
     return( moved );
-}
-
-private  BOOLEAN  make_spaceball_transform(
-    Real       x1,
-    Real       y1,
-    Real       x2,
-    Real       y2,
-    Point      *centre,
-    Real       x_radius,
-    Real       y_radius,
-    Transform  *transform )
-{
-    BOOLEAN  transform_created;
-    Real     x_old, y_old, z_old, x_new, y_new, z_new;
-    Real     dist_old, dist_new;
-    Real     angle, sin_angle;
-    Vector   v0, v1;
-    Vector   axis_of_rotation;
-
-    x_old = (x1 - Point_x(*centre)) / x_radius;
-    y_old = (y1 - Point_y(*centre)) / y_radius;
-
-    x_new = (x2 - Point_x(*centre)) / x_radius;
-    y_new = (y2 - Point_y(*centre)) / y_radius;
-
-    dist_old = x_old * x_old + y_old * y_old;
-    dist_new = x_new * x_new + y_new * y_new;
-
-    transform_created = FALSE;
-
-    if( (x_old != x_new || y_old != y_new) &&
-        dist_old <= 1.0 && dist_new <= 1.0 )
-    {
-        z_old = 1.0 - sqrt( dist_old );
-        z_new = 1.0 - sqrt( dist_new );
-
-        fill_Vector( v0, x_old, y_old, z_old );
-        fill_Vector( v1, x_new, y_new, z_new );
-
-        CROSS_VECTORS( axis_of_rotation, v0, v1 );
-
-        sin_angle = MAGNITUDE( axis_of_rotation );
-
-        if( sin_angle > 0.0 )
-        {
-            SCALE_VECTOR( axis_of_rotation, axis_of_rotation, 1.0 / sin_angle );
-
-            angle = asin( (double) sin_angle );
-            if( DOT_VECTORS( v0, v1 ) < 0.0 )
-            {
-                angle += PI / 2.0;
-            }
-
-            make_rotation_about_axis( &axis_of_rotation, angle, transform );
-
-            transform_created = TRUE;
-        }
-    }
-
-    return( transform_created );
 }
 
 private  void  update_translation(

@@ -186,7 +186,7 @@ public  void  regenerate_atlas_lookup(
     get_volume_sizes( volume, sizes );
     atlas = &slice_window->slice.atlas;
 
-    for_less( axis, 0, 3 )
+    for_less( axis, 0, N_DIMENSIONS )
     {
         if( atlas->slice_lookup[axis] != (atlas_position_struct **) 0 )
             FREE( atlas->slice_lookup[axis] )

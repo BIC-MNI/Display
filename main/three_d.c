@@ -76,6 +76,8 @@ public  void  initialize_three_d_window(
     initialize_surface_curve( display );
 
     initialize_deformation( &display->three_d.deform );
+
+    initialize_volume_cross_section( display );
 }
 
 private    DEF_EVENT_FUNCTION( handle_resize_three_d );

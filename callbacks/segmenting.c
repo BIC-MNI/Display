@@ -20,9 +20,7 @@ public  DEF_MENU_FUNCTION( label_voxel )   /* ARGSUSED */
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
         set_volume_label_data( get_label_volume(display), int_voxel,
                                get_current_paint_label(display) );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
+        set_slice_window_all_update( display->associated[SLICE_WINDOW] );
     }
 
     return( OK );
@@ -42,9 +40,7 @@ public  DEF_MENU_FUNCTION( clear_voxel )   /* ARGSUSED */
     {
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
         set_volume_label_data( get_label_volume(display), int_voxel, 0 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
+        set_slice_window_all_update( display->associated[SLICE_WINDOW] );
     }
 
     return( OK );
@@ -58,10 +54,7 @@ public  DEF_MENU_UPDATE(clear_voxel )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( reset_segmenting )   /* ARGSUSED */
 {
     reset_segmentation( display->associated[SLICE_WINDOW] );
-
-    set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-    set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-    set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
+    set_slice_window_all_update( display->associated[SLICE_WINDOW] );
 
     return( OK );
 }
@@ -170,9 +163,7 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
 
         if( status == OK )
         {
-            set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-            set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-            set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
+            set_slice_window_all_update( display->associated[SLICE_WINDOW] );
         }
 
         print( "Done\n" );
@@ -197,9 +188,7 @@ public  DEF_MENU_FUNCTION(reset_activities)   /* ARGSUSED */
 
         set_all_voxel_activity_flags( get_label_volume(slice_window), TRUE );
 
-        set_slice_window_update( slice_window, 0 );
-        set_slice_window_update( slice_window, 1 );
-        set_slice_window_update( slice_window, 2 );
+        set_slice_window_all_update( slice_window );
     }
 
     return( OK );
@@ -251,9 +240,7 @@ private  void  set_slice_labels(
                              axis_index, int_voxel[axis_index],
                              label );
 
-        set_slice_window_update( slice_window, 0 );
-        set_slice_window_update( slice_window, 1 );
-        set_slice_window_update( slice_window, 2 );
+        set_slice_window_all_update( slice_window );
     }
 }
 
@@ -303,9 +290,7 @@ private  void   set_connected_labels(
                           slice_window->slice.segmenting.connectivity,
                           label );
 
-        set_slice_window_update( slice_window, 0 );
-        set_slice_window_update( slice_window, 1 );
-        set_slice_window_update( slice_window, 2 );
+        set_slice_window_all_update( slice_window );
     }
 }
 
@@ -332,9 +317,7 @@ public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
 
         print( "Done\n" );
 
-        set_slice_window_update( slice_window, 0 );
-        set_slice_window_update( slice_window, 1 );
-        set_slice_window_update( slice_window, 2 );
+        set_slice_window_all_update( slice_window );
     }
 
     return( OK );
@@ -365,9 +348,7 @@ public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
 
         print( "Done\n" );
 
-        set_slice_window_update( slice_window, 0 );
-        set_slice_window_update( slice_window, 1 );
-        set_slice_window_update( slice_window, 2 );
+        set_slice_window_all_update( slice_window );
     }
 
     return( OK );
@@ -407,9 +388,7 @@ public  DEF_MENU_FUNCTION(invert_activity)   /* ARGSUSED */
         print( "Done\n" );
 
         slice_window = display->associated[SLICE_WINDOW];
-        set_slice_window_update( slice_window, 0 );
-        set_slice_window_update( slice_window, 1 );
-        set_slice_window_update( slice_window, 2 );
+        set_slice_window_all_update( slice_window );
     }
 
     return( OK );

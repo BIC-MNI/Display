@@ -10,10 +10,11 @@
 
 /* for graphics windows */
 
-#define  THREED_MODEL           2
 #define  CURSOR_MODEL           0
 #define  OVERLAY_MODEL          1
-#define  CUT_BUFFER_MODEL       3
+#define  THREED_MODEL           2
+#define  MISCELLANEOUS_MODEL    3
+#define  CUT_BUFFER_MODEL       4
 
 /* for menu windows */
 
@@ -26,7 +27,7 @@
 #define  COLOUR_BAR_MODEL       1
 #define  SLICE_READOUT_MODEL    2
 
-#define  N_MODELS               4
+#define  N_MODELS               5
 
 typedef  enum  { THREE_D_WINDOW,
                  MENU_WINDOW,
@@ -57,6 +58,8 @@ typedef  struct
     STRING                     default_marker_label;
     marker_segment_struct      marker_segmentation;
     deformation_struct         deform;
+    object_struct              *volume_outline;
+    object_struct              *cross_section;
 } three_d_window_struct;
 
 
@@ -82,6 +85,7 @@ typedef  struct  display_struct
     update_interrupted_struct  update_interrupted;
 
     viewport_picking_struct    viewport_picking;
+
 } display_struct;
 
 #endif
