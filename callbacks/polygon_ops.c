@@ -1,5 +1,6 @@
 
 #include  <def_graphics.h>
+#include  <def_globals.h>
 #include  <def_math.h>
 #include  <def_stdio.h>
 
@@ -137,6 +138,72 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(input_polygons_bintree )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
+{
+    Status            status;
+    polygons_struct   *polygons;
+    String            filename;
+    FILE              *file;
+    Status            open_output_file();
+    Status            io_bintree();
+    Status            close_file();
+
+    status = OK;
+
+    if( get_current_polygons(graphics,&polygons) &&
+        polygons->bintree != (bintree_struct *) 0 )
+    {
+        PRINT( "Enter filename: " );
+        (void) scanf( "%s", filename );
+
+        status = open_output_file( filename, &file );
+
+        if( status == OK )
+        {
+            status = io_bintree( file, OUTPUTTING, BINARY_FORMAT,
+                                 polygons->n_items, polygons->bintree );
+        }
+
+        if( status == OK )
+        {
+            status = close_file( file );
+        }
+
+        PRINT( "Done.\n" );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(save_polygons_bintree )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( create_bintree_for_polygons )   /* ARGSUSED */
+{
+    Status            status;
+    Status            create_polygons_bintree();
+    polygons_struct   *polygons;
+
+    status = OK;
+
+    if( get_current_polygons(graphics,&polygons) &&
+        polygons->bintree == (bintree_struct *) 0 )
+    {
+        status = create_polygons_bintree( polygons,
+                   ROUND( (Real) polygons->n_items * Bintree_size_factor ) );
+        PRINT( "Done.\n" );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(create_bintree_for_polygons )   /* ARGSUSED */
 {
     return( OK );
 }

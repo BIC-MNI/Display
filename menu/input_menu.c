@@ -47,6 +47,7 @@
                        MENU_FUNCTION(open_slice_window) \
                        MENU_FUNCTION(start_surface) \
                        MENU_FUNCTION(toggle_surface_extraction) \
+                       MENU_FUNCTION(make_surface_permanent) \
                        MENU_FUNCTION(reset_surface) \
                        MENU_FUNCTION(double_slice_voxels) \
                        MENU_FUNCTION(halve_slice_voxels) \
@@ -72,6 +73,8 @@
                        MENU_FUNCTION(reset_polygon_visibility) \
                        MENU_FUNCTION(delete_connected_surface) \
                        MENU_FUNCTION(input_polygons_bintree) \
+                       MENU_FUNCTION(create_bintree_for_polygons) \
+                       MENU_FUNCTION(save_polygons_bintree) \
                 
 
 typedef  struct

@@ -30,7 +30,7 @@ display_obj = \
            main/three_d.o \
            main/transforms.o \
            callbacks/file.o \
-           callbacks/globals.o \
+           callbacks/call_globals.o \
            $(graphics_obj) \
            callbacks/object_ops.o \
            callbacks/quit.o \
@@ -99,6 +99,12 @@ display_obj = \
            string.o \
            volume.o \
            time.o
+
+objects_g.o: objects.c
+	$(CC) $(INCLUDE) -g -DDEBUG -c objects.c -o $@
+
+objects_O.o: objects.c
+	$(CC) $(INCLUDE) -O -c objects.c -o $@
 
 display_lint = $(display_obj:.o=.ln)
 

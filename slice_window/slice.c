@@ -58,7 +58,7 @@ public  Status  set_slice_window_volume( graphics, volume )
     Status           initialize_voxel_flags();
     Status           initialize_voxel_done_flags();
     Status           update_cursor_size();
-    int              c, x_index, y_index, axis_index;
+    int              c, x_index, y_index;
     Real             factor, min_thickness, max_thickness;
     void             set_colour_coding_range();
 
@@ -99,7 +99,6 @@ public  Status  set_slice_window_volume( graphics, volume )
 
     for_less( c, 0, N_DIMENSIONS )
     {
-        axis_index = graphics->slice.slice_views[c].axis_index;
         x_index = graphics->slice.slice_views[c].axis_index1;
         y_index = graphics->slice.slice_views[c].axis_index2;
 
@@ -272,7 +271,7 @@ public  void  convert_voxel_to_pixel( graphics, view_index, x_voxel, y_voxel,
     int               x_voxel, y_voxel;
     int               *x_pixel, *y_pixel;
 {
-    int      x_index, y_index, axis_index;
+    int      x_index, y_index;
     int      x_min, x_max, y_min, y_max;
     Real     x_scale, y_scale;
     void     get_slice_viewport();
@@ -282,9 +281,14 @@ public  void  convert_voxel_to_pixel( graphics, view_index, x_voxel, y_voxel,
 
     get_slice_scale( graphics, view_index, &x_scale, &y_scale );
 
-    axis_index = graphics->slice.slice_views[view_index].axis_index;
     x_index = graphics->slice.slice_views[view_index].axis_index1;
     y_index = graphics->slice.slice_views[view_index].axis_index2;
+
+    if( graphics->slice.slice_views[view_index].flip1 )
+        x_voxel = graphics->slice.volume->size[x_index] - 1 - x_voxel;
+
+    if( graphics->slice.slice_views[view_index].flip2 )
+        y_voxel = graphics->slice.volume->size[y_index] - 1 - y_voxel;
 
     *x_pixel = voxel_to_pixel( x_min,
                                graphics->slice.slice_views[view_index].x_offset,
@@ -452,6 +456,18 @@ public  void  get_slice_view( graphics, view_index, x_scale, y_scale,
         {
             *y_pixel = y_max + 1;
         }
+    }
+
+    if( graphics->slice.slice_views[view_index].flip1 )
+    {
+        indices[x_axis_index] = x_size - 1 - indices[x_axis_index];
+        *x_scale = -(*x_scale);
+    }
+
+    if( graphics->slice.slice_views[view_index].flip2 )
+    {
+        indices[y_axis_index] = y_size - 1 - indices[y_axis_index];
+        *y_scale = -(*y_scale);
     }
 }
 
