@@ -114,6 +114,7 @@ public  Status  initialize_menu( graphics, runtime_directory )
     void                 get_absolute_filename();
     String               filename;
     char                 *menu_filename = "menu.dat";
+    char                 *getenv();
     Status               open_input_file();
     Status               close_file();
     FILE                 *file;
@@ -134,6 +135,11 @@ public  Status  initialize_menu( graphics, runtime_directory )
     menu->n_lines_in_entry = Menu_n_lines_per_entry;
     menu->character_width = Menu_character_width;
     menu->character_height = Menu_character_height;
+
+    if( getenv( "MENU_FILE" ) != (char *) 0 )
+    {
+        (void) strcpy( menu_filename, getenv( "MENU_FILE" ) );
+    }
 
     if( file_exists( menu_filename ) )
         status = open_input_file( menu_filename, &file );
