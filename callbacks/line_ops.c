@@ -138,7 +138,7 @@ public  DEF_MENU_FUNCTION( deform_line_to_volume )   /* ARGSUSED */
 {
     Status            status;
     Status            deform_lines();
-    Real              image_factor, max_step;
+    Real              image_factor, max_step, max_curvature;
     Real              min_isovalue, max_isovalue;
     Real              stop_threshold;
     int               max_iterations;
@@ -151,19 +151,20 @@ public  DEF_MENU_FUNCTION( deform_line_to_volume )   /* ARGSUSED */
     if( get_current_lines( graphics, &lines ) &&
         get_current_volume( graphics, &volume ) )
     {
-        PRINT( "Enter image_factor, max_step,\n" );
+        PRINT( "Enter image_factor, max_step, max_curvature,\n" );
         PRINT( "      min_isovalue, max_isovalue,\n" );
         PRINT( "      max_iterations, stop_threshold: " );
 
         if( input_real( stdin, &image_factor ) == OK &&
             input_real( stdin, &max_step ) == OK &&
+            input_real( stdin, &max_curvature ) == OK &&
             input_real( stdin, &min_isovalue ) == OK &&
             input_real( stdin, &max_isovalue ) == OK &&
             input_int( stdin, &max_iterations ) == OK &&
             input_real( stdin, &stop_threshold ) == OK )
         {
             status = deform_lines( lines, volume,
-                                   image_factor, max_step,
+                                   image_factor, max_step, max_curvature,
                                    min_isovalue, max_isovalue,
                                    max_iterations, stop_threshold );
 
