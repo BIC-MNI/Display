@@ -41,6 +41,7 @@ public  Status  label_components( x_size, y_size, pixels, label_of_interest )
     Status        status;
     int           x, y;
     int           cut_num, min_cut;
+    void          perform_cut();
 
     status = OK;
 
@@ -49,6 +50,10 @@ public  Status  label_components( x_size, y_size, pixels, label_of_interest )
     create_distance_transform( x_size, y_size, pixels );
 
     min_cut = get_minimum_cut( x_size, y_size, pixels, label_of_interest );
+
+(void) printf( "Cut %d\n", min_cut );
+
+    perform_cut( x_size, y_size, pixels, label_of_interest, min_cut );
 
 #ifdef OLD
     if( min_cut > 0 )
@@ -173,7 +178,7 @@ private  int  get_minimum_cut( x_size, y_size, pixels, label_of_interest )
     pixel_struct   **pixels;
     int            label_of_interest;
 {
-    int                            x, y, nx, ny, dist, cut, min_cut;
+    int                            x, y, nx, ny, cut, min_cut;
     int                            dir, cutoff, class;
     Status                         status;
     voxel_struct                   insert, entry;
@@ -263,7 +268,6 @@ private  int  get_minimum_cut( x_size, y_size, pixels, label_of_interest )
         }
     }
 
-(void) printf( "Min cut %d\n", min_cut );
     return( min_cut );
 }
 
@@ -340,6 +344,137 @@ private  Boolean  cutoff_is_better( cutoff1, class1, cutoff2, class2 )
         first_is_better = FALSE;
 
     return( first_is_better );
+}
+
+private  void  perform_cut( x_size, y_size, pixels, label_of_interest,
+                            global_cutoff )
+    int            x_size;
+    int            y_size;
+    pixel_struct   **pixels;
+    int            label_of_interest;
+    int            global_cutoff;
+{
+    int                            x, y, nx, ny;
+    int                            dir, class;
+    Status                         status;
+    voxel_struct                   insert, entry;
+    QUEUE_STRUCT( voxel_struct )   queue;
+    void                           get_neighbours_influence_cut();
+
+    INITIALIZE_QUEUE( queue );
+
+    for_less( x, 0, x_size )
+    {
+        for_less( y, 0, y_size )
+        {
+            if( pixels[x][y].label != INVALID_LABEL &&
+                pixels[x][y].label != label_of_interest )
+            {
+                pixels[x][y].dist_from_region = INCREASING;
+                insert.x = x;
+                insert.y = y;
+                INSERT_IN_QUEUE( status, queue, insert );
+            }
+            else
+            {
+                pixels[x][y].dist_from_region = FREE_RANGING;
+            }
+        }
+    }
+
+    while( !IS_QUEUE_EMPTY( queue ) )
+    {
+        REMOVE_FROM_QUEUE( queue, entry );
+
+        x = entry.x;
+        y = entry.y;
+
+        for_less( dir, 0, N_8_NEIGHBOURS )
+        {
+            nx = x + Dx8[dir];
+            ny = y + Dy8[dir];
+
+            if( nx >= 0 && nx < x_size &&
+                ny >= 0 && ny < y_size &&
+                pixels[nx][ny].inside &&
+                pixels[nx][ny].label != pixels[x][y].label )
+            {
+                if( should_expand_region( global_cutoff,
+                                          pixels[x][y].dist_transform,
+                                          pixels[x][y].dist_from_region,
+                                          pixels[nx][ny].dist_transform,
+                                          &class ) )
+                {
+                    pixels[nx][ny].dist_from_region = class;
+
+                    pixels[nx][ny].label = pixels[x][y].label;
+                    insert.x = nx;
+                    insert.y = ny;
+                    INSERT_IN_QUEUE( status, queue, insert );
+                }
+            }
+        }
+    }
+
+    DELETE_QUEUE( status, queue );
+}
+
+private  Boolean  should_expand_region( global_cutoff,
+                                        neigh_dist_transform, neigh_class,
+                                        this_dist_transform, new_class )
+    int   global_cutoff;
+    int   neigh_dist_transform;
+    int   neigh_class;
+    int   this_dist_transform;
+    int   *new_class;
+{
+    Boolean  should_expand;
+
+    switch( neigh_class )
+    {
+    case  INCREASING:
+        if( this_dist_transform > neigh_dist_transform )
+        {
+            should_expand = TRUE;
+            *new_class = INCREASING;
+        }
+        else if( this_dist_transform < neigh_dist_transform )
+        {
+            should_expand = TRUE;
+            *new_class = DECREASING;
+        }
+        else
+        {
+            should_expand = this_dist_transform > global_cutoff;
+            *new_class = FREE_RANGING;
+        }
+        break;
+
+    case  DECREASING:
+        if( this_dist_transform < neigh_dist_transform )
+        {
+            should_expand = TRUE;
+            *new_class = DECREASING;
+        }
+        else
+            should_expand = FALSE;
+        break;
+
+    case  FREE_RANGING:
+        if( this_dist_transform >= neigh_dist_transform )
+        {
+            should_expand = (this_dist_transform > global_cutoff);
+            *new_class = FREE_RANGING;
+        }
+        else if( this_dist_transform < neigh_dist_transform )
+        {
+            should_expand = TRUE;
+            *new_class = DECREASING;
+        }
+        break;
+    }
+
+    return( should_expand );
 }
 
 #ifdef OLD
