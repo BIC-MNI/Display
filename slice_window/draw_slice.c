@@ -3,9 +3,13 @@
 
 typedef  enum  { DIVIDER_INDEX,
                  SLICE1_INDEX,
+                 LABEL_SLICE1_INDEX,
                  SLICE2_INDEX,
+                 LABEL_SLICE2_INDEX,
                  SLICE3_INDEX,
+                 LABEL_SLICE3_INDEX,
                  SLICE4_INDEX,
+                 LABEL_SLICE4_INDEX,
                  CROSS_SECTION1_INDEX,
                  CROSS_SECTION2_INDEX,
                  CROSS_SECTION3_INDEX,
@@ -34,11 +38,6 @@ typedef enum { X_VOXEL_PROBE_INDEX,
                VAL_PROBE_INDEX,
                LABEL_PROBE_INDEX,
                N_READOUT_MODELS     } Slice_readout_indices;
-
-private  void  render_slice_to_pixels(
-    display_struct        *slice_window,
-    int                   view_index,
-    pixels_struct         *pixels );
 
 public  void  initialize_slice_models(
     display_struct    *slice_window )
@@ -71,7 +70,7 @@ public  void  initialize_slice_models(
 
     add_object_to_model( model, object );
 
-    for_less( view, 0, N_SLICE_VIEWS )
+    for_less( view, 0, 2 * N_SLICE_VIEWS )
     {
         object = create_object( PIXELS );
         initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, 1.0, 1.0,
@@ -184,7 +183,7 @@ public  void  rebuild_slice_models(
     rebuild_colour_bar( slice_window );
     rebuild_slice_cross_sections( slice_window );
 
-    set_slice_window_all_update( slice_window );
+    set_slice_window_all_update( slice_window, UPDATE_BOTH );
 }
 
 public  void  rebuild_slice_divider(
@@ -672,88 +671,36 @@ public  object_struct  *get_slice_pixels_object(
 
     model = get_graphics_model(slice_window,SLICE_MODEL);
 
-    return( model->objects[SLICE1_INDEX+view_index] );
+    return( model->objects[SLICE1_INDEX+2*view_index] );
 }
 
-public  void  rebuild_slice_pixels(
+public  object_struct  *get_label_slice_pixels_object(
     display_struct    *slice_window,
     int               view_index )
 {
-    BOOLEAN        visibility;
     model_struct   *model;
-    object_struct  *pixels_object;
-    pixels_struct  *pixels;
-    int            axis_index, x_index, y_index;
-    int            x_min, x_max, y_min, y_max;
-    text_struct    *text;
-    char           *format;
-    int            x_pos, y_pos;
-    Real           current_voxel[N_DIMENSIONS];
-
-    pixels_object = get_slice_pixels_object(slice_window,view_index);
-    pixels = get_pixels_ptr( pixels_object );
-
-    visibility = get_slice_visibility( slice_window, view_index );
-
-    set_object_visibility( pixels_object, visibility );
-
-    if( visibility )
-        render_slice_to_pixels( slice_window, view_index, pixels );
 
     model = get_graphics_model(slice_window,SLICE_MODEL);
 
-    if( slice_has_ortho_axes( slice_window, view_index,
-                              &x_index, &y_index, &axis_index ) )
-    {
-        set_object_visibility( model->objects[TEXT1_INDEX+view_index], TRUE );
-
-        text = get_text_ptr( model->objects[TEXT1_INDEX+view_index] );
-
-        switch( axis_index )
-        {
-        case X:  format = Slice_index_x_format;  break;
-        case Y:  format = Slice_index_y_format;  break;
-        case Z:  format = Slice_index_z_format;  break;
-        }
-
-        get_current_voxel( slice_window, current_voxel );
-
-        (void) sprintf( text->string, format, current_voxel[axis_index] + 1.0 );
-
-        get_slice_viewport( slice_window,
-                            view_index, &x_min, &x_max, &y_min, &y_max );
-
-        x_pos = x_min + (int) Point_x(Slice_index_offset);
-        y_pos = y_min + (int) Point_y(Slice_index_offset);
-
-        fill_Point( text->origin, x_pos, y_pos, 0.0 );
-    }
-    else
-        set_object_visibility( model->objects[TEXT1_INDEX+view_index], FALSE );
-
-    rebuild_cursor( slice_window, view_index );
-    rebuild_one_slice_cross_section( slice_window, view_index );
+    return( model->objects[SLICE1_INDEX+2*view_index+1] );
 }
-
-#define  MAX_LABELS   256
 
 private  void  render_slice_to_pixels(
     display_struct        *slice_window,
     int                   view_index,
     pixels_struct         *pixels )
 {
-    Volume                volume, label_volume;
+    Volume                volume;
     int                   x_size, y_size;
     int                   n_alloced;
     Real                  x_trans, y_trans, x_scale, y_scale;
     Real                  origin[MAX_DIMENSIONS];
     Real                  x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
     int                   x_min, x_max, y_min, y_max;
+    Colour                **colour_map;
 
     if( pixels->x_size > 0 && pixels->y_size > 0 )
         delete_pixels( pixels );
-
-    n_alloced = 0;
 
     x_trans = slice_window->slice.slice_views[view_index].x_trans;
     y_trans = slice_window->slice.slice_views[view_index].y_trans;
@@ -764,35 +711,16 @@ private  void  render_slice_to_pixels(
                         &x_min, &x_max, &y_min, &y_max );
 
     volume = get_volume( slice_window );
-    label_volume = get_label_volume( slice_window );
 
     get_slice_plane( slice_window, view_index, origin, x_axis, y_axis );
 
-    if( slice_window->slice.display_labels &&
-        label_volume->data != (void *) NULL )
-    {
-        create_volume_slice(
-
-                    label_volume, NEAREST_NEIGHBOUR, 0.0,
-                    origin, x_axis, y_axis,
-                    x_trans, y_trans, x_scale, y_scale,
-
-                    volume,
-                    slice_window->slice.slice_views[view_index].filter_type,
-                    slice_window->slice.slice_views[view_index].filter_width,
-                    origin, x_axis, y_axis,
-                    x_trans, y_trans, x_scale, y_scale,
-
-                    x_max - x_min + 1, y_max - y_min + 1,
-                    RGB_PIXEL, FALSE, (unsigned short **) NULL,
-                    slice_window->slice.colour_tables,
-                    make_rgba_Colour( 0, 0, 0, 0 ),
-                    slice_window->slice.render_storage,
-                    &n_alloced, pixels );
-    }
+    if( is_an_rgb_volume(volume ) )
+        colour_map = NULL;
     else
-    {
-        create_volume_slice(
+        colour_map = &slice_window->slice.colour_table;
+
+    n_alloced = 0;
+    create_volume_slice(
                     volume,
                     slice_window->slice.slice_views[view_index].filter_type,
                     slice_window->slice.slice_views[view_index].filter_width,
@@ -803,12 +731,10 @@ private  void  render_slice_to_pixels(
                     0.0, 0.0, 0.0, 0.0,
                     x_max - x_min + 1, y_max - y_min + 1,
                     RGB_PIXEL, FALSE, (unsigned short **) NULL,
-                    slice_window->slice.colour_tables,
+                    colour_map,
                     make_rgba_Colour( 0, 0, 0, 0 ),
                     slice_window->slice.render_storage,
                     &n_alloced, pixels );
-
-    }
 
     pixels->x_position += x_min;
     pixels->y_position += y_min;
@@ -856,4 +782,132 @@ private  void  render_slice_to_pixels(
                         dx, dy,
                         sizes[x_index], sizes[y_index] );
     }
+}
+
+public  void  rebuild_slice_pixels(
+    display_struct    *slice_window,
+    int               view_index )
+{
+    BOOLEAN        visibility;
+    model_struct   *model;
+    object_struct  *pixels_object;
+    pixels_struct  *pixels;
+    int            axis_index, x_index, y_index;
+    int            x_min, x_max, y_min, y_max;
+    text_struct    *text;
+    char           *format;
+    int            x_pos, y_pos;
+    Real           current_voxel[N_DIMENSIONS];
+
+    pixels_object = get_slice_pixels_object( slice_window, view_index );
+    pixels = get_pixels_ptr( pixels_object );
+
+    visibility = get_slice_visibility( slice_window, view_index );
+
+    set_object_visibility( pixels_object, visibility );
+
+    if( visibility )
+        render_slice_to_pixels( slice_window, view_index, pixels );
+
+    model = get_graphics_model(slice_window,SLICE_MODEL);
+
+    if( slice_has_ortho_axes( slice_window, view_index,
+                              &x_index, &y_index, &axis_index ) )
+    {
+        set_object_visibility( model->objects[TEXT1_INDEX+view_index], TRUE );
+
+        text = get_text_ptr( model->objects[TEXT1_INDEX+view_index] );
+
+        switch( axis_index )
+        {
+        case X:  format = Slice_index_x_format;  break;
+        case Y:  format = Slice_index_y_format;  break;
+        case Z:  format = Slice_index_z_format;  break;
+        }
+
+        get_current_voxel( slice_window, current_voxel );
+
+        (void) sprintf( text->string, format, current_voxel[axis_index] + 1.0 );
+
+        get_slice_viewport( slice_window,
+                            view_index, &x_min, &x_max, &y_min, &y_max );
+
+        x_pos = x_min + (int) Point_x(Slice_index_offset);
+        y_pos = y_min + (int) Point_y(Slice_index_offset);
+
+        fill_Point( text->origin, x_pos, y_pos, 0.0 );
+    }
+    else
+        set_object_visibility( model->objects[TEXT1_INDEX+view_index], FALSE );
+
+    rebuild_cursor( slice_window, view_index );
+    rebuild_one_slice_cross_section( slice_window, view_index );
+}
+
+private  void  render_label_slice_to_pixels(
+    display_struct        *slice_window,
+    int                   view_index,
+    pixels_struct         *label_pixels )
+{
+    Volume                label_volume;
+    int                   n_alloced;
+    Real                  x_trans, y_trans, x_scale, y_scale;
+    Real                  origin[MAX_DIMENSIONS];
+    Real                  x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
+    int                   x_min, x_max, y_min, y_max;
+
+    if( label_pixels->x_size > 0 && label_pixels->y_size > 0 )
+        delete_pixels( label_pixels );
+
+    x_trans = slice_window->slice.slice_views[view_index].x_trans;
+    y_trans = slice_window->slice.slice_views[view_index].y_trans;
+    x_scale = slice_window->slice.slice_views[view_index].x_scaling;
+    y_scale = slice_window->slice.slice_views[view_index].y_scaling;
+
+    get_slice_viewport( slice_window, view_index,
+                        &x_min, &x_max, &y_min, &y_max );
+
+    label_volume = get_label_volume( slice_window );
+
+    get_slice_plane( slice_window, view_index, origin, x_axis, y_axis );
+
+    n_alloced = 0;
+    create_volume_slice(
+                label_volume, NEAREST_NEIGHBOUR, 0.0,
+                origin, x_axis, y_axis,
+                x_trans, y_trans, x_scale, y_scale,
+                (Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
+                (Real *) 0, (Real *) 0, (Real *) 0,
+                0.0, 0.0, 0.0, 0.0,
+                x_max - x_min + 1, y_max - y_min + 1,
+                RGB_PIXEL, FALSE, (unsigned short **) NULL,
+                &slice_window->slice.label_colour_table,
+                make_rgba_Colour( 0, 0, 0, 0 ),
+                slice_window->slice.render_storage,
+                &n_alloced, label_pixels );
+
+    label_pixels->x_position += x_min;
+    label_pixels->y_position += y_min;
+}
+
+public  void  rebuild_label_slice_pixels(
+    display_struct    *slice_window,
+    int               view_index )
+{
+    BOOLEAN        visibility;
+    object_struct  *label_pixels_object;
+    pixels_struct  *label_pixels;
+
+    label_pixels_object = get_label_slice_pixels_object(slice_window,
+                                                        view_index);
+    label_pixels = get_pixels_ptr( label_pixels_object );
+
+    visibility = get_slice_visibility( slice_window, view_index ) &&
+                 slice_window->slice.display_labels &&
+                 slice_window->slice.labels->data != NULL;
+
+    set_object_visibility( label_pixels_object, visibility );
+
+    if( visibility )
+        render_label_slice_to_pixels( slice_window, view_index, label_pixels );
 }

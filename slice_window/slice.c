@@ -113,22 +113,28 @@ public  BOOLEAN  update_voxel_from_cursor(
 
 public  void  set_slice_window_update(
     display_struct   *slice_window,
-    int              view_index )
+    int              view_index,
+    Update_types     type )
 {
     if( slice_window != (display_struct *) NULL )
     {
-        slice_window->slice.slice_views[view_index].update_flag = TRUE;
+        if( type == UPDATE_SLICE || type == UPDATE_BOTH )
+            slice_window->slice.slice_views[view_index].update_flag = TRUE;
+        if( type == UPDATE_LABELS || type == UPDATE_BOTH )
+            slice_window->slice.slice_views[view_index].update_labels_flag =
+                                                                       TRUE;
         set_update_required( slice_window, NORMAL_PLANES );
     }
 }
 
 public  void  set_slice_window_all_update(
-    display_struct   *slice_window )
+    display_struct   *slice_window,
+    Update_types     type )
 {
     int  view;
 
     for_less( view, 0, N_SLICE_VIEWS )
-        set_slice_window_update( slice_window, view );
+        set_slice_window_update( slice_window, view, type );
 }
 
 public  void  update_slice_window(
@@ -142,6 +148,12 @@ public  void  update_slice_window(
         {
             rebuild_slice_pixels( display, view );
             display->slice.slice_views[view].update_flag = FALSE;
+        }
+
+        if( display->slice.slice_views[view].update_labels_flag )
+        {
+            rebuild_label_slice_pixels( display, view );
+            display->slice.slice_views[view].update_labels_flag = FALSE;
         }
     }
 }
@@ -191,6 +203,7 @@ public  void  initialize_slice_window(
         slice_window->slice.slice_views[view].filter_width =
                                           Default_filter_width;
         slice_window->slice.slice_views[view].update_flag = TRUE;
+        slice_window->slice.slice_views[view].update_labels_flag = TRUE;
     }
 
     slice_window->slice.next_to_update = X;
@@ -311,7 +324,7 @@ public  void  set_slice_window_volume(
 
     delete_slice_undo( &slice_window->slice.undo );
 
-    set_slice_window_all_update( slice_window );
+    set_slice_window_all_update( slice_window, UPDATE_BOTH );
 }
 
 public  void  set_slice_window_original_volume(

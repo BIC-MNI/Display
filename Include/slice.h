@@ -9,6 +9,8 @@
 
 #define   OBLIQUE_VIEW_INDEX    (N_SLICE_VIEWS-1)
 
+typedef enum { UPDATE_SLICE, UPDATE_LABELS, UPDATE_BOTH } Update_types;
+
 typedef  struct
 {
     BOOLEAN       visibility;
@@ -21,6 +23,7 @@ typedef  struct
     int           used_viewport_x_size;
     int           used_viewport_y_size;
     BOOLEAN       update_flag;
+    BOOLEAN       update_labels_flag;
     Filter_types  filter_type;
     Real          filter_width;
 } slice_view_struct;
@@ -57,11 +60,10 @@ typedef  struct
     Volume                 volume;
 
     int                    n_labels;
-    int                    n_distinct_colour_tables;
     int                    offset;
-    Colour                 **colour_tables;
-    Colour                 *label_colours;
-    Real                   label_colour_ratio;
+    Colour                 *colour_table;
+    Colour                 *label_colour_table;
+    Real                   label_colour_opacity;
     colour_coding_struct   colour_coding;
     colour_bar_struct      colour_bar;
     BOOLEAN                display_labels;
