@@ -52,16 +52,20 @@ public  Boolean  get_slice_window(
 private  void  set_cursor_colour(
     display_struct   *slice_window )
 {
-    int       indices[N_DIMENSIONS];
+    Real      indices[N_DIMENSIONS];
+    int       int_indices[N_DIMENSIONS];
     Real      value;
 
     if( get_isosurface_value( slice_window->associated[THREE_D_WINDOW], &value))
     {
         get_current_voxel( slice_window, &indices[X], &indices[Y], &indices[Z]);
+        int_indices[X] = ROUND( indices[X] );
+        int_indices[Y] = ROUND( indices[Y] );
+        int_indices[Z] = ROUND( indices[Z] );
 
-        if( cube_is_within_volume( get_volume(slice_window), indices ) &&
-            voxel_contains_value( get_volume(slice_window), indices[X],
-                                  indices[Y], indices[Z], value ))
+        if( cube_is_within_volume( get_volume(slice_window), int_indices ) &&
+            voxel_contains_value( get_volume(slice_window), int_indices[X],
+                                  int_indices[Y], int_indices[Z], value ))
         {
             update_cursor_colour( slice_window->associated[THREE_D_WINDOW],
                                   &Cursor_colour_on_surface );
@@ -77,7 +81,7 @@ private  void  set_cursor_colour(
 public  Boolean  update_cursor_from_voxel(
     display_struct    *slice_window )
 {
-    int               x, y, z;
+    Real              x, y, z;
     Real              x_w, y_w, z_w;
     Boolean           changed;
     Point             new_origin;
@@ -88,7 +92,7 @@ public  Boolean  update_cursor_from_voxel(
     get_current_voxel( slice_window, &x, &y, &z );
 
     convert_voxel_to_world( get_volume(slice_window),
-                            (Real) x, (Real) y, (Real) z, &x_w, &y_w, &z_w );
+                            x, y, z, &x_w, &y_w, &z_w );
     fill_Point( new_origin, x_w, y_w, z_w );
 
     if( !EQUAL_POINTS( new_origin, display->three_d.cursor.origin ) )
@@ -137,18 +141,14 @@ public  Boolean  update_voxel_from_cursor(
 }
 
 public  void  set_slice_window_update(
-    display_struct   *display,
+    display_struct   *slice_window,
     int              view_index )
 {
-#ifndef  BUG
-    if( display != (display_struct  *) 0 )
+    if( slice_window != (display_struct *) NULL )
     {
-#endif
-        display->slice.slice_views[view_index].update_flag = TRUE;
-        set_update_required( display, NORMAL_PLANES );
-#ifndef  BUG
+        slice_window->slice.slice_views[view_index].update_flag = TRUE;
+        set_update_required( slice_window, NORMAL_PLANES );
     }
-#endif
 }
 
 public  void  update_slice_window(
@@ -208,8 +208,6 @@ public  void  initialize_slice_window(
 
     slice_window->slice.volume = (Volume) NULL;
 
-    slice_window->slice.temporary_indices_alloced = 0;
-
     initialize_slice_window_events( slice_window );
     initialize_voxel_labeling( slice_window );
 
@@ -252,11 +250,6 @@ private  void  free_slice_window(
 {
     delete_slice_colour_coding( slice );
 
-    if( slice->temporary_indices_alloced > 0 )
-    {
-        FREE( slice->temporary_indices );
-    }
-
     if( slice->volume != (Volume) NULL &&
         slice->volume != slice->original_volume )
     {
@@ -283,8 +276,6 @@ public  void  set_slice_window_volume(
     }
 
     slice_window->slice.volume = volume;
-
-    slice_window->slice.temporary_indices_alloced = 0;
 
     for_less( c, 0, N_DIMENSIONS )
         slice_window->slice.slice_views[c].update_flag = TRUE;
