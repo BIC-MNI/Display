@@ -257,6 +257,8 @@ segmenting
 
     transient 'q'    load_active_voxels         "Load Activity"
     transient 'w'    save_active_voxels         "Save Activity"
+    transient 'e'    reset_3d_segmenting        "Reset 3D Segmentation"
+    transient 'r'    do_3d_segmenting           "Do 3D Segmentation"
     transient 't'    set_segmenting_threshold   "Set Threshold"
 
     transient 'd'    label_voxel                "Label Voxel"

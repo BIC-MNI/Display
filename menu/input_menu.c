@@ -167,6 +167,8 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(save_labels) \
                        MENU_FUNCTION(save_current_label) \
                        MENU_FUNCTION(load_labels) \
+                       MENU_FUNCTION(reset_3d_segmenting) \
+                       MENU_FUNCTION(do_3d_segmenting) \
                        MENU_FUNCTION(reset_segmenting) \
                        MENU_FUNCTION(set_segmenting_threshold) \
                        MENU_FUNCTION(make_surface_line_permanent) \
