@@ -116,7 +116,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
 
         if( status == OK )
         {
-            CALLOC1( status, polygons->bintree, 1, bintree_struct );
+            ALLOC1( status, polygons->bintree, 1, bintree_struct );
         }
 
         if( status == OK )
