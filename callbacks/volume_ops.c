@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.94 1995-07-31 19:53:54 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.95 1995-08-10 14:33:19 david Exp $";
 #endif
 
 
@@ -494,6 +494,36 @@ public  DEF_MENU_FUNCTION(load_cropped_volume)
 /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(load_cropped_volume)
+{
+    return( slice_window_exists(display) );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(crop_volume_to_file)
+{
+    STRING           filename;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        print( "Enter filename to create: " );
+
+        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        {
+            if( create_cropped_volume_to_file( slice_window, filename ) == OK )
+                print( "Created %s.\n", filename );
+        }
+
+        (void) input_newline( stdin );
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(crop_volume_to_file)
 {
     return( slice_window_exists(display) );
 }
