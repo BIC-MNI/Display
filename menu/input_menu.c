@@ -76,6 +76,7 @@
                        MENU_FUNCTION(halve_slice_voxels) \
                        MENU_FUNCTION(load_active_voxels) \
                        MENU_FUNCTION(save_active_voxels) \
+                       MENU_FUNCTION(invert_activity) \
                        MENU_FUNCTION(set_voxel_inactive) \
                        MENU_FUNCTION(set_voxel_active) \
                        MENU_FUNCTION(load_labeled_voxels) \

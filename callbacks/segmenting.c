@@ -518,6 +518,7 @@ public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
         PRINT( "Filling 3d from %d %d %d\n", x, y, z );
 
         status = fill_connected_voxels_3d( volume, x, y, z,
+                          slice_window->slice.segmenting.min_threshold,
                           slice_window->slice.segmenting.max_threshold );
 
         PRINT( "Done\n" );
@@ -568,6 +569,48 @@ public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(expand_labeled_3d )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(invert_activity)   /* ARGSUSED */
+{
+    int              x, y, z;
+    volume_struct    *volume;
+    Boolean          activity;
+    void             set_slice_window_update();
+    graphics_struct  *slice_window;
+    void             set_voxel_activity_flag();
+    void             set_update_required();
+
+    if( get_slice_window_volume( graphics, &volume) )
+    {
+        PRINT( "Inverting activity\n" );
+
+        for_less( x, 0, volume->sizes[X] )
+        {
+            for_less( y, 0, volume->sizes[Y] )
+            {
+                for_less( z, 0, volume->sizes[Z] )
+                {
+                    activity = get_voxel_activity_flag( volume, x, y, z );
+                    set_voxel_activity_flag( volume, x, y, z, !activity );
+                }
+            }
+        }
+
+        PRINT( "Done\n" );
+
+        slice_window = graphics->associated[SLICE_WINDOW];
+        set_slice_window_update( slice_window, 0 );
+        set_slice_window_update( slice_window, 1 );
+        set_slice_window_update( slice_window, 2 );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(invert_activity )   /* ARGSUSED */
 {
     return( OK );
 }

@@ -9,9 +9,10 @@ typedef struct
 } xyz_struct;
 
 public  Status  fill_connected_voxels_3d( volume, x, y, z,
-                                          max_threshold )
+                                          min_threshold, max_threshold )
     volume_struct   *volume;
     int             x, y, z;
+    int             min_threshold;
     int             max_threshold;
 {
     Status                       status;
@@ -39,7 +40,7 @@ public  Status  fill_connected_voxels_3d( volume, x, y, z,
         if( get_voxel_activity_flag( volume, x, y, z ) )
         {
             GET_VOLUME_DATA( val, *volume, x, y, z );
-            if( val >= max_threshold )
+            if( val >= min_threshold && val <= max_threshold )
             {
                 set_voxel_label_flag( volume, x, y, z, TRUE );
 
@@ -81,7 +82,7 @@ public  Status  fill_connected_voxels_3d( volume, x, y, z,
                 if( get_voxel_activity_flag( volume, tx, ty, tz ) )
                 {
                     GET_VOLUME_DATA( val, *volume, tx, ty, tz );
-                    if( val >= max_threshold )
+                    if( val >= min_threshold && val <= max_threshold )
                     {
                         set_voxel_label_flag( volume, tx, ty, tz, TRUE );
                         entry.x = tx;
