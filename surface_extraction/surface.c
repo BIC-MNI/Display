@@ -339,6 +339,7 @@ public  void  extract_more_triangles( graphics )
     void                        add_voxel_neighbours();
     Real                        stop_time;
     Real                        current_realtime_seconds();
+    void    possibly_output();
 
     n_voxels_done = 0;
 
@@ -351,6 +352,8 @@ public  void  extract_more_triangles( graphics )
             current_realtime_seconds() < stop_time) ) &&
            voxels_remaining( &surface_extraction->voxels_to_do ) )
     {
+        possibly_output( surface_extraction->triangles );
+
         get_next_voxel_from_queue( &surface_extraction->voxels_to_do,
                                    &voxel_index );
 
@@ -900,11 +903,13 @@ private  int   create_point( volume, isovalue, tris, voxel, edge_intersected,
 
         val = isovalue - val;
 
+/*
         if( (alpha == 0.0 && val != val1) ||
             (alpha == 1.0 && val != val2) )
         {
             HANDLE_INTERNAL_ERROR( "Surface refinement val\n" );
         }
+*/
 
         if( (val1 <= 0.0 && val <= 0.0) ||
             (val1 >= 0.0 && val >= 0.0) )
@@ -1010,6 +1015,16 @@ public  Boolean  are_voxel_corners_active( volume, x, y, z )
     volume_struct   *volume;
     int             x, y, z;
 {
+    if( One_active_flag )
+    return( get_voxel_activity( volume, x  , y  , z   ) ||
+            get_voxel_activity( volume, x  , y  , z+1 ) ||
+            get_voxel_activity( volume, x  , y+1, z   ) ||
+            get_voxel_activity( volume, x  , y+1, z+1 ) ||
+            get_voxel_activity( volume, x+1, y  , z   ) ||
+            get_voxel_activity( volume, x+1, y  , z+1 ) ||
+            get_voxel_activity( volume, x+1, y+1, z   ) ||
+            get_voxel_activity( volume, x+1, y+1, z+1 ) );
+    else
     return( get_voxel_activity( volume, x  , y  , z   ) &&
             get_voxel_activity( volume, x  , y  , z+1 ) &&
             get_voxel_activity( volume, x  , y+1, z   ) &&
@@ -1442,5 +1457,42 @@ public  void  set_connected_slice_inactivity( graphics, x, y, z, axis_index,
     if( status == OK )
     {
         status = delete_voxel_queue( &voxels_to_check );
+    }
+}
+
+#include <def_stdio.h>
+
+private  void  possibly_output( p )
+    polygons_struct  *p;
+{
+    static   int  count  = 0;
+    Status   status;
+    FILE     *file;
+    String   name;
+    Status   open_output_file();
+    Status   io_polygons();
+    Status   close_file();
+
+    if( (count-1) * Output_every > p->n_items )
+    {
+        count = p->n_items / Output_every;
+    }
+
+    if( p->n_items > count * Output_every )
+    {
+        ++count;
+        (void) sprintf( name, Tmp_surface_name, count );
+
+        status = open_output_file( name, &file );
+
+        if( status == OK )
+        {
+            status = io_polygons( file, OUTPUTTING, BINARY_FORMAT, p );
+        }
+
+        if( status == OK )
+        {
+            status = close_file( file );
+        }
     }
 }
