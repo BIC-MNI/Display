@@ -1,6 +1,6 @@
 include ../C_dev/Makefile.include
 
-OPT = -g
+OPT = -O
 
 INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/portia/usr/include
 
@@ -27,7 +27,6 @@ display_obj = \
            main/graphics.o \
            main/three_d.o \
            $(graphics_obj) \
-           graphics_io.o \
            callbacks/file.o \
            callbacks/globals.o \
            callbacks/object_ops.o \
@@ -36,6 +35,7 @@ display_obj = \
            callbacks/view_ops.o \
            callbacks/volume_ops.o \
            current_obj/current_obj.o \
+           surface_extraction/surface.o \
            events/clip_plane.o \
            events/magnify.o \
            events/mouse.o \
@@ -53,15 +53,21 @@ display_obj = \
            menu/input_menu.o \
            menu/menu_update.o \
            menu/selected.o \
-           slice_window/slice.o \
            slice_window/draw_slice.o \
+           slice_window/slice.o \
+           slice_window/slice_events.o \
            $(C_UTILS_SRC)/alloc.o \
            $(C_UTILS_SRC)/bitlist.o \
            $(C_UTILS_SRC)/colours.o \
+           $(C_UTILS_SRC)/graphics_io.o \
+           $(C_UTILS_SRC)/hash_table.o \
            $(C_UTILS_SRC)/lines.o \
+           $(C_UTILS_SRC)/marching_cubes.o \
            $(C_UTILS_SRC)/mr_io.o \
            $(C_UTILS_SRC)/objects.o \
            $(C_UTILS_SRC)/object_io.o \
+           $(C_UTILS_SRC)/pixels.o \
+           $(C_UTILS_SRC)/polygons.o \
            $(C_UTILS_SRC)/random_order.o \
            $(C_UTILS_SRC)/random.o \
            $(C_UTILS_SRC)/resample.o \
