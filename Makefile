@@ -1,24 +1,15 @@
-include $(LIB_DIRECTORY)/Graphics/Makefile.include
-include $(LIB_DIRECTORY)/David/Makefile.include
+include $(SRC_DIRECTORY)/Graphics/Makefile.include
+include $(SRC_DIRECTORY)/David/Makefile.include
 
-OPT = $(OPT_O) -Wf,-XNd11000
+OPT = -O $(SPECIAL_OPT)
 
-OPT_g = -g
-OPT_O = -O
-
-IMAGE_DIR = /usr/people/4Dgifts/iristools
-IMAGE_LIB = ../RGB_files/librgb_files.a $(IMAGE_DIR)/libimage/libimage.a
-
-INCLUDE = -IInclude \
-          $(DLIB_INCLUDE) \
-          $(GRAPHICS_INCLUDE) \
-          -I../RGB_files
+INCLUDE = -IInclude $(DLIB_INCLUDE) $(GRAPHICS_INCLUDE)
 
 PROTOTYPE_FILE = Include/display_prototypes.h
 
 main/main.o: Include/global_variables.h
 
-DISPLAY = display
+DISPLAY = Display
 
 display_obj = \
            main/main.o \
@@ -62,10 +53,7 @@ display_obj = \
            surface_extraction/extract.o \
            surface_extraction/surface.o \
            surface_extraction/surface_events.o \
-           voxel_scan/scan_markers.o \
            voxel_scan/scan_objects.o \
-           voxel_scan/scan_polygons.o \
-           voxel_scan/scan_lines.o \
            events/change_markers.o \
            events/clip_plane.o \
            events/film_loop.o \
@@ -85,19 +73,19 @@ display_obj = \
            cursor/cursor.o \
            cursor/cursor_icon.o \
            menu/build_menu.o \
+           menu/cursor_pos.o \
            menu/menu.o \
            menu/input_menu.o \
            menu/selected.o \
            menu/text.o \
            cursor_contours/contours.o \
            segmenting/cut_neighbours.o \
-           segmenting/expand_3d.o \
-           segmenting/labels.o \
-           segmenting/regions.o \
+           segmenting/painting.o \
            segmenting/segmenting.o \
            segmenting/segment_polygons.o \
            slice_window/colour_bar.o \
            slice_window/colour_coding.o \
+           slice_window/crop.o \
            slice_window/draw_slice.o \
            slice_window/histogram.o \
            slice_window/pick_angle.o \
@@ -118,41 +106,47 @@ display_obj = \
            structures/view.o \
            structures/window.o
 
-LIBS = $(IMAGE_LIB) $(DLIB_LIBS) $(GRAPHICS_LIBS)
-LIBS_2D = $(IMAGE_LIB) $(DLIB_LIBS) $(GRAPHICS_LIBS_2D)
 LINT_LIBS = $(DLIB_LINT_LIBS) $(GRAPHICS_LINT_LIBS)
 
 display_lint = $(display_obj:.o=.ln)
 
 lint_display: $(PROTOTYPE_FILE) $(display_lint)
-	@echo "Global lint started"
-	@$(LINT) -u $(LINTFLAGS) $(display_lint) $(LINT_LIBS) | filter_lint
+	@$(LINT) $(LINTFLAGS) $(display_lint) $(LINT_LIBS)
 
-$(DISPLAY): $(PROTOTYPE_FILE) $(display_obj)
-	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(LIBS)
+$(DISPLAY).irisgl: $(PROTOTYPE_FILE) $(display_obj)
+	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(DLIB_LIBS) \
+                          $(IRISGL_GRAPHICS_LIBS)
 
-$(DISPLAY)_2d: $(PROTOTYPE_FILE) $(display_obj)
-	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(LIBS_2D)
+$(DISPLAY).opengl: $(PROTOTYPE_FILE) $(display_obj)
+	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(DLIB_LIBS) \
+                          $(OPENGL_GRAPHICS_LIBS)
+
+$(DISPLAY).mesa: $(PROTOTYPE_FILE) $(display_obj)
+	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(DLIB_LIBS) \
+                          $(MESA_GRAPHICS_LIBS)
 
 list_all_objects:
 	@echo $(display_obj) $(display_obj:.o=.ln)
 
-display.pixie:  $(DISPLAY)
-	if( -e display.Addrs ) rm display.Addrs
-	if( -e display.Counts ) rm display.Counts
-	@\rm -f display.Counts
-	@pixie display -o $@
+$(DISPLAY).irisgl.pixie:  $(DISPLAY).irisgl
+	@pixie $(DISPLAY).irisgl -o $@
 
 prof:
-	prof -quit 200 -pixie display -proc >&! profiling/procedures
-	prof -quit 200 -pixie display -heavy >&! profiling/heavy
-	prof -pixie -gprof display >&! profiling/gprof
+	prof -quit 200 -pixie Display.irisgl -p >&! profiling/procedures
+	prof -quit 200 -pixie Display.irisgl -h >&! profiling/heavy
+	prof -pixie Display.irisgl >&! profiling/gprof
 
 #-----------------
 
 $(PROTOTYPE_FILE): $(display_obj:.o=.c) Include/*.h
-	@echo "#ifndef  DEF_DISPLAY_PROTOTYPES"              >  $@
-	@echo "#define  DEF_DISPLAY_PROTOTYPES"              >> $@
-	@extract_functions -public $(display_obj:.o=.c)          >> $@
-	@echo "#endif"                                       >> $@
+	@$(MAKE_DIRECTORY)/create_prototypes.csh $@ $(display_obj:.o=.c)
 
+clean_all: clean
+	\rm -rf $(DISPLAY).irisgl $(DISPLAY).opengl $(DISPLAY).mesa
+
+update: Display.irisgl
+	strip Display.irisgl
+	\mv ~david/public_bin/Display ~david/public_bin/Display.old
+	\mv Display.irisgl ~david/public_bin/Display
+	\cp Display.menu ~david/public_bin
+	\rm -rf ~david/public_bin/Display.old
