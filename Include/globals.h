@@ -49,6 +49,9 @@ START_GLOBALS
     DEF_GLOBAL( Selected_invis_colour, Colour, 0.0 )
     DEF_GLOBAL( Unselected_vis_colour, Colour, 0.0 )
     DEF_GLOBAL( Unselected_invis_colour, Colour, 0.0 )
+
+    DEF_GLOBAL( Contour_min_thickness, int, 0 )
+    DEF_GLOBAL( Contour_boundary_threshold, Real, 0.0 )
 END_GLOBALS
          
 #endif
