@@ -9,10 +9,12 @@ typedef  struct
     int      label;
     Boolean  queued;
     int      dist_transform;
+    int      dist_from_region;
     int      cutoff;
 } pixel_struct;
 
 #define  INFINITY          10000
+#define  INVALID_DISTANCE     -1 
 #define  REGION_OF_INTEREST    1
 
 public  Status  disconnect_components( volume, voxel_indices, axis,
@@ -219,6 +221,7 @@ private  int  find_connectivity_length( x_size, y_size, pixels )
             {
                 pixels[x][y].cutoff = INFINITY;
                 pixels[x][y].queued = TRUE;
+                pixels[x][y].dist_from_region = 0;
                 insert.x = x;
                 insert.y = y;
                 INSERT_IN_QUEUE( status, queue, voxel_struct, insert );
@@ -227,6 +230,7 @@ private  int  find_connectivity_length( x_size, y_size, pixels )
             {
                 pixels[x][y].cutoff = 0;
                 pixels[x][y].queued = FALSE;
+                pixels[x][y].dist_from_region = INVALID_DISTANCE;
             }
         }
     }
@@ -271,6 +275,8 @@ private  int  find_connectivity_length( x_size, y_size, pixels )
                                 INSERT_IN_QUEUE( status, queue, voxel_struct,
                                                  insert );
                                 pixels[nx][ny].queued = TRUE;
+                                pixels[nx][ny].dist_from_region =
+                                     pixels[x][y].dist_from_region + 1;
                             }
                         }
                     }
@@ -348,11 +354,17 @@ private   void   assign_region_flags( x_size, y_size, pixels, conn_length )
     {
         for_less( y, 0, y_size )
         {
-            if( pixels[x][y].label == REGION_OF_INTEREST )
+            if( pixels[x][y].label > REGION_OF_INTEREST )
             {
                 insert.x = x;
                 insert.y = y;
                 INSERT_IN_QUEUE( status, queue, voxel_struct, insert );
+                pixels[x][y].queued = TRUE;
+            }
+            else
+            {
+                if( pixels[x][y].inside )
+                    pixels[x][y].label = REGION_OF_INTEREST;
             }
         }
     }
@@ -376,13 +388,20 @@ private   void   assign_region_flags( x_size, y_size, pixels, conn_length )
                     if( nx >= 0 && nx < x_size &&
                         ny >= 0 && ny < y_size && 
                         pixels[nx][ny].inside &&
-                        pixels[nx][ny].label != REGION_OF_INTEREST &&
-                        pixels[nx][ny].dist_transform > conn_length )
+                        pixels[nx][ny].label == REGION_OF_INTEREST &&
+                        !pixels[nx][ny].queued &&
+                        (pixels[nx][ny].dist_transform <
+                              pixels[x][y].dist_transform ||
+                         pixels[nx][ny].dist_transform == INVALID_DISTANCE ||
+                         pixels[nx][ny].dist_from_region > 
+                               pixels[x][y].dist_from_region ||
+                         pixels[nx][ny].dist_transform > conn_length) )
                     {
                         insert.x = nx;
                         insert.y = ny;
                         INSERT_IN_QUEUE( status, queue, voxel_struct, insert );
-                        pixels[nx][ny].label = REGION_OF_INTEREST;
+                        pixels[nx][ny].label = 0;
+                        pixels[nx][ny].queued = TRUE;
                     }
                 }
             }
