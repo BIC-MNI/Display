@@ -3,7 +3,7 @@
 
 public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
 {
-    volume_struct    *volume;
+    Volume           volume;
     Real             min_value, max_value;
     display_struct   *slice_window;
 
@@ -44,7 +44,7 @@ private  void  set_the_colour_coding_type(
     Colour_coding_types  type )
 {
     display_struct          *slice_window;
-    volume_struct           *volume;
+    Volume                  volume;
     colour_coding_struct    *colour_coding;
 
     if( get_slice_window_volume( display, &volume ) )
@@ -110,7 +110,7 @@ public  DEF_MENU_FUNCTION(set_under_colour )   /* ARGSUSED */
 {
     Status                  status;
     display_struct          *slice_window;
-    volume_struct           *volume;
+    Volume                  volume;
     String                  line;
     Colour                  col;
 
@@ -160,7 +160,7 @@ public  DEF_MENU_FUNCTION(set_over_colour )   /* ARGSUSED */
 {
     Status                  status;
     display_struct          *slice_window;
-    volume_struct           *volume;
+    Volume                  volume;
     String                  line;
     Colour                  col;
 
@@ -207,7 +207,7 @@ public  DEF_MENU_UPDATE(set_over_colour )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(set_label_colour_ratio )   /* ARGSUSED */
 {
-    volume_struct    *volume;
+    Volume           volume;
     Real             ratio;
     display_struct   *slice_window;
 
