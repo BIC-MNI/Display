@@ -160,6 +160,9 @@ START_GLOBALS
     DEF_GLOBAL( Polygon_bintree_threshold, int, 100 )
     DEF_GLOBAL( Bintree_size_factor, Real, 2.0 )
 
+    DEF_GLOBAL( Marker_colour, Colour, 1.0 )
+    DEF_GLOBAL( Marker_size, Real, 1.0 )
+
 END_GLOBALS
          
 #endif

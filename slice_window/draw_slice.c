@@ -210,7 +210,7 @@ public  void  rebuild_slice_pixels( graphics, view_index )
     int            axis_index, x_index, y_index;
     int            voxel_indices[N_DIMENSIONS];
     int            x_pixel_start, x_pixel_end;
-    int            y_size, y_pixel_start, y_pixel_end;
+    int            x_size, y_pixel_start, y_pixel_end;
     void           get_slice_view();
     void           render_slice_to_pixels();
     text_struct    *text;
@@ -235,17 +235,17 @@ public  void  rebuild_slice_pixels( graphics, view_index )
                     &x_pixel_start, &y_pixel_start,
                     &x_pixel_end, &y_pixel_end, voxel_indices );
 
-    y_size = y_pixel_end - y_pixel_start + 1;
+    x_size = x_pixel_end - x_pixel_start + 1;
 
-    if( y_size > graphics->slice.temporary_indices_alloced )
+    if( x_size > graphics->slice.temporary_indices_alloced )
     {
         CHECK_ALLOC1( status, graphics->slice.temporary_indices,
                       graphics->slice.temporary_indices_alloced,
-                      y_size, int, DEFAULT_CHUNK_SIZE );
+                      x_size, int, DEFAULT_CHUNK_SIZE );
 
         if( status == OK )
         {
-            graphics->slice.temporary_indices_alloced = y_size;
+            graphics->slice.temporary_indices_alloced = x_size;
         }
         else
         {
@@ -415,11 +415,13 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
 {
     Status          status;
     int             new_size, old_size, indices[N_DIMENSIONS];
-    int             x, y, prev_y;
+    int             x, y, prev_x;
     int             x_size, y_size;
-    Pixel_colour    pixel_col;
+    int             val, min_value;
+    Pixel_colour    pixel_col, *pixel_ptr;
     Real            dx, dy;
     Pixel_colour    get_voxel_colour();
+    Pixel_colour    get_colour_coding();
 
     status = OK;
 
@@ -468,33 +470,48 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
 
     indices[axis_index] = start_indices[axis_index];
 
-    for_less( y, 0, y_size )
-    {
-        temporary_indices[y] = start_indices[y_index] + y * dy;
-    }
-
     for_less( x, 0, x_size )
     {
-        indices[x_index] = start_indices[x_index] + x * dx;
+        temporary_indices[x] = start_indices[x_index] + x * dx;
+    }
 
-        prev_y = -1;
+    min_value = volume->min_value;
 
-        for_less( y, 0, y_size )
+    for_less( y, 0, y_size )
+    {
+        pixel_ptr = &pixels->pixels[y * x_size];
+
+        indices[y_index] = start_indices[y_index] + y * dy;
+
+        prev_x = -1;
+
+        for_less( x, 0, x_size )
         {
-            indices[y_index] = temporary_indices[y];
+            indices[x_index] = temporary_indices[x];
 
-            if( indices[y_index] != prev_y )
+            if( indices[x_index] != prev_x )
             {
+/*
                 pixel_col = get_voxel_colour( volume,
                                               fast_lookup_present,
                                               fast_lookup, colour_coding,
                                               indices[0], indices[1],
                                               indices[2] );
+*/
 
-                prev_y = indices[y_index];
+                val = GET_VOLUME_DATA( *volume,
+                                       indices[0], indices[1], indices[2]);
+
+                if( fast_lookup_present )
+                    pixel_col = fast_lookup[val-min_value];
+                else
+                    pixel_col = get_colour_coding( colour_coding, (Real) val );
+
+                prev_x = indices[x_index];
             }
 
-            ACCESS_PIXEL( pixels->pixels, x, y, x_size ) = pixel_col;
+            *pixel_ptr = pixel_col;
+            ++pixel_ptr;
         }
     }
 }
@@ -511,7 +528,6 @@ private  Pixel_colour  get_voxel_colour( volume, fast_lookup_present,
     Pixel_colour    get_colour_coding();
     int             val;
     Boolean         activity_flag, inactivity_flag;
-    int             get_volume_voxel_value();
 
     if( Display_activities &&
         (!(activity_flag=get_voxel_activity_flag( volume, x, y, z )) ||
@@ -532,10 +548,10 @@ private  Pixel_colour  get_voxel_colour( volume, fast_lookup_present,
     }
     else
     {
-        val = get_volume_voxel_value( volume, x, y, z);
+        val = GET_VOLUME_DATA( *volume, x, y, z);
 
         if( fast_lookup_present )
-            pixel_col = fast_lookup[val-(int)volume->min_value];
+            pixel_col = fast_lookup[val-volume->min_value];
         else
             pixel_col = get_colour_coding( colour_coding, (Real) val );
     }
