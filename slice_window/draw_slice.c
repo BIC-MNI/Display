@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.104 1996-02-21 15:41:38 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.105 1996-02-27 19:17:11 david Exp $";
 #endif
 
 #include  <display.h>
@@ -1149,24 +1149,6 @@ private  int  render_slice_to_pixels(
         }
         else
         {
-            if( !incremental_flag )
-            {
-                width = MAX( pixels->x_size, pixels->y_size );
-            }
-            else
-            {
-                width = (int) sqrt( n_pixels_redraw ) + 1;
-                if( width < 1 )
-                    width = 1;
-            }
-
-            get_current_voxel( slice_window, volume_index, current_voxel );
-            convert_voxel_to_pixel( slice_window, volume_index, view_index,
-                                    current_voxel, &x_pixel, &y_pixel );
-
-            x_centre = ROUND( x_pixel ) - x_sub_min - pixels->x_position;
-            y_centre = ROUND( y_pixel ) - y_sub_min - pixels->y_position;
-
             if( interrupted )
             {
                 x_min = 0;
@@ -1174,34 +1156,52 @@ private  int  render_slice_to_pixels(
                 y_min = 0;
                 y_max = -1;
             }
+            else if( !incremental_flag )
+            {
+                x_min = 0;
+                x_max = pixels->x_size-1;
+                y_min = 0;
+                y_max = pixels->y_size-1;
+            }
             else
             {
+                width = (int) sqrt( n_pixels_redraw ) + 1;
+                if( width < 1 )
+                    width = 1;
+
+                get_current_voxel( slice_window, volume_index, current_voxel );
+                convert_voxel_to_pixel( slice_window, volume_index, view_index,
+                                    current_voxel, &x_pixel, &y_pixel );
+
+                x_centre = ROUND( x_pixel ) - x_sub_min - pixels->x_position;
+                y_centre = ROUND( y_pixel ) - y_sub_min - pixels->y_position;
+
                 x_min = x_centre - width / 2;
                 x_max = x_min + width - 1;
                 y_min = y_centre - width / 2;
                 y_max = y_min + width - 1;
-            }
 
-            if( x_min < 0 )
-            {
-                x_max = x_max - x_min;
-                x_min = 0;
-            }
-            else if( x_max >= pixels->x_size )
-            {
-                x_min = pixels->x_size - 1 - (x_max - x_min);
-                x_max = pixels->x_size - 1;
-            }
+                if( x_min < 0 )
+                {
+                    x_max = x_max - x_min;
+                    x_min = 0;
+                }
+                else if( x_max >= pixels->x_size )
+                {
+                    x_min = pixels->x_size - 1 - (x_max - x_min);
+                    x_max = pixels->x_size - 1;
+                }
 
-            if( y_min < 0 )
-            {
-                y_max = y_max - y_min;
-                y_min = 0;
-            }
-            else if( y_max >= pixels->y_size )
-            {
-                y_min = pixels->y_size - 1 - (y_max - y_min);
-                y_max = pixels->y_size - 1;
+                if( y_min < 0 )
+                {
+                    y_max = y_max - y_min;
+                    y_min = 0;
+                }
+                else if( y_max >= pixels->y_size )
+                {
+                    y_min = pixels->y_size - 1 - (y_max - y_min);
+                    y_max = pixels->y_size - 1;
+                }
             }
 
             edge_index = 0;
