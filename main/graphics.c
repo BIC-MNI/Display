@@ -1,5 +1,5 @@
 
-#include  <stdio.h>
+#include  <def_stdio.h>
 #include  <string.h>
 #include  <def_graphics.h>
 #include  <def_globals.h>
@@ -333,4 +333,93 @@ public  void  transform_model( graphics, transform )
     concat_transforms( &graphics->view.modeling_transform,
                        &graphics->view.modeling_transform,
                        transform );
+}
+
+public  Status  load_graphics_file( graphics, filename )
+    graphics_struct  *graphics;
+    char             filename[];
+{
+    Status           status;
+    Status           input_graphics_file();
+    Status           create_object();
+    Status           push_current_object();
+    Status           add_object_to_model();
+    object_struct    *object;
+    model_struct     *model;
+    model_struct     *get_current_model();
+    Boolean          get_range_of_object();
+    void             rebuild_selected_list();
+    void             set_current_object_index();
+
+    status = create_object( &object, MODEL );
+
+    if( status == OK )
+    {
+        PRINT( "Inputting objects.\n" );
+
+        model = object->ptr.model;
+
+        (void) strcpy( model->filename, filename );
+
+        status = input_graphics_file( filename,
+                                      &model->n_objects,
+                                      &model->object_list );
+
+        PRINT( "Objects input.\n" );
+    }
+
+    if( status == OK )
+    {
+        if( !Visibility_on_input )
+        {
+            BEGIN_TRAVERSE_OBJECT( status, object );
+                OBJECT->visibility = OFF;
+            END_TRAVERSE_OBJECT
+        }
+    }
+
+    if( status == OK )
+    {
+        model = get_current_model( graphics );
+
+        status = add_object_to_model( model, object );
+
+        if( current_object_is_top_level(graphics) )
+        {
+            if( model->n_objects == 1 )               /* first object */
+            {
+                status = push_current_object( graphics );
+            }
+        }
+        else
+        {
+            set_current_object_index( graphics, model->n_objects-1 );
+        }
+    }
+
+    if( status == OK )
+    {
+        rebuild_selected_list( graphics, graphics->menu_window );
+    }
+
+    if( status == OK )
+    {
+        if( !get_range_of_object( graphics->models[THREED_MODEL], FALSE,
+                                  &graphics->min_limit, &graphics->max_limit ) )
+        {
+            fill_Point( graphics->min_limit, 0.0, 0.0, 0.0 );
+            fill_Point( graphics->max_limit, 1.0, 1.0, 1.0 );
+            PRINT( "No objects range.\n" );
+        }
+
+        ADD_POINTS( graphics->centre_of_objects, graphics->min_limit,
+                    graphics->max_limit );
+        SCALE_POINT( graphics->centre_of_objects,
+                     graphics->centre_of_objects,
+                     0.5 );
+    }
+
+    graphics->update_required = TRUE;
+
+    return( status );
 }
