@@ -6,6 +6,7 @@ public  Status   main_event_loop()
 {
     Status   status;
     Status   process_events();
+    Status   process_no_events_for_all_windows();
     void     update_all_required_windows();
 
     status = OK;
@@ -13,6 +14,11 @@ public  Status   main_event_loop()
     while( status != QUIT )
     {
         status = process_events();
+
+        if( status != QUIT )
+        {
+            status = process_no_events_for_all_windows();
+        }
 
         update_all_required_windows();
     }
@@ -44,6 +50,29 @@ private  void  update_all_required_windows()
     }
 }
 
+private  Status  process_no_events_for_all_windows()
+{
+    Status            status;
+    Status            perform_action();
+    int               i, n_windows;
+    int               get_list_of_windows();
+    graphics_struct   **windows;
+    event_struct      event;
+
+    status = OK;
+
+    n_windows = get_list_of_windows( &windows );
+
+    event.event_type = NO_EVENT;
+
+    for_less( i, 0, n_windows )
+    {
+        status = perform_action( windows[i], &event );
+    }
+
+    return( status );
+}
+
 Status  process_events()
 {
     Status            status;
@@ -59,20 +88,21 @@ Status  process_events()
 
     stop_time = current_realtime_seconds() + Event_timeout;
 
-    do
-    {
-        G_get_event( &event );
+    G_get_event( &event );
 
+    while( status == OK &&
+           event.event_type != NO_EVENT &&
+           current_realtime_seconds() < stop_time )
+    {
         graphics = lookup_window( event.window_id );
 
         if( graphics != (graphics_struct *) 0 )
         {
             status = perform_action( graphics, &event );
         }
+
+        G_get_event( &event );
     }
-    while( status == OK &&
-           event.event_type != NO_EVENT &&
-           current_realtime_seconds() < stop_time );
 
     return( status );
 }

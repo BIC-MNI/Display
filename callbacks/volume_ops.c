@@ -182,7 +182,7 @@ public  DEF_MENU_FUNCTION(start_surface )   /* ARGSUSED */
     int            x, y, z;
     Point          origin;
     Boolean        get_current_volume();
-    void           start_surface_extraction();
+    void           start_surface_extraction_at_point();
     volume_struct  *volume;
 
     if( get_current_volume( graphics, &volume ) )
@@ -208,7 +208,7 @@ public  DEF_MENU_FUNCTION(start_surface )   /* ARGSUSED */
         }
 
 
-        start_surface_extraction( graphics, x, y, z );
+        start_surface_extraction_at_point( graphics, x, y, z );
     }
 
     return( OK );
@@ -219,20 +219,52 @@ public  DEF_MENU_UPDATE(start_surface )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(stop_surface)   /* ARGSUSED */
+public  DEF_MENU_FUNCTION(toggle_surface_extraction)   /* ARGSUSED */
 {
+    void           start_surface_extraction();
     void           stop_surface_extraction();
     volume_struct  *volume;
 
     if( get_current_volume( graphics, &volume ) )
     {
-        stop_surface_extraction( graphics );
+        if( graphics->three_d.surface_extraction.extraction_in_progress )
+        {
+            stop_surface_extraction( graphics );
+        }
+        else
+        {
+            start_surface_extraction( graphics );
+        }
     }
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(stop_surface )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(toggle_surface_extraction )   /* ARGSUSED */
+{
+    void  set_text_on_off();
+
+    set_text_on_off( format, text,
+              graphics->three_d.surface_extraction.extraction_in_progress );
+
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
+{
+    Status         status;
+    Status         reset_surface_extraction();
+    volume_struct  *volume;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        reset_surface_extraction( &graphics->three_d.surface_extraction );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(reset_surface )   /* ARGSUSED */
 {
     return( OK );
 }
