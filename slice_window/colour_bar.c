@@ -91,7 +91,7 @@ public  void  rebuild_colour_bar(
     object_struct       *object;
     text_struct         *text;
     quadmesh_struct     *quadmesh;
-    volume_struct       *volume;
+    Volume              volume;
     int                 n_numbers;
     number_entry        entry, *numbers;
     model_struct        *model;
@@ -102,8 +102,7 @@ public  void  rebuild_colour_bar(
 
     (void) get_slice_window_volume( slice_window, &volume );
 
-    min_value = (Real) volume->min_value;
-    max_value = (Real) volume->max_value;
+    get_volume_voxel_range( volume, &min_value, &max_value );
 
     start_threshold = (Real) slice_window->slice.colour_coding.min_value;
     end_threshold = (Real) slice_window->slice.colour_coding.max_value;
