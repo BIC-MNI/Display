@@ -3,112 +3,117 @@ include $(SRC_DIRECTORY)/David/Makefile.include
 
 OPT = -O $(SPECIAL_OPT)
 
+LDFLAGS =
+
 INCLUDE = -IInclude $(DLIB_INCLUDE) $(GRAPHICS_INCLUDE)
 
 PROTOTYPE_FILE = Include/display_prototypes.h
 
 main/main.o: Include/global_variables.h
+main/main.u: Include/global_variables.h
 
 DISPLAY = Display
 
-display_obj = \
-           main/main.o \
-           main/display.o \
-           main/event_loop.o \
-           main/graphics.o \
-           main/three_d.o \
-           main/transforms.o \
-           atlas/atlas.o \
-           input_files/input_files.o \
-           input_files/volume_file.o \
-           deform/deform.o \
-           callbacks/atlas.o \
-           callbacks/call_globals.o \
-           callbacks/colour_coding.o \
-           callbacks/deform.o \
-           callbacks/file.o \
-           callbacks/line_ops.o \
-           callbacks/object_ops.o \
-           callbacks/marker_ops.o \
-           callbacks/polygon_ops.o \
-           callbacks/quit.o \
-           callbacks/regions.o \
-           callbacks/render_ops.o \
-           callbacks/segmenting.o \
-           callbacks/surf_segmenting.o \
-           callbacks/surface_curves.o \
-           callbacks/surface_extract.o \
-           callbacks/view_ops.o \
-           callbacks/volume_ops.o \
-           current_obj/current_obj.o \
-           edit_surface/connected.o \
-           edit_surface/edit.o \
-           edit_surface/segment.o \
-           images/images.o \
-           markers/markers.o \
-           markers/segment.o \
-           surface_extraction/boundary_extraction.o \
-           surface_extraction/data_structs.o \
-           surface_extraction/init_surface.o \
-           surface_extraction/extract.o \
-           surface_extraction/surface.o \
-           surface_extraction/surface_events.o \
-           voxel_scan/scan_objects.o \
-           events/change_markers.o \
-           events/clip_plane.o \
-           events/film_loop.o \
-           events/magnify.o \
-           events/mouse.o \
-           events/mouse_trans.o \
-           events/pick_object.o \
-           events/pick_view.o \
-           events/rotate_slice.o \
-           events/spaceball.o \
-           events/virt_sb.o \
-           events/window_man.o \
-           events/utilities.o \
-           immediate_mode/draw_immed.o \
-           intersect/ray_polygons.o \
-           intersect/plane_polygons.o \
-           cursor/cursor.o \
-           cursor/cursor_icon.o \
-           menu/build_menu.o \
-           menu/cursor_pos.o \
-           menu/menu.o \
-           menu/input_menu.o \
-           menu/selected.o \
-           menu/text.o \
-           cursor_contours/contours.o \
-           segmenting/cut_neighbours.o \
-           segmenting/painting.o \
-           segmenting/segmenting.o \
-           segmenting/segment_polygons.o \
-           slice_window/colour_bar.o \
-           slice_window/colour_coding.o \
-           slice_window/crop.o \
-           slice_window/draw_slice.o \
-           slice_window/histogram.o \
-           slice_window/pick_angle.o \
-           slice_window/quadmesh.o \
-           slice_window/slice.o \
-           slice_window/slice_3d.o \
-           slice_window/slice_events.o \
-           slice_window/undo.o \
-           slice_window/view.o \
-           surface_curves/closest_line.o \
-           surface_curves/events.o \
-           surface_curves/edge_distance.o \
-           tubes/convert_lines.o \
-           structures/action_table.o \
-           structures/fit_view.o \
-           structures/lights.o \
-           structures/render.o \
-           structures/view.o \
-           structures/window.o
+display_src = \
+           main/main.c \
+           main/display.c \
+           main/event_loop.c \
+           main/graphics.c \
+           main/three_d.c \
+           main/transforms.c \
+           atlas/atlas.c \
+           input_files/input_files.c \
+           input_files/volume_file.c \
+           deform/deform.c \
+           callbacks/atlas.c \
+           callbacks/call_globals.c \
+           callbacks/colour_coding.c \
+           callbacks/deform.c \
+           callbacks/file.c \
+           callbacks/line_ops.c \
+           callbacks/object_ops.c \
+           callbacks/marker_ops.c \
+           callbacks/polygon_ops.c \
+           callbacks/quit.c \
+           callbacks/regions.c \
+           callbacks/render_ops.c \
+           callbacks/segmenting.c \
+           callbacks/surf_segmenting.c \
+           callbacks/surface_curves.c \
+           callbacks/surface_extract.c \
+           callbacks/view_ops.c \
+           callbacks/volume_ops.c \
+           current_obj/current_obj.c \
+           edit_surface/connected.c \
+           edit_surface/edit.c \
+           edit_surface/segment.c \
+           images/images.c \
+           markers/markers.c \
+           markers/segment.c \
+           surface_extraction/boundary_extraction.c \
+           surface_extraction/data_structs.c \
+           surface_extraction/init_surface.c \
+           surface_extraction/extract.c \
+           surface_extraction/surface.c \
+           surface_extraction/surface_events.c \
+           voxel_scan/scan_objects.c \
+           events/change_markers.c \
+           events/clip_plane.c \
+           events/film_loop.c \
+           events/magnify.c \
+           events/mouse.c \
+           events/mouse_trans.c \
+           events/pick_object.c \
+           events/pick_view.c \
+           events/rotate_slice.c \
+           events/spaceball.c \
+           events/virt_sb.c \
+           events/window_man.c \
+           events/utilities.c \
+           immediate_mode/draw_immed.c \
+           intersect/ray_polygons.c \
+           intersect/plane_polygons.c \
+           cursor/cursor.c \
+           cursor/cursor_icon.c \
+           menu/build_menu.c \
+           menu/cursor_pos.c \
+           menu/menu.c \
+           menu/input_menu.c \
+           menu/selected.c \
+           menu/text.c \
+           cursor_contours/contours.c \
+           segmenting/cut_neighbours.c \
+           segmenting/painting.c \
+           segmenting/segmenting.c \
+           segmenting/segment_polygons.c \
+           slice_window/colour_bar.c \
+           slice_window/colour_coding.c \
+           slice_window/crop.c \
+           slice_window/draw_slice.c \
+           slice_window/histogram.c \
+           slice_window/pick_angle.c \
+           slice_window/quadmesh.c \
+           slice_window/slice.c \
+           slice_window/slice_3d.c \
+           slice_window/slice_events.c \
+           slice_window/undo.c \
+           slice_window/view.c \
+           surface_curves/closest_line.c \
+           surface_curves/events.c \
+           surface_curves/edge_distance.c \
+           tubes/convert_lines.c \
+           structures/action_table.c \
+           structures/fit_view.c \
+           structures/lights.c \
+           structures/render.c \
+           structures/view.c \
+           structures/window.c
+
+display_obj = $(display_src:.c=.o)
 
 LINT_LIBS = $(DLIB_LINT_LIBS) $(GRAPHICS_LINT_LIBS)
 
-display_lint = $(display_obj:.o=.ln)
+display_lint = $(display_src:.c=.ln)
 
 lint_display: $(PROTOTYPE_FILE) $(display_lint)
 	@$(LINT) $(LINTFLAGS) $(display_lint) $(LINT_LIBS)
@@ -116,6 +121,10 @@ lint_display: $(PROTOTYPE_FILE) $(display_lint)
 $(DISPLAY).irisgl: $(PROTOTYPE_FILE) $(display_obj)
 	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(DLIB_LIBS) \
                           $(IRISGL_GRAPHICS_LIBS)
+
+$(DISPLAY)-O3.irisgl: $(PROTOTYPE_FILE) $(display_obj:.o=.u)
+	$(CC) $(LDFLAGS) -O3 $(display_obj:.o=.u) -o $@ $(DLIB_LIBS-O3) \
+                          $(IRISGL_GRAPHICS_LIBS-O3)
 
 $(DISPLAY).opengl: $(PROTOTYPE_FILE) $(display_obj)
 	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(DLIB_LIBS) \
@@ -125,28 +134,37 @@ $(DISPLAY).mesa: $(PROTOTYPE_FILE) $(display_obj)
 	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(DLIB_LIBS) \
                           $(MESA_GRAPHICS_LIBS)
 
+$(DISPLAY)-O3.mesa: $(PROTOTYPE_FILE) $(display_obj:.o=.u)
+	$(CC) $(LDFLAGS) -O3 $(display_obj:.o=.u) -o $@ $(DLIB_LIBS-O3) \
+                          $(MESA_GRAPHICS_LIBS-O3)
+
 list_all_objects:
-	@echo $(display_obj) $(display_obj:.o=.ln)
+	@echo $(display_obj) $(display_src:.c=.ln)
 
 $(DISPLAY).irisgl.pixie:  $(DISPLAY).irisgl
 	@pixie $(DISPLAY).irisgl -o $@
 
 prof:
-	prof -quit 200 -pixie Display.irisgl -p >&! profiling/procedures
 	prof -quit 200 -pixie Display.irisgl -h >&! profiling/heavy
-	prof -pixie Display.irisgl >&! profiling/gprof
 
 #-----------------
 
-$(PROTOTYPE_FILE): $(display_obj:.o=.c) Include/*.h
-	@$(MAKE_DIRECTORY)/create_prototypes.csh $@ $(display_obj:.o=.c)
+$(PROTOTYPE_FILE): $(display_src) Include/*.h
+	@$(MAKE_DIRECTORY)/create_prototypes.csh $@ $(display_src)
 
 clean_all: clean
 	\rm -rf $(DISPLAY).irisgl $(DISPLAY).opengl $(DISPLAY).mesa
 
-update: Display.irisgl
-	strip Display.irisgl
+update: $(DISPLAY).irisgl
+	strip $(DISPLAY).irisgl
 	\mv ~david/public_bin/Display ~david/public_bin/Display.old
-	\mv Display.irisgl ~david/public_bin/Display
+	\mv $(DISPLAY).irisgl ~david/public_bin/Display
+	\cp Display.menu ~david/public_bin
+	\rm -rf ~david/public_bin/Display.old
+
+update-O3: $(DISPLAY)-O3.irisgl
+	strip $(DISPLAY)-O3.irisgl
+	\mv ~david/public_bin/Display ~david/public_bin/Display.old
+	\mv $(DISPLAY)-O3.irisgl ~david/public_bin/Display
 	\cp Display.menu ~david/public_bin
 	\rm -rf ~david/public_bin/Display.old
