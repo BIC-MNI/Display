@@ -27,6 +27,11 @@ public  void  initialize_three_d_window(
 
     initialize_lights( three_d->lights );
 
+    G_set_drawing_interrupt_state( display->window,
+                                   Maximum_display_time > 0.0 );
+    G_set_smallest_interrupt_interval( display->window, Interval_of_check );
+    G_set_smallest_interrupt_size( display->window, Size_of_interrupted );
+
     three_d->lights[0].colour = Directional_light_colour;
     three_d->lights[0].direction = Light_direction;
 
