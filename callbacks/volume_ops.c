@@ -945,3 +945,91 @@ public  DEF_MENU_UPDATE(generate_slice_activities )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION(lock_slice)   /* ARGSUSED */
+{
+    Status           status;
+    volume_struct    *volume;
+    graphics_struct  *slice_window;
+    Point            *mouse;
+    int              x, y, axis_index, view_index;
+    void             get_mouse_in_pixels();
+    Boolean          find_slice_view_mouse_is_in();
+    void             set_slice_window_update();
+    void             set_update_required();
+
+    status = OK;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        mouse = &slice_window->mouse_position;
+
+        get_mouse_in_pixels( slice_window, mouse, &x, &y );
+
+        if( find_slice_view_mouse_is_in( slice_window, x, y, &view_index ) )
+        {
+            axis_index = 
+               slice_window->slice.slice_views[view_index].axis_map[Z_AXIS];
+            if( !slice_window->slice.slice_locked[axis_index] )
+            {
+                slice_window->slice.slice_locked[axis_index] = TRUE;
+
+                set_slice_window_update( slice_window, view_index );
+                set_update_required( slice_window, NORMAL_PLANES );
+            }
+        }
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(lock_slice)    /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(unlock_slice)   /* ARGSUSED */
+{
+    Status           status;
+    volume_struct    *volume;
+    graphics_struct  *slice_window;
+    Point            *mouse;
+    int              x, y, axis_index, view_index;
+    void             get_mouse_in_pixels();
+    Boolean          find_slice_view_mouse_is_in();
+    void             set_slice_window_update();
+    void             set_update_required();
+
+    status = OK;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        mouse = &slice_window->mouse_position;
+
+        get_mouse_in_pixels( slice_window, mouse, &x, &y );
+
+        if( find_slice_view_mouse_is_in( slice_window, x, y, &view_index ) )
+        {
+            axis_index = 
+               slice_window->slice.slice_views[view_index].axis_map[Z_AXIS];
+            if( slice_window->slice.slice_locked[axis_index] )
+            {
+                slice_window->slice.slice_locked[axis_index] = FALSE;
+
+                set_slice_window_update( slice_window, view_index );
+                set_update_required( slice_window, NORMAL_PLANES );
+            }
+        }
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(unlock_slice)    /* ARGSUSED */
+{
+    return( OK );
+}
