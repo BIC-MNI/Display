@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.34 1995-10-19 15:52:18 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.35 1995-10-19 19:11:25 david Exp $";
 #endif
 
 
@@ -153,10 +153,10 @@ public  BOOLEAN  get_slice_visibility(
 
 private  void  match_view_scale_and_translation(
     display_struct    *slice_window,
-    int               view )
+    int               view,
+    int               ref_volume_index )
 {
     Volume  volume;
-    int     current_volume_index;
     int     volume_index;
     Real    separations[MAX_DIMENSIONS];
     Real    x_axis_x, x_axis_y, x_axis_z, y_axis_x, y_axis_y, y_axis_z;
@@ -173,35 +173,33 @@ private  void  match_view_scale_and_translation(
     if( get_n_volumes(slice_window) == 0 )
         return;
 
-    current_volume_index = get_current_volume_index( slice_window );
-
-    current_x_scale = slice_window->slice.volumes[current_volume_index].
+    current_x_scale = slice_window->slice.volumes[ref_volume_index].
                                               views[view].x_scaling;
-    current_y_scale = slice_window->slice.volumes[current_volume_index].
+    current_y_scale = slice_window->slice.volumes[ref_volume_index].
                                               views[view].y_scaling;
 
     get_volume_separations( get_volume(slice_window), separations );
 
-    scaled_x_axis[0] = slice_window->slice.volumes[current_volume_index].
+    scaled_x_axis[0] = slice_window->slice.volumes[ref_volume_index].
                            views[view].x_axis[0] / ABS(separations[0]);
-    scaled_x_axis[1] = slice_window->slice.volumes[current_volume_index].
+    scaled_x_axis[1] = slice_window->slice.volumes[ref_volume_index].
                            views[view].x_axis[1] / ABS(separations[1]);
-    scaled_x_axis[2] = slice_window->slice.volumes[current_volume_index].
+    scaled_x_axis[2] = slice_window->slice.volumes[ref_volume_index].
                            views[view].x_axis[2] / ABS(separations[2]);
     convert_voxel_vector_to_world( get_nth_volume(slice_window,
-                                                  current_volume_index),
+                                                  ref_volume_index),
                                    scaled_x_axis,
                                    &x_axis_x, &x_axis_y, &x_axis_z );
 
-    scaled_y_axis[0] = slice_window->slice.volumes[current_volume_index].
+    scaled_y_axis[0] = slice_window->slice.volumes[ref_volume_index].
                            views[view].y_axis[0] / ABS(separations[0]);
-    scaled_y_axis[1] = slice_window->slice.volumes[current_volume_index].
+    scaled_y_axis[1] = slice_window->slice.volumes[ref_volume_index].
                            views[view].y_axis[1] / ABS(separations[1]);
-    scaled_y_axis[2] = slice_window->slice.volumes[current_volume_index].
+    scaled_y_axis[2] = slice_window->slice.volumes[ref_volume_index].
                            views[view].y_axis[2] / ABS(separations[2]);
 
     convert_voxel_vector_to_world( get_nth_volume(slice_window,
-                                                  current_volume_index),
+                                                  ref_volume_index),
                                    scaled_y_axis,
                                    &y_axis_x, &y_axis_y, &y_axis_z );
 
@@ -216,7 +214,7 @@ private  void  match_view_scale_and_translation(
 
     for_less( volume_index, 0, slice_window->slice.n_volumes )
     {
-        if( volume_index == current_volume_index )
+        if( volume_index == ref_volume_index )
             continue;
 
         get_volume_separations( get_nth_volume(slice_window,volume_index),
@@ -262,7 +260,7 @@ private  void  match_view_scale_and_translation(
         convert_voxel_to_world( volume, origin, &xw, &yw, &zw );
         convert_world_to_voxel( get_volume(slice_window), xw, yw, zw,
                                 current_voxel );
-        convert_voxel_to_pixel( slice_window, current_volume_index,
+        convert_voxel_to_pixel( slice_window, ref_volume_index,
                                 view, current_voxel,
                                 &x_offset, &y_offset );
 
@@ -412,7 +410,8 @@ public  void  reset_slice_view(
     slice_window->slice.volumes[current_volume_index].views[view].y_scaling =
                                                               y_scale;
 
-    match_view_scale_and_translation( slice_window, view );
+    match_view_scale_and_translation( slice_window, view,
+                                      get_current_volume_index(slice_window) );
 
     slice_window->slice.slice_views[view].prev_viewport_x_size =
                                        (x_max_vp - x_min_vp + 1);
@@ -1561,7 +1560,8 @@ private  void  update_all_slice_axes(
                                                               y_axis[2] / mag;
     }
 
-    match_view_scale_and_translation( slice_window, view_index );
+    match_view_scale_and_translation( slice_window, view_index,
+                                      volume_index );
 }
 
 public  void  update_all_slice_axes_views(
@@ -1592,52 +1592,77 @@ public  void  slice_view_has_changed(
     set_slice_window_update( slice_window, -1, view, UPDATE_BOTH );
 }
 
-public  void  transform_current_volume_from_file(
-    display_struct   *display,
-    STRING           filename )
+public  void  set_volume_transform(
+    display_struct     *display,
+    int                volume_index,
+    General_transform  *transform )
 {
     Volume             volume;
-    General_transform  file_transform, *volume_transform, concated;
     display_struct     *slice_window;
+    General_transform  copy;
+    int                ref_volume_index;
 
     if( !get_slice_window( display, &slice_window ) )
         return;
 
-    if( input_transform_file( filename, &file_transform ) != OK )
-        return;
+    volume = get_nth_volume( slice_window, volume_index );
 
-    volume = get_volume( slice_window );
+    copy_general_transform( transform, &copy );
+
+    set_voxel_to_world_transform( volume, &copy );
+
+    ref_volume_index = 0;
+
+    update_all_slice_axes_views( slice_window, ref_volume_index );
+}
+
+public  void  concat_transform_to_volume(
+    display_struct     *display,
+    int                volume_index,
+    General_transform  *transform )
+{
+    Volume             volume;
+    General_transform  *volume_transform, concated;
+
+    volume = get_nth_volume( display, volume_index );
 
     volume_transform = get_voxel_to_world_transform( volume );
 
-    concat_general_transforms( volume_transform, &file_transform, &concated );
+    concat_general_transforms( volume_transform, transform, &concated );
 
-    set_voxel_to_world_transform( volume, &concated );
+    set_volume_transform( display, volume_index, &concated );
+
+    delete_general_transform( &concated );
+}
+
+public  void  transform_current_volume_from_file(
+    display_struct   *display,
+    STRING           filename )
+{
+    General_transform  file_transform;
+
+    if( input_transform_file( filename, &file_transform ) != OK )
+        return;
+
+    concat_transform_to_volume( display,
+                                get_current_volume_index(display),
+                                &file_transform );
 
     delete_general_transform( &file_transform );
-
-    update_all_slice_axes_views( slice_window, 0 );
 }
 
 public  void  reset_current_volume_transform(
     display_struct   *display )
 {
-    Volume             volume;
     General_transform  *original_transform;
     display_struct     *slice_window;
 
     if( !get_slice_window( display, &slice_window ) )
         return;
 
-    volume = get_volume( slice_window );
-
     original_transform = &slice_window->slice.volumes
                    [get_current_volume_index(slice_window)].original_transform;
 
-    set_voxel_to_world_transform( volume, original_transform );
-
-    copy_general_transform( get_voxel_to_world_transform(volume),
-                            original_transform );
-
-    update_all_slice_axes_views( slice_window, 0 );
+    set_volume_transform( display, get_current_volume_index(slice_window),
+                          original_transform );
 }
