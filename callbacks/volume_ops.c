@@ -84,7 +84,7 @@ public  Boolean  get_axis_index_under_mouse( graphics, axis_index )
         slice_window = graphics->associated[SLICE_WINDOW];
 
         *axis_index = 
-             slice_window->slice.slice_views[view_index].axis_map[Z_AXIS];
+             slice_window->slice.slice_views[view_index].axis_map[Z];
     }
 
     return( found );
@@ -301,18 +301,18 @@ private  Status  change_current_slice_by_one( graphics, delta )
     {
         slice_window = graphics->associated[SLICE_WINDOW];
 
-        get_volume_size( volume, &sizes[X_AXIS], &sizes[Y_AXIS],
-                         &sizes[Z_AXIS] );
+        get_volume_size( volume, &sizes[X], &sizes[Y],
+                         &sizes[Z] );
 
         get_current_voxel( slice_window,
-                           &index[X_AXIS], &index[Y_AXIS], &index[Z_AXIS] );
+                           &index[X], &index[Y], &index[Z] );
 
         index[axis_index] += delta;
 
         if( index[axis_index] >= 0 && index[axis_index] < sizes[axis_index] )
         {
-            if( set_current_voxel( slice_window, index[X_AXIS], index[Y_AXIS],
-                                   index[Z_AXIS] ) )
+            if( set_current_voxel( slice_window, index[X], index[Y],
+                                   index[Z] ) )
             {
                 rebuild_probe( slice_window );
                 rebuild_cursor( slice_window, 0 );
@@ -436,7 +436,7 @@ public  DEF_MENU_FUNCTION(toggle_lock_slice)   /* ARGSUSED */
         slice_window = graphics->associated[SLICE_WINDOW];
 
         axis_index = 
-           slice_window->slice.slice_views[view_index].axis_map[Z_AXIS];
+           slice_window->slice.slice_views[view_index].axis_map[Z];
         slice_window->slice.slice_locked[axis_index] =
             !slice_window->slice.slice_locked[axis_index];
 
@@ -529,8 +529,7 @@ public  DEF_MENU_FUNCTION(output_slice_transforms )   /* ARGSUSED */
 
         status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-        if( status == OK )
-            status = input_newline( stdin );
+        (void) input_newline( stdin );
 
         if( status == OK )
             status = open_file_with_default_suffix( filename, "xfm",

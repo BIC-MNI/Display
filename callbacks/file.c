@@ -14,8 +14,7 @@ public  DEF_MENU_FUNCTION( load_file )   /* ARGSUSED */
 
     status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-    if( status == OK )
-        status = input_newline( stdin );
+    (void) input_newline( stdin );
 
     if( status == OK )
         status = load_graphics_file( graphics, filename );
@@ -48,8 +47,7 @@ public  DEF_MENU_FUNCTION( save_file )   /* ARGSUSED */
 
         status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-        if( status == OK )
-            status = input_newline( stdin );
+        (void) input_newline( stdin );
 
         if( current_object->object_type == MODEL )
         {

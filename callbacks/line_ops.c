@@ -20,8 +20,7 @@ public  DEF_MENU_FUNCTION( smooth_current_lines )   /* ARGSUSED */
 
         status = input_real( stdin, &smooth_distance );
 
-        if( status == OK )
-            status = input_newline( stdin );
+        (void) input_newline( stdin );
 
         if( status == OK )
             status = smooth_lines( current_object->ptr.lines, smooth_distance );
@@ -60,8 +59,7 @@ public  DEF_MENU_FUNCTION( make_current_line_tube )   /* ARGSUSED */
         if( status == OK )
             status = input_real( stdin, &radius );
 
-        if( status == OK )
-            status = input_newline( stdin );
+        (void) input_newline( stdin );
 
         if( status == OK )
             status = convert_lines_to_tubes( graphics,

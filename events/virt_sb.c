@@ -329,8 +329,8 @@ private  Boolean  perform_cursor_translation( graphics )
             }
         }
 
-        best_axis = X_AXIS;
-        for_inclusive( axis_index, Y_AXIS, Z_AXIS )
+        best_axis = X;
+        for_inclusive( axis_index, Y, Z )
         {
             if( ABS(dot_prod[axis_index]) > ABS(dot_prod[best_axis]) )
             {

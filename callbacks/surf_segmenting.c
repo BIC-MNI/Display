@@ -62,11 +62,10 @@ public  DEF_MENU_FUNCTION( set_n_paint_polygons )   /* ARGSUSED */
 
     PRINT( "Enter # paint polygons: " );
 
-    if( input_int( stdin, &n ) == OK && n >= 0 &&
-        input_newline( stdin ) == OK )
-    {
+    if( input_int( stdin, &n ) == OK && n >= 0 )
         graphics->three_d.surface_edit.n_paint_polygons = n;
-    }
+
+    (void) input_newline( stdin );
 
     return( OK );
 }
@@ -571,8 +570,7 @@ private  Status  io_polygons_visibilities( polygons, io_flag )
         status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
     }
 
-    if( status == OK )
-        status = input_newline( stdin );
+    (void) input_newline( stdin );
 
     if( status == OK )
         status = open_file_with_default_suffix( filename, "vis", io_flag,

@@ -56,8 +56,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
 
         status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-        if( status == OK )
-            status = input_newline( stdin );
+        (void) input_newline( stdin );
 
         if( status == OK )
             status = open_file_with_default_suffix( filename, "btr", READ_FILE,
@@ -103,8 +102,7 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
 
         status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-        if( status == OK )
-            status = input_newline( stdin );
+        (void) input_newline( stdin );
 
         if( status == OK )
             status = open_file_with_default_suffix( filename, "btr",

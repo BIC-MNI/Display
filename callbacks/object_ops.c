@@ -269,7 +269,7 @@ public  DEF_MENU_FUNCTION( change_model_name )     /* ARGSUSED */
             (void) strcpy( current_object->ptr.model->filename, name );
         }
 
-        status = input_newline( stdin );
+        (void) input_newline( stdin );
 
         rebuild_selected_list( graphics, menu_window );
     }
@@ -292,7 +292,7 @@ private  Boolean  remove_current_object_from_hierarchy( graphics, object )
     model_struct     *get_current_model();
     Boolean          get_current_object();
     Boolean          is_a_marker;
-    void             regenerate_voxel_labels();
+    void             regenerate_voxel_marker_labels();
     Status           status;
     void             graphics_models_have_changed();
     void             set_current_object_index();
@@ -322,7 +322,7 @@ private  Boolean  remove_current_object_from_hierarchy( graphics, object )
         graphics_models_have_changed( graphics );
 
         if( is_a_marker )
-            regenerate_voxel_labels( graphics );
+            regenerate_voxel_marker_labels( graphics );
 
         removed = TRUE;
     }
@@ -377,6 +377,9 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
         if( status == OK )
         {
             set_object_colour( current_object, &col );
+
+            if( current_object->object_type == MARKER )
+                regenerate_voxel_marker_labels( graphics );
 
             set_update_required( graphics, NORMAL_PLANES );
             rebuild_selected_list( graphics, menu_window );

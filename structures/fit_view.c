@@ -180,9 +180,9 @@ private  void  perspective_fit_points( view, centre,
 
     for_less( i, 0, n_points )
     {
-        for_inclusive( c, X_AXIS, Y_AXIS )
+        for_inclusive( c, X, Y )
         {
-            if( c == X_AXIS )
+            if( c == X )
             {
                 off_centre = Point_x(points[i]) - Point_x(*centre);
                 width = view->window_width;
@@ -197,16 +197,12 @@ private  void  perspective_fit_points( view, centre,
                                          (width/2.0);
 
             if( dist < 0.0 )
-            {
                 dist = -dist;
-            }
 
             z_pos = Point_z(points[i]) - dist;
 
-            if( (i == 0 && c == X_AXIS) || z_pos < z_min )
-            {
+            if( (i == 0 && c == X) || z_pos < z_min )
                 z_min = z_pos;
-            }
         }
     }
 

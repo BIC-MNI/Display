@@ -11,8 +11,9 @@ public  Status  initialize_slice_window( graphics )
     Status  initialize_slice_models();
     Status  initialize_colour_coding();
     Status  initialize_colour_bar();
+    Status  add_new_label();
     void    initialize_slice_window_events();
-    int     c;
+    int     c, label;
     void    initialize_segmenting();
     void    rebuild_colour_coding();
 
@@ -60,7 +61,27 @@ public  Status  initialize_slice_window( graphics )
     if( status == OK )
         status = initialize_colour_bar( graphics );
 
+    graphics->slice.label_colour_ratio = Label_colour_display_ratio;
     graphics->slice.fast_lookup_present = FALSE;
+
+    for_less( label, 0, NUM_LABELS )
+    {
+        graphics->slice.fast_lookup[label] = (Pixel_colour *) 0;
+        graphics->slice.label_colours_used[label] = FALSE;
+    }
+
+    if( status == OK )
+        status = add_new_label( graphics, ACTIVE_BIT, &WHITE );
+
+    if( status == OK )
+        status = add_new_label( graphics, ACTIVE_BIT | LABEL_BIT,
+                                &Inactive_and_labeled_voxel_colour );
+
+    if( status == OK )
+        status = add_new_label( graphics, LABEL_BIT, &Labeled_voxel_colour );
+
+    if( status == OK )
+        status = add_new_label( graphics, 0, &Inactive_voxel_colour );
 
     initialize_segmenting( &graphics->slice.segmenting );
 
@@ -75,7 +96,7 @@ public  Status  set_slice_window_volume( graphics, volume )
     Status           initialize_voxel_flags();
     Status           initialize_voxel_done_flags();
     Status           update_cursor_size();
-    int              i, c, x_index, y_index, num_entries;
+    int              c, x_index, y_index, num_entries;
     int              size[N_DIMENSIONS];
     Real             factor, min_thickness, max_thickness;
     Real             thickness[N_DIMENSIONS];
@@ -83,6 +104,7 @@ public  Status  set_slice_window_volume( graphics, volume )
     void             get_volume_size();
     void             get_volume_slice_thickness();
     void             rebuild_colour_bar();
+    Status           create_fast_lookup();
 
     graphics->slice.volume = volume;
 
@@ -136,12 +158,16 @@ public  Status  set_slice_window_volume( graphics, volume )
     graphics->slice.fast_lookup_present =
                   (num_entries <= Max_fast_colour_lookup);
 
-    if( status == OK && graphics->slice.fast_lookup_present )
+    if( graphics->slice.fast_lookup_present )
     {
-        for_less( i, 0, NUM_LOOKUPS )
-        {
-            ALLOC( status, graphics->slice.fast_lookup[i], num_entries );
-        }
+        if( status == OK )
+            status = create_fast_lookup( graphics, 0 );
+        if( status == OK )
+            status = create_fast_lookup( graphics, ACTIVE_BIT );
+        if( status == OK )
+            status = create_fast_lookup( graphics, LABEL_BIT );
+        if( status == OK )
+            status = create_fast_lookup( graphics, ACTIVE_BIT | LABEL_BIT );
     }
 
     change_colour_coding_range( graphics,
@@ -181,45 +207,142 @@ public  void  change_colour_coding_range( graphics, min_value, max_value )
     colour_coding_has_changed( graphics );
 }
 
-public  void  rebuild_fast_lookup( graphics )
-    graphics_struct   *graphics;
+public  void  get_slice_colour_coding( slice_window, value, label, colour )
+    graphics_struct   *slice_window;
+    int               value;
+    int               label;
+    Colour            *colour;
 {
-    int              i, val, min_val, max_val;
-    void             set_colour_coding_range();
-    Colour           col, coded_col, mult, scaled_col;
+    Colour           col, mult, scaled_col;
     void             get_colour_coding();
 
-    if( graphics->slice.fast_lookup_present )
+    get_colour_coding( &slice_window->slice.colour_coding, (Real) value,
+                       colour );
+
+    if( label != ACTIVE_BIT )
     {
-        min_val = graphics->slice.volume->min_value;
-        max_val = graphics->slice.volume->max_value;
-   
-        for_less( i, 0, NUM_LOOKUPS )
+        col = slice_window->slice.label_colours[label];
+        MULT_COLOURS( mult, col, *colour );
+        SCALE_COLOUR( mult, mult, 1.0 - slice_window->slice.label_colour_ratio);
+        SCALE_COLOUR( scaled_col, col, slice_window->slice.label_colour_ratio );
+        ADD_COLOURS( *colour, mult, scaled_col );
+    }
+}
+
+public  Status  create_fast_lookup( slice_window, label )
+    graphics_struct   *slice_window;
+    int               label;
+{
+    Status   status;
+
+    ALLOC( status, slice_window->slice.fast_lookup[label], 
+                   slice_window->slice.volume->max_value -
+                   slice_window->slice.volume->min_value + 1 );
+
+    return( status );
+}
+
+public  Status  add_new_label( slice_window, label, colour )
+    graphics_struct   *slice_window;
+    int               label;
+    Colour            *colour;
+{
+    Status   status;
+    void     rebuild_fast_lookup_for_label();
+
+    status = OK;
+
+    slice_window->slice.label_colours[label] = *colour;
+    slice_window->slice.label_colours_used[label] = TRUE;
+
+    if( slice_window->slice.fast_lookup_present )
+    {
+        if( slice_window->slice.fast_lookup[label] == (Pixel_colour *) 0 )
+            status = create_fast_lookup( slice_window, label );
+
+        if( status == OK )
+            rebuild_fast_lookup_for_label( slice_window, label );
+    }
+
+    return( status );
+}
+
+public  int  lookup_label_colour( slice_window, colour )
+    graphics_struct   *slice_window;
+    Colour            *colour;
+{
+    Boolean   found_colour, found_empty;
+    int       i, first_empty, label;
+    Status    add_new_label();
+
+    found_colour = FALSE;
+    found_empty = FALSE;
+
+    for_inclusive( i, 1, LOWER_AUXILIARY_BITS )
+    {
+        label = i | ACTIVE_BIT;
+
+        if( slice_window->slice.label_colours_used[label] )
         {
-            switch( i )
+            if( equal_colours( &slice_window->slice.label_colours[label],
+                               colour ) )
             {
-            case 0:   col = WHITE;  break;
-            case 1:   col = Inactive_voxel_colour;  break;
-            case 2:   col = Labeled_voxel_colour;  break;
-            case 3:   col = Inactive_and_labeled_voxel_colour;  break;
+                found_colour = TRUE;
+                break;
             }
+        }
+        else if( !found_empty )
+        {
+            found_empty = TRUE;
+            first_empty = label;
+        }
+    }
 
-            for_inclusive( val, min_val, max_val )
-            {
-                get_colour_coding( &graphics->slice.colour_coding,
-                                   (Real) val, &coded_col );
+    if( !found_colour )
+    {
+        if( found_empty )
+        {
+            label = first_empty;
+            (void) add_new_label( slice_window, label, colour );
+        }
+        else
+            label = (ACTIVE_BIT | LABEL_BIT);
+    }
 
-                if( i != 0 )
-                {
-                    MULT_COLOURS( mult, col, coded_col );
-                    SCALE_COLOUR( mult, mult, 1.0 - Label_colour_display_ratio);
-                    SCALE_COLOUR( scaled_col, col, Label_colour_display_ratio );
-                    ADD_COLOURS( coded_col, mult, scaled_col );
-                }
+    return( label );
+}
 
-                COLOUR_TO_PIXEL( coded_col,
-                                 graphics->slice.fast_lookup[i][val-min_val] );
-            }
+public  void  rebuild_fast_lookup_for_label( slice_window, label )
+    graphics_struct   *slice_window;
+    int               label;
+{
+    int              val, min_val, max_val;
+    Colour           colour;
+    void             get_colour_coding();
+
+    min_val = slice_window->slice.volume->min_value;
+    max_val = slice_window->slice.volume->max_value;
+   
+    for_inclusive( val, min_val, max_val )
+    {
+        get_slice_colour_coding( slice_window, val, label, &colour);
+
+        COLOUR_TO_PIXEL( colour,
+                slice_window->slice.fast_lookup[label][val-min_val] );
+    }
+}
+
+public  void  rebuild_fast_lookup( slice_window )
+    graphics_struct   *slice_window;
+{
+    int              label;
+
+    if( slice_window->slice.fast_lookup_present )
+    {
+        for_less( label, 0, NUM_LABELS )
+        {
+            if( slice_window->slice.fast_lookup[label] != (Pixel_colour *) 0 )
+                rebuild_fast_lookup_for_label( slice_window, label );
         }
     }
 }
@@ -261,8 +384,11 @@ public  Status  delete_slice_window( slice_window )
 
     if( status == OK && slice_window->fast_lookup_present )
     {
-        for_less( i, 0, NUM_LOOKUPS )
-            FREE( status, slice_window->fast_lookup[i] );
+        for_less( i, 0, NUM_LABELS )
+        {
+            if( slice_window->fast_lookup[i] != (Pixel_colour *) 0 )
+                FREE( status, slice_window->fast_lookup[i] );
+        }
     }
 
     return( status );

@@ -317,7 +317,6 @@ public  DEF_MENU_FUNCTION( create_film_loop )      /* ARGSUSED */
     if( input_string( stdin, base_filename, MAX_STRING_LENGTH, ' ' ) == OK &&
         input_int( stdin, &axis_index ) == OK &&
         input_int( stdin, &n_steps ) == OK &&
-        input_newline( stdin ) == OK &&
         axis_index >= 0 && axis_index < N_DIMENSIONS && n_steps > 1 )
     {
         status = start_film_loop( graphics, base_filename, axis_index,
@@ -328,6 +327,8 @@ public  DEF_MENU_FUNCTION( create_film_loop )      /* ARGSUSED */
         PRINT_ERROR( "Invalid values.\n" );
         status = ERROR;
     }
+
+    (void) input_newline( stdin );
 
     return( status );
 }

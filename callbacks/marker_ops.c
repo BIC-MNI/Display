@@ -65,7 +65,8 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
     object_struct   *object;
     Boolean         get_voxel_corresponding_to_point();
     void            get_position_pointed_to();
-    void            regenerate_voxel_labels();
+    void            render_marker_to_volume();
+    void            set_slice_window_update();
 
     status = create_object( &object, MARKER );
 
@@ -85,7 +86,11 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
 
         status = add_object_to_current_model( graphics, object );
 
-        regenerate_voxel_labels( graphics );
+        render_marker_to_volume( graphics, object->ptr.marker );
+
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
     }
 
     return( status );
@@ -187,10 +192,10 @@ public  DEF_MENU_UPDATE(save_markers )   /* ARGSUSED */
 public  void  markers_have_changed( graphics )
     graphics_struct  *graphics;
 {
-    void    regenerate_voxel_labels();
+    void    regenerate_voxel_marker_labels();
     void    graphics_models_have_changed();
 
-    regenerate_voxel_labels( graphics );
+    regenerate_voxel_marker_labels( graphics );
     graphics_models_have_changed( graphics );
 }
 
@@ -603,82 +608,4 @@ public  DEF_MENU_FUNCTION( change_marker_label )   /* ARGSUSED */
 public  DEF_MENU_UPDATE(change_marker_label )   /* ARGSUSED */
 {
     return( OK );
-}
-
-public  void  regenerate_voxel_labels( graphics )
-    graphics_struct   *graphics;
-{
-    Status                  status;
-    object_struct           *object;
-    volume_struct           *volume;
-    object_traverse_struct  object_traverse;
-    Status                  initialize_object_traverse();
-    void                    render_marker_to_volume();
-    void                    set_all_voxel_label_flags();
-    void                    set_slice_window_update();
-
-    if( get_slice_window_volume( graphics, &volume ) )
-    {
-        set_all_voxel_label_flags( volume, FALSE );
-
-        object = graphics->models[THREED_MODEL];
-
-        status = initialize_object_traverse( &object_traverse, 1, &object );
-
-        if( status == OK )
-        {
-            while( get_next_object_traverse(&object_traverse,&object) )
-            {
-                if( object->object_type == MARKER )
-                    render_marker_to_volume( volume, object->ptr.marker );
-            }
-        }
-
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
-    }
-}
-
-private  void  render_marker_to_volume( volume, marker )
-    volume_struct   *volume;
-    marker_struct   *marker;
-{
-    Real    xl, xh, yl, yh, zl, zh;
-    int     xvl, xvh, yvl, yvh, zvl, zvh, x_voxel, y_voxel, z_voxel;
-    void    convert_point_to_voxel();
-    void    set_voxel_label_flag();
-
-    convert_point_to_voxel( volume,
-                            Point_x(marker->position) - marker->size,
-                            Point_y(marker->position) - marker->size,
-                            Point_z(marker->position) - marker->size,
-                            &xl, &yl, &zl );
-
-    convert_point_to_voxel( volume,
-                            Point_x(marker->position) + marker->size,
-                            Point_y(marker->position) + marker->size,
-                            Point_z(marker->position) + marker->size,
-                            &xh, &yh, &zh );
-
-    xvl = CEILING( xl );
-    xvh = (int) xh;
-    yvl = CEILING( yl );
-    yvh = (int) yh;
-    zvl = CEILING( zl );
-    zvh = (int) zh;
-
-    for_inclusive( x_voxel, xvl, xvh )
-    {
-        for_inclusive( y_voxel, yvl, yvh )
-        {
-            for_inclusive( z_voxel, zvl, zvh )
-            {
-                if( voxel_is_within_volume( volume,
-                            (Real) x_voxel, (Real) y_voxel, (Real) z_voxel) )
-                    set_voxel_label_flag( volume, x_voxel, y_voxel, z_voxel,
-                                          TRUE );
-            }
-        }
-    }
 }

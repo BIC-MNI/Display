@@ -21,8 +21,7 @@ public  DEF_MENU_FUNCTION( label_point )   /* ARGSUSED */
 
         status = input_int( stdin, &id );
 
-        if( status == OK )
-            status = input_newline( stdin );
+        (void) input_newline( stdin );
 
         if( status == OK )
             status = add_point_label( graphics->associated[SLICE_WINDOW],
@@ -104,9 +103,9 @@ public  DEF_MENU_FUNCTION( generate_regions )   /* ARGSUSED */
         get_min_max( graphics );
 
     if( min_max_present(graphics) &&
-        get_voxel_under_mouse( graphics, &voxel_index[X_AXIS],
-                               &voxel_index[Y_AXIS],
-                               &voxel_index[Z_AXIS], &voxel_axes[2] ) )
+        get_voxel_under_mouse( graphics, &voxel_index[X],
+                               &voxel_index[Y],
+                               &voxel_index[Z], &voxel_axes[2] ) )
     {
         voxel_axes[0] = (voxel_axes[2] + 1) % N_DIMENSIONS;
         voxel_axes[1] = (voxel_axes[2] + 2) % N_DIMENSIONS;
@@ -188,11 +187,11 @@ private  Boolean  min_max_present( graphics )
 
 public  DEF_MENU_FUNCTION(save_labeled_voxels)   /* ARGSUSED */
 {
-    FILE             *file;
-    Status           status;
-    Status           io_bitlist_3d();
-    volume_struct    *volume;
-    String           filename;
+    FILE               *file;
+    Status             status;
+    Status             io_volume_auxiliary_bit();
+    volume_struct      *volume;
+    String             filename;
 
     status = OK;
 
@@ -202,15 +201,15 @@ public  DEF_MENU_FUNCTION(save_labeled_voxels)   /* ARGSUSED */
 
         status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-        if( status == OK )
-            status = input_newline( stdin );
+        (void) input_newline( stdin );
 
         if( status == OK )
             status = open_file_with_default_suffix( filename, "lbl",
                                           WRITE_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
-            status = io_bitlist_3d( file, WRITE_FILE, &volume->label_flags );
+            status = io_volume_auxiliary_bit( file, WRITE_FILE, volume,
+                                              LABEL_BIT );
 
         if( status == OK )
             status = close_file( file );
@@ -230,7 +229,7 @@ public  DEF_MENU_FUNCTION(load_labeled_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
-    Status           io_bitlist_3d();
+    Status           io_volume_auxiliary_bit();
     volume_struct    *volume;
     String           filename;
     void             set_slice_window_update();
@@ -243,15 +242,15 @@ public  DEF_MENU_FUNCTION(load_labeled_voxels)   /* ARGSUSED */
 
         status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-        if( status == OK )
-            status = input_newline( stdin );
+        (void) input_newline( stdin );
 
         if( status == OK )
             status = open_file_with_default_suffix( filename, "lbl",
                                              READ_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
-            status = io_bitlist_3d( file, READ_FILE, &volume->label_flags );
+            status = io_volume_auxiliary_bit( file, READ_FILE, volume,
+                                              LABEL_BIT );
 
         if( status == OK )
             status = close_file( file );
@@ -278,7 +277,7 @@ public  DEF_MENU_FUNCTION(save_active_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
-    Status           io_bitlist_3d();
+    Status           io_volume_auxiliary_bit();
     volume_struct    *volume;
     String           filename;
 
@@ -290,15 +289,15 @@ public  DEF_MENU_FUNCTION(save_active_voxels)   /* ARGSUSED */
 
         status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-        if( status == OK )
-            status = input_newline( stdin );
+        (void) input_newline( stdin );
 
         if( status == OK )
             status = open_file_with_default_suffix( filename, "act",
                                             WRITE_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
-            status = io_bitlist_3d( file, WRITE_FILE, &volume->active_flags );
+            status = io_volume_auxiliary_bit( file, WRITE_FILE, volume,
+                                              ACTIVE_BIT );
 
         if( status == OK )
             status = close_file( file );
@@ -318,7 +317,7 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
-    Status           io_bitlist_3d();
+    Status           io_volume_auxiliary_bit();
     volume_struct    *volume;
     String           filename;
     void             set_slice_window_update();
@@ -331,15 +330,15 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
 
         status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-        if( status == OK )
-            status = input_newline( stdin );
+        (void) input_newline( stdin );
 
         if( status == OK )
             status = open_file_with_default_suffix( filename, "act", READ_FILE,
                                                     BINARY_FORMAT, &file );
 
         if( status == OK )
-            status = io_bitlist_3d( file, READ_FILE, &volume->active_flags );
+            status = io_volume_auxiliary_bit( file, READ_FILE, volume,
+                                              ACTIVE_BIT );
 
         if( status == OK )
             status = close_file( file );

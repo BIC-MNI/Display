@@ -27,17 +27,17 @@ public  Status  disconnect_components( volume, voxel_indices, axis,
     Boolean       inside;
     Status        label_components();
 
-    get_volume_size( volume, &size[X_AXIS], &size[Y_AXIS], &size[Z_AXIS] );
+    get_volume_size( volume, &size[X], &size[Y], &size[Z] );
 
-    ALLOC2D( status, pixels, size[axis[X_AXIS]], size[axis[Y_AXIS]] );
+    ALLOC2D( status, pixels, size[axis[X]], size[axis[Y]] );
 
-    index[axis[Z_AXIS]] = voxel_indices[axis[Z_AXIS]];
-    for_less( x, 0, size[axis[X_AXIS]] )
+    index[axis[Z]] = voxel_indices[axis[Z]];
+    for_less( x, 0, size[axis[X]] )
     {
-        index[axis[X_AXIS]] = x;
-        for_less( y, 0, size[axis[Y_AXIS]] )
+        index[axis[X]] = x;
+        for_less( y, 0, size[axis[Y]] )
         {
-            index[axis[Y_AXIS]] = y;
+            index[axis[Y]] = y;
 
             if( get_voxel_activity_flag( volume, index[0], index[1], index[2]))
             {
@@ -55,23 +55,23 @@ public  Status  disconnect_components( volume, voxel_indices, axis,
 
     for_less( i, 0, n_labels )
     {
-        if( labels[i].voxel_indices[axis[Z_AXIS]] == voxel_indices[Z_AXIS] )
+        if( labels[i].voxel_indices[axis[Z]] == voxel_indices[Z] )
         {
-            pixels[labels[i].voxel_indices[axis[X_AXIS]]]
-                  [labels[i].voxel_indices[axis[Y_AXIS]]].label = labels[i].id;
+            pixels[labels[i].voxel_indices[axis[X]]]
+                  [labels[i].voxel_indices[axis[Y]]].label = labels[i].id;
         }
     }
 
-    status = label_components( size[axis[X_AXIS]], size[axis[Y_AXIS]], pixels,
+    status = label_components( size[axis[X]], size[axis[Y]], pixels,
                                REGION_OF_INTEREST );
 
-    index[axis[Z_AXIS]] = voxel_indices[axis[Z_AXIS]];
-    for_less( x, 0, size[axis[X_AXIS]] )
+    index[axis[Z]] = voxel_indices[axis[Z]];
+    for_less( x, 0, size[axis[X]] )
     {
-        index[axis[X_AXIS]] = x;
-        for_less( y, 0, size[axis[Y_AXIS]] )
+        index[axis[X]] = x;
+        for_less( y, 0, size[axis[Y]] )
         {
-            index[axis[Y_AXIS]] = y;
+            index[axis[Y]] = y;
 
             if( pixels[x][y].inside )
             {

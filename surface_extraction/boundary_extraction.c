@@ -31,20 +31,20 @@ public  Status  extract_boundary_of_labeled_voxels( volume, polygons )
     polygons->colour_flag = ONE_COLOUR;
     get_default_surfprop( &polygons->surfprop );
 
-    get_volume_size( volume, &sizes[X_AXIS], &sizes[Y_AXIS], &sizes[Z_AXIS] );
+    get_volume_size( volume, &sizes[X], &sizes[Y], &sizes[Z] );
 
     if( status == OK )
         status = initialize_point_lookup( &point_lookup );
 
     initialize_progress_report( &progress, FALSE,
-                         sizes[X_AXIS] * sizes[Y_AXIS] * sizes[Z_AXIS],
+                         sizes[X] * sizes[Y] * sizes[Z],
                          "Extracting boundary" );
 
-    for_less( indices[Z_AXIS], 0, sizes[Z_AXIS] )
+    for_less( indices[Z], 0, sizes[Z] )
     {
-        for_less( indices[X_AXIS], 0, sizes[X_AXIS] )
+        for_less( indices[X], 0, sizes[X] )
         {
-            for_less( indices[Y_AXIS], 0, sizes[Y_AXIS] )
+            for_less( indices[Y], 0, sizes[Y] )
             {
                 for_less( c, 0, N_DIMENSIONS )
                 {
@@ -60,8 +60,8 @@ public  Status  extract_boundary_of_labeled_voxels( volume, polygons )
                 }
             }
 
-            update_progress_report( &progress, sizes[Y_AXIS] *
-                     (indices[X_AXIS]+1 + indices[Z_AXIS] * sizes[X_AXIS]) );
+            update_progress_report( &progress, sizes[Y] *
+                     (indices[X]+1 + indices[Z] * sizes[X]) );
         }
 
         PRINT( "N points: %d    N polygons: %d\n", polygons->n_points,

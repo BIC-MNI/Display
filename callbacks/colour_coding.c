@@ -23,7 +23,6 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
 
         if( input_real( stdin, &min_value ) == OK &&
             input_real( stdin, &max_value ) == OK &&
-            input_newline( stdin ) == OK &&
             min_value <= max_value )
         {
             change_colour_coding_range( slice_window, min_value, max_value );
@@ -32,6 +31,8 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
                    slice_window->slice.colour_coding.min_value,
                    slice_window->slice.colour_coding.max_value );
         }
+
+        (void) input_newline( stdin );
     }
 
     return( OK );
@@ -327,6 +328,54 @@ public  DEF_MENU_UPDATE(set_user_defined_max_colour )   /* ARGSUSED */
         col = &slice_window->slice.colour_coding.user_defined_max_colour;
 
     set_menu_text_with_colour( menu_window, menu_entry, label, col );
+
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(set_label_colour_ratio )   /* ARGSUSED */
+{
+    volume_struct    *volume;
+    Real             ratio;
+    graphics_struct  *slice_window;
+    void             colour_coding_has_changed();
+
+    if( get_current_volume(graphics,&volume) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        PRINT( "Enter new label colour ratio: " );
+
+        if( input_real( stdin, &ratio ) == OK &&
+            ratio >= 0.0 && ratio <= 1.0 )
+        {
+            slice_window->slice.label_colour_ratio = ratio;
+    
+            colour_coding_has_changed( slice_window );
+        }
+
+        (void) input_newline( stdin );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_label_colour_ratio )   /* ARGSUSED */
+{
+    String           text;
+    Real             ratio;
+    graphics_struct  *slice_window;
+    void             set_menu_text();
+
+    slice_window = graphics->associated[SLICE_WINDOW];
+
+    if( slice_window == (graphics_struct *) 0 )
+        ratio = 0.0;
+    else
+        ratio = graphics->associated[SLICE_WINDOW]->slice.label_colour_ratio;
+
+    (void) sprintf( text, label, ratio );
+
+    set_menu_text( menu_window, menu_entry, text );
 
     return( OK );
 }

@@ -117,9 +117,9 @@ private  Boolean  find_close_voxel_containing_value( volume, voxel_done_flags,
 
     get_volume_size( volume, &nx, &ny, &nz );
 
-    insert.i[X_AXIS] = MIN( x, nx-2 );
-    insert.i[Y_AXIS] = MIN( y, ny-2 );
-    insert.i[Z_AXIS] = MIN( z, nz-2 );
+    insert.i[X] = MIN( x, nx-2 );
+    insert.i[Y] = MIN( y, ny-2 );
+    insert.i[Z] = MIN( z, nz-2 );
 
     found = FALSE;
 
@@ -142,25 +142,25 @@ private  Boolean  find_close_voxel_containing_value( volume, voxel_done_flags,
         get_next_voxel_from_queue( &voxels_to_check, &indices );
 
         voxel_contains = voxel_contains_value( volume,
-                                               indices.i[X_AXIS],
-                                               indices.i[Y_AXIS],
-                                               indices.i[Z_AXIS], value );
+                                               indices.i[X],
+                                               indices.i[Y],
+                                               indices.i[Z], value );
 
         voxel_done = get_voxel_done_flag( volume, voxel_done_flags, &indices );
 
         if( voxel_contains && !voxel_done )
         {
-            found_indices->i[X_AXIS] = indices.i[X_AXIS];
-            found_indices->i[Y_AXIS] = indices.i[Y_AXIS];
-            found_indices->i[Z_AXIS] = indices.i[Z_AXIS];
+            found_indices->i[X] = indices.i[X];
+            found_indices->i[Y] = indices.i[Y];
+            found_indices->i[Z] = indices.i[Z];
             found = TRUE;
         }
         else if( voxel_contains || !voxel_done )
         {
             add_voxel_neighbours( volume,
-                                  indices.i[X_AXIS],
-                                  indices.i[Y_AXIS],
-                                  indices.i[Z_AXIS],
+                                  indices.i[X],
+                                  indices.i[Y],
+                                  indices.i[Z],
                                   (Boolean) voxel_done, value,
                                   surface_extraction,
                                   &voxels_searched, &voxels_to_check );
@@ -242,18 +242,18 @@ public  Status  extract_more_surface( graphics )
             if( status == OK && Display_surface_in_slices )
             {
                 label_voxel_as_done( volume,
-                                     voxel_index.i[X_AXIS],
-                                     voxel_index.i[Y_AXIS],
-                                     voxel_index.i[Z_AXIS] );
+                                     voxel_index.i[X],
+                                     voxel_index.i[Y],
+                                     voxel_index.i[Z] );
             }
 
             if( status == OK )
             {
                 add_voxel_neighbours(
                         volume,
-                        voxel_index.i[X_AXIS],
-                        voxel_index.i[Y_AXIS],
-                        voxel_index.i[Z_AXIS],
+                        voxel_index.i[X],
+                        voxel_index.i[Y],
+                        voxel_index.i[Z],
                         TRUE, surface_extraction->isovalue,
                         surface_extraction,
                         &surface_extraction->voxels_queued,
@@ -293,32 +293,32 @@ private  void  add_voxel_neighbours( volume, x, y, z, surface_only, isovalue,
 
     for_inclusive( x_offset, -1, 1 )
     {
-        neighbour.i[X_AXIS] = x + x_offset;
+        neighbour.i[X] = x + x_offset;
 
         for_inclusive( y_offset, -1, 1 )
         {
-            neighbour.i[Y_AXIS] = y + y_offset;
+            neighbour.i[Y] = y + y_offset;
             for_inclusive( z_offset, -1, 1 )
             {
-                neighbour.i[Z_AXIS] = z + z_offset;
+                neighbour.i[Z] = z + z_offset;
                 if( (x_offset != 0 || y_offset != 0 || z_offset != 0) &&
                     cube_is_within_volume( volume,
-                                           neighbour.i[X_AXIS],
-                                           neighbour.i[Y_AXIS],
-                                           neighbour.i[Z_AXIS] ) &&
+                                           neighbour.i[X],
+                                           neighbour.i[Y],
+                                           neighbour.i[Z] ) &&
                     cube_is_within_distance( surface_extraction,
-                                             neighbour.i[X_AXIS],
-                                             neighbour.i[Y_AXIS],
-                                             neighbour.i[Z_AXIS] ) &&
+                                             neighbour.i[X],
+                                             neighbour.i[Y],
+                                             neighbour.i[Z] ) &&
                     !get_voxel_flag( volume, voxels_queued, &neighbour ) )
                 {
                     status = set_voxel_flag( volume, voxels_queued, &neighbour);
                     if( status == OK &&
                         (!surface_only ||
                          voxel_contains_value( volume,
-                                               neighbour.i[X_AXIS],
-                                               neighbour.i[Y_AXIS],
-                                               neighbour.i[Z_AXIS],
+                                               neighbour.i[X],
+                                               neighbour.i[Y],
+                                               neighbour.i[Z],
                                                isovalue )) )
                     {
                         status = insert_in_voxel_queue( voxel_queue,&neighbour);
@@ -405,16 +405,16 @@ private  Status  delete_edge_points_no_longer_needed( volume, voxel_index,
 
     for_inclusive( dx, -1, 1 )
     {
-        indices.i[X_AXIS] = voxel_index->i[X_AXIS] + dx;
+        indices.i[X] = voxel_index->i[X] + dx;
         for_inclusive( dy, -1, 1 )
         {
-            indices.i[Y_AXIS] = voxel_index->i[Y_AXIS] + dy;
+            indices.i[Y] = voxel_index->i[Y] + dy;
             for_inclusive( dz, -1, 1 )
             {
-                indices.i[Z_AXIS] = voxel_index->i[Z_AXIS] + dz;
+                indices.i[Z] = voxel_index->i[Z] + dz;
 
-                if( !cube_is_within_volume( volume, indices.i[X_AXIS],
-                             indices.i[Y_AXIS], indices.i[Z_AXIS] ) ||
+                if( !cube_is_within_volume( volume, indices.i[X],
+                             indices.i[Y], indices.i[Z] ) ||
                     get_voxel_done_flag( volume, voxel_done_flags, &indices )
                     == VOXEL_COMPLETELY_DONE )
                 {
@@ -447,9 +447,9 @@ private  Status  delete_edge_points_no_longer_needed( volume, voxel_index,
                         indices.i[a1] = x+dx;
                         indices.i[a2] = y+dy;
 
-                        if( !voxel_done[indices.i[X_AXIS]]
-                                       [indices.i[Y_AXIS]]
-                                       [indices.i[Z_AXIS]] )
+                        if( !voxel_done[indices.i[X]]
+                                       [indices.i[Y]]
+                                       [indices.i[Z]] )
                         {
                             all_four_done = FALSE;
                             break;

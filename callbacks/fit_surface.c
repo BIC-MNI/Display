@@ -188,8 +188,7 @@ public  DEF_MENU_FUNCTION(save_surface_points)   /* ARGSUSED */
 
     status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-    if( status == OK )
-        status = input_newline( stdin );
+    (void) input_newline( stdin );
 
     if( status == OK )
         status = open_file_with_default_suffix( filename, "obj", WRITE_FILE,
@@ -235,8 +234,7 @@ public  DEF_MENU_FUNCTION(load_surface_points)   /* ARGSUSED */
 
     status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-    if( status == OK )
-        status = input_newline( stdin );
+    (void) input_newline( stdin );
 
     if( status == OK )
         status = open_file_with_default_suffix( filename, "obj", READ_FILE,
@@ -442,8 +440,7 @@ public  DEF_MENU_FUNCTION(load_model_parameters)   /* ARGSUSED */
 
     status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-    if( status == OK )
-        status = input_newline( stdin );
+    (void) input_newline( stdin );
 
     if( status == OK )
         status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
@@ -499,8 +496,7 @@ public  DEF_MENU_FUNCTION(save_model_parameters)   /* ARGSUSED */
 
     status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
-    if( status == OK )
-        status = input_newline( stdin );
+    (void) input_newline( stdin );
 
     if( status == OK )
         status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );

@@ -20,9 +20,9 @@ public  void  initialize_view( view, line_of_sight, horizontal )
     view->desired_aspect = 0.0;
     view->window_width = 1.0;
     view->window_height = 1.0;
-    view->scale_factors[X_AXIS] = 1.0;
-    view->scale_factors[Y_AXIS] = 1.0;
-    view->scale_factors[Z_AXIS] = 1.0;
+    view->scale_factors[X] = 1.0;
+    view->scale_factors[Y] = 1.0;
+    view->scale_factors[Z] = 1.0;
 
     make_identity_transform( &view->modeling_transform );
 }
@@ -196,9 +196,9 @@ public  void  transform_point_to_world( view, p, transformed_point )
     void   transform_point();
     Point  scaled;
 
-    Point_x(scaled) = view->scale_factors[X_AXIS] * Point_x(*p);
-    Point_y(scaled) = view->scale_factors[Y_AXIS] * Point_y(*p);
-    Point_z(scaled) = view->scale_factors[Z_AXIS] * Point_z(*p);
+    Point_x(scaled) = view->scale_factors[X] * Point_x(*p);
+    Point_y(scaled) = view->scale_factors[Y] * Point_y(*p);
+    Point_z(scaled) = view->scale_factors[Z] * Point_z(*p);
 
     transform_point( &view->modeling_transform, &scaled, transformed_point );
 }
@@ -279,9 +279,9 @@ public  void  set_model_scale( view, sx, sy, sz )
     view_struct   *view;
     Real          sx, sy, sz;
 {
-    view->scale_factors[X_AXIS] = sx;
-    view->scale_factors[Y_AXIS] = sy;
-    view->scale_factors[Z_AXIS] = sz;
+    view->scale_factors[X] = sx;
+    view->scale_factors[Y] = sy;
+    view->scale_factors[Z] = sz;
 }
 
 public  void  convert_mouse_to_ray( view, mouse, origin, direction )

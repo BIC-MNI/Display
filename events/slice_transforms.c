@@ -157,7 +157,7 @@ private  Boolean  compute_rotation( graphics, transform )
 
     if( prev_angle != curr_angle )
     {
-        make_rotation_transform( curr_angle - prev_angle, Z_AXIS, transform );
+        make_rotation_transform( curr_angle - prev_angle, Z, transform );
         moved = TRUE;
     }
     else

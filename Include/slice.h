@@ -42,14 +42,17 @@ typedef struct
     int              desired_n_intervals;
 } colour_bar_struct;
 
-#define  NUM_LOOKUPS   4
+#define  NUM_LABELS   (1 << (8*N_AUXILIARY_VOXEL_BYTES) )
 
 typedef  struct
 {
     volume_struct          *volume;
 
     Boolean                fast_lookup_present;
-    Pixel_colour           *fast_lookup[NUM_LOOKUPS];
+    Pixel_colour           *fast_lookup[NUM_LABELS];
+    Real                   label_colour_ratio;
+    Boolean                label_colours_used[NUM_LABELS];
+    Colour                 label_colours[NUM_LABELS];
     colour_coding_struct   colour_coding;
     colour_bar_struct      colour_bar;
 

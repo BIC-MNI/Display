@@ -8,17 +8,19 @@ public  void  regenerate_voxel_marker_labels( graphics )
     graphics_struct   *graphics;
 {
     Status                  status;
+    graphics_struct         *slice_window;
     object_struct           *object;
     volume_struct           *volume;
     object_traverse_struct  object_traverse;
     Status                  initialize_object_traverse();
-    int                     label;
-    void                    render_marker_to_volume();
+    void                    scan_convert_marker();
     void                    set_all_volume_auxiliary_data();
     void                    set_slice_window_update();
 
     if( get_slice_window_volume( graphics, &volume ) )
     {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
         set_all_volume_auxiliary_data( volume, ACTIVE_BIT );
 
         object = graphics->models[THREED_MODEL];
@@ -30,13 +32,8 @@ public  void  regenerate_voxel_marker_labels( graphics )
             while( get_next_object_traverse(&object_traverse,&object) )
             {
                 if( object->object_type == MARKER )
-                {
-                    label = lookup_label_colour(
-                                     graphics->associated[SLICE_WINDOW],
-                                         &object->ptr.marker->colour );
-                    render_marker_to_volume( volume, label,
-                                             object->ptr.marker );
-                }
+                    scan_convert_marker( slice_window, volume,
+                                         object->ptr.marker );
             }
         }
 
@@ -46,15 +43,33 @@ public  void  regenerate_voxel_marker_labels( graphics )
     }
 }
 
-private  void  render_marker_to_volume( volume, label, marker )
-    volume_struct   *volume;
-    int             label;
-    marker_struct   *marker;
+public  void  render_marker_to_volume( graphics, marker )
+    graphics_struct  *graphics;
+    marker_struct    *marker;
+{
+    graphics_struct  *slice_window;
+    volume_struct    *volume;
+    void             scan_convert_marker();
+
+    if( get_slice_window_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+        scan_convert_marker( slice_window, volume, marker );
+    }
+}
+
+private  void  scan_convert_marker( slice_window, volume, marker )
+    graphics_struct  *slice_window;
+    volume_struct    *volume;
+    marker_struct    *marker;
 {
     Real           xl, xh, yl, yh, zl, zh;
     int            xvl, xvh, yvl, yvh, zvl, zvh, x_voxel, y_voxel, z_voxel;
     void           convert_point_to_voxel();
+    int            label;
     unsigned char  *aux_ptr;
+
+    label = lookup_label_colour( slice_window, &marker->colour );
 
     convert_point_to_voxel( volume,
                             Point_x(marker->position) - marker->size,

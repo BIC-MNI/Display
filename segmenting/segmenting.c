@@ -52,9 +52,9 @@ public  Status  add_point_label( slice_window, x, y, z, id )
     label_struct  label;
     void          set_voxel_label_flag();
 
-    label.voxel_indices[X_AXIS] = x;
-    label.voxel_indices[Y_AXIS] = y;
-    label.voxel_indices[Z_AXIS] = z;
+    label.voxel_indices[X] = x;
+    label.voxel_indices[Y] = y;
+    label.voxel_indices[Z] = z;
     label.id = id;
 
     ADD_ELEMENT_TO_ARRAY( status,
