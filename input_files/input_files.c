@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/input_files/input_files.c,v 1.26 1995-10-19 15:51:33 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/input_files/input_files.c,v 1.27 1995-12-19 15:46:21 david Exp $";
 #endif
 
 
@@ -151,7 +151,8 @@ public  Status  load_graphics_file(
 
                 n_items = polygons->n_items;
 
-                if( n_items > Polygon_bintree_threshold )
+                if( Polygon_bintree_threshold >= 0 &&
+                    n_items > Polygon_bintree_threshold )
                 {
                     create_polygons_bintree( polygons,
                               ROUND( (Real) n_items * Bintree_size_factor ) );

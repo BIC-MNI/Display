@@ -11,6 +11,7 @@ root
     transient 'e'      render_3d                    "3D Render"
     transient 'r'      objects                      "Objects"
     transient 't'      file                         "File"
+    transient 'y'      volume_transform             "Volume Transform"
 
     transient 'a'      atlas                        "Atlas"
     transient 's'      slice_view                   "Slice View"
@@ -123,9 +124,6 @@ volume_cropping
     transient 'f'    set_crop_box_filename           "Set Crop Filename"
     transient 'x'    reset_slice_crop                "Reset Crop Position"
     transient 'r'    crop_volume_to_file             "Crop To File"
-
-    transient 'w'    transform_current_volume        "Transform Volume"
-    transient 'e'    reset_volume_transform          "Reset Vol Xform"
 
     transient 'y'    toggle_incremental_slice_update "Increm Update: %s"
 
@@ -408,4 +406,29 @@ translate_labels
     transient 'd'    translate_labels_right           "Trans >"
     transient 'x'    translate_labels_down            "Trans v"
     transient 'a'    translate_labels_arbitrary       "Big Translate"
+}
+
+volume_transform
+{
+    transient 'q'    next_volume_visible             "Visible: %d"
+    transient 'w'    transform_current_volume        "Xform Volume Frm File"
+    transient 'e'    reset_volume_transform          "Reset Vol Xform"
+    transient 'r'    set_volume_translation_step     "Trans Step: %g"
+    transient 't'    set_volume_rotation_step        "Rot Step: %g"
+    transient 'y'    save_current_volume_transform   "Save Volume Xform"
+
+    transient 'a'    translate_volume_plus_x          "Trans + X"
+    transient 's'    translate_volume_plus_y          "Trans + Y"
+    transient 'd'    translate_volume_plus_z          "Trans + Z"
+    transient 'f'    rotate_volume_plus_x             "Rot + X"
+    transient 'g'    rotate_volume_plus_y             "Rot + Y"
+    transient 'h'    rotate_volume_plus_z             "Rot + Z"
+
+    transient 'z'    translate_volume_minus_x          "Trans - X"
+    transient 'x'    translate_volume_minus_y          "Trans - Y"
+    transient 'c'    translate_volume_minus_z          "Trans - Z"
+    transient 'v'    rotate_volume_minus_x             "Rot - X"
+    transient 'b'    rotate_volume_minus_y             "Rot - Y"
+    transient 'n'    rotate_volume_minus_z             "Rot - Z"
+
 }

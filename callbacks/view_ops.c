@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/view_ops.c,v 1.35 1995-10-19 15:50:43 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/view_ops.c,v 1.36 1995-12-19 15:46:17 david Exp $";
 #endif
 
 
@@ -423,7 +423,11 @@ public  DEF_MENU_FUNCTION( save_image )
     if( input_string( stdin, &filename, ' ' ) == OK )
     {
         status = save_window_to_file( display, filename, 0, -1, 0, -1 );
-        print( "Done saving image to %s.\n", filename );
+
+        if( status == OK )
+            print( "Done saving image to %s.\n", filename );
+        else
+            print( "Could not save image to %s.\n", filename );
     }
 
     (void) input_newline( stdin );

@@ -224,7 +224,6 @@ Colour_bar_tick_colour = WHITE;
 Colour_bar_text_colour = WHITE;
 Colour_bar_text_font = 1;
 Colour_bar_text_size = 10.0;
-Colour_bar_limit_colour = Green;
 Colour_bar_desired_intervals = 5;
 Colour_bar_closest_text = 10.0;
 Colour_bar_number_format = "%g";
@@ -243,7 +242,6 @@ Tmp_surface_name = "tmp_surface/tmp_%d.obj";
 
 Marching_cubes_method = 1;
 
-Polygon_bintree_threshold = 100;
 Compute_neighbours_on_input = FALSE;
 Bintree_size_factor = 0.5;
 

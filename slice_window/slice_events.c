@@ -13,9 +13,8 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice_events.c,v 1.39 1995-10-19 15:52:15 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice_events.c,v 1.40 1995-12-19 15:46:35 david Exp $";
 #endif
-
 
 #include  <display.h>
 
@@ -666,9 +665,11 @@ private  void  update_limit(
             }
             else
             {
+#ifdef CANNOT_MOVE_THROUGH_OTHER_LIMIT
                 if( value > max_value ) 
                     min_value = max_value;
                 else
+#endif
                     min_value = value;
             }
         }
@@ -681,13 +682,16 @@ private  void  update_limit(
             }
             else
             {
+#ifdef CANNOT_MOVE_THROUGH_OTHER_LIMIT
                 if( value < min_value ) 
                     max_value = min_value;
                 else
+#endif
                     max_value = value;
             }
         }
 
+#ifdef CANNOT_MOVE_OUTSIDE_VOLUME_RANGE
         if( fixed_range_flag )
         {
             if( min_value < volume_min )
@@ -702,6 +706,7 @@ private  void  update_limit(
                 max_value = volume_max;
             }
         }
+#endif
 
         change_colour_coding_range( slice_window,
                 get_current_volume_index(slice_window), min_value, max_value );
@@ -769,7 +774,7 @@ private  BOOLEAN  get_nearest_mouse_colour_bar_value(
 private  BOOLEAN  mouse_is_near_low_limit(
     display_struct   *slice_window )
 {
-    Real                  value;
+    Real                  value, min_value, max_value;
     BOOLEAN               near;
     colour_coding_struct  *colour_coding;
 
@@ -779,7 +784,13 @@ private  BOOLEAN  mouse_is_near_low_limit(
     {
         colour_coding = &slice_window->slice.volumes
                        [get_current_volume_index(slice_window)].colour_coding;
-        if( value < (colour_coding->min_value+colour_coding->max_value)/2.0 )
+
+        get_colour_coding_min_max( colour_coding, &min_value, &max_value );
+
+        if( min_value <= max_value &&
+            value < (colour_coding->min_value+colour_coding->max_value)/2.0 ||
+            min_value > max_value &&
+            value > (colour_coding->min_value+colour_coding->max_value)/2.0 )
             near = TRUE;
     }
 
@@ -789,7 +800,7 @@ private  BOOLEAN  mouse_is_near_low_limit(
 private  BOOLEAN  mouse_is_near_high_limit(
     display_struct   *slice_window )
 {
-    Real                  value;
+    Real                  value, min_value, max_value;
     BOOLEAN               near;
     colour_coding_struct  *colour_coding;
 
@@ -799,7 +810,13 @@ private  BOOLEAN  mouse_is_near_high_limit(
     {
         colour_coding = &slice_window->slice.volumes
                        [get_current_volume_index(slice_window)].colour_coding;
-        if( value > (colour_coding->min_value+colour_coding->max_value)/2.0 )
+
+        get_colour_coding_min_max( colour_coding, &min_value, &max_value );
+
+        if( min_value <= max_value &&
+            value > (colour_coding->min_value+colour_coding->max_value)/2.0 ||
+            min_value > max_value &&
+            value < (colour_coding->min_value+colour_coding->max_value)/2.0 )
             near = TRUE;
     }
 

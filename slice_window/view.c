@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.36 1995-10-19 20:42:30 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.37 1995-12-19 15:46:36 david Exp $";
 #endif
 
 
@@ -157,8 +157,9 @@ private  void  match_view_scale_and_translation(
     int               ref_volume_index )
 {
     Volume  volume;
-    int     volume_index;
+    int     volume_index, axis;
     Real    separations[MAX_DIMENSIONS];
+    Real    ref_x_axis[N_DIMENSIONS], ref_y_axis[N_DIMENSIONS];
     Real    x_axis_x, x_axis_y, x_axis_z, y_axis_x, y_axis_y, y_axis_z;
     Real    x_len, y_len, current_x_len, current_y_len;
     Real    x_offset, y_offset;
@@ -167,7 +168,6 @@ private  void  match_view_scale_and_translation(
     Real    x_scale, y_scale, x_trans, y_trans;
     Real    origin[MAX_DIMENSIONS];
     Real    x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
-    Real    scaled_x_axis[MAX_DIMENSIONS], scaled_y_axis[MAX_DIMENSIONS];
     Real    current_x_scale, current_y_scale;
 
     if( get_n_volumes(slice_window) == 0 )
@@ -181,35 +181,59 @@ private  void  match_view_scale_and_translation(
     get_volume_separations( get_nth_volume(slice_window,ref_volume_index),
                             separations );
 
-    scaled_x_axis[0] = slice_window->slice.volumes[ref_volume_index].
-                           views[view].x_axis[0] / ABS(separations[0]);
-    scaled_x_axis[1] = slice_window->slice.volumes[ref_volume_index].
-                           views[view].x_axis[1] / ABS(separations[1]);
-    scaled_x_axis[2] = slice_window->slice.volumes[ref_volume_index].
-                           views[view].x_axis[2] / ABS(separations[2]);
+    for_less( axis, 0, N_DIMENSIONS )
+    {
+        x_axis[axis] = slice_window->slice.volumes[ref_volume_index].
+                           views[view].x_axis[axis];
+        y_axis[axis] = slice_window->slice.volumes[ref_volume_index].
+                           views[view].y_axis[axis];
+    }
+
+    x_len = 0.0;
+    y_len = 0.0;
+    for_less( axis, 0, N_DIMENSIONS )
+    {
+        x_len += x_axis[axis] * x_axis[axis] *
+                 separations[axis] * separations[axis];
+        y_len += y_axis[axis] * y_axis[axis] *
+                 separations[axis] * separations[axis];
+    }
+
+    x_len = sqrt( x_len );
+    if( x_len == 0.0 )
+        x_len = 1.0;
+
+    y_len = sqrt( y_len );
+    if( y_len == 0.0 )
+        y_len = 1.0;
+
+    for_less( axis, 0, N_DIMENSIONS )
+    {
+        x_axis[axis] /= x_len;
+        y_axis[axis] /= y_len;
+    }
+
     convert_voxel_vector_to_world( get_nth_volume(slice_window,
                                                   ref_volume_index),
-                                   scaled_x_axis,
-                                   &x_axis_x, &x_axis_y, &x_axis_z );
-
-    scaled_y_axis[0] = slice_window->slice.volumes[ref_volume_index].
-                           views[view].y_axis[0] / ABS(separations[0]);
-    scaled_y_axis[1] = slice_window->slice.volumes[ref_volume_index].
-                           views[view].y_axis[1] / ABS(separations[1]);
-    scaled_y_axis[2] = slice_window->slice.volumes[ref_volume_index].
-                           views[view].y_axis[2] / ABS(separations[2]);
+                                   x_axis,
+                                   &ref_x_axis[X], &ref_x_axis[Y],
+                                   &ref_x_axis[Z] );
 
     convert_voxel_vector_to_world( get_nth_volume(slice_window,
                                                   ref_volume_index),
-                                   scaled_y_axis,
-                                   &y_axis_x, &y_axis_y, &y_axis_z );
+                                   y_axis,
+                                   &ref_y_axis[X], &ref_y_axis[Y],
+                                   &ref_y_axis[Z] );
 
-    current_x_len = sqrt( x_axis_x * x_axis_x + x_axis_y * x_axis_y +
-                          x_axis_z * x_axis_z );
+    current_x_len = sqrt( ref_x_axis[X] * ref_x_axis[X] +
+                          ref_x_axis[Y] * ref_x_axis[Y] +
+                          ref_x_axis[Z] * ref_x_axis[Z] );
     if( current_x_len == 0.0 )
         current_x_len = 1.0;
-    current_y_len = sqrt( y_axis_x * y_axis_x + y_axis_y * y_axis_y +
-                          y_axis_z * y_axis_z );
+
+    current_y_len = sqrt( ref_y_axis[X] * ref_y_axis[X] +
+                          ref_y_axis[Y] * ref_y_axis[Y] +
+                          ref_y_axis[Z] * ref_y_axis[Z] );
     if( current_y_len == 0.0 )
         current_y_len = 1.0;
 
@@ -218,45 +242,83 @@ private  void  match_view_scale_and_translation(
         if( volume_index == ref_volume_index )
             continue;
 
-        get_volume_separations( get_nth_volume(slice_window,volume_index),
-                                separations );
+        volume = get_nth_volume( slice_window, volume_index );
 
-        scaled_x_axis[0] = slice_window->slice.volumes[volume_index].
-                               views[view].x_axis[0] / ABS(separations[0]);
-        scaled_x_axis[1] = slice_window->slice.volumes[volume_index].
-                               views[view].x_axis[1] / ABS(separations[1]);
-        scaled_x_axis[2] = slice_window->slice.volumes[volume_index].
-                               views[view].x_axis[2] / ABS(separations[2]);
+        get_volume_separations( volume, separations );
 
-        convert_voxel_vector_to_world( get_nth_volume(slice_window,
-                                                      volume_index),
-                                       scaled_x_axis,
+        for_less( axis, 0, N_DIMENSIONS )
+        {
+            x_axis[axis] = slice_window->slice.volumes[volume_index].
+                           views[view].x_axis[axis];
+            y_axis[axis] = slice_window->slice.volumes[volume_index].
+                           views[view].y_axis[axis];
+        }
+
+        x_len = 0.0;
+        y_len = 0.0;
+        for_less( axis, 0, N_DIMENSIONS )
+        {
+            x_len += x_axis[axis] * x_axis[axis] *
+                     separations[axis] * separations[axis];
+            y_len += y_axis[axis] * y_axis[axis] *
+                     separations[axis] * separations[axis];
+        }
+
+        x_len = sqrt( x_len );
+        if( x_len == 0.0 )
+            x_len = 1.0;
+
+        y_len = sqrt( y_len );
+        if( y_len == 0.0 )
+            y_len = 1.0;
+
+        for_less( axis, 0, N_DIMENSIONS )
+        {
+            x_axis[axis] /= x_len;
+            y_axis[axis] /= y_len;
+        }
+
+        convert_voxel_vector_to_world( volume, x_axis,
                                        &x_axis_x, &x_axis_y, &x_axis_z );
-
-        scaled_y_axis[0] = slice_window->slice.volumes[volume_index].
-                               views[view].y_axis[0] / ABS(separations[0]);
-        scaled_y_axis[1] = slice_window->slice.volumes[volume_index].
-                               views[view].y_axis[1] / ABS(separations[1]);
-        scaled_y_axis[2] = slice_window->slice.volumes[volume_index].
-                               views[view].y_axis[2] / ABS(separations[2]);
-
-        convert_voxel_vector_to_world( get_nth_volume(slice_window,
-                                                      volume_index),
-                                       scaled_y_axis,
+        convert_voxel_vector_to_world( volume, y_axis,
                                        &y_axis_x, &y_axis_y, &y_axis_z );
 
         x_len = sqrt( x_axis_x * x_axis_x + x_axis_y * x_axis_y +
                       x_axis_z * x_axis_z );
+        if( x_len == 0.0 )
+            x_len = 1.0;
         y_len = sqrt( y_axis_x * y_axis_x + y_axis_y * y_axis_y +
                       y_axis_z * y_axis_z );
+        if( y_len == 0.0 )
+            y_len = 1.0;
 
         x_scale = current_x_scale * x_len / current_x_len;
         y_scale = current_y_scale * y_len / current_y_len;
 
+#define DEBUG
+#ifdef DEBUG
+#define  TOL 1.0e-3
+
+        if( !numerically_close( current_x_scale * ref_x_axis[X], x_scale * x_axis_x, TOL ) ||
+            !numerically_close( current_x_scale * ref_x_axis[Y], x_scale * x_axis_y, TOL ) ||
+            !numerically_close( current_x_scale * ref_x_axis[Z], x_scale * x_axis_z, TOL ) ||
+            !numerically_close( current_y_scale * ref_y_axis[X], y_scale * y_axis_x, TOL ) ||
+            !numerically_close( current_y_scale * ref_y_axis[Y], y_scale * y_axis_y, TOL ) ||
+            !numerically_close( current_y_scale * ref_y_axis[Z], y_scale * y_axis_z, TOL ) )
+        {
+            print( "Error:  %g %g %g\n", current_x_scale * ref_x_axis[X], current_x_scale * ref_x_axis[Y],
+                   current_x_scale * ref_x_axis[Z] );
+            print( "     :  %g %g %g\n", x_scale * x_axis_x,
+                   x_scale * x_axis_y, x_scale * x_axis_z );
+            print( "Error:  %g %g %g\n", current_y_scale * ref_y_axis[X], current_y_scale * ref_y_axis[Y],
+                   current_y_scale * ref_y_axis[Z] );
+            print( "     :  %g %g %g\n", y_scale * y_axis_x,
+                   y_scale * y_axis_y, y_scale * y_axis_z );
+        }
+#endif
+
         get_slice_plane( slice_window, volume_index, view,
                          origin, x_axis, y_axis );
-
-        volume = get_nth_volume( slice_window, volume_index );
 
         convert_voxel_to_world( volume, origin, &xw, &yw, &zw );
         convert_world_to_voxel( get_nth_volume(slice_window,ref_volume_index),
@@ -274,6 +336,27 @@ private  void  match_view_scale_and_translation(
                                                                 x_scale;
         slice_window->slice.volumes[volume_index].views[view].y_scaling =
                                                                 y_scale;
+
+#ifdef DEBUG
+{
+    Real  test_x_offset, test_y_offset;
+
+    get_slice_plane( slice_window, volume_index, view,
+                     origin, x_axis, y_axis );
+    convert_voxel_to_world( volume, origin, &xw, &yw, &zw );
+    convert_world_to_voxel( volume, xw, yw, zw, current_voxel );
+    convert_voxel_to_pixel( slice_window, volume_index,
+                            view, current_voxel,
+                            &test_x_offset, &test_y_offset );
+
+    if( !numerically_close( test_x_offset, x_offset, TOL ) ||
+        !numerically_close( test_y_offset, y_offset, TOL ) )
+    {
+        print( "Offsets: %g\t%g\n", x_offset, y_offset );
+        print( "         %g\t%g\n", test_x_offset, test_y_offset );
+    }
+}
+#endif
     }
 
     slice_view_has_changed( slice_window, view );
@@ -1509,79 +1592,56 @@ private  void  update_all_slice_axes(
     int               volume_index,
     int               view_index )
 {
-    int    v;
+    int    v, axis;
     Real   x_axis_x, x_axis_y, x_axis_z, y_axis_x, y_axis_y, y_axis_z;
-    Real   mag, x_axis[N_DIMENSIONS], y_axis[N_DIMENSIONS];
-    Real   scaled_x_axis[N_DIMENSIONS], scaled_y_axis[N_DIMENSIONS];
-    Real   separations[N_DIMENSIONS];
+    Real   x_mag, y_mag, x_axis[N_DIMENSIONS], y_axis[N_DIMENSIONS];
 
-    get_volume_separations( get_nth_volume(slice_window,volume_index),
-                            separations );
-
-    scaled_x_axis[0] = slice_window->slice.volumes[volume_index].
-                           views[view_index].x_axis[0];
-    scaled_x_axis[1] = slice_window->slice.volumes[volume_index].
-                           views[view_index].x_axis[1];
-    scaled_x_axis[2] = slice_window->slice.volumes[volume_index].
-                           views[view_index].x_axis[2];
+    for_less( axis, 0, N_DIMENSIONS )
+    {
+        x_axis[axis] = slice_window->slice.volumes[volume_index].
+                     views[view_index].x_axis[axis];
+        y_axis[axis] = slice_window->slice.volumes[volume_index].
+                     views[view_index].y_axis[axis];
+    }
 
     convert_voxel_vector_to_world( get_nth_volume(slice_window,volume_index),
-                                   scaled_x_axis,
-                                   &x_axis_x, &x_axis_y, &x_axis_z );
-
-    scaled_y_axis[0] = slice_window->slice.volumes[volume_index].
-                           views[view_index].y_axis[0];
-    scaled_y_axis[1] = slice_window->slice.volumes[volume_index].
-                           views[view_index].y_axis[1];
-    scaled_y_axis[2] = slice_window->slice.volumes[volume_index].
-                           views[view_index].y_axis[2];
+                                   x_axis, &x_axis_x, &x_axis_y, &x_axis_z );
 
     convert_voxel_vector_to_world( get_nth_volume(slice_window,volume_index),
-                                   scaled_y_axis,
-                                   &y_axis_x, &y_axis_y, &y_axis_z );
+                                   y_axis, &y_axis_x, &y_axis_y, &y_axis_z );
 
     for_less( v, 0, slice_window->slice.n_volumes )
     {
         if( v == volume_index )
             continue;
 
-        get_volume_separations( get_nth_volume(slice_window,v), separations );
-
         convert_world_vector_to_voxel(get_nth_volume(slice_window,v),
                                       x_axis_x, x_axis_y, x_axis_z, x_axis );
-
         convert_world_vector_to_voxel(get_nth_volume(slice_window,v),
                                       y_axis_x, y_axis_y, y_axis_z, y_axis );
 
-        mag = sqrt( x_axis[0] * x_axis[0] + x_axis[1] * x_axis[1] +
-                    x_axis[2] * x_axis[2] );
+        x_mag = sqrt( x_axis[X] * x_axis[X] + x_axis[Y] * x_axis[Y] +
+                      x_axis[Z] * x_axis[Z] );
 
-        if( mag == 0.0 )
-            mag = 1.0;
+        if( x_mag == 0.0 )
+            x_mag = 1.0;
 
-        slice_window->slice.volumes[v].views[view_index].x_axis[0] =
-                                                              x_axis[0] / mag;
-        slice_window->slice.volumes[v].views[view_index].x_axis[1] =
-                                                              x_axis[1] / mag;
-        slice_window->slice.volumes[v].views[view_index].x_axis[2] =
-                                                              x_axis[2] / mag;
+        y_mag = sqrt( y_axis[X] * y_axis[X] + y_axis[Y] * y_axis[Y] +
+                      y_axis[Z] * y_axis[Z] );
 
-        mag = sqrt( y_axis[0] * y_axis[0] + y_axis[1] * y_axis[1] +
-                    y_axis[2] * y_axis[2] );
+        if( y_mag == 0.0 )
+            y_mag = 1.0;
 
-        if( mag == 0.0 )
-            mag = 1.0;
-
-        slice_window->slice.volumes[v].views[view_index].y_axis[0] =
-                                                              y_axis[0] / mag;
-        slice_window->slice.volumes[v].views[view_index].y_axis[1] =
-                                                              y_axis[1] / mag;
-        slice_window->slice.volumes[v].views[view_index].y_axis[2] =
-                                                              y_axis[2] / mag;
+        for_less( axis, 0, N_DIMENSIONS )
+        {
+            slice_window->slice.volumes[v].views[view_index].x_axis[axis] =
+                                                          x_axis[axis] / x_mag;
+            slice_window->slice.volumes[v].views[view_index].y_axis[axis] =
+                                                          y_axis[axis] / y_mag;
+        }
     }
 
-    match_view_scale_and_translation( slice_window, view_index,
-                                      volume_index );
+    match_view_scale_and_translation( slice_window, view_index, volume_index );
 }
 
 public  void  update_all_slice_axes_views(

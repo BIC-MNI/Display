@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/line_ops.c,v 1.26 1995-10-19 15:50:19 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/line_ops.c,v 1.27 1995-12-19 15:46:14 david Exp $";
 #endif
 
 
@@ -222,6 +222,7 @@ private  void  convert_to_lines(
     int                     n_points;
     object_struct           *object, *current_object;
     object_traverse_struct  object_traverse;
+    BOOLEAN                 interpolate;
 
 
     if( !get_current_object( display, &current_object ) )
@@ -241,12 +242,6 @@ private  void  convert_to_lines(
             ADD_ELEMENT_TO_ARRAY( markers, n_markers,
                                   get_marker_ptr(object)->position,
                                   DEFAULT_CHUNK_SIZE );
-            if( n_markers == 1 )
-            {
-                ADD_ELEMENT_TO_ARRAY( markers, n_markers,
-                                      get_marker_ptr(object)->position,
-                                      DEFAULT_CHUNK_SIZE );
-            }
         }
     }
 
@@ -264,6 +259,10 @@ private  void  convert_to_lines(
 
         if( input_int( stdin, &n_points ) == OK )
         {
+            interpolate = (n_points >= 2);
+            if( !interpolate )
+                n_points = n_markers;
+
             object = create_object( LINES );
             lines = get_lines_ptr( object );
             initialize_lines( lines, WHITE );
@@ -280,65 +279,73 @@ private  void  convert_to_lines(
             for_less( i, 0, lines->end_indices[0] )
                 lines->indices[i] = i % n_points;
 
-            curr_index = 0;
-            curr_dist = 0.0;
-            next_dist = distance_between_points( &markers[0], &markers[1] );
-
-            if( closed )
-                max_index = n_markers-1;
-            else
-                max_index = n_markers-2;
-
-            for_less( i, 0, n_points )
+            if( interpolate )
             {
+                curr_index = 0;
+                curr_dist = 0.0;
+                next_dist = distance_between_points( &markers[0], &markers[1] );
+
                 if( closed )
-                    desired_dist = (Real) i / (Real) n_points * dist;
+                    max_index = n_markers-1;
                 else
-                    desired_dist = (Real) i / (Real) (n_points-1) * dist;
+                    max_index = n_markers-2;
 
-                while( curr_index < max_index && desired_dist >= next_dist )
+                for_less( i, 0, n_points )
                 {
-                    ++curr_index;
-                    curr_dist = next_dist;
-                    next_dist += distance_between_points(
-                                   &markers[curr_index],
-                                   &markers[(curr_index+1)%n_markers] );
+                    if( closed )
+                        desired_dist = (Real) i / (Real) n_points * dist;
+                    else
+                        desired_dist = (Real) i / (Real) (n_points-1) * dist;
+
+                    while( curr_index < max_index && desired_dist >= next_dist )
+                    {
+                        ++curr_index;
+                        curr_dist = next_dist;
+                        next_dist += distance_between_points(
+                                       &markers[curr_index],
+                                       &markers[(curr_index+1)%n_markers] );
+                    }
+
+                    if( curr_index == 0 && closed )
+                        p1 = markers[n_markers-1];
+                    else if( curr_index == 0 && !closed )
+                        p1 = markers[0];
+                    else
+                        p1 = markers[curr_index-1];
+
+                    p2 = markers[curr_index];
+
+                    if( curr_index + 1 > n_markers - 1 && closed )
+                        p3 = markers[(curr_index+1) % n_markers];
+                    else if( curr_index + 1 > n_markers - 1 && !closed )
+                        p3 = markers[n_markers-1];
+                    else
+                        p3 = markers[curr_index+1];
+
+                    if( curr_index + 2 > n_markers - 1 && closed )
+                        p4 = markers[(curr_index+2) % n_markers];
+                    else if( curr_index + 2 > n_markers - 1 && !closed )
+                        p4 = markers[n_markers-1];
+                    else
+                        p4 = markers[curr_index+2];
+
+                    ratio = (desired_dist - curr_dist) /(next_dist - curr_dist);
+                    if( ratio < 0.0 || ratio > 1.0 )
+                        handle_internal_error( "Dang.\n" );
+
+                    for_less( c, 0, N_DIMENSIONS )
+                    {
+                        Point_coord(point,c) = cubic_interpolate( ratio,
+                                        Point_coord(p1,c), Point_coord(p2,c),
+                                        Point_coord(p3,c), Point_coord(p4,c) );
+                    }
+                    lines->points[i] = point;
                 }
-
-                if( curr_index == 0 && closed )
-                    p1 = markers[n_markers-1];
-                else if( curr_index == 0 && !closed )
-                    p1 = markers[0];
-                else
-                    p1 = markers[curr_index-1];
-
-                p2 = markers[curr_index];
-
-                if( curr_index + 1 > n_markers - 1 && closed )
-                    p3 = markers[(curr_index+1) % n_markers];
-                else if( curr_index + 1 > n_markers - 1 && !closed )
-                    p3 = markers[n_markers-1];
-                else
-                    p3 = markers[curr_index+1];
-
-                if( curr_index + 2 > n_markers - 1 && closed )
-                    p4 = markers[(curr_index+2) % n_markers];
-                else if( curr_index + 2 > n_markers - 1 && !closed )
-                    p4 = markers[n_markers-1];
-                else
-                    p4 = markers[curr_index+2];
-
-                ratio = (desired_dist - curr_dist) / (next_dist - curr_dist);
-                if( ratio < 0.0 || ratio > 1.0 )
-                    handle_internal_error( "Dang.\n" );
-
-                for_less( c, 0, N_DIMENSIONS )
-                {
-                    Point_coord(point,c) = cubic_interpolate( ratio,
-                     Point_coord(p1,c), Point_coord(p2,c), Point_coord(p3,c),
-                     Point_coord(p4,c) );
-                }
-                lines->points[i] = point;
+            }
+            else
+            {
+                for_less( i, 0, n_points )
+                    lines->points[i] = markers[i];
             }
 
             add_object_to_current_model( display, object );
@@ -372,7 +379,7 @@ public  DEF_MENU_UPDATE(convert_markers_to_lines )
 
 public  DEF_MENU_FUNCTION( convert_markers_to_closed_lines )
 {
-    convert_to_lines( display, FALSE );
+    convert_to_lines( display, TRUE );
 
     return( OK );
 }

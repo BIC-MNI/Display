@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_bar.c,v 1.23 1995-10-19 15:52:07 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_bar.c,v 1.24 1995-12-19 15:46:29 david Exp $";
 #endif
 
 #include  <display.h>
@@ -134,10 +134,10 @@ public  void  rebuild_colour_bar(
 
     volume_index = get_current_volume_index( slice_window );
 
-    start_threshold = (Real) slice_window->slice.
-                          volumes[volume_index].colour_coding.min_value;
-    end_threshold = (Real) slice_window->slice.
-                          volumes[volume_index].colour_coding.max_value;
+    get_colour_coding_min_max( &slice_window->slice.
+                               volumes[volume_index].colour_coding,
+                               &start_threshold,
+                               &end_threshold );
 
     model = get_graphics_model( slice_window, COLOUR_BAR_MODEL );
 
@@ -252,8 +252,11 @@ public  void  rebuild_colour_bar(
                 next_y - y > Colour_bar_closest_text ||
                 numbers[i].priority > numbers[i+1].priority ) )
         {
-            if( numbers[i].priority == 2 )
-                colour = Colour_bar_limit_colour;
+            if( numbers[i].priority == 2 && numbers[i].value == start_threshold)
+                colour = Colour_bar_min_limit_colour;
+            else if( numbers[i].priority == 2 &&
+                     numbers[i].value == end_threshold )
+                colour = Colour_bar_max_limit_colour;
             else if( numbers[i].priority == 1 )
                 colour = Colour_bar_range_colour;
             else

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.102 1995-10-19 15:52:08 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.103 1995-12-19 15:46:29 david Exp $";
 #endif
 
 #include  <display.h>
@@ -1222,7 +1222,7 @@ private  int  render_slice_to_pixels(
                     (unsigned short **) NULL, colour_map,
                     make_rgba_Colour( 0, 0, 0, 0 ),
                     slice_window->slice.render_storage,
-                    n_alloced_ptr, pixels );
+                    TRUE, n_alloced_ptr, pixels );
 
             pixels->x_position += x_sub_min;
             pixels->y_position += y_sub_min;

@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.67 1995-09-26 14:25:32 david Exp $";
+static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.68 1995-12-19 15:46:10 david Exp $";
 #endif
 
 #include  <volume_io.h>
@@ -185,6 +185,9 @@ typedef  struct
     Real                   total_slice_update_time2;
     int                    current_update_volume;
     int                    current_update_view;
+
+    Real                   volume_rotation_step;
+    Real                   volume_translation_step;
 
 } slice_window_struct;
 

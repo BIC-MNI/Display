@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/colour_coding.c,v 1.21 1995-11-02 21:00:07 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/colour_coding.c,v 1.22 1995-12-19 15:46:13 david Exp $";
 #endif
 
 
@@ -41,8 +41,7 @@ public  DEF_MENU_FUNCTION(set_colour_limits )
         print( "Enter new values: " );
 
         if( input_real( stdin, &min_value ) == OK &&
-            input_real( stdin, &max_value ) == OK &&
-            min_value <= max_value )
+            input_real( stdin, &max_value ) == OK )
         {
             change_colour_coding_range( slice_window,
                                         volume_index, min_value, max_value);

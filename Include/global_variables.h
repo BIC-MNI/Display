@@ -33,7 +33,7 @@ START_GLOBALS
     DEF_GLOBAL( Initial_total_slice_update_time1, Real, 0.5 )
     DEF_GLOBAL( Initial_total_slice_update_time2, Real, 2.0 )
     DEF_GLOBAL( Slice_event_check_time, Real, 0.25 )
-    DEF_GLOBAL( Initial_incremental_update, BOOLEAN, TRUE )
+    DEF_GLOBAL( Initial_incremental_update, BOOLEAN, FALSE )
 
     DEF_GLOBAL_COLOUR( Volume_outline_colour )
     DEF_GLOBAL_COLOUR( Cross_section_colour )
@@ -254,7 +254,7 @@ START_GLOBALS
     DEF_GLOBAL( Default_z_voxel_max_distance, int, 100000 )
 
     DEF_GLOBAL( Compute_neighbours_on_input, BOOLEAN, FALSE )
-    DEF_GLOBAL( Polygon_bintree_threshold, int, 100 )
+    DEF_GLOBAL( Polygon_bintree_threshold, int, -1 )
     DEF_GLOBAL( Bintree_size_factor, Real, 0.3 )
 
     DEF_GLOBAL( Save_format, int, 1 )
@@ -359,5 +359,10 @@ START_GLOBALS
 
     DEF_GLOBAL( Initial_volume_rotation_step, Real, 1.0 )
     DEF_GLOBAL( Initial_volume_translation_step, Real, 1.0 )
+
+    DEF_GLOBAL( Enable_volume_caching, BOOLEAN, TRUE )
+    DEF_GLOBAL( Volume_cache_threshold, int, -1 )
+    DEF_GLOBAL( Volume_cache_size, int, -1 )
+    DEF_GLOBAL( Volume_cache_block_size, int, -1 )
 
 END_GLOBALS

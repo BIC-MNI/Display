@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.104 1995-10-19 15:52:10 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.105 1995-12-19 15:46:34 david Exp $";
 #endif
 
 
@@ -92,6 +92,10 @@ private  void  initialize_slice_window(
 
     slice_window->slice.x_split = Slice_divider_x_position;
     slice_window->slice.y_split = Slice_divider_y_position;
+
+    slice_window->slice.volume_rotation_step = Initial_volume_rotation_step;
+    slice_window->slice.volume_translation_step =
+                                         Initial_volume_translation_step;
 
     slice_window->slice.incremental_update_allowed = Initial_incremental_update;
 

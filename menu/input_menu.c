@@ -13,12 +13,12 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.124 1995-12-07 20:24:58 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.125 1995-12-19 15:46:24 david Exp $";
 #endif
 
 #include  <display.h>
 
-#define  FIRST \
+#define  MENU1 \
 MENU_F(exit_program) \
 MENU_F(show_memory) \
 MENU_F(pop_menu) \
@@ -78,7 +78,10 @@ MENU_F(toggle_slice_visibility) \
 MENU_F(toggle_cross_section_visibility) \
 MENU_F(toggle_slice_cross_section_visibility) \
 MENU_F(set_current_arbitrary_view) \
-MENU_F(rotate_slice_axes) \
+MENU_F(rotate_slice_axes)
+
+
+#define  MENU2 \
 MENU_F(move_slice_plus) \
 MENU_F(move_slice_minus) \
 MENU_F(menu_set_global_variable) \
@@ -144,7 +147,7 @@ MENU_F(set_vis_paint_colour) \
 MENU_F(set_invis_paint_colour) \
 MENU_F(set_n_paint_polygons)
 
-#define SECOND \
+#define MENU3 \
 MENU_F(input_polygons_bintree) \
 MENU_F(create_bintree_for_polygons) \
 MENU_F(create_normals_for_polygon) \
@@ -218,7 +221,9 @@ MENU_F(translate_labels_up) \
 MENU_F(translate_labels_down) \
 MENU_F(translate_labels_left) \
 MENU_F(translate_labels_right) \
-MENU_F(translate_labels_arbitrary) \
+MENU_F(translate_labels_arbitrary)
+
+#define  MENU4 \
 MENU_F(calculate_volume) \
 MENU_F(toggle_current_volume) \
 MENU_F(delete_current_volume) \
@@ -288,7 +293,7 @@ MENU_F(set_volume_rotation_step) \
 MENU_F(set_volume_translation_step) \
 MENU_F(save_current_volume_transform)
 
-#define  FUNCTION_LIST  FIRST SECOND
+#define  FUNCTION_LIST  MENU1 MENU2 MENU3 MENU4
                 
 
 typedef  struct
