@@ -18,7 +18,7 @@ private  void  start_surface(
     if( use_label_flag )
     {
         volume = get_label_volume( display );
-        label_volume = NULL;
+        label_volume = volume;
     }
     else
     {
