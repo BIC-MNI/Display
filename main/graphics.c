@@ -158,9 +158,7 @@ public  Status  create_graphics_window( window_type, graphics,
 
     if( status == OK )
     {
-        status = G_create_window( title, width, height, 
-                                  &Initial_background_colour,
-                                  &(*graphics)->window );
+        status = G_create_window( title, width, height, &(*graphics)->window );
     }
 
     if( status == OK )
@@ -285,8 +283,6 @@ private  Status  initialize_graphics_window( graphics )
         graphics->frame_number = 0;
         graphics->update_required = FALSE;
         graphics->update_interrupted.last_was_interrupted = FALSE;
-        graphics->update_interrupted.size_of_interrupted = Size_of_interrupted;
-        graphics->update_interrupted.interval_of_check = Interval_of_check;
     }
 
     return( status );
@@ -462,6 +458,17 @@ public  void  reset_view_parameters( graphics, line_of_sight, horizontal )
                         &graphics->three_d.max_limit );
 }
 
+public  void  transform_model( graphics, transform )
+    graphics_struct   *graphics;
+    Transform         *transform;
+{
+    void  concat_transforms();
+
+    concat_transforms( &graphics->three_d.view.modeling_transform,
+                       &graphics->three_d.view.modeling_transform,
+                       transform );
+}
+
 public  Status  load_graphics_file( graphics, filename )
     graphics_struct  *graphics;
     char             filename[];
@@ -477,8 +484,6 @@ public  Status  load_graphics_file( graphics, filename )
     Boolean          get_range_of_object();
     void             rebuild_selected_list();
     void             set_current_object_index();
-    int              n_items;
-    Status           create_polygons_bintree();
     Status           initialize_cursor();
 
     status = create_object( &object, MODEL );
@@ -506,22 +511,6 @@ public  Status  load_graphics_file( graphics, filename )
                 OBJECT->visibility = OFF;
             END_TRAVERSE_OBJECT
         }
-    }
-
-    if( status == OK )
-    {
-        BEGIN_TRAVERSE_OBJECT( status, object );
-            if( status == OK && OBJECT->object_type == POLYGONS )
-            {
-                n_items = OBJECT->ptr.polygons->n_items;
-
-                if( n_items > Polygon_bintree_threshold )
-                {
-                    status = create_polygons_bintree( OBJECT->ptr.polygons,
-                              ROUND( (Real) n_items * Bintree_size_factor ) );
-                }
-            }
-        END_TRAVERSE_OBJECT
     }
 
     if( status == OK )
