@@ -1,6 +1,6 @@
 
 #include  <def_graphics.h>
-#include  <string.h>
+#include  <def_string.h>
 #include  <def_globals.h>
 
 private  void  create_selected_text( model )
