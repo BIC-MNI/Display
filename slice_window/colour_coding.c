@@ -644,6 +644,7 @@ private  void  colour_code_object_points(
         colour_code_points( slice_window, continuity,
                             &lines->colour_flag, &lines->colours,
                             lines->n_points, lines->points );
+        break;
 
     case MARKER:
         marker = get_marker_ptr( object );
