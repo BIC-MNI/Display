@@ -128,8 +128,23 @@ public  Status  io_tag_point( file, io_direction, volume, marker )
         }
     }
 
+#define USE_X_POSITION_FOR_WEIGHT
+#ifdef  USE_X_POSITION_FOR_WEIGHT
+    if( status == OK )
+    {
+        if( io_direction == WRITE_FILE )
+            status = io_real( file, io_direction, ASCII_FORMAT,
+                              &Point_x(position));
+        else
+        {
+            status = io_real( file, io_direction, ASCII_FORMAT, &marker->size );
+            marker->size = 1.0;
+        }
+    }
+#else
     if( status == OK )
         status = io_real( file, io_direction, ASCII_FORMAT, &marker->size );
+#endif
 
     if( status == OK )
         status = io_int( file, io_direction, ASCII_FORMAT,
