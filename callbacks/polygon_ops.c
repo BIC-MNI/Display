@@ -213,12 +213,15 @@ public  DEF_MENU_FUNCTION( create_normals_for_polygon )   /* ARGSUSED */
     Status            status;
     Status            compute_polygon_normals();
     polygons_struct   *polygons;
+    void              set_update_required();
 
     status = OK;
 
     if( get_current_polygons(graphics,&polygons) )
     {
         status = compute_polygon_normals( polygons );
+        set_update_required( graphics, NORMAL_PLANES );
+
         PRINT( "Done computing polygon normals.\n" );
     }
 
@@ -226,6 +229,41 @@ public  DEF_MENU_FUNCTION( create_normals_for_polygon )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(create_normals_for_polygon )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
+{
+    Status            status;
+    Status            smooth_polygon();
+    Status            compute_polygon_normals();
+    Status            delete_polygon_bintree();
+    polygons_struct   *polygons;
+    void              set_update_required();
+
+    status = OK;
+
+    if( get_current_polygons(graphics,&polygons) )
+    {
+        status = smooth_polygon( polygons, Max_smoothing_distance,
+                                 Smoothing_ratio, Smoothing_threshold );
+
+        if( status == OK )
+            status = compute_polygon_normals( polygons );
+
+        if( status == OK )
+            status = delete_polygon_bintree( polygons );
+
+        set_update_required( graphics, NORMAL_PLANES );
+
+        PRINT( "Done smoothing polygon.\n" );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(smooth_current_polygon )   /* ARGSUSED */
 {
     return( OK );
 }
