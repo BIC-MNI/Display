@@ -59,8 +59,9 @@ private  Volume  make_distance_transform(
     Real      max_threshold )
 {
     int      i, x, y, z, nx, ny, nz, sizes[MAX_DIMENSIONS];
+    int      iteration;
     Real     value;
-    int      voxel, dist, min_neighbour, new_value;
+    int      voxel, this_dist, dist, min_neighbour, new_value;
     BOOLEAN  changed, first;
     Volume   distance, new_distance;
 
@@ -86,8 +87,11 @@ private  Volume  make_distance_transform(
         }
     }
 
+    iteration = 0;
     do
     {
+        ++iteration;
+        print( "Distance Transform Iteration: %d\n", iteration );
         changed = FALSE;
         for_less( x, 0, sizes[X] )
         {
@@ -95,42 +99,48 @@ private  Volume  make_distance_transform(
             {
                 for_less( z, 0, sizes[Z] )
                 {
-                    min_neighbour = 0;
-                    first = TRUE;
-                    FOR_LOOP_NEIGHBOURS( i, x, y, z, nx, ny, nz )
+                    GET_VOXEL_3D( this_dist, distance, x, y, z );
+
+                    if( this_dist != 0 )
+                    {
+                        min_neighbour = 0;
+                        first = TRUE;
+                        FOR_LOOP_NEIGHBOURS( i, x, y, z, nx, ny, nz )
 #ifdef TWO_D
-                        if( nz < 0 || nz >= sizes[Z] )
-                            continue;
+                            if( nz < 0 || nz >= sizes[Z] )
+                                continue;
 #endif
 
-                        if( nx < 0 || nx >= sizes[X] ||
-                            ny < 0 || ny >= sizes[Y] ||
-                            nz < 0 || nz >= sizes[Z] )
-                        {
-                            min_neighbour = 0;
-                            first = FALSE;
-                        }
-                        else
-                        {
-                            GET_VOXEL_3D( dist, distance, nx, ny, nz );
-                            if( first || dist < min_neighbour )
+                            if( nx < 0 || nx >= sizes[X] ||
+                                ny < 0 || ny >= sizes[Y] ||
+                                nz < 0 || nz >= sizes[Z] )
                             {
-                                min_neighbour = dist;
+                                min_neighbour = 0;
                                 first = FALSE;
+                                break;
+                            }
+                            else
+                            {
+                                GET_VOXEL_3D( dist, distance, nx, ny, nz );
+                                if( first || dist < min_neighbour )
+                                {
+                                    min_neighbour = dist;
+                                    first = FALSE;
+                                    if( dist == 0 )
+                                        break;
+                                }
                             }
                         }
                     }
 
-                    GET_VOXEL_3D( dist, distance, x, y, z );
-
-                    if( dist != 0 && min_neighbour != 0 &&
-                        dist != min_neighbour + 1 )
+                    if( this_dist != 0 && min_neighbour != 0 &&
+                        this_dist != min_neighbour + 1 )
                     {
                         new_value = min_neighbour + 1;
                         changed = TRUE;
                     }
                     else
-                        new_value = dist;
+                        new_value = this_dist;
 
                     SET_VOXEL_3D( new_distance, x, y, z, new_value );
                 }
@@ -199,7 +209,7 @@ public  void  initialize_segmenting_3d(
                 GET_VOXEL_3D( label, label_volume, x, y, z );
                 if( label & USER_SET_BIT )
                 {
-                    label -= USER_SET_BIT;
+                    label = 0;
                     SET_VOXEL_3D( label_volume, x, y, z, label );
                 }
 
@@ -325,13 +335,7 @@ public  BOOLEAN  expand_labels_3d(
                 best_cut = cut;
                 best_class = class;
 
-                if( dist == 0 || user_set_it )
-                {
-                    SET_VOXEL_3D( new_labels, x, y, z, label );
-                    cut = create_cut_class( cut, class );
-                    SET_VOXEL_3D( new_cuts, x, y, z, cut );
-                }
-                else
+                if( dist != 0 && !user_set_it )
                 {
                     FOR_LOOP_NEIGHBOURS( i, x, y, z, nx, ny, nz )
                         if( nx >= 0 && nx < sizes[X] &&
@@ -381,19 +385,25 @@ public  BOOLEAN  expand_labels_3d(
                             }
                         }
                     }
+                }
 
-                    if( best_label != label ||
-                        best_cut != cut ||
-                        best_class != class )
-                    {
-                        changed = TRUE;
-                    }
-
+                if( best_label != label ||
+                    best_cut != cut ||
+                    best_class != class )
+                {
                     SET_VOXEL_3D( new_labels, x, y, z,
                                   best_label | USER_SET_BIT );
-                    cut = create_cut_class( best_cut, best_class );
-                    SET_VOXEL_3D( new_cuts, x, y, z, cut );
+                    changed = TRUE;
                 }
+                else
+                {
+                    if( !user_set_it && best_label != 0 )
+                        best_label |= USER_SET_BIT;
+                    SET_VOXEL_3D( new_labels, x, y, z, best_label );
+                }
+
+                cut = create_cut_class( best_cut, best_class );
+                SET_VOXEL_3D( new_cuts, x, y, z, cut );
             }
             update_progress_report( &progress, x * sizes[Y] + y + 1 );
         }
