@@ -1,5 +1,4 @@
-include $(C_DEV_DIRECTORY)/Make/Makefile.include
-include $(GRAPHICS_DIRECTORY)/Makefile.include
+include ../Graphics/Makefile.include
 
 OPT = $(OPT_O) -Wf,-XNd10000
 
@@ -75,6 +74,8 @@ display_obj = \
            events/mouse_trans.o \
            events/pick_object.o \
            events/pick_view.o \
+           events/rotate_slice.o \
+           events/spaceball.o \
            events/virt_sb.o \
            events/window_man.o \
            events/utilities.o \
@@ -94,15 +95,20 @@ display_obj = \
            segmenting/cut_neighbours.o \
            segmenting/expand_3d.o \
            segmenting/fill_3d.o \
+           segmenting/labels.o \
            segmenting/regions.o \
            segmenting/segmenting.o \
            segmenting/segment_polygons.o \
+           segmenting_3d/segment.o \
+           segmenting_3d/vol_segment.o \
            slice_window/colour_bar.o \
            slice_window/colour_coding.o \
            slice_window/draw_slice.o \
+           slice_window/pick_angle.o \
            slice_window/quadmesh.o \
            slice_window/render_markers.o \
            slice_window/slice.o \
+           slice_window/slice_3d.o \
            slice_window/slice_events.o \
            slice_window/view.o \
            surface_curves/events.o \
@@ -131,11 +137,9 @@ $(DISPLAY): $(PROTOTYPE_FILE) $(display_obj)
 list_all_objects:
 	@echo $(display_obj) $(display_obj:.o=.ln)
 
-display.pixie:  $(display_obj)
-	if( -e display ) rm display
+display.pixie:  $(DISPLAY)
 	if( -e display.Addrs ) rm display.Addrs
 	if( -e display.Counts ) rm display.Counts
-	make display SYSTEM_LIBS="$(NONSHARED_LIBS)"
 	@\rm -f display.Counts
 	@pixie display -o $@
 

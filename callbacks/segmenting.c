@@ -8,7 +8,8 @@ private  void  set_slice_labels(
     int                label );
 private  void   set_connected_labels(
     display_struct   *display,
-    int              label );
+    int              label,
+    BOOLEAN          use_threshold );
 
 public  DEF_MENU_FUNCTION( label_voxel )   /* ARGSUSED */
 {
@@ -309,7 +310,7 @@ private  void  set_slice_labels(
 
 public  DEF_MENU_FUNCTION(clear_connected)   /* ARGSUSED */
 {
-    set_connected_labels( display, 0 );
+    set_connected_labels( display, 0, TRUE );
 
     return( OK );
 }
@@ -321,7 +322,7 @@ public  DEF_MENU_UPDATE(clear_connected )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(label_connected)   /* ARGSUSED */
 {
-    set_connected_labels( display, get_current_paint_label(display) );
+    set_connected_labels( display, get_current_paint_label(display), TRUE );
 
     return( OK );
 }
@@ -331,11 +332,24 @@ public  DEF_MENU_UPDATE(label_connected )   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION(label_connected_no_threshold)   /* ARGSUSED */
+{
+    set_connected_labels( display, get_current_paint_label(display), FALSE );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(label_connected_no_threshold )   /* ARGSUSED */
+{
+    return( OK );
+}
+
 private  void   set_connected_labels(
     display_struct   *display,
-    int              label )
+    int              label,
+    BOOLEAN          use_threshold )
 {
-    Real             voxel[MAX_DIMENSIONS];
+    Real             voxel[MAX_DIMENSIONS], min_threshold, max_threshold;
     int              axis_index, int_voxel[MAX_DIMENSIONS];
     display_struct   *slice_window;
 
@@ -343,13 +357,23 @@ private  void   set_connected_labels(
     {
         slice_window = display->associated[SLICE_WINDOW];
 
+        if( use_threshold )
+        {
+            min_threshold = slice_window->slice.segmenting.min_threshold;
+            max_threshold = slice_window->slice.segmenting.max_threshold;
+        }
+        else
+        {
+            min_threshold = 1.0;
+            max_threshold = 0.0;
+        }
+
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
 
         set_connected_voxels_labels( get_volume(slice_window),
                           get_label_volume(slice_window),
                           axis_index, int_voxel,
-                          slice_window->slice.segmenting.min_threshold,
-                          slice_window->slice.segmenting.max_threshold,
+                          min_threshold, max_threshold,
                           slice_window->slice.segmenting.connectivity,
                           label );
 
