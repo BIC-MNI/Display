@@ -9,7 +9,8 @@ START_GLOBALS
     DEF_GLOBAL( Progress_threshold, int, 1000 )
 
     DEF_GLOBAL( Maximum_display_time, Real, 0.5 )
-    DEF_GLOBAL( Event_timeout, Real, 0.1 )
+    DEF_GLOBAL( Event_timeout_min, Real, 0.1 )
+    DEF_GLOBAL( Event_timeout_factor, Real, 0.5 )
     DEF_GLOBAL( Size_of_interrupted, int, 1000 )
     DEF_GLOBAL( Interval_of_check, int, 100 )
 
@@ -114,6 +115,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Normal_towards_lower, Boolean, TRUE )
 
+    DEF_GLOBAL( Display_activities, Boolean, FALSE )
     DEF_GLOBAL( Inactive_voxel_colour, Colour, 0.0 )
     DEF_GLOBAL( Inactive_and_not_active_voxel_colour, Colour, 0.0 )
     DEF_GLOBAL( Not_active_voxel_colour, Colour, 0.0 )
@@ -127,6 +129,11 @@ START_GLOBALS
     DEF_GLOBAL_STRING( Tmp_surface_name, "" )
 
     DEF_GLOBAL( Marching_cubes_method, int, 1 )
+
+    DEF_GLOBAL( Compute_neighbours_on_input, Boolean, FALSE )
+    DEF_GLOBAL( Polygon_bintree_threshold, int, 100 )
+    DEF_GLOBAL( Bintree_size_factor, Real, 2.0 )
+
 END_GLOBALS
          
 #endif

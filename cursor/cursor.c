@@ -11,7 +11,10 @@ public  Status  initialize_cursor( graphics )
     void            update_cursor();
 
     graphics->three_d.cursor.origin = graphics->three_d.centre_of_objects;
-    graphics->three_d.cursor.size = 1.0;
+    graphics->three_d.cursor.box_size[X_AXIS] = 1.0;
+    graphics->three_d.cursor.box_size[Y_AXIS] = 1.0;
+    graphics->three_d.cursor.box_size[Z_AXIS] = 1.0;
+    graphics->three_d.cursor.axis_size = Cursor_axis_size;
 
     status = rebuild_cursor_icon( graphics );
 
@@ -20,6 +23,14 @@ public  Status  initialize_cursor( graphics )
     update_cursor( graphics );
 
     return( status );
+}
+
+public  Status  update_cursor_size( graphics )
+    graphics_struct   *graphics;
+{
+    Status          rebuild_cursor_icon();
+
+    return( rebuild_cursor_icon( graphics ) );
 }
 
 public  void  update_cursor( graphics )
