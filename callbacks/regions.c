@@ -1,18 +1,21 @@
 
 #include  <display.h>
 
-public  DEF_MENU_FUNCTION( set_paint_x_brush_radius )   /* ARGSUSED */
+public  DEF_MENU_FUNCTION( set_paint_xy_brush_radius )   /* ARGSUSED */
 {
-    Real            x_brush_radius;
+    Real            xy_brush_radius;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
     {
-        print( "Enter x brush size: " );
+        print( "Enter xy brush size: " );
 
-        if( input_real( stdin, &x_brush_radius ) == OK &&
-            x_brush_radius >= 0.0 )
-            slice_window->slice.x_brush_radius = x_brush_radius;
+        if( input_real( stdin, &xy_brush_radius ) == OK &&
+            xy_brush_radius >= 0.0 )
+        {
+            slice_window->slice.x_brush_radius = xy_brush_radius;
+            slice_window->slice.y_brush_radius = xy_brush_radius;
+        }
 
         (void) input_newline( stdin );
     }
@@ -20,7 +23,7 @@ public  DEF_MENU_FUNCTION( set_paint_x_brush_radius )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_paint_x_brush_radius )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(set_paint_xy_brush_radius )   /* ARGSUSED */
 {
     STRING           text;
     Real             x_brush_radius;
@@ -32,43 +35,6 @@ public  DEF_MENU_UPDATE(set_paint_x_brush_radius )   /* ARGSUSED */
         x_brush_radius = Default_x_brush_radius;
 
     (void) sprintf( text, label, x_brush_radius );
-
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION( set_paint_y_brush_radius )   /* ARGSUSED */
-{
-    Real            y_brush_radius;
-    display_struct  *slice_window;
-
-    if( get_slice_window( display, &slice_window ) )
-    {
-        print( "Enter y brush size: " );
-
-        if( input_real( stdin, &y_brush_radius ) == OK &&
-            y_brush_radius >= 0.0 )
-            slice_window->slice.y_brush_radius = y_brush_radius;
-
-        (void) input_newline( stdin );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(set_paint_y_brush_radius )   /* ARGSUSED */
-{
-    STRING           text;
-    Real             y_brush_radius;
-    display_struct   *slice_window;
-
-    if( get_slice_window( display, &slice_window ) )
-        y_brush_radius = slice_window->slice.y_brush_radius;
-    else
-        y_brush_radius = Default_y_brush_radius;
-
-    (void) sprintf( text, label, y_brush_radius );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -509,6 +475,25 @@ public  DEF_MENU_FUNCTION( calculate_volume )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(calculate_volume )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( flip_labels_in_x )   /* ARGSUSED */
+{
+    display_struct  *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        flip_labels_around_zero( get_label_volume( slice_window ) );
+
+        set_slice_window_all_update( slice_window );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(flip_labels_in_x )   /* ARGSUSED */
 {
     return( OK );
 }
