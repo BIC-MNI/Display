@@ -18,6 +18,8 @@ public  void  initialize_rotating_slice(
     if( !get_slice_window( display, &slice_window ) )
         return;
 
+    set_volume_cross_section_visibility( display, ON );
+
     terminate_any_interactions( display );
 
     add_action_table_function( &display->action_table,
@@ -38,6 +40,8 @@ private  DEF_EVENT_FUNCTION( terminate_rotating_slice )    /* ARGSUSED */
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_rotating_slice );
+
+    set_volume_cross_section_visibility( display, OFF );
 }
 
 private  DEF_EVENT_FUNCTION( turn_off_rotating_slice )    /* ARGSUSED */
@@ -141,6 +145,7 @@ private  void  transform_slice_axes(
     world_x_axis[X] -= x0;
     world_x_axis[Y] -= y0;
     world_x_axis[Z] -= z0;
+
     world_y_axis[X] -= x0;
     world_y_axis[Y] -= y0;
     world_y_axis[Z] -= z0;
