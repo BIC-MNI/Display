@@ -97,10 +97,8 @@ int  main( argc, argv )
                      graphics->centre_of_objects,
                      0.5 );
 
-        reset_view_parameters( graphics,
-                               Default_line_of_sight_x,
-                               Default_line_of_sight_y,
-                               Default_line_of_sight_z );
+        reset_view_parameters( graphics, &Default_line_of_sight,
+                               &Default_horizontal );
 
         update_view( graphics );
     }

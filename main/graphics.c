@@ -122,6 +122,8 @@ public  Status  create_graphics_window( graphics, title, width, height )
 private  void  initialize_graphics_window( graphics )
     graphics_struct   *graphics;
 {
+    static  Vector    line_of_sight = { 0.0, 0.0, -1.0 };
+    static  Vector    horizontal = { 1.0, 0.0, 0.0 };
     void    initialize_view();
     void    adjust_view_for_aspect();
     void    G_define_view();
@@ -132,7 +134,7 @@ private  void  initialize_graphics_window( graphics )
     void    initialize_render();
     void    initialize_objects();
 
-    initialize_view( &graphics->view, 0.0, 0.0, -1.0 );
+    initialize_view( &graphics->view, &line_of_sight, &horizontal );
     adjust_view_for_aspect( &graphics->view, &graphics->window );
     G_define_view( &graphics->window, &graphics->view );
 
@@ -248,16 +250,17 @@ public  void  update_view( graphics )
     G_define_view( &graphics->window, &graphics->view );
 }
 
-public  void  reset_view_parameters( graphics, view_x, view_y, view_z )
+public  void  reset_view_parameters( graphics, line_of_sight, horizontal )
     graphics_struct  *graphics;
-    Real             view_x, view_y, view_z;
+    Vector           *line_of_sight;
+    Vector           *horizontal;
 {
     void   adjust_view_for_aspect();
     void   initialize_view();
     void   set_model_scale();
     void   fit_view_to_domain();
 
-    initialize_view( &graphics->view, view_x, view_y, view_z );
+    initialize_view( &graphics->view, line_of_sight, horizontal );
     set_model_scale( &graphics->view,
                      Initial_x_scale, Initial_y_scale, Initial_z_scale );
     adjust_view_for_aspect( &graphics->view, &graphics->window );

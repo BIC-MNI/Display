@@ -33,9 +33,7 @@ public  DEF_MENU_FUNCTION( reset_view )      /* ARGSUSED */
     void  reset_view_parameters();
 
     reset_view_parameters( graphics,
-                           Default_line_of_sight_x,
-                           Default_line_of_sight_y,
-                           Default_line_of_sight_z );
+                           &Default_line_of_sight, &Default_horizontal );
 
     update_view( graphics );
 
@@ -51,10 +49,12 @@ public  DEF_MENU_UPDATE(reset_view )      /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( top_view )      /* ARGSUSED */
 {
+    static  Vector   line_of_sight = { 0.0, 0.0, -1.0 };
+    static  Vector   horizontal = { 1.0, 0.0, 0.0 };
     void  update_view();
     void  reset_view_parameters();
 
-    reset_view_parameters( graphics, 0.0, 0.0, -1.0 );
+    reset_view_parameters( graphics, &line_of_sight, &horizontal );
 
     update_view( graphics );
 
@@ -70,10 +70,12 @@ public  DEF_MENU_UPDATE(top_view )      /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( bottom_view )      /* ARGSUSED */
 {
+    static  Vector   line_of_sight = { 0.0, 0.0, 1.0 };
+    static  Vector   horizontal = { -1.0, 0.0, 0.0 };
     void  update_view();
     void  reset_view_parameters();
 
-    reset_view_parameters( graphics, 0.0, 0.0, 1.0 );
+    reset_view_parameters( graphics, &line_of_sight, &horizontal );
 
     update_view( graphics );
 
@@ -89,10 +91,12 @@ public  DEF_MENU_UPDATE(bottom_view )      /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( front_view )      /* ARGSUSED */
 {
+    static  Vector   line_of_sight = { 0.0, -1.0, 0.0 };
+    static  Vector   horizontal = { 1.0, 0.0, 0.0 };
     void  update_view();
     void  reset_view_parameters();
 
-    reset_view_parameters( graphics, 0.0, -1.0, 0.0 );
+    reset_view_parameters( graphics, &line_of_sight, &horizontal );
 
     update_view( graphics );
 
@@ -108,10 +112,12 @@ public  DEF_MENU_UPDATE(front_view )      /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( back_view )      /* ARGSUSED */
 {
+    static  Vector   line_of_sight = { 0.0, 1.0, 0.0 };
+    static  Vector   horizontal = { -1.0, 0.0, 0.0 };
     void  update_view();
     void  reset_view_parameters();
 
-    reset_view_parameters( graphics, 0.0, 1.0, 0.0 );
+    reset_view_parameters( graphics, &line_of_sight, &horizontal );
 
     update_view( graphics );
 
@@ -127,10 +133,12 @@ public  DEF_MENU_UPDATE(back_view )      /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( left_view )      /* ARGSUSED */
 {
+    static  Vector   line_of_sight = { 1.0, 0.0, 0.0 };
+    static  Vector   horizontal = { 0.0, 0.0, 1.0 };
     void  update_view();
     void  reset_view_parameters();
 
-    reset_view_parameters( graphics, 1.0, 0.0, 0.0 );
+    reset_view_parameters( graphics, &line_of_sight, &horizontal );
 
     update_view( graphics );
 
@@ -146,10 +154,12 @@ public  DEF_MENU_UPDATE(left_view )      /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( right_view )      /* ARGSUSED */
 {
+    static  Vector   line_of_sight = { -1.0, 0.0, 1.0 };
+    static  Vector   horizontal = { 0.0, 0.0, -1.0 };
     void  update_view();
     void  reset_view_parameters();
 
-    reset_view_parameters( graphics, -1.0, 0.0, 0.0 );
+    reset_view_parameters( graphics, &line_of_sight, &horizontal );
 
     update_view( graphics );
 

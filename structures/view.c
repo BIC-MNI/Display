@@ -3,20 +3,18 @@
 #include <def_geometry.h>
 #include <def_globals.h>
 
-public  void  initialize_view( view, view_x, view_y, view_z )
+public  void  initialize_view( view, line_of_sight, horizontal )
     view_struct  *view;
-    Real         view_x, view_y, view_z;
+    Vector       *line_of_sight;
+    Vector       *horizontal;
 {
     static  Point   origin = { 0.0, 0.0, 1.0 };
-    static  Vector  hor = { 1.0, 0.0, 0.0 };
-    Vector          line_of_sight;
     void            assign_view_direction();
     void            make_identity_transform();
 
     view->perspective_flag = Initial_perspective_flag;
     view->origin = origin;
-    fill_Vector( line_of_sight, view_x, view_y, view_z );
-    assign_view_direction( view, &line_of_sight, &hor );
+    assign_view_direction( view, line_of_sight, horizontal );
     view->front_distance = 0.0;
     view->perspective_distance = 4.0;
     view->back_distance = 2.0;
