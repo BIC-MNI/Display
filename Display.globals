@@ -222,7 +222,7 @@ Colour_bar_number_format = "%g";
 Normal_towards_lower = TRUE;
 
 Initial_display_labels = TRUE;
-Label_colour_display_ratio = 0.2;
+Label_colour_opacity = 0.5;
 
 Use_cursor_origin = TRUE;
 
