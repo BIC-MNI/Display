@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.31 1997-01-20 16:22:29 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.32 1997-02-14 17:16:55 david Exp $";
 #endif
 
 #include  <display.h>
@@ -151,7 +151,7 @@ private  void  assign_set_numbers(
                  };
 
     BOOLEAN  faces_present[N_DIMENSIONS][2][2][2];
-    int      dim, x, y, dir, n_connected, conn_index, edge_index;
+    int      dim, x, y, dir, n_connected, conn_index;
     int      i, ind, test_dir, test_dim;
     int      other_dim, which;
     int      a1, a2, v1[N_DIMENSIONS], v2[N_DIMENSIONS];
@@ -420,6 +420,77 @@ private  int  determine_edge_index(
     return( edge_index );
 }
 
+private  BOOLEAN  edge_is_duplicate(
+    int                         x1,
+    int                         y1,
+    int                         z1,
+    int                         x2,
+    int                         y2,
+    int                         z2,
+    BOOLEAN                     inside[3][3][3],
+    int                         *which )
+{
+    int        a1, a2, x, y, dim, where[N_DIMENSIONS];
+    int        other[N_DIMENSIONS], start[N_DIMENSIONS];
+    BOOLEAN    inside_flags[2][2];
+
+    if( !Duplicate_boundary_vertices )
+        return( FALSE );
+
+    start[0] = MIN( x1, x2 );
+    start[1] = MIN( y1, y2 );
+    start[2] = MIN( z1, z2 );
+
+    if( x1 != x2 )
+        dim = X;
+    else if( y1 != y2 )
+        dim = Y;
+    else if( z1 != z2 )
+        dim = Z;
+    else
+        handle_internal_error( "edge_is_duplicate" );
+
+    a1 = (dim + 1) % N_DIMENSIONS;
+    a2 = (dim + 2) % N_DIMENSIONS;
+
+    other[a1] = (start[a1] == 0) ? 0 : 2;
+    other[a2] = (start[a2] == 0) ? 0 : 2;
+    other[dim] = 1;
+
+    where[dim] = 1;
+    for_less( x, 0, 2 )
+    for_less( y, 0, 2 )
+    {
+        where[a1] = (x == 0) ? 1 : other[a1];
+        where[a2] = (y == 0) ? 1 : other[a2];
+        
+        inside_flags[x][y] = inside[where[0]][where[1]][where[2]];
+    }
+
+    if( !inside_flags[0][0] || !inside_flags[1][1] ||
+        inside_flags[1][0] || inside_flags[0][1] )
+        return( FALSE );
+
+    for_less( dim, 0, N_DIMENSIONS )
+    {
+        if( other[dim] == 0 )
+        {
+            *which = 1;
+            return( TRUE );
+        }
+        else if( other[dim] == 2 )
+        {
+            *which = 0;
+            return( TRUE );
+        }
+    }
+
+    handle_internal_error( "edge_is_duplicate which" );
+    *which = 0;
+
+    return( TRUE );
+}
+
 private  void  add_face(
     surface_extraction_struct   *surface_extraction,
     Volume                      volume,
@@ -431,10 +502,11 @@ private  void  add_face(
     polygons_struct             *polygons,
     int                         poly_index )
 {
-    int                  a1, a2, point_index, ind, dim, start_index;
-    int                  point_indices[4], x, y;
+    int                  a1, a2, point_index, ind, start_index;
+    int                  dx, dy, second_vertex[N_DIMENSIONS], dim;
+    int                  point_indices[8][5], x, y;
     int                  sizes[N_DIMENSIONS];
-    int                  corner_index[N_DIMENSIONS], edge_index;
+    int                  corner_index[N_DIMENSIONS], edge_index, v;
     Real                 voxel[N_DIMENSIONS], xw, yw, zw;
     Real                 voxel_normal[N_DIMENSIONS], separations[N_DIMENSIONS];
     Point                point;
@@ -459,34 +531,92 @@ private  void  add_face(
         separations[dim] = FABS( separations[dim] );
 
     ind = 0;
-    for_less( x, indices[a1], indices[a1] + 2 )
-    for_less( y, indices[a2], indices[a2] + 2 )
+    for_less( v, 0, 4 )
     {
-        corner_index[a1] = x;
-        corner_index[a2] = y;
+        switch( v )
+        {
+        case 0:   x = 0;  y = 0;  dx = 0;  dy = 1;  break;
+        case 1:   x = 0;  y = 1;  dx = 1;  dy = 0;  break;
+        case 2:   x = 1;  y = 1;  dx = 0;  dy = -1;  break;
+        case 3:   x = 1;  y = 0;  dx = -1;  dy = 0;  break;
+        default:  break;
+        }
 
-        edge_index = determine_edge_index( corner_index[0] - indices[0],
-                                           corner_index[1] - indices[1],
-                                           corner_index[2] - indices[2],
+        point_indices[ind][a1] = indices[a1] + x;
+        point_indices[ind][a2] = indices[a2] + y;
+        point_indices[ind][c] = corner_index[c];
+        point_indices[ind][3] = determine_edge_index(
+                                           point_indices[ind][0] - indices[0],
+                                           point_indices[ind][1] - indices[1],
+                                           point_indices[ind][2] - indices[2],
                                            c, offset, inside_flags );
+        ++ind;
 
+        if( !Duplicate_boundary_vertices )
+            continue;
+
+        second_vertex[a1] = indices[a1] + x + dx;
+        second_vertex[a2] = indices[a2] + y + dy;
+        second_vertex[c] = corner_index[c];
+        if( edge_is_duplicate( point_indices[ind-1][0] - indices[0],
+                               point_indices[ind-1][1] - indices[1],
+                               point_indices[ind-1][2] - indices[2],
+                               second_vertex[0] - indices[0],
+                               second_vertex[1] - indices[1],
+                               second_vertex[2] - indices[2],
+                               inside_flags, &edge_index ) )
+        {
+            for_less( dim, 0, N_DIMENSIONS )
+            {
+                point_indices[ind][dim] = MIN( point_indices[ind-1][dim],
+                                               second_vertex[dim] );
+            }
+
+            point_indices[ind][3] = edge_index + 4;
+            if( dx != 0 )
+                point_indices[ind][4] = a1;
+            else
+                point_indices[ind][4] = a2;
+            ++ind;
+        }
+    }
+
+    if( poly_index == polygons->n_items )
+    {
+        start_index = NUMBER_INDICES( *polygons );
+        ADD_ELEMENT_TO_ARRAY( polygons->end_indices, polygons->n_items,
+                              start_index+ind, DEFAULT_CHUNK_SIZE );
+
+        SET_ARRAY_SIZE( polygons->indices, start_index, start_index+ind,
+                        DEFAULT_CHUNK_SIZE );
+    }
+    else
+        start_index = POINT_INDEX( polygons->end_indices, poly_index, 0 );
+
+    for_less( v, 0, ind )
+    {
         if( !lookup_edge_point_id( sizes,
                                    &surface_extraction->edge_points,
-                                   corner_index[X],
-                                   corner_index[Y],
-                                   corner_index[Z],
-                                   edge_index, &point_index ) )
+                                   point_indices[v][X],
+                                   point_indices[v][Y],
+                                   point_indices[v][Z],
+                                   point_indices[v][3], &point_index ) )
         {
             point_index = polygons->n_points;
 
             record_edge_point_id( sizes, &surface_extraction->edge_points,
-                                  corner_index[X],
-                                  corner_index[Y],
-                                  corner_index[Z],
-                                  edge_index, point_index );
-            voxel[X] = (Real) corner_index[X] - 0.5;
-            voxel[Y] = (Real) corner_index[Y] - 0.5;
-            voxel[Z] = (Real) corner_index[Z] - 0.5;
+                                  point_indices[v][X],
+                                  point_indices[v][Y],
+                                  point_indices[v][Z],
+                                  point_indices[v][3], point_index );
+
+            voxel[X] = (Real) point_indices[v][X] - 0.5;
+            voxel[Y] = (Real) point_indices[v][Y] - 0.5;
+            voxel[Z] = (Real) point_indices[v][Z] - 0.5;
+
+            if( point_indices[v][3] >= 4 )
+                voxel[point_indices[v][4]] += 0.5;
+
             convert_voxel_to_world( volume, voxel, &xw, &yw, &zw );
             fill_Point( point, xw, yw, zw );
 
@@ -496,38 +626,25 @@ private  void  add_face(
                                   point, DEFAULT_CHUNK_SIZE );
         }
 
-        get_vertex_normal( separations,
-                           corner_index[X] - indices[X],
-                           corner_index[Y] - indices[Y],
-                           corner_index[Z] - indices[Z],
-                           inside_flags, valid_flags, voxel_normal );
+        if( point_indices[v][3] < 4 )
+        {
+            get_vertex_normal( separations,
+                               point_indices[v][X] - indices[X],
+                               point_indices[v][Y] - indices[Y],
+                               point_indices[v][Z] - indices[Z],
+                               inside_flags, valid_flags, voxel_normal );
 
-        convert_voxel_vector_to_world( volume, voxel_normal, &xw, &yw, &zw );
-        fill_Vector( normal, xw, yw, zw );
-        NORMALIZE_VECTOR( normal, normal );
+            convert_voxel_vector_to_world( volume, voxel_normal, &xw, &yw, &zw);
+            fill_Vector( normal, xw, yw, zw );
+            NORMALIZE_VECTOR( normal, normal );
+        }
+        else
+            fill_Vector( normal, 0.0, 0.0, 0.0 );
 
         polygons->normals[point_index] = normal;
 
-        point_indices[ind] = point_index;
-        ++ind;
+        polygons->indices[start_index+v] = point_index;
     }
-
-    if( poly_index == polygons->n_items )
-    {
-        start_index = NUMBER_INDICES( *polygons );
-        ADD_ELEMENT_TO_ARRAY( polygons->end_indices, polygons->n_items,
-                              start_index+4, DEFAULT_CHUNK_SIZE );
-
-        SET_ARRAY_SIZE( polygons->indices, start_index, start_index+4,
-                        DEFAULT_CHUNK_SIZE );
-    }
-    else
-        start_index = POINT_INDEX( polygons->end_indices, poly_index, 0 );
-
-    polygons->indices[start_index+0] = point_indices[0];
-    polygons->indices[start_index+1] = point_indices[1];
-    polygons->indices[start_index+2] = point_indices[3];
-    polygons->indices[start_index+3] = point_indices[2];
 }
 
 private  void  get_inside_flags(
