@@ -660,9 +660,8 @@ private  void  render_slice_to_pixels( slice_window, pixels,
 }
 
 private  Boolean  images_read_in = FALSE;
-private  Boolean  images_exist = FALSE;
 
-#define  N_IMAGES   3
+#define  N_IMAGES   4
 
 private  pixels_struct  images[N_IMAGES];
 
@@ -671,7 +670,8 @@ private  check_read_in()
     static  char  *filenames[N_IMAGES] = {
                 "/nil/david/Talairach/resampled_128.obj",
                 "/nil/david/Talairach/resampled_256.obj",
-                "/nil/david/Talairach/resampled_512.obj" };
+                "/nil/david/Talairach/resampled_512.obj",
+                "/nil/david/Talairach/resampled_1024.obj" };
     Status        status;
     Status        input_object_type();
     Status        io_pixels();
@@ -684,10 +684,11 @@ private  check_read_in()
     if( !images_read_in )
     {
         images_read_in = TRUE;
-        status = OK;
 
         for_less( i, 0, N_IMAGES )
         {
+            status = OK;
+
             (void) printf( "Reading Talairach images [%d/%d].\n",i+1, N_IMAGES);
 
             if( status == OK )
@@ -702,10 +703,10 @@ private  check_read_in()
 
             if( status == OK )
                 status = close_file( file );
-        }
 
-        if( status == OK )
-            images_exist = TRUE;
+            if( status != OK )
+                images[i].x_max = 0;
+        }
     }
 }
 
@@ -727,9 +728,6 @@ private  void  blend_in_talairach_image( pixels, x_size, y_size,
     Pixel_colour   *image, voxel_pixel, tal_pixel;
 
     check_read_in();
-
-    if( !images_exist )
-        return;
 
     image_index = -1;
 
@@ -760,7 +758,15 @@ private  void  blend_in_talairach_image( pixels, x_size, y_size,
         image_index = 2;
         image_size = 512;
     }
+    else if( dx == 0.125 )
+    {
+        image_index = 3;
+        image_size = 1024;
+    }
     else
+        return;
+
+    if( images[image_index].x_max == 0 )
         return;
 
     image = images[image_index].pixels;
