@@ -285,8 +285,6 @@ public  void  colour_coding_has_changed(
         rebuild_colour_tables( slice_window );
 
         rebuild_colour_bar( slice_window );
-        set_slice_window_update( slice_window, 0 );
-        set_slice_window_update( slice_window, 1 );
-        set_slice_window_update( slice_window, 2 );
+        set_slice_window_all_update( slice_window );
     }
 }

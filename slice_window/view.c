@@ -566,12 +566,78 @@ public  void  set_slice_plane(
     Real             x_axis[],
     Real             y_axis[] )
 {
-    int   c;
+    Real  cross_prod, max_value;
+    Real  x, y, len_x_axis, len_y_axis;
+    Real  desired_y_axis[MAX_DIMENSIONS];
+    Real  used_x_axis[MAX_DIMENSIONS];
+    Real  used_y_axis[MAX_DIMENSIONS];
+    int   x_index, y_index;
+    int   c, a1, a2, max_axis;
 
     for_less( c, 0, N_DIMENSIONS )
     {
-        slice_window->slice.slice_views[view_index].x_axis[c] = x_axis[c];
-        slice_window->slice.slice_views[view_index].y_axis[c] = y_axis[c];
+        a1 = (c + 1) % N_DIMENSIONS;
+        a2 = (c + 2) % N_DIMENSIONS;
+        cross_prod = ABS( x_axis[a1] * y_axis[a2] - x_axis[a2] * y_axis[a1] );
+        if( c == 0 || cross_prod > max_value )
+        {
+            max_value = cross_prod;
+            max_axis = c;
+        }
+    }
+
+    switch( max_axis )
+    {
+    case X: x_index = Y;   y_index = Z;  break;
+    case Y: x_index = X;   y_index = Z;  break;
+    case Z: x_index = X;   y_index = Y;  break;
+    }
+
+    if( x_axis[x_index] == 0.0 )
+    {
+        x = 1.0;
+        y = 0.0;
+    }
+    else
+    {
+        x = - y_axis[x_index] / x_axis[x_index];
+        y = 1.0;
+    }
+
+    len_x_axis = 0.0;
+    len_y_axis = 0.0;
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        used_y_axis[c] = x * x_axis[c] + y * y_axis[c];
+        used_x_axis[c] = y * x_axis[c] - x * y_axis[c];
+        len_x_axis += used_x_axis[c] * used_x_axis[c];
+        len_y_axis += used_y_axis[c] * used_y_axis[c];
+    }
+
+    if( len_x_axis == 0.0 || len_y_axis == 0.0 )
+        return;
+
+    if( used_x_axis[x_index] < 0.0 )
+    {
+        for_less( c, 0, N_DIMENSIONS )
+            used_x_axis[c] *= -1.0;
+    }
+
+    if( used_y_axis[y_index] < 0.0 )
+    {
+        for_less( c, 0, N_DIMENSIONS )
+            used_y_axis[c] *= -1.0;
+    }
+
+    len_x_axis = sqrt( len_x_axis );
+    len_y_axis = sqrt( len_y_axis );
+
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        slice_window->slice.slice_views[view_index].x_axis[c] =
+                                               used_x_axis[c] / len_x_axis;
+        slice_window->slice.slice_views[view_index].y_axis[c] =
+                                               used_y_axis[c] / len_y_axis;
     }
 
     rebuild_volume_cross_section( slice_window );

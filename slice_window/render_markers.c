@@ -33,9 +33,7 @@ public  void  regenerate_voxel_marker_labels(
                                      get_marker_ptr(object) );
         }
 
-        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
+        set_slice_window_all_update( display->associated[SLICE_WINDOW] );
     }
 }
 

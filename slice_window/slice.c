@@ -345,6 +345,9 @@ public  void  set_slice_window_volume(
     set_atlas_state( slice_window, Default_atlas_state );
 
     rebuild_slice_models( slice_window );
+
+    rebuild_volume_cross_section( slice_window );
+    rebuild_volume_outline( slice_window );
 }
 
 public  void  set_voxel_label_flag(

@@ -156,7 +156,7 @@ public  void  rebuild_colour_bar(
     while( model->n_objects > FIRST_TEXT )
     {
         delete_object( model->objects[FIRST_TEXT] );
-        remove_object_from_model( model, FIRST_TEXT );
+        remove_ith_object_from_model( model, FIRST_TEXT );
     }
 
     range = max_value - min_value;

@@ -291,7 +291,7 @@ private  void  update_voxel_slice(
     display_struct    *slice_window )
 {
     int        view_index, dy, x, y, x_prev, y_prev;
-    int        c, sizes[MAX_DIMENSIONS];
+    int        c;
     Real       voxel[MAX_DIMENSIONS];
     Real       perp_axis[N_DIMENSIONS];
 
@@ -464,11 +464,12 @@ private  DEF_EVENT_FUNCTION( handle_redraw_overlay )     /* ARGSUSED */
 
 private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
 {
+    int   view;
+
     update_window_size( display );
 
-    resize_slice_view( display, 0 );
-    resize_slice_view( display, 1 );
-    resize_slice_view( display, 2 );
+    for_less( view, 0, N_SLICE_VIEWS )
+        resize_slice_view( display, view );
 
     rebuild_slice_models( display );
 

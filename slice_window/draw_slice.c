@@ -1,28 +1,31 @@
 
 #include  <display.h>
 
-#define  DIVIDER_INDEX                  0
-#define  SLICE1_INDEX                   1
-#define  SLICE2_INDEX                   2
-#define  SLICE3_INDEX                   3
-#define  CURSOR1_INDEX                  4
-#define  CURSOR2_INDEX                  5
-#define  CURSOR3_INDEX                  6
-#define  TEXT1_INDEX                    7
-#define  TEXT2_INDEX                    8
-#define  TEXT3_INDEX                    9
-#define  N_SLICE_MODELS                10
+typedef  enum  { DIVIDER_INDEX,
+                 SLICE1_INDEX,
+                 SLICE2_INDEX,
+                 SLICE3_INDEX,
+                 SLICE4_INDEX,
+                 CURSOR1_INDEX,
+                 CURSOR2_INDEX,
+                 CURSOR3_INDEX,
+                 CURSOR4_INDEX,
+                 TEXT1_INDEX,
+                 TEXT2_INDEX,
+                 TEXT3_INDEX,
+                 TEXT4_INDEX,
+                 N_SLICE_MODELS } Slice_model_indices;
 
-#define  X_VOXEL_PROBE_INDEX           0
-#define  Y_VOXEL_PROBE_INDEX           1
-#define  Z_VOXEL_PROBE_INDEX           2
-#define  X_WORLD_PROBE_INDEX           3
-#define  Y_WORLD_PROBE_INDEX           4
-#define  Z_WORLD_PROBE_INDEX           5
-#define  VOXEL_PROBE_INDEX             6
-#define  VAL_PROBE_INDEX               7
-#define  LABEL_PROBE_INDEX             8
-#define  N_READOUT_MODELS              9
+typedef enum { X_VOXEL_PROBE_INDEX,
+               Y_VOXEL_PROBE_INDEX,
+               Z_VOXEL_PROBE_INDEX,
+               X_WORLD_PROBE_INDEX,
+               Y_WORLD_PROBE_INDEX,
+               Z_WORLD_PROBE_INDEX,
+               VOXEL_PROBE_INDEX,
+               VAL_PROBE_INDEX,
+               LABEL_PROBE_INDEX,
+               N_READOUT_MODELS     } Slice_readout_indices;
 
 private  void  render_slice_to_pixels(
     display_struct        *slice_window,
@@ -32,7 +35,7 @@ private  void  render_slice_to_pixels(
 public  void  initialize_slice_models(
     display_struct    *slice_window )
 {
-    int            i;
+    int            i, view;
     Point          point;
     lines_struct   *lines;
     object_struct  *object;
@@ -60,22 +63,15 @@ public  void  initialize_slice_models(
 
     add_object_to_model( model, object );
 
-    object = create_object( PIXELS );
-    initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, 1.0, 1.0,
-                       RGB_PIXEL );
-    add_object_to_model( model, object );
+    for_less( view, 0, N_SLICE_VIEWS )
+    {
+        object = create_object( PIXELS );
+        initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, 1.0, 1.0,
+                           RGB_PIXEL );
+        add_object_to_model( model, object );
+    }
 
-    object = create_object( PIXELS );
-    initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, 1.0, 1.0,
-                       RGB_PIXEL );
-    add_object_to_model( model, object );
-
-    object = create_object( PIXELS );
-    initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, 1.0, 1.0,
-                       RGB_PIXEL );
-    add_object_to_model( model, object );
-
-    for_inclusive( i, CURSOR1_INDEX, CURSOR3_INDEX )
+    for_less( view, 0, N_SLICE_VIEWS )
     {
         object = create_object( LINES );
         lines = get_lines_ptr( object );
@@ -104,7 +100,7 @@ public  void  initialize_slice_models(
         add_object_to_model( model, object );
     }
 
-    for_inclusive( i, TEXT1_INDEX, TEXT3_INDEX )
+    for_less( view, 0, N_SLICE_VIEWS )
     {
         object = create_object( TEXT );
 
@@ -139,9 +135,7 @@ public  void  rebuild_slice_models(
     rebuild_probe( slice_window );
     rebuild_colour_bar( slice_window );
 
-    set_slice_window_update( slice_window, 0 );
-    set_slice_window_update( slice_window, 1 );
-    set_slice_window_update( slice_window, 2 );
+    set_slice_window_all_update( slice_window );
 }
 
 public  void  rebuild_slice_divider(
@@ -314,7 +308,7 @@ private  void  get_cursor_size(
     }
 }
 
-public  void  rebuild_cursor(
+private  void  rebuild_cursor(
     display_struct    *slice_window,
     int               view_index )
 {
@@ -447,6 +441,15 @@ public  void  rebuild_cursor(
                                   y_top + vert_pixel_end * vert_dy, 0.0 );
 }
 
+public  void  rebuild_cursors(
+    display_struct    *slice_window )
+{
+    int   view;
+
+    for_less( view, 0, N_SLICE_VIEWS )
+        rebuild_cursor( slice_window, view );
+}
+
 public  void  rebuild_slice_pixels(
     display_struct    *slice_window,
     int               view_index )
@@ -495,9 +498,7 @@ public  void  rebuild_slice_pixels(
     else
         set_object_visibility( model->objects[TEXT1_INDEX+view_index], FALSE );
 
-    rebuild_cursor( slice_window, 0 );
-    rebuild_cursor( slice_window, 1 );
-    rebuild_cursor( slice_window, 2 );
+    rebuild_cursors( slice_window );
 }
 
 #define  MAX_LABELS   256
