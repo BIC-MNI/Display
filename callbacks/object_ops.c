@@ -4,7 +4,8 @@
 public  DEF_MENU_FUNCTION( reverse_normals )   /* ARGSUSED */
 {
     void  reverse_object_normals();
-    reverse_object_normals( graphics->models[THREED_MODEL].objects );
+    reverse_object_normals( graphics->models[THREED_MODEL].n_objects,
+                            graphics->models[THREED_MODEL].object_list );
     graphics->update_required = TRUE;
     return( OK );
 }
@@ -16,30 +17,35 @@ public  DEF_MENU_UPDATE(reverse_normals )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( advance_visible )     /* ARGSUSED */
 {
-    object_struct  *objects;
+    int              i, n;
+    object_struct    *list;
 
-    objects = graphics->models[THREED_MODEL].objects;
-    if( objects != (object_struct *) 0 )
+    n = graphics->models[THREED_MODEL].n_objects;
+
+    if( n > 0 )
     {
-        while( objects != (object_struct *) 0 && objects->visibility == OFF )
+        list = graphics->models[THREED_MODEL].object_list;
+
+        i = 0;
+        while( i < n && list[i].visibility == OFF )
         {
-            objects = objects->next;
+            ++i;
         }
 
-        if( objects == (object_struct *) 0 )
+        if( i >= n )
         {
-            graphics->models[THREED_MODEL].objects->visibility = ON;
+            list[0].visibility = ON;
         }
         else
         {
-            objects->visibility = OFF;
-            if( objects->next == (object_struct *) 0 )
+            list[i].visibility = OFF;
+            if( i != n-1 )
             {
-                graphics->models[THREED_MODEL].objects->visibility = ON;
+                list[i+1].visibility = ON;
             }
             else
             {
-                objects->next->visibility = ON;
+                list[0].visibility = ON;
             }
         }
 
@@ -56,26 +62,36 @@ public  DEF_MENU_UPDATE(advance_visible )     /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( retreat_visible )     /* ARGSUSED */
 {
-    object_struct  *objects;
+    int              i, n;
+    object_struct    *list;
 
-    objects = graphics->models[THREED_MODEL].objects;
-    if( objects != (object_struct *) 0 )
+    n = graphics->models[THREED_MODEL].n_objects;
+
+    if( n > 0 )
     {
-        while( objects->next != (object_struct *) 0 &&
-            objects->next->visibility == OFF )
+        list = graphics->models[THREED_MODEL].object_list;
+
+        i = 0;
+        while( i < n && list[i].visibility == OFF )
         {
-            objects = objects->next;
+            ++i;
         }
 
-        if( objects->next == (object_struct *) 0 )
+        if( i >= n )
         {
-            graphics->models[THREED_MODEL].objects->visibility = OFF;
-            objects->visibility = ON;
+            list[n-1].visibility = ON;
         }
         else
         {
-            objects->next->visibility = OFF;
-            objects->visibility = ON;
+            list[i].visibility = OFF;
+            if( i != 0 )
+            {
+                list[i-1].visibility = ON;
+            }
+            else
+            {
+                list[n-1].visibility = ON;
+            }
         }
 
         graphics->update_required = TRUE;
@@ -91,14 +107,15 @@ public  DEF_MENU_UPDATE(retreat_visible )     /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( make_all_invisible )     /* ARGSUSED */
 {
-    object_struct  *objects;
+    int              i, n;
+    object_struct    *list;
 
-    objects = graphics->models[THREED_MODEL].objects;
-    
-    while( objects != (object_struct *) 0 )
+    n = graphics->models[THREED_MODEL].n_objects;
+    list = graphics->models[THREED_MODEL].object_list;
+
+    for_less( i, 0, n )
     {
-        objects->visibility = OFF;
-        objects = objects->next;
+        list[i].visibility = OFF;
     }
 
     graphics->update_required = TRUE;
@@ -113,14 +130,15 @@ public  DEF_MENU_UPDATE(make_all_invisible )     /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( make_all_visible )     /* ARGSUSED */
 {
-    object_struct  *objects;
+    int              i, n;
+    object_struct    *list;
 
-    objects = graphics->models[THREED_MODEL].objects;
-    
-    while( objects != (object_struct *) 0 )
+    n = graphics->models[THREED_MODEL].n_objects;
+    list = graphics->models[THREED_MODEL].object_list;
+
+    for_less( i, 0, n )
     {
-        objects->visibility = ON;
-        objects = objects->next;
+        list[i].visibility = ON;
     }
 
     graphics->update_required = TRUE;
