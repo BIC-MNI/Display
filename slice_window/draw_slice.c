@@ -27,7 +27,6 @@
 private  void  render_slice_to_pixels(
     display_struct        *slice_window,
     int                   view_index,
-    Real                  voxel_indices[],
     pixels_struct         *pixels );
 
 public  void  initialize_slice_models(
@@ -364,7 +363,6 @@ public  void  rebuild_slice_pixels(
     model_struct   *model;
     pixels_struct  *pixels;
     int            axis_index, x_index, y_index;
-    Real           voxel_indices[N_DIMENSIONS];
     int            x_min, x_max, y_min, y_max;
     text_struct    *text;
     char           *format;
@@ -376,9 +374,7 @@ public  void  rebuild_slice_pixels(
 
     pixels = get_pixels_ptr( model->objects[SLICE1_INDEX+view_index] );
 
-    get_current_voxel( slice_window, voxel_indices );
-
-    render_slice_to_pixels( slice_window, view_index, voxel_indices, pixels );
+    render_slice_to_pixels( slice_window, view_index, pixels );
 
     text = get_text_ptr( model->objects[TEXT1_INDEX+view_index] );
 
@@ -420,7 +416,6 @@ public  void  rebuild_slice_pixels(
 private  void  render_slice_to_pixels(
     display_struct        *slice_window,
     int                   view_index,
-    Real                  voxel_indices[],
     pixels_struct         *pixels )
 {
     Volume                volume;
@@ -436,6 +431,8 @@ private  void  render_slice_to_pixels(
     int                   x_size, y_size;
     int                   label, n_alloced;
     Real                  x_trans, y_trans, x_scale, y_scale;
+    Real                  slice_position[MAX_DIMENSIONS];
+    Real                  x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
     unsigned char         *label_ptr;
     Colour                *pixel_ptr;
     void                  *void_ptr;
@@ -466,17 +463,21 @@ private  void  render_slice_to_pixels(
     if( (int) min_voxel > 0 )
         colour_table -= (int) min_voxel;
 
+    get_slice_plane( slice_window, view_index, slice_position, x_axis, y_axis );
+
     create_volume_slice(
+                    volume,
                     slice_window->slice.slice_views[view_index].filter_type,
                     slice_window->slice.slice_views[view_index].filter_width,
-                    volume,
-                    voxel_indices[axis_index],
+                    slice_position, x_axis, y_axis,
                     x_trans, y_trans, x_scale, y_scale,
-                    (Volume) NULL, 0.0, 0.0, 0.0, 0.0, 0.0,
-                    x_index, y_index, axis_index,
+                    (Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
+                    (Real *) 0, (Real *) 0, (Real *) 0,
+                    0.0, 0.0, 0.0, 0.0,
                     x_max - x_min + 1, y_max - y_min + 1,
                     RGB_PIXEL, FALSE, (unsigned short **) NULL,
-                    &colour_table, &n_alloced, pixels );
+                    &colour_table, make_rgba_Colour( 0, 0, 0, 0 ),
+                    &n_alloced, pixels );
 
     pixels->x_position += x_min;
     pixels->y_position += y_min;
@@ -498,9 +499,8 @@ private  void  render_slice_to_pixels(
             if( !convert_slice_pixel_to_voxel( volume,
                         pixels->x_position - x_min,
                         y + pixels->y_position - y_min,
-                        slice_window->slice.slice_index,
-                        x_index, y_index, x_trans, y_trans,
-                        x_scale, y_scale, voxel_pos ) )
+                        slice_position, x_axis, y_axis,
+                        x_trans, y_trans, x_scale, y_scale, voxel_pos ) )
             {
                 HANDLE_INTERNAL_ERROR( "render slice" );
             }
@@ -514,9 +514,8 @@ private  void  render_slice_to_pixels(
             if( !convert_slice_pixel_to_voxel( volume,
                         x + pixels->x_position - x_min,
                         pixels->y_position - y_min,
-                        slice_window->slice.slice_index,
-                        x_index, y_index, x_trans, y_trans,
-                        x_scale, y_scale, voxel_pos ) )
+                        slice_position, x_axis, y_axis,
+                        x_trans, y_trans, x_scale, y_scale, voxel_pos ) )
             {
                 HANDLE_INTERNAL_ERROR( "render slice" );
             }
@@ -564,22 +563,19 @@ private  void  render_slice_to_pixels(
 
         (void) convert_slice_pixel_to_voxel( volume,
                         pixels->x_position - x_min, pixels->y_position - y_min,
-                        slice_window->slice.slice_index,
-                        x_index, y_index, x_trans, y_trans,
-                        x_scale, y_scale, v1 );
+                        slice_position, x_axis, y_axis,
+                        x_trans, y_trans, x_scale, y_scale, v1 );
         (void) convert_slice_pixel_to_voxel( volume,
                         pixels->x_position+1 - x_min, pixels->y_position-y_min,
-                        slice_window->slice.slice_index,
-                        x_index, y_index, x_trans, y_trans,
-                        x_scale, y_scale, v2 );
+                        slice_position, x_axis, y_axis,
+                        x_trans, y_trans, x_scale, y_scale, v2 );
 
         dx = v2[x_index] - v1[x_index];
 
         (void) convert_slice_pixel_to_voxel( volume,
                         pixels->x_position - x_min, pixels->y_position+1-y_min,
-                        slice_window->slice.slice_index,
-                        x_index, y_index, x_trans, y_trans,
-                        x_scale, y_scale, v2 );
+                        slice_position, x_axis, y_axis,
+                        x_trans, y_trans, x_scale, y_scale, v2 );
 
         dy = v2[y_index] - v1[y_index];
 
