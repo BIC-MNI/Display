@@ -1,3 +1,7 @@
+2001-08-12  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
+
+	* configure.in: Bump version to 1.3.5.
+
 2001-08-11  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
 
 	* main/Makefile.am (AM_CFLAGS): Define HARD_CODED_DISPLAY_DIRECTORY1
