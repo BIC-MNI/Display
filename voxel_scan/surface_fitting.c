@@ -142,6 +142,23 @@ public  Status  delete_surface_fitting_point( surface_fitting, point )
     return( status );
 }
 
+public  Status  delete_surface_fitting_points( surface_fitting )
+    surface_fitting_struct  *surface_fitting;
+{
+    Status  status;
+
+    status = OK;
+
+    if( surface_fitting->n_surface_points > 0 )
+    {
+        FREE1( status, surface_fitting->surface_points );
+
+        surface_fitting->n_surface_points = 0;
+    }
+
+    return( status );
+}
+
 public  Status  convert_to_new_surface_representation( surface_fitting,
                                                      new_rep, new_descriptors )
     surface_fitting_struct   *surface_fitting;

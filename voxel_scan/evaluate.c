@@ -88,24 +88,30 @@ private  double   evaluate_fit_at_uv( graphics, fit_data, parameters, u, v )
                                  &dxu, &dyu, &dzu, &dxv, &dyv, &dzv,
                                  &dxuu, &dyuu, &dzuu, &dxvv, &dyvv, &dzvv );
 
-    if( get_slice_window_volume( graphics, &volume ) &&
-        point_is_within_volume( volume, x, y, z ) )
+    fit = 0.0;
+
+    if( fit_data->gradient_strength_factor > 0.0 )
     {
-        (void) evaluate_volume_at_point( volume, x, y, z, &dx, &dy, &dz );
+        if( get_slice_window_volume( graphics, &volume ) &&
+            point_is_within_volume( volume, x, y, z ) )
+        {
+            (void) evaluate_volume_at_point( volume, x, y, z, &dx, &dy, &dz );
 
-        get_surface_normal_from_derivs( dxu, dyu, dzu, dxv, dyv, dzv,
-                                        &surface_normal );
+            get_surface_normal_from_derivs( dxu, dyu, dzu, dxv, dyv, dzv,
+                                            &surface_normal );
 
-        fill_Vector( function_deriv, dx, dy, dz );
+            fill_Vector( function_deriv, dx, dy, dz );
 
-        surface_estimate = -DOT_VECTORS( function_deriv, surface_normal );
+            surface_estimate = -DOT_VECTORS( function_deriv, surface_normal );
 
-        if( surface_estimate > 0.0 )  surface_estimate = -surface_estimate;
-    }
-    else
-    {
-        surface_estimate = BIG_NUMBER;
-        surface_estimate = 0.0;
+            if( surface_estimate > 0.0 )  surface_estimate = -surface_estimate;
+        }
+        else
+        {
+            surface_estimate = 0.0;
+        }
+
+        fit += surface_estimate * fit_data->gradient_strength_factor;
     }
 
     if( fit_data->curvature_factor > 0.0 )
@@ -116,10 +122,8 @@ private  double   evaluate_fit_at_uv( graphics, fit_data, parameters, u, v )
 
         curvature = sqrt( u_curvature * v_curvature );
 
-        fit = surface_estimate + fit_data->curvature_factor * curvature;
+        fit += fit_data->curvature_factor * curvature;
     }
-    else
-        fit = surface_estimate;
 
     for_less( i, 0, fit_data->n_surface_points )
     {
