@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/three_d.c,v 1.29 1995-07-31 19:54:12 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/three_d.c,v 1.30 1995-08-21 17:15:13 david Exp $";
 #endif
 
 
@@ -51,6 +51,8 @@ public  void  initialize_three_d_window(
                                    Maximum_display_time > 0.0 );
     G_set_smallest_interrupt_interval( display->window, Interval_of_check );
     G_set_smallest_interrupt_size( display->window, Size_of_interrupted );
+    G_set_interrupt_time( display->window, Maximum_display_time );
+    G_set_interrupt_event_time( display->window, Check_event_time );
 
     three_d->lights[0].colour = Directional_light_colour;
     three_d->lights[0].direction = Light_direction;

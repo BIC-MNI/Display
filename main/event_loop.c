@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/event_loop.c,v 1.22 1995-07-31 19:54:10 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/event_loop.c,v 1.23 1995-08-21 17:15:12 david Exp $";
 #endif
 
 
@@ -91,11 +91,7 @@ private  void  update_this_type_of_windows(
             if( window_type == SLICE_WINDOW )
                 update_slice_window( windows[i] );
 
-            if( graphics_normal_planes_update_required( windows[i] ) )
-                windows[i]->update_interrupted.last_was_interrupted = FALSE;
-
-            if( !window_is_up_to_date( windows[i] ) )
-                update_graphics( windows[i], &windows[i]->update_interrupted );
+            update_graphics( windows[i], &windows[i]->update_interrupted );
         }
     }
 }

@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/display_types.h,v 1.16 1995-07-31 19:53:43 david Exp $";
+static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/display_types.h,v 1.17 1995-08-21 17:15:09 david Exp $";
 #endif
 
 #include  <deform.h>
@@ -111,7 +111,6 @@ typedef  struct
 {
     BOOLEAN        last_was_interrupted;
     object_struct  *object_interrupted;
-    Real           interrupt_at;
     BOOLEAN        current_interrupted;
 } update_interrupted_struct;
 

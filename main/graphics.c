@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.66 1995-07-31 19:54:10 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.67 1995-08-21 17:15:12 david Exp $";
 #endif
 
 
@@ -349,6 +349,12 @@ public  void  set_update_required(
     display_struct   *display,
     Bitplane_types   which_bitplanes )
 {
+    if( display->update_interrupted.last_was_interrupted )
+    {
+        display->update_interrupted.last_was_interrupted = FALSE;
+        G_update_window( display->window );
+    }
+
     display->update_required[which_bitplanes] = TRUE;
 }
 
@@ -534,13 +540,12 @@ private  void  update_graphics_normal_planes_only(
     Real          start, end;
     BOOLEAN       past_last_object;
 
-    if( interrupt->last_was_interrupted )
-        G_append_to_last_update( display->window );
-
     start = current_realtime_seconds();
 
-    interrupt->interrupt_at = start + Maximum_display_time;
-    G_set_interrupt_time( display->window, interrupt->interrupt_at );
+    G_start_interrupt_test( display->window );
+
+    if( interrupt->last_was_interrupted )
+        G_continue_last_update( display->window );
 
     interrupt->current_interrupted = FALSE;
     past_last_object = FALSE;
@@ -556,7 +561,8 @@ private  void  update_graphics_normal_planes_only(
     if( !interrupt->current_interrupted && Display_frame_info )
         display_frame_info( display, display->frame_number, end - start );
 
-    G_update_window( display->window );
+    if( !interrupt->current_interrupted )
+        G_update_window( display->window );
 
     display->update_required[NORMAL_PLANES] = FALSE;
 }
