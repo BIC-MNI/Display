@@ -9,14 +9,46 @@ public  Status  initialize_surface_extraction( graphics )
     graphics_struct    *graphics;
 {
     Status                      status;
-    void                        empty_polygons_struct();
-    Status                      initialize_edge_points();
-    Status                      initialize_voxels_done();
+    surface_extraction_struct   *surface_extraction;
     Status                      create_object();
     Status                      add_object_to_model();
     object_struct               *object;
-    void                        initialize_voxel_queue();
+    Status                      clear_surface_extraction();
     void                        install_surface_extraction();
+
+    surface_extraction = &graphics->three_d.surface_extraction;
+
+    status = create_object( &object, POLYGONS );
+
+    if( status == OK )
+    {
+        status = add_object_to_model(
+                     graphics->models[THREED_MODEL]->ptr.model, object );
+    }
+
+    if( status == OK )
+    {
+        surface_extraction->triangles = object->ptr.polygons;
+    }
+
+    if( status == OK )
+    {
+        install_surface_extraction( graphics );
+
+        status = clear_surface_extraction( graphics );
+    }
+
+    return( status );
+}
+
+private  Status  clear_surface_extraction( graphics )
+    graphics_struct    *graphics;
+{
+    Status                      status;
+    void                        empty_polygons_struct();
+    Status                      initialize_edge_points();
+    void                        initialize_voxel_queue();
+    void                        clear_voxels_done();
     surface_extraction_struct   *surface_extraction;
 
     surface_extraction = &graphics->three_d.surface_extraction;
@@ -28,39 +60,34 @@ public  Status  initialize_surface_extraction( graphics )
 
     if( status == OK )
     {
-        status = initialize_voxels_done( &surface_extraction->voxels_done,
-                                         get_n_voxels(graphics->slice.volume) );
-    }
-
-    if( graphics->models[SURFACE_MODEL]->ptr.model->n_objects < 1 )
-    {
-        if( status == OK )
-        {
-            status = create_object( &object, POLYGONS );
-        }
-
-        if( status == OK )
-        {
-            status = add_object_to_model(
-                         graphics->models[SURFACE_MODEL]->ptr.model,
-                         object );
-        }
-
-        if( status == OK )
-        {
-            surface_extraction->triangles = object->ptr.polygons;
-        }
-    }
-
-    if( status == OK )
-    {
         initialize_voxel_queue( &surface_extraction->voxels_to_do );
 
         empty_polygons_struct( surface_extraction->triangles,
                                &Extracted_surface_colour,
                                &Default_surface_property );
 
-        install_surface_extraction( graphics );
+        clear_voxels_done( &surface_extraction->voxels_done );
+    }
+
+    return( status );
+}
+
+private  Status  free_surface_extraction( graphics )
+    graphics_struct   *graphics;
+{
+    Status                      status;
+    Status                      delete_edge_points();
+    Status                      delete_voxels_done();
+    Status                      delete_voxel_queue();
+    surface_extraction_struct   *surface_extraction;
+
+    surface_extraction = &graphics->three_d.surface_extraction;
+
+    status = delete_edge_points( &surface_extraction->edge_points );
+
+    if( status == OK )
+    {
+        status = delete_voxel_queue( &surface_extraction->voxels_to_do );
     }
 
     return( status );
@@ -74,22 +101,14 @@ public  Status  delete_surface_extraction( graphics )
     Status                      delete_voxels_done();
     Status                      delete_voxel_queue();
     surface_extraction_struct   *surface_extraction;
-    void                        uninstall_surface_extraction();
-
-    uninstall_surface_extraction( graphics );
 
     surface_extraction = &graphics->three_d.surface_extraction;
 
-    status = delete_edge_points( &surface_extraction->edge_points );
+    status = free_surface_extraction( graphics );
 
     if( status == OK )
     {
         status = delete_voxels_done( &surface_extraction->voxels_done );
-    }
-
-    if( status == OK )
-    {
-        status = delete_voxel_queue( &surface_extraction->voxels_to_do );
     }
 
     return( status );
@@ -99,12 +118,14 @@ public  Status  reset_surface_extraction( graphics )
     graphics_struct   *graphics;
 {
     Status    status;
+    Status    free_surface_extraction();
+    Status    clear_surface_extraction();
 
-    status = delete_surface_extraction( graphics );
+    status = free_surface_extraction( graphics );
 
     if( status == OK )
     {
-        status = initialize_surface_extraction( graphics );
+        status = clear_surface_extraction( graphics );
     }
 
     return( status );
