@@ -331,14 +331,8 @@ public  void  update_graphics( graphics, interrupt )
     void          display_objects();
     void          display_frame_info();
     void          format_time();
-    void          update_slice_window();
     Real          start, end;
     Real          current_realtime_seconds();
-
-    if( graphics->window_type == SLICE_WINDOW )
-    {
-        update_slice_window( graphics );
-    }
 
     if( interrupt->last_was_interrupted )
     {
@@ -485,7 +479,6 @@ public  Status  load_graphics_file( graphics, filename )
     void             set_current_object_index();
     int              n_items;
     Status           create_polygons_bintree();
-    Status           create_polygon_neighbours();
     Status           initialize_cursor();
 
     status = create_object( &object, MODEL );
@@ -520,24 +513,12 @@ public  Status  load_graphics_file( graphics, filename )
         BEGIN_TRAVERSE_OBJECT( status, object );
             if( status == OK && OBJECT->object_type == POLYGONS )
             {
-                polygons_struct   *polygons;
-
-                polygons = OBJECT->ptr.polygons;
-
-                n_items = polygons->n_items;
+                n_items = OBJECT->ptr.polygons->n_items;
 
                 if( n_items > Polygon_bintree_threshold )
                 {
-                    status = create_polygons_bintree( polygons,
+                    status = create_polygons_bintree( OBJECT->ptr.polygons,
                               ROUND( (Real) n_items * Bintree_size_factor ) );
-                }
-
-                if( Compute_neighbours_on_input )
-                {
-                    status = create_polygon_neighbours( polygons->n_items,
-                                                        polygons->indices,
-                                                        polygons->end_indices,
-                                                        &polygons->neighbours );
                 }
             }
         END_TRAVERSE_OBJECT

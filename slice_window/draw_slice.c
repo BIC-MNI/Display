@@ -2,7 +2,6 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 #include  <def_stdio.h>
-#include  <def_alloc.h>
 
 #define  DIVIDER_INDEX      0
 #define  X_SLICE_INDEX      1
@@ -99,16 +98,16 @@ public  void  rebuild_slice_models( graphics )
     graphics_struct   *graphics;
 {
     void  rebuild_slice_divider();
+    void  rebuild_slice_pixels();
     void  rebuild_probe();
-    void  set_slice_window_update();
 
     rebuild_slice_divider( graphics );
 
     rebuild_probe( graphics );
 
-    set_slice_window_update( graphics, X_AXIS );
-    set_slice_window_update( graphics, Y_AXIS );
-    set_slice_window_update( graphics, Z_AXIS );
+    rebuild_slice_pixels( graphics, X_AXIS );
+    rebuild_slice_pixels( graphics, Y_AXIS );
+    rebuild_slice_pixels( graphics, Z_AXIS );
 }
 
 public  void  rebuild_slice_divider( graphics )
@@ -188,13 +187,12 @@ public  void  rebuild_slice_pixels( graphics, axis_index )
     graphics_struct   *graphics;
     int               axis_index;
 {
-    Status         status;
     model_struct   *model;
     model_struct   *get_graphics_model();
     pixels_struct  *pixels;
     int            voxel_indices[N_DIMENSIONS];
     int            x_pixel_start, x_pixel_end;
-    int            y_size, y_pixel_start, y_pixel_end;
+    int            y_pixel_start, y_pixel_end;
     void           get_slice_view();
     void           render_slice_to_pixels();
     text_struct    *text;
@@ -212,26 +210,7 @@ public  void  rebuild_slice_pixels( graphics, axis_index )
                     &x_pixel_start, &y_pixel_start,
                     &x_pixel_end, &y_pixel_end, voxel_indices );
 
-    y_size = y_pixel_end - y_pixel_start + 1;
-
-    if( y_size > graphics->slice.temporary_indices_alloced )
-    {
-        CHECK_ALLOC1( status, graphics->slice.temporary_indices,
-                      graphics->slice.temporary_indices_alloced,
-                      y_size, int, DEFAULT_CHUNK_SIZE );
-
-        if( status == OK )
-        {
-            graphics->slice.temporary_indices_alloced = y_size;
-        }
-        else
-        {
-            graphics->slice.temporary_indices_alloced = 0;
-        }
-    }
-
-    render_slice_to_pixels( graphics->slice.temporary_indices,
-                   pixels, axis_index, graphics->slice.volume,
+    render_slice_to_pixels( pixels, axis_index, graphics->slice.volume,
                    &graphics->slice.colour_coding,
                    voxel_indices,
                    x_pixel_start, x_pixel_end, y_pixel_start, y_pixel_end,
@@ -339,11 +318,10 @@ public  void  rebuild_cursor( graphics, axis_index )
     fill_Point( lines->points[7], x_end + Cursor_end_pixel, y_centre, 0.0 );
 }
 
-private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
-                                       volume, colour_coding, start_indices,
+private  void  render_slice_to_pixels( pixels, axis_index, volume,
+                                       colour_coding, start_indices,
                                        x_left, x_right, y_bottom, y_top,
                                        x_scale, y_scale )
-    int                   temporary_indices[];
     pixels_struct         *pixels;
     int                   axis_index;
     volume_struct         *volume;
@@ -353,8 +331,8 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
     Real                  x_scale, y_scale;
 {
     Status          status;
-    int             new_size, old_size, indices[N_DIMENSIONS];
-    int             x_index, y_index, x, y, prev_y;
+    int             indices[N_DIMENSIONS];
+    int             x_index, y_index, x, y, prev_x, prev_y;
     int             x_size, y_size;
     Pixel_colour    pixel_col;
     Real            dx, dy;
@@ -365,12 +343,7 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
 
     if( pixels->x_min <= pixels->x_max && pixels->y_min <= pixels->y_max )
     {
-        old_size = (pixels->x_max - pixels->x_min + 1) *
-                   (pixels->y_max - pixels->y_min + 1);
-    }
-    else
-    {
-        old_size = 0;
+        FREE1( status, pixels->pixels );
     }
 
     pixels->x_min = x_left;
@@ -381,28 +354,14 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
     x_size = x_right - x_left + 1;
     y_size = y_top - y_bottom + 1;
 
-    if( x_size <= 0 || y_size <= 0 )
-    {
-        new_size = 0;
-    }
-    else
-    {
-        new_size = x_size * y_size;
-    }
-
     dx = 1.0 / x_scale;
     dy = 1.0 / y_scale;
 
     if( status == OK )
     {
-        if( new_size > 0 )
+        if( x_size > 0 && y_size > 0 )
         {
-            CHECK_ALLOC1( status, pixels->pixels, old_size, new_size,
-                          Pixel_colour, DEFAULT_CHUNK_SIZE );
-        }
-        else if( old_size > 0 )
-        {
-            FREE1( status, pixels->pixels );
+            CALLOC1( status, pixels->pixels, x_size * y_size, Pixel_colour );
         }
     }
 
@@ -410,31 +369,29 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
 
     indices[axis_index] = start_indices[axis_index];
 
-    for_less( y, 0, y_size )
+    prev_x = -1;
+    prev_y = -1;
+
+    for_inclusive( x, x_left, x_right )
     {
-        temporary_indices[y] = start_indices[y_index] + y * dy;
-    }
+        indices[x_index] = start_indices[x_index] + (x - x_left) * dx;
 
-    for_less( x, 0, x_size )
-    {
-        indices[x_index] = start_indices[x_index] + x * dx;
-
-        prev_y = -1;
-
-        for_less( y, 0, y_size )
+        for_inclusive( y, y_bottom, y_top )
         {
-            indices[y_index] = temporary_indices[y];
+            indices[y_index] = start_indices[y_index] + (y - y_bottom) * dy;
 
-            if( indices[y_index] != prev_y )
+            if( indices[x_index] != prev_x || indices[y_index] != prev_y )
             {
                 pixel_col = get_voxel_colour( volume, colour_coding,
                                               indices[0], indices[1],
                                               indices[2] );
 
+                prev_x = indices[x_index];
                 prev_y = indices[y_index];
             }
 
-            ACCESS_PIXEL( pixels->pixels, x, y, x_size ) = pixel_col;
+            ACCESS_PIXEL( pixels->pixels, x - x_left,y - y_bottom, x_size ) =
+                     pixel_col;
         }
     }
 }
@@ -446,12 +403,13 @@ private  Pixel_colour  get_voxel_colour( volume, colour_coding, x, y, z )
 {
     Pixel_colour    pixel_col;
     Pixel_colour    get_colour_coding();
-    int             val;
+    Real            val;
     Boolean         activity_flag, inactivity_flag;
 
-    if( Display_activities &&
-        (!(activity_flag=get_voxel_activity_flag( volume, x, y, z )) ||
-         (inactivity_flag=get_voxel_inactivity_flag( volume, x, y, z )) ) )
+    activity_flag = get_voxel_activity_flag( volume, x, y, z );
+    inactivity_flag = get_voxel_inactivity_flag( volume, x, y, z );
+
+    if( !activity_flag || inactivity_flag )
     {
         if( activity_flag )
         {
@@ -470,7 +428,7 @@ private  Pixel_colour  get_voxel_colour( volume, colour_coding, x, y, z )
     {
         val = ACCESS_VOLUME_DATA( *volume, x, y, z );
 
-        pixel_col = get_colour_coding( colour_coding, (Real) val );
+        pixel_col = get_colour_coding( colour_coding, val );
     }
 
     return( pixel_col );
