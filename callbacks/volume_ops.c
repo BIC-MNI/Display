@@ -88,56 +88,6 @@ public  DEF_MENU_UPDATE(move_slice_minus )   /* ARGSUSED */
     return( OK );
 }
 
-private  void  scale_slice_voxels(
-    display_struct   *display,
-    int              view_index,
-    Real             scale_factor )
-{
-    display_struct   *slice_window;
-
-    slice_window = display->associated[SLICE_WINDOW];
-
-    scale_slice_view( slice_window, view_index, scale_factor );
-
-    set_slice_window_update( slice_window, view_index );
-    set_update_required( slice_window, NORMAL_PLANES );
-}
-
-public  DEF_MENU_FUNCTION(double_slice_voxels)   /* ARGSUSED */
-{
-    int      view_index;
-
-    if( get_slice_view_index_under_mouse( display, &view_index ) )
-    {
-        scale_slice_voxels( display, view_index, Slice_magnification_step );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(double_slice_voxels )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
-{
-    int      view_index;
-
-    if( get_slice_view_index_under_mouse( display, &view_index ) )
-    {
-        scale_slice_voxels( display, view_index,
-                            1.0 / Slice_magnification_step );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(halve_slice_voxels )   /* ARGSUSED */
-{
-    return( OK );
-}
-
 public  DEF_MENU_FUNCTION(toggle_slice_visibility)   /* ARGSUSED */
 {
     int              view_index;
