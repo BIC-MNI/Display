@@ -25,6 +25,7 @@ display_obj = \
            main/display.o \
            main/event_loop.o \
            main/graphics.o \
+           main/three_d.o \
            $(graphics_obj) \
            graphics_io.o \
            callbacks/file.o \
@@ -40,10 +41,13 @@ display_obj = \
            events/mouse.o \
            events/mouse_trans.o \
            events/pick_view.o \
+           events/pick_voxel.o \
            events/virt_sb.o \
            events/window_man.o \
            events/utilities.o \
            immediate_mode/draw_immed.o \
+           cursor/cursor.o \
+           cursor/cursor_icon.o \
            menu/build_menu.o \
            menu/menu.o \
            menu/input_menu.o \
