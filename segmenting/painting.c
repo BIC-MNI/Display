@@ -38,6 +38,12 @@ private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
                                RIGHT_MOUSE_UP_EVENT,
                                end_painting );
 
+    display->brush_outline = create_object( LINES );
+    initialize_lines( get_lines_ptr(display->brush_outline),
+                      Brush_outline_colour );
+
+    add_object_to_model( get_graphics_model( slice_window, SLICE_MODEL ),
+                         display->brush_outline );
     
     (void) G_get_mouse_position( display->window, &x_pixel, &y_pixel );
     paint_labels_at_point( display, x_pixel, y_pixel );
@@ -54,7 +60,18 @@ private  DEF_EVENT_FUNCTION( end_painting )     /* ARGSUSED */
                                   handle_update_painting );
     pop_action_table( &display->action_table, NO_EVENT );
 
+    remove_object_to_model( get_graphics_model( slice_window, SLICE_MODEL ),
+                            find_object_index_in_model(
+                                  get_graphics_model(slice_window,SLICE_MODEL),
+                                  display->brush_outline ) );
+
+    delete_object( display->brush_outline );
+
     update_paint_labels( display );
+
+    set_slice_window_update( slice_window, 0 );
+    set_slice_window_update( slice_window, 1 );
+    set_slice_window_update( slice_window, 2 );
 
     return( OK );
 }
