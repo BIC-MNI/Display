@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/init_surface.c,v 1.28 1996-04-19 17:38:53 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/init_surface.c,v 1.29 1996-04-30 12:33:35 david Exp $";
 #endif
 
 
@@ -80,9 +80,12 @@ public  void  delete_surface_extraction(
     if( surface_extraction->volume != NULL )
     {
         delete_edge_points( &surface_extraction->edge_points );
-        delete_voxel_queue( &surface_extraction->voxels_to_do );
-        delete_voxel_done_flags( surface_extraction->voxel_done_flags);
-        delete_voxel_flags( &surface_extraction->voxels_queued );
+        delete_voxel_flags( &surface_extraction->voxel_state );
+        if( !surface_extraction->voxellate_flag )
+        {
+            delete_voxel_done_flags( surface_extraction->voxel_done_flags );
+            delete_voxel_queue( &surface_extraction->voxels_to_do );
+        }
     }
 
     surface_extraction->volume = NULL;
@@ -109,33 +112,6 @@ public  void  tell_surface_extraction_volume_deleted(
         display->three_d.surface_extraction.label_volume == label_volume )
     {
         reset_surface_extraction( display );
-    }
-}
-
-public  void  initialize_surface_extraction_for_volume(
-    display_struct    *display,
-    Volume            volume,
-    Volume            label_volume )
-{
-    int                         sizes[N_DIMENSIONS];
-    surface_extraction_struct   *surface_extraction;
-
-    surface_extraction = &display->three_d.surface_extraction;
-    if( surface_extraction->volume != volume ||
-        surface_extraction->label_volume != label_volume )
-    {
-        reset_surface_extraction( display );
-        surface_extraction->volume = volume;
-        surface_extraction->label_volume = label_volume;
-        surface_extraction->n_voxels_with_surface = 0;
-
-        initialize_voxel_queue( &surface_extraction->voxels_to_do );
-        initialize_edge_points( &surface_extraction->edge_points );
-
-        get_volume_sizes( volume, sizes );
-        initialize_voxel_flags( &surface_extraction->voxels_queued, sizes );
-        initialize_voxel_done_flags( &surface_extraction->voxel_done_flags,
-                                     get_n_voxels(volume) );
     }
 }
 

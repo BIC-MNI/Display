@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.42 1996-04-19 17:38:52 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.43 1996-04-30 12:33:35 david Exp $";
 #endif
 
 
@@ -217,7 +217,7 @@ public  BOOLEAN  extract_voxel_surface(
     voxel[Y] = (int) voxel_index->i[Y];
     voxel[Z] = (int) voxel_index->i[Z];
 
-    if( surface_extraction->voxelate_flag )
+    if( surface_extraction->voxellate_flag )
     {
         found = extract_voxel_boundary_surface( volume, label_volume,
                                                 surface_extraction, voxel );
@@ -269,7 +269,8 @@ private  int  extract_polygons(
 
     get_volume_sizes( volume, volume_sizes );
 
-    voxel_flags = get_voxel_done_flag( volume_sizes,
+    voxel_flags = get_voxel_done_flag( surface_extraction->min_limits,
+                                       surface_extraction->max_limits,
                                        surface_extraction->voxel_done_flags,
                                        voxel_index );
 
@@ -358,7 +359,9 @@ private  int  extract_polygons(
         voxel_flags = VOXEL_COMPLETELY_DONE;
     }
 
-    set_voxel_done_flag( volume_sizes, surface_extraction->voxel_done_flags,
+    set_voxel_done_flag( surface_extraction->min_limits,
+                         surface_extraction->max_limits,
+                         surface_extraction->voxel_done_flags,
                          voxel_index, voxel_flags );
 
     return( n_added_polys > 0 );

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/data_structs.c,v 1.24 1996-04-19 17:38:52 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/data_structs.c,v 1.25 1996-04-30 12:33:35 david Exp $";
 #endif
 
 
@@ -57,9 +57,12 @@ public  void  delete_voxel_queue(
 
 public  void  initialize_voxel_flags(
     bitlist_3d_struct  *voxel_flags,
-    int                sizes[] )
+    int                min_limits[],
+    int                max_limits[] )
 {
-    create_bitlist_3d( sizes[X], sizes[Y], sizes[Z], voxel_flags );
+    create_bitlist_3d( max_limits[X] - min_limits[X] + 1,
+                       max_limits[Y] - min_limits[Y] + 1,
+                       max_limits[Z] - min_limits[Z] + 1, voxel_flags );
 }
 
 public  void  delete_voxel_flags(
@@ -76,42 +79,55 @@ public  void  clear_voxel_flags(
 
 public  BOOLEAN  get_voxel_flag(
     bitlist_3d_struct   *voxel_flags,
+    int                 min_limits[],
     voxel_index_struct  *indices )
 {
-    return( get_bitlist_bit_3d( voxel_flags, (int) indices->i[X],
-                                             (int) indices->i[Y],
-                                             (int) indices->i[Z] ) );
+    return( get_bitlist_bit_3d( voxel_flags,
+                                (int) indices->i[X] - min_limits[X],
+                                (int) indices->i[Y] - min_limits[Y],
+                                (int) indices->i[Z] - min_limits[Z] ) );
 }
 
 public  void  set_voxel_flag(
     bitlist_3d_struct      *voxel_flags,
-    voxel_index_struct  *indices )
+    int                    min_limits[],
+    voxel_index_struct     *indices )
 {
-    set_bitlist_bit_3d( voxel_flags, (int) indices->i[X],
-                                     (int) indices->i[Y],
-                                     (int) indices->i[Z], ON );
+    set_bitlist_bit_3d( voxel_flags,
+                        (int) indices->i[X] - min_limits[X],
+                        (int) indices->i[Y] - min_limits[Y],
+                        (int) indices->i[Z] - min_limits[Z], ON );
 }
 
 public  void  reset_voxel_flag(
     bitlist_3d_struct      *voxel_flags,
-    voxel_index_struct  *indices )
+    int                    min_limits[],
+    voxel_index_struct     *indices )
 {
-    set_bitlist_bit_3d( voxel_flags, (int) indices->i[X],
-                                     (int) indices->i[Y],
-                                     (int) indices->i[Z], OFF );
+    set_bitlist_bit_3d( voxel_flags,
+                        (int) indices->i[X] - min_limits[X],
+                        (int) indices->i[Y] - min_limits[Y],
+                        (int) indices->i[Z] - min_limits[Z], OFF );
 }
 
 /* ------------------ Voxel done flags, 4 bit flag structure --------------- */
 
 public  void  initialize_voxel_done_flags(
     unsigned_byte   **voxel_done_flags,
-    int             n_voxels )
+    int             min_limits[],
+    int             max_limits[] )
 {
+    int   n_voxels;
+
+    n_voxels = (max_limits[X] - min_limits[X] + 1) *
+               (max_limits[Y] - min_limits[Y] + 1) *
+               (max_limits[Z] - min_limits[Z] + 1);
+
     if( n_voxels > 0 )
     {
         ALLOC( *voxel_done_flags, (n_voxels + 1) / 2 );
 
-        clear_voxel_done_flags( *voxel_done_flags, n_voxels );
+        clear_voxel_done_flags( *voxel_done_flags, min_limits, max_limits );
     }
 }
 
@@ -124,24 +140,33 @@ public  void  delete_voxel_done_flags(
 
 public  void  clear_voxel_done_flags(
     unsigned_byte   voxel_done_flags[],
-    int             n_voxels )
+    int             min_limits[],
+    int             max_limits[] )
 {
-    int   i;
+    int   i, n_voxels;
+
+    n_voxels = (max_limits[X] - min_limits[X] + 1) *
+               (max_limits[Y] - min_limits[Y] + 1) *
+               (max_limits[Z] - min_limits[Z] + 1);
 
     for_less( i, 0, (n_voxels + 1) / 2 )
         voxel_done_flags[i] = 0;
 }
 
 public  unsigned_byte  get_voxel_done_flag(
-    int                 sizes[],
+    int                 min_limits[],
+    int                 max_limits[],
     unsigned_byte       voxel_done_flags[],
     voxel_index_struct  *indices )
 {
     int            index, byte_index;
     unsigned_byte  flag;
 
-    index = IJK( indices->i[X], indices->i[Y], indices->i[Z],
-                 sizes[Y], sizes[Z] );
+    index = IJK( (int) indices->i[X] - min_limits[X],
+                 (int) indices->i[Y] - min_limits[Y],
+                 (int) indices->i[Z] - min_limits[Z],
+                 max_limits[Y] - min_limits[Y] + 1, 
+                 max_limits[Z] - min_limits[Z] + 1 );
 
     byte_index = index >> 1;
 
@@ -154,15 +179,19 @@ public  unsigned_byte  get_voxel_done_flag(
 }
 
 public  void  set_voxel_done_flag(
-    int                 sizes[],
+    int                 min_limits[],
+    int                 max_limits[],
     unsigned_byte       voxel_done_flags[],
     voxel_index_struct  *indices,
     unsigned_byte       flag )
 {
     int            index, byte_index;
 
-    index = IJK( indices->i[X], indices->i[Y], indices->i[Z],
-                 sizes[Y], sizes[Z] );
+    index = IJK( (int) indices->i[X] - min_limits[X],
+                 (int) indices->i[Y] - min_limits[Y],
+                 (int) indices->i[Z] - min_limits[Z],
+                 max_limits[Y] - min_limits[Y] + 1, 
+                 max_limits[Z] - min_limits[Z] + 1 );
 
     byte_index = index >> 1;
 
@@ -182,38 +211,27 @@ public  void  set_voxel_done_flag(
 public  void  initialize_edge_points(
     hash_table_struct  *hash_table )
 {
-    initialize_hash_table( hash_table, 1, INITIAL_SIZE, Edge_point_threshold,
-                           Edge_point_new_density );
+    initialize_hash_table( hash_table, INITIAL_SIZE, sizeof(int),
+                           Edge_point_threshold, Edge_point_new_density );
 }
 
 public  void  delete_edge_points(
     hash_table_struct  *hash_table )
 {
-    hash_table_pointer   hash_ptr;
-    edge_point_struct    *edge_info;
-
-    edge_info = NULL;   /* avoid compiler warning message */
-
-    initialize_hash_pointer( &hash_ptr );
-
-    while( get_next_hash_entry( hash_table, &hash_ptr, (void **) &edge_info ) )
-    {
-        FREE( edge_info );
-    }
-
     delete_hash_table( hash_table );
 }
 
-#define  N_KEYS  1
-
-private  void  get_edge_point_keys(
+private  int  get_edge_point_key(
     int                  sizes[],
     voxel_index_struct   *voxel,
-    int                  edge_intersected,
-    int                  keys[] )
+    int                  edge )
 {
-    keys[0] = IJK( voxel->i[X], voxel->i[Y], voxel->i[Z], sizes[Y]+1,sizes[Z]+1)
-              * N_DIMENSIONS + edge_intersected;
+    int   key;
+
+    key = IJK( voxel->i[X], voxel->i[Y], voxel->i[Z], sizes[Y]+1,sizes[Z]+1)
+               * 6 + edge;
+
+    return( key );
 }
 
 public  BOOLEAN  lookup_edge_point_id(
@@ -223,18 +241,12 @@ public  BOOLEAN  lookup_edge_point_id(
     int                 edge_intersected,
     int                 *edge_point_id )
 {
-    int                  keys[N_KEYS];
+    int                  key;
     BOOLEAN              exists;
-    edge_point_struct    *edge_info;
 
-    get_edge_point_keys( sizes, voxel, edge_intersected, keys );
+    key = get_edge_point_key( sizes, voxel, edge_intersected );
 
-    edge_info = NULL;   /* avoid compiler warning message */
-
-    exists = lookup_in_hash_table( hash_table, keys, (void **) &edge_info );
-
-    if( exists )
-        *edge_point_id = edge_info->point_index;
+    exists = lookup_in_hash_table( hash_table, key, (void *) edge_point_id );
 
     return( exists );
 }
@@ -248,16 +260,11 @@ public  void  record_edge_point_id(
     int                 edge_intersected,
     int                 edge_point_id )
 {
-    int                  keys[N_KEYS];
-    edge_point_struct    *edge_info;
+    int   key;
 
-    get_edge_point_keys( sizes, voxel, edge_intersected, keys );
+    key = get_edge_point_key( sizes, voxel, edge_intersected );
 
-    ALLOC( edge_info, 1 );
-
-    edge_info->point_index = edge_point_id;
-
-    insert_in_hash_table( hash_table, keys, (void *) edge_info );
+    insert_in_hash_table( hash_table, key, (void *) &edge_point_id );
 
 #ifdef STATS
 {
@@ -278,13 +285,9 @@ public  void  remove_edge_point(
     voxel_index_struct  *voxel,
     int                 edge_intersected )
 {
-    int                  keys[N_KEYS];
-    edge_point_struct    *edge_info;
+    int                  key;
 
-    get_edge_point_keys( sizes, voxel, edge_intersected, keys );
+    key = get_edge_point_key( sizes, voxel, edge_intersected );
 
-    edge_info = NULL;   /* avoid compiler warning message */
-
-    if( remove_from_hash_table( hash_table, keys, (void **) &edge_info ) )
-        FREE( edge_info );
+    (void) remove_from_hash_table( hash_table, key, NULL );
 }
