@@ -5,7 +5,7 @@
 #include  <def_globals.h>
 #include  <def_alloc.h>
 
-private  graphics_struct  **windows = (graphics_struct **) 0;
+private  graphics_struct  **windows;
 private  int              n_windows = 0;
 
 public  int  get_list_of_windows( graphics )
@@ -90,58 +90,6 @@ private  Status  free_graphics( graphics )
     return( status );
 }
 
-private  Status  delete_graphics_list()
-{
-    Status    status;
-
-    if( windows != (graphics_struct **) 0 )
-    {
-        FREE1( status, windows );
-    }
-
-    return( status );
-}
-
-public  Status  initialize_graphics()
-{
-    Status   status;
-    Status   G_initialize();
-
-    status = G_initialize();
-
-    return( status );
-}
-
-public  Status  terminate_graphics()
-{
-    Status            status;
-    Status            G_terminate();
-    Status            delete_graphics_window();
-    graphics_struct   **graphics_windows;
-
-    status = OK;
-
-    while( get_list_of_windows( &graphics_windows ) > 0 )
-    {
-        if( status == OK )
-        {
-            status = delete_graphics_window( graphics_windows[0] );
-        }
-    }
-
-    if( status == OK )
-    {
-        status = delete_graphics_list();
-    }
-
-    if( status == OK )
-    {
-        status = G_terminate();
-    }
-
-    return( status );
-}
-
 public  Status  create_graphics_window( window_type, graphics,
                                         title, width, height )
     window_types      window_type;
@@ -219,17 +167,13 @@ private  Status  initialize_graphics_window( graphics )
     void           make_identity_transform();
     void           initialize_objects();
     void           initialize_menu_actions();
-    Status         initialize_slice_window();
+    void           initialize_slice_window();
     Status         initialize_three_d_window();
     Status         status;
     Status         create_object();
     view_types     view_type;
     model_struct   *model;
     model_struct   *get_graphics_model();
-
-    graphics->associated[THREE_D_WINDOW] = (graphics_struct *) 0;
-    graphics->associated[MENU_WINDOW] = (graphics_struct *) 0;
-    graphics->associated[SLICE_WINDOW] = (graphics_struct *) 0;
 
     initialize_action_table( &graphics->action_table );
 
@@ -275,7 +219,7 @@ private  Status  initialize_graphics_window( graphics )
 
     if( status == OK && graphics->window_type == SLICE_WINDOW )
     {
-        status = initialize_slice_window( graphics );
+        initialize_slice_window( graphics );
     }
 
     if( status == OK )
@@ -327,8 +271,14 @@ public  void  update_graphics( graphics, interrupt )
     void          display_objects();
     void          display_frame_info();
     void          format_time();
+    void          update_slice_window();
     Real          start, end;
     Real          current_realtime_seconds();
+
+    if( graphics->window_type == SLICE_WINDOW )
+    {
+        update_slice_window( graphics );
+    }
 
     if( interrupt->last_was_interrupted )
     {
@@ -399,7 +349,7 @@ private  Status  terminate_graphics_window( graphics )
     Status   delete_object();
     Status   delete_three_d();
     Status   delete_menu();
-    Status   delete_slice_window();
+    Status   delete_slice_window_info();
 
     status = OK;
 
@@ -411,7 +361,7 @@ private  Status  terminate_graphics_window( graphics )
         }
     }
 
-    if( status == OK && graphics->window_type == THREE_D_WINDOW )
+    if( status == OK && graphics->window_type == MENU_WINDOW )
     {
         status = delete_three_d( graphics );
     }
@@ -423,7 +373,7 @@ private  Status  terminate_graphics_window( graphics )
 
     if( status == OK && graphics->window_type == SLICE_WINDOW )
     {
-        status = delete_slice_window( &graphics->slice );
+        status = delete_slice_window_info( &graphics->slice );
     }
 
     return( status );
