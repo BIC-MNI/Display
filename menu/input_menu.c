@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.123 1995-10-19 15:51:51 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.124 1995-12-07 20:24:58 david Exp $";
 #endif
 
 #include  <display.h>
@@ -271,7 +271,22 @@ MENU_F(set_atlas_tolerance_x) \
 MENU_F(set_atlas_tolerance_y) \
 MENU_F(set_atlas_tolerance_z) \
 MENU_F(mark_vertices) \
-MENU_F(flip_object)
+MENU_F(flip_object) \
+MENU_F(translate_volume_plus_x) \
+MENU_F(translate_volume_minus_x) \
+MENU_F(translate_volume_plus_y) \
+MENU_F(translate_volume_minus_y) \
+MENU_F(translate_volume_plus_z) \
+MENU_F(translate_volume_minus_z) \
+MENU_F(rotate_volume_plus_x) \
+MENU_F(rotate_volume_minus_x) \
+MENU_F(rotate_volume_plus_y) \
+MENU_F(rotate_volume_minus_y) \
+MENU_F(rotate_volume_plus_z) \
+MENU_F(rotate_volume_minus_z) \
+MENU_F(set_volume_rotation_step) \
+MENU_F(set_volume_translation_step) \
+MENU_F(save_current_volume_transform)
 
 #define  FUNCTION_LIST  FIRST SECOND
                 
