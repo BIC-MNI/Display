@@ -427,3 +427,42 @@ public  DEF_MENU_UPDATE(set_connected_inactive )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
+{
+    Status           status;
+    volume_struct    *volume;
+    int              x, y, z, axis_index;
+    Status           fill_connected_voxels_3d();
+    void             set_slice_window_update();
+    graphics_struct  *slice_window;
+    void             set_update_required();
+
+    if( get_voxel_under_mouse( graphics, &x, &y, &z, &axis_index ) &&
+        get_slice_window_volume( graphics, &volume) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        PRINT( "Filling 3d from %d %d %d ", x, y, z );
+        (void) flush_file( stdout );
+
+        status = fill_connected_voxels_3d( volume, x, y, z,
+                          slice_window->slice.segmenting.max_threshold );
+
+        PRINT( "Done\n" );
+
+        if( status == OK )
+        {
+            set_slice_window_update( slice_window, 0 );
+            set_slice_window_update( slice_window, 1 );
+            set_slice_window_update( slice_window, 2 );
+        }
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(label_connected_3d )   /* ARGSUSED */
+{
+    return( OK );
+}

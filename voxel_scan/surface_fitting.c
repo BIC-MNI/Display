@@ -20,13 +20,16 @@ public  Status  initialize_surface_fitting( surface_fitting )
     }
 
     if( status == OK )
-        status = alloc_surface_fitting_parameters( surface_fitting );
+        status = alloc_surface_fitting_parameters( surface_fitting,
+                                                   (double *) 0 );
 
     return( status );
 }
 
-public  Status  alloc_surface_fitting_parameters( surface_fitting )
+private  Status  alloc_surface_fitting_parameters( surface_fitting,
+                                                  descriptors )
     surface_fitting_struct   *surface_fitting;
+    double                   descriptors[];
 {
     int     i, n_parameters;
     Status  status;
@@ -41,8 +44,17 @@ public  Status  alloc_surface_fitting_parameters( surface_fitting )
 
     if( status == OK )
     {
-        surface_fitting->surface_representation->get_default_descriptors(
-                         surface_fitting->descriptors );
+        if( descriptors == (double *) 0 )
+        {
+            surface_fitting->surface_representation->get_default_descriptors(
+                             surface_fitting->descriptors );
+        }
+        else
+        {
+            for_less( i, 0, surface_fitting->surface_representation->
+                            n_descriptors )
+                surface_fitting->descriptors[i] = descriptors[i];
+        }
     }
 
     if( status == OK )
@@ -98,11 +110,12 @@ public  Status  delete_surface_fitting( surface_fitting )
     surface_fitting_struct  *surface_fitting;
 {
     Status  status;
+    Status  delete_surface_fitting_points();
 
     status = free_surface_fitting_parameters( surface_fitting );
 
-    if( status == OK && surface_fitting->n_surface_points > 0 )
-        FREE( status, surface_fitting->surface_points );
+    if( status == OK )
+        status = delete_surface_fitting_points( surface_fitting );
 
     return( status );
 }
@@ -187,34 +200,28 @@ public  Status  convert_to_new_surface_representation( surface_fitting,
     surface_rep_struct       *new_rep;
     double                   new_descriptors[];
 {
-    Status              status;
-    int                 i;
-    surface_rep_struct  *prev_rep_struct;
-    double              *prev_parameters, *prev_descriptors;
+    Status                  status;
+    int                     i;
+    surface_fitting_struct  prev_surface_fitting;
 
-    prev_rep_struct = surface_fitting->surface_representation;
-    prev_parameters = surface_fitting->parameters;
-    prev_descriptors = surface_fitting->descriptors;
+    prev_surface_fitting = *surface_fitting;
 
     surface_fitting->surface_representation = new_rep;
 
-    status = alloc_surface_fitting_parameters( surface_fitting );
-
-    for_less( i, 0, (int) new_rep->n_descriptors )
-        surface_fitting->descriptors[i] = new_descriptors[i];
+    status = alloc_surface_fitting_parameters( surface_fitting,
+                                               new_descriptors );
 
     if( status == OK )
     {
         surface_fitting->surface_representation->convert_from_representation(
-                prev_rep_struct, prev_descriptors, prev_parameters,
+                prev_surface_fitting.surface_representation,
+                prev_surface_fitting.descriptors,
+                prev_surface_fitting.parameters,
                 surface_fitting->descriptors, surface_fitting->parameters );
     }
     
     if( status == OK )
-        FREE( status, prev_parameters );
-    
-    if( status == OK )
-        FREE( status, prev_descriptors );
+        status = free_surface_fitting_parameters( &prev_surface_fitting );
 
     return( status );
 }

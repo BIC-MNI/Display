@@ -1,4 +1,4 @@
-
+ 
 #include  <def_graphics.h>
 #include  <def_globals.h>
 #include  <def_math.h>
@@ -201,7 +201,8 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
     if( get_current_polygons(graphics,&polygons) )
     {
         status = smooth_polygon( polygons, Max_smoothing_distance,
-                                 Smoothing_ratio, Smoothing_threshold );
+                                 Smoothing_ratio, Smoothing_threshold,
+                                 FALSE, (volume_struct *) 0, 0, 0 );
 
         if( status == OK )
             status = compute_polygon_normals( polygons );
@@ -218,6 +219,46 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(smooth_current_polygon )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( smooth_current_polygon_with_volume )   /* ARGSUSED */
+{
+    Status            status;
+    Status            smooth_polygon();
+    Status            compute_polygon_normals();
+    Status            delete_polygons_bintree();
+    polygons_struct   *polygons;
+    volume_struct     *volume;
+    void              set_update_required();
+
+    status = OK;
+
+    if( get_current_polygons( graphics, &polygons ) &&
+        get_current_volume( graphics, &volume ) )
+    {
+        status = smooth_polygon( polygons, Max_smoothing_distance,
+                                 Smoothing_ratio, Smoothing_threshold,
+                                 TRUE, volume,
+            graphics->associated[SLICE_WINDOW]->slice.segmenting.min_threshold,
+            graphics->associated[SLICE_WINDOW]->slice.segmenting.max_threshold);
+
+        if( status == OK )
+            status = compute_polygon_normals( polygons );
+
+        if( status == OK )
+            status = delete_polygons_bintree( polygons );
+
+        set_update_required( graphics, NORMAL_PLANES );
+
+        PRINT( "Done smoothing polygon.\n" );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(smooth_current_polygon_with_volume )   /* ARGSUSED */
 {
     return( OK );
 }

@@ -192,7 +192,7 @@ private  int  get_minimum_cut( x_size, y_size, pixels, label_of_interest )
             }
             else
             {
-                pixels[x][y].cutoff = pixels[x][y].dist_transform;
+                pixels[x][y].cutoff = 0;
                 pixels[x][y].queued = FALSE;
             }
         }
@@ -215,10 +215,8 @@ private  int  get_minimum_cut( x_size, y_size, pixels, label_of_interest )
                 ny >= 0 && ny < y_size &&
                 pixels[nx][ny].inside )
             {
-                if( cut_decreased( &pixels[x][y], &pixels[nx][ny], &cut ) )
+                if( cut_modified( &pixels[x][y], &pixels[nx][ny] ) )
                 {
-                    pixels[nx][ny].cutoff = cut;
-
                     if( !pixels[nx][ny].queued &&
                         pixels[nx][ny].label != label_of_interest )
                     {
@@ -240,14 +238,13 @@ private  int  get_minimum_cut( x_size, y_size, pixels, label_of_interest )
     {
         for_less( y, 0, y_size )
         {
-            if( pixels[x][y].label == label_of_interest )
+            if( pixels[x][y].label == label_of_interest &&
+                pixels[x][y].cutoff >= 0 )
             {
-                cut = ABS( pixels[x][y].cutoff );
+                cut = pixels[x][y].cutoff;
 
-                if( cut < pixels[x][y].dist_transform && cut > min_cut )
-                {
+                if( cut > min_cut )
                     min_cut = cut;
-                }
             }
         }
     }
@@ -256,31 +253,30 @@ private  int  get_minimum_cut( x_size, y_size, pixels, label_of_interest )
     return( min_cut );
 }
 
-private  Boolean  cut_decreased( neighbour_pixel, this_pixel, new_cut )
+private  Boolean  cut_modified( neighbour_pixel, this_pixel )
     pixel_struct   *neighbour_pixel;
     pixel_struct   *this_pixel;
-    int            *new_cut;
 {
     Boolean  cut_changed;
     int      neigh_cut;
 
-    neigh_cut = neighbour_pixel->cutoff;
+    cut_changed = FALSE;
 
-    if( neigh_cut < 0 )
+    if( ABS(this_pixel->cutoff) < this_pixel->dist_transform )
     {
-        if( this_pixel->dist_transform == -neigh_cut + 1 &&
-            this_pixel->dist_transform > ABS(this_pixel->cutoff) )
+        neigh_cut = neighbour_pixel->cutoff;
+
+        if( neigh_cut < 0 && this_pixel->dist_transform == -neigh_cut + 1 )
         {
-            *new_cut = neigh_cut - 1;
+            this_pixel->cutoff = -this_pixel->dist_transform;
             cut_changed = TRUE;
         }
-        else
-            cut_changed = FALSE;
-    }
-    else
-    {
-        *new_cut = MIN( this_pixel->dist_transform, neigh_cut );
-        cut_changed = ( *new_cut > this_pixel->cutoff );
+        else if( ABS(neigh_cut) > ABS(this_pixel->cutoff) )
+        {
+            this_pixel->cutoff = MIN( this_pixel->dist_transform,
+                                      ABS(neigh_cut) );
+            cut_changed = TRUE;
+        }
     }
 
     return( cut_changed );

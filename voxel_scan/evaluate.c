@@ -261,6 +261,7 @@ private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
     double   dxu, dyu, dzu, dxv, dyv, dzv;
     double   get_radius_of_curvature();
     Vector   surface_normal, function_deriv;
+    Real     val;
     Real     evaluate_volume_at_point();
     void     convert_point_to_voxel();
     Real     x_voxel, y_voxel, z_voxel;
@@ -273,6 +274,30 @@ private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
                                  &dxuu, &dyuu, &dzuu, &dxvv, &dyvv, &dzvv );
 
     fit = 0.0;
+
+    if( fit_data->isovalue_factor > 0.0 )
+    {
+        if( volume != (volume_struct *) 0 &&
+            point_is_within_volume( volume, x, y, z ) )
+        {
+            convert_point_to_voxel( volume, (Real) x, (Real) y, (Real) z,
+                                    &x_voxel, &y_voxel, &z_voxel );
+
+            if( get_voxel_activity_flag( volume, ROUND(x_voxel),
+                                         ROUND(y_voxel), ROUND(z_voxel) ))
+            {
+                val = evaluate_volume_at_point( volume, x, y, z,
+                                                (Real *) 0, (Real *) 0,
+                                                (Real *) 0 );
+
+                surface_estimate = ABS( val - fit_data->isovalue );
+            }
+            else
+                surface_estimate = BIG_NUMBER;
+
+            fit += surface_estimate * fit_data->isovalue_factor;
+        }
+    }
 
     if( fit_data->gradient_strength_factor > 0.0 )
     {

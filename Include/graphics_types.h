@@ -121,7 +121,14 @@ typedef  struct
     object_struct  *model_object;
 } selection_entry;
 
-typedef  STACK_STRUCT( selection_entry )   selection_struct;
+typedef  struct
+{
+    int                n_levels_alloced;
+    int                max_levels;
+    int                current_level;
+
+    selection_entry    *stack;
+} selection_struct;
 
 typedef  struct
 {

@@ -10,6 +10,7 @@
                        MENU_FUNCTION(load_file) \
                        MENU_FUNCTION(save_file) \
                        MENU_FUNCTION(create_model) \
+                       MENU_FUNCTION(change_model_name) \
                        MENU_FUNCTION(reset_view) \
                        MENU_FUNCTION(make_view_fit) \
                        MENU_FUNCTION(toggle_perspective) \
@@ -109,6 +110,7 @@
                        MENU_FUNCTION(create_marker_at_cursor) \
                        MENU_FUNCTION(set_cursor_to_marker) \
                        MENU_FUNCTION(save_markers) \
+                       MENU_FUNCTION(load_markers) \
                        MENU_FUNCTION(set_default_marker_id) \
                        MENU_FUNCTION(set_default_marker_type) \
                        MENU_FUNCTION(set_default_marker_colour) \
@@ -133,6 +135,8 @@
                        MENU_FUNCTION(set_hot_metal) \
                        MENU_FUNCTION(set_gray_scale) \
                        MENU_FUNCTION(set_spectral) \
+                       MENU_FUNCTION(set_under_colour) \
+                       MENU_FUNCTION(set_over_colour) \
                        MENU_FUNCTION(set_model_parameters) \
                        MENU_FUNCTION(convert_to_new_representation) \
                        MENU_FUNCTION(load_model_parameters) \

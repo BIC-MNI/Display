@@ -32,6 +32,7 @@ typedef  struct  menu_entry_struct
     String                      label;
     int                         current_depth;
     int                         n_children;
+    int                         n_chars_across;
     struct  menu_entry_struct   **children;
     menu_function_pointer       action;
     menu_update_pointer         update_action;
@@ -48,7 +49,7 @@ typedef  struct
     Real                 y_dx;
     Real                 y_dy;
 
-    int                  n_chars_across_entry;
+    int                  n_chars_per_unit_across;
     int                  n_lines_in_entry;
 
     Real                 character_height;

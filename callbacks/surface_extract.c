@@ -151,3 +151,39 @@ public  DEF_MENU_UPDATE(set_isovalue )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION(get_labeled_boundary)   /* ARGSUSED */
+{
+    Status           status;
+    Status           add_object_to_model();
+    Status           extract_boundary_of_labeled_voxels();
+    Status           create_object();
+    object_struct    *object;
+    volume_struct    *volume;
+    model_struct     *get_current_model();
+    void             graphics_models_have_changed();
+
+    status = OK;
+
+    if( get_current_volume( graphics, &volume ) )
+    {
+        status = create_object( &object, POLYGONS );
+
+        if( status == OK )
+            status = extract_boundary_of_labeled_voxels( volume,
+                                     object->ptr.polygons );
+
+        if( status == OK )
+            status = add_object_to_model( get_current_model(graphics), object );
+
+        if( status == OK )
+            graphics_models_have_changed( graphics );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(get_labeled_boundary )   /* ARGSUSED */
+{
+    return( OK );
+}

@@ -182,6 +182,8 @@ public  void  set_isosurface_value( surface_extraction )
             surface_extraction->isovalue = value;
             surface_extraction->isovalue_selected = TRUE;
         }
+
+        (void) input_newline( stdin );
     }
 }
 

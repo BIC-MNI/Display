@@ -4,7 +4,7 @@
 #include  <def_globals.h>
 #include  <def_string.h>
 
-static    Status          output_marker();
+static    Status          io_tag_point();
 
 private  Boolean  get_current_marker( graphics, marker )
     graphics_struct   *graphics;
@@ -104,7 +104,6 @@ public  DEF_MENU_FUNCTION( set_cursor_to_marker )   /* ARGSUSED */
     object_struct   *object;
     void            set_update_required();
     void            update_cursor();
-    void            convert_voxel_to_point();
     graphics_struct *slice_window;
 
     if( get_current_object( graphics, &object ) &&
@@ -134,16 +133,15 @@ public  DEF_MENU_UPDATE(set_cursor_to_marker )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
 {
-    Status          status;
-    object_struct   *object, *current_object;
-    object_struct   *get_current_model_object();
-    volume_struct   *volume;
-    void            update_cursor();
-    Status          input_string();
-    String          filename;
-    FILE            *file;
-    Status          open_file();
-    Status          close_file();
+    Status                  status;
+    object_struct           *object, *current_object;
+    object_struct           *get_current_model_object();
+    volume_struct           *volume;
+    void                    update_cursor();
+    String                  filename;
+    FILE                    *file;
+    Status                  open_file();
+    Status                  close_file();
     object_traverse_struct  object_traverse;
     Status                  initialize_object_traverse();
 
@@ -170,16 +168,14 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
             if( current_object->object_type == MARKER &&
                 current_object->visibility )
             {
-                status = output_marker( file, volume,
-                                        current_object->ptr.marker );
+                status = io_tag_point( file, WRITE_FILE, volume,
+                                       current_object->ptr.marker );
             }
         }
     }
 
     if( status == OK )
-    {
         status = close_file( file );
-    }
 
     PRINT( "Done.\n" );
 
@@ -191,8 +187,73 @@ public  DEF_MENU_UPDATE(save_markers )   /* ARGSUSED */
     return( OK );
 }
 
-private  Status  output_marker( file, volume, marker )
+public  DEF_MENU_FUNCTION( load_markers )   /* ARGSUSED */
+{
+    Status                  status;
+    object_struct           *object;
+    Status                  create_object();
+    marker_struct           marker;
+    model_struct            *model;
+    model_struct            *get_current_model();
+    volume_struct           *volume;
+    String                  filename;
+    FILE                    *file;
+    Status                  open_file();
+    Status                  close_file();
+    void                    graphics_models_have_changed();
+    void                    rebuild_selected_list();
+    void                    regenerate_voxel_labels();
+
+    model = get_current_model( graphics );
+
+    PRINT( "Enter filename: " );
+
+    status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+
+    (void) input_newline( stdin );
+
+    if( !get_slice_window_volume( graphics, &volume ) )
+        volume = (volume_struct *) 0;
+
+    if( status == OK )
+        status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
+
+    if( status == OK )
+    {
+        while( io_tag_point( file, READ_FILE, volume, &marker ) == OK )
+        {
+            status = create_object( &object, MARKER );
+
+            if( status == OK )
+            {
+                marker.colour = graphics->three_d.default_marker_colour;
+                *(object->ptr.marker) = marker;
+                status = add_object_to_model( model, object );
+            }
+        }
+    }
+
+    if( status == OK )
+        status = close_file( file );
+
+
+    regenerate_voxel_labels( graphics );
+    graphics_models_have_changed( graphics );
+    rebuild_selected_list( graphics, menu_window );
+
+    PRINT( "Done.\n" );
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(load_markers )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+private  Status  io_tag_point( file, io_direction, volume, marker )
     FILE            *file;
+    IO_types        io_direction;
     volume_struct   *volume;
     marker_struct   *marker;
 {
@@ -202,58 +263,102 @@ private  Status  output_marker( file, volume, marker )
     Status   io_int();
     Status   io_real();
     Status   io_quoted_string();
+    String   line;
+    void     strip_blanks();
     Point    position;
     void     convert_point_to_voxel();
+    void     convert_voxel_to_point();
     void     convert_voxel_to_talairach();
+    void     convert_talairach_to_voxel();
     void     get_volume_size();
     int      nx, ny, nz;
     int      patient_id = 0;
 
     status = OK;
 
-    if( volume == (volume_struct *) 0 )
+    if( io_direction == WRITE_FILE )
     {
-        position = marker->position;
-    }
-    else
-    {
-        convert_point_to_voxel( volume,
-                                Point_x(marker->position),
-                                Point_y(marker->position),
-                                Point_z(marker->position),
-                                &Point_x(position),
-                                &Point_y(position),
-                                &Point_z(position) );
-
-        get_volume_size( volume, &nx, &ny, &nz );
-
-        convert_voxel_to_talairach( Point_x(position),
-                                    Point_y(position),
-                                    Point_z(position),
-                                    nx, ny, nz,
+        if( volume == (volume_struct *) 0 )
+        {
+            position = marker->position;
+        }
+        else
+        {
+            convert_point_to_voxel( volume,
+                                    Point_x(marker->position),
+                                    Point_y(marker->position),
+                                    Point_z(marker->position),
                                     &Point_x(position),
                                     &Point_y(position),
                                     &Point_z(position) );
+
+            get_volume_size( volume, &nx, &ny, &nz );
+
+            convert_voxel_to_talairach( Point_x(position),
+                                        Point_y(position),
+                                        Point_z(position),
+                                        nx, ny, nz,
+                                        &Point_x(position),
+                                        &Point_y(position),
+                                        &Point_z(position) );
+        }
     }
 
     if( status == OK )
-        status = io_point( file, WRITE_FILE, ASCII_FORMAT, &position );
+        status = io_point( file, io_direction, ASCII_FORMAT, &position );
+
+    if( io_direction == READ_FILE )
+    {
+        if( volume == (volume_struct *) 0 )
+        {
+            position = marker->position;
+        }
+        else
+        {
+            get_volume_size( volume, &nx, &ny, &nz );
+
+            convert_talairach_to_voxel( Point_x(position),
+                                        Point_y(position),
+                                        Point_z(position),
+                                        nx, ny, nz,
+                                        &Point_x(position),
+                                        &Point_y(position),
+                                        &Point_z(position) );
+
+            convert_voxel_to_point( volume,
+                                    Point_x(position),
+                                    Point_y(position),
+                                    Point_z(position),
+                                    &marker->position );
+        }
+    }
 
     if( status == OK )
-        status = io_real( file, WRITE_FILE, ASCII_FORMAT, &marker->size );
+        status = io_real( file, io_direction, ASCII_FORMAT, &marker->size );
 
     if( status == OK )
-        status = io_int( file, WRITE_FILE, ASCII_FORMAT, &marker->id );
+        status = io_int( file, io_direction, ASCII_FORMAT, &marker->id );
 
     if( status == OK )
-        status = io_int( file, WRITE_FILE, ASCII_FORMAT, &patient_id );
+        status = io_int( file, io_direction, ASCII_FORMAT, &patient_id );
 
-    if( status == OK && strlen(marker->label) > 0 )
-        status = io_quoted_string( file, WRITE_FILE, ASCII_FORMAT,
-                                   marker->label, MAX_STRING_LENGTH );
+    if( io_direction == WRITE_FILE )
+    {
+        if( status == OK && strlen(marker->label) > 0 )
+            status = io_quoted_string( file, io_direction, ASCII_FORMAT,
+                                       marker->label, MAX_STRING_LENGTH );
+    }
+    else
+    {
+        if( status == OK )
+            status = input_line( file, line, MAX_STRING_LENGTH );
+
+        if( status == OK )
+            strip_blanks( line, marker->label );
+    }
 
     if( status == OK )
-        status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
+        status = io_newline( file, io_direction, ASCII_FORMAT );
 
     return( status );
 }

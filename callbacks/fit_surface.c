@@ -302,6 +302,8 @@ public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
                         graphics->three_d.surface_fitting.parameters );
 
     graphics->three_d.surface_fitting.n_samples = N_fitting_samples;
+    graphics->three_d.surface_fitting.isovalue_factor = Isovalue_factor;
+    graphics->three_d.surface_fitting.isovalue = Fitting_isovalue;
     graphics->three_d.surface_fitting.gradient_strength_factor =
                                       Gradient_strength_factor;
     graphics->three_d.surface_fitting.gradient_strength_exponent =

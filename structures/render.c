@@ -11,5 +11,6 @@ public  void  initialize_render( render )
     render->backface_flag = Initial_backface_flag;
     render->two_sided_surface_flag = Initial_2_sided_flag;
     render->render_lines_as_curves = FALSE;
+    render->show_marker_labels = TRUE;
     render->n_curve_segments = Initial_n_curve_segments;
 }

@@ -30,6 +30,12 @@ public  Status  initialize_three_d_window( graphics )
 
     three_d = &graphics->three_d;
 
+    three_d->default_marker_id = Default_marker_id;
+    three_d->default_marker_type = (int) Default_marker_type;
+    three_d->default_marker_size = Default_marker_size;
+    three_d->default_marker_colour = Default_marker_colour;
+    (void) strcpy( three_d->default_marker_label, Default_marker_label );
+
     initialize_view( &three_d->view, &line_of_sight, &horizontal );
     three_d->view.perspective_flag = Initial_perspective_flag;
     adjust_view_for_aspect( &three_d->view, &graphics->window );

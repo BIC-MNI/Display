@@ -4,20 +4,26 @@
 #include  <def_files.h>
 #include  <def_arrays.h>
 
-#define  DIVIDER_INDEX      0
-#define  SLICE1_INDEX       1
-#define  SLICE2_INDEX       2
-#define  SLICE3_INDEX       3
-#define  CURSOR1_INDEX      4
-#define  CURSOR2_INDEX      5
-#define  CURSOR3_INDEX      6
-#define  TEXT1_INDEX        7
-#define  TEXT2_INDEX        8
-#define  TEXT3_INDEX        9
-#define  X_PROBE_INDEX     10
-#define  Y_PROBE_INDEX     11
-#define  Z_PROBE_INDEX     12
-#define  VAL_PROBE_INDEX   13
+#define  DIVIDER_INDEX                  0
+#define  SLICE1_INDEX                   1
+#define  SLICE2_INDEX                   2
+#define  SLICE3_INDEX                   3
+#define  CURSOR1_INDEX                  4
+#define  CURSOR2_INDEX                  5
+#define  CURSOR3_INDEX                  6
+#define  TEXT1_INDEX                    7
+#define  TEXT2_INDEX                    8
+#define  TEXT3_INDEX                    9
+#define  X_TRANSFORMED_PROBE_INDEX     10
+#define  Y_TRANSFORMED_PROBE_INDEX     11
+#define  Z_TRANSFORMED_PROBE_INDEX     12
+#define  X_FILE_PROBE_INDEX            13
+#define  Y_FILE_PROBE_INDEX            14
+#define  Z_FILE_PROBE_INDEX            15
+#define  X_TALAIRACH_PROBE_INDEX       16
+#define  Y_TALAIRACH_PROBE_INDEX       17
+#define  Z_TALAIRACH_PROBE_INDEX       18
+#define  VAL_PROBE_INDEX               19
 
 static    void           render_slice_to_pixels();
 
@@ -94,7 +100,7 @@ public  Status  initialize_slice_models( graphics )
         }
     }
 
-    for_inclusive( i, X_PROBE_INDEX, VAL_PROBE_INDEX )
+    for_inclusive( i, X_TRANSFORMED_PROBE_INDEX, VAL_PROBE_INDEX )
     {
         status = create_object( &object, TEXT );
         if( status == OK )
@@ -147,13 +153,20 @@ public  void  rebuild_probe( graphics )
     model_struct   *model;
     model_struct   *get_graphics_model();
     Boolean        active;
+    volume_struct  *volume;
     int            i, x_voxel, y_voxel, z_voxel, view_index;
+    Real           x_tal_voxel, y_tal_voxel, z_tal_voxel;
+    Real           x_talairach, y_talairach, z_talairach;
     text_struct    *text;
+    int            nx, ny, nz;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
     int            x_file, y_file, z_file;
     void           get_slice_viewport();
     Boolean        get_voxel_in_slice_window();
     void           convert_to_file_space();
+    void           convert_voxel_to_talairach();
+    void           convert_talairach_to_mm();
+    void           get_volume_size();
 
     active = get_voxel_in_slice_window( graphics, &x_voxel, &y_voxel, &z_voxel,
                                         &view_index );
@@ -165,10 +178,22 @@ public  void  rebuild_probe( graphics )
     convert_to_file_space( graphics->slice.volume, x_voxel, y_voxel, z_voxel,
                            &x_file, &y_file, &z_file );
 
-    for_inclusive( i, X_PROBE_INDEX, VAL_PROBE_INDEX )
+    if( get_slice_window_volume( graphics,  &volume ) )
+        get_volume_size( volume, &nx, &ny, &nz );
+
+    convert_voxel_to_talairach( (Real) x_voxel, (Real) y_voxel, (Real) z_voxel,
+                                nx, ny, nz,
+                                &x_tal_voxel, &y_tal_voxel, &z_tal_voxel );
+
+    convert_talairach_to_mm( x_tal_voxel, y_tal_voxel, z_tal_voxel,
+                             &x_talairach, &y_talairach, &z_talairach );
+
+    for_inclusive( i, X_TRANSFORMED_PROBE_INDEX, VAL_PROBE_INDEX )
     {
-        x_pos = x_min + Probe_x_pos + (i - X_PROBE_INDEX) * Probe_x_delta;
-        y_pos = y_max - Probe_y_pos - (i - X_PROBE_INDEX) * Probe_y_delta;
+        x_pos = x_min + Probe_x_pos + (i - X_TRANSFORMED_PROBE_INDEX)
+                                       * Probe_x_delta;
+        y_pos = y_max - Probe_y_pos - (i - X_TRANSFORMED_PROBE_INDEX)
+                                       * Probe_y_delta;
 
         text = model->object_list[i]->ptr.text;
 
@@ -176,14 +201,43 @@ public  void  rebuild_probe( graphics )
         {
             switch( i )
             {
-            case X_PROBE_INDEX:
-                (void) sprintf( text->text, Slice_probe_x_format, x_file );
+            case X_TRANSFORMED_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_x_transformed_format,
+                                x_voxel+1 );
                 break;
-            case Y_PROBE_INDEX:
-                (void) sprintf( text->text, Slice_probe_y_format, y_file );
+            case Y_TRANSFORMED_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_y_transformed_format,
+                                y_voxel+1 );
                 break;
-            case Z_PROBE_INDEX:
-                (void) sprintf( text->text, Slice_probe_z_format, z_file );
+            case Z_TRANSFORMED_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_z_transformed_format,
+                                z_voxel+1 );
+                break;
+
+            case X_FILE_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_x_file_format,
+                                x_file+1 );
+                break;
+            case Y_FILE_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_y_file_format,
+                                y_file+1 );
+                break;
+            case Z_FILE_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_z_file_format,
+                                z_file+1 );
+                break;
+
+            case X_TALAIRACH_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_x_talairach_format,
+                                x_talairach );
+                break;
+            case Y_TALAIRACH_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_y_talairach_format,
+                                y_talairach );
+                break;
+            case Z_TALAIRACH_PROBE_INDEX:
+                (void) sprintf( text->text, Slice_probe_z_talairach_format,
+                                z_talairach );
                 break;
             case VAL_PROBE_INDEX:
                 (void) sprintf( text->text, Slice_probe_val_format,
@@ -213,7 +267,6 @@ public  void  rebuild_slice_pixels( graphics, view_index )
     int            voxel_indices[N_DIMENSIONS];
     int            x_pixel_start, x_pixel_end;
     int            x_size, y_pixel_start, y_pixel_end;
-    int            file_index[N_DIMENSIONS];
     void           get_slice_view();
     text_struct    *text;
     char           *format;
@@ -280,14 +333,6 @@ public  void  rebuild_slice_pixels( graphics, view_index )
 
     text = model->object_list[TEXT1_INDEX+view_index]->ptr.text;
 
-    convert_to_file_space( graphics->slice.volume,
-                           graphics->slice.slice_index[X_AXIS],
-                           graphics->slice.slice_index[Y_AXIS],
-                           graphics->slice.slice_index[Z_AXIS],
-                           &file_index[X_AXIS], &file_index[Y_AXIS],
-                           &file_index[Z_AXIS] );
-
-
     if( print_cursor )
     {
         switch( axis_index )
@@ -297,8 +342,9 @@ public  void  rebuild_slice_pixels( graphics, view_index )
         case Z_AXIS:  format = Slice_index_zc_format;  break;
         }
 
-        (void) sprintf( text->text, format, file_index[axis_index],
-                        real_pos[axis_index] );
+        (void) sprintf( text->text, format,
+                        graphics->slice.slice_index[axis_index] + 1,
+                        real_pos[axis_index] + 1.0 );
 
     }
     else
@@ -322,7 +368,8 @@ public  void  rebuild_slice_pixels( graphics, view_index )
             }
         }
 
-        (void) sprintf( text->text, format, file_index[axis_index] );
+        (void) sprintf( text->text, format,
+                        graphics->slice.slice_index[axis_index] + 1 );
 
     }
 

@@ -7,11 +7,17 @@
 #include  <def_surface_extract.h>
 #include  <def_surface_fitting.h>
 
+#define  LEFT_ARROW_KEY    1
+#define  RIGHT_ARROW_KEY   2
+#define  DOWN_ARROW_KEY    3
+#define  UP_ARROW_KEY      4
+
 /* for graphics windows */
 
 #define  THREED_MODEL           2
 #define  CURSOR_MODEL           0
 #define  OVERLAY_MODEL          1
+#define  CUT_BUFFER_MODEL       3
 
 /* for menu windows */
 
@@ -22,7 +28,7 @@
 
 #define  SLICE_MODEL            0
 
-#define  N_MODELS               3
+#define  N_MODELS               4
 
 typedef  enum  { THREE_D_WINDOW,
                  MENU_WINDOW,
@@ -45,6 +51,11 @@ typedef  struct
     cursor_contours_struct     cursor_contours;
     surface_curve_struct       surface_curve;
     surface_fitting_struct     surface_fitting;
+    int                        default_marker_id;
+    Marker_types               default_marker_type;
+    Real                       default_marker_size;
+    Colour                     default_marker_colour;
+    String                     default_marker_label;
 } three_d_window_struct;
 
 

@@ -1,6 +1,7 @@
 
 #include  <def_graphics.h>
 #include  <def_files.h>
+#include  <def_string.h>
 
 public  DEF_MENU_FUNCTION( reverse_normals )   /* ARGSUSED */
 {
@@ -232,25 +233,51 @@ public  DEF_MENU_UPDATE(toggle_object_visibility )     /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( create_model )     /* ARGSUSED */
 {
-    object_struct    *current_object;
-    Boolean          get_current_object();
     Status           status;
     Status           create_model_after_current();
     void             graphics_models_have_changed();
 
-    status = OK;
+    status = create_model_after_current( graphics );
 
-    if( get_current_object( graphics, &current_object ) )
-    {
-        status = create_model_after_current( graphics );
-
-        graphics_models_have_changed( graphics );
-    }
+    graphics_models_have_changed( graphics );
 
     return( status );
 }
 
 public  DEF_MENU_UPDATE(create_model )     /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( change_model_name )     /* ARGSUSED */
+{
+    object_struct    *current_object;
+    Boolean          get_current_object();
+    Status           status;
+    String           name;
+    void             rebuild_selected_list();
+
+    status = OK;
+
+    if( get_current_object( graphics, &current_object ) &&
+        current_object->object_type == MODEL )
+    {
+        PRINT( "Enter the new model name: " );
+
+        if( input_string( stdin, name, MAX_STRING_LENGTH, ' ' ) == OK )
+        {
+            (void) strcpy( current_object->ptr.model->filename, name );
+        }
+
+        status = input_newline( stdin );
+
+        rebuild_selected_list( graphics, menu_window );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(change_model_name )     /* ARGSUSED */
 {
     return( OK );
 }
@@ -327,7 +354,7 @@ public  DEF_MENU_UPDATE(delete_current_object )     /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
 {
     Status          status;
-    Status          io_colour();
+    Status          convert_string_to_colour();
     object_struct   *current_object;
     Boolean         get_current_object();
     void            set_object_colour();
@@ -344,10 +371,10 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
 
         status = input_line( stdin, line, MAX_STRING_LENGTH );
 
-        if( status == OK &&
-            (lookup_colour( line, &col ) ||
-             sscanf( line, "%f %f %f", &Colour_r(col), &Colour_g(col),
-                    &Colour_b(col) ) == 3) )
+        if( status == OK )
+            status = convert_string_to_colour( line, &col );
+
+        if( status == OK )
         {
             set_object_colour( current_object, &col );
 

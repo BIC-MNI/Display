@@ -116,7 +116,7 @@ public  Status  initialize_menu( graphics, runtime_directory )
     menu->y_dx = Y_menu_dx;
     menu->y_dy = Y_menu_dy;
 
-    menu->n_chars_across_entry = Menu_n_chars_per_entry;
+    menu->n_chars_per_unit_across = Menu_n_chars_per_entry;
     menu->n_lines_in_entry = Menu_n_lines_per_entry;
     menu->character_width = Menu_character_width;
     menu->character_height = Menu_character_height;
@@ -251,12 +251,12 @@ void  set_menu_text( menu_window, menu_entry, text )
     {
         i = 0;
         text_ptr = menu_entry->text_list[line]->ptr.text->text;
-        while( n_chars < len && i < menu->n_chars_across_entry )
+        while( n_chars < len && i < menu_entry->n_chars_across )
         {
             if( text[n_chars] == '\n' ||
                 (text[n_chars] == ' ' &&
                  (len - n_chars-1) <=
-                 (menu->n_lines_in_entry-line-1) * menu->n_chars_across_entry) )
+                 (menu->n_lines_in_entry-line-1) * menu_entry->n_chars_across) )
             {
                 ++n_chars;
                 break;

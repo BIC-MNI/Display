@@ -16,6 +16,8 @@ typedef  struct
     int                 n_surface_points;
     Point               *surface_points;
     Real                *surface_point_distances;
+    Real                isovalue;
+    Real                isovalue_factor;
     Real                gradient_strength_factor;
     Real                gradient_strength_exponent;
     Real                curvature_factor;
