@@ -155,7 +155,6 @@ private  DEF_EVENT_FUNCTION( left_mouse_down )    /* ARGSUSED */
     }
 
     record_mouse_pixel_position( display );
-    set_update_required( display, NORMAL_PLANES );
 
     return( OK );
 }
@@ -215,7 +214,6 @@ private  DEF_EVENT_FUNCTION( middle_mouse_down )     /* ARGSUSED */
     }
 
     record_mouse_pixel_position( display );
-    set_update_required( display, NORMAL_PLANES );
 
     return( OK );
 }
@@ -241,8 +239,6 @@ private  void  set_slice_voxel_position(
 
     if( set_current_voxel( slice_window, clipped_voxel ) )
     {
-        set_update_required( slice_window, NORMAL_PLANES );
-
         if( update_cursor_from_voxel( slice_window ) )
         {
             set_update_required( slice_window->associated[THREE_D_WINDOW],
@@ -417,8 +413,6 @@ private  void  perform_translation(
 
         record_mouse_pixel_position( slice_window );
     }
-
-    set_update_required( slice_window, NORMAL_PLANES );
 }
 
 private  DEF_EVENT_FUNCTION( terminate_translation )    /* ARGSUSED */
@@ -456,22 +450,28 @@ private  DEF_EVENT_FUNCTION( update_probe )     /* ARGSUSED */
 
 private  DEF_EVENT_FUNCTION( handle_redraw )     /* ARGSUSED */
 {
-    set_update_required( display, NORMAL_PLANES );
-    set_update_required( display, OVERLAY_PLANES );
+    set_slice_viewport_update( display, FULL_WINDOW_MODEL );
 
     return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( handle_redraw_overlay )     /* ARGSUSED */
 {
-    set_update_required( display, OVERLAY_PLANES );
+    int  i;
+
+    for_less( i, 0, N_MODELS )
+    {
+        if( get_model_bitplanes( get_graphics_model(display,i) ) ==
+                                                            OVERLAY_PLANES )
+            set_slice_viewport_update( display, i );
+    }
 
     return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
 {
-    int   view;
+    int   i, view;
 
     for_less( view, 0, N_SLICE_VIEWS )
         resize_slice_view( display, view );
@@ -480,8 +480,8 @@ private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
 
     resize_histogram( display );
 
-    set_update_required( display, NORMAL_PLANES );
-    set_update_required( display, OVERLAY_PLANES );
+    for_less( i, 0, N_MODELS )
+        set_slice_viewport_update( display, i );
 
     return( OK );
 }
@@ -703,7 +703,7 @@ private  BOOLEAN  mouse_is_near_high_limit(
     return( near );
 }
 
-#define  NEAR_ENOUGH  7
+#define  NEAR_ENOUGH  10
 
 private  BOOLEAN  mouse_is_near_slice_dividers(
     display_struct   *slice_window )

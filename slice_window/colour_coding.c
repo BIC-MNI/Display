@@ -36,6 +36,25 @@ public  Volume  get_label_volume(
         return( (Volume) NULL );
 }
 
+public  BOOLEAN  label_volume_exists(
+    display_struct   *display )
+{
+    Volume   label;
+
+    label = get_label_volume( display );
+
+    return( label != NULL && label->data != NULL );
+}
+
+public  BOOLEAN  get_label_visibility(
+    display_struct    *slice_window,
+    int               view_index )
+{
+    return( get_slice_visibility( slice_window, view_index ) &&
+            slice_window->slice.display_labels &&
+            label_volume_exists( slice_window ) );
+}
+
 public  int  get_num_labels(
     display_struct   *display )
 {
@@ -70,8 +89,12 @@ public  void  delete_slice_colour_coding(
     delete_slice_labels( slice );
 
     ptr = slice->colour_table;
-    ptr += (int) slice->offset;
-    FREE( ptr );
+
+    if( ptr != NULL )
+    {
+        ptr += (int) slice->offset;
+        FREE( ptr );
+    }
 }
 
 private  void  realloc_label_colour_table(
@@ -133,6 +156,12 @@ private  void  alloc_colour_table(
 {
     Real        min_voxel, max_voxel;
     Colour      *ptr;
+
+    if( is_an_rgb_volume(get_volume(slice_window)) )
+    {
+        slice_window->slice.colour_table = NULL;
+        return;
+    }
 
     get_volume_voxel_range( slice_window->slice.volume,
                             &min_voxel, &max_voxel );
@@ -224,6 +253,9 @@ private  void  rebuild_colour_table(
     Real             value;
     Colour           colour;
     Real             min_voxel, max_voxel;
+
+    if( is_an_rgb_volume(get_volume(slice_window)) )
+        return;
 
     get_volume_voxel_range( get_volume(slice_window), &min_voxel, &max_voxel );
 
@@ -327,6 +359,7 @@ private  void  colour_code_points(
     int      i, int_voxel[MAX_DIMENSIONS], label;
     Real     val, voxel[MAX_DIMENSIONS];
     Volume   volume, label_volume;
+    Colour   colour;
 
     if( *colour_flag != PER_VERTEX_COLOURS )
     {
@@ -346,15 +379,30 @@ private  void  colour_code_points(
 
     for_less( i, 0, n_points )
     {
-        evaluate_3D_volume_in_world( volume,
-                                     Point_x(points[i]),
-                                     Point_y(points[i]),
-                                     Point_z(points[i]), continuity,
-                                     &val, (Real *) NULL,
-                                     (Real *) NULL, (Real *) NULL,
-                                     (Real *) NULL, (Real *) NULL,
-                                     (Real *) NULL, (Real *) NULL,
-                                     (Real *) NULL, (Real *) NULL );
+        if( is_an_rgb_volume( volume ) )
+        {
+            convert_real_to_int_voxel( get_volume_n_dimensions(volume),
+                                       voxel, int_voxel );
+            if( int_voxel_is_within_volume( volume, int_voxel ) )
+            {
+                GET_VOXEL_3D( colour, volume, int_voxel[0], int_voxel[1],
+                              int_voxel[2] );
+            }
+            else
+                colour = BLACK;
+        }
+        else
+        {
+            evaluate_3D_volume_in_world( volume,
+                                         Point_x(points[i]),
+                                         Point_y(points[i]),
+                                         Point_z(points[i]), continuity,
+                                         &val, (Real *) NULL,
+                                         (Real *) NULL, (Real *) NULL,
+                                         (Real *) NULL, (Real *) NULL,
+                                         (Real *) NULL, (Real *) NULL,
+                                         (Real *) NULL, (Real *) NULL );
+        }
 
         if( slice_window->slice.display_labels && label_volume->data != NULL )
         {
@@ -366,11 +414,17 @@ private  void  colour_code_points(
                                        voxel, int_voxel );
 
             label = get_volume_label_data( label_volume, int_voxel );
+
+            if( is_an_rgb_volume( volume ) )
+                colour = apply_label_colour( slice_window, colour, label );
         }
         else
             label = 0;
 
-        (*colours)[i] = get_slice_colour_coding( slice_window, val, label );
+        if( is_an_rgb_volume( volume ) )
+            (*colours)[i] = colour;
+        else
+            (*colours)[i] = get_slice_colour_coding( slice_window, val, label );
     }
 }
 
