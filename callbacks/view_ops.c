@@ -154,7 +154,7 @@ public  DEF_MENU_UPDATE(left_view )      /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( right_view )      /* ARGSUSED */
 {
-    static  Vector   line_of_sight = { -1.0, 0.0, 1.0 };
+    static  Vector   line_of_sight = { -1.0, 0.0, 0.0 };
     static  Vector   horizontal = { 0.0, 0.0, -1.0 };
     void  update_view();
     void  reset_view_parameters();
@@ -274,6 +274,20 @@ public  DEF_MENU_FUNCTION( back_clipping )      /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(back_clipping )      /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( pick_view_rectangle )      /* ARGSUSED */
+{
+    void  start_picking_viewport();
+
+    start_picking_viewport( graphics );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(pick_view_rectangle )      /* ARGSUSED */
 {
     return( OK );
 }
