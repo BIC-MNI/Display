@@ -88,13 +88,7 @@ typedef  struct
 {
     Boolean        last_was_interrupted;
     object_struct  *object_interrupted;
-    int            n_items_done;
-    int            next_item;
     Real           interrupt_at;
-
-    int            size_of_interrupted;
-    int            interval_of_check;
-
     Boolean        current_interrupted;
 } update_interrupted_struct;
 
