@@ -63,7 +63,8 @@ private  void  get_position_pointed_to(
 
 public  void  create_marker_at_position(
     display_struct    *display,
-    Point             *position )
+    Point             *position,
+    char              label[] )
 {
     object_struct   *object;
     marker_struct   *marker;
@@ -74,6 +75,9 @@ public  void  create_marker_at_position(
     marker->position = *position;
 
     set_marker_to_defaults( display, marker );
+
+    if( label != (char *) NULL )
+        (void) strcpy( marker->label, label );
 
     add_object_to_current_model( display, object );
 
@@ -90,7 +94,7 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
 
     get_position_pointed_to( display, &position );
 
-    create_marker_at_position( display, &position );
+    create_marker_at_position( display, &position, (char *) NULL );
 
     return( OK );
 }

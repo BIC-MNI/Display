@@ -301,8 +301,16 @@ public  void  set_slice_window_volume(
 
     slice_window->slice.volume = volume;
     get_volume_sizes( volume, sizes );
-    slice_window->slice.labels = create_label_volume(
-                    get_volume_n_dimensions(volume), sizes );
+
+    if( volume == slice_window->slice.original_volume )
+    {
+        slice_window->slice.labels = slice_window->slice.original_labels;
+    }
+    else
+    {
+        slice_window->slice.labels = create_label_volume(
+                        get_volume_n_dimensions(volume), sizes );
+    }
 
     for_less( c, 0, N_DIMENSIONS )
         slice_window->slice.slice_views[c].update_flag = TRUE;
@@ -335,13 +343,6 @@ public  void  set_slice_window_volume(
     set_atlas_state( slice_window, Default_atlas_state );
 
     rebuild_slice_models( slice_window );
-}
-
-public  void  set_all_voxel_label_flags(
-    Volume   label_volume,
-    BOOLEAN  value )
-{
-    set_all_volume_label_data_bit( label_volume, get_label_bit(), value );
 }
 
 public  void  set_voxel_label_flag(

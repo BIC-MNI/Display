@@ -229,7 +229,7 @@ private  void  set_slice_voxel_position(
         if( update_cursor_from_voxel( slice_window ) )
         {
             set_update_required( slice_window->associated[THREE_D_WINDOW],
-                                 OVERLAY_PLANES );
+                                 get_cursor_bitplanes() );
         }
 
         if( update_current_marker( slice_window->associated[THREE_D_WINDOW],
@@ -294,6 +294,7 @@ private  void  update_voxel_slice(
     display_struct    *slice_window )
 {
     int        view_index, dy, x, y, x_prev, y_prev, axis;
+    int        x_index, y_index;
     Real       voxel[MAX_DIMENSIONS];
 
     if( pixel_mouse_moved( slice_window, &x, &y, &x_prev, &y_prev ) &&
@@ -305,7 +306,7 @@ private  void  update_voxel_slice(
         {
             get_current_voxel( slice_window, voxel );
 
-            axis = slice_window->slice.slice_views[view_index].axis_map[Z];
+            get_slice_axes( slice_window, view_index, &x_index, &y_index,&axis);
 
             voxel[axis] += (Real) dy * Move_slice_speed;
 

@@ -1,7 +1,7 @@
 
 #include  <display.h>
 
-#define  FACTOR  1.2
+#define  FACTOR  1.1
 
 private  void   fit_view_to_points(
     view_struct   *view,

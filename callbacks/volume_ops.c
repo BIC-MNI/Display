@@ -175,6 +175,7 @@ public  DEF_MENU_FUNCTION(reset_current_slice_view)   /* ARGSUSED */
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
         reset_slice_view( slice_window, view_index );
+        set_slice_window_update( slice_window, view_index );
     }
 
     return( OK );
@@ -395,6 +396,7 @@ public  DEF_MENU_UPDATE(resample_slice_window_volume)    /* ARGSUSED */
 public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
 {
     int              sizes[N_DIMENSIONS];
+    char             ch;
     Real             x_width, y_width, z_width;
     Real             separations[N_DIMENSIONS];
     display_struct   *slice_window;
@@ -407,14 +409,21 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
         get_volume_separations( slice_window->slice.original_volume,
                                 separations );
 
-        print( "Enter box filter  x_width, y_width, z_width: " );
+        print( "Enter box filter  x_width, y_width, z_width, v/w: " );
 
         if( input_real( stdin, &x_width ) == OK &&
             input_real( stdin, &y_width ) == OK &&
-            input_real( stdin, &z_width ) == OK )
+            input_real( stdin, &z_width ) == OK &&
+            input_nonwhite_character( stdin, &ch ) == OK )
         {
-            if( x_width > separations[X] || y_width > separations[Y] ||
-                z_width > separations[Z] )
+            if( ch == 'w' )
+            {
+                x_width /= separations[X];
+                y_width /= separations[Y];
+                z_width /= separations[Z];
+            }
+
+            if( x_width > 1.0 || y_width > 1.0 || z_width > 1.0 )
             {
                 resampled_volume = create_box_filtered_volume(
                                         slice_window->slice.original_volume,

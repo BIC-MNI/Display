@@ -62,7 +62,7 @@ public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
     {
         reset_surface_extraction( display );
 
-        set_all_voxel_label_flags( get_label_volume(display), FALSE );
+        set_all_volume_label_data( get_label_volume(display), 0 );
 
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );

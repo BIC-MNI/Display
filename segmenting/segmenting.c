@@ -3,6 +3,7 @@
 
 private  BOOLEAN  should_change_this_one(
     Volume          volume,
+    Volume          label_volume,
     int             voxel[],
     int             min_threshold,
     int             max_threshold,
@@ -57,7 +58,7 @@ public  void  add_point_label(
                           slice_window->slice.segmenting.n_labels,
                           label, DEFAULT_CHUNK_SIZE );
 
-    set_voxel_label_flag( get_volume(slice_window), voxel, TRUE );
+    set_voxel_label_flag( get_label_volume(slice_window), voxel, TRUE );
 }
 
 public  void  generate_segmentation(
@@ -74,14 +75,14 @@ public  void  generate_segmentation(
 }
 
 public  void  set_activity_for_slice(
-    Volume         volume,
+    Volume         label_volume,
     int            axis_index,
     int            position,
     BOOLEAN        activity )
 {
     int     voxel[N_DIMENSIONS], sizes[N_DIMENSIONS], a1, a2;
 
-    get_volume_sizes( volume, sizes );
+    get_volume_sizes( label_volume, sizes );
 
     voxel[axis_index] = position;
 
@@ -92,7 +93,7 @@ public  void  set_activity_for_slice(
     {
         for_less( voxel[a2], 0, sizes[a2] )
         {
-            set_voxel_activity_flag( volume, voxel, activity );
+            set_voxel_activity_flag( label_volume, voxel, activity );
         }
     }
 }
@@ -104,6 +105,7 @@ typedef struct
 
 public  void  set_connected_voxels_activity(
     Volume            volume,
+    Volume            label_volume,
     int               axis_index,
     int               position[3],
     int               min_threshold,
@@ -130,10 +132,10 @@ public  void  set_connected_voxels_activity(
 
     INITIALIZE_QUEUE( queue );
 
-    if( should_change_this_one( volume, voxel,
+    if( should_change_this_one( volume, label_volume, voxel,
                                 min_threshold, max_threshold, desired_activity))
     {
-        set_voxel_activity_flag( volume, voxel, desired_activity );
+        set_voxel_activity_flag( label_volume, voxel, desired_activity );
         entry.x = voxel[a1];
         entry.y = voxel[a2];
         INSERT_IN_QUEUE( queue, entry );
@@ -153,10 +155,10 @@ public  void  set_connected_voxels_activity(
 
             if( voxel[a1] >= 0 && voxel[a1] < sizes[a1] &&
                 voxel[a2] >= 0 && voxel[a2] < sizes[a2] &&
-                should_change_this_one( volume, voxel,
+                should_change_this_one( volume, label_volume, voxel,
                                 min_threshold, max_threshold, desired_activity))
             {
-                set_voxel_activity_flag( volume, voxel, desired_activity );
+                set_voxel_activity_flag( label_volume, voxel, desired_activity);
                 entry.x = voxel[a1];
                 entry.y = voxel[a2];
                 INSERT_IN_QUEUE( queue, entry );
@@ -169,6 +171,7 @@ public  void  set_connected_voxels_activity(
 
 private  BOOLEAN  should_change_this_one(
     Volume          volume,
+    Volume          label_volume,
     int             voxel[],
     int             min_threshold,
     int             max_threshold,
@@ -176,11 +179,10 @@ private  BOOLEAN  should_change_this_one(
 {
     Real   value;
 
-    GET_VOXEL_3D( value, volume, voxel[X], voxel[Y], voxel[Z] );
-    value = CONVERT_VOXEL_TO_VALUE( volume, value );
+    GET_VALUE_3D( value, volume, voxel[X], voxel[Y], voxel[Z] );
 
-    return( desired_activity != get_voxel_activity_flag( volume, voxel ) &&
-            min_threshold <= value && value <= max_threshold );
+    return( desired_activity != get_voxel_activity_flag( label_volume, voxel )
+            && min_threshold <= value && value <= max_threshold );
 }
 
 private   int   Dx4[4] = { 1, 0, -1,  0 };

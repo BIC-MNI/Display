@@ -275,17 +275,17 @@ public  void  rebuild_cursor(
     int               view_index )
 {
     model_struct   *model;
-    int            x_index, y_index, x_start, y_start, x_end, y_end;
+    int            x_start, y_start, x_end, y_end;
     int            x_centre, y_centre, dx, dy;
     Real           start_pixel[N_DIMENSIONS], end_pixel[N_DIMENSIONS];
     lines_struct   *lines;
     Real           x, y;
+    int            axis, x_index, y_index;
     int            x_min, x_max, y_min, y_max;
 
     model = get_graphics_model(slice_window,SLICE_MODEL);
 
-    x_index = slice_window->slice.slice_views[view_index].axis_map[X];
-    y_index = slice_window->slice.slice_views[view_index].axis_map[Y];
+    get_slice_axes( slice_window, view_index, &x_index, &y_index, &axis );
 
     lines = get_lines_ptr( model->objects[CURSOR1_INDEX+view_index] );
 
@@ -363,7 +363,7 @@ public  void  rebuild_slice_pixels(
 {
     model_struct   *model;
     pixels_struct  *pixels;
-    int            axis_index;
+    int            axis_index, x_index, y_index;
     Real           voxel_indices[N_DIMENSIONS];
     int            x_min, x_max, y_min, y_max;
     text_struct    *text;
@@ -372,7 +372,7 @@ public  void  rebuild_slice_pixels(
 
     model = get_graphics_model(slice_window,SLICE_MODEL);
 
-    axis_index = slice_window->slice.slice_views[view_index].axis_map[Z];
+    get_slice_axes( slice_window, view_index, &x_index, &y_index, &axis_index );
 
     pixels = get_pixels_ptr( model->objects[SLICE1_INDEX+view_index] );
 
@@ -450,9 +450,8 @@ private  void  render_slice_to_pixels(
 
     n_alloced = 0;
 
-    x_index = slice_window->slice.slice_views[view_index].axis_map[X];
-    y_index = slice_window->slice.slice_views[view_index].axis_map[Y];
-    axis_index = slice_window->slice.slice_views[view_index].axis_map[Z];
+    get_slice_axes( slice_window, view_index, &x_index, &y_index, &axis_index );
+
     x_trans = slice_window->slice.slice_views[view_index].x_trans;
     y_trans = slice_window->slice.slice_views[view_index].y_trans;
     x_scale = slice_window->slice.slice_views[view_index].x_scaling;

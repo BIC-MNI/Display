@@ -67,8 +67,10 @@ public  void  extract_boundary_of_labeled_voxels(
                      (indices[X]+1 + indices[Z] * sizes[X]) );
         }
 
+/*
         print( "N points: %d    N polygons: %d\n", polygons->n_points,
                polygons->n_items );
+*/
     }
 
     terminate_progress_report( &progress );
@@ -96,8 +98,7 @@ private  BOOLEAN  face_is_boundary(
 
     boundary_flag = FALSE;
 
-    inside = (get_volume_label_data( label_volume, indices ) &
-                          get_max_label()) == label;
+    inside = get_volume_label_data( label_volume, indices ) == label;
 
     if( inside )
     {
@@ -108,9 +109,8 @@ private  BOOLEAN  face_is_boundary(
 
         if( int_voxel_is_within_volume( label_volume, neigh_indices ) )
         {
-            neigh_inside = (get_volume_label_data( label_volume,
-                                                   neigh_indices ) &
-                            get_max_label()) == label;
+            neigh_inside = get_volume_label_data( label_volume,
+                                                  neigh_indices ) == label;
 
             if( inside != neigh_inside )
                 boundary_flag = TRUE;
@@ -228,7 +228,7 @@ private  Status  add_face(
 {
     int      a1, a2, point_ids[4], point_indices[3], n_indices, i;
 
-    if( offset == 1 )
+    if( offset == -1 )
     {
         a1 = (c + 1) % N_DIMENSIONS;
         a2 = (c + 2) % N_DIMENSIONS;

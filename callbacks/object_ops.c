@@ -412,6 +412,7 @@ public  DEF_MENU_FUNCTION( mark_vertices )   /* ARGSUSED */
     object_struct  *object;
     int            i, n_points;
     Point          *points;
+    STRING         label;
 
     if( get_current_object( display, &object ) &&
         object->object_type == LINES )
@@ -421,7 +422,8 @@ public  DEF_MENU_FUNCTION( mark_vertices )   /* ARGSUSED */
 
         for_less( i, 0, n_points )
         {
-            create_marker_at_position( display, &points[i] );
+            (void) sprintf( label, "%d", i );
+            create_marker_at_position( display, &points[i], label );
         }
     }
 

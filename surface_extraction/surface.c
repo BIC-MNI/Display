@@ -170,13 +170,14 @@ public  void  extract_more_surface(
     int                         n_voxels_done;
     voxel_index_struct          voxel_index;
     surface_extraction_struct   *surface_extraction;
-    Volume                      volume;
+    Volume                      volume, label_volume;
     Real                        stop_time;
 
     n_voxels_done = 0;
 
     surface_extraction = &display->three_d.surface_extraction;
     volume = get_volume( display );
+    label_volume = get_label_volume( display );
 
     stop_time = current_realtime_seconds() + Max_seconds_per_voxel_update;
 
@@ -193,7 +194,8 @@ public  void  extract_more_surface(
         reset_voxel_flag( volume, &surface_extraction->voxels_queued,
                           &voxel_index);
 
-        if( extract_voxel_surface( volume, surface_extraction, &voxel_index,
+        if( extract_voxel_surface( volume, label_volume,
+                                   surface_extraction, &voxel_index,
                             surface_extraction->n_voxels_with_surface == 0) )
         {
             ++n_voxels_done;
@@ -205,7 +207,7 @@ public  void  extract_more_surface(
 
             if( Display_surface_in_slices )
             {
-                label_voxel_as_done( volume,
+                label_voxel_as_done( label_volume,
                                      voxel_index.i[X],
                                      voxel_index.i[Y],
                                      voxel_index.i[Z] );

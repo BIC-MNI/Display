@@ -90,7 +90,7 @@ START_GLOBALS
     DEF_GLOBAL( Viewport_min_y_size, Real, 0.1 )
 
     DEF_GLOBAL( Slice_magnification_step, Real, 1.2 )
-    DEF_GLOBAL( Slice_fit_oversize, Real, 0.1 )
+    DEF_GLOBAL( Slice_fit_oversize, Real, 0.05 )
     DEF_GLOBAL( Slice_divider_colour, Colour, BLUE )
     DEF_GLOBAL( Slice_divider_left, int, 5 )
     DEF_GLOBAL( Slice_divider_right, int, 5 )
@@ -224,7 +224,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Compute_neighbours_on_input, BOOLEAN, FALSE )
     DEF_GLOBAL( Polygon_bintree_threshold, int, 100 )
-    DEF_GLOBAL( Bintree_size_factor, Real, 0.2 )
+    DEF_GLOBAL( Bintree_size_factor, Real, 1.0 )
 
     DEF_GLOBAL( Save_format, int, 1 )
 

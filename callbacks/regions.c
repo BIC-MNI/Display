@@ -122,7 +122,7 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )   /* ARGSUSED */
         print( "Enter current paint label: " );
 
         if( input_int( stdin, &label ) == OK &&
-            label >= 0 && label <= get_max_label() )
+            label >= 0 && label <= 255 )
             slice_window->slice.current_paint_label = label;
 
         (void) input_newline( stdin );
@@ -317,14 +317,16 @@ private  void  copy_labels_from_adjacent_slice(
 {
     Real             real_dest_index[MAX_DIMENSIONS];
     int              src_index[N_DIMENSIONS], dest_index[MAX_DIMENSIONS];
-    int              axis_index;
+    int              view_index, x_index, y_index, axis_index;
     display_struct   *slice_window;
     Volume           volume;
 
-    if( get_voxel_under_mouse( display, real_dest_index, &axis_index ) &&
+    if( get_voxel_under_mouse( display, real_dest_index, &view_index ) &&
         get_slice_window_volume( display, &volume) &&
         get_slice_window( display, &slice_window ) )
     {
+        get_slice_axes( slice_window, view_index, &x_index, &y_index,
+                                      &axis_index );
         convert_real_to_int_voxel( N_DIMENSIONS, real_dest_index, dest_index );
 
         src_index[X] = 0;

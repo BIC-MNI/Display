@@ -8,7 +8,7 @@
 \newcommand{\menutwo}[2]{\fbox{\sc\bf #1}/\fbox{\sc\bf #2}}
 \newcommand{\menuthree}[3]{\fbox{\sc\bf #1}/\fbox{\sc\bf #2}/\fbox{\sc\bf #3}}
 
-%\psdraft
+\psdraft
 
 \begin{document}
 
@@ -81,8 +81,8 @@ display filename.mni
 
 \section{\display Windows}
 
-\postscriptfig{display.ps}{7in}{Clockwise from top left:
-3D window, slice window, menu window, text entry window \label{windows}}
+\psfigure{display.ps}{7in}{Clockwise from top left:
+3D window, slice window, menu window, text entry window.}{windows}
 
 Figure \ref{windows} shows the four windows used by \display (three of which
 are created when the program is run):
@@ -146,10 +146,17 @@ In the slice window, the following mouse operations are available:
 
 \begin{itemize}
 \item[Left Button]  Sets the position of the 3 slices.
-\item[Middle Button]  Moving the mouse while holding down the middle button
-                      translates the volume slice.
+\item[Middle Button]  Moving the mouse up or down while holding down the
+                      middle button changes the current volume slice.
 \item[Right Button]  Paints a region of the volume slice with the current
                      brush size.
+\item[Alt-Left Button]  While holding down the {\bf shift}, {\bf ctrl},
+                        or {\bf alt} key, the left button translates the
+                        position of the slice within the viewport.
+\item[Alt-Right Button]  While holding down the {\bf shift}, {\bf ctrl},
+                        or {\bf alt} key, holding down the middle button,
+                        and moving the mouse up or down changes the
+                        magnification of the current slice.
 \item[Colour Bar]  The limits of the colour bar can be moved by pressing
                    the left mouse button on the bar near the desired limit.
                    Pressing the middle button below the low limit will allow
@@ -172,6 +179,13 @@ In the slice window, the following mouse operations are available:
        the original volume.
 \item[\menutwo{Slice}{Create 3D Slice}]  Creates a rendering of the slice
        under the mouse, in the 3D window.
+\item[\menutwo{Slice}{Reset Slice View}]  Resets the view of the slice
+       to which the mouse is pointing to fill the viewport.
+\item[\menutwo{Slice}{Box Filter Volume}]  Prompts the user to type in
+       3 filter widths for x, y, and z and either the letter ``v'' or
+       ``w''.  If the letter is v then the filter widths are in voxels,
+       otherwise in world space, i.e. millimetres.  If the 3 widths are
+       zeros, then the original volume is restored.
 \end{description}
 
 \subsection{Colour Coding Menu}
@@ -283,7 +297,7 @@ In the slice window, the following mouse operations are available:
 
 \subsection{3D Viewing}
 
-The following three menu entries are always available no matter which sub
+The following three menu entries are usually available no matter which sub
 menu is selected:
 
 \begin{description}
@@ -342,6 +356,9 @@ menu is selected:
 \item[\menutwo{Markers}{Move to Marker}]  If the current object is a marker,
         sets the 3D cursor and the volume position to the position of the
         marker.
+\item[\menutwo{Markers}{Move Cursor Home}]  Moves the 3D cursor to the
+        origin, which should be 0, 0, 0 in Talairach space.  This is useful
+        for making slides with the cursor as a reference to AC-PC.
 \item[\menuthree{Markers}{Delete Object}{Really Delete}]  Deletes the current object in the
         object hierarchy.
 \item[\menutwo{Markers}{Classify Markers}]  Attempts to group markers by
@@ -383,7 +400,7 @@ menu is selected:
 \begin{description}
 \item[\menutwo{Render}{Wireframe or Shaded}]  Toggles the display mode of the
         current object between a wireframe rendering and a solid, shaded 
-        rendering.
+        rendering.  The default is wireframe.
 \item[\menutwo{Render}{Gouraud or Flat}]  Toggles the display mode of the
         current object between a flat or smooth shading.
 \item[\menutwo{Render}{Lights}]  Toggles the lights on and off.  If lights

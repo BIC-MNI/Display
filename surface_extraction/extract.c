@@ -43,6 +43,7 @@ private  int   create_surface_point(
 
 public  BOOLEAN  extract_voxel_surface(
     Volume                      volume,
+    Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     voxel_index_struct          *voxel_index,
     BOOLEAN                     first_voxel )
@@ -67,7 +68,7 @@ public  BOOLEAN  extract_voxel_surface(
                 value = CONVERT_VOXEL_TO_VALUE( volume, value );
 
                 if( value >= surface_extraction->isovalue &&
-                    !get_voxel_activity_flag( volume, voxel ) )
+                    !get_voxel_activity_flag( label_volume, voxel ) )
                 {
                     value = 0.0;
                 }

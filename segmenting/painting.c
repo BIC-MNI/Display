@@ -426,6 +426,8 @@ private  void   update_brush(
     initialize_lines( lines, Brush_outline_colour );
 
     if( get_slice_window_volume( slice_window, &volume ) &&
+        slice_window->slice.x_brush_radius > 0.0 &&
+        slice_window->slice.y_brush_radius > 0.0 &&
         get_brush_voxel_centre( slice_window, x, y, voxel, &view ) )
     {
         get_slice_axes( slice_window, view, &a1, &a2, &axis );

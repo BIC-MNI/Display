@@ -6,12 +6,14 @@ private  void  recursive_polygon_scan(
     int                 size,
     Point               vertices[],
     Volume              volume,
+    Volume              label_volume,
     int                 label,
     Real                max_distance );
 
 public  void  scan_polygons_to_voxels(
     polygons_struct     *polygons,
     Volume              volume,
+    Volume              label_volume,
     int                 label,
     Real                max_distance )
 {
@@ -31,8 +33,8 @@ public  void  scan_polygons_to_voxels(
         }
 
         if( size == 3 || size == 4 )
-            recursive_polygon_scan( size, vertices, volume, label,
-                                    max_distance );
+            recursive_polygon_scan( size, vertices, volume, label_volume,
+                                    label, max_distance );
     }
 }
 
@@ -40,6 +42,7 @@ private  void  recursive_polygon_scan(
     int                 size,
     Point               vertices[],
     Volume              volume,
+    Volume              label_volume,
     int                 label,
     Real                max_distance )
 {
@@ -62,7 +65,7 @@ private  void  recursive_polygon_scan(
         if( voxel_is_within_volume( volume, voxel ) )
         {
             convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-            set_voxel_label_flag( volume, int_voxel, TRUE );
+            set_volume_label_data( label_volume, int_voxel, label );
         }
         return;
     }
@@ -78,22 +81,26 @@ private  void  recursive_polygon_scan(
         sub_points[0] = vertices[0];
         sub_points[1] = midpoints[0];
         sub_points[2] = midpoints[2];
-        recursive_polygon_scan( size, sub_points, volume, label, max_distance );
+        recursive_polygon_scan( size, sub_points, volume, label_volume,
+                                label, max_distance );
 
         sub_points[0] = midpoints[0];
         sub_points[1] = vertices[1];
         sub_points[2] = midpoints[1];
-        recursive_polygon_scan( size, sub_points, volume, label, max_distance );
+        recursive_polygon_scan( size, sub_points, volume, label_volume,
+                                label, max_distance );
 
         sub_points[0] = midpoints[2];
         sub_points[1] = midpoints[1];
         sub_points[2] = vertices[2];
-        recursive_polygon_scan( size, sub_points, volume, label, max_distance );
+        recursive_polygon_scan( size, sub_points, volume, label_volume,
+                                label, max_distance );
 
         sub_points[0] = midpoints[0];
         sub_points[1] = midpoints[1];
         sub_points[2] = midpoints[2];
-        recursive_polygon_scan( size, sub_points, volume, label, max_distance );
+        recursive_polygon_scan( size, sub_points, volume, label_volume,
+                                label, max_distance );
     }
     else
     {
@@ -103,24 +110,28 @@ private  void  recursive_polygon_scan(
         sub_points[1] = midpoints[0];
         sub_points[2] = centre;
         sub_points[3] = midpoints[3];
-        recursive_polygon_scan( size, sub_points, volume, label, max_distance );
+        recursive_polygon_scan( size, sub_points, volume, label_volume,
+                                label, max_distance );
 
         sub_points[0] = midpoints[0];
         sub_points[1] = vertices[1];
         sub_points[2] = midpoints[1];
         sub_points[3] = centre;
-        recursive_polygon_scan( size, sub_points, volume, label, max_distance );
+        recursive_polygon_scan( size, sub_points, volume, label_volume,
+                                label, max_distance );
 
         sub_points[0] = midpoints[3];
         sub_points[1] = centre;
         sub_points[2] = midpoints[2];
         sub_points[3] = vertices[3];
-        recursive_polygon_scan( size, sub_points, volume, label, max_distance );
+        recursive_polygon_scan( size, sub_points, volume, label_volume,
+                                label, max_distance );
 
         sub_points[0] = centre;
         sub_points[1] = midpoints[1];
         sub_points[2] = vertices[2];
         sub_points[3] = midpoints[2];
-        recursive_polygon_scan( size, sub_points, volume, label, max_distance );
+        recursive_polygon_scan( size, sub_points, volume, label_volume,
+                                label, max_distance );
     }
 }

@@ -1,5 +1,6 @@
 Progress_threshold = 1000;
 
+Initial_background_colour = WHITE;
 Initial_background_colour = DARK_SLATE_GREY;
 
 Event_timeout_min = 0.5;
@@ -177,8 +178,8 @@ Max_voxels_per_update = 100000;
 Max_seconds_per_voxel_update = 1.0;
 Max_surface_refinements = 0;
 Max_surface_error = 0.02;
-Edge_point_threshold = 0.25;
-Edge_point_new_density = 0.125;
+Edge_point_threshold = 1.0;
+Edge_point_new_density = 0.5;
 Cursor_mouse_threshold = 0.00
 Default_x_voxel_max_distance = 1000000;
 Default_y_voxel_max_distance = 1000000;

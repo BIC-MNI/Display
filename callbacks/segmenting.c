@@ -457,7 +457,8 @@ private  void   set_connected_activity(
 
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
 
-        set_connected_voxels_activity( get_label_volume(display),
+        set_connected_voxels_activity( get_volume(slice_window),
+                          get_label_volume(slice_window),
                           axis_index, int_voxel,
                           slice_window->slice.segmenting.min_threshold,
                           slice_window->slice.segmenting.max_threshold,

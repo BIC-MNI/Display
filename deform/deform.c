@@ -165,11 +165,12 @@ public  void  turn_off_deformation(
         {
             print( "Scanning polygons to voxels: \n" );
 
-            set_all_voxel_label_flags( get_label_volume(display), FALSE );
+            set_all_volume_label_data( get_label_volume(display), 0 );
 
             scan_polygons_to_voxels(
                   get_polygons_ptr(display->three_d.deform.deforming_object),
                   get_volume(slice_window),
+                  get_label_volume(slice_window),
                   slice_window->slice.current_paint_label,
                   Max_polygon_scan_distance );
 
