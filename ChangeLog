@@ -1,3 +1,8 @@
+2005-04-02  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
+
+	* configure.in: Restore AM_PROG_LIBTOOL to link using libtool.
+	This obsoletes AC_PROG_RANLIB.
+
 2005-02-02  Andrew Janke <rotor@bic.mni.mcgill.ca>
  	* Added OSX build support for Native OpenGL/GLUT
         * Added epm-header.in for binary builds

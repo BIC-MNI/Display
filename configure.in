@@ -19,7 +19,9 @@ dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_PROG_RANLIB
+
+dnl Use libtool for linking
+AM_PROG_LIBTOOL
 
 dnl Find all the X stuff
 AC_PATH_XTRA
