@@ -110,6 +110,7 @@ START_GLOBALS
     DEF_GLOBAL( Slice_view3_flip3, Boolean, FALSE )
 
     DEF_GLOBAL( Cursor_colour, Colour, 0.0 )
+    DEF_GLOBAL( Show_cursor_contours, Boolean, FALSE )
     DEF_GLOBAL( Cursor_colour_on_surface, Colour, 0.0 )
     DEF_GLOBAL( Cursor_colour_off_surface, Colour, 0.0 )
     DEF_GLOBAL( Cursor_beep_on_surface, int, 1 )
@@ -172,6 +173,10 @@ START_GLOBALS
     DEF_GLOBAL( Marker_size, Real, 1.0 )
 
     DEF_GLOBAL( Save_format, int, 1 )
+
+    DEF_GLOBAL( Max_smoothing_distance, Real, 1.0 )
+    DEF_GLOBAL( Smoothing_ratio, Real, 0.3 )
+    DEF_GLOBAL( Smoothing_threshold, Real, 0.05 )
 
 END_GLOBALS
          
