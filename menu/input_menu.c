@@ -2,6 +2,7 @@
 
 #define  FUNCTION_LIST \
 MENU_FUNCTION(exit_program) \
+MENU_FUNCTION(show_memory) \
 MENU_FUNCTION(pop_menu) \
 MENU_FUNCTION(push_menu) \
 MENU_FUNCTION(load_file) \
