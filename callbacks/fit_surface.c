@@ -181,10 +181,8 @@ public  DEF_MENU_FUNCTION(save_surface_points)   /* ARGSUSED */
     FILE     *file;
     String   filename;
     Status   status;
-    Status   open_file();
     Status   io_point();
     Status   io_newline();
-    Status   close_file();
 
     PRINT( "Enter filename: " );
 
@@ -194,7 +192,8 @@ public  DEF_MENU_FUNCTION(save_surface_points)   /* ARGSUSED */
         status = input_newline( stdin );
 
     if( status == OK )
-        status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
+        status = open_file_with_default_suffix( filename, "obj", WRITE_FILE,
+                                                ASCII_FORMAT, &file );
 
     if( status == OK )
     {
@@ -226,10 +225,8 @@ public  DEF_MENU_FUNCTION(load_surface_points)   /* ARGSUSED */
     Point    point;
     String   filename;
     Status   status, input_status;
-    Status   open_file();
     Status   io_point();
     Status   add_surface_fitting_point();
-    Status   close_file();
     void     convert_point_to_voxel();
     void     set_voxel_label_flag();
     void     set_slice_window_update();
@@ -242,7 +239,8 @@ public  DEF_MENU_FUNCTION(load_surface_points)   /* ARGSUSED */
         status = input_newline( stdin );
 
     if( status == OK )
-        status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
+        status = open_file_with_default_suffix( filename, "obj", READ_FILE,
+                                                ASCII_FORMAT, &file );
 
     while( status == OK )
     {
@@ -443,9 +441,7 @@ public  DEF_MENU_FUNCTION(load_model_parameters)   /* ARGSUSED */
     double   *tmp_parameters;
     String   filename;
     FILE     *file;
-    Status   open_file();
     Status   io_double();
-    Status   close_file();
 
     PRINT( "Enter filename: " );
 
@@ -501,10 +497,8 @@ public  DEF_MENU_FUNCTION(save_model_parameters)   /* ARGSUSED */
     int      i, n_parameters;
     String   filename;
     FILE     *file;
-    Status   open_file();
     Status   io_double();
     Status   io_newline();
-    Status   close_file();
 
     PRINT( "Enter filename: " );
 

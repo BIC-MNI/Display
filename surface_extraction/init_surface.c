@@ -17,6 +17,7 @@ public  Status  initialize_surface_extraction( graphics )
     Status                      add_object_to_model();
     object_struct               *object;
     void                        install_surface_extraction();
+    void                        empty_polygons_struct();
 
     surface_extraction = &graphics->three_d.surface_extraction;
 
@@ -31,6 +32,7 @@ public  Status  initialize_surface_extraction( graphics )
     if( status == OK )
     {
         surface_extraction->polygons = object->ptr.polygons;
+        empty_polygons_struct( surface_extraction->polygons );
 
         surface_extraction->polygons->colour_flag = ONE_COLOUR;
 

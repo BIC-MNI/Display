@@ -4,6 +4,10 @@
 #include  <def_globals.h>
 #include  <def_arguments.h>
 
+const  char  HARD_CODED_DISPLAY_DIRECTORY[] = "/usr/local/lib";
+const  char  GLOBALS_FILENAME[]             = "display.globals";
+const  char  MENU_FILENAME[]                = "display.menu";
+
 int  main( argc, argv )
     int     argc;
     char    *argv[];
@@ -38,7 +42,9 @@ int  main( argc, argv )
         extract_directory( argv[0], runtime_directory );
     }
 
-    status = initialize_globals( runtime_directory );
+    status = initialize_globals( runtime_directory,
+                                 HARD_CODED_DISPLAY_DIRECTORY,
+                                 GLOBALS_FILENAME );
 
     if( status == OK )
     {
@@ -68,7 +74,9 @@ int  main( argc, argv )
         menu->associated[MENU_WINDOW] = menu;
         menu->associated[SLICE_WINDOW] = (graphics_struct *) 0;
 
-        status = initialize_menu( menu, runtime_directory );
+        status = initialize_menu( menu, runtime_directory,
+                                  HARD_CODED_DISPLAY_DIRECTORY,
+                                  MENU_FILENAME );
     }
 
     if( status == OK )

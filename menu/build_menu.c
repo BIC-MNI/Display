@@ -66,8 +66,7 @@ public  Status  build_menu( menu_window )
         status = create_menu_box( menu_window, positions[i].key );
 
         if( status == OK )
-            status = create_menu_character( menu_window, positions[i].key,
-                                            positions[i].key_name );
+            status = create_menu_character( menu_window, positions[i].key );
 
         if( status != OK )
             break;
@@ -92,12 +91,15 @@ private  Status   create_menu_text( menu_window, menu_entry )
 {
     Status          status;
     Real            x, y, length;
+    Real            G_get_text_length();
     int             i;
     Status          create_object();
     text_struct     *text;
     Status          add_object_to_model();
     void            set_menu_text();
+    void            get_key_string();
     Status          update_menu_text();
+    String          key_string;
     model_struct    *model;
     model_struct    *get_graphics_model();
 
@@ -125,14 +127,17 @@ private  Status   create_menu_text( menu_window, menu_entry )
             text->colour = Menu_character_colour;
 
             compute_origin( &menu_window->menu, menu_entry->key, &x, &y,
-                            &length );
+                            (Real *) 0, (Real *) 0, &length );
             x += X_menu_text_offset;
             y += (menu_window->menu.n_lines_in_entry - i) *
                  menu_window->menu.character_height -
                  Y_menu_text_offset;
 
             if( i == 0 )
-                x += Menu_key_character_offset * text->size;
+            {
+                get_key_string( menu_entry->key, key_string );
+                x += G_get_text_length( key_string, text->font, text->size );
+            }
 
             fill_Point( text->origin, x, y, 0.0 );
 
@@ -151,16 +156,12 @@ private  Status   create_menu_text( menu_window, menu_entry )
     return( status );
 }
 
-private  void   compute_origin( menu, key, x, y, length )
-    menu_window_struct   *menu;
-    int                  key;
-    Real                 *x;
-    Real                 *y;
-    Real                 *length;
+private  Boolean  lookup_key( key, desc )
+    int              key;
+    position_struct  **desc;
 {
     int      i;
     Boolean  found;
-    Real     x_dx, y_dy;
 
     found = FALSE;
 
@@ -168,10 +169,29 @@ private  void   compute_origin( menu, key, x, y, length )
     {
         if( positions[i].key == key )
         {
+            *desc = &positions[i];
             found = TRUE;
             break;
         }
     }
+
+    return( found );
+}
+
+private  void   compute_origin( menu, key, x1, y1, x2, y2, length )
+    menu_window_struct   *menu;
+    int                  key;
+    Real                 *x1;
+    Real                 *y1;
+    Real                 *x2;
+    Real                 *y2;
+    Real                 *length;
+{
+    Boolean          found;
+    position_struct  *desc;
+    Real             x_dx, y_dy;
+
+    found = lookup_key( key, &desc );
 
     if( !found )
     {
@@ -187,17 +207,62 @@ private  void   compute_origin( menu, key, x, y, length )
                menu->n_lines_in_entry *
                menu->character_height;
 
-        *x = X_menu_origin + (Real) positions[i].x_pos * x_dx;
-        *y = Y_menu_origin + (Real) positions[i].y_pos * y_dy;
+        *x1 = X_menu_origin + (Real) desc->x_pos * x_dx;
+        *y1 = Y_menu_origin + (Real) desc->y_pos * y_dy;
 
-        if( positions[i].in_slanted_part_of_keyboard )
+        if( desc->in_slanted_part_of_keyboard )
         {
-            *x += (Real) positions[i].y_pos * menu->y_dx;
-            *y += (Real) positions[i].x_pos * menu->x_dy;
+            *x1 += (Real) desc->y_pos * menu->y_dx;
+            *y1 += (Real) desc->x_pos * menu->x_dy;
         }
 
-        *length = positions[i].length;
+        *length = desc->length;
+
+        if( x2 != (Real *) 0 )
+        {
+            *x2 = *x1 + *length * menu->n_chars_per_unit_across *
+                        menu->character_width;
+        }
+
+        if( y2 != (Real *) 0 )
+        {
+            *y2 = *y1 + menu->n_lines_in_entry *
+                        menu->character_height;
+        }
     }
+}
+
+private  void  get_key_string( key, string )
+    int   key;
+    char  string[];
+{
+    position_struct   *desc;
+
+    if( lookup_key( key, &desc ) )
+    {
+        (void) sprintf( string, "%s ", desc->key_name );
+    }
+    else
+    {
+        string[0] = (char) 0;
+    }
+}
+
+public  Real  get_size_of_menu_text_area( menu_window, key, line_number )
+    graphics_struct  *menu_window;
+    int              key;
+    int              line_number;
+{
+    Real          size, x1, y1, x2, y2, length;
+    text_struct   *text;
+
+    compute_origin( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length );
+
+    text = menu_window->menu.key_menus[key]->text_list[line_number]->ptr.text;
+
+    size = x2 - Point_x(text->origin);
+
+    return( size );
 }
 
 private  Status   create_menu_box( menu_window, key )
@@ -251,12 +316,7 @@ private  Status   create_menu_box( menu_window, key )
 
         ALLOC( status, lines->indices, lines->end_indices[0] );
 
-        compute_origin( &menu_window->menu, key, &x1, &y1, &length );
-
-        x2 = x1 + length * menu_window->menu.n_chars_per_unit_across *
-                  menu_window->menu.character_width;
-        y2 = y1 + menu_window->menu.n_lines_in_entry *
-                  menu_window->menu.character_height;
+        compute_origin( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length );
 
         fill_Point( lines->points[0], x1, y1, 0.0 );
         fill_Point( lines->points[1], x2, y1, 0.0 );
@@ -273,10 +333,9 @@ private  Status   create_menu_box( menu_window, key )
     return( status );
 }
 
-private  Status   create_menu_character( menu_window, key, key_name )
+private  Status   create_menu_character( menu_window, key )
     graphics_struct   *menu_window;
     int               key;
-    char              key_name[];
 {
     Status          status;
     Real            x, y, length;
@@ -286,6 +345,7 @@ private  Status   create_menu_character( menu_window, key, key_name )
     Status          add_object_to_model();
     model_struct    *model;
     model_struct    *get_graphics_model();
+    void            get_key_string();
 
     status = create_object( &object, TEXT );
 
@@ -297,9 +357,10 @@ private  Status   create_menu_character( menu_window, key, key_name )
         text->size = Menu_window_font_size;
         text->colour = Menu_key_colour;
 
-        (void) sprintf( text->text, "%s-", key_name );
+        get_key_string( key, text->text );
 
-        compute_origin( &menu_window->menu, key, &x, &y, &length );
+        compute_origin( &menu_window->menu, key, &x, &y, (Real *) 0, (Real *) 0,
+                        &length );
 
         fill_Point( text->origin,
                     x + X_menu_text_offset,
@@ -324,12 +385,7 @@ private  Boolean   point_within_menu_key_entry( menu_window, key, x, y )
 {
     Real      x1, y1, x2, y2, length;
 
-    compute_origin( &menu_window->menu, key, &x1, &y1, &length );
-
-    x2 = x1 + length * menu_window->menu.n_chars_per_unit_across *
-              menu_window->menu.character_width;
-    y2 = y1 + menu_window->menu.n_lines_in_entry *
-              menu_window->menu.character_height;
+    compute_origin( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length );
 
     return( x >= x1 && x <= x2 && y >= y1 && y <= y2 );
 }

@@ -223,6 +223,7 @@ private  Status  initialize_graphics_window( graphics )
     void           initialize_menu_actions();
     Status         initialize_slice_window();
     Status         initialize_three_d_window();
+    Status         initialize_menu_window();
     Status         status;
     Status         create_object();
     View_types     view_type;
@@ -291,14 +292,13 @@ private  Status  initialize_graphics_window( graphics )
     }
 
     if( status == OK && graphics->window_type == THREE_D_WINDOW )
-    {
         status = initialize_three_d_window( graphics );
-    }
 
     if( status == OK && graphics->window_type == SLICE_WINDOW )
-    {
         status = initialize_slice_window( graphics );
-    }
+
+    if( status == OK && graphics->window_type == MENU_WINDOW )
+        status = initialize_menu_window( graphics );
 
     if( status == OK )
     {
@@ -565,135 +565,6 @@ public  void  reset_view_parameters( graphics, line_of_sight, horizontal )
     fit_view_to_domain( &graphics->three_d.view,
                         &graphics->three_d.min_limit,
                         &graphics->three_d.max_limit );
-}
-
-public  Status  load_graphics_file( graphics, filename )
-    graphics_struct  *graphics;
-    char             filename[];
-{
-    Status           status;
-    Status           input_graphics_file();
-    File_formats     format;
-    Status           create_object();
-    Status           push_current_object();
-    Status           add_object_to_model();
-    object_struct    *object;
-    model_struct     *model;
-    model_struct     *get_current_model();
-    Boolean          get_range_of_object();
-    void             rebuild_selected_list();
-    void             set_current_object_index();
-    int              n_items;
-    Status           create_polygons_bintree();
-    Status           check_polygons_neighbours_computed();
-    Status           initialize_cursor();
-    void             set_update_required();
-    Status           initialize_object_traverse();
-    object_struct            *current_object;
-    object_traverse_struct   object_traverse;
-
-    status = create_object( &object, MODEL );
-
-    if( status == OK )
-    {
-        PRINT( "Inputting %s.\n", filename );
-
-        model = object->ptr.model;
-
-        (void) strcpy( model->filename, filename );
-
-        status = input_graphics_file( filename, &format,
-                                      &model->n_objects,
-                                      &model->object_list );
-
-        PRINT( "Objects input.\n" );
-    }
-
-    if( status == OK )
-    {
-        if( !Visibility_on_input )
-        {
-            status = initialize_object_traverse( &object_traverse, 1, &object );
-
-            while( get_next_object_traverse(&object_traverse,&current_object) )
-                current_object->visibility = OFF;
-        }
-    }
-
-    if( status == OK )
-    {
-        status = initialize_object_traverse( &object_traverse, 1, &object );
-
-        while( get_next_object_traverse(&object_traverse,&current_object) )
-        {
-            if( status == OK && current_object->object_type == POLYGONS )
-            {
-                polygons_struct   *polygons;
-
-                polygons = current_object->ptr.polygons;
-
-                n_items = polygons->n_items;
-
-                if( n_items > Polygon_bintree_threshold )
-                {
-                    status = create_polygons_bintree( polygons,
-                              ROUND( (Real) n_items * Bintree_size_factor ) );
-                }
-
-                if( Compute_neighbours_on_input )
-                {
-                    status = check_polygons_neighbours_computed( polygons );
-                }
-            }
-        }
-    }
-
-    if( status == OK )
-    {
-        model = get_current_model( graphics );
-
-        status = add_object_to_model( model, object );
-
-        if( current_object_is_top_level(graphics) )
-        {
-            if( model->n_objects == 1 )               /* first object */
-            {
-                status = push_current_object( graphics );
-            }
-        }
-        else
-        {
-            set_current_object_index( graphics, model->n_objects-1 );
-        }
-    }
-
-    if( status == OK )
-    {
-        rebuild_selected_list( graphics, graphics->associated[MENU_WINDOW] );
-    }
-
-    if( status == OK )
-    {
-        if( !get_range_of_object( graphics->models[THREED_MODEL], FALSE,
-                                  &graphics->three_d.min_limit,
-                                  &graphics->three_d.max_limit ) )
-        {
-            fill_Point( graphics->three_d.min_limit, 0.0, 0.0, 0.0 );
-            fill_Point( graphics->three_d.max_limit, 1.0, 1.0, 1.0 );
-            PRINT( "No objects range.\n" );
-        }
-
-        ADD_POINTS( graphics->three_d.centre_of_objects,
-                    graphics->three_d.min_limit,
-                    graphics->three_d.max_limit );
-        SCALE_POINT( graphics->three_d.centre_of_objects,
-                     graphics->three_d.centre_of_objects,
-                     0.5 );
-
-        status = initialize_cursor( graphics );
-    }
-
-    return( status );
 }
 
 public  Real  size_of_domain( graphics )

@@ -63,10 +63,10 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
     Status          create_object();
     Status          add_object_to_model();
     object_struct   *object;
-    void            markers_have_changed();
     model_struct    *get_current_model();
     Boolean         get_voxel_corresponding_to_point();
     void            get_position_pointed_to();
+    void            regenerate_voxel_labels();
 
     status = create_object( &object, MARKER );
 
@@ -83,7 +83,7 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
 
         status = add_object_to_model( get_current_model(graphics), object );
 
-        markers_have_changed( graphics );
+        regenerate_voxel_labels( graphics );
     }
 
     return( status );

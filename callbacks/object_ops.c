@@ -391,6 +391,47 @@ public  DEF_MENU_UPDATE(set_current_object_colour )   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION( set_current_object_surfprop )   /* ARGSUSED */
+{
+    Status          status;
+    Status          convert_string_to_colour();
+    object_struct   *current_object;
+    Boolean         get_current_object();
+    void            set_object_surfprop();
+    void            set_update_required();
+    void            rebuild_selected_list();
+    Surfprop        spr;
+
+    status = OK;
+
+    if( get_current_object( graphics, &current_object ) )
+    {
+        PRINT( "Enter ambient, diffuse, specular, and shininess:" );
+
+        if( input_real( stdin, &Surfprop_a(spr) ) == OK &&
+            input_real( stdin, &Surfprop_d(spr) ) == OK &&
+            input_real( stdin, &Surfprop_s(spr) ) == OK &&
+            input_real( stdin, &Surfprop_se(spr) ) == OK )
+        {
+            Surfprop_t(spr) = 0.0;
+
+            set_object_surfprop( current_object, &spr );
+
+            set_update_required( graphics, NORMAL_PLANES );
+            rebuild_selected_list( graphics, menu_window );
+        }
+
+        (void) input_newline( stdin );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(set_current_object_surfprop )   /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( cut_object )   /* ARGSUSED */
 {
     Status          status;

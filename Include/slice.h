@@ -29,6 +29,16 @@ typedef  struct
     int            max_threshold;
 } segmenting_struct;
 
+typedef struct
+{
+    Real             top_offset;
+    Real             bottom_offset;
+    Real             left_offset;
+    Real             bar_width;
+    Real             tick_width;
+    int              desired_n_intervals;
+} colour_bar_struct;
+
 #define  NUM_LOOKUPS   4
 
 typedef  struct
@@ -38,6 +48,7 @@ typedef  struct
     Boolean                fast_lookup_present;
     Pixel_colour           *fast_lookup[NUM_LOOKUPS];
     colour_coding_struct   colour_coding;
+    colour_bar_struct      colour_bar;
 
     int                    x_split, y_split;
 

@@ -66,6 +66,8 @@ START_GLOBALS
     DEF_GLOBAL( Default_marker_colour, Colour, 0.0 )
     DEF_GLOBAL_STRING( Default_marker_label, "Marker" )
 
+    DEF_GLOBAL( N_expansion_voxels, int, 6 )
+
     DEF_GLOBAL( N_selected_displayed, int, 3 )
     DEF_GLOBAL( Selected_x_origin, Real, 0.0 )
     DEF_GLOBAL( Selected_y_origin, Real, 0.0 )
@@ -165,10 +167,26 @@ START_GLOBALS
     DEF_GLOBAL( Max_fast_colour_lookup, int, 100000 )
     DEF_GLOBAL( Colour_table_size, int, 1000 )
     DEF_GLOBAL( Colour_below, Colour, 0.0 )
-    DEF_GLOBAL( Min_colour, Colour, 0.0 )
-    DEF_GLOBAL( Max_colour, Colour, 0.0 )
+    DEF_GLOBAL( User_defined_min_colour, Colour, 0.0 )
+    DEF_GLOBAL( User_defined_max_colour, Colour, 0.0 )
     DEF_GLOBAL( Colour_above, Colour, 0.0 )
-    DEF_GLOBAL( Interpolation_space, int, 0 )
+    DEF_GLOBAL( Colour_coding_type, int, 0 )
+    DEF_GLOBAL( User_defined_interpolation_space, int, 0 )
+
+    DEF_GLOBAL( Colour_bar_resolution, int, 50 )
+    DEF_GLOBAL( Colour_bar_top_offset, Real, 10.0 )
+    DEF_GLOBAL( Colour_bar_bottom_offset, Real, 10.0 )
+    DEF_GLOBAL( Colour_bar_left_offset, Real, 10.0 )
+    DEF_GLOBAL( Colour_bar_width, Real, 30.0 )
+    DEF_GLOBAL( Colour_bar_tick_width, Real, 5.0 )
+    DEF_GLOBAL( Colour_bar_tick_colour, Colour, 0.0 )
+    DEF_GLOBAL( Colour_bar_text_colour, Colour, 0.0 )
+    DEF_GLOBAL( Colour_bar_text_font, int, 0 )
+    DEF_GLOBAL( Colour_bar_text_size, Real, 0.0 )
+    DEF_GLOBAL( Colour_bar_limit_colour, Colour, 0.0 )
+    DEF_GLOBAL( Colour_bar_desired_intervals, int, 5 )
+    DEF_GLOBAL( Colour_bar_closest_text, Real, 40.0 )
+    DEF_GLOBAL_STRING( Colour_bar_number_format, "" )
 
     DEF_GLOBAL( Normal_towards_lower, Boolean, TRUE )
 

@@ -27,6 +27,7 @@
 /* for slice windows */
 
 #define  SLICE_MODEL            0
+#define  COLOUR_BAR_MODEL       1
 
 #define  N_MODELS               4
 

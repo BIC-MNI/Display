@@ -44,10 +44,13 @@ private  void  create_selected_text( model )
         if( status == OK )
         {
             text = object->ptr.text;
+            text->font = Menu_window_font;
+            text->size = Menu_window_font_size;
 
             fill_Point( text->origin,
-                        Selected_x_origin + Selected_x_delta * (Real) i,
-                        Selected_y_origin + Selected_y_delta * (Real) i, 0.0 );
+                        Selected_x_origin,
+                        Selected_y_origin - Menu_character_height * (Real) i,
+                        0.0 );
         }
 
         if( status == OK )
@@ -88,8 +91,8 @@ private  void  set_current_box( selected_model, index, label )
 
     points = selected_model->object_list[0]->ptr.lines->points;
 
-    x_start = Selected_x_origin + Selected_x_delta * (Real) index;
-    y_start = Selected_y_origin + Selected_y_delta * (Real) index;
+    x_start = Selected_x_origin;
+    y_start = Selected_y_origin - Menu_character_height * (Real) index;
     x_end = x_start + (Real) width;
     y_end = y_start + (Real) Character_height_in_pixels;
 

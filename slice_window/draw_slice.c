@@ -477,9 +477,14 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
     Colour          col;
     Pixel_colour    pixel_col, *pixel_ptr;
     Real            dx, dy;
+    Pixel_colour    *lookup;
     Pixel_colour    get_voxel_colour();
     void            get_colour_coding();
     Boolean         activity_flag, label_flag;
+    Pixel_colour    *bogus_fast_lookup[4];
+
+    if( !fast_lookup_present )
+        fast_lookup = bogus_fast_lookup;
 
     status = OK;
 
@@ -547,6 +552,11 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
 
     min_value = volume->min_value;
 
+    lookup_index = -1;
+
+    if( !Display_activities )
+        lookup = fast_lookup[0];
+
     for_less( y, 0, y_size )
     {
         pixel_ptr = &pixels->pixels[y * x_size];
@@ -564,34 +574,54 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
                 if( Display_activities )
                 {
                     activity_flag = get_voxel_activity_flag( volume,
-                                           x_voxel, y_voxel, z_voxel );
+                                         x_voxel, y_voxel, z_voxel );
                     label_flag = get_voxel_label_flag( volume,
                                            x_voxel, y_voxel, z_voxel );
 
                     if( activity_flag )
                     {
                         if( label_flag )
-                            lookup_index = 2;
+                        {
+                            if( lookup_index != 2 )
+                            {
+                                lookup = fast_lookup[2];
+                                lookup_index = 2;
+                            }
+                        }
                         else
-                            lookup_index = 0;
+                        {
+                            if( lookup_index != 0 )
+                            {
+                                lookup = fast_lookup[0];
+                                lookup_index = 0;
+                            }
+                        }
                     }
                     else
                     {
                         if( label_flag )
-                            lookup_index = 3;
+                        {
+                            if( lookup_index != 3 )
+                            {
+                                lookup = fast_lookup[3];
+                                lookup_index = 3;
+                            }
+                        }
                         else
-                            lookup_index = 1;
+                        {
+                            if( lookup_index != 1 )
+                            {
+                                lookup = fast_lookup[1];
+                                lookup_index = 1;
+                            }
+                        }
                     }
-                }
-                else
-                {
-                    lookup_index = 0;
                 }
 
                 val = GET_VOLUME_DATA( *volume, x_voxel, y_voxel, z_voxel );
 
                 if( fast_lookup_present )
-                    pixel_col = fast_lookup[lookup_index][val-min_value];
+                    pixel_col = lookup[val-min_value];
                 else
                 {
                     get_colour_coding( colour_coding, (Real) val, &col );

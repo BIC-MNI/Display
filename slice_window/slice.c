@@ -10,10 +10,11 @@ public  Status  initialize_slice_window( graphics )
     Status  status;
     Status  initialize_slice_models();
     Status  initialize_colour_coding();
+    Status  initialize_colour_bar();
     void    initialize_slice_window_events();
     int     c;
     void    initialize_segmenting();
-    void    build_default_colour_map();
+    void    rebuild_colour_coding();
 
     graphics->slice.volume = (volume_struct *) 0;
 
@@ -53,10 +54,11 @@ public  Status  initialize_slice_window( graphics )
     {
         status = initialize_colour_coding( &graphics->slice.colour_coding );
 
-        build_default_colour_map( &graphics->slice.colour_coding,
-                                  &Min_colour, &Max_colour,
-                                  (Colour_spaces) Interpolation_space );
+        rebuild_colour_coding( &graphics->slice.colour_coding );
     }
+
+    if( status == OK )
+        status = initialize_colour_bar( graphics );
 
     graphics->slice.fast_lookup_present = FALSE;
 
@@ -80,6 +82,7 @@ public  Status  set_slice_window_volume( graphics, volume )
     void             change_colour_coding_range();
     void             get_volume_size();
     void             get_volume_slice_thickness();
+    void             rebuild_colour_bar();
 
     graphics->slice.volume = volume;
 
@@ -160,6 +163,8 @@ public  Status  set_slice_window_volume( graphics, volume )
                     get_n_voxels(graphics->slice.volume) );
     }
 
+    rebuild_colour_bar( graphics );
+
     return( status );
 }
 
@@ -168,12 +173,12 @@ public  void  change_colour_coding_range( graphics, min_value, max_value )
     Real              min_value, max_value;
 {
     void             set_colour_coding_range();
-    void             rebuild_fast_lookup();
+    void             colour_coding_has_changed();
 
     set_colour_coding_range( &graphics->slice.colour_coding,
                              min_value, max_value );
 
-    rebuild_fast_lookup( graphics );
+    colour_coding_has_changed( graphics );
 }
 
 public  void  rebuild_fast_lookup( graphics )
@@ -840,3 +845,60 @@ public  void  update_slice_window( graphics )
         }
     }
 }
+
+public  Status  create_slice_window( graphics, volume )
+    graphics_struct  *graphics;
+    volume_struct    *volume;
+{
+    Status           status;
+    Status           create_graphics_window();
+    graphics_struct  *slice_window, *menu_window;
+    Status           set_slice_window_volume();
+    void             set_slice_window_update();
+
+    status = create_graphics_window( SLICE_WINDOW, &slice_window,
+                                     "Slice Window", 0, 0 );
+
+    if( status == OK )
+    {
+        menu_window = graphics->associated[MENU_WINDOW];
+
+        slice_window->associated[THREE_D_WINDOW] = graphics;
+        slice_window->associated[MENU_WINDOW] = menu_window;
+        slice_window->associated[SLICE_WINDOW] = slice_window;
+        graphics->associated[SLICE_WINDOW] = slice_window;
+        menu_window->associated[SLICE_WINDOW] = slice_window;
+
+        status = set_slice_window_volume( slice_window, volume );
+
+        set_slice_window_update( slice_window, 0 );
+        set_slice_window_update( slice_window, 1 );
+        set_slice_window_update( slice_window, 2 );
+    }
+
+    return( status );
+}
+
+public  void  colour_coding_has_changed( graphics )
+    graphics_struct   *graphics;
+{
+    graphics_struct   *slice_window;
+    void              rebuild_colour_coding();
+    void              rebuild_fast_lookup();
+    void              rebuild_colour_bar();
+
+    slice_window = graphics->associated[SLICE_WINDOW];
+
+    if( slice_window != (graphics_struct *) 0 )
+    {
+        rebuild_colour_coding( &slice_window->slice.colour_coding );
+
+        rebuild_fast_lookup( slice_window );
+
+        rebuild_colour_bar( slice_window );
+        set_slice_window_update( slice_window, 0 );
+        set_slice_window_update( slice_window, 1 );
+        set_slice_window_update( slice_window, 2 );
+    }
+}
+

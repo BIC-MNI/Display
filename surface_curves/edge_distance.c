@@ -70,7 +70,7 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
     int                    current_poly, n_done;
     Real                   dist;
     Real                   distance_between_points();
-    Boolean                found;
+    Boolean                found_vertex, found;
     Status                 status;
     queue_struct           entry;
     PRIORITY_QUEUE_STRUCT( queue_struct )   queue;
@@ -98,13 +98,13 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
         INSERT_IN_PRIORITY_QUEUE( status, queue, entry, -dist );
     }
 
-    found = FALSE;
+    found_vertex = FALSE;
 
     while( !IS_PRIORITY_QUEUE_EMPTY( queue ) )
     {
         REMOVE_FROM_PRIORITY_QUEUE( queue, entry, dist );
 
-        if( found && dist > *path_dist )
+        if( found_vertex && dist > *path_dist )
             break;
 
         index_within_poly = entry.index_within_poly;
@@ -136,9 +136,9 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
                                   &polygons->points[point_index], p1 )
                                + vertices[point_index].distance;
 
-                    if( !found || dist < *path_dist )
+                    if( !found_vertex || dist < *path_dist )
                     {
-                        found = TRUE;
+                        found_vertex = TRUE;
                         *path_dist = dist;
                         *last_vertex = point_index;
                     }
@@ -155,7 +155,7 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
                     vertices[neighbour_point_index].distance = dist;   
                     vertices[neighbour_point_index].from_point = point_index;   
 
-                    if( !found || dist < *path_dist )
+                    if( !found_vertex || dist < *path_dist )
                     {
                         entry.index_within_poly = neighbour_index_within_poly;
                         entry.poly_index = current_poly;
@@ -186,7 +186,7 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
 
     DELETE_PRIORITY_QUEUE( status, queue );
 
-    return( found );
+    return( found_vertex );
 }
 
 private  Status  create_path( polygons, p1, p2, first_flag,

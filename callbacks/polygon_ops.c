@@ -45,9 +45,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
     polygons_struct   *polygons;
     String            filename;
     FILE              *file;
-    Status            open_file();
     Status            io_bintree();
-    Status            close_file();
 
     status = OK;
 
@@ -62,7 +60,8 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
             status = input_newline( stdin );
 
         if( status == OK )
-            status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
+            status = open_file_with_default_suffix( filename, "btr", READ_FILE,
+                                                    BINARY_FORMAT, &file );
 
         if( status == OK )
             ALLOC( status, polygons->bintree, 1 );
@@ -93,9 +92,7 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
     polygons_struct   *polygons;
     String            filename;
     FILE              *file;
-    Status            open_file();
     Status            io_bintree();
-    Status            close_file();
 
     status = OK;
 
@@ -110,7 +107,8 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
             status = input_newline( stdin );
 
         if( status == OK )
-            status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
+            status = open_file_with_default_suffix( filename, "btr",
+                                            WRITE_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
         {

@@ -322,9 +322,7 @@ private  void  possibly_output( p )
     Status   status;
     FILE     *file;
     String   name;
-    Status   open_file();
     Status   io_polygons();
-    Status   close_file();
 
     if( Output_every > 0 )
     {
@@ -338,7 +336,8 @@ private  void  possibly_output( p )
             ++count;
             (void) sprintf( name, Tmp_surface_name, count );
 
-            status = open_file( name, WRITE_FILE, BINARY_FORMAT, &file );
+            status = open_file_with_default_suffix( name, "obj",
+                                            WRITE_FILE, BINARY_FORMAT, &file );
 
             if( status == OK )
             {

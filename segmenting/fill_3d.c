@@ -1,6 +1,7 @@
 #include  <def_objects.h>
 #include  <def_queue.h>
 #include  <def_bitlist.h>
+#include  <def_files.h>
 
 typedef struct
 {
@@ -21,6 +22,10 @@ public  Status  fill_connected_voxels_3d( volume, x, y, z,
     xyz_struct                   entry;
     QUEUE_STRUCT( xyz_struct )   queue;
     bitlist_3d_struct            bitlist;
+    int                          n_done;
+    const  Real                  update_every = 10.0;
+    Real                         next_message_time;
+    Real                         current_realtime_seconds();
 
     get_volume_size( volume, &nx, &ny, &nz );
 
@@ -42,6 +47,9 @@ public  Status  fill_connected_voxels_3d( volume, x, y, z,
             INSERT_IN_QUEUE( status, queue, entry );
         }
     }
+
+    n_done = 0;
+    next_message_time = current_realtime_seconds() + update_every;
 
     while( !IS_QUEUE_EMPTY( queue ) )
     {
@@ -79,6 +87,13 @@ public  Status  fill_connected_voxels_3d( volume, x, y, z,
                         INSERT_IN_QUEUE( status, queue, entry );
                 }
             }
+        }
+
+        if( (++n_done % 20) == 0 &&
+            current_realtime_seconds() > next_message_time )
+        {
+            next_message_time = current_realtime_seconds() + update_every;
+            PRINT( "N in queue = %d\n", NUMBER_IN_QUEUE(queue) );
         }
     }
 

@@ -126,12 +126,7 @@ private  Status  create_film_loop_header( base_filename, window_width,
     Status  status;
     int     i;
     FILE    *file;
-    Status  open_file();
-    Status  io_int();
-    Status  output_string();
     Status  io_colour();
-    Status  io_newline();
-    Status  close_file();
     String  header_name;
     String  frame_filename;
     String  no_dirs;
@@ -200,8 +195,6 @@ private  Status  save_image_to_file( graphics )
     graphics_struct   *graphics;
 {
     Status         status;
-    Status         open_file();
-    Status         close_file();
     void           G_read_pixels();
     FILE           *file;
     String         frame_filename;
@@ -237,7 +230,8 @@ private  Status  save_image_to_file( graphics )
                            graphics->three_d.film_loop.current_step,
                            frame_filename );
 
-    status = open_file( frame_filename, WRITE_FILE, BINARY_FORMAT, &file );
+    status = open_file_with_default_suffix( frame_filename, "frm",
+                                            WRITE_FILE, BINARY_FORMAT, &file );
 
     if( status == OK )
     {

@@ -556,9 +556,7 @@ private  Status  io_polygons_visibilities( polygons, io_flag )
     IO_types         io_flag;
 {
     Status           status;
-    Status           open_file();
     Status           io_binary_data();
-    Status           close_file();
     Status           create_polygons_visibilities();
     Status           input_string();
     String           filename;
@@ -577,7 +575,8 @@ private  Status  io_polygons_visibilities( polygons, io_flag )
         status = input_newline( stdin );
 
     if( status == OK )
-        status = open_file( filename, io_flag, BINARY_FORMAT, &file );
+        status = open_file_with_default_suffix( filename, "vis", io_flag,
+                                                BINARY_FORMAT, &file );
 
     if( status == OK )
         status = io_binary_data( file, io_flag, polygons->visibilities,

@@ -26,7 +26,6 @@ typedef  menu_update_type  (*menu_update_pointer);
 
 typedef  struct  menu_entry_struct
 {
-    Boolean                     active;
     Boolean                     permanent_flag;
     int                         key;
     String                      label;

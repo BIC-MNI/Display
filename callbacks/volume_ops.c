@@ -259,40 +259,96 @@ public  DEF_MENU_UPDATE(toggle_marked_slice )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
 {
     Status           status;
-    Status           create_graphics_window();
+    Status           create_slice_window();
     volume_struct    *volume;
-    graphics_struct  *slice_window;
-    Status           set_slice_window_volume();
-    void             set_slice_window_update();
 
     status = OK;
 
     if( get_current_volume( graphics, &volume ) &&
         graphics->associated[SLICE_WINDOW] == (graphics_struct *) 0 )
     {
-        status = create_graphics_window( SLICE_WINDOW, &slice_window,
-                                         "Slice Window", 0, 0 );
-
-        if( status == OK )
-        {
-            slice_window->associated[THREE_D_WINDOW] = graphics;
-            slice_window->associated[MENU_WINDOW] = menu_window;
-            slice_window->associated[SLICE_WINDOW] = slice_window;
-            graphics->associated[SLICE_WINDOW] = slice_window;
-            menu_window->associated[SLICE_WINDOW] = slice_window;
-
-            status = set_slice_window_volume( slice_window, volume );
-
-            set_slice_window_update( slice_window, 0 );
-            set_slice_window_update( slice_window, 1 );
-            set_slice_window_update( slice_window, 2 );
-        }
+        status = create_slice_window( graphics, volume );
     }
 
     return( status );
 }
 
 public  DEF_MENU_UPDATE(open_slice_window )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+private  Status  change_current_slice_by_one( graphics, delta )
+    graphics_struct  *graphics;
+    int              delta;
+{
+    Status           status;
+    graphics_struct  *slice_window;
+    volume_struct    *volume;
+    int              index[3], sizes[3], axis_index;
+    Boolean          get_voxel_under_mouse();
+    void             set_slice_window_update();
+    void             get_volume_size();
+    void             get_current_voxel();
+    void             rebuild_probe();
+    void             rebuild_cursor();
+
+    status = OK;
+
+    if( get_axis_index_under_mouse( graphics, &axis_index ) &&
+        get_slice_window_volume( graphics, &volume ) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        get_volume_size( volume, &sizes[X_AXIS], &sizes[Y_AXIS],
+                         &sizes[Z_AXIS] );
+
+        get_current_voxel( slice_window,
+                           &index[X_AXIS], &index[Y_AXIS], &index[Z_AXIS] );
+
+        index[axis_index] += delta;
+
+        if( index[axis_index] >= 0 && index[axis_index] < sizes[axis_index] )
+        {
+            if( set_current_voxel( slice_window, index[X_AXIS], index[Y_AXIS],
+                                   index[Z_AXIS] ) )
+            {
+                rebuild_probe( slice_window );
+                rebuild_cursor( slice_window, 0 );
+                rebuild_cursor( slice_window, 1 );
+                rebuild_cursor( slice_window, 2 );
+                set_slice_window_update( slice_window, axis_index );
+            }
+        }
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_FUNCTION(move_slice_plus)   /* ARGSUSED */
+{
+    Status           status;
+
+    status = change_current_slice_by_one( graphics, 1 );
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(move_slice_plus )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(move_slice_minus)   /* ARGSUSED */
+{
+    Status           status;
+
+    status = change_current_slice_by_one( graphics, -1 );
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(move_slice_minus )   /* ARGSUSED */
 {
     return( OK );
 }
@@ -452,10 +508,6 @@ public  DEF_MENU_FUNCTION(output_slice_transforms )   /* ARGSUSED */
     int             z, nx, ny, nz;
     FILE            *file;
     Status          status;
-    Status          open_file();
-    Status          io_real();
-    Status          io_newline();
-    Status          close_file();
     String          filename;
     Real            degrees, x_trans, y_trans;
     void            get_volume_size();
@@ -473,7 +525,8 @@ public  DEF_MENU_FUNCTION(output_slice_transforms )   /* ARGSUSED */
             status = input_newline( stdin );
 
         if( status == OK )
-            status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
+            status = open_file_with_default_suffix( filename, "xfm",
+                                            WRITE_FILE, ASCII_FORMAT, &file );
 
         if( status == OK )
         {

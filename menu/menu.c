@@ -85,19 +85,21 @@ private  void  remove_menu_actions( menu, menu_entry )
     }
 }
 
-public  Status  initialize_menu( graphics, runtime_directory )
+public  Status  initialize_menu( graphics, default_directory1,
+                                 default_directory2, menu_filename )
     graphics_struct   *graphics;
-    char              runtime_directory[];
+    char              default_directory1[];
+    char              default_directory2[];
+    char              menu_filename[];
 {
     Status               status;
+    String               filename;
     menu_window_struct   *menu;
     Status               read_menu();
     Status               build_menu();
     int                  ch;
     void                 set_update_required();
     void                 get_absolute_filename();
-    String               filename;
-    char                 *menu_filename = "menu.dat";
     Status               open_file();
     Status               close_file();
     FILE                 *file;
@@ -119,19 +121,24 @@ public  Status  initialize_menu( graphics, runtime_directory )
     menu->character_width = Menu_character_width;
     menu->character_height = Menu_character_height;
 
-    if( getenv( "MENU_FILE" ) != (char *) 0 )
-    {
-        (void) strcpy( menu_filename, getenv( "MENU_FILE" ) );
-    }
-
     if( file_exists( menu_filename ) )
-        status = open_file( menu_filename, READ_FILE, ASCII_FORMAT, &file );
+    {
+        (void) strcpy( filename, menu_filename );
+    }
     else
     {
-        get_absolute_filename( menu_filename, runtime_directory, filename );
+        get_absolute_filename( menu_filename, default_directory1, filename );
 
-        status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
+        if( !file_exists( filename ) )
+        {
+            get_absolute_filename( menu_filename, default_directory2, filename);
+
+            if( !file_exists( filename ) )
+                (void) strcpy( filename, menu_filename );
+        }
     }
+
+    status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
 
     if( status == OK )
     {
@@ -166,11 +173,19 @@ public  void  initialize_menu_actions( menu_window )
 
     add_action_table_function( &menu_window->action_table, KEYBOARD_EVENT,
                                handle_character );
+}
+
+public  Status  initialize_menu_window( menu_window )
+    graphics_struct   *menu_window;
+{
+    void                 add_action_table_function();
 
     add_action_table_function( &menu_window->action_table,
                                LEFT_MOUSE_DOWN_EVENT, left_mouse_press );
     add_action_table_function( &menu_window->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT, middle_mouse_press );
+
+    return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( handle_character )
@@ -287,53 +302,6 @@ public  Status  update_menu_text( graphics, menu_entry )
     return( status );
 }
 
-void  set_menu_text( menu_window, menu_entry, text )
-    graphics_struct     *menu_window;
-    menu_entry_struct   *menu_entry;
-    char                text[];
-{
-    int                 line, i, n_chars, len, n_chars_across;
-    char                *text_ptr;
-    menu_window_struct  *menu;
-    void                set_update_required();
-
-    menu = &menu_window->menu;
-
-    len = strlen( text );
-    n_chars = 0;
-
-    for_less( line, 0, menu->n_lines_in_entry )
-    {
-        i = 0;
-        text_ptr = menu_entry->text_list[line]->ptr.text->text;
-
-        n_chars_across = menu_entry->n_chars_across;
-
-        if( line == 0 )
-            n_chars_across = ROUND( n_chars_across - Menu_key_character_offset);
-
-        while( n_chars < len && i < n_chars_across )
-        {
-            if( text[n_chars] == '\n' ||
-                (text[n_chars] == ' ' &&
-                 (len - n_chars-1) <=
-                 (menu->n_lines_in_entry-line-1) * menu_entry->n_chars_across
-                 - Menu_key_character_offset) )
-            {
-                ++n_chars;
-                break;
-            }
-
-            text_ptr[i] = text[n_chars];
-            ++i;
-            ++n_chars;
-        }
-        text_ptr[i] = (char) 0;
-    }
-
-    set_update_required( menu_window, NORMAL_PLANES );
-}
-
 public  DEF_MENU_FUNCTION( push_menu )      /* ARGSUSED */
 {
     Status   status;
@@ -406,4 +374,51 @@ private  void  pop_menu_one_level( menu_window )
 
         set_update_required( menu_window, NORMAL_PLANES );
     }
+}
+
+void  set_menu_text( menu_window, menu_entry, text )
+    graphics_struct     *menu_window;
+    menu_entry_struct   *menu_entry;
+    char                text[];
+{
+    int                 line, i, n_chars, len, n_chars_across;
+    char                *text_ptr;
+    menu_window_struct  *menu;
+    void                set_update_required();
+
+    menu = &menu_window->menu;
+
+    len = strlen( text );
+    n_chars = 0;
+
+    for_less( line, 0, menu->n_lines_in_entry )
+    {
+        i = 0;
+        text_ptr = menu_entry->text_list[line]->ptr.text->text;
+
+        n_chars_across = menu_entry->n_chars_across;
+
+        if( line == 0 )
+            n_chars_across = ROUND( n_chars_across - Menu_key_character_offset);
+
+        while( n_chars < len && i < n_chars_across )
+        {
+            if( text[n_chars] == '\n' ||
+                (text[n_chars] == ' ' &&
+                 (len - n_chars-1) <=
+                 (menu->n_lines_in_entry-line-1) * menu_entry->n_chars_across
+                 - Menu_key_character_offset) )
+            {
+                ++n_chars;
+                break;
+            }
+
+            text_ptr[i] = text[n_chars];
+            ++i;
+            ++n_chars;
+        }
+        text_ptr[i] = (char) 0;
+    }
+
+    set_update_required( menu_window, NORMAL_PLANES );
 }

@@ -163,8 +163,6 @@ public  DEF_MENU_FUNCTION(save_labeled_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
-    Status           open_file();
-    Status           close_file();
     Status           io_bitlist_3d();
     volume_struct    *volume;
     String           filename;
@@ -181,7 +179,8 @@ public  DEF_MENU_FUNCTION(save_labeled_voxels)   /* ARGSUSED */
             status = input_newline( stdin );
 
         if( status == OK )
-            status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
+            status = open_file_with_default_suffix( filename, "lbl",
+                                          WRITE_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
             status = io_bitlist_3d( file, WRITE_FILE, &volume->label_flags );
@@ -204,9 +203,7 @@ public  DEF_MENU_FUNCTION(load_labeled_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
-    Status           open_file();
     Status           io_bitlist_3d();
-    Status           close_file();
     volume_struct    *volume;
     String           filename;
     void             set_slice_window_update();
@@ -223,7 +220,8 @@ public  DEF_MENU_FUNCTION(load_labeled_voxels)   /* ARGSUSED */
             status = input_newline( stdin );
 
         if( status == OK )
-            status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
+            status = open_file_with_default_suffix( filename, "lbl",
+                                             READ_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
             status = io_bitlist_3d( file, READ_FILE, &volume->label_flags );
@@ -253,8 +251,6 @@ public  DEF_MENU_FUNCTION(save_active_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
-    Status           open_file();
-    Status           close_file();
     Status           io_bitlist_3d();
     volume_struct    *volume;
     String           filename;
@@ -271,7 +267,8 @@ public  DEF_MENU_FUNCTION(save_active_voxels)   /* ARGSUSED */
             status = input_newline( stdin );
 
         if( status == OK )
-            status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
+            status = open_file_with_default_suffix( filename, "act",
+                                            WRITE_FILE, BINARY_FORMAT, &file );
 
         if( status == OK )
             status = io_bitlist_3d( file, WRITE_FILE, &volume->active_flags );
@@ -294,9 +291,7 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
 {
     FILE             *file;
     Status           status;
-    Status           open_file();
     Status           io_bitlist_3d();
-    Status           close_file();
     volume_struct    *volume;
     String           filename;
     void             set_slice_window_update();
@@ -313,7 +308,8 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
             status = input_newline( stdin );
 
         if( status == OK )
-            status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
+            status = open_file_with_default_suffix( filename, "act", READ_FILE,
+                                                    BINARY_FORMAT, &file );
 
         if( status == OK )
             status = io_bitlist_3d( file, READ_FILE, &volume->active_flags );
@@ -443,8 +439,7 @@ public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
     {
         slice_window = graphics->associated[SLICE_WINDOW];
 
-        PRINT( "Filling 3d from %d %d %d ", x, y, z );
-        (void) flush_file( stdout );
+        PRINT( "Filling 3d from %d %d %d\n", x, y, z );
 
         status = fill_connected_voxels_3d( volume, x, y, z,
                           slice_window->slice.segmenting.max_threshold );
@@ -463,6 +458,40 @@ public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(label_connected_3d )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
+{
+    volume_struct    *volume;
+    void             expand_labeled_voxels_3d();
+    void             set_slice_window_update();
+    graphics_struct  *slice_window;
+    void             set_update_required();
+
+    if( get_slice_window_volume( graphics, &volume) )
+    {
+        slice_window = graphics->associated[SLICE_WINDOW];
+
+        PRINT( "Expanding 3d labeled voxels\n" );
+
+        expand_labeled_voxels_3d( volume,
+                 slice_window->slice.segmenting.min_threshold,
+                 slice_window->slice.segmenting.max_threshold,
+                 N_expansion_voxels );
+
+        PRINT( "Done\n" );
+
+        set_slice_window_update( slice_window, 0 );
+        set_slice_window_update( slice_window, 1 );
+        set_slice_window_update( slice_window, 2 );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(expand_labeled_3d )   /* ARGSUSED */
 {
     return( OK );
 }

@@ -30,6 +30,7 @@
                        MENU_FUNCTION(retreat_visible) \
                        MENU_FUNCTION(reverse_normals) \
                        MENU_FUNCTION(set_current_object_colour) \
+                       MENU_FUNCTION(set_current_object_surfprop) \
                        MENU_FUNCTION(centre_view) \
                        MENU_FUNCTION(magnify_view) \
                        MENU_FUNCTION(translate_view) \
@@ -50,6 +51,8 @@
                        MENU_FUNCTION(retreat_slice) \
                        MENU_FUNCTION(prev_marked_slice) \
                        MENU_FUNCTION(next_marked_slice) \
+                       MENU_FUNCTION(move_slice_plus) \
+                       MENU_FUNCTION(move_slice_minus) \
                        MENU_FUNCTION(toggle_marked_slice) \
                        MENU_FUNCTION(set_rotating_slice_mode) \
                        MENU_FUNCTION(set_translating_slice_mode) \
@@ -77,6 +80,7 @@
                        MENU_FUNCTION(set_connected_inactive) \
                        MENU_FUNCTION(reset_slice_activities) \
                        MENU_FUNCTION(label_connected_3d) \
+                       MENU_FUNCTION(expand_labeled_3d) \
                        MENU_FUNCTION(set_colour_limits) \
                        MENU_FUNCTION(set_isovalue) \
                        MENU_FUNCTION(create_film_loop) \
@@ -110,7 +114,6 @@
                        MENU_FUNCTION(create_marker_at_cursor) \
                        MENU_FUNCTION(set_cursor_to_marker) \
                        MENU_FUNCTION(save_markers) \
-                       MENU_FUNCTION(load_markers) \
                        MENU_FUNCTION(set_default_marker_id) \
                        MENU_FUNCTION(set_default_marker_type) \
                        MENU_FUNCTION(set_default_marker_colour) \
@@ -132,11 +135,15 @@
                        MENU_FUNCTION(end_surface_line) \
                        MENU_FUNCTION(reset_surface_line) \
                        MENU_FUNCTION(colour_code_objects) \
+                       MENU_FUNCTION(set_contour_colour_map) \
                        MENU_FUNCTION(set_hot_metal) \
                        MENU_FUNCTION(set_gray_scale) \
                        MENU_FUNCTION(set_spectral) \
+                       MENU_FUNCTION(set_user_defined_colour_coding) \
                        MENU_FUNCTION(set_under_colour) \
                        MENU_FUNCTION(set_over_colour) \
+                       MENU_FUNCTION(set_user_defined_min_colour) \
+                       MENU_FUNCTION(set_user_defined_max_colour) \
                        MENU_FUNCTION(set_model_parameters) \
                        MENU_FUNCTION(convert_to_new_representation) \
                        MENU_FUNCTION(load_model_parameters) \

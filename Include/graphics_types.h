@@ -38,18 +38,28 @@ typedef  struct
     Real          spot_angle;
 } light_struct;
 
+typedef enum { GRAY_SCALE, HOT_METAL, SPECTRAL, USER_DEFINED,
+               CONTOUR_COLOUR_MAP }
+             Colour_coding_types;
+
 typedef  struct
 {
-    Real           min_value;
-    Real           max_value;
+    Real                  min_value;
+    Real                  max_value;
 
-    Colour         colour_below;
-    Colour         colour_above;
+    Colour_coding_types   type;
 
-    Real           size_over_range;
+    Colour                user_defined_min_colour;
+    Colour                user_defined_max_colour;
+    Colour_spaces         user_defined_interpolation_space;
 
-    int            colour_table_size;
-    Colour         *colour_table;
+    Colour                colour_below;
+    Colour                colour_above;
+
+    Real                  size_over_range;
+
+    int                   colour_table_size;
+    Colour                *colour_table;
 } colour_coding_struct;
 
 typedef  enum  {
