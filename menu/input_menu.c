@@ -129,6 +129,8 @@
                        MENU_FUNCTION(create_marker_at_cursor) \
                        MENU_FUNCTION(set_cursor_to_marker) \
                        MENU_FUNCTION(save_markers) \
+                       MENU_FUNCTION(pick_marker_defaults) \
+                       MENU_FUNCTION(move_cursor_to_home) \
                        MENU_FUNCTION(set_marker_segmentation_threshold) \
                        MENU_FUNCTION(set_default_marker_structure_id) \
                        MENU_FUNCTION(set_default_marker_patient_id) \
@@ -137,6 +139,7 @@
                        MENU_FUNCTION(set_default_marker_label) \
                        MENU_FUNCTION(set_default_marker_size) \
                        MENU_FUNCTION(copy_defaults_to_marker) \
+                       MENU_FUNCTION(copy_defaults_to_markers) \
                        MENU_FUNCTION(classify_markers) \
                        MENU_FUNCTION(change_marker_structure_id) \
                        MENU_FUNCTION(change_marker_patient_id) \

@@ -217,19 +217,23 @@ polygons
 markers
 {
     transient '1'    classify_markers                   "Classify Markers"
-    transient '4'    set_marker_segmentation_threshold  "Segment Thresh: %g"
+    transient '2'    set_marker_segmentation_threshold  "Segment Thresh: %g"
+    transient '3'    pick_marker_defaults               "Pick Modify Markers"
+    transient '4'    copy_defaults_to_markers           "Defaults -> Many"
+    transient '5'    copy_defaults_to_marker            "Defaults -> Current"
 
     transient 'q'    change_marker_size          "Chg Marker Size"
     transient 'w'    change_marker_label         "Chg Marker Label"
     transient 'e'    change_marker_structure_id  "Chg Structure Id"
     transient 'r'    change_marker_patient_id    "Chg Patient Id"
     transient 't'    change_marker_type          "Chg Marker Type"
+    transient 'y'    change_marker_position      "Change Marker Position"
 
     transient 'a'    save_markers                "Save Mrkrs as .tag"
     transient 's'    load_file                   "Load Markers"
     transient 'd'    set_cursor_to_marker        "Move to Marker"
     transient 'f'    create_marker_at_cursor     "Create Marker"
-    transient 'g'    change_marker_position      "Change Marker Position"
+    transient 'g'    move_cursor_to_home         "Move Cursor Home"
     transient 'h'    delete_object_menu          "Delete Object"
 
 
@@ -239,7 +243,6 @@ markers
     transient 'v'    set_default_marker_structure_id   "Def Struct Id: %d"
     transient 'b'    set_default_marker_patient_id     "Def Patient Id: %d"
     transient 'n'    set_default_marker_type           "Default Type: %s"
-    transient '5'    copy_defaults_to_marker           "Defaults -> Current"
 }
 
 segmenting
