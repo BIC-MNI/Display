@@ -33,6 +33,8 @@ public  void  initialize_surface_curve(
     display->three_d.surface_curve.lines = lines;
     display->three_d.surface_curve.line_curvature_weight =
                                            Line_curvature_weight;
+    display->three_d.surface_curve.min_curvature = Min_surface_curve_curvature;
+    display->three_d.surface_curve.max_curvature = Max_surface_curve_curvature;
     display->three_d.surface_curve.n_points_alloced = 0;
     display->three_d.surface_curve.n_indices_alloced = 0;
     display->three_d.surface_curve.n_end_indices_alloced = 0;
@@ -57,7 +59,9 @@ public  void  start_surface_curve(
         display->three_d.surface_curve.prev_point_exists = FALSE;
         display->three_d.surface_curve.picking_points = TRUE;
 
+/*
         set_update_required( display, get_surface_curve_bitplane() );
+*/
     }
 }
 
@@ -86,6 +90,8 @@ private  void  add_point_to_curve(
     {
         if( distance_along_polygons( polygons,
                      display->three_d.surface_curve.line_curvature_weight,
+                     display->three_d.surface_curve.min_curvature,
+                     display->three_d.surface_curve.max_curvature,
                      &info->prev_point,
                      info->prev_poly_index,
                      point, poly_index,
@@ -93,18 +99,22 @@ private  void  add_point_to_curve(
         {
             print( "Distance %g\n", dist );
             set_update_required( display, get_surface_curve_bitplane() );
+            display->three_d.surface_curve.prev_point = *point;
+        }
+        else
+        {
+            print( "No path can be found.\n" );
         }
     }
-
-    if( !display->three_d.surface_curve.prev_point_exists )
+    else
     {
+        display->three_d.surface_curve.prev_point = *point;
         display->three_d.surface_curve.first_poly_index = poly_index;
         display->three_d.surface_curve.prev_point_exists = TRUE;
     }
 
     display->three_d.surface_curve.prev_polygons = polygons;
     display->three_d.surface_curve.prev_poly_index = poly_index;
-    display->three_d.surface_curve.prev_point = *point;
 }
 
 public  void  close_surface_curve(
