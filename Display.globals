@@ -1,14 +1,11 @@
 Progress_threshold = 1000;
 
-Initial_background_colour = BLACK;
-Initial_background_colour = WHITE;
 Initial_background_colour = DARK_SLATE_GREY;
 
 Event_timeout_min = 0.5;
 Event_timeout_factor = 0.5;
 Min_interval_between_events = 0.01;
 Max_background_seconds = 0.2;
-Maximum_display_time = -10.0;
 Maximum_display_time = 0.3;
 Size_of_interrupted = 250;
 Interval_of_check = 250;
@@ -130,6 +127,7 @@ Slice_probe_y_talairach_format     = "Y tal = %6.1f mm";
 Slice_probe_z_talairach_format     = "Z tal = %6.1f mm";
 Slice_probe_voxel_format           = "Voxel = %4g";
 Slice_probe_val_format             = "Value = %4g";
+Slice_probe_label_format           = "Label = %4d";
 Slice_probe_x_file_format          = "X file= %4d";
 Slice_probe_y_file_format          = "Y file= %4d";
 Slice_probe_z_file_format          = "Z file= %4d";
@@ -196,7 +194,9 @@ Default_z_voxel_max_distance = 1000000;
 
 Max_fast_colour_lookup = 100000;
 Colour_table_size = 1000;
-Colour_coding_type = 0;
+Initial_colour_coding_type = 1;
+Initial_low_limit_position = 0.25;
+Initial_high_limit_position = 0.75;
 Colour_below = DARK_SLATE_GREY;
 Colour_below = Black;
 User_defined_n_intervals = 4;
@@ -223,11 +223,11 @@ Colour_bar_number_format = "%g";
 
 Normal_towards_lower = TRUE;
 
-Display_activities = TRUE;
+Initial_display_labels = TRUE;
 Inactive_voxel_colour = Green;
 Labeled_voxel_colour = Magenta;
 Inactive_and_labeled_voxel_colour = Yellow;
-Label_colour_display_ratio = 1.0;
+Label_colour_display_ratio = 0.2;
 
 Use_cursor_origin = TRUE;
 
@@ -244,9 +244,9 @@ Bintree_size_factor = 0.2;
 
 Save_format = 1;
 
-Max_smoothing_distance = 0.3;
-Smoothing_ratio = 0.3;
-Smoothing_normal_ratio = 1.0;
+Max_smoothing_distance = 0.5;
+Smoothing_ratio = 0.5;
+Smoothing_normal_ratio = 0.0;
 Smoothing_threshold = 0.01;
 
 Surface_curve_colour = MAGENTA;
@@ -288,3 +288,8 @@ Default_atlas_state = FALSE;
 Marker_threshold = 1.5;
 Marker_segment_id = 1000;
 Use_marker_distances = TRUE;
+
+Default_x_brush_radius = 3.0;
+Default_y_brush_radius = 3.0;
+Default_z_brush_radius = 0.0;
+Default_paint_label = 1;

@@ -61,6 +61,7 @@ public  Boolean  extract_voxel_surface(
             {
                 GET_VOXEL_3D( value, volume, voxel_index->i[X]+x,
                               voxel_index->i[Y]+y, voxel_index->i[Z]+z );
+                value = CONVERT_VOXEL_TO_VALUE( volume, value );
 
                 if( value >= surface_extraction->isovalue &&
                     !get_voxel_activity_flag( volume,
@@ -325,11 +326,13 @@ private  int   create_surface_point(
     corner[Z] = voxel->i[Z];
 
     GET_VOXEL_3D( val1, volume, corner[X], corner[Y], corner[Z] );
+    val1 = CONVERT_VOXEL_TO_VALUE( volume, val1 );
     val1 = isovalue - val1;
 
     ++corner[edge_intersected];
 
     GET_VOXEL_3D( val2, volume, corner[X], corner[Y], corner[Z] );
+    val2 = CONVERT_VOXEL_TO_VALUE( volume, val2 );
     val2 = isovalue - val2;
 
     if( val1 == 0.0 )

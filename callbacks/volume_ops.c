@@ -126,8 +126,10 @@ public  DEF_MENU_FUNCTION(double_slice_voxels)   /* ARGSUSED */
     {
         slice_window = display->associated[SLICE_WINDOW];
 
-        slice_window->slice.slice_views[view_index].x_scale *= 2.0;
-        slice_window->slice.slice_views[view_index].y_scale *= 2.0;
+        slice_window->slice.slice_views[view_index].x_scale *=
+                                                 Slice_magnification_step;
+        slice_window->slice.slice_views[view_index].y_scale *=
+                                                 Slice_magnification_step;
         set_slice_window_update( slice_window, view_index );
         set_update_required( slice_window, NORMAL_PLANES );
     }
@@ -149,8 +151,10 @@ public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
     {
         slice_window = display->associated[SLICE_WINDOW];
 
-        slice_window->slice.slice_views[view_index].x_scale *= 0.5;
-        slice_window->slice.slice_views[view_index].y_scale *= 0.5;
+        slice_window->slice.slice_views[view_index].x_scale /=
+                                                   Slice_magnification_step;
+        slice_window->slice.slice_views[view_index].y_scale /=
+                                                   Slice_magnification_step;
         set_slice_window_update( slice_window, view_index );
         set_update_required( slice_window, NORMAL_PLANES );
     }

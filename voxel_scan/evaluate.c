@@ -23,7 +23,7 @@ private  Boolean  inside_hole(
     double      v_min_hole,
     double      v_max_hole );
 private  double   evaluate_fit_at_uv(
-    volume_struct           *volume,
+    Volume                  volume,
     surface_fitting_struct  *fit_data,
     double                  parameters[],
     double                  u,
@@ -61,7 +61,7 @@ private  void   cross_product(
 private  const  double  BIG_NUMBER = 1.0e30;
 
 public  double   evaluate_fit_in_volume(
-    volume_struct           *volume,
+    Volume                  volume,
     surface_fitting_struct  *fit_data,
     double                  parameters[] )
 {
@@ -79,7 +79,7 @@ public  double   evaluate_fit_in_volume(
 }
 
 public  double   evaluate_fit_in_volume_with_distances(
-    volume_struct           *volume,
+    Volume                  volume,
     surface_fitting_struct  *fit_data,
     double                  parameters[],
     double                  u_min,
@@ -297,7 +297,7 @@ private  Boolean  inside_hole(
 }
 
 private  double   evaluate_fit_at_uv(
-    volume_struct           *volume,
+    Volume                  volume,
     surface_fitting_struct  *fit_data,
     double                  parameters[],
     double                  u,
@@ -320,7 +320,7 @@ private  double   evaluate_fit_at_uv(
 
     if( fit_data->isovalue_factor > 0.0 )
     {
-        if( volume != (volume_struct *) 0 )
+        if( volume != (Volume) NULL )
         {
             if( evaluate_volume_in_world( volume, x, y, z, TRUE, &val,
                                           (Real *) 0, (Real *) 0, (Real *) 0 ) )
@@ -336,7 +336,7 @@ private  double   evaluate_fit_at_uv(
 
     if( fit_data->gradient_strength_factor > 0.0 )
     {
-        if( volume != (volume_struct *) 0 )
+        if( volume != (Volume) NULL )
         {
             if( evaluate_volume_in_world( volume, x, y, z, TRUE, &val,
                                           &dx, &dy, &dz ) )
