@@ -1,0 +1,7 @@
+After checking out from CVS, you need to perform the following steps
+from the top-level source directory (i.e. the one containing this file):
+
+1. ./autogen.sh
+
+You will need reasonably recent versions of autoconf and automake.
+These steps need only be done once.
