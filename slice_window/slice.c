@@ -18,11 +18,6 @@ public  Status  initialize_slice_window( graphics )
 
     if( status == OK )
     {
-        status = create_bitlist( 0, &graphics->slice.voxel_activity );
-    }
-
-    if( status == OK )
-    {
         status = initialize_colour_coding( &graphics->slice.colour_coding );
     }
 
@@ -34,7 +29,8 @@ public  Status  set_slice_window_volume( graphics, volume )
     volume_struct     *volume;
 {
     Status           status;
-    int              c, x_index, y_index, n_voxels;
+    Status           initialize_voxels_done();
+    int              c, x_index, y_index;
     Real             factor, min_thickness, max_thickness;
     void             get_2d_slice_axes();
     void             set_colour_coding_range();
@@ -80,15 +76,9 @@ public  Status  set_slice_window_volume( graphics, volume )
     set_colour_coding_range( &graphics->slice.colour_coding,
                              volume->min_value, volume->max_value );
 
-    n_voxels = volume->size[X_AXIS] * volume->size[Y_AXIS] *
-               volume->size[Z_AXIS];
-
-    status = delete_bitlist( &graphics->slice.voxel_activity );
-
-    if( status == OK )
-    {
-        status = create_bitlist( n_voxels, &graphics->slice.voxel_activity );
-    }
+    status = initialize_voxels_done( &graphics->associated[THREE_D_WINDOW]
+                                     ->three_d.surface_extraction.voxels_done,
+                                     get_n_voxels(graphics->slice.volume) );
 
     return( status );
 }
@@ -120,12 +110,7 @@ public  Status  delete_slice_window( slice_window )
     Status   status;
     Status   delete_colour_coding();
 
-    status = delete_bitlist( &slice_window->voxel_activity );
-
-    if( status == OK )
-    {
-        status = delete_colour_coding( &slice_window->colour_coding );
-    }
+    status = delete_colour_coding( &slice_window->colour_coding );
 
     return( status );
 }
@@ -442,46 +427,63 @@ public   void     get_2d_slice_axes( axis_index, x_index, y_index )
     }
 }
 
-public  Boolean  get_current_voxel( graphics, x, y, z, axis_index )
+public  Boolean  get_voxel_in_slice( graphics, x, y, z, axis_index )
     graphics_struct   *graphics;
     int               *x, *y, *z;
     int               *axis_index;
 {
-    void       get_mouse_in_pixels();
-    int        x_mouse, y_mouse;
-    Boolean    convert_pixel_to_voxel();
+    graphics_struct   *slice_window;
+    void              get_mouse_in_pixels();
+    int               x_mouse, y_mouse;
+    Boolean           found;
+    Boolean           convert_pixel_to_voxel();
 
-    get_mouse_in_pixels( graphics, &graphics->mouse_position,
+    slice_window = graphics->associated[SLICE_WINDOW];
+
+    get_mouse_in_pixels( slice_window, &slice_window->mouse_position,
                          &x_mouse, &y_mouse );
 
-    return( convert_pixel_to_voxel( graphics, x_mouse, y_mouse, x, y, z,
-                                    axis_index ) );
+    found = convert_pixel_to_voxel( slice_window, x_mouse, y_mouse, x, y, z,
+                                    axis_index );
+
+    return( found );
 }
 
-public  Boolean  get_voxel_activity( volume, voxel_activity, x, y, z )
-    volume_struct   *volume;
-    bitlist_struct  *voxel_activity;
-    int             x, y, z;
+public  Boolean  get_voxel_under_mouse( graphics, x, y, z, axis_index )
+    graphics_struct   *graphics;
+    int               *x, *y, *z;
+    int               *axis_index;
 {
-    return( !get_bitlist_bit( voxel_activity,
-                      ijk(x,y,z,volume->size[Y_AXIS],volume->size[Z_AXIS]) ) );
+    graphics_struct   *three_d, *slice_window;
+    Boolean           found;
+    Boolean           get_voxel_in_slice();
+    Boolean           get_voxel_in_three_d();
+
+    three_d = graphics->associated[THREE_D_WINDOW];
+    slice_window = graphics->associated[SLICE_WINDOW];
+
+    if( G_is_mouse_in_window( &slice_window->window ) )
+    {
+        found = get_voxel_in_slice( graphics, x, y, z, axis_index );
+    }
+    else if( G_is_mouse_in_window( &three_d->window ) )
+    {
+        found = get_voxel_in_three_d( three_d, x, y, z );
+        *axis_index = Z_AXIS;
+    }
+    else
+    {
+        found = FALSE;
+    }
+
+    return( found );
 }
 
-public  void  set_voxel_activity( volume, voxel_activity, x, y, z, value )
-    volume_struct   *volume;
-    bitlist_struct  *voxel_activity;
-    int             x, y, z;
-    Boolean         value;
-{
-    set_bitlist_bit( voxel_activity,
-                     ijk(x,y,z,volume->size[Y_AXIS],volume->size[Z_AXIS]),
-                     !value );
-}
-
-public  void  set_current_voxel( slice_window, x, y, z )
+public  Boolean  set_current_voxel( slice_window, x, y, z )
     graphics_struct   *slice_window;
     int               x, y, z;
 {
+    Boolean           changed;
     int               axis, indices[N_DIMENSIONS];
     Point             new_origin;
     void              get_voxel_centre();
@@ -499,13 +501,15 @@ public  void  set_current_voxel( slice_window, x, y, z )
                       indices[X_AXIS], indices[Y_AXIS], indices[Z_AXIS],
                       &new_origin );
 
+    changed = FALSE;
+
     if( !EQUAL_POINTS( new_origin, graphics->three_d.cursor.origin ) )
     {
         graphics->three_d.cursor.origin = new_origin;
 
         update_cursor( graphics );
 
-        graphics->update_required = TRUE;
+        changed = TRUE;
     }
 
     for_less( axis, 0, N_DIMENSIONS )
@@ -518,7 +522,9 @@ public  void  set_current_voxel( slice_window, x, y, z )
 
             rebuild_slice_pixels( slice_window, axis );
 
-            slice_window->update_required = TRUE;
+            changed = TRUE;
         }
     }
+
+    return( changed );
 }
