@@ -139,6 +139,137 @@ public  DEF_MENU_UPDATE(delete_surface_point)   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION(show_all_surface_points)   /* ARGSUSED */
+{
+    int            i;
+    Real           x, y, z;
+    volume_struct  *volume;
+    void           convert_point_to_voxel();
+    void           set_voxel_label_flag();
+    void           set_slice_window_update();
+    void           set_all_voxel_label_flags();
+
+    if( get_slice_window_volume( graphics, &volume ) )
+    {
+        for_less( i, 0, graphics->three_d.surface_fitting.n_surface_points )
+        {
+            convert_point_to_voxel( volume,
+                Point_x(graphics->three_d.surface_fitting.surface_points[i]),
+                Point_y(graphics->three_d.surface_fitting.surface_points[i]),
+                Point_z(graphics->three_d.surface_fitting.surface_points[i]),
+                &x, &y, &z );
+
+            set_voxel_label_flag( volume, ROUND(x), ROUND(y), ROUND(z), TRUE );
+        }
+
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(show_all_surface_points)   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(save_surface_points)   /* ARGSUSED */
+{
+    int      i;
+    FILE     *file;
+    String   filename;
+    Status   status;
+    Status   open_file();
+    Status   io_point();
+    Status   io_newline();
+    Status   close_file();
+
+    PRINT( "Enter filename: " );
+    (void) scanf( "%s", filename );
+
+    status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
+
+    if( status == OK )
+    {
+        for_less( i, 0, graphics->three_d.surface_fitting.n_surface_points )
+        {
+            status = io_point( file, WRITE_FILE, ASCII_FORMAT,
+                       &graphics->three_d.surface_fitting.surface_points[i] );
+
+            if( status == OK )
+                status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
+        }
+    }
+
+    if( status == OK )
+        status = close_file( file );
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(save_surface_points)   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(load_surface_points)   /* ARGSUSED */
+{
+    Real     x, y, z;
+    FILE     *file;
+    Point    point;
+    String   filename;
+    Status   status, input_status;
+    Status   open_file();
+    Status   io_point();
+    Status   add_surface_fitting_point();
+    Status   close_file();
+    void     convert_point_to_voxel();
+    void     set_voxel_label_flag();
+    void     set_slice_window_update();
+
+    PRINT( "Enter filename: " );
+    (void) scanf( "%s", filename );
+
+    status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
+
+    while( status == OK )
+    {
+        input_status = io_point( file, READ_FILE, ASCII_FORMAT, &point );
+
+        if( input_status == OK )
+            status = add_surface_fitting_point(
+                             &graphics->three_d.surface_fitting, &point );
+
+        if( status == OK )
+        {
+            convert_point_to_voxel(
+                         graphics->associated[SLICE_WINDOW]->slice.volume,
+                         Point_x(point), Point_y(point), Point_z(point),
+                         &x, &y, &z );
+
+            set_voxel_label_flag(
+                           graphics->associated[SLICE_WINDOW]->slice.volume,
+                           ROUND(x), ROUND(y), ROUND(z), TRUE );
+        }
+    }
+
+    set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
+    set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
+    set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
+
+    if( status == OK )
+        status = close_file( file );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(load_surface_points)   /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
 {
     int                  i, n_parameters;
@@ -163,6 +294,8 @@ public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
     graphics->three_d.surface_fitting.n_samples = N_fitting_samples;
     graphics->three_d.surface_fitting.gradient_strength_factor =
                                       Gradient_strength_factor;
+    graphics->three_d.surface_fitting.gradient_strength_exponent =
+                                      Gradient_strength_exponent;
     graphics->three_d.surface_fitting.curvature_factor = Curvature_factor;
     graphics->three_d.surface_fitting.surface_point_distance_factor =
                                       Surface_point_distance_factor;

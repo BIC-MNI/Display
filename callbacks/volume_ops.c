@@ -69,7 +69,7 @@ public  Boolean  get_slice_view_index_under_mouse( graphics, view_index )
     return( found );
 }
 
-public  Boolean  get_axis_view_index_under_mouse( graphics, axis_index )
+public  Boolean  get_axis_index_under_mouse( graphics, axis_index )
     graphics_struct  *graphics;
     int              *axis_index;
 {
@@ -355,166 +355,6 @@ public  DEF_MENU_UPDATE(halve_slice_voxels )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(save_labeled_voxels)   /* ARGSUSED */
-{
-    FILE             *file;
-    Status           status;
-    Status           open_file();
-    Status           close_file();
-    Status           io_bitlist_3d();
-    volume_struct    *volume;
-    String           filename;
-
-    status = OK;
-
-    if( get_current_volume( graphics, &volume ) )
-    {
-        (void) printf( "Enter filename: " );
-        (void) scanf( "%s", filename );
-
-        status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
-
-        if( status == OK )
-            status = io_bitlist_3d( file, WRITE_FILE, &volume->label_flags );
-
-        if( status == OK )
-            status = close_file( file );
-
-        PRINT( "Done\n" );
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(save_labeled_voxels )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(load_labeled_voxels)   /* ARGSUSED */
-{
-    FILE             *file;
-    Status           status;
-    Status           open_file();
-    Status           io_bitlist_3d();
-    Status           close_file();
-    volume_struct    *volume;
-    String           filename;
-    void             set_slice_window_update();
-
-    status = OK;
-
-    if( get_current_volume( graphics, &volume ) )
-    {
-        (void) printf( "Enter filename: " );
-        (void) scanf( "%s", filename );
-
-        status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
-
-        if( status == OK )
-            status = io_bitlist_3d( file, READ_FILE, &volume->label_flags );
-
-        if( status == OK )
-            status = close_file( file );
-
-        if( status == OK )
-        {
-            set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
-            set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
-            set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
-        }
-
-        PRINT( "Done\n" );
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(load_labeled_voxels )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(save_active_voxels)   /* ARGSUSED */
-{
-    FILE             *file;
-    Status           status;
-    Status           open_file();
-    Status           close_file();
-    Status           io_bitlist_3d();
-    volume_struct    *volume;
-    String           filename;
-
-    status = OK;
-
-    if( get_current_volume( graphics, &volume ) )
-    {
-        (void) printf( "Enter filename: " );
-        (void) scanf( "%s", filename );
-
-        status = open_file( filename, WRITE_FILE, BINARY_FORMAT, &file );
-
-        if( status == OK )
-            status = io_bitlist_3d( file, WRITE_FILE, &volume->active_flags );
-
-        if( status == OK )
-            status = close_file( file );
-
-        PRINT( "Done\n" );
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(save_active_voxels )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
-{
-    FILE             *file;
-    Status           status;
-    Status           open_file();
-    Status           io_bitlist_3d();
-    Status           close_file();
-    volume_struct    *volume;
-    String           filename;
-    void             set_slice_window_update();
-
-    status = OK;
-
-    if( get_current_volume( graphics, &volume ) )
-    {
-        (void) printf( "Enter filename: " );
-        (void) scanf( "%s", filename );
-
-        status = open_file( filename, READ_FILE, BINARY_FORMAT, &file );
-
-        if( status == OK )
-            status = io_bitlist_3d( file, READ_FILE, &volume->active_flags );
-
-        if( status == OK )
-            status = close_file( file );
-
-        if( status == OK )
-        {
-            set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
-            set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
-            set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
-        }
-
-        PRINT( "Done\n" );
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(load_active_voxels )   /* ARGSUSED */
-{
-    return( OK );
-}
-
 public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
 {
     volume_struct    *volume;
@@ -552,33 +392,6 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(set_colour_limits )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(reset_activities)   /* ARGSUSED */
-{
-    volume_struct    *volume;
-    void             set_all_voxel_activity_flags();
-    void             set_slice_window_update();
-    graphics_struct  *slice_window;
-    void             set_update_required();
-
-    if( get_current_volume( graphics, &volume ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        set_all_voxel_activity_flags( volume, TRUE );
-
-        set_slice_window_update( slice_window, 0 );
-        set_slice_window_update( slice_window, 1 );
-        set_slice_window_update( slice_window, 2 );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(reset_activities )   /* ARGSUSED */
 {
     return( OK );
 }

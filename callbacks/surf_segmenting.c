@@ -461,14 +461,14 @@ private  void  crop_surface( graphics, above_flag )
     Point            position;
     polygons_struct  *polygons;
     graphics_struct  *slice_window;
-    Boolean          get_axis_view_index_under_mouse();
+    Boolean          get_axis_index_under_mouse();
     void             set_update_required();
     void             crop_polygons_visibilities();
     void             convert_voxel_to_point();
 
     if( get_current_polygons(graphics,&polygons) )
     {
-        if( get_axis_view_index_under_mouse( graphics, &axis_index ) )
+        if( get_axis_index_under_mouse( graphics, &axis_index ) )
         {
             slice_window = graphics->associated[SLICE_WINDOW];
             fill_Point( position, 0.0, 0.0, 0.0 );
