@@ -342,3 +342,90 @@ public  DEF_MENU_UPDATE(deform_polygon_to_volume )   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION( make_polygon_sphere )   /* ARGSUSED */
+{
+    Status            status;
+    Status            compute_polygon_normals();
+    Status            create_polygons_sphere();
+    Status            create_object();
+    Status            add_object_to_current_model();
+    Point             centre;
+    Real              x_size, y_size, z_size;
+    int               n_up, n_around;
+    object_struct     *object;
+    void              set_object_colour();
+    void              get_default_surfprop();
+
+    status = OK;
+
+    PRINT( "Enter x_centre, y_centre, z_centre, x_size, y_size, z_size,\n" );
+    PRINT( "      n_up, n_around: " );
+    
+    if( input_real( stdin, &Point_x(centre) ) == OK &&
+        input_real( stdin, &Point_y(centre) ) == OK &&
+        input_real( stdin, &Point_z(centre) ) == OK &&
+        input_real( stdin, &x_size ) == OK &&
+        input_real( stdin, &y_size ) == OK &&
+        input_real( stdin, &z_size ) == OK &&
+        input_int( stdin, &n_up ) == OK &&
+        input_int( stdin, &n_around ) == OK )
+    {
+        status = create_object( &object, POLYGONS );
+
+        if( status == OK )
+            status = create_polygons_sphere( &centre, x_size, y_size, z_size,
+                              n_up, n_around, object->ptr.polygons );
+
+        if( status == OK )
+            ALLOC( status, object->ptr.polygons->colours, 1 );
+
+        if( status == OK )
+        {
+            object->ptr.polygons->colours[0] = WHITE;
+            get_default_surfprop( &object->ptr.polygons->surfprop );
+            status = compute_polygon_normals( object->ptr.polygons );
+        }
+
+        if( status == OK )
+            status = add_object_to_current_model( graphics, object );
+    }
+
+    (void) input_newline( stdin );
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(make_polygon_sphere )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+
+public  DEF_MENU_FUNCTION( subdivide_current_polygon )   /* ARGSUSED */
+{
+    Status            status;
+    Status            subdivide_polygons();
+    polygons_struct   *polygons;
+    Status            compute_polygon_normals();
+    void              graphics_models_have_changed();
+
+    status = OK;
+
+    if( get_current_polygons( graphics, &polygons ) )
+    {
+        status = subdivide_polygons( polygons );
+
+        if( status == OK )
+            status = compute_polygon_normals( polygons );
+
+        if( status == OK )
+            graphics_models_have_changed( graphics );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(subdivide_current_polygon )   /* ARGSUSED */
+{
+    return( OK );
+}
