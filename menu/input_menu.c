@@ -9,6 +9,7 @@
                        MENU_FUNCTION(create_model) \
                        MENU_FUNCTION(change_model_name) \
                        MENU_FUNCTION(reset_view) \
+                       MENU_FUNCTION(save_image) \
                        MENU_FUNCTION(make_view_fit) \
                        MENU_FUNCTION(toggle_perspective) \
                        MENU_FUNCTION(toggle_render_mode) \
@@ -94,10 +95,14 @@
                        MENU_FUNCTION(set_connected_invis_colour) \
                        MENU_FUNCTION(paint_invis_colour) \
                        MENU_FUNCTION(paint_vis_colour) \
+                       MENU_FUNCTION(set_vis_paint_colour) \
+                       MENU_FUNCTION(set_invis_paint_colour) \
                        MENU_FUNCTION(set_n_paint_polygons) \
                        MENU_FUNCTION(input_polygons_bintree) \
                        MENU_FUNCTION(create_bintree_for_polygons) \
                        MENU_FUNCTION(create_normals_for_polygon) \
+                       MENU_FUNCTION(reset_polygon_neighbours) \
+                       MENU_FUNCTION(cut_polygon_neighbours) \
                        MENU_FUNCTION(make_polygon_sphere) \
                        MENU_FUNCTION(make_unit_sphere) \
                        MENU_FUNCTION(subdivide_current_polygon) \
@@ -145,6 +150,7 @@
                        MENU_FUNCTION(make_surface_line_permanent) \
                        MENU_FUNCTION(start_surface_line) \
                        MENU_FUNCTION(end_surface_line) \
+                       MENU_FUNCTION(close_surface_line) \
                        MENU_FUNCTION(reset_surface_line) \
                        MENU_FUNCTION(colour_code_objects) \
                        MENU_FUNCTION(set_label_colour_ratio) \

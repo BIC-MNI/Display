@@ -102,7 +102,8 @@ view
     transient 'n'    bottom_view             "Bottom View"
 
     transient 'q'    pick_view_rectangle     "Pick View"
-    transient 'r'    create_film_loop        "Film Loop"
+    transient 'e'    create_film_loop        "Film Loop"
+    transient 'r'    save_image              "Save Image"
 }
 
 render
@@ -168,9 +169,11 @@ surface_segmentation
     transient 't'    crop_below_plane                   "Crop Below"
 
     transient 'a'    set_vis_to_invis_colour            "Vis -> Invis Colour"
+    transient 's'    set_vis_to_vis_colour              "Vis -> Vis Colour"
     transient 'd'    paint_invisible                    "Paint Invisible"
     transient 'f'    paint_visible                      "Paint Visible"
-    transient 'g'    set_vis_to_vis_colour              "Vis -> Vis Colour"
+    transient 'g'    set_vis_paint_colour               "Vis Col: %s"
+    transient 'h'    set_invis_paint_colour             "Invis: %s"
 
     transient 'z'    set_connected_vis_colour       "Connected Vis Colour"
     transient 'x'    set_connected_invis_colour     "Connected Invis Colour"
@@ -198,6 +201,8 @@ polygons
     transient 'x'    input_polygons_bintree                "Load Bintree"
     transient 'c'    smooth_current_polygon                "Smooth Polygon"
     transient 'v'    smooth_current_polygon_with_volume    "Smooth Polygon w/Volume"
+    transient 'b'    reset_polygon_neighbours              "Reset Neighbours"
+    transient 'n'    cut_polygon_neighbours                "Cut Neighbours"
 }
 
 markers
@@ -255,10 +260,11 @@ segmenting
 
 surface_curves
 {
-    transient 'f'    start_surface_line           "Start Surf Curves"
-    transient 'd'    end_surface_line             "End Surf Curves"
-    transient 'z'    make_surface_line_permanent  "Permanent Curve"
     transient 'a'    reset_surface_line           "Reset Curves"
+    transient 's'    close_surface_line           "Close Curve"
+    transient 'f'    start_surface_line           "Start Surf Curve"
+    transient 'd'    end_surface_line             "End Surf Curve"
+    transient 'z'    make_surface_line_permanent  "Permanent Curve"
 }
 
 surface_fitting

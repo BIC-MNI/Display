@@ -25,6 +25,18 @@ public  DEF_MENU_UPDATE(end_surface_line)   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION( close_surface_line )   /* ARGSUSED */
+{
+    close_surface_curve( display );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(close_surface_line)   /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( reset_surface_line )   /* ARGSUSED */
 {
     reset_surface_curve( display );
