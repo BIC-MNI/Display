@@ -663,15 +663,22 @@ private  Boolean  images_read_in = FALSE;
 
 #define  N_IMAGES   4
 
-private  pixels_struct  images[N_IMAGES];
-
-private  check_read_in()
+private  struct
 {
-    static  char  *filenames[N_IMAGES] = {
-                "/nil/david/Talairach/resampled_128.obj",
-                "/nil/david/Talairach/resampled_256.obj",
-                "/nil/david/Talairach/resampled_512.obj",
-                "/nil/david/Talairach/resampled_1024.obj" };
+    Boolean        exists;
+    int            image_size;
+    char           *filename;
+    pixels_struct  image;
+}   image_info[N_IMAGES] =
+     {
+       { FALSE, 128, "/nil/david/Talairach/resampled_128.obj", { 0 } },
+       { FALSE, 256, "/nil/david/Talairach/resampled_256.obj", { 0 } },
+       { FALSE, 512, "/nil/david/Talairach/resampled_512.obj", { 0 } },
+       { FALSE, 1024, "/nil/david/Talairach/resampled_1024.obj", { 0 } },
+     };
+
+private  void  check_images_read_in()
+{
     Status        status;
     Status        input_object_type();
     Status        io_pixels();
@@ -692,22 +699,54 @@ private  check_read_in()
             (void) printf( "Reading Talairach images [%d/%d].\n",i+1, N_IMAGES);
 
             if( status == OK )
-                status = open_file( filenames[i], READ_FILE, BINARY_FORMAT,
-                                    &file );
+                status = open_file( image_info[i].filename, READ_FILE,
+                                    BINARY_FORMAT, &file );
 
             if( status == OK )
                 status = input_object_type( file, &type, &format, &eof );
 
             if( status == OK && !eof && type == PIXELS )
-                status = io_pixels( file, READ_FILE, format, &images[i] );
+                status = io_pixels( file, READ_FILE, format,
+                                    &image_info[i].image );
 
             if( status == OK )
                 status = close_file( file );
 
-            if( status != OK )
-                images[i].x_max = 0;
+            image_info[i].exists = (status == OK);
         }
     }
+}
+
+private  Boolean  find_talairach_image( desired_size, image, image_size,
+                                        image_multiplier )
+    int            desired_size;
+    Pixel_colour   *image[];
+    int            *image_size;
+    int            *image_multiplier;
+{
+    int   i, image_index;
+
+    check_images_read_in();
+
+    image_index = -1;
+
+    for_less( i, 0, N_IMAGES )
+    {
+        if( image_info[i].exists && image_info[i].image_size <= desired_size &&
+            (image_index < 0 || image_info[i].image_size > *image_size) )
+        {
+            image_index = i;
+            *image_size = image_info[i].image_size;
+        }
+    }
+
+    if( image_index >= 0 )
+    {
+        *image = image_info[image_index].image.pixels;
+        *image_multiplier = desired_size / *image_size;
+    }
+
+    return( image_index >= 0 );
 }
 
 
@@ -721,17 +760,14 @@ private  void  blend_in_talairach_image( pixels, x_size, y_size,
     Real           dy;
     int            x_volume_size;
 {
-    int            x, y, image_index, image_size;
+    int            x, y, image_size, image_multiplier;
     int            x_pixel, y_pixel, x_pixel_start, y_pixel_start;
     int            r_tal, g_tal, b_tal, r_vox, g_vox, b_vox;
     int            r, g, b;
     Pixel_colour   *image, voxel_pixel, tal_pixel;
 
-    check_read_in();
-
-    image_index = -1;
-
-    if( x_volume_size != 128 && x_volume_size != 256 )
+    if( !find_talairach_image( ROUND( x_volume_size / dx ),
+                               &image, &image_size, &image_multiplier ) )
         return;
 
     x_pixel_start = start_indices[X] / dx;
@@ -743,73 +779,56 @@ private  void  blend_in_talairach_image( pixels, x_size, y_size,
         dy /= 2.0;
     }
 
-    if( dx == 1.0 )
-    {
-        image_index = 0;
-        image_size = 128;
-    }
-    else if( dx == 0.5 )
-    {
-        image_index = 1;
-        image_size = 256;
-    }
-    else if( dx == 0.25 )
-    {
-        image_index = 2;
-        image_size = 512;
-    }
-    else if( dx == 0.125 )
-    {
-        image_index = 3;
-        image_size = 1024;
-    }
-    else
-        return;
-
-    if( images[image_index].x_max == 0 )
-        return;
-
-    image = images[image_index].pixels;
-
     for_less( y, 0, y_size )
     {
-        y_pixel = y_pixel_start + y;
-
-        if( y_pixel < 0 )  y_pixel = 0;
-        if( y_pixel >= image_size )  y_pixel = image_size-1;
-
-        for_less( x, 0, x_size )
+        if( y % image_multiplier == 0 )
         {
-            x_pixel = x_pixel_start + x;
+            y_pixel = y_pixel_start + y / image_multiplier;
 
-            if( x_pixel < 0 )  x_pixel = 0;
-            if( x_pixel >= image_size )  x_pixel = image_size-1;
+            if( y_pixel < 0 )  y_pixel = 0;
+            if( y_pixel >= image_size )  y_pixel = image_size-1;
 
-            voxel_pixel = *pixels;
-            r_vox = Pixel_colour_r(voxel_pixel);
-            g_vox = Pixel_colour_g(voxel_pixel);
-            b_vox = Pixel_colour_b(voxel_pixel);
-
-            tal_pixel = image[IJ(y_pixel,x_pixel,image_size)];
-            r_tal = Pixel_colour_r(tal_pixel);
-            g_tal = Pixel_colour_g(tal_pixel);
-            b_tal = Pixel_colour_b(tal_pixel);
-
-            if( r_tal > Talairach_opacity_threshold &&
-                g_tal > Talairach_opacity_threshold &&
-                b_tal > Talairach_opacity_threshold )
+            for_less( x, 0, x_size )
             {
-                *pixels = voxel_pixel;
-            }
-            else
-            {
-                r = ROUND( r_vox + (r_tal - r_vox) * Talairach_opacity );
-                g = ROUND( g_vox + (g_tal - g_vox) * Talairach_opacity );
-                b = ROUND( b_vox + (b_tal - b_vox) * Talairach_opacity );
-                *pixels = RGB_255_TO_PIXEL( r, g, b );
-            }
+                x_pixel = x_pixel_start + x / image_multiplier;
 
-            ++pixels;
+                if( x_pixel < 0 )  x_pixel = 0;
+                if( x_pixel >= image_size )  x_pixel = image_size-1;
+
+                voxel_pixel = *pixels;
+                r_vox = Pixel_colour_r(voxel_pixel);
+                g_vox = Pixel_colour_g(voxel_pixel);
+                b_vox = Pixel_colour_b(voxel_pixel);
+
+                tal_pixel = image[IJ(y_pixel,x_pixel,image_size)];
+                r_tal = Pixel_colour_r(tal_pixel);
+                g_tal = Pixel_colour_g(tal_pixel);
+                b_tal = Pixel_colour_b(tal_pixel);
+
+                if( r_tal > Talairach_opacity_threshold &&
+                    g_tal > Talairach_opacity_threshold &&
+                    b_tal > Talairach_opacity_threshold )
+                {
+                    *pixels = voxel_pixel;
+                }
+                else
+                {
+                    r = ROUND( r_vox + (r_tal - r_vox) * Talairach_opacity );
+                    g = ROUND( g_vox + (g_tal - g_vox) * Talairach_opacity );
+                    b = ROUND( b_vox + (b_tal - b_vox) * Talairach_opacity );
+                    *pixels = RGB_255_TO_PIXEL( r, g, b );
+                }
+
+                ++pixels;
+            }
+        }
+        else
+        {
+            for_less( x, 0, x_size )
+            {
+                *pixels = pixels[-x_size];
+                ++pixels;
+            }
         }
     }
 }
