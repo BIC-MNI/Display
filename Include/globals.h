@@ -10,9 +10,12 @@ START_GLOBALS
     DEF_GLOBAL( Initial_render_mode, int, 1 )
     DEF_GLOBAL( Initial_shading_type, int, 1 )
     DEF_GLOBAL( Initial_light_switch, Boolean, TRUE )
-    DEF_GLOBAL( Display_frame_number, Boolean, FALSE )
-    DEF_GLOBAL( Frame_number_x, Real, 0.8 )
-    DEF_GLOBAL( Frame_number_y, Real, 0.1 )
+    DEF_GLOBAL( Display_frame_info, Boolean, FALSE )
+    DEF_GLOBAL( Display_update_min, Real, 0.0 )
+    DEF_GLOBAL( Frame_info_x, Real, 0.8 )
+    DEF_GLOBAL( Frame_info_y, Real, 0.1 )
+    DEF_GLOBAL( Menu_window_width, int, 400 )
+    DEF_GLOBAL( Menu_window_height, int, 150 )
     DEF_GLOBAL( X_menu_origin, Real, 10.0 )
     DEF_GLOBAL( X_menu_dx, Real, 50.0 )
     DEF_GLOBAL( X_menu_dy, Real, 0.0 )
@@ -26,6 +29,16 @@ START_GLOBALS
     DEF_GLOBAL( Initial_2_sided_flag, Boolean, TRUE )
     DEF_GLOBAL( Initial_backface_flag, Boolean, FALSE )
     DEF_GLOBAL( Visibility_on_input, Boolean, FALSE )
+
+    DEF_GLOBAL( Initial_x_scale, Real, 1.0 )
+    DEF_GLOBAL( Initial_y_scale, Real, 1.0 )
+    DEF_GLOBAL( Initial_z_scale, Real, 1.0 )
+
+    DEF_GLOBAL( Default_line_of_sight_x, Real, 0.0 )
+    DEF_GLOBAL( Default_line_of_sight_y, Real, 0.0 )
+    DEF_GLOBAL( Default_line_of_sight_z, Real, -1.0 )
+
+    DEF_GLOBAL( Monitor_widths_to_eye, Real, 1.5 )
 END_GLOBALS
          
 #endif
