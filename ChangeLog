@@ -1,3 +1,11 @@
+2001-08-11  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
+
+	* configure.in: Use AC_PREREQ to force autoconf 2.50.
+	Bump version to 1.3.4.
+
+	* NEWS:
+	* README.CVS: Update.
+
 2001-07-25  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
 
 	* Makefile.am (CLEANFILES): Clean Display.menu.

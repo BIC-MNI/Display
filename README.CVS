@@ -1,3 +1,6 @@
+		Building after Initial Checkout
+		-------------------------------
+
 After checking out from CVS, you need to perform the following steps
 from the top-level source directory (i.e. the one containing this file):
 
@@ -5,3 +8,18 @@ from the top-level source directory (i.e. the one containing this file):
 
 You will need reasonably recent versions of autoconf and automake.
 These steps need only be done once.
+
+
+
+		CVS Tags
+		--------
+
+The CVS tag corresponding to Display version x.y.z is "Display-x_y_z".
+The dots are converted to underscores because CVS does not allow dots
+in tag names.
+
+Note that the tag scheme started out being version x.y.z is tagged
+as "release-x_y_z".  This was abandoned because parts of the CVS
+repository are shared (e.g. the subdirectory Graphics), and the tags
+were clashing with tags from Register.
+

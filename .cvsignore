@@ -6,6 +6,7 @@ config.cache
 config.status
 libtool
 stamp-h
+stamp-h1
 config.h.in
 stamp-h.in
 Makefile
