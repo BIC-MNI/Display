@@ -3,9 +3,9 @@
 #include  <def_alloc.h>
 #include  <def_queue.h>
 
-#define  INCREASING      0
+#define  DECREASING      0
 #define  FREE_RANGING    1
-#define  DECREASING      2
+#define  INCREASING      2
 
 #define  N_4_NEIGHBOURS    4
 
@@ -120,10 +120,10 @@ private   void   create_distance_transform( x_size, y_size, pixels )
         y = entry.y;
         dist = pixels[x][y].dist_transform + 1;
 
-        for_less( dir, 0, N_4_NEIGHBOURS )
+        for_less( dir, 0, N_8_NEIGHBOURS )
         {
-            nx = x + Dx4[dir];
-            ny = y + Dy4[dir];
+            nx = x + Dx8[dir];
+            ny = y + Dy8[dir];
 
             if( nx >= 0 && nx < x_size &&
                 ny >= 0 && ny < y_size && 
@@ -151,10 +151,10 @@ Boolean  is_border_pixel( x_size, y_size, pixels, x, y )
 {
     int   nx, ny, dir;
 
-    for_less( dir, 0, N_4_NEIGHBOURS )
+    for_less( dir, 0, N_8_NEIGHBOURS )
     {
-        nx = x + Dx4[dir];
-        ny = y + Dy4[dir];
+        nx = x + Dx8[dir];
+        ny = y + Dy8[dir];
 
         if( nx < 0 || nx >= x_size ||
             ny < 0 || ny >= y_size ||
@@ -174,10 +174,11 @@ private  int  get_minimum_cut( x_size, y_size, pixels, label_of_interest )
     int            label_of_interest;
 {
     int                            x, y, nx, ny, dist, cut, min_cut;
-    int                            dir;
+    int                            dir, cutoff, class;
     Status                         status;
     voxel_struct                   insert, entry;
     QUEUE_STRUCT( voxel_struct )   queue;
+    void                           get_neighbours_influence_cut();
 
     INITIALIZE_QUEUE( queue );
 
@@ -220,8 +221,15 @@ private  int  get_minimum_cut( x_size, y_size, pixels, label_of_interest )
                 ny >= 0 && ny < y_size &&
                 pixels[nx][ny].inside )
             {
-                if( cut_modified( &pixels[x][y], &pixels[nx][ny] ) )
+                get_neighbours_influence_cut( pixels[nx][ny].dist_transform,
+                                              &pixels[x][y], &cutoff, &class );
+                if( cutoff_is_better( cutoff, class,
+                                      pixels[nx][ny].cutoff,
+                                      pixels[nx][ny].dist_from_region ) )
                 {
+                    pixels[nx][ny].cutoff = cutoff;
+                    pixels[nx][ny].dist_from_region = class;
+
                     if( !pixels[nx][ny].queued &&
                         pixels[nx][ny].label != label_of_interest )
                     {
@@ -259,92 +267,79 @@ private  int  get_minimum_cut( x_size, y_size, pixels, label_of_interest )
     return( min_cut );
 }
 
-private  Boolean  cut_modified( neighbour_pixel, this_pixel )
+private  void  get_neighbours_influence_cut( this_pixel_dist_transform,
+                                             neighbour_pixel, cutoff, class )
+    int            this_pixel_dist_transform;
     pixel_struct   *neighbour_pixel;
-    pixel_struct   *this_pixel;
+    int            *cutoff;
+    int            *class;
 {
-    Boolean  cut_changed;
-    int      this_class, neigh_class;
-    int      neigh_cut;
-
-    if( this_pixel->cutoff > neighbour_pixel->cutoff )
-        return( FALSE );
-
-    cut_changed = FALSE;
-
-    this_class = this_pixel->dist_from_region;
-    neigh_class = neighbour_pixel->dist_from_region;
-
-    if( neigh_class == INCREASING )
+    switch( neighbour_pixel->dist_from_region )
     {
-        if( neighbour_pixel->dist_transform < this_pixel->dist_transform )
+    case FREE_RANGING:
+        if( this_pixel_dist_transform < neighbour_pixel->cutoff )
         {
-            if( this_pixel->dist_transform > this_pixel->cutoff ||
-                (this_pixel->dist_transform == this_pixel->cutoff &&
-                 this_pixel->dist_from_region != INCREASING) )
-            {
-                this_pixel->cutoff = this_pixel->dist_transform;
-                this_pixel->dist_from_region = INCREASING;
-                cut_changed = TRUE;
-            }
-        }
-        else if( neighbour_pixel->dist_transform == this_pixel->dist_transform )
-        {
-            if( this_pixel->dist_transform > this_pixel->cutoff )
-            {
-                this_pixel->cutoff = this_pixel->dist_transform;
-                this_pixel->dist_from_region = FREE_RANGING;
-                cut_changed = TRUE;
-            }
+            *cutoff = neighbour_pixel->cutoff;
+            *class = DECREASING;
         }
         else
         {
-            this_pixel->cutoff = neighbour_pixel->cutoff;
-            this_pixel->dist_from_region = DECREASING;
-            cut_changed = TRUE;
+            *cutoff = neighbour_pixel->cutoff;
+            *class = FREE_RANGING;
         }
-    }
-    else if( neigh_class == DECREASING )
-    {
-        if( neighbour_pixel->dist_transform < this_pixel->dist_transform )
+        break;
+
+    case INCREASING:
+        if( this_pixel_dist_transform > neighbour_pixel->dist_transform )
         {
-            if( this_pixel->dist_transform > this_pixel->cutoff ||
-                (this_pixel->dist_transform == this_pixel->cutoff &&
-                 this_pixel->dist_from_region == DECREASING) )
-            {
-                this_pixel->cutoff = this_pixel->dist_transform;
-                this_pixel->dist_from_region = FREE_RANGING;
-                cut_changed = TRUE;
-            }
+            *cutoff = this_pixel_dist_transform;
+            *class = INCREASING;
         }
-        else if( neighbour_pixel->dist_transform == this_pixel->dist_transform )
+        else if( this_pixel_dist_transform < neighbour_pixel->dist_transform )
         {
-            if( this_pixel->dist_transform > this_pixel->cutoff )
-            {
-                this_pixel->cutoff = this_pixel->dist_transform;
-                this_pixel->dist_from_region = DECREASING;
-                cut_changed = TRUE;
-            }
+            *cutoff = neighbour_pixel->dist_transform;
+            *class = DECREASING;
         }
         else
         {
-            this_pixel->cutoff = neighbour_pixel->cutoff;
-            this_pixel->dist_from_region = DECREASING;
-            cut_changed = TRUE;
+            *cutoff = this_pixel_dist_transform;
+            *class = FREE_RANGING;
         }
+        break;
+
+    case DECREASING:
+        if( this_pixel_dist_transform < neighbour_pixel->dist_transform )
+        {
+            *cutoff = neighbour_pixel->cutoff;
+            *class = DECREASING;
+        }
+        else
+        {
+            *cutoff = neighbour_pixel->dist_transform;
+            *class = FREE_RANGING;
+        }
+        break;
     }
+}
+
+private  Boolean  cutoff_is_better( cutoff1, class1, cutoff2, class2 )
+    int   cutoff1;
+    int   class1;
+    int   cutoff2;
+    int   class2;
+{
+    Boolean  first_is_better;
+
+    if( cutoff1 > cutoff2 )
+        first_is_better = TRUE;
+    else if( cutoff1 < cutoff2 )
+        first_is_better = FALSE;
+    else if( class1 > class2 )
+        first_is_better = TRUE;
     else
-    {
-        if( this_pixel->cutoff < this_pixel->dist_transform )
-        {
-            this_pixel->cutoff = MIN( this_pixel->dist_transform,
-                                      neighbour_pixel->cutoff );
-            this_pixel->dist_from_region = FREE_RANGING;
-            cut_changed = TRUE;
-        }
-    }
+        first_is_better = FALSE;
 
-    return( cut_changed );
+    return( first_is_better );
 }
 
 #ifdef OLD
