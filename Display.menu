@@ -30,8 +30,8 @@ root
 
     permanent '\left'    ascend_selected           "Up"
     permanent '\right'   descend_selected          "Down"
-    permanent '\up'      advance_selected          "Next"
-    permanent '\down'    retreat_selected          "Prev"
+    permanent '\down'      advance_selected        "Next"
+    permanent '\up'    retreat_selected            "Prev"
 }
 
 quit
@@ -65,6 +65,7 @@ slice
     transient 'r'    halve_slice_voxels         "Halve Size"
     transient 't'    double_slice_voxels        "Double Size"
 
+    transient 'd'    create_3d_slice            "Create 3D Slice"
     transient 'g'    toggle_lock_slice          "Lock/Unlock Slice"
 }
 

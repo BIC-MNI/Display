@@ -44,6 +44,7 @@
                        MENU_FUNCTION(retreat_selected) \
                        MENU_FUNCTION(descend_selected) \
                        MENU_FUNCTION(ascend_selected) \
+                       MENU_FUNCTION(create_3d_slice) \
                        MENU_FUNCTION(move_slice_plus) \
                        MENU_FUNCTION(move_slice_minus) \
                        MENU_FUNCTION(menu_set_global_variable) \
@@ -354,13 +355,13 @@ private  Status  input_special_character(
 
     if( status == OK )
     {
-        if( strcmp( str, "left" ) )
+        if( strcmp( str, "left" ) == 0 )
             *ch = LEFT_ARROW_KEY;
-        else if( strcmp( str, "right" ) )
+        else if( strcmp( str, "right" ) == 0 )
             *ch = RIGHT_ARROW_KEY;
-        else if( strcmp( str, "up" ) )
+        else if( strcmp( str, "up" ) == 0 )
             *ch = UP_ARROW_KEY;
-        else if( strcmp( str, "down" ) )
+        else if( strcmp( str, "down" ) == 0 )
             *ch = DOWN_ARROW_KEY;
         else if( sscanf( str, "%d", ch ) != 1 )
         {
