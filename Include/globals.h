@@ -122,6 +122,8 @@ START_GLOBALS
     DEF_GLOBAL( Output_every, int, 100000 )
 
     DEF_GLOBAL_STRING( Tmp_surface_name, "" )
+
+    DEF_GLOBAL( Marching_cubes_method, int, 1 )
 END_GLOBALS
          
 #endif

@@ -1,8 +1,8 @@
 include ../C_dev/Makefile.include
 
-OPT = -O
+OPT = -g
 
-INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/portia/usr/include
+INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/yorick/usr/include
 
 #LIBS = -L/@/portia/usr/lib -lgl -lm
 LIBS = -lgl -lm
@@ -36,7 +36,10 @@ display_obj = \
            callbacks/view_ops.o \
            callbacks/volume_ops.o \
            current_obj/current_obj.o \
+           surface_extraction/activity.o \
            surface_extraction/data_structs.o \
+           surface_extraction/init_surface.o \
+           surface_extraction/extract.o \
            surface_extraction/surface.o \
            surface_extraction/surface_events.o \
            events/clip_plane.o \
@@ -69,6 +72,7 @@ display_obj = \
            hash_table.o \
            lines.o \
            marching_cubes.o \
+           marching_no_holes.o \
            mr_io.o \
            objects.o \
            object_io.o \
@@ -92,7 +96,7 @@ test_obj = test.o \
 
 test_lint = $(test_obj:.o=.ln)
 
-display_gx: $(display_obj)
+display_ngx: $(display_obj)
 	$(CC) $(CFLAGS) $(display_obj) -o $@ $(LIBS)
 
 display: $(display_obj)
@@ -110,3 +114,17 @@ test: $(test_obj)
 
 lint_test: $(test_lint)
 	$(LINT) -u $(LINTFLAGS) $(test_lint)
+
+march_obj = test_march.o \
+            march.o \
+            alloc.o \
+            files.o \
+            time.o
+
+march_lint = $(march_obj:.o=.ln)
+
+march: $(march_obj)
+	$(CC) $(CFLAGS) $(march_obj) -o $@ $(LIBS)
+
+lint_march: $(march_lint)
+	$(LINT) -u $(LINTFLAGS) $(march_lint)

@@ -31,7 +31,7 @@ typedef  struct
     QUEUE_STRUCT( voxel_index_struct )   voxels_to_do;
     
 
-    polygons_struct                      *triangles;
+    polygons_struct                      *polygons;
 } surface_extraction_struct;
 
 

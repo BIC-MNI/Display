@@ -26,15 +26,14 @@ public  void  uninstall_surface_extraction( graphics )
 private  DEF_EVENT_FUNCTION( add_to_surface )    /* ARGSUSED */
 {
     Status     status;
-    Status     extract_more_triangles();
-    void       display_triangles();
+    Status     extract_more_surface();
 
     status = OK;
 
     if( graphics->three_d.surface_extraction.extraction_in_progress &&
         voxels_remaining( &graphics->three_d.surface_extraction.voxels_to_do ) )
     {
-        status = extract_more_triangles( graphics );
+        status = extract_more_surface( graphics );
 
         graphics->update_required = TRUE;
     }

@@ -7,22 +7,22 @@
 
 #define  INVALID_ID   -1
 
-public  Boolean  extract_voxel_triangles( volume, surface_extraction,
+public  Boolean  extract_voxel_surface( volume, surface_extraction,
                                           voxel_index )
     volume_struct               *volume;
     surface_extraction_struct   *surface_extraction;
     voxel_index_struct          *voxel_index;
 {
     Status                 status;
-    polygons_struct        *poly;
-    triangle_point_type    *points_list, *pt;
+    polygons_struct        *polygons;
+    voxel_point_type       *points_list, *pt;
     Real                   corner_values[2][2][2];
     Boolean                active;
     Status                 create_edge_point_list();
     int                    *sizes, n_points, current_end;
     int                    edge_point_list[2][2][2][N_DIMENSIONS];
     Boolean                are_voxel_corners_active();
-    int                    n_tris, n_nondegenerate_tris, tri, p, next_end;
+    int                    n_polys, n_nondegenerate_polys, poly, p, next_end;
     int                    x, y, z, pt_index;
     int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
 
@@ -47,28 +47,29 @@ public  Boolean  extract_voxel_triangles( volume, surface_extraction,
             }
         }
 
-        n_tris = compute_polygons_in_voxel( corner_values,
-                                            surface_extraction->isovalue,
-                                            &sizes, &points_list );
+        n_polys = compute_polygons_in_voxel(
+                           (Marching_cubes_methods) Marching_cubes_method,
+                           corner_values, surface_extraction->isovalue,
+                           &sizes, &points_list );
     }
 
     status = OK;
 
-    n_nondegenerate_tris = 0;
+    n_nondegenerate_polys = 0;
 
-    if( active && n_tris > 0 )
+    if( active && n_polys > 0 )
     {
         n_points = 0;
-        for_less( tri, 0, n_tris )
+        for_less( poly, 0, n_polys )
         {
-            n_points += sizes[tri];
+            n_points += sizes[poly];
         }
 
-        poly = surface_extraction->triangles;
+        polygons = surface_extraction->polygons;
 
         status = create_edge_point_list( volume,
                                          surface_extraction->isovalue,
-                                         surface_extraction->triangles,
+                                         polygons,
                                          &surface_extraction->edge_points,
                                          voxel_index,
                                          n_points, points_list,
@@ -78,13 +79,13 @@ public  Boolean  extract_voxel_triangles( volume, surface_extraction,
     if( status == OK )
     {
         pt_index = 0;
-        for_less( tri, 0, n_tris )
+        for_less( poly, 0, n_polys )
         {
             int      i, j, actual_size;
             Boolean  polygon_okay;
 
             actual_size = 0;
-            for_less( p, 0, sizes[tri] )
+            for_less( p, 0, sizes[poly] )
             {
                 pt = &points_list[pt_index];
 
@@ -125,39 +126,39 @@ public  Boolean  extract_voxel_triangles( volume, surface_extraction,
             {
                 if( status == OK )
                 {
-                    current_end = NUMBER_INDICES( *poly );
+                    current_end = NUMBER_INDICES( *polygons );
                     next_end = current_end + actual_size;
 
-                    CHECK_ALLOC1( status, poly->indices,
+                    CHECK_ALLOC1( status, polygons->indices,
                                   current_end,
                                   next_end, int, DEFAULT_CHUNK_SIZE );
 
                     for_less( p, 0, actual_size )
                     {
-                        poly->indices[current_end+p] = point_ids[p];
+                        polygons->indices[current_end+p] = point_ids[p];
                     }
                 }
 
                 if( status == OK )
                 {
-                    ADD_ELEMENT_TO_ARRAY( status, poly->n_items,
-                                          poly->end_indices,
+                    ADD_ELEMENT_TO_ARRAY( status, polygons->n_items,
+                                          polygons->end_indices,
                                           next_end, int, DEFAULT_CHUNK_SIZE );
                 }
 
-                ++n_nondegenerate_tris;
+                ++n_nondegenerate_polys;
             }
         }
     }
 
-    return( n_nondegenerate_tris > 0 );
+    return( n_nondegenerate_polys > 0 );
 }
 
-private  int   create_point( volume, isovalue, tris, voxel, edge_intersected,
-                             pt_class )
+private  int   create_point( volume, isovalue, polygons, voxel,
+                             edge_intersected, pt_class )
     volume_struct       *volume;
     Real                isovalue;
-    polygons_struct     *tris;
+    polygons_struct     *polygons;
     voxel_index_struct  *voxel;
     int                 edge_intersected;
     Point_classes       *pt_class;
@@ -377,44 +378,45 @@ private  int   create_point( volume, isovalue, tris, voxel, edge_intersected,
     Point_y(point) *= volume->slice_thickness[Y_AXIS];
     Point_z(point) *= volume->slice_thickness[Z_AXIS];
 
-    CHECK_ALLOC1( status, tris->points, tris->n_points, tris->n_points+1,
+    CHECK_ALLOC1( status, polygons->points,
+                  polygons->n_points, polygons->n_points+1,
                   Point, DEFAULT_CHUNK_SIZE );
 
     if( status == OK )
     {
-        CHECK_ALLOC1( status, tris->normals,
-                      tris->n_points, tris->n_points+1,
+        CHECK_ALLOC1( status, polygons->normals,
+                      polygons->n_points, polygons->n_points+1,
                       Vector, DEFAULT_CHUNK_SIZE );
     }
 
     if( status == OK )
     {
-        pt_index = tris->n_points;
-        tris->points[pt_index] = point;
-        tris->normals[pt_index] = normal;
-        ++tris->n_points;
+        pt_index = polygons->n_points;
+        polygons->points[pt_index] = point;
+        polygons->normals[pt_index] = normal;
+        ++polygons->n_points;
     }
 
     return( pt_index );
 }
 
-private  Status  create_edge_point_list( volume, isovalue, triangles,
+private  Status  create_edge_point_list( volume, isovalue, polygons,
                                          edge_points, voxel_index,
                                          n_points, points_list,
                                          edge_point_list )
     volume_struct          *volume;
     Real                   isovalue;
-    polygons_struct        *triangles;
+    polygons_struct        *polygons;
     hash_table_struct      *edge_points;
     voxel_index_struct     *voxel_index;
     int                    n_points;
-    triangle_point_type    *points_list;
+    voxel_point_type       *points_list;
     int                    edge_point_list[2][2][2][N_DIMENSIONS];
 {
     Status                 status;
     Status                 add_point_id_to_relevant_edges();
     int                    x, y, z, axis, p, id;
-    triangle_point_type    *pt;
+    voxel_point_type       *pt;
     voxel_index_struct     corner_index;
     Boolean                lookup_edge_point_id();
     Point_classes          pt_class;
@@ -459,7 +461,7 @@ private  Status  create_edge_point_list( volume, isovalue, triangles,
             }
             else
             {
-                id = create_point( volume, isovalue, triangles, &corner_index,
+                id = create_point( volume, isovalue, polygons, &corner_index,
                                    pt->edge_intersected, &pt_class );
 
                 status = add_point_id_to_relevant_edges( volume, pt,
@@ -476,7 +478,7 @@ private  Status  add_point_id_to_relevant_edges( volume, edge_info, pt_index,
                                                  pt_id, pt_class,
                                                  edge_point_list, edge_points )
     volume_struct       *volume;
-    triangle_point_type *edge_info;
+    voxel_point_type    *edge_info;
     voxel_index_struct  *pt_index;
     int                 pt_id;
     Point_classes       pt_class;

@@ -72,6 +72,46 @@ public  void  get_view_centre( view, centre )
     ADD_POINT_VECTOR( *centre, view->origin, offset_vector );
 }
 
+public  void  get_screen_centre( view, centre )
+    view_struct   *view;
+    Point         *centre;
+{
+    Real    offset;
+    Vector  offset_vector;
+
+    offset = view->perspective_distance;
+
+    SCALE_VECTOR( offset_vector, view->line_of_sight, offset );
+    ADD_POINT_VECTOR( *centre, view->origin, offset_vector );
+}
+
+public  void  get_screen_axes( view, hor, vert )
+    view_struct   *view;
+    Vector        *hor;
+    Vector        *vert;
+{
+    SCALE_VECTOR( *hor, view->x_axis, view->window_width );
+    SCALE_VECTOR( *vert, view->y_axis, view->window_height );
+}
+
+public  void  get_screen_point( view, x, y, point )
+    view_struct  *view;
+    Real         x, y;
+    Point        *point;
+{
+    Vector   hor, vert;
+
+    get_screen_axes( view, &hor, &vert );
+
+    SCALE_VECTOR( hor, hor, x - 0.5 );
+    SCALE_VECTOR( vert, vert, y - 0.5 );
+
+    get_screen_centre( view, point );
+
+    ADD_POINT_VECTOR( *point, *point, hor );
+    ADD_POINT_VECTOR( *point, *point, vert );
+}
+
 public  void  adjust_view_for_aspect( view, window )
     view_struct    *view;
     window_struct  *window;
@@ -163,6 +203,27 @@ public  void  transform_point_to_world( view, p, transformed_point )
     transform_point( &view->modeling_transform, &scaled, transformed_point );
 }
 
+public  void  transform_world_to_model( view, p, transformed_point )
+    view_struct   *view;
+    Point         *p;
+    Point         *transformed_point;
+{
+    void   inverse_transform_point();
+
+    inverse_transform_point( &view->modeling_transform, p, transformed_point );
+}
+
+public  void  transform_world_to_model_vector( view, v, transformed_vector )
+    view_struct   *view;
+    Vector        *v;
+    Vector        *transformed_vector;
+{
+    void   inverse_transform_vector();
+
+    inverse_transform_vector( &view->modeling_transform, v,
+                              transformed_vector );
+}
+
 public  void  transform_world_to_screen( view, p, transformed_point )
     view_struct   *view;
     Point         *p;
@@ -175,7 +236,7 @@ public  void  transform_world_to_screen( view, p, transformed_point )
                 p, transformed_point );
 }
 
-public  void  transform_point_to_screen( view, p, transformed_point )
+public  void  transform_point_to_view_space( view, p, transformed_point )
     view_struct   *view;
     Point         *p;
     Point         *transformed_point;
@@ -187,13 +248,31 @@ public  void  transform_point_to_screen( view, p, transformed_point )
     transform_world_to_screen( view, transformed_point, transformed_point );
 }
 
-public  void  get_screen_axes( view, hor, vert )
+public  void  transform_point_to_screen( view, p, transformed_point )
     view_struct   *view;
-    Vector        *hor;
-    Vector        *vert;
+    Point         *p;
+    Point         *transformed_point;
 {
-    SCALE_VECTOR( *hor, view->x_axis, view->window_width );
-    SCALE_VECTOR( *vert, view->y_axis, view->window_height );
+    Point  tmp;
+    Real   x, y, z_factor;
+    void   transform_point_to_view_space();
+
+    transform_point_to_view_space( view, p, &tmp );
+
+    x = Point_x(tmp);
+    y = Point_y(tmp);
+
+    if( view->perspective_flag )
+    {
+        z_factor = Point_z(tmp) / view->perspective_distance;
+        x /= z_factor;
+        y /= z_factor;
+    }
+
+    x = (x + view->window_width / 2.0 ) / view->window_width;
+    y = (y + view->window_height / 2.0 ) / view->window_height;
+
+    fill_Point( *transformed_point, x, y, 0.0 );
 }
 
 public  void  set_model_scale( view, sx, sy, sz )
@@ -205,7 +284,7 @@ public  void  set_model_scale( view, sx, sy, sz )
     view->scale_factors[Z_AXIS] = sz;
 }
 
-public  void  convert_mouse_to_line( view, mouse, origin, direction )
+public  void  convert_mouse_to_ray( view, mouse, origin, direction )
     view_struct   *view;
     Point         *mouse;
     Point         *origin;
@@ -237,8 +316,61 @@ public  void  convert_mouse_to_line( view, mouse, origin, direction )
     else
     {
         *direction = view->line_of_sight;
+        SCALE_VECTOR( z_offset, view->line_of_sight, view->front_distance );
 
         ADD_POINT_VECTOR( *origin, view->origin, x_offset );
         ADD_POINT_VECTOR( *origin, *origin, y_offset );
+        ADD_POINT_VECTOR( *origin, *origin, z_offset );
     }
+}
+
+public  void  magnify_view_size( view, factor )
+    view_struct  *view;
+    Real         factor;
+{
+    Real      dist;
+    Vector    offset;
+
+    if( view->perspective_flag )
+    {
+        dist = (1.0 - factor) * view->perspective_distance;
+        SCALE_VECTOR( offset, view->line_of_sight, dist );
+        ADD_POINT_VECTOR( view->origin, view->origin, offset);
+    }
+    else
+    {
+        view->window_width *= factor;
+        view->window_height *= factor;
+        view->perspective_distance *= factor;
+    }
+}
+
+public  void  set_view_rectangle( view, x_min, x_max, y_min, y_max )
+    view_struct   *view;
+    Real          x_min, x_max, y_min, y_max;
+{
+    Real   window_width, window_height, prev_dist;
+    Real   x, y;
+    Point  new_centre;
+    Vector to_eye;
+
+    window_width = (x_max - x_min) * view->window_width;
+    window_height = (y_max - y_min) * view->window_height;
+
+    x = (x_min + x_max) / 2.0;
+    y = (y_min + y_max) / 2.0;
+
+    get_screen_point( view, x, y, &new_centre );
+
+    prev_dist = view->perspective_distance;
+    view->perspective_distance *= window_width / view->window_width;
+    view->window_width = window_width;
+    view->window_height = window_height;
+    view->front_distance += view->perspective_distance - prev_dist;
+    view->back_distance += view->perspective_distance - prev_dist;
+
+    SCALE_VECTOR( to_eye, view->line_of_sight, -view->perspective_distance );
+    ADD_POINT_VECTOR( view->origin, new_centre, to_eye );
+
+    view->desired_aspect = window_height / window_width;
 }

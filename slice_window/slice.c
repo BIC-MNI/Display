@@ -30,6 +30,7 @@ public  Status  set_slice_window_volume( graphics, volume )
 {
     Status           status;
     Status           initialize_voxel_flags();
+    Status           update_cursor_size();
     int              c, x_index, y_index;
     Real             factor, min_thickness, max_thickness;
     void             get_2d_slice_axes();
@@ -44,6 +45,15 @@ public  Status  set_slice_window_volume( graphics, volume )
         graphics->slice.slice_views[c].slice_index =
                                 (int) (volume->size[c] / 2);
     }
+
+    graphics->associated[THREE_D_WINDOW]->three_d.cursor.box_size[X_AXIS] =
+          volume->slice_thickness[X_AXIS];
+    graphics->associated[THREE_D_WINDOW]->three_d.cursor.box_size[Y_AXIS] =
+          volume->slice_thickness[Y_AXIS];
+    graphics->associated[THREE_D_WINDOW]->three_d.cursor.box_size[Z_AXIS] =
+          volume->slice_thickness[Z_AXIS];
+
+    status = update_cursor_size( graphics->associated[THREE_D_WINDOW] );
 
     min_thickness = volume->slice_thickness[X_AXIS];
     max_thickness = volume->slice_thickness[X_AXIS];
@@ -76,9 +86,12 @@ public  Status  set_slice_window_volume( graphics, volume )
     set_colour_coding_range( &graphics->slice.colour_coding,
                              volume->min_value, volume->max_value );
 
-    status = initialize_voxel_flags( &graphics->associated[THREE_D_WINDOW]
+    if( status == OK )
+    {
+        status = initialize_voxel_flags( &graphics->associated[THREE_D_WINDOW]
                                      ->three_d.surface_extraction.voxels_queued,
                                      get_n_voxels(graphics->slice.volume) );
+    }
 
     if( status == OK )
     {
@@ -252,9 +265,9 @@ public  void  get_voxel_centre( graphics, x, y, z, centre )
     Point             *centre;
 {
     fill_Point( *centre, 
-          (Real) x * graphics->slice.volume->slice_thickness[X_AXIS],
-          (Real) y * graphics->slice.volume->slice_thickness[Y_AXIS],
-          (Real) z * graphics->slice.volume->slice_thickness[Z_AXIS] );
+          (Real) (x + 0.5) * graphics->slice.volume->slice_thickness[X_AXIS],
+          (Real) (y + 0.5) * graphics->slice.volume->slice_thickness[Y_AXIS],
+          (Real) (z + 0.5) * graphics->slice.volume->slice_thickness[Z_AXIS] );
 }
 
 public  Boolean  convert_point_to_voxel( graphics, point, x, y, z )
@@ -269,9 +282,9 @@ public  Boolean  convert_point_to_voxel( graphics, point, x, y, z )
 
     if( get_slice_window_volume( graphics, &volume ) )
     {
-        *x = ROUND( Point_x(*point) / volume->slice_thickness[X_AXIS] );
-        *y = ROUND( Point_y(*point) / volume->slice_thickness[Y_AXIS] );
-        *z = ROUND( Point_z(*point) / volume->slice_thickness[Z_AXIS] );
+        *x = (int) ( Point_x(*point) / volume->slice_thickness[X_AXIS] );
+        *y = (int) ( Point_y(*point) / volume->slice_thickness[Y_AXIS] );
+        *z = (int) ( Point_z(*point) / volume->slice_thickness[Z_AXIS] );
 
         if( *x == volume->size[X_AXIS] )  *x = volume->size[X_AXIS]-1;
         if( *y == volume->size[Y_AXIS] )  *y = volume->size[Y_AXIS]-1;
@@ -372,7 +385,7 @@ public  void  get_slice_view( graphics, axis_index, x_scale, y_scale,
     *x_pixel = voxel_to_pixel( x_min, x_offset, *x_scale, 0 );
     indices[x_axis_index] = 0;
 
-    *x_pixel_end = voxel_to_pixel( x_min, x_offset, *x_scale, x_size-1 );
+    *x_pixel_end = voxel_to_pixel( x_min, x_offset, *x_scale, x_size ) - 1;
     if( *x_pixel_end > x_max )
     {
         *x_pixel_end = x_max;
@@ -392,7 +405,7 @@ public  void  get_slice_view( graphics, axis_index, x_scale, y_scale,
     *y_pixel = voxel_to_pixel( y_min, y_offset, *y_scale, 0 );
     indices[y_axis_index] = 0;
 
-    *y_pixel_end = voxel_to_pixel( y_min, y_offset, *y_scale, y_size-1 );
+    *y_pixel_end = voxel_to_pixel( y_min, y_offset, *y_scale, y_size ) - 1;
     if( *y_pixel_end > y_max )
     {
         *y_pixel_end = y_max;

@@ -162,7 +162,7 @@ public  Boolean  find_close_voxel_containing_value( volume, voxels_done, value,
     return( found );
 }
 
-public  Status  extract_more_triangles( graphics )
+public  Status  extract_more_surface( graphics )
     graphics_struct   *graphics;
 {
     int                         n_voxels_done;
@@ -170,7 +170,7 @@ public  Status  extract_more_triangles( graphics )
     surface_extraction_struct   *surface_extraction;
     volume_struct               *volume;
     void                        get_next_voxel_from_queue();
-    Boolean                     extract_voxel_triangles();
+    Boolean                     extract_voxel_surface();
     void                        add_voxel_neighbours();
     Real                        stop_time;
     Real                        current_realtime_seconds();
@@ -193,12 +193,12 @@ public  Status  extract_more_triangles( graphics )
             current_realtime_seconds() < stop_time) ) &&
            voxels_remaining( &surface_extraction->voxels_to_do ) )
     {
-        possibly_output( surface_extraction->triangles );
+        possibly_output( surface_extraction->polygons );
 
         get_next_voxel_from_queue( &surface_extraction->voxels_to_do,
                                    &voxel_index );
 
-        if( extract_voxel_triangles( volume, surface_extraction, &voxel_index) )
+        if( extract_voxel_surface( volume, surface_extraction, &voxel_index) )
         {
             ++n_voxels_done;
 
