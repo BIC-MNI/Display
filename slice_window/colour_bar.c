@@ -62,7 +62,7 @@ public  void  initialize_colour_bar(
     initialize_lines( lines, WHITE );
     delete_lines( lines );
     lines->colour_flag = PER_ITEM_COLOURS;
-    lines->line_thickness = 1;
+    lines->line_thickness = 1.0;
     lines->n_points = 0;
     lines->n_items = 0;
 
