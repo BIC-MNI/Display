@@ -5,6 +5,10 @@
 #include  <mni.h>
 #include  <atlas.h>
 
+#define   N_SLICE_VIEWS   4
+
+#define   OBLIQUE_VIEW_INDEX    (N_SLICE_VIEWS-1)
+
 typedef  struct
 {
     Real          x_axis[N_DIMENSIONS];
@@ -22,7 +26,7 @@ typedef  struct
 
 typedef  struct
 {
-    int   voxel_indices[3];
+    int   voxel_indices[N_DIMENSIONS];
     int   id;
 } label_struct;
 
@@ -68,7 +72,7 @@ typedef  struct
     Real                   x_split, y_split;
 
     Real                   current_voxel[N_DIMENSIONS];
-    slice_view_struct      slice_views[3];
+    slice_view_struct      slice_views[N_SLICE_VIEWS];
     int                    next_to_update;
 
     segmenting_struct      segmenting;
