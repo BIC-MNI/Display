@@ -17,8 +17,5 @@ public  Status   input_volume_file(
         status = ERROR;
     }
 
-    if( status == OK )
-        alloc_auxiliary_data( *volume );
-
     return( status );
 }
