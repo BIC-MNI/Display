@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.97 1995-09-04 17:01:39 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.98 1995-09-05 15:18:31 david Exp $";
 #endif
 
 
@@ -136,6 +136,9 @@ private  void  initialize_slice_window(
         slice_window->slice.slice_views[view].x_max = -1;
         slice_window->slice.slice_views[view].y_min = 0;
         slice_window->slice.slice_views[view].y_max = -1;
+
+        slice_window->slice.slice_views[view].n_atlas_pixels_alloced = 0;
+        slice_window->slice.slice_views[view].n_composite_pixels_alloced = 0;
 
         rebuild_slice_unfinished_flag( slice_window, view );
     }
