@@ -9,10 +9,11 @@ public  Status  load_graphics_file(
     Status                   status;
     object_struct            *object;
     model_struct             *model;
-    int                      n_items;
+    int                      n_items, sizes[N_DIMENSIONS];
     Volume                   volume_read_in;
     object_struct            *current_object;
     object_traverse_struct   object_traverse;
+    STRING                   volume_description;
     BOOLEAN                  volume_present;
 
     object = create_object( MODEL );
@@ -21,6 +22,7 @@ public  Status  load_graphics_file(
 
     model = get_model_ptr( object );
     initialize_display_model( model );
+    initialize_3D_model_info( model );
 
     (void) strcpy( model->filename, filename );
 
@@ -107,7 +109,7 @@ public  Status  load_graphics_file(
             if( current_object != object &&
                 current_object->object_type == MODEL )
             {
-                initialize_model_info( get_model_ptr(current_object) );
+                initialize_3D_model_info( get_model_ptr(current_object) );
             }
             else if( current_object->object_type == POLYGONS )
             {
@@ -153,7 +155,14 @@ public  Status  load_graphics_file(
         delete_object( object );
 
     if( status == OK && volume_present )
-        add_slice_window_volume( display, filename, volume_read_in );
+    {
+        get_volume_sizes( volume_read_in, sizes );
+
+        (void) sprintf( volume_description, "%s : %d %d %d",
+                        filename, sizes[X], sizes[Y], sizes[Z] );
+
+        add_slice_window_volume( display, volume_description, volume_read_in );
+    }
 
     return( status );
 }
