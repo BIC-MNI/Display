@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.112 1996-07-02 12:56:20 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.113 1996-08-21 13:00:58 david Exp $";
 #endif
 
 
@@ -115,6 +115,7 @@ private  void  initialize_slice_window(
     slice_window->slice.y_brush_radius = Default_y_brush_radius;
     slice_window->slice.z_brush_radius = Default_z_brush_radius;
     slice_window->slice.current_paint_label = Default_paint_label;
+    slice_window->slice.current_erase_label = 0;
 
     set_atlas_state( slice_window, Default_atlas_state );
 
