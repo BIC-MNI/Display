@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/object_ops.c,v 1.51 1996-04-19 13:24:55 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/object_ops.c,v 1.52 1996-05-17 19:38:05 david Exp $";
 #endif
 
 
@@ -107,11 +107,10 @@ public  DEF_MENU_FUNCTION( make_all_invisible )
 
     if( get_current_object( display, &current_object ) )
     {
-        initialize_object_traverse( &object_traverse, 1,
-                                             &current_object );
+        initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
 
         while( get_next_object_traverse(&object_traverse,&object) )
-               object->visibility = FALSE;
+               set_object_visibility( object, OFF );
 
         graphics_models_have_changed( display );
     }
@@ -135,10 +134,10 @@ public  DEF_MENU_FUNCTION( make_all_visible )
 
     if( get_current_object( display, &current_object ) )
     {
-        initialize_object_traverse( &object_traverse, 1, &current_object );
+        initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
 
         while( get_next_object_traverse(&object_traverse,&object) )
-            object->visibility = TRUE;
+            set_object_visibility( object, ON );
 
         graphics_models_have_changed( display );
     }

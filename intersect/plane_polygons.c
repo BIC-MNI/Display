@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/intersect/plane_polygons.c,v 1.12 1995-10-19 15:51:38 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/intersect/plane_polygons.c,v 1.13 1996-05-17 19:38:11 david Exp $";
 #endif
 
 
@@ -43,11 +43,12 @@ public  void  intersect_plane_with_polygons(
     lines->n_items = 0;
     lines->n_points = 0;
 
-    initialize_object_traverse( &object_traverse, N_MODELS, display->models );
+    initialize_object_traverse( &object_traverse, TRUE,
+                                N_MODELS, display->models );
 
     while( get_next_object_traverse(&object_traverse,&object) )
     {
-        if( object->object_type == POLYGONS && object->visibility )
+        if( object->object_type == POLYGONS )
         {
             intersect_plane_polygons( plane_normal, plane_constant,
                                       get_polygons_ptr(object), lines,

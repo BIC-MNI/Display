@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/change_markers.c,v 1.7 1996-04-19 13:25:07 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/change_markers.c,v 1.8 1996-05-17 19:38:09 david Exp $";
 #endif
 
 
@@ -180,12 +180,11 @@ private  DEF_EVENT_FUNCTION( done_picking_markers )
 
 
         object = display->models[THREED_MODEL];
-        initialize_object_traverse( &object_traverse, 1, &object );
+        initialize_object_traverse( &object_traverse, TRUE, 1, &object );
 
         while( get_next_object_traverse(&object_traverse, &current_object) )
         {
-            if( current_object->object_type == MARKER &&
-                current_object->visibility )
+            if( current_object->object_type == MARKER )
             {
                 marker = get_marker_ptr( current_object );
                 transform_point_to_screen( &display->three_d.view,

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_curves/closest_line.c,v 1.3 1995-10-19 15:52:34 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_curves/closest_line.c,v 1.4 1996-05-17 19:38:18 david Exp $";
 #endif
 
 
@@ -34,12 +34,12 @@ public  BOOLEAN  find_closest_line_point_to_point(
     found = TRUE;
     closest_dist = 1.0e30;
 
-    initialize_object_traverse( &object_traverse, N_MODELS, display->models );
+    initialize_object_traverse( &object_traverse, TRUE,
+                                N_MODELS, display->models );
 
     while( get_next_object_traverse(&object_traverse,&current_object) )
     {
-        if( current_object->visibility &&
-            get_object_type(current_object) == LINES )
+        if( get_object_type(current_object) == LINES )
         {
             lines = get_lines_ptr( current_object );
 

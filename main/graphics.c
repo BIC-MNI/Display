@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.70 1996-04-19 13:25:11 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.71 1996-05-17 19:38:12 david Exp $";
 #endif
 
 
@@ -634,8 +634,11 @@ public  void  fit_view_to_visible_models(
         if( !get_range_of_object( display->models[MISCELLANEOUS_MODEL],
                                   TRUE, &min_limit, &max_limit ) )
         {
-            fill_Point( min_limit, 0.0, 0.0, 0.0 );
-            fill_Point( max_limit, 1.0, 1.0, 1.0 );
+            if( !get_range_of_volumes( display, &min_limit, &max_limit ) )
+            {
+                fill_Point( min_limit, -1.0, -1.0, -1.0 );
+                fill_Point( max_limit, 1.0, 1.0, 1.0 );
+            }
         }
     }
     else if( get_range_of_object( display->models[MISCELLANEOUS_MODEL],

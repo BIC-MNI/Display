@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.109 1996-04-19 13:25:27 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.110 1996-05-17 19:38:15 david Exp $";
 #endif
 
 
@@ -441,6 +441,58 @@ public  BOOLEAN  get_slice_window(
     }
 
     return( exists );
+}
+
+public  BOOLEAN  get_range_of_volumes(
+    display_struct   *display,
+    Point            *min_limit,
+    Point            *max_limit )
+{
+    int              n_volumes, sizes[N_DIMENSIONS], dx, dy, dz, volume_index;
+    int              dim;
+    Volume           volume;
+    Real             voxel[N_DIMENSIONS], world[N_DIMENSIONS];
+    BOOLEAN          first;
+
+    n_volumes = get_n_volumes( display );
+
+    if( n_volumes == 0 )
+        return( FALSE );
+
+    fill_Point( *min_limit, 0.0, 0.0, 0.0 );
+    fill_Point( *max_limit, 0.0, 0.0, 0.0 );
+    first = TRUE;
+
+    for_less( volume_index, 0, n_volumes )
+    {
+        volume = get_nth_volume( display, volume_index );
+
+        get_volume_sizes( volume, sizes );
+
+        for_less( dx, 0, 2 )
+        for_less( dy, 0, 2 )
+        for_less( dz, 0, 2 )
+        {
+            voxel[X] = -0.5 + (Real) dx * (Real) sizes[X];
+            voxel[Y] = -0.5 + (Real) dy * (Real) sizes[Y];
+            voxel[Z] = -0.5 + (Real) dz * (Real) sizes[Z];
+
+            convert_voxel_to_world( volume, voxel,
+                                    &world[X], &world[Y], &world[Z] );
+
+            for_less( dim, 0, N_DIMENSIONS )
+            {
+                if( first || world[dim] < (Real) Point_coord(*min_limit,dim) )
+                    Point_coord(*min_limit,dim) = (Point_coord_type) world[dim];
+                if( first || world[dim] > (Real) Point_coord(*max_limit,dim) )
+                    Point_coord(*max_limit,dim) = (Point_coord_type) world[dim];
+            }
+
+            first = FALSE;
+        }
+    }
+
+    return( TRUE );
 }
 
 public  void  set_slice_cursor_update(

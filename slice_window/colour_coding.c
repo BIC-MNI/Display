@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.36 1996-05-15 15:34:12 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.37 1996-05-17 19:38:16 david Exp $";
 #endif
 
 
@@ -805,6 +805,13 @@ public  void  clear_labels(
     display_struct   *display,
     int              volume_index )
 {
+    int    sizes[N_DIMENSIONS];
+
+    get_volume_sizes( get_nth_label_volume(display,volume_index), sizes );
+
+    tell_surface_extraction_label_changed( display, volume_index, 0, 0, 0 );
+    tell_surface_extraction_label_changed( display, volume_index,
+                                           sizes[X]-1, sizes[Y]-1, sizes[Z]-1 );
     set_all_volume_label_data( get_nth_label_volume(display,volume_index),
                                0 );
 }
@@ -829,6 +836,8 @@ public  void  set_voxel_label(
     int              z,
     int              label )
 {
+    tell_surface_extraction_label_changed( display, volume_index, x, y, z );
+
     set_volume_label_data_5d( get_nth_label_volume(display,volume_index),
                               x, y, z, 0, 0, label );
 }

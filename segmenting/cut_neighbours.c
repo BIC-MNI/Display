@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/cut_neighbours.c,v 1.7 1995-10-19 15:52:06 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/cut_neighbours.c,v 1.8 1996-05-17 19:38:14 david Exp $";
 #endif
 
 #include  <display.h>
@@ -189,7 +189,7 @@ public  void  cut_polygon_neighbours_from_lines(
 
     object = display->models[THREED_MODEL];
 
-    initialize_object_traverse( &object_traverse, 1, &object );
+    initialize_object_traverse( &object_traverse, FALSE, 1, &object );
 
     while( get_next_object_traverse(&object_traverse,&object) )
     {

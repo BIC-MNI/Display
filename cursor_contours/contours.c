@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/cursor_contours/contours.c,v 1.19 1996-04-19 13:25:02 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/cursor_contours/contours.c,v 1.20 1996-05-17 19:38:08 david Exp $";
 #endif
 
 
@@ -45,7 +45,7 @@ public  void  initialize_cursor_plane_outline(
 
     initialize_object_traverse(
          &display->three_d.cursor_contours.object_traverse,
-         0, (object_struct **) NULL );
+         FALSE, 0, (object_struct **) NULL );
 
     make_cursor_contours( display );
 }
@@ -170,7 +170,7 @@ private  void   start_new_axis(
     delete_cursor_plane_outline( display );
 
     initialize_object_traverse( &contours->object_traverse,
-                                N_MODELS, display->models );
+                                TRUE, N_MODELS, display->models );
 
     contours->current_polygons =
                     get_next_polygons( &contours->object_traverse );
@@ -188,7 +188,7 @@ private  polygons_struct  *get_next_polygons(
 
     while( get_next_object_traverse( object_traverse, &object ) )
     {
-        if( object->object_type == POLYGONS && get_object_visibility(object) )
+        if( object->object_type == POLYGONS )
         {
             polygons = get_polygons_ptr( object );
             if( polygons->n_items > 0 )

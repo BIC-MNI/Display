@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.69 1996-04-10 17:19:17 david Exp $";
+static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.70 1996-05-17 19:38:02 david Exp $";
 #endif
 
 #include  <volume_io.h>
@@ -53,9 +53,10 @@ typedef struct
 typedef  struct
 {
     BOOLEAN   crop_visible;
-    int       limit_being_moved;
-    int       axis_being_moved;
+    int       axis_being_moved[2];
+    int       limit_being_moved[2];
     int       view_index;
+    Real      start_voxel[N_DIMENSIONS];
     Real      limits[2][N_DIMENSIONS];
     STRING    filename;
 } crop_struct;

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/surface_events.c,v 1.18 1996-04-19 17:38:54 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/surface_events.c,v 1.19 1996-05-17 19:38:21 david Exp $";
 #endif
 
 
@@ -42,9 +42,8 @@ private  DEF_EVENT_FUNCTION( add_to_surface )
     if( display->three_d.surface_extraction.extraction_in_progress &&
         some_voxels_remaining_to_do( &display->three_d.surface_extraction ) )
     {
-        extract_more_surface( display );
-
-        graphics_models_have_changed( display );
+        if( extract_more_surface( display ) )
+            graphics_models_have_changed( display );
     }
 
     return( OK );

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surface_extract.c,v 1.29 1996-04-19 17:38:48 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surface_extract.c,v 1.30 1996-05-17 19:38:07 david Exp $";
 #endif
 
 
@@ -25,21 +25,39 @@ private  void  start_surface(
     BOOLEAN          binary_flag,
     BOOLEAN          voxelate_flag )
 {
-    BOOLEAN        input_okay;
-    Real           min_value, max_value;
-    Real           voxel[MAX_DIMENSIONS];
-    int            int_voxel[MAX_DIMENSIONS];
-    Volume         volume, label_volume;
+    display_struct  *slice_window;
+    BOOLEAN         input_okay;
+    Real            min_value, max_value;
+    Real            voxel[MAX_DIMENSIONS];
+    int             int_voxel[MAX_DIMENSIONS];
+    Volume          volume, label_volume;
 
-    if( get_n_volumes(display) == 0 )
+    if( get_n_volumes(display) == 0 ||
+        !get_slice_window(display,&slice_window) )
         return;
 
-    if( use_label_flag )
-        volume = get_label_volume( display );
-    else
-        volume = get_volume( display );
+    if( display->three_d.surface_extraction.volume != NULL )
+    {
+        print( "Extraction already started.\n" );
+        return;
+    }
 
-    label_volume = get_label_volume( display );
+    if( use_label_flag )
+    {
+        /*--- force creation of the volume */
+
+        set_voxel_label( slice_window, get_current_volume_index(slice_window),
+                         0, 0, 0,
+                         get_voxel_label( slice_window,
+                                      get_current_volume_index(slice_window),
+                                      0, 0, 0 ) );
+
+        volume = get_label_volume( slice_window );
+    }
+    else
+        volume = get_volume( slice_window );
+
+    label_volume = get_label_volume( slice_window );
 
     if( volume == NULL )
         return;
@@ -200,9 +218,10 @@ public  DEF_MENU_FUNCTION(make_surface_permanent)
     object_struct  *object;
 
     if( get_n_volumes(display) > 0 &&
-        !display->three_d.surface_extraction.extraction_in_progress &&
         display->three_d.surface_extraction.polygons->n_items > 0 )
     {
+        stop_surface_extraction( display );
+
         object = create_object( POLYGONS );
 
         *(get_polygons_ptr(object)) =
@@ -224,7 +243,6 @@ public  DEF_MENU_FUNCTION(make_surface_permanent)
 public  DEF_MENU_UPDATE(make_surface_permanent )
 {
     return( get_n_volumes(display) > 0 &&
-            !display->three_d.surface_extraction.extraction_in_progress &&
             display->three_d.surface_extraction.polygons->n_items > 0 );
 }
 
@@ -257,84 +275,6 @@ public  DEF_MENU_FUNCTION(get_voxelated_surface)
 public  DEF_MENU_UPDATE(get_voxelated_surface )
 {
     return( get_n_volumes(display) > 0 );
-}
-
-/* ARGSUSED */
-
-public  DEF_MENU_FUNCTION( set_surface_extract_x_max_distance )
-{
-    int             dist;
-
-    print( "Enter X max distance: " );
-
-    if( input_int( stdin, &dist ) == OK )
-        display->three_d.surface_extraction.voxel_distances[X] = dist;
-
-    (void) input_newline( stdin );
-
-    return( OK );
-}
-
-/* ARGSUSED */
-
-public  DEF_MENU_UPDATE(set_surface_extract_x_max_distance )
-{
-    set_menu_text_int( menu_window, menu_entry,
-                    display->three_d.surface_extraction.voxel_distances[X] );
-
-    return( TRUE );
-}
-
-/* ARGSUSED */
-
-public  DEF_MENU_FUNCTION( set_surface_extract_y_max_distance )
-{
-    int             dist;
-
-    print( "Enter Y max distance: " );
-
-    if( input_int( stdin, &dist ) == OK )
-        display->three_d.surface_extraction.voxel_distances[Y] = dist;
-
-    (void) input_newline( stdin );
-
-    return( OK );
-}
-
-/* ARGSUSED */
-
-public  DEF_MENU_UPDATE(set_surface_extract_y_max_distance )
-{
-    set_menu_text_int( menu_window, menu_entry,
-                    display->three_d.surface_extraction.voxel_distances[Y] );
-
-    return( TRUE );
-}
-
-/* ARGSUSED */
-
-public  DEF_MENU_FUNCTION( set_surface_extract_z_max_distance )
-{
-    int             dist;
-
-    print( "Enter Z max distance: " );
-
-    if( input_int( stdin, &dist ) == OK )
-        display->three_d.surface_extraction.voxel_distances[Z] = dist;
-
-    (void) input_newline( stdin );
-
-    return( OK );
-}
-
-/* ARGSUSED */
-
-public  DEF_MENU_UPDATE(set_surface_extract_z_max_distance )
-{
-    set_menu_text_int( menu_window, menu_entry,
-                    display->three_d.surface_extraction.voxel_distances[Z] );
-
-    return( TRUE );
 }
 
 /* ARGSUSED */

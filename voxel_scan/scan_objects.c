@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/voxel_scan/scan_objects.c,v 1.3 1995-10-19 15:51:30 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/voxel_scan/scan_objects.c,v 1.4 1996-05-17 19:38:10 david Exp $";
 #endif
 
 #include  <display.h>
@@ -28,7 +28,7 @@ public  void  scan_object_to_current_volume(
 
     label = get_current_paint_label( slice_window );
 
-    initialize_object_traverse( &object_traverse, 1, &object );
+    initialize_object_traverse( &object_traverse, FALSE, 1, &object );
 
     while( get_next_object_traverse(&object_traverse,&current_object) )
     {

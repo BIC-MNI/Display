@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/polygon_ops.c,v 1.65 1996-04-17 17:50:11 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/polygon_ops.c,v 1.66 1996-05-17 19:38:06 david Exp $";
 #endif
 
  
@@ -31,7 +31,7 @@ public  BOOLEAN  get_current_polygons(
 
     if( get_current_object( display, &current_object ) )
     {
-        initialize_object_traverse( &object_traverse, 1, &current_object );
+        initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
 
         while( get_next_object_traverse(&object_traverse,&object) )
         {

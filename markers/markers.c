@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/markers/markers.c,v 1.7 1995-10-19 15:51:45 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/markers/markers.c,v 1.8 1996-05-17 19:38:12 david Exp $";
 #endif
 
 #include  <display.h>
@@ -31,7 +31,7 @@ public  BOOLEAN  update_current_marker(
     Real                    x_w, y_w, z_w;
     Real                    dist, closest_dist;
 
-    initialize_object_traverse( &object_traverse, 1,
+    initialize_object_traverse( &object_traverse, FALSE, 1,
                                 &display->models[THREED_MODEL] );
 
     volume = get_nth_volume( display, volume_index );

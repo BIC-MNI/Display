@@ -187,17 +187,11 @@ Extracted_surface_colour = WHITE;
 
 Default_surface_property = 0.3 0.3 0.4   10.0 1.0;
 
-Min_voxels_per_update = 10;
-Max_voxels_per_update = 100000;
-Max_seconds_per_voxel_update = 1.0;
 Max_surface_refinements = 0;
 Max_surface_error = 0.02;
 Edge_point_threshold = 1.0;
 Edge_point_new_density = 0.5;
 Cursor_mouse_threshold = 0.00
-Default_x_voxel_max_distance = 1000000;
-Default_y_voxel_max_distance = 1000000;
-Default_z_voxel_max_distance = 1000000;
 
 Max_fast_colour_lookup = 100000;
 Colour_table_size = 1000;

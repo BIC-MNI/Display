@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/marker_ops.c,v 1.41 1996-04-19 13:24:54 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/marker_ops.c,v 1.42 1996-05-17 19:38:05 david Exp $";
 #endif
 
 
@@ -31,7 +31,7 @@ private  BOOLEAN  get_current_marker(
 
     if( get_current_object( display, &current_object ) )
     {
-        initialize_object_traverse( &object_traverse, 1, &current_object );
+        initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
 
         while( get_next_object_traverse(&object_traverse,&object) )
         {
@@ -194,12 +194,11 @@ public  DEF_MENU_FUNCTION( save_markers )
     labels = NULL;
     if( status == OK )
     {
-        initialize_object_traverse( &object_traverse, 1, &object );
+        initialize_object_traverse( &object_traverse, TRUE, 1, &object );
 
         while( get_next_object_traverse(&object_traverse,&current_object) )
         {
-            if( current_object->object_type == MARKER &&
-                current_object->visibility )
+            if( current_object->object_type == MARKER )
             {
                 marker = get_marker_ptr(current_object);
                 SET_ARRAY_SIZE( tags, n_tags, n_tags+1, DEFAULT_CHUNK_SIZE);
@@ -505,7 +504,7 @@ public  DEF_MENU_FUNCTION( change_marker_structure_id )
     if( input_int( stdin, &id ) == OK &&
         get_current_object( display, &current_object ) )
     {
-        initialize_object_traverse( &object_traverse, 1, &current_object );
+        initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
 
         while( get_next_object_traverse(&object_traverse,&object) )
         {
@@ -545,7 +544,7 @@ public  DEF_MENU_FUNCTION( change_marker_patient_id )
     if( input_int( stdin, &id ) == OK &&
         get_current_object( display, &current_object ) )
     {
-        initialize_object_traverse( &object_traverse, 1, &current_object );
+        initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
 
         while( get_next_object_traverse(&object_traverse,&object) )
         {
@@ -738,12 +737,11 @@ public  DEF_MENU_FUNCTION( copy_defaults_to_markers )
         structure_id = marker->structure_id;
 
         object = display->models[THREED_MODEL];
-        initialize_object_traverse( &object_traverse, 1, &object );
+        initialize_object_traverse( &object_traverse, TRUE, 1, &object );
 
         while( get_next_object_traverse(&object_traverse, &current_object) )
         {
-            if( current_object->object_type == MARKER &&
-                current_object->visibility )
+            if( current_object->object_type == MARKER )
             {
                 marker = get_marker_ptr( current_object );
 

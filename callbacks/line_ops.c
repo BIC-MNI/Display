@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/line_ops.c,v 1.28 1996-04-19 13:24:53 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/line_ops.c,v 1.29 1996-05-17 19:38:05 david Exp $";
 #endif
 
 
@@ -233,7 +233,7 @@ private  void  convert_to_lines(
     n_markers = 0;
     markers = NULL;
 
-    initialize_object_traverse( &object_traverse, 1, &current_object );
+    initialize_object_traverse( &object_traverse, FALSE, 1, &current_object );
 
     while( get_next_object_traverse(&object_traverse,&object) )
     {

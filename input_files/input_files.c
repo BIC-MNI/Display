@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/input_files/input_files.c,v 1.27 1995-12-19 15:46:21 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/input_files/input_files.c,v 1.28 1996-05-17 19:38:11 david Exp $";
 #endif
 
 
@@ -123,18 +123,18 @@ public  Status  load_graphics_file(
     {
         print( "Objects input.\n" );
 
-        initialize_object_traverse( &object_traverse, 1, &object );
+        initialize_object_traverse( &object_traverse, FALSE, 1, &object );
 
         while( get_next_object_traverse(&object_traverse,&current_object) )
         {
             if( !Visibility_on_input )
-                current_object->visibility = OFF;
+                set_object_visibility( current_object, OFF );
         }
     }
 
     if( status == OK )
     {
-        initialize_object_traverse( &object_traverse, 1, &object );
+        initialize_object_traverse( &object_traverse, FALSE, 1, &object );
 
         while( get_next_object_traverse(&object_traverse,&current_object) )
         {

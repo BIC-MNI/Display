@@ -188,13 +188,14 @@ START_GLOBALS
 
     DEF_GLOBAL_COLOUR( Slice_cross_section_colour )
     DEF_GLOBAL_COLOUR( Slice_crop_box_colour )
+    DEF_GLOBAL( Slice_crop_pick_distance, Real, 10.0 )
 
     DEF_GLOBAL_COLOUR( Extracted_surface_colour )
     DEF_GLOBAL5( Default_surface_property, Surfprop, 0.3f, 0.3f, 0.4f, 10.0f, 1.0f )
 
     DEF_GLOBAL( Min_voxels_per_update, int, 10 )
     DEF_GLOBAL( Max_voxels_per_update, int, 100000 )
-    DEF_GLOBAL( Max_seconds_per_voxel_update, Real, 1.0 )
+    DEF_GLOBAL( Max_seconds_per_voxel_update, Real, 0.1 )
     DEF_GLOBAL( Max_surface_refinements, int, 0 )
     DEF_GLOBAL( Max_surface_error, Real, 0.02 )
     DEF_GLOBAL( Edge_point_threshold, Real, 0.25 )
@@ -249,9 +250,6 @@ START_GLOBALS
     DEF_GLOBAL( Tmp_surface_name, STRING, "" )
 
     DEF_GLOBAL( Marching_cubes_method, int, 1 )
-    DEF_GLOBAL( Default_x_voxel_max_distance, int, -1 )
-    DEF_GLOBAL( Default_y_voxel_max_distance, int, -1 )
-    DEF_GLOBAL( Default_z_voxel_max_distance, int, -1 )
 
     DEF_GLOBAL( Compute_neighbours_on_input, BOOLEAN, FALSE )
     DEF_GLOBAL( Polygon_bintree_threshold, int, -1 )

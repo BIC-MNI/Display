@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.50 1996-04-17 17:50:11 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.51 1996-05-17 19:38:07 david Exp $";
 #endif
 
 
@@ -101,6 +101,8 @@ public  DEF_MENU_FUNCTION( reset_segmenting )
                            get_current_volume_index(slice_window) );
         set_slice_window_all_update( slice_window,
                      get_current_volume_index(slice_window), UPDATE_LABELS );
+
+        pop_menu_one_level( display->associated[MENU_WINDOW] );
     }
 
     return( OK );

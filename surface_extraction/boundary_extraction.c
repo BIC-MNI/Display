@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.22 1996-05-08 18:46:36 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.23 1996-05-17 19:38:18 david Exp $";
 #endif
 
 #include  <display.h>
@@ -246,110 +246,88 @@ private  void  get_inside_flags(
     Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel[],
-    BOOLEAN                     first_time_flag,
     BOOLEAN                     inside_flags[3][3][3],
     BOOLEAN                     valid_flags[3][3][3] )
 {
-    int              sizes[N_DIMENSIONS], tx, ty, tz, dx, dy, dz, sum;
-    int              min_x, min_y, min_z, max_x, max_y, max_z;
-    BOOLEAN          on_boundary;
-    Real             value, label;
+    int              sizes[N_DIMENSIONS];
+    int              dx, dy, dz, tx, ty, tz;
+    Real             values[3][3][3], value, label;
+    Real             labels[3][3][3];
     Real             min_value, max_value, min_label, max_label;
 
     get_volume_sizes( volume, sizes );
 
-    min_x = 0;
-    min_y = 0;
-    min_z = 0;
-    max_x = 2;
-    max_y = 2;
-    max_z = 2;
-    on_boundary = FALSE;
-
-    if( voxel[X] == 0 )
-    {
-        min_x = 1;
-        on_boundary = TRUE;
-    }
-    if( voxel[Y] == 0 )
-    {
-        min_y = 1;
-        on_boundary = TRUE;
-    }
-    if( voxel[Z] == 0 )
-    {
-        min_z = 1;
-        on_boundary = TRUE;
-    }
-
-    if( voxel[X] == sizes[X]-1 )
-    {
-        max_x = 1;
-        on_boundary = TRUE;
-    }
-    if( voxel[Y] == sizes[Y]-1 )
-    {
-        max_y = 1;
-        on_boundary = TRUE;
-    }
-    if( voxel[Z] == sizes[Z]-1 )
-    {
-        max_z = 1;
-        on_boundary = TRUE;
-    }
-
-    if( on_boundary && first_time_flag )
-    {
-        for_inclusive( dx, 0, 2 )
-        for_inclusive( dy, 0, 2 )
-        for_inclusive( dz, 0, 2 )
-        {
-            inside_flags[dx][dy][dz] = FALSE;
-            valid_flags[dx][dy][dz] = TRUE;
-        }
-    }
-
-    min_value = surface_extraction->min_value;
-    max_value = surface_extraction->max_value;
-
-    if( label_volume != NULL &&
-        surface_extraction->min_invalid_label <=
+    if( label_volume != NULL && surface_extraction->min_invalid_label <=
         surface_extraction->max_invalid_label )
     {
         min_label = surface_extraction->min_invalid_label;
         max_label = surface_extraction->max_invalid_label;
     }
     else
-        label_volume = NULL;
-
-    for_inclusive( dx, min_x, max_x )
-    for_inclusive( dy, min_y, max_y )
-    for_inclusive( dz, min_z, max_z )
     {
-        sum = (dx == 1) + (dy == 1) + (dz == 1);
+        label_volume = NULL;
+    }
 
-        if( first_time_flag )
+    if( voxel[X] <= 0 || voxel[X] >= sizes[X]-1 ||
+        voxel[Y] <= 0 || voxel[Y] >= sizes[Y]-1 ||
+        voxel[Z] <= 0 || voxel[Z] >= sizes[Z]-1 ||
+        label_volume != NULL &&
+        !volume_is_alloced( label_volume ) && !volume_is_cached(label_volume) )
+    {
+        for_inclusive( dx, -1, 1 )
+        for_inclusive( dy, -1, 1 )
+        for_inclusive( dz, -1, 1 )
         {
-            if( sum < 2 )
-                continue;
+            tx = voxel[X] + dx;
+            ty = voxel[Y] + dy;
+            tz = voxel[Z] + dz;
+            if( tx < 0 || tx >= sizes[X] ||
+                ty < 0 || ty >= sizes[Y] ||
+                tz < 0 || tz >= sizes[Z] )
+            {
+                values[dx+1][dy+1][dz+1] = surface_extraction->min_value - 1.0;
+                labels[dx+1][dy+1][dz+1] = (Real) surface_extraction->
+                                        min_invalid_label - 1.0;
+            }
+            else
+            {
+                values[dx+1][dy+1][dz+1] = get_volume_real_value( volume,
+                                                tx, ty, tz, 0, 0 );
+                if( label_volume != NULL )
+                {
+                    values[dx+1][dy+1][dz+1] = (Real) get_3D_volume_label_data(
+                                  label_volume, tx, ty, tz );
+                }
+            }
         }
-        else
+    }
+    else
+    {
+        get_volume_value_hyperslab_3d( volume,
+                                       voxel[X]-1, voxel[Y]-1, voxel[Z]-1,
+                                       3, 3, 3, &values[0][0][0] );
+        if( label_volume != NULL )
         {
-            if( sum >= 2 )
-                continue;
+            get_volume_value_hyperslab_3d( label_volume,
+                                           voxel[X]-1, voxel[Y]-1, voxel[Z]-1,
+                                           3, 3, 3, &labels[0][0][0] );
         }
+    }
 
-        tx = voxel[X] + dx - 1;
-        ty = voxel[Y] + dy - 1;
-        tz = voxel[Z] + dz - 1;
+    min_value = surface_extraction->min_value;
+    max_value = surface_extraction->max_value;
 
-        value = get_volume_real_value( volume, tx, ty, tz, 0, 0 );
+    for_inclusive( dx, 0, 2 )
+    for_inclusive( dy, 0, 2 )
+    for_inclusive( dz, 0, 2 )
+    {
+        value = values[dx][dy][dz];
 
         inside_flags[dx][dy][dz] = (min_value <= value && value <= max_value);
 
         if( label_volume != NULL )
         {
-            label = (Real) get_3D_volume_label_data( label_volume, tx, ty, tz );
+            label = labels[dx][dy][dz];
             valid_flags[dx][dy][dz] = label < min_label || label > max_label;
         }
         else
@@ -373,8 +351,8 @@ public  BOOLEAN  extract_voxel_boundary_surface(
     get_volume_sizes( volume, sizes );
     polygons = surface_extraction->polygons;
 
-    get_inside_flags( volume, label_volume, surface_extraction,
-                      voxel, TRUE, inside_flags, valid_flags );
+    get_inside_flags( volume, label_volume, surface_extraction, voxel,
+                      inside_flags, valid_flags );
 
     modified = FALSE;
 
@@ -399,9 +377,6 @@ public  BOOLEAN  extract_voxel_boundary_surface(
                     REMOVE_FROM_QUEUE( surface_extraction->deleted_faces,
                                        poly_index );
                 }
-
-                get_inside_flags( volume, label_volume, surface_extraction,
-                                  voxel, FALSE, inside_flags, valid_flags );
 
                 add_face( surface_extraction, volume, voxel, dim,
                           offset, inside_flags, valid_flags,

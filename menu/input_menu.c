@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.129 1996-04-19 13:25:18 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.130 1996-05-17 19:38:13 david Exp $";
 #endif
 
 #include  <display.h>
@@ -99,9 +99,6 @@ MENU_F(get_voxelated_label_surface) \
 MENU_F(toggle_surface_extraction) \
 MENU_F(make_surface_permanent) \
 MENU_F(reset_surface) \
-MENU_F(set_surface_extract_x_max_distance) \
-MENU_F(set_surface_extract_y_max_distance) \
-MENU_F(set_surface_extract_z_max_distance) \
 MENU_F(reset_slice_crop) \
 MENU_F(toggle_slice_crop_visibility) \
 MENU_F(next_volume_visible) \

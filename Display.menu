@@ -366,7 +366,7 @@ segmenting
     transient 'g'    set_paint_z_brush_radius         "Out-plane Rad: %g"
     transient 'h'    copy_labels_from_higher_slice "Copy from Rt/Sup/Ant Slice"
 
-    transient 'z'    reset_segmenting                 "Clear All Labels"
+    transient 'z'    reset_segmenting_confirm         "Clear All Labels"
     transient 'x'    erode_labels                     "Erode 3D"
     transient 'c'    dilate_labels                    "Dilate 3D"
     transient 'v'    calculate_volume                 "Calculate Volume"
@@ -381,6 +381,12 @@ segmenting
     transient '6'    label_connected_3d               "Fill 3D"
 
     transient '7'    undo_slice_labels                "Undo"
+}
+
+reset_segmenting_confirm
+{
+    transient 'q'    pop_menu                          "Cancel"
+    transient 'b'    reset_segmenting                 "Yes, Clear Labels"
 }
 
 translate_labels

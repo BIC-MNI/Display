@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.104 1996-04-19 13:24:59 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.105 1996-05-17 19:38:08 david Exp $";
 #endif
 
 
@@ -173,7 +173,8 @@ public  DEF_MENU_FUNCTION(colour_code_objects )
     if( get_current_object(display,&current_object) &&
         get_slice_window_volume( display, &volume ) )
     {
-        initialize_object_traverse( &object_traverse, 1, &current_object );
+        initialize_object_traverse( &object_traverse, FALSE, 1,
+                                    &current_object );
 
         while( get_next_object_traverse(&object_traverse,&object) )
         {
@@ -1148,9 +1149,12 @@ public  DEF_MENU_UPDATE(toggle_slice_interpolation )
 {
     int              continuity;
     display_struct   *slice_window;
+    BOOLEAN          active;
     STRING           name;
 
-    if( get_slice_window( display, &slice_window ) )
+    active = get_slice_window( display, &slice_window );
+
+    if( active )
         continuity = slice_window->slice.degrees_continuity;
     else
         continuity = Initial_slice_continuity;
@@ -1163,9 +1167,9 @@ public  DEF_MENU_UPDATE(toggle_slice_interpolation )
     default:  name = "near neigh";   break;
     }
 
-    set_menu_text( menu_window, menu_entry, name );
+    set_menu_text_string( menu_window, menu_entry, name );
 
-    return( TRUE );
+    return( active );
 }
 
 /* ARGSUSED */

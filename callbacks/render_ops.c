@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/render_ops.c,v 1.30 1996-04-19 13:24:56 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/render_ops.c,v 1.31 1996-05-17 19:38:06 david Exp $";
 #endif
 
 
@@ -47,7 +47,7 @@ public  DEF_MENU_FUNCTION( toggle_render_mode )
     shaded_mode = !get_model_info(get_model_ptr(model_object))->
                    render.shaded_mode;
 
-    initialize_object_traverse( &object_traverse, 1, &model_object );
+    initialize_object_traverse( &object_traverse, FALSE, 1, &model_object );
 
     while( get_next_object_traverse(&object_traverse,&object) )
     {
@@ -100,7 +100,7 @@ public  DEF_MENU_FUNCTION( toggle_shading )
         new_shading_type = FLAT_SHADING;
     }
 
-    initialize_object_traverse( &object_traverse, 1, &model_object );
+    initialize_object_traverse( &object_traverse, FALSE, 1, &model_object );
 
     while( get_next_object_traverse(&object_traverse,&object) )
     {
@@ -145,7 +145,7 @@ public  DEF_MENU_FUNCTION( toggle_lights )
     new_light_switch = !get_model_info(get_model_ptr(model_object))->render.
                        master_light_switch;
 
-    initialize_object_traverse( &object_traverse, 1, &model_object );
+    initialize_object_traverse( &object_traverse, FALSE, 1, &model_object );
 
     while( get_next_object_traverse(&object_traverse,&object) )
     {
@@ -190,7 +190,7 @@ public  DEF_MENU_FUNCTION( toggle_two_sided )
     new_flag = !get_model_info(get_model_ptr(model_object))->render.
                two_sided_surface_flag;
 
-    initialize_object_traverse( &object_traverse, 1, &model_object );
+    initialize_object_traverse( &object_traverse, FALSE, 1, &model_object );
 
     while( get_next_object_traverse(&object_traverse,&object) )
     {
@@ -235,7 +235,7 @@ public  DEF_MENU_FUNCTION( toggle_backfacing )
     new_flag = !get_model_info(get_model_ptr(model_object))->render.
                backface_flag;
 
-    initialize_object_traverse( &object_traverse, 1, &model_object );
+    initialize_object_traverse( &object_traverse, FALSE, 1, &model_object );
 
     while( get_next_object_traverse(&object_traverse,&object) )
     {
@@ -280,7 +280,7 @@ public  DEF_MENU_FUNCTION( toggle_line_curve_flag )
     new_flag = !get_model_info(get_model_ptr(model_object))->render.
                render_lines_as_curves;
 
-    initialize_object_traverse( &object_traverse, 1, &model_object );
+    initialize_object_traverse( &object_traverse, FALSE, 1, &model_object );
 
     while( get_next_object_traverse(&object_traverse,&object) )
     {
@@ -325,7 +325,7 @@ public  DEF_MENU_FUNCTION( toggle_marker_label_flag )
     new_flag = !get_model_info(get_model_ptr(model_object))->render.
                show_marker_labels;
 
-    initialize_object_traverse( &object_traverse, 1, &model_object );
+    initialize_object_traverse( &object_traverse, FALSE, 1, &model_object );
 
     while( get_next_object_traverse(&object_traverse,&object) )
     {
@@ -372,8 +372,7 @@ public  DEF_MENU_FUNCTION( set_n_curve_segments )
 
     if( input_int( stdin, &n_segments ) == OK && n_segments > 0 )
     {
-        initialize_object_traverse( &object_traverse, 1,
-                                             &model_object );
+        initialize_object_traverse( &object_traverse, FALSE, 1, &model_object );
 
         while( get_next_object_traverse(&object_traverse,&object) )
         {
