@@ -1,0 +1,23 @@
+\newcommand{\introduce}[1]{{\bf #1}}
+
+\newcommand{\psfigure}[4]{\begin{figure}
+\centerline{\psfig{figure=#1,width=#2,angle=0}}
+\caption[]{#3 \label{#4}}
+\end{figure}}
+
+\newcommand{\psfigtwo}[6]{\begin{figure}
+\centerline{
+\psfig{figure=#1,width=#2,angle=0}
+\psfig{figure=#3,width=#4,angle=0}
+}
+\caption[]{#5 \label{#6}}
+\end{figure}}
+
+\newcommand{\psfigthree}[8]{\begin{figure}
+\centerline{
+\psfig{figure=#1,width=#2,angle=0}
+\psfig{figure=#3,width=#4,angle=0}
+\psfig{figure=#5,width=#6,angle=0}
+}
+\caption[]{#7 \label{#8}}
+\end{figure}}

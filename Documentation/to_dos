@@ -1,0 +1,34 @@
+hardcode menu inside executable
+
+# update menu
+
+open and close windows
+
+vis/invis hierarchy
+
+surface in slices
+point to point dist
+
+check shading model during lines
+
+lookup tables
+
+add byte swapping to .fre files
+
+overlays on the triplanes.
+
+stdin
+
+improve menu button text formatting
+
+add arrays of globals
+
+change more than one marker at once
+
+jump to next marker
+
+horizontal or vertical constraints on cursor
+
+edge_enhanced
+2-d vs 3-d cursor/mouse
+follow an edge

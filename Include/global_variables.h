@@ -328,6 +328,7 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Histogram_colour )
     DEF_GLOBAL( Histogram_x_scale, Real, 1.0 )
     DEF_GLOBAL( Histogram_smoothness_ratio, Real, 0.02 )
+    DEF_GLOBAL( Histogram_extra_width, Real, 0.0 )
 
     DEF_GLOBAL_COLOUR( Menu_name_colour )
     DEF_GLOBAL( Menu_name_x, Real, 5.0 )

@@ -1,0 +1,33 @@
+The following is all optional, Display will run without it.
+
+---------------------------------------------------------------------------
+
+Display can read the menu definition file at runtime, and searches for it
+in the following places, taking the first one it finds:
+
+                              Display.menu
+
+   1) current directory
+   2) runtime directory: environment variable DISPLAY_DIRECTORY, or, if not
+                         set, directory implied by command executed
+                            (i.e. ../bin/Display will look in ../bin)
+   3) user's home directory
+   4) /usr/local/mni/lib
+   5) /usr/local/lib       - this is where you should put it.
+
+An optional file, which sets the values of certain variables, is also searched
+for.  You do not need to install this anywhere, unless you want to override
+the program defaults:
+
+                              Display.globals
+
+    All of the following occurrences of Display.globals are read, if they exist,
+with the later assignments of variables overwriting earlier ones:
+
+   1) /usr/local/lib      - this is where defaults for all users go
+   2) /usr/local/mni/lib
+   3) runtime directory: environment variable DISPLAY_DIRECTORY, or, if not
+                         set, directory implied by command executed
+                            (i.e. ../bin/Display will look in ../bin)
+   4) user's home directory
+   5) current directory

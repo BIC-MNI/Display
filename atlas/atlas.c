@@ -14,7 +14,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.25 1997-09-12 18:14:20 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.26 2001-05-26 23:03:50 stever Exp $";
 #endif
 
 #include  <display.h>
@@ -75,7 +75,8 @@ private  Volume  convert_pixels_to_volume(
                                                       };
     Volume   volume;
     Real     separations[2];
-    Real     world_000[N_DIMENSIONS];
+    Real     bottom_left[2];
+    Real     world_corner[N_DIMENSIONS];
 
     for_less( dim, 0, 2 )
         dim_names[dim] = XYZ_dimension_names[dim_orders[axis_index][dim]];
@@ -107,14 +108,15 @@ private  Volume  convert_pixels_to_volume(
     separations[1] = ATLAS_STEPS[y_index] * (Real) ATLAS_SIZE[y_index] /
                      (Real) pixels->y_size;
 
-    world_000[x_index] = ATLAS_STARTS[x_index] - ATLAS_STEPS[x_index] / 2.0 +
-                            separations[x_index] / 2.0;
-    world_000[y_index] = ATLAS_STARTS[y_index] - ATLAS_STEPS[y_index] / 2.0 +
-                            separations[y_index] / 2.0;
-    world_000[axis_index] = slice_position;
+    bottom_left[0] = -0.5;
+    bottom_left[1] = -0.5;
+
+    world_corner[x_index] = ATLAS_STARTS[x_index] - ATLAS_STEPS[x_index] / 2.0;
+    world_corner[y_index] = ATLAS_STARTS[y_index] - ATLAS_STEPS[y_index] / 2.0;
+    world_corner[axis_index] = slice_position;
 
     set_volume_separations( volume, separations );
-    set_volume_starts( volume, world_000 );
+    set_volume_translation( volume, bottom_left, world_corner );
 
     return( volume );
 }
@@ -378,7 +380,8 @@ private  BOOLEAN  find_appropriate_atlas_image(
                         tmp_origin[dim] = 0.0;
                 }
 
-                if( *image == NULL || scale_dist < best_scale )
+                if( *image == NULL || dist < min_dist ||
+                    scale_dist < best_scale )
                 {
                     *image = atlas->images[im].image;
                     min_dist = dist;

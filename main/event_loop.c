@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/event_loop.c,v 1.27 1998-06-29 15:01:33 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/event_loop.c,v 1.28 2001-05-26 23:04:00 stever Exp $";
 #endif
 
 
@@ -58,6 +58,7 @@ private  void  handle_event(
 
 private  void  update_callback(
     Gwindow   window,
+    BOOLEAN   full_redraw_required,
     void      *data )
 {
     handle_event( WINDOW_REDRAW_EVENT, window, 0 );

@@ -1,0 +1,36 @@
+Jul. 31, 1995  :  Displays cursor origin in menu window
+
+Aug.  1, 1995  :  Crops label volumes on output, handles input of label
+                  volumes of different size/orientation.
+
+Oct.  2, 1995  :  Added incremental update of volumes.
+                  Added transforming volumes.
+                  Added 3d slice profile.
+                  Added linear interpolation of slices.
+
+Oct. 19, 1995  :  Added volume transform manipulation.
+
+Nov.  2, 1995  :  Made colour coding range allow inversion of limits.
+Feb. 15, 1996  :  Fixed the slow down due to incremental updating of slices.
+Mar.  6, 1995  :  Now picking points in 3D window ignores invisible models.
+Mar. 14, 1996  :  Made saving labels check for clobbering files.
+Apr.  2, 1996  :  Modified painting to have fast vs. complete 3 slice update.
+                  and to have the cursor follow the paint brush.
+Apr.  3, 1996  :  Can now select current paint label by pointing to a
+                  labeled region of MRI.
+Apr.  9, 1996  :  Added option for turning off the cursor.
+Apr. 16, 1996  :  Made 'cc -fullwarn -lint' proof
+Jun.  5, 1996  :  set colour range can now take 1 or 2 numbers
+Jul.  3, 1996  :  Fixed Talairach atlas overlay to not depend on the sampling
+                  of the underlying volume.
+Jul.  4, 1996  :  Added many colours to the preassigned label colours.
+Jul.  4, 1996  :  Added menu entry to set paint erase label.
+Aug.  5, 1996  :  Changed surface extraction to allow label masking.
+Nov. 25, 1996  :  Added User defined colour coding and reading it from file.
+Sep. 12, 1997  :  Fixed the atlas registration, which was broken for a month.
+Jun. 18, 1998  :  Fixed the inability to paint on 2 volumes with non-canonical
+                  axes.
+Jun. 28, 1998  :  Fixed the Talairach overlay to choose the correct slice.
+Jul. 10, 1998  :  Added menu entries for previous-volume-visible.
+Jul. 10, 1998  :  Added the ability to copy a loaded volume into another volumes
+                  labels

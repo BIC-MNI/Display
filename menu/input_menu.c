@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.139 1998-02-20 15:00:07 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.140 2001-05-26 23:04:02 stever Exp $";
 #endif
 
 #include  <display.h>
@@ -112,6 +112,8 @@ MENU_F(reset_surface) \
 MENU_F(reset_slice_crop) \
 MENU_F(toggle_slice_crop_visibility) \
 MENU_F(next_volume_visible) \
+MENU_F(prev_volume_visible) \
+MENU_F(prev_current_volume) \
 MENU_F(pick_crop_box_edge) \
 MENU_F(set_crop_box_filename) \
 MENU_F(load_cropped_volume) \
@@ -301,6 +303,7 @@ MENU_F(shrink_volume) \
 MENU_F(set_volume_rotation_step) \
 MENU_F(set_volume_translation_step) \
 MENU_F(set_volume_scale_step) \
+MENU_F(insert_volume_as_labels) \
 MENU_F(save_current_volume_transform)
 
 #define  FUNCTION_LIST  MENU1 MENU2 MENU3 MENU4

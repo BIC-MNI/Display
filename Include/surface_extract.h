@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char surface_extract_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/surface_extract.h,v 1.26 1996-05-24 18:43:04 david Exp $";
+static char surface_extract_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/surface_extract.h,v 1.27 2001-05-26 23:01:38 stever Exp $";
 #endif
 
 #include  <bicpl.h>

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.108 1998-02-20 15:00:02 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.109 2001-05-26 23:03:53 stever Exp $";
 #endif
 
 
@@ -201,8 +201,9 @@ private  void  create_scaled_slice(
 {
     display_struct   *slice_window;
     int              x_index, y_index, axis_index, view_index;
-    Real             current_voxel[N_DIMENSIONS];
-    Real             scale_factor, value, min_value;
+    Real             current_voxel[N_DIMENSIONS], perp_axis[N_DIMENSIONS];
+    Real             scale_factor, value, min_value, xw, yw, zw;
+    Vector           normal;
     object_struct    *object;
     quadmesh_struct  *quadmesh;
     Point            point;
@@ -259,6 +260,25 @@ private  void  create_scaled_slice(
 
         if( !scale_slice_flag )
             colour_code_an_object( display, object );
+
+        add_object_to_current_model( display, object );
+    }
+    else if( get_slice_window( display, &slice_window ) &&
+             get_n_volumes(slice_window) > 0 &&
+             get_slice_view_index_under_mouse( slice_window, &view_index ) )
+
+    {
+        object = create_object( POLYGONS );
+
+        get_slice_perp_axis( slice_window, get_current_volume_index(slice_window),
+                             view_index, perp_axis );
+        convert_voxel_vector_to_world( get_volume(slice_window),
+                                       perp_axis, &xw, &yw, &zw );
+        fill_Vector( normal, xw, yw, zw );
+        NORMALIZE_VECTOR( normal, normal );
+
+        create_slice_3d( get_volume(display), &display->three_d.cursor.origin, &normal,
+                         get_polygons_ptr(object) );
 
         add_object_to_current_model( display, object );
     }
@@ -996,6 +1016,32 @@ public  DEF_MENU_UPDATE(toggle_current_volume)
 
 /* ARGSUSED */
 
+public  DEF_MENU_FUNCTION(prev_current_volume)
+{
+    int              current;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 1 )
+    {
+        current = get_current_volume_index( slice_window );
+        current = (current - 1 + slice_window->slice.n_volumes) %
+                   slice_window->slice.n_volumes;
+        set_current_volume_index( slice_window, current );
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(prev_current_volume)
+{
+    return( get_n_volumes(display) > 1 );
+}
+
+/* ARGSUSED */
+
 public  DEF_MENU_FUNCTION(set_current_volume_opacity)
 {
     int              current;
@@ -1075,9 +1121,9 @@ private  int  get_current_visible_volume(
     return( current_visible );
 }
 
-/* ARGSUSED */
-
-public  DEF_MENU_FUNCTION(next_volume_visible)
+private  void  change_visible_volume(
+    display_struct   *display,
+    int              increment )
 {
     int              current, view, volume_index;
     display_struct   *slice_window;
@@ -1087,7 +1133,8 @@ public  DEF_MENU_FUNCTION(next_volume_visible)
         get_n_volumes(slice_window) > 0 )
     {
         current = get_current_visible_volume( slice_window );
-        current = (current + 1) % get_n_volumes(slice_window);
+        current = (current + increment + get_n_volumes(slice_window)) %
+                  get_n_volumes(slice_window);
 
         for_less( view, 0, N_SLICE_VIEWS )
         {
@@ -1105,6 +1152,13 @@ public  DEF_MENU_FUNCTION(next_volume_visible)
 
         set_current_volume_index( slice_window, current );
     }
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(next_volume_visible)
+{
+    change_visible_volume( display, 1 );
 
     return( OK );
 }
@@ -1112,6 +1166,25 @@ public  DEF_MENU_FUNCTION(next_volume_visible)
 /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(next_volume_visible)
+{
+    set_menu_text_int( menu_window, menu_entry,
+                       get_current_visible_volume(display) + 1 );
+
+    return( get_n_volumes(display) > 0 );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(prev_volume_visible)
+{
+    change_visible_volume( display, -1 );
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(prev_volume_visible)
 {
     set_menu_text_int( menu_window, menu_entry,
                        get_current_visible_volume(display) + 1 );
@@ -1337,4 +1410,50 @@ public  DEF_MENU_UPDATE(toggle_cursor_visibility )
 
     set_menu_text_on_off( menu_window, menu_entry, visible );
     return( state );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(insert_volume_as_labels)
+{
+    int              src_index, rnd;
+    char             filename[EXTREMELY_LARGE_STRING_SIZE];
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        print( "Enter the index of the volume which represents the labels: " );
+        if( input_int( stdin, &src_index ) != OK || src_index < 1 ||
+            src_index > get_n_volumes(display) )
+        {
+            (void) input_newline( stdin );
+            print_error( "Index out of range, operation cancelled.\n" );
+            return( ERROR );
+        }
+
+        (void) input_newline( stdin );
+
+        --src_index;
+
+        rnd = get_random_int( 1000000000 );
+        (void) sprintf( filename, "/tmp/tmp_labels_%d.mnc", rnd );
+
+        if( output_volume( filename, NC_UNSPECIFIED, FALSE, 0.0, 0.0,
+                           get_nth_volume(slice_window,src_index),
+                           "Label volume\n", NULL ) != OK )
+            return( ERROR );
+
+        input_label_volume_file( display, filename );
+
+        remove_file( filename );
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(insert_volume_as_labels )
+{
+    return( get_n_volumes(display) >= 2 );
 }

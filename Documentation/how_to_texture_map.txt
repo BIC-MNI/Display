@@ -1,0 +1,63 @@
+-------------------------------------------------------------------------------
+ Procedure for Creating Cortical Surfaces of MRI with Activation Texture-Mapped
+-------------------------------------------------------------------------------
+
+                 David MacDonald
+                 March 6, 1996
+
+    This procedure will create a triangulated surface of the cortex of the
+    human brain, with colourings indicating activation.  The input to this
+    procedure consists of two minc files, which, for the purposes of this
+    document will be referred to as:
+
+        mri.mnc              - file containing T1 MRI volume in Talairach space
+        activation.mnc       - file containing PET or fMRI activation in
+                               Talairach space
+
+-------------------------------------------------
+1.  Choose a threshold for the surface definition.
+-------------------------------------------------
+
+    In order to create a cortical surface, an intensity threshold best
+    representing the boundary of the cortex must be chosen.  At present,
+    visual inspection is the best method, although automatic methods
+    are in development.  To choose visually, run:
+
+         Display mri.mnc
+
+    Then, from the colour_coding menu, choose range, type in two identical
+    numbers to set the image to a binary thresholded image.  Then using
+    the middle mouse button, slide the threshold on the colour bar up and
+    down, until the slices through the cortex start to show sulcal features
+    without being too eroded.  Record this optimal threshold value for use
+    in step 2.
+
+------------------------------------------
+2.  Create the cortical surface of the MRI.
+------------------------------------------
+
+    Run
+
+     batch -Qlong ~david/public_bin/cortical_surface.pl mri.mnc surface.obj  115000
+
+    which will, after about 5 hours, create a cortical surface, placing it in
+    the file 'surface.obj'.  The number, 115000, is whatever was the number
+    found in step 1.  When this process is complete, you will receive email
+    that your batch process is finished, and you can go on to step 3.
+
+----------------------------------------------------
+3.  Apply activation colours to the cortical surface.
+----------------------------------------------------
+
+    Run
+        Display activation.mnc surface.obj
+
+    Go to the colour_coding menu, and set the range and method as per your
+    preferences, then hit "colour_code_object".  The cortical surface will
+    now have the corresponding activation colours.  If you change the colour
+    coding limits or method, you will have to hit "colour_code_object" if
+    you want the cortical surface colouring to update.
+
+------------------------------------------------------------------------------
+
+If there are any problems, send email to me, david@bic.mni.mcgill.ca

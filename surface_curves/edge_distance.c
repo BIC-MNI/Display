@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_curves/edge_distance.c,v 1.27 1996-04-02 18:15:38 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_curves/edge_distance.c,v 1.28 2001-05-26 23:04:08 stever Exp $";
 #endif
 
 #include  <internal_volume_io.h>

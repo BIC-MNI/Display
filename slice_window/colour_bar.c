@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_bar.c,v 1.25 1996-04-19 13:25:23 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_bar.c,v 1.26 2001-05-26 23:04:05 stever Exp $";
 #endif
 
 #include  <display.h>
@@ -279,7 +279,17 @@ public  void  rebuild_colour_bar(
 
             add_point_to_line( lines, &point );
 
-            fill_Point( point, x_tick_end, y, 0.0 );
+            if( Histogram_extra_width > 0.0 &&
+                slice_window->slice.unscaled_histogram_lines.n_points > 0 &&
+                (numbers[i].value == start_threshold ||
+                 numbers[i].value == end_threshold) )
+            {
+                fill_Point( point, x_tick_end + Histogram_extra_width, y, 0.0 );
+            }
+            else
+            {
+                fill_Point( point, x_tick_end, y, 0.0 );
+            }
             add_point_to_line( lines, &point );
 
             object = create_object( TEXT );
