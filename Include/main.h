@@ -16,14 +16,13 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_main_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/main.h,v 1.15 1995-08-14 18:08:49 david Exp $";
+static char display_main_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/main.h,v 1.16 1996-02-28 16:04:12 david Exp $";
 #endif
 
 #include  <display_types.h>
 #include  <menu.h>
 #include  <slice.h>
 #include  <surface_extract.h>
-#include  <marker_segment.h>
 
 /* for graphics windows */
 
@@ -76,7 +75,6 @@ typedef  struct
     Real                       default_marker_size;
     Colour                     default_marker_colour;
     STRING                     default_marker_label;
-    marker_segment_struct      marker_segmentation;
     deformation_struct         deform;
     object_struct              *volume_outline;
     object_struct              *cross_section;

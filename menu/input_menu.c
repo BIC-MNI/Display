@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.126 1996-02-21 15:41:37 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.127 1996-02-28 16:04:17 david Exp $";
 #endif
 
 #include  <display.h>
@@ -183,13 +183,11 @@ MENU_F(save_polygons_bintree) \
 MENU_F(create_marker_at_cursor) \
 MENU_F(set_cursor_to_marker) \
 MENU_F(save_markers) \
-MENU_F(pick_marker_defaults) \
 MENU_F(move_cursor_to_home) \
 MENU_F(type_in_voxel_origin) \
 MENU_F(type_in_slice_plane) \
 MENU_F(print_voxel_origin) \
 MENU_F(print_slice_plane) \
-MENU_F(set_marker_segmentation_threshold) \
 MENU_F(set_default_marker_structure_id) \
 MENU_F(set_default_marker_patient_id) \
 MENU_F(set_default_marker_type) \
@@ -198,7 +196,6 @@ MENU_F(set_default_marker_label) \
 MENU_F(set_default_marker_size) \
 MENU_F(copy_defaults_to_marker) \
 MENU_F(copy_defaults_to_markers) \
-MENU_F(classify_markers) \
 MENU_F(change_marker_structure_id) \
 MENU_F(change_marker_patient_id) \
 MENU_F(change_marker_label) \

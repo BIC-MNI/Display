@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.106 1996-02-21 15:41:39 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.107 1996-02-28 16:04:18 david Exp $";
 #endif
 
 
@@ -694,6 +694,7 @@ private  void  render_more_slices(
 {
     BOOLEAN  first_render, did_one, finished;
     BOOLEAN  interrupted, view_was_interrupted[N_SLICE_VIEWS];
+    BOOLEAN  viewport_pixels_modified[N_SLICE_VIEWS];
     BOOLEAN  no_viewport_changed, incremental_flag;
     BOOLEAN  *update_flag_ptr, *update_in_progress;
     int      view, v, v_index, view_index, which_volume;
@@ -706,6 +707,7 @@ private  void  render_more_slices(
     for_less( view, 0, N_SLICE_VIEWS )
     {
         view_was_interrupted[view] = FALSE;
+        viewport_pixels_modified[view] = FALSE;
 
         if( viewport_has_changed[view] )
             no_viewport_changed = FALSE;
@@ -804,6 +806,7 @@ private  void  render_more_slices(
 
                             if( n_pixels_drawn > 0 )
                             {
+                                viewport_pixels_modified[view] = TRUE;
                                 did_one = TRUE;
                                 current_time = current_realtime_seconds();
 
@@ -890,6 +893,9 @@ private  void  render_more_slices(
                 interrupted = TRUE;
             }
         }
+
+        if( viewport_pixels_modified[view] )
+            composite_volume_and_labels( slice_window, view );
 
         set_slice_unfinished_flag_visibility( slice_window, view, interrupted );
     }

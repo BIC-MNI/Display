@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/three_d.c,v 1.31 1995-10-19 15:51:43 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/three_d.c,v 1.32 1996-02-28 16:04:17 david Exp $";
 #endif
 
 
@@ -83,7 +83,6 @@ public  void  initialize_three_d_window(
     update_view( display );
 
     initialize_surface_edit( &display->three_d.surface_edit );
-    initialize_marker_segmentation( &display->three_d.marker_segmentation );
 
     initialize_surface_extraction( display );
 
@@ -128,7 +127,6 @@ public  void  delete_three_d(
     display_struct  *display )
 {
     delete_string( display->three_d.default_marker_label );
-    delete_marker_segmentation( &display->three_d.marker_segmentation );
     terminate_current_object( &display->three_d.current_object );
     delete_surface_edit( &display->three_d.surface_edit );
     delete_surface_extraction( display );

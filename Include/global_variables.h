@@ -304,10 +304,6 @@ START_GLOBALS
     DEF_GLOBAL( Atlas_filename, STRING, "/avgbrain/atlas/talairach/obj/Talairach_atlas.list" )
     DEF_GLOBAL( Default_atlas_state, BOOLEAN, FALSE )
 
-    DEF_GLOBAL( Marker_threshold, Real, 1.5 )
-    DEF_GLOBAL( Marker_segment_id, int, 1000 )
-    DEF_GLOBAL( Use_marker_distances, BOOLEAN, TRUE )
-
     DEF_GLOBAL( Default_x_brush_radius, Real, 3.0 )
     DEF_GLOBAL( Default_y_brush_radius, Real, 3.0 )
     DEF_GLOBAL( Default_z_brush_radius, Real, 0.0 )

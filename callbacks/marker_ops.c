@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/marker_ops.c,v 1.39 1995-12-19 15:46:14 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/marker_ops.c,v 1.40 1996-02-28 16:04:14 david Exp $";
 #endif
 
 
@@ -731,8 +731,6 @@ public  DEF_MENU_FUNCTION( copy_defaults_to_markers )
     {
         patient_id = marker->patient_id;
         structure_id = marker->structure_id;
-        if( structure_id >= Marker_segment_id )
-            structure_id -= Marker_segment_id;
 
         object = display->models[THREED_MODEL];
         initialize_object_traverse( &object_traverse, 1, &object );
@@ -745,8 +743,7 @@ public  DEF_MENU_FUNCTION( copy_defaults_to_markers )
                 marker = get_marker_ptr( current_object );
 
                 if( marker->patient_id == patient_id &&
-                    (marker->structure_id == structure_id ||
-                     marker->structure_id == structure_id + Marker_segment_id) )
+                    marker->structure_id == structure_id )
                 {
                     set_marker_to_defaults( display, marker );
                 }
@@ -764,78 +761,6 @@ public  DEF_MENU_FUNCTION( copy_defaults_to_markers )
 public  DEF_MENU_UPDATE(copy_defaults_to_markers )
 {
     return( current_object_is_this_type( display, MARKER ) );
-}
-
-/* ARGSUSED */
-
-public  DEF_MENU_FUNCTION( classify_markers )
-{
-    model_struct    *model;
-
-    model = get_current_model( display );
-
-    segment_markers( display, model );
-
-    graphics_models_have_changed( display );
-
-    return( OK );
-}
-
-/* ARGSUSED */
-
-public  DEF_MENU_UPDATE(classify_markers )
-{
-    return( TRUE );
-}
-
-/* ARGSUSED */
-
-public  DEF_MENU_FUNCTION( set_marker_segmentation_threshold )
-{
-    Real        threshold;
-
-    print( "The current marker threshold is: %g\n",
-           get_marker_threshold(&display->three_d.marker_segmentation) );
-
-    print( "Enter the new value: " );
-
-    if( input_real( stdin, &threshold ) == OK )
-    {
-        set_marker_threshold(&display->three_d.marker_segmentation, threshold);
-        
-        print( "The new default marker size is: %g\n",
-               get_marker_threshold(&display->three_d.marker_segmentation) );
-    }
-
-    (void) input_newline( stdin );
-
-    return( OK );
-}
-
-/* ARGSUSED */
-
-public  DEF_MENU_UPDATE(set_marker_segmentation_threshold )
-{
-    set_menu_text_real( menu_window, menu_entry,
-                get_marker_threshold(&display->three_d.marker_segmentation) );
-
-    return( TRUE );
-}
-
-/* ARGSUSED */
-
-public  DEF_MENU_FUNCTION( pick_marker_defaults )
-{
-    start_picking_markers( display );
-
-    return( OK );
-}
-
-/* ARGSUSED */
-
-public  DEF_MENU_UPDATE(pick_marker_defaults )
-{
-    return( TRUE );
 }
 
 /* ARGSUSED */

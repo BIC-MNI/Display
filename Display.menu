@@ -299,9 +299,6 @@ polygons
 
 markers
 {
-    transient '1'    classify_markers                   "Classify Markers"
-    transient '2'    set_marker_segmentation_threshold  "Segment Thresh: %g"
-    transient '3'    pick_marker_defaults               "Pick Modify Markers"
     transient '4'    copy_defaults_to_markers           "Defaults -> Many"
     transient '5'    copy_defaults_to_marker            "Defaults -> Current"
 
