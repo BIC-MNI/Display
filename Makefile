@@ -72,6 +72,7 @@ display_obj = \
            slice_window/slice.o \
            slice_window/slice_events.o \
            alloc.o \
+           arguments.o \
            build_bintree.o \
            bintree.o \
            search_bintree.o \
@@ -175,6 +176,8 @@ lint_bintree: $(bintree_ln)
 # -------
 
 timing_obj = timing.c \
+             alloc.c \
+             files.c \
              time.c
 
 timing_ln = $(timing_obj)

@@ -1,22 +1,24 @@
-#include  <stdio.h>
+#include  <def_stdio.h>
 #include  <def_graphics.h>
 #include  <def_globals.h>
+#include  <def_arguments.h>
 
 int  main( argc, argv )
     int     argc;
     char    *argv[];
 {
+    arguments_struct arguments;
+    char             *filename;
     graphics_struct  *graphics;
     graphics_struct  *menu;
     Status           status;
-    Status           G_initialize();
+    Status           initialize_graphics();
     Status           initialize_globals();
     Status           initialize_menu();
     Status           load_graphics_file();
     Status           create_graphics_window();
-    Status           delete_graphics_window();
     Status           main_event_loop();
-    Status           G_terminate();
+    Status           terminate_graphics();
     void             reset_view_parameters();
     void             update_view();
     void             set_model_scale();
@@ -27,7 +29,7 @@ int  main( argc, argv )
 
     if( status == OK )
     {
-        status = G_initialize();
+        status = initialize_graphics();
     }
 
     if( status == OK )
@@ -56,9 +58,17 @@ int  main( argc, argv )
         status = initialize_menu( menu );
     }
 
-    if( status == OK && argc > 1 )
+    if( status == OK )
     {
-        status = load_graphics_file( graphics, argv[1] );
+        status = initialize_argument_processing( argc, argv, &arguments );
+    }
+
+    if( status == OK )
+    {
+        while( get_string_argument( &arguments, "", &filename ) )
+        {
+            status = load_graphics_file( graphics, filename );
+        }
     }
 
     if( status == OK )
@@ -79,28 +89,14 @@ int  main( argc, argv )
         status = main_event_loop();
     }
 
-    if( status == OK &&
-        graphics->associated[SLICE_WINDOW] != (graphics_struct *) 0 )
-    {
-        status = delete_graphics_window( graphics->associated[SLICE_WINDOW] );
-    }
-
-    if( status == OK )
-    {
-        status = delete_graphics_window( graphics );
-    }
-
-    if( status == OK )
-    {
-        status = delete_graphics_window( menu );
-    }
-
-    if( status == OK )
-    {
-        status = G_terminate();
-    }
+    (void) terminate_graphics();
 
     output_alloc_to_file( ".alloc_stats" );
+
+    if( status != OK )
+    {
+        PRINT( "Program ended with error %d\n", (int) status );
+    }
 
     return( (int) status );
 }
