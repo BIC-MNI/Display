@@ -162,6 +162,24 @@ public  DEF_MENU_UPDATE(toggle_slice_visibility )   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION(toggle_cross_section_visibility)   /* ARGSUSED */
+{
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        set_volume_cross_section_visibility( display,
+                                !get_volume_cross_section_visibility(display) );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(toggle_cross_section_visibility )   /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION(reset_current_slice_view)   /* ARGSUSED */
 {
     int              view_index;
