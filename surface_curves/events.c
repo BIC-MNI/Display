@@ -58,34 +58,71 @@ public  void  end_surface_curve(
     }
 }
 
+private  void  add_point_to_curve(
+    display_struct   *display,
+    polygons_struct  *polygons,
+    int              poly_index,
+    Point            *point )
+{
+    Real                  dist;
+    surface_curve_struct  *info;
+
+    info = &display->three_d.surface_curve;
+
+    if( info->prev_point_exists )
+    {
+        if( distance_along_polygons( polygons,
+                                     &info->prev_point,
+                                     info->prev_poly_index,
+                                     point, poly_index,
+                                     &dist, info->lines ) )
+        {
+            print( "Distance %g\n", dist );
+            set_update_required( display, OVERLAY_PLANES );
+        }
+    }
+
+    if( !display->three_d.surface_curve.prev_point_exists )
+        display->three_d.surface_curve.first_poly_index = poly_index;
+        
+    display->three_d.surface_curve.prev_point_exists = TRUE;
+    display->three_d.surface_curve.prev_polygons = polygons;
+    display->three_d.surface_curve.prev_poly_index = poly_index;
+    display->three_d.surface_curve.prev_point = *point;
+}
+
+public  void  close_surface_curve(
+    display_struct     *display )
+{
+    Point                 point;
+    surface_curve_struct  *info;
+
+    info = &display->three_d.surface_curve;
+
+    if( info->prev_point_exists )
+    {
+        point = info->lines->points[0];
+        add_point_to_curve( display, info->prev_polygons, 
+                            info->first_poly_index, &point );
+    }
+}
+
 private  DEF_EVENT_FUNCTION( pick_point )    /* ARGSUSED */
 {
     polygons_struct       *polygons;
     int                   poly_index;
-    Point                 point;
-    Real                  dist;
-    surface_curve_struct  *info;
+    Point                 point, closest_vertex;
 
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
-        info = &display->three_d.surface_curve;
-
-        if( info->prev_point_exists )
+        if( Snap_to_polygon_vertex )
         {
-            if( distance_along_polygons( polygons, &info->prev_point,
-                                         info->prev_poly_index,
-                                         &point, poly_index,
-                                         &dist, info->lines ) )
-            {
-                print( "Distance %g\n", dist );
-                set_update_required( display, OVERLAY_PLANES );
-            }
+            find_polygon_vertex_nearest_point( polygons, poly_index, &point,
+                                               &closest_vertex );
+            point = closest_vertex;
         }
 
-        display->three_d.surface_curve.prev_point_exists = TRUE;
-        display->three_d.surface_curve.prev_polygons = polygons;
-        display->three_d.surface_curve.prev_poly_index = poly_index;
-        display->three_d.surface_curve.prev_point = point;
+        add_point_to_curve( display, polygons, poly_index, &point );
     }
 
     return( OK );
