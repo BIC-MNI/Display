@@ -41,14 +41,36 @@ public  void  adjust_view_for_aspect( view, new_aspect )
     view_struct   *view;
     Real          new_aspect;
 {
-    if( view->window_width * new_aspect < view->window_height )
+    Real  width, height;
+
+    if( view->desired_aspect <= 0.0 )
     {
-        view->window_width = view->window_height / new_aspect;
+        view->desired_aspect = new_aspect;
+    }
+
+    width = view->window_width;
+    height = view->window_height;
+
+    if( width * view->desired_aspect < height )
+    {
+        height = width * view->desired_aspect;
     }
     else
     {
-        view->window_height = view->window_width * new_aspect;
+        width = height / view->desired_aspect;
     }
+
+    if( width * new_aspect < height )
+    {
+        width = height / new_aspect;
+    }
+    else
+    {
+        height = width * new_aspect;
+    }
+
+    view->window_width = width;
+    view->window_height = height;
 }
 
 public  void  convert_point_from_coordinate_system( origin, x_axis, y_axis,

@@ -5,6 +5,7 @@
 #define  Boolean   GL_Boolean
 
 #include <gl/gl.h>
+#include <def_view_types.h>
 
 #undef   String
 #undef   Boolean
@@ -99,8 +100,9 @@ typedef  struct
     int           x_origin, y_origin;          
     int           x_size, y_size;          
     Lcolour       background_colour;
-    Transform     eye_to_world_matrix;
-    Transform     viewing_matrix;
+    view_types    current_view_type;
+    Transform     projection_matrices[(int) N_VIEW_TYPES];
+    Transform     viewing_matrices[(int) N_VIEW_TYPES];
 } window_struct;
 
 #define  N_LIGHTS  8

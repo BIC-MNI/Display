@@ -67,6 +67,8 @@ typedef  struct
     event_struct  *events;
 } event_queue_struct;
 
+typedef  Status  eft();
+
 typedef  Status  (*event_function_type)();
 
 #define  MAX_ACTION_STACK  5
@@ -99,10 +101,11 @@ typedef  struct
     object_struct        *objects;
     Point                centre_of_objects;
 
+    int                  frame_number;
     int                  update_required;
 } graphics_struct;
 
-#define  DECL_EVENT_FUNCTION( f )  Status   f()
+#define  DECL_EVENT_FUNCTION( f )  eft   f
 
 #define  DEF_EVENT_FUNCTION( f )   Status   f( graphics, event ) \
                                                 graphics_struct  *graphics; \

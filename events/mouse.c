@@ -1,14 +1,15 @@
 
 #include  <def_standard.h>
 #include  <def_graphics.h>
+#include  <def_globals.h>
 
 public  void  initialize_mouse_events( action_table )
     action_table_struct   *action_table;
 {
     DECL_EVENT_FUNCTION(   mouse_movement_event );
-    DECL_EVENT_FUNCTION(   left_mouse_down_event );
     DECL_EVENT_FUNCTION(   middle_mouse_down_event );
     DECL_EVENT_FUNCTION(   right_mouse_down_event );
+    void                   add_action_table_function();
 
     add_action_table_function( action_table, MOUSE_MOVEMENT_EVENT,
                                mouse_movement_event );
@@ -119,14 +120,16 @@ private  void  process_clipping( graphics )
     graphics_struct   *graphics;
 {
     Real   delta_x, new_front;
+    void   update_view();
 
     delta_x = Point_x(graphics->mouse_position) -
               Point_x(graphics->prev_mouse_position );
 
     if( delta_x != 0.0 )
     {
-        new_front = graphics->front_distance + delta_x *
-               (graphics->view.back_distance - graphics->view.front_distance);
+        new_front = graphics->view.front_distance + delta_x *
+                    (graphics->view.back_distance -
+                     graphics->view.front_distance);
 
         if( new_front <= 0.0 )
         {
@@ -137,9 +140,9 @@ private  void  process_clipping( graphics )
             new_front = graphics->view.back_distance;
         }
 
-        if( new_front != graphics->front_distance )
+        if( new_front != graphics->view.front_distance )
         {
-            graphics->view.back_distance = new_front;
+            graphics->view.front_distance = new_front;
             update_view( graphics );
             graphics->update_required = TRUE;
         }

@@ -2,19 +2,111 @@
 #include  <stdio.h>
 #include  <def_graphics.h>
 #include  <def_globals.h>
+#include  <def_alloc.h>
 
-public  Status  create_graphics_window( graphics )
-    graphics_struct   *graphics;
+private  graphics_struct  **windows;
+private  int              n_windows = 0;
+
+public  int  get_list_of_windows( graphics )
+    graphics_struct  ***graphics;
+{
+    *graphics = windows;
+
+    return( n_windows );
+}
+
+public  graphics_struct  *lookup_window( window_id )
+    Window_id   window_id;
+{
+    int              i;
+    graphics_struct  *graphics;
+
+    graphics = (graphics_struct *) 0;
+
+    for_less( i, 0, n_windows )
+    {
+        if( windows[i]->window.window_id == window_id )
+        {
+            graphics = windows[i];
+            break;
+        }
+    }
+
+    return( graphics );
+}
+
+private  Status  get_new_graphics( graphics )
+    graphics_struct   **graphics;
 {
     Status   status;
-    void     initialize_graphics_window();
-    Status   G_create_window();
 
-    status = G_create_window( "Window Title", &graphics->window );
+    CHECK_ALLOC( status, windows, n_windows, n_windows+1, graphics_struct *,
+                 DEFAULT_CHUNK_SIZE );
 
     if( status == OK )
     {
-        initialize_graphics_window( graphics );
+        CALLOC( status, windows[n_windows], 1, graphics_struct );
+    }
+
+    if( status == OK )
+    {
+        *graphics = windows[n_windows];
+        ++n_windows;
+    }
+
+    return( status );
+}
+
+private  Status  free_graphics( graphics )
+    graphics_struct   *graphics;
+{
+    int      ind, i;
+    Status   status;
+
+    status = ERROR;
+
+    for_less( ind, 0, n_windows )
+    {
+        if( windows[ind] == graphics )
+        {
+            status = OK;
+            break;
+        }
+    }
+
+    if( status == OK )
+    {
+        for_less( i, ind, n_windows-1 )
+        {
+            windows[i] = windows[i+1];
+        }
+
+        --n_windows;
+
+        FREE( status, graphics );
+    }
+
+    return( status );
+}
+
+public  Status  create_graphics_window( graphics )
+    graphics_struct   **graphics;
+{
+    Status   status;
+    void     initialize_graphics_window();
+    Status   get_new_graphics();
+    Status   G_create_window();
+
+    status = get_new_graphics( graphics );
+
+    if( status == OK )
+    {
+        status = G_create_window( "Window Title", &(*graphics)->window );
+    }
+
+    if( status == OK )
+    {
+        initialize_graphics_window( *graphics );
     }
     else
     {
@@ -100,6 +192,7 @@ public  Status  delete_graphics_window( graphics )
 {
     Status   status;
     Status   G_delete_window();
+    Status   free_graphics();
     Status   terminate_graphics_window();
 
     status = G_delete_window( &graphics->window );
@@ -107,6 +200,11 @@ public  Status  delete_graphics_window( graphics )
     if( status == OK )
     {
         status = terminate_graphics_window( graphics );
+    }
+
+    if( status == OK )
+    {
+        status = free_graphics( graphics );
     }
 
     return( status );

@@ -10,7 +10,7 @@ int  main( argc, argv )
     int     argc;
     char    *argv[];
 {
-    graphics_struct  graphics;
+    graphics_struct  *graphics;
     Status           status;
     Status           G_initialize();
     Status           initialize_globals();
@@ -46,22 +46,22 @@ int  main( argc, argv )
     {
         PRINT( "Inputting objects.\n" );
 
-        status = input_graphics_file( argv[1], &graphics.objects );
+        status = input_graphics_file( argv[1], &graphics->objects );
 
-        graphics.update_required = TRUE;
+        graphics->update_required = TRUE;
 
         PRINT( "Objects input.\n" );
     }
 
     if( status == OK )
     {
-        get_range_of_objects( graphics.objects, &min_coord, &max_coord );
+        get_range_of_objects( graphics->objects, &min_coord, &max_coord );
 
-        ADD_POINTS( graphics.centre_of_objects, min_coord, max_coord );
-        SCALE_POINT( graphics.centre_of_objects, graphics.centre_of_objects,
+        ADD_POINTS( graphics->centre_of_objects, min_coord, max_coord );
+        SCALE_POINT( graphics->centre_of_objects, graphics->centre_of_objects,
                      0.5 );
 
-        fit_view_to_domain( &graphics.view,
+        fit_view_to_domain( &graphics->view,
                             Point_x(min_coord),
                             Point_y(min_coord),
                             Point_z(min_coord),
@@ -69,17 +69,17 @@ int  main( argc, argv )
                             Point_y(max_coord),
                             Point_z(max_coord) );
 
-        update_view( &graphics );
+        update_view( graphics );
     }
 
     if( status == OK )
     {
-        status = main_event_loop( &graphics );
+        status = main_event_loop();
     }
 
     if( status == OK )
     {
-        status = delete_graphics_window( &graphics );
+        status = delete_graphics_window( graphics );
     }
 
     if( status == OK )

@@ -1,4 +1,5 @@
 
+#include  <def_globals.h>
 #include  <def_graphics.h>
 
 #define  FACTOR  1.2
@@ -85,6 +86,8 @@ private  void   fit_view_to_points( view, n_points, points )
     {
         orthogonal_fit_points( view, &centre, &range );
     }
+
+    view->desired_aspect = view->window_height / view->window_width;
 }
 
 private  void  orthogonal_fit_points( view, centre, range )
@@ -199,5 +202,5 @@ private  void  perspective_fit_points( view, max_coord, centre,
     view->origin = eye;
 
     view->back_distance = FACTOR * (Point_z(*max_coord) - dz);
-    view->front_distance = view->back_distance * 1.0e-5;
+    view->front_distance = Closest_front_plane;
 }
