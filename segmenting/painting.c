@@ -10,7 +10,8 @@ private  int  update_paint_labels(
 private  void   update_brush(
     display_struct    *slice_window,
     int               x,
-    int               y );
+    int               y,
+    BOOLEAN           erase_brush );
 
 private  int  sweep_paint_labels(
     display_struct    *slice_window,
@@ -100,7 +101,7 @@ private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
         add_object_to_model( get_graphics_model( slice_window,
                        SLICE_MODEL1 + slice_window->slice.painting_view_index ),
                              slice_window->slice.brush_outline );
-        update_brush( slice_window, x_pixel, y_pixel );
+        update_brush( slice_window, x_pixel, y_pixel, FALSE );
     }
     else
         slice_window->slice.painting_view_index = -1;
@@ -128,6 +129,7 @@ private  DEF_EVENT_FUNCTION( end_painting )     /* ARGSUSED */
         remove_object_from_model( get_graphics_model( display,
                        SLICE_MODEL1 + display->slice.painting_view_index ),
                                   display->slice.brush_outline );
+
         delete_object( display->slice.brush_outline );
     }
 
@@ -207,7 +209,7 @@ private  int  update_paint_labels(
         volume_index = sweep_paint_labels( slice_window, x_prev, y_prev, x, y,
                                            label );
         if( Draw_brush_outline )
-            update_brush( slice_window, x, y );
+            update_brush( slice_window, x, y, TRUE );
     }
     else
         volume_index = get_current_volume_index( slice_window );
@@ -344,9 +346,10 @@ private  void  fast_paint_labels(
     int              label )
 {
     Volume         volume, label_volume;
-    int            value, sizes[N_DIMENSIONS];
+    int            value, sizes[N_DIMENSIONS], tmp;
     Real           min_threshold, max_threshold, volume_value;
     int            ind[N_DIMENSIONS], new_n_starts, *y_starts, y_inc, x_inc;
+    int            x_min_pixel, y_min_pixel, x_max_pixel, y_max_pixel;
     pixels_struct  *pixels;
     Real           x_offset, x_scale, y_offset, y_scale;
     Real           x_trans, y_trans;
@@ -424,6 +427,28 @@ private  void  fast_paint_labels(
         y_starts[ind[a2] - min_voxel[a2]+1] = y_start;
     }
 
+    real_x_start = x_scale * ((Real) min_voxel[a1] - x_offset) + x_trans;
+    x_min_pixel = CEILING( real_x_start );
+    real_x_start = x_scale * ((Real) max_voxel[a1] - x_offset) + x_trans;
+    x_max_pixel = CEILING( real_x_start );
+    if( x_min_pixel > x_max_pixel )
+    {
+        tmp = x_min_pixel;
+        x_min_pixel = x_max_pixel;
+        x_max_pixel = tmp;
+    }
+
+    real_y_start = y_scale * ((Real) min_voxel[a2] - y_offset) + y_trans;
+    y_min_pixel = CEILING( real_y_start );
+    real_y_start = y_scale * ((Real) max_voxel[a2] - y_offset) + y_trans;
+    y_max_pixel = CEILING( real_y_start );
+    if( y_min_pixel > y_max_pixel )
+    {
+        tmp = y_min_pixel;
+        y_min_pixel = y_max_pixel;
+        y_max_pixel = tmp;
+    }
+
     for_inclusive( ind[a1], min_voxel[a1], max_voxel[a1] )
     {
         real_x_start = x_scale * ((Real) ind[a1] - x_offset) + x_trans;
@@ -475,7 +500,13 @@ private  void  fast_paint_labels(
     }
 
     if( update_required )
-        slice_window->slice.slice_views[view_index].update_composite_flag =TRUE;
+    {
+        set_slice_composite_update( slice_window, view_index,
+                                    pixels->x_position + x_min_pixel,
+                                    pixels->x_position + x_max_pixel,
+                                    pixels->y_position + y_min_pixel,
+                                    pixels->y_position + y_max_pixel );
+    }
 }
 
 private  void  paint_labels(
@@ -757,17 +788,71 @@ private  void  get_brush_contour(
                           0, DEFAULT_CHUNK_SIZE );
 }
 
+private  BOOLEAN   get_lines_limits(
+    lines_struct  *lines,
+    int           *x_min,
+    int           *x_max,
+    int           *y_min,
+    int           *y_max )
+{
+    int           i, x, y;
+
+    *x_min = 0;
+    *x_max = 0;
+    *y_min = 0;
+    *y_max = 0;
+
+    for_less( i, 0, lines->n_points )
+    {
+        x = Point_x(lines->points[i]);
+        y = Point_y(lines->points[i]);
+        if( i == 0 )
+        {
+            *x_min = x;
+            *x_max = x;
+            *y_min = y;
+            *y_max = y;
+        }
+        else
+        {
+            if( x < *x_min )
+                *x_min = x;
+            if( x > *x_max )
+                *x_max = x;
+            if( y < *y_min )
+                *y_min = y;
+            if( y > *y_max )
+                *y_max = y;
+        }
+    }
+
+    return( lines->n_points > 0 );
+}
+
 private  void   update_brush(
     display_struct    *slice_window,
     int               x,
-    int               y )
+    int               y,
+    BOOLEAN           erase_brush )
 {
     Real          centre[N_DIMENSIONS];
     int           view, axis, a1, a2, start_voxel[N_DIMENSIONS], volume_index;
+    int           x_min, x_max, y_min, y_max;
     Real          radius[N_DIMENSIONS];
     lines_struct  *lines;
 
+
     lines = get_lines_ptr( slice_window->slice.brush_outline );
+
+    if( erase_brush &&
+        get_lines_limits( lines, &x_min, &x_max, &y_min, &y_max ) &&
+        slice_window->slice.painting_view_index >= 0 )
+    {
+        set_slice_composite_update( slice_window,
+                                    slice_window->slice.painting_view_index,
+                                    x_min, x_max, y_min, y_max );
+    }
+
     delete_lines( lines );
     initialize_lines( lines, Brush_outline_colour );
 
@@ -789,9 +874,13 @@ private  void   update_brush(
         get_brush_contour( slice_window, x, y, volume_index, view, a1, a2,
                            centre, radius, start_voxel, POSITIVE_X, lines );
 
-        set_slice_viewport_update( slice_window, SLICE_MODEL1 + view );
+        if( get_lines_limits( lines, &x_min, &x_max, &y_min, &y_max ) )
+        {
+            set_slice_composite_update( slice_window, view,
+                                        x_min, x_max, y_min, y_max );
+        }
     }
-}    
+}
 
 public  void  flip_labels_around_zero(
     Volume    label_volume )

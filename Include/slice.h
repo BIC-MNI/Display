@@ -90,6 +90,17 @@ typedef  struct
     BOOLEAN       update_crop_flag;
     BOOLEAN       update_atlas_flag;
     BOOLEAN       update_composite_flag;
+
+    BOOLEAN       sub_region_specified;
+    int           x_min;
+    int           x_max;
+    int           y_min;
+    int           y_max;
+    BOOLEAN       prev_sub_region_specified[2];
+    int           prev_x_min[2];
+    int           prev_x_max[2];
+    int           prev_y_min[2];
+    int           prev_y_max[2];
 } slice_view_struct;
 
 typedef  struct
