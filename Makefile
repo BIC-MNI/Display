@@ -1,7 +1,7 @@
 include $(SRC_DIRECTORY)/Graphics/Makefile.include
 include $(SRC_DIRECTORY)/David/Makefile.include
 
-OPT = -g $(SPECIAL_OPT)
+OPT = -O $(SPECIAL_OPT)
 
 LDFLAGS =
 
@@ -50,7 +50,6 @@ display_src = \
            edit_surface/segment.c \
            images/images.c \
            markers/markers.c \
-           markers/segment.c \
            surface_extraction/boundary_extraction.c \
            surface_extraction/data_structs.c \
            surface_extraction/init_surface.c \
