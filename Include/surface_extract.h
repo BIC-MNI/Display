@@ -2,7 +2,7 @@
 #ifndef  DEF_SURFACE_EXTRACT
 #define  DEF_SURFACE_EXTRACT
 
-#include  <mni.h>
+#include  <module.h>
 #include  <queue.h>
 
 typedef  struct

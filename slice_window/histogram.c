@@ -103,6 +103,7 @@ private  void  compute_histogram_lines(
 
     window_width = width_ratio * (max_value - min_value);
 
+    delete_lines( lines );
     create_histogram_line( &histogram, 200, 200, window_width, lines );
 
     delete_histogram( &histogram );
