@@ -7,13 +7,13 @@ public  DEF_MENU_FUNCTION( reverse_normals )   /* ARGSUSED */
     Boolean         get_current_object();
     Status          status;
     Status          reverse_object_normals();
-    void            graphics_models_have_changed();
+    void            set_update_required();
 
     if( get_current_object( graphics, &current_object ) )
     {
         status = reverse_object_normals( current_object );
 
-        graphics_models_have_changed( graphics );
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
