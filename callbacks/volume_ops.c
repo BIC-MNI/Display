@@ -142,6 +142,26 @@ public  DEF_MENU_UPDATE(halve_slice_voxels )   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION(toggle_slice_visibility)   /* ARGSUSED */
+{
+    int              view_index;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_slice_view_index_under_mouse( slice_window, &view_index ) )
+    {
+        set_slice_visibility( slice_window, view_index,
+                              !get_slice_visibility(slice_window,view_index) );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(toggle_slice_visibility )   /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION(reset_current_slice_view)   /* ARGSUSED */
 {
     int              view_index;
