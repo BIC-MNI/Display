@@ -579,7 +579,7 @@ private  Status  io_polygons_visibilities( polygons, io_flag )
                                                 BINARY_FORMAT, &file );
 
     if( status == OK )
-        status = io_binary_data( file, io_flag, polygons->visibilities,
+        status = io_binary_data( file, io_flag, (VOID *) polygons->visibilities,
                                  sizeof(polygons->visibilities[0]),
                                  polygons->n_items );
 

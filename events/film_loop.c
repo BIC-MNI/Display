@@ -427,7 +427,7 @@ private  Status  output_frame( file, pixels, x_size, x_min, x_max, y_min,
         if( status == OK && n_pixels > 0 )
         {
             status = io_binary_data( file, WRITE_FILE,
-                        (char *) &ACCESS_PIXEL(pixels,start[y-y_min],y,x_size),
+                        (VOID *) &ACCESS_PIXEL(pixels,start[y-y_min],y,x_size),
                         sizeof( pixels[0] ), n_pixels );
         }
     }
