@@ -16,11 +16,11 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char surface_extract_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/surface_extract.h,v 1.27 2001-05-26 23:01:38 stever Exp $";
+static char surface_extract_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/surface_extract.h,v 1.28 2001-05-27 00:19:36 stever Exp $";
 #endif
 
 #include  <bicpl.h>
-#include  <queue.h>
+#include  <bicpl/queue.h>
 
 typedef  struct
 {

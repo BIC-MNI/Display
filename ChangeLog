@@ -1,4 +1,66 @@
-2001-05-26  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca
+2001-05-26  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
+
+	* release-1_3_1: Unpack the release 1.3.1 tarfile overtop the
+	sources.  Release 1.3.1 was generated from David's 1.3 tarball;
+	most of the changes were related to the build.
+
+	* Makefile:
+	* Documentation/Makefile:
+	* Hardware/Makefile:
+	* segmenting_3d/Makefile:
+	* slice_window/Makefile: Removed.
+
+	* acinclude.m4: New file.  Concatenation of the two m4 files
+	distributed from "smr_macros-0.2.4"
+	[from www.cs.mcgill.ca/~stever/software].
+
+	* AUTHORS:
+	* COPYING:
+	* INSTALL:
+	* INSTALL.display:
+	* Makefile.am:
+	* NEWS:
+	* README:
+	* TODO:
+	* configure.in:
+	* atlas/Makefile.am:
+	* callbacks/Makefile.am:
+	* current_obj/Makefile.am:
+	* cursor/Makefile.am:
+	* cursor_contours/Makefile.am:
+	* edit_surface/Makefile.am:
+	* events/Makefile.am:
+	* images/Makefile.am:
+	* immediate_mode/Makefile.am:
+	* input_files/Makefile.am:
+	* intersect/Makefile.am:
+	* main/Makefile.am:
+	* markers/Makefile.am:
+	* menu/Makefile.am:
+	* segmenting/Makefile.am:
+	* slice_window/Makefile.am:
+	* structures/Makefile.am:
+	* surface_curves/Makefile.am:
+	* surface_extraction/Makefile.am:
+	* tubes/Makefile.am:
+	* voxel_scan/Makefile.am: New files.
+
+	* Include/display.h:
+	* Include/surface_extract.h:
+	* callbacks/line_ops.c:
+	* images/images.c:
+	* main/main.c:
+	* surface_curves/edge_distance.c:
+	* surface_extraction/extract.c: Include <bicpl/foo.h> and
+	<volume_io/foo.h> rather than just <foo.h>.
+
+	* callbacks/call_globals.c (DEF_MENU_FUNCTION): Protect include of
+	<malloc.h> based on autoconfigure symbol HAVE_MALLOC_H.  Make code
+	conditional on HAVE_MALLINFO symbol, rather than !linux && !__sun.
+
+	* main/event_loop.c: Roll back to revision found in 1.3 sources.
+	
+2001-05-26  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
 
 	* David-RCS-update: Update the repository with the checked-out
 	file versions as well as files that do not already have an RCS
@@ -9,7 +71,7 @@
 	* boucl1_e1.mnc.gz:
 	* boucl1_e2.mnc.gz: Removed symlinks to nonexistent files.
 
-2001-05-26  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca
+2001-05-26  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
 
 	* David-RCS: Import the RCS files from David's source.  Since
 	David's home directory was damaged, this copy comes from a late

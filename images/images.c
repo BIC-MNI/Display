@@ -13,11 +13,11 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/images/images.c,v 1.10 1997-08-01 14:47:49 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/images/images.c,v 1.11 2001-05-27 00:19:45 stever Exp $";
 #endif
 
 #include  <display.h>
-#include  <images.h>
+#include  <bicpl/images.h>
 
 public  Status   save_window_to_file(
     display_struct  *display,

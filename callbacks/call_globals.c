@@ -13,12 +13,16 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/call_globals.c,v 1.15 1996-07-02 12:56:12 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/call_globals.c,v 1.16 2001-05-27 00:19:38 stever Exp $";
 #endif
 
 
 #include  <display.h>
-#include  <malloc.h>
+
+#ifdef HAVE_MALLOC_H
+#  include  <malloc.h>
+#endif
+
 
 /* ARGSUSED */
 
@@ -61,7 +65,7 @@ public  DEF_MENU_UPDATE(menu_set_global_variable )
 
 public  DEF_MENU_FUNCTION( show_memory )
 {
-#if !defined(linux) && !defined(__sun)
+#ifdef HAVE_MALLINFO
     struct  mallinfo   m;
 
     m = mallinfo();

@@ -1,0 +1,59 @@
+See INSTALL for generic installation instructions.
+
+		Required Libraries
+
+Display requires several libraries to be installed before it
+can successfully be configured and built.  Please install all
+of the following before continuing.
+
+* netcdf
+	see http://www.unidata.ucar.edu/packages/netcdf/
+* minc
+	see ftp://ftp.bic.mni.mcgill.ca/pub/minc/
+* bicpl
+	see ftp://ftp.bic.mni.mcgill.ca/pub/
+* glut
+	see http://reality.sgi.com/opengl/glut3/
+
+
+
+		Configuring Display
+
+Often, you can configure and build Display simply:
+
+	./configure
+	make
+
+The command "make install" will then install Display into /usr/local/bin.
+
+If you prefer an alternate location, use the --prefix option:
+
+	./configure --prefix=/usr/local/mni
+	make
+
+
+If configure complains about not being able to find libraries, you have to tell
+configure where the libraries may be found.
+
+This is relatively easy to do if everything has been installed into a common
+hierarchy.  Here at the MNI, we put all the libs into /usr/local/mni/lib, and
+their associated include files into /usr/local/mni/include.  In this case,
+Display can be configured using
+
+	./configure --prefix=/usr/local/mni --with-build-path=/usr/local/mni
+
+If the required libraries are in several different hierarchies, no problem:
+the argument to build path is a colon-separated list of locations to check.
+For example, if you need to look in /usr/local/lib as well as
+/usr/local/mni/lib, then
+
+	./configure --with-build-path=/usr/local/mni:/usr/local
+
+will do the trick.
+
+If you have a more complicated setup, and, e.g. need to choose among multiple
+installed versions of some library (it happens!), use the "--with-foo-library"
+and "--with-foo-includes" options.  See the output of "./configure --help".
+
+Good luck.
+

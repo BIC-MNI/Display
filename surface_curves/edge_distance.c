@@ -13,12 +13,12 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_curves/edge_distance.c,v 1.28 2001-05-26 23:04:08 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_curves/edge_distance.c,v 1.29 2001-05-27 00:19:56 stever Exp $";
 #endif
 
-#include  <internal_volume_io.h>
+#include  <volume_io/internal_volume_io.h>
 #include  <bicpl.h>
-#include  <priority_queue.h>
+#include  <bicpl/priority_queue.h>
 
 typedef  struct
 {

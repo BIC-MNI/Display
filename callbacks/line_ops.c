@@ -13,12 +13,12 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/line_ops.c,v 1.29 1996-05-17 19:38:05 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/line_ops.c,v 1.30 2001-05-27 00:19:38 stever Exp $";
 #endif
 
 
 #include  <display.h>
-#include  <splines.h>
+#include  <bicpl/splines.h>
 
 private  BOOLEAN  get_current_lines(
     display_struct    *display,

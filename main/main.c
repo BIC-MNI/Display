@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.61 2001-05-26 23:04:01 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.62 2001-05-27 00:19:47 stever Exp $";
 #endif
 
 #include  <display.h>
@@ -33,7 +33,7 @@ private  void      initialize_view_to_fit(
 
 
 #define  GLOBALS_LOOKUP_NAME  display_globals
-#include  <globals.h>
+#include  <bicpl/globals.h>
 #define   DISPLAY_GLOBALS_FILENAME   "Display.globals"
 
 public  Status  change_global_variable(

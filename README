@@ -1,0 +1,11 @@
+MNI-Display is an interactive program to display and segment 3 dimensional
+images, as well as to display and manipulate 3D geometric objects.
+
+See README.CVS, if you just checked-out the sources from CVS.
+
+See INSTALL.display and INSTALL for installation instructions.
+
+Any comments, questions, bug reports, or patches may be
+sent to
+	Steve Robbins <stever@bic.mni.mcgill.ca>
+
