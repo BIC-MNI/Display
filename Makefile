@@ -29,7 +29,6 @@ display_obj = \
            callbacks/colour_coding.o \
            callbacks/deform.o \
            callbacks/file.o \
-           callbacks/fit_surface.o \
            callbacks/line_ops.o \
            callbacks/object_ops.o \
            callbacks/marker_ops.o \
@@ -57,15 +56,8 @@ display_obj = \
            surface_extraction/extract.o \
            surface_extraction/surface.o \
            surface_extraction/surface_events.o \
-           surface_fitting/create_model.o \
-           surface_fitting/downhill_simplex.o \
-           surface_fitting/evaluate.o \
-           surface_fitting/evaluate_graphics.o \
-           surface_fitting/minimization.o \
-           surface_fitting/one_parm_minimization.o \
            surface_fitting/scan_to_voxels.o \
            surface_fitting/scan_polygons.o \
-           surface_fitting/surface_fitting.o \
            events/change_markers.o \
            events/clip_plane.o \
            events/film_loop.o \
@@ -104,6 +96,7 @@ display_obj = \
            slice_window/colour_bar.o \
            slice_window/colour_coding.o \
            slice_window/draw_slice.o \
+           slice_window/histogram.o \
            slice_window/pick_angle.o \
            slice_window/quadmesh.o \
            slice_window/render_markers.o \
@@ -123,7 +116,7 @@ display_obj = \
            structures/window.o
 
 MODULE_LIBS = -L../Modules \
-              -ldeform -lgeometry -lmarching -lsurface -L/usr/lib
+              -ldeform -lgeometry -lnumerical -lmarching -lsurface -L/usr/lib
 
 
 display_lint = $(display_obj:.o=.ln)
@@ -134,6 +127,9 @@ lint_display: $(PROTOTYPE_FILE) $(display_lint)
 
 $(DISPLAY): $(PROTOTYPE_FILE) $(display_obj)
 	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(MODULE_LIBS) $(GRAPHICS_LIBS)
+
+$(DISPLAY)_2d: $(PROTOTYPE_FILE) $(display_obj)
+	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(MODULE_LIBS) $(GRAPHICS_LIBS_2D)
 
 list_all_objects:
 	@echo $(display_obj) $(display_obj:.o=.ln)
