@@ -383,3 +383,30 @@ public  DEF_MENU_UPDATE(rotate_slice_axes )      /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION(redo_histogram)      /* ARGSUSED */
+{
+    int              axis_index;
+    Real             voxel[MAX_DIMENSIONS], slice;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        if( get_voxel_in_slice_window( slice_window, voxel, &axis_index ) )
+            slice = voxel[axis_index];
+        else
+        {
+            axis_index = -1;
+            slice = 0.0;
+        }
+
+        compute_histogram( slice_window, axis_index, ROUND(slice) );
+
+        set_update_required( slice_window, NORMAL_PLANES );
+    }
+
+}
+
+public  DEF_MENU_UPDATE(redo_histogram)      /* ARGSUSED */
+{
+    return( OK );
+}

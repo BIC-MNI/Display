@@ -44,6 +44,7 @@ private  void  compute_histogram_lines(
     int                start[MAX_DIMENSIONS], end[MAX_DIMENSIONS];
     Real               min_value, max_value, value, window_width;
     histogram_struct   histogram;
+    progress_struct    progress;
 
     get_volume_real_range( volume, &min_value, &max_value );
     get_volume_sizes( volume, sizes );
@@ -64,6 +65,12 @@ private  void  compute_histogram_lines(
         end[axis_index] = voxel_index+1;
     }
 
+    if( axis_index < 0 )
+    {
+        initialize_progress_report( &progress, FALSE, sizes[X] * sizes[Y],
+                                    "Histogramming" );
+    }
+
     for_less( x, start[X], end[X] )
     {
         for_less( y, start[Y], end[Y] )
@@ -73,8 +80,14 @@ private  void  compute_histogram_lines(
                 GET_VALUE_3D( value, volume, x, y, z );
                 add_to_histogram( &histogram, value );
             }
+
+            if( axis_index < 0 )
+                update_progress_report( &progress, x * sizes[Y] + y + 1 );
         }
     }
+
+    if( axis_index < 0 )
+        terminate_progress_report( &progress );
 
     window_width = width_ratio * (max_value - min_value);
 
@@ -87,7 +100,7 @@ public  void  resize_histogram(
     display_struct   *slice_window )
 {
     int            i, start, x_min, x_max;
-    int            x, y;
+    Real           x, y;
     Real           max_y;
     lines_struct   *unscaled_lines, *lines;
 
@@ -111,6 +124,10 @@ public  void  resize_histogram(
     {
         x = x_min + (x_max - x_min) * Histogram_x_scale *
             Point_y(unscaled_lines->points[i]) / max_y;
+
+        if( x > (Real) x_max )
+            x = (Real) x_max;
+
         y = get_colour_bar_y_pos( slice_window,
                                   Point_x(unscaled_lines->points[i]) );
         fill_Point( lines->points[i], x, y, 0.0 );
