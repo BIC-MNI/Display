@@ -1,16 +1,16 @@
 include $(C_DEV_DIRECTORY)/Make/Makefile.include
 include $(GRAPHICS_DIRECTORY)/Makefile.include
 
-OPT = $(OPT_g) -Wf,-XNd10000
+OPT = $(OPT_O) -Wf,-XNd10000
 
 OPT_g = -g
 OPT_O = -O
 
 INCLUDE = -IInclude -I../Modules/Include $(GRAPHICS_INCLUDE) $(C_UTILS_INCLUDE)
 
-PROTOTYPE_FILE = Include/def_display_prototypes.h
+PROTOTYPE_FILE = Include/display_prototypes.h
 
-main/main.o: Include/def_global_variables.h
+main/main.o: Include/global_variables.h
 
 DISPLAY = display
 
@@ -108,7 +108,6 @@ display_obj = \
            surface_curves/events.o \
            surface_curves/edge_distance.o \
            tubes/convert_lines.o \
-           tubes/generate_tube.o \
            structures/action_table.o \
            structures/fit_view.o \
            structures/lights.o \
