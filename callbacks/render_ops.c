@@ -52,3 +52,13 @@ public  DEF_MENU_FUNCTION( toggle_two_sided )  /* ARGSUSED */
 
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( toggle_backfacing )  /* ARGSUSED */
+{
+    graphics->model.render.backface_flag = 
+                  !graphics->model.render.backface_flag;
+
+    graphics->update_required = TRUE;
+
+    return( OK );
+}
