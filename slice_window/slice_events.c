@@ -167,6 +167,7 @@ private  DEF_EVENT_FUNCTION( left_mouse_down )    /* ARGSUSED */
 private  DEF_EVENT_FUNCTION( middle_mouse_down )     /* ARGSUSED */
 {
     int          view_index;
+    Real         value;
 
     if( get_slice_view_index_under_mouse( display, &view_index ) )
     {
@@ -198,7 +199,9 @@ private  DEF_EVENT_FUNCTION( middle_mouse_down )     /* ARGSUSED */
                                        terminate_picking_slice );
         }
     }
-    else if( mouse_is_near_low_limit( display ) )
+    else if( get_mouse_colour_bar_value( display->associated[SLICE_WINDOW],
+                                         &value ) )
+
     {
         push_action_table( &display->action_table, NO_EVENT );
         push_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT);

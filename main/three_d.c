@@ -65,8 +65,6 @@ public  void  initialize_three_d_window(
     initialize_surface_edit( &display->three_d.surface_edit );
     initialize_marker_segmentation( &display->three_d.marker_segmentation );
 
-    initialize_surface_fitting( &display->three_d.surface_fitting );
-
     initialize_surface_extraction( display );
 
     initialize_current_object( display );
@@ -111,7 +109,6 @@ public  void  delete_three_d(
     terminate_current_object( &display->three_d.current_object );
     delete_surface_edit( &display->three_d.surface_edit );
     delete_surface_extraction( display );
-    delete_surface_fitting( &display->three_d.surface_fitting );
     delete_deformation( &display->three_d.deform );
     delete_cursor_plane_outline( display );
 }

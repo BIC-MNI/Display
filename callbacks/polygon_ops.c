@@ -382,7 +382,8 @@ public  DEF_MENU_FUNCTION( scan_current_polygon_to_volume )   /* ARGSUSED */
         get_slice_window_volume( display, &volume ) &&
         get_slice_window( display, &slice_window ) )
     {
-        set_all_volume_label_data( get_label_volume(slice_window), 0 );
+        if( Clear_before_polygon_scan )
+            set_all_volume_label_data( get_label_volume(slice_window), 0 );
 
         scan_polygons_to_voxels( polygons,
                                  get_volume(slice_window),

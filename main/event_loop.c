@@ -30,6 +30,7 @@ public  Status   main_event_loop( void )
 
             if( display != (display_struct *) 0 )
                 status = perform_action( display, event_type, key_pressed );
+  
         }
         else
         {

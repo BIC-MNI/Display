@@ -1,10 +1,6 @@
 
 #include  <display.h>
 
-private  void  colour_code_an_object(
-    display_struct   *display,
-    object_struct    *object );
-
 public  BOOLEAN  get_slice_view_index_under_mouse(
     display_struct   *display,
     int              *view_index )
@@ -225,21 +221,6 @@ public  DEF_MENU_FUNCTION(colour_code_objects )   /* ARGSUSED */
 public  DEF_MENU_UPDATE(colour_code_objects )   /* ARGSUSED */
 {
     return( OK );
-}
-
-private  void  colour_code_an_object(
-    display_struct   *display,
-    object_struct    *object )
-{
-    Volume                  volume;
-    colour_coding_struct    *colour_coding;
-
-    if( get_slice_window_volume( display, &volume ) )
-    {
-        colour_coding = &display->associated[SLICE_WINDOW]->slice.colour_coding;
-
-        colour_code_object( volume, Volume_continuity, colour_coding, object );
-    }
 }
 
 public  DEF_MENU_FUNCTION(create_3d_slice)   /* ARGSUSED */

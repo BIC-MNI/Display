@@ -45,6 +45,20 @@ public  display_struct  *lookup_window(
     return( display );
 }
 
+public  display_struct  *get_main_window()
+{
+    int   i;
+
+    for_less( i, 0, n_windows )
+    {
+        if( windows[i]->window_type == THREE_D_WINDOW )
+            return( windows[i] );
+    }
+
+    print( "Error:  get_main_window()\n" );
+    return( 0 );
+}
+
 private  void  get_new_display(
     display_struct   **display )
 {

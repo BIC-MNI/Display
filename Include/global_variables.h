@@ -305,4 +305,6 @@ START_GLOBALS
     DEF_GLOBAL( Move_slice_speed, Real, 0.25 )
     DEF_GLOBAL( Pixels_per_double_size, Real, 100.0 )
 
+    DEF_GLOBAL( Clear_before_polygon_scan, BOOLEAN, TRUE )
+
 END_GLOBALS

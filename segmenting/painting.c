@@ -583,7 +583,6 @@ public  void  translate_labels(
     int               sizes[MAX_DIMENSIONS];
     int               first[MAX_DIMENSIONS], last[MAX_DIMENSIONS];
     int               increment[MAX_DIMENSIONS];
-    int               int_voxel_opp[MAX_DIMENSIONS];
     progress_struct   progress;
 
     get_volume_sizes( label_volume, sizes );

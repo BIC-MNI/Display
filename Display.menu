@@ -159,6 +159,7 @@ objects
 
 lines
 {
+    transient 'a'    set_line_widths                  "Set Line Width"
     transient 'd'    smooth_current_lines             "Smooth Lines"
     transient 'f'    make_current_line_tube           "Create Tube"
     transient 's'    convert_line_to_spline_points    "Spline Line"

@@ -8,11 +8,16 @@ public  void  modify_labels_in_range(
     Real     min_threshold,
     Real     max_threshold )
 {
-    int      voxel[MAX_DIMENSIONS], sizes[MAX_DIMENSIONS];
-    BOOLEAN  must_change;
-    Real     value;
+    int              voxel[MAX_DIMENSIONS], sizes[MAX_DIMENSIONS];
+    BOOLEAN          must_change;
+    Real             value;
+    progress_struct  progress;
 
     get_volume_sizes( volume, sizes );
+
+    initialize_progress_report( &progress, FALSE, sizes[X] * sizes[Y],
+                                "Modifying Labels" );
+
 
     for_less( voxel[X], 0, sizes[X] )
     {
@@ -33,6 +38,11 @@ public  void  modify_labels_in_range(
                 if( must_change )
                     set_volume_label_data( label_volume, voxel, dest_label );
             }
+
+            update_progress_report( &progress, voxel[X] * sizes[Y] +
+                                    voxel[Y] + 1 );
         }
     }
+
+    terminate_progress_report( &progress );
 }

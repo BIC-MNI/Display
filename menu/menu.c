@@ -3,6 +3,7 @@
 
 static    DEF_EVENT_FUNCTION( handle_character_down );
 static    DEF_EVENT_FUNCTION( handle_character_up );
+static    DEF_EVENT_FUNCTION( handle_leaving_window );
 static    DEF_EVENT_FUNCTION( left_mouse_press );
 static    DEF_EVENT_FUNCTION( middle_mouse_press );
 private  void  turn_off_menu_entry(
@@ -170,6 +171,8 @@ public  void  initialize_menu_actions(
                                handle_character_down );
     add_action_table_function( &menu_window->action_table, KEY_UP_EVENT,
                                handle_character_up );
+    add_action_table_function( &menu_window->action_table, WINDOW_LEAVE_EVENT,
+                               handle_leaving_window );
 }
 
 public  void  initialize_menu_window(
@@ -217,6 +220,16 @@ private  DEF_EVENT_FUNCTION( handle_character_down )   /* ARGSUSED */
         status = handle_menu_for_key( menu_window, key_pressed );
 
     return( status );
+}
+
+private  DEF_EVENT_FUNCTION( handle_leaving_window )   /* ARGSUSED */
+{
+    display_struct     *menu_window;
+
+    menu_window = display->associated[MENU_WINDOW];
+    menu_window->menu.shift_key_down = FALSE;
+
+    return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( handle_character_up )   /* ARGSUSED */
