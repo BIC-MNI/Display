@@ -68,12 +68,6 @@ public  Status  delete_voxels_done( voxels_done )
     return( status );
 }
 
-public  void  clear_voxels_done( voxels_done )
-    bitlist_struct  *voxels_done;
-{
-    zero_bitlist( voxels_done );
-}
-
 public  Boolean  is_voxel_done( volume, voxels_done, indices )
     volume_struct       *volume;
     bitlist_struct      *voxels_done;
@@ -96,20 +90,6 @@ public  Status  mark_voxel_done( volume, voxels_done, indices )
                                        indices->i[Z_AXIS],
                                        volume->size[Y_AXIS]-1,
                                        volume->size[Z_AXIS]-1 ),     ON );
-
-    return( OK );
-}
-
-public  Status  mark_voxel_not_done( volume, voxels_done, indices )
-    volume_struct       *volume;
-    bitlist_struct      *voxels_done;
-    voxel_index_struct  *indices;
-{
-    set_bitlist_bit( voxels_done, ijk( indices->i[X_AXIS],
-                                       indices->i[Y_AXIS],
-                                       indices->i[Z_AXIS],
-                                       volume->size[Y_AXIS]-1,
-                                       volume->size[Z_AXIS]-1 ),     OFF );
 
     return( OK );
 }
