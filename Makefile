@@ -115,8 +115,9 @@ display_obj = \
            structures/view.o \
            structures/window.o
 
-MODULE_LIBS = -L../Modules \
-              -ldeform -lgeometry -lnumerical -lmarching -lsurface -L/usr/lib
+MODULE_LIBS = -L../Modules -L/usr/lib \
+              -ldeform -lgeometry -lnumerical -lmarching \
+              -lsurface -ldata_structures
 
 
 display_lint = $(display_obj:.o=.ln)
