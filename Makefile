@@ -10,15 +10,16 @@ LIBS = -lgl -lm
 graphics_obj = graphics_lib/GL_graphics.o \
                globals.o \
                structures/action_table.o \
+               structures/colour_coding.o \
                structures/event_struct.o \
                structures/fit_view.o \
                structures/lights.o \
                structures/render.o \
                structures/view.o \
-               $(C_UTILS_SRC)/files.o \
-               $(C_UTILS_SRC)/points.o \
-               $(C_UTILS_SRC)/progress.o \
-               $(C_UTILS_SRC)/transforms.o
+               files.o \
+               points.o \
+               progress.o \
+               transforms.o
 
 display_obj = \
            main/main.o \
@@ -35,17 +36,21 @@ display_obj = \
            callbacks/view_ops.o \
            callbacks/volume_ops.o \
            current_obj/current_obj.o \
+           surface_extraction/data_structs.o \
            surface_extraction/surface.o \
+           surface_extraction/surface_events.o \
            events/clip_plane.o \
            events/magnify.o \
            events/mouse.o \
            events/mouse_trans.o \
+           events/pick_polygon.o \
            events/pick_view.o \
            events/pick_voxel.o \
            events/virt_sb.o \
            events/window_man.o \
            events/utilities.o \
            immediate_mode/draw_immed.o \
+           intersect/intersect.o \
            cursor/cursor.o \
            cursor/cursor_icon.o \
            menu/build_menu.o \
@@ -56,35 +61,39 @@ display_obj = \
            slice_window/draw_slice.o \
            slice_window/slice.o \
            slice_window/slice_events.o \
-           $(C_UTILS_SRC)/alloc.o \
-           $(C_UTILS_SRC)/bitlist.o \
-           $(C_UTILS_SRC)/colours.o \
-           $(C_UTILS_SRC)/graphics_io.o \
-           $(C_UTILS_SRC)/hash_table.o \
-           $(C_UTILS_SRC)/lines.o \
-           $(C_UTILS_SRC)/marching_cubes.o \
-           $(C_UTILS_SRC)/mr_io.o \
-           $(C_UTILS_SRC)/objects.o \
-           $(C_UTILS_SRC)/object_io.o \
-           $(C_UTILS_SRC)/pixels.o \
-           $(C_UTILS_SRC)/polygons.o \
-           $(C_UTILS_SRC)/random_order.o \
-           $(C_UTILS_SRC)/random.o \
-           $(C_UTILS_SRC)/resample.o \
-           $(C_UTILS_SRC)/roi_io.o \
-           $(C_UTILS_SRC)/string.o \
-           $(C_UTILS_SRC)/volume.o \
-           $(C_UTILS_SRC)/time.o
+           alloc.o \
+           bitlist.o \
+           colours.o \
+           geometry.o \
+           graphics_io.o \
+           hash_table.o \
+           lines.o \
+           marching_cubes.o \
+           mr_io.o \
+           objects.o \
+           object_io.o \
+           pixels.o \
+           polygons.o \
+           random_order.o \
+           random.o \
+           resample.o \
+           roi_io.o \
+           string.o \
+           volume.o \
+           time.o
 
 display_lint = $(display_obj:.o=.ln)
 
 globals.o:  Include/def_globals.h
 
 test_obj = test.o \
-           $(C_UTILS_SRC)/time.o \
+           time.o \
            $(graphics_obj)
 
 test_lint = $(test_obj:.o=.ln)
+
+display_gx: $(display_obj)
+	$(CC) $(CFLAGS) $(display_obj) -o $@ $(LIBS)
 
 display: $(display_obj)
 	$(CC) $(CFLAGS) $(display_obj) -o $@ $(LIBS)

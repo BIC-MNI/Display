@@ -40,7 +40,6 @@
                        MENU_FUNCTION(ascend_selected) \
                        MENU_FUNCTION(advance_slice) \
                        MENU_FUNCTION(retreat_slice) \
-                       MENU_FUNCTION(pick_point) \
                        MENU_FUNCTION(menu_set_global_variable) \
                        MENU_FUNCTION(pick_view_rectangle) \
                        MENU_FUNCTION(toggle_object_visibility) \
@@ -55,7 +54,18 @@
                        MENU_FUNCTION(turn_voxel_off) \
                        MENU_FUNCTION(load_inactive_voxels) \
                        MENU_FUNCTION(save_inactive_voxels) \
+                       MENU_FUNCTION(load_active_voxels) \
+                       MENU_FUNCTION(save_active_voxels) \
+                       MENU_FUNCTION(reset_activities) \
+                       MENU_FUNCTION(reset_inactivities) \
+                       MENU_FUNCTION(generate_activities) \
+                       MENU_FUNCTION(turn_slice_on) \
+                       MENU_FUNCTION(turn_slice_off) \
+                       MENU_FUNCTION(generate_slice_activities) \
+                       MENU_FUNCTION(set_connected_off) \
+                       MENU_FUNCTION(set_connected_on) \
                        MENU_FUNCTION(set_colour_limits) \
+                       MENU_FUNCTION(set_isovalue) \
                 
 
 typedef  struct

@@ -29,7 +29,7 @@ public  Status  set_slice_window_volume( graphics, volume )
     volume_struct     *volume;
 {
     Status           status;
-    Status           initialize_voxels_done();
+    Status           initialize_voxel_flags();
     int              c, x_index, y_index;
     Real             factor, min_thickness, max_thickness;
     void             get_2d_slice_axes();
@@ -76,9 +76,16 @@ public  Status  set_slice_window_volume( graphics, volume )
     set_colour_coding_range( &graphics->slice.colour_coding,
                              volume->min_value, volume->max_value );
 
-    status = initialize_voxels_done( &graphics->associated[THREE_D_WINDOW]
+    status = initialize_voxel_flags( &graphics->associated[THREE_D_WINDOW]
+                                     ->three_d.surface_extraction.voxels_queued,
+                                     get_n_voxels(graphics->slice.volume) );
+
+    if( status == OK )
+    {
+        status = initialize_voxel_flags( &graphics->associated[THREE_D_WINDOW]
                                      ->three_d.surface_extraction.voxels_done,
                                      get_n_voxels(graphics->slice.volume) );
+    }
 
     return( status );
 }

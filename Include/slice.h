@@ -3,6 +3,8 @@
 #define  DEF_SLICE
 
 #include  <def_bitlist.h>
+#include  <def_objects.h>
+#include  <def_graphics_types.h>
 
 typedef  struct
 {
@@ -15,12 +17,12 @@ typedef  struct
 
 typedef  struct
 {
-    volume_struct       *volume;
-    bitlist_struct      voxel_activity;
+    volume_struct          *volume;
+    colour_coding_struct   colour_coding;
 
-    int                 x_split, y_split;
+    int                    x_split, y_split;
 
-    slice_view_struct   slice_views[3];
+    slice_view_struct      slice_views[3];
 
 } slice_window_struct;
 

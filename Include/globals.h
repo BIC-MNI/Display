@@ -57,9 +57,6 @@ START_GLOBALS
     DEF_GLOBAL( Unselected_vis_colour, Colour, 0.0 )
     DEF_GLOBAL( Unselected_invis_colour, Colour, 0.0 )
 
-    DEF_GLOBAL( Contour_min_thickness, int, 0 )
-    DEF_GLOBAL( Contour_boundary_threshold, Real, 0.0 )
-
     DEF_GLOBAL( Viewport_feedback_colour, Colour, 0.0 )
     DEF_GLOBAL( Viewport_min_x_size, Real, 0.1 )
     DEF_GLOBAL( Viewport_min_y_size, Real, 0.1 )
@@ -119,6 +116,12 @@ START_GLOBALS
     DEF_GLOBAL( Not_active_voxel_colour, Colour, 0.0 )
 
     DEF_GLOBAL( Use_cursor_origin, Boolean, TRUE )
+
+    DEF_GLOBAL( One_active_flag, Boolean, FALSE )
+
+    DEF_GLOBAL( Output_every, int, 100000 )
+
+    DEF_GLOBAL_STRING( Tmp_surface_name, "" )
 END_GLOBALS
          
 #endif

@@ -8,7 +8,7 @@
 
 typedef  struct
 {
-    int   i[N_DIMENSIONS];
+    short   i[N_DIMENSIONS];
 } voxel_index_struct;
 
 typedef  struct
@@ -25,6 +25,7 @@ typedef  struct
     hash_table_struct                    edge_points;
 
     int                                  n_voxels_alloced;
+    bitlist_struct                       voxels_queued;
     bitlist_struct                       voxels_done;
 
     QUEUE_STRUCT( voxel_index_struct )   voxels_to_do;

@@ -48,7 +48,7 @@ private  Status  clear_surface_extraction( graphics )
     void                        empty_polygons_struct();
     Status                      initialize_edge_points();
     void                        initialize_voxel_queue();
-    void                        clear_voxels_done();
+    void                        clear_voxel_flags();
     surface_extraction_struct   *surface_extraction;
 
     surface_extraction = &graphics->three_d.surface_extraction;
@@ -66,7 +66,9 @@ private  Status  clear_surface_extraction( graphics )
                                &Extracted_surface_colour,
                                &Default_surface_property );
 
-        clear_voxels_done( &surface_extraction->voxels_done );
+        clear_voxel_flags( &surface_extraction->voxels_queued );
+
+        clear_voxel_flags( &surface_extraction->voxels_done );
     }
 
     return( status );
@@ -77,7 +79,6 @@ private  Status  free_surface_extraction( graphics )
 {
     Status                      status;
     Status                      delete_edge_points();
-    Status                      delete_voxels_done();
     Status                      delete_voxel_queue();
     surface_extraction_struct   *surface_extraction;
 
@@ -97,9 +98,7 @@ public  Status  delete_surface_extraction( graphics )
     graphics_struct   *graphics;
 {
     Status                      status;
-    Status                      delete_edge_points();
-    Status                      delete_voxels_done();
-    Status                      delete_voxel_queue();
+    Status                      delete_voxel_flags();
     surface_extraction_struct   *surface_extraction;
 
     surface_extraction = &graphics->three_d.surface_extraction;
@@ -108,7 +107,12 @@ public  Status  delete_surface_extraction( graphics )
 
     if( status == OK )
     {
-        status = delete_voxels_done( &surface_extraction->voxels_done );
+        status = delete_voxel_flags( &surface_extraction->voxels_done );
+    }
+
+    if( status == OK )
+    {
+        status = delete_voxel_flags( &surface_extraction->voxels_queued );
     }
 
     return( status );
@@ -157,12 +161,9 @@ public  void  start_surface_extraction_at_point( graphics, x, y, z )
     voxel_index_struct          voxel_indices;
     Status                      status;
     Status                      insert_in_voxel_queue();
-    Status                      mark_voxel_done();
-    Status                      mark_voxel_not_done();
+    Status                      set_voxel_flag();
+    Status                      reset_voxel_flag();
     void                        start_surface_extraction();
-    Status                      delete_voxels_done();
-    Status                      delete_voxel_queue();
-    void                        initialize_voxel_queue();
     void                        get_next_voxel_from_queue();
 
     surface_extraction = &graphics->three_d.surface_extraction;
@@ -187,9 +188,9 @@ public  void  start_surface_extraction_at_point( graphics, x, y, z )
 
                 if( status == OK )
                 {
-                    status = mark_voxel_not_done(
+                    status = reset_voxel_flag(
                          graphics->associated[SLICE_WINDOW]->slice.volume,
-                         &graphics->three_d.surface_extraction.voxels_done,
+                         &graphics->three_d.surface_extraction.voxels_queued,
                          &voxel_indices );
                 }
             }
@@ -210,9 +211,9 @@ public  void  start_surface_extraction_at_point( graphics, x, y, z )
 
             if( status == OK )
             {
-                status = mark_voxel_done( 
+                status = set_voxel_flag( 
                            graphics->associated[SLICE_WINDOW]->slice.volume,
-                           &graphics->three_d.surface_extraction.voxels_done,
+                           &graphics->three_d.surface_extraction.voxels_queued,
                            &voxel_indices );
             }
 
@@ -258,12 +259,12 @@ private  Boolean  find_close_voxel_containing_value( volume, voxels_done, value,
     QUEUE_STRUCT( voxel_index_struct )    voxels_to_check;
     voxel_index_struct                    indices, insert;
     bitlist_struct                        voxels_searched;
-    Status                                mark_voxel_done();
-    Status                                delete_voxels_done();
+    Status                                set_voxel_flag();
+    Status                                delete_voxel_flags();
     Status                                insert_in_voxel_queue();
     Status                                delete_voxel_queue();
-    Status                                initialize_voxels_done();
-    void                                  initialize_voxels_queue();
+    Status                                initialize_voxel_flags();
+    void                                  initialize_voxel_queue();
     void                                  get_next_voxel_from_queue();
     void                                  add_voxel_neighbours();
 
@@ -273,7 +274,7 @@ private  Boolean  find_close_voxel_containing_value( volume, voxels_done, value,
 
     found = FALSE;
 
-    status = initialize_voxels_done( &voxels_searched, get_n_voxels( volume ) );
+    status = initialize_voxel_flags( &voxels_searched, get_n_voxels(volume) );
 
     initialize_voxel_queue( &voxels_to_check );
 
@@ -284,7 +285,7 @@ private  Boolean  find_close_voxel_containing_value( volume, voxels_done, value,
 
     if( status == OK )
     {
-        status = mark_voxel_done( volume, &voxels_searched, &insert );
+        status = set_voxel_flag( volume, &voxels_searched, &insert );
     }
 
     while( !found && status == OK && voxels_remaining(&voxels_to_check) )
@@ -296,7 +297,7 @@ private  Boolean  find_close_voxel_containing_value( volume, voxels_done, value,
                                                indices.i[Y_AXIS],
                                                indices.i[Z_AXIS], value );
 
-        voxel_done = is_voxel_done( volume, voxels_done, &indices );
+        voxel_done = get_voxel_flag( volume, voxels_done, &indices );
 
         if( voxel_contains && !voxel_done )
         {
@@ -311,13 +312,14 @@ private  Boolean  find_close_voxel_containing_value( volume, voxels_done, value,
                                   indices.i[X_AXIS],
                                   indices.i[Y_AXIS],
                                   indices.i[Z_AXIS],
+                                  voxel_done, value,
                                   &voxels_searched, &voxels_to_check );
         }
     }
 
     if( status == OK )
     {
-        status = delete_voxels_done( &voxels_searched );
+        status = delete_voxel_flags( &voxels_searched );
     }
 
     if( status == OK )
@@ -365,7 +367,8 @@ public  void  extract_more_triangles( graphics )
                     graphics->associated[SLICE_WINDOW]->slice.volume,
                     voxel_index.i[X_AXIS], voxel_index.i[Y_AXIS],
                     voxel_index.i[Z_AXIS],
-                    &surface_extraction->voxels_done,
+                    TRUE, surface_extraction->isovalue,
+                    &surface_extraction->voxels_queued,
                     &surface_extraction->voxels_to_do );
         }
     }
@@ -377,8 +380,10 @@ private  Boolean   check_voxel( volume, surface_extraction, voxel_index )
     voxel_index_struct          *voxel_index;
 {
     Status                 status;
+    Status                 set_voxel_flag();
     Boolean                lookup_edge_point_id();
     Status                 record_edge_point_id();
+    Status                 delete_edge_points_no_longer_needed();
     polygons_struct        *poly;
     triangle_point_type    *points_list, *pt;
     voxel_index_struct     corner_points[MAX_POINTS_PER_VOXEL];
@@ -424,13 +429,13 @@ private  Boolean   check_voxel( volume, surface_extraction, voxel_index )
                                                 &points_list );
     }
 
+    status = OK;
+
     n_nondegenerate_tris = 0;
 
     if( active && n_tris > 0 )
     {
         poly = surface_extraction->triangles;
-
-        status = OK;
 
         for_less( tri, 0, n_tris )
         {
@@ -662,19 +667,38 @@ private  Boolean   check_voxel( volume, surface_extraction, voxel_index )
         }
     }
 
+    if( status == OK )
+    {
+        status = set_voxel_flag( volume, &surface_extraction->voxels_done,
+                                 voxel_index);
+    }
+
+    if( status == OK )
+    {
+        status = delete_edge_points_no_longer_needed( volume,
+                                       voxel_index,
+                                       &surface_extraction->voxels_done,
+                                       &surface_extraction->edge_points );
+    }
+
     return( n_nondegenerate_tris > 0 );
 }
 
-private  void  add_voxel_neighbours( volume, x, y, z, voxels_done, voxel_queue )
+private  void  add_voxel_neighbours( volume, x, y, z, surface_only, isovalue,
+                                     voxels_queued, voxel_queue )
     volume_struct                       *volume;
     int                                 x, y, z;
-    bitlist_struct                      *voxels_done;
+    Boolean                             surface_only;
+    Real                                isovalue;
+    bitlist_struct                      *voxels_queued;
     QUEUE_STRUCT(voxel_index_struct)    *voxel_queue;
 {
     Status                   status;
     int                      x_offset, y_offset, z_offset;
     voxel_index_struct       neighbour;
     Boolean                  cube_is_within_volume();
+    Status                   insert_in_voxel_queue();
+    Status                   set_voxel_flag();
 
     status = OK;
 
@@ -693,10 +717,16 @@ private  void  add_voxel_neighbours( volume, x, y, z, voxels_done, voxel_queue )
                                            neighbour.i[X_AXIS],
                                            neighbour.i[Y_AXIS],
                                            neighbour.i[Z_AXIS] ) &&
-                    !is_voxel_done( volume, voxels_done, &neighbour ) )
+                    !get_voxel_flag( volume, voxels_queued, &neighbour ) )
                 {
-                    status = mark_voxel_done( volume, voxels_done, &neighbour );
-                    if( status == OK )
+                    status = set_voxel_flag( volume, voxels_queued, &neighbour);
+                    if( status == OK &&
+                        (!surface_only ||
+                         voxel_contains_value( volume,
+                                               neighbour.i[X_AXIS],
+                                               neighbour.i[Y_AXIS],
+                                               neighbour.i[Z_AXIS],
+                                               isovalue )) )
                     {
                         status = insert_in_voxel_queue( voxel_queue,&neighbour);
                     }
@@ -707,17 +737,21 @@ private  void  add_voxel_neighbours( volume, x, y, z, voxels_done, voxel_queue )
 }
 
 private  void  add_square_neighbours( volume, x, y, z, axis_index,
-                                      voxels_done, voxel_queue )
+                                      voxels_queued, voxel_queue )
     volume_struct                       *volume;
     int                                 x, y, z;
     int                                 axis_index;
-    bitlist_struct                      *voxels_done;
+    bitlist_struct                      *voxels_queued;
     QUEUE_STRUCT(voxel_index_struct)    *voxel_queue;
 {
     Status                status;
     int                   axis, dir;
     voxel_index_struct    neighbour;
+    Status                insert_in_voxel_queue();
+    Status                set_voxel_flag();
+
     status = OK;
+
     for_less( axis, 0, N_DIMENSIONS )
     {
         for( dir = -1;  dir <= 1;  dir += 2 )
@@ -733,9 +767,9 @@ private  void  add_square_neighbours( volume, x, y, z, axis_index,
                                            neighbour.i[X_AXIS],
                                            neighbour.i[Y_AXIS],
                                            neighbour.i[Z_AXIS] ) &&
-                    !is_voxel_done( volume, voxels_done, &neighbour ) )
+                    !get_voxel_flag( volume, voxels_queued, &neighbour ) )
                 {
-                    status = mark_voxel_done( volume, voxels_done, &neighbour );
+                    status = set_voxel_flag( volume, voxels_queued, &neighbour);
                     if( status == OK )
                     {
                         status = insert_in_voxel_queue( voxel_queue,
@@ -1139,15 +1173,16 @@ private  void  connect_active_voxels( volume, isovalue, start_voxel )
     QUEUE_STRUCT( voxel_index_struct )    voxels_to_check;
     voxel_index_struct                    indices;
     bitlist_struct                        voxels_searched;
-    Status                                mark_voxel_done();
-    Status                                delete_voxels_done();
+    Status                                set_voxel_flag();
+    Status                                delete_voxel_flags();
     Status                                insert_in_voxel_queue();
     Status                                delete_voxel_queue();
-    Status                                initialize_voxels_done();
+    Status                                initialize_voxel_flags();
     void                                  initialize_voxels_queue();
     void                                  get_next_voxel_from_queue();
     void                                  add_voxel_neighbours();
     void                                  set_voxel_corners_active();
+    void                                  initialize_voxel_queue();
 int    count;
 Real   next_time;
 Real   current_realtime_seconds();
@@ -1156,7 +1191,7 @@ Real   current_realtime_seconds();
     indices.i[Y_AXIS] = MIN( start_voxel->i[Y_AXIS], volume->size[Y_AXIS]-2 );
     indices.i[Z_AXIS] = MIN( start_voxel->i[Z_AXIS], volume->size[Z_AXIS]-2 );
 
-    status = initialize_voxels_done( &voxels_searched, get_n_voxels( volume ) );
+    status = initialize_voxel_flags( &voxels_searched, get_n_voxels( volume ) );
 
     initialize_voxel_queue( &voxels_to_check );
 
@@ -1167,7 +1202,7 @@ Real   current_realtime_seconds();
 
     if( status == OK )
     {
-        status = mark_voxel_done( volume, &voxels_searched, &indices );
+        status = set_voxel_flag( volume, &voxels_searched, &indices );
     }
 
     if( status == OK )
@@ -1218,6 +1253,7 @@ count = 100;
                                       indices.i[X_AXIS],
                                       indices.i[Y_AXIS],
                                       indices.i[Z_AXIS],
+                                      FALSE, 0.0,
                                       &voxels_searched, &voxels_to_check );
             }
         }
@@ -1225,7 +1261,7 @@ count = 100;
 
     if( status == OK )
     {
-        status = delete_voxels_done( &voxels_searched );
+        status = delete_voxel_flags( &voxels_searched );
     }
 
     if( status == OK )
@@ -1371,15 +1407,16 @@ public  void  set_connected_slice_inactivity( graphics, x, y, z, axis_index,
     int                                   n_voxels;
     bitlist_struct                        voxels_searched;
     volume_struct                         *volume;
-    Status                                mark_voxel_done();
-    Status                                delete_voxels_done();
+    Status                                set_voxel_flag();
+    Status                                delete_voxel_flags();
     Status                                insert_in_voxel_queue();
     Status                                delete_voxel_queue();
-    Status                                initialize_voxels_done();
+    Status                                initialize_voxel_flags();
     void                                  initialize_voxels_queue();
     void                                  get_next_voxel_from_queue();
     void                                  add_square_neighbours();
     void                                  set_voxel_inactivity();
+    void                                  initialize_voxel_queue();
 
     volume = graphics->associated[SLICE_WINDOW]->slice.volume;
 
@@ -1391,7 +1428,7 @@ public  void  set_connected_slice_inactivity( graphics, x, y, z, axis_index,
                volume->size[Y_AXIS] *
                volume->size[Z_AXIS];
 
-    status = initialize_voxels_done( &voxels_searched, n_voxels );
+    status = initialize_voxel_flags( &voxels_searched, n_voxels );
 
     initialize_voxel_queue( &voxels_to_check );
 
@@ -1402,7 +1439,7 @@ public  void  set_connected_slice_inactivity( graphics, x, y, z, axis_index,
 
     if( status == OK )
     {
-        status = mark_voxel_done( volume, &voxels_searched, &indices );
+        status = set_voxel_flag( volume, &voxels_searched, &indices );
     }
 
     while( status == OK && voxels_remaining(&voxels_to_check) )
@@ -1451,7 +1488,7 @@ public  void  set_connected_slice_inactivity( graphics, x, y, z, axis_index,
 
     if( status == OK )
     {
-        status = delete_voxels_done( &voxels_searched );
+        status = delete_voxel_flags( &voxels_searched );
     }
 
     if( status == OK )
@@ -1495,4 +1532,90 @@ private  void  possibly_output( p )
             status = close_file( file );
         }
     }
+}
+
+private  Status  delete_edge_points_no_longer_needed( volume, voxel_index,
+                                                      voxels_done, edge_points )
+    volume_struct       *volume;
+    voxel_index_struct  *voxel_index;
+    bitlist_struct      *voxels_done;
+    hash_table_struct   *edge_points;
+{
+    Status              status;
+    int                 axis_index, a1, a2;
+    int                 x, y, dx, dy, dz;
+    Boolean             all_four_done;
+    Boolean             voxel_done[3][3][3];
+    voxel_index_struct  indices;
+    Status              remove_edge_point();
+
+    status = OK;
+
+    for_inclusive( dx, -1, 1 )
+    {
+        indices.i[X_AXIS] = voxel_index->i[X_AXIS] + dx;
+        for_inclusive( dy, -1, 1 )
+        {
+            indices.i[Y_AXIS] = voxel_index->i[Y_AXIS] + dy;
+            for_inclusive( dz, -1, 1 )
+            {
+                indices.i[Z_AXIS] = voxel_index->i[Z_AXIS] + dz;
+
+                if( !cube_is_within_volume( volume, indices.i[X_AXIS],
+                             indices.i[Y_AXIS], indices.i[Z_AXIS] ) ||
+                    get_voxel_flag( volume, voxels_done, &indices ) )
+                {
+                    voxel_done[dx+1][dy+1][dz+1] = TRUE;
+                }
+                else
+                {
+                    voxel_done[dx+1][dy+1][dz+1] = FALSE;
+                }
+            }
+        }
+    }
+
+    for_less( axis_index, 0, N_DIMENSIONS )
+    {
+        a1 = (axis_index + 1) % N_DIMENSIONS;
+        a2 = (axis_index + 2) % N_DIMENSIONS;
+
+        for_less( x, 0, 2 )
+        {
+            for_less( y, 0, 2 )
+            {
+                all_four_done = TRUE;
+
+                for_less( dx, 0, 2 )
+                {
+                    for_less( dy, 0, 2 )
+                    {
+                        indices.i[axis_index] = 1;
+                        indices.i[a1] = x+dx;
+                        indices.i[a2] = y+dy;
+
+                        if( !voxel_done[indices.i[X_AXIS]]
+                                       [indices.i[Y_AXIS]]
+                                       [indices.i[Z_AXIS]] )
+                        {
+                            all_four_done = FALSE;
+                            break;
+                        }
+                    }
+                }
+
+                if( all_four_done )
+                {
+                    indices.i[axis_index] = voxel_index->i[axis_index];
+                    indices.i[a1] = voxel_index->i[a1] + x;
+                    indices.i[a2] = voxel_index->i[a2] + y;
+
+                    status = remove_edge_point( volume, edge_points, &indices,
+                                                axis_index );
+                }
+            }
+        }
+    }
+
+    return( status );
 }
