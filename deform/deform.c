@@ -64,6 +64,8 @@ private  DEF_EVENT_FUNCTION( deform_object )    /* ARGSUSED */
     } while( current_realtime_seconds() <= end_time );
 
     set_update_required( display, NORMAL_PLANES );
+
+    return( OK );
 }
 
 public  void  turn_on_deformation(
