@@ -27,7 +27,6 @@ public  Boolean  extract_voxel_surface( volume, surface_extraction,
     int                    n_polys, n_nondegenerate_polys;
     int                    x, y, z, *sizes;
     int                    extract_polygons();
-    int                    get_volume_voxel_value();
 
     active = are_voxel_corners_active( volume,
                                        voxel_index->i[X_AXIS],
@@ -42,8 +41,7 @@ public  Boolean  extract_voxel_surface( volume, surface_extraction,
             {
                 for_less( z, 0, 2 )
                 {
-                    corner_values[x][y][z] = (Real)
-                             get_volume_voxel_value( volume,
+                    corner_values[x][y][z] = (Real) GET_VOLUME_DATA( *volume,
                                            voxel_index->i[X_AXIS]+x,
                                            voxel_index->i[Y_AXIS]+y,
                                            voxel_index->i[Z_AXIS]+z );
@@ -321,18 +319,17 @@ private  int   create_point( volume, isovalue, polygons, voxel,
     Real      c320, c321, c322, c323, c330, c331, c332, c333;
     Real      x_thickness, y_thickness, z_thickness;
     void      get_volume_slice_thickness();
-    int       get_volume_voxel_value();
 
     corner[X_AXIS] = voxel->i[X_AXIS];
     corner[Y_AXIS] = voxel->i[Y_AXIS];
     corner[Z_AXIS] = voxel->i[Z_AXIS];
 
-    val1 = isovalue - (Real) get_volume_voxel_value( volume,
+    val1 = isovalue - (Real) GET_VOLUME_DATA( *volume,
                              corner[X_AXIS], corner[Y_AXIS], corner[Z_AXIS] );
 
     ++corner[edge_intersected];
 
-    val2 = isovalue - (Real) get_volume_voxel_value( volume,
+    val2 = isovalue - (Real) GET_VOLUME_DATA( *volume,
                              corner[X_AXIS], corner[Y_AXIS], corner[Z_AXIS] );
 
     if( val1 == 0.0 )
@@ -355,88 +352,88 @@ private  int   create_point( volume, isovalue, polygons, voxel,
     y = voxel->i[Y_AXIS];
     z = voxel->i[Z_AXIS];
 
-    c000 = (Real) get_volume_voxel_value( volume, x-1, y-1, z-1 );
-    c001 = (Real) get_volume_voxel_value( volume, x-1, y-1, z+0 );
-    c002 = (Real) get_volume_voxel_value( volume, x-1, y-1, z+1 );
-    c003 = (Real) get_volume_voxel_value( volume, x-1, y-1, z+2 );
+    c000 = (Real) GET_VOLUME_DATA( *volume, x-1, y-1, z-1 );
+    c001 = (Real) GET_VOLUME_DATA( *volume, x-1, y-1, z+0 );
+    c002 = (Real) GET_VOLUME_DATA( *volume, x-1, y-1, z+1 );
+    c003 = (Real) GET_VOLUME_DATA( *volume, x-1, y-1, z+2 );
 
-    c010 = (Real) get_volume_voxel_value( volume, x-1, y+0, z-1 );
-    c011 = (Real) get_volume_voxel_value( volume, x-1, y+0, z+0 );
-    c012 = (Real) get_volume_voxel_value( volume, x-1, y+0, z+1 );
-    c013 = (Real) get_volume_voxel_value( volume, x-1, y+0, z+2 );
+    c010 = (Real) GET_VOLUME_DATA( *volume, x-1, y+0, z-1 );
+    c011 = (Real) GET_VOLUME_DATA( *volume, x-1, y+0, z+0 );
+    c012 = (Real) GET_VOLUME_DATA( *volume, x-1, y+0, z+1 );
+    c013 = (Real) GET_VOLUME_DATA( *volume, x-1, y+0, z+2 );
 
-    c020 = (Real) get_volume_voxel_value( volume, x-1, y+1, z-1 );
-    c021 = (Real) get_volume_voxel_value( volume, x-1, y+1, z+0 );
-    c022 = (Real) get_volume_voxel_value( volume, x-1, y+1, z+1 );
-    c023 = (Real) get_volume_voxel_value( volume, x-1, y+1, z+2 );
+    c020 = (Real) GET_VOLUME_DATA( *volume, x-1, y+1, z-1 );
+    c021 = (Real) GET_VOLUME_DATA( *volume, x-1, y+1, z+0 );
+    c022 = (Real) GET_VOLUME_DATA( *volume, x-1, y+1, z+1 );
+    c023 = (Real) GET_VOLUME_DATA( *volume, x-1, y+1, z+2 );
 
-    c030 = (Real) get_volume_voxel_value( volume, x-1, y+2, z-1 );
-    c031 = (Real) get_volume_voxel_value( volume, x-1, y+2, z+0 );
-    c032 = (Real) get_volume_voxel_value( volume, x-1, y+2, z+1 );
-    c033 = (Real) get_volume_voxel_value( volume, x-1, y+2, z+2 );
-
-
-    c100 = (Real) get_volume_voxel_value( volume, x+0, y-1, z-1 );
-    c101 = (Real) get_volume_voxel_value( volume, x+0, y-1, z+0 );
-    c102 = (Real) get_volume_voxel_value( volume, x+0, y-1, z+1 );
-    c103 = (Real) get_volume_voxel_value( volume, x+0, y-1, z+2 );
-
-    c110 = (Real) get_volume_voxel_value( volume, x+0, y+0, z-1 );
-    c111 = (Real) get_volume_voxel_value( volume, x+0, y+0, z+0 );
-    c112 = (Real) get_volume_voxel_value( volume, x+0, y+0, z+1 );
-    c113 = (Real) get_volume_voxel_value( volume, x+0, y+0, z+2 );
-
-    c120 = (Real) get_volume_voxel_value( volume, x+0, y+1, z-1 );
-    c121 = (Real) get_volume_voxel_value( volume, x+0, y+1, z+0 );
-    c122 = (Real) get_volume_voxel_value( volume, x+0, y+1, z+1 );
-    c123 = (Real) get_volume_voxel_value( volume, x+0, y+1, z+2 );
-
-    c130 = (Real) get_volume_voxel_value( volume, x+0, y+2, z-1 );
-    c131 = (Real) get_volume_voxel_value( volume, x+0, y+2, z+0 );
-    c132 = (Real) get_volume_voxel_value( volume, x+0, y+2, z+1 );
-    c133 = (Real) get_volume_voxel_value( volume, x+0, y+2, z+2 );
+    c030 = (Real) GET_VOLUME_DATA( *volume, x-1, y+2, z-1 );
+    c031 = (Real) GET_VOLUME_DATA( *volume, x-1, y+2, z+0 );
+    c032 = (Real) GET_VOLUME_DATA( *volume, x-1, y+2, z+1 );
+    c033 = (Real) GET_VOLUME_DATA( *volume, x-1, y+2, z+2 );
 
 
-    c200 = (Real) get_volume_voxel_value( volume, x+1, y-1, z-1 );
-    c201 = (Real) get_volume_voxel_value( volume, x+1, y-1, z+0 );
-    c202 = (Real) get_volume_voxel_value( volume, x+1, y-1, z+1 );
-    c203 = (Real) get_volume_voxel_value( volume, x+1, y-1, z+2 );
+    c100 = (Real) GET_VOLUME_DATA( *volume, x+0, y-1, z-1 );
+    c101 = (Real) GET_VOLUME_DATA( *volume, x+0, y-1, z+0 );
+    c102 = (Real) GET_VOLUME_DATA( *volume, x+0, y-1, z+1 );
+    c103 = (Real) GET_VOLUME_DATA( *volume, x+0, y-1, z+2 );
 
-    c210 = (Real) get_volume_voxel_value( volume, x+1, y+0, z-1 );
-    c211 = (Real) get_volume_voxel_value( volume, x+1, y+0, z+0 );
-    c212 = (Real) get_volume_voxel_value( volume, x+1, y+0, z+1 );
-    c213 = (Real) get_volume_voxel_value( volume, x+1, y+0, z+2 );
+    c110 = (Real) GET_VOLUME_DATA( *volume, x+0, y+0, z-1 );
+    c111 = (Real) GET_VOLUME_DATA( *volume, x+0, y+0, z+0 );
+    c112 = (Real) GET_VOLUME_DATA( *volume, x+0, y+0, z+1 );
+    c113 = (Real) GET_VOLUME_DATA( *volume, x+0, y+0, z+2 );
 
-    c220 = (Real) get_volume_voxel_value( volume, x+1, y+1, z-1 );
-    c221 = (Real) get_volume_voxel_value( volume, x+1, y+1, z+0 );
-    c222 = (Real) get_volume_voxel_value( volume, x+1, y+1, z+1 );
-    c223 = (Real) get_volume_voxel_value( volume, x+1, y+1, z+2 );
+    c120 = (Real) GET_VOLUME_DATA( *volume, x+0, y+1, z-1 );
+    c121 = (Real) GET_VOLUME_DATA( *volume, x+0, y+1, z+0 );
+    c122 = (Real) GET_VOLUME_DATA( *volume, x+0, y+1, z+1 );
+    c123 = (Real) GET_VOLUME_DATA( *volume, x+0, y+1, z+2 );
 
-    c230 = (Real) get_volume_voxel_value( volume, x+1, y+2, z-1 );
-    c231 = (Real) get_volume_voxel_value( volume, x+1, y+2, z+0 );
-    c232 = (Real) get_volume_voxel_value( volume, x+1, y+2, z+1 );
-    c233 = (Real) get_volume_voxel_value( volume, x+1, y+2, z+2 );
+    c130 = (Real) GET_VOLUME_DATA( *volume, x+0, y+2, z-1 );
+    c131 = (Real) GET_VOLUME_DATA( *volume, x+0, y+2, z+0 );
+    c132 = (Real) GET_VOLUME_DATA( *volume, x+0, y+2, z+1 );
+    c133 = (Real) GET_VOLUME_DATA( *volume, x+0, y+2, z+2 );
 
 
-    c300 = (Real) get_volume_voxel_value( volume, x+2, y-1, z-1 );
-    c301 = (Real) get_volume_voxel_value( volume, x+2, y-1, z+0 );
-    c302 = (Real) get_volume_voxel_value( volume, x+2, y-1, z+1 );
-    c303 = (Real) get_volume_voxel_value( volume, x+2, y-1, z+2 );
+    c200 = (Real) GET_VOLUME_DATA( *volume, x+1, y-1, z-1 );
+    c201 = (Real) GET_VOLUME_DATA( *volume, x+1, y-1, z+0 );
+    c202 = (Real) GET_VOLUME_DATA( *volume, x+1, y-1, z+1 );
+    c203 = (Real) GET_VOLUME_DATA( *volume, x+1, y-1, z+2 );
 
-    c310 = (Real) get_volume_voxel_value( volume, x+2, y+0, z-1 );
-    c311 = (Real) get_volume_voxel_value( volume, x+2, y+0, z+0 );
-    c312 = (Real) get_volume_voxel_value( volume, x+2, y+0, z+1 );
-    c313 = (Real) get_volume_voxel_value( volume, x+2, y+0, z+2 );
+    c210 = (Real) GET_VOLUME_DATA( *volume, x+1, y+0, z-1 );
+    c211 = (Real) GET_VOLUME_DATA( *volume, x+1, y+0, z+0 );
+    c212 = (Real) GET_VOLUME_DATA( *volume, x+1, y+0, z+1 );
+    c213 = (Real) GET_VOLUME_DATA( *volume, x+1, y+0, z+2 );
 
-    c320 = (Real) get_volume_voxel_value( volume, x+2, y+1, z-1 );
-    c321 = (Real) get_volume_voxel_value( volume, x+2, y+1, z+0 );
-    c322 = (Real) get_volume_voxel_value( volume, x+2, y+1, z+1 );
-    c323 = (Real) get_volume_voxel_value( volume, x+2, y+1, z+2 );
+    c220 = (Real) GET_VOLUME_DATA( *volume, x+1, y+1, z-1 );
+    c221 = (Real) GET_VOLUME_DATA( *volume, x+1, y+1, z+0 );
+    c222 = (Real) GET_VOLUME_DATA( *volume, x+1, y+1, z+1 );
+    c223 = (Real) GET_VOLUME_DATA( *volume, x+1, y+1, z+2 );
 
-    c330 = (Real) get_volume_voxel_value( volume, x+2, y+2, z-1 );
-    c331 = (Real) get_volume_voxel_value( volume, x+2, y+2, z+0 );
-    c332 = (Real) get_volume_voxel_value( volume, x+2, y+2, z+1 );
-    c333 = (Real) get_volume_voxel_value( volume, x+2, y+2, z+2 );
+    c230 = (Real) GET_VOLUME_DATA( *volume, x+1, y+2, z-1 );
+    c231 = (Real) GET_VOLUME_DATA( *volume, x+1, y+2, z+0 );
+    c232 = (Real) GET_VOLUME_DATA( *volume, x+1, y+2, z+1 );
+    c233 = (Real) GET_VOLUME_DATA( *volume, x+1, y+2, z+2 );
+
+
+    c300 = (Real) GET_VOLUME_DATA( *volume, x+2, y-1, z-1 );
+    c301 = (Real) GET_VOLUME_DATA( *volume, x+2, y-1, z+0 );
+    c302 = (Real) GET_VOLUME_DATA( *volume, x+2, y-1, z+1 );
+    c303 = (Real) GET_VOLUME_DATA( *volume, x+2, y-1, z+2 );
+
+    c310 = (Real) GET_VOLUME_DATA( *volume, x+2, y+0, z-1 );
+    c311 = (Real) GET_VOLUME_DATA( *volume, x+2, y+0, z+0 );
+    c312 = (Real) GET_VOLUME_DATA( *volume, x+2, y+0, z+1 );
+    c313 = (Real) GET_VOLUME_DATA( *volume, x+2, y+0, z+2 );
+
+    c320 = (Real) GET_VOLUME_DATA( *volume, x+2, y+1, z-1 );
+    c321 = (Real) GET_VOLUME_DATA( *volume, x+2, y+1, z+0 );
+    c322 = (Real) GET_VOLUME_DATA( *volume, x+2, y+1, z+1 );
+    c323 = (Real) GET_VOLUME_DATA( *volume, x+2, y+1, z+2 );
+
+    c330 = (Real) GET_VOLUME_DATA( *volume, x+2, y+2, z-1 );
+    c331 = (Real) GET_VOLUME_DATA( *volume, x+2, y+2, z+0 );
+    c332 = (Real) GET_VOLUME_DATA( *volume, x+2, y+2, z+1 );
+    c333 = (Real) GET_VOLUME_DATA( *volume, x+2, y+2, z+2 );
 
     u_bar[X_AXIS] = 0.0;
     u_bar[Y_AXIS] = 0.0;
