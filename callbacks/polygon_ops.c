@@ -57,7 +57,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
         if( status == OK )
         {
             status = io_bintree( file, READ_FILE, BINARY_FORMAT,
-                                 polygons->n_items, polygons->bintree );
+                                 polygons->bintree );
         }
 
         if( status == OK )
@@ -99,7 +99,7 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
         if( status == OK )
         {
             status = io_bintree( file, WRITE_FILE, BINARY_FORMAT,
-                                 polygons->n_items, polygons->bintree );
+                                 polygons->bintree );
         }
 
         if( status == OK )
@@ -356,7 +356,7 @@ public  DEF_MENU_FUNCTION( scan_current_polygon_to_volume )   /* ARGSUSED */
         scan_polygons_to_voxels( polygons,
                                  get_volume(slice_window),
                                  get_label_volume(slice_window),
-                                 slice_window->slice.current_paint_label,
+                                 get_current_paint_label(slice_window),
                                  Max_polygon_scan_distance );
 
         print( " done.\n" );
