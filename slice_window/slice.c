@@ -234,19 +234,23 @@ public  void  delete_slice_window(
 {
     free_slice_window( slice );
 
+    delete_slice_histogram( slice );
+
     delete_volume( slice->original_volume );
     delete_volume( slice->original_labels );
+
+    delete_atlas( &slice->atlas );
 }
 
 private  void  free_slice_window(
     slice_window_struct   *slice )
 {
     delete_slice_colour_coding( slice );
+    delete_slice_undo( &slice->undo );
 
     if( slice->volume != (Volume) NULL &&
         slice->volume != slice->original_volume )
     {
-        delete_slice_undo( &slice->undo );
         delete_volume( slice->volume );
         delete_volume( slice->labels );
     }
