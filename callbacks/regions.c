@@ -1,7 +1,9 @@
 
 #include  <display.h>
 
-public  DEF_MENU_FUNCTION( set_paint_xy_brush_radius )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_paint_xy_brush_radius )
 {
     Real            xy_brush_radius;
     display_struct  *slice_window;
@@ -23,7 +25,9 @@ public  DEF_MENU_FUNCTION( set_paint_xy_brush_radius )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_paint_xy_brush_radius )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_paint_xy_brush_radius )
 {
     BOOLEAN          state;
     Real             x_brush_radius;
@@ -40,7 +44,9 @@ public  DEF_MENU_UPDATE(set_paint_xy_brush_radius )   /* ARGSUSED */
     return( state );
 }
 
-public  DEF_MENU_FUNCTION( set_paint_z_brush_radius )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_paint_z_brush_radius )
 {
     Real            z_brush_radius;
     display_struct  *slice_window;
@@ -59,7 +65,9 @@ public  DEF_MENU_FUNCTION( set_paint_z_brush_radius )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_paint_z_brush_radius )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_paint_z_brush_radius )
 {
     BOOLEAN          state;
     Real             z_brush_radius;
@@ -77,7 +85,9 @@ public  DEF_MENU_UPDATE(set_paint_z_brush_radius )   /* ARGSUSED */
 }
 
 
-public  DEF_MENU_FUNCTION( set_current_paint_label )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_current_paint_label )
 {
     int             label;
     display_struct  *slice_window;
@@ -97,7 +107,9 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_current_paint_label )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_current_paint_label )
 {
     BOOLEAN          state;
     int              current_label;
@@ -115,7 +127,9 @@ public  DEF_MENU_UPDATE(set_current_paint_label )   /* ARGSUSED */
     return( state );
 }
 
-public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_label_colour )
 {
     display_struct   *slice_window;
     int              label;
@@ -150,7 +164,9 @@ public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_label_colour )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_label_colour )
 {
     return( get_n_volumes(display) > 0 );
 }
@@ -201,31 +217,41 @@ private  void  copy_labels_from_adjacent_slice(
     }
 }
 
-public  DEF_MENU_FUNCTION( copy_labels_from_lower_slice )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( copy_labels_from_lower_slice )
 {
     copy_labels_from_adjacent_slice( display, -1 );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(copy_labels_from_lower_slice )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(copy_labels_from_lower_slice )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION( copy_labels_from_higher_slice )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( copy_labels_from_higher_slice )
 {
     copy_labels_from_adjacent_slice( display, 1 );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(copy_labels_from_higher_slice )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(copy_labels_from_higher_slice )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION( toggle_display_labels )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( toggle_display_labels )
 {
     display_struct  *slice_window;
 
@@ -243,7 +269,9 @@ public  DEF_MENU_FUNCTION( toggle_display_labels )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_display_labels )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_display_labels )
 {
     BOOLEAN          display_labels, state;
     display_struct   *slice_window;
@@ -262,7 +290,9 @@ public  DEF_MENU_UPDATE(toggle_display_labels )   /* ARGSUSED */
     return( state );
 }
 
-public  DEF_MENU_FUNCTION( change_labels_in_range )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( change_labels_in_range )
 {
     display_struct  *slice_window;
     Status          status;
@@ -309,7 +339,9 @@ public  DEF_MENU_FUNCTION( change_labels_in_range )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(change_labels_in_range )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(change_labels_in_range )
 {
     return( get_n_volumes(display) > 0 );
 }
@@ -351,7 +383,9 @@ private  void  calculate_label_volume(
            ABS( separations[Z] ) );
 }
 
-public  DEF_MENU_FUNCTION( calculate_volume )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( calculate_volume )
 {
     display_struct  *slice_window;
     int             n_voxels;
@@ -374,12 +408,16 @@ public  DEF_MENU_FUNCTION( calculate_volume )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(calculate_volume )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(calculate_volume )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION( flip_labels_in_x )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( flip_labels_in_x )
 {
     display_struct  *slice_window;
 
@@ -397,7 +435,9 @@ public  DEF_MENU_FUNCTION( flip_labels_in_x )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(flip_labels_in_x )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(flip_labels_in_x )
 {
     return( get_n_volumes(display) > 0 );
 }
@@ -434,55 +474,73 @@ private  void  translate_labels_callback(
     }
 }
 
-public  DEF_MENU_FUNCTION( translate_labels_up )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( translate_labels_up )
 {
     translate_labels_callback( display, 0, 1 );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(translate_labels_up )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(translate_labels_up )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION( translate_labels_down )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( translate_labels_down )
 {
     translate_labels_callback( display, 0, -1 );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(translate_labels_down )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(translate_labels_down )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION( translate_labels_left )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( translate_labels_left )
 {
     translate_labels_callback( display, -1, 0 );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(translate_labels_left )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(translate_labels_left )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION( translate_labels_right )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( translate_labels_right )
 {
     translate_labels_callback( display, 1, 0 );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(translate_labels_right )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(translate_labels_right )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION( undo_slice_labels )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( undo_slice_labels )
 {
     int   volume_index;
 
@@ -497,12 +555,16 @@ public  DEF_MENU_FUNCTION( undo_slice_labels )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(undo_slice_labels )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(undo_slice_labels )
 {
     return( slice_labels_to_undo(display) );
 }
 
-public  DEF_MENU_FUNCTION( translate_labels_arbitrary )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( translate_labels_arbitrary )
 {
     int              delta[MAX_DIMENSIONS];
     display_struct   *slice_window;
@@ -527,7 +589,9 @@ public  DEF_MENU_FUNCTION( translate_labels_arbitrary )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(translate_labels_arbitrary )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(translate_labels_arbitrary )
 {
     return( get_n_volumes(display) > 0 );
 }

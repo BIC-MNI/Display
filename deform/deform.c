@@ -20,7 +20,9 @@ public  void  delete_deformation(
     delete_deformation_parameters( &deform->deform );
 }
 
-private  DEF_EVENT_FUNCTION( deform_object )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( deform_object )
 {
     polygons_struct   *polygons;
     Real              end_time;

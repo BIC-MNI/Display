@@ -1,7 +1,9 @@
 
 #include  <display.h>
 
-public  DEF_MENU_FUNCTION( set_atlas_on_or_off )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_atlas_on_or_off )
 {
     BOOLEAN          state;
     display_struct   *slice_window;
@@ -17,7 +19,9 @@ public  DEF_MENU_FUNCTION( set_atlas_on_or_off )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_atlas_on_or_off )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_atlas_on_or_off )
 {
     BOOLEAN          valid;
     display_struct   *slice_window;
@@ -31,7 +35,9 @@ public  DEF_MENU_UPDATE(set_atlas_on_or_off )   /* ARGSUSED */
     return( valid );
 }
 
-public  DEF_MENU_FUNCTION( set_atlas_opacity )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_atlas_opacity )
 {
     Real             opacity;
     display_struct   *slice_window;
@@ -51,12 +57,16 @@ public  DEF_MENU_FUNCTION( set_atlas_opacity )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_atlas_opacity )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_atlas_opacity )
 {
     return( slice_window_exists(display) );
 }
 
-public  DEF_MENU_FUNCTION( set_atlas_transparent_threshold )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_atlas_transparent_threshold )
 {
     int              threshold;
     display_struct   *slice_window;
@@ -75,7 +85,9 @@ public  DEF_MENU_FUNCTION( set_atlas_transparent_threshold )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_atlas_transparent_threshold )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_atlas_transparent_threshold )
 {
     return( slice_window_exists(display) );
 }
@@ -96,35 +108,47 @@ private  void  flip_atlas_on_an_axis(
     }
 }
 
-public  DEF_MENU_FUNCTION( flip_atlas_x )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( flip_atlas_x )
 {
     flip_atlas_on_an_axis( display, X );
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(flip_atlas_x )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(flip_atlas_x )
 {
     return( is_atlas_loaded(display) );
 }
 
-public  DEF_MENU_FUNCTION( flip_atlas_y )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( flip_atlas_y )
 {
     flip_atlas_on_an_axis( display, Y );
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(flip_atlas_y )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(flip_atlas_y )
 {
     return( is_atlas_loaded(display) );
 }
 
-public  DEF_MENU_FUNCTION( flip_atlas_z )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( flip_atlas_z )
 {
     flip_atlas_on_an_axis( display, Z );
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(flip_atlas_z )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(flip_atlas_z )
 {
     return( is_atlas_loaded(display) );
 }
@@ -151,35 +175,47 @@ private  void  set_atlas_tolerance(
     }
 }
 
-public  DEF_MENU_FUNCTION( set_atlas_tolerance_x )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_atlas_tolerance_x )
 {
     set_atlas_tolerance( display, X );
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_atlas_tolerance_x )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_atlas_tolerance_x )
 {
     return( slice_window_exists(display) );
 }
 
-public  DEF_MENU_FUNCTION( set_atlas_tolerance_y )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_atlas_tolerance_y )
 {
     set_atlas_tolerance( display, Y );
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_atlas_tolerance_y )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_atlas_tolerance_y )
 {
     return( slice_window_exists(display) );
 }
 
-public  DEF_MENU_FUNCTION( set_atlas_tolerance_z )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_atlas_tolerance_z )
 {
     set_atlas_tolerance( display, Z );
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_atlas_tolerance_z )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_atlas_tolerance_z )
 {
     return( slice_window_exists(display) );
 }

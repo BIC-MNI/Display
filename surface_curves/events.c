@@ -68,10 +68,14 @@ public  void  start_surface_curve(
 public  void  end_surface_curve(
     display_struct     *display )
 {
+    Real  len;
+
     if( display->three_d.surface_curve.picking_points )
     {
         pop_action_table( &display->action_table, LEFT_MOUSE_DOWN_EVENT );
         display->three_d.surface_curve.picking_points = FALSE;
+        len = get_lines_length( display->three_d.surface_curve.lines );
+        print( "Total length: %g\n", len );
     }
 }
 
@@ -158,7 +162,9 @@ private  void  pick_surface_point(
     }
 }
 
-private  DEF_EVENT_FUNCTION( pick_point )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( pick_point )
 {
     pick_surface_point( display, FALSE );
 

@@ -89,8 +89,9 @@ private  void  make_cursor_contours(
     }
 }
 
+/* ARGSUSED */
+
 private  DEF_EVENT_FUNCTION( check_update_contour )
-    /* ARGSUSED */
 {
     Real     end_time;
     BOOLEAN  found;

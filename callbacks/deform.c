@@ -1,7 +1,9 @@
  
 #include  <display.h>
 
-public  DEF_MENU_FUNCTION( start_deforming_object )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( start_deforming_object )
 {
     Volume            volume;
     object_struct     *object;
@@ -15,14 +17,18 @@ public  DEF_MENU_FUNCTION( start_deforming_object )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(start_deforming_object )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(start_deforming_object )
 {
     return( get_n_volumes(display) > 0 &&
             (current_object_is_this_type( display, LINES ) ||
              current_object_is_this_type( display, POLYGONS )) );
 }
 
-public  DEF_MENU_FUNCTION( start_annealing_deforming_object )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( start_annealing_deforming_object )
 {
     Volume            volume;
     object_struct     *object;
@@ -36,14 +42,18 @@ public  DEF_MENU_FUNCTION( start_annealing_deforming_object )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(start_annealing_deforming_object )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(start_annealing_deforming_object )
 {
     return( get_n_volumes(display) > 0 &&
             (current_object_is_this_type( display, LINES ) ||
              current_object_is_this_type( display, POLYGONS )) );
 }
 
-public  DEF_MENU_FUNCTION( set_annealing_parameters )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_annealing_parameters )
 {
     Real              fifty_percent_threshold, temperature_factor;
     Real              max_trans, max_rotate, max_scale_offset;
@@ -76,24 +86,32 @@ public  DEF_MENU_FUNCTION( set_annealing_parameters )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_annealing_parameters )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_annealing_parameters )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( stop_deforming_object )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( stop_deforming_object )
 {
     turn_off_deformation( display );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(stop_deforming_object )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(stop_deforming_object )
 {
     return( display->three_d.deform.in_progress );
 }
 
-public  DEF_MENU_FUNCTION( set_deformation_boundary )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_deformation_boundary )
 {
     Real   min_val, max_val, grad_threshold, angle, tolerance;
     char   ch;
@@ -126,12 +144,16 @@ public  DEF_MENU_FUNCTION( set_deformation_boundary )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_deformation_boundary )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_deformation_boundary )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_deformation_model )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_deformation_model )
 {
     Real           model_weight, min_curvature, max_curvature;
     int            up_to_n_points;
@@ -159,12 +181,16 @@ public  DEF_MENU_FUNCTION( set_deformation_model )   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(set_deformation_model )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_deformation_model )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_deformation_original_positions )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_deformation_original_positions )
 {
     Real           max_position_offset;
     int            n_points;
@@ -202,12 +228,16 @@ public  DEF_MENU_FUNCTION( set_deformation_original_positions )   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(set_deformation_original_positions )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_deformation_original_positions )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_deformation_parameters )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_deformation_parameters )
 {
     Real           fractional_step, max_step, max_search_distance;
     Real           movement_threshold;
@@ -235,12 +265,16 @@ public  DEF_MENU_FUNCTION( set_deformation_parameters )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_deformation_parameters )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_deformation_parameters )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( reset_deformation_model )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( reset_deformation_model )
 {
     delete_deformation_model(&display->three_d.deform.deform.deformation_model);
     initialize_deformation_model(
@@ -249,19 +283,25 @@ public  DEF_MENU_FUNCTION( reset_deformation_model )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(reset_deformation_model )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(reset_deformation_model )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( show_deformation_model )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( show_deformation_model )
 {
     print_deformation_model( &display->three_d.deform.deform.deformation_model);
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(show_deformation_model )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(show_deformation_model )
 {
     return( TRUE );
 }

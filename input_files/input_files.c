@@ -15,6 +15,7 @@ public  Status  load_graphics_file(
     object_traverse_struct   object_traverse;
     STRING                   volume_description;
     BOOLEAN                  volume_present;
+    display_struct           *slice_window;
 
     object = create_object( MODEL );
 
@@ -60,6 +61,13 @@ public  Status  load_graphics_file(
     {
         print( "Cannot read .cnt files.\n" );
         status = ERROR;
+    }
+    else if( filename_extension_matches(filename,
+                                        get_default_colour_map_suffix()) &&
+             get_n_volumes(display) > 0 &&
+             get_slice_window( display, &slice_window ) )
+    {
+        status = load_label_colour_map( slice_window, filename );
     }
     else if( filename_extension_matches(filename,"roi") )
     {

@@ -46,16 +46,18 @@ private  void  turn_off_segmenting(
                                   terminate_segmenting );
 }
 
+/* ARGSUSED */
+
 private  DEF_EVENT_FUNCTION( terminate_segmenting )
-    /* ARGSUSED */
 {
     turn_off_segmenting( &display->action_table );
 
     return( OK );
 }
 
+/* ARGSUSED */
+
 private  DEF_EVENT_FUNCTION( start_segmenting )
-    /* ARGSUSED */
 {
     push_action_table( &display->action_table, MIDDLE_MOUSE_UP_EVENT );
 
@@ -82,8 +84,9 @@ private  void  remove_events(
     turn_off_segmenting( action_table );
 }
 
+/* ARGSUSED */
+
 private  DEF_EVENT_FUNCTION( end_segmenting )
-    /* ARGSUSED */
 {
     BOOLEAN  segmented;
 
@@ -130,7 +133,9 @@ private  void   add_polygon_under_mouse(
     }
 }
 
-private  DEF_EVENT_FUNCTION( pick_surface_polygon )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( pick_surface_polygon )
 {
     add_polygon_under_mouse( display );
 

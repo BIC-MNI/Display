@@ -27,8 +27,9 @@ public  void  initialize_front_clipping(
                                start_front_clipping );
 }
 
+/* ARGSUSED */
+
 private  DEF_EVENT_FUNCTION( turn_off_front_clipping )
-    /* ARGSUSED */
 {
     remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_DOWN_EVENT,
@@ -41,8 +42,9 @@ private  DEF_EVENT_FUNCTION( turn_off_front_clipping )
     return( OK );
 }
 
+/* ARGSUSED */
+
 private  DEF_EVENT_FUNCTION( start_front_clipping )
-    /* ARGSUSED */
 {
     add_action_table_function( &display->action_table,
                                NO_EVENT,
@@ -72,8 +74,9 @@ private  void  update_clipping(
     }
 }
 
+/* ARGSUSED */
+
 private  DEF_EVENT_FUNCTION( terminate_front_clipping )
-    /* ARGSUSED */
 {
     update_clipping( display, TRUE );
     
@@ -89,7 +92,9 @@ private  DEF_EVENT_FUNCTION( terminate_front_clipping )
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_update_front )      /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update_front )
 {
     update_clipping( display, TRUE );
 
@@ -110,8 +115,9 @@ public  void  initialize_back_clipping(
                                start_back_clipping );
 }
 
+/* ARGSUSED */
+
 private  DEF_EVENT_FUNCTION( turn_off_back_clipping )
-    /* ARGSUSED */
 {
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
@@ -124,8 +130,9 @@ private  DEF_EVENT_FUNCTION( turn_off_back_clipping )
     return( OK );
 }
 
+/* ARGSUSED */
+
 private  DEF_EVENT_FUNCTION( start_back_clipping )
-    /* ARGSUSED */
 {
     add_action_table_function( &display->action_table,
                                NO_EVENT,
@@ -144,8 +151,9 @@ private  DEF_EVENT_FUNCTION( start_back_clipping )
     return( OK );
 }
 
+/* ARGSUSED */
+
 private  DEF_EVENT_FUNCTION( terminate_back_clipping )
-    /* ARGSUSED */
 {
     update_clipping( display, FALSE );
     
@@ -161,7 +169,9 @@ private  DEF_EVENT_FUNCTION( terminate_back_clipping )
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_update_back )      /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update_back )
 {
     update_clipping( display, FALSE );
 

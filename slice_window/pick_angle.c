@@ -38,7 +38,9 @@ private  void  terminate_event(
     pop_action_table( &display->action_table, LEFT_MOUSE_UP_EVENT );
 }
 
-private  DEF_EVENT_FUNCTION( start_picking_angle )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( start_picking_angle )
 {
     int          view_index;
 
@@ -75,7 +77,9 @@ private  void  update_picking_angle(
         set_slice_angle( slice_window, x, y );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_picking_angle )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_picking_angle )
 {
     update_picking_angle( display );
 
@@ -84,7 +88,9 @@ private  DEF_EVENT_FUNCTION( terminate_picking_angle )     /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_update_picking_angle )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update_picking_angle )
 {
     update_picking_angle( display );
 

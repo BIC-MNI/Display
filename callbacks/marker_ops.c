@@ -81,7 +81,9 @@ public  void  create_marker_at_position(
     add_object_to_current_model( display, object );
 }
 
-public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( create_marker_at_cursor )
 {
     Point           position;
 
@@ -92,12 +94,16 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(create_marker_at_cursor )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(create_marker_at_cursor )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_cursor_to_marker )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_cursor_to_marker )
 {
     object_struct   *object;
     display_struct  *slice_window;
@@ -121,12 +127,16 @@ public  DEF_MENU_FUNCTION( set_cursor_to_marker )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_cursor_to_marker )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_cursor_to_marker )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( save_markers )
 {
     Status                  status;
     object_struct           *object, *current_object;
@@ -208,12 +218,16 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(save_markers )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(save_markers )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_default_marker_structure_id )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_default_marker_structure_id )
 {
     int             id;
 
@@ -235,7 +249,9 @@ public  DEF_MENU_FUNCTION( set_default_marker_structure_id )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_default_marker_structure_id )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_default_marker_structure_id )
 {
     set_menu_text_int( menu_window, menu_entry,
                        display->three_d.default_marker_structure_id );
@@ -243,7 +259,9 @@ public  DEF_MENU_UPDATE(set_default_marker_structure_id )   /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_default_marker_patient_id )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_default_marker_patient_id )
 {
     int             id;
 
@@ -265,7 +283,9 @@ public  DEF_MENU_FUNCTION( set_default_marker_patient_id )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_default_marker_patient_id )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_default_marker_patient_id )
 {
     set_menu_text_int( menu_window, menu_entry,
                        display->three_d.default_marker_patient_id );
@@ -273,7 +293,9 @@ public  DEF_MENU_UPDATE(set_default_marker_patient_id )   /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_default_marker_size )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_default_marker_size )
 {
     Real        size;
 
@@ -294,7 +316,9 @@ public  DEF_MENU_FUNCTION( set_default_marker_size )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_default_marker_size )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_default_marker_size )
 {
     set_menu_text_real( menu_window, menu_entry,
                         display->three_d.default_marker_size );
@@ -302,7 +326,9 @@ public  DEF_MENU_UPDATE(set_default_marker_size )   /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_default_marker_colour )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_default_marker_colour )
 {
     Status      status;
     STRING      string;
@@ -333,7 +359,9 @@ public  DEF_MENU_FUNCTION( set_default_marker_colour )   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(set_default_marker_colour )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_default_marker_colour )
 {
     set_menu_text_with_colour( menu_window, menu_entry,
                                display->three_d.default_marker_colour );
@@ -341,7 +369,9 @@ public  DEF_MENU_UPDATE(set_default_marker_colour )   /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_default_marker_type )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_default_marker_type )
 {
     int       type;
 
@@ -363,7 +393,9 @@ public  DEF_MENU_FUNCTION( set_default_marker_type )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_default_marker_type )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_default_marker_type )
 {
     char    *name;
 
@@ -387,7 +419,9 @@ public  DEF_MENU_UPDATE(set_default_marker_type )   /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_default_marker_label )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_default_marker_label )
 {
     Status       status;
     STRING       label;
@@ -411,7 +445,9 @@ public  DEF_MENU_FUNCTION( set_default_marker_label )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_default_marker_label )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_default_marker_label )
 {
     set_menu_text_string( menu_window, menu_entry,
                           display->three_d.default_marker_label );
@@ -419,7 +455,9 @@ public  DEF_MENU_UPDATE(set_default_marker_label )   /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( change_marker_structure_id )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( change_marker_structure_id )
 {
     int                     id;
     marker_struct           *marker;
@@ -450,12 +488,16 @@ public  DEF_MENU_FUNCTION( change_marker_structure_id )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(change_marker_structure_id )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(change_marker_structure_id )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-public  DEF_MENU_FUNCTION( change_marker_patient_id )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( change_marker_patient_id )
 {
     int                     id;
     marker_struct           *marker;
@@ -486,12 +528,16 @@ public  DEF_MENU_FUNCTION( change_marker_patient_id )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(change_marker_patient_id )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(change_marker_patient_id )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-public  DEF_MENU_FUNCTION( change_marker_type )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( change_marker_type )
 {
     int             type;
     marker_struct   *marker;
@@ -517,12 +563,16 @@ public  DEF_MENU_FUNCTION( change_marker_type )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(change_marker_type )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(change_marker_type )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-public  DEF_MENU_FUNCTION( change_marker_size )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( change_marker_size )
 {
     Real            size;
     marker_struct   *marker;
@@ -546,12 +596,16 @@ public  DEF_MENU_FUNCTION( change_marker_size )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(change_marker_size )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(change_marker_size )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-public  DEF_MENU_FUNCTION( change_marker_position )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( change_marker_position )
 {
     marker_struct   *marker;
 
@@ -570,12 +624,16 @@ public  DEF_MENU_FUNCTION( change_marker_position )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(change_marker_position )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(change_marker_position )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-public  DEF_MENU_FUNCTION( change_marker_label )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( change_marker_label )
 {
     STRING          label;
     marker_struct   *marker;
@@ -599,12 +657,16 @@ public  DEF_MENU_FUNCTION( change_marker_label )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(change_marker_label )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(change_marker_label )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-public  DEF_MENU_FUNCTION( copy_defaults_to_marker )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( copy_defaults_to_marker )
 {
     marker_struct   *marker;
 
@@ -618,12 +680,16 @@ public  DEF_MENU_FUNCTION( copy_defaults_to_marker )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(copy_defaults_to_marker )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(copy_defaults_to_marker )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-public  DEF_MENU_FUNCTION( copy_defaults_to_markers )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( copy_defaults_to_markers )
 {
     int                     patient_id, structure_id;
     marker_struct           *marker;
@@ -662,12 +728,16 @@ public  DEF_MENU_FUNCTION( copy_defaults_to_markers )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(copy_defaults_to_markers )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(copy_defaults_to_markers )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-public  DEF_MENU_FUNCTION( classify_markers )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( classify_markers )
 {
     model_struct    *model;
 
@@ -680,12 +750,16 @@ public  DEF_MENU_FUNCTION( classify_markers )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(classify_markers )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(classify_markers )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_marker_segmentation_threshold )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_marker_segmentation_threshold )
 {
     Real        threshold;
 
@@ -707,7 +781,9 @@ public  DEF_MENU_FUNCTION( set_marker_segmentation_threshold )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_marker_segmentation_threshold )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_marker_segmentation_threshold )
 {
     set_menu_text_real( menu_window, menu_entry,
                 get_marker_threshold(&display->three_d.marker_segmentation) );
@@ -715,19 +791,25 @@ public  DEF_MENU_UPDATE(set_marker_segmentation_threshold )   /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( pick_marker_defaults )      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( pick_marker_defaults )
 {
     start_picking_markers( display );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(pick_marker_defaults )      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(pick_marker_defaults )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( move_cursor_to_home )      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( move_cursor_to_home )
 {
     display->three_d.cursor.origin = Cursor_home;
     update_cursor( display );
@@ -737,7 +819,9 @@ public  DEF_MENU_FUNCTION( move_cursor_to_home )      /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(move_cursor_to_home )      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(move_cursor_to_home )
 {
     return( TRUE );
 }

@@ -1,7 +1,9 @@
 
 #include  <display.h>
 
-public  DEF_MENU_FUNCTION( load_file )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( load_file )
 {
     Status   status;
     STRING   filename;
@@ -21,12 +23,16 @@ public  DEF_MENU_FUNCTION( load_file )   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(load_file )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(load_file )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( save_file )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( save_file )
 {
     int            n_objects;
     object_struct  **object_list;
@@ -65,7 +71,9 @@ public  DEF_MENU_FUNCTION( save_file )   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(save_file )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(save_file )
 {
     return( TRUE );
 }

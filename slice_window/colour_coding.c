@@ -3,6 +3,8 @@
 
 #define    MAX_LABEL_COLOUR_TABLE_SIZE    2000000
 
+#define    DEFAULT_COLOUR_MAP_SUFFIX      "map"
+
 private  void  rebuild_colour_table(
     display_struct    *slice_window,
     int               volume_index );
@@ -664,4 +666,97 @@ public  void  colour_code_an_object(
 
     if( get_slice_window( display, &slice_window) )
         colour_code_object_points( slice_window, Volume_continuity, object );
+}
+
+public  char    *get_default_colour_map_suffix()
+{
+    return( DEFAULT_COLOUR_MAP_SUFFIX );
+}
+
+public  Status  load_label_colour_map(
+    display_struct   *slice_window,
+    char             filename[] )
+{
+    Status   status;
+    FILE     *file;
+    Real     red, green, blue;
+    Colour   col;
+    int      n_labels, index;
+
+    if( open_file_with_default_suffix( filename,
+                                       get_default_colour_map_suffix(),
+                                       READ_FILE, ASCII_FORMAT, &file ) != OK )
+        return( ERROR );
+
+    n_labels = get_num_labels( slice_window,
+                               get_current_volume_index(slice_window) );
+
+    status = OK;
+    while( input_int( file, &index ) == OK )
+    {
+        if( input_real( file, &red ) != OK ||
+            input_real( file, &green ) != OK ||
+            input_real( file, &blue ) != OK )
+        {
+            print_error( "Error loading labels colour map.\n" );
+            status = ERROR;
+            break;
+        }
+
+        if( index >= 1 && index < n_labels )
+        {
+            col = make_Colour_0_1( red, green, blue );
+            set_colour_of_label( slice_window,
+                                 get_current_volume_index(slice_window),
+                                 index, col );
+        }
+    }
+
+    (void) close_file( file );
+
+    return( status );
+}
+
+public  Status  save_label_colour_map(
+    display_struct   *slice_window,
+    char             filename[] )
+{
+    Status   status;
+    FILE     *file;
+    Real     red, green, blue;
+    Colour   col;
+    int      n_labels, index;
+
+    if( open_file_with_default_suffix( filename,
+                                       get_default_colour_map_suffix(),
+                                       WRITE_FILE, ASCII_FORMAT, &file ) != OK )
+        return( ERROR );
+
+    n_labels = get_num_labels( slice_window,
+                               get_current_volume_index(slice_window) );
+
+    for_less( index, 1, n_labels )
+    {
+        col = get_colour_of_label( slice_window,
+                                   get_current_volume_index(slice_window),
+                                   index );
+
+        red = get_Colour_r_0_1( col );
+        green = get_Colour_g_0_1( col );
+        blue = get_Colour_b_0_1( col );
+
+        if( output_int( file, index ) != OK ||
+            output_real( file, red ) != OK ||
+            output_real( file, green ) != OK ||
+            output_real( file, blue ) != OK ||
+            output_newline( file ) != OK )
+        {
+            status = ERROR;
+            break;
+        }
+    }
+
+    (void) close_file( file );
+
+    return( status );
 }

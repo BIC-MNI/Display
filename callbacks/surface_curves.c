@@ -1,67 +1,89 @@
 
 #include  <display.h>
 
-public  DEF_MENU_FUNCTION( start_surface_line )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( start_surface_line )
 {
     start_surface_curve( display );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(start_surface_line)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(start_surface_line)
 {
     return( !display->three_d.surface_curve.picking_points );
 }
 
-public  DEF_MENU_FUNCTION( end_surface_line )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( end_surface_line )
 {
     end_surface_curve( display );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(end_surface_line)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(end_surface_line)
 {
     return( display->three_d.surface_curve.picking_points );
 }
 
-public  DEF_MENU_FUNCTION( close_surface_line )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( close_surface_line )
 {
     close_surface_curve( display );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(close_surface_line)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(close_surface_line)
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( reset_surface_line )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( reset_surface_line )
 {
     reset_surface_curve( display );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(reset_surface_line)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(reset_surface_line)
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( make_surface_line_permanent )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( make_surface_line_permanent )
 {
     make_surface_curve_permanent( display );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(make_surface_line_permanent)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(make_surface_line_permanent)
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_line_curvature_weight )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_line_curvature_weight )
 {
     Real        weight;
 
@@ -81,7 +103,9 @@ public  DEF_MENU_FUNCTION( set_line_curvature_weight )   /* ARGSUSED */
 }
 
 
-public  DEF_MENU_UPDATE(set_line_curvature_weight )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_line_curvature_weight )
 {
     set_menu_text_real( menu_window, menu_entry,
                         display->three_d.surface_curve.line_curvature_weight );
@@ -89,7 +113,9 @@ public  DEF_MENU_UPDATE(set_line_curvature_weight )   /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_surface_curve_curvature )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_surface_curve_curvature )
 {
     Real        min_curve, max_curve;
 
@@ -112,12 +138,16 @@ public  DEF_MENU_FUNCTION( set_surface_curve_curvature )   /* ARGSUSED */
 }
 
 
-public  DEF_MENU_UPDATE(set_surface_curve_curvature )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_surface_curve_curvature )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( pick_surface_point_on_line )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( pick_surface_point_on_line )
 {
     pick_surface_point_near_a_line( display );
 
@@ -125,7 +155,9 @@ public  DEF_MENU_FUNCTION( pick_surface_point_on_line )   /* ARGSUSED */
 }
 
 
-public  DEF_MENU_UPDATE(pick_surface_point_on_line )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(pick_surface_point_on_line )
 {
     return( TRUE );
 }

@@ -25,6 +25,7 @@ MENU_F(toggle_line_curve_flag) \
 MENU_F(toggle_marker_label_flag) \
 MENU_F(toggle_double_buffer_threed) \
 MENU_F(toggle_double_buffer_slice) \
+MENU_F(toggle_slice_interpolation) \
 MENU_F(set_n_curve_segments) \
 MENU_F(make_all_invisible) \
 MENU_F(make_all_visible) \
@@ -52,6 +53,8 @@ MENU_F(descend_selected) \
 MENU_F(ascend_selected) \
 MENU_F(change_background_colour) \
 MENU_F(create_3d_slice) \
+MENU_F(save_slice_image) \
+MENU_F(save_slice_window) \
 MENU_F(toggle_slice_visibility) \
 MENU_F(toggle_cross_section_visibility) \
 MENU_F(toggle_slice_cross_section_visibility) \
@@ -98,6 +101,8 @@ MENU_F(label_connected_3d) \
 MENU_F(dilate_labels) \
 MENU_F(erode_labels) \
 MENU_F(set_colour_limits) \
+MENU_F(save_colour_map) \
+MENU_F(load_colour_map) \
 MENU_F(create_film_loop) \
 MENU_F(reset_polygon_visibility) \
 MENU_F(set_polygon_line_thickness) \

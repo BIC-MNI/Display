@@ -3,7 +3,9 @@
 
 #ifdef NOT_NEEDED
 
-private  DEF_EVENT_FUNCTION(  null_function )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION(  null_function )
 {
     /* function does nothing */
     return( OK );

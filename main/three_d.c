@@ -91,7 +91,9 @@ private  void  initialize_three_d_events(
                                handle_resize_three_d );
 }
 
-private  DEF_EVENT_FUNCTION( handle_resize_three_d )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_resize_three_d )
 {
     adjust_view_for_aspect( &display->three_d.view, display->window );
 

@@ -1,12 +1,16 @@
 
 #include  <display.h>
 
-public  DEF_MENU_FUNCTION( exit_program )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( exit_program )
 {
     return( QUIT );
 }
 
-public  DEF_MENU_UPDATE(exit_program )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(exit_program )
 {
     return( TRUE );
 }

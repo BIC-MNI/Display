@@ -37,7 +37,9 @@ private  void  remove_events(
     pop_action_table( action_table, TERMINATE_INTERACTION_EVENT );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_picking_markers )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_picking_markers )
 {
     remove_action_table_function( &display->action_table, NO_EVENT,
                                   show_rectangle_at_mouse );
@@ -63,7 +65,9 @@ private  void  get_coordinates(
     *y_max = MAX( y1, y2 );
 }
 
-private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )   /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
 {
     Real     x, y, x_prev, y_prev, x1, y1, x2, y2;
 
@@ -83,7 +87,9 @@ private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )   /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( pick_first_corner_point )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( pick_first_corner_point )
 {
     Real  x, y;
 
@@ -110,7 +116,9 @@ private  DEF_EVENT_FUNCTION( pick_first_corner_point )    /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( show_picked_square )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( show_picked_square )
 {
     Real   x, y, x_prev, y_prev, x1, y1, x2, y2;
 
@@ -131,7 +139,9 @@ private  DEF_EVENT_FUNCTION( show_picked_square )    /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( done_picking_markers )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( done_picking_markers )
 {
     Real                    x, y, x_min, y_min, x_max, y_max;
     Point                   screen_pos;

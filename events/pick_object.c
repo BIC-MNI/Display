@@ -15,7 +15,9 @@ public  void  initialize_picking_object(
                                
 }
 
-private  DEF_EVENT_FUNCTION( start_picking_object )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( start_picking_object )
 {
     push_action_table( &display->action_table, LEFT_MOUSE_UP_EVENT );
 
@@ -46,7 +48,9 @@ private  void  remove_events(
                                   update_picked_object );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_picking_object )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_picking_object )
 {
     remove_events( &display->action_table );
 
@@ -55,7 +59,9 @@ private  DEF_EVENT_FUNCTION( terminate_picking_object )    /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( update_picked_object )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( update_picked_object )
 {
     pick_point_under_mouse( display );
 

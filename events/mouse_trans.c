@@ -22,7 +22,9 @@ public  void  initialize_translation(
                                start_translation );
 }
 
-private  DEF_EVENT_FUNCTION( turn_off_translation )   /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( turn_off_translation )
 {
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
@@ -35,7 +37,9 @@ private  DEF_EVENT_FUNCTION( turn_off_translation )   /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( start_translation )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( start_translation )
 {
     add_action_table_function( &display->action_table,
                                NO_EVENT,
@@ -64,7 +68,9 @@ private  void  update_translation(
     }
 }
 
-private  DEF_EVENT_FUNCTION( terminate_translation )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_translation )
 {
     update_translation( display );
     
@@ -80,7 +86,9 @@ private  DEF_EVENT_FUNCTION( terminate_translation )    /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_update )      /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update )
 {
     update_translation( display );
 

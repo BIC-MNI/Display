@@ -29,7 +29,9 @@ public  void  initialize_rotating_slice(
                                terminate_rotating_slice );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_rotating_slice )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_rotating_slice )
 {
     remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_DOWN_EVENT,
@@ -42,7 +44,9 @@ private  DEF_EVENT_FUNCTION( terminate_rotating_slice )    /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( turn_off_rotating_slice )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( turn_off_rotating_slice )
 {
     remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_DOWN_EVENT,
@@ -55,7 +59,9 @@ private  DEF_EVENT_FUNCTION( turn_off_rotating_slice )    /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( start_rotating_slice )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( start_rotating_slice )
 {
     add_action_table_function( &display->action_table,
                                NO_EVENT, handle_update_rotation );
@@ -85,14 +91,18 @@ private  void  update_rotation(
     }
 }
 
-private  DEF_EVENT_FUNCTION( handle_update_rotation )      /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update_rotation )
 {
     update_rotation( display );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_rotation )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_rotation )
 {
     update_rotation( display );
     

@@ -22,7 +22,9 @@ public  void  initialize_magnification(
                                start_magnification );
 }
 
-private  DEF_EVENT_FUNCTION( turn_off_magnification ) /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( turn_off_magnification )
 {
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
@@ -35,7 +37,9 @@ private  DEF_EVENT_FUNCTION( turn_off_magnification ) /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( start_magnification ) /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( start_magnification )
 {
     add_action_table_function( &display->action_table,
                                NO_EVENT,
@@ -64,7 +68,9 @@ private  void  update_magnification(
     }
 }
 
-private  DEF_EVENT_FUNCTION( terminate_magnification )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_magnification )
 {
     update_magnification( display );
     
@@ -80,7 +86,9 @@ private  DEF_EVENT_FUNCTION( terminate_magnification )    /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_update )      /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update )
 {
     update_magnification( display );
 

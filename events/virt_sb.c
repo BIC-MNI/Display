@@ -28,7 +28,9 @@ public  void  initialize_virtual_spaceball(
                                turn_off_virtual_spaceball );
 }
 
-private  DEF_EVENT_FUNCTION( turn_off_virtual_spaceball )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( turn_off_virtual_spaceball )
 {
     remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_DOWN_EVENT,
@@ -41,7 +43,9 @@ private  DEF_EVENT_FUNCTION( turn_off_virtual_spaceball )    /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( start_virtual_spaceball )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( start_virtual_spaceball )
 {
     if( mouse_close_to_cursor( display ) )
     {
@@ -85,14 +89,18 @@ private  void  update_rotation(
     }
 }
 
-private  DEF_EVENT_FUNCTION( handle_update_rotation )      /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update_rotation )
 {
     update_rotation( display );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_rotation )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_rotation )
 {
     update_rotation( display );
     
@@ -145,14 +153,18 @@ private  void  update_translation(
     }
 }
 
-private  DEF_EVENT_FUNCTION( handle_update_translation )      /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update_translation )
 {
     update_translation( display );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_translation )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_translation )
 {
     update_translation( display );
     

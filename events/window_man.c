@@ -16,14 +16,18 @@ public  void  initialize_resize_events(
                                handle_redraw_overlay );
 }
 
-private  DEF_EVENT_FUNCTION( handle_redraw_overlay )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_redraw_overlay )
 {
     set_update_required( display, OVERLAY_PLANES );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_redraw )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_redraw )
 {
     set_update_required( display, NORMAL_PLANES );
     set_update_required( display, OVERLAY_PLANES );
@@ -31,7 +35,9 @@ private  DEF_EVENT_FUNCTION( handle_redraw )     /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_resize )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_resize )
 {
     set_update_required( display, NORMAL_PLANES );
     set_update_required( display, OVERLAY_PLANES );

@@ -25,27 +25,43 @@ private  void  start_surface(
     if( volume == NULL )
         return;
 
-    input_okay = TRUE;
-
-    if( binary_flag )
+    if( display->three_d.surface_extraction.polygons->n_points == 0 )
     {
-        print( "Enter min and max inside value: " );
-        if( input_real( stdin, &min_value ) != OK ||
-            input_real( stdin, &max_value ) != OK )
-            input_okay = FALSE;
+        input_okay = TRUE;
+
+        if( binary_flag )
+        {
+            print( "Enter min and max inside value: " );
+            if( input_real( stdin, &min_value ) != OK ||
+                input_real( stdin, &max_value ) != OK )
+                input_okay = FALSE;
+        }
+        else
+        {
+            print( "Enter isovalue: " );
+            if( input_real( stdin, &min_value ) != OK )
+                input_okay = FALSE;
+            max_value = min_value;
+        }
+
+        (void) input_newline( stdin );
+
+        if( !input_okay )
+            return;
     }
     else
     {
-        print( "Enter isovalue: " );
-        if( input_real( stdin, &min_value ) != OK )
-            input_okay = FALSE;
-        max_value = min_value;
+        if( binary_flag )
+        {
+            min_value = display->three_d.surface_extraction.min_value;
+            max_value = display->three_d.surface_extraction.max_value;
+        }
+        else
+        {
+            min_value = display->three_d.surface_extraction.min_value;
+            max_value = min_value;
+        }
     }
-
-    (void) input_newline( stdin );
-
-    if( !input_okay )
-        return;
 
     if( get_voxel_corresponding_to_point( display,
                                           &display->three_d.cursor.origin,

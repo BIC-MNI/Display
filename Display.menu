@@ -54,13 +54,18 @@ file
     transient 't'    save_current_label              "Save Curr Lbl .tag"
 
     transient 'a'    save_markers                    "Save Mrkrs as .tag"
+    transient 's'    save_slice_image                "Save Slice Image"
     transient 'f'    load_file                       "Load File"
     transient 'd'    save_file                       "Save File"
+    transient 'g'    save_slice_window               "Save Slice Window"
+    transient 'h'    save_image                      "Save 3D Window"
 
     transient 'z'    load_polygons_visibilities      "Load Poly Visib."
     transient 'x'    save_polygons_visibilities      "Save Poly Visib."
     transient 'c'    save_polygons_bintree           "Save Bintree"
     transient 'v'    input_polygons_bintree          "Load Bintree"
+    transient 'b'    save_colour_map                 "Save Colour Map"
+    transient 'n'    load_colour_map                 "Load Colour Map"
 }
 
 create_surface
@@ -158,6 +163,7 @@ extra_colour_codes
     transient 's'    set_red                         "Red"
     transient 'd'    set_green                       "Green"
     transient 'f'    set_blue                        "Blue"
+    transient 'n'    toggle_slice_interpolation      "Interp: %s"
 }
 
 view_3d
@@ -178,7 +184,6 @@ view_3d
 
     transient 'q'    pick_view_rectangle     "Pick View"
     transient 'w'    create_film_loop        "Film Loop"
-    transient 'e'    save_image              "Save Image"
     transient 'r'    toggle_stereo_mode      "Toggle Stereo"
     transient 't'    set_eye_separation      "Eye Width: %g"
     transient 'y'    right_tilted_view       "Right Tilt View"

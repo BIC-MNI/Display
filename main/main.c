@@ -36,18 +36,32 @@ int  main(
     int     argc,
     char    *argv[] )
 {
+    int              i, len;
     char             *filename;
     display_struct   *graphics;
     display_struct   *menu;
     Status           status;
     STRING           globals_filename, runtime_directory;
-    char             *title, *variable_name, *variable_value;
+    STRING           title;
+    char             *variable_name, *variable_value;
     BOOLEAN          next_is_label_volume;
 
     if( argc == 1 )
-        title = argv[0];
+        (void) strcpy( title, argv[0] );
     else
-        title = argv[1];
+    {
+        len = 0;
+        (void) strcpy( title, "" );
+        for_less( i, 1, argc )
+        {
+            if( len + (int) strlen( argv[i] ) + 1 > MAX_STRING_LENGTH )
+                break;
+            if( i > 1 )
+                (void) strcat( title, " " );
+            (void) strcat( title, argv[i] );
+            len += (int) strlen( argv[i] ) + 1;
+        }
+    }
 
     initialize_global_colours();
 

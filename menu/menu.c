@@ -247,7 +247,9 @@ public  BOOLEAN  is_shift_key_pressed(
     return( menu_window->menu.shift_key_down );
 }
 
-private  DEF_EVENT_FUNCTION( handle_character_down )   /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_character_down )
 {
     Status             status;
     display_struct     *menu_window;
@@ -264,7 +266,9 @@ private  DEF_EVENT_FUNCTION( handle_character_down )   /* ARGSUSED */
     return( status );
 }
 
-private  DEF_EVENT_FUNCTION( handle_leaving_window )   /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_leaving_window )
 {
     display_struct     *menu_window;
 
@@ -274,7 +278,9 @@ private  DEF_EVENT_FUNCTION( handle_leaving_window )   /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_character_up )   /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_character_up )
 {
     display_struct     *menu_window;
 
@@ -330,7 +336,9 @@ private  Status  process_menu(
     return( status );
 }
 
-private  DEF_EVENT_FUNCTION( left_mouse_press )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( left_mouse_press )
 {
     Status  status;
     int     x, y;
@@ -345,7 +353,9 @@ private  DEF_EVENT_FUNCTION( left_mouse_press )    /* ARGSUSED */
     return( status );
 }
 
-private  DEF_EVENT_FUNCTION( middle_mouse_press )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( middle_mouse_press )
 {
     pop_menu_one_level( display );
 
@@ -416,7 +426,9 @@ public  void  update_menu_text(
         get_text_ptr(menu_entry->text_list[i])->colour = colour;
 }
 
-public  DEF_MENU_FUNCTION( push_menu )      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( push_menu )
 {
     Status   status;
 
@@ -453,19 +465,25 @@ public  DEF_MENU_FUNCTION( push_menu )      /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(push_menu )      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(push_menu )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( pop_menu )      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( pop_menu )
 {
     pop_menu_one_level( menu_window );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(pop_menu )      /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(pop_menu )
 {
     return( menu_window->menu.depth > 0 );
 }

@@ -61,8 +61,9 @@ private  void  end_film_loop(
     print( "Done film loop.\n" );
 }
 
+/* ARGSUSED */
+
 private  DEF_EVENT_FUNCTION( check_updated )
-    /* ARGSUSED */
 {
     Status    status;
 
@@ -166,7 +167,7 @@ private  Status  save_image_to_file(
                            display->three_d.film_loop.current_step,
                            frame_filename );
 
-    status = save_window_to_file( display, frame_filename );
+    status = save_window_to_file( display, frame_filename, 0, -1, 0, -1 );
 
     return( status );
 }

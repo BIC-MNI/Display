@@ -51,7 +51,7 @@ public  void  crop_and_load_volume(
     }
 
     if( start_volume_input( slice_window->slice.crop.filename, 3,
-                            NULL,
+                            File_order_dimension_names,
                             NC_UNSPECIFIED, FALSE, 0.0, 0.0,
                             TRUE, &file_volume,
                             (minc_input_options *) NULL,

@@ -556,3 +556,63 @@ public  DEF_MENU_UPDATE(toggle_share_labels )
 
     return( state );
 }
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(save_colour_map )
+{
+    STRING          filename;
+    display_struct  *slice_window;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
+    {
+        print( "Enter name of colour map file to save: " );
+
+        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        {
+            (void) save_label_colour_map( slice_window, filename );
+        }
+        (void) input_newline( stdin );
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(save_colour_map )
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(load_colour_map )
+{
+    STRING          filename;
+    display_struct  *slice_window;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 )
+    {
+        print( "Enter name of colour map file to load: " );
+        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        {
+            (void) load_label_colour_map( slice_window, filename );
+            set_slice_window_all_update( slice_window,
+                       get_current_volume_index(slice_window), UPDATE_LABELS );
+
+        }
+        (void) input_newline( stdin );
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(load_colour_map )
+{
+    return( get_n_volumes(display) > 0 );
+}

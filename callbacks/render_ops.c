@@ -15,7 +15,9 @@ private  object_struct  *get_model_object(
     return( current_object );
 }
 
-public  DEF_MENU_FUNCTION( toggle_render_mode )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( toggle_render_mode )
 {
     object_struct            *model_object;
     BOOLEAN                  shaded_mode;
@@ -43,7 +45,9 @@ public  DEF_MENU_FUNCTION( toggle_render_mode )  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_render_mode )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_render_mode )
 {
     object_struct   *model_object;
 
@@ -57,7 +61,9 @@ public  DEF_MENU_UPDATE(toggle_render_mode )  /* ARGSUSED */
 }
 
 
-public  DEF_MENU_FUNCTION( toggle_shading )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( toggle_shading )
 {
     object_struct            *model_object;
     Shading_types            new_shading_type;
@@ -92,7 +98,9 @@ public  DEF_MENU_FUNCTION( toggle_shading )  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_shading )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_shading )
 {
     object_struct   *model_object;
 
@@ -105,7 +113,9 @@ public  DEF_MENU_UPDATE(toggle_shading )  /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( toggle_lights )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( toggle_lights )
 {
     object_struct            *model_object;
     BOOLEAN                  new_light_switch;
@@ -133,7 +143,9 @@ public  DEF_MENU_FUNCTION( toggle_lights )  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_lights )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_lights )
 {
     object_struct   *model_object;
 
@@ -146,7 +158,9 @@ public  DEF_MENU_UPDATE(toggle_lights )  /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( toggle_two_sided )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( toggle_two_sided )
 {
     object_struct            *model_object;
     BOOLEAN                  new_flag;
@@ -174,7 +188,9 @@ public  DEF_MENU_FUNCTION( toggle_two_sided )  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_two_sided )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_two_sided )
 {
     object_struct   *model_object;
 
@@ -187,7 +203,9 @@ public  DEF_MENU_UPDATE(toggle_two_sided )  /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( toggle_backfacing )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( toggle_backfacing )
 {
     object_struct            *model_object;
     BOOLEAN                  new_flag;
@@ -215,7 +233,9 @@ public  DEF_MENU_FUNCTION( toggle_backfacing )  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_backfacing )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_backfacing )
 {
     object_struct   *model_object;
 
@@ -228,7 +248,9 @@ public  DEF_MENU_UPDATE(toggle_backfacing )  /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( toggle_line_curve_flag )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( toggle_line_curve_flag )
 {
     object_struct            *model_object;
     BOOLEAN                  new_flag;
@@ -256,7 +278,9 @@ public  DEF_MENU_FUNCTION( toggle_line_curve_flag )  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_line_curve_flag )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_line_curve_flag )
 {
     object_struct   *model_object;
 
@@ -269,7 +293,9 @@ public  DEF_MENU_UPDATE(toggle_line_curve_flag )  /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( toggle_marker_label_flag )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( toggle_marker_label_flag )
 {
     object_struct            *model_object;
     BOOLEAN                  new_flag;
@@ -295,7 +321,9 @@ public  DEF_MENU_FUNCTION( toggle_marker_label_flag )  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_marker_label_flag )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_marker_label_flag )
 {
     object_struct   *model_object;
 
@@ -308,7 +336,9 @@ public  DEF_MENU_UPDATE(toggle_marker_label_flag )  /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_n_curve_segments )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_n_curve_segments )
 {
     int                      n_segments;
     object_struct            *model_object;
@@ -346,7 +376,9 @@ public  DEF_MENU_FUNCTION( set_n_curve_segments )  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_n_curve_segments )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_n_curve_segments )
 {
     object_struct   *model_object;
 
@@ -359,7 +391,9 @@ public  DEF_MENU_UPDATE(set_n_curve_segments )  /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( toggle_double_buffer_threed )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( toggle_double_buffer_threed )
 {
     BOOLEAN   double_buffer;
 
@@ -372,7 +406,9 @@ public  DEF_MENU_FUNCTION( toggle_double_buffer_threed )  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_double_buffer_threed )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_double_buffer_threed )
 {
     set_menu_text_on_off( menu_window, menu_entry,
                           G_get_double_buffer_state(display->window) );
@@ -380,7 +416,9 @@ public  DEF_MENU_UPDATE(toggle_double_buffer_threed )  /* ARGSUSED */
     return( G_can_switch_double_buffering() );
 }
 
-public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )
 {
     BOOLEAN           double_buffer;
     display_struct    *slice_window;
@@ -399,7 +437,9 @@ public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_double_buffer_slice )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_double_buffer_slice )
 {
     display_struct  *slice_window;
     BOOLEAN         state;
@@ -412,7 +452,9 @@ public  DEF_MENU_UPDATE(toggle_double_buffer_slice )  /* ARGSUSED */
     return( state && G_can_switch_double_buffering() );
 }
 
-public  DEF_MENU_FUNCTION( change_background_colour )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( change_background_colour )
 {
     Status            status;
     display_struct    *slice_window;
@@ -440,7 +482,9 @@ public  DEF_MENU_FUNCTION( change_background_colour )  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(change_background_colour )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(change_background_colour )
 {
     return( TRUE );
 }

@@ -59,6 +59,7 @@ private  void  initialize_slice_window(
     slice_window->slice.current_volume_index = -1;
 
     slice_window->slice.share_labels_flag = Initial_share_labels;
+    slice_window->slice.degrees_continuity = Initial_slice_continuity;
 
     initialize_slice_window_events( slice_window );
 
@@ -177,6 +178,13 @@ public  void  delete_slice_window(
     delete_voxel_labeling( &slice_window->slice );
 }
 
+public  char  *get_volume_filename(
+    display_struct    *slice_window,
+    int               volume_index )
+{
+    return( slice_window->slice.volumes[volume_index].filename );
+}
+
 public  void  add_slice_window_volume(
     display_struct    *display,
     char              filename[],
@@ -203,6 +211,7 @@ public  void  add_slice_window_volume(
     info = &slice_window->slice.volumes[volume_index];
 
     info->volume = volume;
+    (void) strcpy( info->filename, filename );
     info->display_labels = Initial_display_labels;
     info->opacity = 1.0;
 
@@ -271,15 +280,19 @@ public  void  set_current_volume_index(
         display->three_d.cursor.box_size[Z] = ABS( separations[Z] );
 
         update_cursor_size( display );
-    }
 
-    if( volume_index >= 0 )
-    {
         if( first )
         {
             for_less( view, 0, N_SLICE_VIEWS )
                 reset_slice_view( slice_window, view );
         }
+
+        G_set_window_title( slice_window->window,
+                            slice_window->slice.volumes[volume_index].filename);
+    }
+    else
+    {
+        G_set_window_title( slice_window->window, "No Volume Loaded" );
     }
 
     update_all_slice_models( slice_window );

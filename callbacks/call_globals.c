@@ -2,7 +2,9 @@
 #include  <display.h>
 #include  <malloc.h>
 
-public  DEF_MENU_FUNCTION( menu_set_global_variable )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( menu_set_global_variable )
 {
     Status   status;
     STRING   input_str, variable_name, new_value;
@@ -25,12 +27,16 @@ public  DEF_MENU_FUNCTION( menu_set_global_variable )  /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(menu_set_global_variable )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(menu_set_global_variable )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( show_memory )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( show_memory )
 {
 #ifndef linux
     struct  mallinfo   m;
@@ -54,7 +60,9 @@ public  DEF_MENU_FUNCTION( show_memory )  /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(show_memory )  /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(show_memory )
 {
     return( TRUE );
 }

@@ -21,7 +21,9 @@ private  BOOLEAN  get_current_lines(
     return( found );
 }
 
-public  DEF_MENU_FUNCTION( smooth_current_lines )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( smooth_current_lines )
 {
     Status          status;
     lines_struct    *lines;
@@ -47,12 +49,16 @@ public  DEF_MENU_FUNCTION( smooth_current_lines )   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(smooth_current_lines )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(smooth_current_lines )
 {
     return( current_object_is_this_type( display, LINES ) );
 }
 
-public  DEF_MENU_FUNCTION( make_current_line_tube )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( make_current_line_tube )
 {
     Status          status;
     lines_struct    *lines;
@@ -82,12 +88,16 @@ public  DEF_MENU_FUNCTION( make_current_line_tube )   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(make_current_line_tube )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(make_current_line_tube )
 {
     return( current_object_is_this_type( display, LINES ) );
 }
 
-public  DEF_MENU_FUNCTION( convert_line_to_spline_points )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( convert_line_to_spline_points )
 {
     object_struct   *object;
     lines_struct    *lines;
@@ -109,12 +119,16 @@ public  DEF_MENU_FUNCTION( convert_line_to_spline_points )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(convert_line_to_spline_points )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(convert_line_to_spline_points )
 {
     return( current_object_is_this_type( display, LINES ) );
 }
  
-public  DEF_MENU_FUNCTION( make_line_circle )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( make_line_circle )
 {
     Point             centre;
     Real              x_size, y_size;
@@ -146,13 +160,17 @@ public  DEF_MENU_FUNCTION( make_line_circle )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(make_line_circle )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(make_line_circle )
 {
     return( TRUE );
 }
 
 
-public  DEF_MENU_FUNCTION( subdivide_current_lines )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( subdivide_current_lines )
 {
     lines_struct      *lines;
 
@@ -166,7 +184,9 @@ public  DEF_MENU_FUNCTION( subdivide_current_lines )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(subdivide_current_lines )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(subdivide_current_lines )
 {
     return( current_object_is_this_type( display, LINES ) );
 }
@@ -314,31 +334,41 @@ private  void  convert_to_lines(
         FREE( markers );
 }
 
-public  DEF_MENU_FUNCTION( convert_markers_to_lines )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( convert_markers_to_lines )
 {
     convert_to_lines( display, FALSE );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(convert_markers_to_lines )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(convert_markers_to_lines )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( convert_markers_to_closed_lines )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( convert_markers_to_closed_lines )
 {
     convert_to_lines( display, FALSE );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(convert_markers_to_closed_lines )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(convert_markers_to_closed_lines )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_line_widths )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_line_widths )
 {
     Status          status;
     lines_struct    *lines;
@@ -361,7 +391,9 @@ public  DEF_MENU_FUNCTION( set_line_widths )   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(set_line_widths )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_line_widths )
 {
     return( current_object_is_this_type( display, LINES ) );
 }

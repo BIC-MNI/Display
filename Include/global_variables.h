@@ -335,4 +335,6 @@ START_GLOBALS
     DEF_GLOBAL( Crop_volumes_on_input, BOOLEAN, FALSE )
     DEF_GLOBAL( Crop_if_smaller, Real, 0.75 )
 
+    DEF_GLOBAL( Initial_slice_continuity, int, -1 )
+
 END_GLOBALS

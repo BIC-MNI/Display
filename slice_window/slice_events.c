@@ -68,7 +68,9 @@ public  void  initialize_slice_window_events(
     fill_Point( slice_window->prev_mouse_position, 0.0, 0.0, 0.0 );
 }
 
-private  DEF_EVENT_FUNCTION( left_mouse_down )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( left_mouse_down )
 {
     int          view_index;
 
@@ -162,7 +164,9 @@ private  DEF_EVENT_FUNCTION( left_mouse_down )    /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( middle_mouse_down )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( middle_mouse_down )
 {
     int          view_index;
     Real         value;
@@ -287,7 +291,9 @@ private  void  update_voxel_cursor(
         set_voxel_cursor( slice_window );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_picking_voxel )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_picking_voxel )
 {
     update_voxel_cursor( display );
 
@@ -301,7 +307,9 @@ private  DEF_EVENT_FUNCTION( terminate_picking_voxel )     /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_update_voxel )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update_voxel )
 {
     update_voxel_cursor( display );
 
@@ -342,7 +350,9 @@ private  void  update_voxel_slice(
     }
 }
 
-private  DEF_EVENT_FUNCTION( terminate_picking_slice )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_picking_slice )
 {
     update_voxel_slice( display );
 
@@ -356,7 +366,9 @@ private  DEF_EVENT_FUNCTION( terminate_picking_slice )     /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( update_picking_slice )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( update_picking_slice )
 {
     update_voxel_slice( display );
 
@@ -382,7 +394,9 @@ private  void  update_voxel_zoom(
     }
 }
 
-private  DEF_EVENT_FUNCTION( terminate_slice_zooming )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_slice_zooming )
 {
     update_voxel_zoom( display );
 
@@ -396,7 +410,9 @@ private  DEF_EVENT_FUNCTION( terminate_slice_zooming )     /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( update_slice_zooming )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( update_slice_zooming )
 {
     update_voxel_zoom( display );
 
@@ -423,7 +439,9 @@ private  void  perform_translation(
     }
 }
 
-private  DEF_EVENT_FUNCTION( terminate_translation )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_translation )
 {
     perform_translation( display );
 
@@ -437,7 +455,9 @@ private  DEF_EVENT_FUNCTION( terminate_translation )    /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( update_translation )      /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( update_translation )
 {
     perform_translation( display );
 
@@ -446,7 +466,9 @@ private  DEF_EVENT_FUNCTION( update_translation )      /* ARGSUSED */
 
 /* ----------------------------------------------------------------------- */
 
-private  DEF_EVENT_FUNCTION( update_probe )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( update_probe )
 {
     int  x, y, x_prev, y_prev;
 
@@ -456,14 +478,18 @@ private  DEF_EVENT_FUNCTION( update_probe )     /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_redraw )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_redraw )
 {
     set_slice_viewport_update( display, FULL_WINDOW_MODEL );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_redraw_overlay )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_redraw_overlay )
 {
     int  i;
 
@@ -477,7 +503,9 @@ private  DEF_EVENT_FUNCTION( handle_redraw_overlay )     /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( window_size_changed )
 {
     int   view;
 
@@ -493,7 +521,9 @@ private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
 
 /* ------------------------------------------------------------------ */
 
-private  DEF_EVENT_FUNCTION( terminate_picking_low_limit )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_picking_low_limit )
 {
     update_limit( display, TRUE, FALSE );
 
@@ -507,7 +537,9 @@ private  DEF_EVENT_FUNCTION( terminate_picking_low_limit )     /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_update_low_limit )      /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update_low_limit )
 {
     int   x, y, x_prev, y_prev;
 
@@ -520,7 +552,9 @@ private  DEF_EVENT_FUNCTION( handle_update_low_limit )      /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_picking_high_limit )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_picking_high_limit )
 {
     update_limit( display, FALSE, FALSE );
 
@@ -534,7 +568,9 @@ private  DEF_EVENT_FUNCTION( terminate_picking_high_limit )    /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_update_high_limit )      /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update_high_limit )
 {
     int   x, y, x_prev, y_prev;
 
@@ -547,7 +583,9 @@ private  DEF_EVENT_FUNCTION( handle_update_high_limit )      /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_picking_both_limits )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_picking_both_limits )
 {
     update_limit( display, TRUE, TRUE );
 
@@ -561,7 +599,9 @@ private  DEF_EVENT_FUNCTION( terminate_picking_both_limits )    /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_update_both_limits )      /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update_both_limits )
 {
     int   x, y, x_prev, y_prev;
 
@@ -746,7 +786,9 @@ private  void  update_slice_dividers(
     }
 }
 
-private  DEF_EVENT_FUNCTION( terminate_setting_slice_dividers )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_setting_slice_dividers )
 {
     update_slice_dividers( display );
 
@@ -760,7 +802,9 @@ private  DEF_EVENT_FUNCTION( terminate_setting_slice_dividers )     /* ARGSUSED 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_update_slice_dividers )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update_slice_dividers )
 {
     update_slice_dividers( display );
 

@@ -178,6 +178,8 @@ private  DEF_EVENT_FUNCTION( end_painting )
 
     set_slice_window_all_update( display, volume_index, UPDATE_LABELS );
 
+    update_all_menu_text( display );
+
     return( OK );
 }
 

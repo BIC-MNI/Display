@@ -29,7 +29,9 @@ public  BOOLEAN  get_current_polygons(
     return( found );
 }
 
-public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( input_polygons_bintree )
 {
     Status            status;
     polygons_struct   *polygons;
@@ -69,13 +71,17 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(input_polygons_bintree )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(input_polygons_bintree )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
 }
 
-public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( save_polygons_bintree )
 {
     Status            status;
     polygons_struct   *polygons;
@@ -114,13 +120,17 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
     return( status );
 }
 
-public  DEF_MENU_UPDATE(save_polygons_bintree )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(save_polygons_bintree )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
 }
 
-public  DEF_MENU_FUNCTION( create_bintree_for_polygons )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( create_bintree_for_polygons )
 {
     polygons_struct   *polygons;
 
@@ -137,13 +147,17 @@ public  DEF_MENU_FUNCTION( create_bintree_for_polygons )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(create_bintree_for_polygons )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(create_bintree_for_polygons )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
 }
 
-public  DEF_MENU_FUNCTION( create_normals_for_polygon )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( create_normals_for_polygon )
 {
     polygons_struct   *polygons;
 
@@ -158,13 +172,17 @@ public  DEF_MENU_FUNCTION( create_normals_for_polygon )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(create_normals_for_polygon )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(create_normals_for_polygon )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
 }
 
-public  DEF_MENU_FUNCTION( average_normals_for_polygon )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( average_normals_for_polygon )
 {
     int               n_iters;
     Real              neighbour_weight;
@@ -190,13 +208,17 @@ public  DEF_MENU_FUNCTION( average_normals_for_polygon )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(average_normals_for_polygon )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(average_normals_for_polygon )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
 }
 
-public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( smooth_current_polygon )
 {
     polygons_struct   *polygons;
 
@@ -219,13 +241,17 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(smooth_current_polygon )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(smooth_current_polygon )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
 }
 
-public  DEF_MENU_FUNCTION( reverse_polygons_order )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( reverse_polygons_order )
 {
     polygons_struct   *polygons;
 
@@ -239,13 +265,17 @@ public  DEF_MENU_FUNCTION( reverse_polygons_order )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(reverse_polygons_order )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(reverse_polygons_order )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
 }
 
-public  DEF_MENU_FUNCTION( make_polygon_sphere )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( make_polygon_sphere )
 {
     Point             centre;
     Real              x_size, y_size, z_size;
@@ -281,12 +311,16 @@ public  DEF_MENU_FUNCTION( make_polygon_sphere )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(make_polygon_sphere )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(make_polygon_sphere )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( make_tetrahedral_sphere )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( make_tetrahedral_sphere )
 {
     Point             centre;
     Real              x_size, y_size, z_size;
@@ -320,12 +354,16 @@ public  DEF_MENU_FUNCTION( make_tetrahedral_sphere )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(make_tetrahedral_sphere )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(make_tetrahedral_sphere )
 {
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( subdivide_current_polygon )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( subdivide_current_polygon )
 {
     polygons_struct   *polygons;
 
@@ -341,13 +379,17 @@ public  DEF_MENU_FUNCTION( subdivide_current_polygon )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(subdivide_current_polygon )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(subdivide_current_polygon )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
 }
 
-public  DEF_MENU_FUNCTION( reset_polygon_neighbours )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( reset_polygon_neighbours )
 {
     polygons_struct   *polygons;
 
@@ -363,7 +405,9 @@ public  DEF_MENU_FUNCTION( reset_polygon_neighbours )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(reset_polygon_neighbours )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(reset_polygon_neighbours )
 {
     polygons_struct   *polygons;
 
@@ -371,7 +415,9 @@ public  DEF_MENU_UPDATE(reset_polygon_neighbours )   /* ARGSUSED */
             polygons->neighbours != (int *) NULL );
 }
 
-public  DEF_MENU_FUNCTION( cut_polygon_neighbours )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( cut_polygon_neighbours )
 {
     polygons_struct   *polygons;
 
@@ -385,13 +431,17 @@ public  DEF_MENU_FUNCTION( cut_polygon_neighbours )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(cut_polygon_neighbours )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(cut_polygon_neighbours )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
 }
 
-public  DEF_MENU_FUNCTION( set_polygon_line_thickness )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_polygon_line_thickness )
 {
     Real              line_thickness;
     polygons_struct   *polygons;
@@ -410,13 +460,17 @@ public  DEF_MENU_FUNCTION( set_polygon_line_thickness )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_polygon_line_thickness )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_polygon_line_thickness )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
 }
 
-public  DEF_MENU_FUNCTION( print_polygons_surface_area )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( print_polygons_surface_area )
 {
     Real              surface_area;
     polygons_struct   *polygons;
@@ -430,7 +484,9 @@ public  DEF_MENU_FUNCTION( print_polygons_surface_area )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(print_polygons_surface_area )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(print_polygons_surface_area )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );

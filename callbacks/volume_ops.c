@@ -971,7 +971,7 @@ public  DEF_MENU_UPDATE(next_volume_visible)
 
 public  DEF_MENU_FUNCTION(toggle_slice_interpolation)
 {
-    int              view_index, volume_index, continuity;
+    int              continuity;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
@@ -1018,3 +1018,81 @@ public  DEF_MENU_UPDATE(toggle_slice_interpolation )
     return( TRUE );
 }
 
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( save_slice_image )
+{
+    display_struct    *slice_window;
+    Status            status;
+    int               view_index, x_min, x_max, y_min, y_max;
+    STRING            filename;
+
+    status = OK;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_n_volumes(slice_window) > 0 &&
+        get_slice_view_index_under_mouse( slice_window, &view_index ) )
+    {
+        print( "Enter filename: " );
+
+        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        {
+            get_slice_viewport( slice_window, view_index,
+                                &x_min, &x_max, &y_min, &y_max );
+
+            status = save_window_to_file( slice_window, filename,
+                                          x_min, x_max, y_min, y_max );
+
+            print( "Done saving slice image to %s.\n", filename );
+        }
+
+        (void) input_newline( stdin );
+    }
+
+    return( status );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(save_slice_image )
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( save_slice_window )
+{
+    display_struct    *slice_window;
+    Status            status;
+    int               x_size, y_size;
+    STRING            filename;
+
+    status = OK;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        print( "Enter filename: " );
+
+        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        {
+            G_get_window_size( slice_window->window, &x_size, &y_size );
+
+            status = save_window_to_file( slice_window, filename,
+                                          0, x_size-1, 0, y_size-1 );
+
+            print( "Done saving slice window to %s.\n", filename );
+        }
+
+        (void) input_newline( stdin );
+    }
+
+    return( status );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(save_slice_window )
+{
+    return( get_n_volumes(display) > 0 );
+}

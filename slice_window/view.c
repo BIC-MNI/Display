@@ -1048,6 +1048,7 @@ public  void  set_slice_plane_perp_axis(
     Real     used_x_axis[MAX_DIMENSIONS];
     Real     used_y_axis[MAX_DIMENSIONS];
     Real     separations[MAX_DIMENSIONS];
+    Real     sep[MAX_DIMENSIONS];
     Real     perp[MAX_DIMENSIONS];
     Vector   axis, vect, new_axis, tmp;
     int      x_index, y_index, view;
@@ -1100,7 +1101,13 @@ public  void  set_slice_plane_perp_axis(
     used_x_axis[X] = 0.0;
     used_x_axis[Y] = 0.0;
     used_x_axis[Z] = 0.0;
-    used_x_axis[x_index] = 1.0;
+
+    get_volume_separations( get_nth_volume(slice_window,volume_index), sep );
+
+    if( sep[x_index] < 0.0 )
+        used_x_axis[x_index] = -1.0;
+    else
+        used_x_axis[x_index] = 1.0;
 
     len = perp[X] * perp[X] + perp[Y] * perp[Y] + perp[Z] * perp[Z];
     if( len == 0.0 )
@@ -1181,7 +1188,7 @@ public  void  get_slice_plane(
     Real             x_axis[],
     Real             y_axis[] )
 {
-    int    c;
+    int    c, axis;
     Real   separations[MAX_DIMENSIONS];
     Real   voxel[MAX_DIMENSIONS], perp_axis[MAX_DIMENSIONS];
     Real   voxel_dot_perp, perp_dot_perp, factor;
@@ -1192,6 +1199,8 @@ public  void  get_slice_plane(
     get_current_voxel( slice_window, volume_index, voxel );
     get_slice_perp_axis( slice_window, volume_index, view_index, perp_axis );
 
+    axis = -1;
+
     for_less( c, 0, N_DIMENSIONS )
     {
         separations[c] = ABS( separations[c] );
@@ -1200,26 +1209,46 @@ public  void  get_slice_plane(
                                     views[view_index].x_axis[c];
         y_axis[c] = slice_window->slice.volumes[volume_index].
                                     views[view_index].y_axis[c];
+
+        if( perp_axis[c] != 0.0 )
+        {
+            if( axis == -1 )
+                axis = c;
+            else
+                axis = -2;
+        }
     }
 
-    voxel_dot_perp = 0.0;
-    for_less( c, 0, N_DIMENSIONS )
-        voxel_dot_perp += voxel[c] * separations[c] * perp_axis[c];
+    /*--- if one of cardinal axes, avoid floating point roundoff, and just
+          assign all zeros, and the current voxel position */
 
-    perp_dot_perp = 0.0;
-    for_less( c, 0, N_DIMENSIONS )
-       perp_dot_perp += perp_axis[c] * perp_axis[c];
-
-    if( perp_dot_perp == 0.0 )
+    if( axis >= 0 )
     {
         for_less( c, 0, N_DIMENSIONS )
             origin[c] = 0.0;
+        origin[axis] = voxel[axis];
     }
     else
     {
-        factor = voxel_dot_perp / perp_dot_perp;
+        voxel_dot_perp = 0.0;
         for_less( c, 0, N_DIMENSIONS )
-            origin[c] = factor * perp_axis[c] / separations[c];
+            voxel_dot_perp += voxel[c] * separations[c] * perp_axis[c];
+
+        perp_dot_perp = 0.0;
+        for_less( c, 0, N_DIMENSIONS )
+            perp_dot_perp += perp_axis[c] * perp_axis[c];
+
+        if( perp_dot_perp == 0.0 )
+        {
+            for_less( c, 0, N_DIMENSIONS )
+                origin[c] = 0.0;
+        }
+        else
+        {
+            factor = voxel_dot_perp / perp_dot_perp;
+            for_less( c, 0, N_DIMENSIONS )
+                origin[c] = factor * perp_axis[c] / separations[c];
+        }
     }
 }
 

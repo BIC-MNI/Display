@@ -230,6 +230,7 @@ public  void  extract_more_surface(
     {
         print( "Surface extraction finished\n" );
         stop_surface_extraction( display );
+        update_all_menu_text( display );
     }
 }
 

@@ -35,15 +35,18 @@ private  void  remove_events(
                                   terminate_connected );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_connected )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_connected )
 {
     remove_events( &display->action_table );
 
     return( OK );
 }
 
+/* ARGSUSED */
+
 private  DEF_EVENT_FUNCTION( pick_start_point )
-    /* ARGSUSED */
 {
     int               poly_index;
     polygons_struct   *polygons, *edit_polygons;

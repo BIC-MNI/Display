@@ -105,11 +105,13 @@ public  void  initialize_graphics( void )
 
 public  void  terminate_graphics( void )
 {
+    int               n;
     display_struct    **graphics_windows;
 
     while( get_list_of_windows( &graphics_windows ) > 0 )
     {
-        delete_graphics_window( graphics_windows[0] );
+        n = get_list_of_windows( &graphics_windows );
+        delete_graphics_window( graphics_windows[n-1] );
     }
 
     delete_windows_list();
@@ -178,6 +180,7 @@ public  void  create_model_after_current(
     new_model = create_object( MODEL );
 
     initialize_display_model( get_model_ptr(new_model) );
+    initialize_3D_model_info( model );
 
     (void) strcpy( get_model_ptr(new_model)->filename, "Created" );
 
@@ -197,6 +200,16 @@ public  void  initialize_model_info(
     model_info->bitplanes = NORMAL_PLANES;
     initialize_render( &model_info->render );
     make_identity_transform( &model_info->transform );
+}
+
+public  void  initialize_3D_model_info(
+    model_struct   *model )
+{
+    model_info_struct  *model_info;
+
+    model_info = (model_info_struct *) get_model_extra_ptr( model );
+
+    initialize_render_3D( &model_info->render );
 }
 
 public  void  initialize_display_model(

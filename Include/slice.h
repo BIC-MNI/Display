@@ -116,6 +116,7 @@ typedef  struct
     colour_bar_struct      colour_bar;
 
     BOOLEAN                using_transparency;
+    BOOLEAN                degrees_continuity;
 
     slice_view_struct      slice_views[N_SLICE_VIEWS];
     void                   *render_storage;
