@@ -4,13 +4,13 @@
 public  void  advance_current_object( graphics )
     graphics_struct   *graphics;
 {
-    int            object_index;
-    model_struct   *model;
+    int             object_index;
+    model_struct    *model;
 
     if( !current_object_is_top_level(graphics) )
     {
         object_index = TOP_OF_STACK( graphics->current_object ).object_index;
-        model = TOP_OF_STACK( graphics->current_object ).model;
+        model = TOP_OF_STACK(graphics->current_object).model_object->ptr.model;
 
         if( model->n_objects > 0 )
         {
@@ -29,7 +29,7 @@ public  void  retreat_current_object( graphics )
     if( !current_object_is_top_level(graphics) )
     {
         object_index = TOP_OF_STACK( graphics->current_object ).object_index;
-        model = TOP_OF_STACK( graphics->current_object ).model;
+        model = TOP_OF_STACK(graphics->current_object).model_object->ptr.model;
 
         if( model->n_objects > 0 )
         {
@@ -39,19 +39,33 @@ public  void  retreat_current_object( graphics )
     }
 }
 
-public  model_struct  *get_current_model( graphics )
+public  object_struct  *get_current_model_object( graphics )
     graphics_struct   *graphics;
 {
-    model_struct   *model;
+    object_struct   *model_object;
 
     if( current_object_is_top_level(graphics) )
     {
-        model = graphics->models[THREED_MODEL]->ptr.model;
+        model_object = graphics->models[THREED_MODEL];
     }
     else
     {
-        model = TOP_OF_STACK( graphics->current_object ).model;
+        model_object = TOP_OF_STACK(graphics->current_object).model_object;
     }
+
+    return( model_object );
+}
+
+public  model_struct  *get_current_model( graphics )
+    graphics_struct   *graphics;
+{
+    object_struct  *model_object;
+    object_struct  *get_current_model_object();
+    model_struct   *model;
+
+    model_object = get_current_model_object( graphics );
+
+    model = model_object->ptr.model;
 
     return( model );
 }
@@ -80,7 +94,8 @@ public  void  set_current_object_index( graphics, index )
     if( !current_object_is_top_level(graphics) )
     {
         if( index >= 0 &&
-            index < TOP_OF_STACK( graphics->current_object ).model->n_objects )
+            index < TOP_OF_STACK( graphics->current_object ).
+                            model_object->ptr.model->n_objects )
         {
             TOP_OF_STACK( graphics->current_object ).object_index = index;
         }
@@ -107,7 +122,7 @@ public  Boolean  get_current_object( graphics, current_object )
     else
     {
         object_index = TOP_OF_STACK( graphics->current_object ).object_index;
-        model = TOP_OF_STACK( graphics->current_object ).model;
+        model = TOP_OF_STACK(graphics->current_object).model_object->ptr.model;
 
         if( object_index >= 0 && object_index < model->n_objects )
         {
@@ -155,7 +170,7 @@ public  Status  push_current_object( graphics )
         current_object->object_type == MODEL )
     {
         entry.object_index = 0;
-        entry.model = current_object->ptr.model;
+        entry.model_object = current_object;
 
         PUSH_STACK( status, graphics->current_object, selection_entry,
                     entry );
