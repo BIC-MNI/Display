@@ -1,9 +1,9 @@
-#include  <def_display.h>
+#include  <display.h>
 
 typedef  skiplist_struct  point_lookup_struct;
 
-private  Boolean  face_is_boundary(
-    Volume          volume,
+private  BOOLEAN  face_is_boundary(
+    Volume          label_volume,
     int             label,
     int             indices[N_DIMENSIONS],
     int             c,
@@ -22,6 +22,7 @@ private  Status  add_face(
 
 public  void  extract_boundary_of_labeled_voxels(
     Volume           volume,
+    Volume           label_volume,
     int              label,
     polygons_struct  *polygons )
 {
@@ -52,7 +53,8 @@ public  void  extract_boundary_of_labeled_voxels(
                 {
                     for( offset = -1;  offset <= 1;  offset += 2 )
                     {
-                        if( face_is_boundary( volume, label, indices, c,offset))
+                        if( face_is_boundary( label_volume,
+                                              label, indices, c,offset))
                         {
                             add_face( volume, indices, c, offset,
                                       polygons, &point_lookup );
@@ -81,21 +83,21 @@ public  void  extract_boundary_of_labeled_voxels(
     }
 }
 
-private  Boolean  face_is_boundary(
-    Volume          volume,
+private  BOOLEAN  face_is_boundary(
+    Volume          label_volume,
     int             label,
     int             indices[N_DIMENSIONS],
     int             c,
     int             offset )
 {
-    Boolean  inside, neigh_inside;
-    Boolean  boundary_flag;
+    BOOLEAN  inside, neigh_inside;
+    BOOLEAN  boundary_flag;
     int      neigh_indices[N_DIMENSIONS];
 
     boundary_flag = FALSE;
 
-    inside = (get_volume_auxiliary_data( volume, indices[0], indices[1],
-                      indices[2] ) & LOWER_AUXILIARY_BITS) == label;
+    inside = (get_volume_label_data( label_volume, indices ) &
+                          get_max_label()) == label;
 
     if( inside )
     {
@@ -104,11 +106,11 @@ private  Boolean  face_is_boundary(
         neigh_indices[2] = indices[2];
         neigh_indices[c] += offset;
 
-        if( cube_is_within_volume( volume, neigh_indices ) )
+        if( int_voxel_is_within_volume( label_volume, neigh_indices ) )
         {
-            neigh_inside = (get_volume_auxiliary_data( volume,
-                     neigh_indices[0], neigh_indices[1], neigh_indices[2] ) &
-                            LOWER_AUXILIARY_BITS) == label;
+            neigh_inside = (get_volume_label_data( label_volume,
+                                                   neigh_indices ) &
+                            get_max_label()) == label;
 
             if( inside != neigh_inside )
                 boundary_flag = TRUE;
@@ -185,7 +187,7 @@ private  int  get_point_index(
     int                  y,
     int                  z )
 {
-    Real          x_w, y_w, z_w;
+    Real          x_w, y_w, z_w, voxel[MAX_DIMENSIONS];
     Point         point;
     point_struct  p, *entry;
 
@@ -204,8 +206,10 @@ private  int  get_point_index(
             HANDLE_INTERNAL_ERROR( "lookup id for boundary detection" );
         }
 
-        convert_voxel_to_world( volume, (Real) x - 0.5, (Real) y - 0.5,
-                                (Real) z - 0.5, &x_w, &y_w, &z_w );
+        voxel[X] = (Real) x - 0.5;
+        voxel[Y] = (Real) y - 0.5;
+        voxel[Z] = (Real) z - 0.5;
+        convert_voxel_to_world( volume, voxel, &x_w, &y_w, &z_w );
         fill_Point( point, x_w, y_w, z_w );
         ADD_ELEMENT_TO_ARRAY( polygons->points, polygons->n_points,
                               point, DEFAULT_CHUNK_SIZE );

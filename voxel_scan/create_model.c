@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  void  create_quadmesh_of_surface(
     surface_rep_struct  *surface_rep,

@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 static    DEF_EVENT_FUNCTION( start_magnification );
 static    DEF_EVENT_FUNCTION( turn_off_magnification );

@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  void  display_objects_recursive(
     window_struct                *window,
@@ -10,7 +10,7 @@ private  void  display_objects_recursive(
     View_types                   view_type,
     Transform                    *transform,
     update_interrupted_struct    *interrupt,
-    Boolean                      *past_last_object );
+    BOOLEAN                      *past_last_object );
 
 public  void  display_objects(
     window_struct               *window,
@@ -18,7 +18,7 @@ public  void  display_objects(
     update_interrupted_struct   *interrupt,
     Bitplane_types              bitplanes )
 {
-    Boolean              past_last_object;
+    BOOLEAN              past_last_object;
     model_struct         *model;
     model_info_struct    *model_info;
 
@@ -43,7 +43,7 @@ private  void  draw_one_object(
     window_struct                *window,
     object_struct                *object,
     update_interrupted_struct    *interrupt,
-    Boolean                      *past_last_object );
+    BOOLEAN                      *past_last_object );
 
 private  void  display_objects_recursive(
     window_struct                *window,
@@ -54,7 +54,7 @@ private  void  display_objects_recursive(
     View_types                   view_type,
     Transform                    *transform,
     update_interrupted_struct    *interrupt,
-    Boolean                      *past_last_object )
+    BOOLEAN                      *past_last_object )
 {
     int                  i;
     model_struct         *model;
@@ -107,9 +107,9 @@ private  void  draw_one_object(
     window_struct                *window,
     object_struct                *object,
     update_interrupted_struct    *interrupt,
-    Boolean                      *past_last_object )
+    BOOLEAN                      *past_last_object )
 {
-    Boolean  continuing;
+    BOOLEAN  continuing;
 
     continuing = (G_get_drawing_interrupt_state(window) &&
                   interrupt != (update_interrupted_struct *) 0 &&

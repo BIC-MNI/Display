@@ -1,9 +1,9 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  void  initialize_directional(
     light_struct  *light,
-    Boolean       state );
+    BOOLEAN       state );
 
 public  void  initialize_lights(
     light_struct  *lights )
@@ -20,7 +20,7 @@ public  void  initialize_lights(
 
 private  void  initialize_directional(
     light_struct  *light,
-    Boolean       state )
+    BOOLEAN       state )
 {
     light->state = state;
 

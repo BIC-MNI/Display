@@ -1,4 +1,4 @@
-#include  <def_mni.h>
+#include  <display.h>
 
 #define  MAX_TEMP_STORAGE  100
 
@@ -45,8 +45,8 @@ private  void  recursive_polygon_scan(
 {
     Point            midpoints[4], min_point, max_point, centre;
     Point            sub_points[4];
-    Real             position[N_DIMENSIONS];
-    int              edge;
+    Real             voxel[MAX_DIMENSIONS];
+    int              edge, int_voxel[MAX_DIMENSIONS];
 
     get_range_points( size, vertices, &min_point, &max_point );
 
@@ -56,16 +56,13 @@ private  void  recursive_polygon_scan(
     {
         get_points_centroid( size, vertices, &centre );
         convert_world_to_voxel( volume, Point_x(centre), Point_y(centre),
-                                Point_z(centre),
-                                &position[X], &position[Y], &position[Z] );
-        fill_Point( centre, position[X], position[Y], position[Z] );
+                                Point_z(centre), voxel );
+        fill_Point( centre, voxel[X], voxel[Y], voxel[Z] );
 
-        if( voxel_is_within_volume( volume, position ) )
+        if( voxel_is_within_volume( volume, voxel ) )
         {
-            set_voxel_label_flag( volume,
-                                  ROUND( Point_x(centre) ),
-                                  ROUND( Point_y(centre) ),
-                                  ROUND( Point_z(centre) ), TRUE );
+            convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+            set_voxel_label_flag( volume, int_voxel, TRUE );
         }
         return;
     }

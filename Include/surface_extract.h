@@ -2,7 +2,8 @@
 #ifndef  DEF_SURFACE_EXTRACT
 #define  DEF_SURFACE_EXTRACT
 
-#include  <def_mni.h>
+#include  <mni.h>
+#include  <queue.h>
 
 typedef  struct
 {
@@ -20,9 +21,9 @@ typedef QUEUE_STRUCT( voxel_index_struct )   voxel_queue_struct;
 
 typedef  struct
 {
-    Boolean                              extraction_in_progress;
+    BOOLEAN                              extraction_in_progress;
     Real                                 isovalue;
-    Boolean                              isovalue_selected;
+    BOOLEAN                              isovalue_selected;
 
     hash_table_struct                    edge_points;
 

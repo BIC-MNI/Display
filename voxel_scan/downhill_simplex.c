@@ -1,6 +1,6 @@
 
-#include  <def_mni.h>
-#include  <def_minimization.h>
+#include  <mni.h>
+#include  <minimization.h>
 
 private  void  print_ranges(
     int     ndim,
@@ -41,7 +41,7 @@ private  double  amotry(
     int                           ihi,
     int                           *nfunk,
     double                        fac,
-    Boolean                       *success )
+    BOOLEAN                       *success )
 {
     int      j;
     double   fac1, fac2, ytry;
@@ -128,7 +128,7 @@ public  void  amoeba(
 {
     int     i, j, ilo, ihi, inhi;
     double  ytry, ysave, rtol;
-    Boolean success;
+    BOOLEAN success;
 
     *n_funk = 0;
 

@@ -2,18 +2,18 @@
 #ifndef  DEF_CONNECT
 #define  DEF_CONNECT
 
-#include  <def_mni.h>
+#include  <mni.h>
 
 typedef  struct
 {
-    Boolean  inside;
+    BOOLEAN  inside;
     int      label;
-    Boolean  queued;
+    BOOLEAN  queued;
     int      dist_transform;
     int      dist_from_region;
     int      cutoff;
 
-    Boolean  on_path;
+    BOOLEAN  on_path;
     int      path_dist_transform;
 } pixel_struct;
 

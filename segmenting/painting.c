@@ -1,4 +1,4 @@
-#include  <def_display.h>
+#include  <display.h>
 
 private  DEF_EVENT_FUNCTION( right_mouse_down );
 private  DEF_EVENT_FUNCTION( end_painting );
@@ -128,17 +128,17 @@ private  void  sweep_paint_labels(
     }
 }
 
-private  Boolean  get_brush_voxel_centre(
+private  BOOLEAN  get_brush_voxel_centre(
     display_struct    *slice_window,
     int               x_pixel,
     int               y_pixel,
     Real              voxel[],
     int               *axis )
 {
-    Boolean  inside;
+    BOOLEAN  inside;
 
     inside = convert_pixel_to_voxel( slice_window, x_pixel, y_pixel,
-                                     &voxel[X], &voxel[Y], &voxel[Z], axis );
+                                     voxel, axis );
 
     if( inside && Snap_brush_to_centres )
     {
@@ -155,7 +155,7 @@ private  void  paint_labels_at_point(
     int              x,
     int              y )
 {
-    Volume   volume;
+    Volume   volume, label_volume;
     int      label, axis, a1, a2, value, c, sizes[N_DIMENSIONS];
     Real     delta, dx2, dy2, dz2;
     int      min_voxel[N_DIMENSIONS], max_voxel[N_DIMENSIONS];
@@ -163,11 +163,13 @@ private  void  paint_labels_at_point(
     Real     one_over_r2[N_DIMENSIONS], radius[N_DIMENSIONS];
     Real     voxel[N_DIMENSIONS], separations[MAX_DIMENSIONS];
     int      ind[N_DIMENSIONS];
-    Boolean  update_required;
+    BOOLEAN  update_required;
 
     if( get_slice_window_volume( slice_window, &volume ) &&
         get_brush_voxel_centre( slice_window, x, y, voxel, &axis ) )
     {
+        label_volume = get_label_volume( slice_window );
+
         update_required = FALSE;
 
         a1 = (axis + 1) % N_DIMENSIONS;
@@ -221,16 +223,14 @@ private  void  paint_labels_at_point(
                     dz2 = delta * delta * one_over_r2[Z];
 
                     if( dx2 + dy2 + dz2 <= 1.0 &&
-                        cube_is_within_volume( volume, ind ) )
+                        int_voxel_is_within_volume( volume, ind ) )
                     {
-                        value = get_volume_auxiliary_data( volume, ind[X],
-                                                           ind[Y], ind[Z] );
-                        if( (value & LOWER_AUXILIARY_BITS) != label )
+                        value = get_volume_label_data( label_volume, ind );
+                        if( (value & get_max_label()) != label )
                         {
-                            value = value & (~LOWER_AUXILIARY_BITS);
+                            value = value & (~get_max_label());
                             value = value | label;
-                            set_volume_auxiliary_data( volume, ind[X],
-                                                       ind[Y], ind[Z], value );
+                            set_volume_label_data( label_volume, ind, value );
                             update_required = TRUE;
                         }
                     }
@@ -248,7 +248,7 @@ private  void  paint_labels_at_point(
 }
 
 public  void  copy_labels_slice_to_slice(
-    Volume           volume,
+    Volume           label_volume,
     int              axis,
     int              src_voxel,
     int              dest_voxel )
@@ -257,7 +257,7 @@ public  void  copy_labels_slice_to_slice(
     int   sizes[N_DIMENSIONS], src_indices[N_DIMENSIONS];
     int   dest_indices[N_DIMENSIONS];
 
-    get_volume_sizes( volume, sizes );
+    get_volume_sizes( label_volume, sizes );
     a1 = (axis + 1) % N_DIMENSIONS;
     a2 = (axis + 2) % N_DIMENSIONS;
 
@@ -273,19 +273,14 @@ public  void  copy_labels_slice_to_slice(
             src_indices[a2] = y;
             dest_indices[a2] = y;
 
-            value = get_volume_auxiliary_data( volume,
-                                               src_indices[X],
-                                               src_indices[Y],
-                                               src_indices[Z] );
+            value = get_volume_label_data( label_volume, src_indices );
 
-            set_volume_auxiliary_data( volume, dest_indices[X],
-                                               dest_indices[Y],
-                                               dest_indices[Z], value );
+            set_volume_label_data( label_volume, dest_indices, value );
         }
     }
 }
 
-private  Boolean  inside_brush(
+private  BOOLEAN  inside_brush(
     Real       origin[],
     Real       one_over_r2[],
     int        voxel[] )
@@ -351,7 +346,7 @@ private   void    add_point_to_contour(
     add_point_to_line( lines, &point );
 }
 
-private  Boolean  neighbour_is_inside(
+private  BOOLEAN  neighbour_is_inside(
     Real       origin[],
     Real       one_over_r2[],
     int        a1,
@@ -359,7 +354,7 @@ private  Boolean  neighbour_is_inside(
     int        voxel[],
     Directions dir )
 {
-    Boolean   inside;
+    BOOLEAN   inside;
 
     voxel[a1] += dx[dir];
     voxel[a2] += dy[dir];

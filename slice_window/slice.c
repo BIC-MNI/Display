@@ -1,11 +1,11 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
-public  Boolean   get_slice_window_volume(
+public  BOOLEAN   get_slice_window_volume(
     display_struct   *display,
     Volume           *volume )
 {
-    Boolean  volume_set;
+    BOOLEAN  volume_set;
 
     if( display->associated[SLICE_WINDOW] != (display_struct *) NULL )
     {
@@ -31,11 +31,22 @@ public  Volume   get_volume(
     return( volume );
 }
 
-public  Boolean  get_slice_window(
+public  Volume  get_label_volume(
+    display_struct   *display )
+{
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+        return( slice_window->slice.labels );
+    else
+        return( (Volume) NULL );
+}
+
+public  BOOLEAN  get_slice_window(
     display_struct   *display,
     display_struct   **slice_window )
 {
-    Boolean  exists;
+    BOOLEAN  exists;
 
     exists = FALSE;
 
@@ -59,14 +70,13 @@ private  void  set_cursor_colour(
 
     if( get_isosurface_value( slice_window->associated[THREE_D_WINDOW], &value))
     {
-        get_current_voxel( slice_window, &indices[X], &indices[Y], &indices[Z]);
-        int_indices[X] = ROUND( indices[X] );
-        int_indices[Y] = ROUND( indices[Y] );
-        int_indices[Z] = ROUND( indices[Z] );
+        get_current_voxel( slice_window, indices );
 
-        if( cube_is_within_volume( get_volume(slice_window), int_indices ) &&
-            voxel_contains_value( get_volume(slice_window), int_indices[X],
-                                  int_indices[Y], int_indices[Z], value ))
+        convert_real_to_int_voxel( N_DIMENSIONS, indices, int_indices );
+
+        if( int_voxel_is_within_volume( get_volume(slice_window), int_indices)&&
+            voxel_contains_value( get_volume(slice_window), int_indices,
+                                  value ))
         {
             if( get_cursor_bitplanes() )
                 col = Cursor_colour_on_surface;
@@ -85,21 +95,20 @@ private  void  set_cursor_colour(
     }
 }
 
-public  Boolean  update_cursor_from_voxel(
+public  BOOLEAN  update_cursor_from_voxel(
     display_struct    *slice_window )
 {
-    Real              x, y, z;
+    Real              voxel[MAX_DIMENSIONS];
     Real              x_w, y_w, z_w;
-    Boolean           changed;
+    BOOLEAN           changed;
     Point             new_origin;
     display_struct    *display;
 
     display = slice_window->associated[THREE_D_WINDOW];
 
-    get_current_voxel( slice_window, &x, &y, &z );
+    get_current_voxel( slice_window, voxel );
 
-    convert_voxel_to_world( get_volume(slice_window),
-                            x, y, z, &x_w, &y_w, &z_w );
+    convert_voxel_to_world( get_volume(slice_window), voxel, &x_w, &y_w, &z_w );
     fill_Point( new_origin, x_w, y_w, z_w );
 
     if( !EQUAL_POINTS( new_origin, display->three_d.cursor.origin ) )
@@ -120,11 +129,11 @@ public  Boolean  update_cursor_from_voxel(
     return( changed );
 }
 
-public  Boolean  update_voxel_from_cursor(
+public  BOOLEAN  update_voxel_from_cursor(
     display_struct    *slice_window )
 {
-    Real              x, y, z;
-    Boolean           changed;
+    Real              voxel[MAX_DIMENSIONS];
+    BOOLEAN           changed;
     display_struct    *display;
 
     changed = FALSE;
@@ -135,10 +144,9 @@ public  Boolean  update_voxel_from_cursor(
 
         if( get_voxel_corresponding_to_point( slice_window,
                                     &display->three_d.cursor.origin,
-                                    &x, &y, &z ) )
+                                    voxel ) )
         {
-            changed = set_current_voxel( slice_window,
-                                         ROUND( x ), ROUND( y ), ROUND( z ) );
+            changed = set_current_voxel( slice_window, voxel );
 
             set_cursor_colour( slice_window );
         }
@@ -181,7 +189,7 @@ public  void  create_slice_window(
 {
     display_struct   *slice_window, *menu_window;
     int              sizes[N_DIMENSIONS];
-    String           title;
+    STRING           title;
 
     get_volume_sizes( volume, sizes );
 
@@ -327,4 +335,26 @@ public  void  set_slice_window_volume(
     set_atlas_state( slice_window, Default_atlas_state );
 
     rebuild_slice_models( slice_window );
+}
+
+public  void  set_all_voxel_label_flags(
+    Volume   label_volume,
+    BOOLEAN  value )
+{
+    set_all_volume_label_data_bit( label_volume, get_label_bit(), value );
+}
+
+public  void  set_voxel_label_flag(
+    Volume   label_volume,
+    int      voxel[],
+    BOOLEAN  value )
+{
+    set_voxel_label_bit( label_volume, voxel, get_label_bit(), value );
+}
+
+public  BOOLEAN  get_voxel_label_flag(
+    Volume   label_volume,
+    int      voxel[] )
+{
+    return( get_voxel_label_bit( label_volume, voxel, get_label_bit() ) );
 }

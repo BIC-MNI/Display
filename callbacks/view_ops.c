@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  DEF_MENU_FUNCTION( make_view_fit )      /* ARGSUSED */
 {
@@ -168,7 +168,7 @@ public  DEF_MENU_FUNCTION( toggle_perspective )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_perspective )      /* ARGSUSED */
 {
-    String    text;
+    STRING    text;
 
     set_text_boolean( label, text, display->three_d.view.perspective_flag,
                       "Parallel", "Perspective" );
@@ -264,7 +264,7 @@ public  DEF_MENU_FUNCTION( create_film_loop )      /* ARGSUSED */
 {
     Status  status;
     int     axis_index, n_steps;
-    String  base_filename;
+    STRING  base_filename;
 
     print( "Enter base_filename, axis_index, and n_steps: " );
 
@@ -295,7 +295,7 @@ public  DEF_MENU_UPDATE(create_film_loop )      /* ARGSUSED */
 public  DEF_MENU_FUNCTION( save_image )      /* ARGSUSED */
 {
     Status  status;
-    String  filename;
+    STRING  filename;
 
     status = OK;
 

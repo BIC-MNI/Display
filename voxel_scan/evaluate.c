@@ -1,7 +1,6 @@
 
-#include  <def_mni.h>
-#include  <def_minimization.h>
-#include  <def_display.h>
+#include  <minimization.h>
+#include  <display.h>
 
 private  int  get_n_samples(
     int     n_samples_for_whole_surface,
@@ -14,10 +13,10 @@ private  double  get_parameter_in_range(
     int      n,
     double   min,
     double   max );
-private  Boolean  inside_hole(
+private  BOOLEAN  inside_hole(
     double      u,
     double      v,
-    Boolean     hole_present,
+    BOOLEAN     hole_present,
     double      u_min_hole,
     double      u_max_hole,
     double      v_min_hole,
@@ -172,7 +171,7 @@ public  void   evaluate_distances_to_surface(
     double                  v_min,
     double                  v_max,
     Real                    surface_point_distances[],
-    Boolean                 hole_present,
+    BOOLEAN                 hole_present,
     double                  u_min_hole,
     double                  u_max_hole,
     double                  v_min_hole,
@@ -266,16 +265,16 @@ private  double  get_parameter_in_range(
         return( min - 1.0 + alpha * (max - min + 1.0) );
 }
 
-private  Boolean  inside_hole(
+private  BOOLEAN  inside_hole(
     double      u,
     double      v,
-    Boolean     hole_present,
+    BOOLEAN     hole_present,
     double      u_min_hole,
     double      u_max_hole,
     double      v_min_hole,
     double      v_max_hole )
 {
-    Boolean  in_hole;
+    BOOLEAN  in_hole;
 
     in_hole = hole_present;
 
@@ -322,6 +321,8 @@ private  double   evaluate_fit_at_uv(
     {
         if( volume != (Volume) NULL )
         {
+#ifdef afd
+            if( get_volume_voxel_activity( label_volume,
             if( evaluate_volume_in_world( volume, x, y, z, Volume_continuity,
                                           TRUE, &val,
                                           (Real *) 0, (Real *) 0, (Real *) 0,
@@ -334,6 +335,7 @@ private  double   evaluate_fit_at_uv(
                 surface_estimate = BIG_NUMBER;
 
             fit += surface_estimate * fit_data->isovalue_factor;
+#endif
         }
     }
 
@@ -341,6 +343,7 @@ private  double   evaluate_fit_at_uv(
     {
         if( volume != (Volume) NULL )
         {
+#ifdef adsf
             if( evaluate_volume_in_world( volume, x, y, z, Volume_continuity,
                                           TRUE, &val, &dx, &dy, &dz,
                                           (Real *) NULL, (Real *) NULL,
@@ -378,6 +381,7 @@ private  double   evaluate_fit_at_uv(
             }
             else
                 surface_estimate = BIG_NUMBER;
+#endif
         }
         else
         {

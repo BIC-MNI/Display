@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private    DEF_EVENT_FUNCTION( check_updated );
 
@@ -127,9 +127,9 @@ private  Status  create_film_loop_header(
     Status  status;
     int     i;
     FILE    *file;
-    String  header_name;
-    String  frame_filename;
-    String  no_dirs;
+    STRING  header_name;
+    STRING  frame_filename;
+    STRING  no_dirs;
 
     (void) strcpy( header_name, base_filename );   
     (void) strcat( header_name, ".flm" );   
@@ -181,7 +181,7 @@ private  Status  save_image_to_file(
 {
     Status         status;
     FILE           *file;
-    String         frame_filename;
+    STRING         frame_filename;
     int            x_min, x_max, y_min, y_max;
 
     G_read_pixels( display->window,
@@ -248,7 +248,7 @@ private  void  get_pixel_bounds(
     int           *y_max )
 {
     int            x, y;
-    Boolean        found_a_pixel;
+    BOOLEAN        found_a_pixel;
     Colour         background;
 
     background = pixels[IJ(0,0,x_size)];

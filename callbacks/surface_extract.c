@@ -1,19 +1,21 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  DEF_MENU_FUNCTION(start_surface )   /* ARGSUSED */
 {
-    Real           x, y, z;
+    Real           voxel[MAX_DIMENSIONS];
+    int            int_voxel[MAX_DIMENSIONS];
     Volume         volume;
 
     if( get_slice_window_volume( display, &volume ) )
     {
         if( get_voxel_corresponding_to_point( display,
                                               &display->three_d.cursor.origin,
-                                              &x, &y, &z ) )
+                                              voxel ) )
         {
-            start_surface_extraction_at_point( display, ROUND(x), ROUND(y),
-                                               ROUND(z) );
+            convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+            start_surface_extraction_at_point( display, int_voxel[X],
+                                               int_voxel[Y], int_voxel[Z] );
         }
     }
 
@@ -42,7 +44,7 @@ public  DEF_MENU_FUNCTION(toggle_surface_extraction)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_surface_extraction )   /* ARGSUSED */
 {
-    String    text;
+    STRING    text;
 
     set_text_on_off( label, text,
               display->three_d.surface_extraction.extraction_in_progress );
@@ -60,7 +62,7 @@ public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
     {
         reset_surface_extraction( display );
 
-        set_all_voxel_label_flags( volume, FALSE );
+        set_all_voxel_label_flags( get_label_volume(display), FALSE );
 
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
@@ -135,8 +137,9 @@ public  DEF_MENU_FUNCTION(get_labeled_boundary)   /* ARGSUSED */
         {
             object = create_object( POLYGONS );
 
-            extract_boundary_of_labeled_voxels( volume, label,
-                                                get_polygons_ptr(object) );
+            extract_boundary_of_labeled_voxels( volume,
+                      get_label_volume(display), label,
+                      get_polygons_ptr(object) );
 
             add_object_to_model( get_current_model(display), object );
 
@@ -168,7 +171,7 @@ public  DEF_MENU_FUNCTION( set_surface_extract_x_max_distance )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_surface_extract_x_max_distance )   /* ARGSUSED */
 {
-    String  text;
+    STRING  text;
 
     (void) sprintf( text, label,
                     display->three_d.surface_extraction.x_voxel_max_distance);
@@ -194,7 +197,7 @@ public  DEF_MENU_FUNCTION( set_surface_extract_y_max_distance )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_surface_extract_y_max_distance )   /* ARGSUSED */
 {
-    String  text;
+    STRING  text;
 
     (void) sprintf( text, label,
                     display->three_d.surface_extraction.y_voxel_max_distance);
@@ -220,7 +223,7 @@ public  DEF_MENU_FUNCTION( set_surface_extract_z_max_distance )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_surface_extract_z_max_distance )   /* ARGSUSED */
 {
-    String  text;
+    STRING  text;
 
     (void) sprintf( text, label,
                     display->three_d.surface_extraction.z_voxel_max_distance);

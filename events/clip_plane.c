@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private    DEF_EVENT_FUNCTION( start_front_clipping );
 private    DEF_EVENT_FUNCTION( turn_off_front_clipping );
@@ -13,7 +13,7 @@ private    DEF_EVENT_FUNCTION( handle_mouse_movement_back );
 private    DEF_EVENT_FUNCTION( terminate_back_clipping );
 private  void  perform_clipping(
     display_struct   *display,
-    Boolean          front_flag );
+    BOOLEAN          front_flag );
 
 public  void  initialize_front_clipping(
     display_struct   *display )
@@ -199,7 +199,7 @@ private  DEF_EVENT_FUNCTION( handle_update_back )      /* ARGSUSED */
 
 private  void  perform_clipping(
     display_struct   *display,
-    Boolean          front_flag )
+    BOOLEAN          front_flag )
 {
     Real      x, y, x_prev, y_prev;
     Real      delta, dist;

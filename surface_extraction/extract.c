@@ -1,12 +1,12 @@
 
-#include  <def_display.h>
-#include  <def_marching_cube_data.h>
+#include  <display.h>
+#include  <marching_cube_data.h>
 
 #define  INVALID_ID   -1
 
 typedef  struct
 {
-    Boolean   checked;
+    BOOLEAN   checked;
     int       id;
 } edge_point_info;
 
@@ -14,7 +14,7 @@ private  int  extract_polygons(
     Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     voxel_index_struct          *voxel_index,
-    Boolean                     first_voxel,
+    BOOLEAN                     first_voxel,
     int                         n_polys,
     int                         sizes[],
     voxel_point_type            points_list[] );
@@ -41,17 +41,17 @@ private  int   create_surface_point(
     int                 edge_intersected,
     Point_classes       *pt_class );
 
-public  Boolean  extract_voxel_surface(
+public  BOOLEAN  extract_voxel_surface(
     Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     voxel_index_struct          *voxel_index,
-    Boolean                     first_voxel )
+    BOOLEAN                     first_voxel )
 {
     voxel_point_type       *points_list;
     Real                   corner_values[2][2][2];
     Real                   value;
     int                    n_polys, n_nondegenerate_polys;
-    int                    x, y, z, *sizes;
+    int                    x, y, z, *sizes, voxel[MAX_DIMENSIONS];
 
     for_less( x, 0, 2 )
     {
@@ -59,15 +59,15 @@ public  Boolean  extract_voxel_surface(
         {
             for_less( z, 0, 2 )
             {
-                GET_VOXEL_3D( value, volume, voxel_index->i[X]+x,
-                              voxel_index->i[Y]+y, voxel_index->i[Z]+z );
+                voxel[X] = voxel_index->i[X] + x;
+                voxel[Y] = voxel_index->i[Y] + y;
+                voxel[Z] = voxel_index->i[Z] + z;
+
+                GET_VOXEL_3D( value, volume, voxel[X], voxel[Y], voxel[Z] );
                 value = CONVERT_VOXEL_TO_VALUE( volume, value );
 
                 if( value >= surface_extraction->isovalue &&
-                    !get_voxel_activity_flag( volume,
-                                              voxel_index->i[X]+x,
-                                              voxel_index->i[Y]+y,
-                                              voxel_index->i[Z]+z ) )
+                    !get_voxel_activity_flag( volume, voxel ) )
                 {
                     value = 0.0;
                 }
@@ -99,7 +99,7 @@ private  int  extract_polygons(
     Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     voxel_index_struct          *voxel_index,
-    Boolean                     first_voxel,
+    BOOLEAN                     first_voxel,
     int                         n_polys,
     int                         sizes[],
     voxel_point_type            points_list[] )
@@ -111,7 +111,7 @@ private  int  extract_polygons(
     int                    n_nondegenerate_polys, poly, p;
     int                    x, y, z, axis;
     int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
-    Boolean                changed, connected;
+    BOOLEAN                changed, connected;
     unsigned_byte          all_done_value, voxel_flags;
 
     for_less( x, 0, 2 )
@@ -236,7 +236,7 @@ private  int  add_polygon_to_list(
     voxel_index_struct     corner_index;
     int                    current_end, next_index, p, next_end, actual_size;
     int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
-    Boolean                non_degenerate;
+    BOOLEAN                non_degenerate;
     Point_classes          pt_class;
 
     if( size < 3 )
@@ -315,7 +315,7 @@ private  int   create_surface_point(
     int       pt_index;
     Real      x_w, y_w, z_w;
     Real      dx, dy, dz;
-    Real      val1, val2, alpha;
+    Real      val1, val2, alpha, voxel_pos[MAX_DIMENSIONS];
     Point     point;
     Vector    normal;
     int       corner[N_DIMENSIONS];
@@ -353,24 +353,22 @@ private  int   create_surface_point(
 
     /* ------------------- compute point position ------------------- */
 
-    fill_Point( point, (Real) voxel->i[X], (Real) voxel->i[Y],
-                       (Real) voxel->i[Z] )
+    voxel_pos[X] = (Real) voxel->i[X];
+    voxel_pos[Y] = (Real) voxel->i[Y];
+    voxel_pos[Z] = (Real) voxel->i[Z];
+    voxel_pos[edge_intersected] += alpha;
 
-    Point_coord( point, edge_intersected ) += alpha;
-
-    convert_voxel_to_world( volume,
-                            Point_x(point), Point_y(point), Point_z(point),
-                            &x_w, &y_w, &z_w );
+    convert_voxel_to_world( volume, voxel_pos, &x_w, &y_w, &z_w );
     fill_Point( point, x_w, y_w, z_w );
 
     /* --------------------- now get normal ---------------------- */
 
-    (void) evaluate_volume_in_world( volume,
-                               Point_x(point), Point_y(point), Point_z(point),
-                               Volume_continuity, FALSE, &ignored,
-                               &dx, &dy, &dz,
-                               (Real *) NULL, (Real *) NULL, (Real *) NULL,
-                               (Real *) NULL, (Real *) NULL, (Real *) NULL );
+    evaluate_3D_volume_in_world( volume,
+                                 Point_x(point), Point_y(point), Point_z(point),
+                                 Volume_continuity, &ignored,
+                                 &dx, &dy, &dz,
+                                 (Real *) NULL, (Real *) NULL, (Real *) NULL,
+                                 (Real *) NULL, (Real *) NULL, (Real *) NULL );
 
     fill_Vector( normal, dx, dy, dz );
 

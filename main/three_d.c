@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  void  initialize_three_d_events(
     display_struct  *display );
@@ -10,6 +10,8 @@ public  void  initialize_three_d_window(
     static   Vector        line_of_sight = { 0.0, 0.0, -1.0 };
     static                 Vector    horizontal = { 1.0, 0.0, 0.0 };
     three_d_window_struct  *three_d;
+
+    initialize_resize_events( display );
 
     three_d = &display->three_d;
 

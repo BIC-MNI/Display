@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  Status   process_no_events_for_all_windows( void );
 private  void     update_all_required_windows( void );
@@ -43,7 +43,7 @@ public  Status   main_event_loop( void )
     return( OK );
 }
 
-public  Boolean  window_is_up_to_date(
+public  BOOLEAN  window_is_up_to_date(
     display_struct   *display )
 {
     return( !graphics_update_required( display ) &&

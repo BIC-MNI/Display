@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  selection_entry  *get_current_entry(
     display_struct   *display )
@@ -104,7 +104,7 @@ public  void  set_current_object(
     display_struct    *display,
     object_struct     *object )
 {
-    Boolean            found, done;
+    BOOLEAN            found, done;
     selection_struct   *current_selection;
     object_struct      *current_object;
 
@@ -183,12 +183,12 @@ public  void  set_current_object_index(
     }
 }
 
-public  Boolean  get_current_object(
+public  BOOLEAN  get_current_object(
     display_struct    *display,
     object_struct     **current_object )
 {
     int               object_index;
-    Boolean           current_object_exists;
+    BOOLEAN           current_object_exists;
     model_struct      *model;
     selection_entry   *entry;
 
@@ -240,7 +240,7 @@ public  void  terminate_current_object(
 public  void  push_current_object(
     display_struct    *display )
 {
-    Boolean           previously_here;
+    BOOLEAN           previously_here;
     selection_entry   entry, *entry_ptr;
     selection_struct  *selection;
     object_struct     *current_object;
@@ -280,7 +280,7 @@ public  void  push_current_object(
     }
 }
 
-public  Boolean  current_object_is_top_level(
+public  BOOLEAN  current_object_is_top_level(
     display_struct    *display )
 {
     return( display->three_d.current_object.current_level == 0 );

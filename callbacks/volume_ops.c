@@ -341,7 +341,6 @@ public  DEF_MENU_UPDATE(create_3d_slice)    /* ARGSUSED */
     return( OK );
 }
 
-
 public  DEF_MENU_FUNCTION(resample_slice_window_volume)   /* ARGSUSED */
 {
     int              sizes[N_DIMENSIONS];
@@ -389,6 +388,47 @@ public  DEF_MENU_FUNCTION(resample_slice_window_volume)   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(resample_slice_window_volume)    /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
+{
+    int              sizes[N_DIMENSIONS];
+    Real             x_width, y_width, z_width;
+    display_struct   *slice_window;
+    Volume           volume, resampled_volume;
+
+    if( get_slice_window_volume( display, &volume ) &&
+        get_slice_window( display, &slice_window ) )
+    {
+        get_volume_sizes( slice_window->slice.original_volume, sizes );
+
+        print( "Enter box filter  x_width, y_width, z_width: " );
+
+        if( input_real( stdin, &x_width ) == OK &&
+            input_real( stdin, &y_width ) == OK &&
+            input_real( stdin, &z_width ) == OK )
+        {
+            if( x_width > 1.0 || y_width > 1.0 || z_width > 1.0 )
+            {
+                resampled_volume = create_box_filtered_volume(
+                                        slice_window->slice.original_volume,
+                                        x_width, y_width, z_width );
+            }
+            else
+                resampled_volume = slice_window->slice.original_volume;
+
+            set_slice_window_volume( slice_window, resampled_volume );
+        }
+
+        (void) input_newline( stdin );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(box_filter_slice_window_volume)    /* ARGSUSED */
 {
     return( OK );
 }

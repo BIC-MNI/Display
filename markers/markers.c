@@ -1,13 +1,11 @@
-#include  <def_display.h>
+#include  <display.h>
 
-public  Boolean  update_current_marker(
+public  BOOLEAN  update_current_marker(
     display_struct   *display,
-    int              x,
-    int              y,
-    int              z )
+    Real             voxel[] )
 {
     object_traverse_struct  object_traverse;
-    Boolean                 found;
+    BOOLEAN                 found;
     object_struct           *object, *closest_marker;
     Volume                  volume;
     Point                   voxel_pos;
@@ -19,8 +17,7 @@ public  Boolean  update_current_marker(
 
     (void) get_slice_window_volume( display, &volume );
 
-    convert_voxel_to_world( volume, (Real) x, (Real) y, (Real) z,
-                            &x_w, &y_w, &z_w );
+    convert_voxel_to_world( volume, voxel, &x_w, &y_w, &z_w );
     fill_Point( voxel_pos, x_w, y_w, z_w );
 
     found = FALSE;

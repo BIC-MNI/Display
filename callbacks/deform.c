@@ -1,5 +1,5 @@
  
-#include  <def_display.h>
+#include  <display.h>
 
 public  DEF_MENU_FUNCTION( start_deforming_object )   /* ARGSUSED */
 {
@@ -131,7 +131,7 @@ public  DEF_MENU_FUNCTION( set_deformation_model )   /* ARGSUSED */
 {
     Real           model_weight, min_curvature, max_curvature;
     int            up_to_n_points;
-    String         model_name;
+    STRING         model_name;
     Status         status;
 
     status = OK;
@@ -165,7 +165,7 @@ public  DEF_MENU_FUNCTION( set_deformation_original_positions )   /* ARGSUSED */
     Real           max_position_offset;
     int            n_points;
     Point          *points;
-    String         position_filename;
+    STRING         position_filename;
     Status         status;
     object_struct  *object;
 

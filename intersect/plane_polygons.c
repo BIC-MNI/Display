@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  void  intersect_plane_polygons(
     Vector            *plane_normal,
@@ -71,7 +71,7 @@ private  void  intersect_plane_polygons(
     }
 }
 
-public  Boolean  intersect_plane_one_polygon(
+public  BOOLEAN  intersect_plane_one_polygon(
     Vector            *plane_normal,
     Real              plane_constant,
     polygons_struct   *polygons,
@@ -83,7 +83,7 @@ public  Boolean  intersect_plane_one_polygon(
 {
     int       point_index, n_indices;
     Point     points[2];
-    Boolean   intersects;
+    BOOLEAN   intersects;
 
     intersects = get_plane_polygon_intersection( plane_normal, plane_constant,
                                                  polygons, poly, points );

@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  DEF_MENU_FUNCTION( start_surface_line )   /* ARGSUSED */
 {
@@ -83,7 +83,7 @@ public  DEF_MENU_FUNCTION( set_line_curvature_weight )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_line_curvature_weight )   /* ARGSUSED */
 {
-    String  text;
+    STRING  text;
 
     (void) sprintf( text, label,
                     display->three_d.surface_curve.line_curvature_weight );

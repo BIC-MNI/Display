@@ -1,4 +1,4 @@
-#include <def_display.h>
+#include <display.h>
 
 public  void  transform_screen_to_pixels(
     window_struct  *window,

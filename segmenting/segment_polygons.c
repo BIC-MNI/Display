@@ -1,32 +1,32 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  void  modify_polygon(
     polygons_struct  *polygons,
     int               poly,
-    Boolean           set_visibility_flag,
-    Boolean           new_visibility,
-    Boolean           set_colour_flag,
+    BOOLEAN           set_visibility_flag,
+    BOOLEAN           new_visibility,
+    BOOLEAN           set_colour_flag,
     Colour            colour );
-private  Boolean  should_modify_polygon(
+private  BOOLEAN  should_modify_polygon(
     polygons_struct   *polygons,
     int               poly,
-    Boolean           set_visibility_flag,
-    Boolean           new_visibility );
-private  Boolean  polygon_on_invisible_side(
+    BOOLEAN           set_visibility_flag,
+    BOOLEAN           new_visibility );
+private  BOOLEAN  polygon_on_invisible_side(
     polygons_struct  *polygons,
     int              poly_index,
     int              axis_index,
     Real             position,
-    Boolean          cropping_above );
+    BOOLEAN          cropping_above );
 
 public  void  set_visibility_around_poly(
     polygons_struct  *polygons,
     int              poly,
     int              max_polys_to_do,
-    Boolean          set_visibility_flag,
-    Boolean          new_visibility,
-    Boolean          set_colour_flag,
+    BOOLEAN          set_visibility_flag,
+    BOOLEAN          new_visibility,
+    BOOLEAN          set_colour_flag,
     Colour           colour )
 {
     int                   i, index, neigh, size, n_done;
@@ -95,9 +95,9 @@ public  void  set_visibility_around_poly(
 private  void  modify_polygon(
     polygons_struct  *polygons,
     int               poly,
-    Boolean           set_visibility_flag,
-    Boolean           new_visibility,
-    Boolean           set_colour_flag,
+    BOOLEAN           set_visibility_flag,
+    BOOLEAN           new_visibility,
+    BOOLEAN           set_colour_flag,
     Colour            colour )
 {
     if( set_visibility_flag )
@@ -107,13 +107,13 @@ private  void  modify_polygon(
         polygons->colours[poly] = colour;
 }
 
-private  Boolean  should_modify_polygon(
+private  BOOLEAN  should_modify_polygon(
     polygons_struct   *polygons,
     int               poly,
-    Boolean           set_visibility_flag,
-    Boolean           new_visibility )
+    BOOLEAN           set_visibility_flag,
+    BOOLEAN           new_visibility )
 {
-    Boolean  polygon_is_currently_visible;
+    BOOLEAN  polygon_is_currently_visible;
 
     polygon_is_currently_visible =
                ( polygons->visibilities == (Smallest_int *) 0 ||
@@ -129,7 +129,7 @@ public  void  crop_polygons_visibilities(
     polygons_struct  *polygons,
     int              axis_index,
     Real             position,
-    Boolean          cropping_above )
+    BOOLEAN          cropping_above )
 {
     int     i;
 
@@ -145,14 +145,14 @@ public  void  crop_polygons_visibilities(
     }
 }
 
-private  Boolean  polygon_on_invisible_side(
+private  BOOLEAN  polygon_on_invisible_side(
     polygons_struct  *polygons,
     int              poly_index,
     int              axis_index,
     Real             position,
-    Boolean          cropping_above )
+    BOOLEAN          cropping_above )
 {
-    Boolean  on_invisible_size_only;
+    BOOLEAN  on_invisible_size_only;
     int      i, point_index, size;
     Real     coord;
 

@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  void  draw_2d_line(
     display_struct    *display,

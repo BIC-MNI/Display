@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 static  DEF_EVENT_FUNCTION( pick_first_corner_point );
 static  DEF_EVENT_FUNCTION( show_rectangle_at_mouse );

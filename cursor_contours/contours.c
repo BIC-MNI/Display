@@ -1,10 +1,10 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  DEF_EVENT_FUNCTION( check_update_contour );
-private  Boolean  add_to_contour(
+private  BOOLEAN  add_to_contour(
     display_struct   *display );
-private  Boolean  contour_not_finished(
+private  BOOLEAN  contour_not_finished(
     display_struct   *display );
 private  polygons_struct  *get_next_polygons(
     object_traverse_struct  *object_traverse );
@@ -76,7 +76,7 @@ private  DEF_EVENT_FUNCTION( check_update_contour )
     /* ARGSUSED */
 {
     Real     end_time;
-    Boolean  found;
+    BOOLEAN  found;
 
     end_time = current_realtime_seconds() + Max_background_seconds;
     
@@ -164,17 +164,17 @@ private  polygons_struct  *get_next_polygons(
     return( polygons );
 }
 
-private  Boolean  contour_not_finished(
+private  BOOLEAN  contour_not_finished(
     display_struct   *display )
 {
     return( display->three_d.cursor_contours.current_polygons !=
             (polygons_struct *) 0 );
 }
 
-private  Boolean  add_to_contour(
+private  BOOLEAN  add_to_contour(
     display_struct   *display )
 {
-    Boolean                 found;
+    BOOLEAN                 found;
     Vector                  plane_normal;
     Real                    plane_constant;
     int                     axis;

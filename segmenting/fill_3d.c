@@ -1,4 +1,4 @@
-#include  <def_display.h>
+#include  <display.h>
 
 typedef struct
 {
@@ -7,14 +7,13 @@ typedef struct
 
 public  void  fill_connected_voxels_3d(
     Volume          volume,
-    int             x,
-    int             y,
-    int             z,
+    int             voxel[],
     int             min_threshold,
     int             max_threshold )
 {
-    int                          tx, ty, tz, dx, dy, dz;
+    int                          x, y, z, tx, ty, tz, dx, dy, dz;
     int                          sizes[N_DIMENSIONS];
+    int                          voxel_index[MAX_DIMENSIONS];
     xyz_struct                   entry;
     QUEUE_STRUCT( xyz_struct )   queue;
     bitlist_3d_struct            bitlist;
@@ -29,18 +28,18 @@ public  void  fill_connected_voxels_3d(
 
     INITIALIZE_QUEUE( queue );
 
-    set_bitlist_bit_3d( &bitlist, x, y, z, TRUE );
-    if( get_voxel_activity_flag( volume, x, y, z ) )
+    set_bitlist_bit_3d( &bitlist, voxel[X], voxel[Y], voxel[Z], TRUE );
+    if( get_voxel_activity_flag( volume, voxel ) )
     {
-        GET_VOXEL_3D( val, volume, x, y, z );
+        GET_VOXEL_3D( val, volume, voxel[X], voxel[Y], voxel[Z] );
         val = CONVERT_VOXEL_TO_VALUE( volume, val );
         if( val >= min_threshold && val <= max_threshold )
         {
-            set_voxel_label_flag( volume, x, y, z, TRUE );
+            set_voxel_label_flag( volume, voxel, TRUE );
 
-            entry.x = x;
-            entry.y = y;
-            entry.z = z;
+            entry.x = voxel[X];
+            entry.y = voxel[Y];
+            entry.z = voxel[Z];
             INSERT_IN_QUEUE( queue, entry );
         }
     }
@@ -72,13 +71,16 @@ public  void  fill_connected_voxels_3d(
             {
                 set_bitlist_bit_3d( &bitlist, tx, ty, tz, TRUE );
 
-                if( get_voxel_activity_flag( volume, tx, ty, tz ) )
+                voxel_index[X] = tx;
+                voxel_index[Y] = ty;
+                voxel_index[Z] = tz;
+                if( get_voxel_activity_flag( volume, voxel ) )
                 {
                     GET_VOXEL_3D( val, volume, tx, ty, tz );
                     val = CONVERT_VOXEL_TO_VALUE( volume, val );
                     if( val >= min_threshold && val <= max_threshold )
                     {
-                        set_voxel_label_flag( volume, tx, ty, tz, TRUE );
+                        set_voxel_label_flag( volume, voxel_index, TRUE );
                         entry.x = tx;
                         entry.y = ty;
                         entry.z = tz;

@@ -1,11 +1,11 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
-private  Boolean  get_current_lines(
+private  BOOLEAN  get_current_lines(
     display_struct    *display,
     lines_struct      **lines )
 {
-    Boolean          found;
+    BOOLEAN          found;
     object_struct    *current_object;
 
     if( get_current_object( display, &current_object ) &&

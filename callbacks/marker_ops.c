@@ -1,11 +1,11 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
-private  Boolean  get_current_marker( display, marker )
+private  BOOLEAN  get_current_marker( display, marker )
     display_struct    *display;
     marker_struct     **marker;
 {
-    Boolean                 found;
+    BOOLEAN                 found;
     object_struct           *current_object, *object;
     object_traverse_struct  object_traverse;
 
@@ -45,14 +45,14 @@ private  void  get_position_pointed_to(
     Point            *pos )
 {
     int             axis_index;
-    Real            x, y, z;
+    Real            voxel[MAX_DIMENSIONS];
     Real            x_w, y_w, z_w;
     Volume          volume;
 
-    if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) &&
+    if( get_voxel_under_mouse( display, voxel, &axis_index ) &&
         get_slice_window_volume( display, &volume ) )
     {
-        convert_voxel_to_world( volume, x, y, z, &x_w, &y_w, &z_w );
+        convert_voxel_to_world( volume, voxel, &x_w, &y_w, &z_w );
         fill_Point( *pos, x_w, y_w, z_w );
     }
     else
@@ -135,7 +135,7 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
     Status                  status;
     object_struct           *object, *current_object;
     Volume                  volume;
-    String                  filename;
+    STRING                  filename;
     FILE                    *file;
     marker_struct           *marker;
     object_traverse_struct  object_traverse;
@@ -248,7 +248,7 @@ public  DEF_MENU_FUNCTION( set_default_marker_structure_id )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_default_marker_structure_id )   /* ARGSUSED */
 {
-    String  text;
+    STRING  text;
 
     (void) sprintf( text, label, display->three_d.default_marker_structure_id);
 
@@ -281,7 +281,7 @@ public  DEF_MENU_FUNCTION( set_default_marker_patient_id )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_default_marker_patient_id )   /* ARGSUSED */
 {
-    String  text;
+    STRING  text;
 
     (void) sprintf( text, label, display->three_d.default_marker_patient_id );
 
@@ -313,7 +313,7 @@ public  DEF_MENU_FUNCTION( set_default_marker_size )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_default_marker_size )   /* ARGSUSED */
 {
-    String  text;
+    STRING  text;
 
     (void) sprintf( text, label, display->three_d.default_marker_size );
 
@@ -325,7 +325,7 @@ public  DEF_MENU_UPDATE(set_default_marker_size )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_default_marker_colour )   /* ARGSUSED */
 {
     Status      status;
-    String      string;
+    STRING      string;
     Colour      colour;
 
     convert_colour_to_string( display->three_d.default_marker_colour,
@@ -385,7 +385,7 @@ public  DEF_MENU_FUNCTION( set_default_marker_type )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_default_marker_type )   /* ARGSUSED */
 {
-    String  text;
+    STRING  text;
     char    *name;
 
     switch( display->three_d.default_marker_type )
@@ -413,7 +413,7 @@ public  DEF_MENU_UPDATE(set_default_marker_type )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_default_marker_label )   /* ARGSUSED */
 {
     Status       status;
-    String       label;
+    STRING       label;
 
     print( "The current default marker label is: %s\n",
                  display->three_d.default_marker_label );
@@ -436,7 +436,7 @@ public  DEF_MENU_FUNCTION( set_default_marker_label )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_default_marker_label )   /* ARGSUSED */
 {
-    String  text;
+    STRING  text;
 
     (void) sprintf( text, label, display->three_d.default_marker_label );
 
@@ -603,7 +603,7 @@ public  DEF_MENU_UPDATE(change_marker_position )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( change_marker_label )   /* ARGSUSED */
 {
-    String          label;
+    STRING          label;
     marker_struct   *marker;
 
     if( get_current_marker(display,&marker) )
@@ -735,7 +735,7 @@ public  DEF_MENU_FUNCTION( set_marker_segmentation_threshold )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_marker_segmentation_threshold )   /* ARGSUSED */
 {
-    String  text;
+    STRING  text;
 
     (void) sprintf( text, label,
                 get_marker_threshold(&display->three_d.marker_segmentation) );

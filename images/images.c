@@ -1,4 +1,4 @@
-#include  <def_display.h>
+#include  <display.h>
 
 public  Status   save_window_to_file(
     display_struct  *display,

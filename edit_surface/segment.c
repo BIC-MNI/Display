@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private    DEF_EVENT_FUNCTION( start_segmenting );
 private    DEF_EVENT_FUNCTION( terminate_segmenting );
@@ -9,12 +9,12 @@ private  void   add_polygon_under_mouse(
     display_struct    *display );
 private  void  segment_polygons(
     display_struct    *display,
-    Boolean           *segmented );
+    BOOLEAN           *segmented );
 private  void   create_complete_path(
     int                n_vertices,
     int                vertices[],
     polygons_struct    *polygons,
-    Boolean            *path_exists,
+    BOOLEAN            *path_exists,
     int                *path_length,
     int                *path[] );
 
@@ -85,7 +85,7 @@ private  void  remove_events(
 private  DEF_EVENT_FUNCTION( end_segmenting )
     /* ARGSUSED */
 {
-    Boolean  segmented;
+    BOOLEAN  segmented;
 
     remove_events( &display->action_table );
 
@@ -139,10 +139,10 @@ private  DEF_EVENT_FUNCTION( pick_surface_polygon )    /* ARGSUSED */
 
 private  void  segment_polygons(
     display_struct    *display,
-    Boolean           *segmented )
+    BOOLEAN           *segmented )
 {
     int                  i, *path, path_length;
-    Boolean              path_exists;
+    BOOLEAN              path_exists;
     surface_edit_struct  *surface_edit;
 
     surface_edit = &display->three_d.surface_edit;
@@ -174,11 +174,11 @@ private  void   create_complete_path(
     int                n_vertices,
     int                vertices[],
     polygons_struct    *polygons,
-    Boolean            *path_exists,
+    BOOLEAN            *path_exists,
     int                *path_length,
     int                *path[] )
 {
-    Boolean   exists;
+    BOOLEAN   exists;
     int       i, next_i, p, len, *poly_path;
 
     *path_length = 0;
@@ -222,7 +222,7 @@ private  void  display_path(
     int               path[] )
 {
     int     i, p, start_index, end_index;
-    String  number;
+    STRING  number;
     Point   centroid;
 
     for_less( i, 0, path_length )

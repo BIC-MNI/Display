@@ -1,4 +1,4 @@
-#include  <def_display.h>
+#include  <display.h>
 
 private  int  n_evals;
 
@@ -14,7 +14,7 @@ private  void  recursive_scan(
     Point               *centre_voxel,
     Real                max_voxel_dist,
     Real                max_parametric_dist );
-private  Boolean  should_subdivide(
+private  BOOLEAN  should_subdivide(
     Real   du_parametric,
     Real   dv_parametric,
     Point  points[],
@@ -116,7 +116,7 @@ private  void  recursive_scan(
     }
 }
 
-private  Boolean  should_subdivide(
+private  BOOLEAN  should_subdivide(
     Real   du_parametric,
     Real   dv_parametric,
     Point  points[],
@@ -124,7 +124,7 @@ private  Boolean  should_subdivide(
     Real   max_parametric_dist )
 {
     Point    min_corner, max_corner;
-    Boolean  subdivide;
+    BOOLEAN  subdivide;
 
     subdivide = (du_parametric > max_parametric_dist) ||
                        (dv_parametric > max_parametric_dist);
@@ -151,35 +151,34 @@ private  void  convert_surface_uv_to_voxel(
     Real                v,
     Point               *point )
 {
-    double   x, y, z;
+    double   voxel[MAX_DIMENSIONS];
     Real     x_w, y_w, z_w;
 
     surface_rep->evaluate_surface_at_uv( u, v, descriptors, parameters,
-                                 &x, &y, &z,
+                                 &x_w, &y_w, &z_w,
                                  (double *) 0, (double *) 0, (double *) 0,
                                  (double *) 0, (double *) 0, (double *) 0,
                                  (double *) 0, (double *) 0, (double *) 0,
                                  (double *) 0, (double *) 0, (double *) 0 );
 
-    convert_world_to_voxel( volume, (Real) x, (Real) y, (Real) z,
-                            &x_w, &y_w, &z_w );
-    fill_Point( *point, x_w, y_w, z_w );
+    convert_world_to_voxel( volume, x_w, y_w, z_w, voxel );
+    fill_Point( *point, voxel[X], voxel[Y], voxel[Z] );
 }
 
 void  label_voxel_point(
     Volume         volume,
     Point          *point )
 {
-    Real  pos[N_DIMENSIONS];
+    Real  voxel[N_DIMENSIONS];
+    int   int_voxel[N_DIMENSIONS];
 
-    pos[X] = Point_x(*point);
-    pos[Y] = Point_y(*point);
-    pos[Z] = Point_z(*point);
-    if( voxel_is_within_volume( volume, pos ) )
+    voxel[X] = Point_x(*point);
+    voxel[Y] = Point_y(*point);
+    voxel[Z] = Point_z(*point);
+
+    if( voxel_is_within_volume( volume, voxel ) )
     {
-        set_voxel_label_flag( volume,
-                              ROUND( Point_x(*point) ),
-                              ROUND( Point_y(*point) ),
-                              ROUND( Point_z(*point) ), TRUE );
+        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+        set_voxel_label_flag( volume, int_voxel, TRUE );
     }
 }

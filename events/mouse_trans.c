@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private    DEF_EVENT_FUNCTION( start_translation );
 private    DEF_EVENT_FUNCTION( turn_off_translation );

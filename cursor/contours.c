@@ -1,4 +1,4 @@
-#include  <def_display.h>
+#include  <display.h>
 
 public  void  create_cursor_contours(
     display_struct   *display )

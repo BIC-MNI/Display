@@ -1,4 +1,5 @@
-#include  <def_mni.h>
+#include  <mni.h>
+#include  <priority_queue.h>
 
 typedef  struct
 {
@@ -6,7 +7,7 @@ typedef  struct
     int             from_point;
 } vertex_struct;
 
-private  Boolean  find_shortest_path(
+private  BOOLEAN  find_shortest_path(
     polygons_struct   *polygons,
     Real              curvature_weight,
     Point             *p1,
@@ -20,12 +21,12 @@ private  void  create_path(
     polygons_struct   *polygons,
     Point             *p1,
     Point             *p2,
-    Boolean           first_flag,
+    BOOLEAN           first_flag,
     int               last_vertex,
     vertex_struct     vertices[],
     lines_struct      *lines );
 
-public  Boolean  distance_along_polygons(
+public  BOOLEAN  distance_along_polygons(
     polygons_struct   *polygons,
     Real              curvature_weight,
     Point             *p1,
@@ -35,7 +36,7 @@ public  Boolean  distance_along_polygons(
     Real              *dist,
     lines_struct      *lines )
 {
-    Boolean         found;
+    BOOLEAN         found;
     int             last_vertex;
     vertex_struct   *vertices;
 
@@ -112,7 +113,7 @@ typedef  struct
     int   poly_index;
 } queue_struct;
 
-private  Boolean  find_shortest_path(
+private  BOOLEAN  find_shortest_path(
     polygons_struct   *polygons,
     Real              curvature_weight,
     Point             *p1,
@@ -125,7 +126,7 @@ private  Boolean  find_shortest_path(
 {
     int                    i, p, size, point_index, next_point_index;
     Real                   dist;
-    Boolean                found_path;
+    BOOLEAN                found_path;
     queue_struct           entry;
     int                    n_polys, *polys;
     PRIORITY_QUEUE_STRUCT( queue_struct )   queue;
@@ -231,7 +232,7 @@ private  void  create_path(
     polygons_struct   *polygons,
     Point             *p1,
     Point             *p2,
-    Boolean           first_flag,
+    BOOLEAN           first_flag,
     int               last_vertex,
     vertex_struct     vertices[],
     lines_struct      *lines )

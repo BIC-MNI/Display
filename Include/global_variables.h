@@ -11,14 +11,14 @@ START_GLOBALS
     DEF_GLOBAL( Size_of_interrupted, int, 250 )
     DEF_GLOBAL( Interval_of_check, int, 250 )
 
-    DEF_GLOBAL( Initial_perspective_flag, Boolean, FALSE )
+    DEF_GLOBAL( Initial_perspective_flag, BOOLEAN, FALSE )
     DEF_GLOBAL( Closest_front_plane, Real, 1.0e-5 )
-    DEF_GLOBAL( Initial_render_mode, Boolean, FALSE )
+    DEF_GLOBAL( Initial_render_mode, BOOLEAN, FALSE )
     DEF_GLOBAL( Initial_shading_type, int, 1 )
-    DEF_GLOBAL( Initial_light_switch, Boolean, TRUE )
-    DEF_GLOBAL( Slice_double_buffer_flag, Boolean, TRUE )
+    DEF_GLOBAL( Initial_light_switch, BOOLEAN, TRUE )
+    DEF_GLOBAL( Slice_double_buffer_flag, BOOLEAN, TRUE )
     DEF_GLOBAL( Slice_readout_plane, int, 1 )
-    DEF_GLOBAL( Display_frame_info, Boolean, FALSE )
+    DEF_GLOBAL( Display_frame_info, BOOLEAN, FALSE )
     DEF_GLOBAL( Display_update_min, Real, 1.0 )
     DEF_GLOBAL( Frame_info_x, Real, 10.0 )
     DEF_GLOBAL( Frame_info_y, Real, 10.0 )
@@ -47,14 +47,14 @@ START_GLOBALS
     DEF_GLOBAL( Menu_box_colour, Colour, WHITE )
     DEF_GLOBAL( Menu_key_colour, Colour, WHITE )
     DEF_GLOBAL( Menu_key_character_offset, Real, 2.0 )
-    DEF_GLOBAL( Initial_2_sided_flag, Boolean, FALSE )
-    DEF_GLOBAL( Initial_backface_flag, Boolean, TRUE )
-    DEF_GLOBAL( Initial_line_curves_flag, Boolean, FALSE )
+    DEF_GLOBAL( Initial_2_sided_flag, BOOLEAN, FALSE )
+    DEF_GLOBAL( Initial_backface_flag, BOOLEAN, TRUE )
+    DEF_GLOBAL( Initial_line_curves_flag, BOOLEAN, FALSE )
     DEF_GLOBAL( Initial_n_curve_segments, int, 8 )
 
     DEF_GLOBAL( Segmenting_connectivity, int, 1 )
 
-    DEF_GLOBAL( Visibility_on_input, Boolean, TRUE )
+    DEF_GLOBAL( Visibility_on_input, BOOLEAN, TRUE )
 
     DEF_GLOBAL( Initial_x_scale, Real, 1.0 )
     DEF_GLOBAL( Initial_y_scale, Real, 1.0 )
@@ -138,7 +138,7 @@ START_GLOBALS
     DEF_GLOBAL3( Cursor_home, Point, 0.0, 0.0, 0.0 )
     DEF_GLOBAL( Cursor_colour, Colour, 3 )
     DEF_GLOBAL( Cursor_rgb_colour, Colour, BLUE )
-    DEF_GLOBAL( Show_cursor_contours, Boolean, FALSE )
+    DEF_GLOBAL( Show_cursor_contours, BOOLEAN, FALSE )
     DEF_GLOBAL( Cursor_contour_thickness, int, 3 )
     DEF_GLOBAL( Cursor_colour_on_surface, Colour, 1 )
     DEF_GLOBAL( Cursor_colour_off_surface, Colour, 3 )
@@ -160,7 +160,7 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_pick_distance, Real, 10.0 )
 
     DEF_GLOBAL( Extracted_surface_colour, Colour, WHITE )
-    DEF_GLOBAL( Display_surface_in_slices, Boolean, FALSE )
+    DEF_GLOBAL( Display_surface_in_slices, BOOLEAN, FALSE )
     DEF_GLOBAL5( Default_surface_property, Surfprop, 0.3, 0.3, 0.4, 10.0, 1.0 )
 
     DEF_GLOBAL( Min_voxels_per_update, int, 10 )
@@ -177,7 +177,7 @@ START_GLOBALS
     DEF_GLOBAL( User_defined_n_intervals, int, 4 )
     DEF_GLOBAL( User_defined_min_colour, Colour, BLACK )
     DEF_GLOBAL( User_defined_max_colour, Colour, WHITE )
-    DEF_GLOBAL( User_defined_colour_coding_flip, Boolean, TRUE )
+    DEF_GLOBAL( User_defined_colour_coding_flip, BOOLEAN, TRUE )
     DEF_GLOBAL( Initial_low_limit_position, Real, 0.25 )
     DEF_GLOBAL( Initial_high_limit_position, Real, 0.75 )
     DEF_GLOBAL( Colour_above, Colour, WHITE )
@@ -201,17 +201,17 @@ START_GLOBALS
     DEF_GLOBAL( Colour_bar_closest_text, Real, 10.0 )
     DEF_GLOBAL_STRING( Colour_bar_number_format, "%g" )
 
-    DEF_GLOBAL( Normal_towards_lower, Boolean, TRUE )
+    DEF_GLOBAL( Normal_towards_lower, BOOLEAN, TRUE )
 
-    DEF_GLOBAL( Initial_display_labels, Boolean, TRUE )
+    DEF_GLOBAL( Initial_display_labels, BOOLEAN, TRUE )
     DEF_GLOBAL( Inactive_voxel_colour, Colour, GREEN )
     DEF_GLOBAL( Labeled_voxel_colour, Colour, MAGENTA )
     DEF_GLOBAL( Inactive_and_labeled_voxel_colour, Colour, YELLOW )
     DEF_GLOBAL( Label_colour_display_ratio, Real, 0.2 )
 
-    DEF_GLOBAL( Use_cursor_origin, Boolean, TRUE )
+    DEF_GLOBAL( Use_cursor_origin, BOOLEAN, TRUE )
 
-    DEF_GLOBAL( One_active_flag, Boolean, FALSE )
+    DEF_GLOBAL( One_active_flag, BOOLEAN, FALSE )
 
     DEF_GLOBAL( Output_every, int, 0 )
 
@@ -222,7 +222,7 @@ START_GLOBALS
     DEF_GLOBAL( Default_y_voxel_max_distance, int, 100000 )
     DEF_GLOBAL( Default_z_voxel_max_distance, int, 100000 )
 
-    DEF_GLOBAL( Compute_neighbours_on_input, Boolean, FALSE )
+    DEF_GLOBAL( Compute_neighbours_on_input, BOOLEAN, FALSE )
     DEF_GLOBAL( Polygon_bintree_threshold, int, 100 )
     DEF_GLOBAL( Bintree_size_factor, Real, 0.2 )
 
@@ -236,14 +236,14 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_bitplanes, int, 0 )
 
     DEF_GLOBAL( Surface_curve_colour, Colour, MAGENTA )
-    DEF_GLOBAL( Surface_curve_overlay_flag, Boolean, FALSE )
+    DEF_GLOBAL( Surface_curve_overlay_flag, BOOLEAN, FALSE )
     DEF_GLOBAL( Surface_curve_thickness, int, 3 )
     DEF_GLOBAL( Line_curvature_weight, Real, 0.0 )
 
     DEF_GLOBAL( N_painting_polygons, int, 100 )
     DEF_GLOBAL( Visible_segmenting_colour, Colour, GREEN )
     DEF_GLOBAL( Invisible_segmenting_colour, Colour, BLACK )
-    DEF_GLOBAL( Snap_to_polygon_vertex, Boolean, TRUE )
+    DEF_GLOBAL( Snap_to_polygon_vertex, BOOLEAN, TRUE )
 
     DEF_GLOBAL( N_fitting_samples, int, 2000 )
     DEF_GLOBAL( Isovalue_factor, Real, 0.0 )
@@ -261,7 +261,6 @@ START_GLOBALS
 
     DEF_GLOBAL( Max_voxel_scan_distance, Real, 2.0 )
     DEF_GLOBAL( Max_parametric_scan_distance, Real, 0.1 )
-    DEF_GLOBAL( Scanned_polygons_label, int, 1 )
     DEF_GLOBAL( Max_polygon_scan_distance, Real, 2.0 )
 
     DEF_GLOBAL( Initial_atlas_opacity, Real, 1.0 )
@@ -270,22 +269,25 @@ START_GLOBALS
     DEF_GLOBAL( Initial_atlas_tolerance_y, Real, 1.0 )
     DEF_GLOBAL( Initial_atlas_tolerance_z, Real, 1.0 )
     DEF_GLOBAL_STRING( Atlas_filename, "/nil/david/Talairach/Talairach_atlas.list" )
-    DEF_GLOBAL( Default_atlas_state, Boolean, FALSE )
+    DEF_GLOBAL( Default_atlas_state, BOOLEAN, FALSE )
 
     DEF_GLOBAL( Marker_threshold, Real, 1.5 )
     DEF_GLOBAL( Marker_segment_id, int, 1000 )
-    DEF_GLOBAL( Use_marker_distances, Boolean, TRUE )
+    DEF_GLOBAL( Use_marker_distances, BOOLEAN, TRUE )
 
     DEF_GLOBAL( Default_x_brush_radius, Real, 3.0 )
     DEF_GLOBAL( Default_y_brush_radius, Real, 3.0 )
     DEF_GLOBAL( Default_z_brush_radius, Real, 0.0 )
     DEF_GLOBAL( Default_paint_label, int, 1 )
-    DEF_GLOBAL( Draw_brush_outline, Boolean, TRUE )
+    DEF_GLOBAL( Draw_brush_outline, BOOLEAN, TRUE )
     DEF_GLOBAL( Brush_outline_colour, Colour, WHITE )
     DEF_GLOBAL( Brush_outline_offset, int, 0 )
-    DEF_GLOBAL( Snap_brush_to_centres, Boolean, TRUE )
+    DEF_GLOBAL( Snap_brush_to_centres, BOOLEAN, TRUE )
 
     DEF_GLOBAL( Volume_continuity, int, 0 )
-    DEF_GLOBAL( Convert_volumes_to_byte, Boolean, TRUE )
+    DEF_GLOBAL( Convert_volumes_to_byte, BOOLEAN, TRUE )
+
+    DEF_GLOBAL( Move_slice_speed, Real, 0.25 )
+    DEF_GLOBAL( Pixels_per_double_size, Real, 100.0 )
 
 END_GLOBALS

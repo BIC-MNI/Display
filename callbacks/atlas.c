@@ -1,9 +1,9 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  DEF_MENU_FUNCTION( set_atlas_on_or_off )   /* ARGSUSED */
 {
-    Boolean          state;
+    BOOLEAN          state;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
@@ -20,7 +20,7 @@ public  DEF_MENU_FUNCTION( set_atlas_on_or_off )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_atlas_on_or_off )   /* ARGSUSED */
 {
-    String           text;
+    STRING           text;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) )

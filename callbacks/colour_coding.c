@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
 {
@@ -111,7 +111,7 @@ public  DEF_MENU_FUNCTION(set_under_colour )   /* ARGSUSED */
     Status                  status;
     display_struct          *slice_window;
     Volume                  volume;
-    String                  line;
+    STRING                  line;
     Colour                  col;
 
     status = OK;
@@ -161,7 +161,7 @@ public  DEF_MENU_FUNCTION(set_over_colour )   /* ARGSUSED */
     Status                  status;
     display_struct          *slice_window;
     Volume                  volume;
-    String                  line;
+    STRING                  line;
     Colour                  col;
 
     status = OK;
@@ -233,7 +233,7 @@ public  DEF_MENU_FUNCTION(set_label_colour_ratio )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_label_colour_ratio )   /* ARGSUSED */
 {
-    String           text;
+    STRING           text;
     Real             ratio;
     display_struct   *slice_window;
 

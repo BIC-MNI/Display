@@ -1,10 +1,10 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  DEF_MENU_FUNCTION( load_file )   /* ARGSUSED */
 {
     Status   status;
-    String   filename;
+    STRING   filename;
 
     print( "Enter filename: " );
 
@@ -32,7 +32,7 @@ public  DEF_MENU_FUNCTION( save_file )   /* ARGSUSED */
     object_struct  **object_list;
     object_struct  *current_object;
     Status         status;
-    String         filename;
+    STRING         filename;
 
     status = OK;
 

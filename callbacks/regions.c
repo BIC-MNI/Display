@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  DEF_MENU_FUNCTION( set_paint_x_brush_radius )   /* ARGSUSED */
 {
@@ -22,7 +22,7 @@ public  DEF_MENU_FUNCTION( set_paint_x_brush_radius )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_paint_x_brush_radius )   /* ARGSUSED */
 {
-    String           text;
+    STRING           text;
     Real             x_brush_radius;
     display_struct   *slice_window;
 
@@ -59,7 +59,7 @@ public  DEF_MENU_FUNCTION( set_paint_y_brush_radius )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_paint_y_brush_radius )   /* ARGSUSED */
 {
-    String           text;
+    STRING           text;
     Real             y_brush_radius;
     display_struct   *slice_window;
 
@@ -96,7 +96,7 @@ public  DEF_MENU_FUNCTION( set_paint_z_brush_radius )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_paint_z_brush_radius )   /* ARGSUSED */
 {
-    String           text;
+    STRING           text;
     Real             z_brush_radius;
     display_struct   *slice_window;
 
@@ -122,7 +122,7 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )   /* ARGSUSED */
         print( "Enter current paint label: " );
 
         if( input_int( stdin, &label ) == OK &&
-            label >= 0 && label <= LOWER_AUXILIARY_BITS )
+            label >= 0 && label <= get_max_label() )
             slice_window->slice.current_paint_label = label;
 
         (void) input_newline( stdin );
@@ -133,7 +133,7 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_current_paint_label )   /* ARGSUSED */
 {
-    String           text;
+    STRING           text;
     int              current_label;
     display_struct   *slice_window;
 
@@ -152,7 +152,7 @@ public  DEF_MENU_UPDATE(set_current_paint_label )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
 {
     display_struct   *slice_window;
-    String           line;
+    STRING           line;
     Colour           col;
 
     if( get_slice_window( display, &slice_window ) )
@@ -171,7 +171,7 @@ public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
             col = convert_string_to_colour( line );
 
             add_new_label( slice_window,
-                   ACTIVE_BIT | slice_window->slice.current_paint_label, col );
+                           slice_window->slice.current_paint_label, col );
 
             set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
             set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
@@ -194,7 +194,7 @@ private  save_labels_as_tags(
 {
     Status         status;
     FILE           *file;
-    String         filename;
+    STRING         filename;
 
     print( "Enter filename to save: " );
     if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
@@ -204,7 +204,9 @@ private  save_labels_as_tags(
                          WRITE_FILE, ASCII_FORMAT, &file );
 
         if( status == OK )
-            status = output_labels_as_tags( file, get_volume(slice_window),
+            status = output_labels_as_tags( file,
+                      get_volume(slice_window),
+                      get_label_volume(slice_window),
                       desired_label,
                       display->three_d.default_marker_size,
                       display->three_d.default_marker_patient_id );
@@ -259,9 +261,9 @@ public  DEF_MENU_UPDATE(save_current_label )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
 {
     Status         status;
-    Boolean        landmark_format;
+    BOOLEAN        landmark_format;
     FILE           *file;
-    String         filename;
+    STRING         filename;
     display_struct *slice_window;
     Volume         volume;
 
@@ -281,9 +283,11 @@ public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
             if( status == OK )
             {
                 if( landmark_format )
-                    status = input_landmarks_as_labels( file, volume );
+                    status = input_landmarks_as_labels( file, volume,
+                                            get_label_volume(slice_window) );
                 else
-                    status = input_tags_as_labels( file, volume );
+                    status = input_tags_as_labels( file, volume,
+                                            get_label_volume(slice_window) );
             }
 
             if( status == OK )
@@ -311,31 +315,27 @@ private  void  copy_labels_from_adjacent_slice(
     display_struct   *display,
     int              src_offset )
 {
-    Real             real_dest_index[N_DIMENSIONS];
-    int              src_index[N_DIMENSIONS], dest_index[N_DIMENSIONS];
+    Real             real_dest_index[MAX_DIMENSIONS];
+    int              src_index[N_DIMENSIONS], dest_index[MAX_DIMENSIONS];
     int              axis_index;
     display_struct   *slice_window;
     Volume           volume;
 
-    if( get_voxel_under_mouse( display,
-                               &real_dest_index[0],
-                               &real_dest_index[1],
-                               &real_dest_index[2], &axis_index ) &&
+    if( get_voxel_under_mouse( display, real_dest_index, &axis_index ) &&
         get_slice_window_volume( display, &volume) &&
         get_slice_window( display, &slice_window ) )
     {
-        dest_index[X] = ROUND( real_dest_index[X] );
-        dest_index[Y] = ROUND( real_dest_index[Y] );
-        dest_index[Z] = ROUND( real_dest_index[Z] );
+        convert_real_to_int_voxel( N_DIMENSIONS, real_dest_index, dest_index );
 
         src_index[X] = 0;
         src_index[Y] = 0;
         src_index[Z] = 0;
         src_index[axis_index] = dest_index[axis_index] + src_offset;
 
-        if( cube_is_within_volume( volume, src_index ) )
+        if( int_voxel_is_within_volume( volume, src_index ) )
         {
-            copy_labels_slice_to_slice( volume, axis_index,
+            copy_labels_slice_to_slice( get_label_volume(slice_window),
+                                        axis_index,
                                         src_index[axis_index],
                                         dest_index[axis_index] );
 
@@ -387,8 +387,8 @@ public  DEF_MENU_FUNCTION( toggle_display_labels )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_display_labels )   /* ARGSUSED */
 {
-    String           text;
-    Boolean          display_labels;
+    STRING           text;
+    BOOLEAN          display_labels;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) )

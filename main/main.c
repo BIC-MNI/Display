@@ -1,4 +1,4 @@
-#include  <def_display.h>
+#include  <display.h>
 
 #define  HARD_CODED_DISPLAY_DIRECTORY     "/usr/local/lib"
 #define  GLOBALS_FILENAME                 "display.globals"
@@ -6,7 +6,7 @@
 
 
 #define  GLOBALS_LOOKUP_NAME  display_globals
-#include  <def_globals.h>
+#include  <globals.h>
 #define   REGISTER_GLOBALS_FILENAME   "display.globals"
 
 public  Status  change_global_variable(
@@ -28,7 +28,7 @@ int  main( argc, argv )
     display_struct   *graphics;
     display_struct   *menu;
     Status           status;
-    String           globals_filename, runtime_directory;
+    STRING           globals_filename, runtime_directory;
     char             *title;
 
     if( argc == 1 )

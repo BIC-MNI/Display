@@ -5,7 +5,7 @@ public  void  initialize_slice_window_view(
     display_struct    *slice_window )
 {
     Volume           volume;
-    int              c, view, x_index, y_index, x_min, x_max, y_min, y_max;
+    int              axis, view;
     int              size[N_DIMENSIONS];
     Real             thickness[N_DIMENSIONS];
 
@@ -26,29 +26,15 @@ public  void  initialize_slice_window_view(
         get_volume_sizes( volume, size );
         get_volume_separations( volume, thickness );
 
-        for_less( c, 0, N_DIMENSIONS )
+        for_less( view, 0, N_DIMENSIONS )
         {
-            slice_window->slice.slice_index[c] = size[c] / 2.0;
-            slice_window->slice.slice_locked[c] = FALSE;
+            axis = slice_window->slice.slice_views[view].axis_map[Z];
+            slice_window->slice.slice_index[view] = size[axis] / 2.0;
+            slice_window->slice.slice_locked[view] = FALSE;
         }
 
         for_less( view, 0, N_DIMENSIONS )
-        {
-            x_index = slice_window->slice.slice_views[view].axis_map[X];
-            y_index = slice_window->slice.slice_views[view].axis_map[Y];
-
-            get_slice_viewport( slice_window, view,
-                                &x_min, &x_max, &y_min, &y_max );
-
-            fit_volume_slice_to_viewport( volume, x_index, y_index,
-               FALSE, FALSE,
-               x_max - x_min + 1, y_max - y_min + 1,
-               Slice_fit_oversize,
-               &slice_window->slice.slice_views[view].x_scaling,
-               &slice_window->slice.slice_views[view].y_scaling,
-               &slice_window->slice.slice_views[view].x_trans,
-               &slice_window->slice.slice_views[view].y_trans );
-        }
+            reset_slice_view( slice_window, view );
 
         slice_window->associated[THREE_D_WINDOW]->three_d.cursor.box_size[X] =
                           ABS( thickness[X] );
@@ -61,13 +47,160 @@ public  void  initialize_slice_window_view(
     }
 }
 
-public  Boolean  find_slice_view_mouse_is_in(
+private  record_slice_display_limits(
+    display_struct    *slice_window,
+    int               view )
+{
+    int            x_min, x_max, y_min, y_max;
+    int            x_index, y_index;
+    Real           bottom_left_voxel[MAX_DIMENSIONS];
+    Real           top_right_voxel[MAX_DIMENSIONS];
+    Volume         volume;
+
+    if( get_slice_window_volume( slice_window, &volume ) )
+    {
+        x_index = slice_window->slice.slice_views[view].axis_map[X];
+        y_index = slice_window->slice.slice_views[view].axis_map[Y];
+        get_slice_viewport( slice_window, view,
+                            &x_min, &x_max, &y_min, &y_max );
+
+        (void) convert_slice_pixel_to_voxel( volume,
+                    0, 0,
+                    slice_window->slice.slice_index, x_index, y_index,
+                    slice_window->slice.slice_views[view].x_trans,
+                    slice_window->slice.slice_views[view].y_trans,
+                    slice_window->slice.slice_views[view].x_scaling,
+                    slice_window->slice.slice_views[view].y_scaling,
+                    bottom_left_voxel );
+
+        (void) convert_slice_pixel_to_voxel( volume,
+                    x_max - x_min, y_max - y_min,
+                    slice_window->slice.slice_index, x_index, y_index,
+                    slice_window->slice.slice_views[view].x_trans,
+                    slice_window->slice.slice_views[view].y_trans,
+                    slice_window->slice.slice_views[view].x_scaling,
+                    slice_window->slice.slice_views[view].y_scaling,
+                    top_right_voxel );
+
+        slice_window->slice.slice_views[view].lower_view_limits[0] =
+                                bottom_left_voxel[x_index];
+        slice_window->slice.slice_views[view].upper_view_limits[0] =
+                                top_right_voxel[x_index];
+        slice_window->slice.slice_views[view].lower_view_limits[1] =
+                                bottom_left_voxel[y_index];
+        slice_window->slice.slice_views[view].upper_view_limits[1] =
+                                top_right_voxel[y_index];
+    }
+}
+
+public  void  reset_slice_view(
+    display_struct    *slice_window,
+    int               view )
+{
+    Volume volume;
+    int    x_index, y_index;
+    int    x_min, x_max, y_min, y_max;
+
+    if( get_slice_window_volume( slice_window, &volume ) )
+    {
+        x_index = slice_window->slice.slice_views[view].axis_map[X];
+        y_index = slice_window->slice.slice_views[view].axis_map[Y];
+
+        get_slice_viewport( slice_window, view,
+                            &x_min, &x_max, &y_min, &y_max );
+
+        fit_volume_slice_to_viewport( volume, x_index, y_index,
+                              FALSE, FALSE,
+                              x_max - x_min + 1, y_max - y_min + 1,
+                              Slice_fit_oversize,
+                              &slice_window->slice.slice_views[view].x_scaling,
+                              &slice_window->slice.slice_views[view].y_scaling,
+                              &slice_window->slice.slice_views[view].x_trans,
+                              &slice_window->slice.slice_views[view].y_trans );
+
+        record_slice_display_limits( slice_window, view );
+    }
+}
+
+public  void  fit_slice_to_view(
+    display_struct    *slice_window,
+    int               view )
+{
+    int            x_min, x_max, y_min, y_max;
+    int            x_index, y_index;
+    Real           x_scale, y_scale, x_trans, y_trans;
+    Volume         volume;
+
+    if( get_slice_window_volume( slice_window, &volume ) )
+    {
+        x_index = slice_window->slice.slice_views[view].axis_map[X];
+        y_index = slice_window->slice.slice_views[view].axis_map[Y];
+        get_slice_viewport( slice_window, view,
+                            &x_min, &x_max, &y_min, &y_max );
+
+        fit_slice_voxel_range_to_viewport( volume, x_index, y_index,
+            slice_window->slice.slice_views[view].lower_view_limits[0],
+            slice_window->slice.slice_views[view].upper_view_limits[0],
+            slice_window->slice.slice_views[view].lower_view_limits[1],
+            slice_window->slice.slice_views[view].upper_view_limits[1],
+            x_max - x_min + 1, y_max - y_min + 1,
+            &x_scale, &y_scale, &x_trans, &y_trans );
+
+        slice_window->slice.slice_views[view].x_scaling = x_scale;
+        slice_window->slice.slice_views[view].y_scaling = y_scale;
+        slice_window->slice.slice_views[view].x_trans = x_trans;
+        slice_window->slice.slice_views[view].y_trans = y_trans;
+    }
+}
+
+public  void  scale_slice_view(
+    display_struct    *slice_window,
+    int               view,
+    Real              scale_factor )
+{
+    Volume volume;
+    int    x_min, x_max, y_min, y_max;
+
+    if( get_slice_window_volume( slice_window, &volume ) )
+    {
+        get_slice_viewport( slice_window, view,
+                            &x_min, &x_max, &y_min, &y_max );
+
+        scale_slice_about_viewport_centre( scale_factor,
+             x_max - x_min + 1, y_max - y_min + 1,
+             &slice_window->slice.slice_views[view].x_scaling,
+             &slice_window->slice.slice_views[view].y_scaling,
+             &slice_window->slice.slice_views[view].x_trans,
+             &slice_window->slice.slice_views[view].y_trans );
+
+        record_slice_display_limits( slice_window, view );
+    }
+}
+
+public  void  translate_slice_view(
+    display_struct    *slice_window,
+    int               view,
+    Real              dx,
+    Real              dy )
+{
+    Volume volume;
+
+    if( get_slice_window_volume( slice_window, &volume ) )
+    {
+        slice_window->slice.slice_views[view].x_trans += dx;
+        slice_window->slice.slice_views[view].y_trans += dy;
+
+        record_slice_display_limits( slice_window, view );
+    }
+}
+
+public  BOOLEAN  find_slice_view_mouse_is_in(
     display_struct    *display,
     int               x_pixel,
     int               y_pixel,
     int               *view_index )
 {
-    Boolean          found;
+    BOOLEAN          found;
     int              c;
     int              x_min, x_max, y_min, y_max;
     display_struct   *slice_window;
@@ -95,14 +228,14 @@ public  Boolean  find_slice_view_mouse_is_in(
     return( found );
 }
 
-public  Boolean  convert_pixel_to_voxel(
+public  BOOLEAN  convert_pixel_to_voxel(
     display_struct    *display,
     int               x_pixel,
     int               y_pixel,
     Real              voxel[],
     int               *view_index )
 {
-    Boolean           found;
+    BOOLEAN           found;
     Volume            volume;
     display_struct    *slice_window;
     int               x_min, x_max, y_min, y_max;
@@ -176,13 +309,13 @@ public  void  convert_voxel_to_pixel(
     }
 }
 
-public  Boolean  get_voxel_corresponding_to_point(
+public  BOOLEAN  get_voxel_corresponding_to_point(
     display_struct    *display,
     Point             *point,
     Real              voxel[] )
 {
     Volume          volume;
-    Boolean         converted;
+    BOOLEAN         converted;
 
     converted = FALSE;
 
@@ -241,14 +374,14 @@ public  void  get_slice_viewport(
     }
 }
 
-public  Boolean  get_voxel_in_slice_window(
+public  BOOLEAN  get_voxel_in_slice_window(
     display_struct    *display,
     Real              voxel[],
     int               *view_index )
 {
     display_struct    *slice_window;
     int               x_mouse, y_mouse;
-    Boolean           found;
+    BOOLEAN           found;
 
     slice_window = display->associated[SLICE_WINDOW];
 
@@ -260,11 +393,11 @@ public  Boolean  get_voxel_in_slice_window(
     return( found );
 }
 
-public  Boolean  get_voxel_in_three_d_window(
+public  BOOLEAN  get_voxel_in_three_d_window(
     display_struct    *display,
     Real              voxel[] )
 {
-    Boolean          found;
+    BOOLEAN          found;
     object_struct    *object;
     int              object_index;
     Point            intersection_point;
@@ -284,13 +417,13 @@ public  Boolean  get_voxel_in_three_d_window(
     return( found );
 }
 
-public  Boolean  get_voxel_under_mouse(
+public  BOOLEAN  get_voxel_under_mouse(
     display_struct    *display,
     Real              voxel[],
     int               *view_index )
 {
     display_struct    *three_d, *slice_window;
-    Boolean           found;
+    BOOLEAN           found;
 
     three_d = display->associated[THREE_D_WINDOW];
 
@@ -322,27 +455,26 @@ public  void  get_current_voxel(
     voxel[Z] = slice_window->slice.slice_index[Z];
 }
 
-public  Boolean  set_current_voxel(
+public  BOOLEAN  set_current_voxel(
     display_struct    *slice_window,
     Real              voxel[] )
 {
-    Boolean           changed;
-    int               i, j, axis_index;
+    BOOLEAN           changed;
+    int               i, j, sizes[MAX_DIMENSIONS];
 
     changed = FALSE;
 
+    get_volume_sizes( get_volume(slice_window), sizes );
+
     for_less( i, 0, N_DIMENSIONS )
     {
-        axis_index = slice_window->slice.slice_views[i].axis_map[Z];
-
-        if( voxel[axis_index] != slice_window->slice.slice_index[axis_index] )
+        if( voxel[i] != slice_window->slice.slice_index[i] )
         {
-            slice_window->slice.slice_index[axis_index] = voxel[axis_index];
+            slice_window->slice.slice_index[i] = voxel[i];
 
-            for_less( j, i, N_DIMENSIONS )
+            for_less( j, 0, N_DIMENSIONS )
             {
-                if( slice_window->slice.slice_views[j].axis_map[Z] ==
-                    axis_index)
+                if( slice_window->slice.slice_views[j].axis_map[Z] == i )
                 {
                     set_slice_window_update( slice_window, j );
                 }

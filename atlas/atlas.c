@@ -1,4 +1,4 @@
-#include  <def_display.h>
+#include  <display.h>
 
 private  atlas_position_struct  *get_closest_atlas_slice(
     int           axis,
@@ -8,7 +8,7 @@ private  Status  input_pixel_map(
     char           default_directory[],
     char           image_filename[],
     pixels_struct  *pixels );
-private  Boolean  find_appropriate_atlas_image(
+private  BOOLEAN  find_appropriate_atlas_image(
     pixels_struct           *atlas_images,
     atlas_position_struct   *atlas_page,
     Real                    x_n_pixels,
@@ -47,11 +47,11 @@ private  Status  input_atlas(
 {
     Status   status;
     FILE     *file;
-    String   *image_filenames, image_filename;
+    STRING   *image_filenames, image_filename;
     char     axis_letter;
     Real     mm_position;
     int      pixel_index, page_index, axis_index;
-    String   atlas_directory;
+    STRING   atlas_directory;
 
     extract_directory( filename, atlas_directory );
 
@@ -61,7 +61,7 @@ private  Status  input_atlas(
     {
         atlas->n_pixel_maps = 0;
         atlas->n_pages = 0;
-        image_filenames = (String *) 0;
+        image_filenames = (STRING *) 0;
 
         while( input_string( file, image_filename, MAX_STRING_LENGTH, ' ' )
                                                       == OK )
@@ -146,10 +146,10 @@ private  Status  input_pixel_map(
     pixels_struct  *pixels )
 {
     Status         status;
-    String         absolute_filename;
+    STRING         absolute_filename;
     File_formats   format;
     Object_types   object_type;
-    Boolean        eof;
+    BOOLEAN        eof;
     FILE           *file;
 
     get_absolute_filename( image_filename, default_directory,
@@ -179,8 +179,8 @@ public  void  regenerate_atlas_lookup(
 {
     Volume            volume;
     atlas_struct      *atlas;
-    Real              voxel[N_DIMENSIONS], world[N_DIMENSIONS];
-    int               sizes[N_DIMENSIONS], axis, i;
+    Real              voxel[MAX_DIMENSIONS], world[N_DIMENSIONS];
+    int               sizes[MAX_DIMENSIONS], axis, i;
 
     (void) get_slice_window_volume( slice_window, &volume );
     get_volume_sizes( volume, sizes );
@@ -199,7 +199,7 @@ public  void  regenerate_atlas_lookup(
             voxel[Y] = 0.0;
             voxel[Z] = 0.0;
             voxel[axis] = (Real) i;
-            convert_voxel_to_world( volume, voxel[X], voxel[Y], voxel[Z],
+            convert_voxel_to_world( volume, voxel,
                                     &world[X], &world[Y], &world[Z] );
             atlas->slice_lookup[axis][i] = get_closest_atlas_slice(
                                               axis, world[axis], atlas );
@@ -252,7 +252,7 @@ private  atlas_position_struct  *get_closest_atlas_slice(
 
 public  void  set_atlas_state(
     display_struct    *slice_window,
-    Boolean           state )
+    BOOLEAN           state )
 {
     Status   status;
 
@@ -373,7 +373,7 @@ public  void  blend_in_atlas(
     FREE( x_pixels );
 }
 
-private  Boolean  find_appropriate_atlas_image(
+private  BOOLEAN  find_appropriate_atlas_image(
     pixels_struct           *atlas_images,
     atlas_position_struct   *atlas_page,
     Real                    x_n_pixels,

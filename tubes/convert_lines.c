@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  void  convert_lines_to_tubes(
     display_struct    *display,

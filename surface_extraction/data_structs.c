@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 /* ------------------ Voxel queue ------------------------ */
 
@@ -23,7 +23,7 @@ public  void   get_next_voxel_from_queue(
     REMOVE_FROM_QUEUE( *voxel_queue, *voxel_indices );
 }
 
-public  Boolean  voxels_remaining(
+public  BOOLEAN  voxels_remaining(
     voxel_queue_struct  *voxel_queue )
 {
     return( !IS_QUEUE_EMPTY( *voxel_queue ) );
@@ -56,7 +56,7 @@ public  void  clear_voxel_flags(
     zero_bitlist( voxel_flags );
 }
 
-public  Boolean  get_voxel_flag(
+public  BOOLEAN  get_voxel_flag(
     Volume              volume,
     bitlist_struct      *voxel_flags,
     voxel_index_struct  *indices )
@@ -222,7 +222,7 @@ private  void  get_edge_point_keys(
     keys[1] = edge_intersected;
 }
 
-public  Boolean  lookup_edge_point_id(
+public  BOOLEAN  lookup_edge_point_id(
     Volume              volume,
     hash_table_struct   *hash_table,
     voxel_index_struct  *voxel,
@@ -230,7 +230,7 @@ public  Boolean  lookup_edge_point_id(
     int                 *edge_point_id )
 {
     int                  keys[2];
-    Boolean              exists;
+    BOOLEAN              exists;
     edge_point_struct    *edge_info;
 
     get_edge_point_keys( volume, voxel, edge_intersected, keys );

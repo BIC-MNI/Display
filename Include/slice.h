@@ -10,7 +10,9 @@ typedef  struct
     int           axis_map[N_DIMENSIONS];
     Real          x_trans, y_trans;
     Real          x_scaling, y_scaling;
-    Boolean       update_flag;
+    Real          lower_view_limits[2];
+    Real          upper_view_limits[2];
+    BOOLEAN       update_flag;
     Filter_types  filter_type;
     Real          filter_width;
 } slice_view_struct;
@@ -54,16 +56,16 @@ typedef  struct
 
     Colour                 *colour_tables[NUM_LABELS];
     Real                   label_colour_ratio;
-    Boolean                label_colours_used[NUM_LABELS];
+    BOOLEAN                label_colours_used[NUM_LABELS];
     Colour                 label_colours[NUM_LABELS];
     colour_coding_struct   colour_coding;
     colour_bar_struct      colour_bar;
-    Boolean                display_labels;
+    BOOLEAN                display_labels;
 
     int                    x_split, y_split;
 
     Real                   slice_index[N_DIMENSIONS];
-    Boolean                slice_locked[N_DIMENSIONS];
+    BOOLEAN                slice_locked[N_DIMENSIONS];
     slice_view_struct      slice_views[3];
     int                    next_to_update;
 

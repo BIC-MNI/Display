@@ -1,4 +1,5 @@
-#include  <def_display.h>
+#include  <display.h>
+#include  <priority_queue.h>
 
 public  void  initialize_marker_segmentation(
     marker_segment_struct *seg )
@@ -34,7 +35,7 @@ public  void  set_marker_threshold(
     }
 }
 
-private  Boolean  markers_are_neighbours(
+private  BOOLEAN  markers_are_neighbours(
     marker_segment_struct  *seg,
     Real                   threshold_distance,
     int                    i,
@@ -42,7 +43,7 @@ private  Boolean  markers_are_neighbours(
     Real                   closest_dists[],
     Real                   *dist )
 {
-    Boolean   neigh_flag, dist_to_marker;
+    BOOLEAN   neigh_flag, dist_to_marker;
 
     dist_to_marker = seg->distances[i][j];
 
@@ -55,7 +56,7 @@ private  Boolean  markers_are_neighbours(
 
     return( neigh_flag );
 #ifdef OLD
-    Boolean   neigh_flag;
+    BOOLEAN   neigh_flag;
 
     *dist = seg->distances[i][j];
 
@@ -77,7 +78,7 @@ private  void  classify(
     int                      indices[] )
 {
     Real                             *closest_dist;
-    Boolean                          *in_queue;
+    BOOLEAN                          *in_queue;
     int                              i, ind, marker_index;
     marker_struct                    *marker1, *marker2;
     Real                             dist;

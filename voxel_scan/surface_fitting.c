@@ -1,4 +1,4 @@
-#include  <def_display.h>
+#include  <display.h>
 
 const  Surface_representations  INITIAL_REPRESENTATION = SUPERQUADRIC;
 

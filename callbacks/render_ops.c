@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  object_struct  *get_model_object(
     display_struct    *display )
@@ -18,7 +18,7 @@ private  object_struct  *get_model_object(
 public  DEF_MENU_FUNCTION( toggle_render_mode )  /* ARGSUSED */
 {
     object_struct            *model_object;
-    Boolean                  shaded_mode;
+    BOOLEAN                  shaded_mode;
     object_struct            *object;
     object_traverse_struct   object_traverse;
 
@@ -46,7 +46,7 @@ public  DEF_MENU_FUNCTION( toggle_render_mode )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_render_mode )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    String          text;
+    STRING          text;
 
     model_object = get_model_object( display );
 
@@ -98,7 +98,7 @@ public  DEF_MENU_FUNCTION( toggle_shading )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_shading )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    String          text;
+    STRING          text;
 
     model_object = get_model_object( display );
 
@@ -121,7 +121,7 @@ public  DEF_MENU_UPDATE(toggle_shading )  /* ARGSUSED */
 public  DEF_MENU_FUNCTION( toggle_lights )  /* ARGSUSED */
 {
     object_struct            *model_object;
-    Boolean                  new_light_switch;
+    BOOLEAN                  new_light_switch;
     object_struct            *object;
     object_traverse_struct   object_traverse;
 
@@ -149,7 +149,7 @@ public  DEF_MENU_FUNCTION( toggle_lights )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_lights )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    String          text;
+    STRING          text;
 
     model_object = get_model_object( display );
 
@@ -165,7 +165,7 @@ public  DEF_MENU_UPDATE(toggle_lights )  /* ARGSUSED */
 public  DEF_MENU_FUNCTION( toggle_two_sided )  /* ARGSUSED */
 {
     object_struct            *model_object;
-    Boolean                  new_flag;
+    BOOLEAN                  new_flag;
     object_struct            *object;
     object_traverse_struct   object_traverse;
 
@@ -193,7 +193,7 @@ public  DEF_MENU_FUNCTION( toggle_two_sided )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_two_sided )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    String          text;
+    STRING          text;
 
     model_object = get_model_object( display );
 
@@ -209,7 +209,7 @@ public  DEF_MENU_UPDATE(toggle_two_sided )  /* ARGSUSED */
 public  DEF_MENU_FUNCTION( toggle_backfacing )  /* ARGSUSED */
 {
     object_struct            *model_object;
-    Boolean                  new_flag;
+    BOOLEAN                  new_flag;
     object_struct            *object;
     object_traverse_struct   object_traverse;
 
@@ -237,7 +237,7 @@ public  DEF_MENU_FUNCTION( toggle_backfacing )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_backfacing )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    String          text;
+    STRING          text;
 
     model_object = get_model_object( display );
 
@@ -253,7 +253,7 @@ public  DEF_MENU_UPDATE(toggle_backfacing )  /* ARGSUSED */
 public  DEF_MENU_FUNCTION( toggle_line_curve_flag )  /* ARGSUSED */
 {
     object_struct            *model_object;
-    Boolean                  new_flag;
+    BOOLEAN                  new_flag;
     object_struct            *object;
     object_traverse_struct   object_traverse;
 
@@ -281,7 +281,7 @@ public  DEF_MENU_FUNCTION( toggle_line_curve_flag )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_line_curve_flag )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    String          text;
+    STRING          text;
 
     model_object = get_model_object( display );
 
@@ -297,7 +297,7 @@ public  DEF_MENU_UPDATE(toggle_line_curve_flag )  /* ARGSUSED */
 public  DEF_MENU_FUNCTION( toggle_marker_label_flag )  /* ARGSUSED */
 {
     object_struct            *model_object;
-    Boolean                  new_flag;
+    BOOLEAN                  new_flag;
     object_struct            *object;
     object_traverse_struct   object_traverse;
 
@@ -323,7 +323,7 @@ public  DEF_MENU_FUNCTION( toggle_marker_label_flag )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_marker_label_flag )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    String          text;
+    STRING          text;
 
     model_object = get_model_object( display );
 
@@ -377,7 +377,7 @@ public  DEF_MENU_FUNCTION( set_n_curve_segments )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(set_n_curve_segments )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    String          text;
+    STRING          text;
 
     model_object = get_model_object( display );
 
@@ -392,7 +392,7 @@ public  DEF_MENU_UPDATE(set_n_curve_segments )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_double_buffer_threed )  /* ARGSUSED */
 {
-    Boolean   double_buffer;
+    BOOLEAN   double_buffer;
 
     double_buffer = !G_get_double_buffer_state( display->window );
 
@@ -405,7 +405,7 @@ public  DEF_MENU_FUNCTION( toggle_double_buffer_threed )  /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_double_buffer_threed )  /* ARGSUSED */
 {
-    String          text;
+    STRING          text;
 
     set_text_on_off( label, text, G_get_double_buffer_state(display->window) );
     set_menu_text( menu_window, menu_entry, text );
@@ -415,7 +415,7 @@ public  DEF_MENU_UPDATE(toggle_double_buffer_threed )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )  /* ARGSUSED */
 {
-    Boolean           double_buffer;
+    BOOLEAN           double_buffer;
     display_struct    *slice_window;
 
     slice_window = display->associated[SLICE_WINDOW];
@@ -435,8 +435,8 @@ public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_double_buffer_slice )  /* ARGSUSED */
 {
     display_struct  *slice_window;
-    Boolean         state;
-    String          text;
+    BOOLEAN         state;
+    STRING          text;
 
     slice_window = display->associated[SLICE_WINDOW];
 

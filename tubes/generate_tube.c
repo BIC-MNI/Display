@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  void   fill_in_ellipse_points(
     Point   tube_points[],
@@ -15,7 +15,7 @@ private  void  get_direction(
     int      n_points,
     Point    points[],
     int      i,
-    Boolean  wrap_around,
+    BOOLEAN  wrap_around,
     Vector   *dir )
 {
     int      end;
@@ -53,7 +53,7 @@ public  void  generate_tube(
     int      i;
     Real     *x, *y, angle;
     Vector   hor, vert, dir, prev_dir, normal;
-    Boolean  wrap_around;
+    BOOLEAN  wrap_around;
 
     ALLOC( x, n_around );
     ALLOC( y, n_around );
@@ -68,7 +68,7 @@ public  void  generate_tube(
     wrap_around = EQUAL_POINTS( points[0], points[n_points-1] );
 
     get_direction( n_points, points, 0, wrap_around, &dir );
-    get_noncolinear_vector( &dir, &hor );
+    create_noncolinear_vector( &dir, &hor );
 
     if( wrap_around )
         get_direction( n_points, points, n_points-2, wrap_around, &prev_dir );

@@ -1,9 +1,9 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  void  crop_surface(
     display_struct   *display,
-    Boolean          above_flag );
+    BOOLEAN          above_flag );
 private  Status  io_polygons_visibilities(
     polygons_struct  *polygons,
     IO_types         io_flag );
@@ -70,7 +70,7 @@ public  DEF_MENU_FUNCTION( set_n_paint_polygons )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_n_paint_polygons)   /* ARGSUSED */
 {
-    String   text;
+    STRING   text;
 
     (void) sprintf( text, label,
                     display->three_d.surface_edit.n_paint_polygons );
@@ -83,7 +83,7 @@ public  DEF_MENU_UPDATE(set_n_paint_polygons)   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_vis_paint_colour )   /* ARGSUSED */
 {
     Status      status;
-    String      string;
+    STRING      string;
     Colour      colour;
 
     convert_colour_to_string( display->three_d.surface_edit.visible_colour,
@@ -121,7 +121,7 @@ public  DEF_MENU_UPDATE(set_vis_paint_colour)   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_invis_paint_colour )   /* ARGSUSED */
 {
     Status      status;
-    String      string;
+    STRING      string;
     Colour      colour;
 
     convert_colour_to_string( display->three_d.surface_edit.invisible_colour,
@@ -465,13 +465,12 @@ public  DEF_MENU_UPDATE(crop_below_plane)   /* ARGSUSED */
 
 private  void  crop_surface(
     display_struct   *display,
-    Boolean          above_flag )
+    BOOLEAN          above_flag )
 {
     char             ch;
     int              axis_index;
     Real             pos;
-    Real             x, y, z;
-    Point            position;
+    Real             voxel[MAX_DIMENSIONS], world[MAX_DIMENSIONS];
     polygons_struct  *polygons;
     display_struct   *slice_window;
 
@@ -480,15 +479,15 @@ private  void  crop_surface(
         if( get_axis_index_under_mouse( display, &axis_index ) )
         {
             slice_window = display->associated[SLICE_WINDOW];
-            fill_Point( position, 0.0, 0.0, 0.0 );
-            Point_coord(position,axis_index) =
-                      slice_window->slice.slice_index[axis_index];
-            convert_voxel_to_world( get_volume(slice_window),
-                                    Point_x(position),
-                                    Point_y(position),
-                                    Point_z(position), &x, &y, &z );
-            fill_Point( position, x, y, z );
-            pos = Point_coord(position,axis_index);
+
+            voxel[X] = 0.0;
+            voxel[Y] = 0.0;
+            voxel[Z] = 0.0;
+            voxel[axis_index] = slice_window->slice.slice_index[axis_index];
+
+            convert_voxel_to_world( get_volume(slice_window), voxel,
+                                    &world[X], &world[Y], &world[Z] );
+            pos = world[axis_index];
         }
         else
         {
@@ -559,7 +558,7 @@ private  Status  io_polygons_visibilities(
     IO_types         io_flag )
 {
     Status           status;
-    String           filename;
+    STRING           filename;
     FILE             *file;
 
     create_polygons_visibilities( polygons );

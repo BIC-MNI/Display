@@ -1,4 +1,4 @@
-#include  <def_display.h>
+#include  <display.h>
 
 #define  FUNCTION_LIST \
 MENU_FUNCTION(exit_program) \
@@ -63,6 +63,7 @@ MENU_FUNCTION(ascend_selected) \
                        MENU_FUNCTION(get_labeled_boundary) \
                        MENU_FUNCTION(double_slice_voxels) \
                        MENU_FUNCTION(halve_slice_voxels) \
+                       MENU_FUNCTION(reset_current_slice_view) \
                        MENU_FUNCTION(load_active_voxels) \
                        MENU_FUNCTION(save_active_voxels) \
                        MENU_FUNCTION(invert_activity) \
@@ -150,6 +151,7 @@ MENU_FUNCTION(ascend_selected) \
                        MENU_FUNCTION(change_marker_type) \
                        MENU_FUNCTION(toggle_lock_slice) \
                        MENU_FUNCTION(resample_slice_window_volume) \
+                       MENU_FUNCTION(box_filter_slice_window_volume) \
                        MENU_FUNCTION(delete_current_object) \
                        MENU_FUNCTION(label_point) \
                        MENU_FUNCTION(generate_regions) \
@@ -216,7 +218,7 @@ MENU_FUNCTION(ascend_selected) \
 
 typedef  struct
 {
-    String                  action_name;
+    STRING                  action_name;
     menu_function_pointer   action;
     menu_update_pointer     update_action;
 }
@@ -235,16 +237,16 @@ static  action_lookup_struct   actions[] = {
 
 typedef  struct
 {
-    Boolean            permanent_flag;
+    BOOLEAN            permanent_flag;
     int                key;
-    String             action_name;
-    String             label;
+    STRING             action_name;
+    STRING             label;
     menu_entry_struct  *menu_entry;
 }  key_action_struct;
 
 typedef  struct
 {
-    String              menu_name;
+    STRING              menu_name;
     int                 n_entries;
     key_action_struct   *entries;
 } menu_definition_struct;
@@ -270,7 +272,7 @@ private  int  lookup_menu_name(
     char                      menu_name[],
     int                       n_menus,
     menu_definition_struct    menus[] );
-private  Boolean  lookup_menu_action(
+private  BOOLEAN  lookup_menu_action(
     char                   action_name[],
     menu_function_pointer  *action,
     menu_update_pointer    *update_action );
@@ -384,7 +386,7 @@ private  Status  input_special_character(
     FILE   *file,
     int    *ch )
 {
-    String  str;
+    STRING  str;
     Status  status;
 
     status = input_string( file, str, MAX_STRING_LENGTH, '\'' );
@@ -414,9 +416,9 @@ private  Status  input_menu_entry(
     menu_definition_struct   *menu_entry )
 {
     Status   status;
-    Boolean  found_brace;
-    String   permanent_string;
-    Boolean  permanent_flag;
+    BOOLEAN  found_brace;
+    STRING   permanent_string;
+    BOOLEAN  permanent_flag;
 
     status = skip_input_until( file, '{' );
 
@@ -589,12 +591,12 @@ private  int  lookup_menu_name(
     return( i );
 }
 
-private  Boolean  lookup_menu_action(
+private  BOOLEAN  lookup_menu_action(
     char                   action_name[],
     menu_function_pointer  *action,
     menu_update_pointer    *update_action )
 {
-    Boolean  found;
+    BOOLEAN  found;
     int      i;
     char     *table_name;
 
@@ -627,7 +629,7 @@ private  Boolean  lookup_menu_action(
 }
 
 private  void  delete_menu_entry(
-    Boolean             top_flag,
+    BOOLEAN             top_flag,
     menu_entry_struct   *entry )
 {
     if( !top_flag )

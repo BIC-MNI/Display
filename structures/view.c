@@ -1,4 +1,4 @@
-#include <def_display.h>
+#include <display.h>
 
 public  void  initialize_view(
     view_struct  *view,

@@ -1,12 +1,12 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 typedef  struct
 {
     int       key;
     char      *key_name;
     Real      x_pos, y_pos, length;
-    Boolean   in_slanted_part_of_keyboard;
+    BOOLEAN   in_slanted_part_of_keyboard;
 } position_struct;
 
 private   position_struct   positions[] = {
@@ -37,6 +37,7 @@ private   position_struct   positions[] = {
                            {'r', "R", 3.0, 3.0, 1.0, TRUE },
                            {'t', "T", 4.0, 3.0, 1.0, TRUE },
                            {'y', "Y", 5.0, 3.0, 1.0, TRUE },
+                           {'u', "U", 6.0, 3.0, 1.0, TRUE },
 
                            {'1', "1", 0.0, 4.0, 1.0, TRUE },
                            {'2', "2", 1.0, 4.0, 1.0, TRUE },
@@ -50,7 +51,7 @@ private   position_struct   positions[] = {
 private  void   create_menu_text(
     display_struct    *menu_window,
     menu_entry_struct *menu_entry );
-private  Boolean  lookup_key(
+private  BOOLEAN  lookup_key(
     int              key,
     position_struct  **desc );
 private  void   compute_origin(
@@ -70,7 +71,7 @@ private  void   create_menu_box(
 private  void   create_menu_character(
     display_struct    *menu_window,
     int               key );
-private  Boolean   point_within_menu_key_entry(
+private  BOOLEAN   point_within_menu_key_entry(
     display_struct   *menu_window,
     int              key,
     Real             x,
@@ -101,7 +102,7 @@ private  void   create_menu_text(
     int             i;
     Point           origin;
     text_struct     *text;
-    String          key_string;
+    STRING          key_string;
     model_struct    *model;
 
     ALLOC( menu_entry->text_list, menu_window->menu.n_lines_in_entry );
@@ -146,12 +147,12 @@ private  void   create_menu_text(
     (void) update_menu_text( menu_window, menu_entry );
 }
 
-private  Boolean  lookup_key(
+private  BOOLEAN  lookup_key(
     int              key,
     position_struct  **desc )
 {
     int      i;
-    Boolean  found;
+    BOOLEAN  found;
 
     found = FALSE;
 
@@ -177,7 +178,7 @@ private  void   compute_origin(
     Real                 *y2,
     Real                 *length )
 {
-    Boolean          found;
+    BOOLEAN          found;
     position_struct  *desc;
     Real             x_dx, y_dy;
 
@@ -339,7 +340,7 @@ private  void   create_menu_character(
     add_object_to_model( model, object );
 }
 
-private  Boolean   point_within_menu_key_entry(
+private  BOOLEAN   point_within_menu_key_entry(
     display_struct   *menu_window,
     int              key,
     Real             x,
@@ -352,14 +353,14 @@ private  Boolean   point_within_menu_key_entry(
     return( x >= x1 && x <= x2 && y >= y1 && y <= y2 );
 }
 
-public  Boolean   lookup_key_for_mouse_position(
+public  BOOLEAN   lookup_key_for_mouse_position(
     display_struct   *menu_window,
     Real             x,
     Real             y,
     int              *key )
 {
     int      i;
-    Boolean  found;
+    BOOLEAN  found;
 
     found = FALSE;
 

@@ -1,7 +1,8 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
-static    DEF_EVENT_FUNCTION( handle_character );
+static    DEF_EVENT_FUNCTION( handle_character_down );
+static    DEF_EVENT_FUNCTION( handle_character_up );
 static    DEF_EVENT_FUNCTION( left_mouse_press );
 static    DEF_EVENT_FUNCTION( middle_mouse_press );
 private  void  turn_off_menu_entry(
@@ -98,12 +99,16 @@ public  Status  initialize_menu(
     char              menu_filename[] )
 {
     Status               status;
-    String               filename;
+    STRING               filename;
     menu_window_struct   *menu;
     int                  ch;
     FILE                 *file;
 
+    initialize_resize_events( display );
+
     menu = &display->menu;
+
+    menu->shift_key_down = FALSE;
 
     for_less( ch, 0, N_CHARACTERS )
         set_menu_key_entry( menu, ch, (menu_entry_struct *) 0 );
@@ -164,7 +169,9 @@ public  void  initialize_menu_actions(
     display_struct    *menu_window )
 {
     add_action_table_function( &menu_window->action_table, KEY_DOWN_EVENT,
-                               handle_character );
+                               handle_character_down );
+    add_action_table_function( &menu_window->action_table, KEY_UP_EVENT,
+                               handle_character_up );
 }
 
 public  void  initialize_menu_window(
@@ -176,7 +183,28 @@ public  void  initialize_menu_window(
                                MIDDLE_MOUSE_DOWN_EVENT, middle_mouse_press );
 }
 
-private  DEF_EVENT_FUNCTION( handle_character )   /* ARGSUSED */
+private  BOOLEAN   is_shift_key(
+    int   key )
+{
+    return( key == LEFT_SHIFT_KEY ||
+            key == RIGHT_SHIFT_KEY ||
+            key == LEFT_CTRL_KEY ||
+            key == RIGHT_CTRL_KEY ||
+            key == LEFT_ALT_KEY ||
+            key == RIGHT_ALT_KEY );
+}
+
+public  BOOLEAN  is_shift_key_pressed(
+    display_struct     *display )
+{
+    display_struct     *menu_window;
+
+    menu_window = display->associated[MENU_WINDOW];
+
+    return( menu_window->menu.shift_key_down );
+}
+
+private  DEF_EVENT_FUNCTION( handle_character_down )   /* ARGSUSED */
 {
     Status             status;
     display_struct     *menu_window;
@@ -185,9 +213,25 @@ private  DEF_EVENT_FUNCTION( handle_character )   /* ARGSUSED */
 
     menu_window = display->associated[MENU_WINDOW];
 
-    status = handle_menu_for_key( menu_window, key_pressed );
+    if( is_shift_key( key_pressed ) )
+        menu_window->menu.shift_key_down = TRUE;
+    else
+        status = handle_menu_for_key( menu_window, key_pressed );
 
     return( status );
+}
+
+private  DEF_EVENT_FUNCTION( handle_character_up )   /* ARGSUSED */
+{
+    display_struct     *menu_window;
+
+    if( is_shift_key( key_pressed ) )
+    {
+        menu_window = display->associated[MENU_WINDOW];
+        menu_window->menu.shift_key_down = FALSE;
+    }
+
+    return( OK );
 }
 
 private  Status  handle_menu_for_key(

@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  display_struct  **windows = (display_struct **) 0;
 private  int             n_windows = 0;
@@ -8,7 +8,7 @@ private  void  initialize_graphics_window(
     display_struct   *display );
 private  void  update_graphics_overlay_planes_only(
     display_struct       *display,
-    Boolean              display_flag );
+    BOOLEAN              display_flag );
 private  void  update_graphics_normal_planes_only(
     display_struct               *display,
     update_interrupted_struct    *interrupt );
@@ -216,7 +216,6 @@ private  void  initialize_graphics_window(
 
     initialize_action_table( &display->action_table );
 
-    initialize_resize_events( display );
     initialize_menu_actions( display );
 
     for_less( i, 0, N_MODELS )
@@ -295,13 +294,13 @@ public  void  set_update_required(
     display->update_required[which_bitplanes] = TRUE;
 }
 
-public  Boolean  graphics_normal_planes_update_required(
+public  BOOLEAN  graphics_normal_planes_update_required(
     display_struct   *display )
 {
     return( display->update_required[NORMAL_PLANES] );
 }
 
-public  Boolean  graphics_update_required(
+public  BOOLEAN  graphics_update_required(
     display_struct   *display )
 {
     return( display->update_required[NORMAL_PLANES] ||
@@ -325,7 +324,7 @@ private  void  display_frame_info(
     Real             update_time )
 {
     text_struct   frame_text;
-    String        frame_time_str;
+    STRING        frame_time_str;
     model_struct  *model;
 
     (void) sprintf( frame_text.string, "%d: ", frame_number );
@@ -365,7 +364,7 @@ public  void  update_graphics(
 
 private  void  update_graphics_overlay_planes_only(
     display_struct       *display,
-    Boolean              display_flag )
+    BOOLEAN              display_flag )
 {
     int           i;
 

@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  void  initialize_slice_colour_coding(
     display_struct    *slice_window )
@@ -41,15 +41,15 @@ public  void  set_colour_coding_for_new_volume(
         slice_window->slice.label_colours_used[label] = FALSE;
     }
 
-    add_new_label( slice_window, ACTIVE_BIT, WHITE );
-    add_new_label( slice_window, ACTIVE_BIT | LABEL_BIT, Labeled_voxel_colour);
-    add_new_label( slice_window, LABEL_BIT, Inactive_and_labeled_voxel_colour);
-    add_new_label( slice_window, 0, Inactive_voxel_colour );
+    add_new_label( slice_window, 0, WHITE );
+    add_new_label( slice_window, get_label_bit(), Labeled_voxel_colour);
+    add_new_label( slice_window, get_active_bit() & get_label_bit(),
+                   Inactive_and_labeled_voxel_colour);
+    add_new_label( slice_window, get_active_bit(), Inactive_voxel_colour );
 
     for_less( label, 0, SIZEOF_STATIC_ARRAY(default_colours) )
     {
-        add_new_label( slice_window, ACTIVE_BIT | (label+1),
-                       default_colours[label] );
+        add_new_label( slice_window, (label+1), default_colours[label] );
     }
 
     get_volume_voxel_range( volume, &min_voxel, &max_voxel );
@@ -97,7 +97,7 @@ public  Colour  apply_label_colour(
 {
     Colour           label_col, mult, scaled_col;
 
-    if( label != ACTIVE_BIT )
+    if( label != 0 )
     {
         label_col = slice_window->slice.label_colours[label];
         MULT_COLOURS( mult, label_col, col );
@@ -160,15 +160,15 @@ public  int  lookup_label_colour(
     display_struct    *slice_window,
     Colour            colour )
 {
-    Boolean   found_colour, found_empty;
+    BOOLEAN   found_colour, found_empty;
     int       i, first_empty, label;
 
     found_colour = FALSE;
     found_empty = FALSE;
 
-    for_inclusive( i, 1, LOWER_AUXILIARY_BITS )
+    for_inclusive( i, 1, get_max_label() )
     {
-        label = i | ACTIVE_BIT;
+        label = i;
 
         if( slice_window->slice.label_colours_used[label] )
         {
@@ -194,7 +194,7 @@ public  int  lookup_label_colour(
             (void) add_new_label( slice_window, label, colour );
         }
         else
-            label = (ACTIVE_BIT | LABEL_BIT);
+            label = get_label_bit();
     }
 
     return( label );

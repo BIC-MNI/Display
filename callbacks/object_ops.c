@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  DEF_MENU_FUNCTION( reverse_normals )   /* ARGSUSED */
 {
@@ -207,7 +207,7 @@ public  DEF_MENU_UPDATE(create_model )     /* ARGSUSED */
 public  DEF_MENU_FUNCTION( change_model_name )     /* ARGSUSED */
 {
     object_struct    *current_object;
-    String           name;
+    STRING           name;
 
     if( get_current_object( display, &current_object ) &&
         current_object->object_type == MODEL )
@@ -232,14 +232,14 @@ public  DEF_MENU_UPDATE(change_model_name )     /* ARGSUSED */
     return( OK );
 }
 
-private  Boolean  remove_current_object_from_hierarchy(
+private  BOOLEAN  remove_current_object_from_hierarchy(
     display_struct   *display,
     object_struct    **object )
 {
-    Boolean          removed;
+    BOOLEAN          removed;
     int              obj_index;
     model_struct     *current_model;
-    Boolean          is_a_marker;
+    BOOLEAN          is_a_marker;
 
     if( !current_object_is_top_level( display ) &&
         get_current_object( display, object ) )
@@ -292,7 +292,7 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
     Status          status;
     object_struct   *current_object;
     Colour          col;
-    String          line;
+    STRING          line;
 
     if( get_current_object( display, &current_object ) )
     {

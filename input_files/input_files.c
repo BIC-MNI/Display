@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  Status  load_graphics_file( 
     display_struct   *display,
@@ -13,8 +13,8 @@ public  Status  load_graphics_file(
     Volume                   volume, volume_read_in;
     object_struct            *current_object;
     object_traverse_struct   object_traverse;
-    Boolean                  volume_present;
-    Boolean                  markers_present;
+    BOOLEAN                  volume_present;
+    BOOLEAN                  markers_present;
 
     object = create_object( MODEL );
 

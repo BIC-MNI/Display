@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 static    DEF_EVENT_FUNCTION( update_picked_object );
 static    DEF_EVENT_FUNCTION( pick_object_point );
@@ -61,13 +61,13 @@ private  DEF_EVENT_FUNCTION( update_picked_object )     /* ARGSUSED */
     return( OK );
 }
 
-public  Boolean  get_mouse_scene_intersection(
+public  BOOLEAN  get_mouse_scene_intersection(
     display_struct    *display,
     object_struct     **object,
     int               *object_index,
     Point             *intersection )
 {
-    Boolean          found;
+    BOOLEAN          found;
     Real             x, y;
     Point            origin, transformed_origin;
     Vector           direction, transformed_direction;
@@ -91,13 +91,13 @@ public  Boolean  get_mouse_scene_intersection(
     return( found );
 }
 
-public  Boolean  get_polygon_under_mouse(
+public  BOOLEAN  get_polygon_under_mouse(
     display_struct    *display,
     polygons_struct   **polygons,
     int               *poly_index,
     Point             *intersection )
 {
-    Boolean          found;
+    BOOLEAN          found;
     object_struct    *object;
 
     found = get_mouse_scene_intersection( display, &object, poly_index,

@@ -1,11 +1,11 @@
 #ifndef  DEF_DISPLAY_TYPES
 #define  DEF_DISPLAY_TYPES
 
-#include  <def_graphics.h>
+#include  <graphics.h>
 
 typedef  struct
 {
-    Boolean     perspective_flag;
+    BOOLEAN     perspective_flag;
     Point       origin;
     Vector      x_axis, y_axis, line_of_sight;
     Real        front_distance, back_distance;
@@ -18,7 +18,7 @@ typedef  struct
 
 typedef  struct
 {
-    Boolean       state;
+    BOOLEAN       state;
     Light_types   light_type;
     Colour        colour;
     Vector        direction;
@@ -29,13 +29,13 @@ typedef  struct
 
 typedef  struct
 {
-    Boolean         shaded_mode;
+    BOOLEAN         shaded_mode;
     Shading_types   shading_type;
-    Boolean         master_light_switch;
-    Boolean         backface_flag;
-    Boolean         two_sided_surface_flag;
-    Boolean         render_lines_as_curves;
-    Boolean         show_marker_labels;
+    BOOLEAN         master_light_switch;
+    BOOLEAN         backface_flag;
+    BOOLEAN         two_sided_surface_flag;
+    BOOLEAN         render_lines_as_curves;
+    BOOLEAN         show_marker_labels;
     int             n_curve_segments;
 }  render_struct;
 
@@ -64,7 +64,7 @@ typedef  struct
 
 typedef  struct
 {
-    Boolean       line_active;
+    BOOLEAN       line_active;
     Point         line_origin;
     Point         line_direction;
 } point_position_struct;
@@ -86,10 +86,10 @@ typedef  struct
 
 typedef  struct
 {
-    Boolean        last_was_interrupted;
+    BOOLEAN        last_was_interrupted;
     object_struct  *object_interrupted;
     Real           interrupt_at;
-    Boolean        current_interrupted;
+    BOOLEAN        current_interrupted;
 } update_interrupted_struct;
 
 typedef  struct
@@ -111,7 +111,7 @@ typedef  struct
     int           y_size;
     int           n_steps;
     int           current_step;
-    String        base_filename;
+    STRING        base_filename;
     Transform     transform;
     Colour        *image_storage;
 } film_loop_struct;
@@ -124,7 +124,7 @@ typedef  struct
     Colour           invisible_colour;
 
     polygons_struct  *polygons;
-    Boolean          polygons_set;
+    BOOLEAN          polygons_set;
     int              n_vertices;
     int              n_vertices_alloced;
     int              *vertices;
@@ -148,14 +148,14 @@ typedef  struct
 
 typedef  struct
 {
-    Boolean          picking_points;
+    BOOLEAN          picking_points;
     Real             line_curvature_weight;
     lines_struct     *lines;
     int              n_points_alloced;
     int              n_indices_alloced;
     int              n_end_indices_alloced;
     int              first_poly_index;
-    Boolean          prev_point_exists;
+    BOOLEAN          prev_point_exists;
     Point            prev_point;
     int              prev_poly_index;
     polygons_struct  *prev_polygons;
@@ -184,8 +184,8 @@ typedef struct
     deform_struct     deform;
     object_struct     *deforming_object;
     int               iteration;
-    Boolean           in_progress;
-    Boolean           using_simulated_annealing;
+    BOOLEAN           in_progress;
+    BOOLEAN           using_simulated_annealing;
     anneal_struct     anneal;
 }  deformation_struct;
 

@@ -1,4 +1,4 @@
-#include  <def_display.h>
+#include  <display.h>
 
 public  void  initialize_surface_edit(
     surface_edit_struct   *surface_edit )
@@ -53,7 +53,7 @@ public  void  set_edited_polygons(
     create_polygons_visibilities( surface_edit->polygons );
 }
 
-public  Boolean  get_edited_polygons(
+public  BOOLEAN  get_edited_polygons(
     surface_edit_struct   *surface_edit,
     polygons_struct       **polygons )
 {

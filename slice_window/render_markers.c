@@ -1,9 +1,10 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  void  scan_convert_marker(
     display_struct   *slice_window,
     Volume           volume,
+    Volume           label_volume,
     marker_struct    *marker );
 
 public  void  regenerate_voxel_marker_labels(
@@ -18,7 +19,7 @@ public  void  regenerate_voxel_marker_labels(
     {
         slice_window = display->associated[SLICE_WINDOW];
 
-        set_all_volume_auxiliary_data( volume, ACTIVE_BIT );
+        set_all_volume_label_data( get_label_volume(slice_window), 0 );
 
         object = display->models[THREED_MODEL];
 
@@ -28,6 +29,7 @@ public  void  regenerate_voxel_marker_labels(
         {
             if( object->object_type == MARKER )
                 scan_convert_marker( slice_window, volume,
+                                     get_label_volume(slice_window),
                                      get_marker_ptr(object) );
         }
 
@@ -47,19 +49,21 @@ public  void  render_marker_to_volume(
     if( get_slice_window_volume( display, &volume ) )
     {
         slice_window = display->associated[SLICE_WINDOW];
-        scan_convert_marker( slice_window, volume, marker );
+        scan_convert_marker( slice_window, volume,
+                             get_label_volume(slice_window), marker );
     }
 }
 
 private  void  scan_convert_marker(
     display_struct   *slice_window,
     Volume           volume,
+    Volume           label_volume,
     marker_struct    *marker )
 {
     Real           low[N_DIMENSIONS], high[N_DIMENSIONS];
     int            min_voxel[N_DIMENSIONS], max_voxel[N_DIMENSIONS];
     Real           voxel[N_DIMENSIONS];
-    int            c, label;
+    int            c, label, int_voxel[N_DIMENSIONS];
 
     label = lookup_label_colour( slice_window, marker->colour );
 
@@ -67,13 +71,13 @@ private  void  scan_convert_marker(
                             Point_x(marker->position) - marker->size,
                             Point_y(marker->position) - marker->size,
                             Point_z(marker->position) - marker->size,
-                            &low[X], &low[Y], &low[Z] );
+                            low );
 
     convert_world_to_voxel( volume,
                             Point_x(marker->position) + marker->size,
                             Point_y(marker->position) + marker->size,
                             Point_z(marker->position) + marker->size,
-                            &high[X], &high[Y], &high[Z] );
+                            high );
 
     for_less( c, 0, N_DIMENSIONS )
     {
@@ -99,8 +103,8 @@ private  void  scan_convert_marker(
                 if( voxel_is_within_volume( volume, voxel ) )
 
                 {
-                    set_volume_auxiliary_data( volume, voxel[X], voxel[Y],
-                                               voxel[Z], label );
+                    convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+                    set_volume_label_data( label_volume, int_voxel, label );
                 }
             }
         }

@@ -268,7 +268,6 @@ Max_parameter_delta = 1.0;
 
 Max_voxel_scan_distance = 2.0;
 Max_parametric_scan_distance = 0.1;
-Scanned_polygons_label = 1;
 Max_polygon_scan_distance = 2.0;
 
 Initial_atlas_opacity = 1.0;

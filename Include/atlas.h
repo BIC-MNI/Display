@@ -1,7 +1,7 @@
 #ifndef  DEF_ATLAS
 #define  DEF_ATLAS
 
-#include   <def_mni.h>
+#include   <mni.h>
 
 typedef  struct
 {
@@ -13,12 +13,12 @@ typedef  struct
 
 typedef  struct
 {
-    Boolean                input;
-    Boolean                enabled;
+    BOOLEAN                input;
+    BOOLEAN                enabled;
     Real                   opacity;
     Real                   transparent_threshold;
     Real                   slice_tolerance[3];
-    Boolean                flipped[3];
+    BOOLEAN                flipped[3];
 
     int                    n_pixel_maps;
     pixels_struct          *pixel_maps;

@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 #define  DIVIDER_INDEX                  0
 #define  SLICE1_INDEX                   1
@@ -169,37 +169,40 @@ public  void  rebuild_probe(
     display_struct    *slice_window )
 {
     model_struct   *model;
-    Boolean        active;
+    BOOLEAN        active;
     Volume         volume;
+    Real           voxel[MAX_DIMENSIONS];
+    int            int_voxel[MAX_DIMENSIONS];
     int            label, i, view_index;
-    Real           x_voxel, y_voxel, z_voxel;
     Real           x_world, y_world, z_world;
     text_struct    *text;
     int            sizes[N_DIMENSIONS];
     Real           value, voxel_value;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
 
-    active = get_voxel_in_slice_window( slice_window,
-                                        &x_voxel, &y_voxel, &z_voxel,
-                                        &view_index );
+    active = get_voxel_in_slice_window( slice_window, voxel, &view_index );
 
     get_slice_viewport( slice_window, -1, &x_min, &x_max, &y_min, &y_max );
 
     if( get_slice_window_volume( slice_window, &volume ) )
         get_volume_sizes( volume, sizes );
 
-    convert_voxel_to_world( volume, x_voxel, y_voxel, z_voxel,
+    convert_voxel_to_world( volume, voxel,
                             &x_world, &y_world, &z_world );
 
     if( active )
     {
+        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+
         GET_VOXEL_3D( voxel_value, volume,
-                      ROUND(x_voxel), ROUND(y_voxel), ROUND(z_voxel) );
+                      int_voxel[X], int_voxel[Y], int_voxel[Z] );
+
         value = CONVERT_VOXEL_TO_VALUE( get_volume(slice_window), voxel_value );
-        label = get_volume_auxiliary_data( get_volume(slice_window),
-                                           ROUND(x_voxel), ROUND(y_voxel),
-                                           ROUND(z_voxel) );
-        label = label & LOWER_AUXILIARY_BITS;
+
+        label = get_volume_label_data( get_label_volume(slice_window),
+                                       int_voxel );
+
+        label = label & get_max_label();
     }
 
     /* --- do slice readout models */
@@ -221,15 +224,15 @@ public  void  rebuild_probe(
             {
             case X_VOXEL_PROBE_INDEX:
                 (void) sprintf( text->string, Slice_probe_x_voxel_format,
-                                x_voxel+1.0 );
+                                voxel[X]+1.0 );
                 break;
             case Y_VOXEL_PROBE_INDEX:
                 (void) sprintf( text->string, Slice_probe_y_voxel_format,
-                                y_voxel+1.0 );
+                                voxel[Y]+1.0 );
                 break;
             case Z_VOXEL_PROBE_INDEX:
                 (void) sprintf( text->string, Slice_probe_z_voxel_format,
-                                z_voxel+1.0 );
+                                voxel[Z]+1.0 );
                 break;
 
             case X_WORLD_PROBE_INDEX:
@@ -373,8 +376,7 @@ public  void  rebuild_slice_pixels(
 
     pixels = get_pixels_ptr( model->objects[SLICE1_INDEX+view_index] );
 
-    get_current_voxel( slice_window,
-                       &voxel_indices[X], &voxel_indices[Y], &voxel_indices[Z]);
+    get_current_voxel( slice_window, voxel_indices );
 
     render_slice_to_pixels( slice_window, view_index, voxel_indices, pixels );
 
@@ -436,6 +438,7 @@ private  void  render_slice_to_pixels(
     Real                  x_trans, y_trans, x_scale, y_scale;
     unsigned char         *label_ptr;
     Colour                *pixel_ptr;
+    void                  *void_ptr;
     int                   x_min, x_max, y_min, y_max;
 
     volume = get_volume( slice_window );
@@ -459,7 +462,7 @@ private  void  render_slice_to_pixels(
                         &x_min, &x_max, &y_min, &y_max );
 
     get_volume_voxel_range( volume, &min_voxel, &max_voxel );
-    colour_table = colour_tables[ACTIVE_BIT];
+    colour_table = colour_tables[0];
 
     if( (int) min_voxel > 0 )
         colour_table -= (int) min_voxel;
@@ -485,7 +488,7 @@ private  void  render_slice_to_pixels(
     /* now do the label colour compositing */
 
     if( slice_window->slice.display_labels &&
-        volume->labels != (unsigned char ***) NULL &&
+        get_label_volume(slice_window)->data != (void *) NULL &&
         x_size > 0 && y_size > 0 )
     {
         ALLOC( x_offsets, x_size );
@@ -524,7 +527,8 @@ private  void  render_slice_to_pixels(
                            y_offsets[0];
         }
 
-        label_ptr = volume->labels[0][0];
+        GET_VOXEL_PTR_3D( void_ptr, get_label_volume(slice_window), 0, 0, 0 );
+        label_ptr = void_ptr;
 
         for_less( y, 0, y_size )
         {
@@ -538,7 +542,7 @@ private  void  render_slice_to_pixels(
 
                 label = label_ptr[volume_index];
 
-                if( label != ACTIVE_BIT )
+                if( label != 0 )
                 {
                     *pixel_ptr = apply_label_colour( slice_window, *pixel_ptr,
                                                      label );

@@ -1,14 +1,14 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
-public  Boolean  mouse_moved(
+public  BOOLEAN  mouse_moved(
     display_struct   *display,
     Real             *new_x,
     Real             *new_y,
     Real             *old_x,
     Real             *old_y )
 {
-    Boolean   moved;
+    BOOLEAN   moved;
 
     moved = G_get_mouse_position_0_to_1( display->window, new_x, new_y );
 
@@ -25,14 +25,14 @@ public  Boolean  mouse_moved(
     return( moved );
 }
 
-public  Boolean  pixel_mouse_moved(
+public  BOOLEAN  pixel_mouse_moved(
     display_struct   *display,
     int              *new_x,
     int              *new_y,
     int              *old_x,
     int              *old_y )
 {
-    Boolean   moved;
+    BOOLEAN   moved;
 
     moved = G_get_mouse_position( display->window, new_x, new_y );
 

@@ -71,6 +71,8 @@ slice
     transient 'g'    toggle_lock_slice              "Lock/Unlock Slice"
 
     transient 'z'    resample_slice_window_volume   "Resample Volume"
+    transient 'v'    reset_current_slice_view       "Reset Slice View"
+    transient 'b'    box_filter_slice_window_volume "Box Filter Volume"
 }
 
 colour_coding
@@ -227,7 +229,7 @@ markers
     transient 'e'    change_marker_structure_id  "Chg Structure Id"
     transient 'r'    change_marker_patient_id    "Chg Patient Id"
     transient 't'    change_marker_type          "Chg Marker Type"
-    transient 'y'    change_marker_position      "Change Marker Position"
+    transient 'u'    change_marker_position      "Change Marker Position"
 
     transient 'a'    save_markers                "Save Mrkrs as .tag"
     transient 's'    load_file                   "Load Markers"

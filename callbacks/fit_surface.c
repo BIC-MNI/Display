@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  DEF_MENU_FUNCTION(set_model_parameters)   /* ARGSUSED */
 {
@@ -60,19 +60,19 @@ public  DEF_MENU_UPDATE(delete_all_surface_points)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(add_surface_point)   /* ARGSUSED */
 {
-    int      axis_index;
-    Real     x, y, z;
+    int      axis_index, int_voxel[MAX_DIMENSIONS];
+    Real     voxel[MAX_DIMENSIONS];
     Real     x_w, y_w, z_w;
     Point    point;
 
-    if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) )
+    if( get_voxel_under_mouse( display, voxel, &axis_index ) )
     {
-        convert_voxel_to_world( get_volume(display), x, y, z,
-                                &x_w, &y_w, &z_w );
+        convert_voxel_to_world( get_volume(display), voxel, &x_w, &y_w, &z_w );
         fill_Point( point, x_w, y_w, z_w );
 
-        set_voxel_label_flag( get_volume(display),
-                              ROUND(x), ROUND(y), ROUND(z), TRUE );
+        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+
+        set_voxel_label_flag( get_volume(display), int_voxel, TRUE );
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
@@ -92,18 +92,17 @@ public  DEF_MENU_UPDATE(add_surface_point)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(delete_surface_point)   /* ARGSUSED */
 {
-    int      axis_index;
-    Real     x, y, z;
+    int      axis_index, int_voxel[MAX_DIMENSIONS];
+    Real     voxel[MAX_DIMENSIONS];
     Real     x_w, y_w, z_w;
     Point    point;
 
-    if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) )
+    if( get_voxel_under_mouse( display, voxel, &axis_index ) )
     {
-        convert_voxel_to_world( get_volume(display), x, y, z,
-                                &x_w, &y_w, &z_w );
+        convert_voxel_to_world( get_volume(display), voxel, &x_w, &y_w, &z_w );
         fill_Point( point, x_w, y_w, z_w );
-        set_voxel_label_flag( get_volume(display),
-                              ROUND(x), ROUND(y), ROUND(z), FALSE );
+        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+        set_voxel_label_flag( get_volume(display), int_voxel, FALSE );
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
@@ -124,7 +123,8 @@ public  DEF_MENU_UPDATE(delete_surface_point)   /* ARGSUSED */
 public  DEF_MENU_FUNCTION(show_all_surface_points)   /* ARGSUSED */
 {
     int            i;
-    Real           x, y, z;
+    Real           voxel[MAX_DIMENSIONS];
+    int            int_voxel[MAX_DIMENSIONS];
     Volume         volume;
 
     if( get_slice_window_volume( display, &volume ) )
@@ -135,9 +135,10 @@ public  DEF_MENU_FUNCTION(show_all_surface_points)   /* ARGSUSED */
                 Point_x(display->three_d.surface_fitting.surface_points[i]),
                 Point_y(display->three_d.surface_fitting.surface_points[i]),
                 Point_z(display->three_d.surface_fitting.surface_points[i]),
-                &x, &y, &z );
+                voxel );
 
-            set_voxel_label_flag( volume, ROUND(x), ROUND(y), ROUND(z), TRUE );
+            convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+            set_voxel_label_flag( volume, int_voxel, TRUE );
         }
 
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
@@ -157,7 +158,7 @@ public  DEF_MENU_FUNCTION(save_surface_points)   /* ARGSUSED */
 {
     int      i;
     FILE     *file;
-    String   filename;
+    STRING   filename;
     Status   status;
 
     print( "Enter filename: " );
@@ -195,10 +196,11 @@ public  DEF_MENU_UPDATE(save_surface_points)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(load_surface_points)   /* ARGSUSED */
 {
-    Real     x, y, z;
+    Real     voxel[MAX_DIMENSIONS];
+    int      int_voxel[MAX_DIMENSIONS];
     FILE     *file;
     Point    point;
-    String   filename;
+    STRING   filename;
     Status   status;
 
     print( "Enter filename: " );
@@ -222,10 +224,10 @@ public  DEF_MENU_FUNCTION(load_surface_points)   /* ARGSUSED */
 
             convert_world_to_voxel( get_volume(display),
                          Point_x(point), Point_y(point), Point_z(point),
-                         &x, &y, &z );
+                         voxel );
 
-            set_voxel_label_flag( get_volume(display),
-                                  ROUND(x), ROUND(y), ROUND(z), TRUE );
+            convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+            set_voxel_label_flag( get_volume(display), int_voxel, TRUE );
         }
     }
 
@@ -349,7 +351,7 @@ public  DEF_MENU_FUNCTION(scan_model_to_voxels)   /* ARGSUSED */
 
     if( get_slice_window_volume( display, &volume ) )
     {
-        set_all_voxel_label_flags( volume, FALSE );
+        set_all_volume_label_data( volume, FALSE );
 
         print( "Scanning to voxels " );
         (void) fflush( stdout );
@@ -379,7 +381,7 @@ public  DEF_MENU_FUNCTION(load_model_parameters)   /* ARGSUSED */
     Status   status;
     int      i, n_parameters;
     double   *tmp_parameters;
-    String   filename;
+    STRING   filename;
     FILE     *file;
 
     print( "Enter filename: " );
@@ -433,7 +435,7 @@ public  DEF_MENU_FUNCTION(save_model_parameters)   /* ARGSUSED */
 {
     Status   status;
     int      i, n_parameters;
-    String   filename;
+    STRING   filename;
     FILE     *file;
 
     print( "Enter filename: " );

@@ -1,12 +1,12 @@
 #ifndef  DEF_MAIN
 #define  DEF_MAIN
 
-#include  <def_display_types.h>
-#include  <def_menu.h>
-#include  <def_slice.h>
-#include  <def_surface_extract.h>
-#include  <def_surface_fitting.h>
-#include  <def_marker_segment.h>
+#include  <display_types.h>
+#include  <menu.h>
+#include  <slice.h>
+#include  <surface_extract.h>
+#include  <surface_fitting.h>
+#include  <marker_segment.h>
 
 /* for graphics windows */
 
@@ -54,7 +54,7 @@ typedef  struct
     Marker_types               default_marker_type;
     Real                       default_marker_size;
     Colour                     default_marker_colour;
-    String                     default_marker_label;
+    STRING                     default_marker_label;
     marker_segment_struct      marker_segmentation;
     deformation_struct         deform;
 } three_d_window_struct;
@@ -78,7 +78,7 @@ typedef  struct  display_struct
 
 
     int                        frame_number;
-    Boolean                    update_required[N_BITPLANE_TYPES];
+    BOOLEAN                    update_required[N_BITPLANE_TYPES];
     update_interrupted_struct  update_interrupted;
 
     viewport_picking_struct    viewport_picking;

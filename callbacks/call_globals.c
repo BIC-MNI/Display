@@ -1,10 +1,10 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  DEF_MENU_FUNCTION( menu_set_global_variable )  /* ARGSUSED */
 {
     Status   status;
-    String   input_str, variable_name, new_value;
+    STRING   input_str, variable_name, new_value;
 
     print( "variable_name [= value]: " );
 

@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  void  clear_surface_extraction(
     display_struct     *display );
@@ -129,7 +129,7 @@ public  void  check_if_isosurface_value_set(
         set_isosurface_value( surface_extraction );
 }
 
-public  Boolean  get_isosurface_value(
+public  BOOLEAN  get_isosurface_value(
     display_struct     *display,
     Real               *value )
 {

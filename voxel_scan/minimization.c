@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 public  void  apply_simplex_minimization(
     int             n_parameters,

@@ -1,7 +1,7 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
-public  Boolean  intersect_ray_with_objects(
+public  BOOLEAN  intersect_ray_with_objects(
     display_struct    *display,
     Point             *ray_origin,
     Vector            *ray_direction,
@@ -9,7 +9,7 @@ public  Boolean  intersect_ray_with_objects(
     int               *object_index,
     Point             *intersection_point )
 {
-    Boolean                  intersects;
+    BOOLEAN                  intersects;
     Real                     dist;
     object_struct            *current_object;
     object_traverse_struct   object_traverse;
@@ -56,7 +56,7 @@ public  Boolean  intersect_ray_with_objects(
     return( intersects );
 }
 
-public  Boolean  intersect_ray_polygons(
+public  BOOLEAN  intersect_ray_polygons(
     Point            *ray_origin,
     Vector           *ray_direction,
     polygons_struct  *polygons,
@@ -64,7 +64,7 @@ public  Boolean  intersect_ray_polygons(
     Real             *dist )
 {
     int       i;
-    Boolean   intersects;
+    BOOLEAN   intersects;
 
     if( polygons->bintree != (bintree_struct *) 0 )
     {
@@ -90,7 +90,7 @@ public  Boolean  intersect_ray_polygons(
     return( intersects );
 }
 
-public  Boolean  intersect_ray_with_marker(
+public  BOOLEAN  intersect_ray_with_marker(
     Point            *ray_origin,
     Vector           *ray_direction,
     marker_struct    *marker,
@@ -98,7 +98,7 @@ public  Boolean  intersect_ray_with_marker(
 {
     int       c, enter, leave;
     Real      t_int[2], t_min, t_max, delta, box_low, box_high, origin;
-    Boolean   intersects;
+    BOOLEAN   intersects;
 
     t_min = 0.0;
     t_max = 1.0e30;

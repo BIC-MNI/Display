@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  void  create_selected_text(
     model_struct   *model )
@@ -106,7 +106,7 @@ public  void  rebuild_selected_list(
 {
     int            i, start, selected_index;
     Colour         col;
-    String         name, label;
+    STRING         name, label;
     model_struct   *selected_model, *model;
 
     selected_model = get_graphics_model( menu_window, SELECTED_MODEL );

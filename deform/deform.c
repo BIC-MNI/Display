@@ -1,4 +1,4 @@
-#include  <def_display.h>
+#include  <display.h>
 
 public  void  initialize_deformation(
     deformation_struct  *deform )
@@ -30,6 +30,8 @@ private  DEF_EVENT_FUNCTION( deform_object )    /* ARGSUSED */
     {
         display->three_d.deform.deform.deform_data.volume =
                                                  get_volume( display );
+        display->three_d.deform.deform.deform_data.label_volume =
+                                                 get_label_volume( display );
 
         if( display->three_d.deform.using_simulated_annealing )
         {
@@ -83,9 +85,9 @@ private  DEF_EVENT_FUNCTION( deform_object )    /* ARGSUSED */
 public  void  turn_on_deformation(
     display_struct  *display,
     object_struct   *object,
-    Boolean         use_simulated_annealling )
+    BOOLEAN         use_simulated_annealling )
 {
-    Boolean        in_progress;
+    BOOLEAN        in_progress;
 
     in_progress = FALSE;
 
@@ -102,6 +104,8 @@ public  void  turn_on_deformation(
     {
         display->three_d.deform.deform.deform_data.volume =
                                                  get_volume( display );
+        display->three_d.deform.deform.deform_data.label_volume =
+                                                 get_label_volume( display );
 
         display->three_d.deform.using_simulated_annealing =
                                          use_simulated_annealling;
@@ -141,6 +145,8 @@ public  void  turn_on_deformation(
 public  void  turn_off_deformation(
     display_struct  *display )
 {
+    display_struct  *slice_window;
+
     if( display->three_d.deform.in_progress )
     {
         print( "Stopping deformation.\n" );
@@ -154,16 +160,17 @@ public  void  turn_off_deformation(
         display->three_d.deform.in_progress = FALSE;
         remove_action_table_function( &display->action_table, NO_EVENT,
                                       deform_object );
-        if( display->three_d.deform.deforming_object->object_type == POLYGONS )
+        if( display->three_d.deform.deforming_object->object_type == POLYGONS &&
+            get_slice_window( display, &slice_window ) )
         {
             print( "Scanning polygons to voxels: \n" );
 
-            set_all_voxel_label_flags( get_volume(display), FALSE );
+            set_all_voxel_label_flags( get_label_volume(display), FALSE );
 
             scan_polygons_to_voxels(
                   get_polygons_ptr(display->three_d.deform.deforming_object),
-                  get_volume(display),
-                  Scanned_polygons_label | ACTIVE_BIT,
+                  get_volume(slice_window),
+                  slice_window->slice.current_paint_label,
                   Max_polygon_scan_distance );
 
             print( "--- done.\n" );

@@ -2,7 +2,7 @@
 #ifndef  DEF_MENU
 #define  DEF_MENU
 
-#include  <def_mni.h>
+#include  <mni.h>
 
 typedef  Status   menu_function_type();
 
@@ -26,9 +26,9 @@ typedef  menu_update_type  (*menu_update_pointer);
 
 typedef  struct  menu_entry_struct
 {
-    Boolean                     permanent_flag;
+    BOOLEAN                     permanent_flag;
     int                         key;
-    String                      label;
+    STRING                      label;
     int                         current_depth;
     int                         n_children;
     int                         n_chars_across;
@@ -61,6 +61,8 @@ typedef  struct
     menu_entry_struct    *stack[MAX_MENU_DEPTH];
 
     menu_entry_struct    *key_menus[N_CHARACTERS];
+
+    BOOLEAN              shift_key_down;
 } menu_window_struct;
 
 #endif

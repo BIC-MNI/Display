@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 #define  REGION_OF_INTEREST    1
 
@@ -16,7 +16,7 @@ public  void  disconnect_components(
     int           i;
     pixel_struct  **pixels;
     int           x, y, index[N_DIMENSIONS], size[N_DIMENSIONS];
-    Boolean       inside;
+    BOOLEAN       inside;
 
     get_volume_sizes( volume, size );
 
@@ -30,7 +30,7 @@ public  void  disconnect_components(
         {
             index[axis[Y]] = y;
 
-            if( get_voxel_activity_flag( volume, index[0], index[1], index[2]))
+            if( get_voxel_activity_flag( volume, index ) )
             {
                 GET_VOXEL_3D( val, volume, index[0], index[1], index[2] );
                 val = CONVERT_VOXEL_TO_VALUE( volume, val );
@@ -68,11 +68,9 @@ public  void  disconnect_components(
             if( pixels[x][y].inside )
             {
                 if( pixels[x][y].label != REGION_OF_INTEREST )
-                    set_voxel_activity_flag( volume, index[0], index[1],
-                                             index[2], FALSE );
+                    set_voxel_activity_flag( volume, index, FALSE );
                 else
-                    set_voxel_activity_flag( volume, index[0], index[1],
-                                             index[2], TRUE );
+                    set_voxel_activity_flag( volume, index, TRUE );
             }
         }
     }

@@ -1,5 +1,5 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 static    DEF_EVENT_FUNCTION( start_virtual_spaceball );
 static    DEF_EVENT_FUNCTION( turn_off_virtual_spaceball );
@@ -7,9 +7,9 @@ static    DEF_EVENT_FUNCTION( handle_update_rotation );
 static    DEF_EVENT_FUNCTION( terminate_rotation );
 static    DEF_EVENT_FUNCTION( handle_update_translation );
 static    DEF_EVENT_FUNCTION( terminate_translation );
-private  Boolean  perform_rotation(
+private  BOOLEAN  perform_rotation(
     display_struct   *display );
-private  Boolean  make_spaceball_transform(
+private  BOOLEAN  make_spaceball_transform(
     Real       x1,
     Real       y1,
     Real       x2,
@@ -18,9 +18,9 @@ private  Boolean  make_spaceball_transform(
     Real       x_radius,
     Real       y_radius,
     Transform  *transform );
-private  Boolean  perform_cursor_translation(
+private  BOOLEAN  perform_cursor_translation(
     display_struct   *display );
-private  Boolean  mouse_close_to_cursor(
+private  BOOLEAN  mouse_close_to_cursor(
     display_struct    *display );
 
 public  void  initialize_virtual_spaceball(
@@ -114,7 +114,7 @@ private  DEF_EVENT_FUNCTION( terminate_rotation )     /* ARGSUSED */
     return( OK );
 }
 
-private  Boolean  perform_rotation(
+private  BOOLEAN  perform_rotation(
     display_struct   *display )
 {
     static  Point  centre = { 0.5, 0.5, 0.0 };
@@ -122,7 +122,7 @@ private  Boolean  perform_rotation(
     int            x_size, y_size;
     Real           aspect;
     Transform      transform;
-    Boolean        moved;
+    BOOLEAN        moved;
 
     moved = FALSE;
 
@@ -155,7 +155,7 @@ private  Boolean  perform_rotation(
     return( moved );
 }
 
-private  Boolean  make_spaceball_transform(
+private  BOOLEAN  make_spaceball_transform(
     Real       x1,
     Real       y1,
     Real       x2,
@@ -165,7 +165,7 @@ private  Boolean  make_spaceball_transform(
     Real       y_radius,
     Transform  *transform )
 {
-    Boolean  transform_created;
+    BOOLEAN  transform_created;
     Real     x_old, y_old, z_old, x_new, y_new, z_new;
     Real     dist_old, dist_new;
     Real     angle, sin_angle;
@@ -253,7 +253,7 @@ private  DEF_EVENT_FUNCTION( terminate_translation )     /* ARGSUSED */
     return( OK );
 }
 
-private  Boolean  perform_cursor_translation(
+private  BOOLEAN  perform_cursor_translation(
     display_struct   *display )
 {
     Vector       mouse_dir, offset, axis_direction;
@@ -261,7 +261,7 @@ private  Boolean  perform_cursor_translation(
     Point        ray_origin, transformed_origin;
     int          axis_index, best_axis, second_best_axis, a1, a2;
     Point        pt, pt_screen, cursor_screen, new_screen_origin, new_cursor;
-    Boolean      moved;
+    BOOLEAN      moved;
     Real         mag_mouse, mag_axis[N_DIMENSIONS], dot_prod[N_DIMENSIONS];
     Real         angle[N_DIMENSIONS], mouse_dist;
     Real         x, y, x_prev, y_prev;
@@ -372,10 +372,10 @@ private  Boolean  perform_cursor_translation(
     return( moved );
 }
 
-private  Boolean  mouse_close_to_cursor(
+private  BOOLEAN  mouse_close_to_cursor(
     display_struct    *display )
 {
-    Boolean  close;
+    BOOLEAN  close;
     Point    cursor_screen, cursor_pixels, mouse_pixels, mouse;
     Vector   diff_vector;
     Real     x, y, diff;

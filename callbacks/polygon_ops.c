@@ -1,11 +1,11 @@
  
-#include  <def_display.h>
+#include  <display.h>
 
-public  Boolean  get_current_polygons(
+public  BOOLEAN  get_current_polygons(
     display_struct      *display,
     polygons_struct     **polygons )
 {
-    Boolean                 found;
+    BOOLEAN                 found;
     object_struct           *current_object, *object;
     object_traverse_struct  object_traverse;
 
@@ -33,7 +33,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
 {
     Status            status;
     polygons_struct   *polygons;
-    String            filename;
+    STRING            filename;
     FILE              *file;
 
     status = OK;
@@ -78,7 +78,7 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
 {
     Status            status;
     polygons_struct   *polygons;
-    String            filename;
+    STRING            filename;
     FILE              *file;
 
     status = OK;
@@ -345,14 +345,16 @@ public  DEF_MENU_FUNCTION( scan_current_polygon_to_volume )   /* ARGSUSED */
 {
     polygons_struct   *polygons;
     Volume            volume;
+    display_struct    *slice_window;
 
     if( get_current_polygons( display, &polygons ) &&
-        get_slice_window_volume( display, &volume ) )
+        get_slice_window_volume( display, &volume ) &&
+        get_slice_window( display, &slice_window ) )
     {
-        set_all_voxel_label_flags( volume, FALSE );
+        set_all_voxel_label_flags( get_label_volume(slice_window), FALSE );
 
         scan_polygons_to_voxels( polygons, volume,
-                                 Scanned_polygons_label | ACTIVE_BIT,
+                                 slice_window->slice.current_paint_label,
                                  Max_polygon_scan_distance );
 
         print( " done.\n" );
@@ -374,7 +376,7 @@ public  DEF_MENU_FUNCTION( make_unit_sphere )   /* ARGSUSED */
 {
     Point             centre;
     int               n_up;
-    Boolean           set_to_zero_flag;
+    BOOLEAN           set_to_zero_flag;
     Real              x_radius, y_radius, z_radius;
     Real              max_curvature;
     object_struct     *object;
