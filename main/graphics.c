@@ -154,7 +154,7 @@ private  void  initialize_graphics_window( graphics )
     for_less( i, 0, N_MODELS )
     {
         initialize_render( &graphics->models[i].render );
-        initialize_objects( &graphics->models[i].objects );
+        graphics->models[i].n_objects = 0;
     }
 
     graphics->frame_number = 0;
@@ -247,13 +247,17 @@ private  Status  terminate_graphics_window( graphics )
 {
     int      i;
     Status   status;
-    Status   delete_object_struct();
+    Status   delete_object_list();
 
     status = OK;
 
     for_less( i, 0, N_MODELS )
     {
-        status = delete_object_struct( &graphics->models[i].objects );
+        if( status == OK )
+        {
+            status = delete_object_list( graphics->models[i].n_objects,
+                                         graphics->models[i].object_list );
+        }
     }
 
     return( status );
