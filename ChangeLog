@@ -1,8 +1,36 @@
+2005-04-03  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
+
+	* menu/Makefile.am (EXTRA_DIST): Distribute Display.menu.base and
+	Display.menu.diff-seal, not the output Display.menu.include.
+	Qualify locations of menu.c, Display.menu.base, and
+	Display.menu.diff-seal in the makefile rules.
+
+	* Makefile.am (Display.menu): File menu/Display.menu.include
+	is now a built file, and therefore in builddir.
+
 2005-04-03  Andrew L Janke  <a.janke@gmail.com>
 
 	* Added GL/GLU/GLUT m4 macros to EXTRA_DIST
 
 2005-04-02  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
+
+	* configure.in: 
+	* Makefile.am: Add optional support for SEAL, configured using
+	--with-seal.
+
+	* main/main.c: Add globals debug and verbose, in order to link
+	with SEAL.
+
+	* menu/input_menu.c (FUNCTION_LIST): Conditionally add the SEAL
+	menu functions when configured with SEAL.
+
+	* menu/Makefile.am (Display.menu.include): New rule to create this
+	file from Display.menu.base, optionally applying patch
+	Display.menu.diff-seal when configured to use SEAL.
+
+	* callbacks/Makefile.am (libdummy_a_SOURCES): Replace obsolete
+	georges.c with new seal.cc.  The latter is compiled only if
+	--with-seal is specified at configure time.
 
 	* configure.in: Restore AM_PROG_LIBTOOL to link using libtool.
 	This obsoletes AC_PROG_RANLIB.
