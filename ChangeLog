@@ -1,3 +1,19 @@
+2001-07-24  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
+
+	* autogen.sh: Improved ordering; stop on error; use "aclocal -I m4".
+
+	* acinclude.m4: Remove.
+
+	* m4/smr_OPTIONAL_LIB.m4:
+	* m4/smr_REQUIRED_LIB.m4:
+	* m4/smr_WITH_BUILD_PATH.m4: New files.  These replace the old
+	smr_CHECK_LIB macro in acinclude.m4.
+
+	* configure.in: Use new macros.  Check for glut, GLU, and GL
+	libraries.
+
+	* Makefile.am: Link Display using GL_LIBS.
+
 2001-07-09  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
 
 	* acinclude.m4 (AC_HELP_STRING): Disable the too-clever

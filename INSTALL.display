@@ -1,5 +1,6 @@
 See INSTALL for generic installation instructions.
 
+
 		Required Libraries
 		------------------
 
@@ -16,12 +17,6 @@ of the following before continuing.
 * glut
 	see http://reality.sgi.com/opengl/glut3/
 
-
-		Missing X libraries?
-		--------------------
-
-Recent build on linux required adding -lXi -lXext -lXt
-to the link line.
 
 
 		Configuring Display
@@ -59,9 +54,6 @@ For example, if you need to look in /usr/local/lib as well as
 
 will do the trick.
 
-If you have a more complicated setup, and, e.g. need to choose among multiple
-installed versions of some library (it happens!), use the "--with-foo-library"
-and "--with-foo-includes" options.  See the output of "./configure --help".
 
 Good luck.
 
