@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.28 1997-01-06 14:50:45 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.29 1997-01-15 16:37:31 david Exp $";
 #endif
 
 #include  <display.h>
@@ -130,6 +130,67 @@ private  void   get_vertex_normal(
     }
 }
 
+private  int  determine_edge_index(
+    int                         x,
+    int                         y,
+    int                         z,
+    BOOLEAN                     inside[3][3][3] )
+{
+    int        dx, dy, dz, tx, ty, tz, corner_offset[N_DIMENSIONS];
+    int        xo, yo, zo;
+    BOOLEAN    connected[3][3][3];
+
+    if( !Duplicate_boundary_vertices )
+        return( 0 );
+
+    corner_offset[X] = x;
+    corner_offset[Y] = y;
+    corner_offset[Z] = z;
+
+    for_less( dx, 0, 3 )
+    for_less( dy, 0, 3 )
+    for_less( dz, 0, 3 )
+        connected[dx][dy][dz] = FALSE;
+    connected[1][1][1] = TRUE;
+
+    xo = (x == 0) ? 0 : 2;
+    yo = (y == 0) ? 0 : 2;
+    zo = (z == 0) ? 0 : 2;
+
+    if( inside[xo][1][1] )   connected[xo][1][1] = TRUE;
+    if( inside[1][yo][1] )   connected[1][yo][1] = TRUE;
+    if( inside[1][1][zo] )   connected[1][1][zo] = TRUE;
+    if( (connected[xo][1][1] || connected[1][yo][1]) && inside[xo][yo][1] )
+        connected[xo][yo][1] = TRUE;
+    if( (connected[xo][1][1] || connected[1][1][zo]) && inside[xo][1][zo] )
+        connected[xo][1][zo] = TRUE;
+    if( (connected[1][yo][1] || connected[1][1][zo]) && inside[1][yo][zo] )
+        connected[1][yo][zo] = TRUE;
+
+    if( (connected[xo][yo][1] || connected[xo][1][zo] || connected[1][yo][zo])
+        && inside[xo][yo][zo] )
+        connected[xo][yo][zo] = TRUE;
+
+    for_less( dx, 0, 2 )
+    for_less( dy, 0, 2 )
+    for_less( dz, 0, 2 )
+    {
+        tx = (dx == 0) ? MIN( 1, xo ) : MAX( 1, xo );
+        ty = (dy == 0) ? MIN( 1, yo ) : MAX( 1, yo );
+        tz = (dz == 0) ? MIN( 1, zo ) : MAX( 1, zo );
+
+        if( inside[tx][ty][tz] )
+        {
+            if( connected[tx][ty][tz] )
+                return( 0 );
+            else
+                return( 1 );
+        }
+    }
+
+    return( 0 );
+}
+
 private  void  add_face(
     surface_extraction_struct   *surface_extraction,
     Volume                      volume,
@@ -144,7 +205,7 @@ private  void  add_face(
     int                  a1, a2, point_index, ind, dim, start_index;
     int                  point_indices[4], x, y;
     int                  sizes[N_DIMENSIONS];
-    int                  corner_index[N_DIMENSIONS];
+    int                  corner_index[N_DIMENSIONS], edge_index;
     Real                 voxel[N_DIMENSIONS], xw, yw, zw;
     Real                 voxel_normal[N_DIMENSIONS], separations[N_DIMENSIONS];
     Point                point;
@@ -175,12 +236,17 @@ private  void  add_face(
         corner_index[a1] = x;
         corner_index[a2] = y;
 
+        edge_index = determine_edge_index( corner_index[0] - indices[0],
+                                           corner_index[1] - indices[1],
+                                           corner_index[2] - indices[2],
+                                           inside_flags );
+
         if( !lookup_edge_point_id( sizes,
                                    &surface_extraction->edge_points,
                                    corner_index[X],
                                    corner_index[Y],
                                    corner_index[Z],
-                                   0, &point_index ) )
+                                   edge_index, &point_index ) )
         {
             point_index = polygons->n_points;
 
@@ -188,7 +254,7 @@ private  void  add_face(
                                   corner_index[X],
                                   corner_index[Y],
                                   corner_index[Z],
-                                  0, point_index );
+                                  edge_index, point_index );
             voxel[X] = (Real) corner_index[X] - 0.5;
             voxel[Y] = (Real) corner_index[Y] - 0.5;
             voxel[Z] = (Real) corner_index[Z] - 0.5;
