@@ -59,7 +59,7 @@ private  DEF_EVENT_FUNCTION( handle_update_voxel )
     Boolean  mouse_moved();
     void     update_voxel_cursor();
 
-    if( mouse_moved(graphics) || graphics->update_required )
+    if( mouse_moved(graphics) || graphics_update_required( graphics ) )
     {
         update_voxel_cursor( graphics );
     }
@@ -70,45 +70,23 @@ private  DEF_EVENT_FUNCTION( handle_update_voxel )
 private  void  update_voxel_cursor( slice_window )
     graphics_struct   *slice_window;
 {
-    int               axis, indices[N_DIMENSIONS];
-    Point             new_origin;
-    void              get_voxel_centre();
-    Boolean           get_current_voxel();
-    graphics_struct   *graphics;
-    void              update_cursor();
-    void              rebuild_slice_pixels();
+    int               x, y, z, axis_index;
+    Boolean           get_voxel_in_slice_window();
+    Boolean           set_current_voxel();
+    Boolean           update_cursor_from_voxel();
+    void              set_update_required();
 
-    graphics = slice_window->associated[THREE_D_WINDOW];
-
-    if( get_current_voxel( slice_window,
-                           &indices[X_AXIS], &indices[Y_AXIS],
-                           &indices[Z_AXIS], &axis ) )
+    if( get_voxel_in_slice_window( slice_window, &x, &y, &z, &axis_index ) )
     {
-        get_voxel_centre( slice_window,
-                          indices[X_AXIS], indices[Y_AXIS], indices[Z_AXIS],
-                          &new_origin );
-
-        if( !EQUAL_POINTS( new_origin, graphics->three_d.cursor.origin ) )
+        if( set_current_voxel( slice_window, x, y, z ) )
         {
-            graphics->three_d.cursor.origin = new_origin;
-
-            update_cursor( graphics );
-
-            graphics->update_required = TRUE;
+            set_update_required( slice_window, NORMAL_PLANES );
         }
 
-        for_less( axis, 0, N_DIMENSIONS )
+        if( update_cursor_from_voxel( slice_window ) )
         {
-            if( indices[axis] !=
-                   slice_window->slice.slice_views[axis].slice_index )
-            {
-                slice_window->slice.slice_views[axis].slice_index =
-                                                             indices[axis];
-
-                rebuild_slice_pixels( slice_window, axis );
-
-                slice_window->update_required = TRUE;
-            }
+            set_update_required( slice_window->associated[THREE_D_WINDOW],
+                                 OVERLAY_PLANES );
         }
     }
 }

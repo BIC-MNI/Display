@@ -29,7 +29,6 @@ typedef  enum  { THREE_D_WINDOW,
                  N_WINDOW_TYPES }
                window_types;
 
-
 typedef  struct
 {
     cursor_struct              cursor;
@@ -63,7 +62,7 @@ typedef  struct  graphics_struct
 
 
     int                        frame_number;
-    Boolean                    update_required;
+    Boolean                    update_required[N_BITPLANE_TYPES];
     update_interrupted_struct  update_interrupted;
 
     viewport_picking_struct    viewport_picking;

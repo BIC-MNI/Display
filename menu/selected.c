@@ -66,6 +66,7 @@ public  void  rebuild_selected_list( graphics, menu_window )
     model_struct   *get_current_model();
     void           get_object_name();
     model_struct   *get_graphics_model();
+    void           set_update_required();
 
     model = get_graphics_model( menu_window, SELECTED_MODEL );
 
@@ -136,5 +137,5 @@ public  void  rebuild_selected_list( graphics, menu_window )
         }
     }
 
-    menu_window->update_required = TRUE;
+    set_update_required( menu_window, NORMAL_PLANES );
 }

@@ -147,18 +147,28 @@ typedef  long  Window_id;
 
 typedef  unsigned  long   Lcolour;
 
+typedef  enum  {
+                  NORMAL_PLANES,
+                  OVERLAY_PLANES,
+                  N_BITPLANE_TYPES } Bitplane_types;
+
 typedef  struct
 {
-    Window_id     window_id;
-    int           x_origin, y_origin;          
-    int           x_size, y_size;          
-    Lcolour       background_colour;
-    view_types    current_view_type;
-    Transform     projection_matrices[(int) N_VIEW_TYPES];
-    Transform     viewing_matrices[(int) N_VIEW_TYPES];
-    Boolean       this_frame_initialized;
+    Window_id       window_id;
+    int             x_origin, y_origin;          
+    int             x_size, y_size;          
+    Lcolour         background_colour;
+    view_types      current_view_type;
+    Transform       projection_matrices[(int) N_VIEW_TYPES];
+    Transform       viewing_matrices[(int) N_VIEW_TYPES];
+    Bitplane_types  current_bitplanes;
+    Boolean         bitplanes_cleared[N_BITPLANE_TYPES];
 } window_struct;
 
 #define  N_LIGHTS  8
+
+#define  NO_BELL       0
+#define  SHORT_BELL    1
+#define  LONG_BELL     2
 
 #endif

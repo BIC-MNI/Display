@@ -16,7 +16,7 @@ public  void  initialize_translation( graphics )
                                turn_off_translation );
 
     add_action_table_function( &graphics->action_table,
-                               LEFT_MOUSE_DOWN_EVENT,
+                               MIDDLE_MOUSE_DOWN_EVENT,
                                start_translation );
 }
 
@@ -29,7 +29,7 @@ private  DEF_EVENT_FUNCTION( turn_off_translation )
                                   TERMINATE_EVENT );
 
     remove_action_table_function( &graphics->action_table,
-                                  LEFT_MOUSE_DOWN_EVENT );
+                                  MIDDLE_MOUSE_DOWN_EVENT );
 
     return( OK );
 }
@@ -51,7 +51,7 @@ private  DEF_EVENT_FUNCTION( start_translation )
                                handle_mouse_movement );
 
     add_action_table_function( &graphics->action_table,
-                               LEFT_MOUSE_UP_EVENT,
+                               MIDDLE_MOUSE_UP_EVENT,
                                terminate_translation );
 
     add_action_table_function( &graphics->action_table,
@@ -72,7 +72,7 @@ private  DEF_EVENT_FUNCTION( terminate_translation )
 
     perform_translation( graphics );
 
-    if( graphics->update_required )
+    if( graphics_update_required( graphics ) )
     {
         update_view( graphics );
     }
@@ -82,7 +82,7 @@ private  DEF_EVENT_FUNCTION( terminate_translation )
     remove_action_table_function( &graphics->action_table,
                                   MOUSE_MOVEMENT_EVENT );
     remove_action_table_function( &graphics->action_table,
-                                  LEFT_MOUSE_UP_EVENT );
+                                  MIDDLE_MOUSE_UP_EVENT );
     remove_action_table_function( &graphics->action_table,
                                   TERMINATE_EVENT );
 
@@ -102,7 +102,7 @@ private  DEF_EVENT_FUNCTION( handle_update )      /* ARGSUSED */
 {
     void   update_view();
 
-    if( graphics->update_required )
+    if( graphics_update_required( graphics ) )
     {
         update_view( graphics );
     }
@@ -118,6 +118,7 @@ private  void  perform_translation( graphics )
     void           transform_model();
     void           get_screen_axes();
     void           make_translation_transform();
+    void           set_update_required();
 
     SUB_POINTS( delta, graphics->mouse_position,
                        graphics->prev_mouse_position );
@@ -133,7 +134,7 @@ private  void  perform_translation( graphics )
 
     transform_model( graphics, &transform );
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     graphics->prev_mouse_position = graphics->mouse_position;
 }

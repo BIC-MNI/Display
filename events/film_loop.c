@@ -74,6 +74,7 @@ private  DEF_EVENT_FUNCTION( check_updated )
     Status    save_image_to_file();
     void      display_next_frame();
     void      update_view();
+    void      set_update_required();
 
     status = OK;
 
@@ -95,7 +96,7 @@ private  DEF_EVENT_FUNCTION( check_updated )
 
                 update_view( graphics );
 
-                graphics->update_required = TRUE;
+                set_update_required( graphics, NORMAL_PLANES );
             }
             else
             {

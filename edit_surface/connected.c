@@ -56,6 +56,7 @@ private  DEF_EVENT_FUNCTION( pick_start_point )
     polygons_struct   *polygons, *edit_polygons;
     Point             intersection_point;
     void              remove_events();
+    void              set_update_required();
 
     remove_events( &graphics->action_table );
 
@@ -68,7 +69,7 @@ private  DEF_EVENT_FUNCTION( pick_start_point )
     {
         status = make_connected_invisible( polygons, poly_index );
 
-        graphics->update_required = TRUE;
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );

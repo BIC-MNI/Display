@@ -139,7 +139,7 @@ private  DEF_EVENT_FUNCTION( handle_mouse_movement )      /* ARGSUSED */
 private  void  perform_translation( graphics )
     graphics_struct  *graphics;
 {
-    int        axis_index, x1, y1, x2, y2, dx, dy;
+    int        view_index, x1, y1, x2, y2, dx, dy;
     Boolean    find_slice_view_mouse_is_in();
     void       get_mouse_in_pixels();
     void       set_slice_window_update();
@@ -147,17 +147,17 @@ private  void  perform_translation( graphics )
 
     get_mouse_in_pixels( graphics, &graphics->prev_mouse_position, &x1, &y1 );
 
-    if( find_slice_view_mouse_is_in( graphics, x1, y1, &axis_index ) )
+    if( find_slice_view_mouse_is_in( graphics, x1, y1, &view_index ) )
     {
         get_mouse_in_pixels( graphics, &graphics->mouse_position, &x2, &y2 );
 
         dx = x2 - x1;
         dy = y2 - y1;
 
-        graphics->slice.slice_views[axis_index].x_offset += dx;
-        graphics->slice.slice_views[axis_index].y_offset += dy;
+        graphics->slice.slice_views[view_index].x_offset += dx;
+        graphics->slice.slice_views[view_index].y_offset += dy;
 
-        set_slice_window_update( graphics, axis_index );
+        set_slice_window_update( graphics, view_index );
     }
 
     set_update_required( graphics, NORMAL_PLANES );

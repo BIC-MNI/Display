@@ -109,17 +109,19 @@ private  void  pick_point_under_mouse( graphics )
     int              poly_index;
     Boolean          set_current_voxel();
     void             update_cursor();
+    void             set_update_required();
 
     if( get_mouse_scene_intersection( graphics, &polygons, &poly_index,
                                       &intersection_point ) )
     {
         graphics->three_d.cursor.origin = intersection_point;
         update_cursor( graphics );
-        graphics->update_required = TRUE;
+        set_update_required( graphics, OVERLAY_PLANES );
 
         if( update_voxel_from_cursor( graphics->associated[SLICE_WINDOW] ) )
         {
-            graphics->associated[SLICE_WINDOW]->update_required = TRUE;
+            set_update_required( graphics->associated[SLICE_WINDOW],
+                                 NORMAL_PLANES );
         }
     }
 }

@@ -16,7 +16,7 @@ public  void  initialize_magnification( graphics )
                                turn_off_magnification );
 
     add_action_table_function( &graphics->action_table,
-                               LEFT_MOUSE_DOWN_EVENT,
+                               MIDDLE_MOUSE_DOWN_EVENT,
                                start_magnification );
 }
 
@@ -29,7 +29,7 @@ private  DEF_EVENT_FUNCTION( turn_off_magnification )
                                   TERMINATE_EVENT );
 
     remove_action_table_function( &graphics->action_table,
-                                  LEFT_MOUSE_DOWN_EVENT );
+                                  MIDDLE_MOUSE_DOWN_EVENT );
 
     return( OK );
 }
@@ -51,7 +51,7 @@ private  DEF_EVENT_FUNCTION( start_magnification )
                                handle_mouse_movement );
 
     add_action_table_function( &graphics->action_table,
-                               LEFT_MOUSE_UP_EVENT,
+                               MIDDLE_MOUSE_UP_EVENT,
                                terminate_magnification );
 
     add_action_table_function( &graphics->action_table,
@@ -72,7 +72,7 @@ private  DEF_EVENT_FUNCTION( terminate_magnification )
 
     perform_magnification( graphics );
 
-    if( graphics->update_required )
+    if( graphics_update_required( graphics ) )
     {
         update_view( graphics );
     }
@@ -82,7 +82,7 @@ private  DEF_EVENT_FUNCTION( terminate_magnification )
     remove_action_table_function( &graphics->action_table,
                                   MOUSE_MOVEMENT_EVENT );
     remove_action_table_function( &graphics->action_table,
-                                  LEFT_MOUSE_UP_EVENT );
+                                  MIDDLE_MOUSE_UP_EVENT );
     remove_action_table_function( &graphics->action_table,
                                   TERMINATE_EVENT );
 
@@ -102,7 +102,7 @@ private  DEF_EVENT_FUNCTION( handle_update )      /* ARGSUSED */
 {
     void   update_view();
 
-    if( graphics->update_required )
+    if( graphics_update_required( graphics ) )
     {
         update_view( graphics );
     }
@@ -115,6 +115,7 @@ private  void  perform_magnification( graphics )
 {
     Real      delta, factor;
     void      magnify_view_size();
+    void      set_update_required();
 
     delta = Point_x(graphics->mouse_position) -
             Point_x(graphics->prev_mouse_position);
@@ -123,7 +124,7 @@ private  void  perform_magnification( graphics )
 
     magnify_view_size( &graphics->three_d.view, factor );
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     graphics->prev_mouse_position = graphics->mouse_position;
 }

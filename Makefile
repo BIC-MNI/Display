@@ -1,6 +1,6 @@
 include ../C_dev/Makefile.include
 
-OPT = -O
+OPT = -g
 
 INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/yorick/usr/include
 
@@ -29,9 +29,9 @@ display_obj = \
            main/graphics.o \
            main/three_d.o \
            main/transforms.o \
-           $(graphics_obj) \
            callbacks/file.o \
            callbacks/globals.o \
+           $(graphics_obj) \
            callbacks/object_ops.o \
            callbacks/quit.o \
            callbacks/render_ops.o \
@@ -132,8 +132,10 @@ test: $(test_obj)
 lint_test: $(test_lint)
 	$(LINT) -u $(LINTFLAGS) $(test_lint)
 
-film_loop_obj = \
-                film_loop.o \
+# ---------------------------------------
+
+g_obj = \
+                graphics.o \
                 alloc.o \
                 files.o \
                 points.o \
@@ -144,13 +146,15 @@ film_loop_obj = \
                 random_order.o \
                 graphics_lib/GL_graphics.o
 
-film_loop_lint = $(film_loop_obj:.o=.ln)
+g_lint = $(g_obj:.o=.ln)
 
-film_loop: $(film_loop_obj)
-	$(CC) $(CFLAGS) $(film_loop_obj) -o $@ $(LIBS)
+graphics: $(g_obj)
+	$(CC) $(CFLAGS) $(g_obj) -o $@ $(LIBS)
 
-lint_film_loop: $(film_loop_lint)
-	$(LINT) -u $(LINTFLAGS) $(film_loop_lint)
+lint_graphics: $(g_lint)
+	$(LINT) -u $(LINTFLAGS) $(g_lint)
+
+# --------------------------------------
 
 bintree_obj = test_bintree.o \
               search_bintree.o \
@@ -192,17 +196,37 @@ lint_timing: $(timing_ln)
 # -------
 
 test_gl_obj = test_gl.c \
-              alloc.o \
-              colours.o \
-              files.o \
-              string.o \
-              time.o
+              alloc.c \
+              colours.c
 
 test_gl_ln = $(test_gl_obj)
 
 test_gl: $(test_gl_obj)
-	$(CC) -O $(INCLUDE) $(test_gl_obj) -o $@ $(LIBS)
+	$(CC) -g $(INCLUDE) $(test_gl_obj) -o $@ $(LIBS)
 
 
 lint_test_gl: $(test_gl_ln)
 	$(LINT) -u $(LINTFLAGS) $(test_gl_ln)
+
+# -------
+
+reassemble_obj = reassemble.c \
+                 alloc.c \
+                 bintree.c \
+                 build_bintree.c \
+                 files.c \
+                 object_io.c \
+                 points.c \
+                 polygons.c \
+                 progress.c \
+                 time.c \
+                 colours.c
+
+reassemble_ln = $(reassemble_obj)
+
+reassemble: $(reassemble_obj)
+	$(CC) -g $(INCLUDE) $(reassemble_obj) -o $@ $(LIBS)
+
+
+lint_reassemble: $(reassemble_ln)
+	$(LINT) -u $(LINTFLAGS) $(reassemble_ln)

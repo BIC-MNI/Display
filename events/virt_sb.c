@@ -76,12 +76,13 @@ private  void  update_rotation( graphics )
 {
     void      update_view();
     Boolean   perform_rotation();
+    void      set_update_required();
 
     if( perform_rotation( graphics ) )
     {
         update_view( graphics );
 
-        graphics->update_required = TRUE;
+        set_update_required( graphics, NORMAL_PLANES );
     }
 }
 
@@ -219,10 +220,17 @@ private  void  update_translation( graphics )
 {
     void      update_view();
     Boolean   perform_cursor_translation();
+    void      set_update_required();
 
     if( perform_cursor_translation( graphics ) )
     {
-        graphics->update_required = TRUE;
+        set_update_required( graphics, OVERLAY_PLANES );
+
+        if( update_voxel_from_cursor( graphics->associated[SLICE_WINDOW] ) )
+        {
+            set_update_required( graphics->associated[SLICE_WINDOW],
+                                 NORMAL_PLANES );
+        }
     }
 }
 
@@ -264,8 +272,8 @@ private  Boolean  perform_cursor_translation( graphics )
     Boolean      moved;
     Boolean      intersect_lines_3d();
     Real         mag_mouse, mag_axis[N_DIMENSIONS], dot_prod[N_DIMENSIONS];
-    Real         angle[N_DIMENSIONS], dist, mouse_dist, prev_mouse_dist;
-    Vector       axis_screen[N_DIMENSIONS], prev_offset;
+    Real         angle[N_DIMENSIONS], mouse_dist;
+    Vector       axis_screen[N_DIMENSIONS];
     void         transform_point_to_screen();
     void         convert_mouse_to_ray();
     void         transform_world_to_model();
@@ -344,12 +352,10 @@ private  Boolean  perform_cursor_translation( graphics )
     if( moved )
     {
         mouse_dist = dot_prod[best_axis] * mag_mouse;
-        SUB_POINTS( prev_offset, graphics->prev_mouse_position, cursor_screen );
-        prev_mouse_dist = DOT_VECTORS( prev_offset, axis_screen[best_axis] ) /
-                          mag_axis[best_axis];
-        dist = mouse_dist - prev_mouse_dist;
-        dist = mouse_dist;
-        SCALE_VECTOR( offset, axis_screen[best_axis], dist );
+
+        SCALE_VECTOR( offset, axis_screen[best_axis],
+                      mouse_dist / mag_axis[best_axis] );
+
         ADD_POINT_VECTOR( new_screen_origin, cursor_screen, offset );
 
         fill_Vector( axis_direction, 0.0, 0.0, 0.0 );
@@ -385,15 +391,22 @@ private  Boolean  mouse_close_to_cursor( graphics )
 {
     Boolean  close;
     void     transform_point_to_screen();
-    Point    cursor_screen;
+    Point    cursor_screen, cursor_pixels, mouse_pixels;
     Vector   diff_vector;
     Real     diff;
+    void     transform_screen_to_pixels();
 
     transform_point_to_screen( &graphics->three_d.view,
                                &graphics->three_d.cursor.origin,
                                &cursor_screen );
 
-    SUB_POINTS( diff_vector, cursor_screen, graphics->mouse_position );
+    transform_screen_to_pixels( &graphics->window,
+                                &cursor_screen, &cursor_pixels );
+
+    transform_screen_to_pixels( &graphics->window,
+                                &graphics->mouse_position, &mouse_pixels );
+
+    SUB_POINTS( diff_vector, cursor_pixels, mouse_pixels );
 
     diff = MAGNITUDE( diff_vector );
 

@@ -92,12 +92,13 @@ private  DEF_EVENT_FUNCTION( handle_resize_three_d )
 {
     void   adjust_view_for_aspect();
     void   update_view();
+    void   set_update_required();
 
     adjust_view_for_aspect( &graphics->three_d.view, &graphics->window );
 
     update_view( graphics );
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }

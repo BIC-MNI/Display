@@ -88,6 +88,7 @@ private  DEF_EVENT_FUNCTION( end_segmenting )
     Status   add_polygon_under_mouse();
     Boolean  segmented;
     void     remove_events();
+    void     set_update_required();
 
     remove_events( &graphics->action_table );
 
@@ -102,7 +103,7 @@ private  DEF_EVENT_FUNCTION( end_segmenting )
 
     if( segmented )
     {
-        graphics->update_required = TRUE;
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );

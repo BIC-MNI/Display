@@ -8,6 +8,7 @@ public  DEF_MENU_FUNCTION( make_view_fit )      /* ARGSUSED */
     void          fit_view_to_domain();
     Point         min_limit, max_limit;
     Boolean       get_range_of_object();
+    void          set_update_required();
 
     if( get_range_of_object( graphics->models[THREED_MODEL],
                               TRUE, &min_limit, &max_limit ) )
@@ -16,7 +17,7 @@ public  DEF_MENU_FUNCTION( make_view_fit )      /* ARGSUSED */
 
         update_view( graphics );
 
-        graphics->update_required = TRUE;
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( OK );
@@ -31,13 +32,14 @@ public  DEF_MENU_FUNCTION( reset_view )      /* ARGSUSED */
 {
     void  update_view();
     void  reset_view_parameters();
+    void  set_update_required();
 
     reset_view_parameters( graphics,
                            &Default_line_of_sight, &Default_horizontal );
 
     update_view( graphics );
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -51,14 +53,15 @@ public  DEF_MENU_FUNCTION( top_view )      /* ARGSUSED */
 {
     static  Vector   line_of_sight = { 0.0, 0.0, -1.0 };
     static  Vector   horizontal = { 1.0, 0.0, 0.0 };
-    void  update_view();
-    void  reset_view_parameters();
+    void             update_view();
+    void             reset_view_parameters();
+    void             set_update_required();
 
     reset_view_parameters( graphics, &line_of_sight, &horizontal );
 
     update_view( graphics );
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -72,14 +75,15 @@ public  DEF_MENU_FUNCTION( bottom_view )      /* ARGSUSED */
 {
     static  Vector   line_of_sight = { 0.0, 0.0, 1.0 };
     static  Vector   horizontal = { -1.0, 0.0, 0.0 };
-    void  update_view();
-    void  reset_view_parameters();
+    void             update_view();
+    void             reset_view_parameters();
+    void             set_update_required();
 
     reset_view_parameters( graphics, &line_of_sight, &horizontal );
 
     update_view( graphics );
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -93,14 +97,15 @@ public  DEF_MENU_FUNCTION( front_view )      /* ARGSUSED */
 {
     static  Vector   line_of_sight = { 0.0, -1.0, 0.0 };
     static  Vector   horizontal = { 1.0, 0.0, 0.0 };
-    void  update_view();
-    void  reset_view_parameters();
+    void             update_view();
+    void             reset_view_parameters();
+    void             set_update_required();
 
     reset_view_parameters( graphics, &line_of_sight, &horizontal );
 
     update_view( graphics );
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -114,14 +119,15 @@ public  DEF_MENU_FUNCTION( back_view )      /* ARGSUSED */
 {
     static  Vector   line_of_sight = { 0.0, 1.0, 0.0 };
     static  Vector   horizontal = { -1.0, 0.0, 0.0 };
-    void  update_view();
-    void  reset_view_parameters();
+    void             update_view();
+    void             reset_view_parameters();
+    void             set_update_required();
 
     reset_view_parameters( graphics, &line_of_sight, &horizontal );
 
     update_view( graphics );
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -135,14 +141,15 @@ public  DEF_MENU_FUNCTION( left_view )      /* ARGSUSED */
 {
     static  Vector   line_of_sight = { 1.0, 0.0, 0.0 };
     static  Vector   horizontal = { 0.0, -1.0, 0.0 };
-    void  update_view();
-    void  reset_view_parameters();
+    void             update_view();
+    void             reset_view_parameters();
+    void             set_update_required();
 
     reset_view_parameters( graphics, &line_of_sight, &horizontal );
 
     update_view( graphics );
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -156,14 +163,15 @@ public  DEF_MENU_FUNCTION( right_view )      /* ARGSUSED */
 {
     static  Vector   line_of_sight = { -1.0, 0.0, 0.0 };
     static  Vector   horizontal = { 0.0, 1.0, 0.0 };
-    void  update_view();
-    void  reset_view_parameters();
+    void             update_view();
+    void             reset_view_parameters();
+    void             set_update_required();
 
     reset_view_parameters( graphics, &line_of_sight, &horizontal );
 
     update_view( graphics );
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -176,13 +184,14 @@ public  DEF_MENU_UPDATE(right_view )      /* ARGSUSED */
 public  DEF_MENU_FUNCTION( toggle_perspective )      /* ARGSUSED */
 {
     void  update_view();
+    void  set_update_required();
 
     graphics->three_d.view.perspective_flag =
          !graphics->three_d.view.perspective_flag;
 
     update_view( graphics );
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -190,11 +199,12 @@ public  DEF_MENU_FUNCTION( toggle_perspective )      /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_perspective )      /* ARGSUSED */
 {
     void  set_text_boolean();
+    void  set_update_required();
 
     set_text_boolean( format, text, graphics->three_d.view.perspective_flag,
                       "Parallel", "Perspective" );
 
-    menu_window->update_required = TRUE;
+    set_update_required( menu_window, NORMAL_PLANES );
 
     return( OK );
 }

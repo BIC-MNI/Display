@@ -266,11 +266,12 @@ private  Status  initialize_graphics_window( graphics )
             if( graphics->window_type == THREE_D_WINDOW &&
                 i == CURSOR_MODEL )
             {
-                model->overlay_flag = TRUE;
+                model->bitplanes = NORMAL_PLANES;
+                model->bitplanes = OVERLAY_PLANES;
             }
             else
             {
-                model->overlay_flag = FALSE;
+                model->bitplanes = NORMAL_PLANES;
             }
 
             model->n_objects = 0;
@@ -351,6 +352,54 @@ public  void  update_graphics( graphics, interrupt )
     graphics_struct              *graphics;
     update_interrupted_struct    *interrupt;
 {
+    void   update_graphics_normal_planes_only();
+    void   update_graphics_overlay_planes_only();
+
+    if( interrupt->last_was_interrupted ||
+        graphics->update_required[NORMAL_PLANES] )
+    {
+        update_graphics_normal_planes_only( graphics, interrupt );
+
+        update_graphics_overlay_planes_only( graphics,
+                                             !interrupt->current_interrupted );
+    }
+    else if( graphics->update_required[OVERLAY_PLANES] )
+    {
+        update_graphics_overlay_planes_only( graphics, TRUE );
+    }
+}
+
+private  void  update_graphics_overlay_planes_only( graphics, display_flag )
+    graphics_struct      *graphics;
+    Boolean              display_flag;
+{
+    int           i;
+    void          display_objects();
+    void          G_set_bitplanes();
+    void          G_update_window();
+
+    G_set_bitplanes( &graphics->window, OVERLAY_PLANES );
+
+    if( display_flag )
+    {
+        for_less( i, 0, N_MODELS )
+        {
+            display_objects( &graphics->window, graphics->models[i],
+                             (update_interrupted_struct *) 0, OVERLAY_PLANES );
+        }
+    }
+
+    G_update_window( &graphics->window );
+
+    G_set_bitplanes( &graphics->window, NORMAL_PLANES );
+
+    graphics->update_required[OVERLAY_PLANES] = FALSE;
+}
+
+private  void  update_graphics_normal_planes_only( graphics, interrupt )
+    graphics_struct              *graphics;
+    update_interrupted_struct    *interrupt;
+{
     int           i;
     void          G_update_window();
     void          G_append_to_last_update();
@@ -361,14 +410,14 @@ public  void  update_graphics( graphics, interrupt )
     Real          start, end;
     Real          current_realtime_seconds();
 
-    if( graphics->window_type == SLICE_WINDOW )
-    {
-        update_slice_window( graphics );
-    }
-
     if( interrupt->last_was_interrupted )
     {
         G_append_to_last_update( &graphics->window );
+    }
+
+    if( graphics->window_type == SLICE_WINDOW )
+    {
+        update_slice_window( graphics );
     }
 
     start = current_realtime_seconds();
@@ -380,7 +429,7 @@ public  void  update_graphics( graphics, interrupt )
     for_less( i, 0, N_MODELS )
     {
         display_objects( &graphics->window, graphics->models[i],
-                         interrupt );
+                         interrupt, NORMAL_PLANES );
 
         if( interrupt->current_interrupted )
         {

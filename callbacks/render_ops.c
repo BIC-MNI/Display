@@ -1,58 +1,64 @@
 
 #include  <def_graphics.h>
 
-private  model_struct  *get_relevant_model( graphics )
+private  object_struct  *get_model_object( graphics )
     graphics_struct   *graphics;
 {
-    object_struct   *current_object;
-    object_struct   *get_current_object();
-    model_struct    *get_current_model();
-    model_struct    *model;
+    object_struct    *current_object;
+    Boolean          get_current_object();
+    object_struct    *get_current_model_object();
 
-    current_object = get_current_object( graphics );
-
-    if( current_object != (object_struct *) 0 &&
-        current_object->object_type == MODEL )
+    if( !get_current_object( graphics, &current_object ) ||
+        current_object->object_type != MODEL )
     {
-        model = current_object->ptr.model;
-    }
-    else
-    {
-        model = get_current_model( graphics );
+        current_object = get_current_model_object( graphics );
     }
 
-    return( model );
+    return( current_object );
 }
 
 public  DEF_MENU_FUNCTION( toggle_render_mode )  /* ARGSUSED */
 {
-    model_struct   *get_relevant_model();
-    model_struct   *model;
+    Status          status;
+    object_struct   *get_model_object();
+    object_struct   *model_object;
+    render_modes    new_render_mode;
+    void            set_update_required();
 
-    model = get_relevant_model( graphics );
+    model_object = get_model_object( graphics );
 
-    if( model->render.render_mode == WIREFRAME_MODE )
+    if( model_object->ptr.model->render.render_mode == WIREFRAME_MODE )
     {
-        model->render.render_mode = SHADED_MODE;
+        new_render_mode = SHADED_MODE;
     }
     else
     {
-        model->render.render_mode = WIREFRAME_MODE;
+        new_render_mode = WIREFRAME_MODE;
     }
 
-    graphics->update_required = TRUE;
+    BEGIN_TRAVERSE_OBJECT( status, model_object )
+
+        if( OBJECT->object_type == MODEL )
+        {
+            OBJECT->ptr.model->render.render_mode = new_render_mode;
+        }
+
+    END_TRAVERSE_OBJECT
+
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
 
 public  DEF_MENU_UPDATE(toggle_render_mode )  /* ARGSUSED */
 {
-    model_struct   *get_relevant_model();
-    model_struct   *model;
+    object_struct   *get_model_object();
+    object_struct   *model_object;
+    void            set_update_required();
 
-    model = get_relevant_model( graphics );
+    model_object = get_model_object( graphics );
 
-    switch( model->render.render_mode )
+    switch( model_object->ptr.model->render.render_mode )
     {
     case WIREFRAME_MODE:
         (void) sprintf( text, format, "Wireframe" );
@@ -63,7 +69,7 @@ public  DEF_MENU_UPDATE(toggle_render_mode )  /* ARGSUSED */
         break;
     }
 
-    menu_window->update_required = TRUE;
+    set_update_required( menu_window, NORMAL_PLANES );
 
     return( OK );
 }
@@ -71,33 +77,46 @@ public  DEF_MENU_UPDATE(toggle_render_mode )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_shading )  /* ARGSUSED */
 {
-    model_struct   *get_relevant_model();
-    model_struct   *model;
+    Status          status;
+    object_struct   *get_model_object();
+    object_struct   *model_object;
+    shading_types   new_shading_type;
+    void            set_update_required();
 
-    model = get_relevant_model( graphics );
+    model_object = get_model_object( graphics );
 
-    if( model->render.shading_type == FLAT_SHADING )
+    if( model_object->ptr.model->render.shading_type == FLAT_SHADING )
     {
-        model->render.shading_type = GOURAUD_SHADING;
+        new_shading_type = GOURAUD_SHADING;
     }
     else
     {
-        model->render.shading_type = FLAT_SHADING;
+        new_shading_type = FLAT_SHADING;
     }
 
-    graphics->update_required = TRUE;
+    BEGIN_TRAVERSE_OBJECT( status, model_object )
+
+        if( OBJECT->object_type == MODEL )
+        {
+            OBJECT->ptr.model->render.shading_type = new_shading_type;
+        }
+
+    END_TRAVERSE_OBJECT
+
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
 
 public  DEF_MENU_UPDATE(toggle_shading )  /* ARGSUSED */
 {
-    model_struct   *get_relevant_model();
-    model_struct   *model;
+    object_struct   *get_model_object();
+    object_struct   *model_object;
+    void            set_update_required();
 
-    model = get_relevant_model( graphics );
+    model_object = get_model_object( graphics );
 
-    switch( model->render.shading_type )
+    switch( model_object->ptr.model->render.shading_type )
     {
     case FLAT_SHADING:
         (void) sprintf( text, format, "Flat" );
@@ -108,95 +127,136 @@ public  DEF_MENU_UPDATE(toggle_shading )  /* ARGSUSED */
         break;
     }
 
-    menu_window->update_required = TRUE;
+    set_update_required( menu_window, NORMAL_PLANES );
 
     return( OK );
 }
 
 public  DEF_MENU_FUNCTION( toggle_lights )  /* ARGSUSED */
 {
-    model_struct   *get_relevant_model();
-    model_struct   *model;
+    Status          status;
+    object_struct   *get_model_object();
+    object_struct   *model_object;
+    Boolean         new_light_switch;
+    void            set_update_required();
 
-    model = get_relevant_model( graphics );
+    model_object = get_model_object( graphics );
 
-    model->render.master_light_switch = !model->render.master_light_switch;
+    new_light_switch = !model_object->ptr.model->render.master_light_switch;
 
-    graphics->update_required = TRUE;
+    BEGIN_TRAVERSE_OBJECT( status, model_object )
+
+        if( OBJECT->object_type == MODEL )
+        {
+            OBJECT->ptr.model->render.master_light_switch = new_light_switch;
+        }
+
+    END_TRAVERSE_OBJECT
+
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
 
 public  DEF_MENU_UPDATE(toggle_lights )  /* ARGSUSED */
 {
-    void           set_text_on_off();
-    model_struct   *get_relevant_model();
-    model_struct   *model;
+    void            set_text_on_off();
+    object_struct   *get_model_object();
+    object_struct   *model_object;
+    void            set_update_required();
 
-    model = get_relevant_model( graphics );
+    model_object = get_model_object( graphics );
 
-    set_text_on_off( format, text, model->render.master_light_switch );
+    set_text_on_off( format, text,
+                     model_object->ptr.model->render.master_light_switch );
 
-    menu_window->update_required = TRUE;
+    set_update_required( menu_window, NORMAL_PLANES );
 
     return( OK );
 }
 
 public  DEF_MENU_FUNCTION( toggle_two_sided )  /* ARGSUSED */
 {
-    model_struct   *get_relevant_model();
-    model_struct   *model;
+    Status          status;
+    object_struct   *get_model_object();
+    object_struct   *model_object;
+    Boolean         new_flag;
+    void            set_update_required();
 
-    model = get_relevant_model( graphics );
+    model_object = get_model_object( graphics );
 
-    model->render.two_sided_surface_flag = 
-                  !model->render.two_sided_surface_flag;
+    new_flag = !model_object->ptr.model->render.two_sided_surface_flag;
 
-    graphics->update_required = TRUE;
+    BEGIN_TRAVERSE_OBJECT( status, model_object )
+
+        if( OBJECT->object_type == MODEL )
+        {
+            OBJECT->ptr.model->render.two_sided_surface_flag = new_flag;
+        }
+
+    END_TRAVERSE_OBJECT
+
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
 
 public  DEF_MENU_UPDATE(toggle_two_sided )  /* ARGSUSED */
 {
-    void           set_text_on_off();
-    model_struct   *get_relevant_model();
-    model_struct   *model;
+    void            set_text_on_off();
+    object_struct   *get_model_object();
+    object_struct   *model_object;
+    void            set_update_required();
 
-    model = get_relevant_model( graphics );
+    model_object = get_model_object( graphics );
 
-    set_text_on_off( format, text, model->render.two_sided_surface_flag );
+    set_text_on_off( format, text,
+                     model_object->ptr.model->render.two_sided_surface_flag );
 
-    menu_window->update_required = TRUE;
+    set_update_required( menu_window, NORMAL_PLANES );
 
     return( OK );
 }
 
 public  DEF_MENU_FUNCTION( toggle_backfacing )  /* ARGSUSED */
 {
-    model_struct   *get_relevant_model();
-    model_struct   *model;
+    Status          status;
+    object_struct   *get_model_object();
+    object_struct   *model_object;
+    Boolean         new_flag;
+    void            set_update_required();
 
-    model = get_relevant_model( graphics );
+    model_object = get_model_object( graphics );
 
-    model->render.backface_flag = !model->render.backface_flag;
+    new_flag = !model_object->ptr.model->render.backface_flag;
 
-    graphics->update_required = TRUE;
+    BEGIN_TRAVERSE_OBJECT( status, model_object )
+
+        if( OBJECT->object_type == MODEL )
+        {
+            OBJECT->ptr.model->render.backface_flag = new_flag;
+        }
+
+    END_TRAVERSE_OBJECT
+
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
 
 public  DEF_MENU_UPDATE(toggle_backfacing )  /* ARGSUSED */
 {
-    void           set_text_on_off();
-    model_struct   *get_relevant_model();
-    model_struct   *model;
+    void            set_text_on_off();
+    object_struct   *get_model_object();
+    object_struct   *model_object;
+    void            set_update_required();
 
-    model = get_relevant_model( graphics );
+    model_object = get_model_object( graphics );
 
-    set_text_on_off( format, text, model->render.backface_flag );
+    set_text_on_off( format, text,
+                     model_object->ptr.model->render.backface_flag );
 
-    menu_window->update_required = TRUE;
+    set_update_required( menu_window, NORMAL_PLANES );
 
     return( OK );
 }

@@ -66,10 +66,11 @@ public  DEF_MENU_UPDATE(start_segmenting_surface )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( reset_polygon_visibility )   /* ARGSUSED */
 {
     void   reset_edited_polygons();
+    void   set_update_required();
 
     reset_edited_polygons( &graphics->three_d.surface_edit );
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }

@@ -62,6 +62,18 @@ public  Status  rebuild_cursor_icon( graphics )
     return( status );
 }
 
+public  void  update_cursor_colour( graphics, colour )
+    graphics_struct  *graphics;
+    Colour           *colour;
+{
+    model_struct    *model;
+    model_struct    *get_graphics_model();
+
+    model = get_graphics_model( graphics, CURSOR_MODEL );
+
+    model->object_list[BOX_INDEX]->ptr.lines->colour = *colour;
+}
+
 private  Status   create_box( object )
     object_struct  **object;
 {

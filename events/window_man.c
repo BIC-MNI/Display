@@ -17,7 +17,9 @@ public  void  initialize_window_events( graphics )
 private  DEF_EVENT_FUNCTION( handle_redraw )
     /* ARGSUSED */
 {
-    graphics->update_required = TRUE;
+    void     set_update_required();
+
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -26,10 +28,11 @@ private  DEF_EVENT_FUNCTION( handle_resize )
     /* ARGSUSED */
 {
     void   G_update_window_size();
+    void   set_update_required();
 
     G_update_window_size( &graphics->window );
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }

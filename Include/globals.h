@@ -9,7 +9,8 @@ START_GLOBALS
     DEF_GLOBAL( Progress_threshold, int, 1000 )
 
     DEF_GLOBAL( Maximum_display_time, Real, 0.5 )
-    DEF_GLOBAL( Event_timeout, Real, 0.1 )
+    DEF_GLOBAL( Event_timeout_min, Real, 0.1 )
+    DEF_GLOBAL( Event_timeout_factor, Real, 0.5 )
     DEF_GLOBAL( Size_of_interrupted, int, 1000 )
     DEF_GLOBAL( Interval_of_check, int, 100 )
 
@@ -68,6 +69,9 @@ START_GLOBALS
     DEF_GLOBAL( Slice_divider_bottom, int, 25 )
     DEF_GLOBAL( Slice_text_colour, Colour, 0.0 )
     DEF_GLOBAL( Slice_index_offset, Point, 0.0 )
+    DEF_GLOBAL( Top_left_index, int, 0 )
+    DEF_GLOBAL( Top_right_index, int, 1 )
+    DEF_GLOBAL( Bottom_left_index, int, 2 )
     DEF_GLOBAL_STRING( Slice_index_x_format, "" )
     DEF_GLOBAL_STRING( Slice_index_y_format, "" )
     DEF_GLOBAL_STRING( Slice_index_z_format, "" )
@@ -114,6 +118,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Normal_towards_lower, Boolean, TRUE )
 
+    DEF_GLOBAL( Display_activities, Boolean, FALSE )
     DEF_GLOBAL( Inactive_voxel_colour, Colour, 0.0 )
     DEF_GLOBAL( Inactive_and_not_active_voxel_colour, Colour, 0.0 )
     DEF_GLOBAL( Not_active_voxel_colour, Colour, 0.0 )

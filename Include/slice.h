@@ -8,10 +8,10 @@
 
 typedef  struct
 {
-    int    slice_index;
-    int    x_offset, y_offset;
-    Real   x_scale, y_scale;
-
+    int       axis_index;
+    int       x_offset, y_offset;
+    Real      x_scale, y_scale;
+    Boolean   update_flag;
 } slice_view_struct;
 
 
@@ -22,6 +22,7 @@ typedef  struct
 
     int                    x_split, y_split;
 
+    int                    slice_index[N_DIMENSIONS];
     slice_view_struct      slice_views[3];
 
     int                    *temporary_indices;

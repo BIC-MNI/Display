@@ -98,6 +98,7 @@ public  Status  initialize_menu( graphics )
     Status               read_menu();
     Status               build_menu();
     int                  ch;
+    void                 set_update_required();
 
     menu = &graphics->menu;
 
@@ -118,7 +119,7 @@ public  Status  initialize_menu( graphics )
 
         add_menu_actions( menu, &menu->entries[0] );
 
-        graphics->update_required = TRUE;
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -201,6 +202,7 @@ public  Status  update_menu_text( graphics, menu_entry )
 public  DEF_MENU_FUNCTION( push_menu )      /* ARGSUSED */
 {
     Status   status;
+    void     set_update_required();
 
     status = OK;
 
@@ -224,7 +226,7 @@ public  DEF_MENU_FUNCTION( push_menu )      /* ARGSUSED */
 
         add_menu_actions( &menu_window->menu, menu_entry );
 
-        menu_window->update_required = TRUE;
+        set_update_required( menu_window, NORMAL_PLANES );
     }
 
     return( status );
@@ -237,6 +239,8 @@ public  DEF_MENU_UPDATE(push_menu )      /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( pop_menu )      /* ARGSUSED */
 {
+    void    set_update_required();
+
     if( menu_window->menu.depth > 0 )
     {
         remove_menu_actions( &menu_window->menu,
@@ -247,7 +251,7 @@ public  DEF_MENU_FUNCTION( pop_menu )      /* ARGSUSED */
         add_menu_actions( &menu_window->menu,
                           menu_window->menu.stack[menu_window->menu.depth] );
 
-        menu_window->update_required = TRUE;
+        set_update_required( menu_window, NORMAL_PLANES );
     }
 
     return( OK );

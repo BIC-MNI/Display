@@ -272,7 +272,7 @@ public  DEF_MENU_FUNCTION(double_slice_voxels)   /* ARGSUSED */
     volume_struct    *volume;
     graphics_struct  *slice_window;
     Point            *mouse;
-    int              x, y, axis_index;
+    int              x, y, view_index;
     void             get_mouse_in_pixels();
     Boolean          find_slice_view_mouse_is_in();
     void             set_slice_window_update();
@@ -288,11 +288,11 @@ public  DEF_MENU_FUNCTION(double_slice_voxels)   /* ARGSUSED */
 
         get_mouse_in_pixels( slice_window, mouse, &x, &y );
 
-        if( find_slice_view_mouse_is_in( slice_window, x, y, &axis_index ) )
+        if( find_slice_view_mouse_is_in( slice_window, x, y, &view_index ) )
         {
-            slice_window->slice.slice_views[axis_index].x_scale *= 2.0;
-            slice_window->slice.slice_views[axis_index].y_scale *= 2.0;
-            set_slice_window_update( slice_window, axis_index );
+            slice_window->slice.slice_views[view_index].x_scale *= 2.0;
+            slice_window->slice.slice_views[view_index].y_scale *= 2.0;
+            set_slice_window_update( slice_window, view_index );
             set_update_required( slice_window, NORMAL_PLANES );
         }
     }
@@ -311,7 +311,7 @@ public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
     volume_struct    *volume;
     graphics_struct  *slice_window;
     Point            *mouse;
-    int              x, y, axis_index;
+    int              x, y, view_index;
     void             get_mouse_in_pixels();
     Boolean          find_slice_view_mouse_is_in();
     void             set_slice_window_update();
@@ -327,11 +327,11 @@ public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
 
         get_mouse_in_pixels( slice_window, mouse, &x, &y );
 
-        if( find_slice_view_mouse_is_in( slice_window, x, y, &axis_index ) )
+        if( find_slice_view_mouse_is_in( slice_window, x, y, &view_index ) )
         {
-            slice_window->slice.slice_views[axis_index].x_scale *= 0.5;
-            slice_window->slice.slice_views[axis_index].y_scale *= 0.5;
-            set_slice_window_update( slice_window, axis_index );
+            slice_window->slice.slice_views[view_index].x_scale *= 0.5;
+            slice_window->slice.slice_views[view_index].y_scale *= 0.5;
+            set_slice_window_update( slice_window, view_index );
             set_update_required( slice_window, NORMAL_PLANES );
         }
     }

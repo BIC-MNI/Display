@@ -8,19 +8,27 @@ public  Status   main_event_loop()
     Status   process_events();
     Status   process_no_events_for_all_windows();
     void     update_all_required_windows();
+    Real     update_time;
+    Real     current_realtime_seconds();
 
     status = OK;
 
+    update_time = 0.0;
+
     while( status != QUIT )
     {
-        status = process_events();
+        status = process_events( update_time );
 
         if( status != QUIT )
         {
             status = process_no_events_for_all_windows();
         }
 
+        update_time = current_realtime_seconds();
+
         update_all_required_windows();
+
+        update_time = current_realtime_seconds() - update_time;
     }
 
     return( OK );
@@ -29,7 +37,7 @@ public  Status   main_event_loop()
 public  Boolean  window_is_up_to_date( graphics )
     graphics_struct   *graphics;
 {
-    return( !graphics->update_required &&
+    return( !graphics_update_required( graphics ) &&
             !graphics->update_interrupted.last_was_interrupted );
 }
 
@@ -44,7 +52,7 @@ private  void  update_all_required_windows()
 
     for_less( i, 0, n_windows )
     {
-        if( windows[i]->update_required )
+        if( graphics_update_required( windows[i] ) )
         {
             windows[i]->update_interrupted.last_was_interrupted = FALSE;
         }
@@ -79,12 +87,13 @@ private  Status  process_no_events_for_all_windows()
     return( status );
 }
 
-Status  process_events()
+Status  process_events( update_time )
+    Real   update_time;
 {
     Status            status;
     Status            perform_action();
     Real              current_realtime_seconds();
-    Real              stop_time;
+    Real              stop_time, event_time;
     event_struct      event;
     graphics_struct   *graphics;
     graphics_struct   *lookup_window();
@@ -92,7 +101,14 @@ Status  process_events()
 
     status = OK;
 
-    stop_time = current_realtime_seconds() + Event_timeout;
+    event_time = update_time * Event_timeout_factor;
+
+    if( event_time < Event_timeout_min )
+    {
+        event_time = Event_timeout_min;
+    }
+
+    stop_time = current_realtime_seconds() + event_time;
 
     do
     {
