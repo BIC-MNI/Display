@@ -1,13 +1,17 @@
 
 #include  <def_graphics.h>
 
-public  void  initialize_translation( action_table )
-    action_table_struct  *action_table;
+public  void  initialize_translation( graphics )
+    graphics_struct  *graphics;
 {
     DECL_EVENT_FUNCTION( start_translation );
     void                 install_action_table_function();
+    void                 terminate_any_interactions();
 
-    install_action_table_function( action_table, LEFT_MOUSE_DOWN_EVENT,
+    terminate_any_interactions( graphics );
+
+    install_action_table_function( &graphics->action_table,
+                                   LEFT_MOUSE_DOWN_EVENT,
                                    start_translation );
 }
 
@@ -29,6 +33,10 @@ private  DEF_EVENT_FUNCTION( start_translation )
 
     add_action_table_function( &graphics->action_table,
                                LEFT_MOUSE_UP_EVENT,
+                               terminate_translation );
+
+    add_action_table_function( &graphics->action_table,
+                               TERMINATE_EVENT,
                                terminate_translation );
 
     graphics->prev_mouse_position = graphics->mouse_position;
@@ -56,6 +64,8 @@ private  DEF_EVENT_FUNCTION( terminate_translation )
                                   MOUSE_MOVEMENT_EVENT );
     remove_action_table_function( &graphics->action_table,
                                   LEFT_MOUSE_UP_EVENT );
+    remove_action_table_function( &graphics->action_table,
+                                  TERMINATE_EVENT );
 
     return( OK );
 }
@@ -93,7 +103,7 @@ private  void  perform_translation( graphics )
     SUB_POINTS( delta, graphics->mouse_position,
                        graphics->prev_mouse_position );
 
-    get_screen_axes( &graphics->view, &hor, &vert );
+    get_screen_axes( &graphics->three_d.view, &hor, &vert );
 
     SCALE_VECTOR( hor, hor, Point_x(delta) );
     SCALE_VECTOR( vert, vert, Point_y(delta) );

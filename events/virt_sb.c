@@ -1,13 +1,17 @@
 
 #include  <def_graphics.h>
 
-public  void  initialize_virtual_spaceball( action_table )
-    action_table_struct  *action_table;
+public  void  initialize_virtual_spaceball( graphics )
+    graphics_struct  *graphics;
 {
     DECL_EVENT_FUNCTION( start_virtual_spaceball );
     void                 install_action_table_function();
+    void                 terminate_any_interactions();
 
-    install_action_table_function( action_table, LEFT_MOUSE_DOWN_EVENT,
+    terminate_any_interactions( graphics );
+
+    install_action_table_function( &graphics->action_table,
+                                   LEFT_MOUSE_DOWN_EVENT,
                                    start_virtual_spaceball );
 }
 
@@ -29,6 +33,10 @@ private  DEF_EVENT_FUNCTION( start_virtual_spaceball )
 
     add_action_table_function( &graphics->action_table,
                                LEFT_MOUSE_UP_EVENT,
+                               terminate_virtual_spaceball );
+
+    add_action_table_function( &graphics->action_table,
+                               TERMINATE_EVENT,
                                terminate_virtual_spaceball );
 
     graphics->prev_mouse_position = graphics->mouse_position;
@@ -56,6 +64,8 @@ private  DEF_EVENT_FUNCTION( terminate_virtual_spaceball )
                                   MOUSE_MOVEMENT_EVENT );
     remove_action_table_function( &graphics->action_table,
                                   LEFT_MOUSE_UP_EVENT );
+    remove_action_table_function( &graphics->action_table,
+                                  TERMINATE_EVENT );
 
     return( OK );
 }
@@ -188,12 +198,12 @@ private  void  apply_transform( graphics, transform )
     void    get_view_centre();
     void    transform_model();
 
-    get_view_z_axis( &graphics->view, &z_axis );
-    get_view_centre( &graphics->view, &centre );
+    get_view_z_axis( &graphics->three_d.view, &z_axis );
+    get_view_centre( &graphics->three_d.view, &centre );
 
     make_transform_in_coordinate_system( &centre,
-                                         &graphics->view.x_axis,
-                                         &graphics->view.y_axis,
+                                         &graphics->three_d.view.x_axis,
+                                         &graphics->three_d.view.y_axis,
                                          &z_axis,
                                          transform, transform );
 

@@ -148,9 +148,9 @@ private  DEF_EVENT_FUNCTION( done_picking_viewport )
                      &graphics->mouse_position,
                      &x_min, &y_min, &x_max, &y_max );
 
-    set_view_rectangle( &graphics->view, x_min, x_max, y_min, y_max );
+    set_view_rectangle( &graphics->three_d.view, x_min, x_max, y_min, y_max );
 
-    adjust_view_for_aspect( &graphics->view, &graphics->window );
+    adjust_view_for_aspect( &graphics->three_d.view, &graphics->window );
 
     update_view( graphics );
 
