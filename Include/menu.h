@@ -11,8 +11,7 @@ typedef  menu_function_type  (*menu_function_pointer);
 #define  DEF_MENU_FUNCTION( m )  Status m( graphics, menu_window, menu_entry ) \
                                                graphics_struct   *graphics; \
                                                graphics_struct   *menu_window; \
-                                               menu_entry_struct *menu_entry; \
-                                                /* ARGSUSED */
+                                               menu_entry_struct *menu_entry;
 
 #define  MAX_MENU_CHILDREN    15
 
@@ -22,6 +21,7 @@ typedef  struct  menu_entry_struct
     Boolean                     permanent_flag;
     char                        key;
     String                      label;
+    int                         current_depth;
     int                         n_children;
     struct  menu_entry_struct   *children[MAX_MENU_CHILDREN];
     menu_function_pointer       action;
