@@ -398,3 +398,33 @@ public  DEF_MENU_UPDATE(invert_activity )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION(reset_3d_segmenting)   /* ARGSUSED */
+{
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window) )
+        restart_segmenting_3d( slice_window );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(reset_3d_segmenting )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(do_3d_segmenting)   /* ARGSUSED */
+{
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window) )
+        one_iteration_segmenting( slice_window );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(do_3d_segmenting )   /* ARGSUSED */
+{
+    return( OK );
+}

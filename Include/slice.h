@@ -40,6 +40,10 @@ typedef  struct
     Real              min_threshold;
     Real              max_threshold;
     Neighbour_types   connectivity;
+
+    BOOLEAN           volumes_alloced;
+    Volume            distance_transform;
+    Volume            cuts;
 } segmenting_struct;
 
 typedef struct
