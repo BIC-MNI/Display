@@ -18,7 +18,7 @@ public  Status  set_visibility_around_poly( polygons, poly,
 {
     int                   i, index, neigh, size, n_done;
     Status                status;
-    Status                create_polygon_neighbours();
+    Status                check_polygons_neighbours_computed();
     Status                create_polygons_visibilities();
     Status                set_polygon_per_item_colours();
     unsigned char         *polygons_done_flags;
@@ -37,10 +37,8 @@ public  Status  set_visibility_around_poly( polygons, poly,
         if( status == OK && set_colour_flag )
             status = set_polygon_per_item_colours( polygons );
 
-        if( status == OK && polygons->neighbours == (int *) 0 )
-            status = create_polygon_neighbours( polygons->n_items,
-                            polygons->indices, polygons->end_indices,
-                            &polygons->neighbours );
+        if( status == OK )
+            status = check_polygons_neighbours_computed( polygons );
 
         if( status == OK )
             ALLOC1( status, polygons_done_flags, polygons->n_items,
@@ -130,7 +128,7 @@ private  Boolean  should_modify_polygon( polygons, poly, set_visibility_flag,
     if( !set_visibility_flag )
         return( polygon_is_currently_visible );
     else
-        return( polygon_is_currently_visible != new_visibility );
+        return( new_visibility || polygon_is_currently_visible );
 }
 
 public  void  crop_polygons_visibilities( polygons, axis_index, position,

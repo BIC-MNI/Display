@@ -50,24 +50,15 @@ public  void  set_edited_polygons( surface_edit, polygons )
     surface_edit_struct   *surface_edit;
     polygons_struct       *polygons;
 {
-    Status   create_polygon_neighbours();
+    Status   check_polygons_neighbours_computed();
     Status   create_polygons_visibilities();
 
     surface_edit->polygons = polygons;
     surface_edit->polygons_set = TRUE;
 
-    if( surface_edit->polygons->neighbours == (int *) 0 )
-    {
-        (void) create_polygon_neighbours( surface_edit->polygons->n_items,
-                                          surface_edit->polygons->indices,
-                                          surface_edit->polygons->end_indices,
-                                          &surface_edit->polygons->neighbours );
-    }
+    (void) check_polygons_neighbours_computed( surface_edit->polygons );
 
-    if( surface_edit->polygons->visibilities == (Smallest_int *) 0 )
-    {
-        (void) create_polygons_visibilities( surface_edit->polygons );
-    }
+    (void) create_polygons_visibilities( surface_edit->polygons );
 }
 
 public  Boolean  get_edited_polygons( surface_edit, polygons )

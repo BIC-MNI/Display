@@ -45,6 +45,16 @@ public  Boolean  window_is_up_to_date( graphics )
 
 private  void  update_all_required_windows()
 {
+    void              update_this_type_of_windows();
+
+    update_this_type_of_windows( MENU_WINDOW );
+    update_this_type_of_windows( SLICE_WINDOW );
+    update_this_type_of_windows( THREE_D_WINDOW );
+}
+
+private  void  update_this_type_of_windows( window_type )
+    window_types   window_type;
+{
     int               i, n_windows;
     int               get_list_of_windows();
     graphics_struct   **windows;
@@ -54,14 +64,13 @@ private  void  update_all_required_windows()
 
     for_less( i, 0, n_windows )
     {
-        if( graphics_normal_planes_update_required( windows[i] ) )
+        if( windows[i]->window_type == window_type )
         {
-            windows[i]->update_interrupted.last_was_interrupted = FALSE;
-        }
+            if( graphics_normal_planes_update_required( windows[i] ) )
+                windows[i]->update_interrupted.last_was_interrupted = FALSE;
 
-        if( !window_is_up_to_date( windows[i] ) )
-        {
-            update_graphics( windows[i], &windows[i]->update_interrupted );
+            if( !window_is_up_to_date( windows[i] ) )
+                update_graphics( windows[i], &windows[i]->update_interrupted );
         }
     }
 }

@@ -63,11 +63,10 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
     int               *last_vertex;
     vertex_struct     vertices[];
 {
-    int                    i, p, size, edge, point_index, poly_index;
+    int                    i, p, size, point_index, poly_index;
     int                    dir, index_within_poly, neighbour_index_within_poly;
     int                    neighbour_point_index, current_index_within_poly;
     int                    current_poly, current_poly_size, n_done;
-    int                    next_neigh_index;
     Real                   dist;
     Real                   distance_between_points();
     Boolean                found;
@@ -165,41 +164,22 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
                     }
                 }
 
-                if( neighbour_index_within_poly == current_index_within_poly+1
-                    || (neighbour_index_within_poly == 0 &&
-                        current_index_within_poly == current_poly_size - 1) )
-                    edge = current_index_within_poly;
-                else
-                    edge = neighbour_index_within_poly;
- 
-                current_poly = polygons->neighbours[
-                      POINT_INDEX(polygons->end_indices,current_poly,edge)];
+                found = find_next_edge_around_point( polygons,
+                                current_poly, current_index_within_poly,
+                                neighbour_index_within_poly,
+                                &current_poly, &current_index_within_poly,
+                                &neighbour_index_within_poly );
 
-                if( current_poly >= 0 )
+                if( found )
                 {
                     current_poly_size = GET_OBJECT_SIZE(*polygons,current_poly);
-                    current_index_within_poly = find_vertex_index( polygons,
-                                       current_poly, point_index );
 
-                    neighbour_index_within_poly =
-                       (current_index_within_poly + 1) % current_poly_size;
-                    next_neigh_index = polygons->indices[
+                    neighbour_point_index = polygons->indices[
                            POINT_INDEX( polygons->end_indices, current_poly,
                                         neighbour_index_within_poly )];
-                    if( next_neigh_index == neighbour_point_index )
-                    {
-                        neighbour_index_within_poly =
-                           (current_index_within_poly + current_poly_size- 1) %
-                           current_poly_size;
-                        next_neigh_index = polygons->indices[
-                               POINT_INDEX( polygons->end_indices, current_poly,
-                                            neighbour_index_within_poly )];
-                    }
-
-                    neighbour_point_index = next_neigh_index;
                 }
             }
-            while( current_poly >= 0 && current_poly != poly_index &&
+            while( found && current_poly != poly_index &&
                    (polygons->visibilities == (Smallest_int *) 0 ||
                     polygons->visibilities[current_poly]) );
 

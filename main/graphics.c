@@ -584,7 +584,7 @@ public  Status  load_graphics_file( graphics, filename )
     void             set_current_object_index();
     int              n_items;
     Status           create_polygons_bintree();
-    Status           create_polygon_neighbours();
+    Status           check_polygons_neighbours_computed();
     Status           initialize_cursor();
     void             set_update_required();
     Status           initialize_object_traverse();
@@ -595,7 +595,7 @@ public  Status  load_graphics_file( graphics, filename )
 
     if( status == OK )
     {
-        PRINT( "Inputting objects.\n" );
+        PRINT( "Inputting %s.\n", filename );
 
         model = object->ptr.model;
 
@@ -641,10 +641,7 @@ public  Status  load_graphics_file( graphics, filename )
 
                 if( Compute_neighbours_on_input )
                 {
-                    status = create_polygon_neighbours( polygons->n_items,
-                                                        polygons->indices,
-                                                        polygons->end_indices,
-                                                        &polygons->neighbours );
+                    status = check_polygons_neighbours_computed( polygons );
                 }
             }
         }

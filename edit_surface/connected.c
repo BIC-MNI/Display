@@ -54,6 +54,7 @@ private  DEF_EVENT_FUNCTION( pick_start_point )
     /* ARGSUSED */
 {
     Status            status;
+    Status            check_polygons_neighbours_computed();
     int               poly_index;
     polygons_struct   *polygons, *edit_polygons;
     Point             intersection_point;
@@ -69,7 +70,10 @@ private  DEF_EVENT_FUNCTION( pick_start_point )
                                          &intersection_point ) &&
         edit_polygons == polygons )
     {
-        status = make_connected_invisible( polygons, poly_index );
+        status = check_polygons_neighbours_computed( polygons );
+
+        if( status == OK )
+            status = make_connected_invisible( polygons, poly_index );
 
         set_update_required( graphics, NORMAL_PLANES );
     }

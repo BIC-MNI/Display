@@ -299,16 +299,16 @@ public  DEF_MENU_FUNCTION( set_visibility_from_colour )   /* ARGSUSED */
 
     status = OK;
 
-    if( get_current_polygons(graphics,&polygons) && 
-        polygons->colour_flag == PER_ITEM_COLOURS )
+    if( get_current_polygons(graphics,&polygons) )
     {
         status = create_polygons_visibilities( polygons );
 
         for_less( i, 0, polygons->n_items )
         {
             polygons->visibilities[i] =
-                    ( !equal_colours(&Invisible_segmenting_colour,
-                                     &polygons->colours[i]) );
+                (polygons->colour_flag != PER_ITEM_COLOURS ||
+                 !equal_colours(&Invisible_segmenting_colour,
+                                &polygons->colours[i]) );
         }
 
         graphics_models_have_changed( graphics );
