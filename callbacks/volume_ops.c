@@ -134,3 +134,38 @@ private  void  create_2d_transform( transform, degrees, x_offset, y_offset )
     Transform_elem(*transform,0,3) = x_offset;
     Transform_elem(*transform,1,3) = y_offset;
 }
+
+public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
+{
+    Status           status;
+    Status           create_graphics_window();
+    volume_struct    *volume;
+    graphics_struct  *slice_window;
+
+    if( get_current_volume( graphics, &volume ) &&
+        graphics->slice_window == (graphics_struct *) 0 )
+    {
+        status = create_graphics_window( SLICE_WINDOW, &slice_window,
+                                         "Slice Window", 0, 0 );
+
+        if( status == OK )
+        {
+            slice_window->slice.volume = volume;
+
+            slice_window->graphics_window = graphics;
+            slice_window->menu_window = menu_window;
+            slice_window->slice_window = slice_window;
+            graphics->slice_window = slice_window;
+            menu_window->slice_window = slice_window;
+
+            slice_window->update_required = TRUE;
+        }
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(open_slice_window )   /* ARGSUSED */
+{
+    return( OK );
+}
