@@ -1,7 +1,7 @@
 include $(SRC_DIRECTORY)/Graphics/Makefile.include
 include $(SRC_DIRECTORY)/David/Makefile.include
 
-OPT = -O $(SPECIAL_OPT)
+OPT = -g $(SPECIAL_OPT)
 
 LDFLAGS =
 
@@ -43,6 +43,7 @@ display_src = \
            callbacks/surface_extract.c \
            callbacks/view_ops.c \
            callbacks/volume_ops.c \
+           callbacks/volume_transform_ops.c \
            current_obj/current_obj.c \
            edit_surface/connected.c \
            edit_surface/edit.c \
@@ -130,6 +131,10 @@ $(DISPLAY).opengl: $(PROTOTYPE_FILE) $(display_obj)
 	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(DLIB_LIBS) \
                           $(OPENGL_GRAPHICS_LIBS)
 
+$(DISPLAY)-O3.opengl: $(PROTOTYPE_FILE) $(display_obj:.o=.u)
+	$(CC) $(LDFLAGS) -O3 $(display_obj:.o=.u) -o $@ $(DLIB_LIBS-O3) \
+                          $(OPENGL_GRAPHICS_LIBS-O3)
+
 $(DISPLAY).mesa: $(PROTOTYPE_FILE) $(display_obj)
 	$(CC) $(LDFLAGS) $(display_obj) -o $@ $(DLIB_LIBS) \
                           $(MESA_GRAPHICS_LIBS)
@@ -145,11 +150,11 @@ $(DISPLAY).irisgl.pixie:  $(DISPLAY).irisgl
 	@pixie $(DISPLAY).irisgl -o $@
 
 prof:
-	prof -quit 200 -pixie Display.irisgl -h >&! profiling/heavy
+	prof -quit 100 -pixie -h -p Display.irisgl >&! profiling/heavy
 
 #-----------------
 
-$(PROTOTYPE_FILE): $(display_src) Include/*.h
+$(PROTOTYPE_FILE): $(display_src)
 	@$(MAKE_DIRECTORY)/create_prototypes.csh $@ $(display_src)
 
 clean_all: clean
@@ -168,3 +173,10 @@ update-O3: $(DISPLAY)-O3.irisgl
 	\mv $(DISPLAY)-O3.irisgl ~david/public_bin/Display
 	\cp Display.menu ~david/public_bin
 	\rm -rf ~david/public_bin/Display.old
+
+update-O3.mesa: $(DISPLAY)-O3.mesa
+	strip $(DISPLAY)-O3.mesa
+	\mv ~david/public_bin/Display.mesa ~david/public_bin/Display.mesa.old
+	\mv $(DISPLAY)-O3.mesa ~david/public_bin/Display.mesa
+	\cp Display.menu ~david/public_bin
+	\rm -rf ~david/public_bin/Display.mesa.old
