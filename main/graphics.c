@@ -231,6 +231,11 @@ private  void  initialize_graphics_window(
         {
             model_info->bitplanes = OVERLAY_PLANES;
         }
+        else if( display->window_type == SLICE_WINDOW &&
+                 i == SLICE_READOUT_MODEL )
+        {
+            model_info->bitplanes = (Bitplane_types) Slice_readout_plane;
+        }
         else
         {
             model_info->bitplanes = NORMAL_PLANES;
@@ -245,6 +250,12 @@ private  void  initialize_graphics_window(
         {
             model_info->render.render_lines_as_curves =
                                            Initial_line_curves_flag;
+        }
+
+        if( display->window_type == THREE_D_WINDOW && i == OVERLAY_MODEL )
+        {
+            model_info->render.shaded_mode = FALSE;
+            model_info->render.master_light_switch = FALSE;
         }
 
         make_identity_transform( &model_info->transform );
