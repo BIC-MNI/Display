@@ -253,15 +253,18 @@ private  void  set_filter_type(
     display_struct   *display,
     Filter_types     filter_type )
 {
-    int             view_index;
+    int             view_index, volume_index;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
         get_axis_index_under_mouse( display, &view_index ) )
     {
-        slice_window->slice.slice_views[view_index].filter_type = filter_type;
+        volume_index = get_current_volume_index( slice_window );
+        slice_window->slice.volumes[volume_index].views[view_index].filter_type
+                                                         = filter_type;
 
-        set_slice_window_update( slice_window, view_index, UPDATE_SLICE );
+        set_slice_window_update( slice_window, volume_index, view_index,
+                                 UPDATE_SLICE );
     }
 }
 
@@ -322,25 +325,29 @@ public  DEF_MENU_UPDATE(set_gaussian_filter )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(set_filter_half_width )   /* ARGSUSED */
 {
-    int             view_index;
+    int             view_index, volume_index;
     display_struct  *slice_window;
     Real            filter_width;
 
     if( get_slice_window( display, &slice_window ) &&
         get_axis_index_under_mouse( display, &view_index ) )
     {
+        volume_index = get_current_volume_index( slice_window );
+
         print( "Current filter full width half max: %g\n",
-               slice_window->slice.slice_views[view_index].filter_width );
+               slice_window->slice.volumes[volume_index].views[view_index]
+                                                  .filter_width );
 
         print( "Enter new value: " );
 
         if( input_real( stdin, &filter_width ) == OK &&
             filter_width >= 0.0 )
         {
-            slice_window->slice.slice_views[view_index].filter_width =
-                                                      filter_width;
+            slice_window->slice.volumes[volume_index].views[view_index]
+                                                  .filter_width = filter_width;
 
-            set_slice_window_update( slice_window, view_index, UPDATE_SLICE );
+            set_slice_window_update( slice_window, volume_index, view_index,
+                                     UPDATE_SLICE );
         }
 
         (void) input_newline( stdin );
@@ -364,7 +371,8 @@ public  DEF_MENU_FUNCTION(set_slice_window_n_labels )   /* ARGSUSED */
         if( input_int( stdin, &n_labels ) == OK )
         {
             set_slice_window_number_labels( slice_window, n_labels );
-            set_slice_window_all_update( slice_window, UPDATE_LABELS );
+            set_slice_window_all_update( slice_window,
+                     get_current_volume_index(slice_window), UPDATE_LABELS );
         }
 
         (void) input_newline( stdin );

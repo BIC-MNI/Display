@@ -134,8 +134,8 @@ public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
 
                 set_colour_of_label( slice_window, label, col );
 
-                set_slice_window_all_update( display->associated[SLICE_WINDOW],
-                                             UPDATE_LABELS );
+                set_slice_window_all_update( slice_window,
+                       get_current_volume_index(slice_window), UPDATE_LABELS );
             }
         }
         else

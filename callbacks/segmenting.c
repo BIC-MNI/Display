@@ -13,15 +13,17 @@ public  DEF_MENU_FUNCTION( label_voxel )   /* ARGSUSED */
 {
     Real           voxel[MAX_DIMENSIONS];
     int            view_index, int_voxel[MAX_DIMENSIONS];
+    display_struct *slice_window;
 
-    if( get_voxel_under_mouse( display, voxel, &view_index ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_voxel_under_mouse( slice_window, voxel, &view_index ) )
     {
-        record_slice_under_mouse( display );
+        record_slice_under_mouse( slice_window );
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-        set_volume_label_data( get_label_volume(display), int_voxel,
-                               get_current_paint_label(display) );
-        set_slice_window_all_update( display->associated[SLICE_WINDOW],
-                                     UPDATE_LABELS );
+        set_volume_label_data( get_label_volume(slice_window), int_voxel,
+                               get_current_paint_label(slice_window) );
+        set_slice_window_all_update( slice_window,
+                     get_current_volume_index(slice_window), UPDATE_LABELS );
     }
 
     return( OK );
@@ -35,15 +37,17 @@ public  DEF_MENU_UPDATE(label_voxel )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( clear_voxel )   /* ARGSUSED */
 {
     Real           voxel[MAX_DIMENSIONS];
+    display_struct *slice_window;
     int            view_index, int_voxel[MAX_DIMENSIONS];
 
-    if( get_voxel_under_mouse( display, voxel, &view_index ) )
+    if( get_slice_window( display, &slice_window ) &&
+        get_voxel_under_mouse( slice_window, voxel, &view_index ) )
     {
-        record_slice_under_mouse( display );
+        record_slice_under_mouse( slice_window );
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-        set_volume_label_data( get_label_volume(display), int_voxel, 0 );
-        set_slice_window_all_update( display->associated[SLICE_WINDOW],
-                                     UPDATE_LABELS );
+        set_volume_label_data( get_label_volume(slice_window), int_voxel, 0 );
+        set_slice_window_all_update( slice_window,
+                     get_current_volume_index(slice_window), UPDATE_LABELS );
     }
 
     return( OK );
@@ -62,7 +66,8 @@ public  DEF_MENU_FUNCTION( reset_segmenting )   /* ARGSUSED */
     {
         clear_all_labels( slice_window );
         delete_slice_undo( &slice_window->slice.undo );
-        set_slice_window_all_update( slice_window, UPDATE_LABELS );
+        set_slice_window_all_update( slice_window,
+                     get_current_volume_index(slice_window), UPDATE_LABELS );
     }
 
     return( OK );
@@ -120,9 +125,9 @@ public  DEF_MENU_FUNCTION(load_label_data)   /* ARGSUSED */
                                         get_label_volume(slice_window) );
 
         print( "Done\n" );
-        delete_slice_undo( &display->associated[SLICE_WINDOW]->slice.undo );
-        set_slice_window_all_update( display->associated[SLICE_WINDOW],
-                                     UPDATE_LABELS );
+        delete_slice_undo( &slice_window->slice.undo );
+        set_slice_window_all_update( slice_window,
+                     get_current_volume_index(slice_window), UPDATE_LABELS );
     }
 
     return( status );
@@ -211,7 +216,8 @@ private  void  set_slice_labels(
                              axis_index, int_voxel[axis_index],
                              label );
 
-        set_slice_window_all_update( slice_window, UPDATE_LABELS );
+        set_slice_window_all_update( slice_window,
+                     get_current_volume_index(slice_window), UPDATE_LABELS );
     }
 }
 
@@ -298,7 +304,8 @@ private  void   set_connected_labels(
                           slice_window->slice.segmenting.connectivity,
                           desired_label );
 
-        set_slice_window_all_update( slice_window, UPDATE_LABELS );
+        set_slice_window_all_update( slice_window,
+                     get_current_volume_index(slice_window), UPDATE_LABELS );
     }
 }
 
@@ -335,7 +342,8 @@ public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
 
         print( "Done\n" );
 
-        set_slice_window_all_update( slice_window, UPDATE_LABELS );
+        set_slice_window_all_update( slice_window,
+                     get_current_volume_index(slice_window), UPDATE_LABELS );
     }
 
     return( OK );
@@ -373,7 +381,8 @@ public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
 
             print( "Done\n" );
 
-            set_slice_window_all_update( slice_window, UPDATE_LABELS );
+            set_slice_window_all_update( slice_window,
+                     get_current_volume_index(slice_window), UPDATE_LABELS );
         }
 
         (void) input_newline( stdin );

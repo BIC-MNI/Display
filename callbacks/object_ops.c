@@ -478,7 +478,8 @@ public  DEF_MENU_FUNCTION( scan_current_object_to_volume )   /* ARGSUSED */
 
         print( " done.\n" );
 
-        set_slice_window_all_update( slice_window, UPDATE_LABELS );
+        set_slice_window_all_update( slice_window,
+                     get_current_volume_index(slice_window), UPDATE_LABELS );
     }
 
     return( OK );
