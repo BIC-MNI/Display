@@ -116,9 +116,9 @@ public  void  rebuild_slice_models( graphics )
 
     rebuild_probe( graphics );
 
-    set_slice_window_update( graphics, X_AXIS );
-    set_slice_window_update( graphics, Y_AXIS );
-    set_slice_window_update( graphics, Z_AXIS );
+    set_slice_window_update( graphics, 0 );
+    set_slice_window_update( graphics, 1 );
+    set_slice_window_update( graphics, 2 );
 }
 
 public  void  rebuild_slice_divider( graphics )
@@ -202,7 +202,7 @@ public  void  rebuild_slice_pixels( graphics, view_index )
     model_struct   *model;
     model_struct   *get_graphics_model();
     pixels_struct  *pixels;
-    int            axis_index;
+    int            axis_index, x_index, y_index;
     int            voxel_indices[N_DIMENSIONS];
     int            x_pixel_start, x_pixel_end;
     int            y_size, y_pixel_start, y_pixel_end;
@@ -218,6 +218,8 @@ public  void  rebuild_slice_pixels( graphics, view_index )
     model = get_graphics_model(graphics,SLICE_MODEL);
 
     axis_index = graphics->slice.slice_views[view_index].axis_index;
+    x_index = graphics->slice.slice_views[view_index].axis_index1;
+    y_index = graphics->slice.slice_views[view_index].axis_index2;
 
     pixels = model->object_list[SLICE1_INDEX+view_index]->ptr.pixels;
 
@@ -244,7 +246,7 @@ public  void  rebuild_slice_pixels( graphics, view_index )
     }
 
     render_slice_to_pixels( graphics->slice.temporary_indices,
-                   pixels, axis_index, graphics->slice.volume,
+                   pixels, axis_index, x_index, y_index, graphics->slice.volume,
                    &graphics->slice.colour_coding,
                    voxel_indices,
                    x_pixel_start, x_pixel_end, y_pixel_start, y_pixel_end,
@@ -269,9 +271,9 @@ public  void  rebuild_slice_pixels( graphics, view_index )
 
     fill_Point( text->origin, x_pos, y_pos, 0.0 );
 
-    rebuild_cursor( graphics, X_AXIS );
-    rebuild_cursor( graphics, Y_AXIS );
-    rebuild_cursor( graphics, Z_AXIS );
+    rebuild_cursor( graphics, 0 );
+    rebuild_cursor( graphics, 1 );
+    rebuild_cursor( graphics, 2 );
 }
 
 public  void  rebuild_cursor( graphics, view_index )
@@ -282,21 +284,18 @@ public  void  rebuild_cursor( graphics, view_index )
     model_struct   *get_graphics_model();
     int            x_index, y_index, x_start, y_start, x_end, y_end;
     int            x_centre, y_centre, dx, dy;
-    int            axis_index;
     lines_struct   *lines;
     int            x, y;
-    void           get_2d_slice_axes();
     void           convert_voxel_to_pixel();
     int            x_min, x_max, y_min, y_max;
     void           get_slice_viewport();
 
     model = get_graphics_model(graphics,SLICE_MODEL);
 
-    axis_index = graphics->slice.slice_views[view_index].axis_index;
+    x_index = graphics->slice.slice_views[view_index].axis_index1;
+    y_index = graphics->slice.slice_views[view_index].axis_index2;
 
     lines = model->object_list[CURSOR1_INDEX+view_index]->ptr.lines;
-
-    get_2d_slice_axes( axis_index, &x_index, &y_index );
 
     x = graphics->slice.slice_index[x_index];
     y = graphics->slice.slice_index[y_index];
@@ -356,12 +355,13 @@ public  void  rebuild_cursor( graphics, view_index )
 }
 
 private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
+                                       x_index, y_index,
                                        volume, colour_coding, start_indices,
                                        x_left, x_right, y_bottom, y_top,
                                        x_scale, y_scale )
     int                   temporary_indices[];
     pixels_struct         *pixels;
-    int                   axis_index;
+    int                   axis_index, x_index, y_index;
     volume_struct         *volume;
     colour_coding_struct  *colour_coding;
     int                   start_indices[N_DIMENSIONS];
@@ -370,12 +370,11 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
 {
     Status          status;
     int             new_size, old_size, indices[N_DIMENSIONS];
-    int             x_index, y_index, x, y, prev_y;
+    int             x, y, prev_y;
     int             x_size, y_size;
     Pixel_colour    pixel_col;
     Real            dx, dy;
     Pixel_colour    get_voxel_colour();
-    void            get_2d_slice_axes();
 
     status = OK;
 
@@ -421,8 +420,6 @@ private  void  render_slice_to_pixels( temporary_indices, pixels, axis_index,
             FREE1( status, pixels->pixels );
         }
     }
-
-    get_2d_slice_axes( axis_index, &x_index, &y_index );
 
     indices[axis_index] = start_indices[axis_index];
 
