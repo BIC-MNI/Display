@@ -3,25 +3,31 @@
 private  DEF_EVENT_FUNCTION( right_mouse_down );
 private  DEF_EVENT_FUNCTION( end_painting );
 private  DEF_EVENT_FUNCTION( handle_update_painting );
-private  void  paint_labels(
-    display_struct   *slice_window,
-    int              view_index,
-    Real             start_voxel[],
-    Real             end_voxel[],
-    int              label );
-private  void  update_paint_labels(
-    display_struct  *display );
-private  void  sweep_paint_labels(
+
+private  int  update_paint_labels(
+    display_struct  *slice_window );
+
+private  void   update_brush(
+    display_struct    *slice_window,
+    int               x,
+    int               y );
+
+private  int  sweep_paint_labels(
     display_struct    *slice_window,
     int               x1,
     int               y1,
     int               x2,
     int               y2,
     int               label );
-private  void   update_brush(
-    display_struct    *slice_window,
-    int               x,
-    int               y );
+
+private  void  paint_labels(
+    display_struct   *slice_window,
+    int              volume_index,
+    int              view_index,
+    Real             start_voxel[],
+    Real             end_voxel[],
+    int              label );
+
 
 public  int  get_current_paint_label(
     display_struct    *display )
@@ -54,10 +60,11 @@ public  void  delete_voxel_labeling(
 
 private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
 {
-    int             x_pixel, y_pixel, label;
+    int             x_pixel, y_pixel, label, axis_index, volume_index;
     display_struct  *slice_window;
 
-    if( !get_slice_window( display, &slice_window ) )
+    if( !get_slice_window( display, &slice_window ) ||
+        !get_axis_index_under_mouse( slice_window, &volume_index, &axis_index ))
         return( OK );
 
     push_action_table( &slice_window->action_table, NO_EVENT );
@@ -72,15 +79,15 @@ private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
 
     (void) G_get_mouse_position( slice_window->window, &x_pixel, &y_pixel );
 
-    record_slice_under_mouse( slice_window );
+    record_slice_under_mouse( slice_window, volume_index );
 
     if( is_shift_key_pressed( slice_window ) )
         label = 0;
     else
         label = get_current_paint_label( slice_window );
 
-    sweep_paint_labels( slice_window, x_pixel, y_pixel, x_pixel, y_pixel,
-                        label );
+    (void) sweep_paint_labels( slice_window,
+                        x_pixel, y_pixel, x_pixel, y_pixel, label );
 
     if( Draw_brush_outline &&
         find_slice_view_mouse_is_in( slice_window, x_pixel, y_pixel,
@@ -105,13 +112,15 @@ private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
 
 private  DEF_EVENT_FUNCTION( end_painting )     /* ARGSUSED */
 {
+    int   volume_index;
+
     remove_action_table_function( &display->action_table,
                                   RIGHT_MOUSE_UP_EVENT, end_painting );
     remove_action_table_function( &display->action_table, NO_EVENT,
                                   handle_update_painting );
     pop_action_table( &display->action_table, NO_EVENT );
 
-    update_paint_labels( display );
+    volume_index = update_paint_labels( display );
 
     if( Draw_brush_outline &&
         display->slice.painting_view_index >= 0 )
@@ -122,32 +131,14 @@ private  DEF_EVENT_FUNCTION( end_painting )     /* ARGSUSED */
         delete_object( display->slice.brush_outline );
     }
 
-    set_slice_window_all_update( display, UPDATE_LABELS );
+    set_slice_window_all_update( display, volume_index, UPDATE_LABELS );
 
     return( OK );
 }
 
-private  void  update_paint_labels(
-    display_struct  *slice_window )
-{
-    int  x, y, x_prev, y_prev, label;
-
-    if( pixel_mouse_moved(slice_window,&x,&y,&x_prev,&y_prev) )
-    {
-        if( is_shift_key_pressed( slice_window ) )
-            label = 0;
-        else
-            label = get_current_paint_label( slice_window );
-
-        sweep_paint_labels( slice_window, x_prev, y_prev, x, y, label );
-        if( Draw_brush_outline )
-            update_brush( slice_window, x, y );
-    }
-}
-
 private  DEF_EVENT_FUNCTION( handle_update_painting )     /* ARGSUSED */
 {
-    update_paint_labels( display );
+    (void) update_paint_labels( display );
 
     return( OK );
 }
@@ -157,12 +148,13 @@ private  BOOLEAN  get_brush_voxel_centre(
     int               x_pixel,
     int               y_pixel,
     Real              voxel[],
+    int               *volume_index,
     int               *view_index )
 {
     BOOLEAN  inside;
 
-    inside = convert_pixel_to_voxel( slice_window, x_pixel, y_pixel,
-                                     voxel, view_index );
+    inside = get_volume_corresponding_to_pixel( slice_window, x_pixel, y_pixel,
+                                        volume_index, view_index, voxel );
 
     if( inside && Snap_brush_to_centres )
     {
@@ -174,7 +166,7 @@ private  BOOLEAN  get_brush_voxel_centre(
     return( inside );
 }
 
-private  void  sweep_paint_labels(
+private  int  sweep_paint_labels(
     display_struct    *slice_window,
     int               x1,
     int               y1,
@@ -182,21 +174,50 @@ private  void  sweep_paint_labels(
     int               y2,
     int               label )
 {
-    int         view_index;
+    int         view_index, volume_index, volume_index2;
     Real        start_voxel[MAX_DIMENSIONS], end_voxel[MAX_DIMENSIONS];
 
     if( get_brush_voxel_centre( slice_window, x1, y1, start_voxel,
-                                &view_index ) &&
+                                &volume_index, &view_index ) &&
         get_brush_voxel_centre( slice_window, x2, y2, end_voxel,
-                                &view_index ) )
+                                &volume_index2, &view_index ) &&
+        volume_index == volume_index2 )
     {
-        paint_labels( slice_window, view_index, start_voxel, end_voxel,
-                      label );
+        paint_labels( slice_window, volume_index, view_index,
+                      start_voxel, end_voxel, label );
     }
+    else
+        volume_index = get_current_volume_index( slice_window );
+
+    return( volume_index );
+}
+
+private  int  update_paint_labels(
+    display_struct  *slice_window )
+{
+    int  x, y, x_prev, y_prev, label, volume_index;
+
+    if( pixel_mouse_moved(slice_window,&x,&y,&x_prev,&y_prev) )
+    {
+        if( is_shift_key_pressed( slice_window ) )
+            label = 0;
+        else
+            label = get_current_paint_label( slice_window );
+
+        volume_index = sweep_paint_labels( slice_window, x_prev, y_prev, x, y,
+                                           label );
+        if( Draw_brush_outline )
+            update_brush( slice_window, x, y );
+    }
+    else
+        volume_index = get_current_volume_index( slice_window );
+
+    return( volume_index );
 }
 
 private  BOOLEAN  get_brush(
     display_struct   *slice_window,
+    int              volume_index,
     int              view_index,
     int              *a1,
     int              *a2,
@@ -204,17 +225,17 @@ private  BOOLEAN  get_brush(
     Real             radius[] )
 {
     BOOLEAN  okay;
-    Volume   volume;
     Real     separations[MAX_DIMENSIONS];
 
     okay = FALSE;
 
-    if( get_slice_window_volume( slice_window, &volume ) &&
-        slice_window->slice.x_brush_radius > 0.0 &&
+    if( slice_window->slice.x_brush_radius > 0.0 &&
         slice_window->slice.y_brush_radius > 0.0 &&
-        slice_has_ortho_axes( slice_window, view_index, a1, a2, axis ) )
+        slice_has_ortho_axes( slice_window, volume_index, view_index,
+                              a1, a2, axis ) )
     {
-        get_volume_separations( volume, separations );
+        get_volume_separations( get_nth_volume(slice_window,volume_index),
+                                separations );
 
         radius[*a1] = slice_window->slice.x_brush_radius /
                       ABS( separations[*a1] );
@@ -276,6 +297,7 @@ private  BOOLEAN  inside_swept_brush(
 
 private  void  fast_paint_labels(
     display_struct   *slice_window,
+    int              volume_index,
     int              view_index,
     int              a1,
     int              a2,
@@ -299,8 +321,8 @@ private  void  fast_paint_labels(
     Colour         colour;
     BOOLEAN        update_required;
  
-    label_volume = get_label_volume( slice_window );
-    volume = get_volume( slice_window );
+    label_volume = get_nth_label_volume( slice_window, volume_index );
+    volume = get_nth_volume( slice_window, volume_index );
     min_threshold = slice_window->slice.segmenting.min_threshold;
     max_threshold = slice_window->slice.segmenting.max_threshold;
     update_required = FALSE;
@@ -308,11 +330,12 @@ private  void  fast_paint_labels(
     get_volume_sizes( volume, sizes );
 
     pixels = get_pixels_ptr( get_label_slice_pixels_object(
-                                        slice_window, view_index ) );
+                               slice_window, volume_index, view_index ) );
 
-    colour = get_colour_of_label( slice_window, label );
+    colour = get_colour_of_label( slice_window, volume_index, label );
 
-    get_voxel_to_pixel_transform( slice_window, view_index, &a1, &a2,
+    get_voxel_to_pixel_transform( slice_window, volume_index, view_index,
+                                  &a1, &a2,
                                   &x_scale, &x_trans, &y_scale, &y_trans );
 
     if( x_scale >= 0.0 )
@@ -394,8 +417,7 @@ private  void  fast_paint_labels(
 
                 if( min_threshold < max_threshold )
                 {
-                    GET_VALUE_3D( volume_value, volume,
-                                  ind[X], ind[Y], ind[Z] );
+                    GET_VALUE_3D( volume_value, volume, ind[X], ind[Y], ind[Z]);
 
                     if( volume_value < min_threshold ||
                         volume_value > max_threshold )
@@ -418,14 +440,12 @@ private  void  fast_paint_labels(
     }
 
     if( update_required )
-    {
         slice_window->slice.slice_views[view_index].update_composite_flag =TRUE;
-        set_slice_viewport_update( slice_window, SLICE_MODEL1 + view_index );
-    }
 }
 
 private  void  paint_labels(
     display_struct   *slice_window,
+    int              volume_index,
     int              view_index,
     Real             start_voxel[],
     Real             end_voxel[],
@@ -441,10 +461,11 @@ private  void  paint_labels(
     int            ind[N_DIMENSIONS];
     BOOLEAN        update_required;
  
-    if( get_slice_window_volume( slice_window, &volume ) &&
-        get_brush( slice_window, view_index, &a1, &a2, &axis, radius ) )
+    if( get_brush( slice_window, volume_index, view_index,
+                   &a1, &a2, &axis, radius ) )
     {
-        label_volume = get_label_volume( slice_window );
+        volume = get_nth_volume( slice_window, volume_index );
+        label_volume = get_nth_label_volume( slice_window, volume_index );
         min_threshold = slice_window->slice.segmenting.min_threshold;
         max_threshold = slice_window->slice.segmenting.max_threshold;
         update_required = FALSE;
@@ -483,9 +504,11 @@ private  void  paint_labels(
 
         if( radius[axis] == 0.0 &&
             label_volume != NULL && label_volume->data != NULL &&
-            !slice_window->slice.slice_views[view_index].update_labels_flag )
+            !slice_window->slice.volumes[volume_index].
+                             views[view_index].update_labels_flag )
         {
-            fast_paint_labels( slice_window, view_index, a1, a2, axis,
+            fast_paint_labels( slice_window, volume_index, view_index,
+                               a1, a2, axis,
                                start_voxel, min_voxel, max_voxel,
                                &scaled_delta, radius, label );
         }
@@ -524,7 +547,10 @@ private  void  paint_labels(
         }
 
         if( update_required )
-            set_slice_window_all_update( slice_window, UPDATE_LABELS );
+        {
+            set_slice_window_all_update( slice_window, volume_index,
+                                         UPDATE_LABELS );
+        }
     }
 }
 
@@ -649,6 +675,7 @@ private  void  get_brush_contour(
     display_struct    *slice_window,
     int               x_centre_pixel,
     int               y_centre_pixel,
+    int               volume_index,
     int               view_index,
     int               a1,
     int               a2,
@@ -662,7 +689,8 @@ private  void  get_brush_contour(
     Directions   dir;
     Real         x_scale, x_trans, y_scale, y_trans;
 
-    get_voxel_to_pixel_transform( slice_window, view_index, &a1, &a2,
+    get_voxel_to_pixel_transform( slice_window, volume_index, view_index,
+                                  &a1, &a2,
                                   &x_scale, &x_trans, &y_scale, &y_trans );
 
     current_voxel[X] = start_voxel[X];
@@ -701,7 +729,7 @@ private  void   update_brush(
     int               y )
 {
     Real          centre[N_DIMENSIONS];
-    int           view, axis, a1, a2, start_voxel[N_DIMENSIONS];
+    int           view, axis, a1, a2, start_voxel[N_DIMENSIONS], volume_index;
     Real          radius[N_DIMENSIONS];
     lines_struct  *lines;
 
@@ -711,8 +739,9 @@ private  void   update_brush(
 
     if( slice_window->slice.x_brush_radius > 0.0 &&
         slice_window->slice.y_brush_radius > 0.0 &&
-        get_brush_voxel_centre( slice_window, x, y, centre, &view ) &&
-        get_brush( slice_window, view, &a1, &a2, &axis, radius ) )
+        get_brush_voxel_centre( slice_window, x, y, centre,
+                                &volume_index, &view ) &&
+        get_brush( slice_window, volume_index, view, &a1, &a2, &axis, radius ) )
     {
         start_voxel[a1] = ROUND( centre[a1] );
         start_voxel[a2] = ROUND( centre[a2] );
@@ -725,7 +754,7 @@ private  void   update_brush(
         if( start_voxel[a1] > ROUND( centre[a1] ) )
             --start_voxel[a1];
 
-        get_brush_contour( slice_window, x, y, view, a1, a2,
+        get_brush_contour( slice_window, x, y, volume_index, view, a1, a2,
                            centre, radius, start_voxel, POSITIVE_X, lines );
 
         set_slice_viewport_update( slice_window, SLICE_MODEL1 + view );

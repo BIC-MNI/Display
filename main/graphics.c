@@ -300,8 +300,10 @@ private  void  initialize_graphics_window(
     if( display->window_type == THREE_D_WINDOW )
         initialize_three_d_window( display );
 
+/*
     if( display->window_type == SLICE_WINDOW )
         initialize_slice_window( display );
+*/
 
     if( display->window_type == MENU_WINDOW )
         initialize_menu_window( display );
@@ -478,9 +480,6 @@ private  void  update_graphics_normal_planes_only(
     if( interrupt->last_was_interrupted )
         G_append_to_last_update( display->window );
 
-    if( display->window_type == SLICE_WINDOW )
-        update_slice_window( display );
-
     start = current_realtime_seconds();
 
     interrupt->interrupt_at = start + Maximum_display_time;
@@ -520,9 +519,6 @@ private  void  terminate_graphics_window(
 {
     int      i;
 
-    for_less( i, 0, N_MODELS )
-        delete_object( display->models[i] );
-
     if( display->window_type == THREE_D_WINDOW )
         delete_three_d( display );
 
@@ -530,7 +526,10 @@ private  void  terminate_graphics_window(
         delete_menu( &display->menu );
 
     if( display->window_type == SLICE_WINDOW )
-        delete_slice_window( &display->slice );
+        delete_slice_window( display );
+
+    for_less( i, 0, N_MODELS )
+        delete_object( display->models[i] );
 }
 
 public  void  update_view(

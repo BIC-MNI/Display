@@ -87,16 +87,15 @@ slice_view
     transient 'q'    toggle_cross_section_visibility "Toggle Plane Visibility"
     transient 'w'    rotate_slice_axes               "Rotate Slice"
     transient 'e'    pick_slice_angle_point          "Pick Slice Angle"
-    transient 'r'    create_3d_slice                 "Create 3D Slice"
+    transient 'r'    next_volume_visible             "Visible: %d"
+    transient 't'    toggle_current_volume           "Curr Volume: %d"
     transient 'y'    set_current_arbitrary_view      "Set Current Arb. View"
     transient 'u'    toggle_slice_anchor             "Toggle Slice Anchor"
 
-    transient 'a'    toggle_double_buffer_slice      "Slice DblBuf: %s"
+    transient 'a'    create_3d_slice                 "Create 3D Slice"
     transient 's'    toggle_slice_visibility         "Toggle Slice Visibility"
-    transient 'd'    toggle_slice_cross_section_visibility
-                                                  "Toggle Slice Crs-Sect"
+    transient 'd'    toggle_slice_cross_section_visibility "Toggle Slice Crs-Sect"
     transient 'f'    reset_current_slice_view        "Reset Slice View"
-
     transient 'g'    redo_histogram                  "Recompute Histogram"
     transient 'h'    redo_histogram_labeled          "Histogram of Labeled"
 
@@ -106,6 +105,25 @@ slice_view
     transient 'v'    print_slice_plane               "Print Plane Normal"
     transient 'b'    type_in_voxel_origin            "Type In Origin"
     transient 'n'    type_in_slice_plane             "Type In Plane Normal"
+
+    transient '1'    delete_current_volume_menu      "Delete Volume"
+    transient '5'    volume_cropping                 "Volume Cropping"
+    transient '6'    toggle_double_buffer_slice      "Slice DblBuf: %s"
+}
+
+volume_cropping
+{
+    transient 'a'    toggle_slice_crop_visibility    "Visibility: %s"
+    transient 's'    pick_crop_box_edge              "Pick Crop Edge"
+    transient 'd'    load_cropped_volume             "Crop and Load"
+    transient 'f'    set_crop_box_filename           "Set Crop Filename"
+    transient 'x'    reset_slice_crop                "Reset Crop Position"
+}
+
+delete_current_volume_menu
+{
+    transient 'b'    delete_current_volume           "Really Delete"
+    transient 'q'    pop_menu                        "Don't Delete"
 }
 
 colour_coding
@@ -116,6 +134,7 @@ colour_coding
     transient 'r'    set_triangle_filter             "Triangle Filter"
     transient 't'    set_gaussian_filter             "Gaussian Filter"
     transient 'y'    set_filter_half_width           "Filter Width"
+    transient 'u'    set_current_volume_opacity      "Vol Opacity: %g"
 
     transient 'a'    colour_code_objects             "Colour Code Objects"
     transient 's'    set_spectral                    "Spectral"
@@ -130,6 +149,16 @@ colour_coding
     transient 'v'    toggle_display_labels           "Show Labels: %s"
     transient 'b'    set_label_colour                "Set Paint Lbl Colour"
     transient 'n'    set_slice_window_n_labels       "Num Labels: %d"
+
+    transient '1'    toggle_share_labels             "Share Labels: %s"
+    transient '5'    extra_colour_codes              "Extra Colour Codes"
+}
+
+extra_colour_codes
+{
+    transient 's'    set_red                         "Red"
+    transient 'd'    set_green                       "Green"
+    transient 'f'    set_blue                        "Blue"
 }
 
 view_3d
@@ -347,14 +376,15 @@ segmenting
     transient 'h'    copy_labels_from_higher_slice "Copy from Rt/Sup/Ant Slice"
 
     transient 'z'    reset_segmenting                 "Clear All Labels"
-    transient 'x'    label_connected_3d               "Fill 3D"
-    transient 'c'    expand_labeled_3d                "Expand 3D"
+    transient 'x'    erode_labels                     "Erode 3D"
+    transient 'c'    dilate_labels                    "Dilate 3D"
     transient 'v'    calculate_volume                 "Calculate Volume"
     transient 'n'    copy_labels_from_lower_slice  "Copy from Lt/Inf/Post Slice"
     transient 'b'    toggle_display_labels           "Show Labels: %s"
 
     transient '1'    translate_labels                 "Translate Labels"
     transient '5'    toggle_connectivity              "Connectivity: %d"
+    transient '6'    label_connected_3d               "Fill 3D"
 
     transient '7'    undo_slice_labels                "Undo"
 }

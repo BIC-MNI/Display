@@ -44,3 +44,12 @@ public  void  update_cursor(
 
     ++display->models_changed_id;
 }
+
+public  void  get_cursor_origin(
+    display_struct   *display,
+    Point            *origin )
+{
+    display = get_three_d_window( display );
+
+    *origin = display->three_d.cursor.origin;
+}

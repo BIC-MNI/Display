@@ -122,8 +122,8 @@ private  void  pick_point_under_mouse(
     int              object_index;
     object_struct    *current;
 
-    if( get_mouse_scene_intersection( display, -1, &object, &object_index,
-                                      &intersection_point ) )
+    if( get_mouse_scene_intersection( display, (Object_types) -1, &object,
+                                      &object_index, &intersection_point ) )
     {
         display->three_d.cursor.origin = intersection_point;
         update_cursor( display );

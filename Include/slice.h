@@ -53,6 +53,7 @@ typedef  struct
 {
     Volume                 volume;
     Volume                 labels;
+    STRING                 labels_filename;
     int                    n_labels;
     int                    offset;
     Colour                 *colour_table;
@@ -83,6 +84,10 @@ typedef  struct
     int           prev_viewport_y_size;
     int           used_viewport_x_size;
     int           used_viewport_y_size;
+    BOOLEAN       update_cursor_flag;
+    BOOLEAN       update_text_flag;
+    BOOLEAN       update_cross_section_flag;
+    BOOLEAN       update_crop_flag;
     BOOLEAN       update_atlas_flag;
     BOOLEAN       update_composite_flag;
 } slice_view_struct;
@@ -93,6 +98,7 @@ typedef  struct
     loaded_volume_struct   *volumes;
     int                    current_volume_index;
 
+    BOOLEAN                share_labels_flag;
     colour_bar_struct      colour_bar;
 
     BOOLEAN                using_transparency;
@@ -119,6 +125,10 @@ typedef  struct
     BOOLEAN                cross_section_visibility;
     BOOLEAN                cross_section_vector_present;
     Real                   cross_section_vector[MAX_DIMENSIONS];
+
+    BOOLEAN                update_slice_dividers_flag;
+    BOOLEAN                update_colour_bar_flag;
+    BOOLEAN                update_probe_flag;
 
     BOOLEAN                viewport_update_flags[N_MODELS][2];
 

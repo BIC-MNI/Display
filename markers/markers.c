@@ -2,6 +2,7 @@
 
 public  BOOLEAN  update_current_marker(
     display_struct   *display,
+    int              volume_index,
     Real             voxel[] )
 {
     object_traverse_struct  object_traverse;
@@ -15,7 +16,7 @@ public  BOOLEAN  update_current_marker(
     initialize_object_traverse( &object_traverse, 1,
                                 &display->models[THREED_MODEL] );
 
-    (void) get_slice_window_volume( display, &volume );
+    volume = get_nth_volume( display, volume_index );
 
     convert_voxel_to_world( volume, voxel, &x_w, &y_w, &z_w );
     fill_Point( voxel_pos, x_w, y_w, z_w );

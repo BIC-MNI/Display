@@ -77,7 +77,14 @@ MENU_F(reset_surface) \
 MENU_F(set_surface_extract_x_max_distance) \
 MENU_F(set_surface_extract_y_max_distance) \
 MENU_F(set_surface_extract_z_max_distance) \
+MENU_F(reset_slice_crop) \
+MENU_F(toggle_slice_crop_visibility) \
+MENU_F(next_volume_visible) \
+MENU_F(pick_crop_box_edge) \
+MENU_F(set_crop_box_filename) \
+MENU_F(load_cropped_volume) \
 MENU_F(reset_current_slice_view) \
+MENU_F(toggle_share_labels) \
 MENU_F(load_label_data) \
 MENU_F(save_label_data) \
 MENU_F(clear_voxel) \
@@ -89,7 +96,8 @@ MENU_F(label_connected_no_threshold) \
 MENU_F(label_slice) \
 MENU_F(clear_slice) \
 MENU_F(label_connected_3d) \
-MENU_F(expand_labeled_3d) \
+MENU_F(dilate_labels) \
+MENU_F(erode_labels) \
 MENU_F(set_colour_limits) \
 MENU_F(create_film_loop) \
 MENU_F(reset_polygon_visibility) \
@@ -167,6 +175,7 @@ MENU_F(change_marker_label) \
 MENU_F(change_marker_size) \
 MENU_F(change_marker_position) \
 MENU_F(change_marker_type) \
+MENU_F(set_current_volume_opacity) \
 MENU_F(resample_slice_window_volume) \
 MENU_F(box_filter_slice_window_volume) \
 MENU_F(redo_histogram) \
@@ -182,6 +191,8 @@ MENU_F(translate_labels_left) \
 MENU_F(translate_labels_right) \
 MENU_F(translate_labels_arbitrary) \
 MENU_F(calculate_volume) \
+MENU_F(toggle_current_volume) \
+MENU_F(delete_current_volume) \
 MENU_F(set_paint_xy_brush_radius) \
 MENU_F(set_paint_z_brush_radius) \
 MENU_F(copy_labels_from_lower_slice) \
@@ -208,6 +219,9 @@ MENU_F(set_contour_colour_map) \
 MENU_F(set_hot_metal) \
 MENU_F(set_gray_scale) \
 MENU_F(set_spectral) \
+MENU_F(set_red) \
+MENU_F(set_green) \
+MENU_F(set_blue) \
 MENU_F(set_under_colour) \
 MENU_F(set_over_colour) \
 MENU_F(set_nearest_neighbour) \
@@ -352,8 +366,8 @@ private  Status  input_key_action(
     FILE                *file,
     key_action_struct   *action )
 {
-    Status    status;
-    char      ch;
+    Status                 status;
+    char                   ch;
 
     status = skip_input_until( file, '\'' );
 
@@ -430,10 +444,11 @@ private  Status  input_menu_entry(
     FILE                     *file,
     menu_definition_struct   *menu_entry )
 {
-    Status   status;
-    BOOLEAN  found_brace;
-    STRING   permanent_string;
-    BOOLEAN  permanent_flag;
+    Status              status;
+    BOOLEAN             found_brace;
+    STRING              permanent_string;
+    BOOLEAN             permanent_flag;
+    key_action_struct   entry;
 
     status = skip_input_until( file, '{' );
 
@@ -471,18 +486,18 @@ private  Status  input_menu_entry(
 
             if( status == OK && !found_brace )
             {
-                SET_ARRAY_SIZE( menu_entry->entries,
-                                menu_entry->n_entries,
-                                menu_entry->n_entries+1, 1 );
+                entry.permanent_flag = permanent_flag;
+
+                status = input_key_action( file, &entry );
 
                 if( status == OK )
                 {
-                    menu_entry->entries[menu_entry->n_entries].permanent_flag =
-                             permanent_flag;
-                    status = input_key_action( file,
-                        &menu_entry->entries[menu_entry->n_entries] );
-                    ++menu_entry->n_entries;
+                    ADD_ELEMENT_TO_ARRAY( menu_entry->entries,
+                                          menu_entry->n_entries,
+                                          entry, 1 );
                 }
+
+                status = OK;
             }
 
         } while( status == OK && !found_brace );
@@ -578,7 +593,10 @@ private  void  create_menu(
                 if( !lookup_menu_action( menus[i].entries[c].action_name,
                                          &menu_entry->action,
                                          &menu_entry->update_action ) )
-                    break;
+                {
+                    menu_entry->action = push_menu;
+                    menu_entry->update_action = menu_update_push_menu;
+                }
             }
         }
     }

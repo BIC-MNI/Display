@@ -72,6 +72,9 @@ private  DEF_EVENT_FUNCTION( left_mouse_down )    /* ARGSUSED */
 {
     int          view_index;
 
+    if( get_n_volumes( display ) == 0 )
+        return( OK );
+
     if( mouse_is_near_slice_dividers( display ) )
     {
         push_action_table( &display->action_table, NO_EVENT );
@@ -164,6 +167,9 @@ private  DEF_EVENT_FUNCTION( middle_mouse_down )     /* ARGSUSED */
     int          view_index;
     Real         value;
 
+    if( get_n_volumes( display ) == 0 )
+        return( OK );
+
     if( get_slice_view_index_under_mouse( display, &view_index ) )
     {
         push_action_table( &display->action_table, NO_EVENT );
@@ -220,12 +226,14 @@ private  DEF_EVENT_FUNCTION( middle_mouse_down )     /* ARGSUSED */
 
 private  void  set_slice_voxel_position(
     display_struct    *slice_window,
+    int               volume_index,
     Real              voxel[] )
 {
-    int    c, sizes[MAX_DIMENSIONS];
-    Real   clipped_voxel[MAX_DIMENSIONS];
+    display_struct    *display;
+    int               c, sizes[MAX_DIMENSIONS];
+    Real              clipped_voxel[MAX_DIMENSIONS];
 
-    get_volume_sizes( get_volume(slice_window), sizes );
+    get_volume_sizes( get_nth_volume(slice_window,volume_index), sizes );
 
     for_less( c, 0, N_DIMENSIONS )
     {
@@ -237,18 +245,16 @@ private  void  set_slice_voxel_position(
             clipped_voxel[c] = voxel[c];
     }
 
-    if( set_current_voxel( slice_window, clipped_voxel ) )
+    if( set_current_voxel( slice_window, volume_index, clipped_voxel ) )
     {
-        if( update_cursor_from_voxel( slice_window ) )
-        {
-            set_update_required( slice_window->associated[THREE_D_WINDOW],
-                                 get_cursor_bitplanes() );
-        }
+        display = get_three_d_window( slice_window );
 
-        if( update_current_marker( slice_window->associated[THREE_D_WINDOW],
-                                   clipped_voxel ) )
+        if( update_cursor_from_voxel( slice_window ) )
+            set_update_required( display, get_cursor_bitplanes() );
+
+        if( update_current_marker( display, volume_index, clipped_voxel ) )
         {
-            rebuild_selected_list( slice_window->associated[THREE_D_WINDOW],
+            rebuild_selected_list( display,
                                    slice_window->associated[MENU_WINDOW] );
 
             set_update_required( slice_window->associated[MENU_WINDOW],
@@ -262,12 +268,13 @@ private  void  set_slice_voxel_position(
 private  void  set_voxel_cursor(
     display_struct    *slice_window )
 {
-    int    axis_index;
+    int    volume_index, axis_index;
     Real   voxel[N_DIMENSIONS];
 
-    if( get_voxel_in_slice_window( slice_window, voxel, &axis_index ) )
+    if( get_voxel_in_slice_window( slice_window, voxel, &volume_index,
+                                   &axis_index ) )
     {
-        set_slice_voxel_position( slice_window, voxel );
+        set_slice_voxel_position( slice_window, volume_index, voxel );
     }
 }
 
@@ -307,7 +314,7 @@ private  void  update_voxel_slice(
     display_struct    *slice_window )
 {
     int        view_index, dy, x, y, x_prev, y_prev;
-    int        c;
+    int        c, volume_index;
     Real       voxel[MAX_DIMENSIONS];
     Real       perp_axis[N_DIMENSIONS];
 
@@ -318,15 +325,19 @@ private  void  update_voxel_slice(
 
         if( dy != 0 )
         {
-            get_current_voxel( slice_window, voxel );
+            volume_index = get_current_volume_index( slice_window );
 
-            get_slice_perp_axis( slice_window, view_index, perp_axis );
+            get_current_voxel( slice_window, volume_index, voxel );
+
+            get_slice_perp_axis( slice_window, volume_index, view_index,
+                                 perp_axis );
 
             for_less( c, 0, N_DIMENSIONS )
                 voxel[c] += (Real) dy * Move_slice_speed * perp_axis[c];
 
-            if( voxel_is_within_volume( get_volume(slice_window), voxel ) )
-                set_slice_voxel_position( slice_window, voxel );
+            if( voxel_is_within_volume( get_nth_volume(slice_window,
+                                           volume_index), voxel ) )
+                set_slice_voxel_position( slice_window, volume_index, voxel );
         }
     }
 }
@@ -368,8 +379,6 @@ private  void  update_voxel_zoom(
         scale_factor = pow( 2.0, dy / Pixels_per_double_size );
 
         scale_slice_view( slice_window, view_index, scale_factor );
-
-        set_slice_window_update( slice_window, view_index, UPDATE_BOTH );
     }
 }
 
@@ -408,8 +417,7 @@ private  void  perform_translation(
         dy = y - y_prev;
 
         translate_slice_view( slice_window, view_index, dx, dy );
-
-        set_slice_window_update( slice_window, view_index, UPDATE_BOTH );
+        set_slice_window_update( slice_window, -1, view_index, UPDATE_BOTH );
 
         record_mouse_pixel_position( slice_window );
     }
@@ -443,7 +451,7 @@ private  DEF_EVENT_FUNCTION( update_probe )     /* ARGSUSED */
     int  x, y, x_prev, y_prev;
 
     if( pixel_mouse_moved(display,&x,&y,&x_prev,&y_prev) )
-        rebuild_probe( display );
+        set_probe_update( display );
 
     return( OK );
 }
@@ -471,17 +479,14 @@ private  DEF_EVENT_FUNCTION( handle_redraw_overlay )     /* ARGSUSED */
 
 private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
 {
-    int   i, view;
+    int   view;
 
     for_less( view, 0, N_SLICE_VIEWS )
         resize_slice_view( display, view );
 
-    rebuild_slice_models( display );
-
+    update_all_slice_models( display );
+    set_slice_window_all_update( display, -1, UPDATE_BOTH );
     resize_histogram( display );
-
-    for_less( i, 0, N_MODELS )
-        set_slice_viewport_update( display, i );
 
     return( OK );
 }
@@ -584,7 +589,8 @@ private  void  update_limit(
     {
         get_volume_real_range( volume, &volume_min, &volume_max );
 
-        colour_coding = &slice_window->slice.colour_coding;
+        colour_coding = &slice_window->slice.volumes
+                       [get_current_volume_index(slice_window)].colour_coding;
         min_value = colour_coding->min_value;
         max_value = colour_coding->max_value;
 
@@ -636,7 +642,8 @@ private  void  update_limit(
             }
         }
 
-        change_colour_coding_range( slice_window, min_value, max_value );
+        change_colour_coding_range( slice_window,
+                get_current_volume_index(slice_window), min_value, max_value );
     }
 
     record_mouse_pixel_position( slice_window );
@@ -676,7 +683,8 @@ private  BOOLEAN  mouse_is_near_low_limit(
 
     if( get_mouse_colour_bar_value( slice_window, &value ) )
     {
-        colour_coding = &slice_window->slice.colour_coding;
+        colour_coding = &slice_window->slice.volumes
+                       [get_current_volume_index(slice_window)].colour_coding;
         if( value < (colour_coding->min_value+colour_coding->max_value)/2.0 )
             near = TRUE;
     }
@@ -695,7 +703,8 @@ private  BOOLEAN  mouse_is_near_high_limit(
 
     if( get_mouse_colour_bar_value( slice_window, &value ) )
     {
-        colour_coding = &slice_window->slice.colour_coding;
+        colour_coding = &slice_window->slice.volumes
+                       [get_current_volume_index(slice_window)].colour_coding;
         if( value > (colour_coding->min_value+colour_coding->max_value)/2.0 )
             near = TRUE;
     }
@@ -757,4 +766,3 @@ private  DEF_EVENT_FUNCTION( handle_update_slice_dividers )     /* ARGSUSED */
 
     return( OK );
 }
-

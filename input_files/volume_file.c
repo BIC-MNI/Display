@@ -4,10 +4,11 @@ public  Status   input_volume_file(
     char           filename[],
     Volume         *volume )
 {
-    Status     status;
-    nc_type    nc_data_type;
-    BOOLEAN    signed_flag;
-    Real       voxel_min, voxel_max;
+    Status              status;
+    nc_type             nc_data_type;
+    BOOLEAN             signed_flag;
+    Real                voxel_min, voxel_max;
+    minc_input_options  options;
 
     if( Convert_volumes_to_byte )
     {
@@ -24,9 +25,12 @@ public  Status   input_volume_file(
         voxel_max = 0.0;
     }
 
+    set_default_minc_input_options( &options );
+    set_minc_input_vector_to_colour_flag( &options, TRUE );
+
     status = input_volume( filename, 3, XYZ_dimension_names,
                            nc_data_type, signed_flag, voxel_min, voxel_max,
-                           TRUE, volume, (minc_input_options *) NULL );
+                           TRUE, volume, &options );
 
     if( status == OK &&
         get_volume_n_dimensions( *volume ) != N_DIMENSIONS )

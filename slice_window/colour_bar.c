@@ -80,7 +80,7 @@ typedef  struct
 public  void  rebuild_colour_bar(
     display_struct   *slice_window )
 {
-    int                 i;
+    int                 i, volume_index;
     int                 x_min, x_max, y_min, y_max;
     Real                x, y, bottom, top, range, delta;
     Real                ratio, last_y, next_y, value, min_value, max_value;
@@ -100,7 +100,8 @@ public  void  rebuild_colour_bar(
 
     object = slice_window->models[COLOUR_BAR_MODEL];
 
-    if( is_an_rgb_volume(get_volume(slice_window)) )
+    if( !get_slice_window_volume( slice_window, &volume ) ||
+        is_an_rgb_volume(volume) )
     {
         set_object_visibility( object, OFF );
         return;
@@ -110,12 +111,14 @@ public  void  rebuild_colour_bar(
 
     colour_bar = &slice_window->slice.colour_bar;
 
-    (void) get_slice_window_volume( slice_window, &volume );
-
     get_volume_real_range( volume, &min_value, &max_value );
 
-    start_threshold = (Real) slice_window->slice.colour_coding.min_value;
-    end_threshold = (Real) slice_window->slice.colour_coding.max_value;
+    volume_index = get_current_volume_index( slice_window );
+
+    start_threshold = (Real) slice_window->slice.
+                          volumes[volume_index].colour_coding.min_value;
+    end_threshold = (Real) slice_window->slice.
+                          volumes[volume_index].colour_coding.max_value;
 
     model = get_graphics_model( slice_window, COLOUR_BAR_MODEL );
 
@@ -148,7 +151,8 @@ public  void  rebuild_colour_bar(
 
         value = INTERPOLATE( ratio, min_value, max_value );
 
-        colour = get_colour_code( &slice_window->slice.colour_coding, value );
+        colour = get_colour_code( &slice_window->slice.volumes[volume_index].
+                                  colour_coding, value );
 
         quadmesh->colours[IJ(i,0,2)] = colour;
         quadmesh->colours[IJ(i,1,2)] = colour;
@@ -294,13 +298,18 @@ public  int  get_colour_bar_y_pos(
     display_struct      *slice_window,
     Real                value )
 {
+    Volume              volume;
     int                 x_min, y_min, x_max, y_max;
     Real                top, bottom, min_value, max_value;
     colour_bar_struct   *colour_bar;
 
+    if( !get_slice_window_volume( slice_window, &volume ) ||
+        is_an_rgb_volume( volume ) )
+        return( -1 );
+
     colour_bar = &slice_window->slice.colour_bar;
 
-    get_volume_real_range( get_volume(slice_window), &min_value, &max_value );
+    get_volume_real_range( volume, &min_value, &max_value );
     get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,
                               &x_min, &x_max, &y_min, &y_max );
     
@@ -320,8 +329,10 @@ public  BOOLEAN  mouse_within_colour_bar(
     Real                top, bottom;
     BOOLEAN             within;
     colour_bar_struct   *colour_bar;
+    Volume              volume;
 
-    if( is_an_rgb_volume(get_volume(slice_window)) )
+    if( !get_slice_window_volume( slice_window, &volume ) ||
+        is_an_rgb_volume( volume ) )
         return( FALSE );
 
     get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,

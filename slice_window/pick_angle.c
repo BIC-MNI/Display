@@ -42,7 +42,8 @@ private  DEF_EVENT_FUNCTION( start_picking_angle )    /* ARGSUSED */
 {
     int          view_index;
 
-    if( get_slice_view_index_under_mouse( display, &view_index ) )
+    if( get_n_volumes(display) > 0 &&
+        get_slice_view_index_under_mouse( display, &view_index ) )
     {
         add_action_table_function( &display->action_table,
                                    NO_EVENT, handle_update_picking_angle );
@@ -95,7 +96,7 @@ private  void  set_slice_angle(
     int               x_pixel,
     int               y_pixel )
 {
-    int        c, view_index;
+    int        c, view_index, volume_index;
     Real       origin_voxel[MAX_DIMENSIONS], voxel[MAX_DIMENSIONS];
     Real       perp_axis[MAX_DIMENSIONS], view_perp_axis[MAX_DIMENSIONS];
     Real       separations[MAX_DIMENSIONS], factor, mag, scale;
@@ -104,19 +105,22 @@ private  void  set_slice_angle(
     Vector     current_normal, plane_normal, x_axis, current_in_plane;
     Vector     offset, new_normal, in_plane;
 
-    if( !convert_pixel_to_voxel( slice_window, x_pixel, y_pixel, voxel,
-                                 &view_index ) )
+    volume_index = get_current_volume_index( slice_window );
+    if( !convert_pixel_to_voxel( slice_window, volume_index,
+                                 x_pixel, y_pixel, voxel, &view_index ) )
     {
         return;
     }
 
     /*--- get the information in voxel coordinates */
 
-    get_current_voxel( slice_window, origin_voxel );
-    get_volume_separations( get_volume(slice_window), separations );
-    get_slice_perp_axis( slice_window, view_index, view_perp_axis );
-    get_slice_perp_axis( slice_window, get_arbitrary_view_index(slice_window),
-                         perp_axis );
+    get_current_voxel( slice_window, volume_index, origin_voxel );
+    get_volume_separations( get_nth_volume(slice_window,volume_index),
+                            separations );
+    get_slice_perp_axis( slice_window, volume_index, view_index,
+                         view_perp_axis );
+    get_slice_perp_axis( slice_window, volume_index,
+                         get_arbitrary_view_index(slice_window), perp_axis );
 
     /*--- convert the info to points and vectors in pseudo-world space */
 
@@ -184,11 +188,8 @@ private  void  set_slice_angle(
     for_less( c, 0, N_DIMENSIONS )
         new_axis[c] = Vector_coord( new_normal, c ) / separations[c];
 
-    set_slice_plane_perp_axis( slice_window,
+    set_slice_plane_perp_axis( slice_window, volume_index,
                                get_arbitrary_view_index(slice_window),
                                new_axis );
     reset_slice_view( slice_window, get_arbitrary_view_index(slice_window) );
-    set_slice_window_update( slice_window,
-                             get_arbitrary_view_index(slice_window),
-                             UPDATE_BOTH );
 }

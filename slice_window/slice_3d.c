@@ -85,15 +85,18 @@ private  void   create_box(
 public  void  rebuild_volume_outline(
     display_struct    *slice_window )
 {
-    Volume          volume;
+    display_struct    *display;
+    Volume            volume;
+
+    display = get_three_d_window( slice_window );
 
     if( get_slice_window_volume( slice_window, &volume ) )
     {
-        create_box( volume,
-           slice_window->associated[THREE_D_WINDOW]->three_d.volume_outline );
-        set_update_required( slice_window->associated[THREE_D_WINDOW],
-                             NORMAL_PLANES );
+        create_box( volume, display->three_d.volume_outline );
+        set_update_required( display, NORMAL_PLANES );
     }
+    else
+        set_object_visibility( display->three_d.volume_outline, FALSE );
 }
 
 private  void   create_cross_section(
@@ -152,24 +155,27 @@ public  void  rebuild_volume_cross_section(
     display_struct  *slice_window;
     Volume          volume;
 
+    display = get_three_d_window( display );
+
     if( get_slice_window( display, &slice_window ) &&
         get_slice_window_volume( slice_window, &volume ) &&
-        get_object_visibility(
-            slice_window->associated[THREE_D_WINDOW]->three_d.cross_section ) )
+        get_object_visibility( display->three_d.cross_section ) )
     {
-        get_slice_plane( slice_window, get_arbitrary_view_index(slice_window),
+        get_slice_plane( slice_window,
+                         get_current_volume_index(slice_window),
+                         get_arbitrary_view_index(slice_window),
                          origin, x_axis, y_axis );
         get_slice_perp_axis( slice_window,
-                             get_arbitrary_view_index(slice_window),
-                             z_axis );
+                             get_current_volume_index(slice_window),
+                             get_arbitrary_view_index(slice_window), z_axis );
 
-        create_cross_section( volume,
-           slice_window->associated[THREE_D_WINDOW]->three_d.cross_section,
-           origin, x_axis, y_axis, z_axis );
+        create_cross_section( volume, display->three_d.cross_section,
+                              origin, x_axis, y_axis, z_axis );
 
-        set_update_required( slice_window->associated[THREE_D_WINDOW],
-                             NORMAL_PLANES );
+        set_update_required( display, NORMAL_PLANES );
     }
+    else
+        set_object_visibility( display->three_d.cross_section, FALSE );
 }
 
 public  void  set_volume_cross_section_visibility(
@@ -178,20 +184,18 @@ public  void  set_volume_cross_section_visibility(
 {
     display_struct  *slice_window;
 
+    display = get_three_d_window( display );
+    state = get_n_volumes(display) > 0;
+
     if( get_slice_window( display, &slice_window ) )
     {
-        set_object_visibility(
-           slice_window->associated[THREE_D_WINDOW]->three_d.volume_outline,
-           state );
-        set_object_visibility(
-           slice_window->associated[THREE_D_WINDOW]->three_d.cross_section,
-           state );
+        set_object_visibility( display->three_d.volume_outline, state );
+        set_object_visibility( display->three_d.cross_section, state );
 
         if( state )
             rebuild_volume_cross_section( slice_window );
 
-        set_update_required( slice_window->associated[THREE_D_WINDOW],
-                             NORMAL_PLANES );
+        set_update_required( display, NORMAL_PLANES );
     }
 }
 
@@ -201,7 +205,7 @@ public  BOOLEAN  get_volume_cross_section_visibility(
     BOOLEAN         state;
 
     state = get_object_visibility(
-               display->associated[THREE_D_WINDOW]->three_d.volume_outline );
+                   get_three_d_window(display)->three_d.volume_outline );
 
     return( state );
 }

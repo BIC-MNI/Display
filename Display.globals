@@ -82,8 +82,6 @@ Default_marker_size = 0.5;
 Default_marker_label = "Marker";
 Marker_pick_size = 3.0;
 
-N_expansion_voxels = 1;
-
 N_selected_displayed = 12;
 Selected_x_origin = 650.0;
 Selected_y_origin = 240.0;
@@ -108,7 +106,7 @@ Slice_divider_bottom = 5;
 Slice_divider_x_position = 0.5;
 Slice_divider_y_position = 0.5;
 Left_panel_width = 90;
-Text_panel_height = 160;
+Text_panel_height = 170;
 Slice_text_colour = GREEN;
 Readout_text_colour = 2;
 Readout_text_rgb_colour = GREEN;
@@ -127,7 +125,7 @@ Slice_probe_z_world_format   = "Zw %6.1f";
 Slice_probe_voxel_format     = "Vx %6.4g";
 Slice_probe_val_format       = "Vl %6.4g";
 Slice_probe_label_format     = "Lb %6d";
-Probe_x_pos = 5;
+Probe_x_pos = 2;
 Probe_y_pos = 5;
 Probe_x_delta = 0;
 Probe_y_delta = 15;
@@ -246,7 +244,7 @@ Smoothing_threshold = 0.01;
 
 Surface_curve_colour = MAGENTA;
 Surface_curve_thickness = 3;
-Surface_curve_overlay_flag = TRUE;
+Surface_curve_overlay_flag = FALSE;
 Line_curvature_weight = 0.0;
 
 N_painting_polygons = 100;

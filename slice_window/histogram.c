@@ -155,13 +155,15 @@ public  void  compute_histogram(
 {
     int            i;
     lines_struct   *unscaled_lines, *lines;
+    Volume         volume;
 
     clear_histogram( slice_window );
 
-    if( is_an_rgb_volume(get_volume(slice_window)) )
+    if( !get_slice_window_volume(slice_window,&volume) ||
+        is_an_rgb_volume(volume) )
         return;
 
-    compute_histogram_lines( get_volume(slice_window),
+    compute_histogram_lines( volume,
                              get_label_volume(slice_window), labeled_only,
                              axis_index, voxel_index,
                              Histogram_smoothness_ratio,

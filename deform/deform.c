@@ -32,7 +32,7 @@ private  DEF_EVENT_FUNCTION( deform_object )    /* ARGSUSED */
         display->three_d.deform.deform.deform_data.volume =
                                                  get_volume( display );
         display->three_d.deform.deform.deform_data.label_volume =
-                                                 get_label_volume( display );
+                                               get_label_volume( display );
 
         if( display->three_d.deform.using_simulated_annealing )
         {
@@ -181,6 +181,7 @@ public  void  turn_off_deformation(
                 get_polygons_ptr(display->three_d.deform.deforming_object) );
 
             set_slice_window_all_update( display->associated[SLICE_WINDOW],
+                                         get_current_volume_index(slice_window),
                                          UPDATE_LABELS );
         }
     }

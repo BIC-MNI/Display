@@ -1,5 +1,10 @@
 #include  <display.h>
 
+private  void  set_slice_crop_position(
+    display_struct    *slice_window,
+    int               x_pixel,
+    int               y_pixel );
+
 public  void  initialize_crop_box(
     display_struct   *slice_window )
 {
@@ -25,13 +30,14 @@ public  void  set_crop_filename(
 public  void  crop_and_load_volume(
     display_struct   *slice_window )
 {
+    STRING                cropped_filename;
+    char                  command[10*MAX_STRING_LENGTH];
     Volume                file_volume, volume;
     volume_input_struct   volume_input;
     Real                  xw, yw, zw;
     Real                  voxel[MAX_DIMENSIONS];
     Real                  min_voxel[MAX_DIMENSIONS];
     Real                  max_voxel[MAX_DIMENSIONS];
-    Real                  limits[2][MAX_DIMENSIONS];
     BOOLEAN               first;
     int                   c, limit1, limit2, limit3;
     int                   sizes[MAX_DIMENSIONS];
@@ -45,7 +51,7 @@ public  void  crop_and_load_volume(
     }
 
     if( start_volume_input( slice_window->slice.crop.filename, 3,
-                            XYZ_dimension_names,
+                            NULL,
                             NC_UNSPECIFIED, FALSE, 0.0, 0.0,
                             TRUE, &file_volume,
                             (minc_input_options *) NULL,
@@ -104,6 +110,36 @@ public  void  crop_and_load_volume(
 
     delete_volume_input( &volume_input );
     delete_volume( file_volume );
+
+    (void) tmpnam( cropped_filename );
+
+    (void) strcat( cropped_filename, ".mnc" );
+
+    (void) sprintf( command, Crop_volume_command,
+                    slice_window->slice.crop.filename,
+                    cropped_filename,
+                    int_min_voxel[X], int_min_voxel[Y], int_min_voxel[Z],
+                    int_max_voxel[X] - int_min_voxel[X] + 1,
+                    int_max_voxel[Y] - int_min_voxel[Y] + 1,
+                    int_max_voxel[Z] - int_min_voxel[Z] + 1 );
+
+    print( "Issuing system command:\n\t%s\n", command );
+
+    if( system( command ) != 0 )
+    {
+        print( "Error cropping volume: %s\n",
+               slice_window->slice.crop.filename );
+        return;
+    }
+
+    (void) load_graphics_file( get_three_d_window(slice_window),
+                               cropped_filename );
+
+    remove_file( cropped_filename );
+
+    slice_window->slice.crop.crop_visible = FALSE;
+
+    set_crop_box_update( slice_window, -1 );
 }
 
 public  void  toggle_slice_crop_box_visibility(
@@ -112,7 +148,36 @@ public  void  toggle_slice_crop_box_visibility(
     slice_window->slice.crop.crop_visible =
                    !slice_window->slice.crop.crop_visible;
 
-    rebuild_slice_crop_boxes( slice_window );
+    set_crop_box_update( slice_window, -1 );
+}
+
+public  void  reset_crop_box_position(
+    display_struct   *display )
+{
+    Volume           volume;
+    int              c, sizes[MAX_DIMENSIONS];
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_slice_window_volume( slice_window, &volume ) )
+    {
+        get_volume_sizes( volume, sizes );
+        for_less( c, 0, N_DIMENSIONS )
+        {
+            slice_window->slice.crop.limits[0][c] = 0.0;
+            slice_window->slice.crop.limits[1][c] = (Real) sizes[c] - 1.0;
+        }
+    }
+    else
+    {
+        for_less( c, 0, N_DIMENSIONS )
+        {
+            slice_window->slice.crop.limits[0][c] = 0.0;
+            slice_window->slice.crop.limits[1][c] = 1.0;
+        }
+    }
+
+    set_crop_box_update( slice_window, -1 );
 }
     
 private    DEF_EVENT_FUNCTION( start_picking_box );
@@ -122,7 +187,7 @@ private    DEF_EVENT_FUNCTION( handle_update_picking_box );
 private  void  update_picking_box(
     display_struct    *slice_window );
 
-public  void  start_picking_slice_box(
+public  void  start_picking_crop_box(
     display_struct    *slice_window )
 {
     terminate_any_interactions( slice_window );
@@ -138,7 +203,14 @@ public  void  start_picking_slice_box(
     add_action_table_function( &slice_window->action_table,
                                LEFT_MOUSE_DOWN_EVENT, start_picking_box );
 
+    if( slice_window->slice.crop.limits[0][0] ==
+        slice_window->slice.crop.limits[1][0] )
+    {
+        reset_crop_box_position( slice_window );
+    }
+
     slice_window->slice.crop.crop_visible = TRUE;
+    set_crop_box_update( slice_window, -1 );
 }
 
 private  void  terminate_event(
@@ -157,7 +229,6 @@ private  DEF_EVENT_FUNCTION( start_picking_box )    /* ARGSUSED */
     int          limit_being_moved, axis_being_moved;
     int          x_min, x_max, y_min, y_max;
     Real         x_low, y_low, x_high, y_high, dist, best_dist;
-    Real         limits[2][MAX_DIMENSIONS];
 
     if( get_n_volumes(display) > 0 &&
         get_slice_view_index_under_mouse( display, &view_index ) &&
@@ -174,9 +245,11 @@ private  DEF_EVENT_FUNCTION( start_picking_box )    /* ARGSUSED */
 
         volume_index = get_current_volume_index(display);
         (void) convert_voxel_to_pixel( display, volume_index, view_index,
-                                       limits[0], &x_low, &y_low );
+                                       display->slice.crop.limits[0],
+                                       &x_low, &y_low );
         (void) convert_voxel_to_pixel( display, volume_index, view_index,
-                                       limits[1], &x_high, &y_high );
+                                       display->slice.crop.limits[1],
+                                       &x_high, &y_high );
 
         limit_being_moved = 0;
         axis_being_moved = x_index;
@@ -190,7 +263,7 @@ private  DEF_EVENT_FUNCTION( start_picking_box )    /* ARGSUSED */
             best_dist = dist;
         }
 
-        dist = ABS( x_high - y_mouse );
+        dist = ABS( x_high - x_mouse );
         if( dist < best_dist )
         {
             limit_being_moved = 1;
@@ -258,7 +331,7 @@ private  void  set_slice_crop_position(
     int               x_pixel,
     int               y_pixel )
 {
-    int        c, view_index, volume_index;
+    int        view_index, volume_index;
     int        limit_being_moved, axis_being_moved;
     int        x_min, x_max, y_min, y_max;
     Real       voxel[MAX_DIMENSIONS], origin[MAX_DIMENSIONS];
@@ -287,11 +360,17 @@ private  void  set_slice_crop_position(
          voxel );
 
     if( slice_window->slice.crop.limits[limit_being_moved][axis_being_moved] !=
-        voxel[axis_being_moved] )
+        voxel[axis_being_moved] &&
+        (limit_being_moved == 0 &&
+         voxel[axis_being_moved] <
+                slice_window->slice.crop.limits[1][axis_being_moved] ||
+         limit_being_moved == 1 &&
+         voxel[axis_being_moved] >
+                slice_window->slice.crop.limits[0][axis_being_moved]) )
     {
         slice_window->slice.crop.limits[limit_being_moved][axis_being_moved] =
                                               voxel[axis_being_moved];
     }
 
-    rebuild_slice_crop_boxes( slice_window );
+    set_crop_box_update( slice_window, -1 );
 }

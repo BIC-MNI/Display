@@ -65,9 +65,9 @@ public  void  start_surface_extraction_at_point(
     surface_extraction_struct   *surface_extraction;
     voxel_index_struct          voxel_indices;
 
+    initialize_surface_extraction_for_volume( display, volume, label_volume );
+
     surface_extraction = &display->three_d.surface_extraction;
-    surface_extraction->volume = volume;
-    surface_extraction->label_volume = label_volume;
     surface_extraction->binary_flag = binary_flag;
     surface_extraction->min_value = min_value;
     surface_extraction->max_value = max_value;
@@ -168,11 +168,8 @@ private  BOOLEAN  find_close_voxel_containing_range(
         else if( voxel_contains || !voxel_done )
         {
             add_voxel_neighbours( volume, label_volume,
-                                  indices.i[X],
-                                  indices.i[Y],
-                                  indices.i[Z],
-                                  voxel_done,
-                                  surface_extraction,
+                                  indices.i[X], indices.i[Y], indices.i[Z],
+                                  voxel_done, surface_extraction,
                                   &voxels_searched, &voxels_to_check );
         }
     }

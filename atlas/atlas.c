@@ -327,7 +327,7 @@ public  void  set_atlas_state(
     slice_window->slice.atlas.enabled = state;
 }
 
-public  void  blend_in_atlas(
+public  BOOLEAN  render_atlas_slice_to_pixels(
     atlas_struct  *atlas,
     Colour        image[],
     int           image_x_size,
@@ -345,10 +345,10 @@ public  void  blend_in_atlas(
     Real           x_atlas_to_voxel, y_atlas_to_voxel;
     int            x_pixel, y_pixel;
     Real           x_pixel_start, y_pixel_start;
-    int            r_atlas, g_atlas, b_atlas, r_voxel, g_voxel, b_voxel;
-    int            r, g, b, transparent_threshold;
+    int            r_atlas, g_atlas, b_atlas;
+    int            transparent_threshold;
     int            *x_pixels;
-    Colour         voxel_pixel, atlas_pixel, *lookup, *pixels;
+    Colour         atlas_pixel, *lookup, *pixels;
     unsigned  char *atlas_image;
     Real           opacity;
 
@@ -364,7 +364,7 @@ public  void  blend_in_atlas(
                       &atlas_image, &atlas_x_size, &atlas_y_size,
                       &x_atlas_to_voxel, &y_atlas_to_voxel ) )
     {
-        return;
+        return( FALSE );
     }
 
     opacity = atlas->opacity;
@@ -411,16 +411,11 @@ public  void  blend_in_atlas(
                         g_atlas <= transparent_threshold ||
                         b_atlas <= transparent_threshold )
                     {
-                        voxel_pixel = *pixels;
-                        r_voxel = get_Colour_r(voxel_pixel);
-                        g_voxel = get_Colour_g(voxel_pixel);
-                        b_voxel = get_Colour_b(voxel_pixel);
-
-                        r = ROUND( r_voxel + (r_atlas - r_voxel) * opacity );
-                        g = ROUND( g_voxel + (g_atlas - g_voxel) * opacity );
-                        b = ROUND( b_voxel + (b_atlas - b_voxel) * opacity );
-                        *pixels = make_Colour( r, g, b );
+                        *pixels = make_rgba_Colour( r_atlas, g_atlas, b_atlas,
+                                                    255.0 * opacity );
                     }
+                    else
+                        *pixels = make_rgba_Colour( 0, 0, 0, 0 );
                 }
 
                 ++pixels;
@@ -429,6 +424,8 @@ public  void  blend_in_atlas(
     }
 
     FREE( x_pixels );
+
+    return( TRUE );
 }
 
 private  BOOLEAN  find_appropriate_atlas_image(
