@@ -58,7 +58,7 @@ private  DEF_EVENT_FUNCTION( pick_start_point )
     Status            check_polygons_neighbours_computed();
     int               poly_index;
     polygons_struct   *polygons, *edit_polygons;
-    Point             intersection_point;
+    Point             point;
     void              remove_events();
     void              set_update_required();
 
@@ -66,9 +66,8 @@ private  DEF_EVENT_FUNCTION( pick_start_point )
 
     status = OK;
 
-    if( get_edited_polygons( &graphics->three_d.surface_edit, &edit_polygons )
-        && get_mouse_scene_intersection( graphics, &polygons, &poly_index,
-                                         &intersection_point ) &&
+    if( get_edited_polygons( &graphics->three_d.surface_edit, &edit_polygons )&&
+        get_polygon_under_mouse( graphics, &polygons, &poly_index, &point ) &&
         edit_polygons == polygons )
     {
         status = check_polygons_neighbours_computed( polygons );

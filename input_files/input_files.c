@@ -27,7 +27,7 @@ public  Status  load_graphics_file( graphics, filename )
     int                      n_items, len;
     Status                   create_polygons_bintree();
     Status                   check_polygons_neighbours_computed();
-    Status                   initialize_cursor();
+    Status                   reset_cursor();
     volume_struct            *volume, *volume_read_in;
     void                     set_update_required();
     Status                   initialize_object_traverse();
@@ -72,7 +72,9 @@ public  Status  load_graphics_file( graphics, filename )
                                           &graphics->three_d.
                                                default_marker_colour,
                                           graphics->three_d.
-                                               default_marker_size );
+                                               default_marker_size,
+                                          graphics->three_d.
+                                               default_marker_type );
         }
         else if( string_ends_in(filename_no_z,".cnt") )
         {
@@ -179,7 +181,7 @@ public  Status  load_graphics_file( graphics, filename )
                      graphics->three_d.centre_of_objects,
                      0.5 );
 
-        status = initialize_cursor( graphics );
+        status = reset_cursor( graphics );
     }
 
     if( status == OK && markers_present )

@@ -765,15 +765,15 @@ public  Boolean  get_voxel_in_three_d_window( graphics, x, y, z )
     int               *x, *y, *z;
 {
     Boolean          found;
-    polygons_struct  *polygons;
-    int              poly_index;
+    object_struct    *object;
+    int              object_index;
     Point            intersection_point;
     graphics_struct  *slice_window;
     Real             xr, yr, zr;
 
     found = FALSE;
 
-    if( get_mouse_scene_intersection( graphics, &polygons, &poly_index,
+    if( get_mouse_scene_intersection( graphics, &object, &object_index,
                                       &intersection_point ) )
     {
         slice_window = graphics->associated[SLICE_WINDOW];
@@ -781,8 +781,8 @@ public  Boolean  get_voxel_in_three_d_window( graphics, x, y, z )
         if( slice_window != (graphics_struct *) 0 )
         {
             if( get_voxel_corresponding_to_point( slice_window,
-                                        &intersection_point,
-                                        &xr, &yr, &zr ) )
+                                                  &intersection_point,
+                                                  &xr, &yr, &zr ) )
             {
                 *x = ROUND( xr );
                 *y = ROUND( yr );

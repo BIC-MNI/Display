@@ -272,6 +272,10 @@ START_GLOBALS
     DEF_GLOBAL_STRING( Atlas_filename, "" )
     DEF_GLOBAL( Default_atlas_state, Boolean, FALSE )
 
+    DEF_GLOBAL( Marker_threshold, Real, 6.0 )
+    DEF_GLOBAL( Marker_segment_id, int, 1000 )
+    DEF_GLOBAL( Use_marker_distances, Boolean, TRUE )
+
 END_GLOBALS
          
 #endif

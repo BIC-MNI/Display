@@ -87,15 +87,14 @@ public  DEF_MENU_FUNCTION( set_connected_invisible )   /* ARGSUSED */
 {
     polygons_struct  *polygons;
     int              poly_index;
-    Point            intersection_point;
+    Point            point;
     void             set_update_required();
     Status           status;
     Status           set_visibility_around_poly();
 
     status = OK;
 
-    if( get_mouse_scene_intersection( graphics, &polygons, &poly_index,
-                                      &intersection_point ) )
+    if( get_polygon_under_mouse( graphics, &polygons, &poly_index, &point ) )
     {
         status = set_visibility_around_poly( polygons, poly_index,
                 polygons->n_items,
@@ -123,8 +122,7 @@ public  DEF_MENU_FUNCTION( paint_invisible )   /* ARGSUSED */
 
     status = OK;
 
-    if( get_mouse_scene_intersection( graphics, &polygons, &poly_index,
-                                      &point ) )
+    if( get_polygon_under_mouse( graphics, &polygons, &poly_index, &point ) )
     {
         status = set_visibility_around_poly( polygons, poly_index,
                        graphics->three_d.surface_edit.n_paint_polygons,
@@ -153,8 +151,7 @@ public  DEF_MENU_FUNCTION( paint_visible )   /* ARGSUSED */
 
     status = OK;
 
-    if( get_mouse_scene_intersection( graphics, &polygons, &poly_index,
-                                      &point ) )
+    if( get_polygon_under_mouse( graphics, &polygons, &poly_index, &point ) )
     {
         status = set_visibility_around_poly( polygons, poly_index,
                          graphics->three_d.surface_edit.n_paint_polygons,
@@ -176,15 +173,14 @@ public  DEF_MENU_FUNCTION( set_connected_vis_colour )   /* ARGSUSED */
 {
     polygons_struct  *polygons;
     int              poly_index;
-    Point            intersection_point;
+    Point            point;
     void             set_update_required();
     Status           status;
     Status           set_visibility_around_poly();
 
     status = OK;
 
-    if( get_mouse_scene_intersection( graphics, &polygons, &poly_index,
-                                      &intersection_point ) )
+    if( get_polygon_under_mouse( graphics, &polygons, &poly_index, &point ) )
     {
         status = set_visibility_around_poly( polygons, poly_index,
                  polygons->n_items,
@@ -205,15 +201,14 @@ public  DEF_MENU_FUNCTION( set_connected_invis_colour )   /* ARGSUSED */
 {
     polygons_struct  *polygons;
     int              poly_index;
-    Point            intersection_point;
+    Point            point;
     void             set_update_required();
     Status           status;
     Status           set_visibility_around_poly();
 
     status = OK;
 
-    if( get_mouse_scene_intersection( graphics, &polygons, &poly_index,
-                                      &intersection_point ) )
+    if( get_polygon_under_mouse( graphics, &polygons, &poly_index, &point ) )
     {
         status = set_visibility_around_poly( polygons, poly_index,
                polygons->n_items,
@@ -241,8 +236,7 @@ public  DEF_MENU_FUNCTION( paint_invis_colour )   /* ARGSUSED */
 
     status = OK;
 
-    if( get_mouse_scene_intersection( graphics, &polygons, &poly_index,
-                                      &point ) )
+    if( get_polygon_under_mouse( graphics, &polygons, &poly_index, &point ) )
     {
         status = set_visibility_around_poly( polygons, poly_index,
                        graphics->three_d.surface_edit.n_paint_polygons,
@@ -271,8 +265,7 @@ public  DEF_MENU_FUNCTION( paint_vis_colour )   /* ARGSUSED */
 
     status = OK;
 
-    if( get_mouse_scene_intersection( graphics, &polygons, &poly_index,
-                                      &point ) )
+    if( get_polygon_under_mouse( graphics, &polygons, &poly_index, &point ) )
     {
         status = set_visibility_around_poly( polygons, poly_index,
                          graphics->three_d.surface_edit.n_paint_polygons,

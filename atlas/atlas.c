@@ -307,7 +307,7 @@ public  void  blend_in_atlas( atlas, image, image_x_size, image_y_size,
     int            r, g, b, transparent_threshold;
     Pixel_colour   voxel_pixel, atlas_pixel, *lookup, *pixels;
     unsigned  char *atlas_image;
-    Pixel_colour   *get_pixels8_lookup_table();
+    Pixel_colour   *get_8bit_rgb_pixel_lookup();
     Real           opacity;
 
     if( !atlas->enabled || atlas->opacity <= 0.0 ||
@@ -327,7 +327,7 @@ public  void  blend_in_atlas( atlas, image, image_x_size, image_y_size,
 
     opacity = atlas->opacity;
     transparent_threshold = atlas->transparent_threshold;
-    lookup = get_pixels8_lookup_table();
+    lookup = get_8bit_rgb_pixel_lookup();
 
     x_pixel_start = voxel_start_indices[a1] / dx / atlas_multiplier_x;
     y_pixel_start = voxel_start_indices[a2] / dy / atlas_multiplier_y;

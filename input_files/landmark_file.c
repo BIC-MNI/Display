@@ -4,13 +4,15 @@
 
 public  Status   input_landmark_file( volume,
                                       filename, n_objects, object_list,
-                                      marker_colour, default_size )
+                                      marker_colour, default_size,
+                                      default_type )
     volume_struct  *volume;
     char           filename[];
     int            *n_objects;
     object_struct  ***object_list;
     Colour         *marker_colour;
     Real           default_size;
+    Marker_types   default_type;
 {
     Status                  status;
     Status                  add_object_to_list();
@@ -35,6 +37,7 @@ public  Status   input_landmark_file( volume,
             if( status == OK )
             {
                 marker.colour = *marker_colour;
+                marker.type = default_type;
                 *(object->ptr.marker) = marker;
 
                 status = add_object_to_list( n_objects, object_list, object );

@@ -669,3 +669,41 @@ public  DEF_MENU_UPDATE(classify_markers )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( set_marker_segmentation_threshold )   /* ARGSUSED */
+{
+    Real        threshold;
+    Real        get_marker_threshold();
+    void        set_marker_threshold();
+
+    PRINT( "The current marker threshold is: %g\n",
+           get_marker_threshold(&graphics->three_d.marker_segmentation) );
+
+    PRINT( "Enter the new value: " );
+
+    if( input_real( stdin, &threshold ) == OK )
+    {
+        set_marker_threshold(&graphics->three_d.marker_segmentation, threshold);
+        
+        PRINT( "The new default marker size is: %g\n",
+               get_marker_threshold(&graphics->three_d.marker_segmentation) );
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_marker_segmentation_threshold )   /* ARGSUSED */
+{
+    String  text;
+    void    set_menu_text();
+    Real    get_marker_threshold();
+
+    (void) sprintf( text, label,
+                get_marker_threshold(&graphics->three_d.marker_segmentation) );
+
+    set_menu_text( menu_window, menu_entry, text );
+
+    return( OK );
+}

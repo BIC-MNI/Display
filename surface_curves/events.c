@@ -88,8 +88,7 @@ private  DEF_EVENT_FUNCTION( pick_point )    /* ARGSUSED */
 
     status = OK;
 
-    if( get_mouse_scene_intersection( graphics, &polygons, &poly_index,
-                                      &point ) )
+    if( get_polygon_under_mouse( graphics, &polygons, &poly_index, &point ) )
     {
         info = &graphics->three_d.surface_curve;
 

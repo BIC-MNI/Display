@@ -6,6 +6,7 @@
 #include  <def_slice.h>
 #include  <def_surface_extract.h>
 #include  <def_surface_fitting.h>
+#include  <def_marker_segment.h>
 
 #define  LEFT_ARROW_KEY    1
 #define  RIGHT_ARROW_KEY   2
@@ -58,6 +59,7 @@ typedef  struct
     Real                       default_marker_size;
     Colour                     default_marker_colour;
     String                     default_marker_label;
+    marker_segment_struct      marker_segmentation;
 } three_d_window_struct;
 
 

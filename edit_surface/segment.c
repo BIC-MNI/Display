@@ -119,7 +119,7 @@ private  Status   add_polygon_under_mouse( graphics )
 {
     Status               status;
     int                  poly_index;
-    Point                intersection_point;
+    Point                point;
     polygons_struct      *edit_polygons, *polygons;
     surface_edit_struct  *surface_edit;
     Boolean              get_edited_polygons();
@@ -130,8 +130,7 @@ private  Status   add_polygon_under_mouse( graphics )
 
     if( mouse_moved( graphics) &&
         get_edited_polygons( surface_edit, &edit_polygons ) &&
-        get_mouse_scene_intersection( graphics, &polygons, &poly_index,
-                                      &intersection_point ) &&
+        get_polygon_under_mouse( graphics, &polygons, &poly_index, &point ) &&
         edit_polygons == polygons )
     {
         if( surface_edit->n_vertices == 0 ||

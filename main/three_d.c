@@ -24,6 +24,7 @@ public  Status  initialize_three_d_window( graphics )
     Status                 initialize_cursor();
     Status                 initialize_surface_curve();
     void                   initialize_surface_edit();
+    void                   initialize_marker_segmentation();
     void                   reset_view_parameters();
     three_d_window_struct  *three_d;
     void                   update_view();
@@ -69,6 +70,7 @@ public  Status  initialize_three_d_window( graphics )
     update_view( graphics );
 
     initialize_surface_edit( &graphics->three_d.surface_edit );
+    initialize_marker_segmentation( &graphics->three_d.marker_segmentation );
 
     status =initialize_surface_fitting( &graphics->three_d.surface_fitting );
 
@@ -128,6 +130,9 @@ public  Status  delete_three_d( graphics )
     Status    delete_surface_extraction();
     Status    delete_surface_fitting();
     Status    delete_surface_edit();
+    void      delete_marker_segmentation();
+
+    delete_marker_segmentation( &graphics->three_d.marker_segmentation );
 
     status = terminate_current_object( &graphics->three_d.current_object );
 

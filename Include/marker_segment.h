@@ -6,9 +6,11 @@
 
 typedef struct
 {
+    Real             threshold_distance;
+    Boolean          must_be_reinitialized;
     model_struct     *model;
     int              n_objects;
-    bitlist_struct   *connected;
+    float            **distances;
 }
 marker_segment_struct;
 

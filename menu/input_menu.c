@@ -128,6 +128,7 @@
                        MENU_FUNCTION(create_marker_at_cursor) \
                        MENU_FUNCTION(set_cursor_to_marker) \
                        MENU_FUNCTION(save_markers) \
+                       MENU_FUNCTION(set_marker_segmentation_threshold) \
                        MENU_FUNCTION(set_default_marker_structure_id) \
                        MENU_FUNCTION(set_default_marker_patient_id) \
                        MENU_FUNCTION(set_default_marker_type) \

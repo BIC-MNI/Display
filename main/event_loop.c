@@ -10,16 +10,31 @@ public  Status   main_event_loop()
 {
     Status   status;
     Status   process_events();
-    Real     update_time;
+    Real     update_time, current_time, previous_event_time;
+    Real     time_since_last_process_events;
     Real     current_realtime_seconds();
+    void     sleep_program();
 
     status = OK;
 
     update_time = 0.0;
+    previous_event_time = -1000.0;
 
     while( status != QUIT )
     {
+        current_time = current_realtime_seconds();
+
+        time_since_last_process_events = current_time - previous_event_time;
+
+        if( time_since_last_process_events < Min_interval_between_events )
+        {
+            sleep_program( Min_interval_between_events -
+                           time_since_last_process_events );
+        }
+
         status = process_events( update_time );
+
+        previous_event_time = current_realtime_seconds();
 
         if( status != QUIT )
         {
