@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.97 1995-08-31 15:36:35 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.98 1995-09-01 02:09:00 david Exp $";
 #endif
 
 #include  <display.h>
@@ -1004,7 +1004,7 @@ private  void  render_slice_to_pixels(
     Real                  origin[MAX_DIMENSIONS];
     Real                  x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
     Real                  current_time, previous_time, time_to_create;
-    BOOLEAN               first_flag;
+    BOOLEAN               first_flag, some_pixels_added;
     Colour                **colour_map;
     loaded_volume_struct  *vol_info;
 
@@ -1071,6 +1071,8 @@ private  void  render_slice_to_pixels(
 
     n_pixels_redraw = vol_info->views[view_index].n_pixels_redraw;
     edge_index = vol_info->views[view_index].edge_index;
+
+    some_pixels_added = FALSE;
 
     do
     {
@@ -1181,6 +1183,8 @@ private  void  render_slice_to_pixels(
                     slice_window->slice.render_storage,
                     &n_alloced, pixels );
 
+            some_pixels_added = TRUE;
+
             pixels->x_position += x_sub_min;
             pixels->y_position += y_sub_min;
 
@@ -1223,7 +1227,7 @@ private  void  render_slice_to_pixels(
 
         continuing_flag = TRUE;
     }
-    while( !(*interrupted) &&
+    while( !some_pixels_added &&
            (vol_info->views[view_index].x_min_update > 0 ||
             vol_info->views[view_index].x_max_update < pixels->x_size-1 ||
             vol_info->views[view_index].y_min_update > 0 ||
