@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/surface.c,v 1.58 1996-05-17 19:38:20 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/surface.c,v 1.59 1996-05-21 14:04:05 david Exp $";
 #endif
 
 
@@ -391,14 +391,12 @@ public  BOOLEAN  extract_more_surface(
     return( changed );
 }
 
-public  void  tell_surface_extraction_label_changed(
+public  void  tell_surface_extraction_range_of_labels_changed(
     display_struct    *display,
     int               volume_index,
-    int               x,
-    int               y,
-    int               z )
+    int               range[2][N_DIMENSIONS] )
 {
-    int                         dim, voxel[N_DIMENSIONS];
+    int                         dim;
     Volume                      label_volume;
     surface_extraction_struct   *surface_extraction;
 
@@ -412,16 +410,12 @@ public  void  tell_surface_extraction_label_changed(
     {
         surface_extraction->labels_changed = TRUE;
 
-        voxel[X] = x;
-        voxel[Y] = y;
-        voxel[Z] = z;
-
         for_less( dim, 0, N_DIMENSIONS )
         {
-            if( voxel[dim] <= surface_extraction->min_limits[dim] )
-                voxel[dim] = surface_extraction->min_limits[dim]+1;
-            if( voxel[dim] >= surface_extraction->max_limits[dim] )
-                voxel[dim] = surface_extraction->max_limits[dim]-1;
+            if( range[0][dim] <= surface_extraction->min_limits[dim] )
+                range[0][dim] = surface_extraction->min_limits[dim]+1;
+            if( range[1][dim] >= surface_extraction->max_limits[dim] )
+                range[1][dim] = surface_extraction->max_limits[dim]-1;
         }
 
         if( surface_extraction->min_changed_limits[X] >
@@ -429,22 +423,50 @@ public  void  tell_surface_extraction_label_changed(
         {
             for_less( dim, 0, N_DIMENSIONS )
             {
-                surface_extraction->min_changed_limits[dim] = voxel[dim]-1;
-                surface_extraction->max_changed_limits[dim] = voxel[dim]+1;
-                surface_extraction->starting_voxel[dim] = voxel[dim]-1;
+                surface_extraction->min_changed_limits[dim] = range[0][dim]-1;
+                surface_extraction->max_changed_limits[dim] = range[1][dim]+1;
+                surface_extraction->starting_voxel[dim] = range[0][dim]-1;
             }
         }
         else
         {
             for_less( dim, 0, N_DIMENSIONS )
             {
-                if( voxel[dim] <= surface_extraction->min_changed_limits[dim] )
-                    surface_extraction->min_changed_limits[dim] = voxel[dim]-1;
-                if( voxel[dim] >= surface_extraction->max_changed_limits[dim] )
-                    surface_extraction->max_changed_limits[dim] = voxel[dim]+1;
+                if( range[0][dim] <=
+                               surface_extraction->min_changed_limits[dim] )
+                {
+                    surface_extraction->min_changed_limits[dim] =
+                               range[0][dim]-1;
+                }
+                if( range[1][dim] >=
+                               surface_extraction->max_changed_limits[dim] )
+                {
+                    surface_extraction->max_changed_limits[dim] =
+                               range[1][dim]+1;
+                }
             }
         }
     }
+}
+
+public  void  tell_surface_extraction_label_changed(
+    display_struct    *display,
+    int               volume_index,
+    int               x,
+    int               y,
+    int               z )
+{
+    int   range[2][N_DIMENSIONS];
+
+    range[0][X] = x;
+    range[1][X] = x;
+    range[0][Y] = y;
+    range[1][Y] = y;
+    range[0][Z] = z;
+    range[1][Z] = z;
+
+    tell_surface_extraction_range_of_labels_changed( display, volume_index,
+                                                     range );
 }
 
 private  void  add_voxel_neighbours(
