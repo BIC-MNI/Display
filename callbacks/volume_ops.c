@@ -1,7 +1,6 @@
 
 #include  <def_graphics.h>
 #include  <def_math.h>
-#include  <def_stdio.h>
 
 private  Boolean  get_current_volume( graphics, volume )
     graphics_struct   *graphics;
@@ -12,22 +11,19 @@ private  Boolean  get_current_volume( graphics, volume )
     object_struct   *current_object;
     Boolean         get_current_object();
 
-    found = get_slice_window_volume( graphics, volume );
+    found = FALSE;
 
-    if( !found )
+    if( get_current_object( graphics, &current_object ) )
     {
-        if( get_current_object( graphics, &current_object ) )
-        {
-            BEGIN_TRAVERSE_OBJECT( status, current_object )
+        BEGIN_TRAVERSE_OBJECT( status, current_object )
 
-                if( !found && OBJECT->object_type == VOLUME )
-                {
-                    found = TRUE;
-                    *volume = OBJECT->ptr.volume;
-                }
+            if( !found && OBJECT->object_type == VOLUME )
+            {
+                found = TRUE;
+                *volume = OBJECT->ptr.volume;
+            }
 
-            END_TRAVERSE_OBJECT
-        }
+        END_TRAVERSE_OBJECT
     }
 
     return( found );
@@ -143,12 +139,9 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
 {
     Status           status;
     Status           create_graphics_window();
+    int              c;
     volume_struct    *volume;
     graphics_struct  *slice_window;
-    Status           set_slice_window_volume();
-    void             rebuild_slice_models();
-
-    status = OK;
 
     if( get_current_volume( graphics, &volume ) &&
         graphics->associated[SLICE_WINDOW] == (graphics_struct *) 0 )
@@ -158,21 +151,25 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
 
         if( status == OK )
         {
+            slice_window->slice.volume = volume;
+
+            for_less( c, 0, N_DIMENSIONS )
+            {
+                slice_window->slice.slice_views[c].slice_index =
+                      (int) (volume->size[c] / 2);
+            }
+
             slice_window->associated[THREE_D_WINDOW] = graphics;
             slice_window->associated[MENU_WINDOW] = menu_window;
             slice_window->associated[SLICE_WINDOW] = slice_window;
             graphics->associated[SLICE_WINDOW] = slice_window;
             menu_window->associated[SLICE_WINDOW] = slice_window;
 
-            status = set_slice_window_volume( slice_window, volume );
-
-            rebuild_slice_models( slice_window );
-
             slice_window->update_required = TRUE;
         }
     }
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(open_slice_window )   /* ARGSUSED */
@@ -183,17 +180,35 @@ public  DEF_MENU_UPDATE(open_slice_window )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION(start_surface )   /* ARGSUSED */
 {
     int            x, y, z;
+    Point          origin;
     Boolean        get_current_volume();
     void           start_surface_extraction_at_point();
     volume_struct  *volume;
 
     if( get_current_volume( graphics, &volume ) )
     {
-        if( convert_point_to_voxel( graphics, &graphics->three_d.cursor.origin,
-                                    &x, &y, &z ) )
+        origin = graphics->three_d.cursor.origin;
+
+        x = (int) ( Point_x(origin) );
+        if( x == volume->size[X_AXIS]-1 )
         {
-            start_surface_extraction_at_point( graphics, x, y, z );
+            --x;
         }
+
+        y = (int) ( Point_y(origin) );
+        if( y == volume->size[Y_AXIS]-1 )
+        {
+            --y;
+        }
+
+        z = (int) ( Point_z(origin) );
+        if( z == volume->size[Z_AXIS]-1 )
+        {
+            --z;
+        }
+
+
+        start_surface_extraction_at_point( graphics, x, y, z );
     }
 
     return( OK );
@@ -256,330 +271,6 @@ public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(reset_surface )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(double_slice_voxels)   /* ARGSUSED */
-{
-    Status           status;
-    volume_struct    *volume;
-    graphics_struct  *slice_window;
-    Point            *mouse;
-    int              x, y, axis_index;
-    void             get_mouse_in_pixels();
-    Boolean          find_slice_view_mouse_is_in();
-    void             rebuild_slice_pixels();
-
-    status = OK;
-
-    if( get_current_volume( graphics, &volume ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        mouse = &slice_window->mouse_position;
-
-        get_mouse_in_pixels( slice_window, mouse, &x, &y );
-
-        if( find_slice_view_mouse_is_in( slice_window, x, y, &axis_index ) )
-        {
-            slice_window->slice.slice_views[axis_index].x_scale *= 2.0;
-            slice_window->slice.slice_views[axis_index].y_scale *= 2.0;
-            rebuild_slice_pixels( slice_window, axis_index );
-            slice_window->update_required = TRUE;
-        }
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(double_slice_voxels )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
-{
-    Status           status;
-    volume_struct    *volume;
-    graphics_struct  *slice_window;
-    Point            *mouse;
-    int              x, y, axis_index;
-    void             get_mouse_in_pixels();
-    Boolean          find_slice_view_mouse_is_in();
-    void             rebuild_slice_pixels();
-
-    status = OK;
-
-    if( get_current_volume( graphics, &volume ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        mouse = &slice_window->mouse_position;
-
-        get_mouse_in_pixels( slice_window, mouse, &x, &y );
-
-        if( find_slice_view_mouse_is_in( slice_window, x, y, &axis_index ) )
-        {
-            slice_window->slice.slice_views[axis_index].x_scale *= 0.5;
-            slice_window->slice.slice_views[axis_index].y_scale *= 0.5;
-            rebuild_slice_pixels( slice_window, axis_index );
-            slice_window->update_required = TRUE;
-        }
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(halve_slice_voxels )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(turn_voxel_on)   /* ARGSUSED */
-{
-    Status           status;
-    graphics_struct  *slice_window;
-    int              x, y, z, axis_index;
-    void             set_voxel_activity();
-    void             rebuild_slice_pixels();
-
-    status = OK;
-
-    if( get_voxel_under_mouse( graphics, &x, &y, &z, &axis_index ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        set_voxel_activity( slice_window->slice.volume,
-                            &slice_window->slice.voxel_activity, x, y, z,
-                            ON );
-
-        rebuild_slice_pixels( slice_window, axis_index );
-
-        slice_window->update_required = TRUE;
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(turn_voxel_on )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(turn_voxel_off)   /* ARGSUSED */
-{
-    Status           status;
-    int              x, y, z, axis_index;
-    void             set_voxel_activity();
-    void             rebuild_slice_pixels();
-    graphics_struct  *slice_window;
-
-    status = OK;
-
-    if( get_voxel_under_mouse( graphics, &x, &y, &z, &axis_index ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        set_voxel_activity( slice_window->slice.volume,
-                            &slice_window->slice.voxel_activity, x, y, z,
-                            OFF );
-
-        rebuild_slice_pixels( slice_window, axis_index );
-
-        slice_window->update_required = TRUE;
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(turn_voxel_off )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(save_inactive_voxels)   /* ARGSUSED */
-{
-    FILE             *file;
-    Status           status;
-    Status           open_output_file();
-    Status           close_file();
-    Status           io_int();
-    Status           io_newline();
-    volume_struct    *volume;
-    bitlist_struct   *voxel_activity;
-    int              x, y, z;
-    Boolean          get_voxel_activity();
-    String           filename;
-
-    status = OK;
-
-    if( get_current_volume( graphics, &volume ) )
-    {
-        (void) printf( "Enter filename: " );
-        (void) scanf( "%s", filename );
-
-        status = open_output_file( filename, &file );
-
-        if( status == OK )
-        {
-            voxel_activity = &graphics->associated[SLICE_WINDOW]->slice.
-                             voxel_activity;
-
-            for_less( x, 0, volume->size[X_AXIS] )
-            {
-                for_less( y, 0, volume->size[Y_AXIS] )
-                {
-                    for_less( z, 0, volume->size[Z_AXIS] )
-                    {
-                        if( !get_voxel_activity( volume, voxel_activity,
-                                                 x, y, z ) )
-                        {
-                            if( status == OK )
-                            {
-                                status = io_int( file, OUTPUTTING, ASCII_FORMAT,
-                                                 &x );
-                            }
-
-                            if( status == OK )
-                            {
-                                status = io_int( file, OUTPUTTING, ASCII_FORMAT,
-                                                 &y );
-                            }
-
-                            if( status == OK )
-                            {
-                                status = io_int( file, OUTPUTTING, ASCII_FORMAT,
-                                                 &z );
-                            }
-
-                            if( status == OK )
-                            {
-                                status = io_newline( file, OUTPUTTING,
-                                                     ASCII_FORMAT );
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if( status == OK )
-        {
-            status = close_file( file );
-        }
-
-        PRINT( "Done\n" );
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(save_inactive_voxels )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(load_inactive_voxels)   /* ARGSUSED */
-{
-    FILE             *file;
-    Status           status;
-    Status           open_input_file();
-    Status           close_file();
-    Status           io_int();
-    volume_struct    *volume;
-    bitlist_struct   *voxel_activity;
-    int              x, y, z;
-    Boolean          get_voxel_activity();
-    String           filename;
-    void             rebuild_slice_models();
-
-    status = OK;
-
-    if( get_current_volume( graphics, &volume ) )
-    {
-        (void) printf( "Enter filename: " );
-        (void) scanf( "%s", filename );
-
-        status = open_input_file( filename, &file );
-
-        voxel_activity = &graphics->associated[SLICE_WINDOW]->slice.
-                            voxel_activity;
-
-        while( status == OK &&
-               io_int( file, INPUTTING, ASCII_FORMAT, &x ) == OK )
-        {
-            status = io_int( file, INPUTTING, ASCII_FORMAT, &y );
-
-            if( status == OK )
-            {
-                status = io_int( file, INPUTTING, ASCII_FORMAT, &z );
-            }
-
-            if( status == OK )
-            {
-                set_voxel_activity( volume, voxel_activity, x, y, z, FALSE );
-            }
-        }
-
-        status = close_file( file );
-
-        if( status == OK )
-        {
-            rebuild_slice_models( graphics->associated[SLICE_WINDOW] );
-
-            graphics->associated[SLICE_WINDOW]->update_required = TRUE;
-        }
-
-        PRINT( "Done\n" );
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(load_inactive_voxels )   /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
-{
-    volume_struct    *volume;
-    Real             min_value, max_value;
-    graphics_struct  *slice_window;
-    void             rebuild_slice_models();
-    void             set_colour_coding_range();
-
-    if( get_current_volume(graphics,&volume) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        PRINT( "Current limits:\t%g\t%g\n",
-               slice_window->slice.colour_coding.min_value,
-               slice_window->slice.colour_coding.max_value );
-
-        PRINT( "Enter new values: " );
-
-        if( scanf( "%f %f", &min_value, &max_value ) == 2 &&
-            min_value <= max_value )
-        {
-            set_colour_coding_range( &slice_window->slice.colour_coding,
-                                     min_value, max_value );
-
-            PRINT( "    New limits:\t%g\t%g\n",
-                   slice_window->slice.colour_coding.min_value,
-                   slice_window->slice.colour_coding.max_value );
-
-            rebuild_slice_models( slice_window );
-
-            slice_window->update_required = TRUE;
-        }
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(set_colour_limits )   /* ARGSUSED */
 {
     return( OK );
 }
