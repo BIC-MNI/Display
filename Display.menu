@@ -1,6 +1,7 @@
 root
 {
     permanent ' '      pop_menu                     "Pop Menu"
+    permanent '6'      toggle_shift_key             "Shift Key: %s"
     permanent '7'      quit                         "Quit"
 
     permanent '+'      move_slice_plus              "+ Slice"
