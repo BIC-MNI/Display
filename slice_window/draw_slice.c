@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.99 1995-09-04 17:01:39 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.100 1995-09-13 13:25:21 david Exp $";
 #endif
 
 #include  <display.h>
@@ -979,9 +979,9 @@ private  int  render_slice_to_pixels(
 {
     int                   n_pixels_drawn, n_pixels_redraw;
     int                   width, x_min, x_max, y_min, y_max;
-    int                   n_alloced, x_centre, y_centre, edge_index;
+    int                   x_centre, y_centre, edge_index;
     int                   x_sub_min, x_sub_max, y_sub_min, y_sub_max;
-    int                   x, y, height;
+    int                   x, y, height, *n_alloced_ptr;
     Colour                empty;
     Real                  x_pixel, y_pixel;
     Real                  x_trans, y_trans, x_scale, y_scale;
@@ -997,7 +997,6 @@ private  int  render_slice_to_pixels(
     {
         if( pixels->x_size > 0 && pixels->y_size > 0 )
         {
-            delete_pixels( pixels );
             pixels->x_size = 0;
             pixels->y_size = 0;
         }
@@ -1036,10 +1035,19 @@ private  int  render_slice_to_pixels(
 
     first_flag = !continuing_flag;
 
+    if( which_volume == 0 )
+    {
+        n_alloced_ptr = &slice_window->slice.volumes[volume_index].
+                                      views[view_index].n_pixels_alloced;
+    }
+    else
+    {
+        n_alloced_ptr = &slice_window->slice.volumes[volume_index].
+                                      views[view_index].n_label_pixels_alloced;
+    }
+
     if( first_flag )
     {
-        n_alloced = 0;
-
         set_volume_slice_pixel_range(
                     volume, filter_type,
                     slice_window->slice.volumes[volume_index].views[view_index]
@@ -1051,7 +1059,7 @@ private  int  render_slice_to_pixels(
                     0.0, 0.0, 0.0, 0.0,
                     x_sub_max - x_sub_min + 1, y_sub_max - y_sub_min + 1,
                     RGB_PIXEL,
-                    &n_alloced, pixels );
+                    n_alloced_ptr, pixels );
     }
 
     *finished = TRUE;
@@ -1182,7 +1190,6 @@ private  int  render_slice_to_pixels(
 
         if( x_min <= x_max && y_min <= y_max )
         {
-            n_alloced = pixels->x_size * pixels->y_size;
             create_volume_slice(
                     volume, filter_type,
                     slice_window->slice.volumes[volume_index].views[view_index]
@@ -1198,7 +1205,7 @@ private  int  render_slice_to_pixels(
                     (unsigned short **) NULL, colour_map,
                     make_rgba_Colour( 0, 0, 0, 0 ),
                     slice_window->slice.render_storage,
-                    &n_alloced, pixels );
+                    n_alloced_ptr, pixels );
 
             pixels->x_position += x_sub_min;
             pixels->y_position += y_sub_min;
@@ -1371,11 +1378,11 @@ public  void  rebuild_atlas_slice_pixels(
         if( pixels->x_size != volume_pixels->x_size ||
             pixels->y_size != volume_pixels->y_size )
         {
-            delete_pixels( pixels );
-            initialize_pixels( pixels, volume_pixels->x_position,
-                               volume_pixels->y_position,
-                               volume_pixels->x_size,
-                               volume_pixels->y_size, 1.0, 1.0, RGB_PIXEL );
+            modify_pixels_size( &slice_window->slice.slice_views[view_index].
+                                       n_atlas_pixels_alloced,
+                                pixels,
+                                volume_pixels->x_size,
+                                volume_pixels->y_size, RGB_PIXEL );
         }
 
         pixels->x_position = volume_pixels->x_position;
@@ -1429,6 +1436,7 @@ private  void  create_composite(
     int             n_slices,
     pixels_struct   *slices[],
     Colour          background_colour,
+    int             *n_alloced,
     pixels_struct   *composite )
 {
     Colour   *src, *dest, empty, c1, c2;
@@ -1437,8 +1445,13 @@ private  void  create_composite(
 
     if( n_slices == 0 )
     {
-        delete_pixels( composite );
-        initialize_pixels( composite, 0, 0, 0, 0, 1.0, 1.0, RGB_PIXEL );
+        if( *n_alloced == 0 )
+            initialize_pixels( composite, 0, 0, 0, 0, 1.0, 1.0, RGB_PIXEL );
+        else
+        {
+            composite->x_size = 0;
+            composite->y_size = 0;
+        }
         return;
     }
 
@@ -1462,10 +1475,19 @@ private  void  create_composite(
     if( x_max - x_min + 1 != composite->x_size ||
         y_max - y_min + 1 != composite->y_size )
     {
-        delete_pixels( composite );
-        initialize_pixels( composite, 0, 0,
-                           x_max - x_min + 1, y_max - y_min + 1,
-                           1.0, 1.0, RGB_PIXEL );
+        if( *n_alloced == 0 )
+        {
+            initialize_pixels( composite, 0, 0,
+                               x_max - x_min + 1, y_max - y_min + 1,
+                               1.0, 1.0, RGB_PIXEL );
+            *n_alloced = composite->x_size * composite->y_size;
+        }
+        else
+        {
+            modify_pixels_size( n_alloced, composite,
+                                x_max - x_min + 1, y_max - y_min + 1,
+                                RGB_PIXEL );
+        }
     }
 
     composite->x_position = x_min;
@@ -1582,6 +1604,8 @@ private  void  create_volume_and_label_composite(
 
     create_composite( n_slices, slices,
                       G_get_background_colour(slice_window->window),
+                      &slice_window->slice.slice_views[view_index].
+                                                    n_composite_pixels_alloced,
                       composite_pixels );
 
     FREE( slices );

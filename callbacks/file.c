@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/file.c,v 1.17 1995-07-31 19:53:48 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/file.c,v 1.18 1995-09-13 13:25:15 david Exp $";
 #endif
 
 
@@ -68,6 +68,10 @@ public  DEF_MENU_FUNCTION( save_file )
 
         (void) input_newline( stdin );
 
+        if( status == OK && !check_clobber_file_default_suffix( filename,
+                                                                "obj" ) )
+            status = ERROR;
+
         if( current_object->object_type == MODEL )
         {
             n_objects = get_model_ptr(current_object)->n_objects;
@@ -80,11 +84,12 @@ public  DEF_MENU_FUNCTION( save_file )
         }
 
         if( status == OK )
+        {
             status = output_graphics_file( filename, (File_formats) Save_format,
                                            n_objects, object_list );
+            print( "Done saving.\n" );
+        }
     }
-
-    print( "Done saving.\n" );
 
     return( status );
 }

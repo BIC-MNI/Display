@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.31 1995-08-28 14:22:13 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.32 1995-09-13 13:25:24 david Exp $";
 #endif
 
 
@@ -57,6 +57,11 @@ public  void  initialize_slice_window_view(
                                                               x_max - x_min + 1;
         slice_window->slice.slice_views[view].prev_viewport_y_size =
                                                               y_max - y_min + 1;
+
+        slice_window->slice.volumes[volume_index].views[view].
+                                                     n_pixels_alloced = 0;
+        slice_window->slice.volumes[volume_index].views[view].
+                                                     n_label_pixels_alloced = 0;
     }
 
     slice_window->slice.volumes[volume_index].views[0].

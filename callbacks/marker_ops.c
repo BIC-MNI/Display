@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/marker_ops.c,v 1.36 1995-07-31 19:53:49 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/marker_ops.c,v 1.37 1995-09-13 13:25:15 david Exp $";
 #endif
 
 
@@ -175,6 +175,10 @@ public  DEF_MENU_FUNCTION( save_markers )
     status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
     (void) input_newline( stdin );
+
+    if( status == OK && !check_clobber_file_default_suffix( filename,
+                                             get_default_tag_file_suffix() ) )
+        status = ERROR;
 
     if( !get_slice_window_volume( display, &volume ) )
         volume = (Volume) NULL;

@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.64 1995-09-04 17:00:59 david Exp $";
+static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.65 1995-09-13 13:25:13 david Exp $";
 #endif
 
 #include  <volume_io.h>
@@ -87,6 +87,8 @@ typedef  struct
     struct
     {
         BOOLEAN                visibility;
+        int                    n_pixels_alloced;
+        int                    n_label_pixels_alloced;
         Real                   x_axis[N_DIMENSIONS];
         Real                   y_axis[N_DIMENSIONS];
         Real                   x_trans, y_trans;
@@ -117,6 +119,9 @@ typedef  struct
     BOOLEAN       update_crop_flag;
     BOOLEAN       update_atlas_flag;
     BOOLEAN       update_composite_flag;
+
+    int           n_atlas_pixels_alloced;
+    int           n_composite_pixels_alloced;
 
     BOOLEAN       use_sub_region;
 

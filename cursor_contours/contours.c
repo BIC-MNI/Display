@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/cursor_contours/contours.c,v 1.16 1995-07-31 19:53:58 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/cursor_contours/contours.c,v 1.17 1995-09-13 13:25:17 david Exp $";
 #endif
 
 
@@ -53,8 +53,7 @@ public  void  initialize_cursor_plane_outline(
 public  void  delete_cursor_plane_outline(
     display_struct    *display )
 {
-    if( !IS_STACK_EMPTY(
-           display->three_d.cursor_contours.object_traverse.stack ) )
+    if( display->three_d.cursor_contours.object_traverse.top_of_stack > 0 )
     {
         terminate_object_traverse(
                   &display->three_d.cursor_contours.object_traverse );

@@ -13,6 +13,13 @@ Size_of_interrupted = 200000000;
 Size_of_interrupted = 250;
 Interval_of_check = 250;
 
+Initial_total_slice_update_time1 = 0.0;
+Initial_total_slice_update_time2 = 0.0;
+Slice_event_check_time = 0.1;
+Initial_total_slice_update_time1 = 0.2;
+Initial_total_slice_update_time2 = 2.0;
+Initial_slice_update_time = 0.02;
+
 Initial_perspective_flag = FALSE;
 Closest_front_plane = 1.0e-5;
 
@@ -299,3 +306,5 @@ Undo_enabled = TRUE;
 Use_transparency_hardware = TRUE;
 
 Voxel_validity_if_mixed = FALSE;
+
+Snap_brush_to_centres = TRUE;

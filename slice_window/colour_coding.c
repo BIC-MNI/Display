@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.27 1995-08-21 14:05:43 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.28 1995-09-13 13:25:23 david Exp $";
 #endif
 
 
@@ -745,7 +745,9 @@ public  Status  save_label_colour_map(
     Colour   col;
     int      n_labels, index;
 
-    if( open_file_with_default_suffix( filename,
+    if( !check_clobber_file_default_suffix(filename,
+                                           get_default_colour_map_suffix()) ||
+        open_file_with_default_suffix( filename,
                                        get_default_colour_map_suffix(),
                                        WRITE_FILE, ASCII_FORMAT, &file ) != OK )
         return( ERROR );

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.43 1995-08-14 18:08:51 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.44 1995-09-13 13:25:16 david Exp $";
 #endif
 
 
@@ -327,7 +327,11 @@ private  void   save_labels_as_tags(
     STRING         filename;
 
     print( "Enter filename to save: " );
-    if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+    status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
+    (void) input_newline( stdin );
+
+    if( status == OK && check_clobber_file_default_suffix( filename,
+                                            get_default_tag_file_suffix() ) )
     {
         status = open_file_with_default_suffix( filename,
                          get_default_tag_file_suffix(),
@@ -346,8 +350,6 @@ private  void   save_labels_as_tags(
 
         print( "Done saving.\n" );
     }
-
-    (void) input_newline( stdin );
 }
 
 /* ARGSUSED */

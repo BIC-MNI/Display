@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.98 1995-09-05 15:18:31 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.99 1995-09-13 13:25:22 david Exp $";
 #endif
 
 
@@ -881,6 +881,7 @@ public  void  update_slice_window(
     BOOLEAN  one_buffer_flag[N_SLICE_VIEWS];
     BOOLEAN  slice_is_continuing[N_SLICE_VIEWS];
     BOOLEAN  original_sub_region_specified[N_SLICE_VIEWS];
+    BOOLEAN  prev_use_sub_region;
     int      x_sub_min, x_sub_max;
     int      y_sub_min, y_sub_max;
     int      view;
@@ -889,6 +890,11 @@ public  void  update_slice_window(
     {
         viewport_has_changed[view] = slice_viewport_has_changed( slice_window,
                                                                  view );
+        prev_use_sub_region = slice_window->slice.slice_views[view].
+                              use_sub_region;
+
+        slice_is_continuing[view] = !viewport_has_changed[view] &&
+                                    is_slice_continuing( slice_window, view );
 
         if( viewport_has_changed[view] )
             slice_window->slice.slice_views[view].use_sub_region = FALSE;
@@ -908,6 +914,8 @@ public  void  update_slice_window(
                                        original_sub_region_specified[view];
 
             if( viewport_has_changed[view] ||
+                slice_is_continuing[view] && !prev_use_sub_region &&
+                slice_window->slice.slice_views[view].sub_region_specified ||
                 slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0])
             {
                 if( slice_window->slice.slice_views[view].sub_region_specified )
@@ -924,8 +932,22 @@ public  void  update_slice_window(
                                     is_slice_continuing( slice_window, view );
 
         if( slice_is_continuing[view] )
+        {
             one_buffer_flag[view] = slice_window->slice.slice_views[view].
                                                            use_sub_region;
+            if( slice_window->slice.slice_views[view].use_sub_region &&
+                prev_use_sub_region )
+            {
+                slice_window->slice.slice_views[view].prev_x_min =
+                     slice_window->slice.slice_views[view].x_min;
+                slice_window->slice.slice_views[view].prev_x_max =
+                     slice_window->slice.slice_views[view].x_max;
+                slice_window->slice.slice_views[view].prev_y_min =
+                     slice_window->slice.slice_views[view].y_min;
+                slice_window->slice.slice_views[view].prev_y_max =
+                     slice_window->slice.slice_views[view].y_max;
+            }
+        }
     }
 
     if( slice_window->slice.update_slice_dividers_flag )
@@ -1031,16 +1053,12 @@ public  void  update_slice_window(
         {
             slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0] =
                                                                 TRUE;
+            set_update_required( slice_window, get_model_bitplanes(
+                         get_graphics_model(slice_window,SLICE_MODEL1+ view)) );
         }
         else if( viewport_has_changed[view] || slice_is_continuing[view] )
         {
             set_slice_viewport_update( slice_window, SLICE_MODEL1 + view );
-        }
-
-        if( viewport_has_changed[view] || slice_is_continuing[view] )
-        {
-            set_update_required( slice_window, get_model_bitplanes(
-                      get_graphics_model(slice_window,SLICE_MODEL1+ view)) );
         }
 
         if( viewport_has_changed[view] )

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/polygon_ops.c,v 1.60 1995-07-31 19:53:50 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/polygon_ops.c,v 1.61 1995-09-13 13:25:16 david Exp $";
 #endif
 
  
@@ -117,6 +117,9 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )
 
         (void) input_newline( stdin );
 
+        if( status == OK && !check_clobber_file_default_suffix( filename,"btr"))
+            status = ERROR;
+
         if( status == OK )
             status = open_file_with_default_suffix( filename, "btr",
                                             WRITE_FILE, BINARY_FORMAT, &file );
@@ -128,9 +131,7 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )
         }
 
         if( status == OK )
-        {
             status = close_file( file );
-        }
 
         print( "Done.\n" );
     }
