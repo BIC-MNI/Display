@@ -10,7 +10,7 @@ private  BOOLEAN  get_current_lines(
     object_struct    *current_object;
 
     if( get_current_object( display, &current_object ) &&
-        current_object->object_type == LINES )
+        get_object_type( current_object ) == LINES )
     {
         *lines = get_lines_ptr( current_object );
         found = TRUE;
@@ -49,7 +49,7 @@ public  DEF_MENU_FUNCTION( smooth_current_lines )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(smooth_current_lines )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type( display, LINES ) );
 }
 
 public  DEF_MENU_FUNCTION( make_current_line_tube )   /* ARGSUSED */
@@ -84,7 +84,7 @@ public  DEF_MENU_FUNCTION( make_current_line_tube )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(make_current_line_tube )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type( display, LINES ) );
 }
 
 public  DEF_MENU_FUNCTION( convert_line_to_spline_points )   /* ARGSUSED */
@@ -111,7 +111,7 @@ public  DEF_MENU_FUNCTION( convert_line_to_spline_points )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(convert_line_to_spline_points )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type( display, LINES ) );
 }
  
 public  DEF_MENU_FUNCTION( make_line_circle )   /* ARGSUSED */
@@ -148,7 +148,7 @@ public  DEF_MENU_FUNCTION( make_line_circle )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(make_line_circle )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 
@@ -168,7 +168,7 @@ public  DEF_MENU_FUNCTION( subdivide_current_lines )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(subdivide_current_lines )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type( display, LINES ) );
 }
 
 public  DEF_MENU_FUNCTION( convert_markers_to_lines )   /* ARGSUSED */
@@ -283,7 +283,7 @@ public  DEF_MENU_FUNCTION( convert_markers_to_lines )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(convert_markers_to_lines )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_line_widths )   /* ARGSUSED */
@@ -311,5 +311,5 @@ public  DEF_MENU_FUNCTION( set_line_widths )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_line_widths )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type( display, LINES ) );
 }

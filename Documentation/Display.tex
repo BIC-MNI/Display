@@ -95,7 +95,10 @@ corresponding key in any of the 3 display windows (not the text window)
 or pointing to the entry
 in the menu window with the mouse and clicking the left button.
 The space bar or middle mouse
-button will pop back one level in the menu.  In the remainder of this document
+button will pop back one level in the menu.  If the display of a menu
+entry is ``grayed out'' (in a less visible colour), then this signals that the
+entry is not valid in the current context and cannot be selected.  In the
+remainder of this document
 the following convention will be used to refer to menu selection:
 \menutwo{View}{Reset} means select the \ident{View} menu, then
 select the \ident{Reset} button
@@ -120,7 +123,8 @@ displays the object hierarchy.  All objects loaded and created in \display,
 with the exception of volumes are displayed in the object hierarchy.  The
 arrow keys are used to move around in this hierarchy and to select the
 current object.  Or clicking on an object with the left mouse button
-will make it the current selection.
+will make it the current selection.  On the lower left is displayed the
+name of the currently selected menu.
 
 \subsection{3D Window}
 

@@ -10,7 +10,7 @@ public  DEF_MENU_FUNCTION( start_surface_line )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(start_surface_line)   /* ARGSUSED */
 {
-    return( OK );
+    return( !display->three_d.surface_curve.picking_points );
 }
 
 public  DEF_MENU_FUNCTION( end_surface_line )   /* ARGSUSED */
@@ -22,7 +22,7 @@ public  DEF_MENU_FUNCTION( end_surface_line )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(end_surface_line)   /* ARGSUSED */
 {
-    return( OK );
+    return( display->three_d.surface_curve.picking_points );
 }
 
 public  DEF_MENU_FUNCTION( close_surface_line )   /* ARGSUSED */
@@ -34,7 +34,7 @@ public  DEF_MENU_FUNCTION( close_surface_line )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(close_surface_line)   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( reset_surface_line )   /* ARGSUSED */
@@ -46,7 +46,7 @@ public  DEF_MENU_FUNCTION( reset_surface_line )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(reset_surface_line)   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( make_surface_line_permanent )   /* ARGSUSED */
@@ -58,7 +58,7 @@ public  DEF_MENU_FUNCTION( make_surface_line_permanent )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(make_surface_line_permanent)   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_line_curvature_weight )   /* ARGSUSED */
@@ -83,14 +83,10 @@ public  DEF_MENU_FUNCTION( set_line_curvature_weight )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_line_curvature_weight )   /* ARGSUSED */
 {
-    STRING  text;
+    set_menu_text_real( menu_window, menu_entry,
+                        display->three_d.surface_curve.line_curvature_weight );
 
-    (void) sprintf( text, label,
-                    display->three_d.surface_curve.line_curvature_weight );
-
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_surface_curve_curvature )   /* ARGSUSED */
@@ -118,7 +114,7 @@ public  DEF_MENU_FUNCTION( set_surface_curve_curvature )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_surface_curve_curvature )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( pick_surface_point_on_line )   /* ARGSUSED */
@@ -131,5 +127,5 @@ public  DEF_MENU_FUNCTION( pick_surface_point_on_line )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(pick_surface_point_on_line )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }

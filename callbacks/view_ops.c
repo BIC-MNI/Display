@@ -14,7 +14,7 @@ public  DEF_MENU_FUNCTION( make_view_fit )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(make_view_fit )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( reset_view )      /* ARGSUSED */
@@ -31,7 +31,7 @@ public  DEF_MENU_FUNCTION( reset_view )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(reset_view )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( right_tilted_view )      /* ARGSUSED */
@@ -52,7 +52,7 @@ public  DEF_MENU_FUNCTION( right_tilted_view )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(right_tilted_view )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( left_tilted_view )      /* ARGSUSED */
@@ -73,7 +73,7 @@ public  DEF_MENU_FUNCTION( left_tilted_view )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(left_tilted_view )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( top_view )      /* ARGSUSED */
@@ -92,7 +92,7 @@ public  DEF_MENU_FUNCTION( top_view )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(top_view )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( bottom_view )      /* ARGSUSED */
@@ -111,7 +111,7 @@ public  DEF_MENU_FUNCTION( bottom_view )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(bottom_view )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( front_view )      /* ARGSUSED */
@@ -130,7 +130,7 @@ public  DEF_MENU_FUNCTION( front_view )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(front_view )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( back_view )      /* ARGSUSED */
@@ -149,7 +149,7 @@ public  DEF_MENU_FUNCTION( back_view )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(back_view )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( left_view )      /* ARGSUSED */
@@ -168,7 +168,7 @@ public  DEF_MENU_FUNCTION( left_view )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(left_view )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( right_view )      /* ARGSUSED */
@@ -187,7 +187,7 @@ public  DEF_MENU_FUNCTION( right_view )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(right_view )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( toggle_perspective )      /* ARGSUSED */
@@ -204,14 +204,11 @@ public  DEF_MENU_FUNCTION( toggle_perspective )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_perspective )      /* ARGSUSED */
 {
-    STRING    text;
+    set_menu_text_boolean( menu_window, menu_entry,
+                           display->three_d.view.perspective_flag,
+                           "Parallel", "Perspective" );
 
-    set_text_boolean( label, text, display->three_d.view.perspective_flag,
-                      "Parallel", "Perspective" );
-
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( centre_view )      /* ARGSUSED */
@@ -221,7 +218,7 @@ public  DEF_MENU_FUNCTION( centre_view )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(centre_view )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( magnify_view )      /* ARGSUSED */
@@ -233,7 +230,7 @@ public  DEF_MENU_FUNCTION( magnify_view )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(magnify_view )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( translate_view )      /* ARGSUSED */
@@ -245,7 +242,7 @@ public  DEF_MENU_FUNCTION( translate_view )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(translate_view )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( rotate_view )      /* ARGSUSED */
@@ -257,7 +254,7 @@ public  DEF_MENU_FUNCTION( rotate_view )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(rotate_view )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( front_clipping )      /* ARGSUSED */
@@ -269,7 +266,7 @@ public  DEF_MENU_FUNCTION( front_clipping )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(front_clipping )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( back_clipping )      /* ARGSUSED */
@@ -281,7 +278,7 @@ public  DEF_MENU_FUNCTION( back_clipping )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(back_clipping )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( pick_view_rectangle )      /* ARGSUSED */
@@ -293,7 +290,7 @@ public  DEF_MENU_FUNCTION( pick_view_rectangle )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(pick_view_rectangle )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( create_film_loop )      /* ARGSUSED */
@@ -325,7 +322,7 @@ public  DEF_MENU_FUNCTION( create_film_loop )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(create_film_loop )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( save_image )      /* ARGSUSED */
@@ -350,7 +347,7 @@ public  DEF_MENU_FUNCTION( save_image )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(save_image )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( toggle_stereo_mode )      /* ARGSUSED */
@@ -369,7 +366,7 @@ public  DEF_MENU_FUNCTION( toggle_stereo_mode )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_stereo_mode )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_eye_separation )      /* ARGSUSED */
@@ -397,16 +394,10 @@ public  DEF_MENU_FUNCTION( set_eye_separation )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_eye_separation )      /* ARGSUSED */
 {
-    STRING           text;
-    Real             separation;
+    set_menu_text_real( menu_window, menu_entry,
+                        display->three_d.view.eye_separation );
 
-    separation = display->three_d.view.eye_separation;
-
-    (void) sprintf( text, label, separation );
-
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( print_view )      /* ARGSUSED */
@@ -435,5 +426,5 @@ public  DEF_MENU_FUNCTION( print_view )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(print_view )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }

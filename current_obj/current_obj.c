@@ -294,3 +294,21 @@ public  void  pop_current_object(
     if( display->three_d.current_object.current_level > 1 )
         --display->three_d.current_object.current_level;
 }
+
+public  BOOLEAN  current_object_is_this_type(
+    display_struct    *display,
+    Object_types      type )
+{
+    object_struct   *object;
+
+    return( get_current_object( display, &object ) &&
+            get_object_type(object) == type );
+}
+
+public  BOOLEAN  current_object_exists(
+    display_struct    *display )
+{
+    object_struct   *object;
+
+    return( get_current_object( display, &object ) );
+}

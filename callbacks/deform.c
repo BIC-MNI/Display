@@ -17,7 +17,9 @@ public  DEF_MENU_FUNCTION( start_deforming_object )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(start_deforming_object )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) &&
+            (current_object_is_this_type( display, LINES ) ||
+             current_object_is_this_type( display, POLYGONS )) );
 }
 
 public  DEF_MENU_FUNCTION( start_annealing_deforming_object )   /* ARGSUSED */
@@ -36,7 +38,9 @@ public  DEF_MENU_FUNCTION( start_annealing_deforming_object )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(start_annealing_deforming_object )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) &&
+            (current_object_is_this_type( display, LINES ) ||
+             current_object_is_this_type( display, POLYGONS )) );
 }
 
 public  DEF_MENU_FUNCTION( set_annealing_parameters )   /* ARGSUSED */
@@ -74,7 +78,7 @@ public  DEF_MENU_FUNCTION( set_annealing_parameters )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_annealing_parameters )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( stop_deforming_object )   /* ARGSUSED */
@@ -86,7 +90,7 @@ public  DEF_MENU_FUNCTION( stop_deforming_object )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(stop_deforming_object )   /* ARGSUSED */
 {
-    return( OK );
+    return( display->three_d.deform.in_progress );
 }
 
 public  DEF_MENU_FUNCTION( set_deformation_boundary )   /* ARGSUSED */
@@ -124,7 +128,7 @@ public  DEF_MENU_FUNCTION( set_deformation_boundary )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_deformation_boundary )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_deformation_model )   /* ARGSUSED */
@@ -157,7 +161,7 @@ public  DEF_MENU_FUNCTION( set_deformation_model )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_deformation_model )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_deformation_original_positions )   /* ARGSUSED */
@@ -200,7 +204,7 @@ public  DEF_MENU_FUNCTION( set_deformation_original_positions )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_deformation_original_positions )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_deformation_parameters )   /* ARGSUSED */
@@ -233,7 +237,7 @@ public  DEF_MENU_FUNCTION( set_deformation_parameters )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_deformation_parameters )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( reset_deformation_model )   /* ARGSUSED */
@@ -247,7 +251,7 @@ public  DEF_MENU_FUNCTION( reset_deformation_model )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(reset_deformation_model )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( show_deformation_model )   /* ARGSUSED */
@@ -259,5 +263,5 @@ public  DEF_MENU_FUNCTION( show_deformation_model )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(show_deformation_model )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }

@@ -18,17 +18,15 @@ public  DEF_MENU_FUNCTION( set_atlas_on_or_off )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_atlas_on_or_off )   /* ARGSUSED */
 {
-    STRING           text;
+    BOOLEAN          state;
     display_struct   *slice_window;
 
-    if( get_slice_window( display, &slice_window ) )
-        set_text_on_off( label, text, slice_window->slice.atlas.enabled );
-    else
-        (void) sprintf( text, label, "none" );
+    state = get_slice_window( display, &slice_window );
 
-    set_menu_text( menu_window, menu_entry, text );
+    set_menu_text_on_off( menu_window, menu_entry,
+                          state && slice_window->slice.atlas.enabled );
 
-    return( OK );
+    return( state );
 }
 
 public  DEF_MENU_FUNCTION( set_atlas_opacity )   /* ARGSUSED */
@@ -53,7 +51,7 @@ public  DEF_MENU_FUNCTION( set_atlas_opacity )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_atlas_opacity )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( set_atlas_transparent_threshold )   /* ARGSUSED */
@@ -77,7 +75,7 @@ public  DEF_MENU_FUNCTION( set_atlas_transparent_threshold )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_atlas_transparent_threshold )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 private  void  flip_atlas_on_an_axis(
@@ -104,7 +102,7 @@ public  DEF_MENU_FUNCTION( flip_atlas_x )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(flip_atlas_x )   /* ARGSUSED */
 {
-    return( OK );
+    return( is_atlas_loaded(display) );
 }
 
 public  DEF_MENU_FUNCTION( flip_atlas_y )   /* ARGSUSED */
@@ -115,7 +113,7 @@ public  DEF_MENU_FUNCTION( flip_atlas_y )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(flip_atlas_y )   /* ARGSUSED */
 {
-    return( OK );
+    return( is_atlas_loaded(display) );
 }
 
 public  DEF_MENU_FUNCTION( flip_atlas_z )   /* ARGSUSED */
@@ -126,7 +124,7 @@ public  DEF_MENU_FUNCTION( flip_atlas_z )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(flip_atlas_z )   /* ARGSUSED */
 {
-    return( OK );
+    return( is_atlas_loaded(display) );
 }
 
 private  void  set_atlas_tolerance(
@@ -159,7 +157,7 @@ public  DEF_MENU_FUNCTION( set_atlas_tolerance_x )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_atlas_tolerance_x )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( set_atlas_tolerance_y )   /* ARGSUSED */
@@ -170,7 +168,7 @@ public  DEF_MENU_FUNCTION( set_atlas_tolerance_y )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_atlas_tolerance_y )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( set_atlas_tolerance_z )   /* ARGSUSED */
@@ -181,5 +179,5 @@ public  DEF_MENU_FUNCTION( set_atlas_tolerance_z )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_atlas_tolerance_z )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }

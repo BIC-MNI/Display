@@ -151,7 +151,7 @@ private  void   create_menu_text(
 
     set_menu_text( menu_window, menu_entry, menu_entry->label );
 
-    (void) update_menu_text( menu_window, menu_entry );
+    update_menu_text( menu_window, menu_entry );
 }
 
 private  BOOLEAN  lookup_key(

@@ -65,9 +65,9 @@ file
 
 create_surface
 {
-    transient 'w'    set_surface_extract_x_max_distance  "X Dist: %d"
-    transient 'e'    set_surface_extract_y_max_distance  "Y Dist: %d"
-    transient 'r'    set_surface_extract_z_max_distance  "Z Dist: %d"
+    transient 'w'    set_surface_extract_x_max_distance  "X Dist: %g"
+    transient 'e'    set_surface_extract_y_max_distance  "Y Dist: %g"
+    transient 'r'    set_surface_extract_z_max_distance  "Z Dist: %g"
     transient 't'    set_surface_valid_range             "Set Valid Range"
     transient 'y'    set_surface_valid_out_range         "Set Valid Out Range"
 
@@ -158,8 +158,8 @@ view_3d
 
 render_3d
 {
-    transient 'a'    toggle_render_mode           "%s"
-    transient 's'    toggle_shading               "%s"
+    transient 'a'    toggle_render_mode           "Mode: %s"
+    transient 's'    toggle_shading               "Shading: %s"
     transient 'd'    toggle_lights                "Lights: %s"
     transient 'f'    toggle_two_sided             "2 Sided: %s"
     transient 'g'    toggle_backfacing            "Backface: %s"

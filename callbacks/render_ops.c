@@ -46,17 +46,14 @@ public  DEF_MENU_FUNCTION( toggle_render_mode )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_render_mode )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    STRING          text;
 
     model_object = get_model_object( display );
 
-    set_text_boolean( label, text,
+    set_menu_text_boolean( menu_window, menu_entry,
                get_model_info(get_model_ptr(model_object))->render.shaded_mode,
                "Wireframe", "Shaded" );
 
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 
@@ -98,24 +95,14 @@ public  DEF_MENU_FUNCTION( toggle_shading )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_shading )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    STRING          text;
 
     model_object = get_model_object( display );
 
-    switch( get_model_info(get_model_ptr(model_object))->render.shading_type )
-    {
-    case FLAT_SHADING:
-        (void) sprintf( text, label, "Flat" );
-        break;
+    set_menu_text_boolean( menu_window, menu_entry,
+           get_model_info(get_model_ptr(model_object))->render.shading_type,
+           "Flat", "Gouraud" );
 
-    case GOURAUD_SHADING:
-        (void) sprintf( text, label, "Gouraud" );
-        break;
-    }
-
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( toggle_lights )  /* ARGSUSED */
@@ -149,17 +136,14 @@ public  DEF_MENU_FUNCTION( toggle_lights )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_lights )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    STRING          text;
 
     model_object = get_model_object( display );
 
-    set_text_on_off( label, text,
-                     get_model_info(get_model_ptr(model_object))->render.
-                     master_light_switch );
+    set_menu_text_on_off( menu_window, menu_entry,
+                          get_model_info(get_model_ptr(model_object))->render.
+                          master_light_switch );
 
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( toggle_two_sided )  /* ARGSUSED */
@@ -193,17 +177,14 @@ public  DEF_MENU_FUNCTION( toggle_two_sided )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_two_sided )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    STRING          text;
 
     model_object = get_model_object( display );
 
-    set_text_on_off( label, text,
-                     get_model_info(get_model_ptr(model_object))->render.
-                     two_sided_surface_flag );
+    set_menu_text_on_off( menu_window, menu_entry,
+                          get_model_info(get_model_ptr(model_object))->render.
+                          two_sided_surface_flag );
 
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( toggle_backfacing )  /* ARGSUSED */
@@ -237,17 +218,14 @@ public  DEF_MENU_FUNCTION( toggle_backfacing )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_backfacing )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    STRING          text;
 
     model_object = get_model_object( display );
 
-    set_text_on_off( label, text,
-                     get_model_info(get_model_ptr(model_object))->render.
-                     backface_flag );
+    set_menu_text_on_off( menu_window, menu_entry,
+                          get_model_info(get_model_ptr(model_object))->render.
+                          backface_flag );
 
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( toggle_line_curve_flag )  /* ARGSUSED */
@@ -281,17 +259,14 @@ public  DEF_MENU_FUNCTION( toggle_line_curve_flag )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_line_curve_flag )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    STRING          text;
 
     model_object = get_model_object( display );
 
-    set_text_on_off( label, text,
-                     get_model_info(get_model_ptr(model_object))->render.
-                     render_lines_as_curves );
+    set_menu_text_on_off( menu_window, menu_entry,
+                          get_model_info(get_model_ptr(model_object))->render.
+                          render_lines_as_curves );
 
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( toggle_marker_label_flag )  /* ARGSUSED */
@@ -323,17 +298,14 @@ public  DEF_MENU_FUNCTION( toggle_marker_label_flag )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_marker_label_flag )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    STRING          text;
 
     model_object = get_model_object( display );
 
-    set_text_on_off( label, text,
-                     get_model_info(get_model_ptr(model_object))->render.
-                     show_marker_labels );
+    set_menu_text_on_off( menu_window, menu_entry,
+                          get_model_info(get_model_ptr(model_object))->render.
+                          show_marker_labels );
 
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_n_curve_segments )  /* ARGSUSED */
@@ -377,17 +349,14 @@ public  DEF_MENU_FUNCTION( set_n_curve_segments )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(set_n_curve_segments )  /* ARGSUSED */
 {
     object_struct   *model_object;
-    STRING          text;
 
     model_object = get_model_object( display );
 
-    set_text_on_off( label, text,
-                     get_model_info(get_model_ptr(model_object))->render.
-                     render_lines_as_curves );
+    set_menu_text_int( menu_window, menu_entry,
+                       get_model_info(get_model_ptr(model_object))->render.
+                       n_curve_segments );
 
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( toggle_double_buffer_threed )  /* ARGSUSED */
@@ -405,12 +374,10 @@ public  DEF_MENU_FUNCTION( toggle_double_buffer_threed )  /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_double_buffer_threed )  /* ARGSUSED */
 {
-    STRING          text;
+    set_menu_text_on_off( menu_window, menu_entry,
+                          G_get_double_buffer_state(display->window) );
 
-    set_text_on_off( label, text, G_get_double_buffer_state(display->window) );
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )  /* ARGSUSED */
@@ -436,19 +403,13 @@ public  DEF_MENU_UPDATE(toggle_double_buffer_slice )  /* ARGSUSED */
 {
     display_struct  *slice_window;
     BOOLEAN         state;
-    STRING          text;
 
-    slice_window = display->associated[SLICE_WINDOW];
+    state = get_slice_window( display, &slice_window );
 
-    if( slice_window != (display_struct  *) 0 )
-        state = G_get_double_buffer_state( slice_window->window );
-    else
-        state = TRUE;
+    set_menu_text_on_off( menu_window, menu_entry, state &&
+                          G_get_double_buffer_state( slice_window->window ) );
 
-    set_text_on_off( label, text, state );
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( state );
 }
 
 public  DEF_MENU_FUNCTION( change_background_colour )  /* ARGSUSED */
@@ -481,5 +442,5 @@ public  DEF_MENU_FUNCTION( change_background_colour )  /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(change_background_colour )  /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }

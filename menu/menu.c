@@ -258,6 +258,12 @@ private  DEF_EVENT_FUNCTION( handle_character_up )   /* ARGSUSED */
     return( OK );
 }
 
+private  BOOLEAN  is_menu_entry_active(
+    menu_entry_struct  *menu_entry )
+{
+    return( menu_entry->is_active );
+}
+
 private  Status  handle_menu_for_key(
     display_struct      *menu_window,
     int                 key )
@@ -269,7 +275,8 @@ private  Status  handle_menu_for_key(
 
     menu_entry = get_menu_key_entry( &menu_window->menu, key );
 
-    if( menu_entry != (menu_entry_struct *) 0 )
+    if( menu_entry != (menu_entry_struct *) 0 &&
+        is_menu_entry_active( menu_entry ) )
         status = process_menu( menu_window, menu_entry );
 
     return( status );
@@ -344,21 +351,32 @@ private  Status  handle_mouse_press_in_menu(
     return( status );
 }
 
-public  Status  update_menu_text(
+public  void  update_menu_text(
     display_struct      *display,
     menu_entry_struct   *menu_entry )
 {
-    Status                  status;
+    Colour                  colour;
+    int                     i;
+    BOOLEAN                 active;
     menu_update_pointer     update_function;
+    display_struct          *menu_window;
+
+    menu_window = display->associated[MENU_WINDOW];
 
     update_function = menu_entry->update_action;
 
-    status = (*update_function)( display->associated[THREE_D_WINDOW],
-                                 display->associated[MENU_WINDOW],
-                                 menu_entry,
-                                 menu_entry->label );
+    active = (*update_function)( display->associated[THREE_D_WINDOW],
+                                 menu_window, menu_entry );
 
-    return( status );
+    menu_entry->is_active = active;
+
+    if( active )
+        colour = Menu_character_colour;
+    else
+        colour = Menu_character_inactive_colour;
+
+    for_less( i, 0, menu_window->menu.n_lines_in_entry )
+        get_text_ptr(menu_entry->text_list[i])->colour = colour;
 }
 
 public  DEF_MENU_FUNCTION( push_menu )      /* ARGSUSED */
@@ -400,7 +418,7 @@ public  DEF_MENU_FUNCTION( push_menu )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(push_menu )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( pop_menu )      /* ARGSUSED */
@@ -412,7 +430,7 @@ public  DEF_MENU_FUNCTION( pop_menu )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(pop_menu )      /* ARGSUSED */
 {
-    return( OK );
+    return( menu_window->menu.depth > 0 );
 }
 
 public  void  pop_menu_one_level(
@@ -483,7 +501,6 @@ public  void   set_menu_text(
 public  void  update_all_menu_text(
     display_struct   *display )
 {
-    Status              status;
     int                 key;
     display_struct      *menu_window;
     menu_entry_struct   *menu_entry;
@@ -495,7 +512,7 @@ public  void  update_all_menu_text(
         menu_entry = get_menu_key_entry( &menu_window->menu, key );
 
         if( menu_entry != (menu_entry_struct *) 0 )
-            status = update_menu_text( display, menu_entry );
+            update_menu_text( display, menu_entry );
     }
 }
 

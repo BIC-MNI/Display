@@ -21,8 +21,7 @@ typedef  menu_update_type  (*menu_update_pointer);
 #define  DEF_MENU_UPDATE(m)  BOOLEAN GLUE(menu_update_,m)( \
                                        display_struct    *display, \
                                        display_struct    *menu_window, \
-                                       menu_entry_struct *menu_entry, \
-                                       char              label[] )
+                                       menu_entry_struct *menu_entry )
 
 typedef  struct  menu_entry_struct
 {

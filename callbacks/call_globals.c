@@ -27,7 +27,7 @@ public  DEF_MENU_FUNCTION( menu_set_global_variable )  /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(menu_set_global_variable )  /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( show_memory )  /* ARGSUSED */
@@ -54,5 +54,5 @@ public  DEF_MENU_FUNCTION( show_memory )  /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(show_memory )  /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }

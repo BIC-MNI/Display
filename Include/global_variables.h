@@ -51,6 +51,7 @@ START_GLOBALS
     DEF_GLOBAL( Menu_character_height, Real, 20.0 )
     DEF_GLOBAL( Menu_character_width, Real, 7.5 )
     DEF_GLOBAL( Menu_character_colour, Colour, CYAN )
+    DEF_GLOBAL( Menu_character_inactive_colour, Colour, SLATE_GREY )
     DEF_GLOBAL( Menu_box_colour, Colour, WHITE )
     DEF_GLOBAL( Menu_key_colour, Colour, WHITE )
     DEF_GLOBAL( Menu_key_character_offset, Real, 2.0 )

@@ -19,6 +19,7 @@
 
 #define  MENU_BUTTONS_MODEL     0
 #define  SELECTED_MODEL         1
+#define  UTILITY_MODEL          2
 
 /* for slice windows */
 

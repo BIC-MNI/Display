@@ -95,7 +95,7 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(create_marker_at_cursor )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_cursor_to_marker )   /* ARGSUSED */
@@ -125,7 +125,7 @@ public  DEF_MENU_FUNCTION( set_cursor_to_marker )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_cursor_to_marker )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type( display, MARKER ) );
 }
 
 public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
@@ -212,7 +212,7 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(save_markers )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_default_marker_structure_id )   /* ARGSUSED */
@@ -239,13 +239,10 @@ public  DEF_MENU_FUNCTION( set_default_marker_structure_id )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_default_marker_structure_id )   /* ARGSUSED */
 {
-    STRING  text;
+    set_menu_text_int( menu_window, menu_entry,
+                       display->three_d.default_marker_structure_id );
 
-    (void) sprintf( text, label, display->three_d.default_marker_structure_id);
-
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_default_marker_patient_id )   /* ARGSUSED */
@@ -272,13 +269,10 @@ public  DEF_MENU_FUNCTION( set_default_marker_patient_id )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_default_marker_patient_id )   /* ARGSUSED */
 {
-    STRING  text;
+    set_menu_text_int( menu_window, menu_entry,
+                       display->three_d.default_marker_patient_id );
 
-    (void) sprintf( text, label, display->three_d.default_marker_patient_id );
-
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_default_marker_size )   /* ARGSUSED */
@@ -304,13 +298,10 @@ public  DEF_MENU_FUNCTION( set_default_marker_size )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_default_marker_size )   /* ARGSUSED */
 {
-    STRING  text;
+    set_menu_text_real( menu_window, menu_entry,
+                        display->three_d.default_marker_size );
 
-    (void) sprintf( text, label, display->three_d.default_marker_size );
-
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_default_marker_colour )   /* ARGSUSED */
@@ -346,10 +337,10 @@ public  DEF_MENU_FUNCTION( set_default_marker_colour )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_default_marker_colour )   /* ARGSUSED */
 {
-    set_menu_text_with_colour( menu_window, menu_entry, label,
+    set_menu_text_with_colour( menu_window, menu_entry,
                                display->three_d.default_marker_colour );
 
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_default_marker_type )   /* ARGSUSED */
@@ -376,7 +367,6 @@ public  DEF_MENU_FUNCTION( set_default_marker_type )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_default_marker_type )   /* ARGSUSED */
 {
-    STRING  text;
     char    *name;
 
     switch( display->three_d.default_marker_type )
@@ -394,11 +384,9 @@ public  DEF_MENU_UPDATE(set_default_marker_type )   /* ARGSUSED */
         break;
     }
 
-    (void) sprintf( text, label, name );
+    set_menu_text_string( menu_window, menu_entry, name );
 
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_default_marker_label )   /* ARGSUSED */
@@ -427,13 +415,10 @@ public  DEF_MENU_FUNCTION( set_default_marker_label )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_default_marker_label )   /* ARGSUSED */
 {
-    STRING  text;
+    set_menu_text_string( menu_window, menu_entry,
+                          display->three_d.default_marker_label );
 
-    (void) sprintf( text, label, display->three_d.default_marker_label );
-
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( change_marker_structure_id )   /* ARGSUSED */
@@ -469,7 +454,7 @@ public  DEF_MENU_FUNCTION( change_marker_structure_id )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(change_marker_structure_id )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type( display, MARKER ) );
 }
 
 public  DEF_MENU_FUNCTION( change_marker_patient_id )   /* ARGSUSED */
@@ -505,7 +490,7 @@ public  DEF_MENU_FUNCTION( change_marker_patient_id )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(change_marker_patient_id )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type( display, MARKER ) );
 }
 
 public  DEF_MENU_FUNCTION( change_marker_type )   /* ARGSUSED */
@@ -536,7 +521,7 @@ public  DEF_MENU_FUNCTION( change_marker_type )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(change_marker_type )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type( display, MARKER ) );
 }
 
 public  DEF_MENU_FUNCTION( change_marker_size )   /* ARGSUSED */
@@ -565,7 +550,7 @@ public  DEF_MENU_FUNCTION( change_marker_size )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(change_marker_size )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type( display, MARKER ) );
 }
 
 public  DEF_MENU_FUNCTION( change_marker_position )   /* ARGSUSED */
@@ -589,7 +574,7 @@ public  DEF_MENU_FUNCTION( change_marker_position )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(change_marker_position )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type( display, MARKER ) );
 }
 
 public  DEF_MENU_FUNCTION( change_marker_label )   /* ARGSUSED */
@@ -618,7 +603,7 @@ public  DEF_MENU_FUNCTION( change_marker_label )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(change_marker_label )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type( display, MARKER ) );
 }
 
 public  DEF_MENU_FUNCTION( copy_defaults_to_marker )   /* ARGSUSED */
@@ -637,7 +622,7 @@ public  DEF_MENU_FUNCTION( copy_defaults_to_marker )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(copy_defaults_to_marker )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type( display, MARKER ) );
 }
 
 public  DEF_MENU_FUNCTION( copy_defaults_to_markers )   /* ARGSUSED */
@@ -681,7 +666,7 @@ public  DEF_MENU_FUNCTION( copy_defaults_to_markers )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(copy_defaults_to_markers )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type( display, MARKER ) );
 }
 
 public  DEF_MENU_FUNCTION( classify_markers )   /* ARGSUSED */
@@ -699,7 +684,7 @@ public  DEF_MENU_FUNCTION( classify_markers )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(classify_markers )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_marker_segmentation_threshold )   /* ARGSUSED */
@@ -726,14 +711,10 @@ public  DEF_MENU_FUNCTION( set_marker_segmentation_threshold )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_marker_segmentation_threshold )   /* ARGSUSED */
 {
-    STRING  text;
-
-    (void) sprintf( text, label,
+    set_menu_text_real( menu_window, menu_entry,
                 get_marker_threshold(&display->three_d.marker_segmentation) );
 
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( pick_marker_defaults )      /* ARGSUSED */
@@ -745,7 +726,7 @@ public  DEF_MENU_FUNCTION( pick_marker_defaults )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(pick_marker_defaults )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( move_cursor_to_home )      /* ARGSUSED */
@@ -760,5 +741,5 @@ public  DEF_MENU_FUNCTION( move_cursor_to_home )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(move_cursor_to_home )      /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }

@@ -36,7 +36,7 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_colour_limits )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 private  void  set_the_colour_coding_type(
@@ -67,7 +67,7 @@ public  DEF_MENU_FUNCTION(set_contour_colour_map )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_contour_colour_map )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(set_hot_metal )   /* ARGSUSED */
@@ -79,7 +79,7 @@ public  DEF_MENU_FUNCTION(set_hot_metal )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_hot_metal )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(set_gray_scale )   /* ARGSUSED */
@@ -91,7 +91,7 @@ public  DEF_MENU_FUNCTION(set_gray_scale )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_gray_scale )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(set_spectral )   /* ARGSUSED */
@@ -103,7 +103,7 @@ public  DEF_MENU_FUNCTION(set_spectral )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_spectral )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(set_under_colour )   /* ARGSUSED */
@@ -140,20 +140,21 @@ public  DEF_MENU_FUNCTION(set_under_colour )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_under_colour )   /* ARGSUSED */
 {
+    BOOLEAN          active;
     display_struct   *slice_window;
     Colour           col;
 
-    slice_window = display->associated[SLICE_WINDOW];
+    active = get_slice_window( display, &slice_window );
 
-    if( slice_window == (display_struct  *) 0 )
+    if( !active )
         col = WHITE;
     else
         col = get_colour_coding_under_colour(
                         &slice_window->slice.colour_coding );
 
-    set_menu_text_with_colour( menu_window, menu_entry, label, col );
+    set_menu_text_with_colour( menu_window, menu_entry, col );
 
-    return( OK );
+    return( active );
 }
 
 public  DEF_MENU_FUNCTION(set_over_colour )   /* ARGSUSED */
@@ -190,19 +191,21 @@ public  DEF_MENU_FUNCTION(set_over_colour )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_over_colour )   /* ARGSUSED */
 {
+    BOOLEAN          active;
     display_struct   *slice_window;
     Colour           col;
 
-    slice_window = display->associated[SLICE_WINDOW];
+    active = get_slice_window( display, &slice_window );
 
-    if( slice_window == (display_struct  *) 0 )
+    if( !active )
         col = WHITE;
     else
-        col = get_colour_coding_over_colour(&slice_window->slice.colour_coding);
+        col = get_colour_coding_over_colour(
+                        &slice_window->slice.colour_coding );
 
-    set_menu_text_with_colour( menu_window, menu_entry, label, col );
+    set_menu_text_with_colour( menu_window, menu_entry, col );
 
-    return( OK );
+    return( active );
 }
 
 public  DEF_MENU_FUNCTION(set_label_colour_ratio )   /* ARGSUSED */
@@ -233,22 +236,20 @@ public  DEF_MENU_FUNCTION(set_label_colour_ratio )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_label_colour_ratio )   /* ARGSUSED */
 {
-    STRING           text;
+    BOOLEAN          state;
     Real             ratio;
     display_struct   *slice_window;
 
-    slice_window = display->associated[SLICE_WINDOW];
+    state = get_slice_window( display, &slice_window );
 
-    if( slice_window == (display_struct  *) 0 )
-        ratio = 0.0;
+    if( state )
+        ratio = slice_window->slice.label_colour_ratio;
     else
-        ratio = display->associated[SLICE_WINDOW]->slice.label_colour_ratio;
+        ratio = 0.0;
 
-    (void) sprintf( text, label, ratio );
+    set_menu_text_real( menu_window, menu_entry, ratio );
 
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( state );
 }
 
 private  void  set_filter_type(
@@ -275,7 +276,7 @@ public  DEF_MENU_FUNCTION(set_nearest_neighbour )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_nearest_neighbour )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(set_linear_interpolation )   /* ARGSUSED */
@@ -286,7 +287,7 @@ public  DEF_MENU_FUNCTION(set_linear_interpolation )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_linear_interpolation )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(set_box_filter )   /* ARGSUSED */
@@ -297,7 +298,7 @@ public  DEF_MENU_FUNCTION(set_box_filter )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_box_filter )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(set_triangle_filter )   /* ARGSUSED */
@@ -308,7 +309,7 @@ public  DEF_MENU_FUNCTION(set_triangle_filter )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_triangle_filter )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(set_gaussian_filter )   /* ARGSUSED */
@@ -319,7 +320,7 @@ public  DEF_MENU_FUNCTION(set_gaussian_filter )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_gaussian_filter )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(set_filter_half_width )   /* ARGSUSED */
@@ -351,5 +352,5 @@ public  DEF_MENU_FUNCTION(set_filter_half_width )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_filter_half_width )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }

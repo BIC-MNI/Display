@@ -75,6 +75,15 @@ public  void  record_slice_under_mouse(
     }
 }
 
+public  BOOLEAN  slice_labels_to_undo(
+    display_struct  *display )
+{
+    display_struct  *slice_window;
+
+    return( get_slice_window( display, &slice_window ) &&
+            slice_window->slice.undo.axis_index >= 0 );
+}
+
 public  BOOLEAN  undo_slice_labels_if_any(
     display_struct  *display )
 {

@@ -547,6 +547,7 @@ private  void  create_menu(
 
     for_less( c, 0, menus[0].n_entries )
         menu->entries[0].children[c] = menus[0].entries[c].menu_entry;
+    (void) strcpy( menu->entries[0].label, "Top Level Display" );
 
     for_less( i, 0, n_menus )
     {

@@ -23,7 +23,7 @@ public  DEF_MENU_FUNCTION( load_file )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(load_file )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( save_file )   /* ARGSUSED */
@@ -67,5 +67,5 @@ public  DEF_MENU_FUNCTION( save_file )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(save_file )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }

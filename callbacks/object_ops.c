@@ -17,7 +17,7 @@ public  DEF_MENU_FUNCTION( reverse_normals )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(reverse_normals )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( advance_visible )     /* ARGSUSED */
@@ -41,7 +41,7 @@ public  DEF_MENU_FUNCTION( advance_visible )     /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(advance_visible )     /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( retreat_visible )     /* ARGSUSED */
@@ -65,7 +65,7 @@ public  DEF_MENU_FUNCTION( retreat_visible )     /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(retreat_visible )     /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( make_all_invisible )     /* ARGSUSED */
@@ -89,7 +89,7 @@ public  DEF_MENU_FUNCTION( make_all_invisible )     /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(make_all_invisible )     /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( make_all_visible )     /* ARGSUSED */
@@ -112,7 +112,7 @@ public  DEF_MENU_FUNCTION( make_all_visible )     /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(make_all_visible )     /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( advance_selected )     /* ARGSUSED */
@@ -126,7 +126,7 @@ public  DEF_MENU_FUNCTION( advance_selected )     /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(advance_selected )     /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( retreat_selected )     /* ARGSUSED */
@@ -140,7 +140,7 @@ public  DEF_MENU_FUNCTION( retreat_selected )     /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(retreat_selected )     /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( descend_selected )     /* ARGSUSED */
@@ -154,7 +154,7 @@ public  DEF_MENU_FUNCTION( descend_selected )     /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(descend_selected )     /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type(display,MODEL) );
 }
 
 public  DEF_MENU_FUNCTION( ascend_selected )     /* ARGSUSED */
@@ -168,7 +168,7 @@ public  DEF_MENU_FUNCTION( ascend_selected )     /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(ascend_selected )     /* ARGSUSED */
 {
-    return( OK );
+    return( display->three_d.current_object.current_level > 1 );
 }
 
 public  DEF_MENU_FUNCTION( toggle_object_visibility )     /* ARGSUSED */
@@ -187,7 +187,7 @@ public  DEF_MENU_FUNCTION( toggle_object_visibility )     /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_object_visibility )     /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( create_model )     /* ARGSUSED */
@@ -201,7 +201,7 @@ public  DEF_MENU_FUNCTION( create_model )     /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(create_model )     /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( change_model_name )     /* ARGSUSED */
@@ -229,7 +229,7 @@ public  DEF_MENU_FUNCTION( change_model_name )     /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(change_model_name )     /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type(display,MODEL) );
 }
 
 private  BOOLEAN  remove_current_object_from_hierarchy(
@@ -281,7 +281,7 @@ public  DEF_MENU_FUNCTION( delete_current_object )     /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(delete_current_object )     /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
@@ -313,7 +313,7 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_current_object_colour )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( set_current_object_surfprop )   /* ARGSUSED */
@@ -345,7 +345,7 @@ public  DEF_MENU_FUNCTION( set_current_object_surfprop )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_current_object_surfprop )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( cut_object )   /* ARGSUSED */
@@ -365,7 +365,7 @@ public  DEF_MENU_FUNCTION( cut_object )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(cut_object )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( paste_object )   /* ARGSUSED */
@@ -398,7 +398,7 @@ public  DEF_MENU_FUNCTION( paste_object )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(paste_object )   /* ARGSUSED */
 {
-    return( OK );
+    return( get_graphics_model( display, CUT_BUFFER_MODEL )->n_objects > 0 );
 }
 
 public  DEF_MENU_FUNCTION( mark_vertices )   /* ARGSUSED */
@@ -426,7 +426,7 @@ public  DEF_MENU_FUNCTION( mark_vertices )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(mark_vertices )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_is_this_type(display,LINES) );
 }
 
 public  DEF_MENU_FUNCTION( flip_object )   /* ARGSUSED */
@@ -458,7 +458,7 @@ public  DEF_MENU_FUNCTION( flip_object )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(flip_object )   /* ARGSUSED */
 {
-    return( OK );
+    return( current_object_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( scan_current_object_to_volume )   /* ARGSUSED */
@@ -484,5 +484,5 @@ public  DEF_MENU_FUNCTION( scan_current_object_to_volume )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(scan_current_object_to_volume )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) && current_object_exists(display) );
 }

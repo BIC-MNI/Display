@@ -25,20 +25,19 @@ public  DEF_MENU_FUNCTION( set_paint_xy_brush_radius )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_paint_xy_brush_radius )   /* ARGSUSED */
 {
-    STRING           text;
+    BOOLEAN          state;
     Real             x_brush_radius;
     display_struct   *slice_window;
 
-    if( get_slice_window( display, &slice_window ) )
+    state = get_slice_window( display, &slice_window );
+    if( state )
         x_brush_radius = slice_window->slice.x_brush_radius;
     else
         x_brush_radius = Default_x_brush_radius;
 
-    (void) sprintf( text, label, x_brush_radius );
+    set_menu_text_real( menu_window, menu_entry, x_brush_radius );
 
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( state );
 }
 
 public  DEF_MENU_FUNCTION( set_paint_z_brush_radius )   /* ARGSUSED */
@@ -62,21 +61,21 @@ public  DEF_MENU_FUNCTION( set_paint_z_brush_radius )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_paint_z_brush_radius )   /* ARGSUSED */
 {
-    STRING           text;
+    BOOLEAN          state;
     Real             z_brush_radius;
     display_struct   *slice_window;
 
-    if( get_slice_window( display, &slice_window ) )
+    state = get_slice_window( display, &slice_window );
+    if( state )
         z_brush_radius = slice_window->slice.z_brush_radius;
     else
         z_brush_radius = Default_z_brush_radius;
 
-    (void) sprintf( text, label, z_brush_radius );
+    set_menu_text_real( menu_window, menu_entry, z_brush_radius );
 
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( state );
 }
+
 
 public  DEF_MENU_FUNCTION( set_current_paint_label )   /* ARGSUSED */
 {
@@ -99,20 +98,20 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_current_paint_label )   /* ARGSUSED */
 {
-    STRING           text;
+    BOOLEAN          state;
     int              current_label;
     display_struct   *slice_window;
 
-    if( get_slice_window( display, &slice_window ) )
+    state = get_slice_window( display, &slice_window );
+
+    if( state )
         current_label = slice_window->slice.current_paint_label;
     else
         current_label = Default_paint_label;
 
-    (void) sprintf( text, label, current_label );
+    set_menu_text_int( menu_window, menu_entry, current_label );
 
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( state );
 }
 
 public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
@@ -147,7 +146,7 @@ public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_label_colour )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 private  save_labels_as_tags(
@@ -195,7 +194,7 @@ public  DEF_MENU_FUNCTION( save_labels )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(save_labels )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( save_current_label )   /* ARGSUSED */
@@ -218,7 +217,7 @@ public  DEF_MENU_FUNCTION( save_current_label )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(save_current_label )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
@@ -285,7 +284,7 @@ public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(load_labels )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 private  void  copy_labels_from_adjacent_slice(
@@ -338,7 +337,7 @@ public  DEF_MENU_FUNCTION( copy_labels_from_lower_slice )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(copy_labels_from_lower_slice )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( copy_labels_from_higher_slice )   /* ARGSUSED */
@@ -350,7 +349,7 @@ public  DEF_MENU_FUNCTION( copy_labels_from_higher_slice )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(copy_labels_from_higher_slice )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( toggle_display_labels )   /* ARGSUSED */
@@ -368,20 +367,19 @@ public  DEF_MENU_FUNCTION( toggle_display_labels )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_display_labels )   /* ARGSUSED */
 {
-    STRING           text;
-    BOOLEAN          display_labels;
+    BOOLEAN          display_labels, state;
     display_struct   *slice_window;
 
-    if( !get_slice_window( display, &slice_window ) )
-        display_labels = Initial_display_labels;
-    else
+    state = get_slice_window( display, &slice_window );
+
+    if( state )
         display_labels = slice_window->slice.display_labels;
+    else
+        display_labels = Initial_display_labels;
 
-    set_text_on_off( label, text, display_labels );
+    set_menu_text_on_off( menu_window, menu_entry, display_labels );
 
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( state );
 }
 
 public  DEF_MENU_FUNCTION( change_labels_in_range )   /* ARGSUSED */
@@ -431,7 +429,7 @@ public  DEF_MENU_FUNCTION( change_labels_in_range )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(change_labels_in_range )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 private  void  calculate_label_volume(
@@ -495,7 +493,7 @@ public  DEF_MENU_FUNCTION( calculate_volume )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(calculate_volume )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( flip_labels_in_x )   /* ARGSUSED */
@@ -515,7 +513,7 @@ public  DEF_MENU_FUNCTION( flip_labels_in_x )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(flip_labels_in_x )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 private  void  translate_labels_callback(
@@ -555,7 +553,7 @@ public  DEF_MENU_FUNCTION( translate_labels_up )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(translate_labels_up )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( translate_labels_down )   /* ARGSUSED */
@@ -567,7 +565,7 @@ public  DEF_MENU_FUNCTION( translate_labels_down )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(translate_labels_down )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( translate_labels_left )   /* ARGSUSED */
@@ -579,7 +577,7 @@ public  DEF_MENU_FUNCTION( translate_labels_left )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(translate_labels_left )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( translate_labels_right )   /* ARGSUSED */
@@ -591,7 +589,7 @@ public  DEF_MENU_FUNCTION( translate_labels_right )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(translate_labels_right )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( undo_slice_labels )   /* ARGSUSED */
@@ -604,7 +602,7 @@ public  DEF_MENU_FUNCTION( undo_slice_labels )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(undo_slice_labels )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_labels_to_undo(display) );
 }
 
 public  DEF_MENU_FUNCTION( translate_labels_arbitrary )   /* ARGSUSED */
@@ -632,5 +630,5 @@ public  DEF_MENU_FUNCTION( translate_labels_arbitrary )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(translate_labels_arbitrary )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }

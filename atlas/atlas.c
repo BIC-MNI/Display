@@ -473,3 +473,12 @@ private  BOOLEAN  find_appropriate_atlas_image(
 
     return( image_index >= 0 );
 }
+
+public  BOOLEAN  is_atlas_loaded(
+    display_struct  *display )
+{
+    display_struct  *slice_window;
+
+    return( get_slice_window( display, &slice_window ) &&
+            slice_window->slice.atlas.n_pixel_maps > 0 );
+}

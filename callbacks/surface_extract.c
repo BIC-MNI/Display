@@ -72,7 +72,7 @@ public  DEF_MENU_FUNCTION(start_volume_isosurface )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(start_volume_isosurface )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(start_volume_binary_isosurface )   /* ARGSUSED */
@@ -84,7 +84,7 @@ public  DEF_MENU_FUNCTION(start_volume_binary_isosurface )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(start_volume_binary_isosurface )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(start_label_binary_isosurface )   /* ARGSUSED */
@@ -96,7 +96,7 @@ public  DEF_MENU_FUNCTION(start_label_binary_isosurface )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(start_label_binary_isosurface )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(toggle_surface_extraction)   /* ARGSUSED */
@@ -116,14 +116,10 @@ public  DEF_MENU_FUNCTION(toggle_surface_extraction)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_surface_extraction )   /* ARGSUSED */
 {
-    STRING    text;
+    set_menu_text_on_off( menu_window, menu_entry,
+                  display->three_d.surface_extraction.extraction_in_progress );
 
-    set_text_on_off( label, text,
-              display->three_d.surface_extraction.extraction_in_progress );
-
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
@@ -142,7 +138,7 @@ public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(reset_surface )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(make_surface_permanent)   /* ARGSUSED */
@@ -172,7 +168,9 @@ public  DEF_MENU_FUNCTION(make_surface_permanent)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(make_surface_permanent )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) &&
+            !display->three_d.surface_extraction.extraction_in_progress &&
+            display->three_d.surface_extraction.polygons->n_items > 0 );
 }
 
 private  void   voxelate_surface(
@@ -222,7 +220,7 @@ public  DEF_MENU_FUNCTION(get_voxelated_label_surface)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(get_voxelated_label_surface )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(get_voxelated_surface)   /* ARGSUSED */
@@ -234,7 +232,7 @@ public  DEF_MENU_FUNCTION(get_voxelated_surface)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(get_voxelated_surface )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( set_surface_extract_x_max_distance )   /* ARGSUSED */
@@ -253,14 +251,10 @@ public  DEF_MENU_FUNCTION( set_surface_extract_x_max_distance )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_surface_extract_x_max_distance )   /* ARGSUSED */
 {
-    STRING  text;
+    set_menu_text_real( menu_window, menu_entry,
+                    display->three_d.surface_extraction.x_voxel_max_distance );
 
-    (void) sprintf( text, label,
-                    display->three_d.surface_extraction.x_voxel_max_distance);
-
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_surface_extract_y_max_distance )   /* ARGSUSED */
@@ -279,14 +273,10 @@ public  DEF_MENU_FUNCTION( set_surface_extract_y_max_distance )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_surface_extract_y_max_distance )   /* ARGSUSED */
 {
-    STRING  text;
+    set_menu_text_real( menu_window, menu_entry,
+                    display->three_d.surface_extraction.y_voxel_max_distance );
 
-    (void) sprintf( text, label,
-                    display->three_d.surface_extraction.y_voxel_max_distance);
-
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_surface_extract_z_max_distance )   /* ARGSUSED */
@@ -305,14 +295,10 @@ public  DEF_MENU_FUNCTION( set_surface_extract_z_max_distance )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_surface_extract_z_max_distance )   /* ARGSUSED */
 {
-    STRING  text;
+    set_menu_text_real( menu_window, menu_entry,
+                    display->three_d.surface_extraction.z_voxel_max_distance );
 
-    (void) sprintf( text, label,
-                    display->three_d.surface_extraction.z_voxel_max_distance);
-
-    set_menu_text( menu_window, menu_entry, text );
-
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_surface_valid_range )   /* ARGSUSED */
@@ -334,7 +320,7 @@ public  DEF_MENU_FUNCTION( set_surface_valid_range )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_surface_valid_range )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }
 
 public  DEF_MENU_FUNCTION( set_surface_valid_out_range )   /* ARGSUSED */
@@ -357,5 +343,5 @@ public  DEF_MENU_FUNCTION( set_surface_valid_out_range )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_surface_valid_out_range )   /* ARGSUSED */
 {
-    return( OK );
+    return( TRUE );
 }

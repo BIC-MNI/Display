@@ -1,8 +1,6 @@
 
 #include  <display.h>
 
-private  void  get_min_max(
-    display_struct   *display );
 private  void  set_slice_labels(
     display_struct     *display,
     int                label );
@@ -30,7 +28,7 @@ public  DEF_MENU_FUNCTION( label_voxel )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(label_voxel )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( clear_voxel )   /* ARGSUSED */
@@ -51,7 +49,7 @@ public  DEF_MENU_FUNCTION( clear_voxel )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(clear_voxel )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( reset_segmenting )   /* ARGSUSED */
@@ -70,35 +68,33 @@ public  DEF_MENU_FUNCTION( reset_segmenting )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(reset_segmenting )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( set_segmenting_threshold )   /* ARGSUSED */
 {
-    get_min_max( display );
+    display_struct   *slice_window;
+    Real             min, max;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        print( "Enter min and max threshold: " );
+
+        if( input_real( stdin, &min ) == OK && input_real( stdin, &max ) == OK )
+        {
+            slice_window->slice.segmenting.min_threshold = min;
+            slice_window->slice.segmenting.max_threshold = max;
+        }
+
+        (void) input_newline( stdin );
+    }
 
     return( OK );
 }
 
 public  DEF_MENU_UPDATE(set_segmenting_threshold )   /* ARGSUSED */
 {
-    return( OK );
-}
-
-private  void  get_min_max(
-    display_struct   *display )
-{
-    Real      min, max;
-
-    print( "Enter min and max threshold: " );
-
-    if( input_real( stdin, &min ) == OK && input_real( stdin, &max ) == OK )
-    {
-        display->associated[SLICE_WINDOW]->slice.segmenting.min_threshold = min;
-        display->associated[SLICE_WINDOW]->slice.segmenting.max_threshold = max;
-    }
-
-    (void) input_newline( stdin );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(load_label_data)   /* ARGSUSED */
@@ -131,7 +127,7 @@ public  DEF_MENU_FUNCTION(load_label_data)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(load_label_data )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(save_label_data)   /* ARGSUSED */
@@ -162,7 +158,7 @@ public  DEF_MENU_FUNCTION(save_label_data)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(save_label_data )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(label_slice)   /* ARGSUSED */
@@ -174,7 +170,7 @@ public  DEF_MENU_FUNCTION(label_slice)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(label_slice )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(clear_slice)   /* ARGSUSED */
@@ -186,7 +182,7 @@ public  DEF_MENU_FUNCTION(clear_slice)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(clear_slice )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 private  void  set_slice_labels(
@@ -225,7 +221,7 @@ public  DEF_MENU_FUNCTION(clear_connected)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(clear_connected )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(label_connected)   /* ARGSUSED */
@@ -237,7 +233,7 @@ public  DEF_MENU_FUNCTION(label_connected)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(label_connected )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(label_connected_no_threshold)   /* ARGSUSED */
@@ -249,7 +245,7 @@ public  DEF_MENU_FUNCTION(label_connected_no_threshold)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(label_connected_no_threshold )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 private  void   set_connected_labels(
@@ -344,7 +340,7 @@ public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(label_connected_3d )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
@@ -384,5 +380,5 @@ public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(expand_labeled_3d )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }

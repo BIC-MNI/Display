@@ -70,7 +70,7 @@ public  DEF_MENU_FUNCTION(move_slice_plus)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(move_slice_plus )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(move_slice_minus)   /* ARGSUSED */
@@ -82,7 +82,7 @@ public  DEF_MENU_FUNCTION(move_slice_minus)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(move_slice_minus )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(toggle_slice_visibility)   /* ARGSUSED */
@@ -102,7 +102,7 @@ public  DEF_MENU_FUNCTION(toggle_slice_visibility)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_slice_visibility )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(toggle_cross_section_visibility)   /* ARGSUSED */
@@ -120,7 +120,7 @@ public  DEF_MENU_FUNCTION(toggle_cross_section_visibility)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_cross_section_visibility )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(reset_current_slice_view)   /* ARGSUSED */
@@ -140,7 +140,7 @@ public  DEF_MENU_FUNCTION(reset_current_slice_view)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(reset_current_slice_view )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(colour_code_objects )   /* ARGSUSED */
@@ -167,7 +167,8 @@ public  DEF_MENU_FUNCTION(colour_code_objects )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(colour_code_objects )   /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) &&
+            current_object_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(create_3d_slice)   /* ARGSUSED */
@@ -197,7 +198,7 @@ public  DEF_MENU_FUNCTION(create_3d_slice)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(create_3d_slice)    /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(resample_slice_window_volume)   /* ARGSUSED */
@@ -248,7 +249,7 @@ public  DEF_MENU_FUNCTION(resample_slice_window_volume)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(resample_slice_window_volume)    /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
@@ -300,7 +301,7 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(box_filter_slice_window_volume)    /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(pick_slice_angle_point)   /* ARGSUSED */
@@ -315,7 +316,7 @@ public  DEF_MENU_FUNCTION(pick_slice_angle_point)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(pick_slice_angle_point)    /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION( rotate_slice_axes )      /* ARGSUSED */
@@ -327,7 +328,7 @@ public  DEF_MENU_FUNCTION( rotate_slice_axes )      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(rotate_slice_axes )      /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(redo_histogram)      /* ARGSUSED */
@@ -355,7 +356,7 @@ public  DEF_MENU_FUNCTION(redo_histogram)      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(redo_histogram)      /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(redo_histogram_labeled)      /* ARGSUSED */
@@ -383,7 +384,7 @@ public  DEF_MENU_FUNCTION(redo_histogram_labeled)      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(redo_histogram_labeled)      /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(print_voxel_origin)      /* ARGSUSED */
@@ -404,7 +405,7 @@ public  DEF_MENU_FUNCTION(print_voxel_origin)      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(print_voxel_origin)      /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(print_slice_plane)      /* ARGSUSED */
@@ -432,7 +433,7 @@ public  DEF_MENU_FUNCTION(print_slice_plane)      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(print_slice_plane)      /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(type_in_voxel_origin)      /* ARGSUSED */
@@ -464,7 +465,7 @@ public  DEF_MENU_FUNCTION(type_in_voxel_origin)      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(type_in_voxel_origin)      /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(type_in_slice_plane)      /* ARGSUSED */
@@ -498,7 +499,7 @@ public  DEF_MENU_FUNCTION(type_in_slice_plane)      /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(type_in_slice_plane)      /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(toggle_slice_cross_section_visibility)  /* ARGSUSED */
@@ -516,7 +517,7 @@ public  DEF_MENU_FUNCTION(toggle_slice_cross_section_visibility)  /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_slice_cross_section_visibility)    /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(set_current_arbitrary_view)  /* ARGSUSED */
@@ -539,7 +540,7 @@ public  DEF_MENU_FUNCTION(set_current_arbitrary_view)  /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_current_arbitrary_view)    /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
 
 public  DEF_MENU_FUNCTION(toggle_slice_anchor)  /* ARGSUSED */
@@ -575,5 +576,5 @@ public  DEF_MENU_FUNCTION(toggle_slice_anchor)  /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_slice_anchor)    /* ARGSUSED */
 {
-    return( OK );
+    return( slice_window_exists(display) );
 }
