@@ -144,7 +144,7 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
     graphics_struct  *slice_window;
 
     if( get_current_volume( graphics, &volume ) &&
-        graphics->slice_window == (graphics_struct *) 0 )
+        graphics->associated[SLICE_WINDOW] == (graphics_struct *) 0 )
     {
         status = create_graphics_window( SLICE_WINDOW, &slice_window,
                                          "Slice Window", 0, 0 );
@@ -159,11 +159,11 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
                       (int) (volume->size[c] / 2);
             }
 
-            slice_window->graphics_window = graphics;
-            slice_window->menu_window = menu_window;
-            slice_window->slice_window = slice_window;
-            graphics->slice_window = slice_window;
-            menu_window->slice_window = slice_window;
+            slice_window->associated[THREE_D_WINDOW] = graphics;
+            slice_window->associated[MENU_WINDOW] = menu_window;
+            slice_window->associated[SLICE_WINDOW] = slice_window;
+            graphics->associated[SLICE_WINDOW] = slice_window;
+            menu_window->associated[SLICE_WINDOW] = slice_window;
 
             slice_window->update_required = TRUE;
         }

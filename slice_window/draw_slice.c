@@ -1,85 +1,34 @@
 
 #include  <def_graphics.h>
 
-public  void  draw_slice( graphics, axis_index, x_min, x_max, y_min, y_max )
+public  void  draw_slice( graphics, axis_index, x_pixel_start, y_pixel_start,
+                          x_pixel_end, y_pixel_end, voxel_indices )
     graphics_struct   *graphics;
     int               axis_index;
-    int               x_min, x_max;
-    int               y_min, y_max;
+    int               x_pixel_start, y_pixel_start;
+    int               x_pixel_end, y_pixel_end;
+    int               voxel_indices[N_DIMENSIONS];
 {
     slice_window_struct  *slice;
-    int                  x_offset, y_offset;
-    Real                 x_scale, y_scale;
-    int                  x_index, y_index;
-    int                  x_size, y_size;
-    int                  x_left, x_right, y_bottom, y_top;
-    int                  x_voxel, y_voxel, x_voxel_end, y_voxel_end;
     void                 draw_pixels();
-    void                 compute_pixel_location();
 
     slice = &graphics->slice;
 
-    x_offset = slice->slice_views[axis_index].x_offset;
-    y_offset = slice->slice_views[axis_index].y_offset;
-    x_scale = slice->slice_views[axis_index].x_scale;
-    y_scale = slice->slice_views[axis_index].y_scale;
-
-    x_index = (axis_index + 1) % N_DIMENSIONS;
-    y_index = (axis_index + 2) % N_DIMENSIONS;
-
-    x_size = slice->volume->size[x_index];
-    y_size = slice->volume->size[y_index];
-
-    compute_pixel_location( 0, x_min, x_max, x_offset, x_scale,
-                            &x_left, &x_voxel );
-    compute_pixel_location( x_size-1, x_min, x_max, x_offset, x_scale,
-                            &x_right, &x_voxel_end );
-    compute_pixel_location( 0, y_min, y_max, y_offset, y_scale,
-                            &y_bottom, &y_voxel );
-    compute_pixel_location( y_size-1, y_min, y_max, y_offset, y_scale,
-                            &y_top, &y_voxel_end );
-
-    draw_pixels( graphics, axis_index,
-                 slice->slice_views[axis_index].slice_index, slice->volume,
-                 x_left, x_right, y_bottom, y_top, x_voxel, y_voxel,
-                 x_scale, y_scale );
-}
-
-private  void  compute_pixel_location( x_voxel, x_min, x_max, x_offset,
-                                          x_scale, pixel_position,
-                                          voxel_position )
-    int   x_voxel;
-    int   x_min, x_max;
-    int   x_offset;
-    Real  x_scale;
-    int   *pixel_position;
-    int   *voxel_position;
-{
-    *pixel_position = x_min + x_offset + x_voxel;
-
-    if( *pixel_position < x_min )
-    {
-        *pixel_position = x_min;
-        *voxel_position = -x_offset;
-    }
-    else if( *pixel_position > x_max )
-    {
-        *pixel_position = x_max;
-        *voxel_position = x_max - x_min - x_offset;
-    }
+    draw_pixels( graphics, axis_index, slice->volume, voxel_indices,
+                 x_pixel_start, x_pixel_end, y_pixel_start, y_pixel_end,
+                 graphics->slice.slice_views[axis_index].x_scale,
+                 graphics->slice.slice_views[axis_index].y_scale );
 }
 
 #define  BLOCK_SIZE  256
 
-private  void  draw_pixels( graphics, axis_index, slice_index, volume,
-                            x_left, x_right, y_bottom, y_top, x_voxel, y_voxel,
-                            x_scale, y_scale )
+private  void  draw_pixels( graphics, axis_index, volume, start_indices,
+                            x_left, x_right, y_bottom, y_top, x_scale, y_scale )
     graphics_struct  *graphics;
     int              axis_index;
-    int              slice_index;
     volume_struct    *volume;
+    int              start_indices[N_DIMENSIONS];
     int              x_left, x_right, y_bottom, y_top;
-    int              x_voxel, y_voxel;
     Real             x_scale, y_scale;
 {
     int             indices[N_DIMENSIONS];
@@ -93,9 +42,7 @@ private  void  draw_pixels( graphics, axis_index, slice_index, volume,
     x_index = (axis_index + 1) % N_DIMENSIONS;
     y_index = (axis_index + 2) % N_DIMENSIONS;
 
-    indices[axis_index] = slice_index;
-    indices[x_index] = x_voxel;
-    indices[y_index] = y_voxel;
+    indices[axis_index] = start_indices[axis_index];
 
     for( x_pixel = x_left;  x_pixel <= x_right;  x_pixel += BLOCK_SIZE )
     {
@@ -105,11 +52,11 @@ private  void  draw_pixels( graphics, axis_index, slice_index, volume,
         {
             y_end_pixel = MIN( y_pixel + BLOCK_SIZE - 1, y_top );
 
-            indices[x_index] = x_voxel + x_pixel - x_left;
+            indices[x_index] = start_indices[x_index] + x_pixel - x_left;
 
             for_inclusive( x, x_pixel, x_end_pixel )
             {
-                indices[y_index] = y_voxel + y_pixel - y_bottom;
+                indices[y_index] = start_indices[y_index] + y_pixel - y_bottom;
                 for_inclusive( y, y_pixel, y_end_pixel )
                 {
                     get_voxel_colour( volume, indices[0], indices[1],
@@ -124,7 +71,8 @@ private  void  draw_pixels( graphics, axis_index, slice_index, volume,
             }
 
             G_write_pixels( &graphics->window,
-                            x_left, y_bottom, x_right, y_top, pixels );
+                            x_pixel, y_pixel, x_end_pixel, y_end_pixel,
+                            pixels );
         }
     }
 }

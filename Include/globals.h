@@ -65,6 +65,10 @@ START_GLOBALS
     DEF_GLOBAL( Viewport_min_y_size, Real, 0.1 )
 
     DEF_GLOBAL( Slice_split_colour, Colour, 0.0 )
+    DEF_GLOBAL( Slice_split_border, int, 5 )
+
+    DEF_GLOBAL( Cursor_colour, Colour, 0.0 )
+    DEF_GLOBAL( Cursor_size_factor, Real, 0.05 )
 END_GLOBALS
          
 #endif

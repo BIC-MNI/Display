@@ -8,6 +8,7 @@ public  void  initialize_slice_window( graphics )
     DECL_EVENT_FUNCTION( window_size_changed );
     void                 add_action_table_function();
     void                 update_window_size();
+    void                 initialize_voxel_selection();
     int                  c;
 
     graphics->slice.volume = (volume_struct *) 0;
@@ -16,6 +17,8 @@ public  void  initialize_slice_window( graphics )
 
     add_action_table_function( &graphics->action_table, WINDOW_RESIZE_EVENT,
                                window_size_changed );
+
+    initialize_voxel_selection( graphics );
 
     for_less( c, 0, N_DIMENSIONS )
     {
@@ -49,9 +52,12 @@ private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
 public  void  update_slice_window( graphics )
     graphics_struct  *graphics;
 {
-    int   x_min, x_max, y_min, y_max;
+    int   axis_index;
+    int   voxel_indices[N_DIMENSIONS];
+    int   x_pixel_start, x_pixel_end, y_pixel_start, y_pixel_end;
     void  draw_2d_line();
     void  draw_slice();
+    void  get_slice_view();
 
     draw_2d_line( graphics, PIXEL_VIEW, &Slice_split_colour,
                   (Real) graphics->slice.x_split, 0.0,
@@ -63,30 +69,164 @@ public  void  update_slice_window( graphics )
                   (Real) (graphics->window.x_size-1),
                   (Real) graphics->slice.y_split );
 
-    x_min = 0;
-    x_max = graphics->slice.x_split-2;
-    y_min = graphics->slice.y_split+2;
-    y_max = graphics->window.y_size-1;
+    for_less( axis_index, 0, N_DIMENSIONS )
+    {
+        get_slice_view( graphics, axis_index, 
+                        &x_pixel_start, &y_pixel_start,
+                        &x_pixel_end, &y_pixel_end,
+                        voxel_indices );
 
-    draw_slice( graphics, X_AXIS, x_min, x_max, y_min, y_max );
-
-    x_min = graphics->slice.x_split+2;
-    x_max = graphics->window.x_size-1;
-    y_min = graphics->slice.y_split+2;
-    y_max = graphics->window.y_size-1;
-
-    draw_slice( graphics, Y_AXIS, x_min, x_max, y_min, y_max );
-
-    x_min = 0;
-    x_max = graphics->slice.x_split-2;
-    y_min = 0;
-    y_max = graphics->slice.y_split-2;
-
-    draw_slice( graphics, Z_AXIS, x_min, x_max, y_min, y_max );
+        draw_slice( graphics, axis_index, x_pixel_start, y_pixel_start,
+                    x_pixel_end, y_pixel_end, voxel_indices );
+    }
 }
 
 public  Status  delete_slice_window_info( slice_window )
     slice_window_struct   *slice_window;
 {
     return( OK );
+}
+
+public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z )
+    graphics_struct   *graphics;
+    int               x_pixel, y_pixel;
+    int               *x, *y, *z;
+{
+    Boolean  found;
+    int      axis_index, x_index, y_index;
+    int      start_indices[N_DIMENSIONS];
+    int      voxel_indices[N_DIMENSIONS];
+    int      x_pixel_start, x_pixel_end, y_pixel_start, y_pixel_end;
+    void     get_slice_view();
+
+    found = FALSE;
+
+    for_less( axis_index, 0, N_DIMENSIONS )
+    {
+        get_slice_view( graphics, axis_index, 
+                        &x_pixel_start, &y_pixel_start,
+                        &x_pixel_end, &y_pixel_end,
+                        start_indices );
+
+        if( x_pixel >= x_pixel_start && x_pixel <= x_pixel_end &&
+            y_pixel >= y_pixel_start && y_pixel <= y_pixel_end )
+        {
+            x_index = (axis_index + 1) % N_DIMENSIONS;
+            y_index = (axis_index + 2) % N_DIMENSIONS;
+
+            voxel_indices[axis_index] = start_indices[axis_index];
+
+            voxel_indices[x_index] = start_indices[x_index] +
+                                        (x_pixel - x_pixel_start);
+            voxel_indices[y_index] = start_indices[y_index] +
+                                        (y_pixel - y_pixel_start);
+
+            *x = voxel_indices[X_AXIS];
+            *y = voxel_indices[Y_AXIS];
+            *z = voxel_indices[Z_AXIS];
+
+            found = TRUE;
+
+            break;
+        }
+    }
+
+    return( found );
+}
+
+private  void  get_slice_viewport( graphics, axis_index,
+                                   x_min, x_max, y_min, y_max )
+    graphics_struct   *graphics;
+    int               axis_index;
+    int               *x_min, *x_max, *y_min, *y_max;
+{
+    switch( axis_index )
+    {
+    case X_AXIS:
+        *x_min = Slice_split_border;
+        *x_max = graphics->slice.x_split-1-Slice_split_border;
+        *y_min = graphics->slice.y_split+1+Slice_split_border;
+        *y_max = graphics->window.y_size-Slice_split_border;
+        break;
+
+    case Y_AXIS:
+        *x_min = graphics->slice.x_split+1+Slice_split_border;
+        *x_max = graphics->window.x_size-Slice_split_border;
+        *y_min = graphics->slice.y_split+1+Slice_split_border;
+        *y_max = graphics->window.y_size-Slice_split_border;
+        break;
+
+    case Z_AXIS:
+        *x_min = Slice_split_border;
+        *x_max = graphics->slice.x_split-1-Slice_split_border;
+        *y_min = Slice_split_border;
+        *y_max = graphics->slice.y_split-1-Slice_split_border;
+        break;
+    }
+}
+
+private  void  get_slice_view( graphics, axis_index, 
+                               x_pixel, y_pixel, x_pixel_width, y_pixel_width,
+                               indices )
+    graphics_struct  *graphics;
+    int              axis_index;
+    int              *x_pixel, *y_pixel;
+    int              *x_pixel_width, *y_pixel_width;
+    int              indices[N_DIMENSIONS];
+{
+    int   x_axis_index, y_axis_index;
+    int   x_offset, y_offset;
+    int   x_size, y_size;
+    int   x_min, x_max, y_min, y_max;
+    int   x_pixel_end, y_pixel_end;
+    void  get_slice_viewport();
+
+    indices[axis_index] = graphics->slice.slice_views[axis_index].slice_index;
+
+    x_offset = graphics->slice.slice_views[axis_index].x_offset;
+    y_offset = graphics->slice.slice_views[axis_index].y_offset;
+
+    x_axis_index = (axis_index + 1) % N_DIMENSIONS;
+    y_axis_index = (axis_index + 2) % N_DIMENSIONS;
+
+    x_size = graphics->slice.volume->size[x_axis_index];
+    y_size = graphics->slice.volume->size[y_axis_index];
+
+    get_slice_viewport( graphics, axis_index, &x_min, &x_max, &y_min, &y_max );
+
+    *x_pixel = x_min + x_offset;
+    indices[x_axis_index] = 0;
+
+    if( *x_pixel < x_min )
+    {
+        *x_pixel = x_min;
+        indices[x_axis_index] = -x_offset;
+    }
+    else if( *x_pixel > x_max )
+    {
+        *x_pixel = x_max;
+        indices[x_axis_index] = x_max - x_min - x_offset;
+    }
+
+    x_pixel_end = x_min + x_offset + x_size - 1;
+
+    *x_pixel_width = MIN( x_pixel_end, x_max ) - *x_pixel + 1;
+
+    *y_pixel = y_min + y_offset;
+    indices[y_axis_index] = 0;
+
+    if( indices[y_axis_index] < y_min )
+    {
+        *y_pixel = y_min;
+        indices[y_axis_index] = -y_offset;
+    }
+    else if( indices[y_axis_index] > y_max )
+    {
+        *y_pixel = y_max;
+        indices[y_axis_index] = y_max - y_min - y_offset;
+    }
+
+    y_pixel_end = y_min + y_offset + y_size - 1;
+
+    *y_pixel_width = MIN( y_pixel_end, y_max ) - *y_pixel + 1;
 }
