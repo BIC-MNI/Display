@@ -62,6 +62,8 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(toggle_object_visibility) \
                        MENU_FUNCTION(cut_object) \
                        MENU_FUNCTION(paste_object) \
+                       MENU_FUNCTION(set_surface_valid_range) \
+                       MENU_FUNCTION(set_surface_valid_out_range) \
                        MENU_FUNCTION(start_volume_isosurface) \
                        MENU_FUNCTION(start_volume_binary_isosurface) \
                        MENU_FUNCTION(start_label_binary_isosurface) \
@@ -128,6 +130,7 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(show_deformation_model) \
                        MENU_FUNCTION(reset_deformation_model) \
                        MENU_FUNCTION(reverse_polygons_order) \
+                       MENU_FUNCTION(print_polygons_surface_area) \
                        MENU_FUNCTION(smooth_current_lines) \
                        MENU_FUNCTION(set_line_widths) \
                        MENU_FUNCTION(convert_markers_to_lines) \
