@@ -7,7 +7,8 @@
 
 typedef  struct
 {
-    int           axis_map[N_DIMENSIONS];
+    Real          x_axis[N_DIMENSIONS];
+    Real          y_axis[N_DIMENSIONS];
     Real          x_trans, y_trans;
     Real          x_scaling, y_scaling;
     int           prev_viewport_x_size;
@@ -66,7 +67,7 @@ typedef  struct
 
     Real                   x_split, y_split;
 
-    Real                   slice_index[N_DIMENSIONS];
+    Real                   current_voxel[N_DIMENSIONS];
     slice_view_struct      slice_views[3];
     int                    next_to_update;
 
