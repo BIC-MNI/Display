@@ -61,6 +61,7 @@
                        MENU_FUNCTION(toggle_surface_extraction) \
                        MENU_FUNCTION(make_surface_permanent) \
                        MENU_FUNCTION(reset_surface) \
+                       MENU_FUNCTION(get_labeled_boundary) \
                        MENU_FUNCTION(double_slice_voxels) \
                        MENU_FUNCTION(halve_slice_voxels) \
                        MENU_FUNCTION(load_active_voxels) \
@@ -71,6 +72,7 @@
                        MENU_FUNCTION(reset_activities) \
                        MENU_FUNCTION(set_connected_inactive) \
                        MENU_FUNCTION(reset_slice_activities) \
+                       MENU_FUNCTION(label_connected_3d) \
                        MENU_FUNCTION(set_colour_limits) \
                        MENU_FUNCTION(set_isovalue) \
                        MENU_FUNCTION(create_film_loop) \
@@ -96,6 +98,7 @@
                        MENU_FUNCTION(save_polygons_visibilities) \
                        MENU_FUNCTION(load_polygons_visibilities) \
                        MENU_FUNCTION(smooth_current_polygon) \
+                       MENU_FUNCTION(smooth_current_polygon_with_volume) \
                        MENU_FUNCTION(smooth_current_lines) \
                        MENU_FUNCTION(make_current_line_tube) \
                        MENU_FUNCTION(convert_line_to_spline_points) \
