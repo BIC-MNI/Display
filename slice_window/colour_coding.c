@@ -3,7 +3,7 @@
 
 #define    MAX_LABEL_COLOUR_TABLE_SIZE    2000000
 
-private  void  rebuild_colour_tables(
+private  void  rebuild_colour_table(
     display_struct    *slice_window );
 
 public  void  initialize_slice_colour_coding(
@@ -16,14 +16,13 @@ public  void  initialize_slice_colour_coding(
 
     initialize_colour_bar( slice_window );
 
-    slice_window->slice.label_colour_ratio = Label_colour_display_ratio;
+    slice_window->slice.label_colour_opacity = Label_colour_opacity;
     slice_window->slice.n_labels = Initial_num_labels;
-    slice_window->slice.n_distinct_colour_tables = 0;
 
-    slice_window->slice.colour_tables = (Colour **) 0;
-    slice_window->slice.label_colours = (Colour *) 0;
-    slice_window->slice.labels = (Volume) NULL;
     slice_window->slice.offset = 0;
+    slice_window->slice.colour_table = (Colour *) 0;
+    slice_window->slice.label_colour_table = (Colour *) 0;
+    slice_window->slice.labels = (Volume) NULL;
 }
 
 public  Volume  get_label_volume(
@@ -48,94 +47,54 @@ public  int  get_num_labels(
         return( slice_window->slice.n_labels );
 }
 
-public  void  delete_slice_colour_coding(
+private  void  delete_slice_labels(
     slice_window_struct   *slice )
 {
-    int      i;
-    Colour   *ptr;
-
-    if( slice->n_distinct_colour_tables == 0 )
+    if( slice->labels == (Volume) NULL )
         return;
 
     delete_volume( slice->labels );
     slice->labels = NULL;
 
-    for_less( i, 0, slice->n_distinct_colour_tables )
-    {
-        ptr = slice->colour_tables[i];
-        ptr += (int) slice->offset;
-        FREE( ptr );
-    }
-
-    FREE( slice->colour_tables );
-    FREE( slice->label_colours );
+    FREE( slice->label_colour_table );
 }
 
-private  void  alloc_colour_table_for_label(
-    display_struct    *slice_window,
-    int               label )
+public  void  delete_slice_colour_coding(
+    slice_window_struct   *slice )
 {
-    Real        min_voxel, max_voxel;
-    Colour      *ptr;
+    Colour   *ptr;
 
-    get_volume_voxel_range( slice_window->slice.volume,
-                            &min_voxel, &max_voxel );
+    if( slice->labels == (Volume) NULL )
+        return;
 
-    ALLOC( ptr, (int) max_voxel - (int) min_voxel + 1 );
+    delete_slice_labels( slice );
 
-    slice_window->slice.colour_tables[label] = ptr - (int) min_voxel;
+    ptr = slice->colour_table;
+    ptr += (int) slice->offset;
+    FREE( ptr );
 }
 
-private  void  realloc_colour_maps(
+private  void  realloc_label_colour_table(
     display_struct    *slice_window )
 {
-    int              i, ind, n_indiv_tables, n_voxel_values;
-    Real             min_voxel, max_voxel;
+    int              ind;
     int              label, n_labels;
-    Volume           volume;
     static Colour    default_colours[] = { RED, GREEN, BLUE,
                                            CYAN, MAGENTA, YELLOW,
                                            BLUE_VIOLET, DEEP_PINK,
                                            GREEN_YELLOW, LIGHT_SEA_GREEN,
                                            MEDIUM_TURQUOISE, PURPLE };
 
-    (void) get_slice_window_volume( slice_window, &volume );
-
     n_labels = get_num_labels( slice_window );
+    ALLOC( slice_window->slice.label_colour_table, n_labels );
 
-    ALLOC( slice_window->slice.label_colours, n_labels );
-    ALLOC( slice_window->slice.colour_tables, n_labels );
-
-    get_volume_voxel_range( volume, &min_voxel, &max_voxel );
-    n_voxel_values = (int) max_voxel - (int) min_voxel + 1;
-
-    n_indiv_tables = MAX_LABEL_COLOUR_TABLE_SIZE / n_voxel_values;
-
-    if( n_indiv_tables < 1 )
-        n_indiv_tables = 1;
-    else if( n_indiv_tables > n_labels )
-        n_indiv_tables = n_labels;
-
-    slice_window->slice.n_distinct_colour_tables = n_indiv_tables;
-
-    for_less( i, 0, n_labels )
-    {
-        if( i < n_indiv_tables )
-            alloc_colour_table_for_label( slice_window, i );
-        else
-            slice_window->slice.colour_tables[i] = 
-                         slice_window->slice.colour_tables[i % n_indiv_tables];
-    }
-
-    set_colour_of_label( slice_window, 0, WHITE );
-
-    for_less( label, 1, n_indiv_tables )
+    for_less( label, 1, n_labels )
     {
         ind = (label - 1) % SIZEOF_STATIC_ARRAY(default_colours);
         set_colour_of_label( slice_window, label, default_colours[ind] );
     }
 
-    rebuild_colour_tables( slice_window );
+    set_colour_of_label( slice_window, 0, make_rgba_Colour(0,0,0,0) );
 }
 
 private  void  create_colour_coding(
@@ -154,20 +113,34 @@ private  void  create_colour_coding(
         type = NC_LONG;
 
     slice->labels = create_label_volume( get_volume(slice_window), type );
-    slice->offset = (int) get_volume_voxel_min( get_volume( slice_window ) );
-
-    realloc_colour_maps( slice_window );
+    set_volume_voxel_range( slice->labels, 0.0, (Real) slice->n_labels-1.0 );
+    realloc_label_colour_table( slice_window );
 }
 
 public  void  set_slice_window_number_labels(
     display_struct    *slice_window,
     int               n_labels )
 {
-    delete_slice_colour_coding( &slice_window->slice );
+    delete_slice_labels( &slice_window->slice );
 
     slice_window->slice.n_labels = n_labels;
 
     create_colour_coding( slice_window );
+}
+
+private  void  alloc_colour_table(
+    display_struct    *slice_window )
+{
+    Real        min_voxel, max_voxel;
+    Colour      *ptr;
+
+    get_volume_voxel_range( slice_window->slice.volume,
+                            &min_voxel, &max_voxel );
+
+    ALLOC( ptr, (int) max_voxel - (int) min_voxel + 1 );
+
+    slice_window->slice.offset = (int) min_voxel;
+    slice_window->slice.colour_table = ptr - (int) min_voxel;
 }
 
 public  void  set_colour_coding_for_new_volume(
@@ -181,6 +154,8 @@ public  void  set_colour_coding_for_new_volume(
 
     (void) get_slice_window_volume( slice_window, &volume );
 
+    alloc_colour_table( slice_window );
+    rebuild_colour_table( slice_window );
     create_colour_coding( slice_window );
 
     get_volume_real_range( volume, &min_value, &max_value );
@@ -191,8 +166,6 @@ public  void  set_colour_coding_for_new_volume(
                  (max_value - min_value);
 
     change_colour_coding_range( slice_window, low_limit, high_limit );
-
-    rebuild_colour_bar( slice_window );
 }
 
 private  Colour  apply_label_colour(
@@ -200,16 +173,30 @@ private  Colour  apply_label_colour(
     Colour            col,
     int               label )
 {
-    Colour           label_col, mult, scaled_col;
+    Real      r1, g1, b1, a1, r2, g2, b2, a2;
+    Real      r, g, b, a;
+    Colour    label_col;
 
     if( label != 0 )
     {
-        label_col = slice_window->slice.label_colours[label];
-        MULT_COLOURS( mult, label_col, col );
-        mult = SCALE_COLOUR( mult, 1.0-slice_window->slice.label_colour_ratio);
-        scaled_col = SCALE_COLOUR( label_col,
-                                   slice_window->slice.label_colour_ratio);
-        ADD_COLOURS( col, mult, scaled_col );
+        label_col = slice_window->slice.label_colour_table[label];
+
+        r1 = get_Colour_r_0_1(col);
+        g1 = get_Colour_g_0_1(col);
+        b1 = get_Colour_b_0_1(col);
+        a1 = get_Colour_a_0_1(col);
+
+        r2 = get_Colour_r_0_1(label_col);
+        g2 = get_Colour_g_0_1(label_col);
+        b2 = get_Colour_b_0_1(label_col);
+        a2 = get_Colour_a_0_1(label_col);
+
+        r = a1 * r1 * (1.0 - a2) + a2 * r2;
+        g = a1 * g1 * (1.0 - a2) + a2 * g2;
+        b = a1 * b1 * (1.0 - a2) + a2 * b2;
+        a = a1 * (1.0 - a2) + a2 * a2;
+
+        col = make_rgba_Colour_0_1( r, g, b, a );
     }
 
     return( col );
@@ -230,44 +217,23 @@ private  Colour  get_slice_colour_coding(
     return( col );
 }
 
-private  void  rebuild_colour_table_for_label(
-    display_struct    *slice_window,
-    int               label )
+private  void  rebuild_colour_table(
+    display_struct    *slice_window )
 {
-    int              voxel, used_label;
+    int              voxel;
     Real             value;
     Colour           colour;
     Real             min_voxel, max_voxel;
-
-    if( label >= get_num_labels(slice_window) )
-        return;
-
-    used_label = label % slice_window->slice.n_distinct_colour_tables;
 
     get_volume_voxel_range( get_volume(slice_window), &min_voxel, &max_voxel );
 
     for_inclusive( voxel, (int) min_voxel, (int) max_voxel )
     {
-        if( label == 0 )
-        {
-            value = CONVERT_VOXEL_TO_VALUE( get_volume(slice_window), voxel );
-            colour = get_slice_colour_coding( slice_window, value, label );
-        }
-        else
-            colour = apply_label_colour( slice_window,
-                           slice_window->slice.colour_tables[0][voxel], label );
+        value = CONVERT_VOXEL_TO_VALUE( get_volume(slice_window), voxel );
+        colour = get_colour_code( &slice_window->slice.colour_coding, value );
 
-        slice_window->slice.colour_tables[used_label][voxel] = colour;
+        slice_window->slice.colour_table[voxel] = colour;
     }
-}
-
-private  void  rebuild_colour_tables(
-    display_struct    *slice_window )
-{
-    int              label;
-
-    for_less( label, 0, slice_window->slice.n_distinct_colour_tables )
-        rebuild_colour_table_for_label( slice_window, label );
 }
 
 public  void   set_colour_of_label(
@@ -275,16 +241,52 @@ public  void   set_colour_of_label(
     int               label,
     Colour            colour )
 {
-    if( label >= 0 && label < slice_window->slice.n_labels )
-    {
-        slice_window->slice.label_colours[label] = colour;
+    Real  r, g, b;
 
-        rebuild_colour_table_for_label( slice_window, label );
+    if( get_Colour_a(colour) == 255 )
+    {
+        r = get_Colour_r_0_1( colour );
+        g = get_Colour_g_0_1( colour );
+        b = get_Colour_b_0_1( colour );
+
+        colour = make_rgba_Colour_0_1( r, g, b,
+                                     slice_window->slice.label_colour_opacity );
     }
+
+    slice_window->slice.label_colour_table[label] = colour;
+}
+
+public  Colour   get_colour_of_label(
+    display_struct    *slice_window,
+    int               label )
+{
+    return( slice_window->slice.label_colour_table[label] );
+}
+
+public  void   set_label_opacity(
+    display_struct   *slice_window,
+    Real             opacity )
+{
+    int    i;
+    Real   r, g, b;
+
+    slice_window->slice.label_colour_opacity = opacity;
+
+    for_less( i, 1, get_num_labels(slice_window) )
+    {
+        r = get_Colour_r_0_1( slice_window->slice.label_colour_table[i] );
+        g = get_Colour_g_0_1( slice_window->slice.label_colour_table[i] );
+        b = get_Colour_b_0_1( slice_window->slice.label_colour_table[i] );
+        slice_window->slice.label_colour_table[i] = make_rgba_Colour_0_1(
+                      r, g, b, opacity );
+    }
+
+    colour_coding_has_changed( slice_window, UPDATE_LABELS );
 }
 
 public  void  colour_coding_has_changed(
-    display_struct    *display )
+    display_struct    *display,
+    Update_types      type )
 {
     display_struct    *slice_window;
 
@@ -292,10 +294,14 @@ public  void  colour_coding_has_changed(
 
     if( slice_window != (display_struct  *) 0 )
     {
-        rebuild_colour_tables( slice_window );
+        if( type == UPDATE_SLICE || type == UPDATE_BOTH )
+        {
+            rebuild_colour_table( slice_window );
 
-        rebuild_colour_bar( slice_window );
-        set_slice_window_all_update( slice_window );
+            rebuild_colour_bar( slice_window );
+        }
+
+        set_slice_window_all_update( slice_window, type );
     }
 }
 
@@ -307,7 +313,7 @@ public  void  change_colour_coding_range(
     set_colour_coding_min_max( &slice_window->slice.colour_coding,
                                min_value, max_value );
 
-    colour_coding_has_changed( slice_window );
+    colour_coding_has_changed( slice_window, UPDATE_SLICE );
 }
 
 private  void  colour_code_points(
