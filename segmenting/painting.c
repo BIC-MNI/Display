@@ -80,19 +80,16 @@ private  DEF_EVENT_FUNCTION( end_painting )     /* ARGSUSED */
                                   handle_update_painting );
     pop_action_table( &display->action_table, NO_EVENT );
 
-    remove_object_from_model( get_graphics_model( display, SLICE_MODEL ),
-                              find_object_index_in_model(
-                                  get_graphics_model(display,SLICE_MODEL),
-                                  display->slice.brush_outline ) );
-
     update_paint_labels( display );
 
     if( Draw_brush_outline )
+    {
+        remove_object_from_model( get_graphics_model( display, SLICE_MODEL ),
+                                  display->slice.brush_outline );
         delete_object( display->slice.brush_outline );
+    }
 
-    set_slice_window_update( display, 0 );
-    set_slice_window_update( display, 1 );
-    set_slice_window_update( display, 2 );
+    set_slice_window_all_update( display );
 
     return( OK );
 }
@@ -190,6 +187,9 @@ private  void  paint_labels_at_point(
         get_slice_plane( slice_window, view_index, origin, x_axis, y_axis );
         get_slice_perp_axis( slice_window, view_index, z_axis );
 
+        get_volume_separations( volume, separations );
+        get_volume_sizes( volume, sizes );
+
         radius[X] = slice_window->slice.x_brush_radius;
         radius[Y] = slice_window->slice.y_brush_radius;
         radius[Z] = slice_window->slice.z_brush_radius;
@@ -209,9 +209,6 @@ private  void  paint_labels_at_point(
 
         if( n_zero == 1 )
             radius[which_zero] = 1.0;
-
-        get_volume_separations( volume, separations );
-        get_volume_sizes( volume, sizes );
 
         len_x_axis = 0.0;
         len_y_axis = 0.0;
@@ -310,11 +307,7 @@ private  void  paint_labels_at_point(
         }
 
         if( update_required )
-        {
-            set_slice_window_update( slice_window, 0 );
-            set_slice_window_update( slice_window, 1 );
-            set_slice_window_update( slice_window, 2 );
-        }
+            set_slice_window_all_update( slice_window );
     }
 }
 
