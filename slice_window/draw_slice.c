@@ -174,8 +174,7 @@ public  void  rebuild_probe(
     Boolean        active;
     Volume         volume;
     int            label, i, x_voxel, y_voxel, z_voxel, view_index;
-    Real           x_tal_voxel, y_tal_voxel, z_tal_voxel;
-    Real           x_talairach, y_talairach, z_talairach;
+    Real           x_world, y_world, z_world;
     text_struct    *text;
     int            sizes[N_DIMENSIONS];
     Real           value, voxel_value;
@@ -190,12 +189,9 @@ public  void  rebuild_probe(
     if( get_slice_window_volume( slice_window, &volume ) )
         get_volume_sizes( volume, sizes );
 
-    convert_voxel_to_talairach( (Real) x_voxel, (Real) y_voxel, (Real) z_voxel,
-                                sizes[X], sizes[Y], sizes[Z],
-                                &x_tal_voxel, &y_tal_voxel, &z_tal_voxel );
-
-    convert_talairach_to_mm( x_tal_voxel, y_tal_voxel, z_tal_voxel,
-                             &x_talairach, &y_talairach, &z_talairach );
+    convert_voxel_to_world( volume,
+                            (Real) x_voxel, (Real) y_voxel, (Real) z_voxel,
+                            &x_world, &y_world, &z_world );
 
     if( active )
     {
@@ -238,15 +234,15 @@ public  void  rebuild_probe(
 
             case X_TALAIRACH_PROBE_INDEX:
                 (void) sprintf( text->string, Slice_probe_x_talairach_format,
-                                x_talairach );
+                                x_world );
                 break;
             case Y_TALAIRACH_PROBE_INDEX:
                 (void) sprintf( text->string, Slice_probe_y_talairach_format,
-                                y_talairach );
+                                y_world );
                 break;
             case Z_TALAIRACH_PROBE_INDEX:
                 (void) sprintf( text->string, Slice_probe_z_talairach_format,
-                                z_talairach );
+                                z_world );
                 break;
             case VOXEL_PROBE_INDEX:
                 (void) sprintf( text->string, Slice_probe_voxel_format,
