@@ -139,9 +139,9 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
 {
     Status           status;
     Status           create_graphics_window();
-    int              c;
     volume_struct    *volume;
     graphics_struct  *slice_window;
+    void             set_slice_window_volume();
     void             rebuild_slice_models();
 
     if( get_current_volume( graphics, &volume ) &&
@@ -152,19 +152,13 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
 
         if( status == OK )
         {
-            slice_window->slice.volume = volume;
-
-            for_less( c, 0, N_DIMENSIONS )
-            {
-                slice_window->slice.slice_views[c].slice_index =
-                      (int) (volume->size[c] / 2);
-            }
-
             slice_window->associated[THREE_D_WINDOW] = graphics;
             slice_window->associated[MENU_WINDOW] = menu_window;
             slice_window->associated[SLICE_WINDOW] = slice_window;
             graphics->associated[SLICE_WINDOW] = slice_window;
             menu_window->associated[SLICE_WINDOW] = slice_window;
+
+            set_slice_window_volume( slice_window, volume );
 
             rebuild_slice_models( slice_window );
 
@@ -183,35 +177,17 @@ public  DEF_MENU_UPDATE(open_slice_window )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION(start_surface )   /* ARGSUSED */
 {
     int            x, y, z;
-    Point          origin;
     Boolean        get_current_volume();
     void           start_surface_extraction_at_point();
     volume_struct  *volume;
 
     if( get_current_volume( graphics, &volume ) )
     {
-        origin = graphics->three_d.cursor.origin;
-
-        x = (int) ( Point_x(origin) );
-        if( x == volume->size[X_AXIS]-1 )
+        if( convert_point_to_voxel( graphics, &graphics->three_d.cursor.origin,
+                                    &x, &y, &z ) )
         {
-            --x;
+            start_surface_extraction_at_point( graphics, x, y, z );
         }
-
-        y = (int) ( Point_y(origin) );
-        if( y == volume->size[Y_AXIS]-1 )
-        {
-            --y;
-        }
-
-        z = (int) ( Point_z(origin) );
-        if( z == volume->size[Z_AXIS]-1 )
-        {
-            --z;
-        }
-
-
-        start_surface_extraction_at_point( graphics, x, y, z );
     }
 
     return( OK );
@@ -301,8 +277,8 @@ public  DEF_MENU_FUNCTION(double_slice_voxels)   /* ARGSUSED */
 
         if( find_slice_view_mouse_is_in( slice_window, x, y, &axis_index ) )
         {
-            slice_window->slice.slice_views[axis_index].x_scale *= 0.5;
-            slice_window->slice.slice_views[axis_index].y_scale *= 0.5;
+            slice_window->slice.slice_views[axis_index].x_scale *= 2.0;
+            slice_window->slice.slice_views[axis_index].y_scale *= 2.0;
             rebuild_slice_pixels( slice_window, axis_index );
             slice_window->update_required = TRUE;
         }
@@ -339,8 +315,8 @@ public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
 
         if( find_slice_view_mouse_is_in( slice_window, x, y, &axis_index ) )
         {
-            slice_window->slice.slice_views[axis_index].x_scale *= 2.0;
-            slice_window->slice.slice_views[axis_index].y_scale *= 2.0;
+            slice_window->slice.slice_views[axis_index].x_scale *= 0.5;
+            slice_window->slice.slice_views[axis_index].y_scale *= 0.5;
             rebuild_slice_pixels( slice_window, axis_index );
             slice_window->update_required = TRUE;
         }

@@ -8,24 +8,82 @@ public  Status  initialize_slice_window( graphics )
     Status  status;
     Status  initialize_slice_models();
     void    initialize_slice_window_events();
-    int     c;
 
     graphics->slice.volume = (volume_struct *) 0;
 
     initialize_slice_window_events( graphics );
 
-    for_less( c, 0, N_DIMENSIONS )
-    {
-        graphics->slice.slice_views[c].slice_index = 0;
-        graphics->slice.slice_views[c].x_offset = 0;
-        graphics->slice.slice_views[c].y_offset = 0;
-        graphics->slice.slice_views[c].x_scale = 1.0;
-        graphics->slice.slice_views[c].y_scale = 1.0;
-    }
-
     status = initialize_slice_models( graphics );
 
     return( status );
+}
+
+public  void  set_slice_window_volume( graphics, volume )
+    graphics_struct   *graphics;
+    volume_struct     *volume;
+{
+    int              c, x_index, y_index;
+    Real             factor, min_thickness, max_thickness;
+    void             get_2d_slice_axes();
+
+    graphics->slice.volume = volume;
+
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        graphics->slice.slice_views[c].x_offset = 0;
+        graphics->slice.slice_views[c].y_offset = 0;
+        graphics->slice.slice_views[c].slice_index =
+                                (int) (volume->size[c] / 2);
+    }
+
+    min_thickness = volume->slice_thickness[X_AXIS];
+    max_thickness = volume->slice_thickness[X_AXIS];
+
+    for_less( c, 1, N_DIMENSIONS )
+    {
+        if( min_thickness > volume->slice_thickness[c] )
+        {
+            min_thickness = volume->slice_thickness[c];
+        }
+        if( max_thickness < volume->slice_thickness[c] )
+        {
+            max_thickness = volume->slice_thickness[c];
+        }
+    }
+
+    factor = 1.0 / min_thickness;
+
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        get_2d_slice_axes( c, &x_index, &y_index );
+
+        graphics->slice.slice_views[c].x_scale = factor *
+                                  volume->slice_thickness[x_index];
+
+        graphics->slice.slice_views[c].y_scale = factor *
+                                  volume->slice_thickness[y_index];
+    }
+}
+
+public  Boolean   get_slice_window_volume( graphics, volume )
+    graphics_struct  *graphics;
+    volume_struct    **volume;
+{
+    Boolean  volume_set;
+
+    volume_set = FALSE;
+
+    if( graphics->associated[SLICE_WINDOW] != (graphics_struct *) 0 )
+    {
+        *volume = graphics->associated[SLICE_WINDOW]->slice.volume;
+
+        if( *volume != (volume_struct *) 0 )
+        {
+            volume_set = TRUE;
+        }
+    }
+
+    return( volume_set );
 }
 
 public  Status  delete_slice_window( slice_window )
@@ -92,7 +150,7 @@ public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z )
     if( find_slice_view_mouse_is_in( graphics, x_pixel, y_pixel,
                                          &axis_index ) )
     {
-        get_slice_view( graphics, axis_index, 
+        get_slice_view( graphics, axis_index, &x_scale, &y_scale,
                         &x_pixel_start, &y_pixel_start,
                         &x_pixel_end, &y_pixel_end,
                         start_indices );
@@ -102,15 +160,12 @@ public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z )
         {
             get_2d_slice_axes( axis_index, &x_index, &y_index );
 
-            x_scale = graphics->slice.slice_views[axis_index].x_scale;
-            y_scale = graphics->slice.slice_views[axis_index].y_scale;
-
             voxel_indices[axis_index] = start_indices[axis_index];
 
             voxel_indices[x_index] = start_indices[x_index] +
-                                        (x_pixel - x_pixel_start) * x_scale;
+                                        (x_pixel - x_pixel_start) / x_scale;
             voxel_indices[y_index] = start_indices[y_index] +
-                                        (y_pixel - y_pixel_start) * y_scale;
+                                        (y_pixel - y_pixel_start) / y_scale;
 
             *x = voxel_indices[X_AXIS];
             *y = voxel_indices[Y_AXIS];
@@ -128,7 +183,7 @@ private  int  voxel_to_pixel( x_min, x_offset, x_scale, voxel )
     Real  x_scale;
     int   voxel;
 {
-    return( x_min + x_offset + (Real) voxel / x_scale );
+    return( x_min + x_offset + (Real) voxel * x_scale );
 }
 
 public  void  convert_voxel_to_pixel( graphics, axis_index, x_voxel, y_voxel,
@@ -140,22 +195,74 @@ public  void  convert_voxel_to_pixel( graphics, axis_index, x_voxel, y_voxel,
 {
     int      x_index, y_index;
     int      x_min, x_max, y_min, y_max;
-    void     get_slice_view();
+    Real     x_scale, y_scale;
+    void     get_slice_viewport();
     void     get_2d_slice_axes();
-
-    get_2d_slice_axes( axis_index, &x_index, &y_index );
+    void     get_slice_scale();
 
     get_slice_viewport( graphics, axis_index, &x_min, &x_max, &y_min, &y_max );
 
+    get_slice_scale( graphics, axis_index, &x_scale, &y_scale );
+
+    get_2d_slice_axes( axis_index, &x_index, &y_index );
+
     *x_pixel = voxel_to_pixel( x_min,
                                graphics->slice.slice_views[axis_index].x_offset,
-                               graphics->slice.slice_views[axis_index].x_scale,
-                               x_voxel );
+                               x_scale, x_voxel );
 
     *y_pixel = voxel_to_pixel( y_min,
                                graphics->slice.slice_views[axis_index].y_offset,
-                               graphics->slice.slice_views[axis_index].y_scale,
-                               y_voxel );
+                               y_scale, y_voxel );
+}
+
+public  void  get_voxel_centre( graphics, x, y, z, centre )
+    graphics_struct   *graphics;
+    int               x, y, z;
+    Point             *centre;
+{
+    fill_Point( *centre, 
+          (Real) x * graphics->slice.volume->slice_thickness[X_AXIS],
+          (Real) y * graphics->slice.volume->slice_thickness[Y_AXIS],
+          (Real) z * graphics->slice.volume->slice_thickness[Z_AXIS] );
+}
+
+public  Boolean  convert_point_to_voxel( graphics, point, x, y, z )
+    graphics_struct   *graphics;
+    Point             *point;
+    int               *x, *y, *z;
+{
+    volume_struct   *volume;
+    Boolean         converted;
+
+    converted = FALSE;
+
+    if( get_slice_window_volume( graphics, &volume ) )
+    {
+        *x = (int) (Point_x(*point) / volume->slice_thickness[X_AXIS]);
+        *y = (int) (Point_y(*point) / volume->slice_thickness[Y_AXIS]);
+        *z = (int) (Point_z(*point) / volume->slice_thickness[Z_AXIS]);
+
+        converted = (*x >= 0 && *x < volume->size[X_AXIS]-1 &&
+                     *y >= 0 && *y < volume->size[Y_AXIS]-1 &&
+                     *z >= 0 && *z < volume->size[Z_AXIS]-1);
+    }
+
+    return( converted );
+}
+
+private  void  get_slice_scale( graphics, axis_index, x_scale, y_scale )
+    graphics_struct   *graphics;
+    int               axis_index;
+    Real              *x_scale;
+    Real              *y_scale;
+{
+    int   x_index, y_index;
+    void  get_2d_slice_axes();
+
+    get_2d_slice_axes( axis_index, &x_index, &y_index );
+
+    *x_scale = graphics->slice.slice_views[axis_index].x_scale;
+    *y_scale = graphics->slice.slice_views[axis_index].y_scale;
 }
 
 public  void  get_slice_viewport( graphics, axis_index,
@@ -195,11 +302,12 @@ public  void  get_slice_viewport( graphics, axis_index,
     }
 }
 
-public  void  get_slice_view( graphics, axis_index, 
+public  void  get_slice_view( graphics, axis_index, x_scale, y_scale,
                               x_pixel, y_pixel, x_pixel_end, y_pixel_end,
                               indices )
     graphics_struct  *graphics;
     int              axis_index;
+    Real             *x_scale, *y_scale;
     int              *x_pixel, *y_pixel;
     int              *x_pixel_end, *y_pixel_end;
     int              indices[N_DIMENSIONS];
@@ -208,7 +316,7 @@ public  void  get_slice_view( graphics, axis_index,
     int   x_offset, y_offset;
     int   x_size, y_size;
     int   x_min, x_max, y_min, y_max;
-    Real  x_scale, y_scale;
+    void  get_slice_scale();
     void  get_slice_viewport();
     void  get_2d_slice_axes();
 
@@ -216,8 +324,8 @@ public  void  get_slice_view( graphics, axis_index,
 
     x_offset = graphics->slice.slice_views[axis_index].x_offset;
     y_offset = graphics->slice.slice_views[axis_index].y_offset;
-    x_scale = graphics->slice.slice_views[axis_index].x_scale;
-    y_scale = graphics->slice.slice_views[axis_index].y_scale;
+
+    get_slice_scale( graphics, axis_index, x_scale, y_scale );
 
     get_2d_slice_axes( axis_index, &x_axis_index, &y_axis_index );
 
@@ -226,10 +334,10 @@ public  void  get_slice_view( graphics, axis_index,
 
     get_slice_viewport( graphics, axis_index, &x_min, &x_max, &y_min, &y_max );
 
-    *x_pixel = voxel_to_pixel( x_min, x_offset, x_scale, 0 );
+    *x_pixel = voxel_to_pixel( x_min, x_offset, *x_scale, 0 );
     indices[x_axis_index] = 0;
 
-    *x_pixel_end = voxel_to_pixel( x_min, x_offset, x_scale, x_size-1 );
+    *x_pixel_end = voxel_to_pixel( x_min, x_offset, *x_scale, x_size-1 );
     if( *x_pixel_end > x_max )
     {
         *x_pixel_end = x_max;
@@ -238,7 +346,7 @@ public  void  get_slice_view( graphics, axis_index,
     if( *x_pixel < x_min )
     {
         *x_pixel = x_min;
-        indices[x_axis_index] = (int) (- (Real) x_offset * x_scale );
+        indices[x_axis_index] = (int) (- (Real) x_offset / *x_scale );
 
         if( indices[x_axis_index] >= x_size )
         {
@@ -246,10 +354,10 @@ public  void  get_slice_view( graphics, axis_index,
         }
     }
 
-    *y_pixel = voxel_to_pixel( y_min, y_offset, y_scale, 0 );
+    *y_pixel = voxel_to_pixel( y_min, y_offset, *y_scale, 0 );
     indices[y_axis_index] = 0;
 
-    *y_pixel_end = voxel_to_pixel( y_min, y_offset, y_scale, y_size-1 );
+    *y_pixel_end = voxel_to_pixel( y_min, y_offset, *y_scale, y_size-1 );
     if( *y_pixel_end > y_max )
     {
         *y_pixel_end = y_max;
@@ -258,7 +366,7 @@ public  void  get_slice_view( graphics, axis_index,
     if( *y_pixel < y_min )
     {
         *y_pixel = y_min;
-        indices[y_axis_index] = (int) (- (Real) y_offset * y_scale );
+        indices[y_axis_index] = (int) (- (Real) y_offset / *y_scale );
 
         if( indices[y_axis_index] >= y_size )
         {
@@ -275,8 +383,8 @@ public   void     get_2d_slice_axes( axis_index, x_index, y_index )
     switch( axis_index )
     {
     case X_AXIS:
-        *x_index = Z_AXIS;
-        *y_index = Y_AXIS;
+        *x_index = Y_AXIS;
+        *y_index = Z_AXIS;
         break;
 
     case Y_AXIS:

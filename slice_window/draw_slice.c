@@ -199,6 +199,7 @@ public  void  rebuild_slice_pixels( graphics, axis_index )
     void           render_slice_to_pixels();
     text_struct    *text;
     char           *format;
+    Real           x_scale, y_scale;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
     void           get_slice_viewport();
     void           rebuild_cursor();
@@ -207,15 +208,14 @@ public  void  rebuild_slice_pixels( graphics, axis_index )
 
     pixels = model->object_list[X_SLICE_INDEX+axis_index]->ptr.pixels;
 
-    get_slice_view( graphics, axis_index,
+    get_slice_view( graphics, axis_index, &x_scale, &y_scale,
                     &x_pixel_start, &y_pixel_start,
                     &x_pixel_end, &y_pixel_end, voxel_indices );
 
     render_slice_to_pixels( pixels, axis_index, graphics->slice.volume,
                    voxel_indices,
                    x_pixel_start, x_pixel_end, y_pixel_start, y_pixel_end,
-                   graphics->slice.slice_views[axis_index].x_scale,
-                   graphics->slice.slice_views[axis_index].y_scale );
+                   x_scale, y_scale );
 
     text = model->object_list[X_TEXT_INDEX+axis_index]->ptr.text;
 
@@ -336,6 +336,7 @@ private  void  render_slice_to_pixels( pixels, axis_index, volume,
     int             x_index, y_index, x, y;
     int             x_size, y_size;
     Pixel_colour    pixel_col;
+    Real            dx, dy;
     void            get_voxel_colour();
     void            get_2d_slice_axes();
 
@@ -354,6 +355,9 @@ private  void  render_slice_to_pixels( pixels, axis_index, volume,
     x_size = x_right - x_left + 1;
     y_size = y_top - y_bottom + 1;
 
+    dx = 1.0 / x_scale;
+    dy = 1.0 / y_scale;
+
     if( status == OK )
     {
         if( x_size > 0 && y_size > 0 )
@@ -368,12 +372,11 @@ private  void  render_slice_to_pixels( pixels, axis_index, volume,
 
     for_inclusive( x, x_left, x_right )
     {
-        indices[x_index] = start_indices[x_index] + x_scale * (x - x_left);
+        indices[x_index] = start_indices[x_index] + (x - x_left) * dx;
 
         for_inclusive( y, y_bottom, y_top )
         {
-            indices[y_index] = start_indices[y_index] +
-                               y_scale * (y - y_bottom);
+            indices[y_index] = start_indices[y_index] + (y - y_bottom) * dy;
 
             get_voxel_colour( volume, indices[0], indices[1],
                               indices[2], &pixel_col );
