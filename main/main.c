@@ -1,5 +1,7 @@
 #include  <display.h>
 
+private  void      initialize_global_colours();
+
 #define  HARD_CODED_DISPLAY_DIRECTORY1    "/usr/local/mni/lib"
 #define  HARD_CODED_DISPLAY_DIRECTORY2    "/usr/local/lib"
 #define  GLOBALS_FILENAME                 "Display.globals"
@@ -8,7 +10,7 @@
 
 #define  GLOBALS_LOOKUP_NAME  display_globals
 #include  <globals.h>
-#define   DISPLAY_GLOBALS_FILENAME   "display.globals"
+#define   DISPLAY_GLOBALS_FILENAME   "Display.globals"
 
 public  Status  change_global_variable(
     char   str[],
@@ -36,6 +38,8 @@ int  main( argc, argv )
         title = argv[0];
     else
         title = argv[1];
+
+    initialize_global_colours();
 
     if( getenv( "DISPLAY_DIRECTORY" ) != (char *) NULL )
         (void) strcpy( runtime_directory, getenv( "DISPLAY_DIRECTORY" ) );
@@ -95,12 +99,13 @@ int  main( argc, argv )
         initialize_graphics();
 
         status = create_graphics_window( THREE_D_WINDOW,
+                                         Graphics_double_buffer_flag,
                                          &graphics, title, 0, 0 );
     }
 
     if( status == OK )
     {
-        status = create_graphics_window( MENU_WINDOW, &menu, title,
+        status = create_graphics_window( MENU_WINDOW, ON, &menu, title,
                                          Menu_window_width,
                                          Menu_window_height );
     }
@@ -152,7 +157,7 @@ int  main( argc, argv )
     if( status == OK )
         status = main_event_loop();
 
-    (void) terminate_graphics();
+    terminate_graphics();
 
     if( status == OK )
         delete_marching_cubes_table();
@@ -163,4 +168,45 @@ int  main( argc, argv )
         print( "Program ended with error %d\n", (int) status );
 
     return( (int) status );
+}
+
+private  void      initialize_global_colours()
+{
+    Initial_background_colour = DARK_SLATE_GREY;
+    Volume_outline_colour = RED;
+    Cross_section_colour = GREEN;
+    Ambient_light_colour = WHITE;
+    Directional_light_colour = WHITE;
+    Menu_character_colour = CYAN;
+    Menu_character_inactive_colour = SLATE_GREY;
+    Menu_box_colour = WHITE;
+    Menu_key_colour = WHITE;
+    Default_marker_colour = GREEN;
+    Selected_colour = GREEN;
+    Visible_colour = WHITE;
+    Invisible_colour = GREY;
+    Viewport_feedback_colour = GREEN;
+    Slice_divider_colour = BLUE;
+    Slice_text_colour = GREEN;
+    Readout_text_rgb_colour = GREEN;
+    Cursor_rgb_colour = BLUE;
+    Slice_cursor_colour1 = RED;
+    Slice_cursor_colour2 = BLUE;
+    Slice_cross_section_colour = GREEN;
+    Slice_crop_box_colour = GREEN;
+    Extracted_surface_colour = WHITE;
+    Colour_below = BLACK;
+    User_defined_min_colour = BLACK;
+    User_defined_max_colour = WHITE;
+    Colour_above = WHITE;
+    Colour_bar_tick_colour = WHITE;
+    Colour_bar_text_colour = WHITE;
+    Colour_bar_limit_colour = GREEN;
+    Colour_bar_range_colour = RED;
+    Surface_curve_colour = MAGENTA;
+    Visible_segmenting_colour = GREEN;
+    Invisible_segmenting_colour = BLACK;
+    Brush_outline_colour = WHITE;
+    Histogram_colour = WHITE;
+    Menu_name_colour = GREEN;
 }
