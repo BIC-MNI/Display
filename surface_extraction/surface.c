@@ -218,16 +218,6 @@ public  void  start_surface_extraction_at_point( graphics, x, y, z )
                            &voxel_indices );
             }
 
-            if( FALSE && status == OK )
-            {
-                add_voxel_neighbours(
-                        graphics->associated[SLICE_WINDOW]->slice.volume,
-                        voxel_indices.i[X_AXIS], voxel_indices.i[Y_AXIS],
-                        voxel_indices.i[Z_AXIS],
-                        &graphics->three_d.surface_extraction.voxels_done,
-                        &graphics->three_d.surface_extraction.voxels_to_do );
-            }
-
             start_surface_extraction( graphics );
         }
     }
@@ -404,16 +394,22 @@ private  Boolean   check_voxel( volume, voxel_activity, surface_extraction,
     Boolean                lookup_edge_point_id();
     Status                 record_edge_point_id();
     polygons_struct        *poly;
-    triangle_point_type    *points_list;
-    voxel_index_struct     corner_points[3], corner, tmp_point;
+    triangle_point_type    *points_list, *pt;
+    voxel_index_struct     corner_points[MAX_POINTS_PER_VOXEL];
+    voxel_index_struct     corner;
     Real                   corner_values[2][2][2];
     Boolean                active, connected;
-    Boolean                tri_done[4], changed;
-    int                    n_done, axis;
+    Boolean                tri_connected[4], changed;
+    int                    id, n_connected, axis, cache_pt[N_DIMENSIONS];
+    struct
+    {
+        Boolean  in_cache;
+        int      point_id;
+    }                      corner_cache[2][2][2][N_DIMENSIONS];
     Boolean                are_voxel_corners_active();
     int                    n_tris, n_nondegenerate_tris, tri, p, next_end;
     int                    x, y, z, pt_index;
-    int                    point_id[3];
+    int                    point_ids[3];
     Point_classes          pt_class;
 
     active = are_voxel_corners_active( volume, voxel_activity,
@@ -452,119 +448,207 @@ private  Boolean   check_voxel( volume, voxel_activity, surface_extraction,
 
         for_less( tri, 0, n_tris )
         {
-            tri_done[tri] = FALSE;
+            tri_connected[tri] = FALSE;
         }
 
         changed = TRUE;
-        n_done = 0;
+        n_connected = 0;
 
-        while( n_done < n_tris && changed )
+        for_less( x, 0, 2 )
+        {
+            for_less( y, 0, 2 )
+            {
+                for_less( z, 0, 2 )
+                {
+                    for_less( axis, 0, N_DIMENSIONS )
+                    {
+                        corner_cache[x][y][z][axis].in_cache = FALSE;
+                    }
+                }
+            }
+        }
+
+        for_less( tri, 0, n_tris )
+        {
+            for_less( p, 0, 3 )
+            {
+                pt_index = 3 * tri + p;
+                pt = &points_list[pt_index];
+
+                corner_points[pt_index].i[X_AXIS] = voxel_index->i[X_AXIS] +
+                                                    pt->coord[X_AXIS];
+                corner_points[pt_index].i[Y_AXIS] = voxel_index->i[Y_AXIS] +
+                                                    pt->coord[Y_AXIS];
+                corner_points[pt_index].i[Z_AXIS] = voxel_index->i[Z_AXIS] +
+                                                    pt->coord[Z_AXIS];
+                if( !corner_cache[pt->coord[X_AXIS]]
+                                 [pt->coord[Y_AXIS]]
+                                 [pt->coord[Z_AXIS]]
+                                 [pt->edge_intersected].in_cache )
+                {
+                    if( !lookup_edge_point_id( volume,
+                                              &surface_extraction->edge_points,
+                                              &corner_points[pt_index],
+                                              pt->edge_intersected, &id ) )
+                    {
+                        id = -1;
+                    }
+
+                    corner_cache[pt->coord[X_AXIS]]
+                                [pt->coord[Y_AXIS]]
+                                [pt->coord[Z_AXIS]]
+                                [pt->edge_intersected].in_cache = TRUE;
+                    corner_cache[pt->coord[X_AXIS]]
+                                [pt->coord[Y_AXIS]]
+                                [pt->coord[Z_AXIS]]
+                                [pt->edge_intersected].point_id = id;
+                }
+            }
+        }
+
+        while( n_connected < n_tris && changed )
         {
             changed = FALSE;
 
             for_less( tri, 0, n_tris )
             {
-            if( !tri_done[tri] )
-            {
-            connected = (poly->n_items == 0);
-
-            for_less( p, 0, 3 )
-            {
-                pt_index = 3 * tri + p;
-
-                corner_points[p].i[X_AXIS] = voxel_index->i[X_AXIS] +
-                                   points_list[pt_index].coord[X_AXIS];
-                corner_points[p].i[Y_AXIS] = voxel_index->i[Y_AXIS] +
-                                   points_list[pt_index].coord[Y_AXIS];
-                corner_points[p].i[Z_AXIS] = voxel_index->i[Z_AXIS] +
-                                   points_list[pt_index].coord[Z_AXIS];
-
-                if( lookup_edge_point_id( volume,
-                                       &surface_extraction->edge_points,
-                                       &corner_points[p],
-                                       points_list[pt_index].edge_intersected,
-                                       &point_id[p] ) )
+                if( !tri_connected[tri] )
                 {
-                    connected = TRUE;
-                }
-                else
-                {
-                    point_id[p] = -1;
+                    connected = (poly->n_items == 0);
+
+                    for_less( p, 0, 3 )
+                    {
+                        pt_index = 3 * tri + p;
+                        pt = &points_list[pt_index];
+
+                        if( corner_cache[pt->coord[X_AXIS]]
+                                        [pt->coord[Y_AXIS]]
+                                        [pt->coord[Z_AXIS]]
+                                        [pt->edge_intersected].point_id >= 0 )
+                        {
+                            connected = TRUE;
+                            break;
+                        }
+                    }
+
+                    if( connected )
+                    {
+                        for_less( p, 0, 3 )
+                        {
+                            pt_index = 3 * tri + p;
+                            pt = &points_list[pt_index];
+
+                            if( corner_cache[pt->coord[X_AXIS]]
+                                            [pt->coord[Y_AXIS]]
+                                            [pt->coord[Z_AXIS]]
+                                            [pt->edge_intersected].point_id < 0)
+                            {
+                                id = create_point( volume,
+                                         surface_extraction->isovalue,
+                                         surface_extraction->triangles,
+                                         &corner_points[pt_index],
+                                         pt->edge_intersected, &pt_class );
+
+                                if( pt_class == ON_FIRST_CORNER ||
+                                    pt_class == ON_SECOND_CORNER )
+                                {
+                                    corner = corner_points[pt_index];
+
+                                    cache_pt[X_AXIS] = pt->coord[X_AXIS];
+                                    cache_pt[Y_AXIS] = pt->coord[Y_AXIS];
+                                    cache_pt[Z_AXIS] = pt->coord[Z_AXIS];
+
+                                    if( pt_class == ON_SECOND_CORNER )
+                                    {
+                                        ++corner.i[pt->edge_intersected];
+                                        ++cache_pt[pt->edge_intersected];
+                                    }
+
+                                    for_less( axis, 0, N_DIMENSIONS )
+                                    {
+                                        if( corner.i[axis] > 0 )
+                                        {
+                                            --corner.i[axis];
+                                            status = record_edge_point_id(
+                                               volume,
+                                               &surface_extraction->edge_points,
+                                               &corner, axis, id );
+                                            ++corner.i[axis];
+                                        }
+
+                                        if( cache_pt[axis] == 1 )
+                                        {
+                                            --cache_pt[axis];
+                                            corner_cache[cache_pt[X_AXIS]]
+                                                        [cache_pt[Y_AXIS]]
+                                                        [cache_pt[Z_AXIS]]
+                                                        [axis].point_id = id;
+                                            ++cache_pt[axis];
+                                        }
+
+                                        status = record_edge_point_id( volume,
+                                             &surface_extraction->edge_points,
+                                             &corner, axis, id );
+
+                                        corner_cache[cache_pt[X_AXIS]]
+                                                    [cache_pt[Y_AXIS]]
+                                                    [cache_pt[Z_AXIS]]
+                                                    [axis].point_id = id;
+                                    }
+                                }
+                                else
+                                {
+                                    status = record_edge_point_id( volume,
+                                             &surface_extraction->edge_points,
+                                             &corner_points[pt_index],
+                                             pt->edge_intersected, id );
+
+                                    corner_cache[pt->coord[X_AXIS]]
+                                                [pt->coord[Y_AXIS]]
+                                                [pt->coord[Z_AXIS]]
+                                                [pt->edge_intersected].point_id
+                                                = id;
+                                }
+
+                                if( status != OK )
+                                {
+                                    corner_cache[pt->coord[X_AXIS]]
+                                                [pt->coord[Y_AXIS]]
+                                                [pt->coord[Z_AXIS]]
+                                                [pt->edge_intersected].point_id
+                                                  = -1;
+                                }
+                            }
+                        }
+
+                        ++n_connected;
+                        tri_connected[tri] = TRUE;
+                        changed = TRUE;
+                    }
                 }
             }
+        }
 
-            if( connected )
+        for_less( tri, 0, n_tris )
+        {
+            if( tri_connected[tri] )
             {
                 for_less( p, 0, 3 )
                 {
                     pt_index = 3 * tri + p;
+                    pt = &points_list[pt_index];
 
-                    if( point_id[p] < 0 && !lookup_edge_point_id( volume,
-                                       &surface_extraction->edge_points,
-                                       &corner_points[p],
-                                       points_list[pt_index].edge_intersected,
-                                       &point_id[p] ) )
-                    {
-                        point_id[p] = create_point( volume,
-                                 surface_extraction->isovalue,
-                                 surface_extraction->triangles,
-                                 &corner_points[p],
-                                 points_list[pt_index].edge_intersected,
-                                 &pt_class );
-
-                        if( pt_class == ON_FIRST_CORNER ||
-                            pt_class == ON_SECOND_CORNER )
-                        {
-                            corner = corner_points[p];
-                            if( pt_class == ON_SECOND_CORNER )
-                            {
-                                ++corner.i[points_list[pt_index].
-                                           edge_intersected];
-                            }
-
-                            for_less( axis, 0, N_DIMENSIONS )
-                            {
-                                if( corner.i[axis] > 0 )
-                                {
-                                    tmp_point = corner;
-                                    --tmp_point.i[axis];
-                                    status = record_edge_point_id( volume,
-                                         &surface_extraction->edge_points,
-                                         &tmp_point,
-                                         axis,
-                                         point_id[p] );
-                                }
-                                status = record_edge_point_id( volume,
-                                     &surface_extraction->edge_points,
-                                     &corner,
-                                     axis,
-                                     point_id[p] );
-                            }
-                        }
-                        else
-                        {
-                            status = record_edge_point_id( volume,
-                                         &surface_extraction->edge_points,
-                                         &corner_points[p],
-                                         points_list[pt_index].edge_intersected,
-                                         point_id[p] );
-                        }
-
-                        if( status != OK )
-                        {
-                            point_id[p] = -123456789;
-                        }
-                    }
+                    point_ids[p] = corner_cache[pt->coord[X_AXIS]]
+                                               [pt->coord[Y_AXIS]]
+                                               [pt->coord[Z_AXIS]]
+                                               [pt->edge_intersected].point_id;
                 }
-
-                ++n_done;
-                tri_done[tri] = TRUE;
-                changed = TRUE;
             }
 
-            if( connected && point_id[0] != point_id[1] &&
-                point_id[1] != point_id[2] &&
-                point_id[2] != point_id[0] )
+            if( tri_connected[tri] &&
+                point_ids[0] != point_ids[1] &&
+                point_ids[1] != point_ids[2] &&
+                point_ids[2] != point_ids[0] )
             {
                 next_end = NUMBER_INDICES( *poly ) + 3;
 
@@ -574,9 +658,9 @@ private  Boolean   check_voxel( volume, voxel_activity, surface_extraction,
                                   3 * poly->n_items,
                                   3 * poly->n_items + 3,
                                   int, DEFAULT_CHUNK_SIZE );
-                    poly->indices[next_end-3] = point_id[0];
-                    poly->indices[next_end-2] = point_id[1];
-                    poly->indices[next_end-1] = point_id[2];
+                    poly->indices[next_end-3] = point_ids[0];
+                    poly->indices[next_end-2] = point_ids[1];
+                    poly->indices[next_end-1] = point_ids[2];
                 }
 
                 if( status == OK )
@@ -587,8 +671,6 @@ private  Boolean   check_voxel( volume, voxel_activity, surface_extraction,
                 }
 
                 ++n_nondegenerate_tris;
-            }
-            }
             }
         }
     }
@@ -681,7 +763,7 @@ private  int   create_point( volume, isovalue, tris, voxel, edge_intersected,
         *pt_class = ON_FIRST_CORNER;
         alpha = 0.0;
     }
-    else if( val1 == 1.0 )
+    else if( val2 == 0.0 )
     {
         *pt_class = ON_SECOND_CORNER;
         alpha = 1.0;
