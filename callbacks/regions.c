@@ -1,17 +1,18 @@
 
 #include  <def_display.h>
 
-public  DEF_MENU_FUNCTION( set_paint_brush_size )   /* ARGSUSED */
+public  DEF_MENU_FUNCTION( set_paint_x_brush_radius )   /* ARGSUSED */
 {
-    Real            brush_size;
+    Real            x_brush_radius;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
     {
-        print( "Enter brush size: " );
+        print( "Enter x brush size: " );
 
-        if( input_real( stdin, &brush_size ) == OK && brush_size >= 0.0 )
-            slice_window->slice.brush_size = brush_size;
+        if( input_real( stdin, &x_brush_radius ) == OK &&
+            x_brush_radius >= 0.0 )
+            slice_window->slice.x_brush_radius = x_brush_radius;
 
         (void) input_newline( stdin );
     }
@@ -19,18 +20,92 @@ public  DEF_MENU_FUNCTION( set_paint_brush_size )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_paint_brush_size )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(set_paint_x_brush_radius )   /* ARGSUSED */
 {
     String           text;
-    Real             brush_size;
+    Real             x_brush_radius;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
-        brush_size = slice_window->slice.brush_size;
+        x_brush_radius = slice_window->slice.x_brush_radius;
     else
-        brush_size = Default_brush_size;
+        x_brush_radius = Default_x_brush_radius;
 
-    (void) sprintf( text, label, brush_size );
+    (void) sprintf( text, label, x_brush_radius );
+
+    set_menu_text( menu_window, menu_entry, text );
+
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( set_paint_y_brush_radius )   /* ARGSUSED */
+{
+    Real            y_brush_radius;
+    display_struct  *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        print( "Enter y brush size: " );
+
+        if( input_real( stdin, &y_brush_radius ) == OK &&
+            y_brush_radius >= 0.0 )
+            slice_window->slice.y_brush_radius = y_brush_radius;
+
+        (void) input_newline( stdin );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_paint_y_brush_radius )   /* ARGSUSED */
+{
+    String           text;
+    Real             y_brush_radius;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+        y_brush_radius = slice_window->slice.y_brush_radius;
+    else
+        y_brush_radius = Default_y_brush_radius;
+
+    (void) sprintf( text, label, y_brush_radius );
+
+    set_menu_text( menu_window, menu_entry, text );
+
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( set_paint_z_brush_radius )   /* ARGSUSED */
+{
+    Real            z_brush_radius;
+    display_struct  *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        print( "Enter out of plane brush size: " );
+
+        if( input_real( stdin, &z_brush_radius ) == OK &&
+            z_brush_radius >= 0.0 )
+            slice_window->slice.z_brush_radius = z_brush_radius;
+
+        (void) input_newline( stdin );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_paint_z_brush_radius )   /* ARGSUSED */
+{
+    String           text;
+    Real             z_brush_radius;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+        z_brush_radius = slice_window->slice.z_brush_radius;
+    else
+        z_brush_radius = Default_z_brush_radius;
+
+    (void) sprintf( text, label, z_brush_radius );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -163,9 +238,11 @@ public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
     Status         status;
     FILE           *file;
     String         filename;
+    display_struct *slice_window;
     Volume         volume;
 
-    if( get_slice_window_volume( display, &volume ) )
+    if( get_slice_window_volume( display, &volume ) &&
+        get_slice_window( display, &slice_window ) )
     {
         print( "Enter filename to load: " );
         if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
@@ -179,6 +256,10 @@ public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
             if( status == OK )
                 status = close_file( file );
 
+            set_slice_window_update( slice_window, 0 );
+            set_slice_window_update( slice_window, 1 );
+            set_slice_window_update( slice_window, 2 );
+
             print( "Done loading.\n" );
         }
 
@@ -190,5 +271,94 @@ public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(load_labels )   /* ARGSUSED */
 {
+    return( OK );
+}
+
+private  void  copy_labels_from_adjacent_slice(
+    display_struct   *display,
+    int              src_offset )
+{
+    int              dest_index[N_DIMENSIONS], src_index[N_DIMENSIONS];
+    int              axis_index;
+    display_struct   *slice_window;
+    Volume           volume;
+
+    if( get_voxel_under_mouse( display, &dest_index[0], &dest_index[1],
+                               &dest_index[2], &axis_index ) &&
+        get_slice_window_volume( display, &volume) &&
+        get_slice_window( display, &slice_window ) )
+    {
+        src_index[X] = 0;
+        src_index[Y] = 0;
+        src_index[Z] = 0;
+        src_index[axis_index] = dest_index[axis_index] + src_offset;
+
+        if( cube_is_within_volume( volume, src_index ) )
+        {
+            copy_labels_slice_to_slice( volume, axis_index,
+                                        src_index[axis_index],
+                                        dest_index[axis_index] );
+
+            set_slice_window_update( slice_window, 0 );
+            set_slice_window_update( slice_window, 1 );
+            set_slice_window_update( slice_window, 2 );
+        }
+    }
+}
+
+public  DEF_MENU_FUNCTION( copy_labels_from_lower_slice )   /* ARGSUSED */
+{
+    copy_labels_from_adjacent_slice( display, -1 );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(copy_labels_from_lower_slice )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( copy_labels_from_higher_slice )   /* ARGSUSED */
+{
+    copy_labels_from_adjacent_slice( display, 1 );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(copy_labels_from_higher_slice )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( toggle_display_labels )   /* ARGSUSED */
+{
+    display_struct  *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        slice_window->slice.display_labels =!slice_window->slice.display_labels;
+        set_slice_window_update( slice_window, 0 );
+        set_slice_window_update( slice_window, 1 );
+        set_slice_window_update( slice_window, 2 );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(toggle_display_labels )   /* ARGSUSED */
+{
+    String           text;
+    Boolean          display_labels;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+        display_labels = Initial_display_labels;
+    else
+        display_labels = slice_window->slice.display_labels;
+
+    set_text_on_off( label, text, display_labels );
+
+    set_menu_text( menu_window, menu_entry, text );
+
     return( OK );
 }
