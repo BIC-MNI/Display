@@ -559,15 +559,14 @@ private  void  colour_code_points(
             }
             else
             {
-                (void) evaluate_volume_in_world( volume,
+                evaluate_volume_in_world( volume,
                                           Point_x(points[i]),
                                           Point_y(points[i]),
                                           Point_z(points[i]), continuity,
-                                          &val, (Real *) NULL,
-                                          (Real *) NULL, (Real *) NULL,
-                                          (Real *) NULL, (Real *) NULL,
-                                          (Real *) NULL, (Real *) NULL,
-                                          (Real *) NULL, (Real *) NULL );
+                                          get_volume_real_min(volume),
+                                          &val,
+                                          NULL, NULL, NULL,
+                                          NULL, NULL, NULL, NULL, NULL, NULL );
             }
 
             if( slice_window->slice.volumes[volume_index].display_labels &&

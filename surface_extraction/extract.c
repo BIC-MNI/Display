@@ -447,12 +447,13 @@ private  int   create_surface_point(
 
     /* --------------------- now get normal ---------------------- */
 
-    evaluate_3D_volume_in_world( volume,
-                                 Point_x(point), Point_y(point), Point_z(point),
-                                 Volume_continuity, &ignored,
-                                 &dx, &dy, &dz,
-                                 (Real *) NULL, (Real *) NULL, (Real *) NULL,
-                                 (Real *) NULL, (Real *) NULL, (Real *) NULL );
+    evaluate_volume_in_world( volume,
+                              Point_x(point), Point_y(point), Point_z(point),
+                              Volume_continuity,
+                              get_volume_real_min(volume),
+                              &ignored,
+                              &dx, &dy, &dz,
+                              NULL, NULL, NULL, NULL, NULL, NULL );
 
     fill_Vector( normal, dx, dy, dz );
 
