@@ -181,12 +181,12 @@ private  Status  input_pixel_map(
 public  void  regenerate_atlas_lookup(
     display_struct    *slice_window )
 {
-    volume_struct           *volume;
-    atlas_struct            *atlas;
-    int                     sizes[3], axis, i;
+    Volume            volume;
+    atlas_struct      *atlas;
+    int               sizes[N_DIMENSIONS], axis, i;
 
     (void) get_slice_window_volume( slice_window, &volume );
-    get_volume_size( volume, &sizes[X], &sizes[Y], &sizes[Z] );
+    get_volume_sizes( volume, sizes );
     atlas = &slice_window->slice.atlas;
 
     for_less( axis, 0, 3 )
@@ -337,13 +337,13 @@ public  void  blend_in_atlas(
     {
         pixels = &image[IJ(y,0,image_x_size)];
 
-        y_pixel = y_pixel_start + y / atlas_multiplier_y;
+        y_pixel = y_pixel_start + y * dy / atlas_multiplier_y;
 
         if( y_pixel >= 0 && y_pixel < atlas_y_size )
         {
             for_less( x, 0, image_x_size )
             {
-                x_pixel = x_pixel_start + x / atlas_multiplier_x;
+                x_pixel = x_pixel_start + x * dx / atlas_multiplier_x;
 
                 if( x_pixel >= 0 && x_pixel < atlas_x_size )
                 {
