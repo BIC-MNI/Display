@@ -4,7 +4,9 @@
 #include  <def_graphics.h>
 #include  <def_display.h>
 
-main()
+int  main( argc, argv )
+    int     argc;
+    char    *argv[];
 {
     Status         status;
     view_struct    view;
@@ -24,6 +26,12 @@ main()
     void           rotate_view();
     void           create_objects();
 
+    if( argc != 2 )
+    {
+        PRINT_ERROR( "Argument.\n" );
+        abort();
+    }
+
     status = G_initialize();
 
     status = G_create_window( "Test Window", &window );
@@ -41,7 +49,7 @@ main()
 
     define_render( &window, &render );
 
-    create_objects( &objects );
+    create_objects( argv[1], &objects );
 
     rotate_view( &window, &view, &render, objects );
 
@@ -56,25 +64,14 @@ main()
     return( (int) status );
 }
 
-private  void  create_objects( objects )
+private  void  create_objects( filename, objects )
+    char           filename[];
     object_struct  **objects;
 {
-    static  Colour   colour  = { 1.0, 1.0, 1.0 };
-    static  Surfprop surfprop  = { 1.0, 1.0, 1.0, {1.0,1.0,1.0}, 1.0, 1.0 };
-    static  Point    points[]  = { {0.0, 0.0, 0.0},
-                                   {1.0, 0.0, 0.0},
-                                   {0.0, 1.0, 0.0} };
-    static  Vector   normals[] = { {0.5, 0.0, 1.0},
-                                   {0.0, 0.5, 1.0},
-                                   {-0.5, 0.0, 1.0} };
-    static  int      indices[] = { 0, 1, 2 };
     Status           status;
-    Status           create_triangles_object();
+    Status           input_file();
 
-/*
-    status = create_triangles_object( &colour, &surfprop, 3, points, normals,
-                                      1, indices, objects );   
-*/
+    status = input_file( filename, objects );
 }
 
 private  void  create_view( view )
