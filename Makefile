@@ -7,7 +7,7 @@ OPT_O = -O
 
 INCLUDE = -IInclude $(C_UTILS_INCLUDE) -Igraphics_lib
 
-LIBS = -lgl_s -lm
+LIBS = -lgl_s -lfm_s -lm
 LIBS_PORTIA = -lgl -lm
 
 PROG_UTILS = \
@@ -34,6 +34,8 @@ UTILITIES = \
             utilities/graphics_io.o \
             utilities/intersect.o \
             utilities/lines.o \
+            utilities/line_circle.o \
+            utilities/least_squares.o \
             utilities/marching_cubes.o \
             utilities/marching_no_holes.o \
             utilities/mr_io.o \
@@ -45,13 +47,17 @@ UTILITIES = \
             utilities/pixels.o \
             utilities/points.o \
             utilities/polygon_extract.o \
+            utilities/polygon_sphere.o \
             utilities/polygons.o \
             utilities/quadmesh.o \
             utilities/random_order.o \
             utilities/resample.o \
-            utilities/roi_io.o \
+            utilities/rgb_lookup.o \
             utilities/search_bintree.o \
+            utilities/smoothing.o \
             utilities/stdio_decomp.o \
+            utilities/subdivide_lines.o \
+            utilities/subdivide_polygons.o \
             utilities/talairach.o \
             utilities/transforms.o \
             utilities/volume.o
@@ -73,7 +79,12 @@ display_obj = \
            main/graphics.o \
            main/three_d.o \
            main/transforms.o \
+           atlas/atlas.o \
+           input_files/input_files.o \
+           input_files/volume_file.o \
+           input_files/landmark_file.o \
            $(graphics_obj) \
+           callbacks/atlas.o \
            callbacks/call_globals.o \
            callbacks/colour_coding.o \
            callbacks/file.o \
@@ -92,9 +103,16 @@ display_obj = \
            callbacks/volume_ops.o \
            colour_coding/colour_coding.o \
            current_obj/current_obj.o \
+           deform/create_sphere.o \
+           deform/deform_polygons.o \
+           deform/deform_line.o \
+           deform/find_in_direction.o \
+           deform/search_utils.o \
            edit_surface/connected.o \
            edit_surface/edit.o \
            edit_surface/segment.o \
+           markers/markers.o \
+           markers/segment.o \
            surface_extraction/activity.o \
            surface_extraction/boundary_extraction.o \
            surface_extraction/data_structs.o \
@@ -109,6 +127,7 @@ display_obj = \
            surface_fitting/minimization.o \
            surface_fitting/one_parm_minimization.o \
            surface_fitting/scan_to_voxels.o \
+           surface_fitting/scan_polygons.o \
            surface_fitting/surface_fitting.o \
            surface_rep/spline.o \
            surface_rep/surface_reps.o \
@@ -118,9 +137,8 @@ display_obj = \
            events/magnify.o \
            events/mouse.o \
            events/mouse_trans.o \
-           events/pick_polygon.o \
+           events/pick_object.o \
            events/pick_view.o \
-           events/pick_voxel.o \
            events/slice_transforms.o \
            events/virt_sb.o \
            events/window_man.o \
@@ -133,15 +151,18 @@ display_obj = \
            menu/build_menu.o \
            menu/menu.o \
            menu/input_menu.o \
-           menu/menu_update.o \
            menu/selected.o \
+           menu/text.o \
            cursor_contours/contours.o \
            segmenting/connect.o \
            segmenting/cut.o \
+           segmenting/expand_3d.o \
            segmenting/fill_3d.o \
            segmenting/segmenting.o \
            segmenting/segment_polygons.o \
+           slice_window/colour_bar.o \
            slice_window/draw_slice.o \
+           slice_window/render_markers.o \
            slice_window/slice.o \
            slice_window/slice_events.o \
            surface_curves/events.o \
@@ -160,7 +181,7 @@ objects_O.o: objects.c
 
 display_lint = $(display_obj:.o=.ln)
 
-globals.o:  Include/def_globals.h
+utilities/globals.o:  Include/def_globals.h
 
 globals.ln:  Include/def_globals.h
 
@@ -180,7 +201,7 @@ display.pixie:  $(display_obj)
 	if( -e display ) rm display
 	if( -e display.Addrs ) rm display.Addrs
 	if( -e display.Counts ) rm display.Counts
-	make display LIBS="-lgl -lX11 -lm"
+	make display LIBS="-lfm -lgl -lX11 -lm"
 	@\rm -f display.Counts
 	@pixie display -o $@
 
@@ -272,14 +293,17 @@ test_gl_obj = test_gl.o \
               utilities/stdio_decomp.o \
               prog_utils/time.o \
               utilities/object_io.o \
+              utilities/points.o \
               prog_utils/alloc.o \
               prog_utils/alloc_check.o \
-              prog_utils/files.o
+              prog_utils/arguments.o \
+              prog_utils/files.o \
+              prog_utils/string.o
 
 test_gl_ln = $(test_gl_obj:.o=.ln)
 
 test_gl: $(test_gl_obj)
-	$(CC) -g $(INCLUDE) $(test_gl_obj) -o $@ $(LIBS)
+	$(CC) $(INCLUDE) $(test_gl_obj) -o $@ $(LIBS)
 
 
 lint_test_gl: $(test_gl_ln)
@@ -302,7 +326,7 @@ fix_obj = reassemble.c \
 reassemble_ln = $(reassemble_obj)
 
 reassemble: $(reassemble_obj)
-	$(CC) -g $(INCLUDE) $(reassemble_obj) -o $@ $(LIBS)
+	$(CC) $(INCLUDE) $(reassemble_obj) -o $@ $(LIBS)
 
 
 lint_reassemble: $(reassemble_ln)
@@ -391,10 +415,12 @@ lamps: $(lamps_obj)
 
 lint_lamps: $(lamps_ln)
 	$(LINT) -u $(LINTFLAGS) $(lamps_ln)
+
 # -------
 
 overlay_obj = overlay.o \
               prog_utils/alloc.o \
+              prog_utils/alloc_check.o \
               utilities/stdio_decomp.o \
               prog_utils/time.o
 
@@ -407,3 +433,231 @@ overlay: $(overlay_obj)
 lint_overlay: $(overlay_ln)
 	$(LINT) -u $(LINTFLAGS) $(overlay_ln)
 
+
+# -------
+
+film_loop_obj = film_loop.o \
+                prog_utils/alloc.o \
+                prog_utils/alloc_check.o \
+                prog_utils/files.o \
+                prog_utils/random.o \
+                prog_utils/time.o \
+                graphics_lib/GL_graphics.o \
+                utilities/colours.o \
+                utilities/object_io.o \
+                utilities/random_order.o \
+                utilities/transforms.o \
+                utilities/stdio_decomp.o
+
+film_loop_ln = $(film_loop_obj:.o=.ln)
+
+film_loop: $(film_loop_obj)
+	$(CC) $(INCLUDE) $(film_loop_obj) -o $@ $(LIBS)
+
+
+lint_film_loop: $(film_loop_ln)
+	$(LINT) -u $(LINTFLAGS) $(film_loop_ln)
+
+
+# -------
+
+display_pixels_obj = display_pixels.o \
+                utilities/tiff.o \
+                prog_utils/alloc.o \
+                prog_utils/alloc_check.o \
+                prog_utils/files.o \
+                prog_utils/random.o \
+                prog_utils/string.o \
+                prog_utils/time.o \
+                graphics_lib/GL_graphics.o \
+                utilities/colours.o \
+                utilities/object_io.o \
+                utilities/least_squares.o \
+                utilities/random_order.o \
+                utilities/pixels.o \
+                utilities/stdio_decomp.o \
+                utilities/transforms.o
+
+display_pixels_ln = $(display_pixels_obj:.o=.ln)
+
+display_pixels: $(display_pixels_obj)
+	$(CC) $(INCLUDE) $(display_pixels_obj) -o $@ $(LIBS)
+
+
+lint_display_pixels: $(display_pixels_ln)
+	$(LINT) -u $(LINTFLAGS) $(display_pixels_ln)
+
+
+# -------
+
+pick_points_obj = pick_points.o \
+                utilities/tiff.o \
+                prog_utils/alloc.o \
+                prog_utils/alloc_check.o \
+                prog_utils/files.o \
+                prog_utils/random.o \
+                prog_utils/string.o \
+                prog_utils/time.o \
+                graphics_lib/GL_graphics.o \
+                utilities/colours.o \
+                utilities/object_io.o \
+                utilities/least_squares.o \
+                utilities/pixels.o \
+                utilities/random_order.o \
+                utilities/stdio_decomp.o \
+                utilities/transforms.o
+
+pick_points_ln = $(pick_points_obj:.o=.ln)
+
+pick_points: $(pick_points_obj)
+	$(CC) $(INCLUDE) $(pick_points_obj) -o $@ $(LIBS)
+
+
+lint_pick_points: $(pick_points_ln)
+	$(LINT) -u $(LINTFLAGS) $(pick_points_ln)
+
+
+# -------
+
+resample_pixels_obj = resample_pixels.o \
+                utilities/tiff.o \
+                prog_utils/alloc.o \
+                prog_utils/alloc_check.o \
+                prog_utils/files.o \
+                prog_utils/random.o \
+                prog_utils/string.o \
+                prog_utils/time.o \
+                utilities/clip.o \
+                utilities/colours.o \
+                utilities/geometry.o \
+                utilities/object_io.o \
+                utilities/least_squares.o \
+                utilities/pixels.o \
+                utilities/points.o \
+                utilities/random_order.o \
+                utilities/resample_pixels.o \
+                utilities/talairach.o \
+                utilities/transforms.o \
+                utilities/stdio_decomp.o
+
+resample_pixels_ln = $(resample_pixels_obj:.o=.ln)
+
+resample_pixels: $(resample_pixels_obj)
+	$(CC) $(INCLUDE) $(resample_pixels_obj) -o $@ $(LIBS)
+
+
+lint_resample_pixels: $(resample_pixels_ln)
+	$(LINT) -u $(LINTFLAGS) $(resample_pixels_ln) | filter_lint
+
+
+# -------
+
+create_atlas_slice_obj = create_atlas_slice.o \
+                utilities/tiff.o \
+                prog_utils/alloc.o \
+                prog_utils/alloc_check.o \
+                prog_utils/files.o \
+                prog_utils/random.o \
+                prog_utils/string.o \
+                prog_utils/time.o \
+                utilities/clip.o \
+                utilities/colours.o \
+                utilities/geometry.o \
+                utilities/object_io.o \
+                utilities/least_squares.o \
+                utilities/pixels.o \
+                utilities/points.o \
+                utilities/random_order.o \
+                utilities/resample_pixels.o \
+                utilities/talairach.o \
+                utilities/transforms.o \
+                utilities/stdio_decomp.o
+
+create_atlas_slice_ln = $(create_atlas_slice_obj:.o=.ln)
+
+create_atlas_slice: $(create_atlas_slice_obj)
+	$(CC) $(INCLUDE) $(create_atlas_slice_obj) -o $@ $(LIBS)
+
+
+lint_create_atlas_slice: $(create_atlas_slice_ln)
+	$(LINT) -u $(LINTFLAGS) $(create_atlas_slice_ln) | filter_lint
+
+
+# -------
+
+convert_tiff_to_pixels_obj = convert_tiff_to_pixels.o \
+                utilities/tiff.o \
+                prog_utils/alloc.o \
+                prog_utils/alloc_check.o \
+                prog_utils/files.o \
+                prog_utils/random.o \
+                prog_utils/string.o \
+                prog_utils/time.o \
+                utilities/clip.o \
+                utilities/colours.o \
+                utilities/geometry.o \
+                utilities/object_io.o \
+                utilities/pixels.o \
+                utilities/points.o \
+                utilities/random_order.o \
+                utilities/talairach.o \
+                utilities/stdio_decomp.o
+
+convert_tiff_to_pixels_ln = $(convert_tiff_to_pixels_obj:.o=.ln)
+
+convert_tiff_to_pixels: $(convert_tiff_to_pixels_obj)
+	$(CC) $(INCLUDE) $(convert_tiff_to_pixels_obj) -o $@ $(LIBS)
+
+
+lint_convert_tiff_to_pixels: $(convert_tiff_to_pixels_ln)
+	$(LINT) -u $(LINTFLAGS) $(convert_tiff_to_pixels_ln) | filter_lint
+
+
+# -------
+
+convert_to_8_bit_obj = convert_to_8_bit.o \
+                prog_utils/alloc.o \
+                prog_utils/alloc_check.o \
+                prog_utils/files.o \
+                prog_utils/random.o \
+                prog_utils/string.o \
+                prog_utils/time.o \
+                utilities/clip.o \
+                utilities/colours.o \
+                utilities/geometry.o \
+                utilities/object_io.o \
+                utilities/pixels.o \
+                utilities/points.o \
+                utilities/random_order.o \
+                utilities/talairach.o \
+                utilities/stdio_decomp.o
+
+convert_to_8_bit_ln = $(convert_to_8_bit_obj:.o=.ln)
+
+convert_to_8_bit: $(convert_to_8_bit_obj)
+	$(CC) $(INCLUDE) $(convert_to_8_bit_obj) -o $@ $(LIBS)
+
+
+lint_convert_to_8_bit: $(convert_to_8_bit_ln)
+	$(LINT) -u $(LINTFLAGS) $(convert_to_8_bit_ln) | filter_lint
+
+# -------
+
+test_graphics_obj = test_graphics.o \
+        graphics_lib/GL_graphics.o \
+        utilities/random_order.o \
+        utilities/rgb_lookup.o \
+        utilities/stdio_decomp.o \
+        utilities/transforms.o \
+        prog_utils/alloc.o \
+        prog_utils/alloc_check.o \
+        prog_utils/random.o \
+        prog_utils/time.o
+
+test_graphics_ln = $(test_graphics_obj:.o=.ln)
+
+test_graphics: $(test_graphics_obj)
+	$(CC) $(INCLUDE) $(test_graphics_obj) -o $@ $(LIBS)
+
+lint_test_graphics: $(test_graphics_ln)
+	$(LINT) -u $(LINTFLAGS) $(test_graphics_ln) | filter_lint
