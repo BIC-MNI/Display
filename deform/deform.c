@@ -14,9 +14,7 @@ public  void  initialize_deformation(
     deform->deform.deformation_model.position_constrained = FALSE;
     deform->deform.fractional_step = 0.4;
     deform->deform.max_step = 0.5;
-    deform->deform.max_search_distance = 30.0;
-    deform->deform.search_increment = 0.5;
-    deform->deform.min_size = 0.01;
+    deform->deform.degrees_continuity = Volume_continuity;
     deform->deform.boundary_definition.min_isovalue = 100.0;
     deform->deform.boundary_definition.max_isovalue = 100.0;
     deform->deform.boundary_definition.normal_direction = TOWARDS_LOWER;
