@@ -123,9 +123,11 @@ private  void   compute_origin( key, origin )
     else
     {
         fill_Point( *origin, X_menu_origin +
-                             (Real) positions[i].x_pos * X_menu_delta,
+                             (Real) positions[i].x_pos * X_menu_dx +
+                             (Real) positions[i].y_pos * Y_menu_dx,
                              Y_menu_origin +
-                             (Real) positions[i].y_pos * Y_menu_delta,
+                             (Real) positions[i].x_pos * X_menu_dy +
+                             (Real) positions[i].y_pos * Y_menu_dy,
                              0.0 );
     }
 }
