@@ -1188,18 +1188,13 @@ private  BOOLEAN  composite_is_visible(
     return( FALSE );
 }
 
-public  void  composite_volume_and_labels(
+private  void  create_volume_and_label_composite(
     display_struct        *slice_window,
-    int                   view_index )
+    int                   view_index,
+    pixels_struct         *composite_pixels )
 {
     int                   v, n_slices;
-    pixels_struct         **slices, *composite_pixels, *label_pixels;
-
-    if( !composite_is_visible( slice_window, view_index ) ||
-        get_n_volumes( slice_window ) == 0 )
-    {
-        return;
-    }
+    pixels_struct         **slices, *label_pixels;
 
     ALLOC( slices, 2 * slice_window->slice.n_volumes );
     n_slices = 0;
@@ -1223,14 +1218,71 @@ public  void  composite_volume_and_labels(
         }
     }
 
-    composite_pixels = get_pixels_ptr(
-           get_composite_slice_pixels_object( slice_window, view_index ) );
-
     create_composite( n_slices, slices,
                       G_get_background_colour(slice_window->window),
                       composite_pixels );
 
     FREE( slices );
+}
+
+public  void  composite_volume_and_labels(
+    display_struct        *slice_window,
+    int                   view_index )
+{
+    pixels_struct         *composite_pixels;
+
+    if( !composite_is_visible( slice_window, view_index ) ||
+        get_n_volumes( slice_window ) == 0 )
+    {
+        return;
+    }
+
+    composite_pixels = get_pixels_ptr(
+           get_composite_slice_pixels_object( slice_window, view_index ) );
+
+    create_volume_and_label_composite( slice_window, view_index,
+                                       composite_pixels );
+}
+
+private  void  draw_all_sub_regions(
+    display_struct        *slice_window,
+    int                   view_index,
+    int                   x_min,
+    int                   x_max,
+    int                   y_min,
+    int                   y_max )
+{
+    int                   v;
+    pixels_struct         pixels, *pixel_ptr;
+
+    for_less( v, 0, slice_window->slice.n_volumes )
+    {
+        if( slice_window->slice.volumes[v].views[view_index].visibility )
+        {
+            pixel_ptr = get_pixels_ptr( get_slice_pixels_object(
+                                               slice_window, v, view_index ) );
+
+            copy_pixel_region( pixel_ptr, x_min, x_max, y_min, y_max,
+                               &pixels );
+
+            G_draw_pixels( slice_window->window, &pixels );
+
+            delete_pixels( &pixels );
+
+            pixel_ptr = get_pixels_ptr(
+                 get_label_slice_pixels_object( slice_window, v, view_index ) );
+
+            if( pixel_ptr->x_size > 0 && pixel_ptr->y_size > 0 )
+            {
+                copy_pixel_region( pixel_ptr, x_min, x_max, y_min, y_max,
+                                   &pixels );
+
+                G_draw_pixels( slice_window->window, &pixels );
+
+                delete_pixels( &pixels );
+            }
+        }
+    }
 }
 
 private  void  render_label_slice_to_pixels(
@@ -1325,4 +1377,67 @@ public  void  update_slice_pixel_visibilities(
 
     set_object_visibility( get_composite_slice_pixels_object(slice_window,view),
                            composite_visibility );
+}
+
+public  void  draw_slice_sub_region(
+    display_struct    *slice_window,
+    int               view,
+    int               x_min,
+    int               x_max,
+    int               y_min,
+    int               y_max )
+{
+    int            x_size, y_size, i;
+    int            x_viewport_min, x_viewport_max;
+    int            y_viewport_min, y_viewport_max;
+    pixels_struct  pixels;
+    BOOLEAN        composite_visibility;
+
+    get_slice_model_viewport( slice_window, SLICE_MODEL1 + view,
+                              &x_viewport_min, &x_viewport_max,
+                              &y_viewport_min, &y_viewport_max );
+
+    if( x_min < 0 )
+        x_min = 0;
+    if( x_max >= x_viewport_max - x_viewport_min + 1 )
+        x_max = x_viewport_max - x_viewport_min + 1;
+    if( y_min < 0 )
+        y_min = 0;
+    if( y_max >= y_viewport_max - y_viewport_min + 1 )
+        y_max = y_viewport_max - y_viewport_min + 1;
+
+    x_size = x_max - x_min + 1;
+    y_size = y_max - y_min + 1;
+
+    if( x_size <= 0 || y_size <= 0 )
+        return;
+
+    G_set_viewport( slice_window->window,
+                    x_viewport_min, x_viewport_max,
+                    y_viewport_min, y_viewport_max );
+    G_set_view_type( slice_window->window, PIXEL_VIEW );
+    G_set_zbuffer_state( slice_window->window, FALSE );
+
+    composite_visibility = composite_is_visible( slice_window, view );
+
+    initialize_pixels( &pixels, x_min, y_min, x_size, y_size,
+                       1.0, 1.0, RGB_PIXEL );
+
+    if( composite_visibility )
+    {
+        create_volume_and_label_composite( slice_window, view, &pixels );
+
+        G_draw_pixels( slice_window->window, &pixels );
+    }
+    else
+    {
+        for_less( i, 0, x_size * y_size )
+            (&PIXEL_RGB_COLOUR(pixels,0,0))[i] = BLACK;
+
+        G_draw_pixels( slice_window->window, &pixels );
+
+        draw_all_sub_regions( slice_window, view, x_min, x_max, y_min, y_max );
+    }
+
+    delete_pixels( &pixels );
 }
