@@ -21,6 +21,9 @@ public  void  initialize_view(
     view->scale_factors[Z] = 1.0;
 
     make_identity_transform( &view->modeling_transform );
+
+    view->stereo_flag = FALSE;
+    view->eye_separation = 0.5;
 }
 
 public  void  assign_view_direction(
