@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.27 1996-05-24 19:43:41 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.28 1997-01-06 14:50:45 david Exp $";
 #endif
 
 #include  <display.h>
@@ -150,23 +150,17 @@ private  void  add_face(
     Point                point;
     Vector               normal;
 
-    voxel[X] = 0.0;
-    voxel[Y] = 0.0;
-    voxel[Z] = 0.0;
-
     if( offset == -1 )
     {
         a1 = (c + 1) % N_DIMENSIONS;
         a2 = (c + 2) % N_DIMENSIONS;
         corner_index[c] = indices[c];
-        voxel[c] = -1.0;
     }
     else
     {
         a1 = (c + 2) % N_DIMENSIONS;
         a2 = (c + 1) % N_DIMENSIONS;
         corner_index[c] = indices[c] + 1;
-        voxel[c] = 1.0;
     }
 
     get_volume_sizes( volume, sizes );
