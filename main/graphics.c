@@ -190,6 +190,7 @@ private  Status  initialize_graphics_window( graphics )
 
     graphics->frame_number = 0;
     graphics->update_required = FALSE;
+    graphics->update_interrupted.last_was_interrupted = FALSE;
 
     return( status );
 }
@@ -223,29 +224,48 @@ private  void  display_frame_info( graphics, frame_number, update_time )
     G_draw_text( &graphics->window, &frame_text, &model->render );
 }
 
-public  void  update_graphics( graphics )
-    graphics_struct   *graphics;
+public  void  update_graphics( graphics, interrupt )
+    graphics_struct              *graphics;
+    update_interrupted_struct    *interrupt;
 {
     int           i;
     void          G_update_window();
+    void          G_append_to_last_update();
     void          display_objects();
     void          display_frame_info();
     void          format_time();
-    Real          start, end;
+    Real          start, end, interrupt_at;
     Real          current_realtime_seconds();
+
+    if( interrupt->last_was_interrupted )
+    {
+        G_append_to_last_update( &graphics->window );
+    }
 
     start = current_realtime_seconds();
 
+    interrupt->interrupt_at = start + Maximum_display_time;
+
+    interrupt->current_interrupted = FALSE;
+
     for_less( i, 0, N_MODELS )
     {
-        display_objects( &graphics->window, graphics->models[i] );
+        display_objects( &graphics->window, graphics->models[i],
+                         interrupt );
+
+        if( interrupt->current_interrupted )
+        {
+            break;
+        }
     }
+
+    interrupt->last_was_interrupted = interrupt->current_interrupted;
 
     end = current_realtime_seconds();
 
     ++graphics->frame_number;
 
-    if( Display_frame_info )
+    if( !interrupt->current_interrupted && Display_frame_info )
     {
         display_frame_info( graphics, graphics->frame_number, end - start );
     }

@@ -38,7 +38,13 @@ private  void  update_all_required_windows()
     {
         if( windows[i]->update_required )
         {
-            update_graphics( windows[i] );
+            windows[i]->update_interrupted.last_was_interrupted = FALSE;
+        }
+
+        if( windows[i]->update_required ||
+            windows[i]->update_interrupted.last_was_interrupted )
+        {
+            update_graphics( windows[i], &windows[i]->update_interrupted );
         }
     }
 }
