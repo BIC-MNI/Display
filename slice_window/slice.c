@@ -5,23 +5,12 @@
 public  void  initialize_slice_window( graphics )
     graphics_struct   *graphics;
 {
-    DECL_EVENT_FUNCTION( window_size_changed );
-    DECL_EVENT_FUNCTION( handle_redraw );
-    void                 add_action_table_function();
-    void                 update_window_size();
-    void                 initialize_voxel_selection();
+    void                 initialize_slice_window_events();
     int                  c;
 
     graphics->slice.volume = (volume_struct *) 0;
 
-    update_window_size( graphics );
-
-    add_action_table_function( &graphics->action_table, WINDOW_RESIZE_EVENT,
-                               window_size_changed );
-    add_action_table_function( &graphics->action_table, WINDOW_REDRAW_EVENT,
-                               handle_redraw );
-
-    initialize_voxel_selection( graphics );
+    initialize_slice_window_events( graphics );
 
     for_less( c, 0, N_DIMENSIONS )
     {
@@ -31,32 +20,6 @@ public  void  initialize_slice_window( graphics )
         graphics->slice.slice_views[c].x_scale = 1.0;
         graphics->slice.slice_views[c].y_scale = 1.0;
     }
-}
-
-private  void  update_window_size( graphics )
-    graphics_struct   *graphics;
-{
-    int   x_size, y_size;
-
-    x_size = graphics->window.x_size;
-    y_size = graphics->window.y_size;
-
-    graphics->slice.x_split = x_size / 2;
-    graphics->slice.y_split = y_size / 2;
-}
-
-private  DEF_EVENT_FUNCTION( handle_redraw )
-    /* ARGSUSED */
-{
-    graphics->update_required = TRUE;
-    return( OK );
-}
-
-private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
-{
-    update_window_size( graphics );
-
-    return( OK );
 }
 
 public  void  update_slice_window( graphics )
@@ -97,6 +60,36 @@ public  Status  delete_slice_window_info( slice_window )
     return( OK );
 }
 
+public  Boolean  find_slice_view_mouse_is_in( graphics, x_pixel, y_pixel,
+                                              axis_index )
+    graphics_struct   *graphics;
+    int               x_pixel, y_pixel;
+    int               *axis_index;
+{
+    Boolean  found;
+    int      c;
+    int      x_min, x_max, y_min, y_max;
+    void     get_slice_viewport();
+
+    found = FALSE;
+
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        get_slice_viewport( graphics, c, &x_min, &x_max, &y_min, &y_max );
+
+        if( x_pixel >= x_min && x_pixel <= x_max &&
+            y_pixel >= y_min && y_pixel <= y_max )
+        {
+            *axis_index = c;
+            found = TRUE;
+
+            break;
+        }
+    }
+
+    return( found );
+}
+
 public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z )
     graphics_struct   *graphics;
     int               x_pixel, y_pixel;
@@ -112,7 +105,8 @@ public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z )
 
     found = FALSE;
 
-    for_less( axis_index, 0, N_DIMENSIONS )
+    if( find_slice_view_mouse_is_in( graphics, x_pixel, y_pixel,
+                                         &axis_index ) )
     {
         get_slice_view( graphics, axis_index, 
                         &x_pixel_start, &y_pixel_start,
@@ -136,8 +130,6 @@ public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z )
             *z = voxel_indices[Z_AXIS];
 
             found = TRUE;
-
-            break;
         }
     }
 
@@ -222,12 +214,12 @@ private  void  get_slice_view( graphics, axis_index,
     *y_pixel = y_min + y_offset;
     indices[y_axis_index] = 0;
 
-    if( indices[y_axis_index] < y_min )
+    if( *y_pixel < y_min )
     {
         *y_pixel = y_min;
         indices[y_axis_index] = -y_offset;
     }
-    else if( indices[y_axis_index] > y_max )
+    else if( *y_pixel > y_max )
     {
         *y_pixel = y_max;
         indices[y_axis_index] = y_max - y_min - y_offset;
