@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.88 1995-08-22 14:31:29 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.89 1995-08-28 14:22:13 david Exp $";
 #endif
 
 
@@ -78,6 +78,11 @@ private  void  initialize_slice_window(
 
     slice_window->slice.share_labels_flag = Initial_share_labels;
     slice_window->slice.degrees_continuity = Initial_slice_continuity;
+    slice_window->slice.allowable_slice_update_time = Initial_slice_update_time;
+    slice_window->slice.total_slice_update_time1 =
+                                           Initial_total_slice_update_time1;
+    slice_window->slice.total_slice_update_time2 =
+                                           Initial_total_slice_update_time2;
 
     initialize_slice_window_events( slice_window );
 
@@ -133,6 +138,8 @@ private  void  initialize_slice_window(
         slice_window->slice.slice_views[view].x_max = -1;
         slice_window->slice.slice_views[view].y_min = 0;
         slice_window->slice.slice_views[view].y_max = -1;
+
+        rebuild_slice_unfinished_flag( slice_window, view );
     }
 }
 
@@ -244,6 +251,7 @@ public  void  add_slice_window_volume(
         info->views[view].filter_width = Default_filter_width;
         info->views[view].n_pixels_redraw = Initial_n_pixels_redraw;
         info->views[view].update_in_progress = FALSE;
+        info->views[view].labels_update_in_progress = FALSE;
     }
 
     initialize_slice_models_for_volume( slice_window, volume_index );
@@ -621,6 +629,13 @@ private  BOOLEAN  slice_will_be_updated(
 
         if( slice_window->slice.volumes[v].views[view].update_labels_flag )
             to_update = TRUE;
+
+        if( slice_window->slice.volumes[v].views[view].update_in_progress )
+            to_update = TRUE;
+
+        if( slice_window->slice.volumes[v].views[view].
+                                                     labels_update_in_progress )
+            to_update = TRUE;
     }
 
     if( slice_window->slice.slice_views[view].update_cursor_flag )
@@ -644,16 +659,41 @@ private  BOOLEAN  slice_will_be_updated(
     return( to_update );
 }
 
+private  BOOLEAN  slice_update_is_continuing_only(
+    display_struct   *slice_window )
+{
+    BOOLEAN  continuing;
+    int      v, view;
+
+    continuing = TRUE;
+
+    for_less( view, 0, N_SLICE_VIEWS )
+    {
+        for_less( v, 0, slice_window->slice.n_volumes )
+        {
+            if( slice_window->slice.volumes[v].views[view].update_flag )
+                continuing = FALSE;
+
+            if( slice_window->slice.volumes[v].views[view].update_labels_flag )
+                continuing = FALSE;
+        }
+    }
+
+    return( continuing );
+}
+
 public  void  update_slice_window(
     display_struct   *slice_window )
 {
     BOOLEAN  force_recreate_slice[N_SLICE_VIEWS];
     BOOLEAN  slice_is_being_updated[N_SLICE_VIEWS];
     BOOLEAN  sub_region_specified[N_SLICE_VIEWS];
+    BOOLEAN  interrupted, view_was_interrupted[N_SLICE_VIEWS];
     int      x_sub_min[N_SLICE_VIEWS], x_sub_max[N_SLICE_VIEWS];
     int      y_sub_min[N_SLICE_VIEWS], y_sub_max[N_SLICE_VIEWS];
     int      i, n_bufs;
     int      view, v;
+    Real     update_time, end_time;
 
     if( slice_window->slice.update_slice_dividers_flag )
     {
@@ -677,6 +717,7 @@ public  void  update_slice_window(
     {
         slice_is_being_updated[view] = slice_will_be_updated( slice_window,
                                                               view );
+        view_was_interrupted[view] = FALSE;
     }
 
     for_less( view, 0, N_SLICE_VIEWS )
@@ -756,14 +797,14 @@ public  void  update_slice_window(
 
         force_recreate_slice[view] = sub_region_specified[view];
 
-        if( force_recreate_slice[view] &&
+        if( sub_region_specified[view] &&
             (slice_is_being_updated[view] ||
              slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0]) )
         {
             slice_window->slice.slice_views[view].sub_region_specified = FALSE;
         }
 
-        if( slice_window->slice.slice_views[view].prev_sub_region_specified &&
+        if( slice_window->slice.slice_views[view].prev_sub_region_specified[0]&&
             slice_is_being_updated[view] )
         {
             force_recreate_slice[view] = TRUE;
@@ -772,29 +813,62 @@ public  void  update_slice_window(
         update_slice_pixel_visibilities( slice_window, view );
     }
 
+    if( slice_update_is_continuing_only( slice_window ) )
+        update_time = slice_window->slice.total_slice_update_time2;
+    else
+        update_time = slice_window->slice.total_slice_update_time1;
+
+    end_time = current_realtime_seconds() + update_time;
+    interrupted = FALSE;
+
     for_less( v, 0, slice_window->slice.n_volumes )
     {
         for_less( view, 0, N_SLICE_VIEWS )
         {
-            if( force_recreate_slice[view] ||
-                slice_window->slice.volumes[v].views[view].update_flag )
+            if( (force_recreate_slice[view] ||
+                 slice_window->slice.volumes[v].views[view].update_flag ||
+                 slice_window->slice.volumes[v].views[view].update_in_progress)
+                                                                           &&
+                get_slice_visibility( slice_window, v, view ) )
             {
-                rebuild_slice_pixels_for_volume( slice_window, v, view );
-                slice_window->slice.volumes[v].views[view].update_flag = FALSE;
+                if( !interrupted && current_realtime_seconds() > end_time )
+                    interrupted = TRUE;
+
+                if( interrupted )
+                    view_was_interrupted[view] = TRUE;
+
+                rebuild_slice_pixels_for_volume( slice_window, v, view,
+                                                 interrupted );
             }
 
-            if( force_recreate_slice[view] ||
-                slice_window->slice.volumes[v].views[view].update_labels_flag )
+            slice_window->slice.volumes[v].views[view].update_flag = FALSE;
+
+            if( (force_recreate_slice[view] ||
+                 slice_window->slice.volumes[v].views[view].update_labels_flag||
+                 slice_window->slice.volumes[v].views[view].
+                                    labels_update_in_progress) &&
+                get_label_visibility( slice_window, v, view ) )
             {
-                rebuild_label_slice_pixels_for_volume( slice_window, v, view );
-                slice_window->slice.volumes[v].views[view].update_labels_flag =
-                                                          FALSE;
+                if( !interrupted && current_realtime_seconds() > end_time )
+                    interrupted = TRUE;
+
+                if( interrupted )
+                    view_was_interrupted[view] = TRUE;
+
+                rebuild_label_slice_pixels_for_volume( slice_window, v, view,
+                                                       interrupted );
             }
+
+            slice_window->slice.volumes[v].views[view].update_labels_flag =
+                                                          FALSE;
         }
     }
 
     for_less( view, 0, N_SLICE_VIEWS )
     {
+        set_slice_unfinished_flag_visibility( slice_window, view,
+                                              view_was_interrupted[view] );
+
         if( slice_window->slice.slice_views[view].update_atlas_flag )
         {
             rebuild_atlas_slice_pixels( slice_window, view );
@@ -809,7 +883,7 @@ public  void  update_slice_window(
             slice_window->slice.slice_views[view].update_composite_flag = FALSE;
         }
 
-        if( slice_is_being_updated[view] )
+        if( slice_is_being_updated[view] || interrupted )
         {
             set_slice_viewport_update( slice_window, SLICE_MODEL1 + view );
         }
@@ -821,7 +895,8 @@ public  void  update_slice_window(
                       get_graphics_model(slice_window,SLICE_MODEL1+ view)) );
         }
 
-        if( slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0] )
+        if( !interrupted &&
+            slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0] )
         {
             if( G_get_double_buffer_state( slice_window->window ) )
             {

@@ -351,4 +351,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Crop_label_volumes_threshold, Real, 0.8 )
 
+    DEF_GLOBAL_COLOUR( Unfinished_flag_colour )
+    DEF_GLOBAL( Unfinished_flag_width, Real, 5.0 )
+
 END_GLOBALS

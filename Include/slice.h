@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.61 1995-07-31 19:53:44 david Exp $";
+static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.62 1995-08-28 14:22:07 david Exp $";
 #endif
 
 #include  <volume_io.h>
@@ -95,6 +95,13 @@ typedef  struct
         BOOLEAN                update_labels_flag;
         Filter_types           filter_type;
         Real                   filter_width;
+        int                    n_pixels_redraw;
+        BOOLEAN                update_in_progress;
+        BOOLEAN                labels_update_in_progress;
+        int                    x_min_update;
+        int                    x_max_update;
+        int                    y_min_update;
+        int                    y_max_update;
     }  views[N_SLICE_VIEWS];
 } loaded_volume_struct;
 
@@ -163,6 +170,10 @@ typedef  struct
     BOOLEAN                update_probe_flag;
 
     BOOLEAN                viewport_update_flags[N_MODELS][2];
+
+    Real                   allowable_slice_update_time;
+    Real                   total_slice_update_time1;
+    Real                   total_slice_update_time2;
 
 } slice_window_struct;
 

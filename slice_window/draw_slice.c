@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.94 1995-08-25 19:48:02 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.95 1995-08-28 14:22:12 david Exp $";
 #endif
 
 #include  <display.h>
@@ -25,6 +25,7 @@ typedef  enum  {
                  CROP_BOX_INDEX,
                  CURSOR_INDEX1,
                  CURSOR_INDEX2,
+                 UNFINISHED_BAR,
                  TEXT_INDEX
                } Slice_model_indices;
 
@@ -46,12 +47,13 @@ typedef enum {
 public  void  initialize_slice_models(
     display_struct    *slice_window )
 {
-    int            i, view;
-    Point          point;
-    lines_struct   *lines;
-    object_struct  *object;
-    model_struct   *model;
-    Colour         colour;
+    int               i, view;
+    Point             point;
+    lines_struct      *lines;
+    polygons_struct   *polygons;
+    object_struct     *object;
+    model_struct      *model;
+    Colour            colour;
 
     model = get_graphics_model( slice_window, FULL_WINDOW_MODEL );
 
@@ -178,6 +180,50 @@ public  void  initialize_slice_models(
             lines->indices[i] = i;
 
         add_object_to_model( model, object );
+
+        /* --- make cross section */
+
+        object = create_object( POLYGONS );
+        polygons = get_polygons_ptr( object );
+        initialize_polygons( polygons, Unfinished_flag_colour, NULL );
+
+        polygons->n_points = 8;
+        polygons->n_items = 4;
+
+        ALLOC( polygons->points, polygons->n_points );
+        polygons->normals = NULL;
+        ALLOC( polygons->end_indices, polygons->n_items );
+        ALLOC( polygons->indices, 16 );
+
+        polygons->end_indices[0] = 4;
+        polygons->end_indices[1] = 8;
+        polygons->end_indices[2] = 12;
+        polygons->end_indices[3] = 16;
+
+        polygons->indices[0] = 0;
+        polygons->indices[1] = 1;
+        polygons->indices[2] = 5;
+        polygons->indices[3] = 4;
+
+        polygons->indices[4] = 1;
+        polygons->indices[5] = 2;
+        polygons->indices[6] = 6;
+        polygons->indices[7] = 5;
+
+        polygons->indices[8] = 2;
+        polygons->indices[9] = 3;
+        polygons->indices[10] = 7;
+        polygons->indices[11] = 6;
+
+        polygons->indices[12] = 3;
+        polygons->indices[13] = 0;
+        polygons->indices[14] = 4;
+        polygons->indices[15] = 7;
+
+        set_object_visibility( object, FALSE );
+        add_object_to_model( model, object );
+
+        /*--- make text */
 
         object = create_object( TEXT );
 
@@ -473,6 +519,53 @@ public  void  get_slice_cross_section_direction(
 
     for_less( c, 0, N_DIMENSIONS )
         Vector_coord( *in_plane_axis, c ) /= separations[c];
+}
+
+public  void  rebuild_slice_unfinished_flag(
+    display_struct    *slice_window,
+    int               view_index )
+{
+    model_struct      *model;
+    Real              x_size, y_size, width;
+    Point             *points;
+    object_struct     *object;
+    polygons_struct   *polygons;
+    int               x_min, x_max, y_min, y_max;
+
+    model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
+    object = model->objects[2*slice_window->slice.n_volumes+UNFINISHED_BAR];
+    polygons = get_polygons_ptr( object );
+    points = polygons->points;
+
+    get_slice_model_viewport( slice_window, SLICE_MODEL1 + view_index,
+                              &x_min, &x_max, &y_min, &y_max );
+
+    x_size = (Real) (x_max - x_min + 1);
+    y_size = (Real) (y_max - y_min + 1);
+    width = Unfinished_flag_width;
+
+    fill_Point( points[0], 0.0, 0.0, 0.0 );
+    fill_Point( points[1], x_size-1.0, 0.0, 0.0 );
+    fill_Point( points[2], x_size-1.0, y_size-1.0, 0.0 );
+    fill_Point( points[3], 0.0, y_size-1.0, 0.0 );
+
+    fill_Point( points[4], width, width, 0.0 );
+    fill_Point( points[5], x_size-1.0-width, width, 0.0 );
+    fill_Point( points[6], x_size-1.0-width, y_size-1.0-width, 0.0 );
+    fill_Point( points[7], width, y_size-1.0-width, 0.0 );
+}
+
+public  void  set_slice_unfinished_flag_visibility(
+    display_struct    *slice_window,
+    int               view_index,
+    BOOLEAN           state )
+{
+    model_struct      *model;
+    object_struct     *object;
+
+    model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
+    object = model->objects[2*slice_window->slice.n_volumes+UNFINISHED_BAR];
+    set_object_visibility( object, state );
 }
 
 #define  EXTRA_PIXELS   10
@@ -1301,7 +1394,8 @@ public  void  rebuild_label_slice_pixels_for_volume(
     if( !out_of_time_flag )
     {
         render_slice_to_pixels( slice_window, volume_index, view_index,
-                                get_nth_volume( slice_window, volume_index ),
+                                get_nth_label_volume( slice_window,
+                                                      volume_index ),
                                 slice_window->slice.volumes[volume_index].
                                                        label_colour_table,
                                 NEAREST_NEIGHBOUR,
