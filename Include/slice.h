@@ -64,7 +64,6 @@ typedef  struct
     int                    n_labels;
     Colour                 *colour_tables[NUM_LABELS];
     Real                   label_colour_ratio;
-    BOOLEAN                label_colours_set[NUM_LABELS];
     Colour                 label_colours[NUM_LABELS];
     colour_coding_struct   colour_coding;
     colour_bar_struct      colour_bar;

@@ -334,18 +334,3 @@ public  void  set_slice_window_volume(
 
     delete_slice_undo( &slice_window->slice.undo );
 }
-
-public  void  set_voxel_label_flag(
-    Volume   label_volume,
-    int      voxel[],
-    BOOLEAN  value )
-{
-    set_voxel_label_bit( label_volume, voxel, get_label_bit(), value );
-}
-
-public  BOOLEAN  get_voxel_label_flag(
-    Volume   label_volume,
-    int      voxel[] )
-{
-    return( get_voxel_label_bit( label_volume, voxel, get_label_bit() ) );
-}
