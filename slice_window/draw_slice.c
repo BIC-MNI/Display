@@ -13,12 +13,12 @@
 #define  TEXT3_INDEX                    9
 #define  N_SLICE_MODELS                10
 
-#define  X_TRANSFORMED_PROBE_INDEX     0
-#define  Y_TRANSFORMED_PROBE_INDEX     1
-#define  Z_TRANSFORMED_PROBE_INDEX     2
-#define  X_TALAIRACH_PROBE_INDEX       3
-#define  Y_TALAIRACH_PROBE_INDEX       4
-#define  Z_TALAIRACH_PROBE_INDEX       5
+#define  X_VOXEL_PROBE_INDEX           0
+#define  Y_VOXEL_PROBE_INDEX           1
+#define  Z_VOXEL_PROBE_INDEX           2
+#define  X_WORLD_PROBE_INDEX           3
+#define  Y_WORLD_PROBE_INDEX           4
+#define  Z_WORLD_PROBE_INDEX           5
 #define  VOXEL_PROBE_INDEX             6
 #define  VAL_PROBE_INDEX               7
 #define  LABEL_PROBE_INDEX             8
@@ -26,17 +26,9 @@
 
 private  void  render_slice_to_pixels(
     display_struct        *slice_window,
-    pixels_struct         *pixels,
-    int                   x_index,
-    int                   y_index,
-    int                   axis_index,
-    int                   start_indices[N_DIMENSIONS],
-    int                   x_left,
-    int                   x_right,
-    int                   y_bottom,
-    int                   y_top,
-    Real                  x_scale,
-    Real                  y_scale );
+    int                   view_index,
+    Real                  voxel_indices[],
+    pixels_struct         *pixels );
 
 public  void  initialize_slice_models(
     display_struct    *slice_window )
@@ -45,6 +37,7 @@ public  void  initialize_slice_models(
     lines_struct   *lines;
     object_struct  *object;
     model_struct   *model;
+    Colour         colour;
 
     model = get_graphics_model( slice_window, SLICE_MODEL );
 
@@ -127,11 +120,16 @@ public  void  initialize_slice_models(
 
     model = get_graphics_model( slice_window, SLICE_READOUT_MODEL );
 
+    if( get_model_bitplanes(model) == OVERLAY_PLANES )
+        colour = Readout_text_colour;
+    else
+        colour = Readout_text_rgb_colour;
+
     for_inclusive( i, 0, N_READOUT_MODELS )
     {
         object = create_object( TEXT );
 
-        get_text_ptr(object)->colour = Readout_text_colour;
+        get_text_ptr(object)->colour = colour;
         add_object_to_model( model, object );
     }
 }
@@ -173,7 +171,8 @@ public  void  rebuild_probe(
     model_struct   *model;
     Boolean        active;
     Volume         volume;
-    int            label, i, x_voxel, y_voxel, z_voxel, view_index;
+    int            label, i, view_index;
+    Real           x_voxel, y_voxel, z_voxel;
     Real           x_world, y_world, z_world;
     text_struct    *text;
     int            sizes[N_DIMENSIONS];
@@ -189,16 +188,17 @@ public  void  rebuild_probe(
     if( get_slice_window_volume( slice_window, &volume ) )
         get_volume_sizes( volume, sizes );
 
-    convert_voxel_to_world( volume,
-                            (Real) x_voxel, (Real) y_voxel, (Real) z_voxel,
+    convert_voxel_to_world( volume, x_voxel, y_voxel, z_voxel,
                             &x_world, &y_world, &z_world );
 
     if( active )
     {
-        GET_VOXEL_3D( voxel_value, volume, x_voxel, y_voxel, z_voxel );
+        GET_VOXEL_3D( voxel_value, volume,
+                      ROUND(x_voxel), ROUND(y_voxel), ROUND(z_voxel) );
         value = CONVERT_VOXEL_TO_VALUE( get_volume(slice_window), voxel_value );
         label = get_volume_auxiliary_data( get_volume(slice_window),
-                                           x_voxel, y_voxel, z_voxel );
+                                           ROUND(x_voxel), ROUND(y_voxel),
+                                           ROUND(z_voxel) );
         label = label & LOWER_AUXILIARY_BITS;
     }
 
@@ -208,9 +208,9 @@ public  void  rebuild_probe(
 
     for_less( i, 0, N_READOUT_MODELS )
     {
-        x_pos = x_min + Probe_x_pos + (i - X_TRANSFORMED_PROBE_INDEX)
+        x_pos = x_min + Probe_x_pos + (i - X_VOXEL_PROBE_INDEX)
                                        * Probe_x_delta;
-        y_pos = y_max - Probe_y_pos - (i - X_TRANSFORMED_PROBE_INDEX)
+        y_pos = y_max - Probe_y_pos - (i - X_VOXEL_PROBE_INDEX)
                                        * Probe_y_delta;
 
         text = get_text_ptr( model->objects[i] );
@@ -219,29 +219,29 @@ public  void  rebuild_probe(
         {
             switch( i )
             {
-            case X_TRANSFORMED_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_x_transformed_format,
-                                x_voxel+1 );
+            case X_VOXEL_PROBE_INDEX:
+                (void) sprintf( text->string, Slice_probe_x_voxel_format,
+                                x_voxel+1.0 );
                 break;
-            case Y_TRANSFORMED_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_y_transformed_format,
-                                y_voxel+1 );
+            case Y_VOXEL_PROBE_INDEX:
+                (void) sprintf( text->string, Slice_probe_y_voxel_format,
+                                y_voxel+1.0 );
                 break;
-            case Z_TRANSFORMED_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_z_transformed_format,
-                                z_voxel+1 );
+            case Z_VOXEL_PROBE_INDEX:
+                (void) sprintf( text->string, Slice_probe_z_voxel_format,
+                                z_voxel+1.0 );
                 break;
 
-            case X_TALAIRACH_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_x_talairach_format,
+            case X_WORLD_PROBE_INDEX:
+                (void) sprintf( text->string, Slice_probe_x_world_format,
                                 x_world );
                 break;
-            case Y_TALAIRACH_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_y_talairach_format,
+            case Y_WORLD_PROBE_INDEX:
+                (void) sprintf( text->string, Slice_probe_y_world_format,
                                 y_world );
                 break;
-            case Z_TALAIRACH_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_z_talairach_format,
+            case Z_WORLD_PROBE_INDEX:
+                (void) sprintf( text->string, Slice_probe_z_world_format,
                                 z_world );
                 break;
             case VOXEL_PROBE_INDEX:
@@ -267,116 +267,6 @@ public  void  rebuild_probe(
     set_update_required( slice_window, (Bitplane_types) Slice_readout_plane );
 }
 
-public  void  rebuild_slice_pixels(
-    display_struct    *slice_window,
-    int               view_index )
-{
-    model_struct   *model;
-    pixels_struct  *pixels;
-    int            axis_index, x_index, y_index;
-    int            voxel_indices[N_DIMENSIONS];
-    int            x_pixel_start, x_pixel_end;
-    int            x_size, y_pixel_start, y_pixel_end;
-    text_struct    *text;
-    char           *format;
-    Real           x_scale, y_scale;
-    int            x_pos, y_pos, x_min, x_max, y_min, y_max;
-    Boolean        print_cursor;
-    Real           real_pos[N_DIMENSIONS];
-
-    model = get_graphics_model(slice_window,SLICE_MODEL);
-
-    axis_index = slice_window->slice.slice_views[view_index].axis_map[Z];
-    x_index = slice_window->slice.slice_views[view_index].axis_map[X];
-    y_index = slice_window->slice.slice_views[view_index].axis_map[Y];
-
-    pixels = get_pixels_ptr( model->objects[SLICE1_INDEX+view_index] );
-
-    get_slice_view( slice_window, view_index, &x_scale, &y_scale,
-                    &x_pixel_start, &y_pixel_start,
-                    &x_pixel_end, &y_pixel_end, voxel_indices );
-
-    x_size = x_pixel_end - x_pixel_start + 1;
-
-    if( x_size > slice_window->slice.temporary_indices_alloced )
-    {
-        SET_ARRAY_SIZE( slice_window->slice.temporary_indices,
-                        slice_window->slice.temporary_indices_alloced,
-                        x_size, DEFAULT_CHUNK_SIZE );
-
-        slice_window->slice.temporary_indices_alloced = x_size;
-    }
-
-    render_slice_to_pixels( slice_window, pixels, x_index, y_index,
-                            axis_index,
-                            voxel_indices, x_pixel_start, x_pixel_end,
-                            y_pixel_start, y_pixel_end, x_scale, y_scale );
-
-    print_cursor = get_voxel_corresponding_to_point( slice_window,
-            &slice_window->associated[THREE_D_WINDOW]->three_d.cursor.origin,
-            &real_pos[X], &real_pos[Y], &real_pos[Z] );
-
-    if( print_cursor &&
-        real_pos[axis_index] == (Real) ((int) real_pos[axis_index]) )
-    {
-        print_cursor = FALSE;
-    }
-
-    text = get_text_ptr( model->objects[TEXT1_INDEX+view_index] );
-
-    if( print_cursor )
-    {
-        switch( axis_index )
-        {
-        case X:  format = Slice_index_xc_format;  break;
-        case Y:  format = Slice_index_yc_format;  break;
-        case Z:  format = Slice_index_zc_format;  break;
-        }
-
-        (void) sprintf( text->string, format,
-                        slice_window->slice.slice_index[axis_index] + 1,
-                        real_pos[axis_index] + 1.0 );
-
-    }
-    else
-    {
-        if( slice_window->slice.slice_locked[axis_index] )
-        {
-            switch( axis_index )
-            {
-            case X:  format = Slice_index_x_locked_format;  break;
-            case Y:  format = Slice_index_y_locked_format;  break;
-            case Z:  format = Slice_index_z_locked_format;  break;
-            }
-        }
-        else
-        {
-            switch( axis_index )
-            {
-            case X:  format = Slice_index_x_format;  break;
-            case Y:  format = Slice_index_y_format;  break;
-            case Z:  format = Slice_index_z_format;  break;
-            }
-        }
-
-        (void) sprintf( text->string, format,
-                        slice_window->slice.slice_index[axis_index] + 1 );
-
-    }
-
-    get_slice_viewport( slice_window,
-                        view_index, &x_min, &x_max, &y_min, &y_max );
-
-    x_pos = x_min + (int) Point_x(Slice_index_offset);
-    y_pos = y_min + (int) Point_y(Slice_index_offset);
-
-    fill_Point( text->origin, x_pos, y_pos, 0.0 );
-
-    rebuild_cursor( slice_window, 0 );
-    rebuild_cursor( slice_window, 1 );
-    rebuild_cursor( slice_window, 2 );
-}
-
 public  void  rebuild_cursor(
     display_struct    *slice_window,
     int               view_index )
@@ -386,7 +276,7 @@ public  void  rebuild_cursor(
     int            x_centre, y_centre, dx, dy;
     Real           start_pixel[N_DIMENSIONS], end_pixel[N_DIMENSIONS];
     lines_struct   *lines;
-    int            x, y;
+    Real           x, y;
     int            x_min, x_max, y_min, y_max;
 
     model = get_graphics_model(slice_window,SLICE_MODEL);
@@ -399,8 +289,10 @@ public  void  rebuild_cursor(
     x = slice_window->slice.slice_index[x_index];
     y = slice_window->slice.slice_index[y_index];
 
-    convert_voxel_to_pixel( slice_window, view_index, x, y, &x_start, &y_start);
-    convert_voxel_to_pixel( slice_window, view_index, x+1, y+1, &x_end, &y_end);
+    convert_voxel_to_pixel( slice_window, view_index, x - 0.5, y - 0.5,
+                            &x_start, &y_start);
+    convert_voxel_to_pixel( slice_window, view_index, x + 0.5, y + 0.5,
+                            &x_end, &y_end);
 
     --x_end;
     --y_end;
@@ -462,207 +354,231 @@ public  void  rebuild_cursor(
     fill_Point( lines->points[7], x_end + end_pixel[x_index], y_centre, 0.0 );
 }
 
+public  void  rebuild_slice_pixels(
+    display_struct    *slice_window,
+    int               view_index )
+{
+    model_struct   *model;
+    pixels_struct  *pixels;
+    int            axis_index;
+    Real           voxel_indices[N_DIMENSIONS];
+    int            x_min, x_max, y_min, y_max;
+    text_struct    *text;
+    char           *format;
+    int            x_pos, y_pos;
+    Real           real_pos[N_DIMENSIONS];
+
+    model = get_graphics_model(slice_window,SLICE_MODEL);
+
+    axis_index = slice_window->slice.slice_views[view_index].axis_map[Z];
+
+    pixels = get_pixels_ptr( model->objects[SLICE1_INDEX+view_index] );
+
+    get_current_voxel( slice_window,
+                       &voxel_indices[X], &voxel_indices[Y], &voxel_indices[Z]);
+
+    render_slice_to_pixels( slice_window, view_index, voxel_indices, pixels );
+
+    text = get_text_ptr( model->objects[TEXT1_INDEX+view_index] );
+
+    if( slice_window->slice.slice_locked[axis_index] )
+    {
+        switch( axis_index )
+        {
+        case X:  format = Slice_index_x_locked_format;  break;
+        case Y:  format = Slice_index_y_locked_format;  break;
+        case Z:  format = Slice_index_z_locked_format;  break;
+        }
+    }
+    else
+    {
+        switch( axis_index )
+        {
+        case X:  format = Slice_index_x_format;  break;
+        case Y:  format = Slice_index_y_format;  break;
+        case Z:  format = Slice_index_z_format;  break;
+        }
+    }
+
+    (void) sprintf( text->string, format,
+                    slice_window->slice.slice_index[axis_index] + 1.0 );
+
+    get_slice_viewport( slice_window,
+                        view_index, &x_min, &x_max, &y_min, &y_max );
+
+    x_pos = x_min + (int) Point_x(Slice_index_offset);
+    y_pos = y_min + (int) Point_y(Slice_index_offset);
+
+    fill_Point( text->origin, x_pos, y_pos, 0.0 );
+
+    rebuild_cursor( slice_window, 0 );
+    rebuild_cursor( slice_window, 1 );
+    rebuild_cursor( slice_window, 2 );
+}
+
 private  void  render_slice_to_pixels(
     display_struct        *slice_window,
-    pixels_struct         *pixels,
-    int                   x_index,
-    int                   y_index,
-    int                   axis_index,
-    int                   start_indices[N_DIMENSIONS],
-    int                   x_left,
-    int                   x_right,
-    int                   y_bottom,
-    int                   y_top,
-    Real                  x_scale,
-    Real                  y_scale )
+    int                   view_index,
+    Real                  voxel_indices[],
+    pixels_struct         *pixels )
 {
     Volume                volume;
-    Data_types            data_type;
-    int                   *temporary_indices, sizes[N_DIMENSIONS];
-    int                   start_volume_index, volume_index;
-    Boolean               fast_lookup_present, display_activity;
+    int                   sizes[N_DIMENSIONS];
+    int                   volume_index;
+    int                   *x_offsets, *y_offsets;
+    Real                  voxel_pos[N_DIMENSIONS];
     Colour                **fast_lookup;
-    int                   old_size;
-    int                   x, y, prev_x_offset, x_offset;
-    int                   prev_y_offset, y_offset;
+    int                   x_index, y_index, axis_index;
+    int                   x, y;
+    int                   y_offset;
     int                   x_size, y_size;
-    int                   val, min_value;
-    Real                  min_val, max_val;
-    int                   label, new_label;
-    int                   voxel_indices[3];
+    int                   label, n_alloced;
+    Real                  x_trans, y_trans, x_scale, y_scale;
     unsigned char         *label_ptr;
-    unsigned char         *unsigned_byte_data;
-    char                  *signed_byte_data;
-    unsigned short        *unsigned_short_data;
-    short                 *signed_short_data;
-    Colour                col;
     Colour                *pixel_ptr;
-    Real                  dx, dy;
-    Colour                *lookup;
-    void                  *void_ptr;
+    int                   x_min, x_max, y_min, y_max;
 
     volume = get_volume( slice_window );
     get_volume_sizes( volume, sizes );
-    get_volume_voxel_range( volume, &min_val, &max_val );
-    min_value = (int) min_val;
-    temporary_indices = slice_window->slice.temporary_indices;
-    fast_lookup_present = slice_window->slice.fast_lookup_present;
     fast_lookup = slice_window->slice.fast_lookup;
 
     if( pixels->x_size > 0 && pixels->y_size > 0 )
-        old_size = pixels->x_size * pixels->y_size;
-    else
-        old_size = 0;
-    x_size = x_right - x_left + 1;
+        delete_pixels( pixels );
 
-    y_size = y_top - y_bottom + 1;
+    n_alloced = 0;
 
-    pixels->x_position = x_left;
-    pixels->y_position = y_bottom;
-    pixels->x_size = x_size;
-    pixels->y_size = y_size;
+    x_index = slice_window->slice.slice_views[view_index].axis_map[X];
+    y_index = slice_window->slice.slice_views[view_index].axis_map[Y];
+    axis_index = slice_window->slice.slice_views[view_index].axis_map[Z];
+    x_trans = slice_window->slice.slice_views[view_index].x_trans;
+    y_trans = slice_window->slice.slice_views[view_index].y_trans;
+    x_scale = slice_window->slice.slice_views[view_index].x_scaling;
+    y_scale = slice_window->slice.slice_views[view_index].y_scaling;
 
-    dx = 1.0 / x_scale;
-    dy = 1.0 / y_scale;
+    get_slice_viewport( slice_window, view_index,
+                        &x_min, &x_max, &y_min, &y_max );
 
-    modify_pixels_size( &old_size, pixels, x_size, y_size, RGB_PIXEL );
-    
-    voxel_indices[X] = start_indices[X];
-    voxel_indices[Y] = start_indices[Y];
-    voxel_indices[Z] = start_indices[Z];
+    create_volume_slice(
+                    slice_window->slice.slice_views[view_index].filter_type,
+                    slice_window->slice.slice_views[view_index].filter_width,
+                    volume,
+                    voxel_indices[axis_index],
+                    x_trans, y_trans, x_scale, y_scale,
+                    (Volume) NULL, 0.0, 0.0, 0.0, 0.0, 0.0,
+                    x_index, y_index, axis_index,
+                    x_max - x_min + 1, y_max - y_min + 1,
+                    RGB_PIXEL, FALSE, (unsigned short **) NULL,
+                    &fast_lookup[ACTIVE_BIT], &n_alloced, pixels );
 
-    start_volume_index = IJK( voxel_indices[X],
-                              voxel_indices[Y],
-                              voxel_indices[Z],
-                              sizes[Y], sizes[Z] );
+    pixels->x_position += x_min;
+    pixels->y_position += y_min;
 
-    for_less( x, 0, x_size )
-    {
-        voxel_indices[x_index] = start_indices[x_index] + (int) (x * dx);
-        temporary_indices[x] = IJK( voxel_indices[X],
-                                    voxel_indices[Y],
-                                    voxel_indices[Z],
-                                    sizes[Y], sizes[Z] ) -
-                               start_volume_index;
-    }
+    x_size = pixels->x_size;
+    y_size = pixels->y_size;
 
-    voxel_indices[x_index] = start_indices[x_index];
-
-    GET_VOXEL_PTR_3D( void_ptr, volume, 0, 0, 0 );
-
-    data_type = volume->data_type;
-    switch( data_type )
-    {
-    case  UNSIGNED_BYTE:  unsigned_byte_data = void_ptr;  break;
-    case  SIGNED_BYTE:    signed_byte_data = void_ptr;  break;
-    case  UNSIGNED_SHORT: unsigned_short_data = void_ptr;  break;
-    case  SIGNED_SHORT:   signed_short_data = void_ptr;  break;
-    default:
-        HANDLE_INTERNAL_ERROR( "Invalid data type for rendering.\n" );
-        break;
-    }
-
-    label = ACTIVE_BIT;
-
-    if( fast_lookup_present )
-        lookup = fast_lookup[label];
+    /* now do the label colour compositing */
 
     if( slice_window->slice.display_labels &&
-        volume->labels != (unsigned char ***) NULL )
+        volume->labels != (unsigned char ***) NULL &&
+        x_size > 0 && y_size > 0 )
     {
-        label_ptr = volume->labels[0][0];
-        display_activity = TRUE;
-    }
-    else
-    {
-        display_activity = FALSE;
-    }
+        ALLOC( x_offsets, x_size );
+        ALLOC( y_offsets, y_size );
 
-    prev_y_offset = -1000000;
-
-    for_less( y, 0, y_size )
-    {
-        pixel_ptr = &pixels->data.pixels_rgb[y * x_size];
-
-        y_offset = start_indices[y_index] + (int) (y * dy);
-
-        if( y_offset == prev_y_offset )
+        for_less( y, 0, y_size )
         {
-            for_less( x, 0, x_size )
+            if( !convert_slice_pixel_to_voxel( volume,
+                        pixels->x_position - x_min,
+                        y + pixels->y_position - y_min,
+                        slice_window->slice.slice_index,
+                        x_index, y_index, x_trans, y_trans,
+                        x_scale, y_scale, voxel_pos ) )
             {
-                *pixel_ptr = *(pixel_ptr-x_size);
-                ++pixel_ptr;
+                HANDLE_INTERNAL_ERROR( "render slice" );
             }
+        
+            y_offsets[y] = IJK( ROUND(voxel_pos[X]), ROUND(voxel_pos[Y]),
+                                ROUND(voxel_pos[Z]), sizes[Y], sizes[Z] );
         }
-        else
+
+        for_less( x, 0, x_size )
         {
-            prev_y_offset = y_offset;
+            if( !convert_slice_pixel_to_voxel( volume,
+                        x + pixels->x_position - x_min,
+                        pixels->y_position - y_min,
+                        slice_window->slice.slice_index,
+                        x_index, y_index, x_trans, y_trans,
+                        x_scale, y_scale, voxel_pos ) )
+            {
+                HANDLE_INTERNAL_ERROR( "render slice" );
+            }
+        
+            x_offsets[x] = IJK( ROUND(voxel_pos[X]), ROUND(voxel_pos[Y]),
+                                ROUND(voxel_pos[Z]), sizes[Y], sizes[Z] ) -
+                           y_offsets[0];
+        }
 
-            voxel_indices[y_index] = y_offset;
-            start_volume_index = IJK( voxel_indices[X],
-                                      voxel_indices[Y],
-                                      voxel_indices[Z],
-                                      sizes[Y], sizes[Z] );
+        label_ptr = volume->labels[0][0];
 
-            prev_x_offset = -100000;
+        for_less( y, 0, y_size )
+        {
+            pixel_ptr = &pixels->data.pixels_rgb[y * x_size];
+
+            y_offset = y_offsets[y];
 
             for_less( x, 0, x_size )
             {
-                x_offset = temporary_indices[x];
+                volume_index = y_offset + x_offsets[x];
 
-                if( x_offset != prev_x_offset )
+                label = label_ptr[volume_index];
+
+                if( label != ACTIVE_BIT )
                 {
-                    prev_x_offset = x_offset;
-
-                    volume_index = start_volume_index + x_offset;
-
-                    if( display_activity )
-                    {
-                        new_label = label_ptr[volume_index];
-                        if( label != new_label && fast_lookup_present )
-                        {
-                            lookup = fast_lookup[new_label];
-                            if( lookup == (Colour *) 0 )
-                                lookup = fast_lookup[ACTIVE_BIT];
-                            label = new_label;
-                        }
-                    }
-
-                    switch( data_type )
-                    {
-                    case UNSIGNED_BYTE:
-                        val = (int) unsigned_byte_data[volume_index];
-                        break;
-                    case SIGNED_BYTE:
-                        val = (int) signed_byte_data[volume_index];
-                        break;
-                    case UNSIGNED_SHORT:
-                        val = (int) unsigned_short_data[volume_index];
-                        break;
-                    case SIGNED_SHORT:
-                        val = (int) signed_short_data[volume_index];
-                        break;
-                    }
-
-                    if( fast_lookup_present )
-                        col = lookup[val-min_value];
-                    else
-                    {
-                        col = get_slice_colour_coding( slice_window, val,
-                                                       label );
-                    }
+                    *pixel_ptr = apply_label_colour( slice_window, *pixel_ptr,
+                                                     label );
                 }
 
-                *pixel_ptr = col;
                 ++pixel_ptr;
             }
         }
+
+        FREE( x_offsets );
+        FREE( y_offsets );
     }
 
+    /* --- now blend in the talaiarch atlas */
+
+    if( x_size > 0 && y_size > 0 )
     {
-        blend_in_atlas( &slice_window->slice.atlas, pixels->data.pixels_rgb,
+        Real  v1[N_DIMENSIONS], v2[N_DIMENSIONS];
+        Real  dx, dy;
+
+        (void) convert_slice_pixel_to_voxel( volume,
+                        pixels->x_position - x_min, pixels->y_position - y_min,
+                        slice_window->slice.slice_index,
+                        x_index, y_index, x_trans, y_trans,
+                        x_scale, y_scale, v1 );
+        (void) convert_slice_pixel_to_voxel( volume,
+                        pixels->x_position+1 - x_min, pixels->y_position-y_min,
+                        slice_window->slice.slice_index,
+                        x_index, y_index, x_trans, y_trans,
+                        x_scale, y_scale, v2 );
+
+        dx = v2[x_index] - v1[x_index];
+
+        (void) convert_slice_pixel_to_voxel( volume,
+                        pixels->x_position - x_min, pixels->y_position+1-y_min,
+                        slice_window->slice.slice_index,
+                        x_index, y_index, x_trans, y_trans,
+                        x_scale, y_scale, v2 );
+
+        dy = v2[y_index] - v1[y_index];
+
+        blend_in_atlas( &slice_window->slice.atlas,
+                        pixels->data.pixels_rgb,
                         x_size, y_size,
-                        start_indices, x_index, y_index, axis_index, dx, dy,
+                        v1, x_index, y_index, axis_index,
+                        dx, dy,
                         sizes[x_index], sizes[y_index] );
     }
 }
