@@ -1,6 +1,6 @@
 include ../C_dev/Makefile.include
 
-OPT = $(OPT_O)
+OPT = $(OPT_g)
 
 OPT_g = -g
 OPT_O = -DNO_DEBUG_ALLOC  -O
@@ -41,10 +41,11 @@ display_obj = \
            callbacks/quit.o \
            callbacks/line_ops.o \
            callbacks/marker_ops.o \
+           callbacks/polygon_ops.o \
            callbacks/render_ops.o \
            callbacks/segmenting.o \
-           callbacks/surface_ops.o \
            callbacks/surface_curves.o \
+           callbacks/surface_extract.o \
            callbacks/view_ops.o \
            callbacks/volume_ops.o \
            current_obj/current_obj.o \
@@ -65,6 +66,7 @@ display_obj = \
            events/pick_polygon.o \
            events/pick_view.o \
            events/pick_voxel.o \
+           events/slice_transforms.o \
            events/virt_sb.o \
            events/window_man.o \
            events/utilities.o \

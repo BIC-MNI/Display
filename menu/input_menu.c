@@ -43,10 +43,16 @@
                        MENU_FUNCTION(ascend_selected) \
                        MENU_FUNCTION(advance_slice) \
                        MENU_FUNCTION(retreat_slice) \
+                       MENU_FUNCTION(prev_marked_slice) \
+                       MENU_FUNCTION(next_marked_slice) \
+                       MENU_FUNCTION(toggle_marked_slice) \
+                       MENU_FUNCTION(set_rotating_slice_mode) \
+                       MENU_FUNCTION(set_translating_slice_mode) \
+                       MENU_FUNCTION(reset_slice_transform) \
                        MENU_FUNCTION(menu_set_global_variable) \
                        MENU_FUNCTION(pick_view_rectangle) \
                        MENU_FUNCTION(toggle_object_visibility) \
-                       MENU_FUNCTION(set_slice_transform) \
+                       MENU_FUNCTION(output_slice_transforms) \
                        MENU_FUNCTION(open_slice_window) \
                        MENU_FUNCTION(start_surface) \
                        MENU_FUNCTION(toggle_surface_extraction) \
@@ -77,8 +83,7 @@
                        MENU_FUNCTION(create_marker_at_cursor) \
                        MENU_FUNCTION(set_cursor_to_marker) \
                        MENU_FUNCTION(save_markers) \
-                       MENU_FUNCTION(lock_slice) \
-                       MENU_FUNCTION(unlock_slice) \
+                       MENU_FUNCTION(toggle_lock_slice) \
                        MENU_FUNCTION(delete_current_object) \
                        MENU_FUNCTION(label_point) \
                        MENU_FUNCTION(generate_regions) \

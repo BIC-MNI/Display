@@ -146,6 +146,48 @@ public  DEF_MENU_UPDATE(next_marked_slice )   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION( prev_marked_slice )   /* ARGSUSED */
+{
+    volume_struct   *volume;
+    void            rebuild_selected_list();
+    void            graphics_models_have_changed();
+    int             i, nx, ny, nz;
+    void            get_volume_size();
+
+    if( get_current_volume(graphics,&volume) )
+    {
+        get_volume_size( volume, &nx, &ny, &nz );
+
+        i = volume->current_slice;
+
+        do
+        {
+            --i;
+            if( i < 0 )
+                i = nz - 1;
+        } while( i != volume->current_slice && !volume->slice_marked_flags[i] );
+
+        if( i != volume->current_slice )
+        {
+            volume->slice_visibilities[volume->current_slice] = OFF;
+
+            volume->current_slice = i;
+            volume->slice_visibilities[volume->current_slice] = ON;
+        }
+
+        rebuild_selected_list( graphics, menu_window );
+    }
+
+    graphics_models_have_changed( graphics );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(prev_marked_slice )   /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( toggle_marked_slice )   /* ARGSUSED */
 {
     volume_struct   *volume;
@@ -528,7 +570,7 @@ public  DEF_MENU_UPDATE(reset_activities )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(lock_slice)   /* ARGSUSED */
+public  DEF_MENU_FUNCTION(toggle_lock_slice)   /* ARGSUSED */
 {
     Status           status;
     volume_struct    *volume;
@@ -554,84 +596,68 @@ public  DEF_MENU_FUNCTION(lock_slice)   /* ARGSUSED */
         {
             axis_index = 
                slice_window->slice.slice_views[view_index].axis_map[Z_AXIS];
-            if( !slice_window->slice.slice_locked[axis_index] )
-            {
-                slice_window->slice.slice_locked[axis_index] = TRUE;
+            slice_window->slice.slice_locked[axis_index] =
+                !slice_window->slice.slice_locked[axis_index];
 
-                set_slice_window_update( slice_window, view_index );
-                set_update_required( slice_window, NORMAL_PLANES );
-            }
+            set_slice_window_update( slice_window, view_index );
+            set_update_required( slice_window, NORMAL_PLANES );
         }
     }
 
     return( status );
 }
 
-public  DEF_MENU_UPDATE(lock_slice)    /* ARGSUSED */
+public  DEF_MENU_UPDATE(toggle_lock_slice)    /* ARGSUSED */
 {
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION(unlock_slice)   /* ARGSUSED */
-{
-    Status           status;
-    volume_struct    *volume;
-    graphics_struct  *slice_window;
-    Point            *mouse;
-    int              x, y, axis_index, view_index;
-    void             get_mouse_in_pixels();
-    Boolean          find_slice_view_mouse_is_in();
-    void             set_slice_window_update();
-    void             set_update_required();
-
-    status = OK;
-
-    if( get_current_volume( graphics, &volume ) )
-    {
-        slice_window = graphics->associated[SLICE_WINDOW];
-
-        mouse = &slice_window->mouse_position;
-
-        get_mouse_in_pixels( slice_window, mouse, &x, &y );
-
-        if( find_slice_view_mouse_is_in( slice_window, x, y, &view_index ) )
-        {
-            axis_index = 
-               slice_window->slice.slice_views[view_index].axis_map[Z_AXIS];
-            if( slice_window->slice.slice_locked[axis_index] )
-            {
-                slice_window->slice.slice_locked[axis_index] = FALSE;
-
-                set_slice_window_update( slice_window, view_index );
-                set_update_required( slice_window, NORMAL_PLANES );
-            }
-        }
-    }
-
-    return( status );
-}
-
-public  DEF_MENU_UPDATE(unlock_slice)    /* ARGSUSED */
-{
-    return( OK );
-}
-
-public  DEF_MENU_FUNCTION(set_slice_transform )   /* ARGSUSED */
+public  DEF_MENU_FUNCTION(set_rotating_slice_mode )   /* ARGSUSED */
 {
     volume_struct   *volume;
-    Real            degrees, x_offset, y_offset;
-    void            create_2d_transform();
+    void            start_rotating_slice();
+
+    if( get_current_volume(graphics,&volume) )
+    {
+        start_rotating_slice( graphics );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_rotating_slice_mode )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(set_translating_slice_mode )   /* ARGSUSED */
+{
+    volume_struct   *volume;
+    void            start_translating_slice();
+
+    if( get_current_volume(graphics,&volume) )
+    {
+        start_translating_slice( graphics );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_translating_slice_mode )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(reset_slice_transform )   /* ARGSUSED */
+{
+    volume_struct   *volume;
+    void            make_identity_transform();
     void            graphics_models_have_changed();
 
     if( get_current_volume(graphics,&volume) )
     {
-        PRINT( "Enter degrees, x_off, y_off: " );
-        if( scanf( "%f %f %f", &degrees, &x_offset, &y_offset ) == 3 )
-        {
-            create_2d_transform( &volume->slice_transforms[
-                                 volume->current_slice],
-                                 degrees, x_offset, y_offset );
-        }
+        make_identity_transform( &volume->slice_transforms[
+                                     volume->current_slice] );
     }
 
     graphics_models_have_changed( graphics );
@@ -639,32 +665,9 @@ public  DEF_MENU_FUNCTION(set_slice_transform )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_slice_transform )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(reset_slice_transform )   /* ARGSUSED */
 {
     return( OK );
-}
-
-private  void  create_2d_transform( transform, degrees, x_offset, y_offset )
-    Transform   *transform;
-    Real        degrees;
-    Real        x_offset;
-    Real        y_offset;
-{
-    Real   c, s;
-    void   make_identity_transform();
-
-    make_identity_transform( transform );
-
-    c = cos( (double) degrees * DEG_TO_RAD );
-    s = sin( (double) degrees * DEG_TO_RAD );
-
-    Transform_elem(*transform,0,0) = c;
-    Transform_elem(*transform,0,1) = s;
-    Transform_elem(*transform,1,0) = -s;
-    Transform_elem(*transform,1,1) = c;
-
-    Transform_elem(*transform,0,3) = x_offset;
-    Transform_elem(*transform,1,3) = y_offset;
 }
 
 public  DEF_MENU_FUNCTION(output_slice_transforms )   /* ARGSUSED */
