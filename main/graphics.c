@@ -396,6 +396,7 @@ private  void  draw_in_viewports(
     BOOLEAN                      *past_last_object )
 {
     int           i, x_min, x_max, y_min, y_max;
+    int           x_sub_min, x_sub_max, y_sub_min, y_sub_max;
     BOOLEAN       draw_model, redrawing_whole_window;
 
     redrawing_whole_window = FALSE;
@@ -411,10 +412,38 @@ private  void  draw_in_viewports(
             {
                 get_slice_model_viewport( display, i, &x_min, &x_max,
                                           &y_min, &y_max );
-                G_set_viewport( display->window, x_min, x_max, y_min, y_max );
-                if( !redrawing_whole_window )
-                    G_clear_viewport( display->window,
-                                      display->window->background_colour );
+
+                if( i >= SLICE_MODEL1 && i < SLICE_MODEL1 + N_SLICE_VIEWS &&
+                    get_slice_subviewport( display, i-SLICE_MODEL1,
+                                           &x_sub_min, &x_sub_max,
+                                           &y_sub_min, &y_sub_max ) )
+                {
+                    display->slice.slice_views[i-SLICE_MODEL1].
+                                                sub_region_specified = FALSE;
+
+                    if( !redrawing_whole_window )
+                    {
+                        G_set_viewport( display->window,
+                                        x_min + x_sub_min, x_min + x_sub_max,
+                                        y_min + y_sub_min, y_min + y_sub_max );
+                        G_clear_viewport( display->window,
+                                          display->window->background_colour );
+print( "-------- small viewport\n" );
+                    }
+else
+    print( "-------- drawing entire window ---------\n" );
+
+                    G_set_viewport( display->window,
+                                    x_min, x_max, y_min, y_max );
+                }
+                else
+                {
+                    G_set_viewport( display->window,
+                                    x_min, x_max, y_min, y_max );
+                    if( !redrawing_whole_window )
+                        G_clear_viewport( display->window,
+                                          display->window->background_colour );
+                }
 
                 if( i == FULL_WINDOW_MODEL )
                     redrawing_whole_window = TRUE;

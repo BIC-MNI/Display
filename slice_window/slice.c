@@ -607,7 +607,8 @@ private  BOOLEAN  slice_will_be_updated(
 public  void  update_slice_window(
     display_struct   *slice_window )
 {
-    BOOLEAN  redraw_slice_to_new_subregion, slice_is_being_updated;
+    BOOLEAN  force_redraw_slice, slice_is_being_updated;
+    BOOLEAN  sub_region_specified;
     int      view, v, x_min, x_max, y_min, y_max;
 
     if( slice_window->slice.update_slice_dividers_flag )
@@ -632,27 +633,40 @@ public  void  update_slice_window(
     {
         slice_is_being_updated = slice_will_be_updated( slice_window, view );
 
-        redraw_slice_to_new_subregion = slice_window->slice.slice_views[view].
+        sub_region_specified = slice_window->slice.slice_views[view].
                                              sub_region_specified;
+
+        force_redraw_slice = sub_region_specified;
+
+        if( force_redraw_slice &&
+            (slice_is_being_updated ||
+             slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0]) )
+        {
+            slice_window->slice.slice_views[view].sub_region_specified = FALSE;
+if( view == 2 )
+print( "Viewport out of date.\n" );
+        }
 
         if( slice_window->slice.slice_views[view].prev_sub_region_specified &&
             slice_is_being_updated )
         {
-            redraw_slice_to_new_subregion = TRUE;
+if( view == 2 )
+print( "Reverting to full screen.\n" );
+            force_redraw_slice = TRUE;
         }
 
         update_slice_pixel_visibilities( slice_window, view );
 
         for_less( v, 0, slice_window->slice.n_volumes )
         {
-            if( redraw_slice_to_new_subregion ||
+            if( force_redraw_slice ||
                 slice_window->slice.volumes[v].views[view].update_flag )
             {
                 rebuild_slice_pixels_for_volume( slice_window, v, view );
                 slice_window->slice.volumes[v].views[view].update_flag = FALSE;
             }
 
-            if( redraw_slice_to_new_subregion ||
+            if( force_redraw_slice ||
                 slice_window->slice.volumes[v].views[view].update_labels_flag )
             {
                 rebuild_label_slice_pixels_for_volume( slice_window, v, view );
@@ -693,6 +707,7 @@ public  void  update_slice_window(
         }
 
         if( slice_is_being_updated ||
+            force_redraw_slice ||
             slice_window->slice.slice_views[view].update_composite_flag )
         {
             composite_volume_and_labels( slice_window, view );
@@ -702,19 +717,25 @@ public  void  update_slice_window(
         if( slice_is_being_updated )
         {
             set_slice_viewport_update( slice_window, SLICE_MODEL1 + view );
+if( view == 2 )
+print( "Setting both viewports out of date.\n" );
         }
-        else if( redraw_slice_to_new_subregion )
+        else if( force_redraw_slice )
         {
-            slice_window->slice.viewport_update_flags[SLICE_MODEL1 + view][0] =
+            slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0] =
                                                                      TRUE;
             set_update_required( slice_window, get_model_bitplanes(
                       get_graphics_model(slice_window,SLICE_MODEL1+ view)) );
+if( view == 2 )
+print( "Setting just front viewport out of date.\n" );
         }
 
-        if( redraw_slice_to_new_subregion || slice_is_being_updated )
+        if( slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0] )
         {
+if( view == 2 )
+print( "Assigning prev sub region %d.\n", sub_region_specified );
             slice_window->slice.slice_views[view].prev_sub_region_specified =
-                  slice_window->slice.slice_views[view].sub_region_specified;
+                                                     sub_region_specified;
             slice_window->slice.slice_views[view].prev_x_min =
                             slice_window->slice.slice_views[view].x_min;
             slice_window->slice.slice_views[view].prev_x_max =
@@ -735,36 +756,26 @@ public  void  set_slice_composite_update(
     int              y_min,
     int              y_max )
 {
-    if( slice_window->slice.viewport_update_flags[SLICE_MODEL1+view_index][0] ||
-        slice_will_be_updated( slice_window, view_index ) ||
-        (x_min > x_max || y_min > y_max) )
+    if( slice_window->slice.slice_views[view_index].sub_region_specified )
     {
-        slice_window->slice.slice_views[view_index].update_composite_flag =
-                                            TRUE;
-        slice_window->slice.slice_views[view_index].sub_region_specified =
-                                            FALSE;
+        x_min = MIN( slice_window->slice.slice_views[view_index].x_min,
+                     x_min );
+        x_max = MAX( slice_window->slice.slice_views[view_index].x_max,
+                     x_max );
+        y_min = MIN( slice_window->slice.slice_views[view_index].y_min,
+                     y_min );
+        y_max = MAX( slice_window->slice.slice_views[view_index].y_max,
+                     y_max );
     }
-    else
-    {
-        if( slice_window->slice.slice_views[view_index].sub_region_specified )
-        {
-            x_min = MIN( slice_window->slice.slice_views[view_index].x_min,
-                         x_min );
-            x_max = MAX( slice_window->slice.slice_views[view_index].x_max,
-                         x_max );
-            y_min = MIN( slice_window->slice.slice_views[view_index].y_min,
-                         y_min );
-            y_max = MAX( slice_window->slice.slice_views[view_index].y_max,
-                         y_max );
-        }
+else
+print( "Setting update flag.\n" );
 
-        slice_window->slice.slice_views[view_index].sub_region_specified = TRUE;
+    slice_window->slice.slice_views[view_index].sub_region_specified = TRUE;
 
-        slice_window->slice.slice_views[view_index].x_min = x_min;
-        slice_window->slice.slice_views[view_index].x_max = x_max;
-        slice_window->slice.slice_views[view_index].y_min = y_min;
-        slice_window->slice.slice_views[view_index].y_max = y_max;
-    }
+    slice_window->slice.slice_views[view_index].x_min = x_min;
+    slice_window->slice.slice_views[view_index].x_max = x_max;
+    slice_window->slice.slice_views[view_index].y_min = y_min;
+    slice_window->slice.slice_views[view_index].y_max = y_max;
 }
 
 public  BOOLEAN  get_slice_subviewport(
