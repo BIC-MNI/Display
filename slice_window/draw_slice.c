@@ -33,6 +33,7 @@ public  void  initialize_slice_models(
     display_struct    *slice_window )
 {
     int            i;
+    Point          point;
     lines_struct   *lines;
     object_struct  *object;
     model_struct   *model;
@@ -45,19 +46,17 @@ public  void  initialize_slice_models(
 
     initialize_lines( lines, Slice_divider_colour );
 
-    ALLOC( lines->points, 4 );
-    ALLOC( lines->end_indices, 2 );
-    ALLOC( lines->indices, 4 );
+    fill_Point( point, 0.0, 0.0, 0.0 );
+    add_point_to_line( lines, &point );
+    add_point_to_line( lines, &point );
 
-    lines->n_points = 4;
-    lines->n_items = 2;
+    start_new_line( lines );
+    add_point_to_line( lines, &point );
+    add_point_to_line( lines, &point );
 
-    lines->end_indices[0] = 2;
-    lines->end_indices[1] = 4;
-    lines->indices[0] = 0;
-    lines->indices[1] = 1;
-    lines->indices[2] = 2;
-    lines->indices[3] = 3;
+    start_new_line( lines );
+    add_point_to_line( lines, &point );
+    add_point_to_line( lines, &point );
 
     add_object_to_model( model, object );
 
@@ -150,18 +149,33 @@ public  void  rebuild_slice_divider(
 {
     model_struct   *model;
     Point          *points;
+    int            left_panel_width, left_slice_width, right_slice_width;
+    int            bottom_slice_height, top_slice_height, text_panel_height;
+    int            colour_bar_height;
     int            x_size, y_size;
 
     model = get_graphics_model(slice_window,SLICE_MODEL);
     points = get_lines_ptr(model->objects[DIVIDER_INDEX])->points;
     G_get_window_size( slice_window->window, &x_size, &y_size );
 
-    fill_Point( points[0], (Real) slice_window->slice.x_split, 0.0, 0.0 );
-    fill_Point( points[1], (Real) slice_window->slice.x_split,
+    get_slice_window_partitions( slice_window,
+                                 &left_panel_width, &left_slice_width,
+                                 &right_slice_width,
+                                 &bottom_slice_height, &top_slice_height,
+                                 &text_panel_height, &colour_bar_height );
+
+    fill_Point( points[0], (Real) left_panel_width,               0.0, 0.0 );
+    fill_Point( points[1], (Real) left_panel_width, (Real) (y_size-1), 0.0 );
+
+    fill_Point( points[2], (Real) (left_panel_width + left_slice_width),
+                                         0.0, 0.0 );
+    fill_Point( points[3], (Real) (left_panel_width + left_slice_width),
                            (Real) (y_size-1), 0.0 );
-    fill_Point( points[2], 0.0, (Real) slice_window->slice.y_split, 0.0 );
-    fill_Point( points[3], (Real) (x_size-1),
-                           (Real) slice_window->slice.y_split, 0.0 );
+
+    fill_Point( points[4], (Real) left_panel_width, (Real) bottom_slice_height,
+                           0.0 );
+    fill_Point( points[5], (Real) (x_size-1),       (Real) bottom_slice_height,
+                           0.0 );
 }
 
 public  void  rebuild_probe(
@@ -181,7 +195,7 @@ public  void  rebuild_probe(
 
     active = get_voxel_in_slice_window( slice_window, voxel, &view_index );
 
-    get_slice_viewport( slice_window, -1, &x_min, &x_max, &y_min, &y_max );
+    get_text_display_viewport( slice_window, &x_min, &x_max, &y_min, &y_max );
 
     if( get_slice_window_volume( slice_window, &volume ) )
         get_volume_sizes( volume, sizes );
@@ -210,10 +224,9 @@ public  void  rebuild_probe(
 
     for_less( i, 0, N_READOUT_MODELS )
     {
-        x_pos = x_min + Probe_x_pos + (i - X_VOXEL_PROBE_INDEX)
-                                       * Probe_x_delta;
-        y_pos = y_max - Probe_y_pos - (i - X_VOXEL_PROBE_INDEX)
-                                       * Probe_y_delta;
+        x_pos = x_min + Probe_x_pos + (i - X_VOXEL_PROBE_INDEX) * Probe_x_delta;
+        y_pos = y_max - Probe_y_pos - (i - X_VOXEL_PROBE_INDEX) * Probe_y_delta
+                - (int) ((i - X_VOXEL_PROBE_INDEX) / 3) * Probe_y_pos;
 
         text = get_text_ptr( model->objects[i] );
 
@@ -306,10 +319,11 @@ public  void  rebuild_cursor(
     int               view_index )
 {
     model_struct   *model;
-    int            c, x_left, y_left, x_right, y_right;
-    int            x_bottom, y_bottom, x_top, y_top;
-    int            x_centre, y_centre, dx, dy;
-    int            hor_dx, hor_dy, vert_dx, vert_dy, len_hor, len_vert;
+    int            c;
+    Real           x_left, y_left, x_right, y_right;
+    Real           x_bottom, y_bottom, x_top, y_top;
+    Real           x_centre, y_centre, dx, dy;
+    Real           hor_dx, hor_dy, vert_dx, vert_dy, len_hor, len_vert;
     lines_struct   *lines;
     Real           current_voxel[N_DIMENSIONS];
     int            x_min, x_max, y_min, y_max;

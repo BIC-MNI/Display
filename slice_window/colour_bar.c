@@ -98,7 +98,7 @@ public  void  rebuild_colour_bar(
 
     colour_bar = &slice_window->slice.colour_bar;
 
-    get_slice_viewport( slice_window, -1,  &x_min, &x_max, &y_min, &y_max );
+    get_colour_bar_viewport( slice_window, &x_min, &x_max, &y_min, &y_max );
 
     (void) get_slice_window_volume( slice_window, &volume );
 
@@ -290,7 +290,7 @@ public  BOOLEAN  mouse_within_colour_bar(
 
     colour_bar = &slice_window->slice.colour_bar;
 
-    get_slice_viewport( slice_window, -1, &x_min, &x_max, &y_min, &y_max );
+    get_colour_bar_viewport( slice_window, &x_min, &x_max, &y_min, &y_max );
 
     bottom = (Real) y_min + colour_bar->bottom_offset;
     top = (Real) y_max - colour_bar->top_offset;

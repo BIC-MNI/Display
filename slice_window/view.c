@@ -21,6 +21,9 @@ public  void  initialize_slice_window_view(
     slice_window->slice.slice_views[2].axis_map[1]  = Slice_view3_axis2;
     slice_window->slice.slice_views[2].axis_map[2]  = Slice_view3_axis3;
 
+    slice_window->slice.x_split = Slice_divider_x_position;
+    slice_window->slice.y_split = Slice_divider_y_position;
+
     if( get_slice_window_volume( slice_window, &volume ) )
     {
         get_volume_sizes( volume, size );
@@ -225,8 +228,8 @@ public  void  convert_voxel_to_pixel(
     display_struct    *display,
     int               view_index,
     Real              voxel[],
-    int               *x_pixel,
-    int               *y_pixel )
+    Real              *x_pixel,
+    Real              *y_pixel )
 {
     Volume            volume;
     display_struct    *slice_window;
@@ -250,8 +253,8 @@ public  void  convert_voxel_to_pixel(
         get_slice_viewport( display, view_index,
                             &x_min, &x_max, &y_min, &y_max );
 
-        *x_pixel = ROUND( x_real_pixel ) + x_min;
-        *y_pixel = ROUND( y_real_pixel ) + y_min;
+        *x_pixel = x_real_pixel + (Real) x_min;
+        *y_pixel = y_real_pixel + (Real) y_min;
     }
     else
     {
@@ -281,47 +284,128 @@ public  BOOLEAN  get_voxel_corresponding_to_point(
     return( converted );
 }
 
+public  void   get_slice_window_partitions(
+    display_struct    *slice_window,
+    int               *left_panel_width,
+    int               *left_slice_width,
+    int               *right_slice_width,
+    int               *bottom_slice_height,
+    int               *top_slice_height,
+    int               *text_panel_height,
+    int               *colour_bar_panel_height )
+{
+    int     x_size, y_size;
+
+    G_get_window_size( slice_window->window, &x_size, &y_size );
+
+    *left_panel_width = Left_panel_width;
+    *text_panel_height = Text_panel_height;
+    *colour_bar_panel_height = y_size - *text_panel_height;
+    *left_slice_width = ROUND( slice_window->slice.x_split *
+                               (x_size - *left_panel_width) );
+    *right_slice_width = x_size - *left_panel_width - *left_slice_width;
+    *bottom_slice_height = ROUND( slice_window->slice.y_split * y_size );
+    *top_slice_height = y_size - *bottom_slice_height;
+}
+
 public  void  get_slice_viewport(
-    display_struct    *display,
+    display_struct    *slice_window,
     int               view_index,
     int               *x_min,
     int               *x_max,
     int               *y_min,
     int               *y_max )
 {
-    int  x_size, y_size;
+    int  left_panel_width, left_slice_width, right_slice_width;
+    int  bottom_slice_height, top_slice_height, text_panel_height;
+    int  colour_bar_panel_height;
 
-    G_get_window_size( display->window, &x_size, &y_size );
+    get_slice_window_partitions( slice_window,
+                                 &left_panel_width, &left_slice_width,
+                                 &right_slice_width,
+                                 &bottom_slice_height, &top_slice_height,
+                                 &text_panel_height, &colour_bar_panel_height );
+
 
     switch( view_index )
     {
     case 0:
-        *x_min = Slice_divider_left;
-        *x_max = display->slice.x_split-1-Slice_divider_right;
-        *y_min = display->slice.y_split+1+Slice_divider_bottom;
-        *y_max = y_size-Slice_divider_top;
+        *x_min = left_panel_width + Slice_divider_left;
+        *x_max = left_panel_width + left_slice_width - 1 - Slice_divider_right;
+        *y_min = bottom_slice_height + Slice_divider_bottom;
+        *y_max = bottom_slice_height + top_slice_height - 1 - Slice_divider_top;
         break;
 
     case 1:
-        *x_min = display->slice.x_split+1+Slice_divider_left;
-        *x_max = x_size-Slice_divider_right;
-        *y_min = display->slice.y_split+1+Slice_divider_bottom;
-        *y_max = y_size-Slice_divider_top;
+        *x_min = left_panel_width + left_slice_width + Slice_divider_left;
+        *x_max = left_panel_width + left_slice_width + right_slice_width -
+                 Slice_divider_right;
+        *y_min = bottom_slice_height + Slice_divider_bottom;
+        *y_max = bottom_slice_height + top_slice_height - 1 - Slice_divider_top;
         break;
 
     case 2:
-        *x_min = Slice_divider_left;
-        *x_max = display->slice.x_split-1-Slice_divider_right;
+        *x_min = left_panel_width + Slice_divider_left;
+        *x_max = left_panel_width + left_slice_width - 1 - Slice_divider_right;
         *y_min = Slice_divider_bottom;
-        *y_max = display->slice.y_split-1-Slice_divider_top;
+        *y_max = bottom_slice_height - 1 - Slice_divider_top;
         break;
 
-    default:
-        *x_min = display->slice.x_split+1+Slice_divider_left;
-        *x_max = x_size-Slice_divider_right;
+    case 3:
+        *x_min = left_panel_width + left_slice_width + Slice_divider_left;
+        *x_max = left_panel_width + left_slice_width + right_slice_width -
+                 Slice_divider_right;
         *y_min = Slice_divider_bottom;
-        *y_max = display->slice.y_split-1-Slice_divider_top;
+        *y_max = bottom_slice_height - 1 - Slice_divider_top;
+        break;
     }
+}
+
+public  void  get_colour_bar_viewport(
+    display_struct    *slice_window,
+    int               *x_min,
+    int               *x_max,
+    int               *y_min,
+    int               *y_max )
+{
+    int  left_panel_width, left_slice_width, right_slice_width;
+    int  bottom_slice_height, top_slice_height, text_panel_height;
+    int  colour_bar_panel_height;
+
+    get_slice_window_partitions( slice_window,
+                                 &left_panel_width, &left_slice_width,
+                                 &right_slice_width,
+                                 &bottom_slice_height, &top_slice_height,
+                                 &text_panel_height, &colour_bar_panel_height );
+
+    *x_min = 0;
+    *x_max = left_panel_width-1;
+    *y_min = text_panel_height + Slice_divider_bottom;
+    *y_max = text_panel_height + colour_bar_panel_height - 1 -
+             Slice_divider_top;
+}
+
+public  void  get_text_display_viewport(
+    display_struct    *slice_window,
+    int               *x_min,
+    int               *x_max,
+    int               *y_min,
+    int               *y_max )
+{
+    int  left_panel_width, left_slice_width, right_slice_width;
+    int  bottom_slice_height, top_slice_height, text_panel_height;
+    int  colour_bar_panel_height;
+
+    get_slice_window_partitions( slice_window,
+                                 &left_panel_width, &left_slice_width,
+                                 &right_slice_width,
+                                 &bottom_slice_height, &top_slice_height,
+                                 &text_panel_height, &colour_bar_panel_height );
+
+    *x_min = 0;
+    *x_max = left_panel_width-1;
+    *y_min = Slice_divider_bottom;
+    *y_max = text_panel_height - 1 - Slice_divider_top;
 }
 
 public  BOOLEAN  get_voxel_in_slice_window(

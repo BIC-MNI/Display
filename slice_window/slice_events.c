@@ -427,12 +427,14 @@ private  DEF_EVENT_FUNCTION( update_translation )      /* ARGSUSED */
 private  void  update_window_size(
     display_struct    *slice_window )
 {
+#ifdef OLD   /* ------------------- */
     int   x_size, y_size;
 
     G_get_window_size( slice_window->window, &x_size, &y_size );
 
     slice_window->slice.x_split = x_size * Slice_divider_x_position;
     slice_window->slice.y_split = y_size * Slice_divider_y_position;
+#endif  /* ------------------- */
 }
 
 private  DEF_EVENT_FUNCTION( update_probe )     /* ARGSUSED */

@@ -167,14 +167,17 @@ private  void  paint_labels_at_point(
     int              y )
 {
     Volume   volume, label_volume;
-    int      label, axis, value, c, sizes[N_DIMENSIONS];
-    Real     delta, dx2, dy2, dz2;
+    int      label, value, c, sizes[N_DIMENSIONS], n_zero, which_zero;
+    Real     len_x_axis, len_y_axis, len_z_axis;
     int      min_voxel[N_DIMENSIONS], max_voxel[N_DIMENSIONS];
-    Real     min_limit, max_limit;
-    Real     one_over_r2[N_DIMENSIONS], radius[N_DIMENSIONS];
-    Real     voxel[N_DIMENSIONS], separations[MAX_DIMENSIONS];
+    Real     min_limit, max_limit, ellipse[N_DIMENSIONS];
+    Real     radius[N_DIMENSIONS];
+    Real     voxel[N_DIMENSIONS], separations[N_DIMENSIONS];
+    Real     origin[N_DIMENSIONS], z_axis[N_DIMENSIONS];
+    Real     x_axis[N_DIMENSIONS], y_axis[N_DIMENSIONS];
+    Real     delta[N_DIMENSIONS];
     int      ind[N_DIMENSIONS];
-    int      x_index, y_index, view_index;
+    int      view_index;
     BOOLEAN  update_required;
 
     if( get_slice_window_volume( slice_window, &volume ) &&
@@ -184,57 +187,116 @@ private  void  paint_labels_at_point(
 
         update_required = FALSE;
 
-        get_slice_axes( slice_window, view_index, &x_index, &y_index, &axis );
+        get_slice_plane( slice_window, view_index, origin, x_axis, y_axis );
+        get_slice_perp_axis( slice_window, view_index, z_axis );
 
-        radius[x_index] = slice_window->slice.x_brush_radius;
-        radius[y_index] = slice_window->slice.y_brush_radius;
-        radius[axis] = slice_window->slice.z_brush_radius;
+        radius[X] = slice_window->slice.x_brush_radius;
+        radius[Y] = slice_window->slice.y_brush_radius;
+        radius[Z] = slice_window->slice.z_brush_radius;
+
+        n_zero = 0;
+        for_less( c, 0, N_DIMENSIONS )
+        {
+            if( radius[c] == 0.0 )
+            {
+                which_zero = c;
+                ++n_zero;
+            }
+        }
+
+        if( n_zero > 1 )
+            return;
+
+        if( n_zero == 1 )
+            radius[which_zero] = 1.0;
 
         get_volume_separations( volume, separations );
         get_volume_sizes( volume, sizes );
 
+        len_x_axis = 0.0;
+        len_y_axis = 0.0;
+        len_z_axis = 0.0;
         for_less( c, 0, N_DIMENSIONS )
         {
-            if( radius[c] <= 0.0 )
-            {
-                min_voxel[c] = ROUND( voxel[c] );
-                max_voxel[c] = min_voxel[c];
-                one_over_r2[c] = 0.0;
-            }
-            else
-            {
-                min_limit = voxel[c] - radius[c] / separations[c];
-                max_limit = voxel[c] + radius[c] / separations[c];
-                min_voxel[c] = CEILING( min_limit );
-                if( min_voxel[c] < 0 )
-                    min_voxel[c] = 0;
-                max_voxel[c] = (int) max_limit;
-                if( max_voxel[c] >= sizes[c] )
-                    max_voxel[c] = sizes[c] - 1;
-                one_over_r2[c] = separations[c] * separations[c] /
-                                 radius[c] / radius[c];
-            }
+            x_axis[c] /= separations[c];
+            y_axis[c] /= separations[c];
+            z_axis[c] /= separations[c];
+
+            len_x_axis += x_axis[c] * x_axis[c];
+            len_y_axis += y_axis[c] * y_axis[c];
+            len_z_axis += z_axis[c] * z_axis[c];
+        }
+
+        if( len_x_axis == 0.0 )
+            len_x_axis = 1.0;
+        else
+            len_x_axis = sqrt( len_x_axis );
+
+        if( len_y_axis == 0.0 )
+            len_y_axis = 1.0;
+        else
+            len_y_axis = sqrt( len_y_axis );
+
+        if( len_z_axis == 0.0 )
+            len_z_axis = 1.0;
+        else
+            len_z_axis = sqrt( len_z_axis );
+
+        for_less( c, 0, N_DIMENSIONS )
+        {
+            x_axis[c] /= len_x_axis;
+            y_axis[c] /= len_y_axis;
+            z_axis[c] /= len_z_axis;
+        }
+
+        for_less( c, 0, N_DIMENSIONS )
+        {
+            min_limit = voxel[c] -
+                        radius[X] * ABS( x_axis[c] ) -
+                        radius[Y] * ABS( y_axis[c] ) -
+                        radius[Z] * ABS( z_axis[c] );
+            max_limit = voxel[c] +
+                        radius[X] * ABS( x_axis[c] ) +
+                        radius[Y] * ABS( y_axis[c] ) +
+                        radius[Z] * ABS( z_axis[c] );
+            min_voxel[c] = FLOOR( min_limit );
+            if( min_voxel[c] < 0 )
+                min_voxel[c] = 0;
+            max_voxel[c] = CEILING( max_limit );
+            if( max_voxel[c] >= sizes[c] )
+                max_voxel[c] = sizes[c] - 1;
         }
 
         label = get_current_paint_label( slice_window );
 
         for_inclusive( ind[X], min_voxel[X], max_voxel[X] )
         {
-            delta = (Real) ind[X] - voxel[X];
-            dx2 = delta * delta * one_over_r2[X];
-
+            delta[X] = (Real) ind[X] - voxel[X];
             for_inclusive( ind[Y], min_voxel[Y], max_voxel[Y] )
             {
-                delta = (Real) ind[Y] - voxel[Y];
-                dy2 = delta * delta * one_over_r2[Y];
-
+                delta[Y] = (Real) ind[Y] - voxel[Y];
                 for_inclusive( ind[Z], min_voxel[Z], max_voxel[Z] )
                 {
-                    delta = (Real) ind[Z] - voxel[Z];
-                    dz2 = delta * delta * one_over_r2[Z];
+                    delta[Z] = (Real) ind[Z] - voxel[Z];
 
-                    if( dx2 + dy2 + dz2 <= 1.0 &&
-                        int_voxel_is_within_volume( volume, ind ) )
+                    ellipse[X] = 0.0;
+                    ellipse[Y] = 0.0;
+                    ellipse[Z] = 0.0;
+                    for_less( c, 0, N_DIMENSIONS )
+                    {
+                        if( radius[X] > 0.0 )
+                            ellipse[X] += delta[c] * x_axis[c] / radius[X];
+                        if( radius[Y] > 0.0 )
+                            ellipse[Y] += delta[c] * y_axis[c] / radius[Y];
+                        if( radius[Z] > 0.0 )
+                            ellipse[Z] += delta[c] * z_axis[c] / radius[Z];
+                    }
+
+                    if( n_zero == 1 && ABS( ellipse[which_zero] ) > 0.5 )
+                        continue;
+
+                    if( ellipse[X] * ellipse[X] + ellipse[Y] * ellipse[Y] +
+                        ellipse[Z] * ellipse[Z] <= 1.0 )
                     {
                         value = get_volume_label_data( label_volume, ind );
                         if( value != label )
@@ -446,9 +508,9 @@ private  void   update_brush(
     if( get_slice_window_volume( slice_window, &volume ) &&
         slice_window->slice.x_brush_radius > 0.0 &&
         slice_window->slice.y_brush_radius > 0.0 &&
-        get_brush_voxel_centre( slice_window, x, y, voxel, &view ) )
+        get_brush_voxel_centre( slice_window, x, y, voxel, &view ) &&
+        slice_has_ortho_axes( slice_window, view, &a1, &a2, &axis ) )
     {
-        get_slice_axes( slice_window, view, &a1, &a2, &axis );
         get_volume_separations( volume, separations );
 
         radius[a1] = slice_window->slice.x_brush_radius;

@@ -64,7 +64,7 @@ typedef  struct
     colour_bar_struct      colour_bar;
     BOOLEAN                display_labels;
 
-    int                    x_split, y_split;
+    Real                   x_split, y_split;
 
     Real                   slice_index[N_DIMENSIONS];
     slice_view_struct      slice_views[3];
