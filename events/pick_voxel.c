@@ -77,7 +77,7 @@ private  void  update_voxel_cursor( slice_window )
 
     graphics = slice_window->associated[THREE_D_WINDOW];
 
-    get_mouse_in_pixels( slice_window, &slice_window->mouse_position, &x, &y );
+    get_mouse_in_pixels( slice_window, &x, &y );
 
     if( convert_pixel_to_voxel( slice_window, x, y, &i, &j, &k ) )
     {
@@ -90,17 +90,6 @@ private  void  update_voxel_cursor( slice_window )
             update_cursor( graphics );
 
             graphics->update_required = TRUE;
-        }
-
-        if( i != slice_window->slice.slice_views[X_AXIS].slice_index ||
-            j != slice_window->slice.slice_views[Y_AXIS].slice_index ||
-            k != slice_window->slice.slice_views[Z_AXIS].slice_index )
-        {
-            slice_window->slice.slice_views[X_AXIS].slice_index = i;
-            slice_window->slice.slice_views[Y_AXIS].slice_index = j;
-            slice_window->slice.slice_views[Z_AXIS].slice_index = k;
-
-            slice_window->update_required = TRUE;
         }
     }
 }

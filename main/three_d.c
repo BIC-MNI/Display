@@ -19,7 +19,6 @@ public  Status  initialize_three_d_window( graphics )
     void                   initialize_three_d_events();
     Status                 status;
     Status                 initialize_current_object();
-    Status                 initialize_surface_extraction();
     Status                 initialize_cursor();
     void                   reset_view_parameters();
     three_d_window_struct  *three_d;
@@ -53,12 +52,7 @@ public  Status  initialize_three_d_window( graphics )
 
     update_view( graphics );
 
-    status = initialize_surface_extraction( graphics );
-
-    if( status == OK )
-    {
-        status = initialize_current_object( &graphics->three_d.current_object );
-    }
+    status = initialize_current_object( &graphics->three_d.current_object );
 
     if( status == OK )
     {
@@ -96,19 +90,13 @@ private  DEF_EVENT_FUNCTION( handle_resize_three_d )
     return( OK );
 }
 
-public  Status  delete_three_d( graphics )
-    graphics_struct  *graphics;
+public  Status  delete_three_d( three_d )
+    three_d_window_struct  *three_d;
 {
     Status    status;
     Status    terminate_current_object();
-    Status    delete_surface_extraction();
 
-    status = terminate_current_object( &graphics->three_d.current_object );
-
-    if( status == OK )
-    {
-        status = delete_surface_extraction( graphics );
-    }
+    status = terminate_current_object( &three_d->current_object );
 
     return( status );
 }
