@@ -143,6 +143,8 @@ private  DEF_EVENT_FUNCTION( end_picking_voxel )     /* ARGSUSED */
                                   handle_update_voxel );
 
     update_voxel_cursor( display );
+
+    return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( handle_update_voxel )     /* ARGSUSED */
@@ -381,14 +383,13 @@ private  void  update_limit(
 {
     Real                  range, min_value, max_value, value;
     Real                  volume_min, volume_max;
-    volume_struct         *volume;
+    Volume                volume;
     colour_coding_struct  *colour_coding;
 
     if( get_mouse_colour_bar_value( slice_window, &value ) &&
         get_slice_window_volume( slice_window, &volume ) )
     {
-        volume_min = volume->min_value;
-        volume_max = volume->max_value;
+        get_volume_voxel_range( volume, &volume_min, &volume_max );
 
         colour_coding = &slice_window->slice.colour_coding;
         min_value = colour_coding->min_value;
@@ -453,8 +454,8 @@ private  Boolean  get_mouse_colour_bar_value(
     Real             *value )
 {
     int                   x, y;
-    Real                  ratio;
-    volume_struct         *volume;
+    Real                  ratio, min_value, max_value;
+    Volume                volume;
     Boolean               found;
 
     found = FALSE;
@@ -463,7 +464,8 @@ private  Boolean  get_mouse_colour_bar_value(
         mouse_within_colour_bar( slice_window, (Real) x, (Real) y, &ratio ) &&
         get_slice_window_volume( slice_window, &volume ) )
     {
-        *value = INTERPOLATE( ratio, volume->min_value, volume->max_value );
+        get_volume_voxel_range( volume, &min_value, &max_value );
+        *value = INTERPOLATE( ratio, min_value, max_value );
 
         *value = (Real) ROUND( *value );
 
