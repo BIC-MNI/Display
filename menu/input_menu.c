@@ -64,8 +64,7 @@ MENU_F(pick_view_rectangle) \
 MENU_F(toggle_object_visibility) \
 MENU_F(cut_object) \
 MENU_F(paste_object) \
-MENU_F(set_surface_valid_range) \
-MENU_F(set_surface_valid_out_range) \
+MENU_F(set_surface_invalid_label_range) \
 MENU_F(start_volume_isosurface) \
 MENU_F(start_volume_binary_isosurface) \
 MENU_F(start_label_binary_isosurface) \
