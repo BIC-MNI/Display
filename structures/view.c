@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/view.c,v 1.27 1995-07-31 19:54:30 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/view.c,v 1.28 1995-08-11 18:11:27 david Exp $";
 #endif
 
 #include <display.h>
@@ -305,10 +305,10 @@ public  void  set_model_scale(
     view->scale_factors[Z] = sz;
 }
 
-public  void  convert_mouse_to_ray(
+public  void  convert_screen_to_ray(
     view_struct   *view,
-    Real          x_mouse,
-    Real          y_mouse,
+    Real          x_screen,
+    Real          y_screen,
     Point         *origin,
     Vector        *direction )
 {
@@ -318,8 +318,8 @@ public  void  convert_mouse_to_ray(
 
     get_screen_axes( view, &hor, &vert );
 
-    SCALE_VECTOR( x_offset, hor, x_mouse - 0.5 );
-    SCALE_VECTOR( y_offset, vert, y_mouse - 0.5 );
+    SCALE_VECTOR( x_offset, hor, x_screen - 0.5 );
+    SCALE_VECTOR( y_offset, vert, y_screen - 0.5 );
 
     if( view->perspective_flag )
     {
