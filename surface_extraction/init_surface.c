@@ -62,10 +62,9 @@ private  Status  clear_surface_extraction( graphics )
     {
         initialize_voxel_queue( &surface_extraction->voxels_to_do );
 
-        empty_polygons_struct( surface_extraction->polygons );
-
-        surface_extraction->polygons->colour = Extracted_surface_colour;
-        surface_extraction->polygons->surfprop = Default_surface_property;
+        empty_polygons_struct( surface_extraction->polygons,
+                               &Extracted_surface_colour,
+                               &Default_surface_property );
 
         clear_voxel_flags( &surface_extraction->voxels_queued );
 
@@ -161,18 +160,6 @@ public  void  check_if_isosurface_value_set( surface_extraction )
     {
         set_isosurface_value( surface_extraction );
     }
-}
-
-public  Boolean  get_isosurface_value( graphics, value )
-    graphics_struct    *graphics;
-    Real               *value;
-{
-    if( graphics->three_d.surface_extraction.isovalue_selected )
-    {
-        *value = graphics->three_d.surface_extraction.isovalue;
-    }
-
-    return( graphics->three_d.surface_extraction.isovalue_selected );
 }
 
 public  void  start_surface_extraction( graphics )
