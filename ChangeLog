@@ -1,3 +1,7 @@
+2001-07-25  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
+
+	* Makefile.am (CLEANFILES): Clean Display.menu.
+
 2001-07-24  Steve M. Robbins  <steve@nyongwa.montreal.qc.ca>
 
 	* autogen.sh: Improved ordering; stop on error; use "aclocal -I m4".

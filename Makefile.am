@@ -46,7 +46,7 @@ Display_SOURCES = dummy.c
 dummy.c:
 	touch $@
 
-CLEANFILES = dummy.c
+CLEANFILES = dummy.c Display.menu
 
 Display_LDFLAGS = $(X_LIBS)
 Display_LDADD = $(display_obj) \
