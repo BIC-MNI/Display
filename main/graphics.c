@@ -279,6 +279,13 @@ private  Status  initialize_graphics_window( graphics )
             (void) strcpy( model->filename, "Top Level" );
 
             initialize_render( &model->render );
+
+            if( graphics->window_type == THREE_D_WINDOW &&
+                i == THREED_MODEL )
+            {
+                model->render.render_lines_as_curves = Initial_line_curves_flag;
+            }
+
             make_identity_transform( &model->transform );
         }
     }
@@ -311,6 +318,12 @@ public  void  set_update_required( graphics, which_bitplanes )
     Bitplane_types   which_bitplanes;
 {
     graphics->update_required[which_bitplanes] = TRUE;
+}
+
+public  Boolean  graphics_normal_planes_update_required( graphics )
+    graphics_struct   *graphics;
+{
+    return( graphics->update_required[NORMAL_PLANES] );
 }
 
 public  Boolean  graphics_update_required( graphics )

@@ -52,7 +52,7 @@ private  void  update_all_required_windows()
 
     for_less( i, 0, n_windows )
     {
-        if( graphics_update_required( windows[i] ) )
+        if( graphics_normal_planes_update_required( windows[i] ) )
         {
             windows[i]->update_interrupted.last_was_interrupted = FALSE;
         }

@@ -113,6 +113,7 @@ private  void  display_objects_recursive( window, bitplanes,
 
                 case LINES:
                     G_draw_lines( window, object_list[i]->ptr.lines,
+                                  render,
                                   interrupt, object_is_continuing );
                     break;
 
