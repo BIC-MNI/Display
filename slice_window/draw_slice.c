@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.95 1995-08-28 14:22:12 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.96 1995-08-30 15:27:34 david Exp $";
 #endif
 
 #include  <display.h>
@@ -974,7 +974,7 @@ private  void  render_slice_to_pixels(
     int                   continuity,
     pixels_struct         *pixels )
 {
-    int                   n_alloced;
+    int                   n_alloced, x_centre, y_centre, x, y;
     int                   x_sub_min, x_sub_max, y_sub_min, y_sub_max;
     Real                  x_trans, y_trans, x_scale, y_scale;
     Real                  origin[MAX_DIMENSIONS];
@@ -1009,7 +1009,8 @@ private  void  render_slice_to_pixels(
         colour_map = &colour_table;
 
     n_alloced = 0;
-    create_volume_slice(
+
+    set_volume_slice_pixel_range(
                     volume, filter_type,
                     slice_window->slice.volumes[volume_index].views[view_index]
                                                         .filter_width,
@@ -1019,11 +1020,41 @@ private  void  render_slice_to_pixels(
                     (Real *) 0, (Real *) 0, (Real *) 0,
                     0.0, 0.0, 0.0, 0.0,
                     x_sub_max - x_sub_min + 1, y_sub_max - y_sub_min + 1,
+                    RGB_PIXEL,
+                    &n_alloced, pixels );
+
+    x_centre = pixels->x_size / 2;
+    y_centre = pixels->y_size / 2;
+
+    for_less( x, 0, pixels->x_size )
+        PIXEL_RGB_COLOUR( *pixels, x, y_centre ) = 0;
+
+    for_less( y, 0, pixels->y_size )
+        PIXEL_RGB_COLOUR( *pixels, x_centre, y ) = 0;
+
+    for_less( x, 0, 2 )
+    for_less( y, 0, 2 )
+    {
+        create_volume_slice(
+                    volume, filter_type,
+                    slice_window->slice.volumes[volume_index].views[view_index]
+                                                        .filter_width,
+                    origin, x_axis, y_axis,
+                    x_trans, y_trans, x_scale, y_scale,
+                    (Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
+                    (Real *) 0, (Real *) 0, (Real *) 0,
+                    0.0, 0.0, 0.0, 0.0,
+                    x_sub_max - x_sub_min + 1, y_sub_max - y_sub_min + 1,
+                    (x == 0) ? 0 : x_centre + 1,
+                    (x == 0) ? x_centre-1 : pixels->x_size-1,
+                    (y == 0) ? 0 : y_centre + 1,
+                    (y == 0) ? y_centre-1 : pixels->y_size-1,
                     RGB_PIXEL, continuity,
                     (unsigned short **) NULL, colour_map,
                     make_rgba_Colour( 0, 0, 0, 0 ),
                     slice_window->slice.render_storage,
                     &n_alloced, pixels );
+    }
 
     pixels->x_position += x_sub_min;
     pixels->y_position += y_sub_min;

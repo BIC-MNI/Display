@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.92 1995-08-29 22:10:33 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.93 1995-08-30 15:27:13 david Exp $";
 #endif
 
 
@@ -727,6 +727,11 @@ private  void  render_more_slices(
                 rebuild_slice_pixels_for_volume( slice_window, v, view,
                                                  interrupted );
             }
+            else
+            {
+                slice_window->slice.volumes[v].views[view].update_in_progress =
+                                     FALSE;
+            }
 
             slice_window->slice.volumes[v].views[view].update_flag = FALSE;
 
@@ -744,6 +749,11 @@ private  void  render_more_slices(
 
                 rebuild_label_slice_pixels_for_volume( slice_window, v, view,
                                                        interrupted );
+            }
+            else
+            {
+                slice_window->slice.volumes[v].views[view].
+                                          labels_update_in_progress = FALSE;
             }
 
             slice_window->slice.volumes[v].views[view].update_labels_flag =
