@@ -14,43 +14,32 @@ public  Status  intersect_plane_with_polygons( graphics, plane_normal,
     int               *n_indices_alloced;
     int               *n_end_indices_alloced;
 {
-    Status         status;
-    int            i;
-    int            model_index;
-    Status         intersect_plane_polygons();
-    object_struct  *object;
+    Status                   status;
+    Status                   intersect_plane_polygons();
+    object_struct            *object;
+    Status                   initialize_object_traverse();
+    object_traverse_struct   object_traverse;
 
     status = OK;
 
     lines->n_items = 0;
     lines->n_points = 0;
 
-    for_less( model_index, 0, N_MODELS )
+    status = initialize_object_traverse( &object_traverse, N_MODELS,
+                                         graphics->models );
+
+    while( status == OK && get_next_object_traverse(&object_traverse,&object) )
     {
-        for_less( i, 0, graphics->models[model_index]->ptr.model->n_objects )
+        if( object->object_type == POLYGONS && object->visibility )
         {
-            object = graphics->models[model_index]->ptr.model->object_list[i];
-
-            BEGIN_TRAVERSE_OBJECT( status, object )
-
-                if( OBJECT->object_type == POLYGONS && OBJECT->visibility )
-                {
-                    status = intersect_plane_polygons( plane_normal,
-                                              plane_constant,
-                                              OBJECT->ptr.polygons,
-                                              lines,
-                                              n_points_alloced,
-                                              n_indices_alloced,
-                                              n_end_indices_alloced );
-
-                    if( status != OK ) break;
-                }
-
-            END_TRAVERSE_OBJECT
-
-            if( status != OK ) break;
+            status = intersect_plane_polygons( plane_normal,
+                                               plane_constant,
+                                               object->ptr.polygons,
+                                               lines,
+                                               n_points_alloced,
+                                               n_indices_alloced,
+                                               n_end_indices_alloced );
         }
-        if( status != OK ) break;
     }
 
     return( status );
