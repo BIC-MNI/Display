@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char atlas_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/atlas.h,v 1.7 1996-04-19 13:24:50 david Exp $";
+static char atlas_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/atlas.h,v 1.8 1996-07-04 13:55:56 david Exp $";
 #endif
 
 #include   <volume_io.h>
@@ -25,9 +25,8 @@ typedef  struct
 {
     int             axis;
     Real            axis_position;
-    int             n_resolutions;
-    int             *pixel_map_indices;
-} atlas_position_struct;
+    Volume          image;
+} atlas_image_struct;
 
 typedef  struct
 {
@@ -38,15 +37,8 @@ typedef  struct
     Real                   slice_tolerance[N_DIMENSIONS];
     BOOLEAN                flipped[3];
 
-    int                    n_pixel_maps;
-    pixels_struct          *pixel_maps;
-
-    int                    n_pages;
-    atlas_position_struct  *pages;
-
-    atlas_position_struct  **slice_lookup[N_DIMENSIONS];
+    int                    n_images;
+    atlas_image_struct     *images;
 } atlas_struct;
-
-
 
 #endif

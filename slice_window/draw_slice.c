@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.109 1996-07-02 12:56:19 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.110 1996-07-04 13:56:02 david Exp $";
 #endif
 
 #include  <display.h>
@@ -1422,12 +1422,15 @@ public  void  rebuild_atlas_slice_pixels(
     object_struct  *pixels_object;
     pixels_struct  *pixels, *volume_pixels;
     Volume         volume;
-    Real           v1[N_DIMENSIONS], v2[N_DIMENSIONS], dx, dy;
+    Real           v1[N_DIMENSIONS], v2[N_DIMENSIONS];
     int            sizes[N_DIMENSIONS];
     int            x_index, y_index, axis_index, volume_index;
     Real           x_trans, y_trans, x_scale, y_scale;
     Real           origin[MAX_DIMENSIONS];
     Real           x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
+    Real           world_origin[MAX_DIMENSIONS];
+    Real           world_x_axis[MAX_DIMENSIONS], world_y_axis[MAX_DIMENSIONS];
+    Real           x1, y1, z1, x2, y2, z2;
 
     pixels_object = get_atlas_slice_pixels_object( slice_window, view_index );
     pixels = get_pixels_ptr( pixels_object );
@@ -1480,7 +1483,16 @@ public  void  rebuild_atlas_slice_pixels(
                         origin, x_axis, y_axis,
                         x_trans, y_trans, x_scale, y_scale, v2 );
 
-        dx = v2[x_index] - v1[x_index];
+        convert_voxel_to_world( volume, v1, &x1, &y1, &z1 );
+        convert_voxel_to_world( volume, v2, &x2, &y2, &z2 );
+
+        world_origin[X] = x1;
+        world_origin[Y] = y1;
+        world_origin[Z] = z1;
+
+        world_x_axis[X] = x2 - x1;
+        world_x_axis[Y] = y2 - y1;
+        world_x_axis[Z] = z2 - z1;
 
         (void) convert_slice_pixel_to_voxel( volume,
                         (Real) volume_pixels->x_position,
@@ -1488,15 +1500,18 @@ public  void  rebuild_atlas_slice_pixels(
                         origin, x_axis, y_axis,
                         x_trans, y_trans, x_scale, y_scale, v2 );
 
-        dy = v2[y_index] - v1[y_index];
+        convert_voxel_to_world( volume, v2, &x2, &y2, &z2 );
+
+        world_y_axis[X] = x2 - x1;
+        world_y_axis[Y] = y2 - y1;
+        world_y_axis[Z] = z2 - z1;
 
         get_volume_sizes( volume, sizes );
 
         visible = render_atlas_slice_to_pixels( &slice_window->slice.atlas,
                         pixels->data.pixels_rgb,
                         pixels->x_size, pixels->y_size,
-                        v1, x_index, y_index, axis_index,
-                        dx, dy, sizes[x_index], sizes[y_index] );
+                        world_origin, world_x_axis, world_y_axis );
     }
     else
         visible = FALSE;

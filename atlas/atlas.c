@@ -14,7 +14,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.22 1996-07-04 13:12:47 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.23 1996-07-04 13:55:48 david Exp $";
 #endif
 
 #include  <display.h>
@@ -65,29 +65,28 @@ private  Volume  convert_pixels_to_volume(
     Real           slice_position,
     pixels_struct  *pixels )
 {
-    int      x, y, sizes[N_DIMENSIONS];
+    int      x, y, sizes[2];
     int      ind, dim, x_index, y_index;
-    STRING   dim_names[N_DIMENSIONS];
-    int      dim_orders[N_DIMENSIONS][N_DIMENSIONS] = {
-                                                         { X, Y, Z },
-                                                         { Y, X, Z },
-                                                         { Z, X, Y }
+    STRING   dim_names[2];
+    int      dim_orders[N_DIMENSIONS][2] = {
+                                                         { Y, Z },
+                                                         { X, Z },
+                                                         { X, Y }
                                                       };
     Volume   volume;
-    Real     separations[N_DIMENSIONS];
-    Real     bottom_left[N_DIMENSIONS];
+    Real     separations[2];
+    Real     bottom_left[2];
     Real     world_corner[N_DIMENSIONS];
 
-    for_less( dim, 0, N_DIMENSIONS )
+    for_less( dim, 0, 2 )
         dim_names[dim] = XYZ_dimension_names[dim_orders[axis_index][dim]];
 
-    volume = create_volume( 3, dim_names, NC_BYTE, FALSE, 0.0, 0.0 );
+    volume = create_volume( 2, dim_names, NC_BYTE, FALSE, 0.0, 0.0 );
 
     set_volume_real_range( volume, 0.0, 255.0 );
 
-    sizes[0] = 1;
-    sizes[1] = pixels->x_size;
-    sizes[2] = pixels->y_size;
+    sizes[0] = pixels->x_size;
+    sizes[1] = pixels->y_size;
 
     set_volume_sizes( volume, sizes );
 
@@ -98,25 +97,22 @@ private  Volume  convert_pixels_to_volume(
     {
         ind = (int) PIXEL_COLOUR_INDEX_8( *pixels, x, y );
 
-        set_volume_voxel_value( volume, 0, x, y, 0, 0, (Real) ind );
+        set_volume_voxel_value( volume, x, y, 0, 0, 0, (Real) ind );
     }
 
-    x_index = dim_orders[axis_index][1];
-    y_index = dim_orders[axis_index][2];
+    x_index = dim_orders[axis_index][0];
+    y_index = dim_orders[axis_index][1];
 
-    separations[0] = 1.0;
-    separations[1] = ATLAS_STEPS[x_index] * (Real) ATLAS_SIZE[x_index] /
+    separations[0] = ATLAS_STEPS[x_index] * (Real) ATLAS_SIZE[x_index] /
                      (Real) pixels->x_size;
-    separations[2] = ATLAS_STEPS[y_index] * (Real) ATLAS_SIZE[y_index] /
+    separations[1] = ATLAS_STEPS[y_index] * (Real) ATLAS_SIZE[y_index] /
                      (Real) pixels->y_size;
 
-    for_less( dim, 0, N_DIMENSIONS )
-    {
-        bottom_left[dim] = -0.5;
-        world_corner[dim] = ATLAS_STARTS[dim] - ATLAS_STEPS[dim] / 2.0;
-    }
+    bottom_left[0] = -0.5;
+    bottom_left[1] = -0.5;
 
-    bottom_left[axis_index] = 0.0;
+    world_corner[x_index] = ATLAS_STARTS[x_index] - ATLAS_STEPS[x_index] / 2.0;
+    world_corner[y_index] = ATLAS_STARTS[y_index] - ATLAS_STEPS[y_index] / 2.0;
     world_corner[axis_index] = slice_position;
 
     set_volume_separations( volume, separations );
@@ -312,11 +308,11 @@ private  BOOLEAN  find_appropriate_atlas_image(
     Real              *y_scale )
 {
     Real            min_dist, dist, slice_position, best_scale, scale_dist;
-    Real            separations[N_DIMENSIONS];
-    Real            tmp_x_scale, tmp_y_scale, tmp_origin[N_DIMENSIONS];
-    Real            tmp_x_axis[N_DIMENSIONS];
-    Real            tmp_y_axis[N_DIMENSIONS];
-    int             im, a1, a2, axis, dim;
+    Real            separations[2];
+    Real            tmp_x_scale, tmp_y_scale, tmp_origin[2];
+    Real            tmp_x_axis[2];
+    Real            tmp_y_axis[2];
+    int             im, axis, dim, a1, a2;
 
     *image = NULL;
     min_dist = 0.0;
@@ -367,11 +363,14 @@ private  BOOLEAN  find_appropriate_atlas_image(
 
                 get_volume_separations( atlas->images[im].image, separations );
 
-                for_less( dim, 0, N_DIMENSIONS )
+                for_less( dim, 0, 2 )
                 {
                     if( tmp_x_axis[dim] != 0.0 )
+                    {
                         tmp_x_scale = 1.0 / FABS( separations[dim] *
                                                   tmp_x_axis[dim] );
+                        scale_dist = FABS( 1.0 / FABS(tmp_x_axis[dim]) - 1.0 );
+                    }
 
                     if( tmp_y_axis[dim] != 0.0 )
                         tmp_y_scale = 1.0 / FABS( separations[dim] *
@@ -381,16 +380,14 @@ private  BOOLEAN  find_appropriate_atlas_image(
                         tmp_origin[dim] = 0.0;
                 }
 
-                scale_dist = FABS( 1.0 / FABS(tmp_x_axis[a1]) - 1.0 );
-
-                if( *image == NULL || scale_dist <= best_scale )
+                if( *image == NULL || scale_dist < best_scale )
                 {
                     *image = atlas->images[im].image;
                     min_dist = dist;
                     best_scale = scale_dist;
                     *x_scale = tmp_x_scale;
                     *y_scale = tmp_y_scale;
-                    for_less( dim, 0, N_DIMENSIONS )
+                    for_less( dim, 0, 2 )
                     {
                         origin[dim] = tmp_origin[dim];
                         x_axis[dim] = tmp_x_axis[dim];
@@ -400,13 +397,6 @@ private  BOOLEAN  find_appropriate_atlas_image(
             }
         }
     }
-
-if( *image != NULL )
-{
-int  sizes[3];
-get_volume_sizes( *image, sizes );
-print( "%d %d\n", sizes[1], sizes[2] );
-}
 
     return( *image != NULL );
 }
@@ -423,9 +413,9 @@ public  BOOLEAN  render_atlas_slice_to_pixels(
     int            x, y;
     int            r_atlas, g_atlas, b_atlas, a_atlas;
     Real           x_scale, y_scale;
-    Real           origin[N_DIMENSIONS];
-    Real           x_axis[N_DIMENSIONS];
-    Real           y_axis[N_DIMENSIONS];
+    Real           origin[2];
+    Real           x_axis[2];
+    Real           y_axis[2];
     int            transparent_threshold;
     int            n_alloced;
     Colour         atlas_pixel, *lookup;
