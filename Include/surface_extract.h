@@ -33,6 +33,13 @@ typedef  struct
     unsigned_byte                        *voxel_done_flags;
 
     QUEUE_STRUCT( voxel_index_struct )   voxels_to_do;
+
+    int                                  x_voxel_max_distance;
+    int                                  y_voxel_max_distance;
+    int                                  z_voxel_max_distance;
+    int                                  x_starting_voxel;
+    int                                  y_starting_voxel;
+    int                                  z_starting_voxel;
     
 
     polygons_struct                      *polygons;

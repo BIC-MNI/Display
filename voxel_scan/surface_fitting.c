@@ -203,7 +203,6 @@ public  Status  convert_to_new_surface_representation( surface_fitting,
     double                   new_descriptors[];
 {
     Status                  status;
-    int                     i;
     surface_fitting_struct  prev_surface_fitting;
 
     prev_surface_fitting = *surface_fitting;

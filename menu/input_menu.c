@@ -68,6 +68,9 @@
                        MENU_FUNCTION(toggle_surface_extraction) \
                        MENU_FUNCTION(make_surface_permanent) \
                        MENU_FUNCTION(reset_surface) \
+                       MENU_FUNCTION(set_surface_extract_x_max_distance) \
+                       MENU_FUNCTION(set_surface_extract_y_max_distance) \
+                       MENU_FUNCTION(set_surface_extract_z_max_distance) \
                        MENU_FUNCTION(get_labeled_boundary) \
                        MENU_FUNCTION(double_slice_voxels) \
                        MENU_FUNCTION(halve_slice_voxels) \

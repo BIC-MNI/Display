@@ -65,9 +65,10 @@ public  void  apply_one_parameter_minimization( surface_rep,
     void     one_parameter_minimization();
     Real     *distances_without_this_parameter;
     double   u_min, u_max, v_min, v_max, gain, total_gain;
+
+#ifdef TESTING
     void     test_min();
 
-/*
     test_min( surface_rep,
               descriptors,
               max_iterations,
@@ -80,7 +81,7 @@ public  void  apply_one_parameter_minimization( surface_rep,
               evaluation_ptr );
 
     return;
-*/
+#endif
 
     ALLOC( status, distances_without_this_parameter, n_parameters );
 
@@ -156,6 +157,8 @@ t2 = (*evaluate_fit_function) ( evaluation_ptr, parameters,
     if( status == OK )
         FREE( status, distances_without_this_parameter );
 }
+
+#ifdef TESTING
 
 private  void  test_min( surface_rep,
                           descriptors,
@@ -254,3 +257,5 @@ private  void  test_min( surface_rep,
 
     parameters[which_parameter] = prev_parameter;
 }
+
+#endif

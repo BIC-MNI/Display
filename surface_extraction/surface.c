@@ -32,6 +32,10 @@ public  void  start_surface_extraction_at_point( graphics, x, y, z )
     if( cube_is_within_volume(
              graphics->associated[SLICE_WINDOW]->slice.volume, x, y, z ) )
     {
+        graphics->three_d.surface_extraction.x_starting_voxel = x;
+        graphics->three_d.surface_extraction.y_starting_voxel = y;
+        graphics->three_d.surface_extraction.z_starting_voxel = z;
+
         if( !surface_extraction->isovalue_selected )
         {
             set_isosurface_value( surface_extraction );
@@ -59,6 +63,7 @@ public  void  start_surface_extraction_at_point( graphics, x, y, z )
                   graphics->associated[SLICE_WINDOW]->slice.volume,
                   graphics->three_d.surface_extraction.voxel_done_flags,
                   graphics->three_d.surface_extraction.isovalue,
+                  &graphics->three_d.surface_extraction,
                   x, y, z, &voxel_indices ) )
         {
             if( status == OK )
@@ -81,14 +86,15 @@ public  void  start_surface_extraction_at_point( graphics, x, y, z )
     }
 }
 
-public  Boolean  find_close_voxel_containing_value( volume, voxel_done_flags,
-                                                    value,
+private  Boolean  find_close_voxel_containing_value( volume, voxel_done_flags,
+                                                    value, surface_extraction,
                                                     x, y, z, found_indices )
-    volume_struct          *volume;
-    unsigned_byte          voxel_done_flags[];
-    Real                   value;
-    int                    x, y, z;
-    voxel_index_struct     *found_indices;
+    volume_struct              *volume;
+    unsigned_byte              voxel_done_flags[];
+    Real                       value;
+    surface_extraction_struct  *surface_extraction;
+    int                        x, y, z;
+    voxel_index_struct         *found_indices;
 {
     Status                                status;
     Boolean                               found, voxel_contains;
@@ -156,6 +162,7 @@ public  Boolean  find_close_voxel_containing_value( volume, voxel_done_flags,
                                   indices.i[Y_AXIS],
                                   indices.i[Z_AXIS],
                                   (Boolean) voxel_done, value,
+                                  surface_extraction,
                                   &voxels_searched, &voxels_to_check );
         }
     }
@@ -248,6 +255,7 @@ public  Status  extract_more_surface( graphics )
                         voxel_index.i[Y_AXIS],
                         voxel_index.i[Z_AXIS],
                         TRUE, surface_extraction->isovalue,
+                        surface_extraction,
                         &surface_extraction->voxels_queued,
                         &surface_extraction->voxels_to_do );
             }
@@ -263,12 +271,14 @@ public  Status  extract_more_surface( graphics )
     return( status );
 }
 
-public  void  add_voxel_neighbours( volume, x, y, z, surface_only, isovalue,
+private  void  add_voxel_neighbours( volume, x, y, z, surface_only, isovalue,
+                                     surface_extraction,
                                      voxels_queued, voxel_queue )
     volume_struct                       *volume;
     int                                 x, y, z;
     Boolean                             surface_only;
     Real                                isovalue;
+    surface_extraction_struct           *surface_extraction;
     bitlist_struct                      *voxels_queued;
     QUEUE_STRUCT(voxel_index_struct)    *voxel_queue;
 {
@@ -296,6 +306,10 @@ public  void  add_voxel_neighbours( volume, x, y, z, surface_only, isovalue,
                                            neighbour.i[X_AXIS],
                                            neighbour.i[Y_AXIS],
                                            neighbour.i[Z_AXIS] ) &&
+                    cube_is_within_distance( surface_extraction,
+                                             neighbour.i[X_AXIS],
+                                             neighbour.i[Y_AXIS],
+                                             neighbour.i[Z_AXIS] ) &&
                     !get_voxel_flag( volume, voxels_queued, &neighbour ) )
                 {
                     status = set_voxel_flag( volume, voxels_queued, &neighbour);
@@ -313,6 +327,24 @@ public  void  add_voxel_neighbours( volume, x, y, z, surface_only, isovalue,
             }
         }
     }
+}
+
+private  Boolean  cube_is_within_distance( surface_extraction, x, y, z )
+    surface_extraction_struct           *surface_extraction;
+    int                                 x, y, z;
+{
+    Boolean  within_dist;
+    int      dx, dy, dz;
+
+    dx = ABS( x - surface_extraction->x_starting_voxel );
+    dy = ABS( y - surface_extraction->y_starting_voxel );
+    dz = ABS( z - surface_extraction->z_starting_voxel );
+
+    within_dist = dx <= surface_extraction->x_voxel_max_distance &&
+                  dy <= surface_extraction->y_voxel_max_distance &&
+                  dz <= surface_extraction->z_voxel_max_distance;
+
+    return( within_dist );
 }
 
 private  void  possibly_output( p )

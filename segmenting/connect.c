@@ -24,6 +24,7 @@ public  Status  disconnect_components( volume, voxel_indices, axis,
     int           x, y, index[3], size[3];
     void          set_voxel_activity_flag();
     void          get_volume_size();
+    Boolean       inside;
     Status        label_components();
 
     get_volume_size( volume, &size[X_AXIS], &size[Y_AXIS], &size[Z_AXIS] );
@@ -38,9 +39,16 @@ public  Status  disconnect_components( volume, voxel_indices, axis,
         {
             index[axis[Y_AXIS]] = y;
 
-            val = GET_VOLUME_DATA( *volume, index[0], index[1], index[2] );
+            if( get_voxel_activity_flag( volume, index[0], index[1], index[2]))
+            {
+                val = GET_VOLUME_DATA( *volume, index[0], index[1], index[2] );
 
-            pixels[x][y].inside = (val >= min_threshold && val <=max_threshold);
+                inside = (val >= min_threshold && val <=max_threshold);
+            }
+            else
+                inside = FALSE;
+
+            pixels[x][y].inside = inside;
             pixels[x][y].label = 0;
         }
     }
@@ -65,12 +73,15 @@ public  Status  disconnect_components( volume, voxel_indices, axis,
         {
             index[axis[Y_AXIS]] = y;
 
-            if( pixels[x][y].label != REGION_OF_INTEREST )
-                set_voxel_activity_flag( volume, index[0], index[1], index[2],
-                                         FALSE );
-            else
-                set_voxel_activity_flag( volume, index[0], index[1], index[2],
-                                         TRUE );
+            if( pixels[x][y].inside )
+            {
+                if( pixels[x][y].label != REGION_OF_INTEREST )
+                    set_voxel_activity_flag( volume, index[0], index[1],
+                                             index[2], FALSE );
+                else
+                    set_voxel_activity_flag( volume, index[0], index[1],
+                                             index[2], TRUE );
+            }
         }
     }
 

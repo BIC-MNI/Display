@@ -27,39 +27,41 @@ public  Boolean  extract_voxel_surface( volume, surface_extraction,
 {
     voxel_point_type       *points_list;
     Real                   corner_values[2][2][2];
-    Boolean                active;
-    Boolean                are_voxel_corners_active();
+    Real                   value;
     int                    n_polys, n_nondegenerate_polys;
     int                    x, y, z, *sizes;
 
-    active = are_voxel_corners_active( volume,
-                                       voxel_index->i[X_AXIS],
-                                       voxel_index->i[Y_AXIS],
-                                       voxel_index->i[Z_AXIS] );
-
-    if( active )
+    for_less( x, 0, 2 )
     {
-        for_less( x, 0, 2 )
+        for_less( y, 0, 2 )
         {
-            for_less( y, 0, 2 )
+            for_less( z, 0, 2 )
             {
-                for_less( z, 0, 2 )
+                value = (Real) GET_VOLUME_DATA( *volume,
+                                                voxel_index->i[X_AXIS]+x,
+                                                voxel_index->i[Y_AXIS]+y,
+                                                voxel_index->i[Z_AXIS]+z );
+
+                if( value >= surface_extraction->isovalue &&
+                    !get_voxel_activity_flag( volume,
+                                              voxel_index->i[X_AXIS]+x,
+                                              voxel_index->i[Y_AXIS]+y,
+                                              voxel_index->i[Z_AXIS]+z ) )
                 {
-                    corner_values[x][y][z] = (Real) GET_VOLUME_DATA( *volume,
-                                           voxel_index->i[X_AXIS]+x,
-                                           voxel_index->i[Y_AXIS]+y,
-                                           voxel_index->i[Z_AXIS]+z );
+                    value = 0.0;
                 }
+
+                corner_values[x][y][z] = value;
             }
         }
-
-        n_polys = compute_polygons_in_voxel(
-                           (Marching_cubes_methods) Marching_cubes_method,
-                           corner_values, surface_extraction->isovalue,
-                           &sizes, &points_list );
     }
 
-    if( active && n_polys > 0 )
+    n_polys = compute_polygons_in_voxel(
+                       (Marching_cubes_methods) Marching_cubes_method,
+                       corner_values, surface_extraction->isovalue,
+                       &sizes, &points_list );
+
+    if( n_polys > 0 )
     {
         n_nondegenerate_polys = extract_polygons( volume, surface_extraction,
                       voxel_index, first_voxel, n_polys, sizes, points_list );

@@ -856,9 +856,17 @@ public  Status  create_slice_window( graphics, volume )
     graphics_struct  *slice_window, *menu_window;
     Status           set_slice_window_volume();
     void             set_slice_window_update();
+    void             get_volume_size();
+    int              nx, ny, nz;
+    String           title;
+
+    get_volume_size( volume, &nx, &ny, &nz );
+
+    (void) sprintf( title, "%s [%d * %d * %d]", volume->filename,
+                    nx, ny, nz );
 
     status = create_graphics_window( SLICE_WINDOW, &slice_window,
-                                     "Slice Window", 0, 0 );
+                                     title, 0, 0 );
 
     if( status == OK )
     {

@@ -10,7 +10,7 @@ static    void                 update_rotation();
 static    Boolean              compute_rotation();
 
 public  void  start_translating_slice( graphics )
-    graphics_struct  *graphics;
+    graphics_struct  *graphics;   /* ARGSUSED */
 {
 }
 
@@ -169,6 +169,7 @@ private  Boolean  compute_rotation( graphics, transform )
 }
 
 
+#ifdef NOT_YET
 private  void  perform_translation( graphics )
     graphics_struct  *graphics;
 {
@@ -189,3 +190,4 @@ private  void  perform_translation( graphics )
     set_update_required( graphics, NORMAL_PLANES );
     graphics->prev_mouse_position = graphics->mouse_position;
 }
+#endif

@@ -61,7 +61,8 @@ public  Status  load_graphics_file( graphics, filename )
             (void) get_slice_window_volume( graphics, &volume );
             status = input_landmark_file( volume, filename,
                                           &model->n_objects,
-                                          &model->object_list );
+                                          &model->object_list,
+                                          &Default_marker_colour );
         }
         else if( string_ends_in(filename,".cnt") )
         {

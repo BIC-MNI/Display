@@ -51,7 +51,6 @@ public  Status  add_point_label( slice_window, x, y, z, id )
     Status        status;
     label_struct  label;
     void          set_voxel_label_flag();
-    void          set_voxel_activity_flag();
 
     label.voxel_indices[X_AXIS] = x;
     label.voxel_indices[Y_AXIS] = y;
@@ -63,10 +62,7 @@ public  Status  add_point_label( slice_window, x, y, z, id )
                           slice_window->slice.segmenting.labels,
                           label, DEFAULT_CHUNK_SIZE );
 
-    if( id == 1 )
-        set_voxel_label_flag( slice_window->slice.volume, x, y, z, TRUE );
-    else
-        set_voxel_activity_flag( slice_window->slice.volume, x, y, z, FALSE );
+    set_voxel_label_flag( slice_window->slice.volume, x, y, z, TRUE );
 
     return( status );
 }

@@ -186,3 +186,84 @@ public  DEF_MENU_UPDATE(get_labeled_boundary )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( set_surface_extract_x_max_distance )   /* ARGSUSED */
+{
+    int             dist;
+
+    PRINT( "Enter X max distance: " );
+
+    if( input_int( stdin, &dist ) == OK )
+        graphics->three_d.surface_extraction.x_voxel_max_distance = dist;
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_surface_extract_x_max_distance )   /* ARGSUSED */
+{
+    String  text;
+    void    set_menu_text();
+
+    (void) sprintf( text, label,
+                    graphics->three_d.surface_extraction.x_voxel_max_distance);
+
+    set_menu_text( menu_window, menu_entry, text );
+
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( set_surface_extract_y_max_distance )   /* ARGSUSED */
+{
+    int             dist;
+
+    PRINT( "Enter Y max distance: " );
+
+    if( input_int( stdin, &dist ) == OK )
+        graphics->three_d.surface_extraction.y_voxel_max_distance = dist;
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_surface_extract_y_max_distance )   /* ARGSUSED */
+{
+    String  text;
+    void    set_menu_text();
+
+    (void) sprintf( text, label,
+                    graphics->three_d.surface_extraction.y_voxel_max_distance);
+
+    set_menu_text( menu_window, menu_entry, text );
+
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( set_surface_extract_z_max_distance )   /* ARGSUSED */
+{
+    int             dist;
+
+    PRINT( "Enter Z max distance: " );
+
+    if( input_int( stdin, &dist ) == OK )
+        graphics->three_d.surface_extraction.z_voxel_max_distance = dist;
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_surface_extract_z_max_distance )   /* ARGSUSED */
+{
+    String  text;
+    void    set_menu_text();
+
+    (void) sprintf( text, label,
+                    graphics->three_d.surface_extraction.z_voxel_max_distance);
+
+    set_menu_text( menu_window, menu_entry, text );
+
+    return( OK );
+}

@@ -1,14 +1,15 @@
 #include  <def_files.h>
 #include  <def_string.h>
-#include  <def_graphics.h>
-#include  <def_globals.h>
+#include  <def_objects.h>
 
 public  Status   input_landmark_file( volume,
-                                      filename, n_objects, object_list )
+                                      filename, n_objects, object_list,
+                                      marker_colour )
     volume_struct  *volume;
     char           filename[];
     int            *n_objects;
     object_struct  ***object_list;
+    Colour         *marker_colour;
 {
     Status                  status;
     Status                  add_object_to_list();
@@ -31,7 +32,7 @@ public  Status   input_landmark_file( volume,
 
             if( status == OK )
             {
-                marker.colour = Default_marker_colour;
+                marker.colour = *marker_colour;
                 *(object->ptr.marker) = marker;
 
                 status = add_object_to_list( n_objects, object_list, object );
@@ -66,6 +67,7 @@ public  Status  io_tag_point( file, io_direction, volume, marker )
     void     convert_talairach_to_voxel();
     void     get_volume_size();
     int      nx, ny, nz;
+    int      len, offset;
 
     status = OK;
 
@@ -104,7 +106,7 @@ public  Status  io_tag_point( file, io_direction, volume, marker )
     {
         if( volume == (volume_struct *) 0 )
         {
-            position = marker->position;
+            marker->position = position;
         }
         else
         {
@@ -149,7 +151,21 @@ public  Status  io_tag_point( file, io_direction, volume, marker )
             status = input_line( file, line, MAX_STRING_LENGTH );
 
         if( status == OK )
-            strip_blanks( line, marker->label );
+        {
+            strip_blanks( line, line );
+
+            if( line[0] == '"' )
+                offset = 1;
+            else
+                offset = 0;
+
+            (void) strcpy( marker->label, &line[offset] );
+
+            len = strlen( marker->label );
+
+            if( len > 0 && marker->label[len-1] == '"' )
+                 marker->label[len-1] = (char) 0;
+        }
     }
 
     if( status == OK )

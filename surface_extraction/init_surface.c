@@ -21,6 +21,10 @@ public  Status  initialize_surface_extraction( graphics )
 
     surface_extraction = &graphics->three_d.surface_extraction;
 
+    surface_extraction->x_voxel_max_distance = Default_x_voxel_max_distance;
+    surface_extraction->y_voxel_max_distance = Default_y_voxel_max_distance;
+    surface_extraction->z_voxel_max_distance = Default_z_voxel_max_distance;
+
     status = create_object( &object, POLYGONS );
 
     if( status == OK )
