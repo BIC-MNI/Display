@@ -13,8 +13,6 @@ typedef  menu_function_type  (*menu_function_pointer);
                                                graphics_struct   *menu_window; \
                                                menu_entry_struct *menu_entry;
 
-#define  MAX_MENU_CHILDREN    15
-
 typedef  struct  menu_entry_struct
 {
     Boolean                     active;
@@ -23,7 +21,7 @@ typedef  struct  menu_entry_struct
     String                      label;
     int                         current_depth;
     int                         n_children;
-    struct  menu_entry_struct   *children[MAX_MENU_CHILDREN];
+    struct  menu_entry_struct   **children;
     menu_function_pointer       action;
     object_struct               *text;
 } menu_entry_struct;

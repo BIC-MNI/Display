@@ -2,10 +2,12 @@
 #include  <def_graphics.h>
 #include  <string.h>
 
+#ifdef  NOT_NEEDED
 private  DEF_MENU_FUNCTION( null_function )   /* ARGSUSED */
 {
     return( OK );
 }
+#endif
 
 private  void  set_menu_key_entry( menu, ch, menu_entry )
     menu_window_struct     *menu;
@@ -46,6 +48,7 @@ private  void  turn_on_menu_entry( menu, menu_entry )
     }
 
     menu_entry->text->visibility = TRUE;
+    menu_entry->current_depth = menu->depth;
 
     set_menu_key_entry( menu, (int) menu_entry->key, menu_entry );
 }
@@ -115,6 +118,7 @@ public  Status  initialize_menu( graphics )
 
     menu->depth = 0;
     menu->stack[0] = &menu->entries[0];
+    menu->entries[0].current_depth = 0;
 
     if( status == OK )
     {
@@ -167,11 +171,19 @@ private  Status  process_menu( graphics, menu_entry )
     return( status );
 }
 
-public  DEF_MENU_FUNCTION( push_menu )
+public  DEF_MENU_FUNCTION( push_menu )      /* ARGSUSED */
 {
     Status   status;
 
     status = OK;
+
+    while( menu_window->menu.depth > menu_entry->current_depth )
+    {
+        remove_menu_actions( &menu_window->menu,
+                             menu_window->menu.stack[menu_window->menu.depth] );
+
+        --menu_window->menu.depth;
+    }
 
     if( menu_window->menu.depth >= MAX_MENU_DEPTH )
     {
@@ -180,9 +192,6 @@ public  DEF_MENU_FUNCTION( push_menu )
     }
     else
     {
-        remove_menu_actions( &menu_window->menu,
-                             menu_window->menu.stack[menu_window->menu.depth] );
-
         ++menu_window->menu.depth;
         menu_window->menu.stack[menu_window->menu.depth] = menu_entry;
 
@@ -194,7 +203,7 @@ public  DEF_MENU_FUNCTION( push_menu )
     return( status );
 }
 
-public  DEF_MENU_FUNCTION( pop_menu )
+public  DEF_MENU_FUNCTION( pop_menu )      /* ARGSUSED */
 {
     if( menu_window->menu.depth > 0 )
     {
