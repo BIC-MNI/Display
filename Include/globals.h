@@ -192,6 +192,8 @@ START_GLOBALS
     DEF_GLOBAL( Invisible_segmenting_colour, Colour, 0.0 )
 
     DEF_GLOBAL( N_fitting_samples, int, 10000 )
+    DEF_GLOBAL( Isovalue_factor, Real, 1.0 )
+    DEF_GLOBAL( Fitting_isovalue, Real, 1.0 )
     DEF_GLOBAL( Gradient_strength_factor, Real, 1.0 )
     DEF_GLOBAL( Gradient_strength_exponent, Real, 1.0 )
     DEF_GLOBAL( Curvature_factor, Real, 0.0 )
