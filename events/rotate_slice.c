@@ -40,8 +40,6 @@ private  DEF_EVENT_FUNCTION( terminate_rotating_slice )    /* ARGSUSED */
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_rotating_slice );
-
-    set_volume_cross_section_visibility( display, OFF );
 }
 
 private  DEF_EVENT_FUNCTION( turn_off_rotating_slice )    /* ARGSUSED */
@@ -203,7 +201,7 @@ private  BOOLEAN  perform_rotation(
 {
     display_struct  *slice_window;
     Real            x, y;
-    Transform       transform;
+    Transform       transform, inverse, transform_in_space;
     BOOLEAN         moved;
 
     moved = FALSE;
@@ -215,7 +213,16 @@ private  BOOLEAN  perform_rotation(
                                  x, y, &transform ) &&
         get_slice_window( display, &slice_window ) )
     {
-        transform_slice_axes( slice_window, &transform );
+        compute_transform_inverse( &display->three_d.view.modeling_transform,
+                                   &inverse );
+
+        concat_transforms( &transform_in_space,
+                           &display->three_d.view.modeling_transform,
+                           &transform );
+        concat_transforms( &transform_in_space,
+                           &transform_in_space, &inverse );
+
+        transform_slice_axes( slice_window, &transform_in_space );
         record_mouse_position( display );
         moved = TRUE;
     }
