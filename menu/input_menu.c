@@ -66,6 +66,7 @@
                        MENU_FUNCTION(set_connected_on) \
                        MENU_FUNCTION(set_colour_limits) \
                        MENU_FUNCTION(set_isovalue) \
+                       MENU_FUNCTION(create_film_loop) \
                 
 
 typedef  struct
