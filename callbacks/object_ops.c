@@ -270,6 +270,15 @@ public  DEF_MENU_FUNCTION( delete_current_object )     /* ARGSUSED */
 {
     object_struct    *object;
 
+    if( get_current_object( display, &object ) &&
+        get_object_type( object ) == POLYGONS &&
+        get_polygons_ptr(object) ==
+                   display->three_d.surface_extraction.polygons )
+    {
+        print( "Cannot delete the polygons used for surface extraction.\n" );
+        return( OK );
+    }
+
     if( remove_current_object_from_hierarchy( display, &object ) )
     {
         delete_object( object );
