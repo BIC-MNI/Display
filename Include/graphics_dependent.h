@@ -1,14 +1,21 @@
 #ifndef  DEF_GRAPHICS_DEPENDENT
 #define  DEF_GRAPHICS_DEPENDENT
 
+#define  window   GL_window
+#define  normal   GL_normal
+#define  poly     GL_poly
 #define  String   GL_String
-#define  Boolean   GL_Boolean
+#define  Boolean  GL_Boolean
 
 #include <gl/gl.h>
-#include <def_view_types.h>
 
+#undef   window
+#undef   normal
+#undef   poly
 #undef   String
 #undef   Boolean
+
+#include <def_view_types.h>
 
 #define  N_DIMENSIONS  3
 
@@ -82,6 +89,16 @@ typedef  struct
 #define  Surfprop_sc( surfprop )  ((surfprop).sc)
 #define  Surfprop_se( surfprop )  ((surfprop).se)
 #define  Surfprop_t( surfprop )  ((surfprop).t)
+
+#define  fill_Surfprop( s, amb, diff, spec, spec_col, spec_exp, trans ) \
+         { \
+             Surfprop_a(s) = (amb); \
+             Surfprop_d(s) = (diff); \
+             Surfprop_s(s) = (spec); \
+             Surfprop_sc(s) = (spec_col); \
+             Surfprop_se(s) = (spec_exp); \
+             Surfprop_t(s) = (trans); \
+         }
 
 typedef  struct
 {

@@ -1,5 +1,6 @@
 
 #include  <stdio.h>
+#include  <string.h>
 #include  <def_graphics.h>
 #include  <def_globals.h>
 #include  <def_alloc.h>
@@ -89,8 +90,10 @@ private  Status  free_graphics( graphics )
     return( status );
 }
 
-public  Status  create_graphics_window( graphics )
+public  Status  create_graphics_window( graphics, title, width, height )
     graphics_struct   **graphics;
+    char              title[];
+    int               width, height;
 {
     Status   status;
     void     initialize_graphics_window();
@@ -101,7 +104,7 @@ public  Status  create_graphics_window( graphics )
 
     if( status == OK )
     {
-        status = G_create_window( "Window Title", &(*graphics)->window );
+        status = G_create_window( title, width, height, &(*graphics)->window );
     }
 
     if( status == OK )
@@ -121,7 +124,6 @@ private  void  initialize_graphics_window( graphics )
 {
     void    initialize_view();
     void    adjust_view_for_aspect();
-    Real    G_get_window_aspect();
     void    G_define_view();
     void    initialize_lights();
     void    G_define_light();
@@ -130,9 +132,8 @@ private  void  initialize_graphics_window( graphics )
     void    initialize_render();
     void    initialize_objects();
 
-    initialize_view( &graphics->view );
-    adjust_view_for_aspect( &graphics->view,
-                            G_get_window_aspect(&graphics->window) );
+    initialize_view( &graphics->view, 0.0, 0.0, -1.0 );
+    adjust_view_for_aspect( &graphics->view, &graphics->window );
     G_define_view( &graphics->window, &graphics->view );
 
     initialize_lights( graphics->lights );
@@ -152,21 +153,29 @@ private  void  initialize_graphics_window( graphics )
     graphics->update_required = FALSE;
 }
 
-private  void  display_frame_number( graphics )
+private  void  display_frame_info( graphics, frame_number, update_time )
     graphics_struct   *graphics;
+    int               frame_number;
+    Real              update_time;
 {
     void          G_set_view_type();
     void          G_draw_text();
-    text_struct   frame_number;
+    text_struct   frame_text;
+    String        frame_time_str;
+    void          format_time();
 
-    (void) sprintf( frame_number.text, "%d", graphics->frame_number );
+    (void) sprintf( frame_text.text, "%d ", frame_number );
 
-    fill_Point( frame_number.origin, Frame_number_x, Frame_number_y, 0.0 );
-    fill_Colour( frame_number.colour, 1.0, 1.0, 1.0 );
+    format_time( frame_time_str, "%g %s", update_time );
+
+    (void) strcat( frame_text.text, frame_time_str );
+
+    fill_Point( frame_text.origin, Frame_info_x, Frame_info_y, 0.0 );
+    fill_Colour( frame_text.colour, 1.0, 1.0, 1.0 );
 
     G_set_view_type( &graphics->window, PIXEL_VIEW );
 
-    G_draw_text( &graphics->window, &frame_number, &graphics->model.render );
+    G_draw_text( &graphics->window, &frame_text, &graphics->model.render );
 }
 
 public  void  update_graphics( graphics )
@@ -174,15 +183,22 @@ public  void  update_graphics( graphics )
 {
     void          G_update_window();
     void          display_objects();
-    void          display_frame_number();
+    void          display_frame_info();
+    void          format_time();
+    Real          start, end;
+    Real          current_realtime_seconds();
+
+    start = current_realtime_seconds();
 
     display_objects( &graphics->window, &graphics->model );
 
+    end = current_realtime_seconds();
+
     ++graphics->frame_number;
 
-    if( Display_frame_number )
+    if( Display_frame_info )
     {
-        display_frame_number( graphics );
+        display_frame_info( graphics, graphics->frame_number, end - start );
     }
 
     G_update_window( &graphics->window );
@@ -232,17 +248,19 @@ public  void  update_view( graphics )
     G_define_view( &graphics->window, &graphics->view );
 }
 
-public  void  reset_view_parameters( graphics )
+public  void  reset_view_parameters( graphics, view_x, view_y, view_z )
     graphics_struct  *graphics;
+    Real             view_x, view_y, view_z;
 {
     void   adjust_view_for_aspect();
-    Real   G_get_window_aspect();
     void   initialize_view();
+    void   set_model_scale();
     void   fit_view_to_domain();
 
-    initialize_view( &graphics->view );
-    adjust_view_for_aspect( &graphics->view,
-                            G_get_window_aspect(&graphics->window) );
+    initialize_view( &graphics->view, view_x, view_y, view_z );
+    set_model_scale( &graphics->view,
+                     Initial_x_scale, Initial_y_scale, Initial_z_scale );
+    adjust_view_for_aspect( &graphics->view, &graphics->window );
     fit_view_to_domain( &graphics->view, &graphics->min_limit,
                         &graphics->max_limit );
 }

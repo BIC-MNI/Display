@@ -9,6 +9,11 @@ public  DEF_MENU_FUNCTION( reverse_normals )   /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_UPDATE(reverse_normals )   /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( advance_visible )     /* ARGSUSED */
 {
     object_struct  *objects;
@@ -44,6 +49,11 @@ public  DEF_MENU_FUNCTION( advance_visible )     /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_UPDATE(advance_visible )     /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( retreat_visible )     /* ARGSUSED */
 {
     object_struct  *objects;
@@ -74,6 +84,11 @@ public  DEF_MENU_FUNCTION( retreat_visible )     /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_UPDATE(retreat_visible )     /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( make_all_invisible )     /* ARGSUSED */
 {
     object_struct  *objects;
@@ -91,6 +106,11 @@ public  DEF_MENU_FUNCTION( make_all_invisible )     /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_UPDATE(make_all_invisible )     /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( make_all_visible )     /* ARGSUSED */
 {
     object_struct  *objects;
@@ -105,5 +125,10 @@ public  DEF_MENU_FUNCTION( make_all_visible )     /* ARGSUSED */
 
     graphics->update_required = TRUE;
 
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(make_all_visible )     /* ARGSUSED */
+{
     return( OK );
 }

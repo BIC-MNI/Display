@@ -22,6 +22,11 @@ public  DEF_MENU_FUNCTION( make_view_fit )      /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_UPDATE(make_view_fit )      /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( reset_view )      /* ARGSUSED */
 {
     void  update_view();
@@ -39,6 +44,11 @@ public  DEF_MENU_FUNCTION( reset_view )      /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_UPDATE(reset_view )      /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( top_view )      /* ARGSUSED */
 {
     void  update_view();
@@ -50,6 +60,11 @@ public  DEF_MENU_FUNCTION( top_view )      /* ARGSUSED */
 
     graphics->update_required = TRUE;
 
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(top_view )      /* ARGSUSED */
+{
     return( OK );
 }
 
@@ -67,6 +82,11 @@ public  DEF_MENU_FUNCTION( bottom_view )      /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_UPDATE(bottom_view )      /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( front_view )      /* ARGSUSED */
 {
     void  update_view();
@@ -78,6 +98,11 @@ public  DEF_MENU_FUNCTION( front_view )      /* ARGSUSED */
 
     graphics->update_required = TRUE;
 
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(front_view )      /* ARGSUSED */
+{
     return( OK );
 }
 
@@ -95,6 +120,11 @@ public  DEF_MENU_FUNCTION( back_view )      /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_UPDATE(back_view )      /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( left_view )      /* ARGSUSED */
 {
     void  update_view();
@@ -106,6 +136,11 @@ public  DEF_MENU_FUNCTION( left_view )      /* ARGSUSED */
 
     graphics->update_required = TRUE;
 
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(left_view )      /* ARGSUSED */
+{
     return( OK );
 }
 
@@ -123,6 +158,11 @@ public  DEF_MENU_FUNCTION( right_view )      /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_UPDATE(right_view )      /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( toggle_perspective )      /* ARGSUSED */
 {
     void  update_view();
@@ -136,7 +176,24 @@ public  DEF_MENU_FUNCTION( toggle_perspective )      /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_UPDATE(toggle_perspective )      /* ARGSUSED */
+{
+    void  set_text_boolean();
+
+    set_text_boolean( format, text, graphics->view.perspective_flag,
+                      "Parallel", "Perspective" );
+
+    menu_window->update_required = TRUE;
+
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( centre_view )      /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(centre_view )      /* ARGSUSED */
 {
     return( OK );
 }
@@ -150,12 +207,22 @@ public  DEF_MENU_FUNCTION( magnify_view )      /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_UPDATE(magnify_view )      /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( translate_view )      /* ARGSUSED */
 {
     void  initialize_translation();
 
     initialize_translation( &graphics->action_table );
 
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(translate_view )      /* ARGSUSED */
+{
     return( OK );
 }
 
@@ -168,6 +235,11 @@ public  DEF_MENU_FUNCTION( rotate_view )      /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_UPDATE(rotate_view )      /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( front_clipping )      /* ARGSUSED */
 {
     void  initialize_front_clipping();
@@ -177,11 +249,21 @@ public  DEF_MENU_FUNCTION( front_clipping )      /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_UPDATE(front_clipping )      /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( back_clipping )      /* ARGSUSED */
 {
     void  initialize_back_clipping();
 
     initialize_back_clipping( &graphics->action_table );
 
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(back_clipping )      /* ARGSUSED */
+{
     return( OK );
 }

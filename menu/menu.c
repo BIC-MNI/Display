@@ -162,11 +162,35 @@ private  Status  process_menu( graphics, menu_entry )
 {
     Status                  status;
     menu_function_pointer   function;
+    Status                  update_menu_text();
 
     function = menu_entry->action;
 
     status = (*function)( graphics->graphics_window, graphics->menu_window,
                           menu_entry );
+
+    if( status == OK )
+    {
+        status = update_menu_text( graphics, menu_entry );
+    }
+
+    return( status );
+}
+
+public  Status  update_menu_text( graphics, menu_entry )
+    graphics_struct     *graphics;
+    menu_entry_struct   *menu_entry;
+{
+    Status                  status;
+    menu_update_pointer     update_function;
+
+    update_function = menu_entry->update_action;
+
+    status = (*update_function)( graphics->graphics_window,
+                                 graphics->menu_window,
+                                 menu_entry,
+                                 menu_entry->label,
+                                 menu_entry->text->ptr.text->text );
 
     return( status );
 }
@@ -203,6 +227,11 @@ public  DEF_MENU_FUNCTION( push_menu )      /* ARGSUSED */
     return( status );
 }
 
+public  DEF_MENU_UPDATE(push_menu )      /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( pop_menu )      /* ARGSUSED */
 {
     if( menu_window->menu.depth > 0 )
@@ -218,5 +247,10 @@ public  DEF_MENU_FUNCTION( pop_menu )      /* ARGSUSED */
         menu_window->update_required = TRUE;
     }
 
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(pop_menu )      /* ARGSUSED */
+{
     return( OK );
 }

@@ -19,8 +19,8 @@ int  main( argc, argv )
     Status           G_terminate();
     Status           make_all_invisible();
     void             reset_view_parameters();
-    void             scale_modeling_transform();
     void             update_view();
+    void             set_model_scale();
     Boolean          get_range_of_objects();
 
     if( argc != 2 )
@@ -97,10 +97,10 @@ int  main( argc, argv )
                      graphics->centre_of_objects,
                      0.5 );
 
-        scale_modeling_transform( &graphics->view, Initial_x_scale,
-                                  Initial_y_scale, Initial_z_scale );
-
-        reset_view_parameters( graphics );
+        reset_view_parameters( graphics,
+                               Default_line_of_sight_x,
+                               Default_line_of_sight_y,
+                               Default_line_of_sight_z );
 
         update_view( graphics );
     }

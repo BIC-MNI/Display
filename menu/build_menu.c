@@ -77,6 +77,7 @@ private  Status   create_menu_text( menu_window, menu_entry )
     text_struct     *text;
     void            add_object_to_list();
     void            compute_origin();
+    Status          update_menu_text();
 
     status = create_object_struct( &menu_entry->text, TEXT );
 
@@ -93,6 +94,7 @@ private  Status   create_menu_text( menu_window, menu_entry )
         Point_y(text->origin) += Y_menu_text_offset;
         fill_Colour( text->colour, 1.0, 1.0, 1.0 );
         (void) strcpy( text->text, menu_entry->label );
+        status = update_menu_text( menu_window, menu_entry );
     }
 
     return( status );

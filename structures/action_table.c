@@ -2,11 +2,15 @@
 #include  <def_standard.h>
 #include  <def_graphics.h>
 
+#ifdef NOT_NEEDED
+
 private  DEF_EVENT_FUNCTION(  null_function )     /* ARGSUSED */
 {
     /* function does nothing */
     return( OK );
 }
+
+#endif
 
 private  void  set_action_table_function( action_table, event_type, function )
     action_table_struct   *action_table;
@@ -155,12 +159,16 @@ public  int  get_event_actions( action_table, event_type, actions_list )
     return( n_actions );
 }
 
+#ifdef  NOT_NEEDED
+
 private  void  turn_off_action( action_table, event_type )
     action_table_struct   *action_table;
     event_types           event_type;
 {
     set_action_table_function( action_table, event_type, null_function );
 }
+
+#endif
 
 public  void  initialize_action_table( action_table )
     action_table_struct   *action_table;

@@ -12,9 +12,10 @@ typedef  struct
     Point       origin;
     Vector      x_axis, y_axis, line_of_sight;
     Real        front_distance, back_distance;
-    Real        pixels_from_screen;
+    Real        perspective_distance;
     Real        desired_aspect;
     Real        window_width, window_height;
+    Real        scale_factors[N_DIMENSIONS];
     Transform   modeling_transform;
 } view_struct;
 

@@ -51,7 +51,7 @@ private  DEF_EVENT_FUNCTION(  right_mouse_down_event )     /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION(  handle_no_event )
+private  DEF_EVENT_FUNCTION(  handle_no_event )     /* ARGSUSED */
 {
     void    process_clipping();
 
@@ -62,7 +62,7 @@ private  DEF_EVENT_FUNCTION(  handle_no_event )
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION(  terminate_clipping )
+private  DEF_EVENT_FUNCTION(  terminate_clipping )      /* ARGSUSED */
 {
     void                  remove_action_table_function();
     void                  process_clipping();

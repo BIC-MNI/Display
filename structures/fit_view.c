@@ -147,7 +147,7 @@ private  void  orthogonal_fit_points( view, centre, range )
     view->window_height *= scale;
     view->perspective_distance = Point_z(*range);
 
-    view->front_distance = Closest_front_plane;
+    view->front_distance = 0.0;
     view->back_distance = 2.5 * Vector_z(*range);
 }
 
@@ -228,5 +228,5 @@ private  void  perspective_fit_points( view, max_coord, centre,
     view->perspective_distance = new_persp_dist;
 
     view->back_distance = FACTOR * (Point_z(*max_coord) - dz);
-    view->front_distance = Closest_front_plane;
+    view->front_distance = 0.0;
 }

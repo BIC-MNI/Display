@@ -13,6 +13,18 @@ typedef  menu_function_type  (*menu_function_pointer);
                                                graphics_struct   *menu_window; \
                                                menu_entry_struct *menu_entry;
 
+
+typedef  Status   menu_update_type();
+
+typedef  menu_update_type  (*menu_update_pointer);
+
+#define  DEF_MENU_UPDATE(m)  Status menu_update_/**/m( graphics, menu_window, menu_entry, format, text ) \
+                                       graphics_struct   *graphics; \
+                                       graphics_struct   *menu_window; \
+                                       menu_entry_struct *menu_entry; \
+                                       char              format[]; \
+                                       char              text[];
+
 typedef  struct  menu_entry_struct
 {
     Boolean                     active;
@@ -23,6 +35,7 @@ typedef  struct  menu_entry_struct
     int                         n_children;
     struct  menu_entry_struct   **children;
     menu_function_pointer       action;
+    menu_update_pointer         update_action;
     object_struct               *text;
 } menu_entry_struct;
 

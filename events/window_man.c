@@ -25,17 +25,13 @@ private  DEF_EVENT_FUNCTION( handle_redraw )
 private  DEF_EVENT_FUNCTION( handle_resize )
     /* ARGSUSED */
 {
-    Real   aspect;
     void   G_update_window_size();
-    Real   G_get_window_aspect();
     void   adjust_view_for_aspect();
     void   update_view();
 
     G_update_window_size( &graphics->window );
 
-    aspect = G_get_window_aspect( &graphics->window );
-
-    adjust_view_for_aspect( &graphics->view, aspect );
+    adjust_view_for_aspect( &graphics->view, &graphics->window );
 
     update_view( graphics );
 
