@@ -294,13 +294,28 @@ private  Status  initialize_graphics_window( graphics )
     if( status == OK )
     {
         graphics->frame_number = 0;
-        graphics->update_required = FALSE;
+        graphics->update_required[NORMAL_PLANES] = FALSE;
+        graphics->update_required[OVERLAY_PLANES] = FALSE;
         graphics->update_interrupted.last_was_interrupted = FALSE;
         graphics->update_interrupted.size_of_interrupted = Size_of_interrupted;
         graphics->update_interrupted.interval_of_check = Interval_of_check;
     }
 
     return( status );
+}
+
+public  void  set_update_required( graphics, which_bitplanes )
+    graphics_struct   *graphics;
+    Bitplane_types   which_bitplanes;
+{
+    graphics->update_required[which_bitplanes] = TRUE;
+}
+
+public  Boolean  graphics_update_required( graphics )
+    graphics_struct   *graphics;
+{
+    return( graphics->update_required[NORMAL_PLANES] ||
+            graphics->update_required[OVERLAY_PLANES] );
 }
 
 private  void  display_frame_info( graphics, frame_number, update_time )
@@ -386,7 +401,7 @@ public  void  update_graphics( graphics, interrupt )
 
     G_update_window( &graphics->window );
 
-    graphics->update_required = FALSE;
+    graphics->update_required[NORMAL_PLANES] = FALSE;
 }
 
 public  Status  delete_graphics_window( graphics )
@@ -498,6 +513,7 @@ public  Status  load_graphics_file( graphics, filename )
     Status           create_polygons_bintree();
     Status           create_polygon_neighbours();
     Status           initialize_cursor();
+    void             set_update_required();
 
     status = create_object( &object, MODEL );
 
@@ -599,7 +615,7 @@ public  Status  load_graphics_file( graphics, filename )
         status = initialize_cursor( graphics );
     }
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( status );
 }
