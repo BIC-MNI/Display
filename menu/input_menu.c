@@ -113,6 +113,7 @@
                        MENU_FUNCTION(load_polygons_visibilities) \
                        MENU_FUNCTION(smooth_current_polygon) \
                        MENU_FUNCTION(smooth_current_polygon_with_volume) \
+                       MENU_FUNCTION(reverse_polygons_order) \
                        MENU_FUNCTION(smooth_current_lines) \
                        MENU_FUNCTION(make_current_line_tube) \
                        MENU_FUNCTION(convert_line_to_spline_points) \
