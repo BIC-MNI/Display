@@ -12,28 +12,31 @@ public  void  delete_marker_segmentation( seg )
     marker_segment_struct *seg;
 {
     Status  status;
-    int     i;
 
     if( seg->model != (model_struct *) NULL && seg->n_objects > 0 )
     {
-        for_less( i, 0, seg->n_objects )
-            status = delete_bitlist( &seg->connected[i] );
-
-        FREE( status, seg->connected );
+        FREE2D( status, seg->distances );
 
         if( status ) {}
     }
 }
 
-private  Boolean  markers_close_enough( marker1, marker2, threshold )
-    marker_struct  *marker1;
-    marker_struct  *marker2;
-    Real           threshold;
+private  Boolean  markers_are_neighbours( seg, i, j, dist )
+    marker_segment_struct  *seg;
+    int                    i;
+    int                    j;
+    Real                   *dist;
 {
-    Real   distance_between_points();
+    Boolean   neigh_flag;
 
-    return( distance_between_points( &marker1->position, &marker2->position) <=
-            threshold );
+    *dist = seg->distances[i][j];
+
+    neigh_flag = (*dist <= Marker_threshold);
+
+    if( neigh_flag && !Use_marker_distances )
+        *dist = 1.0;
+
+    return( neigh_flag );
 }
 
 public  void  segment_markers( graphics, model )
@@ -41,10 +44,12 @@ public  void  segment_markers( graphics, model )
     model_struct     *model;
 {
     Status                           status;
-    Boolean                          *marked;
+    Real                             *closest_dist;
+    Boolean                          *in_queue;
     int                              i, j, marker_index;
     marker_struct                    *marker1, *marker2;
     Real                             dist;
+    Real                             distance_between_points();
     marker_segment_struct            *seg;
     PRIORITY_QUEUE_STRUCT( int )     queue;
 
@@ -57,13 +62,11 @@ public  void  segment_markers( graphics, model )
         seg->model = model;
         seg->n_objects = model->n_objects;
 
-        ALLOC( status, seg->connected, model->n_objects );
-
-        for_less( i, 0, model->n_objects )
-            status = create_bitlist( model->n_objects, &seg->connected[i] );
+        ALLOC2D( status, seg->distances, model->n_objects, model->n_objects );
 
         for_less( i, 0, model->n_objects )
         {
+            seg->distances[i][i] = 0.0;
             if( model->object_list[i]->object_type == MARKER )
             {
                 marker1 = model->object_list[i]->ptr.marker;
@@ -77,33 +80,34 @@ public  void  segment_markers( graphics, model )
                     {
                         marker2 = model->object_list[j]->ptr.marker;
 
-                        if( markers_close_enough( marker1, marker2,
-                                                  Marker_threshold ) )
-                        {
-                            set_bitlist_bit( &seg->connected[i], j, ON );
-                            set_bitlist_bit( &seg->connected[j], i, ON );
-                        }
+                        dist = distance_between_points( &marker1->position,
+                                                        &marker2->position );
+                        seg->distances[i][j] = (float) dist;
+                        seg->distances[j][i] = (float) dist;
                     }
                 }
             }
         }
     }
 
-    ALLOC( status, marked, model->n_objects );
+    ALLOC( status, closest_dist, model->n_objects );
+    ALLOC( status, in_queue, model->n_objects );
 
     INITIALIZE_PRIORITY_QUEUE( queue );
 
     for_less( i, 0, model->n_objects )
     {
-        marked[i] = FALSE;
+        closest_dist[i] = -1.0;
+        in_queue[i] = FALSE;
         if( model->object_list[i]->object_type == MARKER )
         {
             marker1 = model->object_list[i]->ptr.marker;
 
             if( marker1->structure_id < Marker_segment_id )
             {
-                INSERT_IN_PRIORITY_QUEUE( status, queue, i, 0 );
-                marked[i] = TRUE;
+                INSERT_IN_PRIORITY_QUEUE( status, queue, i, 0.0 );
+                closest_dist[i] = 0.0;
+                in_queue[i] = TRUE;
             }
         }
     }
@@ -111,26 +115,34 @@ public  void  segment_markers( graphics, model )
     while( !IS_PRIORITY_QUEUE_EMPTY(queue) )
     {
         REMOVE_FROM_PRIORITY_QUEUE( queue, marker_index, dist );
+        in_queue[marker_index] = FALSE;
 
         marker1 = model->object_list[marker_index]->ptr.marker;
 
         for_less( i, 0, model->n_objects )
         {
-            if( !marked[i] &&
-                get_bitlist_bit( &seg->connected[marker_index], i ) )
+            if( markers_are_neighbours( seg, marker_index, i, &dist ) &&
+                (closest_dist[i] < 0.0 ||
+                 closest_dist[marker_index] + dist < closest_dist[i]) )
             {
                 marker2 = model->object_list[i]->ptr.marker;
                 marker2->structure_id = marker1->structure_id;
                 if( marker2->structure_id < Marker_segment_id )
                     marker2->structure_id += Marker_segment_id;
                 marker2->colour = marker1->colour;
-                INSERT_IN_PRIORITY_QUEUE( status, queue, i, dist-1 );
-                marked[i] = TRUE;
+                closest_dist[i] = closest_dist[marker_index] + dist;
+                if( !in_queue[i] )
+                {
+                    INSERT_IN_PRIORITY_QUEUE( status, queue, i,
+                                              -closest_dist[i] );
+                    in_queue[i] = TRUE;
+                }
             }
         }
     }
 
     DELETE_PRIORITY_QUEUE( status, queue );
 
-    FREE( status, marked );
+    FREE( status, closest_dist );
+    FREE( status, in_queue );
 }
