@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/init_surface.c,v 1.27 1996-04-19 13:25:40 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/init_surface.c,v 1.28 1996-04-19 17:38:53 david Exp $";
 #endif
 
 
@@ -33,9 +33,9 @@ public  void  initialize_surface_extraction(
     surface_extraction->volume = (Volume) NULL;
     surface_extraction->label_volume = (Volume) NULL;
 
-    surface_extraction->x_voxel_max_distance = Default_x_voxel_max_distance;
-    surface_extraction->y_voxel_max_distance = Default_y_voxel_max_distance;
-    surface_extraction->z_voxel_max_distance = Default_z_voxel_max_distance;
+    surface_extraction->voxel_distances[X] = Default_x_voxel_max_distance;
+    surface_extraction->voxel_distances[Y] = Default_y_voxel_max_distance;
+    surface_extraction->voxel_distances[Z] = Default_z_voxel_max_distance;
 
     surface_extraction->min_invalid_label = 0.0;
     surface_extraction->max_invalid_label = -1.0;
@@ -77,7 +77,7 @@ public  void  delete_surface_extraction(
 
     surface_extraction = &display->three_d.surface_extraction;
 
-    if( surface_extraction->volume != (Volume) NULL )
+    if( surface_extraction->volume != NULL )
     {
         delete_edge_points( &surface_extraction->edge_points );
         delete_voxel_queue( &surface_extraction->voxels_to_do );
@@ -85,8 +85,8 @@ public  void  delete_surface_extraction(
         delete_voxel_flags( &surface_extraction->voxels_queued );
     }
 
-    surface_extraction->volume = (Volume) NULL;
-    surface_extraction->label_volume = (Volume) NULL;
+    surface_extraction->volume = NULL;
+    surface_extraction->label_volume = NULL;
 }
 
 public  void  reset_surface_extraction(
@@ -162,11 +162,11 @@ public  int  get_n_voxels(
     int   n_voxels;
     int   sizes[N_DIMENSIONS];
 
-    if( volume != (Volume) NULL )
+    if( volume != NULL )
     {
         get_volume_sizes( volume, sizes );
 
-        n_voxels = (sizes[X] - 1) * (sizes[Y] - 1) * (sizes[Z] - 1);
+        n_voxels = sizes[X] * sizes[Y] * sizes[Z];
     }
     else
     {

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.41 1996-04-19 13:25:40 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.42 1996-04-19 17:38:52 david Exp $";
 #endif
 
 
@@ -165,21 +165,18 @@ public  BOOLEAN  voxel_contains_surface(
     return( FALSE );
 }
 
-public  BOOLEAN  extract_voxel_surface(
+private  BOOLEAN  extract_voxel_marching_cubes_surface(
     Volume                      volume,
     Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
+    int                         voxel[],
     voxel_index_struct          *voxel_index,
     BOOLEAN                     first_voxel )
 {
     voxel_point_type       *points_list;
     Real                   corner_values[2][2][2];
     int                    n_polys, n_nondegenerate_polys;
-    int                    *sizes, voxel[N_DIMENSIONS];
-
-    voxel[X] = (int) voxel_index->i[X];
-    voxel[Y] = (int) voxel_index->i[Y];
-    voxel[Z] = (int) voxel_index->i[Z];
+    int                    *sizes;
 
     if( !get_voxel_values( volume, label_volume, surface_extraction,
                            voxel, corner_values ) )
@@ -204,6 +201,36 @@ public  BOOLEAN  extract_voxel_surface(
     }
 
     return( n_nondegenerate_polys > 0 );
+}
+
+public  BOOLEAN  extract_voxel_surface(
+    Volume                      volume,
+    Volume                      label_volume,
+    surface_extraction_struct   *surface_extraction,
+    voxel_index_struct          *voxel_index,
+    BOOLEAN                     first_voxel )
+{
+    BOOLEAN   found;
+    int       voxel[N_DIMENSIONS];
+
+    voxel[X] = (int) voxel_index->i[X];
+    voxel[Y] = (int) voxel_index->i[Y];
+    voxel[Z] = (int) voxel_index->i[Z];
+
+    if( surface_extraction->voxelate_flag )
+    {
+        found = extract_voxel_boundary_surface( volume, label_volume,
+                                                surface_extraction, voxel );
+    }
+    else
+    {
+        found = extract_voxel_marching_cubes_surface( volume, label_volume,
+                                                      surface_extraction,
+                                                      voxel, voxel_index,
+                                                      first_voxel );
+    }
+
+    return( found );
 }
 
 private  int  extract_polygons(

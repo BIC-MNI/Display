@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/data_structs.c,v 1.23 1996-04-19 13:25:39 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/data_structs.c,v 1.24 1996-04-19 17:38:52 david Exp $";
 #endif
 
 
@@ -59,7 +59,7 @@ public  void  initialize_voxel_flags(
     bitlist_3d_struct  *voxel_flags,
     int                sizes[] )
 {
-    create_bitlist_3d( sizes[X]-1, sizes[Y]-1, sizes[Z]-1, voxel_flags );
+    create_bitlist_3d( sizes[X], sizes[Y], sizes[Z], voxel_flags );
 }
 
 public  void  delete_voxel_flags(
@@ -118,7 +118,7 @@ public  void  initialize_voxel_done_flags(
 public  void  delete_voxel_done_flags(
     unsigned_byte  voxel_done_flags[] )
 {
-    if( voxel_done_flags != (unsigned_byte *) 0 )
+    if( voxel_done_flags != NULL )
         FREE( voxel_done_flags );
 }
 
@@ -141,7 +141,7 @@ public  unsigned_byte  get_voxel_done_flag(
     unsigned_byte  flag;
 
     index = IJK( indices->i[X], indices->i[Y], indices->i[Z],
-                 sizes[Y]-1, sizes[Z]-1 );
+                 sizes[Y], sizes[Z] );
 
     byte_index = index >> 1;
 
@@ -162,7 +162,7 @@ public  void  set_voxel_done_flag(
     int            index, byte_index;
 
     index = IJK( indices->i[X], indices->i[Y], indices->i[Z],
-                 sizes[Y]-1, sizes[Z]-1 );
+                 sizes[Y], sizes[Z] );
 
     byte_index = index >> 1;
 
@@ -212,7 +212,7 @@ private  void  get_edge_point_keys(
     int                  edge_intersected,
     int                  keys[] )
 {
-    keys[0] = IJK( voxel->i[X], voxel->i[Y], voxel->i[Z], sizes[Y], sizes[Z] )
+    keys[0] = IJK( voxel->i[X], voxel->i[Y], voxel->i[Z], sizes[Y]+1,sizes[Z]+1)
               * N_DIMENSIONS + edge_intersected;
 }
 

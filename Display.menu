@@ -72,9 +72,9 @@ file
 
 create_surface
 {
-    transient 'w'    set_surface_extract_x_max_distance  "X Dist: %g"
-    transient 'e'    set_surface_extract_y_max_distance  "Y Dist: %g"
-    transient 'r'    set_surface_extract_z_max_distance  "Z Dist: %g"
+    transient 'w'    set_surface_extract_x_max_distance  "X Dist: %d"
+    transient 'e'    set_surface_extract_y_max_distance  "Y Dist: %d"
+    transient 'r'    set_surface_extract_z_max_distance  "Z Dist: %d"
     transient 'y'    set_surface_invalid_label_range     "Set Invalid Lbl Range"
 
     transient 'a'    start_volume_isosurface             "Volume Isosurface"

@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char surface_extract_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/surface_extract.h,v 1.21 1996-04-19 13:24:47 david Exp $";
+static char surface_extract_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/surface_extract.h,v 1.22 1996-04-19 17:38:47 david Exp $";
 #endif
 
 #include  <bicpl.h>
@@ -43,6 +43,7 @@ typedef  struct
 
     BOOLEAN                              extraction_in_progress;
     BOOLEAN                              binary_flag;
+    BOOLEAN                              voxelate_flag;
     Real                                 min_value;
     Real                                 max_value;
     Real                                 min_invalid_label;
@@ -58,12 +59,10 @@ typedef  struct
 
     voxel_queue_struct                   voxels_to_do;
 
-    Real                                 x_voxel_max_distance;
-    Real                                 y_voxel_max_distance;
-    Real                                 z_voxel_max_distance;
-    int                                  x_starting_voxel;
-    int                                  y_starting_voxel;
-    int                                  z_starting_voxel;
+    int                                  voxel_distances[N_DIMENSIONS];
+    int                                  starting_voxel[N_DIMENSIONS];
+    int                                  min_limits[N_DIMENSIONS];
+    int                                  max_limits[N_DIMENSIONS];
     
 
     polygons_struct                      *polygons;

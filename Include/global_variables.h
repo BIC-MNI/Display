@@ -249,9 +249,9 @@ START_GLOBALS
     DEF_GLOBAL( Tmp_surface_name, STRING, "" )
 
     DEF_GLOBAL( Marching_cubes_method, int, 1 )
-    DEF_GLOBAL( Default_x_voxel_max_distance, Real, 100000.0 )
-    DEF_GLOBAL( Default_y_voxel_max_distance, Real, 100000.0 )
-    DEF_GLOBAL( Default_z_voxel_max_distance, Real, 100000.0 )
+    DEF_GLOBAL( Default_x_voxel_max_distance, int, -1 )
+    DEF_GLOBAL( Default_y_voxel_max_distance, int, -1 )
+    DEF_GLOBAL( Default_z_voxel_max_distance, int, -1 )
 
     DEF_GLOBAL( Compute_neighbours_on_input, BOOLEAN, FALSE )
     DEF_GLOBAL( Polygon_bintree_threshold, int, -1 )

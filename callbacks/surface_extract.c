@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surface_extract.c,v 1.28 1996-04-19 13:24:57 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surface_extract.c,v 1.29 1996-04-19 17:38:48 david Exp $";
 #endif
 
 
@@ -22,7 +22,8 @@ static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks
 private  void  start_surface(
     display_struct   *display,
     BOOLEAN          use_label_flag,
-    BOOLEAN          binary_flag )
+    BOOLEAN          binary_flag,
+    BOOLEAN          voxelate_flag )
 {
     BOOLEAN        input_okay;
     Real           min_value, max_value;
@@ -47,7 +48,7 @@ private  void  start_surface(
     {
         input_okay = TRUE;
 
-        if( binary_flag )
+        if( binary_flag || voxelate_flag )
         {
             print( "Enter min and max inside value: " );
             if( input_real( stdin, &min_value ) != OK ||
@@ -69,7 +70,7 @@ private  void  start_surface(
     }
     else
     {
-        if( binary_flag )
+        if( binary_flag || voxelate_flag )
         {
             min_value = display->three_d.surface_extraction.min_value;
             max_value = display->three_d.surface_extraction.max_value;
@@ -87,7 +88,7 @@ private  void  start_surface(
     {
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
         start_surface_extraction_at_point( display, volume, label_volume,
-                                           binary_flag,
+                                           binary_flag, voxelate_flag,
                                            min_value,
                                            max_value,
                                            int_voxel[X],
@@ -100,7 +101,7 @@ private  void  start_surface(
 
 public  DEF_MENU_FUNCTION(start_volume_isosurface )
 {
-    start_surface( display, FALSE, FALSE );
+    start_surface( display, FALSE, FALSE, FALSE );
 
     return( OK );
 }
@@ -116,7 +117,7 @@ public  DEF_MENU_UPDATE(start_volume_isosurface )
 
 public  DEF_MENU_FUNCTION(start_volume_binary_isosurface )
 {
-    start_surface( display, FALSE, TRUE );
+    start_surface( display, FALSE, TRUE, FALSE );
 
     return( OK );
 }
@@ -132,7 +133,7 @@ public  DEF_MENU_UPDATE(start_volume_binary_isosurface )
 
 public  DEF_MENU_FUNCTION(start_label_binary_isosurface )
 {
-    start_surface( display, TRUE, TRUE );
+    start_surface( display, TRUE, TRUE, FALSE );
 
     return( OK );
 }
@@ -227,63 +228,11 @@ public  DEF_MENU_UPDATE(make_surface_permanent )
             display->three_d.surface_extraction.polygons->n_items > 0 );
 }
 
-private  void   voxelate_surface(
-    display_struct   *display,
-    BOOLEAN          use_label_volume )
-{
-    object_struct    *object;
-    Volume           volume, label_volume;
-    STRING           line;
-    Real             min_value, max_value;
-
-    if( get_n_volumes(display) == 0 )
-        return;
-
-    if( use_label_volume )
-        volume = get_label_volume( display );
-    else
-        volume = get_volume( display );
-
-    label_volume = get_label_volume( display );
-
-    if( volume == NULL )
-        return;
-
-    print( "Enter value or range to get boundary of: " );
-
-    if( input_line( stdin, &line ) != OK )
-        return;
-
-    if( sscanf( line, "%lf %lf\n", &min_value, &max_value ) != 2 )
-    {
-        if( sscanf( line, "%lf\n", &min_value ) != 1 )
-        {
-            delete_string( line );
-            return;
-        }
-        max_value = min_value;
-    }
-
-    object = create_object( POLYGONS );
-
-    create_voxelated_surface( volume, min_value, max_value,
-                              label_volume,
-                       display->three_d.surface_extraction.min_invalid_label,
-                       display->three_d.surface_extraction.max_invalid_label,
-                              get_polygons_ptr(object) );
-
-    add_object_to_model( get_current_model(display), object );
-
-    graphics_models_have_changed( display );
-
-    delete_string( line );
-}
-
 /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(get_voxelated_label_surface)
 {
-    voxelate_surface( display, TRUE );
+    start_surface( display, TRUE, FALSE, TRUE );
     return( OK );
 }
 
@@ -298,7 +247,7 @@ public  DEF_MENU_UPDATE(get_voxelated_label_surface )
 
 public  DEF_MENU_FUNCTION(get_voxelated_surface)
 {
-    voxelate_surface( display, FALSE );
+    start_surface( display, FALSE, FALSE, TRUE );
 
     return( OK );
 }
@@ -314,12 +263,12 @@ public  DEF_MENU_UPDATE(get_voxelated_surface )
 
 public  DEF_MENU_FUNCTION( set_surface_extract_x_max_distance )
 {
-    Real             dist;
+    int             dist;
 
     print( "Enter X max distance: " );
 
-    if( input_real( stdin, &dist ) == OK )
-        display->three_d.surface_extraction.x_voxel_max_distance = dist;
+    if( input_int( stdin, &dist ) == OK )
+        display->three_d.surface_extraction.voxel_distances[X] = dist;
 
     (void) input_newline( stdin );
 
@@ -330,8 +279,8 @@ public  DEF_MENU_FUNCTION( set_surface_extract_x_max_distance )
 
 public  DEF_MENU_UPDATE(set_surface_extract_x_max_distance )
 {
-    set_menu_text_real( menu_window, menu_entry,
-                    display->three_d.surface_extraction.x_voxel_max_distance );
+    set_menu_text_int( menu_window, menu_entry,
+                    display->three_d.surface_extraction.voxel_distances[X] );
 
     return( TRUE );
 }
@@ -340,12 +289,12 @@ public  DEF_MENU_UPDATE(set_surface_extract_x_max_distance )
 
 public  DEF_MENU_FUNCTION( set_surface_extract_y_max_distance )
 {
-    Real             dist;
+    int             dist;
 
     print( "Enter Y max distance: " );
 
-    if( input_real( stdin, &dist ) == OK )
-        display->three_d.surface_extraction.y_voxel_max_distance = dist;
+    if( input_int( stdin, &dist ) == OK )
+        display->three_d.surface_extraction.voxel_distances[Y] = dist;
 
     (void) input_newline( stdin );
 
@@ -356,8 +305,8 @@ public  DEF_MENU_FUNCTION( set_surface_extract_y_max_distance )
 
 public  DEF_MENU_UPDATE(set_surface_extract_y_max_distance )
 {
-    set_menu_text_real( menu_window, menu_entry,
-                    display->three_d.surface_extraction.y_voxel_max_distance );
+    set_menu_text_int( menu_window, menu_entry,
+                    display->three_d.surface_extraction.voxel_distances[Y] );
 
     return( TRUE );
 }
@@ -366,12 +315,12 @@ public  DEF_MENU_UPDATE(set_surface_extract_y_max_distance )
 
 public  DEF_MENU_FUNCTION( set_surface_extract_z_max_distance )
 {
-    Real             dist;
+    int             dist;
 
     print( "Enter Z max distance: " );
 
-    if( input_real( stdin, &dist ) == OK )
-        display->three_d.surface_extraction.z_voxel_max_distance = dist;
+    if( input_int( stdin, &dist ) == OK )
+        display->three_d.surface_extraction.voxel_distances[Z] = dist;
 
     (void) input_newline( stdin );
 
@@ -382,8 +331,8 @@ public  DEF_MENU_FUNCTION( set_surface_extract_z_max_distance )
 
 public  DEF_MENU_UPDATE(set_surface_extract_z_max_distance )
 {
-    set_menu_text_real( menu_window, menu_entry,
-                    display->three_d.surface_extraction.z_voxel_max_distance );
+    set_menu_text_int( menu_window, menu_entry,
+                    display->three_d.surface_extraction.voxel_distances[Z] );
 
     return( TRUE );
 }
