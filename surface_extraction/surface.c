@@ -152,6 +152,7 @@ public  void  start_surface_extraction_at_point( graphics, x, y, z )
     int                x, y, z;
 {
     surface_extraction_struct   *surface_extraction;
+    Boolean                     reset_voxel_queue;
     Boolean                     cube_is_within_volume();
     Boolean                     find_close_voxel_containing_value();
     voxel_index_struct          voxel_indices;
@@ -161,7 +162,8 @@ public  void  start_surface_extraction_at_point( graphics, x, y, z )
     void                        add_voxel_neighbours();
     void                        start_surface_extraction();
     Status                      delete_voxels_done();
-    Status                      initialize_voxels_done();
+    Status                      delete_voxel_queue();
+    void                        initialize_voxel_queue();
 
     surface_extraction = &graphics->three_d.surface_extraction;
 
@@ -171,32 +173,35 @@ public  void  start_surface_extraction_at_point( graphics, x, y, z )
              graphics->associated[SLICE_WINDOW]->slice.volume, x, y, z ) &&
         !surface_extraction->extraction_in_progress )
     {
-        if( surface_extraction->n_voxels_alloced <
-            get_n_voxels(graphics->associated[SLICE_WINDOW]->slice.volume) )
-        {
-            status = delete_voxels_done( 
-                       &graphics->three_d.surface_extraction.voxels_done );
-
-            if( status == OK )
-            {
-                status = initialize_voxels_done( 
-                   &surface_extraction->voxels_done,
-                        get_n_voxels(graphics->associated[SLICE_WINDOW]->
-                       slice.volume) );
-            }
-        }
-
         if( !surface_extraction->isovalue_selected )
         {
             set_isosurface_value( surface_extraction );
+            reset_voxel_queue = FALSE;
+        }
+        else
+        {
+            reset_voxel_queue = TRUE;
         }
 
         if( find_close_voxel_containing_value(
                   graphics->associated[SLICE_WINDOW]->slice.volume,
                   &graphics->associated[SLICE_WINDOW]->slice.voxel_activity,
+                  &graphics->three_d.surface_extraction.voxels_done,
                   graphics->three_d.surface_extraction.isovalue,
                   x, y, z, &voxel_indices ) )
         {
+            if( status == OK && reset_voxel_queue )
+            {
+                status = delete_voxel_queue(
+                     &graphics->three_d.surface_extraction.voxels_to_do );
+
+                if( status == OK )
+                {
+                     initialize_voxel_queue(
+                     &graphics->three_d.surface_extraction.voxels_to_do );
+                }
+            }
+
             if( status == OK )
             {
                 status = insert_in_voxel_queue(
@@ -251,22 +256,23 @@ public  void  stop_surface_extraction( graphics )
 }
 
 private  Boolean  find_close_voxel_containing_value( volume, voxel_activity,
-                        value,
+                        voxels_done, value,
                         x, y, z, found_indices )
     volume_struct          *volume;
     bitlist_struct         *voxel_activity;
+    bitlist_struct         *voxels_done;
     Real                   value;
     int                    x, y, z;
     voxel_index_struct     *found_indices;
 {
     Status                                status;
-    Boolean                               found;
+    Boolean                               found, voxel_done, voxel_contains;
     Boolean                               voxel_contains_value();
     Boolean                               are_voxel_corners_active();
     Boolean                               active;
     QUEUE_STRUCT( voxel_index_struct )    voxels_to_check;
     voxel_index_struct                    indices, insert;
-    bitlist_struct                        voxels_done;
+    bitlist_struct                        voxels_searched;
     Status                                mark_voxel_done();
     Status                                delete_voxels_done();
     Status                                insert_in_voxel_queue();
@@ -282,7 +288,7 @@ private  Boolean  find_close_voxel_containing_value( volume, voxel_activity,
 
     found = FALSE;
 
-    status = initialize_voxels_done( &voxels_done, get_n_voxels( volume ) );
+    status = initialize_voxels_done( &voxels_searched, get_n_voxels( volume ) );
 
     initialize_voxel_queue( &voxels_to_check );
 
@@ -293,7 +299,7 @@ private  Boolean  find_close_voxel_containing_value( volume, voxel_activity,
 
     if( status == OK )
     {
-        status = mark_voxel_done( volume, &voxels_done, &insert );
+        status = mark_voxel_done( volume, &voxels_searched, &insert );
     }
 
     while( !found && status == OK && voxels_remaining(&voxels_to_check) )
@@ -307,30 +313,34 @@ private  Boolean  find_close_voxel_containing_value( volume, voxel_activity,
 
         if( active )
         {
-            if( voxel_contains_value( volume,
+            voxel_contains = voxel_contains_value( volume,
                                       indices.i[X_AXIS],
                                       indices.i[Y_AXIS],
-                                      indices.i[Z_AXIS], value ) )
+                                      indices.i[Z_AXIS], value );
+
+            voxel_done = is_voxel_done( volume, voxels_done, &indices );
+
+            if( voxel_contains && !voxel_done )
             {
                 found_indices->i[X_AXIS] = indices.i[X_AXIS];
                 found_indices->i[Y_AXIS] = indices.i[Y_AXIS];
                 found_indices->i[Z_AXIS] = indices.i[Z_AXIS];
                 found = TRUE;
             }
-            else
+            else if( voxel_contains || !voxel_done )
             {
                 add_voxel_neighbours( volume,
                                       indices.i[X_AXIS],
                                       indices.i[Y_AXIS],
                                       indices.i[Z_AXIS],
-                                      &voxels_done, &voxels_to_check );
+                                      &voxels_searched, &voxels_to_check );
             }
         }
     }
 
     if( status == OK )
     {
-        status = delete_voxels_done( &voxels_done );
+        status = delete_voxels_done( &voxels_searched );
     }
 
     if( status == OK )
