@@ -222,7 +222,9 @@ private  void  terminate_event(
     pop_action_table( &display->action_table, LEFT_MOUSE_UP_EVENT );
 }
 
-private  DEF_EVENT_FUNCTION( start_picking_box )    /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( start_picking_box )
 {
     int          volume_index;
     int          view_index, x_index, y_index, axis, x_mouse, y_mouse;
@@ -310,7 +312,9 @@ private  void  update_picking_box(
         set_slice_crop_position( slice_window, x, y );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_picking_box )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( terminate_picking_box )
 {
     update_picking_box( display );
 
@@ -319,7 +323,9 @@ private  DEF_EVENT_FUNCTION( terminate_picking_box )     /* ARGSUSED */
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_update_picking_box )     /* ARGSUSED */
+/* ARGSUSED */
+
+private  DEF_EVENT_FUNCTION( handle_update_picking_box )
 {
     update_picking_box( display );
 
