@@ -13,15 +13,15 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/marker_ops.c,v 1.40 1996-02-28 16:04:14 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/marker_ops.c,v 1.41 1996-04-19 13:24:54 david Exp $";
 #endif
 
 
 #include  <display.h>
 
-private  BOOLEAN  get_current_marker( display, marker )
-    display_struct    *display;
-    marker_struct     **marker;
+private  BOOLEAN  get_current_marker(
+    display_struct    *display,
+    marker_struct     **marker )
 {
     BOOLEAN                 found;
     object_struct           *current_object, *object;
@@ -187,6 +187,11 @@ public  DEF_MENU_FUNCTION( save_markers )
         volume = (Volume) NULL;
 
     n_tags = 0;
+    tags = NULL;
+    weights = NULL;
+    structure_ids = NULL;
+    patient_ids = NULL;
+    labels = NULL;
     if( status == OK )
     {
         initialize_object_traverse( &object_traverse, 1, &object );
@@ -207,10 +212,10 @@ public  DEF_MENU_FUNCTION( save_markers )
                 SET_ARRAY_SIZE( labels, n_tags, n_tags+1, DEFAULT_CHUNK_SIZE);
                 labels[n_tags] = create_string( marker->label );
 
-                tags[n_tags][X] = Point_x(marker->position);
-                tags[n_tags][Y] = Point_y(marker->position);
-                tags[n_tags][Z] = Point_z(marker->position);
-                weights[n_tags] = marker->size;
+                tags[n_tags][X] = (Real) Point_x(marker->position);
+                tags[n_tags][Y] = (Real) Point_y(marker->position);
+                tags[n_tags][Z] = (Real) Point_z(marker->position);
+                weights[n_tags] = (Real) marker->size;
                 structure_ids[n_tags] = marker->structure_id;
                 patient_ids[n_tags] = marker->patient_id;
                 ++n_tags;

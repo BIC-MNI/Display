@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surface_extract.c,v 1.27 1995-10-19 15:50:39 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surface_extract.c,v 1.28 1996-04-19 13:24:57 david Exp $";
 #endif
 
 
@@ -314,11 +314,11 @@ public  DEF_MENU_UPDATE(get_voxelated_surface )
 
 public  DEF_MENU_FUNCTION( set_surface_extract_x_max_distance )
 {
-    int             dist;
+    Real             dist;
 
     print( "Enter X max distance: " );
 
-    if( input_int( stdin, &dist ) == OK )
+    if( input_real( stdin, &dist ) == OK )
         display->three_d.surface_extraction.x_voxel_max_distance = dist;
 
     (void) input_newline( stdin );
@@ -340,11 +340,11 @@ public  DEF_MENU_UPDATE(set_surface_extract_x_max_distance )
 
 public  DEF_MENU_FUNCTION( set_surface_extract_y_max_distance )
 {
-    int             dist;
+    Real             dist;
 
     print( "Enter Y max distance: " );
 
-    if( input_int( stdin, &dist ) == OK )
+    if( input_real( stdin, &dist ) == OK )
         display->three_d.surface_extraction.y_voxel_max_distance = dist;
 
     (void) input_newline( stdin );
@@ -366,11 +366,11 @@ public  DEF_MENU_UPDATE(set_surface_extract_y_max_distance )
 
 public  DEF_MENU_FUNCTION( set_surface_extract_z_max_distance )
 {
-    int             dist;
+    Real             dist;
 
     print( "Enter Z max distance: " );
 
-    if( input_int( stdin, &dist ) == OK )
+    if( input_real( stdin, &dist ) == OK )
         display->three_d.surface_extraction.z_voxel_max_distance = dist;
 
     (void) input_newline( stdin );
@@ -392,12 +392,12 @@ public  DEF_MENU_UPDATE(set_surface_extract_z_max_distance )
 
 public  DEF_MENU_FUNCTION( set_surface_invalid_label_range )
 {
-    Real     min_label, max_label;
+    int      min_label, max_label;
 
     print( "Enter min label and max label corresponding to invalid voxels: " );
 
-    if( input_real( stdin, &min_label ) == OK &&
-        input_real( stdin, &max_label ) == OK )
+    if( input_int( stdin, &min_label ) == OK &&
+        input_int( stdin, &max_label ) == OK )
     {
         set_invalid_label_range_for_surface_extraction( display,
                                                         min_label, max_label );

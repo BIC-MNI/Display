@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/spaceball.c,v 1.2 1995-10-19 15:51:29 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/spaceball.c,v 1.3 1996-04-19 13:25:08 david Exp $";
 #endif
 
 
@@ -37,7 +37,7 @@ public  BOOLEAN  get_spaceball_transform(
     Real             y2,
     Transform        *transform )
 {
-    static  Point  centre = { 0.5, 0.5, 0.0 };
+    static  Point  centre = { 0.5f, 0.5f, 0.0f };
     Transform      spaceball_transform;
     Real           x_radius, y_radius;
     int            x_size, y_size;
@@ -88,11 +88,11 @@ private  BOOLEAN  make_spaceball_transform(
     Vector   v0, v1;
     Vector   axis_of_rotation;
 
-    x_old = (x1 - Point_x(*centre)) / x_radius;
-    y_old = (y1 - Point_y(*centre)) / y_radius;
+    x_old = (x1 - (Real) Point_x(*centre)) / x_radius;
+    y_old = (y1 - (Real) Point_y(*centre)) / y_radius;
 
-    x_new = (x2 - Point_x(*centre)) / x_radius;
-    y_new = (y2 - Point_y(*centre)) / y_radius;
+    x_new = (x2 - (Real) Point_x(*centre)) / x_radius;
+    y_new = (y2 - (Real) Point_y(*centre)) / y_radius;
 
     dist_old = x_old * x_old + y_old * y_old;
     dist_new = x_new * x_new + y_new * y_new;

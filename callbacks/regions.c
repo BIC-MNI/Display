@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.36 1996-04-17 17:50:12 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/regions.c,v 1.37 1996-04-19 13:25:00 david Exp $";
 #endif
 
 
@@ -423,12 +423,12 @@ private  void  calculate_label_volume(
 
     *n_voxels = n_vox;
     *cubic_mm = (Real) n_vox * separations[X] * separations[Y] * separations[Z];
-    *cubic_mm = ABS( *cubic_mm );
+    *cubic_mm = FABS( *cubic_mm );
 
     print( "Voxel size: %g mm by %g mm by %g mm\n",
-           ABS( separations[X] ),
-           ABS( separations[Y] ),
-           ABS( separations[Z] ) );
+           FABS( separations[X] ),
+           FABS( separations[Y] ),
+           FABS( separations[Z] ) );
 }
 
 /* ARGSUSED */

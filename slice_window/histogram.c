@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/histogram.c,v 1.12 1996-04-17 17:50:25 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/histogram.c,v 1.13 1996-04-19 13:25:35 david Exp $";
 #endif
 
 #include  <display.h>
@@ -79,7 +79,7 @@ private  void  compute_histogram_lines(
     get_volume_sizes( volume, sizes );
 
     initialize_histogram( &histogram,
-                          (max_value - min_value) / 1000, min_value );
+                          (max_value - min_value) / 1000.0, min_value );
 
     start[X] = 0;
     end[X] = sizes[X];
@@ -144,26 +144,26 @@ public  void  resize_histogram(
     if( unscaled_lines->n_points == 0 )
         return;
 
-    start = unscaled_lines->n_points * 0.05;
+    start = ROUND( (Real) unscaled_lines->n_points * 0.05 );
     max_y = 0.0;
     for_less( i, start, unscaled_lines->n_points )
     {
-        if( i == start || Point_y(unscaled_lines->points[i]) > max_y )
-            max_y = Point_y(unscaled_lines->points[i]);
+        if( i == start || (Real) Point_y(unscaled_lines->points[i]) > max_y )
+            max_y = (Real) Point_y(unscaled_lines->points[i]);
     }
 
     get_histogram_space( slice_window, &x_min, &x_max );
 
     for_less( i, 0, lines->n_points )
     {
-        x = x_min + (x_max - x_min) * Histogram_x_scale *
-            Point_y(unscaled_lines->points[i]) / max_y;
+        x = (Real) x_min + (Real) (x_max - x_min) * Histogram_x_scale *
+            (Real) Point_y(unscaled_lines->points[i]) / (Real) max_y;
 
         if( x > (Real) x_max )
             x = (Real) x_max;
 
-        y = get_colour_bar_y_pos( slice_window,
-                                  Point_x(unscaled_lines->points[i]) );
+        y = (Real) get_colour_bar_y_pos( slice_window,
+                                  (Real) Point_x(unscaled_lines->points[i]) );
         fill_Point( lines->points[i], x, y, 0.0 );
     }
 }

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/three_d.c,v 1.32 1996-02-28 16:04:17 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/three_d.c,v 1.33 1996-04-19 13:25:13 david Exp $";
 #endif
 
 
@@ -25,8 +25,8 @@ private  void  initialize_three_d_events(
 public  void  initialize_three_d_window(
     display_struct   *display )
 {
-    static   Vector        line_of_sight = { 0.0, 0.0, -1.0 };
-    static                 Vector    horizontal = { 1.0, 0.0, 0.0 };
+    static   Vector        line_of_sight = { 0.0f, 0.0f, -1.0f };
+    static                 Vector    horizontal = { 1.0f, 0.0f, 0.0f };
     three_d_window_struct  *three_d;
 
     initialize_resize_events( display );
@@ -35,7 +35,7 @@ public  void  initialize_three_d_window(
 
     three_d->default_marker_structure_id = Default_marker_structure_id;
     three_d->default_marker_patient_id = Default_marker_patient_id;
-    three_d->default_marker_type = (int) Default_marker_type;
+    three_d->default_marker_type = (Marker_types) Default_marker_type;
     three_d->default_marker_size = Default_marker_size;
     three_d->default_marker_colour = Default_marker_colour;
     three_d->default_marker_label = create_string( Default_marker_label );

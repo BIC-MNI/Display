@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/init_surface.c,v 1.26 1995-10-19 15:52:37 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/init_surface.c,v 1.27 1996-04-19 13:25:40 david Exp $";
 #endif
 
 
@@ -181,6 +181,6 @@ public  void  set_invalid_label_range_for_surface_extraction(
     int             min_label,
     int             max_label )
 {
-    display->three_d.surface_extraction.min_invalid_label = min_label;
-    display->three_d.surface_extraction.max_invalid_label = max_label;
+    display->three_d.surface_extraction.min_invalid_label = (Real) min_label;
+    display->three_d.surface_extraction.max_invalid_label = (Real) max_label;
 }

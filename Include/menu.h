@@ -16,12 +16,17 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_menu_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/menu.h,v 1.20 1995-07-31 19:53:44 david Exp $";
+static char display_menu_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/menu.h,v 1.21 1996-04-19 13:24:46 david Exp $";
 #endif
 
 #include  <volume_io.h>
 
-typedef  Status   menu_function_type();
+struct display_struct;
+struct menu_entry_struct;
+
+typedef  Status   menu_function_type( struct display_struct *,
+                                      struct display_struct *,
+                                      struct menu_entry_struct * );
 
 typedef  menu_function_type  (*menu_function_pointer);
 
@@ -30,8 +35,9 @@ typedef  menu_function_type  (*menu_function_pointer);
    display_struct    *menu_window, \
    menu_entry_struct *menu_entry )
 
-
-typedef  BOOLEAN   menu_update_type();
+typedef  BOOLEAN   menu_update_type( struct display_struct    *, \
+                                     struct display_struct    *, \
+                                     struct menu_entry_struct * );
 
 typedef  menu_update_type  (*menu_update_pointer);
 

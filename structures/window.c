@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/window.c,v 1.5 1995-10-19 15:52:32 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/window.c,v 1.6 1996-04-19 13:25:38 david Exp $";
 #endif
 
 #include <display.h>
@@ -23,7 +23,9 @@ public  void  transform_screen_to_pixels(
     Point          *screen,
     Point          *pixels )
 {
-    Point_x(*pixels) = (Real) (window->x_size - 1) * Point_x(*screen) + 0.5;
-    Point_y(*pixels) = (Real) (window->y_size - 1) * Point_y(*screen) + 0.5;
-    Point_z(*pixels) = 0.0;
+    Point_x(*pixels) = (Point_coord_type) ROUND(
+                  (Real) (window->x_size - 1) * (Real) Point_x(*screen) );
+    Point_y(*pixels) = (Point_coord_type) ROUND(
+                  (Real) (window->y_size - 1) * (Real) Point_y(*screen) );
+    Point_z(*pixels) = 0.0f;
 }

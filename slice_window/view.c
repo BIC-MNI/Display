@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.38 1996-02-21 15:41:41 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.39 1996-04-19 13:25:30 david Exp $";
 #endif
 
 
@@ -48,23 +48,23 @@ private  void  set_orthogonal_slice_window_view(
     {
     case 0:
         slice_window->slice.volumes[volume_index].views[0].
-              x_axis[Slice_view1_axis1] = SIGN(separations[Slice_view1_axis1]);
+        x_axis[Slice_view1_axis1] = FSIGN(separations[Slice_view1_axis1]);
         slice_window->slice.volumes[volume_index].views[0].
-              y_axis[Slice_view1_axis2] = SIGN(separations[Slice_view1_axis2]);
+        y_axis[Slice_view1_axis2] = FSIGN(separations[Slice_view1_axis2]);
         break;
 
     case 1:
         slice_window->slice.volumes[volume_index].views[1].
-              x_axis[Slice_view2_axis1] = SIGN(separations[Slice_view2_axis1]);
+        x_axis[Slice_view2_axis1] = FSIGN(separations[Slice_view2_axis1]);
         slice_window->slice.volumes[volume_index].views[1].
-              y_axis[Slice_view2_axis2] = SIGN(separations[Slice_view2_axis2]);
+        y_axis[Slice_view2_axis2] = FSIGN(separations[Slice_view2_axis2]);
         break;
 
     case 2:
         slice_window->slice.volumes[volume_index].views[2].
-              x_axis[Slice_view3_axis1] = SIGN(separations[Slice_view3_axis1]);
+        x_axis[Slice_view3_axis1] = FSIGN(separations[Slice_view3_axis1]);
         slice_window->slice.volumes[volume_index].views[2].
-              y_axis[Slice_view3_axis2] = SIGN(separations[Slice_view3_axis2]);
+        y_axis[Slice_view3_axis2] = FSIGN(separations[Slice_view3_axis2]);
         break;
 
     case 3:
@@ -72,15 +72,15 @@ private  void  set_orthogonal_slice_window_view(
         sine = sin( 45.0 * DEG_TO_RAD );
 
         slice_window->slice.volumes[volume_index].
-                    views[3].x_axis[X] = cosine * SIGN(separations[X]);
+                    views[3].x_axis[X] = cosine * FSIGN(separations[X]);
         slice_window->slice.volumes[volume_index].
-                    views[3].x_axis[Y] = sine * SIGN(separations[Y]);
+                    views[3].x_axis[Y] = sine * FSIGN(separations[Y]);
         slice_window->slice.volumes[volume_index].views[3].x_axis[Z] = 0.0;
 
         slice_window->slice.volumes[volume_index].
-                    views[3].y_axis[X] = -sine * SIGN(separations[X]);
+                    views[3].y_axis[X] = -sine * FSIGN(separations[X]);
         slice_window->slice.volumes[volume_index].
-                    views[3].y_axis[Y] = cosine * SIGN(separations[Y]);
+                    views[3].y_axis[Y] = cosine * FSIGN(separations[Y]);
         slice_window->slice.volumes[volume_index].views[3].y_axis[Z] = 0.0;
         break;
     }
@@ -464,9 +464,9 @@ public  void  reset_slice_view(
     }
     else
     {
-        x_scale = (Real) (x_max_vp - x_min_vp + 1) / (x_max - x_min) /
+        x_scale = (Real) (x_max_vp - x_min_vp + 1) / (Real) (x_max - x_min) /
                              (1.0 + Slice_fit_oversize);
-        y_scale = (Real) (y_max_vp - y_min_vp + 1) / (y_max - y_min) /
+        y_scale = (Real) (y_max_vp - y_min_vp + 1) / (Real) (y_max - y_min) /
                              (1.0 + Slice_fit_oversize);
 
         if( x_scale < y_scale )
@@ -475,14 +475,16 @@ public  void  reset_slice_view(
             x_scale = y_scale;
 
         slice_window->slice.slice_views[view].used_viewport_x_size =
-                 ABS( x_scale * (x_max - x_min) * (1.0 + Slice_fit_oversize) );
+                     ROUND( FABS( x_scale * (Real) (x_max - x_min) *
+                                  (1.0 + Slice_fit_oversize) ));
         slice_window->slice.slice_views[view].used_viewport_y_size =
-                 ABS( y_scale * (y_max - y_min) * (1.0 + Slice_fit_oversize) );
+                     ROUND( FABS( y_scale * (Real) (y_max - y_min) *
+                                  (1.0 + Slice_fit_oversize) ));
 
         x_trans = ((Real) (x_max_vp - x_min_vp + 1) - x_scale *
-                          (x_max - x_min))/2.0 - x_scale * x_min;
+                          (Real) (x_max - x_min))/2.0 - x_scale * (Real) x_min;
         y_trans = ((Real) (y_max_vp - y_min_vp + 1) - y_scale *
-                          (y_max - y_min))/2.0 - y_scale * y_min;
+                          (Real) (y_max - y_min))/2.0 - y_scale * (Real) y_min;
     }
 
     slice_window->slice.volumes[current_volume_index].views[view].x_trans =
@@ -651,7 +653,7 @@ public  BOOLEAN  convert_pixel_to_voxel(
         y_pixel -= y_min;
 
         found = convert_slice_pixel_to_voxel( get_nth_volume(slice_window,
-                                volume_index), x_pixel, y_pixel,
+                                volume_index), (Real) x_pixel, (Real) y_pixel,
          origin, x_axis, y_axis,
          slice_window->slice.volumes[volume_index].views[*view_index].x_trans,
          slice_window->slice.volumes[volume_index].views[*view_index].y_trans,
@@ -749,8 +751,9 @@ public  BOOLEAN  get_voxel_corresponding_to_point(
     if( get_slice_window_volume( display, &volume ) )
     {
         convert_world_to_voxel( volume,
-                              Point_x(*point), Point_y(*point), Point_z(*point),
-                              voxel );
+                                (Real) Point_x(*point),
+                                (Real) Point_y(*point),
+                                (Real) Point_z(*point), voxel );
 
         converted = voxel_is_within_volume( volume, voxel );
     }
@@ -776,9 +779,9 @@ public  void   get_slice_window_partitions(
     *text_panel_height = Text_panel_height;
     *colour_bar_panel_height = y_size - *text_panel_height;
     *left_slice_width = ROUND( slice_window->slice.x_split *
-                               (x_size - *left_panel_width) );
+                               (Real) (x_size - *left_panel_width) );
     *right_slice_width = x_size - *left_panel_width - *left_slice_width;
-    *bottom_slice_height = ROUND( slice_window->slice.y_split * y_size );
+    *bottom_slice_height = ROUND( slice_window->slice.y_split * (Real) y_size );
     *top_slice_height = y_size - *bottom_slice_height;
 }
 
@@ -1151,7 +1154,7 @@ private  void  get_voxel_axis_perpendicular(
         a2 = (c + 2) % N_DIMENSIONS;
         perp_axis[c] = x_axis[a1] * y_axis[a2] - x_axis[a2] * y_axis[a1];
 
-        perp_axis[c] *= ABS( separations[a1] * separations[a2] /
+        perp_axis[c] *= FABS( separations[a1] * separations[a2] /
                              separations[c] );
 
         len += perp_axis[c] * perp_axis[c];
@@ -1198,7 +1201,7 @@ public  void  set_slice_plane_perp_axis(
                             separations );
 
     for_less( c, 0, N_DIMENSIONS )
-        separations[c] = ABS( separations[c] );
+        separations[c] = FABS( separations[c] );
 
     for_less( c, 0, N_DIMENSIONS )
         perp[c] = voxel_perp[c] * separations[c];
@@ -1207,26 +1210,26 @@ public  void  set_slice_plane_perp_axis(
     {
         for_less( c, 0, N_DIMENSIONS )
         {
-            Vector_coord(axis,c) = perp[c];
-            Vector_coord(vect,c) =
-                 slice_window->slice.cross_section_vector[c] * separations[c];
+            Vector_coord(axis,c) = (Point_coord_type) perp[c];
+            Vector_coord(vect,c) = (Point_coord_type)
+                (slice_window->slice.cross_section_vector[c] * separations[c]);
         }
 
         CROSS_VECTORS( tmp, vect, axis );
         CROSS_VECTORS( new_axis, vect, tmp );
         if( DOT_VECTORS( new_axis, axis ) < 0.0 )
-            SCALE_VECTOR( new_axis, new_axis, -1.0 );
+            SCALE_VECTOR( new_axis, new_axis, -1.0f );
 
         for_less( c, 0, N_DIMENSIONS )
-            perp[c] = Vector_coord( new_axis, c );
+            perp[c] = (Real) Vector_coord( new_axis, c );
     }
 
     max_value = 0.0;
     for_less( c, 0, N_DIMENSIONS )
     {
-        if( c == 0 || ABS(perp[c]) > max_value )
+        if( c == 0 || FABS(perp[c]) > max_value )
         {
-            max_value = ABS(perp[c]);
+            max_value = FABS(perp[c]);
             max_axis = c;
         }
     }
@@ -1343,7 +1346,7 @@ public  void  get_slice_plane(
 
     for_less( c, 0, N_DIMENSIONS )
     {
-        separations[c] = ABS( separations[c] );
+        separations[c] = FABS( separations[c] );
         perp_axis[c] *= separations[c];
         x_axis[c] = slice_window->slice.volumes[volume_index].
                                     views[view_index].x_axis[c];

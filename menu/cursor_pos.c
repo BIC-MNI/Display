@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/cursor_pos.c,v 1.2 1995-10-19 15:51:58 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/cursor_pos.c,v 1.3 1996-04-19 13:25:20 david Exp $";
 #endif
 
 #include  <display.h>
@@ -35,7 +35,7 @@ private  void  create_cursor_pos_text(
                 Cursor_pos_y_origin, 0.0 );
 
     initialize_text( text, &origin, Cursor_pos_colour,
-                     Menu_window_font, Menu_window_font_size );
+                     (Font_types) Menu_window_font, Menu_window_font_size );
 
     replace_string( &text->string, create_string(Cursor_pos_title) );
 
@@ -47,11 +47,11 @@ private  void  create_cursor_pos_text(
     text = get_text_ptr( object );
 
     fill_Point( origin,
-                Cursor_pos_x_origin,
-                Cursor_pos_y_origin - Menu_character_height, 0.0 );
+                (Real) Cursor_pos_x_origin,
+                (Real) Cursor_pos_y_origin - (Real) Menu_character_height, 0.0);
 
     initialize_text( text, &origin, Cursor_pos_colour,
-                     Menu_window_font, Menu_window_font_size );
+                     (Font_types) Menu_window_font, Menu_window_font_size );
 
     replace_string( &text->string, create_string(NULL) );
 

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/crop.c,v 1.8 1995-10-19 15:52:16 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/crop.c,v 1.9 1996-04-19 13:25:29 david Exp $";
 #endif
 
 #include  <display.h>
@@ -294,9 +294,9 @@ private  DEF_EVENT_FUNCTION( start_picking_box )
 
         limit_being_moved = 0;
         axis_being_moved = x_index;
-        best_dist = ABS( x_low - x_mouse );
+        best_dist = FABS( x_low - (Real) x_mouse );
 
-        dist = ABS( y_low - y_mouse );
+        dist = FABS( y_low - (Real) y_mouse );
         if( dist < best_dist )
         {
             limit_being_moved = 0;
@@ -304,7 +304,7 @@ private  DEF_EVENT_FUNCTION( start_picking_box )
             best_dist = dist;
         }
 
-        dist = ABS( x_high - x_mouse );
+        dist = FABS( x_high - (Real) x_mouse );
         if( dist < best_dist )
         {
             limit_being_moved = 1;
@@ -312,7 +312,7 @@ private  DEF_EVENT_FUNCTION( start_picking_box )
             best_dist = dist;
         }
 
-        dist = ABS( y_high - y_mouse );
+        dist = FABS( y_high - (Real) y_mouse );
         if( dist < best_dist )
         {
             limit_being_moved = 1;
@@ -396,7 +396,7 @@ private  void  set_slice_crop_position(
     y_pixel -= y_min;
 
     (void) convert_slice_pixel_to_voxel( get_nth_volume(slice_window,
-                                volume_index), x_pixel, y_pixel,
+                                volume_index), (Real) x_pixel, (Real) y_pixel,
          origin, x_axis, y_axis,
          slice_window->slice.volumes[volume_index].views[view_index].x_trans,
          slice_window->slice.volumes[volume_index].views[view_index].y_trans,

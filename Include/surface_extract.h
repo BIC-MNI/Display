@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char surface_extract_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/surface_extract.h,v 1.20 1996-04-17 17:50:09 david Exp $";
+static char surface_extract_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/surface_extract.h,v 1.21 1996-04-19 13:24:47 david Exp $";
 #endif
 
 #include  <bicpl.h>
@@ -58,9 +58,9 @@ typedef  struct
 
     voxel_queue_struct                   voxels_to_do;
 
-    int                                  x_voxel_max_distance;
-    int                                  y_voxel_max_distance;
-    int                                  z_voxel_max_distance;
+    Real                                 x_voxel_max_distance;
+    Real                                 y_voxel_max_distance;
+    Real                                 z_voxel_max_distance;
     int                                  x_starting_voxel;
     int                                  y_starting_voxel;
     int                                  z_starting_voxel;

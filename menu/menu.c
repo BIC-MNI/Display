@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.38 1995-10-19 15:51:52 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.39 1996-04-19 13:25:19 david Exp $";
 #endif
 
 
@@ -221,7 +221,8 @@ public  Status  initialize_menu(
     fill_Point( position, Menu_name_x, Menu_name_y, 0.0 );
     initialize_text( get_text_ptr(menu->menu_name_text),
                      &position,
-                     Menu_name_colour, Menu_name_font, Menu_name_font_size );
+                     Menu_name_colour, (Font_types) Menu_name_font,
+                     Menu_name_font_size );
 
     add_object_to_model( model, menu->menu_name_text );
 
@@ -408,7 +409,7 @@ private  Status  handle_mouse_press_in_menu(
     {
         status = handle_menu_for_key( menu_window, key );
     }
-    else if( mouse_is_on_object_name( three_d, x, y, &object ) )
+    else if( mouse_is_on_object_name( three_d, ROUND(x), ROUND(y), &object ) )
     {
         if( get_current_object( three_d, &current ) &&
             current == object && get_object_type(object) == MODEL )
@@ -558,7 +559,8 @@ public  void   set_menu_text(
         n_chars_across = menu_entry->n_chars_across;
 
         if( line == 0 )
-            n_chars_across = ROUND( n_chars_across - Menu_key_character_offset);
+            n_chars_across = ROUND( (Real) n_chars_across -
+                                    Menu_key_character_offset );
 
         i = 0;
 
@@ -568,7 +570,7 @@ public  void   set_menu_text(
                 (text[n_chars] == ' ' &&
                  (len - n_chars-1) <=
                  (menu->n_lines_in_entry-line-1) * menu_entry->n_chars_across
-                 - Menu_key_character_offset) )
+                 - ROUND(Menu_key_character_offset)) )
             {
                 ++n_chars;
                 break;

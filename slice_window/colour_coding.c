@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.33 1996-04-17 17:50:23 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.34 1996-04-19 13:25:29 david Exp $";
 #endif
 
 
@@ -426,7 +426,7 @@ private  void  rebuild_colour_table(
 
     for_inclusive( voxel, (int) min_voxel, (int) max_voxel )
     {
-        value = convert_voxel_to_value( volume, voxel );
+        value = convert_voxel_to_value( volume, (Real) voxel );
         colour = get_colour_code( &slice_window->slice.volumes[volume_index].
                                   colour_coding, value );
 
@@ -602,9 +602,10 @@ private  void  colour_code_points(
             else
             {
                 evaluate_volume_in_world( volume,
-                                          Point_x(points[i]),
-                                          Point_y(points[i]),
-                                          Point_z(points[i]), continuity, FALSE,
+                                          (Real) Point_x(points[i]),
+                                          (Real) Point_y(points[i]),
+                                          (Real) Point_z(points[i]),
+                                          continuity, FALSE,
                                           get_volume_real_min(volume),
                                           &val,
                                           NULL, NULL, NULL,
@@ -615,9 +616,9 @@ private  void  colour_code_points(
                 is_label_volume_initialized( label_volume ) )
             {
                 convert_world_to_voxel( volume,
-                                        Point_x(points[i]),
-                                        Point_y(points[i]),
-                                        Point_z(points[i]), voxel );
+                                        (Real) Point_x(points[i]),
+                                        (Real) Point_y(points[i]),
+                                        (Real) Point_z(points[i]), voxel );
                 convert_real_to_int_voxel( get_volume_n_dimensions(volume),
                                            voxel, int_voxel );
 
@@ -702,7 +703,7 @@ public  void  colour_code_an_object(
         colour_code_object_points( slice_window, Volume_continuity, object );
 }
 
-public  STRING    get_default_colour_map_suffix()
+public  STRING    get_default_colour_map_suffix( void )
 {
     return( DEFAULT_COLOUR_MAP_SUFFIX );
 }

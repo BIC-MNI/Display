@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surf_segmenting.c,v 1.30 1995-10-19 15:50:38 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/surf_segmenting.c,v 1.31 1996-04-19 13:24:57 david Exp $";
 #endif
 
 
@@ -411,7 +411,7 @@ public  DEF_MENU_FUNCTION( set_visibility_from_colour )
         for_less( i, 0, polygons->n_items )
         {
             polygons->visibilities[i] =
-                (polygons->colour_flag != PER_ITEM_COLOURS ||
+                (Smallest_int) (polygons->colour_flag != PER_ITEM_COLOURS ||
                  display->three_d.surface_edit.invisible_colour !=
                  polygons->colours[i] );
         }
@@ -599,7 +599,7 @@ private  void  crop_surface(
             if( axis_index < 0 || axis_index > 2 )
                 return;
 
-            pos = Point_coord(display->three_d.cursor.origin,axis_index);
+            pos = (Real) Point_coord(display->three_d.cursor.origin,axis_index);
         }
 
         crop_polygons_visibilities( polygons, axis_index, pos, above_flag );

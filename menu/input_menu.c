@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.128 1996-04-10 17:19:25 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.129 1996-04-19 13:25:18 david Exp $";
 #endif
 
 #include  <display.h>
@@ -393,6 +393,7 @@ private  Status  input_menu(
     status = OK;
 
     n_menus = 0;
+    menus = NULL;
 
     while( status == OK &&
            input_string( file, &menu_entry.menu_name, ' ' ) == OK )
@@ -433,7 +434,7 @@ private  Status  input_key_action(
         }
         else
         {
-            action->key = ch;
+            action->key = (int) ch;
             if( action->key < 0 )
                 action->key += 128;
 
@@ -705,7 +706,8 @@ private  BOOLEAN  lookup_menu_action(
             ++table_name;
         }
 
-        if( strncmp( action_name, table_name, string_length(action_name) ) == 0)
+        if( strncmp( action_name, table_name,
+                     (size_t) string_length(action_name) ) == 0)
         {
             *action = actions[i].action;
             *update_action = actions[i].update_action;

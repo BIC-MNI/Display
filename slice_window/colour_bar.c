@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_bar.c,v 1.24 1995-12-19 15:46:29 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_bar.c,v 1.25 1996-04-19 13:25:23 david Exp $";
 #endif
 
 #include  <display.h>
@@ -82,7 +82,7 @@ public  void  initialize_colour_bar(
     initialize_lines( lines, WHITE );
     delete_lines( lines );
     lines->colour_flag = PER_ITEM_COLOURS;
-    lines->line_thickness = 1.0;
+    lines->line_thickness = 1.0f;
     lines->n_points = 0;
     lines->n_items = 0;
 
@@ -149,7 +149,7 @@ public  void  rebuild_colour_bar(
     quadmesh = get_quadmesh_ptr( model->objects[BAR] );
 
     bottom = colour_bar->bottom_offset;
-    top = y_max - y_min - colour_bar->top_offset;
+    top = (Real) y_max - (Real) y_min - colour_bar->top_offset;
 
     for_less( i, 0, quadmesh->m )
     {
@@ -201,6 +201,7 @@ public  void  rebuild_colour_bar(
                                   (Real) Colour_bar_desired_intervals );
 
     n_numbers = 0;
+    numbers = NULL;
 
     mult_value = round_to_nearest_multiple( min_value, delta );
     while( mult_value <= min_value && delta > 0.0 )
@@ -340,8 +341,8 @@ public  int  get_colour_bar_y_pos(
     get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,
                               &x_min, &x_max, &y_min, &y_max );
     
-    bottom = colour_bar->bottom_offset;
-    top    = y_max - y_min - colour_bar->top_offset;
+    bottom = (Real) colour_bar->bottom_offset;
+    top    = (Real) y_max - (Real) y_min - colour_bar->top_offset;
 
     return( ROUND(get_y_pos( value, min_value, max_value, bottom, top )) );
 }
@@ -365,13 +366,13 @@ public  BOOLEAN  mouse_within_colour_bar(
     get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,
                               &x_min, &x_max, &y_min, &y_max );
 
-    x -= x_min;
-    y -= y_min;
+    x -= (Real) x_min;
+    y -= (Real) y_min;
 
     colour_bar = &slice_window->slice.colour_bar;
 
     bottom = (Real) colour_bar->bottom_offset;
-    top = (Real) y_max - y_min - colour_bar->top_offset;
+    top = (Real) y_max - (Real) y_min - colour_bar->top_offset;
 
     within = y >= bottom && y <= top && colour_bar->left_offset <= x &&
              (x <= colour_bar->left_offset +
@@ -397,7 +398,7 @@ public  void  get_histogram_space(
     get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,
                               &x_min, &x_max, &y_min, &y_max );
 
-    *x1 = colour_bar->left_offset + colour_bar->bar_width +
-          colour_bar->tick_width;
+    *x1 = ROUND( colour_bar->left_offset + colour_bar->bar_width +
+                 colour_bar->tick_width );
     *x2 = x_max - x_min;
 }

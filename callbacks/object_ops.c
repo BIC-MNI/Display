@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/object_ops.c,v 1.50 1996-04-17 17:50:10 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/object_ops.c,v 1.51 1996-04-19 13:24:55 david Exp $";
 #endif
 
 
@@ -546,8 +546,8 @@ public  DEF_MENU_FUNCTION( flip_object )
 
         for_less( i, 0, n_points )
         {
-            Point_x(points[i]) *= -1.0;
-            Vector_x(normals[i]) *= -1.0;
+            Point_x(points[i]) *= -1.0f;
+            Vector_x(normals[i]) *= -1.0f;
         }
 
         if( object->object_type == POLYGONS )

@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/display_types.h,v 1.17 1995-08-21 17:15:09 david Exp $";
+static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/display_types.h,v 1.18 1996-04-19 13:24:42 david Exp $";
 #endif
 
 #include  <deform.h>
@@ -62,9 +62,11 @@ typedef  struct
     int             n_curve_segments;
 }  render_struct;
 
-typedef  Status  event_function_decl();
+struct display_struct;
 
-typedef  Status  (*event_function_type)();
+typedef  Status  (*event_function_type)( struct display_struct *,
+                                         Event_types,
+                                         int );
 
 #define  DEF_EVENT_FUNCTION( f )   Status   f( display_struct  *display, \
                                                Event_types     event_type, \

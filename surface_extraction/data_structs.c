@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/data_structs.c,v 1.22 1995-10-19 15:52:36 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/data_structs.c,v 1.23 1996-04-19 13:25:39 david Exp $";
 #endif
 
 
@@ -78,27 +78,27 @@ public  BOOLEAN  get_voxel_flag(
     bitlist_3d_struct   *voxel_flags,
     voxel_index_struct  *indices )
 {
-    return( get_bitlist_bit_3d( voxel_flags, indices->i[X],
-                                             indices->i[Y],
-                                             indices->i[Z] ) );
+    return( get_bitlist_bit_3d( voxel_flags, (int) indices->i[X],
+                                             (int) indices->i[Y],
+                                             (int) indices->i[Z] ) );
 }
 
 public  void  set_voxel_flag(
     bitlist_3d_struct      *voxel_flags,
     voxel_index_struct  *indices )
 {
-    set_bitlist_bit_3d( voxel_flags, indices->i[X],
-                                     indices->i[Y],
-                                     indices->i[Z], ON );
+    set_bitlist_bit_3d( voxel_flags, (int) indices->i[X],
+                                     (int) indices->i[Y],
+                                     (int) indices->i[Z], ON );
 }
 
 public  void  reset_voxel_flag(
     bitlist_3d_struct      *voxel_flags,
     voxel_index_struct  *indices )
 {
-    set_bitlist_bit_3d( voxel_flags, indices->i[X],
-                                     indices->i[Y],
-                                     indices->i[Z], OFF );
+    set_bitlist_bit_3d( voxel_flags, (int) indices->i[X],
+                                     (int) indices->i[Y],
+                                     (int) indices->i[Z], OFF );
 }
 
 /* ------------------ Voxel done flags, 4 bit flag structure --------------- */
@@ -146,9 +146,9 @@ public  unsigned_byte  get_voxel_done_flag(
     byte_index = index >> 1;
 
     if( index & 1 )
-        flag = voxel_done_flags[byte_index] >> 4;
+        flag = (unsigned_byte) ((int) voxel_done_flags[byte_index] >> 4);
     else
-        flag = voxel_done_flags[byte_index] & 15;
+        flag = (unsigned_byte) ((int) voxel_done_flags[byte_index] & 15);
 
     return( flag );
 }
@@ -167,11 +167,12 @@ public  void  set_voxel_done_flag(
     byte_index = index >> 1;
 
     if( index & 1 )
-        voxel_done_flags[byte_index] = (voxel_done_flags[byte_index] & 15) |
-                                       (flag << 4);
+        voxel_done_flags[byte_index] = (unsigned_byte)
+                 (((int) voxel_done_flags[byte_index] & 15) |
+                                       ((int) flag << 4));
     else
-        voxel_done_flags[byte_index] = (voxel_done_flags[byte_index] & 240) |
-                                       flag;
+        voxel_done_flags[byte_index] = (unsigned_byte)
+                 (((int) voxel_done_flags[byte_index] & 240) | (int) flag);
 }
 
 /* ----------------- edge points, hash table lookup ------------- */
@@ -190,6 +191,8 @@ public  void  delete_edge_points(
 {
     hash_table_pointer   hash_ptr;
     edge_point_struct    *edge_info;
+
+    edge_info = NULL;   /* avoid compiler warning message */
 
     initialize_hash_pointer( &hash_ptr );
 
@@ -225,6 +228,8 @@ public  BOOLEAN  lookup_edge_point_id(
     edge_point_struct    *edge_info;
 
     get_edge_point_keys( sizes, voxel, edge_intersected, keys );
+
+    edge_info = NULL;   /* avoid compiler warning message */
 
     exists = lookup_in_hash_table( hash_table, keys, (void **) &edge_info );
 
@@ -277,6 +282,8 @@ public  void  remove_edge_point(
     edge_point_struct    *edge_info;
 
     get_edge_point_keys( sizes, voxel, edge_intersected, keys );
+
+    edge_info = NULL;   /* avoid compiler warning message */
 
     if( remove_from_hash_table( hash_table, keys, (void **) &edge_info ) )
         FREE( edge_info );

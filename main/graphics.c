@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.69 1996-02-28 16:04:16 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.70 1996-04-19 13:25:11 david Exp $";
 #endif
 
 
@@ -63,7 +63,7 @@ public  display_struct  *lookup_window(
     return( display );
 }
 
-public  display_struct  *get_main_window()
+public  display_struct  *get_main_window( void )
 {
     int   i;
 
@@ -248,7 +248,7 @@ public  void  terminate_display_model(
     FREE( model_info );
 }
 
-public  Bitplane_types  get_cursor_bitplanes()
+public  Bitplane_types  get_cursor_bitplanes( void )
 {
     return( (Bitplane_types) Cursor_bitplanes );
 }

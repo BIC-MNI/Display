@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/rotate_slice.c,v 1.13 1995-10-19 15:51:28 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/rotate_slice.c,v 1.14 1996-04-19 13:25:07 david Exp $";
 #endif
 
 
@@ -208,8 +208,8 @@ private  BOOLEAN  perform_rotation(
 
     if( G_get_mouse_position_0_to_1( display->window, &x, &y ) &&
         get_spaceball_transform( display,
-                                 Point_x(display->prev_mouse_position),
-                                 Point_y(display->prev_mouse_position),
+                                 (Real) Point_x(display->prev_mouse_position),
+                                 (Real) Point_y(display->prev_mouse_position),
                                  x, y, &transform ) &&
         get_slice_window( display, &slice_window ) )
     {

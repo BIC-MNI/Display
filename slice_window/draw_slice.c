@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.107 1996-04-17 17:50:22 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/draw_slice.c,v 1.108 1996-04-19 13:25:24 david Exp $";
 #endif
 
 #include  <display.h>
@@ -239,7 +239,7 @@ public  void  initialize_slice_models(
     model = get_graphics_model( slice_window, SLICE_READOUT_MODEL );
 
     if( get_model_bitplanes(model) == OVERLAY_PLANES )
-        colour = Readout_text_colour;
+        colour = (Colour) Readout_text_colour;
     else
         colour = Readout_text_rgb_colour;
 
@@ -333,7 +333,7 @@ public  void  rebuild_slice_divider(
     set_slice_viewport_update( slice_window, FULL_WINDOW_MODEL );
 }
 
-public  Bitplane_types  get_slice_readout_bitplanes()
+public  Bitplane_types  get_slice_readout_bitplanes( void )
 {
     if( G_has_overlay_planes() )
         return( (Bitplane_types) Slice_readout_plane );
@@ -513,15 +513,17 @@ public  void  get_slice_cross_section_direction(
 
     for_less( c, 0, N_DIMENSIONS )
     {
-        separations[c] = ABS( separations[c] );
-        Vector_coord( plane_normal, c ) = plane_axis[c] * separations[c];
-        Vector_coord( perp_normal, c ) = perp_axis[c] * separations[c];
+        separations[c] = FABS( separations[c] );
+        Vector_coord( plane_normal, c ) = (Point_coord_type)
+                                             (plane_axis[c] * separations[c]);
+        Vector_coord( perp_normal, c ) = (Point_coord_type)
+                                             (perp_axis[c] * separations[c]);
     }
 
     CROSS_VECTORS( *in_plane_axis, plane_normal, perp_normal );
 
     for_less( c, 0, N_DIMENSIONS )
-        Vector_coord( *in_plane_axis, c ) /= separations[c];
+        Vector_coord( *in_plane_axis, c ) /= (Point_coord_type) separations[c];
 }
 
 public  void  rebuild_slice_unfinished_flag(
@@ -627,8 +629,8 @@ public  void  rebuild_slice_cross_section(
 
     for_less( c, 0, N_DIMENSIONS )
     {
-        separations[c] = ABS( separations[c] );
-        Point_coord( origin, c ) = current_voxel[c];
+        separations[c] = FABS( separations[c] );
+        Point_coord( origin, c ) = (Point_coord_type) current_voxel[c];
     }
 
     get_slice_cross_section_direction( slice_window, view_index, section_index,
@@ -657,8 +659,8 @@ public  void  rebuild_slice_cross_section(
 
     for_less( c, 0, N_DIMENSIONS )
     {
-        voxel1[c] = Point_coord(v1,c);
-        voxel2[c] = Point_coord(v2,c);
+        voxel1[c] = (Real) Point_coord(v1,c);
+        voxel2[c] = (Real) Point_coord(v2,c);
     }
 
     convert_voxel_to_pixel( slice_window,get_current_volume_index(slice_window),
@@ -673,10 +675,10 @@ public  void  rebuild_slice_cross_section(
 
     if( len >= 0.0 )
     {
-        x1 -= EXTRA_PIXELS * dx / len;
-        y1 -= EXTRA_PIXELS * dy / len;
-        x2 += EXTRA_PIXELS * dx / len;
-        y2 += EXTRA_PIXELS * dy / len;
+        x1 -= (Real) EXTRA_PIXELS * dx / len;
+        y1 -= (Real) EXTRA_PIXELS * dy / len;
+        x2 += (Real) EXTRA_PIXELS * dx / len;
+        y2 += (Real) EXTRA_PIXELS * dy / len;
     }
 
     get_slice_model_viewport( slice_window, SLICE_MODEL1 + view_index,
@@ -831,7 +833,7 @@ public  void  rebuild_slice_cursor(
                               view_index, &x_index, &y_index, &axis ) )
     {
         for_less( c, 0, N_DIMENSIONS )
-            tmp_voxel[c] = ROUND( current_voxel[c] );
+            tmp_voxel[c] = (Real) ROUND( current_voxel[c] );
 
         current_voxel[x_index] += 0.5;
         convert_voxel_to_pixel( slice_window, volume_index, view_index,
@@ -884,32 +886,32 @@ public  void  rebuild_slice_cursor(
     get_slice_model_viewport( slice_window, SLICE_MODEL1 + view_index,
                               &x_min, &x_max, &y_min, &y_max );
 
-    if( x_centre < 0 )
+    if( x_centre < 0.0 )
     {
         dx = - x_centre;
-        x_centre = 0;
+        x_centre = 0.0;
         x_left += dx;
         x_right += dx;
     }
-    else if( x_centre > x_max - x_min )
+    else if( x_centre > (Real) (x_max - x_min) )
     {
-        dx = x_max - x_min - x_centre;
-        x_centre = x_max - x_min;
+        dx = (Real) x_max - (Real) x_min - x_centre;
+        x_centre = (Real) x_max - (Real) x_min;
         x_left += dx;
         x_right += dx;
     }
 
-    if( y_centre < 0 )
+    if( y_centre < 0.0 )
     {
         dy = - y_centre;
-        y_centre = 0;
+        y_centre = 0.0;
         y_top += dy;
         y_bottom += dy;
     }
-    else if( y_centre > y_max - y_min )
+    else if( y_centre > (Real) (y_max - y_min) )
     {
-        dy = y_max - y_min - y_centre;
-        y_centre = y_max - y_min;
+        dy = (Real) y_max - (Real) y_min - y_centre;
+        y_centre = (Real) y_max - (Real) y_min;
         y_top += dy;
         y_bottom += dy;
     }
@@ -1177,7 +1179,7 @@ private  int  render_slice_to_pixels(
             }
             else
             {
-                width = (int) sqrt( n_pixels_redraw ) + 1;
+                width = (int) sqrt( (Real) n_pixels_redraw ) + 1;
                 if( width < 1 )
                     width = 1;
 
@@ -1468,18 +1470,21 @@ public  void  rebuild_atlas_slice_pixels(
                          origin, x_axis, y_axis );
 
         (void) convert_slice_pixel_to_voxel( volume,
-                        volume_pixels->x_position, volume_pixels->y_position,
+                        (Real) volume_pixels->x_position,
+                        (Real) volume_pixels->y_position,
                         origin, x_axis, y_axis,
                         x_trans, y_trans, x_scale, y_scale, v1 );
         (void) convert_slice_pixel_to_voxel( volume,
-                        volume_pixels->x_position+1, volume_pixels->y_position,
+                        (Real) volume_pixels->x_position+1.0,
+                        (Real) volume_pixels->y_position,
                         origin, x_axis, y_axis,
                         x_trans, y_trans, x_scale, y_scale, v2 );
 
         dx = v2[x_index] - v1[x_index];
 
         (void) convert_slice_pixel_to_voxel( volume,
-                        volume_pixels->x_position, volume_pixels->y_position+1,
+                        (Real) volume_pixels->x_position,
+                        (Real) volume_pixels->y_position+1.0,
                         origin, x_axis, y_axis,
                         x_trans, y_trans, x_scale, y_scale, v2 );
 

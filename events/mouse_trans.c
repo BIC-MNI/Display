@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/mouse_trans.c,v 1.15 1995-10-19 15:51:22 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/mouse_trans.c,v 1.16 1996-04-19 13:25:05 david Exp $";
 #endif
 
 
@@ -134,8 +134,9 @@ private  BOOLEAN  perform_translation(
 
         ADD_VECTORS( delta, hor, vert );
 
-        make_translation_transform( Vector_x(delta), Vector_y(delta),
-                                    Vector_z(delta), &transform );
+        make_translation_transform( (Real) Vector_x(delta),
+                                    (Real) Vector_y(delta),
+                                    (Real) Vector_z(delta), &transform );
 
         transform_model( display, &transform );
 

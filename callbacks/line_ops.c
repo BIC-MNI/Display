@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/line_ops.c,v 1.27 1995-12-19 15:46:14 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/line_ops.c,v 1.28 1996-04-19 13:24:53 david Exp $";
 #endif
 
 
@@ -224,7 +224,6 @@ private  void  convert_to_lines(
     object_traverse_struct  object_traverse;
     BOOLEAN                 interpolate;
 
-
     if( !get_current_object( display, &current_object ) )
     {
         print( "Current object is not a marker or model containing markers.\n");
@@ -232,6 +231,7 @@ private  void  convert_to_lines(
     }
 
     n_markers = 0;
+    markers = NULL;
 
     initialize_object_traverse( &object_traverse, 1, &current_object );
 
@@ -335,9 +335,9 @@ private  void  convert_to_lines(
 
                     for_less( c, 0, N_DIMENSIONS )
                     {
-                        Point_coord(point,c) = cubic_interpolate( ratio,
-                                        Point_coord(p1,c), Point_coord(p2,c),
-                                        Point_coord(p3,c), Point_coord(p4,c) );
+                        Point_coord(point,c) = (float) cubic_interpolate( ratio,
+                          (Real) Point_coord(p1,c), (Real) Point_coord(p2,c),
+                          (Real) Point_coord(p3,c), (Real) Point_coord(p4,c) );
                     }
                     lines->points[i] = point;
                 }

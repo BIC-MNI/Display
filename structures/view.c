@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/view.c,v 1.31 1996-02-21 15:41:43 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/view.c,v 1.32 1996-04-19 13:25:37 david Exp $";
 #endif
 
 #include <display.h>
@@ -23,7 +23,7 @@ public  void  initialize_view(
     Vector       *line_of_sight,
     Vector       *horizontal )
 {
-    static  Point   origin = { 0.0, 0.0, 1.0 };
+    static  Point   origin = { 0.0f, 0.0f, 1.0f };
 
     view->perspective_flag = FALSE;
     view->origin = origin;
@@ -197,9 +197,12 @@ public  void  convert_point_from_coordinate_system(
                             Point_y(*point) - Point_y(*origin),
                             Point_z(*point) - Point_z(*origin) );
 
-    Point_x(*transformed_point) = DOT_POINT_VECTOR( *x_axis, translated );
-    Point_y(*transformed_point) = DOT_POINT_VECTOR( *y_axis, translated );
-    Point_z(*transformed_point) = DOT_POINT_VECTOR( *z_axis, translated );
+    Point_x(*transformed_point) = (Point_coord_type)
+                                 DOT_POINT_VECTOR( *x_axis, translated );
+    Point_y(*transformed_point) = (Point_coord_type)
+                                 DOT_POINT_VECTOR( *y_axis, translated );
+    Point_z(*transformed_point) = (Point_coord_type)
+                                 DOT_POINT_VECTOR( *z_axis, translated );
 }
 
 public  void  transform_point_to_world(
@@ -210,9 +213,9 @@ public  void  transform_point_to_world(
     Real   x_scaled, y_scaled, z_scaled;
     Real   x, y, z;
 
-    x_scaled = view->scale_factors[X] * Point_x(*p);
-    y_scaled = view->scale_factors[Y] * Point_y(*p);
-    z_scaled = view->scale_factors[Z] * Point_z(*p);
+    x_scaled = view->scale_factors[X] * (Real) Point_x(*p);
+    y_scaled = view->scale_factors[Y] * (Real) Point_y(*p);
+    z_scaled = view->scale_factors[Z] * (Real) Point_z(*p);
 
     transform_point( &view->modeling_transform, x_scaled, y_scaled, z_scaled,
                      &x, &y, &z );
@@ -229,7 +232,8 @@ public  void  transform_world_to_model(
     Real        x, y, z;
 
     compute_transform_inverse( &view->modeling_transform, &inverse );
-    transform_point( &inverse, Point_x(*p), Point_y(*p), Point_z(*p),
+    transform_point( &inverse,
+                     (Real) Point_x(*p), (Real) Point_y(*p), (Real) Point_z(*p),
                      &x, &y, &z);
     fill_Point( *transformed_point, x, y, z );
 }
@@ -244,7 +248,8 @@ public  void  transform_world_to_model_vector(
 
     compute_transform_inverse( &view->modeling_transform, &inverse );
     transform_vector( &inverse,
-                      Vector_x(*v), Vector_y(*v), Vector_z(*v),
+                      (Real) Vector_x(*v), (Real) Vector_y(*v),
+                      (Real) Vector_z(*v),
                       &x, &y, &z);
     fill_Vector( *transformed_vector, x, y, z );
 }
@@ -278,12 +283,12 @@ public  void  transform_point_to_screen(
 
     transform_point_to_view_space( view, p, &tmp );
 
-    x = Point_x(tmp);
-    y = Point_y(tmp);
+    x = (Real) Point_x(tmp);
+    y = (Real) Point_y(tmp);
 
     if( view->perspective_flag )
     {
-        z_factor = Point_z(tmp) / view->perspective_distance;
+        z_factor = (Real) Point_z(tmp) / view->perspective_distance;
         x /= z_factor;
         y /= z_factor;
     }

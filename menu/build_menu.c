@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/build_menu.c,v 1.30 1995-10-19 15:51:47 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/build_menu.c,v 1.31 1996-04-19 13:25:14 david Exp $";
 #endif
 
 
@@ -146,25 +146,26 @@ private  void   create_menu_text(
         compute_origin( &menu_window->menu, menu_entry->key, &x, &y,
                         (Real *) 0, (Real *) 0, &length );
         x += X_menu_text_offset;
-        y += (menu_window->menu.n_lines_in_entry - i) *
+        y += (Real) (menu_window->menu.n_lines_in_entry - i) *
              menu_window->menu.character_height -
              Y_menu_text_offset;
 
         if( i == 0 )
         {
             key_string = get_key_string( menu_entry->key );
-            x += G_get_text_length( key_string, Menu_window_font,
+            x += G_get_text_length( key_string, (Font_types) Menu_window_font,
                                     Menu_window_font_size );
             delete_string( key_string );
         }
 
         fill_Point( origin, x, y, 0.0 );
 
-        initialize_text( text, &origin, Menu_character_colour, Menu_window_font,
+        initialize_text( text, &origin, Menu_character_colour,
+                         (Font_types) Menu_window_font,
                          Menu_window_font_size );
 
         menu_entry->n_chars_across = (int)
-               ( length * menu_window->menu.n_chars_per_unit_across );
+               ( length * (Real) menu_window->menu.n_chars_per_unit_across );
     }
 
     set_menu_text( menu_window, menu_entry, menu_entry->label );
@@ -227,10 +228,10 @@ private  void   compute_origin(
     else
     {
         x_dx = menu->x_dx +
-               menu->n_chars_per_unit_across *
+               (Real) menu->n_chars_per_unit_across *
                menu->character_width;
         y_dy = menu->y_dy +
-               menu->n_lines_in_entry *
+               (Real) menu->n_lines_in_entry *
                menu->character_height;
 
         *x1 = X_menu_origin + (Real) desc->x_pos * x_dx;
@@ -246,13 +247,13 @@ private  void   compute_origin(
 
         if( x2 != (Real *) NULL )
         {
-            *x2 = *x1 + *length * menu->n_chars_per_unit_across *
+            *x2 = *x1 + *length * (Real) menu->n_chars_per_unit_across *
                         menu->character_width;
         }
 
         if( y2 != (Real *) NULL )
         {
-            *y2 = *y1 + menu->n_lines_in_entry *
+            *y2 = *y1 + (Real) menu->n_lines_in_entry *
                         menu->character_height;
         }
     }
@@ -289,7 +290,7 @@ public  Real  get_size_of_menu_text_area(
     text = get_text_ptr(
                 menu_window->menu.key_menus[key]->text_list[line_number] );
 
-    size = x2 - Point_x(text->origin);
+    size = x2 - (Real) Point_x(text->origin);
 
     return( size );
 }
@@ -312,7 +313,7 @@ private  void   create_menu_box(
     lines = get_lines_ptr( object );
     initialize_lines( lines, Menu_box_colour );
 
-    lines->line_thickness = 1.0;
+    lines->line_thickness = 1.0f;
     lines->n_points = 4;
     lines->n_items = 1;
 
@@ -354,14 +355,15 @@ private  void   create_menu_character(
 
     fill_Point( origin,
                 x + X_menu_text_offset,
-                y + menu_window->menu.n_lines_in_entry *
+                y + (Real) menu_window->menu.n_lines_in_entry *
                     menu_window->menu.character_height -
                     Y_menu_text_offset,
                 0.0 );
 
     text = get_text_ptr( object );
 
-    initialize_text( text, &origin, Menu_key_colour, Menu_window_font,
+    initialize_text( text, &origin, Menu_key_colour,
+                     (Font_types) Menu_window_font,
                      Menu_window_font_size );
 
     replace_string( &text->string, get_key_string( key ) );

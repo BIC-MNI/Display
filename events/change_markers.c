@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/change_markers.c,v 1.6 1995-10-19 15:51:27 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/change_markers.c,v 1.7 1996-04-19 13:25:07 david Exp $";
 #endif
 
 
@@ -144,8 +144,8 @@ private  DEF_EVENT_FUNCTION( show_picked_square )
          mouse_moved(display,&x,&y,&x_prev,&y_prev)) &&
         G_get_mouse_position_0_to_1( display->window, &x, &y ) )
     {
-        get_coordinates( Point_x(display->viewport_picking.first_corner),
-                         Point_y(display->viewport_picking.first_corner),
+        get_coordinates( (Real) Point_x(display->viewport_picking.first_corner),
+                         (Real) Point_y(display->viewport_picking.first_corner),
                          x, y, &x1, &y1, &x2, &y2 );
 
         draw_2d_rectangle( display, SCREEN_VIEW,
@@ -174,8 +174,8 @@ private  DEF_EVENT_FUNCTION( done_picking_markers )
 
     if( G_get_mouse_position_0_to_1( display->window, &x, &y ) )
     {
-        get_coordinates( Point_x(display->viewport_picking.first_corner),
-                         Point_y(display->viewport_picking.first_corner),
+        get_coordinates( (Real) Point_x(display->viewport_picking.first_corner),
+                         (Real) Point_y(display->viewport_picking.first_corner),
                          x, y, &x_min, &y_min, &x_max, &y_max );
 
 
@@ -191,10 +191,10 @@ private  DEF_EVENT_FUNCTION( done_picking_markers )
                 transform_point_to_screen( &display->three_d.view,
                                            &marker->position, &screen_pos );
 
-                if( Point_x(screen_pos) >= x_min &&
-                    Point_x(screen_pos) <= x_max &&
-                    Point_y(screen_pos) >= y_min &&
-                    Point_y(screen_pos) <= y_max )
+                if( (Real) Point_x(screen_pos) >= x_min &&
+                    (Real) Point_x(screen_pos) <= x_max &&
+                    (Real) Point_y(screen_pos) >= y_min &&
+                    (Real) Point_y(screen_pos) <= y_max )
                 {
                     marker->type = display->three_d.default_marker_type;
                     marker->colour = display->three_d.default_marker_colour;

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/immediate_mode/draw_immed.c,v 1.15 1995-10-19 15:51:31 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/immediate_mode/draw_immed.c,v 1.16 1996-04-19 13:25:09 david Exp $";
 #endif
 
 
@@ -33,8 +33,8 @@ public  void  draw_2d_line(
     static    int       indices[]     = { 0, 1 };
     static    lines_struct  lines = {
                                         ONE_COLOUR,
-                                        (Colour *) 0,
-                                        1,
+                                        NULL,
+                                        1.0f,
                                         2,
                                         end_points,
                                         1,
@@ -73,7 +73,7 @@ public  void  draw_2d_rectangle(
     static    lines_struct  lines = {
                                         ONE_COLOUR,
                                         (Colour *) 0,
-                                        1,
+                                        1.0f,
                                         4,
                                         corners,
                                         1,

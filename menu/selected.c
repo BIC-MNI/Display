@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/selected.c,v 1.13 1995-10-19 15:51:53 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/selected.c,v 1.14 1996-04-19 13:25:19 david Exp $";
 #endif
 
 
@@ -62,7 +62,7 @@ private  void  create_selected_text(
                     0.0 );
 
         initialize_text( text, &origin, BLACK,
-                         Menu_window_font, Menu_window_font_size );
+                         (Font_types) Menu_window_font, Menu_window_font_size );
 
         add_object_to_model( model, object );
     }
@@ -95,16 +95,16 @@ private  void  get_box_limits(
 {
     int            width;
 
-    width = (int) G_get_text_length( label, Menu_window_font,
+    width = (int) G_get_text_length( label, (Font_types) Menu_window_font,
                                      Menu_window_font_size );
 
     if( width <= 0 )
         width = 20;
 
-    *x_min = Selected_x_origin;
-    *y_min = Selected_y_origin - Menu_character_height * (Real) index;
-    *x_max = *x_min + (Real) width;
-    *y_max = *y_min + (Real) Character_height_in_pixels;
+    *x_min = ROUND( Selected_x_origin );
+    *y_min = ROUND( Selected_y_origin - Menu_character_height * (Real) index );
+    *x_max = *x_min + width;
+    *y_max = *y_min + Character_height_in_pixels;
 
     *x_min -= Selected_box_x_offset;
     *x_max += Selected_box_x_offset;

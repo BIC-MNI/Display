@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/cursor/cursor_icon.c,v 1.21 1995-10-19 15:51:07 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/cursor/cursor_icon.c,v 1.22 1996-04-19 13:25:01 david Exp $";
 #endif
 
 
@@ -168,7 +168,7 @@ private  void   create_axis(
 {
     static Colour  axis_colours[N_DIMENSIONS] = { 1, 2, 3 };
     Colour         col;
-    static Point   dummy = { 0.0, 0.0, 0.0 };
+    static Point   dummy = { 0.0f, 0.0f, 0.0f };
     lines_struct   *lines;
 
     *object = create_object( LINES );
@@ -204,5 +204,5 @@ private  void  fill_in_axis_points(
     fill_Point( lines->points[0], 0.0, 0.0, 0.0 );
     fill_Point( lines->points[1], 0.0, 0.0, 0.0 );
 
-    Point_coord( lines->points[1], axis_index ) = size;
+    Point_coord( lines->points[1], axis_index ) = (Point_coord_type) size;
 }

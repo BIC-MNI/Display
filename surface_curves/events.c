@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_curves/events.c,v 1.20 1995-10-19 15:52:34 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_curves/events.c,v 1.21 1996-04-19 13:25:38 david Exp $";
 #endif
 
 
@@ -21,7 +21,7 @@ static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_c
 
 static    DEF_EVENT_FUNCTION( pick_point );
 
-private  Bitplane_types   get_surface_curve_bitplane()
+private  Bitplane_types   get_surface_curve_bitplane( void )
 {
     if( Surface_curve_overlay_flag && G_has_overlay_planes() )
         return( OVERLAY_PLANES );

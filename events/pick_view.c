@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/pick_view.c,v 1.15 1995-10-19 15:51:24 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/pick_view.c,v 1.16 1996-04-19 13:25:06 david Exp $";
 #endif
 
 
@@ -79,8 +79,8 @@ private  void  get_coordinates(
 {
     Real   dx, dy;
 
-    dx = ABS( x2 - x1 );
-    dy = ABS( y2 - y1 );
+    dx = FABS( x2 - x1 );
+    dy = FABS( y2 - y1 );
 
     if( dx < Viewport_min_x_size )
     {
@@ -165,8 +165,8 @@ private  DEF_EVENT_FUNCTION( show_picked_viewport )
          mouse_moved(display,&x,&y,&x_prev,&y_prev)) &&
         G_get_mouse_position_0_to_1( display->window, &x, &y ) )
     {
-        get_coordinates( Point_x(display->viewport_picking.first_corner),
-                         Point_y(display->viewport_picking.first_corner),
+        get_coordinates( (Real) Point_x(display->viewport_picking.first_corner),
+                         (Real) Point_y(display->viewport_picking.first_corner),
                          x, y, &x1, &y1, &x2, &y2 );
 
         draw_2d_rectangle( display, SCREEN_VIEW,
@@ -191,8 +191,8 @@ private  DEF_EVENT_FUNCTION( done_picking_viewport )
 
     if( G_get_mouse_position_0_to_1( display->window, &x, &y ) )
     {
-        get_coordinates( Point_x(display->viewport_picking.first_corner),
-                         Point_y(display->viewport_picking.first_corner),
+        get_coordinates( (Real) Point_x(display->viewport_picking.first_corner),
+                         (Real) Point_y(display->viewport_picking.first_corner),
                          x, y, &x_min, &y_min, &x_max, &y_max );
 
         set_view_rectangle( &display->three_d.view,

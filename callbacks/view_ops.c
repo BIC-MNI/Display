@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/view_ops.c,v 1.36 1995-12-19 15:46:17 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/view_ops.c,v 1.37 1996-04-19 13:24:58 david Exp $";
 #endif
 
 
@@ -64,8 +64,8 @@ public  DEF_MENU_UPDATE(reset_view )
 
 public  DEF_MENU_FUNCTION( right_tilted_view )
 {
-    static  Vector   line_of_sight = { -1.0, 0.0, 0.0 };
-    static  Vector   up = { 0.0, 0.5, 0.8666 };
+    static  Vector   line_of_sight = { -1.0f, 0.0f, 0.0f };
+    static  Vector   up = { 0.0f, 0.5f, 0.8666f };
     Vector           horizontal;
 
     CROSS_VECTORS( horizontal, line_of_sight, up );
@@ -89,8 +89,8 @@ public  DEF_MENU_UPDATE(right_tilted_view )
 
 public  DEF_MENU_FUNCTION( left_tilted_view )
 {
-    static  Vector   line_of_sight = { 1.0, 0.0, 0.0 };
-    static  Vector   up = { 0.0, 0.5, 0.8666 };
+    static  Vector   line_of_sight = { 1.0f, 0.0f, 0.0f };
+    static  Vector   up = { 0.0f, 0.5f, 0.8666f };
     Vector           horizontal;
 
     CROSS_VECTORS( horizontal, line_of_sight, up );
@@ -114,8 +114,8 @@ public  DEF_MENU_UPDATE(left_tilted_view )
 
 public  DEF_MENU_FUNCTION( top_view )
 {
-    static  Vector   line_of_sight = { 0.0, 0.0, -1.0 };
-    static  Vector   horizontal = { 1.0, 0.0, 0.0 };
+    static  Vector   line_of_sight = { 0.0f, 0.0f, -1.0f };
+    static  Vector   horizontal = { 1.0f, 0.0f, 0.0f };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -137,8 +137,8 @@ public  DEF_MENU_UPDATE(top_view )
 
 public  DEF_MENU_FUNCTION( bottom_view )
 {
-    static  Vector   line_of_sight = { 0.0, 0.0, 1.0 };
-    static  Vector   horizontal = { -1.0, 0.0, 0.0 };
+    static  Vector   line_of_sight = { 0.0f, 0.0f, 1.0f };
+    static  Vector   horizontal = { -1.0f, 0.0f, 0.0f };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -160,8 +160,8 @@ public  DEF_MENU_UPDATE(bottom_view )
 
 public  DEF_MENU_FUNCTION( front_view )
 {
-    static  Vector   line_of_sight = { 0.0, -1.0, 0.0 };
-    static  Vector   horizontal = { -1.0, 0.0, 0.0 };
+    static  Vector   line_of_sight = { 0.0f, -1.0f, 0.0f };
+    static  Vector   horizontal = { -1.0f, 0.0f, 0.0f };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -183,8 +183,8 @@ public  DEF_MENU_UPDATE(front_view )
 
 public  DEF_MENU_FUNCTION( back_view )
 {
-    static  Vector   line_of_sight = { 0.0, 1.0, 0.0 };
-    static  Vector   horizontal = { 1.0, 0.0, 0.0 };
+    static  Vector   line_of_sight = { 0.0f, 1.0f, 0.0f };
+    static  Vector   horizontal = { 1.0f, 0.0f, 0.0f };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -206,8 +206,8 @@ public  DEF_MENU_UPDATE(back_view )
 
 public  DEF_MENU_FUNCTION( left_view )
 {
-    static  Vector   line_of_sight = { 1.0, 0.0, 0.0 };
-    static  Vector   horizontal = { 0.0, -1.0, 0.0 };
+    static  Vector   line_of_sight = { 1.0f, 0.0f, 0.0f };
+    static  Vector   horizontal = { 0.0f, -1.0f, 0.0f };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -229,8 +229,8 @@ public  DEF_MENU_UPDATE(left_view )
 
 public  DEF_MENU_FUNCTION( right_view )
 {
-    static  Vector   line_of_sight = { -1.0, 0.0, 0.0 };
-    static  Vector   horizontal = { 0.0, 1.0, 0.0 };
+    static  Vector   line_of_sight = { -1.0f, 0.0f, 0.0f };
+    static  Vector   horizontal = { 0.0f, 1.0f, 0.0f };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -512,23 +512,23 @@ public  DEF_MENU_FUNCTION( print_view )
     get_inverse_model_transform( display, &inverse_model );
 
     transform_point( &inverse_model,
-                      Point_x(display->three_d.view.origin),
-                      Point_y(display->three_d.view.origin),
-                      Point_z(display->three_d.view.origin),
+                     (Real) Point_x(display->three_d.view.origin),
+                     (Real) Point_y(display->three_d.view.origin),
+                     (Real) Point_z(display->three_d.view.origin),
                       &x, &y, &z );
     print( "Origin       : %g %g %g\n", x, y, z );
 
     transform_vector( &inverse_model,
-                      Vector_x(display->three_d.view.line_of_sight),
-                      Vector_y(display->three_d.view.line_of_sight),
-                      Vector_z(display->three_d.view.line_of_sight),
+                      (Real) Vector_x(display->three_d.view.line_of_sight),
+                      (Real) Vector_y(display->three_d.view.line_of_sight),
+                      (Real) Vector_z(display->three_d.view.line_of_sight),
                       &x, &y, &z );
     print( "Line of sight: %g %g %g\n", x, y, z );
 
     transform_vector( &inverse_model,
-                      Vector_x(display->three_d.view.y_axis),
-                      Vector_y(display->three_d.view.y_axis),
-                      Vector_z(display->three_d.view.y_axis),
+                      (Real) Vector_x(display->three_d.view.y_axis),
+                      (Real) Vector_y(display->three_d.view.y_axis),
+                      (Real) Vector_z(display->three_d.view.y_axis),
                       &x, &y, &z );
     print( "Up Direction : %g %g %g\n", x, y, z );
 

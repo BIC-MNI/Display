@@ -37,11 +37,11 @@ START_GLOBALS
 
     DEF_GLOBAL_COLOUR( Volume_outline_colour )
     DEF_GLOBAL_COLOUR( Cross_section_colour )
-    DEF_GLOBAL5( Cross_section_spr, Surfprop, 0.3, 0.6, 0.6, 40.0, 1.0 )
+    DEF_GLOBAL5( Cross_section_spr, Surfprop, 0.3f, 0.6f, 0.6f, 40.0f, 1.0f )
 
     DEF_GLOBAL_COLOUR( Ambient_light_colour )
     DEF_GLOBAL_COLOUR( Directional_light_colour )
-    DEF_GLOBAL3( Light_direction, Vector, 1.0, -1.0, -1.0 )
+    DEF_GLOBAL3( Light_direction, Vector, 1.0f, -1.0f, -1.0f )
 
     DEF_GLOBAL( Menu_window_width, int, 850 )
     DEF_GLOBAL( Menu_window_height, int, 260 )
@@ -77,8 +77,8 @@ START_GLOBALS
     DEF_GLOBAL( Initial_y_scale, Real, 1.0 )
     DEF_GLOBAL( Initial_z_scale, Real, 1.0 )
 
-    DEF_GLOBAL3( Default_line_of_sight, Vector, 0.0, 0.0, -1.0 )
-    DEF_GLOBAL3( Default_horizontal, Vector, 1.0, 0.0, 0.0 )
+    DEF_GLOBAL3( Default_line_of_sight, Vector, 0.0f, 0.0f, -1.0f )
+    DEF_GLOBAL3( Default_horizontal, Vector, 1.0f, 0.0f, 0.0f )
 
     DEF_GLOBAL( Monitor_widths_to_eye, Real, 1.2 )
 
@@ -97,8 +97,8 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Visible_colour )
     DEF_GLOBAL_COLOUR( Invisible_colour )
     DEF_GLOBAL( Character_height_in_pixels, int, 10 )
-    DEF_GLOBAL( Selected_box_x_offset, Real, 2.0 )
-    DEF_GLOBAL( Selected_box_y_offset, Real, 2.0 )
+    DEF_GLOBAL( Selected_box_x_offset, int, 2 )
+    DEF_GLOBAL( Selected_box_y_offset, int, 2 )
 
     DEF_GLOBAL_COLOUR( Viewport_feedback_colour )
     DEF_GLOBAL( Viewport_min_x_size, Real, 0.1 )
@@ -120,7 +120,7 @@ START_GLOBALS
     DEF_GLOBAL( Slice_text_font_size, Real, 18.0 )
     DEF_GLOBAL( Slice_readout_text_font, int, 1 )
     DEF_GLOBAL( Slice_readout_text_font_size, Real, 12.0 )
-    DEF_GLOBAL3( Slice_index_offset, Point, 10.0, 5.0, 0.0 )
+    DEF_GLOBAL3( Slice_index_offset, Point, 10.0f, 5.0f, 0.0f )
     DEF_GLOBAL( Readout_text_colour, int, 2 )
     DEF_GLOBAL_COLOUR( Readout_text_rgb_colour )
     DEF_GLOBAL( Slice_index_x_format, STRING, "X = %8g" )
@@ -149,7 +149,7 @@ START_GLOBALS
     DEF_GLOBAL( Slice_view3_axis1, int, 0 )
     DEF_GLOBAL( Slice_view3_axis2, int, 1 )
 
-    DEF_GLOBAL3( Cursor_home, Point, 0.0, 0.0, 0.0 )
+    DEF_GLOBAL3( Cursor_home, Point, 0.0f, 0.0f, 0.0f )
     DEF_GLOBAL_COLOUR( Cursor_colour )
     DEF_GLOBAL_COLOUR( Cursor_rgb_colour )
     DEF_GLOBAL( Show_cursor_contours, BOOLEAN, FALSE )
@@ -190,7 +190,7 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Slice_crop_box_colour )
 
     DEF_GLOBAL_COLOUR( Extracted_surface_colour )
-    DEF_GLOBAL5( Default_surface_property, Surfprop, 0.3, 0.3, 0.4, 10.0, 1.0 )
+    DEF_GLOBAL5( Default_surface_property, Surfprop, 0.3f, 0.3f, 0.4f, 10.0f, 1.0f )
 
     DEF_GLOBAL( Min_voxels_per_update, int, 10 )
     DEF_GLOBAL( Max_voxels_per_update, int, 100000 )
@@ -214,7 +214,7 @@ START_GLOBALS
     DEF_GLOBAL( Initial_colour_coding_type, int, 1 )
     DEF_GLOBAL( User_defined_interpolation_space, int, 1 )
     DEF_GLOBAL( Default_filter_type, int, 0 )
-    DEF_GLOBAL( Default_filter_width, int, 4.0 )
+    DEF_GLOBAL( Default_filter_width, Real, 4.0 )
 
     DEF_GLOBAL( Colour_bar_resolution, int, 137 )
     DEF_GLOBAL( Colour_bar_top_offset, Real, 10.0 )
@@ -249,9 +249,9 @@ START_GLOBALS
     DEF_GLOBAL( Tmp_surface_name, STRING, "" )
 
     DEF_GLOBAL( Marching_cubes_method, int, 1 )
-    DEF_GLOBAL( Default_x_voxel_max_distance, int, 100000 )
-    DEF_GLOBAL( Default_y_voxel_max_distance, int, 100000 )
-    DEF_GLOBAL( Default_z_voxel_max_distance, int, 100000 )
+    DEF_GLOBAL( Default_x_voxel_max_distance, Real, 100000.0 )
+    DEF_GLOBAL( Default_y_voxel_max_distance, Real, 100000.0 )
+    DEF_GLOBAL( Default_z_voxel_max_distance, Real, 100000.0 )
 
     DEF_GLOBAL( Compute_neighbours_on_input, BOOLEAN, FALSE )
     DEF_GLOBAL( Polygon_bintree_threshold, int, -1 )
@@ -295,6 +295,7 @@ START_GLOBALS
     DEF_GLOBAL( Max_voxel_scan_distance, Real, 2.0 )
     DEF_GLOBAL( Max_parametric_scan_distance, Real, 0.1 )
     DEF_GLOBAL( Max_polygon_scan_distance, Real, 2.0 )
+
 
     DEF_GLOBAL( Initial_atlas_opacity, Real, 1.0 )
     DEF_GLOBAL( Initial_atlas_transparent_threshold, int, 220 )

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.108 1996-04-10 17:19:29 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.109 1996-04-19 13:25:27 david Exp $";
 #endif
 
 
@@ -277,7 +277,7 @@ public  void  add_slice_window_volume(
     {
         for_less( axis, 0, N_DIMENSIONS )
             slice_window->slice.volumes[0].current_voxel[axis] =
-                                               (sizes[axis] - 1) / 2.0;
+                                               (Real) (sizes[axis] - 1) / 2.0;
     }
     else
     {
@@ -318,9 +318,9 @@ public  void  set_current_volume_index(
 
         display = get_three_d_window( slice_window );
 
-        display->three_d.cursor.box_size[X] = ABS( separations[X] );
-        display->three_d.cursor.box_size[Y] = ABS( separations[Y] );
-        display->three_d.cursor.box_size[Z] = ABS( separations[Z] );
+        display->three_d.cursor.box_size[X] = FABS( separations[X] );
+        display->three_d.cursor.box_size[Y] = FABS( separations[Y] );
+        display->three_d.cursor.box_size[Z] = FABS( separations[Z] );
 
         update_cursor_size( display );
 
@@ -832,8 +832,9 @@ private  void  render_more_slices(
                                     {
                                         slice_window->slice.
                                         volumes[v].views[view].
-                                             n_pixels_redraw = MAX( 1,
-                                                        0.5 * n_pixels_drawn );
+                                             n_pixels_redraw = (int)
+                                               (MAX( 1.0,
+                                                     0.5*(Real)n_pixels_drawn));
                                     }
                                 }
 

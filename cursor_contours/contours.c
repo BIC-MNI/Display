@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/cursor_contours/contours.c,v 1.18 1995-10-19 15:51:09 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/cursor_contours/contours.c,v 1.19 1996-04-19 13:25:02 david Exp $";
 #endif
 
 
@@ -61,7 +61,7 @@ public  void  delete_cursor_plane_outline(
 
 }
 
-private  Bitplane_types   get_cursor_contour_bitplane()
+private  Bitplane_types   get_cursor_contour_bitplane( void )
 {
     if( Cursor_contour_overlay_flag && G_has_overlay_planes() )
         return( OVERLAY_PLANES );
@@ -219,9 +219,9 @@ private  BOOLEAN  add_to_contour(
     axis = contours->axis;
 
     fill_Vector( plane_normal, 0.0, 0.0, 0.0 );
-    Vector_coord(plane_normal,axis) = 1.0;
+    Vector_coord(plane_normal,axis) = 1.0f;
 
-    plane_constant = Point_coord( display->three_d.cursor.origin, axis );
+    plane_constant = (Real) Point_coord( display->three_d.cursor.origin, axis );
 
     found = intersect_plane_one_polygon( &plane_normal,
                               plane_constant,

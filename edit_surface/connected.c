@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/edit_surface/connected.c,v 1.13 1995-10-19 15:51:12 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/edit_surface/connected.c,v 1.14 1996-04-19 13:25:03 david Exp $";
 #endif
 
 
@@ -94,6 +94,7 @@ private  void  make_connected_invisible(
 
     n_queued = 0;
     n_alloced = 0;
+    queue = NULL;
 
     ADD_ELEMENT_TO_ARRAY_WITH_SIZE( queue, n_alloced, n_queued,
                                     poly_index, DEFAULT_CHUNK_SIZE );

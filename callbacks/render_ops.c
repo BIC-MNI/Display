@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/render_ops.c,v 1.29 1995-10-19 15:50:26 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/render_ops.c,v 1.30 1996-04-19 13:24:56 david Exp $";
 #endif
 
 
@@ -125,8 +125,8 @@ public  DEF_MENU_UPDATE(toggle_shading )
     model_object = get_model_object( display );
 
     set_menu_text_boolean( menu_window, menu_entry,
-           get_model_info(get_model_ptr(model_object))->render.shading_type,
-           "Flat", "Gouraud" );
+     (BOOLEAN) get_model_info(get_model_ptr(model_object))->render.shading_type,
+     "Flat", "Gouraud" );
 
     return( TRUE );
 }

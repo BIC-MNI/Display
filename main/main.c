@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.55 1996-02-21 15:41:35 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.56 1996-04-19 13:25:12 david Exp $";
 #endif
 
 #include  <display.h>
@@ -22,7 +22,7 @@ private  STRING   version = "1.0      Dec. 19, 1995";
 
 #define  MAX_TITLE_LENGTH   200
 
-private  void      initialize_global_colours();
+private  void      initialize_global_colours( void );
 private  void      initialize_view_to_fit(
     display_struct  *display );
 
@@ -97,6 +97,7 @@ int  main(
         runtime_directory = extract_directory( argv[0] );
 
     n_directories = 0;
+    directories = NULL;
 
     ADD_ELEMENT_TO_ARRAY( directories, n_directories,
                           HARD_CODED_DISPLAY_DIRECTORY2, DEFAULT_CHUNK_SIZE );
@@ -299,7 +300,7 @@ int  main(
     return( (int) status );
 }
 
-private  void      initialize_global_colours()
+private  void      initialize_global_colours( void )
 {
     Initial_background_colour = DARK_SLATE_GREY;
     Volume_outline_colour = RED;
@@ -376,11 +377,11 @@ private  void      initialize_view_to_fit(
             for_less( c, 0, N_DIMENSIONS )
             {
                 if( !found ||
-                    world[c] < Point_coord(display->three_d.min_limit,c) )
-                    Point_coord(display->three_d.min_limit,c) = world[c];
+                    world[c] < (Real) Point_coord(display->three_d.min_limit,c))
+                    Point_coord(display->three_d.min_limit,c) = (float) world[c];
                 if( !found ||
-                    world[c] > Point_coord(display->three_d.max_limit,c) )
-                    Point_coord(display->three_d.max_limit,c) = world[c];
+                    world[c] > (Real) Point_coord(display->three_d.max_limit,c))
+                    Point_coord(display->three_d.max_limit,c) = (float) world[c];
             }
             
             found = TRUE;

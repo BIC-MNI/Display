@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.19 1995-10-19 15:50:11 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/atlas/atlas.c,v 1.20 1996-04-19 13:24:52 david Exp $";
 #endif
 
 #include  <display.h>
@@ -295,7 +295,7 @@ private  Real  get_distance_from_voxel(
 {
     Real   distance;
 
-    distance = ABS( slice_position - mm_coordinate );
+    distance = FABS( slice_position - mm_coordinate );
 
     return( distance );
 }
@@ -382,11 +382,11 @@ public  BOOLEAN  render_atlas_slice_to_pixels(
         [ROUND(voxel_start_indices[axis_index])] == (atlas_position_struct *) 0 ||
         !find_appropriate_atlas_image( atlas->pixel_maps,
                       atlas->slice_lookup[axis_index]
-                      [ROUND(voxel_start_indices[axis_index])],
-                      x_volume_size / x_pixel_to_voxel / ATLAS_THICKNESS[a1],
-                      y_volume_size / y_pixel_to_voxel / ATLAS_THICKNESS[a2],
-                      &atlas_image, &atlas_x_size, &atlas_y_size,
-                      &x_atlas_to_voxel, &y_atlas_to_voxel ) )
+                  [ROUND(voxel_start_indices[axis_index])],
+                  (Real) x_volume_size / x_pixel_to_voxel / ATLAS_THICKNESS[a1],
+                  (Real) y_volume_size / y_pixel_to_voxel / ATLAS_THICKNESS[a2],
+                  &atlas_image, &atlas_x_size, &atlas_y_size,
+                  &x_atlas_to_voxel, &y_atlas_to_voxel ) )
     {
         return( FALSE );
     }
@@ -404,7 +404,7 @@ public  BOOLEAN  render_atlas_slice_to_pixels(
 
     for_less( x, 0, image_x_size )
     {
-        x_pixels[x] = ROUND( x_pixel_start + x / x_atlas_to_voxel /
+        x_pixels[x] = ROUND( x_pixel_start + (Real) x / x_atlas_to_voxel /
                                              ATLAS_THICKNESS[a1] );
         if( axis_index != X && atlas->flipped[axis_index] )
             x_pixels[x] = atlas_x_size - 1 - x_pixels[x];
@@ -414,7 +414,7 @@ public  BOOLEAN  render_atlas_slice_to_pixels(
     {
         pixels = &image[IJ(y,0,image_x_size)];
 
-        y_pixel = ROUND( y_pixel_start + y / y_atlas_to_voxel /
+        y_pixel = ROUND( y_pixel_start + (Real) y / y_atlas_to_voxel /
                                          ATLAS_THICKNESS[a2] );
 
         if( y_pixel >= 0 && y_pixel < atlas_y_size )
@@ -425,8 +425,8 @@ public  BOOLEAN  render_atlas_slice_to_pixels(
 
                 if( x_pixel >= 0 && x_pixel < atlas_x_size )
                 {
-                    atlas_pixel = lookup[
-                      atlas_image[IJ(y_pixel,x_pixel,atlas_x_size)]];
+                    atlas_pixel = lookup[ (unsigned long) atlas_image
+                                           [IJ(y_pixel,x_pixel,atlas_x_size)]];
                     r_atlas = get_Colour_r(atlas_pixel);
                     g_atlas = get_Colour_g(atlas_pixel);
                     b_atlas = get_Colour_b(atlas_pixel);
@@ -436,7 +436,7 @@ public  BOOLEAN  render_atlas_slice_to_pixels(
                         b_atlas <= transparent_threshold )
                     {
                         *pixels = make_rgba_Colour( r_atlas, g_atlas, b_atlas,
-                                                    255.0 * opacity );
+                                                    (int) (255.0 * opacity) );
                     }
                     else
                         *pixels = make_rgba_Colour( 0, 0, 0, 0 );
@@ -472,8 +472,8 @@ private  BOOLEAN  find_appropriate_atlas_image(
     {
         pixels = &atlas_images[atlas_page->pixel_map_indices[i]];
 
-        if( pixels->x_size <= x_n_pixels &&
-            pixels->y_size <= y_n_pixels &&
+        if( pixels->x_size <= (int) x_n_pixels &&
+            pixels->y_size <= (int) y_n_pixels &&
             (image_index < 0 || pixels->x_size > *atlas_x_size ||
              pixels->y_size > *atlas_y_size) )
         {
@@ -488,8 +488,8 @@ private  BOOLEAN  find_appropriate_atlas_image(
         *atlas_image =
               atlas_images[atlas_page->pixel_map_indices[image_index]].
                            data.pixels_8bit_colour_index;
-        *x_atlas_to_voxel = x_n_pixels / *atlas_x_size;
-        *y_atlas_to_voxel = y_n_pixels / *atlas_y_size;
+        *x_atlas_to_voxel = (Real) x_n_pixels / (Real) *atlas_x_size;
+        *y_atlas_to_voxel = (Real) y_n_pixels / (Real) *atlas_y_size;
     }
 
     return( image_index >= 0 );

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/segment_polygons.c,v 1.13 1995-10-19 15:51:59 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/segment_polygons.c,v 1.14 1996-04-19 13:25:20 david Exp $";
 #endif
 
 
@@ -183,7 +183,7 @@ private  BOOLEAN  polygon_on_invisible_side(
         point_index = polygons->indices[
                     POINT_INDEX(polygons->end_indices,poly_index,i)];
 
-        coord = Point_coord(polygons->points[point_index],axis_index);
+        coord = (Real) Point_coord(polygons->points[point_index],axis_index);
 
         if( coord < position && cropping_above ||
             coord > position && !cropping_above )

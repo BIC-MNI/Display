@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.103 1996-04-10 17:19:20 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.104 1996-04-19 13:24:59 david Exp $";
 #endif
 
 
@@ -242,14 +242,14 @@ private  void  create_scaled_slice(
             {
                 (void) get_quadmesh_point( quadmesh, i, j, &point );
                 evaluate_volume_in_world( get_volume(display),
-                                          Point_x(point),
-                                          Point_y(point),
-                                          Point_z(point), 0, FALSE,
+                                          (Real) Point_x(point),
+                                          (Real) Point_y(point),
+                                          (Real) Point_z(point), 0, FALSE,
                                           min_value, &value,
                                           NULL, NULL, NULL,
                                           NULL, NULL, NULL, NULL, NULL, NULL );
-                Point_coord(point,axis_index) += scale_factor *
-                                                 (value - min_value);
+                Point_coord(point,axis_index) += (float) (scale_factor *
+                                                          (value - min_value));
                 set_quadmesh_point( quadmesh, i, j, &point, NULL );
             }
 
@@ -375,9 +375,9 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)
 
             if( ch == 'w' )
             {
-                x_width /= ABS( separations[X] );
-                y_width /= ABS( separations[Y] );
-                z_width /= ABS( separations[Z] );
+                x_width /= FABS( separations[X] );
+                y_width /= FABS( separations[Y] );
+                z_width /= FABS( separations[Z] );
             }
 
             resampled_volume = create_box_filtered_volume( volume,
@@ -921,7 +921,7 @@ public  DEF_MENU_FUNCTION(toggle_slice_anchor)
 
             for_less( c, 0, N_DIMENSIONS )
                 slice_window->slice.cross_section_vector[c] =
-                                                     Vector_coord(axis,c);
+                                                   (Real) Vector_coord(axis,c);
         }
     }
 

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/virt_sb.c,v 1.26 1995-10-19 15:51:26 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/virt_sb.c,v 1.27 1996-04-19 13:25:06 david Exp $";
 #endif
 
 
@@ -144,8 +144,8 @@ private  BOOLEAN  perform_rotation(
 
     if( G_get_mouse_position_0_to_1( display->window, &x, &y ) &&
         get_spaceball_transform( display,
-                                 Point_x(display->prev_mouse_position),
-                                 Point_y(display->prev_mouse_position),
+                                 (Real) Point_x(display->prev_mouse_position),
+                                 (Real) Point_y(display->prev_mouse_position),
                                  x, y, &transform ) )
     {
         transform_model( display, &transform );
@@ -233,7 +233,7 @@ private  BOOLEAN  perform_cursor_translation(
         for_less( axis_index, 0, N_DIMENSIONS )
         {
             pt = display->three_d.cursor.origin;
-            Point_coord(pt,axis_index) += 1.0;
+            Point_coord(pt,axis_index) += 1.0f;
             transform_point_to_screen( &display->three_d.view, &pt,
                                        &pt_screen );
             SUB_POINTS( axis_screen[axis_index], pt_screen, cursor_screen );
@@ -249,7 +249,7 @@ private  BOOLEAN  perform_cursor_translation(
                 dot_prod[axis_index] =
                          DOT_VECTORS( mouse_dir,axis_screen[axis_index]) /
                          mag_mouse / mag_axis[axis_index];
-                angle[axis_index] = acos( (double) ABS(dot_prod[axis_index]) )
+                angle[axis_index] = acos( (double) FABS(dot_prod[axis_index]) )
                                     * RAD_TO_DEG;
             }
         }
@@ -257,7 +257,7 @@ private  BOOLEAN  perform_cursor_translation(
         best_axis = X;
         for_inclusive( axis_index, Y, Z )
         {
-            if( ABS(dot_prod[axis_index]) > ABS(dot_prod[best_axis]) )
+            if( FABS(dot_prod[axis_index]) > FABS(dot_prod[best_axis]) )
             {
                 best_axis = axis_index;
             }
@@ -266,7 +266,7 @@ private  BOOLEAN  perform_cursor_translation(
         a1 = (best_axis + 1) % N_DIMENSIONS;
         a2 = (best_axis + 2) % N_DIMENSIONS;
 
-        if( ABS(dot_prod[a1]) > ABS(dot_prod[a2]) )
+        if( FABS(dot_prod[a1]) > FABS(dot_prod[a2]) )
             second_best_axis = a1;
         else
             second_best_axis = a2;
@@ -288,11 +288,11 @@ private  BOOLEAN  perform_cursor_translation(
         ADD_POINT_VECTOR( new_screen_origin, cursor_screen, offset );
 
         fill_Vector( axis_direction, 0.0, 0.0, 0.0 );
-        Vector_coord( axis_direction, best_axis ) = 1.0;
+        Vector_coord( axis_direction, best_axis ) = 1.0f;
 
         convert_screen_to_ray( &display->three_d.view,
-                               Point_x(new_screen_origin),
-                               Point_y(new_screen_origin),
+                               (Real) Point_x(new_screen_origin),
+                               (Real) Point_y(new_screen_origin),
                                &ray_origin, &ray_direction );
         transform_world_to_model( &display->three_d.view, &ray_origin,
                                   &transformed_origin );

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.40 1995-10-19 15:52:36 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/extract.c,v 1.41 1996-04-19 13:25:40 david Exp $";
 #endif
 
 
@@ -177,9 +177,9 @@ public  BOOLEAN  extract_voxel_surface(
     int                    n_polys, n_nondegenerate_polys;
     int                    *sizes, voxel[N_DIMENSIONS];
 
-    voxel[X] = voxel_index->i[X];
-    voxel[Y] = voxel_index->i[Y];
-    voxel[Z] = voxel_index->i[Z];
+    voxel[X] = (int) voxel_index->i[X];
+    voxel[Y] = (int) voxel_index->i[Y];
+    voxel[Z] = (int) voxel_index->i[Z];
 
     if( !get_voxel_values( volume, label_volume, surface_extraction,
                            voxel, corner_values ) )
@@ -247,7 +247,8 @@ private  int  extract_polygons(
                                        voxel_index );
 
     n_added_polys = 0;
-    all_done_value = (VOXEL_COMPLETELY_DONE >> (4 - n_polys));
+    all_done_value = (unsigned_byte) (VOXEL_COMPLETELY_DONE >>
+                      (4 - n_polys));
 
     do
     {
@@ -268,9 +269,12 @@ private  int  extract_polygons(
                     edge_point_list[pt->coord[X]][pt->coord[Y]][pt->coord[Z]]
                                    [pt->edge_intersected].checked = TRUE;
 
-                    corner_index.i[X] = voxel_index->i[X] + pt->coord[X];
-                    corner_index.i[Y] = voxel_index->i[Y] + pt->coord[Y];
-                    corner_index.i[Z] = voxel_index->i[Z] + pt->coord[Z];
+                    corner_index.i[X] = (short) ((int) voxel_index->i[X] +
+                                                 pt->coord[X]);
+                    corner_index.i[Y] = (short) ((int) voxel_index->i[Y] +
+                                                 pt->coord[Y]);
+                    corner_index.i[Z] = (short) ((int) voxel_index->i[Z] +
+                                                 pt->coord[Z]);
 
                     if( !lookup_edge_point_id( volume_sizes,
                                     &surface_extraction->edge_points,
@@ -370,9 +374,9 @@ private  int  add_polygon_to_list(
 
         if( point_ids[p] == INVALID_ID )
         {
-            corner_index.i[X] = voxel_index->i[X] + pt->coord[X];
-            corner_index.i[Y] = voxel_index->i[Y] + pt->coord[Y];
-            corner_index.i[Z] = voxel_index->i[Z] + pt->coord[Z];
+            corner_index.i[X] = (short) ((int)voxel_index->i[X] + pt->coord[X]);
+            corner_index.i[Y] = (short) ((int)voxel_index->i[Y] + pt->coord[Y]);
+            corner_index.i[Z] = (short) ((int)voxel_index->i[Z] + pt->coord[Z]);
 
             point_ids[p] = create_surface_point( volume,
                                          surface_extraction->binary_flag,
@@ -439,9 +443,9 @@ private  int   create_surface_point(
     Real      ignored;
     Point     point1, point2, iso_point;
 
-    corner[X] = voxel->i[X];
-    corner[Y] = voxel->i[Y];
-    corner[Z] = voxel->i[Z];
+    corner[X] = (int) voxel->i[X];
+    corner[Y] = (int) voxel->i[Y];
+    corner[Z] = (int) voxel->i[Z];
 
     fill_Point( point1, (Real) corner[X], (Real) corner[Y], (Real) corner[Z] );
     val1 = get_volume_real_value( volume, corner[X], corner[Y], corner[Z], 0,0);
@@ -462,9 +466,9 @@ private  int   create_surface_point(
 
     /* ------------------- compute point position ------------------- */
 
-    voxel_pos[X] = Point_x(iso_point);
-    voxel_pos[Y] = Point_y(iso_point);
-    voxel_pos[Z] = Point_z(iso_point);
+    voxel_pos[X] = (Real) Point_x(iso_point);
+    voxel_pos[Y] = (Real) Point_y(iso_point);
+    voxel_pos[Z] = (Real) Point_z(iso_point);
 
     convert_voxel_to_world( volume, voxel_pos, &x_w, &y_w, &z_w );
     fill_Point( point, x_w, y_w, z_w );
@@ -472,7 +476,9 @@ private  int   create_surface_point(
     /* --------------------- now get normal ---------------------- */
 
     evaluate_volume_in_world( volume,
-                              Point_x(point), Point_y(point), Point_z(point),
+                              (Real) Point_x(point),
+                              (Real) Point_y(point),
+                              (Real) Point_z(point),
                               Volume_continuity, FALSE,
                               get_volume_real_min(volume),
                               &ignored,

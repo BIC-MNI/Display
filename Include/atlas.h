@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char atlas_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/atlas.h,v 1.6 1995-07-31 19:53:45 david Exp $";
+static char atlas_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/atlas.h,v 1.7 1996-04-19 13:24:50 david Exp $";
 #endif
 
 #include   <volume_io.h>
@@ -34,7 +34,7 @@ typedef  struct
     BOOLEAN                input;
     BOOLEAN                enabled;
     Real                   opacity;
-    Real                   transparent_threshold;
+    int                    transparent_threshold;
     Real                   slice_tolerance[N_DIMENSIONS];
     BOOLEAN                flipped[3];
 

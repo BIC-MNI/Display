@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.42 1996-04-17 17:50:21 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.43 1996-04-19 13:25:21 david Exp $";
 #endif
 
 #include  <display.h>
@@ -92,9 +92,9 @@ private  int  scale_x_mouse(
     if( slice_window->slice.segmenting.mouse_scale_factor > 0.0 &&
         slice_window->slice.segmenting.mouse_scale_factor != 1.0 )
     {
-        x_real = slice_window->slice.segmenting.x_mouse_start +
+        x_real = (Real) slice_window->slice.segmenting.x_mouse_start +
                  slice_window->slice.segmenting.mouse_scale_factor *
-                 (x - slice_window->slice.segmenting.x_mouse_start);
+                 (Real) (x - slice_window->slice.segmenting.x_mouse_start);
         x = ROUND( x_real );
     }
 
@@ -109,9 +109,9 @@ private  int  scale_y_mouse(
     if( slice_window->slice.segmenting.mouse_scale_factor > 0.0 &&
         slice_window->slice.segmenting.mouse_scale_factor != 1.0 )
     {
-        y_real = slice_window->slice.segmenting.y_mouse_start +
+        y_real = (Real) slice_window->slice.segmenting.y_mouse_start +
                  slice_window->slice.segmenting.mouse_scale_factor *
-                 (y - slice_window->slice.segmenting.y_mouse_start);
+                 (Real) (y - slice_window->slice.segmenting.y_mouse_start);
         y = ROUND( y_real );
     }
 
@@ -231,9 +231,9 @@ private  BOOLEAN  get_brush_voxel_centre(
 
     if( inside && Snap_brush_to_centres )
     {
-        voxel[X] = ROUND( voxel[X] );
-        voxel[Y] = ROUND( voxel[Y] );
-        voxel[Z] = ROUND( voxel[Z] );
+        voxel[X] = (Real) ROUND( voxel[X] );
+        voxel[Y] = (Real) ROUND( voxel[Y] );
+        voxel[Z] = (Real) ROUND( voxel[Z] );
     }
 
     return( inside );
@@ -321,12 +321,12 @@ private  BOOLEAN  get_brush(
                                 separations );
 
         radius[*a1] = slice_window->slice.x_brush_radius /
-                      ABS( separations[*a1] );
+                      FABS( separations[*a1] );
 
         radius[*a2] = slice_window->slice.y_brush_radius /
-                      ABS( separations[*a2] );
+                      FABS( separations[*a2] );
         radius[*axis] = slice_window->slice.z_brush_radius /
-                      ABS( separations[*axis] );
+                      FABS( separations[*axis] );
 
         for_less( c, 0, N_DIMENSIONS )
         {
@@ -357,11 +357,11 @@ private  BOOLEAN  inside_swept_brush(
     for_less( c, 0, N_DIMENSIONS )
     {
         if( radius[c] == 0.0 )
-            Vector_coord(voxel_offset,c) = 0.0;
+            Vector_coord(voxel_offset,c) = 0.0f;
         else
         {
-            Vector_coord(voxel_offset,c) =
-                                ((Real) voxel[c] - origin[c]) / radius[c];
+            Vector_coord(voxel_offset,c) = (Point_coord_type)
+                               (((Real) voxel[c] - origin[c]) / radius[c]);
             ++n_non_zero;
         }
     }
@@ -400,8 +400,8 @@ private  BOOLEAN  inside_swept_brush(
 
             for_less( c, 0, N_DIMENSIONS )
             {
-                Vector_coord( voxel_offset, c ) -=
-                                        t * Vector_coord(*scaled_delta,c);
+                Vector_coord( voxel_offset, c ) -= (Point_coord_type) t *
+                                              Vector_coord(*scaled_delta,c);
             }
         }
 
@@ -623,9 +623,10 @@ private  void  paint_labels(
 
         for_less( c, 0, N_DIMENSIONS )
         {
-            Vector_coord(scaled_delta,c) = end_voxel[c] - start_voxel[c];
+            Vector_coord(scaled_delta,c) = (Point_coord_type)
+                                       (end_voxel[c] - start_voxel[c]);
             if( radius[c] != 0.0 )
-                Vector_coord(scaled_delta,c) /= radius[c];
+                Vector_coord(scaled_delta,c) /= (Point_coord_type) radius[c];
         }
 
         for_less( c, 0, N_DIMENSIONS )
@@ -730,13 +731,13 @@ private   void    add_point_to_contour(
     Real    real_x_pixel, real_y_pixel;
     Point   point;
 
-    next_dir = (dir + 1) % N_DIRECTIONS;
+    next_dir = (dir + 1) % (int) N_DIRECTIONS;
 
     real_x_pixel = x_scale * ((Real) voxel[a1] +
-                              (Real) (dx[dir] + (Real) dx[next_dir]) / 2.0) +
+                              ((Real) dx[dir] + (Real) dx[next_dir]) / 2.0) +
                    x_trans;
     real_y_pixel = y_scale * ((Real) voxel[a2] +
-                              (Real) (dy[dir] + (Real) dy[next_dir]) / 2.0) +
+                              ((Real) dy[dir] + (Real) dy[next_dir]) / 2.0) +
                    y_trans;
 
     x_pixel = ROUND( real_x_pixel );
@@ -811,14 +812,15 @@ private  void  get_brush_contour(
                               a1, a2, x_scale, x_trans, y_scale, y_trans,
                               current_voxel, dir, lines );
 
-        dir = (dir + 1) % N_DIRECTIONS;
+        dir = (Directions) (((int) dir + 1) % (int) N_DIRECTIONS);
 
         while( neighbour_is_inside( centre, radius, a1, a2,
                                     current_voxel, dir ) )
         {
             current_voxel[a1] += dx[dir];
             current_voxel[a2] += dy[dir];
-            dir = (dir - 1 + N_DIRECTIONS) % N_DIRECTIONS;
+            dir = (Directions) (((int) dir - 1 + (int) N_DIRECTIONS) %
+                                (int) N_DIRECTIONS);
         }
     }
     while( current_voxel[X] != start_voxel[X] ||
@@ -846,8 +848,8 @@ private  BOOLEAN   get_lines_limits(
 
     for_less( i, 0, lines->n_points )
     {
-        x = Point_x(lines->points[i]);
-        y = Point_y(lines->points[i]);
+        x = (int) Point_x(lines->points[i]);
+        y = (int) Point_y(lines->points[i]);
         if( i == 0 )
         {
             *x_min = x;

@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/fit_view.c,v 1.18 1995-10-19 15:52:30 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/structures/fit_view.c,v 1.19 1996-04-19 13:25:36 david Exp $";
 #endif
 
 
@@ -44,13 +44,13 @@ public  void  fit_view_to_domain(
     Real      x_min, y_min, z_min;
     Real      x_max, y_max, z_max;
 
-    x_min = Point_x( *min_limit );
-    y_min = Point_y( *min_limit );
-    z_min = Point_z( *min_limit );
+    x_min = (Real) Point_x( *min_limit );
+    y_min = (Real) Point_y( *min_limit );
+    z_min = (Real) Point_z( *min_limit );
 
-    x_max = Point_x( *max_limit );
-    y_max = Point_y( *max_limit );
-    z_max = Point_z( *max_limit );
+    x_max = (Real) Point_x( *max_limit );
+    y_max = (Real) Point_y( *max_limit );
+    z_max = (Real) Point_z( *max_limit );
 
     fill_Point( points[0], x_min, y_min, z_min );
     fill_Point( points[1], x_min, y_min, z_max );
@@ -105,18 +105,18 @@ private  void   fit_view_to_points(
 
     for_less( c, 0, 2 )
     {
-        if( Vector_coord(range,c) == 0.0 )
+        if( Vector_coord(range,c) == 0.0f )
         {
-            Point_coord(min_coord,c) -= size / 2.0;
-            Point_coord(max_coord,c) += size / 2.0;
-            Vector_coord(range,c) = size;
+            Point_coord(min_coord,c) -= (Point_coord_type) (size / 2.0);
+            Point_coord(max_coord,c) += (Point_coord_type) (size / 2.0);
+            Vector_coord(range,c) = (Point_coord_type) (size);
         }
     }
 
-    centre_z = (Point_z(min_coord) + Point_z(max_coord)) / 2.0;
-    Point_z(min_coord) = centre_z - size / 2.0;
-    Point_z(max_coord) = centre_z + size / 2.0;
-    Vector_z(range) = size;
+    centre_z = ((Real) Point_z(min_coord) + (Real) Point_z(max_coord)) / 2.0;
+    Point_z(min_coord) = (Point_coord_type) (centre_z - size / 2.0);
+    Point_z(max_coord) = (Point_coord_type) (centre_z + size / 2.0);
+    Vector_z(range) = (Point_coord_type) size;
 
     INTERPOLATE_POINTS( centre, min_coord, max_coord, 0.5 );
 
@@ -148,9 +148,9 @@ private  void  orthogonal_fit_points(
     y_axis = view->y_axis;
     line_of_sight = view->line_of_sight;
 
-    dx = Point_x(*centre);
-    dy = Point_y(*centre);
-    dz = Point_z(*centre) - Vector_z(*range);
+    dx = (Real) Point_x(*centre);
+    dy = (Real) Point_y(*centre);
+    dz = (Real) Point_z(*centre) - (Real) Vector_z(*range);
 
     SCALE_VECTOR( delta_x, x_axis, dx );
     SCALE_VECTOR( delta_y, y_axis, dy );
@@ -162,8 +162,8 @@ private  void  orthogonal_fit_points(
 
     view->origin = eye;
 
-    x_scale = Vector_x(*range) * FACTOR / view->window_width;
-    y_scale = Vector_y(*range) * FACTOR / view->window_height;
+    x_scale = (Real) Vector_x(*range) * FACTOR / view->window_width;
+    y_scale = (Real) Vector_y(*range) * FACTOR / view->window_height;
 
     if( x_scale == 0.0 )
     {
@@ -178,10 +178,10 @@ private  void  orthogonal_fit_points(
 
     view->window_width *= scale_factor;
     view->window_height *= scale_factor;
-    view->perspective_distance = Vector_z(*range);
+    view->perspective_distance = (Real) Vector_z(*range);
 
     view->front_distance = 0.0;
-    view->back_distance = 2.0 * (Point_z(*centre) - dz);
+    view->back_distance = 2.0 * ((Real) Point_z(*centre) - dz);
 }
 
 private  void  perspective_fit_points(
@@ -210,12 +210,12 @@ private  void  perspective_fit_points(
         {
             if( c == X )
             {
-                off_centre = Point_x(points[i]) - Point_x(*centre);
+                off_centre = (Real) Point_x(points[i]) - (Real)Point_x(*centre);
                 width = view->window_width;
             }
             else
             {
-                off_centre = Point_y(points[i]) - Point_y(*centre);
+                off_centre = (Real) Point_y(points[i]) - (Real)Point_y(*centre);
                 width = view->window_height;
             }
 
@@ -225,15 +225,15 @@ private  void  perspective_fit_points(
             if( dist < 0.0 )
                 dist = -dist;
 
-            z_pos = Point_z(points[i]) - dist;
+            z_pos = (Real) Point_z(points[i]) - dist;
 
             if( (i == 0 && c == X) || z_pos < z_min )
                 z_min = z_pos;
         }
     }
 
-    dx = Point_x(*centre);
-    dy = Point_y(*centre);
+    dx = (Real) Point_x(*centre);
+    dy = (Real) Point_y(*centre);
     dz = z_min;
 
     SCALE_VECTOR( delta_x, x_axis, dx );
@@ -246,7 +246,7 @@ private  void  perspective_fit_points(
 
     view->origin = eye;
 
-    new_persp_dist = Point_z(*centre) - z_min;
+    new_persp_dist = (Real) Point_z(*centre) - z_min;
 
     ratio = new_persp_dist / view->perspective_distance;
 
@@ -254,6 +254,6 @@ private  void  perspective_fit_points(
     view->window_height *= ratio;
     view->perspective_distance = new_persp_dist;
 
-    view->back_distance = 2.0 * (Point_z(*centre) - dz);
+    view->back_distance = 2.0 * ((Real) Point_z(*centre) - dz);
     view->front_distance = 0.0;
 }

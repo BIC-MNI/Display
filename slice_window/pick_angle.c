@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/pick_angle.c,v 1.12 1995-10-19 15:52:20 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/pick_angle.c,v 1.13 1996-04-19 13:25:35 david Exp $";
 #endif
 
 
@@ -150,11 +150,15 @@ private  void  set_slice_angle(
 
     for_less( c, 0, N_DIMENSIONS )
     {
-        separations[c] = ABS( separations[c] );
-        Point_coord( origin, c ) = origin_voxel[c] * separations[c];
-        Point_coord( in_plane_point, c ) = voxel[c] * separations[c];
-        Vector_coord( current_normal, c ) = perp_axis[c] * separations[c];
-        Vector_coord( plane_normal, c ) = view_perp_axis[c] * separations[c];
+        separations[c] = FABS( separations[c] );
+        Point_coord( origin, c ) = (Point_coord_type)
+                                      (origin_voxel[c] * separations[c]);
+        Point_coord( in_plane_point, c ) = (Point_coord_type)
+                                      (voxel[c] * separations[c]);
+        Vector_coord( current_normal, c ) = (Point_coord_type)
+                                      (perp_axis[c] * separations[c]);
+        Vector_coord( plane_normal, c ) = (Point_coord_type)
+                                      (view_perp_axis[c] * separations[c]);
     }
 
     /*--- check for degenerate conditions */
@@ -174,8 +178,8 @@ private  void  set_slice_angle(
 
         for_less( c, 0, N_DIMENSIONS )
         {
-            Vector_coord( axis1, c ) =
-              slice_window->slice.cross_section_vector[c] * separations[c];
+            Vector_coord( axis1, c ) = (Point_coord_type)
+              (slice_window->slice.cross_section_vector[c] * separations[c]);
         }
         CROSS_VECTORS( new_normal, axis1, x_axis );
     }
@@ -210,7 +214,7 @@ private  void  set_slice_angle(
         return;
 
     for_less( c, 0, N_DIMENSIONS )
-        new_axis[c] = Vector_coord( new_normal, c ) / separations[c];
+        new_axis[c] = (Real) Vector_coord( new_normal, c ) / separations[c];
 
     set_slice_plane_perp_axis( slice_window, volume_index,
                                get_arbitrary_view_index(slice_window),

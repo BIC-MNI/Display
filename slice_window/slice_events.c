@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice_events.c,v 1.41 1996-04-10 17:19:30 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice_events.c,v 1.42 1996-04-19 13:25:28 david Exp $";
 #endif
 
 #include  <display.h>
@@ -406,7 +406,7 @@ private  void  update_voxel_zoom(
     {
         dy = y - y_prev;
 
-        scale_factor = pow( 2.0, dy / Pixels_per_double_size );
+        scale_factor = pow( 2.0, (Real) dy / Pixels_per_double_size );
 
         scale_slice_view( slice_window, view_index, scale_factor );
     }
@@ -450,7 +450,7 @@ private  void  perform_translation(
         dx = x - x_prev;
         dy = y - y_prev;
 
-        translate_slice_view( slice_window, view_index, dx, dy );
+        translate_slice_view( slice_window, view_index, (Real) dx, (Real) dy );
         set_slice_window_update( slice_window, -1, view_index, UPDATE_BOTH );
 
         record_mouse_pixel_position( slice_window );

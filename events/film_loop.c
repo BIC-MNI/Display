@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/film_loop.c,v 1.18 1995-10-19 15:51:19 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/film_loop.c,v 1.19 1996-04-19 13:25:04 david Exp $";
 #endif
 
 
@@ -47,7 +47,7 @@ public  Status  start_film_loop(
     add_action_table_function( &display->action_table, NO_EVENT,
                                check_updated );
 
-    angle = 2.0 * PI / n_steps;
+    angle = 2.0 * PI / (Real) n_steps;
 
     make_rotation_transform( angle, axis_index,
                              &display->three_d.film_loop.transform );
