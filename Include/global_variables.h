@@ -224,7 +224,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Initial_display_labels, BOOLEAN, TRUE )
     DEF_GLOBAL( Initial_num_labels, int, 256 )
-    DEF_GLOBAL( Label_colour_display_ratio, Real, 0.2 )
+    DEF_GLOBAL( Label_colour_opacity, Real, 0.7 )
 
     DEF_GLOBAL( Use_cursor_origin, BOOLEAN, TRUE )
 
