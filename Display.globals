@@ -1,6 +1,7 @@
 Progress_threshold = 1000;
 
 Initial_background_colour = BLACK;
+Initial_background_colour = WHITE;
 Initial_background_colour = DARK_SLATE_GREY;
 
 Event_timeout_min = 0.5;
@@ -245,6 +246,7 @@ Smoothing_threshold = 0.01;
 
 Surface_curve_colour = MAGENTA;
 Surface_curve_thickness = 3;
+Surface_curve_overlay_flag = TRUE;
 
 N_painting_polygons = 100;
 Visible_segmenting_colour = GREEN;
@@ -275,6 +277,7 @@ Initial_atlas_tolerance_x = 1.0;
 Initial_atlas_tolerance_y = 1.0;
 Initial_atlas_tolerance_z = 1.0;
 Atlas_filename = /nil/david/Talairach/Talairach_atlas.list
+Atlas_filename = /nil/david/Display/Talairach_atlas.list
 Default_atlas_state = FALSE;
 
 Marker_threshold = 1.5;

@@ -17,13 +17,9 @@
 #define  X_TALAIRACH_PROBE_INDEX       13
 #define  Y_TALAIRACH_PROBE_INDEX       14
 #define  Z_TALAIRACH_PROBE_INDEX       15
-#define  VAL_PROBE_INDEX               16
-#define  MAX_MODEL_INDEX               17
-/*
-#define  X_FILE_PROBE_INDEX            17
-#define  Y_FILE_PROBE_INDEX            18
-#define  Z_FILE_PROBE_INDEX            19
-*/
+#define  VOXEL_PROBE_INDEX             16
+#define  VAL_PROBE_INDEX               17
+#define  MAX_MODEL_INDEX               18
 
 private  void  render_slice_to_pixels(
     display_struct        *slice_window,
@@ -170,12 +166,12 @@ public  void  rebuild_probe(
     model_struct   *model;
     Boolean        active;
     Volume         volume;
-    int            i, x_voxel, y_voxel, z_voxel, view_index, max_index;
+    int            i, x_voxel, y_voxel, z_voxel, view_index;
     Real           x_tal_voxel, y_tal_voxel, z_tal_voxel;
     Real           x_talairach, y_talairach, z_talairach;
     text_struct    *text;
     int            sizes[N_DIMENSIONS];
-    Real           value;
+    Real           value, voxel_value;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
 
     active = get_voxel_in_slice_window( slice_window,
@@ -196,16 +192,13 @@ public  void  rebuild_probe(
     convert_talairach_to_mm( x_tal_voxel, y_tal_voxel, z_tal_voxel,
                              &x_talairach, &y_talairach, &z_talairach );
 
-    max_index = VAL_PROBE_INDEX;
-
-/*
-    for_inclusive( i, X_FILE_PROBE_INDEX, Z_FILE_PROBE_INDEX )
+    if( active )
     {
-        set_object_visibility( model->objects[i], OFF );
+        GET_VOXEL_3D( voxel_value, volume, x_voxel, y_voxel, z_voxel );
+        value = CONVERT_VOXEL_TO_VALUE( get_volume(slice_window), voxel_value );
     }
-*/
 
-    for_inclusive( i, X_TRANSFORMED_PROBE_INDEX, max_index )
+    for_less( i, X_TRANSFORMED_PROBE_INDEX, MAX_MODEL_INDEX )
     {
         x_pos = x_min + Probe_x_pos + (i - X_TRANSFORMED_PROBE_INDEX)
                                        * Probe_x_delta;
@@ -243,27 +236,13 @@ public  void  rebuild_probe(
                 (void) sprintf( text->string, Slice_probe_z_talairach_format,
                                 z_talairach );
                 break;
+            case VOXEL_PROBE_INDEX:
+                (void) sprintf( text->string, Slice_probe_val_format,
+                                voxel_value );
+                break;
             case VAL_PROBE_INDEX:
-                GET_VOXEL_3D( value, get_volume(slice_window),
-                              x_voxel, y_voxel, z_voxel );
                 (void) sprintf( text->string, Slice_probe_val_format, value );
                 break;
-
-/*
-            case X_FILE_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_x_file_format,
-                                x_file+1 );
-                break;
-            case Y_FILE_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_y_file_format,
-                                y_file+1 );
-                break;
-            case Z_FILE_PROBE_INDEX:
-                (void) sprintf( text->string, Slice_probe_z_file_format,
-                                z_file+1 );
-                break;
-*/
-
             }
         }
         else

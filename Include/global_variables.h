@@ -234,6 +234,7 @@ START_GLOBALS
     DEF_GLOBAL( Smoothing_threshold, Real, 0.05 )
 
     DEF_GLOBAL( Surface_curve_colour, Colour, 0.0 )
+    DEF_GLOBAL( Surface_curve_overlay_flag, Boolean, TRUE )
     DEF_GLOBAL( Surface_curve_thickness, int, 3 )
     DEF_GLOBAL( Line_curvature_weight, Real, 0.5 )
 
