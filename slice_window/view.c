@@ -536,6 +536,9 @@ public  BOOLEAN  set_current_voxel(
         }
     }
 
+    if( changed )
+        rebuild_volume_cross_section( slice_window );
+
     return( changed );
 }
 
@@ -570,6 +573,8 @@ public  void  set_slice_plane(
         slice_window->slice.slice_views[view_index].x_axis[c] = x_axis[c];
         slice_window->slice.slice_views[view_index].y_axis[c] = y_axis[c];
     }
+
+    rebuild_volume_cross_section( slice_window );
 }
 
 public  void  get_slice_plane(
