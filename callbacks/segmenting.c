@@ -43,15 +43,13 @@ public  DEF_MENU_UPDATE(label_point )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( set_voxel_inactive )   /* ARGSUSED */
 {
-    Volume         volume;
     Real           voxel[MAX_DIMENSIONS];
     int            axis_index, int_voxel[MAX_DIMENSIONS];
 
-    if( get_voxel_under_mouse( display, voxel, &axis_index ) &&
-        get_slice_window_volume( display, &volume ) )
+    if( get_voxel_under_mouse( display, voxel, &axis_index ) )
     {
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-        set_voxel_activity_flag( volume, int_voxel, FALSE );
+        set_voxel_activity_flag( get_label_volume(display), int_voxel, FALSE );
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
@@ -67,15 +65,13 @@ public  DEF_MENU_UPDATE(set_voxel_inactive )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( set_voxel_active )   /* ARGSUSED */
 {
-    Volume         volume;
     Real           voxel[MAX_DIMENSIONS];
     int            axis_index, int_voxel[MAX_DIMENSIONS];
 
-    if( get_voxel_under_mouse( display, voxel, &axis_index ) &&
-        get_slice_window_volume( display, &volume ) )
+    if( get_voxel_under_mouse( display, voxel, &axis_index ) )
     {
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-        set_voxel_activity_flag( volume, int_voxel, TRUE );
+        set_voxel_activity_flag( get_label_volume(display), int_voxel, TRUE );
         set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
         set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
@@ -404,18 +400,17 @@ private  void  set_slice_activity(
     display_struct     *display,
     BOOLEAN            activity )
 {
-    Volume           volume;
     Real             voxel[MAX_DIMENSIONS];
     int              axis_index, int_voxel[MAX_DIMENSIONS];
     display_struct   *slice_window;
 
-    if( get_voxel_under_mouse( display, voxel, &axis_index ) &&
-        get_slice_window_volume( display, &volume) )
+    if( get_voxel_under_mouse( display, voxel, &axis_index ) )
     {
         slice_window = display->associated[SLICE_WINDOW];
 
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
-        set_activity_for_slice( volume, axis_index, int_voxel[axis_index],
+        set_activity_for_slice( get_label_volume(slice_window),
+                                axis_index, int_voxel[axis_index],
                                 activity );
 
         set_slice_window_update( slice_window, 0 );
@@ -452,19 +447,18 @@ private  void   set_connected_activity(
     display_struct   *display,
     BOOLEAN          desired_activity )
 {
-    Volume           volume;
     Real             voxel[MAX_DIMENSIONS];
     int              axis_index, int_voxel[MAX_DIMENSIONS];
     display_struct   *slice_window;
 
-    if( get_voxel_under_mouse( display, voxel, &axis_index ) &&
-        get_slice_window_volume( display, &volume) )
+    if( get_voxel_under_mouse( display, voxel, &axis_index ) )
     {
         slice_window = display->associated[SLICE_WINDOW];
 
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
 
-        set_connected_voxels_activity( volume, axis_index, int_voxel,
+        set_connected_voxels_activity( get_label_volume(display),
+                          axis_index, int_voxel,
                           slice_window->slice.segmenting.min_threshold,
                           slice_window->slice.segmenting.max_threshold,
                           slice_window->slice.segmenting.connectivity,
@@ -478,13 +472,11 @@ private  void   set_connected_activity(
 
 public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
 {
-    Volume           volume;
     Real             voxel[MAX_DIMENSIONS];
     int              axis_index, int_voxel[MAX_DIMENSIONS];
     display_struct   *slice_window;
 
-    if( get_voxel_under_mouse( display, voxel, &axis_index ) &&
-        get_slice_window_volume( display, &volume) )
+    if( get_voxel_under_mouse( display, voxel, &axis_index ) )
     {
         slice_window = display->associated[SLICE_WINDOW];
 
@@ -493,7 +485,7 @@ public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
         print( "Filling 3d from %d %d %d\n",
                int_voxel[X], int_voxel[Y], int_voxel[Z] );
 
-        fill_connected_voxels_3d( volume, int_voxel,
+        fill_connected_voxels_3d( get_label_volume(slice_window), int_voxel,
                                   slice_window->slice.segmenting.min_threshold,
                                   slice_window->slice.segmenting.max_threshold);
 
@@ -523,7 +515,7 @@ public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
 
         print( "Expanding 3d labeled voxels\n" );
 
-        expand_labeled_voxels_3d( volume,
+        expand_labeled_voxels_3d( get_label_volume(display),
                  slice_window->slice.segmenting.min_threshold,
                  slice_window->slice.segmenting.max_threshold,
                  N_expansion_voxels );
@@ -546,8 +538,8 @@ public  DEF_MENU_UPDATE(expand_labeled_3d )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION(invert_activity)   /* ARGSUSED */
 {
     int              voxel[MAX_DIMENSIONS], sizes[MAX_DIMENSIONS];
-    Volume           volume;
     BOOLEAN          activity;
+    Volume           volume;
     display_struct   *slice_window;
 
     if( get_slice_window_volume( display, &volume) )
@@ -561,8 +553,10 @@ public  DEF_MENU_FUNCTION(invert_activity)   /* ARGSUSED */
             {
                 for_less( voxel[Z], 0, sizes[Z] )
                 {
-                    activity = get_voxel_activity_flag( volume, voxel );
-                    set_voxel_activity_flag( volume, voxel, !activity );
+                    activity = get_voxel_activity_flag(
+                                     get_label_volume(display), voxel );
+                    set_voxel_activity_flag( get_label_volume(display),
+                                     voxel, !activity );
                 }
             }
         }
