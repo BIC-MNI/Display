@@ -3,6 +3,7 @@
 #include  <def_globals.h>
 #include  <def_math.h>
 #include  <def_files.h>
+#include  <def_deform.h>
 
 public  Boolean  get_current_polygons( graphics, polygons )
     graphics_struct     *graphics;
@@ -288,10 +289,10 @@ public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
     Status            compute_polygon_normals();
     Status            delete_polygons_bintree();
     Real              boundary_factor, max_step, max_search_distance;
-    Real              search_increment, min_size, min_isovalue, max_isovalue;
+    Real              search_increment, min_size;
     Real              stop_threshold;
     int               max_iterations;
-    Boolean           one_d_flag;
+    boundary_definition_struct  boundary;
     volume_struct     *volume;
     polygons_struct   *polygons;
     void              set_update_required();
@@ -301,27 +302,30 @@ public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
     if( get_current_polygons( graphics, &polygons ) &&
         get_current_volume( graphics, &volume ) )
     {
-        PRINT( "Enter 1dflag, boundary_factor, max_step, max_search_distance,\n" );
+        PRINT( "Enter boundary_factor, max_step, max_search_distance,\n" );
         PRINT( "      search_increment, min_size,\n" );
         PRINT( "      min_isovalue, max_isovalue,\n" );
+        PRINT( "      variable_threshold_flag, variable_threshold,\n" );
         PRINT( "      max_iterations, stop_threshold: " );
 
-        if( input_int( stdin, &one_d_flag ) == OK &&
-            input_real( stdin, &boundary_factor ) == OK &&
+        if( input_real( stdin, &boundary_factor ) == OK &&
             input_real( stdin, &max_step ) == OK &&
             input_real( stdin, &max_search_distance ) == OK &&
             input_real( stdin, &search_increment ) == OK &&
             input_real( stdin, &min_size ) == OK &&
-            input_real( stdin, &min_isovalue ) == OK &&
-            input_real( stdin, &max_isovalue ) == OK &&
+            input_real( stdin, &boundary.min_isovalue ) == OK &&
+            input_real( stdin, &boundary.max_isovalue ) == OK &&
+            input_int( stdin, &boundary.variable_threshold_flag ) == OK &&
+            input_real( stdin, &boundary.variable_threshold ) == OK &&
             input_int( stdin, &max_iterations ) == OK &&
             input_real( stdin, &stop_threshold ) == OK )
         {
-            status = deform_polygons( polygons, volume, one_d_flag,
+            boundary.gradient_flag = FALSE;
+
+            status = deform_polygons( polygons, volume,
                                       boundary_factor, max_step,
                                       max_search_distance, search_increment,
-                                      min_size,
-                                      min_isovalue, max_isovalue,
+                                      min_size, &boundary,
                                       max_iterations, stop_threshold );
 
             if( status == OK )
@@ -378,7 +382,7 @@ public  DEF_MENU_FUNCTION( make_polygon_sphere )   /* ARGSUSED */
 
         if( status == OK )
             status = create_polygons_sphere( &centre, x_size, y_size, z_size,
-                              n_up, n_around, object->ptr.polygons );
+                              n_up, n_around, FALSE, object->ptr.polygons );
 
         if( status == OK )
             ALLOC( status, object->ptr.polygons->colours, 1 );
