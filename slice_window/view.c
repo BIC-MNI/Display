@@ -299,6 +299,39 @@ public  void  convert_voxel_to_pixel(
     }
 }
 
+public  void  get_voxel_to_pixel_transform(
+    display_struct    *slice_window,
+    int               view_index,
+    int               *x_index,
+    int               *y_index,
+    Real              *x_scale,
+    Real              *x_trans,
+    Real              *y_scale,
+    Real              *y_trans )
+{
+    int     axis;
+    Real    voxel[MAX_DIMENSIONS], x, y;
+
+    if( !slice_has_ortho_axes( slice_window, view_index,
+                               x_index, y_index, &axis ) )
+    {
+        handle_internal_error( "get_voxel_to_pixel_transform" );
+        return;
+    }
+
+    voxel[axis] = 0.0;
+    voxel[*x_index] = 0.0;
+    voxel[*y_index] = 0.0;
+    convert_voxel_to_pixel( slice_window, view_index, voxel, x_trans, y_trans );
+
+    voxel[*x_index] = 1.0;
+    voxel[*y_index] = 1.0;
+    convert_voxel_to_pixel( slice_window, view_index, voxel, &x, &y );
+
+    *x_scale = x - *x_trans;
+    *y_scale = y - *y_trans;
+}
+
 public  BOOLEAN  get_voxel_corresponding_to_point(
     display_struct    *display,
     Point             *point,

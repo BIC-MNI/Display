@@ -34,6 +34,8 @@ typedef  struct
     Real              min_threshold;
     Real              max_threshold;
     Neighbour_types   connectivity;
+    int               n_starts_alloced;
+    int               *y_starts;
 } segmenting_struct;
 
 typedef struct

@@ -266,6 +266,8 @@ public  void  delete_slice_window(
     delete_atlas( &slice->atlas );
 
     delete_render_storage( slice->render_storage );
+
+    delete_voxel_labeling( slice );
 }
 
 private  void  free_slice_window(

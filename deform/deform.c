@@ -180,7 +180,8 @@ public  void  turn_off_deformation(
             compute_polygon_normals(
                 get_polygons_ptr(display->three_d.deform.deforming_object) );
 
-            set_slice_window_all_update( display->associated[SLICE_WINDOW] );
+            set_slice_window_all_update( display->associated[SLICE_WINDOW],
+                                         UPDATE_LABELS );
         }
     }
 }

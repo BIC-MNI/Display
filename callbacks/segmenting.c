@@ -20,7 +20,8 @@ public  DEF_MENU_FUNCTION( label_voxel )   /* ARGSUSED */
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
         set_volume_label_data( get_label_volume(display), int_voxel,
                                get_current_paint_label(display) );
-        set_slice_window_all_update( display->associated[SLICE_WINDOW] );
+        set_slice_window_all_update( display->associated[SLICE_WINDOW],
+                                     UPDATE_LABELS );
     }
 
     return( OK );
@@ -41,7 +42,8 @@ public  DEF_MENU_FUNCTION( clear_voxel )   /* ARGSUSED */
         record_slice_under_mouse( display );
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
         set_volume_label_data( get_label_volume(display), int_voxel, 0 );
-        set_slice_window_all_update( display->associated[SLICE_WINDOW] );
+        set_slice_window_all_update( display->associated[SLICE_WINDOW],
+                                     UPDATE_LABELS );
     }
 
     return( OK );
@@ -60,7 +62,7 @@ public  DEF_MENU_FUNCTION( reset_segmenting )   /* ARGSUSED */
     {
         clear_all_labels( slice_window );
         delete_slice_undo( &slice_window->slice.undo );
-        set_slice_window_all_update( slice_window );
+        set_slice_window_all_update( slice_window, UPDATE_LABELS );
     }
 
     return( OK );
@@ -119,7 +121,8 @@ public  DEF_MENU_FUNCTION(load_label_data)   /* ARGSUSED */
 
         print( "Done\n" );
         delete_slice_undo( &display->associated[SLICE_WINDOW]->slice.undo );
-        set_slice_window_all_update( display->associated[SLICE_WINDOW] );
+        set_slice_window_all_update( display->associated[SLICE_WINDOW],
+                                     UPDATE_LABELS );
     }
 
     return( status );
@@ -208,7 +211,7 @@ private  void  set_slice_labels(
                              axis_index, int_voxel[axis_index],
                              label );
 
-        set_slice_window_all_update( slice_window );
+        set_slice_window_all_update( slice_window, UPDATE_LABELS );
     }
 }
 
@@ -295,7 +298,7 @@ private  void   set_connected_labels(
                           slice_window->slice.segmenting.connectivity,
                           desired_label );
 
-        set_slice_window_all_update( slice_window );
+        set_slice_window_all_update( slice_window, UPDATE_LABELS );
     }
 }
 
@@ -319,7 +322,7 @@ public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
                int_voxel[X], int_voxel[Y], int_voxel[Z],
                label_under_mouse, desired_label );
 
-        fill_connected_voxels( get_volume(slice_window),
+        (void) fill_connected_voxels( get_volume(slice_window),
                                get_label_volume(slice_window),
                                slice_window->slice.segmenting.connectivity,
                                int_voxel,
@@ -332,7 +335,7 @@ public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
 
         print( "Done\n" );
 
-        set_slice_window_all_update( slice_window );
+        set_slice_window_all_update( slice_window, UPDATE_LABELS );
     }
 
     return( OK );
@@ -370,7 +373,7 @@ public  DEF_MENU_FUNCTION(expand_labeled_3d)   /* ARGSUSED */
 
             print( "Done\n" );
 
-            set_slice_window_all_update( slice_window );
+            set_slice_window_all_update( slice_window, UPDATE_LABELS );
         }
 
         (void) input_newline( stdin );

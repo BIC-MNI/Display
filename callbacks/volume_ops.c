@@ -132,7 +132,7 @@ public  DEF_MENU_FUNCTION(reset_current_slice_view)   /* ARGSUSED */
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
         reset_slice_view( slice_window, view_index );
-        set_slice_window_update( slice_window, view_index );
+        set_slice_window_update( slice_window, view_index, UPDATE_BOTH );
     }
 
     return( OK );
@@ -454,7 +454,7 @@ public  DEF_MENU_FUNCTION(type_in_voxel_origin)      /* ARGSUSED */
 
             if( set_current_voxel( slice_window, voxel ) )
             {
-                set_slice_window_all_update( slice_window );
+                set_slice_window_all_update( slice_window, UPDATE_BOTH );
                 set_update_required( display, NORMAL_PLANES );
             }
         }
@@ -490,7 +490,7 @@ public  DEF_MENU_FUNCTION(type_in_slice_plane)      /* ARGSUSED */
             set_slice_plane_perp_axis( slice_window, view_index, perp_axis );
             reset_slice_view( slice_window, view_index );
 
-            set_slice_window_update( slice_window, view_index );
+            set_slice_window_update( slice_window, view_index, UPDATE_BOTH );
         }
 
         (void) input_newline( stdin );
@@ -511,7 +511,7 @@ public  DEF_MENU_FUNCTION(toggle_slice_cross_section_visibility)  /* ARGSUSED */
         slice_window->slice.cross_section_visibility =
                              !slice_window->slice.cross_section_visibility;
         rebuild_slice_cross_sections( slice_window );
-        set_slice_window_all_update( slice_window );
+        set_slice_window_all_update( slice_window, UPDATE_BOTH );
     }
 }
 
@@ -533,7 +533,7 @@ public  DEF_MENU_FUNCTION(set_current_arbitrary_view)  /* ARGSUSED */
         slice_window->slice.cross_section_index = view_index;
         rebuild_slice_cross_sections( slice_window );
         rebuild_volume_cross_section( slice_window );
-        set_slice_window_all_update( slice_window );
+        set_slice_window_all_update( slice_window, UPDATE_BOTH );
         set_update_required( display, NORMAL_PLANES );
     }
 }

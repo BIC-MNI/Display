@@ -54,7 +54,7 @@ private  void  set_the_colour_coding_type(
 
         colour_coding->type = type;
 
-        colour_coding_has_changed( slice_window );
+        colour_coding_has_changed( slice_window, UPDATE_SLICE );
     }
 }
 
@@ -131,7 +131,7 @@ public  DEF_MENU_FUNCTION(set_under_colour )   /* ARGSUSED */
             set_colour_coding_under_colour( &slice_window->slice.colour_coding,
                                             col );
 
-            colour_coding_has_changed( slice_window );
+            colour_coding_has_changed( slice_window, UPDATE_SLICE );
         }
     }
 
@@ -182,7 +182,7 @@ public  DEF_MENU_FUNCTION(set_over_colour )   /* ARGSUSED */
             set_colour_coding_over_colour( &slice_window->slice.colour_coding,
                                            col );
 
-            colour_coding_has_changed( slice_window );
+            colour_coding_has_changed( slice_window, UPDATE_SLICE );
         }
     }
 
@@ -211,20 +211,18 @@ public  DEF_MENU_UPDATE(set_over_colour )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION(set_label_colour_ratio )   /* ARGSUSED */
 {
     Volume           volume;
-    Real             ratio;
+    Real             opacity;
     display_struct   *slice_window;
 
     if( get_slice_window_volume(display,&volume) &&
         get_slice_window( display, &slice_window ) )
     {
-        print( "Enter new label colour ratio: " );
+        print( "Enter new label colour opacity: " );
 
-        if( input_real( stdin, &ratio ) == OK &&
-            ratio >= 0.0 && ratio <= 1.0 )
+        if( input_real( stdin, &opacity ) == OK &&
+            opacity >= 0.0 && opacity <= 1.0 )
         {
-            slice_window->slice.label_colour_ratio = ratio;
-    
-            colour_coding_has_changed( slice_window );
+            set_label_opacity( slice_window, opacity );
         }
 
         (void) input_newline( stdin );
@@ -236,17 +234,17 @@ public  DEF_MENU_FUNCTION(set_label_colour_ratio )   /* ARGSUSED */
 public  DEF_MENU_UPDATE(set_label_colour_ratio )   /* ARGSUSED */
 {
     BOOLEAN          state;
-    Real             ratio;
+    Real             opacity;
     display_struct   *slice_window;
 
     state = get_slice_window( display, &slice_window );
 
     if( state )
-        ratio = slice_window->slice.label_colour_ratio;
+        opacity = slice_window->slice.label_colour_opacity;
     else
-        ratio = 0.0;
+        opacity = 0.0;
 
-    set_menu_text_real( menu_window, menu_entry, ratio );
+    set_menu_text_real( menu_window, menu_entry, opacity );
 
     return( state );
 }
@@ -263,7 +261,7 @@ private  void  set_filter_type(
     {
         slice_window->slice.slice_views[view_index].filter_type = filter_type;
 
-        set_slice_window_update( slice_window, view_index );
+        set_slice_window_update( slice_window, view_index, UPDATE_SLICE );
     }
 }
 
@@ -342,7 +340,7 @@ public  DEF_MENU_FUNCTION(set_filter_half_width )   /* ARGSUSED */
             slice_window->slice.slice_views[view_index].filter_width =
                                                       filter_width;
 
-            set_slice_window_update( slice_window, view_index );
+            set_slice_window_update( slice_window, view_index, UPDATE_SLICE );
         }
 
         (void) input_newline( stdin );
@@ -366,7 +364,7 @@ public  DEF_MENU_FUNCTION(set_slice_window_n_labels )   /* ARGSUSED */
         if( input_int( stdin, &n_labels ) == OK )
         {
             set_slice_window_number_labels( slice_window, n_labels );
-            set_slice_window_all_update( slice_window );
+            set_slice_window_all_update( slice_window, UPDATE_LABELS );
         }
 
         (void) input_newline( stdin );

@@ -40,6 +40,16 @@ public  void  initialize_voxel_labeling(
     add_action_table_function( &slice_window->action_table,
                                RIGHT_MOUSE_DOWN_EVENT,
                                right_mouse_down );
+    slice_window->slice.segmenting.n_starts_alloced = 0;
+}
+
+public  void  delete_voxel_labeling(
+    slice_window_struct    *slice )
+{
+    if( slice->segmenting.n_starts_alloced > 0 )
+    {
+        FREE( slice->segmenting.y_starts );
+    }
 }
 
 private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
@@ -274,7 +284,7 @@ private  void  fast_paint_labels(
     Volume         volume, label_volume;
     int            value, sizes[N_DIMENSIONS];
     Real           min_threshold, max_threshold, volume_value;
-    int            ind[N_DIMENSIONS];
+    int            ind[N_DIMENSIONS], new_n_starts, *y_starts, y_inc;
     pixels_struct  *pixels;
     int            x_min, x_max, y_min, y_max;
     Real           x, y, x_offset, x_scale, y_offset, y_scale;
@@ -309,14 +319,45 @@ private  void  fast_paint_labels(
         x_offset = -0.5;
 
     if( y_scale >= 0.0 )
+    {
         y_offset = 0.5;
+        y_inc = 1;
+    }
     else
+    {
         y_offset = -0.5;
+        y_inc = -1;
+    }
 
     x_trans -= (Real) pixels->x_position;
     y_trans -= (Real) pixels->y_position;
 
     ind[axis] = min_voxel[axis];
+
+    new_n_starts = max_voxel[a2] - min_voxel[a2] + 3;
+    if( new_n_starts > slice_window->slice.segmenting.n_starts_alloced )
+    {
+        SET_ARRAY_SIZE( slice_window->slice.segmenting.y_starts,
+                        slice_window->slice.segmenting.n_starts_alloced,
+                        new_n_starts, DEFAULT_CHUNK_SIZE );
+        slice_window->slice.segmenting.n_starts_alloced = new_n_starts;
+    }
+
+    y_starts = slice_window->slice.segmenting.y_starts;
+
+    for_inclusive( ind[a2], min_voxel[a2]-1, max_voxel[a2]+1 )
+    {
+        real_y_start = y_scale * ((Real) ind[a2] - y_offset) + y_trans;
+
+        y_start = CEILING( real_y_start );
+
+        if( y_start < 0 )
+            y_start = 0;
+        else if( y_start > pixels->y_size )
+            y_start = pixels->y_size;
+
+        y_starts[ind[a2] - min_voxel[a2]+1] = y_start;
+    }
 
     for_inclusive( ind[a1], min_voxel[a1], max_voxel[a1] )
     {
@@ -324,8 +365,7 @@ private  void  fast_paint_labels(
         real_x_end = x_scale * ((Real) ind[a1] + x_offset) + x_trans;
 
         x_start = CEILING( real_x_start );
-        x_end = IS_INT(real_x_end) ? (int) real_x_end
-                                   : CEILING(real_x_end);
+        x_end = CEILING( real_x_end );
 
         if( x_start < 0 )
             x_start = 0;
@@ -334,19 +374,8 @@ private  void  fast_paint_labels(
 
         for_inclusive( ind[a2], min_voxel[a2], max_voxel[a2] )
         {
-            real_y_start = y_scale * ((Real) ind[a2] - y_offset) +
-                           y_trans;
-            real_y_end = y_scale * ((Real) ind[a2] + y_offset) +
-                           y_trans;
-
-            y_start = CEILING( real_y_start );
-            y_end = IS_INT(real_y_end) ? (int) real_y_end
-                                       : CEILING(real_y_end);
-
-            if( y_start < 0 )
-                y_start = 0;
-            if( y_end > pixels->y_size )
-                y_end = pixels->y_size;
+            y_start = y_starts[ind[a2] - min_voxel[a2]+1];
+            y_end = y_starts[ind[a2] - min_voxel[a2]+1 + y_inc];
 
             if( inside_swept_brush( start_voxel, scaled_delta,
                                     radius, ind ) )

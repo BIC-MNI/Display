@@ -81,7 +81,8 @@ private  void  update_rotation(
         reset_slice_view( slice_window,
                           get_arbitrary_view_index(slice_window) );
         set_slice_window_update( slice_window,
-                                 get_arbitrary_view_index(slice_window) );
+                                 get_arbitrary_view_index(slice_window),
+                                 UPDATE_BOTH );
     }
 }
 

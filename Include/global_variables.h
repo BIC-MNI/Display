@@ -322,4 +322,7 @@ START_GLOBALS
     DEF_GLOBAL( Menu_name_font, int, 1 )
     DEF_GLOBAL( Menu_name_font_size, Real, 12.0 )
 
+    DEF_GLOBAL( Use_transparency_hardware, BOOLEAN, TRUE )
+    DEF_GLOBAL( Use_software_transparency, BOOLEAN, TRUE )
+
 END_GLOBALS

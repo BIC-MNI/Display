@@ -4,12 +4,16 @@
 typedef  enum  { DIVIDER_INDEX,
                  SLICE1_INDEX,
                  LABEL_SLICE1_INDEX,
+                 COMPOSITE_SLICE1_INDEX,
                  SLICE2_INDEX,
                  LABEL_SLICE2_INDEX,
+                 COMPOSITE_SLICE2_INDEX,
                  SLICE3_INDEX,
                  LABEL_SLICE3_INDEX,
+                 COMPOSITE_SLICE3_INDEX,
                  SLICE4_INDEX,
                  LABEL_SLICE4_INDEX,
+                 COMPOSITE_SLICE4_INDEX,
                  CROSS_SECTION1_INDEX,
                  CROSS_SECTION2_INDEX,
                  CROSS_SECTION3_INDEX,
@@ -70,7 +74,10 @@ public  void  initialize_slice_models(
 
     add_object_to_model( model, object );
 
-    for_less( view, 0, 2 * N_SLICE_VIEWS )
+    slice_window->slice.using_transparency = Use_transparency_hardware &&
+                                             G_has_transparency_mode();
+
+    for_less( view, 0, 3 * N_SLICE_VIEWS )
     {
         object = create_object( PIXELS );
         initialize_pixels( get_pixels_ptr(object), 0, 0, 0, 0, 1.0, 1.0,
@@ -671,7 +678,7 @@ public  object_struct  *get_slice_pixels_object(
 
     model = get_graphics_model(slice_window,SLICE_MODEL);
 
-    return( model->objects[SLICE1_INDEX+2*view_index] );
+    return( model->objects[SLICE1_INDEX+3*view_index] );
 }
 
 public  object_struct  *get_label_slice_pixels_object(
@@ -682,7 +689,18 @@ public  object_struct  *get_label_slice_pixels_object(
 
     model = get_graphics_model(slice_window,SLICE_MODEL);
 
-    return( model->objects[SLICE1_INDEX+2*view_index+1] );
+    return( model->objects[SLICE1_INDEX+3*view_index+1] );
+}
+
+public  object_struct  *get_composite_slice_pixels_object(
+    display_struct    *slice_window,
+    int               view_index )
+{
+    model_struct   *model;
+
+    model = get_graphics_model(slice_window,SLICE_MODEL);
+
+    return( model->objects[SLICE1_INDEX+3*view_index+2] );
 }
 
 private  void  render_slice_to_pixels(
@@ -804,8 +822,6 @@ public  void  rebuild_slice_pixels(
 
     visibility = get_slice_visibility( slice_window, view_index );
 
-    set_object_visibility( pixels_object, visibility );
-
     if( visibility )
         render_slice_to_pixels( slice_window, view_index, pixels );
 
@@ -844,10 +860,120 @@ public  void  rebuild_slice_pixels(
     rebuild_one_slice_cross_section( slice_window, view_index );
 }
 
+private  void  create_composite(
+    Real            alpha,
+    pixels_struct   *mri,
+    pixels_struct   *labels,
+    pixels_struct   *composite )
+{
+    Colour   *src1, *src2, *dest, empty, c1, c2;
+    Real     r1, g1, b1, r2, g2, b2, one_minus_alpha;
+    int      i, n_pixels;
+
+    if( mri->x_size != labels->x_size || mri->x_size != composite->x_size ||
+        mri->y_size != labels->y_size || mri->y_size != composite->y_size )
+    {
+        handle_internal_error( "create_composite" );
+    }
+
+    n_pixels = mri->x_size * mri->y_size;
+    src1 = mri->data.pixels_rgb;
+    src2 = labels->data.pixels_rgb;
+    dest = composite->data.pixels_rgb;
+    empty = make_rgba_Colour( 0, 0, 0, 0 );
+
+    if( Use_software_transparency )
+    {
+        one_minus_alpha = 1.0 - alpha;
+
+        for_less( i, 0, n_pixels )
+        {
+            c1 = *src1;
+            c2 = *src2;
+            if( c2 == empty )
+                *dest = c1;
+            else
+            {
+                r1 = (Real) get_Colour_r( c1 );
+                g1 = (Real) get_Colour_g( c1 );
+                b1 = (Real) get_Colour_b( c1 );
+
+                r2 = (Real) get_Colour_r( c2 );
+                g2 = (Real) get_Colour_g( c2 );
+                b2 = (Real) get_Colour_b( c2 );
+
+                *dest = make_Colour( (int) (one_minus_alpha * r1 + alpha * r2),
+                                     (int) (one_minus_alpha * g1 + alpha * g2),
+                                     (int) (one_minus_alpha * b1 + alpha * b2));
+            }
+
+            ++src1;
+            ++src2;
+            ++dest;
+        }
+    }
+    else
+    {
+        for_less( i, 0, n_pixels )
+        {
+            if( *src2 != empty )
+                *dest = *src2;
+            else
+                *dest = *src1;
+            ++src1;
+            ++src2;
+            ++dest;
+        }
+    }
+}
+
+public  void  composite_volume_and_labels(
+    display_struct        *slice_window,
+    int                   view_index )
+{
+    BOOLEAN               visibility;
+    pixels_struct         *label_pixels, *composite_pixels;
+
+    if( !slice_window->slice.using_transparency )
+    {
+        visibility = get_label_visibility( slice_window, view_index );
+
+        if( !visibility )
+            return;
+
+        label_pixels = get_pixels_ptr(
+                    get_label_slice_pixels_object( slice_window, view_index ) );
+
+        if( label_pixels->x_size == 0 &&
+            label_pixels->y_size == 0 )
+        {
+            return;
+        }
+
+        composite_pixels = get_pixels_ptr(
+               get_composite_slice_pixels_object( slice_window, view_index ) );
+
+        if( composite_pixels->x_size != label_pixels->x_size ||
+            composite_pixels->y_size != label_pixels->y_size )
+        {
+            delete_pixels( composite_pixels );
+            initialize_pixels( composite_pixels, 0, 0,
+                               label_pixels->x_size, label_pixels->y_size,
+                               1.0, 1.0, RGB_PIXEL );
+        }
+
+        composite_pixels->x_position = label_pixels->x_position;
+        composite_pixels->y_position = label_pixels->y_position;
+
+        create_composite( slice_window->slice.label_colour_opacity,
+            get_pixels_ptr(get_slice_pixels_object( slice_window, view_index )),
+            label_pixels, composite_pixels );
+    }
+}
+
 private  void  render_label_slice_to_pixels(
     display_struct        *slice_window,
-    int                   view_index,
-    pixels_struct         *label_pixels )
+    int                   view_index )
 {
     Volume                label_volume;
     int                   n_alloced;
@@ -855,6 +981,10 @@ private  void  render_label_slice_to_pixels(
     Real                  origin[MAX_DIMENSIONS];
     Real                  x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
     int                   x_min, x_max, y_min, y_max;
+    pixels_struct         *label_pixels;
+
+    label_pixels = get_pixels_ptr(
+                    get_label_slice_pixels_object( slice_window, view_index ) );
 
     if( label_pixels->x_size > 0 && label_pixels->y_size > 0 )
         delete_pixels( label_pixels );
@@ -895,19 +1025,32 @@ public  void  rebuild_label_slice_pixels(
     int               view_index )
 {
     BOOLEAN        visibility;
-    object_struct  *label_pixels_object;
-    pixels_struct  *label_pixels;
 
-    label_pixels_object = get_label_slice_pixels_object(slice_window,
-                                                        view_index);
-    label_pixels = get_pixels_ptr( label_pixels_object );
-
-    visibility = get_slice_visibility( slice_window, view_index ) &&
-                 slice_window->slice.display_labels &&
-                 slice_window->slice.labels->data != NULL;
-
-    set_object_visibility( label_pixels_object, visibility );
+    visibility = get_label_visibility( slice_window, view_index );
 
     if( visibility )
-        render_label_slice_to_pixels( slice_window, view_index, label_pixels );
+        render_label_slice_to_pixels( slice_window, view_index );
+}
+
+public  void  update_slice_pixel_visibilities(
+    display_struct    *slice_window,
+    int               view )
+{
+    BOOLEAN  visibility;
+
+    visibility = slice_window->slice.slice_views[view].visibility;
+
+    set_object_visibility( get_slice_pixels_object( slice_window,view ),
+                           visibility &&
+                           (slice_window->slice.using_transparency ||
+                            !get_label_visibility( slice_window, view )) );
+
+    set_object_visibility( get_label_slice_pixels_object(slice_window,view),
+                           get_label_visibility( slice_window, view ) &&
+                           slice_window->slice.using_transparency );
+
+    set_object_visibility(
+                     get_composite_slice_pixels_object(slice_window,view),
+                     get_label_visibility( slice_window, view ) &&
+                     !slice_window->slice.using_transparency );
 }
