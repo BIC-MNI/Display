@@ -92,14 +92,12 @@ public  void  change_colour_coding_range(
     colour_coding_has_changed( slice_window );
 }
 
-public  Colour  get_slice_colour_coding(
+public  Colour  apply_label_colour(
     display_struct    *slice_window,
-    int               value,
+    Colour            col,
     int               label )
 {
-    Colour           col, label_col, mult, scaled_col;
-
-    col = get_colour_code( &slice_window->slice.colour_coding, (Real) value );
+    Colour           label_col, mult, scaled_col;
 
     if( label != ACTIVE_BIT )
     {
@@ -185,6 +183,20 @@ public  int  lookup_label_colour(
     }
 
     return( label );
+}
+
+private  Colour  get_slice_colour_coding(
+    display_struct    *slice_window,
+    Real              value,
+    int               label )
+{
+    Colour           col;
+
+    col = get_colour_code( &slice_window->slice.colour_coding, value );
+
+    col = apply_label_colour( slice_window, col, label );
+
+    return( col );
 }
 
 public  void  rebuild_fast_lookup_for_label(

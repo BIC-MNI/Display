@@ -366,7 +366,6 @@ public  void  rebuild_slice_pixels(
     text_struct    *text;
     char           *format;
     int            x_pos, y_pos;
-    Real           real_pos[N_DIMENSIONS];
 
     model = get_graphics_model(slice_window,SLICE_MODEL);
 
@@ -427,9 +426,10 @@ private  void  render_slice_to_pixels(
     int                   volume_index;
     int                   *x_offsets, *y_offsets;
     Real                  voxel_pos[N_DIMENSIONS];
-    Colour                **fast_lookup;
+    Colour                **fast_lookup, *colour_table;
     int                   x_index, y_index, axis_index;
     int                   x, y;
+    Real                  min_voxel, max_voxel;
     int                   y_offset;
     int                   x_size, y_size;
     int                   label, n_alloced;
@@ -458,6 +458,10 @@ private  void  render_slice_to_pixels(
     get_slice_viewport( slice_window, view_index,
                         &x_min, &x_max, &y_min, &y_max );
 
+    get_volume_voxel_range( volume, &min_voxel, &max_voxel );
+    colour_table = fast_lookup[ACTIVE_BIT];
+    colour_table -= (int) min_voxel;
+
     create_volume_slice(
                     slice_window->slice.slice_views[view_index].filter_type,
                     slice_window->slice.slice_views[view_index].filter_width,
@@ -468,7 +472,7 @@ private  void  render_slice_to_pixels(
                     x_index, y_index, axis_index,
                     x_max - x_min + 1, y_max - y_min + 1,
                     RGB_PIXEL, FALSE, (unsigned short **) NULL,
-                    &fast_lookup[ACTIVE_BIT], &n_alloced, pixels );
+                    &colour_table, &n_alloced, pixels );
 
     pixels->x_position += x_min;
     pixels->y_position += y_min;

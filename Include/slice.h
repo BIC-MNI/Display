@@ -7,11 +7,12 @@
 
 typedef  struct
 {
-    int       axis_map[N_DIMENSIONS];
-    Boolean   axis_flip[N_DIMENSIONS];
-    int       x_offset, y_offset;
-    Real      x_scale, y_scale;
-    Boolean   update_flag;
+    int           axis_map[N_DIMENSIONS];
+    Real          x_trans, y_trans;
+    Real          x_scaling, y_scaling;
+    Boolean       update_flag;
+    Filter_types  filter_type;
+    Real          filter_width;
 } slice_view_struct;
 
 typedef  struct
@@ -64,13 +65,10 @@ typedef  struct
 
     int                    x_split, y_split;
 
-    int                    slice_index[N_DIMENSIONS];
+    Real                   slice_index[N_DIMENSIONS];
     Boolean                slice_locked[N_DIMENSIONS];
     slice_view_struct      slice_views[3];
     int                    next_to_update;
-
-    int                    *temporary_indices;
-    int                    temporary_indices_alloced;
 
     segmenting_struct      segmenting;
     atlas_struct           atlas;
