@@ -3,6 +3,8 @@
 #include  <def_minimization.h>
 #include  <def_surface_fitting.h>
 
+#define  DARTS
+
 private  const  double  BIG_NUMBER = 1.0e30;
 
 public  double   evaluate_fit_in_volume( volume, fit_data, parameters )
@@ -35,14 +37,28 @@ public  double   evaluate_fit_in_volume_with_distances( volume, fit_data,
     Real                    surface_point_distances[];
 {
     int                     i, j, ni, nj, n_samples, n_fitting_samples;
+    double                  used_u_min, used_u_max, used_v_min, used_v_max;
     double                  fit, measure_of_fit, sum;
     double                  u, v;
     double                  distance_measure();
     double                  evaluate_fit_at_uv();
     double                  get_parameter_in_range();
 
-    n_fitting_samples = get_n_samples( fit_data->n_samples, u_min, u_max,
-                                       v_min, v_max );
+#ifdef  DARTS
+    used_u_min = 0.0;
+    used_u_max = 1.0;
+    used_v_min = 0.0;
+    used_v_max = 1.0;
+#else
+    used_u_min = u_min;
+    used_u_max = u_max;
+    used_v_min = v_min;
+    used_v_max = v_max;
+#endif
+
+    n_fitting_samples = get_n_samples( fit_data->n_samples,
+                                       used_u_min, used_u_max,
+                                       used_v_min, used_v_max );
 
     if( !fit_data->surface_representation->
               are_parameters_valid(fit_data->descriptors, parameters) )
@@ -71,15 +87,21 @@ public  double   evaluate_fit_in_volume_with_distances( volume, fit_data,
         nj = ni;
         for_less( i, 0, ni )
         {
-            u = get_parameter_in_range( (double) i / (double) ni, u_min, u_max);
+            u = get_parameter_in_range( i, ni, used_u_min, used_u_max);
             for_less( j, 0, nj )
             {
-                v = get_parameter_in_range( (double) j / (double) nj,
-                                            v_min, v_max);
+                v = get_parameter_in_range( j, nj, used_v_min, used_v_max);
 
+#ifdef DARTS
+                if( inside_hole( u, v, TRUE, u_min, u_max, v_min, v_max ) )
+                {
+#endif
                 fit = evaluate_fit_at_uv( volume, fit_data, parameters, u, v );
                 sum += fit;
                 ++n_samples;
+#ifdef DARTS
+                }
+#endif
             }
         }
 
@@ -126,15 +148,14 @@ public  void   evaluate_distances_to_surface( fit_data,
 
         for_less( i, 0, ni )
         {
-            u = get_parameter_in_range( (double) i / (double) ni, u_min, u_max);
+            u = get_parameter_in_range( i, ni, u_min, u_max);
 
             for_less( j, 0, nj )
             {
-                v = get_parameter_in_range( (double) j / (double) nj,
-                                            v_min, v_max);
+                v = get_parameter_in_range( j, nj, v_min, v_max);
 
-                if( not_in_hole( u, v, hole_present, u_min_hole, u_max_hole,
-                                 v_min_hole, v_max_hole ) )
+                if( !inside_hole( u, v, hole_present, u_min_hole, u_max_hole,
+                                  v_min_hole, v_max_hole ) )
                 {
                     fit_data->surface_representation->evaluate_surface_at_uv(
                                  u, v,
@@ -181,11 +202,16 @@ private  int  get_n_samples( n_samples_for_whole_surface, u_min, u_max,
     return( n_samples );
 }
 
-private  double  get_parameter_in_range( alpha, min, max )
-    double   alpha;
+private  double  get_parameter_in_range( i, n, min, max )
+    int      i;
+    int      n;
     double   min;
     double   max;
 {
+    double  alpha;
+
+    alpha = ((double) i + 0.5) / (double) n;
+
     if( min <= max )
         return( min + alpha * (max - min) );
     else if( alpha <= (1.0 - min) / (1.0 - min + max) )
@@ -194,7 +220,7 @@ private  double  get_parameter_in_range( alpha, min, max )
         return( min - 1.0 + alpha * (max - min + 1.0) );
 }
 
-private  Boolean  not_in_hole( u, v, hole_present, u_min_hole, u_max_hole,
+private  Boolean  inside_hole( u, v, hole_present, u_min_hole, u_max_hole,
                                v_min_hole, v_max_hole )
     double      u, v;
     Boolean     hole_present;
@@ -219,7 +245,7 @@ private  Boolean  not_in_hole( u, v, hole_present, u_min_hole, u_max_hole,
             in_hole = in_hole && (v >= v_min_hole || v <= v_max_hole);
     }
 
-    return( !in_hole );
+    return( in_hole );
 }
 
 private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
