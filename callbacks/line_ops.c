@@ -139,13 +139,11 @@ public  DEF_MENU_FUNCTION( deform_line_to_volume )   /* ARGSUSED */
 {
     Status            status;
     Status            deform_lines();
-    Real              boundary_factor, max_step, max_search_distance;
-    Real              search_increment;
-    Real              stop_threshold, min_size;
-    int               max_iterations;
-    boundary_definition_struct  boundary;
+    Status            typein_deformation_parameters();
+    Status            delete_deformation_parameters();
     volume_struct     *volume;
     lines_struct      *lines;
+    deform_struct     deform;
     void              set_update_required();
 
     status = OK;
@@ -153,37 +151,18 @@ public  DEF_MENU_FUNCTION( deform_line_to_volume )   /* ARGSUSED */
     if( get_current_lines( graphics, &lines ) &&
         get_current_volume( graphics, &volume ) )
     {
-        PRINT( "Enter boundary_factor, max_step,\n" );
-        PRINT( "      max_search_distance, search_increment, min_size\n" );
-        PRINT( "      min_isovalue, max_isovalue,\n" );
-        PRINT( "      variable_threshold_flag, variable_threshold,\n" );
-        PRINT( "      max_iterations, stop_threshold: " );
-
-        if( input_real( stdin, &boundary_factor ) == OK &&
-            input_real( stdin, &max_step ) == OK &&
-            input_real( stdin, &max_search_distance ) == OK &&
-            input_real( stdin, &search_increment ) == OK &&
-            input_real( stdin, &min_size ) == OK &&
-            input_real( stdin, &boundary.min_isovalue ) == OK &&
-            input_real( stdin, &boundary.max_isovalue ) == OK &&
-            input_int( stdin, &boundary.variable_threshold_flag ) == OK &&
-            input_real( stdin, &boundary.variable_threshold ) == OK &&
-            input_int( stdin, &max_iterations ) == OK &&
-            input_real( stdin, &stop_threshold ) == OK )
+        if( typein_deformation_parameters( lines->n_points, &deform ) == OK )
         {
-            boundary.gradient_flag = FALSE;
-            status = deform_lines( lines, volume,
-                                   boundary_factor, max_step,
-                                   max_search_distance, search_increment,
-                                   min_size, &boundary,
-                                   max_iterations, stop_threshold );
+            deform.deform_data.volume = volume;
+            status = deform_lines( lines, &deform );
+
+            if( status == OK )
+                status = delete_deformation_parameters( &deform );
 
             set_update_required( graphics, NORMAL_PLANES );
 
             PRINT( "Done deforming lines.\n" );
         }
-
-        (void) input_newline( stdin );
     }
 
     return( status );
