@@ -10,8 +10,10 @@ typedef  struct
     int           axis_map[N_DIMENSIONS];
     Real          x_trans, y_trans;
     Real          x_scaling, y_scaling;
-    Real          lower_view_limits[2];
-    Real          upper_view_limits[2];
+    int           prev_viewport_x_size;
+    int           prev_viewport_y_size;
+    int           used_viewport_x_size;
+    int           used_viewport_y_size;
     BOOLEAN       update_flag;
     Filter_types  filter_type;
     Real          filter_width;

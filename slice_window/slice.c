@@ -207,8 +207,7 @@ public  void  create_slice_window(
     menu_window->associated[SLICE_WINDOW] = slice_window;
 
     slice_window->slice.original_volume = volume;
-    slice_window->slice.original_labels = create_label_volume(
-                        get_volume_n_dimensions(volume), sizes );
+    slice_window->slice.original_labels = create_label_volume( volume );
 
     set_slice_window_volume( slice_window,
                              slice_window->slice.original_volume );
@@ -303,14 +302,9 @@ public  void  set_slice_window_volume(
     get_volume_sizes( volume, sizes );
 
     if( volume == slice_window->slice.original_volume )
-    {
         slice_window->slice.labels = slice_window->slice.original_labels;
-    }
     else
-    {
-        slice_window->slice.labels = create_label_volume(
-                        get_volume_n_dimensions(volume), sizes );
-    }
+        slice_window->slice.labels = create_label_volume( volume );
 
     for_less( c, 0, N_DIMENSIONS )
         slice_window->slice.slice_views[c].update_flag = TRUE;

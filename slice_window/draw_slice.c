@@ -413,41 +413,35 @@ public  void  rebuild_slice_pixels(
     rebuild_cursor( slice_window, 2 );
 }
 
+#define  MAX_LABELS   256
+
 private  void  render_slice_to_pixels(
     display_struct        *slice_window,
     int                   view_index,
     pixels_struct         *pixels )
 {
     Volume                volume;
-    int                   sizes[N_DIMENSIONS];
-    int                   volume_index;
-    int                   *x_offsets, *y_offsets;
-    Real                  voxel_pos[N_DIMENSIONS];
-    Colour                **colour_tables, *colour_table;
-    int                   x_index, y_index, axis_index;
-    int                   x, y;
+    int                   n_label_alloced;
+    unsigned short        label_table[MAX_LABELS];
+    unsigned short        *label_ptr;
+    pixels_struct         label_pixels;
+    Colour                *colour_table;
+    int                   i;
     Real                  min_voxel, max_voxel;
-    int                   y_offset;
     int                   x_size, y_size;
     int                   label, n_alloced;
     Real                  x_trans, y_trans, x_scale, y_scale;
-    Real                  slice_position[MAX_DIMENSIONS];
+    Real                  origin[MAX_DIMENSIONS];
     Real                  x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
-    unsigned char         *label_ptr;
     Colour                *pixel_ptr;
-    void                  *void_ptr;
     int                   x_min, x_max, y_min, y_max;
 
     volume = get_volume( slice_window );
-    get_volume_sizes( volume, sizes );
-    colour_tables = slice_window->slice.colour_tables;
 
     if( pixels->x_size > 0 && pixels->y_size > 0 )
         delete_pixels( pixels );
 
     n_alloced = 0;
-
-    get_slice_axes( slice_window, view_index, &x_index, &y_index, &axis_index );
 
     x_trans = slice_window->slice.slice_views[view_index].x_trans;
     y_trans = slice_window->slice.slice_views[view_index].y_trans;
@@ -458,18 +452,18 @@ private  void  render_slice_to_pixels(
                         &x_min, &x_max, &y_min, &y_max );
 
     get_volume_voxel_range( volume, &min_voxel, &max_voxel );
-    colour_table = colour_tables[0];
+    colour_table = slice_window->slice.colour_tables[0];
 
     if( (int) min_voxel > 0 )
         colour_table -= (int) min_voxel;
 
-    get_slice_plane( slice_window, view_index, slice_position, x_axis, y_axis );
+    get_slice_plane( slice_window, view_index, origin, x_axis, y_axis );
 
     create_volume_slice(
                     volume,
                     slice_window->slice.slice_views[view_index].filter_type,
                     slice_window->slice.slice_views[view_index].filter_width,
-                    slice_position, x_axis, y_axis,
+                    origin, x_axis, y_axis,
                     x_trans, y_trans, x_scale, y_scale,
                     (Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
                     (Real *) 0, (Real *) 0, (Real *) 0,
@@ -491,67 +485,45 @@ private  void  render_slice_to_pixels(
         get_label_volume(slice_window)->data != (void *) NULL &&
         x_size > 0 && y_size > 0 )
     {
-        ALLOC( x_offsets, x_size );
-        ALLOC( y_offsets, y_size );
+        for_less( i, 0, MAX_LABELS )
+            label_table[i] = i;
 
-        for_less( y, 0, y_size )
+        label_ptr = label_table;
+
+        n_label_alloced = 0;
+
+        create_volume_slice( get_label_volume(slice_window),
+                    slice_window->slice.slice_views[view_index].filter_type,
+                    slice_window->slice.slice_views[view_index].filter_width,
+                    origin, x_axis, y_axis,
+                    x_trans, y_trans, x_scale, y_scale,
+                    (Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
+                    (Real *) 0, (Real *) 0, (Real *) 0,
+                    0.0, 0.0, 0.0, 0.0,
+                    x_max - x_min + 1, y_max - y_min + 1,
+                    COLOUR_INDEX_16BIT_PIXEL, FALSE, &label_ptr,
+                    (Colour **) NULL, 0,
+                    &n_label_alloced, &label_pixels );
+
+        label_ptr = label_pixels.data.pixels_16bit_colour_index;
+        pixel_ptr = pixels->data.pixels_rgb;
+
+        for_less( i, 0, x_size * y_size )
         {
-            if( !convert_slice_pixel_to_voxel( volume,
-                        pixels->x_position - x_min,
-                        y + pixels->y_position - y_min,
-                        slice_position, x_axis, y_axis,
-                        x_trans, y_trans, x_scale, y_scale, voxel_pos ) )
+            label = *label_ptr;
+            ++label_ptr;
+
+            if( label != 0 )
             {
-                HANDLE_INTERNAL_ERROR( "render slice" );
+                *pixel_ptr = apply_label_colour( slice_window, *pixel_ptr,
+                                                 label );
             }
-        
-            y_offsets[y] = IJK( ROUND(voxel_pos[X]), ROUND(voxel_pos[Y]),
-                                ROUND(voxel_pos[Z]), sizes[Y], sizes[Z] );
+
+            ++pixel_ptr;
         }
 
-        for_less( x, 0, x_size )
-        {
-            if( !convert_slice_pixel_to_voxel( volume,
-                        x + pixels->x_position - x_min,
-                        pixels->y_position - y_min,
-                        slice_position, x_axis, y_axis,
-                        x_trans, y_trans, x_scale, y_scale, voxel_pos ) )
-            {
-                HANDLE_INTERNAL_ERROR( "render slice" );
-            }
-        
-            x_offsets[x] = IJK( ROUND(voxel_pos[X]), ROUND(voxel_pos[Y]),
-                                ROUND(voxel_pos[Z]), sizes[Y], sizes[Z] ) -
-                           y_offsets[0];
-        }
-
-        GET_VOXEL_PTR_3D( void_ptr, get_label_volume(slice_window), 0, 0, 0 );
-        label_ptr = void_ptr;
-
-        for_less( y, 0, y_size )
-        {
-            pixel_ptr = &pixels->data.pixels_rgb[y * x_size];
-
-            y_offset = y_offsets[y];
-
-            for_less( x, 0, x_size )
-            {
-                volume_index = y_offset + x_offsets[x];
-
-                label = label_ptr[volume_index];
-
-                if( label != 0 )
-                {
-                    *pixel_ptr = apply_label_colour( slice_window, *pixel_ptr,
-                                                     label );
-                }
-
-                ++pixel_ptr;
-            }
-        }
-
-        FREE( x_offsets );
-        FREE( y_offsets );
+        if( n_label_alloced > 0 )
+            delete_pixels( &label_pixels );
     }
 
     /* --- now blend in the talaiarch atlas */
@@ -560,21 +532,48 @@ private  void  render_slice_to_pixels(
     {
         Real  v1[N_DIMENSIONS], v2[N_DIMENSIONS];
         Real  dx, dy;
+        int   sizes[N_DIMENSIONS];
+        int   c, x_index, y_index, axis_index;
+
+        x_index = -1;
+        y_index = -1;
+        for_less( c, 0, get_volume_n_dimensions(volume) )
+        {
+            if( x_axis[c] != 0.0 )
+            {
+                if( x_index != -1 )
+                    return;
+                x_index = c;
+            }
+            if( y_axis[c] != 0.0 )
+            {
+                if( y_index != -1 )
+                    return;
+                y_index = c;
+            }
+        }
+
+        if( x_index == y_index )
+            return;
+
+        axis_index = N_DIMENSIONS - x_index - y_index;
+
+        get_volume_sizes( volume, sizes );
 
         (void) convert_slice_pixel_to_voxel( volume,
                         pixels->x_position - x_min, pixels->y_position - y_min,
-                        slice_position, x_axis, y_axis,
+                        origin, x_axis, y_axis,
                         x_trans, y_trans, x_scale, y_scale, v1 );
         (void) convert_slice_pixel_to_voxel( volume,
                         pixels->x_position+1 - x_min, pixels->y_position-y_min,
-                        slice_position, x_axis, y_axis,
+                        origin, x_axis, y_axis,
                         x_trans, y_trans, x_scale, y_scale, v2 );
 
         dx = v2[x_index] - v1[x_index];
 
         (void) convert_slice_pixel_to_voxel( volume,
                         pixels->x_position - x_min, pixels->y_position+1-y_min,
-                        slice_position, x_axis, y_axis,
+                        origin, x_axis, y_axis,
                         x_trans, y_trans, x_scale, y_scale, v2 );
 
         dy = v2[y_index] - v1[y_index];

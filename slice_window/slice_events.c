@@ -294,7 +294,7 @@ private  void  update_voxel_slice(
     display_struct    *slice_window )
 {
     int        view_index, dy, x, y, x_prev, y_prev, axis;
-    int        x_index, y_index;
+    int        x_index, y_index, sizes[MAX_DIMENSIONS];
     Real       voxel[MAX_DIMENSIONS];
 
     if( pixel_mouse_moved( slice_window, &x, &y, &x_prev, &y_prev ) &&
@@ -310,7 +310,10 @@ private  void  update_voxel_slice(
 
             voxel[axis] += (Real) dy * Move_slice_speed;
 
-            set_slice_voxel_position( slice_window, voxel );
+            get_volume_sizes( get_volume(slice_window), sizes );
+
+            if( voxel[axis] < (Real) sizes[axis] - 0.5 )
+                set_slice_voxel_position( slice_window, voxel );
         }
     }
 }
@@ -464,9 +467,9 @@ private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
 {
     update_window_size( display );
 
-    fit_slice_to_view( display, 0 );
-    fit_slice_to_view( display, 1 );
-    fit_slice_to_view( display, 2 );
+    resize_slice_view( display, 0 );
+    resize_slice_view( display, 1 );
+    resize_slice_view( display, 2 );
 
     rebuild_slice_models( display );
 

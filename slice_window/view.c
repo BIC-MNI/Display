@@ -47,58 +47,15 @@ public  void  initialize_slice_window_view(
     }
 }
 
-private  record_slice_display_limits(
-    display_struct    *slice_window,
-    int               view )
-{
-    int            x_min, x_max, y_min, y_max;
-    int            axis, x_index, y_index;
-    Real           bottom_left_voxel[MAX_DIMENSIONS];
-    Real           top_right_voxel[MAX_DIMENSIONS];
-    Volume         volume;
-
-    if( get_slice_window_volume( slice_window, &volume ) )
-    {
-        get_slice_axes( slice_window, view, &x_index, &y_index, &axis );
-        get_slice_viewport( slice_window, view,
-                            &x_min, &x_max, &y_min, &y_max );
-
-        (void) convert_slice_pixel_to_voxel( volume,
-                    0, 0,
-                    slice_window->slice.slice_index, x_index, y_index,
-                    slice_window->slice.slice_views[view].x_trans,
-                    slice_window->slice.slice_views[view].y_trans,
-                    slice_window->slice.slice_views[view].x_scaling,
-                    slice_window->slice.slice_views[view].y_scaling,
-                    bottom_left_voxel );
-
-        (void) convert_slice_pixel_to_voxel( volume,
-                    x_max - x_min, y_max - y_min,
-                    slice_window->slice.slice_index, x_index, y_index,
-                    slice_window->slice.slice_views[view].x_trans,
-                    slice_window->slice.slice_views[view].y_trans,
-                    slice_window->slice.slice_views[view].x_scaling,
-                    slice_window->slice.slice_views[view].y_scaling,
-                    top_right_voxel );
-
-        slice_window->slice.slice_views[view].lower_view_limits[0] =
-                                bottom_left_voxel[x_index];
-        slice_window->slice.slice_views[view].upper_view_limits[0] =
-                                top_right_voxel[x_index];
-        slice_window->slice.slice_views[view].lower_view_limits[1] =
-                                bottom_left_voxel[y_index];
-        slice_window->slice.slice_views[view].upper_view_limits[1] =
-                                top_right_voxel[y_index];
-    }
-}
-
 public  void  reset_slice_view(
     display_struct    *slice_window,
     int               view )
 {
-    Volume volume;
-    int    axis, x_index, y_index;
-    int    x_min, x_max, y_min, y_max;
+    Volume  volume;
+    int     axis, x_index, y_index;
+    int     x_min, x_max, y_min, y_max;
+    Real    origin[MAX_DIMENSIONS];
+    Real    x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];;
 
     if( get_slice_window_volume( slice_window, &volume ) )
     {
@@ -107,46 +64,54 @@ public  void  reset_slice_view(
         get_slice_viewport( slice_window, view,
                             &x_min, &x_max, &y_min, &y_max );
 
-        fit_volume_slice_to_viewport( volume, x_index, y_index,
-                              FALSE, FALSE,
-                              x_max - x_min + 1, y_max - y_min + 1,
-                              Slice_fit_oversize,
-                              &slice_window->slice.slice_views[view].x_scaling,
-                              &slice_window->slice.slice_views[view].y_scaling,
-                              &slice_window->slice.slice_views[view].x_trans,
-                              &slice_window->slice.slice_views[view].y_trans );
+        get_slice_plane( slice_window, view, origin, x_axis, y_axis );
 
-        record_slice_display_limits( slice_window, view );
+        fit_volume_slice_to_viewport( volume, origin, x_axis, y_axis,
+                x_max - x_min + 1, y_max - y_min + 1,
+                Slice_fit_oversize,
+                &slice_window->slice.slice_views[view].x_trans,
+                &slice_window->slice.slice_views[view].y_trans,
+                &slice_window->slice.slice_views[view].x_scaling,
+                &slice_window->slice.slice_views[view].y_scaling,
+                &slice_window->slice.slice_views[view].used_viewport_x_size,
+                &slice_window->slice.slice_views[view].used_viewport_y_size );
+
+         slice_window->slice.slice_views[view].prev_viewport_x_size =
+                                                          (x_max - x_min + 1);
+         slice_window->slice.slice_views[view].prev_viewport_y_size =
+                                                          (y_max - y_min + 1);
     }
 }
 
-public  void  fit_slice_to_view(
+public  void  resize_slice_view(
     display_struct    *slice_window,
     int               view )
 {
     int            x_min, x_max, y_min, y_max;
-    int            axis, x_index, y_index;
-    Real           x_scale, y_scale, x_trans, y_trans;
     Volume         volume;
 
     if( get_slice_window_volume( slice_window, &volume ) )
     {
-        get_slice_axes( slice_window, view, &x_index, &y_index, &axis );
         get_slice_viewport( slice_window, view,
                             &x_min, &x_max, &y_min, &y_max );
 
-        fit_slice_voxel_range_to_viewport( volume, x_index, y_index,
-            slice_window->slice.slice_views[view].lower_view_limits[0],
-            slice_window->slice.slice_views[view].upper_view_limits[0],
-            slice_window->slice.slice_views[view].lower_view_limits[1],
-            slice_window->slice.slice_views[view].upper_view_limits[1],
-            x_max - x_min + 1, y_max - y_min + 1,
-            &x_scale, &y_scale, &x_trans, &y_trans );
+        resize_volume_slice(
+             slice_window->slice.slice_views[view].prev_viewport_x_size,
+             slice_window->slice.slice_views[view].prev_viewport_y_size,
+             slice_window->slice.slice_views[view].used_viewport_x_size,
+             slice_window->slice.slice_views[view].used_viewport_y_size,
+             x_max - x_min + 1, y_max - y_min + 1,
+             &slice_window->slice.slice_views[view].x_trans,
+             &slice_window->slice.slice_views[view].y_trans,
+             &slice_window->slice.slice_views[view].x_scaling,
+             &slice_window->slice.slice_views[view].y_scaling,
+             &slice_window->slice.slice_views[view].used_viewport_x_size,
+             &slice_window->slice.slice_views[view].used_viewport_y_size );
 
-        slice_window->slice.slice_views[view].x_scaling = x_scale;
-        slice_window->slice.slice_views[view].y_scaling = y_scale;
-        slice_window->slice.slice_views[view].x_trans = x_trans;
-        slice_window->slice.slice_views[view].y_trans = y_trans;
+         slice_window->slice.slice_views[view].prev_viewport_x_size =
+                                                          (x_max - x_min + 1);
+         slice_window->slice.slice_views[view].prev_viewport_y_size =
+                                                          (y_max - y_min + 1);
     }
 }
 
@@ -165,12 +130,10 @@ public  void  scale_slice_view(
 
         scale_slice_about_viewport_centre( scale_factor,
              x_max - x_min + 1, y_max - y_min + 1,
-             &slice_window->slice.slice_views[view].x_scaling,
-             &slice_window->slice.slice_views[view].y_scaling,
              &slice_window->slice.slice_views[view].x_trans,
-             &slice_window->slice.slice_views[view].y_trans );
-
-        record_slice_display_limits( slice_window, view );
+             &slice_window->slice.slice_views[view].y_trans,
+             &slice_window->slice.slice_views[view].x_scaling,
+             &slice_window->slice.slice_views[view].y_scaling );
     }
 }
 
@@ -186,8 +149,6 @@ public  void  translate_slice_view(
     {
         slice_window->slice.slice_views[view].x_trans += dx;
         slice_window->slice.slice_views[view].y_trans += dy;
-
-        record_slice_display_limits( slice_window, view );
     }
 }
 
@@ -235,8 +196,9 @@ public  BOOLEAN  convert_pixel_to_voxel(
     BOOLEAN           found;
     Volume            volume;
     display_struct    *slice_window;
-    int               axis, x_index, y_index;
     int               x_min, x_max, y_min, y_max;
+    Real              origin[MAX_DIMENSIONS];
+    Real              x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];;
 
     found = FALSE;
 
@@ -244,15 +206,15 @@ public  BOOLEAN  convert_pixel_to_voxel(
         get_slice_window_volume( display, &volume ) &&
         get_slice_window( display, &slice_window ) )
     {
-        get_slice_axes( slice_window, *view_index, &x_index, &y_index, &axis );
         get_slice_viewport( slice_window, *view_index,
                             &x_min, &x_max, &y_min, &y_max );
+        get_slice_plane( slice_window, *view_index, origin, x_axis, y_axis );
+
         x_pixel -= x_min;
         y_pixel -= y_min;
 
         found = convert_slice_pixel_to_voxel( volume, x_pixel, y_pixel,
-                    slice_window->slice.slice_index,
-                    x_index, y_index,
+                    origin, x_axis, y_axis,
                     slice_window->slice.slice_views[*view_index].x_trans,
                     slice_window->slice.slice_views[*view_index].y_trans,
                     slice_window->slice.slice_views[*view_index].x_scaling,
@@ -277,6 +239,8 @@ public  void  convert_voxel_to_pixel(
     int               x_min, x_max, y_min, y_max;
     Real              voxel_position[N_DIMENSIONS];
     Real              x_real_pixel, y_real_pixel;
+    Real              origin[MAX_DIMENSIONS];
+    Real              x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];;
 
     if( get_slice_window( display, &slice_window ) &&
         get_slice_window_volume( display, &volume ) )
@@ -286,7 +250,10 @@ public  void  convert_voxel_to_pixel(
         voxel_position[y_index] = y_voxel;
         voxel_position[axis]= slice_window->slice.slice_index[axis];
 
-        convert_voxel_to_slice_pixel( volume, voxel_position, x_index, y_index,
+        get_slice_plane( slice_window, view_index, origin, x_axis, y_axis );
+
+        convert_voxel_to_slice_pixel( volume, voxel_position,
+                        origin, x_axis, y_axis,
                         slice_window->slice.slice_views[view_index].x_trans,
                         slice_window->slice.slice_views[view_index].y_trans,
                         slice_window->slice.slice_views[view_index].x_scaling,
@@ -493,4 +460,33 @@ public  void  get_slice_axes(
     *x_index = slice_window->slice.slice_views[view_index].axis_map[X];
     *y_index = slice_window->slice.slice_views[view_index].axis_map[Y];
     *axis_index = slice_window->slice.slice_views[view_index].axis_map[Z];
+}
+
+public  void  get_slice_plane(
+    display_struct   *slice_window,
+    int              view_index,
+    Real             origin[],
+    Real             x_axis[],
+    Real             y_axis[] )
+{
+    int    x_index, y_index, axis;
+    Real   voxel_indices[MAX_DIMENSIONS];
+
+    get_slice_axes( slice_window, view_index, &x_index, &y_index, &axis );
+    get_current_voxel( slice_window, voxel_indices );
+
+    origin[X] = 0.0;
+    origin[Y] = 0.0;
+    origin[Z] = 0.0;
+    origin[axis] = voxel_indices[axis];
+
+    x_axis[X] = 0.0;
+    x_axis[Y] = 0.0;
+    x_axis[Z] = 0.0;
+    x_axis[x_index] = 1.0;
+
+    y_axis[X] = 0.0;
+    y_axis[Y] = 0.0;
+    y_axis[Z] = 0.0;
+    y_axis[y_index] = 1.0;
 }
