@@ -48,7 +48,7 @@ public  void  update_all_slice_models(
 private  void  initialize_slice_window(
     display_struct    *slice_window )
 {
-    int        i;
+    int        i, view;
 
     G_set_automatic_clear_state( slice_window->window, OFF );
 
@@ -91,6 +91,17 @@ private  void  initialize_slice_window(
     {
         slice_window->slice.viewport_update_flags[i][0] = TRUE;
         slice_window->slice.viewport_update_flags[i][1] = TRUE;
+    }
+
+    for_less( view, 0, N_SLICE_VIEWS )
+    {
+        slice_window->slice.slice_views[view].update_cursor_flag = FALSE;
+        slice_window->slice.slice_views[view].update_text_flag = FALSE;
+        slice_window->slice.slice_views[view].update_cross_section_flag = FALSE;
+        slice_window->slice.slice_views[view].update_crop_flag = FALSE;
+        slice_window->slice.slice_views[view].update_atlas_flag = FALSE;
+        slice_window->slice.slice_views[view].update_composite_flag = FALSE;
+        slice_window->slice.slice_views[view].sub_region_specified = FALSE;
     }
 }
 
@@ -619,10 +630,77 @@ public  void  update_slice_window(
         {
             composite_volume_and_labels( slice_window, view );
             slice_window->slice.slice_views[view].update_composite_flag = FALSE;
+            slice_window->slice.slice_views[view].sub_region_specified = FALSE;
             changed = TRUE;
+        }
+        else if( slice_window->slice.slice_views[view].sub_region_specified )
+        {
+            draw_slice_sub_region( slice_window, view,
+                             slice_window->slice.slice_views[view].x_min,
+                             slice_window->slice.slice_views[view].x_max,
+                             slice_window->slice.slice_views[view].y_min,
+                             slice_window->slice.slice_views[view].y_max );
+            slice_window->slice.slice_views[view].sub_region_specified = FALSE;
+            set_update_required( slice_window, NORMAL_PLANES );
+
+            if( G_get_double_buffer_state( slice_window->window ) )
+            {
+                slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0]=
+                slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][1];
+                slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][1]
+                                                                       = FALSE;
+            }
+            else
+                slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0]
+                                                           = FALSE;
         }
 
         if( changed )
             set_slice_viewport_update( slice_window, SLICE_MODEL1 + view );
+    }
+}
+
+public  void  set_slice_composite_update(
+    display_struct   *slice_window,
+    int              view_index,
+    int              x_min,
+    int              x_max,
+    int              y_min,
+    int              y_max )
+{
+    if( slice_window->slice.slice_views[view_index].update_composite_flag )
+        return;
+
+    if( slice_window->slice.viewport_update_flags[SLICE_MODEL1+view_index][0] ||
+        (x_min > x_max || y_min > y_max) )
+    {
+        slice_window->slice.slice_views[view_index].update_composite_flag =
+                                            TRUE;
+        slice_window->slice.slice_views[view_index].sub_region_specified =
+                                            FALSE;
+    }
+    else
+    {
+        if( slice_window->slice.slice_views[view_index].sub_region_specified )
+        {
+            x_min = MIN( slice_window->slice.slice_views[view_index].x_min,
+                         x_min );
+            x_max = MAX( slice_window->slice.slice_views[view_index].x_max,
+                         x_max );
+            y_min = MIN( slice_window->slice.slice_views[view_index].y_min,
+                         y_min );
+            y_max = MAX( slice_window->slice.slice_views[view_index].y_max,
+                         y_max );
+        }
+        else
+        {
+            slice_window->slice.slice_views[view_index].sub_region_specified =
+                                                                   TRUE;
+        }
+
+        slice_window->slice.slice_views[view_index].x_min = x_min;
+        slice_window->slice.slice_views[view_index].x_max = x_max;
+        slice_window->slice.slice_views[view_index].y_min = y_min;
+        slice_window->slice.slice_views[view_index].y_max = y_max;
     }
 }
