@@ -92,6 +92,8 @@ public  Status  initialize_slice_models( graphics )
         status = create_object( &object, TEXT );
         if( status == OK )
         {
+            object->ptr.text->font = (Font_types) Slice_text_font;
+            object->ptr.text->size = Slice_text_font_size;
             object->ptr.text->colour = Slice_text_colour;
             status = add_object_to_model( model, object );
         }
