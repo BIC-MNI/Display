@@ -98,8 +98,10 @@ private  Volume  make_distance_transform(
                     min_neighbour = 0;
                     first = TRUE;
                     FOR_LOOP_NEIGHBOURS( i, x, y, z, nx, ny, nz )
+#ifdef TWO_D
                         if( nz < 0 || nz >= sizes[Z] )
                             continue;
+#endif
 
                         if( nx < 0 || nx >= sizes[X] ||
                             ny < 0 || ny >= sizes[Y] ||
@@ -194,13 +196,19 @@ public  void  initialize_segmenting_3d(
         {
             for_less( z, 0, sizes[Z] )
             {
+                GET_VOXEL_3D( label, label_volume, x, y, z );
+                if( label & USER_SET_BIT )
+                {
+                    label -= USER_SET_BIT;
+                    SET_VOXEL_3D( label_volume, x, y, z, label );
+                }
+
                 GET_VOXEL_3D( dist, *distance_transform, x, y, z );
 
                 if( dist == 0 )
                     cut = 0;
                 else
                 {
-                    GET_VOXEL_3D( label, label_volume, x, y, z );
                     if( label != 0 )
                         cut = create_cut_class( dist, INCREASING );
                     else
@@ -283,6 +291,7 @@ public  BOOLEAN  expand_labels_3d(
     BOOLEAN  changed, better, user_set_it;
     Classes  class, new_class, neigh_class, best_class;
     Volume   new_cuts, new_labels;
+    progress_struct  progress;
 
     new_cuts = copy_volume_definition( label_volume,
                                        NC_BYTE, FALSE, 0.0, 255.0 );
@@ -292,6 +301,9 @@ public  BOOLEAN  expand_labels_3d(
     get_volume_sizes( label_volume, sizes );
 
     changed = FALSE;
+
+    initialize_progress_report( &progress, FALSE, sizes[X] * sizes[Y],
+                                "Expanding Labels" );
 
     for_less( x, 0, sizes[X] )
     {
@@ -383,8 +395,11 @@ public  BOOLEAN  expand_labels_3d(
                     SET_VOXEL_3D( new_cuts, x, y, z, cut );
                 }
             }
+            update_progress_report( &progress, x * sizes[Y] + y + 1 );
         }
     }
+
+    terminate_progress_report( &progress );
 
     if( changed )
     {
