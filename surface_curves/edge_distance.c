@@ -7,6 +7,9 @@ typedef  struct
     int             from_point;
 } vertex_struct;
 
+static  Status   create_path();
+static  Boolean  find_shortest_path();
+
 public  Boolean  distance_along_polygons( polygons, p1, poly1, p2, poly2,
                                           dist, lines )
     polygons_struct   *polygons;
@@ -20,7 +23,6 @@ public  Boolean  distance_along_polygons( polygons, p1, poly1, p2, poly2,
     Status          status;
     Boolean         found;
     int             last_vertex;
-    Status          create_path();
     vertex_struct   *vertices;
 
     ALLOC1( status, vertices, polygons->n_points, vertex_struct );

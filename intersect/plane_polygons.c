@@ -1,6 +1,8 @@
 
 #include  <def_graphics.h>
 
+static    Status   intersect_plane_polygons();
+
 public  Status  intersect_plane_with_polygons( graphics, plane_normal,
                                                plane_constant, lines,
                                                n_points_alloced,
@@ -15,7 +17,6 @@ public  Status  intersect_plane_with_polygons( graphics, plane_normal,
     int               *n_end_indices_alloced;
 {
     Status                   status;
-    Status                   intersect_plane_polygons();
     object_struct            *object;
     Status                   initialize_object_traverse();
     object_traverse_struct   object_traverse;

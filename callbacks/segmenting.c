@@ -4,6 +4,9 @@
 #include  <def_math.h>
 #include  <def_stdio.h>
 
+static    void     get_min_max();
+static    Boolean  min_max_present();
+
 public  DEF_MENU_FUNCTION( label_point )   /* ARGSUSED */
 {
     Status   status;
@@ -35,7 +38,6 @@ public  DEF_MENU_FUNCTION( generate_regions )   /* ARGSUSED */
     Status   generate_segmentation();
     void     set_update_required();
     void     rebuild_slice_models();
-    void     get_min_max();
 
     status = OK;
 

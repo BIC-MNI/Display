@@ -2,11 +2,21 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 
+static    DECL_EVENT_FUNCTION( start_front_clipping );
+static    DECL_EVENT_FUNCTION( turn_off_front_clipping );
+static    DECL_EVENT_FUNCTION( handle_update_front );
+static    DECL_EVENT_FUNCTION( handle_mouse_movement_front );
+static    DECL_EVENT_FUNCTION( terminate_front_clipping );
+static    DECL_EVENT_FUNCTION( start_back_clipping );
+static    DECL_EVENT_FUNCTION( turn_off_back_clipping );
+static    DECL_EVENT_FUNCTION( handle_update_back );
+static    DECL_EVENT_FUNCTION( handle_mouse_movement_back );
+static    DECL_EVENT_FUNCTION( terminate_back_clipping );
+static    void                 perform_clipping();
+
 public  void  initialize_front_clipping( graphics )
     graphics_struct  *graphics;
 {
-    DECL_EVENT_FUNCTION( start_front_clipping );
-    DECL_EVENT_FUNCTION( turn_off_front_clipping );
     void                 add_action_table_function();
     void                 terminate_any_interactions();
 
@@ -24,7 +34,6 @@ public  void  initialize_front_clipping( graphics )
 private  DEF_EVENT_FUNCTION( turn_off_front_clipping )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION( start_front_clipping );
     void    remove_action_table_function();
 
     remove_action_table_function( &graphics->action_table,
@@ -42,9 +51,6 @@ private  DEF_EVENT_FUNCTION( start_front_clipping )
     /* ARGSUSED */
 {
     void                  add_action_table_function();
-    DECL_EVENT_FUNCTION(  handle_update_front );
-    DECL_EVENT_FUNCTION(  handle_mouse_movement_front );
-    DECL_EVENT_FUNCTION(  terminate_front_clipping );
 
     add_action_table_function( &graphics->action_table,
                                NO_EVENT,
@@ -70,10 +76,7 @@ private  DEF_EVENT_FUNCTION( start_front_clipping )
 private  DEF_EVENT_FUNCTION( terminate_front_clipping )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION(  handle_update_front );
-    DECL_EVENT_FUNCTION(  handle_mouse_movement_front );
     void   remove_action_table_function();
-    void   perform_clipping();
     void   update_view();
 
     perform_clipping( graphics, TRUE );
@@ -100,8 +103,6 @@ private  DEF_EVENT_FUNCTION( terminate_front_clipping )
 
 private  DEF_EVENT_FUNCTION( handle_mouse_movement_front )      /* ARGSUSED */
 {
-    void   perform_clipping();
-
     perform_clipping( graphics, TRUE );
 
     return( OK );
@@ -122,8 +123,6 @@ private  DEF_EVENT_FUNCTION( handle_update_front )      /* ARGSUSED */
 public  void  initialize_back_clipping( graphics )
     graphics_struct  *graphics;
 {
-    DECL_EVENT_FUNCTION( start_back_clipping );
-    DECL_EVENT_FUNCTION( turn_off_back_clipping );
     void                 add_action_table_function();
     void                 terminate_any_interactions();
 
@@ -141,7 +140,6 @@ public  void  initialize_back_clipping( graphics )
 private  DEF_EVENT_FUNCTION( turn_off_back_clipping )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION( start_back_clipping );
     void   remove_action_table_function();
 
     remove_action_table_function( &graphics->action_table,
@@ -159,9 +157,6 @@ private  DEF_EVENT_FUNCTION( start_back_clipping )
     /* ARGSUSED */
 {
     void                  add_action_table_function();
-    DECL_EVENT_FUNCTION(  handle_update_back );
-    DECL_EVENT_FUNCTION(  handle_mouse_movement_back );
-    DECL_EVENT_FUNCTION(  terminate_back_clipping );
 
     add_action_table_function( &graphics->action_table,
                                NO_EVENT,
@@ -187,10 +182,7 @@ private  DEF_EVENT_FUNCTION( start_back_clipping )
 private  DEF_EVENT_FUNCTION( terminate_back_clipping )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION(  handle_update_back );
-    DECL_EVENT_FUNCTION(  handle_mouse_movement_back );
     void   remove_action_table_function();
-    void   perform_clipping();
     void   update_view();
 
     perform_clipping( graphics, FALSE );
@@ -217,8 +209,6 @@ private  DEF_EVENT_FUNCTION( terminate_back_clipping )
 
 private  DEF_EVENT_FUNCTION( handle_mouse_movement_back )      /* ARGSUSED */
 {
-    void   perform_clipping();
-
     perform_clipping( graphics, FALSE );
 
     return( OK );

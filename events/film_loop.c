@@ -4,19 +4,25 @@
 #include  <def_string.h>
 #include  <def_globals.h>
 
+static    DECL_EVENT_FUNCTION( check_updated );
+static    Status               create_film_loop_header();
+static    Status               save_image_to_file();
+static    void                 display_next_frame();
+static    void                 create_frame_filename();
+static    Status               output_frame();
+static    void                 get_pixel_bounds();
+
 public  Status  start_film_loop( graphics, base_filename, axis_index, n_steps )
     graphics_struct  *graphics;
     char             base_filename[];
     int              axis_index;
     int              n_steps;
 {
-    DECL_EVENT_FUNCTION( check_updated );
     void                 add_action_table_function();
     Real                 angle;
     int                  x_size, y_size;
     void                 make_rotation_transform();
     Status               status;
-    Status               create_film_loop_header();
 
     add_action_table_function( &graphics->action_table, NO_EVENT,
                                check_updated );
@@ -53,7 +59,6 @@ public  Status  start_film_loop( graphics, base_filename, axis_index, n_steps )
 private  Status  end_film_loop( graphics )
     graphics_struct  *graphics;
 {
-    DECL_EVENT_FUNCTION( check_updated );
     Status   status;
     void     remove_action_table_function();
 
@@ -73,8 +78,6 @@ private  DEF_EVENT_FUNCTION( check_updated )
     Status    status;
     Boolean   window_is_up_to_date();
     Status    end_film_loop();
-    Status    save_image_to_file();
-    void      display_next_frame();
     void      update_view();
     void      set_update_required();
 
@@ -134,7 +137,6 @@ private  Status  create_film_loop_header( base_filename, window_width,
     String  frame_filename;
     String  no_dirs;
     void    strip_off_directories();
-    void    create_frame_filename();
 
     (void) strcpy( header_name, base_filename );   
     (void) strcat( header_name, ".flm" );   
@@ -200,14 +202,11 @@ private  Status  save_image_to_file( graphics )
 {
     Status         status;
     Status         open_file();
-    Status         output_frame();
     Status         close_file();
     void           G_read_pixels();
     FILE           *file;
     String         frame_filename;
-    void           create_frame_filename();
     int            x_min, x_max, y_min, y_max;
-    void           get_pixel_bounds();
 
     G_read_pixels( &graphics->window,
                    0, graphics->three_d.film_loop.x_size-1,

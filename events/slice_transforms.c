@@ -2,6 +2,13 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 
+static    DECL_EVENT_FUNCTION( start_rotating );
+static    DECL_EVENT_FUNCTION( end_rotating );
+static    DECL_EVENT_FUNCTION( handle_update_rotation );
+static    DECL_EVENT_FUNCTION( terminate_rotation );
+static    void                 update_rotation();
+static    Boolean              compute_rotation();
+
 public  void  start_translating_slice( graphics )
     graphics_struct  *graphics;
 {
@@ -10,8 +17,6 @@ public  void  start_translating_slice( graphics )
 public  void  start_rotating_slice( graphics )
     graphics_struct  *graphics;
 {
-    DECL_EVENT_FUNCTION( start_rotating );
-    DECL_EVENT_FUNCTION( end_rotating );
     void                 add_action_table_function();
     void                 terminate_any_interactions();
 
@@ -29,7 +34,6 @@ public  void  start_rotating_slice( graphics )
 private  DEF_EVENT_FUNCTION( end_rotating )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION( start_rotating );
     void                 remove_action_table_function();
 
     remove_action_table_function( &graphics->action_table,
@@ -45,8 +49,6 @@ private  DEF_EVENT_FUNCTION( start_rotating )
 {
     void                  add_action_table_function();
     void                  push_action_table();
-    DECL_EVENT_FUNCTION(  handle_update_rotation );
-    DECL_EVENT_FUNCTION(  terminate_rotation );
 
     graphics->prev_mouse_position = graphics->mouse_position;
 
@@ -71,7 +73,6 @@ private  DEF_EVENT_FUNCTION( terminate_rotation )
     /* ARGSUSED */
 {
     void   pop_action_table();
-    void   update_rotation();
 
     update_rotation( graphics );
     
@@ -115,7 +116,6 @@ private  void  update_rotation( graphics )
     graphics_struct  *graphics;
 {
     Transform      transform;
-    Boolean        compute_rotation();
     void           modify_slice_transform();
 
     if( compute_rotation( graphics, &transform ) )
@@ -126,8 +126,6 @@ private  void  update_rotation( graphics )
 
 private  DEF_EVENT_FUNCTION( handle_update_rotation )      /* ARGSUSED */
 {
-    void      update_rotation();
-
     update_rotation( graphics );
 
     return( OK );

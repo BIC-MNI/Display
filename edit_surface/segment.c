@@ -4,11 +4,17 @@
 #include  <def_globals.h>
 #include  <def_colours.h>
 
+static    DECL_EVENT_FUNCTION( start_segmenting );
+static    DECL_EVENT_FUNCTION( terminate_segmenting );
+static    DECL_EVENT_FUNCTION( pick_surface_polygon );
+static    DECL_EVENT_FUNCTION( end_segmenting );
+static    Status   segment_polygons();
+static    Status   add_polygon_under_mouse();
+static    Status   create_complete_path();
+
 public  void  start_segmenting_polygons( graphics )
     graphics_struct  *graphics;
 {
-    DECL_EVENT_FUNCTION( start_segmenting );
-    DECL_EVENT_FUNCTION( terminate_segmenting );
     void                 push_action_table();
     void                 add_action_table_function();
     polygons_struct      *edit_polygons;
@@ -52,8 +58,6 @@ private  DEF_EVENT_FUNCTION( terminate_segmenting )
 private  DEF_EVENT_FUNCTION( start_segmenting )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION( pick_surface_polygon );
-    DECL_EVENT_FUNCTION( end_segmenting );
     void                 push_action_table();
     void                 add_action_table_function();
 
@@ -73,7 +77,6 @@ private  DEF_EVENT_FUNCTION( start_segmenting )
 private  void  remove_events( action_table )
     action_table_struct  *action_table;
 {
-    DECL_EVENT_FUNCTION( pick_surface_polygon );
     void   remove_action_table_function();
     void   pop_action_table();
 
@@ -88,8 +91,6 @@ private  DEF_EVENT_FUNCTION( end_segmenting )
     /* ARGSUSED */
 {
     Status   status;
-    Status   segment_polygons();
-    Status   add_polygon_under_mouse();
     Boolean  segmented;
     void     remove_events();
     void     set_update_required();
@@ -151,7 +152,6 @@ private  DEF_EVENT_FUNCTION( pick_surface_polygon )
     /* ARGSUSED */
 {
     Status               status;
-    Status               add_polygon_under_mouse();
 
     status = add_polygon_under_mouse( graphics );
 
@@ -163,7 +163,6 @@ private  Status  segment_polygons( graphics, segmented )
     Boolean           *segmented;
 {
     Status               status;
-    Status               create_complete_path();
     int                  i, *path, path_length;
     Boolean              path_exists;
     surface_edit_struct  *surface_edit;

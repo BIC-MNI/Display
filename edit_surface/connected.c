@@ -4,11 +4,13 @@
 #include  <def_globals.h>
 #include  <def_colours.h>
 
+static    DECL_EVENT_FUNCTION( pick_start_point );
+static    DECL_EVENT_FUNCTION( terminate_connected );
+static    Status               make_connected_invisible();
+
 public  void  turn_off_connected_polygons( graphics )
     graphics_struct  *graphics;
 {
-    DECL_EVENT_FUNCTION( pick_start_point );
-    DECL_EVENT_FUNCTION( terminate_connected );
     void                 push_action_table();
     void                 add_action_table_function();
     polygons_struct      *edit_polygons;
@@ -53,7 +55,6 @@ private  DEF_EVENT_FUNCTION( pick_start_point )
     /* ARGSUSED */
 {
     Status            status;
-    Status            make_connected_invisible();
     int               poly_index;
     polygons_struct   *polygons, *edit_polygons;
     Point             intersection_point;

@@ -2,12 +2,15 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 
+static  DECL_EVENT_FUNCTION( pick_first_corner_point );
+static  DECL_EVENT_FUNCTION( show_rectangle_at_mouse );
+static  DECL_EVENT_FUNCTION( terminate_picking_viewport );
+static  DECL_EVENT_FUNCTION( done_picking_viewport );
+static  DECL_EVENT_FUNCTION( show_picked_viewport );
+
 public  void  start_picking_viewport( graphics )
     graphics_struct  *graphics;
 {
-    DECL_EVENT_FUNCTION( pick_first_corner_point );
-    DECL_EVENT_FUNCTION( show_rectangle_at_mouse );
-    DECL_EVENT_FUNCTION( terminate_picking_viewport );
     void                 push_action_table();
     void                 add_action_table_function();
     void                 terminate_any_interactions();
@@ -119,8 +122,6 @@ private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
 private  DEF_EVENT_FUNCTION( pick_first_corner_point )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION( done_picking_viewport );
-    DECL_EVENT_FUNCTION( show_picked_viewport );
     void                 remove_action_table_function();
     void                 add_action_table_function();
     void                 set_update_required();

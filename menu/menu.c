@@ -3,12 +3,9 @@
 #include  <def_string.h>
 #include  <def_globals.h>
 
-#ifdef  NOT_NEEDED
-private  DEF_MENU_FUNCTION( null_function )   /* ARGSUSED */
-{
-    return( OK );
-}
-#endif
+static    void    turn_off_menu_entry();
+static    DECL_EVENT_FUNCTION( handle_character );
+static    Status             process_menu();
 
 private  void  set_menu_key_entry( menu, ch, menu_entry )
     menu_window_struct     *menu;
@@ -31,7 +28,6 @@ private  void  turn_on_menu_entry( menu, menu_entry )
 {
     int                 i;
     menu_entry_struct   *previous;
-    void                turn_off_menu_entry();
 
     previous = get_menu_key_entry( menu, menu_entry->key );
     if( previous != (menu_entry_struct *) 0 )
@@ -168,7 +164,6 @@ public  Status  initialize_menu( graphics, runtime_directory )
 public  void  initialize_menu_actions( graphics )
     graphics_struct   *graphics;
 {
-    DECL_EVENT_FUNCTION( handle_character );
     void                 add_action_table_function();
 
     add_action_table_function( &graphics->action_table, KEYBOARD_EVENT,
@@ -180,7 +175,6 @@ private  DEF_EVENT_FUNCTION( handle_character )
     Status             status;
     int                key_pressed;
     menu_entry_struct  *menu_entry;
-    Status             process_menu();
     graphics_struct    *menu_window;
 
     status = OK;

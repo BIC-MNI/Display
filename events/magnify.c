@@ -1,11 +1,16 @@
 
 #include  <def_graphics.h>
 
+static    DECL_EVENT_FUNCTION( start_magnification );
+static    DECL_EVENT_FUNCTION( turn_off_magnification );
+static    DECL_EVENT_FUNCTION( handle_update );
+static    DECL_EVENT_FUNCTION( handle_mouse_movement );
+static    DECL_EVENT_FUNCTION( terminate_magnification );
+static    void                 perform_magnification();
+
 public  void  initialize_magnification( graphics )
     graphics_struct  *graphics;
 {
-    DECL_EVENT_FUNCTION( start_magnification );
-    DECL_EVENT_FUNCTION( turn_off_magnification );
     void                 add_action_table_function();
     void                 terminate_any_interactions();
 
@@ -23,7 +28,6 @@ public  void  initialize_magnification( graphics )
 private  DEF_EVENT_FUNCTION( turn_off_magnification )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION( start_magnification );
     void    remove_action_table_function();
 
     remove_action_table_function( &graphics->action_table,
@@ -40,9 +44,6 @@ private  DEF_EVENT_FUNCTION( start_magnification )
     /* ARGSUSED */
 {
     void                  add_action_table_function();
-    DECL_EVENT_FUNCTION(  handle_update );
-    DECL_EVENT_FUNCTION(  handle_mouse_movement );
-    DECL_EVENT_FUNCTION(  terminate_magnification );
 
     add_action_table_function( &graphics->action_table,
                                NO_EVENT,
@@ -68,10 +69,7 @@ private  DEF_EVENT_FUNCTION( start_magnification )
 private  DEF_EVENT_FUNCTION( terminate_magnification )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION(  handle_update );
-    DECL_EVENT_FUNCTION(  handle_mouse_movement );
     void   remove_action_table_function();
-    void   perform_magnification();
     void   update_view();
 
     perform_magnification( graphics );
@@ -98,8 +96,6 @@ private  DEF_EVENT_FUNCTION( terminate_magnification )
 
 private  DEF_EVENT_FUNCTION( handle_mouse_movement )      /* ARGSUSED */
 {
-    void   perform_magnification();
-
     perform_magnification( graphics );
 
     return( OK );

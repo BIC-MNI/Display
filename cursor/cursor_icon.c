@@ -7,19 +7,20 @@
 #define  Y_AXIS_INDEX  2
 #define  Z_AXIS_INDEX  3
 
+static    Status          create_box();
+static    Status          create_axis();
+static    void            fill_in_box_points();
+static    void            fill_in_axis_points();
+
 public  Status  rebuild_cursor_icon( graphics )
     graphics_struct   *graphics;
 {
     Status          status;
     int             axis_index;
-    Status          create_box();
-    Status          create_axis();
     Status          add_object_to_model();
     object_struct   *object;
     model_struct    *model;
     model_struct    *get_graphics_model();
-    void            fill_in_box_points();
-    void            fill_in_axis_points();
 
     model = get_graphics_model( graphics, CURSOR_MODEL );
 

@@ -1,14 +1,15 @@
 
 #include  <def_graphics.h>
 
+static    void            display_objects_recursive();
+
 public  void  display_objects( window, object, interrupt, bitplanes )
     window_struct               *window;
     object_struct               *object;
     update_interrupted_struct   *interrupt;
     Bitplane_types              bitplanes;
 {
-    void           display_objects_recursive();
-    Boolean        past_last_object;
+    Boolean         past_last_object;
 
     past_last_object = FALSE;
 

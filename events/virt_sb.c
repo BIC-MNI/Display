@@ -2,11 +2,20 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 
+static    DECL_EVENT_FUNCTION( start_virtual_spaceball );
+static    DECL_EVENT_FUNCTION( turn_off_virtual_spaceball );
+static    DECL_EVENT_FUNCTION( handle_update_rotation );
+static    DECL_EVENT_FUNCTION( terminate_rotation );
+static    DECL_EVENT_FUNCTION( handle_update_translation );
+static    DECL_EVENT_FUNCTION( terminate_translation );
+static    Boolean              mouse_close_to_cursor();
+static    Boolean              perform_rotation();
+static    Boolean              make_spaceball_transform();
+static    Boolean              perform_cursor_translation();
+
 public  void  initialize_virtual_spaceball( graphics )
     graphics_struct  *graphics;
 {
-    DECL_EVENT_FUNCTION( start_virtual_spaceball );
-    DECL_EVENT_FUNCTION( turn_off_virtual_spaceball );
     void                 add_action_table_function();
     void                 terminate_any_interactions();
 
@@ -24,7 +33,6 @@ public  void  initialize_virtual_spaceball( graphics )
 private  DEF_EVENT_FUNCTION( turn_off_virtual_spaceball )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION( start_virtual_spaceball );
     void         remove_action_table_function();
 
     remove_action_table_function( &graphics->action_table,
@@ -39,11 +47,6 @@ private  DEF_EVENT_FUNCTION( start_virtual_spaceball )
     /* ARGSUSED */
 {
     void                  add_action_table_function();
-    DECL_EVENT_FUNCTION(  handle_update_rotation );
-    DECL_EVENT_FUNCTION(  terminate_rotation );
-    DECL_EVENT_FUNCTION(  handle_update_translation );
-    DECL_EVENT_FUNCTION(  terminate_translation );
-    Boolean               mouse_close_to_cursor();
 
     graphics->prev_mouse_position = graphics->mouse_position;
 
@@ -78,7 +81,6 @@ private  void  update_rotation( graphics )
     graphics_struct  *graphics;
 {
     void      update_view();
-    Boolean   perform_rotation();
     void      set_update_required();
 
     if( perform_rotation( graphics ) )
@@ -124,7 +126,6 @@ private  Boolean  perform_rotation( graphics )
     Real           aspect;
     Real           G_get_window_aspect();
     Transform      transform;
-    Boolean        make_spaceball_transform();
     void           apply_transform_in_view_space();
     Boolean        moved;
 
@@ -222,7 +223,6 @@ private  void  update_translation( graphics )
     graphics_struct  *graphics;
 {
     void      update_view();
-    Boolean   perform_cursor_translation();
     void      set_update_required();
 
     if( perform_cursor_translation( graphics ) )

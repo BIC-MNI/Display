@@ -2,12 +2,14 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 
+static    Status   process_no_events_for_all_windows();
+static    void     update_all_required_windows();
+static    Status   perform_action();
+
 public  Status   main_event_loop()
 {
     Status   status;
     Status   process_events();
-    Status   process_no_events_for_all_windows();
-    void     update_all_required_windows();
     Real     update_time;
     Real     current_realtime_seconds();
 
@@ -67,7 +69,6 @@ private  void  update_all_required_windows()
 private  Status  process_no_events_for_all_windows()
 {
     Status            status;
-    Status            perform_action();
     int               i, n_windows;
     int               get_list_of_windows();
     graphics_struct   **windows;
@@ -91,7 +92,6 @@ Status  process_events( update_time )
     Real   update_time;
 {
     Status            status;
-    Status            perform_action();
     Real              current_realtime_seconds();
     Real              stop_time, event_time;
     event_struct      event;

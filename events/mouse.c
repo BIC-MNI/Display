@@ -3,10 +3,11 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 
+static    DECL_EVENT_FUNCTION(   mouse_movement_event );
+
 public  void  initialize_mouse_events( graphics )
     graphics_struct  *graphics;
 {
-    DECL_EVENT_FUNCTION(   mouse_movement_event );
     void                   add_action_table_function();
     void                   terminate_any_interactions();
 

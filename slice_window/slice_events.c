@@ -2,15 +2,19 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 
+static    DECL_EVENT_FUNCTION( window_size_changed );
+static    DECL_EVENT_FUNCTION( handle_redraw );
+static    DECL_EVENT_FUNCTION( start_translate );
+static    DECL_EVENT_FUNCTION( update_probe );
+static    DECL_EVENT_FUNCTION( handle_mouse_movement );
+static    DECL_EVENT_FUNCTION( terminate_translation );
+static    void                 update_window_size();
+static    void                 perform_translation();
+
 public  void  initialize_slice_window_events( graphics )
     graphics_struct   *graphics;
 {
-    DECL_EVENT_FUNCTION( window_size_changed );
-    DECL_EVENT_FUNCTION( handle_redraw );
-    DECL_EVENT_FUNCTION( start_translate );
-    DECL_EVENT_FUNCTION( update_probe );
     void                 add_action_table_function();
-    void                 update_window_size();
     void                 initialize_voxel_selection();
 
     update_window_size( graphics );
@@ -71,7 +75,6 @@ private  DEF_EVENT_FUNCTION( handle_redraw )
 
 private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
 {
-    void  update_window_size();
     void  rebuild_slice_models();
     void  set_update_required();
 
@@ -88,8 +91,6 @@ private  DEF_EVENT_FUNCTION( start_translate )
     /* ARGSUSED */
 {
     void                  add_action_table_function();
-    DECL_EVENT_FUNCTION(  handle_mouse_movement );
-    DECL_EVENT_FUNCTION(  terminate_translation );
 
     add_action_table_function( &graphics->action_table,
                                MOUSE_MOVEMENT_EVENT,
@@ -113,7 +114,6 @@ private  DEF_EVENT_FUNCTION( terminate_translation )
 {
     DECL_EVENT_FUNCTION(  handle_mouse_movement );
     void   remove_action_table_function();
-    void   perform_translation();
     void   update_view();
 
     perform_translation( graphics );

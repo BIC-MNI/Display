@@ -5,6 +5,8 @@
 #include  <def_splines.h>
 #include  <def_bitlist.h>
 
+static    DECL_EVENT_FUNCTION( pick_point );
+
 public  Status  initialize_surface_curve( graphics )
     graphics_struct    *graphics;
 {
@@ -40,7 +42,6 @@ public  void  start_surface_curve( graphics )
 {
     void                    add_action_table_function();
     void                    push_action_table();
-    DECL_EVENT_FUNCTION(    pick_point );
     void                    set_update_required();
 
     if( !graphics->three_d.surface_curve.picking_points )

@@ -1,11 +1,12 @@
 
 #include  <def_graphics.h>
 
+static    DECL_EVENT_FUNCTION( handle_resize );
+static    DECL_EVENT_FUNCTION( handle_redraw );
+
 public  void  initialize_window_events( graphics )
     graphics_struct  *graphics;
 {
-    DECL_EVENT_FUNCTION( handle_resize );
-    DECL_EVENT_FUNCTION( handle_redraw );
     void                 add_action_table_function();
 
     add_action_table_function( &graphics->action_table, WINDOW_RESIZE_EVENT,

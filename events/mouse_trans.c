@@ -1,11 +1,16 @@
 
 #include  <def_graphics.h>
 
+static    DECL_EVENT_FUNCTION( start_translation );
+static    DECL_EVENT_FUNCTION( turn_off_translation );
+static    DECL_EVENT_FUNCTION( handle_update );
+static    DECL_EVENT_FUNCTION( handle_mouse_movement );
+static    DECL_EVENT_FUNCTION( terminate_translation );
+static    void                 perform_translation();
+
 public  void  initialize_translation( graphics )
     graphics_struct  *graphics;
 {
-    DECL_EVENT_FUNCTION( start_translation );
-    DECL_EVENT_FUNCTION( turn_off_translation );
     void                 add_action_table_function();
     void                 terminate_any_interactions();
 
@@ -23,7 +28,6 @@ public  void  initialize_translation( graphics )
 private  DEF_EVENT_FUNCTION( turn_off_translation )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION( start_translation );
     void   remove_action_table_function();
 
     remove_action_table_function( &graphics->action_table,
@@ -40,9 +44,6 @@ private  DEF_EVENT_FUNCTION( start_translation )
     /* ARGSUSED */
 {
     void                  add_action_table_function();
-    DECL_EVENT_FUNCTION(  handle_update );
-    DECL_EVENT_FUNCTION(  handle_mouse_movement );
-    DECL_EVENT_FUNCTION(  terminate_translation );
 
     add_action_table_function( &graphics->action_table,
                                NO_EVENT,
@@ -68,10 +69,7 @@ private  DEF_EVENT_FUNCTION( start_translation )
 private  DEF_EVENT_FUNCTION( terminate_translation )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION(  handle_update );
-    DECL_EVENT_FUNCTION(  handle_mouse_movement );
     void   remove_action_table_function();
-    void   perform_translation();
     void   update_view();
 
     perform_translation( graphics );
@@ -96,8 +94,6 @@ private  DEF_EVENT_FUNCTION( terminate_translation )
 
 private  DEF_EVENT_FUNCTION( handle_mouse_movement )      /* ARGSUSED */
 {
-    void   perform_translation();
-
     perform_translation( graphics );
 
     return( OK );

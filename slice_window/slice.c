@@ -2,6 +2,8 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 
+static    void     get_slice_scale();
+
 public  Status  initialize_slice_window( graphics )
     graphics_struct   *graphics;
 {
@@ -354,7 +356,6 @@ public  void  convert_voxel_to_pixel( graphics, view_index, x_voxel, y_voxel,
     int      size[N_DIMENSIONS];
     Real     x_scale, y_scale;
     void     get_slice_viewport();
-    void     get_slice_scale();
     void     get_volume_size();
 
     get_slice_viewport( graphics, view_index, &x_min, &x_max, &y_min, &y_max );
@@ -488,7 +489,6 @@ public  void  get_slice_view( graphics, view_index, x_scale, y_scale,
     int   x_min, x_max, y_min, y_max;
     int   size[N_DIMENSIONS];
     Real  start_offset;
-    void  get_slice_scale();
     void  get_slice_viewport();
     void  get_volume_size();
 

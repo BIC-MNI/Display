@@ -4,13 +4,16 @@
 
 #define  FACTOR  1.2
 
+static    void      fit_view_to_points();
+static    void      perspective_fit_points();
+static    void      orthogonal_fit_points();
+
 public  void  fit_view_to_domain( view, min_limit, max_limit )
     view_struct   *view;
     Point         *min_limit;
     Point         *max_limit;
 {
     Point     points[8];
-    void      fit_view_to_points();
     Real      x_min, y_min, z_min;
     Real      x_max, y_max, z_max;
 
@@ -42,13 +45,11 @@ private  void   fit_view_to_points( view, n_points, points )
     int    i, c;
     Real   size, centre_z;
     Point  min_coord, max_coord, centre, range;
-    void   perspective_fit_points();
-    void   orthogonal_fit_points();
-    void   transform_point_to_screen();
+    void   transform_point_to_view_space();
 
     for_less( i, 0, n_points )
     {
-        transform_point_to_screen( view, &points[i], &points[i] );
+        transform_point_to_view_space( view, &points[i], &points[i] );
     }
 
     min_coord = points[0];

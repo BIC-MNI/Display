@@ -19,6 +19,8 @@
 #define  Z_PROBE_INDEX     12
 #define  VAL_PROBE_INDEX   13
 
+static    void           render_slice_to_pixels();
+
 public  Status  initialize_slice_models( graphics )
     graphics_struct   *graphics;
 {
@@ -213,7 +215,6 @@ public  void  rebuild_slice_pixels( graphics, view_index )
     int            x_size, y_pixel_start, y_pixel_end;
     int            file_index[N_DIMENSIONS];
     void           get_slice_view();
-    void           render_slice_to_pixels();
     text_struct    *text;
     char           *format;
     Real           x_scale, y_scale;

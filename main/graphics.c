@@ -5,6 +5,11 @@
 #include  <def_globals.h>
 #include  <def_alloc.h>
 
+static   Status   initialize_graphics_window();
+static   void     update_graphics_normal_planes_only();
+static   void     update_graphics_overlay_planes_only();
+static   Status   terminate_graphics_window();
+
 private  graphics_struct  **windows = (graphics_struct **) 0;
 private  int              n_windows = 0;
 
@@ -150,7 +155,6 @@ public  Status  create_graphics_window( window_type, graphics,
     int               width, height;
 {
     Status   status;
-    Status   initialize_graphics_window();
     Status   get_new_graphics();
     Status   G_create_window();
 
@@ -374,9 +378,6 @@ public  void  update_graphics( graphics, interrupt )
     graphics_struct              *graphics;
     update_interrupted_struct    *interrupt;
 {
-    void   update_graphics_normal_planes_only();
-    void   update_graphics_overlay_planes_only();
-
     if( interrupt->last_was_interrupted ||
         graphics->update_required[NORMAL_PLANES] )
     {
@@ -481,7 +482,6 @@ public  Status  delete_graphics_window( graphics )
     Status   status;
     Status   G_delete_window();
     Status   free_graphics();
-    Status   terminate_graphics_window();
 
     status = G_delete_window( &graphics->window );
 

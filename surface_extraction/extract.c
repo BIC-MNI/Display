@@ -13,6 +13,11 @@ typedef  struct
     int       id;
 } edge_point_info;
 
+static    int     extract_polygons();
+static    int     add_polygon_to_list();
+static    Status  add_point_id_to_relevant_edges();
+static    void    evaluate_trilinear_derivative();
+
 public  Boolean  extract_voxel_surface( volume, surface_extraction,
                                         voxel_index, first_voxel )
     volume_struct               *volume;
@@ -26,7 +31,6 @@ public  Boolean  extract_voxel_surface( volume, surface_extraction,
     Boolean                are_voxel_corners_active();
     int                    n_polys, n_nondegenerate_polys;
     int                    x, y, z, *sizes;
-    int                    extract_polygons();
 
     active = are_voxel_corners_active( volume,
                                        voxel_index->i[X_AXIS],
@@ -209,7 +213,6 @@ private  int  add_polygon_to_list( volume, surface_extraction, voxel_index,
     edge_point_info             edge_point_list[2][2][2][N_DIMENSIONS];
 {
     Status                 status;
-    Status                 add_point_id_to_relevant_edges();
     polygons_struct        *polygons;
     voxel_point_type       *pt;
     voxel_index_struct     corner_index;
@@ -311,7 +314,6 @@ private  int   create_point( volume, isovalue, polygons, voxel,
     int       corner[N_DIMENSIONS];
     Real      x_thickness, y_thickness, z_thickness;
     void      get_volume_slice_thickness();
-    void      evaluate_trilinear_derivative();
     void      get_volume_size();
 
     corner[X_AXIS] = voxel->i[X_AXIS];

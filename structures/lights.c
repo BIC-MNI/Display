@@ -1,11 +1,12 @@
 
 #include  <def_graphics.h>
 
+static    void  initialize_ambient();
+static    void  initialize_directional();
+
 public  void  initialize_lights( lights )
     light_struct  *lights;
 {
-    void  initialize_ambient();
-    void  initialize_directional();
 /*
     void  initialize_point();
     void  initialize_spot();

@@ -2,6 +2,11 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 
+static    DECL_EVENT_FUNCTION( update_picked_polygon );
+static    DECL_EVENT_FUNCTION( pick_polygon_point );
+static    DECL_EVENT_FUNCTION( terminate_picking_polygon );
+static    void                 pick_point_under_mouse();
+
 public  void  initialize_picking_polygon( graphics )
     graphics_struct   *graphics;
 {
@@ -15,9 +20,6 @@ public  void  initialize_picking_polygon( graphics )
 
 public  DEF_EVENT_FUNCTION( start_picking_polygon )    /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION( update_picked_polygon );
-    DECL_EVENT_FUNCTION( pick_polygon_point );
-    DECL_EVENT_FUNCTION( terminate_picking_polygon );
     void                 push_action_table();
     void                 add_action_table_function();
 
@@ -41,7 +43,6 @@ public  DEF_EVENT_FUNCTION( start_picking_polygon )    /* ARGSUSED */
 private  void  remove_events( action_table )
     action_table_struct  *action_table;
 {
-    DECL_EVENT_FUNCTION( update_picked_polygon );
     void   remove_action_table_function();
     void   pop_action_table();
 
@@ -56,7 +57,6 @@ private  DEF_EVENT_FUNCTION( terminate_picking_polygon )
     /* ARGSUSED */
 {
     void   remove_events();
-    void   pick_point_under_mouse();
 
     remove_events( &graphics->action_table );
 
@@ -68,8 +68,6 @@ private  DEF_EVENT_FUNCTION( terminate_picking_polygon )
 private  DEF_EVENT_FUNCTION( update_picked_polygon )
     /* ARGSUSED */
 {
-    void             pick_point_under_mouse();
-
     pick_point_under_mouse( graphics );
 
     return( OK );

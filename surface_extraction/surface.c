@@ -5,6 +5,9 @@
 #include  <def_splines.h>
 #include  <def_bitlist.h>
 
+static    Status   delete_edge_points_no_longer_needed();
+static    void     possibly_output();
+
 public  void  start_surface_extraction_at_point( graphics, x, y, z )
     graphics_struct    *graphics;
     int                x, y, z;
@@ -185,8 +188,6 @@ public  Status  extract_more_surface( graphics )
     Status                      set_voxel_flag();
     Status                      reset_voxel_flag();
     Status                      set_voxel_done_flag();
-    Status                      delete_edge_points_no_longer_needed();
-    void                        possibly_output();
     void                        stop_surface_extraction();
     void                        label_voxel_as_done();
 

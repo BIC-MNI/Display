@@ -3,6 +3,8 @@
 #include  <def_stdio.h>
 #include  <def_globals.h>
 
+static    Status          output_marker();
+
 public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
 {
     Status          status;
@@ -119,7 +121,6 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
     String          filename;
     FILE            *file;
     Status          open_file();
-    Status          output_marker();
     Status          close_file();
     object_traverse_struct  object_traverse;
     Status                  initialize_object_traverse();

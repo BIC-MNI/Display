@@ -106,12 +106,12 @@ typedef  struct
 }
 action_lookup_struct;
 
-#define  MENU_FUNCTION(f)    Status f(), menu_update_/**/f();
+#define  MENU_FUNCTION(f)    Status f(), menu_update_##f();
 
 FUNCTION_LIST
 
 #undef   MENU_FUNCTION
-#define  MENU_FUNCTION(f)    { "f", f, menu_update_/**/f },
+#define  MENU_FUNCTION(f)    { #f, f, menu_update_##f },
 
 static  action_lookup_struct   actions[] = {
                                                FUNCTION_LIST
@@ -133,14 +133,18 @@ typedef  struct
     key_action_struct   *entries;
 } menu_definition_struct;
 
+static    Status   input_menu();
+static    Status   create_menu();
+static    Status   free_input_menu();
+static    Status   input_menu_entry();
+static    Status   lookup_menu_action();
+static    int      lookup_menu_name();
+
 public  Status  read_menu( menu, file )
     menu_window_struct   *menu;
     FILE                 *file;
 {
     Status                   status;
-    Status                   input_menu();
-    Status                   create_menu();
-    Status                   free_input_menu();
     int                      n_menus;
     menu_definition_struct   *menus;
 
@@ -166,7 +170,6 @@ private  Status  input_menu( file, n_menus_ptr, menus_ptr )
 {
     Status                   status;
     Status                   input_string();
-    Status                   input_menu_entry();
     int                      n_menus;
     menu_definition_struct   *menus;
     menu_definition_struct   menu_entry;
@@ -353,7 +356,6 @@ private  Status  create_menu( menu, n_menus, menus )
     int                 i, c, child, n_entries, entry_index, menu_index;
     Status              create_menu_entry();
     Status              create_key_entry();
-    Status              lookup_menu_action();
     void                turn_on_menu_entry();
     menu_entry_struct   *menu_entry;
 

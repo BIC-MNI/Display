@@ -3,6 +3,8 @@
 #include  <def_alloc.h>
 #include  <def_math.h>
 
+static    void     fill_in_ellipse_points();
+
 private  void  get_direction( n_points, points, i, wrap_around, dir )
     int      n_points;
     Point    points[];
@@ -48,7 +50,6 @@ public  void  generate_tube( n_points, points, n_around, radius,
     Vector   hor, vert, dir, prev_dir, normal;
     void     project_vector_to_plane();
     void     get_noncolinear_vector();
-    void     fill_in_ellipse_points();
     Status   status;
     Boolean  wrap_around;
     void     get_direction();

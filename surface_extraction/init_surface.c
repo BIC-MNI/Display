@@ -5,6 +5,8 @@
 #include  <def_splines.h>
 #include  <def_bitlist.h>
 
+static    Status   clear_surface_extraction();
+
 public  Status  initialize_surface_extraction( graphics )
     graphics_struct    *graphics;
 {
@@ -13,7 +15,6 @@ public  Status  initialize_surface_extraction( graphics )
     Status                      create_object();
     Status                      add_object_to_model();
     object_struct               *object;
-    Status                      clear_surface_extraction();
     void                        install_surface_extraction();
 
     surface_extraction = &graphics->three_d.surface_extraction;
@@ -143,7 +144,6 @@ public  Status  reset_surface_extraction( graphics )
 {
     Status    status;
     Status    free_surface_extraction();
-    Status    clear_surface_extraction();
 
     status = free_surface_extraction( graphics );
 

@@ -5,11 +5,12 @@
 #include  <def_splines.h>
 #include  <def_bitlist.h>
 
+static    DECL_EVENT_FUNCTION(    add_to_surface );
+
 public  void  install_surface_extraction( graphics )
     graphics_struct    *graphics;
 {
     void                    add_action_table_function();
-    DECL_EVENT_FUNCTION(    add_to_surface );
 
     add_action_table_function( &graphics->action_table, NO_EVENT,
                                add_to_surface );
@@ -18,7 +19,6 @@ public  void  install_surface_extraction( graphics )
 public  void  uninstall_surface_extraction( graphics )
     graphics_struct    *graphics;
 {
-    DECL_EVENT_FUNCTION(    add_to_surface );
     void   remove_action_table_function();
 
     remove_action_table_function( &graphics->action_table, NO_EVENT,

@@ -37,12 +37,14 @@ private   position_struct   positions[] = {
                                              {'5', 4, 4 },
                                           };
 
+static    Status   create_menu_text();
+static    Status   create_menu_box();
+static    void     compute_origin();
+
 public  Status  build_menu( menu_window )
     graphics_struct   *menu_window;
 {
     Status   status;
-    Status   create_menu_text();
-    Status   create_menu_box();
     int      i;
 
     for_less( i, 0, SIZEOF_STATIC_ARRAY(positions) )
@@ -77,7 +79,6 @@ private  Status   create_menu_text( menu_window, menu_entry )
     Status          create_object();
     text_struct     *text;
     Status          add_object_to_model();
-    void            compute_origin();
     void            set_menu_text();
     Status          update_menu_text();
     model_struct    *model;
@@ -175,7 +176,6 @@ private  Status   create_menu_box( menu_window, key )
     object_struct   *object;
     lines_struct    *lines;
     Status          add_object_to_model();
-    void            compute_origin();
     Point           origin;
     Real            x1, y1, x2, y2;
     model_struct    *model;

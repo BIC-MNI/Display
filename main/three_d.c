@@ -5,6 +5,8 @@
 #include  <def_globals.h>
 #include  <def_alloc.h>
 
+static    void                   initialize_three_d_events();
+
 public  Status  initialize_three_d_window( graphics )
     graphics_struct   *graphics;
 {
@@ -16,7 +18,6 @@ public  Status  initialize_three_d_window( graphics )
     void                   initialize_lights();
     void                   G_define_light();
     void                   G_set_light_state();
-    void                   initialize_three_d_events();
     Status                 status;
     Status                 initialize_current_object();
     Status                 initialize_surface_extraction();
@@ -72,10 +73,11 @@ public  Status  initialize_three_d_window( graphics )
     return( status );
 }
 
+static    DECL_EVENT_FUNCTION( handle_resize_three_d );
+
 private  void  initialize_three_d_events( graphics )
     graphics_struct  *graphics;
 {
-    DECL_EVENT_FUNCTION( handle_resize_three_d );
     void                 add_action_table_function();
     void                 initialize_virtual_spaceball();
     void                 initialize_picking_polygon();

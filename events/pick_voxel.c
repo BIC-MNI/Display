@@ -2,10 +2,14 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 
+static    DECL_EVENT_FUNCTION( start_picking_voxel );
+static    DECL_EVENT_FUNCTION( handle_update_voxel );
+static    DECL_EVENT_FUNCTION( end_picking_voxel );
+static    void                 update_voxel_cursor();
+
 public  void  initialize_voxel_selection( graphics )
     graphics_struct  *graphics;
 {
-    DECL_EVENT_FUNCTION( start_picking_voxel );
     void                 add_action_table_function();
 
     add_action_table_function( &graphics->action_table,
@@ -16,10 +20,7 @@ public  void  initialize_voxel_selection( graphics )
 private  DEF_EVENT_FUNCTION( start_picking_voxel )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION( handle_update_voxel );
-    DECL_EVENT_FUNCTION( end_picking_voxel );
     void                 add_action_table_function();
-    void                 update_voxel_cursor();
     void                 push_action_table();
 
     push_action_table( &graphics->action_table, LEFT_MOUSE_UP_EVENT );
@@ -42,10 +43,8 @@ private  DEF_EVENT_FUNCTION( start_picking_voxel )
 private  DEF_EVENT_FUNCTION( end_picking_voxel )
     /* ARGSUSED */
 {
-    DECL_EVENT_FUNCTION( handle_update_voxel );
     void    pop_action_table();
     void    remove_action_table_function();
-    void    update_voxel_cursor();
 
     remove_action_table_function( &graphics->action_table, NO_EVENT,
                                   handle_update_voxel );
@@ -59,7 +58,6 @@ private  DEF_EVENT_FUNCTION( handle_update_voxel )
     /* ARGSUSED */
 {
     Boolean  mouse_moved();
-    void     update_voxel_cursor();
 
     if( mouse_moved(graphics) || graphics_update_required( graphics ) )
     {
