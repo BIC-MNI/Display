@@ -29,10 +29,8 @@ public  Boolean  distance_along_polygons( polygons, p1, poly1, p2, poly2,
 
     if( found )
     {
-/*
-        status = create_path( polygons, p1, poly1, p2, poly2, last_vertex,
+        status = create_path( polygons, p1, p2, last_vertex,
                               vertices, lines );
-*/
     }
 
     if( status == OK )
@@ -81,6 +79,9 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
 
     while( changed )
     {
+        static  int   count = 0;
+        ++count;
+        (void) fprintf( stderr, "Iteration %d\n", count );
         changed = FALSE;
 
         for_less( poly, 0, polygons->n_items )
@@ -101,15 +102,22 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
                         i2 = (i1 + delta + size) % size;
                         point_index2 = polygons->indices[
                                 POINT_INDEX(polygons->end_indices,poly,i2)];
-                        dist_sum = distance1 + distance_between_points(
-                                 &polygons->points[point_index1],
-                                 &polygons->points[point_index2] );
 
-                        if( dist_sum < vertices[point_index2].distance )
+                        if( vertices[point_index2].from_point == -2 ||
+                            distance1 < vertices[point_index2].distance )
                         {
-                            vertices[point_index2].distance = dist_sum;
-                            vertices[point_index2].from_point = point_index1;
-                            changed = TRUE;
+                            dist_sum = distance1 + distance_between_points(
+                                       &polygons->points[point_index1],
+                                       &polygons->points[point_index2] );
+
+                            if( vertices[point_index2].from_point == -2 ||
+                                dist_sum < vertices[point_index2].distance )
+                            {
+                                vertices[point_index2].distance = dist_sum;
+                                vertices[point_index2].from_point =
+                                                       point_index1;
+                                changed = TRUE;
+                            }
                         }
                     }
                 }
@@ -140,4 +148,33 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
     }
 
     return( found );
+}
+
+private  Status  create_path( polygons, p1, p2, last_vertex, vertices, lines )
+    polygons_struct   *polygons;
+    Point             *p1;
+    Point             *p2;
+    int               last_vertex;
+    vertex_struct     vertices[];
+    lines_struct      *lines;
+{
+    Status          status;
+    Status          begin_adding_points_to_line();
+    Status          add_point_to_line();
+
+    status = begin_adding_points_to_line( lines );
+
+    if( status == OK )
+        status = add_point_to_line( lines, p2 );
+
+    while( status == OK && last_vertex >= 0 )
+    {
+        status = add_point_to_line( lines, &polygons->points[last_vertex] );
+        last_vertex = vertices[last_vertex].from_point;
+    }
+
+    if( status == OK )
+        status = add_point_to_line( lines, p1 );
+
+    return( status );
 }
