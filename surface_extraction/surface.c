@@ -152,35 +152,48 @@ public  void  start_surface_extraction_at_point( graphics, x, y, z )
     int                x, y, z;
 {
     surface_extraction_struct   *surface_extraction;
-    Boolean                     reset_voxel_queue;
     Boolean                     cube_is_within_volume();
     Boolean                     find_close_voxel_containing_value();
     voxel_index_struct          voxel_indices;
     Status                      status;
     Status                      insert_in_voxel_queue();
     Status                      mark_voxel_done();
+    Status                      mark_voxel_not_done();
     void                        add_voxel_neighbours();
     void                        start_surface_extraction();
     Status                      delete_voxels_done();
     Status                      delete_voxel_queue();
     void                        initialize_voxel_queue();
+    void                        get_next_voxel_from_queue();
 
     surface_extraction = &graphics->three_d.surface_extraction;
 
     status = OK;
 
     if( cube_is_within_volume(
-             graphics->associated[SLICE_WINDOW]->slice.volume, x, y, z ) &&
-        !surface_extraction->extraction_in_progress )
+             graphics->associated[SLICE_WINDOW]->slice.volume, x, y, z ) )
     {
         if( !surface_extraction->isovalue_selected )
         {
             set_isosurface_value( surface_extraction );
-            reset_voxel_queue = FALSE;
         }
         else
         {
-            reset_voxel_queue = TRUE;
+            while( voxels_remaining(
+                     &graphics->three_d.surface_extraction.voxels_to_do ) )
+            {
+                get_next_voxel_from_queue( 
+                     &graphics->three_d.surface_extraction.voxels_to_do,
+                     &voxel_indices );
+
+                if( status == OK )
+                {
+                    status = mark_voxel_not_done(
+                         graphics->associated[SLICE_WINDOW]->slice.volume,
+                         &graphics->three_d.surface_extraction.voxels_done,
+                         &voxel_indices );
+                }
+            }
         }
 
         if( find_close_voxel_containing_value(
@@ -190,18 +203,6 @@ public  void  start_surface_extraction_at_point( graphics, x, y, z )
                   graphics->three_d.surface_extraction.isovalue,
                   x, y, z, &voxel_indices ) )
         {
-            if( status == OK && reset_voxel_queue )
-            {
-                status = delete_voxel_queue(
-                     &graphics->three_d.surface_extraction.voxels_to_do );
-
-                if( status == OK )
-                {
-                     initialize_voxel_queue(
-                     &graphics->three_d.surface_extraction.voxels_to_do );
-                }
-            }
-
             if( status == OK )
             {
                 status = insert_in_voxel_queue(
