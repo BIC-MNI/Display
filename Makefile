@@ -88,6 +88,7 @@ display_obj = \
            neighbours.o \
            objects.o \
            object_io.o \
+           path_surface.o \
            pixels.o \
            polygons.o \
            random_order.o \
@@ -95,7 +96,6 @@ display_obj = \
            resample.o \
            roi_io.o \
            string.o \
-           surface_path.o \
            volume.o \
            time.o
 

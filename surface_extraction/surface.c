@@ -53,7 +53,7 @@ public  void  start_surface_extraction_at_point( graphics, x, y, z )
 
         if( find_close_voxel_containing_value(
                   graphics->associated[SLICE_WINDOW]->slice.volume,
-                  &graphics->three_d.surface_extraction.voxels_done,
+                  graphics->three_d.surface_extraction.voxel_done_flags,
                   graphics->three_d.surface_extraction.isovalue,
                   x, y, z, &voxel_indices ) )
         {
@@ -77,16 +77,19 @@ public  void  start_surface_extraction_at_point( graphics, x, y, z )
     }
 }
 
-public  Boolean  find_close_voxel_containing_value( volume, voxels_done, value,
+public  Boolean  find_close_voxel_containing_value( volume, voxel_done_flags,
+                                                    value,
                                                     x, y, z, found_indices )
     volume_struct          *volume;
-    bitlist_struct         *voxels_done;
+    unsigned_byte          voxel_done_flags[];
     Real                   value;
     int                    x, y, z;
     voxel_index_struct     *found_indices;
 {
     Status                                status;
-    Boolean                               found, voxel_done, voxel_contains;
+    Boolean                               found, voxel_contains;
+    unsigned_byte                         voxel_done;
+    unsigned_byte                         get_voxel_done_flag();
     Boolean                               voxel_contains_value();
     QUEUE_STRUCT( voxel_index_struct )    voxels_to_check;
     voxel_index_struct                    indices, insert;
@@ -129,7 +132,7 @@ public  Boolean  find_close_voxel_containing_value( volume, voxels_done, value,
                                                indices.i[Y_AXIS],
                                                indices.i[Z_AXIS], value );
 
-        voxel_done = get_voxel_flag( volume, voxels_done, &indices );
+        voxel_done = get_voxel_done_flag( volume, voxel_done_flags, &indices );
 
         if( voxel_contains && !voxel_done )
         {
@@ -144,7 +147,7 @@ public  Boolean  find_close_voxel_containing_value( volume, voxels_done, value,
                                   indices.i[X_AXIS],
                                   indices.i[Y_AXIS],
                                   indices.i[Z_AXIS],
-                                  voxel_done, value,
+                                  (Boolean) voxel_done, value,
                                   &voxels_searched, &voxels_to_check );
         }
     }
@@ -176,6 +179,8 @@ public  Status  extract_more_surface( graphics )
     Real                        current_realtime_seconds();
     Status                      status;
     Status                      set_voxel_flag();
+    Status                      reset_voxel_flag();
+    Status                      set_voxel_done_flag();
     Status                      delete_edge_points_no_longer_needed();
     void    possibly_output();
 
@@ -198,18 +203,24 @@ public  Status  extract_more_surface( graphics )
         get_next_voxel_from_queue( &surface_extraction->voxels_to_do,
                                    &voxel_index );
 
-        if( extract_voxel_surface( volume, surface_extraction, &voxel_index) )
+        if( status == OK )
+        {
+            status = reset_voxel_flag( volume,
+                                       &surface_extraction->voxels_queued,
+                                       &voxel_index);
+        }
+
+        if( extract_voxel_surface( volume, surface_extraction, &voxel_index,
+                            surface_extraction->n_voxels_with_surface == 0) )
         {
             ++n_voxels_done;
-
-            status = set_voxel_flag( volume, &surface_extraction->voxels_done,
-                                     &voxel_index );
+            ++surface_extraction->n_voxels_with_surface;
 
             if( status == OK )
             {
                 status = delete_edge_points_no_longer_needed( 
                              volume, &voxel_index,
-                             &surface_extraction->voxels_done,
+                             surface_extraction->voxel_done_flags,
                              &surface_extraction->edge_points );
             }
 
@@ -323,15 +334,17 @@ private  void  possibly_output( p )
 }
 
 private  Status  delete_edge_points_no_longer_needed( volume, voxel_index,
-                                                      voxels_done, edge_points )
+                                                      voxel_done_flags,
+                                                      edge_points )
     volume_struct       *volume;
     voxel_index_struct  *voxel_index;
-    bitlist_struct      *voxels_done;
+    unsigned_byte       voxel_done_flags[];
     hash_table_struct   *edge_points;
 {
     Status              status;
     int                 axis_index, a1, a2;
     int                 x, y, dx, dy, dz;
+    unsigned_byte       get_voxel_done_flag();
     Boolean             all_four_done;
     Boolean             voxel_done[3][3][3];
     voxel_index_struct  indices;
@@ -351,7 +364,8 @@ private  Status  delete_edge_points_no_longer_needed( volume, voxel_index,
 
                 if( !cube_is_within_volume( volume, indices.i[X_AXIS],
                              indices.i[Y_AXIS], indices.i[Z_AXIS] ) ||
-                    get_voxel_flag( volume, voxels_done, &indices ) )
+                    get_voxel_done_flag( volume, voxel_done_flags, &indices )
+                    == VOXEL_COMPLETELY_DONE )
                 {
                     voxel_done[dx+1][dy+1][dz+1] = TRUE;
                 }

@@ -7,24 +7,26 @@
 
 #define  INVALID_ID   -1
 
+typedef  struct
+{
+    Boolean   checked;
+    int       id;
+} edge_point_info;
+
 public  Boolean  extract_voxel_surface( volume, surface_extraction,
-                                          voxel_index )
+                                        voxel_index, first_voxel )
     volume_struct               *volume;
     surface_extraction_struct   *surface_extraction;
     voxel_index_struct          *voxel_index;
+    Boolean                     first_voxel;
 {
-    Status                 status;
-    polygons_struct        *polygons;
-    voxel_point_type       *points_list, *pt;
+    voxel_point_type       *points_list;
     Real                   corner_values[2][2][2];
     Boolean                active;
-    Status                 create_edge_point_list();
-    int                    *sizes, n_points, current_end;
-    int                    edge_point_list[2][2][2][N_DIMENSIONS];
     Boolean                are_voxel_corners_active();
-    int                    n_polys, n_nondegenerate_polys, poly, p, next_end;
-    int                    x, y, z, pt_index;
-    int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
+    int                    n_polys, n_nondegenerate_polys;
+    int                    x, y, z, *sizes;
+    int                    extract_polygons();
 
     active = are_voxel_corners_active( volume,
                                        voxel_index->i[X_AXIS],
@@ -53,105 +55,242 @@ public  Boolean  extract_voxel_surface( volume, surface_extraction,
                            &sizes, &points_list );
     }
 
-    status = OK;
-
-    n_nondegenerate_polys = 0;
-
     if( active && n_polys > 0 )
     {
-        n_points = 0;
-        for_less( poly, 0, n_polys )
-        {
-            n_points += sizes[poly];
-        }
-
-        polygons = surface_extraction->polygons;
-
-        status = create_edge_point_list( volume,
-                                         surface_extraction->isovalue,
-                                         polygons,
-                                         &surface_extraction->edge_points,
-                                         voxel_index,
-                                         n_points, points_list,
-                                         edge_point_list );
+        n_nondegenerate_polys = extract_polygons( volume, surface_extraction,
+                      voxel_index, first_voxel, n_polys, sizes, points_list );
     }
-
-    if( status == OK )
+    else
     {
-        pt_index = 0;
-        for_less( poly, 0, n_polys )
-        {
-            int      i, j, actual_size;
-            Boolean  polygon_okay;
-
-            actual_size = 0;
-            for_less( p, 0, sizes[poly] )
-            {
-                pt = &points_list[pt_index];
-
-                point_ids[actual_size] = edge_point_list[pt->coord[X_AXIS]]
-                                                        [pt->coord[Y_AXIS]]
-                                                        [pt->coord[Z_AXIS]]
-                                                        [pt->edge_intersected];
-
-                if( point_ids[actual_size] == INVALID_ID )
-                {
-                    HANDLE_INTERNAL_ERROR( "point_id invalid" );
-                    status = ERROR;
-                }
-
-                if( actual_size == 0 ||
-                    point_ids[actual_size-1] != point_ids[actual_size] )
-                {
-                    ++actual_size;
-                }
-
-                ++pt_index;
-            }
-
-            polygon_okay = actual_size >= 3;
-
-            for_less( i, 0, actual_size-1 )
-            {
-                for_less( j, i+1, actual_size )
-                {
-                    if( point_ids[i] == point_ids[j] )
-                    {
-                        polygon_okay = FALSE;
-                    }
-                }
-            }
-
-            if( polygon_okay )
-            {
-                if( status == OK )
-                {
-                    current_end = NUMBER_INDICES( *polygons );
-                    next_end = current_end + actual_size;
-
-                    CHECK_ALLOC1( status, polygons->indices,
-                                  current_end,
-                                  next_end, int, DEFAULT_CHUNK_SIZE );
-
-                    for_less( p, 0, actual_size )
-                    {
-                        polygons->indices[current_end+p] = point_ids[p];
-                    }
-                }
-
-                if( status == OK )
-                {
-                    ADD_ELEMENT_TO_ARRAY( status, polygons->n_items,
-                                          polygons->end_indices,
-                                          next_end, int, DEFAULT_CHUNK_SIZE );
-                }
-
-                ++n_nondegenerate_polys;
-            }
-        }
+        n_nondegenerate_polys = 0;
     }
 
     return( n_nondegenerate_polys > 0 );
+}
+
+private  int  extract_polygons( volume, surface_extraction, voxel_index,
+                                first_voxel, n_polys, sizes, points_list )
+    volume_struct               *volume;
+    surface_extraction_struct   *surface_extraction;
+    voxel_index_struct          *voxel_index;
+    Boolean                     first_voxel;
+    int                         n_polys;
+    int                         sizes[];
+    voxel_point_type            points_list[];
+{
+    voxel_point_type       *pt, *poly_points;
+    voxel_index_struct     corner_index;
+    int                    id, next_index;
+    edge_point_info        edge_point_list[2][2][2][N_DIMENSIONS];
+    int                    n_nondegenerate_polys, poly, p;
+    int                    x, y, z, axis;
+    int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
+    Boolean                changed, connected;
+    unsigned_byte          all_done_value, voxel_flags;
+    unsigned_byte          get_voxel_done_flag();
+    Status                 set_voxel_done_flag();
+
+    for_less( x, 0, 2 )
+    {
+        for_less( y, 0, 2 )
+        {
+            for_less( z, 0, 2 )
+            {
+                for_less( axis, 0, N_DIMENSIONS )
+                {
+                    edge_point_list[x][y][z][axis].checked = FALSE;
+                }
+            }
+        }
+    }
+
+    voxel_flags = get_voxel_done_flag( volume,
+                                       surface_extraction->voxel_done_flags,
+                                       voxel_index );
+
+    n_nondegenerate_polys = 0;
+    all_done_value = (VOXEL_COMPLETELY_DONE >> (4 - n_polys));
+
+    do
+    {
+        changed = FALSE;
+
+        poly_points = points_list;
+        for_less( poly, 0, n_polys )
+        {
+            if( (voxel_flags & (1 << poly)) == 0 )
+            {
+            for_less( p, 0, sizes[poly] )
+            {
+                pt = &poly_points[p];
+
+                if( !edge_point_list[pt->coord[X_AXIS]]
+                                    [pt->coord[Y_AXIS]]
+                                    [pt->coord[Z_AXIS]]
+                                    [pt->edge_intersected].checked )
+                {
+                    corner_index.i[X_AXIS] = voxel_index->i[X_AXIS] +
+                                             pt->coord[X_AXIS];
+                    corner_index.i[Y_AXIS] = voxel_index->i[Y_AXIS] +
+                                             pt->coord[Y_AXIS];
+                    corner_index.i[Z_AXIS] = voxel_index->i[Z_AXIS] +
+                                             pt->coord[Z_AXIS];
+
+                    if( !lookup_edge_point_id( volume,
+                                    &surface_extraction->edge_points,
+                                    &corner_index,
+                                    pt->edge_intersected, &id ) )
+                    {
+                        id = INVALID_ID;
+                    }
+
+                    edge_point_list[pt->coord[X_AXIS]]
+                                   [pt->coord[Y_AXIS]]
+                                   [pt->coord[Z_AXIS]]
+                                   [pt->edge_intersected].id = id;
+                }
+
+                point_ids[p] = edge_point_list[pt->coord[X_AXIS]]
+                                              [pt->coord[Y_AXIS]]
+                                              [pt->coord[Z_AXIS]]
+                                              [pt->edge_intersected].id;
+            }
+
+            connected = first_voxel;
+
+            for_less( p, 0, sizes[poly] )
+            {
+                next_index = (p + 1) % sizes[poly];
+
+                if( point_ids[p] != INVALID_ID &&
+                    point_ids[next_index] != INVALID_ID )
+                {
+                    connected = TRUE;
+                    break;
+                }
+            }
+
+            if( connected )
+            {
+                if( add_polygon_to_list( volume, surface_extraction,
+                                         voxel_index,
+                                         sizes[poly], poly_points,
+                                         edge_point_list ) )
+                {
+                    ++n_nondegenerate_polys;
+                }
+                changed = TRUE;
+                voxel_flags |= (1 << poly);
+            }
+            }
+            poly_points += sizes[poly];
+        }
+    }
+    while( changed && voxel_flags != all_done_value );
+
+    if( voxel_flags == all_done_value )
+    {
+        voxel_flags = VOXEL_COMPLETELY_DONE;
+    }
+
+    (void) set_voxel_done_flag( volume, surface_extraction->voxel_done_flags,
+                                voxel_index, voxel_flags );
+
+    return( n_nondegenerate_polys > 0 );
+}
+
+private  int  add_polygon_to_list( volume, surface_extraction, voxel_index,
+                                   size, points_list, edge_point_list )
+    volume_struct               *volume;
+    surface_extraction_struct   *surface_extraction;
+    voxel_index_struct          *voxel_index;
+    int                         size;
+    voxel_point_type            points_list[];
+    edge_point_info             edge_point_list[2][2][2][N_DIMENSIONS];
+{
+    Status                 status;
+    Status                 add_point_id_to_relevant_edges();
+    polygons_struct        *polygons;
+    voxel_point_type       *pt;
+    voxel_index_struct     corner_index;
+    int                    current_end, next_index, p, next_end, actual_size;
+    int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
+    Boolean                non_degenerate;
+    Point_classes          pt_class;
+
+    status = OK;
+
+    if( size < 3 )
+    {
+        HANDLE_INTERNAL_ERROR( "Size" );
+    }
+
+    polygons = surface_extraction->polygons;
+
+    for_less( p, 0, size )
+    {
+        pt = &points_list[p];
+
+        point_ids[p] = edge_point_list[pt->coord[X_AXIS]]
+                                      [pt->coord[Y_AXIS]]
+                                      [pt->coord[Z_AXIS]]
+                                      [pt->edge_intersected].id;
+
+        if( point_ids[p] == INVALID_ID )
+        {
+            corner_index.i[X_AXIS] = voxel_index->i[X_AXIS] + pt->coord[X_AXIS];
+            corner_index.i[Y_AXIS] = voxel_index->i[Y_AXIS] + pt->coord[Y_AXIS];
+            corner_index.i[Z_AXIS] = voxel_index->i[Z_AXIS] + pt->coord[Z_AXIS];
+
+            point_ids[p] = create_point( volume, surface_extraction->isovalue,
+                                         polygons, &corner_index,
+                                         pt->edge_intersected, &pt_class );
+
+            if( status == OK )
+            {
+                status = add_point_id_to_relevant_edges( volume, pt,
+                           &corner_index, point_ids[p], pt_class,
+                           edge_point_list, &surface_extraction->edge_points );
+            }
+        }
+    }
+
+    actual_size = 0;
+
+    for_less( p, 0, size )
+    {
+        next_index = (p + 1) % size;
+        if( point_ids[p] != point_ids[next_index] )
+        {
+            point_ids[actual_size] = point_ids[p];
+            ++actual_size;
+        }
+    }
+
+    non_degenerate = (actual_size >= 3);
+
+    if( non_degenerate )
+    {
+        current_end = NUMBER_INDICES( *polygons );
+        next_end = current_end + actual_size;
+
+        CHECK_ALLOC1( status, polygons->indices, current_end,
+                      next_end, int, DEFAULT_CHUNK_SIZE );
+
+        if( status == OK )
+        {
+            for_less( p, 0, actual_size )
+            {
+                polygons->indices[current_end+p] = point_ids[p];
+            }
+
+            ADD_ELEMENT_TO_ARRAY( status, polygons->n_items,
+                                  polygons->end_indices,
+                                  next_end, int, DEFAULT_CHUNK_SIZE );
+        }
+    }
+
+    return( non_degenerate );
 }
 
 private  int   create_point( volume, isovalue, polygons, voxel,
@@ -400,80 +539,6 @@ private  int   create_point( volume, isovalue, polygons, voxel,
     return( pt_index );
 }
 
-private  Status  create_edge_point_list( volume, isovalue, polygons,
-                                         edge_points, voxel_index,
-                                         n_points, points_list,
-                                         edge_point_list )
-    volume_struct          *volume;
-    Real                   isovalue;
-    polygons_struct        *polygons;
-    hash_table_struct      *edge_points;
-    voxel_index_struct     *voxel_index;
-    int                    n_points;
-    voxel_point_type       *points_list;
-    int                    edge_point_list[2][2][2][N_DIMENSIONS];
-{
-    Status                 status;
-    Status                 add_point_id_to_relevant_edges();
-    int                    x, y, z, axis, p, id;
-    voxel_point_type       *pt;
-    voxel_index_struct     corner_index;
-    Boolean                lookup_edge_point_id();
-    Point_classes          pt_class;
-
-    status = OK;
-
-    for_less( x, 0, 2 )
-    {
-        for_less( y, 0, 2 )
-        {
-            for_less( z, 0, 2 )
-            {
-                for_less( axis, 0, N_DIMENSIONS )
-                {
-                    edge_point_list[x][y][z][axis] = INVALID_ID;
-                }
-            }
-        }
-    }
-
-    for_less( p, 0, n_points )
-    {
-        pt = &points_list[p];
-
-        if( edge_point_list[pt->coord[X_AXIS]]
-                           [pt->coord[Y_AXIS]]
-                           [pt->coord[Z_AXIS]]
-                           [pt->edge_intersected] == INVALID_ID )
-        {
-            corner_index.i[X_AXIS] = voxel_index->i[X_AXIS] + pt->coord[X_AXIS];
-            corner_index.i[Y_AXIS] = voxel_index->i[Y_AXIS] + pt->coord[Y_AXIS];
-            corner_index.i[Z_AXIS] = voxel_index->i[Z_AXIS] + pt->coord[Z_AXIS];
-
-            if( lookup_edge_point_id( volume, edge_points,
-                                       &corner_index,
-                                       pt->edge_intersected, &id ) )
-            {
-                edge_point_list[pt->coord[X_AXIS]]
-                               [pt->coord[Y_AXIS]]
-                               [pt->coord[Z_AXIS]]
-                               [pt->edge_intersected] = id;
-            }
-            else
-            {
-                id = create_point( volume, isovalue, polygons, &corner_index,
-                                   pt->edge_intersected, &pt_class );
-
-                status = add_point_id_to_relevant_edges( volume, pt,
-                           &corner_index, id, pt_class,
-                           edge_point_list, edge_points );
-            }
-        }
-    }
-
-    return( status );
-}
-
 private  Status  add_point_id_to_relevant_edges( volume, edge_info, pt_index,
                                                  pt_id, pt_class,
                                                  edge_point_list, edge_points )
@@ -482,7 +547,7 @@ private  Status  add_point_id_to_relevant_edges( volume, edge_info, pt_index,
     voxel_index_struct  *pt_index;
     int                 pt_id;
     Point_classes       pt_class;
-    int                 edge_point_list[2][2][2][N_DIMENSIONS];
+    edge_point_info     edge_point_list[2][2][2][N_DIMENSIONS];
     hash_table_struct   *edge_points;
 {
     Status              status;
@@ -524,7 +589,11 @@ private  Status  add_point_id_to_relevant_edges( volume, edge_info, pt_index,
                 edge_point_list[cache_pt[X_AXIS]]
                                [cache_pt[Y_AXIS]]
                                [cache_pt[Z_AXIS]]
-                               [axis] = pt_id;
+                               [axis].checked = TRUE;
+                edge_point_list[cache_pt[X_AXIS]]
+                               [cache_pt[Y_AXIS]]
+                               [cache_pt[Z_AXIS]]
+                               [axis].id = pt_id;
                 ++cache_pt[axis];
             }
 
@@ -534,7 +603,11 @@ private  Status  add_point_id_to_relevant_edges( volume, edge_info, pt_index,
             edge_point_list[cache_pt[X_AXIS]]
                            [cache_pt[Y_AXIS]]
                            [cache_pt[Z_AXIS]]
-                           [axis] = pt_id;
+                           [axis].checked = TRUE;
+            edge_point_list[cache_pt[X_AXIS]]
+                           [cache_pt[Y_AXIS]]
+                           [cache_pt[Z_AXIS]]
+                           [axis].id = pt_id;
         }
     }
     else
@@ -546,7 +619,11 @@ private  Status  add_point_id_to_relevant_edges( volume, edge_info, pt_index,
         edge_point_list[edge_info->coord[X_AXIS]]
                        [edge_info->coord[Y_AXIS]]
                        [edge_info->coord[Z_AXIS]]
-                       [edge_info->edge_intersected] = pt_id;
+                       [edge_info->edge_intersected].checked = TRUE;
+        edge_point_list[edge_info->coord[X_AXIS]]
+                       [edge_info->coord[Y_AXIS]]
+                       [edge_info->coord[Z_AXIS]]
+                       [edge_info->edge_intersected].id = pt_id;
     }
 
     return( status );

@@ -49,12 +49,15 @@ private  Status  clear_surface_extraction( graphics )
     Status                      initialize_edge_points();
     void                        initialize_voxel_queue();
     void                        clear_voxel_flags();
+    void                        clear_voxel_done_flags();
     surface_extraction_struct   *surface_extraction;
+    volume_struct               *volume;
 
     surface_extraction = &graphics->three_d.surface_extraction;
 
     surface_extraction->extraction_in_progress = FALSE;
     surface_extraction->isovalue_selected = FALSE;
+    surface_extraction->n_voxels_with_surface = 0;
 
     status = initialize_edge_points( &surface_extraction->edge_points );
 
@@ -62,13 +65,22 @@ private  Status  clear_surface_extraction( graphics )
     {
         initialize_voxel_queue( &surface_extraction->voxels_to_do );
 
-        empty_polygons_struct( surface_extraction->polygons,
-                               &Extracted_surface_colour,
-                               &Default_surface_property );
+        empty_polygons_struct( surface_extraction->polygons );
+
+        surface_extraction->polygons->colour = Extracted_surface_colour;
+        surface_extraction->polygons->surfprop = Default_surface_property;
 
         clear_voxel_flags( &surface_extraction->voxels_queued );
 
-        clear_voxel_flags( &surface_extraction->voxels_done );
+        if( get_slice_window_volume( graphics, &volume ) )
+        {
+            clear_voxel_done_flags( surface_extraction->voxel_done_flags,
+                                    get_n_voxels(volume) );
+        }
+        else
+        {
+            surface_extraction->voxel_done_flags = (unsigned_byte *) 0;
+        }
     }
 
     return( status );
@@ -99,6 +111,7 @@ public  Status  delete_surface_extraction( graphics )
 {
     Status                      status;
     Status                      delete_voxel_flags();
+    Status                      delete_voxel_done_flags();
     surface_extraction_struct   *surface_extraction;
 
     surface_extraction = &graphics->three_d.surface_extraction;
@@ -107,7 +120,7 @@ public  Status  delete_surface_extraction( graphics )
 
     if( status == OK )
     {
-        status = delete_voxel_flags( &surface_extraction->voxels_done );
+        status = delete_voxel_done_flags( surface_extraction->voxel_done_flags);
     }
 
     if( status == OK )
@@ -160,6 +173,18 @@ public  void  check_if_isosurface_value_set( surface_extraction )
     {
         set_isosurface_value( surface_extraction );
     }
+}
+
+public  Boolean  get_isosurface_value( graphics, value )
+    graphics_struct    *graphics;
+    Real               *value;
+{
+    if( graphics->three_d.surface_extraction.isovalue_selected )
+    {
+        *value = graphics->three_d.surface_extraction.isovalue;
+    }
+
+    return( graphics->three_d.surface_extraction.isovalue_selected );
 }
 
 public  void  start_surface_extraction( graphics )

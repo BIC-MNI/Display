@@ -2,6 +2,7 @@
 #include  <def_graphics.h>
 #include  <def_globals.h>
 #include  <def_bitlist.h>
+#include  <def_alloc.h>
 
 /* ------------------ Voxel queue ------------------------ */
 
@@ -114,6 +115,96 @@ public  Status  reset_voxel_flag( volume, voxel_flags, indices )
     return( OK );
 }
 
+/* ------------------ Voxel done flags, 4 bit flag structure --------------- */
+
+public  Status  initialize_voxel_done_flags( voxel_done_flags, n_voxels )
+    unsigned_byte   **voxel_done_flags;
+    int             n_voxels;
+{
+    Status   status;
+    void     clear_voxel_done_flags();
+
+    CALLOC1( status, *voxel_done_flags, n_voxels / 2, unsigned_byte );
+
+    if( status == OK )
+    {
+        clear_voxel_done_flags( *voxel_done_flags, n_voxels );
+    }
+
+    return( status );
+}
+
+public  Status  delete_voxel_done_flags( voxel_done_flags )
+    unsigned_byte  voxel_done_flags[];
+{
+    Status   status;
+
+    status = OK;
+
+    if( voxel_done_flags != (unsigned_byte *) 0 )
+    {
+        FREE1( status, voxel_done_flags );
+    }
+
+    return( status );
+}
+
+public  void  clear_voxel_done_flags( voxel_done_flags, n_voxels )
+    unsigned_byte   voxel_done_flags[];
+    int             n_voxels;
+{
+    int   i;
+
+    for_less( i, 0, n_voxels/2 )
+    {
+        voxel_done_flags[i] = 0;
+    }
+}
+
+public  unsigned_byte  get_voxel_done_flag( volume, voxel_done_flags, indices )
+    volume_struct       *volume;
+    unsigned_byte       voxel_done_flags[];
+    voxel_index_struct  *indices;
+{
+    int            index, byte_index;
+    unsigned_byte  flag;
+
+    index = ijk( indices->i[X_AXIS], indices->i[Y_AXIS], indices->i[Z_AXIS],
+                 volume->size[Y_AXIS]-1, volume->size[Z_AXIS]-1 );
+
+    byte_index = index >> 1;
+
+    if( index & 1 )
+        flag = voxel_done_flags[byte_index] >> 4;
+    else
+        flag = voxel_done_flags[byte_index] & 15;
+
+    return( flag );
+}
+
+public  Status  set_voxel_done_flag( volume, voxel_done_flags, indices, flag )
+    volume_struct       *volume;
+    unsigned_byte       voxel_done_flags[];
+    voxel_index_struct  *indices;
+    unsigned_byte       flag;
+{
+    int            index, byte_index;
+
+    index = ijk( indices->i[X_AXIS], indices->i[Y_AXIS], indices->i[Z_AXIS],
+                 volume->size[Y_AXIS]-1, volume->size[Z_AXIS]-1 );
+
+    byte_index = index >> 1;
+
+    if( index & 1 )
+        voxel_done_flags[byte_index] = (voxel_done_flags[byte_index] & 15) |
+                                       (flag << 4);
+    else
+        voxel_done_flags[byte_index] = (voxel_done_flags[byte_index] & 240) |
+                                       flag;
+
+    return( OK );
+}
+
 /* ----------------- edge points, hash table lookup ------------- */
 
 #define  INITIAL_SIZE         1000
@@ -204,7 +295,6 @@ public  Status  record_edge_point_id( volume, hash_table,
     int                 edge_intersected;
     int                 edge_point_id;
 {
-    static   int   current_size = 0;
     Status               status;
     int                  keys[2];
     edge_point_struct    *edge_info;
@@ -220,11 +310,17 @@ public  Status  record_edge_point_id( volume, hash_table,
         status = insert_in_hash_table( hash_table, keys, (char *) edge_info );
     }
 
+#ifdef STATS
+{
+    static   int   current_size = 0;
+
     if( hash_table->n_entries / LEVEL != current_size )
     {
         PRINT( "Edge table %d\n", hash_table->n_entries );
         current_size = hash_table->n_entries / LEVEL;
     }
+}
+#endif
 
     return( status );
 }

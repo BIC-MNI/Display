@@ -150,7 +150,7 @@ public  void  generate_activity_from_point( graphics, x, y, z )
 
         if( find_close_voxel_containing_value(
                   graphics->associated[SLICE_WINDOW]->slice.volume,
-                  &graphics->three_d.surface_extraction.voxels_done,
+                  graphics->three_d.surface_extraction.voxel_done_flags,
                   graphics->three_d.surface_extraction.isovalue,
                   x, y, z, &voxel_indices ) )
         {

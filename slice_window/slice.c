@@ -9,10 +9,18 @@ public  Status  initialize_slice_window( graphics )
     Status  initialize_slice_models();
     Status  initialize_colour_coding();
     void    initialize_slice_window_events();
+    int     c;
 
     graphics->slice.volume = (volume_struct *) 0;
 
+    graphics->slice.temporary_indices_alloced = 0;
+
     initialize_slice_window_events( graphics );
+
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        graphics->slice.slice_views[c].update_flag = TRUE;
+    }
 
     status = initialize_slice_models( graphics );
 
@@ -30,6 +38,7 @@ public  Status  set_slice_window_volume( graphics, volume )
 {
     Status           status;
     Status           initialize_voxel_flags();
+    Status           initialize_voxel_done_flags();
     Status           update_cursor_size();
     int              c, x_index, y_index;
     Real             factor, min_thickness, max_thickness;
@@ -95,9 +104,10 @@ public  Status  set_slice_window_volume( graphics, volume )
 
     if( status == OK )
     {
-        status = initialize_voxel_flags( &graphics->associated[THREE_D_WINDOW]
-                                     ->three_d.surface_extraction.voxels_done,
-                                     get_n_voxels(graphics->slice.volume) );
+        status = initialize_voxel_done_flags(
+                   &graphics->associated[THREE_D_WINDOW]
+                    ->three_d.surface_extraction.voxel_done_flags,
+                    get_n_voxels(graphics->slice.volume) );
     }
 
     return( status );
@@ -131,6 +141,11 @@ public  Status  delete_slice_window( slice_window )
     Status   delete_colour_coding();
 
     status = delete_colour_coding( &slice_window->colour_coding );
+
+    if( status == OK && slice_window->temporary_indices_alloced > 0 )
+    {
+        FREE1( status, slice_window->temporary_indices );
+    }
 
     return( status );
 }
@@ -545,7 +560,7 @@ public  Boolean  set_current_voxel( slice_window, x, y, z )
 {
     Boolean           changed;
     int               axis, indices[N_DIMENSIONS];
-    void              rebuild_slice_pixels();
+    void              set_slice_window_update();
 
     indices[X_AXIS] = x;
     indices[Y_AXIS] = y;
@@ -561,7 +576,7 @@ public  Boolean  set_current_voxel( slice_window, x, y, z )
             slice_window->slice.slice_views[axis].slice_index =
                                                          indices[axis];
 
-            rebuild_slice_pixels( slice_window, axis );
+            set_slice_window_update( slice_window, axis );
 
             changed = TRUE;
         }
@@ -661,4 +676,27 @@ public  Boolean  update_voxel_from_cursor( slice_window )
     }
 
     return( changed );
+}
+
+public  void  set_slice_window_update( graphics, view_index )
+    graphics_struct  *graphics;
+    int              view_index;
+{
+    graphics->slice.slice_views[view_index].update_flag = TRUE;
+}
+
+public  void  update_slice_window( graphics )
+    graphics_struct  *graphics;
+{
+    int   c;
+    void  rebuild_slice_pixels();
+
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        if( graphics->slice.slice_views[c].update_flag )
+        {
+            rebuild_slice_pixels( graphics, c );
+            graphics->slice.slice_views[c].update_flag = FALSE;
+        }
+    }
 }
