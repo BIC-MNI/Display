@@ -10,7 +10,7 @@
 	smr_CHECK_LIB macro in acinclude.m4.
 
 	* configure.in: Use new macros.  Check for glut, GLU, and GL
-	libraries.
+	libraries.  Add AM_CONFIG_HEADER.
 
 	* Makefile.am: Link Display using GL_LIBS.
 
