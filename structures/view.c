@@ -52,6 +52,15 @@ public  void  assign_view_direction( view, line_of_sight, hor )
     NORMALIZE_VECTOR( view->x_axis, view->x_axis );
 }
 
+public  void  get_view_z_axis( view, z_axis )
+    view_struct   *view;
+    Vector        *z_axis;
+{
+    Vector_x(*z_axis) = - Vector_x(view->line_of_sight);
+    Vector_y(*z_axis) = - Vector_y(view->line_of_sight);
+    Vector_z(*z_axis) = - Vector_z(view->line_of_sight);
+}
+
 public  void  adjust_view_for_aspect( view, window )
     view_struct    *view;
     window_struct  *window;
