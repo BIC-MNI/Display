@@ -37,6 +37,7 @@ public  DEF_MENU_FUNCTION( advance_slice )   /* ARGSUSED */
 {
     volume_struct   *volume;
     void            rebuild_selected_list();
+    void            set_update_required();
 
     if( get_current_volume(graphics,&volume) )
     {
@@ -51,7 +52,7 @@ public  DEF_MENU_FUNCTION( advance_slice )   /* ARGSUSED */
         rebuild_selected_list( graphics, menu_window );
     }
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -65,6 +66,7 @@ public  DEF_MENU_FUNCTION( retreat_slice )   /* ARGSUSED */
 {
     volume_struct   *volume;
     void            rebuild_selected_list();
+    void            set_update_required();
 
     if( get_current_volume(graphics,&volume) )
     {
@@ -79,7 +81,7 @@ public  DEF_MENU_FUNCTION( retreat_slice )   /* ARGSUSED */
         rebuild_selected_list( graphics, menu_window );
     }
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -94,6 +96,7 @@ public  DEF_MENU_FUNCTION(set_slice_transform )   /* ARGSUSED */
     volume_struct   *volume;
     Real            degrees, x_offset, y_offset;
     void            create_2d_transform();
+    void            set_update_required();
 
     if( get_current_volume(graphics,&volume) )
     {
@@ -106,7 +109,7 @@ public  DEF_MENU_FUNCTION(set_slice_transform )   /* ARGSUSED */
         }
     }
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -147,6 +150,7 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
     graphics_struct  *slice_window;
     Status           set_slice_window_volume();
     void             rebuild_slice_models();
+    void             set_update_required();
 
     status = OK;
 
@@ -168,7 +172,7 @@ public  DEF_MENU_FUNCTION(open_slice_window )   /* ARGSUSED */
 
             rebuild_slice_models( slice_window );
 
-            slice_window->update_required = TRUE;
+            set_update_required( slice_window, NORMAL_PLANES );
         }
     }
 
@@ -228,11 +232,12 @@ public  DEF_MENU_FUNCTION(toggle_surface_extraction)   /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_surface_extraction )   /* ARGSUSED */
 {
     void  set_text_on_off();
+    void  set_update_required();
 
     set_text_on_off( format, text,
               graphics->three_d.surface_extraction.extraction_in_progress );
 
-    menu_window->update_required = TRUE;
+    set_update_required( menu_window, NORMAL_PLANES );
 
     return( OK );
 }
@@ -242,6 +247,7 @@ public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
     Status         status;
     Status         reset_surface_extraction();
     volume_struct  *volume;
+    void           set_update_required();
 
     status = OK;
 
@@ -249,7 +255,7 @@ public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
     {
         status = reset_surface_extraction( graphics );
 
-        graphics->update_required = TRUE;
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( status );
@@ -269,7 +275,8 @@ public  DEF_MENU_FUNCTION(double_slice_voxels)   /* ARGSUSED */
     int              x, y, axis_index;
     void             get_mouse_in_pixels();
     Boolean          find_slice_view_mouse_is_in();
-    void             rebuild_slice_pixels();
+    void             set_slice_window_update();
+    void             set_update_required();
 
     status = OK;
 
@@ -285,8 +292,8 @@ public  DEF_MENU_FUNCTION(double_slice_voxels)   /* ARGSUSED */
         {
             slice_window->slice.slice_views[axis_index].x_scale *= 2.0;
             slice_window->slice.slice_views[axis_index].y_scale *= 2.0;
-            rebuild_slice_pixels( slice_window, axis_index );
-            slice_window->update_required = TRUE;
+            set_slice_window_update( slice_window, axis_index );
+            set_update_required( slice_window, NORMAL_PLANES );
         }
     }
 
@@ -307,7 +314,8 @@ public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
     int              x, y, axis_index;
     void             get_mouse_in_pixels();
     Boolean          find_slice_view_mouse_is_in();
-    void             rebuild_slice_pixels();
+    void             set_slice_window_update();
+    void             set_update_required();
 
     status = OK;
 
@@ -323,8 +331,8 @@ public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
         {
             slice_window->slice.slice_views[axis_index].x_scale *= 0.5;
             slice_window->slice.slice_views[axis_index].y_scale *= 0.5;
-            rebuild_slice_pixels( slice_window, axis_index );
-            slice_window->update_required = TRUE;
+            set_slice_window_update( slice_window, axis_index );
+            set_update_required( slice_window, NORMAL_PLANES );
         }
     }
 
@@ -342,7 +350,8 @@ public  DEF_MENU_FUNCTION(turn_voxel_on)   /* ARGSUSED */
     graphics_struct  *slice_window;
     int              x, y, z, axis_index;
     void             set_voxel_inactivity();
-    void             rebuild_slice_pixels();
+    void             set_slice_window_update();
+    void             set_update_required();
 
     status = OK;
 
@@ -352,9 +361,9 @@ public  DEF_MENU_FUNCTION(turn_voxel_on)   /* ARGSUSED */
 
         set_voxel_inactivity( slice_window->slice.volume, x, y, z, FALSE );
 
-        rebuild_slice_pixels( slice_window, axis_index );
+        set_slice_window_update( slice_window, axis_index );
 
-        slice_window->update_required = TRUE;
+        set_update_required( slice_window, NORMAL_PLANES );
     }
 
     return( status );
@@ -370,8 +379,9 @@ public  DEF_MENU_FUNCTION(turn_voxel_off)   /* ARGSUSED */
     Status           status;
     int              x, y, z, axis_index;
     void             set_voxel_inactivity();
-    void             rebuild_slice_pixels();
+    void             set_slice_window_update();
     graphics_struct  *slice_window;
+    void             set_update_required();
 
     status = OK;
 
@@ -381,9 +391,9 @@ public  DEF_MENU_FUNCTION(turn_voxel_off)   /* ARGSUSED */
 
         set_voxel_inactivity( slice_window->slice.volume, x, y, z, TRUE );
 
-        rebuild_slice_pixels( slice_window, axis_index );
+        set_slice_window_update( slice_window, axis_index );
 
-        slice_window->update_required = TRUE;
+        set_update_required( slice_window, NORMAL_PLANES );
     }
 
     return( status );
@@ -447,6 +457,7 @@ public  DEF_MENU_FUNCTION(load_inactive_voxels)   /* ARGSUSED */
     volume_struct    *volume;
     String           filename;
     void             rebuild_slice_models();
+    void             set_update_required();
 
     status = OK;
 
@@ -474,7 +485,8 @@ public  DEF_MENU_FUNCTION(load_inactive_voxels)   /* ARGSUSED */
         {
             rebuild_slice_models( graphics->associated[SLICE_WINDOW] );
 
-            graphics->associated[SLICE_WINDOW]->update_required = TRUE;
+            set_update_required( graphics->associated[SLICE_WINDOW],
+                                 NORMAL_PLANES );
         }
 
         PRINT( "Done\n" );
@@ -541,6 +553,7 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
     volume_struct    *volume;
     String           filename;
     void             rebuild_slice_models();
+    void             set_update_required();
 
     status = OK;
 
@@ -568,7 +581,8 @@ public  DEF_MENU_FUNCTION(load_active_voxels)   /* ARGSUSED */
         {
             rebuild_slice_models( graphics->associated[SLICE_WINDOW] );
 
-            graphics->associated[SLICE_WINDOW]->update_required = TRUE;
+            set_update_required( graphics->associated[SLICE_WINDOW],
+                                 NORMAL_PLANES );
         }
 
         PRINT( "Done\n" );
@@ -589,6 +603,7 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
     graphics_struct  *slice_window;
     void             rebuild_slice_models();
     void             set_colour_coding_range();
+    void             set_update_required();
 
     if( get_current_volume(graphics,&volume) )
     {
@@ -612,7 +627,7 @@ public  DEF_MENU_FUNCTION(set_colour_limits )   /* ARGSUSED */
 
             rebuild_slice_models( slice_window );
 
-            slice_window->update_required = TRUE;
+            set_update_required( slice_window, NORMAL_PLANES );
         }
     }
 
@@ -630,6 +645,7 @@ public  DEF_MENU_FUNCTION(reset_inactivities)   /* ARGSUSED */
     void             set_all_voxel_inactivities();
     void             rebuild_slice_models();
     graphics_struct  *slice_window;
+    void             set_update_required();
 
     if( get_current_volume( graphics, &volume ) )
     {
@@ -639,7 +655,7 @@ public  DEF_MENU_FUNCTION(reset_inactivities)   /* ARGSUSED */
 
         rebuild_slice_models( slice_window );
 
-        slice_window->update_required = TRUE;
+        set_update_required( slice_window, NORMAL_PLANES );
     }
 
     return( OK );
@@ -656,6 +672,7 @@ public  DEF_MENU_FUNCTION(reset_activities)   /* ARGSUSED */
     void             set_all_voxel_activities();
     void             rebuild_slice_models();
     graphics_struct  *slice_window;
+    void             set_update_required();
 
     if( get_current_volume( graphics, &volume ) )
     {
@@ -665,7 +682,7 @@ public  DEF_MENU_FUNCTION(reset_activities)   /* ARGSUSED */
 
         rebuild_slice_models( slice_window );
 
-        slice_window->update_required = TRUE;
+        set_update_required( slice_window, NORMAL_PLANES );
     }
 
     return( OK );
@@ -683,6 +700,7 @@ public  DEF_MENU_FUNCTION(generate_activities )   /* ARGSUSED */
     void             generate_activity_from_point();
     volume_struct    *volume;
     graphics_struct  *slice_window;
+    void             set_update_required();
 
     if( get_current_volume( graphics, &volume ) )
     {
@@ -696,7 +714,7 @@ public  DEF_MENU_FUNCTION(generate_activities )   /* ARGSUSED */
 
             rebuild_slice_models( slice_window );
 
-            slice_window->update_required = TRUE;
+            set_update_required( slice_window, NORMAL_PLANES );
         }
     }
 
@@ -729,6 +747,7 @@ public  DEF_MENU_FUNCTION(turn_slice_on)   /* ARGSUSED */
     graphics_struct  *slice_window;
     int              indices[N_DIMENSIONS], axis_index;
     void             rebuild_slice_models();
+    void             set_update_required();
 
     if( get_current_volume( graphics, &volume ) &&
         get_voxel_under_mouse( graphics, &indices[X_AXIS], &indices[Y_AXIS],
@@ -740,7 +759,7 @@ public  DEF_MENU_FUNCTION(turn_slice_on)   /* ARGSUSED */
 
         rebuild_slice_models( slice_window );
 
-        slice_window->update_required = TRUE;
+        set_update_required( slice_window, NORMAL_PLANES );
     }
 
     return( OK );
@@ -758,6 +777,7 @@ public  DEF_MENU_FUNCTION(turn_slice_off)   /* ARGSUSED */
     graphics_struct  *slice_window;
     int              indices[N_DIMENSIONS], axis_index;
     void             rebuild_slice_models();
+    void             set_update_required();
 
     if( get_current_volume( graphics, &volume ) &&
         get_voxel_under_mouse( graphics, &indices[X_AXIS], &indices[Y_AXIS],
@@ -769,7 +789,7 @@ public  DEF_MENU_FUNCTION(turn_slice_off)   /* ARGSUSED */
 
         rebuild_slice_models( slice_window );
 
-        slice_window->update_required = TRUE;
+        set_update_required( slice_window, NORMAL_PLANES );
     }
 
     return( OK );
@@ -787,6 +807,7 @@ public  DEF_MENU_FUNCTION(set_connected_off )   /* ARGSUSED */
     void             set_connected_slice_inactivity();
     volume_struct    *volume;
     graphics_struct  *slice_window;
+    void             set_update_required();
 
     if( get_current_volume( graphics, &volume ) &&
         get_voxel_under_mouse( graphics, &x, &y, &z, &axis_index ) )
@@ -797,7 +818,7 @@ public  DEF_MENU_FUNCTION(set_connected_off )   /* ARGSUSED */
 
         rebuild_slice_models( slice_window );
 
-        slice_window->update_required = TRUE;
+        set_update_required( slice_window, NORMAL_PLANES );
     }
 
     return( OK );
@@ -815,6 +836,7 @@ public  DEF_MENU_FUNCTION(set_connected_on )   /* ARGSUSED */
     void             set_connected_slice_inactivity();
     volume_struct    *volume;
     graphics_struct  *slice_window;
+    void             set_update_required();
 
     if( get_current_volume( graphics, &volume ) &&
         get_voxel_under_mouse( graphics, &x, &y, &z, &axis_index ) )
@@ -825,7 +847,7 @@ public  DEF_MENU_FUNCTION(set_connected_on )   /* ARGSUSED */
 
         rebuild_slice_models( slice_window );
 
-        slice_window->update_required = TRUE;
+        set_update_required( slice_window, NORMAL_PLANES );
     }
 
     return( OK );
@@ -845,6 +867,7 @@ public  DEF_MENU_FUNCTION(generate_slice_activities )   /* ARGSUSED */
     graphics_struct             *slice_window;
     void                        set_isosurface_value();
     surface_extraction_struct   *surface_extraction;
+    void                        set_update_required();
 
     if( get_current_volume( graphics, &volume ) &&
         get_voxel_under_mouse( graphics, &indices[X_AXIS], &indices[Y_AXIS],
@@ -864,7 +887,7 @@ public  DEF_MENU_FUNCTION(generate_slice_activities )   /* ARGSUSED */
 
         rebuild_slice_models( slice_window );
 
-        slice_window->update_required = TRUE;
+        set_update_required( slice_window, NORMAL_PLANES );
     }
 
     return( OK );

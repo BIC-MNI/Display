@@ -47,12 +47,13 @@ private  DEF_EVENT_FUNCTION( update_probe )
 {
     void     rebuild_probe();
     Boolean  mouse_moved();
+    void     set_update_required();
 
     if( mouse_moved( graphics ) )
     {
         rebuild_probe( graphics );
 
-        graphics->update_required = TRUE;
+        set_update_required( graphics, NORMAL_PLANES );
     }
 
     return( OK );
@@ -61,7 +62,10 @@ private  DEF_EVENT_FUNCTION( update_probe )
 private  DEF_EVENT_FUNCTION( handle_redraw )
     /* ARGSUSED */
 {
-    graphics->update_required = TRUE;
+    void     set_update_required();
+
+    set_update_required( graphics, NORMAL_PLANES );
+
     return( OK );
 }
 
@@ -69,12 +73,13 @@ private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
 {
     void  update_window_size();
     void  rebuild_slice_models();
+    void  set_update_required();
 
     update_window_size( graphics );
 
     rebuild_slice_models( graphics );
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     return( OK );
 }
@@ -137,7 +142,8 @@ private  void  perform_translation( graphics )
     int        axis_index, x1, y1, x2, y2, dx, dy;
     Boolean    find_slice_view_mouse_is_in();
     void       get_mouse_in_pixels();
-    void       rebuild_slice_pixels();
+    void       set_slice_window_update();
+    void       set_update_required();
 
     get_mouse_in_pixels( graphics, &graphics->prev_mouse_position, &x1, &y1 );
 
@@ -151,10 +157,10 @@ private  void  perform_translation( graphics )
         graphics->slice.slice_views[axis_index].x_offset += dx;
         graphics->slice.slice_views[axis_index].y_offset += dy;
 
-        rebuild_slice_pixels( graphics, axis_index );
+        set_slice_window_update( graphics, axis_index );
     }
 
-    graphics->update_required = TRUE;
+    set_update_required( graphics, NORMAL_PLANES );
 
     graphics->prev_mouse_position = graphics->mouse_position;
 }
