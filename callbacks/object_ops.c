@@ -262,6 +262,8 @@ public  DEF_MENU_FUNCTION( delete_current_object )     /* ARGSUSED */
     model_struct     *current_model;
     model_struct     *get_current_model();
     Boolean          get_current_object();
+    Boolean          is_a_marker;
+    void             regenerate_voxel_labels();
     Status           status;
     void             graphics_models_have_changed();
     void             set_current_object_index();
@@ -273,6 +275,8 @@ public  DEF_MENU_FUNCTION( delete_current_object )     /* ARGSUSED */
     if( !current_object_is_top_level( graphics ) &&
         get_current_object( graphics, &object ) )
     {
+        is_a_marker = (object->object_type == MARKER);
+
         obj_index = get_current_object_index( graphics );
 
         current_model = get_current_model( graphics );
@@ -280,9 +284,7 @@ public  DEF_MENU_FUNCTION( delete_current_object )     /* ARGSUSED */
         status = remove_object_from_model( current_model, obj_index );
 
         if( status == OK )
-        {
             status = delete_object( object );
-        }
 
         if( status == OK )
         {
@@ -294,6 +296,9 @@ public  DEF_MENU_FUNCTION( delete_current_object )     /* ARGSUSED */
             set_current_object_index( graphics, obj_index );
 
             graphics_models_have_changed( graphics );
+
+            if( is_a_marker )
+                regenerate_voxel_labels( graphics );
         }
     }
 
@@ -313,6 +318,7 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
     Boolean         get_current_object();
     void            set_object_colour();
     void            set_update_required();
+    void            rebuild_selected_list();
     Colour          col;
     String          line;
 
@@ -326,11 +332,13 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
 
         if( status == OK &&
             (lookup_colour( line, &col ) ||
-             io_colour( stdin, READ_FILE, ASCII_FORMAT, &col ) == OK) )
+             sscanf( line, "%f %f %f", &Colour_r(col), &Colour_g(col),
+                    &Colour_b(col) ) == 3) )
         {
             set_object_colour( current_object, &col );
 
             set_update_required( graphics, NORMAL_PLANES );
+            rebuild_selected_list( graphics, menu_window );
         }
     }
 

@@ -19,6 +19,7 @@
                        MENU_FUNCTION(toggle_two_sided) \
                        MENU_FUNCTION(toggle_backfacing) \
                        MENU_FUNCTION(toggle_line_curve_flag) \
+                       MENU_FUNCTION(toggle_marker_label_flag) \
                        MENU_FUNCTION(toggle_double_buffer_threed) \
                        MENU_FUNCTION(toggle_double_buffer_slice) \
                        MENU_FUNCTION(set_n_curve_segments) \
@@ -106,6 +107,13 @@
                        MENU_FUNCTION(create_marker_at_cursor) \
                        MENU_FUNCTION(set_cursor_to_marker) \
                        MENU_FUNCTION(save_markers) \
+                       MENU_FUNCTION(set_default_marker_id) \
+                       MENU_FUNCTION(set_default_marker_type) \
+                       MENU_FUNCTION(change_marker_id) \
+                       MENU_FUNCTION(change_marker_label) \
+                       MENU_FUNCTION(change_marker_size) \
+                       MENU_FUNCTION(change_marker_position) \
+                       MENU_FUNCTION(change_marker_type) \
                        MENU_FUNCTION(toggle_lock_slice) \
                        MENU_FUNCTION(delete_current_object) \
                        MENU_FUNCTION(label_point) \
