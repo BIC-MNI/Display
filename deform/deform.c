@@ -11,6 +11,7 @@ public  void  initialize_deformation(
     deform->deform.deformation_model.model_type = POINT_SPHERE_MODEL;
     deform->deform.deformation_model.min_curvature_offset = -0.3;
     deform->deform.deformation_model.max_curvature_offset = 0.3;
+    deform->deform.deformation_model.position_constrained = FALSE;
     deform->deform.fractional_step = 0.4;
     deform->deform.max_step = 0.5;
     deform->deform.max_search_distance = 30.0;
@@ -18,6 +19,7 @@ public  void  initialize_deformation(
     deform->deform.min_size = 0.01;
     deform->deform.boundary_definition.min_isovalue = 100.0;
     deform->deform.boundary_definition.max_isovalue = 100.0;
+    deform->deform.boundary_definition.normal_direction = TOWARDS_LOWER;
     deform->deform.boundary_definition.gradient_flag = FALSE;
     deform->deform.boundary_definition.variable_threshold_flag = FALSE;
     deform->deform.max_iterations = 1000000;

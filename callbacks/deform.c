@@ -35,17 +35,34 @@ public  DEF_MENU_UPDATE(stop_deforming_object )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_deformation_boundary )   /* ARGSUSED */
 {
     Real   threshold;
+    char   ch;
 
     print( "Current boundary threshold: %g\n",
           display->three_d.deform.deform.boundary_definition.min_isovalue );
-    print( "Enter new value: " );
+    print( "Enter new value and boundary_dir[+,-,or none]: " );
 
-    if( input_real( stdin, &threshold ) == OK )
+    if( input_real( stdin, &threshold ) == OK &&
+        input_nonwhite_character( stdin, &ch ) == OK )
     {
         display->three_d.deform.deform.boundary_definition.min_isovalue =
                threshold;
         display->three_d.deform.deform.boundary_definition.max_isovalue =
                threshold;
+        switch( ch )
+        {
+        case '-':  
+            display->three_d.deform.deform.boundary_definition.normal_direction=
+                   TOWARDS_LOWER;
+            break;
+        case '+':  
+            display->three_d.deform.deform.boundary_definition.normal_direction=
+                   TOWARDS_HIGHER;
+            break;
+        default:  
+            display->three_d.deform.deform.boundary_definition.normal_direction=
+                   ANY_DIRECTION;
+            break;
+        }
     }
 
     (void) input_newline( stdin );
