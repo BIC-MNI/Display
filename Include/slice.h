@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.65 1995-09-13 13:25:13 david Exp $";
+static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.66 1995-09-22 17:27:01 david Exp $";
 #endif
 
 #include  <volume_io.h>
@@ -73,6 +73,7 @@ typedef  struct
     STRING                 filename;
     Volume                 volume;
     Volume                 labels;
+    General_transform      original_transform;
     STRING                 labels_filename;
     int                    n_labels;
     int                    offset;

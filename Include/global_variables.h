@@ -32,7 +32,7 @@ START_GLOBALS
     DEF_GLOBAL( Initial_slice_update_time, Real, 0.01 )
     DEF_GLOBAL( Initial_total_slice_update_time1, Real, 0.5 )
     DEF_GLOBAL( Initial_total_slice_update_time2, Real, 2.0 )
-    DEF_GLOBAL( Slice_event_check_time, Real, 0.1 )
+    DEF_GLOBAL( Slice_event_check_time, Real, 0.25 )
 
     DEF_GLOBAL_COLOUR( Volume_outline_colour )
     DEF_GLOBAL_COLOUR( Cross_section_colour )

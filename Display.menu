@@ -124,6 +124,9 @@ volume_cropping
     transient 'x'    reset_slice_crop                "Reset Crop Position"
     transient 'r'    crop_volume_to_file             "Crop To File"
 
+    transient 'w'    transform_current_volume        "Transform Volume"
+    transient 'e'    reset_volume_transform          "Reset Vol Xform"
+
     transient 'q'    create_3d_slice_profile         "Create 3D profile"
 }
 

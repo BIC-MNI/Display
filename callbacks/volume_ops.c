@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.96 1995-08-14 18:08:51 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/volume_ops.c,v 1.97 1995-09-22 17:28:34 david Exp $";
 #endif
 
 
@@ -1206,6 +1206,56 @@ public  DEF_MENU_FUNCTION( save_slice_window )
 /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(save_slice_window )
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( transform_current_volume )
+{
+    display_struct    *slice_window;
+    STRING            filename;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        print( "Enter transform filename: " );
+
+        if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
+        {
+            transform_current_volume_from_file( slice_window, filename );
+        }
+
+        (void) input_newline( stdin );
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(transform_current_volume )
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( reset_volume_transform )
+{
+    display_struct    *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+    {
+        reset_current_volume_transform( slice_window );
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(reset_volume_transform )
 {
     return( get_n_volumes(display) > 0 );
 }
