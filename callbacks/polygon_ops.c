@@ -88,7 +88,7 @@ public  DEF_MENU_UPDATE(reset_polygon_visibility )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION( delete_connected_surface )   /* ARGSUSED */
+public  DEF_MENU_FUNCTION( set_connected_invisible )   /* ARGSUSED */
 {
     void   turn_off_connected_polygons();
 
@@ -97,7 +97,7 @@ public  DEF_MENU_FUNCTION( delete_connected_surface )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(delete_connected_surface )   /* ARGSUSED */
+public  DEF_MENU_UPDATE(set_connected_invisible )   /* ARGSUSED */
 {
     return( OK );
 }
@@ -195,14 +195,18 @@ public  DEF_MENU_FUNCTION( create_bintree_for_polygons )   /* ARGSUSED */
 {
     Status            status;
     Status            create_polygons_bintree();
+    Status            delete_polygons_bintree();
     polygons_struct   *polygons;
 
     status = OK;
 
-    if( get_current_polygons(graphics,&polygons) &&
-        polygons->bintree == (bintree_struct *) 0 )
+    if( get_current_polygons(graphics,&polygons) )
     {
-        status = create_polygons_bintree( polygons,
+        if( polygons->bintree != (bintree_struct *) 0 )
+            status = delete_polygons_bintree( polygons );
+
+        if( status == OK )
+            status = create_polygons_bintree( polygons,
                    ROUND( (Real) polygons->n_items * Bintree_size_factor ) );
         PRINT( "Done.\n" );
     }
