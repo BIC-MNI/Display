@@ -411,3 +411,16 @@ public  DEF_MENU_UPDATE(pick_slice_angle_point)    /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( rotate_slice_axes )      /* ARGSUSED */
+{
+    initialize_rotating_slice( display );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(rotate_slice_axes )      /* ARGSUSED */
+{
+    return( OK );
+}
+
