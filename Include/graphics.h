@@ -8,9 +8,9 @@
 
 /* for graphics windows */
 
+#define  THREED_MODEL           2
 #define  CURSOR_MODEL           0
 #define  OVERLAY_MODEL          1
-#define  THREED_MODEL           2
 
 /* for menu windows */
 
@@ -41,6 +41,7 @@ typedef  struct
     surface_extraction_struct  surface_extraction;
     film_loop_struct           film_loop;
     surface_edit_struct        surface_edit;
+    cursor_contours_struct     cursor_contours;
 } three_d_window_struct;
 
 
