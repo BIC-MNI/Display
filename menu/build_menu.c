@@ -7,50 +7,52 @@
 typedef  struct
 {
     int       key;
+    char      *key_name;
     Real      x_pos, y_pos, length;
     Boolean   in_slanted_part_of_keyboard;
 } position_struct;
 
 private   position_struct   positions[] = {
-                                 {(char) LEFT_ARROW_KEY, 5.5, 0.0, 0.5, FALSE},
-                                 {(char) DOWN_ARROW_KEY, 6.0, 0.0, 0.5, FALSE},
-                                 {(char) RIGHT_ARROW_KEY, 6.5, 0.0, 0.5, FALSE},
-                                 {(char) UP_ARROW_KEY, 6.0, 1.0, 0.5, FALSE},
+                           {(char) LEFT_ARROW_KEY, "<", 5.5, 0.0, 0.5, FALSE},
+                           {(char) DOWN_ARROW_KEY, "v", 6.0, 0.0, 0.5, FALSE},
+                           {(char) RIGHT_ARROW_KEY, ">", 6.5, 0.0, 0.5, FALSE},
+                           {(char) UP_ARROW_KEY, "^", 6.0, 1.0, 0.5, FALSE},
 
-                                             {' ', 1.0, 0.0, 3.0, FALSE },
+                           {' ', "space", 1.0, 0.0, 3.0, FALSE },
 
-                                             {'z', 0.0, 1.0, 1.0, TRUE },
-                                             {'x', 1.0, 1.0, 1.0, TRUE },
-                                             {'c', 2.0, 1.0, 1.0, TRUE },
-                                             {'v', 3.0, 1.0, 1.0, TRUE },
-                                             {'b', 4.0, 1.0, 1.0, TRUE },
-                                             {'n', 5.0, 1.0, 1.0, TRUE },
+                           {'z', "Z", 0.0, 1.0, 1.0, TRUE },
+                           {'x', "X", 1.0, 1.0, 1.0, TRUE },
+                           {'c', "C", 2.0, 1.0, 1.0, TRUE },
+                           {'v', "V", 3.0, 1.0, 1.0, TRUE },
+                           {'b', "B", 4.0, 1.0, 1.0, TRUE },
+                           {'n', "N", 5.0, 1.0, 1.0, TRUE },
 
-                                             {'a', 0.0, 2.0, 1.0, TRUE },
-                                             {'s', 1.0, 2.0, 1.0, TRUE },
-                                             {'d', 2.0, 2.0, 1.0, TRUE },
-                                             {'f', 3.0, 2.0, 1.0, TRUE },
-                                             {'g', 4.0, 2.0, 1.0, TRUE },
-                                             {'h', 5.0, 2.0, 1.0, TRUE },
+                           {'a', "A", 0.0, 2.0, 1.0, TRUE },
+                           {'s', "S", 1.0, 2.0, 1.0, TRUE },
+                           {'d', "D", 2.0, 2.0, 1.0, TRUE },
+                           {'f', "F", 3.0, 2.0, 1.0, TRUE },
+                           {'g', "G", 4.0, 2.0, 1.0, TRUE },
+                           {'h', "H", 5.0, 2.0, 1.0, TRUE },
 
-                                             {'q', 0.0, 3.0, 1.0, TRUE },
-                                             {'w', 1.0, 3.0, 1.0, TRUE },
-                                             {'e', 2.0, 3.0, 1.0, TRUE },
-                                             {'r', 3.0, 3.0, 1.0, TRUE },
-                                             {'t', 4.0, 3.0, 1.0, TRUE },
-                                             {'y', 5.0, 3.0, 1.0, TRUE },
+                           {'q', "Q", 0.0, 3.0, 1.0, TRUE },
+                           {'w', "W", 1.0, 3.0, 1.0, TRUE },
+                           {'e', "E", 2.0, 3.0, 1.0, TRUE },
+                           {'r', "R", 3.0, 3.0, 1.0, TRUE },
+                           {'t', "T", 4.0, 3.0, 1.0, TRUE },
+                           {'y', "Y", 5.0, 3.0, 1.0, TRUE },
 
-                                             {'1', 0.0, 4.0, 1.0, TRUE },
-                                             {'2', 1.0, 4.0, 1.0, TRUE },
-                                             {'3', 2.0, 4.0, 1.0, TRUE },
-                                             {'4', 3.0, 4.0, 1.0, TRUE },
-                                             {'5', 4.0, 4.0, 1.0, TRUE },
-                                             {'6', 5.0, 4.0, 1.0, TRUE },
-                                             {'7', 6.0, 4.0, 1.0, TRUE }
-                                          };
+                           {'1', "1", 0.0, 4.0, 1.0, TRUE },
+                           {'2', "2", 1.0, 4.0, 1.0, TRUE },
+                           {'3', "3", 2.0, 4.0, 1.0, TRUE },
+                           {'4', "4", 3.0, 4.0, 1.0, TRUE },
+                           {'5', "5", 4.0, 4.0, 1.0, TRUE },
+                           {'6', "6", 5.0, 4.0, 1.0, TRUE },
+                           {'7', "7", 6.0, 4.0, 1.0, TRUE }
+                         };
 
 static    Status   create_menu_text();
 static    Status   create_menu_box();
+static    Status   create_menu_character();
 static    void     compute_origin();
 
 public  Status  build_menu( menu_window )
@@ -63,10 +65,12 @@ public  Status  build_menu( menu_window )
     {
         status = create_menu_box( menu_window, positions[i].key );
 
+        if( status == OK )
+            status = create_menu_character( menu_window, positions[i].key,
+                                            positions[i].key_name );
+
         if( status != OK )
-        {
             break;
-        }
     }
 
     for_less( i, 1, menu_window->menu.n_entries )
@@ -118,16 +122,19 @@ private  Status   create_menu_text( menu_window, menu_entry )
 
             text->font = Menu_window_font;
             text->size = Menu_window_font_size;
+            text->colour = Menu_character_colour;
 
             compute_origin( &menu_window->menu, menu_entry->key, &x, &y,
                             &length );
-            fill_Point( text->origin,
-                        x + X_menu_text_offset,
-                        y + (menu_window->menu.n_lines_in_entry - i) *
-                            menu_window->menu.character_height -
-                            Y_menu_text_offset,
-                        0.0 );
-            fill_Colour( text->colour, 1.0, 1.0, 1.0 );
+            x += X_menu_text_offset;
+            y += (menu_window->menu.n_lines_in_entry - i) *
+                 menu_window->menu.character_height -
+                 Y_menu_text_offset;
+
+            if( i == 0 )
+                x += Menu_key_character_offset * text->size;
+
+            fill_Point( text->origin, x, y, 0.0 );
 
             menu_entry->n_chars_across = (int)
                    ( length * menu_window->menu.n_chars_per_unit_across );
@@ -230,7 +237,7 @@ private  Status   create_menu_box( menu_window, key )
 
     if( status == OK )
     {
-        fill_Colour( lines->colours[0], 1.0, 1.0, 1.0 );
+        lines->colours[0] = Menu_box_colour;
 
         ALLOC( status, lines->points, lines->n_points );
     }
@@ -266,7 +273,50 @@ private  Status   create_menu_box( menu_window, key )
     return( status );
 }
 
-public  Boolean   point_within_menu_key_entry( menu_window, key, x, y )
+private  Status   create_menu_character( menu_window, key, key_name )
+    graphics_struct   *menu_window;
+    int               key;
+    char              key_name[];
+{
+    Status          status;
+    Real            x, y, length;
+    Status          create_object();
+    object_struct   *object;
+    text_struct     *text;
+    Status          add_object_to_model();
+    model_struct    *model;
+    model_struct    *get_graphics_model();
+
+    status = create_object( &object, TEXT );
+
+    if( status == OK )
+    {
+        text = object->ptr.text;
+
+        text->font = Menu_window_font;
+        text->size = Menu_window_font_size;
+        text->colour = Menu_key_colour;
+
+        (void) sprintf( text->text, "%s-", key_name );
+
+        compute_origin( &menu_window->menu, key, &x, &y, &length );
+
+        fill_Point( text->origin,
+                    x + X_menu_text_offset,
+                    y + menu_window->menu.n_lines_in_entry *
+                        menu_window->menu.character_height -
+                        Y_menu_text_offset,
+                    0.0 );
+
+        model = get_graphics_model( menu_window, MENU_BUTTONS_MODEL );
+
+        status = add_object_to_model( model, object );
+    }
+
+    return( status );
+}
+
+private  Boolean   point_within_menu_key_entry( menu_window, key, x, y )
     graphics_struct  *menu_window;
     int              key;
     Real             x;
@@ -282,4 +332,28 @@ public  Boolean   point_within_menu_key_entry( menu_window, key, x, y )
               menu_window->menu.character_height;
 
     return( x >= x1 && x <= x2 && y >= y1 && y <= y2 );
+}
+
+public  Boolean   lookup_key_for_mouse_position( menu_window, x, y, key )
+    graphics_struct  *menu_window;
+    Real             x;
+    Real             y;
+    int              *key;
+{
+    int      i;
+    Boolean  found;
+
+    found = FALSE;
+
+    for_less( i, 0, SIZEOF_STATIC_ARRAY(positions) )
+    {
+        if( point_within_menu_key_entry( menu_window, positions[i].key, x, y ) )
+        {
+            *key = positions[i].key;
+            found = TRUE;
+            break;
+        }
+    }
+
+    return( found );
 }
