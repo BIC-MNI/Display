@@ -9,13 +9,70 @@ public  DEF_MENU_FUNCTION( start_deforming_object )   /* ARGSUSED */
     if( get_slice_window_volume( display, &volume ) &&
         get_current_object( display, &object ) )
     {
-        turn_on_deformation( display, object );
+        turn_on_deformation( display, object, FALSE );
     }
 
     return( OK );
 }
 
 public  DEF_MENU_UPDATE(start_deforming_object )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( start_annealing_deforming_object )   /* ARGSUSED */
+{
+    Volume            volume;
+    object_struct     *object;
+
+    if( get_slice_window_volume( display, &volume ) &&
+        get_current_object( display, &object ) )
+    {
+        turn_on_deformation( display, object, TRUE );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(start_annealing_deforming_object )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( set_annealing_parameters )   /* ARGSUSED */
+{
+    Real              fifty_percent_threshold, temperature_factor;
+    Real              max_trans, max_rotate, max_scale_offset;
+    int               min_n_to_move, max_n_to_move, stop_criteria;
+
+    print( "Enter 50%% thresh, temp factor, min_n_to_move, max_n_to_move,\n" );
+    print( "      max_trans, max_rotate, max_scale, stop_criteria: " );
+
+    if( input_real( stdin, &fifty_percent_threshold ) == OK &&
+        input_real( stdin, &temperature_factor ) == OK &&
+        input_int( stdin, &min_n_to_move ) == OK &&
+        input_int( stdin, &max_n_to_move ) == OK &&
+        input_real( stdin, &max_trans ) == OK &&
+        input_real( stdin, &max_rotate ) == OK &&
+        input_real( stdin, &max_scale_offset ) == OK &&
+        input_int( stdin, &stop_criteria ) == OK )
+    {
+        display->three_d.deform.anneal.temperature = fifty_percent_threshold /
+                                                           log( 2.0 );
+        display->three_d.deform.anneal.temperature_factor = temperature_factor;
+        display->three_d.deform.anneal.min_n_to_move = min_n_to_move;
+        display->three_d.deform.anneal.max_n_to_move = max_n_to_move;
+        display->three_d.deform.anneal.max_translation = max_trans;
+        display->three_d.deform.anneal.max_angle_rotation = max_rotate;
+        display->three_d.deform.anneal.max_scale_offset = max_scale_offset;
+    }
+
+    (void) input_newline( stdin );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(set_annealing_parameters )   /* ARGSUSED */
 {
     return( OK );
 }
@@ -106,19 +163,17 @@ public  DEF_MENU_FUNCTION( set_deformation_model )   /* ARGSUSED */
         display->three_d.deform.deform.deformation_model.max_position_offset =
                                max_position_offset;
 
-        if( display->three_d.deform.deforming_object != (object_struct *) NULL )
-            object = display->three_d.deform.deforming_object;
-        else if( !get_current_object( display, &object ) )
-            object = (object_struct *) NULL;
-
-        if( object != (object_struct *) NULL &&
+        if( get_current_object( display, &object ) &&
             (object->object_type == LINES || object->object_type == POLYGONS) )
         {
             status = get_deformation_model( model_name, object,
                            &display->three_d.deform.deform.deformation_model );
         }
         else
+        {
+            print( "Set the current object to be deformed.\n" );
             status = ERROR;
+        }
     }
 
     if( status == OK )
