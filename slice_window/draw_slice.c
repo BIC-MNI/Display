@@ -450,6 +450,17 @@ public  void  rebuild_cursors(
         rebuild_cursor( slice_window, view );
 }
 
+public  object_struct  *get_slice_pixels_object(
+    display_struct    *slice_window,
+    int               view_index )
+{
+    model_struct   *model;
+
+    model = get_graphics_model(slice_window,SLICE_MODEL);
+
+    return( model->objects[SLICE1_INDEX+view_index] );
+}
+
 public  void  rebuild_slice_pixels(
     display_struct    *slice_window,
     int               view_index )
@@ -463,11 +474,12 @@ public  void  rebuild_slice_pixels(
     int            x_pos, y_pos;
     Real           current_voxel[N_DIMENSIONS];
 
+    pixels = get_pixels_ptr( get_slice_pixels_object(slice_window,view_index) );
+
+    if( get_slice_visibility( slice_window, view_index ) )
+        render_slice_to_pixels( slice_window, view_index, pixels );
+
     model = get_graphics_model(slice_window,SLICE_MODEL);
-
-    pixels = get_pixels_ptr( model->objects[SLICE1_INDEX+view_index] );
-
-    render_slice_to_pixels( slice_window, view_index, pixels );
 
     if( slice_has_ortho_axes( slice_window, view_index,
                               &x_index, &y_index, &axis_index ) )
