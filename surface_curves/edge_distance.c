@@ -8,6 +8,7 @@ typedef  struct
 
 private  Boolean  find_shortest_path(
     polygons_struct   *polygons,
+    Boolean           snap_to_vertex,
     Point             *p1,
     int               poly1,
     Point             *p2,
@@ -26,6 +27,7 @@ private  void  create_path(
 
 public  Boolean  distance_along_polygons(
     polygons_struct   *polygons,
+    Boolean           snap_to_vertex,
     Point             *p1,
     int               poly1,
     Point             *p2,
@@ -41,7 +43,8 @@ public  Boolean  distance_along_polygons(
 
     check_polygons_neighbours_computed( polygons );
 
-    found = find_shortest_path( polygons, p1, poly1, p2, poly2, dist,
+    found = find_shortest_path( polygons, snap_to_vertex,
+                                p1, poly1, p2, poly2, dist,
                                 &last_vertex, vertices);
 
     if( found )
@@ -63,6 +66,7 @@ typedef  struct
 
 private  Boolean  find_shortest_path(
     polygons_struct   *polygons,
+    Boolean           snap_to_vertex,
     Point             *p1,
     int               poly1,
     Point             *p2,
@@ -74,7 +78,7 @@ private  Boolean  find_shortest_path(
     int                    i, p, size, point_index, poly_index;
     int                    dir, index_within_poly, neighbour_index_within_poly;
     int                    neighbour_point_index, current_index_within_poly;
-    int                    current_poly, n_done;
+    int                    current_poly, n_done, vertex_index;
     Real                   dist;
     Boolean                found_vertex, found;
     queue_struct           entry;
@@ -90,17 +94,41 @@ private  Boolean  find_shortest_path(
 
     size = GET_OBJECT_SIZE( *polygons, poly2 );
 
+    if( snap_to_vertex )
+    {
+        for_less( p, 0, size )
+        {
+            point_index = polygons->indices[
+                             POINT_INDEX( polygons->end_indices, poly2, p )];
+            if( EQUAL_POINTS( *p2, polygons->points[point_index] ) )
+                break;
+        }
+        if( p >= size )
+        {
+            print( "Error in find_shortest_path.\n" );
+            vertex_index = 0;
+        }
+        else
+            vertex_index = p;
+    }
+
     for_less( p, 0, size )
     {
-        point_index = polygons->indices[
+        if( !snap_to_vertex || p == vertex_index ||
+            p == (vertex_index+1) % size ||
+            p == (vertex_index-1+size) % size )
+        {
+            point_index = polygons->indices[
                          POINT_INDEX( polygons->end_indices, poly2, p )];
-        dist = distance_between_points( &polygons->points[point_index], p2 );
+            dist = distance_between_points( &polygons->points[point_index],
+                                            p2 );
 
-        vertices[point_index].from_point = -1;
-        vertices[point_index].distance = dist;
-        entry.index_within_poly = p;
-        entry.poly_index = poly2;
-        INSERT_IN_PRIORITY_QUEUE( queue, entry, -dist );
+            vertices[point_index].from_point = -1;
+            vertices[point_index].distance = dist;
+            entry.index_within_poly = p;
+            entry.poly_index = poly2;
+            INSERT_IN_PRIORITY_QUEUE( queue, entry, -dist );
+        }
     }
 
     found_vertex = FALSE;
@@ -141,7 +169,9 @@ private  Boolean  find_shortest_path(
                                   &polygons->points[point_index], p1 )
                                + vertices[point_index].distance;
 
-                    if( !found_vertex || dist < *path_dist )
+                    if( (!found_vertex || dist < *path_dist) &&
+                        (!snap_to_vertex ||
+                         EQUAL_POINTS(polygons->points[point_index],*p1)) )
                     {
                         found_vertex = TRUE;
                         *path_dist = dist;
@@ -203,10 +233,7 @@ private  void  create_path(
     vertex_struct     vertices[],
     lines_struct      *lines )
 {
-    Boolean  prev_exists;
     Point    prev;
-
-    prev_exists = FALSE;
 
     if( first_flag )
     {
@@ -214,23 +241,24 @@ private  void  create_path(
 
         add_point_to_line( lines, p1 );
 
-        prev_exists = TRUE;
         prev = *p1;
+    }
+    else
+    {
+        prev = lines->points[lines->indices[NUMBER_INDICES(*lines)-1]];
     }
 
     while( last_vertex >= 0 )
     {
-        if( !prev_exists ||
-            !EQUAL_POINTS( prev, polygons->points[last_vertex] ) )
+        if( !EQUAL_POINTS( prev, polygons->points[last_vertex] ) )
         {
             add_point_to_line( lines, &polygons->points[last_vertex] );
-            prev_exists = TRUE;
             prev = polygons->points[last_vertex];
         }
         last_vertex = vertices[last_vertex].from_point;
     }
 
-    if( !prev_exists || !EQUAL_POINTS( prev, *p2 ) )
+    if( !EQUAL_POINTS( prev, *p2 ) )
         add_point_to_line( lines, p2 );
 }
 
