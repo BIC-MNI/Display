@@ -21,7 +21,11 @@ int  main( argc, argv )
     void             reset_view_parameters();
     void             update_view();
     void             set_model_scale();
-    Boolean          get_range_of_objects();
+    int              i;
+    model_struct     *model;
+    model_struct     *get_graphics_model();
+    Boolean          get_range_of_object();
+    void             rebuild_selected_list();
 
     if( argc != 2 )
     {
@@ -55,8 +59,17 @@ int  main( argc, argv )
         menu->graphics_window = graphics;
         menu->menu_window = menu;
 
-        graphics->models[THREED_MODEL].view_type = MODEL_VIEW;
-        menu->models[THREED_MODEL].view_type = PIXEL_VIEW;
+        for_less( i, 0, N_MODELS )
+        {
+            model = get_graphics_model( graphics, i );
+            model->view_type = MODEL_VIEW;
+        }
+
+        for_less( i, 0, N_MODELS )
+        {
+            model = get_graphics_model( menu, i );
+            model->view_type = PIXEL_VIEW;
+        }
 
         status = initialize_menu( menu );
     }
@@ -65,8 +78,11 @@ int  main( argc, argv )
     {
         PRINT( "Inputting objects.\n" );
 
+        model = get_graphics_model( graphics, THREED_MODEL );
+
         status = input_graphics_file( argv[1],
-                                      &graphics->models[THREED_MODEL].objects );
+                                      &model->n_objects,
+                                      &model->object_list );
 
         graphics->update_required = TRUE;
 
@@ -84,8 +100,12 @@ int  main( argc, argv )
 
     if( status == OK )
     {
-        if( !get_range_of_objects( graphics->models[THREED_MODEL].objects,
-                                   FALSE,
+        rebuild_selected_list( graphics, menu );
+    }
+
+    if( status == OK )
+    {
+        if( !get_range_of_object( graphics->models[THREED_MODEL], FALSE,
                                   &graphics->min_limit, &graphics->max_limit ) )
         {
             fill_Point( graphics->min_limit, 0.0, 0.0, 0.0 );

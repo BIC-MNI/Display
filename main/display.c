@@ -1,24 +1,30 @@
 
 #include  <def_graphics.h>
 
-public  void  display_objects( window, model )
+public  void  display_objects( window, object )
     window_struct   *window;
-    model_struct    *model;
+    object_struct   *object;
 {
     void           G_set_render();
     void           G_set_view_type();
     void           display_objects_recursive();
 
-    display_objects_recursive( window, model->objects, &model->render,
-                               model->view_type );
+    display_objects_recursive( window,
+                               object->ptr.model->n_objects,
+                               object->ptr.model->object_list,
+                               &object->ptr.model->render,
+                               object->ptr.model->view_type );
 }
 
-private  void  display_objects_recursive( window, objects, render, view_type )
+private  void  display_objects_recursive( window, n_objects, object_list,
+                                          render, view_type )
     window_struct   *window;
-    object_struct   *objects;
+    int             n_objects;
+    object_struct   *object_list[];
     render_struct   *render;
     view_types      view_type;
 {
+    int            i;
     model_struct   *model;
     void           G_set_view_type();
     void           G_set_render();
@@ -29,16 +35,17 @@ private  void  display_objects_recursive( window, objects, render, view_type )
     G_set_render( window, render );
     G_set_view_type( window, view_type );
 
-    while( objects != (object_struct *) 0 )
+    for_less( i, 0, n_objects )
     {
-        if( objects->visibility )
+        if( object_list[i]->visibility )
         {
-            switch( objects->object_type )
+            switch( object_list[i]->object_type )
             {
             case MODEL:
-                model = objects->ptr.model;
+                model = object_list[i]->ptr.model;
 
-                display_objects_recursive( window, model->objects,
+                display_objects_recursive( window, model->n_objects,
+                                           model->object_list,
                                            &model->render, model->view_type );
 
                 G_set_render( window, render );
@@ -46,19 +53,17 @@ private  void  display_objects_recursive( window, objects, render, view_type )
                 break;
 
             case TEXT:
-                G_draw_text( window, objects->ptr.text, render );
+                G_draw_text( window, object_list[i]->ptr.text, render );
                 break;
 
             case LINES:
-                G_draw_lines( window, objects->ptr.lines, render );
+                G_draw_lines( window, object_list[i]->ptr.lines, render );
                 break;
 
             case POLYGONS:
-                G_draw_polygons( window, objects->ptr.polygons, render );
+                G_draw_polygons( window, object_list[i]->ptr.polygons, render );
                 break;
             }
         }
-
-        objects = objects->next;
     }
 }

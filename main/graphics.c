@@ -96,7 +96,7 @@ public  Status  create_graphics_window( graphics, title, width, height )
     int               width, height;
 {
     Status   status;
-    void     initialize_graphics_window();
+    Status   initialize_graphics_window();
     Status   get_new_graphics();
     Status   G_create_window();
 
@@ -109,7 +109,7 @@ public  Status  create_graphics_window( graphics, title, width, height )
 
     if( status == OK )
     {
-        initialize_graphics_window( *graphics );
+        status = initialize_graphics_window( *graphics );
     }
     else
     {
@@ -119,21 +119,33 @@ public  Status  create_graphics_window( graphics, title, width, height )
     return( status );
 }
 
-private  void  initialize_graphics_window( graphics )
+public  model_struct  *get_graphics_model( graphics, model_index )
+    graphics_struct   *graphics;
+    int               model_index;
+{
+    return( graphics->models[model_index]->ptr.model );
+}
+
+private  Status  initialize_graphics_window( graphics )
     graphics_struct   *graphics;
 {
-    static  Vector    line_of_sight = { 0.0, 0.0, -1.0 };
-    static  Vector    horizontal = { 1.0, 0.0, 0.0 };
-    int     i;
-    void    initialize_view();
-    void    adjust_view_for_aspect();
-    void    G_define_view();
-    void    initialize_lights();
-    void    G_define_light();
-    void    G_set_light_state();
-    void    initialize_action_table();
-    void    initialize_render();
-    void    initialize_objects();
+    static         Vector    line_of_sight = { 0.0, 0.0, -1.0 };
+    static         Vector    horizontal = { 1.0, 0.0, 0.0 };
+    int            i;
+    void           initialize_view();
+    void           adjust_view_for_aspect();
+    void           G_define_view();
+    void           initialize_lights();
+    void           G_define_light();
+    void           G_set_light_state();
+    void           initialize_action_table();
+    void           initialize_render();
+    void           initialize_objects();
+    Status         status;
+    Status         create_object();
+    Status         initialize_current_object();
+    model_struct   *model;
+    model_struct   *get_graphics_model();
 
     initialize_view( &graphics->view, &line_of_sight, &horizontal );
     adjust_view_for_aspect( &graphics->view, &graphics->window );
@@ -151,16 +163,35 @@ private  void  initialize_graphics_window( graphics )
 
     initialize_action_table( &graphics->action_table );
 
+    status = OK;
+
     for_less( i, 0, N_MODELS )
     {
-        initialize_render( &graphics->models[i].render );
-        graphics->models[i].n_objects = 0;
+        if( status == OK )
+        {
+            status = create_object( &graphics->models[i], MODEL );
+        }
+
+        if( status == OK )
+        {
+            model = get_graphics_model( graphics, i );
+
+            model->n_objects = 0;
+            (void) strcpy( model->filename, "Top Level" );
+
+            initialize_render( &model->render );
+        }
+    }
+
+    if( status == OK )
+    {
+        status = initialize_current_object( graphics );
     }
 
     graphics->frame_number = 0;
     graphics->update_required = FALSE;
 
-    INITIALIZE_STACK( graphics->current_object );
+    return( status );
 }
 
 private  void  display_frame_info( graphics, frame_number, update_time )
@@ -173,6 +204,8 @@ private  void  display_frame_info( graphics, frame_number, update_time )
     text_struct   frame_text;
     String        frame_time_str;
     void          format_time();
+    model_struct  *model;
+    model_struct  *get_graphics_model();
 
     (void) sprintf( frame_text.text, "%d: ", frame_number );
 
@@ -185,8 +218,9 @@ private  void  display_frame_info( graphics, frame_number, update_time )
 
     G_set_view_type( &graphics->window, PIXEL_VIEW );
 
-    G_draw_text( &graphics->window, &frame_text,
-                 &graphics->models[THREED_MODEL].render );
+    model = get_graphics_model( graphics, THREED_MODEL );
+
+    G_draw_text( &graphics->window, &frame_text, &model->render );
 }
 
 public  void  update_graphics( graphics )
@@ -204,7 +238,7 @@ public  void  update_graphics( graphics )
 
     for_less( i, 0, N_MODELS )
     {
-        display_objects( &graphics->window, &graphics->models[i] );
+        display_objects( &graphics->window, graphics->models[i] );
     }
 
     end = current_realtime_seconds();
@@ -249,7 +283,7 @@ private  Status  terminate_graphics_window( graphics )
 {
     int      i;
     Status   status;
-    Status   delete_object_list();
+    Status   delete_object();
 
     status = OK;
 
@@ -257,8 +291,7 @@ private  Status  terminate_graphics_window( graphics )
     {
         if( status == OK )
         {
-            status = delete_object_list( graphics->models[i].n_objects,
-                                         graphics->models[i].object_list );
+            status = delete_object( graphics->models[i] );
         }
     }
 

@@ -78,15 +78,18 @@ private  Status   create_menu_text( menu_window, menu_entry )
     Status          add_object_to_model();
     void            compute_origin();
     Status          update_menu_text();
+    model_struct    *model;
+    model_struct    *get_graphics_model();
 
-    status = create_object( menu_entry->text, TEXT );
+    status = create_object( &menu_entry->text, TEXT );
 
     if( status == OK )
     {
         menu_entry->text->visibility = FALSE;
 
-        status = add_object_to_model( &menu_window->models[THREED_MODEL],
-                                      menu_entry->text );
+        model = get_graphics_model( menu_window, MENU_BUTTONS_MODEL );
+
+        status = add_object_to_model( model, menu_entry->text );
     }
 
     if( status == OK )
@@ -146,24 +149,27 @@ private  Status   create_menu_box( menu_window, key )
 {
     Status          status;
     Status          create_object();
-    object_struct   object;
+    object_struct   *object;
     lines_struct    *lines;
     Status          add_object_to_model();
     void            compute_origin();
     Point           origin;
     Real            x1, y1, x2, y2;
+    model_struct    *model;
+    model_struct    *get_graphics_model();
 
     status = create_object( &object, LINES );
 
     if( status == OK )
     {
-        status = add_object_to_model( &menu_window->models[THREED_MODEL],
-                                      &object );
+        model = get_graphics_model( menu_window, MENU_BUTTONS_MODEL );
+
+        status = add_object_to_model( model, object );
     }
 
     if( status == OK )
     {
-        lines = object.ptr.lines;
+        lines = object->ptr.lines;
 
         lines->n_points = 4;
         lines->n_items = 1;

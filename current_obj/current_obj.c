@@ -6,14 +6,20 @@ public  void  advance_current_object( graphics )
 {
     int            object_index;
     model_struct   *model;
+    void           rebuild_selected_list();
 
-    object_index = TOP_OF_STACK( graphics->current_object ).object_index;
-    model = TOP_OF_STACK( graphics->current_object ).model;
-
-    if( model->n_objects > 0 )
+    if( !current_object_is_top_level(graphics) )
     {
-        TOP_OF_STACK( graphics->current_object ).object_index =
-             (object_index + 1) % model->n_objects;
+        object_index = TOP_OF_STACK( graphics->current_object ).object_index;
+        model = TOP_OF_STACK( graphics->current_object ).model;
+
+        if( model->n_objects > 0 )
+        {
+            TOP_OF_STACK( graphics->current_object ).object_index =
+                 (object_index + 1) % model->n_objects;
+        }
+
+        rebuild_selected_list( graphics, graphics->menu_window );
     }
 }
 
@@ -22,14 +28,20 @@ public  void  retreat_current_object( graphics )
 {
     int            object_index;
     model_struct   *model;
+    void           rebuild_selected_list();
 
-    object_index = TOP_OF_STACK( graphics->current_object ).object_index;
-    model = TOP_OF_STACK( graphics->current_object ).model;
-
-    if( model->n_objects > 0 )
+    if( !current_object_is_top_level(graphics) )
     {
-        TOP_OF_STACK( graphics->current_object ).object_index =
-             (object_index - 1 + model->n_objects) % model->n_objects;
+        object_index = TOP_OF_STACK( graphics->current_object ).object_index;
+        model = TOP_OF_STACK( graphics->current_object ).model;
+
+        if( model->n_objects > 0 )
+        {
+            TOP_OF_STACK( graphics->current_object ).object_index =
+                 (object_index - 1 + model->n_objects) % model->n_objects;
+        }
+
+        rebuild_selected_list( graphics, graphics->menu_window );
     }
 }
 
@@ -38,7 +50,14 @@ public  model_struct  *get_current_model( graphics )
 {
     model_struct   *model;
 
-    model = TOP_OF_STACK( graphics->current_object ).model;
+    if( current_object_is_top_level(graphics) )
+    {
+        model = graphics->models[THREED_MODEL]->ptr.model;
+    }
+    else
+    {
+        model = TOP_OF_STACK( graphics->current_object ).model;
+    }
 
     return( model );
 }
@@ -48,7 +67,14 @@ public  int  get_current_object_index( graphics )
 {
     int  index;
 
-    index = TOP_OF_STACK( graphics->current_object ).object_index;
+    if( current_object_is_top_level(graphics) )
+    {
+        index = -1;
+    }
+    else
+    {
+        index = TOP_OF_STACK( graphics->current_object ).object_index;
+    }
 
     return( index );
 }
@@ -60,16 +86,23 @@ public  object_struct  *get_current_object( graphics )
     model_struct    *model;
     object_struct   *object;
 
-    object_index = TOP_OF_STACK( graphics->current_object ).object_index;
-    model = TOP_OF_STACK( graphics->current_object ).model;
-
-    if( object_index >= 0 && object_index < model->n_objects )
+    if( current_object_is_top_level(graphics) )
     {
-        object = model->object_list[object_index];
+        object = graphics->models[THREED_MODEL];
     }
     else
     {
-        object = (object_struct *) 0;
+        object_index = TOP_OF_STACK( graphics->current_object ).object_index;
+        model = TOP_OF_STACK( graphics->current_object ).model;
+
+        if( object_index >= 0 && object_index < model->n_objects )
+        {
+            object = model->object_list[object_index];
+        }
+        else
+        {
+            object = (object_struct *) 0;
+        }
     }
 
     return( object );
@@ -78,16 +111,11 @@ public  object_struct  *get_current_object( graphics )
 public  Status  initialize_current_object( graphics )
     graphics_struct   *graphics;
 {
-    Status            status;
-    selection_entry   entry;
     model_struct      *get_graphics_model();
 
-    entry.object_index = 0;
-    entry.model = get_graphics_model( graphics, THREED_MODEL );
+    INITIALIZE_STACK( graphics->current_object );
 
-    PUSH_STACK( status, graphics->current_object, selection_entry, entry );
-
-    return( status );
+    return( OK );
 }
 
 public  Status  push_current_object( graphics )
@@ -96,6 +124,7 @@ public  Status  push_current_object( graphics )
     Status            status;
     selection_entry   entry;
     object_struct     *current_object;
+    void              rebuild_selected_list();
 
     status = OK;
 
@@ -109,34 +138,31 @@ public  Status  push_current_object( graphics )
 
         PUSH_STACK( status, graphics->current_object, selection_entry,
                     entry );
+
+        rebuild_selected_list( graphics, graphics->menu_window );
     }
 
     return( status );
 }
 
-private  Boolean  current_object_is_top_level( graphics )
+public  Boolean  current_object_is_top_level( graphics )
     graphics_struct   *graphics;
 {
-    return( N_ENTRIES_IN_STACK(graphics->current_object) == 1 );
+    return( IS_STACK_EMPTY(graphics->current_object) );
 }
 
 public  Status  pop_current_object( graphics )
     graphics_struct   *graphics;
 {
-    Status            status;
     selection_entry   entry;
+    void           rebuild_selected_list();
 
-    if( N_ENTRIES_IN_STACK(graphics->current_object) > 1 )
+    if( !current_object_is_top_level(graphics) )
     {
         POP_STACK( graphics->current_object, entry );
 
-        status = OK;
-    }
-    else
-    {
-        PRINT_ERROR( "pop current object" );
-        status = ERROR;
+        rebuild_selected_list( graphics, graphics->menu_window );
     }
 
-    return( status );
+    return( OK );
 }

@@ -1,15 +1,43 @@
 
 #include  <def_graphics.h>
 
-public  DEF_MENU_FUNCTION( toggle_render_mode )  /* ARGSUSED */
+private  model_struct  *get_relevant_model( graphics )
+    graphics_struct   *graphics;
 {
-    if( graphics->models[THREED_MODEL].render.render_mode == WIREFRAME_MODE )
+    object_struct   *current_object;
+    object_struct   *get_current_object();
+    model_struct    *get_current_model();
+    model_struct    *model;
+
+    current_object = get_current_object( graphics );
+
+    if( current_object != (object_struct *) 0 &&
+        current_object->object_type == MODEL )
     {
-        graphics->models[THREED_MODEL].render.render_mode = SHADED_MODE;
+        model = current_object->ptr.model;
     }
     else
     {
-        graphics->models[THREED_MODEL].render.render_mode = WIREFRAME_MODE;
+        model = get_current_model( graphics );
+    }
+
+    return( model );
+}
+
+public  DEF_MENU_FUNCTION( toggle_render_mode )  /* ARGSUSED */
+{
+    model_struct   *get_relevant_model();
+    model_struct   *model;
+
+    model = get_relevant_model( graphics );
+
+    if( model->render.render_mode == WIREFRAME_MODE )
+    {
+        model->render.render_mode = SHADED_MODE;
+    }
+    else
+    {
+        model->render.render_mode = WIREFRAME_MODE;
     }
 
     graphics->update_required = TRUE;
@@ -19,7 +47,12 @@ public  DEF_MENU_FUNCTION( toggle_render_mode )  /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_render_mode )  /* ARGSUSED */
 {
-    switch( graphics->models[THREED_MODEL].render.render_mode )
+    model_struct   *get_relevant_model();
+    model_struct   *model;
+
+    model = get_relevant_model( graphics );
+
+    switch( model->render.render_mode )
     {
     case WIREFRAME_MODE:
         (void) sprintf( text, format, "Wireframe" );
@@ -38,13 +71,18 @@ public  DEF_MENU_UPDATE(toggle_render_mode )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_shading )  /* ARGSUSED */
 {
-    if( graphics->models[THREED_MODEL].render.shading_type == FLAT_SHADING )
+    model_struct   *get_relevant_model();
+    model_struct   *model;
+
+    model = get_relevant_model( graphics );
+
+    if( model->render.shading_type == FLAT_SHADING )
     {
-        graphics->models[THREED_MODEL].render.shading_type = GOURAUD_SHADING;
+        model->render.shading_type = GOURAUD_SHADING;
     }
     else
     {
-        graphics->models[THREED_MODEL].render.shading_type = FLAT_SHADING;
+        model->render.shading_type = FLAT_SHADING;
     }
 
     graphics->update_required = TRUE;
@@ -54,7 +92,12 @@ public  DEF_MENU_FUNCTION( toggle_shading )  /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_shading )  /* ARGSUSED */
 {
-    switch( graphics->models[THREED_MODEL].render.shading_type )
+    model_struct   *get_relevant_model();
+    model_struct   *model;
+
+    model = get_relevant_model( graphics );
+
+    switch( model->render.shading_type )
     {
     case FLAT_SHADING:
         (void) sprintf( text, format, "Flat" );
@@ -72,8 +115,12 @@ public  DEF_MENU_UPDATE(toggle_shading )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_lights )  /* ARGSUSED */
 {
-    graphics->models[THREED_MODEL].render.master_light_switch = 
-                  !graphics->models[THREED_MODEL].render.master_light_switch;
+    model_struct   *get_relevant_model();
+    model_struct   *model;
+
+    model = get_relevant_model( graphics );
+
+    model->render.master_light_switch = !model->render.master_light_switch;
 
     graphics->update_required = TRUE;
 
@@ -82,10 +129,13 @@ public  DEF_MENU_FUNCTION( toggle_lights )  /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_lights )  /* ARGSUSED */
 {
-    void  set_text_on_off();
+    void           set_text_on_off();
+    model_struct   *get_relevant_model();
+    model_struct   *model;
 
-    set_text_on_off( format, text,
-                    graphics->models[THREED_MODEL].render.master_light_switch );
+    model = get_relevant_model( graphics );
+
+    set_text_on_off( format, text, model->render.master_light_switch );
 
     menu_window->update_required = TRUE;
 
@@ -94,8 +144,13 @@ public  DEF_MENU_UPDATE(toggle_lights )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_two_sided )  /* ARGSUSED */
 {
-    graphics->models[THREED_MODEL].render.two_sided_surface_flag = 
-                  !graphics->models[THREED_MODEL].render.two_sided_surface_flag;
+    model_struct   *get_relevant_model();
+    model_struct   *model;
+
+    model = get_relevant_model( graphics );
+
+    model->render.two_sided_surface_flag = 
+                  !model->render.two_sided_surface_flag;
 
     graphics->update_required = TRUE;
 
@@ -104,10 +159,13 @@ public  DEF_MENU_FUNCTION( toggle_two_sided )  /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_two_sided )  /* ARGSUSED */
 {
-    void  set_text_on_off();
+    void           set_text_on_off();
+    model_struct   *get_relevant_model();
+    model_struct   *model;
 
-    set_text_on_off( format, text,
-                graphics->models[THREED_MODEL].render.two_sided_surface_flag );
+    model = get_relevant_model( graphics );
+
+    set_text_on_off( format, text, model->render.two_sided_surface_flag );
 
     menu_window->update_required = TRUE;
 
@@ -116,8 +174,12 @@ public  DEF_MENU_UPDATE(toggle_two_sided )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_backfacing )  /* ARGSUSED */
 {
-    graphics->models[THREED_MODEL].render.backface_flag = 
-                  !graphics->models[THREED_MODEL].render.backface_flag;
+    model_struct   *get_relevant_model();
+    model_struct   *model;
+
+    model = get_relevant_model( graphics );
+
+    model->render.backface_flag = !model->render.backface_flag;
 
     graphics->update_required = TRUE;
 
@@ -126,10 +188,13 @@ public  DEF_MENU_FUNCTION( toggle_backfacing )  /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_backfacing )  /* ARGSUSED */
 {
-    void  set_text_on_off();
+    void           set_text_on_off();
+    model_struct   *get_relevant_model();
+    model_struct   *model;
 
-    set_text_on_off( format, text,
-                     graphics->models[THREED_MODEL].render.backface_flag );
+    model = get_relevant_model( graphics );
+
+    set_text_on_off( format, text, model->render.backface_flag );
 
     menu_window->update_required = TRUE;
 
