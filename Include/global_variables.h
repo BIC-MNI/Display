@@ -100,7 +100,7 @@ START_GLOBALS
     DEF_GLOBAL( Slice_divider_y_position, Real, 0.5 )
     DEF_GLOBAL( Left_panel_width, int, 90 )
     DEF_GLOBAL( Text_panel_height, int, 150 )
-    DEF_GLOBAL( Slice_text_colour, Colour, RED )
+    DEF_GLOBAL( Slice_text_colour, Colour, GREEN )
     DEF_GLOBAL( Slice_text_font, int, 0 )
     DEF_GLOBAL( Slice_text_font_size, Real, 18.0 )
     DEF_GLOBAL3( Slice_index_offset, Point, 50.0, -15.0, 0.0 )
@@ -124,15 +124,12 @@ START_GLOBALS
     DEF_GLOBAL( Probe_y_delta, int, 15 )
     DEF_GLOBAL( Slice_view1_axis1, int, 1 )
     DEF_GLOBAL( Slice_view1_axis2, int, 2 )
-    DEF_GLOBAL( Slice_view1_axis3, int, 0 )
 
     DEF_GLOBAL( Slice_view2_axis1, int, 0 )
     DEF_GLOBAL( Slice_view2_axis2, int, 2 )
-    DEF_GLOBAL( Slice_view2_axis3, int, 1 )
 
     DEF_GLOBAL( Slice_view3_axis1, int, 0 )
     DEF_GLOBAL( Slice_view3_axis2, int, 1 )
-    DEF_GLOBAL( Slice_view3_axis3, int, 2 )
 
     DEF_GLOBAL3( Cursor_home, Point, 0.0, 0.0, 0.0 )
     DEF_GLOBAL( Cursor_colour, Colour, 3 )
