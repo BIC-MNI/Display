@@ -14,7 +14,6 @@ public  Status  load_graphics_file(
     object_struct            *current_object;
     object_traverse_struct   object_traverse;
     BOOLEAN                  volume_present;
-    BOOLEAN                  markers_present;
 
     object = create_object( MODEL );
 
@@ -75,8 +74,6 @@ public  Status  load_graphics_file(
 
     if( status == OK )
     {
-        markers_present = FALSE;
-
         initialize_object_traverse( &object_traverse, 1, &object );
 
         while( get_next_object_traverse(&object_traverse,&current_object) )
@@ -85,10 +82,6 @@ public  Status  load_graphics_file(
                 current_object->object_type == MODEL )
             {
                 initialize_model_info( get_model_ptr(current_object) );
-            }
-            else if( current_object->object_type == MARKER )
-            {
-                markers_present = TRUE;
             }
             else if( current_object->object_type == POLYGONS )
             {
@@ -145,9 +138,6 @@ public  Status  load_graphics_file(
                      0.5 );
 
         reset_cursor( display );
-
-        if( markers_present )
-            markers_have_changed( display );
 
         rebuild_selected_list( display, display->associated[MENU_WINDOW] );
     }

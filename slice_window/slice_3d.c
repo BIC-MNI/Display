@@ -85,7 +85,6 @@ private  void   create_box(
 public  void  rebuild_volume_outline(
     display_struct    *slice_window )
 {
-    int             sizes[MAX_DIMENSIONS];
     Volume          volume;
 
     if( get_slice_window_volume( slice_window, &volume ) )

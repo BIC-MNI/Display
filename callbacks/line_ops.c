@@ -178,12 +178,17 @@ public  DEF_MENU_FUNCTION( convert_markers_to_lines )   /* ARGSUSED */
     Real                    dist, curr_dist, ratio, next_dist;
     Real                    desired_dist;
     Point                   *markers, point;
+    Point                   p1, p2, p3, p4;
     int                     n_points;
     object_struct           *object, *current_object;
     object_traverse_struct  object_traverse;
 
 
-    current_object = get_current_model_object( display );
+    if( !get_current_object( display, &current_object ) )
+    {
+        print( "Current object is not a marker or model containing markers.\n");
+        return( OK );
+    }
 
     n_markers = 0;
 
@@ -202,9 +207,8 @@ public  DEF_MENU_FUNCTION( convert_markers_to_lines )   /* ARGSUSED */
     if( n_markers >= 3 )
     {
         dist = 0.0;
-        for_less( i, 0, n_markers )
-            dist += distance_between_points( &markers[i],
-                                             &markers[(i+1)%n_markers] );
+        for_less( i, 0, n_markers-1 )
+            dist += distance_between_points( &markers[i], &markers[i+1] );
 
         print( "Enter number of points desired: " );
 
@@ -218,12 +222,12 @@ public  DEF_MENU_FUNCTION( convert_markers_to_lines )   /* ARGSUSED */
 
             ALLOC( lines->points, lines->n_points );
             ALLOC( lines->end_indices, 1 );
-            ALLOC( lines->indices, lines->n_points+1 );
+            ALLOC( lines->indices, lines->n_points );
 
-            lines->end_indices[0] = n_points+1;
+            lines->end_indices[0] = n_points;
 
-            for_less( i, 0, n_points+1 )
-                lines->indices[i] = i % n_points;
+            for_less( i, 0, n_points )
+                lines->indices[i] = i;
 
             curr_index = 0;
             curr_dist = 0.0;
@@ -233,23 +237,33 @@ public  DEF_MENU_FUNCTION( convert_markers_to_lines )   /* ARGSUSED */
             {
                 desired_dist = (Real) i / (Real) n_points * dist;
 
-                while( desired_dist >= next_dist )
+                while( curr_index < n_markers-2 && desired_dist >= next_dist )
                 {
                     ++curr_index;
                     curr_dist = next_dist;
                     next_dist += distance_between_points( &markers[curr_index],
-                                          &markers[(curr_index+1)%n_markers] );
+                                                      &markers[curr_index+1] );
                 }
+
+                if( curr_index > 0 )
+                    p1 = markers[curr_index-1];
+                else
+                    p1 = markers[0];
+
+                p2 = markers[curr_index];
+                p3 = markers[curr_index+1];
+
+                if( curr_index < n_markers-2 )
+                    p4 = markers[curr_index+2];
+                else
+                    p4 = markers[n_markers-1];
 
                 ratio = (desired_dist - curr_dist) / (next_dist - curr_dist);
                 for_less( c, 0, N_DIMENSIONS )
                 {
                     Point_coord(point,c) = CUBIC_UNIVAR( 
-                     Point_coord(markers[(curr_index-1+n_markers)%n_markers],c),
-                     Point_coord(markers[curr_index],c),
-                     Point_coord(markers[(curr_index+1)%n_markers],c),
-                     Point_coord(markers[(curr_index+2)%n_markers],c),
-                     ratio );
+                     Point_coord(p1,c), Point_coord(p2,c), Point_coord(p3,c),
+                     Point_coord(p4,c), ratio );
                 }
                 lines->points[i] = point;
             }

@@ -525,8 +525,8 @@ public  void  fit_view_to_visible_models(
         if( !get_range_of_object( display->models[MISCELLANEOUS_MODEL],
                                   TRUE, &min_limit, &max_limit ) )
         {
-            fill_Point( min_limit, -1.0, -1.0, -1.0 );
-            fill_Point( max_limit,  1.0,  1.0,  1.0 );
+            fill_Point( min_limit, 0.0, 0.0, 0.0 );
+            fill_Point( max_limit, 1.0, 1.0, 1.0 );
         }
     }
     else if( get_range_of_object( display->models[MISCELLANEOUS_MODEL],

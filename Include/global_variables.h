@@ -12,6 +12,7 @@ START_GLOBALS
     DEF_GLOBAL( Interval_of_check, int, 250 )
 
     DEF_GLOBAL( Initial_perspective_flag, BOOLEAN, FALSE )
+    DEF_GLOBAL( Perspective_distance_factor, Real, 2.0 )
     DEF_GLOBAL( Closest_front_plane, Real, 1.0e-5 )
     DEF_GLOBAL( Initial_render_mode, BOOLEAN, FALSE )
     DEF_GLOBAL( Initial_shading_type, int, 1 )

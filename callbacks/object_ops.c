@@ -239,13 +239,10 @@ private  BOOLEAN  remove_current_object_from_hierarchy(
     BOOLEAN          removed;
     int              obj_index;
     model_struct     *current_model;
-    BOOLEAN          is_a_marker;
 
     if( !current_object_is_top_level( display ) &&
         get_current_object( display, object ) )
     {
-        is_a_marker = ((*object)->object_type == MARKER);
-
         obj_index = get_current_object_index( display );
 
         current_model = get_current_model( display );
@@ -260,9 +257,6 @@ private  BOOLEAN  remove_current_object_from_hierarchy(
         set_current_object_index( display, obj_index );
 
         graphics_models_have_changed( display );
-
-        if( is_a_marker )
-            regenerate_voxel_marker_labels( display );
 
         removed = TRUE;
     }
@@ -308,9 +302,6 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
             col = convert_string_to_colour( line );
 
             set_object_colour( current_object, col );
-
-            if( current_object->object_type == MARKER )
-                regenerate_voxel_marker_labels( display );
 
             set_update_required( display, NORMAL_PLANES );
             rebuild_selected_list( display, menu_window );
@@ -466,6 +457,32 @@ public  DEF_MENU_FUNCTION( flip_object )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(flip_object )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( scan_current_object_to_volume )   /* ARGSUSED */
+{
+    object_struct     *current_object;
+    display_struct    *slice_window;
+
+    if( get_current_object( display, &current_object ) &&
+        get_slice_window( display, &slice_window ) )
+    {
+        if( Clear_before_polygon_scan )
+            set_all_volume_label_data( get_label_volume(slice_window), 0 );
+
+        scan_object_to_volume( slice_window, current_object );
+
+        print( " done.\n" );
+
+        set_slice_window_all_update( slice_window );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(scan_current_object_to_volume )   /* ARGSUSED */
 {
     return( OK );
 }

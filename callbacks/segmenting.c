@@ -250,11 +250,13 @@ public  DEF_MENU_UPDATE(label_connected_no_threshold )   /* ARGSUSED */
 
 private  void   set_connected_labels(
     display_struct   *display,
-    int              label,
+    int              desired_label,
     BOOLEAN          use_threshold )
 {
     Real             voxel[MAX_DIMENSIONS], min_threshold, max_threshold;
     int              axis_index, int_voxel[MAX_DIMENSIONS];
+    int              label_under_mouse;
+    int              min_label_threshold, max_label_threshold;
     display_struct   *slice_window;
 
     if( get_voxel_under_mouse( display, voxel, &axis_index ) )
@@ -275,12 +277,19 @@ private  void   set_connected_labels(
 
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
 
+        label_under_mouse = get_volume_label_data(
+                                get_label_volume(slice_window), int_voxel );
+
+        min_label_threshold = label_under_mouse;
+        max_label_threshold = label_under_mouse;
+
         set_connected_voxels_labels( get_volume(slice_window),
                           get_label_volume(slice_window),
                           axis_index, int_voxel,
                           min_threshold, max_threshold,
+                          min_label_threshold, max_label_threshold,
                           slice_window->slice.segmenting.connectivity,
-                          label );
+                          desired_label );
 
         set_slice_window_all_update( slice_window );
     }
@@ -290,20 +299,28 @@ public  DEF_MENU_FUNCTION(label_connected_3d)   /* ARGSUSED */
 {
     Real             voxel[MAX_DIMENSIONS];
     int              axis_index, int_voxel[MAX_DIMENSIONS];
+    int              label_under_mouse, desired_label;
     display_struct   *slice_window;
 
-    if( get_voxel_under_mouse( display, voxel, &axis_index ) )
+    if( get_voxel_under_mouse( display, voxel, &axis_index ) &&
+        get_slice_window( display, &slice_window ) )
     {
-        slice_window = display->associated[SLICE_WINDOW];
-
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
 
-        print( "Filling 3d from %d %d %d\n",
-               int_voxel[X], int_voxel[Y], int_voxel[Z] );
+        label_under_mouse = get_volume_label_data(
+                                get_label_volume(slice_window), int_voxel );
+        desired_label = get_current_paint_label( slice_window );
+
+        print( "Filling 3d from %d %d %d, label %d becomes %d\n",
+               int_voxel[X], int_voxel[Y], int_voxel[Z],
+               label_under_mouse, desired_label );
 
         fill_connected_voxels_3d( get_volume(slice_window),
-                                  get_label_volume(slice_window), int_voxel,
-                                  get_current_paint_label(slice_window),
+                                  get_label_volume(slice_window),
+                                  slice_window->slice.segmenting.connectivity,
+                                  int_voxel,
+                                  label_under_mouse, label_under_mouse,
+                                  desired_label,
                                   slice_window->slice.segmenting.min_threshold,
                                   slice_window->slice.segmenting.max_threshold);
 

@@ -78,7 +78,7 @@ private  DEF_EVENT_FUNCTION( terminate_front_clipping )
     update_clipping( display, TRUE );
     
     remove_action_table_function( &display->action_table,
-                                  NO_EVENT, turn_off_front_clipping );
+                                  NO_EVENT, handle_update_front );
     remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_front_clipping );

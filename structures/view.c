@@ -10,7 +10,7 @@ public  void  initialize_view(
     view->perspective_flag = FALSE;
     view->origin = origin;
     assign_view_direction( view, line_of_sight, horizontal );
-    view->front_distance = 0.0;
+    view->front_distance = 0.01;
     view->perspective_distance = 4.0;
     view->back_distance = 2.0;
     view->desired_aspect = 0.0;
@@ -151,7 +151,8 @@ public  void  adjust_view_for_aspect(
 
     prev_persp_dist = view->perspective_distance;
 
-    view->perspective_distance = width * G_get_monitor_widths_to_eye() *
+    view->perspective_distance = width * Perspective_distance_factor *
+                                 G_get_monitor_widths_to_eye() *
                                  (Real) G_get_monitor_width() /
                                  (Real) x_size;
 

@@ -185,7 +185,7 @@ public  void  regenerate_atlas_lookup(
     Volume            volume;
     atlas_struct      *atlas;
     Real              voxel[MAX_DIMENSIONS], world[N_DIMENSIONS];
-    int               sizes[MAX_DIMENSIONS], axis, i;
+    int               sizes[MAX_DIMENSIONS], axis, i, used_i;
 
     (void) get_slice_window_volume( slice_window, &volume );
     get_volume_sizes( volume, sizes );
@@ -206,8 +206,13 @@ public  void  regenerate_atlas_lookup(
             voxel[axis] = (Real) i;
             convert_voxel_to_world( volume, voxel,
                                     &world[X], &world[Y], &world[Z] );
-            atlas->slice_lookup[axis][i] = get_closest_atlas_slice(
-                                              axis, world[axis], atlas );
+            if( axis == X && atlas->flipped[X] )
+                used_i = sizes[axis]-1-i;
+            else
+                used_i = i;
+
+            atlas->slice_lookup[axis][used_i] = get_closest_atlas_slice(
+                                                axis, world[axis], atlas );
         }
     }
 }
@@ -330,8 +335,12 @@ public  void  blend_in_atlas(
     ALLOC( x_pixels, image_x_size );
 
     for_less( x, 0, image_x_size )
+    {
         x_pixels[x] = ROUND( x_pixel_start + x / x_atlas_to_voxel /
                                              ATLAS_THICKNESS[a1] );
+        if( axis_index != X && atlas->flipped[axis_index] )
+            x_pixels[x] = atlas_x_size - 1 - x_pixels[x];
+    }
 
     for_less( y, 0, image_y_size )
     {

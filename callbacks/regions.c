@@ -133,10 +133,9 @@ public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
             {
                 col = convert_string_to_colour( line );
 
-                add_new_label( slice_window,
-                               slice_window->slice.current_paint_label, col );
+                add_new_label( slice_window, label, col );
 
-                set_slice_window_all_update( display->associated[SLICE_WINDOW] );
+                set_slice_window_all_update( display->associated[SLICE_WINDOW]);
             }
         }
         else
@@ -622,7 +621,6 @@ public  DEF_MENU_FUNCTION( translate_labels_arbitrary )   /* ARGSUSED */
             input_int( stdin, &delta[Z] ) == OK )
         {
             translate_labels( get_label_volume( slice_window ), delta );
-            undo_slice_labels_if_any( display );
             set_slice_window_all_update( display->associated[SLICE_WINDOW] );
         }
 

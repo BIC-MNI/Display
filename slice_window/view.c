@@ -476,6 +476,7 @@ public  void  set_slice_divider_position(
     int  left_panel_width, left_slice_width, right_slice_width;
     int  bottom_slice_height, top_slice_height, text_panel_height;
     int  colour_bar_panel_height;
+    Real x_split, y_split;
 
     get_slice_window_partitions( slice_window,
                                  &left_panel_width, &left_slice_width,
@@ -483,15 +484,21 @@ public  void  set_slice_divider_position(
                                  &bottom_slice_height, &top_slice_height,
                                  &text_panel_height, &colour_bar_panel_height );
 
-    slice_window->slice.x_split = (Real) (x - left_panel_width) /
-                                  (Real) (left_slice_width + right_slice_width);
-    slice_window->slice.y_split = (Real) y /
-                              (Real) (bottom_slice_height + top_slice_height);
+    x_split = (Real) (x - left_panel_width) /
+              (Real) (left_slice_width + right_slice_width);
+    y_split = (Real) y /
+              (Real) (bottom_slice_height + top_slice_height);
 
-    for_less( view, 0, N_SLICE_VIEWS )
-        resize_slice_view( slice_window, view );
+    if( x_split > 0.0 && x_split < 1.0 && y_split > 0.0 && y_split < 1.0 )
+    {
+        slice_window->slice.x_split = x_split;
+        slice_window->slice.y_split = y_split;
 
-    rebuild_slice_models( slice_window );
+        for_less( view, 0, N_SLICE_VIEWS )
+            resize_slice_view( slice_window, view );
+
+        rebuild_slice_models( slice_window );
+    }
 }
 
 public  BOOLEAN  get_voxel_in_slice_window(

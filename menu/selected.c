@@ -66,31 +66,43 @@ private  void  set_text_entry(
     get_text_ptr(model->objects[index+1])->colour = col;
 }
 
-private  void  set_current_box(
-    model_struct   *selected_model,
+private  void  get_box_limits(
     int            index,
-    char           label[] )
+    char           label[],
+    int            *x_min,
+    int            *x_max,
+    int            *y_min,
+    int            *y_max )
 {
     int            width;
-    Real           x_start, x_end, y_start, y_end;
-    Point          *points;
 
     width = (int) G_get_text_length( label, FIXED_FONT, 0.0 );
 
     if( width <= 0 )
         width = 20;
 
+    *x_min = Selected_x_origin;
+    *y_min = Selected_y_origin - Menu_character_height * (Real) index;
+    *x_max = *x_min + (Real) width;
+    *y_max = *y_min + (Real) Character_height_in_pixels;
+
+    *x_min -= Selected_box_x_offset;
+    *x_max += Selected_box_x_offset;
+    *y_min -= Selected_box_y_offset;
+    *y_max += Selected_box_y_offset;
+}
+
+private  void  set_current_box(
+    model_struct   *selected_model,
+    int            index,
+    char           label[] )
+{
+    int            x_start, x_end, y_start, y_end;
+    Point          *points;
+
+    get_box_limits( index, label, &x_start, &x_end, &y_start, &y_end );
+
     points = get_lines_ptr(selected_model->objects[0])->points;
-
-    x_start = Selected_x_origin;
-    y_start = Selected_y_origin - Menu_character_height * (Real) index;
-    x_end = x_start + (Real) width;
-    y_end = y_start + (Real) Character_height_in_pixels;
-
-    x_start -= Selected_box_x_offset;
-    x_end += Selected_box_x_offset;
-    y_start -= Selected_box_y_offset;
-    y_end += Selected_box_y_offset;
 
     fill_Point( points[0], x_start, y_start, 0.0 );
     fill_Point( points[1], x_end, y_start, 0.0 );
@@ -100,13 +112,56 @@ private  void  set_current_box(
     set_object_visibility( selected_model->objects[0], ON );
 }
 
+private  void  get_model_objects_visible(
+    display_struct    *display,
+    int               *start_index,
+    int               *n_objects )
+{
+    int            selected_index;
+    model_struct   *model;
+
+    if( current_object_is_top_level( display ) )
+    {
+        *start_index = 0;
+        *n_objects = 1;
+    }
+    else
+    {
+        model = get_current_model( display );
+        selected_index = get_current_object_index( display );
+
+        *start_index = selected_index - N_selected_displayed / 2;
+
+        if( *start_index > model->n_objects - N_selected_displayed )
+            *start_index = model->n_objects - N_selected_displayed;
+
+        if( *start_index < 0 )
+            *start_index = 0;
+
+        *n_objects = MIN( N_selected_displayed,
+                          model->n_objects - *start_index );
+    }
+}
+
+private  void  get_object_label(
+    object_struct   *object,
+    int             index,
+    char            label[] )
+{
+    STRING    name;
+
+    get_object_name( object, name );
+
+    (void) sprintf( label, "%3d: %s", index, name );
+}
+
 public  void  rebuild_selected_list(
     display_struct    *display,
     display_struct    *menu_window )
 {
-    int            i, start, selected_index;
+    int            i, start_index, n_objects, selected_index;
     Colour         col;
-    STRING         name, label;
+    STRING         label;
     model_struct   *selected_model, *model;
 
     selected_model = get_graphics_model( menu_window, SELECTED_MODEL );
@@ -119,46 +174,58 @@ public  void  rebuild_selected_list(
 
     model = get_current_model( display );
 
-    if( current_object_is_top_level( display ) )
+    get_model_objects_visible( display, &start_index, &n_objects );
+
+    selected_index = get_current_object_index( display );
+
+    for_less( i, start_index, start_index + n_objects )
     {
-        set_text_entry( menu_window, 0, model->filename, Visible_colour );
-        set_current_box( selected_model, 0, model->filename );
-    }
-    else
-    {
-        selected_index = get_current_object_index( display );
+        get_object_label( model->objects[i], i, label );
 
-        start = selected_index - N_selected_displayed / 2;
-
-        if( start > model->n_objects - N_selected_displayed )
-            start = model->n_objects - N_selected_displayed;
-
-        if( start < 0 )
-            start = 0;
-
-        for_less( i, 0, N_selected_displayed )
+        if( get_object_visibility( model->objects[i] ) )
         {
-            if( start + i < model->n_objects )
-            {
-                get_object_name( model->objects[start+i], name );
-
-                (void) sprintf( label, "%3d: %s", start + i + 1, name );
-
-                if( get_object_visibility( model->objects[start+i] ) )
-                {
-                    if( !get_object_colour(model->objects[start+i], &col ) )
-                        col = Visible_colour;
-                }
-                else
-                    col = Invisible_colour;
-
-                set_text_entry( menu_window, i, label, col );
-
-                if( start+i == selected_index )
-                    set_current_box( selected_model, i, label );
-            }
+            if( !get_object_colour(model->objects[i], &col ) )
+                col = Visible_colour;
         }
+        else
+            col = Invisible_colour;
+
+        set_text_entry( menu_window, i - start_index, label, col );
+
+        if( i == selected_index )
+            set_current_box( selected_model, i - start_index, label );
     }
 
     set_update_required( menu_window, NORMAL_PLANES );
+}
+
+public  BOOLEAN  mouse_is_on_object_name(
+    display_struct    *display,
+    int               x,
+    int               y,
+    object_struct     **object_under_mouse )
+{
+    int            i, start_index, n_objects;
+    int            x_min, x_max, y_min, y_max;
+    STRING         label;
+    model_struct   *model;
+
+    model = get_current_model( display );
+    get_model_objects_visible( display, &start_index, &n_objects );
+
+    for_less( i, start_index, start_index + n_objects )
+    {
+        get_object_label( model->objects[i], i, label );
+
+        get_box_limits( i - start_index, label,
+                        &x_min, &x_max, &y_min, &y_max );
+
+        if( x_min <= x && x <= x_max && y_min <= y && y <= y_max )
+        {
+            *object_under_mouse = model->objects[i];
+            return( TRUE );
+        }
+    }
+
+    return( FALSE );
 }

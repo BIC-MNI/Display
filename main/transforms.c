@@ -47,3 +47,11 @@ public  void  transform_model(
                        &display->three_d.view.modeling_transform,
                        transform );
 }
+
+public  void  get_inverse_model_transform(
+    display_struct    *display,
+    Transform         *inverse_transform )
+{
+    (void) compute_transform_inverse( &display->three_d.view.modeling_transform,
+                                      inverse_transform );
+}

@@ -93,6 +93,8 @@ public  void  start_surface_extraction_at_point(
 
             start_surface_extraction( display );
         }
+        else
+            print( "No surface voxels found.\n" );
     }
 }
 

@@ -80,10 +80,6 @@ public  void  create_marker_at_position(
         (void) strcpy( marker->label, label );
 
     add_object_to_current_model( display, object );
-
-    render_marker_to_volume( display, marker );
-
-    set_slice_window_all_update( display->associated[SLICE_WINDOW] );
 }
 
 public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
@@ -217,13 +213,6 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
 public  DEF_MENU_UPDATE(save_markers )   /* ARGSUSED */
 {
     return( OK );
-}
-
-public  void  markers_have_changed(
-    display_struct   *display )
-{
-    regenerate_voxel_marker_labels( display );
-    graphics_models_have_changed( display );
 }
 
 public  DEF_MENU_FUNCTION( set_default_marker_structure_id )   /* ARGSUSED */
@@ -565,7 +554,7 @@ public  DEF_MENU_FUNCTION( change_marker_size )   /* ARGSUSED */
         {
             marker->size = size;
             print( "The new size of this marker is: %g\n", marker->size );
-            markers_have_changed( display );
+            graphics_models_have_changed( display );
         }
 
         (void) input_newline( stdin );
@@ -592,7 +581,7 @@ public  DEF_MENU_FUNCTION( change_marker_position )   /* ARGSUSED */
                Point_y(marker->position),
                Point_z(marker->position) );
 
-        markers_have_changed( display );
+        graphics_models_have_changed( display );
     }
 
     return( OK );

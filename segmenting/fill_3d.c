@@ -6,16 +6,18 @@ typedef struct
 } xyz_struct;
 
 public  void  fill_connected_voxels_3d(
-    Volume          volume,
-    Volume          label_volume,
-    int             voxel[],
-    int             min_label_threshold,
-    int             max_label_threshold,
-    int             desired_label,
-    Real            min_threshold,
-    Real            max_threshold )
+    Volume              volume,
+    Volume              label_volume,
+    Neighbour_types     connectivity,
+    int                 voxel[],
+    int                 min_label_threshold,
+    int                 max_label_threshold,
+    int                 desired_label,
+    Real                min_threshold,
+    Real                max_threshold )
 {
-    int                          x, y, z, tx, ty, tz, dx, dy, dz;
+    int                          dir, n_dirs, *dx, *dy, *dz;
+    int                          x, y, z, tx, ty, tz;
     int                          sizes[N_DIMENSIONS];
     int                          voxel_index[MAX_DIMENSIONS];
     xyz_struct                   entry;
@@ -31,6 +33,8 @@ public  void  fill_connected_voxels_3d(
                                  min_label_threshold, max_label_threshold,
                                  desired_label ) )
         return;
+
+    n_dirs = get_3D_neighbour_directions( connectivity, &dx, &dy, &dz );
 
     get_volume_sizes( volume, sizes );
 
@@ -58,14 +62,11 @@ public  void  fill_connected_voxels_3d(
         y = entry.y;
         z = entry.z;
 
-        for_inclusive( dx, -1, 1 )
-        for_inclusive( dy, -1, 1 )
-        for_inclusive( dz, -1, 1 )
-        if( dx != 0 || dy != 0 || dz != 0 )
+        for_less( dir, 0, n_dirs )
         {
-            tx = x + dx;
-            ty = y + dy;
-            tz = z + dz;
+            tx = x + dx[dir];
+            ty = y + dy[dir];
+            tz = z + dz[dir];
 
             if( tx >= 0 && tx < sizes[X] &&
                 ty >= 0 && ty < sizes[Y] &&

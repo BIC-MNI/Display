@@ -1,7 +1,5 @@
 #include  <display.h>
 
-typedef  skiplist_struct  point_lookup_struct;
-
 private  BOOLEAN  face_is_boundary(
     Volume          volume,
     Real            min_value,
@@ -9,17 +7,15 @@ private  BOOLEAN  face_is_boundary(
     int             indices[N_DIMENSIONS],
     int             c,
     int             offset );
-private  void  initialize_point_lookup(
-    point_lookup_struct  *point_lookup );
-private  void  terminate_point_lookup(
-    point_lookup_struct  *point_lookup );
 private  Status  add_face(
     Volume               volume,
     int                  indices[N_DIMENSIONS],
     int                  c,
     int                  offset,
     polygons_struct      *polygons,
-    point_lookup_struct  *point_lookup );
+    int                  ***point_lookup );
+
+#define  INVALID_INDEX   -1
 
 public  void  create_voxelated_surface(
     Volume           volume,
@@ -28,9 +24,9 @@ public  void  create_voxelated_surface(
     polygons_struct  *polygons )
 {
     int                          indices[N_DIMENSIONS], sizes[N_DIMENSIONS];
-    int                          c, offset;
-    point_lookup_struct          point_lookup;
+    int                          c, offset, x, y, z;
     progress_struct              progress;
+    int                          **point_lookup[2], **tmp;
 
     initialize_polygons( polygons, WHITE, (Surfprop *) NULL );
 
@@ -38,7 +34,15 @@ public  void  create_voxelated_surface(
 
     get_volume_sizes( volume, sizes );
 
-    initialize_point_lookup( &point_lookup );
+    ALLOC2D( point_lookup[0], sizes[X], sizes[Y] );
+    ALLOC2D( point_lookup[1], sizes[X], sizes[Y] );
+
+    for_less( z, 0, 2 )
+    {
+        for_less( x, 0, sizes[X] )
+            for_less( y, 0, sizes[Y] )
+                point_lookup[z][x][y] = INVALID_INDEX;
+    }
 
     initialize_progress_report( &progress, FALSE,
                                 sizes[X] * sizes[Y] * sizes[Z],
@@ -46,6 +50,14 @@ public  void  create_voxelated_surface(
 
     for_less( indices[Z], 0, sizes[Z] )
     {
+        tmp = point_lookup[0];
+        point_lookup[0] = point_lookup[1];
+        point_lookup[1] = tmp;
+
+        for_less( x, 0, sizes[X] )
+            for_less( y, 0, sizes[Y] )
+                point_lookup[1][x][y] = INVALID_INDEX;
+
         for_less( indices[X], 0, sizes[X] )
         {
             for_less( indices[Y], 0, sizes[Y] )
@@ -56,10 +68,10 @@ public  void  create_voxelated_surface(
                     {
                         if( face_is_boundary( volume,
                                               min_value, max_value,
-                                              indices, c,offset))
+                                              indices, c,offset) )
                         {
                             add_face( volume, indices, c, offset,
-                                      polygons, &point_lookup );
+                                      polygons, point_lookup );
                         }
                     }
                 }
@@ -68,16 +80,12 @@ public  void  create_voxelated_surface(
             update_progress_report( &progress, sizes[Y] *
                      (indices[X]+1 + indices[Z] * sizes[X]) );
         }
-
-/*
-        print( "N points: %d    N polygons: %d\n", polygons->n_points,
-               polygons->n_items );
-*/
     }
 
     terminate_progress_report( &progress );
 
-    terminate_point_lookup( &point_lookup );
+    FREE2D( point_lookup[0] );
+    FREE2D( point_lookup[1] );
 
     if( polygons->n_points > 0 )
     {
@@ -128,90 +136,24 @@ private  BOOLEAN  face_is_boundary(
     return( boundary_flag );
 }
 
-typedef  struct
-{
-    unsigned  short  x, y, z;
-    int              point_index;
-} point_struct;
-
-private  int  compare_function(
-    void   *data1,
-    void   *data2 )
-{
-    point_struct  *d1, *d2;
-
-    d1 = (point_struct *) data1;
-    d2 = (point_struct *) data2;
-
-    if( d1->x < d2->x )
-        return( -1 );
-    else if( d1->x > d2->x )
-        return( 1 );
-    else if( d1->y < d2->y )
-        return( -1 );
-    else if( d1->y > d2->y )
-        return( 1 );
-    else if( d1->z < d2->z )
-        return( -1 );
-    else if( d1->z > d2->z )
-        return( 1 );
-    else
-        return( 0 );
-}
-
-private  void  initialize_point_lookup(
-    point_lookup_struct  *point_lookup )
-{
-    initialize_skiplist( point_lookup, compare_function );
-}
-
-private  void  terminate_point_lookup(
-    point_lookup_struct  *point_lookup )
-{
-    skip_struct    *entry_ptr;
-    point_struct   *data_ptr;
-
-    if( get_first_skiplist_entry( point_lookup, &entry_ptr,
-                                  (void **) &data_ptr ) )
-    {
-        FREE( data_ptr );
-
-        while( get_next_skiplist_entry( &entry_ptr, (void **) &data_ptr ) )
-        {
-            FREE( data_ptr );
-        }
-    }
-
-    delete_skiplist( point_lookup );
-}
-
 private  int  get_point_index(
     Volume               volume,
     polygons_struct      *polygons,
-    point_lookup_struct  *point_lookup,
+    int                  ***point_lookup,
     int                  x,
     int                  y,
     int                  z )
 {
+    int           point_index;
     Real          x_w, y_w, z_w, voxel[MAX_DIMENSIONS];
     Point         point;
-    point_struct  p, *entry;
 
-    p.x = (unsigned short) x;
-    p.y = (unsigned short) y;
-    p.z = (unsigned short) z;
+    point_index = point_lookup[z][x][y];
 
-    if( !search_skiplist( point_lookup, (void *) &p, (void **) &entry ) )
+    if( point_index == INVALID_INDEX )
     {
-        ALLOC( entry, 1 );
-        *entry = p;
-        entry->point_index = polygons->n_points;
-
-        if( !insert_in_skiplist( point_lookup, (void *) entry ) )
-        {
-            HANDLE_INTERNAL_ERROR( "lookup id for boundary detection" );
-        }
-
+        point_index = polygons->n_points;
+        point_lookup[z][x][y] = point_index;
         voxel[X] = (Real) x - 0.5;
         voxel[Y] = (Real) y - 0.5;
         voxel[Z] = (Real) z - 0.5;
@@ -221,7 +163,7 @@ private  int  get_point_index(
                               point, DEFAULT_CHUNK_SIZE );
     }
 
-    return( entry->point_index );
+    return( point_index );
 }
 
 private  Status  add_face(
@@ -230,7 +172,7 @@ private  Status  add_face(
     int                  c,
     int                  offset,
     polygons_struct      *polygons,
-    point_lookup_struct  *point_lookup )
+    int                  ***point_lookup )
 {
     int      a1, a2, point_ids[4], point_indices[N_DIMENSIONS], n_indices, i;
 
@@ -256,28 +198,28 @@ private  Status  add_face(
     point_ids[0] = get_point_index( volume, polygons, point_lookup,
                                     point_indices[0],
                                     point_indices[1],
-                                    point_indices[2] );
+                                    point_indices[2] - indices[Z] );
 
     point_indices[a1] = indices[a1];
     point_indices[a2] = indices[a2] + 1;
     point_ids[1] = get_point_index( volume, polygons, point_lookup,
                                     point_indices[0],
                                     point_indices[1],
-                                    point_indices[2] );
+                                    point_indices[2] - indices[Z] );
 
     point_indices[a1] = indices[a1] + 1;
     point_indices[a2] = indices[a2] + 1;
     point_ids[2] = get_point_index( volume, polygons, point_lookup,
                                     point_indices[0],
                                     point_indices[1],
-                                    point_indices[2] );
+                                    point_indices[2] - indices[Z] );
 
     point_indices[a1] = indices[a1] + 1;
     point_indices[a2] = indices[a2];
     point_ids[3] = get_point_index( volume, polygons, point_lookup,
                                     point_indices[0],
                                     point_indices[1],
-                                    point_indices[2] );
+                                    point_indices[2] - indices[Z] );
 
     n_indices = NUMBER_INDICES( *polygons );
 

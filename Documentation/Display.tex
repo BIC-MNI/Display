@@ -5,11 +5,11 @@
 
 \newcommand{\ident}[1]{{\bf\tt #1}\ }
 \newcommand{\display}{\ident{display}}
-\newcommand{\menu}[1]{\fbox{\sc\bf #1}}
-\newcommand{\menutwo}[2]{\fbox{\sc\bf #1}/\fbox{\sc\bf #2}}
-\newcommand{\menuthree}[3]{\fbox{\sc\bf #1}/\fbox{\sc\bf #2}/\fbox{\sc\bf #3}}
+\newcommand{\menu}[1]{{\scriptsize \fbox{\bf #1}}}
+\newcommand{\menutwo}[2]{{\scriptsize \fbox{\bf #1}/\fbox{\bf #2}}}
+\newcommand{\menuthree}[3]{{\scriptsize \fbox{\bf #1}/\fbox{\bf #2}/\fbox{\bf #3}}}
 
-\psdraft
+%\psdraft
 
 \begin{document}
 
@@ -119,7 +119,8 @@ The menu window contains the representation of the partial keyboard, and
 displays the object hierarchy.  All objects loaded and created in \display,
 with the exception of volumes are displayed in the object hierarchy.  The
 arrow keys are used to move around in this hierarchy and to select the
-current object.
+current object.  Or clicking on an object with the left mouse button
+will make it the current selection.
 
 \subsection{3D Window}
 
@@ -363,12 +364,14 @@ at the same time, erasing will be performed, by storing the value 0.
     by a max value which is less than the min value.
 \item[\menutwo{Segmenting}{Label Fill}]  If the mouse is pointing
     to a voxel which is within the selected segmenting range and which
-    has a label of 0, then all similar voxels on this slice connected
+    has a label not equal to the current paint label, then all similar
+    voxels on this slice connected
     to the starting voxel are assigned the current paint label, by a
     flood fill algorithm.
 \item[\menutwo{Segmenting}{Label Fill No Thrs}]  Sames as
     \menutwo{Segmenting}{Label Fill}, except ignoring the threshold.
-    If the mouse is pointing to a voxel which has a label of 0, then all
+    If the mouse is pointing to a voxel has a label not equal to the
+    current paint label, then all
     zero-labeled voxels on this slice connected
     to the starting voxel are assigned the current paint label, by a
     flood fill algorithm.
@@ -396,13 +399,15 @@ at the same time, erasing will be performed, by storing the value 0.
     For sagittal
     slices, the neighbour is the slice just to the left of this one.
 \item[\menutwo{Segmenting}{Fill 3D}]  If the mouse is pointing to a
-    voxel which has a zero label and is within the threshold, then
+    voxel which has a label which is not equal to the current paint
+    label and is within the threshold, then
     all similar voxels in the entire volume which are connected to
-    this one are labeled.  This may take a few seconds to a minute.
+    this one are assigned the current paint label.
+    This may take a few seconds to a minute.
 \item[\menutwo{Segmenting}{Expand 3D}]  This is a grow operation,
     where all zero-labeled voxels in the volume which are next to
-    a labeled voxel are assigned the label.  This takes a few
-    seconds to perform.
+    a voxel of the current paint label are assigned the label.
+    This takes a few seconds to perform.
 \item[\menutwo{Segmenting}{Calculate Volume}]  Calculates the
     total volume of all voxels which have the current paint label.
     This takes a few seconds to perform.
@@ -443,7 +448,7 @@ the use of \menutwo{Polygons}{Compute Normals} or
     value, then starts extracting a polygonal isosurface from near the slice
     cursor.  The isosurface is extracted to the 3D window and updated
     periodically, while all program operations are still functional.
-\item[\menutwo{Create Surface}{Extracing}]  If an isosurface extraction
+\item[\menutwo{Create Surface}{Extracting}]  If an isosurface extraction
     is in progress, this button toggles the extraction process on and
     off.  This allows suspension and resumption of isosurface extraction.
 \item[\menutwo{Create Surface}{Reset Surface}]  Clears the current
@@ -555,18 +560,28 @@ purposes.
       the objects.
 \item[\menutwo{3D View}{Bottom View}]  Selects a view of the bottom side of
       the objects.
+\item[\menutwo{3D View}{Left Tilted View}]  Selects a view of the left side of
+      the objects, tilted forward.
+\item[\menutwo{3D View}{Right Tilted View}]  Selects a view of the right side of
+      the objects, tilted forward.
 \item[\menutwo{3D View}{Reset View}]  Resets the view to a top view.
 \item[\menutwo{3D View}{Fit View}]  Without changing the view direction,
       magnifies the objects to just fit inside the window.  Useful when
       the user desires to see the full extent of all objects.
 \item[\menutwo{3D View}{Parallel/Perspective}]  Toggles between a
       parallel and perspective view of the 3D objects.
+\item[\menutwo{3D View}{Save Image}]  Prompts for a filename and saves the
+      contents of the 3D window to the file, in .rgb format.  Before doing
+      this, make sure the window is up to date and not in the process of
+      drawing.
+\item[\menutwo{3D View}{Film Loop}]  Creates a movie of the 3D window.
+      Prompts for a filename prefix, an axis index (0-2), and a number
+      of frames.  The objects are spun around the specified index saving
+      a separate frame to file for each increment.
 \item[\menutwo{3D View}{Front Plane}]  Not for general use.
 \item[\menutwo{3D View}{Back Plane}]  Not for general use.
 \item[\menutwo{3D View}{Toggle Stereo}]  Not for general use.
 \item[\menutwo{3D View}{Eye Width}]  Not for general use.
-\item[\menutwo{3D View}{Film Loop}]  Not for general use.
-\item[\menutwo{3D View}{Save Image}]  Not for general use.
 \item[\menutwo{3D View}{Pick View}]  Not for general use.
 \end{description}
 
@@ -607,7 +622,8 @@ purposes.
 \item[\menutwo{Objects}{Scan Object to Volume}]  Causes the intersection
      of the current object with the volume to be displayed in the
      slice window, by assigning the current paint label to any voxel
-     which is touching the object.
+     which is touching the object.  Works for polygons, lines, and
+     markers.
 \item[\menutwo{Objects}{Show Vertices}]  Not for general use.
 \end{description}
 
@@ -671,14 +687,6 @@ purposes.
         patient id.  If the current object is a marker, then it is assigned
         this patient id.  If the current object is a model, then all
         markers underneath this object are assigned this patient id.
-\item[\menutwo{Markers}{Save Mrkrs as .tag}]  Prompts the user to type in a
-        filename.  If the current object is a model, all markers underneath
-        it are saved to a file in .tag format, which can be later read by 
-        \display or the \ident{register} program.  If the current object is
-        a marker, then the marker and all markers at this position in the
-        object hierarchy are saved to the file.
-\item[\menutwo{Markers}{Load Markers}]  Sames as the \menutwo{File}{Load},
-        to allow easy access to loading markers.
 \item[\menutwo{Markers}{Move to Marker}]  If the current object is a marker,
         sets the 3D cursor and the volume position to the position of the
         marker.

@@ -1,14 +1,6 @@
 
 #include  <display.h>
 
-private  BOOLEAN  should_change_this_one(
-    Volume          volume,
-    Volume          label_volume,
-    int             voxel[],
-    Real            min_threshold,
-    Real            max_threshold,
-    BOOLEAN         desired_activity );
-
 public  void  initialize_segmenting(
     segmenting_struct  *segmenting )
 {
@@ -67,6 +59,8 @@ public  void  set_connected_voxels_labels(
     int               position[],
     Real              min_threshold,
     Real              max_threshold,
+    int               label_min_threshold,
+    int               label_max_threshold,
     Neighbour_types   connectivity,
     int               label )
 {
@@ -90,7 +84,9 @@ public  void  set_connected_voxels_labels(
     INITIALIZE_QUEUE( queue );
 
     if( should_change_this_one( volume, label_volume, voxel,
-                                min_threshold, max_threshold, label))
+                                min_threshold, max_threshold, 
+                                label_min_threshold, label_max_threshold,
+                                label) )
     {
         set_volume_label_data( label_volume, voxel, label );
         entry.x = voxel[a1];
@@ -113,7 +109,9 @@ public  void  set_connected_voxels_labels(
             if( voxel[a1] >= 0 && voxel[a1] < sizes[a1] &&
                 voxel[a2] >= 0 && voxel[a2] < sizes[a2] &&
                 should_change_this_one( volume, label_volume, voxel,
-                                        min_threshold, max_threshold, label))
+                                     min_threshold, max_threshold,
+                                     label_min_threshold, label_max_threshold,
+                                     label))
             {
                 set_volume_label_data( label_volume, voxel, label);
                 entry.x = voxel[a1];
@@ -126,21 +124,34 @@ public  void  set_connected_voxels_labels(
     DELETE_QUEUE( queue );
 }
 
-private  BOOLEAN  should_change_this_one(
+public  BOOLEAN  should_change_this_one(
     Volume          volume,
     Volume          label_volume,
     int             voxel[],
     Real            min_threshold,
     Real            max_threshold,
+    int             label_min_threshold,
+    int             label_max_threshold,
     int             desired_label )
 {
-    Real   value;
+    int      label;
+    Real     value;
+
+    label = get_volume_label_data( label_volume, voxel );
+
+    if( label == desired_label )
+        return( FALSE );
+
+    if( label_min_threshold <= label_max_threshold &&
+        (label < label_min_threshold || label > label_max_threshold) )
+        return( FALSE );
+
+    if( min_threshold > max_threshold )
+        return( TRUE );
 
     GET_VALUE_3D( value, volume, voxel[X], voxel[Y], voxel[Z] );
 
-    return( desired_label != get_volume_label_data( label_volume, voxel )
-            && (min_threshold > max_threshold ||
-                min_threshold <= value && value <= max_threshold) );
+    return( min_threshold <= value && value <= max_threshold );
 }
 
 private   int   Dx4[4] = { 1, 0, -1,  0 };
@@ -169,6 +180,73 @@ public  int  get_neighbour_directions(
         *dx = Dx8;
         *dy = Dy8;
         n_dirs = 8;
+        break;
+    }
+
+    return( n_dirs );
+}
+
+private   int   Dx6[6] = { 1, 0, 0, -1,  0,  0 };
+private   int   Dy6[6] = { 0, 1, 0,  0, -1,  0 };
+private   int   Dz6[6] = { 0, 0, 1,  0,  0, -1 };
+
+private   int   Dx26[26] = { 1, 0, 0, -1,  0,  0 };
+private   int   Dy26[26] = { 0, 1, 0,  0, -1,  0 };
+private   int   Dz26[26] = { 0, 0, 1,  0,  0, -1 };
+
+private  void  create_3D_neighbours()
+{
+    int   x, y, z, n;
+
+    n = 0;
+    for_inclusive( x, -1, 1 )
+    for_inclusive( y, -1, 1 )
+    for_inclusive( z, -1, 1 )
+    {
+        if( x != 0 || y != 0 || z != 0 )
+        {
+            Dx26[n] = x;
+            Dy26[n] = y;
+            Dz26[n] = z;
+            ++n;
+        }
+    }
+
+    if( n != 26 )
+    {
+        HANDLE_INTERNAL_ERROR( "create_3D_neighbours" );
+    }
+}
+
+public  int  get_3D_neighbour_directions(
+    Neighbour_types   connectivity,
+    int               *dx[],
+    int               *dy[],
+    int               *dz[] )
+{
+    static  BOOLEAN  first = TRUE;
+    int              n_dirs;
+
+    if( first )
+    {
+        first = FALSE;
+        create_3D_neighbours();
+    }
+
+    switch( connectivity )
+    {
+    case  FOUR_NEIGHBOURS:
+        *dx = Dx6;
+        *dy = Dy6;
+        *dz = Dz6;
+        n_dirs = 6;
+        break;
+
+    case  EIGHT_NEIGHBOURS:
+        *dx = Dx26;
+        *dy = Dy26;
+        *dz = Dy26;
+        n_dirs = 26;
         break;
     }
 

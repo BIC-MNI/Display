@@ -4,6 +4,7 @@ root
     permanent '7'      quit                         "Quit"
 
     permanent '+'      move_slice_plus              "+ Slice"
+    permanent '='      move_slice_plus              "+ Slice"
     permanent '-'      move_slice_minus             "- Slice"
 
     transient 'w'      view_3d                      "3D View"
@@ -89,8 +90,8 @@ slice_view
     transient 's'    toggle_slice_visibility         "Toggle Slice Visibility"
     transient 'f'    reset_current_slice_view        "Reset Slice View"
 
-    transient 'g'    redo_histogram_labeled          "Histogram of Labeled"
-    transient 'h'    redo_histogram                  "Recompute Histogram"
+    transient 'g'    redo_histogram                  "Recompute Histogram"
+    transient 'h'    redo_histogram_labeled          "Histogram of Labeled"
 
     transient 'z'    resample_slice_window_volume    "Resample Volume"
     transient 'b'    box_filter_slice_window_volume  "Box Filter Volume"
@@ -126,6 +127,7 @@ view_3d
     transient 'd'    toggle_perspective      "%s"
     transient 'f'    front_clipping          "Front Plane"
     transient 'g'    back_clipping           "Back Plane"
+    transient 'h'    print_view              "Print View"
 
     transient 'z'    front_view              "Front View"
     transient 'x'    back_view               "Back View"
@@ -139,6 +141,8 @@ view_3d
     transient 'e'    save_image              "Save Image"
     transient 'r'    toggle_stereo_mode      "Toggle Stereo"
     transient 't'    set_eye_separation      "Eye Width: %g"
+    transient 'y'    right_tilted_view       "Right Tilt View"
+    transient 'u'    left_tilted_view        "Left Tilt View"
 }
 
 render_3d
@@ -334,11 +338,18 @@ segmenting
     transient 'c'    expand_labeled_3d                "Expand 3D"
     transient 'v'    calculate_volume                 "Calculate Volume"
     transient 'n'    copy_labels_from_lower_slice  "Copy from Lt/Inf/Post Slice"
+    transient 'b'    toggle_display_labels           "Show Labels: %s"
 
-    transient '1'    translate_labels_up              "Trans ^"
-    transient '2'    translate_labels_down            "Trans v"
-    transient '3'    translate_labels_left            "Trans <"
-    transient '4'    translate_labels_right           "Trans >"
-    transient '5'    translate_labels_arbitrary       "Big Translate"
+    transient '1'    translate_labels                 "Translate Labels"
+
     transient '7'    undo_slice_labels                "Undo"
+}
+
+translate_labels
+{
+    transient 'e'    translate_labels_up              "Trans ^"
+    transient 's'    translate_labels_left            "Trans <"
+    transient 'd'    translate_labels_right           "Trans >"
+    transient 'x'    translate_labels_down            "Trans v"
+    transient 'a'    translate_labels_arbitrary       "Big Translate"
 }

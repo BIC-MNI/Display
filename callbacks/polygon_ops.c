@@ -372,38 +372,6 @@ public  DEF_MENU_UPDATE(subdivide_current_polygon )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_FUNCTION( scan_current_polygon_to_volume )   /* ARGSUSED */
-{
-    polygons_struct   *polygons;
-    Volume            volume;
-    display_struct    *slice_window;
-
-    if( get_current_polygons( display, &polygons ) &&
-        get_slice_window_volume( display, &volume ) &&
-        get_slice_window( display, &slice_window ) )
-    {
-        if( Clear_before_polygon_scan )
-            set_all_volume_label_data( get_label_volume(slice_window), 0 );
-
-        scan_polygons_to_voxels( polygons,
-                                 get_volume(slice_window),
-                                 get_label_volume(slice_window),
-                                 get_current_paint_label(slice_window),
-                                 Max_polygon_scan_distance );
-
-        print( " done.\n" );
-
-        set_slice_window_all_update( display->associated[SLICE_WINDOW] );
-    }
-
-    return( OK );
-}
-
-public  DEF_MENU_UPDATE(scan_current_polygon_to_volume )   /* ARGSUSED */
-{
-    return( OK );
-}
-
 public  DEF_MENU_FUNCTION( reset_polygon_neighbours )   /* ARGSUSED */
 {
     polygons_struct   *polygons;

@@ -276,6 +276,7 @@ Initial_atlas_tolerance_x = 1.0;
 Initial_atlas_tolerance_y = 1.0;
 Initial_atlas_tolerance_z = 1.0;
 Atlas_filename = /avgbrain/atlas/talairach/obj/Talairach_atlas.list;
+Atlas_filename = Talairach_atlas.list;
 Default_atlas_state = FALSE;
 
 Marker_threshold = 1.5;

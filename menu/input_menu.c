@@ -38,6 +38,8 @@ MENU_FUNCTION(translate_view) \
 MENU_FUNCTION(rotate_view) \
 MENU_FUNCTION(front_clipping) \
 MENU_FUNCTION(back_clipping) \
+MENU_FUNCTION(right_tilted_view) \
+MENU_FUNCTION(left_tilted_view) \
 MENU_FUNCTION(top_view) \
 MENU_FUNCTION(bottom_view) \
 MENU_FUNCTION(front_view) \

@@ -149,7 +149,6 @@ public  void  update_slice_window(
             display->slice.slice_views[view].update_flag = FALSE;
         }
     }
-
 }
 
 public  void  create_slice_window(

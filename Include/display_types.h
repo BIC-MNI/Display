@@ -115,7 +115,6 @@ typedef  struct
     int           current_step;
     STRING        base_filename;
     Transform     transform;
-    Colour        *image_storage;
 } film_loop_struct;
 
 typedef  struct

@@ -34,6 +34,48 @@ public  DEF_MENU_UPDATE(reset_view )      /* ARGSUSED */
     return( OK );
 }
 
+public  DEF_MENU_FUNCTION( right_tilted_view )      /* ARGSUSED */
+{
+    static  Vector   line_of_sight = { -1.0, 0.0, 0.0 };
+    static  Vector   up = { 0.0, 0.5, 0.8666 };
+    Vector           horizontal;
+
+    CROSS_VECTORS( horizontal, line_of_sight, up );
+    reset_view_parameters( display, &line_of_sight, &horizontal );
+
+    update_view( display );
+
+    set_update_required( display, NORMAL_PLANES );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(right_tilted_view )      /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( left_tilted_view )      /* ARGSUSED */
+{
+    static  Vector   line_of_sight = { 1.0, 0.0, 0.0 };
+    static  Vector   up = { 0.0, 0.5, 0.8666 };
+    Vector           horizontal;
+
+    CROSS_VECTORS( horizontal, line_of_sight, up );
+    reset_view_parameters( display, &line_of_sight, &horizontal );
+
+    update_view( display );
+
+    set_update_required( display, NORMAL_PLANES );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(left_tilted_view )      /* ARGSUSED */
+{
+    return( OK );
+}
+
 public  DEF_MENU_FUNCTION( top_view )      /* ARGSUSED */
 {
     static  Vector   line_of_sight = { 0.0, 0.0, -1.0 };

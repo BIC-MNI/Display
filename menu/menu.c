@@ -310,11 +310,23 @@ private  Status  handle_mouse_press_in_menu(
 {
     Status              status;
     int                 key;
+    object_struct       *object;
 
     status = OK;
 
     if( lookup_key_for_mouse_position( menu_window, x, y, &key ) )
+    {
         status = handle_menu_for_key( menu_window, key );
+    }
+    else if( mouse_is_on_object_name( menu_window->associated[THREE_D_WINDOW],
+                                      x, y, &object ) )
+    {
+        set_current_object( menu_window->associated[THREE_D_WINDOW],
+                            object );
+        rebuild_selected_list( menu_window->associated[THREE_D_WINDOW],
+                               menu_window );
+    }
+
 
     return( status );
 }

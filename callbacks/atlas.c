@@ -90,6 +90,8 @@ private  void  flip_atlas_on_an_axis(
     {
         slice_window->slice.atlas.flipped[axis] =
                              !slice_window->slice.atlas.flipped[axis];
+        if( axis == X )
+            regenerate_atlas_lookup( slice_window );
         set_slice_window_all_update( slice_window );
     }
 }
