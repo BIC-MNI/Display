@@ -22,7 +22,8 @@ public  void  delete_deformation(
 
 private  DEF_EVENT_FUNCTION( deform_object )    /* ARGSUSED */
 {
-    Real  end_time;
+    polygons_struct   *polygons;
+    Real              end_time;
 
     end_time = current_realtime_seconds() + Max_background_seconds;
 
@@ -66,12 +67,12 @@ private  DEF_EVENT_FUNCTION( deform_object )    /* ARGSUSED */
                 break;
 
             case POLYGONS:
-                delete_polygons_bintree(
-                   get_polygons_ptr(display->three_d.deform.deforming_object) );
-                deform_polygons_one_iteration(
-                     get_polygons_ptr(display->three_d.deform.deforming_object),
-                     &display->three_d.deform.deform,
-                     display->three_d.deform.iteration );
+                polygons = get_polygons_ptr(display->three_d.deform.
+                                            deforming_object);
+                delete_the_bintree( (bintree_struct **) (&polygons->bintree) );
+                deform_polygons_one_iteration( polygons,
+                                          &display->three_d.deform.deform,
+                                          display->three_d.deform.iteration );
                 break;
             }
         }

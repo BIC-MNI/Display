@@ -63,6 +63,7 @@ private  DEF_EVENT_FUNCTION( update_picked_object )     /* ARGSUSED */
 
 public  BOOLEAN  get_mouse_scene_intersection(
     display_struct    *display,
+    Object_types      desired_object_type,
     object_struct     **object,
     int               *object_index,
     Point             *intersection )
@@ -86,7 +87,7 @@ public  BOOLEAN  get_mouse_scene_intersection(
 
         found = intersect_ray_with_objects_hierarchy(
                       display, &transformed_origin,
-                      &transformed_direction,
+                      &transformed_direction, desired_object_type,
                       object, object_index, intersection);
     }
     return( found );
@@ -101,7 +102,8 @@ public  BOOLEAN  get_polygon_under_mouse(
     BOOLEAN          found;
     object_struct    *object;
 
-    found = get_mouse_scene_intersection( display, &object, poly_index,
+    found = get_mouse_scene_intersection( display, POLYGONS,
+                                          &object, poly_index,
                                           intersection );
 
     if( found && object->object_type == POLYGONS )
@@ -120,7 +122,7 @@ private  void  pick_point_under_mouse(
     int              object_index;
     object_struct    *current;
 
-    if( get_mouse_scene_intersection( display, &object, &object_index,
+    if( get_mouse_scene_intersection( display, -1, &object, &object_index,
                                       &intersection_point ) )
     {
         display->three_d.cursor.origin = intersection_point;

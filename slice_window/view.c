@@ -525,7 +525,7 @@ public  BOOLEAN  get_voxel_in_three_d_window(
 
     found = FALSE;
 
-    if( get_mouse_scene_intersection( display, &object, &object_index,
+    if( get_mouse_scene_intersection( display, -1, &object, &object_index,
                                       &intersection_point ) &&
         get_slice_window( display, &slice_window ) )
     {

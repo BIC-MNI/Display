@@ -8,7 +8,10 @@ public  void  create_cursor_contours(
     lines_struct    *lines;
     model_struct    *model;
 
-    model = get_graphics_model( display, OVERLAY_MODEL );
+    if( G_has_overlay_planes() )
+        model = get_graphics_model( display, OVERLAY_MODEL );
+    else
+        model = get_graphics_model( display, MISCELLANEOUS_MODEL );
 
     for_less( axis, 0, N_DIMENSIONS )
     {

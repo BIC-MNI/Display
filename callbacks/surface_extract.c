@@ -91,13 +91,12 @@ public  DEF_MENU_FUNCTION(make_surface_permanent)   /* ARGSUSED */
         *(get_polygons_ptr(object)) =
                   *(display->three_d.surface_extraction.polygons);
 
-        add_object_to_current_model( display, object );
-
         ALLOC( display->three_d.surface_extraction.polygons->colours, 1 );
         display->three_d.surface_extraction.polygons->n_items = 0;
         display->three_d.surface_extraction.polygons->n_points = 0;
-
         reset_surface_extraction( display );
+
+        add_object_to_current_model( display, object );
     }
 
     return( OK );

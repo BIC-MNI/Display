@@ -133,11 +133,13 @@ public  void  close_surface_curve(
     }
 }
 
-private  DEF_EVENT_FUNCTION( pick_point )    /* ARGSUSED */
+private  void  pick_surface_point(
+    display_struct   *display,
+    BOOLEAN          snap_to_line )
 {
     polygons_struct       *polygons;
     int                   poly_index;
-    Point                 point, closest_vertex;
+    Point                 point, line_point, closest_vertex;
 
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
@@ -148,10 +150,25 @@ private  DEF_EVENT_FUNCTION( pick_point )    /* ARGSUSED */
             point = closest_vertex;
         }
 
+        if( snap_to_line &&
+            find_closest_line_point_to_point( display, &point, &line_point ) )
+            point = line_point;
+
         add_point_to_curve( display, polygons, poly_index, &point );
     }
+}
+
+private  DEF_EVENT_FUNCTION( pick_point )    /* ARGSUSED */
+{
+    pick_surface_point( display, FALSE );
 
     return( OK );
+}
+
+public  void  pick_surface_point_near_a_line(
+    display_struct   *display )
+{
+    pick_surface_point( display, TRUE );
 }
 
 public  void  reset_surface_curve(
@@ -192,7 +209,8 @@ public  void  make_surface_curve_permanent(
         info->lines->n_items = 0;
         info->prev_point_exists = FALSE;
 
-        set_update_required( display, NORMAL_PLANES );
+        graphics_models_have_changed( display );
+
         set_update_required( display, get_surface_curve_bitplane() );
     }
 }

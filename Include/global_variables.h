@@ -56,7 +56,7 @@ START_GLOBALS
     DEF_GLOBAL( Initial_line_curves_flag, BOOLEAN, FALSE )
     DEF_GLOBAL( Initial_n_curve_segments, int, 8 )
 
-    DEF_GLOBAL( Segmenting_connectivity, int, 1 )
+    DEF_GLOBAL( Segmenting_connectivity, int, 0 )
 
     DEF_GLOBAL( Visibility_on_input, BOOLEAN, TRUE )
 
@@ -251,9 +251,11 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_bitplanes, int, 0 )
 
     DEF_GLOBAL( Surface_curve_colour, Colour, MAGENTA )
-    DEF_GLOBAL( Surface_curve_overlay_flag, BOOLEAN, FALSE )
+    DEF_GLOBAL( Surface_curve_overlay_flag, BOOLEAN, TRUE )
     DEF_GLOBAL( Surface_curve_thickness, int, 3 )
     DEF_GLOBAL( Line_curvature_weight, Real, 0.0 )
+    DEF_GLOBAL( Min_surface_curve_curvature, Real, 0.0 )
+    DEF_GLOBAL( Max_surface_curve_curvature, Real, 0.0 )
 
     DEF_GLOBAL( N_painting_polygons, int, 100 )
     DEF_GLOBAL( Visible_segmenting_colour, Colour, GREEN )

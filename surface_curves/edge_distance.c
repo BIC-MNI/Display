@@ -79,7 +79,7 @@ private  Real  weighted_distance(
     dist = distance_between_points( &polygons->points[from_point_index],
                                     &polygons->points[next_point_index] );
 
-    if( curvature_weight > 0.0 )
+    if( curvature_weight != 0.0 )
     {
         size = GET_OBJECT_SIZE( *polygons, next_poly_index );
         next_vertex = (next_vertex_index + 1) % size;
@@ -104,10 +104,10 @@ private  Real  weighted_distance(
 
             factor = angle / PI;
 
-            if( curvature_weight > 0.0 )
-                dist = dist * (1.0 + curvature_weight * factor);
+            if( curvature_weight < 0.0 )
+                dist = dist * (1.0 - curvature_weight * factor);
             else
-                dist = dist * (1.0 - curvature_weight * (2.0 - factor));
+                dist = dist * (1.0 + curvature_weight * (2.0 - factor));
 
             if( dist < 0.0 )
                 HANDLE_INTERNAL_ERROR( "weighted_distance" );

@@ -152,6 +152,8 @@ typedef  struct
 {
     BOOLEAN          picking_points;
     Real             line_curvature_weight;
+    Real             min_curvature;
+    Real             max_curvature;
     lines_struct     *lines;
     int              n_points_alloced;
     int              n_indices_alloced;

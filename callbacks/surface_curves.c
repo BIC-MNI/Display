@@ -120,3 +120,16 @@ public  DEF_MENU_UPDATE(set_surface_curve_curvature )   /* ARGSUSED */
 {
     return( OK );
 }
+
+public  DEF_MENU_FUNCTION( pick_surface_point_on_line )   /* ARGSUSED */
+{
+    pick_surface_point_near_a_line( display );
+
+    return( OK );
+}
+
+
+public  DEF_MENU_UPDATE(pick_surface_point_on_line )   /* ARGSUSED */
+{
+    return( OK );
+}

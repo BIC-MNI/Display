@@ -50,7 +50,7 @@ private  void  intersect_plane_polygons(
 {
     int       i;
 
-    if( FALSE && polygons->bintree != (bintree_struct *) 0 )
+    if( FALSE && polygons->bintree != (bintree_struct_ptr) 0 )
     {
 /*
         intersect_ray_with_bintree( ray_origin, ray_direction,

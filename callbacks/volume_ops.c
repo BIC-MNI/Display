@@ -44,7 +44,7 @@ private  void  change_current_slice_by_one(
 
         get_current_voxel( slice_window, voxel );
 
-        voxel[axis_index] += (Real) delta;
+        voxel[axis_index] = (Real) ROUND( voxel[axis_index] + (Real) delta );
 
         if( voxel_is_within_volume( volume, voxel ) )
         {

@@ -46,7 +46,7 @@ public  void  delete_cursor_plane_outline(
 
 private  Bitplane_types   get_cursor_contour_bitplane()
 {
-    if( Cursor_contour_overlay_flag )
+    if( Cursor_contour_overlay_flag && G_has_overlay_planes() )
         return( OVERLAY_PLANES );
     else
         return( NORMAL_PLANES );

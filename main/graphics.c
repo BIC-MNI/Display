@@ -264,7 +264,7 @@ private  void  initialize_graphics_window(
         else if( display->window_type == SLICE_WINDOW &&
                  i == SLICE_READOUT_MODEL )
         {
-            model_info->bitplanes = (Bitplane_types) Slice_readout_plane;
+            model_info->bitplanes = get_slice_readout_bitplanes();
         }
         else
         {
@@ -391,22 +391,29 @@ private  void  update_graphics_overlay_planes_only(
     display_struct       *display,
     BOOLEAN              display_flag )
 {
+    BOOLEAN       past_last_object;
     int           i;
 
-    G_set_bitplanes( display->window, OVERLAY_PLANES );
-
-    if( display_flag )
+    if( G_has_overlay_planes() )
     {
-        for_less( i, 0, N_MODELS )
+        G_set_bitplanes( display->window, OVERLAY_PLANES );
+
+        if( display_flag )
         {
-            display_objects( display->window, display->models[i],
-                             (update_interrupted_struct *) 0, OVERLAY_PLANES );
+            past_last_object = FALSE;
+
+            for_less( i, 0, N_MODELS )
+            {
+                display_objects( display->window, display->models[i],
+                             (update_interrupted_struct *) 0, OVERLAY_PLANES,
+                             &past_last_object );
+            }
         }
+
+        G_update_window( display->window );
+
+        G_set_bitplanes( display->window, NORMAL_PLANES );
     }
-
-    G_update_window( display->window );
-
-    G_set_bitplanes( display->window, NORMAL_PLANES );
 
     display->update_required[OVERLAY_PLANES] = FALSE;
 }
@@ -417,6 +424,7 @@ private  void  update_graphics_normal_planes_only(
 {
     int           i;
     Real          start, end;
+    BOOLEAN       past_last_object;
 
     if( interrupt->last_was_interrupted )
     {
@@ -432,11 +440,12 @@ private  void  update_graphics_normal_planes_only(
     G_set_interrupt_time( display->window, interrupt->interrupt_at );
 
     interrupt->current_interrupted = FALSE;
+    past_last_object = FALSE;
 
     for_less( i, 0, N_MODELS )
     {
         display_objects( display->window, display->models[i],
-                         interrupt, NORMAL_PLANES );
+                         interrupt, NORMAL_PLANES, &past_last_object );
 
         if( interrupt->current_interrupted )
             break;

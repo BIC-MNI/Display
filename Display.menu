@@ -209,7 +209,6 @@ polygons
     transient 'y'    scan_current_polygon_to_volume  "Scan Polygons to Volume"
 
     transient 'a'    create_bintree_for_polygons  "Create Bintree"
-    transient 's'    make_unit_sphere             "Make Unit Sphere"
     transient 'd'    create_normals_for_polygon   "Compute Normals"
     transient 'f'    reverse_polygons_order       "Reverse Polygons"
     transient 'g'    reverse_normals              "Reverse Normals"

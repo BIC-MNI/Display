@@ -78,9 +78,11 @@ public  BOOLEAN  extract_voxel_surface(
         }
     }
 
-    n_polys = compute_polygons_in_voxel(
+    n_polys = compute_isosurface_in_voxel(
                        (Marching_cubes_methods) Marching_cubes_method,
-                       corner_values, surface_extraction->isovalue,
+                       corner_values,
+                       surface_extraction->isovalue,
+                       surface_extraction->isovalue,
                        &sizes, &points_list );
 
     if( n_polys > 0 )
@@ -316,48 +318,38 @@ private  int   create_surface_point(
     int       pt_index;
     Real      x_w, y_w, z_w;
     Real      dx, dy, dz;
-    Real      val1, val2, alpha, voxel_pos[MAX_DIMENSIONS];
+    Real      val1, val2, voxel_pos[MAX_DIMENSIONS];
     Point     point;
     Vector    normal;
     int       corner[N_DIMENSIONS];
     Real      ignored;
+    Point     point1, point2, iso_point;
 
     corner[X] = voxel->i[X];
     corner[Y] = voxel->i[Y];
     corner[Z] = voxel->i[Z];
 
-    GET_VOXEL_3D( val1, volume, corner[X], corner[Y], corner[Z] );
-    val1 = CONVERT_VOXEL_TO_VALUE( volume, val1 );
-    val1 = isovalue - val1;
+    fill_Point( point1, (Real) corner[X], (Real) corner[Y], (Real) corner[Z] );
+    GET_VALUE_3D( val1, volume, corner[X], corner[Y], corner[Z] );
 
     ++corner[edge_intersected];
 
-    GET_VOXEL_3D( val2, volume, corner[X], corner[Y], corner[Z] );
-    val2 = CONVERT_VOXEL_TO_VALUE( volume, val2 );
-    val2 = isovalue - val2;
+    fill_Point( point2, (Real) corner[X], (Real) corner[Y], (Real) corner[Z] );
+    GET_VALUE_3D( val2, volume, corner[X], corner[Y], corner[Z] );
 
-    if( val1 == 0.0 )
+    *pt_class = get_isosurface_point( &point1, val1, &point2, val2,
+                                      isovalue, isovalue, &iso_point );
+
+    if( *pt_class < 0 )
     {
-        *pt_class = ON_FIRST_CORNER;
-        alpha = 0.0;
-    }
-    else if( val2 == 0.0 )
-    {
-        *pt_class = ON_SECOND_CORNER;
-        alpha = 1.0;
-    }
-    else
-    {
-        *pt_class = ON_EDGE;
-        alpha = val1 / (val1 - val2);
+        HANDLE_INTERNAL_ERROR( "create_surface_point" );
     }
 
     /* ------------------- compute point position ------------------- */
 
-    voxel_pos[X] = (Real) voxel->i[X];
-    voxel_pos[Y] = (Real) voxel->i[Y];
-    voxel_pos[Z] = (Real) voxel->i[Z];
-    voxel_pos[edge_intersected] += alpha;
+    voxel_pos[X] = Point_x(iso_point);
+    voxel_pos[Y] = Point_y(iso_point);
+    voxel_pos[Z] = Point_z(iso_point);
 
     convert_voxel_to_world( volume, voxel_pos, &x_w, &y_w, &z_w );
     fill_Point( point, x_w, y_w, z_w );
