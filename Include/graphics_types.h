@@ -83,7 +83,7 @@ typedef  struct
 
     union
     {
-        char   key_pressed;
+        int    key_pressed;
         Point  mouse_position;
     } event_data;
 
