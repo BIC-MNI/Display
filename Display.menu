@@ -64,9 +64,11 @@ extract
 
 slice
 {
+    transient 'q'    toggle_cross_section_visibility "Toggle Plane Visibility"
     transient 'r'    halve_slice_voxels             "Decrease Size"
     transient 't'    double_slice_voxels            "Increase Size"
 
+    transient 'a'    toggle_slice_visibility        "Toggle Slice Visibility"
     transient 'd'    create_3d_slice                "Create 3D Slice"
     transient 'f'    pick_slice_angle_point         "Pick Slice Angle"
 
@@ -134,6 +136,7 @@ render
 objects
 {
     transient 'a'    set_current_object_surfprop "Change Surface Property"
+    transient 's'    flip_object                 "Flip Object"
     transient 'g'    toggle_object_visibility    "Toggle Visible"
     transient 'd'    cut_object                  "Cut Object"
     transient 'f'    paste_object                "Paste Object"
@@ -343,5 +346,6 @@ region_painting
 
     transient 'z'    reset_segmenting                "Clear All Labels"
     transient 'c'    toggle_display_labels           "Show Labels: %s"
+    transient 'v'    change_labels_in_range          "Change Labels"
     transient 'b'    get_labeled_boundary            "Create Label Boundary"
 }
