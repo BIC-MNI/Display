@@ -158,7 +158,9 @@ public  Status  create_graphics_window( window_type, graphics,
 
     if( status == OK )
     {
-        status = G_create_window( title, width, height, &(*graphics)->window );
+        status = G_create_window( title, width, height, 
+                                  &Initial_background_colour,
+                                  &(*graphics)->window );
     }
 
     if( status == OK )
@@ -227,6 +229,10 @@ private  Status  initialize_graphics_window( graphics )
     model_struct   *model;
     model_struct   *get_graphics_model();
 
+    graphics->associated[THREE_D_WINDOW] = (graphics_struct *) 0;
+    graphics->associated[MENU_WINDOW] = (graphics_struct *) 0;
+    graphics->associated[SLICE_WINDOW] = (graphics_struct *) 0;
+
     initialize_action_table( &graphics->action_table );
 
     initialize_mouse_events( graphics );
@@ -279,6 +285,8 @@ private  Status  initialize_graphics_window( graphics )
         graphics->frame_number = 0;
         graphics->update_required = FALSE;
         graphics->update_interrupted.last_was_interrupted = FALSE;
+        graphics->update_interrupted.size_of_interrupted = Size_of_interrupted;
+        graphics->update_interrupted.interval_of_check = Interval_of_check;
     }
 
     return( status );
@@ -452,17 +460,6 @@ public  void  reset_view_parameters( graphics, line_of_sight, horizontal )
     fit_view_to_domain( &graphics->three_d.view,
                         &graphics->three_d.min_limit,
                         &graphics->three_d.max_limit );
-}
-
-public  void  transform_model( graphics, transform )
-    graphics_struct   *graphics;
-    Transform         *transform;
-{
-    void  concat_transforms();
-
-    concat_transforms( &graphics->three_d.view.modeling_transform,
-                       &graphics->three_d.view.modeling_transform,
-                       transform );
 }
 
 public  Status  load_graphics_file( graphics, filename )

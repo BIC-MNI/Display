@@ -6,13 +6,14 @@ public  void  apply_transform_in_view_space( graphics, transform )
     graphics_struct   *graphics;
     Transform         *transform;
 {
-    void    make_transform_in_coordinate_system();
-    Vector  z_axis;
-    Point   centre;
-    void    get_view_z_axis();
-    void    get_view_centre();
-    void    transform_model();
-    void    transform_point_to_world();
+    void       make_transform_in_coordinate_system();
+    Vector     z_axis;
+    Point      centre;
+    Transform  transform_in_cs;
+    void       get_view_z_axis();
+    void       get_view_centre();
+    void       transform_model();
+    void       transform_point_to_world();
 
     get_view_z_axis( &graphics->three_d.view, &z_axis );
 
@@ -30,7 +31,18 @@ public  void  apply_transform_in_view_space( graphics, transform )
                                          &graphics->three_d.view.x_axis,
                                          &graphics->three_d.view.y_axis,
                                          &z_axis,
-                                         transform, transform );
+                                         transform, &transform_in_cs );
 
-    transform_model( graphics, transform );
+    transform_model( graphics, &transform_in_cs );
+}
+
+public  void  transform_model( graphics, transform )
+    graphics_struct   *graphics;
+    Transform         *transform;
+{
+    void  concat_transforms();
+
+    concat_transforms( &graphics->three_d.view.modeling_transform,
+                       &graphics->three_d.view.modeling_transform,
+                       transform );
 }

@@ -9,7 +9,7 @@
 /* for graphics windows */
 
 #define  CURSOR_MODEL           0
-#define  POINT_POSITION_MODEL   1
+#define  UNUSED_MODEL           1
 #define  THREED_MODEL           2
 
 /* for menu windows */
@@ -40,6 +40,7 @@ typedef  struct
     Point                      max_limit;
     Point                      centre_of_objects;
     surface_extraction_struct  surface_extraction;
+    film_loop_struct           film_loop;
 } three_d_window_struct;
 
 

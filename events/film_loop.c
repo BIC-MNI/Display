@@ -31,8 +31,8 @@ public  Status  start_film_loop( graphics, base_filename, axis_index, n_steps )
     x_size = graphics->window.x_size;
     y_size = graphics->window.y_size;
 
-    if( x_size & 1 == 1 ) --x_size;
-    if( y_size & 1 == 1 ) --y_size;
+    if( (x_size & 1) == 1 ) --x_size;
+    if( (y_size & 1) == 1 ) --y_size;
 
     graphics->three_d.film_loop.x_size = x_size;
     graphics->three_d.film_loop.y_size = y_size;
@@ -101,6 +101,10 @@ private  DEF_EVENT_FUNCTION( check_updated )
             {
                 status = end_film_loop( graphics );
             }
+        }
+        else
+        {
+            status = end_film_loop( graphics );
         }
     }
 
@@ -193,8 +197,7 @@ private  Status  save_image_to_file( graphics )
 {
     Status         status;
     Status         open_output_file();
-    Status         io_binary_data();
-    Status         io_int();
+    Status         output_frame();
     Status         close_file();
     void           G_read_pixels();
     FILE           *file;
@@ -202,7 +205,6 @@ private  Status  save_image_to_file( graphics )
     void           create_frame_filename();
     int            x_min, x_max, y_min, y_max;
     void           get_pixel_bounds();
-    void           shift_pixels();
 
     G_read_pixels( &graphics->window,
                    0, graphics->three_d.film_loop.x_size-1,
@@ -214,7 +216,7 @@ private  Status  save_image_to_file( graphics )
                       graphics->three_d.film_loop.image_storage,
                       &x_min, &x_max, &y_min, &y_max );
 
-    if( (x_max - x_min) & 1 == 0 )
+    if( ((x_max - x_min) & 1) == 0 )
     {
         if( x_min > 0 )
             --x_min;
@@ -222,18 +224,13 @@ private  Status  save_image_to_file( graphics )
             ++x_max;
     }
 
-    if( (y_max - y_min) & 1 == 0 )
+    if( ((y_max - y_min) & 1) == 0 )
     {
         if( y_min > 0 )
             --y_min;
         else
             ++y_max;
     }
-
-    shift_pixels( graphics->three_d.film_loop.x_size,
-                  graphics->three_d.film_loop.y_size,
-                  x_min, x_max, y_min, y_max,
-                  graphics->three_d.film_loop.image_storage );
 
     create_frame_filename( graphics->three_d.film_loop.base_filename,
                            graphics->three_d.film_loop.current_step,
@@ -243,31 +240,10 @@ private  Status  save_image_to_file( graphics )
 
     if( status == OK )
     {
-        status = io_int( file, OUTPUTTING, ASCII_FORMAT, &x_min );
-    }
-
-    if( status == OK )
-    {
-        status = io_int( file, OUTPUTTING, ASCII_FORMAT, &x_max );
-    }
-
-    if( status == OK )
-    {
-        status = io_int( file, OUTPUTTING, ASCII_FORMAT, &y_min );
-    }
-
-    if( status == OK )
-    {
-        status = io_int( file, OUTPUTTING, ASCII_FORMAT, &y_max );
-    }
-
-    if( status == OK )
-    {
-        status = io_binary_data( file, OUTPUTTING,
-                         (char *) graphics->three_d.film_loop.image_storage,
-                         sizeof( graphics->three_d.film_loop.image_storage[0] ),
-                         graphics->three_d.film_loop.x_size *
-                         graphics->three_d.film_loop.y_size );
+        status = output_frame( file,
+                               graphics->three_d.film_loop.image_storage,
+                               graphics->three_d.film_loop.x_size,
+                               x_min, x_max, y_min, y_max );
     }
 
     if( status == OK )
@@ -375,23 +351,101 @@ private  void  get_pixel_bounds( x_size, y_size, pixels,
     } while( !found_a_pixel );
 }
 
-private  void  shift_pixels( x_size, y_size,
-                             x_min, x_max, y_min, y_max, pixels )
-    int           x_size, y_size;
-    int           x_min, x_max, y_min, y_max;
-    Pixel_colour  *pixels;
+private  Status  output_frame( file, pixels, x_size, x_min, x_max, y_min,
+                               y_max )
+    FILE           *file;
+    Pixel_colour   pixels[];
+    int            x_size;
+    int            x_min;
+    int            x_max;
+    int            y_min;
+    int            y_max;
 {
-    int   new_x_size;
-    int   x, y;
+    Status        status;
+    Status        io_int();
+    Status        io_binary_data();
+    int           *start, *end;
+    int           y;
+    int           n_pixels;
+    Pixel_colour  background;
 
-    new_x_size = x_max - x_min + 1;
+    background = ACCESS_PIXEL( pixels, 0, 0, x_size );
+
+    status = io_int( file, OUTPUTTING, BINARY_FORMAT, &x_min );
+
+    if( status == OK )
+    {
+        status = io_int( file, OUTPUTTING, BINARY_FORMAT, &x_max );
+    }
+
+    if( status == OK )
+    {
+        status = io_int( file, OUTPUTTING, BINARY_FORMAT, &y_min );
+    }
+
+    if( status == OK )
+    {
+        status = io_int( file, OUTPUTTING, BINARY_FORMAT, &y_max );
+    }
+
+    if( status == OK )
+    {
+        CALLOC1( status, start, y_max - y_min + 1, int );
+    }
+
+    if( status == OK )
+    {
+        CALLOC1( status, end, y_max - y_min + 1, int );
+    }
 
     for_inclusive( y, y_min, y_max )
     {
-        for_inclusive( x, x_min, x_max )
+        start[y-y_min] = x_min;
+        while( start[y-y_min] < x_max &&
+               ACCESS_PIXEL( pixels, start[y-y_min], y, x_size ) == background )
         {
-            ACCESS_PIXEL( pixels, x-x_min, y-y_min, new_x_size ) =
-            ACCESS_PIXEL( pixels, x, y, x_size );
+            ++start[y-y_min];
+        }
+
+        end[y-y_min] = x_max;
+        while( end[y-y_min] > x_min &&
+               ACCESS_PIXEL( pixels, end[y-y_min], y, x_size ) == background )
+        {
+            --end[y-y_min];
         }
     }
+
+    for_inclusive( y, y_min, y_max )
+    {
+        if( status == OK )
+        {
+            status = io_int( file, OUTPUTTING, BINARY_FORMAT, &start[y-y_min] );
+        }
+
+        n_pixels = end[y-y_min] - start[y-y_min] + 1;
+
+        if( n_pixels < 0 )
+        {
+            n_pixels = 0;
+        }
+
+        if( status == OK )
+        {
+            status = io_int( file, OUTPUTTING, BINARY_FORMAT, &n_pixels );
+        }
+    }
+
+    for_inclusive( y, y_min, y_max )
+    {
+        n_pixels = end[y-y_min] - start[y-y_min] + 1;
+
+        if( status == OK && n_pixels > 0 )
+        {
+            status = io_binary_data( file, OUTPUTTING,
+                        (char *) &ACCESS_PIXEL(pixels,start[y-y_min],y,x_size),
+                        sizeof( pixels[0] ), n_pixels );
+        }
+    }
+
+    return( status );
 }

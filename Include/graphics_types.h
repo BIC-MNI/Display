@@ -137,6 +137,9 @@ typedef  struct
     int            next_item;
     Real           interrupt_at;
 
+    int            size_of_interrupted;
+    int            interval_of_check;
+
     Boolean        current_interrupted;
 } update_interrupted_struct;
 
@@ -152,5 +155,16 @@ typedef  struct
     Real    box_size[N_DIMENSIONS];
     Real    axis_size;
 } cursor_struct;
+
+typedef  struct
+{
+    int           x_size;
+    int           y_size;
+    int           n_steps;
+    int           current_step;
+    String        base_filename;
+    Transform     transform;
+    Pixel_colour  *image_storage;
+} film_loop_struct;
 
 #endif

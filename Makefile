@@ -1,6 +1,6 @@
 include ../C_dev/Makefile.include
 
-OPT = -g
+OPT = -O
 
 INCLUDE = -IInclude -I$(C_UTILS_INCLUDE) -I/@/yorick/usr/include
 
@@ -27,6 +27,7 @@ display_obj = \
            main/event_loop.o \
            main/graphics.o \
            main/three_d.o \
+           main/transforms.o \
            $(graphics_obj) \
            callbacks/file.o \
            callbacks/globals.o \
@@ -43,6 +44,7 @@ display_obj = \
            surface_extraction/surface.o \
            surface_extraction/surface_events.o \
            events/clip_plane.o \
+           events/film_loop.o \
            events/magnify.o \
            events/mouse.o \
            events/mouse_trans.o \
@@ -115,16 +117,22 @@ test: $(test_obj)
 lint_test: $(test_lint)
 	$(LINT) -u $(LINTFLAGS) $(test_lint)
 
-march_obj = test_march.o \
-            march.o \
-            alloc.o \
-            files.o \
-            time.o
+film_loop_obj = \
+                film_loop.o \
+                alloc.o \
+                files.o \
+                points.o \
+                object_io.o \
+                time.o \
+                transforms.o \
+                random.o \
+                random_order.o \
+                graphics_lib/GL_graphics.o
 
-march_lint = $(march_obj:.o=.ln)
+film_loop_lint = $(film_loop_obj:.o=.ln)
 
-march: $(march_obj)
-	$(CC) $(CFLAGS) $(march_obj) -o $@ $(LIBS)
+film_loop: $(film_loop_obj)
+	$(CC) $(CFLAGS) $(film_loop_obj) -o $@ $(LIBS)
 
-lint_march: $(march_lint)
-	$(LINT) -u $(LINTFLAGS) $(march_lint)
+lint_film_loop: $(film_loop_lint)
+	$(LINT) -u $(LINTFLAGS) $(film_loop_lint)

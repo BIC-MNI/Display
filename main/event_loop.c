@@ -26,6 +26,13 @@ public  Status   main_event_loop()
     return( OK );
 }
 
+public  Boolean  window_is_up_to_date( graphics )
+    graphics_struct   *graphics;
+{
+    return( !graphics->update_required &&
+            !graphics->update_interrupted.last_was_interrupted );
+}
+
 private  void  update_all_required_windows()
 {
     int               i, n_windows;
@@ -42,8 +49,7 @@ private  void  update_all_required_windows()
             windows[i]->update_interrupted.last_was_interrupted = FALSE;
         }
 
-        if( windows[i]->update_required ||
-            windows[i]->update_interrupted.last_was_interrupted )
+        if( !window_is_up_to_date( windows[i] ) )
         {
             update_graphics( windows[i], &windows[i]->update_interrupted );
         }
