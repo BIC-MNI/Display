@@ -74,6 +74,7 @@ private  void  update_voxel_cursor( slice_window )
     int               axis, indices[N_DIMENSIONS];
     Point             new_origin;
     void              get_mouse_in_pixels();
+    void              get_voxel_centre();
     Boolean           convert_pixel_to_voxel();
     graphics_struct   *graphics;
     void              update_cursor();
@@ -86,8 +87,9 @@ private  void  update_voxel_cursor( slice_window )
     if( convert_pixel_to_voxel( slice_window, x, y,
                   &indices[X_AXIS], &indices[Y_AXIS], &indices[Z_AXIS] ) )
     {
-        fill_Point( new_origin, (Real) indices[X_AXIS],
-                    (Real) indices[Y_AXIS], (Real) indices[Z_AXIS] );
+        get_voxel_centre( slice_window,
+                          indices[X_AXIS], indices[Y_AXIS], indices[Z_AXIS],
+                          &new_origin );
 
         if( !EQUAL_POINTS( new_origin, graphics->three_d.cursor.origin ) )
         {
