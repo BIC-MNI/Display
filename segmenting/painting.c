@@ -528,3 +528,100 @@ private  void   update_brush(
                            start_voxel, POSITIVE_X, lines );
     }
 }    
+
+public  void  flip_labels_around_zero(
+    Volume    label_volume )
+{
+    int             label_x, label_x_opp;
+    int             int_voxel[MAX_DIMENSIONS], sizes[MAX_DIMENSIONS];
+    int             int_voxel_opp[MAX_DIMENSIONS];
+    Real            voxel[MAX_DIMENSIONS], flip_voxel;
+
+    convert_world_to_voxel( label_volume, 0.0, 0.0, 0.0, voxel );
+
+    flip_voxel = voxel[X];
+
+    get_volume_sizes( label_volume, sizes );
+
+    for_less( int_voxel[X], 0, sizes[X] )
+    {
+        int_voxel_opp[X] = ROUND( flip_voxel +
+                                  (flip_voxel - (Real) int_voxel[X]) );
+        if( int_voxel_opp[X] <= int_voxel[X] ||
+            int_voxel_opp[X] < 0 || int_voxel_opp[X] >= sizes[X] )
+            continue;
+
+        for_less( int_voxel[Y], 0, sizes[Y] )
+        {
+            int_voxel_opp[Y] = int_voxel[Y];
+            for_less( int_voxel[Z], 0, sizes[Z] )
+            {
+                int_voxel_opp[Z] = int_voxel[Z];
+
+                label_x = get_volume_label_data( label_volume, int_voxel );
+                label_x_opp = get_volume_label_data( label_volume,
+                                                     int_voxel_opp );
+
+                set_volume_label_data( label_volume, int_voxel_opp,
+                                       label_x );
+                set_volume_label_data( label_volume, int_voxel,
+                                       label_x_opp );
+            }
+        }
+    }
+}
+
+public  void  translate_labels(
+    Volume    label_volume,
+    int       delta[] )
+{
+    int      c, label;
+    int      src_voxel[MAX_DIMENSIONS], dest_voxel[MAX_DIMENSIONS];
+    int      sizes[MAX_DIMENSIONS];
+    int      first[MAX_DIMENSIONS], last[MAX_DIMENSIONS];
+    int      increment[MAX_DIMENSIONS];
+    int      int_voxel_opp[MAX_DIMENSIONS];
+
+    get_volume_sizes( label_volume, sizes );
+
+    for_less( c, 0, N_DIMENSIONS )
+    {
+        if( delta[c] > 0 )
+        {
+            first[c] = sizes[c]-1;
+            last[c] = -1;
+            increment[c] = -1;
+        }
+        else
+        {
+            first[c] = 0;
+            last[c] = sizes[c];
+            increment[c] = 1;
+        }
+    }
+
+    for( dest_voxel[X] = first[X];  dest_voxel[X] != last[X];
+         dest_voxel[X] += increment[X] )
+    {
+        src_voxel[X] = dest_voxel[X] - delta[X];
+
+        for( dest_voxel[Y] = first[Y];  dest_voxel[Y] != last[Y];
+             dest_voxel[Y] += increment[Y] )
+        {
+            src_voxel[Y] = dest_voxel[Y] - delta[Y];
+
+            for( dest_voxel[Z] = first[Z];  dest_voxel[Z] != last[Z];
+                 dest_voxel[Z] += increment[Z] )
+            {
+                src_voxel[Z] = dest_voxel[Z] - delta[Z];
+
+                if( int_voxel_is_within_volume( label_volume, src_voxel ) )
+                    label = get_volume_label_data( label_volume, src_voxel );
+                else
+                    label = 0;
+
+                set_volume_label_data( label_volume, dest_voxel, label );
+            }
+        }
+    }
+}
