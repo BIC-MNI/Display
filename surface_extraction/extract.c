@@ -50,11 +50,14 @@ public  BOOLEAN  extract_voxel_surface(
     voxel_index_struct          *voxel_index,
     BOOLEAN                     first_voxel )
 {
+    BOOLEAN                valid;
     voxel_point_type       *points_list;
     Real                   corner_values[2][2][2];
-    Real                   value;
+    Real                   value, label;
     int                    n_polys, n_nondegenerate_polys;
     int                    x, y, z, *sizes, voxel[MAX_DIMENSIONS];
+
+    valid = TRUE;
 
     for_less( x, 0, 2 )
     {
@@ -68,17 +71,38 @@ public  BOOLEAN  extract_voxel_surface(
 
                 GET_VALUE_3D( value, volume, voxel[X], voxel[Y], voxel[Z] );
 
-                if( surface_extraction->min_value <= value &&
-                    value <= surface_extraction->min_value &&
-                    !get_voxel_activity_flag( label_volume, voxel ) )
+                if( label_volume == NULL )
                 {
-                    value = 0.0;
+                    if( (value < surface_extraction->min_value ||
+                         value > surface_extraction->max_value) &&
+                        surface_extraction->valid_out_min_label <=
+                        surface_extraction->valid_out_max_label &&
+                        (value < surface_extraction->valid_out_min_label ||
+                         value > surface_extraction->valid_out_max_label) )
+                    {
+                        valid = FALSE;
+                    }
+                }
+                else
+                {
+                    label = (Real) get_volume_label_data( label_volume, voxel );
+
+                    if( surface_extraction->valid_min_label <=
+                        surface_extraction->valid_max_label &&
+                        (label < surface_extraction->valid_min_label ||
+                         label > surface_extraction->valid_max_label) )
+                    {
+                        valid = FALSE;
+                    }
                 }
 
                 corner_values[x][y][z] = value;
             }
         }
     }
+
+    if( !valid )
+        return( FALSE );
 
     n_polys = compute_isosurface_in_voxel(
                        (Marching_cubes_methods) Marching_cubes_method,
