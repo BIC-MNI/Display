@@ -1,65 +1,46 @@
 
-#include  <def_graphics.h>
-#include  <def_globals.h>
+#include  <def_display.h>
 
-public  Status  initialize_cursor( graphics )
-    graphics_struct   *graphics;
+public  void  initialize_cursor(
+    display_struct    *display )
 {
-    Status          status;
-    Status          reset_cursor();
-    Status          initialize_cursor_plane_outline();
+    display->three_d.cursor.box_size[X] = 1.0;
+    display->three_d.cursor.box_size[Y] = 1.0;
+    display->three_d.cursor.box_size[Z] = 1.0;
+    display->three_d.cursor.axis_size = Cursor_axis_size;
 
-    graphics->three_d.cursor.box_size[X] = 1.0;
-    graphics->three_d.cursor.box_size[Y] = 1.0;
-    graphics->three_d.cursor.box_size[Z] = 1.0;
-    graphics->three_d.cursor.axis_size = Cursor_axis_size;
+    reset_cursor( display );
 
-    status = reset_cursor( graphics );
-
-    if( status == OK )
-        status = initialize_cursor_plane_outline( graphics );
-
-    return( status );
+    initialize_cursor_plane_outline( display );
 }
 
-public  Status  reset_cursor( graphics )
-    graphics_struct   *graphics;
+public  void  reset_cursor(
+    display_struct    *display )
 {
-    Status          status;
-    Status          rebuild_cursor_icon();
-    Real            size_of_domain();
-    void            update_cursor();
+    display->three_d.cursor.origin = display->three_d.centre_of_objects;
 
-    graphics->three_d.cursor.origin = graphics->three_d.centre_of_objects;
+    rebuild_cursor_icon( display );
 
-    status = rebuild_cursor_icon( graphics );
+    display->models[CURSOR_MODEL]->visibility = ON;
 
-    graphics->models[CURSOR_MODEL]->visibility = ON;
-
-    update_cursor( graphics );
-
-    return( status );
+    update_cursor( display );
 }
 
-public  Status  update_cursor_size( graphics )
-    graphics_struct   *graphics;
+public  void  update_cursor_size(
+    display_struct    *display )
 {
-    Status          rebuild_cursor_icon();
-
-    return( rebuild_cursor_icon( graphics ) );
+    rebuild_cursor_icon( display );
 }
 
-public  void  update_cursor( graphics )
-    graphics_struct   *graphics;
+public  void  update_cursor(
+    display_struct    *display )
 {
-    void           make_origin_transform();
     model_struct   *model;
-    model_struct   *get_graphics_model();
 
-    model = get_graphics_model( graphics, CURSOR_MODEL );
+    model = get_graphics_model( display, CURSOR_MODEL );
 
-    make_origin_transform( &graphics->three_d.cursor.origin,
-                           &model->transform );
+    make_origin_transform( &display->three_d.cursor.origin,
+                           &get_model_info(model)->transform );
 
-    ++graphics->models_changed_id;
+    ++display->models_changed_id;
 }

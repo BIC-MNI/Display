@@ -1,94 +1,81 @@
 
-#include  <def_graphics.h>
+#include  <def_display.h>
 
-static    DECL_EVENT_FUNCTION( start_magnification );
-static    DECL_EVENT_FUNCTION( turn_off_magnification );
-static    DECL_EVENT_FUNCTION( handle_update );
-static    DECL_EVENT_FUNCTION( handle_mouse_movement );
-static    DECL_EVENT_FUNCTION( terminate_magnification );
-static    void                 perform_magnification();
+static    DEF_EVENT_FUNCTION( start_magnification );
+static    DEF_EVENT_FUNCTION( turn_off_magnification );
+static    DEF_EVENT_FUNCTION( handle_update );
+static    DEF_EVENT_FUNCTION( handle_mouse_movement );
+static    DEF_EVENT_FUNCTION( terminate_magnification );
+private  void  perform_magnification(
+    display_struct   *display );
 
-public  void  initialize_magnification( graphics )
-    graphics_struct  *graphics;
+public  void  initialize_magnification(
+    display_struct   *display )
 {
-    void                 add_action_table_function();
-    void                 terminate_any_interactions();
+    terminate_any_interactions( display );
 
-    terminate_any_interactions( graphics );
-
-    add_action_table_function( &graphics->action_table,
-                               TERMINATE_EVENT,
+    add_action_table_function( &display->action_table,
+                               TERMINATE_INTERACTION_EVENT,
                                turn_off_magnification );
 
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT,
                                start_magnification );
 }
 
-private  DEF_EVENT_FUNCTION( turn_off_magnification )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( turn_off_magnification ) /* ARGSUSED */
 {
-    void    remove_action_table_function();
+    remove_action_table_function( &display->action_table,
+                                  TERMINATE_INTERACTION_EVENT,
+                                  turn_off_magnification );
 
-    remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT, turn_off_magnification );
-
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_DOWN_EVENT,
                                   start_magnification );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( start_magnification )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( start_magnification ) /* ARGSUSED */
 {
-    void                  add_action_table_function();
-
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                NO_EVENT,
                                handle_update );
 
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                MOUSE_MOVEMENT_EVENT,
                                handle_mouse_movement );
 
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_UP_EVENT,
                                terminate_magnification );
 
-    add_action_table_function( &graphics->action_table,
-                               TERMINATE_EVENT,
+    add_action_table_function( &display->action_table,
+                               TERMINATE_INTERACTION_EVENT,
                                terminate_magnification );
 
-    graphics->prev_mouse_position = graphics->mouse_position;
+    record_mouse_position( display );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_magnification )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( terminate_magnification )    /* ARGSUSED */
 {
-    void   remove_action_table_function();
-    void   update_view();
+    perform_magnification( display );
 
-    perform_magnification( graphics );
-
-    if( graphics_update_required( graphics ) )
-    {
-        update_view( graphics );
-    }
+    if( graphics_update_required( display ) )
+        update_view( display );
     
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   NO_EVENT, handle_update );
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MOUSE_MOVEMENT_EVENT,
                                   handle_mouse_movement );
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_magnification );
-    remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT,
+    remove_action_table_function( &display->action_table,
+                                  TERMINATE_INTERACTION_EVENT,
                                   terminate_magnification );
 
     return( OK );
@@ -96,38 +83,34 @@ private  DEF_EVENT_FUNCTION( terminate_magnification )
 
 private  DEF_EVENT_FUNCTION( handle_mouse_movement )      /* ARGSUSED */
 {
-    perform_magnification( graphics );
+    perform_magnification( display );
 
     return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( handle_update )      /* ARGSUSED */
 {
-    void   update_view();
-
-    if( graphics_update_required( graphics ) )
+    if( graphics_update_required( display ) )
     {
-        update_view( graphics );
+        update_view( display );
     }
 
     return( OK );
 }
 
-private  void  perform_magnification( graphics )
-    graphics_struct  *graphics;
+private  void  perform_magnification(
+    display_struct   *display )
 {
-    Real      delta, factor;
-    void      magnify_view_size();
-    void      set_update_required();
+    Real      x, y, x_prev, y_prev, delta, factor;
 
-    delta = Point_x(graphics->mouse_position) -
-            Point_x(graphics->prev_mouse_position);
+    if( mouse_moved( display, &x, &y, &x_prev, &y_prev ) )
+    {
+        delta = x - x_prev;
 
-    factor = exp( -delta * log( 2.0 ) );
+        factor = exp( -delta * log( 2.0 ) );
 
-    magnify_view_size( &graphics->three_d.view, factor );
+        magnify_view_size( &display->three_d.view, factor );
 
-    set_update_required( graphics, NORMAL_PLANES );
-
-    graphics->prev_mouse_position = graphics->mouse_position;
+        set_update_required( display, NORMAL_PLANES );
+    }
 }

@@ -1,16 +1,14 @@
 
-#include  <def_graphics.h>
-#include  <def_globals.h>
-#include  <def_bitlist.h>
+#include  <def_display.h>
 
-public  void  label_voxel_as_done( volume, x, y, z )
-    volume_struct   *volume;
-    int             x, y, z;
+public  void  label_voxel_as_done(
+    volume_struct   *volume,
+    int             x,
+    int             y,
+    int             z )
 {
     int                    i, j, k;
     int                    nx, ny, nz;
-    void                   get_volume_size();
-    void                   set_voxel_label_flag();
 
     get_volume_size( volume, &nx, &ny, &nz );
 

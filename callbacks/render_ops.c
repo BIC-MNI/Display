@@ -1,18 +1,15 @@
 
-#include  <def_graphics.h>
-#include  <def_files.h>
+#include  <def_display.h>
 
-private  object_struct  *get_model_object( graphics )
-    graphics_struct   *graphics;
+private  object_struct  *get_model_object(
+    display_struct    *display )
 {
     object_struct    *current_object;
-    Boolean          get_current_object();
-    object_struct    *get_current_model_object();
 
-    if( !get_current_object( graphics, &current_object ) ||
+    if( !get_current_object( display, &current_object ) ||
         current_object->object_type != MODEL )
     {
-        current_object = get_current_model_object( graphics );
+        current_object = get_current_model_object( display );
     }
 
     return( current_object );
@@ -20,60 +17,42 @@ private  object_struct  *get_model_object( graphics )
 
 public  DEF_MENU_FUNCTION( toggle_render_mode )  /* ARGSUSED */
 {
-    Status          status;
-    object_struct   *get_model_object();
-    object_struct   *model_object;
-    render_modes    new_render_mode;
-    void            set_update_required();
-    object_struct   *object;
+    object_struct            *model_object;
+    Boolean                  shaded_mode;
+    object_struct            *object;
     object_traverse_struct   object_traverse;
-    Status                   initialize_object_traverse();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
-    if( model_object->ptr.model->render.render_mode == WIREFRAME_MODE )
-    {
-        new_render_mode = SHADED_MODE;
-    }
-    else
-    {
-        new_render_mode = WIREFRAME_MODE;
-    }
+    shaded_mode = !get_model_info(get_model_ptr(model_object))->
+                   render.shaded_mode;
 
-    status = initialize_object_traverse( &object_traverse, 1, &model_object );
+    initialize_object_traverse( &object_traverse, 1, &model_object );
 
-    while( status == OK && get_next_object_traverse(&object_traverse,&object) )
+    while( get_next_object_traverse(&object_traverse,&object) )
     {
         if( object->object_type == MODEL )
         {
-            object->ptr.model->render.render_mode = new_render_mode;
+            get_model_info(get_model_ptr(model_object))->render.shaded_mode =
+                                                  shaded_mode;
         }
     }
 
-    set_update_required( graphics, NORMAL_PLANES );
+    set_update_required( display, NORMAL_PLANES );
 
     return( OK );
 }
 
 public  DEF_MENU_UPDATE(toggle_render_mode )  /* ARGSUSED */
 {
-    object_struct   *get_model_object();
     object_struct   *model_object;
     String          text;
-    void            set_menu_text();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
-    switch( model_object->ptr.model->render.render_mode )
-    {
-    case WIREFRAME_MODE:
-        (void) sprintf( text, label, "Wireframe" );
-        break;
-
-    case SHADED_MODE:
-        (void) sprintf( text, label, "Shaded" );
-        break;
-    }
+    set_text_boolean( label, text,
+               get_model_info(get_model_ptr(model_object))->render.shaded_mode,
+               "Wireframe", "Shaded" );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -83,18 +62,15 @@ public  DEF_MENU_UPDATE(toggle_render_mode )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_shading )  /* ARGSUSED */
 {
-    Status          status;
-    object_struct   *get_model_object();
-    object_struct   *model_object;
-    shading_types   new_shading_type;
-    void            set_update_required();
-    object_struct   *object;
+    object_struct            *model_object;
+    Shading_types            new_shading_type;
+    object_struct            *object;
     object_traverse_struct   object_traverse;
-    Status                   initialize_object_traverse();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
-    if( model_object->ptr.model->render.shading_type == FLAT_SHADING )
+    if( get_model_info(get_model_ptr(model_object))->render.shading_type ==
+        FLAT_SHADING )
     {
         new_shading_type = GOURAUD_SHADING;
     }
@@ -103,31 +79,30 @@ public  DEF_MENU_FUNCTION( toggle_shading )  /* ARGSUSED */
         new_shading_type = FLAT_SHADING;
     }
 
-    status = initialize_object_traverse( &object_traverse, 1, &model_object );
+    initialize_object_traverse( &object_traverse, 1, &model_object );
 
-    while( status == OK && get_next_object_traverse(&object_traverse,&object) )
+    while( get_next_object_traverse(&object_traverse,&object) )
     {
         if( object->object_type == MODEL )
         {
-            object->ptr.model->render.shading_type = new_shading_type;
+            get_model_info(get_model_ptr(model_object))->render.shading_type =
+                                              new_shading_type;
         }
     }
 
-    set_update_required( graphics, NORMAL_PLANES );
+    set_update_required( display, NORMAL_PLANES );
 
     return( OK );
 }
 
 public  DEF_MENU_UPDATE(toggle_shading )  /* ARGSUSED */
 {
-    object_struct   *get_model_object();
     object_struct   *model_object;
     String          text;
-    void            set_menu_text();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
-    switch( model_object->ptr.model->render.shading_type )
+    switch( get_model_info(get_model_ptr(model_object))->render.shading_type )
     {
     case FLAT_SHADING:
         (void) sprintf( text, label, "Flat" );
@@ -145,46 +120,42 @@ public  DEF_MENU_UPDATE(toggle_shading )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_lights )  /* ARGSUSED */
 {
-    Status          status;
-    object_struct   *get_model_object();
-    object_struct   *model_object;
-    Boolean         new_light_switch;
-    void            set_update_required();
-    object_struct   *object;
+    object_struct            *model_object;
+    Boolean                  new_light_switch;
+    object_struct            *object;
     object_traverse_struct   object_traverse;
-    Status                   initialize_object_traverse();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
-    new_light_switch = !model_object->ptr.model->render.master_light_switch;
+    new_light_switch = !get_model_info(get_model_ptr(model_object))->render.
+                       master_light_switch;
 
-    status = initialize_object_traverse( &object_traverse, 1, &model_object );
+    initialize_object_traverse( &object_traverse, 1, &model_object );
 
-    while( status == OK && get_next_object_traverse(&object_traverse,&object) )
+    while( get_next_object_traverse(&object_traverse,&object) )
     {
         if( object->object_type == MODEL )
         {
-            object->ptr.model->render.master_light_switch = new_light_switch;
+            get_model_info(get_model_ptr(model_object))->render.
+                                      master_light_switch = new_light_switch;
         }
     }
 
-    set_update_required( graphics, NORMAL_PLANES );
+    set_update_required( display, NORMAL_PLANES );
 
     return( OK );
 }
 
 public  DEF_MENU_UPDATE(toggle_lights )  /* ARGSUSED */
 {
-    void            set_text_on_off();
-    object_struct   *get_model_object();
     object_struct   *model_object;
     String          text;
-    void            set_menu_text();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
     set_text_on_off( label, text,
-                     model_object->ptr.model->render.master_light_switch );
+                     get_model_info(get_model_ptr(model_object))->render.
+                     master_light_switch );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -193,46 +164,42 @@ public  DEF_MENU_UPDATE(toggle_lights )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_two_sided )  /* ARGSUSED */
 {
-    Status          status;
-    object_struct   *get_model_object();
-    object_struct   *model_object;
-    Boolean         new_flag;
-    void            set_update_required();
-    object_struct   *object;
+    object_struct            *model_object;
+    Boolean                  new_flag;
+    object_struct            *object;
     object_traverse_struct   object_traverse;
-    Status                   initialize_object_traverse();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
-    new_flag = !model_object->ptr.model->render.two_sided_surface_flag;
+    new_flag = !get_model_info(get_model_ptr(model_object))->render.
+               two_sided_surface_flag;
 
-    status = initialize_object_traverse( &object_traverse, 1, &model_object );
+    initialize_object_traverse( &object_traverse, 1, &model_object );
 
-    while( status == OK && get_next_object_traverse(&object_traverse,&object) )
+    while( get_next_object_traverse(&object_traverse,&object) )
     {
         if( object->object_type == MODEL )
         {
-            object->ptr.model->render.two_sided_surface_flag = new_flag;
+            get_model_info(get_model_ptr(model_object))->render.
+                                    two_sided_surface_flag = new_flag;
         }
     }
 
-    set_update_required( graphics, NORMAL_PLANES );
+    set_update_required( display, NORMAL_PLANES );
 
     return( OK );
 }
 
 public  DEF_MENU_UPDATE(toggle_two_sided )  /* ARGSUSED */
 {
-    void            set_text_on_off();
-    object_struct   *get_model_object();
     object_struct   *model_object;
     String          text;
-    void            set_menu_text();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
     set_text_on_off( label, text,
-                     model_object->ptr.model->render.two_sided_surface_flag );
+                     get_model_info(get_model_ptr(model_object))->render.
+                     two_sided_surface_flag );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -241,46 +208,42 @@ public  DEF_MENU_UPDATE(toggle_two_sided )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_backfacing )  /* ARGSUSED */
 {
-    Status          status;
-    object_struct   *get_model_object();
-    object_struct   *model_object;
-    Boolean         new_flag;
-    void            set_update_required();
-    object_struct   *object;
+    object_struct            *model_object;
+    Boolean                  new_flag;
+    object_struct            *object;
     object_traverse_struct   object_traverse;
-    Status                   initialize_object_traverse();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
-    new_flag = !model_object->ptr.model->render.backface_flag;
+    new_flag = !get_model_info(get_model_ptr(model_object))->render.
+               backface_flag;
 
-    status = initialize_object_traverse( &object_traverse, 1, &model_object );
+    initialize_object_traverse( &object_traverse, 1, &model_object );
 
-    while( status == OK && get_next_object_traverse(&object_traverse,&object) )
+    while( get_next_object_traverse(&object_traverse,&object) )
     {
         if( object->object_type == MODEL )
         {
-            object->ptr.model->render.backface_flag = new_flag;
+            get_model_info(get_model_ptr(model_object))->render.
+                                     backface_flag = new_flag;
         }
     }
 
-    set_update_required( graphics, NORMAL_PLANES );
+    set_update_required( display, NORMAL_PLANES );
 
     return( OK );
 }
 
 public  DEF_MENU_UPDATE(toggle_backfacing )  /* ARGSUSED */
 {
-    void            set_text_on_off();
-    object_struct   *get_model_object();
     object_struct   *model_object;
     String          text;
-    void            set_menu_text();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
     set_text_on_off( label, text,
-                     model_object->ptr.model->render.backface_flag );
+                     get_model_info(get_model_ptr(model_object))->render.
+                     backface_flag );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -289,46 +252,42 @@ public  DEF_MENU_UPDATE(toggle_backfacing )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_line_curve_flag )  /* ARGSUSED */
 {
-    Status                   status;
-    object_struct            *get_model_object();
     object_struct            *model_object;
     Boolean                  new_flag;
-    void                     set_update_required();
     object_struct            *object;
     object_traverse_struct   object_traverse;
-    Status                   initialize_object_traverse();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
-    new_flag = !model_object->ptr.model->render.render_lines_as_curves;
+    new_flag = !get_model_info(get_model_ptr(model_object))->render.
+               render_lines_as_curves;
 
-    status = initialize_object_traverse( &object_traverse, 1, &model_object );
+    initialize_object_traverse( &object_traverse, 1, &model_object );
 
-    while( status == OK && get_next_object_traverse(&object_traverse,&object) )
+    while( get_next_object_traverse(&object_traverse,&object) )
     {
         if( object->object_type == MODEL )
         {
-            object->ptr.model->render.render_lines_as_curves = new_flag;
+            get_model_info(get_model_ptr(object))->render.
+                                  render_lines_as_curves = new_flag;
         }
     }
 
-    set_update_required( graphics, NORMAL_PLANES );
+    set_update_required( display, NORMAL_PLANES );
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(toggle_line_curve_flag )  /* ARGSUSED */
 {
-    void            set_text_on_off();
-    object_struct   *get_model_object();
     object_struct   *model_object;
     String          text;
-    void            set_menu_text();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
     set_text_on_off( label, text,
-                     model_object->ptr.model->render.render_lines_as_curves );
+                     get_model_info(get_model_ptr(model_object))->render.
+                     render_lines_as_curves );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -337,44 +296,40 @@ public  DEF_MENU_UPDATE(toggle_line_curve_flag )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_marker_label_flag )  /* ARGSUSED */
 {
-    Status                   status;
-    object_struct            *get_model_object();
     object_struct            *model_object;
     Boolean                  new_flag;
-    void                     set_update_required();
     object_struct            *object;
     object_traverse_struct   object_traverse;
-    Status                   initialize_object_traverse();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
-    new_flag = !model_object->ptr.model->render.show_marker_labels;
+    new_flag = !get_model_info(get_model_ptr(model_object))->render.
+               show_marker_labels;
 
-    status = initialize_object_traverse( &object_traverse, 1, &model_object );
+    initialize_object_traverse( &object_traverse, 1, &model_object );
 
-    while( status == OK && get_next_object_traverse(&object_traverse,&object) )
+    while( get_next_object_traverse(&object_traverse,&object) )
     {
         if( object->object_type == MODEL )
-            object->ptr.model->render.show_marker_labels = new_flag;
+            get_model_info(get_model_ptr(model_object))->render.
+                                   show_marker_labels = new_flag;
     }
 
-    set_update_required( graphics, NORMAL_PLANES );
+    set_update_required( display, NORMAL_PLANES );
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(toggle_marker_label_flag )  /* ARGSUSED */
 {
-    void            set_text_on_off();
-    object_struct   *get_model_object();
     object_struct   *model_object;
     String          text;
-    void            set_menu_text();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
     set_text_on_off( label, text,
-                     model_object->ptr.model->render.show_marker_labels );
+                     get_model_info(get_model_ptr(model_object))->render.
+                     show_marker_labels );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -383,59 +338,52 @@ public  DEF_MENU_UPDATE(toggle_marker_label_flag )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( set_n_curve_segments )  /* ARGSUSED */
 {
-    Status                   status;
     int                      n_segments;
-    object_struct            *get_model_object();
     object_struct            *model_object;
-    void                     set_update_required();
     object_struct            *object;
     object_traverse_struct   object_traverse;
-    Status                   initialize_object_traverse();
 
-    status = OK;
+    model_object = get_model_object( display );
 
-    model_object = get_model_object( graphics );
-
-    PRINT( "Current number of curve segments is %d.\n",
-            model_object->ptr.model->render.n_curve_segments );
-    PRINT( "Enter number of curve segments:" );
+    print( "Current number of curve segments is %d.\n",
+            get_model_info(get_model_ptr(model_object))->
+                                   render.n_curve_segments );
+    print( "Enter number of curve segments:" );
 
     if( input_int( stdin, &n_segments ) == OK && n_segments > 0 )
     {
-        status = initialize_object_traverse( &object_traverse, 1,
+        initialize_object_traverse( &object_traverse, 1,
                                              &model_object );
 
-        while( status == OK &&
-               get_next_object_traverse(&object_traverse,&object) )
+        while( get_next_object_traverse(&object_traverse,&object) )
         {
             if( object->object_type == MODEL )
             {
-                object->ptr.model->render.n_curve_segments = n_segments;
+                get_model_info(get_model_ptr(model_object))->render.
+                                       n_curve_segments = n_segments;
             }
         }
 
-        set_update_required( graphics, NORMAL_PLANES );
+        set_update_required( display, NORMAL_PLANES );
 
-        PRINT( "New number of curve segments: %d\n", n_segments );
+        print( "New number of curve segments: %d\n", n_segments );
     }
 
     (void) input_newline( stdin );
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(set_n_curve_segments )  /* ARGSUSED */
 {
-    void            set_text_on_off();
-    object_struct   *get_model_object();
     object_struct   *model_object;
     String          text;
-    void            set_menu_text();
 
-    model_object = get_model_object( graphics );
+    model_object = get_model_object( display );
 
     set_text_on_off( label, text,
-                     model_object->ptr.model->render.render_lines_as_curves );
+                     get_model_info(get_model_ptr(model_object))->render.
+                     render_lines_as_curves );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -444,16 +392,13 @@ public  DEF_MENU_UPDATE(set_n_curve_segments )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_double_buffer_threed )  /* ARGSUSED */
 {
-    void   G_set_double_buffer_state();
-    void   set_update_required();
+    Boolean   double_buffer;
 
-    graphics->window.double_buffer_flag =
-             !graphics->window.double_buffer_flag;
+    double_buffer = !G_get_double_buffer_state( display->window );
 
-    G_set_double_buffer_state( &graphics->window,
-                               graphics->window.double_buffer_flag );
+    G_set_double_buffer_state( display->window, double_buffer );
 
-    set_update_required( graphics, NORMAL_PLANES );
+    set_update_required( display, NORMAL_PLANES );
 
     return( OK );
 }
@@ -461,10 +406,8 @@ public  DEF_MENU_FUNCTION( toggle_double_buffer_threed )  /* ARGSUSED */
 public  DEF_MENU_UPDATE(toggle_double_buffer_threed )  /* ARGSUSED */
 {
     String          text;
-    void            set_menu_text();
-    void            set_text_on_off();
 
-    set_text_on_off( label, text, graphics->window.double_buffer_flag );
+    set_text_on_off( label, text, G_get_double_buffer_state(display->window) );
     set_menu_text( menu_window, menu_entry, text );
 
     return( OK );
@@ -472,19 +415,16 @@ public  DEF_MENU_UPDATE(toggle_double_buffer_threed )  /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )  /* ARGSUSED */
 {
-    graphics_struct   *slice_window;
-    void              G_set_double_buffer_state();
-    void              set_update_required();
+    Boolean           double_buffer;
+    display_struct    *slice_window;
 
-    slice_window = graphics->associated[SLICE_WINDOW];
+    slice_window = display->associated[SLICE_WINDOW];
 
-    if( slice_window != (graphics_struct *) 0 )
+    if( slice_window != (display_struct  *) 0 )
     {
-        slice_window->window.double_buffer_flag =
-                 !slice_window->window.double_buffer_flag;
+        double_buffer = !G_get_double_buffer_state( slice_window->window );
 
-        G_set_double_buffer_state( &slice_window->window,
-                                   slice_window->window.double_buffer_flag );
+        G_set_double_buffer_state( slice_window->window, double_buffer );
 
         set_update_required( slice_window, NORMAL_PLANES );
     }
@@ -494,16 +434,14 @@ public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )  /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_double_buffer_slice )  /* ARGSUSED */
 {
-    graphics_struct *slice_window;
+    display_struct  *slice_window;
     Boolean         state;
     String          text;
-    void            set_menu_text();
-    void            set_text_on_off();
 
-    slice_window = graphics->associated[SLICE_WINDOW];
+    slice_window = display->associated[SLICE_WINDOW];
 
-    if( slice_window != (graphics_struct *) 0 )
-        state = slice_window->window.double_buffer_flag;
+    if( slice_window != (display_struct  *) 0 )
+        state = G_get_double_buffer_state( slice_window->window );
     else
         state = TRUE;
 

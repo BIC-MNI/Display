@@ -1,21 +1,46 @@
-#include  <def_files.h>
-#include  <def_graphics.h>
+#include  <def_display.h>
 
-int  n_evals;
+private  int  n_evals;
 
-public  void  scan_to_voxels( surface_rep, descriptors,
-                              volume, parameters, max_voxel_distance,
-                              max_parametric_scan_distance )
-    surface_rep_struct  *surface_rep;
-    double              descriptors[];
-    volume_struct       *volume;
-    double              parameters[];
-    Real                max_voxel_distance;
-    Real                max_parametric_scan_distance;
+private  void  recursive_scan(
+    surface_rep_struct  *surface_rep,
+    double              descriptors[],
+    volume_struct       *volume,
+    double              parameters[],
+    Real                u1,
+    Real                u2,
+    Real                v1,
+    Real                v2,
+    Point               *centre_voxel,
+    Real                max_voxel_dist,
+    Real                max_parametric_dist );
+private  Boolean  should_subdivide(
+    Real   du_parametric,
+    Real   dv_parametric,
+    Point  points[],
+    Real   max_voxel_dist,
+    Real   max_parametric_dist );
+private  void  convert_surface_uv_to_voxel(
+    surface_rep_struct  *surface_rep,
+    double              descriptors[],
+    volume_struct       *volume,
+    double              parameters[],
+    Real                u,
+    Real                v,
+    Point               *point );
+void  label_voxel_point(
+    volume_struct  *volume,
+    Point          *point );
+
+public  void  scan_to_voxels(
+    surface_rep_struct  *surface_rep,
+    double              descriptors[],
+    volume_struct       *volume,
+    double              parameters[],
+    Real                max_voxel_distance,
+    Real                max_parametric_scan_distance )
 {
     Point  centre_voxel;
-    void   recursive_scan();
-    void   convert_surface_uv_to_voxel();
 
     n_evals = 0;
 
@@ -26,29 +51,27 @@ public  void  scan_to_voxels( surface_rep, descriptors,
                     volume, parameters, 0.0, 1.0, 0.0, 1.0, &centre_voxel,
                     max_voxel_distance, max_parametric_scan_distance );
 
-    PRINT( "%d evaluations", n_evals );
+    print( "%d evaluations", n_evals );
     (void) flush_file( stdout );
 }
 
-private  void  recursive_scan( surface_rep, descriptors, volume, parameters,
-                               u1, u2, v1, v2, centre_voxel,
-                               max_voxel_dist, max_parametric_dist )
-    surface_rep_struct  *surface_rep;
-    double              descriptors[];
-    volume_struct       *volume;
-    double              parameters[];
-    Real                u1, u2;
-    Real                v1, v2;
-    Point               *centre_voxel;
-    Real                max_voxel_dist;
-    Real                max_parametric_dist;
+private  void  recursive_scan(
+    surface_rep_struct  *surface_rep,
+    double              descriptors[],
+    volume_struct       *volume,
+    double              parameters[],
+    Real                u1,
+    Real                u2,
+    Real                v1,
+    Real                v2,
+    Point               *centre_voxel,
+    Real                max_voxel_dist,
+    Real                max_parametric_dist )
 {
     int              i;
     Real             u14, u34, v14, v34;
     Real             u_middle, v_middle;
     Point            voxels[4];
-    void             convert_surface_uv_to_voxel();
-    void             label_voxel_point();
 
     label_voxel_point( volume, centre_voxel );
 
@@ -93,16 +116,14 @@ private  void  recursive_scan( surface_rep, descriptors, volume, parameters,
     }
 }
 
-private  Boolean  should_subdivide( du_parametric, dv_parametric, points,
-                                    max_voxel_dist, max_parametric_dist )
-    Point  points[];
-    Real   du_parametric;
-    Real   dv_parametric;
-    Real   max_voxel_dist;
-    Real   max_parametric_dist;
+private  Boolean  should_subdivide(
+    Real   du_parametric,
+    Real   dv_parametric,
+    Point  points[],
+    Real   max_voxel_dist,
+    Real   max_parametric_dist )
 {
     Point    min_corner, max_corner;
-    void     get_range_points();
     Boolean  subdivide;
 
     subdivide = (du_parametric > max_parametric_dist) ||
@@ -121,18 +142,17 @@ private  Boolean  should_subdivide( du_parametric, dv_parametric, points,
     return( subdivide );
 }
 
-private  void  convert_surface_uv_to_voxel( surface_rep, descriptors,
-                                            volume, parameters, u, v, point )
-    surface_rep_struct  *surface_rep;
-    double              descriptors[];
-    volume_struct       *volume;
-    double              parameters[];
-    Real                u;
-    Real                v;
-    Point               *point;
+private  void  convert_surface_uv_to_voxel(
+    surface_rep_struct  *surface_rep,
+    double              descriptors[],
+    volume_struct       *volume,
+    double              parameters[],
+    Real                u,
+    Real                v,
+    Point               *point )
 {
-    double  x, y, z;
-    void    convert_point_to_voxel();
+    double   x, y, z;
+    Real     x_w, y_w, z_w;
 
     surface_rep->evaluate_surface_at_uv( u, v, descriptors, parameters,
                                  &x, &y, &z,
@@ -141,17 +161,15 @@ private  void  convert_surface_uv_to_voxel( surface_rep, descriptors,
                                  (double *) 0, (double *) 0, (double *) 0,
                                  (double *) 0, (double *) 0, (double *) 0 );
 
-    convert_point_to_voxel( volume, (Real) x, (Real) y, (Real) z,
-                            &Point_x(*point), &Point_y(*point),
-                            &Point_z(*point) );
+    convert_world_to_voxel( volume, (Real) x, (Real) y, (Real) z,
+                            &x_w, &y_w, &z_w );
+    fill_Point( *point, x_w, y_w, z_w );
 }
 
-void  label_voxel_point( volume, point )
-    volume_struct  *volume;
-    Point          *point;
+void  label_voxel_point(
+    volume_struct  *volume,
+    Point          *point )
 {
-    void     set_voxel_label_flag();
-
     if( voxel_is_within_volume( volume, Point_x(*point),
                                 Point_y(*point), Point_z(*point) ) )
     {

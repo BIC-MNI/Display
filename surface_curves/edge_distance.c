@@ -1,6 +1,4 @@
-#include  <def_objects.h>
-#include  <def_priority_queue.h>
-#include  <def_arrays.h>
+#include  <def_mni.h>
 
 typedef  struct
 {
@@ -8,41 +6,51 @@ typedef  struct
     int             from_point;
 } vertex_struct;
 
-static  Status   create_path();
-static  Boolean  find_shortest_path();
+private  Boolean  find_shortest_path(
+    polygons_struct   *polygons,
+    Point             *p1,
+    int               poly1,
+    Point             *p2,
+    int               poly2,
+    Real              *path_dist,
+    int               *last_vertex,
+    vertex_struct     vertices[] );
+private  void  create_path(
+    polygons_struct   *polygons,
+    Point             *p1,
+    Point             *p2,
+    Boolean           first_flag,
+    int               last_vertex,
+    vertex_struct     vertices[],
+    lines_struct      *lines );
 
-public  Boolean  distance_along_polygons( polygons, p1, poly1, p2, poly2,
-                                          dist, lines )
-    polygons_struct   *polygons;
-    Point             *p1;
-    int               poly1;
-    Point             *p2;
-    int               poly2;
-    Real              *dist;
-    lines_struct      *lines;
+public  Boolean  distance_along_polygons(
+    polygons_struct   *polygons,
+    Point             *p1,
+    int               poly1,
+    Point             *p2,
+    int               poly2,
+    Real              *dist,
+    lines_struct      *lines )
 {
-    Status          status;
-    Status          check_polygons_neighbours_computed();
     Boolean         found;
     int             last_vertex;
     vertex_struct   *vertices;
 
-    ALLOC( status, vertices, polygons->n_points );
+    ALLOC( vertices, polygons->n_points );
 
-    if( status == OK )
-        status = check_polygons_neighbours_computed( polygons );
+    check_polygons_neighbours_computed( polygons );
 
     found = find_shortest_path( polygons, p1, poly1, p2, poly2, dist,
                                 &last_vertex, vertices);
 
     if( found )
     {
-        status = create_path( polygons, p1, p2, lines->n_points == 0,
+        create_path( polygons, p1, p2, lines->n_points == 0,
                               last_vertex, vertices, lines );
     }
 
-    if( status == OK )
-        FREE( status, vertices );
+    FREE( vertices );
 
     return( found );
 }
@@ -53,25 +61,22 @@ typedef  struct
     int   poly_index;
 } queue_struct;
 
-private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
-                                      path_dist, last_vertex, vertices )
-    polygons_struct   *polygons;
-    Point             *p1;
-    int               poly1;
-    Point             *p2;
-    int               poly2;
-    Real              *path_dist;
-    int               *last_vertex;
-    vertex_struct     vertices[];
+private  Boolean  find_shortest_path(
+    polygons_struct   *polygons,
+    Point             *p1,
+    int               poly1,
+    Point             *p2,
+    int               poly2,
+    Real              *path_dist,
+    int               *last_vertex,
+    vertex_struct     vertices[] )
 {
     int                    i, p, size, point_index, poly_index;
     int                    dir, index_within_poly, neighbour_index_within_poly;
     int                    neighbour_point_index, current_index_within_poly;
     int                    current_poly, n_done;
     Real                   dist;
-    Real                   distance_between_points();
     Boolean                found_vertex, found;
-    Status                 status;
     queue_struct           entry;
     PRIORITY_QUEUE_STRUCT( queue_struct )   queue;
 
@@ -95,7 +100,7 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
         vertices[point_index].distance = dist;
         entry.index_within_poly = p;
         entry.poly_index = poly2;
-        INSERT_IN_PRIORITY_QUEUE( status, queue, entry, -dist );
+        INSERT_IN_PRIORITY_QUEUE( queue, entry, -dist );
     }
 
     found_vertex = FALSE;
@@ -159,7 +164,7 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
                     {
                         entry.index_within_poly = neighbour_index_within_poly;
                         entry.poly_index = current_poly;
-                        INSERT_IN_PRIORITY_QUEUE( status, queue, entry, -dist );
+                        INSERT_IN_PRIORITY_QUEUE( queue, entry, -dist );
                     }
                 }
 
@@ -184,43 +189,31 @@ private  Boolean  find_shortest_path( polygons, p1, poly1, p2, poly2,
         }
     }
 
-    DELETE_PRIORITY_QUEUE( status, queue );
+    DELETE_PRIORITY_QUEUE( queue );
 
     return( found_vertex );
 }
 
-private  Status  create_path( polygons, p1, p2, first_flag,
-                              last_vertex, vertices, lines )
-    polygons_struct   *polygons;
-    Point             *p1;
-    Point             *p2;
-    Boolean           first_flag;
-    int               last_vertex;
-    vertex_struct     vertices[];
-    lines_struct      *lines;
+private  void  create_path(
+    polygons_struct   *polygons,
+    Point             *p1,
+    Point             *p2,
+    Boolean           first_flag,
+    int               last_vertex,
+    vertex_struct     vertices[],
+    lines_struct      *lines )
 {
-    Status          status;
-    Status          begin_adding_points_to_line();
-    Status          add_point_to_line();
-
-    status = OK;
-
     if( first_flag )
     {
-        status = begin_adding_points_to_line( lines );
-
-        if( status == OK )
-            status = add_point_to_line( lines, p1 );
+        start_new_line( lines );
+        add_point_to_line( lines, p1 );
     }
 
-    while( status == OK && last_vertex >= 0 )
+    while( last_vertex >= 0 )
     {
-        status = add_point_to_line( lines, &polygons->points[last_vertex] );
+        add_point_to_line( lines, &polygons->points[last_vertex] );
         last_vertex = vertices[last_vertex].from_point;
     }
 
-    if( status == OK )
-        status = add_point_to_line( lines, p2 );
-
-    return( status );
+    add_point_to_line( lines, p2 );
 }

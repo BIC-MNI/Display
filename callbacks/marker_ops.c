@@ -1,36 +1,26 @@
 
-#include  <def_graphics.h>
-#include  <def_files.h>
-#include  <def_globals.h>
-#include  <def_string.h>
+#include  <def_display.h>
 
-private  Boolean  get_current_marker( graphics, marker )
-    graphics_struct   *graphics;
+private  Boolean  get_current_marker( display, marker )
+    display_struct    *display;
     marker_struct     **marker;
 {
-    Status                  status;
     Boolean                 found;
     object_struct           *current_object, *object;
-    Boolean                 get_current_object();
     object_traverse_struct  object_traverse;
-    Status                  initialize_object_traverse();
 
     found = FALSE;
 
-    if( get_current_object( graphics, &current_object ) )
+    if( get_current_object( display, &current_object ) )
     {
-        status = initialize_object_traverse( &object_traverse, 1,
-                                             &current_object );
+        initialize_object_traverse( &object_traverse, 1, &current_object );
 
-        if( status == OK )
+        while( get_next_object_traverse(&object_traverse,&object) )
         {
-            while( get_next_object_traverse(&object_traverse,&object) )
+            if( !found && object->object_type == MARKER )
             {
-                if( !found && object->object_type == MARKER )
-                {
-                    found = TRUE;
-                    *marker = object->ptr.marker;
-                }
+                found = TRUE;
+                *marker = get_marker_ptr( object );
             }
         }
     }
@@ -38,76 +28,65 @@ private  Boolean  get_current_marker( graphics, marker )
     return( found );
 }
 
-private  void  get_position_pointed_to( graphics, pos )
-    graphics_struct  *graphics;
-    Point            *pos;
+private  void  get_position_pointed_to(
+    display_struct   *display,
+    Point            *pos )
 {
     int             x, y, z, axis_index;
+    Real            x_w, y_w, z_w;
     volume_struct   *volume;
-    void            convert_voxel_to_point();
 
-    if( get_voxel_under_mouse( graphics, &x, &y, &z, &axis_index ) &&
-        get_slice_window_volume( graphics, &volume ) )
+    if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) &&
+        get_slice_window_volume( display, &volume ) )
     {
-        convert_voxel_to_point( volume, (Real) x, (Real) y, (Real) z, pos );
+        convert_voxel_to_world( volume, (Real) x, (Real) y, (Real) z,
+                                &x_w, &y_w, &z_w );
+        fill_Point( *pos, x_w, y_w, z_w );
     }
     else
     {
-        *pos = graphics->three_d.cursor.origin;
+        *pos = display->three_d.cursor.origin;
     }
 }
 
-public  Status  create_marker_at_position( graphics, position )
-    graphics_struct   *graphics;
-    Point             *position;
+public  void  create_marker_at_position(
+    display_struct    *display,
+    Point             *position )
 {
-    Status          status;
-    Status          create_object();
-    Status          add_object_to_current_model();
     object_struct   *object;
-    void            render_marker_to_volume();
-    void            set_slice_window_update();
+    marker_struct   *marker;
 
-    status = create_object( &object, MARKER );
+    object = create_object( MARKER );
+    marker = get_marker_ptr( object );
 
-    if( status == OK )
-    {
-        object->ptr.marker->position = *position;
+    marker->position = *position;
 
-        (void) strcpy( object->ptr.marker->label,
-                       graphics->three_d.default_marker_label );
+    (void) strcpy( marker->label, display->three_d.default_marker_label );
 
-        object->ptr.marker->type = graphics->three_d.default_marker_type;
-        object->ptr.marker->colour = graphics->three_d.default_marker_colour;
-        object->ptr.marker->size = graphics->three_d.default_marker_size;
-        object->ptr.marker->structure_id =
-                            graphics->three_d.default_marker_structure_id;
-        object->ptr.marker->patient_id =
-                            graphics->three_d.default_marker_patient_id;
+    marker->type = display->three_d.default_marker_type;
+    marker->colour = display->three_d.default_marker_colour;
+    marker->size = display->three_d.default_marker_size;
+    marker->structure_id = display->three_d.default_marker_structure_id;
+    marker->patient_id = display->three_d.default_marker_patient_id;
 
-        status = add_object_to_current_model( graphics, object );
+    add_object_to_current_model( display, object );
 
-        render_marker_to_volume( graphics, object->ptr.marker );
+    render_marker_to_volume( display, marker );
 
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
-    }
-
-    return( status );
+    set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
+    set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
+    set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
 }
 
 public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
 {
-    Status          status;
     Point           position;
-    void            get_position_pointed_to();
 
-    get_position_pointed_to( graphics, &position );
+    get_position_pointed_to( display, &position );
 
-    status = create_marker_at_position( graphics, &position );
+    create_marker_at_position( display, &position );
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(create_marker_at_cursor )   /* ARGSUSED */
@@ -118,21 +97,19 @@ public  DEF_MENU_UPDATE(create_marker_at_cursor )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_cursor_to_marker )   /* ARGSUSED */
 {
     object_struct   *object;
-    void            set_update_required();
-    void            update_cursor();
-    graphics_struct *slice_window;
+    display_struct  *slice_window;
 
-    if( get_current_object( graphics, &object ) &&
+    if( get_current_object( display, &object ) &&
         object->object_type == MARKER )
     {
-        slice_window = graphics->associated[SLICE_WINDOW];
+        slice_window = display->associated[SLICE_WINDOW];
 
-        graphics->three_d.cursor.origin = object->ptr.marker->position;
+        display->three_d.cursor.origin = get_marker_ptr(object)->position;
 
-        update_cursor( graphics );
-        set_update_required( graphics, OVERLAY_PLANES );
+        update_cursor( display );
+        set_update_required( display, OVERLAY_PLANES );
 
-        if( slice_window != (graphics_struct *) 0 )
+        if( slice_window != (display_struct  *) 0 )
         {
             if( update_voxel_from_cursor( slice_window ) )
                 set_update_required( slice_window, NORMAL_PLANES );
@@ -151,24 +128,20 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
 {
     Status                  status;
     object_struct           *object, *current_object;
-    object_struct           *get_current_model_object();
     volume_struct           *volume;
-    void                    update_cursor();
     String                  filename;
     FILE                    *file;
     object_traverse_struct  object_traverse;
-    Status                  initialize_object_traverse();
-    Status                  io_tag_point();
 
-    object = get_current_model_object( graphics );
+    object = get_current_model_object( display );
 
-    PRINT( "Enter filename: " );
+    print( "Enter filename: " );
 
     status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
     (void) input_newline( stdin );
 
-    if( !get_slice_window_volume( graphics, &volume ) )
+    if( !get_slice_window_volume( display, &volume ) )
         volume = (volume_struct *) 0;
 
     if( status == OK )
@@ -177,7 +150,7 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
 
     if( status == OK )
     {
-        status = initialize_object_traverse( &object_traverse, 1, &object );
+        initialize_object_traverse( &object_traverse, 1, &object );
 
         while( get_next_object_traverse(&object_traverse,&current_object) )
         {
@@ -185,7 +158,7 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
                 current_object->visibility )
             {
                 status = io_tag_point( file, WRITE_FILE, volume, 0.0,
-                                       current_object->ptr.marker );
+                                       get_marker_ptr(current_object) );
             }
         }
     }
@@ -193,7 +166,7 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
     if( status == OK )
         status = close_file( file );
 
-    PRINT( "Done.\n" );
+    print( "Done.\n" );
 
     return( status );
 }
@@ -203,30 +176,27 @@ public  DEF_MENU_UPDATE(save_markers )   /* ARGSUSED */
     return( OK );
 }
 
-public  void  markers_have_changed( graphics )
-    graphics_struct  *graphics;
+public  void  markers_have_changed(
+    display_struct   *display )
 {
-    void    regenerate_voxel_marker_labels();
-    void    graphics_models_have_changed();
-
-    regenerate_voxel_marker_labels( graphics );
-    graphics_models_have_changed( graphics );
+    regenerate_voxel_marker_labels( display );
+    graphics_models_have_changed( display );
 }
 
 public  DEF_MENU_FUNCTION( set_default_marker_structure_id )   /* ARGSUSED */
 {
     int             id;
 
-    PRINT( "The current default marker id is: %d\n",
-           graphics->three_d.default_marker_structure_id );
+    print( "The current default marker id is: %d\n",
+           display->three_d.default_marker_structure_id );
 
-    PRINT( "Enter the new value: " );
+    print( "Enter the new value: " );
 
     if( input_int( stdin, &id ) == OK )
     {
-        graphics->three_d.default_marker_structure_id = id;
-        PRINT( "The new default marker id is: %d\n",
-               graphics->three_d.default_marker_structure_id );
+        display->three_d.default_marker_structure_id = id;
+        print( "The new default marker id is: %d\n",
+               display->three_d.default_marker_structure_id );
 
     }
 
@@ -238,9 +208,8 @@ public  DEF_MENU_FUNCTION( set_default_marker_structure_id )   /* ARGSUSED */
 public  DEF_MENU_UPDATE(set_default_marker_structure_id )   /* ARGSUSED */
 {
     String  text;
-    void    set_menu_text();
 
-    (void) sprintf( text, label, graphics->three_d.default_marker_structure_id);
+    (void) sprintf( text, label, display->three_d.default_marker_structure_id);
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -251,16 +220,16 @@ public  DEF_MENU_FUNCTION( set_default_marker_patient_id )   /* ARGSUSED */
 {
     int             id;
 
-    PRINT( "The current default marker id is: %d\n",
-           graphics->three_d.default_marker_patient_id );
+    print( "The current default marker id is: %d\n",
+           display->three_d.default_marker_patient_id );
 
-    PRINT( "Enter the new value: " );
+    print( "Enter the new value: " );
 
     if( input_int( stdin, &id ) == OK )
     {
-        graphics->three_d.default_marker_patient_id = id;
-        PRINT( "The new default marker id is: %d\n",
-               graphics->three_d.default_marker_patient_id );
+        display->three_d.default_marker_patient_id = id;
+        print( "The new default marker id is: %d\n",
+               display->three_d.default_marker_patient_id );
 
     }
 
@@ -272,9 +241,8 @@ public  DEF_MENU_FUNCTION( set_default_marker_patient_id )   /* ARGSUSED */
 public  DEF_MENU_UPDATE(set_default_marker_patient_id )   /* ARGSUSED */
 {
     String  text;
-    void    set_menu_text();
 
-    (void) sprintf( text, label, graphics->three_d.default_marker_patient_id );
+    (void) sprintf( text, label, display->three_d.default_marker_patient_id );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -285,16 +253,16 @@ public  DEF_MENU_FUNCTION( set_default_marker_size )   /* ARGSUSED */
 {
     Real        size;
 
-    PRINT( "The current default marker size is: %g\n",
-           graphics->three_d.default_marker_size );
+    print( "The current default marker size is: %g\n",
+           display->three_d.default_marker_size );
 
-    PRINT( "Enter the new value: " );
+    print( "Enter the new value: " );
 
     if( input_real( stdin, &size ) == OK )
     {
-        graphics->three_d.default_marker_size = size;
-        PRINT( "The new default marker size is: %g\n",
-               graphics->three_d.default_marker_size );
+        display->three_d.default_marker_size = size;
+        print( "The new default marker size is: %g\n",
+               display->three_d.default_marker_size );
     }
 
     (void) input_newline( stdin );
@@ -305,9 +273,8 @@ public  DEF_MENU_FUNCTION( set_default_marker_size )   /* ARGSUSED */
 public  DEF_MENU_UPDATE(set_default_marker_size )   /* ARGSUSED */
 {
     String  text;
-    void    set_menu_text();
 
-    (void) sprintf( text, label, graphics->three_d.default_marker_size );
+    (void) sprintf( text, label, display->three_d.default_marker_size );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -319,29 +286,27 @@ public  DEF_MENU_FUNCTION( set_default_marker_colour )   /* ARGSUSED */
     Status      status;
     String      string;
     Colour      colour;
-    Status      convert_string_to_colour();
-    void        convert_colour_to_string();
 
-    convert_colour_to_string( &graphics->three_d.default_marker_colour,
+    convert_colour_to_string( display->three_d.default_marker_colour,
                               string );
 
-    PRINT( "The current default marker colour is: %s\n", string );
+    print( "The current default marker colour is: %s\n", string );
 
-    PRINT( "Enter the new colour name or r g b: " );
+    print( "Enter the new colour name or r g b: " );
 
     status = input_line( stdin, string, MAX_STRING_LENGTH );
 
     if( status == OK )
-        status = convert_string_to_colour( string, &colour );
+        colour = convert_string_to_colour( string );
 
     if( status == OK )
     {
-        graphics->three_d.default_marker_colour = colour;
+        display->three_d.default_marker_colour = colour;
 
-        convert_colour_to_string( &graphics->three_d.default_marker_colour,
+        convert_colour_to_string( display->three_d.default_marker_colour,
                                   string );
 
-        PRINT( "The new default marker colour is: %s\n", string );
+        print( "The new default marker colour is: %s\n", string );
     }
 
     return( status );
@@ -349,10 +314,8 @@ public  DEF_MENU_FUNCTION( set_default_marker_colour )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_default_marker_colour )   /* ARGSUSED */
 {
-    void    set_menu_text_with_colour();
-
     set_menu_text_with_colour( menu_window, menu_entry, label,
-                     &graphics->three_d.default_marker_colour );
+                               display->three_d.default_marker_colour );
 
     return( OK );
 }
@@ -361,16 +324,16 @@ public  DEF_MENU_FUNCTION( set_default_marker_type )   /* ARGSUSED */
 {
     int       type;
 
-    PRINT( "The current default marker type is: %d\n",
-              (int) graphics->three_d.default_marker_type );
+    print( "The current default marker type is: %d\n",
+              (int) display->three_d.default_marker_type );
 
-    PRINT( "Enter the new type [0-%d]:", N_MARKER_TYPES-1 );
+    print( "Enter the new type [0-%d]:", N_MARKER_TYPES-1 );
 
     if( input_int( stdin, &type ) == OK && type >= 0 && type < N_MARKER_TYPES )
     {
-        graphics->three_d.default_marker_type = (Marker_types) type;
-        PRINT( "The new default marker type is: %d\n",
-               (int) graphics->three_d.default_marker_type );
+        display->three_d.default_marker_type = (Marker_types) type;
+        print( "The new default marker type is: %d\n",
+               (int) display->three_d.default_marker_type );
 
     }
 
@@ -383,9 +346,8 @@ public  DEF_MENU_UPDATE(set_default_marker_type )   /* ARGSUSED */
 {
     String  text;
     char    *name;
-    void    set_menu_text();
 
-    switch( graphics->three_d.default_marker_type )
+    switch( display->three_d.default_marker_type )
     {
     case BOX_MARKER:
         name = "Cube";
@@ -412,18 +374,18 @@ public  DEF_MENU_FUNCTION( set_default_marker_label )   /* ARGSUSED */
     Status       status;
     String       label;
 
-    PRINT( "The current default marker label is: %s\n",
-                 graphics->three_d.default_marker_label );
+    print( "The current default marker label is: %s\n",
+                 display->three_d.default_marker_label );
 
-    PRINT( "Enter the new default label: " );
+    print( "Enter the new default label: " );
 
     status = input_string( stdin, label, MAX_STRING_LENGTH, ' ' );
 
     if( status == OK )
     {
-        (void) strcpy( graphics->three_d.default_marker_label, label );
-        PRINT( "The new default marker label is: %s\n",
-               graphics->three_d.default_marker_label );
+        (void) strcpy( display->three_d.default_marker_label, label );
+        print( "The new default marker label is: %s\n",
+               display->three_d.default_marker_label );
     }
 
     (void) input_newline( stdin );
@@ -434,9 +396,8 @@ public  DEF_MENU_FUNCTION( set_default_marker_label )   /* ARGSUSED */
 public  DEF_MENU_UPDATE(set_default_marker_label )   /* ARGSUSED */
 {
     String  text;
-    void    set_menu_text();
 
-    (void) sprintf( text, label, graphics->three_d.default_marker_label );
+    (void) sprintf( text, label, display->three_d.default_marker_label );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -447,21 +408,20 @@ public  DEF_MENU_FUNCTION( change_marker_structure_id )   /* ARGSUSED */
 {
     int             id;
     marker_struct   *marker;
-    void            rebuild_selected_list();
 
-    if( get_current_marker(graphics,&marker) )
+    if( get_current_marker(display,&marker) )
     {
-        PRINT( "The current value of this marker id is: %d\n",
+        print( "The current value of this marker id is: %d\n",
                marker->structure_id );
 
-        PRINT( "Enter the new value: " );
+        print( "Enter the new value: " );
 
         if( input_int( stdin, &id ) == OK )
         {
             marker->structure_id = id;
-            PRINT( "The new value of this marker id is: %d\n",
+            print( "The new value of this marker id is: %d\n",
                marker->structure_id );
-            rebuild_selected_list( graphics, menu_window );
+            rebuild_selected_list( display, menu_window );
         }
 
         (void) input_newline( stdin );
@@ -479,21 +439,20 @@ public  DEF_MENU_FUNCTION( change_marker_patient_id )   /* ARGSUSED */
 {
     int             id;
     marker_struct   *marker;
-    void            rebuild_selected_list();
 
-    if( get_current_marker(graphics,&marker) )
+    if( get_current_marker(display,&marker) )
     {
-        PRINT( "The current value of this marker id is: %d\n",
+        print( "The current value of this marker id is: %d\n",
                marker->patient_id );
 
-        PRINT( "Enter the new value: " );
+        print( "Enter the new value: " );
 
         if( input_int( stdin, &id ) == OK )
         {
             marker->patient_id = id;
-            PRINT( "The new value of this marker id is: %d\n",
+            print( "The new value of this marker id is: %d\n",
                marker->patient_id );
-            rebuild_selected_list( graphics, menu_window );
+            rebuild_selected_list( display, menu_window );
         }
 
         (void) input_newline( stdin );
@@ -511,21 +470,20 @@ public  DEF_MENU_FUNCTION( change_marker_type )   /* ARGSUSED */
 {
     int             type;
     marker_struct   *marker;
-    void            graphics_models_have_changed();
 
-    if( get_current_marker(graphics,&marker) )
+    if( get_current_marker(display,&marker) )
     {
-        PRINT( "The current marker type is: %d\n", (int) marker->type );
+        print( "The current marker type is: %d\n", (int) marker->type );
 
-        PRINT( "Enter the new type [0-%d]: ", N_MARKER_TYPES-1 );
+        print( "Enter the new type [0-%d]: ", N_MARKER_TYPES-1 );
 
         if( input_int( stdin, &type ) == OK &&
             type >= 0 && type < N_MARKER_TYPES )
         {
             marker->type = (Marker_types) type;
-            PRINT( "The new value of this marker type is: %d\n",
+            print( "The new value of this marker type is: %d\n",
                (int) marker->type );
-            graphics_models_have_changed( graphics );
+            graphics_models_have_changed( display );
         }
 
         (void) input_newline( stdin );
@@ -543,19 +501,18 @@ public  DEF_MENU_FUNCTION( change_marker_size )   /* ARGSUSED */
 {
     Real            size;
     marker_struct   *marker;
-    void            markers_have_changed();
 
-    if( get_current_marker(graphics,&marker) )
+    if( get_current_marker(display,&marker) )
     {
-        PRINT( "The current size of this marker is: %g\n", marker->size );
+        print( "The current size of this marker is: %g\n", marker->size );
 
-        PRINT( "Enter the new value: " );
+        print( "Enter the new value: " );
 
         if( input_real( stdin, &size ) == OK && size > 0.0 )
         {
             marker->size = size;
-            PRINT( "The new size of this marker is: %g\n", marker->size );
-            markers_have_changed( graphics );
+            print( "The new size of this marker is: %g\n", marker->size );
+            markers_have_changed( display );
         }
 
         (void) input_newline( stdin );
@@ -572,18 +529,17 @@ public  DEF_MENU_UPDATE(change_marker_size )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( change_marker_position )   /* ARGSUSED */
 {
     marker_struct   *marker;
-    void            markers_have_changed();
 
-    if( get_current_marker(graphics,&marker) )
+    if( get_current_marker(display,&marker) )
     {
-        get_position_pointed_to( graphics, &marker->position );
+        get_position_pointed_to( display, &marker->position );
 
-        PRINT( "Marker position changed to: %g %g %g\n",
+        print( "Marker position changed to: %g %g %g\n",
                Point_x(marker->position),
                Point_y(marker->position),
                Point_z(marker->position) );
 
-        markers_have_changed( graphics );
+        markers_have_changed( display );
     }
 
     return( OK );
@@ -598,19 +554,18 @@ public  DEF_MENU_FUNCTION( change_marker_label )   /* ARGSUSED */
 {
     String          label;
     marker_struct   *marker;
-    void            graphics_models_have_changed();
 
-    if( get_current_marker(graphics,&marker) )
+    if( get_current_marker(display,&marker) )
     {
-        PRINT( "The current marker label is: %s\n", marker->label );
+        print( "The current marker label is: %s\n", marker->label );
 
-        PRINT( "Enter the new label: " );
+        print( "Enter the new label: " );
 
         if( input_string( stdin, label, MAX_STRING_LENGTH, ' ' ) == OK )
         {
             (void) strcpy( marker->label, label );
-            PRINT( "The new marker label is: %s\n", marker->label );
-            graphics_models_have_changed( graphics );
+            print( "The new marker label is: %s\n", marker->label );
+            graphics_models_have_changed( display );
         }
 
         (void) input_newline( stdin );
@@ -627,18 +582,17 @@ public  DEF_MENU_UPDATE(change_marker_label )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( copy_defaults_to_marker )   /* ARGSUSED */
 {
     marker_struct   *marker;
-    void            graphics_models_have_changed();
 
-    if( get_current_marker(graphics,&marker) )
+    if( get_current_marker(display,&marker) )
     {
-        marker->type = graphics->three_d.default_marker_type;
-        marker->colour = graphics->three_d.default_marker_colour;
-        marker->size = graphics->three_d.default_marker_size;
-        (void) strcpy( marker->label, graphics->three_d.default_marker_label );
-        marker->structure_id = graphics->three_d.default_marker_structure_id;
-        marker->patient_id = graphics->three_d.default_marker_patient_id;
+        marker->type = display->three_d.default_marker_type;
+        marker->colour = display->three_d.default_marker_colour;
+        marker->size = display->three_d.default_marker_size;
+        (void) strcpy( marker->label, display->three_d.default_marker_label );
+        marker->structure_id = display->three_d.default_marker_structure_id;
+        marker->patient_id = display->three_d.default_marker_patient_id;
 
-        graphics_models_have_changed( graphics );
+        graphics_models_have_changed( display );
     }
 
     return( OK );
@@ -652,15 +606,12 @@ public  DEF_MENU_UPDATE(copy_defaults_to_marker )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( classify_markers )   /* ARGSUSED */
 {
     model_struct    *model;
-    model_struct    *get_current_model();
-    void            graphics_models_have_changed();
-    void            segment_markers();
 
-    model = get_current_model( graphics );
+    model = get_current_model( display );
 
-    segment_markers( graphics, model );
+    segment_markers( display, model );
 
-    graphics_models_have_changed( graphics );
+    graphics_models_have_changed( display );
 
     return( OK );
 }
@@ -673,20 +624,18 @@ public  DEF_MENU_UPDATE(classify_markers )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_marker_segmentation_threshold )   /* ARGSUSED */
 {
     Real        threshold;
-    Real        get_marker_threshold();
-    void        set_marker_threshold();
 
-    PRINT( "The current marker threshold is: %g\n",
-           get_marker_threshold(&graphics->three_d.marker_segmentation) );
+    print( "The current marker threshold is: %g\n",
+           get_marker_threshold(&display->three_d.marker_segmentation) );
 
-    PRINT( "Enter the new value: " );
+    print( "Enter the new value: " );
 
     if( input_real( stdin, &threshold ) == OK )
     {
-        set_marker_threshold(&graphics->three_d.marker_segmentation, threshold);
+        set_marker_threshold(&display->three_d.marker_segmentation, threshold);
         
-        PRINT( "The new default marker size is: %g\n",
-               get_marker_threshold(&graphics->three_d.marker_segmentation) );
+        print( "The new default marker size is: %g\n",
+               get_marker_threshold(&display->three_d.marker_segmentation) );
     }
 
     (void) input_newline( stdin );
@@ -697,11 +646,9 @@ public  DEF_MENU_FUNCTION( set_marker_segmentation_threshold )   /* ARGSUSED */
 public  DEF_MENU_UPDATE(set_marker_segmentation_threshold )   /* ARGSUSED */
 {
     String  text;
-    void    set_menu_text();
-    Real    get_marker_threshold();
 
     (void) sprintf( text, label,
-                get_marker_threshold(&graphics->three_d.marker_segmentation) );
+                get_marker_threshold(&display->three_d.marker_segmentation) );
 
     set_menu_text( menu_window, menu_entry, text );
 

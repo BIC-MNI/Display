@@ -1,35 +1,25 @@
 
-#include  <def_graphics.h>
-#include  <def_connect.h>
-#include  <def_alloc.h>
-#include  <def_queue.h>
+#include  <def_display.h>
 
 #define  REGION_OF_INTEREST    1
 
-public  Status  disconnect_components( volume, voxel_indices, axis,
-                                       n_labels, labels,
-                                       min_threshold, max_threshold )
-    volume_struct   *volume;
-    int             voxel_indices[3];
-    int             axis[3];
-    int             n_labels;
-    label_struct    labels[];
-    int             min_threshold;
-    int             max_threshold;
+public  void  disconnect_components(
+    volume_struct   *volume,
+    int             voxel_indices[3],
+    int             axis[3],
+    int             n_labels,
+    label_struct    labels[],
+    int             min_threshold,
+    int             max_threshold )
 {
-    Status        status;
     int           val, i;
-    void          assign_region_flags();
     pixel_struct  **pixels;
     int           x, y, index[3], size[3];
-    void          set_voxel_activity_flag();
-    void          get_volume_size();
     Boolean       inside;
-    Status        label_components();
 
     get_volume_size( volume, &size[X], &size[Y], &size[Z] );
 
-    ALLOC2D( status, pixels, size[axis[X]], size[axis[Y]] );
+    ALLOC2D( pixels, size[axis[X]], size[axis[Y]] );
 
     index[axis[Z]] = voxel_indices[axis[Z]];
     for_less( x, 0, size[axis[X]] )
@@ -41,7 +31,7 @@ public  Status  disconnect_components( volume, voxel_indices, axis,
 
             if( get_voxel_activity_flag( volume, index[0], index[1], index[2]))
             {
-                GET_VOLUME_DATA( val, *volume, index[0], index[1], index[2] );
+                val = GET_VOLUME_DATA( *volume, index[0], index[1], index[2] );
 
                 inside = (val >= min_threshold && val <=max_threshold);
             }
@@ -62,8 +52,8 @@ public  Status  disconnect_components( volume, voxel_indices, axis,
         }
     }
 
-    status = label_components( size[axis[X]], size[axis[Y]], pixels,
-                               REGION_OF_INTEREST );
+    label_components( size[axis[X]], size[axis[Y]], pixels,
+                      REGION_OF_INTEREST );
 
     index[axis[Z]] = voxel_indices[axis[Z]];
     for_less( x, 0, size[axis[X]] )
@@ -85,7 +75,5 @@ public  Status  disconnect_components( volume, voxel_indices, axis,
         }
     }
 
-    FREE2D( status, pixels );
-
-    return( status );
+    FREE2D( pixels );
 }

@@ -1,12 +1,7 @@
-#ifndef  DEF_GRAPHICS_TYPES
-#define  DEF_GRAPHICS_TYPES
+#ifndef  DEF_DISPLAY_TYPES
+#define  DEF_DISPLAY_TYPES
 
 #include  <def_mni.h>
-#include  <def_objects.h>
-#include  <def_queue.h>
-#include  <def_stack.h>
-#include  <def_colours.h>
-#include  <def_graphics_dependent.h>
 
 typedef  struct
 {
@@ -14,23 +9,17 @@ typedef  struct
     Point       origin;
     Vector      x_axis, y_axis, line_of_sight;
     Real        front_distance, back_distance;
-    Real        perspective_distance;
     Real        desired_aspect;
+    Real        perspective_distance;
     Real        window_width, window_height;
     Real        scale_factors[N_DIMENSIONS];
     Transform   modeling_transform;
 } view_struct;
 
-typedef enum { AMBIENT_LIGHT,
-               DIRECTIONAL_LIGHT,
-               POINT_LIGHT,
-               SPOT_LIGHT
-             } light_types;
-
 typedef  struct
 {
     Boolean       state;
-    light_types   light_type;
+    Light_types   light_type;
     Colour        colour;
     Vector        direction;
     Point         position;
@@ -38,75 +27,25 @@ typedef  struct
     Real          spot_angle;
 } light_struct;
 
-typedef enum { GRAY_SCALE, HOT_METAL, SPECTRAL, USER_DEFINED,
-               CONTOUR_COLOUR_MAP, PER_INDEX_COLOUR_MAP }
-             Colour_coding_types;
-
 typedef  struct
 {
-    Real                  min_value;
-    Real                  max_value;
-
-    Colour_coding_types   type;
-
-    int                   user_defined_n_intervals;
-    Colour                user_defined_min_colour;
-    Colour                user_defined_max_colour;
-    Colour_spaces         user_defined_interpolation_space;
-
-    Colour                colour_below;
-    Colour                colour_above;
-
-    Real                  size_over_range;
-
-    int                   colour_table_size;
-    Colour                *colour_table;
-
-    int                   min_index;
-    int                   max_index;
-    Colour                *per_index_colours;
-} colour_coding_struct;
-
-typedef  enum  {
-                   NO_EVENT,
-                   TERMINATE_EVENT,
-                   KEYBOARD_EVENT,
-                   MOUSE_MOVEMENT_EVENT,
-                   LEFT_MOUSE_DOWN_EVENT,
-                   LEFT_MOUSE_UP_EVENT,
-                   MIDDLE_MOUSE_DOWN_EVENT,
-                   MIDDLE_MOUSE_UP_EVENT,
-                   RIGHT_MOUSE_DOWN_EVENT,
-                   RIGHT_MOUSE_UP_EVENT,
-                   WINDOW_REDRAW_EVENT,
-                   WINDOW_RESIZE_EVENT,
-                   NUM_EVENT_TYPES
-               } event_types;
-
-typedef  struct
-{
-    event_types   event_type;
-    Window_id     window_id;
-
-    union
-    {
-        int    key_pressed;
-        Point  mouse_position;
-    } event_data;
-
-} event_struct;
-
-typedef  QUEUE_STRUCT( event_struct )   event_queue_struct;
+    Boolean         shaded_mode;
+    Shading_types   shading_type;
+    Boolean         master_light_switch;
+    Boolean         backface_flag;
+    Boolean         two_sided_surface_flag;
+    Boolean         render_lines_as_curves;
+    Boolean         show_marker_labels;
+    int             n_curve_segments;
+}  render_struct;
 
 typedef  Status  event_function_decl();
 
 typedef  Status  (*event_function_type)();
 
-#define  DECL_EVENT_FUNCTION( f )  Status   f()
-
-#define  DEF_EVENT_FUNCTION( f )   Status   f( graphics, event ) \
-                                                graphics_struct  *graphics; \
-                                                event_struct     *event;
+#define  DEF_EVENT_FUNCTION( f )   Status   f( display_struct  *display, \
+                                               Event_types     event_type, \
+                                               int             key_pressed )
 
 #define  MAX_ACTION_STACK  5
 #define  MAX_ACTIONS       10
@@ -120,7 +59,7 @@ typedef  struct
 
 typedef  struct
 {
-    action_table_entry  event_info[(int) NUM_EVENT_TYPES];
+    action_table_entry  event_info[N_EVENT_TYPES];
 } action_table_struct;
 
 typedef  struct
@@ -180,7 +119,7 @@ typedef  struct
     int           current_step;
     String        base_filename;
     Transform     transform;
-    Pixel_colour  *image_storage;
+    Colour        *image_storage;
 } film_loop_struct;
 
 typedef  struct
@@ -212,16 +151,6 @@ typedef  struct
 
 typedef  struct
 {
-    contour_struct           contours[3];
-    int                      models_changed_id;
-    int                      axis;
-    polygons_struct          *current_polygons;
-    int                      poly_index;
-    object_traverse_struct   object_traverse;
-} cursor_contours_struct;
-
-typedef  struct
-{
     Boolean          picking_points;
     lines_struct     *lines;
     int              n_points_alloced;
@@ -232,5 +161,23 @@ typedef  struct
     int              prev_poly_index;
     polygons_struct  *prev_polygons;
 } surface_curve_struct;
+
+typedef  struct
+{
+    View_types                   view_type;
+    Bitplane_types               bitplanes;
+    render_struct                render;
+    Transform                    transform;
+} model_info_struct;
+
+typedef  struct
+{
+    contour_struct           contours[3];
+    int                      models_changed_id;
+    int                      axis;
+    polygons_struct          *current_polygons;
+    int                      poly_index;
+    object_traverse_struct   object_traverse;
+} cursor_contours_struct;
 
 #endif

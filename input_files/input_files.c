@@ -1,42 +1,21 @@
 
-#include  <def_files.h>
-#include  <def_string.h>
-#include  <def_graphics.h>
-#include  <def_globals.h>
-#include  <def_arrays.h>
+#include  <def_display.h>
 
-public  Status  load_graphics_file( graphics, filename )
-    graphics_struct  *graphics;
-    char             filename[];
+public  Status  load_graphics_file( 
+    display_struct   *display,
+    char             filename[] )
 {
     Status                   status;
-    Status                   input_graphics_file();
-    Status                   input_landmark_file();
-    Status                   input_volume_file();
     File_formats             format;
-    Status                   create_object();
-    Status                   push_current_object();
-    Status                   add_object_to_model();
     object_struct            *object;
     model_struct             *model;
-    model_struct             *get_current_model();
-    Boolean                  get_range_of_object();
     String                   filename_no_z;
-    void                     rebuild_selected_list();
-    void                     set_current_object_index();
     int                      n_items, len;
-    Status                   create_polygons_bintree();
-    Status                   check_polygons_neighbours_computed();
-    Status                   reset_cursor();
-    volume_struct            *volume, *volume_read_in;
-    void                     set_update_required();
-    Status                   initialize_object_traverse();
+    volume_struct            *volume, volume_read_in;
     object_struct            *current_object;
     object_traverse_struct   object_traverse;
-    void                     markers_have_changed();
     Boolean                  volume_present;
     Boolean                  markers_present;
-    Status                   create_slice_window();
 
     (void) strcpy( filename_no_z, filename );
     len = strlen( filename );
@@ -44,63 +23,64 @@ public  Status  load_graphics_file( graphics, filename )
     if( filename[len-2] == '.' && filename[len-1] == 'Z' )
         filename_no_z[len-2] = (char) 0;
 
-    status = create_object( &object, MODEL );
+    object = create_object( MODEL );
 
-    if( status == OK )
+    print( "Inputting %s.\n", filename_no_z );
+
+    model = get_model_ptr( object );
+    initialize_display_model( model );
+
+    (void) strcpy( model->filename, filename_no_z );
+
+    volume_present = FALSE;
+
+    status = OK;
+
+    if( string_ends_in(filename_no_z,".mnc") ||
+        string_ends_in(filename_no_z,".mni") ||
+        string_ends_in(filename_no_z,".nil") ||
+        string_ends_in(filename_no_z,".iff") ||
+        string_ends_in(filename_no_z,".fre") )
     {
-        PRINT( "Inputting %s.\n", filename_no_z );
+        status = input_volume_file( filename_no_z, &volume_read_in );
 
-        model = object->ptr.model;
-
-        (void) strcpy( model->filename, filename_no_z );
-
-        if( string_ends_in(filename_no_z,".mni") ||
-            string_ends_in(filename_no_z,".nil") ||
-            string_ends_in(filename_no_z,".iff") ||
-            string_ends_in(filename_no_z,".fre") )
-        {
-            status = input_volume_file( filename_no_z,
-                                        &model->n_objects,
-                                        &model->object_list );
-        }
-        else if( string_ends_in(filename_no_z,".lmk") )
-        {
-            (void) get_slice_window_volume( graphics, &volume );
-            status = input_landmark_file( volume, filename_no_z,
-                                          &model->n_objects,
-                                          &model->object_list,
-                                          &graphics->three_d.
-                                               default_marker_colour,
-                                          graphics->three_d.
-                                               default_marker_size,
-                                          graphics->three_d.
-                                               default_marker_type );
-        }
-        else if( string_ends_in(filename_no_z,".cnt") )
-        {
-            PRINT( "Cannot read .cnt files.\n" );
-        }
-        else if( string_ends_in(filename_no_z,".roi") )
-        {
-            PRINT( "Cannot read .roi files.\n" );
-        }
-        else
-        {
-            status = input_graphics_file( filename_no_z, &format,
-                                          &model->n_objects,
-                                          &model->object_list );
-        }
-
-        PRINT( "Objects input.\n" );
+        volume_present = TRUE;
+    }
+    else if( string_ends_in(filename_no_z,".lmk") )
+    {
+        (void) get_slice_window_volume( display, &volume );
+        status = input_landmark_file( volume, filename_no_z,
+                                      model,
+                                      &display->three_d.default_marker_colour,
+                                      display->three_d.default_marker_size,
+                                      display->three_d.default_marker_type );
+    }
+    else if( string_ends_in(filename_no_z,".cnt") )
+    {
+        print( "Cannot read .cnt files.\n" );
+        status = ERROR;
+    }
+    else if( string_ends_in(filename_no_z,".roi") )
+    {
+        print( "Cannot read .roi files.\n" );
+        status = ERROR;
+    }
+    else
+    {
+        status = input_graphics_file( filename_no_z, &format,
+                                      &model->n_objects,
+                                      &model->objects );
     }
 
     if( status == OK )
     {
-        status = initialize_object_traverse( &object_traverse, 1, &object );
+        print( "Objects input.\n" );
+
+        initialize_object_traverse( &object_traverse, 1, &object );
 
         while( get_next_object_traverse(&object_traverse,&current_object) )
         {
-            if( !Visibility_on_input || current_object->object_type == VOLUME )
+            if( !Visibility_on_input )
                 current_object->visibility = OFF;
         }
     }
@@ -108,92 +88,77 @@ public  Status  load_graphics_file( graphics, filename )
     if( status == OK )
     {
         markers_present = FALSE;
-        volume_present = FALSE;
 
-        status = initialize_object_traverse( &object_traverse, 1, &object );
+        initialize_object_traverse( &object_traverse, 1, &object );
 
         while( get_next_object_traverse(&object_traverse,&current_object) )
         {
-            if( status == OK && current_object->object_type == VOLUME &&
-                !volume_present )
-            {
-                volume_read_in = current_object->ptr.volume;
-                volume_present = TRUE;
-            }
-            else if( status == OK && current_object->object_type == MARKER )
+            if( current_object->object_type == MARKER )
             {
                 markers_present = TRUE;
             }
-            else if( status == OK && current_object->object_type == POLYGONS )
+            else if( current_object->object_type == POLYGONS )
             {
                 polygons_struct   *polygons;
 
-                polygons = current_object->ptr.polygons;
+                polygons = get_polygons_ptr( current_object );
 
                 n_items = polygons->n_items;
 
                 if( n_items > Polygon_bintree_threshold )
                 {
-                    status = create_polygons_bintree( polygons,
+                    create_polygons_bintree( polygons,
                               ROUND( (Real) n_items * Bintree_size_factor ) );
                 }
 
                 if( Compute_neighbours_on_input )
-                    status = check_polygons_neighbours_computed( polygons );
+                    check_polygons_neighbours_computed( polygons );
             }
         }
-    }
 
-    if( status == OK )
-    {
-        model = get_current_model( graphics );
+        model = get_current_model( display );
 
-        status = add_object_to_model( model, object );
+        add_object_to_model( model, object );
 
-        if( current_object_is_top_level(graphics) )
+        if( current_object_is_top_level(display) )
         {
             if( model->n_objects == 1 )               /* first object */
             {
-                status = push_current_object( graphics );
+                push_current_object( display );
             }
         }
         else
         {
-            set_current_object_index( graphics, model->n_objects-1 );
+            set_current_object_index( display, model->n_objects-1 );
         }
-    }
 
-    if( status == OK )
-    {
-        if( !get_range_of_object( graphics->models[THREED_MODEL], FALSE,
-                                  &graphics->three_d.min_limit,
-                                  &graphics->three_d.max_limit ) )
+        if( !get_range_of_object( display->models[THREED_MODEL], FALSE,
+                                  &display->three_d.min_limit,
+                                  &display->three_d.max_limit ) )
         {
-            fill_Point( graphics->three_d.min_limit, 0.0, 0.0, 0.0 );
-            fill_Point( graphics->three_d.max_limit, 1.0, 1.0, 1.0 );
-            PRINT( "No objects range.\n" );
+            fill_Point( display->three_d.min_limit, 0.0, 0.0, 0.0 );
+            fill_Point( display->three_d.max_limit, 1.0, 1.0, 1.0 );
+            print( "No objects range.\n" );
         }
 
-        ADD_POINTS( graphics->three_d.centre_of_objects,
-                    graphics->three_d.min_limit,
-                    graphics->three_d.max_limit );
-        SCALE_POINT( graphics->three_d.centre_of_objects,
-                     graphics->three_d.centre_of_objects,
+        ADD_POINTS( display->three_d.centre_of_objects,
+                    display->three_d.min_limit,
+                    display->three_d.max_limit );
+        SCALE_POINT( display->three_d.centre_of_objects,
+                     display->three_d.centre_of_objects,
                      0.5 );
 
-        status = reset_cursor( graphics );
-    }
+        reset_cursor( display );
 
-    if( status == OK && markers_present )
-        markers_have_changed( graphics );
+        if( markers_present )
+            markers_have_changed( display );
 
-    if( status == OK )
-        rebuild_selected_list( graphics, graphics->associated[MENU_WINDOW] );
+        rebuild_selected_list( display, display->associated[MENU_WINDOW] );
 
-    if( status == OK && volume_present &&
-        !get_slice_window_volume( graphics, &volume ) )
-    {
-        status = create_slice_window( graphics, volume_read_in );
+        if( volume_present && !get_slice_window_volume( display, &volume ) )
+        {
+            create_slice_window( display, &volume_read_in );
+        }
     }
 
     return( status );

@@ -1,32 +1,26 @@
 
-#include  <def_graphics.h>
-#include  <def_globals.h>
-#include  <def_math.h>
-#include  <def_files.h>
-#include  <def_minimization.h>
+#include  <def_display.h>
 
 public  DEF_MENU_FUNCTION(set_model_parameters)   /* ARGSUSED */
 {
-    Status   status;
     int      i, n_parameters, ch;
     double   *tmp_parameters;
-    void     display_parameters();
 
-    n_parameters = graphics->three_d.surface_fitting.surface_representation->
-           get_num_parameters( graphics->three_d.surface_fitting.descriptors );
-    PRINT( "Current parameters: " );
-    display_parameters( &graphics->three_d.surface_fitting,
-                        graphics->three_d.surface_fitting.parameters );
-    PRINT( "\n" );
+    n_parameters = display->three_d.surface_fitting.surface_representation->
+           get_num_parameters( display->three_d.surface_fitting.descriptors );
+    print( "Current parameters: " );
+    display_parameters( &display->three_d.surface_fitting,
+                        display->three_d.surface_fitting.parameters );
+    print( "\n" );
 
-    ALLOC( status, tmp_parameters, n_parameters );
+    ALLOC( tmp_parameters, n_parameters );
 
-    PRINT( "Enter new values of parameters: " );
+    print( "Enter new values of parameters: " );
     for_less( i, 0, n_parameters )
     {
         if( input_double( stdin, &tmp_parameters[i] ) != OK )
         {
-            tmp_parameters[i] = graphics->three_d.surface_fitting.parameters[i];
+            tmp_parameters[i] = display->three_d.surface_fitting.parameters[i];
             ch = getchar();
             if( ch < 'a' || ch > 'z' )
                 break;
@@ -36,16 +30,15 @@ public  DEF_MENU_FUNCTION(set_model_parameters)   /* ARGSUSED */
     if( i == n_parameters )
     {
         for_less( i, 0, n_parameters )
-            graphics->three_d.surface_fitting.parameters[i] = tmp_parameters[i];
-        PRINT( "New parameters: " );
-        display_parameters( &graphics->three_d.surface_fitting,
-                            graphics->three_d.surface_fitting.parameters );
+            display->three_d.surface_fitting.parameters[i] = tmp_parameters[i];
+        print( "New parameters: " );
+        display_parameters( &display->three_d.surface_fitting,
+                            display->three_d.surface_fitting.parameters );
     }
 
-    if( status == OK )
-        FREE( status, tmp_parameters );
+    FREE( tmp_parameters );
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(set_model_parameters)   /* ARGSUSED */
@@ -55,12 +48,9 @@ public  DEF_MENU_UPDATE(set_model_parameters)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(delete_all_surface_points)   /* ARGSUSED */
 {
-    Status   status;
-    Status   delete_surface_fitting_points();
+    delete_surface_fitting_points( &display->three_d.surface_fitting );
 
-    status = delete_surface_fitting_points( &graphics->three_d.surface_fitting);
-
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(delete_all_surface_points)   /* ARGSUSED */
@@ -70,34 +60,30 @@ public  DEF_MENU_UPDATE(delete_all_surface_points)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(add_surface_point)   /* ARGSUSED */
 {
-    Status   status;
     int      x, y, z, axis_index;
+    Real     x_w, y_w, z_w;
     Point    point;
-    void     convert_voxel_to_point();
-    void     set_voxel_label_flag();
-    Status   add_surface_fitting_point();
-    void     set_slice_window_update();
 
-
-    if( get_voxel_under_mouse( graphics, &x, &y, &z, &axis_index ) )
+    if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) )
     {
-        convert_voxel_to_point(
-                         graphics->associated[SLICE_WINDOW]->slice.volume,
-                                (Real) x, (Real) y, (Real) z, &point );
+        convert_voxel_to_world(
+                         &display->associated[SLICE_WINDOW]->slice.volume,
+                                (Real) x, (Real) y, (Real) z,
+                                &x_w, &y_w, &z_w );
+        fill_Point( point, x_w, y_w, z_w );
 
-        set_voxel_label_flag( graphics->associated[SLICE_WINDOW]->slice.volume,
+        set_voxel_label_flag( &display->associated[SLICE_WINDOW]->slice.volume,
                               x, y, z, TRUE );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
     }
     else
-        point = graphics->three_d.cursor.origin;
+        point = display->three_d.cursor.origin;
 
-    status = add_surface_fitting_point( &graphics->three_d.surface_fitting,
-                                        &point );
+    add_surface_fitting_point( &display->three_d.surface_fitting, &point );
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(add_surface_point)   /* ARGSUSED */
@@ -107,31 +93,29 @@ public  DEF_MENU_UPDATE(add_surface_point)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(delete_surface_point)   /* ARGSUSED */
 {
-    Status   status;
     int      x, y, z, axis_index;
+    Real     x_w, y_w, z_w;
     Point    point;
-    void     convert_voxel_to_point();
-    Status   delete_surface_fitting_point();
-    void     set_slice_window_update();
 
-    if( get_voxel_under_mouse( graphics, &x, &y, &z, &axis_index ) )
+    if( get_voxel_under_mouse( display, &x, &y, &z, &axis_index ) )
     {
-        convert_voxel_to_point(
-                         graphics->associated[SLICE_WINDOW]->slice.volume,
-                                (Real) x, (Real) y, (Real) z, &point );
-        set_voxel_label_flag( graphics->associated[SLICE_WINDOW]->slice.volume,
+        convert_voxel_to_world(
+                         &display->associated[SLICE_WINDOW]->slice.volume,
+                         (Real) x, (Real) y, (Real) z,
+                         &x_w, &y_w, &z_w );
+        fill_Point( point, x_w, y_w, z_w );
+        set_voxel_label_flag( &display->associated[SLICE_WINDOW]->slice.volume,
                               x, y, z, FALSE );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
     }
     else
-        point = graphics->three_d.cursor.origin;
+        point = display->three_d.cursor.origin;
 
-    status = delete_surface_fitting_point( &graphics->three_d.surface_fitting,
-                                           &point );
+    delete_surface_fitting_point( &display->three_d.surface_fitting, &point );
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(delete_surface_point)   /* ARGSUSED */
@@ -144,27 +128,23 @@ public  DEF_MENU_FUNCTION(show_all_surface_points)   /* ARGSUSED */
     int            i;
     Real           x, y, z;
     volume_struct  *volume;
-    void           convert_point_to_voxel();
-    void           set_voxel_label_flag();
-    void           set_slice_window_update();
-    void           set_all_voxel_label_flags();
 
-    if( get_slice_window_volume( graphics, &volume ) )
+    if( get_slice_window_volume( display, &volume ) )
     {
-        for_less( i, 0, graphics->three_d.surface_fitting.n_surface_points )
+        for_less( i, 0, display->three_d.surface_fitting.n_surface_points )
         {
-            convert_point_to_voxel( volume,
-                Point_x(graphics->three_d.surface_fitting.surface_points[i]),
-                Point_y(graphics->three_d.surface_fitting.surface_points[i]),
-                Point_z(graphics->three_d.surface_fitting.surface_points[i]),
+            convert_world_to_voxel( volume,
+                Point_x(display->three_d.surface_fitting.surface_points[i]),
+                Point_y(display->three_d.surface_fitting.surface_points[i]),
+                Point_z(display->three_d.surface_fitting.surface_points[i]),
                 &x, &y, &z );
 
             set_voxel_label_flag( volume, ROUND(x), ROUND(y), ROUND(z), TRUE );
         }
 
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
     }
 
     return( OK );
@@ -181,10 +161,8 @@ public  DEF_MENU_FUNCTION(save_surface_points)   /* ARGSUSED */
     FILE     *file;
     String   filename;
     Status   status;
-    Status   io_point();
-    Status   io_newline();
 
-    PRINT( "Enter filename: " );
+    print( "Enter filename: " );
 
     status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
@@ -196,10 +174,10 @@ public  DEF_MENU_FUNCTION(save_surface_points)   /* ARGSUSED */
 
     if( status == OK )
     {
-        for_less( i, 0, graphics->three_d.surface_fitting.n_surface_points )
+        for_less( i, 0, display->three_d.surface_fitting.n_surface_points )
         {
             status = io_point( file, WRITE_FILE, ASCII_FORMAT,
-                       &graphics->three_d.surface_fitting.surface_points[i] );
+                       &display->three_d.surface_fitting.surface_points[i] );
 
             if( status == OK )
                 status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
@@ -223,14 +201,9 @@ public  DEF_MENU_FUNCTION(load_surface_points)   /* ARGSUSED */
     FILE     *file;
     Point    point;
     String   filename;
-    Status   status, input_status;
-    Status   io_point();
-    Status   add_surface_fitting_point();
-    void     convert_point_to_voxel();
-    void     set_voxel_label_flag();
-    void     set_slice_window_update();
+    Status   status;
 
-    PRINT( "Enter filename: " );
+    print( "Enter filename: " );
 
     status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
@@ -242,28 +215,27 @@ public  DEF_MENU_FUNCTION(load_surface_points)   /* ARGSUSED */
 
     while( status == OK )
     {
-        input_status = io_point( file, READ_FILE, ASCII_FORMAT, &point );
-
-        if( input_status == OK )
-            status = add_surface_fitting_point(
-                             &graphics->three_d.surface_fitting, &point );
+        status = io_point( file, READ_FILE, ASCII_FORMAT, &point );
 
         if( status == OK )
         {
-            convert_point_to_voxel(
-                         graphics->associated[SLICE_WINDOW]->slice.volume,
+            add_surface_fitting_point(
+                             &display->three_d.surface_fitting, &point );
+
+            convert_world_to_voxel(
+                         &display->associated[SLICE_WINDOW]->slice.volume,
                          Point_x(point), Point_y(point), Point_z(point),
                          &x, &y, &z );
 
             set_voxel_label_flag(
-                           graphics->associated[SLICE_WINDOW]->slice.volume,
+                           &display->associated[SLICE_WINDOW]->slice.volume,
                            ROUND(x), ROUND(y), ROUND(z), TRUE );
         }
     }
 
-    set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
-    set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
-    set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
+    set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
+    set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
+    set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
 
     if( status == OK )
         status = close_file( file );
@@ -279,86 +251,72 @@ public  DEF_MENU_UPDATE(load_surface_points)   /* ARGSUSED */
 public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
 {
     int                  i, n_parameters;
-    Status               status;
-    Status               apply_simplex_minimization();
-    void                 apply_one_parameter_minimization();
-    double               evaluate_graphics_fit( void *, double [] );
-    double               evaluate_graphics_fit_with_range( void *, double [],
-                                  double, double, double, double, Real [] );
-    void                 evaluate_graphics_surface_point_distances( void *,
-                           double [], Real [], double, double, double, double );
-    void                 display_parameters();
     const    double      TOLERANCE = 1.0e-4;
 
-    n_parameters = graphics->three_d.surface_fitting.surface_representation->
-           get_num_parameters( graphics->three_d.surface_fitting.descriptors );
+    n_parameters = display->three_d.surface_fitting.surface_representation->
+           get_num_parameters( display->three_d.surface_fitting.descriptors );
 
-    PRINT( "Starting parameters: " );
-    display_parameters( &graphics->three_d.surface_fitting,
-                        graphics->three_d.surface_fitting.parameters );
+    print( "Starting parameters: " );
+    display_parameters( &display->three_d.surface_fitting,
+                        display->three_d.surface_fitting.parameters );
 
-    graphics->three_d.surface_fitting.n_samples = N_fitting_samples;
-    graphics->three_d.surface_fitting.isovalue_factor = Isovalue_factor;
-    graphics->three_d.surface_fitting.isovalue = Fitting_isovalue;
-    graphics->three_d.surface_fitting.gradient_strength_factor =
+    display->three_d.surface_fitting.n_samples = N_fitting_samples;
+    display->three_d.surface_fitting.isovalue_factor = Isovalue_factor;
+    display->three_d.surface_fitting.isovalue = Fitting_isovalue;
+    display->three_d.surface_fitting.gradient_strength_factor =
                                       Gradient_strength_factor;
-    graphics->three_d.surface_fitting.gradient_strength_exponent =
+    display->three_d.surface_fitting.gradient_strength_exponent =
                                       Gradient_strength_exponent;
-    graphics->three_d.surface_fitting.curvature_factor = Curvature_factor;
-    graphics->three_d.surface_fitting.surface_point_distance_factor =
+    display->three_d.surface_fitting.curvature_factor = Curvature_factor;
+    display->three_d.surface_fitting.surface_point_distance_factor =
                                       Surface_point_distance_factor;
-    graphics->three_d.surface_fitting.surface_point_distance_threshold =
+    display->three_d.surface_fitting.surface_point_distance_threshold =
                                       Surface_point_distance_threshold;
 
-    status = OK;
+    if( display->three_d.surface_fitting.n_surface_points > 0 )
+        ALLOC( display->three_d.surface_fitting.surface_point_distances,
+               display->three_d.surface_fitting.n_surface_points );
 
-    if( graphics->three_d.surface_fitting.n_surface_points > 0 )
-        ALLOC( status,
-                graphics->three_d.surface_fitting.surface_point_distances,
-                graphics->three_d.surface_fitting.n_surface_points );
-
-    if( status == OK )
+    switch( (Minimization_methods) Minimization_method )
     {
-        switch( (Minimization_methods) Minimization_method )
+    case DOWNHILL_SIMPLEX:
+        apply_simplex_minimization( n_parameters,
+                              display->three_d.surface_fitting.parameters,
+                              evaluate_graphics_fit, (void *) display );
+        break;
+
+    case ONE_PARAMETER_MINIMIZATION:
+        for_less( i, 0, n_parameters )
         {
-        case DOWNHILL_SIMPLEX:
-            status = apply_simplex_minimization( n_parameters,
-                                  graphics->three_d.surface_fitting.parameters,
-                                  evaluate_graphics_fit, (void *) graphics );
-            break;
-
-        case ONE_PARAMETER_MINIMIZATION:
-            for_less( i, 0, n_parameters )
-            {
-                graphics->three_d.surface_fitting.max_parameter_deltas[i] =
-                        Max_parameter_delta;
-            }
-
-            apply_one_parameter_minimization(
-                       graphics->three_d.surface_fitting.surface_representation,
-                       graphics->three_d.surface_fitting.descriptors,
-                       1, TOLERANCE, n_parameters,
-                       graphics->three_d.surface_fitting.parameters,
-                       graphics->three_d.surface_fitting.max_parameter_deltas,
-                       graphics->three_d.surface_fitting.parameter_deltas,
-                       evaluate_graphics_surface_point_distances,
-                       evaluate_graphics_fit_with_range, (void *) graphics );
-            break;
-
-        default:
-            PRINT_ERROR( "Unrecognized minimization.\n" );
+            display->three_d.surface_fitting.max_parameter_deltas[i] =
+                    Max_parameter_delta;
         }
+
+        apply_one_parameter_minimization(
+                   display->three_d.surface_fitting.surface_representation,
+                   display->three_d.surface_fitting.descriptors,
+                   1, TOLERANCE, n_parameters,
+                   display->three_d.surface_fitting.parameters,
+                   display->three_d.surface_fitting.max_parameter_deltas,
+                   display->three_d.surface_fitting.parameter_deltas,
+                   evaluate_graphics_surface_point_distances,
+                   evaluate_graphics_fit_with_range, (void *) display );
+        break;
+
+    default:
+        print( "Unrecognized minimization.\n" );
     }
   
-    if( status == OK && graphics->three_d.surface_fitting.n_surface_points > 0 )
-        FREE( status,
-              graphics->three_d.surface_fitting.surface_point_distances );
+    if( display->three_d.surface_fitting.n_surface_points > 0 )
+    {
+        FREE( display->three_d.surface_fitting.surface_point_distances );
+    }
 
-    PRINT( "Resulting parameters: " );
-    display_parameters( &graphics->three_d.surface_fitting,
-                        graphics->three_d.surface_fitting.parameters );
+    print( "Resulting parameters: " );
+    display_parameters( &display->three_d.surface_fitting,
+                        display->three_d.surface_fitting.parameters );
        
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(fit_surface)   /* ARGSUSED */
@@ -368,22 +326,18 @@ public  DEF_MENU_UPDATE(fit_surface)   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(create_surface_model)   /* ARGSUSED */
 {
-    Status                  status;
-    Status                  create_model_of_surface();
-    Status                  add_object_to_current_model();
     surface_fitting_struct  *surface_fitting;
     object_struct           *object;
 
-    surface_fitting = &graphics->three_d.surface_fitting;
+    surface_fitting = &display->three_d.surface_fitting;
 
-    status = create_model_of_surface( surface_fitting->surface_representation,
-                                      surface_fitting->descriptors,
-                                      surface_fitting->parameters,
-                                      Surface_model_resolution,
-                                      Surface_model_resolution, &object );
+    create_model_of_surface( surface_fitting->surface_representation,
+                             surface_fitting->descriptors,
+                             surface_fitting->parameters,
+                             Surface_model_resolution,
+                             Surface_model_resolution, &object );
 
-    if( status == OK )
-        status = add_object_to_current_model( graphics, object );
+    add_object_to_current_model( display, object );
 
     return( OK );
 }
@@ -396,27 +350,24 @@ public  DEF_MENU_UPDATE(create_surface_model)   /* ARGSUSED */
 public  DEF_MENU_FUNCTION(scan_model_to_voxels)   /* ARGSUSED */
 {
     volume_struct  *volume;
-    void           set_all_voxel_label_flags();
-    void           scan_to_voxels();
-    void           set_slice_window_update();
 
-    if( get_slice_window_volume( graphics, &volume ) )
+    if( get_slice_window_volume( display, &volume ) )
     {
         set_all_voxel_label_flags( volume, FALSE );
 
-        PRINT( "Scanning to voxels " );
+        print( "Scanning to voxels " );
         (void) fflush( stdout );
         scan_to_voxels(
-                 graphics->three_d.surface_fitting.surface_representation,
-                 graphics->three_d.surface_fitting.descriptors,
-                 volume, graphics->three_d.surface_fitting.parameters,
+                 display->three_d.surface_fitting.surface_representation,
+                 display->three_d.surface_fitting.descriptors,
+                 volume, display->three_d.surface_fitting.parameters,
                  Max_voxel_scan_distance,
                  Max_parametric_scan_distance );
-        PRINT( " done.\n" );
+        print( " done.\n" );
 
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
     }
 
     return( OK );
@@ -434,9 +385,8 @@ public  DEF_MENU_FUNCTION(load_model_parameters)   /* ARGSUSED */
     double   *tmp_parameters;
     String   filename;
     FILE     *file;
-    Status   io_double();
 
-    PRINT( "Enter filename: " );
+    print( "Enter filename: " );
 
     status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
@@ -447,11 +397,11 @@ public  DEF_MENU_FUNCTION(load_model_parameters)   /* ARGSUSED */
 
     if( status == OK )
     {
-        n_parameters = graphics->three_d.surface_fitting.
+        n_parameters = display->three_d.surface_fitting.
            surface_representation->
-           get_num_parameters( graphics->three_d.surface_fitting.descriptors );
+           get_num_parameters( display->three_d.surface_fitting.descriptors );
 
-        ALLOC( status, tmp_parameters, n_parameters );
+        ALLOC( tmp_parameters, n_parameters );
     }
 
     if( status == OK )
@@ -470,9 +420,9 @@ public  DEF_MENU_FUNCTION(load_model_parameters)   /* ARGSUSED */
     if( status == OK )
     {
         for_less( i, 0, n_parameters )
-            graphics->three_d.surface_fitting.parameters[i] = tmp_parameters[i];
+            display->three_d.surface_fitting.parameters[i] = tmp_parameters[i];
 
-        FREE( status, tmp_parameters );
+        FREE( tmp_parameters );
     }
 
     return( status );
@@ -489,10 +439,8 @@ public  DEF_MENU_FUNCTION(save_model_parameters)   /* ARGSUSED */
     int      i, n_parameters;
     String   filename;
     FILE     *file;
-    Status   io_double();
-    Status   io_newline();
 
-    PRINT( "Enter filename: " );
+    print( "Enter filename: " );
 
     status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
@@ -501,16 +449,16 @@ public  DEF_MENU_FUNCTION(save_model_parameters)   /* ARGSUSED */
     if( status == OK )
         status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
 
-    n_parameters = graphics->three_d.surface_fitting.
+    n_parameters = display->three_d.surface_fitting.
            surface_representation->
-           get_num_parameters( graphics->three_d.surface_fitting.descriptors );
+           get_num_parameters( display->three_d.surface_fitting.descriptors );
 
     if( status == OK )
     {
         for_less( i, 0, n_parameters )
         {
             status = io_double( file, WRITE_FILE, ASCII_FORMAT,
-                         &graphics->three_d.surface_fitting.parameters[i] );
+                         &display->three_d.surface_fitting.parameters[i] );
             if( status == OK && i % 4 == 3 )
                 status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
 
@@ -532,15 +480,13 @@ public  DEF_MENU_UPDATE(save_model_parameters)   /* ARGSUSED */
 public  DEF_MENU_FUNCTION(convert_to_new_representation)   /* ARGSUSED */
 {
     Status                    status;
-    Status                    input_nonwhite_character();
-    Status                    convert_to_new_surface_representation();
     int                       i;
     double                    *new_descriptors;
     Surface_representations   new_rep;
     surface_rep_struct        *surface_rep;
     char                      ch;
 
-    PRINT( "Enter new surface representation type ['q' or 's']: " );
+    print( "Enter new surface representation type ['q' or 's']: " );
 
     status = input_nonwhite_character( stdin, &ch );
 
@@ -554,7 +500,7 @@ public  DEF_MENU_FUNCTION(convert_to_new_representation)   /* ARGSUSED */
         case 's':
         case 'S':   new_rep = SPLINE;   break;
 
-        default:    PRINT( "Invalid type: %c.\n", ch );
+        default:    print( "Invalid type: %c.\n", ch );
                     status = ERROR;
                     break;
         }
@@ -562,30 +508,29 @@ public  DEF_MENU_FUNCTION(convert_to_new_representation)   /* ARGSUSED */
 
     if( status == OK && !lookup_surface_representation( new_rep, &surface_rep ))
     {
-        PRINT( "Could not find representation.\n" );
+        print( "Could not find representation.\n" );
         status = ERROR;
     }
 
     if( status == OK )
     {
-        ALLOC( status, new_descriptors, surface_rep->n_descriptors );
+        ALLOC( new_descriptors, surface_rep->n_descriptors );
 
         for_less( i, 0, surface_rep->n_descriptors )
         {
-            PRINT( "Enter descriptor[%d]: ", i+1 );
+            print( "Enter descriptor[%d]: ", i+1 );
             status = input_double( stdin, &new_descriptors[i] );
         }
     }
 
     if( status == OK )
     {
-        status = convert_to_new_surface_representation(
-                       &graphics->three_d.surface_fitting, surface_rep,
+        convert_to_new_surface_representation(
+                       &display->three_d.surface_fitting, surface_rep,
                        new_descriptors );
-    }
 
-    if( status == OK )
-        FREE( status, new_descriptors );
+        FREE( new_descriptors );
+    }
    
     return( status );
 }

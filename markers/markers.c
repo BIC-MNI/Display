@@ -1,31 +1,27 @@
-#include  <def_graphics.h>
-#include  <def_globals.h>
+#include  <def_display.h>
 
-public  Boolean  update_current_marker( graphics, x, y, z )
-    graphics_struct  *graphics;
-    int              x;
-    int              y;
-    int              z;
+public  Boolean  update_current_marker(
+    display_struct   *display,
+    int              x,
+    int              y,
+    int              z )
 {
-    Status                  status;
     object_traverse_struct  object_traverse;
     Boolean                 found;
-    Status                  initialize_object_traverse();
     object_struct           *object, *closest_marker;
     volume_struct           *volume;
     Point                   voxel_pos;
+    Real                    x_w, y_w, z_w;
     Real                    dist, closest_dist;
-    Real                    distance_between_points();
-    void                    convert_voxel_to_point();
-    void                    set_current_object();
 
-    status = initialize_object_traverse( &object_traverse, 1,
-                                         &graphics->models[THREED_MODEL] );
+    initialize_object_traverse( &object_traverse, 1,
+                                &display->models[THREED_MODEL] );
 
-    if( status == OK )
-        (void) get_slice_window_volume( graphics, &volume );
+    (void) get_slice_window_volume( display, &volume );
 
-    convert_voxel_to_point( volume, (Real) x, (Real) y, (Real) z, &voxel_pos );
+    convert_voxel_to_world( volume, (Real) x, (Real) y, (Real) z,
+                            &x_w, &y_w, &z_w );
+    fill_Point( voxel_pos, x_w, y_w, z_w );
 
     found = FALSE;
     closest_dist = 0.0;
@@ -33,11 +29,12 @@ public  Boolean  update_current_marker( graphics, x, y, z )
     while( get_next_object_traverse( &object_traverse, &object ) )
     {
         if( object->object_type == MARKER &&
-            points_within_distance( &voxel_pos, &object->ptr.marker->position,
+            points_within_distance( &voxel_pos,
+                                    &get_marker_ptr(object)->position,
                                     Marker_pick_size ) )
         {
             dist = distance_between_points( &voxel_pos,
-                                            &object->ptr.marker->position );
+                                            &get_marker_ptr(object)->position );
 
             if( !found || dist < closest_dist )
             {
@@ -48,10 +45,10 @@ public  Boolean  update_current_marker( graphics, x, y, z )
         }
     }
 
-    if( found && (!get_current_object(graphics,&object) ||
+    if( found && (!get_current_object(display,&object) ||
                   object != closest_marker) )
     {
-        set_current_object( graphics, closest_marker );
+        set_current_object( display, closest_marker );
     }
 
     return( found );

@@ -1,66 +1,59 @@
 
-#include  <def_graphics.h>
+#include  <def_display.h>
 
-public  Status  create_model_of_surface( surface_rep, descriptors, parameters,
-                                         m, n, object )
-    surface_rep_struct  *surface_rep;
-    double              descriptors[];
-    double              parameters[];
-    int                 m, n;
-    object_struct       **object;
+private  void  create_quadmesh_of_surface(
+    surface_rep_struct  *surface_rep,
+    double              descriptors[],
+    double              parameters[],
+    int                 m,
+    int                 n,
+    quadmesh_struct     *quadmesh );
+
+public  void  create_model_of_surface(
+    surface_rep_struct  *surface_rep,
+    double              descriptors[],
+    double              parameters[],
+    int                 m,
+    int                 n,
+    object_struct       **object )
 {
-    Status                  status;
-    Status                  create_object();
-    Status                  create_quadmesh_of_surface();
     quadmesh_struct         *quadmesh;
 
-    status = create_object( object, QUADMESH );
+    *object = create_object( QUADMESH );
 
-    if( status == OK )
-    {
-        quadmesh = (*object)->ptr.quadmesh;
+    quadmesh = get_quadmesh_ptr( *object );
 
-        status = create_quadmesh_of_surface( surface_rep, descriptors,
-                                             parameters, m, n, quadmesh );
-    }
- 
-    return( status );
+    create_quadmesh_of_surface( surface_rep, descriptors,
+                                parameters, m, n, quadmesh );
 }
 
-private  Status  create_quadmesh_of_surface( surface_rep, descriptors,
-                                             parameters, m, n, quadmesh )
-    surface_rep_struct  *surface_rep;
-    double              descriptors[];
-    double              parameters[];
-    int                 m, n;
-    quadmesh_struct     *quadmesh;
+private  void  create_quadmesh_of_surface(
+    surface_rep_struct  *surface_rep,
+    double              descriptors[],
+    double              parameters[],
+    int                 m,
+    int                 n,
+    quadmesh_struct     *quadmesh )
 {
-    Status  status;
     int     i, j;
     double  u, v, x, y, z, dux, duy, duz, dvx, dvy, dvz;
     Vector  normal;
-    void    get_default_surfprop();
-    void    get_surface_normal_from_derivs();
 
     get_default_surfprop( &quadmesh->surfprop );
     quadmesh->colour_flag = ONE_COLOUR;
-    ALLOC( status, quadmesh->colours, 1 );
+    ALLOC( quadmesh->colours, 1 );
 
-    if( status == OK )
-    {
-        quadmesh->colours[0] = WHITE;
+    quadmesh->colours[0] = WHITE;
 
-        quadmesh->m = m;
-        quadmesh->n = n;
+    quadmesh->m = m;
+    quadmesh->n = n;
 
-        quadmesh->m_closed = FALSE;
-        quadmesh->n_closed = FALSE;
+    quadmesh->m_closed = FALSE;
+    quadmesh->n_closed = FALSE;
 
-        ALLOC( status, quadmesh->points, m * n );
-    }
+    ALLOC( quadmesh->points, m * n );
 
-    if( status == OK )
-        ALLOC( status, quadmesh->normals, m * n );
+    ALLOC( quadmesh->normals, m * n );
 
     for_less( i, 0, m )
     {
@@ -82,6 +75,4 @@ private  Status  create_quadmesh_of_surface( surface_rep, descriptors,
             quadmesh->normals[IJ(i,j,n)] = normal;
         }
     }
-
-    return( status );
 }

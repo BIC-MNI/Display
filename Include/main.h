@@ -1,17 +1,12 @@
-#ifndef  DEF_GRAPHICS
-#define  DEF_GRAPHICS
+#ifndef  DEF_MAIN
+#define  DEF_MAIN
 
-#include  <def_graphics_types.h>
+#include  <def_display_types.h>
 #include  <def_menu.h>
 #include  <def_slice.h>
 #include  <def_surface_extract.h>
 #include  <def_surface_fitting.h>
 #include  <def_marker_segment.h>
-
-#define  LEFT_ARROW_KEY    1
-#define  RIGHT_ARROW_KEY   2
-#define  DOWN_ARROW_KEY    3
-#define  UP_ARROW_KEY      4
 
 /* for graphics windows */
 
@@ -63,18 +58,17 @@ typedef  struct
 } three_d_window_struct;
 
 
-typedef  struct  graphics_struct
+typedef  struct  display_struct
 {
     window_types               window_type;
 
-    struct  graphics_struct    *associated[N_WINDOW_TYPES];
+    struct  display_struct     *associated[N_WINDOW_TYPES];
 
     three_d_window_struct      three_d;    /* should be a union of three */
     menu_window_struct         menu;
     slice_window_struct        slice;
 
-    window_struct              window;
-    Point                      mouse_position;
+    window_struct              *window;
     Point                      prev_mouse_position;
     action_table_struct        action_table;
     int                        models_changed_id;
@@ -86,6 +80,6 @@ typedef  struct  graphics_struct
     update_interrupted_struct  update_interrupted;
 
     viewport_picking_struct    viewport_picking;
-} graphics_struct;
+} display_struct;
 
 #endif

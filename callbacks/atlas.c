@@ -1,15 +1,12 @@
 
-#include  <def_graphics.h>
-#include  <def_files.h>
+#include  <def_display.h>
 
 public  DEF_MENU_FUNCTION( set_atlas_on_or_off )   /* ARGSUSED */
 {
     Boolean          state;
-    graphics_struct  *slice_window;
-    void             set_slice_window_update();
-    void             set_atlas_state();
+    display_struct   *slice_window;
 
-    if( get_slice_window( graphics, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) )
     {
         state = !slice_window->slice.atlas.enabled;
         set_atlas_state( slice_window, state );
@@ -23,12 +20,10 @@ public  DEF_MENU_FUNCTION( set_atlas_on_or_off )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_atlas_on_or_off )   /* ARGSUSED */
 {
-    void             set_text_on_off();
     String           text;
-    void             set_menu_text();
-    graphics_struct  *slice_window;
+    display_struct   *slice_window;
 
-    if( get_slice_window( graphics, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) )
         set_text_on_off( label, text, slice_window->slice.atlas.enabled );
     else
         (void) sprintf( text, label, "none" );
@@ -41,12 +36,11 @@ public  DEF_MENU_UPDATE(set_atlas_on_or_off )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_atlas_opacity )   /* ARGSUSED */
 {
     Real             opacity;
-    graphics_struct  *slice_window;
-    void             set_slice_window_update();
+    display_struct   *slice_window;
 
-    if( get_slice_window( graphics, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) )
     {
-        PRINT( "Enter atlas opacity: " );
+        print( "Enter atlas opacity: " );
         if( input_real( stdin, &opacity ) == OK && opacity >= 0.0 &&
             opacity <= 1.0 )
         {
@@ -69,12 +63,11 @@ public  DEF_MENU_UPDATE(set_atlas_opacity )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( set_atlas_transparent_threshold )   /* ARGSUSED */
 {
     int              threshold;
-    graphics_struct  *slice_window;
-    void             set_slice_window_update();
+    display_struct   *slice_window;
 
-    if( get_slice_window( graphics, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) )
     {
-        PRINT( "Enter value above which atlas is transparent (e.g. 220): " );
+        print( "Enter value above which atlas is transparent (e.g. 220): " );
         if( input_int( stdin, &threshold ) == OK && threshold >= 0 )
         {
             slice_window->slice.atlas.transparent_threshold = threshold;
@@ -93,14 +86,13 @@ public  DEF_MENU_UPDATE(set_atlas_transparent_threshold )   /* ARGSUSED */
     return( OK );
 }
 
-private  void  flip_atlas_on_an_axis( graphics, axis )
-    graphics_struct   *graphics;
-    int               axis;
+private  void  flip_atlas_on_an_axis(
+    display_struct    *display,
+    int               axis )
 {
-    graphics_struct  *slice_window;
-    void             set_slice_window_update();
+    display_struct   *slice_window;
 
-    if( get_slice_window( graphics, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) )
     {
         slice_window->slice.atlas.flipped[axis] =
                              !slice_window->slice.atlas.flipped[axis];
@@ -112,7 +104,7 @@ private  void  flip_atlas_on_an_axis( graphics, axis )
 
 public  DEF_MENU_FUNCTION( flip_atlas_x )   /* ARGSUSED */
 {
-    flip_atlas_on_an_axis( graphics, X );
+    flip_atlas_on_an_axis( display, X );
     return( OK );
 }
 
@@ -123,7 +115,7 @@ public  DEF_MENU_UPDATE(flip_atlas_x )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( flip_atlas_y )   /* ARGSUSED */
 {
-    flip_atlas_on_an_axis( graphics, Y );
+    flip_atlas_on_an_axis( display, Y );
     return( OK );
 }
 
@@ -134,7 +126,7 @@ public  DEF_MENU_UPDATE(flip_atlas_y )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( flip_atlas_z )   /* ARGSUSED */
 {
-    flip_atlas_on_an_axis( graphics, Z );
+    flip_atlas_on_an_axis( display, Z );
     return( OK );
 }
 
@@ -143,18 +135,16 @@ public  DEF_MENU_UPDATE(flip_atlas_z )   /* ARGSUSED */
     return( OK );
 }
 
-private  void  set_atlas_tolerance( graphics, axis )
-    graphics_struct   *graphics;
-    int               axis;
+private  void  set_atlas_tolerance(
+    display_struct    *display,
+    int               axis )
 {
     Real             distance_tolerance;
-    graphics_struct  *slice_window;
-    void             regenerate_atlas_lookup();
-    void             set_slice_window_update();
+    display_struct   *slice_window;
 
-    if( get_slice_window( graphics, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) )
     {
-        PRINT( "Enter new tolerance: " );
+        print( "Enter new tolerance: " );
 
         if( input_real( stdin, &distance_tolerance ) == OK )
         {
@@ -171,7 +161,7 @@ private  void  set_atlas_tolerance( graphics, axis )
 
 public  DEF_MENU_FUNCTION( set_atlas_tolerance_x )   /* ARGSUSED */
 {
-    set_atlas_tolerance( graphics, X );
+    set_atlas_tolerance( display, X );
     return( OK );
 }
 
@@ -182,7 +172,7 @@ public  DEF_MENU_UPDATE(set_atlas_tolerance_x )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( set_atlas_tolerance_y )   /* ARGSUSED */
 {
-    set_atlas_tolerance( graphics, Y );
+    set_atlas_tolerance( display, Y );
     return( OK );
 }
 
@@ -193,7 +183,7 @@ public  DEF_MENU_UPDATE(set_atlas_tolerance_y )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( set_atlas_tolerance_z )   /* ARGSUSED */
 {
-    set_atlas_tolerance( graphics, Z );
+    set_atlas_tolerance( display, Z );
     return( OK );
 }
 

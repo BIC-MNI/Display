@@ -1,7 +1,7 @@
 #ifndef  DEF_ATLAS
 #define  DEF_ATLAS
 
-#include   <def_objects.h>
+#include   <def_mni.h>
 
 typedef  struct
 {

@@ -1,8 +1,10 @@
 
 #include  <def_mni.h>
-#include  <def_alloc.h>
 #include  <def_minimization.h>
-#include  <def_files.h>
+
+private  void  print_ranges(
+    int     ndim,
+    double  **p );
 
 #define DEBUGP( x ) x
 
@@ -12,10 +14,10 @@ const double ALPHA = 1.0;
 const double BETA = 0.5;
 const double GAMMA = 2.0;
 
-private  void  get_psum( ndim, p, psum )
-    int     ndim;
-    double  **p;
-    double  psum[];
+private  void  get_psum(
+    int     ndim,
+    double  **p,
+    double  psum[] )
 {
     double   sum;
     int      i, j;
@@ -29,18 +31,17 @@ private  void  get_psum( ndim, p, psum )
     }
 }
 
-private  double  amotry( fit_data,
-                         p, y, psum, ptry, ndim, ihi, nfunk, fac, success )
-    downhill_simplex_struct       *fit_data;
-    double                        **p;
-    double                        y[];
-    double                        psum[];
-    double                        ptry[];
-    int                           ndim;
-    int                           ihi;
-    int                           *nfunk;
-    double                        fac;
-    Boolean                       *success;
+private  double  amotry(
+    downhill_simplex_struct       *fit_data,
+    double                        **p,
+    double                        y[],
+    double                        psum[],
+    double                        ptry[],
+    int                           ndim,
+    int                           ihi,
+    int                           *nfunk,
+    double                        fac,
+    Boolean                       *success )
 {
     int      j;
     double   fac1, fac2, ytry;
@@ -70,31 +71,22 @@ private  double  amotry( fit_data,
     return( ytry );
 }
 
-public  Status  initialize_amoeba( fit_data, ndim, initial_parameters,
-                                   evaluate_fit_function, evaluation_ptr )
-    downhill_simplex_struct      *fit_data;
-    int                          ndim;
-    double                       initial_parameters[];
-    double                       (*evaluate_fit_function)( void *, double [] );
-    void                         *evaluation_ptr;
+public  void  initialize_amoeba(
+    downhill_simplex_struct      *fit_data,
+    int                          ndim,
+    double                       initial_parameters[],
+    double                       (*evaluate_fit_function)( void *, double [] ),
+    void                         *evaluation_ptr )
 {
     int      i, j;
-    Status   status;
 
     fit_data->evaluate_fit_function = evaluate_fit_function;
     fit_data->evaluation_ptr = evaluation_ptr;
 
-    ALLOC2D( status, fit_data->p, ndim+1, ndim );
-
-    if( status == OK )
-        ALLOC( status, fit_data->y, ndim+1 );
-
-    if( status == OK )
-        ALLOC( status, fit_data->psum, ndim );
-
-    if( status == OK )
-        ALLOC( status, fit_data->ptry, ndim );
-
+    ALLOC2D( fit_data->p, ndim+1, ndim );
+    ALLOC( fit_data->y, ndim+1 );
+    ALLOC( fit_data->psum, ndim );
+    ALLOC( fit_data->ptry, ndim );
 
     for_less( i, 0, ndim )
         fit_data->p[0][i] = initial_parameters[i];
@@ -115,39 +107,27 @@ public  Status  initialize_amoeba( fit_data, ndim, initial_parameters,
                                                           fit_data->p[i] );
 
     get_psum( ndim, fit_data->p, fit_data->psum );
-
-    return( status );
 }
 
-public  Status  terminate_amoeba( fit_data )
-    downhill_simplex_struct  *fit_data;
+public  void  terminate_amoeba(
+    downhill_simplex_struct  *fit_data )
 {
-    Status   status;
-
-    FREE2D( status, fit_data->p );
-
-    if( status == OK )
-        FREE( status, fit_data->y );
-
-    if( status == OK )
-        FREE( status, fit_data->psum );
-
-    if( status == OK )
-        FREE( status, fit_data->ptry );
-
-    return( status );
+    FREE2D( fit_data->p );
+    FREE( fit_data->y );
+    FREE( fit_data->psum );
+    FREE( fit_data->ptry );
 }
 
-public  void  amoeba( fit_data, ndim, ftol, max_funk, n_funk, out_parameters )
-    downhill_simplex_struct  *fit_data;
-    int                      ndim;
-    double                   ftol;
-    int                      max_funk;
-    int                      *n_funk;
-    double                   out_parameters[];
+public  void  amoeba(
+    downhill_simplex_struct  *fit_data,
+    int                      ndim,
+    double                   ftol,
+    int                      max_funk,
+    int                      *n_funk,
+    double                   out_parameters[] )
 {
     int     i, j, ilo, ihi, inhi;
-    double  ytry, ysave, rtol, amotry();
+    double  ytry, ysave, rtol;
     Boolean success;
 
     *n_funk = 0;
@@ -171,13 +151,13 @@ public  void  amoeba( fit_data, ndim, ftol, max_funk, n_funk, out_parameters )
         rtol = 2.0 * fabs(fit_data->y[ihi] - fit_data->y[ilo]) /
                (fabs(fit_data->y[ihi]) + fabs(fit_data->y[ilo]));
 
-        DEBUGP( PRINT( "%g %g %g\n", fit_data->y[ihi], fit_data->y[ilo], rtol);)
+        DEBUGP( print( "%g %g %g\n", fit_data->y[ihi], fit_data->y[ilo], rtol);)
 
         if( rtol < ftol )  break;
 
         if( *n_funk >= max_funk )
         {
-            DEBUGP( PRINT( "Too many iterations in amoeba [%d]\n", *n_funk ); )
+            DEBUGP( print( "Too many iterations in amoeba [%d]\n", *n_funk ); )
             break;
         }
 
@@ -187,28 +167,27 @@ public  void  amoeba( fit_data, ndim, ftol, max_funk, n_funk, out_parameters )
 
         if( ytry <= fit_data->y[ilo] )
         {
-            DEBUGP( PRINT( "Successfully mirrored %g\n", ytry ); )
+            DEBUGP( print( "Successfully mirrored %g\n", ytry ); )
             ytry = amotry( fit_data, fit_data->p, fit_data->y,
                            fit_data->psum, fit_data->ptry,
                            ndim, ihi, n_funk, GAMMA, &success );
 
             if( success )
             {
-                void  print_ranges();
-                DEBUGP( PRINT( "Successfully expanded %g\n", ytry ); )
+                DEBUGP( print( "Successfully expanded %g\n", ytry ); )
                 DEBUGP( print_ranges( ndim, fit_data->p ); )
             }
         }
         else if( ytry >= fit_data->y[inhi] )
         {
-            DEBUGP( PRINT( "ytry too high %g, SHRINKING\n", ytry ); )
+            DEBUGP( print( "ytry too high %g, SHRINKING\n", ytry ); )
             ysave = fit_data->y[ihi];
             ytry = amotry( fit_data, fit_data->p, fit_data->y,
                            fit_data->psum, fit_data->ptry,
                            ndim, ihi, n_funk, BETA, &success );
             if( ytry >= ysave )
             {
-                DEBUGP( PRINT( "Contracting around smallest.\n" ); )
+                DEBUGP( print( "Contracting around smallest.\n" ); )
                 for_less( i, 0, ndim+1 )
                 {
                     if( i != ilo )
@@ -236,9 +215,9 @@ public  void  amoeba( fit_data, ndim, ftol, max_funk, n_funk, out_parameters )
 
 }
 
-private  void  print_ranges( ndim, p )
-    int     ndim;
-    double  **p;
+private  void  print_ranges(
+    int     ndim,
+    double  **p )
 {
     int     i, j;
     double  min, max;
@@ -254,8 +233,8 @@ private  void  print_ranges( ndim, p )
             if( i == 0 || p[i][j] > max )  max = p[i][j];
         }
 
-        PRINT( " %g %g ###", min, max );
+        print( " %g %g ###", min, max );
     }
 
-    PRINT( "\n" );
+    print( "\n" );
 }

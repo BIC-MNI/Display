@@ -1,158 +1,142 @@
 
-#include  <def_graphics.h>
-#include  <def_globals.h>
+#include  <def_display.h>
 
-static    DECL_EVENT_FUNCTION( update_picked_object );
-static    DECL_EVENT_FUNCTION( pick_object_point );
-static    DECL_EVENT_FUNCTION( terminate_picking_object );
-static    void                 pick_point_under_mouse();
+static    DEF_EVENT_FUNCTION( update_picked_object );
+static    DEF_EVENT_FUNCTION( pick_object_point );
+static    DEF_EVENT_FUNCTION( terminate_picking_object );
+static    DEF_EVENT_FUNCTION( start_picking_object );
+private  void  pick_point_under_mouse(
+    display_struct    *display );
 
-public  void  initialize_picking_object( graphics )
-    graphics_struct   *graphics;
+public  void  initialize_picking_object(
+    display_struct    *display )
 {
-    DECL_EVENT_FUNCTION(start_picking_object);
-    void                 add_action_table_function();
-
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                LEFT_MOUSE_DOWN_EVENT, start_picking_object );
                                
 }
 
-public  DEF_EVENT_FUNCTION( start_picking_object )    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( start_picking_object )    /* ARGSUSED */
 {
-    void                 push_action_table();
-    void                 add_action_table_function();
+    push_action_table( &display->action_table, LEFT_MOUSE_UP_EVENT );
 
-    push_action_table( &graphics->action_table, LEFT_MOUSE_UP_EVENT );
+    push_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT );
 
-    push_action_table( &graphics->action_table, TERMINATE_EVENT );
-
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                NO_EVENT,
                                update_picked_object );
 
-    add_action_table_function( &graphics->action_table,
-                               TERMINATE_EVENT,
+    add_action_table_function( &display->action_table,
+                               TERMINATE_INTERACTION_EVENT,
                                terminate_picking_object );
 
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                LEFT_MOUSE_UP_EVENT,
                                terminate_picking_object );
 }
 
-private  void  remove_events( action_table )
-    action_table_struct  *action_table;
+private  void  remove_events(
+    action_table_struct  *action_table )
 {
-    void   remove_action_table_function();
-    void   pop_action_table();
-
     pop_action_table( action_table, LEFT_MOUSE_UP_EVENT );
-    pop_action_table( action_table, TERMINATE_EVENT );
+    pop_action_table( action_table, TERMINATE_INTERACTION_EVENT );
 
     remove_action_table_function( action_table, NO_EVENT,
                                   update_picked_object );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_picking_object )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( terminate_picking_object )    /* ARGSUSED */
 {
-    void   remove_events();
+    remove_events( &display->action_table );
 
-    remove_events( &graphics->action_table );
-
-    pick_point_under_mouse( graphics );
+    pick_point_under_mouse( display );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( update_picked_object )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( update_picked_object )     /* ARGSUSED */
 {
-    pick_point_under_mouse( graphics );
+    pick_point_under_mouse( display );
 
     return( OK );
 }
 
-public  Boolean  get_mouse_scene_intersection( graphics, object, object_index,
-                                               intersection )
-    graphics_struct   *graphics;
-    object_struct     **object;
-    int               *object_index;
-    Point             *intersection;
+public  Boolean  get_mouse_scene_intersection(
+    display_struct    *display,
+    object_struct     **object,
+    int               *object_index,
+    Point             *intersection )
 {
     Boolean          found;
+    Real             x, y;
     Point            origin, transformed_origin;
     Vector           direction, transformed_direction;
-    void             convert_mouse_to_ray();
-    void             transform_world_to_model();
-    void             transform_world_to_model_vector();
 
-    convert_mouse_to_ray( &graphics->three_d.view, &graphics->mouse_position,
-                            &origin, &direction );
+    found = FALSE;
 
-    transform_world_to_model( &graphics->three_d.view, &origin,
-                              &transformed_origin );
-    transform_world_to_model_vector( &graphics->three_d.view, &direction,
-                                     &transformed_direction );
+    if( G_get_mouse_position_0_to_1( display->window, &x, &y ) )
+    {
+        convert_mouse_to_ray( &display->three_d.view, x, y,
+                              &origin, &direction );
 
-    found = intersect_ray_with_objects( graphics, &transformed_origin,
-                                         &transformed_direction,
-                                         object, object_index, intersection );
+        transform_world_to_model( &display->three_d.view, &origin,
+                                  &transformed_origin );
+        transform_world_to_model_vector( &display->three_d.view, &direction,
+                                         &transformed_direction );
+
+        found = intersect_ray_with_objects( display, &transformed_origin,
+                                            &transformed_direction,
+                                            object, object_index, intersection);
+    }
     return( found );
 }
 
-public  Boolean  get_polygon_under_mouse( graphics, polygons, poly_index,
-                                          intersection )
-    graphics_struct   *graphics;
-    polygons_struct   **polygons;
-    int               *poly_index;
-    Point             *intersection;
+public  Boolean  get_polygon_under_mouse(
+    display_struct    *display,
+    polygons_struct   **polygons,
+    int               *poly_index,
+    Point             *intersection )
 {
     Boolean          found;
     object_struct    *object;
 
-    found = get_mouse_scene_intersection( graphics, &object, poly_index,
+    found = get_mouse_scene_intersection( display, &object, poly_index,
                                           intersection );
 
     if( found && object->object_type == POLYGONS )
-        *polygons = object->ptr.polygons;
+        *polygons = get_polygons_ptr( object );
     else
         found = FALSE;
 
     return( found );
 }
 
-private  void  pick_point_under_mouse( graphics )
-    graphics_struct   *graphics;
+private  void  pick_point_under_mouse(
+    display_struct    *display )
 {
     Point            intersection_point;
     object_struct    *object;
     int              object_index;
-    Boolean          set_current_voxel();
     object_struct    *current;
-    void             update_cursor();
-    void             set_update_required();
-    void             set_current_object();
-    void             rebuild_selected_list();
 
-    if( get_mouse_scene_intersection( graphics, &object, &object_index,
+    if( get_mouse_scene_intersection( display, &object, &object_index,
                                       &intersection_point ) )
     {
-        graphics->three_d.cursor.origin = intersection_point;
-        update_cursor( graphics );
+        display->three_d.cursor.origin = intersection_point;
+        update_cursor( display );
 
-        if( !get_current_object( graphics, &current ) || current != object )
+        if( !get_current_object( display, &current ) || current != object )
         {
-            set_current_object( graphics, object );
-            rebuild_selected_list( graphics,
-                                   graphics->associated[MENU_WINDOW] );
+            set_current_object( display, object );
+            rebuild_selected_list( display,
+                                   display->associated[MENU_WINDOW] );
         }
 
-        set_update_required( graphics, OVERLAY_PLANES );
+        set_update_required( display, OVERLAY_PLANES );
 
-        if( update_voxel_from_cursor( graphics->associated[SLICE_WINDOW] ) )
+        if( update_voxel_from_cursor( display->associated[SLICE_WINDOW] ) )
         {
-            set_update_required( graphics->associated[SLICE_WINDOW],
+            set_update_required( display->associated[SLICE_WINDOW],
                                  NORMAL_PLANES );
         }
     }

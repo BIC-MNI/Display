@@ -1,85 +1,70 @@
 
-#include  <def_graphics.h>
+#include  <def_display.h>
 
-public  Boolean  intersect_ray_with_objects( graphics, ray_origin,
-                                             ray_direction,
-                                             object,
-                                             object_index,
-                                             intersection_point )
-    graphics_struct   *graphics;
-    Point             *ray_origin;
-    Vector            *ray_direction;
-    object_struct     **object;
-    int               *object_index;
-    Point             *intersection_point;
+public  Boolean  intersect_ray_with_objects(
+    display_struct    *display,
+    Point             *ray_origin,
+    Vector            *ray_direction,
+    object_struct     **object,
+    int               *object_index,
+    Point             *intersection_point )
 {
-    Status                   status;
     Boolean                  intersects;
-    Boolean                  intersect_ray_polygons();
-    Boolean                  intersect_ray_with_marker();
     Real                     dist;
     object_struct            *current_object;
-    Status                   initialize_object_traverse();
     object_traverse_struct   object_traverse;
 
     intersects = FALSE;
     dist = 1.0e30;
 
-    status = initialize_object_traverse( &object_traverse, N_MODELS,
-                                         graphics->models );
+    initialize_object_traverse( &object_traverse, N_MODELS, display->models );
 
-    if( status == OK )
+    while( get_next_object_traverse(&object_traverse,&current_object) )
     {
-        while( get_next_object_traverse(&object_traverse,&current_object) )
+        if( current_object->visibility )
         {
-            if( current_object->visibility )
+            if( current_object->object_type == POLYGONS )
             {
-                if( current_object->object_type == POLYGONS )
+                if( intersect_ray_polygons( ray_origin, ray_direction,
+                                            get_polygons_ptr(current_object),
+                                            object_index, &dist ) )
                 {
-                    if( intersect_ray_polygons( ray_origin, ray_direction,
-                                                current_object->ptr.polygons,
-                                                object_index, &dist ) )
-                    {
-                        *object = current_object;
-                        intersects = TRUE;
-                    }
+                    *object = current_object;
+                    intersects = TRUE;
                 }
-                else if( current_object->object_type == MARKER )
+            }
+            else if( current_object->object_type == MARKER )
+            {
+                if( intersect_ray_with_marker( ray_origin, ray_direction,
+                                               get_marker_ptr(current_object),
+                                               &dist ) )
                 {
-                    if( intersect_ray_with_marker( ray_origin, ray_direction,
-                                                   current_object->ptr.marker,
-                                                   &dist ) )
-                    {
-                        *object_index = -1;
-                        *object = current_object;
-                        intersects = TRUE;
-                    }
+                    *object_index = -1;
+                    *object = current_object;
+                    intersects = TRUE;
                 }
             }
         }
+    }
 
-        if( intersects )
-        {
-            GET_POINT_ON_RAY( *intersection_point, *ray_origin, *ray_direction,
-                              dist );
-        }
+    if( intersects )
+    {
+        GET_POINT_ON_RAY( *intersection_point, *ray_origin, *ray_direction,
+                          dist );
     }
 
     return( intersects );
 }
 
-public  Boolean  intersect_ray_polygons( ray_origin, ray_direction,
-                                         polygons, poly_index, dist )
-    Point            *ray_origin;
-    Vector           *ray_direction;
-    polygons_struct  *polygons;
-    int              *poly_index;
-    Real             *dist;
+public  Boolean  intersect_ray_polygons(
+    Point            *ray_origin,
+    Vector           *ray_direction,
+    polygons_struct  *polygons,
+    int              *poly_index,
+    Real             *dist )
 {
     int       i;
     Boolean   intersects;
-    Boolean   intersect_ray_polygon();
-    Boolean   intersect_ray_with_bintree();
 
     if( polygons->bintree != (bintree_struct *) 0 )
     {
@@ -105,12 +90,11 @@ public  Boolean  intersect_ray_polygons( ray_origin, ray_direction,
     return( intersects );
 }
 
-public  Boolean  intersect_ray_with_marker( ray_origin, ray_direction,
-                                            marker, dist )
-    Point            *ray_origin;
-    Vector           *ray_direction;
-    marker_struct    *marker;
-    Real             *dist;
+public  Boolean  intersect_ray_with_marker(
+    Point            *ray_origin,
+    Vector           *ray_direction,
+    marker_struct    *marker,
+    Real             *dist )
 {
     int       c, enter, leave;
     Real      t_int[2], t_min, t_max, delta, box_low, box_high, origin;

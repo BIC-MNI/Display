@@ -14,7 +14,7 @@ Interval_of_check = 250;
 Initial_perspective_flag = FALSE;
 Closest_front_plane = 1.0e-5;
 
-Initial_render_mode = 0;
+Initial_render_mode = FALSE;
 Initial_shading_type = 1;
 Initial_light_switch = TRUE;
 

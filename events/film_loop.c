@@ -1,136 +1,135 @@
 
-#include  <def_graphics.h>
-#include  <def_files.h>
-#include  <def_string.h>
-#include  <def_globals.h>
+#include  <def_display.h>
 
-static    DECL_EVENT_FUNCTION( check_updated );
-static    Status               create_film_loop_header();
-static    Status               save_image_to_file();
-static    void                 display_next_frame();
-static    void                 create_frame_filename();
-static    Status               output_frame();
-static    void                 get_pixel_bounds();
+private    DEF_EVENT_FUNCTION( check_updated );
 
-public  Status  start_film_loop( graphics, base_filename, axis_index, n_steps )
-    graphics_struct  *graphics;
-    char             base_filename[];
-    int              axis_index;
-    int              n_steps;
+private  Status  create_film_loop_header(
+    char   base_filename[],
+    int    window_width,
+    int    window_height,
+    int    n_steps );
+private  void  create_frame_filename(
+    char   base_filename[],
+    int    step,
+    char   frame_filename[] );
+private  Status  save_image_to_file(
+    display_struct    *display );
+private  void  display_next_frame(
+    display_struct   *display );
+private  void  get_pixel_bounds(
+    int           x_size,
+    int           y_size,
+    Colour        *pixels,
+    int           *x_min,
+    int           *x_max,
+    int           *y_min,
+    int           *y_max );
+private  Status  output_frame(
+    FILE           *file,
+    Colour         pixels[],
+    int            x_size,
+    int            x_min,
+    int            x_max,
+    int            y_min,
+    int            y_max );
+
+public  Status  start_film_loop(
+    display_struct   *display,
+    char             base_filename[],
+    int              axis_index,
+    int              n_steps )
 {
-    void                 add_action_table_function();
-    Real                 angle;
-    int                  x_size, y_size;
-    void                 make_rotation_transform();
-    Status               status;
+    Status    status;
+    Real      angle;
+    int       x_size, y_size;
 
-    add_action_table_function( &graphics->action_table, NO_EVENT,
+    add_action_table_function( &display->action_table, NO_EVENT,
                                check_updated );
 
     angle = 2.0 * PI / n_steps;
 
     make_rotation_transform( angle, axis_index,
-                             &graphics->three_d.film_loop.transform );
+                             &display->three_d.film_loop.transform );
 
-    graphics->three_d.film_loop.n_steps = n_steps;
-    graphics->three_d.film_loop.current_step = 1;
-    x_size = graphics->window.x_size;
-    y_size = graphics->window.y_size;
+    display->three_d.film_loop.n_steps = n_steps;
+    display->three_d.film_loop.current_step = 1;
+
+    G_get_window_size( display->window, &x_size, &y_size );
 
     if( (x_size & 1) == 1 ) --x_size;
     if( (y_size & 1) == 1 ) --y_size;
 
-    graphics->three_d.film_loop.x_size = x_size;
-    graphics->three_d.film_loop.y_size = y_size;
-    (void) strcpy( graphics->three_d.film_loop.base_filename, base_filename );
+    display->three_d.film_loop.x_size = x_size;
+    display->three_d.film_loop.y_size = y_size;
+    (void) strcpy( display->three_d.film_loop.base_filename, base_filename );
 
-    ALLOC( status, graphics->three_d.film_loop.image_storage, x_size * y_size );
+    ALLOC( display->three_d.film_loop.image_storage, x_size * y_size );
 
-    if( status == OK )
-    {
-        status = create_film_loop_header( base_filename,
-                                          x_size, y_size, n_steps );
-    }
+    status = create_film_loop_header( base_filename, x_size, y_size, n_steps );
 
     return( status );
 }
 
-private  Status  end_film_loop( graphics )
-    graphics_struct  *graphics;
+private  void  end_film_loop(
+    display_struct   *display )
 {
-    Status   status;
-    void     remove_action_table_function();
-
-    remove_action_table_function( &graphics->action_table, NO_EVENT,
+    remove_action_table_function( &display->action_table, NO_EVENT,
                                   check_updated );
 
-    FREE( status, graphics->three_d.film_loop.image_storage );
+    FREE( display->three_d.film_loop.image_storage );
 
-    PRINT( "Done film loop.\n" );
-
-    return( status );
+    print( "Done film loop.\n" );
 }
 
 private  DEF_EVENT_FUNCTION( check_updated )
     /* ARGSUSED */
 {
     Status    status;
-    Boolean   window_is_up_to_date();
-    Status    end_film_loop();
-    void      update_view();
-    void      set_update_required();
 
     status = OK;
 
-    if( window_is_up_to_date( graphics ) )
+    if( window_is_up_to_date( display ) )
     {
-        PRINT( "Frame %d/%d\n", graphics->three_d.film_loop.current_step,
-               graphics->three_d.film_loop.n_steps );
+        print( "Frame %d/%d\n", display->three_d.film_loop.current_step,
+               display->three_d.film_loop.n_steps );
 
-        status = save_image_to_file( graphics );
+        status = save_image_to_file( display );
 
         if( status == OK )
         {
-            ++graphics->three_d.film_loop.current_step;
+            ++display->three_d.film_loop.current_step;
 
-            if( graphics->three_d.film_loop.current_step <= 
-                graphics->three_d.film_loop.n_steps )
+            if( display->three_d.film_loop.current_step <= 
+                display->three_d.film_loop.n_steps )
             {
-                display_next_frame( graphics );
+                display_next_frame( display );
 
-                update_view( graphics );
+                update_view( display );
 
-                set_update_required( graphics, NORMAL_PLANES );
+                set_update_required( display, NORMAL_PLANES );
             }
             else
-            {
-                status = end_film_loop( graphics );
-            }
+                end_film_loop( display );
         }
         else
-        {
-            status = end_film_loop( graphics );
-        }
+            end_film_loop( display );
     }
 
     return( OK );
 }
 
-private  Status  create_film_loop_header( base_filename, window_width,
-                                          window_height, n_steps )
-    char   base_filename[];
-    int    window_width;
-    int    window_height;
-    int    n_steps;
+private  Status  create_film_loop_header(
+    char   base_filename[],
+    int    window_width,
+    int    window_height,
+    int    n_steps )
 {
     Status  status;
     int     i;
     FILE    *file;
-    Status  io_colour();
     String  header_name;
     String  frame_filename;
     String  no_dirs;
-    void    strip_off_directories();
 
     (void) strcpy( header_name, base_filename );   
     (void) strcat( header_name, ".flm" );   
@@ -138,25 +137,17 @@ private  Status  create_film_loop_header( base_filename, window_width,
     status = open_file( header_name, WRITE_FILE, ASCII_FORMAT, &file );
 
     if( status == OK )
-    {
         status = io_int( file, WRITE_FILE, ASCII_FORMAT, &window_width );
-    }
 
     if( status == OK )
-    {
         status = io_int( file, WRITE_FILE, ASCII_FORMAT, &window_height );
-    }
 
     if( status == OK )
-    {
         status = io_colour( file, WRITE_FILE, ASCII_FORMAT,
                             &Initial_background_colour );
-    }
 
     if( status == OK )
-    {
         status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
-    }
 
     for_less( i, 0, n_steps )
     {
@@ -165,49 +156,42 @@ private  Status  create_film_loop_header( base_filename, window_width,
         strip_off_directories( frame_filename, no_dirs );
 
         if( status == OK )
-        {
             status = output_string( file, no_dirs );
-        }
 
         if( status == OK )
-        {
             status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
-        }
     }
 
     if( status == OK )
-    {
         status = close_file( file );
-    }
 
     return( status );
 }
 
-private  void  create_frame_filename( base_filename, step, frame_filename )
-    char   base_filename[];
-    int    step;
-    char   frame_filename[];
+private  void  create_frame_filename(
+    char   base_filename[],
+    int    step,
+    char   frame_filename[] )
 {
     (void) sprintf( frame_filename, "%s_%d.img", base_filename, step );
 }
 
-private  Status  save_image_to_file( graphics )
-    graphics_struct   *graphics;
+private  Status  save_image_to_file(
+    display_struct    *display )
 {
     Status         status;
-    void           G_read_pixels();
     FILE           *file;
     String         frame_filename;
     int            x_min, x_max, y_min, y_max;
 
-    G_read_pixels( &graphics->window,
-                   0, graphics->three_d.film_loop.x_size-1,
-                   0, graphics->three_d.film_loop.y_size-1,
-                   graphics->three_d.film_loop.image_storage );
+    G_read_pixels( display->window,
+                   0, display->three_d.film_loop.x_size-1,
+                   0, display->three_d.film_loop.y_size-1,
+                   display->three_d.film_loop.image_storage );
 
-    get_pixel_bounds( graphics->three_d.film_loop.x_size,
-                      graphics->three_d.film_loop.y_size,
-                      graphics->three_d.film_loop.image_storage,
+    get_pixel_bounds( display->three_d.film_loop.x_size,
+                      display->three_d.film_loop.y_size,
+                      display->three_d.film_loop.image_storage,
                       &x_min, &x_max, &y_min, &y_max );
 
     if( ((x_max - x_min) & 1) == 0 )
@@ -226,8 +210,8 @@ private  Status  save_image_to_file( graphics )
             ++y_max;
     }
 
-    create_frame_filename( graphics->three_d.film_loop.base_filename,
-                           graphics->three_d.film_loop.current_step,
+    create_frame_filename( display->three_d.film_loop.base_filename,
+                           display->three_d.film_loop.current_step,
                            frame_filename );
 
     status = open_file_with_default_suffix( frame_filename, "frm",
@@ -236,42 +220,38 @@ private  Status  save_image_to_file( graphics )
     if( status == OK )
     {
         status = output_frame( file,
-                               graphics->three_d.film_loop.image_storage,
-                               graphics->three_d.film_loop.x_size,
+                               display->three_d.film_loop.image_storage,
+                               display->three_d.film_loop.x_size,
                                x_min, x_max, y_min, y_max );
     }
 
     if( status == OK )
-    {
         status = close_file( file );
-    }
 
     return( status );
 }
 
-private  void  display_next_frame( graphics )
-    graphics_struct  *graphics;
+private  void  display_next_frame(
+    display_struct   *display )
 {
-    void   apply_transform_in_view_space();
-
-    apply_transform_in_view_space( graphics,
-                                   &graphics->three_d.film_loop.transform );
+    apply_transform_in_view_space( display,
+                                   &display->three_d.film_loop.transform );
 }
 
-private  void  get_pixel_bounds( x_size, y_size, pixels,
-                                 x_min, x_max, y_min, y_max )
-    int           x_size, y_size;
-    Pixel_colour  *pixels;
-    int           *x_min;
-    int           *x_max;
-    int           *y_min;
-    int           *y_max;
+private  void  get_pixel_bounds(
+    int           x_size,
+    int           y_size,
+    Colour        *pixels,
+    int           *x_min,
+    int           *x_max,
+    int           *y_min,
+    int           *y_max )
 {
     int            x, y;
     Boolean        found_a_pixel;
-    Pixel_colour   background;
+    Colour         background;
 
-    background = ACCESS_PIXEL( pixels, 0, 0, x_size );
+    background = pixels[IJ(0,0,x_size)];
 
     *x_min = -1;
     found_a_pixel = FALSE;
@@ -282,7 +262,7 @@ private  void  get_pixel_bounds( x_size, y_size, pixels,
 
         for_less( y, 0, y_size )
         {
-            if( ACCESS_PIXEL( pixels, *x_min, y, x_size ) != background )
+            if( pixels[IJ(*x_min,y,x_size)] != background )
             {
                 found_a_pixel = TRUE;
                 break;
@@ -300,7 +280,7 @@ private  void  get_pixel_bounds( x_size, y_size, pixels,
 
         for_less( y, 0, y_size )
         {
-            if( ACCESS_PIXEL( pixels, *x_max, y, x_size ) != background )
+            if( pixels[IJ(*x_max,y,x_size)] != background )
             {
                 found_a_pixel = TRUE;
                 break;
@@ -318,7 +298,7 @@ private  void  get_pixel_bounds( x_size, y_size, pixels,
 
         for_less( x, 0, x_size )
         {
-            if( ACCESS_PIXEL( pixels, x, *y_min, x_size ) != background )
+            if( pixels[IJ(x,*y_min,x_size)] != background )
             {
                 found_a_pixel = TRUE;
                 break;
@@ -336,7 +316,7 @@ private  void  get_pixel_bounds( x_size, y_size, pixels,
 
         for_less( x, 0, x_size )
         {
-            if( ACCESS_PIXEL( pixels, x, *y_max, x_size ) != background )
+            if( pixels[IJ(x,*y_max,x_size)] != background )
             {
                 found_a_pixel = TRUE;
                 break;
@@ -346,25 +326,22 @@ private  void  get_pixel_bounds( x_size, y_size, pixels,
     } while( !found_a_pixel );
 }
 
-private  Status  output_frame( file, pixels, x_size, x_min, x_max, y_min,
-                               y_max )
-    FILE           *file;
-    Pixel_colour   pixels[];
-    int            x_size;
-    int            x_min;
-    int            x_max;
-    int            y_min;
-    int            y_max;
+private  Status  output_frame(
+    FILE           *file,
+    Colour         pixels[],
+    int            x_size,
+    int            x_min,
+    int            x_max,
+    int            y_min,
+    int            y_max )
 {
     Status        status;
-    Status        io_int();
-    Status        io_binary_data();
     int           *start, *end;
     int           y;
     int           n_pixels;
-    Pixel_colour  background;
+    Colour        background;
 
-    background = ACCESS_PIXEL( pixels, 0, 0, x_size );
+    background = pixels[IJ(0,0,x_size)];
 
     status = io_int( file, WRITE_FILE, BINARY_FORMAT, &x_min );
 
@@ -378,23 +355,23 @@ private  Status  output_frame( file, pixels, x_size, x_min, x_max, y_min,
         status = io_int( file, WRITE_FILE, BINARY_FORMAT, &y_max );
 
     if( status == OK )
-        ALLOC( status, start, y_max - y_min + 1 );
-
-    if( status == OK )
-        ALLOC( status, end, y_max - y_min + 1 );
+    {
+        ALLOC( start, y_max - y_min + 1 );
+        ALLOC( end, y_max - y_min + 1 );
+    }
 
     for_inclusive( y, y_min, y_max )
     {
         start[y-y_min] = x_min;
         while( start[y-y_min] < x_max &&
-               ACCESS_PIXEL( pixels, start[y-y_min], y, x_size ) == background )
+               pixels[IJ(start[y-y_min],y,x_size)] == background )
         {
             ++start[y-y_min];
         }
 
         end[y-y_min] = x_max;
         while( end[y-y_min] > x_min &&
-               ACCESS_PIXEL( pixels, end[y-y_min], y, x_size ) == background )
+               pixels[IJ(end[y-y_min],y,x_size)] == background )
         {
             --end[y-y_min];
         }
@@ -403,21 +380,15 @@ private  Status  output_frame( file, pixels, x_size, x_min, x_max, y_min,
     for_inclusive( y, y_min, y_max )
     {
         if( status == OK )
-        {
             status = io_int( file, WRITE_FILE, BINARY_FORMAT, &start[y-y_min] );
-        }
 
         n_pixels = end[y-y_min] - start[y-y_min] + 1;
 
         if( n_pixels < 0 )
-        {
             n_pixels = 0;
-        }
 
         if( status == OK )
-        {
             status = io_int( file, WRITE_FILE, BINARY_FORMAT, &n_pixels );
-        }
     }
 
     for_inclusive( y, y_min, y_max )
@@ -427,7 +398,7 @@ private  Status  output_frame( file, pixels, x_size, x_min, x_max, y_min,
         if( status == OK && n_pixels > 0 )
         {
             status = io_binary_data( file, WRITE_FILE,
-                        (VOID *) &ACCESS_PIXEL(pixels,start[y-y_min],y,x_size),
+                        (void *) &pixels[IJ(start[y-y_min],y,x_size)],
                         sizeof( pixels[0] ), n_pixels );
         }
     }

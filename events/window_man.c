@@ -1,39 +1,40 @@
 
-#include  <def_graphics.h>
+#include  <def_display.h>
 
-static    DECL_EVENT_FUNCTION( handle_resize );
-static    DECL_EVENT_FUNCTION( handle_redraw );
+static    DEF_EVENT_FUNCTION( handle_resize );
+static    DEF_EVENT_FUNCTION( handle_redraw );
+static    DEF_EVENT_FUNCTION( handle_redraw_overlay );
 
-public  void  initialize_window_events( graphics )
-    graphics_struct  *graphics;
+public  void  initialize_resize_events(
+    display_struct   *display )
 {
-    void                 add_action_table_function();
-
-    add_action_table_function( &graphics->action_table, WINDOW_RESIZE_EVENT,
+    add_action_table_function( &display->action_table, WINDOW_RESIZE_EVENT,
                                handle_resize );
-    add_action_table_function( &graphics->action_table, WINDOW_REDRAW_EVENT,
+    add_action_table_function( &display->action_table, WINDOW_REDRAW_EVENT,
                                handle_redraw );
+    add_action_table_function( &display->action_table, REDRAW_OVERLAY_EVENT,
+                               handle_redraw_overlay );
 }
 
-private  DEF_EVENT_FUNCTION( handle_redraw )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( handle_redraw_overlay )     /* ARGSUSED */
 {
-    void     set_update_required();
-
-    set_update_required( graphics, NORMAL_PLANES );
+    set_update_required( display, OVERLAY_PLANES );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_resize )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( handle_redraw )     /* ARGSUSED */
 {
-    void   G_update_window_size();
-    void   set_update_required();
+    set_update_required( display, NORMAL_PLANES );
+    set_update_required( display, OVERLAY_PLANES );
 
-    G_update_window_size( &graphics->window );
+    return( OK );
+}
 
-    set_update_required( graphics, NORMAL_PLANES );
+private  DEF_EVENT_FUNCTION( handle_resize )     /* ARGSUSED */
+{
+    set_update_required( display, NORMAL_PLANES );
+    set_update_required( display, OVERLAY_PLANES );
 
     return( OK );
 }

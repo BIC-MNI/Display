@@ -1,141 +1,123 @@
 
-#include  <def_graphics.h>
+#include  <def_display.h>
 
-static    DECL_EVENT_FUNCTION( start_translation );
-static    DECL_EVENT_FUNCTION( turn_off_translation );
-static    DECL_EVENT_FUNCTION( handle_update );
-static    DECL_EVENT_FUNCTION( handle_mouse_movement );
-static    DECL_EVENT_FUNCTION( terminate_translation );
-static    void                 perform_translation();
+private    DEF_EVENT_FUNCTION( start_translation );
+private    DEF_EVENT_FUNCTION( turn_off_translation );
+private    DEF_EVENT_FUNCTION( handle_update );
+private    DEF_EVENT_FUNCTION( handle_mouse_movement );
+private    DEF_EVENT_FUNCTION( terminate_translation );
+private  void  perform_translation(
+    display_struct   *display );
 
-public  void  initialize_translation( graphics )
-    graphics_struct  *graphics;
+public  void  initialize_translation(
+    display_struct   *display )
 {
-    void                 add_action_table_function();
-    void                 terminate_any_interactions();
+    terminate_any_interactions( display );
 
-    terminate_any_interactions( graphics );
-
-    add_action_table_function( &graphics->action_table,
-                               TERMINATE_EVENT,
+    add_action_table_function( &display->action_table,
+                               TERMINATE_INTERACTION_EVENT,
                                turn_off_translation );
 
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT,
                                start_translation );
 }
 
-private  DEF_EVENT_FUNCTION( turn_off_translation )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( turn_off_translation )   /* ARGSUSED */
 {
-    void   remove_action_table_function();
+    remove_action_table_function( &display->action_table,
+                                  TERMINATE_INTERACTION_EVENT,
+                                  turn_off_translation );
 
-    remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT, turn_off_translation );
-
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_DOWN_EVENT,
                                   start_translation );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( start_translation )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( start_translation )     /* ARGSUSED */
 {
-    void                  add_action_table_function();
-
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                NO_EVENT,
                                handle_update );
 
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                MOUSE_MOVEMENT_EVENT,
                                handle_mouse_movement );
 
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_UP_EVENT,
                                terminate_translation );
 
-    add_action_table_function( &graphics->action_table,
-                               TERMINATE_EVENT,
+    add_action_table_function( &display->action_table,
+                               TERMINATE_INTERACTION_EVENT,
                                terminate_translation );
 
-    graphics->prev_mouse_position = graphics->mouse_position;
+    record_mouse_position( display );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_translation )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( terminate_translation )    /* ARGSUSED */
 {
-    void   remove_action_table_function();
-    void   update_view();
+    perform_translation( display );
 
-    perform_translation( graphics );
-
-    if( graphics_update_required( graphics ) )
+    if( graphics_update_required( display ) )
     {
-        update_view( graphics );
+        update_view( display );
     }
     
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   NO_EVENT, handle_update );
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MOUSE_MOVEMENT_EVENT, handle_mouse_movement );
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_translation );
-    remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT, terminate_translation );
+    remove_action_table_function( &display->action_table,
+                                  TERMINATE_INTERACTION_EVENT, terminate_translation );
 
     return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( handle_mouse_movement )      /* ARGSUSED */
 {
-    perform_translation( graphics );
+    perform_translation( display );
 
     return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( handle_update )      /* ARGSUSED */
 {
-    void   update_view();
-
-    if( graphics_update_required( graphics ) )
-    {
-        update_view( graphics );
-    }
+    if( graphics_update_required( display ) )
+        update_view( display );
 
     return( OK );
 }
 
-private  void  perform_translation( graphics )
-    graphics_struct  *graphics;
+private  void  perform_translation(
+    display_struct   *display )
 {
+    Real           x, y, x_prev, y_prev;
     Vector         delta, hor, vert;
     Transform      transform;
-    void           transform_model();
-    void           get_screen_axes();
-    void           make_translation_transform();
-    void           set_update_required();
 
-    SUB_POINTS( delta, graphics->mouse_position,
-                       graphics->prev_mouse_position );
+    if( mouse_moved( display, &x, &y, &x_prev, &y_prev ) )
+    {
+        fill_Vector( delta, x - x_prev, y - y_prev, 0.0 );
 
-    get_screen_axes( &graphics->three_d.view, &hor, &vert );
+        get_screen_axes( &display->three_d.view, &hor, &vert );
 
-    SCALE_VECTOR( hor, hor, Point_x(delta) );
-    SCALE_VECTOR( vert, vert, Point_y(delta) );
+        SCALE_VECTOR( hor, hor, Point_x(delta) );
+        SCALE_VECTOR( vert, vert, Point_y(delta) );
 
-    ADD_VECTORS( delta, hor, vert );
+        ADD_VECTORS( delta, hor, vert );
 
-    make_translation_transform( &delta, &transform );
+        make_translation_transform( &delta, &transform );
 
-    transform_model( graphics, &transform );
+        transform_model( display, &transform );
 
-    set_update_required( graphics, NORMAL_PLANES );
-
-    graphics->prev_mouse_position = graphics->mouse_position;
+        set_update_required( display, NORMAL_PLANES );
+    }
 }

@@ -2,9 +2,7 @@
 #ifndef  DEF_SURFACE_EXTRACT
 #define  DEF_SURFACE_EXTRACT
 
-#include  <def_hash.h>
-#include  <def_bitlist.h>
-#include  <def_queue.h>
+#include  <def_mni.h>
 
 typedef  struct
 {
@@ -17,6 +15,8 @@ typedef  struct
 } edge_point_struct;
 
 #define  VOXEL_COMPLETELY_DONE    15
+
+typedef QUEUE_STRUCT( voxel_index_struct )   voxel_queue_struct;
 
 typedef  struct
 {
@@ -32,7 +32,7 @@ typedef  struct
     bitlist_struct                       voxels_queued;
     unsigned_byte                        *voxel_done_flags;
 
-    QUEUE_STRUCT( voxel_index_struct )   voxels_to_do;
+    voxel_queue_struct                   voxels_to_do;
 
     int                                  x_voxel_max_distance;
     int                                  y_voxel_max_distance;

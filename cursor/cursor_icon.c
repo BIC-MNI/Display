@@ -1,128 +1,115 @@
 
-#include  <def_graphics.h>
-#include  <def_globals.h>
+#include  <def_display.h>
 
 #define  BOX_INDEX     0
 #define  X_INDEX  1
 #define  Y_INDEX  2
 #define  Z_INDEX  3
 
-static    Status          create_box();
-static    Status          create_axis();
-static    void            fill_in_box_points();
-static    void            fill_in_axis_points();
+private  void   create_box(
+    object_struct  **object );
+private  void  fill_in_box_points(
+    Real           size[],
+    object_struct  *object );
+private  void   create_axis(
+    object_struct  **object,
+    int            axis_index );
+private  void  fill_in_axis_points(
+    Real           size,
+    int            axis_index,
+    object_struct  *object );
 
-public  Status  rebuild_cursor_icon( graphics )
-    graphics_struct   *graphics;
+public  void  rebuild_cursor_icon(
+    display_struct    *display )
 {
-    Status          status;
     int             axis_index;
-    Status          add_object_to_model();
     object_struct   *object;
     model_struct    *model;
-    model_struct    *get_graphics_model();
 
-    model = get_graphics_model( graphics, CURSOR_MODEL );
-
-    status = OK;
+    model = get_graphics_model( display, CURSOR_MODEL );
 
     if( model->n_objects == 0 )
     {
-        status = create_box( &object );
+        create_box( &object );
 
-        if( status == OK )
-        {
-            status = add_object_to_model( model, object );
-        }
+        add_object_to_model( model, object );
 
         for_less( axis_index, 0, N_DIMENSIONS )
         {
-            status = create_axis( &object, axis_index );
+            create_axis( &object, axis_index );
 
-            if( status == OK )
-            {
-                status = add_object_to_model( model, object );
-            }
+            add_object_to_model( model, object );
         }
     }
 
-    if( status == OK )
-    {
-        fill_in_box_points( graphics->three_d.cursor.box_size,
-                            model->object_list[BOX_INDEX] );
-        fill_in_axis_points( graphics->three_d.cursor.axis_size,
-                             X, model->object_list[X_INDEX] );
-        fill_in_axis_points( graphics->three_d.cursor.axis_size,
-                             Y, model->object_list[Y_INDEX] );
-        fill_in_axis_points( graphics->three_d.cursor.axis_size,
-                             Z, model->object_list[Z_INDEX] );
-    }
-
-    return( status );
+    fill_in_box_points( display->three_d.cursor.box_size,
+                        model->objects[BOX_INDEX] );
+    fill_in_axis_points( display->three_d.cursor.axis_size,
+                         X, model->objects[X_INDEX] );
+    fill_in_axis_points( display->three_d.cursor.axis_size,
+                         Y, model->objects[Y_INDEX] );
+    fill_in_axis_points( display->three_d.cursor.axis_size,
+                         Z, model->objects[Z_INDEX] );
 }
 
-public  void  update_cursor_colour( graphics, colour )
-    graphics_struct  *graphics;
-    Colour           *colour;
+public  void  update_cursor_colour(
+    display_struct   *display,
+    Colour           *colour )
 {
     model_struct    *model;
-    model_struct    *get_graphics_model();
 
-    model = get_graphics_model( graphics, CURSOR_MODEL );
+    model = get_graphics_model( display, CURSOR_MODEL );
 
-    model->object_list[BOX_INDEX]->ptr.lines->colours[0] = *colour;
+    get_lines_ptr(model->objects[BOX_INDEX])->colours[0] = *colour;
 }
 
-private  Status   create_box( object )
-    object_struct  **object;
+private  void   create_box(
+    object_struct  **object )
 {
-    Status         status;
-    Status         create_lines_object();
     lines_struct   *lines;
 
-    status = create_lines_object( object, &Cursor_colour, 8, 4, 16 );
+    *object = create_object( LINES );
 
-    if( status == OK )
-    {
-        lines = (*object)->ptr.lines;
+    lines = get_lines_ptr( *object );
+    initialize_lines( lines, Cursor_colour );
+    ALLOC( lines->points, 8 );
+    ALLOC( lines->end_indices, 4 );
+    ALLOC( lines->indices, 16 );
 
-        lines->end_indices[0] = 4;
-        lines->end_indices[1] = 8;
-        lines->end_indices[2] = 12;
-        lines->end_indices[3] = 16;
+    lines->end_indices[0] = 4;
+    lines->end_indices[1] = 8;
+    lines->end_indices[2] = 12;
+    lines->end_indices[3] = 16;
 
-        lines->indices[0] = 0;
-        lines->indices[1] = 1;
-        lines->indices[2] = 5;
-        lines->indices[3] = 4;
+    lines->indices[0] = 0;
+    lines->indices[1] = 1;
+    lines->indices[2] = 5;
+    lines->indices[3] = 4;
 
-        lines->indices[4] = 1;
-        lines->indices[5] = 3;
-        lines->indices[6] = 7;
-        lines->indices[7] = 5;
+    lines->indices[4] = 1;
+    lines->indices[5] = 3;
+    lines->indices[6] = 7;
+    lines->indices[7] = 5;
 
-        lines->indices[8] = 3;
-        lines->indices[9] = 2;
-        lines->indices[10] = 6;
-        lines->indices[11] = 7;
+    lines->indices[8] = 3;
+    lines->indices[9] = 2;
+    lines->indices[10] = 6;
+    lines->indices[11] = 7;
 
-        lines->indices[12] = 2;
-        lines->indices[13] = 0;
-        lines->indices[14] = 4;
-        lines->indices[15] = 6;
-    }
-
-    return( status );
+    lines->indices[12] = 2;
+    lines->indices[13] = 0;
+    lines->indices[14] = 4;
+    lines->indices[15] = 6;
 }
 
-private  void  fill_in_box_points( size, object )
-    Real           size[];
-    object_struct  *object;
+private  void  fill_in_box_points(
+    Real           size[],
+    object_struct  *object )
 {
     Real           half_size[N_DIMENSIONS];
     lines_struct   *lines;
 
-    lines = object->ptr.lines;
+    lines = get_lines_ptr( object );
 
     half_size[X] = size[X] / 2.0;
     half_size[Y] = size[Y] / 2.0;
@@ -146,38 +133,30 @@ private  void  fill_in_box_points( size, object )
                  half_size[X],  half_size[Y],  half_size[Z] );
 }
 
-private  Status   create_axis( object, axis_index )
-    object_struct  **object;
-    int            axis_index;
+private  void   create_axis(
+    object_struct  **object,
+    int            axis_index )
 {
-    Status         status;
-    Status         create_lines_object();
-    static Colour  *axis_colours[N_DIMENSIONS] = { &RED, &GREEN, &BLUE };
+    static Colour  axis_colours[N_DIMENSIONS] = { 1, 2, 3 };
+    static Point   dummy = { 0.0, 0.0, 0.0 };
     lines_struct   *lines;
 
-    status = create_lines_object( object, axis_colours[axis_index], 2, 1, 2 );
+    *object = create_object( LINES );
+    lines = get_lines_ptr( *object );
+    initialize_lines( lines, axis_colours[axis_index] );
 
-    if( status == OK )
-    {
-        lines = (*object)->ptr.lines;
-
-        lines->end_indices[0] = 2;
-
-        lines->indices[0] = 0;
-        lines->indices[1] = 1;
-    }
-
-    return( status );
+    add_point_to_line( lines, &dummy );
+    add_point_to_line( lines, &dummy );
 }
 
-private  void  fill_in_axis_points( size, axis_index, object )
-    Real           size;
-    int            axis_index;
-    object_struct  *object;
+private  void  fill_in_axis_points(
+    Real           size,
+    int            axis_index,
+    object_struct  *object )
 {
     lines_struct   *lines;
 
-    lines = object->ptr.lines;
+    lines = get_lines_ptr( object );
 
     fill_Point( lines->points[0], 0.0, 0.0, 0.0 );
     fill_Point( lines->points[1], 0.0, 0.0, 0.0 );

@@ -1,12 +1,24 @@
-#include  <def_files.h>
-#include  <def_string.h>
-#include  <def_graphics.h>
-#include  <def_globals.h>
-#include  <def_arguments.h>
+#include  <def_display.h>
 
-const  char  HARD_CODED_DISPLAY_DIRECTORY[] = "/usr/local/lib";
-const  char  GLOBALS_FILENAME[]             = "display.globals";
-const  char  MENU_FILENAME[]                = "display.menu";
+#define  HARD_CODED_DISPLAY_DIRECTORY     "/usr/local/lib"
+#define  GLOBALS_FILENAME                 "display.globals"
+#define  MENU_FILENAME                    "display.menu"
+
+
+#define  GLOBALS_LOOKUP_NAME  display_globals
+#include  <def_globals.h>
+#define   REGISTER_GLOBALS_FILENAME   "display.globals"
+
+public  Status  change_global_variable(
+    char   str[],
+    char   variable_name[],
+    char   new_value[] )
+{
+    return( set_or_get_global_variable(
+                   SIZEOF_STATIC_ARRAY(display_globals),
+                   display_globals, str, variable_name, new_value ) );
+}
+
 
 int  main( argc, argv )
     int     argc;
@@ -14,24 +26,10 @@ int  main( argc, argv )
 {
     char             *filename;
     String           runtime_directory;
-    void             extract_directory();
-    graphics_struct  *graphics;
-    graphics_struct  *menu;
+    display_struct   *graphics;
+    display_struct   *menu;
     Status           status;
-    Status           initialize_graphics();
-    Status           initialize_globals();
-    Status           initialize_menu();
-    Status           load_graphics_file();
-    Status           create_graphics_window();
-    Status           main_event_loop();
-    Status           terminate_graphics();
-    void             reset_view_parameters();
-    void             update_view();
-    void             set_model_scale();
-    void             rebuild_selected_list();
-    void             set_update_required();
-    void             output_alloc_to_file();
-    Status           delete_marching_cubes_table();
+    String           globals_filename;
     char             *title;
 
     if( argc == 1 )
@@ -48,17 +46,21 @@ int  main( argc, argv )
         extract_directory( argv[0], runtime_directory );
     }
 
-    status = initialize_globals( runtime_directory,
-                                 HARD_CODED_DISPLAY_DIRECTORY,
-                                 GLOBALS_FILENAME );
+    get_absolute_filename( REGISTER_GLOBALS_FILENAME, runtime_directory,
+                           globals_filename );
 
-    if( status == OK )
+    status = OK;
+
+    if( file_exists( globals_filename ) )
     {
-        status = initialize_graphics();
+        status = input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
+                                     display_globals, globals_filename );
     }
 
     if( status == OK )
     {
+        initialize_graphics();
+
         status = create_graphics_window( THREE_D_WINDOW,
                                          &graphics, title, 0, 0 );
     }
@@ -74,11 +76,11 @@ int  main( argc, argv )
     {
         graphics->associated[THREE_D_WINDOW] = graphics;
         graphics->associated[MENU_WINDOW] = menu;
-        graphics->associated[SLICE_WINDOW] = (graphics_struct *) 0;
+        graphics->associated[SLICE_WINDOW] = (display_struct *) 0;
 
         menu->associated[THREE_D_WINDOW] = graphics;
         menu->associated[MENU_WINDOW] = menu;
-        menu->associated[SLICE_WINDOW] = (graphics_struct *) 0;
+        menu->associated[SLICE_WINDOW] = (display_struct *) 0;
 
         status = initialize_menu( menu, runtime_directory,
                                   HARD_CODED_DISPLAY_DIRECTORY,
@@ -92,13 +94,13 @@ int  main( argc, argv )
         while( get_string_argument( "", &filename ) )
         {
             status = load_graphics_file( graphics, filename );
+            if( status != OK )
+                print( "Error loading %s\n", filename );
         }
     }
 
     if( status == OK )
-    {
         rebuild_selected_list( graphics, menu );
-    }
 
     if( status == OK )
     {
@@ -111,23 +113,17 @@ int  main( argc, argv )
     }
 
     if( status == OK )
-    {
         status = main_event_loop();
-    }
 
     (void) terminate_graphics();
 
     if( status == OK )
-    {
-        status = delete_marching_cubes_table();
-    }
+        delete_marching_cubes_table();
 
     output_alloc_to_file( ".alloc_stats" );
 
     if( status != OK )
-    {
-        PRINT( "Program ended with error %d\n", (int) status );
-    }
+        print( "Program ended with error %d\n", (int) status );
 
     return( (int) status );
 }

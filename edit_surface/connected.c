@@ -1,52 +1,43 @@
 
-#include  <def_graphics.h>
-#include  <def_files.h>
-#include  <def_globals.h>
-#include  <def_colours.h>
-#include  <def_arrays.h>
+#include  <def_display.h>
 
-static    DECL_EVENT_FUNCTION( pick_start_point );
-static    DECL_EVENT_FUNCTION( terminate_connected );
-static    Status               make_connected_invisible();
+private    DEF_EVENT_FUNCTION( pick_start_point );
+private    DEF_EVENT_FUNCTION( terminate_connected );
+private  void  make_connected_invisible(
+    polygons_struct   *polygons,
+    int               poly_index );
 
-public  void  turn_off_connected_polygons( graphics )
-    graphics_struct  *graphics;
+public  void  turn_off_connected_polygons(
+    display_struct   *display )
 {
-    void                 push_action_table();
-    void                 add_action_table_function();
     polygons_struct      *edit_polygons;
-    Boolean              get_edited_polygons();
 
-    if( get_edited_polygons( &graphics->three_d.surface_edit, &edit_polygons ) )
+    if( get_edited_polygons( &display->three_d.surface_edit, &edit_polygons ) )
     {
-        push_action_table( &graphics->action_table, MIDDLE_MOUSE_DOWN_EVENT );
+        push_action_table( &display->action_table, MIDDLE_MOUSE_DOWN_EVENT );
 
-        add_action_table_function( &graphics->action_table,
+        add_action_table_function( &display->action_table,
                                    MIDDLE_MOUSE_DOWN_EVENT,
                                    pick_start_point );
 
-        add_action_table_function( &graphics->action_table,
-                                   TERMINATE_EVENT,
+        add_action_table_function( &display->action_table,
+                                   TERMINATE_INTERACTION_EVENT,
                                    terminate_connected );
     }
 }
 
-private  void  remove_events( action_table )
-    action_table_struct   *action_table;
+private  void  remove_events(
+    action_table_struct   *action_table )
 {
-    void   remove_action_table_function();
-    void   pop_action_table();
-
     pop_action_table( action_table, MIDDLE_MOUSE_DOWN_EVENT );
 
-    remove_action_table_function( action_table, TERMINATE_EVENT,
+    remove_action_table_function( action_table, TERMINATE_INTERACTION_EVENT,
                                   terminate_connected );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_connected )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( terminate_connected )    /* ARGSUSED */
 {
-    remove_events( &graphics->action_table );
+    remove_events( &display->action_table );
 
     return( OK );
 }
@@ -54,44 +45,36 @@ private  DEF_EVENT_FUNCTION( terminate_connected )
 private  DEF_EVENT_FUNCTION( pick_start_point )
     /* ARGSUSED */
 {
-    Status            status;
-    Status            check_polygons_neighbours_computed();
     int               poly_index;
     polygons_struct   *polygons, *edit_polygons;
     Point             point;
-    void              remove_events();
-    void              set_update_required();
 
-    remove_events( &graphics->action_table );
+    remove_events( &display->action_table );
 
-    status = OK;
-
-    if( get_edited_polygons( &graphics->three_d.surface_edit, &edit_polygons )&&
-        get_polygon_under_mouse( graphics, &polygons, &poly_index, &point ) &&
+    if( get_edited_polygons( &display->three_d.surface_edit, &edit_polygons )&&
+        get_polygon_under_mouse( display, &polygons, &poly_index, &point ) &&
         edit_polygons == polygons )
     {
-        status = check_polygons_neighbours_computed( polygons );
+        check_polygons_neighbours_computed( polygons );
 
-        if( status == OK )
-            status = make_connected_invisible( polygons, poly_index );
+        make_connected_invisible( polygons, poly_index );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        set_update_required( display, NORMAL_PLANES );
     }
 
-    return( status );
+    return( OK );
 }
 
-private  Status  make_connected_invisible( polygons, poly_index )
-    polygons_struct   *polygons;
-    int               poly_index;
+private  void  make_connected_invisible(
+    polygons_struct   *polygons,
+    int               poly_index )
 {
-    Status   status;
     int      n, start_index, end_index, neighbour, n_queued, n_alloced, *queue;
 
     n_queued = 0;
     n_alloced = 0;
 
-    ADD_ELEMENT_TO_ARRAY_WITH_SIZE( status, n_alloced, n_queued, queue,
+    ADD_ELEMENT_TO_ARRAY_WITH_SIZE( queue, n_alloced, n_queued,
                                     poly_index, DEFAULT_CHUNK_SIZE );
 
     while( n_queued > 0 )
@@ -106,26 +89,21 @@ private  Status  make_connected_invisible( polygons, poly_index )
         {
             neighbour = polygons->neighbours[n];
 
-if( neighbour >= polygons->n_items )
-{
-    HANDLE_INTERNAL_ERROR( "make_connected_invisible" );
-}
+            if( neighbour >= polygons->n_items )
+            {
+                HANDLE_INTERNAL_ERROR( "make_connected_invisible" );
+            }
 
             if( neighbour >= 0 && polygons->visibilities[neighbour] )
             {
                 polygons->visibilities[neighbour] = FALSE;
 
-                if( status == OK )
-                {
-                    ADD_ELEMENT_TO_ARRAY_WITH_SIZE( status, n_alloced, n_queued,
-                                 queue, neighbour, DEFAULT_CHUNK_SIZE );
-                }
+                ADD_ELEMENT_TO_ARRAY_WITH_SIZE( queue, n_alloced, n_queued,
+                                    neighbour, DEFAULT_CHUNK_SIZE );
             }
         }
     }
 
-    if( status == OK && n_alloced > 0 )
-        FREE( status, queue );
-
-    return( status );
+    if( n_alloced > 0 )
+        FREE( queue );
 }

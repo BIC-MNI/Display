@@ -1,26 +1,22 @@
 
-#include  <def_files.h>
-#include  <def_globals.h>
-#include  <def_graphics.h>
+#include  <def_display.h>
 
 public  DEF_MENU_FUNCTION( load_file )   /* ARGSUSED */
 {
     Status   status;
-    Status   load_graphics_file();
     String   filename;
-    void     graphics_models_have_changed();
 
-    PRINT( "Enter filename: " );
+    print( "Enter filename: " );
 
     status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
     (void) input_newline( stdin );
 
     if( status == OK )
-        status = load_graphics_file( graphics, filename );
+        status = load_graphics_file( display, filename );
 
     if( status == OK )
-        graphics_models_have_changed( graphics );
+        graphics_models_have_changed( display );
 
     return( status );
 }
@@ -36,14 +32,13 @@ public  DEF_MENU_FUNCTION( save_file )   /* ARGSUSED */
     object_struct  **object_list;
     object_struct  *current_object;
     Status         status;
-    Status         output_graphics_file();
     String         filename;
 
     status = OK;
 
-    if( get_current_object( graphics, &current_object ) )
+    if( get_current_object( display, &current_object ) )
     {
-        PRINT( "Enter filename: " );
+        print( "Enter filename: " );
 
         status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
@@ -51,8 +46,8 @@ public  DEF_MENU_FUNCTION( save_file )   /* ARGSUSED */
 
         if( current_object->object_type == MODEL )
         {
-            n_objects = current_object->ptr.model->n_objects;
-            object_list = current_object->ptr.model->object_list;
+            n_objects = get_model_ptr(current_object)->n_objects;
+            object_list = get_model_ptr(current_object)->objects;
         }
         else
         {
@@ -65,7 +60,7 @@ public  DEF_MENU_FUNCTION( save_file )   /* ARGSUSED */
                                            n_objects, object_list );
     }
 
-    PRINT( "Done saving.\n" );
+    print( "Done saving.\n" );
 
     return( status );
 }

@@ -1,74 +1,47 @@
 
-#include  <def_globals.h>
-#include  <def_files.h>
-#include  <def_minimization.h>
-#include  <def_surface_rep.h>
-#include  <def_alloc.h>
+#include  <def_display.h>
 
-public  Status  apply_simplex_minimization( n_parameters, parameters,
-                                       evaluate_fit_function, evaluation_ptr )
-    int             n_parameters;
-    double          parameters[];
-    double          (*evaluate_fit_function)( void *, double [] );
-    void            *evaluation_ptr;
+public  void  apply_simplex_minimization(
+    int             n_parameters,
+    double          parameters[],
+    double          (*evaluate_fit_function)( void *, double [] ),
+    void            *evaluation_ptr )
 {
-    Status                   status;
     int                      n_fitting_evaluations;
     downhill_simplex_struct  minimization;
-    Status                   initialize_amoeba();
-    void                     amoeba();
-    Status                   terminate_amoeba();
-    void                     display_parameters();
 
-    status = initialize_amoeba( &minimization, n_parameters, parameters,
-                                evaluate_fit_function, evaluation_ptr ); 
+    initialize_amoeba( &minimization, n_parameters, parameters,
+                       evaluate_fit_function, evaluation_ptr ); 
 
-    if( status == OK )
-        amoeba( &minimization, n_parameters, Fitting_tolerance,
-                Max_fitting_evaluations, &n_fitting_evaluations, parameters );
+    amoeba( &minimization, n_parameters, Fitting_tolerance,
+            Max_fitting_evaluations, &n_fitting_evaluations, parameters );
 
-    if( status == OK )
-        status = terminate_amoeba( &minimization );
-
-    return( status );
+    terminate_amoeba( &minimization );
 }
 
-public  void  apply_one_parameter_minimization( surface_rep,
-                                                descriptors,
-                                                max_iterations,
-                                                tolerance,
-                                                n_parameters, parameters,
-                                                max_parameter_deltas,
-                                                parameter_deltas,
-                                                evaluate_distances_function,
-                                                evaluate_fit_function,
-                                                evaluation_ptr )
-    surface_rep_struct  *surface_rep;
-    double              descriptors[];
-    int                 max_iterations;
-    double              tolerance;
-    int                 n_parameters;
-    double              parameters[];
-    double              max_parameter_deltas[];
-    double              parameter_deltas[];
+public  void  apply_one_parameter_minimization(
+    surface_rep_struct  *surface_rep,
+    double              descriptors[],
+    int                 max_iterations,
+    double              tolerance,
+    int                 n_parameters,
+    double              parameters[],
+    double              max_parameter_deltas[],
+    double              parameter_deltas[],
     void                (*evaluate_distances_function)
                                    ( void *, double [], Real [],
-                                      double, double, double, double );
+                                      double, double, double, double ),
     double              (*evaluate_fit_function)( void *, double [],
                                      double, double, double, double,
-                                     Real [] );
-    void                *evaluation_ptr;
+                                     Real [] ),
+    void                *evaluation_ptr )
 {
-    Status   status;
     double   prev_fit, fit, prev_parameter;
     int      n_iterations, current_parameter;
-    void     one_parameter_minimization();
     Real     *distances_without_this_parameter;
     double   u_min, u_max, v_min, v_max, gain, total_gain;
 
 #ifdef TESTING
-    void     test_min();
-
     test_min( surface_rep,
               descriptors,
               max_iterations,
@@ -83,7 +56,7 @@ public  void  apply_one_parameter_minimization( surface_rep,
     return;
 #endif
 
-    ALLOC( status, distances_without_this_parameter, n_parameters );
+    ALLOC( distances_without_this_parameter, n_parameters );
 
     n_iterations = 0;
 
@@ -129,13 +102,13 @@ t2 = (*evaluate_fit_function) ( evaluation_ptr, parameters,
                                          0.0, 1.0, 0.0, 1.0, (Real *) 0 );
 #endif
 
-            PRINT( "Parameter[%d]:  %g -> %g    = gain of %g\n",
+            print( "Parameter[%d]:  %g -> %g    = gain of %g\n",
                    current_parameter + 1,
                    prev_parameter, parameters[current_parameter], gain );
 
 #ifdef DEBUG
             if( !numerically_close( t1 - t2, gain, 0.05 ) )
-                PRINT( "Error  t1 %g, t2 %g, t1 - t2 %g, gain %g\n",
+                print( "Error  t1 %g, t2 %g, t1 - t2 %g, gain %g\n",
                        t1, t2, t1 - t2, gain );
 #endif
         }
@@ -145,17 +118,16 @@ t2 = (*evaluate_fit_function) ( evaluation_ptr, parameters,
         fit = (*evaluate_fit_function) ( evaluation_ptr, parameters,
                                          0.0, 1.0, 0.0, 1.0, (Real *) 0 );
 
-        PRINT( "Fit has improved from %g to %g\n", prev_fit, fit );
+        print( "Fit has improved from %g to %g\n", prev_fit, fit );
 
         if( !numerically_close( prev_fit - total_gain, fit, 0.05 ) )
-            PRINT( "------------------- Error  total gain = %g, actual = %g\n",
+            print( "------------------- Error  total gain = %g, actual = %g\n",
                        total_gain, prev_fit - fit );
     }
     while( n_iterations < max_iterations &&
            (n_iterations == 1 || !numerically_close(fit,prev_fit,tolerance)) );
 
-    if( status == OK )
-        FREE( status, distances_without_this_parameter );
+        FREE( distances_without_this_parameter );
 }
 
 #ifdef TESTING
@@ -203,7 +175,7 @@ private  void  test_min( surface_rep,
 
     if( t1 != t2 )
     {
-        (void) printf( "------ Error in test_min %g %g.\n", t1, t2 );
+        print( "------ Error in test_min %g %g.\n", t1, t2 );
     }
 
     return;
@@ -243,15 +215,15 @@ private  void  test_min( surface_rep,
 */
 
 
-    PRINT( "prev %g, %g + %g (%g)\n", prev, prev_part1, prev_part2,
+    print( "prev %g, %g + %g (%g)\n", prev, prev_part1, prev_part2,
            prev_part1 + prev_part2 );
 
-    PRINT( "next %g, %g + %g (%g)\n", next, next_part1, next_part2,
+    print( "next %g, %g + %g (%g)\n", next, next_part1, next_part2,
            next_part1 + next_part2 );
 
     if( !numerically_close( next_part1 - prev_part1, next - prev, 1.0e-3 ) )
     {
-        PRINT( "------------- Error -----------------\n %g %g",
+        print( "------------- Error -----------------\n %g %g",
                next_part1 - prev_part1, next - prev );
     }
 

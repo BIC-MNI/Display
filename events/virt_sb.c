@@ -1,137 +1,133 @@
 
-#include  <def_graphics.h>
-#include  <def_globals.h>
+#include  <def_display.h>
 
-static    DECL_EVENT_FUNCTION( start_virtual_spaceball );
-static    DECL_EVENT_FUNCTION( turn_off_virtual_spaceball );
-static    DECL_EVENT_FUNCTION( handle_update_rotation );
-static    DECL_EVENT_FUNCTION( terminate_rotation );
-static    DECL_EVENT_FUNCTION( handle_update_translation );
-static    DECL_EVENT_FUNCTION( terminate_translation );
-static    Boolean              mouse_close_to_cursor();
-static    Boolean              perform_rotation();
-static    Boolean              make_spaceball_transform();
-static    Boolean              perform_cursor_translation();
+static    DEF_EVENT_FUNCTION( start_virtual_spaceball );
+static    DEF_EVENT_FUNCTION( turn_off_virtual_spaceball );
+static    DEF_EVENT_FUNCTION( handle_update_rotation );
+static    DEF_EVENT_FUNCTION( terminate_rotation );
+static    DEF_EVENT_FUNCTION( handle_update_translation );
+static    DEF_EVENT_FUNCTION( terminate_translation );
+private  Boolean  perform_rotation(
+    display_struct   *display );
+private  Boolean  make_spaceball_transform(
+    Real       x1,
+    Real       y1,
+    Real       x2,
+    Real       y2,
+    Point      *centre,
+    Real       x_radius,
+    Real       y_radius,
+    Transform  *transform );
+private  Boolean  perform_cursor_translation(
+    display_struct   *display );
+private  Boolean  mouse_close_to_cursor(
+    display_struct    *display );
 
-public  void  initialize_virtual_spaceball( graphics )
-    graphics_struct  *graphics;
+public  void  initialize_virtual_spaceball(
+    display_struct   *display )
 {
-    void                 add_action_table_function();
-    void                 terminate_any_interactions();
+    terminate_any_interactions( display );
 
-    terminate_any_interactions( graphics );
-
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT,
                                start_virtual_spaceball );
 
-    add_action_table_function( &graphics->action_table,
-                               TERMINATE_EVENT,
+    add_action_table_function( &display->action_table,
+                               TERMINATE_INTERACTION_EVENT,
                                turn_off_virtual_spaceball );
 }
 
-private  DEF_EVENT_FUNCTION( turn_off_virtual_spaceball )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( turn_off_virtual_spaceball )    /* ARGSUSED */
 {
-    void         remove_action_table_function();
-
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_DOWN_EVENT,
                                   start_virtual_spaceball );
 
-    remove_action_table_function( &graphics->action_table, TERMINATE_EVENT,
+    remove_action_table_function( &display->action_table,
+                                  TERMINATE_INTERACTION_EVENT,
                                   turn_off_virtual_spaceball );
 }
 
-private  DEF_EVENT_FUNCTION( start_virtual_spaceball )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( start_virtual_spaceball )     /* ARGSUSED */
 {
-    void                  add_action_table_function();
-
-    graphics->prev_mouse_position = graphics->mouse_position;
-
-    if( mouse_close_to_cursor( graphics ) )
+    if( mouse_close_to_cursor( display ) )
     {
-        add_action_table_function( &graphics->action_table,
+        add_action_table_function( &display->action_table,
                                    NO_EVENT, handle_update_translation );
 
-        add_action_table_function( &graphics->action_table,
+        add_action_table_function( &display->action_table,
                                    MIDDLE_MOUSE_UP_EVENT,
                                    terminate_translation );
 
-        add_action_table_function( &graphics->action_table,
-                                   TERMINATE_EVENT, terminate_translation );
+        add_action_table_function( &display->action_table,
+                                   TERMINATE_INTERACTION_EVENT,
+                                   terminate_translation );
     }
     else
     {
-        add_action_table_function( &graphics->action_table,
+        add_action_table_function( &display->action_table,
                                    NO_EVENT, handle_update_rotation );
 
-        add_action_table_function( &graphics->action_table,
+        add_action_table_function( &display->action_table,
                                    MIDDLE_MOUSE_UP_EVENT, terminate_rotation );
 
-        add_action_table_function( &graphics->action_table,
-                                   TERMINATE_EVENT, terminate_rotation );
+        add_action_table_function( &display->action_table,
+                                   TERMINATE_INTERACTION_EVENT,
+                                   terminate_rotation );
     }
+
+    record_mouse_position( display );
 
     return( OK );
 }
 
-private  void  update_rotation( graphics )
-    graphics_struct  *graphics;
+private  void  update_rotation(
+    display_struct   *display )
 {
-    void      update_view();
-    void      set_update_required();
-
-    if( perform_rotation( graphics ) )
+    if( perform_rotation( display ) )
     {
-        update_view( graphics );
+        update_view( display );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        set_update_required( display, NORMAL_PLANES );
     }
 }
 
 private  DEF_EVENT_FUNCTION( handle_update_rotation )      /* ARGSUSED */
 {
-    void      update_rotation();
-
-    update_rotation( graphics );
+    update_rotation( display );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_rotation )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( terminate_rotation )     /* ARGSUSED */
 {
-    void   remove_action_table_function();
-    void   update_rotation();
-
-    update_rotation( graphics );
+    update_rotation( display );
     
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   NO_EVENT, handle_update_rotation );
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT, terminate_rotation );
-    remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT, terminate_rotation );
+    remove_action_table_function( &display->action_table,
+                                  TERMINATE_INTERACTION_EVENT,
+                                  terminate_rotation );
 
     return( OK );
 }
 
-private  Boolean  perform_rotation( graphics )
-    graphics_struct  *graphics;
+private  Boolean  perform_rotation(
+    display_struct   *display )
 {
     static  Point  centre = { 0.5, 0.5, 0.0 };
-    Real           x_radius, y_radius;
+    Real           x, y, x_radius, y_radius;
+    int            x_size, y_size;
     Real           aspect;
-    Real           G_get_window_aspect();
     Transform      transform;
-    void           apply_transform_in_view_space();
     Boolean        moved;
 
     moved = FALSE;
 
-    aspect = G_get_window_aspect( &graphics->window );
+    G_get_window_size( display->window, &x_size, &y_size );
+    aspect = (Real) y_size / (Real) x_size;
 
     if( aspect < 1.0 )
     {
@@ -144,43 +140,43 @@ private  Boolean  perform_rotation( graphics )
         y_radius = 0.5 / aspect;
     }
 
-    if( make_spaceball_transform( &graphics->prev_mouse_position,
-                                  &graphics->mouse_position,
-                                  &centre, x_radius, y_radius,
+    if( G_get_mouse_position_0_to_1( display->window, &x, &y ) &&
+        make_spaceball_transform( Point_x(display->prev_mouse_position),
+                                  Point_y(display->prev_mouse_position),
+                                  x, y, &centre, x_radius, y_radius,
                                   &transform ) )
     {
-        apply_transform_in_view_space( graphics, &transform );
+        apply_transform_in_view_space( display, &transform );
         moved = TRUE;
-    }
 
-    graphics->prev_mouse_position = graphics->mouse_position;
+        record_mouse_position( display );
+    }
 
     return( moved );
 }
 
-private  Boolean  make_spaceball_transform( old, new, centre,
-                                            x_radius, y_radius,
-                                            transform )
-    Point      *old;
-    Point      *new;
-    Point      *centre;
-    Real       x_radius;
-    Real       y_radius;
-    Transform  *transform;
+private  Boolean  make_spaceball_transform(
+    Real       x1,
+    Real       y1,
+    Real       x2,
+    Real       y2,
+    Point      *centre,
+    Real       x_radius,
+    Real       y_radius,
+    Transform  *transform )
 {
     Boolean  transform_created;
-    Real     x_old, y_old, x_new, y_new, z_old, z_new;
+    Real     x_old, y_old, z_old, x_new, y_new, z_new;
     Real     dist_old, dist_new;
     Real     angle, sin_angle;
     Vector   v0, v1;
     Vector   axis_of_rotation;
-    void     make_rotation_about_axis();
 
-    x_old = (Point_x(*old) - Point_x(*centre)) / x_radius;
-    y_old = (Point_y(*old) - Point_y(*centre)) / y_radius;
+    x_old = (x1 - Point_x(*centre)) / x_radius;
+    y_old = (y1 - Point_y(*centre)) / y_radius;
 
-    x_new = (Point_x(*new) - Point_x(*centre)) / x_radius;
-    y_new = (Point_y(*new) - Point_y(*centre)) / y_radius;
+    x_new = (x2 - Point_x(*centre)) / x_radius;
+    y_new = (y2 - Point_y(*centre)) / y_radius;
 
     dist_old = x_old * x_old + y_old * y_old;
     dist_new = x_new * x_new + y_new * y_new;
@@ -219,19 +215,16 @@ private  Boolean  make_spaceball_transform( old, new, centre,
     return( transform_created );
 }
 
-private  void  update_translation( graphics )
-    graphics_struct  *graphics;
+private  void  update_translation(
+    display_struct   *display )
 {
-    void      update_view();
-    void      set_update_required();
-
-    if( perform_cursor_translation( graphics ) )
+    if( perform_cursor_translation( display ) )
     {
-        set_update_required( graphics, OVERLAY_PLANES );
+        set_update_required( display, OVERLAY_PLANES );
 
-        if( update_voxel_from_cursor( graphics->associated[SLICE_WINDOW] ) )
+        if( update_voxel_from_cursor( display->associated[SLICE_WINDOW] ) )
         {
-            set_update_required( graphics->associated[SLICE_WINDOW],
+            set_update_required( display->associated[SLICE_WINDOW],
                                  NORMAL_PLANES );
         }
     }
@@ -239,34 +232,29 @@ private  void  update_translation( graphics )
 
 private  DEF_EVENT_FUNCTION( handle_update_translation )      /* ARGSUSED */
 {
-    void      update_translation();
-
-    update_translation( graphics );
+    update_translation( display );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_translation )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( terminate_translation )     /* ARGSUSED */
 {
-    void   remove_action_table_function();
-    void   update_translation();
-
-    update_translation( graphics );
+    update_translation( display );
     
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   NO_EVENT, handle_update_translation );
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_translation );
-    remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT, terminate_translation );
+    remove_action_table_function( &display->action_table,
+                                  TERMINATE_INTERACTION_EVENT,
+                                  terminate_translation );
 
     return( OK );
 }
 
-private  Boolean  perform_cursor_translation( graphics )
-    graphics_struct  *graphics;
+private  Boolean  perform_cursor_translation(
+    display_struct   *display )
 {
     Vector       mouse_dir, offset, axis_direction;
     Vector       ray_direction, transformed_direction;
@@ -274,42 +262,34 @@ private  Boolean  perform_cursor_translation( graphics )
     int          axis_index, best_axis, second_best_axis, a1, a2;
     Point        pt, pt_screen, cursor_screen, new_screen_origin, new_cursor;
     Boolean      moved;
-    Boolean      intersect_lines_3d();
     Real         mag_mouse, mag_axis[N_DIMENSIONS], dot_prod[N_DIMENSIONS];
     Real         angle[N_DIMENSIONS], mouse_dist;
+    Real         x, y, x_prev, y_prev;
     Vector       axis_screen[N_DIMENSIONS];
-    void         transform_point_to_screen();
-    void         convert_mouse_to_ray();
-    void         transform_world_to_model();
-    void         transform_world_to_model_vector();
-    void         update_cursor();
 
     moved = FALSE;
 
-    if( !EQUAL_POINTS(graphics->mouse_position,graphics->prev_mouse_position) )
+    if( mouse_moved( display, &x, &y, &x_prev, &y_prev ) )
     {
-        SUB_POINTS( mouse_dir, graphics->mouse_position,
-                               graphics->prev_mouse_position );
+        fill_Vector( mouse_dir, x - x_prev, y - y_prev, 0.0 );
 
         mag_mouse = MAGNITUDE( mouse_dir );
 
         if( mag_mouse > Cursor_mouse_threshold )
-        {
             moved = TRUE;
-        }
     }
 
     if( moved )
     {
-        pt = graphics->three_d.cursor.origin;
-        transform_point_to_screen( &graphics->three_d.view, &pt,
+        pt = display->three_d.cursor.origin;
+        transform_point_to_screen( &display->three_d.view, &pt,
                                    &cursor_screen );
 
         for_less( axis_index, 0, N_DIMENSIONS )
         {
-            pt = graphics->three_d.cursor.origin;
+            pt = display->three_d.cursor.origin;
             Point_coord(pt,axis_index) += 1.0;
-            transform_point_to_screen( &graphics->three_d.view, &pt,
+            transform_point_to_screen( &display->three_d.view, &pt,
                                        &pt_screen );
             SUB_POINTS( axis_screen[axis_index], pt_screen, cursor_screen );
             mag_axis[axis_index] = MAGNITUDE( axis_screen[axis_index] );
@@ -365,56 +345,61 @@ private  Boolean  perform_cursor_translation( graphics )
         fill_Vector( axis_direction, 0.0, 0.0, 0.0 );
         Vector_coord( axis_direction, best_axis ) = 1.0;
 
-        convert_mouse_to_ray( &graphics->three_d.view, &new_screen_origin,
+        convert_mouse_to_ray( &display->three_d.view,
+                              Point_x(new_screen_origin),
+                              Point_y(new_screen_origin),
                               &ray_origin, &ray_direction );
-        transform_world_to_model( &graphics->three_d.view, &ray_origin,
+        transform_world_to_model( &display->three_d.view, &ray_origin,
                                   &transformed_origin );
-        transform_world_to_model_vector( &graphics->three_d.view,
+        transform_world_to_model_vector( &display->three_d.view,
                                          &ray_direction,
                                          &transformed_direction );
         moved = intersect_lines_3d(
-                     &graphics->three_d.cursor.origin,
+                     &display->three_d.cursor.origin,
                      &axis_direction,
                      &transformed_origin, &transformed_direction, &new_cursor );
     }
 
     if( moved )
     {
-        graphics->three_d.cursor.origin = new_cursor;
+        display->three_d.cursor.origin = new_cursor;
 
-        update_cursor( graphics );
+        update_cursor( display );
 
-        graphics->prev_mouse_position = graphics->mouse_position;
+        record_mouse_position( display );
     }
 
     return( moved );
 }
 
-private  Boolean  mouse_close_to_cursor( graphics )
-    graphics_struct   *graphics;
+private  Boolean  mouse_close_to_cursor(
+    display_struct    *display )
 {
     Boolean  close;
-    void     transform_point_to_screen();
-    Point    cursor_screen, cursor_pixels, mouse_pixels;
+    Point    cursor_screen, cursor_pixels, mouse_pixels, mouse;
     Vector   diff_vector;
-    Real     diff;
-    void     transform_screen_to_pixels();
+    Real     x, y, diff;
 
-    transform_point_to_screen( &graphics->three_d.view,
-                               &graphics->three_d.cursor.origin,
-                               &cursor_screen );
+    close = FALSE;
 
-    transform_screen_to_pixels( &graphics->window,
-                                &cursor_screen, &cursor_pixels );
+    if( G_get_mouse_position_0_to_1( display->window, &x, &y ) )
+    {
+        transform_point_to_screen( &display->three_d.view,
+                                   &display->three_d.cursor.origin,
+                                   &cursor_screen );
 
-    transform_screen_to_pixels( &graphics->window,
-                                &graphics->mouse_position, &mouse_pixels );
+        transform_screen_to_pixels( display->window,
+                                    &cursor_screen, &cursor_pixels );
 
-    SUB_POINTS( diff_vector, cursor_pixels, mouse_pixels );
+        fill_Point( mouse, x, y, 0.0 );
+        transform_screen_to_pixels( display->window, &mouse, &mouse_pixels );
 
-    diff = MAGNITUDE( diff_vector );
+        SUB_POINTS( diff_vector, cursor_pixels, mouse_pixels );
 
-    close = (diff < Cursor_pick_distance);
+        diff = MAGNITUDE( diff_vector );
+
+        close = (diff < Cursor_pick_distance);
+    }
 
     return( close );
 }

@@ -8,21 +8,21 @@ typedef  Status   menu_function_type();
 
 typedef  menu_function_type  (*menu_function_pointer);
 
-#define  DEF_MENU_FUNCTION( m )  Status m( graphics, menu_window, menu_entry ) \
-                                               graphics_struct   *graphics; \
-                                               graphics_struct   *menu_window; \
-                                               menu_entry_struct *menu_entry;
+#define  DEF_MENU_FUNCTION( m )  Status m( \
+                                               display_struct    *display, \
+                                               display_struct    *menu_window, \
+                                               menu_entry_struct *menu_entry )
 
 
 typedef  Status   menu_update_type();
 
 typedef  menu_update_type  (*menu_update_pointer);
 
-#define  DEF_MENU_UPDATE(m)  Status GLUE(menu_update_,m)( graphics, menu_window, menu_entry, label ) \
-                                       graphics_struct   *graphics; \
-                                       graphics_struct   *menu_window; \
-                                       menu_entry_struct *menu_entry; \
-                                       char              label[]; \
+#define  DEF_MENU_UPDATE(m)  Status GLUE(menu_update_,m)( \
+                                       display_struct    *display, \
+                                       display_struct    *menu_window, \
+                                       menu_entry_struct *menu_entry, \
+                                       char              label[] )
 
 typedef  struct  menu_entry_struct
 {

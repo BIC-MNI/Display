@@ -1,32 +1,30 @@
 
-#include  <def_graphics.h>
-#include  <def_globals.h>
+#include  <def_display.h>
 
-static    DECL_EVENT_FUNCTION( start_front_clipping );
-static    DECL_EVENT_FUNCTION( turn_off_front_clipping );
-static    DECL_EVENT_FUNCTION( handle_update_front );
-static    DECL_EVENT_FUNCTION( handle_mouse_movement_front );
-static    DECL_EVENT_FUNCTION( terminate_front_clipping );
-static    DECL_EVENT_FUNCTION( start_back_clipping );
-static    DECL_EVENT_FUNCTION( turn_off_back_clipping );
-static    DECL_EVENT_FUNCTION( handle_update_back );
-static    DECL_EVENT_FUNCTION( handle_mouse_movement_back );
-static    DECL_EVENT_FUNCTION( terminate_back_clipping );
-static    void                 perform_clipping();
+private    DEF_EVENT_FUNCTION( start_front_clipping );
+private    DEF_EVENT_FUNCTION( turn_off_front_clipping );
+private    DEF_EVENT_FUNCTION( handle_update_front );
+private    DEF_EVENT_FUNCTION( handle_mouse_movement_front );
+private    DEF_EVENT_FUNCTION( terminate_front_clipping );
+private    DEF_EVENT_FUNCTION( start_back_clipping );
+private    DEF_EVENT_FUNCTION( turn_off_back_clipping );
+private    DEF_EVENT_FUNCTION( handle_update_back );
+private    DEF_EVENT_FUNCTION( handle_mouse_movement_back );
+private    DEF_EVENT_FUNCTION( terminate_back_clipping );
+private  void  perform_clipping(
+    display_struct   *display,
+    Boolean          front_flag );
 
-public  void  initialize_front_clipping( graphics )
-    graphics_struct  *graphics;
+public  void  initialize_front_clipping(
+    display_struct   *display )
 {
-    void                 add_action_table_function();
-    void                 terminate_any_interactions();
+    terminate_any_interactions( display );
 
-    terminate_any_interactions( graphics );
-
-    add_action_table_function( &graphics->action_table,
-                               TERMINATE_EVENT,
+    add_action_table_function( &display->action_table,
+                               TERMINATE_INTERACTION_EVENT,
                                turn_off_front_clipping );
 
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT,
                                start_front_clipping );
 }
@@ -34,14 +32,12 @@ public  void  initialize_front_clipping( graphics )
 private  DEF_EVENT_FUNCTION( turn_off_front_clipping )
     /* ARGSUSED */
 {
-    void    remove_action_table_function();
-
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_DOWN_EVENT,
                                   start_front_clipping );
 
-    remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT,
+    remove_action_table_function( &display->action_table,
+                                  TERMINATE_INTERACTION_EVENT,
                                   turn_off_front_clipping );
 
     return( OK );
@@ -50,25 +46,23 @@ private  DEF_EVENT_FUNCTION( turn_off_front_clipping )
 private  DEF_EVENT_FUNCTION( start_front_clipping )
     /* ARGSUSED */
 {
-    void                  add_action_table_function();
-
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                NO_EVENT,
                                handle_update_front );
 
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                MOUSE_MOVEMENT_EVENT,
                                handle_mouse_movement_front );
 
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_UP_EVENT,
                                terminate_front_clipping );
 
-    add_action_table_function( &graphics->action_table,
-                               TERMINATE_EVENT,
+    add_action_table_function( &display->action_table,
+                               TERMINATE_INTERACTION_EVENT,
                                terminate_front_clipping );
 
-    graphics->prev_mouse_position = graphics->mouse_position;
+    record_mouse_position( display );
 
     return( OK );
 }
@@ -76,26 +70,23 @@ private  DEF_EVENT_FUNCTION( start_front_clipping )
 private  DEF_EVENT_FUNCTION( terminate_front_clipping )
     /* ARGSUSED */
 {
-    void   remove_action_table_function();
-    void   update_view();
+    perform_clipping( display, TRUE );
 
-    perform_clipping( graphics, TRUE );
-
-    if( graphics_update_required( graphics ) )
+    if( graphics_update_required( display ) )
     {
-        update_view( graphics );
+        update_view( display );
     }
     
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   NO_EVENT, turn_off_front_clipping );
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MOUSE_MOVEMENT_EVENT,
                                   handle_mouse_movement_front );
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_front_clipping );
-    remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT,
+    remove_action_table_function( &display->action_table,
+                                  TERMINATE_INTERACTION_EVENT,
                                   terminate_front_clipping );
 
     return( OK );
@@ -103,36 +94,29 @@ private  DEF_EVENT_FUNCTION( terminate_front_clipping )
 
 private  DEF_EVENT_FUNCTION( handle_mouse_movement_front )      /* ARGSUSED */
 {
-    perform_clipping( graphics, TRUE );
+    perform_clipping( display, TRUE );
 
     return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( handle_update_front )      /* ARGSUSED */
 {
-    void   update_view();
-
-    if( graphics_update_required( graphics ) )
-    {
-        update_view( graphics );
-    }
+    if( graphics_update_required( display ) )
+        update_view( display );
 
     return( OK );
 }
 
-public  void  initialize_back_clipping( graphics )
-    graphics_struct  *graphics;
+public  void  initialize_back_clipping(
+    display_struct   *display )
 {
-    void                 add_action_table_function();
-    void                 terminate_any_interactions();
+    terminate_any_interactions( display );
 
-    terminate_any_interactions( graphics );
-
-    add_action_table_function( &graphics->action_table,
-                               TERMINATE_EVENT,
+    add_action_table_function( &display->action_table,
+                               TERMINATE_INTERACTION_EVENT,
                                turn_off_back_clipping );
 
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT,
                                start_back_clipping );
 }
@@ -140,13 +124,11 @@ public  void  initialize_back_clipping( graphics )
 private  DEF_EVENT_FUNCTION( turn_off_back_clipping )
     /* ARGSUSED */
 {
-    void   remove_action_table_function();
-
-    remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT,
+    remove_action_table_function( &display->action_table,
+                                  TERMINATE_INTERACTION_EVENT,
                                   turn_off_back_clipping );
 
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_DOWN_EVENT,
                                   start_back_clipping );
 
@@ -156,25 +138,23 @@ private  DEF_EVENT_FUNCTION( turn_off_back_clipping )
 private  DEF_EVENT_FUNCTION( start_back_clipping )
     /* ARGSUSED */
 {
-    void                  add_action_table_function();
-
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                NO_EVENT,
                                handle_update_back );
 
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                MOUSE_MOVEMENT_EVENT,
                                handle_mouse_movement_back );
 
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_UP_EVENT,
                                terminate_back_clipping );
 
-    add_action_table_function( &graphics->action_table,
-                               TERMINATE_EVENT,
+    add_action_table_function( &display->action_table,
+                               TERMINATE_INTERACTION_EVENT,
                                terminate_back_clipping );
 
-    graphics->prev_mouse_position = graphics->mouse_position;
+    record_mouse_position( display );
 
     return( OK );
 }
@@ -182,26 +162,21 @@ private  DEF_EVENT_FUNCTION( start_back_clipping )
 private  DEF_EVENT_FUNCTION( terminate_back_clipping )
     /* ARGSUSED */
 {
-    void   remove_action_table_function();
-    void   update_view();
+    perform_clipping( display, FALSE );
 
-    perform_clipping( graphics, FALSE );
-
-    if( graphics_update_required( graphics ) )
-    {
-        update_view( graphics );
-    }
+    if( graphics_update_required( display ) )
+        update_view( display );
     
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   NO_EVENT, handle_update_back );
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MOUSE_MOVEMENT_EVENT,
                                   handle_mouse_movement_back );
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_back_clipping );
-    remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT,
+    remove_action_table_function( &display->action_table,
+                                  TERMINATE_INTERACTION_EVENT,
                                   terminate_back_clipping );
 
     return( OK );
@@ -209,64 +184,58 @@ private  DEF_EVENT_FUNCTION( terminate_back_clipping )
 
 private  DEF_EVENT_FUNCTION( handle_mouse_movement_back )      /* ARGSUSED */
 {
-    perform_clipping( graphics, FALSE );
+    perform_clipping( display, FALSE );
 
     return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( handle_update_back )      /* ARGSUSED */
 {
-    void   update_view();
-
-    if( graphics_update_required( graphics ) )
-    {
-        update_view( graphics );
-    }
+    if( graphics_update_required( display ) )
+        update_view( display );
 
     return( OK );
 }
 
-private  void  perform_clipping( graphics, front_flag )
-    graphics_struct  *graphics;
-    Boolean          front_flag;
+private  void  perform_clipping(
+    display_struct   *display,
+    Boolean          front_flag )
 {
+    Real      x, y, x_prev, y_prev;
     Real      delta, dist;
-    void      set_update_required();
 
-    delta = Point_x(graphics->mouse_position) -
-            Point_x(graphics->prev_mouse_position);
-
-    dist = delta * graphics->three_d.view.back_distance;
-
-    if( front_flag )
+    if( mouse_moved( display, &x, &y, &x_prev, &y_prev ) )
     {
-        graphics->three_d.view.front_distance += dist;
+        delta = x - x_prev;
 
-        if( graphics->three_d.view.front_distance < Closest_front_plane )
-        {
-            graphics->three_d.view.front_distance = Closest_front_plane;
-        }
+        dist = delta * display->three_d.view.back_distance;
 
-        if( graphics->three_d.view.front_distance >
-            graphics->three_d.view.back_distance )
+        if( front_flag )
         {
-            graphics->three_d.view.front_distance =
-            graphics->three_d.view.back_distance;
-        }
-    }
-    else
-    {
-        graphics->three_d.view.back_distance += dist;
+            display->three_d.view.front_distance += dist;
 
-        if( graphics->three_d.view.back_distance <
-            graphics->three_d.view.front_distance )
-        {
-            graphics->three_d.view.back_distance =
-            graphics->three_d.view.front_distance;
+            if( display->three_d.view.front_distance < Closest_front_plane )
+                display->three_d.view.front_distance = Closest_front_plane;
+
+            if( display->three_d.view.front_distance >
+                display->three_d.view.back_distance )
+            {
+                display->three_d.view.front_distance =
+                display->three_d.view.back_distance;
+            }
         }
-    }
+        else
+        {
+            display->three_d.view.back_distance += dist;
+
+            if( display->three_d.view.back_distance <
+                display->three_d.view.front_distance )
+            {
+                display->three_d.view.back_distance =
+                display->three_d.view.front_distance;
+            }
+        }
     
-    set_update_required( graphics, NORMAL_PLANES );
-
-    graphics->prev_mouse_position = graphics->mouse_position;
+        set_update_required( display, NORMAL_PLANES );
+    }
 }

@@ -1,5 +1,5 @@
 
-#include  <def_graphics.h>
+#include  <def_display.h>
 
 public  DEF_MENU_FUNCTION( exit_program )  /* ARGSUSED */
 {

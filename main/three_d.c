@@ -1,35 +1,17 @@
 
-#include  <def_files.h>
-#include  <def_string.h>
-#include  <def_graphics.h>
-#include  <def_globals.h>
+#include  <def_display.h>
 
-static    void                   initialize_three_d_events();
+private  void  initialize_three_d_events(
+    display_struct  *display );
 
-public  Status  initialize_three_d_window( graphics )
-    graphics_struct   *graphics;
+public  void  initialize_three_d_window(
+    display_struct   *display )
 {
     static   Vector        line_of_sight = { 0.0, 0.0, -1.0 };
     static                 Vector    horizontal = { 1.0, 0.0, 0.0 };
-    void                   initialize_view();
-    void                   adjust_view_for_aspect();
-    void                   G_define_3D_view();
-    void                   initialize_lights();
-    void                   G_define_light();
-    void                   G_set_light_state();
-    Status                 status;
-    Status                 initialize_current_object();
-    Status                 initialize_surface_extraction();
-    Status                 initialize_surface_fitting();
-    Status                 initialize_cursor();
-    Status                 initialize_surface_curve();
-    void                   initialize_surface_edit();
-    void                   initialize_marker_segmentation();
-    void                   reset_view_parameters();
     three_d_window_struct  *three_d;
-    void                   update_view();
 
-    three_d = &graphics->three_d;
+    three_d = &display->three_d;
 
     three_d->default_marker_structure_id = Default_marker_structure_id;
     three_d->default_marker_patient_id = Default_marker_patient_id;
@@ -40,20 +22,24 @@ public  Status  initialize_three_d_window( graphics )
 
     initialize_view( &three_d->view, &line_of_sight, &horizontal );
     three_d->view.perspective_flag = Initial_perspective_flag;
-    adjust_view_for_aspect( &three_d->view, &graphics->window );
-    G_define_3D_view( &graphics->window, &three_d->view );
+    adjust_view_for_aspect( &three_d->view, display->window );
+    update_view( display );
 
     initialize_lights( three_d->lights );
 
-    three_d->lights[0].colour = Ambient_light_colour;
-    three_d->lights[1].colour = Directional_light_colour;
-    three_d->lights[1].direction = Light_direction;
+    three_d->lights[0].colour = Directional_light_colour;
+    three_d->lights[0].direction = Light_direction;
 
-    G_define_light( &graphics->window, &three_d->lights[0], 0 );
-    G_define_light( &graphics->window, &three_d->lights[1], 1 );
+    G_set_ambient_light( display->window, Ambient_light_colour );
+    G_define_light( display->window, 0,
+                    three_d->lights[0].light_type,
+                    three_d->lights[0].colour,
+                    &three_d->lights[0].direction,
+                    &three_d->lights[0].position,
+                    three_d->lights[0].spot_exponent,
+                    three_d->lights[0].spot_angle );
 
-    G_set_light_state( &graphics->window, 0, three_d->lights[0].state );
-    G_set_light_state( &graphics->window, 1, three_d->lights[1].state );
+    G_set_light_state( display->window, 0, three_d->lights[0].state );
 
     fill_Point( three_d->min_limit, 0.0, 0.0, 0.0 );
     fill_Point( three_d->max_limit, 1.0, 1.0, 1.0 );
@@ -62,112 +48,72 @@ public  Status  initialize_three_d_window( graphics )
                 three_d->max_limit );
     SCALE_POINT( three_d->centre_of_objects, three_d->centre_of_objects, 0.5 );
 
-    initialize_three_d_events( graphics );
+    initialize_three_d_events( display );
 
-    reset_view_parameters( graphics, &Default_line_of_sight,
+    reset_view_parameters( display, &Default_line_of_sight,
                            &Default_horizontal );
 
-    update_view( graphics );
+    update_view( display );
 
-    initialize_surface_edit( &graphics->three_d.surface_edit );
-    initialize_marker_segmentation( &graphics->three_d.marker_segmentation );
+    initialize_surface_edit( &display->three_d.surface_edit );
+    initialize_marker_segmentation( &display->three_d.marker_segmentation );
 
-    status =initialize_surface_fitting( &graphics->three_d.surface_fitting );
+    initialize_surface_fitting( &display->three_d.surface_fitting );
 
-    if( status == OK )
-        status = initialize_surface_extraction( graphics );
+    initialize_surface_extraction( display );
 
-    if( status == OK )
-        status = initialize_current_object( graphics );
+    initialize_current_object( display );
 
-    if( status == OK )
-        status = initialize_cursor( graphics );
+    initialize_cursor( display );
 
-    if( status == OK )
-        status = initialize_surface_curve( graphics );
-
-    return( status );
+    initialize_surface_curve( display );
 }
 
-static    DECL_EVENT_FUNCTION( handle_resize_three_d );
+private    DEF_EVENT_FUNCTION( handle_resize_three_d );
 
-private  void  initialize_three_d_events( graphics )
-    graphics_struct  *graphics;
+private  void  initialize_three_d_events(
+    display_struct  *display )
 {
-    void                 add_action_table_function();
-    void                 initialize_virtual_spaceball();
-    void                 initialize_picking_object();
+    initialize_virtual_spaceball( display );
 
-    initialize_virtual_spaceball( graphics );
+    initialize_picking_object( display );
 
-    initialize_picking_object( graphics );
-
-    add_action_table_function( &graphics->action_table, WINDOW_RESIZE_EVENT,
+    add_action_table_function( &display->action_table, WINDOW_RESIZE_EVENT,
                                handle_resize_three_d );
 }
 
-private  DEF_EVENT_FUNCTION( handle_resize_three_d )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( handle_resize_three_d )    /* ARGSUSED */
 {
-    void   adjust_view_for_aspect();
-    void   update_view();
-    void   set_update_required();
+    adjust_view_for_aspect( &display->three_d.view, display->window );
 
-    adjust_view_for_aspect( &graphics->three_d.view, &graphics->window );
+    update_view( display );
 
-    update_view( graphics );
-
-    set_update_required( graphics, NORMAL_PLANES );
+    set_update_required( display, NORMAL_PLANES );
 
     return( OK );
 }
 
-public  Status  delete_three_d( graphics )
-    graphics_struct  *graphics;
+public  void  delete_three_d(
+    display_struct  *display )
 {
-    Status    status;
-    Status    terminate_current_object();
-    Status    delete_surface_extraction();
-    Status    delete_surface_fitting();
-    Status    delete_surface_edit();
-    void      delete_marker_segmentation();
-
-    delete_marker_segmentation( &graphics->three_d.marker_segmentation );
-
-    status = terminate_current_object( &graphics->three_d.current_object );
-
-    if( status == OK )
-        status = delete_surface_edit( &graphics->three_d.surface_edit );
-
-    if( status == OK )
-        status = delete_surface_extraction( graphics );
-
-    if( status == OK )
-        status = delete_surface_fitting( &graphics->three_d.surface_fitting );
-
-    return( status );
+    delete_marker_segmentation( &display->three_d.marker_segmentation );
+    terminate_current_object( &display->three_d.current_object );
+    delete_surface_edit( &display->three_d.surface_edit );
+    delete_surface_extraction( display );
+    delete_surface_fitting( &display->three_d.surface_fitting );
 }
 
-public  Status  add_object_to_current_model( graphics, object )
-    graphics_struct   *graphics;
-    object_struct     *object;
+public  void  add_object_to_current_model(
+    display_struct   *display,
+    object_struct     *object )
 {
-    Status         status;
     model_struct   *model;
-    model_struct   *get_current_model();
-    Status         add_object_to_model();
-    void           set_current_object_index();
-    void           graphics_models_have_changed();
 
-    model = get_current_model( graphics );
+    model = get_current_model( display );
 
-    status = add_object_to_model( model, object );
+    add_object_to_model( model, object );
 
-    if( status == OK )
-        set_current_object_index( graphics, model->n_objects-1 );
+    set_current_object_index( display, model->n_objects-1 );
 
-    if( status == OK )
-        graphics_models_have_changed( graphics );
-
-    return( status );
+    graphics_models_have_changed( display );
 }

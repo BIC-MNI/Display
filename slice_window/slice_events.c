@@ -1,169 +1,164 @@
 
-#include  <def_graphics.h>
-#include  <def_globals.h>
+#include  <def_display.h>
 
-static    DECL_EVENT_FUNCTION( window_size_changed );
-static    DECL_EVENT_FUNCTION( handle_redraw );
-static    DECL_EVENT_FUNCTION( update_probe );
-static    DECL_EVENT_FUNCTION( update_translation );
-static    DECL_EVENT_FUNCTION( terminate_translation );
-static    DECL_EVENT_FUNCTION( handle_update_voxel );
-static    DECL_EVENT_FUNCTION( end_picking_voxel );
-static    DECL_EVENT_FUNCTION( left_mouse_down );
-static    DECL_EVENT_FUNCTION( middle_mouse_down );
-static    DECL_EVENT_FUNCTION( handle_update_low_limit );
-static    DECL_EVENT_FUNCTION( handle_update_high_limit );
-static    DECL_EVENT_FUNCTION( handle_update_both_limits );
-static    DECL_EVENT_FUNCTION( end_picking_low_limit );
-static    DECL_EVENT_FUNCTION( end_picking_high_limit );
-static    DECL_EVENT_FUNCTION( end_picking_both_limits );
-static    void                 update_window_size();
-static    void                 perform_translation();
+static    DEF_EVENT_FUNCTION( window_size_changed );
+static    DEF_EVENT_FUNCTION( handle_redraw );
+static    DEF_EVENT_FUNCTION( handle_redraw_overlay );
+static    DEF_EVENT_FUNCTION( update_probe );
+static    DEF_EVENT_FUNCTION( update_translation );
+static    DEF_EVENT_FUNCTION( terminate_translation );
+static    DEF_EVENT_FUNCTION( handle_update_voxel );
+static    DEF_EVENT_FUNCTION( end_picking_voxel );
+static    DEF_EVENT_FUNCTION( left_mouse_down );
+static    DEF_EVENT_FUNCTION( middle_mouse_down );
+static    DEF_EVENT_FUNCTION( handle_update_low_limit );
+static    DEF_EVENT_FUNCTION( handle_update_high_limit );
+static    DEF_EVENT_FUNCTION( handle_update_both_limits );
+static    DEF_EVENT_FUNCTION( end_picking_low_limit );
+static    DEF_EVENT_FUNCTION( end_picking_high_limit );
+static    DEF_EVENT_FUNCTION( end_picking_both_limits );
+private  void  update_voxel_cursor(
+    display_struct    *slice_window );
+private  void  update_window_size(
+    display_struct    *slice_window );
+private  void  perform_translation(
+    display_struct   *slice_window );
+private  void  update_limit(
+    display_struct   *slice_window,
+    Boolean          low_limit_flag,
+    Boolean          fixed_range_flag );
+private  Boolean  get_mouse_colour_bar_value(
+    display_struct   *slice_window,
+    Real             *value );
+private  Boolean  mouse_is_near_low_limit(
+    display_struct   *slice_window );
+private  Boolean  mouse_is_near_high_limit(
+    display_struct   *slice_window );
 
-public  void  initialize_slice_window_events( graphics )
-    graphics_struct   *graphics;
+public  void  initialize_slice_window_events(
+    display_struct    *slice_window )
 {
-    void                 add_action_table_function();
-    void                 initialize_voxel_selection();
+    update_window_size( slice_window );
 
-    update_window_size( graphics );
-
-    add_action_table_function( &graphics->action_table, WINDOW_RESIZE_EVENT,
+    add_action_table_function( &slice_window->action_table, WINDOW_RESIZE_EVENT,
                                window_size_changed );
-    add_action_table_function( &graphics->action_table, WINDOW_REDRAW_EVENT,
+    add_action_table_function( &slice_window->action_table, WINDOW_REDRAW_EVENT,
                                handle_redraw );
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &slice_window->action_table,
+                               REDRAW_OVERLAY_EVENT,
+                               handle_redraw_overlay );
+    add_action_table_function( &slice_window->action_table,
                                LEFT_MOUSE_DOWN_EVENT,
                                left_mouse_down );
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &slice_window->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT,
                                middle_mouse_down );
-    add_action_table_function( &graphics->action_table, NO_EVENT,
+    add_action_table_function( &slice_window->action_table, NO_EVENT,
                                update_probe );
 
-    fill_Point( graphics->prev_mouse_position, 0.0, 0.0, 0.0 );
+    fill_Point( slice_window->prev_mouse_position, 0.0, 0.0, 0.0 );
 }
 
-private  DEF_EVENT_FUNCTION( left_mouse_down )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( left_mouse_down )    /* ARGSUSED */
 {
     int          view_index;
-    void         add_action_table_function();
-    void         set_update_required();
 
-    graphics->prev_mouse_position = graphics->mouse_position;
-
-    if( get_slice_view_index_under_mouse( graphics, &view_index ) )
+    if( get_slice_view_index_under_mouse( display, &view_index ) )
     {
-        add_action_table_function( &graphics->action_table,
+        add_action_table_function( &display->action_table,
                                    NO_EVENT,
                                    handle_update_voxel );
 
-        add_action_table_function( &graphics->action_table,
+        add_action_table_function( &display->action_table,
                                    LEFT_MOUSE_UP_EVENT,
                                    end_picking_voxel );
     }
-    else if( mouse_is_near_low_limit( graphics ) )
+    else if( mouse_is_near_low_limit( display ) )
     {
-        add_action_table_function( &graphics->action_table,
+        add_action_table_function( &display->action_table,
                                    NO_EVENT,
                                    handle_update_low_limit );
 
-        add_action_table_function( &graphics->action_table,
+        add_action_table_function( &display->action_table,
                                    LEFT_MOUSE_UP_EVENT,
                                    end_picking_low_limit );
     }
-    else if( mouse_is_near_high_limit( graphics ) )
+    else if( mouse_is_near_high_limit( display ) )
     {
-        add_action_table_function( &graphics->action_table,
+        add_action_table_function( &display->action_table,
                                    NO_EVENT,
                                    handle_update_high_limit );
 
-        add_action_table_function( &graphics->action_table,
+        add_action_table_function( &display->action_table,
                                    LEFT_MOUSE_UP_EVENT,
                                    end_picking_high_limit );
     }
 
-    set_update_required( graphics, NORMAL_PLANES );
+    record_mouse_pixel_position( display );
+    set_update_required( display, NORMAL_PLANES );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( middle_mouse_down )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( middle_mouse_down )     /* ARGSUSED */
 {
     int          view_index;
-    void         add_action_table_function();
-    void         perform_translation();
-    void         set_update_required();
 
-    graphics->prev_mouse_position = graphics->mouse_position;
-
-    if( get_slice_view_index_under_mouse( graphics, &view_index ) )
+    if( get_slice_view_index_under_mouse( display, &view_index ) )
     {
-        add_action_table_function( &graphics->action_table,
-                                   MOUSE_MOVEMENT_EVENT, update_translation );
+        add_action_table_function( &display->action_table,
+                                   NO_EVENT, update_translation );
 
-        add_action_table_function( &graphics->action_table,
+        add_action_table_function( &display->action_table,
                                    MIDDLE_MOUSE_UP_EVENT,
                                    terminate_translation );
 
-        add_action_table_function( &graphics->action_table,
-                                   TERMINATE_EVENT,
+        add_action_table_function( &display->action_table,
+                                   TERMINATE_INTERACTION_EVENT,
                                    terminate_translation );
     }
-    else if( mouse_is_near_low_limit( graphics ) )
+    else if( mouse_is_near_low_limit( display ) )
     {
-        add_action_table_function( &graphics->action_table,
+        add_action_table_function( &display->action_table,
                                    NO_EVENT,
                                    handle_update_both_limits );
 
-        add_action_table_function( &graphics->action_table,
+        add_action_table_function( &display->action_table,
                                    MIDDLE_MOUSE_UP_EVENT,
                                    end_picking_both_limits );
     }
 
-    set_update_required( graphics, NORMAL_PLANES );
+    record_mouse_pixel_position( display );
+    set_update_required( display, NORMAL_PLANES );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( end_picking_voxel )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( end_picking_voxel )     /* ARGSUSED */
 {
-    void    remove_action_table_function();
-    void    update_voxel_cursor();
-
-    remove_action_table_function( &graphics->action_table, LEFT_MOUSE_UP_EVENT,
-                                  end_picking_voxel );
-    remove_action_table_function( &graphics->action_table, NO_EVENT,
+    remove_action_table_function( &display->action_table,
+                                  LEFT_MOUSE_UP_EVENT, end_picking_voxel );
+    remove_action_table_function( &display->action_table, NO_EVENT,
                                   handle_update_voxel );
 
-    update_voxel_cursor( graphics );
+    update_voxel_cursor( display );
 }
 
-private  DEF_EVENT_FUNCTION( handle_update_voxel )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( handle_update_voxel )     /* ARGSUSED */
 {
-    Boolean  mouse_moved();
+    int  x, y, x_prev, y_prev;
 
-    if( mouse_moved(graphics) || graphics_update_required( graphics ) )
-    {
-        update_voxel_cursor( graphics );
-    }
+    if( pixel_mouse_moved(display,&x,&y,&x_prev,&y_prev) ||
+        graphics_update_required( display ) )
+        update_voxel_cursor( display );
 
     return( OK );
 }
 
-private  void  update_voxel_cursor( slice_window )
-    graphics_struct   *slice_window;
+private  void  update_voxel_cursor(
+    display_struct    *slice_window )
 {
     int               c, indices[N_DIMENSIONS], axis_index;
-    Boolean           get_voxel_in_slice_window();
-    Boolean           set_current_voxel();
-    Boolean           update_cursor_from_voxel();
-    void              set_update_required();
-    void              rebuild_selected_list();
 
     if( get_voxel_in_slice_window( slice_window, &indices[X],
                  &indices[Y], &indices[Z], &axis_index ) )
@@ -198,127 +193,113 @@ private  void  update_voxel_cursor( slice_window )
     }
 }
 
-private  void  update_window_size( graphics )
-    graphics_struct   *graphics;
+private  void  update_window_size(
+    display_struct    *slice_window )
 {
     int   x_size, y_size;
 
-    x_size = graphics->window.x_size;
-    y_size = graphics->window.y_size;
+    G_get_window_size( slice_window->window, &x_size, &y_size );
 
-    graphics->slice.x_split = x_size * Slice_divider_x_position;
-    graphics->slice.y_split = y_size * Slice_divider_y_position;
+    slice_window->slice.x_split = x_size * Slice_divider_x_position;
+    slice_window->slice.y_split = y_size * Slice_divider_y_position;
 }
 
-private  DEF_EVENT_FUNCTION( update_probe )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( update_probe )     /* ARGSUSED */
 {
-    void     rebuild_probe();
-    Boolean  mouse_moved();
-    void     set_update_required();
+    int  x, y, x_prev, y_prev;
 
-    if( mouse_moved( graphics ) )
+    if( pixel_mouse_moved(display,&x,&y,&x_prev,&y_prev) )
     {
-        rebuild_probe( graphics );
+        rebuild_probe( display );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        set_update_required( display, NORMAL_PLANES );
     }
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( handle_redraw )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( handle_redraw )     /* ARGSUSED */
 {
-    void     set_update_required();
+    set_update_required( display, NORMAL_PLANES );
+    set_update_required( display, OVERLAY_PLANES );
 
-    set_update_required( graphics, NORMAL_PLANES );
+    return( OK );
+}
+
+private  DEF_EVENT_FUNCTION( handle_redraw_overlay )     /* ARGSUSED */
+{
+    set_update_required( display, OVERLAY_PLANES );
 
     return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( window_size_changed )    /* ARGSUSED */
 {
-    void  rebuild_slice_models();
-    void  set_update_required();
+    update_window_size( display );
 
-    update_window_size( graphics );
+    rebuild_slice_models( display );
 
-    rebuild_slice_models( graphics );
-
-    set_update_required( graphics, NORMAL_PLANES );
+    set_update_required( display, NORMAL_PLANES );
+    set_update_required( display, OVERLAY_PLANES );
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_translation )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( terminate_translation )    /* ARGSUSED */
 {
-    void   remove_action_table_function();
-    void   update_view();
+    perform_translation( display );
 
-    perform_translation( graphics );
-
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MOUSE_MOVEMENT_EVENT, update_translation );
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_translation );
-    remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT, terminate_translation );
+    remove_action_table_function( &display->action_table,
+                                  TERMINATE_INTERACTION_EVENT,
+                                  terminate_translation );
 
     return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( update_translation )      /* ARGSUSED */
 {
-    void     perform_translation();
-
-    perform_translation( graphics );
+    perform_translation( display );
 
     return( OK );
 }
 
-private  void  perform_translation( graphics )
-    graphics_struct  *graphics;
+private  void  perform_translation(
+    display_struct   *slice_window )
 {
     int        view_index, x1, y1, x2, y2, dx, dy;
-    Boolean    find_slice_view_mouse_is_in();
-    void       get_mouse_in_pixels();
-    void       set_slice_window_update();
-    void       set_update_required();
 
-    get_mouse_in_pixels( graphics, &graphics->prev_mouse_position, &x1, &y1 );
+    x1 = ROUND( Point_x( slice_window->prev_mouse_position ) );
+    y1 = ROUND( Point_y( slice_window->prev_mouse_position ) );
 
-    if( find_slice_view_mouse_is_in( graphics, x1, y1, &view_index ) )
+    if( find_slice_view_mouse_is_in( slice_window, x1, y1, &view_index ) &&
+        G_get_mouse_position( slice_window->window, &x2, &y2 ) )
     {
-        get_mouse_in_pixels( graphics, &graphics->mouse_position, &x2, &y2 );
-
         dx = x2 - x1;
         dy = y2 - y1;
 
-        graphics->slice.slice_views[view_index].x_offset += dx;
-        graphics->slice.slice_views[view_index].y_offset += dy;
+        slice_window->slice.slice_views[view_index].x_offset += dx;
+        slice_window->slice.slice_views[view_index].y_offset += dy;
 
-        set_slice_window_update( graphics, view_index );
+        set_slice_window_update( slice_window, view_index );
     }
 
-    set_update_required( graphics, NORMAL_PLANES );
+    set_update_required( slice_window, NORMAL_PLANES );
 
-    graphics->prev_mouse_position = graphics->mouse_position;
+    record_mouse_pixel_position( slice_window );
 }
 
-private  DEF_EVENT_FUNCTION( end_picking_low_limit )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( end_picking_low_limit )     /* ARGSUSED */
 {
-    void   remove_action_table_function();
-    void   update_limit();
+    update_limit( display, TRUE, FALSE );
 
-    update_limit( graphics, TRUE, FALSE );
-
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   NO_EVENT, handle_update_low_limit );
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   LEFT_MOUSE_UP_EVENT,
                                   end_picking_low_limit );
 
@@ -327,28 +308,24 @@ private  DEF_EVENT_FUNCTION( end_picking_low_limit )
 
 private  DEF_EVENT_FUNCTION( handle_update_low_limit )      /* ARGSUSED */
 {
-    Boolean  mouse_moved();
-    void     update_limit();
+    int   x, y, x_prev, y_prev;
 
-    if( mouse_moved(graphics) || graphics_update_required( graphics ) )
+    if( pixel_mouse_moved(display,&x,&y,&x_prev,&y_prev) ||
+        graphics_update_required( display ) )
     {
-        update_limit( graphics, TRUE, FALSE );
+        update_limit( display, TRUE, FALSE );
     }
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( end_picking_high_limit )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( end_picking_high_limit )    /* ARGSUSED */
 {
-    void   remove_action_table_function();
-    void   update_limit();
+    update_limit( display, FALSE, FALSE );
 
-    update_limit( graphics, FALSE, FALSE );
-
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   NO_EVENT, handle_update_high_limit );
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   LEFT_MOUSE_UP_EVENT,
                                   end_picking_high_limit );
 
@@ -357,29 +334,25 @@ private  DEF_EVENT_FUNCTION( end_picking_high_limit )
 
 private  DEF_EVENT_FUNCTION( handle_update_high_limit )      /* ARGSUSED */
 {
-    Boolean  mouse_moved();
-    void     update_limit();
+    int   x, y, x_prev, y_prev;
 
-    if( mouse_moved(graphics) || graphics_update_required( graphics ) )
+    if( pixel_mouse_moved(display,&x,&y,&x_prev,&y_prev) ||
+        graphics_update_required( display ) )
     {
-        update_limit( graphics, FALSE, FALSE );
+        update_limit( display, FALSE, FALSE );
     }
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( end_picking_both_limits )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( end_picking_both_limits )    /* ARGSUSED */
 {
-    void   remove_action_table_function();
-    void   update_limit();
+    update_limit( display, TRUE, TRUE );
 
-    update_limit( graphics, TRUE, TRUE );
-
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   NO_EVENT,
                                   handle_update_both_limits );
-    remove_action_table_function( &graphics->action_table,
+    remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT,
                                   end_picking_both_limits );
 
@@ -388,36 +361,34 @@ private  DEF_EVENT_FUNCTION( end_picking_both_limits )
 
 private  DEF_EVENT_FUNCTION( handle_update_both_limits )      /* ARGSUSED */
 {
-    Boolean  mouse_moved();
-    void     update_limit();
+    int   x, y, x_prev, y_prev;
 
-    if( mouse_moved(graphics) || graphics_update_required( graphics ) )
+    if( pixel_mouse_moved(display,&x,&y,&x_prev,&y_prev) ||
+        graphics_update_required( display ) )
     {
-        update_limit( graphics, TRUE, TRUE );
+        update_limit( display, TRUE, TRUE );
     }
 
     return( OK );
 }
 
-private  void  update_limit( graphics, low_limit_flag, fixed_range_flag )
-    graphics_struct  *graphics;
-    Boolean          low_limit_flag;
-    Boolean          fixed_range_flag;
+private  void  update_limit(
+    display_struct   *slice_window,
+    Boolean          low_limit_flag,
+    Boolean          fixed_range_flag )
 {
     Real                  range, min_value, max_value, value;
     Real                  volume_min, volume_max;
     volume_struct         *volume;
     colour_coding_struct  *colour_coding;
-    Boolean               get_mouse_colour_bar_value();
-    void                  change_colour_coding_range();
 
-    if( get_mouse_colour_bar_value( graphics, &value ) &&
-        get_slice_window_volume( graphics, &volume ) )
+    if( get_mouse_colour_bar_value( slice_window, &value ) &&
+        get_slice_window_volume( slice_window, &volume ) )
     {
         volume_min = volume->min_value;
         volume_max = volume->max_value;
 
-        colour_coding = &graphics->slice.colour_coding;
+        colour_coding = &slice_window->slice.colour_coding;
         min_value = colour_coding->min_value;
         max_value = colour_coding->max_value;
 
@@ -469,29 +440,26 @@ private  void  update_limit( graphics, low_limit_flag, fixed_range_flag )
             }
         }
 
-        change_colour_coding_range( graphics, min_value, max_value );
+        change_colour_coding_range( slice_window, min_value, max_value );
     }
 
-    graphics->prev_mouse_position = graphics->mouse_position;
+    record_mouse_pixel_position( slice_window );
 }
 
-private  Boolean  get_mouse_colour_bar_value( graphics, value )
-    graphics_struct  *graphics;
-    Real             *value;
+private  Boolean  get_mouse_colour_bar_value(
+    display_struct   *slice_window,
+    Real             *value )
 {
     int                   x, y;
     Real                  ratio;
     volume_struct         *volume;
     Boolean               found;
-    Boolean               mouse_within_colour_bar();
-    void                  get_mouse_in_pixels();
 
     found = FALSE;
 
-    get_mouse_in_pixels( graphics, &graphics->mouse_position, &x, &y );
-
-    if( mouse_within_colour_bar( graphics, (Real) x, (Real) y, &ratio ) &&
-        get_slice_window_volume( graphics, &volume ) )
+    if( G_get_mouse_position( slice_window->window, &x, &y ) &&
+        mouse_within_colour_bar( slice_window, (Real) x, (Real) y, &ratio ) &&
+        get_slice_window_volume( slice_window, &volume ) )
     {
         *value = INTERPOLATE( ratio, volume->min_value, volume->max_value );
 
@@ -503,8 +471,8 @@ private  Boolean  get_mouse_colour_bar_value( graphics, value )
     return( found );
 }
 
-private  Boolean  mouse_is_near_low_limit( graphics )
-    graphics_struct  *graphics;
+private  Boolean  mouse_is_near_low_limit(
+    display_struct   *slice_window )
 {
     Real                  value;
     Boolean               near;
@@ -512,9 +480,9 @@ private  Boolean  mouse_is_near_low_limit( graphics )
 
     near = FALSE;
 
-    if( get_mouse_colour_bar_value( graphics, &value ) )
+    if( get_mouse_colour_bar_value( slice_window, &value ) )
     {
-        colour_coding = &graphics->slice.colour_coding;
+        colour_coding = &slice_window->slice.colour_coding;
         if( value < (colour_coding->min_value+colour_coding->max_value)/2.0 )
             near = TRUE;
     }
@@ -522,8 +490,8 @@ private  Boolean  mouse_is_near_low_limit( graphics )
     return( near );
 }
 
-private  Boolean  mouse_is_near_high_limit( graphics )
-    graphics_struct  *graphics;
+private  Boolean  mouse_is_near_high_limit(
+    display_struct   *slice_window )
 {
     Real                  value;
     Boolean               near;
@@ -531,9 +499,9 @@ private  Boolean  mouse_is_near_high_limit( graphics )
 
     near = FALSE;
 
-    if( get_mouse_colour_bar_value( graphics, &value ) )
+    if( get_mouse_colour_bar_value( slice_window, &value ) )
     {
-        colour_coding = &graphics->slice.colour_coding;
+        colour_coding = &slice_window->slice.colour_coding;
         if( value > (colour_coding->min_value+colour_coding->max_value)/2.0 )
             near = TRUE;
     }

@@ -1,7 +1,4 @@
-#include  <def_string.h>
-#include  <def_graphics.h>
-#include  <def_arrays.h>
-#include  <def_files.h>
+#include  <def_display.h>
 
 #define  FUNCTION_LIST \
                        MENU_FUNCTION(exit_program) \
@@ -47,23 +44,13 @@
                        MENU_FUNCTION(retreat_selected) \
                        MENU_FUNCTION(descend_selected) \
                        MENU_FUNCTION(ascend_selected) \
-                       MENU_FUNCTION(advance_slice) \
-                       MENU_FUNCTION(retreat_slice) \
-                       MENU_FUNCTION(prev_marked_slice) \
-                       MENU_FUNCTION(next_marked_slice) \
                        MENU_FUNCTION(move_slice_plus) \
                        MENU_FUNCTION(move_slice_minus) \
-                       MENU_FUNCTION(toggle_marked_slice) \
-                       MENU_FUNCTION(set_rotating_slice_mode) \
-                       MENU_FUNCTION(set_translating_slice_mode) \
-                       MENU_FUNCTION(reset_slice_transform) \
                        MENU_FUNCTION(menu_set_global_variable) \
                        MENU_FUNCTION(pick_view_rectangle) \
                        MENU_FUNCTION(toggle_object_visibility) \
                        MENU_FUNCTION(cut_object) \
                        MENU_FUNCTION(paste_object) \
-                       MENU_FUNCTION(output_slice_transforms) \
-                       MENU_FUNCTION(open_slice_window) \
                        MENU_FUNCTION(start_surface) \
                        MENU_FUNCTION(toggle_surface_extraction) \
                        MENU_FUNCTION(make_surface_permanent) \
@@ -160,13 +147,8 @@
                        MENU_FUNCTION(set_hot_metal) \
                        MENU_FUNCTION(set_gray_scale) \
                        MENU_FUNCTION(set_spectral) \
-                       MENU_FUNCTION(set_user_defined_colour_coding) \
-                       MENU_FUNCTION(set_per_index_colour_coding) \
                        MENU_FUNCTION(set_under_colour) \
                        MENU_FUNCTION(set_over_colour) \
-                       MENU_FUNCTION(set_user_defined_min_colour) \
-                       MENU_FUNCTION(set_user_defined_max_colour) \
-                       MENU_FUNCTION(input_per_index_colour_map) \
                        MENU_FUNCTION(set_model_parameters) \
                        MENU_FUNCTION(convert_to_new_representation) \
                        MENU_FUNCTION(load_model_parameters) \
@@ -203,7 +185,7 @@ typedef  struct
 }
 action_lookup_struct;
 
-#define  MENU_FUNCTION(f)    Status f(), GLUE(menu_update_,f)();
+#define  MENU_FUNCTION(f)    DEF_MENU_FUNCTION(f); DEF_MENU_UPDATE(f);
 
 FUNCTION_LIST
 
@@ -217,7 +199,7 @@ static  action_lookup_struct   actions[] = {
 typedef  struct
 {
     Boolean            permanent_flag;
-    char               key;
+    int                key;
     String             action_name;
     String             label;
     menu_entry_struct  *menu_entry;
@@ -230,16 +212,35 @@ typedef  struct
     key_action_struct   *entries;
 } menu_definition_struct;
 
-static    Status   input_menu();
-static    Status   create_menu();
-static    Status   free_input_menu();
-static    Status   input_menu_entry();
-static    Status   lookup_menu_action();
-static    int      lookup_menu_name();
+private  Status  input_special_character(
+    FILE   *file,
+    int    *ch );
+private  Status  input_menu_entry(
+    FILE                     *file,
+    menu_definition_struct   *menu_entry );
+private  Status  input_menu(
+    FILE                     *file,
+    int                      *n_menus_ptr,
+    menu_definition_struct   **menus_ptr );
+private  void  free_input_menu(
+    int                      n_menus,
+    menu_definition_struct   *menus );
+private  void  create_menu(
+    menu_window_struct       *menu,
+    int                      n_menus,
+    menu_definition_struct   *menus );
+private  int  lookup_menu_name(
+    char                      menu_name[],
+    int                       n_menus,
+    menu_definition_struct    menus[] );
+private  Boolean  lookup_menu_action(
+    char                   action_name[],
+    menu_function_pointer  *action,
+    menu_update_pointer    *update_action );
 
-public  Status  read_menu( menu, file )
-    menu_window_struct   *menu;
-    FILE                 *file;
+public  Status  read_menu(
+    menu_window_struct   *menu,
+    FILE                 *file )
 {
     Status                   status;
     int                      n_menus;
@@ -249,24 +250,20 @@ public  Status  read_menu( menu, file )
 
     if( status == OK )
     {
-        status = create_menu( menu, n_menus, menus );
-    }
+        create_menu( menu, n_menus, menus );
 
-    if( status == OK )
-    {
-        status = free_input_menu( n_menus, menus );
+        free_input_menu( n_menus, menus );
     }
 
     return( status );
 }
 
-private  Status  input_menu( file, n_menus_ptr, menus_ptr )
-    FILE                     *file;
-    int                      *n_menus_ptr;
-    menu_definition_struct   **menus_ptr;
+private  Status  input_menu(
+    FILE                     *file,
+    int                      *n_menus_ptr,
+    menu_definition_struct   **menus_ptr )
 {
     Status                   status;
-    Status                   input_string();
     int                      n_menus;
     menu_definition_struct   *menus;
     menu_definition_struct   menu_entry;
@@ -282,11 +279,7 @@ private  Status  input_menu( file, n_menus_ptr, menus_ptr )
         status = input_menu_entry( file, &menu_entry );
         if( status == OK )
         {
-            SET_ARRAY_SIZE( status, menus, n_menus, n_menus+1, 10 );
-        }
-
-        if( status == OK )
-        {
+            SET_ARRAY_SIZE( menus, n_menus, n_menus+1, 10 );
             menus[n_menus] = menu_entry;
             ++n_menus;
         }
@@ -301,38 +294,37 @@ private  Status  input_menu( file, n_menus_ptr, menus_ptr )
     return( status );
 }
 
-private  Status  input_key_action( file, action )
-    FILE                *file;
-    key_action_struct   *action;
+private  Status  input_key_action(
+    FILE                *file,
+    key_action_struct   *action )
 {
     Status    status;
     char      ch;
-    Status    input_string();
-    Status    input_character();
-    Status    skip_input_until();
-    Status    input_three_digit_character();
 
     status = skip_input_until( file, '\'' );
 
     if( status == OK )
         status = input_character( file, &ch );
 
-    if( status == OK && ch == '\\' )
-        status = input_three_digit_character( file, &ch );
-
     if( status == OK )
     {
-        action->key = ch;
-
-        status = input_character( file, &ch );
-    }
-
-    if( status == OK )
-    {
-        if( ch != '\'' )
+        if( ch == '\\' )
         {
-            PRINT_ERROR( "Expected '.\n" );;
-            status = ERROR;
+            status = input_special_character( file, &action->key );
+        }
+        else
+        {
+            action->key = ch;
+            if( action->key < 0 )
+                action->key += 128;
+
+            status = input_character( file, &ch );
+
+            if( status == OK && ch != '\'' )
+            {
+                print( "Expected '.\n" );
+                status = ERROR;
+            }
         }
     }
 
@@ -351,48 +343,40 @@ private  Status  input_key_action( file, action )
     return( status );
 }
 
-private  Status  input_three_digit_character( file, ch )
-    FILE   *file;
-    char   *ch;
+private  Status  input_special_character(
+    FILE   *file,
+    int    *ch )
 {
-    int     i, code;
-    char    digit;
+    String  str;
     Status  status;
 
-    status = OK;
+    status = input_string( file, str, MAX_STRING_LENGTH, '\'' );
 
-    code = 0;
-
-    for_less( i, 0, 3 )
+    if( status == OK )
     {
-        if( status == OK )
-            status = input_character( file, &digit );
-
-        if( status == OK && digit < '0' || digit > '9' )
+        if( strcmp( str, "left" ) )
+            *ch = LEFT_ARROW_KEY;
+        else if( strcmp( str, "right" ) )
+            *ch = RIGHT_ARROW_KEY;
+        else if( strcmp( str, "up" ) )
+            *ch = UP_ARROW_KEY;
+        else if( strcmp( str, "down" ) )
+            *ch = DOWN_ARROW_KEY;
+        else if( sscanf( str, "%d", ch ) != 1 )
         {
-            PRINT_ERROR( "Error inputting 3-digit character.\n" );
+            print( "Error in reading special character: \\%s\n", str );
             status = ERROR;
         }
-
-        if( status == OK )
-            code = 10 * code + digit - '0';
     }
-
-    if( code > 127 )
-        code -= 256;
-
-    *ch = (char) code;
 
     return( status );
 }
 
-private  Status  input_menu_entry( file, menu_entry )
-    FILE                     *file;
-    menu_definition_struct   *menu_entry;
+private  Status  input_menu_entry(
+    FILE                     *file,
+    menu_definition_struct   *menu_entry )
 {
     Status   status;
-    Status   skip_input_until();
-    Status   input_string();
     Boolean  found_brace;
     String   permanent_string;
     Boolean  permanent_flag;
@@ -426,14 +410,14 @@ private  Status  input_menu_entry( file, menu_entry )
                 }
                 else
                 {
-                    PRINT_ERROR( "Expected permanent or transient.\n" );
+                    print( "Expected permanent or transient.\n" );
                     status = ERROR;
                 }
             }
 
             if( status == OK && !found_brace )
             {
-                SET_ARRAY_SIZE( status, menu_entry->entries,
+                SET_ARRAY_SIZE( menu_entry->entries,
                                 menu_entry->n_entries,
                                 menu_entry->n_entries+1, 1 );
 
@@ -453,139 +437,102 @@ private  Status  input_menu_entry( file, menu_entry )
     return( status );
 }
 
-private  Status  free_input_menu( n_menus, menus )
-    int                      n_menus;
-    menu_definition_struct   *menus;
+private  void  free_input_menu(
+    int                      n_menus,
+    menu_definition_struct   *menus )
 {
     int      i;
-    Status   status;
-
-    status = OK;
-
     if( n_menus > 0 )
     {
         for_less( i, 0, n_menus )
         {
-            if( status == OK && menus[i].n_entries > 0 )
-                FREE( status, menus[i].entries );
+            if( menus[i].n_entries > 0 )
+                FREE( menus[i].entries );
         }
 
-        FREE( status, menus );
+        FREE( menus );
     }
-
-    return( status );
 }
 
-private  Status  create_menu( menu, n_menus, menus )
-    menu_window_struct       *menu;
-    int                      n_menus;
-    menu_definition_struct   *menus;
+private  void  create_menu(
+    menu_window_struct       *menu,
+    int                      n_menus,
+    menu_definition_struct   *menus )
 {
-    Status              status;
     int                 i, c, child, n_entries, entry_index, menu_index;
-    Status              create_menu_entry();
-    Status              create_key_entry();
-    void                turn_on_menu_entry();
     menu_entry_struct   *menu_entry;
-
-    status = OK;
 
     n_entries = 1;
 
     for_less( i, 0, n_menus )
-    {
         n_entries += menus[i].n_entries;
-    }
 
     menu->n_entries = n_entries;
 
-    ALLOC( status, menu->entries, menu->n_entries );
+    ALLOC( menu->entries, menu->n_entries );
 
-    if( status == OK )
+    entry_index = 1;
+
+    for_less( i, 0, n_menus )
     {
-        entry_index = 1;
-
-        for_less( i, 0, n_menus )
+        for_less( c, 0, menus[i].n_entries )
         {
-            for_less( c, 0, menus[i].n_entries )
-            {
-                menus[i].entries[c].menu_entry = &menu->entries[entry_index];
-                menu->entries[entry_index].permanent_flag =
-                              menus[i].entries[c].permanent_flag;
-                menu->entries[entry_index].key = menus[i].entries[c].key;
-                (void) strcpy( menu->entries[entry_index].label,
-                               menus[i].entries[c].label );
-                ++entry_index;
-            }
-        }
-
-        menu->entries[0].n_children = menus[0].n_entries;
-
-        ALLOC( status, menu->entries[0].children, menu->entries[0].n_children );
-    }
-
-    if( status == OK )
-    {
-        for_less( c, 0, menus[0].n_entries )
-        {
-            menu->entries[0].children[c] = menus[0].entries[c].menu_entry;
-        }
-
-        for_less( i, 0, n_menus )
-        {
-            for_less( c, 0, menus[i].n_entries )
-            {
-                menu_entry = menus[i].entries[c].menu_entry;
-
-                menu_index = lookup_menu_name( menus[i].entries[c].action_name,
-                                               n_menus, menus );
-
-                if( menu_index >= 0 )
-                {
-                    menu_entry->n_children = menus[menu_index].n_entries;
-                    ALLOC( status, menu_entry->children,
-                           menu_entry->n_children );
-
-                    if( status == OK )
-                    {
-                        for_less( child, 0, menus[menu_index].n_entries )
-                        {
-                            menu_entry->children[child] =
-                                    menus[menu_index].entries[child].menu_entry;
-                        }
-                        menu_entry->action = push_menu;
-                        menu_entry->update_action = menu_update_push_menu;
-                    }
-                }
-                else
-                {
-                    menu_entry->n_children = 0;
-                    status = lookup_menu_action( 
-                                       menus[i].entries[c].action_name,
-                                       &menu_entry->action,
-                                       &menu_entry->update_action );
-
-                    if( status != OK )
-                    {
-                        break;
-                    }
-                }
-            }
-
-            if( status != OK )
-            {
-                break;
-            }
+            menus[i].entries[c].menu_entry = &menu->entries[entry_index];
+            menu->entries[entry_index].permanent_flag =
+                          menus[i].entries[c].permanent_flag;
+            menu->entries[entry_index].key = menus[i].entries[c].key;
+            (void) strcpy( menu->entries[entry_index].label,
+                           menus[i].entries[c].label );
+            ++entry_index;
         }
     }
 
-    return( status );
+    menu->entries[0].n_children = menus[0].n_entries;
+
+    ALLOC( menu->entries[0].children, menu->entries[0].n_children );
+
+    for_less( c, 0, menus[0].n_entries )
+        menu->entries[0].children[c] = menus[0].entries[c].menu_entry;
+
+    for_less( i, 0, n_menus )
+    {
+        for_less( c, 0, menus[i].n_entries )
+        {
+            menu_entry = menus[i].entries[c].menu_entry;
+
+            menu_index = lookup_menu_name( menus[i].entries[c].action_name,
+                                           n_menus, menus );
+
+            if( menu_index >= 0 )
+            {
+                menu_entry->n_children = menus[menu_index].n_entries;
+                ALLOC( menu_entry->children, menu_entry->n_children );
+
+                for_less( child, 0, menus[menu_index].n_entries )
+                {
+                    menu_entry->children[child] =
+                            menus[menu_index].entries[child].menu_entry;
+                }
+
+                menu_entry->action = push_menu;
+                menu_entry->update_action = menu_update_push_menu;
+            }
+            else
+            {
+                menu_entry->n_children = 0;
+                if( !lookup_menu_action( menus[i].entries[c].action_name,
+                                         &menu_entry->action,
+                                         &menu_entry->update_action ) )
+                    break;
+            }
+        }
+    }
 }
 
-private  int  lookup_menu_name( menu_name, n_menus, menus )
-    char                      menu_name[];
-    int                       n_menus;
-    menu_definition_struct  menus[];
+private  int  lookup_menu_name(
+    char                      menu_name[],
+    int                       n_menus,
+    menu_definition_struct    menus[] )
 {
     int  i;
 
@@ -605,16 +552,16 @@ private  int  lookup_menu_name( menu_name, n_menus, menus )
     return( i );
 }
 
-private  Status  lookup_menu_action( action_name, action, update_action )
-    char                   action_name[];
-    menu_function_pointer  *action;
-    menu_update_pointer    *update_action;
+private  Boolean  lookup_menu_action(
+    char                   action_name[],
+    menu_function_pointer  *action,
+    menu_update_pointer    *update_action )
 {
-    Status   status;
+    Boolean  found;
     int      i;
     char     *table_name;
 
-    status = ERROR;
+    found = FALSE;
 
     for_less( i, 0, SIZEOF_STATIC_ARRAY(actions) )
     {
@@ -628,57 +575,40 @@ private  Status  lookup_menu_action( action_name, action, update_action )
         {
             *action = actions[i].action;
             *update_action = actions[i].update_action;
-            status = OK;
+            found = TRUE;
             break;
         }
     }
 
-    if( status != OK )
+    if( !found )
     {
-        PRINT_ERROR( "Menu function undefined " );
-        PRINT( "%s\n", action_name );
+        print( "Menu function undefined " );
+        print( "%s\n", action_name );
     }
 
-    return( status );
+    return( found );
 }
 
-private  Status  delete_menu_entry( top_flag, entry )
-    Boolean             top_flag;
-    menu_entry_struct   *entry;
+private  void  delete_menu_entry(
+    Boolean             top_flag,
+    menu_entry_struct   *entry )
 {
-    Status  status;
-
-    status = OK;
-
     if( !top_flag )
-        FREE( status, entry->text_list );
+        FREE( entry->text_list );
 
-    if( status == OK && entry->n_children > 0 )
-        FREE( status, entry->children );
-
-    return( status );
+    if( entry->n_children > 0 )
+        FREE( entry->children );
 }
 
-public  Status  delete_menu( menu )
-    menu_window_struct  *menu;
+public  void  delete_menu(
+    menu_window_struct  *menu )
 {
     int      i;
-    Status   status;
-
-    status = OK;
 
     for_less( i, 0, menu->n_entries )
     {
-        if( status == OK )
-        {
-            status = delete_menu_entry( i == 0, &menu->entries[i] );
-        }
+        delete_menu_entry( i == 0, &menu->entries[i] );
     }
 
-    if( status == OK )
-    {
-        FREE( status, menu->entries );
-    }
-
-    return( status );
+    FREE( menu->entries );
 }

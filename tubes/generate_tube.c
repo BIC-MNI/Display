@@ -1,16 +1,22 @@
 
-#include  <def_geometry.h>
-#include  <def_alloc.h>
-#include  <def_math.h>
+#include  <def_display.h>
 
-static    void     fill_in_ellipse_points();
+private  void   fill_in_ellipse_points(
+    Point   tube_points[],
+    Vector  tube_normals[],
+    Point   *centre,
+    int     n_around,
+    Real    x[],
+    Real    y[],
+    Vector  *hor,
+    Vector  *vert );
 
-private  void  get_direction( n_points, points, i, wrap_around, dir )
-    int      n_points;
-    Point    points[];
-    int      i;
-    Boolean  wrap_around;
-    Vector   *dir;
+private  void  get_direction(
+    int      n_points,
+    Point    points[],
+    int      i,
+    Boolean  wrap_around,
+    Vector   *dir )
 {
     int      end;
 
@@ -36,37 +42,27 @@ private  void  get_direction( n_points, points, i, wrap_around, dir )
     }
 }
 
-public  void  generate_tube( n_points, points, n_around, radius,
-                             tube_points, tube_normals )
-    int    n_points;
-    Point  points[];
-    int    n_around;
-    Real   radius;
-    Point  tube_points[];
-    Vector tube_normals[];
+public  void  generate_tube(
+    int    n_points,
+    Point  points[],
+    int    n_around,
+    Real   radius,
+    Point  tube_points[],
+    Vector tube_normals[] )
 {
     int      i;
     Real     *x, *y, angle;
     Vector   hor, vert, dir, prev_dir, normal;
-    void     project_vector_to_plane();
-    void     get_noncolinear_vector();
-    Status   status;
     Boolean  wrap_around;
-    void     get_direction();
 
-    ALLOC( status, x, n_around );
+    ALLOC( x, n_around );
+    ALLOC( y, n_around );
 
-    if( status == OK )
-        ALLOC( status, y, n_around );
-
-    if( status == OK )
+    for_less( i, 0, n_around )
     {
-        for_less( i, 0, n_around )
-        {
-            angle = (double) i / (double) n_around * 2.0 * PI;
-            x[i] = radius * cos( angle );
-            y[i] = radius * sin( angle );
-        }
+        angle = (double) i / (double) n_around * 2.0 * PI;
+        x[i] = radius * cos( angle );
+        y[i] = radius * sin( angle );
     }
 
     wrap_around = EQUAL_POINTS( points[0], points[n_points-1] );
@@ -106,22 +102,19 @@ public  void  generate_tube( n_points, points, n_around, radius,
         }
     }
 
-    FREE( status, x );
-
-    if( status == OK )
-        FREE( status, y );
+    FREE( x );
+    FREE( y );
 }
 
-private  void   fill_in_ellipse_points( tube_points, tube_normals, centre,
-                                        n_around, x, y,
-                                        hor, vert )
-    Point   tube_points[];
-    Vector  tube_normals[];
-    Point   *centre;
-    int     n_around;
-    Real    x[], y[];
-    Vector  *hor;
-    Vector  *vert;
+private  void   fill_in_ellipse_points(
+    Point   tube_points[],
+    Vector  tube_normals[],
+    Point   *centre,
+    int     n_around,
+    Real    x[],
+    Real    y[],
+    Vector  *hor,
+    Vector  *vert )
 {
     int      i;
     Vector   h, v, offset;
@@ -139,11 +132,11 @@ private  void   fill_in_ellipse_points( tube_points, tube_normals, centre,
 }
 
 
-public  void  project_vector_to_plane( v, direction, normal, projected )
-    Vector   *v;
-    Vector   *direction;
-    Vector   *normal;
-    Vector   *projected;
+public  void  project_vector_to_plane(
+    Vector   *v,
+    Vector   *direction,
+    Vector   *normal,
+    Vector   *projected )
 {
     Vector   offset;
     Real     t, n_dot_d, n_dot_v;
@@ -152,7 +145,7 @@ public  void  project_vector_to_plane( v, direction, normal, projected )
 
     if( n_dot_d == 0.0 )
     {
-        (void) fprintf( stderr, "Error in project_vector_to_plane\n" );
+        print( "Error in project_vector_to_plane\n" );
     }
     else
     {

@@ -2,9 +2,7 @@
 #ifndef  DEF_SLICE
 #define  DEF_SLICE
 
-#include  <def_bitlist.h>
-#include  <def_objects.h>
-#include  <def_graphics_types.h>
+#include  <def_mni.h>
 #include  <def_atlas.h>
 
 typedef  struct
@@ -43,14 +41,20 @@ typedef struct
     int              desired_n_intervals;
 } colour_bar_struct;
 
+#define  N_AUXILIARY_VOXEL_BYTES   1
+#define  LABEL_BIT                 128
+#define  ACTIVE_BIT                64
+#define  LOWER_AUXILIARY_BITS      63
+
 #define  NUM_LABELS   (1 << (8*N_AUXILIARY_VOXEL_BYTES) )
 
 typedef  struct
 {
-    volume_struct          *volume;
+    Boolean                volume_present;
+    volume_struct          volume;
 
     Boolean                fast_lookup_present;
-    Pixel_colour           *fast_lookup[NUM_LABELS];
+    Colour                 *fast_lookup[NUM_LABELS];
     Real                   label_colour_ratio;
     Boolean                label_colours_used[NUM_LABELS];
     Colour                 label_colours[NUM_LABELS];

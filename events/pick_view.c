@@ -1,76 +1,63 @@
 
-#include  <def_graphics.h>
-#include  <def_globals.h>
+#include  <def_display.h>
 
-static  DECL_EVENT_FUNCTION( pick_first_corner_point );
-static  DECL_EVENT_FUNCTION( show_rectangle_at_mouse );
-static  DECL_EVENT_FUNCTION( terminate_picking_viewport );
-static  DECL_EVENT_FUNCTION( done_picking_viewport );
-static  DECL_EVENT_FUNCTION( show_picked_viewport );
+static  DEF_EVENT_FUNCTION( pick_first_corner_point );
+static  DEF_EVENT_FUNCTION( show_rectangle_at_mouse );
+static  DEF_EVENT_FUNCTION( terminate_picking_viewport );
+static  DEF_EVENT_FUNCTION( done_picking_viewport );
+static  DEF_EVENT_FUNCTION( show_picked_viewport );
 
-public  void  start_picking_viewport( graphics )
-    graphics_struct  *graphics;
+public  void  start_picking_viewport(
+    display_struct   *display )
 {
-    void                 push_action_table();
-    void                 add_action_table_function();
-    void                 terminate_any_interactions();
-    void                 set_update_required();
+    push_action_table( &display->action_table, MIDDLE_MOUSE_DOWN_EVENT );
+    push_action_table( &display->action_table, MIDDLE_MOUSE_UP_EVENT );
+    push_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT );
 
-    push_action_table( &graphics->action_table, MIDDLE_MOUSE_DOWN_EVENT );
-    push_action_table( &graphics->action_table, MIDDLE_MOUSE_UP_EVENT );
-    push_action_table( &graphics->action_table, TERMINATE_EVENT );
-
-    add_action_table_function( &graphics->action_table,
-                               TERMINATE_EVENT,
+    add_action_table_function( &display->action_table,
+                               TERMINATE_INTERACTION_EVENT,
                                terminate_picking_viewport );
 
-    add_action_table_function( &graphics->action_table,
+    add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT,
                                pick_first_corner_point );
 
-    add_action_table_function( &graphics->action_table, NO_EVENT,
+    add_action_table_function( &display->action_table, NO_EVENT,
                                show_rectangle_at_mouse );
 
-    graphics->prev_mouse_position = graphics->mouse_position;
-    set_update_required( graphics, NORMAL_PLANES );
+    record_mouse_position( display );
+    set_update_required( display, NORMAL_PLANES );
 }
 
-private  void  remove_events( action_table )
-    action_table_struct  *action_table;
+private  void  remove_events(
+    action_table_struct  *action_table )
 {
-    void   pop_action_table();
-
     pop_action_table( action_table, MIDDLE_MOUSE_DOWN_EVENT );
     pop_action_table( action_table, MIDDLE_MOUSE_UP_EVENT );
-    pop_action_table( action_table, TERMINATE_EVENT );
+    pop_action_table( action_table, TERMINATE_INTERACTION_EVENT );
 }
 
-private  DEF_EVENT_FUNCTION( terminate_picking_viewport )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( terminate_picking_viewport )    /* ARGSUSED */
 {
-    void   remove_action_table_function();
-    void   remove_events();
-
-    remove_action_table_function( &graphics->action_table, NO_EVENT,
+    remove_action_table_function( &display->action_table, NO_EVENT,
                                   show_rectangle_at_mouse );
 
-    remove_events( &graphics->action_table );
+    remove_events( &display->action_table );
 
     return( OK );
 }
 
-private  get_coordinates( p1, p2, x_min, y_min, x_max, y_max )
-    Point   *p1;
-    Point   *p2;
-    Real    *x_min, *y_min;
-    Real    *x_max, *y_max;
+private  get_coordinates(
+    Real    x1,
+    Real    y1,
+    Real    x2,
+    Real    y2,
+    Real    *x_min,
+    Real    *y_min,
+    Real    *x_max,
+    Real    *y_max )
 {
-    Real   dx, dy, x1, y1, x2, y2;
-
-    x1 = Point_x(*p1);
-    y1 = Point_y(*p1);
-    x2 = Point_x(*p2);
-    y2 = Point_y(*p2);
+    Real   dx, dy;
 
     dx = ABS( x2 - x1 );
     dy = ABS( y2 - y1 );
@@ -97,103 +84,98 @@ private  get_coordinates( p1, p2, x_min, y_min, x_max, y_max )
     *y_max = MAX( y1, y2 );
 }
 
-private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )   /* ARGSUSED */
 {
-    Boolean  mouse_moved();
-    Real     x1, y1, x2, y2;
-    void     draw_2d_rectangle();
-    void     set_update_required();
+    Real     x, y, x_prev, y_prev, x1, y1, x2, y2;
 
-    if( graphics_update_required( graphics ) || mouse_moved(graphics) )
+    if( (graphics_update_required( display ) ||
+         mouse_moved(display,&x,&y,&x_prev,&y_prev)) &&
+        G_get_mouse_position_0_to_1( display->window, &x, &y ) )
     {
-        get_coordinates( &graphics->mouse_position, &graphics->mouse_position,
+        get_coordinates( x, y, x, y,
                          &x1, &y1, &x2, &y2 );
 
-        draw_2d_rectangle( graphics, SCREEN_VIEW, &Viewport_feedback_colour,
+        draw_2d_rectangle( display, SCREEN_VIEW, Viewport_feedback_colour,
                            x1, y1, x2, y2 );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        set_update_required( display, NORMAL_PLANES );
     }
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( pick_first_corner_point )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( pick_first_corner_point )    /* ARGSUSED */
 {
-    void                 remove_action_table_function();
-    void                 add_action_table_function();
-    void                 set_update_required();
+    Real  x, y;
 
-    graphics->viewport_picking.first_corner = graphics->mouse_position;
-
-    graphics->prev_mouse_position = graphics->mouse_position;
-
-    add_action_table_function( &graphics->action_table,
-                               MIDDLE_MOUSE_UP_EVENT,
-                               done_picking_viewport );
-
-    remove_action_table_function( &graphics->action_table, NO_EVENT,
-                                  show_rectangle_at_mouse );
-
-    add_action_table_function( &graphics->action_table,
-                               NO_EVENT,
-                               show_picked_viewport );
-
-    set_update_required( graphics, NORMAL_PLANES );
-
-    return( OK );
-}
-
-private  DEF_EVENT_FUNCTION( show_picked_viewport )
-    /* ARGSUSED */
-{
-    Real   x1, y1, x2, y2;
-    void   draw_2d_rectangle();
-    void   set_update_required();
-
-    if( graphics_update_required( graphics ) || mouse_moved(graphics) )
+    if( G_get_mouse_position_0_to_1( display->window, &x, &y ) )
     {
-        get_coordinates( &graphics->viewport_picking.first_corner,
-                         &graphics->mouse_position,
-                         &x1, &y1, &x2, &y2 );
+        fill_Point( display->viewport_picking.first_corner, x, y, 0.0 );
 
-        draw_2d_rectangle( graphics, SCREEN_VIEW,
-                           &Viewport_feedback_colour, x1, y1, x2, y2 );
+        record_mouse_position( display );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        add_action_table_function( &display->action_table,
+                                   MIDDLE_MOUSE_UP_EVENT,
+                                   done_picking_viewport );
+
+        remove_action_table_function( &display->action_table, NO_EVENT,
+                                      show_rectangle_at_mouse );
+
+        add_action_table_function( &display->action_table,
+                                   NO_EVENT,
+                                   show_picked_viewport );
+
+        set_update_required( display, NORMAL_PLANES );
     }
 
     return( OK );
 }
 
-private  DEF_EVENT_FUNCTION( done_picking_viewport )
-    /* ARGSUSED */
+private  DEF_EVENT_FUNCTION( show_picked_viewport )    /* ARGSUSED */
 {
-    void   set_view_rectangle();
-    void   adjust_view_for_aspect();
-    void   update_view();
-    Real   x_min, y_min, x_max, y_max;
-    void   set_update_required();
-    void   remove_action_table_function();
+    Real   x, y, x_prev, y_prev, x1, y1, x2, y2;
 
-    remove_action_table_function( &graphics->action_table, NO_EVENT,
+    if( (graphics_update_required( display ) ||
+         mouse_moved(display,&x,&y,&x_prev,&y_prev)) &&
+        G_get_mouse_position_0_to_1( display->window, &x, &y ) )
+    {
+        get_coordinates( Point_x(display->viewport_picking.first_corner),
+                         Point_y(display->viewport_picking.first_corner),
+                         x, y, &x1, &y1, &x2, &y2 );
+
+        draw_2d_rectangle( display, SCREEN_VIEW,
+                           Viewport_feedback_colour, x1, y1, x2, y2 );
+
+        set_update_required( display, NORMAL_PLANES );
+    }
+
+    return( OK );
+}
+
+private  DEF_EVENT_FUNCTION( done_picking_viewport )     /* ARGSUSED */
+{
+    Real   x, y, x_min, y_min, x_max, y_max;
+
+    remove_action_table_function( &display->action_table, NO_EVENT,
                                   show_picked_viewport );
 
-    remove_events( &graphics->action_table );
+    remove_events( &display->action_table );
 
-    get_coordinates( &graphics->viewport_picking.first_corner,
-                     &graphics->mouse_position,
-                     &x_min, &y_min, &x_max, &y_max );
+    if( G_get_mouse_position_0_to_1( display->window, &x, &y ) )
+    {
+        get_coordinates( Point_x(display->viewport_picking.first_corner),
+                         Point_y(display->viewport_picking.first_corner),
+                         x, y, &x_min, &y_min, &x_max, &y_max );
 
-    set_view_rectangle( &graphics->three_d.view, x_min, x_max, y_min, y_max );
+        set_view_rectangle( &display->three_d.view,
+                            x_min, x_max, y_min, y_max );
 
-    adjust_view_for_aspect( &graphics->three_d.view, &graphics->window );
+        adjust_view_for_aspect( &display->three_d.view, display->window );
 
-    update_view( graphics );
+        update_view( display );
 
-    set_update_required( graphics, NORMAL_PLANES );
+        set_update_required( display, NORMAL_PLANES );
+    }
     
     return( OK );
 }

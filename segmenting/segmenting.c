@@ -1,11 +1,17 @@
 
-#include  <def_graphics.h>
-#include  <def_arrays.h>
-#include  <def_queue.h>
-#include  <def_globals.h>
+#include  <def_display.h>
 
-public  void  initialize_segmenting( segmenting )
-    segmenting_struct  *segmenting;
+private  Boolean  should_change_this_one(
+    volume_struct   *volume,
+    int             x,
+    int             y,
+    int             z,
+    int             min_threshold,
+    int             max_threshold,
+    Boolean         desired_activity );
+
+public  void  initialize_segmenting(
+    segmenting_struct  *segmenting )
 {
     segmenting->n_labels = 0;
     segmenting->labels = (label_struct *) 0;
@@ -14,86 +20,66 @@ public  void  initialize_segmenting( segmenting )
     segmenting->connectivity = (Neighbour_types) Segmenting_connectivity;
 }
 
-public  Status  delete_all_labels( segmenting )
-    segmenting_struct  *segmenting;
+public  void  delete_all_labels(
+    segmenting_struct  *segmenting )
 {
-    Status   status;
-
-    status = OK;
-
     if( segmenting->n_labels > 0 )
     {
-        FREE( status, segmenting->labels );
+        FREE( segmenting->labels );
         segmenting->n_labels = 0;
     }
-
-    return( status );
 }
 
-public  Status  reset_segmentation( slice_window )
-    graphics_struct   *slice_window;
+public  void  reset_segmentation(
+    display_struct    *slice_window )
 {
-    Status   status;
-    void     set_all_voxel_activity_flags();
-    void     set_all_voxel_label_flags();
+    delete_all_labels( &slice_window->slice.segmenting );
 
-    status = delete_all_labels( &slice_window->slice.segmenting );
-
-    set_all_voxel_activity_flags( slice_window->slice.volume, TRUE );
-    set_all_voxel_label_flags( slice_window->slice.volume, FALSE );
-
-    return( status );
+    set_all_voxel_activity_flags( &slice_window->slice.volume, TRUE );
+    set_all_voxel_label_flags( &slice_window->slice.volume, FALSE );
 }
 
-public  Status  add_point_label( slice_window, x, y, z, id )
-    graphics_struct  *slice_window;
+public  void  add_point_label(
+    display_struct   *slice_window,
+    int              x,
+    int              y,
+    int              z,
+    int              id )
 {
-    Status        status;
     label_struct  label;
-    void          set_voxel_label_flag();
 
     label.voxel_indices[X] = x;
     label.voxel_indices[Y] = y;
     label.voxel_indices[Z] = z;
     label.id = id;
 
-    ADD_ELEMENT_TO_ARRAY( status,
+    ADD_ELEMENT_TO_ARRAY( slice_window->slice.segmenting.labels,
                           slice_window->slice.segmenting.n_labels,
-                          slice_window->slice.segmenting.labels,
                           label, DEFAULT_CHUNK_SIZE );
 
-    set_voxel_label_flag( slice_window->slice.volume, x, y, z, TRUE );
-
-    return( status );
+    set_voxel_label_flag( &slice_window->slice.volume, x, y, z, TRUE );
 }
 
-public  Status  generate_segmentation( slice_window, voxel_indices, voxel_axes )
-    graphics_struct   *slice_window;
-    int               voxel_indices[3];
-    int               voxel_axes[3];
+public  void  generate_segmentation(
+    display_struct    *slice_window,
+    int               voxel_indices[3],
+    int               voxel_axes[3] )
 {
-    Status   status;
-    Status   disconnect_components();
-
-    status = disconnect_components( slice_window->slice.volume,
-                        voxel_indices, voxel_axes,
-                        slice_window->slice.segmenting.n_labels,
-                        slice_window->slice.segmenting.labels,
-                        slice_window->slice.segmenting.min_threshold,
-                        slice_window->slice.segmenting.max_threshold );
-
-    return( status );
+    disconnect_components( &slice_window->slice.volume,
+                           voxel_indices, voxel_axes,
+                           slice_window->slice.segmenting.n_labels,
+                           slice_window->slice.segmenting.labels,
+                           slice_window->slice.segmenting.min_threshold,
+                           slice_window->slice.segmenting.max_threshold );
 }
 
-public  void  set_activity_for_slice( volume, axis_index, position, activity )
-    volume_struct  *volume;
-    int            axis_index;
-    int            position;
-    Boolean        activity;
+public  void  set_activity_for_slice(
+    volume_struct  *volume,
+    int            axis_index,
+    int            position,
+    Boolean        activity )
 {
     int     voxel[3], sizes[3], a1, a2;
-    void    get_volume_size();
-    void    set_voxel_activity_flag();
 
     get_volume_size( volume, &sizes[0], &sizes[1], &sizes[2] );
 
@@ -117,23 +103,17 @@ typedef struct
     int  x, y;
 } slice_position;
 
-public  void  set_connected_voxels_activity( volume, axis_index, position,
-                                             min_threshold, max_threshold,
-                                             connectivity,
-                                             desired_activity )
-    volume_struct     *volume;
-    int               axis_index;
-    int               position[3];
-    int               min_threshold;
-    int               max_threshold;
-    Neighbour_types   connectivity;
-    Boolean           desired_activity;
+public  void  set_connected_voxels_activity(
+    volume_struct     *volume,
+    int               axis_index,
+    int               position[3],
+    int               min_threshold,
+    int               max_threshold,
+    Neighbour_types   connectivity,
+    Boolean           desired_activity )
 {
     int                             voxel[3], sizes[3], a1, a2, x, y;
     int                             dir, n_dirs, *dx, *dy;
-    void                            get_volume_size();
-    void                            set_voxel_activity_flag();
-    Status                          status;
     slice_position                  entry;
     QUEUE_STRUCT( slice_position )  queue;
 
@@ -157,7 +137,7 @@ public  void  set_connected_voxels_activity( volume, axis_index, position,
                                  desired_activity );
         entry.x = voxel[a1];
         entry.y = voxel[a2];
-        INSERT_IN_QUEUE( status, queue, entry );
+        INSERT_IN_QUEUE( queue, entry );
     }
 
     while( !IS_QUEUE_EMPTY( queue ) )
@@ -181,27 +161,26 @@ public  void  set_connected_voxels_activity( volume, axis_index, position,
                                          voxel[2], desired_activity );
                 entry.x = voxel[a1];
                 entry.y = voxel[a2];
-                INSERT_IN_QUEUE( status, queue, entry );
+                INSERT_IN_QUEUE( queue, entry );
             }
         }
     }
 
-    if( status == OK )
-        DELETE_QUEUE( status, queue );
+    DELETE_QUEUE( queue );
 }
 
-private  Boolean  should_change_this_one( volume, x, y, z,
-                                          min_threshold, max_threshold,
-                                          desired_activity )
-    volume_struct   *volume;
-    int             x, y, z;
-    int             min_threshold;
-    int             max_threshold;
-    Boolean         desired_activity;
+private  Boolean  should_change_this_one(
+    volume_struct   *volume,
+    int             x,
+    int             y,
+    int             z,
+    int             min_threshold,
+    int             max_threshold,
+    Boolean         desired_activity )
 {
     int   value;
 
-    GET_VOLUME_DATA( value, *volume, x, y, z );
+    value = GET_VOLUME_DATA( *volume, x, y, z );
 
     return( desired_activity != get_voxel_activity_flag( volume, x, y, z ) &&
             min_threshold <= value && value <= max_threshold );
@@ -214,10 +193,10 @@ private   int   Dx8[8] = {  1,  1,  0, -1, -1, -1,  0,  1 };
 private   int   Dy8[8] = {  0,  1,  1,  1,  0, -1, -1, -1 };
 
 
-public  int  get_neighbour_directions( connectivity, dx, dy )
-    Neighbour_types   connectivity;
-    int               *dx[];
-    int               *dy[];
+public  int  get_neighbour_directions(
+    Neighbour_types   connectivity,
+    int               *dx[],
+    int               *dy[] )
 {
     int   n_dirs;
 

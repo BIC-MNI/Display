@@ -1,38 +1,27 @@
  
-#include  <def_graphics.h>
-#include  <def_globals.h>
-#include  <def_math.h>
-#include  <def_files.h>
-#include  <def_deform.h>
+#include  <def_display.h>
 
-public  Boolean  get_current_polygons( graphics, polygons )
-    graphics_struct     *graphics;
-    polygons_struct     **polygons;
+public  Boolean  get_current_polygons(
+    display_struct      *display,
+    polygons_struct     **polygons )
 {
-    Status          status;
-    Boolean         found;
-    object_struct   *current_object, *object;
-    Boolean         get_current_object();
+    Boolean                 found;
+    object_struct           *current_object, *object;
     object_traverse_struct  object_traverse;
-    Status                  initialize_object_traverse();
 
     found = FALSE;
 
-    if( get_current_object( graphics, &current_object ) )
+    if( get_current_object( display, &current_object ) )
     {
-        status = initialize_object_traverse( &object_traverse, 1,
-                                             &current_object );
+        initialize_object_traverse( &object_traverse, 1, &current_object );
 
-        if( status == OK )
+        while( get_next_object_traverse(&object_traverse,&object) )
         {
-            while( get_next_object_traverse(&object_traverse,&object) )
+            if( !found && object->object_type == POLYGONS &&
+                get_polygons_ptr(object)->n_items > 0 )
             {
-                if( !found && object->object_type == POLYGONS &&
-                    object->ptr.polygons->n_items > 0 )
-                {
-                    found = TRUE;
-                    *polygons = object->ptr.polygons;
-                }
+                found = TRUE;
+                *polygons = get_polygons_ptr(object);
             }
         }
     }
@@ -46,14 +35,13 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
     polygons_struct   *polygons;
     String            filename;
     FILE              *file;
-    Status            io_bintree();
 
     status = OK;
 
-    if( get_current_polygons(graphics,&polygons) &&
+    if( get_current_polygons(display,&polygons) &&
         polygons->bintree == (bintree_struct *) 0 )
     {
-        PRINT( "Enter filename: " );
+        print( "Enter filename: " );
 
         status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
@@ -64,7 +52,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
                                                     BINARY_FORMAT, &file );
 
         if( status == OK )
-            ALLOC( status, polygons->bintree, 1 );
+            ALLOC( polygons->bintree, 1 );
 
         if( status == OK )
         {
@@ -75,7 +63,7 @@ public  DEF_MENU_FUNCTION( input_polygons_bintree )   /* ARGSUSED */
         if( status == OK )
             status = close_file( file );
 
-        PRINT( "Done.\n" );
+        print( "Done.\n" );
     }
 
     return( status );
@@ -92,14 +80,13 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
     polygons_struct   *polygons;
     String            filename;
     FILE              *file;
-    Status            io_bintree();
 
     status = OK;
 
-    if( get_current_polygons(graphics,&polygons) &&
+    if( get_current_polygons(display,&polygons) &&
         polygons->bintree != (bintree_struct *) 0 )
     {
-        PRINT( "Enter filename: " );
+        print( "Enter filename: " );
 
         status = input_string( stdin, filename, MAX_STRING_LENGTH, ' ' );
 
@@ -120,7 +107,7 @@ public  DEF_MENU_FUNCTION( save_polygons_bintree )   /* ARGSUSED */
             status = close_file( file );
         }
 
-        PRINT( "Done.\n" );
+        print( "Done.\n" );
     }
 
     return( status );
@@ -133,25 +120,19 @@ public  DEF_MENU_UPDATE(save_polygons_bintree )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( create_bintree_for_polygons )   /* ARGSUSED */
 {
-    Status            status;
-    Status            create_polygons_bintree();
-    Status            delete_polygons_bintree();
     polygons_struct   *polygons;
 
-    status = OK;
-
-    if( get_current_polygons(graphics,&polygons) )
+    if( get_current_polygons(display,&polygons) )
     {
         if( polygons->bintree != (bintree_struct *) 0 )
-            status = delete_polygons_bintree( polygons );
+            delete_polygons_bintree( polygons );
 
-        if( status == OK )
-            status = create_polygons_bintree( polygons,
-                   ROUND( (Real) polygons->n_items * Bintree_size_factor ) );
-        PRINT( "Done.\n" );
+        create_polygons_bintree( polygons,
+                     ROUND( (Real) polygons->n_items * Bintree_size_factor ) );
+        print( "Done.\n" );
     }
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(create_bintree_for_polygons )   /* ARGSUSED */
@@ -161,22 +142,17 @@ public  DEF_MENU_UPDATE(create_bintree_for_polygons )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( create_normals_for_polygon )   /* ARGSUSED */
 {
-    Status            status;
-    Status            compute_polygon_normals();
     polygons_struct   *polygons;
-    void              graphics_models_have_changed();
 
-    status = OK;
-
-    if( get_current_polygons(graphics,&polygons) )
+    if( get_current_polygons(display,&polygons) )
     {
-        status = compute_polygon_normals( polygons );
-        graphics_models_have_changed( graphics );
+        compute_polygon_normals( polygons );
+        graphics_models_have_changed( display );
 
-        PRINT( "Done computing polygon normals.\n" );
+        print( "Done computing polygon normals.\n" );
     }
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(create_normals_for_polygon )   /* ARGSUSED */
@@ -186,34 +162,25 @@ public  DEF_MENU_UPDATE(create_normals_for_polygon )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
 {
-    Status            status;
-    Status            smooth_polygon();
-    Status            compute_polygon_normals();
-    Status            delete_polygons_bintree();
     polygons_struct   *polygons;
-    void              set_update_required();
 
-    status = OK;
-
-    if( get_current_polygons(graphics,&polygons) )
+    if( get_current_polygons(display,&polygons) )
     {
-        status = smooth_polygon( polygons, Max_smoothing_distance,
-                                 Smoothing_ratio, Smoothing_threshold,
-                                 Smoothing_normal_ratio,
-                                 FALSE, (volume_struct *) 0, 0, 0 );
+        smooth_polygon( polygons, Max_smoothing_distance,
+                        Smoothing_ratio, Smoothing_threshold,
+                        Smoothing_normal_ratio,
+                        FALSE, (volume_struct *) 0, 0, 0 );
 
-        if( status == OK )
-            status = compute_polygon_normals( polygons );
+        compute_polygon_normals( polygons );
 
-        if( status == OK )
-            status = delete_polygons_bintree( polygons );
+        delete_polygons_bintree( polygons );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        set_update_required( display, NORMAL_PLANES );
 
-        PRINT( "Done smoothing polygon.\n" );
+        print( "Done smoothing polygon.\n" );
     }
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(smooth_current_polygon )   /* ARGSUSED */
@@ -223,37 +190,28 @@ public  DEF_MENU_UPDATE(smooth_current_polygon )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( smooth_current_polygon_with_volume )   /* ARGSUSED */
 {
-    Status            status;
-    Status            smooth_polygon();
-    Status            compute_polygon_normals();
-    Status            delete_polygons_bintree();
     polygons_struct   *polygons;
     volume_struct     *volume;
-    void              set_update_required();
 
-    status = OK;
-
-    if( get_current_polygons( graphics, &polygons ) &&
-        get_current_volume( graphics, &volume ) )
+    if( get_current_polygons( display, &polygons ) &&
+        get_slice_window_volume( display, &volume ) )
     {
-        status = smooth_polygon( polygons, Max_smoothing_distance,
+        smooth_polygon( polygons, Max_smoothing_distance,
                                  Smoothing_ratio, Smoothing_threshold,
                                  Smoothing_normal_ratio, TRUE, volume,
-            graphics->associated[SLICE_WINDOW]->slice.segmenting.min_threshold,
-            graphics->associated[SLICE_WINDOW]->slice.segmenting.max_threshold);
+            display->associated[SLICE_WINDOW]->slice.segmenting.min_threshold,
+            display->associated[SLICE_WINDOW]->slice.segmenting.max_threshold);
 
-        if( status == OK )
-            status = compute_polygon_normals( polygons );
+        compute_polygon_normals( polygons );
 
-        if( status == OK )
-            status = delete_polygons_bintree( polygons );
+        delete_polygons_bintree( polygons );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        set_update_required( display, NORMAL_PLANES );
 
-        PRINT( "Done smoothing polygon.\n" );
+        print( "Done smoothing polygon.\n" );
     }
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(smooth_current_polygon_with_volume )   /* ARGSUSED */
@@ -264,14 +222,12 @@ public  DEF_MENU_UPDATE(smooth_current_polygon_with_volume )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( reverse_polygons_order )   /* ARGSUSED */
 {
     polygons_struct   *polygons;
-    void              reverse_polygons_vertices();
-    void              set_update_required();
 
-    if( get_current_polygons( graphics, &polygons ) )
+    if( get_current_polygons( display, &polygons ) )
     {
         reverse_polygons_vertices( polygons );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        set_update_required( display, NORMAL_PLANES );
     }
 
     return( OK );
@@ -284,45 +240,32 @@ public  DEF_MENU_UPDATE(reverse_polygons_order )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( deform_polygon_to_volume )   /* ARGSUSED */
 {
-    Status            status;
-    Status            deform_polygons();
-    Status            compute_polygon_normals();
-    Status            delete_polygons_bintree();
     volume_struct     *volume;
     polygons_struct   *polygons;
     deform_struct     deform;
-    void              set_update_required();
-    Status            typein_deformation_parameters();
-    Status            delete_deformation_parameters();
 
-
-    status = OK;
-
-    if( get_current_polygons( graphics, &polygons ) &&
-        get_current_volume( graphics, &volume ) )
+    if( get_current_polygons( display, &polygons ) &&
+        get_slice_window_volume( display, &volume ) )
     {
         if( typein_deformation_parameters( polygons->n_points, &deform ) == OK )
         {
             deform.deform_data.volume = volume;
 
-            status = deform_polygons( polygons, &deform );
+            deform_polygons( polygons, &deform );
 
-            if( status == OK )
-                status = delete_deformation_parameters( &deform );
+            delete_deformation_parameters( &deform );
 
-            if( status == OK )
-                status = compute_polygon_normals( polygons );
+            compute_polygon_normals( polygons );
 
-            if( status == OK )
-                status = delete_polygons_bintree( polygons );
+            delete_polygons_bintree( polygons );
 
-            set_update_required( graphics, NORMAL_PLANES );
+            set_update_required( display, NORMAL_PLANES );
 
-            PRINT( "Done deforming polygon.\n" );
+            print( "Done deforming polygon.\n" );
         }
     }
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(deform_polygon_to_volume )   /* ARGSUSED */
@@ -332,55 +275,41 @@ public  DEF_MENU_UPDATE(deform_polygon_to_volume )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( make_polygon_sphere )   /* ARGSUSED */
 {
-    Status            status;
-    Status            compute_polygon_normals();
-    Status            create_polygons_sphere();
-    Status            create_object();
-    Status            add_object_to_current_model();
     Point             centre;
     Real              x_size, y_size, z_size;
     int               n_up, n_around;
     object_struct     *object;
-    void              set_object_colour();
-    void              get_default_surfprop();
 
-    status = OK;
-
-    PRINT( "Enter x_centre, y_centre, z_centre, x_size, y_size, z_size,\n" );
-    PRINT( "      n_up, n_around: " );
+    print( "Enter x_centre, y_centre, z_centre, x_size, y_size, z_size,\n" );
+    print( "      n_up, n_around: " );
     
-    if( input_real( stdin, &Point_x(centre) ) == OK &&
-        input_real( stdin, &Point_y(centre) ) == OK &&
-        input_real( stdin, &Point_z(centre) ) == OK &&
+    if( input_float( stdin, &Point_x(centre) ) == OK &&
+        input_float( stdin, &Point_y(centre) ) == OK &&
+        input_float( stdin, &Point_z(centre) ) == OK &&
         input_real( stdin, &x_size ) == OK &&
         input_real( stdin, &y_size ) == OK &&
         input_real( stdin, &z_size ) == OK &&
         input_int( stdin, &n_up ) == OK &&
         input_int( stdin, &n_around ) == OK )
     {
-        status = create_object( &object, POLYGONS );
+        object = create_object( POLYGONS );
 
-        if( status == OK )
-            status = create_polygons_sphere( &centre, x_size, y_size, z_size,
-                              n_up, n_around, FALSE, object->ptr.polygons );
+        create_polygons_sphere( &centre, x_size, y_size, z_size,
+                                n_up, n_around, FALSE,
+                                get_polygons_ptr(object) );
 
-        if( status == OK )
-            ALLOC( status, object->ptr.polygons->colours, 1 );
+        ALLOC( get_polygons_ptr(object)->colours, 1 );
 
-        if( status == OK )
-        {
-            object->ptr.polygons->colours[0] = WHITE;
-            get_default_surfprop( &object->ptr.polygons->surfprop );
-            status = compute_polygon_normals( object->ptr.polygons );
-        }
+        get_polygons_ptr(object)->colours[0] = WHITE;
+        get_default_surfprop( &get_polygons_ptr(object)->surfprop );
+        compute_polygon_normals( get_polygons_ptr(object) );
 
-        if( status == OK )
-            status = add_object_to_current_model( graphics, object );
+        add_object_to_current_model( display, object );
     }
 
     (void) input_newline( stdin );
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(make_polygon_sphere )   /* ARGSUSED */
@@ -390,26 +319,18 @@ public  DEF_MENU_UPDATE(make_polygon_sphere )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( subdivide_current_polygon )   /* ARGSUSED */
 {
-    Status            status;
-    Status            subdivide_polygons();
     polygons_struct   *polygons;
-    Status            compute_polygon_normals();
-    void              graphics_models_have_changed();
 
-    status = OK;
-
-    if( get_current_polygons( graphics, &polygons ) )
+    if( get_current_polygons( display, &polygons ) )
     {
-        status = subdivide_polygons( polygons );
+        subdivide_polygons( polygons );
 
-        if( status == OK )
-            status = compute_polygon_normals( polygons );
+        compute_polygon_normals( polygons );
 
-        if( status == OK )
-            graphics_models_have_changed( graphics );
+        graphics_models_have_changed( display );
     }
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(subdivide_current_polygon )   /* ARGSUSED */
@@ -419,17 +340,11 @@ public  DEF_MENU_UPDATE(subdivide_current_polygon )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( scan_current_polygon_to_volume )   /* ARGSUSED */
 {
-    Status            status;
-    void              scan_polygons_to_voxels();
     polygons_struct   *polygons;
     volume_struct     *volume;
-    void              set_all_voxel_label_flags();
-    void              set_slice_window_update();
 
-    status = OK;
-
-    if( get_current_polygons( graphics, &polygons ) &&
-        get_current_volume( graphics, &volume ) )
+    if( get_current_polygons( display, &polygons ) &&
+        get_slice_window_volume( display, &volume ) )
     {
         set_all_voxel_label_flags( volume, FALSE );
 
@@ -437,14 +352,14 @@ public  DEF_MENU_FUNCTION( scan_current_polygon_to_volume )   /* ARGSUSED */
                                  Scanned_polygons_label | ACTIVE_BIT,
                                  Max_polygon_scan_distance );
 
-        PRINT( " done.\n" );
+        print( " done.\n" );
 
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
     }
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(scan_current_polygon_to_volume )   /* ARGSUSED */
@@ -454,61 +369,46 @@ public  DEF_MENU_UPDATE(scan_current_polygon_to_volume )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION( make_unit_sphere )   /* ARGSUSED */
 {
-    Status            status;
-    Status            compute_polygon_normals();
-    Status            create_sphere_from_polygons();
-    Status            create_object();
-    Status            add_object_to_current_model();
     Point             centre;
     Boolean           offset_flag;
     Real              x_radius, y_radius, z_radius, offset_factor;
     Real              max_curvature;
     object_struct     *object;
     polygons_struct   *polygons;
-    void              get_default_surfprop();
 
-    status = OK;
-
-    if( get_current_polygons( graphics, &polygons ) )
+    if( get_current_polygons( display, &polygons ) )
     {
-        PRINT( "Enter offset_flag, offset, max_curvature," );
-        PRINT( "      x_centre, y_centre, z_centre," );
-        PRINT( "      x_radius, y_radius, z_radius: " );
+        print( "Enter offset_flag, offset, max_curvature," );
+        print( "      x_centre, y_centre, z_centre," );
+        print( "      x_radius, y_radius, z_radius: " );
     
         if( input_int( stdin, &offset_flag ) == OK &&
             input_real( stdin, &offset_factor ) == OK &&
             input_real( stdin, &max_curvature ) == OK &&
-            input_real( stdin, &Point_x(centre) ) == OK &&
-            input_real( stdin, &Point_y(centre) ) == OK &&
-            input_real( stdin, &Point_z(centre) ) == OK &&
+            input_float( stdin, &Point_x(centre) ) == OK &&
+            input_float( stdin, &Point_y(centre) ) == OK &&
+            input_float( stdin, &Point_z(centre) ) == OK &&
             input_real( stdin, &x_radius ) == OK &&
             input_real( stdin, &y_radius ) == OK &&
             input_real( stdin, &z_radius ) == OK )
         {
-            status = create_object( &object, POLYGONS );
+            object = create_object( POLYGONS );
  
-            if( status == OK )
-                status = create_sphere_from_polygons( polygons,
-                             object->ptr.polygons, &centre,
-                             x_radius, y_radius, z_radius, max_curvature,
-                             offset_flag, offset_factor );
+            create_sphere_from_polygons( polygons, get_polygons_ptr(object),
+                                         &centre, x_radius, y_radius, z_radius,
+                                         max_curvature, offset_flag,
+                                         offset_factor );
 
+            get_default_surfprop( &get_polygons_ptr(object)->surfprop );
+            compute_polygon_normals( get_polygons_ptr(object) );
 
-            if( status == OK )
-            {
-                get_default_surfprop( &object->ptr.polygons->surfprop );
-
-                status = compute_polygon_normals( object->ptr.polygons );
-            }
-
-            if( status == OK )
-                status = add_object_to_current_model( graphics, object );
+            add_object_to_current_model( display, object );
         }
 
         (void) input_newline( stdin );
     }
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(make_unit_sphere )   /* ARGSUSED */

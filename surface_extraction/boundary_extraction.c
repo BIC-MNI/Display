@@ -1,44 +1,44 @@
-#include  <def_objects.h>
-#include  <def_colours.h>
-#include  <def_skiplist.h>
-#include  <def_progress.h>
-#include  <def_files.h>
+#include  <def_display.h>
 
 typedef  skiplist_struct  point_lookup_struct;
 
-public  Status  extract_boundary_of_labeled_voxels( volume, polygons )
-    volume_struct    *volume;
-    polygons_struct  *polygons;
+private  Boolean  face_is_boundary(
+    volume_struct   *volume,
+    int             sizes[N_DIMENSIONS],
+    int             indices[N_DIMENSIONS],
+    int             c,
+    int             offset );
+private  void  initialize_point_lookup(
+    point_lookup_struct  *point_lookup );
+private  void  terminate_point_lookup(
+    point_lookup_struct  *point_lookup );
+private  Status  add_face(
+    volume_struct        *volume,
+    int                  indices[N_DIMENSIONS],
+    int                  c,
+    int                  offset,
+    polygons_struct      *polygons,
+    point_lookup_struct  *point_lookup );
+
+public  void  extract_boundary_of_labeled_voxels(
+    volume_struct    *volume,
+    polygons_struct  *polygons )
 {
-    Status                       status;
     int                          indices[3], sizes[3], c, offset;
-    void                         get_volume_size();
-    void                         empty_polygons_struct();
-    void                         get_default_surfprop();
     point_lookup_struct          point_lookup;
-    Status                       initialize_point_lookup();
-    Status                       terminate_point_lookup();
-    Status                       compute_polygon_normals();
-    Status                       add_face();
     progress_struct              progress;
 
-    empty_polygons_struct( polygons );
+    initialize_polygons( polygons, WHITE, (Surfprop *) NULL );
 
-    ALLOC( status, polygons->colours, 1 );
-
-    if( status == OK )
-        polygons->colours[0] = WHITE;
-    polygons->colour_flag = ONE_COLOUR;
     get_default_surfprop( &polygons->surfprop );
 
     get_volume_size( volume, &sizes[X], &sizes[Y], &sizes[Z] );
 
-    if( status == OK )
-        status = initialize_point_lookup( &point_lookup );
+    initialize_point_lookup( &point_lookup );
 
     initialize_progress_report( &progress, FALSE,
-                         sizes[X] * sizes[Y] * sizes[Z],
-                         "Extracting boundary" );
+                                sizes[X] * sizes[Y] * sizes[Z],
+                                "Extracting boundary" );
 
     for_less( indices[Z], 0, sizes[Z] )
     {
@@ -50,11 +50,10 @@ public  Status  extract_boundary_of_labeled_voxels( volume, polygons )
                 {
                     for( offset = -1;  offset <= 1;  offset += 2 )
                     {
-                        if( status == OK &&
-                            face_is_boundary( volume, sizes, indices, c,offset))
+                        if( face_is_boundary( volume, sizes, indices, c,offset))
                         {
-                            status = add_face( volume, indices, c, offset,
-                                               polygons, &point_lookup );
+                            add_face( volume, indices, c, offset,
+                                      polygons, &point_lookup );
                         }
                     }
                 }
@@ -64,32 +63,28 @@ public  Status  extract_boundary_of_labeled_voxels( volume, polygons )
                      (indices[X]+1 + indices[Z] * sizes[X]) );
         }
 
-        PRINT( "N points: %d    N polygons: %d\n", polygons->n_points,
+        print( "N points: %d    N polygons: %d\n", polygons->n_points,
                polygons->n_items );
     }
 
     terminate_progress_report( &progress );
 
-    if( status == OK )
-        status = terminate_point_lookup( &point_lookup );
+    terminate_point_lookup( &point_lookup );
 
-    if( status == OK && polygons->n_points > 0 )
+    if( polygons->n_points > 0 )
     {
-        ALLOC( status, polygons->normals, polygons->n_points );
+        ALLOC( polygons->normals, polygons->n_points );
 
-        if( status == OK )
-            status = compute_polygon_normals( polygons );
+        compute_polygon_normals( polygons );
     }
-
-    return( status );
 }
 
-private  Boolean  face_is_boundary( volume, sizes, indices, c, offset )
-    volume_struct   *volume;
-    int             sizes[N_DIMENSIONS];
-    int             indices[N_DIMENSIONS];
-    int             c;
-    int             offset;
+private  Boolean  face_is_boundary(
+    volume_struct   *volume,
+    int             sizes[N_DIMENSIONS],
+    int             indices[N_DIMENSIONS],
+    int             c,
+    int             offset )
 {
     Boolean  boundary_flag;
     int      neigh_indices[N_DIMENSIONS];
@@ -122,9 +117,9 @@ typedef  struct
     int              point_index;
 } point_struct;
 
-private  int  compare_function( data1, data2 )
-    void   *data1;
-    void   *data2;
+private  int  compare_function(
+    void   *data1,
+    void   *data2 )
 {
     point_struct  *d1, *d2;
 
@@ -147,53 +142,43 @@ private  int  compare_function( data1, data2 )
         return( 0 );
 }
 
-private  Status  initialize_point_lookup( point_lookup )
-    point_lookup_struct  *point_lookup;
+private  void  initialize_point_lookup(
+    point_lookup_struct  *point_lookup )
 {
-    Status   status;
-
-    status = initialize_skiplist( point_lookup, compare_function );
-
-    return( status );
+    initialize_skiplist( point_lookup, compare_function );
 }
 
-private  Status  terminate_point_lookup( point_lookup )
-    point_lookup_struct  *point_lookup;
+private  void  terminate_point_lookup(
+    point_lookup_struct  *point_lookup )
 {
-    Status         status;
     skip_struct    *entry_ptr;
     point_struct   *data_ptr;
-
-    status = OK;
 
     if( get_first_skiplist_entry( point_lookup, &entry_ptr,
                                   (void **) &data_ptr ) )
     {
-        FREE( status, data_ptr );
+        FREE( data_ptr );
 
         while( get_next_skiplist_entry( &entry_ptr, (void **) &data_ptr ) )
         {
-            if( status == OK )
-                FREE( status, data_ptr );
+            FREE( data_ptr );
         }
     }
 
-    if( status == OK )
-        status = delete_skiplist( point_lookup );
-
-    return( status );
+    delete_skiplist( point_lookup );
 }
 
-private  int  get_point_index( volume, polygons, point_lookup, x, y, z )
-    volume_struct        *volume;
-    polygons_struct      *polygons;
-    point_lookup_struct  *point_lookup;
-    int                  x, y, z;
+private  int  get_point_index(
+    volume_struct        *volume,
+    polygons_struct      *polygons,
+    point_lookup_struct  *point_lookup,
+    int                  x,
+    int                  y,
+    int                  z )
 {
-    Status        status;
+    Real          x_w, y_w, z_w;
     Point         point;
     point_struct  p, *entry;
-    void          convert_voxel_to_point();
 
     p.x = (unsigned short) x;
     p.y = (unsigned short) y;
@@ -201,7 +186,7 @@ private  int  get_point_index( volume, polygons, point_lookup, x, y, z )
 
     if( !search_skiplist( point_lookup, (void *) &p, (void **) &entry ) )
     {
-        ALLOC( status, entry, 1 );
+        ALLOC( entry, 1 );
         *entry = p;
         entry->point_index = polygons->n_points;
 
@@ -210,24 +195,24 @@ private  int  get_point_index( volume, polygons, point_lookup, x, y, z )
             HANDLE_INTERNAL_ERROR( "lookup id for boundary detection" );
         }
 
-        convert_voxel_to_point( volume, (Real) x - 0.5, (Real) y - 0.5,
-                                (Real) z - 0.5, &point );
-        ADD_ELEMENT_TO_ARRAY( status, polygons->n_points,
-                              polygons->points, point, DEFAULT_CHUNK_SIZE );
+        convert_voxel_to_world( volume, (Real) x - 0.5, (Real) y - 0.5,
+                                (Real) z - 0.5, &x_w, &y_w, &z_w );
+        fill_Point( point, x_w, y_w, z_w );
+        ADD_ELEMENT_TO_ARRAY( polygons->points, polygons->n_points,
+                              point, DEFAULT_CHUNK_SIZE );
     }
 
     return( entry->point_index );
 }
 
-private  Status  add_face( volume, indices, c, offset, polygons, point_lookup )
-    volume_struct        *volume;
-    int                  indices[N_DIMENSIONS];
-    int                  c;
-    int                  offset;
-    polygons_struct      *polygons;
-    point_lookup_struct  *point_lookup;
+private  Status  add_face(
+    volume_struct        *volume,
+    int                  indices[N_DIMENSIONS],
+    int                  c,
+    int                  offset,
+    polygons_struct      *polygons,
+    point_lookup_struct  *point_lookup )
 {
-    Status   status;
     int      a1, a2, point_ids[4], point_indices[3], n_indices, i;
 
     if( offset == 1 )
@@ -277,18 +262,12 @@ private  Status  add_face( volume, indices, c, offset, polygons, point_lookup )
 
     n_indices = NUMBER_INDICES( *polygons );
 
-    status = OK;
-
     for_less( i, 0, 4 )
     {
-        if( status == OK )
-            ADD_ELEMENT_TO_ARRAY( status, n_indices, polygons->indices,
-                                  point_ids[i], DEFAULT_CHUNK_SIZE);
+        ADD_ELEMENT_TO_ARRAY( polygons->indices, n_indices,
+                              point_ids[i], DEFAULT_CHUNK_SIZE);
     }
 
-    if( status == OK )
-        ADD_ELEMENT_TO_ARRAY( status, polygons->n_items, polygons->end_indices,
-                              n_indices, DEFAULT_CHUNK_SIZE );
-
-    return( status );
+    ADD_ELEMENT_TO_ARRAY( polygons->end_indices, polygons->n_items,
+                          n_indices, DEFAULT_CHUNK_SIZE );
 }

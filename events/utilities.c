@@ -1,25 +1,22 @@
 
-#include  <def_graphics.h>
+#include  <def_display.h>
 
-public  void   terminate_any_interactions( graphics )
-    graphics_struct  *graphics;
+public  void   terminate_any_interactions(
+    display_struct   *display )
 {
     Status               status;
     event_function_type  *actions;
     int                  i, n_actions;
-    int                  get_event_actions();
-    event_struct         event;
 
-    n_actions = get_event_actions( &graphics->action_table, TERMINATE_EVENT,
+    n_actions = get_event_actions( &display->action_table,
+                                   TERMINATE_INTERACTION_EVENT,
                                    &actions );
 
     status = OK;
 
-    event.event_type = TERMINATE_EVENT;
-
     for_less( i, 0, n_actions )
     {
-        status = (*actions[i]) ( graphics, &event );
+        status = (*actions[i]) ( display, TERMINATE_INTERACTION_EVENT, 0 );
         if( status != OK )
         {
             break;

@@ -28,10 +28,10 @@ root
     transient 'v'    surface_curves         "Surface Curves"
     transient 'b'    colour_coding          "Colour Coding"
 
-    permanent '\001'    ascend_selected           "Up"
-    permanent '\002'    descend_selected          "Down"
-    permanent '\003'    advance_selected          "Next"
-    permanent '\004'    retreat_selected          "Prev"
+    permanent '\left'    ascend_selected           "Up"
+    permanent '\right'   descend_selected          "Down"
+    permanent '\up'      advance_selected          "Next"
+    permanent '\down'    retreat_selected          "Prev"
 }
 
 quit
@@ -62,40 +62,24 @@ extract
 
 slice
 {
-    transient 'q'    open_slice_window          "Open Window"
-    transient 'e'    toggle_marked_slice        "Mark / Unmark Slice"
     transient 'r'    halve_slice_voxels         "Halve Size"
     transient 't'    double_slice_voxels        "Double Size"
 
-    transient 'a'    prev_marked_slice          "Prev Marked Slice"
-    transient 's'    next_marked_slice          "Next Marked Slice"
-    transient 'd'    retreat_slice              "Prev Slice"
-    transient 'f'    advance_slice              "Next Slice"
     transient 'g'    toggle_lock_slice          "Lock/Unlock Slice"
-
-    transient 'z'    output_slice_transforms    "Output Rot'ns Trans"
-    transient 'x'    set_translating_slice_mode "Turn On Translation"
-    transient 'c'    set_rotating_slice_mode    "Turn On Rotation"
-    transient 'v'    reset_slice_transform      "Reset Slice Transform"
 }
 
 colour_coding
 {
-    transient 'q'    set_user_defined_min_colour     "Use-Def Min Col: %s"
-    transient 'w'    set_user_defined_max_colour     "Use-Def Max Col: %s"
     transient 'r'    set_colour_limits               "Range"
 
-    transient 'h'    set_per_index_colour_coding     "Per Index"
     transient 'g'    set_contour_colour_map          "Contour"
     transient 'f'    set_hot_metal                   "Hot Metal"
     transient 'd'    set_gray_scale                  "Gray Scale"
     transient 's'    set_spectral                    "Spectral"
-    transient 'a'    set_user_defined_colour_coding  "User Defined"
 
     transient 'z'    set_under_colour                "Under Col: %s"
     transient 'x'    set_over_colour                 "Over Col: %s"
     transient 'c'    set_label_colour_ratio          "Label Ratio: %g"
-    transient 'b'    input_per_index_colour_map      "Input Per Index Col Map"
 }
 
 view

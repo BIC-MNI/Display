@@ -1,8 +1,3 @@
-#ifndef  DEF_GLOBALS
-#define  DEF_GLOBALS
-
-#include  <def_global_macros.h>
-
 START_GLOBALS
     DEF_GLOBAL( Initial_background_colour, Colour, 0.0 )
 
@@ -18,7 +13,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Initial_perspective_flag, Boolean, TRUE )
     DEF_GLOBAL( Closest_front_plane, Real, 1.0e-5 )
-    DEF_GLOBAL( Initial_render_mode, int, 1 )
+    DEF_GLOBAL( Initial_render_mode, Boolean, 1 )
     DEF_GLOBAL( Initial_shading_type, int, 1 )
     DEF_GLOBAL( Initial_light_switch, Boolean, TRUE )
     DEF_GLOBAL( Slice_double_buffer_flag, Boolean, TRUE )
@@ -277,5 +272,3 @@ START_GLOBALS
     DEF_GLOBAL( Use_marker_distances, Boolean, TRUE )
 
 END_GLOBALS
-         
-#endif

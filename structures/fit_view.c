@@ -1,17 +1,26 @@
 
-#include  <def_globals.h>
-#include  <def_graphics.h>
+#include  <def_display.h>
 
 #define  FACTOR  1.2
 
-static    void      fit_view_to_points();
-static    void      perspective_fit_points();
-static    void      orthogonal_fit_points();
+private  void   fit_view_to_points(
+    view_struct   *view,
+    int           n_points,
+    Point         points[] );
+private  void  orthogonal_fit_points(
+    view_struct   *view,
+    Point         *centre,
+    Vector        *range );
+private  void  perspective_fit_points(
+    view_struct   *view,
+    Point         *centre,
+    int           n_points,
+    Point         points[] );
 
-public  void  fit_view_to_domain( view, min_limit, max_limit )
-    view_struct   *view;
-    Point         *min_limit;
-    Point         *max_limit;
+public  void  fit_view_to_domain(
+    view_struct   *view,
+    Point         *min_limit,
+    Point         *max_limit )
 {
     Point     points[8];
     Real      x_min, y_min, z_min;
@@ -37,15 +46,15 @@ public  void  fit_view_to_domain( view, min_limit, max_limit )
     fit_view_to_points( view, 8, points );
 }
 
-private  void   fit_view_to_points( view, n_points, points )
-    view_struct   *view;
-    int           n_points;
-    Point         points[];
+private  void   fit_view_to_points(
+    view_struct   *view,
+    int           n_points,
+    Point         points[] )
 {
     int    i, c;
     Real   size, centre_z;
-    Point  min_coord, max_coord, centre, range;
-    void   transform_point_to_view_space();
+    Point  min_coord, max_coord, centre;
+    Vector range;
 
     for_less( i, 0, n_points )
     {
@@ -78,18 +87,18 @@ private  void   fit_view_to_points( view, n_points, points )
 
     for_less( c, 0, 2 )
     {
-        if( Point_coord(range,c) == 0.0 )
+        if( Vector_coord(range,c) == 0.0 )
         {
             Point_coord(min_coord,c) -= size / 2.0;
             Point_coord(max_coord,c) += size / 2.0;
-            Point_coord(range,c) = size;
+            Vector_coord(range,c) = size;
         }
     }
 
     centre_z = (Point_z(min_coord) + Point_z(max_coord)) / 2.0;
     Point_z(min_coord) = centre_z - size / 2.0;
     Point_z(max_coord) = centre_z + size / 2.0;
-    Point_z(range) = size;
+    Vector_z(range) = size;
 
     INTERPOLATE_POINTS( centre, min_coord, max_coord, 0.5 );
 
@@ -105,10 +114,10 @@ private  void   fit_view_to_points( view, n_points, points )
     view->desired_aspect = view->window_height / view->window_width;
 }
 
-private  void  orthogonal_fit_points( view, centre, range )
-    view_struct   *view;
-    Point         *centre;
-    Vector        *range;
+private  void  orthogonal_fit_points(
+    view_struct   *view,
+    Point         *centre,
+    Vector        *range )
 {
     Real    dx, dy, dz;
     Point   eye;
@@ -123,7 +132,7 @@ private  void  orthogonal_fit_points( view, centre, range )
 
     dx = Point_x(*centre);
     dy = Point_y(*centre);
-    dz = Point_z(*centre) - Point_z(*range);
+    dz = Point_z(*centre) - Vector_z(*range);
 
     SCALE_VECTOR( delta_x, x_axis, dx );
     SCALE_VECTOR( delta_y, y_axis, dy );
@@ -135,8 +144,8 @@ private  void  orthogonal_fit_points( view, centre, range )
 
     view->origin = eye;
 
-    x_scale = Point_x(*range) * FACTOR / view->window_width;
-    y_scale = Point_y(*range) * FACTOR / view->window_height;
+    x_scale = Vector_x(*range) * FACTOR / view->window_width;
+    y_scale = Vector_y(*range) * FACTOR / view->window_height;
 
     if( x_scale == 0.0 )
     {
@@ -151,18 +160,17 @@ private  void  orthogonal_fit_points( view, centre, range )
 
     view->window_width *= scale_factor;
     view->window_height *= scale_factor;
-    view->perspective_distance = Point_z(*range);
+    view->perspective_distance = Vector_z(*range);
 
     view->front_distance = 0.0;
     view->back_distance = 2.0 * (Point_z(*centre) - dz);
 }
 
-private  void  perspective_fit_points( view, centre,
-                                       n_points, points )
-    view_struct   *view;
-    Point         *centre;
-    int           n_points;
-    Point         points[];
+private  void  perspective_fit_points(
+    view_struct   *view,
+    Point         *centre,
+    int           n_points,
+    Point         points[] )
 {
     int     i, c;
     Real    z_min, z_pos, dist, ratio, new_persp_dist;

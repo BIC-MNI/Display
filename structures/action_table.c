@@ -1,5 +1,5 @@
 
-#include  <def_graphics.h>
+#include  <def_display.h>
 
 #ifdef NOT_NEEDED
 
@@ -11,10 +11,10 @@ private  DEF_EVENT_FUNCTION(  null_function )     /* ARGSUSED */
 
 #endif
 
-private  void  set_action_table_function( action_table, event_type, function )
-    action_table_struct   *action_table;
-    event_types           event_type;
-    event_function_type   function;
+private  void  set_action_table_function(
+    action_table_struct   *action_table,
+    Event_types           event_type,
+    event_function_type   function )
 {
     int                 i;
     action_table_entry  *t;
@@ -25,10 +25,10 @@ private  void  set_action_table_function( action_table, event_type, function )
     t->actions[i] = function;
 }
 
-public  void  add_action_table_function( action_table, event_type, function )
-    action_table_struct   *action_table;
-    event_types           event_type;
-    event_function_type   function;
+public  void  add_action_table_function(
+    action_table_struct   *action_table,
+    Event_types           event_type,
+    event_function_type   function )
 {
     action_table_entry  *t;
 
@@ -45,10 +45,10 @@ public  void  add_action_table_function( action_table, event_type, function )
     }
 }
 
-public  void  remove_action_table_function( action_table, event_type, function )
-    action_table_struct   *action_table;
-    event_types           event_type;
-    event_function_type   function;
+public  void  remove_action_table_function(
+    action_table_struct   *action_table,
+    Event_types           event_type,
+    event_function_type   function )
 {
     int                 start, end, pos, i;
     action_table_entry  *t;
@@ -89,9 +89,9 @@ public  void  remove_action_table_function( action_table, event_type, function )
     }
 }
 
-public  void  push_action_table( action_table, event_type )
-    action_table_struct   *action_table;
-    event_types           event_type;
+public  void  push_action_table(
+    action_table_struct   *action_table,
+    Event_types           event_type )
 {
     action_table_entry  *t;
 
@@ -108,9 +108,9 @@ public  void  push_action_table( action_table, event_type )
     }
 }
 
-public  void  pop_action_table( action_table, event_type )
-    action_table_struct   *action_table;
-    event_types           event_type;
+public  void  pop_action_table(
+    action_table_struct   *action_table,
+    Event_types           event_type )
 {
     action_table_entry  *t;
 
@@ -126,10 +126,10 @@ public  void  pop_action_table( action_table, event_type )
     }
 }
 
-public  int  get_event_actions( action_table, event_type, actions_list )
-    action_table_struct   *action_table;
-    event_types           event_type;
-    event_function_type   *actions_list[];
+public  int  get_event_actions(
+    action_table_struct   *action_table,
+    Event_types           event_type,
+    event_function_type   *actions_list[] )
 {
     int                 n_actions, start_i, end_i;
     action_table_entry  *t;
@@ -155,21 +155,21 @@ public  int  get_event_actions( action_table, event_type, actions_list )
 
 #ifdef  NOT_NEEDED
 
-private  void  turn_off_action( action_table, event_type )
-    action_table_struct   *action_table;
-    event_types           event_type;
+private  void  turn_off_action(
+    action_table_struct   *action_table,
+    Event_types           event_type )
 {
     set_action_table_function( action_table, event_type, null_function );
 }
 
 #endif
 
-public  void  initialize_action_table( action_table )
-    action_table_struct   *action_table;
+public  void  initialize_action_table(
+    action_table_struct   *action_table )
 {
-    event_types           event;
+    Event_types           event;
 
-    for_enum( event, NUM_EVENT_TYPES, event_types )
+    for_enum( event, N_EVENT_TYPES, Event_types )
     {
         action_table->event_info[(int)event].stack_index = 0;
         action_table->event_info[(int)event].last_index[0] = -1;

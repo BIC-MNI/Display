@@ -1,26 +1,20 @@
 
 #include  <def_mni.h>
 
-public  void  one_parameter_minimization( parameters, which_parameter,
-                                          u_min, u_max, v_min, v_max,
-                                          max_delta_parameter,
-                                          delta_parameter,
-                                          distances_without_this_parameter,
-                                          evaluate_fit_function,
-                                          evaluation_ptr, fitting_gain )
-    double          parameters[];
-    int             which_parameter;
-    double          u_min;
-    double          u_max;
-    double          v_min;
-    double          v_max;
-    double          max_delta_parameter;
-    double          *delta_parameter;
-    Real            distances_without_this_parameter[];
+public  void  one_parameter_minimization(
+    double          parameters[],
+    int             which_parameter,
+    double          u_min,
+    double          u_max,
+    double          v_min,
+    double          v_max,
+    double          max_delta_parameter,
+    double          *delta_parameter,
+    Real            distances_without_this_parameter[],
     double          (*evaluate_fit_function)( void *, double [],
-                                  double, double, double, double, Real [] );
-    void            *evaluation_ptr;
-    double          *fitting_gain;
+                                  double, double, double, double, Real [] ),
+    void            *evaluation_ptr,
+    double          *fitting_gain )
 {
     const    double  TOLERANCE   = 1.0e-4;
     Boolean  done, halved;

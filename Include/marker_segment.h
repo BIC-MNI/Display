@@ -1,8 +1,7 @@
 #ifndef  DEF_MARKER_SEGMENT
 #define  DEF_MARKER_SEGMENT
 
-#include  <def_objects.h>
-#include  <def_bitlist.h>
+#include  <def_mni.h>
 
 typedef struct
 {

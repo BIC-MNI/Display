@@ -1,79 +1,67 @@
 
-#include  <def_graphics.h>
-#include  <def_globals.h>
+#include  <def_display.h>
 
-static    Status   process_no_events_for_all_windows();
-static    void     update_all_required_windows();
-static    Status   perform_action();
+private  Status   process_no_events_for_all_windows( void );
+private  void     update_all_required_windows( void );
+private  Status   perform_action(
+    display_struct   *display,
+    Event_types      event_type,
+    int              key_pressed );
+private  void  update_this_type_of_windows(
+    window_types   window_type );
 
-public  Status   main_event_loop()
+public  Status   main_event_loop( void )
 {
-    Status   status;
-    Status   process_events();
-    Real     update_time, current_time, previous_event_time;
-    Real     time_since_last_process_events;
-    Real     current_realtime_seconds();
-    void     sleep_program();
+    Status          status;
+    Event_types     event_type;
+    int             key_pressed;
+    window_struct   *window;
+    display_struct  *display;
 
     status = OK;
 
-    update_time = 0.0;
-    previous_event_time = -1000.0;
-
     while( status != QUIT )
     {
-        current_time = current_realtime_seconds();
+        event_type = G_get_event( &window, &key_pressed );
 
-        time_since_last_process_events = current_time - previous_event_time;
-
-        if( time_since_last_process_events < Min_interval_between_events )
+        if( event_type != NO_EVENT )
         {
-            sleep_program( Min_interval_between_events -
-                           time_since_last_process_events );
+            display = lookup_window( window );
+
+            if( display != (display_struct *) 0 )
+                status = perform_action( display, event_type, key_pressed );
         }
-
-        status = process_events( update_time );
-
-        previous_event_time = current_realtime_seconds();
-
-        if( status != QUIT )
+        else
         {
-            status = process_no_events_for_all_windows();
+            if( status != QUIT )
+                status = process_no_events_for_all_windows();
+
+            update_all_required_windows();
         }
-
-        update_time = current_realtime_seconds();
-
-        update_all_required_windows();
-
-        update_time = current_realtime_seconds() - update_time;
     }
 
     return( OK );
 }
 
-public  Boolean  window_is_up_to_date( graphics )
-    graphics_struct   *graphics;
+public  Boolean  window_is_up_to_date(
+    display_struct   *display )
 {
-    return( !graphics_update_required( graphics ) &&
-            !graphics->update_interrupted.last_was_interrupted );
+    return( !graphics_update_required( display ) &&
+            !display->update_interrupted.last_was_interrupted );
 }
 
-private  void  update_all_required_windows()
+private  void  update_all_required_windows( void )
 {
-    void              update_this_type_of_windows();
-
     update_this_type_of_windows( MENU_WINDOW );
     update_this_type_of_windows( SLICE_WINDOW );
     update_this_type_of_windows( THREE_D_WINDOW );
 }
 
-private  void  update_this_type_of_windows( window_type )
-    window_types   window_type;
+private  void  update_this_type_of_windows(
+    window_types   window_type )
 {
     int               i, n_windows;
-    int               get_list_of_windows();
-    graphics_struct   **windows;
-    void              update_graphics();
+    display_struct    **windows;
 
     n_windows = get_list_of_windows( &windows );
 
@@ -90,92 +78,41 @@ private  void  update_this_type_of_windows( window_type )
     }
 }
 
-private  Status  process_no_events_for_all_windows()
+private  Status  process_no_events_for_all_windows( void )
 {
     Status            status;
     int               i, n_windows;
-    int               get_list_of_windows();
-    graphics_struct   **windows;
-    event_struct      event;
+    display_struct    **windows;
 
     status = OK;
 
     n_windows = get_list_of_windows( &windows );
 
-    event.event_type = NO_EVENT;
-
     for_less( i, 0, n_windows )
-    {
-        status = perform_action( windows[i], &event );
-    }
+        status = perform_action( windows[i], NO_EVENT, 0 );
 
     return( status );
 }
 
-Status  process_events( update_time )
-    Real   update_time;
-{
-    Status            status;
-    Real              current_realtime_seconds();
-    Real              stop_time, event_time;
-    event_struct      event;
-    graphics_struct   *graphics;
-    graphics_struct   *lookup_window();
-    void              G_get_event();
-
-    status = OK;
-
-    event_time = update_time * Event_timeout_factor;
-
-    if( event_time < Event_timeout_min )
-    {
-        event_time = Event_timeout_min;
-    }
-
-    stop_time = current_realtime_seconds() + event_time;
-
-    do
-    {
-        G_get_event( &event );
-
-        if( event.event_type != NO_EVENT )
-        {
-            graphics = lookup_window( event.window_id );
-
-            if( graphics != (graphics_struct *) 0 )
-            {
-                status = perform_action( graphics, &event );
-            }
-        }
-    }
-    while( status == OK &&
-           event.event_type != NO_EVENT &&
-           current_realtime_seconds() < stop_time );
-
-    return( status );
-}
-
-private  Status   perform_action( graphics, event )
-    graphics_struct  *graphics;
-    event_struct     *event;
+private  Status   perform_action(
+    display_struct   *display,
+    Event_types      event_type,
+    int              key_pressed )
 {
     Status               status;
     event_function_type  *actions;
     int                  i, n_actions;
-    int                  get_event_actions();
 
-    n_actions = get_event_actions( &graphics->action_table, event->event_type,
+    n_actions = get_event_actions( &display->action_table, event_type,
                                    &actions );
 
     status = OK;
 
     for_less( i, 0, n_actions )
     {
-        status = (*actions[i]) ( graphics, event );
+        status = (*actions[i]) ( display, event_type, key_pressed );
         if( status != OK )
-        {
             break;
-        }
     }
 
     return( status );

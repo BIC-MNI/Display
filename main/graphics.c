@@ -1,448 +1,383 @@
 
-#include  <def_files.h>
-#include  <def_string.h>
-#include  <def_graphics.h>
-#include  <def_globals.h>
-#include  <def_arrays.h>
+#include  <def_display.h>
 
-static   Status   initialize_graphics_window();
-static   void     update_graphics_normal_planes_only();
-static   void     update_graphics_overlay_planes_only();
-static   Status   terminate_graphics_window();
+private  display_struct  **windows = (display_struct **) 0;
+private  int             n_windows = 0;
 
-private  graphics_struct  **windows = (graphics_struct **) 0;
-private  int              n_windows = 0;
+private  void  initialize_graphics_window(
+    display_struct   *display );
+private  void  update_graphics_overlay_planes_only(
+    display_struct       *display,
+    Boolean              display_flag );
+private  void  update_graphics_normal_planes_only(
+    display_struct               *display,
+    update_interrupted_struct    *interrupt );
+private  void  terminate_graphics_window(
+    display_struct   *display );
 
-public  int  get_list_of_windows( graphics )
-    graphics_struct  ***graphics;
+/* --------------------------------------------------------------------- */
+
+public  int  get_list_of_windows(
+    display_struct  ***display )
 {
-    *graphics = windows;
+    *display = windows;
 
     return( n_windows );
 }
 
-public  graphics_struct  *lookup_window( window_id )
-    Window_id   window_id;
+public  display_struct  *lookup_window(
+    window_struct   *window )
 {
     int              i;
-    graphics_struct  *graphics;
+    display_struct   *display;
 
-    graphics = (graphics_struct *) 0;
+    display = (display_struct *) 0;
 
     for_less( i, 0, n_windows )
     {
-        if( windows[i]->window.window_id == window_id )
+        if( windows[i]->window == window )
         {
-            graphics = windows[i];
+            display = windows[i];
             break;
         }
     }
 
-    return( graphics );
+    return( display );
 }
 
-private  Status  get_new_graphics( graphics )
-    graphics_struct   **graphics;
+private  void  get_new_display(
+    display_struct   **display )
 {
-    Status   status;
+    SET_ARRAY_SIZE( windows, n_windows, n_windows+1, DEFAULT_CHUNK_SIZE );
 
-    SET_ARRAY_SIZE( status, windows, n_windows, n_windows+1,
-                    DEFAULT_CHUNK_SIZE );
+    ALLOC( windows[n_windows], 1 );
 
-    if( status == OK )
-        ALLOC( status, windows[n_windows], 1 );
-
-    if( status == OK )
-    {
-        *graphics = windows[n_windows];
-        ++n_windows;
-    }
-
-    return( status );
+    *display = windows[n_windows];
+    ++n_windows;
 }
 
-private  Status  free_graphics( graphics )
-    graphics_struct   *graphics;
+private  void  free_display(
+    display_struct   *display )
 {
     int      ind, i;
-    Status   status;
-
-    status = ERROR;
 
     for_less( ind, 0, n_windows )
     {
-        if( windows[ind] == graphics )
+        if( windows[ind] == display )
         {
-            status = OK;
             break;
         }
     }
 
-    if( status == OK )
+    for_less( i, ind, n_windows-1 )
     {
-        for_less( i, ind, n_windows-1 )
-        {
-            windows[i] = windows[i+1];
-        }
-
-        --n_windows;
-
-        FREE( status, graphics );
+        windows[i] = windows[i+1];
     }
 
-    return( status );
+    --n_windows;
+
+    FREE( display );
 }
 
-private  Status  delete_graphics_list()
+private  void  delete_windows_list( void )
 {
-    Status    status;
-
-    if( windows != (graphics_struct **) 0 )
-        FREE( status, windows );
-
-    return( status );
+    if( windows != (display_struct **) 0 )
+        FREE( windows );
 }
 
-public  Status  initialize_graphics()
+public  void  initialize_graphics( void )
 {
-    Status   status;
-    Status   G_initialize();
-
-    status = G_initialize();
-
-    return( status );
 }
 
-public  Status  terminate_graphics()
+public  void  terminate_graphics( void )
 {
-    Status            status;
-    Status            G_terminate();
-    Status            delete_graphics_window();
-    graphics_struct   **graphics_windows;
-
-    status = OK;
+    display_struct    **graphics_windows;
 
     while( get_list_of_windows( &graphics_windows ) > 0 )
     {
-        if( status == OK )
-        {
-            status = delete_graphics_window( graphics_windows[0] );
-        }
+        delete_graphics_window( graphics_windows[0] );
     }
 
-    if( status == OK )
-    {
-        status = delete_graphics_list();
-    }
+    delete_windows_list();
 
-    if( status == OK )
-    {
-        status = G_terminate();
-    }
-
-    return( status );
+    G_terminate();
 }
 
-public  Status  create_graphics_window( window_type, graphics,
-                                        title, width, height )
-    window_types      window_type;
-    graphics_struct   **graphics;
-    char              title[];
-    int               width, height;
+public  Status  create_graphics_window(
+    window_types      window_type,
+    display_struct    **display,
+    char              title[],
+    int               width,
+    int               height )
 {
     Status   status;
-    Status   get_new_graphics();
-    Status   G_create_window();
 
-    status = get_new_graphics( graphics );
+    get_new_display( display );
 
-    if( status == OK )
-    {
-        status = G_create_window( title, width, height, 
-                                  &Initial_background_colour,
-                                  &(*graphics)->window );
-    }
+    status = G_create_window( title, -1, -1, width, height, 
+                              &(*display)->window );
+
+    G_set_background_colour( (*display)->window, Initial_background_colour );
 
     if( status == OK )
     {
-        (*graphics)->window_type = window_type;
-        status = initialize_graphics_window( *graphics );
+        (*display)->window_type = window_type;
+        initialize_graphics_window( *display );
     }
     else
     {
-        PRINT_ERROR( "Cannot open window.\n" );
+        print( "Cannot open window.\n" );
     }
 
     return( status );
 }
 
-public  model_struct  *get_graphics_model( graphics, model_index )
-    graphics_struct   *graphics;
-    int               model_index;
+public  model_struct  *get_graphics_model(
+    display_struct    *display,
+    int               model_index )
 {
-    return( graphics->models[model_index]->ptr.model );
+    return( get_model_ptr(display->models[model_index]) );
 }
 
-public  Status  create_model_after_current( graphics )
-    graphics_struct   *graphics;
+public  model_info_struct  *get_model_info(
+    model_struct   *model )
 {
-    Status         status;
-    Status         create_object();
-    Status         add_object_to_model();
+    return( (model_info_struct *) model->extra_ptr );
+}
+
+public  void  create_model_after_current(
+    display_struct   *display )
+{
     model_struct   *model;
-    model_struct   *get_current_model();
     object_struct  *new_model;
 
-    model = get_current_model( graphics );
+    model = get_current_model( display );
 
-    status = create_object( &new_model, MODEL );
+    new_model = create_object( MODEL );
 
-    if( status == OK )
-    {
-        (void) strcpy( new_model->ptr.model->filename, "Created" );
-    }
+    initialize_display_model( get_model_ptr(new_model) );
 
-    if( status == OK )
-    {
-        status = add_object_to_model( model, new_model );
-    }
+    (void) strcpy( get_model_ptr(new_model)->filename, "Created" );
 
-    return( status );
+    add_object_to_model( model, new_model );
 }
 
-private  Status  initialize_graphics_window( graphics )
-    graphics_struct   *graphics;
+public  void  initialize_display_model(
+    model_struct   *model )
 {
-    int            i;
-    void           initialize_action_table();
-    void           initialize_window_events();
-    void           initialize_mouse_events();
-    void           initialize_render();
-    void           make_identity_transform();
-    void           initialize_objects();
-    void           initialize_menu_actions();
-    Status         initialize_slice_window();
-    Status         initialize_three_d_window();
-    Status         initialize_menu_window();
-    Status         status;
-    Status         create_object();
-    View_types     view_type;
-    model_struct   *model;
-    model_struct   *get_graphics_model();
+    model_info_struct  *model_info;
 
-    graphics->associated[THREE_D_WINDOW] = (graphics_struct *) 0;
-    graphics->associated[MENU_WINDOW] = (graphics_struct *) 0;
-    graphics->associated[SLICE_WINDOW] = (graphics_struct *) 0;
+    initialize_model( model );
 
-    graphics->models_changed_id = 0;
+    ALLOC( model_info, 1 );
 
-    initialize_action_table( &graphics->action_table );
+    assign_model_extra_ptr( model, (void *) model_info );
 
-    initialize_mouse_events( graphics );
-    initialize_window_events( graphics );
-    initialize_menu_actions( graphics );
+    model_info->view_type = MODEL_VIEW;
+    model_info->bitplanes = NORMAL_PLANES;
+    initialize_render( &model_info->render );
+    make_identity_transform( &model_info->transform );
+}
 
-    status = OK;
+public  void  terminate_display_model(
+    model_struct   *model )
+{
+    model_info_struct  *model_info;
+
+    model_info = (model_info_struct *) get_model_extra_ptr( model );
+
+    FREE( model_info );
+}
+
+private  void  initialize_graphics_window(
+    display_struct   *display )
+{
+    int                 i;
+    View_types          view_type;
+    model_struct        *model;
+    model_info_struct   *model_info;
+
+    display->associated[THREE_D_WINDOW] = (display_struct *) 0;
+    display->associated[MENU_WINDOW] = (display_struct *) 0;
+    display->associated[SLICE_WINDOW] = (display_struct *) 0;
+
+    display->models_changed_id = 0;
+
+    initialize_action_table( &display->action_table );
+
+    initialize_resize_events( display );
+    initialize_menu_actions( display );
 
     for_less( i, 0, N_MODELS )
     {
-        if( status == OK )
+        display->models[i] = create_object( MODEL );
+        model = get_graphics_model( display, i );
+        initialize_display_model( model );
+        model_info = get_model_info( model );
+
+        model->n_objects = 0;
+
+        switch( display->window_type )
         {
-            status = create_object( &graphics->models[i], MODEL );
+        case THREE_D_WINDOW:   view_type = MODEL_VIEW;   break;
+        case MENU_WINDOW:      view_type = PIXEL_VIEW;   break;
+        case SLICE_WINDOW:     view_type = PIXEL_VIEW;   break;
         }
 
-        if( status == OK )
+        model_info->view_type = view_type;
+
+        if( display->window_type == THREE_D_WINDOW &&
+            (i == OVERLAY_MODEL || i == CURSOR_MODEL) )
         {
-            model = get_graphics_model( graphics, i );
-
-            model->n_objects = 0;
-
-            switch( graphics->window_type )
-            {
-            case THREE_D_WINDOW:   view_type = MODEL_VIEW;   break;
-            case MENU_WINDOW:      view_type = PIXEL_VIEW;   break;
-            case SLICE_WINDOW:     view_type = PIXEL_VIEW;   break;
-            }
-
-            model->view_type = view_type;
-
-            if( graphics->window_type == THREE_D_WINDOW &&
-                (i == OVERLAY_MODEL || i == CURSOR_MODEL) )
-            {
-                model->bitplanes = OVERLAY_PLANES;
-            }
-            else
-            {
-                model->bitplanes = NORMAL_PLANES;
-            }
-
-            model->n_objects = 0;
-            (void) strcpy( model->filename, "Top Level" );
-
-            initialize_render( &model->render );
-
-            if( graphics->window_type == THREE_D_WINDOW &&
-                i == THREED_MODEL )
-            {
-                model->render.render_lines_as_curves = Initial_line_curves_flag;
-            }
-
-            make_identity_transform( &model->transform );
+            model_info->bitplanes = OVERLAY_PLANES;
         }
+        else
+        {
+            model_info->bitplanes = NORMAL_PLANES;
+        }
+
+        model->n_objects = 0;
+        (void) strcpy( model->filename, "Top Level" );
+
+        initialize_render( &model_info->render );
+
+        if( display->window_type == THREE_D_WINDOW && i == THREED_MODEL )
+        {
+            model_info->render.render_lines_as_curves =
+                                           Initial_line_curves_flag;
+        }
+
+        make_identity_transform( &model_info->transform );
     }
 
-    if( status == OK && graphics->window_type == THREE_D_WINDOW )
-        status = initialize_three_d_window( graphics );
+    if( display->window_type == THREE_D_WINDOW )
+        initialize_three_d_window( display );
 
-    if( status == OK && graphics->window_type == SLICE_WINDOW )
-        status = initialize_slice_window( graphics );
+    if( display->window_type == SLICE_WINDOW )
+        initialize_slice_window( display );
 
-    if( status == OK && graphics->window_type == MENU_WINDOW )
-        status = initialize_menu_window( graphics );
+    if( display->window_type == MENU_WINDOW )
+        initialize_menu_window( display );
 
-    if( status == OK )
-    {
-        graphics->frame_number = 0;
-        graphics->update_required[NORMAL_PLANES] = FALSE;
-        graphics->update_required[OVERLAY_PLANES] = FALSE;
-        graphics->update_interrupted.last_was_interrupted = FALSE;
-        graphics->update_interrupted.size_of_interrupted = Size_of_interrupted;
-        graphics->update_interrupted.interval_of_check = Interval_of_check;
-    }
-
-    return( status );
+    display->frame_number = 0;
+    display->update_required[NORMAL_PLANES] = FALSE;
+    display->update_required[OVERLAY_PLANES] = FALSE;
+    display->update_interrupted.last_was_interrupted = FALSE;
+    display->update_interrupted.size_of_interrupted = Size_of_interrupted;
+    display->update_interrupted.interval_of_check = Interval_of_check;
 }
 
-public  void  set_update_required( graphics, which_bitplanes )
-    graphics_struct   *graphics;
-    Bitplane_types   which_bitplanes;
+public  void  set_update_required(
+    display_struct   *display,
+    Bitplane_types   which_bitplanes )
 {
-    graphics->update_required[which_bitplanes] = TRUE;
+    display->update_required[which_bitplanes] = TRUE;
 }
 
-public  Boolean  graphics_normal_planes_update_required( graphics )
-    graphics_struct   *graphics;
+public  Boolean  graphics_normal_planes_update_required(
+    display_struct   *display )
 {
-    return( graphics->update_required[NORMAL_PLANES] );
+    return( display->update_required[NORMAL_PLANES] );
 }
 
-public  Boolean  graphics_update_required( graphics )
-    graphics_struct   *graphics;
+public  Boolean  graphics_update_required(
+    display_struct   *display )
 {
-    return( graphics->update_required[NORMAL_PLANES] ||
-            graphics->update_required[OVERLAY_PLANES] );
+    return( display->update_required[NORMAL_PLANES] ||
+            display->update_required[OVERLAY_PLANES] );
 }
 
-public  void  graphics_models_have_changed( graphics )
-    graphics_struct  *graphics;
+public  void  graphics_models_have_changed(
+    display_struct  *display )
 {
-    void   rebuild_selected_list();
+    rebuild_selected_list( display, display->associated[MENU_WINDOW] );
 
-    rebuild_selected_list( graphics, graphics->associated[MENU_WINDOW] );
+    set_update_required( display, NORMAL_PLANES );
+    set_update_required( display->associated[MENU_WINDOW], NORMAL_PLANES );
 
-    set_update_required( graphics, NORMAL_PLANES );
-    set_update_required( graphics->associated[MENU_WINDOW], NORMAL_PLANES );
-
-    ++graphics->models_changed_id;
+    ++display->models_changed_id;
 }
 
-private  void  display_frame_info( graphics, frame_number, update_time )
-    graphics_struct   *graphics;
-    int               frame_number;
-    Real              update_time;
+private  void  display_frame_info(
+    display_struct   *display,
+    int              frame_number,
+    Real             update_time )
 {
-    void          G_set_view_type();
-    void          G_draw_text();
     text_struct   frame_text;
     String        frame_time_str;
-    void          format_time();
     model_struct  *model;
-    model_struct  *get_graphics_model();
 
-    (void) sprintf( frame_text.text, "%d: ", frame_number );
+    (void) sprintf( frame_text.string, "%d: ", frame_number );
 
     format_time( frame_time_str, "%g %s", update_time );
 
-    (void) strcat( frame_text.text, frame_time_str );
+    (void) strcat( frame_text.string, frame_time_str );
 
     fill_Point( frame_text.origin, Frame_info_x, Frame_info_y, 0.0 );
-    fill_Colour( frame_text.colour, 1.0, 1.0, 1.0 );
+    frame_text.colour = WHITE;
 
-    G_set_view_type( &graphics->window, PIXEL_VIEW );
+    G_set_view_type( display->window, PIXEL_VIEW );
 
-    model = get_graphics_model( graphics, THREED_MODEL );
+    model = get_graphics_model( display, THREED_MODEL );
 
-    G_draw_text( &graphics->window, &frame_text, &model->render );
+    set_render_info( display->window, &get_model_info(model)->render );
+    G_draw_text( display->window, &frame_text );
 }
 
-public  void  update_graphics( graphics, interrupt )
-    graphics_struct              *graphics;
-    update_interrupted_struct    *interrupt;
+public  void  update_graphics(
+    display_struct               *display,
+    update_interrupted_struct    *interrupt )
 {
     if( interrupt->last_was_interrupted ||
-        graphics->update_required[NORMAL_PLANES] )
+        display->update_required[NORMAL_PLANES] )
     {
-        update_graphics_normal_planes_only( graphics, interrupt );
+        update_graphics_normal_planes_only( display, interrupt );
 
-        update_graphics_overlay_planes_only( graphics,
+        update_graphics_overlay_planes_only( display,
                                              !interrupt->current_interrupted );
     }
-    else if( graphics->update_required[OVERLAY_PLANES] )
+    else if( display->update_required[OVERLAY_PLANES] )
     {
-        update_graphics_overlay_planes_only( graphics, TRUE );
+        update_graphics_overlay_planes_only( display, TRUE );
     }
 }
 
-private  void  update_graphics_overlay_planes_only( graphics, display_flag )
-    graphics_struct      *graphics;
-    Boolean              display_flag;
+private  void  update_graphics_overlay_planes_only(
+    display_struct       *display,
+    Boolean              display_flag )
 {
     int           i;
-    void          display_objects();
-    void          G_set_bitplanes();
-    void          G_update_window();
 
-    G_set_bitplanes( &graphics->window, OVERLAY_PLANES );
+    G_set_bitplanes( display->window, OVERLAY_PLANES );
 
     if( display_flag )
     {
         for_less( i, 0, N_MODELS )
         {
-            display_objects( &graphics->window, graphics->models[i],
+            display_objects( display->window, display->models[i],
                              (update_interrupted_struct *) 0, OVERLAY_PLANES );
         }
     }
 
-    G_update_window( &graphics->window );
+    G_update_window( display->window );
 
-    G_set_bitplanes( &graphics->window, NORMAL_PLANES );
+    G_set_bitplanes( display->window, NORMAL_PLANES );
 
-    graphics->update_required[OVERLAY_PLANES] = FALSE;
+    display->update_required[OVERLAY_PLANES] = FALSE;
 }
 
-private  void  update_graphics_normal_planes_only( graphics, interrupt )
-    graphics_struct              *graphics;
-    update_interrupted_struct    *interrupt;
+private  void  update_graphics_normal_planes_only(
+    display_struct               *display,
+    update_interrupted_struct    *interrupt )
 {
     int           i;
-    void          G_update_window();
-    void          G_append_to_last_update();
-    void          display_objects();
-    void          display_frame_info();
-    void          format_time();
-    void          update_slice_window();
     Real          start, end;
-    Real          current_realtime_seconds();
 
     if( interrupt->last_was_interrupted )
-    {
-        G_append_to_last_update( &graphics->window );
-    }
+        G_append_to_last_update( display->window );
 
-    if( graphics->window_type == SLICE_WINDOW )
-    {
-        update_slice_window( graphics );
-    }
+    if( display->window_type == SLICE_WINDOW )
+        update_slice_window( display );
 
     start = current_realtime_seconds();
 
@@ -452,128 +387,94 @@ private  void  update_graphics_normal_planes_only( graphics, interrupt )
 
     for_less( i, 0, N_MODELS )
     {
-        display_objects( &graphics->window, graphics->models[i],
+        display_objects( display->window, display->models[i],
                          interrupt, NORMAL_PLANES );
 
         if( interrupt->current_interrupted )
-        {
             break;
-        }
     }
 
     interrupt->last_was_interrupted = interrupt->current_interrupted;
 
     end = current_realtime_seconds();
 
-    ++graphics->frame_number;
+    ++display->frame_number;
 
     if( !interrupt->current_interrupted && Display_frame_info )
-    {
-        display_frame_info( graphics, graphics->frame_number, end - start );
-    }
+        display_frame_info( display, display->frame_number, end - start );
 
-    G_update_window( &graphics->window );
+    G_update_window( display->window );
 
-    graphics->update_required[NORMAL_PLANES] = FALSE;
+    display->update_required[NORMAL_PLANES] = FALSE;
 }
 
-public  Status  delete_graphics_window( graphics )
-    graphics_struct   *graphics;
+public  void  delete_graphics_window(
+    display_struct   *display )
 {
-    Status   status;
-    Status   G_delete_window();
-    Status   free_graphics();
+    (void) G_delete_window( display->window );
 
-    status = G_delete_window( &graphics->window );
+    terminate_graphics_window( display );
 
-    if( status == OK )
-    {
-        status = terminate_graphics_window( graphics );
-    }
-
-    if( status == OK )
-    {
-        status = free_graphics( graphics );
-    }
-
-    return( status );
+    free_display( display );
 }
 
-private  Status  terminate_graphics_window( graphics )
-    graphics_struct   *graphics;
+private  void  terminate_graphics_window(
+    display_struct   *display )
 {
     int      i;
-    Status   status;
-    Status   delete_object();
-    Status   delete_three_d();
-    Status   delete_menu();
-    Status   delete_slice_window();
-
-    status = OK;
 
     for_less( i, 0, N_MODELS )
-    {
-        if( status == OK )
-        {
-            status = delete_object( graphics->models[i] );
-        }
-    }
+        delete_object( display->models[i] );
 
-    if( status == OK && graphics->window_type == THREE_D_WINDOW )
-    {
-        status = delete_three_d( graphics );
-    }
+    if( display->window_type == THREE_D_WINDOW )
+        delete_three_d( display );
 
-    if( status == OK && graphics->window_type == MENU_WINDOW )
-    {
-        status = delete_menu( &graphics->menu );
-    }
+    if( display->window_type == MENU_WINDOW )
+        delete_menu( &display->menu );
 
-    if( status == OK && graphics->window_type == SLICE_WINDOW )
-    {
-        status = delete_slice_window( &graphics->slice );
-    }
-
-    return( status );
+    if( display->window_type == SLICE_WINDOW )
+        delete_slice_window( &display->slice );
 }
 
-public  void  update_view( graphics )
-    graphics_struct  *graphics;
+public  void  update_view(
+    display_struct  *display )
 {
-    void   G_define_3D_view();
-
-    G_define_3D_view( &graphics->window, &graphics->three_d.view );
+    G_set_3D_view( display->window,
+                   &display->three_d.view.origin,
+                   &display->three_d.view.line_of_sight,
+                   &display->three_d.view.y_axis,
+                   display->three_d.view.front_distance,
+                   display->three_d.view.back_distance,
+                   display->three_d.view.perspective_flag,
+                   display->three_d.view.perspective_distance,
+                   display->three_d.view.window_width,
+                   display->three_d.view.window_height );
+    G_set_modeling_transform( display->window,
+                              &display->three_d.view.modeling_transform );
 }
 
-public  void  reset_view_parameters( graphics, line_of_sight, horizontal )
-    graphics_struct  *graphics;
-    Vector           *line_of_sight;
-    Vector           *horizontal;
+public  void  reset_view_parameters(
+    display_struct   *display,
+    Vector           *line_of_sight,
+    Vector           *horizontal )
 {
-    void   adjust_view_for_aspect();
-    void   initialize_view();
-    void   set_model_scale();
-    void   fit_view_to_domain();
-
-    initialize_view( &graphics->three_d.view,
+    initialize_view( &display->three_d.view,
                      line_of_sight, horizontal );
-    graphics->three_d.view.perspective_flag = Initial_perspective_flag;
-    set_model_scale( &graphics->three_d.view,
+    display->three_d.view.perspective_flag = Initial_perspective_flag;
+    set_model_scale( &display->three_d.view,
                      Initial_x_scale, Initial_y_scale, Initial_z_scale );
-    adjust_view_for_aspect( &graphics->three_d.view,
-                            &graphics->window );
-    fit_view_to_domain( &graphics->three_d.view,
-                        &graphics->three_d.min_limit,
-                        &graphics->three_d.max_limit );
+    adjust_view_for_aspect( &display->three_d.view, display->window );
+    fit_view_to_domain( &display->three_d.view,
+                        &display->three_d.min_limit,
+                        &display->three_d.max_limit );
 }
 
-public  Real  size_of_domain( graphics )
-    graphics_struct   *graphics;
+public  Real  size_of_domain(
+    display_struct   *display )
 {
     Vector   diff;
 
-    SUB_POINTS( diff, graphics->three_d.max_limit,
-                           graphics->three_d.min_limit );
+    SUB_POINTS( diff, display->three_d.max_limit, display->three_d.min_limit );
 
     return( MAGNITUDE(diff) );
 }

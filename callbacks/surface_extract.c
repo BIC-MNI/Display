@@ -1,22 +1,18 @@
 
-#include  <def_graphics.h>
-#include  <def_math.h>
-#include  <def_files.h>
+#include  <def_display.h>
 
 public  DEF_MENU_FUNCTION(start_surface )   /* ARGSUSED */
 {
     Real           x, y, z;
-    Boolean        get_current_volume();
-    void           start_surface_extraction_at_point();
     volume_struct  *volume;
 
-    if( get_current_volume( graphics, &volume ) )
+    if( get_slice_window_volume( display, &volume ) )
     {
-        if( get_voxel_corresponding_to_point( graphics,
-                                              &graphics->three_d.cursor.origin,
+        if( get_voxel_corresponding_to_point( display,
+                                              &display->three_d.cursor.origin,
                                               &x, &y, &z ) )
         {
-            start_surface_extraction_at_point( graphics, ROUND(x), ROUND(y),
+            start_surface_extraction_at_point( display, ROUND(x), ROUND(y),
                                                ROUND(z) );
         }
     }
@@ -31,20 +27,14 @@ public  DEF_MENU_UPDATE(start_surface )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(toggle_surface_extraction)   /* ARGSUSED */
 {
-    void           start_surface_extraction();
-    void           stop_surface_extraction();
     volume_struct  *volume;
 
-    if( get_current_volume( graphics, &volume ) )
+    if( get_slice_window_volume( display, &volume ) )
     {
-        if( graphics->three_d.surface_extraction.extraction_in_progress )
-        {
-            stop_surface_extraction( graphics );
-        }
+        if( display->three_d.surface_extraction.extraction_in_progress )
+            stop_surface_extraction( display );
         else
-        {
-            start_surface_extraction( graphics );
-        }
+            start_surface_extraction( display );
     }
 
     return( OK );
@@ -52,12 +42,10 @@ public  DEF_MENU_FUNCTION(toggle_surface_extraction)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(toggle_surface_extraction )   /* ARGSUSED */
 {
-    void      set_text_on_off();
     String    text;
-    void      set_menu_text();
 
     set_text_on_off( label, text,
-              graphics->three_d.surface_extraction.extraction_in_progress );
+              display->three_d.surface_extraction.extraction_in_progress );
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -66,29 +54,22 @@ public  DEF_MENU_UPDATE(toggle_surface_extraction )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
 {
-    Status         status;
-    Status         reset_surface_extraction();
     volume_struct  *volume;
-    void           graphics_models_have_changed();
-    void           set_all_voxel_label_flags();
-    void           set_slice_window_update();
 
-    status = OK;
-
-    if( get_current_volume( graphics, &volume ) )
+    if( get_slice_window_volume( display, &volume ) )
     {
-        status = reset_surface_extraction( graphics );
+        reset_surface_extraction( display );
 
         set_all_voxel_label_flags( volume, FALSE );
 
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
-        set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
+        set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
 
-        graphics_models_have_changed( graphics );
+        graphics_models_have_changed( display );
     }
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(reset_surface )   /* ARGSUSED */
@@ -98,38 +79,28 @@ public  DEF_MENU_UPDATE(reset_surface )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(make_surface_permanent)   /* ARGSUSED */
 {
-    Status         status;
-    Status         reset_surface_extraction();
-    Status         add_object_to_current_model();
-    Status         create_object();
     volume_struct  *volume;
     object_struct  *object;
 
-    status = OK;
-
-    if( get_current_volume( graphics, &volume ) &&
-        !graphics->three_d.surface_extraction.extraction_in_progress &&
-        graphics->three_d.surface_extraction.polygons->n_items > 0 )
+    if( get_slice_window_volume( display, &volume ) &&
+        !display->three_d.surface_extraction.extraction_in_progress &&
+        display->three_d.surface_extraction.polygons->n_items > 0 )
     {
-        status = create_object( &object, POLYGONS );
+        object = create_object( POLYGONS );
 
-        if( status == OK )
-        {
-            *(object->ptr.polygons) =
-                  *(graphics->three_d.surface_extraction.polygons);
+        *(get_polygons_ptr(object)) =
+                  *(display->three_d.surface_extraction.polygons);
 
-            status = add_object_to_current_model( graphics, object );
-        }
+        add_object_to_current_model( display, object );
 
-        ALLOC( status, graphics->three_d.surface_extraction.polygons->colours,
-               1 );
-        graphics->three_d.surface_extraction.polygons->n_items = 0;
-        graphics->three_d.surface_extraction.polygons->n_points = 0;
+        ALLOC( display->three_d.surface_extraction.polygons->colours, 1 );
+        display->three_d.surface_extraction.polygons->n_items = 0;
+        display->three_d.surface_extraction.polygons->n_points = 0;
 
-        status = reset_surface_extraction( graphics );
+        reset_surface_extraction( display );
     }
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(make_surface_permanent )   /* ARGSUSED */
@@ -139,9 +110,7 @@ public  DEF_MENU_UPDATE(make_surface_permanent )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(set_isovalue )   /* ARGSUSED */
 {
-    void             set_isosurface_value();
-
-    set_isosurface_value( &graphics->three_d.surface_extraction );
+    set_isosurface_value( &display->three_d.surface_extraction );
 
     return( OK );
 }
@@ -153,33 +122,21 @@ public  DEF_MENU_UPDATE(set_isovalue )   /* ARGSUSED */
 
 public  DEF_MENU_FUNCTION(get_labeled_boundary)   /* ARGSUSED */
 {
-    Status           status;
-    Status           add_object_to_model();
-    Status           extract_boundary_of_labeled_voxels();
-    Status           create_object();
     object_struct    *object;
     volume_struct    *volume;
-    model_struct     *get_current_model();
-    void             graphics_models_have_changed();
 
-    status = OK;
-
-    if( get_current_volume( graphics, &volume ) )
+    if( get_slice_window_volume( display, &volume ) )
     {
-        status = create_object( &object, POLYGONS );
+        object = create_object( POLYGONS );
 
-        if( status == OK )
-            status = extract_boundary_of_labeled_voxels( volume,
-                                     object->ptr.polygons );
+        extract_boundary_of_labeled_voxels( volume, get_polygons_ptr(object) );
 
-        if( status == OK )
-            status = add_object_to_model( get_current_model(graphics), object );
+        add_object_to_model( get_current_model(display), object );
 
-        if( status == OK )
-            graphics_models_have_changed( graphics );
+        graphics_models_have_changed( display );
     }
 
-    return( status );
+    return( OK );
 }
 
 public  DEF_MENU_UPDATE(get_labeled_boundary )   /* ARGSUSED */
@@ -191,10 +148,10 @@ public  DEF_MENU_FUNCTION( set_surface_extract_x_max_distance )   /* ARGSUSED */
 {
     int             dist;
 
-    PRINT( "Enter X max distance: " );
+    print( "Enter X max distance: " );
 
     if( input_int( stdin, &dist ) == OK )
-        graphics->three_d.surface_extraction.x_voxel_max_distance = dist;
+        display->three_d.surface_extraction.x_voxel_max_distance = dist;
 
     (void) input_newline( stdin );
 
@@ -204,10 +161,9 @@ public  DEF_MENU_FUNCTION( set_surface_extract_x_max_distance )   /* ARGSUSED */
 public  DEF_MENU_UPDATE(set_surface_extract_x_max_distance )   /* ARGSUSED */
 {
     String  text;
-    void    set_menu_text();
 
     (void) sprintf( text, label,
-                    graphics->three_d.surface_extraction.x_voxel_max_distance);
+                    display->three_d.surface_extraction.x_voxel_max_distance);
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -218,10 +174,10 @@ public  DEF_MENU_FUNCTION( set_surface_extract_y_max_distance )   /* ARGSUSED */
 {
     int             dist;
 
-    PRINT( "Enter Y max distance: " );
+    print( "Enter Y max distance: " );
 
     if( input_int( stdin, &dist ) == OK )
-        graphics->three_d.surface_extraction.y_voxel_max_distance = dist;
+        display->three_d.surface_extraction.y_voxel_max_distance = dist;
 
     (void) input_newline( stdin );
 
@@ -231,10 +187,9 @@ public  DEF_MENU_FUNCTION( set_surface_extract_y_max_distance )   /* ARGSUSED */
 public  DEF_MENU_UPDATE(set_surface_extract_y_max_distance )   /* ARGSUSED */
 {
     String  text;
-    void    set_menu_text();
 
     (void) sprintf( text, label,
-                    graphics->three_d.surface_extraction.y_voxel_max_distance);
+                    display->three_d.surface_extraction.y_voxel_max_distance);
 
     set_menu_text( menu_window, menu_entry, text );
 
@@ -245,10 +200,10 @@ public  DEF_MENU_FUNCTION( set_surface_extract_z_max_distance )   /* ARGSUSED */
 {
     int             dist;
 
-    PRINT( "Enter Z max distance: " );
+    print( "Enter Z max distance: " );
 
     if( input_int( stdin, &dist ) == OK )
-        graphics->three_d.surface_extraction.z_voxel_max_distance = dist;
+        display->three_d.surface_extraction.z_voxel_max_distance = dist;
 
     (void) input_newline( stdin );
 
@@ -258,10 +213,9 @@ public  DEF_MENU_FUNCTION( set_surface_extract_z_max_distance )   /* ARGSUSED */
 public  DEF_MENU_UPDATE(set_surface_extract_z_max_distance )   /* ARGSUSED */
 {
     String  text;
-    void    set_menu_text();
 
     (void) sprintf( text, label,
-                    graphics->three_d.surface_extraction.z_voxel_max_distance);
+                    display->three_d.surface_extraction.z_voxel_max_distance);
 
     set_menu_text( menu_window, menu_entry, text );
 

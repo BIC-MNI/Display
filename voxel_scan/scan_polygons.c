@@ -1,16 +1,22 @@
-#include  <def_objects.h>
+#include  <def_mni.h>
 
 #define  MAX_TEMP_STORAGE  100
 
-public  void  scan_polygons_to_voxels( polygons, volume, label, max_distance )
-    polygons_struct     *polygons;
-    volume_struct       *volume;
-    int                 label;
-    Real                max_distance;
+private  void  recursive_polygon_scan(
+    int                 size,
+    Point               vertices[],
+    volume_struct       *volume,
+    int                 label,
+    Real                max_distance );
+
+public  void  scan_polygons_to_voxels(
+    polygons_struct     *polygons,
+    volume_struct       *volume,
+    int                 label,
+    Real                max_distance )
 {
     int        i, poly, size;
     Point      vertices[MAX_TEMP_STORAGE];
-    void       recursive_polygon_scan();
 
     for_less( poly, 0, polygons->n_items )
     {
@@ -30,21 +36,17 @@ public  void  scan_polygons_to_voxels( polygons, volume, label, max_distance )
     }
 }
 
-private  void  recursive_polygon_scan( size, vertices, volume, label,
-                                       max_distance )
-    int                 size;
-    Point               vertices[];
-    volume_struct       *volume;
-    int                 label;
-    Real                max_distance;
+private  void  recursive_polygon_scan(
+    int                 size,
+    Point               vertices[],
+    volume_struct       *volume,
+    int                 label,
+    Real                max_distance )
 {
     Point            midpoints[4], min_point, max_point, centre;
     Point            sub_points[4];
+    Real             x_w, y_w, z_w;
     int              edge;
-    void             set_voxel_label_flag();
-    void             get_points_centroid();
-    void             get_range_points();
-    void             convert_point_to_voxel();
 
     get_range_points( size, vertices, &min_point, &max_point );
 
@@ -53,10 +55,9 @@ private  void  recursive_polygon_scan( size, vertices, volume, label,
         Point_z(max_point)-Point_z(min_point) < max_distance )
     {
         get_points_centroid( size, vertices, &centre );
-        convert_point_to_voxel( volume, Point_x(centre), Point_y(centre),
-                                Point_z(centre), 
-                                &Point_x(centre), &Point_y(centre), 
-                                &Point_z(centre) );
+        convert_world_to_voxel( volume, Point_x(centre), Point_y(centre),
+                                Point_z(centre), &x_w, &y_w, &z_w );
+        fill_Point( centre, x_w, y_w, z_w );
 
         if( voxel_is_within_volume( volume, Point_x(centre),
                                     Point_y(centre), Point_z(centre) ) )

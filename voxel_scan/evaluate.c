@@ -1,20 +1,72 @@
 
-#include  <def_objects.h>
+#include  <def_mni.h>
 #include  <def_minimization.h>
-#include  <def_surface_fitting.h>
+#include  <def_display.h>
+
+private  int  get_n_samples(
+    int     n_samples_for_whole_surface,
+    double  u_min,
+    double  u_max,
+    double  v_min,
+    double  v_max );
+private  double  get_parameter_in_range(
+    int      i,
+    int      n,
+    double   min,
+    double   max );
+private  Boolean  inside_hole(
+    double      u,
+    double      v,
+    Boolean     hole_present,
+    double      u_min_hole,
+    double      u_max_hole,
+    double      v_min_hole,
+    double      v_max_hole );
+private  double   evaluate_fit_at_uv(
+    volume_struct           *volume,
+    surface_fitting_struct  *fit_data,
+    double                  parameters[],
+    double                  u,
+    double                  v );
+private  void  apply_surface_point_to_distances(
+    double                  x,
+    double                  y,
+    double                  z,
+    surface_fitting_struct  *fit_data,
+    Real                    surface_point_distances[] );
+private  double  distance_measure(
+    int     n_surface_points,
+    Real    surface_point_distances[],
+    Real    distance_threshold );
+private  double  get_radius_of_curvature(
+    double   dx,
+    double   dy,
+    double   dz,
+    double   ddx,
+    double   ddy,
+    double   ddz );
+private  void   cross_product(
+    double  x1,
+    double  y1,
+    double  z1,
+    double  x2,
+    double  y2,
+    double  z2,
+    double  *x_cross,
+    double  *y_cross,
+    double  *z_cross );
 
 #define  DARTS
 
 private  const  double  BIG_NUMBER = 1.0e30;
 
-public  double   evaluate_fit_in_volume( volume, fit_data, parameters )
-    volume_struct           *volume;
-    surface_fitting_struct  *fit_data;
-    double                  parameters[];
+public  double   evaluate_fit_in_volume(
+    volume_struct           *volume,
+    surface_fitting_struct  *fit_data,
+    double                  parameters[] )
 {
     int       i;
     double    measure_of_fit;
-    double    evaluate_fit_in_volume_with_distances();
 
     for_less( i, 0, fit_data->n_surface_points )
         fit_data->surface_point_distances[i] = -1.0;
@@ -26,23 +78,20 @@ public  double   evaluate_fit_in_volume( volume, fit_data, parameters )
     return( measure_of_fit );
 }
 
-public  double   evaluate_fit_in_volume_with_distances( volume, fit_data,
-                          parameters, u_min, u_max, v_min, v_max,
-                          surface_point_distances )
-    volume_struct           *volume;
-    surface_fitting_struct  *fit_data;
-    double                  parameters[];
-    double                  u_min, u_max;
-    double                  v_min, v_max;
-    Real                    surface_point_distances[];
+public  double   evaluate_fit_in_volume_with_distances(
+    volume_struct           *volume,
+    surface_fitting_struct  *fit_data,
+    double                  parameters[],
+    double                  u_min,
+    double                  u_max,
+    double                  v_min,
+    double                  v_max,
+    Real                    surface_point_distances[] )
 {
     int                     i, j, ni, nj, n_samples, n_fitting_samples;
     double                  used_u_min, used_u_max, used_v_min, used_v_max;
     double                  fit, measure_of_fit, sum;
     double                  u, v;
-    double                  distance_measure();
-    double                  evaluate_fit_at_uv();
-    double                  get_parameter_in_range();
 
 #ifdef  DARTS
     used_u_min = 0.0;
@@ -115,24 +164,22 @@ public  double   evaluate_fit_in_volume_with_distances( volume, fit_data,
     return( measure_of_fit );
 }
 
-public  void   evaluate_distances_to_surface( fit_data,
-                          parameters, u_min, u_max, v_min, v_max,
-                          surface_point_distances,
-                          hole_present, u_min_hole, u_max_hole,
-                          v_min_hole, v_max_hole )
-    surface_fitting_struct  *fit_data;
-    double                  parameters[];
-    double                  u_min, u_max;
-    double                  v_min, v_max;
-    Real                    surface_point_distances[];
-    Boolean                 hole_present;
-    double                  u_min_hole, u_max_hole;
-    double                  v_min_hole, v_max_hole;
+public  void   evaluate_distances_to_surface(
+    surface_fitting_struct  *fit_data,
+    double                  parameters[],
+    double                  u_min,
+    double                  u_max,
+    double                  v_min,
+    double                  v_max,
+    Real                    surface_point_distances[],
+    Boolean                 hole_present,
+    double                  u_min_hole,
+    double                  u_max_hole,
+    double                  v_min_hole,
+    double                  v_max_hole )
 {
     int      i, j, ni, nj, n_fitting_samples;
     double   u, v, x, y, z;
-    void     apply_surface_point_to_distances();
-    double   get_parameter_in_range();
 
     n_fitting_samples = get_n_samples( fit_data->n_samples, u_min, u_max,
                                        v_min, v_max );
@@ -166,20 +213,19 @@ public  void   evaluate_distances_to_surface( fit_data,
                                  (double *) 0, (double *) 0, (double *) 0 );
 
                     apply_surface_point_to_distances( x, y, z, fit_data,
-                                                  surface_point_distances );
+                                                      surface_point_distances );
                 }
             }
         }
     }
 }
 
-private  int  get_n_samples( n_samples_for_whole_surface, u_min, u_max,
-                             v_min, v_max )
-    int     n_samples_for_whole_surface;
-    double  u_min;
-    double  u_max;
-    double  v_min;
-    double  v_max;
+private  int  get_n_samples(
+    int     n_samples_for_whole_surface,
+    double  u_min,
+    double  u_max,
+    double  v_min,
+    double  v_max )
 {
     int     n_samples;
     double  du, dv;
@@ -202,11 +248,11 @@ private  int  get_n_samples( n_samples_for_whole_surface, u_min, u_max,
     return( n_samples );
 }
 
-private  double  get_parameter_in_range( i, n, min, max )
-    int      i;
-    int      n;
-    double   min;
-    double   max;
+private  double  get_parameter_in_range(
+    int      i,
+    int      n,
+    double   min,
+    double   max )
 {
     double  alpha;
 
@@ -220,12 +266,14 @@ private  double  get_parameter_in_range( i, n, min, max )
         return( min - 1.0 + alpha * (max - min + 1.0) );
 }
 
-private  Boolean  inside_hole( u, v, hole_present, u_min_hole, u_max_hole,
-                               v_min_hole, v_max_hole )
-    double      u, v;
-    Boolean     hole_present;
-    double      u_min_hole, u_max_hole;
-    double      v_min_hole, v_max_hole;
+private  Boolean  inside_hole(
+    double      u,
+    double      v,
+    Boolean     hole_present,
+    double      u_min_hole,
+    double      u_max_hole,
+    double      v_min_hole,
+    double      v_max_hole )
 {
     Boolean  in_hole;
 
@@ -248,24 +296,20 @@ private  Boolean  inside_hole( u, v, hole_present, u_min_hole, u_max_hole,
     return( in_hole );
 }
 
-private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
-    volume_struct           *volume;
-    surface_fitting_struct  *fit_data;
-    double                  parameters[];
-    double                  u, v;
+private  double   evaluate_fit_at_uv(
+    volume_struct           *volume,
+    surface_fitting_struct  *fit_data,
+    double                  parameters[],
+    double                  u,
+    double                  v )
 {
     double   surface_estimate, curvature, fit, u_curvature, v_curvature;
     double   x, y, z, sign_normal;
     Real     dx, dy, dz;
     double   dxuu, dyuu, dzuu, dxvv, dyvv, dzvv;
     double   dxu, dyu, dzu, dxv, dyv, dzv;
-    double   get_radius_of_curvature();
     Vector   surface_normal, function_deriv;
     Real     val;
-    Boolean  evaluate_volume_at_point();
-    void     convert_point_to_voxel();
-    void     get_surface_normal_from_derivs();
-    void     apply_surface_point_to_distances();
 
     fit_data->surface_representation->evaluate_surface_at_uv( u, v,
                                  fit_data->descriptors, parameters, &x, &y, &z,
@@ -278,7 +322,7 @@ private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
     {
         if( volume != (volume_struct *) 0 )
         {
-            if( evaluate_volume_at_point( volume, x, y, z, TRUE, &val,
+            if( evaluate_volume_in_world( volume, x, y, z, TRUE, &val,
                                           (Real *) 0, (Real *) 0, (Real *) 0 ) )
             {
                 surface_estimate = ABS( val - fit_data->isovalue );
@@ -294,7 +338,7 @@ private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
     {
         if( volume != (volume_struct *) 0 )
         {
-            if( evaluate_volume_at_point( volume, x, y, z, TRUE, &val,
+            if( evaluate_volume_in_world( volume, x, y, z, TRUE, &val,
                                           &dx, &dy, &dz ) )
             {
                 get_surface_normal_from_derivs( dxu, dyu, dzu, dxv, dyv, dzv,
@@ -394,11 +438,12 @@ private  double   evaluate_fit_at_uv( volume, fit_data, parameters, u, v )
     return( fit );
 }
 
-private  void  apply_surface_point_to_distances( x, y, z, fit_data,
-                                                 surface_point_distances )
-    double                  x, y, z;
-    surface_fitting_struct  *fit_data;
-    Real                    surface_point_distances[];
+private  void  apply_surface_point_to_distances(
+    double                  x,
+    double                  y,
+    double                  z,
+    surface_fitting_struct  *fit_data,
+    Real                    surface_point_distances[] )
 {
     int     i;
     double  dx, dy, dz, dist;
@@ -420,11 +465,10 @@ private  void  apply_surface_point_to_distances( x, y, z, fit_data,
     }
 }
 
-private  double  distance_measure( n_surface_points,
-                                   surface_point_distances, distance_threshold )
-    int     n_surface_points;
-    Real    surface_point_distances[];
-    Real    distance_threshold;
+private  double  distance_measure(
+    int     n_surface_points,
+    Real    surface_point_distances[],
+    Real    distance_threshold )
 {
     int     i;
     Real    sum, dist;
@@ -450,17 +494,16 @@ private  double  distance_measure( n_surface_points,
     return( sum );
 }
 
-private  double  get_radius_of_curvature( dx, dy, dz, ddx, ddy, ddz )
-    double   dx;
-    double   dy;
-    double   dz;
-    double   ddx;
-    double   ddy;
-    double   ddz;
+private  double  get_radius_of_curvature(
+    double   dx,
+    double   dy,
+    double   dz,
+    double   ddx,
+    double   ddy,
+    double   ddz )
 {
     double  radius_of_curvature;
     double  x_cross, y_cross, z_cross, mag_cross, mag_deriv;
-    void    cross_product();
 
     cross_product( dx, dy, dz, ddx, ddy, ddz, &x_cross, &y_cross, &z_cross );
 
@@ -476,17 +519,16 @@ private  double  get_radius_of_curvature( dx, dy, dz, ddx, ddy, ddz )
     return( radius_of_curvature );
 }
 
-private  void   cross_product( x1, y1, z1, x2, y2, z2,
-                               x_cross, y_cross, z_cross )
-    double  x1;
-    double  y1;
-    double  z1;
-    double  x2;
-    double  y2;
-    double  z2;
-    double  *x_cross;
-    double  *y_cross;
-    double  *z_cross;
+private  void   cross_product(
+    double  x1,
+    double  y1,
+    double  z1,
+    double  x2,
+    double  y2,
+    double  z2,
+    double  *x_cross,
+    double  *y_cross,
+    double  *z_cross )
 {
     *x_cross = y1 * z2 - y2 * z1;
     *y_cross = z1 * x2 - z2 * x1;

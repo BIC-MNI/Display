@@ -1,7 +1,50 @@
 
-#include  <def_connect.h>
-#include  <def_alloc.h>
-#include  <def_queue.h>
+#include  <def_display.h>
+
+private   void   create_distance_transform(
+    int            x_size,
+    int            y_size,
+    pixel_struct   **pixels );
+private  Boolean  is_border_pixel(
+    int            x_size,
+    int            y_size,
+    pixel_struct   **pixels,
+    int            x,
+    int            y );
+private  int  get_minimum_cut(
+    int            x_size,
+    int            y_size,
+    pixel_struct   **pixels,
+    int            label_of_interest );
+private  void  expand_region(
+    int            x_size,
+    int            y_size,
+    pixel_struct   **pixels,
+    int            label_of_interest,
+    Boolean        other_label_flag,
+    int            global_cutoff );
+private  void  get_neighbours_influence_cut(
+    int            this_pixel_dist_transform,
+    pixel_struct   *neighbour_pixel,
+    int            *cutoff,
+    int            *class );
+private  Boolean  cutoff_is_better(
+    int   global_cutoff,
+    int   cutoff1,
+    int   class1,
+    int   cutoff2,
+    int   class2 );
+private  void  perform_cut(
+    int            x_size,
+    int            y_size,
+    pixel_struct   **pixels,
+    int            label_of_interest,
+    int            global_cutoff );
+private  void  expand_label_of_interest(
+    int            x_size,
+    int            y_size,
+    pixel_struct   **pixels,
+    int            label_of_interest );
 
 #define  DECREASING      0
 #define  FREE_RANGING    1
@@ -20,36 +63,20 @@ static   int   Dy8[N_8_NEIGHBOURS] = {  0,  1,  1,  1,  0, -1, -1, -1 };
 #define  INFINITY          10000
 #define  INVALID_DISTANCE     -1 
 
-static    void          create_distance_transform();
-static    Status        add_a_cut();
-static    void          expand_region_of_interest();
-static    Boolean       find_other_label_connected();
-static    Status        find_path();
-static    void          shrink_boundary_to_path();
-static    Status        find_pixel_to_cut();
-static    Status        cut_at_pixel();
-static    Status        find_min_cut();
-static    Status        find_two_cut_neighbours();
-static    int           get_dir();
-static    Status        find_path_transform_neighbour();
 
-public  Status  label_components( x_size, y_size, pixels, label_of_interest )
-    int             x_size, y_size;
-    pixel_struct    **pixels;
-    int             label_of_interest;
+public  void  label_components(
+    int             x_size,
+    int             y_size,
+    pixel_struct    **pixels,
+    int             label_of_interest )
 {
-    Status        status;
     int           min_cut;
-    void          perform_cut();
-    void          expand_label_of_interest();
-
-    status = OK;
 
     create_distance_transform( x_size, y_size, pixels );
 
     min_cut = get_minimum_cut( x_size, y_size, pixels, label_of_interest );
 
-(void) printf( "Cut %d\n", min_cut );
+    print( "Cut %d\n", min_cut );
 
     if( min_cut > 0 )
     {
@@ -58,25 +85,22 @@ public  Status  label_components( x_size, y_size, pixels, label_of_interest )
         expand_label_of_interest( x_size, y_size, pixels, label_of_interest );
     }
     else
-        (void) printf( "Algorithm unsuccessful\n" );
-
-    return( status );
+        print( "Algorithm unsuccessful\n" );
 }
 
 typedef  struct
 {
-    int  x,y;
-} voxel_struct;
+    int  x, y;
+} voxxx_struct;
 
-private   void   create_distance_transform( x_size, y_size, pixels )
-    int            x_size;
-    int            y_size;
-    pixel_struct   **pixels;
+private   void   create_distance_transform(
+    int            x_size,
+    int            y_size,
+    pixel_struct   **pixels )
 {
-    Status                         status;
     int                            x, y, nx, ny, dist, dir;
-    voxel_struct                   insert, entry;
-    QUEUE_STRUCT( voxel_struct )   queue;
+    voxxx_struct                   insert, entry;
+    QUEUE_STRUCT( voxxx_struct )   queue;
 
     INITIALIZE_QUEUE( queue );
 
@@ -89,7 +113,7 @@ private   void   create_distance_transform( x_size, y_size, pixels )
             {
                 insert.x = x;
                 insert.y = y;
-                INSERT_IN_QUEUE( status, queue, insert );
+                INSERT_IN_QUEUE( queue, insert );
                 pixels[x][y].queued = TRUE;
                 pixels[x][y].dist_transform = 1;
             }
@@ -121,22 +145,22 @@ private   void   create_distance_transform( x_size, y_size, pixels )
             {
                 insert.x = nx;
                 insert.y = ny;
-                INSERT_IN_QUEUE( status, queue, insert );
+                INSERT_IN_QUEUE( queue, insert );
                 pixels[nx][ny].queued = TRUE;
                 pixels[nx][ny].dist_transform = dist;
             }
         }
     }
 
-    DELETE_QUEUE( status, queue );
+    DELETE_QUEUE( queue );
 }
 
-Boolean  is_border_pixel( x_size, y_size, pixels, x, y )
-    int            x_size;
-    int            y_size;
-    pixel_struct   **pixels;
-    int            x;
-    int            y;
+private  Boolean  is_border_pixel(
+    int            x_size,
+    int            y_size,
+    pixel_struct   **pixels,
+    int            x,
+    int            y )
 {
     int   nx, ny, dir;
 
@@ -156,14 +180,13 @@ Boolean  is_border_pixel( x_size, y_size, pixels, x, y )
     return( FALSE );
 }
 
-private  int  get_minimum_cut( x_size, y_size, pixels, label_of_interest )
-    int            x_size;
-    int            y_size;
-    pixel_struct   **pixels;
-    int            label_of_interest;
+private  int  get_minimum_cut(
+    int            x_size,
+    int            y_size,
+    pixel_struct   **pixels,
+    int            label_of_interest )
 {
     int                            x, y, cut, min_cut;
-    void                           expand_region();
 
     expand_region( x_size, y_size, pixels, label_of_interest, FALSE, -1 );
 
@@ -188,21 +211,18 @@ private  int  get_minimum_cut( x_size, y_size, pixels, label_of_interest )
     return( min_cut );
 }
 
-private  void  expand_region( x_size, y_size, pixels, label_of_interest,
-                              other_label_flag, global_cutoff )
-    int            x_size;
-    int            y_size;
-    pixel_struct   **pixels;
-    int            label_of_interest;
-    Boolean        other_label_flag;
-    int            global_cutoff;
+private  void  expand_region(
+    int            x_size,
+    int            y_size,
+    pixel_struct   **pixels,
+    int            label_of_interest,
+    Boolean        other_label_flag,
+    int            global_cutoff )
 {
     int                            x, y, nx, ny;
     int                            dir, cutoff, class;
-    Status                         status;
-    voxel_struct                   insert, entry;
-    QUEUE_STRUCT( voxel_struct )   queue;
-    void                           get_neighbours_influence_cut();
+    voxxx_struct                   insert, entry;
+    QUEUE_STRUCT( voxxx_struct )   queue;
 
     INITIALIZE_QUEUE( queue );
 
@@ -222,7 +242,7 @@ private  void  expand_region( x_size, y_size, pixels, label_of_interest,
                 pixels[x][y].queued = TRUE;
                 insert.x = x;
                 insert.y = y;
-                INSERT_IN_QUEUE( status, queue, insert );
+                INSERT_IN_QUEUE( queue, insert );
             }
             else
             {
@@ -271,22 +291,21 @@ private  void  expand_region( x_size, y_size, pixels, label_of_interest,
                         pixels[nx][ny].queued = TRUE;
                         insert.x = nx;
                         insert.y = ny;
-                        INSERT_IN_QUEUE( status, queue, insert );
+                        INSERT_IN_QUEUE( queue, insert );
                     }
                 }
             }
         }
     }
 
-    DELETE_QUEUE( status, queue );
+    DELETE_QUEUE( queue );
 }
 
-private  void  get_neighbours_influence_cut( this_pixel_dist_transform,
-                                             neighbour_pixel, cutoff, class )
-    int            this_pixel_dist_transform;
-    pixel_struct   *neighbour_pixel;
-    int            *cutoff;
-    int            *class;
+private  void  get_neighbours_influence_cut(
+    int            this_pixel_dist_transform,
+    pixel_struct   *neighbour_pixel,
+    int            *cutoff,
+    int            *class )
 {
     switch( neighbour_pixel->dist_from_region )
     {
@@ -336,13 +355,12 @@ private  void  get_neighbours_influence_cut( this_pixel_dist_transform,
     }
 }
 
-private  Boolean  cutoff_is_better( global_cutoff,
-                                    cutoff1, class1, cutoff2, class2 )
-    int   global_cutoff;
-    int   cutoff1;
-    int   class1;
-    int   cutoff2;
-    int   class2;
+private  Boolean  cutoff_is_better(
+    int   global_cutoff,
+    int   cutoff1,
+    int   class1,
+    int   cutoff2,
+    int   class2 )
 {
     Boolean  first_is_better;
 
@@ -361,33 +379,27 @@ private  Boolean  cutoff_is_better( global_cutoff,
     return( first_is_better );
 }
 
-private  void  perform_cut( x_size, y_size, pixels, label_of_interest,
-                            global_cutoff )
-    int            x_size;
-    int            y_size;
-    pixel_struct   **pixels;
-    int            label_of_interest;
-    int            global_cutoff;
+private  void  perform_cut(
+    int            x_size,
+    int            y_size,
+    pixel_struct   **pixels,
+    int            label_of_interest,
+    int            global_cutoff )
 {
-    void                           expand_region();
-
     expand_region( x_size, y_size, pixels, label_of_interest, TRUE,
                    global_cutoff );
 }
 
-private  void  expand_label_of_interest( x_size, y_size, pixels,
-                                         label_of_interest )
-    int            x_size;
-    int            y_size;
-    pixel_struct   **pixels;
-    int            label_of_interest;
+private  void  expand_label_of_interest(
+    int            x_size,
+    int            y_size,
+    pixel_struct   **pixels,
+    int            label_of_interest )
 {
     int                            x, y, nx, ny;
     int                            dir;
-    Status                         status;
-    voxel_struct                   insert, entry;
-    QUEUE_STRUCT( voxel_struct )   queue;
-    void                           get_neighbours_influence_cut();
+    voxxx_struct                   insert, entry;
+    QUEUE_STRUCT( voxxx_struct )   queue;
 
     INITIALIZE_QUEUE( queue );
 
@@ -400,7 +412,7 @@ private  void  expand_label_of_interest( x_size, y_size, pixels,
                 pixels[x][y].queued = TRUE;
                 insert.x = x;
                 insert.y = y;
-                INSERT_IN_QUEUE( status, queue, insert );
+                INSERT_IN_QUEUE( queue, insert );
             }
             else
             {
@@ -431,10 +443,10 @@ private  void  expand_label_of_interest( x_size, y_size, pixels,
                 pixels[nx][ny].queued = TRUE;
                 insert.x = nx;
                 insert.y = ny;
-                INSERT_IN_QUEUE( status, queue, insert );
+                INSERT_IN_QUEUE( queue, insert );
             }
         }
     }
 
-    DELETE_QUEUE( status, queue );
+    DELETE_QUEUE( queue );
 }

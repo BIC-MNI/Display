@@ -1,84 +1,72 @@
 
-#include  <def_graphics.h>
-#include  <def_string.h>
-#include  <def_globals.h>
+#include  <def_display.h>
 
-private  void  create_selected_text( model )
-    model_struct   *model;
+private  void  create_selected_text(
+    model_struct   *model )
 {
     int            i;
-    Status         status;
     object_struct  *object;
+    Point          origin;
     text_struct    *text;
-    Status         add_object_to_model();
-    Status         create_object();
-    Status         create_lines();
+    lines_struct   *lines;
 
-    status = OK;
+    object = create_object( LINES );
 
-    if( status == OK )
-        status = create_object( &object, LINES );
+    lines = get_lines_ptr( object );
 
-    if( status == OK )
-        status = create_lines( object->ptr.lines, &Selected_colour,
-                               4, 1, 5 );
+    initialize_lines( lines, Selected_colour );
 
-    if( status == OK )
-    {
-        object->ptr.lines->indices[0] = 0;
-        object->ptr.lines->indices[1] = 1;
-        object->ptr.lines->indices[2] = 2;
-        object->ptr.lines->indices[3] = 3;
-        object->ptr.lines->indices[4] = 0;
-        object->ptr.lines->end_indices[0] = 5;
-    }
+    ALLOC( lines->points, 4 );
+    ALLOC( lines->end_indices, 1 );
+    ALLOC( lines->indices, 5 );
 
-    if( status == OK )
-        status = add_object_to_model( model, object );
+    lines->indices[0] = 0;
+    lines->indices[1] = 1;
+    lines->indices[2] = 2;
+    lines->indices[3] = 3;
+    lines->indices[4] = 0;
+    lines->end_indices[0] = 5;
+
+    add_object_to_model( model, object );
 
     for_less( i, 0, N_selected_displayed )
     {
-        if( status == OK )
-            status = create_object( &object, TEXT );
+        object = create_object( TEXT );
 
-        if( status == OK )
-        {
-            text = object->ptr.text;
-            text->font = Menu_window_font;
-            text->size = Menu_window_font_size;
+        text = get_text_ptr( object );
 
-            fill_Point( text->origin,
-                        Selected_x_origin,
-                        Selected_y_origin - Menu_character_height * (Real) i,
-                        0.0 );
-        }
+        fill_Point( origin,
+                    Selected_x_origin,
+                    Selected_y_origin - Menu_character_height * (Real) i,
+                    0.0 );
 
-        if( status == OK )
-            status = add_object_to_model( model, object );
+        initialize_text( text, &origin, BLACK,
+                         Menu_window_font, Menu_window_font_size );
+
+        add_object_to_model( model, object );
     }
 }
 
-private  void  set_text_entry( menu_window, index, name, col )
-    graphics_struct   *menu_window;
-    int               index;
-    char              name[];
-    Colour            *col;
+private  void  set_text_entry(
+    display_struct    *menu_window,
+    int               index,
+    char              name[],
+    Colour            col )
 {
     model_struct   *model;
-    model_struct   *get_graphics_model();
 
     model = get_graphics_model( menu_window, SELECTED_MODEL );
 
-    (void) strcpy( model->object_list[index+1]->ptr.text->text, name );
-    model->object_list[index+1]->visibility = TRUE;
+    (void) strcpy( get_text_ptr(model->objects[index+1])->string, name );
+    set_object_visibility( model->objects[index+1], ON );
     
-    model->object_list[index+1]->ptr.text->colour = *col;
+    get_text_ptr(model->objects[index+1])->colour = col;
 }
 
-private  void  set_current_box( selected_model, index, label )
-    model_struct   *selected_model;
-    int            index;
-    char           *label;
+private  void  set_current_box(
+    model_struct   *selected_model,
+    int            index,
+    char           label[] )
 {
     int            width;
     Real           x_start, x_end, y_start, y_end;
@@ -89,7 +77,7 @@ private  void  set_current_box( selected_model, index, label )
     if( width <= 0 )
         width = 20;
 
-    points = selected_model->object_list[0]->ptr.lines->points;
+    points = get_lines_ptr(selected_model->objects[0])->points;
 
     x_start = Selected_x_origin;
     y_start = Selected_y_origin - Menu_character_height * (Real) index;
@@ -106,22 +94,17 @@ private  void  set_current_box( selected_model, index, label )
     fill_Point( points[2], x_end, y_end, 0.0 );
     fill_Point( points[3], x_start, y_end, 0.0 );
 
-    selected_model->object_list[0]->visibility = TRUE;
+    set_object_visibility( selected_model->objects[0], ON );
 }
 
-public  void  rebuild_selected_list( graphics, menu_window )
-    graphics_struct   *graphics;
-    graphics_struct   *menu_window;
+public  void  rebuild_selected_list(
+    display_struct    *display,
+    display_struct    *menu_window )
 {
     int            i, start, selected_index;
     Colour         col;
     String         name, label;
     model_struct   *selected_model, *model;
-    model_struct   *get_current_model();
-    void           get_object_name();
-    model_struct   *get_graphics_model();
-    void           set_update_required();
-    void           set_current_box();
 
     selected_model = get_graphics_model( menu_window, SELECTED_MODEL );
 
@@ -129,18 +112,18 @@ public  void  rebuild_selected_list( graphics, menu_window )
         create_selected_text( selected_model );
 
     for_less( i, 0, N_selected_displayed+1 )
-        selected_model->object_list[i]->visibility = FALSE;
+        set_object_visibility( selected_model->objects[i], OFF );
 
-    model = get_current_model( graphics );
+    model = get_current_model( display );
 
-    if( current_object_is_top_level( graphics ) )
+    if( current_object_is_top_level( display ) )
     {
-        set_text_entry( menu_window, 0, model->filename, &Visible_colour );
+        set_text_entry( menu_window, 0, model->filename, Visible_colour );
         set_current_box( selected_model, 0, model->filename );
     }
     else
     {
-        selected_index = get_current_object_index( graphics );
+        selected_index = get_current_object_index( display );
 
         start = selected_index - N_selected_displayed / 2;
 
@@ -154,19 +137,19 @@ public  void  rebuild_selected_list( graphics, menu_window )
         {
             if( start + i < model->n_objects )
             {
-                get_object_name( model->object_list[start+i], name );
+                get_object_name( model->objects[start+i], name );
 
                 (void) sprintf( label, "%3d: %s", start + i + 1, name );
 
-                if( model->object_list[start+i]->visibility )
+                if( get_object_visibility( model->objects[start+i] ) )
                 {
-                    if( !get_object_colour(model->object_list[start+i], &col ) )
+                    if( !get_object_colour(model->objects[start+i], &col ) )
                         col = Visible_colour;
                 }
                 else
                     col = Invisible_colour;
 
-                set_text_entry( menu_window, i, label, &col );
+                set_text_entry( menu_window, i, label, col );
 
                 if( start+i == selected_index )
                     set_current_box( selected_model, i, label );

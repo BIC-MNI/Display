@@ -1,10 +1,32 @@
-#include  <def_graphics.h>
-#include  <def_globals.h>
-#include  <def_files.h>
-#include  <def_string.h>
+#include  <def_display.h>
 
-public  void  initialize_atlas( atlas )
-    atlas_struct   *atlas;
+private  atlas_position_struct  *get_closest_atlas_slice(
+    int           voxel_index,
+    int           sizes[3],
+    int           axis,
+    atlas_struct  *atlas );
+private  Status  input_pixel_map(
+    char           default_directory[],
+    char           image_filename[],
+    pixels_struct  *pixels );
+private  Real  get_distance_from_voxel(
+    int   voxel_index,
+    int   sizes[3],
+    int   axis_index,
+    Real  mm_coordinate );
+private  Boolean  find_appropriate_atlas_image(
+    pixels_struct           *atlas_images,
+    atlas_position_struct   *atlas_page,
+    int                     x_volume_size,
+    int                     y_volume_size,
+    unsigned char           *atlas_image[],
+    int                     *atlas_x_size,
+    int                     *atlas_y_size,
+    int                     *atlas_multiplier_x,
+    int                     *atlas_multiplier_y );
+
+public  void  initialize_atlas(
+    atlas_struct   *atlas )
 {
     atlas->input = FALSE;
     atlas->enabled = FALSE;
@@ -23,18 +45,16 @@ public  void  initialize_atlas( atlas )
     atlas->n_pages = 0;
 }
 
-private  Status  input_atlas( atlas, filename )
-    atlas_struct   *atlas;
-    char           filename[];
+private  Status  input_atlas(
+    atlas_struct   *atlas,
+    char           filename[] )
 {
     Status   status;
-    Status   input_pixel_map();
     FILE     *file;
     String   *image_filenames, image_filename;
     char     axis_letter;
     Real     mm_position;
     int      pixel_index, page_index, axis_index;
-    void     extract_directory();
     String   atlas_directory;
 
     extract_directory( filename, atlas_directory );
@@ -73,12 +93,12 @@ private  Status  input_atlas( atlas, filename )
 
                 if( pixel_index == atlas->n_pixel_maps )
                 {
-                    SET_ARRAY_SIZE( status, image_filenames,
+                    SET_ARRAY_SIZE( image_filenames,
                                     atlas->n_pixel_maps, atlas->n_pixel_maps+1,
                                     DEFAULT_CHUNK_SIZE );
                     (void) strcpy( image_filenames[atlas->n_pixel_maps],
                                    image_filename );
-                    SET_ARRAY_SIZE( status, atlas->pixel_maps,
+                    SET_ARRAY_SIZE( atlas->pixel_maps,
                                     atlas->n_pixel_maps, atlas->n_pixel_maps+1,
                                     DEFAULT_CHUNK_SIZE );
                     status = input_pixel_map( atlas_directory, image_filename,
@@ -95,19 +115,17 @@ private  Status  input_atlas( atlas, filename )
 
                 if( status == OK && page_index == atlas->n_pages )
                 {
-                    SET_ARRAY_SIZE( status, atlas->pages,
-                                    atlas->n_pages, atlas->n_pages+1,
-                                    DEFAULT_CHUNK_SIZE );
+                    SET_ARRAY_SIZE( atlas->pages, atlas->n_pages,
+                                    atlas->n_pages+1, DEFAULT_CHUNK_SIZE );
                     atlas->pages[atlas->n_pages].axis = axis_index;
                     atlas->pages[atlas->n_pages].axis_position = mm_position;
                     atlas->pages[atlas->n_pages].n_resolutions = 0;
                     ++atlas->n_pages;
                 }
 
-                ADD_ELEMENT_TO_ARRAY( status,
-                      atlas->pages[page_index].n_resolutions,
-                      atlas->pages[page_index].pixel_map_indices,
-                      pixel_index, DEFAULT_CHUNK_SIZE );
+                ADD_ELEMENT_TO_ARRAY(atlas->pages[page_index].pixel_map_indices,
+                                     atlas->pages[page_index].n_resolutions,
+                                     pixel_index, DEFAULT_CHUNK_SIZE );
             }
         }
     }
@@ -116,30 +134,27 @@ private  Status  input_atlas( atlas, filename )
         status = close_file( file );
 
     if( status == OK && atlas->n_pixel_maps > 0 )
-        FREE( status, image_filenames );
+        FREE( image_filenames );
 
     atlas->input = TRUE;
 
     if( status != OK )
-        (void) printf( "Error inputting atlas.\n" );
+        print( "Error inputting atlas.\n" );
 
     return( status );
 }
 
-private  Status  input_pixel_map( default_directory, image_filename, pixels )
-    char           default_directory[];
-    char           image_filename[];
-    pixels_struct  *pixels;
+private  Status  input_pixel_map(
+    char           default_directory[],
+    char           image_filename[],
+    pixels_struct  *pixels )
 {
     Status         status;
-    Status         input_object_type();
-    Status         io_pixels();
     String         absolute_filename;
     File_formats   format;
-    object_types   object_type;
+    Object_types   object_type;
     Boolean        eof;
     FILE           *file;
-    void           get_absolute_filename();
 
     get_absolute_filename( image_filename, default_directory,
                            absolute_filename );
@@ -154,7 +169,7 @@ private  Status  input_pixel_map( default_directory, image_filename, pixels )
     else
         status = ERROR;
 
-    if( status == OK && pixels->pixel_type != Pixel8 )
+    if( status == OK && pixels->pixel_type != COLOUR_INDEX_8BIT_PIXEL )
         status = ERROR;
 
     if( status == OK )
@@ -163,49 +178,41 @@ private  Status  input_pixel_map( default_directory, image_filename, pixels )
     return( status );
 }
 
-public  void  regenerate_atlas_lookup( slice_window )
-    graphics_struct   *slice_window;
+public  void  regenerate_atlas_lookup(
+    display_struct    *slice_window )
 {
-    Status                  status;
     volume_struct           *volume;
     atlas_struct            *atlas;
     int                     sizes[3], axis, i;
-    void                    get_volume_size();
-    atlas_position_struct   *get_closest_atlas_slice();
 
     (void) get_slice_window_volume( slice_window, &volume );
     get_volume_size( volume, &sizes[X], &sizes[Y], &sizes[Z] );
     atlas = &slice_window->slice.atlas;
 
-    status = OK;
-
     for_less( axis, 0, 3 )
     {
         if( atlas->slice_lookup[axis] != (atlas_position_struct **) 0 )
-            FREE( status, atlas->slice_lookup[axis] )
+            FREE( atlas->slice_lookup[axis] )
 
-        if( status == OK )
-            ALLOC( status, atlas->slice_lookup[axis], sizes[axis] );
+        ALLOC( atlas->slice_lookup[axis], sizes[axis] );
 
         for_less( i, 0, sizes[axis] )
         {
-             atlas->slice_lookup[axis][i] = get_closest_atlas_slice(
+            atlas->slice_lookup[axis][i] = get_closest_atlas_slice(
                                               i, sizes, axis, atlas );
         }
     }
 }
 
-private  atlas_position_struct  *get_closest_atlas_slice( voxel_index,
-                                                          sizes, axis, atlas )
-    int           voxel_index;
-    int           sizes[3];
-    int           axis;
-    atlas_struct  *atlas;
+private  atlas_position_struct  *get_closest_atlas_slice(
+    int           voxel_index,
+    int           sizes[3],
+    int           axis,
+    atlas_struct  *atlas )
 {
     int                     i;
     Real                    min_dist, dist;
     atlas_position_struct   *closest_so_far;
-    Real                    get_distance_from_voxel();
 
     closest_so_far = (atlas_position_struct *) 0;
     min_dist = 0.0;
@@ -230,17 +237,14 @@ private  atlas_position_struct  *get_closest_atlas_slice( voxel_index,
     return( closest_so_far );
 }
 
-private  Real  get_distance_from_voxel( voxel_index, sizes, axis_index,
-                                        mm_coordinate )
-    int   voxel_index;
-    int   sizes[3];
-    int   axis_index;
-    Real  mm_coordinate;
+private  Real  get_distance_from_voxel(
+    int   voxel_index,
+    int   sizes[3],
+    int   axis_index,
+    Real  mm_coordinate )
 {
     Real   voxel_indices[3], tal_voxel[3], tal_mm[3];
     Real   distance;
-    void   convert_voxel_to_talairach();
-    void   convert_talairach_to_mm();
 
     voxel_indices[X] = 0;
     voxel_indices[Y] = 0;
@@ -261,9 +265,9 @@ private  Real  get_distance_from_voxel( voxel_index, sizes, axis_index,
     return( distance );
 }
 
-public  void  set_atlas_state( slice_window, state )
-    graphics_struct   *slice_window;
-    Boolean           state;
+public  void  set_atlas_state(
+    display_struct    *slice_window,
+    Boolean           state )
 {
     Status   status;
 
@@ -271,43 +275,40 @@ public  void  set_atlas_state( slice_window, state )
 
     if( state && !slice_window->slice.atlas.input )
     {
-        PRINT( "Inputting atlas..." );
+        print( "Inputting atlas..." );
         (void) flush_file( stdout );
         status = input_atlas( &slice_window->slice.atlas, Atlas_filename );
 
         if( status == OK )
             regenerate_atlas_lookup( slice_window );
 
-        (void) printf( "done\n" );
+        print( "done\n" );
     }
 
     slice_window->slice.atlas.enabled = state;
 }
 
-public  void  blend_in_atlas( atlas, image, image_x_size, image_y_size,
-                  voxel_start_indices,
-                  a1, a2, axis_index, dx, dy, x_volume_size, y_volume_size )
-    atlas_struct  *atlas;
-    Pixel_colour  image[];
-    int           image_x_size;
-    int           image_y_size;
-    int           voxel_start_indices[3];
-    int           a1;
-    int           a2;
-    int           axis_index;
-    Real          dx;
-    Real          dy;
-    int           x_volume_size;
-    int           y_volume_size;
+public  void  blend_in_atlas(
+    atlas_struct  *atlas,
+    Colour        image[],
+    int           image_x_size,
+    int           image_y_size,
+    int           voxel_start_indices[3],
+    int           a1,
+    int           a2,
+    int           axis_index,
+    Real          dx,
+    Real          dy,
+    int           x_volume_size,
+    int           y_volume_size )
 {
     int            x, y, atlas_x_size, atlas_y_size;
     int            atlas_multiplier_x, atlas_multiplier_y;
     int            x_pixel, y_pixel, x_pixel_start, y_pixel_start;
     int            r_atlas, g_atlas, b_atlas, r_voxel, g_voxel, b_voxel;
     int            r, g, b, transparent_threshold;
-    Pixel_colour   voxel_pixel, atlas_pixel, *lookup, *pixels;
+    Colour         voxel_pixel, atlas_pixel, *lookup, *pixels;
     unsigned  char *atlas_image;
-    Pixel_colour   *get_8bit_rgb_pixel_lookup();
     Real           opacity;
 
     if( !atlas->enabled || atlas->opacity <= 0.0 ||
@@ -348,23 +349,23 @@ public  void  blend_in_atlas( atlas, image, image_x_size, image_y_size,
                 {
                     atlas_pixel = lookup[
                       atlas_image[IJ(y_pixel,x_pixel,atlas_x_size)]];
-                    r_atlas = Pixel_colour_r(atlas_pixel);
-                    g_atlas = Pixel_colour_g(atlas_pixel);
-                    b_atlas = Pixel_colour_b(atlas_pixel);
+                    r_atlas = get_Colour_r(atlas_pixel);
+                    g_atlas = get_Colour_g(atlas_pixel);
+                    b_atlas = get_Colour_b(atlas_pixel);
 
                     if( r_atlas <= transparent_threshold ||
                         g_atlas <= transparent_threshold ||
                         b_atlas <= transparent_threshold )
                     {
                         voxel_pixel = *pixels;
-                        r_voxel = Pixel_colour_r(voxel_pixel);
-                        g_voxel = Pixel_colour_g(voxel_pixel);
-                        b_voxel = Pixel_colour_b(voxel_pixel);
+                        r_voxel = get_Colour_r(voxel_pixel);
+                        g_voxel = get_Colour_g(voxel_pixel);
+                        b_voxel = get_Colour_b(voxel_pixel);
 
                         r = ROUND( r_voxel + (r_atlas - r_voxel) * opacity );
                         g = ROUND( g_voxel + (g_atlas - g_voxel) * opacity );
                         b = ROUND( b_voxel + (b_atlas - b_voxel) * opacity );
-                        *pixels = RGB_255_TO_PIXEL( r, g, b );
+                        *pixels = make_Colour( r, g, b );
                     }
                 }
 
@@ -374,19 +375,16 @@ public  void  blend_in_atlas( atlas, image, image_x_size, image_y_size,
     }
 }
 
-private  Boolean  find_appropriate_atlas_image( atlas_images, atlas_page,
-                      x_volume_size, y_volume_size,
-                      atlas_image, atlas_x_size, atlas_y_size,
-                      atlas_multiplier_x, atlas_multiplier_y )
-    pixels_struct           *atlas_images;
-    atlas_position_struct   *atlas_page;
-    int                     x_volume_size;
-    int                     y_volume_size;
-    unsigned char           *atlas_image[];
-    int                     *atlas_x_size;
-    int                     *atlas_y_size;
-    int                     *atlas_multiplier_x;
-    int                     *atlas_multiplier_y;
+private  Boolean  find_appropriate_atlas_image(
+    pixels_struct           *atlas_images,
+    atlas_position_struct   *atlas_page,
+    int                     x_volume_size,
+    int                     y_volume_size,
+    unsigned char           *atlas_image[],
+    int                     *atlas_x_size,
+    int                     *atlas_y_size,
+    int                     *atlas_multiplier_x,
+    int                     *atlas_multiplier_y )
 {
     int             i, image_index;
     pixels_struct   *pixels;
@@ -397,14 +395,14 @@ private  Boolean  find_appropriate_atlas_image( atlas_images, atlas_page,
     {
         pixels = &atlas_images[atlas_page->pixel_map_indices[i]];
 
-        if( pixels->x_max < x_volume_size &&
-            pixels->y_max < y_volume_size &&
-            (image_index < 0 || pixels->x_max > *atlas_x_size ||
-             pixels->y_max > *atlas_y_size) )
+        if( pixels->x_size <= x_volume_size &&
+            pixels->y_size <= y_volume_size &&
+            (image_index < 0 || pixels->x_size > *atlas_x_size ||
+             pixels->y_size > *atlas_y_size) )
         {
             image_index = i;
-            *atlas_x_size = pixels->x_max+1;
-            *atlas_y_size = pixels->y_max+1;
+            *atlas_x_size = pixels->x_size;
+            *atlas_y_size = pixels->y_size;
         }
     }
 
@@ -412,7 +410,7 @@ private  Boolean  find_appropriate_atlas_image( atlas_images, atlas_page,
     {
         *atlas_image =
               atlas_images[atlas_page->pixel_map_indices[image_index]].
-                           data.pixels8;
+                           data.pixels_8bit_colour_index;
         *atlas_multiplier_x = x_volume_size / *atlas_x_size;
         *atlas_multiplier_y = y_volume_size / *atlas_y_size;
     }

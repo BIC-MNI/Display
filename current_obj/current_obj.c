@@ -1,26 +1,26 @@
 
-#include  <def_graphics.h>
+#include  <def_display.h>
 
-private  selection_entry  *get_current_entry( graphics )
-    graphics_struct  *graphics;
+private  selection_entry  *get_current_entry(
+    display_struct   *display )
 {
-    return( &graphics->three_d.current_object.stack
-                        [graphics->three_d.current_object.current_level-1] );
+    return( &display->three_d.current_object.stack
+                        [display->three_d.current_object.current_level-1] );
 }
 
-public  void  advance_current_object( graphics )
-    graphics_struct   *graphics;
+public  void  advance_current_object(
+    display_struct    *display )
 {
     int               object_index;
     selection_entry   *entry;
     model_struct      *model;
 
-    if( !current_object_is_top_level(graphics) )
+    if( !current_object_is_top_level(display) )
     {
-        entry = get_current_entry( graphics );
+        entry = get_current_entry( display );
 
         object_index = entry->object_index;
-        model = entry->model_object->ptr.model;
+        model = get_model_ptr( entry->model_object );
 
         if( model->n_objects > 0 )
         {
@@ -29,19 +29,19 @@ public  void  advance_current_object( graphics )
     }
 }
 
-public  void  retreat_current_object( graphics )
-    graphics_struct   *graphics;
+public  void  retreat_current_object(
+    display_struct    *display )
 {
     int               object_index;
     selection_entry   *entry;
     model_struct      *model;
 
-    if( !current_object_is_top_level(graphics) )
+    if( !current_object_is_top_level(display) )
     {
-        entry = get_current_entry( graphics );
+        entry = get_current_entry( display );
 
         object_index = entry->object_index;
-        model = entry->model_object->ptr.model;
+        model = get_model_ptr( entry->model_object );
 
         if( model->n_objects > 0 )
         {
@@ -51,68 +51,64 @@ public  void  retreat_current_object( graphics )
     }
 }
 
-public  object_struct  *get_current_model_object( graphics )
-    graphics_struct   *graphics;
+public  object_struct  *get_current_model_object(
+    display_struct    *display )
 {
     object_struct     *model_object;
     selection_entry   *entry;
 
-    if( current_object_is_top_level(graphics) )
+    if( current_object_is_top_level(display) )
     {
-        model_object = graphics->models[THREED_MODEL];
+        model_object = display->models[THREED_MODEL];
     }
     else
     {
-        entry = get_current_entry( graphics );
+        entry = get_current_entry( display );
         model_object = entry->model_object;
     }
 
     return( model_object );
 }
 
-public  model_struct  *get_current_model( graphics )
-    graphics_struct   *graphics;
+public  model_struct  *get_current_model(
+    display_struct    *display )
 {
     object_struct  *model_object;
-    object_struct  *get_current_model_object();
     model_struct   *model;
 
-    model_object = get_current_model_object( graphics );
+    model_object = get_current_model_object( display );
 
-    model = model_object->ptr.model;
+    model = get_model_ptr( model_object );
 
     return( model );
 }
 
-public  int  get_current_object_index( graphics )
-    graphics_struct   *graphics;
+public  int  get_current_object_index(
+    display_struct    *display )
 {
     int               index;
     selection_entry   *entry;
 
-    if( current_object_is_top_level(graphics) )
+    if( current_object_is_top_level(display) )
         index = -1;
     else
     {
-        entry = get_current_entry( graphics );
+        entry = get_current_entry( display );
         index = entry->object_index;
     }
 
     return( index );
 }
 
-public  void  set_current_object( graphics, object )
-    graphics_struct   *graphics;
-    object_struct     *object;
+public  void  set_current_object(
+    display_struct    *display,
+    object_struct     *object )
 {
-    Status             status;
-    Status             push_current_object();
-    Status             pop_current_object();
     Boolean            found, done;
     selection_struct   *current_selection;
     object_struct      *current_object;
 
-    current_selection = &graphics->three_d.current_object;
+    current_selection = &display->three_d.current_object;
 
     current_selection->current_level = 1;
     current_selection->max_levels = 1;
@@ -120,19 +116,18 @@ public  void  set_current_object( graphics, object )
 
     found = FALSE;
     done = FALSE;
-    status = OK;
 
-    while( status == OK && !found && !done )
+    while( !found && !done )
     {
-        if( get_current_object( graphics, &current_object ) &&
+        if( get_current_object( display, &current_object ) &&
             current_object == object )
         {
             found = TRUE;
         }
         else if( current_object->object_type == MODEL &&
-                 current_object->ptr.model->n_objects > 0 )
+                 get_model_ptr(current_object)->n_objects > 0 )
         {
-            status = push_current_object( graphics );
+            push_current_object( display );
             current_selection->stack[current_selection->current_level-1].
                     object_index = 0;
         }
@@ -141,16 +136,17 @@ public  void  set_current_object( graphics, object )
             while( current_selection->current_level > 1 &&
                    current_selection->stack[current_selection->current_level-1].
                     object_index >=
-                   current_selection->stack[current_selection->current_level-1].
-                   model_object->ptr.model->n_objects-1 )
+                   get_model_ptr( current_selection->stack
+                                  [current_selection->current_level-1].
+                                  model_object )->n_objects-1 )
             {
-                status = pop_current_object( graphics );
+                pop_current_object( display );
             }
 
             if( current_selection->current_level == 1 &&
                 current_selection->stack[current_selection->current_level-1].
                     object_index >=
-                 current_selection->stack[0].model_object->ptr.model->
+                 get_model_ptr(current_selection->stack[0].model_object)->
                                                                   n_objects-1 )
             {
                 done = TRUE;
@@ -164,19 +160,19 @@ public  void  set_current_object( graphics, object )
     }
 }
 
-public  void  set_current_object_index( graphics, index )
-    graphics_struct   *graphics;
-    int               index;
+public  void  set_current_object_index(
+    display_struct    *display,
+    int               index )
 {
     selection_entry   *entry;
 
-    if( !current_object_is_top_level(graphics) )
+    if( !current_object_is_top_level(display) )
     {
-        entry = get_current_entry( graphics );
+        entry = get_current_entry( display );
 
         if( index == 0 ||
             (index >= 0 &&
-             index < entry->model_object->ptr.model->n_objects) )
+             index < get_model_ptr(entry->model_object)->n_objects) )
         {
             entry->object_index = index;
         }
@@ -187,29 +183,29 @@ public  void  set_current_object_index( graphics, index )
     }
 }
 
-public  Boolean  get_current_object( graphics, current_object )
-    graphics_struct   *graphics;
-    object_struct     **current_object;
+public  Boolean  get_current_object(
+    display_struct    *display,
+    object_struct     **current_object )
 {
     int               object_index;
     Boolean           current_object_exists;
     model_struct      *model;
     selection_entry   *entry;
 
-    if( current_object_is_top_level(graphics) )
+    if( current_object_is_top_level(display) )
     {
-        *current_object = graphics->models[THREED_MODEL];
+        *current_object = display->models[THREED_MODEL];
         current_object_exists = TRUE;
     }
     else
     {
-        entry = get_current_entry( graphics );
+        entry = get_current_entry( display );
         object_index = entry->object_index;
-        model = entry->model_object->ptr.model;
+        model = get_model_ptr( entry->model_object );
 
         if( object_index >= 0 && object_index < model->n_objects )
         {
-            *current_object = model->object_list[object_index];
+            *current_object = model->objects[object_index];
             current_object_exists = TRUE;
         }
         else
@@ -222,59 +218,47 @@ public  Boolean  get_current_object( graphics, current_object )
     return( current_object_exists );
 }
 
-public  Status  initialize_current_object( graphics )
-    graphics_struct   *graphics;
+public  void  initialize_current_object(
+    display_struct    *display )
 {
-    Status   push_current_object();
-
-    graphics->three_d.current_object.n_levels_alloced = 0;
-    graphics->three_d.current_object.max_levels = 0;
-    graphics->three_d.current_object.current_level = 0;
+    display->three_d.current_object.n_levels_alloced = 0;
+    display->three_d.current_object.max_levels = 0;
+    display->three_d.current_object.current_level = 0;
 
     /* start off below top level */
 
-    (void) push_current_object( graphics );
-
-    return( OK );
+    push_current_object( display );
 }
 
-public  Status  terminate_current_object( current_object )
-    selection_struct   *current_object;
+public  void  terminate_current_object(
+    selection_struct   *current_object )
 {
-    Status  status;
-
-    status = OK;
-
     if( current_object->n_levels_alloced > 0 )
-        FREE( status, current_object->stack );
-
-    return( status );
+        FREE( current_object->stack );
 }
 
-public  Status  push_current_object( graphics )
-    graphics_struct   *graphics;
+public  void  push_current_object(
+    display_struct    *display )
 {
-    Status            status;
     Boolean           previously_here;
     selection_entry   entry, *entry_ptr;
     selection_struct  *selection;
     object_struct     *current_object;
 
-    status = OK;
-
-    if( get_current_object( graphics, &current_object ) &&
+    if( get_current_object( display, &current_object ) &&
         current_object->object_type == MODEL )
     {
         previously_here = FALSE;
 
-        selection = &graphics->three_d.current_object;
+        selection = &display->three_d.current_object;
 
         if( selection->current_level < selection->max_levels )
         {
             entry_ptr = &selection->stack[selection->current_level];
             if( entry_ptr->model_object == current_object &&
                 entry_ptr->object_index >= 0 &&
-                entry_ptr->object_index < current_object->ptr.model->n_objects )
+                entry_ptr->object_index <
+                                      get_model_ptr(current_object)->n_objects )
             {
                 previously_here = TRUE;
                 ++selection->current_level;
@@ -286,33 +270,27 @@ public  Status  push_current_object( graphics )
             entry.object_index = 0;
             entry.model_object = current_object;
 
-            ADD_ELEMENT_TO_ARRAY_WITH_SIZE( status, selection->n_levels_alloced,
-                 selection->current_level, selection->stack, entry,
+            ADD_ELEMENT_TO_ARRAY_WITH_SIZE( selection->stack,
+                 selection->n_levels_alloced, selection->current_level, entry,
                  DEFAULT_CHUNK_SIZE )
 
             if( selection->current_level > selection->max_levels )
                 selection->max_levels = selection->current_level;
         }
     }
-
-    return( status );
 }
 
-public  Boolean  current_object_is_top_level( graphics )
-    graphics_struct   *graphics;
+public  Boolean  current_object_is_top_level(
+    display_struct    *display )
 {
-    return( graphics->three_d.current_object.current_level == 0 );
+    return( display->three_d.current_object.current_level == 0 );
 }
 
-public  Status  pop_current_object( graphics )
-    graphics_struct   *graphics;
+public  void  pop_current_object(
+    display_struct    *display )
 {
     /* don't allow popping up to the top level */
 
-    if( graphics->three_d.current_object.current_level > 1 )
-    {
-        --graphics->three_d.current_object.current_level;
-    }
-
-    return( OK );
+    if( display->three_d.current_object.current_level > 1 )
+        --display->three_d.current_object.current_level;
 }

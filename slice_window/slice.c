@@ -1,117 +1,89 @@
 
-#include  <def_graphics.h>
-#include  <def_globals.h>
+#include  <def_display.h>
 
-static    void     get_slice_scale();
+private  void  get_slice_scale(
+    display_struct    *display,
+    int               view_index,
+    Real              *x_scale,
+    Real              *y_scale );
 
-public  Status  initialize_slice_window( graphics )
-    graphics_struct   *graphics;
+public  void  initialize_slice_window(
+    display_struct    *slice_window )
 {
-    Status  status;
-    Status  initialize_slice_models();
-    Status  initialize_colour_coding();
-    Status  initialize_colour_bar();
-    Status  add_new_label();
-    void    initialize_slice_window_events();
     int     c, label;
-    void    initialize_segmenting();
-    void    rebuild_colour_coding();
-    void    initialize_atlas();
 
-    graphics->slice.volume = (volume_struct *) 0;
+    slice_window->slice.volume_present = FALSE;
 
-    graphics->slice.temporary_indices_alloced = 0;
+    slice_window->slice.temporary_indices_alloced = 0;
 
-    initialize_slice_window_events( graphics );
+    initialize_slice_window_events( slice_window );
 
     for_less( c, 0, N_DIMENSIONS )
-        graphics->slice.slice_views[c].update_flag = TRUE;
+        slice_window->slice.slice_views[c].update_flag = TRUE;
 
-    graphics->slice.next_to_update = X;
+    slice_window->slice.next_to_update = X;
 
-    graphics->slice.slice_views[0].axis_map[0]  = Slice_view1_axis1;
-    graphics->slice.slice_views[0].axis_flip[0] = Slice_view1_flip1;
-    graphics->slice.slice_views[0].axis_map[1]  = Slice_view1_axis2;
-    graphics->slice.slice_views[0].axis_flip[1] = Slice_view1_flip2;
-    graphics->slice.slice_views[0].axis_map[2]  = Slice_view1_axis3;
-    graphics->slice.slice_views[0].axis_flip[2] = Slice_view1_flip3;
+    slice_window->slice.slice_views[0].axis_map[0]  = Slice_view1_axis1;
+    slice_window->slice.slice_views[0].axis_flip[0] = Slice_view1_flip1;
+    slice_window->slice.slice_views[0].axis_map[1]  = Slice_view1_axis2;
+    slice_window->slice.slice_views[0].axis_flip[1] = Slice_view1_flip2;
+    slice_window->slice.slice_views[0].axis_map[2]  = Slice_view1_axis3;
+    slice_window->slice.slice_views[0].axis_flip[2] = Slice_view1_flip3;
 
-    graphics->slice.slice_views[1].axis_map[0]  = Slice_view2_axis1;
-    graphics->slice.slice_views[1].axis_flip[0] = Slice_view2_flip1;
-    graphics->slice.slice_views[1].axis_map[1]  = Slice_view2_axis2;
-    graphics->slice.slice_views[1].axis_flip[1] = Slice_view2_flip2;
-    graphics->slice.slice_views[1].axis_map[2]  = Slice_view2_axis3;
-    graphics->slice.slice_views[1].axis_flip[2] = Slice_view2_flip3;
+    slice_window->slice.slice_views[1].axis_map[0]  = Slice_view2_axis1;
+    slice_window->slice.slice_views[1].axis_flip[0] = Slice_view2_flip1;
+    slice_window->slice.slice_views[1].axis_map[1]  = Slice_view2_axis2;
+    slice_window->slice.slice_views[1].axis_flip[1] = Slice_view2_flip2;
+    slice_window->slice.slice_views[1].axis_map[2]  = Slice_view2_axis3;
+    slice_window->slice.slice_views[1].axis_flip[2] = Slice_view2_flip3;
 
-    graphics->slice.slice_views[2].axis_map[0]  = Slice_view3_axis1;
-    graphics->slice.slice_views[2].axis_flip[0] = Slice_view3_flip1;
-    graphics->slice.slice_views[2].axis_map[1]  = Slice_view3_axis2;
-    graphics->slice.slice_views[2].axis_flip[1] = Slice_view3_flip2;
-    graphics->slice.slice_views[2].axis_map[2]  = Slice_view3_axis3;
-    graphics->slice.slice_views[2].axis_flip[2] = Slice_view3_flip3;
+    slice_window->slice.slice_views[2].axis_map[0]  = Slice_view3_axis1;
+    slice_window->slice.slice_views[2].axis_flip[0] = Slice_view3_flip1;
+    slice_window->slice.slice_views[2].axis_map[1]  = Slice_view3_axis2;
+    slice_window->slice.slice_views[2].axis_flip[1] = Slice_view3_flip2;
+    slice_window->slice.slice_views[2].axis_map[2]  = Slice_view3_axis3;
+    slice_window->slice.slice_views[2].axis_flip[2] = Slice_view3_flip3;
 
-    status = initialize_slice_models( graphics );
+    initialize_slice_models( slice_window );
 
-    if( status == OK )
-    {
-        status = initialize_colour_coding( &graphics->slice.colour_coding );
+    initialize_colour_coding( &slice_window->slice.colour_coding,
+                              GRAY_SCALE, Colour_below, Colour_above,
+                              0.0, 1.0 );
 
-        rebuild_colour_coding( &graphics->slice.colour_coding );
-    }
+    initialize_colour_bar( slice_window );
 
-    if( status == OK )
-        status = initialize_colour_bar( graphics );
-
-    graphics->slice.label_colour_ratio = Label_colour_display_ratio;
-    graphics->slice.fast_lookup_present = FALSE;
+    slice_window->slice.label_colour_ratio = Label_colour_display_ratio;
+    slice_window->slice.fast_lookup_present = FALSE;
 
     for_less( label, 0, NUM_LABELS )
     {
-        graphics->slice.fast_lookup[label] = (Pixel_colour *) 0;
-        graphics->slice.label_colours_used[label] = FALSE;
+        slice_window->slice.fast_lookup[label] = (Colour *) 0;
+        slice_window->slice.label_colours_used[label] = FALSE;
     }
 
-    if( status == OK )
-        status = add_new_label( graphics, ACTIVE_BIT, &WHITE );
+    add_new_label( slice_window, ACTIVE_BIT, WHITE );
 
-    if( status == OK )
-        status = add_new_label( graphics, ACTIVE_BIT | LABEL_BIT,
-                                &Labeled_voxel_colour );
+    add_new_label( slice_window, ACTIVE_BIT | LABEL_BIT, Labeled_voxel_colour);
 
-    if( status == OK )
-        status = add_new_label( graphics, LABEL_BIT,
-                                &Inactive_and_labeled_voxel_colour );
+    add_new_label( slice_window, LABEL_BIT, Inactive_and_labeled_voxel_colour);
 
-    if( status == OK )
-        status = add_new_label( graphics, 0, &Inactive_voxel_colour );
+    add_new_label( slice_window, 0, Inactive_voxel_colour );
 
-    initialize_segmenting( &graphics->slice.segmenting );
-    initialize_atlas( &graphics->slice.atlas );
-
-    return( status );
+    initialize_segmenting( &slice_window->slice.segmenting );
+    initialize_atlas( &slice_window->slice.atlas );
 }
 
-public  Status  set_slice_window_volume( graphics, volume )
-    graphics_struct   *graphics;
-    volume_struct     *volume;
+public  void  set_slice_window_volume(
+    display_struct    *slice_window,
+    volume_struct     *volume )
 {
-    Status           status;
-    Status           initialize_voxel_flags();
-    Status           initialize_voxel_done_flags();
-    Status           update_cursor_size();
-    Status           set_colour_coding_per_index_range();
     int              c, x_index, y_index, num_entries;
     int              size[N_DIMENSIONS];
     Real             factor, min_thickness, max_thickness;
     Real             thickness[N_DIMENSIONS];
-    void             change_colour_coding_range();
-    void             get_volume_size();
-    void             get_volume_slice_thickness();
-    void             rebuild_colour_bar();
-    Status           create_fast_lookup();
-    void             set_atlas_state();
 
-    graphics->slice.volume = volume;
+    slice_window->slice.volume_present = TRUE;
+    slice_window->slice.volume = *volume;
 
     get_volume_size( volume, &size[X], &size[Y], &size[Z] );
     get_volume_slice_thickness( volume, &thickness[X], &thickness[Y],
@@ -119,20 +91,20 @@ public  Status  set_slice_window_volume( graphics, volume )
 
     for_less( c, 0, N_DIMENSIONS )
     {
-        graphics->slice.slice_views[c].x_offset = 0;
-        graphics->slice.slice_views[c].y_offset = 0;
-        graphics->slice.slice_index[c] = (int) (size[c] / 2);
-        graphics->slice.slice_locked[c] = FALSE;
+        slice_window->slice.slice_views[c].x_offset = 0;
+        slice_window->slice.slice_views[c].y_offset = 0;
+        slice_window->slice.slice_index[c] = (int) (size[c] / 2);
+        slice_window->slice.slice_locked[c] = FALSE;
     }
 
-    graphics->associated[THREE_D_WINDOW]->three_d.cursor.box_size[X] =
+    slice_window->associated[THREE_D_WINDOW]->three_d.cursor.box_size[X] =
                           thickness[X];
-    graphics->associated[THREE_D_WINDOW]->three_d.cursor.box_size[Y] =
+    slice_window->associated[THREE_D_WINDOW]->three_d.cursor.box_size[Y] =
                           thickness[Y];
-    graphics->associated[THREE_D_WINDOW]->three_d.cursor.box_size[Z] =
+    slice_window->associated[THREE_D_WINDOW]->three_d.cursor.box_size[Z] =
                           thickness[Z];
 
-    status = update_cursor_size( graphics->associated[THREE_D_WINDOW] );
+    update_cursor_size( slice_window->associated[THREE_D_WINDOW] );
 
     min_thickness = thickness[X];
     max_thickness = thickness[X];
@@ -149,142 +121,107 @@ public  Status  set_slice_window_volume( graphics, volume )
 
     for_less( c, 0, N_DIMENSIONS )
     {
-        x_index = graphics->slice.slice_views[c].axis_map[X];
-        y_index = graphics->slice.slice_views[c].axis_map[Y];
+        x_index = slice_window->slice.slice_views[c].axis_map[X];
+        y_index = slice_window->slice.slice_views[c].axis_map[Y];
 
-        graphics->slice.slice_views[c].x_scale = factor * thickness[x_index];
+        slice_window->slice.slice_views[c].x_scale = factor * thickness[x_index];
 
-        graphics->slice.slice_views[c].y_scale = factor * thickness[y_index];
+        slice_window->slice.slice_views[c].y_scale = factor * thickness[y_index];
     }
 
-    num_entries = graphics->slice.volume->max_value -
-                  graphics->slice.volume->min_value + 1;
+    num_entries = volume->max_value - volume->min_value + 1;
 
-    graphics->slice.fast_lookup_present =
+    slice_window->slice.fast_lookup_present =
                   (num_entries <= Max_fast_colour_lookup);
 
-    if( graphics->slice.fast_lookup_present )
+    if( slice_window->slice.fast_lookup_present )
     {
-        if( status == OK )
-            status = create_fast_lookup( graphics, 0 );
-        if( status == OK )
-            status = create_fast_lookup( graphics, ACTIVE_BIT );
-        if( status == OK )
-            status = create_fast_lookup( graphics, LABEL_BIT );
-        if( status == OK )
-            status = create_fast_lookup( graphics, ACTIVE_BIT | LABEL_BIT );
+        create_fast_lookup( slice_window, 0 );
+        create_fast_lookup( slice_window, ACTIVE_BIT );
+        create_fast_lookup( slice_window, LABEL_BIT );
+        create_fast_lookup( slice_window, ACTIVE_BIT | LABEL_BIT );
     }
 
-    change_colour_coding_range( graphics,
+    change_colour_coding_range( slice_window,
                                 (Real) volume->min_value,
                                 (Real) volume->max_value );
 
-    if( status == OK )
-    {
-        status = initialize_voxel_flags( &graphics->associated[THREE_D_WINDOW]
-                                     ->three_d.surface_extraction.voxels_queued,
-                                     get_n_voxels(graphics->slice.volume) );
-    }
+    initialize_voxel_flags( &slice_window->associated[THREE_D_WINDOW]
+                            ->three_d.surface_extraction.voxels_queued,
+                            get_n_voxels(volume) );
 
-    if( status == OK )
-    {
-        status = initialize_voxel_done_flags(
-                   &graphics->associated[THREE_D_WINDOW]
-                    ->three_d.surface_extraction.voxel_done_flags,
-                    get_n_voxels(graphics->slice.volume) );
-    }
+    initialize_voxel_done_flags( &slice_window->associated[THREE_D_WINDOW]
+                                  ->three_d.surface_extraction.voxel_done_flags,
+                                  get_n_voxels(volume) );
 
-    if( status == OK )
-        status = set_colour_coding_per_index_range(
-                        &graphics->slice.colour_coding,
-                        volume->min_value, volume->max_value );
-
-    set_atlas_state( graphics, Default_atlas_state );
-    rebuild_colour_bar( graphics );
-
-    return( status );
+    set_atlas_state( slice_window, Default_atlas_state );
+    rebuild_colour_bar( slice_window );
 }
 
-public  void  change_colour_coding_range( graphics, min_value, max_value )
-    graphics_struct   *graphics;
-    Real              min_value, max_value;
+public  void  change_colour_coding_range(
+    display_struct    *slice_window,
+    Real              min_value,
+    Real              max_value )
 {
-    void             set_colour_coding_range();
-    void             colour_coding_has_changed();
+    set_colour_coding_min_max( &slice_window->slice.colour_coding,
+                               min_value, max_value );
 
-    set_colour_coding_range( &graphics->slice.colour_coding,
-                             min_value, max_value );
-
-    colour_coding_has_changed( graphics );
+    colour_coding_has_changed( slice_window );
 }
 
-public  void  get_slice_colour_coding( slice_window, value, label, colour )
-    graphics_struct   *slice_window;
-    int               value;
-    int               label;
-    Colour            *colour;
+public  Colour  get_slice_colour_coding(
+    display_struct    *slice_window,
+    int               value,
+    int               label )
 {
-    Colour           col, mult, scaled_col;
-    void             get_colour_coding();
+    Colour           col, tmp_col, mult, scaled_col;
 
-    get_colour_coding( &slice_window->slice.colour_coding, (Real) value,
-                       colour );
+    col = get_colour_code( &slice_window->slice.colour_coding, (Real) value );
 
     if( label != ACTIVE_BIT )
     {
-        col = slice_window->slice.label_colours[label];
-        MULT_COLOURS( mult, col, *colour );
-        SCALE_COLOUR( mult, mult, 1.0 - slice_window->slice.label_colour_ratio);
-        SCALE_COLOUR( scaled_col, col, slice_window->slice.label_colour_ratio );
-        ADD_COLOURS( *colour, mult, scaled_col );
+        tmp_col = slice_window->slice.label_colours[label];
+        MULT_COLOURS( mult, tmp_col, col );
+        mult = SCALE_COLOUR( mult, 1.0-slice_window->slice.label_colour_ratio);
+        scaled_col = SCALE_COLOUR( col, slice_window->slice.label_colour_ratio);
+        ADD_COLOURS( col, mult, scaled_col );
     }
+
+    return( col );
 }
 
-public  Status  create_fast_lookup( slice_window, label )
-    graphics_struct   *slice_window;
-    int               label;
+public  void  create_fast_lookup(
+    display_struct    *slice_window,
+    int               label )
 {
-    Status   status;
-
-    ALLOC( status, slice_window->slice.fast_lookup[label], 
-                   slice_window->slice.volume->max_value -
-                   slice_window->slice.volume->min_value + 1 );
-
-    return( status );
+    ALLOC( slice_window->slice.fast_lookup[label], 
+           slice_window->slice.volume.max_value -
+           slice_window->slice.volume.min_value + 1 );
 }
 
-public  Status  add_new_label( slice_window, label, colour )
-    graphics_struct   *slice_window;
-    int               label;
-    Colour            *colour;
+public  void   add_new_label(
+    display_struct    *slice_window,
+    int               label,
+    Colour            colour )
 {
-    Status   status;
-    void     rebuild_fast_lookup_for_label();
-
-    status = OK;
-
-    slice_window->slice.label_colours[label] = *colour;
+    slice_window->slice.label_colours[label] = colour;
     slice_window->slice.label_colours_used[label] = TRUE;
 
     if( slice_window->slice.fast_lookup_present )
     {
-        if( slice_window->slice.fast_lookup[label] == (Pixel_colour *) 0 )
-            status = create_fast_lookup( slice_window, label );
+        if( slice_window->slice.fast_lookup[label] == (Colour *) 0 )
+            create_fast_lookup( slice_window, label );
 
-        if( status == OK )
-            rebuild_fast_lookup_for_label( slice_window, label );
+        rebuild_fast_lookup_for_label( slice_window, label );
     }
-
-    return( status );
 }
 
-public  int  lookup_label_colour( slice_window, colour )
-    graphics_struct   *slice_window;
-    Colour            *colour;
+public  int  lookup_label_colour(
+    display_struct    *slice_window,
+    Colour            colour )
 {
     Boolean   found_colour, found_empty;
     int       i, first_empty, label;
-    Status    add_new_label();
 
     found_colour = FALSE;
     found_empty = FALSE;
@@ -295,7 +232,7 @@ public  int  lookup_label_colour( slice_window, colour )
 
         if( slice_window->slice.label_colours_used[label] )
         {
-            if( equal_colours( &slice_window->slice.label_colours[label],
+            if( equal_colours( slice_window->slice.label_colours[label],
                                colour ) )
             {
                 found_colour = TRUE;
@@ -323,28 +260,26 @@ public  int  lookup_label_colour( slice_window, colour )
     return( label );
 }
 
-public  void  rebuild_fast_lookup_for_label( slice_window, label )
-    graphics_struct   *slice_window;
-    int               label;
+public  void  rebuild_fast_lookup_for_label(
+    display_struct    *slice_window,
+    int               label )
 {
     int              val, min_val, max_val;
     Colour           colour;
-    void             get_colour_coding();
 
-    min_val = slice_window->slice.volume->min_value;
-    max_val = slice_window->slice.volume->max_value;
+    min_val = slice_window->slice.volume.min_value;
+    max_val = slice_window->slice.volume.max_value;
    
     for_inclusive( val, min_val, max_val )
     {
-        get_slice_colour_coding( slice_window, val, label, &colour);
+        colour = get_slice_colour_coding( slice_window, val, label );
 
-        COLOUR_TO_PIXEL( colour,
-                slice_window->slice.fast_lookup[label][val-min_val] );
+        slice_window->slice.fast_lookup[label][val-min_val] = colour;
     }
 }
 
-public  void  rebuild_fast_lookup( slice_window )
-    graphics_struct   *slice_window;
+public  void  rebuild_fast_lookup(
+    display_struct    *slice_window )
 {
     int              label;
 
@@ -352,28 +287,25 @@ public  void  rebuild_fast_lookup( slice_window )
     {
         for_less( label, 0, NUM_LABELS )
         {
-            if( slice_window->slice.fast_lookup[label] != (Pixel_colour *) 0 )
+            if( slice_window->slice.fast_lookup[label] != (Colour *) 0 )
                 rebuild_fast_lookup_for_label( slice_window, label );
         }
     }
 }
 
-public  Boolean   get_slice_window_volume( graphics, volume )
-    graphics_struct  *graphics;
-    volume_struct    **volume;
+public  Boolean   get_slice_window_volume(
+    display_struct   *display,
+    volume_struct    **volume )
 {
     Boolean  volume_set;
 
     volume_set = FALSE;
 
-    if( graphics->associated[SLICE_WINDOW] != (graphics_struct *) 0 )
+    if( display->associated[SLICE_WINDOW] != (display_struct  *) 0 &&
+        display->associated[SLICE_WINDOW]->slice.volume_present )
     {
-        *volume = graphics->associated[SLICE_WINDOW]->slice.volume;
-
-        if( *volume != (volume_struct *) 0 )
-        {
-            volume_set = TRUE;
-        }
+        *volume = &display->associated[SLICE_WINDOW]->slice.volume;
+        volume_set = TRUE;
     }
     else
         *volume = (volume_struct *) 0;
@@ -381,66 +313,59 @@ public  Boolean   get_slice_window_volume( graphics, volume )
     return( volume_set );
 }
 
-public  Boolean  get_slice_window( graphics, slice_window )
-    graphics_struct  *graphics;
-    graphics_struct  **slice_window;
+public  Boolean  get_slice_window(
+    display_struct   *display,
+    display_struct   **slice_window )
 {
-    *slice_window = graphics->associated[SLICE_WINDOW];
+    *slice_window = display->associated[SLICE_WINDOW];
 
-    return( *slice_window != (graphics_struct *) 0 );
+    return( *slice_window != (display_struct  *) 0 );
 }
 
-public  Status  delete_slice_window( slice_window )
-    slice_window_struct   *slice_window;
+public  void  delete_slice_window(
+    slice_window_struct   *slice_window )
 {
     int      i;
-    Status   status;
-    Status   delete_colour_coding();
 
-    status = delete_colour_coding( &slice_window->colour_coding );
-
-    if( status == OK && slice_window->temporary_indices_alloced > 0 )
+    if( slice_window->temporary_indices_alloced > 0 )
     {
-        FREE( status, slice_window->temporary_indices );
+        FREE( slice_window->temporary_indices );
     }
 
-    if( status == OK && slice_window->fast_lookup_present )
+    if( slice_window->fast_lookup_present )
     {
         for_less( i, 0, NUM_LABELS )
         {
-            if( slice_window->fast_lookup[i] != (Pixel_colour *) 0 )
-                FREE( status, slice_window->fast_lookup[i] );
+            if( slice_window->fast_lookup[i] != (Colour *) 0 )
+                FREE( slice_window->fast_lookup[i] );
         }
     }
-
-    return( status );
 }
 
-public  Boolean  slice_window_exists( graphics )
-    graphics_struct   *graphics;
+public  Boolean  slice_window_exists(
+    display_struct    *display )
 {
-    return( graphics != (graphics_struct *) 0 &&
-            graphics->associated[SLICE_WINDOW] != (graphics_struct *) 0 );
+    return( display != (display_struct  *) 0 &&
+            display->associated[SLICE_WINDOW] != (display_struct  *) 0 );
 }
 
-public  Boolean  find_slice_view_mouse_is_in( graphics, x_pixel, y_pixel,
-                                              view_index )
-    graphics_struct   *graphics;
-    int               x_pixel, y_pixel;
-    int               *view_index;
+public  Boolean  find_slice_view_mouse_is_in(
+    display_struct    *display,
+    int               x_pixel,
+    int               y_pixel,
+    int               *view_index )
 {
     Boolean  found;
     int      c;
     int      x_min, x_max, y_min, y_max;
-    void     get_slice_viewport();
 
     found = FALSE;
 
-    if( slice_window_exists(graphics) )
+    if( slice_window_exists(display) )
     {
         for_less( c, 0, N_DIMENSIONS )
         {
-            get_slice_viewport( graphics, c, &x_min, &x_max, &y_min, &y_max );
+            get_slice_viewport( display, c, &x_min, &x_max, &y_min, &y_max );
 
             if( x_pixel >= x_min && x_pixel <= x_max &&
                 y_pixel >= y_min && y_pixel <= y_max )
@@ -456,12 +381,14 @@ public  Boolean  find_slice_view_mouse_is_in( graphics, x_pixel, y_pixel,
     return( found );
 }
 
-public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z,
-                                         view_index )
-    graphics_struct   *graphics;
-    int               x_pixel, y_pixel;
-    int               *x, *y, *z;
-    int               *view_index;
+public  Boolean  convert_pixel_to_voxel(
+    display_struct    *display,
+    int               x_pixel,
+    int               y_pixel,
+    int               *x,
+    int               *y,
+    int               *z,
+    int               *view_index )
 {
     Boolean  found;
     Real     x_scale, y_scale;
@@ -469,13 +396,12 @@ public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z,
     int      start_indices[N_DIMENSIONS];
     int      voxel_indices[N_DIMENSIONS];
     int      x_pixel_start, x_pixel_end, y_pixel_start, y_pixel_end;
-    void     get_slice_view();
 
     found = FALSE;
 
-    if( find_slice_view_mouse_is_in( graphics, x_pixel, y_pixel, view_index ) )
+    if( find_slice_view_mouse_is_in( display, x_pixel, y_pixel, view_index ) )
     {
-        get_slice_view( graphics, *view_index, &x_scale, &y_scale,
+        get_slice_view( display, *view_index, &x_scale, &y_scale,
                         &x_pixel_start, &y_pixel_start,
                         &x_pixel_end, &y_pixel_end,
                         start_indices );
@@ -484,11 +410,11 @@ public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z,
             y_pixel >= y_pixel_start && y_pixel <= y_pixel_end )
         {
             axis_index =
-                graphics->slice.slice_views[*view_index].axis_map[Z];
+                display->slice.slice_views[*view_index].axis_map[Z];
             x_index =
-                graphics->slice.slice_views[*view_index].axis_map[X];
+                display->slice.slice_views[*view_index].axis_map[X];
             y_index =
-                graphics->slice.slice_views[*view_index].axis_map[Y];
+                display->slice.slice_views[*view_index].axis_map[Y];
 
             voxel_indices[axis_index] = start_indices[axis_index];
 
@@ -508,67 +434,68 @@ public  Boolean  convert_pixel_to_voxel( graphics, x_pixel, y_pixel, x, y, z,
     return( found );
 }
 
-private  int  voxel_to_pixel( x_min, x_offset, x_scale, voxel )
-    int   x_min, x_offset;
-    Real  x_scale;
-    int   voxel;
+private  int  voxel_to_pixel(
+    int   x_min,
+    int   x_offset,
+    Real  x_scale,
+    int   voxel )
 {
     return( x_min + x_offset + (Real) voxel * x_scale );
 }
 
-public  void  convert_voxel_to_pixel( graphics, view_index, x_voxel, y_voxel,
-                                      x_pixel, y_pixel )
-    graphics_struct   *graphics;
-    int               view_index;
-    int               x_voxel, y_voxel;
-    int               *x_pixel, *y_pixel;
+public  void  convert_voxel_to_pixel(
+    display_struct    *display,
+    int               view_index,
+    int               x_voxel,
+    int               y_voxel,
+    int               *x_pixel,
+    int               *y_pixel )
 {
     int      x_index, y_index;
     int      x_min, x_max, y_min, y_max;
     int      size[N_DIMENSIONS];
     Real     x_scale, y_scale;
-    void     get_slice_viewport();
-    void     get_volume_size();
 
-    get_slice_viewport( graphics, view_index, &x_min, &x_max, &y_min, &y_max );
+    get_slice_viewport( display, view_index, &x_min, &x_max, &y_min, &y_max );
 
-    get_slice_scale( graphics, view_index, &x_scale, &y_scale );
+    get_slice_scale( display, view_index, &x_scale, &y_scale );
 
-    x_index = graphics->slice.slice_views[view_index].axis_map[X];
-    y_index = graphics->slice.slice_views[view_index].axis_map[Y];
+    x_index = display->slice.slice_views[view_index].axis_map[X];
+    y_index = display->slice.slice_views[view_index].axis_map[Y];
 
-    get_volume_size( graphics->slice.volume,
+    get_volume_size( &display->slice.volume,
                      &size[X], &size[Y], &size[Z] );
 
-    if( graphics->slice.slice_views[view_index].axis_flip[X] )
+    if( display->slice.slice_views[view_index].axis_flip[X] )
         x_voxel = size[x_index] - 1 - x_voxel;
 
-    if( graphics->slice.slice_views[view_index].axis_flip[Y] )
+    if( display->slice.slice_views[view_index].axis_flip[Y] )
         y_voxel = size[y_index] - 1 - y_voxel;
 
     *x_pixel = voxel_to_pixel( x_min,
-                               graphics->slice.slice_views[view_index].x_offset,
+                               display->slice.slice_views[view_index].x_offset,
                                x_scale, x_voxel );
 
     *y_pixel = voxel_to_pixel( y_min,
-                               graphics->slice.slice_views[view_index].y_offset,
+                               display->slice.slice_views[view_index].y_offset,
                                y_scale, y_voxel );
 }
 
-public  Boolean  get_voxel_corresponding_to_point( graphics, point, x, y, z )
-    graphics_struct   *graphics;
-    Point             *point;
-    Real              *x, *y, *z;
+public  Boolean  get_voxel_corresponding_to_point(
+    display_struct    *display,
+    Point             *point,
+    Real              *x,
+    Real              *y,
+    Real              *z )
 {
     volume_struct   *volume;
     Boolean         converted;
-    void            convert_point_to_voxel();
 
     converted = FALSE;
 
-    if( get_slice_window_volume( graphics, &volume ) )
+    if( get_slice_window_volume( display, &volume ) )
     {
-        convert_point_to_voxel( volume,
+        convert_world_to_voxel( volume,
                             Point_x(*point), Point_y(*point), Point_z(*point),
                             x, y, z );
 
@@ -578,62 +505,69 @@ public  Boolean  get_voxel_corresponding_to_point( graphics, point, x, y, z )
     return( converted );
 }
 
-private  void  get_slice_scale( graphics, view_index, x_scale, y_scale )
-    graphics_struct   *graphics;
-    int               view_index;
-    Real              *x_scale;
-    Real              *y_scale;
+private  void  get_slice_scale(
+    display_struct    *display,
+    int               view_index,
+    Real              *x_scale,
+    Real              *y_scale )
 {
-    *x_scale = graphics->slice.slice_views[view_index].x_scale;
-    *y_scale = graphics->slice.slice_views[view_index].y_scale;
+    *x_scale = display->slice.slice_views[view_index].x_scale;
+    *y_scale = display->slice.slice_views[view_index].y_scale;
 }
 
-public  void  get_slice_viewport( graphics, view_index,
-                                  x_min, x_max, y_min, y_max )
-    graphics_struct   *graphics;
-    int               view_index;
-    int               *x_min, *x_max, *y_min, *y_max;
+public  void  get_slice_viewport(
+    display_struct    *display,
+    int               view_index,
+    int               *x_min,
+    int               *x_max,
+    int               *y_min,
+    int               *y_max )
 {
+    int  x_size, y_size;
+
+    G_get_window_size( display->window, &x_size, &y_size );
+
     switch( view_index )
     {
     case 0:
         *x_min = Slice_divider_left;
-        *x_max = graphics->slice.x_split-1-Slice_divider_right;
-        *y_min = graphics->slice.y_split+1+Slice_divider_bottom;
-        *y_max = graphics->window.y_size-Slice_divider_top;
+        *x_max = display->slice.x_split-1-Slice_divider_right;
+        *y_min = display->slice.y_split+1+Slice_divider_bottom;
+        *y_max = y_size-Slice_divider_top;
         break;
 
     case 1:
-        *x_min = graphics->slice.x_split+1+Slice_divider_left;
-        *x_max = graphics->window.x_size-Slice_divider_right;
-        *y_min = graphics->slice.y_split+1+Slice_divider_bottom;
-        *y_max = graphics->window.y_size-Slice_divider_top;
+        *x_min = display->slice.x_split+1+Slice_divider_left;
+        *x_max = x_size-Slice_divider_right;
+        *y_min = display->slice.y_split+1+Slice_divider_bottom;
+        *y_max = y_size-Slice_divider_top;
         break;
 
     case 2:
         *x_min = Slice_divider_left;
-        *x_max = graphics->slice.x_split-1-Slice_divider_right;
+        *x_max = display->slice.x_split-1-Slice_divider_right;
         *y_min = Slice_divider_bottom;
-        *y_max = graphics->slice.y_split-1-Slice_divider_top;
+        *y_max = display->slice.y_split-1-Slice_divider_top;
         break;
 
     default:
-        *x_min = graphics->slice.x_split+1+Slice_divider_left;
-        *x_max = graphics->window.x_size-Slice_divider_right;
+        *x_min = display->slice.x_split+1+Slice_divider_left;
+        *x_max = x_size-Slice_divider_right;
         *y_min = Slice_divider_bottom;
-        *y_max = graphics->slice.y_split-1-Slice_divider_top;
+        *y_max = display->slice.y_split-1-Slice_divider_top;
     }
 }
 
-public  void  get_slice_view( graphics, view_index, x_scale, y_scale,
-                              x_pixel, y_pixel, x_pixel_end, y_pixel_end,
-                              indices )
-    graphics_struct  *graphics;
-    int              view_index;
-    Real             *x_scale, *y_scale;
-    int              *x_pixel, *y_pixel;
-    int              *x_pixel_end, *y_pixel_end;
-    int              indices[N_DIMENSIONS];
+public  void  get_slice_view(
+    display_struct   *display,
+    int              view_index,
+    Real             *x_scale,
+    Real             *y_scale,
+    int              *x_pixel,
+    int              *y_pixel,
+    int              *x_pixel_end,
+    int              *y_pixel_end,
+    int              indices[N_DIMENSIONS] )
 {
     int   x_axis_index, y_axis_index, axis_index;
     int   x_offset, y_offset;
@@ -641,27 +575,25 @@ public  void  get_slice_view( graphics, view_index, x_scale, y_scale,
     int   x_min, x_max, y_min, y_max;
     int   size[N_DIMENSIONS];
     Real  start_offset;
-    void  get_slice_viewport();
-    void  get_volume_size();
 
-    axis_index = graphics->slice.slice_views[view_index].axis_map[Z];
-    x_axis_index = graphics->slice.slice_views[view_index].axis_map[X];
-    y_axis_index = graphics->slice.slice_views[view_index].axis_map[Y];
+    axis_index = display->slice.slice_views[view_index].axis_map[Z];
+    x_axis_index = display->slice.slice_views[view_index].axis_map[X];
+    y_axis_index = display->slice.slice_views[view_index].axis_map[Y];
 
-    indices[axis_index] = graphics->slice.slice_index[axis_index];
+    indices[axis_index] = display->slice.slice_index[axis_index];
 
-    x_offset = graphics->slice.slice_views[view_index].x_offset;
-    y_offset = graphics->slice.slice_views[view_index].y_offset;
+    x_offset = display->slice.slice_views[view_index].x_offset;
+    y_offset = display->slice.slice_views[view_index].y_offset;
 
-    get_slice_scale( graphics, view_index, x_scale, y_scale );
+    get_slice_scale( display, view_index, x_scale, y_scale );
 
-    get_volume_size( graphics->slice.volume,
+    get_volume_size( &display->slice.volume,
                      &size[X], &size[Y], &size[Z] );
 
     x_size = size[x_axis_index];
     y_size = size[y_axis_index];
 
-    get_slice_viewport( graphics, view_index, &x_min, &x_max, &y_min, &y_max );
+    get_slice_viewport( display, view_index, &x_min, &x_max, &y_min, &y_max );
 
     *x_pixel = voxel_to_pixel( x_min, x_offset, *x_scale, 0 );
     indices[x_axis_index] = 0;
@@ -725,34 +657,33 @@ public  void  get_slice_view( graphics, view_index, x_scale, y_scale,
         }
     }
 
-    if( graphics->slice.slice_views[view_index].axis_flip[X] )
+    if( display->slice.slice_views[view_index].axis_flip[X] )
     {
         indices[x_axis_index] = x_size - 1 - indices[x_axis_index];
         *x_scale = -(*x_scale);
     }
 
-    if( graphics->slice.slice_views[view_index].axis_flip[Y] )
+    if( display->slice.slice_views[view_index].axis_flip[Y] )
     {
         indices[y_axis_index] = y_size - 1 - indices[y_axis_index];
         *y_scale = -(*y_scale);
     }
 }
 
-public  Boolean  get_voxel_in_slice_window( graphics, x, y, z, view_index )
-    graphics_struct   *graphics;
-    int               *x, *y, *z;
-    int               *view_index;
+public  Boolean  get_voxel_in_slice_window(
+    display_struct    *display,
+    int               *x,
+    int               *y,
+    int               *z,
+    int               *view_index )
 {
-    graphics_struct   *slice_window;
-    void              get_mouse_in_pixels();
+    display_struct    *slice_window;
     int               x_mouse, y_mouse;
     Boolean           found;
-    Boolean           convert_pixel_to_voxel();
 
-    slice_window = graphics->associated[SLICE_WINDOW];
+    slice_window = display->associated[SLICE_WINDOW];
 
-    get_mouse_in_pixels( slice_window, &slice_window->mouse_position,
-                         &x_mouse, &y_mouse );
+    G_get_mouse_position( slice_window->window, &x_mouse, &y_mouse );
 
     found = convert_pixel_to_voxel( slice_window, x_mouse, y_mouse, x, y, z,
                                     view_index );
@@ -760,25 +691,27 @@ public  Boolean  get_voxel_in_slice_window( graphics, x, y, z, view_index )
     return( found );
 }
 
-public  Boolean  get_voxel_in_three_d_window( graphics, x, y, z )
-    graphics_struct   *graphics;
-    int               *x, *y, *z;
+public  Boolean  get_voxel_in_three_d_window(
+    display_struct    *display,
+    int               *x,
+    int               *y,
+    int               *z )
 {
     Boolean          found;
     object_struct    *object;
     int              object_index;
     Point            intersection_point;
-    graphics_struct  *slice_window;
+    display_struct   *slice_window;
     Real             xr, yr, zr;
 
     found = FALSE;
 
-    if( get_mouse_scene_intersection( graphics, &object, &object_index,
+    if( get_mouse_scene_intersection( display, &object, &object_index,
                                       &intersection_point ) )
     {
-        slice_window = graphics->associated[SLICE_WINDOW];
+        slice_window = display->associated[SLICE_WINDOW];
 
-        if( slice_window != (graphics_struct *) 0 )
+        if( slice_window != (display_struct  *) 0 )
         {
             if( get_voxel_corresponding_to_point( slice_window,
                                                   &intersection_point,
@@ -795,24 +728,24 @@ public  Boolean  get_voxel_in_three_d_window( graphics, x, y, z )
     return( found );
 }
 
-public  Boolean  get_voxel_under_mouse( graphics, x, y, z, view_index )
-    graphics_struct   *graphics;
-    int               *x, *y, *z;
-    int               *view_index;
+public  Boolean  get_voxel_under_mouse(
+    display_struct    *display,
+    int               *x,
+    int               *y,
+    int               *z,
+    int               *view_index )
 {
-    graphics_struct   *three_d, *slice_window;
+    display_struct    *three_d, *slice_window;
     Boolean           found;
-    Boolean           get_voxel_in_slice_window();
-    Boolean           get_voxel_in_three_d_window();
 
-    three_d = graphics->associated[THREE_D_WINDOW];
-    slice_window = graphics->associated[SLICE_WINDOW];
+    three_d = display->associated[THREE_D_WINDOW];
+    slice_window = display->associated[SLICE_WINDOW];
 
-    if( G_is_mouse_in_window( &slice_window->window ) )
+    if( G_is_mouse_in_window( slice_window->window ) )
     {
-        found = get_voxel_in_slice_window( graphics, x, y, z, view_index );
+        found = get_voxel_in_slice_window( display, x, y, z, view_index );
     }
-    else if( G_is_mouse_in_window( &three_d->window ) )
+    else if( G_is_mouse_in_window( three_d->window ) )
     {
         found = get_voxel_in_three_d_window( three_d, x, y, z );
         *view_index = 2;
@@ -825,22 +758,25 @@ public  Boolean  get_voxel_under_mouse( graphics, x, y, z, view_index )
     return( found );
 }
 
-public  void  get_current_voxel( slice_window, x, y, z )
-    graphics_struct   *slice_window;
-    int               *x, *y, *z;
+public  void  get_current_voxel(
+    display_struct    *slice_window,
+    int               *x,
+    int               *y,
+    int               *z )
 {
     *x = slice_window->slice.slice_index[X];
     *y = slice_window->slice.slice_index[Y];
     *z = slice_window->slice.slice_index[Z];
 }
 
-public  Boolean  set_current_voxel( slice_window, x, y, z )
-    graphics_struct   *slice_window;
-    int               x, y, z;
+public  Boolean  set_current_voxel(
+    display_struct    *slice_window,
+    int               x,
+    int               y,
+    int               z )
 {
     Boolean           changed;
     int               i, j, axis_index, indices[N_DIMENSIONS];
-    void              set_slice_window_update();
 
     indices[X] = x;
     indices[Y] = y;
@@ -872,27 +808,21 @@ public  Boolean  set_current_voxel( slice_window, x, y, z )
     return( changed );
 }
 
-private  void  set_cursor_colour( slice_window )
-    graphics_struct  *slice_window;
+private  void  set_cursor_colour(
+    display_struct   *slice_window )
 {
     int       x, y, z;
     Real      value;
-    void      get_current_voxel();
-    Boolean   get_isosurface_value();
-    Boolean   voxel_contains_value();
-    void      update_cursor_colour();
-    void      G_ring_bell();
 
     if( get_isosurface_value( slice_window->associated[THREE_D_WINDOW], &value))
     {
         get_current_voxel( slice_window, &x, &y, &z );
 
-        if( cube_is_within_volume( slice_window->slice.volume, x, y, z ) &&
-            voxel_contains_value( slice_window->slice.volume, x, y, z, value ) )
+        if( cube_is_within_volume( &slice_window->slice.volume, x, y, z ) &&
+            voxel_contains_value( &slice_window->slice.volume, x, y, z, value ))
         {
             update_cursor_colour( slice_window->associated[THREE_D_WINDOW],
                                   &Cursor_colour_on_surface );
-            G_ring_bell( Cursor_beep_on_surface );
         }
         else
         {
@@ -902,33 +832,30 @@ private  void  set_cursor_colour( slice_window )
     }
 }
 
-public  Boolean  update_cursor_from_voxel( slice_window )
-    graphics_struct   *slice_window;
+public  Boolean  update_cursor_from_voxel(
+    display_struct    *slice_window )
 {
     int               x, y, z;
+    Real              x_w, y_w, z_w;
     Boolean           changed;
     Point             new_origin;
-    void              convert_voxel_to_point();
-    graphics_struct   *graphics;
-    void              update_cursor();
-    void              set_cursor_colour();
-    void              get_current_voxel();
+    display_struct    *display;
 
-    graphics = slice_window->associated[THREE_D_WINDOW];
+    display = slice_window->associated[THREE_D_WINDOW];
 
     get_current_voxel( slice_window, &x, &y, &z );
 
-    convert_voxel_to_point( slice_window->slice.volume,
-                            (Real) x, (Real) y, (Real) z,
-                            &new_origin );
+    convert_voxel_to_world( &slice_window->slice.volume,
+                            (Real) x, (Real) y, (Real) z, &x_w, &y_w, &z_w );
+    fill_Point( new_origin, x_w, y_w, z_w );
 
-    if( !EQUAL_POINTS( new_origin, graphics->three_d.cursor.origin ) )
+    if( !EQUAL_POINTS( new_origin, display->three_d.cursor.origin ) )
     {
-        graphics->three_d.cursor.origin = new_origin;
+        display->three_d.cursor.origin = new_origin;
 
         set_cursor_colour( slice_window );
 
-        update_cursor( graphics );
+        update_cursor( display );
 
         changed = TRUE;
     }
@@ -940,22 +867,21 @@ public  Boolean  update_cursor_from_voxel( slice_window )
     return( changed );
 }
 
-public  Boolean  update_voxel_from_cursor( slice_window )
-    graphics_struct   *slice_window;
+public  Boolean  update_voxel_from_cursor(
+    display_struct    *slice_window )
 {
     Real              x, y, z;
     Boolean           changed;
-    graphics_struct   *graphics;
-    void              set_cursor_colour();
+    display_struct    *display;
 
     changed = FALSE;
 
     if( slice_window_exists(slice_window) )
     {
-        graphics = slice_window->associated[THREE_D_WINDOW];
+        display = slice_window->associated[THREE_D_WINDOW];
 
         if( get_voxel_corresponding_to_point( slice_window,
-                                    &graphics->three_d.cursor.origin,
+                                    &display->three_d.cursor.origin,
                                     &x, &y, &z ) )
         {
             changed = set_current_voxel( slice_window,
@@ -968,50 +894,42 @@ public  Boolean  update_voxel_from_cursor( slice_window )
     return( changed );
 }
 
-public  void  set_slice_window_update( graphics, view_index )
-    graphics_struct  *graphics;
-    int              view_index;
+public  void  set_slice_window_update(
+    display_struct   *display,
+    int              view_index )
 {
-    void  set_update_required();
-
 #ifndef  BUG
-    if( graphics != (graphics_struct *) 0 )
+    if( display != (display_struct  *) 0 )
     {
 #endif
-        graphics->slice.slice_views[view_index].update_flag = TRUE;
-        set_update_required( graphics, NORMAL_PLANES );
+        display->slice.slice_views[view_index].update_flag = TRUE;
+        set_update_required( display, NORMAL_PLANES );
 #ifndef  BUG
     }
 #endif
 }
 
-public  void  update_slice_window( graphics )
-    graphics_struct  *graphics;
+public  void  update_slice_window(
+    display_struct   *display )
 {
     int   c;
-    void  rebuild_slice_pixels();
 
     for_less( c, 0, 3 )
     {
-        if( graphics->slice.slice_views[c].update_flag )
+        if( display->slice.slice_views[c].update_flag )
         {
-            rebuild_slice_pixels( graphics, c );
-            graphics->slice.slice_views[c].update_flag = FALSE;
+            rebuild_slice_pixels( display, c );
+            display->slice.slice_views[c].update_flag = FALSE;
         }
     }
 
 }
 
-public  Status  create_slice_window( graphics, volume )
-    graphics_struct  *graphics;
-    volume_struct    *volume;
+public  void  create_slice_window(
+    display_struct   *display,
+    volume_struct    *volume )
 {
-    Status           status;
-    Status           create_graphics_window();
-    graphics_struct  *slice_window, *menu_window;
-    Status           set_slice_window_volume();
-    void             set_slice_window_update();
-    void             get_volume_size();
+    display_struct   *slice_window, *menu_window;
     int              nx, ny, nz;
     String           title;
 
@@ -1020,43 +938,32 @@ public  Status  create_slice_window( graphics, volume )
     (void) sprintf( title, "%s [%d * %d * %d]", volume->filename,
                     nx, ny, nz );
 
-    status = create_graphics_window( SLICE_WINDOW, &slice_window,
-                                     title, 0, 0 );
+    (void) create_graphics_window( SLICE_WINDOW, &slice_window, title, 0, 0 );
 
-    if( status == OK )
-    {
-        menu_window = graphics->associated[MENU_WINDOW];
+    menu_window = display->associated[MENU_WINDOW];
 
-        slice_window->associated[THREE_D_WINDOW] = graphics;
-        slice_window->associated[MENU_WINDOW] = menu_window;
-        slice_window->associated[SLICE_WINDOW] = slice_window;
-        graphics->associated[SLICE_WINDOW] = slice_window;
-        menu_window->associated[SLICE_WINDOW] = slice_window;
+    slice_window->associated[THREE_D_WINDOW] = display;
+    slice_window->associated[MENU_WINDOW] = menu_window;
+    slice_window->associated[SLICE_WINDOW] = slice_window;
+    display->associated[SLICE_WINDOW] = slice_window;
+    menu_window->associated[SLICE_WINDOW] = slice_window;
 
-        status = set_slice_window_volume( slice_window, volume );
+    set_slice_window_volume( slice_window, volume );
 
-        set_slice_window_update( slice_window, 0 );
-        set_slice_window_update( slice_window, 1 );
-        set_slice_window_update( slice_window, 2 );
-    }
-
-    return( status );
+    set_slice_window_update( slice_window, 0 );
+    set_slice_window_update( slice_window, 1 );
+    set_slice_window_update( slice_window, 2 );
 }
 
-public  void  colour_coding_has_changed( graphics )
-    graphics_struct   *graphics;
+public  void  colour_coding_has_changed(
+    display_struct    *display )
 {
-    graphics_struct   *slice_window;
-    void              rebuild_colour_coding();
-    void              rebuild_fast_lookup();
-    void              rebuild_colour_bar();
+    display_struct    *slice_window;
 
-    slice_window = graphics->associated[SLICE_WINDOW];
+    slice_window = display->associated[SLICE_WINDOW];
 
-    if( slice_window != (graphics_struct *) 0 )
+    if( slice_window != (display_struct  *) 0 )
     {
-        rebuild_colour_coding( &slice_window->slice.colour_coding );
-
         rebuild_fast_lookup( slice_window );
 
         rebuild_colour_bar( slice_window );

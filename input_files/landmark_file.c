@@ -1,28 +1,24 @@
-#include  <def_files.h>
-#include  <def_string.h>
-#include  <def_objects.h>
+#include  <def_mni.h>
 
-public  Status   input_landmark_file( volume,
-                                      filename, n_objects, object_list,
-                                      marker_colour, default_size,
-                                      default_type )
-    volume_struct  *volume;
-    char           filename[];
-    int            *n_objects;
-    object_struct  ***object_list;
-    Colour         *marker_colour;
-    Real           default_size;
-    Marker_types   default_type;
+public  Status  io_tag_point(
+    FILE            *file,
+    IO_types        io_direction,
+    volume_struct   *volume,
+    Real            default_size,
+    marker_struct   *marker );
+
+public  Status   input_landmark_file(
+    volume_struct  *volume,
+    char           filename[],
+    model_struct   *model,
+    Colour         *marker_colour,
+    Real           default_size,
+    Marker_types   default_type )
 {
     Status                  status;
-    Status                  add_object_to_list();
     object_struct           *object;
-    Status                  create_object();
-    Status                  io_tag_point();
     marker_struct           marker;
     FILE                    *file;
-
-    *n_objects = 0;
 
     status = open_file_with_default_suffix( filename, "lmk", READ_FILE,
                                             ASCII_FORMAT, &file );
@@ -32,48 +28,35 @@ public  Status   input_landmark_file( volume,
         while( io_tag_point( file, READ_FILE, volume, default_size,
                              &marker ) == OK )
         {
-            status = create_object( &object, MARKER );
+            marker.colour = *marker_colour;
+            marker.type = default_type;
 
-            if( status == OK )
-            {
-                marker.colour = *marker_colour;
-                marker.type = default_type;
-                *(object->ptr.marker) = marker;
+            object = create_object( MARKER );
+            *(get_marker_ptr(object)) = marker;
 
-                status = add_object_to_list( n_objects, object_list, object );
-            }
+            add_object_to_model( model, object );
         }
-    }
 
-    if( status == OK )
         status = close_file( file );
+    }
 
     return( status );
 }
 
-public  Status  io_tag_point( file, io_direction, volume, default_size, marker )
-    FILE            *file;
-    IO_types        io_direction;
-    volume_struct   *volume;
-    Real            default_size;
-    marker_struct   *marker;
+public  Status  io_tag_point(
+    FILE            *file,
+    IO_types        io_direction,
+    volume_struct   *volume,
+    Real            default_size,
+    marker_struct   *marker )
 {
     Status   status;
-    Status   io_point();
-    Status   io_newline();
-    Status   io_int();
-    Status   io_real();
-    Status   io_quoted_string();
     String   line;
-    void     strip_blanks();
     Point    position;
-    void     convert_point_to_voxel();
-    void     convert_voxel_to_point();
-    void     convert_voxel_to_talairach();
-    void     convert_talairach_to_voxel();
-    void     get_volume_size();
     int      nx, ny, nz;
     int      len, offset;
+    Real     x, y, z;
+    Real     x_w, y_w, z_w;
 
     status = OK;
 
@@ -85,23 +68,17 @@ public  Status  io_tag_point( file, io_direction, volume, default_size, marker )
         }
         else
         {
-            convert_point_to_voxel( volume,
+            convert_world_to_voxel( volume,
                                     Point_x(marker->position),
                                     Point_y(marker->position),
                                     Point_z(marker->position),
-                                    &Point_x(position),
-                                    &Point_y(position),
-                                    &Point_z(position) );
+                                    &x, &y, &z );
 
             get_volume_size( volume, &nx, &ny, &nz );
 
-            convert_voxel_to_talairach( Point_x(position),
-                                        Point_y(position),
-                                        Point_z(position),
-                                        nx, ny, nz,
-                                        &Point_x(position),
-                                        &Point_y(position),
-                                        &Point_z(position) );
+            convert_voxel_to_talairach( x, y, z, nx, ny, nz, &x, &y, &z );
+
+            fill_Point( position, x, y, z );
         }
     }
 
@@ -121,16 +98,10 @@ public  Status  io_tag_point( file, io_direction, volume, default_size, marker )
             convert_talairach_to_voxel( Point_x(position),
                                         Point_y(position),
                                         Point_z(position),
-                                        nx, ny, nz,
-                                        &Point_x(position),
-                                        &Point_y(position),
-                                        &Point_z(position) );
+                                        nx, ny, nz, &x, &y, &z );
 
-            convert_voxel_to_point( volume,
-                                    Point_x(position),
-                                    Point_y(position),
-                                    Point_z(position),
-                                    &marker->position );
+            convert_voxel_to_world( volume, x, y, z, &x_w, &y_w, &z_w );
+            fill_Point( marker->position, x_w, y_w, z_w );
         }
     }
 
@@ -139,8 +110,8 @@ public  Status  io_tag_point( file, io_direction, volume, default_size, marker )
     if( status == OK )
     {
         if( io_direction == WRITE_FILE )
-            status = io_real( file, io_direction, ASCII_FORMAT,
-                              &Point_x(position));
+            status = io_float( file, io_direction, ASCII_FORMAT,
+                               &Point_x(position));
         else
         {
             status = io_real( file, io_direction, ASCII_FORMAT, &marker->size );

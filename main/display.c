@@ -1,62 +1,61 @@
 
-#include  <def_graphics.h>
+#include  <def_display.h>
 
-static    void            display_objects_recursive();
+private  void  display_objects_recursive(
+    window_struct                *window,
+    Bitplane_types               bitplanes,
+    int                          n_objects,
+    object_struct                *object_list[],
+    render_struct                *render,
+    View_types                   view_type,
+    Transform                    *transform,
+    update_interrupted_struct    *interrupt,
+    Boolean                      *past_last_object );
 
-public  void  display_objects( window, object, interrupt, bitplanes )
-    window_struct               *window;
-    object_struct               *object;
-    update_interrupted_struct   *interrupt;
-    Bitplane_types              bitplanes;
+public  void  display_objects(
+    window_struct               *window,
+    object_struct               *object,
+    update_interrupted_struct   *interrupt,
+    Bitplane_types              bitplanes )
 {
-    Boolean         past_last_object;
+    Boolean              past_last_object;
+    model_struct         *model;
+    model_info_struct    *model_info;
 
     past_last_object = FALSE;
 
-    if( object->ptr.model->bitplanes == bitplanes )
+    model = get_model_ptr( object );
+    model_info = get_model_info( model );
+
+    if( model_info->bitplanes == bitplanes )
     {
         display_objects_recursive( window, bitplanes,
-                                   object->ptr.model->n_objects,
-                                   object->ptr.model->object_list,
-                                   &object->ptr.model->render,
-                                   object->ptr.model->view_type,
-                                   &object->ptr.model->transform,
+                                   model->n_objects,
+                                   model->objects,
+                                   &model_info->render,
+                                   model_info->view_type,
+                                   &model_info->transform,
                                    interrupt, &past_last_object );
     }
 }
 
-private  void  display_objects_recursive( window, bitplanes,
-                                          n_objects, object_list,
-                                          render, view_type, transform,
-                                          interrupt, past_last_object )
-    window_struct                *window;
-    Bitplane_types               bitplanes;
-    int                          n_objects;
-    object_struct                *object_list[];
-    render_struct                *render;
-    View_types                   view_type;
-    Transform                    *transform;
-    update_interrupted_struct    *interrupt;
-    Boolean                      *past_last_object;
+private  void  display_objects_recursive(
+    window_struct                *window,
+    Bitplane_types               bitplanes,
+    int                          n_objects,
+    object_struct                *object_list[],
+    render_struct                *render,
+    View_types                   view_type,
+    Transform                    *transform,
+    update_interrupted_struct    *interrupt,
+    Boolean                      *past_last_object )
 {
-    int            i;
-    model_struct   *model;
-    void           G_set_view_type();
-    void           G_set_render();
-    void           G_draw_text();
-    void           G_draw_lines();
-    void           G_draw_marker();
-    void           G_draw_pixels();
-    void           G_draw_polygons();
-    void           G_draw_quadmesh();
-    void           G_draw_volume();
-    void           G_push_transform();
-    void           G_pop_transform();
-    Real           current_realtime_seconds();
-    Boolean        object_is_continuing;
-    Boolean        G_events_pending();
+    int                  i;
+    Boolean              object_is_continuing;
+    model_struct         *model;
+    model_info_struct    *model_info;
 
-    G_set_render( window, render );
+    set_render_info( window, render );
     G_set_view_type( window, view_type );
     G_push_transform( window, transform );
 
@@ -80,6 +79,7 @@ private  void  display_objects_recursive( window, bitplanes,
                 *past_last_object ||
                 object_list[i]->object_type == MODEL )
             {
+/*
                 if( interrupt != (update_interrupted_struct *) 0 &&
                     !interrupt->current_interrupted &&
                     current_realtime_seconds() > interrupt->interrupt_at &&
@@ -91,63 +91,31 @@ private  void  display_objects_recursive( window, bitplanes,
                     interrupt->next_item = 0;
                     break;
                 }
+*/
 
-                switch( object_list[i]->object_type )
+                if( object_list[i]->object_type == MODEL )
                 {
-                case MODEL:
-                    model = object_list[i]->ptr.model;
+                    model = get_model_ptr( object_list[i] );
+                    model_info = get_model_info( model );
 
-                    if( model->bitplanes == bitplanes )
+                    if( model_info->bitplanes == bitplanes )
                     {
                         display_objects_recursive( window, bitplanes,
                                                    model->n_objects,
-                                                   model->object_list,
-                                                   &model->render,
-                                                   model->view_type,
-                                                   &model->transform,
+                                                   model->objects,
+                                                   &model_info->render,
+                                                   model_info->view_type,
+                                                   &model_info->transform,
                                                    interrupt,
                                                    past_last_object );
 
-                        G_set_render( window, render );
+                        set_render_info( window, render );
                         G_set_view_type( window, view_type );
                     }
-                    break;
-
-                case LINES:
-                    G_draw_lines( window, object_list[i]->ptr.lines,
-                                  render,
-                                  interrupt, object_is_continuing );
-                    break;
-
-                case MARKER:
-                    G_draw_marker( window, object_list[i]->ptr.marker,
-                                   render );
-                    break;
-
-                case PIXELS:
-                    G_draw_pixels( window, object_list[i]->ptr.pixels );
-                    break;
-
-                case POLYGONS:
-                    G_draw_polygons( window, object_list[i]->ptr.polygons,
-                                     render, interrupt,
-                                     object_is_continuing );
-                    break;
-
-                case QUADMESH:
-                    G_draw_quadmesh( window, object_list[i]->ptr.quadmesh,
-                                     render, interrupt,
-                                     object_is_continuing );
-                    break;
-
-                case TEXT:
-                    G_draw_text( window, object_list[i]->ptr.text, render );
-                    break;
-
-                case VOLUME:
-                    G_draw_volume( window, object_list[i]->ptr.volume, render,
-                                   interrupt, object_is_continuing );
-                    break;
+                }
+                else
+                {
+                    draw_object( window, object_list[i] );
                 }
 
                 if( interrupt != (update_interrupted_struct *) 0 &&

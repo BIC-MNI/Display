@@ -1,183 +1,112 @@
 
-#include  <def_graphics.h>
-#include  <def_globals.h>
-#include  <def_marching_cubes.h>
-#include  <def_splines.h>
-#include  <def_bitlist.h>
-#include  <def_files.h>
+#include  <def_display.h>
 
-static    Status   clear_surface_extraction();
+private  void  clear_surface_extraction(
+    display_struct     *display );
 
-public  Status  initialize_surface_extraction( graphics )
-    graphics_struct    *graphics;
+public  void  initialize_surface_extraction(
+    display_struct     *display )
 {
-    Status                      status;
     surface_extraction_struct   *surface_extraction;
-    Status                      create_object();
-    Status                      add_object_to_model();
     object_struct               *object;
-    void                        install_surface_extraction();
-    void                        empty_polygons_struct();
 
-    surface_extraction = &graphics->three_d.surface_extraction;
+    surface_extraction = &display->three_d.surface_extraction;
 
     surface_extraction->x_voxel_max_distance = Default_x_voxel_max_distance;
     surface_extraction->y_voxel_max_distance = Default_y_voxel_max_distance;
     surface_extraction->z_voxel_max_distance = Default_z_voxel_max_distance;
 
-    status = create_object( &object, POLYGONS );
+    object = create_object( POLYGONS );
 
-    if( status == OK )
-    {
-        status = add_object_to_model(
-                     graphics->models[THREED_MODEL]->ptr.model, object );
-    }
+    add_object_to_model( get_model_ptr(display->models[THREED_MODEL]), object );
 
-    if( status == OK )
-    {
-        surface_extraction->polygons = object->ptr.polygons;
-        empty_polygons_struct( surface_extraction->polygons );
+    surface_extraction->polygons = get_polygons_ptr( object );
 
-        surface_extraction->polygons->colour_flag = ONE_COLOUR;
+    initialize_polygons( surface_extraction->polygons, WHITE, (Surfprop *) 0 );
 
-        ALLOC( status, surface_extraction->polygons->colours, 1 );
-    }
+    create_bitlist( 0, &surface_extraction->voxels_queued );
 
-    if( status == OK )
-        status = create_bitlist( 0, &surface_extraction->voxels_queued );
+    install_surface_extraction( display );
 
-    if( status == OK )
-    {
-        install_surface_extraction( graphics );
-
-        status = clear_surface_extraction( graphics );
-    }
-
-    return( status );
+    clear_surface_extraction( display );
 }
 
-private  Status  clear_surface_extraction( graphics )
-    graphics_struct    *graphics;
+private  void  clear_surface_extraction(
+    display_struct     *display )
 {
-    Status                      status;
-    void                        empty_polygons_struct();
-    Status                      initialize_edge_points();
-    void                        initialize_voxel_queue();
-    void                        clear_voxel_flags();
-    void                        clear_voxel_done_flags();
     surface_extraction_struct   *surface_extraction;
     volume_struct               *volume;
-    Status                      delete_polygons();
 
-    surface_extraction = &graphics->three_d.surface_extraction;
+    surface_extraction = &display->three_d.surface_extraction;
 
     surface_extraction->extraction_in_progress = FALSE;
     surface_extraction->isovalue_selected = FALSE;
     surface_extraction->n_voxels_with_surface = 0;
 
-    status = initialize_edge_points( &surface_extraction->edge_points );
+    initialize_edge_points( &surface_extraction->edge_points );
 
-    if( status == OK )
+    delete_polygons( surface_extraction->polygons );
+
+    initialize_voxel_queue( &surface_extraction->voxels_to_do );
+
+    initialize_polygons( surface_extraction->polygons, Extracted_surface_colour,
+                         &Default_surface_property );
+
+    clear_voxel_flags( &surface_extraction->voxels_queued );
+
+    if( get_slice_window_volume( display, &volume ) )
     {
-        status = delete_polygons( surface_extraction->polygons );
+        clear_voxel_done_flags( surface_extraction->voxel_done_flags,
+                                get_n_voxels(volume) );
     }
-
-    if( status == OK )
+    else
     {
-        initialize_voxel_queue( &surface_extraction->voxels_to_do );
-
-        empty_polygons_struct( surface_extraction->polygons );
-
-        ALLOC( status, surface_extraction->polygons->colours, 1 );
-
-        surface_extraction->polygons->colours[0] = Extracted_surface_colour;
-        surface_extraction->polygons->surfprop = Default_surface_property;
-
-        clear_voxel_flags( &surface_extraction->voxels_queued );
-
-        if( get_slice_window_volume( graphics, &volume ) )
-        {
-            clear_voxel_done_flags( surface_extraction->voxel_done_flags,
-                                    get_n_voxels(volume) );
-        }
-        else
-        {
-            surface_extraction->voxel_done_flags = (unsigned_byte *) 0;
-        }
+        surface_extraction->voxel_done_flags = (unsigned_byte *) 0;
     }
-
-    return( status );
 }
 
-private  Status  free_surface_extraction( graphics )
-    graphics_struct   *graphics;
+private  void  free_surface_extraction(
+    display_struct    *display )
 {
-    Status                      status;
-    Status                      delete_edge_points();
-    Status                      delete_voxel_queue();
     surface_extraction_struct   *surface_extraction;
 
-    surface_extraction = &graphics->three_d.surface_extraction;
+    surface_extraction = &display->three_d.surface_extraction;
 
-    status = delete_edge_points( &surface_extraction->edge_points );
+    delete_edge_points( &surface_extraction->edge_points );
 
-    if( status == OK )
-    {
-        status = delete_voxel_queue( &surface_extraction->voxels_to_do );
-    }
-
-    return( status );
+    delete_voxel_queue( &surface_extraction->voxels_to_do );
 }
 
-public  Status  delete_surface_extraction( graphics )
-    graphics_struct   *graphics;
+public  void  delete_surface_extraction(
+    display_struct    *display )
 {
-    Status                      status;
-    Status                      delete_voxel_flags();
-    Status                      delete_voxel_done_flags();
     surface_extraction_struct   *surface_extraction;
 
-    surface_extraction = &graphics->three_d.surface_extraction;
+    surface_extraction = &display->three_d.surface_extraction;
 
-    status = free_surface_extraction( graphics );
+    free_surface_extraction( display );
 
-    if( status == OK )
-    {
-        status = delete_voxel_done_flags( surface_extraction->voxel_done_flags);
-    }
+    delete_voxel_done_flags( surface_extraction->voxel_done_flags);
 
-    if( status == OK )
-    {
-        status = delete_voxel_flags( &surface_extraction->voxels_queued );
-    }
-
-    return( status );
+    delete_voxel_flags( &surface_extraction->voxels_queued );
 }
 
-public  Status  reset_surface_extraction( graphics )
-    graphics_struct   *graphics;
+public  void  reset_surface_extraction(
+    display_struct    *display )
 {
-    Status    status;
-    Status    free_surface_extraction();
+    free_surface_extraction( display );
 
-    status = free_surface_extraction( graphics );
-
-    if( status == OK )
-    {
-        status = clear_surface_extraction( graphics );
-    }
-
-    return( status );
+    clear_surface_extraction( display );
 }
 
-public  void  set_isosurface_value( surface_extraction )
-    surface_extraction_struct   *surface_extraction;
+public  void  set_isosurface_value(
+    surface_extraction_struct   *surface_extraction )
 {
     Real   value;
 
     if( !surface_extraction->extraction_in_progress )
     {
-        PRINT( "Enter isosurface value: " );
+        print( "Enter isosurface value: " );
         if( input_real( stdin, &value ) == OK && value >= 0.0 )
         {
             if( value == (Real) ((int) value) )
@@ -193,35 +122,29 @@ public  void  set_isosurface_value( surface_extraction )
     }
 }
 
-public  void  check_if_isosurface_value_set( surface_extraction )
-    surface_extraction_struct   *surface_extraction;
+public  void  check_if_isosurface_value_set(
+    surface_extraction_struct   *surface_extraction )
 {
-    void    set_isosurface_value();
-
     if( !surface_extraction->isovalue_selected )
-    {
         set_isosurface_value( surface_extraction );
-    }
 }
 
-public  Boolean  get_isosurface_value( graphics, value )
-    graphics_struct    *graphics;
-    Real               *value;
+public  Boolean  get_isosurface_value(
+    display_struct     *display,
+    Real               *value )
 {
-    if( graphics->three_d.surface_extraction.isovalue_selected )
-    {
-        *value = graphics->three_d.surface_extraction.isovalue;
-    }
+    if( display->three_d.surface_extraction.isovalue_selected )
+        *value = display->three_d.surface_extraction.isovalue;
 
-    return( graphics->three_d.surface_extraction.isovalue_selected );
+    return( display->three_d.surface_extraction.isovalue_selected );
 }
 
-public  void  start_surface_extraction( graphics )
-    graphics_struct    *graphics;
+public  void  start_surface_extraction(
+    display_struct     *display )
 {
     surface_extraction_struct   *surface_extraction;
 
-    surface_extraction = &graphics->three_d.surface_extraction;
+    surface_extraction = &display->three_d.surface_extraction;
 
     if( !surface_extraction->extraction_in_progress &&
         surface_extraction->isovalue_selected )
@@ -230,21 +153,18 @@ public  void  start_surface_extraction( graphics )
     }
 }
 
-public  void  stop_surface_extraction( graphics )
-    graphics_struct    *graphics;
+public  void  stop_surface_extraction(
+    display_struct     *display )
 {
-    if( graphics->three_d.surface_extraction.extraction_in_progress )
-    {
-        graphics->three_d.surface_extraction.extraction_in_progress = FALSE;
-    }
+    if( display->three_d.surface_extraction.extraction_in_progress )
+        display->three_d.surface_extraction.extraction_in_progress = FALSE;
 }
 
-public  int  get_n_voxels( volume )
-    volume_struct  *volume;
+public  int  get_n_voxels(
+    volume_struct  *volume )
 {
     int   n_voxels;
     int   nx, ny, nz;
-    void  get_volume_size();
 
     if( volume != (volume_struct *) 0 )
     {

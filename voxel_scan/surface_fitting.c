@@ -1,130 +1,89 @@
-#include  <def_arrays.h>
-#include  <def_surface_fitting.h>
-#include  <def_files.h>
+#include  <def_display.h>
 
 const  Surface_representations  INITIAL_REPRESENTATION = SUPERQUADRIC;
 
-public  Status  initialize_surface_fitting( surface_fitting )
-    surface_fitting_struct  *surface_fitting;
+private  void  alloc_surface_fitting_parameters(
+    surface_fitting_struct   *surface_fitting,
+    double                   descriptors[] );
+
+public  void  initialize_surface_fitting(
+    surface_fitting_struct  *surface_fitting )
 {
-    Status  status;
-    Status  alloc_surface_fitting_parameters();
-
-    status = OK;
-
     if( !lookup_surface_representation( INITIAL_REPRESENTATION,
                                    &surface_fitting->surface_representation ) )
     {
-        PRINT( "Could not find representation.\n" );
-        status = ERROR;
+        print( "Could not find representation.\n" );
+        return;
     }
 
-    if( status == OK )
-        status = alloc_surface_fitting_parameters( surface_fitting,
-                                                   (double *) 0 );
+    alloc_surface_fitting_parameters( surface_fitting, (double *) 0 );
 
     surface_fitting->n_surface_points = 0;
-
-    return( status );
 }
 
-private  Status  alloc_surface_fitting_parameters( surface_fitting,
-                                                  descriptors )
-    surface_fitting_struct   *surface_fitting;
-    double                   descriptors[];
+private  void  alloc_surface_fitting_parameters(
+    surface_fitting_struct   *surface_fitting,
+    double                   descriptors[] )
 {
     int     i, n_parameters;
-    Status  status;
-
-    status = OK;
 
     if( surface_fitting->surface_representation->n_descriptors > 0 )
     {
-        ALLOC( status, surface_fitting->descriptors,
+        ALLOC( surface_fitting->descriptors,
                surface_fitting->surface_representation->n_descriptors );
     }
 
-    if( status == OK )
+    if( descriptors == (double *) 0 )
     {
-        if( descriptors == (double *) 0 )
-        {
-            surface_fitting->surface_representation->get_default_descriptors(
-                             surface_fitting->descriptors );
-        }
-        else
-        {
-            for_less( i, 0, surface_fitting->surface_representation->
-                            n_descriptors )
-                surface_fitting->descriptors[i] = descriptors[i];
-        }
+        surface_fitting->surface_representation->get_default_descriptors(
+                         surface_fitting->descriptors );
+    }
+    else
+    {
+        for_less( i, 0, surface_fitting->surface_representation->
+                        n_descriptors )
+            surface_fitting->descriptors[i] = descriptors[i];
     }
 
-    if( status == OK )
+    n_parameters = surface_fitting->surface_representation->
+                   get_num_parameters( surface_fitting->descriptors );
+
+    ALLOC( surface_fitting->parameters, n_parameters );
+    ALLOC( surface_fitting->max_parameter_deltas, n_parameters );
+    ALLOC( surface_fitting->parameter_deltas, n_parameters );
+
+    for_less( i, 0, n_parameters )
     {
-        n_parameters = surface_fitting->surface_representation->
-                       get_num_parameters( surface_fitting->descriptors );
-
-        ALLOC( status, surface_fitting->parameters, n_parameters );
+        surface_fitting->max_parameter_deltas[i] = 1.0;
+        surface_fitting->parameter_deltas[i] = 0.25 *
+                      surface_fitting->max_parameter_deltas[i];
     }
-
-    if( status == OK )
-        ALLOC( status, surface_fitting->max_parameter_deltas, n_parameters );
-
-    if( status == OK )
-        ALLOC( status, surface_fitting->parameter_deltas, n_parameters );
-
-    if( status == OK )
-    {
-        for_less( i, 0, n_parameters )
-        {
-            surface_fitting->max_parameter_deltas[i] = 1.0;
-            surface_fitting->parameter_deltas[i] = 0.25 *
-                          surface_fitting->max_parameter_deltas[i];
-        }
-    }
-
-    return( status );
 }
 
-public  Status  free_surface_fitting_parameters( surface_fitting )
-    surface_fitting_struct  *surface_fitting;
+public  void  free_surface_fitting_parameters(
+    surface_fitting_struct  *surface_fitting )
 {
-    Status  status;
+    FREE( surface_fitting->parameters );
+    FREE( surface_fitting->max_parameter_deltas );
+    FREE( surface_fitting->parameter_deltas );
 
-    FREE( status, surface_fitting->parameters );
-
-    if( status == OK )
-        FREE( status, surface_fitting->max_parameter_deltas );
-
-    if( status == OK )
-        FREE( status, surface_fitting->parameter_deltas );
-
-    if( status == OK &&
-        surface_fitting->surface_representation->n_descriptors > 0 )
+    if( surface_fitting->surface_representation->n_descriptors > 0 )
     {
-        FREE( status, surface_fitting->descriptors );
+        FREE( surface_fitting->descriptors );
     }
-
-    return( status );
 }
 
-public  Status  delete_surface_fitting( surface_fitting )
-    surface_fitting_struct  *surface_fitting;
+public  void  delete_surface_fitting(
+    surface_fitting_struct  *surface_fitting )
 {
-    Status  status;
-    Status  delete_surface_fitting_points();
+    free_surface_fitting_parameters( surface_fitting );
 
-    status = free_surface_fitting_parameters( surface_fitting );
-
-    if( status == OK )
-        status = delete_surface_fitting_points( surface_fitting );
-
-    return( status );
+    delete_surface_fitting_points( surface_fitting );
 }
 
-public  void  display_parameters( surface_fitting, parameters )
-    surface_fitting_struct   *surface_fitting;
-    double                   parameters[];
+public  void  display_parameters(
+    surface_fitting_struct   *surface_fitting,
+    double                   parameters[] )
 {
     int   i, n_parameters;
 
@@ -132,31 +91,24 @@ public  void  display_parameters( surface_fitting, parameters )
                                  surface_fitting->descriptors );
 
     for_less( i, 0, n_parameters )
-        PRINT( " %g", parameters[i] );
-    PRINT( "\n" );
+        print( " %g", parameters[i] );
+    print( "\n" );
 }
 
-public  Status  add_surface_fitting_point( surface_fitting, point )
-    surface_fitting_struct  *surface_fitting;
-    Point                   *point;
+public  void  add_surface_fitting_point(
+    surface_fitting_struct  *surface_fitting,
+    Point                   *point )
 {
-    Status  status;
-
-    ADD_ELEMENT_TO_ARRAY( status, surface_fitting->n_surface_points,
-                          surface_fitting->surface_points, *point,
+    ADD_ELEMENT_TO_ARRAY( surface_fitting->surface_points,
+                          surface_fitting->n_surface_points, *point,
                           DEFAULT_CHUNK_SIZE );
-
-    return( status );
 }
 
-public  Status  delete_surface_fitting_point( surface_fitting, point )
-    surface_fitting_struct  *surface_fitting;
-    Point                   *point;
+public  void  delete_surface_fitting_point(
+    surface_fitting_struct  *surface_fitting,
+    Point                   *point )
 {
-    Status  status;
     int     index, i;
-
-    status = OK;
 
     index = -1;
 
@@ -171,58 +123,41 @@ public  Status  delete_surface_fitting_point( surface_fitting, point )
 
     if( index >= 0 )
     {
-        DELETE_ELEMENT_FROM_ARRAY( status, surface_fitting->n_surface_points,
-                                   surface_fitting->surface_points, index,
+        DELETE_ELEMENT_FROM_ARRAY( surface_fitting->surface_points,
+                                   surface_fitting->n_surface_points, index,
                                    DEFAULT_CHUNK_SIZE );
     }
-
-    return( status );
 }
 
-public  Status  delete_surface_fitting_points( surface_fitting )
-    surface_fitting_struct  *surface_fitting;
+public  void  delete_surface_fitting_points(
+    surface_fitting_struct  *surface_fitting )
 {
-    Status  status;
-
-    status = OK;
-
     if( surface_fitting->n_surface_points > 0 )
     {
-        FREE( status, surface_fitting->surface_points );
+        FREE( surface_fitting->surface_points );
 
         surface_fitting->n_surface_points = 0;
     }
-
-    return( status );
 }
 
-public  Status  convert_to_new_surface_representation( surface_fitting,
-                                                     new_rep, new_descriptors )
-    surface_fitting_struct   *surface_fitting;
-    surface_rep_struct       *new_rep;
-    double                   new_descriptors[];
+public  void  convert_to_new_surface_representation(
+    surface_fitting_struct   *surface_fitting,
+    surface_rep_struct       *new_rep,
+    double                   new_descriptors[] )
 {
-    Status                  status;
     surface_fitting_struct  prev_surface_fitting;
 
     prev_surface_fitting = *surface_fitting;
 
     surface_fitting->surface_representation = new_rep;
 
-    status = alloc_surface_fitting_parameters( surface_fitting,
-                                               new_descriptors );
+    alloc_surface_fitting_parameters( surface_fitting, new_descriptors );
 
-    if( status == OK )
-    {
-        surface_fitting->surface_representation->convert_from_representation(
+    surface_fitting->surface_representation->convert_from_representation(
                 prev_surface_fitting.surface_representation,
                 prev_surface_fitting.descriptors,
                 prev_surface_fitting.parameters,
                 surface_fitting->descriptors, surface_fitting->parameters );
-    }
     
-    if( status == OK )
-        status = free_surface_fitting_parameters( &prev_surface_fitting );
-
-    return( status );
+    free_surface_fitting_parameters( &prev_surface_fitting );
 }
