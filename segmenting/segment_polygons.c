@@ -101,7 +101,7 @@ private  void  modify_polygon(
     Colour            colour )
 {
     if( set_visibility_flag )
-        polygons->visibilities[poly] = new_visibility;
+        polygons->visibilities[poly] = (Smallest_int) new_visibility;
 
     if( set_colour_flag )
         polygons->colours[poly] = colour;

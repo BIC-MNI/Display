@@ -419,7 +419,7 @@ private  void  draw_in_viewports(
                                            &y_sub_min, &y_sub_max ) )
                 {
                     display->slice.slice_views[i-SLICE_MODEL1].
-                                                sub_region_specified = FALSE;
+                                             sub_region_specified = FALSE;
 
                     if( !redrawing_whole_window )
                     {
@@ -428,10 +428,7 @@ private  void  draw_in_viewports(
                                         y_min + y_sub_min, y_min + y_sub_max );
                         G_clear_viewport( display->window,
                                           display->window->background_colour );
-print( "-------- small viewport\n" );
                     }
-else
-    print( "-------- drawing entire window ---------\n" );
 
                     G_set_viewport( display->window,
                                     x_min, x_max, y_min, y_max );

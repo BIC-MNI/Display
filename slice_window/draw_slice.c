@@ -861,10 +861,10 @@ private  void  render_slice_to_pixels(
 {
     Volume                volume;
     int                   n_alloced;
+    int                   x_sub_min, x_sub_max, y_sub_min, y_sub_max;
     Real                  x_trans, y_trans, x_scale, y_scale;
     Real                  origin[MAX_DIMENSIONS];
     Real                  x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
-    int                   x_min, x_max, y_min, y_max;
     Colour                **colour_map;
 
     if( pixels->x_size > 0 && pixels->y_size > 0 )
@@ -879,8 +879,12 @@ private  void  render_slice_to_pixels(
     y_scale = slice_window->slice.volumes[volume_index].views[view_index]
                                                                     .y_scaling;
 
-    get_slice_model_viewport( slice_window, SLICE_MODEL1 + view_index,
-                              &x_min, &x_max, &y_min, &y_max );
+    get_slice_subviewport( slice_window, view_index,
+                           &x_sub_min, &x_sub_max,
+                           &y_sub_min, &y_sub_max );
+
+    x_trans -= (Real) x_sub_min;
+    y_trans -= (Real) y_sub_min;
 
     volume = get_nth_volume( slice_window, volume_index );
 
@@ -904,12 +908,15 @@ private  void  render_slice_to_pixels(
                     (Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
                     (Real *) 0, (Real *) 0, (Real *) 0,
                     0.0, 0.0, 0.0, 0.0,
-                    x_max - x_min + 1, y_max - y_min + 1,
+                    x_sub_max - x_sub_min + 1, y_sub_max - y_sub_min + 1,
                     RGB_PIXEL, FALSE, (unsigned short **) NULL,
                     colour_map,
                     make_rgba_Colour( 0, 0, 0, 0 ),
                     slice_window->slice.render_storage,
                     &n_alloced, pixels );
+
+    pixels->x_position += x_sub_min;
+    pixels->y_position += y_sub_min;
 }
 
 public  void  rebuild_slice_pixels_for_volume(
@@ -1244,47 +1251,6 @@ public  void  composite_volume_and_labels(
                                        composite_pixels );
 }
 
-private  void  draw_all_sub_regions(
-    display_struct        *slice_window,
-    int                   view_index,
-    int                   x_min,
-    int                   x_max,
-    int                   y_min,
-    int                   y_max )
-{
-    int                   v;
-    pixels_struct         pixels, *pixel_ptr;
-
-    for_less( v, 0, slice_window->slice.n_volumes )
-    {
-        if( slice_window->slice.volumes[v].views[view_index].visibility )
-        {
-            pixel_ptr = get_pixels_ptr( get_slice_pixels_object(
-                                               slice_window, v, view_index ) );
-
-            copy_pixel_region( pixel_ptr, x_min, x_max, y_min, y_max,
-                               &pixels );
-
-            G_draw_pixels( slice_window->window, &pixels );
-
-            delete_pixels( &pixels );
-
-            pixel_ptr = get_pixels_ptr(
-                 get_label_slice_pixels_object( slice_window, v, view_index ) );
-
-            if( pixel_ptr->x_size > 0 && pixel_ptr->y_size > 0 )
-            {
-                copy_pixel_region( pixel_ptr, x_min, x_max, y_min, y_max,
-                                   &pixels );
-
-                G_draw_pixels( slice_window->window, &pixels );
-
-                delete_pixels( &pixels );
-            }
-        }
-    }
-}
-
 private  void  render_label_slice_to_pixels(
     display_struct        *slice_window,
     int                   volume_index,
@@ -1295,7 +1261,7 @@ private  void  render_label_slice_to_pixels(
     Real                  x_trans, y_trans, x_scale, y_scale;
     Real                  origin[MAX_DIMENSIONS];
     Real                  x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
-    int                   x_min, x_max, y_min, y_max;
+    int                   x_sub_min, x_sub_max, y_sub_min, y_sub_max;
     pixels_struct         *label_pixels;
 
     label_pixels = get_pixels_ptr( get_label_slice_pixels_object(
@@ -1313,9 +1279,12 @@ private  void  render_label_slice_to_pixels(
     y_scale = slice_window->slice.volumes[volume_index].views[view_index]
                                                        .y_scaling;
 
-    get_slice_model_viewport( slice_window, SLICE_MODEL1 + view_index,
-                              &x_min, &x_max, &y_min, &y_max );
+    get_slice_subviewport( slice_window, view_index,
+                           &x_sub_min, &x_sub_max,
+                           &y_sub_min, &y_sub_max );
 
+    x_trans -= (Real) x_sub_min;
+    y_trans -= (Real) y_sub_min;
     label_volume = get_nth_label_volume( slice_window, volume_index );
 
     get_slice_plane( slice_window, volume_index, view_index,
@@ -1329,12 +1298,15 @@ private  void  render_label_slice_to_pixels(
                 (Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
                 (Real *) 0, (Real *) 0, (Real *) 0,
                 0.0, 0.0, 0.0, 0.0,
-                x_max - x_min + 1, y_max - y_min + 1,
+                x_sub_max - x_sub_min + 1, y_sub_max - y_sub_min + 1,
                 RGB_PIXEL, FALSE, (unsigned short **) NULL,
                 &slice_window->slice.volumes[volume_index].label_colour_table,
                 make_rgba_Colour( 0, 0, 0, 0 ),
                 slice_window->slice.render_storage,
                 &n_alloced, label_pixels );
+
+    label_pixels->x_position += x_sub_min;
+    label_pixels->y_position += y_sub_min;
 }
 
 public  void  rebuild_label_slice_pixels_for_volume(
@@ -1377,67 +1349,4 @@ public  void  update_slice_pixel_visibilities(
 
     set_object_visibility( get_composite_slice_pixels_object(slice_window,view),
                            composite_visibility );
-}
-
-public  void  draw_slice_sub_region(
-    display_struct    *slice_window,
-    int               view,
-    int               x_min,
-    int               x_max,
-    int               y_min,
-    int               y_max )
-{
-    int            x_size, y_size, i;
-    int            x_viewport_min, x_viewport_max;
-    int            y_viewport_min, y_viewport_max;
-    pixels_struct  pixels;
-    BOOLEAN        composite_visibility;
-
-    get_slice_model_viewport( slice_window, SLICE_MODEL1 + view,
-                              &x_viewport_min, &x_viewport_max,
-                              &y_viewport_min, &y_viewport_max );
-
-    if( x_min < 0 )
-        x_min = 0;
-    if( x_max >= x_viewport_max - x_viewport_min + 1 )
-        x_max = x_viewport_max - x_viewport_min + 1;
-    if( y_min < 0 )
-        y_min = 0;
-    if( y_max >= y_viewport_max - y_viewport_min + 1 )
-        y_max = y_viewport_max - y_viewport_min + 1;
-
-    x_size = x_max - x_min + 1;
-    y_size = y_max - y_min + 1;
-
-    if( x_size <= 0 || y_size <= 0 )
-        return;
-
-    G_set_viewport( slice_window->window,
-                    x_viewport_min, x_viewport_max,
-                    y_viewport_min, y_viewport_max );
-    G_set_view_type( slice_window->window, PIXEL_VIEW );
-    G_set_zbuffer_state( slice_window->window, FALSE );
-
-    composite_visibility = composite_is_visible( slice_window, view );
-
-    initialize_pixels( &pixels, x_min, y_min, x_size, y_size,
-                       1.0, 1.0, RGB_PIXEL );
-
-    if( composite_visibility )
-    {
-        create_volume_and_label_composite( slice_window, view, &pixels );
-
-        G_draw_pixels( slice_window->window, &pixels );
-    }
-    else
-    {
-        for_less( i, 0, x_size * y_size )
-            (&PIXEL_RGB_COLOUR(pixels,0,0))[i] = BLACK;
-
-        G_draw_pixels( slice_window->window, &pixels );
-
-        draw_all_sub_regions( slice_window, view, x_min, x_max, y_min, y_max );
-    }
-
-    delete_pixels( &pixels );
 }

@@ -37,6 +37,8 @@ private  DEF_EVENT_FUNCTION( turn_off_virtual_spaceball )    /* ARGSUSED */
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
                                   turn_off_virtual_spaceball );
+
+    return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( start_virtual_spaceball )     /* ARGSUSED */

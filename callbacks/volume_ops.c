@@ -7,7 +7,7 @@ private  void  change_current_slice_by_one(
 {
     display_struct   *slice_window;
     Volume           volume;
-    Real             voxel[N_DIMENSIONS];
+    Real             voxel[N_DIMENSIONS], separations[N_DIMENSIONS];
     int              sizes[N_DIMENSIONS], axis_index, volume_index;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -15,6 +15,10 @@ private  void  change_current_slice_by_one(
     {
         volume = get_nth_volume( slice_window, volume_index );
         get_volume_sizes( volume, sizes );
+        get_volume_separations( volume, separations );
+
+        if( separations[axis_index] < 0.0 )
+            delta = -delta;
 
         get_current_voxel( slice_window, volume_index, voxel );
 

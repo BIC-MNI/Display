@@ -17,6 +17,8 @@ typedef  struct
     Neighbour_types   connectivity;
     int               n_starts_alloced;
     int               *y_starts;
+    int               x_mouse_start, y_mouse_start;
+    Real              mouse_scale_factor;
 } segmenting_struct;
 
 typedef struct

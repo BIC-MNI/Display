@@ -303,6 +303,7 @@ START_GLOBALS
     DEF_GLOBAL( Default_y_brush_radius, Real, 3.0 )
     DEF_GLOBAL( Default_z_brush_radius, Real, 0.0 )
     DEF_GLOBAL( Default_paint_label, int, 1 )
+    DEF_GLOBAL( Initial_mouse_scale_factor, Real, 1.0 )
     DEF_GLOBAL( Draw_brush_outline, BOOLEAN, TRUE )
     DEF_GLOBAL_COLOUR( Brush_outline_colour )
     DEF_GLOBAL( Brush_outline_offset, int, 0 )

@@ -227,7 +227,7 @@ private  void      initialize_global_colours()
     Surface_curve_colour = MAGENTA;
     Visible_segmenting_colour = GREEN;
     Invisible_segmenting_colour = BLACK;
-    Brush_outline_colour = WHITE;
+    Brush_outline_colour = GREEN;
     Histogram_colour = WHITE;
     Menu_name_colour = GREEN;
 }

@@ -47,7 +47,7 @@ private  DEF_EVENT_FUNCTION( terminate_picking_viewport )    /* ARGSUSED */
     return( OK );
 }
 
-private  get_coordinates(
+private  void  get_coordinates(
     Real    x1,
     Real    y1,
     Real    x2,

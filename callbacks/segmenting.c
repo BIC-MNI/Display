@@ -247,7 +247,6 @@ public  Status input_tag_label_file(
 
 public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
 {
-    Status         status;
     STRING         filename;
 
     if( get_n_volumes(display) > 0 )
@@ -255,7 +254,7 @@ public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
         print( "Enter filename: " );
         if( input_string( stdin, filename, MAX_STRING_LENGTH, ' ' ) == OK )
         {
-            status = input_tag_label_file( display, filename );
+            (void) input_tag_label_file( display, filename );
 
             print( "Done loading.\n" );
         }
@@ -271,7 +270,7 @@ public  DEF_MENU_UPDATE(load_labels )   /* ARGSUSED */
     return( get_n_volumes(display) > 0 );
 }
 
-private  save_labels_as_tags(
+private  void   save_labels_as_tags(
     display_struct  *display,
     display_struct  *slice_window,
     int             desired_label )

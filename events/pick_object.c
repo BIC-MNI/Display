@@ -2,7 +2,6 @@
 #include  <display.h>
 
 static    DEF_EVENT_FUNCTION( update_picked_object );
-static    DEF_EVENT_FUNCTION( pick_object_point );
 static    DEF_EVENT_FUNCTION( terminate_picking_object );
 static    DEF_EVENT_FUNCTION( start_picking_object );
 private  void  pick_point_under_mouse(
@@ -33,6 +32,8 @@ private  DEF_EVENT_FUNCTION( start_picking_object )    /* ARGSUSED */
     add_action_table_function( &display->action_table,
                                LEFT_MOUSE_UP_EVENT,
                                terminate_picking_object );
+
+    return( OK );
 }
 
 private  void  remove_events(

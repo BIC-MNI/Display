@@ -110,6 +110,8 @@ public  Status  initialize_menu(
     FILE                 *file;
     BOOLEAN              found;
 
+    G_set_transparency_state( menu_window->window, OFF );
+
     initialize_resize_events( menu_window );
 
     menu = &menu_window->menu;

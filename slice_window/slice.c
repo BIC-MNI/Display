@@ -30,6 +30,9 @@ public  void  create_slice_window(
     menu_window->associated[SLICE_WINDOW] = slice_window;
 
     initialize_slice_window( slice_window );
+
+    if( !Use_transparency_hardware )
+        G_set_transparency_state( display->window, OFF );
 }
 
 public  void  update_all_slice_models(
@@ -102,7 +105,11 @@ private  void  initialize_slice_window(
         slice_window->slice.slice_views[view].update_atlas_flag = FALSE;
         slice_window->slice.slice_views[view].update_composite_flag = FALSE;
         slice_window->slice.slice_views[view].sub_region_specified = FALSE;
-        slice_window->slice.slice_views[view].prev_sub_region_specified = TRUE;
+        slice_window->slice.slice_views[view].sub_region_specified = FALSE;
+        slice_window->slice.slice_views[view].prev_sub_region_specified[0] =
+                                                             FALSE;
+        slice_window->slice.slice_views[view].prev_sub_region_specified[1] =
+                                                             FALSE;
         slice_window->slice.slice_views[view].x_min = 0;
         slice_window->slice.slice_views[view].x_max = -1;
         slice_window->slice.slice_views[view].y_min = 0;
@@ -609,6 +616,7 @@ public  void  update_slice_window(
 {
     BOOLEAN  force_redraw_slice, slice_is_being_updated;
     BOOLEAN  sub_region_specified;
+    int      x_sub_min, x_sub_max, y_sub_min, y_sub_max, i, n_bufs;
     int      view, v, x_min, x_max, y_min, y_max;
 
     if( slice_window->slice.update_slice_dividers_flag )
@@ -636,6 +644,48 @@ public  void  update_slice_window(
         sub_region_specified = slice_window->slice.slice_views[view].
                                              sub_region_specified;
 
+        if( sub_region_specified )
+        {
+            x_sub_min = slice_window->slice.slice_views[view].x_min;
+            x_sub_max = slice_window->slice.slice_views[view].x_max;
+            y_sub_min = slice_window->slice.slice_views[view].y_min;
+            y_sub_max = slice_window->slice.slice_views[view].y_max;
+
+            n_bufs = (G_get_double_buffer_state( slice_window->window ) ? 2 :1);
+
+            for_less( i, 0, n_bufs )
+            {
+                if( slice_window->slice.slice_views[view].
+                                          prev_sub_region_specified[i] )
+                {
+                    if( slice_window->slice.slice_views[view].prev_x_min[i] <
+                        slice_window->slice.slice_views[view].x_min )
+                    {
+                        slice_window->slice.slice_views[view].x_min =
+                          slice_window->slice.slice_views[view].prev_x_min[i];
+                    }
+                    if( slice_window->slice.slice_views[view].prev_x_max[i] >
+                        slice_window->slice.slice_views[view].x_max )
+                    {
+                        slice_window->slice.slice_views[view].x_max =
+                          slice_window->slice.slice_views[view].prev_x_max[i];
+                    }
+                    if( slice_window->slice.slice_views[view].prev_y_min[i] <
+                        slice_window->slice.slice_views[view].y_min )
+                    {
+                        slice_window->slice.slice_views[view].y_min =
+                          slice_window->slice.slice_views[view].prev_y_min[i];
+                    }
+                    if( slice_window->slice.slice_views[view].prev_y_max[i] >
+                        slice_window->slice.slice_views[view].y_max )
+                    {
+                        slice_window->slice.slice_views[view].y_max =
+                          slice_window->slice.slice_views[view].prev_y_max[i];
+                    }
+                }
+            }
+        }
+
         force_redraw_slice = sub_region_specified;
 
         if( force_redraw_slice &&
@@ -643,15 +693,11 @@ public  void  update_slice_window(
              slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0]) )
         {
             slice_window->slice.slice_views[view].sub_region_specified = FALSE;
-if( view == 2 )
-print( "Viewport out of date.\n" );
         }
 
         if( slice_window->slice.slice_views[view].prev_sub_region_specified &&
             slice_is_being_updated )
         {
-if( view == 2 )
-print( "Reverting to full screen.\n" );
             force_redraw_slice = TRUE;
         }
 
@@ -717,8 +763,6 @@ print( "Reverting to full screen.\n" );
         if( slice_is_being_updated )
         {
             set_slice_viewport_update( slice_window, SLICE_MODEL1 + view );
-if( view == 2 )
-print( "Setting both viewports out of date.\n" );
         }
         else if( force_redraw_slice )
         {
@@ -726,24 +770,32 @@ print( "Setting both viewports out of date.\n" );
                                                                      TRUE;
             set_update_required( slice_window, get_model_bitplanes(
                       get_graphics_model(slice_window,SLICE_MODEL1+ view)) );
-if( view == 2 )
-print( "Setting just front viewport out of date.\n" );
         }
 
         if( slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0] )
         {
-if( view == 2 )
-print( "Assigning prev sub region %d.\n", sub_region_specified );
-            slice_window->slice.slice_views[view].prev_sub_region_specified =
+            if( G_get_double_buffer_state( slice_window->window ) )
+            {
+                slice_window->slice.slice_views[view].
+                          prev_sub_region_specified[1] =
+                      slice_window->slice.slice_views[view].
+                                prev_sub_region_specified[0];
+                slice_window->slice.slice_views[view].prev_x_min[1] =
+                      slice_window->slice.slice_views[view].prev_x_min[0];
+                slice_window->slice.slice_views[view].prev_x_max[1] =
+                      slice_window->slice.slice_views[view].prev_x_max[0];
+                slice_window->slice.slice_views[view].prev_y_min[1] =
+                      slice_window->slice.slice_views[view].prev_y_min[0];
+                slice_window->slice.slice_views[view].prev_y_max[1] =
+                      slice_window->slice.slice_views[view].prev_y_max[0];
+            }
+ 
+            slice_window->slice.slice_views[view].prev_sub_region_specified[0] =
                                                      sub_region_specified;
-            slice_window->slice.slice_views[view].prev_x_min =
-                            slice_window->slice.slice_views[view].x_min;
-            slice_window->slice.slice_views[view].prev_x_max =
-                            slice_window->slice.slice_views[view].x_max;
-            slice_window->slice.slice_views[view].prev_y_min =
-                            slice_window->slice.slice_views[view].y_min;
-            slice_window->slice.slice_views[view].prev_y_max =
-                            slice_window->slice.slice_views[view].y_max;
+            slice_window->slice.slice_views[view].prev_x_min[0] = x_sub_min;
+            slice_window->slice.slice_views[view].prev_x_max[0] = x_sub_max;
+            slice_window->slice.slice_views[view].prev_y_min[0] = y_sub_min;
+            slice_window->slice.slice_views[view].prev_y_max[0] = y_sub_max;
         }
     }
 }
@@ -767,8 +819,6 @@ public  void  set_slice_composite_update(
         y_max = MAX( slice_window->slice.slice_views[view_index].y_max,
                      y_max );
     }
-else
-print( "Setting update flag.\n" );
 
     slice_window->slice.slice_views[view_index].sub_region_specified = TRUE;
 
@@ -799,20 +849,6 @@ public  BOOLEAN  get_slice_subviewport(
         *x_max = slice_window->slice.slice_views[view_index].x_max;
         *y_min = slice_window->slice.slice_views[view_index].y_min;
         *y_max = slice_window->slice.slice_views[view_index].y_max;
-
-        if( G_get_double_buffer_state( slice_window->window ) &&
-            slice_window->slice.slice_views[view_index].
-                                           prev_sub_region_specified )
-        {
-            *x_min = MIN( *x_min,
-                      slice_window->slice.slice_views[view_index].prev_x_min );
-            *x_max = MAX( *x_max,
-                      slice_window->slice.slice_views[view_index].prev_x_max );
-            *y_min = MIN( *y_min,
-                      slice_window->slice.slice_views[view_index].prev_y_min );
-            *y_max = MAX( *y_max,
-                      slice_window->slice.slice_views[view_index].prev_y_max );
-        }
 
         *x_min = MAX( *x_min, 0 );
         *x_max = MIN( *x_max, x_max_viewport - x_min_viewport );

@@ -38,6 +38,8 @@ private  DEF_EVENT_FUNCTION( terminate_rotating_slice )    /* ARGSUSED */
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_rotating_slice );
+
+    return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( turn_off_rotating_slice )    /* ARGSUSED */
@@ -49,6 +51,8 @@ private  DEF_EVENT_FUNCTION( turn_off_rotating_slice )    /* ARGSUSED */
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
                                   turn_off_rotating_slice );
+
+    return( OK );
 }
 
 private  DEF_EVENT_FUNCTION( start_rotating_slice )     /* ARGSUSED */

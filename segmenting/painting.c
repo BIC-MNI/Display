@@ -48,6 +48,8 @@ public  void  initialize_voxel_labeling(
                                RIGHT_MOUSE_DOWN_EVENT,
                                right_mouse_down );
     slice_window->slice.segmenting.n_starts_alloced = 0;
+    slice_window->slice.segmenting.mouse_scale_factor =
+                                               Initial_mouse_scale_factor;
 }
 
 public  void  delete_voxel_labeling(
@@ -57,6 +59,40 @@ public  void  delete_voxel_labeling(
     {
         FREE( slice->segmenting.y_starts );
     }
+}
+
+private  int  scale_x_mouse(
+    display_struct  *slice_window,
+    int             x )
+{
+    Real   x_real;
+    if( slice_window->slice.segmenting.mouse_scale_factor > 0.0 &&
+        slice_window->slice.segmenting.mouse_scale_factor != 1.0 )
+    {
+        x_real = slice_window->slice.segmenting.x_mouse_start +
+                 slice_window->slice.segmenting.mouse_scale_factor *
+                 (x - slice_window->slice.segmenting.x_mouse_start);
+        x = ROUND( x_real );
+    }
+
+    return( x );
+}
+
+private  int  scale_y_mouse(
+    display_struct  *slice_window,
+    int             y )
+{
+    Real   y_real;
+    if( slice_window->slice.segmenting.mouse_scale_factor > 0.0 &&
+        slice_window->slice.segmenting.mouse_scale_factor != 1.0 )
+    {
+        y_real = slice_window->slice.segmenting.y_mouse_start +
+                 slice_window->slice.segmenting.mouse_scale_factor *
+                 (y - slice_window->slice.segmenting.y_mouse_start);
+        y = ROUND( y_real );
+    }
+
+    return( y );
 }
 
 private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
@@ -80,6 +116,9 @@ private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
 
     (void) G_get_mouse_position( slice_window->window, &x_pixel, &y_pixel );
 
+    slice_window->slice.segmenting.x_mouse_start = x_pixel;
+    slice_window->slice.segmenting.y_mouse_start = y_pixel;
+
     record_slice_under_mouse( slice_window, volume_index );
 
     if( is_shift_key_pressed( slice_window ) )
@@ -88,7 +127,7 @@ private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
         label = get_current_paint_label( slice_window );
 
     (void) sweep_paint_labels( slice_window,
-                        x_pixel, y_pixel, x_pixel, y_pixel, label );
+                               x_pixel, y_pixel, x_pixel, y_pixel, label );
 
     if( Draw_brush_outline &&
         find_slice_view_mouse_is_in( slice_window, x_pixel, y_pixel,
@@ -206,10 +245,19 @@ private  int  update_paint_labels(
         else
             label = get_current_paint_label( slice_window );
 
-        volume_index = sweep_paint_labels( slice_window, x_prev, y_prev, x, y,
-                                           label );
+        volume_index = sweep_paint_labels( slice_window,
+                          scale_x_mouse(slice_window,x_prev),
+                          scale_y_mouse(slice_window,y_prev),
+                          scale_x_mouse(slice_window,x),
+                          scale_y_mouse(slice_window,y),
+                          label );
+
         if( Draw_brush_outline )
-            update_brush( slice_window, x, y, TRUE );
+        {
+            update_brush( slice_window,
+                          scale_x_mouse(slice_window,x),
+                          scale_y_mouse(slice_window,y), TRUE );
+        }
     }
     else
         volume_index = get_current_volume_index( slice_window );
@@ -618,53 +666,6 @@ private  void  paint_labels(
     }
 }
 
-public  void  copy_labels_slice_to_slice(
-    Volume           volume,
-    Volume           label_volume,
-    int              axis,
-    int              src_voxel,
-    int              dest_voxel,
-    Real             min_threshold,
-    Real             max_threshold )
-{
-    int   x, y, a1, a2, value;
-    int   sizes[N_DIMENSIONS], src_indices[N_DIMENSIONS];
-    int   dest_indices[N_DIMENSIONS];
-    Real  volume_value;
-
-    get_volume_sizes( label_volume, sizes );
-    a1 = (axis + 1) % N_DIMENSIONS;
-    a2 = (axis + 2) % N_DIMENSIONS;
-
-    src_indices[axis] = src_voxel;
-    dest_indices[axis] = dest_voxel;
-
-    for_less( x, 0, sizes[a1] )
-    {
-        src_indices[a1] = x;
-        dest_indices[a1] = x;
-        for_less( y, 0, sizes[a2] )
-        {
-            src_indices[a2] = y;
-            dest_indices[a2] = y;
-
-            value = get_volume_label_data( label_volume, src_indices );
-
-            if( min_threshold < max_threshold )
-            {
-                volume_value = get_volume_real_value( volume,
-                            dest_indices[X], dest_indices[Y], dest_indices[Z],
-                            0, 0 );
-                if( volume_value < min_threshold ||
-                    volume_value > max_threshold )
-                    value = 0;
-            }
-
-            set_volume_label_data( label_volume, dest_indices, value );
-        }
-    }
-}
-
 typedef  enum  { POSITIVE_X, POSITIVE_Y, NEGATIVE_X, NEGATIVE_Y,
                  N_DIRECTIONS } Directions;
 
@@ -985,4 +986,51 @@ public  void  translate_labels(
     }
 
     terminate_progress_report( &progress );
+}
+
+public  void  copy_labels_slice_to_slice(
+    Volume           volume,
+    Volume           label_volume,
+    int              axis,
+    int              src_voxel,
+    int              dest_voxel,
+    Real             min_threshold,
+    Real             max_threshold )
+{
+    int   x, y, a1, a2, value;
+    int   sizes[N_DIMENSIONS], src_indices[N_DIMENSIONS];
+    int   dest_indices[N_DIMENSIONS];
+    Real  volume_value;
+
+    get_volume_sizes( label_volume, sizes );
+    a1 = (axis + 1) % N_DIMENSIONS;
+    a2 = (axis + 2) % N_DIMENSIONS;
+
+    src_indices[axis] = src_voxel;
+    dest_indices[axis] = dest_voxel;
+
+    for_less( x, 0, sizes[a1] )
+    {
+        src_indices[a1] = x;
+        dest_indices[a1] = x;
+        for_less( y, 0, sizes[a2] )
+        {
+            src_indices[a2] = y;
+            dest_indices[a2] = y;
+
+            value = get_volume_label_data( label_volume, src_indices );
+
+            if( min_threshold < max_threshold )
+            {
+                volume_value = get_volume_real_value( volume,
+                            dest_indices[X], dest_indices[Y], dest_indices[Z],
+                            0, 0 );
+                if( volume_value < min_threshold ||
+                    volume_value > max_threshold )
+                    value = 0;
+            }
+
+            set_volume_label_data( label_volume, dest_indices, value );
+        }
+    }
 }
