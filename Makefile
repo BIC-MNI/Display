@@ -1,6 +1,6 @@
 include ../Graphics/Makefile.include
 
-OPT = $(OPT_O) -Wf,-XNd10000
+OPT = $(OPT_g) -Wf,-XNd10000
 
 OPT_g = -g
 OPT_O = -O
@@ -49,15 +49,16 @@ display_obj = \
            images/images.o \
            markers/markers.o \
            markers/segment.o \
-           surface_extraction/activity.o \
            surface_extraction/boundary_extraction.o \
            surface_extraction/data_structs.o \
            surface_extraction/init_surface.o \
            surface_extraction/extract.o \
            surface_extraction/surface.o \
            surface_extraction/surface_events.o \
-           surface_fitting/scan_to_voxels.o \
-           surface_fitting/scan_polygons.o \
+           voxel_scan/scan_markers.o \
+           voxel_scan/scan_objects.o \
+           voxel_scan/scan_polygons.o \
+           voxel_scan/scan_lines.o \
            events/change_markers.o \
            events/clip_plane.o \
            events/film_loop.o \
@@ -82,8 +83,6 @@ display_obj = \
            menu/selected.o \
            menu/text.o \
            cursor_contours/contours.o \
-           segmenting/connect.o \
-           segmenting/cut.o \
            segmenting/cut_neighbours.o \
            segmenting/expand_3d.o \
            segmenting/fill_3d.o \
@@ -91,20 +90,18 @@ display_obj = \
            segmenting/regions.o \
            segmenting/segmenting.o \
            segmenting/segment_polygons.o \
-           segmenting_3d/segment.o \
-           segmenting_3d/vol_segment.o \
            slice_window/colour_bar.o \
            slice_window/colour_coding.o \
            slice_window/draw_slice.o \
            slice_window/histogram.o \
            slice_window/pick_angle.o \
            slice_window/quadmesh.o \
-           slice_window/render_markers.o \
            slice_window/slice.o \
            slice_window/slice_3d.o \
            slice_window/slice_events.o \
            slice_window/undo.o \
            slice_window/view.o \
+           surface_curves/closest_line.o \
            surface_curves/events.o \
            surface_curves/edge_distance.o \
            tubes/convert_lines.o \
@@ -115,9 +112,9 @@ display_obj = \
            structures/view.o \
            structures/window.o
 
-MODULE_LIBS = -L../Modules -L/usr/lib \
+MODULE_LIBS = -L../Modules \
               -ldeform -lgeometry -lnumerical -lmarching \
-              -lsurface -ldata_structures
+              -lsurface -ldata_structures -L/usr/lib
 
 
 display_lint = $(display_obj:.o=.ln)

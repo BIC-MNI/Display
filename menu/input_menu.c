@@ -203,7 +203,7 @@ MENU_FUNCTION(change_background_colour) \
                        MENU_FUNCTION(set_gaussian_filter) \
                        MENU_FUNCTION(set_filter_half_width) \
                        MENU_FUNCTION(change_labels_in_range) \
-                       MENU_FUNCTION(scan_current_polygon_to_volume) \
+                       MENU_FUNCTION(scan_current_object_to_volume) \
                        MENU_FUNCTION(set_atlas_on_or_off) \
                        MENU_FUNCTION(set_atlas_opacity) \
                        MENU_FUNCTION(set_atlas_transparent_threshold) \

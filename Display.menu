@@ -172,6 +172,7 @@ objects
     transient 'b'    mark_vertices               "Show Vertices"
 
     transient 'q'    delete_object_menu          "Delete Object"
+    transient 'w'    scan_current_object_to_volume "Scan Object to Volume"
     transient 'e'    set_current_object_colour   "Change Colour"
     transient 'r'    change_model_name           "Change Model Name"
     transient 't'    create_model                "Create Model"
@@ -227,7 +228,6 @@ polygons
     transient 'e'    set_polygon_line_thickness        "Set Line Thickness"
     transient 'r'    make_polygon_sphere               "Make Polygons Sphere"
     transient 't'    subdivide_current_polygon         "Subdivide Polygons"
-    transient 'y'    scan_current_polygon_to_volume    "Scan Polygons to Volume"
 
     transient 'a'    create_bintree_for_polygons       "Create Bintree"
     transient 'd'    create_normals_for_polygon        "Compute Normals"
