@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/intersect/ray_polygons.c,v 1.18 2001-05-27 00:19:46 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/intersect/ray_polygons.c,v 1.19 2001-06-20 14:34:28 jgsled Exp $";
 #endif
 
 
@@ -48,7 +48,7 @@ private  void  recursive_intersect_ray_with_objects_hierarchy(
                       closest_object_index, closest_dist, found );
         }
     }
-    else if( desired_object_type < 0 ||
+    else if( ((int) desired_object_type) < 0 ||
              desired_object_type == get_object_type(current_object) )
     {
         if( intersect_ray_with_object( ray_origin, ray_direction,
