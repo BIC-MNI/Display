@@ -402,7 +402,6 @@ public  DEF_MENU_UPDATE(make_polygon_sphere )   /* ARGSUSED */
     return( OK );
 }
 
-
 public  DEF_MENU_FUNCTION( subdivide_current_polygon )   /* ARGSUSED */
 {
     Status            status;
@@ -428,6 +427,42 @@ public  DEF_MENU_FUNCTION( subdivide_current_polygon )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(subdivide_current_polygon )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( scan_current_polygon_to_volume )   /* ARGSUSED */
+{
+    Status            status;
+    void              scan_polygons_to_voxels();
+    polygons_struct   *polygons;
+    volume_struct     *volume;
+    void              set_all_volume_auxiliary_data_bit();
+    void              set_slice_window_update();
+
+    status = OK;
+
+    if( get_current_polygons( graphics, &polygons ) &&
+        get_current_volume( graphics, &volume ) )
+    {
+        set_all_volume_auxiliary_data_bit( volume, Scanned_polygons_label,
+                                           FALSE );
+
+        scan_polygons_to_voxels( polygons, volume,
+                                 Scanned_polygons_label | ACTIVE_BIT,
+                                 Max_polygon_scan_distance );
+
+        PRINT( " done.\n" );
+
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 0 );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 1 );
+        set_slice_window_update( graphics->associated[SLICE_WINDOW], 2 );
+    }
+
+    return( status );
+}
+
+public  DEF_MENU_UPDATE(scan_current_polygon_to_volume )   /* ARGSUSED */
 {
     return( OK );
 }
