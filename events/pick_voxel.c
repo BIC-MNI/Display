@@ -18,16 +18,16 @@ private  DEF_EVENT_FUNCTION( start_picking_voxel )
 {
     DECL_EVENT_FUNCTION( handle_update_voxel );
     DECL_EVENT_FUNCTION( end_picking_voxel );
+    void                 add_action_table_function();
     void                 install_action_table_function();
     void                 update_voxel_cursor();
     void                 push_action_table();
 
-    push_action_table( &graphics->action_table, NO_EVENT );
     push_action_table( &graphics->action_table, LEFT_MOUSE_UP_EVENT );
 
-    install_action_table_function( &graphics->action_table,
-                                   NO_EVENT,
-                                   handle_update_voxel );
+    add_action_table_function( &graphics->action_table,
+                               NO_EVENT,
+                               handle_update_voxel );
 
     install_action_table_function( &graphics->action_table,
                                    LEFT_MOUSE_UP_EVENT,
@@ -42,9 +42,11 @@ private  DEF_EVENT_FUNCTION( end_picking_voxel )
     /* ARGSUSED */
 {
     void    pop_action_table();
+    void    remove_action_table_function();
     void    update_voxel_cursor();
 
-    pop_action_table( &graphics->action_table, NO_EVENT );
+    remove_action_table_function( &graphics->action_table, NO_EVENT );
+
     pop_action_table( &graphics->action_table, LEFT_MOUSE_UP_EVENT );
 
     update_voxel_cursor( graphics );
@@ -68,20 +70,23 @@ private  void  update_voxel_cursor( slice_window )
     graphics_struct   *slice_window;
 {
     int               x, y;
-    int               i, j, k;
+    int               axis, indices[N_DIMENSIONS];
     Point             new_origin;
     void              get_mouse_in_pixels();
     Boolean           convert_pixel_to_voxel();
     graphics_struct   *graphics;
     void              update_cursor();
+    void              rebuild_slice_pixels();
 
     graphics = slice_window->associated[THREE_D_WINDOW];
 
-    get_mouse_in_pixels( slice_window, &x, &y );
+    get_mouse_in_pixels( slice_window, &slice_window->mouse_position, &x, &y );
 
-    if( convert_pixel_to_voxel( slice_window, x, y, &i, &j, &k ) )
+    if( convert_pixel_to_voxel( slice_window, x, y,
+                  &indices[X_AXIS], &indices[Y_AXIS], &indices[Z_AXIS] ) )
     {
-        fill_Point( new_origin, (Real) i, (Real) j, (Real) k );
+        fill_Point( new_origin, (Real) indices[X_AXIS],
+                    (Real) indices[Y_AXIS], (Real) indices[Z_AXIS] );
 
         if( !EQUAL_POINTS( new_origin, graphics->three_d.cursor.origin ) )
         {
@@ -90,6 +95,20 @@ private  void  update_voxel_cursor( slice_window )
             update_cursor( graphics );
 
             graphics->update_required = TRUE;
+        }
+
+        for_less( axis, 0, N_DIMENSIONS )
+        {
+            if( indices[axis] !=
+                   slice_window->slice.slice_views[axis].slice_index )
+            {
+                slice_window->slice.slice_views[axis].slice_index =
+                                                             indices[axis];
+
+                rebuild_slice_pixels( slice_window, axis );
+
+                slice_window->update_required = TRUE;
+            }
         }
     }
 }
