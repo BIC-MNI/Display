@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.96 1995-09-04 15:11:56 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.97 1995-09-04 17:01:39 david Exp $";
 #endif
 
 
@@ -726,18 +726,18 @@ private  void  render_more_slices(
     for_less( v_index, 0, n_volumes )
     {
         v = (v_index + current_update_volume) % n_volumes;
-        first_render = TRUE;
-    
-        do
+
+        for_less( which_volume, 0, 2 )
         {
-            did_one = FALSE;
-
-            for_less( view_index, 0, N_SLICE_VIEWS )
+            first_render = TRUE;
+            do
             {
-                view = (view_index + current_update_view) % N_SLICE_VIEWS;
+                did_one = FALSE;
 
-                for_less( which_volume, 0, 2 )
+                for_less( view_index, 0, N_SLICE_VIEWS )
                 {
+                    view = (view_index + current_update_view) % N_SLICE_VIEWS;
+
                     update_in_progress =
                              slice_window->slice.volumes[v].
                                               views[view].update_in_progress;
@@ -847,10 +847,10 @@ private  void  render_more_slices(
                     *update_flag_ptr = FALSE;
                 }
             }
+            while( !interrupted && did_one );
 
             first_render = FALSE;
         }
-        while( !interrupted && did_one );
     }
 
     for_less( view, 0, N_SLICE_VIEWS )
