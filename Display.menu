@@ -323,9 +323,10 @@ deform
     transient 'd'    start_deforming_object           "Start Deformation"
     transient 'f'    stop_deforming_object            "Stop Deformation"
 
-    transient 'w'    set_deformation_model           "Set Model"
-    transient 'e'    set_deformation_boundary        "Set Boundary"
-    transient 'r'    set_deformation_parameters      "Set Parameters"
+    transient 'q'    set_deformation_original_positions   "Set Original Pos"
+    transient 'w'    set_deformation_model                "Set Model"
+    transient 'e'    set_deformation_boundary             "Set Boundary"
+    transient 'r'    set_deformation_parameters           "Set Parameters"
 }
 
 region_painting
