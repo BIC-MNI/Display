@@ -31,6 +31,16 @@ typedef struct
 
 typedef  struct
 {
+    BOOLEAN   crop_visible;
+    int       limit_being_moved;
+    int       axis_being_moved;
+    int       view_index;
+    Real      limits[2][N_DIMENSIONS];
+    STRING    filename;
+} crop_struct;
+
+typedef  struct
+{
     int              volume_index;
     int              axis_index;
     int              slice_index;
@@ -73,6 +83,7 @@ typedef  struct
     int           prev_viewport_y_size;
     int           used_viewport_x_size;
     int           used_viewport_y_size;
+    BOOLEAN       update_atlas_flag;
     BOOLEAN       update_composite_flag;
 } slice_view_struct;
 
@@ -93,6 +104,7 @@ typedef  struct
 
     segmenting_struct      segmenting;
     atlas_struct           atlas;
+    crop_struct            crop;
 
     Real                   x_brush_radius, y_brush_radius, z_brush_radius;
     int                    current_paint_label;
