@@ -1,0 +1,3 @@
+Makefile Makefile.in
+Display.aux Display.dvi Display.log Display.ps Display.toc
+displaywindows.ps menu.ps

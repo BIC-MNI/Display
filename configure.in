@@ -70,6 +70,7 @@ fi
 
 
 AC_OUTPUT(Makefile
+Documentation/Makefile
 Graphics/Makefile
 Graphics/GLUT_windows/Makefile
 Graphics/G_graphics/Makefile

@@ -1,4 +1,5 @@
 AUTOMAKE_OPTIONS = check-news
+ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = INSTALL.display \
 	Hardware/supports_gl.c Include/atlas.h Include/display.h \
@@ -27,7 +28,8 @@ SUBDIRS = Graphics \
 	surface_curves \
 	surface_extraction \
 	tubes \
-	voxel_scan
+	voxel_scan \
+	Documentation
 
 
 #INCLUDE = -IInclude $(GRAPHICS_INCLUDE)
