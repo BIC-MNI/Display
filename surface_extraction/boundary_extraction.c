@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.30 1997-01-20 14:14:59 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.31 1997-01-20 16:22:29 david Exp $";
 #endif
 
 #include  <display.h>
@@ -130,12 +130,9 @@ private  void   get_vertex_normal(
     }
 }
 
-private  int  check_unique_face_set(
-    int       face_dim,
-    int       x_face,
-    int       y_face,
-    int       face_dir,
-    BOOLEAN   inside_flags[2][2][2] )
+private  void  assign_set_numbers(
+    BOOLEAN        inside_flags[2][2][2],
+    Smallest_int   set_numbers[3][2][2][2] )
 {
     static  struct
     {
@@ -154,7 +151,6 @@ private  int  check_unique_face_set(
                  };
 
     BOOLEAN  faces_present[N_DIMENSIONS][2][2][2];
-    int      set_number[N_DIMENSIONS][2][2][2];
     int      dim, x, y, dir, n_connected, conn_index, edge_index;
     int      i, ind, test_dir, test_dim;
     int      other_dim, which;
@@ -187,11 +183,8 @@ private  int  check_unique_face_set(
         faces_present[dim][x][y][dir] =
                                   inside_flags[v1[0]][v1[1]][v1[2]] &&
                                   !inside_flags[v2[0]][v2[1]][v2[2]];
-        set_number[dim][x][y][dir] = -1;
+        set_numbers[dim][x][y][dir] = (Smallest_int) -1;
     }
-
-    if( !faces_present[face_dim][x_face][y_face][face_dir] )
-        handle_internal_error( "!faces_present" );
 
     n_sets = 0;
     for_less( dim, 0, N_DIMENSIONS )
@@ -200,12 +193,12 @@ private  int  check_unique_face_set(
     for_less( dir, 0, 2 )
     {
         if( !faces_present[dim][x][y][dir] ||
-             set_number[dim][x][y][dir] >= 0 )
+             set_numbers[dim][x][y][dir] >= 0 )
         {
             continue;
         }
 
-        set_number[dim][x][y][dir] = n_sets;
+        set_numbers[dim][x][y][dir] = (Smallest_int) n_sets;
 
         n_connected = 1;
         list[0].dim = dim;
@@ -280,12 +273,11 @@ private  int  check_unique_face_set(
                     if( faces_present[test_dim][test_x_face][test_y_face]
                                      [test_dir])
                     {
-                        if( set_number[test_dim][test_x_face][test_y_face]
-                                      [test_dir] < 0 )
+                        if( set_numbers[test_dim][test_x_face][test_y_face]
+                                       [test_dir] < 0 )
                         {
-                            set_number[test_dim][test_x_face][test_y_face]
-                                      [test_dir]
-                                                              = n_sets;
+                            set_numbers[test_dim][test_x_face][test_y_face]
+                                       [test_dir] = (Smallest_int) n_sets;
                             list[n_connected].dim = test_dim;
                             list[n_connected].x = test_x_face;
                             list[n_connected].y = test_y_face;
@@ -308,10 +300,73 @@ private  int  check_unique_face_set(
 
         ++n_sets;
     }
+}
 
-    edge_index = set_number[face_dim][x_face][y_face][face_dir];
+private  int  lookup_edge_id(
+    int       face_dim,
+    int       x_face,
+    int       y_face,
+    int       face_dir,
+    BOOLEAN   inside_flags[2][2][2] )
+{
+    static   BOOLEAN  initialized = FALSE;
+    static   BOOLEAN  this_case_initialized[2][2][2][2][2][2][2][2];
+    static   Smallest_int   lookup[2][2][2][2][2][2][2][2][3][2][2][2];
+    int      f0, f1, f2, f3, f4, f5, f6, f7;
 
-    return( edge_index );
+    if( !initialized )
+    {
+        initialized = TRUE;
+        for_less( f0, 0, 2 )
+        for_less( f1, 0, 2 )
+        for_less( f2, 0, 2 )
+        for_less( f3, 0, 2 )
+        for_less( f4, 0, 2 )
+        for_less( f5, 0, 2 )
+        for_less( f6, 0, 2 )
+        for_less( f7, 0, 2 )
+        {
+            this_case_initialized[f0][f1][f2][f3][f4][f5][f6][f7] = FALSE;
+        }
+    }
+
+    if( !this_case_initialized[inside_flags[0][0][0]]
+                              [inside_flags[0][0][1]]
+                              [inside_flags[0][1][0]]
+                              [inside_flags[0][1][1]]
+                              [inside_flags[1][0][0]]
+                              [inside_flags[1][0][1]]
+                              [inside_flags[1][1][0]]
+                              [inside_flags[1][1][1]] )
+    {
+        this_case_initialized[inside_flags[0][0][0]]
+                             [inside_flags[0][0][1]]
+                             [inside_flags[0][1][0]]
+                             [inside_flags[0][1][1]]
+                             [inside_flags[1][0][0]]
+                             [inside_flags[1][0][1]]
+                             [inside_flags[1][1][0]]
+                             [inside_flags[1][1][1]] = TRUE;
+
+        assign_set_numbers( inside_flags, lookup[inside_flags[0][0][0]]
+                                                [inside_flags[0][0][1]]
+                                                [inside_flags[0][1][0]]
+                                                [inside_flags[0][1][1]]
+                                                [inside_flags[1][0][0]]
+                                                [inside_flags[1][0][1]]
+                                                [inside_flags[1][1][0]]
+                                                [inside_flags[1][1][1]] );
+    }
+
+    return( (int) lookup[inside_flags[0][0][0]]
+                        [inside_flags[0][0][1]]
+                        [inside_flags[0][1][0]]
+                        [inside_flags[0][1][1]]
+                        [inside_flags[1][0][0]]
+                        [inside_flags[1][0][1]]
+                        [inside_flags[1][1][0]]
+                        [inside_flags[1][1][1]]
+                        [face_dim][x_face][y_face][face_dir] );
 }
 
 private  int  determine_edge_index(
@@ -360,8 +415,7 @@ private  int  determine_edge_index(
         inside_flags[dx][dy][dz] = inside[pos[dx][0]][pos[dy][1]][pos[dz][2]];
     }
 
-    edge_index = check_unique_face_set( face_dim, x_face, y_face, dir,
-                                        inside_flags );
+    edge_index = lookup_edge_id( face_dim, x_face, y_face, dir, inside_flags );
 
     return( edge_index );
 }
