@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.100 1995-09-21 17:37:03 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.101 1995-09-25 14:16:24 david Exp $";
 #endif
 
 
@@ -92,6 +92,8 @@ private  void  initialize_slice_window(
 
     slice_window->slice.x_split = Slice_divider_x_position;
     slice_window->slice.y_split = Slice_divider_y_position;
+
+    slice_window->slice.incremental_update_allowed = Initial_incremental_update;
 
     initialize_slice_histogram( slice_window );
     initialize_colour_bar( slice_window );
@@ -712,7 +714,7 @@ private  void  render_more_slices(
     end_time = current_time + update_time;
     event_time = current_time + Slice_event_check_time;
 
-    if( update_time <= 0.0 )
+    if( !slice_window->slice.incremental_update_allowed || update_time <= 0.0 )
     {
         end_time = -1.0;
         event_time = -1.0;
@@ -951,13 +953,6 @@ public  void  update_slice_window(
                 slice_window->slice.slice_views[view].prev_y_max =
                      slice_window->slice.slice_views[view].y_max;
             }
-        }
-
-        if( slice_window->slice.slice_views[view].prev_sub_region_specified &&
-            slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0] )
-        {
-            set_update_required( slice_window, get_model_bitplanes(
-                         get_graphics_model(slice_window,SLICE_MODEL1+ view)) );
         }
     }
 
