@@ -55,6 +55,17 @@ For example, if you need to look in /usr/local/lib as well as
 will do the trick.
 
 
+		Building with SEAL for sulcal labelling
+		---------------------------------------
+
+Seal version 1.0 or later must be installed.
+
+Use option --with-seal at configure time, and specify a C++
+compiler by setting variable CC on the configure line.  For
+example, if compiling using the GNU compiler:
+
+    ./configure .... --with-seal CC=g++
+
 
 		Build Failure with menu/menu.c
 		------------------------------
