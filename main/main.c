@@ -13,12 +13,12 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.58 1996-10-02 19:13:10 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.59 1997-04-17 17:28:51 david Exp $";
 #endif
 
 #include  <display.h>
 
-private  STRING   version = "1.0      Dec. 19, 1995";
+private  STRING   version = "1.1      Apr. 17, 1997";
 
 #define  MAX_TITLE_LENGTH   200
 
