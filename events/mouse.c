@@ -1,20 +1,21 @@
 
 #include  <def_standard.h>
 #include  <def_graphics.h>
-#include  <def_globals.h>
 
-public  void  initialize_mouse_events( graphics )
-    graphics_struct  *graphics;
+public  void  initialize_mouse_events( action_table )
+    action_table_struct   *action_table;
 {
     DECL_EVENT_FUNCTION(   mouse_movement_event );
-    void                   add_action_table_function();
-    void                   terminate_any_interactions();
+    DECL_EVENT_FUNCTION(   left_mouse_down_event );
+    DECL_EVENT_FUNCTION(   middle_mouse_down_event );
+    DECL_EVENT_FUNCTION(   right_mouse_down_event );
 
-    terminate_any_interactions( graphics );
-
-    add_action_table_function( &graphics->action_table,
-                               MOUSE_MOVEMENT_EVENT,
+    add_action_table_function( action_table, MOUSE_MOVEMENT_EVENT,
                                mouse_movement_event );
+    add_action_table_function( action_table, MIDDLE_MOUSE_DOWN_EVENT,
+                               middle_mouse_down_event );
+    add_action_table_function( action_table, RIGHT_MOUSE_DOWN_EVENT,
+                               right_mouse_down_event );
 }
 
 private  DEF_EVENT_FUNCTION(  mouse_movement_event )     /* ARGSUSED */
@@ -24,24 +25,123 @@ private  DEF_EVENT_FUNCTION(  mouse_movement_event )     /* ARGSUSED */
     return( OK );
 }
 
-public  Boolean  mouse_moved( graphics )
-    graphics_struct  *graphics;
+private  DEF_EVENT_FUNCTION(  middle_mouse_down_event )     /* ARGSUSED */
 {
-    Boolean   moved;
+    PRINT( "MIDDLE Mouse pressed, exitting.\n" );
 
-    moved = !EQUAL_POINTS( graphics->mouse_position,
-                           graphics->prev_mouse_position );
+    return( ERROR );
+}
+
+#ifdef OLD
+private  DEF_EVENT_FUNCTION(  right_mouse_down_event )     /* ARGSUSED */
+{
+    object_struct  *objects;
+
+    objects = graphics->objects;
+
+    if( objects != (object_struct *) 0 )
+    {
+        while( objects != (object_struct *) 0 && objects->visibility == OFF )
+        {
+            objects = objects->next;
+        }
+
+        if( objects == (object_struct *) 0 )
+        {
+            graphics->objects->visibility = ON;
+        }
+        else
+        {
+            objects->visibility = OFF;
+
+            if( objects->next == (object_struct *) 0 )
+            {
+                graphics->objects->visibility = ON;
+            }
+            else
+            {
+                objects->next->visibility = ON;
+            }
+        }
+
+        graphics->update_required = TRUE;
+    }
+
+    return( OK );
+}
+#endif
+
+private  DEF_EVENT_FUNCTION(  right_mouse_down_event )     /* ARGSUSED */
+{
+    void                  add_action_table_function();
+    DECL_EVENT_FUNCTION(  handle_no_event );
+    DECL_EVENT_FUNCTION(  terminate_clipping );
+
+    add_action_table_function( &graphics->action_table,
+                               NO_EVENT,
+                               handle_no_event );
+    add_action_table_function( &graphics->action_table,
+                               RIGHT_MOUSE_UP_EVENT,
+                               terminate_clipping );
 
     graphics->prev_mouse_position = graphics->mouse_position;
 
-    return( moved );
+    return( OK );
 }
 
-public  void  get_mouse_in_pixels( graphics, mouse, x, y )
-    graphics_struct  *graphics;
-    Point            *mouse;
-    int              *x, *y;
+private  DEF_EVENT_FUNCTION(  handle_no_event )
 {
-    *x = (int) ( (Real) graphics->window.x_size * Point_x(*mouse) );
-    *y = (int) ( (Real) graphics->window.y_size * Point_y(*mouse) );
+    void    process_clipping();
+
+    process_clipping( graphics );
+
+    graphics->prev_mouse_position = graphics->mouse_position;
+
+    return( OK );
+}
+
+private  DEF_EVENT_FUNCTION(  terminate_clipping )
+{
+    void                  remove_action_table_function();
+    void                  process_clipping();
+
+    process_clipping( graphics );
+
+    remove_action_table_function( &graphics->action_table,
+                                  NO_EVENT );
+    remove_action_table_function( &graphics->action_table,
+                                  RIGHT_MOUSE_UP_EVENT );
+
+    return( OK );
+}
+
+private  void  process_clipping( graphics )
+    graphics_struct   *graphics;
+{
+    Real   delta_x, new_front;
+
+    delta_x = Point_x(graphics->mouse_position) -
+              Point_x(graphics->prev_mouse_position );
+
+    if( delta_x != 0.0 )
+    {
+        new_front = graphics->front_distance + delta_x *
+               (graphics->view.back_distance - graphics->view.front_distance);
+
+        if( new_front <= 0.0 )
+        {
+            new_front = Closest_front_plane;
+        }
+        else if( new_front > graphics->view.back_distance )
+        {
+            new_front = graphics->view.back_distance;
+        }
+
+        if( new_front != graphics->front_distance )
+        {
+            graphics->view.back_distance = new_front;
+            update_view( graphics );
+            graphics->update_required = TRUE;
+        }
+    }
 }
