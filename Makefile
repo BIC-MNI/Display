@@ -89,6 +89,10 @@ test_lint = $(test_obj:.o=.ln)
 display: $(display_obj)
 	$(CC) $(CFLAGS) $(display_obj) -o $@ $(LIBS)
 
+display.pixie:
+	@\rm -f display.Counts
+	@pixie display -o $@
+
 lint_display: $(display_lint)
 	$(LINT) -u $(LINTFLAGS) $(display_lint)
 
