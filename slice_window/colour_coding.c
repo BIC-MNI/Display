@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.34 1996-04-19 13:25:29 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/colour_coding.c,v 1.35 1996-04-26 12:49:01 david Exp $";
 #endif
 
 
@@ -714,8 +714,8 @@ public  Status  load_label_colour_map(
 {
     Status   status;
     FILE     *file;
-    Real     red, green, blue;
     Colour   col;
+    STRING   line;
     int      n_labels, index;
 
     if( open_file_with_default_suffix( filename,
@@ -729,18 +729,19 @@ public  Status  load_label_colour_map(
     status = OK;
     while( input_int( file, &index ) == OK )
     {
-        if( input_real( file, &red ) != OK ||
-            input_real( file, &green ) != OK ||
-            input_real( file, &blue ) != OK )
+        if( input_line( file, &line ) != OK )
         {
             print_error( "Error loading labels colour map.\n" );
             status = ERROR;
             break;
         }
 
+        col = convert_string_to_colour( line );
+
+        delete_string( line );
+
         if( index >= 1 && index < n_labels )
         {
-            col = make_Colour_0_1( red, green, blue );
             set_colour_of_label( slice_window,
                                  get_current_volume_index(slice_window),
                                  index, col );
