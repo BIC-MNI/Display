@@ -78,6 +78,8 @@
                        MENU_FUNCTION(create_marker_at_cursor) \
                        MENU_FUNCTION(set_cursor_to_marker) \
                        MENU_FUNCTION(save_markers) \
+                       MENU_FUNCTION(lock_slice) \
+                       MENU_FUNCTION(unlock_slice) \
                 
 
 typedef  struct
