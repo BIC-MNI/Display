@@ -1,15 +1,15 @@
 
-#include  <def_display.h>
+#include  <display.h>
 
 private  void  colour_code_object(
     display_struct   *display,
     object_struct    *object );
 
-public  Boolean  get_slice_view_index_under_mouse(
+public  BOOLEAN  get_slice_view_index_under_mouse(
     display_struct   *display,
     int              *view_index )
 {
-    Boolean          found;
+    BOOLEAN          found;
     Volume           volume;
     display_struct   *slice_window;
     int              x, y;
@@ -30,11 +30,11 @@ public  Boolean  get_slice_view_index_under_mouse(
     return( found );
 }
 
-public  Boolean  get_axis_index_under_mouse(
+public  BOOLEAN  get_axis_index_under_mouse(
     display_struct   *display,
     int              *axis_index )
 {
-    Boolean          found;
+    BOOLEAN          found;
     int              view_index;
     display_struct   *slice_window;
 
@@ -57,7 +57,7 @@ private  void  change_current_slice_by_one(
 {
     display_struct   *slice_window;
     Volume           volume;
-    Real             index[N_DIMENSIONS];
+    Real             voxel[N_DIMENSIONS];
     int              sizes[N_DIMENSIONS], axis_index;
 
     if( get_axis_index_under_mouse( display, &axis_index ) &&
@@ -67,13 +67,13 @@ private  void  change_current_slice_by_one(
 
         get_volume_sizes( volume, sizes );
 
-        get_current_voxel( slice_window, &index[X], &index[Y], &index[Z] );
+        get_current_voxel( slice_window, voxel );
 
-        index[axis_index] += (Real) delta;
+        voxel[axis_index] += (Real) delta;
 
-        if( voxel_is_within_volume( volume, index ) )
+        if( voxel_is_within_volume( volume, voxel ) )
         {
-            if( set_current_voxel( slice_window, index[X], index[Y], index[Z] ))
+            if( set_current_voxel( slice_window, voxel ))
             {
                 rebuild_probe( slice_window );
                 rebuild_cursor( slice_window, 0 );
@@ -122,19 +122,10 @@ private  void  scale_slice_voxels(
     Real             scale_factor )
 {
     display_struct   *slice_window;
-    int              x_min, x_max, y_min, y_max;
 
     slice_window = display->associated[SLICE_WINDOW];
 
-    get_slice_viewport( slice_window, view_index,
-                        &x_min, &x_max, &y_min, &y_max );
-
-    scale_slice_about_viewport_centre( scale_factor,
-         x_max - x_min + 1, y_max - y_min + 1,
-         &slice_window->slice.slice_views[view_index].x_scaling,
-         &slice_window->slice.slice_views[view_index].y_scaling,
-         &slice_window->slice.slice_views[view_index].x_trans,
-         &slice_window->slice.slice_views[view_index].y_trans );
+    scale_slice_view( slice_window, view_index, scale_factor );
 
     set_slice_window_update( slice_window, view_index );
     set_update_required( slice_window, NORMAL_PLANES );
@@ -171,6 +162,25 @@ public  DEF_MENU_FUNCTION(halve_slice_voxels)   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(halve_slice_voxels )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(reset_current_slice_view)   /* ARGSUSED */
+{
+    int              view_index;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_slice_view_index_under_mouse( slice_window, &view_index ) )
+    {
+        reset_slice_view( slice_window, view_index );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(reset_current_slice_view )   /* ARGSUSED */
 {
     return( OK );
 }
@@ -247,16 +257,15 @@ private  void  colour_code_points(
 
     for_less( i, 0, n_points )
     {
-        (void) evaluate_volume_in_world( volume,
-                                         Point_x(points[i]),
-                                         Point_y(points[i]),
-                                         Point_z(points[i]), Volume_continuity,
-                                         FALSE,
-                                         &val, (Real *) NULL,
-                                         (Real *) NULL, (Real *) NULL,
-                                         (Real *) NULL, (Real *) NULL,
-                                         (Real *) NULL, (Real *) NULL,
-                                         (Real *) NULL, (Real *) NULL );
+        evaluate_3D_volume_in_world( volume,
+                                     Point_x(points[i]),
+                                     Point_y(points[i]),
+                                     Point_z(points[i]), Volume_continuity,
+                                     &val, (Real *) NULL,
+                                     (Real *) NULL, (Real *) NULL,
+                                     (Real *) NULL, (Real *) NULL,
+                                     (Real *) NULL, (Real *) NULL,
+                                     (Real *) NULL, (Real *) NULL );
 
         (*colours)[i] = get_colour_code( colour_coding, val );
     }
