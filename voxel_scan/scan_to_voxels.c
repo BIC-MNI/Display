@@ -1,3 +1,4 @@
+#include  <def_stdio.h>
 #include  <def_graphics.h>
 
 int  n_evals;
@@ -9,32 +10,40 @@ public  void  scan_to_voxels( volume, parameters, max_voxel_distance,
     Real             max_voxel_distance;
     Real             max_parametric_scan_distance;
 {
+    Point  centre_voxel;
     void   recursive_scan();
+    void   convert_surface_uv_to_voxel();
 
     n_evals = 0;
 
-    recursive_scan( volume, parameters, 0.0, 1.0, 0.0, 1.0,
+    convert_surface_uv_to_voxel( volume, parameters, 0.5, 0.5, &centre_voxel );
+
+    recursive_scan( volume, parameters, 0.0, 1.0, 0.0, 1.0, &centre_voxel,
                     max_voxel_distance, max_parametric_scan_distance );
 
-    PRINT( "%d evaluations\n", n_evals );
+    PRINT( "%d evaluations", n_evals );
+    (void) fflush( stdout );
 }
 
 private  void  recursive_scan( volume, parameters,
-                               u1, u2, v1, v2, 
+                               u1, u2, v1, v2, centre_voxel,
                                max_voxel_dist, max_parametric_dist )
     volume_struct    *volume;
     double           parameters[];
     Real             u1, u2;
     Real             v1, v2;
+    Point            *centre_voxel;
     Real             max_voxel_dist;
     Real             max_parametric_dist;
 {
     int              i;
     Real             u14, u34, v14, v34;
     Real             u_middle, v_middle;
-    Point            points[4];
-    void             set_voxel_label_flag();
+    Point            voxels[4];
     void             convert_surface_uv_to_voxel();
+    void             label_voxel_point();
+
+    label_voxel_point( volume, centre_voxel );
 
     u14 = INTERPOLATE( 0.25, u1, u2 );
     u34 = INTERPOLATE( 0.75, u1, u2 );
@@ -42,33 +51,34 @@ private  void  recursive_scan( volume, parameters,
     v34 = INTERPOLATE( 0.75, v1, v2 );
 
     n_evals += 4;
-    convert_surface_uv_to_voxel( volume, parameters, u14, v14, &points[0] );
-    convert_surface_uv_to_voxel( volume, parameters, u34, v14, &points[1] );
-    convert_surface_uv_to_voxel( volume, parameters, u14, v34, &points[2] );
-    convert_surface_uv_to_voxel( volume, parameters, u34, v34, &points[3] );
+    convert_surface_uv_to_voxel( volume, parameters, u14, v14, &voxels[0] );
+    convert_surface_uv_to_voxel( volume, parameters, u34, v14, &voxels[1] );
+    convert_surface_uv_to_voxel( volume, parameters, u14, v34, &voxels[2] );
+    convert_surface_uv_to_voxel( volume, parameters, u34, v34, &voxels[3] );
 
-    if( should_subdivide( u2 - u1, v2 - v1, points, max_voxel_dist,
+    if( should_subdivide( u2 - u1, v2 - v1, voxels, max_voxel_dist,
                           max_parametric_dist ) )
     {
         u_middle = (u1 + u2) / 2.0;
         v_middle = (v1 + v2) / 2.0;
 
         recursive_scan( volume, parameters, u1, u_middle, v1, v_middle,
+                        &voxels[0],
                         max_voxel_dist, max_parametric_dist );
         recursive_scan( volume, parameters, u_middle, u2, v1, v_middle,
+                        &voxels[1],
                         max_voxel_dist, max_parametric_dist );
         recursive_scan( volume, parameters, u1, u_middle, v_middle, v2,
+                        &voxels[2],
                         max_voxel_dist, max_parametric_dist );
         recursive_scan( volume, parameters, u_middle, u2, v_middle, v2,
+                        &voxels[3],
                         max_voxel_dist, max_parametric_dist );
     }
     else
     {
         for_less( i, 0, 4 )
-            set_voxel_label_flag( volume,
-                                  ROUND( Point_x(points[i]) ),
-                                  ROUND( Point_y(points[i]) ),
-                                  ROUND( Point_z(points[i]) ), TRUE );
+            label_voxel_point( volume, &voxels[i] );
     }
 }
 
@@ -120,4 +130,20 @@ private  void  convert_surface_uv_to_voxel( volume, parameters, u, v, point )
     convert_point_to_voxel( volume, (Real) x, (Real) y, (Real) z,
                             &Point_x(*point), &Point_y(*point),
                             &Point_z(*point) );
+}
+
+void  label_voxel_point( volume, point )
+    volume_struct  *volume;
+    Point          *point;
+{
+    void     set_voxel_label_flag();
+
+    if( voxel_is_within_volume( volume, Point_x(*point),
+                                Point_y(*point), Point_z(*point) ) )
+    {
+        set_voxel_label_flag( volume,
+                              ROUND( Point_x(*point) ),
+                              ROUND( Point_y(*point) ),
+                              ROUND( Point_z(*point) ), TRUE );
+    }
 }
