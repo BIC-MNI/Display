@@ -82,16 +82,21 @@ private  DEF_EVENT_FUNCTION( right_mouse_down )    /* ARGSUSED */
     sweep_paint_labels( slice_window, x_pixel, y_pixel, x_pixel, y_pixel,
                         label );
 
-    if( Draw_brush_outline )
+    if( Draw_brush_outline &&
+        find_slice_view_mouse_is_in( slice_window, x_pixel, y_pixel,
+                                     &slice_window->slice.painting_view_index ))
     {
         slice_window->slice.brush_outline = create_object( LINES );
         initialize_lines( get_lines_ptr(slice_window->slice.brush_outline),
                           Brush_outline_colour );
 
-        add_object_to_model( get_graphics_model( slice_window, SLICE_MODEL ),
+        add_object_to_model( get_graphics_model( slice_window,
+                       SLICE_MODEL1 + slice_window->slice.painting_view_index ),
                              slice_window->slice.brush_outline );
         update_brush( slice_window, x_pixel, y_pixel );
     }
+    else
+        slice_window->slice.painting_view_index = -1;
     
     record_mouse_pixel_position( slice_window );
 
@@ -108,9 +113,11 @@ private  DEF_EVENT_FUNCTION( end_painting )     /* ARGSUSED */
 
     update_paint_labels( display );
 
-    if( Draw_brush_outline )
+    if( Draw_brush_outline &&
+        display->slice.painting_view_index >= 0 )
     {
-        remove_object_from_model( get_graphics_model( display, SLICE_MODEL ),
+        remove_object_from_model( get_graphics_model( display,
+                       SLICE_MODEL1 + display->slice.painting_view_index ),
                                   display->slice.brush_outline );
         delete_object( display->slice.brush_outline );
     }
@@ -284,9 +291,8 @@ private  void  fast_paint_labels(
     Volume         volume, label_volume;
     int            value, sizes[N_DIMENSIONS];
     Real           min_threshold, max_threshold, volume_value;
-    int            ind[N_DIMENSIONS], new_n_starts, *y_starts, y_inc;
+    int            ind[N_DIMENSIONS], new_n_starts, *y_starts, y_inc, x_inc;
     pixels_struct  *pixels;
-    int            x_min, x_max, y_min, y_max;
     Real           x, y, x_offset, x_scale, y_offset, y_scale;
     Real           x_trans, y_trans;
     Real           real_x_start, real_x_end, real_y_start, real_y_end;
@@ -307,16 +313,19 @@ private  void  fast_paint_labels(
 
     colour = get_colour_of_label( slice_window, label );
 
-    get_slice_viewport( slice_window, view_index,
-                        &x_min, &x_max, &y_min, &y_max );
-
     get_voxel_to_pixel_transform( slice_window, view_index, &a1, &a2,
                                   &x_scale, &x_trans, &y_scale, &y_trans );
 
     if( x_scale >= 0.0 )
+    {
         x_offset = 0.5;
+        x_inc = 1;
+    }
     else
+    {
         x_offset = -0.5;
+        x_inc = -1;
+    }
 
     if( y_scale >= 0.0 )
     {
@@ -362,7 +371,7 @@ private  void  fast_paint_labels(
     for_inclusive( ind[a1], min_voxel[a1], max_voxel[a1] )
     {
         real_x_start = x_scale * ((Real) ind[a1] - x_offset) + x_trans;
-        real_x_end = x_scale * ((Real) ind[a1] + x_offset) + x_trans;
+        real_x_end = x_scale * ((Real) (ind[a1]+x_inc) - x_offset) + x_trans;
 
         x_start = CEILING( real_x_start );
         x_end = CEILING( real_x_end );
@@ -412,7 +421,7 @@ private  void  fast_paint_labels(
     if( update_required )
     {
         slice_window->slice.slice_views[view_index].update_composite_flag =TRUE;
-        set_update_required( slice_window, NORMAL_PLANES );
+        set_slice_viewport_update( slice_window, SLICE_MODEL1 + view_index );
     }
 }
 
@@ -724,7 +733,7 @@ private  void   update_brush(
         get_brush_contour( slice_window, x, y, view, a1, a2, axis,
                            centre, radius, start_voxel, POSITIVE_X, lines );
 
-        set_update_required( slice_window, NORMAL_PLANES );
+        set_slice_viewport_update( slice_window, SLICE_MODEL1 + view );
     }
 }    
 
