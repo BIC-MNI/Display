@@ -41,12 +41,12 @@ private  Status  get_new_graphics( graphics )
 {
     Status   status;
 
-    CHECK_ALLOC( status, windows, n_windows, n_windows+1, graphics_struct *,
-                 DEFAULT_CHUNK_SIZE );
+    CHECK_ALLOC1( status, windows, n_windows, n_windows+1, graphics_struct *,
+                  DEFAULT_CHUNK_SIZE );
 
     if( status == OK )
     {
-        CALLOC( status, windows[n_windows], 1, graphics_struct );
+        CALLOC1( status, windows[n_windows], 1, graphics_struct );
     }
 
     if( status == OK )
@@ -84,7 +84,7 @@ private  Status  free_graphics( graphics )
 
         --n_windows;
 
-        FREE( status, graphics );
+        FREE1( status, graphics );
     }
 
     return( status );
@@ -124,6 +124,7 @@ private  void  initialize_graphics_window( graphics )
 {
     static  Vector    line_of_sight = { 0.0, 0.0, -1.0 };
     static  Vector    horizontal = { 1.0, 0.0, 0.0 };
+    int     i;
     void    initialize_view();
     void    adjust_view_for_aspect();
     void    G_define_view();
@@ -140,6 +141,8 @@ private  void  initialize_graphics_window( graphics )
 
     initialize_lights( graphics->lights );
 
+    graphics->point_position.line_active = FALSE;
+
     G_define_light( &graphics->window, &graphics->lights[0], 0 );
     G_define_light( &graphics->window, &graphics->lights[1], 1 );
 
@@ -148,8 +151,11 @@ private  void  initialize_graphics_window( graphics )
 
     initialize_action_table( &graphics->action_table );
 
-    initialize_render( &graphics->model.render );
-    initialize_objects( &graphics->model.objects );
+    for_less( i, 0, N_MODELS )
+    {
+        initialize_render( &graphics->models[i].render );
+        initialize_objects( &graphics->models[i].objects );
+    }
 
     graphics->frame_number = 0;
     graphics->update_required = FALSE;
@@ -177,12 +183,14 @@ private  void  display_frame_info( graphics, frame_number, update_time )
 
     G_set_view_type( &graphics->window, PIXEL_VIEW );
 
-    G_draw_text( &graphics->window, &frame_text, &graphics->model.render );
+    G_draw_text( &graphics->window, &frame_text,
+                 &graphics->models[THREED_MODEL].render );
 }
 
 public  void  update_graphics( graphics )
     graphics_struct   *graphics;
 {
+    int           i;
     void          G_update_window();
     void          display_objects();
     void          display_frame_info();
@@ -192,7 +200,10 @@ public  void  update_graphics( graphics )
 
     start = current_realtime_seconds();
 
-    display_objects( &graphics->window, &graphics->model );
+    for_less( i, 0, N_MODELS )
+    {
+        display_objects( &graphics->window, &graphics->models[i] );
+    }
 
     end = current_realtime_seconds();
 
@@ -234,10 +245,16 @@ public  Status  delete_graphics_window( graphics )
 private  Status  terminate_graphics_window( graphics )
     graphics_struct   *graphics;
 {
+    int      i;
     Status   status;
     Status   delete_object_struct();
 
-    status = delete_object_struct( &graphics->model.objects );
+    status = OK;
+
+    for_less( i, 0, N_MODELS )
+    {
+        status = delete_object_struct( &graphics->models[i].objects );
+    }
 
     return( status );
 }

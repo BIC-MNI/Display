@@ -85,7 +85,8 @@ private  Status   create_menu_text( menu_window, menu_entry )
     {
         menu_entry->text->visibility = FALSE;
 
-        add_object_to_list( &menu_window->model.objects, menu_entry->text );
+        add_object_to_list( &menu_window->models[THREED_MODEL].objects,
+                            menu_entry->text );
 
         text = menu_entry->text->ptr.text;
 
@@ -152,7 +153,8 @@ private  Status   create_menu_box( menu_window, key )
 
     if( status == OK )
     {
-        add_object_to_list( &menu_window->model.objects, object );
+        add_object_to_list( &menu_window->models[THREED_MODEL].objects,
+                            object );
 
         lines = object->ptr.lines;
 
@@ -161,19 +163,19 @@ private  Status   create_menu_box( menu_window, key )
 
         fill_Colour( lines->colour, 1.0, 1.0, 1.0 );
 
-        CALLOC( status, lines->points, lines->n_points, Point );
+        CALLOC1( status, lines->points, lines->n_points, Point );
     }
 
     if( status == OK )
     {
-        CALLOC( status, lines->end_indices, lines->n_items, int );
+        CALLOC1( status, lines->end_indices, lines->n_items, int );
     }
 
     if( status == OK )
     {
         lines->end_indices[0] = 5;
 
-        CALLOC( status, lines->indices, lines->end_indices[0], int );
+        CALLOC1( status, lines->indices, lines->end_indices[0], int );
 
         compute_origin( key, &origin );
 

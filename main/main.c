@@ -55,8 +55,8 @@ int  main( argc, argv )
         menu->graphics_window = graphics;
         menu->menu_window = menu;
 
-        graphics->model.view_type = MODEL_VIEW;
-        menu->model.view_type = PIXEL_VIEW;
+        graphics->models[THREED_MODEL].view_type = MODEL_VIEW;
+        menu->models[THREED_MODEL].view_type = PIXEL_VIEW;
 
         status = initialize_menu( menu );
     }
@@ -65,7 +65,8 @@ int  main( argc, argv )
     {
         PRINT( "Inputting objects.\n" );
 
-        status = input_graphics_file( argv[1], &graphics->model.objects );
+        status = input_graphics_file( argv[1],
+                                      &graphics->models[THREED_MODEL].objects );
 
         graphics->update_required = TRUE;
 
@@ -83,7 +84,8 @@ int  main( argc, argv )
 
     if( status == OK )
     {
-        if( !get_range_of_objects( graphics->model.objects, FALSE,
+        if( !get_range_of_objects( graphics->models[THREED_MODEL].objects,
+                                   FALSE,
                                   &graphics->min_limit, &graphics->max_limit ) )
         {
             fill_Point( graphics->min_limit, 0.0, 0.0, 0.0 );

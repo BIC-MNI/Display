@@ -4,7 +4,7 @@
 public  DEF_MENU_FUNCTION( reverse_normals )   /* ARGSUSED */
 {
     void  reverse_object_normals();
-    reverse_object_normals( graphics->model.objects );
+    reverse_object_normals( graphics->models[THREED_MODEL].objects );
     graphics->update_required = TRUE;
     return( OK );
 }
@@ -18,7 +18,7 @@ public  DEF_MENU_FUNCTION( advance_visible )     /* ARGSUSED */
 {
     object_struct  *objects;
 
-    objects = graphics->model.objects;
+    objects = graphics->models[THREED_MODEL].objects;
     if( objects != (object_struct *) 0 )
     {
         while( objects != (object_struct *) 0 && objects->visibility == OFF )
@@ -28,14 +28,14 @@ public  DEF_MENU_FUNCTION( advance_visible )     /* ARGSUSED */
 
         if( objects == (object_struct *) 0 )
         {
-            graphics->model.objects->visibility = ON;
+            graphics->models[THREED_MODEL].objects->visibility = ON;
         }
         else
         {
             objects->visibility = OFF;
             if( objects->next == (object_struct *) 0 )
             {
-                graphics->model.objects->visibility = ON;
+                graphics->models[THREED_MODEL].objects->visibility = ON;
             }
             else
             {
@@ -58,7 +58,7 @@ public  DEF_MENU_FUNCTION( retreat_visible )     /* ARGSUSED */
 {
     object_struct  *objects;
 
-    objects = graphics->model.objects;
+    objects = graphics->models[THREED_MODEL].objects;
     if( objects != (object_struct *) 0 )
     {
         while( objects->next != (object_struct *) 0 &&
@@ -69,7 +69,7 @@ public  DEF_MENU_FUNCTION( retreat_visible )     /* ARGSUSED */
 
         if( objects->next == (object_struct *) 0 )
         {
-            graphics->model.objects->visibility = OFF;
+            graphics->models[THREED_MODEL].objects->visibility = OFF;
             objects->visibility = ON;
         }
         else
@@ -93,7 +93,7 @@ public  DEF_MENU_FUNCTION( make_all_invisible )     /* ARGSUSED */
 {
     object_struct  *objects;
 
-    objects = graphics->model.objects;
+    objects = graphics->models[THREED_MODEL].objects;
     
     while( objects != (object_struct *) 0 )
     {
@@ -115,7 +115,7 @@ public  DEF_MENU_FUNCTION( make_all_visible )     /* ARGSUSED */
 {
     object_struct  *objects;
 
-    objects = graphics->model.objects;
+    objects = graphics->models[THREED_MODEL].objects;
     
     while( objects != (object_struct *) 0 )
     {

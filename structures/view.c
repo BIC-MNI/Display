@@ -204,3 +204,41 @@ public  void  set_model_scale( view, sx, sy, sz )
     view->scale_factors[Y_AXIS] = sy;
     view->scale_factors[Z_AXIS] = sz;
 }
+
+public  void  convert_mouse_to_line( view, mouse, origin, direction )
+    view_struct   *view;
+    Point         *mouse;
+    Point         *origin;
+    Vector        *direction;
+{
+    Vector     hor, vert;
+    Vector     x_offset, y_offset, z_offset;
+    Point      pt;
+
+    get_screen_axes( view, &hor, &vert );
+
+    SCALE_VECTOR( x_offset, hor, Point_x(*mouse) - 0.5 );
+    SCALE_VECTOR( y_offset, vert, Point_y(*mouse) - 0.5 );
+
+    if( view->perspective_flag )
+    {
+        *origin = view->origin;
+
+        SCALE_VECTOR( z_offset, view->line_of_sight,
+                      view->perspective_distance );
+
+        ADD_POINT_VECTOR( pt, view->origin, z_offset );
+        ADD_POINT_VECTOR( pt, pt, x_offset );
+        ADD_POINT_VECTOR( pt, pt, y_offset );
+
+        SUB_POINTS( *direction, pt, view->origin );
+        NORMALIZE_VECTOR( *direction, *direction );
+    }
+    else
+    {
+        *direction = view->line_of_sight;
+
+        ADD_POINT_VECTOR( *origin, view->origin, x_offset );
+        ADD_POINT_VECTOR( *origin, *origin, y_offset );
+    }
+}

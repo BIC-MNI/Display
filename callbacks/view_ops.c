@@ -9,7 +9,7 @@ public  DEF_MENU_FUNCTION( make_view_fit )      /* ARGSUSED */
     Point    min_limit, max_limit;
     Boolean  get_range_of_objects();
 
-    if( get_range_of_objects( graphics->model.objects, TRUE,
+    if( get_range_of_objects( graphics->models[THREED_MODEL].objects, TRUE,
                               &min_limit, &max_limit ) )
     {
         fit_view_to_domain( &graphics->view, &min_limit, &max_limit );
