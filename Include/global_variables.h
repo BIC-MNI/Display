@@ -20,6 +20,7 @@ START_GLOBALS
     DEF_GLOBAL( Initial_shading_type, int, 1 )
     DEF_GLOBAL( Initial_light_switch, BOOLEAN, TRUE )
     DEF_GLOBAL( Slice_double_buffer_flag, BOOLEAN, TRUE )
+    DEF_GLOBAL( Graphics_double_buffer_flag, BOOLEAN, TRUE )
     DEF_GLOBAL( Slice_readout_plane, int, 1 )
     DEF_GLOBAL( Display_frame_info, BOOLEAN, FALSE )
     DEF_GLOBAL( Display_update_min, Real, 1.0 )
