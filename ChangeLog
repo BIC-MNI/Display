@@ -1,6 +1,9 @@
 2001-06-05  Peter Neelin <neelin@bic.mni.mcgill.ca>
 
-	* release-1_3_3: Tag added.
+	* peter_fix_for_jens_June2001: Tag added.
+
+	* release-1_3_3: Tag added. This is bogus - no change from
+	previous version.
 	
 	* callbacks/segmenting: When saving labels to a minc file in
 	function save_label_data, copy header info from backup file rather
