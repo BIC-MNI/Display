@@ -291,7 +291,8 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
     Colour          col;
     STRING          line;
 
-    if( get_current_object( display, &current_object ) )
+    if( get_current_object( display, &current_object ) &&
+        get_object_type(current_object) != MODEL )
     {
         print( "Enter colour name or r g b:" );
 
@@ -313,7 +314,8 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_current_object_colour )   /* ARGSUSED */
 {
-    return( current_object_exists(display) );
+    return( current_object_exists(display) &&
+            !current_object_is_this_type(display,MODEL) );
 }
 
 public  DEF_MENU_FUNCTION( set_current_object_surfprop )   /* ARGSUSED */

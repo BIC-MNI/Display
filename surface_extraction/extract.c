@@ -50,11 +50,10 @@ private  BOOLEAN  get_voxel_values(
     int                         voxel_index[],
     Real                        corner_values[2][2][2] )
 {
-    BOOLEAN                valid;
     Real                   value, label;
-    int                    x, y, z, voxel[MAX_DIMENSIONS];
+    int                    x, y, z, voxel[MAX_DIMENSIONS], n_invalid;
 
-    valid = TRUE;
+    n_invalid = 0;
 
     for_less( x, 0, 2 )
     {
@@ -68,15 +67,7 @@ private  BOOLEAN  get_voxel_values(
 
                 GET_VALUE_3D( value, volume, voxel[X], voxel[Y], voxel[Z] );
 
-                if( label_volume == NULL )
-                {
-                    if( value < surface_extraction->min_value ||
-                         value > surface_extraction->max_value )
-                    {
-                        valid = FALSE;
-                    }
-                }
-                else
+                if( label_volume != NULL )
                 {
                     label = (Real) get_volume_label_data( label_volume, voxel );
 
@@ -85,16 +76,14 @@ private  BOOLEAN  get_voxel_values(
                     {
                         if( label < surface_extraction->valid_min_label ||
                             label > surface_extraction->valid_max_label ) 
-                        {
-                            valid = FALSE;
-                        }
+                            ++n_invalid;
                     }
                     else if( surface_extraction->valid_out_min_label <=
                              surface_extraction->valid_out_max_label &&
-                             (label < surface_extraction->valid_out_min_label ||
-                              label > surface_extraction->valid_out_max_label) )
+                            (label >= surface_extraction->valid_out_min_label ||
+                             label <= surface_extraction->valid_out_max_label) )
                     {
-                        valid = FALSE;
+                        ++n_invalid;
                     }
                 }
 
@@ -103,7 +92,12 @@ private  BOOLEAN  get_voxel_values(
         }
     }
 
-    return( valid );
+    if( n_invalid == 0 )
+        return( TRUE );
+    else if( n_invalid == 8 )
+        return( FALSE );
+    else
+        return( Voxel_validity_if_mixed );
 }
 
 public  BOOLEAN  voxel_contains_surface(

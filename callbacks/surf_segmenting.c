@@ -70,8 +70,8 @@ public  DEF_MENU_FUNCTION( set_n_paint_polygons )   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(set_n_paint_polygons)   /* ARGSUSED */
 {
-    set_menu_text_real( menu_window, menu_entry,
-                        display->three_d.surface_edit.n_paint_polygons );
+    set_menu_text_int( menu_window, menu_entry,
+                       display->three_d.surface_edit.n_paint_polygons );
 
     return( TRUE );
 }
