@@ -198,6 +198,7 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
     {
         status = smooth_polygon( polygons, Max_smoothing_distance,
                                  Smoothing_ratio, Smoothing_threshold,
+                                 Smoothing_normal_ratio,
                                  FALSE, (volume_struct *) 0, 0, 0 );
 
         if( status == OK )
@@ -236,7 +237,7 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon_with_volume )   /* ARGSUSED */
     {
         status = smooth_polygon( polygons, Max_smoothing_distance,
                                  Smoothing_ratio, Smoothing_threshold,
-                                 TRUE, volume,
+                                 Smoothing_normal_ratio, TRUE, volume,
             graphics->associated[SLICE_WINDOW]->slice.segmenting.min_threshold,
             graphics->associated[SLICE_WINDOW]->slice.segmenting.max_threshold);
 
@@ -255,6 +256,27 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon_with_volume )   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(smooth_current_polygon_with_volume )   /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION( reverse_polygons_order )   /* ARGSUSED */
+{
+    polygons_struct   *polygons;
+    void              reverse_polygons_vertices();
+    void              set_update_required();
+
+    if( get_current_polygons( graphics, &polygons ) )
+    {
+        reverse_polygons_vertices( polygons );
+
+        set_update_required( graphics, NORMAL_PLANES );
+    }
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(reverse_polygons_order )   /* ARGSUSED */
 {
     return( OK );
 }

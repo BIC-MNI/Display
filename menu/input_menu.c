@@ -151,11 +151,12 @@
                        MENU_FUNCTION(set_gray_scale) \
                        MENU_FUNCTION(set_spectral) \
                        MENU_FUNCTION(set_user_defined_colour_coding) \
+                       MENU_FUNCTION(set_per_index_colour_coding) \
                        MENU_FUNCTION(set_under_colour) \
                        MENU_FUNCTION(set_over_colour) \
                        MENU_FUNCTION(set_user_defined_min_colour) \
                        MENU_FUNCTION(set_user_defined_max_colour) \
-                       MENU_FUNCTION(input_colour_map) \
+                       MENU_FUNCTION(input_per_index_colour_map) \
                        MENU_FUNCTION(set_model_parameters) \
                        MENU_FUNCTION(convert_to_new_representation) \
                        MENU_FUNCTION(load_model_parameters) \
