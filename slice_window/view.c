@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.35 1995-10-19 19:11:25 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/view.c,v 1.36 1995-10-19 20:42:30 david Exp $";
 #endif
 
 
@@ -178,7 +178,8 @@ private  void  match_view_scale_and_translation(
     current_y_scale = slice_window->slice.volumes[ref_volume_index].
                                               views[view].y_scaling;
 
-    get_volume_separations( get_volume(slice_window), separations );
+    get_volume_separations( get_nth_volume(slice_window,ref_volume_index),
+                            separations );
 
     scaled_x_axis[0] = slice_window->slice.volumes[ref_volume_index].
                            views[view].x_axis[0] / ABS(separations[0]);
@@ -258,8 +259,8 @@ private  void  match_view_scale_and_translation(
         volume = get_nth_volume( slice_window, volume_index );
 
         convert_voxel_to_world( volume, origin, &xw, &yw, &zw );
-        convert_world_to_voxel( get_volume(slice_window), xw, yw, zw,
-                                current_voxel );
+        convert_world_to_voxel( get_nth_volume(slice_window,ref_volume_index),
+                                xw, yw, zw, current_voxel );
         convert_voxel_to_pixel( slice_window, ref_volume_index,
                                 view, current_voxel,
                                 &x_offset, &y_offset );
@@ -1511,21 +1512,40 @@ private  void  update_all_slice_axes(
     int    v;
     Real   x_axis_x, x_axis_y, x_axis_z, y_axis_x, y_axis_y, y_axis_z;
     Real   mag, x_axis[N_DIMENSIONS], y_axis[N_DIMENSIONS];
+    Real   scaled_x_axis[N_DIMENSIONS], scaled_y_axis[N_DIMENSIONS];
+    Real   separations[N_DIMENSIONS];
+
+    get_volume_separations( get_nth_volume(slice_window,volume_index),
+                            separations );
+
+    scaled_x_axis[0] = slice_window->slice.volumes[volume_index].
+                           views[view_index].x_axis[0];
+    scaled_x_axis[1] = slice_window->slice.volumes[volume_index].
+                           views[view_index].x_axis[1];
+    scaled_x_axis[2] = slice_window->slice.volumes[volume_index].
+                           views[view_index].x_axis[2];
 
     convert_voxel_vector_to_world( get_nth_volume(slice_window,volume_index),
-                     slice_window->slice.volumes[volume_index].
-                                    views[view_index].x_axis,
+                                   scaled_x_axis,
                                    &x_axis_x, &x_axis_y, &x_axis_z );
 
+    scaled_y_axis[0] = slice_window->slice.volumes[volume_index].
+                           views[view_index].y_axis[0];
+    scaled_y_axis[1] = slice_window->slice.volumes[volume_index].
+                           views[view_index].y_axis[1];
+    scaled_y_axis[2] = slice_window->slice.volumes[volume_index].
+                           views[view_index].y_axis[2];
+
     convert_voxel_vector_to_world( get_nth_volume(slice_window,volume_index),
-                     slice_window->slice.volumes[volume_index].
-                                    views[view_index].y_axis,
+                                   scaled_y_axis,
                                    &y_axis_x, &y_axis_y, &y_axis_z );
 
     for_less( v, 0, slice_window->slice.n_volumes )
     {
         if( v == volume_index )
             continue;
+
+        get_volume_separations( get_nth_volume(slice_window,v), separations );
 
         convert_world_vector_to_voxel(get_nth_volume(slice_window,v),
                                       x_axis_x, x_axis_y, x_axis_z, x_axis );
@@ -1610,6 +1630,8 @@ public  void  set_volume_transform(
     copy_general_transform( transform, &copy );
 
     set_voxel_to_world_transform( volume, &copy );
+
+    (void) update_voxel_from_cursor( display );
 
     ref_volume_index = 0;
 
