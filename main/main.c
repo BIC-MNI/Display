@@ -1,14 +1,18 @@
 #include  <stdio.h>
 #include  <math.h>
-#include  <def_standard.h>
 #include  <def_graphics.h>
-#include  <def_display.h>
+
+#define  X_SIZE  256.0
+#define  Y_SIZE  256.0
+#define  Z_SIZE  64.0
 
 int  main( argc, argv )
     int     argc;
     char    *argv[];
 {
     Status         status;
+    Real           G_get_window_aspect();
+    void           adjust_view_for_aspect();
     view_struct    view;
     render_struct  render;
     window_struct  window;
@@ -25,11 +29,12 @@ int  main( argc, argv )
     void           draw_triangles();
     void           rotate_view();
     void           create_objects();
+    void           display_objects();
 
     if( argc != 2 )
     {
         PRINT_ERROR( "Argument.\n" );
-        abort();
+        (void) abort();
     }
 
     status = G_initialize();
@@ -43,13 +48,27 @@ int  main( argc, argv )
 
     create_view( &view );
 
+    adjust_view_for_aspect( &view, G_get_window_aspect(&window) );
+
     G_define_view( &window, &view );
 
     define_lights( &window );
 
     define_render( &window, &render );
 
+    PRINT( "Inputting objects.\n" );
+
     create_objects( argv[1], &objects );
+
+    PRINT( "Objects input.\n" );
+
+    G_define_view( &window, &view );
+
+    display_objects( &window, objects, &render );
+
+    G_update_window( &window );
+
+    PRINT( "Okay\n" );
 
     rotate_view( &window, &view, &render, objects );
 
@@ -78,19 +97,27 @@ private  void  create_view( view )
     view_struct    *view;
 {
     void          G_define_view();
+    void          make_identity_transform();
+    void          make_translation_transform();
+    static Vector trans = {100.0, 0.0, 0.0};
 
     view->perspective_flag = TRUE;
 
-    fill_Point( view->origin, 0.5, 0.5, 1.0 );
+    fill_Point( view->origin, X_SIZE / 2.0, Y_SIZE / 2.0, 2 * Z_SIZE );
     fill_Vector( view->line_of_sight, 0.0, 0.0, -1.0 );
     fill_Vector( view->horizontal, 1.0, 0.0, 0.0 );
     fill_Vector( view->up, 0.0, 1.0, 0.0 );
-    view->front_distance = 0.5;
-    view->perspective_distance = 1.0;
-    view->back_distance = 1.5;
+    view->front_distance = Z_SIZE / 10.0;
+    view->perspective_distance = Point_z(view->origin) - Z_SIZE / 2.0;
+    view->back_distance = 2.5 * Z_SIZE;
 
-    view->window_width = 1.1;
-    view->window_height = 1.1;
+    view->window_width = X_SIZE * 1.1;
+    view->window_height = Y_SIZE * 1.1;
+
+    make_identity_transform( &view->modeling_transform );
+/*
+    make_translation_transform( &trans, &view->modeling_transform );
+*/
 }
 
 private  void  define_lights( window )
@@ -101,11 +128,11 @@ private  void  define_lights( window )
     void           G_set_light_state();
 
     ambient.light_type = AMBIENT_LIGHT;
-    fill_Colour( ambient.colour, 0.3, 0.3, 0.3 );
+    fill_Colour( ambient.colour, 0.4, 0.4, 0.4 );
 
     directional.light_type = DIRECTIONAL_LIGHT;
-    fill_Colour( directional.colour, 1.0, 1.0, 0.3 );
-    fill_Vector( directional.direction, 1.0, 0.0, 1.0 );
+    fill_Colour( directional.colour, 1.0, 1.0, 1.0 );
+    fill_Vector( directional.direction, 1.0, -1.0, -1.0 );
 
     G_define_light( window, &ambient, 0 );
     G_define_light( window, &directional, 1 );
@@ -133,26 +160,27 @@ private  void  rotate_view( window, view, render, objects )
     render_struct  *render;
     object_struct  *objects;
 {
-    Real   angle, s, c;
-    Vector line_of_sight;
-    void   G_define_view();
-    void   G_update_window();
-    void   assign_view_direction();
-    void   display_objects();
+    Real          angle;
+    Vector        line_of_sight;
+    void          G_define_view();
+    void          G_update_window();
+    void          assign_view_direction();
+    void          display_objects();
+    void          make_translation_transform();
+    void          make_rotation_transform();
+    void          make_transform_relative_to_point();
+    Transform     rotation_trans;
+    Vector        trans;
+    static Point  centre = { X_SIZE/2.0, Y_SIZE/2.0, Z_SIZE/2.0 };
 
     angle = 0.0;
 
     while( TRUE )
     {
-        c = cos( (double) angle );
-        s = sin( (double) angle );
+        make_rotation_transform( angle, Y_AXIS, &rotation_trans );
 
-        Point_z( view->origin ) = c;
-        Point_x( view->origin ) = 0.5 + s;
-
-        fill_Vector( line_of_sight, -s, 0.0, -c );
-
-        assign_view_direction( view, &line_of_sight, &view->up );
+        make_transform_relative_to_point( &centre, &rotation_trans,
+                                          &view->modeling_transform );
 
         G_define_view( window, view );
 
@@ -160,6 +188,6 @@ private  void  rotate_view( window, view, render, objects )
 
         G_update_window( window );
 
-        angle += 0.05;
+        angle += 0.03;
     }
 }
