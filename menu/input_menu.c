@@ -13,9 +13,10 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.142 2005-04-03 03:39:58 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.143 2005-04-03 15:43:33 stever Exp $";
 #endif
 
+#include  <config.h>
 #include  <display.h>
 
 #define  MENU1 \
@@ -316,7 +317,7 @@ MENU_F(choose_invisible) \
 MENU_F(sulci_menu10) \
 MENU_F(smalls_invisible) \
 
-#if USE_SEAL
+#if DISPLAY_USE_SEAL
 #  define  FUNCTION_LIST  MENU1 MENU2 MENU3 MENU4 MENU_SEAL
 #else
 #  define  FUNCTION_LIST  MENU1 MENU2 MENU3 MENU4
