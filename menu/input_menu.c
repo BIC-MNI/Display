@@ -148,6 +148,7 @@
                        MENU_FUNCTION(delete_current_object) \
                        MENU_FUNCTION(label_point) \
                        MENU_FUNCTION(generate_regions) \
+                       MENU_FUNCTION(toggle_display_labels) \
                        MENU_FUNCTION(set_paint_x_brush_radius) \
                        MENU_FUNCTION(set_paint_y_brush_radius) \
                        MENU_FUNCTION(set_paint_z_brush_radius) \
@@ -156,6 +157,7 @@
                        MENU_FUNCTION(set_current_paint_label) \
                        MENU_FUNCTION(set_label_colour) \
                        MENU_FUNCTION(save_labels) \
+                       MENU_FUNCTION(save_current_label) \
                        MENU_FUNCTION(load_labels) \
                        MENU_FUNCTION(reset_segmenting) \
                        MENU_FUNCTION(set_segmenting_threshold) \

@@ -324,6 +324,7 @@ region_painting
     transient 'w'    save_labels                     "Save Labels as .lmk"
     transient 'e'    copy_labels_from_lower_slice  "Copy from Lt/Inf/Post Slice"
     transient 'r'    copy_labels_from_higher_slice "Copy from Rt/Sup/Ant Slice"
+    transient 't'    save_current_label             "Save Current Label"
 
     transient 'a'    set_label_colour                "Set Paint Label Colour"
     transient 's'    set_current_paint_label         "Set Paint Label: %d"

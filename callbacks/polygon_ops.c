@@ -333,20 +333,22 @@ public  DEF_MENU_UPDATE(scan_current_polygon_to_volume )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( make_unit_sphere )   /* ARGSUSED */
 {
     Point             centre;
-    Boolean           offset_flag;
-    Real              x_radius, y_radius, z_radius, offset_factor;
+    int               n_up;
+    Boolean           set_to_zero_flag;
+    Real              x_radius, y_radius, z_radius;
     Real              max_curvature;
     object_struct     *object;
     polygons_struct   *polygons;
+    polygons_struct   *sphere;
 
-    if( get_current_polygons( display, &polygons ) )
+    if( get_current_polygons( display, &polygons ) &&
+        get_tessellation_of_polygons_sphere( polygons, &n_up ) )
     {
-        print( "Enter offset_flag, offset, max_curvature," );
+        print( "Enter set_to_zero_flag, max_curvature," );
         print( "      x_centre, y_centre, z_centre," );
         print( "      x_radius, y_radius, z_radius: " );
     
-        if( input_int( stdin, &offset_flag ) == OK &&
-            input_real( stdin, &offset_factor ) == OK &&
+        if( input_int( stdin, &set_to_zero_flag ) == OK &&
             input_real( stdin, &max_curvature ) == OK &&
             input_float( stdin, &Point_x(centre) ) == OK &&
             input_float( stdin, &Point_y(centre) ) == OK &&
@@ -356,14 +358,16 @@ public  DEF_MENU_FUNCTION( make_unit_sphere )   /* ARGSUSED */
             input_real( stdin, &z_radius ) == OK )
         {
             object = create_object( POLYGONS );
- 
-            create_sphere_from_polygons( polygons, get_polygons_ptr(object),
-                                         &centre, x_radius, y_radius, z_radius,
-                                         max_curvature, offset_flag,
-                                         offset_factor );
+            sphere = get_polygons_ptr( object );
 
-            get_default_surfprop( &get_polygons_ptr(object)->surfprop );
-            compute_polygon_normals( get_polygons_ptr(object) );
+            create_polygons_sphere( &centre, x_radius, y_radius, z_radius,
+                                    n_up, 2 * n_up, FALSE, sphere );
+ 
+            colour_polygons_by_curvature( polygons, sphere,
+                                          max_curvature, set_to_zero_flag );
+
+            get_default_surfprop( &sphere->surfprop );
+            compute_polygon_normals( sphere );
 
             add_object_to_current_model( display, object );
         }
