@@ -1,94 +1,86 @@
 #include  <stdio.h>
+#include  <def_standard.h>
 #include  <def_graphics.h>
-#include  <def_globals.h>
 
-int  main( argc, argv )
-    int     argc;
-    char    *argv[];
+main()
 {
-    graphics_struct  *graphics;
-    graphics_struct  *menu;
-    Status           status;
-    Status           initialize_graphics();
-    Status           initialize_globals();
-    Status           initialize_menu();
-    Status           load_graphics_file();
-    Status           create_graphics_window();
-    Status           main_event_loop();
-    Status           terminate_graphics();
-    void             reset_view_parameters();
-    void             update_view();
-    void             set_model_scale();
-    void             rebuild_selected_list();
-    void             output_alloc_to_file();
+    Status         status;
+    window_struct  window;
+    Status         G_initialize();
+    Status         G_create_window();
+    Status         G_delete_window();
+    Status         G_terminate();
+    void           G_update_window();
+    void           define_view();
+    void           draw_triangles();
 
-    status = initialize_globals();
+    status = G_initialize();
 
-    if( status == OK )
-    {
-        status = initialize_graphics();
-    }
-
-    if( status == OK )
-    {
-        status = create_graphics_window( THREE_D_WINDOW,
-                                         &graphics, argv[1], 0, 0 );
-    }
-
-    if( status == OK )
-    {
-        status = create_graphics_window( MENU_WINDOW, &menu, argv[1],
-                                         Menu_window_width,
-                                         Menu_window_height );
-    }
-
-    if( status == OK )
-    {
-        graphics->associated[THREE_D_WINDOW] = graphics;
-        graphics->associated[MENU_WINDOW] = menu;
-        graphics->associated[SLICE_WINDOW] = (graphics_struct *) 0;
-
-        menu->associated[THREE_D_WINDOW] = graphics;
-        menu->associated[MENU_WINDOW] = menu;
-        menu->associated[SLICE_WINDOW] = (graphics_struct *) 0;
-
-        status = initialize_menu( menu );
-    }
-
-    if( status == OK && argc > 1 )
-    {
-        status = load_graphics_file( graphics, argv[1] );
-    }
-
-    if( status == OK )
-    {
-        rebuild_selected_list( graphics, menu );
-    }
-
-    if( status == OK )
-    {
-        reset_view_parameters( graphics, &Default_line_of_sight,
-                               &Default_horizontal );
-
-        update_view( graphics );
-    }
-
-    if( status == OK )
-    {
-        status = main_event_loop();
-    }
-
-    if( status == OK )
-    {
-        status = terminate_graphics();
-    }
-
-    output_alloc_to_file( ".alloc_stats" );
+    status = G_create_window( "Test Window", &window );
 
     if( status != OK )
     {
-        PRINT( "Program ended with error %d\n", (int) status );
+        PRINT_ERROR( "Shit\n" );
     }
 
-    return( (int) status );
+    define_view( &window );
+
+    draw_triangles( &window );
+
+    G_update_window( &window );
+
+    PRINT( "Hit return\n" );
+
+    while( getchar() != '\n' );
+
+    status = G_delete_window( &window );
+
+    status = G_terminate();
+}
+
+private  void  draw_triangles( window )
+    window_struct  *window;
+{
+    static  Colour   colour  = { 1.0, 1.0, 1.0 };
+    static  Surfprop surfprop  = { 1.0, 1.0, 1.0, {1.0,1.0,1.0}, 1.0, 1.0 };
+    static  Point    points[]  = { {0.0, 0.0, 0.0},
+                                   {1.0, 0.0, 0.0},
+                                   {0.0, 1.0, 0.0} };
+    static  Vector   normals[] = { {0.5, 0.0, 1.0},
+                                   {0.0, 0.5, 1.0},
+                                   {-0.5, 0.0, 1.0} };
+    static  int      indices[] = { 0, 1, 2 };
+    triangles_struct triangles;
+    void             G_draw_triangles();
+
+    triangles.colour = colour;
+    triangles.surfprop = surfprop;
+    triangles.n_points = 3;
+    triangles.points = points;
+    triangles.normals = normals;
+    triangles.n_triangles = 1;
+    triangles.triangle_indices = indices;
+
+    G_draw_triangles( window, &triangles );
+}
+
+private  void  define_view( window )
+    window_struct  *window;
+{
+    view_struct   view;
+    void          G_define_view();
+
+    view.perspective_flag = FALSE;
+
+    fill_Point( view.origin, 0.5, 0.5, 1.0 );
+    fill_Vector( view.line_of_sight, 0.0, 0.0, -1.0 );
+    fill_Vector( view.horizontal, 1.0, 0.0, 0.0 );
+    fill_Vector( view.up, 0.0, 1.0, 0.0 );
+    view.front_distance = 0.5;
+    view.back_distance = 1.5;
+
+    view.window_width = 1.1;
+    view.window_height = 1.1;
+
+    G_define_view( window, &view );
 }

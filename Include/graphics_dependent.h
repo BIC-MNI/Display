@@ -1,21 +1,13 @@
 #ifndef  DEF_GRAPHICS_DEPENDENT
 #define  DEF_GRAPHICS_DEPENDENT
 
-#define  window   GL_window
-#define  normal   GL_normal
-#define  poly     GL_poly
 #define  String   GL_String
-#define  Boolean  GL_Boolean
+#define  Boolean   GL_Boolean
 
 #include <gl/gl.h>
 
-#undef   window
-#undef   normal
-#undef   poly
 #undef   String
 #undef   Boolean
-
-#include <def_view_types.h>
 
 #define  N_DIMENSIONS  3
 
@@ -75,42 +67,6 @@ typedef  struct
                 Colour_b(colour) = (b); \
             }
 
-typedef  unsigned  long  Pixel_colour;
-
-#define  Pixel_colour_r( p ) \
-             ((p) & 255)
-
-#define  Pixel_colour_g( p ) \
-             (((p) >> 8) & 255)
-
-#define  Pixel_colour_b( p ) \
-             (((p) >> 16) & 255)
-
-#define  RGB_255_TO_PIXEL( r, g, b ) \
-             ((r) | ((g) << 8) | ((b) << 16))
-
-#define  RGB_TO_PIXEL( r, g, b, pixel ) \
-         { \
-             int   r_int, g_int, b_int; \
- \
-             r_int = (int) ((r) * 256.0); \
-             if( r_int > 255 )  r_int = 255; \
- \
-             g_int = (int) ((g) * 256.0); \
-             if( g_int > 255 )  g_int = 255; \
- \
-             b_int = (int) ((b) * 256.0); \
-             if( b_int > 255 )  b_int = 255; \
- \
-             (pixel) = RGB_255_TO_PIXEL( r_int, g_int, b_int ); \
-         }
-
-#define  COLOUR_TO_PIXEL( col, pixel ) \
-         RGB_TO_PIXEL( Colour_r(col), Colour_g(col), Colour_b(col), pixel )
-
-#define  ACCESS_PIXEL( array, x, y, size_x ) \
-         (array)[(x) + (size_x) * (y)]
-
 typedef  struct
 {
     float   a, d, s;
@@ -126,22 +82,9 @@ typedef  struct
 #define  Surfprop_se( surfprop )  ((surfprop).se)
 #define  Surfprop_t( surfprop )  ((surfprop).t)
 
-#define  fill_Surfprop( s, amb, diff, spec, spec_col, spec_exp, trans ) \
-         { \
-             Surfprop_a(s) = (amb); \
-             Surfprop_d(s) = (diff); \
-             Surfprop_s(s) = (spec); \
-             Surfprop_sc(s) = (spec_col); \
-             Surfprop_se(s) = (spec_exp); \
-             Surfprop_t(s) = (trans); \
-         }
+typedef  Matrix  Transform;
 
-typedef  struct
-{
-    Matrix    m;
-} Transform;
-
-#define  Transform_elem( t, i, j ) ((t).m[j][i])
+#define  Matrix_elem( t, i, j ) ((t)[i][j])
 
 typedef  long  Window_id;
 
@@ -150,19 +93,7 @@ typedef  unsigned  long   Lcolour;
 typedef  struct
 {
     Window_id     window_id;
-    int           x_origin, y_origin;          
-    int           x_size, y_size;          
     Lcolour       background_colour;
-    view_types    current_view_type;
-    Transform     projection_matrices[(int) N_VIEW_TYPES];
-    Transform     viewing_matrices[(int) N_VIEW_TYPES];
-    Boolean       this_frame_initialized;
 } window_struct;
-
-#define  N_LIGHTS  8
-
-#define  NO_BELL       0
-#define  SHORT_BELL    1
-#define  LONG_BELL     2
 
 #endif
