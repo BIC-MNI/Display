@@ -150,6 +150,7 @@ MENU_FUNCTION(ascend_selected) \
                        MENU_FUNCTION(change_marker_type) \
                        MENU_FUNCTION(resample_slice_window_volume) \
                        MENU_FUNCTION(box_filter_slice_window_volume) \
+                       MENU_FUNCTION(pick_slice_angle_point) \
                        MENU_FUNCTION(delete_current_object) \
                        MENU_FUNCTION(toggle_display_labels) \
                        MENU_FUNCTION(set_paint_x_brush_radius) \

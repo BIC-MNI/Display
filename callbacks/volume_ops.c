@@ -55,9 +55,7 @@ private  void  change_current_slice_by_one(
             if( set_current_voxel( slice_window, voxel ))
             {
                 rebuild_probe( slice_window );
-                rebuild_cursor( slice_window, 0 );
-                rebuild_cursor( slice_window, 1 );
-                rebuild_cursor( slice_window, 2 );
+                rebuild_cursors( slice_window );
 
                 if( update_cursor_from_voxel( slice_window ) )
                 {
@@ -395,6 +393,21 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)   /* ARGSUSED */
 }
 
 public  DEF_MENU_UPDATE(box_filter_slice_window_volume)    /* ARGSUSED */
+{
+    return( OK );
+}
+
+public  DEF_MENU_FUNCTION(pick_slice_angle_point)   /* ARGSUSED */
+{
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+        start_picking_slice_angle( slice_window );
+
+    return( OK );
+}
+
+public  DEF_MENU_UPDATE(pick_slice_angle_point)    /* ARGSUSED */
 {
     return( OK );
 }
