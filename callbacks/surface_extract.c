@@ -62,43 +62,57 @@ private  void  start_surface(
     }
 }
 
-public  DEF_MENU_FUNCTION(start_volume_isosurface )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(start_volume_isosurface )
 {
     start_surface( display, FALSE, FALSE );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(start_volume_isosurface )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(start_volume_isosurface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(start_volume_binary_isosurface )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(start_volume_binary_isosurface )
 {
     start_surface( display, FALSE, TRUE );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(start_volume_binary_isosurface )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(start_volume_binary_isosurface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(start_label_binary_isosurface )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(start_label_binary_isosurface )
 {
     start_surface( display, TRUE, TRUE );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(start_label_binary_isosurface )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(start_label_binary_isosurface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(toggle_surface_extraction)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(toggle_surface_extraction)
 {
     Volume                  volume;
 
@@ -113,7 +127,9 @@ public  DEF_MENU_FUNCTION(toggle_surface_extraction)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(toggle_surface_extraction )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(toggle_surface_extraction )
 {
     set_menu_text_on_off( menu_window, menu_entry,
                   display->three_d.surface_extraction.extraction_in_progress );
@@ -121,7 +137,9 @@ public  DEF_MENU_UPDATE(toggle_surface_extraction )   /* ARGSUSED */
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(reset_surface)
 {
     if( get_n_volumes(display) > 0 )
     {
@@ -133,12 +151,16 @@ public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(reset_surface )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(reset_surface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(make_surface_permanent)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(make_surface_permanent)
 {
     object_struct  *object;
 
@@ -162,7 +184,9 @@ public  DEF_MENU_FUNCTION(make_surface_permanent)   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(make_surface_permanent )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(make_surface_permanent )
 {
     return( get_n_volumes(display) > 0 &&
             !display->three_d.surface_extraction.extraction_in_progress &&
@@ -216,30 +240,40 @@ private  void   voxelate_surface(
     graphics_models_have_changed( display );
 }
 
-public  DEF_MENU_FUNCTION(get_voxelated_label_surface)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(get_voxelated_label_surface)
 {
     voxelate_surface( display, TRUE );
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(get_voxelated_label_surface )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(get_voxelated_label_surface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION(get_voxelated_surface)   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(get_voxelated_surface)
 {
     voxelate_surface( display, FALSE );
 
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(get_voxelated_surface )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(get_voxelated_surface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  DEF_MENU_FUNCTION( set_surface_extract_x_max_distance )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_surface_extract_x_max_distance )
 {
     int             dist;
 
@@ -253,7 +287,9 @@ public  DEF_MENU_FUNCTION( set_surface_extract_x_max_distance )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_surface_extract_x_max_distance )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_surface_extract_x_max_distance )
 {
     set_menu_text_real( menu_window, menu_entry,
                     display->three_d.surface_extraction.x_voxel_max_distance );
@@ -261,7 +297,9 @@ public  DEF_MENU_UPDATE(set_surface_extract_x_max_distance )   /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_surface_extract_y_max_distance )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_surface_extract_y_max_distance )
 {
     int             dist;
 
@@ -275,7 +313,9 @@ public  DEF_MENU_FUNCTION( set_surface_extract_y_max_distance )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_surface_extract_y_max_distance )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_surface_extract_y_max_distance )
 {
     set_menu_text_real( menu_window, menu_entry,
                     display->three_d.surface_extraction.y_voxel_max_distance );
@@ -283,7 +323,9 @@ public  DEF_MENU_UPDATE(set_surface_extract_y_max_distance )   /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_surface_extract_z_max_distance )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_surface_extract_z_max_distance )
 {
     int             dist;
 
@@ -297,7 +339,9 @@ public  DEF_MENU_FUNCTION( set_surface_extract_z_max_distance )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_surface_extract_z_max_distance )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_surface_extract_z_max_distance )
 {
     set_menu_text_real( menu_window, menu_entry,
                     display->three_d.surface_extraction.z_voxel_max_distance );
@@ -305,7 +349,9 @@ public  DEF_MENU_UPDATE(set_surface_extract_z_max_distance )   /* ARGSUSED */
     return( TRUE );
 }
 
-public  DEF_MENU_FUNCTION( set_surface_invalid_label_range )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION( set_surface_invalid_label_range )
 {
     Real     min_label, max_label;
 
@@ -323,7 +369,9 @@ public  DEF_MENU_FUNCTION( set_surface_invalid_label_range )   /* ARGSUSED */
     return( OK );
 }
 
-public  DEF_MENU_UPDATE(set_surface_invalid_label_range )   /* ARGSUSED */
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(set_surface_invalid_label_range )
 {
     return( TRUE );
 }
