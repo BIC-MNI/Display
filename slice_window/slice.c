@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.99 1995-09-13 13:25:22 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.100 1995-09-21 17:37:03 david Exp $";
 #endif
 
 
@@ -158,6 +158,8 @@ private  void  delete_slice_window_volume_stuff(
     clear_histogram( slice_window );
     delete_slice_colour_coding( &slice_window->slice, volume_index );
 
+    delete_general_transform( &slice_window->slice.volumes[volume_index].
+                              original_transform );
     delete_volume( slice_window->slice.volumes[volume_index].volume );
     delete_slice_colour_coding( &slice_window->slice, volume_index );
     delete_slice_models_for_volume( slice_window, volume_index );
@@ -237,6 +239,8 @@ public  void  add_slice_window_volume(
     info = &slice_window->slice.volumes[volume_index];
 
     info->volume = volume;
+    copy_general_transform( get_voxel_to_world_transform(volume),
+                            &info->original_transform );
     (void) strcpy( info->filename, filename );
     info->display_labels = Initial_display_labels;
     info->opacity = 1.0;
@@ -947,6 +951,13 @@ public  void  update_slice_window(
                 slice_window->slice.slice_views[view].prev_y_max =
                      slice_window->slice.slice_views[view].y_max;
             }
+        }
+
+        if( slice_window->slice.slice_views[view].prev_sub_region_specified &&
+            slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0] )
+        {
+            set_update_required( slice_window, get_model_bitplanes(
+                         get_graphics_model(slice_window,SLICE_MODEL1+ view)) );
         }
     }
 
