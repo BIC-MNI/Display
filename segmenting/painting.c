@@ -172,7 +172,7 @@ private  void  paint_labels_at_point(
     Real     voxel[N_DIMENSIONS], separations[N_DIMENSIONS];
     Real     origin[N_DIMENSIONS], z_axis[N_DIMENSIONS];
     Real     x_axis[N_DIMENSIONS], y_axis[N_DIMENSIONS];
-    Real     delta[N_DIMENSIONS];
+    Real     delta[N_DIMENSIONS], tmp;
     int      ind[N_DIMENSIONS];
     int      view_index;
     BOOLEAN  update_required;
@@ -256,10 +256,27 @@ private  void  paint_labels_at_point(
                         radius[X] * ABS( x_axis[c] ) +
                         radius[Y] * ABS( y_axis[c] ) +
                         radius[Z] * ABS( z_axis[c] );
-            min_voxel[c] = FLOOR( min_limit );
+
+            if( min_limit > max_limit )
+            {
+                tmp = min_limit;
+                min_limit = max_limit;
+                max_limit = tmp;
+            }
+
+            if( min_limit == max_limit )
+            {
+                min_voxel[c] = ROUND( min_limit );
+                max_voxel[c] = ROUND( min_limit );
+            }
+            else
+            {
+                min_voxel[c] = FLOOR( min_limit + 0.5 );
+                max_voxel[c] = CEILING( max_limit + 0.5 );
+            }
+
             if( min_voxel[c] < 0 )
                 min_voxel[c] = 0;
-            max_voxel[c] = CEILING( max_limit );
             if( max_voxel[c] >= sizes[c] )
                 max_voxel[c] = sizes[c] - 1;
         }

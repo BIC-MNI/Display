@@ -173,9 +173,7 @@ public  DEF_MENU_FUNCTION( set_label_colour )   /* ARGSUSED */
             add_new_label( slice_window,
                            slice_window->slice.current_paint_label, col );
 
-            set_slice_window_update( display->associated[SLICE_WINDOW], 0 );
-            set_slice_window_update( display->associated[SLICE_WINDOW], 1 );
-            set_slice_window_update( display->associated[SLICE_WINDOW], 2 );
+            set_slice_window_all_update( display->associated[SLICE_WINDOW] );
         }
     }
 
@@ -293,10 +291,7 @@ public  DEF_MENU_FUNCTION( load_labels )   /* ARGSUSED */
             if( status == OK )
                 status = close_file( file );
 
-            set_slice_window_update( slice_window, 0 );
-            set_slice_window_update( slice_window, 1 );
-            set_slice_window_update( slice_window, 2 );
-
+            set_slice_window_all_update( slice_window );
             print( "Done loading.\n" );
         }
 
@@ -341,9 +336,7 @@ private  void  copy_labels_from_adjacent_slice(
                                         src_index[axis_index],
                                         dest_index[axis_index] );
 
-            set_slice_window_update( slice_window, 0 );
-            set_slice_window_update( slice_window, 1 );
-            set_slice_window_update( slice_window, 2 );
+            set_slice_window_all_update( slice_window );
         }
     }
 }
@@ -379,9 +372,7 @@ public  DEF_MENU_FUNCTION( toggle_display_labels )   /* ARGSUSED */
     if( get_slice_window( display, &slice_window ) )
     {
         slice_window->slice.display_labels =!slice_window->slice.display_labels;
-        set_slice_window_update( slice_window, 0 );
-        set_slice_window_update( slice_window, 1 );
-        set_slice_window_update( slice_window, 2 );
+        set_slice_window_all_update( slice_window );
     }
 
     return( OK );

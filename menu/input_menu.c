@@ -46,6 +46,7 @@ MENU_FUNCTION(retreat_selected) \
 MENU_FUNCTION(descend_selected) \
 MENU_FUNCTION(ascend_selected) \
                        MENU_FUNCTION(create_3d_slice) \
+                       MENU_FUNCTION(rotate_slice_axes) \
                        MENU_FUNCTION(move_slice_plus) \
                        MENU_FUNCTION(move_slice_minus) \
                        MENU_FUNCTION(menu_set_global_variable) \

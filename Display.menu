@@ -1,7 +1,7 @@
 root
 {
     permanent ' '    pop_menu           "Pop Menu"
-    permanent '1'    centre_view        "Centre View"
+    permanent '1'    rotate_slice_axes  "Rotate Slice"
     permanent '2'    magnify_view       "Magnify"
     permanent '3'    translate_view     "Translate"
     permanent '4'    rotate_view        "Rotate"
