@@ -13,121 +13,10 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.19 1996-04-10 17:19:31 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.20 1996-04-19 15:32:11 david Exp $";
 #endif
 
 #include  <display.h>
-
-private  BOOLEAN  face_is_boundary(
-    Volume          volume,
-    Real            min_value,
-    Real            max_value,
-    Volume          label_volume,
-    Real            min_invalid_label,
-    Real            max_invalid_label,
-    int             indices[N_DIMENSIONS],
-    int             c,
-    int             offset );
-private  void  add_face(
-    Volume               volume,
-    int                  indices[N_DIMENSIONS],
-    int                  c,
-    int                  offset,
-    polygons_struct      *polygons,
-    int                  ***point_lookup );
-
-#define  INVALID_INDEX   -1
-
-public  void  create_voxelated_surface(
-    Volume           volume,
-    Real             min_value,
-    Real             max_value,
-    Volume           label_volume,
-    Real             min_invalid_label,
-    Real             max_invalid_label,
-    polygons_struct  *polygons )
-{
-    int                 indices[N_DIMENSIONS], sizes[N_DIMENSIONS];
-    int                 c, offset, x, y, z;
-    progress_struct     progress;
-    int                 **point_lookup[2], **tmp;
-    Real                value;
-    BOOLEAN             inside;
-
-    initialize_polygons( polygons, WHITE, (Surfprop *) NULL );
-
-    get_default_surfprop( &polygons->surfprop );
-
-    get_volume_sizes( volume, sizes );
-
-    ALLOC2D( point_lookup[0], sizes[Y], sizes[Z] );
-    ALLOC2D( point_lookup[1], sizes[Y], sizes[Z] );
-
-    for_less( x, 0, 2 )
-    {
-        for_less( y, 0, sizes[Y] )
-            for_less( z, 0, sizes[Z] )
-                point_lookup[x][y][z] = INVALID_INDEX;
-    }
-
-    initialize_progress_report( &progress, FALSE,
-                                sizes[X] * sizes[Y],
-                                "Extracting boundary" );
-
-    for_less( indices[X], 0, sizes[X] )
-    {
-        tmp = point_lookup[0];
-        point_lookup[0] = point_lookup[1];
-        point_lookup[1] = tmp;
-
-        for_less( y, 0, sizes[Y] )
-            for_less( z, 0, sizes[Z] )
-                point_lookup[1][y][z] = INVALID_INDEX;
-
-        for_less( indices[Y], 0, sizes[Y] )
-        {
-            for_less( indices[Z], 0, sizes[Z] )
-            {
-                value = get_volume_real_value( volume,
-                                  indices[X], indices[Y], indices[Z], 0, 0 );
-                inside = min_value <= value && value <= max_value;
-                if( !inside )
-                    continue;
-
-                for_less( c, 0, N_DIMENSIONS )
-                {
-                    for( offset = -1;  offset <= 1;  offset += 2 )
-                    {
-                        if( face_is_boundary( volume, min_value, max_value,
-                                              label_volume,
-                                              min_invalid_label,
-                                              max_invalid_label,
-                                              indices, c,offset) )
-                        {
-                            add_face( volume, indices, c, offset,
-                                      polygons, point_lookup );
-                        }
-                    }
-                }
-            }
-
-            update_progress_report( &progress, 
-                                    indices[X] * sizes[Y] + 1 + indices[Y] );
-        }
-    }
-
-    terminate_progress_report( &progress );
-
-    FREE2D( point_lookup[0] );
-    FREE2D( point_lookup[1] );
-
-    if( polygons->n_points > 0 )
-    {
-        ALLOC( polygons->normals, polygons->n_points );
-
-        compute_polygon_normals( polygons );
-    }
-}
 
 private  BOOLEAN  face_is_boundary(
     Volume          volume,
@@ -192,104 +81,111 @@ private  BOOLEAN  face_is_boundary(
     return( boundary_flag );
 }
 
-private  int  get_point_index(
-    Volume               volume,
-    polygons_struct      *polygons,
-    int                  ***point_lookup,
-    int                  x,
-    int                  y,
-    int                  z,
-    int                  x_slice )
-{
-    int           point_index;
-    Real          x_w, y_w, z_w, voxel[MAX_DIMENSIONS];
-    Point         point;
-
-    point_index = point_lookup[x][y][z];
-
-    if( point_index == INVALID_INDEX )
-    {
-        point_index = polygons->n_points;
-        point_lookup[x][y][z] = point_index;
-        voxel[X] = (Real) (x + x_slice) - 0.5;
-        voxel[Y] = (Real) y - 0.5;
-        voxel[Z] = (Real) z - 0.5;
-        convert_voxel_to_world( volume, voxel, &x_w, &y_w, &z_w );
-        fill_Point( point, x_w, y_w, z_w );
-        ADD_ELEMENT_TO_ARRAY( polygons->points, polygons->n_points,
-                              point, DEFAULT_CHUNK_SIZE );
-    }
-
-    return( point_index );
-}
-
 private  void  add_face(
     Volume               volume,
     int                  indices[N_DIMENSIONS],
     int                  c,
     int                  offset,
-    polygons_struct      *polygons,
-    int                  ***point_lookup )
+    polygons_struct      *polygons )
 {
-    int      a1, a2, point_ids[4], point_indices[N_DIMENSIONS], n_indices, i;
+    int      a1, a2, point_index, point_indices[N_DIMENSIONS], n_indices;
+    Real     voxel[N_DIMENSIONS], xw, yw, zw;
+    Vector   normal;
+    Point    point;
+
+    voxel[X] = 0.0;
+    voxel[Y] = 0.0;
+    voxel[Z] = 0.0;
 
     if( offset == -1 )
     {
         a1 = (c + 1) % N_DIMENSIONS;
         a2 = (c + 2) % N_DIMENSIONS;
+        point_indices[c] = indices[c];
+        voxel[c] = -1.0;
     }
     else
     {
         a1 = (c + 2) % N_DIMENSIONS;
         a2 = (c + 1) % N_DIMENSIONS;
+        point_indices[c] = indices[c] + 1;
+        voxel[c] = 1.0;
     }
 
-    point_indices[0] = indices[0];
-    point_indices[1] = indices[1];
-    point_indices[2] = indices[2];
-    if( offset == 1 )
-        point_indices[c] += 1;
+    convert_voxel_normal_vector_to_world( volume, voxel, &xw, &yw, &zw );
+    fill_Vector( normal, xw, yw, zw );
+    NORMALIZE_VECTOR( normal, normal );
 
-    point_indices[a1] = indices[a1];
-    point_indices[a2] = indices[a2];
-    point_ids[0] = get_point_index( volume, polygons, point_lookup,
-                                    point_indices[0] - indices[X],
-                                    point_indices[1],
-                                    point_indices[2],
-                                    indices[X] );
+    point_index = polygons->n_points;
+    for_less( point_indices[a1], indices[a1], indices[a1] + 2 )
+    for_less( point_indices[a2], indices[a2], indices[a2] + 2 )
+    {
+        voxel[X] = (Real) point_indices[X] - 0.5;
+        voxel[Y] = (Real) point_indices[Y] - 0.5;
+        voxel[Z] = (Real) point_indices[Z] - 0.5;
+        convert_voxel_to_world( volume, voxel, &xw, &yw, &zw );
+        fill_Point( point, xw, yw, zw );
+        ADD_ELEMENT_TO_ARRAY( polygons->points, polygons->n_points,
+                              point, DEFAULT_CHUNK_SIZE );
+        --polygons->n_points;
+        ADD_ELEMENT_TO_ARRAY( polygons->normals, polygons->n_points,
+                              normal, DEFAULT_CHUNK_SIZE );
 
-    point_indices[a1] = indices[a1];
-    point_indices[a2] = indices[a2] + 1;
-    point_ids[1] = get_point_index( volume, polygons, point_lookup,
-                                    point_indices[0] - indices[X],
-                                    point_indices[1],
-                                    point_indices[2],
-                                    indices[X] );
-
-    point_indices[a1] = indices[a1] + 1;
-    point_indices[a2] = indices[a2] + 1;
-    point_ids[2] = get_point_index( volume, polygons, point_lookup,
-                                    point_indices[0] - indices[X],
-                                    point_indices[1],
-                                    point_indices[2],
-                                    indices[X] );
-
-    point_indices[a1] = indices[a1] + 1;
-    point_indices[a2] = indices[a2];
-    point_ids[3] = get_point_index( volume, polygons, point_lookup,
-                                    point_indices[0] - indices[X],
-                                    point_indices[1],
-                                    point_indices[2],
-                                    indices[X] );
+    }
 
     n_indices = NUMBER_INDICES( *polygons );
 
-    for_less( i, 0, 4 )
-    {
-        ADD_ELEMENT_TO_ARRAY( polygons->indices, n_indices,
-                              point_ids[i], DEFAULT_CHUNK_SIZE);
-    }
+    ADD_ELEMENT_TO_ARRAY( polygons->indices, n_indices,
+                          point_index, DEFAULT_CHUNK_SIZE);
+    ADD_ELEMENT_TO_ARRAY( polygons->indices, n_indices,
+                          point_index+1, DEFAULT_CHUNK_SIZE);
+    ADD_ELEMENT_TO_ARRAY( polygons->indices, n_indices,
+                          point_index+3, DEFAULT_CHUNK_SIZE);
+    ADD_ELEMENT_TO_ARRAY( polygons->indices, n_indices,
+                          point_index+2, DEFAULT_CHUNK_SIZE);
 
     ADD_ELEMENT_TO_ARRAY( polygons->end_indices, polygons->n_items,
                           n_indices, DEFAULT_CHUNK_SIZE );
+}
+
+public  BOOLEAN  extract_voxel_boundary_surface(
+    Volume                      volume,
+    Volume                      label_volume,
+    surface_extraction_struct   *surface_extraction,
+    int                         voxel[] )
+{
+    int      dim, offset;
+    Real     value;
+    BOOLEAN  inside, contains_surface;
+
+    value = get_volume_real_value( volume,
+                                   voxel[X], voxel[Y], voxel[Z], 0, 0 );
+
+    inside = surface_extraction->min_value <= value &&
+             value <= surface_extraction->max_value;
+
+    if( !inside )
+        return( FALSE );
+
+    contains_surface = FALSE;
+
+    for_less( dim, 0, N_DIMENSIONS )
+    {
+        for( offset = -1;  offset <= 1;  offset += 2 )
+        {
+            if( face_is_boundary( volume, surface_extraction->min_value,
+                                  surface_extraction->max_value,
+                                  label_volume,
+                                  surface_extraction->min_invalid_label,
+                                  surface_extraction->max_invalid_label,
+                                  voxel, dim, offset ) )
+            {
+                add_face( volume, voxel, dim, offset,
+                          surface_extraction->polygons );
+                contains_surface = TRUE;
+            }
+        }
+    }
+
+    return( contains_surface );
 }
