@@ -194,6 +194,8 @@ public  Boolean  lookup_edge_point_id( volume, hash_table,
     return( exists );
 }
 
+#define  LEVEL  1000
+
 public  Status  record_edge_point_id( volume, hash_table,
                                       voxel, edge_intersected, edge_point_id )
     volume_struct       *volume;
@@ -202,6 +204,7 @@ public  Status  record_edge_point_id( volume, hash_table,
     int                 edge_intersected;
     int                 edge_point_id;
 {
+    static   int   current_size = 0;
     Status               status;
     int                  keys[2];
     edge_point_struct    *edge_info;
@@ -215,6 +218,12 @@ public  Status  record_edge_point_id( volume, hash_table,
     if( status == OK )
     {
         status = insert_in_hash_table( hash_table, keys, (char *) edge_info );
+    }
+
+    if( hash_table->n_entries / LEVEL != current_size )
+    {
+        PRINT( "Edge table %d\n", hash_table->n_entries );
+        current_size = hash_table->n_entries / LEVEL;
     }
 
     return( status );

@@ -19,11 +19,12 @@ public  Boolean  extract_voxel_triangles( volume, surface_extraction,
     Real                   corner_values[2][2][2];
     Boolean                active;
     Status                 create_edge_point_list();
+    int                    *sizes, n_points, current_end;
     int                    edge_point_list[2][2][2][N_DIMENSIONS];
     Boolean                are_voxel_corners_active();
     int                    n_tris, n_nondegenerate_tris, tri, p, next_end;
     int                    x, y, z, pt_index;
-    int                    point_ids[3];
+    int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
 
     active = are_voxel_corners_active( volume,
                                        voxel_index->i[X_AXIS],
@@ -46,9 +47,9 @@ public  Boolean  extract_voxel_triangles( volume, surface_extraction,
             }
         }
 
-        n_tris = compute_isotriangles_in_voxel( corner_values,
-                                                surface_extraction->isovalue,
-                                                &points_list );
+        n_tris = compute_polygons_in_voxel( corner_values,
+                                            surface_extraction->isovalue,
+                                            &sizes, &points_list );
     }
 
     status = OK;
@@ -57,6 +58,12 @@ public  Boolean  extract_voxel_triangles( volume, surface_extraction,
 
     if( active && n_tris > 0 )
     {
+        n_points = 0;
+        for_less( tri, 0, n_tris )
+        {
+            n_points += sizes[tri];
+        }
+
         poly = surface_extraction->triangles;
 
         status = create_edge_point_list( volume,
@@ -64,46 +71,71 @@ public  Boolean  extract_voxel_triangles( volume, surface_extraction,
                                          surface_extraction->triangles,
                                          &surface_extraction->edge_points,
                                          voxel_index,
-                                         3 * n_tris, points_list,
+                                         n_points, points_list,
                                          edge_point_list );
     }
 
     if( status == OK )
     {
+        pt_index = 0;
         for_less( tri, 0, n_tris )
         {
-            for_less( p, 0, 3 )
+            int      i, j, actual_size;
+            Boolean  polygon_okay;
+
+            actual_size = 0;
+            for_less( p, 0, sizes[tri] )
             {
-                pt_index = 3 * tri + p;
                 pt = &points_list[pt_index];
 
-                point_ids[p] = edge_point_list[pt->coord[X_AXIS]]
-                                              [pt->coord[Y_AXIS]]
-                                              [pt->coord[Z_AXIS]]
-                                              [pt->edge_intersected];
+                point_ids[actual_size] = edge_point_list[pt->coord[X_AXIS]]
+                                                        [pt->coord[Y_AXIS]]
+                                                        [pt->coord[Z_AXIS]]
+                                                        [pt->edge_intersected];
 
-                if( point_ids[p] == INVALID_ID )
+                if( point_ids[actual_size] == INVALID_ID )
                 {
                     HANDLE_INTERNAL_ERROR( "point_id invalid" );
                     status = ERROR;
                 }
+
+                if( actual_size == 0 ||
+                    point_ids[actual_size-1] != point_ids[actual_size] )
+                {
+                    ++actual_size;
+                }
+
+                ++pt_index;
             }
 
-            if( point_ids[0] != point_ids[1] &&
-                point_ids[1] != point_ids[2] &&
-                point_ids[2] != point_ids[0] )
-            {
-                next_end = NUMBER_INDICES( *poly ) + 3;
+            polygon_okay = actual_size >= 3;
 
+            for_less( i, 0, actual_size-1 )
+            {
+                for_less( j, i+1, actual_size )
+                {
+                    if( point_ids[i] == point_ids[j] )
+                    {
+                        polygon_okay = FALSE;
+                    }
+                }
+            }
+
+            if( polygon_okay )
+            {
                 if( status == OK )
                 {
+                    current_end = NUMBER_INDICES( *poly );
+                    next_end = current_end + actual_size;
+
                     CHECK_ALLOC1( status, poly->indices,
-                                  3 * poly->n_items,
-                                  3 * poly->n_items + 3,
-                                  int, DEFAULT_CHUNK_SIZE );
-                    poly->indices[next_end-3] = point_ids[0];
-                    poly->indices[next_end-2] = point_ids[1];
-                    poly->indices[next_end-1] = point_ids[2];
+                                  current_end,
+                                  next_end, int, DEFAULT_CHUNK_SIZE );
+
+                    for_less( p, 0, actual_size )
+                    {
+                        poly->indices[current_end+p] = point_ids[p];
+                    }
                 }
 
                 if( status == OK )
