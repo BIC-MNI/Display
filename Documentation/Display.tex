@@ -79,7 +79,7 @@ are created when the program is run):
 \begin{itemize}
 \item[3D window:]  contains the 3D objects, such as surfaces, lines,
                   and markers,
-\item[slice window:]  shows 3 or 4 views of slices through the volume
+\item[slice window:]  shows up to 4 views of slices through the volume
                       (if a volume is loaded),
 \item[menu window:]  shows the current menu configuration,
 \item[text entry:]  this is the shell window or xterm from which \display was
@@ -89,25 +89,28 @@ are created when the program is run):
 
 \section{Menu and Interaction System}
 
-The menu window (bottom right in Figure \ref{windows}) represents the layout
+The menu window (centre in Figure \ref{windows}) represents the layout
 of the left side of the keyboard.  A menu entry is selected by hitting the
-corresponding key in any of the 3 display windows or pointing to the entry
+corresponding key in any of the 3 display windows (not the text window)
+or pointing to the entry
 in the menu window with the mouse and clicking the left button.
 The space bar or middle mouse
 button will pop back one level in the menu.  In the remainder of this document
 the following convention will be used to refer to menu selection:
-\menutwo{View}{Reset} means select the view menu, then select the reset button
+\menutwo{View}{Reset} means select the \ident{View} menu, then
+select the \ident{Reset} button
 from within the view menu.  Whenever text must be typed, such as in prompts
 for filenames, size and width parameters, etc., the mouse must be moved to the
 text entry window and the values typed, followed by the return key.
 Some menu items cannot be selected by the mouse because the mouse must be
-used to point to the object of the action, usually one of the 3 volume slices
+used to point to the object of the action, usually one of the 4 volume slices
 in the slice window.
 In these cases, the mouse must be positioned on the relevant slice in
 the slice window and the
 keyboard character corresponding to the menu entry pressed.
 When the user is prompted to type in a colour, either the name of a colour,
-such as \ident{red}, \ident{yellow}, or \ident{pink}, or a numerical colour,
+such as \ident{red}, \ident{yellow}, or \ident{pink}, or a numerical
+red-green-blue colour,
 such as \mbox{\ident{0.3 0.7 0.7}} may be typed in.
 
 \subsection{Menu Window}
@@ -125,8 +128,7 @@ lines, with lighting and camera control.  In the 3D window, the following
 mouse operations are available:
 
 \begin{itemize}
-\item[Left Button]  Points to a position on a surface or to a marker
-                    (tag point).
+\item[Left Button]  Selects a position on a surface or a marker (tag point).
 \item[Middle Button]  Rotates, translates, or magnifies the 3D view, depending
                       on the current mode selected from the view 3D menu.
 \end{itemize}
@@ -134,12 +136,14 @@ mouse operations are available:
 \subsection{Slice Window}
 
 The slice window displays slices of the volume, with various colour coding
-options.  There is also a colour overlay volume which is used during
-manual segmentation of the volume.
+options.  The slice window carries around another volume of the same size
+as the loaded volume, which is referred to as the {\bf label volume}.
+This functions as a coloured overlay for storing and displaying the results
+of manual segmentation of the volume.
 In the slice window, the following mouse operations are available:
 
 \begin{itemize}
-\item[Left Button]  Sets the position of the 3 slices.
+\item[Left Button]  Sets the position of the 4 slices.
 \item[Middle Button]  Moving the mouse up or down while holding down the
                       middle button changes the current volume slice.
 \item[Right Button]  Paints a region of the volume slice with the current
@@ -148,7 +152,7 @@ In the slice window, the following mouse operations are available:
                         or \ident{alt} key, the left button translates the
                         position of the slice within the viewport.
 \item[Alt-Right Button]  While holding down the \ident{shift}, \ident{ctrl},
-                        or \ident{alt} key, holding down the middle button,
+                        or \ident{alt} key, holding down the middle button
                         and moving the mouse up or down changes the
                         magnification of the current slice.
 \item[Colour Bar]  The limits of the colour bar can be moved by pressing
@@ -159,22 +163,23 @@ In the slice window, the following mouse operations are available:
 
 \section{Complete Menu Reference}
 
+\psfigure{menu.ps}{7in}{Top level menu}{menu}
+
 The following is a complete listing of every menu selection, with a
 short description of each.
-Since this program is also part of a research tool, some selections are
-not relevant to most users, and will be simply be described as not for general
+Since this program is also partly a research tool, a few selections are
+not relevant to most users, and will simply be described as not for general
 use.  Fig. \ref{menu} shows the top level menu that is presented upon
 program start up, or after popping the menu to the top level.
-
-\psfigure{menu.ps}{7in}{Top level menu}{menu}
 
 \subsection{Current Object Menu}
 
 The 3D graphics objects, visible in the 3D window, are also presented
 in a hierarchical form in the menu window, as a tree structure with
 each element of the tree being the name of a 3D graphics object.
-There are 4 keys that can be used to navigate through the list, by
-moving a small box which points to the current object:
+There are 4 keys that can be used to navigate through the list, where
+the currently selected object is always displayed with a surrounding
+box:
 
 \begin{description}
 \item[\menu{Up Arrow}]  Sets the current object to the one before
@@ -191,19 +196,23 @@ moving a small box which points to the current object:
 
 \begin{description}
 \item[\menutwo{File}{Load File}]  Prompts for a filename and loads the file.
-        If a volume file is loaded (ends in \ident{.mnc}), then the
+        If it is a volume file (ends in \ident{.mnc}), then the
         slice window is opened, if not already opened.
 \item[\menutwo{File}{Save File}]  Prompts for a filename and saves to the file
         the current object, or all objects under the current object, if it is
-        a model object.
+        a model object.  This selection cannot be used to save a volume
+        file (\ident{.mnc})
 \item[\menutwo{File}{Load Labels .mnc}]  Prompts for a filename and
-        loads the volume file as labels overlaid on the slices.
+        loads the volume file as the label volume for the slice window
+        volume.
+        The volume loaded must be exactly the same size as the slice
+        window volume.
 \item[\menutwo{File}{Save Labels .mnc}]  Prompts for a filename and
-        saves the segmenting labels.
+        saves the label volume.
 \item[\menutwo{File}{Load Labels .tag}]  Prompts for a filename and
-        loads the tags file as labels overlaid on the slices.
+        loads the tags file into the label volume.
 \item[\menutwo{File}{Save Labels .tag}]  Prompts for a filename and
-        saves the segmenting labels as a tag file.  For large regions
+        saves the label volume as a tag file.  For large regions
         this may create very large ascii files, and it may be more
         efficient to save as \ident{.mnc}.
 \item[\menutwo{File}{Save Markers as .tag}]  Prompts for a filename and
@@ -232,16 +241,17 @@ moving a small box which points to the current object:
        character ``w'', then the
        filter widths are assumed to be in world coordinates, otherwise
        it is assumed to be voxel coordinates.  The volume is resampled
-       using a box filter.  Giving the values ``0 0 0'' resets to the
+       using a box filter.  Giving the values ``0 0 0 v'' resets to the
        original loaded volume.
 \item[\menutwo{Slice}{Resample Volume}]  Prompts for 3 size parameter and
        resamples the volume to the given size.  Entering 0 0 0 resets to
        the original volume.  Creates a smaller volume by box
-       filtering.  Preferably, use 
+       filtering.  It is preferable to use \menutwo{Slice}{Box Filter Volume}.
 \item[\menutwo{Slice}{Create 3D Slice}]  Creates a rendering of the slice
        pointed to by the mouse, in the 3D window.
 \item[\menutwo{Slice}{Recompute Histogram}]  Creates a histogram of
-       values in the volume, which it displays in the slice window.
+       values in the volume, which it displays in the slice window near
+       the colour coding bar.
        If the mouse is pointing to a slice in the slice window, then a
        histogram of that slice only is displayed.
 \item[\menutwo{Slice}{Histogram of Label}]  Sames as
@@ -324,7 +334,7 @@ volume, there is an associated value in the range 0 to 255, which is
 stored in the label volume.  Segmenting consists of painting regions
 of the label volume to change the values from the default of 0.
 When the right mouse button is pressed over a slice in the slice
-window, the current paint label value is painted into the label overlay
+window, the current paint label value is painted into the label
 volume.  If the \ident{control} key or \ident{shift} key is held down
 at the same time, erasing will be performed, by storing the value 0.
 
@@ -332,7 +342,7 @@ at the same time, erasing will be performed, by storing the value 0.
 \item[\menutwo{Segmenting}{Clear All Labels}]  Sets all labels to 0.
 \item[\menutwo{Segmenting}{Set Paint Label}]  Sets the current label
     used for painting, must be between 0 and 255, where 0 erases.
-\item[\menutwo{Segmenting}{XY Radius}]  Prompts for the in slice 
+\item[\menutwo{Segmenting}{XY Radius}]  Prompts for the in-slice 
     brush radius used in painting on the volume slices (right mouse button).
 \item[\menutwo{Segmenting}{Out-Plane Radius}]  Prompts for the brush
     radius in the direction perpendicular to the slice plane.  This
@@ -349,7 +359,7 @@ at the same time, erasing will be performed, by storing the value 0.
     maximum volume value, and uses these limits for subsequent segmentation
     operations.  When painting with the right mouse button, only
     voxels whose values are within this range are affected.  By
-    default, there is not segmenting threshold, which can be specified
+    default, there is no segmenting threshold, which can be specified
     by a max value which is less than the min value.
 \item[\menutwo{Segmenting}{Label Fill}]  If the mouse is pointing
     to a voxel which is within the selected segmenting range and which
@@ -391,7 +401,7 @@ at the same time, erasing will be performed, by storing the value 0.
     this one are labeled.  This may take a few seconds to a minute.
 \item[\menutwo{Segmenting}{Expand 3D}]  This is a grow operation,
     where all zero-labeled voxels in the volume which are next to
-    a labeled voxel, are assigned the label.  This takes a few
+    a labeled voxel are assigned the label.  This takes a few
     seconds to perform.
 \item[\menutwo{Segmenting}{Calculate Volume}]  Calculates the
     total volume of all voxels which have the current paint label.
@@ -410,10 +420,10 @@ at the same time, erasing will be performed, by storing the value 0.
 \item[\menutwo{Segmenting}{Trans v}]  Moves all labels in the
     down direction of the slice pointed to by the mouse.  May take
     up to a minute to perform.
-\item[\menutwo{Segmenting}{Trans <}]  Moves all labels in the
+\item[\menutwo{Segmenting}{Trans $<$}]  Moves all labels in the
     left direction of the slice pointed to by the mouse.  May take
     up to a minute to perform.
-\item[\menutwo{Segmenting}{Trans >}]  Moves all labels in the
+\item[\menutwo{Segmenting}{Trans $>$}]  Moves all labels in the
     right direction of the slice pointed to by the mouse.  May take
     up to a minute to perform.
 \item[\menutwo{Segmenting}{Big Translate}]  Prompts for 3 voxel
@@ -430,26 +440,28 @@ the use of \menutwo{Polygons}{Compute Normals} or
 
 \begin{description}
 \item[\menutwo{Create Surface}{Volume Isosurface}]  Prompts for a
-    value, then starts extracting a polygonal surface from near the slice
-    cursor.  The surface is extracted to the 3D window and updated
+    value, then starts extracting a polygonal isosurface from near the slice
+    cursor.  The isosurface is extracted to the 3D window and updated
     periodically, while all program operations are still functional.
-\item[\menutwo{Create Surface}{Extracing}]  If a surface extraction
+\item[\menutwo{Create Surface}{Extracing}]  If an isosurface extraction
     is in progress, this button toggles the extraction process on and
-    off.  This allows suspension and resumption of surface extraction.
+    off.  This allows suspension and resumption of isosurface extraction.
 \item[\menutwo{Create Surface}{Reset Surface}]  Clears the current
-    surface extraction, if any.  This must be selected before starting
-    another surface creation method, e.g.,
+    isosurface extraction, if any.  This must be selected before starting
+    another isosurface creation method, e.g.,
     \menutwo{Create Surface}{Volume Isosurface}.
-\item[\menutwo{Create Surface}{Make Perm}]  If a surface extraction
-    is in progress, the currently extracted surface is made a permanent
+\item[\menutwo{Create Surface}{Make Perm}]  If an isosurface extraction
+    is in progress, the currently extracted isosurface is made a permanent
     member of the 3D object hierarchy.
 \item[\menutwo{Create Surface}{Volume Bin-Isosurf}]  Prompts for two
     values, specifying a volume value range, then starts extracting a
-    polygonal surface from near the slice
+    polygonal isosurface from near the slice
     cursor.  This differs from \menutwo{Create Surface}{Volume Isosurface},
-    in that voxels are classified as in or out and the surface points are
+    in that voxels are classified as in or out and the isosurface points are
     exactly half way between an inside voxel and outside voxel.  Typically,
-    the user should use \menutwo{Create Surface}{Volume Isosurface}.
+    this is only useful for segmented volumes, otherwise the user
+    should use \menutwo{Create Surface}{Volume Isosurface}, which
+    results in a smoother surface.
     The surface is extracted to the 3D window and updated
     periodically, while all program operations are still functional.
 \item[\menutwo{Create Surface}{Volume Voxelate}]  Prompts for two
@@ -461,7 +473,7 @@ the use of \menutwo{Polygons}{Compute Normals} or
 \item[\menutwo{Create Surface}{Label Bin-Isosurf}]  Sames as
     \menutwo{Create Surface}{Volume Bin-Isosurf} except operates on
     the label volume.  For instance, if the user has painted a region
-    with label 1, then to create a 3D surface of this region, select
+    with label 1, then to create a 3D isosurface of this region, select
     this menu option, and type in ``1 1'' for the min and max values.
 \item[\menutwo{Create Surface}{Label Voxelate}]  Sames as
     \menutwo{Create Surface}{Volume Voxelate} except operates on
@@ -469,16 +481,16 @@ the use of \menutwo{Polygons}{Compute Normals} or
     with label 1, then to create a 3D voxelated surface of this region,
     select this menu option, and type in ``1 1'' for the min and max values.
 \item[\menutwo{Create Surface}{X Dist}]  Prompts the user for the maximum
-    distance in the X direction from the starting point of the surface
-    that the surface is allowed to expand.  By default, this is disabled
+    distance in the X direction from the starting point of the isosurface
+    that the isosurface is allowed to expand.  By default, this is disabled
     by setting it to a very large value.
 \item[\menutwo{Create Surface}{Y Dist}]  Prompts the user for the maximum
-    distance in the Y direction from the starting point of the surface
-    that the surface is allowed to expand.  By default, this is disabled
+    distance in the Y direction from the starting point of the isosurface
+    that the isosurface is allowed to expand.  By default, this is disabled
     by setting it to a very large value.
 \item[\menutwo{Create Surface}{Z Dist}]  Prompts the user for the maximum
-    distance in the Z direction from the starting point of the surface
-    that the surface is allowed to expand.  By default, this is disabled
+    distance in the Z direction from the starting point of the isosurface
+    that the isosurface is allowed to expand.  By default, this is disabled
     by setting it to a very large value.
 \end{description}
 
@@ -570,7 +582,7 @@ purposes.
 \item[\menutwo{Objects}{Change Surface Prop}]  Prompts for an ambient
         coefficient (0--1), a diffuse coefficient (0--1), a
         specular coefficient (0--1), a specular exponent (0--100 or so),
-        and a an opacity (near 0 is transparent, 1 is fully opaque).
+        and an opacity (near 0 is transparent, 1 is fully opaque).
         The currently selected object is assigned these lighting parameters.
 \item[\menutwo{Objects}{Invisible}]  Turns the current object invisible.
 \item[\menutwo{Objects}{Visible}]  Turns the current object visible.
@@ -683,9 +695,10 @@ purposes.
         pressing and holding the left button, sweeping out a rectangle, and
         when the left button is let go, the defaults are copied to the
         markers.
-\item[\menutwo{Markers}{Defaults -> Current}]  Copies the default marker
+\item[\menutwo{Markers}{Defaults -$>$ Current}]  Copies the default marker
         values to the current object, if it is a marker.
-\item[\menutwo{Markers}{Defaults->Many}]  Copies the default marker values to
+\item[\menutwo{Markers}{Defaults -$>$ Many}]  Copies the default marker
+        values to
         all markers which have the same patient id and structure id as the
         current object, if it is a marker.
 \end{description}
@@ -696,7 +709,9 @@ purposes.
 \item[\menutwo{Polygons}{Compute Normals}]  Computes normals for the
      current polygon, for use in displaying a smooth lighted surface in
      the 3D window. 
-\item[\menutwo{Polygons}{Average Normals}]  Prompts for a number of
+\item[\menutwo{Polygons}{Average Normals}]  A second way to compute
+     normals for a polygon, which results in smoother shading.
+     Prompts for a number of
      iterations and a ratio value between 0 and 1.  The normals for the
      polygon are computed, then the iterations are performed.  Each
      iteration consists of smoothing each polygon vertex normal with
@@ -746,8 +761,8 @@ can then be coloured.
     curves follow sulci, and a value of 0 (default) makes it just choose
     shortest path along the surface.
 \item[\menutwo{Surface Curves}{Set Crv'tre Limits}]  Prompts the user
-    for a minimum and maximum curvature and contrains subsequent curves
-    to follow paths along the surface which stay within these surface
+    for a minimum and maximum curvature and constrains subsequent curves
+    to follow paths along the surface to stay within these surface
     curvature limits.
 \end{description}
 
