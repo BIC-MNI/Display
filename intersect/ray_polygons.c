@@ -14,41 +14,40 @@ public  Boolean  intersect_ray_with_polygons( graphics, ray_origin,
     Point             *intersection_point;
 {
     Status         status;
-    int            i;
-    int            model_index;
     Boolean        intersects;
     Boolean        intersect_ray_polygons();
     object_struct  *object;
     Real           dist;
+    Status         initialize_object_traverse();
+    object_traverse_struct   object_traverse;
 
     intersects = FALSE;
     dist = 1.0e30;
 
-    for_less( model_index, 0, N_MODELS )
-    for_less( i, 0, graphics->models[model_index]->ptr.model->n_objects )
+    status = initialize_object_traverse( &object_traverse, N_MODELS,
+                                         graphics->models );
+
+    if( status == OK )
     {
-        object = graphics->models[model_index]->ptr.model->object_list[i];
-
-        BEGIN_TRAVERSE_OBJECT( status, object )
-
-            if( OBJECT->object_type == POLYGONS && OBJECT->visibility )
+        while( get_next_object_traverse(&object_traverse,&object) )
+        {
+            if( object->object_type == POLYGONS && object->visibility )
             {
                 if( intersect_ray_polygons( ray_origin, ray_direction,
-                                            OBJECT->ptr.polygons,
+                                            object->ptr.polygons,
                                             poly_index, &dist ) )
                 {
-                    *polygons = OBJECT->ptr.polygons;
+                    *polygons = object->ptr.polygons;
                     intersects = TRUE;
                 }
             }
+        }
 
-        END_TRAVERSE_OBJECT
-    }
-
-    if( intersects )
-    {
-        GET_POINT_ON_RAY( *intersection_point, *ray_origin, *ray_direction,
-                          dist );
+        if( intersects )
+        {
+            GET_POINT_ON_RAY( *intersection_point, *ray_origin, *ray_direction,
+                              dist );
+        }
     }
 
     return( intersects );

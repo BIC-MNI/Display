@@ -24,6 +24,9 @@ public  DEF_MENU_FUNCTION( toggle_render_mode )  /* ARGSUSED */
     object_struct   *model_object;
     render_modes    new_render_mode;
     void            set_update_required();
+    object_struct   *object;
+    object_traverse_struct   object_traverse;
+    Status                   initialize_object_traverse();
 
     model_object = get_model_object( graphics );
 
@@ -36,14 +39,15 @@ public  DEF_MENU_FUNCTION( toggle_render_mode )  /* ARGSUSED */
         new_render_mode = WIREFRAME_MODE;
     }
 
-    BEGIN_TRAVERSE_OBJECT( status, model_object )
+    status = initialize_object_traverse( &object_traverse, 1, &model_object );
 
-        if( OBJECT->object_type == MODEL )
+    while( status == OK && get_next_object_traverse(&object_traverse,&object) )
+    {
+        if( object->object_type == MODEL )
         {
-            OBJECT->ptr.model->render.render_mode = new_render_mode;
+            object->ptr.model->render.render_mode = new_render_mode;
         }
-
-    END_TRAVERSE_OBJECT
+    }
 
     set_update_required( graphics, NORMAL_PLANES );
 
@@ -83,6 +87,9 @@ public  DEF_MENU_FUNCTION( toggle_shading )  /* ARGSUSED */
     object_struct   *model_object;
     shading_types   new_shading_type;
     void            set_update_required();
+    object_struct   *object;
+    object_traverse_struct   object_traverse;
+    Status                   initialize_object_traverse();
 
     model_object = get_model_object( graphics );
 
@@ -95,14 +102,15 @@ public  DEF_MENU_FUNCTION( toggle_shading )  /* ARGSUSED */
         new_shading_type = FLAT_SHADING;
     }
 
-    BEGIN_TRAVERSE_OBJECT( status, model_object )
+    status = initialize_object_traverse( &object_traverse, 1, &model_object );
 
-        if( OBJECT->object_type == MODEL )
+    while( status == OK && get_next_object_traverse(&object_traverse,&object) )
+    {
+        if( object->object_type == MODEL )
         {
-            OBJECT->ptr.model->render.shading_type = new_shading_type;
+            object->ptr.model->render.shading_type = new_shading_type;
         }
-
-    END_TRAVERSE_OBJECT
+    }
 
     set_update_required( graphics, NORMAL_PLANES );
 
@@ -141,19 +149,23 @@ public  DEF_MENU_FUNCTION( toggle_lights )  /* ARGSUSED */
     object_struct   *model_object;
     Boolean         new_light_switch;
     void            set_update_required();
+    object_struct   *object;
+    object_traverse_struct   object_traverse;
+    Status                   initialize_object_traverse();
 
     model_object = get_model_object( graphics );
 
     new_light_switch = !model_object->ptr.model->render.master_light_switch;
 
-    BEGIN_TRAVERSE_OBJECT( status, model_object )
+    status = initialize_object_traverse( &object_traverse, 1, &model_object );
 
-        if( OBJECT->object_type == MODEL )
+    while( status == OK && get_next_object_traverse(&object_traverse,&object) )
+    {
+        if( object->object_type == MODEL )
         {
-            OBJECT->ptr.model->render.master_light_switch = new_light_switch;
+            object->ptr.model->render.master_light_switch = new_light_switch;
         }
-
-    END_TRAVERSE_OBJECT
+    }
 
     set_update_required( graphics, NORMAL_PLANES );
 
@@ -185,19 +197,23 @@ public  DEF_MENU_FUNCTION( toggle_two_sided )  /* ARGSUSED */
     object_struct   *model_object;
     Boolean         new_flag;
     void            set_update_required();
+    object_struct   *object;
+    object_traverse_struct   object_traverse;
+    Status                   initialize_object_traverse();
 
     model_object = get_model_object( graphics );
 
     new_flag = !model_object->ptr.model->render.two_sided_surface_flag;
 
-    BEGIN_TRAVERSE_OBJECT( status, model_object )
+    status = initialize_object_traverse( &object_traverse, 1, &model_object );
 
-        if( OBJECT->object_type == MODEL )
+    while( status == OK && get_next_object_traverse(&object_traverse,&object) )
+    {
+        if( object->object_type == MODEL )
         {
-            OBJECT->ptr.model->render.two_sided_surface_flag = new_flag;
+            object->ptr.model->render.two_sided_surface_flag = new_flag;
         }
-
-    END_TRAVERSE_OBJECT
+    }
 
     set_update_required( graphics, NORMAL_PLANES );
 
@@ -229,19 +245,23 @@ public  DEF_MENU_FUNCTION( toggle_backfacing )  /* ARGSUSED */
     object_struct   *model_object;
     Boolean         new_flag;
     void            set_update_required();
+    object_struct   *object;
+    object_traverse_struct   object_traverse;
+    Status                   initialize_object_traverse();
 
     model_object = get_model_object( graphics );
 
     new_flag = !model_object->ptr.model->render.backface_flag;
 
-    BEGIN_TRAVERSE_OBJECT( status, model_object )
+    status = initialize_object_traverse( &object_traverse, 1, &model_object );
 
-        if( OBJECT->object_type == MODEL )
+    while( status == OK && get_next_object_traverse(&object_traverse,&object) )
+    {
+        if( object->object_type == MODEL )
         {
-            OBJECT->ptr.model->render.backface_flag = new_flag;
+            object->ptr.model->render.backface_flag = new_flag;
         }
-
-    END_TRAVERSE_OBJECT
+    }
 
     set_update_required( graphics, NORMAL_PLANES );
 

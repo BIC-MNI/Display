@@ -15,11 +15,6 @@ private  void  set_menu_key_entry( menu, ch, menu_entry )
     int                    ch;
     menu_entry_struct      *menu_entry;
 {
-    if( ch < 0 )
-    {
-        ch += 256;
-    }
-
     menu->key_menus[ch] = menu_entry;
 }
 
@@ -27,11 +22,6 @@ private  menu_entry_struct  *get_menu_key_entry( menu, ch )
     menu_window_struct     *menu;
     int                    ch;
 {
-    if( ch < 0 )
-    {
-        ch += 256;
-    }
-
     return( menu->key_menus[ch] );
 }
 
@@ -43,7 +33,7 @@ private  void  turn_on_menu_entry( menu, menu_entry )
     menu_entry_struct   *previous;
     void                turn_off_menu_entry();
 
-    previous = get_menu_key_entry( menu, (int) menu_entry->key );
+    previous = get_menu_key_entry( menu, menu_entry->key );
     if( previous != (menu_entry_struct *) 0 )
     {
         turn_off_menu_entry( menu, previous );
@@ -56,7 +46,7 @@ private  void  turn_on_menu_entry( menu, menu_entry )
 
     menu_entry->current_depth = menu->depth;
 
-    set_menu_key_entry( menu, (int) menu_entry->key, menu_entry );
+    set_menu_key_entry( menu, menu_entry->key, menu_entry );
 }
 
 private  void  turn_off_menu_entry( menu, menu_entry )
@@ -70,8 +60,7 @@ private  void  turn_off_menu_entry( menu, menu_entry )
         menu_entry->text_list[i]->visibility = FALSE;
     }
 
-    set_menu_key_entry( menu, (int) menu_entry->key,
-                        (menu_entry_struct *) 0 );
+    set_menu_key_entry( menu, menu_entry->key, (menu_entry_struct *) 0 );
 }
 
 private  void  add_menu_actions( menu, menu_entry )
@@ -189,7 +178,7 @@ public  void  initialize_menu_actions( graphics )
 private  DEF_EVENT_FUNCTION( handle_character )
 {
     Status             status;
-    char               key_pressed;
+    int                key_pressed;
     menu_entry_struct  *menu_entry;
     Status             process_menu();
     graphics_struct    *menu_window;
@@ -200,7 +189,7 @@ private  DEF_EVENT_FUNCTION( handle_character )
 
     key_pressed = event->event_data.key_pressed;
 
-    menu_entry = get_menu_key_entry( &menu_window->menu, (int) key_pressed );
+    menu_entry = get_menu_key_entry( &menu_window->menu, key_pressed );
 
     if( menu_entry != (menu_entry_struct *) 0 )
     {
@@ -303,6 +292,10 @@ public  DEF_MENU_FUNCTION( push_menu )      /* ARGSUSED */
 
         --menu_window->menu.depth;
     }
+
+    remove_menu_actions( &menu_window->menu,
+                         menu_window->menu.stack[menu_window->menu.depth] );
+    turn_on_menu_entry( &menu_window->menu, menu_entry );
 
     if( menu_window->menu.depth >= MAX_MENU_DEPTH )
     {

@@ -41,13 +41,15 @@ public  DEF_EVENT_FUNCTION( start_picking_polygon )    /* ARGSUSED */
 private  void  remove_events( action_table )
     action_table_struct  *action_table;
 {
+    DECL_EVENT_FUNCTION( update_picked_polygon );
     void   remove_action_table_function();
     void   pop_action_table();
 
     pop_action_table( action_table, LEFT_MOUSE_UP_EVENT );
     pop_action_table( action_table, TERMINATE_EVENT );
 
-    remove_action_table_function( action_table, NO_EVENT );
+    remove_action_table_function( action_table, NO_EVENT,
+                                  update_picked_polygon );
 }
 
 private  DEF_EVENT_FUNCTION( terminate_picking_polygon )

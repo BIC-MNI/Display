@@ -23,13 +23,15 @@ public  void  initialize_magnification( graphics )
 private  DEF_EVENT_FUNCTION( turn_off_magnification )
     /* ARGSUSED */
 {
+    DECL_EVENT_FUNCTION( start_magnification );
     void    remove_action_table_function();
 
     remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT );
+                                  TERMINATE_EVENT, turn_off_magnification );
 
     remove_action_table_function( &graphics->action_table,
-                                  MIDDLE_MOUSE_DOWN_EVENT );
+                                  MIDDLE_MOUSE_DOWN_EVENT,
+                                  start_magnification );
 
     return( OK );
 }
@@ -66,6 +68,8 @@ private  DEF_EVENT_FUNCTION( start_magnification )
 private  DEF_EVENT_FUNCTION( terminate_magnification )
     /* ARGSUSED */
 {
+    DECL_EVENT_FUNCTION(  handle_update );
+    DECL_EVENT_FUNCTION(  handle_mouse_movement );
     void   remove_action_table_function();
     void   perform_magnification();
     void   update_view();
@@ -78,13 +82,16 @@ private  DEF_EVENT_FUNCTION( terminate_magnification )
     }
     
     remove_action_table_function( &graphics->action_table,
-                                  NO_EVENT );
+                                  NO_EVENT, handle_update );
     remove_action_table_function( &graphics->action_table,
-                                  MOUSE_MOVEMENT_EVENT );
+                                  MOUSE_MOVEMENT_EVENT,
+                                  handle_mouse_movement );
     remove_action_table_function( &graphics->action_table,
-                                  MIDDLE_MOUSE_UP_EVENT );
+                                  MIDDLE_MOUSE_UP_EVENT,
+                                  terminate_magnification );
     remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT );
+                                  TERMINATE_EVENT,
+                                  terminate_magnification );
 
     return( OK );
 }

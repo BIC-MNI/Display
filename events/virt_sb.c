@@ -24,12 +24,15 @@ public  void  initialize_virtual_spaceball( graphics )
 private  DEF_EVENT_FUNCTION( turn_off_virtual_spaceball )
     /* ARGSUSED */
 {
+    DECL_EVENT_FUNCTION( start_virtual_spaceball );
     void         remove_action_table_function();
 
     remove_action_table_function( &graphics->action_table,
-                                  MIDDLE_MOUSE_DOWN_EVENT );
+                                  MIDDLE_MOUSE_DOWN_EVENT,
+                                  start_virtual_spaceball );
 
-    remove_action_table_function( &graphics->action_table, TERMINATE_EVENT );
+    remove_action_table_function( &graphics->action_table, TERMINATE_EVENT,
+                                  turn_off_virtual_spaceball );
 }
 
 private  DEF_EVENT_FUNCTION( start_virtual_spaceball )
@@ -104,11 +107,11 @@ private  DEF_EVENT_FUNCTION( terminate_rotation )
     update_rotation( graphics );
     
     remove_action_table_function( &graphics->action_table,
-                                  NO_EVENT );
+                                  NO_EVENT, handle_update_rotation );
     remove_action_table_function( &graphics->action_table,
-                                  MIDDLE_MOUSE_UP_EVENT );
+                                  MIDDLE_MOUSE_UP_EVENT, terminate_rotation );
     remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT );
+                                  TERMINATE_EVENT, terminate_rotation );
 
     return( OK );
 }
@@ -252,11 +255,12 @@ private  DEF_EVENT_FUNCTION( terminate_translation )
     update_translation( graphics );
     
     remove_action_table_function( &graphics->action_table,
-                                  NO_EVENT );
+                                  NO_EVENT, handle_update_translation );
     remove_action_table_function( &graphics->action_table,
-                                  MIDDLE_MOUSE_UP_EVENT );
+                                  MIDDLE_MOUSE_UP_EVENT,
+                                  terminate_translation );
     remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT );
+                                  TERMINATE_EVENT, terminate_translation );
 
     return( OK );
 }

@@ -303,22 +303,16 @@ private  int   create_point( volume, isovalue, polygons, voxel,
     Point_classes       *pt_class;
 {
     Status    status;
-    int       i, x, y, z, pt_index;
-    Real      u_bar[N_DIMENSIONS], dx, dy, dz, x_bar, y_bar, z_bar;
-    Real      alpha1, alpha2, val1, val2, val, alpha;
+    int       pt_index, x, y, z, nx, ny, nz;
+    Real      u_bar[N_DIMENSIONS], dx, dy, dz;
+    Real      val1, val2, alpha;
     Point     point;
     Vector    normal;
     int       corner[N_DIMENSIONS];
-    Real      c000, c001, c002, c003, c010, c011, c012, c013;
-    Real      c020, c021, c022, c023, c030, c031, c032, c033;
-    Real      c100, c101, c102, c103, c110, c111, c112, c113;
-    Real      c120, c121, c122, c123, c130, c131, c132, c133;
-    Real      c200, c201, c202, c203, c210, c211, c212, c213;
-    Real      c220, c221, c222, c223, c230, c231, c232, c233;
-    Real      c300, c301, c302, c303, c310, c311, c312, c313;
-    Real      c320, c321, c322, c323, c330, c331, c332, c333;
     Real      x_thickness, y_thickness, z_thickness;
     void      get_volume_slice_thickness();
+    void      evaluate_trilinear_derivative();
+    void      get_volume_size();
 
     corner[X_AXIS] = voxel->i[X_AXIS];
     corner[Y_AXIS] = voxel->i[Y_AXIS];
@@ -348,173 +342,10 @@ private  int   create_point( volume, isovalue, polygons, voxel,
         alpha = val1 / (val1 - val2);
     }
 
-    x = voxel->i[X_AXIS];
-    y = voxel->i[Y_AXIS];
-    z = voxel->i[Z_AXIS];
-
-    c000 = (Real) GET_VOLUME_DATA( *volume, x-1, y-1, z-1 );
-    c001 = (Real) GET_VOLUME_DATA( *volume, x-1, y-1, z+0 );
-    c002 = (Real) GET_VOLUME_DATA( *volume, x-1, y-1, z+1 );
-    c003 = (Real) GET_VOLUME_DATA( *volume, x-1, y-1, z+2 );
-
-    c010 = (Real) GET_VOLUME_DATA( *volume, x-1, y+0, z-1 );
-    c011 = (Real) GET_VOLUME_DATA( *volume, x-1, y+0, z+0 );
-    c012 = (Real) GET_VOLUME_DATA( *volume, x-1, y+0, z+1 );
-    c013 = (Real) GET_VOLUME_DATA( *volume, x-1, y+0, z+2 );
-
-    c020 = (Real) GET_VOLUME_DATA( *volume, x-1, y+1, z-1 );
-    c021 = (Real) GET_VOLUME_DATA( *volume, x-1, y+1, z+0 );
-    c022 = (Real) GET_VOLUME_DATA( *volume, x-1, y+1, z+1 );
-    c023 = (Real) GET_VOLUME_DATA( *volume, x-1, y+1, z+2 );
-
-    c030 = (Real) GET_VOLUME_DATA( *volume, x-1, y+2, z-1 );
-    c031 = (Real) GET_VOLUME_DATA( *volume, x-1, y+2, z+0 );
-    c032 = (Real) GET_VOLUME_DATA( *volume, x-1, y+2, z+1 );
-    c033 = (Real) GET_VOLUME_DATA( *volume, x-1, y+2, z+2 );
-
-
-    c100 = (Real) GET_VOLUME_DATA( *volume, x+0, y-1, z-1 );
-    c101 = (Real) GET_VOLUME_DATA( *volume, x+0, y-1, z+0 );
-    c102 = (Real) GET_VOLUME_DATA( *volume, x+0, y-1, z+1 );
-    c103 = (Real) GET_VOLUME_DATA( *volume, x+0, y-1, z+2 );
-
-    c110 = (Real) GET_VOLUME_DATA( *volume, x+0, y+0, z-1 );
-    c111 = (Real) GET_VOLUME_DATA( *volume, x+0, y+0, z+0 );
-    c112 = (Real) GET_VOLUME_DATA( *volume, x+0, y+0, z+1 );
-    c113 = (Real) GET_VOLUME_DATA( *volume, x+0, y+0, z+2 );
-
-    c120 = (Real) GET_VOLUME_DATA( *volume, x+0, y+1, z-1 );
-    c121 = (Real) GET_VOLUME_DATA( *volume, x+0, y+1, z+0 );
-    c122 = (Real) GET_VOLUME_DATA( *volume, x+0, y+1, z+1 );
-    c123 = (Real) GET_VOLUME_DATA( *volume, x+0, y+1, z+2 );
-
-    c130 = (Real) GET_VOLUME_DATA( *volume, x+0, y+2, z-1 );
-    c131 = (Real) GET_VOLUME_DATA( *volume, x+0, y+2, z+0 );
-    c132 = (Real) GET_VOLUME_DATA( *volume, x+0, y+2, z+1 );
-    c133 = (Real) GET_VOLUME_DATA( *volume, x+0, y+2, z+2 );
-
-
-    c200 = (Real) GET_VOLUME_DATA( *volume, x+1, y-1, z-1 );
-    c201 = (Real) GET_VOLUME_DATA( *volume, x+1, y-1, z+0 );
-    c202 = (Real) GET_VOLUME_DATA( *volume, x+1, y-1, z+1 );
-    c203 = (Real) GET_VOLUME_DATA( *volume, x+1, y-1, z+2 );
-
-    c210 = (Real) GET_VOLUME_DATA( *volume, x+1, y+0, z-1 );
-    c211 = (Real) GET_VOLUME_DATA( *volume, x+1, y+0, z+0 );
-    c212 = (Real) GET_VOLUME_DATA( *volume, x+1, y+0, z+1 );
-    c213 = (Real) GET_VOLUME_DATA( *volume, x+1, y+0, z+2 );
-
-    c220 = (Real) GET_VOLUME_DATA( *volume, x+1, y+1, z-1 );
-    c221 = (Real) GET_VOLUME_DATA( *volume, x+1, y+1, z+0 );
-    c222 = (Real) GET_VOLUME_DATA( *volume, x+1, y+1, z+1 );
-    c223 = (Real) GET_VOLUME_DATA( *volume, x+1, y+1, z+2 );
-
-    c230 = (Real) GET_VOLUME_DATA( *volume, x+1, y+2, z-1 );
-    c231 = (Real) GET_VOLUME_DATA( *volume, x+1, y+2, z+0 );
-    c232 = (Real) GET_VOLUME_DATA( *volume, x+1, y+2, z+1 );
-    c233 = (Real) GET_VOLUME_DATA( *volume, x+1, y+2, z+2 );
-
-
-    c300 = (Real) GET_VOLUME_DATA( *volume, x+2, y-1, z-1 );
-    c301 = (Real) GET_VOLUME_DATA( *volume, x+2, y-1, z+0 );
-    c302 = (Real) GET_VOLUME_DATA( *volume, x+2, y-1, z+1 );
-    c303 = (Real) GET_VOLUME_DATA( *volume, x+2, y-1, z+2 );
-
-    c310 = (Real) GET_VOLUME_DATA( *volume, x+2, y+0, z-1 );
-    c311 = (Real) GET_VOLUME_DATA( *volume, x+2, y+0, z+0 );
-    c312 = (Real) GET_VOLUME_DATA( *volume, x+2, y+0, z+1 );
-    c313 = (Real) GET_VOLUME_DATA( *volume, x+2, y+0, z+2 );
-
-    c320 = (Real) GET_VOLUME_DATA( *volume, x+2, y+1, z-1 );
-    c321 = (Real) GET_VOLUME_DATA( *volume, x+2, y+1, z+0 );
-    c322 = (Real) GET_VOLUME_DATA( *volume, x+2, y+1, z+1 );
-    c323 = (Real) GET_VOLUME_DATA( *volume, x+2, y+1, z+2 );
-
-    c330 = (Real) GET_VOLUME_DATA( *volume, x+2, y+2, z-1 );
-    c331 = (Real) GET_VOLUME_DATA( *volume, x+2, y+2, z+0 );
-    c332 = (Real) GET_VOLUME_DATA( *volume, x+2, y+2, z+1 );
-    c333 = (Real) GET_VOLUME_DATA( *volume, x+2, y+2, z+2 );
-
-    u_bar[X_AXIS] = 0.0;
-    u_bar[Y_AXIS] = 0.0;
-    u_bar[Z_AXIS] = 0.0;
-
-    alpha1 = 0.0;
-    alpha2 = 1.0;
-
-    for_less( i, 0, Max_surface_refinements )
-    {
-        u_bar[edge_intersected] = alpha;
-
-        CUBIC_TRIVAR( c, u_bar[X_AXIS], u_bar[Y_AXIS], u_bar[Z_AXIS],
-                      val );
-
-        val = isovalue - val;
-
-/*
-        if( (alpha == 0.0 && val != val1) ||
-            (alpha == 1.0 && val != val2) )
-        {
-            HANDLE_INTERNAL_ERROR( "Surface refinement val\n" );
-        }
-*/
-
-        if( (val1 <= 0.0 && val <= 0.0) ||
-            (val1 >= 0.0 && val >= 0.0) )
-        {
-            val1 = val;
-            alpha1 = alpha;
-        }
-        else
-        {
-            val2 = val;
-            alpha2 = alpha;
-        }
-
-        if( val1 != val2 )
-        {
-            alpha = alpha1 + val1 / (val1 - val2) * (alpha2 - alpha1);
-        }
-        else if( val != 0.0 )
-        {
-            HANDLE_INTERNAL_ERROR( "Surface refinement\n" );
-        }
-
-        if( alpha < 0.0 || alpha > 1.0 )
-        {
-            HANDLE_INTERNAL_ERROR( "Surface refinement alpha\n" );
-        }
-
-        if( ABS(val) < Max_surface_error )
-        {
-            break;
-        }
-    }
-
-    u_bar[edge_intersected] = alpha;
-
-    x_bar = u_bar[X_AXIS];
-    y_bar = u_bar[Y_AXIS];
-    z_bar = u_bar[Z_AXIS];
-  
-    CUBIC_TRIVAR_DERIV( c, x_bar, y_bar, z_bar, dx, dy, dz );
-
-    fill_Vector( normal, dx, dy, dz );
-
     get_volume_slice_thickness( volume, &x_thickness, &y_thickness,
                                 &z_thickness );
 
-    Vector_x(normal) /= x_thickness;
-    Vector_y(normal) /= y_thickness;
-    Vector_z(normal) /= z_thickness;
-
-
-    NORMALIZE_VECTOR( normal, normal );
-
-    if( Normal_towards_lower )
-    {
-        SCALE_VECTOR( normal, normal, -1.0 );
-    }
+    /* ------------------- compute point position ------------------- */
 
     fill_Point( point, (Real) voxel->i[X_AXIS], (Real) voxel->i[Y_AXIS],
                        (Real) voxel->i[Z_AXIS] )
@@ -524,6 +355,59 @@ private  int   create_point( volume, isovalue, polygons, voxel,
     Point_x(point) *= x_thickness;
     Point_y(point) *= y_thickness;
     Point_z(point) *= z_thickness;
+
+    /* --------------------- now get normal ---------------------- */
+
+    u_bar[X_AXIS] = 0.0;
+    u_bar[Y_AXIS] = 0.0;
+    u_bar[Z_AXIS] = 0.0;
+
+    u_bar[edge_intersected] = alpha;
+
+    get_volume_size( volume, &nx, &ny, &nz );
+
+    x = voxel->i[X_AXIS];
+    y = voxel->i[Y_AXIS];
+    z = voxel->i[Z_AXIS];
+
+    if( x == nx-1 )
+    {
+        --x;
+        u_bar[X_AXIS] += 1.0;
+    }
+
+    if( y == ny-1 )
+    {
+        --y;
+        u_bar[Y_AXIS] += 1.0;
+    }
+
+    if( z == nz-1 )
+    {
+        --z;
+        u_bar[Z_AXIS] += 1.0;
+    }
+
+    evaluate_trilinear_derivative( volume,
+                                   x, u_bar[X_AXIS],
+                                   y, u_bar[Y_AXIS],
+                                   z, u_bar[Z_AXIS],
+                                   &dx, &dy, &dz );
+
+    fill_Vector( normal, dx, dy, dz );
+
+    Vector_x(normal) /= x_thickness;
+    Vector_y(normal) /= y_thickness;
+    Vector_z(normal) /= z_thickness;
+
+    NORMALIZE_VECTOR( normal, normal );
+
+    if( Normal_towards_lower )
+    {
+        SCALE_VECTOR( normal, normal, -1.0 );
+    }
+
+    /* ------------------- store point and normal  ------------------- */
 
     CHECK_ALLOC1( status, polygons->points,
                   polygons->n_points, polygons->n_points+1,
@@ -545,6 +429,56 @@ private  int   create_point( volume, isovalue, polygons, voxel,
     }
 
     return( pt_index );
+}
+
+private  void  evaluate_trilinear_derivative( volume,
+                      i, u_bar, j, v_bar, k, w_bar, du, dv, dw )
+    volume_struct  *volume;
+    int            i;
+    Real           u_bar;
+    int            j;
+    Real           v_bar;
+    int            k;
+    Real           w_bar;
+    Real           *du, *dv, *dw;
+{
+    Real   c000, c001, c010, c011, c100, c101, c110, c111;
+    Real   c00, c01, c10, c11;
+    Real   du00, du01, du10, du11;
+    Real   c0, c1;
+    Real   du0, du1;
+    Real   dv0, dv1;
+
+    c000 = (Real) GET_VOLUME_DATA( *volume, i,   j,   k );
+    c001 = (Real) GET_VOLUME_DATA( *volume, i,   j,   k+1 );
+
+    c010 = (Real) GET_VOLUME_DATA( *volume, i,   j+1, k );
+    c011 = (Real) GET_VOLUME_DATA( *volume, i,   j+1, k+1 );
+
+    c100 = (Real) GET_VOLUME_DATA( *volume, i+1, j,   k );
+    c101 = (Real) GET_VOLUME_DATA( *volume, i+1, j,   k+1 );
+
+    c110 = (Real) GET_VOLUME_DATA( *volume, i+1, j+1, k );
+    c111 = (Real) GET_VOLUME_DATA( *volume, i+1, j+1, k+1 );
+
+    du00 = c100 - c000;
+    du01 = c101 - c001;
+    du10 = c110 - c010;
+    du11 = c111 - c011;
+    c00 = c000 + u_bar * du00;
+    c01 = c001 + u_bar * du01;
+    c10 = c010 + u_bar * du10;
+    c11 = c011 + u_bar * du11;
+
+    du0 = INTERPOLATE( v_bar, du00, du10 );
+    du1 = INTERPOLATE( v_bar, du01, du11 );
+    dv0 = c10 - c00;
+    dv1 = c11 - c01;
+    c0 = c00 + v_bar * dv0;
+    c1 = c01 + v_bar * dv1;
+    *du = INTERPOLATE( w_bar, du0, du1 );
+    *dv = INTERPOLATE( w_bar, dv0, dv1 );
+    *dw = c1 - c0;
 }
 
 private  Status  add_point_id_to_relevant_edges( volume, edge_info, pt_index,

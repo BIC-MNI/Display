@@ -9,8 +9,10 @@ private  Boolean  get_current_volume( graphics, volume )
 {
     Status          status;
     Boolean         found;
-    object_struct   *current_object;
+    object_struct   *current_object, *object;
     Boolean         get_current_object();
+    object_traverse_struct  object_traverse;
+    Status                  initialize_object_traverse();
 
     found = get_slice_window_volume( graphics, volume );
 
@@ -18,15 +20,20 @@ private  Boolean  get_current_volume( graphics, volume )
     {
         if( get_current_object( graphics, &current_object ) )
         {
-            BEGIN_TRAVERSE_OBJECT( status, current_object )
+            status = initialize_object_traverse( &object_traverse,
+                                                 1, &current_object );
 
-                if( !found && OBJECT->object_type == VOLUME )
+            if( status == OK )
+            {
+                while( get_next_object_traverse(&object_traverse, &object) )
                 {
-                    found = TRUE;
-                    *volume = OBJECT->ptr.volume;
+                    if( !found && object->object_type == VOLUME )
+                    {
+                        found = TRUE;
+                        *volume = object->ptr.volume;
+                    }
                 }
-
-            END_TRAVERSE_OBJECT
+            }
         }
     }
 
@@ -37,7 +44,7 @@ public  DEF_MENU_FUNCTION( advance_slice )   /* ARGSUSED */
 {
     volume_struct   *volume;
     void            rebuild_selected_list();
-    void            set_update_required();
+    void            graphics_models_have_changed();
     int             nx, ny, nz;
     void            get_volume_size();
 
@@ -55,7 +62,7 @@ public  DEF_MENU_FUNCTION( advance_slice )   /* ARGSUSED */
         rebuild_selected_list( graphics, menu_window );
     }
 
-    set_update_required( graphics, NORMAL_PLANES );
+    graphics_models_have_changed( graphics );
 
     return( OK );
 }
@@ -69,7 +76,7 @@ public  DEF_MENU_FUNCTION( retreat_slice )   /* ARGSUSED */
 {
     volume_struct   *volume;
     void            rebuild_selected_list();
-    void            set_update_required();
+    void            graphics_models_have_changed();
     int             nx, ny, nz;
     void            get_volume_size();
 
@@ -87,7 +94,7 @@ public  DEF_MENU_FUNCTION( retreat_slice )   /* ARGSUSED */
         rebuild_selected_list( graphics, menu_window );
     }
 
-    set_update_required( graphics, NORMAL_PLANES );
+    graphics_models_have_changed( graphics );
 
     return( OK );
 }
@@ -102,7 +109,7 @@ public  DEF_MENU_FUNCTION(set_slice_transform )   /* ARGSUSED */
     volume_struct   *volume;
     Real            degrees, x_offset, y_offset;
     void            create_2d_transform();
-    void            set_update_required();
+    void            graphics_models_have_changed();
 
     if( get_current_volume(graphics,&volume) )
     {
@@ -115,7 +122,7 @@ public  DEF_MENU_FUNCTION(set_slice_transform )   /* ARGSUSED */
         }
     }
 
-    set_update_required( graphics, NORMAL_PLANES );
+    graphics_models_have_changed( graphics );
 
     return( OK );
 }
@@ -256,6 +263,7 @@ public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
     Status         reset_surface_extraction();
     volume_struct  *volume;
     void           set_update_required();
+    void           graphics_models_have_changed();
     void           set_all_voxel_label_flags();
     void           rebuild_slice_models();
 
@@ -271,7 +279,7 @@ public  DEF_MENU_FUNCTION(reset_surface)   /* ARGSUSED */
 
         set_update_required( graphics->associated[SLICE_WINDOW],
                              NORMAL_PLANES );
-        set_update_required( graphics, NORMAL_PLANES );
+        graphics_models_have_changed( graphics );
     }
 
     return( status );

@@ -111,6 +111,7 @@ private  DEF_EVENT_FUNCTION( start_translate )
 private  DEF_EVENT_FUNCTION( terminate_translation )
     /* ARGSUSED */
 {
+    DECL_EVENT_FUNCTION(  handle_mouse_movement );
     void   remove_action_table_function();
     void   perform_translation();
     void   update_view();
@@ -118,11 +119,12 @@ private  DEF_EVENT_FUNCTION( terminate_translation )
     perform_translation( graphics );
 
     remove_action_table_function( &graphics->action_table,
-                                  MOUSE_MOVEMENT_EVENT );
+                                  MOUSE_MOVEMENT_EVENT, handle_mouse_movement );
     remove_action_table_function( &graphics->action_table,
-                                  MIDDLE_MOUSE_UP_EVENT );
+                                  MIDDLE_MOUSE_UP_EVENT,
+                                  terminate_translation );
     remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT );
+                                  TERMINATE_EVENT, terminate_translation );
 
     return( OK );
 }

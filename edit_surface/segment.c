@@ -31,12 +31,14 @@ public  void  start_segmenting_polygons( graphics )
 private  void  turn_off_segmenting( action_table )
     action_table_struct   *action_table;
 {
+    DECL_EVENT_FUNCTION( terminate_segmenting );
     void   remove_action_table_function();
     void   pop_action_table();
 
     pop_action_table( action_table, MIDDLE_MOUSE_DOWN_EVENT );
 
-    remove_action_table_function( action_table, TERMINATE_EVENT );
+    remove_action_table_function( action_table, TERMINATE_EVENT,
+                                  terminate_segmenting );
 }
 
 private  DEF_EVENT_FUNCTION( terminate_segmenting )
@@ -71,11 +73,13 @@ private  DEF_EVENT_FUNCTION( start_segmenting )
 private  void  remove_events( action_table )
     action_table_struct  *action_table;
 {
+    DECL_EVENT_FUNCTION( pick_surface_polygon );
     void   remove_action_table_function();
     void   pop_action_table();
 
     pop_action_table( action_table, MIDDLE_MOUSE_UP_EVENT );
-    remove_action_table_function( action_table, NO_EVENT );
+    remove_action_table_function( action_table, NO_EVENT,
+                                  pick_surface_polygon );
 
     turn_off_segmenting( action_table );
 }

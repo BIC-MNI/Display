@@ -5,7 +5,7 @@
 
 typedef  struct
 {
-    char   key;
+    int    key;
     int    x_pos, y_pos;
 } position_struct;
 
@@ -124,7 +124,7 @@ private  Status   create_menu_text( menu_window, menu_entry )
 
 private  void   compute_origin( menu_window, key, origin )
     menu_window_struct   *menu_window;
-    char                 key;
+    int                  key;
     Point                *origin;
 {
     int      i;
@@ -144,7 +144,7 @@ private  void   compute_origin( menu_window, key, origin )
 
     if( !found )
     {
-        PRINT( "Character %1s\n", &key );
+        PRINT( "Character %c\n", key );
         HANDLE_INTERNAL_ERROR( "Unrecognized menu key\n" );
     }
     else
@@ -168,7 +168,7 @@ private  void   compute_origin( menu_window, key, origin )
 
 private  Status   create_menu_box( menu_window, key )
     graphics_struct   *menu_window;
-    char              key;
+    int               key;
 {
     Status          status;
     Status          create_object();
@@ -194,6 +194,7 @@ private  Status   create_menu_box( menu_window, key )
     {
         lines = object->ptr.lines;
 
+        lines->line_thickness = 1;
         lines->n_points = 4;
         lines->n_items = 1;
 

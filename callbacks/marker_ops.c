@@ -10,6 +10,7 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
     Status          input_string();
     Status          add_object_to_model();
     object_struct   *object;
+    void            graphics_models_have_changed();
     void            set_update_required();
     model_struct    *get_current_model();
     void            rebuild_selected_list();
@@ -52,7 +53,7 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )   /* ARGSUSED */
 
         if( status == OK )
         {
-            set_update_required( graphics, NORMAL_PLANES );
+            graphics_models_have_changed( graphics );
 
             rebuild_selected_list( graphics, menu_window );
             set_update_required( menu_window, NORMAL_PLANES );
@@ -111,9 +112,8 @@ public  DEF_MENU_UPDATE(set_cursor_to_marker )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
 {
     Status          status;
-    object_struct   *object;
+    object_struct   *object, *current_object;
     object_struct   *get_current_model_object();
-    void            set_update_required();
     void            update_cursor();
     Status          input_string();
     String          filename;
@@ -121,6 +121,8 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
     Status          open_file();
     Status          output_marker();
     Status          close_file();
+    object_traverse_struct  object_traverse;
+    Status                  initialize_object_traverse();
 
     object = get_current_model_object( graphics );
 
@@ -135,12 +137,16 @@ public  DEF_MENU_FUNCTION( save_markers )   /* ARGSUSED */
 
     if( status == OK )
     {
-        BEGIN_TRAVERSE_OBJECT( status, object )
+        status = initialize_object_traverse( &object_traverse, 1, &object );
 
-            if( OBJECT->object_type == MARKER && OBJECT->visibility )
-                status = output_marker( file, OBJECT->ptr.marker );
-
-        END_TRAVERSE_OBJECT
+        while( get_next_object_traverse(&object_traverse,&current_object) )
+        {
+            if( current_object->object_type == MARKER &&
+                current_object->visibility )
+            {
+                status = output_marker( file, current_object->ptr.marker );
+            }
+        }
     }
 
     if( status == OK )

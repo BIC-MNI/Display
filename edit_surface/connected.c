@@ -31,12 +31,14 @@ public  void  turn_off_connected_polygons( graphics )
 private  void  remove_events( action_table )
     action_table_struct   *action_table;
 {
+    DECL_EVENT_FUNCTION( terminate_connected );
     void   remove_action_table_function();
     void   pop_action_table();
 
     pop_action_table( action_table, MIDDLE_MOUSE_DOWN_EVENT );
 
-    remove_action_table_function( action_table, TERMINATE_EVENT );
+    remove_action_table_function( action_table, TERMINATE_EVENT,
+                                  terminate_connected );
 }
 
 private  DEF_EVENT_FUNCTION( terminate_connected )

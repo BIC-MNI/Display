@@ -59,6 +59,7 @@ typedef  struct  graphics_struct
     Point                      mouse_position;
     Point                      prev_mouse_position;
     action_table_struct        action_table;
+    int                        models_changed_id;
     object_struct              *models[N_MODELS];
 
 

@@ -9,6 +9,7 @@ public  Status  initialize_cursor( graphics )
     Status          rebuild_cursor_icon();
     Real            size_of_domain();
     void            update_cursor();
+    Status          initialize_cursor_plane_outline();
 
     graphics->three_d.cursor.origin = graphics->three_d.centre_of_objects;
     graphics->three_d.cursor.box_size[X_AXIS] = 1.0;
@@ -17,6 +18,9 @@ public  Status  initialize_cursor( graphics )
     graphics->three_d.cursor.axis_size = Cursor_axis_size;
 
     status = rebuild_cursor_icon( graphics );
+
+    if( status == OK )
+        status = initialize_cursor_plane_outline( graphics );
 
     graphics->models[CURSOR_MODEL]->visibility = ON;
 
@@ -44,4 +48,6 @@ public  void  update_cursor( graphics )
 
     make_origin_transform( &graphics->three_d.cursor.origin,
                            &model->transform );
+
+    ++graphics->models_changed_id;
 }

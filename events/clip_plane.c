@@ -24,13 +24,16 @@ public  void  initialize_front_clipping( graphics )
 private  DEF_EVENT_FUNCTION( turn_off_front_clipping )
     /* ARGSUSED */
 {
+    DECL_EVENT_FUNCTION( start_front_clipping );
     void    remove_action_table_function();
 
     remove_action_table_function( &graphics->action_table,
-                                  MIDDLE_MOUSE_DOWN_EVENT );
+                                  MIDDLE_MOUSE_DOWN_EVENT,
+                                  start_front_clipping );
 
     remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT );
+                                  TERMINATE_EVENT,
+                                  turn_off_front_clipping );
 
     return( OK );
 }
@@ -67,6 +70,8 @@ private  DEF_EVENT_FUNCTION( start_front_clipping )
 private  DEF_EVENT_FUNCTION( terminate_front_clipping )
     /* ARGSUSED */
 {
+    DECL_EVENT_FUNCTION(  handle_update_front );
+    DECL_EVENT_FUNCTION(  handle_mouse_movement_front );
     void   remove_action_table_function();
     void   perform_clipping();
     void   update_view();
@@ -79,13 +84,16 @@ private  DEF_EVENT_FUNCTION( terminate_front_clipping )
     }
     
     remove_action_table_function( &graphics->action_table,
-                                  NO_EVENT );
+                                  NO_EVENT, turn_off_front_clipping );
     remove_action_table_function( &graphics->action_table,
-                                  MOUSE_MOVEMENT_EVENT );
+                                  MOUSE_MOVEMENT_EVENT,
+                                  handle_mouse_movement_front );
     remove_action_table_function( &graphics->action_table,
-                                  MIDDLE_MOUSE_UP_EVENT );
+                                  MIDDLE_MOUSE_UP_EVENT,
+                                  terminate_front_clipping );
     remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT );
+                                  TERMINATE_EVENT,
+                                  terminate_front_clipping );
 
     return( OK );
 }
@@ -133,13 +141,16 @@ public  void  initialize_back_clipping( graphics )
 private  DEF_EVENT_FUNCTION( turn_off_back_clipping )
     /* ARGSUSED */
 {
+    DECL_EVENT_FUNCTION( start_back_clipping );
     void   remove_action_table_function();
 
     remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT );
+                                  TERMINATE_EVENT,
+                                  turn_off_back_clipping );
 
     remove_action_table_function( &graphics->action_table,
-                                  MIDDLE_MOUSE_DOWN_EVENT );
+                                  MIDDLE_MOUSE_DOWN_EVENT,
+                                  start_back_clipping );
 
     return( OK );
 }
@@ -176,6 +187,8 @@ private  DEF_EVENT_FUNCTION( start_back_clipping )
 private  DEF_EVENT_FUNCTION( terminate_back_clipping )
     /* ARGSUSED */
 {
+    DECL_EVENT_FUNCTION(  handle_update_back );
+    DECL_EVENT_FUNCTION(  handle_mouse_movement_back );
     void   remove_action_table_function();
     void   perform_clipping();
     void   update_view();
@@ -188,13 +201,16 @@ private  DEF_EVENT_FUNCTION( terminate_back_clipping )
     }
     
     remove_action_table_function( &graphics->action_table,
-                                  NO_EVENT );
+                                  NO_EVENT, handle_update_back );
     remove_action_table_function( &graphics->action_table,
-                                  MOUSE_MOVEMENT_EVENT );
+                                  MOUSE_MOVEMENT_EVENT,
+                                  handle_mouse_movement_back );
     remove_action_table_function( &graphics->action_table,
-                                  MIDDLE_MOUSE_UP_EVENT );
+                                  MIDDLE_MOUSE_UP_EVENT,
+                                  terminate_back_clipping );
     remove_action_table_function( &graphics->action_table,
-                                  TERMINATE_EVENT );
+                                  TERMINATE_EVENT,
+                                  terminate_back_clipping );
 
     return( OK );
 }

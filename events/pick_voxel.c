@@ -42,11 +42,13 @@ private  DEF_EVENT_FUNCTION( start_picking_voxel )
 private  DEF_EVENT_FUNCTION( end_picking_voxel )
     /* ARGSUSED */
 {
+    DECL_EVENT_FUNCTION( handle_update_voxel );
     void    pop_action_table();
     void    remove_action_table_function();
     void    update_voxel_cursor();
 
-    remove_action_table_function( &graphics->action_table, NO_EVENT );
+    remove_action_table_function( &graphics->action_table, NO_EVENT,
+                                  handle_update_voxel );
 
     pop_action_table( &graphics->action_table, LEFT_MOUSE_UP_EVENT );
 

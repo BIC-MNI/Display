@@ -25,7 +25,6 @@ public  void  start_picking_viewport( graphics )
                                MIDDLE_MOUSE_DOWN_EVENT,
                                pick_first_corner_point );
 
-
     add_action_table_function( &graphics->action_table, NO_EVENT,
                                show_rectangle_at_mouse );
 
@@ -36,10 +35,7 @@ public  void  start_picking_viewport( graphics )
 private  void  remove_events( action_table )
     action_table_struct  *action_table;
 {
-    void   remove_action_table_function();
     void   pop_action_table();
-
-    remove_action_table_function( action_table, NO_EVENT );
 
     pop_action_table( action_table, MIDDLE_MOUSE_DOWN_EVENT );
     pop_action_table( action_table, MIDDLE_MOUSE_UP_EVENT );
@@ -49,7 +45,11 @@ private  void  remove_events( action_table )
 private  DEF_EVENT_FUNCTION( terminate_picking_viewport )
     /* ARGSUSED */
 {
+    void   remove_action_table_function();
     void   remove_events();
+
+    remove_action_table_function( &graphics->action_table, NO_EVENT,
+                                  show_rectangle_at_mouse );
 
     remove_events( &graphics->action_table );
 
@@ -133,7 +133,8 @@ private  DEF_EVENT_FUNCTION( pick_first_corner_point )
                                MIDDLE_MOUSE_UP_EVENT,
                                done_picking_viewport );
 
-    remove_action_table_function( &graphics->action_table, NO_EVENT );
+    remove_action_table_function( &graphics->action_table, NO_EVENT,
+                                  show_rectangle_at_mouse );
 
     add_action_table_function( &graphics->action_table,
                                NO_EVENT,
@@ -174,6 +175,10 @@ private  DEF_EVENT_FUNCTION( done_picking_viewport )
     void   update_view();
     Real   x_min, y_min, x_max, y_max;
     void   set_update_required();
+    void   remove_action_table_function();
+
+    remove_action_table_function( &graphics->action_table, NO_EVENT,
+                                  show_picked_viewport );
 
     remove_events( &graphics->action_table );
 

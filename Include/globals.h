@@ -10,6 +10,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Maximum_display_time, Real, 0.5 )
     DEF_GLOBAL( Event_timeout_min, Real, 0.1 )
+    DEF_GLOBAL( Max_background_seconds, Real, 0.2 )
     DEF_GLOBAL( Event_timeout_factor, Real, 0.5 )
     DEF_GLOBAL( Size_of_interrupted, int, 1000 )
     DEF_GLOBAL( Interval_of_check, int, 100 )
@@ -111,6 +112,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Cursor_colour, Colour, 0.0 )
     DEF_GLOBAL( Show_cursor_contours, Boolean, FALSE )
+    DEF_GLOBAL( Cursor_contour_thickness, int, 2 )
     DEF_GLOBAL( Cursor_colour_on_surface, Colour, 0.0 )
     DEF_GLOBAL( Cursor_colour_off_surface, Colour, 0.0 )
     DEF_GLOBAL( Cursor_beep_on_surface, int, 1 )

@@ -53,10 +53,12 @@ public  Status  start_film_loop( graphics, base_filename, axis_index, n_steps )
 private  Status  end_film_loop( graphics )
     graphics_struct  *graphics;
 {
+    DECL_EVENT_FUNCTION( check_updated );
     Status   status;
     void     remove_action_table_function();
 
-    remove_action_table_function( &graphics->action_table, NO_EVENT );
+    remove_action_table_function( &graphics->action_table, NO_EVENT,
+                                  check_updated );
 
     FREE1( status, graphics->three_d.film_loop.image_storage );
 

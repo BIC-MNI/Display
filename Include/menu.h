@@ -28,7 +28,7 @@ typedef  struct  menu_entry_struct
 {
     Boolean                     active;
     Boolean                     permanent_flag;
-    char                        key;
+    int                         key;
     String                      label;
     int                         current_depth;
     int                         n_children;

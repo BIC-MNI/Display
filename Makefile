@@ -1,6 +1,6 @@
 include ../C_dev/Makefile.include
 
-OPT = $(OPT_g)
+OPT = $(OPT_O)
 
 OPT_g = -g
 OPT_O = -DNO_DEBUG_ALLOC  -O
@@ -67,7 +67,8 @@ display_obj = \
            events/window_man.o \
            events/utilities.o \
            immediate_mode/draw_immed.o \
-           intersect/intersect.o \
+           intersect/ray_polygons.o \
+           intersect/plane_polygons.o \
            cursor/cursor.o \
            cursor/cursor_icon.o \
            menu/build_menu.o \
@@ -75,6 +76,7 @@ display_obj = \
            menu/input_menu.o \
            menu/menu_update.o \
            menu/selected.o \
+           cursor_contours/contours.o \
            segmenting/connect.o \
            segmenting/cut.o \
            segmenting/segmenting.o \

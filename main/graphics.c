@@ -233,6 +233,8 @@ private  Status  initialize_graphics_window( graphics )
     graphics->associated[MENU_WINDOW] = (graphics_struct *) 0;
     graphics->associated[SLICE_WINDOW] = (graphics_struct *) 0;
 
+    graphics->models_changed_id = 0;
+
     initialize_action_table( &graphics->action_table );
 
     initialize_mouse_events( graphics );
@@ -316,6 +318,14 @@ public  Boolean  graphics_update_required( graphics )
 {
     return( graphics->update_required[NORMAL_PLANES] ||
             graphics->update_required[OVERLAY_PLANES] );
+}
+
+public  void  graphics_models_have_changed( graphics )
+    graphics_struct  *graphics;
+{
+    set_update_required( graphics, NORMAL_PLANES );
+
+    ++graphics->models_changed_id;
 }
 
 private  void  display_frame_info( graphics, frame_number, update_time )
@@ -563,6 +573,9 @@ public  Status  load_graphics_file( graphics, filename )
     Status           create_polygon_neighbours();
     Status           initialize_cursor();
     void             set_update_required();
+    Status           initialize_object_traverse();
+    object_struct            *current_object;
+    object_traverse_struct   object_traverse;
 
     status = create_object( &object, MODEL );
 
@@ -585,20 +598,24 @@ public  Status  load_graphics_file( graphics, filename )
     {
         if( !Visibility_on_input )
         {
-            BEGIN_TRAVERSE_OBJECT( status, object );
-                OBJECT->visibility = OFF;
-            END_TRAVERSE_OBJECT
+            status = initialize_object_traverse( &object_traverse, 1, &object );
+
+            while( get_next_object_traverse(&object_traverse,&current_object) )
+                current_object->visibility = OFF;
         }
     }
 
     if( status == OK )
     {
-        BEGIN_TRAVERSE_OBJECT( status, object );
-            if( status == OK && OBJECT->object_type == POLYGONS )
+        status = initialize_object_traverse( &object_traverse, 1, &object );
+
+        while( get_next_object_traverse(&object_traverse,&current_object) )
+        {
+            if( status == OK && current_object->object_type == POLYGONS )
             {
                 polygons_struct   *polygons;
 
-                polygons = OBJECT->ptr.polygons;
+                polygons = current_object->ptr.polygons;
 
                 n_items = polygons->n_items;
 
@@ -616,7 +633,7 @@ public  Status  load_graphics_file( graphics, filename )
                                                         &polygons->neighbours );
                 }
             }
-        END_TRAVERSE_OBJECT
+        }
     }
 
     if( status == OK )

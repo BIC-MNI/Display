@@ -10,23 +10,30 @@ private  Boolean  get_current_polygons( graphics, polygons )
 {
     Status          status;
     Boolean         found;
-    object_struct   *current_object;
+    object_struct   *current_object, *object;
     Boolean         get_current_object();
+    object_traverse_struct  object_traverse;
+    Status                  initialize_object_traverse();
 
     found = FALSE;
 
     if( get_current_object( graphics, &current_object ) )
     {
-        BEGIN_TRAVERSE_OBJECT( status, current_object )
+        status = initialize_object_traverse( &object_traverse, 1,
+                                             &current_object );
 
-            if( !found && OBJECT->object_type == POLYGONS &&
-                OBJECT->ptr.polygons->n_items > 0 )
+        if( status == OK )
+        {
+            while( get_next_object_traverse(&object_traverse,&object) )
             {
-                found = TRUE;
-                *polygons = OBJECT->ptr.polygons;
+                if( !found && object->object_type == POLYGONS &&
+                    object->ptr.polygons->n_items > 0 )
+                {
+                    found = TRUE;
+                    *polygons = object->ptr.polygons;
+                }
             }
-
-        END_TRAVERSE_OBJECT
+        }
     }
 
     return( found );
@@ -67,11 +74,11 @@ public  DEF_MENU_UPDATE(start_segmenting_surface )   /* ARGSUSED */
 public  DEF_MENU_FUNCTION( reset_polygon_visibility )   /* ARGSUSED */
 {
     void   reset_edited_polygons();
-    void   set_update_required();
+    void   graphics_models_have_changed();
 
     reset_edited_polygons( &graphics->three_d.surface_edit );
 
-    set_update_required( graphics, NORMAL_PLANES );
+    graphics_models_have_changed( graphics );
 
     return( OK );
 }
@@ -213,14 +220,14 @@ public  DEF_MENU_FUNCTION( create_normals_for_polygon )   /* ARGSUSED */
     Status            status;
     Status            compute_polygon_normals();
     polygons_struct   *polygons;
-    void              set_update_required();
+    void              graphics_models_have_changed();
 
     status = OK;
 
     if( get_current_polygons(graphics,&polygons) )
     {
         status = compute_polygon_normals( polygons );
-        set_update_required( graphics, NORMAL_PLANES );
+        graphics_models_have_changed( graphics );
 
         PRINT( "Done computing polygon normals.\n" );
     }
@@ -238,9 +245,9 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
     Status            status;
     Status            smooth_polygon();
     Status            compute_polygon_normals();
-    Status            delete_polygon_bintree();
+    Status            delete_polygons_bintree();
     polygons_struct   *polygons;
-    void              set_update_required();
+    void              graphics_models_have_changed();
 
     status = OK;
 
@@ -253,9 +260,9 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon )   /* ARGSUSED */
             status = compute_polygon_normals( polygons );
 
         if( status == OK )
-            status = delete_polygon_bintree( polygons );
+            status = delete_polygons_bintree( polygons );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        graphics_models_have_changed( graphics );
 
         PRINT( "Done smoothing polygon.\n" );
     }

@@ -14,6 +14,7 @@ public  void  draw_2d_line( graphics, view_type, colour, x1, y1, x2, y2 )
     static    int       indices[]     = { 0, 1 };
     static    lines_struct  lines = {
                                         { 0.0, 0.0, 0.0 },
+                                        1,
                                         2,
                                         end_points,
                                         1,
@@ -45,6 +46,7 @@ public  void  draw_2d_rectangle( graphics, view_type, colour, x1, y1, x2, y2 )
     static    int       indices[]     = { 0, 1, 2, 3, 0 };
     static    lines_struct  lines = {
                                         { 0.0, 0.0, 0.0 },
+                                        1,
                                         4,
                                         corners,
                                         1,

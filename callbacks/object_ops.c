@@ -7,13 +7,13 @@ public  DEF_MENU_FUNCTION( reverse_normals )   /* ARGSUSED */
     Boolean         get_current_object();
     Status          status;
     Status          reverse_object_normals();
-    void            set_update_required();
+    void            graphics_models_have_changed();
 
     if( get_current_object( graphics, &current_object ) )
     {
         status = reverse_object_normals( current_object );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        graphics_models_have_changed( graphics );
     }
 
     return( status );
@@ -30,7 +30,7 @@ public  DEF_MENU_FUNCTION( advance_visible )     /* ARGSUSED */
     Boolean          get_current_object();
     void             advance_current_object();
     void             rebuild_selected_list();
-    void             set_update_required();
+    void             graphics_models_have_changed();
 
     if( get_current_object( graphics, &current_object ) )
     {
@@ -45,7 +45,7 @@ public  DEF_MENU_FUNCTION( advance_visible )     /* ARGSUSED */
 
         rebuild_selected_list( graphics, menu_window );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        graphics_models_have_changed( graphics );
     }
 
     return( OK );
@@ -62,7 +62,7 @@ public  DEF_MENU_FUNCTION( retreat_visible )     /* ARGSUSED */
     Boolean          get_current_object();
     void             retreat_current_object();
     void             rebuild_selected_list();
-    void             set_update_required();
+    void             graphics_models_have_changed();
 
     if( get_current_object( graphics, &current_object ) )
     {
@@ -77,7 +77,7 @@ public  DEF_MENU_FUNCTION( retreat_visible )     /* ARGSUSED */
 
         rebuild_selected_list( graphics, menu_window );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        graphics_models_have_changed( graphics );
     }
 
     return( OK );
@@ -91,20 +91,26 @@ public  DEF_MENU_UPDATE(retreat_visible )     /* ARGSUSED */
 public  DEF_MENU_FUNCTION( make_all_invisible )     /* ARGSUSED */
 {
     Status           status;
-    object_struct    *current_object;
+    object_struct    *object, *current_object;
     Boolean          get_current_object();
     void             rebuild_selected_list();
-    void             set_update_required();
+    void             graphics_models_have_changed();
+    object_traverse_struct  object_traverse;
+    Status                  initialize_object_traverse();
+
+    status = OK;
 
     if( get_current_object( graphics, &current_object ) )
     {
-        BEGIN_TRAVERSE_OBJECT( status, current_object )
-            OBJECT->visibility = FALSE;
-        END_TRAVERSE_OBJECT
+        status = initialize_object_traverse( &object_traverse, 1,
+                                             &current_object );
+
+        while( get_next_object_traverse(&object_traverse,&object) )
+               object->visibility = FALSE;
 
         rebuild_selected_list( graphics, menu_window );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        graphics_models_have_changed( graphics );
     }
 
     return( status );
@@ -118,20 +124,24 @@ public  DEF_MENU_UPDATE(make_all_invisible )     /* ARGSUSED */
 public  DEF_MENU_FUNCTION( make_all_visible )     /* ARGSUSED */
 {
     Status           status;
-    object_struct    *current_object;
+    object_struct    *current_object, *object;
     Boolean          get_current_object();
     void             rebuild_selected_list();
-    void             set_update_required();
+    void             graphics_models_have_changed();
+    object_traverse_struct  object_traverse;
+    Status                  initialize_object_traverse();
 
     if( get_current_object( graphics, &current_object ) )
     {
-        BEGIN_TRAVERSE_OBJECT( status, current_object )
-            OBJECT->visibility = TRUE;
-        END_TRAVERSE_OBJECT
+        status = initialize_object_traverse( &object_traverse, 1,
+                                             &current_object );
+
+        while( get_next_object_traverse(&object_traverse,&object) )
+            object->visibility = TRUE;
 
         rebuild_selected_list( graphics, menu_window );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        graphics_models_have_changed( graphics );
     }
 
     return( status );
@@ -217,7 +227,7 @@ public  DEF_MENU_FUNCTION( toggle_object_visibility )     /* ARGSUSED */
     object_struct    *current_object;
     Boolean          get_current_object();
     void             rebuild_selected_list();
-    void             set_update_required();
+    void             graphics_models_have_changed();
 
     if( get_current_object( graphics, &current_object ) )
     {
@@ -225,7 +235,7 @@ public  DEF_MENU_FUNCTION( toggle_object_visibility )     /* ARGSUSED */
 
         rebuild_selected_list( graphics, menu_window );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        graphics_models_have_changed( graphics );
     }
 
     return( OK );
@@ -243,7 +253,7 @@ public  DEF_MENU_FUNCTION( create_model )     /* ARGSUSED */
     void             rebuild_selected_list();
     Status           status;
     Status           create_model_after_current();
-    void             set_update_required();
+    void             graphics_models_have_changed();
 
     status = OK;
 
@@ -253,7 +263,7 @@ public  DEF_MENU_FUNCTION( create_model )     /* ARGSUSED */
 
         rebuild_selected_list( graphics, menu_window );
 
-        set_update_required( graphics, NORMAL_PLANES );
+        graphics_models_have_changed( graphics );
     }
 
     return( status );
@@ -274,6 +284,7 @@ public  DEF_MENU_FUNCTION( delete_current_object )     /* ARGSUSED */
     void             rebuild_selected_list();
     Status           status;
     void             set_update_required();
+    void             graphics_models_have_changed();
     void             set_current_object_index();
     Status           remove_object_from_model();
     Status           delete_object();
@@ -306,7 +317,7 @@ public  DEF_MENU_FUNCTION( delete_current_object )     /* ARGSUSED */
             rebuild_selected_list( graphics, menu_window );
             set_update_required( menu_window, NORMAL_PLANES );
 
-            set_update_required( graphics, NORMAL_PLANES );
+            graphics_models_have_changed( graphics );
         }
     }
 

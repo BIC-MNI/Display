@@ -18,9 +18,11 @@ public  void  install_surface_extraction( graphics )
 public  void  uninstall_surface_extraction( graphics )
     graphics_struct    *graphics;
 {
+    DECL_EVENT_FUNCTION(    add_to_surface );
     void   remove_action_table_function();
 
-    remove_action_table_function( &graphics->action_table, NO_EVENT );
+    remove_action_table_function( &graphics->action_table, NO_EVENT,
+                                  add_to_surface );
 }
 
 private  DEF_EVENT_FUNCTION( add_to_surface )    /* ARGSUSED */

@@ -186,4 +186,22 @@ typedef  struct
     int              *invisible_indices;
 } surface_edit_struct;
 
+typedef  struct
+{
+    lines_struct  *lines;
+    int           n_points_alloced;
+    int           n_indices_alloced;
+    int           n_end_indices_alloced;
+} contour_struct;
+
+typedef  struct
+{
+    contour_struct           contours[3];
+    int                      models_changed_id;
+    int                      axis;
+    polygons_struct          *current_polygons;
+    int                      poly_index;
+    object_traverse_struct   object_traverse;
+} cursor_contours_struct;
+
 #endif
