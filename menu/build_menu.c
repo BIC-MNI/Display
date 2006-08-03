@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/build_menu.c,v 1.34 2001-05-27 00:19:49 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/build_menu.c,v 1.35 2006-08-03 21:50:29 claude Exp $";
 #endif
 
 
@@ -28,10 +28,10 @@ typedef  struct
 } position_struct;
 
 private   position_struct   positions[] = {
-                           {(int) LEFT_ARROW_KEY, "<", 5.5, 0.0, 0.5, FALSE},
-                           {(int) DOWN_ARROW_KEY, "v", 6.0, 0.0, 0.5, FALSE},
-                           {(int) RIGHT_ARROW_KEY, ">", 6.5, 0.0, 0.5, FALSE},
-                           {(int) UP_ARROW_KEY, "^", 6.0, 1.0, 0.5, FALSE},
+                           {(int) LEFT_ARROW_KEY, "<", 6.5, 0.0, 0.5, FALSE},
+                           {(int) DOWN_ARROW_KEY, "v", 7.0, 0.0, 0.5, FALSE},
+                           {(int) RIGHT_ARROW_KEY, ">", 7.5, 0.0, 0.5, FALSE},
+                           {(int) UP_ARROW_KEY, "^", 7.0, 1.0, 0.5, FALSE},
 
                            {' ', "space", 1.0, 0.0, 3.0, FALSE },
 
@@ -41,6 +41,7 @@ private   position_struct   positions[] = {
                            {'v', "V", 3.0, 1.0, 1.0, TRUE },
                            {'b', "B", 4.0, 1.0, 1.0, TRUE },
                            {'n', "N", 5.0, 1.0, 1.0, TRUE },
+                           {'m', "M", 6.0, 1.0, 1.0, TRUE },
 
                            {'a', "A", 0.0, 2.0, 1.0, TRUE },
                            {'s', "S", 1.0, 2.0, 1.0, TRUE },
@@ -48,6 +49,7 @@ private   position_struct   positions[] = {
                            {'f', "F", 3.0, 2.0, 1.0, TRUE },
                            {'g', "G", 4.0, 2.0, 1.0, TRUE },
                            {'h', "H", 5.0, 2.0, 1.0, TRUE },
+                           {'j', "J", 6.0, 2.0, 1.0, TRUE },
 
                            {'q', "Q", 0.0, 3.0, 1.0, TRUE },
                            {'w', "W", 1.0, 3.0, 1.0, TRUE },
@@ -65,9 +67,9 @@ private   position_struct   positions[] = {
                            {'6', "6", 5.0, 4.0, 1.0, TRUE },
                            {'7', "7", 6.0, 4.0, 1.0, TRUE },
 
-                           {'+', "+", 6.2, 2.0, 0.4, TRUE },
+                           {'+', "+", 7.2, 2.0, 0.4, TRUE },
                            {'=', "=", 0.0, 0.0, 0.0, TRUE },
-                           {'-', "-", 6.7, 2.0, 0.4, TRUE }
+                           {'-', "-", 7.7, 2.0, 0.4, TRUE }
                          };
 
 private  void   create_menu_text(

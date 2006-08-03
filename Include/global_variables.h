@@ -368,4 +368,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Duplicate_boundary_vertices, BOOLEAN, FALSE )
 
+    DEF_GLOBAL( Toggle_freestyle_painting, BOOLEAN, TRUE )
+    DEF_GLOBAL( First_straightline_right_mouse_down,BOOLEAN, TRUE )
+
 END_GLOBALS

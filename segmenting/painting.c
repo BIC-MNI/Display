@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.49 2001-05-27 00:19:51 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.50 2006-08-03 21:50:30 claude Exp $";
 #endif
 
 #include  <display.h>
@@ -128,6 +128,81 @@ private  DEF_EVENT_FUNCTION( right_mouse_down )
     if( !get_slice_window( display, &slice_window ) ||
         !get_axis_index_under_mouse( slice_window, &volume_index, &axis_index ))
         return( OK );
+
+    /*
+     * START OF MANDLIZATION:
+     * If not in Toggle_freestyle_painting mode draw a straight line.
+     */
+
+    if ( !Toggle_freestyle_painting ) {
+      (void) G_get_mouse_position( slice_window->window, &x_pixel, &y_pixel );
+      if ( First_straightline_right_mouse_down ) {
+        slice_window->slice.segmenting.x_mouse_start = x_pixel;
+        slice_window->slice.segmenting.y_mouse_start = y_pixel;
+        First_straightline_right_mouse_down = FALSE;
+      } else {
+
+        /*
+         * Draw a straight line between current and previous position.
+         */
+
+        if( is_shift_key_pressed( ) ) {
+          label = slice_window->slice.current_erase_label;
+        } else {
+          label = get_current_paint_label( slice_window );
+        }
+        (void) sweep_paint_labels( slice_window,
+                                   x_pixel, y_pixel,
+                                   slice_window->slice.segmenting.x_mouse_start,
+                                   slice_window->slice.segmenting.y_mouse_start, label );
+
+        if( Draw_brush_outline &&
+            find_slice_view_mouse_is_in( slice_window, x_pixel, y_pixel,
+                                         &slice_window->slice.painting_view_index )) {
+          slice_window->slice.brush_outline = create_object( LINES );
+          initialize_lines( get_lines_ptr(slice_window->slice.brush_outline),
+                            Brush_outline_colour );
+
+          add_object_to_model( get_graphics_model( slice_window,
+                                                   SLICE_MODEL1 +
+                                                   slice_window->slice.painting_view_index ),
+                               slice_window->slice.brush_outline );
+          update_brush( slice_window, x_pixel, y_pixel, FALSE );
+        } else {
+          slice_window->slice.painting_view_index = -1;
+        }
+
+        volume_index = update_paint_labels( display );
+
+        if( Draw_brush_outline &&
+            display->slice.painting_view_index >= 0 ) {
+          remove_object_from_model( get_graphics_model( display,
+                                                        SLICE_MODEL1
+                                                        + display->slice.painting_view_index ),
+                                    display->slice.brush_outline );
+
+          delete_object( display->slice.brush_outline );
+          display->slice.painting_view_index = -1;
+        }
+
+        set_slice_window_all_update( display, volume_index, UPDATE_LABELS );
+
+        update_all_menu_text( display );
+
+        /*
+         * The straight line has been drawn.
+         * Now save current position as previous position.
+         */
+
+        slice_window->slice.segmenting.x_mouse_start = x_pixel;
+        slice_window->slice.segmenting.y_mouse_start = y_pixel;
+      }
+      return( OK );
+    }
+
+    /*
+     * EOF MANDLIZATION
+     */
 
     push_action_table( &slice_window->action_table, NO_EVENT );
 

@@ -13,10 +13,9 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.143 2005-04-03 15:43:33 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.144 2006-08-03 21:50:30 claude Exp $";
 #endif
 
-#include  <config.h>
 #include  <display.h>
 
 #define  MENU1 \
@@ -231,6 +230,7 @@ MENU_F(toggle_cursor_follows_paintbrush) \
 MENU_F(toggle_cursor_visibility) \
 MENU_F(set_paint_xy_brush_radius) \
 MENU_F(set_paint_z_brush_radius) \
+MENU_F(toggle_freestyle_painting) \
 MENU_F(copy_labels_from_lower_slice) \
 MENU_F(copy_labels_from_higher_slice) \
 MENU_F(set_current_paint_label) \
@@ -317,7 +317,7 @@ MENU_F(choose_invisible) \
 MENU_F(sulci_menu10) \
 MENU_F(smalls_invisible) \
 
-#if DISPLAY_USE_SEAL
+#if USE_SEAL
 #  define  FUNCTION_LIST  MENU1 MENU2 MENU3 MENU4 MENU_SEAL
 #else
 #  define  FUNCTION_LIST  MENU1 MENU2 MENU3 MENU4

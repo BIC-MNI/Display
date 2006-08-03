@@ -360,7 +360,8 @@ segmenting \
     transient 'd'    set_current_paint_label          'Set Paint Lbl: %d' \
     transient 'f'    set_paint_xy_brush_radius        'XY Radius: %g' \
     transient 'g'    set_paint_z_brush_radius         'Out-plane Rad: %g' \
-    transient 'h'    copy_labels_from_higher_slice 'Copy from Rt/Sup/Ant Slice' \
+    transient 'h'    copy_labels_from_higher_slice    'Copy from Rt/Sup/Ant Slice' \
+    transient 'j'    toggle_freestyle_painting         'Freestyle: %s' \
  \
     transient 'z'    reset_segmenting_confirm         'Clear All Labels' \
     transient 'x'    erode_labels                     'Erode 3D' \
