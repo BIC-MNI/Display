@@ -1,3 +1,8 @@
+
+2010-09-06  Andrew L Janke <a.janke@gmail.com>
+   * updated README, NEWS, removed TODO, README.CVS
+   * built against simplified version of Graphics/GLUT (RGB DB only)
+
 2008-08-18  Andrew L Janke <a.janke@gmail.com>
 	* configure.in: added error output if missing GLUT/GL
 	* epm-header.in: removed netcdf, changed from Register to register

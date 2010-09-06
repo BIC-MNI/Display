@@ -1,5 +1,0 @@
-Update rate for painting on a full screen window:
-
-Display.irisgl  :   5.0  frames / sec
-Display.opengl  :   3.0  frames / sec
-Display.mesa    :   0.1  frames / sec

@@ -1,3 +1,7 @@
+
+New in Release 1.5.0
+* Fixed bugs with GLUT display modes
+
         New in Release 1.4.2
 
 * Add a mode for line drawing during painting.
