@@ -1,6 +1,12 @@
 2012-03-02  Andrew L Janke <a.janke@gmail.com>
    * autogen.sh: added libtoolize line
 
+2011-11-04 Haz-Edine Assemlal<haz-edine@assemlal.com>
+	* aclocal.m4: replace embedded libtool with system-wide
+	* GIT: now using a decentralized versioning system.
+	Future logs will now be available using git log.
+
+
 2010-10-29 John G. Sled <jgsled@phenogenomics.ca>
    * changed random number generator seed for rendering objects with between
       2000000 and 4000000 polygons
