@@ -1,0 +1,17 @@
+*.Po
+*.0
+*.o
+*.a
+*~
+Makefile
+*/Makefile
+*/*/Makefile
+autom4te.cache
+config.h
+config.log
+config.guess
+config.status
+Display
+Display.menu
+epm-header
+stamp-h1

@@ -6,7 +6,6 @@
 	* GIT: now using a decentralized versioning system.
 	Future logs will now be available using git log.
 
-
 2010-10-29 John G. Sled <jgsled@phenogenomics.ca>
    * changed random number generator seed for rendering objects with between
       2000000 and 4000000 polygons
