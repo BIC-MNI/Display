@@ -210,6 +210,8 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( User_defined_min_colour )
     DEF_GLOBAL_COLOUR( User_defined_max_colour )
     DEF_GLOBAL( User_defined_colour_coding_flip, BOOLEAN, TRUE )
+    DEF_GLOBAL( Initial_low_absolute_position, Real, -1 )
+    DEF_GLOBAL( Initial_high_absolute_position, Real, -1 )
     DEF_GLOBAL( Initial_low_limit_position, Real, 0.25 )
     DEF_GLOBAL( Initial_high_limit_position, Real, 0.75 )
     DEF_GLOBAL_COLOUR( Colour_above )

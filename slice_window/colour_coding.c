@@ -313,10 +313,15 @@ public  void  initialize_slice_colour_coding(
     get_volume_real_range( get_nth_volume(slice_window,volume_index),
                            &min_value, &max_value );
 
-    low_limit = min_value + Initial_low_limit_position *
-                (max_value - min_value);
-    high_limit = min_value + Initial_high_limit_position *
-                 (max_value - min_value);
+    if( Initial_low_absolute_position >= 0 )
+    	low_limit = Initial_low_absolute_position;
+    else
+    	low_limit = min_value + Initial_low_limit_position * (max_value - min_value);
+
+    if( Initial_high_absolute_position >= 0 )
+        high_limit = Initial_high_absolute_position;
+    else
+    	high_limit = min_value + Initial_high_limit_position * (max_value - min_value);
 
     change_colour_coding_range( slice_window, volume_index,
                                 low_limit, high_limit );
