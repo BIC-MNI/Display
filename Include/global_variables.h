@@ -373,5 +373,6 @@ START_GLOBALS
     DEF_GLOBAL( Toggle_freestyle_painting, BOOLEAN, TRUE )
     DEF_GLOBAL( First_straightline_right_mouse_down,BOOLEAN, TRUE )
 
+    DEF_GLOBAL( Output_label_filename, STRING, "" )
     DEF_GLOBAL( Exit_error_load_file, BOOLEAN, FALSE )
 END_GLOBALS

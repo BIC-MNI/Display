@@ -234,11 +234,17 @@ public  DEF_MENU_FUNCTION(save_label_data)
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        print( "Enter filename to save: " );
 
-        status = input_string( stdin, &filename, ' ' );
+    	if( string_length(Output_label_filename) )
+    		filename = Output_label_filename;
+    	else
+    	{
+    		print( "Enter filename to save: " );
 
-        (void) input_newline( stdin );
+			status = input_string( stdin, &filename, ' ' );
+
+			(void) input_newline( stdin );
+    	}
 
         if( status == OK && check_clobber_file( filename ) )
         {
