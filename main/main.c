@@ -222,8 +222,11 @@ int  main(
             }
 
             if( load_graphics_file( graphics, filename,
-                                    next_is_label_volume ) != OK )
-                print( "Error loading %s\n", filename );
+            		next_is_label_volume ) != OK ) {
+            	print( "Error loading %s\n", filename );
+            	if( Exit_error_load_file )
+            		exit(EX_NOINPUT);
+            }
 
             next_is_label_volume = FALSE;
         }

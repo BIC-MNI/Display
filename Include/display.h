@@ -19,6 +19,7 @@
 static char display_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/display.h,v 1.8 2001-05-27 00:19:36 stever Exp $";
 #endif
 
+#include  <sysexits.h>
 #include  <volume_io/internal_volume_io.h>
 
 #include  <bicpl/globals.h>
