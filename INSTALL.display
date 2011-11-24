@@ -24,16 +24,10 @@ of the following before continuing.
 
 Often, you can configure and build Display simply:
 
-	./configure
+	ccmake .
 	make
 
-The command "make install" will then install Display into /usr/local/bin.
-
-If you prefer an alternate location, use the --prefix option:
-
-	./configure --prefix=/usr/local/mni
-	make
-
+The command "make install" will then install Display into CMAKE_INSTALL_PREFIX.
 
 If configure complains about not being able to find libraries, you have to tell
 configure where the libraries may be found.
@@ -43,31 +37,10 @@ hierarchy.  Here at the MNI, we put all the libs into /usr/local/mni/lib, and
 their associated include files into /usr/local/mni/include.  In this case,
 Display can be configured using
 
-	./configure --prefix=/usr/local/mni --with-build-path=/usr/local/mni
-
-If the required libraries are in several different hierarchies, no problem:
-the argument to build path is a colon-separated list of locations to check.
-For example, if you need to look in /usr/local/lib as well as
-/usr/local/mni/lib, then
-
-	./configure --with-build-path=/usr/local/mni:/usr/local
-
-will do the trick.
+	MINC_ROOT=/usr/local/mni
 
 
-		Building with SEAL for sulcal labelling
-		---------------------------------------
-
-Seal version 1.0 or later must be installed.
-
-Use option --with-seal at configure time, and specify a C++
-compiler by setting variable CC on the configure line.  For
-example, if compiling using the GNU compiler:
-
-    ./configure .... --with-seal CC=g++
-
-
-		Build Failure with menu/menu.c
+    	Build Failure with menu/menu.c
 		------------------------------
 
 In July 2001, the compiler shipped with Apple Mac OSX systems failed
