@@ -27,6 +27,20 @@ static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Dis
 
 #define   OBLIQUE_VIEW_INDEX    (N_SLICE_VIEWS-1)
 
+typedef enum {
+               VOLUME_INDEX,
+               X_VOXEL_PROBE_INDEX,
+               Y_VOXEL_PROBE_INDEX,
+               Z_VOXEL_PROBE_INDEX,
+               X_WORLD_PROBE_INDEX,
+               Y_WORLD_PROBE_INDEX,
+               Z_WORLD_PROBE_INDEX,
+               VOXEL_PROBE_INDEX,
+               VAL_PROBE_INDEX,
+               LABEL_PROBE_INDEX,
+               RATIO_PROBE_INDEX,
+               N_READOUT_MODELS     } Slice_readout_indices;
+
 typedef  struct
 {
     Real              min_threshold;
@@ -150,6 +164,10 @@ typedef  struct
     BOOLEAN                crop_labels_on_output_flag;
     BOOLEAN                share_labels_flag;
     colour_bar_struct      colour_bar;
+
+    BOOLEAN				   print_probe_ratio;
+    int					   ratio_volume_index_numerator;
+    int                    ratio_volume_index_denominator;
 
     BOOLEAN                using_transparency;
     BOOLEAN                degrees_continuity;

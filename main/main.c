@@ -28,6 +28,7 @@ int debug = 1;
 int verbose = 1;
 
 private  void      initialize_global_colours( void );
+private  void      initialize_ratio (display_struct* display);
 private  void      initialize_view_to_fit(
     display_struct  *display );
 
@@ -239,6 +240,7 @@ int  main(
     {
         for_less( view, 0, N_SLICE_VIEWS )
             reset_slice_view( slice_window, view );
+        initialize_ratio( slice_window );
     }
 
     if( !Enable_volume_caching )
@@ -330,6 +332,7 @@ private  void      initialize_global_colours( void )
     Menu_name_colour = GREEN;
     Cursor_pos_colour = GREEN;
     Unfinished_flag_colour = GREEN;
+    Slice_probe_ratio_colour = YELLOW;
 }
 
 private  void      initialize_view_to_fit(
@@ -390,4 +393,31 @@ private  void      initialize_view_to_fit(
                  0.5 );
 
     reset_cursor( display );
+}
+
+private void initialize_ratio (display_struct* slice_window)
+{
+	model_struct      *model;
+	Colour             colour;
+	int 			   retcode;
+	text_struct       *text;
+
+	slice_window->slice.print_probe_ratio = FALSE;
+
+	if( string_length(Ratio_volume_index) )
+	{
+		retcode = sscanf(Ratio_volume_index, Ratio_volume_index_format,
+					&slice_window->slice.ratio_volume_index_numerator,
+					&slice_window->slice.ratio_volume_index_denominator);
+		if( retcode != 2 )
+			fprintf(stderr, "Error: can not parse %s with %s\n",
+					Ratio_volume_index, Ratio_volume_index_format);
+		else
+		{
+			slice_window->slice.print_probe_ratio = TRUE;
+			model = get_graphics_model( slice_window, SLICE_READOUT_MODEL );
+			text = get_text_ptr( model->objects[RATIO_PROBE_INDEX] );
+			text->colour = Slice_probe_ratio_colour;
+		}
+	}
 }

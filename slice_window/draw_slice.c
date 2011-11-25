@@ -31,18 +31,7 @@ typedef  enum  {
 
 typedef  enum  { DIVIDER_INDEX } Full_window_indices;
 
-typedef enum { 
-               VOLUME_INDEX,
-               X_VOXEL_PROBE_INDEX,
-               Y_VOXEL_PROBE_INDEX,
-               Z_VOXEL_PROBE_INDEX,
-               X_WORLD_PROBE_INDEX,
-               Y_WORLD_PROBE_INDEX,
-               Z_WORLD_PROBE_INDEX,
-               VOXEL_PROBE_INDEX,
-               VAL_PROBE_INDEX,
-               LABEL_PROBE_INDEX,
-               N_READOUT_MODELS     } Slice_readout_indices;
+
 
 public  void  initialize_slice_models(
     display_struct    *slice_window )
@@ -347,6 +336,7 @@ public  void  rebuild_probe(
     model_struct   *model;
     BOOLEAN        active;
     Volume         volume;
+    Volume         volume_ratio_num, volume_ratio_den;
     Real           voxel[MAX_DIMENSIONS];
     int            int_voxel[MAX_DIMENSIONS];
     int            label, i, view_index, volume_index;
@@ -354,8 +344,11 @@ public  void  rebuild_probe(
     text_struct    *text;
     int            sizes[N_DIMENSIONS];
     Real           value, voxel_value;
+    Real           value_ratio_num, value_ratio_den;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
     char           buffer[EXTREMELY_LARGE_STRING_SIZE];
+    Real 		   ratio;
+    int            ratio_num_index, ratio_den_index;
 
     active = get_voxel_in_slice_window( slice_window, voxel, &volume_index,
                                         &view_index );
@@ -382,6 +375,26 @@ public  void  rebuild_probe(
 
         label = get_voxel_label( slice_window, volume_index,
                                  int_voxel[X], int_voxel[Y], int_voxel[Z] );
+
+        if( slice_window->slice.print_probe_ratio)
+		{
+        	int ratio_num_index =
+        			slice_window->slice.ratio_volume_index_numerator;
+        	int ratio_den_index =
+        	        slice_window->slice.ratio_volume_index_denominator;
+
+			volume_ratio_num = get_nth_volume( slice_window, ratio_num_index );
+			volume_ratio_den = get_nth_volume( slice_window, ratio_den_index );
+
+			(void) evaluate_volume( volume_ratio_num, voxel, NULL,
+                                    slice_window->slice.degrees_continuity,
+	                                FALSE, 0.0, &value_ratio_num, NULL, NULL );
+			(void) evaluate_volume( volume_ratio_den, voxel, NULL,
+                                    slice_window->slice.degrees_continuity,
+	                                FALSE, 0.0, &value_ratio_den, NULL, NULL );
+			ratio = value_ratio_num / value_ratio_den;
+		}
+
     }
 
     /* --- do slice readout models */
@@ -390,13 +403,8 @@ public  void  rebuild_probe(
 
     for_less( i, 0, N_READOUT_MODELS )
     {
-        x_pos = Probe_x_pos + i * Probe_x_delta;
-        y_pos = Probe_y_pos + (N_READOUT_MODELS-1-i) * Probe_y_delta +
-                ((N_READOUT_MODELS-1-i) / 3) * Probe_y_pos;
-
-        text = get_text_ptr( model->objects[i] );
-
-        if( active )
+    	text = get_text_ptr( model->objects[i] );
+    	if( active )
         {
             switch( i )
             {
@@ -439,12 +447,24 @@ public  void  rebuild_probe(
             case LABEL_PROBE_INDEX:
                 (void) sprintf( buffer, Slice_probe_label_format, label );
                 break;
+            case RATIO_PROBE_INDEX:
+            	if( slice_window->slice.print_probe_ratio )
+            		(void) sprintf( buffer, Slice_probe_ratio_format, ratio );
+            	else
+            		(void) sprintf( buffer, "Ratio undef" );
+                break;
             }
         }
         else
         {
             buffer[0] = END_OF_STRING;
         }
+
+        x_pos = Probe_x_pos + i * Probe_x_delta;
+        y_pos = Probe_y_pos + (N_READOUT_MODELS-1-i) * Probe_y_delta +
+                ((N_READOUT_MODELS-0-i) / 3) * Probe_y_pos;
+
+
 
         delete_string( text->string );
         text->string = create_string( buffer );

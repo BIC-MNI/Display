@@ -375,4 +375,8 @@ START_GLOBALS
 
     DEF_GLOBAL( Output_label_filename, STRING, "" )
     DEF_GLOBAL( Exit_error_load_file, BOOLEAN, FALSE )
+    DEF_GLOBAL( Ratio_volume_index, STRING, "" )
+    DEF_GLOBAL( Ratio_volume_index_format, STRING, "%d,%d" )
+    DEF_GLOBAL( Slice_probe_ratio_format, STRING, "Ratio %6.2f" )
+    DEF_GLOBAL_COLOUR( Slice_probe_ratio_colour )
 END_GLOBALS
