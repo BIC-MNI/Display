@@ -265,7 +265,7 @@ public  DEF_MENU_FUNCTION(save_label_data)
             }
 
             if( status == OK )
-                print( "Done\n" );
+                print( "Label saved to %s\n", filename );
             else
             {
                 print( "\n" );
