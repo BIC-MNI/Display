@@ -37,7 +37,7 @@ public  Status  load_graphics_file(
 
     object = create_object( MODEL );
 
-    print( "Inputting %s.\n", filename );
+    print( "Input %s\n", filename );
 
     model = get_model_ptr( object );
     initialize_display_model( model );
