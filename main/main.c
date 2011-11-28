@@ -27,10 +27,12 @@ static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main
 int debug = 1;
 int verbose = 1;
 
-private  void      initialize_global_colours( void );
-private  void      initialize_ratio (display_struct* display);
-private  void      initialize_view_to_fit(
-    display_struct  *display );
+private  void   initialize_global_colours( void );
+private  void   initialize_ratio (display_struct* display);
+private  void   initialize_view_to_fit (display_struct  *display );
+private  void   initialize_cache ();
+private  void   parse_options (int argc, char *argv[],
+		display_struct *graphics);
 
 /* The first directory is set using compiler flag -D */
 /*#define  HARD_CODED_DISPLAY_DIRECTORY1    "/usr/local/mni/lib"*/
@@ -167,74 +169,7 @@ int  main(
 
     delete_string( runtime_directory );
 
-    initialize_argument_processing( argc, argv );
-
-    next_is_label_volume = FALSE;
-
-    while( get_string_argument( "", &filename ) )
-    {
-        if( equal_strings( filename, "-version" ) )
-        {
-            print( "%s %s\n", PROJECT_NAME,	PROJECT_VERSION );
-            return( 0 );
-        }
-        else if( equal_strings( filename, "-label" ) )
-        {
-            if( next_is_label_volume )
-                print( "Ignoring extraneous -label\n" );
-            next_is_label_volume = TRUE;
-        }
-        else if( equal_strings( filename, "-global" ) )
-        {
-            if( !get_string_argument( "", &variable_name ) ||
-                !get_string_argument( "", &variable_value ) )
-            {
-                print_error( "Error in arguments after -global.\n" );
-                return( 1 );
-            }
-
-            if( set_global_variable_value( variable_name, variable_value )
-                                                 != OK )
-            {
-                print("Error setting global variable from command line.\n");
-            }
-        }
-        else
-        {
-            if( !Enable_volume_caching )
-                set_n_bytes_cache_threshold( -1 );
-            else
-            {
-                if( Volume_cache_threshold >= 0 )
-                    set_n_bytes_cache_threshold( Volume_cache_threshold );
-
-                if( Volume_cache_size >= 0 )
-                    set_default_max_bytes_in_cache( Volume_cache_size );
-
-                if( Volume_cache_block_size > 0 )
-                {
-                    int   dim, block_sizes[MAX_DIMENSIONS];
-
-                    for_less( dim, 0, MAX_DIMENSIONS )
-                        block_sizes[dim] = Volume_cache_block_size;
-
-                    set_default_cache_block_sizes( block_sizes );
-                }
-            }
-
-            if( load_graphics_file( graphics, filename,
-            		next_is_label_volume ) != OK ) {
-            	print( "Error loading %s\n", filename );
-            	if( Exit_error_load_file )
-            		exit(EX_NOINPUT);
-            }
-
-            next_is_label_volume = FALSE;
-        }
-    }
-
-    if( next_is_label_volume )
-        print( "Ignoring extraneous -label\n" );
+    parse_options(argc, argv, graphics);
 
     if( get_slice_window( graphics, &slice_window ) )
     {
@@ -243,37 +178,14 @@ int  main(
         initialize_ratio( slice_window );
     }
 
-    if( !Enable_volume_caching )
-        set_n_bytes_cache_threshold( -1 );
-    else
-    {
-        if( Volume_cache_threshold >= 0 )
-            set_n_bytes_cache_threshold( Volume_cache_threshold );
-
-        if( Volume_cache_size >= 0 )
-            set_default_max_bytes_in_cache( Volume_cache_size );
-
-        if( Volume_cache_block_size > 0 )
-        {
-            int   dim, block_sizes[MAX_DIMENSIONS];
-
-            for_less( dim, 0, MAX_DIMENSIONS )
-                block_sizes[dim] = Volume_cache_block_size;
-            set_default_cache_block_sizes( block_sizes );
-        }
-    }
-
+    initialize_cache( graphics );
     initialize_view_to_fit( graphics );
-
     rebuild_selected_list( graphics, menu );
-
     reset_view_parameters( graphics, &Default_line_of_sight,
                            &Default_horizontal );
 
     update_view( graphics );
-
     update_all_menu_text( graphics );
-
     set_update_required( graphics, NORMAL_PLANES );
 
     (void) main_event_loop();
@@ -287,7 +199,7 @@ int  main(
 
     output_alloc_to_file( ".alloc_stats" );
 
-    return( 0 );
+    return( EX_OK );
 }
 
 private  void      initialize_global_colours( void )
@@ -421,3 +333,135 @@ private void initialize_ratio (display_struct* slice_window)
 		}
 	}
 }
+
+private void initialize_cache()
+{
+	if (!Enable_volume_caching)
+		set_n_bytes_cache_threshold(-1);
+	else
+	{
+		if (Volume_cache_threshold >= 0)
+			set_n_bytes_cache_threshold(Volume_cache_threshold);
+
+		if (Volume_cache_size >= 0)
+			set_default_max_bytes_in_cache(Volume_cache_size);
+
+		if (Volume_cache_block_size > 0)
+		{
+			int dim, block_sizes[MAX_DIMENSIONS];
+
+			for_less( dim, 0, MAX_DIMENSIONS )
+				block_sizes[dim] = Volume_cache_block_size;
+			set_default_cache_block_sizes(block_sizes);
+		}
+	}
+}
+
+
+private void parse_options(int argc, char *argv[], display_struct *graphics)
+{
+	Status retcode;
+	STRING filename;
+	STRING globals_filename;
+	STRING variable_name, variable_value;
+	BOOLEAN next_is_label_volume;
+
+	initialize_argument_processing(argc, argv);
+	retcode = OK;
+	next_is_label_volume = FALSE;
+
+	while (get_string_argument("", &filename))
+	{
+		if (equal_strings(filename, "-help"))
+		{
+			print("Usage: Display [OPTION1] [FILE1] [OPTION2] [FILE2]...\n"
+				  "Interactively display and segment three dimensional images.\n"
+				  "\n");
+			print("  %-25s %s\n", "-version",
+					"output version information and exit.");
+			print("  %-25s %s\n", "-strict",
+					"exit on error in parsing arguments or loading file.");
+			print("  %-25s %s\n", "-label FILENAME",
+					"Interpret FILENAME as a label to be displayed over other images.");
+			print("  %-25s %s\n", "-output-label FILENAME",
+					"Use FILENAME to save labels instead of prompting the user.");
+			print("  %-25s %s\n", "-global NAME VALUE",
+					"Set the global variable NAME to VALUE.");
+			print("\nReport bugs to a.janke@gmail.com\n");
+			exit(EX_OK);
+		}
+		else if (equal_strings(filename, "-version"))
+		{
+			print("%s %s\n", PROJECT_NAME, PROJECT_VERSION );
+			exit(EX_OK);
+		}
+		else if (equal_strings(filename, "-strict"))
+		{
+			if( set_global_variable_value("Exit_error_load_file", "TRUE") != OK )
+			{
+				print("Error setting strict variable from command line.\n");
+				retcode = ERROR;
+			}
+		}
+		else if (equal_strings(filename, "-label"))
+		{
+			if (next_is_label_volume)
+			{
+				print("Ignoring extraneous -label\n");
+				retcode = ERROR;
+			}
+			next_is_label_volume = TRUE;
+		}
+		else if (equal_strings(filename, "-output-label"))
+		{
+			if (!get_string_argument("", &variable_value))
+			{
+				print_error("Error in arguments after -output.\n");
+				exit(EX_USAGE);
+			}
+
+			if( set_global_variable_value("Output_label_filename", variable_value) != OK)
+			{
+				print("Error setting output variable from command line.\n");
+				retcode = ERROR;
+			}
+		}
+		else if (equal_strings(filename, "-global"))
+		{
+			if (!get_string_argument("", &variable_name)
+					|| !get_string_argument("", &variable_value))
+			{
+				print_error("Error in arguments after -global.\n");
+				exit(EX_USAGE);
+			}
+
+			if (set_global_variable_value(variable_name, variable_value) != OK)
+			{
+				print("Error setting global variable from command line.\n");
+				retcode = ERROR;
+			}
+		}
+		else
+		{
+			initialize_cache();
+			if (load_graphics_file(graphics, filename, next_is_label_volume) != OK)
+			{
+				print("Error loading %s\n", filename);
+				if (Exit_error_load_file)
+					exit(EX_NOINPUT);
+			}
+
+			next_is_label_volume = FALSE;
+		}
+	}
+
+	if (next_is_label_volume)
+	{
+		print("Ignoring extraneous -label\n");
+		retcode = ERROR;
+	}
+
+	if (Exit_error_load_file && retcode != OK)
+		exit(EX_USAGE);
+}
+
