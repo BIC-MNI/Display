@@ -80,23 +80,6 @@ int  main(
 
     set_alloc_checking( TRUE );
 
-    if( argc == 1 )
-        title = create_string( argv[0] );
-    else
-    {
-        title = create_string( NULL );
-        for_less( i, 1, argc )
-        {
-            if( i > 1 )
-                concat_to_string( &title, " " );
-
-            concat_to_string( &title, argv[i] );
-
-            if( string_length( title ) >= MAX_TITLE_LENGTH )
-                break;
-        }
-    }
-
     initialize_global_colours();
 
     if( getenv( "DISPLAY_DIRECTORY" ) != (char *) NULL )
@@ -137,20 +120,29 @@ int  main(
     set_alloc_checking( Alloc_checking_enabled );
 
     initialize_graphics();
+    title = concat_strings( PROJECT_NAME, ": 3D View" );
 
     if( create_graphics_window( THREE_D_WINDOW,
                                 Graphics_double_buffer_flag,
                                 &graphics, title, 0, 0 ) != OK )
         return( 1 );
+    delete_string( title );
 
-    G_set_transparency_state( graphics->window, Graphics_transparency_flag);
+	if( Hide_3D_window )
+		glutHideWindow();
 
+	G_set_transparency_state( graphics->window, Graphics_transparency_flag);
+
+    title = concat_strings( PROJECT_NAME, ": Menu" );
     if( create_graphics_window( MENU_WINDOW, ON, &menu, title,
                                 Initial_menu_window_width,
                                 Initial_menu_window_height ) != OK )
         return( 1 );
-
     delete_string( title );
+
+    if( Hide_menu_window )
+		glutHideWindow();
+
 
     graphics->associated[THREE_D_WINDOW] = graphics;
     graphics->associated[MENU_WINDOW] = menu;
