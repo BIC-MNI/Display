@@ -451,7 +451,7 @@ public  void  rebuild_probe(
             	if( slice_window->slice.print_probe_ratio )
             		(void) sprintf( buffer, Slice_probe_ratio_format, ratio );
             	else
-            		(void) sprintf( buffer, "Ratio undef" );
+            		(void) sprintf( buffer, "" );
                 break;
             }
         }
