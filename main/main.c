@@ -380,11 +380,13 @@ private void parse_options(int argc, char *argv[], display_struct *graphics)
 			print("  %-25s %s\n", "-version",
 					"output version information and exit.");
 			print("  %-25s %s\n", "-strict",
-					"exit on error in parsing arguments or loading file.");
+					"exit on error when parsing arguments or loading file.");
 			print("  %-25s %s\n", "-label FILENAME",
 					"Interpret FILENAME as a label to be displayed over other images.");
 			print("  %-25s %s\n", "-output-label FILENAME",
 					"Use FILENAME to save labels instead of prompting the user.");
+			print("  %-25s %s\n", "-ratio N1,N2",
+								"Display the images ratio of N1/N2. The first image index is 0.");
 			print("  %-25s %s\n", "-global NAME VALUE",
 					"Set the global variable NAME to VALUE.");
 			print("\nReport bugs to a.janke@gmail.com\n");
@@ -400,6 +402,20 @@ private void parse_options(int argc, char *argv[], display_struct *graphics)
 			if( set_global_variable_value("Exit_error_load_file", "TRUE") != OK )
 			{
 				print("Error setting strict variable from command line.\n");
+				retcode = ERROR;
+			}
+		}
+		else if (equal_strings(filename, "-ratio"))
+		{
+			if (!get_string_argument("", &variable_value))
+			{
+				print_error("Error in arguments after -ratio.\n");
+				exit(EX_USAGE);
+			}
+
+			if( set_global_variable_value("Ratio_volume_index", variable_value) != OK )
+			{
+				print("Error setting ratio variable from command line.\n");
 				retcode = ERROR;
 			}
 		}
@@ -443,15 +459,22 @@ private void parse_options(int argc, char *argv[], display_struct *graphics)
 		}
 		else
 		{
-			initialize_cache();
-			if (load_graphics_file(graphics, filename, next_is_label_volume) != OK)
+			if (filename[0] == '-')
 			{
-				print("Error loading %s\n", filename);
-				if (Exit_error_load_file)
-					exit(EX_NOINPUT);
+				print("Error: unknown option %s\n", filename);
+				retcode = ERROR;
 			}
-
-			next_is_label_volume = FALSE;
+			else
+			{
+				initialize_cache();
+				if (load_graphics_file(graphics, filename, next_is_label_volume) != OK)
+				{
+					print("Error loading %s\n", filename);
+					if (Exit_error_load_file)
+						exit(EX_NOINPUT);
+				}
+				next_is_label_volume = FALSE;
+			}
 		}
 	}
 
