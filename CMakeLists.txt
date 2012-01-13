@@ -29,22 +29,18 @@ include_directories(Graphics/OpenGL_graphics/Include Graphics/Include Graphics/G
 set(BICPL_ROOT "/usr/local" CACHE PATH "BICPL library base")
 include_directories("${BICPL_ROOT}/include")
 link_directories("${BICPL_ROOT}/lib")
-link_libraries(bicpl)
 
 option(USE_MINC2 "Use minc 2 library" ON)
 set(MINC_ROOT "/usr/local" CACHE PATH "MINC library base")
 link_directories("${MINC_ROOT}/lib")
 include_directories("${MINC_ROOT}/include")
-if(USE_MINC2)
-  add_definitions(-DMINC2)
-  link_libraries(volume_io2 minc2 netcdf hdf5 z)
-else(USE_MINC2)
-  link_libraries(volume_io minc netcdf)
-endif(USE_MINC2)
 
 find_package(GLUT)
 find_package(OpenGL)
-link_libraries (${GLUT_LIBRARY} ${OPENGL_LIBRARY})
+
+if(USE_MINC2)
+  add_definitions(-DMINC2)
+endif(USE_MINC2)
 
 set(HARD_CODED_DISPLAY_DIRECTORY1 "/usr/local/mni/lib" CACHE PATH "HARD_CODED_DISPLAY_DIRECTORY1")
 set(HARD_CODED_DISPLAY_DIRECTORY2 "/usr/local/lib" CACHE PATH "HARD_CODED_DISPLAY_DIRECTORY1")
@@ -62,6 +58,19 @@ file (GLOB_RECURSE C_REMOVE "./*.include.c" "./*supports_gl.c" "./*CMakeCCompile
 list (REMOVE_ITEM C_SRC ${C_REMOVE})
 
 add_executable (Display ${C_SRC})
+
+if(USE_MINC2)
+  add_library(volume_io2 STATIC IMPORTED)
+  set_property(TARGET volume_io2 PROPERTY IMPORTED_LOCATION /usr/local/mni/lib/libvolume_io2.a)
+
+  add_library(minc2 STATIC IMPORTED)
+  set_property(TARGET minc2 PROPERTY IMPORTED_LOCATION /usr/local/mni/lib/libminc2.a)
+
+  target_link_libraries(Display volume_io2 minc2 netcdf hdf5 z bicpl ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
+else(USE_MINC2)
+  target_link_libraries(Display volume_io minc netcdf bicpl ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
+endif(USE_MINC2)
+
 install(TARGETS Display RUNTIME DESTINATION bin)
 
 
