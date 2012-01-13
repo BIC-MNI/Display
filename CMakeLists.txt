@@ -62,5 +62,6 @@ file (GLOB_RECURSE C_REMOVE "./*.include.c" "./*supports_gl.c" "./*CMakeCCompile
 list (REMOVE_ITEM C_SRC ${C_REMOVE})
 
 add_executable (Display ${C_SRC})
+install(TARGETS Display RUNTIME DESTINATION bin)
 
 
