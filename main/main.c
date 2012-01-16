@@ -381,7 +381,7 @@ private void parse_options(int argc, char *argv[], display_struct *graphics)
 								"Display the images ratio of N1/N2. The first image index is 0.");
 			print("  %-25s %s\n", "-global NAME VALUE",
 					"Set the global variable NAME to VALUE.");
-			print("\nReport bugs to a.janke@gmail.com\n");
+			print("\nReport bugs to minc-development@bic.mni.mcgill.ca\n");
 			exit(EX_OK);
 		}
 		else if (equal_strings(filename, "-version"))
