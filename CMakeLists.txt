@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 2.6)
+
+# Project name
 project (Display)
 
-# The version number
+# Include modules
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
+
+# Set the version number using git
 if( EXISTS "${CMAKE_SOURCE_DIR}/.git" )
 	execute_process(COMMAND git describe --tags HEAD
 					OUTPUT_VARIABLE PROJECT_VERSION
@@ -21,63 +26,72 @@ configure_file (
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h
 include_directories("${PROJECT_BINARY_DIR}")
-
 include_directories(Graphics/OpenGL_graphics/Include Graphics/Include Graphics/GLUT_windows/Include Include)
 
-
-set(BICPL_ROOT "/usr/local" CACHE PATH "BICPL library base")
-include_directories("${BICPL_ROOT}/include")
-link_directories("${BICPL_ROOT}/lib")
-
-option(USE_MINC2 "Use minc 2 library" ON)
-set(MINC_ROOT "/usr/local" CACHE PATH "MINC library base")
-link_directories("${MINC_ROOT}/lib")
-include_directories("${MINC_ROOT}/include")
-
-if(USE_MINC2)
-  add_definitions(-DMINC2)
-endif(USE_MINC2)
-
+# Strange variables needed by Display
 set(HARD_CODED_DISPLAY_DIRECTORY1 "/usr/local/mni/lib" CACHE PATH "HARD_CODED_DISPLAY_DIRECTORY1")
 set(HARD_CODED_DISPLAY_DIRECTORY2 "/usr/local/lib" CACHE PATH "HARD_CODED_DISPLAY_DIRECTORY1")
 
+# Quick and dirty fix to force static libraries
+if(WIN32)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+else(WIN32)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+endif(WIN32)
 
+# NetCDF
+find_package(NetCDF REQUIRED)
+include_directories( ${NetCDF_INCLUDE_DIR} )
+
+# BICpl
+find_package(BICPL REQUIRED)
+include_directories( ${BICPL_INCLUDE_DIR} )
+
+# MINC
+find_package(MINC REQUIRED)
+include_directories( ${MINC_INCLUDE_DIR} )
+add_definitions(-DMINC2)
+
+# HDF5
+option(HDF5_USE_STATIC_LIBRARIES "Use HDF5 static libraries" ON)
+find_package(HDF5 REQUIRED)
+include_directories( ${HDF5_INCLUDE_DIR} )
+
+# This is needed by the static library HDF5
+SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-pthread")
+
+# Zlib
+find_package(ZLIB REQUIRED)
+include_directories( ${ZLIB_INCLUDE_DIR} )
+
+# OpenGL
+find_package(OpenGL REQUIRED)
+include_directories( ${OPENGL_INCLUDE_DIR} )
+
+# GLUT
+find_package(GLUT REQUIRED)
+include_directories( ${GLUT_INCLUDE_DIR} )
+
+
+# Look for C source files. Dirty but easy way.
 file (GLOB_RECURSE C_SRC "./*.c")
 file (GLOB_RECURSE C_REMOVE "./*.include.c" "./*supports_gl.c" "./*CMakeCCompilerId.c")
 list (REMOVE_ITEM C_SRC ${C_REMOVE})
 
+# Compile each source file to a module
 add_executable (Display ${C_SRC})
 
-add_library(netcdf STATIC IMPORTED)
-set_property(TARGET netcdf PROPERTY IMPORTED_LOCATION /usr/lib/libnetcdf.a)
-
-add_library(glut STATIC IMPORTED)
-set_property(TARGET glut PROPERTY IMPORTED_LOCATION /usr/lib/libglut.a)
-
-if(USE_MINC2)
+# Link all modules to create the executable
+target_link_libraries(Display 
+  ${MINC_LIBRARIES}
+  ${NetCDF_C_LIBRARY}
+  ${HDF5_C_LIBRARIES} 
+  ${ZLIB_LIBRARIES}
+  ${BICPL_C_LIBRARY}
+  ${GLUT_glut_LIBRARY} 
+  ${OPENGL_gl_LIBRARY})
   
-  add_library(volume_io2 STATIC IMPORTED)
-  set_property(TARGET volume_io2 PROPERTY IMPORTED_LOCATION /usr/local/mni/lib/libvolume_io2.a)
-
-  add_library(minc2 STATIC IMPORTED)
-  set_property(TARGET minc2 PROPERTY IMPORTED_LOCATION /usr/local/mni/lib/libminc2.a)
-  
-  add_library(z STATIC IMPORTED)
-  set_property(TARGET z PROPERTY IMPORTED_LOCATION /usr/lib/libz.a)
-  
-  add_library(hdf5 STATIC IMPORTED)
-  set_property(TARGET hdf5 PROPERTY IMPORTED_LOCATION /usr/lib/libhdf5.a)
-
-  target_link_libraries(Display volume_io2 minc2 netcdf hdf5 z bicpl glut GL)
-
-else(USE_MINC2)
-
-  target_link_libraries(Display volume_io minc netcdf bicpl glut GL)
-
-endif(USE_MINC2)
-
-SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-pthread -m32")
-
+# Generate an install target
 install(TARGETS Display RUNTIME DESTINATION bin)
 
 
