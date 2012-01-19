@@ -3,7 +3,7 @@
 
 FIND_PATH(MINC_INCLUDE_DIR minc2.h /usr/include /usr/local/include /usr/local/bic/include)
 FIND_LIBRARY(MINC_minc2_LIBRARY NAMES minc2 HINTS /usr/lib /usr/local/lib /usr/local/bic/lib)
-FIND_LIBRARY(MINC_volume_io2_LIBRARY NAMES minc2 HINTS /usr/lib /usr/local/lib /usr/local/bic/lib)
+FIND_LIBRARY(MINC_volume_io2_LIBRARY NAMES volume_io2 HINTS /usr/lib /usr/local/lib /usr/local/bic/lib)
 
 
 IF (MINC_INCLUDE_DIR AND MINC_minc2_LIBRARY AND MINC_volume_io2_LIBRARY)

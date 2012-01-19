@@ -5,7 +5,7 @@ include /usr/share/cdbs/1/class/cmake.mk
 
 
 # Add here any variable or target overrides you need.
-CMAKE_EXTRA_FLAGS = -DCMAKE_BUILD_TYPE=Release
+DEB_CMAKE_EXTRA_FLAGS = -DCMAKE_BUILD_TYPE=Release
 
 # Don't check dependencies, big hammer
 
