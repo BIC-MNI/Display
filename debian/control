@@ -1,0 +1,15 @@
+Source: mni-display
+Section: unknown
+Priority: extra
+Maintainer: Haz-Edine Assemlal <hassemlal@neurorx.com>
+Build-Depends: cdbs, debhelper (>= 7), autotools-dev, build-essential, libc6-dev (>= 2.7), libhdf5-serial-dev | libhdf5-dev, libnetcdf-dev, zlib1g-dev (>= 1:1.1.4), minc (>= 2.1.00), bicpl (>=1.4.6)
+Standards-Version: 3.8.3
+Homepage: <insert the upstream URL, if relevant>
+
+Package: mni-display
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: interactively display medical images.
+  MNI-Display is an interactive program to display and segment 3
+  dimensional images, as well as to display and manipulate 3D
+  geometric objects.

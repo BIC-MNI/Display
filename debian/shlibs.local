@@ -1,0 +1,3 @@
+libGL 1 libgl1-mesa-glx | libgl1
+libnvidia-tls 285.05.09 
+libnvidia-glcore 285.05.09 

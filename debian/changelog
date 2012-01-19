@@ -1,0 +1,5 @@
+mni-display (1.6.2-1) lucid; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Haz-Edine Assemlal <hassemlal@neurorx.com>  Fri, 13 Jan 2012 15:49:28 -0500
