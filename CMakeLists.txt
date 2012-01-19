@@ -16,6 +16,10 @@ else( EXISTS "${CMAKE_SOURCE_DIR}/.git")
 endif( EXISTS "${CMAKE_SOURCE_DIR}/.git")
 
 
+# Strange variables needed by Display
+set(HARD_CODED_DISPLAY_DIRECTORY1 "/usr/local/mni/lib" CACHE PATH "HARD_CODED_DISPLAY_DIRECTORY1")
+set(HARD_CODED_DISPLAY_DIRECTORY2 "/usr/local/lib" CACHE PATH "HARD_CODED_DISPLAY_DIRECTORY1")
+
 # configure a header file to pass some of the CMake settings
 # to the source code
 configure_file (
@@ -27,10 +31,6 @@ configure_file (
 # so that we will find TutorialConfig.h
 include_directories("${PROJECT_BINARY_DIR}")
 include_directories(Graphics/OpenGL_graphics/Include Graphics/Include Graphics/GLUT_windows/Include Include)
-
-# Strange variables needed by Display
-set(HARD_CODED_DISPLAY_DIRECTORY1 "/usr/local/mni/lib" CACHE PATH "HARD_CODED_DISPLAY_DIRECTORY1")
-set(HARD_CODED_DISPLAY_DIRECTORY2 "/usr/local/lib" CACHE PATH "HARD_CODED_DISPLAY_DIRECTORY1")
 
 # Quick and dirty fix to force static libraries
 if(WIN32)
@@ -58,7 +58,7 @@ find_package(HDF5 REQUIRED)
 include_directories( ${HDF5_INCLUDE_DIR} )
 
 # This is needed by the static library HDF5
-SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-pthread")
+#SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-pthread")
 
 # Zlib
 find_package(ZLIB REQUIRED)
