@@ -380,7 +380,7 @@ START_GLOBALS
     DEF_GLOBAL( Slice_probe_ratio_format, STRING, "Ratio %6.2f" )
     DEF_GLOBAL_COLOUR( Slice_probe_ratio_colour )
 
-    DEF_GLOBAL( Hide_3D_window, BOOLEAN, TRUE)
+    DEF_GLOBAL( Hide_3D_window, BOOLEAN, FALSE)
     DEF_GLOBAL( Hide_menu_window, BOOLEAN, FALSE)
 
 END_GLOBALS

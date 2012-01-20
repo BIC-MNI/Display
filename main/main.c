@@ -180,6 +180,12 @@ int  main(
     update_all_menu_text( graphics );
     set_update_required( graphics, NORMAL_PLANES );
 
+	if( Hide_3D_window )
+		glutHideWindow();
+
+	if( Hide_menu_window )
+		glutHideWindow();
+
     (void) main_event_loop();
 
     terminate_graphics();
