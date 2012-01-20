@@ -1,8 +1,8 @@
 # FindBICPL.cmake module
 
 
-FIND_PATH(BICPL_INCLUDE_DIR bicpl.h /usr/include /usr/local/include /usr/local/bic/include)
-FIND_LIBRARY(BICPL_LIBRARY NAMES bicpl HINTS /usr/lib /usr/local/lib /usr/local/bic/lib)
+FIND_PATH(BICPL_INCLUDE_DIR bicpl.h /usr/include /usr/local/include /hydra/home/hassemlal/local/include /usr/local/bic/include)
+FIND_LIBRARY(BICPL_LIBRARY NAMES bicpl HINTS /usr/lib /usr/local/lib /hydra/home/hassemlal/local/lib /usr/local/bic/lib)
 
 
 IF (BICPL_INCLUDE_DIR AND BICPL_LIBRARY)
