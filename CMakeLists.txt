@@ -46,17 +46,17 @@ include_directories( ${NetCDF_INCLUDE_DIR} )
 # BICpl
 find_package(BICPL REQUIRED)
 include_directories( ${BICPL_INCLUDE_DIR} )
-add_library(bicpl STATIC IMPORTED)
-set_property(TARGET bicpl PROPERTY IMPORTED_LOCATION ${BICPL_LIBRARY})
+# add_library(bicpl STATIC IMPORTED)
+# set_property(TARGET bicpl PROPERTY IMPORTED_LOCATION ${BICPL_LIBRARY})
 
 # MINC
 find_package(MINC REQUIRED)
 include_directories( ${MINC_INCLUDE_DIR} )
 add_definitions(-DMINC2)
-add_library(minc2 STATIC IMPORTED)
-set_property(TARGET minc2 PROPERTY IMPORTED_LOCATION ${MINC_minc2_LIBRARY})
-add_library(volume_io2 STATIC IMPORTED)
-set_property(TARGET volume_io2 PROPERTY IMPORTED_LOCATION ${MINC_volume_io2_LIBRARY})
+# add_library(minc2 STATIC IMPORTED)
+# set_property(TARGET minc2 PROPERTY IMPORTED_LOCATION ${MINC_minc2_LIBRARY})
+# add_library(volume_io2 STATIC IMPORTED)
+# set_property(TARGET volume_io2 PROPERTY IMPORTED_LOCATION ${MINC_volume_io2_LIBRARY})
 
 # HDF5
 option(HDF5_USE_STATIC_LIBRARIES "Use HDF5 static libraries" ON)
@@ -93,7 +93,7 @@ target_link_libraries(Display
   ${NetCDF_C_LIBRARY}
   ${HDF5_C_LIBRARIES} 
   ${ZLIB_LIBRARIES}
-  ${BICPL_C_LIBRARY}
+  ${BICPL_LIBRARY}
   ${GLUT_glut_LIBRARY} 
   ${OPENGL_gl_LIBRARY})
   
