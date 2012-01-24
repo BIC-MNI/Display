@@ -40,35 +40,33 @@ else(WIN32)
 endif(WIN32)
 
 # NetCDF
+set(NetCDF_ROOT "/usr/local")
 find_package(NetCDF REQUIRED)
 include_directories( ${NetCDF_INCLUDE_DIR} )
+
+# HDF5
+option(HDF5_USE_STATIC_LIBRARIES "Use HDF5 static libraries" ON)
+find_package(HDF5 REQUIRED)
+include_directories( ${HDF5_INCLUDE_DIRS} )
+add_definitions(${HDF5_DEFINITIONS})
+# This is needed by the static library HDF5
+#SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-pthread")
+
+# MINC
+option(USE_MINC2 "Use MINC2 libraries" ON)
+add_definitions(-DMINC2)
+find_package(MINC REQUIRED)
+include_directories( ${MINC_INCLUDE_DIR} )
+# add_library(minc2 STATIC IMPORTED)
+# set_property(TARGET minc2 PROPERTY IMPORTED_LOCATION ${MINC_minc2_LIBRARY})
+# add_library(volume_io2 STATIC IMPORTED)
+# set_property(TARGET volume_io2 PROPERTY IMPORTED_LOCATION ${MINC_volume_io2_LIBRARY})
 
 # BICpl
 find_package(BICPL REQUIRED)
 include_directories( ${BICPL_INCLUDE_DIR} )
 # add_library(bicpl STATIC IMPORTED)
 # set_property(TARGET bicpl PROPERTY IMPORTED_LOCATION ${BICPL_LIBRARY})
-
-# MINC
-find_package(MINC REQUIRED)
-include_directories( ${MINC_INCLUDE_DIR} )
-add_definitions(-DMINC2)
-# add_library(minc2 STATIC IMPORTED)
-# set_property(TARGET minc2 PROPERTY IMPORTED_LOCATION ${MINC_minc2_LIBRARY})
-# add_library(volume_io2 STATIC IMPORTED)
-# set_property(TARGET volume_io2 PROPERTY IMPORTED_LOCATION ${MINC_volume_io2_LIBRARY})
-
-# HDF5
-option(HDF5_USE_STATIC_LIBRARIES "Use HDF5 static libraries" ON)
-find_package(HDF5 REQUIRED)
-include_directories( ${HDF5_INCLUDE_DIR} )
-
-# This is needed by the static library HDF5
-#SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-pthread")
-
-# Zlib
-find_package(ZLIB REQUIRED)
-include_directories( ${ZLIB_INCLUDE_DIR} )
 
 # OpenGL
 find_package(OpenGL REQUIRED)
