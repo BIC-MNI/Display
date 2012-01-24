@@ -12,7 +12,7 @@ if( EXISTS "${CMAKE_SOURCE_DIR}/.git" )
 					OUTPUT_VARIABLE PROJECT_VERSION
 					OUTPUT_STRIP_TRAILING_WHITESPACE)
 else( EXISTS "${CMAKE_SOURCE_DIR}/.git")
-	set (PROJECT_VERSION 1.6.0)
+	set (PROJECT_VERSION 1.6.2)
 endif( EXISTS "${CMAKE_SOURCE_DIR}/.git")
 
 
@@ -33,11 +33,14 @@ include_directories("${PROJECT_BINARY_DIR}")
 include_directories(Graphics/OpenGL_graphics/Include Graphics/Include Graphics/GLUT_windows/Include Include)
 
 # Quick and dirty fix to force static libraries
-if(WIN32)
+option(DISPLAY_BUILD_STATIC "Build the binary with statically linked libraries" OFF)
+if (DISPLAY_BUILD_STATIC)
+  if(WIN32)
     set(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
-else(WIN32)
+  else(WIN32)
     set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
-endif(WIN32)
+  endif(WIN32)
+endif (DISPLAY_BUILD_STATIC)
 
 # NetCDF
 set(NetCDF_ROOT "/usr/local")
@@ -45,7 +48,9 @@ find_package(NetCDF REQUIRED)
 include_directories( ${NetCDF_INCLUDE_DIR} )
 
 # HDF5
-option(HDF5_USE_STATIC_LIBRARIES "Use HDF5 static libraries" ON)
+if (DISPLAY_BUILD_STATIC)
+  option(HDF5_USE_STATIC_LIBRARIES "Use HDF5 static libraries" ON)
+endif (DISPLAY_BUILD_STATIC)
 find_package(HDF5 REQUIRED)
 include_directories( ${HDF5_INCLUDE_DIRS} )
 add_definitions(${HDF5_DEFINITIONS})
