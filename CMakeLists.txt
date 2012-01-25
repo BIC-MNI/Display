@@ -6,14 +6,20 @@ project (Display C)
 # Include modules
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
 
+#----------------------------------------------------------------------
 # Set the version number using git
 if( EXISTS "${CMAKE_SOURCE_DIR}/.git" )
 	execute_process(COMMAND git describe --tags HEAD
 					OUTPUT_VARIABLE PROJECT_VERSION
 					OUTPUT_STRIP_TRAILING_WHITESPACE)
-else( EXISTS "${CMAKE_SOURCE_DIR}/.git")
-	set (PROJECT_VERSION 1.6.2)
 endif( EXISTS "${CMAKE_SOURCE_DIR}/.git")
+
+if( "${PROJECT_VERSION}" STREQUAL "" )
+    set (PROJECT_VERSION 1.6.0)
+endif( "${PROJECT_VERSION}" STREQUAL "" )
+
+message(STATUS "Project version: ${PROJECT_VERSION}")
+#----------------------------------------------------------------------
 
 
 # Strange variables needed by Display
