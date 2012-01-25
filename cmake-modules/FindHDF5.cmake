@@ -55,7 +55,9 @@
 
 # This module is maintained by Will Dicharry <wdicharry@stellarscience.com>.
 
-include(SelectLibraryConfigurations)
+# Remove following line for cmake-2.6 compatibility
+#include(SelectLibraryConfigurations)
+
 include(FindPackageHandleStandardArgs)
 
 # List of the valid HDF5 components
@@ -239,7 +241,9 @@ else()
                 HINTS ${HDF5_${LANGUAGE}_LIBRARY_DIRS} 
                 ENV HDF5_ROOT 
                 PATH_SUFFIXES lib Lib )
-            select_library_configurations( HDF5_${LIB} )
+            # Remove following line for cmake-2.6 compatibility
+	    #select_library_configurations( HDF5_${LIB} )
+
             # even though we adjusted the individual library names in
             # select_library_configurations, we still need to distinguish
             # between debug and release variants because HDF5_LIBRARIES will
