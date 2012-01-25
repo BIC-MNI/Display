@@ -93,6 +93,31 @@ file (GLOB_RECURSE C_SRC "./*.c")
 file (GLOB_RECURSE C_REMOVE "./*.include.c" "./*supports_gl.c" "./*CMakeCCompilerId.c")
 list (REMOVE_ITEM C_SRC ${C_REMOVE})
 
+#----------------------------------------------------------------------
+# RPATH handling
+# use, i.e. don't skip the full RPATH for the build tree
+SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+
+# when building, don't use the install RPATH already
+# (but later on when installing)
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
+
+#SET(CMAKE_INSTALL_RPATH "${MINC_INCLUDE_DIR}/../lib")
+
+# add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+
+# the RPATH to be used when installing, but only if it's not a system directory
+# LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+# IF("${isSystemDir}" STREQUAL "-1")
+#    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+# ENDIF("${isSystemDir}" STREQUAL "-1")
+
+message(STATUS "RPATH: ${CMAKE_INSTALL_RPATH}")
+#----------------------------------------------------------------------
+
 # Compile each source file to a module
 add_executable (Display ${C_SRC})
 
