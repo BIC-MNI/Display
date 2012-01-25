@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 # Project name
-project (Display)
+project (Display C)
 
 # Include modules
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
