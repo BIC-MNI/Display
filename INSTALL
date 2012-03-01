@@ -1,0 +1,35 @@
+Installation Instructions
+*************************
+
+Copyright (C) 1994, 1995, 1996, 1999, 2000, 2001, 2002, 2004, 2005,
+2006, 2007, 2008, 2009 Free Software Foundation, Inc.
+
+   Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.  This file is offered as-is,
+without warranty of any kind.
+
+
+----------------------------------------------------------------------
+The MNI-Display software is using CMake to build the binary from
+sources. You can compile MNI-Display like any CMake project, ie:
+
+1 - go to the root directory of extracted sources
+2 - cmake .
+3 - make & make install
+
+Alternatively, you might want to customize the compilation or the
+installation. There are 3 variables you will be interested in:
+
+cmake . \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_PREFIX_PATH=/path/to/search/dependencies \
+      -DCMAKE_INSTALL_PREFIX=/path/to/install
+
+where:
+
+- CMAKE_INSTALL_PATH is the prefix to the install path, i.e. if CMAKE_INSTALL_PATH=/usr/local then Display will be installed in /usr/local/bin
+- CMAKE_PREFIX_PATH is the prefix to the dependencies path, e.g. you might want to set it if you're installing minc and bicpl in a unsual directory.
+- CMAKE_BUILD_TYPE=Release turn on the the optimizations to speed up MNI-Display.
+
+
