@@ -1,8 +1,10 @@
+2012-03-02  Andrew L Janke <a.janke@gmail.com>
+   * autogen.sh: added libtoolize line
 
 2010-10-29 John G. Sled <jgsled@phenogenomics.ca>
    * changed random number generator seed for rendering objects with between
-	2000000 and 4000000 polygons
-	
+      2000000 and 4000000 polygons
+
 2010-09-06  Andrew L Janke <a.janke@gmail.com>
    * updated README, NEWS, removed TODO, README.CVS
    * built against simplified version of Graphics/GLUT (RGB DB only)
