@@ -1,4 +1,7 @@
 
+New in Release 1.5.1
+* Fixed libtool build bug
+
 New in Release 1.5.0
 * Fixed bugs with GLUT display modes
 
