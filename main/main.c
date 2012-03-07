@@ -16,9 +16,10 @@
 static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.65 2010-10-29 19:07:52 jgsled Exp $";
 #endif
 
+#include "config.h"
 #include  <display.h>
 
-private  STRING   version = "1.5.1 Nov, 2011";
+//private  STRING   version = "1.5.1 Nov, 2011";
 
 #define  MAX_TITLE_LENGTH   200
 
@@ -32,7 +33,7 @@ private  void      initialize_view_to_fit(
 
 /* The first directory is set using compiler flag -D */
 /*#define  HARD_CODED_DISPLAY_DIRECTORY1    "/usr/local/mni/lib"*/
-#define  HARD_CODED_DISPLAY_DIRECTORY2    "/usr/local/lib"
+/*#define  HARD_CODED_DISPLAY_DIRECTORY2    "/usr/local/lib"*/
 #define  GLOBALS_FILENAME                 "Display.globals"
 #define  MENU_FILENAME                    "Display.menu"
 
@@ -173,7 +174,7 @@ int  main(
     {
         if( equal_strings( filename, "-version" ) )
         {
-            print( "%s:  Version: %s\n", argv[0], version );
+            print( "%s %s\n", PROJECT_NAME,	PROJECT_VERSION );
             return( 0 );
         }
         else if( equal_strings( filename, "-label" ) )

@@ -2,15 +2,21 @@ cmake_minimum_required(VERSION 2.6)
 project (Display)
 
 # The version number
-set (Display_VERSION_MAJOR 1)
-set (Display_VERSION_MINOR 6)
+if( EXISTS "${CMAKE_SOURCE_DIR}/.git" )
+	execute_process(COMMAND git describe --tags HEAD
+					OUTPUT_VARIABLE PROJECT_VERSION
+					OUTPUT_STRIP_TRAILING_WHITESPACE)
+else( EXISTS "${CMAKE_SOURCE_DIR}/.git")
+	set (PROJECT_VERSION 1.6.0)
+endif( EXISTS "${CMAKE_SOURCE_DIR}/.git")
+
 
 # configure a header file to pass some of the CMake settings
 # to the source code
-#configure_file (
-#  "${PROJECT_SOURCE_DIR}/config.h.in"
-#  "${PROJECT_BINARY_DIR}/config.h"
-#  )
+configure_file (
+   "${PROJECT_SOURCE_DIR}/config.h.cmake"
+   "${PROJECT_BINARY_DIR}/config.h"
+  )
 
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h
@@ -40,10 +46,9 @@ find_package(GLUT)
 find_package(OpenGL)
 link_libraries (${GLUT_LIBRARY} ${OPENGL_LIBRARY})
 
+set(HARD_CODED_DISPLAY_DIRECTORY1 "/usr/local/mni/lib" CACHE PATH "HARD_CODED_DISPLAY_DIRECTORY1")
+set(HARD_CODED_DISPLAY_DIRECTORY2 "/usr/local/lib" CACHE PATH "HARD_CODED_DISPLAY_DIRECTORY1")
 
-set(DISPLAY_DIR "/usr/local" CACHE PATH "HARD_CODED_DISPLAY_DIRECTORY")
-
-add_definitions(-DHARD_CODED_DISPLAY_DIRECTORY1="${DISPLAY_DIR}")
 #add_definitions(-Wall -Wextra)
 
 #set (SRC_DIR atlas callbacks current_obj cursor	cursor_contours	edit_surface events)
