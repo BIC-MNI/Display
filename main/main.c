@@ -377,14 +377,20 @@ private void parse_options(int argc, char *argv[], display_struct *graphics)
 				  "\n");
 			print("  %-25s %s\n", "-version",
 					"output version information and exit.");
-			print("  %-25s %s\n", "-strict",
-					"exit on error when parsing arguments or loading file.");
+			print("  %-25s %s\n", "-skiperror",
+					"skip on error when parsing arguments or loading file.");
 			print("  %-25s %s\n", "-label FILENAME",
 					"Interpret FILENAME as a label to be displayed over other images.");
 			print("  %-25s %s\n", "-output-label FILENAME",
 					"Use FILENAME to save labels instead of prompting the user.");
 			print("  %-25s %s\n", "-ratio N1,N2",
 								"Display the images ratio of N1/N2. The first image index is 0.");
+			print("  %-25s %s\n", "-gray",
+					"Use gray color map.");
+			print("  %-25s %s\n", "-hot",
+					"Use hot color map.");
+			print("  %-25s %s\n", "-spectral",
+					"Use spectral color map.");
 			print("  %-25s %s\n", "-global NAME VALUE",
 					"Set the global variable NAME to VALUE.");
 			print("\nReport bugs to minc-development@bic.mni.mcgill.ca\n");
@@ -395,11 +401,35 @@ private void parse_options(int argc, char *argv[], display_struct *graphics)
 			print("%s %s\n", PROJECT_NAME, PROJECT_VERSION );
 			exit(EX_OK);
 		}
-		else if (equal_strings(filename, "-strict"))
+		else if (equal_strings(filename, "-skiperror"))
 		{
-			if( set_global_variable_value("Exit_error_load_file", "TRUE") != OK )
+			if( set_global_variable_value("Exit_error_load_file", "FALSE") != OK )
 			{
-				print("Error setting strict variable from command line.\n");
+				print("Error setting skiperror variable from command line.\n");
+				retcode = ERROR;
+			}
+		}
+		else if (equal_strings(filename, "-gray"))
+		{
+			if( set_global_variable_value("Initial_colour_coding_type", "0") != OK )
+			{
+				print("Error setting gray variable from command line.\n");
+				retcode = ERROR;
+			}
+		}
+		else if (equal_strings(filename, "-hot"))
+		{
+			if( set_global_variable_value("Initial_colour_coding_type", "1") != OK )
+			{
+				print("Error setting hot variable from command line.\n");
+				retcode = ERROR;
+			}
+		}
+		else if (equal_strings(filename, "-spectral"))
+		{
+			if( set_global_variable_value("Initial_colour_coding_type", "13") != OK )
+			{
+				print("Error setting spectral variable from command line.\n");
 				retcode = ERROR;
 			}
 		}
