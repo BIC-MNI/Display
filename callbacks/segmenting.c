@@ -18,6 +18,7 @@ static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks
 
 
 #include  <display.h>
+#include "stack.h"
 
 private  void  set_slice_labels(
     display_struct     *display,
@@ -403,6 +404,189 @@ private  void   save_labels_as_tags(
 
     delete_string( filename );
 }
+
+public Status tags_from_label(
+	display_struct *display,
+    int       *n_tag_points,
+    Real      ***tags_volume1,
+    Real      ***tags_volume2,
+    Real      **weights,
+    int       **structure_ids,
+    int       **patient_ids,
+    STRING    *labels[] )
+{
+	display_struct 	*slice_window;
+	Status 			status;
+	Volume 			volume;
+	Volume 			label_volume;
+	int 			sizes[MAX_DIMENSIONS];
+	int  			ind[N_DIMENSIONS];
+	Real 			real_ind[N_DIMENSIONS];
+	Real 			tags[N_DIMENSIONS];
+	int 			value;
+	int 			structure_id, patient_id;
+	Real 			weight;
+	STRING 			label;
+	Real 			*coords;
+	int				i;
+	struct stack_list **label_stack;
+
+	status = OK;
+	slice_window = display->associated[SLICE_WINDOW];
+	volume = get_volume(slice_window);
+	label_volume = get_label_volume(slice_window);
+	get_volume_sizes( label_volume, sizes );
+    *n_tag_points = 0;
+    label = NULL;
+    weight = 0.0;
+    structure_id = -1;
+    patient_id = -1;
+
+    SET_ARRAY_SIZE( label_stack, 0, 255, DEFAULT_CHUNK_SIZE);
+    for (i=0; i<255; ++i)
+    	label_stack[i] = NULL;
+
+
+    for_less (ind[X], 0, sizes[X])
+	{
+		real_ind[X] = (Real) ind[X];
+		for_less (ind[Y], 0, sizes[Y])
+		{
+			real_ind[Y] = (Real) ind[Y];
+			for_less (ind[Z], 0, sizes[Z])
+			{
+				real_ind[Z] = (Real) ind[Z];
+				value = get_volume_label_data( label_volume, ind );
+				if (!value)
+					continue;
+
+				convert_voxel_to_world( volume, real_ind,
+						&tags[X], &tags[Y], &tags[Z] );
+
+			    ALLOC( coords, 3 );
+			    coords[X] = tags[X];
+			    coords[Y] = tags[Y];
+			    coords[Z] = tags[Z];
+
+				if (label_stack[value] != NULL)
+				{
+				    label_stack[value] = push(label_stack[value], coords);
+				}
+				else
+				{
+					label_stack[value] = stack_new();
+				    label_stack[value] = push(label_stack[value], coords);
+
+
+					SET_ARRAY_SIZE( *tags_volume1, *n_tag_points, *n_tag_points+1,
+		                            DEFAULT_CHUNK_SIZE );
+		            ALLOC( (*tags_volume1)[*n_tag_points], 3 );
+		            (*tags_volume1)[*n_tag_points][X] = tags[X];
+		            (*tags_volume1)[*n_tag_points][Y] = tags[Y];
+		            (*tags_volume1)[*n_tag_points][Z] = tags[Z];
+
+		            if (weights != NULL)
+					{
+						SET_ARRAY_SIZE( *weights, *n_tag_points, *n_tag_points+1,
+								DEFAULT_CHUNK_SIZE);
+						(*weights)[*n_tag_points] = weight;
+					}
+
+					if (structure_ids != NULL)
+					{
+						SET_ARRAY_SIZE( *structure_ids, *n_tag_points, *n_tag_points+1,
+								DEFAULT_CHUNK_SIZE);
+						(*structure_ids)[*n_tag_points] = structure_id;
+					}
+
+					if (patient_ids != NULL)
+					{
+						SET_ARRAY_SIZE( *patient_ids, *n_tag_points, *n_tag_points+1,
+								DEFAULT_CHUNK_SIZE);
+						(*patient_ids)[*n_tag_points] = patient_id;
+					}
+
+					if (labels != NULL)
+					{
+						SET_ARRAY_SIZE( *labels, *n_tag_points, *n_tag_points+1,
+								DEFAULT_CHUNK_SIZE);
+						(*labels)[*n_tag_points] = label;
+					}
+					else
+						delete_string(label);
+
+		            ++(*n_tag_points);
+
+				}
+
+
+			}
+		}
+	}
+	return (status);
+}
+
+public  Status   input_tag_objects_label(
+    display_struct* display,
+    Colour         marker_colour,
+    Real           default_size,
+    Marker_types   default_type,
+    int            *n_objects,
+    object_struct  **object_list[] )
+{
+    Status             status;
+    object_struct      *object;
+    marker_struct      *marker;
+    int                i, n_volumes, n_tag_points, *structure_ids, *patient_ids;
+    STRING             *labels;
+    double             *weights;
+    double             **tags1, **tags2;
+
+    *n_objects = 0;
+
+    n_volumes = 1;
+    status = tags_from_label ( display, &n_tag_points,
+                             &tags1, &tags2, &weights,
+                             &structure_ids, &patient_ids, &labels );
+
+    if( status == OK )
+    {
+        for_less( i, 0, n_tag_points )
+        {
+            object = create_object( MARKER );
+            marker = get_marker_ptr( object );
+            fill_Point( marker->position, tags1[i][X], tags1[i][Y],tags1[i][Z]);
+            marker->label = create_string( labels[i] );
+
+            if( structure_ids[i] >= 0 )
+                marker->structure_id = structure_ids[i];
+            else
+                marker->structure_id = -1;
+
+            if( patient_ids[i] >= 0 )
+                marker->patient_id = patient_ids[i];
+            else
+                marker->patient_id = -1;
+
+            if( weights[i] > 0.0 )
+                marker->size = weights[i];
+            else
+                marker->size = default_size;
+
+            marker->colour = marker_colour;
+            marker->type = default_type;
+
+            add_object_to_list( n_objects, object_list, object );
+        }
+
+        free_tag_points( n_volumes, n_tag_points, tags1, tags2, weights,
+                         structure_ids, patient_ids, labels );
+    }
+
+    return( status );
+
+}
+
 
 /* ARGSUSED */
 

@@ -72,6 +72,12 @@ public  Status  load_graphics_file(
             else
             {
                 status = input_label_volume_file( display, filename );
+                input_tag_objects_label( display,
+                        display->three_d.default_marker_colour,
+                        display->three_d.default_marker_size,
+                        display->three_d.default_marker_type,
+                        &model->n_objects,
+                        &model->objects );
             }
         }
     }

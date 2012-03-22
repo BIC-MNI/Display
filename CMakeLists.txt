@@ -93,6 +93,8 @@ file (GLOB_RECURSE C_SRC "./*.c")
 file (GLOB_RECURSE C_REMOVE "./*.include.c" "./*supports_gl.c" "./*CMakeCCompilerId.c")
 list (REMOVE_ITEM C_SRC ${C_REMOVE})
 
+#message(STATUS "${C_SRC}")
+
 #----------------------------------------------------------------------
 # RPATH handling
 # use, i.e. don't skip the full RPATH for the build tree
