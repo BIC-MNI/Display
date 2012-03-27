@@ -297,7 +297,7 @@ public  DEF_MENU_UPDATE(change_model_name )
     return( current_object_is_this_type(display,MODEL) );
 }
 
-private  BOOLEAN  remove_current_object_from_hierarchy(
+public  BOOLEAN  remove_current_object_from_hierarchy(
     display_struct   *display,
     object_struct    **object )
 {
@@ -351,7 +351,8 @@ public  DEF_MENU_FUNCTION( delete_current_object )
         delete_object( object );
         pop_menu_one_level( display->associated[MENU_WINDOW] );
     }
-
+    
+    rebuild_selected_list( display->associated[THREE_D_WINDOW], display->associated[MARKER_WINDOW]);
     return( OK );
 }
 

@@ -77,7 +77,8 @@ public  Status  load_graphics_file(
                         display->three_d.default_marker_size,
                         display->three_d.default_marker_type,
                         &model->n_objects,
-                        &model->objects );
+                        &model->objects,
+                        &display->label_stack);
             }
         }
     }
@@ -121,7 +122,7 @@ public  Status  load_graphics_file(
                                      display->three_d.default_marker_size,
                                      display->three_d.default_marker_type,
                                      &model->n_objects,
-                                     &model->objects );
+                                     display->label_stack );
         }
     }
 

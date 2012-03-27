@@ -859,6 +859,106 @@ public  int  get_voxel_label(
                      x, y, z ) );
 }
 
+
+public void update_label_tag(
+	    display_struct   *display,
+	    int              volume_index,
+	    int              x,
+	    int              y,
+	    int              z,
+	    int              label)
+{
+    Volume            label_volume;
+    struct stack_list ** label_stack;
+    struct stack_real *top_s;
+    object_struct     *object;
+    marker_struct     *marker;
+    model_struct      *current_model;
+    Real              *world_dyn;
+    display_struct 	  *marker_window;
+	display_struct 	  *three_d_window;
+    Real		      world[MAX_DIMENSIONS];
+    Real              voxel_real[MAX_DIMENSIONS];
+    int			      voxel_int[MAX_DIMENSIONS];
+    int			      value;
+
+    marker_window = display->associated[MARKER_WINDOW];
+    three_d_window = display->associated[THREE_D_WINDOW];
+    label_stack = marker_window->label_stack;
+    label_volume = get_nth_label_volume(display, volume_index);
+
+    voxel_real[X] = x;
+	voxel_real[Y] = y;
+	voxel_real[Z] = z;
+    convert_voxel_to_world( label_volume, voxel_real, &world[X], &world[Y], &world[Z] );
+	if (label) /* add a voxel to a label region */
+	{
+		if (label_stack[label] == NULL)
+		{
+			label_stack[label] = stack_new();
+
+			object = create_object( MARKER );
+            marker = get_marker_ptr( object );
+            fill_Point( marker->position, world[X], world[Y], world[Z]);
+            marker->label = create_string( "" );
+            marker->structure_id = -1;
+            marker->patient_id = -1;
+            marker->size = display->three_d.default_marker_size;
+            marker->colour = display->three_d.default_marker_colour;
+            marker->type = display->three_d.default_marker_type;
+
+            current_model = get_current_model( three_d_window );
+            add_object_to_list(&current_model->n_objects,
+					&current_model->objects, object);
+			rebuild_selected_list(three_d_window, marker_window);
+
+		}
+		ALLOC( world_dyn, MAX_DIMENSIONS );
+		world_dyn[X] = world[X];
+		world_dyn[Y] = world[Y];
+		world_dyn[Z] = world[Z];
+		label_stack[label] = push(label_stack[label], world_dyn);
+	}
+
+	/* remove a voxel from a label region */
+	value = get_3D_volume_label_data(label_volume, x, y, z);
+	if (value) /* only on not label voxel */
+	{
+		top_s = top(label_stack[value]);
+		if ((top_s->cur[X] - world[X]) < 1e-10f
+				&& (top_s->cur[Y] - world[Y]) < 1e-10f
+				&& (top_s->cur[Z] - world[Z]) < 1e-10f)
+		{
+			do
+			{
+				top_s = top_s->next;
+				pop(label_stack[value]);
+				if (top_s == NULL)
+				{
+					FREE( label_stack[value] );
+					label_stack[value] = NULL;
+					voxel_int[X] = x;
+					voxel_int[Y] = y;
+					voxel_int[Z] = z;
+					convert_int_to_real_voxel(MAX_DIMENSIONS, voxel_int,
+							voxel_real);
+					update_current_marker(marker_window, volume_index, voxel_real);
+					get_current_object( three_d_window, &object );
+					remove_current_object_from_hierarchy(three_d_window, &object);
+					delete_object(object);
+					rebuild_selected_list(three_d_window, marker_window);
+					break;
+				}
+				convert_world_to_voxel(label_volume, top_s->cur[X],
+						top_s->cur[Y], top_s->cur[Z], voxel_real);
+				convert_real_to_int_voxel(MAX_DIMENSIONS, voxel_real, voxel_int);
+
+			} while (get_3D_volume_label_data(label_volume, voxel_int[X],
+					voxel_int[Y], voxel_int[Z]) != value);
+		}
+	}
+}
+
 public  void  set_voxel_label(
     display_struct   *display,
     int              volume_index,
@@ -867,10 +967,12 @@ public  void  set_voxel_label(
     int              z,
     int              label )
 {
-    tell_surface_extraction_label_changed( display, volume_index, x, y, z );
 
-    set_volume_label_data_5d( get_nth_label_volume(display,volume_index),
-                              x, y, z, 0, 0, label );
+    tell_surface_extraction_label_changed( display, volume_index, x, y, z );
+    update_label_tag(display, volume_index, x, y, z, label);
+    set_volume_label_data_5d( get_nth_label_volume(display, volume_index),
+    		x, y, z, 0, 0, label );
+
 }
 
 public  Status  load_user_defined_colour_coding(

@@ -35,16 +35,18 @@ public  DEF_MENU_FUNCTION( label_voxel )
     Real           voxel[MAX_DIMENSIONS];
     int            view_index, int_voxel[MAX_DIMENSIONS], volume_index;
     display_struct *slice_window;
+    int 		   value;
 
     if( get_slice_window( display, &slice_window ) &&
         get_voxel_under_mouse( slice_window, &volume_index, &view_index, voxel))
     {
         record_slice_under_mouse( slice_window, volume_index );
         convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+        value = get_current_paint_label(slice_window);
         set_voxel_label( slice_window, volume_index,
                          int_voxel[X],
                          int_voxel[Y],
-                         int_voxel[Z], get_current_paint_label(slice_window) );
+                         int_voxel[Z], value );
         set_slice_window_all_update( slice_window, volume_index,
                                      UPDATE_LABELS );
     }
@@ -405,6 +407,9 @@ private  void   save_labels_as_tags(
     delete_string( filename );
 }
 
+/*
+ * Create tags from a label image
+ */
 public Status tags_from_label(
 	display_struct *display,
     int       *n_tag_points,
@@ -415,6 +420,7 @@ public Status tags_from_label(
     int       **patient_ids,
     STRING    *labels[] )
 {
+	display_struct 	*marker_window;
 	display_struct 	*slice_window;
 	Status 			status;
 	Volume 			volume;
@@ -429,10 +435,10 @@ public Status tags_from_label(
 	STRING 			label;
 	Real 			*coords;
 	int				i;
-	struct stack_list **label_stack;
 
 	status = OK;
 	slice_window = display->associated[SLICE_WINDOW];
+	marker_window = display->associated[MARKER_WINDOW];
 	volume = get_volume(slice_window);
 	label_volume = get_label_volume(slice_window);
 	get_volume_sizes( label_volume, sizes );
@@ -442,9 +448,9 @@ public Status tags_from_label(
     structure_id = -1;
     patient_id = -1;
 
-    SET_ARRAY_SIZE( label_stack, 0, 255, DEFAULT_CHUNK_SIZE);
+    SET_ARRAY_SIZE( marker_window->label_stack, 0, 255, DEFAULT_CHUNK_SIZE);
     for (i=0; i<255; ++i)
-    	label_stack[i] = NULL;
+    	marker_window->label_stack[i] = NULL;
 
 
     for_less (ind[X], 0, sizes[X])
@@ -463,19 +469,19 @@ public Status tags_from_label(
 				convert_voxel_to_world( volume, real_ind,
 						&tags[X], &tags[Y], &tags[Z] );
 
-			    ALLOC( coords, 3 );
+			    ALLOC( coords, MAX_DIMENSIONS );
 			    coords[X] = tags[X];
 			    coords[Y] = tags[Y];
 			    coords[Z] = tags[Z];
 
-				if (label_stack[value] != NULL)
+				if (marker_window->label_stack[value] != NULL)
 				{
-				    label_stack[value] = push(label_stack[value], coords);
+				    marker_window->label_stack[value] = push(marker_window->label_stack[value], coords);
 				}
 				else
 				{
-					label_stack[value] = stack_new();
-				    label_stack[value] = push(label_stack[value], coords);
+					marker_window->label_stack[value] = stack_new();
+				    marker_window->label_stack[value] = push(marker_window->label_stack[value], coords);
 
 
 					SET_ARRAY_SIZE( *tags_volume1, *n_tag_points, *n_tag_points+1,
@@ -526,13 +532,17 @@ public Status tags_from_label(
 	return (status);
 }
 
+/*
+ * Mimic the function input_tag_objects_file, but for a label image
+ */
+
 public  Status   input_tag_objects_label(
     display_struct* display,
     Colour         marker_colour,
     Real           default_size,
     Marker_types   default_type,
     int            *n_objects,
-    object_struct  **object_list[] )
+    object_struct  **object_list[])
 {
     Status             status;
     object_struct      *object;
