@@ -376,11 +376,13 @@ private void parse_options(int argc, char *argv[], display_struct *graphics)
 				  "Interactively display and segment three dimensional images.\n"
 				  "\n");
 			print("  %-25s %s\n", "-version",
-					"output version information and exit.");
+					"Output version information and exit.");
 			print("  %-25s %s\n", "-skiperror",
-					"skip on error when parsing arguments or loading file.");
+					"Skip on error when parsing arguments or loading file.");
 			print("  %-25s %s\n", "-label FILENAME",
 					"Interpret FILENAME as a label to be displayed over other images.");
+			print("  %-25s %s\n", "-labeltags",
+					"Input tags from the label file.");
 			print("  %-25s %s\n", "-output-label FILENAME",
 					"Use FILENAME to save labels instead of prompting the user.");
 			print("  %-25s %s\n", "-ratio N1,N2",
@@ -455,6 +457,14 @@ private void parse_options(int argc, char *argv[], display_struct *graphics)
 				retcode = ERROR;
 			}
 			next_is_label_volume = TRUE;
+		}
+		else if (equal_strings(filename, "-labeltags"))
+		{
+			if( set_global_variable_value("Tags_from_label", "TRUE") != OK )
+			{
+				print("Error setting labeltags variable from command line.\n");
+				retcode = ERROR;
+			}
 		}
 		else if (equal_strings(filename, "-output-label"))
 		{

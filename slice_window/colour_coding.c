@@ -969,7 +969,9 @@ public  void  set_voxel_label(
 {
 
     tell_surface_extraction_label_changed( display, volume_index, x, y, z );
-    update_label_tag(display, volume_index, x, y, z, label);
+    if( Tags_from_label )
+    	update_label_tag(display, volume_index, x, y, z, label);
+
     set_volume_label_data_5d( get_nth_label_volume(display, volume_index),
     		x, y, z, 0, 0, label );
 

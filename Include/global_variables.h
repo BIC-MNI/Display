@@ -99,6 +99,7 @@ START_GLOBALS
     DEF_GLOBAL( Character_height_in_pixels, Real, 10.0 )
     DEF_GLOBAL( Selected_box_x_offset, Real, 2.0 )
     DEF_GLOBAL( Selected_box_y_offset, Real, 2.0 )
+    DEF_GLOBAL( Tags_from_label, BOOLEAN, FALSE )
 
     DEF_GLOBAL_COLOUR( Viewport_feedback_colour )
     DEF_GLOBAL( Viewport_min_x_size, Real, 0.1 )
