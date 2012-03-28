@@ -461,8 +461,8 @@ public  void  rebuild_probe(
         }
 
         x_pos = Probe_x_pos + i * Probe_x_delta;
-        y_pos = Probe_y_pos + (N_READOUT_MODELS-1-i) * Probe_y_delta +
-                ((N_READOUT_MODELS-0-i) / 3) * Probe_y_pos;
+        y_pos = Probe_y_pos + (N_READOUT_MODELS-i-1) * Probe_y_delta +
+                ((N_READOUT_MODELS-i+1) / 3) * Probe_y_pos;
 
 
 

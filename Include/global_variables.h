@@ -115,7 +115,7 @@ START_GLOBALS
     DEF_GLOBAL( Slice_divider_x_position, Real, 0.5 )
     DEF_GLOBAL( Slice_divider_y_position, Real, 0.5 )
     DEF_GLOBAL( Left_panel_width, int, 90 )
-    DEF_GLOBAL( Text_panel_height, int, 170 )
+    DEF_GLOBAL( Text_panel_height, int, 190 )
     DEF_GLOBAL_COLOUR( Slice_text_colour )
     DEF_GLOBAL( Slice_text_font, int, 0 )
     DEF_GLOBAL( Slice_text_font_size, Real, 18.0 )
