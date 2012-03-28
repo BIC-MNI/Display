@@ -448,8 +448,9 @@ public Status tags_from_label(
     structure_id = -1;
     patient_id = -1;
 
-    SET_ARRAY_SIZE( marker_window->label_stack, 0, 255, DEFAULT_CHUNK_SIZE);
-    for (i=0; i<255; ++i)
+    SET_ARRAY_SIZE( marker_window->label_stack, 0,
+    		Initial_num_labels, DEFAULT_CHUNK_SIZE);
+    for (i=0; i<Initial_num_labels; ++i)
     	marker_window->label_stack[i] = NULL;
 
 
