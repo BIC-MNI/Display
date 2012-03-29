@@ -387,6 +387,8 @@ private void parse_options(int argc, char *argv[], display_struct *graphics)
 					"Use FILENAME to save labels instead of prompting the user.");
 			print("  %-25s %s\n", "-ratio N1,N2",
 								"Display the images ratio of N1/N2. The first image index is 0.");
+			print("  %-25s %s\n", "-range MINIMUM MAXIMUM",
+					"Set the contrast range.");
 			print("  %-25s %s\n", "-gray",
 					"Use gray color map.");
 			print("  %-25s %s\n", "-hot",
@@ -478,6 +480,33 @@ private void parse_options(int argc, char *argv[], display_struct *graphics)
 			{
 				print("Error setting output variable from command line.\n");
 				retcode = ERROR;
+			}
+		}
+		else if (equal_strings(filename, "-range"))
+		{
+			if (!get_string_argument("", &variable_name)
+					|| !get_string_argument("", &variable_value))
+			{
+				print_error("Error in arguments after -range.\n");
+				exit(EX_USAGE);
+			}
+
+			if (Initial_histogram_contrast)
+			{
+				if (set_global_variable_value("Initial_histogram_low", variable_name) != OK
+						|| set_global_variable_value("Initial_histogram_high", variable_value) != OK)
+				{
+					print("Error setting range variable from command line.\n");
+					retcode = ERROR;
+				}
+			}
+			else{
+				if (set_global_variable_value("Initial_low_absolute_position", variable_name) != OK
+						|| set_global_variable_value("Initial_high_absolute_position", variable_value) != OK)
+				{
+					print("Error setting range variable from command line.\n");
+					retcode = ERROR;
+				}
 			}
 		}
 		else if (equal_strings(filename, "-global"))

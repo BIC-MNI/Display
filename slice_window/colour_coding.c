@@ -286,7 +286,18 @@ public  void  initialize_slice_colour_coding(
     int               volume_index )
 {
     Real             low_limit, high_limit;
-    Real             min_value, max_value;
+    histogram_struct   histogram;
+    Volume             volume;
+    Real               *histo_counts;
+    Real               scale_factor, trans_factor;
+    int                nbbins, axis_index, voxel_index;
+    int                x, y, z, sizes[MAX_DIMENSIONS];
+    int                start[MAX_DIMENSIONS], end[MAX_DIMENSIONS];
+    int 			   sum_count, count, idx;
+    Real               min_value, max_value, value;
+    progress_struct    progress;
+    BOOLEAN			   low_limit_done;
+
 
     initialize_colour_coding(
            &slice_window->slice.volumes[volume_index].colour_coding,
@@ -313,16 +324,96 @@ public  void  initialize_slice_colour_coding(
     get_volume_real_range( get_nth_volume(slice_window,volume_index),
                            &min_value, &max_value );
 
-    if( Initial_low_absolute_position >= 0 )
-    	low_limit = Initial_low_absolute_position;
-    else
-    	low_limit = min_value + Initial_low_limit_position * (max_value - min_value);
+    if( Initial_histogram_contrast ) {
+        volume = get_nth_volume( slice_window, volume_index );
+        get_volume_real_range( volume, &min_value, &max_value );
+        get_volume_sizes( volume, sizes );
 
-    if( Initial_high_absolute_position >= 0 )
-        high_limit = Initial_high_absolute_position;
-    else
-    	high_limit = min_value + Initial_high_limit_position * (max_value - min_value);
+        initialize_histogram( &histogram, (max_value - min_value) / 1000.0, min_value );
+        start[X] = 0;
+        end[X] = sizes[X];
+        start[Y] = 0;
+        end[Y] = sizes[Y];
+        start[Z] = 0;
+        end[Z] = sizes[Z];
 
+        axis_index = -1;
+        voxel_index = 0;
+
+        if( axis_index >= 0 && voxel_index >= 0 && voxel_index < sizes[axis_index] )
+        {
+            start[axis_index] = voxel_index;
+            end[axis_index] = voxel_index+1;
+        }
+
+        if( axis_index < 0 )
+        {
+            initialize_progress_report( &progress, FALSE, sizes[X] * sizes[Y],
+                                        "Histogramming" );
+        }
+        for_less( x, start[X], end[X] )
+        {
+            for_less( y, start[Y], end[Y] )
+            {
+                for_less( z, start[Z], end[Z] )
+                {
+                    {
+                        value = get_volume_real_value( volume, x, y, z, 0, 0 );
+                        add_to_histogram( &histogram, value );
+                    }
+                }
+
+                if( axis_index < 0 )
+                    update_progress_report( &progress, x * sizes[Y] + y + 1 );
+            }
+        }
+
+        if( axis_index < 0 )
+            terminate_progress_report( &progress );
+
+        nbbins = get_histogram_counts( &histogram, &histo_counts,
+        		Default_filter_width, &scale_factor, &trans_factor );
+
+
+//        sum_count = sizes[X] * sizes[Y] * sizes[Z];
+        sum_count = 0;
+        for_less( idx, 0, nbbins )
+			sum_count += histo_counts[idx];
+
+        count = 0;
+        low_limit_done = FALSE;
+        for_less( idx, 0, nbbins )
+        {
+        	if (!(low_limit_done) && (count / (Real)sum_count > Initial_histogram_low))
+        	{
+        		low_limit = idx * histogram.delta + histogram.offset;
+//        		low_limit = convert_index_to_value(&histogram, idx);
+        		low_limit_done = TRUE;
+        	}
+
+        	if (count / (Real) sum_count >= Initial_histogram_high)
+			{
+				high_limit = idx * histogram.delta + histogram.offset;
+//        		high_limit = convert_index_to_value(&histogram, idx);
+				break;
+       		}
+        	count += histo_counts[idx];
+        }
+
+        delete_histogram(&histogram);
+    }
+    else
+    {
+    	if (Initial_low_absolute_position >= 0)
+			low_limit = Initial_low_absolute_position;
+		else
+			low_limit = min_value + Initial_low_limit_position * (max_value - min_value);
+
+		if (Initial_high_absolute_position >= 0)
+			high_limit = Initial_high_absolute_position;
+		else
+			high_limit = min_value + Initial_high_limit_position * (max_value - min_value);
+    }
     change_colour_coding_range( slice_window, volume_index,
                                 low_limit, high_limit );
 }
