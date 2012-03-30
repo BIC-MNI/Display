@@ -73,6 +73,10 @@ include_directories( ${MINC_INCLUDE_DIR} )
 # add_library(volume_io2 STATIC IMPORTED)
 # set_property(TARGET volume_io2 PROPERTY IMPORTED_LOCATION ${MINC_volume_io2_LIBRARY})
 
+# ZLIB
+find_package(ZLIB REQUIRED)
+include_directories( ${ZLIB_INCLUDE_DIR} )
+
 # BICpl
 find_package(BICPL REQUIRED)
 include_directories( ${BICPL_INCLUDE_DIR} )
@@ -124,14 +128,28 @@ message(STATUS "RPATH: ${CMAKE_INSTALL_RPATH}")
 add_executable (Display ${C_SRC})
 
 # Link all modules to create the executable
-target_link_libraries(Display 
-  ${MINC_LIBRARIES}
-  ${NetCDF_C_LIBRARY}
-  ${HDF5_C_LIBRARIES} 
-  ${ZLIB_LIBRARIES}
-  ${BICPL_LIBRARY}
-  ${GLUT_glut_LIBRARY} 
-  ${OPENGL_gl_LIBRARY})
+if (DISPLAY_BUILD_STATIC)
+  set (LINK_LIBRARIES   
+      ${MINC_LIBRARIES}
+      ${NetCDF_C_LIBRARY}
+      ${HDF5_hdf5_LIBRARY_RELEASE} ${HDF5_hdf5_hl_LIBRARY_RELEASE}
+      ${ZLIB_LIBRARIES}
+      ${BICPL_LIBRARY}
+      ${GLUT_glut_LIBRARY} 
+      ${OPENGL_gl_LIBRARY}
+      -pthread)
+else (DISPLAY_BUILD_STATIC)
+  set (LINK_LIBRARIES   
+      ${MINC_LIBRARIES}
+      ${NetCDF_C_LIBRARY}
+      ${HDF5_C_LIBRARIES}
+      ${ZLIB_LIBRARIES}
+      ${BICPL_LIBRARY}
+      ${GLUT_glut_LIBRARY} 
+      ${OPENGL_gl_LIBRARY})
+endif (DISPLAY_BUILD_STATIC)
+
+target_link_libraries(Display ${LINK_LIBRARIES})
   
 # Generate an install target
 install(TARGETS Display RUNTIME DESTINATION bin)
