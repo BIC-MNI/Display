@@ -374,32 +374,27 @@ public  void  initialize_slice_colour_coding(
         nbbins = get_histogram_counts( &histogram, &histo_counts,
         		Default_filter_width, &scale_factor, &trans_factor );
 
-
-//        sum_count = sizes[X] * sizes[Y] * sizes[Z];
         sum_count = 0;
-        for_less( idx, 0, nbbins )
+        for_less( idx, Initial_histogram_low_clip_index, nbbins )
 			sum_count += histo_counts[idx];
 
-        count = 0;
-        low_limit_done = FALSE;
-        for_less( idx, 0, nbbins )
-        {
-        	if (!(low_limit_done) && (count / (Real)sum_count > Initial_histogram_low))
-        	{
-        		low_limit = idx * histogram.delta + histogram.offset;
-//        		low_limit = convert_index_to_value(&histogram, idx);
-        		low_limit_done = TRUE;
-        	}
+		count = 0;
+		low_limit_done = FALSE;
+		for_less( idx, Initial_histogram_low_clip_index, nbbins )
+		{
+			if (!(low_limit_done) && (count / (Real)sum_count > Initial_histogram_low))
+			{
+				low_limit = idx * histogram.delta + histogram.offset;
+				low_limit_done = TRUE;
+			}
 
-        	if (count / (Real) sum_count >= Initial_histogram_high)
+			if (count / (Real) sum_count >= Initial_histogram_high)
 			{
 				high_limit = idx * histogram.delta + histogram.offset;
-//        		high_limit = convert_index_to_value(&histogram, idx);
 				break;
-       		}
-        	count += histo_counts[idx];
-        }
-
+			}
+			count += histo_counts[idx];
+		}
         delete_histogram(&histogram);
     }
     else
