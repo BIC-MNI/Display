@@ -221,9 +221,9 @@ else(NetCDF_LIBRARIES AND NetCDF_INCLUDE_DIRS)
         message(SEND_ERROR "Can not locate NetCDF C library")
     endif()    
     
-    if ( NOT NetCDF_CXX_LIBRARY )
-        message(SEND_ERROR "Can not locate NetCDF CXX library")
-    endif()    
+#    if ( NOT NetCDF_CXX_LIBRARY )
+#        message(SEND_ERROR "Can not locate NetCDF CXX library")
+#    endif()    
 
 
    
