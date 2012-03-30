@@ -74,8 +74,8 @@ include_directories( ${MINC_INCLUDE_DIR} )
 # set_property(TARGET volume_io2 PROPERTY IMPORTED_LOCATION ${MINC_volume_io2_LIBRARY})
 
 # LIBM
-find_package(LibM REQUIRED)
-include_directories( ${LibM_INCLUDE_DIR} )
+#find_package(LibM REQUIRED)
+#include_directories( ${LibM_INCLUDE_DIR} )
 
 # ZLIB
 find_package(ZLIB REQUIRED)
@@ -137,12 +137,11 @@ if (DISPLAY_BUILD_STATIC)
       ${MINC_LIBRARIES}
       ${NetCDF_C_LIBRARY}
       ${HDF5_hdf5_LIBRARY_RELEASE} ${HDF5_hdf5_hl_LIBRARY_RELEASE}
-      ${LibM_LIBRARIES}
       ${ZLIB_LIBRARIES}
       ${BICPL_LIBRARY}
       ${GLUT_glut_LIBRARY} 
       ${OPENGL_gl_LIBRARY}
-      -pthread)
+      -lm -pthread)
 else (DISPLAY_BUILD_STATIC)
   set (LINK_LIBRARIES   
       ${MINC_LIBRARIES}

@@ -26,7 +26,7 @@ set( LibM_LIBRARIES "" )
 
 find_library( LibM_LIBRARY
   NAMES m
-  HINTS /usr/lib /usr/local/lib /usr/local/bic/lib
+  HINTS /usr/lib /usr/local/lib /usr/lib/i386-linux-gnu
   #PATH_SUFFIXES 
   NO_DEFAULT_PATH
   )
