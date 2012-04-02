@@ -296,7 +296,7 @@ public  void  initialize_slice_colour_coding(
     int 			   sum_count, count, idx;
     Real               min_value, max_value, value;
     progress_struct    progress;
-    BOOLEAN			   low_limit_done;
+    BOOLEAN			   low_limit_done, high_limit_done;
 
 
     initialize_colour_coding(
@@ -380,6 +380,7 @@ public  void  initialize_slice_colour_coding(
 
 		count = 0;
 		low_limit_done = FALSE;
+		high_limit_done = FALSE;
 		for_less( idx, Initial_histogram_low_clip_index, nbbins )
 		{
 			if (!(low_limit_done) && (count / (Real)sum_count > Initial_histogram_low))
@@ -391,10 +392,17 @@ public  void  initialize_slice_colour_coding(
 			if (count / (Real) sum_count >= Initial_histogram_high)
 			{
 				high_limit = idx * histogram.delta + histogram.offset;
+				high_limit_done = TRUE;
 				break;
 			}
 			count += histo_counts[idx];
 		}
+
+		if (!low_limit_done)
+			low_limit = histogram.min_index * histogram.delta + histogram.offset ;
+
+		if (!high_limit_done)
+			high_limit = (histogram.max_index + 1) * histogram.delta + histogram.offset ;
         delete_histogram(&histogram);
     }
     else

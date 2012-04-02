@@ -216,7 +216,7 @@ START_GLOBALS
     DEF_GLOBAL( Initial_histogram_contrast, BOOLEAN, TRUE )
     DEF_GLOBAL( Initial_histogram_low_clip_index, int, 4 )
     DEF_GLOBAL( Initial_histogram_low, Real, 0.18 )
-    DEF_GLOBAL( Initial_histogram_high, Real, 0.99 )
+    DEF_GLOBAL( Initial_histogram_high, Real, 1.0 )
     DEF_GLOBAL( Initial_low_limit_position, Real, 0.25 )
     DEF_GLOBAL( Initial_high_limit_position, Real, 0.75 )
     DEF_GLOBAL_COLOUR( Colour_above )
