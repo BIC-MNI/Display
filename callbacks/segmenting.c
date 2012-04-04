@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.59 2001-06-05 15:59:21 neelin Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/segmenting.c,v 1.59 2001/06/05 15:59:21 neelin Exp $";
 #endif
 
 
@@ -1057,3 +1057,66 @@ public  DEF_MENU_UPDATE(toggle_crop_labels_on_output)
 
     return( state );
 }
+
+
+/* ARGSUSED */
+
+public  DEF_MENU_FUNCTION(clear_label_connected_3d)
+{
+    Real             voxel[MAX_DIMENSIONS];
+    int              range_changed[2][N_DIMENSIONS];
+    int              view_index, int_voxel[MAX_DIMENSIONS];
+    int              label_under_mouse, desired_label, volume_index;
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window ) )
+//        get_voxel_under_mouse( slice_window, &volume_index, &view_index, voxel))
+    {
+    	volume_index = get_current_volume_index( slice_window );
+    	get_current_voxel( display, volume_index, voxel);
+
+        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+
+        label_under_mouse = get_voxel_label( slice_window, volume_index,
+                                             int_voxel[X],
+                                             int_voxel[Y],
+                                             int_voxel[Z] );
+
+        /* desired_label = get_current_paint_label( slice_window ); */
+		desired_label = 0;
+
+        print( "Clear 3d from %d %d %d, label %d becomes %d\n",
+               int_voxel[X], int_voxel[Y], int_voxel[Z],
+               label_under_mouse, desired_label );
+
+        (void) fill_connected_voxels( get_nth_volume(slice_window,volume_index),
+                               get_nth_label_volume(slice_window,volume_index),
+                               slice_window->slice.segmenting.connectivity,
+                               int_voxel,
+                               label_under_mouse, label_under_mouse,
+                               desired_label,
+                               slice_window->slice.segmenting.min_threshold,
+                               slice_window->slice.segmenting.max_threshold,
+                               range_changed );
+
+        delete_slice_undo( &slice_window->slice.undo, volume_index );
+
+        print( "Done\n" );
+
+        set_slice_window_all_update( slice_window, volume_index, UPDATE_LABELS);
+
+        tell_surface_extraction_range_of_labels_changed( display,
+                                               volume_index, range_changed );
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE(clear_label_connected_3d )
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+/* ARGSUSED */

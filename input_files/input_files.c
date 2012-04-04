@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/input_files/input_files.c,v 1.28 1996-05-17 19:38:11 david Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/input_files/input_files.c,v 1.28 1996/05/17 19:38:11 david Exp $";
 #endif
 
 
@@ -192,6 +192,7 @@ public  Status  load_graphics_file(
         }
 
         rebuild_selected_list( display, display->associated[MENU_WINDOW] );
+        rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
     }
     else
         delete_object( object );

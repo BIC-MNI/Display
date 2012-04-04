@@ -13,13 +13,12 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.65 2010-10-29 19:07:52 jgsled Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/main.c,v 1.64 2005/04/03 03:38:12 stever Exp $";
 #endif
 
 #include "config.h"
 #include  <display.h>
 
-//private  STRING   version = "1.5.1 Nov, 2011";
 
 #define  MAX_TITLE_LENGTH   200
 
@@ -70,7 +69,7 @@ int  main(
     int              i, view;
     STRING           filename;
     display_struct   *graphics;
-    display_struct   *menu, *slice_window;
+    display_struct   *menu, *slice_window, *marker;
     STRING           globals_filename, runtime_directory;
     int              n_directories;
     STRING           *directories;
@@ -139,7 +138,16 @@ int  main(
                                 Initial_menu_window_height ) != OK )
         return( 1 );
     delete_string( title );
+    if( Hide_menu_window )
+		glutHideWindow();
 
+    title = concat_strings( PROJECT_NAME, ": Marker" );
+    if( create_graphics_window( MARKER_WINDOW, ON, &marker, title,
+                                Initial_marker_window_width,
+                                Initial_marker_window_height ) != OK )
+    	return( 1 );
+
+    delete_string( title );
     if( Hide_menu_window )
 		glutHideWindow();
 
@@ -147,10 +155,17 @@ int  main(
     graphics->associated[THREE_D_WINDOW] = graphics;
     graphics->associated[MENU_WINDOW] = menu;
     graphics->associated[SLICE_WINDOW] = (display_struct *) 0;
+    graphics->associated[MARKER_WINDOW] = marker;
 
     menu->associated[THREE_D_WINDOW] = graphics;
     menu->associated[MENU_WINDOW] = menu;
     menu->associated[SLICE_WINDOW] = (display_struct *) 0;
+    menu->associated[MARKER_WINDOW] = marker;
+
+    marker->associated[THREE_D_WINDOW] = graphics;
+    marker->associated[MENU_WINDOW] = menu;
+    marker->associated[SLICE_WINDOW] = (display_struct *) 0;
+    marker->associated[MARKER_WINDOW] = marker;
 
     if( initialize_menu( menu, runtime_directory,
 			 getenv( "HOME" ),
@@ -158,6 +173,9 @@ int  main(
 			 HARD_CODED_DISPLAY_DIRECTORY2,
 			 MENU_FILENAME ) != OK )
 	return 1;
+
+    if( initialize_marker_window( marker ) != OK )
+    return 1;
 
     delete_string( runtime_directory );
 
@@ -172,13 +190,15 @@ int  main(
 
     initialize_cache( graphics );
     initialize_view_to_fit( graphics );
-    rebuild_selected_list( graphics, menu );
+
+    rebuild_selected_list( graphics, marker );
     reset_view_parameters( graphics, &Default_line_of_sight,
                            &Default_horizontal );
 
     update_view( graphics );
     update_all_menu_text( graphics );
     set_update_required( graphics, NORMAL_PLANES );
+    set_update_required( marker, NORMAL_PLANES );
 
 	if( Hide_3D_window )
 		glutHideWindow();

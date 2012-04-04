@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/cursor_pos.c,v 1.5 2001-05-27 00:19:49 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/cursor_pos.c,v 1.5 2001/05/27 00:19:49 stever Exp $";
 #endif
 
 #include  <display.h>
@@ -64,10 +64,11 @@ public  void  rebuild_cursor_position_model(
 {
     text_struct     *text;
     model_struct    *cursor_pos_model;
-    display_struct  *menu_window;
+    display_struct  *menu_window, *marker_window;
     char            buffer[EXTREMELY_LARGE_STRING_SIZE];
 
     menu_window = display->associated[MENU_WINDOW];
+    marker_window = display->associated[MARKER_WINDOW];
 
     if( menu_window == NULL )
         return;
@@ -98,4 +99,5 @@ public  void  rebuild_cursor_position_model(
     replace_string( &text->string, create_string(buffer) );
 
     set_update_required( menu_window, NORMAL_PLANES );
+    set_update_required( marker_window, NORMAL_PLANES );
 }

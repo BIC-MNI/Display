@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.77 2001-05-27 00:19:47 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/graphics.c,v 1.77 2001/05/27 00:19:47 stever Exp $";
 #endif
 
 
@@ -264,6 +264,7 @@ private  void  initialize_graphics_window(
     display->associated[THREE_D_WINDOW] = (display_struct *) 0;
     display->associated[MENU_WINDOW] = (display_struct *) 0;
     display->associated[SLICE_WINDOW] = (display_struct *) 0;
+    display->associated[MARKER_WINDOW] = (display_struct *) 0;
 
     display->models_changed_id = 0;
 
@@ -285,6 +286,7 @@ private  void  initialize_graphics_window(
         case THREE_D_WINDOW:   view_type = MODEL_VIEW;   break;
         case MENU_WINDOW:      view_type = PIXEL_VIEW;   break;
         case SLICE_WINDOW:     view_type = PIXEL_VIEW;   break;
+        case MARKER_WINDOW:	   view_type = PIXEL_VIEW;   break;
         }
 
         model_info->view_type = view_type;
@@ -333,6 +335,9 @@ private  void  initialize_graphics_window(
         initialize_three_d_window( display );
 
     if( display->window_type == MENU_WINDOW )
+        initialize_menu_window( display );
+
+    if( display->window_type == MARKER_WINDOW )
         initialize_menu_window( display );
 
     display->frame_number = 0;

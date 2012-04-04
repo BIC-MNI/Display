@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.144 2006-08-03 21:50:30 claude Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/input_menu.c,v 1.144 2006/08/03 21:50:30 claude Exp $";
 #endif
 
 #include  <display.h>
@@ -128,6 +128,7 @@ MENU_F(label_connected_no_threshold) \
 MENU_F(label_slice) \
 MENU_F(clear_slice) \
 MENU_F(label_connected_3d) \
+MENU_F(clear_label_connected_3d) \
 MENU_F(dilate_labels) \
 MENU_F(erode_labels) \
 MENU_F(set_colour_limits) \

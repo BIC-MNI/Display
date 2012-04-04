@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/selected.c,v 1.17 2001-05-27 00:19:50 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/selected.c,v 1.17 2001/05/27 00:19:50 stever Exp $";
 #endif
 
 
@@ -185,18 +185,21 @@ private  STRING  get_object_label(
 
 public  void  rebuild_selected_list(
     display_struct    *display,
-    display_struct    *menu_window )
+    display_struct    *marker_window )
 {
     int            i, start_index, n_objects, selected_index;
     Colour         col;
     STRING         label;
     model_struct   *selected_model, *model;
     text_struct    *text;
+//    display_struct *marker_window;
+//
+//    marker_window = menu_window->associated[MARKER_WINDOW];
 
-    selected_model = get_graphics_model( menu_window, SELECTED_MODEL );
+    selected_model = get_graphics_model( marker_window, SELECTED_MODEL );
 
     if( selected_model->n_objects == 0 )
-        create_selected_text( &menu_window->menu, selected_model );
+        create_selected_text( &marker_window->marker, selected_model );
 
     for_less( i, 0, N_selected_displayed+1 )
         set_object_visibility( selected_model->objects[i], OFF );
@@ -219,25 +222,26 @@ public  void  rebuild_selected_list(
         else
             col = Invisible_colour;
 
-        set_text_entry( menu_window, i - start_index, label, col );
+        set_text_entry( marker_window, i - start_index, label, col );
 
         if( i == selected_index )
-            set_current_box( &menu_window->menu,
+            set_current_box( &marker_window->marker,
                              selected_model, i - start_index, label );
 
         delete_string( label );
 
         text = get_text_ptr( selected_model->objects[i-start_index+1] );
-        text->size = menu_window->menu.font_size;
+        text->size = marker_window->marker.font_size;
         fill_Point( text->origin,
-                    menu_window->menu.selected_x_origin,
-                    menu_window->menu.selected_y_origin -
-                    menu_window->menu.character_height *
+                    marker_window->marker.selected_x_origin,
+                    marker_window->marker.selected_y_origin -
+                    marker_window->marker.character_height *
                     (Real) (i - start_index),
                     0.0 );
     }
 
-    set_update_required( menu_window, NORMAL_PLANES );
+    //set_update_required( menu_window, NORMAL_PLANES );
+    set_update_required( marker_window, NORMAL_PLANES );
 }
 
 public  BOOLEAN  mouse_is_on_object_name(

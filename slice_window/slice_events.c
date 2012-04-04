@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice_events.c,v 1.44 2001-05-27 00:19:55 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice_events.c,v 1.44 2001/05/27 00:19:55 stever Exp $";
 #endif
 
 #include  <display.h>
@@ -276,11 +276,11 @@ private  void  set_slice_voxel_position(
 
         if( update_current_marker( display, volume_index, clipped_voxel ) )
         {
-            rebuild_selected_list( display,
-                                   slice_window->associated[MENU_WINDOW] );
+            rebuild_selected_list( display, slice_window->associated[MENU_WINDOW] );
+            set_update_required( slice_window->associated[MENU_WINDOW], NORMAL_PLANES );
 
-            set_update_required( slice_window->associated[MENU_WINDOW],
-                                 NORMAL_PLANES );
+            rebuild_selected_list( display, slice_window->associated[MARKER_WINDOW] );
+            set_update_required( slice_window->associated[MARKER_WINDOW], NORMAL_PLANES );
         }
     }
 }

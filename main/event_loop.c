@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/event_loop.c,v 1.29 2001-05-27 00:19:47 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/main/event_loop.c,v 1.29 2001/05/27 00:19:47 stever Exp $";
 #endif
 
 
@@ -254,7 +254,9 @@ public  BOOLEAN  window_is_up_to_date(
 private  void  update_all_three_d_windows( void )
 {
     update_this_type_of_windows( MENU_WINDOW );
+    update_this_type_of_windows( MARKER_WINDOW );
     update_this_type_of_windows( THREE_D_WINDOW );
+    update_this_type_of_windows( MARKER_WINDOW );
 }
 
 private  void  update_all_slice_windows( void )

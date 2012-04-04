@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/display_types.h,v 1.21 1998-02-20 14:59:58 david Exp $";
+static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/display_types.h,v 1.21 1998/02/20 14:59:58 david Exp $";
 #endif
 
 #include  <graphics.h>

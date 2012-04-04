@@ -792,6 +792,10 @@ public  DEF_MENU_FUNCTION(label_connected_3d);
 
 public  DEF_MENU_UPDATE(label_connected_3d );
 
+public  DEF_MENU_FUNCTION(clear_label_connected_3d);
+
+public  DEF_MENU_UPDATE(clear_label_connected_3d );
+
 public  DEF_MENU_FUNCTION(dilate_labels);
 
 public  DEF_MENU_UPDATE(dilate_labels );

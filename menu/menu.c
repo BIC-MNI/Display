@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.45 2001-08-16 23:04:07 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.45 2001/08/16 23:04:07 stever Exp $";
 #endif
 
 
@@ -166,7 +166,6 @@ private  DEF_EVENT_FUNCTION( handle_menu_resize )
     rebuild_menu( menu_window );
     rebuild_cursor_position_model( three_d );
     update_menu_name_text( menu_window );
-    rebuild_selected_list( three_d, menu_window );
 
     return( OK );
 }
@@ -183,7 +182,6 @@ static STRING default_menu_string =
 #   include "Display.menu.include"
 #endif
 ;
-
 
 public  Status  initialize_menu(
     display_struct    *menu_window,
@@ -627,10 +625,11 @@ public  void  update_all_menu_text(
     display_struct   *display )
 {
     int                 key;
-    display_struct      *menu_window;
+    display_struct      *menu_window, *marker_window;
     menu_entry_struct   *menu_entry;
 
     menu_window = display->associated[MENU_WINDOW];
+    marker_window = display->associated[MARKER_WINDOW];
 
     for_less( key, 0, N_CHARACTERS )
     {
@@ -641,6 +640,7 @@ public  void  update_all_menu_text(
     }
 
     set_update_required( menu_window, NORMAL_PLANES );
+    set_update_required( marker_window, NORMAL_PLANES );
 }
 
 private  void  update_menu_name_text(

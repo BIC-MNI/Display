@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.120 2001-05-27 00:19:54 stever Exp $";
+static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.120 2001/05/27 00:19:54 stever Exp $";
 #endif
 
 
@@ -27,7 +27,7 @@ public  void  create_slice_window(
     STRING           filename,
     Volume           volume )
 {
-    display_struct   *slice_window, *menu_window;
+    display_struct   *slice_window, *menu_window, *marker_window;
     int              sizes[N_DIMENSIONS];
     char             title[EXTREMELY_LARGE_STRING_SIZE];
 
@@ -40,12 +40,16 @@ public  void  create_slice_window(
                                    &slice_window, title, 0, 0 );
 
     menu_window = display->associated[MENU_WINDOW];
+    marker_window = display->associated[MARKER_WINDOW];
 
     slice_window->associated[THREE_D_WINDOW] = display;
     slice_window->associated[MENU_WINDOW] = menu_window;
     slice_window->associated[SLICE_WINDOW] = slice_window;
+    slice_window->associated[MARKER_WINDOW] = marker_window;
+
     display->associated[SLICE_WINDOW] = slice_window;
     menu_window->associated[SLICE_WINDOW] = slice_window;
+	marker_window->associated[SLICE_WINDOW] = slice_window;
 
     initialize_slice_window( slice_window );
 
