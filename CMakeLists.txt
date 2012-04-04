@@ -169,6 +169,10 @@ include_directories( ${OPENGL_INCLUDE_DIR} )
 include_directories( ${GLUT_INCLUDE_DIR} )
 include_directories( ${GLU_INCLUDE_DIR} )
 
+
+INCLUDE_DIRECTORIES(Graphics/Include Graphics/OpenGL_graphics/Include Graphics/GLUT_windows/Include Include )
+
+
 # Look for C source files. Dirty but easy way.
 # file (GLOB_RECURSE C_SRC "./*.c")
 # file (GLOB_RECURSE C_REMOVE "./*.include.c" "./*supports_gl.c" "./*CMakeCCompilerId.c")
@@ -293,15 +297,64 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 #    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 # ENDIF("${isSystemDir}" STREQUAL "-1")
 
-message(STATUS "RPATH: ${CMAKE_INSTALL_RPATH}")
+#message(STATUS "RPATH: ${CMAKE_INSTALL_RPATH}")
 #----------------------------------------------------------------------
 
-ADD_SUBDIRECTORY( Graphics )
+#ADD_SUBDIRECTORY( Graphics )
 
+SET(PRINT_X_COLOURS print_X_colours)
+
+SET(GLX_SRC Graphics/GLX_windows/glx_windows.c 
+          Graphics/GLX_windows/stored_font.c )
+
+SET(GLUT_SRC 
+  Graphics/GLUT_windows/glut_windows.c 
+  Graphics/GLUT_windows/copy_x_colours.c)
+
+SET(X_SRC   Graphics/X_windows/x_windows.c )
+
+SET(GL_SRC 
+         Graphics/IrisGL_graphics/colour_def.c 
+         Graphics/IrisGL_graphics/draw.c 
+         Graphics/IrisGL_graphics/event_loop.c 
+         Graphics/IrisGL_graphics/lights.c 
+         Graphics/IrisGL_graphics/render.c 
+         Graphics/IrisGL_graphics/view.c 
+         Graphics/IrisGL_graphics/windows.c )
+
+SET(OPENGL_SRC 
+             Graphics/OpenGL_graphics/colour_def.c 
+             Graphics/OpenGL_graphics/draw.c 
+             Graphics/OpenGL_graphics/event_loop.c 
+             Graphics/OpenGL_graphics/lights.c 
+             Graphics/OpenGL_graphics/render.c 
+             Graphics/OpenGL_graphics/view.c 
+             Graphics/OpenGL_graphics/windows.c
+        )
+
+SET(G_SRC 
+        Graphics/G_graphics/draw.c 
+        Graphics/G_graphics/draw_objects.c 
+        Graphics/G_graphics/event_loop.c 
+        Graphics/G_graphics/graphics_structs.c 
+        Graphics/G_graphics/lights.c 
+        Graphics/G_graphics/random_order.c 
+        Graphics/G_graphics/render.c 
+        Graphics/G_graphics/view.c 
+        Graphics/G_graphics/windows.c)
+
+
+SET(OPENGL_X_SRC ${G_SRC} ${OPENGL_SRC} ${GLUT_SRC})
+
+
+SET(BICGL_SRC 
+  ${OPENGL_X_SRC}
+)
+
+ADD_LIBRARY(Display_bicgl ${BICGL_SRC})
 
 # Compile each source file to a module
-add_executable (Display ${C_SRC})
-
+add_executable (Display  ${C_SRC}  )
 
 # Link all modules to create the executable
 IF(NOT MINC_TOOLKIT_BUILD)
@@ -327,7 +380,8 @@ IF(NOT MINC_TOOLKIT_BUILD)
   endif (DISPLAY_BUILD_STATIC)
 ELSE(NOT MINC_TOOLKIT_BUILD)
     set (LINK_LIBRARIES   
-    ${BICPL_LIBRARIES} ${VOLUME_IO_LIBRARIES} ${MINC2_LIBRARIES}
+      ${GLUT_LIBRARIES}
+      ${BICPL_LIBRARIES} ${VOLUME_IO_LIBRARIES} ${MINC2_LIBRARIES}
         -lm -pthread)
 ENDIF(NOT MINC_TOOLKIT_BUILD)
 
