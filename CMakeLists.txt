@@ -153,12 +153,14 @@ IF(NOT MINC_TOOLKIT_BUILD)
 
   # GLUT
 #   FIND_PACKAGE( Threads )
-  FIND_PACKAGE( GL REQUIRED )
-  FIND_PACKAGE( GLU REQUIRED )
-  FIND_PACKAGE( GLUT REQUIRED )
+  #FIND_PACKAGE( GL REQUIRED )
+  #FIND_PACKAGE( GLU REQUIRED )
+  find_package( GLUT REQUIRED )
+
+ELSE(NOT MINC_TOOLKIT_BUILD)
+  INCLUDE( ${MINC2_USE_FILE} )
 ENDIF(NOT MINC_TOOLKIT_BUILD)
 
-INCLUDE( ${MINC2_USE_FILE} )
 include_directories( ${NetCDF_INCLUDE_DIR} )
 include_directories( ${HDF5_INCLUDE_DIRS} )
 add_definitions(${HDF5_DEFINITIONS})
@@ -167,7 +169,7 @@ include_directories( ${ZLIB_INCLUDE_DIR} )
 include_directories( ${BICPL_INCLUDE_DIR} )
 include_directories( ${OPENGL_INCLUDE_DIR} )
 include_directories( ${GLUT_INCLUDE_DIR} )
-include_directories( ${GLU_INCLUDE_DIR} )
+#include_directories( ${GLU_INCLUDE_DIR} )
 
 
 INCLUDE_DIRECTORIES(Graphics/Include Graphics/OpenGL_graphics/Include Graphics/GLUT_windows/Include Include )
