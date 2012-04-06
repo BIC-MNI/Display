@@ -80,6 +80,7 @@ ENDIF(CMAKE_USE_PTHREADS_INIT)
 
 IF(APPLE)
   SET(HAVE_APPLE_OPENGL_FRAMEWORK ON)
+  SET(X_DISPLAY_MISSING ON)#?
 ENDIF(APPLE)
 
 IF(WINDOWS)
@@ -170,9 +171,6 @@ include_directories( ${BICPL_INCLUDE_DIR} )
 include_directories( ${OPENGL_INCLUDE_DIR} )
 include_directories( ${GLUT_INCLUDE_DIR} )
 #include_directories( ${GLU_INCLUDE_DIR} )
-
-
-INCLUDE_DIRECTORIES(Graphics/Include Graphics/OpenGL_graphics/Include Graphics/GLUT_windows/Include Include )
 
 
 # Look for C source files. Dirty but easy way.
