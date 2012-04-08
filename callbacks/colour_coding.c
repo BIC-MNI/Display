@@ -11,6 +11,9 @@
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
 ---------------------------------------------------------------------------- */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #ifndef lint
 static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/callbacks/colour_coding.c,v 1.25 1996/12/09 20:21:24 david Exp $";

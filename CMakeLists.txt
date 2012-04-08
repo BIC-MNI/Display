@@ -351,7 +351,7 @@ SET(BICGL_SRC
   ${OPENGL_X_SRC}
 )
 
-ADD_LIBRARY(Display_bicgl ${BICGL_SRC})
+ADD_LIBRARY(Display_bicgl STATIC ${BICGL_SRC})
 
 # Compile each source file to a module
 add_executable (Display  ${C_SRC}  )
@@ -380,12 +380,13 @@ IF(NOT MINC_TOOLKIT_BUILD)
   endif (DISPLAY_BUILD_STATIC)
 ELSE(NOT MINC_TOOLKIT_BUILD)
     set (LINK_LIBRARIES   
-      ${GLUT_LIBRARIES}
+      ${GLUT_LIBRARIES} ${OPENGL_gl_LIBRARY}
       ${BICPL_LIBRARIES} ${VOLUME_IO_LIBRARIES} ${MINC2_LIBRARIES}
         -lm -pthread)
 ENDIF(NOT MINC_TOOLKIT_BUILD)
 
-target_link_libraries(Display Display_bicgl ${LINK_LIBRARIES})
+target_link_libraries(Display_bicgl ${LINK_LIBRARIES})
+target_link_libraries(Display Display_bicgl )
   
 # Generate an install target
 install(TARGETS Display RUNTIME DESTINATION bin)

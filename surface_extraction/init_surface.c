@@ -11,6 +11,9 @@
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
 ---------------------------------------------------------------------------- */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #ifndef lint
 static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/init_surface.c,v 1.31 1996/05/17 19:38:20 david Exp $";

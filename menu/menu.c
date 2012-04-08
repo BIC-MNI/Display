@@ -11,13 +11,15 @@
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
 ---------------------------------------------------------------------------- */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #ifndef lint
 static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/menu.c,v 1.45 2001/08/16 23:04:07 stever Exp $";
 #endif
 
 
-#include  <config.h>
 #include  <display.h>
 
 static    DEF_EVENT_FUNCTION( handle_character_down );
