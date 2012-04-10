@@ -12,6 +12,10 @@
               express or implied warranty.
 ---------------------------------------------------------------------------- */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #ifndef lint
 static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/slice_window/slice.c,v 1.120 2001/05/27 00:19:54 stever Exp $";
 #endif

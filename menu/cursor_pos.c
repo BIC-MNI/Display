@@ -11,6 +11,9 @@
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
 ---------------------------------------------------------------------------- */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #ifndef lint
 static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/menu/cursor_pos.c,v 1.5 2001/05/27 00:19:49 stever Exp $";

@@ -11,6 +11,9 @@
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
 ---------------------------------------------------------------------------- */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #ifndef lint
 static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/painting.c,v 1.50 2006/08/03 21:50:30 claude Exp $";

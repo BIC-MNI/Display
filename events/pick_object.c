@@ -11,6 +11,9 @@
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
 ---------------------------------------------------------------------------- */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #ifndef lint
 static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/events/pick_object.c,v 1.21 1996/05/24 18:43:13 david Exp $";

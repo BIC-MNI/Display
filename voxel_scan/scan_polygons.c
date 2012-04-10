@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include  <display.h>
 
 #define  MAX_TEMP_STORAGE  100

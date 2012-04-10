@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include  <display.h>
 
 const  Surface_representations  INITIAL_REPRESENTATION = SUPERQUADRIC;
