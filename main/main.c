@@ -32,6 +32,9 @@ private  void   initialize_view_to_fit (display_struct  *display );
 private  void   initialize_cache ();
 private  void   parse_options (int argc, char *argv[],
 		display_struct *graphics);
+private void  visibility_3D_window(int state);
+private void  visibility_marker_window(int state);
+private void  visibility_menu_window(int state);
 
 /* The first directory is set using compiler flag -D */
 /*#define  HARD_CODED_DISPLAY_DIRECTORY1    "/usr/local/mni/lib"*/
@@ -61,6 +64,7 @@ public  Status  set_global_variable_value(
     return( set_global_variable( SIZEOF_STATIC_ARRAY(display_globals),
                                  display_globals, variable_name, new_value ) );
 }
+
 
 int  main(
     int     argc,
@@ -127,10 +131,12 @@ int  main(
         return( 1 );
     delete_string( title );
 
-	if( Hide_3D_window )
-		glutHideWindow();
-
 	G_set_transparency_state( graphics->window, Graphics_transparency_flag);
+	if( Hide_3D_window )
+	{
+		glutSetWindow(graphics->window->GS_window->WS_window.window_id);
+		glutVisibilityFunc(visibility_3D_window);
+	}
 
     title = concat_strings( PROJECT_NAME, ": Menu" );
     if( create_graphics_window( MENU_WINDOW, ON, &menu, title,
@@ -138,8 +144,11 @@ int  main(
                                 Initial_menu_window_height ) != OK )
         return( 1 );
     delete_string( title );
-    if( Hide_menu_window )
-		glutHideWindow();
+	if( Hide_menu_window )
+	{
+		glutSetWindow(menu->window->GS_window->WS_window.window_id);
+		glutVisibilityFunc(visibility_menu_window);
+	}
 
     title = concat_strings( PROJECT_NAME, ": Marker" );
     if( create_graphics_window( MARKER_WINDOW, ON, &marker, title,
@@ -148,8 +157,11 @@ int  main(
     	return( 1 );
 
     delete_string( title );
-    if( Hide_menu_window )
-		glutHideWindow();
+    if( Hide_marker_window )
+    {
+		glutSetWindow(marker->window->GS_window->WS_window.window_id);
+		glutVisibilityFunc(visibility_marker_window);
+    }
 
 
     graphics->associated[THREE_D_WINDOW] = graphics;
@@ -199,12 +211,6 @@ int  main(
     update_all_menu_text( graphics );
     set_update_required( graphics, NORMAL_PLANES );
     set_update_required( marker, NORMAL_PLANES );
-
-	if( Hide_3D_window )
-		glutHideWindow();
-
-	if( Hide_menu_window )
-		glutHideWindow();
 
     (void) main_event_loop();
 
@@ -575,3 +581,29 @@ private void parse_options(int argc, char *argv[], display_struct *graphics)
 		exit(EX_USAGE);
 }
 
+void visibility_marker_window(int state)
+{
+	if (Hide_marker_window)
+	{
+		if (state == GLUT_VISIBLE)
+			glutHideWindow();
+	}
+}
+
+void visibility_3D_window(int state)
+{
+	if (Hide_3D_window)
+	{
+		if (state == GLUT_VISIBLE)
+			glutHideWindow();
+	}
+}
+
+void visibility_menu_window(int state)
+{
+	if (Hide_menu_window)
+	{
+		if (state == GLUT_VISIBLE)
+			glutHideWindow();
+	}
+}
