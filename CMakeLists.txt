@@ -103,7 +103,8 @@ configure_file (
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
-include_directories(Graphics/OpenGL_graphics/Include Graphics/Include Graphics/GLUT_windows/Include Include)
+include_directories( Include )
+
 
 IF(NOT MINC_TOOLKIT_BUILD)
   # Quick and dirty fix to force static libraries
@@ -146,6 +147,10 @@ IF(NOT MINC_TOOLKIT_BUILD)
 
   # BICpl
   find_package(BICPL REQUIRED)
+
+  # BICGL
+  find_package(bicgl REQUIRED)
+
   # add_library(bicpl STATIC IMPORTED)
   # set_property(TARGET bicpl PROPERTY IMPORTED_LOCATION ${BICPL_LIBRARY})
 
@@ -162,12 +167,16 @@ ELSE(NOT MINC_TOOLKIT_BUILD)
   INCLUDE( ${MINC2_USE_FILE} )
 ENDIF(NOT MINC_TOOLKIT_BUILD)
 
+include_directories( ${BICGL_INCLUDE_DIRS} )
+LINK_DIRECTORIES( ${BICGL_LIBRARY_DIRS} )
+
 include_directories( ${NetCDF_INCLUDE_DIR} )
 include_directories( ${HDF5_INCLUDE_DIRS} )
-add_definitions(${HDF5_DEFINITIONS})
+add_definitions( ${HDF5_DEFINITIONS} )
 include_directories( ${MINC_INCLUDE_DIR} )
 include_directories( ${ZLIB_INCLUDE_DIR} )
 include_directories( ${BICPL_INCLUDE_DIR} )
+include_directories( ${BICGL_INCLUDE_DIR} )
 include_directories( ${OPENGL_INCLUDE_DIR} )
 include_directories( ${GLUT_INCLUDE_DIR} )
 #include_directories( ${GLU_INCLUDE_DIR} )
@@ -300,59 +309,6 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 #message(STATUS "RPATH: ${CMAKE_INSTALL_RPATH}")
 #----------------------------------------------------------------------
 
-#ADD_SUBDIRECTORY( Graphics )
-
-SET(PRINT_X_COLOURS print_X_colours)
-
-SET(GLX_SRC Graphics/GLX_windows/glx_windows.c 
-          Graphics/GLX_windows/stored_font.c )
-
-SET(GLUT_SRC 
-  Graphics/GLUT_windows/glut_windows.c 
-  Graphics/GLUT_windows/copy_x_colours.c)
-
-SET(X_SRC   Graphics/X_windows/x_windows.c )
-
-SET(GL_SRC 
-         Graphics/IrisGL_graphics/colour_def.c 
-         Graphics/IrisGL_graphics/draw.c 
-         Graphics/IrisGL_graphics/event_loop.c 
-         Graphics/IrisGL_graphics/lights.c 
-         Graphics/IrisGL_graphics/render.c 
-         Graphics/IrisGL_graphics/view.c 
-         Graphics/IrisGL_graphics/windows.c )
-
-SET(OPENGL_SRC 
-             Graphics/OpenGL_graphics/colour_def.c 
-             Graphics/OpenGL_graphics/draw.c 
-             Graphics/OpenGL_graphics/event_loop.c 
-             Graphics/OpenGL_graphics/lights.c 
-             Graphics/OpenGL_graphics/render.c 
-             Graphics/OpenGL_graphics/view.c 
-             Graphics/OpenGL_graphics/windows.c
-        )
-
-SET(G_SRC 
-        Graphics/G_graphics/draw.c 
-        Graphics/G_graphics/draw_objects.c 
-        Graphics/G_graphics/event_loop.c 
-        Graphics/G_graphics/graphics_structs.c 
-        Graphics/G_graphics/lights.c 
-        Graphics/G_graphics/random_order.c 
-        Graphics/G_graphics/render.c 
-        Graphics/G_graphics/view.c 
-        Graphics/G_graphics/windows.c)
-
-
-SET(OPENGL_X_SRC ${G_SRC} ${OPENGL_SRC} ${GLUT_SRC})
-
-
-SET(BICGL_SRC 
-  ${OPENGL_X_SRC}
-)
-
-ADD_LIBRARY(Display_bicgl ${BICGL_SRC})
-
 # Compile each source file to a module
 add_executable (Display  ${C_SRC}  )
 
@@ -385,7 +341,7 @@ ELSE(NOT MINC_TOOLKIT_BUILD)
         -lm -pthread)
 ENDIF(NOT MINC_TOOLKIT_BUILD)
 
-target_link_libraries(Display Display_bicgl ${LINK_LIBRARIES})
+target_link_libraries(Display bicgl ${LINK_LIBRARIES})
   
 # Generate an install target
 install(TARGETS Display RUNTIME DESTINATION bin)
