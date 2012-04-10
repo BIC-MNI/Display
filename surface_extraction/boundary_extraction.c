@@ -16,7 +16,7 @@
 #endif
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/surface_extraction/boundary_extraction.c,v 1.35 2001/05/27 00:19:57 stever Exp $";
+
 #endif
 
 #include  <display.h>
