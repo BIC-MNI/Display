@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------- */
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/deform/deform.c,v 1.23 1996-04-17 17:50:13 david Exp $";
+
 #endif
 
 #include  <display.h>

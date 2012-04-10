@@ -16,7 +16,7 @@
 #endif
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/markers/segment.c,v 1.13 1995-10-19 15:51:46 david Exp $";
+
 #endif
 
 #include  <display.h>

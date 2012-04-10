@@ -16,7 +16,7 @@
 #endif
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/segmenting/segment_polygons.c,v 1.16 2001/05/27 00:19:51 stever Exp $";
+
 #endif
 
 

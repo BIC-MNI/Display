@@ -16,7 +16,7 @@
 #endif
 
 #ifndef lint
-static char rcsid[] = "$Header: /private-cvsroot/visualization/Display/images/images.c,v 1.11 2001/05/27 00:19:45 stever Exp $";
+
 #endif
 
 #include  <display.h>
