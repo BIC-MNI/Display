@@ -90,8 +90,8 @@ ELSE(WINDOWS)
 ENDIF(WINDOWS)
 
 # Strange variables needed by Display
-set(HARD_CODED_DISPLAY_DIRECTORY1 "/usr/local/mni/lib" CACHE PATH "HARD_CODED_DISPLAY_DIRECTORY1")
-set(HARD_CODED_DISPLAY_DIRECTORY2 "/usr/local/lib" CACHE PATH "HARD_CODED_DISPLAY_DIRECTORY1")
+set(HARD_CODED_DISPLAY_DIRECTORY1 "${CMAKE_INSTALL_PREFIX}/lib")
+set(HARD_CODED_DISPLAY_DIRECTORY2 "/usr/local/lib")
 
 # configure a header file to pass some of the CMake settings
 # to the source code
@@ -345,5 +345,6 @@ target_link_libraries(Display bicgl ${LINK_LIBRARIES})
   
 # Generate an install target
 install(TARGETS Display RUNTIME DESTINATION bin)
+INSTALL(FILES Display.globals DESTINATION lib)
 
 
