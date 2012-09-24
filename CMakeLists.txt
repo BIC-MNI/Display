@@ -17,23 +17,8 @@ IF(NOT MINC_TOOLKIT_BUILD)
   INCLUDE(CPack)
   
   # Include modules
-  set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
+  SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
 
-  #----------------------------------------------------------------------
-  # Set the version number using git
-#   if( EXISTS "${CMAKE_SOURCE_DIR}/.git" )
-#     execute_process(COMMAND git describe --tags HEAD
-#             OUTPUT_VARIABLE PROJECT_VERSION
-#             OUTPUT_STRIP_TRAILING_WHITESPACE)
-#   endif( EXISTS "${CMAKE_SOURCE_DIR}/.git")
-# 
-#   if( "${PROJECT_VERSION}" STREQUAL "" )
-#       set (PROJECT_VERSION 1.6.0)
-#   endif( "${PROJECT_VERSION}" STREQUAL "" )
-# 
-#   message(STATUS "Project version: ${PROJECT_VERSION}")
-ELSE(NOT MINC_TOOLKIT_BUILD)
-  set (PROJECT_VERSION 1.6.0)
 ENDIF(NOT MINC_TOOLKIT_BUILD)
   
 SET(PACKAGE "Display")
@@ -130,9 +115,7 @@ IF(NOT MINC_TOOLKIT_BUILD)
   #SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-pthread")
 
   # MINC
-  option(USE_MINC2 "Use MINC2 libraries" ON)
-  #add_definitions(-DMINC2)
-  find_package(MINC REQUIRED)
+  find_package(LIBMINC REQUIRED)
   # add_library(minc2 STATIC IMPORTED)
   # set_property(TARGET minc2 PROPERTY IMPORTED_LOCATION ${MINC_minc2_LIBRARY})
   # add_library(volume_io2 STATIC IMPORTED)
@@ -164,7 +147,7 @@ IF(NOT MINC_TOOLKIT_BUILD)
   find_package( GLUT REQUIRED )
 
 ELSE(NOT MINC_TOOLKIT_BUILD)
-  INCLUDE( ${MINC2_USE_FILE} )
+  INCLUDE( ${LIBMINC_USE_FILE} )
 ENDIF(NOT MINC_TOOLKIT_BUILD)
 
 include_directories( ${BICGL_INCLUDE_DIRS} )
@@ -316,7 +299,7 @@ add_executable (Display  ${C_SRC}  )
 IF(NOT MINC_TOOLKIT_BUILD)
   if (DISPLAY_BUILD_STATIC)
     set (LINK_LIBRARIES   
-        ${MINC_LIBRARIES}
+        ${LIBMINC_LIBRARIES}
         ${NetCDF_C_LIBRARY}
         ${HDF5_hdf5_hl_LIBRARY_RELEASE} ${HDF5_hdf5_LIBRARY_RELEASE} 
         ${ZLIB_LIBRARIES}
@@ -337,7 +320,7 @@ IF(NOT MINC_TOOLKIT_BUILD)
 ELSE(NOT MINC_TOOLKIT_BUILD)
     set (LINK_LIBRARIES   
       ${GLUT_LIBRARIES} ${OPENGL_gl_LIBRARY}
-      ${BICPL_LIBRARIES} ${VOLUME_IO_LIBRARIES} ${MINC2_LIBRARIES}
+      ${BICPL_LIBRARIES} ${VOLUME_IO_LIBRARIES} ${LIBMINC_LIBRARIES}
         -lm -pthread)
 ENDIF(NOT MINC_TOOLKIT_BUILD)
 
