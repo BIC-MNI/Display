@@ -78,11 +78,11 @@ public  Status  load_graphics_file(
                 if (Tags_from_label)
                 {
                 input_tag_objects_label(display,
-							display->three_d.default_marker_colour,
-							display->three_d.default_marker_size,
-							display->three_d.default_marker_type,
-							&model->n_objects, &model->objects,
-							&display->label_stack);
+                  display->three_d.default_marker_colour,
+                  display->three_d.default_marker_size,
+                  display->three_d.default_marker_type,
+                  &model->n_objects, &model->objects,
+                  &display->label_stack);
                 }
             }
         }
@@ -126,8 +126,9 @@ public  Status  load_graphics_file(
                                      display->three_d.default_marker_colour,
                                      display->three_d.default_marker_size,
                                      display->three_d.default_marker_type,
-                                     &model->n_objects,
-                                     display->label_stack );
+                                     &model->n_objects,&model->objects
+                                     //display->label_stack 
+                                             ); //VF:
         }
     }
 
