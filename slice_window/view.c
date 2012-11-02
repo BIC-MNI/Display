@@ -22,6 +22,7 @@
 
 
 #include  <display.h>
+#define ORTHOGONAL_SLICE_EPSILON 1e-5f
 
 private  void  update_all_slice_axes(
     display_struct    *slice_window,
@@ -1462,13 +1463,13 @@ public  BOOLEAN  slice_has_ortho_axes(
     *y_index = -1;
     for_less( c, 0, N_DIMENSIONS )
     {
-        if( x_axis[c] != 0.0 )
+        if( fabs(x_axis[c]) > ORTHOGONAL_SLICE_EPSILON )
         {
             if( *x_index != -1 )
                 return( FALSE );
             *x_index = c;
         }
-        if( y_axis[c] != 0.0 )
+        if( fabs(y_axis[c]) > ORTHOGONAL_SLICE_EPSILON )
         {
             if( *y_index != -1 )
                 return( FALSE );
