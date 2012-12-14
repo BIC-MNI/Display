@@ -75,8 +75,8 @@ ELSE(WINDOWS)
 ENDIF(WINDOWS)
 
 # Strange variables needed by Display
-set(HARD_CODED_DISPLAY_DIRECTORY1 "${CMAKE_INSTALL_PREFIX}/lib")
-set(HARD_CODED_DISPLAY_DIRECTORY2 "/usr/local/lib")
+set(HARD_CODED_DISPLAY_DIRECTORY1 "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}")
+set(HARD_CODED_DISPLAY_DIRECTORY2 "/usr/local/lib${LIB_SUFFIX}")
 
 # configure a header file to pass some of the CMake settings
 # to the source code
@@ -284,9 +284,9 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 
 # the RPATH to be used when installing, but only if it's not a system directory
-# LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+# LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}" isSystemDir)
 # IF("${isSystemDir}" STREQUAL "-1")
-#    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+#    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}")
 # ENDIF("${isSystemDir}" STREQUAL "-1")
 
 #message(STATUS "RPATH: ${CMAKE_INSTALL_RPATH}")
@@ -328,6 +328,6 @@ target_link_libraries(Display bicgl ${LINK_LIBRARIES})
   
 # Generate an install target
 install(TARGETS Display RUNTIME DESTINATION bin)
-INSTALL(FILES Display.globals DESTINATION lib)
+INSTALL(FILES Display.globals DESTINATION lib${LIB_SUFFIX})
 
 
