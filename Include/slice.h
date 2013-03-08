@@ -161,6 +161,8 @@ typedef  struct
     loaded_volume_struct   *volumes;
     int                    current_volume_index;
 
+    BOOLEAN                toggle_undo_feature;
+
     BOOLEAN                crop_labels_on_output_flag;
     BOOLEAN                share_labels_flag;
     colour_bar_struct      colour_bar;

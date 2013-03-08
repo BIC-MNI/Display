@@ -222,7 +222,9 @@ private  DEF_EVENT_FUNCTION( right_mouse_down )
     slice_window->slice.segmenting.x_mouse_start = x_pixel;
     slice_window->slice.segmenting.y_mouse_start = y_pixel;
 
-    record_slice_under_mouse( slice_window, volume_index );
+    if ( slice_window->slice.toggle_undo_feature ){
+        record_slice_under_mouse( slice_window, volume_index );
+    }
 
     if( is_shift_key_pressed() )
         label = slice_window->slice.current_erase_label;
