@@ -368,6 +368,7 @@ segmenting \
     transient 'v'    calculate_volume                 'Calculate Volume' \
     transient 'b'    toggle_display_labels           'Show Labels: %s' \
     transient 'n'    copy_labels_from_lower_slice  'Copy from Lt/Inf/Post Slice' \
+    transient 'm'    toggle_undo_feature              'Enable Undo: %s' \
  \
     transient '1'    set_current_erase_label          'Set Erase Lbl: %d' \
     transient '2'    toggle_fast_update               'Fast Update: %s' \

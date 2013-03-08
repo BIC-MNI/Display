@@ -394,4 +394,6 @@ START_GLOBALS
     DEF_GLOBAL( Selected_box_y_offset, Real, 2.0 )
     DEF_GLOBAL( Tags_from_label, BOOLEAN, FALSE )
 
+	DEF_GLOBAL( Initial_undo_feature, BOOLEAN, TRUE )
+
 END_GLOBALS

@@ -126,6 +126,8 @@ private  void  initialize_slice_window(
     slice_window->slice.current_paint_label = Default_paint_label;
     slice_window->slice.current_erase_label = 0;
 
+    slice_window->slice.toggle_undo_feature = Initial_undo_feature;
+
     set_atlas_state( slice_window, Default_atlas_state );
 
     initialize_slice_undo( &slice_window->slice.undo );
