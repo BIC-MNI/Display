@@ -33,6 +33,41 @@ private  void   set_connected_labels(
 
 /* ARGSUSED */
 
+public  DEF_MENU_FUNCTION( toggle_undo_feature )
+{
+    display_struct   *slice_window;
+
+    if( get_slice_window( display, &slice_window) && 
+            ! (slice_window->slice.toggle_undo_feature =
+                !slice_window->slice.toggle_undo_feature) )
+    {
+        delete_slice_undo( &slice_window->slice.undo, -1 );
+    }
+
+    return( OK );
+}
+
+/* ARGSUSED */
+
+public  DEF_MENU_UPDATE( toggle_undo_feature )
+{
+    BOOLEAN          state, set;
+    display_struct   *slice_window;
+
+    state = get_slice_window( display, &slice_window );
+
+    if( state )
+        set = slice_window->slice.toggle_undo_feature;
+    else
+        set = Initial_undo_feature;
+
+    set_menu_text_on_off( menu_window, menu_entry, set );
+
+    return( state );
+}
+
+/* ARGSUSED */
+
 public  DEF_MENU_FUNCTION( label_voxel )
 {
     Real           voxel[MAX_DIMENSIONS];

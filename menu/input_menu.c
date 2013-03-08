@@ -226,6 +226,7 @@ MENU_F(translate_labels_right) \
 MENU_F(translate_labels_arbitrary)
 
 #define  MENU4 \
+MENU_F(toggle_undo_feature) \
 MENU_F(calculate_volume) \
 MENU_F(toggle_current_volume) \
 MENU_F(delete_current_volume) \
