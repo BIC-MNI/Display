@@ -701,10 +701,15 @@ public  DEF_MENU_UPDATE(undo_slice_labels )
 {
     display_struct   *slice_window;
 
-    get_slice_window( display, &slice_window );
-
-    return( slice_window->slice.toggle_undo_feature && 
+    if( get_slice_window( display, &slice_window ) )
+    {
+      return( slice_window->slice.toggle_undo_feature &&
 			slice_labels_to_undo(display) );
+    } else {
+      return slice_labels_to_undo(display);
+    }
+
+
 }
 
 /* ARGSUSED */
