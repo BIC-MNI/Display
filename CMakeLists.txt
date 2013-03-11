@@ -1,3 +1,5 @@
+# CMakeFiles.txt for the Display
+#
 # Project name
 project (Display C)
 
@@ -65,7 +67,7 @@ ENDIF(CMAKE_USE_PTHREADS_INIT)
 
 IF(APPLE)
   SET(HAVE_APPLE_OPENGL_FRAMEWORK ON)
-  SET(X_DISPLAY_MISSING ON)#?
+  SET(X_DISPLAY_MISSING ON)
 ENDIF(APPLE)
 
 IF(WINDOWS)
@@ -324,7 +326,7 @@ ELSE(NOT MINC_TOOLKIT_BUILD)
         -lm -pthread)
 ENDIF(NOT MINC_TOOLKIT_BUILD)
 
-target_link_libraries(Display bicgl ${LINK_LIBRARIES})
+target_link_libraries(Display ${BICGL_LIBRARIES} ${LINK_LIBRARIES})
   
 # Generate an install target
 install(TARGETS Display RUNTIME DESTINATION bin)
