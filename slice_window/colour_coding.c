@@ -289,7 +289,7 @@ public  void  initialize_slice_colour_coding(
     display_struct    *slice_window,
     int               volume_index )
 {
-    Real             low_limit, high_limit;
+    Real              low_limit, high_limit;
     histogram_struct   histogram;
     Volume             volume;
     Real               *histo_counts;
@@ -301,6 +301,7 @@ public  void  initialize_slice_colour_coding(
     Real               min_value, max_value, value;
     progress_struct    progress;
     BOOLEAN			   low_limit_done, high_limit_done;
+    Real                delta;
 
 
     initialize_colour_coding(
@@ -332,8 +333,13 @@ public  void  initialize_slice_colour_coding(
         volume = get_nth_volume( slice_window, volume_index );
         get_volume_real_range( volume, &min_value, &max_value );
         get_volume_sizes( volume, sizes );
-
-        initialize_histogram( &histogram, (max_value - min_value) / 1000.0, min_value );
+        
+        delta = fabs ( (max_value - min_value)/1000);
+        
+        if(delta<1e-6) 
+          delta=1e-6;
+        
+        initialize_histogram( &histogram, delta, min_value );
         start[X] = 0;
         end[X] = sizes[X];
         start[Y] = 0;
