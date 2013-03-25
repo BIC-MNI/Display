@@ -64,7 +64,7 @@ public  void  clear_histogram(
 private  void  compute_histogram_lines(
     display_struct   *slice_window,
     int              volume_index,
-    BOOLEAN          labeled_only,
+    VIO_BOOL          labeled_only,
     int              axis_index,
     int              voxel_index,
     Real             width_ratio,
@@ -176,7 +176,7 @@ public  void  compute_histogram(
     display_struct   *slice_window,
     int              axis_index,
     int              voxel_index,
-    BOOLEAN          labeled_only )
+    VIO_BOOL          labeled_only )
 {
     int            i;
     lines_struct   *unscaled_lines, *lines;

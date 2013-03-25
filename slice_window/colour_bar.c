@@ -361,7 +361,7 @@ public  int  get_colour_bar_y_pos(
     return( ROUND(get_y_pos( value, min_value, max_value, bottom, top )) );
 }
 
-public  BOOLEAN  mouse_within_colour_bar(
+public  VIO_BOOL  mouse_within_colour_bar(
     display_struct      *slice_window,
     Real                x,
     Real                y,
@@ -369,7 +369,7 @@ public  BOOLEAN  mouse_within_colour_bar(
 {
     int                 x_min, x_max, y_min, y_max;
     Real                top, bottom;
-    BOOLEAN             within;
+    VIO_BOOL             within;
     colour_bar_struct   *colour_bar;
     Volume              volume;
 

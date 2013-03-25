@@ -21,13 +21,13 @@
 
 #include  <display.h>
 
-public  BOOLEAN  update_current_marker(
+public  VIO_BOOL  update_current_marker(
     display_struct   *display,
     int              volume_index,
     Real             voxel[] )
 {
     object_traverse_struct  object_traverse;
-    BOOLEAN                 found;
+    VIO_BOOL                 found;
     object_struct           *object, *closest_marker;
     Volume                  volume;
     Point                   voxel_pos;
@@ -137,7 +137,7 @@ public  Status  initialize_marker_window(
     Point                position;
     model_struct         *model;
     int                  ch, i, dir, len;
-    BOOLEAN              found;
+    VIO_BOOL              found;
 
     status = OK;
     marker = &marker_window->marker;

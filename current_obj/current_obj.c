@@ -125,7 +125,7 @@ public  void  set_current_object(
     display_struct    *display,
     object_struct     *object )
 {
-    BOOLEAN            found, done;
+    VIO_BOOL            found, done;
     selection_struct   *current_selection;
     object_struct      *current_object;
 
@@ -204,12 +204,12 @@ public  void  set_current_object_index(
     }
 }
 
-public  BOOLEAN  get_current_object(
+public  VIO_BOOL  get_current_object(
     display_struct    *display,
     object_struct     **current_object )
 {
     int               object_index;
-    BOOLEAN           exists;
+    VIO_BOOL           exists;
     model_struct      *model;
     selection_entry   *entry;
 
@@ -261,7 +261,7 @@ public  void  terminate_current_object(
 public  void  push_current_object(
     display_struct    *display )
 {
-    BOOLEAN           previously_here;
+    VIO_BOOL           previously_here;
     selection_entry   entry, *entry_ptr;
     selection_struct  *selection;
     object_struct     *current_object;
@@ -301,7 +301,7 @@ public  void  push_current_object(
     }
 }
 
-public  BOOLEAN  current_object_is_top_level(
+public  VIO_BOOL  current_object_is_top_level(
     display_struct    *display )
 {
     return( display->three_d.current_object.current_level == 0 );
@@ -316,7 +316,7 @@ public  void  pop_current_object(
         --display->three_d.current_object.current_level;
 }
 
-public  BOOLEAN  current_object_is_this_type(
+public  VIO_BOOL  current_object_is_this_type(
     display_struct    *display,
     Object_types      type )
 {
@@ -326,7 +326,7 @@ public  BOOLEAN  current_object_is_this_type(
             get_object_type(object) == type );
 }
 
-public  BOOLEAN  current_object_exists(
+public  VIO_BOOL  current_object_exists(
     display_struct    *display )
 {
     object_struct   *object;

@@ -79,7 +79,7 @@ int  main(
     STRING           *directories;
     STRING           title;
     STRING           variable_name, variable_value;
-    BOOLEAN          next_is_label_volume;
+    VIO_BOOL          next_is_label_volume;
 
     set_alloc_checking( TRUE );
 
@@ -278,7 +278,7 @@ private  void      initialize_view_to_fit(
     Real     voxel[N_DIMENSIONS], world[N_DIMENSIONS];
     int      sizes[N_DIMENSIONS];
     Volume   volume;
-    BOOLEAN  found;
+    VIO_BOOL  found;
 
     found = get_range_of_object( display->models[THREED_MODEL], FALSE,
                                  &display->three_d.min_limit,
@@ -388,7 +388,7 @@ private void parse_options(int argc, char *argv[], display_struct *graphics)
 	STRING filename;
 	STRING globals_filename;
 	STRING variable_name, variable_value;
-	BOOLEAN next_is_label_volume;
+	VIO_BOOL next_is_label_volume;
 
 	initialize_argument_processing(argc, argv);
 	retcode = OK;

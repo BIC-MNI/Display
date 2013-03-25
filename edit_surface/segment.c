@@ -30,12 +30,12 @@ private  void   add_polygon_under_mouse(
     display_struct    *display );
 private  void  segment_polygons(
     display_struct    *display,
-    BOOLEAN           *segmented );
+    VIO_BOOL           *segmented );
 private  void   create_complete_path(
     int                n_vertices,
     int                vertices[],
     polygons_struct    *polygons,
-    BOOLEAN            *path_exists,
+    VIO_BOOL            *path_exists,
     int                *path_length,
     int                *path[] );
 
@@ -109,7 +109,7 @@ private  void  remove_events(
 
 private  DEF_EVENT_FUNCTION( end_segmenting )
 {
-    BOOLEAN  segmented;
+    VIO_BOOL  segmented;
 
     remove_events( &display->action_table );
 
@@ -165,10 +165,10 @@ private  DEF_EVENT_FUNCTION( pick_surface_polygon )
 
 private  void  segment_polygons(
     display_struct    *display,
-    BOOLEAN           *segmented )
+    VIO_BOOL           *segmented )
 {
     int                  i, *path, path_length;
-    BOOLEAN              path_exists;
+    VIO_BOOL              path_exists;
     surface_edit_struct  *surface_edit;
 
     surface_edit = &display->three_d.surface_edit;
@@ -200,11 +200,11 @@ private  void   create_complete_path(
     int                n_vertices,
     int                vertices[],
     polygons_struct    *polygons,
-    BOOLEAN            *path_exists,
+    VIO_BOOL            *path_exists,
     int                *path_length,
     int                *path[] )
 {
-    BOOLEAN   exists;
+    VIO_BOOL   exists;
     int       i, next_i, p, len, *poly_path;
 
     *path_length = 0;

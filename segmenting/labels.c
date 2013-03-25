@@ -14,7 +14,7 @@ public  void  modify_labels_in_range(
     Real     max_threshold )
 {
     int              voxel[MAX_DIMENSIONS], sizes[MAX_DIMENSIONS];
-    BOOLEAN          must_change;
+    VIO_BOOL          must_change;
     Real             value;
     progress_struct  progress;
 

@@ -28,7 +28,7 @@ static    DEF_EVENT_FUNCTION( handle_update_rotation );
 static    DEF_EVENT_FUNCTION( terminate_rotation );
 static    DEF_EVENT_FUNCTION( terminate_rotating_slice );
 
-private  BOOLEAN  perform_rotation(
+private  VIO_BOOL  perform_rotation(
     display_struct   *display );
 
 public  void  initialize_rotating_slice(
@@ -199,13 +199,13 @@ private  void  transform_slice_axes(
                      x_axis, y_axis );
 }
 
-private  BOOLEAN  perform_rotation(
+private  VIO_BOOL  perform_rotation(
     display_struct   *display )
 {
     display_struct  *slice_window;
     Real            x, y;
     Transform       transform, inverse, transform_in_space;
-    BOOLEAN         moved;
+    VIO_BOOL         moved;
 
     moved = FALSE;
 

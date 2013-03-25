@@ -89,14 +89,14 @@ private  DEF_EVENT_FUNCTION( update_picked_object )
     return( OK );
 }
 
-public  BOOLEAN  get_mouse_scene_intersection(
+public  VIO_BOOL  get_mouse_scene_intersection(
     display_struct    *display,
     Object_types      desired_object_type,
     object_struct     **object,
     int               *object_index,
     Point             *intersection )
 {
-    BOOLEAN          found;
+    VIO_BOOL          found;
     Real             x, y;
     Point            origin, transformed_origin;
     Vector           direction, transformed_direction;
@@ -121,13 +121,13 @@ public  BOOLEAN  get_mouse_scene_intersection(
     return( found );
 }
 
-public  BOOLEAN  get_polygon_under_mouse(
+public  VIO_BOOL  get_polygon_under_mouse(
     display_struct    *display,
     polygons_struct   **polygons,
     int               *poly_index,
     Point             *intersection )
 {
-    BOOLEAN          found;
+    VIO_BOOL          found;
     object_struct    *object;
 
     found = get_mouse_scene_intersection( display, POLYGONS,

@@ -29,7 +29,7 @@ private  void  initialize_graphics_window(
     display_struct   *display );
 private  void  update_graphics_overlay_planes_only(
     display_struct       *display,
-    BOOLEAN              display_flag );
+    VIO_BOOL              display_flag );
 private  void  update_graphics_normal_planes_only(
     display_struct               *display,
     update_interrupted_struct    *interrupt );
@@ -142,7 +142,7 @@ public  void  terminate_graphics( void )
 
 public  Status  create_graphics_window(
     window_types      window_type,
-    BOOLEAN           double_buffering,
+    VIO_BOOL           double_buffering,
     display_struct    **display,
     STRING            title,
     int               width,
@@ -364,13 +364,13 @@ public  void  set_update_required(
     display->update_required[which_bitplanes] = TRUE;
 }
 
-public  BOOLEAN  graphics_normal_planes_update_required(
+public  VIO_BOOL  graphics_normal_planes_update_required(
     display_struct   *display )
 {
     return( display->update_required[NORMAL_PLANES] );
 }
 
-public  BOOLEAN  graphics_update_required(
+public  VIO_BOOL  graphics_update_required(
     display_struct   *display )
 {
     return( display->update_required[NORMAL_PLANES] ||
@@ -442,11 +442,11 @@ private  void  draw_in_viewports(
     display_struct               *display,
     update_interrupted_struct    *interrupt,
     Bitplane_types               bitplanes,
-    BOOLEAN                      *past_last_object )
+    VIO_BOOL                      *past_last_object )
 {
     int           i, x_min, x_max, y_min, y_max;
     int           x_sub_min, x_sub_max, y_sub_min, y_sub_max;
-    BOOLEAN       draw_model, redrawing_whole_window;
+    VIO_BOOL       draw_model, redrawing_whole_window;
 
     redrawing_whole_window = FALSE;
 
@@ -521,9 +521,9 @@ private  void  draw_in_viewports(
 
 private  void  update_graphics_overlay_planes_only(
     display_struct       *display,
-    BOOLEAN              display_flag )
+    VIO_BOOL              display_flag )
 {
-    BOOLEAN       past_last_object;
+    VIO_BOOL       past_last_object;
 
     if( G_has_overlay_planes() )
     {
@@ -551,7 +551,7 @@ private  void  update_graphics_normal_planes_only(
 {
     Real          start, end;
     int           i;
-    BOOLEAN       past_last_object, out_of_date;
+    VIO_BOOL       past_last_object, out_of_date;
 
     start = current_realtime_seconds();
 

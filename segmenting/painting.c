@@ -32,7 +32,7 @@ private  void   update_brush(
     display_struct    *slice_window,
     int               x,
     int               y,
-    BOOLEAN           erase_brush );
+    VIO_BOOL           erase_brush );
 
 private  int  sweep_paint_labels(
     display_struct    *slice_window,
@@ -296,7 +296,7 @@ private  DEF_EVENT_FUNCTION( handle_update_painting )
     return( OK );
 }
 
-private  BOOLEAN  get_brush_voxel_centre(
+private  VIO_BOOL  get_brush_voxel_centre(
     display_struct    *slice_window,
     int               x_pixel,
     int               y_pixel,
@@ -304,7 +304,7 @@ private  BOOLEAN  get_brush_voxel_centre(
     int               *volume_index,
     int               *view_index )
 {
-    BOOLEAN  inside;
+    VIO_BOOL  inside;
 
     inside = get_volume_corresponding_to_pixel( slice_window, x_pixel, y_pixel,
                                         volume_index, view_index, voxel );
@@ -379,7 +379,7 @@ private  int  update_paint_labels(
     return( volume_index );
 }
 
-private  BOOLEAN  get_brush(
+private  VIO_BOOL  get_brush(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
@@ -389,7 +389,7 @@ private  BOOLEAN  get_brush(
     Real             radius[] )
 {
     int      c;
-    BOOLEAN  okay;
+    VIO_BOOL  okay;
     Real     separations[MAX_DIMENSIONS];
 
     okay = FALSE;
@@ -420,7 +420,7 @@ private  BOOLEAN  get_brush(
     return( okay );
 }
 
-private  BOOLEAN  inside_swept_brush(
+private  VIO_BOOL  inside_swept_brush(
     Real       origin[],
     Vector     *delta,
     Real       radius[],
@@ -430,7 +430,7 @@ private  BOOLEAN  inside_swept_brush(
     Real     d, mag, t, t_min, t_max;
     Point    voxel_offset, voxel_origin;
     Vector   scaled_delta;
-    BOOLEAN  inside;
+    VIO_BOOL  inside;
 
     if( radius[X] == 0.0 && radius[Y] == 0.0 && radius[Z] == 0.0 )
     {
@@ -525,7 +525,7 @@ private  void  fast_paint_labels(
     Real           real_x_start, real_x_end, real_y_start;
     int            i, j, x_start, x_end, y_start, y_end;
     Colour         colour;
-    BOOLEAN        update_required;
+    VIO_BOOL        update_required;
  
     volume = get_nth_volume( slice_window, volume_index );
     min_threshold = slice_window->slice.segmenting.min_threshold;
@@ -695,7 +695,7 @@ private  void  paint_labels(
     Real           radius[N_DIMENSIONS];
     Vector         delta;
     int            ind[N_DIMENSIONS];
-    BOOLEAN        update_required;
+    VIO_BOOL        update_required;
  
     if( get_brush( slice_window, volume_index, view_index,
                    &a1, &a2, &axis, radius ) )
@@ -842,7 +842,7 @@ private   void    add_point_to_contour(
     add_point_to_line( lines, &point );
 }
 
-private  BOOLEAN  neighbour_is_inside(
+private  VIO_BOOL  neighbour_is_inside(
     Real       centre[],
     Real       radius[],
     int        a1,
@@ -850,7 +850,7 @@ private  BOOLEAN  neighbour_is_inside(
     int        voxel[],
     Directions dir )
 {
-    BOOLEAN   inside;
+    VIO_BOOL   inside;
 
     voxel[a1] += dx[dir];
     voxel[a2] += dy[dir];
@@ -916,7 +916,7 @@ private  void  get_brush_contour(
                           0, DEFAULT_CHUNK_SIZE );
 }
 
-private  BOOLEAN   get_lines_limits(
+private  VIO_BOOL   get_lines_limits(
     lines_struct  *lines,
     int           *x_min,
     int           *x_max,
@@ -961,7 +961,7 @@ private  void   update_brush(
     display_struct    *slice_window,
     int               x,
     int               y,
-    BOOLEAN           erase_brush )
+    VIO_BOOL           erase_brush )
 {
     Real          centre[N_DIMENSIONS];
     int           view, axis, a1, a2, start_voxel[N_DIMENSIONS], volume_index;

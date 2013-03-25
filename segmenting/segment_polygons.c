@@ -25,29 +25,29 @@
 private  void  modify_polygon(
     polygons_struct  *polygons,
     int               poly,
-    BOOLEAN           set_visibility_flag,
-    BOOLEAN           new_visibility,
-    BOOLEAN           set_colour_flag,
+    VIO_BOOL           set_visibility_flag,
+    VIO_BOOL           new_visibility,
+    VIO_BOOL           set_colour_flag,
     Colour            colour );
-private  BOOLEAN  should_modify_polygon(
+private  VIO_BOOL  should_modify_polygon(
     polygons_struct   *polygons,
     int               poly,
-    BOOLEAN           set_visibility_flag,
-    BOOLEAN           new_visibility );
-private  BOOLEAN  polygon_on_invisible_side(
+    VIO_BOOL           set_visibility_flag,
+    VIO_BOOL           new_visibility );
+private  VIO_BOOL  polygon_on_invisible_side(
     polygons_struct  *polygons,
     int              poly_index,
     int              axis_index,
     Real             position,
-    BOOLEAN          cropping_above );
+    VIO_BOOL          cropping_above );
 
 public  void  set_visibility_around_poly(
     polygons_struct  *polygons,
     int              poly,
     int              max_polys_to_do,
-    BOOLEAN          set_visibility_flag,
-    BOOLEAN          new_visibility,
-    BOOLEAN          set_colour_flag,
+    VIO_BOOL          set_visibility_flag,
+    VIO_BOOL          new_visibility,
+    VIO_BOOL          set_colour_flag,
     Colour           colour )
 {
     int                   i, index, neigh, size, n_done;
@@ -116,9 +116,9 @@ public  void  set_visibility_around_poly(
 private  void  modify_polygon(
     polygons_struct  *polygons,
     int               poly,
-    BOOLEAN           set_visibility_flag,
-    BOOLEAN           new_visibility,
-    BOOLEAN           set_colour_flag,
+    VIO_BOOL           set_visibility_flag,
+    VIO_BOOL           new_visibility,
+    VIO_BOOL           set_colour_flag,
     Colour            colour )
 {
     if( set_visibility_flag )
@@ -128,13 +128,13 @@ private  void  modify_polygon(
         polygons->colours[poly] = colour;
 }
 
-private  BOOLEAN  should_modify_polygon(
+private  VIO_BOOL  should_modify_polygon(
     polygons_struct   *polygons,
     int               poly,
-    BOOLEAN           set_visibility_flag,
-    BOOLEAN           new_visibility )
+    VIO_BOOL           set_visibility_flag,
+    VIO_BOOL           new_visibility )
 {
-    BOOLEAN  polygon_is_currently_visible;
+    VIO_BOOL  polygon_is_currently_visible;
 
     polygon_is_currently_visible =
                ( polygons->visibilities == (Smallest_int *) 0 ||
@@ -150,7 +150,7 @@ public  void  crop_polygons_visibilities(
     polygons_struct  *polygons,
     int              axis_index,
     Real             position,
-    BOOLEAN          cropping_above )
+    VIO_BOOL          cropping_above )
 {
     int     i;
 
@@ -166,14 +166,14 @@ public  void  crop_polygons_visibilities(
     }
 }
 
-private  BOOLEAN  polygon_on_invisible_side(
+private  VIO_BOOL  polygon_on_invisible_side(
     polygons_struct  *polygons,
     int              poly_index,
     int              axis_index,
     Real             position,
-    BOOLEAN          cropping_above )
+    VIO_BOOL          cropping_above )
 {
-    BOOLEAN  on_invisible_size_only;
+    VIO_BOOL  on_invisible_size_only;
     int      i, point_index, size;
     Real     coord;
 

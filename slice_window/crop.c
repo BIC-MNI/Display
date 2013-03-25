@@ -67,7 +67,7 @@ public  Status  create_cropped_volume_to_file(
     Real                  voxel[MAX_DIMENSIONS];
     Real                  min_voxel[MAX_DIMENSIONS];
     Real                  max_voxel[MAX_DIMENSIONS];
-    BOOLEAN               first;
+    VIO_BOOL               first;
     int                   c, limit1, limit2, limit3;
     int                   sizes[MAX_DIMENSIONS];
     int                   int_min_voxel[MAX_DIMENSIONS];
@@ -414,7 +414,7 @@ private  void  set_slice_crop_position(
     Real       voxel[MAX_DIMENSIONS], origin[MAX_DIMENSIONS];
     Real       x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
     Real       delta;
-    BOOLEAN    changed;
+    VIO_BOOL    changed;
 
     volume_index = get_current_volume_index( slice_window );
     view_index = slice_window->slice.crop.view_index;

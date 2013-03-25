@@ -43,9 +43,9 @@ typedef  struct
     Volume                               volume;
     Volume                               label_volume;
 
-    BOOLEAN                              extraction_in_progress;
-    BOOLEAN                              binary_flag;
-    BOOLEAN                              voxellate_flag;
+    VIO_BOOL                              extraction_in_progress;
+    VIO_BOOL                              binary_flag;
+    VIO_BOOL                              voxellate_flag;
     Real                                 min_value;
     Real                                 max_value;
     Real                                 min_invalid_label;
@@ -75,10 +75,10 @@ typedef  struct
     int                                  max_modified[N_DIMENSIONS];
     int                                  not_changed_since[N_DIMENSIONS];
 
-    BOOLEAN                              inside_flags[SURFACE_BLOCK_SIZE+2]
+    VIO_BOOL                              inside_flags[SURFACE_BLOCK_SIZE+2]
                                                      [SURFACE_BLOCK_SIZE+2]
                                                      [SURFACE_BLOCK_SIZE+2];
-    BOOLEAN                              valid_flags[SURFACE_BLOCK_SIZE+2]
+    VIO_BOOL                              valid_flags[SURFACE_BLOCK_SIZE+2]
                                                     [SURFACE_BLOCK_SIZE+2]
                                                     [SURFACE_BLOCK_SIZE+2];
 

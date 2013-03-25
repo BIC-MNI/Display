@@ -23,12 +23,12 @@
 
 #include  <display.h>
 
-public  BOOLEAN  find_closest_line_point_to_point(
+public  VIO_BOOL  find_closest_line_point_to_point(
     display_struct    *display,
     Point             *point,
     Point             *closest_line_point )
 {
-    BOOLEAN                  found;
+    VIO_BOOL                  found;
     int                      i;
     Real                     dist, closest_dist;
     lines_struct             *lines;

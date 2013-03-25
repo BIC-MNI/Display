@@ -161,7 +161,7 @@ public  void  close_surface_curve(
 
 private  void  pick_surface_point(
     display_struct   *display,
-    BOOLEAN          snap_to_line )
+    VIO_BOOL          snap_to_line )
 {
     polygons_struct       *polygons;
     int                   poly_index;

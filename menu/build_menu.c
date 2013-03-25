@@ -27,7 +27,7 @@ typedef  struct
     int       key;
     STRING    key_name;
     Real      x_pos, y_pos, length;
-    BOOLEAN   in_slanted_part_of_keyboard;
+    VIO_BOOL   in_slanted_part_of_keyboard;
 } position_struct;
 
 private   position_struct   positions[] = {
@@ -78,7 +78,7 @@ private   position_struct   positions[] = {
 private  void   create_menu_text(
     display_struct    *menu_window,
     menu_entry_struct *menu_entry );
-private  BOOLEAN  lookup_key(
+private  VIO_BOOL  lookup_key(
     int              key,
     position_struct  **desc );
 private  void   compute_key_position(
@@ -97,7 +97,7 @@ private  object_struct   *create_menu_box(
 private  object_struct   *create_menu_character(
     display_struct    *menu_window,
     int               key );
-private  BOOLEAN   point_within_menu_key_entry(
+private  VIO_BOOL   point_within_menu_key_entry(
     display_struct   *menu_window,
     int              key,
     Real             x,
@@ -235,12 +235,12 @@ private  void   set_menu_text_position(
                  (length * (Real) menu_window->menu.n_chars_per_unit_across);
 }
 
-private  BOOLEAN  lookup_key(
+private  VIO_BOOL  lookup_key(
     int              key,
     position_struct  **desc )
 {
     int      i;
-    BOOLEAN  found;
+    VIO_BOOL  found;
 
     found = FALSE;
 
@@ -266,7 +266,7 @@ private  void   compute_key_position(
     Real                 *y2,
     Real                 *length )
 {
-    BOOLEAN          found;
+    VIO_BOOL          found;
     position_struct  *desc;
     Real             x_dx, y_dy;
 
@@ -467,7 +467,7 @@ private  void   set_menu_character_position(
     text->size = menu_window->menu.font_size;
 }
 
-private  BOOLEAN   point_within_menu_key_entry(
+private  VIO_BOOL   point_within_menu_key_entry(
     display_struct   *menu_window,
     int              key,
     Real             x,
@@ -483,14 +483,14 @@ private  BOOLEAN   point_within_menu_key_entry(
         return( x >= x1 && x <= x2 && y >= y1 && y <= y2 );
 }
 
-public  BOOLEAN   lookup_key_for_mouse_position(
+public  VIO_BOOL   lookup_key_for_mouse_position(
     display_struct   *menu_window,
     Real             x,
     Real             y,
     int              *key )
 {
     int      i;
-    BOOLEAN  found;
+    VIO_BOOL  found;
 
     found = FALSE;
 

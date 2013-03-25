@@ -247,7 +247,7 @@ public  void  rebuild_selected_list(
     set_update_required( marker_window, NORMAL_PLANES );
 }
 
-public  BOOLEAN  mouse_is_on_object_name(
+public  VIO_BOOL  mouse_is_on_object_name(
     display_struct    *display,
     int               x,
     int               y,

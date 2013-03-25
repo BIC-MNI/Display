@@ -19,7 +19,7 @@ public  void  disconnect_components(
     int           i;
     pixel_struct  **pixels;
     int           x, y, index[N_DIMENSIONS], size[N_DIMENSIONS];
-    BOOLEAN       inside;
+    VIO_BOOL       inside;
 
     get_volume_sizes( volume, size );
 

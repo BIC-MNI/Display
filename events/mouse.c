@@ -22,14 +22,14 @@
 
 #include  <display.h>
 
-public  BOOLEAN  mouse_moved(
+public  VIO_BOOL  mouse_moved(
     display_struct   *display,
     Real             *new_x,
     Real             *new_y,
     Real             *old_x,
     Real             *old_y )
 {
-    BOOLEAN   moved;
+    VIO_BOOL   moved;
 
     moved = G_get_mouse_position_0_to_1( display->window, new_x, new_y );
 
@@ -46,14 +46,14 @@ public  BOOLEAN  mouse_moved(
     return( moved );
 }
 
-public  BOOLEAN  pixel_mouse_moved(
+public  VIO_BOOL  pixel_mouse_moved(
     display_struct   *display,
     int              *new_x,
     int              *new_y,
     int              *old_x,
     int              *old_y )
 {
-    BOOLEAN   moved;
+    VIO_BOOL   moved;
 
     moved = G_get_mouse_position( display->window, new_x, new_y );
 

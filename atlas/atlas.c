@@ -236,7 +236,7 @@ private  Status  input_pixel_map(
     STRING         absolute_filename;
     File_formats   format;
     Object_types   object_type;
-    BOOLEAN        eof;
+    VIO_BOOL        eof;
     FILE           *file;
 
     absolute_filename = get_absolute_filename( image_filename,
@@ -270,7 +270,7 @@ public  void  regenerate_atlas_lookup(
 
 public  void  set_atlas_state(
     display_struct    *slice_window,
-    BOOLEAN           state )
+    VIO_BOOL           state )
 {
     Status   status;
 
@@ -287,7 +287,7 @@ public  void  set_atlas_state(
     slice_window->slice.atlas.enabled = state;
 }
 
-public  BOOLEAN  is_atlas_loaded(
+public  VIO_BOOL  is_atlas_loaded(
     display_struct  *display )
 {
     display_struct  *slice_window;
@@ -296,7 +296,7 @@ public  BOOLEAN  is_atlas_loaded(
             slice_window->slice.atlas.n_images > 0 );
 }
 
-private  BOOLEAN  find_appropriate_atlas_image(
+private  VIO_BOOL  find_appropriate_atlas_image(
     atlas_struct      *atlas,
     int               x_n_pixels,
     int               y_n_pixels,
@@ -405,7 +405,7 @@ private  BOOLEAN  find_appropriate_atlas_image(
     return( *image != NULL );
 }
 
-public  BOOLEAN  render_atlas_slice_to_pixels(
+public  VIO_BOOL  render_atlas_slice_to_pixels(
     atlas_struct  *atlas,
     Colour        image[],
     int           image_x_size,

@@ -29,7 +29,7 @@ private  void  set_slice_labels(
 private  void   set_connected_labels(
     display_struct   *display,
     int              label,
-    BOOLEAN          use_threshold );
+    VIO_BOOL          use_threshold );
 
 /* ARGSUSED */
 
@@ -51,7 +51,7 @@ public  DEF_MENU_FUNCTION( toggle_undo_feature )
 
 public  DEF_MENU_UPDATE( toggle_undo_feature )
 {
-    BOOLEAN          state, set;
+    VIO_BOOL          state, set;
     display_struct   *slice_window;
 
     state = get_slice_window( display, &slice_window );
@@ -337,7 +337,7 @@ public  Status input_tag_label_file(
     STRING           filename )
 {
     Status         status;
-    BOOLEAN        landmark_format;
+    VIO_BOOL        landmark_format;
     FILE           *file;
     display_struct *slice_window;
     Volume         volume;
@@ -797,7 +797,7 @@ public  DEF_MENU_UPDATE(label_connected_no_threshold )
 private  void   set_connected_labels(
     display_struct   *display,
     int              desired_label,
-    BOOLEAN          use_threshold )
+    VIO_BOOL          use_threshold )
 {
     Real             voxel[MAX_DIMENSIONS], min_threshold, max_threshold;
     int              view_index, int_voxel[MAX_DIMENSIONS];
@@ -1035,7 +1035,7 @@ public  DEF_MENU_FUNCTION(toggle_connectivity)
 
 public  DEF_MENU_UPDATE(toggle_connectivity )
 {
-    BOOLEAN          state;
+    VIO_BOOL          state;
     display_struct   *slice_window;
     Neighbour_types  connectivity;
     int              n_neigh;
@@ -1081,7 +1081,7 @@ public  DEF_MENU_FUNCTION(toggle_crop_labels_on_output)
 
 public  DEF_MENU_UPDATE(toggle_crop_labels_on_output)
 {
-    BOOLEAN          state, set;
+    VIO_BOOL          state, set;
     display_struct   *slice_window;
 
     state = get_slice_window( display, &slice_window );

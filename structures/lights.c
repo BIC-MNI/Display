@@ -25,7 +25,7 @@
 
 private  void  initialize_directional(
     light_struct  *light,
-    BOOLEAN       state );
+    VIO_BOOL       state );
 
 public  void  initialize_lights(
     light_struct  *lights )
@@ -42,7 +42,7 @@ public  void  initialize_lights(
 
 private  void  initialize_directional(
     light_struct  *light,
-    BOOLEAN       state )
+    VIO_BOOL       state )
 {
     light->state = state;
 

@@ -78,7 +78,7 @@ private  void  linear_transform_volume(
     display_struct  *slice_window,
     Transform       *transform )
 {
-    General_transform   gen_transform;
+    VIO_General_transform   gen_transform;
 
     create_linear_transform( &gen_transform, transform );
 
@@ -513,8 +513,8 @@ public  DEF_MENU_FUNCTION( save_current_volume_transform )
     display_struct     *slice_window;
     Volume             volume;
     STRING             filename, comments;
-    General_transform  *original_transform, *volume_transform;
-    General_transform  incremental_transform, inverse;
+    VIO_General_transform  *original_transform, *volume_transform;
+    VIO_General_transform  incremental_transform, inverse;
 
     if( get_slice_window( display, &slice_window ) &&
         get_slice_window_volume( slice_window, &volume ) )

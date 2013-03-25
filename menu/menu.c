@@ -200,7 +200,7 @@ public  Status  initialize_menu(
     model_struct         *model;
     int                  ch, i, dir, len;
     FILE                 *file;
-    BOOLEAN              found;
+    VIO_BOOL              found;
     STRING               directories[5];
 
     menu = &menu_window->menu;
@@ -360,7 +360,7 @@ private  DEF_EVENT_FUNCTION( handle_character_up )
     return( OK );
 }
 
-private  BOOLEAN  is_menu_entry_active(
+private  VIO_BOOL  is_menu_entry_active(
     menu_entry_struct  *menu_entry )
 {
     return( menu_entry->is_active );
@@ -471,7 +471,7 @@ public  void  update_menu_text(
 {
     Colour                  colour;
     int                     i;
-    BOOLEAN                 active;
+    VIO_BOOL                 active;
     menu_update_pointer     update_function;
     display_struct          *menu_window;
 

@@ -26,7 +26,7 @@ static    DEF_EVENT_FUNCTION( start_magnification );
 static    DEF_EVENT_FUNCTION( turn_off_magnification );
 static    DEF_EVENT_FUNCTION( handle_update );
 static    DEF_EVENT_FUNCTION( terminate_magnification );
-private  BOOLEAN  perform_magnification(
+private  VIO_BOOL  perform_magnification(
     display_struct   *display );
 
 public  void  initialize_magnification(
@@ -116,10 +116,10 @@ private  DEF_EVENT_FUNCTION( handle_update )
     return( OK );
 }
 
-private  BOOLEAN  perform_magnification(
+private  VIO_BOOL  perform_magnification(
     display_struct   *display )
 {
-    BOOLEAN   moved;
+    VIO_BOOL   moved;
     Real      x, y, x_prev, y_prev, delta, factor;
 
     moved = FALSE;

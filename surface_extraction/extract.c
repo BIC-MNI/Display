@@ -27,7 +27,7 @@
 
 typedef  struct
 {
-    BOOLEAN   checked;
+    VIO_BOOL   checked;
     int       id;
 } edge_point_info;
 
@@ -36,7 +36,7 @@ private  int  extract_polygons(
     surface_extraction_struct   *surface_extraction,
     Real                        corner_values[2][2][2],
     int                         voxel_index[],
-    BOOLEAN                     first_voxel,
+    VIO_BOOL                     first_voxel,
     int                         n_polys,
     int                         sizes[],
     voxel_point_type            points_list[] );
@@ -59,7 +59,7 @@ private  int  add_polygon_to_list(
 private  int   create_surface_point(
     Volume              volume,
     Real                corner_values[2][2][2],
-    BOOLEAN             binary_flag,
+    VIO_BOOL             binary_flag,
     Real                min_value,
     Real                max_value,
     polygons_struct     *polygons,
@@ -68,14 +68,14 @@ private  int   create_surface_point(
     int                 edge_intersected,
     Point_classes       *pt_class );
 
-private  BOOLEAN  get_voxel_values(
+private  VIO_BOOL  get_voxel_values(
     Volume                      volume,
     Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel_index[],
     Real                        corner_values[2][2][2] )
 {
-    BOOLEAN     valid;
+    VIO_BOOL     valid;
     Real        value, label;
     int         x, y, z, voxel[MAX_DIMENSIONS], n_invalid;
 
@@ -136,13 +136,13 @@ private  BOOLEAN  get_voxel_values(
         return( Voxel_validity_if_mixed );
 }
 
-public  BOOLEAN  voxel_contains_surface(
+public  VIO_BOOL  voxel_contains_surface(
     Volume                      volume,
     Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel_index[] )
 {
-    BOOLEAN                below, above, this_below;
+    VIO_BOOL                below, above, this_below;
     Real                   corner_values[2][2][2], val;
     int                    x, y, z;
 
@@ -192,12 +192,12 @@ public  BOOLEAN  voxel_contains_surface(
     return( FALSE );
 }
 
-private  BOOLEAN  extract_voxel_marching_cubes_surface(
+private  VIO_BOOL  extract_voxel_marching_cubes_surface(
     Volume                      volume,
     Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel[],
-    BOOLEAN                     first_voxel )
+    VIO_BOOL                     first_voxel )
 {
     voxel_point_type       *points_list;
     Real                   corner_values[2][2][2];
@@ -230,14 +230,14 @@ private  BOOLEAN  extract_voxel_marching_cubes_surface(
     return( n_nondegenerate_polys > 0 );
 }
 
-public  BOOLEAN  extract_voxel_surface(
+public  VIO_BOOL  extract_voxel_surface(
     Volume                      volume,
     Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel[],
-    BOOLEAN                     first_voxel )
+    VIO_BOOL                     first_voxel )
 {
-    BOOLEAN   found;
+    VIO_BOOL   found;
 
     if( surface_extraction->voxellate_flag )
     {
@@ -259,7 +259,7 @@ private  int  extract_polygons(
     surface_extraction_struct   *surface_extraction,
     Real                        corner_values[2][2][2],
     int                         voxel_index[],
-    BOOLEAN                     first_voxel,
+    VIO_BOOL                     first_voxel,
     int                         n_polys,
     int                         sizes[],
     voxel_point_type            points_list[] )
@@ -272,7 +272,7 @@ private  int  extract_polygons(
     int                    x, y, z, axis;
     int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
     int                    volume_sizes[N_DIMENSIONS];
-    BOOLEAN                changed, connected;
+    VIO_BOOL                changed, connected;
     unsigned_byte          all_done_value, voxel_flags;
 
     for_less( x, 0, 2 )
@@ -403,7 +403,7 @@ private  int  add_polygon_to_list(
     int                    current_end, next_index, p, next_end, actual_size;
     int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
     int                    sizes[N_DIMENSIONS];
-    BOOLEAN                non_degenerate;
+    VIO_BOOL                non_degenerate;
     Point_classes          pt_class;
 
     if( size < 3 )
@@ -478,7 +478,7 @@ private  int  add_polygon_to_list(
 private  int   create_surface_point(
     Volume              volume,
     Real                corner_values[2][2][2],
-    BOOLEAN             binary_flag,
+    VIO_BOOL             binary_flag,
     Real                min_value,
     Real                max_value,
     polygons_struct     *polygons,

@@ -22,11 +22,11 @@
 
 #include  <display.h>
 
-private  BOOLEAN  get_current_marker(
+private  VIO_BOOL  get_current_marker(
     display_struct    *display,
     marker_struct     **marker )
 {
-    BOOLEAN                 found;
+    VIO_BOOL                 found;
     object_struct           *current_object, *object;
     object_traverse_struct  object_traverse;
 

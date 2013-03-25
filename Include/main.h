@@ -102,7 +102,7 @@ typedef  struct  display_struct
 
 
     int                        frame_number;
-    BOOLEAN                    update_required[N_BITPLANE_TYPES];
+    VIO_BOOL                    update_required[N_BITPLANE_TYPES];
     update_interrupted_struct  update_interrupted;
 
     viewport_picking_struct    viewport_picking;

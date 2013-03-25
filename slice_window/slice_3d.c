@@ -202,7 +202,7 @@ public  void  rebuild_volume_cross_section(
 
 public  void  set_volume_cross_section_visibility(
     display_struct    *display,
-    BOOLEAN           state )
+    VIO_BOOL           state )
 {
     display_struct  *slice_window;
 
@@ -221,10 +221,10 @@ public  void  set_volume_cross_section_visibility(
     }
 }
 
-public  BOOLEAN  get_volume_cross_section_visibility(
+public  VIO_BOOL  get_volume_cross_section_visibility(
     display_struct    *display )
 {
-    BOOLEAN         state;
+    VIO_BOOL         state;
 
     state = get_object_visibility(
                    get_three_d_window(display)->three_d.volume_outline );

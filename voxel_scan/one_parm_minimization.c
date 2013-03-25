@@ -17,7 +17,7 @@ public  void  one_parameter_minimization(
     double          *fitting_gain )
 {
     const    double  TOLERANCE   = 1.0e-4;
-    BOOLEAN  done, halved;
+    VIO_BOOL  done, halved;
     double   parameter_value, fit_here, fit_before, fit_after;
     double   next_fit_before, next_fit_after, best_fit_so_far;
 

@@ -120,7 +120,7 @@ private  void   set_to_do_list_neighbours(
     }
 }
 
-private  BOOLEAN   must_do_voxel(
+private  VIO_BOOL   must_do_voxel(
     int                 min_range[],
     bitlist_3d_struct   *to_do,
     int                 x,
@@ -154,8 +154,8 @@ private  Smallest_int  ***make_distance_transform(
     int                 iteration;
     Real                value;
     int                 this_dist, dist, new_value;
-    BOOLEAN             changed, found;
-    BOOLEAN             x_okay, y_okay, away_from_boundary;
+    VIO_BOOL             changed, found;
+    VIO_BOOL             x_okay, y_okay, away_from_boundary;
     Smallest_int        ***distance[2];
     int                 which;
     bitlist_3d_struct   to_do[2];
@@ -419,7 +419,7 @@ private  void  propagate_neighbour_cut(
     }
 }
 
-public  BOOLEAN  expand_labels_3d(
+public  VIO_BOOL  expand_labels_3d(
     Volume             label_volume,
     Smallest_int       ***distance_transform,
     Smallest_int       ***cuts,
@@ -433,8 +433,8 @@ public  BOOLEAN  expand_labels_3d(
     int                neigh_dist, neigh_cut;
     int                best_label, neigh_label, best_cut;
     int                new_cut;
-    BOOLEAN            x_okay, y_okay, away_from_boundary;
-    BOOLEAN            changed, better, user_set_it;
+    VIO_BOOL            x_okay, y_okay, away_from_boundary;
+    VIO_BOOL            changed, better, user_set_it;
     Classes            class, new_class, neigh_class, best_class;
     Smallest_int       ***new_cuts, ***new_labels;
     int                min_range[MAX_DIMENSIONS], max_range[MAX_DIMENSIONS];

@@ -49,7 +49,7 @@ public  void  set_menu_text_int(
 public  void  set_menu_text_boolean(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
-    BOOLEAN            value,
+    VIO_BOOL            value,
     STRING             off_str,
     STRING             on_str )
 {
@@ -66,7 +66,7 @@ public  void  set_menu_text_boolean(
 public  void  set_menu_text_on_off(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
-    BOOLEAN            value )
+    VIO_BOOL            value )
 {
     set_menu_text_boolean( menu_window, menu_entry, value, "Off", "On" );
 }

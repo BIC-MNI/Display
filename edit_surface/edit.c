@@ -74,7 +74,7 @@ public  void  set_edited_polygons(
     create_polygons_visibilities( surface_edit->polygons );
 }
 
-public  BOOLEAN  get_edited_polygons(
+public  VIO_BOOL  get_edited_polygons(
     surface_edit_struct   *surface_edit,
     polygons_struct       **polygons )
 {

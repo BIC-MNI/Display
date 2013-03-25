@@ -22,11 +22,11 @@
  
 #include  <display.h>
 
-public  BOOLEAN  get_current_polygons(
+public  VIO_BOOL  get_current_polygons(
     display_struct      *display,
     polygons_struct     **polygons )
 {
-    BOOLEAN                 found;
+    VIO_BOOL                 found;
     object_struct           *current_object, *object;
     object_traverse_struct  object_traverse;
 

@@ -26,7 +26,7 @@ private    DEF_EVENT_FUNCTION( start_translation );
 private    DEF_EVENT_FUNCTION( turn_off_translation );
 private    DEF_EVENT_FUNCTION( handle_update );
 private    DEF_EVENT_FUNCTION( terminate_translation );
-private  BOOLEAN  perform_translation(
+private  VIO_BOOL  perform_translation(
     display_struct   *display );
 
 public  void  initialize_translation(
@@ -116,10 +116,10 @@ private  DEF_EVENT_FUNCTION( handle_update )
     return( OK );
 }
 
-private  BOOLEAN  perform_translation(
+private  VIO_BOOL  perform_translation(
     display_struct   *display )
 {
-    BOOLEAN        moved;
+    VIO_BOOL        moved;
     Real           x, y, x_prev, y_prev;
     Vector         delta, hor, vert;
     Transform      transform;

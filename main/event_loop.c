@@ -248,7 +248,7 @@ public  Status   main_event_loop( void )
     return( OK );
 }
 
-public  BOOLEAN  window_is_up_to_date(
+public  VIO_BOOL  window_is_up_to_date(
     display_struct   *display )
 {
     return( !graphics_update_required( display ) &&
@@ -271,7 +271,7 @@ private  void  update_all_slice_windows( void )
 #ifdef DEBUG
 private  void  debug_update( void )
 {
-    static  BOOLEAN  first = TRUE;
+    static  VIO_BOOL  first = TRUE;
     static  Real  start_time;
     static  int   count;
     Real  end_time;
@@ -377,7 +377,7 @@ private  Status   perform_action(
     return( status );
 }
 
-public  BOOLEAN  is_shift_key_pressed( void )
+public  VIO_BOOL  is_shift_key_pressed( void )
 {
     return( G_get_shift_key_state() ||
             G_get_ctrl_key_state() ||

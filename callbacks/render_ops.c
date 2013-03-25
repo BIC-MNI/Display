@@ -41,7 +41,7 @@ private  object_struct  *get_model_object(
 public  DEF_MENU_FUNCTION( toggle_render_mode )
 {
     object_struct            *model_object;
-    BOOLEAN                  shaded_mode;
+    VIO_BOOL                  shaded_mode;
     object_struct            *object;
     object_traverse_struct   object_traverse;
 
@@ -128,7 +128,7 @@ public  DEF_MENU_UPDATE(toggle_shading )
     model_object = get_model_object( display );
 
     set_menu_text_boolean( menu_window, menu_entry,
-     (BOOLEAN) get_model_info(get_model_ptr(model_object))->render.shading_type,
+     (VIO_BOOL) get_model_info(get_model_ptr(model_object))->render.shading_type,
      "Flat", "Gouraud" );
 
     return( TRUE );
@@ -139,7 +139,7 @@ public  DEF_MENU_UPDATE(toggle_shading )
 public  DEF_MENU_FUNCTION( toggle_lights )
 {
     object_struct            *model_object;
-    BOOLEAN                  new_light_switch;
+    VIO_BOOL                  new_light_switch;
     object_struct            *object;
     object_traverse_struct   object_traverse;
 
@@ -184,7 +184,7 @@ public  DEF_MENU_UPDATE(toggle_lights )
 public  DEF_MENU_FUNCTION( toggle_two_sided )
 {
     object_struct            *model_object;
-    BOOLEAN                  new_flag;
+    VIO_BOOL                  new_flag;
     object_struct            *object;
     object_traverse_struct   object_traverse;
 
@@ -229,7 +229,7 @@ public  DEF_MENU_UPDATE(toggle_two_sided )
 public  DEF_MENU_FUNCTION( toggle_backfacing )
 {
     object_struct            *model_object;
-    BOOLEAN                  new_flag;
+    VIO_BOOL                  new_flag;
     object_struct            *object;
     object_traverse_struct   object_traverse;
 
@@ -274,7 +274,7 @@ public  DEF_MENU_UPDATE(toggle_backfacing )
 public  DEF_MENU_FUNCTION( toggle_line_curve_flag )
 {
     object_struct            *model_object;
-    BOOLEAN                  new_flag;
+    VIO_BOOL                  new_flag;
     object_struct            *object;
     object_traverse_struct   object_traverse;
 
@@ -319,7 +319,7 @@ public  DEF_MENU_UPDATE(toggle_line_curve_flag )
 public  DEF_MENU_FUNCTION( toggle_marker_label_flag )
 {
     object_struct            *model_object;
-    BOOLEAN                  new_flag;
+    VIO_BOOL                  new_flag;
     object_struct            *object;
     object_traverse_struct   object_traverse;
 
@@ -415,7 +415,7 @@ public  DEF_MENU_UPDATE(set_n_curve_segments )
 
 public  DEF_MENU_FUNCTION( toggle_double_buffer_threed )
 {
-    BOOLEAN   double_buffer;
+    VIO_BOOL   double_buffer;
 
     double_buffer = !G_get_double_buffer_state( display->window );
 
@@ -440,7 +440,7 @@ public  DEF_MENU_UPDATE(toggle_double_buffer_threed )
 
 public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )
 {
-    BOOLEAN           double_buffer;
+    VIO_BOOL           double_buffer;
     display_struct    *slice_window;
 
     slice_window = display->associated[SLICE_WINDOW];
@@ -462,7 +462,7 @@ public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )
 public  DEF_MENU_UPDATE(toggle_double_buffer_slice )
 {
     display_struct  *slice_window;
-    BOOLEAN         state;
+    VIO_BOOL         state;
 
     state = get_slice_window( display, &slice_window );
 

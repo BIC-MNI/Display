@@ -56,7 +56,7 @@ public  void  set_marker_threshold(
     }
 }
 
-private  BOOLEAN  markers_are_neighbours(
+private  VIO_BOOL  markers_are_neighbours(
     marker_segment_struct  *seg,
     Real                   threshold_distance,
     int                    i,
@@ -64,7 +64,7 @@ private  BOOLEAN  markers_are_neighbours(
     Real                   closest_dists[],
     Real                   *dist )
 {
-    BOOLEAN   neigh_flag, dist_to_marker;
+    VIO_BOOL   neigh_flag, dist_to_marker;
 
     dist_to_marker = seg->distances[i][j];
 
@@ -77,7 +77,7 @@ private  BOOLEAN  markers_are_neighbours(
 
     return( neigh_flag );
 #ifdef OLD
-    BOOLEAN   neigh_flag;
+    VIO_BOOL   neigh_flag;
 
     *dist = seg->distances[i][j];
 
@@ -99,7 +99,7 @@ private  void  classify(
     int                      indices[] )
 {
     Real                             *closest_dist;
-    BOOLEAN                          *in_queue;
+    VIO_BOOL                          *in_queue;
     int                              i, ind, marker_index;
     marker_struct                    *marker1, *marker2;
     Real                             dist;
@@ -232,7 +232,7 @@ public  void  make_guess_classification(
 {
     int                   i, n_ids, *marker_indices;
     marker_struct         *marker;
-    static  BOOLEAN       first = TRUE;
+    static  VIO_BOOL       first = TRUE;
     static  Colour        colours[13];
     progress_struct       progress;
 

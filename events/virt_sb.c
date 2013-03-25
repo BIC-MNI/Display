@@ -28,11 +28,11 @@ static    DEF_EVENT_FUNCTION( handle_update_rotation );
 static    DEF_EVENT_FUNCTION( terminate_rotation );
 static    DEF_EVENT_FUNCTION( handle_update_translation );
 static    DEF_EVENT_FUNCTION( terminate_translation );
-private  BOOLEAN  perform_rotation(
+private  VIO_BOOL  perform_rotation(
     display_struct   *display );
-private  BOOLEAN  perform_cursor_translation(
+private  VIO_BOOL  perform_cursor_translation(
     display_struct   *display );
-private  BOOLEAN  mouse_close_to_cursor(
+private  VIO_BOOL  mouse_close_to_cursor(
     display_struct    *display );
 
 public  void  initialize_virtual_spaceball(
@@ -136,12 +136,12 @@ private  DEF_EVENT_FUNCTION( terminate_rotation )
     return( OK );
 }
 
-private  BOOLEAN  perform_rotation(
+private  VIO_BOOL  perform_rotation(
     display_struct   *display )
 {
     Real           x, y;
     Transform      transform;
-    BOOLEAN        moved;
+    VIO_BOOL        moved;
 
     moved = FALSE;
 
@@ -201,7 +201,7 @@ private  DEF_EVENT_FUNCTION( terminate_translation )
     return( OK );
 }
 
-private  BOOLEAN  perform_cursor_translation(
+private  VIO_BOOL  perform_cursor_translation(
     display_struct   *display )
 {
     Vector       mouse_dir, offset, axis_direction;
@@ -209,7 +209,7 @@ private  BOOLEAN  perform_cursor_translation(
     Point        ray_origin, transformed_origin;
     int          axis_index, best_axis, second_best_axis, a1, a2;
     Point        pt, pt_screen, cursor_screen, new_screen_origin, new_cursor;
-    BOOLEAN      moved;
+    VIO_BOOL      moved;
     Real         mag_mouse, mag_axis[N_DIMENSIONS], dot_prod[N_DIMENSIONS];
     Real         angle[N_DIMENSIONS], mouse_dist;
     Real         x, y, x_prev, y_prev;
@@ -320,10 +320,10 @@ private  BOOLEAN  perform_cursor_translation(
     return( moved );
 }
 
-private  BOOLEAN  mouse_close_to_cursor(
+private  VIO_BOOL  mouse_close_to_cursor(
     display_struct    *display )
 {
-    BOOLEAN  close;
+    VIO_BOOL  close;
     Point    cursor_screen, cursor_pixels, mouse_pixels, mouse;
     Vector   diff_vector;
     Real     x, y, diff;

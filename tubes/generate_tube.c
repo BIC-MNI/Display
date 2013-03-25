@@ -15,7 +15,7 @@ private  void  get_direction(
     int      n_points,
     Point    points[],
     int      i,
-    BOOLEAN  wrap_around,
+    VIO_BOOL  wrap_around,
     Vector   *dir )
 {
     int      end;
@@ -53,7 +53,7 @@ public  void  generate_tube(
     int      i;
     Real     *x, *y, angle;
     Vector   hor, vert, dir, prev_dir, normal;
-    BOOLEAN  wrap_around;
+    VIO_BOOL  wrap_around;
 
     ALLOC( x, n_around );
     ALLOC( y, n_around );

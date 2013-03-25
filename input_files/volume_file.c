@@ -27,7 +27,7 @@ public  Status   input_volume_file(
 {
     Status              status;
     nc_type             nc_data_type;
-    BOOLEAN             signed_flag;
+    VIO_BOOL             signed_flag;
     Real                voxel_min, voxel_max, size_factor;
     minc_input_options  options;
     int                 dim, limits[2][MAX_DIMENSIONS];

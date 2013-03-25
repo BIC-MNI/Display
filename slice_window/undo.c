@@ -108,7 +108,7 @@ public  void  record_slice_under_mouse(
     }
 }
 
-public  BOOLEAN  slice_labels_to_undo(
+public  VIO_BOOL  slice_labels_to_undo(
     display_struct  *display )
 {
     display_struct  *slice_window;

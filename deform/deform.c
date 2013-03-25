@@ -106,9 +106,9 @@ private  DEF_EVENT_FUNCTION( deform_object )
 public  void  turn_on_deformation(
     display_struct  *display,
     object_struct   *object,
-    BOOLEAN         use_simulated_annealling )
+    VIO_BOOL         use_simulated_annealling )
 {
-    BOOLEAN        in_progress;
+    VIO_BOOL        in_progress;
 
     in_progress = FALSE;
 

@@ -18,7 +18,7 @@ private  void  recursive_scan(
     Point               *centre_voxel,
     Real                max_voxel_dist,
     Real                max_parametric_dist );
-private  BOOLEAN  should_subdivide(
+private  VIO_BOOL  should_subdivide(
     Real   du_parametric,
     Real   dv_parametric,
     Point  points[],
@@ -120,7 +120,7 @@ private  void  recursive_scan(
     }
 }
 
-private  BOOLEAN  should_subdivide(
+private  VIO_BOOL  should_subdivide(
     Real   du_parametric,
     Real   dv_parametric,
     Point  points[],
@@ -128,7 +128,7 @@ private  BOOLEAN  should_subdivide(
     Real   max_parametric_dist )
 {
     Point    min_corner, max_corner;
-    BOOLEAN  subdivide;
+    VIO_BOOL  subdivide;
 
     subdivide = (du_parametric > max_parametric_dist) ||
                        (dv_parametric > max_parametric_dist);

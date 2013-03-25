@@ -23,9 +23,9 @@
 #include  <display.h>
 
 private  DEF_EVENT_FUNCTION( check_update_contour );
-private  BOOLEAN  add_to_contour(
+private  VIO_BOOL  add_to_contour(
     display_struct   *display );
-private  BOOLEAN  contour_not_finished(
+private  VIO_BOOL  contour_not_finished(
     display_struct   *display );
 private  polygons_struct  *get_next_polygons(
     object_traverse_struct  *object_traverse );
@@ -114,7 +114,7 @@ private  void  make_cursor_contours(
 private  DEF_EVENT_FUNCTION( check_update_contour )
 {
     Real     end_time;
-    BOOLEAN  found;
+    VIO_BOOL  found;
 
     end_time = current_realtime_seconds() + Max_background_seconds;
     
@@ -202,17 +202,17 @@ private  polygons_struct  *get_next_polygons(
     return( polygons );
 }
 
-private  BOOLEAN  contour_not_finished(
+private  VIO_BOOL  contour_not_finished(
     display_struct   *display )
 {
     return( display->three_d.cursor_contours.current_polygons !=
             (polygons_struct *) 0 );
 }
 
-private  BOOLEAN  add_to_contour(
+private  VIO_BOOL  add_to_contour(
     display_struct   *display )
 {
-    BOOLEAN                 found;
+    VIO_BOOL                 found;
     Vector                  plane_normal;
     Real                    plane_constant;
     int                     axis;

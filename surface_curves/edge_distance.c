@@ -30,7 +30,7 @@ typedef  struct
     int             from_point;
 } vertex_struct;
 
-private  BOOLEAN  find_shortest_path(
+private  VIO_BOOL  find_shortest_path(
     polygons_struct   *polygons,
     Real              curvature_weight,
     Real              min_curvature,
@@ -46,12 +46,12 @@ private  void  create_path(
     polygons_struct   *polygons,
     Point             *p1,
     Point             *p2,
-    BOOLEAN           first_flag,
+    VIO_BOOL           first_flag,
     int               last_vertex,
     vertex_struct     vertices[],
     lines_struct      *lines );
 
-public  BOOLEAN  distance_along_polygons(
+public  VIO_BOOL  distance_along_polygons(
     polygons_struct   *polygons,
     Real              curvature_weight,
     Real              min_curvature,
@@ -63,7 +63,7 @@ public  BOOLEAN  distance_along_polygons(
     Real              *dist,
     lines_struct      *lines )
 {
-    BOOLEAN         found;
+    VIO_BOOL         found;
     int             last_vertex;
     vertex_struct   *vertices;
 
@@ -174,7 +174,7 @@ private   void   check_validity_tested(
     }
 }
 
-private  BOOLEAN  find_shortest_path(
+private  VIO_BOOL  find_shortest_path(
     polygons_struct   *polygons,
     Real              curvature_weight,
     Real              min_curvature,
@@ -190,7 +190,7 @@ private  BOOLEAN  find_shortest_path(
     int                    i, p, size, point_index, next_point_index;
     Real                   dist;
     Smallest_int           *vertex_validity;
-    BOOLEAN                found_path, closed;
+    VIO_BOOL                found_path, closed;
     queue_struct           entry;
     int                    n_polys, *polys;
     PRIORITY_QUEUE_STRUCT( queue_struct )   queue;
@@ -322,7 +322,7 @@ private  void  create_path(
     polygons_struct   *polygons,
     Point             *p1,
     Point             *p2,
-    BOOLEAN           first_flag,
+    VIO_BOOL           first_flag,
     int               last_vertex,
     vertex_struct     vertices[],
     lines_struct      *lines )

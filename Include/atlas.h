@@ -30,12 +30,12 @@ typedef  struct
 
 typedef  struct
 {
-    BOOLEAN                input;
-    BOOLEAN                enabled;
+    VIO_BOOL                input;
+    VIO_BOOL                enabled;
     Real                   opacity;
     int                    transparent_threshold;
     Real                   slice_tolerance[N_DIMENSIONS];
-    BOOLEAN                flipped[3];
+    VIO_BOOL                flipped[3];
 
     int                    n_images;
     atlas_image_struct     *images;

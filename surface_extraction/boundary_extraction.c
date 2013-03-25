@@ -21,13 +21,13 @@
 
 #include  <display.h>
 
-private  BOOLEAN  is_boundary(
-    BOOLEAN         inside_flag,
-    BOOLEAN         valid_flag,
-    BOOLEAN         neigh_inside_flag,
-    BOOLEAN         neigh_valid_flag )
+private  VIO_BOOL  is_boundary(
+    VIO_BOOL         inside_flag,
+    VIO_BOOL         valid_flag,
+    VIO_BOOL         neigh_inside_flag,
+    VIO_BOOL         neigh_valid_flag )
 {
-    BOOLEAN  boundary_flag;
+    VIO_BOOL  boundary_flag;
     int      n_invalid;
 
     boundary_flag = FALSE;
@@ -52,9 +52,9 @@ private  BOOLEAN  is_boundary(
     return( boundary_flag );
 }
 
-private  BOOLEAN  face_is_boundary(
-    BOOLEAN         inside_flags[3][3][3],
-    BOOLEAN         valid_flags[3][3][3],
+private  VIO_BOOL  face_is_boundary(
+    VIO_BOOL         inside_flags[3][3][3],
+    VIO_BOOL         valid_flags[3][3][3],
     int             c,
     int             offset )
 {
@@ -75,8 +75,8 @@ private  void   get_vertex_normal(
     int                         x,
     int                         y,
     int                         z,
-    BOOLEAN                     inside_flags[3][3][3],
-    BOOLEAN                     valid_flags[3][3][3],
+    VIO_BOOL                     inside_flags[3][3][3],
+    VIO_BOOL                     valid_flags[3][3][3],
     Real                        voxel_normal[] )
 {
     int   ind[N_DIMENSIONS], corner[N_DIMENSIONS], neigh[N_DIMENSIONS];
@@ -139,8 +139,8 @@ private  void  add_face(
     int                         indices[N_DIMENSIONS],
     int                         c,
     int                         offset,
-    BOOLEAN                     inside_flags[3][3][3],
-    BOOLEAN                     valid_flags[3][3][3],
+    VIO_BOOL                     inside_flags[3][3][3],
+    VIO_BOOL                     valid_flags[3][3][3],
     polygons_struct             *polygons,
     int                         poly_index )
 {
@@ -241,8 +241,8 @@ private  void  add_face(
 private  void  get_inside_flags(
     surface_extraction_struct   *surf,
     int                         voxel[],
-    BOOLEAN                     inside_flags[3][3][3],
-    BOOLEAN                     valid_flags[3][3][3] )
+    VIO_BOOL                     inside_flags[3][3][3],
+    VIO_BOOL                     valid_flags[3][3][3] )
 {
     int   dx, dy, dz, x_off, y_off, z_off;
 
@@ -369,16 +369,16 @@ public  void  read_voxellation_block(
     }
 }
 
-public  BOOLEAN  extract_voxel_boundary_surface(
+public  VIO_BOOL  extract_voxel_boundary_surface(
     Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel[] )
 {
     int              dim, offset, sizes[N_DIMENSIONS];
     int              face_index, poly_index, size, start_index, p;
-    BOOLEAN          modified, face_exists, should_exist;
-    BOOLEAN          inside_flags[3][3][3];
-    BOOLEAN          valid_flags[3][3][3];
+    VIO_BOOL          modified, face_exists, should_exist;
+    VIO_BOOL          inside_flags[3][3][3];
+    VIO_BOOL          valid_flags[3][3][3];
     polygons_struct  *polygons;
 
     get_volume_sizes( volume, sizes );

@@ -41,7 +41,7 @@ private  void  recursive_intersect_ray_with_objects_hierarchy(
     object_struct     **object,
     int               *closest_object_index,
     Real              *closest_dist,
-    BOOLEAN           *found )
+    VIO_BOOL           *found )
 {
     int                      i, object_index;
     Real                     dist;
@@ -80,7 +80,7 @@ private  void  recursive_intersect_ray_with_objects_hierarchy(
     }
 }
 
-public  BOOLEAN  intersect_ray_with_objects_hierarchy(
+public  VIO_BOOL  intersect_ray_with_objects_hierarchy(
     display_struct    *display,
     Point             *ray_origin,
     Vector            *ray_direction,
@@ -89,7 +89,7 @@ public  BOOLEAN  intersect_ray_with_objects_hierarchy(
     int               *closest_object_index,
     Point             *intersection_point )
 {
-    BOOLEAN                  intersects;
+    VIO_BOOL                  intersects;
     Real                     closest_dist;
 
     intersects = FALSE;

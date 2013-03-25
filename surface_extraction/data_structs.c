@@ -55,7 +55,7 @@ public  void   get_next_voxel_from_queue(
     voxel[Z] = (int) voxel_indices.i[Z];
 }
 
-public  BOOLEAN  voxels_remaining(
+public  VIO_BOOL  voxels_remaining(
     voxel_queue_struct  *voxel_queue )
 {
     return( !IS_QUEUE_EMPTY( *voxel_queue ) );
@@ -91,7 +91,7 @@ public  void  clear_voxel_flags(
     zero_bitlist_3d( voxel_flags );
 }
 
-public  BOOLEAN  get_voxel_flag(
+public  VIO_BOOL  get_voxel_flag(
     bitlist_3d_struct   *voxel_flags,
     int                 min_limits[],
     int                 voxel[] )
@@ -249,7 +249,7 @@ private  int  get_edge_point_key(
     return( key );
 }
 
-public  BOOLEAN  lookup_edge_point_id(
+public  VIO_BOOL  lookup_edge_point_id(
     int                 sizes[],
     hash_table_struct   *hash_table,
     int                 x,
@@ -259,7 +259,7 @@ public  BOOLEAN  lookup_edge_point_id(
     int                 *edge_point_id )
 {
     int                  key;
-    BOOLEAN              exists;
+    VIO_BOOL              exists;
 
     key = get_edge_point_key( sizes, x, y, z, edge_intersected );
 

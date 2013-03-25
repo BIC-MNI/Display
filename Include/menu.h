@@ -35,23 +35,23 @@ typedef  menu_function_type  (*menu_function_pointer);
    display_struct    *menu_window, \
    menu_entry_struct *menu_entry )
 
-typedef  BOOLEAN   menu_update_type( struct display_struct    *,
+typedef  VIO_BOOL   menu_update_type( struct display_struct    *,
                                      struct display_struct    *,
                                      struct menu_entry_struct * );
 
 typedef  menu_update_type  (*menu_update_pointer);
 
-#define  DEF_MENU_UPDATE(m)  BOOLEAN GLUE(menu_update_,m)( \
+#define  DEF_MENU_UPDATE(m)  VIO_BOOL GLUE(menu_update_,m)( \
                                        display_struct    *display, \
                                        display_struct    *menu_window, \
                                        menu_entry_struct *menu_entry )
 
 typedef  struct  menu_entry_struct
 {
-    BOOLEAN                     permanent_flag;
+    VIO_BOOL                     permanent_flag;
     int                         key;
     STRING                      label;
-    BOOLEAN                     is_active;
+    VIO_BOOL                     is_active;
     int                         current_depth;
     int                         n_children;
     int                         n_chars_across;

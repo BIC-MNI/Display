@@ -41,7 +41,7 @@ private  double  amotry(
     int                           ihi,
     int                           *nfunk,
     double                        fac,
-    BOOLEAN                       *success )
+    VIO_BOOL                       *success )
 {
     int      j;
     double   fac1, fac2, ytry;
@@ -128,7 +128,7 @@ public  void  amoeba(
 {
     int     i, j, ilo, ihi, inhi;
     double  ytry, ysave, rtol;
-    BOOLEAN success;
+    VIO_BOOL success;
 
     *n_funk = 0;
 

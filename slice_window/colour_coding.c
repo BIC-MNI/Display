@@ -31,7 +31,7 @@ private  void  rebuild_colour_table(
     display_struct    *slice_window,
     int               volume_index );
 
-private  BOOLEAN  is_shared_label_volume(
+private  VIO_BOOL  is_shared_label_volume(
     slice_window_struct   *slice,
     int                   volume_index )
 {
@@ -149,16 +149,16 @@ private  void  realloc_label_colour_table(
         set_colour_of_label( slice_window, volume_index, 255, BLACK );
 }
 
-private  BOOLEAN  find_similar_labels(
+private  VIO_BOOL  find_similar_labels(
     display_struct    *slice_window,
     int               volume_index,
     int               *orig_index )
 {
     int                 i, k, m;
     int                 sizes[MAX_DIMENSIONS], this_size[MAX_DIMENSIONS];
-    BOOLEAN             same;
+    VIO_BOOL             same;
     Volume              this_volume, volume;
-    General_transform   *this_gen_transform, *gen_transform;
+    VIO_General_transform   *this_gen_transform, *gen_transform;
     Transform           *this_transform, *transform;
 
     this_volume = get_nth_volume( slice_window, volume_index );
@@ -300,7 +300,7 @@ public  void  initialize_slice_colour_coding(
     int 			   sum_count, count, idx;
     Real               min_value, max_value, value;
     progress_struct    progress;
-    BOOLEAN			   low_limit_done, high_limit_done;
+    VIO_BOOL			   low_limit_done, high_limit_done;
     Real                delta;
 
 
@@ -452,7 +452,7 @@ public  Volume  get_label_volume(
                                   get_current_volume_index(display)) );
 }
 
-public  BOOLEAN  label_volume_exists(
+public  VIO_BOOL  label_volume_exists(
     display_struct   *display )
 {
     Volume   label;
@@ -462,7 +462,7 @@ public  BOOLEAN  label_volume_exists(
     return( is_label_volume_initialized( label ) );
 }
 
-public  BOOLEAN  get_label_visibility(
+public  VIO_BOOL  get_label_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index )

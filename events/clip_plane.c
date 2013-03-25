@@ -30,9 +30,9 @@ private    DEF_EVENT_FUNCTION( start_back_clipping );
 private    DEF_EVENT_FUNCTION( turn_off_back_clipping );
 private    DEF_EVENT_FUNCTION( handle_update_back );
 private    DEF_EVENT_FUNCTION( terminate_back_clipping );
-private  BOOLEAN  perform_clipping(
+private  VIO_BOOL  perform_clipping(
     display_struct   *display,
-    BOOLEAN          front_flag );
+    VIO_BOOL          front_flag );
 
 public  void  initialize_front_clipping(
     display_struct   *display )
@@ -86,7 +86,7 @@ private  DEF_EVENT_FUNCTION( start_front_clipping )
 
 private  void  update_clipping(
     display_struct   *display,
-    BOOLEAN          front_flag )
+    VIO_BOOL          front_flag )
 {
     if( perform_clipping( display, front_flag ) )
     {
@@ -199,11 +199,11 @@ private  DEF_EVENT_FUNCTION( handle_update_back )
     return( OK );
 }
 
-private  BOOLEAN  perform_clipping(
+private  VIO_BOOL  perform_clipping(
     display_struct   *display,
-    BOOLEAN          front_flag )
+    VIO_BOOL          front_flag )
 {
-    BOOLEAN   moved;
+    VIO_BOOL   moved;
     Real      x, y, x_prev, y_prev;
     Real      delta, dist;
 

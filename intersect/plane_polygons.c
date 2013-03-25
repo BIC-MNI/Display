@@ -93,7 +93,7 @@ private  void  intersect_plane_polygons(
     }
 }
 
-public  BOOLEAN  intersect_plane_one_polygon(
+public  VIO_BOOL  intersect_plane_one_polygon(
     Vector            *plane_normal,
     Real              plane_constant,
     polygons_struct   *polygons,
@@ -105,7 +105,7 @@ public  BOOLEAN  intersect_plane_one_polygon(
 {
     int       point_index, n_indices;
     Point     points[2];
-    BOOLEAN   intersects;
+    VIO_BOOL   intersects;
 
     intersects = get_plane_polygon_intersection( plane_normal, plane_constant,
                                                  polygons, poly, points );

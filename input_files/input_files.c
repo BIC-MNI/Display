@@ -25,7 +25,7 @@
 public  Status  load_graphics_file( 
     display_struct   *display,
     STRING           filename,
-    BOOLEAN          is_label_file )
+    VIO_BOOL          is_label_file )
 {
     Status                   status;
     object_struct            *object;
@@ -35,7 +35,7 @@ public  Status  load_graphics_file(
     object_struct            *current_object;
     object_traverse_struct   object_traverse;
     char                     volume_description[EXTREMELY_LARGE_STRING_SIZE];
-    BOOLEAN                  volume_present;
+    VIO_BOOL                  volume_present;
     display_struct           *slice_window;
 
     object = create_object( MODEL );

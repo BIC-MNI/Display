@@ -12,7 +12,7 @@ public  void  initialize_segmenting_3d(
     unsigned char      ****cuts,
     bitlist_3d_struct  *to_do );
 
-public  BOOLEAN  expand_labels_3d(
+public  VIO_BOOL  expand_labels_3d(
     Volume             label_volume,
     unsigned char      ***distance_transform,
     unsigned char      ***cuts,

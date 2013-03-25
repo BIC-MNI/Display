@@ -318,7 +318,7 @@ public  void  set_current_volume_index(
     display_struct  *slice_window,
     int             volume_index )
 {
-    BOOLEAN         first;
+    VIO_BOOL         first;
     int             view;
     Real            separations[MAX_DIMENSIONS];
     display_struct  *display;
@@ -391,11 +391,11 @@ public  int   get_current_volume_index(
         return( -1 );
 }
 
-public  BOOLEAN   get_slice_window_volume(
+public  VIO_BOOL   get_slice_window_volume(
     display_struct   *display,
     Volume           *volume )
 {
-    BOOLEAN          volume_exists;
+    VIO_BOOL          volume_exists;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -438,18 +438,18 @@ public  Volume   get_volume(
     return( volume );
 }
 
-public  BOOLEAN  slice_window_exists(
+public  VIO_BOOL  slice_window_exists(
     display_struct   *display )
 {
     return( display != (display_struct *) NULL &&
             display->associated[SLICE_WINDOW] != (display_struct *) NULL );
 }
 
-public  BOOLEAN  get_slice_window(
+public  VIO_BOOL  get_slice_window(
     display_struct   *display,
     display_struct   **slice_window )
 {
-    BOOLEAN  exists;
+    VIO_BOOL  exists;
 
     exists = FALSE;
 
@@ -462,7 +462,7 @@ public  BOOLEAN  get_slice_window(
     return( exists );
 }
 
-public  BOOLEAN  get_range_of_volumes(
+public  VIO_BOOL  get_range_of_volumes(
     display_struct   *display,
     Point            *min_limit,
     Point            *max_limit )
@@ -471,7 +471,7 @@ public  BOOLEAN  get_range_of_volumes(
     int              dim;
     Volume           volume;
     Real             voxel[N_DIMENSIONS], world[N_DIMENSIONS];
-    BOOLEAN          first;
+    VIO_BOOL          first;
 
     n_volumes = get_n_volumes( display );
 
@@ -693,11 +693,11 @@ public  void  set_slice_viewport_update(
                               get_graphics_model(slice_window,model_number)) );
 }
 
-private  BOOLEAN  slice_viewport_has_changed(
+private  VIO_BOOL  slice_viewport_has_changed(
     display_struct   *slice_window,
     int              view )
 {
-    BOOLEAN  changed;
+    VIO_BOOL  changed;
     int      v;
 
     changed = FALSE;
@@ -732,11 +732,11 @@ private  BOOLEAN  slice_viewport_has_changed(
     return( changed );
 }
 
-private  BOOLEAN  is_slice_continuing(
+private  VIO_BOOL  is_slice_continuing(
     display_struct   *slice_window,
     int              view )
 {
-    BOOLEAN  continuing;
+    VIO_BOOL  continuing;
     int      v;
 
     continuing = FALSE;
@@ -751,7 +751,7 @@ private  BOOLEAN  is_slice_continuing(
     return( continuing );
 }
 
-private  BOOLEAN  time_is_up(
+private  VIO_BOOL  time_is_up(
     Real    end_time,
     Real    current_time )
 {
@@ -760,13 +760,13 @@ private  BOOLEAN  time_is_up(
 
 private  void  render_more_slices(
     display_struct   *slice_window,
-    BOOLEAN          viewport_has_changed[] )
+    VIO_BOOL          viewport_has_changed[] )
 {
-    BOOLEAN  first_render, did_one, finished;
-    BOOLEAN  interrupted;
-    BOOLEAN  viewport_pixels_modified[N_SLICE_VIEWS];
-    BOOLEAN  no_viewport_changed, incremental_flag;
-    BOOLEAN  *update_flag_ptr, *update_in_progress;
+    VIO_BOOL  first_render, did_one, finished;
+    VIO_BOOL  interrupted;
+    VIO_BOOL  viewport_pixels_modified[N_SLICE_VIEWS];
+    VIO_BOOL  no_viewport_changed, incremental_flag;
+    VIO_BOOL  *update_flag_ptr, *update_in_progress;
     int      view, v, v_index, view_index, which_volume;
     int      slice_is_visible, n_pixels_drawn;
     int      current_update_volume, current_update_view, n_volumes;
@@ -971,11 +971,11 @@ private  void  render_more_slices(
 public  void  update_slice_window(
     display_struct   *slice_window )
 {
-    BOOLEAN  viewport_has_changed[N_SLICE_VIEWS];
-    BOOLEAN  one_buffer_flag[N_SLICE_VIEWS];
-    BOOLEAN  slice_is_continuing[N_SLICE_VIEWS];
-    BOOLEAN  original_sub_region_specified[N_SLICE_VIEWS];
-    BOOLEAN  prev_use_sub_region;
+    VIO_BOOL  viewport_has_changed[N_SLICE_VIEWS];
+    VIO_BOOL  one_buffer_flag[N_SLICE_VIEWS];
+    VIO_BOOL  slice_is_continuing[N_SLICE_VIEWS];
+    VIO_BOOL  original_sub_region_specified[N_SLICE_VIEWS];
+    VIO_BOOL  prev_use_sub_region;
     int      x_sub_min, x_sub_max;
     int      y_sub_min, y_sub_max;
     int      view;
@@ -1218,7 +1218,7 @@ public  void  set_slice_composite_update(
     slice_window->slice.slice_views[view_index].y_max = y_max;
 }
 
-public  BOOLEAN  get_slice_subviewport(
+public  VIO_BOOL  get_slice_subviewport(
     display_struct   *slice_window,
     int              view_index,
     int              *x_min,

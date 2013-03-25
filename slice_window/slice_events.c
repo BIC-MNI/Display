@@ -53,18 +53,18 @@ static    DEF_EVENT_FUNCTION( terminate_picking_both_limits );
 
 private  void  update_limit(
     display_struct   *slice_window,
-    BOOLEAN          low_limit_flag,
-    BOOLEAN          fixed_range_flag );
-private  BOOLEAN  get_mouse_colour_bar_value(
+    VIO_BOOL          low_limit_flag,
+    VIO_BOOL          fixed_range_flag );
+private  VIO_BOOL  get_mouse_colour_bar_value(
     display_struct   *slice_window,
     Real             *value );
-private  BOOLEAN   mouse_is_near_slice_dividers(
+private  VIO_BOOL   mouse_is_near_slice_dividers(
     display_struct   *slice_window );
-private  BOOLEAN  mouse_is_near_low_limit(
+private  VIO_BOOL  mouse_is_near_low_limit(
     display_struct   *slice_window );
-private  BOOLEAN  mouse_is_near_high_limit(
+private  VIO_BOOL  mouse_is_near_high_limit(
     display_struct   *slice_window );
-private  BOOLEAN  get_nearest_mouse_colour_bar_value(
+private  VIO_BOOL  get_nearest_mouse_colour_bar_value(
     display_struct   *slice_window,
     Real             *value );
 
@@ -638,8 +638,8 @@ private  DEF_EVENT_FUNCTION( handle_update_both_limits )
 
 private  void  update_limit(
     display_struct   *slice_window,
-    BOOLEAN          low_limit_flag,
-    BOOLEAN          fixed_range_flag )
+    VIO_BOOL          low_limit_flag,
+    VIO_BOOL          fixed_range_flag )
 {
     Real                  range, min_value, max_value, value;
     Real                  volume_min, volume_max;
@@ -717,14 +717,14 @@ private  void  update_limit(
     record_mouse_pixel_position( slice_window );
 }
 
-private  BOOLEAN  get_mouse_colour_bar_value(
+private  VIO_BOOL  get_mouse_colour_bar_value(
     display_struct   *slice_window,
     Real             *value )
 {
     int                   x, y;
     Real                  ratio, min_value, max_value;
     Volume                volume;
-    BOOLEAN               found;
+    VIO_BOOL               found;
 
     found = FALSE;
 
@@ -740,14 +740,14 @@ private  BOOLEAN  get_mouse_colour_bar_value(
     return( found );
 }
 
-private  BOOLEAN  get_nearest_mouse_colour_bar_value(
+private  VIO_BOOL  get_nearest_mouse_colour_bar_value(
     display_struct   *slice_window,
     Real             *value )
 {
     int                   x, y;
     Real                  ratio, min_value, max_value;
     Volume                volume;
-    BOOLEAN               found;
+    VIO_BOOL               found;
 
     found = FALSE;
 
@@ -773,11 +773,11 @@ private  BOOLEAN  get_nearest_mouse_colour_bar_value(
     return( found );
 }
 
-private  BOOLEAN  mouse_is_near_low_limit(
+private  VIO_BOOL  mouse_is_near_low_limit(
     display_struct   *slice_window )
 {
     Real                  value, min_value, max_value;
-    BOOLEAN               near;
+    VIO_BOOL               near;
     colour_coding_struct  *colour_coding;
 
     near = FALSE;
@@ -799,11 +799,11 @@ private  BOOLEAN  mouse_is_near_low_limit(
     return( near );
 }
 
-private  BOOLEAN  mouse_is_near_high_limit(
+private  VIO_BOOL  mouse_is_near_high_limit(
     display_struct   *slice_window )
 {
     Real                  value, min_value, max_value;
-    BOOLEAN               near;
+    VIO_BOOL               near;
     colour_coding_struct  *colour_coding;
 
     near = FALSE;
@@ -827,11 +827,11 @@ private  BOOLEAN  mouse_is_near_high_limit(
 
 #define  NEAR_ENOUGH  10
 
-private  BOOLEAN  mouse_is_near_slice_dividers(
+private  VIO_BOOL  mouse_is_near_slice_dividers(
     display_struct   *slice_window )
 {
     int       x, y, x_div, y_div, dx, dy;
-    BOOLEAN   near;
+    VIO_BOOL   near;
 
     near = FALSE;
 

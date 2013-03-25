@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-private  BOOLEAN  find_close_voxel_containing_range(
+private  VIO_BOOL  find_close_voxel_containing_range(
     Volume                     volume,
     Volume                     label_volume,
     unsigned_byte              voxel_done_flags[],
@@ -37,7 +37,7 @@ private  void  add_voxel_neighbours(
     int                                 x,
     int                                 y,
     int                                 z,
-    BOOLEAN                             surface_only,
+    VIO_BOOL                             surface_only,
     surface_extraction_struct           *surface_extraction,
     bitlist_3d_struct                   *voxels_queued,
     voxel_queue_struct                  *voxel_queue );
@@ -48,7 +48,7 @@ private  void  delete_edge_points_no_longer_needed(
     unsigned_byte                   voxel_done_flags[],
     hash_table_struct               *edge_points );
 
-private  BOOLEAN  surface_voxel_is_within_volume(
+private  VIO_BOOL  surface_voxel_is_within_volume(
     surface_extraction_struct   *surface_extraction,
     int                         indices[] )
 {
@@ -65,8 +65,8 @@ public  void  start_surface_extraction_at_point(
     display_struct     *display,
     Volume             volume,
     Volume             label_volume,
-    BOOLEAN            binary_flag,
-    BOOLEAN            voxellate_flag,
+    VIO_BOOL            binary_flag,
+    VIO_BOOL            voxellate_flag,
     Real               min_value,
     Real               max_value,
     int                x,
@@ -181,7 +181,7 @@ public  void  start_surface_extraction_at_point(
         start_surface_extraction( display );
 }
 
-private  BOOLEAN  find_close_voxel_containing_range(
+private  VIO_BOOL  find_close_voxel_containing_range(
     Volume                     volume,
     Volume                     label_volume,
     unsigned_byte              voxel_done_flags[],
@@ -191,9 +191,9 @@ private  BOOLEAN  find_close_voxel_containing_range(
     int                        z,
     int                        found_indices[] )
 {
-    BOOLEAN                   found, voxel_contains;
+    VIO_BOOL                   found, voxel_contains;
     int                       sizes[MAX_DIMENSIONS], voxel[N_DIMENSIONS];
-    BOOLEAN                   voxel_done;
+    VIO_BOOL                   voxel_done;
     voxel_queue_struct        voxels_to_check;
     int                       insert[N_DIMENSIONS];
     bitlist_3d_struct         voxels_searched;
@@ -249,10 +249,10 @@ private  BOOLEAN  find_close_voxel_containing_range(
     return( found );
 }
 
-public  BOOLEAN  some_voxels_remaining_to_do(
+public  VIO_BOOL  some_voxels_remaining_to_do(
     surface_extraction_struct   *surface_extraction )
 {
-    BOOLEAN   remaining_to_do;
+    VIO_BOOL   remaining_to_do;
 
     if( surface_extraction->voxellate_flag )
     {
@@ -422,7 +422,7 @@ private  void  advance_voxellated_index(
     }
 }
 
-public  BOOLEAN  extract_more_surface(
+public  VIO_BOOL  extract_more_surface(
     display_struct    *display )
 {
     int                         n_voxels_done, sizes[N_DIMENSIONS];
@@ -430,7 +430,7 @@ public  BOOLEAN  extract_more_surface(
     surface_extraction_struct   *surf;
     Volume                      volume, label_volume;
     Real                        stop_time;
-    BOOLEAN                     voxellate_flag, changed;
+    VIO_BOOL                     voxellate_flag, changed;
 
     changed = FALSE;
 
@@ -580,7 +580,7 @@ private  void  add_voxel_neighbours(
     int                             x,
     int                             y,
     int                             z,
-    BOOLEAN                         surface_only,
+    VIO_BOOL                         surface_only,
     surface_extraction_struct       *surface_extraction,
     bitlist_3d_struct               *voxels_queued,
     voxel_queue_struct              *voxel_queue )
@@ -632,8 +632,8 @@ private  void  delete_edge_points_no_longer_needed(
 {
     int                 axis_index, a1, a2;
     int                 x, y, dx, dy, dz;
-    BOOLEAN             all_four_done;
-    BOOLEAN             voxel_done[3][3][3];
+    VIO_BOOL             all_four_done;
+    VIO_BOOL             voxel_done[3][3][3];
     int                 indices[N_DIMENSIONS];
     int                 sizes[N_DIMENSIONS];
 

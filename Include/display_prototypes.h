@@ -15,17 +15,17 @@ public  void  display_objects(
     object_struct               *object,
     update_interrupted_struct   *interrupt,
     Bitplane_types              bitplanes,
-    BOOLEAN                     *past_last_object );
+    VIO_BOOL                     *past_last_object );
 
 public  void  initialize_window_callbacks(
     display_struct    *display_window );
 
 public  Status   main_event_loop( void );
 
-public  BOOLEAN  window_is_up_to_date(
+public  VIO_BOOL  window_is_up_to_date(
     display_struct   *display );
 
-public  BOOLEAN  is_shift_key_pressed( void );
+public  VIO_BOOL  is_shift_key_pressed( void );
 
 public  int  get_list_of_windows(
     display_struct  ***display );
@@ -41,7 +41,7 @@ public  void  terminate_graphics( void );
 
 public  Status  create_graphics_window(
     window_types      window_type,
-    BOOLEAN           double_buffering,
+    VIO_BOOL           double_buffering,
     display_struct    **display,
     STRING            title,
     int               width,
@@ -78,10 +78,10 @@ public  void  set_update_required(
     display_struct   *display,
     Bitplane_types   which_bitplanes );
 
-public  BOOLEAN  graphics_normal_planes_update_required(
+public  VIO_BOOL  graphics_normal_planes_update_required(
     display_struct   *display );
 
-public  BOOLEAN  graphics_update_required(
+public  VIO_BOOL  graphics_update_required(
     display_struct   *display );
 
 public  void  graphics_models_have_changed(
@@ -152,12 +152,12 @@ public  void  regenerate_atlas_lookup(
 
 public  void  set_atlas_state(
     display_struct    *slice_window,
-    BOOLEAN           state );
+    VIO_BOOL           state );
 
-public  BOOLEAN  is_atlas_loaded(
+public  VIO_BOOL  is_atlas_loaded(
     display_struct  *display );
 
-public  BOOLEAN  render_atlas_slice_to_pixels(
+public  VIO_BOOL  render_atlas_slice_to_pixels(
     atlas_struct  *atlas,
     Colour        image[],
     int           image_x_size,
@@ -169,7 +169,7 @@ public  BOOLEAN  render_atlas_slice_to_pixels(
 public  Status  load_graphics_file( 
     display_struct   *display,
     STRING           filename,
-    BOOLEAN          is_label_file );
+    VIO_BOOL          is_label_file );
 
 public  Status   input_volume_file(
     STRING         filename,
@@ -532,7 +532,7 @@ public  DEF_MENU_FUNCTION( move_cursor_to_home );
 
 public  DEF_MENU_UPDATE(move_cursor_to_home );
 
-public  BOOLEAN  get_current_polygons(
+public  VIO_BOOL  get_current_polygons(
     display_struct      *display,
     polygons_struct     **polygons );
 
@@ -1335,7 +1335,7 @@ public  void  set_current_object_index(
     display_struct    *display,
     int               index );
 
-public  BOOLEAN  get_current_object(
+public  VIO_BOOL  get_current_object(
     display_struct    *display,
     object_struct     **current_object );
 
@@ -1348,17 +1348,17 @@ public  void  terminate_current_object(
 public  void  push_current_object(
     display_struct    *display );
 
-public  BOOLEAN  current_object_is_top_level(
+public  VIO_BOOL  current_object_is_top_level(
     display_struct    *display );
 
 public  void  pop_current_object(
     display_struct    *display );
 
-public  BOOLEAN  current_object_is_this_type(
+public  VIO_BOOL  current_object_is_this_type(
     display_struct    *display,
     Object_types      type );
 
-public  BOOLEAN  current_object_exists(
+public  VIO_BOOL  current_object_exists(
     display_struct    *display );
 
 public  void  turn_off_connected_polygons(
@@ -1374,7 +1374,7 @@ public  void  set_edited_polygons(
     surface_edit_struct   *surface_edit,
     polygons_struct       *polygons );
 
-public  BOOLEAN  get_edited_polygons(
+public  VIO_BOOL  get_edited_polygons(
     surface_edit_struct   *surface_edit,
     polygons_struct       **polygons );
 
@@ -1392,7 +1392,7 @@ public  Status   save_window_to_file(
     int             y_min,
     int             y_max );
 
-public  BOOLEAN  update_current_marker(
+public  VIO_BOOL  update_current_marker(
     display_struct   *display,
     int              volume_index,
     Real             voxel[] );
@@ -1400,7 +1400,7 @@ public  BOOLEAN  update_current_marker(
 public  void  read_voxellation_block(
     surface_extraction_struct   *surf );
 
-public  BOOLEAN  extract_voxel_boundary_surface(
+public  VIO_BOOL  extract_voxel_boundary_surface(
     Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel[] );
@@ -1416,7 +1416,7 @@ public  void   get_next_voxel_from_queue(
     voxel_queue_struct    *voxel_queue,
     int                   voxel[] );
 
-public  BOOLEAN  voxels_remaining(
+public  VIO_BOOL  voxels_remaining(
     voxel_queue_struct  *voxel_queue );
 
 public  void  delete_voxel_queue(
@@ -1433,7 +1433,7 @@ public  void  delete_voxel_flags(
 public  void  clear_voxel_flags(
     bitlist_3d_struct  *voxel_flags );
 
-public  BOOLEAN  get_voxel_flag(
+public  VIO_BOOL  get_voxel_flag(
     bitlist_3d_struct   *voxel_flags,
     int                 min_limits[],
     int                 voxel[] );
@@ -1480,7 +1480,7 @@ public  void  initialize_edge_points(
 public  void  delete_edge_points(
     hash_table_struct  *hash_table );
 
-public  BOOLEAN  lookup_edge_point_id(
+public  VIO_BOOL  lookup_edge_point_id(
     int                 sizes[],
     hash_table_struct   *hash_table,
     int                 x,
@@ -1534,35 +1534,35 @@ public  void  set_invalid_label_range_for_surface_extraction(
     int             min_label,
     int             max_label );
 
-public  BOOLEAN  voxel_contains_surface(
+public  VIO_BOOL  voxel_contains_surface(
     Volume                      volume,
     Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel_index[] );
 
-public  BOOLEAN  extract_voxel_surface(
+public  VIO_BOOL  extract_voxel_surface(
     Volume                      volume,
     Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel[],
-    BOOLEAN                     first_voxel );
+    VIO_BOOL                     first_voxel );
 
 public  void  start_surface_extraction_at_point(
     display_struct     *display,
     Volume             volume,
     Volume             label_volume,
-    BOOLEAN            binary_flag,
-    BOOLEAN            voxellate_flag,
+    VIO_BOOL            binary_flag,
+    VIO_BOOL            voxellate_flag,
     Real               min_value,
     Real               max_value,
     int                x,
     int                y,
     int                z );
 
-public  BOOLEAN  some_voxels_remaining_to_do(
+public  VIO_BOOL  some_voxels_remaining_to_do(
     surface_extraction_struct   *surface_extraction );
 
-public  BOOLEAN  extract_more_surface(
+public  VIO_BOOL  extract_more_surface(
     display_struct    *display );
 
 public  void  tell_surface_extraction_range_of_labels_changed(
@@ -1608,14 +1608,14 @@ public  Status  start_film_loop(
 public  void  initialize_magnification(
     display_struct   *display );
 
-public  BOOLEAN  mouse_moved(
+public  VIO_BOOL  mouse_moved(
     display_struct   *display,
     Real             *new_x,
     Real             *new_y,
     Real             *old_x,
     Real             *old_y );
 
-public  BOOLEAN  pixel_mouse_moved(
+public  VIO_BOOL  pixel_mouse_moved(
     display_struct   *display,
     int              *new_x,
     int              *new_y,
@@ -1634,14 +1634,14 @@ public  void  initialize_translation(
 public  void  initialize_picking_object(
     display_struct    *display );
 
-public  BOOLEAN  get_mouse_scene_intersection(
+public  VIO_BOOL  get_mouse_scene_intersection(
     display_struct    *display,
     Object_types      desired_object_type,
     object_struct     **object,
     int               *object_index,
     Point             *intersection );
 
-public  BOOLEAN  get_polygon_under_mouse(
+public  VIO_BOOL  get_polygon_under_mouse(
     display_struct    *display,
     polygons_struct   **polygons,
     int               *poly_index,
@@ -1653,7 +1653,7 @@ public  void  start_picking_viewport(
 public  void  initialize_rotating_slice(
     display_struct   *display );
 
-public  BOOLEAN  get_spaceball_transform(
+public  VIO_BOOL  get_spaceball_transform(
     display_struct   *display,
     Real             x1,
     Real             y1,
@@ -1701,7 +1701,7 @@ public  void  draw_text_3d(
     Colour            colour,
     STRING            str );
 
-public  BOOLEAN  intersect_ray_with_objects_hierarchy(
+public  VIO_BOOL  intersect_ray_with_objects_hierarchy(
     display_struct    *display,
     Point             *ray_origin,
     Vector            *ray_direction,
@@ -1719,7 +1719,7 @@ public  void  intersect_plane_with_polygons(
     int               *n_indices_alloced,
     int               *n_end_indices_alloced );
 
-public  BOOLEAN  intersect_plane_one_polygon(
+public  VIO_BOOL  intersect_plane_one_polygon(
     Vector            *plane_normal,
     Real              plane_constant,
     polygons_struct   *polygons,
@@ -1763,7 +1763,7 @@ public  Real  get_size_of_menu_text_area(
     int              key,
     int              line_number );
 
-public  BOOLEAN   lookup_key_for_mouse_position(
+public  VIO_BOOL   lookup_key_for_mouse_position(
     display_struct   *menu_window,
     Real             x,
     Real             y,
@@ -1820,7 +1820,7 @@ public  void  rebuild_selected_list(
     display_struct    *display,
     display_struct    *menu_window );
 
-public  BOOLEAN  mouse_is_on_object_name(
+public  VIO_BOOL  mouse_is_on_object_name(
     display_struct    *display,
     int               x,
     int               y,
@@ -1839,14 +1839,14 @@ public  void  set_menu_text_int(
 public  void  set_menu_text_boolean(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
-    BOOLEAN            value,
+    VIO_BOOL            value,
     STRING             off_str,
     STRING             on_str );
 
 public  void  set_menu_text_on_off(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
-    BOOLEAN            value );
+    VIO_BOOL            value );
 
 public  void  set_menu_text_with_colour(
     display_struct     *menu_window,
@@ -1923,16 +1923,16 @@ public  void  set_visibility_around_poly(
     polygons_struct  *polygons,
     int              poly,
     int              max_polys_to_do,
-    BOOLEAN          set_visibility_flag,
-    BOOLEAN          new_visibility,
-    BOOLEAN          set_colour_flag,
+    VIO_BOOL          set_visibility_flag,
+    VIO_BOOL          new_visibility,
+    VIO_BOOL          set_colour_flag,
     Colour           colour );
 
 public  void  crop_polygons_visibilities(
     polygons_struct  *polygons,
     int              axis_index,
     Real             position,
-    BOOLEAN          cropping_above );
+    VIO_BOOL          cropping_above );
 
 public  void  initialize_colour_bar(
     display_struct    *slice_window );
@@ -1944,7 +1944,7 @@ public  int  get_colour_bar_y_pos(
     display_struct      *slice_window,
     Real                value );
 
-public  BOOLEAN  mouse_within_colour_bar(
+public  VIO_BOOL  mouse_within_colour_bar(
     display_struct      *slice_window,
     Real                x,
     Real                y,
@@ -1975,10 +1975,10 @@ public  Volume  get_nth_label_volume(
 public  Volume  get_label_volume(
     display_struct   *display );
 
-public  BOOLEAN  label_volume_exists(
+public  VIO_BOOL  label_volume_exists(
     display_struct   *display );
 
-public  BOOLEAN  get_label_visibility(
+public  VIO_BOOL  get_label_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index );
@@ -2116,14 +2116,14 @@ public  void  rebuild_slice_unfinished_flag(
     display_struct    *slice_window,
     int               view_index );
 
-public  BOOLEAN  get_slice_unfinished_flag_visibility(
+public  VIO_BOOL  get_slice_unfinished_flag_visibility(
     display_struct    *slice_window,
     int               view_index );
 
 public  void  set_slice_unfinished_flag_visibility(
     display_struct    *slice_window,
     int               view_index,
-    BOOLEAN           state );
+    VIO_BOOL           state );
 
 public  void  rebuild_slice_cross_section(
     display_struct    *slice_window,
@@ -2155,10 +2155,10 @@ public  int  rebuild_slice_pixels_for_volume(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
-    BOOLEAN           incremental_flag,
-    BOOLEAN           interrupted,
-    BOOLEAN           continuing_flag,
-    BOOLEAN           *finished );
+    VIO_BOOL           incremental_flag,
+    VIO_BOOL           interrupted,
+    VIO_BOOL           continuing_flag,
+    VIO_BOOL           *finished );
 
 public  void  rebuild_slice_text(
     display_struct    *slice_window,
@@ -2176,10 +2176,10 @@ public  int  rebuild_label_slice_pixels_for_volume(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
-    BOOLEAN           incremental_flag,
-    BOOLEAN           interrupted,
-    BOOLEAN           continuing_flag,
-    BOOLEAN           *finished );
+    VIO_BOOL           incremental_flag,
+    VIO_BOOL           interrupted,
+    VIO_BOOL           continuing_flag,
+    VIO_BOOL           *finished );
 
 public  void  update_slice_pixel_visibilities(
     display_struct    *slice_window,
@@ -2201,7 +2201,7 @@ public  void  compute_histogram(
     display_struct   *slice_window,
     int              axis_index,
     int              voxel_index,
-    BOOLEAN          labeled_only );
+    VIO_BOOL          labeled_only );
 
 public  void  start_picking_slice_angle(
     display_struct    *slice_window );
@@ -2245,7 +2245,7 @@ public  int  get_n_volumes(
 public  int   get_current_volume_index(
     display_struct   *display );
 
-public  BOOLEAN   get_slice_window_volume(
+public  VIO_BOOL   get_slice_window_volume(
     display_struct   *display,
     Volume           *volume );
 
@@ -2256,14 +2256,14 @@ public  Volume  get_nth_volume(
 public  Volume   get_volume(
     display_struct   *display );
 
-public  BOOLEAN  slice_window_exists(
+public  VIO_BOOL  slice_window_exists(
     display_struct   *display );
 
-public  BOOLEAN  get_slice_window(
+public  VIO_BOOL  get_slice_window(
     display_struct   *display,
     display_struct   **slice_window );
 
-public  BOOLEAN  get_range_of_volumes(
+public  VIO_BOOL  get_range_of_volumes(
     display_struct   *display,
     Point            *min_limit,
     Point            *max_limit );
@@ -2323,7 +2323,7 @@ public  void  set_slice_composite_update(
     int              y_min,
     int              y_max );
 
-public  BOOLEAN  get_slice_subviewport(
+public  VIO_BOOL  get_slice_subviewport(
     display_struct   *slice_window,
     int              view_index,
     int              *x_min,
@@ -2342,9 +2342,9 @@ public  void  rebuild_volume_cross_section(
 
 public  void  set_volume_cross_section_visibility(
     display_struct    *display,
-    BOOLEAN           state );
+    VIO_BOOL           state );
 
-public  BOOLEAN  get_volume_cross_section_visibility(
+public  VIO_BOOL  get_volume_cross_section_visibility(
     display_struct    *display );
 
 public  void  initialize_slice_window_events(
@@ -2370,7 +2370,7 @@ public  void  record_slice_under_mouse(
     display_struct  *display,
     int             volume_index );
 
-public  BOOLEAN  slice_labels_to_undo(
+public  VIO_BOOL  slice_labels_to_undo(
     display_struct  *display );
 
 public  int  undo_slice_labels_if_any(
@@ -2384,9 +2384,9 @@ public  void  set_slice_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view,
-    BOOLEAN           visibility );
+    VIO_BOOL           visibility );
 
-public  BOOLEAN  get_slice_visibility(
+public  VIO_BOOL  get_slice_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view );
@@ -2410,13 +2410,13 @@ public  void  translate_slice_view(
     Real              dx,
     Real              dy );
 
-public  BOOLEAN  find_slice_view_mouse_is_in(
+public  VIO_BOOL  find_slice_view_mouse_is_in(
     display_struct    *display,
     int               x_pixel,
     int               y_pixel,
     int               *view_index );
 
-public  BOOLEAN  convert_pixel_to_voxel(
+public  VIO_BOOL  convert_pixel_to_voxel(
     display_struct    *display,
     int               volume_index,
     int               x_pixel,
@@ -2443,7 +2443,7 @@ public  void  get_voxel_to_pixel_transform(
     Real              *y_scale,
     Real              *y_trans );
 
-public  BOOLEAN  get_voxel_corresponding_to_point(
+public  VIO_BOOL  get_voxel_corresponding_to_point(
     display_struct    *display,
     Point             *point,
     Real              voxel[] );
@@ -2490,7 +2490,7 @@ public  void  set_slice_divider_position(
     int               x,
     int               y );
 
-public  BOOLEAN  get_volume_corresponding_to_pixel(
+public  VIO_BOOL  get_volume_corresponding_to_pixel(
     display_struct    *slice_window,
     int               x,
     int               y,
@@ -2498,17 +2498,17 @@ public  BOOLEAN  get_volume_corresponding_to_pixel(
     int               *view_index,
     Real              voxel[] );
 
-public  BOOLEAN  get_voxel_in_slice_window(
+public  VIO_BOOL  get_voxel_in_slice_window(
     display_struct    *display,
     Real              voxel[],
     int               *volume_index,
     int               *view_index );
 
-public  BOOLEAN  get_voxel_in_three_d_window(
+public  VIO_BOOL  get_voxel_in_three_d_window(
     display_struct    *display,
     Real              voxel[] );
 
-public  BOOLEAN  get_voxel_under_mouse(
+public  VIO_BOOL  get_voxel_under_mouse(
     display_struct    *display,
     int               *volume_index,
     int               *view_index,
@@ -2519,7 +2519,7 @@ public  void  get_current_voxel(
     int               volume_index,
     Real              voxel[] );
 
-public  BOOLEAN  set_current_voxel(
+public  VIO_BOOL  set_current_voxel(
     display_struct    *slice_window,
     int               this_volume_index,
     Real              voxel[] );
@@ -2551,16 +2551,16 @@ public  void  get_slice_plane(
     Real             x_axis[],
     Real             y_axis[] );
 
-public  BOOLEAN  get_slice_view_index_under_mouse(
+public  VIO_BOOL  get_slice_view_index_under_mouse(
     display_struct   *display,
     int              *view_index );
 
-public  BOOLEAN  get_axis_index_under_mouse(
+public  VIO_BOOL  get_axis_index_under_mouse(
     display_struct   *display,
     int              *volume_index,
     int              *axis_index );
 
-public  BOOLEAN  slice_has_ortho_axes(
+public  VIO_BOOL  slice_has_ortho_axes(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
@@ -2579,10 +2579,10 @@ public  void  get_slice_model_viewport(
     int              *y_min,
     int              *y_max );
 
-public  BOOLEAN  update_cursor_from_voxel(
+public  VIO_BOOL  update_cursor_from_voxel(
     display_struct    *slice_window );
 
-public  BOOLEAN  update_voxel_from_cursor(
+public  VIO_BOOL  update_voxel_from_cursor(
     display_struct    *slice_window );
 
 public  void  update_all_slice_axes_views(
@@ -2596,12 +2596,12 @@ public  void  slice_view_has_changed(
 public  void  set_volume_transform(
     display_struct     *display,
     int                volume_index,
-    General_transform  *transform );
+    VIO_General_transform  *transform );
 
 public  void  concat_transform_to_volume(
     display_struct     *display,
     int                volume_index,
-    General_transform  *transform );
+    VIO_General_transform  *transform );
 
 public  void  transform_current_volume_from_file(
     display_struct   *display,
@@ -2610,7 +2610,7 @@ public  void  transform_current_volume_from_file(
 public  void  reset_current_volume_transform(
     display_struct   *display );
 
-public  BOOLEAN  find_closest_line_point_to_point(
+public  VIO_BOOL  find_closest_line_point_to_point(
     display_struct    *display,
     Point             *point,
     Point             *closest_line_point );
@@ -2636,7 +2636,7 @@ public  void  reset_surface_curve(
 public  void  make_surface_curve_permanent(
     display_struct     *display );
 
-public  BOOLEAN  distance_along_polygons(
+public  VIO_BOOL  distance_along_polygons(
     polygons_struct   *polygons,
     Real              curvature_weight,
     Real              min_curvature,

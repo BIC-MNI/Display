@@ -25,7 +25,7 @@ static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Dis
 
 typedef  struct
 {
-    BOOLEAN     perspective_flag;
+    VIO_BOOL     perspective_flag;
     Point       origin;
     Vector      x_axis, y_axis, line_of_sight;
     Real        front_distance, back_distance;
@@ -34,13 +34,13 @@ typedef  struct
     Real        window_width, window_height;
     Real        scale_factors[N_DIMENSIONS];
     Transform   modeling_transform;
-    BOOLEAN     stereo_flag;
+    VIO_BOOL     stereo_flag;
     Real        eye_separation_ratio;
 } view_struct;
 
 typedef  struct
 {
-    BOOLEAN       state;
+    VIO_BOOL       state;
     Light_types   light_type;
     Colour        colour;
     Vector        direction;
@@ -51,13 +51,13 @@ typedef  struct
 
 typedef  struct
 {
-    BOOLEAN         shaded_mode;
+    VIO_BOOL         shaded_mode;
     Shading_types   shading_type;
-    BOOLEAN         master_light_switch;
-    BOOLEAN         backface_flag;
-    BOOLEAN         two_sided_surface_flag;
-    BOOLEAN         render_lines_as_curves;
-    BOOLEAN         show_marker_labels;
+    VIO_BOOL         master_light_switch;
+    VIO_BOOL         backface_flag;
+    VIO_BOOL         two_sided_surface_flag;
+    VIO_BOOL         render_lines_as_curves;
+    VIO_BOOL         show_marker_labels;
     int             n_curve_segments;
 }  render_struct;
 
@@ -111,7 +111,7 @@ typedef  struct
 
 typedef  struct
 {
-    BOOLEAN       line_active;
+    VIO_BOOL       line_active;
     Point         line_origin;
     Point         line_direction;
 } point_position_struct;
@@ -133,9 +133,9 @@ typedef  struct
 
 typedef  struct
 {
-    BOOLEAN        last_was_interrupted;
+    VIO_BOOL        last_was_interrupted;
     object_struct  *object_interrupted;
-    BOOLEAN        current_interrupted;
+    VIO_BOOL        current_interrupted;
 } update_interrupted_struct;
 
 typedef  struct
@@ -169,7 +169,7 @@ typedef  struct
     Colour           invisible_colour;
 
     polygons_struct  *polygons;
-    BOOLEAN          polygons_set;
+    VIO_BOOL          polygons_set;
     int              n_vertices;
     int              n_vertices_alloced;
     int              *vertices;
@@ -193,7 +193,7 @@ typedef  struct
 
 typedef  struct
 {
-    BOOLEAN          picking_points;
+    VIO_BOOL          picking_points;
     Real             line_curvature_weight;
     Real             min_curvature;
     Real             max_curvature;
@@ -202,7 +202,7 @@ typedef  struct
     int              n_indices_alloced;
     int              n_end_indices_alloced;
     int              first_poly_index;
-    BOOLEAN          prev_point_exists;
+    VIO_BOOL          prev_point_exists;
     Point            prev_point;
     int              prev_poly_index;
     polygons_struct  *prev_polygons;

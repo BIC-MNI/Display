@@ -300,11 +300,11 @@ public  DEF_MENU_UPDATE(change_model_name )
     return( current_object_is_this_type(display,MODEL) );
 }
 
-public  BOOLEAN  remove_current_object_from_hierarchy(
+public  VIO_BOOL  remove_current_object_from_hierarchy(
     display_struct   *display,
     object_struct    **object )
 {
-    BOOLEAN          removed;
+    VIO_BOOL          removed;
     int              obj_index;
     model_struct     *current_model;
 
@@ -341,7 +341,7 @@ public  DEF_MENU_FUNCTION( delete_current_object )
     object_struct    *object;
     display_struct   *slice_window;
     Real              voxel[MAX_DIMENSIONS];
-    BOOLEAN           changed;
+    VIO_BOOL           changed;
     int               volume_index;
 
     slice_window = display->associated[SLICE_WINDOW];

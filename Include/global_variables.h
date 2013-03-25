@@ -1,5 +1,5 @@
 START_GLOBALS
-    DEF_GLOBAL( Alloc_checking_enabled, BOOLEAN, FALSE )
+    DEF_GLOBAL( Alloc_checking_enabled, VIO_BOOL, FALSE )
 
     DEF_GLOBAL_COLOUR( Initial_background_colour )
 
@@ -13,17 +13,17 @@ START_GLOBALS
     DEF_GLOBAL( Size_of_interrupted, int, 250 )
     DEF_GLOBAL( Interval_of_check, int, 250 )
 
-    DEF_GLOBAL( Initial_perspective_flag, BOOLEAN, FALSE )
+    DEF_GLOBAL( Initial_perspective_flag, VIO_BOOL, FALSE )
     DEF_GLOBAL( Perspective_distance_factor, Real, 2.0 )
     DEF_GLOBAL( Closest_front_plane, Real, 1.0e-5 )
-    DEF_GLOBAL( Initial_render_mode, BOOLEAN, TRUE )
+    DEF_GLOBAL( Initial_render_mode, VIO_BOOL, TRUE )
     DEF_GLOBAL( Initial_shading_type, int, 1 )
-    DEF_GLOBAL( Initial_light_switch, BOOLEAN, TRUE )
-    DEF_GLOBAL( Slice_double_buffer_flag, BOOLEAN, TRUE )
-    DEF_GLOBAL( Graphics_double_buffer_flag, BOOLEAN, TRUE )
-    DEF_GLOBAL( Graphics_transparency_flag, BOOLEAN, TRUE )
+    DEF_GLOBAL( Initial_light_switch, VIO_BOOL, TRUE )
+    DEF_GLOBAL( Slice_double_buffer_flag, VIO_BOOL, TRUE )
+    DEF_GLOBAL( Graphics_double_buffer_flag, VIO_BOOL, TRUE )
+    DEF_GLOBAL( Graphics_transparency_flag, VIO_BOOL, TRUE )
     DEF_GLOBAL( Slice_readout_plane, int, 1 )
-    DEF_GLOBAL( Display_frame_info, BOOLEAN, FALSE )
+    DEF_GLOBAL( Display_frame_info, VIO_BOOL, FALSE )
     DEF_GLOBAL( Display_update_min, Real, 1.0 )
     DEF_GLOBAL( Frame_info_x, Real, 10.0 )
     DEF_GLOBAL( Frame_info_y, Real, 10.0 )
@@ -31,7 +31,7 @@ START_GLOBALS
     DEF_GLOBAL( Initial_slice_update_time, Real, 0.01 )
     DEF_GLOBAL( Initial_total_slice_update_time1, Real, 0.5 )
     DEF_GLOBAL( Initial_total_slice_update_time2, Real, 2.0 )
-    DEF_GLOBAL( Initial_incremental_update, BOOLEAN, FALSE )
+    DEF_GLOBAL( Initial_incremental_update, VIO_BOOL, FALSE )
 
     DEF_GLOBAL_COLOUR( Volume_outline_colour )
     DEF_GLOBAL_COLOUR( Cross_section_colour )
@@ -64,14 +64,14 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Menu_box_colour )
     DEF_GLOBAL_COLOUR( Menu_key_colour )
     DEF_GLOBAL( Menu_key_character_offset, Real, 2.0 )
-    DEF_GLOBAL( Initial_2_sided_flag, BOOLEAN, FALSE )
-    DEF_GLOBAL( Initial_backface_flag, BOOLEAN, FALSE )
-    DEF_GLOBAL( Initial_line_curves_flag, BOOLEAN, FALSE )
+    DEF_GLOBAL( Initial_2_sided_flag, VIO_BOOL, FALSE )
+    DEF_GLOBAL( Initial_backface_flag, VIO_BOOL, FALSE )
+    DEF_GLOBAL( Initial_line_curves_flag, VIO_BOOL, FALSE )
     DEF_GLOBAL( Initial_n_curve_segments, int, 8 )
 
     DEF_GLOBAL( Segmenting_connectivity, int, 0 )
 
-    DEF_GLOBAL( Visibility_on_input, BOOLEAN, TRUE )
+    DEF_GLOBAL( Visibility_on_input, VIO_BOOL, TRUE )
 
     DEF_GLOBAL( Initial_x_scale, Real, 1.0 )
     DEF_GLOBAL( Initial_y_scale, Real, 1.0 )
@@ -142,8 +142,8 @@ START_GLOBALS
     DEF_GLOBAL3( Cursor_home, Point, 0.0f, 0.0f, 0.0f )
     DEF_GLOBAL_COLOUR( Cursor_colour )
     DEF_GLOBAL_COLOUR( Cursor_rgb_colour )
-    DEF_GLOBAL( Show_cursor_contours, BOOLEAN, FALSE )
-    DEF_GLOBAL( Cursor_contour_overlay_flag, BOOLEAN, FALSE )
+    DEF_GLOBAL( Show_cursor_contours, VIO_BOOL, FALSE )
+    DEF_GLOBAL( Cursor_contour_overlay_flag, VIO_BOOL, FALSE )
     DEF_GLOBAL( Cursor_contour_thickness, Real, 3.0 )
     DEF_GLOBAL( Cursor_beep_on_surface, int, 0 )
     DEF_GLOBAL( Cursor_size_factor, Real, 0.05 )
@@ -190,8 +190,8 @@ START_GLOBALS
     DEF_GLOBAL( Max_surface_error, Real, 0.02 )
     DEF_GLOBAL( Edge_point_threshold, Real, 0.25 )
     DEF_GLOBAL( Edge_point_new_density, Real, 0.125 )
-    DEF_GLOBAL( Voxel_validity_if_mixed, BOOLEAN, FALSE )
-    DEF_GLOBAL( Set_invalid_to_zero, BOOLEAN, FALSE )
+    DEF_GLOBAL( Voxel_validity_if_mixed, VIO_BOOL, FALSE )
+    DEF_GLOBAL( Set_invalid_to_zero, VIO_BOOL, FALSE )
 
     DEF_GLOBAL( Max_fast_colour_lookup, int, 100000 )
     DEF_GLOBAL( Colour_table_size, int, 1000 )
@@ -199,10 +199,10 @@ START_GLOBALS
     DEF_GLOBAL( User_defined_n_intervals, int, 4 )
     DEF_GLOBAL_COLOUR( User_defined_min_colour )
     DEF_GLOBAL_COLOUR( User_defined_max_colour )
-    DEF_GLOBAL( User_defined_colour_coding_flip, BOOLEAN, TRUE )
+    DEF_GLOBAL( User_defined_colour_coding_flip, VIO_BOOL, TRUE )
     DEF_GLOBAL( Initial_low_absolute_position, Real, -1 )
     DEF_GLOBAL( Initial_high_absolute_position, Real, -1 )
-    DEF_GLOBAL( Initial_histogram_contrast, BOOLEAN, TRUE )
+    DEF_GLOBAL( Initial_histogram_contrast, VIO_BOOL, TRUE )
     DEF_GLOBAL( Initial_histogram_low_clip_index, int, 4 )
     DEF_GLOBAL( Initial_histogram_low, Real, 0.2 )
     DEF_GLOBAL( Initial_histogram_high, Real, 0.99999)
@@ -231,16 +231,16 @@ START_GLOBALS
     DEF_GLOBAL( Colour_bar_closest_text, Real, 10.0 )
     DEF_GLOBAL( Colour_bar_number_format, STRING, "%g" )
 
-    DEF_GLOBAL( Normal_towards_lower, BOOLEAN, TRUE )
+    DEF_GLOBAL( Normal_towards_lower, VIO_BOOL, TRUE )
 
-    DEF_GLOBAL( Initial_display_labels, BOOLEAN, TRUE )
-    DEF_GLOBAL( Initial_share_labels, BOOLEAN, TRUE )
+    DEF_GLOBAL( Initial_display_labels, VIO_BOOL, TRUE )
+    DEF_GLOBAL( Initial_share_labels, VIO_BOOL, TRUE )
     DEF_GLOBAL( Initial_num_labels, int, 256 )
     DEF_GLOBAL( Label_colour_opacity, Real, 0.7 )
 
-    DEF_GLOBAL( Use_cursor_origin, BOOLEAN, TRUE )
+    DEF_GLOBAL( Use_cursor_origin, VIO_BOOL, TRUE )
 
-    DEF_GLOBAL( One_active_flag, BOOLEAN, FALSE )
+    DEF_GLOBAL( One_active_flag, VIO_BOOL, FALSE )
 
     DEF_GLOBAL( Output_every, int, 0 )
 
@@ -248,7 +248,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Marching_cubes_method, int, 1 )
 
-    DEF_GLOBAL( Compute_neighbours_on_input, BOOLEAN, FALSE )
+    DEF_GLOBAL( Compute_neighbours_on_input, VIO_BOOL, FALSE )
     DEF_GLOBAL( Polygon_bintree_threshold, int, -1 )
     DEF_GLOBAL( Bintree_size_factor, Real, 0.3 )
 
@@ -262,7 +262,7 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_bitplanes, int, 0 )
 
     DEF_GLOBAL_COLOUR( Surface_curve_colour )
-    DEF_GLOBAL( Surface_curve_overlay_flag, BOOLEAN, FALSE )
+    DEF_GLOBAL( Surface_curve_overlay_flag, VIO_BOOL, FALSE )
     DEF_GLOBAL( Surface_curve_thickness, Real, 3.0 )
     DEF_GLOBAL( Line_curvature_weight, Real, 0.0 )
     DEF_GLOBAL( Min_surface_curve_curvature, Real, 0.0 )
@@ -271,7 +271,7 @@ START_GLOBALS
     DEF_GLOBAL( N_painting_polygons, int, 100 )
     DEF_GLOBAL_COLOUR( Visible_segmenting_colour )
     DEF_GLOBAL_COLOUR( Invisible_segmenting_colour )
-    DEF_GLOBAL( Snap_to_polygon_vertex, BOOLEAN, TRUE )
+    DEF_GLOBAL( Snap_to_polygon_vertex, VIO_BOOL, TRUE )
 
     DEF_GLOBAL( N_fitting_samples, int, 2000 )
     DEF_GLOBAL( Isovalue_factor, Real, 0.0 )
@@ -298,28 +298,28 @@ START_GLOBALS
     DEF_GLOBAL( Initial_atlas_tolerance_y, Real, 1.0 )
     DEF_GLOBAL( Initial_atlas_tolerance_z, Real, 1.0 )
     DEF_GLOBAL( Atlas_filename, STRING, "/avgbrain/atlas/talairach/obj/Talairach_atlas.list" )
-    DEF_GLOBAL( Default_atlas_state, BOOLEAN, FALSE )
+    DEF_GLOBAL( Default_atlas_state, VIO_BOOL, FALSE )
 
     DEF_GLOBAL( Default_x_brush_radius, Real, 3.0 )
     DEF_GLOBAL( Default_y_brush_radius, Real, 3.0 )
     DEF_GLOBAL( Default_z_brush_radius, Real, 0.0 )
     DEF_GLOBAL( Default_paint_label, int, 1 )
-    DEF_GLOBAL( Default_fast_painting_flag, BOOLEAN, TRUE )
-    DEF_GLOBAL( Default_cursor_follows_paintbrush_flag, BOOLEAN, FALSE )
+    DEF_GLOBAL( Default_fast_painting_flag, VIO_BOOL, TRUE )
+    DEF_GLOBAL( Default_cursor_follows_paintbrush_flag, VIO_BOOL, FALSE )
     DEF_GLOBAL( Initial_mouse_scale_factor, Real, 1.0 )
-    DEF_GLOBAL( Draw_brush_outline, BOOLEAN, TRUE )
+    DEF_GLOBAL( Draw_brush_outline, VIO_BOOL, TRUE )
     DEF_GLOBAL_COLOUR( Brush_outline_colour )
     DEF_GLOBAL( Brush_outline_offset, int, 0 )
-    DEF_GLOBAL( Snap_brush_to_centres, BOOLEAN, TRUE )
-    DEF_GLOBAL( Undo_enabled, BOOLEAN, TRUE )
+    DEF_GLOBAL( Snap_brush_to_centres, VIO_BOOL, TRUE )
+    DEF_GLOBAL( Undo_enabled, VIO_BOOL, TRUE )
 
     DEF_GLOBAL( Volume_continuity, int, 0 )
-    DEF_GLOBAL( Convert_volumes_to_byte, BOOLEAN, TRUE )
+    DEF_GLOBAL( Convert_volumes_to_byte, VIO_BOOL, TRUE )
 
     DEF_GLOBAL( Move_slice_speed, Real, 0.25 )
     DEF_GLOBAL( Pixels_per_double_size, Real, 100.0 )
 
-    DEF_GLOBAL( Clear_before_polygon_scan, BOOLEAN, FALSE )
+    DEF_GLOBAL( Clear_before_polygon_scan, VIO_BOOL, FALSE )
 
     DEF_GLOBAL_COLOUR( Histogram_colour )
     DEF_GLOBAL( Histogram_x_scale, Real, 1.0 )
@@ -332,11 +332,11 @@ START_GLOBALS
     DEF_GLOBAL( Menu_name_font, int, 1 )
     DEF_GLOBAL( Menu_name_font_size, Real, 12.0 )
 
-    DEF_GLOBAL( Use_transparency_hardware, BOOLEAN, TRUE )
+    DEF_GLOBAL( Use_transparency_hardware, VIO_BOOL, TRUE )
 
     DEF_GLOBAL( Crop_volume_command, STRING, "mincreshape %s %s -start %d,%d,%d -count %d,%d,%d" )
 
-    DEF_GLOBAL( Crop_volumes_on_input, BOOLEAN, FALSE )
+    DEF_GLOBAL( Crop_volumes_on_input, VIO_BOOL, FALSE )
     DEF_GLOBAL( Crop_if_smaller, Real, 0.75 )
 
     DEF_GLOBAL( Initial_slice_continuity, int, -1 )
@@ -354,29 +354,29 @@ START_GLOBALS
     DEF_GLOBAL( Initial_volume_translation_step, Real, 1.0 )
     DEF_GLOBAL( Initial_volume_scale_step, Real, 1.05 )
 
-    DEF_GLOBAL( Enable_volume_caching, BOOLEAN, TRUE )
+    DEF_GLOBAL( Enable_volume_caching, VIO_BOOL, TRUE )
     DEF_GLOBAL( Volume_cache_threshold, int, -1 )
     DEF_GLOBAL( Volume_cache_size, int, -1 )
     DEF_GLOBAL( Volume_cache_block_size, int, -1 )
 
     DEF_GLOBAL( Crop_label_volumes_threshold, Real, 0.9 )
-    DEF_GLOBAL( Initial_crop_labels_on_output, BOOLEAN, FALSE )
+    DEF_GLOBAL( Initial_crop_labels_on_output, VIO_BOOL, FALSE )
 
-    DEF_GLOBAL( Duplicate_boundary_vertices, BOOLEAN, FALSE )
+    DEF_GLOBAL( Duplicate_boundary_vertices, VIO_BOOL, FALSE )
 
-    DEF_GLOBAL( Toggle_freestyle_painting, BOOLEAN, TRUE )
-    DEF_GLOBAL( First_straightline_right_mouse_down,BOOLEAN, TRUE )
+    DEF_GLOBAL( Toggle_freestyle_painting, VIO_BOOL, TRUE )
+    DEF_GLOBAL( First_straightline_right_mouse_down,VIO_BOOL, TRUE )
 
     DEF_GLOBAL( Output_label_filename, STRING, "" )
-    DEF_GLOBAL( Exit_error_load_file, BOOLEAN, TRUE )
+    DEF_GLOBAL( Exit_error_load_file, VIO_BOOL, TRUE )
     DEF_GLOBAL( Ratio_volume_index, STRING, "" )
     DEF_GLOBAL( Ratio_volume_index_format, STRING, "%d,%d" )
     DEF_GLOBAL( Slice_probe_ratio_format, STRING, "Ratio %6.2f" )
     DEF_GLOBAL_COLOUR( Slice_probe_ratio_colour )
 
-    DEF_GLOBAL( Hide_3D_window, BOOLEAN, TRUE)
-    DEF_GLOBAL( Hide_marker_window, BOOLEAN, TRUE)
-    DEF_GLOBAL( Hide_menu_window, BOOLEAN, FALSE)
+    DEF_GLOBAL( Hide_3D_window, VIO_BOOL, TRUE)
+    DEF_GLOBAL( Hide_marker_window, VIO_BOOL, TRUE)
+    DEF_GLOBAL( Hide_menu_window, VIO_BOOL, FALSE)
 
     DEF_GLOBAL( Initial_marker_window_width, int, 250 )
     DEF_GLOBAL( Initial_marker_window_height, int, 600 )
@@ -392,8 +392,8 @@ START_GLOBALS
     DEF_GLOBAL( Character_height_in_pixels, Real, 10.0 )
     DEF_GLOBAL( Selected_box_x_offset, Real, 2.0 )
     DEF_GLOBAL( Selected_box_y_offset, Real, 2.0 )
-    DEF_GLOBAL( Tags_from_label, BOOLEAN, FALSE )
+    DEF_GLOBAL( Tags_from_label, VIO_BOOL, FALSE )
 
-	DEF_GLOBAL( Initial_undo_feature, BOOLEAN, TRUE )
+	DEF_GLOBAL( Initial_undo_feature, VIO_BOOL, TRUE )
 
 END_GLOBALS

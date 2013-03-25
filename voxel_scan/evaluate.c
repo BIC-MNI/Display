@@ -16,10 +16,10 @@ private  double  get_parameter_in_range(
     int      n,
     double   min,
     double   max );
-private  BOOLEAN  inside_hole(
+private  VIO_BOOL  inside_hole(
     double      u,
     double      v,
-    BOOLEAN     hole_present,
+    VIO_BOOL     hole_present,
     double      u_min_hole,
     double      u_max_hole,
     double      v_min_hole,
@@ -174,7 +174,7 @@ public  void   evaluate_distances_to_surface(
     double                  v_min,
     double                  v_max,
     Real                    surface_point_distances[],
-    BOOLEAN                 hole_present,
+    VIO_BOOL                 hole_present,
     double                  u_min_hole,
     double                  u_max_hole,
     double                  v_min_hole,
@@ -268,16 +268,16 @@ private  double  get_parameter_in_range(
         return( min - 1.0 + alpha * (max - min + 1.0) );
 }
 
-private  BOOLEAN  inside_hole(
+private  VIO_BOOL  inside_hole(
     double      u,
     double      v,
-    BOOLEAN     hole_present,
+    VIO_BOOL     hole_present,
     double      u_min_hole,
     double      u_max_hole,
     double      v_min_hole,
     double      v_max_hole )
 {
-    BOOLEAN  in_hole;
+    VIO_BOOL  in_hole;
 
     in_hole = hole_present;
 

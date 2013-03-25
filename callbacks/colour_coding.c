@@ -28,7 +28,7 @@ public  DEF_MENU_FUNCTION(set_colour_limits )
 {
     int              volume_index;
     STRING           line;
-    BOOLEAN          do_it;
+    VIO_BOOL          do_it;
     Real             min_value, max_value;
     display_struct   *slice_window;
 
@@ -286,7 +286,7 @@ public  DEF_MENU_FUNCTION(set_under_colour )
 
 public  DEF_MENU_UPDATE(set_under_colour )
 {
-    BOOLEAN          active;
+    VIO_BOOL          active;
     display_struct   *slice_window;
     Colour           col;
 
@@ -344,7 +344,7 @@ public  DEF_MENU_FUNCTION(set_over_colour )
 
 public  DEF_MENU_UPDATE(set_over_colour )
 {
-    BOOLEAN          active;
+    VIO_BOOL          active;
     display_struct   *slice_window;
     Colour           col;
 
@@ -392,7 +392,7 @@ public  DEF_MENU_FUNCTION(set_label_colour_ratio )
 
 public  DEF_MENU_UPDATE(set_label_colour_ratio )
 {
-    BOOLEAN          state;
+    VIO_BOOL          state;
     Real             opacity;
     display_struct   *slice_window;
 
@@ -578,7 +578,7 @@ public  DEF_MENU_FUNCTION(set_slice_window_n_labels )
 
 public  DEF_MENU_UPDATE(set_slice_window_n_labels )
 {
-    BOOLEAN          state;
+    VIO_BOOL          state;
     int              n_labels;
     display_struct   *slice_window;
 
@@ -615,7 +615,7 @@ public  DEF_MENU_FUNCTION(toggle_share_labels )
 
 public  DEF_MENU_UPDATE(toggle_share_labels )
 {
-    BOOLEAN          state;
+    VIO_BOOL          state;
     display_struct   *slice_window;
 
     state = get_slice_window( display, &slice_window );

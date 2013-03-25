@@ -24,12 +24,12 @@
 
 private  void  start_surface(
     display_struct   *display,
-    BOOLEAN          use_label_flag,
-    BOOLEAN          binary_flag,
-    BOOLEAN          voxelate_flag )
+    VIO_BOOL          use_label_flag,
+    VIO_BOOL          binary_flag,
+    VIO_BOOL          voxelate_flag )
 {
     display_struct  *slice_window;
-    BOOLEAN         input_okay;
+    VIO_BOOL         input_okay;
     Real            min_value, max_value;
     Real            voxel[MAX_DIMENSIONS];
     int             int_voxel[MAX_DIMENSIONS];

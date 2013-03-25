@@ -23,11 +23,11 @@
 #include  <display.h>
 #include  <bicpl/splines.h>
 
-private  BOOLEAN  get_current_lines(
+private  VIO_BOOL  get_current_lines(
     display_struct    *display,
     lines_struct      **lines )
 {
-    BOOLEAN          found;
+    VIO_BOOL          found;
     object_struct    *current_object;
 
     if( get_current_object( display, &current_object ) &&
@@ -214,7 +214,7 @@ public  DEF_MENU_UPDATE(subdivide_current_lines )
 
 private  void  convert_to_lines(
     display_struct   *display,
-    BOOLEAN          closed )
+    VIO_BOOL          closed )
 {
     lines_struct            *lines;
     int                     i, c, n_markers, curr_index, max_index;
@@ -225,7 +225,7 @@ private  void  convert_to_lines(
     int                     n_points;
     object_struct           *object, *current_object;
     object_traverse_struct  object_traverse;
-    BOOLEAN                 interpolate;
+    VIO_BOOL                 interpolate;
 
     if( !get_current_object( display, &current_object ) )
     {

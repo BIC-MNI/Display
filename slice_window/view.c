@@ -136,7 +136,7 @@ public  void  set_slice_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view,
-    BOOLEAN           visibility )
+    VIO_BOOL           visibility )
 {
     if( visibility != slice_window->slice.volumes[volume_index].
                                    views[view].visibility )
@@ -148,7 +148,7 @@ public  void  set_slice_visibility(
     }
 }
 
-public  BOOLEAN  get_slice_visibility(
+public  VIO_BOOL  get_slice_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view )
@@ -371,7 +371,7 @@ public  void  reset_slice_view(
     display_struct    *slice_window,
     int               view )
 {
-    BOOLEAN found_one;
+    VIO_BOOL found_one;
     Volume  volume;
     Real    x1, x2, y1, y2, x_offset, y_offset;
     int     int_x1, int_x2, int_y1, int_y2, current_volume_index;
@@ -595,13 +595,13 @@ public  void  translate_slice_view(
     slice_view_has_changed( slice_window, view );
 }
 
-public  BOOLEAN  find_slice_view_mouse_is_in(
+public  VIO_BOOL  find_slice_view_mouse_is_in(
     display_struct    *display,
     int               x_pixel,
     int               y_pixel,
     int               *view_index )
 {
-    BOOLEAN          found;
+    VIO_BOOL          found;
     int              view;
     int              x_min, x_max, y_min, y_max;
     display_struct   *slice_window;
@@ -629,7 +629,7 @@ public  BOOLEAN  find_slice_view_mouse_is_in(
     return( found );
 }
 
-public  BOOLEAN  convert_pixel_to_voxel(
+public  VIO_BOOL  convert_pixel_to_voxel(
     display_struct    *display,
     int               volume_index,
     int               x_pixel,
@@ -637,7 +637,7 @@ public  BOOLEAN  convert_pixel_to_voxel(
     Real              voxel[],
     int               *view_index )
 {
-    BOOLEAN           found;
+    VIO_BOOL           found;
     display_struct    *slice_window;
     int               x_min, x_max, y_min, y_max;
     Real              origin[MAX_DIMENSIONS];
@@ -743,13 +743,13 @@ public  void  get_voxel_to_pixel_transform(
     *y_scale = y - *y_trans;
 }
 
-public  BOOLEAN  get_voxel_corresponding_to_point(
+public  VIO_BOOL  get_voxel_corresponding_to_point(
     display_struct    *display,
     Point             *point,
     Real              voxel[] )
 {
     Volume          volume;
-    BOOLEAN         converted;
+    VIO_BOOL         converted;
 
     converted = FALSE;
 
@@ -949,7 +949,7 @@ public  void  set_slice_divider_position(
     }
 }
 
-public  BOOLEAN  get_volume_corresponding_to_pixel(
+public  VIO_BOOL  get_volume_corresponding_to_pixel(
     display_struct    *slice_window,
     int               x,
     int               y,
@@ -975,7 +975,7 @@ public  BOOLEAN  get_volume_corresponding_to_pixel(
     return( *volume_index >= 0 );
 }
 
-public  BOOLEAN  get_voxel_in_slice_window(
+public  VIO_BOOL  get_voxel_in_slice_window(
     display_struct    *display,
     Real              voxel[],
     int               *volume_index,
@@ -993,11 +993,11 @@ public  BOOLEAN  get_voxel_in_slice_window(
                                                volume_index, view_index,voxel));
 }
 
-public  BOOLEAN  get_voxel_in_three_d_window(
+public  VIO_BOOL  get_voxel_in_three_d_window(
     display_struct    *display,
     Real              voxel[] )
 {
-    BOOLEAN          found;
+    VIO_BOOL          found;
     object_struct    *object;
     int              object_index;
     Point            intersection_point;
@@ -1019,14 +1019,14 @@ public  BOOLEAN  get_voxel_in_three_d_window(
     return( found );
 }
 
-public  BOOLEAN  get_voxel_under_mouse(
+public  VIO_BOOL  get_voxel_under_mouse(
     display_struct    *display,
     int               *volume_index,
     int               *view_index,
     Real              voxel[] )
 {
     display_struct    *three_d, *slice_window;
-    BOOLEAN           found;
+    VIO_BOOL           found;
 
     three_d = display->associated[THREE_D_WINDOW];
 
@@ -1075,12 +1075,12 @@ public  void  get_current_voxel(
     }
 }
 
-public  BOOLEAN  set_current_voxel(
+public  VIO_BOOL  set_current_voxel(
     display_struct    *slice_window,
     int               this_volume_index,
     Real              voxel[] )
 {
-    BOOLEAN           changed;
+    VIO_BOOL           changed;
     int               i, view, volume_index;
     int               axis, x_index, y_index;
     Real              xw, yw, zw, used_voxel[N_DIMENSIONS];
@@ -1400,11 +1400,11 @@ public  void  get_slice_plane(
     }
 }
 
-public  BOOLEAN  get_slice_view_index_under_mouse(
+public  VIO_BOOL  get_slice_view_index_under_mouse(
     display_struct   *display,
     int              *view_index )
 {
-    BOOLEAN          found;
+    VIO_BOOL          found;
     Volume           volume;
     display_struct   *slice_window;
     int              x, y;
@@ -1424,12 +1424,12 @@ public  BOOLEAN  get_slice_view_index_under_mouse(
     return( found );
 }
 
-public  BOOLEAN  get_axis_index_under_mouse(
+public  VIO_BOOL  get_axis_index_under_mouse(
     display_struct   *display,
     int              *volume_index,
     int              *axis_index )
 {
-    BOOLEAN          found;
+    VIO_BOOL          found;
     Real             voxel[MAX_DIMENSIONS];
     int              view_index, x_index, y_index;
     display_struct   *slice_window;
@@ -1443,7 +1443,7 @@ public  BOOLEAN  get_axis_index_under_mouse(
     return( found );
 }
 
-public  BOOLEAN  slice_has_ortho_axes(
+public  VIO_BOOL  slice_has_ortho_axes(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
@@ -1534,12 +1534,12 @@ public  void  get_slice_model_viewport(
     }
 }
 
-public  BOOLEAN  update_cursor_from_voxel(
+public  VIO_BOOL  update_cursor_from_voxel(
     display_struct    *slice_window )
 {
     Real              voxel[MAX_DIMENSIONS];
     Real              x_w, y_w, z_w;
-    BOOLEAN           changed;
+    VIO_BOOL           changed;
     Point             new_origin;
     display_struct    *display;
 
@@ -1570,12 +1570,12 @@ public  BOOLEAN  update_cursor_from_voxel(
     return( changed );
 }
 
-public  BOOLEAN  update_voxel_from_cursor(
+public  VIO_BOOL  update_voxel_from_cursor(
     display_struct    *slice_window )
 {
     int               volume_index;
     Real              voxel[MAX_DIMENSIONS];
-    BOOLEAN           changed;
+    VIO_BOOL           changed;
     display_struct    *display;
 
     changed = FALSE;
@@ -1696,11 +1696,11 @@ public  void  slice_view_has_changed(
 public  void  set_volume_transform(
     display_struct     *display,
     int                volume_index,
-    General_transform  *transform )
+    VIO_General_transform  *transform )
 {
     Volume             volume;
     display_struct     *slice_window;
-    General_transform  copy;
+    VIO_General_transform  copy;
     int                ref_volume_index;
 
     if( !get_slice_window( display, &slice_window ) )
@@ -1722,10 +1722,10 @@ public  void  set_volume_transform(
 public  void  concat_transform_to_volume(
     display_struct     *display,
     int                volume_index,
-    General_transform  *transform )
+    VIO_General_transform  *transform )
 {
     Volume             volume;
-    General_transform  *volume_transform, concated;
+    VIO_General_transform  *volume_transform, concated;
 
     volume = get_nth_volume( display, volume_index );
 
@@ -1742,7 +1742,7 @@ public  void  transform_current_volume_from_file(
     display_struct   *display,
     STRING           filename )
 {
-    General_transform  file_transform;
+    VIO_General_transform  file_transform;
 
     if( input_transform_file( filename, &file_transform ) != OK )
         return;
@@ -1757,7 +1757,7 @@ public  void  transform_current_volume_from_file(
 public  void  reset_current_volume_transform(
     display_struct   *display )
 {
-    General_transform  *original_transform;
+    VIO_General_transform  *original_transform;
     display_struct     *slice_window;
 
     if( !get_slice_window( display, &slice_window ) )

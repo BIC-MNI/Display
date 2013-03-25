@@ -87,7 +87,7 @@ private  void  cut_neighbour(
 {
     int        prev_point_index, point_index, size, edge;
     int        i, p, v, step, neighbour, n_polys, prev_vertex_index;
-    BOOLEAN    found, closed;
+    VIO_BOOL    found, closed;
     int        polys[MAX_POLYS];
 
     n_polys = get_polygons_around_vertex( polygons, poly, vertex_index,

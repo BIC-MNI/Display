@@ -349,7 +349,7 @@ static  action_lookup_struct   actions[] = {
 
 typedef  struct
 {
-    BOOLEAN            permanent_flag;
+    VIO_BOOL            permanent_flag;
     int                key;
     STRING             action_name;
     STRING             label;
@@ -383,7 +383,7 @@ private  int  lookup_menu_name(
     STRING                    menu_name,
     int                       n_menus,
     menu_definition_struct    menus[] );
-private  BOOLEAN  lookup_menu_action(
+private  VIO_BOOL  lookup_menu_action(
     STRING                 action_name,
     menu_function_pointer  *action,
     menu_update_pointer    *update_action );
@@ -500,9 +500,9 @@ private  Status  input_menu_entry(
     menu_definition_struct   *menu_entry )
 {
     Status              status;
-    BOOLEAN             found_brace;
+    VIO_BOOL             found_brace;
     STRING              permanent_string;
-    BOOLEAN             permanent_flag;
+    VIO_BOOL             permanent_flag;
     key_action_struct   entry;
 
     status = skip_input_until( file, '{' );
@@ -689,12 +689,12 @@ private  int  lookup_menu_name(
     return( i );
 }
 
-private  BOOLEAN  lookup_menu_action(
+private  VIO_BOOL  lookup_menu_action(
     STRING                 action_name,
     menu_function_pointer  *action,
     menu_update_pointer    *update_action )
 {
-    BOOLEAN  found;
+    VIO_BOOL  found;
     int      i;
     STRING   table_name;
 
@@ -728,7 +728,7 @@ private  BOOLEAN  lookup_menu_action(
 }
 
 private  void  delete_menu_entry(
-    BOOLEAN             top_flag,
+    VIO_BOOL             top_flag,
     menu_entry_struct   *entry )
 {
     delete_string( entry->label );

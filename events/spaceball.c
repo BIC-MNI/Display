@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-private  BOOLEAN  make_spaceball_transform(
+private  VIO_BOOL  make_spaceball_transform(
     Real       x1,
     Real       y1,
     Real       x2,
@@ -32,7 +32,7 @@ private  BOOLEAN  make_spaceball_transform(
     Real       y_radius,
     Transform  *transform );
 
-public  BOOLEAN  get_spaceball_transform(
+public  VIO_BOOL  get_spaceball_transform(
     display_struct   *display,
     Real             x1,
     Real             y1,
@@ -45,7 +45,7 @@ public  BOOLEAN  get_spaceball_transform(
     Real           x_radius, y_radius;
     int            x_size, y_size;
     Real           aspect;
-    BOOLEAN        exists;
+    VIO_BOOL        exists;
 
     G_get_window_size( display->window, &x_size, &y_size );
     aspect = (Real) y_size / (Real) x_size;
@@ -74,7 +74,7 @@ public  BOOLEAN  get_spaceball_transform(
     return( exists );
 }
 
-private  BOOLEAN  make_spaceball_transform(
+private  VIO_BOOL  make_spaceball_transform(
     Real       x1,
     Real       y1,
     Real       x2,
@@ -84,7 +84,7 @@ private  BOOLEAN  make_spaceball_transform(
     Real       y_radius,
     Transform  *transform )
 {
-    BOOLEAN  transform_created;
+    VIO_BOOL  transform_created;
     Real     x_old, y_old, z_old, x_new, y_new, z_new;
     Real     dist_old, dist_new;
     Real     angle, sin_angle;

@@ -24,7 +24,7 @@
 
 private  void  crop_surface(
     display_struct   *display,
-    BOOLEAN          above_flag );
+    VIO_BOOL          above_flag );
 private  Status  io_polygons_visibilities(
     polygons_struct  *polygons,
     IO_types         io_flag );
@@ -568,7 +568,7 @@ public  DEF_MENU_UPDATE(crop_below_plane)
 
 private  void  crop_surface(
     display_struct   *display,
-    BOOLEAN          above_flag )
+    VIO_BOOL          above_flag )
 {
     char             ch;
     int              axis_index, volume_index;

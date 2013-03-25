@@ -50,8 +50,8 @@ typedef  struct
     int               *y_starts;
     int               x_mouse_start, y_mouse_start;
     Real              mouse_scale_factor;
-    BOOLEAN           fast_updating_allowed;
-    BOOLEAN           cursor_follows_paintbrush;
+    VIO_BOOL           fast_updating_allowed;
+    VIO_BOOL           cursor_follows_paintbrush;
 } segmenting_struct;
 
 typedef struct
@@ -66,7 +66,7 @@ typedef struct
 
 typedef  struct
 {
-    BOOLEAN   crop_visible;
+    VIO_BOOL   crop_visible;
     int       axis_being_moved[2];
     int       limit_being_moved[2];
     int       view_index;
@@ -90,7 +90,7 @@ typedef  struct
     STRING                 filename;
     Volume                 volume;
     Volume                 labels;
-    General_transform      original_transform;
+    VIO_General_transform      original_transform;
     STRING                 labels_filename;
     int                    n_labels;
     int                    offset;
@@ -98,25 +98,25 @@ typedef  struct
     Colour                 *label_colour_table;
     Real                   label_colour_opacity;
     colour_coding_struct   colour_coding;
-    BOOLEAN                display_labels;
+    VIO_BOOL                display_labels;
     Real                   opacity;
     Real                   current_voxel[N_DIMENSIONS];
 
     struct
     {
-        BOOLEAN                visibility;
+        VIO_BOOL                visibility;
         int                    n_pixels_alloced;
         int                    n_label_pixels_alloced;
         Real                   x_axis[N_DIMENSIONS];
         Real                   y_axis[N_DIMENSIONS];
         Real                   x_trans, y_trans;
         Real                   x_scaling, y_scaling;
-        BOOLEAN                update_flag;
-        BOOLEAN                update_labels_flag;
+        VIO_BOOL                update_flag;
+        VIO_BOOL                update_labels_flag;
         Filter_types           filter_type;
         Real                   filter_width;
         int                    n_pixels_redraw;
-        BOOLEAN                update_in_progress[2];
+        VIO_BOOL                update_in_progress[2];
         int                    x_min_update[2];
         int                    x_max_update[2];
         int                    y_min_update[2];
@@ -131,24 +131,24 @@ typedef  struct
     int           prev_viewport_y_size;
     int           used_viewport_x_size;
     int           used_viewport_y_size;
-    BOOLEAN       update_cursor_flag;
-    BOOLEAN       update_text_flag;
-    BOOLEAN       update_cross_section_flag;
-    BOOLEAN       update_crop_flag;
-    BOOLEAN       update_atlas_flag;
-    BOOLEAN       update_composite_flag;
+    VIO_BOOL       update_cursor_flag;
+    VIO_BOOL       update_text_flag;
+    VIO_BOOL       update_cross_section_flag;
+    VIO_BOOL       update_crop_flag;
+    VIO_BOOL       update_atlas_flag;
+    VIO_BOOL       update_composite_flag;
 
     int           n_atlas_pixels_alloced;
     int           n_composite_pixels_alloced;
 
-    BOOLEAN       use_sub_region;
+    VIO_BOOL       use_sub_region;
 
-    BOOLEAN       sub_region_specified;
+    VIO_BOOL       sub_region_specified;
     int           x_min;
     int           x_max;
     int           y_min;
     int           y_max;
-    BOOLEAN       prev_sub_region_specified;
+    VIO_BOOL       prev_sub_region_specified;
     int           prev_x_min;
     int           prev_x_max;
     int           prev_y_min;
@@ -161,18 +161,18 @@ typedef  struct
     loaded_volume_struct   *volumes;
     int                    current_volume_index;
 
-    BOOLEAN                toggle_undo_feature;
+    VIO_BOOL                toggle_undo_feature;
 
-    BOOLEAN                crop_labels_on_output_flag;
-    BOOLEAN                share_labels_flag;
+    VIO_BOOL                crop_labels_on_output_flag;
+    VIO_BOOL                share_labels_flag;
     colour_bar_struct      colour_bar;
 
-    BOOLEAN				   print_probe_ratio;
+    VIO_BOOL				   print_probe_ratio;
     int					   ratio_volume_index_numerator;
     int                    ratio_volume_index_denominator;
 
-    BOOLEAN                using_transparency;
-    BOOLEAN                degrees_continuity;
+    VIO_BOOL                using_transparency;
+    VIO_BOOL                degrees_continuity;
 
     slice_view_struct      slice_views[N_SLICE_VIEWS];
     void                   *render_storage;
@@ -193,20 +193,20 @@ typedef  struct
     lines_struct           unscaled_histogram_lines;
     object_struct          *histogram_object;
 
-    BOOLEAN                cursor_visibility;
+    VIO_BOOL                cursor_visibility;
 
     int                    cross_section_index;
-    BOOLEAN                cross_section_visibility;
-    BOOLEAN                cross_section_vector_present;
+    VIO_BOOL                cross_section_visibility;
+    VIO_BOOL                cross_section_vector_present;
     Real                   cross_section_vector[MAX_DIMENSIONS];
 
-    BOOLEAN                update_slice_dividers_flag;
-    BOOLEAN                update_colour_bar_flag;
-    BOOLEAN                update_probe_flag;
+    VIO_BOOL                update_slice_dividers_flag;
+    VIO_BOOL                update_colour_bar_flag;
+    VIO_BOOL                update_probe_flag;
 
-    BOOLEAN                viewport_update_flags[N_MODELS][2];
+    VIO_BOOL                viewport_update_flags[N_MODELS][2];
 
-    BOOLEAN                incremental_update_allowed;
+    VIO_BOOL                incremental_update_allowed;
     Real                   allowable_slice_update_time;
     Real                   total_slice_update_time1;
     Real                   total_slice_update_time2;

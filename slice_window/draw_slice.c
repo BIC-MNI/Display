@@ -338,7 +338,7 @@ public  void  rebuild_probe(
     display_struct    *slice_window )
 {
     model_struct   *model;
-    BOOLEAN        active;
+    VIO_BOOL        active;
     Volume         volume;
     Volume         volume_ratio_num, volume_ratio_den;
     Real           voxel[MAX_DIMENSIONS];
@@ -584,7 +584,7 @@ public  void  rebuild_slice_unfinished_flag(
     fill_Point( points[7], width, y_size-1.0-width, 0.0 );
 }
 
-public  BOOLEAN  get_slice_unfinished_flag_visibility(
+public  VIO_BOOL  get_slice_unfinished_flag_visibility(
     display_struct    *slice_window,
     int               view_index )
 {
@@ -599,7 +599,7 @@ public  BOOLEAN  get_slice_unfinished_flag_visibility(
 public  void  set_slice_unfinished_flag_visibility(
     display_struct    *slice_window,
     int               view_index,
-    BOOLEAN           state )
+    VIO_BOOL           state )
 {
     model_struct      *model;
     object_struct     *object;
@@ -746,7 +746,7 @@ public  void  rebuild_slice_crop_box(
     object_struct  *object;
     lines_struct   *lines;
     Real           voxel[N_DIMENSIONS], x, y;
-    BOOLEAN        visibility;
+    VIO_BOOL        visibility;
 
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
     object = model->objects[2*slice_window->slice.n_volumes+
@@ -816,7 +816,7 @@ public  void  rebuild_slice_cursor(
     Real           hor_pixel_start, hor_pixel_end;
     Real           vert_pixel_start, vert_pixel_end;
     int            volume, n_volumes;
-    BOOLEAN        visible;
+    VIO_BOOL        visible;
 
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
 
@@ -1023,10 +1023,10 @@ private  int  render_slice_to_pixels(
     Filter_types          filter_type,
     int                   continuity,
     pixels_struct         *pixels,
-    BOOLEAN               incremental_flag,
-    BOOLEAN               interrupted,
-    BOOLEAN               continuing_flag,
-    BOOLEAN               *finished )
+    VIO_BOOL               incremental_flag,
+    VIO_BOOL               interrupted,
+    VIO_BOOL               continuing_flag,
+    VIO_BOOL               *finished )
 {
     int                   n_pixels_drawn, n_pixels_redraw;
     int                   width, x_min, x_max, y_min, y_max;
@@ -1040,7 +1040,7 @@ private  int  render_slice_to_pixels(
     Real                  current_voxel[MAX_DIMENSIONS];
     Real                  origin[MAX_DIMENSIONS];
     Real                  x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
-    BOOLEAN               first_flag, force_update_limits;
+    VIO_BOOL               first_flag, force_update_limits;
     Colour                **colour_map;
     loaded_volume_struct  *vol_info;
     Volume                volume;
@@ -1364,10 +1364,10 @@ public  int  rebuild_slice_pixels_for_volume(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
-    BOOLEAN           incremental_flag,
-    BOOLEAN           interrupted,
-    BOOLEAN           continuing_flag,
-    BOOLEAN           *finished )
+    VIO_BOOL           incremental_flag,
+    VIO_BOOL           interrupted,
+    VIO_BOOL           continuing_flag,
+    VIO_BOOL           *finished )
 {
     object_struct  *pixels_object;
     pixels_struct  *pixels;
@@ -1438,7 +1438,7 @@ public  void  rebuild_atlas_slice_pixels(
     display_struct    *slice_window,
     int               view_index )
 {
-    BOOLEAN        visible;
+    VIO_BOOL        visible;
     object_struct  *pixels_object;
     pixels_struct  *pixels, *volume_pixels;
     Volume         volume;
@@ -1663,7 +1663,7 @@ private  void  create_composite(
     }
 }
 
-private  BOOLEAN  composite_is_visible(
+private  VIO_BOOL  composite_is_visible(
     display_struct    *slice_window,
     int               view )
 {
@@ -1757,10 +1757,10 @@ public  int  rebuild_label_slice_pixels_for_volume(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
-    BOOLEAN           incremental_flag,
-    BOOLEAN           interrupted,
-    BOOLEAN           continuing_flag,
-    BOOLEAN           *finished )
+    VIO_BOOL           incremental_flag,
+    VIO_BOOL           interrupted,
+    VIO_BOOL           continuing_flag,
+    VIO_BOOL           *finished )
 {
     pixels_struct   *pixels;
 
@@ -1780,7 +1780,7 @@ public  void  update_slice_pixel_visibilities(
     int               view )
 {
     int      volume_index;
-    BOOLEAN  visibility, composite_visibility;
+    VIO_BOOL  visibility, composite_visibility;
 
     composite_visibility = composite_is_visible( slice_window, view );
 

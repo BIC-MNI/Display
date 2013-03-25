@@ -200,7 +200,7 @@ public  DEF_MENU_UPDATE(colour_code_objects )
 
 private  void  create_scaled_slice(
     display_struct   *display,
-    BOOLEAN          scale_slice_flag )
+    VIO_BOOL          scale_slice_flag )
 {
     display_struct   *slice_window;
     int              x_index, y_index, axis_index, view_index;
@@ -503,7 +503,7 @@ public  DEF_MENU_FUNCTION(toggle_slice_crop_visibility)
 public  DEF_MENU_UPDATE(toggle_slice_crop_visibility)
 {
     display_struct   *slice_window;
-    BOOLEAN          visible;
+    VIO_BOOL          visible;
 
     if( get_slice_window( display, &slice_window ) )
         visible = slice_window->slice.crop.crop_visible;
@@ -623,7 +623,7 @@ public  DEF_MENU_UPDATE(crop_volume_to_file)
 
 private  void  do_histogram(
     display_struct   *display,
-    BOOLEAN          labeled )
+    VIO_BOOL          labeled )
 {
     int              x_index, y_index, view_index, axis_index;
     Real             voxel[MAX_DIMENSIONS], slice;
@@ -1130,7 +1130,7 @@ private  void  change_visible_volume(
 {
     int              current, view, volume_index;
     display_struct   *slice_window;
-    BOOLEAN          all_invisible;
+    VIO_BOOL          all_invisible;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
@@ -1226,7 +1226,7 @@ public  DEF_MENU_UPDATE(toggle_slice_interpolation )
 {
     int              continuity;
     display_struct   *slice_window;
-    BOOLEAN          active;
+    VIO_BOOL          active;
     STRING           name;
 
     active = get_slice_window( display, &slice_window );
@@ -1352,7 +1352,7 @@ public  DEF_MENU_FUNCTION(toggle_incremental_slice_update)
 public  DEF_MENU_UPDATE(toggle_incremental_slice_update)
 {
     display_struct   *slice_window;
-    BOOLEAN          state;
+    VIO_BOOL          state;
 
     if( get_slice_window( display, &slice_window ) )
         state = slice_window->slice.incremental_update_allowed;
@@ -1401,7 +1401,7 @@ public  DEF_MENU_FUNCTION(toggle_cursor_visibility)
 
 public  DEF_MENU_UPDATE(toggle_cursor_visibility )
 {
-    BOOLEAN          state, visible;
+    VIO_BOOL          state, visible;
     display_struct   *slice_window;
 
     state = get_slice_window(display,&slice_window);

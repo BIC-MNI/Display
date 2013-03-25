@@ -50,7 +50,7 @@ public  DEF_MENU_FUNCTION( set_paint_xy_brush_radius )
 
 public  DEF_MENU_UPDATE(set_paint_xy_brush_radius )
 {
-    BOOLEAN          state;
+    VIO_BOOL          state;
     Real             x_brush_radius;
     display_struct   *slice_window;
 
@@ -90,7 +90,7 @@ public  DEF_MENU_FUNCTION( set_paint_z_brush_radius )
 
 public  DEF_MENU_UPDATE(set_paint_z_brush_radius )
 {
-    BOOLEAN          state;
+    VIO_BOOL          state;
     Real             z_brush_radius;
     display_struct   *slice_window;
 
@@ -114,7 +114,7 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )
     Real            voxel[N_DIMENSIONS];
     int             int_voxel[N_DIMENSIONS];
     display_struct  *slice_window;
-    BOOLEAN         done;
+    VIO_BOOL         done;
 
     if( get_slice_window( display, &slice_window ) )
     {
@@ -159,7 +159,7 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )
 
 public  DEF_MENU_UPDATE(set_current_paint_label )
 {
-    BOOLEAN          state;
+    VIO_BOOL          state;
     int              current_label;
     display_struct   *slice_window;
 
@@ -183,7 +183,7 @@ public  DEF_MENU_FUNCTION( set_current_erase_label )
     Real            voxel[N_DIMENSIONS];
     int             int_voxel[N_DIMENSIONS];
     display_struct  *slice_window;
-    BOOLEAN         done;
+    VIO_BOOL         done;
 
     if( get_slice_window( display, &slice_window ) )
     {
@@ -225,7 +225,7 @@ public  DEF_MENU_FUNCTION( set_current_erase_label )
 
 public  DEF_MENU_UPDATE(set_current_erase_label )
 {
-    BOOLEAN          state;
+    VIO_BOOL          state;
     int              current_label;
     display_struct   *slice_window;
 
@@ -387,7 +387,7 @@ public  DEF_MENU_FUNCTION( toggle_display_labels )
 
 public  DEF_MENU_UPDATE(toggle_display_labels )
 {
-    BOOLEAN          display_labels, state;
+    VIO_BOOL          display_labels, state;
     display_struct   *slice_window;
 
     state = get_slice_window( display, &slice_window ) &&
@@ -766,7 +766,7 @@ public  DEF_MENU_FUNCTION( toggle_fast_update )
 
 public  DEF_MENU_UPDATE(toggle_fast_update )
 {
-    BOOLEAN          fast_flag, state;
+    VIO_BOOL          fast_flag, state;
     display_struct   *slice_window;
 
     state = get_slice_window( display, &slice_window );
@@ -800,7 +800,7 @@ public  DEF_MENU_FUNCTION( toggle_cursor_follows_paintbrush )
 
 public  DEF_MENU_UPDATE(toggle_cursor_follows_paintbrush )
 {
-    BOOLEAN          follow_flag, state;
+    VIO_BOOL          follow_flag, state;
     display_struct   *slice_window;
 
     state = get_slice_window( display, &slice_window );
@@ -848,7 +848,7 @@ public  DEF_MENU_UPDATE(toggle_freestyle_painting )
   * If a volume is present the button is enabled.
   */
 
- BOOLEAN          state;
+ VIO_BOOL          state;
  display_struct   *slice_window;
 
  state = get_slice_window( display, &slice_window ) &&

@@ -8,7 +8,7 @@ private   void   create_distance_transform(
     int            x_size,
     int            y_size,
     pixel_struct   **pixels );
-private  BOOLEAN  is_border_pixel(
+private  VIO_BOOL  is_border_pixel(
     int            x_size,
     int            y_size,
     pixel_struct   **pixels,
@@ -24,14 +24,14 @@ private  void  expand_region(
     int            y_size,
     pixel_struct   **pixels,
     int            label_of_interest,
-    BOOLEAN        other_label_flag,
+    VIO_BOOL        other_label_flag,
     int            global_cutoff );
 private  void  get_neighbours_influence_cut(
     int            this_pixel_dist_transform,
     pixel_struct   *neighbour_pixel,
     int            *cutoff,
     int            *class );
-private  BOOLEAN  cutoff_is_better(
+private  VIO_BOOL  cutoff_is_better(
     int   global_cutoff,
     int   cutoff1,
     int   class1,
@@ -158,7 +158,7 @@ private   void   create_distance_transform(
     DELETE_QUEUE( queue );
 }
 
-private  BOOLEAN  is_border_pixel(
+private  VIO_BOOL  is_border_pixel(
     int            x_size,
     int            y_size,
     pixel_struct   **pixels,
@@ -219,7 +219,7 @@ private  void  expand_region(
     int            y_size,
     pixel_struct   **pixels,
     int            label_of_interest,
-    BOOLEAN        other_label_flag,
+    VIO_BOOL        other_label_flag,
     int            global_cutoff )
 {
     int                            x, y, nx, ny;
@@ -358,14 +358,14 @@ private  void  get_neighbours_influence_cut(
     }
 }
 
-private  BOOLEAN  cutoff_is_better(
+private  VIO_BOOL  cutoff_is_better(
     int   global_cutoff,
     int   cutoff1,
     int   class1,
     int   cutoff2,
     int   class2 )
 {
-    BOOLEAN  first_is_better;
+    VIO_BOOL  first_is_better;
 
     if( class1 == FREE_RANGING && cutoff1 <= global_cutoff )
         return( FALSE );

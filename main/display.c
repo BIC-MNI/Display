@@ -31,14 +31,14 @@ private  void  display_objects_recursive(
     View_types                   view_type,
     Transform                    *transform,
     update_interrupted_struct    *interrupt,
-    BOOLEAN                      *past_last_object );
+    VIO_BOOL                      *past_last_object );
 
 public  void  display_objects(
     Gwindow                     window,
     object_struct               *object,
     update_interrupted_struct   *interrupt,
     Bitplane_types              bitplanes,
-    BOOLEAN                     *past_last_object )
+    VIO_BOOL                     *past_last_object )
 {
     model_struct         *model;
     model_info_struct    *model_info;
@@ -62,7 +62,7 @@ private  void  draw_one_object(
     Gwindow                      window,
     object_struct                *object,
     update_interrupted_struct    *interrupt,
-    BOOLEAN                      *past_last_object );
+    VIO_BOOL                      *past_last_object );
 
 private  void  display_objects_recursive(
     Gwindow                      window,
@@ -73,7 +73,7 @@ private  void  display_objects_recursive(
     View_types                   view_type,
     Transform                    *transform,
     update_interrupted_struct    *interrupt,
-    BOOLEAN                      *past_last_object )
+    VIO_BOOL                      *past_last_object )
 {
     int                  i;
     model_struct         *model;
@@ -130,9 +130,9 @@ private  void  draw_one_object(
     Gwindow                      window,
     object_struct                *object,
     update_interrupted_struct    *interrupt,
-    BOOLEAN                      *past_last_object )
+    VIO_BOOL                      *past_last_object )
 {
-    BOOLEAN  continuing;
+    VIO_BOOL  continuing;
 
     continuing = (G_get_drawing_interrupt_state(window) &&
                   interrupt != (update_interrupted_struct *) 0 &&
