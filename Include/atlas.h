@@ -24,17 +24,17 @@ static char atlas_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Inc
 typedef  struct
 {
     int             axis;
-    Real            axis_position;
-    Volume          image;
+    VIO_Real            axis_position;
+    VIO_Volume          image;
 } atlas_image_struct;
 
 typedef  struct
 {
     VIO_BOOL                input;
     VIO_BOOL                enabled;
-    Real                   opacity;
+    VIO_Real                   opacity;
     int                    transparent_threshold;
-    Real                   slice_tolerance[N_DIMENSIONS];
+    VIO_Real                   slice_tolerance[VIO_N_DIMENSIONS];
     VIO_BOOL                flipped[3];
 
     int                    n_images;

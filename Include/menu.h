@@ -24,13 +24,13 @@ static char display_menu_rcsid[] = "$Header: /private-cvsroot/visualization/Disp
 struct display_struct;
 struct menu_entry_struct;
 
-typedef  Status   menu_function_type( struct display_struct *,
+typedef  VIO_Status   menu_function_type( struct display_struct *,
                                       struct display_struct *,
                                       struct menu_entry_struct * );
 
 typedef  menu_function_type  (*menu_function_pointer);
 
-#define  DEF_MENU_FUNCTION( m )  Status m( \
+#define  DEF_MENU_FUNCTION( m )  VIO_Status m( \
    display_struct    *display, \
    display_struct    *menu_window, \
    menu_entry_struct *menu_entry )
@@ -41,7 +41,7 @@ typedef  VIO_BOOL   menu_update_type( struct display_struct    *,
 
 typedef  menu_update_type  (*menu_update_pointer);
 
-#define  DEF_MENU_UPDATE(m)  VIO_BOOL GLUE(menu_update_,m)( \
+#define  DEF_MENU_UPDATE(m)  VIO_BOOL menu_update_##m( \
                                        display_struct    *display, \
                                        display_struct    *menu_window, \
                                        menu_entry_struct *menu_entry )
@@ -50,7 +50,7 @@ typedef  struct  menu_entry_struct
 {
     VIO_BOOL                     permanent_flag;
     int                         key;
-    STRING                      label;
+    VIO_STR                      label;
     VIO_BOOL                     is_active;
     int                         current_depth;
     int                         n_children;
@@ -69,36 +69,36 @@ typedef  struct
     int                  default_x_size;
     int                  default_y_size;
 
-    Real                 x_dx;
-    Real                 x_dy;
-    Real                 y_dx;
-    Real                 y_dy;
+    VIO_Real                 x_dx;
+    VIO_Real                 x_dy;
+    VIO_Real                 y_dx;
+    VIO_Real                 y_dy;
 
     int                  n_chars_per_unit_across;
     int                  n_lines_in_entry;
 
-    Real                 character_height;
-    Real                 character_width;
-    Real                 character_offset;
-    Real                 selected_box_height;
+    VIO_Real                 character_height;
+    VIO_Real                 character_width;
+    VIO_Real                 character_offset;
+    VIO_Real                 selected_box_height;
 
-    Real                 x_menu_name;
-    Real                 y_menu_name;
+    VIO_Real                 x_menu_name;
+    VIO_Real                 y_menu_name;
 
-    Real                 x_menu_origin;
-    Real                 y_menu_origin;
+    VIO_Real                 x_menu_origin;
+    VIO_Real                 y_menu_origin;
 
-    Real                 selected_x_origin;
-    Real                 selected_y_origin;
-    Real                 selected_x_offset;
-    Real                 selected_y_offset;
+    VIO_Real                 selected_x_origin;
+    VIO_Real                 selected_y_origin;
+    VIO_Real                 selected_x_offset;
+    VIO_Real                 selected_y_offset;
 
-    Real                 cursor_pos_x_origin;
-    Real                 cursor_pos_y_origin;
+    VIO_Real                 cursor_pos_x_origin;
+    VIO_Real                 cursor_pos_y_origin;
 
-    Real                 x_menu_text_offset;
-    Real                 y_menu_text_offset;
-    Real                 font_size;
+    VIO_Real                 x_menu_text_offset;
+    VIO_Real                 y_menu_text_offset;
+    VIO_Real                 font_size;
 
     int                  n_entries;
     menu_entry_struct    *entries;

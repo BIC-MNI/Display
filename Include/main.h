@@ -63,9 +63,9 @@ typedef  struct
     view_struct                view;
     light_struct               lights[N_LIGHTS];
     selection_struct           current_object;
-    Point                      min_limit;
-    Point                      max_limit;
-    Point                      centre_of_objects;
+    VIO_Point                      min_limit;
+    VIO_Point                      max_limit;
+    VIO_Point                      centre_of_objects;
     surface_extraction_struct  surface_extraction;
     film_loop_struct           film_loop;
     surface_edit_struct        surface_edit;
@@ -74,9 +74,9 @@ typedef  struct
     int                        default_marker_structure_id;
     int                        default_marker_patient_id;
     Marker_types               default_marker_type;
-    Real                       default_marker_size;
-    Colour                     default_marker_colour;
-    STRING                     default_marker_label;
+    VIO_Real                       default_marker_size;
+    VIO_Colour                     default_marker_colour;
+    VIO_STR                     default_marker_label;
     object_struct              *volume_outline;
     object_struct              *cross_section;
 } three_d_window_struct;
@@ -94,7 +94,7 @@ typedef  struct  display_struct
     menu_window_struct         marker;
 
     Gwindow                    window;
-    Point                      prev_mouse_position;
+    VIO_Point                      prev_mouse_position;
     action_table_struct        action_table;
     int                        models_changed_id;
     object_struct              *models[N_MODELS];

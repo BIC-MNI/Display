@@ -13,7 +13,7 @@
 
 struct stack_real
 {
-	Real* cur;
+	VIO_Real* cur;
 	struct stack_real* next;
 };
 
@@ -25,7 +25,7 @@ struct stack_list
 struct stack_real* top( struct stack_list* );
 struct stack_real* make_null( struct stack_list* );
 struct stack_real* is_empty( struct stack_list* );
-struct stack_list* push( struct stack_list*, Real* );
+struct stack_list* push( struct stack_list*, VIO_Real* );
 struct stack_list* pop( struct stack_list* );
 struct stack_list* stack_new( void );
 struct stack_list* stack_free( struct stack_list* );

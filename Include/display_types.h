@@ -26,27 +26,27 @@ static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Dis
 typedef  struct
 {
     VIO_BOOL     perspective_flag;
-    Point       origin;
-    Vector      x_axis, y_axis, line_of_sight;
-    Real        front_distance, back_distance;
-    Real        desired_aspect;
-    Real        perspective_distance;
-    Real        window_width, window_height;
-    Real        scale_factors[N_DIMENSIONS];
-    Transform   modeling_transform;
+    VIO_Point       origin;
+    VIO_Vector      x_axis, y_axis, line_of_sight;
+    VIO_Real        front_distance, back_distance;
+    VIO_Real        desired_aspect;
+    VIO_Real        perspective_distance;
+    VIO_Real        window_width, window_height;
+    VIO_Real        scale_factors[VIO_N_DIMENSIONS];
+    VIO_Transform   modeling_transform;
     VIO_BOOL     stereo_flag;
-    Real        eye_separation_ratio;
+    VIO_Real        eye_separation_ratio;
 } view_struct;
 
 typedef  struct
 {
     VIO_BOOL       state;
     Light_types   light_type;
-    Colour        colour;
-    Vector        direction;
-    Point         position;
-    Real          spot_exponent;
-    Real          spot_angle;
+    VIO_Colour        colour;
+    VIO_Vector        direction;
+    VIO_Point         position;
+    VIO_Real          spot_exponent;
+    VIO_Real          spot_angle;
 } light_struct;
 
 typedef  struct
@@ -86,11 +86,11 @@ typedef  enum  {
                    N_EVENT_TYPES
                } Event_types;
 
-typedef  Status  (*event_function_type)( struct display_struct *,
+typedef  VIO_Status  (*event_function_type)( struct display_struct *,
                                          Event_types,
                                          int );
 
-#define  DEF_EVENT_FUNCTION( f )   Status   f( display_struct  *display, \
+#define  DEF_EVENT_FUNCTION( f )   VIO_Status   f( display_struct  *display, \
                                                Event_types     event_type, \
                                                int             key_pressed )
 
@@ -112,8 +112,8 @@ typedef  struct
 typedef  struct
 {
     VIO_BOOL       line_active;
-    Point         line_origin;
-    Point         line_direction;
+    VIO_Point         line_origin;
+    VIO_Point         line_direction;
 } point_position_struct;
 
 typedef  struct
@@ -140,15 +140,15 @@ typedef  struct
 
 typedef  struct
 {
-    Point   first_corner;
-    Point   second_corner;
+    VIO_Point   first_corner;
+    VIO_Point   second_corner;
 } viewport_picking_struct;
 
 typedef  struct
 {
-    Point   origin;
-    Real    box_size[N_DIMENSIONS];
-    Real    axis_size;
+    VIO_Point   origin;
+    VIO_Real    box_size[VIO_N_DIMENSIONS];
+    VIO_Real    axis_size;
 } cursor_struct;
 
 typedef  struct
@@ -157,16 +157,16 @@ typedef  struct
     int           y_size;
     int           n_steps;
     int           current_step;
-    STRING        base_filename;
-    Transform     transform;
+    VIO_STR        base_filename;
+    VIO_Transform     transform;
 } film_loop_struct;
 
 typedef  struct
 {
     int              n_paint_polygons;
 
-    Colour           visible_colour;
-    Colour           invisible_colour;
+    VIO_Colour           visible_colour;
+    VIO_Colour           invisible_colour;
 
     polygons_struct  *polygons;
     VIO_BOOL          polygons_set;
@@ -194,16 +194,16 @@ typedef  struct
 typedef  struct
 {
     VIO_BOOL          picking_points;
-    Real             line_curvature_weight;
-    Real             min_curvature;
-    Real             max_curvature;
+    VIO_Real             line_curvature_weight;
+    VIO_Real             min_curvature;
+    VIO_Real             max_curvature;
     lines_struct     *lines;
     int              n_points_alloced;
     int              n_indices_alloced;
     int              n_end_indices_alloced;
     int              first_poly_index;
     VIO_BOOL          prev_point_exists;
-    Point            prev_point;
+    VIO_Point            prev_point;
     int              prev_poly_index;
     polygons_struct  *prev_polygons;
 } surface_curve_struct;
@@ -213,12 +213,12 @@ typedef  struct
     View_types                   view_type;
     Bitplane_types               bitplanes;
     render_struct                render;
-    Transform                    transform;
+    VIO_Transform                    transform;
 } model_info_struct;
 
 typedef  struct
 {
-    contour_struct           contours[N_DIMENSIONS];
+    contour_struct           contours[VIO_N_DIMENSIONS];
     int                      models_changed_id;
     int                      axis;
     polygons_struct          *current_polygons;

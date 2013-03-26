@@ -24,7 +24,7 @@ static char surface_extract_rcsid[] = "$Header: /private-cvsroot/visualization/D
 
 typedef  struct
 {
-    short   i[N_DIMENSIONS];
+    short   i[VIO_N_DIMENSIONS];
 } voxel_index_struct;
 
 typedef  struct
@@ -40,16 +40,16 @@ typedef QUEUE_STRUCT( voxel_index_struct )   voxel_queue_struct;
 
 typedef  struct
 {
-    Volume                               volume;
-    Volume                               label_volume;
+    VIO_Volume                               volume;
+    VIO_Volume                               label_volume;
 
     VIO_BOOL                              extraction_in_progress;
     VIO_BOOL                              binary_flag;
     VIO_BOOL                              voxellate_flag;
-    Real                                 min_value;
-    Real                                 max_value;
-    Real                                 min_invalid_label;
-    Real                                 max_invalid_label;
+    VIO_Real                                 min_value;
+    VIO_Real                                 max_value;
+    VIO_Real                                 min_invalid_label;
+    VIO_Real                                 max_invalid_label;
 
     hash_table_struct                    edge_points;
     hash_table_struct                    faces_done;
@@ -60,20 +60,20 @@ typedef  struct
     int                                  n_voxels_alloced;
 
     bitlist_3d_struct                    voxel_state;
-    unsigned_byte                        *voxel_done_flags;
+    VIO_UCHAR                            *voxel_done_flags;
     voxel_queue_struct                   voxels_to_do;
 
-    int                                  current_voxel[N_DIMENSIONS];
-    int                                  min_block[N_DIMENSIONS];
-    int                                  max_block[N_DIMENSIONS];
+    int                                  current_voxel[VIO_N_DIMENSIONS];
+    int                                  min_block[VIO_N_DIMENSIONS];
+    int                                  max_block[VIO_N_DIMENSIONS];
 
-    int                                  min_limits[N_DIMENSIONS];
-    int                                  max_limits[N_DIMENSIONS];
-    int                                  min_changed_limits[N_DIMENSIONS];
-    int                                  max_changed_limits[N_DIMENSIONS];
-    int                                  min_modified[N_DIMENSIONS];
-    int                                  max_modified[N_DIMENSIONS];
-    int                                  not_changed_since[N_DIMENSIONS];
+    int                                  min_limits[VIO_N_DIMENSIONS];
+    int                                  max_limits[VIO_N_DIMENSIONS];
+    int                                  min_changed_limits[VIO_N_DIMENSIONS];
+    int                                  max_changed_limits[VIO_N_DIMENSIONS];
+    int                                  min_modified[VIO_N_DIMENSIONS];
+    int                                  max_modified[VIO_N_DIMENSIONS];
+    int                                  not_changed_since[VIO_N_DIMENSIONS];
 
     VIO_BOOL                              inside_flags[SURFACE_BLOCK_SIZE+2]
                                                      [SURFACE_BLOCK_SIZE+2]

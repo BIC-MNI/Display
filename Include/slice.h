@@ -43,24 +43,24 @@ typedef enum {
 
 typedef  struct
 {
-    Real              min_threshold;
-    Real              max_threshold;
+    VIO_Real              min_threshold;
+    VIO_Real              max_threshold;
     Neighbour_types   connectivity;
     int               n_starts_alloced;
     int               *y_starts;
     int               x_mouse_start, y_mouse_start;
-    Real              mouse_scale_factor;
+    VIO_Real              mouse_scale_factor;
     VIO_BOOL           fast_updating_allowed;
     VIO_BOOL           cursor_follows_paintbrush;
 } segmenting_struct;
 
 typedef struct
 {
-    Real             top_offset;
-    Real             bottom_offset;
-    Real             left_offset;
-    Real             bar_width;
-    Real             tick_width;
+    VIO_Real             top_offset;
+    VIO_Real             bottom_offset;
+    VIO_Real             left_offset;
+    VIO_Real             bar_width;
+    VIO_Real             tick_width;
     int              desired_n_intervals;
 } colour_bar_struct;
 
@@ -70,9 +70,9 @@ typedef  struct
     int       axis_being_moved[2];
     int       limit_being_moved[2];
     int       view_index;
-    Real      start_voxel[N_DIMENSIONS];
-    Real      limits[2][N_DIMENSIONS];
-    STRING    filename;
+    VIO_Real      start_voxel[VIO_N_DIMENSIONS];
+    VIO_Real      limits[2][VIO_N_DIMENSIONS];
+    VIO_STR    filename;
 } crop_struct;
 
 typedef  struct
@@ -87,34 +87,34 @@ typedef enum { UPDATE_SLICE, UPDATE_LABELS, UPDATE_BOTH } Update_types;
 
 typedef  struct
 {
-    STRING                 filename;
-    Volume                 volume;
-    Volume                 labels;
+    VIO_STR                 filename;
+    VIO_Volume                 volume;
+    VIO_Volume                 labels;
     VIO_General_transform      original_transform;
-    STRING                 labels_filename;
+    VIO_STR                 labels_filename;
     int                    n_labels;
     int                    offset;
-    Colour                 *colour_table;
-    Colour                 *label_colour_table;
-    Real                   label_colour_opacity;
+    VIO_Colour                 *colour_table;
+    VIO_Colour                 *label_colour_table;
+    VIO_Real                   label_colour_opacity;
     colour_coding_struct   colour_coding;
     VIO_BOOL                display_labels;
-    Real                   opacity;
-    Real                   current_voxel[N_DIMENSIONS];
+    VIO_Real                   opacity;
+    VIO_Real                   current_voxel[VIO_N_DIMENSIONS];
 
     struct
     {
         VIO_BOOL                visibility;
         int                    n_pixels_alloced;
         int                    n_label_pixels_alloced;
-        Real                   x_axis[N_DIMENSIONS];
-        Real                   y_axis[N_DIMENSIONS];
-        Real                   x_trans, y_trans;
-        Real                   x_scaling, y_scaling;
+        VIO_Real                   x_axis[VIO_N_DIMENSIONS];
+        VIO_Real                   y_axis[VIO_N_DIMENSIONS];
+        VIO_Real                   x_trans, y_trans;
+        VIO_Real                   x_scaling, y_scaling;
         VIO_BOOL                update_flag;
         VIO_BOOL                update_labels_flag;
         Filter_types           filter_type;
-        Real                   filter_width;
+        VIO_Real                   filter_width;
         int                    n_pixels_redraw;
         VIO_BOOL                update_in_progress[2];
         int                    x_min_update[2];
@@ -177,13 +177,13 @@ typedef  struct
     slice_view_struct      slice_views[N_SLICE_VIEWS];
     void                   *render_storage;
 
-    Real                   x_split, y_split;
+    VIO_Real                   x_split, y_split;
 
     segmenting_struct      segmenting;
     atlas_struct           atlas;
     crop_struct            crop;
 
-    Real                   x_brush_radius, y_brush_radius, z_brush_radius;
+    VIO_Real                   x_brush_radius, y_brush_radius, z_brush_radius;
     int                    current_paint_label;
     int                    current_erase_label;
     int                    painting_view_index;
@@ -198,7 +198,7 @@ typedef  struct
     int                    cross_section_index;
     VIO_BOOL                cross_section_visibility;
     VIO_BOOL                cross_section_vector_present;
-    Real                   cross_section_vector[MAX_DIMENSIONS];
+    VIO_Real                   cross_section_vector[VIO_MAX_DIMENSIONS];
 
     VIO_BOOL                update_slice_dividers_flag;
     VIO_BOOL                update_colour_bar_flag;
@@ -207,15 +207,15 @@ typedef  struct
     VIO_BOOL                viewport_update_flags[N_MODELS][2];
 
     VIO_BOOL                incremental_update_allowed;
-    Real                   allowable_slice_update_time;
-    Real                   total_slice_update_time1;
-    Real                   total_slice_update_time2;
+    VIO_Real                   allowable_slice_update_time;
+    VIO_Real                   total_slice_update_time1;
+    VIO_Real                   total_slice_update_time2;
     int                    current_update_volume;
     int                    current_update_view;
 
-    Real                   volume_rotation_step;
-    Real                   volume_translation_step;
-    Real                   volume_scale_step;
+    VIO_Real                   volume_rotation_step;
+    VIO_Real                   volume_translation_step;
+    VIO_Real                   volume_scale_step;
 
 } slice_window_struct;
 

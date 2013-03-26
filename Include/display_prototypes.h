@@ -1,1486 +1,1486 @@
 #ifndef  DEF_display_prototypes
 #define  DEF_display_prototypes
 
-public  Status  change_global_variable(
-    STRING   str,
-    STRING   *variable_name,
-    STRING   *new_value );
+  VIO_Status  change_global_variable(
+    VIO_STR   str,
+    VIO_STR   *variable_name,
+    VIO_STR   *new_value );
 
-public  Status  set_global_variable_value(
-    STRING   variable_name,
-    STRING   new_value );
+  VIO_Status  set_global_variable_value(
+    VIO_STR   variable_name,
+    VIO_STR   new_value );
 
-public  void  display_objects(
+  void  display_objects(
     Gwindow                     window,
     object_struct               *object,
     update_interrupted_struct   *interrupt,
     Bitplane_types              bitplanes,
     VIO_BOOL                     *past_last_object );
 
-public  void  initialize_window_callbacks(
+  void  initialize_window_callbacks(
     display_struct    *display_window );
 
-public  Status   main_event_loop( void );
+  VIO_Status   main_event_loop( void );
 
-public  VIO_BOOL  window_is_up_to_date(
+  VIO_BOOL  window_is_up_to_date(
     display_struct   *display );
 
-public  VIO_BOOL  is_shift_key_pressed( void );
+  VIO_BOOL  is_shift_key_pressed( void );
 
-public  int  get_list_of_windows(
+  int  get_list_of_windows(
     display_struct  ***display );
 
-public  display_struct  *lookup_window(
+  display_struct  *lookup_window(
     Gwindow   window );
 
-public  display_struct  *get_main_window( void );
+  display_struct  *get_main_window( void );
 
-public  void  initialize_graphics( void );
+  void  initialize_graphics( void );
 
-public  void  terminate_graphics( void );
+  void  terminate_graphics( void );
 
-public  Status  create_graphics_window(
+  VIO_Status  create_graphics_window(
     window_types      window_type,
     VIO_BOOL           double_buffering,
     display_struct    **display,
-    STRING            title,
+    VIO_STR            title,
     int               width,
     int               height );
 
-public  model_struct  *get_graphics_model(
+  model_struct  *get_graphics_model(
     display_struct    *display,
     int               model_index );
 
-public  model_info_struct  *get_model_info(
+  model_info_struct  *get_model_info(
     model_struct   *model );
 
-public  Bitplane_types  get_model_bitplanes(
+  Bitplane_types  get_model_bitplanes(
     model_struct   *model );
 
-public  void  create_model_after_current(
+  void  create_model_after_current(
     display_struct   *display );
 
-public  void  initialize_model_info(
+  void  initialize_model_info(
     model_struct   *model );
 
-public  void  initialize_3D_model_info(
+  void  initialize_3D_model_info(
     model_struct   *model );
 
-public  void  initialize_display_model(
+  void  initialize_display_model(
     model_struct   *model );
 
-public  void  terminate_display_model(
+  void  terminate_display_model(
     model_struct   *model );
 
-public  Bitplane_types  get_cursor_bitplanes( void );
+  Bitplane_types  get_cursor_bitplanes( void );
 
-public  void  set_update_required(
+  void  set_update_required(
     display_struct   *display,
     Bitplane_types   which_bitplanes );
 
-public  VIO_BOOL  graphics_normal_planes_update_required(
+  VIO_BOOL  graphics_normal_planes_update_required(
     display_struct   *display );
 
-public  VIO_BOOL  graphics_update_required(
+  VIO_BOOL  graphics_update_required(
     display_struct   *display );
 
-public  void  graphics_models_have_changed(
+  void  graphics_models_have_changed(
     display_struct  *display );
 
-public  void  update_graphics(
+  void  update_graphics(
     display_struct               *display,
     update_interrupted_struct    *interrupt );
 
-public  void  delete_graphics_window(
+  void  delete_graphics_window(
     display_struct   *display );
 
-public  void  update_view(
+  void  update_view(
     display_struct  *display );
 
-public  void  fit_view_to_visible_models(
+  void  fit_view_to_visible_models(
     display_struct   *display );
 
-public  void  reset_view_parameters(
+  void  reset_view_parameters(
     display_struct   *display,
-    Vector           *line_of_sight,
-    Vector           *horizontal );
+    VIO_Vector           *line_of_sight,
+    VIO_Vector           *horizontal );
 
-public  Real  size_of_domain(
+  VIO_Real  size_of_domain(
     display_struct   *display );
 
-public  void  initialize_three_d_window(
+  void  initialize_three_d_window(
     display_struct   *display );
 
-public  void  define_lights(
+  void  define_lights(
     display_struct   *display );
 
-public  void  delete_three_d(
+  void  delete_three_d(
     display_struct  *display );
 
-public  void  add_object_to_current_model(
+  void  add_object_to_current_model(
     display_struct   *display,
     object_struct     *object );
 
-public  display_struct  *get_three_d_window(
+  display_struct  *get_three_d_window(
     display_struct  *display );
 
-public  void  convert_transform_to_view_space(
+  void  convert_transform_to_view_space(
     display_struct    *display,
-    Transform         *transform,
-    Transform         *view_space_transform );
+    VIO_Transform         *transform,
+    VIO_Transform         *view_space_transform );
 
-public  void  apply_transform_in_view_space(
+  void  apply_transform_in_view_space(
     display_struct    *display,
-    Transform         *transform );
+    VIO_Transform         *transform );
 
-public  void  transform_model(
+  void  transform_model(
     display_struct    *display,
-    Transform         *transform );
+    VIO_Transform         *transform );
 
-public  void  get_inverse_model_transform(
+  void  get_inverse_model_transform(
     display_struct    *display,
-    Transform         *inverse_transform );
+    VIO_Transform         *inverse_transform );
 
-public  void  initialize_atlas(
+  void  initialize_atlas(
     atlas_struct   *atlas );
 
-public  void  delete_atlas(
+  void  delete_atlas(
     atlas_struct   *atlas );
 
-public  void  regenerate_atlas_lookup(
+  void  regenerate_atlas_lookup(
     display_struct    *slice_window );
 
-public  void  set_atlas_state(
+  void  set_atlas_state(
     display_struct    *slice_window,
     VIO_BOOL           state );
 
-public  VIO_BOOL  is_atlas_loaded(
+  VIO_BOOL  is_atlas_loaded(
     display_struct  *display );
 
-public  VIO_BOOL  render_atlas_slice_to_pixels(
+  VIO_BOOL  render_atlas_slice_to_pixels(
     atlas_struct  *atlas,
-    Colour        image[],
+    VIO_Colour        image[],
     int           image_x_size,
     int           image_y_size,
-    Real          world_start[],
-    Real          world_x_axis[],
-    Real          world_y_axis[] );
+    VIO_Real          world_start[],
+    VIO_Real          world_x_axis[],
+    VIO_Real          world_y_axis[] );
 
-public  Status  load_graphics_file( 
+  VIO_Status  load_graphics_file( 
     display_struct   *display,
-    STRING           filename,
+    VIO_STR           filename,
     VIO_BOOL          is_label_file );
 
-public  Status   input_volume_file(
-    STRING         filename,
-    Volume         *volume_ptr );
+  VIO_Status   input_volume_file(
+    VIO_STR         filename,
+    VIO_Volume         *volume_ptr );
 
-public  DEF_MENU_FUNCTION( set_atlas_on_or_off );
+  DEF_MENU_FUNCTION( set_atlas_on_or_off );
 
-public  DEF_MENU_UPDATE(set_atlas_on_or_off );
+  DEF_MENU_UPDATE(set_atlas_on_or_off );
 
-public  DEF_MENU_FUNCTION( set_atlas_opacity );
+  DEF_MENU_FUNCTION( set_atlas_opacity );
 
-public  DEF_MENU_UPDATE(set_atlas_opacity );
+  DEF_MENU_UPDATE(set_atlas_opacity );
 
-public  DEF_MENU_FUNCTION( set_atlas_transparent_threshold );
+  DEF_MENU_FUNCTION( set_atlas_transparent_threshold );
 
-public  DEF_MENU_UPDATE(set_atlas_transparent_threshold );
+  DEF_MENU_UPDATE(set_atlas_transparent_threshold );
 
-public  DEF_MENU_FUNCTION( flip_atlas_x );
+  DEF_MENU_FUNCTION( flip_atlas_x );
 
-public  DEF_MENU_UPDATE(flip_atlas_x );
+  DEF_MENU_UPDATE(flip_atlas_x );
 
-public  DEF_MENU_FUNCTION( flip_atlas_y );
+  DEF_MENU_FUNCTION( flip_atlas_y );
 
-public  DEF_MENU_UPDATE(flip_atlas_y );
+  DEF_MENU_UPDATE(flip_atlas_y );
 
-public  DEF_MENU_FUNCTION( flip_atlas_z );
+  DEF_MENU_FUNCTION( flip_atlas_z );
 
-public  DEF_MENU_UPDATE(flip_atlas_z );
+  DEF_MENU_UPDATE(flip_atlas_z );
 
-public  DEF_MENU_FUNCTION( set_atlas_tolerance_x );
+  DEF_MENU_FUNCTION( set_atlas_tolerance_x );
 
-public  DEF_MENU_UPDATE(set_atlas_tolerance_x );
+  DEF_MENU_UPDATE(set_atlas_tolerance_x );
 
-public  DEF_MENU_FUNCTION( set_atlas_tolerance_y );
+  DEF_MENU_FUNCTION( set_atlas_tolerance_y );
 
-public  DEF_MENU_UPDATE(set_atlas_tolerance_y );
+  DEF_MENU_UPDATE(set_atlas_tolerance_y );
 
-public  DEF_MENU_FUNCTION( set_atlas_tolerance_z );
+  DEF_MENU_FUNCTION( set_atlas_tolerance_z );
 
-public  DEF_MENU_UPDATE(set_atlas_tolerance_z );
+  DEF_MENU_UPDATE(set_atlas_tolerance_z );
 
-public  DEF_MENU_FUNCTION( menu_set_global_variable );
+  DEF_MENU_FUNCTION( menu_set_global_variable );
 
-public  DEF_MENU_UPDATE(menu_set_global_variable );
+  DEF_MENU_UPDATE(menu_set_global_variable );
 
-public  DEF_MENU_FUNCTION( show_memory );
+  DEF_MENU_FUNCTION( show_memory );
 
-public  DEF_MENU_UPDATE(show_memory );
+  DEF_MENU_UPDATE(show_memory );
 
-public  DEF_MENU_FUNCTION(set_colour_limits );
+  DEF_MENU_FUNCTION(set_colour_limits );
 
-public  DEF_MENU_UPDATE(set_colour_limits );
+  DEF_MENU_UPDATE(set_colour_limits );
 
-public  DEF_MENU_FUNCTION(set_contour_colour_map );
+  DEF_MENU_FUNCTION(set_contour_colour_map );
 
-public  DEF_MENU_UPDATE(set_contour_colour_map );
+  DEF_MENU_UPDATE(set_contour_colour_map );
 
-public  DEF_MENU_FUNCTION(set_hot_metal );
+  DEF_MENU_FUNCTION(set_hot_metal );
 
-public  DEF_MENU_UPDATE(set_hot_metal );
+  DEF_MENU_UPDATE(set_hot_metal );
 
-public  DEF_MENU_FUNCTION(set_gray_scale );
+  DEF_MENU_FUNCTION(set_gray_scale );
 
-public  DEF_MENU_UPDATE(set_gray_scale );
+  DEF_MENU_UPDATE(set_gray_scale );
 
-public  DEF_MENU_FUNCTION(set_red );
+  DEF_MENU_FUNCTION(set_red );
 
-public  DEF_MENU_UPDATE(set_red );
+  DEF_MENU_UPDATE(set_red );
 
-public  DEF_MENU_FUNCTION(set_green );
+  DEF_MENU_FUNCTION(set_green );
 
-public  DEF_MENU_UPDATE(set_green );
+  DEF_MENU_UPDATE(set_green );
 
-public  DEF_MENU_FUNCTION(set_blue );
+  DEF_MENU_FUNCTION(set_blue );
 
-public  DEF_MENU_UPDATE(set_blue );
+  DEF_MENU_UPDATE(set_blue );
 
-public  DEF_MENU_FUNCTION(set_spectral );
+  DEF_MENU_FUNCTION(set_spectral );
 
-public  DEF_MENU_UPDATE(set_spectral );
+  DEF_MENU_UPDATE(set_spectral );
 
-public  DEF_MENU_FUNCTION(set_arbitrary_colour_scale );
+  DEF_MENU_FUNCTION(set_arbitrary_colour_scale );
 
-public  DEF_MENU_UPDATE(set_arbitrary_colour_scale );
+  DEF_MENU_UPDATE(set_arbitrary_colour_scale );
 
-public  DEF_MENU_FUNCTION(set_user_defined_colour_scale );
+  DEF_MENU_FUNCTION(set_user_defined_colour_scale );
 
-public  DEF_MENU_UPDATE(set_user_defined_colour_scale );
+  DEF_MENU_UPDATE(set_user_defined_colour_scale );
 
-public  DEF_MENU_FUNCTION(set_under_colour );
+  DEF_MENU_FUNCTION(set_under_colour );
 
-public  DEF_MENU_UPDATE(set_under_colour );
+  DEF_MENU_UPDATE(set_under_colour );
 
-public  DEF_MENU_FUNCTION(set_over_colour );
+  DEF_MENU_FUNCTION(set_over_colour );
 
-public  DEF_MENU_UPDATE(set_over_colour );
+  DEF_MENU_UPDATE(set_over_colour );
 
-public  DEF_MENU_FUNCTION(set_label_colour_ratio );
+  DEF_MENU_FUNCTION(set_label_colour_ratio );
 
-public  DEF_MENU_UPDATE(set_label_colour_ratio );
+  DEF_MENU_UPDATE(set_label_colour_ratio );
 
-public  DEF_MENU_FUNCTION(set_nearest_neighbour );
+  DEF_MENU_FUNCTION(set_nearest_neighbour );
 
-public  DEF_MENU_UPDATE(set_nearest_neighbour );
+  DEF_MENU_UPDATE(set_nearest_neighbour );
 
-public  DEF_MENU_FUNCTION(set_linear_interpolation );
+  DEF_MENU_FUNCTION(set_linear_interpolation );
 
-public  DEF_MENU_UPDATE(set_linear_interpolation );
+  DEF_MENU_UPDATE(set_linear_interpolation );
 
-public  DEF_MENU_FUNCTION(set_box_filter );
+  DEF_MENU_FUNCTION(set_box_filter );
 
-public  DEF_MENU_UPDATE(set_box_filter );
+  DEF_MENU_UPDATE(set_box_filter );
 
-public  DEF_MENU_FUNCTION(set_triangle_filter );
+  DEF_MENU_FUNCTION(set_triangle_filter );
 
-public  DEF_MENU_UPDATE(set_triangle_filter );
+  DEF_MENU_UPDATE(set_triangle_filter );
 
-public  DEF_MENU_FUNCTION(set_gaussian_filter );
+  DEF_MENU_FUNCTION(set_gaussian_filter );
 
-public  DEF_MENU_UPDATE(set_gaussian_filter );
+  DEF_MENU_UPDATE(set_gaussian_filter );
 
-public  DEF_MENU_FUNCTION(set_filter_half_width );
+  DEF_MENU_FUNCTION(set_filter_half_width );
 
-public  DEF_MENU_UPDATE(set_filter_half_width );
+  DEF_MENU_UPDATE(set_filter_half_width );
 
-public  DEF_MENU_FUNCTION(set_slice_window_n_labels );
+  DEF_MENU_FUNCTION(set_slice_window_n_labels );
 
-public  DEF_MENU_UPDATE(set_slice_window_n_labels );
+  DEF_MENU_UPDATE(set_slice_window_n_labels );
 
-public  DEF_MENU_FUNCTION(toggle_share_labels );
+  DEF_MENU_FUNCTION(toggle_share_labels );
 
-public  DEF_MENU_UPDATE(toggle_share_labels );
+  DEF_MENU_UPDATE(toggle_share_labels );
 
-public  DEF_MENU_FUNCTION(save_colour_map );
+  DEF_MENU_FUNCTION(save_colour_map );
 
-public  DEF_MENU_UPDATE(save_colour_map );
+  DEF_MENU_UPDATE(save_colour_map );
 
-public  DEF_MENU_FUNCTION(load_colour_map );
+  DEF_MENU_FUNCTION(load_colour_map );
 
-public  DEF_MENU_UPDATE(load_colour_map );
+  DEF_MENU_UPDATE(load_colour_map );
 
-public  DEF_MENU_FUNCTION(load_user_defined_colour_scale );
+  DEF_MENU_FUNCTION(load_user_defined_colour_scale );
 
-public  DEF_MENU_UPDATE(load_user_defined_colour_scale );
+  DEF_MENU_UPDATE(load_user_defined_colour_scale );
 
-public  DEF_MENU_FUNCTION( load_file );
+  DEF_MENU_FUNCTION( load_file );
 
-public  DEF_MENU_UPDATE(load_file );
+  DEF_MENU_UPDATE(load_file );
 
-public  DEF_MENU_FUNCTION( save_file );
+  DEF_MENU_FUNCTION( save_file );
 
-public  DEF_MENU_UPDATE(save_file );
+  DEF_MENU_UPDATE(save_file );
 
-public  DEF_MENU_FUNCTION( georges_menu1 );
+  DEF_MENU_FUNCTION( georges_menu1 );
 
-public  DEF_MENU_UPDATE(georges_menu1 );
+  DEF_MENU_UPDATE(georges_menu1 );
 
-public  DEF_MENU_FUNCTION( georges_menu2 );
+  DEF_MENU_FUNCTION( georges_menu2 );
 
-public  DEF_MENU_UPDATE(georges_menu2 );
+  DEF_MENU_UPDATE(georges_menu2 );
 
-public  DEF_MENU_FUNCTION( georges_menu3 );
+  DEF_MENU_FUNCTION( georges_menu3 );
 
-public  DEF_MENU_UPDATE(georges_menu3 );
+  DEF_MENU_UPDATE(georges_menu3 );
 
-public  DEF_MENU_FUNCTION( georges_menu4 );
+  DEF_MENU_FUNCTION( georges_menu4 );
 
-public  DEF_MENU_UPDATE(georges_menu4 );
+  DEF_MENU_UPDATE(georges_menu4 );
 
-public  DEF_MENU_FUNCTION( smooth_current_lines );
+  DEF_MENU_FUNCTION( smooth_current_lines );
 
-public  DEF_MENU_UPDATE(smooth_current_lines );
+  DEF_MENU_UPDATE(smooth_current_lines );
 
-public  DEF_MENU_FUNCTION( make_current_line_tube );
+  DEF_MENU_FUNCTION( make_current_line_tube );
 
-public  DEF_MENU_UPDATE(make_current_line_tube );
+  DEF_MENU_UPDATE(make_current_line_tube );
 
-public  DEF_MENU_FUNCTION( convert_line_to_spline_points );
+  DEF_MENU_FUNCTION( convert_line_to_spline_points );
 
-public  DEF_MENU_UPDATE(convert_line_to_spline_points );
+  DEF_MENU_UPDATE(convert_line_to_spline_points );
 
-public  DEF_MENU_FUNCTION( make_line_circle );
+  DEF_MENU_FUNCTION( make_line_circle );
 
-public  DEF_MENU_UPDATE(make_line_circle );
+  DEF_MENU_UPDATE(make_line_circle );
 
-public  DEF_MENU_FUNCTION( subdivide_current_lines );
+  DEF_MENU_FUNCTION( subdivide_current_lines );
 
-public  DEF_MENU_UPDATE(subdivide_current_lines );
+  DEF_MENU_UPDATE(subdivide_current_lines );
 
-public  DEF_MENU_FUNCTION( convert_markers_to_lines );
+  DEF_MENU_FUNCTION( convert_markers_to_lines );
 
-public  DEF_MENU_UPDATE(convert_markers_to_lines );
+  DEF_MENU_UPDATE(convert_markers_to_lines );
 
-public  DEF_MENU_FUNCTION( convert_markers_to_closed_lines );
+  DEF_MENU_FUNCTION( convert_markers_to_closed_lines );
 
-public  DEF_MENU_UPDATE(convert_markers_to_closed_lines );
+  DEF_MENU_UPDATE(convert_markers_to_closed_lines );
 
-public  DEF_MENU_FUNCTION( set_line_widths );
+  DEF_MENU_FUNCTION( set_line_widths );
 
-public  DEF_MENU_UPDATE(set_line_widths );
+  DEF_MENU_UPDATE(set_line_widths );
 
-public  DEF_MENU_FUNCTION( reverse_normals );
+  DEF_MENU_FUNCTION( reverse_normals );
 
-public  DEF_MENU_UPDATE(reverse_normals );
+  DEF_MENU_UPDATE(reverse_normals );
 
-public  DEF_MENU_FUNCTION( advance_visible );
+  DEF_MENU_FUNCTION( advance_visible );
 
-public  DEF_MENU_UPDATE(advance_visible );
+  DEF_MENU_UPDATE(advance_visible );
 
-public  DEF_MENU_FUNCTION( retreat_visible );
+  DEF_MENU_FUNCTION( retreat_visible );
 
-public  DEF_MENU_UPDATE(retreat_visible );
+  DEF_MENU_UPDATE(retreat_visible );
 
-public  DEF_MENU_FUNCTION( make_all_invisible );
+  DEF_MENU_FUNCTION( make_all_invisible );
 
-public  DEF_MENU_UPDATE(make_all_invisible );
+  DEF_MENU_UPDATE(make_all_invisible );
 
-public  DEF_MENU_FUNCTION( make_all_visible );
+  DEF_MENU_FUNCTION( make_all_visible );
 
-public  DEF_MENU_UPDATE(make_all_visible );
+  DEF_MENU_UPDATE(make_all_visible );
 
-public  DEF_MENU_FUNCTION( advance_selected );
+  DEF_MENU_FUNCTION( advance_selected );
 
-public  DEF_MENU_UPDATE(advance_selected );
+  DEF_MENU_UPDATE(advance_selected );
 
-public  DEF_MENU_FUNCTION( retreat_selected );
+  DEF_MENU_FUNCTION( retreat_selected );
 
-public  DEF_MENU_UPDATE(retreat_selected );
+  DEF_MENU_UPDATE(retreat_selected );
 
-public  DEF_MENU_FUNCTION( descend_selected );
+  DEF_MENU_FUNCTION( descend_selected );
 
-public  DEF_MENU_UPDATE(descend_selected );
+  DEF_MENU_UPDATE(descend_selected );
 
-public  DEF_MENU_FUNCTION( ascend_selected );
+  DEF_MENU_FUNCTION( ascend_selected );
 
-public  DEF_MENU_UPDATE(ascend_selected );
+  DEF_MENU_UPDATE(ascend_selected );
 
-public  DEF_MENU_FUNCTION( toggle_object_visibility );
+  DEF_MENU_FUNCTION( toggle_object_visibility );
 
-public  DEF_MENU_UPDATE(toggle_object_visibility );
+  DEF_MENU_UPDATE(toggle_object_visibility );
 
-public  DEF_MENU_FUNCTION( create_model );
+  DEF_MENU_FUNCTION( create_model );
 
-public  DEF_MENU_UPDATE(create_model );
+  DEF_MENU_UPDATE(create_model );
 
-public  DEF_MENU_FUNCTION( change_model_name );
+  DEF_MENU_FUNCTION( change_model_name );
 
-public  DEF_MENU_UPDATE(change_model_name );
+  DEF_MENU_UPDATE(change_model_name );
 
-public  DEF_MENU_FUNCTION( delete_current_object );
+  DEF_MENU_FUNCTION( delete_current_object );
 
-public  DEF_MENU_UPDATE(delete_current_object );
+  DEF_MENU_UPDATE(delete_current_object );
 
-public  DEF_MENU_FUNCTION( set_current_object_colour );
+  DEF_MENU_FUNCTION( set_current_object_colour );
 
-public  DEF_MENU_UPDATE(set_current_object_colour );
+  DEF_MENU_UPDATE(set_current_object_colour );
 
-public  DEF_MENU_FUNCTION( set_current_object_surfprop );
+  DEF_MENU_FUNCTION( set_current_object_surfprop );
 
-public  DEF_MENU_UPDATE(set_current_object_surfprop );
+  DEF_MENU_UPDATE(set_current_object_surfprop );
 
-public  DEF_MENU_FUNCTION( cut_object );
+  DEF_MENU_FUNCTION( cut_object );
 
-public  DEF_MENU_UPDATE(cut_object );
+  DEF_MENU_UPDATE(cut_object );
 
-public  DEF_MENU_FUNCTION( paste_object );
+  DEF_MENU_FUNCTION( paste_object );
 
-public  DEF_MENU_UPDATE(paste_object );
+  DEF_MENU_UPDATE(paste_object );
 
-public  DEF_MENU_FUNCTION( mark_vertices );
+  DEF_MENU_FUNCTION( mark_vertices );
 
-public  DEF_MENU_UPDATE(mark_vertices );
+  DEF_MENU_UPDATE(mark_vertices );
 
-public  DEF_MENU_FUNCTION( flip_object );
+  DEF_MENU_FUNCTION( flip_object );
 
-public  DEF_MENU_UPDATE(flip_object );
+  DEF_MENU_UPDATE(flip_object );
 
-public  DEF_MENU_FUNCTION( scan_current_object_to_volume );
+  DEF_MENU_FUNCTION( scan_current_object_to_volume );
 
-public  DEF_MENU_UPDATE(scan_current_object_to_volume );
+  DEF_MENU_UPDATE(scan_current_object_to_volume );
 
-public  void  set_marker_to_defaults(
+  void  set_marker_to_defaults(
     display_struct  *display,
     marker_struct   *marker );
 
-public  void  create_marker_at_position(
+  void  create_marker_at_position(
     display_struct    *display,
-    Point             *position,
-    STRING            label );
+    VIO_Point             *position,
+    VIO_STR            label );
 
-public  DEF_MENU_FUNCTION( create_marker_at_cursor );
+  DEF_MENU_FUNCTION( create_marker_at_cursor );
 
-public  DEF_MENU_UPDATE(create_marker_at_cursor );
+  DEF_MENU_UPDATE(create_marker_at_cursor );
 
-public  DEF_MENU_FUNCTION( set_cursor_to_marker );
+  DEF_MENU_FUNCTION( set_cursor_to_marker );
 
-public  DEF_MENU_UPDATE(set_cursor_to_marker );
+  DEF_MENU_UPDATE(set_cursor_to_marker );
 
-public  DEF_MENU_FUNCTION( save_markers );
+  DEF_MENU_FUNCTION( save_markers );
 
-public  DEF_MENU_UPDATE(save_markers );
+  DEF_MENU_UPDATE(save_markers );
 
-public  DEF_MENU_FUNCTION( set_default_marker_structure_id );
+  DEF_MENU_FUNCTION( set_default_marker_structure_id );
 
-public  DEF_MENU_UPDATE(set_default_marker_structure_id );
+  DEF_MENU_UPDATE(set_default_marker_structure_id );
 
-public  DEF_MENU_FUNCTION( set_default_marker_patient_id );
+  DEF_MENU_FUNCTION( set_default_marker_patient_id );
 
-public  DEF_MENU_UPDATE(set_default_marker_patient_id );
+  DEF_MENU_UPDATE(set_default_marker_patient_id );
 
-public  DEF_MENU_FUNCTION( set_default_marker_size );
+  DEF_MENU_FUNCTION( set_default_marker_size );
 
-public  DEF_MENU_UPDATE(set_default_marker_size );
+  DEF_MENU_UPDATE(set_default_marker_size );
 
-public  DEF_MENU_FUNCTION( set_default_marker_colour );
+  DEF_MENU_FUNCTION( set_default_marker_colour );
 
-public  DEF_MENU_UPDATE(set_default_marker_colour );
+  DEF_MENU_UPDATE(set_default_marker_colour );
 
-public  DEF_MENU_FUNCTION( set_default_marker_type );
+  DEF_MENU_FUNCTION( set_default_marker_type );
 
-public  DEF_MENU_UPDATE(set_default_marker_type );
+  DEF_MENU_UPDATE(set_default_marker_type );
 
-public  DEF_MENU_FUNCTION( set_default_marker_label );
+  DEF_MENU_FUNCTION( set_default_marker_label );
 
-public  DEF_MENU_UPDATE(set_default_marker_label );
+  DEF_MENU_UPDATE(set_default_marker_label );
 
-public  DEF_MENU_FUNCTION( change_marker_structure_id );
+  DEF_MENU_FUNCTION( change_marker_structure_id );
 
-public  DEF_MENU_UPDATE(change_marker_structure_id );
+  DEF_MENU_UPDATE(change_marker_structure_id );
 
-public  DEF_MENU_FUNCTION( change_marker_patient_id );
+  DEF_MENU_FUNCTION( change_marker_patient_id );
 
-public  DEF_MENU_UPDATE(change_marker_patient_id );
+  DEF_MENU_UPDATE(change_marker_patient_id );
 
-public  DEF_MENU_FUNCTION( change_marker_type );
+  DEF_MENU_FUNCTION( change_marker_type );
 
-public  DEF_MENU_UPDATE(change_marker_type );
+  DEF_MENU_UPDATE(change_marker_type );
 
-public  DEF_MENU_FUNCTION( change_marker_size );
+  DEF_MENU_FUNCTION( change_marker_size );
 
-public  DEF_MENU_UPDATE(change_marker_size );
+  DEF_MENU_UPDATE(change_marker_size );
 
-public  DEF_MENU_FUNCTION( change_marker_position );
+  DEF_MENU_FUNCTION( change_marker_position );
 
-public  DEF_MENU_UPDATE(change_marker_position );
+  DEF_MENU_UPDATE(change_marker_position );
 
-public  DEF_MENU_FUNCTION( change_marker_label );
+  DEF_MENU_FUNCTION( change_marker_label );
 
-public  DEF_MENU_UPDATE(change_marker_label );
+  DEF_MENU_UPDATE(change_marker_label );
 
-public  DEF_MENU_FUNCTION( copy_defaults_to_marker );
+  DEF_MENU_FUNCTION( copy_defaults_to_marker );
 
-public  DEF_MENU_UPDATE(copy_defaults_to_marker );
+  DEF_MENU_UPDATE(copy_defaults_to_marker );
 
-public  DEF_MENU_FUNCTION( copy_defaults_to_markers );
+  DEF_MENU_FUNCTION( copy_defaults_to_markers );
 
-public  DEF_MENU_UPDATE(copy_defaults_to_markers );
+  DEF_MENU_UPDATE(copy_defaults_to_markers );
 
-public  DEF_MENU_FUNCTION( move_cursor_to_home );
+  DEF_MENU_FUNCTION( move_cursor_to_home );
 
-public  DEF_MENU_UPDATE(move_cursor_to_home );
+  DEF_MENU_UPDATE(move_cursor_to_home );
 
-public  VIO_BOOL  get_current_polygons(
+  VIO_BOOL  get_current_polygons(
     display_struct      *display,
     polygons_struct     **polygons );
 
-public  DEF_MENU_FUNCTION( input_polygons_bintree );
+  DEF_MENU_FUNCTION( input_polygons_bintree );
 
-public  DEF_MENU_UPDATE(input_polygons_bintree );
+  DEF_MENU_UPDATE(input_polygons_bintree );
 
-public  DEF_MENU_FUNCTION( save_polygons_bintree );
+  DEF_MENU_FUNCTION( save_polygons_bintree );
 
-public  DEF_MENU_UPDATE(save_polygons_bintree );
+  DEF_MENU_UPDATE(save_polygons_bintree );
 
-public  DEF_MENU_FUNCTION( create_bintree_for_polygons );
+  DEF_MENU_FUNCTION( create_bintree_for_polygons );
 
-public  DEF_MENU_UPDATE(create_bintree_for_polygons );
+  DEF_MENU_UPDATE(create_bintree_for_polygons );
 
-public  DEF_MENU_FUNCTION( create_normals_for_polygon );
+  DEF_MENU_FUNCTION( create_normals_for_polygon );
 
-public  DEF_MENU_UPDATE(create_normals_for_polygon );
+  DEF_MENU_UPDATE(create_normals_for_polygon );
 
-public  DEF_MENU_FUNCTION( average_normals_for_polygon );
+  DEF_MENU_FUNCTION( average_normals_for_polygon );
 
-public  DEF_MENU_UPDATE(average_normals_for_polygon );
+  DEF_MENU_UPDATE(average_normals_for_polygon );
 
-public  DEF_MENU_FUNCTION( smooth_current_polygon );
+  DEF_MENU_FUNCTION( smooth_current_polygon );
 
-public  DEF_MENU_UPDATE(smooth_current_polygon );
+  DEF_MENU_UPDATE(smooth_current_polygon );
 
-public  DEF_MENU_FUNCTION( reverse_polygons_order );
+  DEF_MENU_FUNCTION( reverse_polygons_order );
 
-public  DEF_MENU_UPDATE(reverse_polygons_order );
+  DEF_MENU_UPDATE(reverse_polygons_order );
 
-public  DEF_MENU_FUNCTION( make_polygon_sphere );
+  DEF_MENU_FUNCTION( make_polygon_sphere );
 
-public  DEF_MENU_UPDATE(make_polygon_sphere );
+  DEF_MENU_UPDATE(make_polygon_sphere );
 
-public  DEF_MENU_FUNCTION( make_tetrahedral_sphere );
+  DEF_MENU_FUNCTION( make_tetrahedral_sphere );
 
-public  DEF_MENU_UPDATE(make_tetrahedral_sphere );
+  DEF_MENU_UPDATE(make_tetrahedral_sphere );
 
-public  DEF_MENU_FUNCTION( subdivide_current_polygon );
+  DEF_MENU_FUNCTION( subdivide_current_polygon );
 
-public  DEF_MENU_UPDATE(subdivide_current_polygon );
+  DEF_MENU_UPDATE(subdivide_current_polygon );
 
-public  DEF_MENU_FUNCTION( reset_polygon_neighbours );
+  DEF_MENU_FUNCTION( reset_polygon_neighbours );
 
-public  DEF_MENU_UPDATE(reset_polygon_neighbours );
+  DEF_MENU_UPDATE(reset_polygon_neighbours );
 
-public  DEF_MENU_FUNCTION( cut_polygon_neighbours );
+  DEF_MENU_FUNCTION( cut_polygon_neighbours );
 
-public  DEF_MENU_UPDATE(cut_polygon_neighbours );
+  DEF_MENU_UPDATE(cut_polygon_neighbours );
 
-public  DEF_MENU_FUNCTION( set_polygon_line_thickness );
+  DEF_MENU_FUNCTION( set_polygon_line_thickness );
 
-public  DEF_MENU_UPDATE(set_polygon_line_thickness );
+  DEF_MENU_UPDATE(set_polygon_line_thickness );
 
-public  DEF_MENU_FUNCTION( print_polygons_surface_area );
+  DEF_MENU_FUNCTION( print_polygons_surface_area );
 
-public  DEF_MENU_UPDATE(print_polygons_surface_area );
+  DEF_MENU_UPDATE(print_polygons_surface_area );
 
-public  DEF_MENU_FUNCTION( coalesce_current_polygons );
+  DEF_MENU_FUNCTION( coalesce_current_polygons );
 
-public  DEF_MENU_UPDATE(coalesce_current_polygons );
+  DEF_MENU_UPDATE(coalesce_current_polygons );
 
-public  DEF_MENU_FUNCTION( separate_current_polygons );
+  DEF_MENU_FUNCTION( separate_current_polygons );
 
-public  DEF_MENU_UPDATE(separate_current_polygons );
+  DEF_MENU_UPDATE(separate_current_polygons );
 
-public  DEF_MENU_FUNCTION( exit_program );
+  DEF_MENU_FUNCTION( exit_program );
 
-public  DEF_MENU_UPDATE(exit_program );
+  DEF_MENU_UPDATE(exit_program );
 
-public  DEF_MENU_FUNCTION( set_paint_xy_brush_radius );
+  DEF_MENU_FUNCTION( set_paint_xy_brush_radius );
 
-public  DEF_MENU_UPDATE(set_paint_xy_brush_radius );
+  DEF_MENU_UPDATE(set_paint_xy_brush_radius );
 
-public  DEF_MENU_FUNCTION( set_paint_z_brush_radius );
+  DEF_MENU_FUNCTION( set_paint_z_brush_radius );
 
-public  DEF_MENU_UPDATE(set_paint_z_brush_radius );
+  DEF_MENU_UPDATE(set_paint_z_brush_radius );
 
-public  DEF_MENU_FUNCTION( set_current_paint_label );
+  DEF_MENU_FUNCTION( set_current_paint_label );
 
-public  DEF_MENU_UPDATE(set_current_paint_label );
+  DEF_MENU_UPDATE(set_current_paint_label );
 
-public  DEF_MENU_FUNCTION( set_current_erase_label );
+  DEF_MENU_FUNCTION( set_current_erase_label );
 
-public  DEF_MENU_UPDATE(set_current_erase_label );
+  DEF_MENU_UPDATE(set_current_erase_label );
 
-public  DEF_MENU_FUNCTION( set_label_colour );
+  DEF_MENU_FUNCTION( set_label_colour );
 
-public  DEF_MENU_UPDATE(set_label_colour );
+  DEF_MENU_UPDATE(set_label_colour );
 
-public  DEF_MENU_FUNCTION( copy_labels_from_lower_slice );
+  DEF_MENU_FUNCTION( copy_labels_from_lower_slice );
 
-public  DEF_MENU_UPDATE(copy_labels_from_lower_slice );
+  DEF_MENU_UPDATE(copy_labels_from_lower_slice );
 
-public  DEF_MENU_FUNCTION( copy_labels_from_higher_slice );
+  DEF_MENU_FUNCTION( copy_labels_from_higher_slice );
 
-public  DEF_MENU_UPDATE(copy_labels_from_higher_slice );
+  DEF_MENU_UPDATE(copy_labels_from_higher_slice );
 
-public  DEF_MENU_FUNCTION( toggle_display_labels );
+  DEF_MENU_FUNCTION( toggle_display_labels );
 
-public  DEF_MENU_UPDATE(toggle_display_labels );
+  DEF_MENU_UPDATE(toggle_display_labels );
 
-public  DEF_MENU_FUNCTION( change_labels_in_range );
+  DEF_MENU_FUNCTION( change_labels_in_range );
 
-public  DEF_MENU_UPDATE(change_labels_in_range );
+  DEF_MENU_UPDATE(change_labels_in_range );
 
-public  DEF_MENU_FUNCTION( calculate_volume );
+  DEF_MENU_FUNCTION( calculate_volume );
 
-public  DEF_MENU_UPDATE(calculate_volume );
+  DEF_MENU_UPDATE(calculate_volume );
 
-public  DEF_MENU_FUNCTION( flip_labels_in_x );
+  DEF_MENU_FUNCTION( flip_labels_in_x );
 
-public  DEF_MENU_UPDATE(flip_labels_in_x );
+  DEF_MENU_UPDATE(flip_labels_in_x );
 
-public  DEF_MENU_FUNCTION( translate_labels_up );
+  DEF_MENU_FUNCTION( translate_labels_up );
 
-public  DEF_MENU_UPDATE(translate_labels_up );
+  DEF_MENU_UPDATE(translate_labels_up );
 
-public  DEF_MENU_FUNCTION( translate_labels_down );
+  DEF_MENU_FUNCTION( translate_labels_down );
 
-public  DEF_MENU_UPDATE(translate_labels_down );
+  DEF_MENU_UPDATE(translate_labels_down );
 
-public  DEF_MENU_FUNCTION( translate_labels_left );
+  DEF_MENU_FUNCTION( translate_labels_left );
 
-public  DEF_MENU_UPDATE(translate_labels_left );
+  DEF_MENU_UPDATE(translate_labels_left );
 
-public  DEF_MENU_FUNCTION( translate_labels_right );
+  DEF_MENU_FUNCTION( translate_labels_right );
 
-public  DEF_MENU_UPDATE(translate_labels_right );
+  DEF_MENU_UPDATE(translate_labels_right );
 
-public  DEF_MENU_FUNCTION( undo_slice_labels );
+  DEF_MENU_FUNCTION( undo_slice_labels );
 
-public  DEF_MENU_UPDATE(undo_slice_labels );
+  DEF_MENU_UPDATE(undo_slice_labels );
 
-public  DEF_MENU_FUNCTION( translate_labels_arbitrary );
+  DEF_MENU_FUNCTION( translate_labels_arbitrary );
 
-public  DEF_MENU_UPDATE(translate_labels_arbitrary );
+  DEF_MENU_UPDATE(translate_labels_arbitrary );
 
-public  DEF_MENU_FUNCTION( toggle_fast_update );
+  DEF_MENU_FUNCTION( toggle_fast_update );
 
-public  DEF_MENU_UPDATE(toggle_fast_update );
+  DEF_MENU_UPDATE(toggle_fast_update );
 
-public  DEF_MENU_FUNCTION( toggle_cursor_follows_paintbrush );
+  DEF_MENU_FUNCTION( toggle_cursor_follows_paintbrush );
 
-public  DEF_MENU_UPDATE(toggle_cursor_follows_paintbrush );
+  DEF_MENU_UPDATE(toggle_cursor_follows_paintbrush );
 
-public  DEF_MENU_FUNCTION( toggle_render_mode );
+  DEF_MENU_FUNCTION( toggle_render_mode );
 
-public  DEF_MENU_UPDATE(toggle_render_mode );
+  DEF_MENU_UPDATE(toggle_render_mode );
 
-public  DEF_MENU_FUNCTION( toggle_shading );
+  DEF_MENU_FUNCTION( toggle_shading );
 
-public  DEF_MENU_UPDATE(toggle_shading );
+  DEF_MENU_UPDATE(toggle_shading );
 
-public  DEF_MENU_FUNCTION( toggle_lights );
+  DEF_MENU_FUNCTION( toggle_lights );
 
-public  DEF_MENU_UPDATE(toggle_lights );
+  DEF_MENU_UPDATE(toggle_lights );
 
-public  DEF_MENU_FUNCTION( toggle_two_sided );
+  DEF_MENU_FUNCTION( toggle_two_sided );
 
-public  DEF_MENU_UPDATE(toggle_two_sided );
+  DEF_MENU_UPDATE(toggle_two_sided );
 
-public  DEF_MENU_FUNCTION( toggle_backfacing );
+  DEF_MENU_FUNCTION( toggle_backfacing );
 
-public  DEF_MENU_UPDATE(toggle_backfacing );
+  DEF_MENU_UPDATE(toggle_backfacing );
 
-public  DEF_MENU_FUNCTION( toggle_line_curve_flag );
+  DEF_MENU_FUNCTION( toggle_line_curve_flag );
 
-public  DEF_MENU_UPDATE(toggle_line_curve_flag );
+  DEF_MENU_UPDATE(toggle_line_curve_flag );
 
-public  DEF_MENU_FUNCTION( toggle_marker_label_flag );
+  DEF_MENU_FUNCTION( toggle_marker_label_flag );
 
-public  DEF_MENU_UPDATE(toggle_marker_label_flag );
+  DEF_MENU_UPDATE(toggle_marker_label_flag );
 
-public  DEF_MENU_FUNCTION( set_n_curve_segments );
+  DEF_MENU_FUNCTION( set_n_curve_segments );
 
-public  DEF_MENU_UPDATE(set_n_curve_segments );
+  DEF_MENU_UPDATE(set_n_curve_segments );
 
-public  DEF_MENU_FUNCTION( toggle_double_buffer_threed );
+  DEF_MENU_FUNCTION( toggle_double_buffer_threed );
 
-public  DEF_MENU_UPDATE(toggle_double_buffer_threed );
+  DEF_MENU_UPDATE(toggle_double_buffer_threed );
 
-public  DEF_MENU_FUNCTION( toggle_double_buffer_slice );
+  DEF_MENU_FUNCTION( toggle_double_buffer_slice );
 
-public  DEF_MENU_UPDATE(toggle_double_buffer_slice );
+  DEF_MENU_UPDATE(toggle_double_buffer_slice );
 
-public  DEF_MENU_FUNCTION( change_background_colour );
+  DEF_MENU_FUNCTION( change_background_colour );
 
-public  DEF_MENU_UPDATE(change_background_colour );
+  DEF_MENU_UPDATE(change_background_colour );
 
-public  DEF_MENU_FUNCTION( label_voxel );
+  DEF_MENU_FUNCTION( label_voxel );
 
-public  DEF_MENU_UPDATE(label_voxel );
+  DEF_MENU_UPDATE(label_voxel );
 
-public  DEF_MENU_FUNCTION( clear_voxel );
+  DEF_MENU_FUNCTION( clear_voxel );
 
-public  DEF_MENU_UPDATE(clear_voxel );
+  DEF_MENU_UPDATE(clear_voxel );
 
-public  DEF_MENU_FUNCTION( reset_segmenting );
+  DEF_MENU_FUNCTION( reset_segmenting );
 
-public  DEF_MENU_UPDATE(reset_segmenting );
+  DEF_MENU_UPDATE(reset_segmenting );
 
-public  DEF_MENU_FUNCTION( set_segmenting_threshold );
+  DEF_MENU_FUNCTION( set_segmenting_threshold );
 
-public  DEF_MENU_UPDATE(set_segmenting_threshold );
+  DEF_MENU_UPDATE(set_segmenting_threshold );
 
-public  Status  input_label_volume_file(
+  VIO_Status  input_label_volume_file(
     display_struct   *display,
-    STRING           filename );
+    VIO_STR           filename );
 
-public  DEF_MENU_FUNCTION(load_label_data);
+  DEF_MENU_FUNCTION(load_label_data);
 
-public  DEF_MENU_UPDATE(load_label_data );
+  DEF_MENU_UPDATE(load_label_data );
 
-public  DEF_MENU_FUNCTION(save_label_data);
+  DEF_MENU_FUNCTION(save_label_data);
 
-public  DEF_MENU_UPDATE(save_label_data );
+  DEF_MENU_UPDATE(save_label_data );
 
-public  Status input_tag_label_file(
+  VIO_Status input_tag_label_file(
     display_struct   *display,
-    STRING           filename );
+    VIO_STR           filename );
 
-public  DEF_MENU_FUNCTION( load_labels );
+  DEF_MENU_FUNCTION( load_labels );
 
-public  DEF_MENU_UPDATE(load_labels );
+  DEF_MENU_UPDATE(load_labels );
 
-public  DEF_MENU_FUNCTION( save_labels );
+  DEF_MENU_FUNCTION( save_labels );
 
-public  DEF_MENU_UPDATE(save_labels );
+  DEF_MENU_UPDATE(save_labels );
 
-public  DEF_MENU_FUNCTION( save_current_label );
+  DEF_MENU_FUNCTION( save_current_label );
 
-public  DEF_MENU_UPDATE(save_current_label );
+  DEF_MENU_UPDATE(save_current_label );
 
-public  DEF_MENU_FUNCTION(label_slice);
+  DEF_MENU_FUNCTION(label_slice);
 
-public  DEF_MENU_UPDATE(label_slice );
+  DEF_MENU_UPDATE(label_slice );
 
-public  DEF_MENU_FUNCTION(clear_slice);
+  DEF_MENU_FUNCTION(clear_slice);
 
-public  DEF_MENU_UPDATE(clear_slice );
+  DEF_MENU_UPDATE(clear_slice );
 
-public  DEF_MENU_FUNCTION(clear_connected);
+  DEF_MENU_FUNCTION(clear_connected);
 
-public  DEF_MENU_UPDATE(clear_connected );
+  DEF_MENU_UPDATE(clear_connected );
 
-public  DEF_MENU_FUNCTION(label_connected);
+  DEF_MENU_FUNCTION(label_connected);
 
-public  DEF_MENU_UPDATE(label_connected );
+  DEF_MENU_UPDATE(label_connected );
 
-public  DEF_MENU_FUNCTION(label_connected_no_threshold);
+  DEF_MENU_FUNCTION(label_connected_no_threshold);
 
-public  DEF_MENU_UPDATE(label_connected_no_threshold );
+  DEF_MENU_UPDATE(label_connected_no_threshold );
 
-public  DEF_MENU_FUNCTION(label_connected_3d);
+  DEF_MENU_FUNCTION(label_connected_3d);
 
-public  DEF_MENU_UPDATE(label_connected_3d );
+  DEF_MENU_UPDATE(label_connected_3d );
 
-public  DEF_MENU_FUNCTION(clear_label_connected_3d);
+  DEF_MENU_FUNCTION(clear_label_connected_3d);
 
-public  DEF_MENU_UPDATE(clear_label_connected_3d );
+  DEF_MENU_UPDATE(clear_label_connected_3d );
 
-public  DEF_MENU_FUNCTION(dilate_labels);
+  DEF_MENU_FUNCTION(dilate_labels);
 
-public  DEF_MENU_UPDATE(dilate_labels );
+  DEF_MENU_UPDATE(dilate_labels );
 
-public  DEF_MENU_FUNCTION(erode_labels);
+  DEF_MENU_FUNCTION(erode_labels);
 
-public  DEF_MENU_UPDATE(erode_labels );
+  DEF_MENU_UPDATE(erode_labels );
 
-public  DEF_MENU_FUNCTION(toggle_connectivity);
+  DEF_MENU_FUNCTION(toggle_connectivity);
 
-public  DEF_MENU_UPDATE(toggle_connectivity );
+  DEF_MENU_UPDATE(toggle_connectivity );
 
-public  DEF_MENU_FUNCTION(toggle_crop_labels_on_output);
+  DEF_MENU_FUNCTION(toggle_crop_labels_on_output);
 
-public  DEF_MENU_UPDATE(toggle_crop_labels_on_output);
+  DEF_MENU_UPDATE(toggle_crop_labels_on_output);
 
-public  DEF_MENU_FUNCTION( reset_polygon_visibility );
+  DEF_MENU_FUNCTION( reset_polygon_visibility );
 
-public  DEF_MENU_UPDATE(reset_polygon_visibility );
+  DEF_MENU_UPDATE(reset_polygon_visibility );
 
-public  DEF_MENU_FUNCTION( remove_invisible_parts_of_polygon );
+  DEF_MENU_FUNCTION( remove_invisible_parts_of_polygon );
 
-public  DEF_MENU_UPDATE(remove_invisible_parts_of_polygon);
+  DEF_MENU_UPDATE(remove_invisible_parts_of_polygon);
 
-public  DEF_MENU_FUNCTION( set_n_paint_polygons );
+  DEF_MENU_FUNCTION( set_n_paint_polygons );
 
-public  DEF_MENU_UPDATE(set_n_paint_polygons);
+  DEF_MENU_UPDATE(set_n_paint_polygons);
 
-public  DEF_MENU_FUNCTION( set_vis_paint_colour );
+  DEF_MENU_FUNCTION( set_vis_paint_colour );
 
-public  DEF_MENU_UPDATE(set_vis_paint_colour);
+  DEF_MENU_UPDATE(set_vis_paint_colour);
 
-public  DEF_MENU_FUNCTION( set_invis_paint_colour );
+  DEF_MENU_FUNCTION( set_invis_paint_colour );
 
-public  DEF_MENU_UPDATE(set_invis_paint_colour);
+  DEF_MENU_UPDATE(set_invis_paint_colour);
 
-public  DEF_MENU_FUNCTION( set_connected_invisible );
+  DEF_MENU_FUNCTION( set_connected_invisible );
 
-public  DEF_MENU_UPDATE(set_connected_invisible );
+  DEF_MENU_UPDATE(set_connected_invisible );
 
-public  DEF_MENU_FUNCTION( paint_invisible );
+  DEF_MENU_FUNCTION( paint_invisible );
 
-public  DEF_MENU_UPDATE(paint_invisible);
+  DEF_MENU_UPDATE(paint_invisible);
 
-public  DEF_MENU_FUNCTION( paint_visible );
+  DEF_MENU_FUNCTION( paint_visible );
 
-public  DEF_MENU_UPDATE(paint_visible);
+  DEF_MENU_UPDATE(paint_visible);
 
-public  DEF_MENU_FUNCTION( set_connected_vis_colour );
+  DEF_MENU_FUNCTION( set_connected_vis_colour );
 
-public  DEF_MENU_UPDATE(set_connected_vis_colour );
+  DEF_MENU_UPDATE(set_connected_vis_colour );
 
-public  DEF_MENU_FUNCTION( set_connected_invis_colour );
+  DEF_MENU_FUNCTION( set_connected_invis_colour );
 
-public  DEF_MENU_UPDATE(set_connected_invis_colour );
+  DEF_MENU_UPDATE(set_connected_invis_colour );
 
-public  DEF_MENU_FUNCTION( paint_invis_colour );
+  DEF_MENU_FUNCTION( paint_invis_colour );
 
-public  DEF_MENU_UPDATE(paint_invis_colour);
+  DEF_MENU_UPDATE(paint_invis_colour);
 
-public  DEF_MENU_FUNCTION( paint_vis_colour );
+  DEF_MENU_FUNCTION( paint_vis_colour );
 
-public  DEF_MENU_UPDATE(paint_vis_colour);
+  DEF_MENU_UPDATE(paint_vis_colour);
 
-public  DEF_MENU_FUNCTION( set_visibility_from_colour );
+  DEF_MENU_FUNCTION( set_visibility_from_colour );
 
-public  DEF_MENU_UPDATE(set_visibility_from_colour);
+  DEF_MENU_UPDATE(set_visibility_from_colour);
 
-public  DEF_MENU_FUNCTION( set_invis_colour_to_invis );
+  DEF_MENU_FUNCTION( set_invis_colour_to_invis );
 
-public  DEF_MENU_UPDATE(set_invis_colour_to_invis);
+  DEF_MENU_UPDATE(set_invis_colour_to_invis);
 
-public  DEF_MENU_FUNCTION( set_vis_to_invis_colour );
+  DEF_MENU_FUNCTION( set_vis_to_invis_colour );
 
-public  DEF_MENU_UPDATE(set_vis_to_invis_colour);
+  DEF_MENU_UPDATE(set_vis_to_invis_colour);
 
-public  DEF_MENU_FUNCTION( set_vis_to_vis_colour );
+  DEF_MENU_FUNCTION( set_vis_to_vis_colour );
 
-public  DEF_MENU_UPDATE(set_vis_to_vis_colour);
+  DEF_MENU_UPDATE(set_vis_to_vis_colour);
 
-public  DEF_MENU_FUNCTION( crop_above_plane );
+  DEF_MENU_FUNCTION( crop_above_plane );
 
-public  DEF_MENU_UPDATE(crop_above_plane);
+  DEF_MENU_UPDATE(crop_above_plane);
 
-public  DEF_MENU_FUNCTION( crop_below_plane );
+  DEF_MENU_FUNCTION( crop_below_plane );
 
-public  DEF_MENU_UPDATE(crop_below_plane);
+  DEF_MENU_UPDATE(crop_below_plane);
 
-public  DEF_MENU_FUNCTION( save_polygons_visibilities );
+  DEF_MENU_FUNCTION( save_polygons_visibilities );
 
-public  DEF_MENU_UPDATE(save_polygons_visibilities);
+  DEF_MENU_UPDATE(save_polygons_visibilities);
 
-public  DEF_MENU_FUNCTION( load_polygons_visibilities );
+  DEF_MENU_FUNCTION( load_polygons_visibilities );
 
-public  DEF_MENU_UPDATE(load_polygons_visibilities);
+  DEF_MENU_UPDATE(load_polygons_visibilities);
 
-public  DEF_MENU_FUNCTION( start_surface_line );
+  DEF_MENU_FUNCTION( start_surface_line );
 
-public  DEF_MENU_UPDATE(start_surface_line);
+  DEF_MENU_UPDATE(start_surface_line);
 
-public  DEF_MENU_FUNCTION( end_surface_line );
+  DEF_MENU_FUNCTION( end_surface_line );
 
-public  DEF_MENU_UPDATE(end_surface_line);
+  DEF_MENU_UPDATE(end_surface_line);
 
-public  DEF_MENU_FUNCTION( close_surface_line );
+  DEF_MENU_FUNCTION( close_surface_line );
 
-public  DEF_MENU_UPDATE(close_surface_line);
+  DEF_MENU_UPDATE(close_surface_line);
 
-public  DEF_MENU_FUNCTION( reset_surface_line );
+  DEF_MENU_FUNCTION( reset_surface_line );
 
-public  DEF_MENU_UPDATE(reset_surface_line);
+  DEF_MENU_UPDATE(reset_surface_line);
 
-public  DEF_MENU_FUNCTION( make_surface_line_permanent );
+  DEF_MENU_FUNCTION( make_surface_line_permanent );
 
-public  DEF_MENU_UPDATE(make_surface_line_permanent);
+  DEF_MENU_UPDATE(make_surface_line_permanent);
 
-public  DEF_MENU_FUNCTION( set_line_curvature_weight );
+  DEF_MENU_FUNCTION( set_line_curvature_weight );
 
-public  DEF_MENU_UPDATE(set_line_curvature_weight );
+  DEF_MENU_UPDATE(set_line_curvature_weight );
 
-public  DEF_MENU_FUNCTION( set_surface_curve_curvature );
+  DEF_MENU_FUNCTION( set_surface_curve_curvature );
 
-public  DEF_MENU_UPDATE(set_surface_curve_curvature );
+  DEF_MENU_UPDATE(set_surface_curve_curvature );
 
-public  DEF_MENU_FUNCTION( pick_surface_point_on_line );
+  DEF_MENU_FUNCTION( pick_surface_point_on_line );
 
-public  DEF_MENU_UPDATE(pick_surface_point_on_line );
+  DEF_MENU_UPDATE(pick_surface_point_on_line );
 
-public  DEF_MENU_FUNCTION(start_volume_isosurface );
+  DEF_MENU_FUNCTION(start_volume_isosurface );
 
-public  DEF_MENU_UPDATE(start_volume_isosurface );
+  DEF_MENU_UPDATE(start_volume_isosurface );
 
-public  DEF_MENU_FUNCTION(start_volume_binary_isosurface );
+  DEF_MENU_FUNCTION(start_volume_binary_isosurface );
 
-public  DEF_MENU_UPDATE(start_volume_binary_isosurface );
+  DEF_MENU_UPDATE(start_volume_binary_isosurface );
 
-public  DEF_MENU_FUNCTION(start_label_binary_isosurface );
+  DEF_MENU_FUNCTION(start_label_binary_isosurface );
 
-public  DEF_MENU_UPDATE(start_label_binary_isosurface );
+  DEF_MENU_UPDATE(start_label_binary_isosurface );
 
-public  DEF_MENU_FUNCTION(toggle_surface_extraction);
+  DEF_MENU_FUNCTION(toggle_surface_extraction);
 
-public  DEF_MENU_UPDATE(toggle_surface_extraction );
+  DEF_MENU_UPDATE(toggle_surface_extraction );
 
-public  DEF_MENU_FUNCTION(reset_surface);
+  DEF_MENU_FUNCTION(reset_surface);
 
-public  DEF_MENU_UPDATE(reset_surface );
+  DEF_MENU_UPDATE(reset_surface );
 
-public  DEF_MENU_FUNCTION(make_surface_permanent);
+  DEF_MENU_FUNCTION(make_surface_permanent);
 
-public  DEF_MENU_UPDATE(make_surface_permanent );
+  DEF_MENU_UPDATE(make_surface_permanent );
 
-public  DEF_MENU_FUNCTION(get_voxelated_label_surface);
+  DEF_MENU_FUNCTION(get_voxelated_label_surface);
 
-public  DEF_MENU_UPDATE(get_voxelated_label_surface );
+  DEF_MENU_UPDATE(get_voxelated_label_surface );
 
-public  DEF_MENU_FUNCTION(get_voxelated_surface);
+  DEF_MENU_FUNCTION(get_voxelated_surface);
 
-public  DEF_MENU_UPDATE(get_voxelated_surface );
+  DEF_MENU_UPDATE(get_voxelated_surface );
 
-public  DEF_MENU_FUNCTION( set_surface_invalid_label_range );
+  DEF_MENU_FUNCTION( set_surface_invalid_label_range );
 
-public  DEF_MENU_UPDATE(set_surface_invalid_label_range );
+  DEF_MENU_UPDATE(set_surface_invalid_label_range );
 
-public  DEF_MENU_FUNCTION( make_view_fit );
+  DEF_MENU_FUNCTION( make_view_fit );
 
-public  DEF_MENU_UPDATE(make_view_fit );
+  DEF_MENU_UPDATE(make_view_fit );
 
-public  DEF_MENU_FUNCTION( reset_view );
+  DEF_MENU_FUNCTION( reset_view );
 
-public  DEF_MENU_UPDATE(reset_view );
+  DEF_MENU_UPDATE(reset_view );
 
-public  DEF_MENU_FUNCTION( right_tilted_view );
+  DEF_MENU_FUNCTION( right_tilted_view );
 
-public  DEF_MENU_UPDATE(right_tilted_view );
+  DEF_MENU_UPDATE(right_tilted_view );
 
-public  DEF_MENU_FUNCTION( left_tilted_view );
+  DEF_MENU_FUNCTION( left_tilted_view );
 
-public  DEF_MENU_UPDATE(left_tilted_view );
+  DEF_MENU_UPDATE(left_tilted_view );
 
-public  DEF_MENU_FUNCTION( top_view );
+  DEF_MENU_FUNCTION( top_view );
 
-public  DEF_MENU_UPDATE(top_view );
+  DEF_MENU_UPDATE(top_view );
 
-public  DEF_MENU_FUNCTION( bottom_view );
+  DEF_MENU_FUNCTION( bottom_view );
 
-public  DEF_MENU_UPDATE(bottom_view );
+  DEF_MENU_UPDATE(bottom_view );
 
-public  DEF_MENU_FUNCTION( front_view );
+  DEF_MENU_FUNCTION( front_view );
 
-public  DEF_MENU_UPDATE(front_view );
+  DEF_MENU_UPDATE(front_view );
 
-public  DEF_MENU_FUNCTION( back_view );
+  DEF_MENU_FUNCTION( back_view );
 
-public  DEF_MENU_UPDATE(back_view );
+  DEF_MENU_UPDATE(back_view );
 
-public  DEF_MENU_FUNCTION( left_view );
+  DEF_MENU_FUNCTION( left_view );
 
-public  DEF_MENU_UPDATE(left_view );
+  DEF_MENU_UPDATE(left_view );
 
-public  DEF_MENU_FUNCTION( right_view );
+  DEF_MENU_FUNCTION( right_view );
 
-public  DEF_MENU_UPDATE(right_view );
+  DEF_MENU_UPDATE(right_view );
 
-public  DEF_MENU_FUNCTION( toggle_perspective );
+  DEF_MENU_FUNCTION( toggle_perspective );
 
-public  DEF_MENU_UPDATE(toggle_perspective );
+  DEF_MENU_UPDATE(toggle_perspective );
 
-public  DEF_MENU_FUNCTION( magnify_view );
+  DEF_MENU_FUNCTION( magnify_view );
 
-public  DEF_MENU_UPDATE(magnify_view );
+  DEF_MENU_UPDATE(magnify_view );
 
-public  DEF_MENU_FUNCTION( translate_view );
+  DEF_MENU_FUNCTION( translate_view );
 
-public  DEF_MENU_UPDATE(translate_view );
+  DEF_MENU_UPDATE(translate_view );
 
-public  DEF_MENU_FUNCTION( rotate_view );
+  DEF_MENU_FUNCTION( rotate_view );
 
-public  DEF_MENU_UPDATE(rotate_view );
+  DEF_MENU_UPDATE(rotate_view );
 
-public  DEF_MENU_FUNCTION( front_clipping );
+  DEF_MENU_FUNCTION( front_clipping );
 
-public  DEF_MENU_UPDATE(front_clipping );
+  DEF_MENU_UPDATE(front_clipping );
 
-public  DEF_MENU_FUNCTION( back_clipping );
+  DEF_MENU_FUNCTION( back_clipping );
 
-public  DEF_MENU_UPDATE(back_clipping );
+  DEF_MENU_UPDATE(back_clipping );
 
-public  DEF_MENU_FUNCTION( pick_view_rectangle );
+  DEF_MENU_FUNCTION( pick_view_rectangle );
 
-public  DEF_MENU_UPDATE(pick_view_rectangle );
+  DEF_MENU_UPDATE(pick_view_rectangle );
 
-public  DEF_MENU_FUNCTION( create_film_loop );
+  DEF_MENU_FUNCTION( create_film_loop );
 
-public  DEF_MENU_UPDATE(create_film_loop );
+  DEF_MENU_UPDATE(create_film_loop );
 
-public  DEF_MENU_FUNCTION( save_image );
+  DEF_MENU_FUNCTION( save_image );
 
-public  DEF_MENU_UPDATE(save_image );
+  DEF_MENU_UPDATE(save_image );
 
-public  DEF_MENU_FUNCTION( toggle_stereo_mode );
+  DEF_MENU_FUNCTION( toggle_stereo_mode );
 
-public  DEF_MENU_UPDATE(toggle_stereo_mode );
+  DEF_MENU_UPDATE(toggle_stereo_mode );
 
-public  DEF_MENU_FUNCTION( set_eye_separation );
+  DEF_MENU_FUNCTION( set_eye_separation );
 
-public  DEF_MENU_UPDATE(set_eye_separation );
+  DEF_MENU_UPDATE(set_eye_separation );
 
-public  DEF_MENU_FUNCTION( print_view );
+  DEF_MENU_FUNCTION( print_view );
 
-public  DEF_MENU_UPDATE(print_view );
+  DEF_MENU_UPDATE(print_view );
 
-public  DEF_MENU_FUNCTION(type_in_3D_origin);
+  DEF_MENU_FUNCTION(type_in_3D_origin);
 
-public  DEF_MENU_UPDATE(type_in_3D_origin);
+  DEF_MENU_UPDATE(type_in_3D_origin);
 
-public  DEF_MENU_FUNCTION(type_in_view_origin);
+  DEF_MENU_FUNCTION(type_in_view_origin);
 
-public  DEF_MENU_UPDATE(type_in_view_origin);
+  DEF_MENU_UPDATE(type_in_view_origin);
 
-public  DEF_MENU_FUNCTION(type_in_view_line_of_sight);
+  DEF_MENU_FUNCTION(type_in_view_line_of_sight);
 
-public  DEF_MENU_UPDATE(type_in_view_line_of_sight);
+  DEF_MENU_UPDATE(type_in_view_line_of_sight);
 
-public  DEF_MENU_FUNCTION(type_in_view_up_dir);
+  DEF_MENU_FUNCTION(type_in_view_up_dir);
 
-public  DEF_MENU_UPDATE(type_in_view_up_dir);
+  DEF_MENU_UPDATE(type_in_view_up_dir);
 
-public  DEF_MENU_FUNCTION(type_in_view_window_width);
+  DEF_MENU_FUNCTION(type_in_view_window_width);
 
-public  DEF_MENU_UPDATE(type_in_view_window_width);
+  DEF_MENU_UPDATE(type_in_view_window_width);
 
-public  DEF_MENU_FUNCTION(type_in_view_perspective_distance);
+  DEF_MENU_FUNCTION(type_in_view_perspective_distance);
 
-public  DEF_MENU_UPDATE(type_in_view_perspective_distance);
+  DEF_MENU_UPDATE(type_in_view_perspective_distance);
 
-public  DEF_MENU_FUNCTION(move_slice_plus);
+  DEF_MENU_FUNCTION(move_slice_plus);
 
-public  DEF_MENU_UPDATE(move_slice_plus );
+  DEF_MENU_UPDATE(move_slice_plus );
 
-public  DEF_MENU_FUNCTION(move_slice_minus);
+  DEF_MENU_FUNCTION(move_slice_minus);
 
-public  DEF_MENU_UPDATE(move_slice_minus );
+  DEF_MENU_UPDATE(move_slice_minus );
 
-public  DEF_MENU_FUNCTION(toggle_slice_visibility);
+  DEF_MENU_FUNCTION(toggle_slice_visibility);
 
-public  DEF_MENU_UPDATE(toggle_slice_visibility );
+  DEF_MENU_UPDATE(toggle_slice_visibility );
 
-public  DEF_MENU_FUNCTION(toggle_cross_section_visibility);
+  DEF_MENU_FUNCTION(toggle_cross_section_visibility);
 
-public  DEF_MENU_UPDATE(toggle_cross_section_visibility );
+  DEF_MENU_UPDATE(toggle_cross_section_visibility );
 
-public  DEF_MENU_FUNCTION(reset_current_slice_view);
+  DEF_MENU_FUNCTION(reset_current_slice_view);
 
-public  DEF_MENU_UPDATE(reset_current_slice_view );
+  DEF_MENU_UPDATE(reset_current_slice_view );
 
-public  DEF_MENU_FUNCTION(colour_code_objects );
+  DEF_MENU_FUNCTION(colour_code_objects );
 
-public  DEF_MENU_UPDATE(colour_code_objects );
+  DEF_MENU_UPDATE(colour_code_objects );
 
-public  DEF_MENU_FUNCTION(create_3d_slice);
+  DEF_MENU_FUNCTION(create_3d_slice);
 
-public  DEF_MENU_UPDATE(create_3d_slice);
+  DEF_MENU_UPDATE(create_3d_slice);
 
-public  DEF_MENU_FUNCTION(create_3d_slice_profile);
+  DEF_MENU_FUNCTION(create_3d_slice_profile);
 
-public  DEF_MENU_UPDATE(create_3d_slice_profile);
+  DEF_MENU_UPDATE(create_3d_slice_profile);
 
-public  DEF_MENU_FUNCTION(resample_slice_window_volume);
+  DEF_MENU_FUNCTION(resample_slice_window_volume);
 
-public  DEF_MENU_UPDATE(resample_slice_window_volume);
+  DEF_MENU_UPDATE(resample_slice_window_volume);
 
-public  DEF_MENU_FUNCTION(box_filter_slice_window_volume);
+  DEF_MENU_FUNCTION(box_filter_slice_window_volume);
 
-public  DEF_MENU_UPDATE(box_filter_slice_window_volume);
+  DEF_MENU_UPDATE(box_filter_slice_window_volume);
 
-public  DEF_MENU_FUNCTION(pick_slice_angle_point);
+  DEF_MENU_FUNCTION(pick_slice_angle_point);
 
-public  DEF_MENU_UPDATE(pick_slice_angle_point);
+  DEF_MENU_UPDATE(pick_slice_angle_point);
 
-public  DEF_MENU_FUNCTION( rotate_slice_axes );
+  DEF_MENU_FUNCTION( rotate_slice_axes );
 
-public  DEF_MENU_UPDATE(rotate_slice_axes );
+  DEF_MENU_UPDATE(rotate_slice_axes );
 
-public  DEF_MENU_FUNCTION(reset_slice_crop);
+  DEF_MENU_FUNCTION(reset_slice_crop);
 
-public  DEF_MENU_UPDATE(reset_slice_crop);
+  DEF_MENU_UPDATE(reset_slice_crop);
 
-public  DEF_MENU_FUNCTION(toggle_slice_crop_visibility);
+  DEF_MENU_FUNCTION(toggle_slice_crop_visibility);
 
-public  DEF_MENU_UPDATE(toggle_slice_crop_visibility);
+  DEF_MENU_UPDATE(toggle_slice_crop_visibility);
 
-public  DEF_MENU_FUNCTION(pick_crop_box_edge);
+  DEF_MENU_FUNCTION(pick_crop_box_edge);
 
-public  DEF_MENU_UPDATE(pick_crop_box_edge);
+  DEF_MENU_UPDATE(pick_crop_box_edge);
 
-public  DEF_MENU_FUNCTION(set_crop_box_filename);
+  DEF_MENU_FUNCTION(set_crop_box_filename);
 
-public  DEF_MENU_UPDATE(set_crop_box_filename);
+  DEF_MENU_UPDATE(set_crop_box_filename);
 
-public  DEF_MENU_FUNCTION(load_cropped_volume);
+  DEF_MENU_FUNCTION(load_cropped_volume);
 
-public  DEF_MENU_UPDATE(load_cropped_volume);
+  DEF_MENU_UPDATE(load_cropped_volume);
 
-public  DEF_MENU_FUNCTION(crop_volume_to_file);
+  DEF_MENU_FUNCTION(crop_volume_to_file);
 
-public  DEF_MENU_UPDATE(crop_volume_to_file);
+  DEF_MENU_UPDATE(crop_volume_to_file);
 
-public  DEF_MENU_FUNCTION(redo_histogram);
+  DEF_MENU_FUNCTION(redo_histogram);
 
-public  DEF_MENU_UPDATE(redo_histogram);
+  DEF_MENU_UPDATE(redo_histogram);
 
-public  DEF_MENU_FUNCTION(redo_histogram_labeled);
+  DEF_MENU_FUNCTION(redo_histogram_labeled);
 
-public  DEF_MENU_UPDATE(redo_histogram_labeled);
+  DEF_MENU_UPDATE(redo_histogram_labeled);
 
-public  DEF_MENU_FUNCTION(print_voxel_origin);
+  DEF_MENU_FUNCTION(print_voxel_origin);
 
-public  DEF_MENU_UPDATE(print_voxel_origin);
+  DEF_MENU_UPDATE(print_voxel_origin);
 
-public  DEF_MENU_FUNCTION(print_slice_plane);
+  DEF_MENU_FUNCTION(print_slice_plane);
 
-public  DEF_MENU_UPDATE(print_slice_plane);
+  DEF_MENU_UPDATE(print_slice_plane);
 
-public  DEF_MENU_FUNCTION(type_in_voxel_origin);
+  DEF_MENU_FUNCTION(type_in_voxel_origin);
 
-public  DEF_MENU_UPDATE(type_in_voxel_origin);
+  DEF_MENU_UPDATE(type_in_voxel_origin);
 
-public  DEF_MENU_FUNCTION(type_in_slice_plane);
+  DEF_MENU_FUNCTION(type_in_slice_plane);
 
-public  DEF_MENU_UPDATE(type_in_slice_plane);
+  DEF_MENU_UPDATE(type_in_slice_plane);
 
-public  DEF_MENU_FUNCTION(toggle_slice_cross_section_visibility);
+  DEF_MENU_FUNCTION(toggle_slice_cross_section_visibility);
 
-public  DEF_MENU_UPDATE(toggle_slice_cross_section_visibility);
+  DEF_MENU_UPDATE(toggle_slice_cross_section_visibility);
 
-public  DEF_MENU_FUNCTION(set_current_arbitrary_view);
+  DEF_MENU_FUNCTION(set_current_arbitrary_view);
 
-public  DEF_MENU_UPDATE(set_current_arbitrary_view);
+  DEF_MENU_UPDATE(set_current_arbitrary_view);
 
-public  DEF_MENU_FUNCTION(toggle_slice_anchor);
+  DEF_MENU_FUNCTION(toggle_slice_anchor);
 
-public  DEF_MENU_UPDATE(toggle_slice_anchor);
+  DEF_MENU_UPDATE(toggle_slice_anchor);
 
-public  DEF_MENU_FUNCTION(delete_current_volume);
+  DEF_MENU_FUNCTION(delete_current_volume);
 
-public  DEF_MENU_UPDATE(delete_current_volume);
+  DEF_MENU_UPDATE(delete_current_volume);
 
-public  DEF_MENU_FUNCTION(toggle_current_volume);
+  DEF_MENU_FUNCTION(toggle_current_volume);
 
-public  DEF_MENU_UPDATE(toggle_current_volume);
+  DEF_MENU_UPDATE(toggle_current_volume);
 
-public  DEF_MENU_FUNCTION(prev_current_volume);
+  DEF_MENU_FUNCTION(prev_current_volume);
 
-public  DEF_MENU_UPDATE(prev_current_volume);
+  DEF_MENU_UPDATE(prev_current_volume);
 
-public  DEF_MENU_FUNCTION(set_current_volume_opacity);
+  DEF_MENU_FUNCTION(set_current_volume_opacity);
 
-public  DEF_MENU_UPDATE(set_current_volume_opacity);
+  DEF_MENU_UPDATE(set_current_volume_opacity);
 
-public  DEF_MENU_FUNCTION(next_volume_visible);
+  DEF_MENU_FUNCTION(next_volume_visible);
 
-public  DEF_MENU_UPDATE(next_volume_visible);
+  DEF_MENU_UPDATE(next_volume_visible);
 
-public  DEF_MENU_FUNCTION(prev_volume_visible);
+  DEF_MENU_FUNCTION(prev_volume_visible);
 
-public  DEF_MENU_UPDATE(prev_volume_visible);
+  DEF_MENU_UPDATE(prev_volume_visible);
 
-public  DEF_MENU_FUNCTION(toggle_slice_interpolation);
+  DEF_MENU_FUNCTION(toggle_slice_interpolation);
 
-public  DEF_MENU_UPDATE(toggle_slice_interpolation );
+  DEF_MENU_UPDATE(toggle_slice_interpolation );
 
-public  DEF_MENU_FUNCTION( save_slice_image );
+  DEF_MENU_FUNCTION( save_slice_image );
 
-public  DEF_MENU_UPDATE(save_slice_image );
+  DEF_MENU_UPDATE(save_slice_image );
 
-public  DEF_MENU_FUNCTION( save_slice_window );
+  DEF_MENU_FUNCTION( save_slice_window );
 
-public  DEF_MENU_UPDATE(save_slice_window );
+  DEF_MENU_UPDATE(save_slice_window );
 
-public  DEF_MENU_FUNCTION(toggle_incremental_slice_update);
+  DEF_MENU_FUNCTION(toggle_incremental_slice_update);
 
-public  DEF_MENU_UPDATE(toggle_incremental_slice_update);
+  DEF_MENU_UPDATE(toggle_incremental_slice_update);
 
-public  DEF_MENU_FUNCTION( toggle_shift_key );
+  DEF_MENU_FUNCTION( toggle_shift_key );
 
-public  DEF_MENU_UPDATE(toggle_shift_key );
+  DEF_MENU_UPDATE(toggle_shift_key );
 
-public  DEF_MENU_FUNCTION(toggle_cursor_visibility);
+  DEF_MENU_FUNCTION(toggle_cursor_visibility);
 
-public  DEF_MENU_UPDATE(toggle_cursor_visibility );
+  DEF_MENU_UPDATE(toggle_cursor_visibility );
 
-public  DEF_MENU_FUNCTION(insert_volume_as_labels);
+  DEF_MENU_FUNCTION(insert_volume_as_labels);
 
-public  DEF_MENU_UPDATE(insert_volume_as_labels );
+  DEF_MENU_UPDATE(insert_volume_as_labels );
 
-public  DEF_MENU_FUNCTION( transform_current_volume );
+  DEF_MENU_FUNCTION( transform_current_volume );
 
-public  DEF_MENU_UPDATE(transform_current_volume );
+  DEF_MENU_UPDATE(transform_current_volume );
 
-public  DEF_MENU_FUNCTION( reset_volume_transform );
+  DEF_MENU_FUNCTION( reset_volume_transform );
 
-public  DEF_MENU_UPDATE(reset_volume_transform );
+  DEF_MENU_UPDATE(reset_volume_transform );
 
-public  DEF_MENU_FUNCTION( translate_volume_plus_x);
+  DEF_MENU_FUNCTION( translate_volume_plus_x);
 
-public  DEF_MENU_UPDATE(translate_volume_plus_x );
+  DEF_MENU_UPDATE(translate_volume_plus_x );
 
-public  DEF_MENU_FUNCTION( translate_volume_minus_x);
+  DEF_MENU_FUNCTION( translate_volume_minus_x);
 
-public  DEF_MENU_UPDATE(translate_volume_minus_x );
+  DEF_MENU_UPDATE(translate_volume_minus_x );
 
-public  DEF_MENU_FUNCTION( translate_volume_plus_y);
+  DEF_MENU_FUNCTION( translate_volume_plus_y);
 
-public  DEF_MENU_UPDATE(translate_volume_plus_y );
+  DEF_MENU_UPDATE(translate_volume_plus_y );
 
-public  DEF_MENU_FUNCTION( translate_volume_minus_y);
+  DEF_MENU_FUNCTION( translate_volume_minus_y);
 
-public  DEF_MENU_UPDATE(translate_volume_minus_y );
+  DEF_MENU_UPDATE(translate_volume_minus_y );
 
-public  DEF_MENU_FUNCTION( translate_volume_plus_z);
+  DEF_MENU_FUNCTION( translate_volume_plus_z);
 
-public  DEF_MENU_UPDATE(translate_volume_plus_z );
+  DEF_MENU_UPDATE(translate_volume_plus_z );
 
-public  DEF_MENU_FUNCTION( translate_volume_minus_z);
+  DEF_MENU_FUNCTION( translate_volume_minus_z);
 
-public  DEF_MENU_UPDATE(translate_volume_minus_z );
+  DEF_MENU_UPDATE(translate_volume_minus_z );
 
-public  DEF_MENU_FUNCTION( magnify_volume);
+  DEF_MENU_FUNCTION( magnify_volume);
 
-public  DEF_MENU_UPDATE(magnify_volume );
+  DEF_MENU_UPDATE(magnify_volume );
 
-public  DEF_MENU_FUNCTION( shrink_volume);
+  DEF_MENU_FUNCTION( shrink_volume);
 
-public  DEF_MENU_UPDATE(shrink_volume );
+  DEF_MENU_UPDATE(shrink_volume );
 
-public  DEF_MENU_FUNCTION( rotate_volume_plus_x);
+  DEF_MENU_FUNCTION( rotate_volume_plus_x);
 
-public  DEF_MENU_UPDATE(rotate_volume_plus_x );
+  DEF_MENU_UPDATE(rotate_volume_plus_x );
 
-public  DEF_MENU_FUNCTION( rotate_volume_minus_x);
+  DEF_MENU_FUNCTION( rotate_volume_minus_x);
 
-public  DEF_MENU_UPDATE(rotate_volume_minus_x );
+  DEF_MENU_UPDATE(rotate_volume_minus_x );
 
-public  DEF_MENU_FUNCTION( rotate_volume_plus_y);
+  DEF_MENU_FUNCTION( rotate_volume_plus_y);
 
-public  DEF_MENU_UPDATE(rotate_volume_plus_y );
+  DEF_MENU_UPDATE(rotate_volume_plus_y );
 
-public  DEF_MENU_FUNCTION( rotate_volume_minus_y);
+  DEF_MENU_FUNCTION( rotate_volume_minus_y);
 
-public  DEF_MENU_UPDATE(rotate_volume_minus_y );
+  DEF_MENU_UPDATE(rotate_volume_minus_y );
 
-public  DEF_MENU_FUNCTION( rotate_volume_plus_z);
+  DEF_MENU_FUNCTION( rotate_volume_plus_z);
 
-public  DEF_MENU_UPDATE(rotate_volume_plus_z );
+  DEF_MENU_UPDATE(rotate_volume_plus_z );
 
-public  DEF_MENU_FUNCTION( rotate_volume_minus_z);
+  DEF_MENU_FUNCTION( rotate_volume_minus_z);
 
-public  DEF_MENU_UPDATE(rotate_volume_minus_z );
+  DEF_MENU_UPDATE(rotate_volume_minus_z );
 
-public  DEF_MENU_FUNCTION( set_volume_rotation_step);
+  DEF_MENU_FUNCTION( set_volume_rotation_step);
 
-public  DEF_MENU_UPDATE(set_volume_rotation_step );
+  DEF_MENU_UPDATE(set_volume_rotation_step );
 
-public  DEF_MENU_FUNCTION( set_volume_scale_step);
+  DEF_MENU_FUNCTION( set_volume_scale_step);
 
-public  DEF_MENU_UPDATE(set_volume_scale_step );
+  DEF_MENU_UPDATE(set_volume_scale_step );
 
-public  DEF_MENU_FUNCTION( set_volume_translation_step);
+  DEF_MENU_FUNCTION( set_volume_translation_step);
 
-public  DEF_MENU_UPDATE(set_volume_translation_step );
+  DEF_MENU_UPDATE(set_volume_translation_step );
 
-public  DEF_MENU_FUNCTION( save_current_volume_transform );
+  DEF_MENU_FUNCTION( save_current_volume_transform );
 
-public  DEF_MENU_UPDATE(save_current_volume_transform );
+  DEF_MENU_UPDATE(save_current_volume_transform );
 
-public  void  advance_current_object(
+  void  advance_current_object(
     display_struct    *display );
 
-public  void  retreat_current_object(
+  void  retreat_current_object(
     display_struct    *display );
 
-public  object_struct  *get_current_model_object(
+  object_struct  *get_current_model_object(
     display_struct    *display );
 
-public  model_struct  *get_current_model(
+  model_struct  *get_current_model(
     display_struct    *display );
 
-public  int  get_current_object_index(
+  int  get_current_object_index(
     display_struct    *display );
 
-public  void  set_current_object(
+  void  set_current_object(
     display_struct    *display,
     object_struct     *object );
 
-public  void  set_current_object_index(
+  void  set_current_object_index(
     display_struct    *display,
     int               index );
 
-public  VIO_BOOL  get_current_object(
+  VIO_BOOL  get_current_object(
     display_struct    *display,
     object_struct     **current_object );
 
-public  void  initialize_current_object(
+  void  initialize_current_object(
     display_struct    *display );
 
-public  void  terminate_current_object(
+  void  terminate_current_object(
     selection_struct   *current_object );
 
-public  void  push_current_object(
+  void  push_current_object(
     display_struct    *display );
 
-public  VIO_BOOL  current_object_is_top_level(
+  VIO_BOOL  current_object_is_top_level(
     display_struct    *display );
 
-public  void  pop_current_object(
+  void  pop_current_object(
     display_struct    *display );
 
-public  VIO_BOOL  current_object_is_this_type(
+  VIO_BOOL  current_object_is_this_type(
     display_struct    *display,
     Object_types      type );
 
-public  VIO_BOOL  current_object_exists(
+  VIO_BOOL  current_object_exists(
     display_struct    *display );
 
-public  void  turn_off_connected_polygons(
+  void  turn_off_connected_polygons(
     display_struct   *display );
 
-public  void  initialize_surface_edit(
+  void  initialize_surface_edit(
     surface_edit_struct   *surface_edit );
 
-public  void  delete_surface_edit(
+  void  delete_surface_edit(
     surface_edit_struct   *surface_edit );
 
-public  void  set_edited_polygons(
+  void  set_edited_polygons(
     surface_edit_struct   *surface_edit,
     polygons_struct       *polygons );
 
-public  VIO_BOOL  get_edited_polygons(
+  VIO_BOOL  get_edited_polygons(
     surface_edit_struct   *surface_edit,
     polygons_struct       **polygons );
 
-public  void  reset_edited_polygons(
+  void  reset_edited_polygons(
     surface_edit_struct   *surface_edit );
 
-public  void  start_segmenting_polygons(
+  void  start_segmenting_polygons(
     display_struct   *display );
 
-public  Status   save_window_to_file(
+  VIO_Status   save_window_to_file(
     display_struct  *display,
-    STRING          filename,
+    VIO_STR          filename,
     int             x_min,
     int             x_max,
     int             y_min,
     int             y_max );
 
-public  VIO_BOOL  update_current_marker(
+  VIO_BOOL  update_current_marker(
     display_struct   *display,
     int              volume_index,
-    Real             voxel[] );
+    VIO_Real             voxel[] );
 
-public  void  read_voxellation_block(
+  void  read_voxellation_block(
     surface_extraction_struct   *surf );
 
-public  VIO_BOOL  extract_voxel_boundary_surface(
-    Volume                      volume,
+  VIO_BOOL  extract_voxel_boundary_surface(
+    VIO_Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel[] );
 
-public  void   initialize_voxel_queue(
+  void   initialize_voxel_queue(
     voxel_queue_struct  *voxel_queue );
 
-public  void   insert_in_voxel_queue(
+  void   insert_in_voxel_queue(
     voxel_queue_struct  *voxel_queue,
     int                 voxel[] );
 
-public  void   get_next_voxel_from_queue(
+  void   get_next_voxel_from_queue(
     voxel_queue_struct    *voxel_queue,
     int                   voxel[] );
 
-public  VIO_BOOL  voxels_remaining(
+  VIO_BOOL  voxels_remaining(
     voxel_queue_struct  *voxel_queue );
 
-public  void  delete_voxel_queue(
+  void  delete_voxel_queue(
     voxel_queue_struct   *voxel_queue );
 
-public  void  initialize_voxel_flags(
+  void  initialize_voxel_flags(
     bitlist_3d_struct  *voxel_flags,
     int                min_limits[],
     int                max_limits[] );
 
-public  void  delete_voxel_flags(
+  void  delete_voxel_flags(
     bitlist_3d_struct  *voxel_flags );
 
-public  void  clear_voxel_flags(
+  void  clear_voxel_flags(
     bitlist_3d_struct  *voxel_flags );
 
-public  VIO_BOOL  get_voxel_flag(
+  VIO_BOOL  get_voxel_flag(
     bitlist_3d_struct   *voxel_flags,
     int                 min_limits[],
     int                 voxel[] );
 
-public  void  set_voxel_flag(
+  void  set_voxel_flag(
     bitlist_3d_struct      *voxel_flags,
     int                    min_limits[],
     int                    voxel[] );
 
-public  void  reset_voxel_flag(
+  void  reset_voxel_flag(
     bitlist_3d_struct      *voxel_flags,
     int                    min_limits[],
     int                    voxel[] );
 
-public  void  initialize_voxel_done_flags(
-    unsigned_byte   **voxel_done_flags,
+  void  initialize_voxel_done_flags(
+    VIO_UCHAR   **voxel_done_flags,
     int             min_limits[],
     int             max_limits[] );
 
-public  void  delete_voxel_done_flags(
-    unsigned_byte  voxel_done_flags[] );
+  void  delete_voxel_done_flags(
+    VIO_UCHAR  voxel_done_flags[] );
 
-public  void  clear_voxel_done_flags(
-    unsigned_byte   voxel_done_flags[],
+  void  clear_voxel_done_flags(
+    VIO_UCHAR   voxel_done_flags[],
     int             min_limits[],
     int             max_limits[] );
 
-public  unsigned_byte  get_voxel_done_flag(
+  VIO_UCHAR  get_voxel_done_flag(
     int                 min_limits[],
     int                 max_limits[],
-    unsigned_byte       voxel_done_flags[],
+    VIO_UCHAR       voxel_done_flags[],
     int                 voxel[] );
 
-public  void  set_voxel_done_flag(
+  void  set_voxel_done_flag(
     int                 min_limits[],
     int                 max_limits[],
-    unsigned_byte       voxel_done_flags[],
+    VIO_UCHAR       voxel_done_flags[],
     int                 voxel[],
-    unsigned_byte       flag );
+    VIO_UCHAR       flag );
 
-public  void  initialize_edge_points(
+  void  initialize_edge_points(
     hash_table_struct  *hash_table );
 
-public  void  delete_edge_points(
+  void  delete_edge_points(
     hash_table_struct  *hash_table );
 
-public  VIO_BOOL  lookup_edge_point_id(
+  VIO_BOOL  lookup_edge_point_id(
     int                 sizes[],
     hash_table_struct   *hash_table,
     int                 x,
@@ -1489,7 +1489,7 @@ public  VIO_BOOL  lookup_edge_point_id(
     int                 edge_intersected,
     int                 *edge_point_id );
 
-public  void  record_edge_point_id(
+  void  record_edge_point_id(
     int                 sizes[],
     hash_table_struct   *hash_table,
     int                 x,
@@ -1498,7 +1498,7 @@ public  void  record_edge_point_id(
     int                 edge_intersected,
     int                 edge_point_id );
 
-public  void  remove_edge_point(
+  void  remove_edge_point(
     int                 sizes[],
     hash_table_struct   *hash_table,
     int                 x,
@@ -1506,222 +1506,222 @@ public  void  remove_edge_point(
     int                 z,
     int                 edge_intersected );
 
-public  void  initialize_surface_extraction(
+  void  initialize_surface_extraction(
     display_struct     *display );
 
-public  void  delete_surface_extraction(
+  void  delete_surface_extraction(
     display_struct    *display );
 
-public  void  reset_surface_extraction(
+  void  reset_surface_extraction(
     display_struct    *display );
 
-public  void  tell_surface_extraction_volume_deleted(
+  void  tell_surface_extraction_volume_deleted(
     display_struct    *display,
-    Volume            volume,
-    Volume            label_volume );
+    VIO_Volume            volume,
+    VIO_Volume            label_volume );
 
-public  void  start_surface_extraction(
+  void  start_surface_extraction(
     display_struct     *display );
 
-public  void  stop_surface_extraction(
+  void  stop_surface_extraction(
     display_struct     *display );
 
-public  int  get_n_voxels(
-    Volume            volume );
+  int  get_n_voxels(
+    VIO_Volume            volume );
 
-public  void  set_invalid_label_range_for_surface_extraction(
+  void  set_invalid_label_range_for_surface_extraction(
     display_struct  *display,
     int             min_label,
     int             max_label );
 
-public  VIO_BOOL  voxel_contains_surface(
-    Volume                      volume,
-    Volume                      label_volume,
+  VIO_BOOL  voxel_contains_surface(
+    VIO_Volume                      volume,
+    VIO_Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel_index[] );
 
-public  VIO_BOOL  extract_voxel_surface(
-    Volume                      volume,
-    Volume                      label_volume,
+  VIO_BOOL  extract_voxel_surface(
+    VIO_Volume                      volume,
+    VIO_Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel[],
     VIO_BOOL                     first_voxel );
 
-public  void  start_surface_extraction_at_point(
+  void  start_surface_extraction_at_point(
     display_struct     *display,
-    Volume             volume,
-    Volume             label_volume,
+    VIO_Volume             volume,
+    VIO_Volume             label_volume,
     VIO_BOOL            binary_flag,
     VIO_BOOL            voxellate_flag,
-    Real               min_value,
-    Real               max_value,
+    VIO_Real               min_value,
+    VIO_Real               max_value,
     int                x,
     int                y,
     int                z );
 
-public  VIO_BOOL  some_voxels_remaining_to_do(
+  VIO_BOOL  some_voxels_remaining_to_do(
     surface_extraction_struct   *surface_extraction );
 
-public  VIO_BOOL  extract_more_surface(
+  VIO_BOOL  extract_more_surface(
     display_struct    *display );
 
-public  void  tell_surface_extraction_range_of_labels_changed(
+  void  tell_surface_extraction_range_of_labels_changed(
     display_struct    *display,
     int               volume_index,
-    int               range[2][N_DIMENSIONS] );
+    int               range[2][VIO_N_DIMENSIONS] );
 
-public  void  tell_surface_extraction_label_changed(
+  void  tell_surface_extraction_label_changed(
     display_struct    *display,
     int               volume_index,
     int               x,
     int               y,
     int               z );
 
-public  void  remove_empty_polygons(
+  void  remove_empty_polygons(
     polygons_struct  *polygons );
 
-public  void  install_surface_extraction(
+  void  install_surface_extraction(
     display_struct     *display );
 
-public  void  uninstall_surface_extraction(
+  void  uninstall_surface_extraction(
     display_struct     *display );
 
-public  void  scan_object_to_current_volume(
+  void  scan_object_to_current_volume(
     display_struct   *slice_window,
     object_struct    *object );
 
-public  void  start_picking_markers(
+  void  start_picking_markers(
     display_struct   *display );
 
-public  void  initialize_front_clipping(
+  void  initialize_front_clipping(
     display_struct   *display );
 
-public  void  initialize_back_clipping(
+  void  initialize_back_clipping(
     display_struct   *display );
 
-public  Status  start_film_loop(
+  VIO_Status  start_film_loop(
     display_struct   *display,
-    STRING           base_filename,
+    VIO_STR           base_filename,
     int              axis_index,
     int              n_steps );
 
-public  void  initialize_magnification(
+  void  initialize_magnification(
     display_struct   *display );
 
-public  VIO_BOOL  mouse_moved(
+  VIO_BOOL  mouse_moved(
     display_struct   *display,
-    Real             *new_x,
-    Real             *new_y,
-    Real             *old_x,
-    Real             *old_y );
+    VIO_Real             *new_x,
+    VIO_Real             *new_y,
+    VIO_Real             *old_x,
+    VIO_Real             *old_y );
 
-public  VIO_BOOL  pixel_mouse_moved(
+  VIO_BOOL  pixel_mouse_moved(
     display_struct   *display,
     int              *new_x,
     int              *new_y,
     int              *old_x,
     int              *old_y );
 
-public  void  record_mouse_position(
+  void  record_mouse_position(
     display_struct   *display );
 
-public  void  record_mouse_pixel_position(
+  void  record_mouse_pixel_position(
     display_struct   *display );
 
-public  void  initialize_translation(
+  void  initialize_translation(
     display_struct   *display );
 
-public  void  initialize_picking_object(
+  void  initialize_picking_object(
     display_struct    *display );
 
-public  VIO_BOOL  get_mouse_scene_intersection(
+  VIO_BOOL  get_mouse_scene_intersection(
     display_struct    *display,
     Object_types      desired_object_type,
     object_struct     **object,
     int               *object_index,
-    Point             *intersection );
+    VIO_Point             *intersection );
 
-public  VIO_BOOL  get_polygon_under_mouse(
+  VIO_BOOL  get_polygon_under_mouse(
     display_struct    *display,
     polygons_struct   **polygons,
     int               *poly_index,
-    Point             *intersection );
+    VIO_Point             *intersection );
 
-public  void  start_picking_viewport(
+  void  start_picking_viewport(
     display_struct   *display );
 
-public  void  initialize_rotating_slice(
+  void  initialize_rotating_slice(
     display_struct   *display );
 
-public  VIO_BOOL  get_spaceball_transform(
+  VIO_BOOL  get_spaceball_transform(
     display_struct   *display,
-    Real             x1,
-    Real             y1,
-    Real             x2,
-    Real             y2,
-    Transform        *transform );
+    VIO_Real             x1,
+    VIO_Real             y1,
+    VIO_Real             x2,
+    VIO_Real             y2,
+    VIO_Transform        *transform );
 
-public  void  initialize_virtual_spaceball(
+  void  initialize_virtual_spaceball(
     display_struct   *display );
 
-public  void  initialize_resize_events(
+  void  initialize_resize_events(
     display_struct   *display );
 
-public  void   terminate_any_interactions(
+  void   terminate_any_interactions(
     display_struct   *display );
 
-public  void  draw_2d_line(
+  void  draw_2d_line(
     display_struct    *display,
     View_types        view_type,
-    Colour            colour,
-    Real              x1,
-    Real              y1,
-    Real              x2,
-    Real              y2 );
+    VIO_Colour            colour,
+    VIO_Real              x1,
+    VIO_Real              y1,
+    VIO_Real              x2,
+    VIO_Real              y2 );
 
-public  void  draw_2d_rectangle(
+  void  draw_2d_rectangle(
     display_struct    *display,
     View_types        view_type,
-    Colour            colour,
-    Real              x1,
-    Real              y1,
-    Real              x2,
-    Real              y2 );
+    VIO_Colour            colour,
+    VIO_Real              x1,
+    VIO_Real              y1,
+    VIO_Real              x2,
+    VIO_Real              y2 );
 
-public  void  draw_polygons(
+  void  draw_polygons(
     display_struct    *display,
     polygons_struct   *polygons );
 
-public  render_struct  *get_main_render(
+  render_struct  *get_main_render(
     display_struct    *display );
 
-public  void  draw_text_3d(
+  void  draw_text_3d(
     display_struct    *display,
-    Point             *origin,
-    Colour            colour,
-    STRING            str );
+    VIO_Point             *origin,
+    VIO_Colour            colour,
+    VIO_STR            str );
 
-public  VIO_BOOL  intersect_ray_with_objects_hierarchy(
+  VIO_BOOL  intersect_ray_with_objects_hierarchy(
     display_struct    *display,
-    Point             *ray_origin,
-    Vector            *ray_direction,
+    VIO_Point             *ray_origin,
+    VIO_Vector            *ray_direction,
     Object_types      desired_object_type,
     object_struct     **object,
     int               *closest_object_index,
-    Point             *intersection_point );
+    VIO_Point             *intersection_point );
 
-public  void  intersect_plane_with_polygons(
+  void  intersect_plane_with_polygons(
     display_struct    *display,
-    Vector            *plane_normal,
-    Real              plane_constant,
+    VIO_Vector            *plane_normal,
+    VIO_Real              plane_constant,
     lines_struct      *lines,
     int               *n_points_alloced,
     int               *n_indices_alloced,
     int               *n_end_indices_alloced );
 
-public  VIO_BOOL  intersect_plane_one_polygon(
-    Vector            *plane_normal,
-    Real              plane_constant,
+  VIO_BOOL  intersect_plane_one_polygon(
+    VIO_Vector            *plane_normal,
+    VIO_Real              plane_constant,
     polygons_struct   *polygons,
     int               poly,
     lines_struct      *lines,
@@ -1729,322 +1729,322 @@ public  VIO_BOOL  intersect_plane_one_polygon(
     int               *n_indices_alloced,
     int               *n_end_indices_alloced );
 
-public  void  initialize_cursor(
+  void  initialize_cursor(
     display_struct    *display );
 
-public  void  reset_cursor(
+  void  reset_cursor(
     display_struct    *display );
 
-public  void  update_cursor_size(
+  void  update_cursor_size(
     display_struct    *display );
 
-public  void  update_cursor(
+  void  update_cursor(
     display_struct    *display );
 
-public  void  get_cursor_origin(
+  void  get_cursor_origin(
     display_struct   *display,
-    Point            *origin );
+    VIO_Point            *origin );
 
-public  void  rebuild_cursor_icon(
+  void  rebuild_cursor_icon(
     display_struct    *display );
 
-public  void  update_cursor_colour(
+  void  update_cursor_colour(
     display_struct   *display,
-    Colour           colour );
+    VIO_Colour           colour );
 
-public  void  build_menu(
+  void  build_menu(
     display_struct    *menu_window );
 
-public  void  rebuild_menu(
+  void  rebuild_menu(
     display_struct    *menu_window );
 
-public  Real  get_size_of_menu_text_area(
+  VIO_Real  get_size_of_menu_text_area(
     display_struct   *menu_window,
     int              key,
     int              line_number );
 
-public  VIO_BOOL   lookup_key_for_mouse_position(
+  VIO_BOOL   lookup_key_for_mouse_position(
     display_struct   *menu_window,
-    Real             x,
-    Real             y,
+    VIO_Real             x,
+    VIO_Real             y,
     int              *key );
 
-public  void  rebuild_cursor_position_model(
+  void  rebuild_cursor_position_model(
     display_struct    *display );
 
-public  Status  initialize_menu(
+  VIO_Status  initialize_menu(
     display_struct    *menu_window,
-    STRING            default_directory1,
-    STRING            default_directory2,
-    STRING            default_directory3,
-    STRING            default_directory4,
-    STRING            menu_filename );
+    VIO_STR            default_directory1,
+    VIO_STR            default_directory2,
+    VIO_STR            default_directory3,
+    VIO_STR            default_directory4,
+    VIO_STR            menu_filename );
 
-public  void  initialize_menu_actions(
+  void  initialize_menu_actions(
     display_struct    *menu_window );
 
-public  void  initialize_menu_window(
+  void  initialize_menu_window(
     display_struct    *menu_window );
 
-public  void  update_menu_text(
+  void  update_menu_text(
     display_struct      *display,
     menu_entry_struct   *menu_entry );
 
-public  DEF_MENU_FUNCTION( push_menu );
+  DEF_MENU_FUNCTION( push_menu );
 
-public  DEF_MENU_UPDATE(push_menu );
+  DEF_MENU_UPDATE(push_menu );
 
-public  DEF_MENU_FUNCTION( pop_menu );
+  DEF_MENU_FUNCTION( pop_menu );
 
-public  DEF_MENU_UPDATE(pop_menu );
+  DEF_MENU_UPDATE(pop_menu );
 
-public  void  pop_menu_one_level(
+  void  pop_menu_one_level(
     display_struct   *menu_window );
 
-public  void   set_menu_text(
+  void   set_menu_text(
     display_struct      *menu_window,
     menu_entry_struct   *menu_entry,
-    STRING              text );
+    VIO_STR              text );
 
-public  void  update_all_menu_text(
+  void  update_all_menu_text(
     display_struct   *display );
 
-public  Status  read_menu(
+  VIO_Status  read_menu(
     menu_window_struct   *menu,
     FILE                 *file );
 
-public  void  delete_menu(
+  void  delete_menu(
     menu_window_struct  *menu );
 
-public  void  rebuild_selected_list(
+  void  rebuild_selected_list(
     display_struct    *display,
     display_struct    *menu_window );
 
-public  VIO_BOOL  mouse_is_on_object_name(
+  VIO_BOOL  mouse_is_on_object_name(
     display_struct    *display,
     int               x,
     int               y,
     object_struct     **object_under_mouse );
 
-public  void  set_menu_text_real(
+  void  set_menu_text_real(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
-    Real               value );
+    VIO_Real               value );
 
-public  void  set_menu_text_int(
+  void  set_menu_text_int(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
     int                value );
 
-public  void  set_menu_text_boolean(
+  void  set_menu_text_boolean(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
     VIO_BOOL            value,
-    STRING             off_str,
-    STRING             on_str );
+    VIO_STR             off_str,
+    VIO_STR             on_str );
 
-public  void  set_menu_text_on_off(
+  void  set_menu_text_on_off(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
     VIO_BOOL            value );
 
-public  void  set_menu_text_with_colour(
+  void  set_menu_text_with_colour(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
-    Colour             colour );
+    VIO_Colour             colour );
 
-public  void  set_menu_text_string(
+  void  set_menu_text_string(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
-    STRING             str );
+    VIO_STR             str );
 
-public  void  initialize_cursor_plane_outline(
+  void  initialize_cursor_plane_outline(
     display_struct    *display );
 
-public  void  delete_cursor_plane_outline(
+  void  delete_cursor_plane_outline(
     display_struct    *display );
 
-public  void  cut_polygon_neighbours_from_lines(
+  void  cut_polygon_neighbours_from_lines(
     display_struct     *display,
     polygons_struct    *polygons );
 
-public  int  get_current_paint_label(
+  int  get_current_paint_label(
     display_struct    *display );
 
-public  void  initialize_voxel_labeling(
+  void  initialize_voxel_labeling(
     display_struct    *slice_window );
 
-public  void  delete_voxel_labeling(
+  void  delete_voxel_labeling(
     slice_window_struct    *slice );
 
-public  void  flip_labels_around_zero(
+  void  flip_labels_around_zero(
     display_struct  *slice_window );
 
-public  void  translate_labels(
+  void  translate_labels(
     display_struct   *slice_window,
     int              volume_index,
     int              delta[] );
 
-public  void  copy_labels_slice_to_slice(
+  void  copy_labels_slice_to_slice(
     display_struct   *slice_window,
     int              volume_index,
     int              axis,
     int              src_voxel,
     int              dest_voxel,
-    Real             min_threshold,
-    Real             max_threshold );
+    VIO_Real             min_threshold,
+    VIO_Real             max_threshold );
 
-public  void  initialize_segmenting(
+  void  initialize_segmenting(
     segmenting_struct  *segmenting );
 
-public  void  clear_all_labels(
+  void  clear_all_labels(
     display_struct    *display );
 
-public  void  set_labels_on_slice(
+  void  set_labels_on_slice(
     display_struct  *slice_window,
     int             volume_index,
     int             axis_index,
     int             position,
     int             label );
 
-public  void  set_connected_voxels_labels(
+  void  set_connected_voxels_labels(
     display_struct    *slice_window,
     int               volume_index,
     int               axis_index,
     int               position[],
-    Real              min_threshold,
-    Real              max_threshold,
+    VIO_Real              min_threshold,
+    VIO_Real              max_threshold,
     int               label_min_threshold,
     int               label_max_threshold,
     Neighbour_types   connectivity,
     int               label );
 
-public  void  set_visibility_around_poly(
+  void  set_visibility_around_poly(
     polygons_struct  *polygons,
     int              poly,
     int              max_polys_to_do,
     VIO_BOOL          set_visibility_flag,
     VIO_BOOL          new_visibility,
     VIO_BOOL          set_colour_flag,
-    Colour           colour );
+    VIO_Colour           colour );
 
-public  void  crop_polygons_visibilities(
+  void  crop_polygons_visibilities(
     polygons_struct  *polygons,
     int              axis_index,
-    Real             position,
+    VIO_Real             position,
     VIO_BOOL          cropping_above );
 
-public  void  initialize_colour_bar(
+  void  initialize_colour_bar(
     display_struct    *slice_window );
 
-public  void  rebuild_colour_bar(
+  void  rebuild_colour_bar(
     display_struct   *slice_window );
 
-public  int  get_colour_bar_y_pos(
+  int  get_colour_bar_y_pos(
     display_struct      *slice_window,
-    Real                value );
+    VIO_Real                value );
 
-public  VIO_BOOL  mouse_within_colour_bar(
+  VIO_BOOL  mouse_within_colour_bar(
     display_struct      *slice_window,
-    Real                x,
-    Real                y,
-    Real                *ratio );
+    VIO_Real                x,
+    VIO_Real                y,
+    VIO_Real                *ratio );
 
-public  void  get_histogram_space(
+  void  get_histogram_space(
     display_struct      *slice_window,
     int                 *x1,
     int                 *x2 );
 
-public  void  delete_slice_colour_coding(
+  void  delete_slice_colour_coding(
     slice_window_struct   *slice,
     int                   volume_index );
 
-public  void  set_slice_window_number_labels(
+  void  set_slice_window_number_labels(
     display_struct    *slice_window,
     int               volume_index,
     int               n_labels );
 
-public  void  initialize_slice_colour_coding(
+  void  initialize_slice_colour_coding(
     display_struct    *slice_window,
     int               volume_index );
 
-public  Volume  get_nth_label_volume(
+  VIO_Volume  get_nth_label_volume(
     display_struct   *display,
     int              volume_index );
 
-public  Volume  get_label_volume(
+  VIO_Volume  get_label_volume(
     display_struct   *display );
 
-public  VIO_BOOL  label_volume_exists(
+  VIO_BOOL  label_volume_exists(
     display_struct   *display );
 
-public  VIO_BOOL  get_label_visibility(
+  VIO_BOOL  get_label_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index );
 
-public  int  get_num_labels(
+  int  get_num_labels(
     display_struct   *display,
     int              volume_index );
 
-public  void   set_colour_of_label(
+  void   set_colour_of_label(
     display_struct    *slice_window,
     int               volume_index,
     int               label,
-    Colour            colour );
+    VIO_Colour            colour );
 
-public  Colour   get_colour_of_label(
+  VIO_Colour   get_colour_of_label(
     display_struct    *slice_window,
     int               volume_index,
     int               label );
 
-public  void   set_volume_opacity(
+  void   set_volume_opacity(
     display_struct   *slice_window,
     int              volume_index,
-    Real             opacity );
+    VIO_Real             opacity );
 
-public  void   set_label_opacity(
+  void   set_label_opacity(
     display_struct   *slice_window,
     int              volume_index,
-    Real             opacity );
+    VIO_Real             opacity );
 
-public  void  colour_coding_has_changed(
+  void  colour_coding_has_changed(
     display_struct    *display,
     int               volume_index,
     Update_types      type );
 
-public  void  change_colour_coding_range(
+  void  change_colour_coding_range(
     display_struct    *slice_window,
     int               volume_index,
-    Real              min_value,
-    Real              max_value );
+    VIO_Real              min_value,
+    VIO_Real              max_value );
 
-public  void  colour_code_an_object(
+  void  colour_code_an_object(
     display_struct   *display,
     object_struct    *object );
 
-public  STRING    get_default_colour_map_suffix( void );
+  VIO_STR    get_default_colour_map_suffix( void );
 
-public  Status  load_label_colour_map(
+  VIO_Status  load_label_colour_map(
     display_struct   *slice_window,
-    STRING           filename );
+    VIO_STR           filename );
 
-public  Status  save_label_colour_map(
+  VIO_Status  save_label_colour_map(
     display_struct   *slice_window,
-    STRING           filename );
+    VIO_STR           filename );
 
-public  void  clear_labels(
+  void  clear_labels(
     display_struct   *display,
     int              volume_index );
 
-public  int  get_voxel_label(
+  int  get_voxel_label(
     display_struct   *display,
     int              volume_index,
     int              x,
     int              y,
     int              z );
 
-public  void  set_voxel_label(
+  void  set_voxel_label(
     display_struct   *display,
     int              volume_index,
     int              x,
@@ -2052,106 +2052,106 @@ public  void  set_voxel_label(
     int              z,
     int              label );
 
-public  Status  load_user_defined_colour_coding(
+  VIO_Status  load_user_defined_colour_coding(
     display_struct   *slice_window,
-    STRING           filename );
+    VIO_STR           filename );
 
-public  void  initialize_crop_box(
+  void  initialize_crop_box(
     display_struct   *slice_window );
 
-public  void  delete_crop_box(
+  void  delete_crop_box(
     display_struct   *slice_window );
 
-public  void  set_crop_filename(
+  void  set_crop_filename(
     display_struct   *slice_window,
-    STRING           filename );
+    VIO_STR           filename );
 
-public  Status  create_cropped_volume_to_file(
+  VIO_Status  create_cropped_volume_to_file(
     display_struct   *slice_window,
-    STRING           cropped_filename );
+    VIO_STR           cropped_filename );
 
-public  void  crop_and_load_volume(
+  void  crop_and_load_volume(
     display_struct   *slice_window );
 
-public  void  toggle_slice_crop_box_visibility(
+  void  toggle_slice_crop_box_visibility(
     display_struct   *slice_window );
 
-public  void  reset_crop_box_position(
+  void  reset_crop_box_position(
     display_struct   *display );
 
-public  void  start_picking_crop_box(
+  void  start_picking_crop_box(
     display_struct    *slice_window );
 
-public  void  get_volume_crop_limits(
+  void  get_volume_crop_limits(
     display_struct    *display,
     int               min_voxel[],
     int               max_voxel[] );
 
-public  void  initialize_slice_models(
+  void  initialize_slice_models(
     display_struct    *slice_window );
 
-public  void  initialize_slice_models_for_volume(
+  void  initialize_slice_models_for_volume(
     display_struct    *slice_window,
     int               volume_index );
 
-public  void  delete_slice_models_for_volume(
+  void  delete_slice_models_for_volume(
     display_struct    *slice_window,
     int               volume_index );
 
-public  void  rebuild_slice_divider(
+  void  rebuild_slice_divider(
     display_struct    *slice_window );
 
-public  Bitplane_types  get_slice_readout_bitplanes( void );
+  Bitplane_types  get_slice_readout_bitplanes( void );
 
-public  void  rebuild_probe(
+  void  rebuild_probe(
     display_struct    *slice_window );
 
-public  void  get_slice_cross_section_direction(
+  void  get_slice_cross_section_direction(
     display_struct    *slice_window,
     int               view_index,
     int               section_index,
-    Vector            *in_plane_axis );
+    VIO_Vector            *in_plane_axis );
 
-public  void  rebuild_slice_unfinished_flag(
+  void  rebuild_slice_unfinished_flag(
     display_struct    *slice_window,
     int               view_index );
 
-public  VIO_BOOL  get_slice_unfinished_flag_visibility(
+  VIO_BOOL  get_slice_unfinished_flag_visibility(
     display_struct    *slice_window,
     int               view_index );
 
-public  void  set_slice_unfinished_flag_visibility(
+  void  set_slice_unfinished_flag_visibility(
     display_struct    *slice_window,
     int               view_index,
     VIO_BOOL           state );
 
-public  void  rebuild_slice_cross_section(
+  void  rebuild_slice_cross_section(
     display_struct    *slice_window,
     int               view_index );
 
-public  void  rebuild_slice_crop_box(
+  void  rebuild_slice_crop_box(
     display_struct    *slice_window,
     int               view_index );
 
-public  void  rebuild_slice_cursor(
+  void  rebuild_slice_cursor(
     display_struct    *slice_window,
     int               view_index );
 
-public  object_struct  *get_slice_pixels_object(
-    display_struct    *slice_window,
-    int               volume_index,
-    int               view_index );
-
-public  object_struct  *get_label_slice_pixels_object(
+  object_struct  *get_slice_pixels_object(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index );
 
-public  object_struct  *get_composite_slice_pixels_object(
+  object_struct  *get_label_slice_pixels_object(
+    display_struct    *slice_window,
+    int               volume_index,
+    int               view_index );
+
+  object_struct  *get_composite_slice_pixels_object(
     display_struct    *slice_window,
     int               view_index );
 
-public  int  rebuild_slice_pixels_for_volume(
+  int  rebuild_slice_pixels_for_volume(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
@@ -2160,19 +2160,19 @@ public  int  rebuild_slice_pixels_for_volume(
     VIO_BOOL           continuing_flag,
     VIO_BOOL           *finished );
 
-public  void  rebuild_slice_text(
+  void  rebuild_slice_text(
     display_struct    *slice_window,
     int               view_index );
 
-public  void  rebuild_atlas_slice_pixels(
+  void  rebuild_atlas_slice_pixels(
     display_struct    *slice_window,
     int               view_index );
 
-public  void  composite_volume_and_labels(
+  void  composite_volume_and_labels(
     display_struct        *slice_window,
     int                   view_index );
 
-public  int  rebuild_label_slice_pixels_for_volume(
+  int  rebuild_label_slice_pixels_for_volume(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
@@ -2181,141 +2181,141 @@ public  int  rebuild_label_slice_pixels_for_volume(
     VIO_BOOL           continuing_flag,
     VIO_BOOL           *finished );
 
-public  void  update_slice_pixel_visibilities(
+  void  update_slice_pixel_visibilities(
     display_struct    *slice_window,
     int               view );
 
-public  void  initialize_slice_histogram(
+  void  initialize_slice_histogram(
     display_struct   *slice_window );
 
-public  void  delete_slice_histogram(
+  void  delete_slice_histogram(
     slice_window_struct   *slice );
 
-public  void  clear_histogram(
+  void  clear_histogram(
     display_struct   *slice_window );
 
-public  void  resize_histogram(
+  void  resize_histogram(
     display_struct   *slice_window );
 
-public  void  compute_histogram(
+  void  compute_histogram(
     display_struct   *slice_window,
     int              axis_index,
     int              voxel_index,
     VIO_BOOL          labeled_only );
 
-public  void  start_picking_slice_angle(
+  void  start_picking_slice_angle(
     display_struct    *slice_window );
 
-public  object_struct   *create_3d_slice_quadmesh(
-    Volume         volume,
+  object_struct   *create_3d_slice_quadmesh(
+    VIO_Volume         volume,
     int            axis_index,
-    Real           voxel_position );
+    VIO_Real           voxel_position );
 
-public  void  create_slice_window(
+  void  create_slice_window(
     display_struct   *display,
-    STRING           filename,
-    Volume           volume );
+    VIO_STR           filename,
+    VIO_Volume           volume );
 
-public  void  update_all_slice_models(
+  void  update_all_slice_models(
     display_struct   *slice_window );
 
-public  void  delete_slice_window_volume(
+  void  delete_slice_window_volume(
     display_struct   *slice_window,
     int              volume_index );
 
-public  void  delete_slice_window(
+  void  delete_slice_window(
     display_struct   *slice_window );
 
-public  STRING  get_volume_filename(
+  VIO_STR  get_volume_filename(
     display_struct    *slice_window,
     int               volume_index );
 
-public  void  add_slice_window_volume(
+  void  add_slice_window_volume(
     display_struct    *display,
-    STRING            filename,
-    Volume            volume );
+    VIO_STR            filename,
+    VIO_Volume            volume );
 
-public  void  set_current_volume_index(
+  void  set_current_volume_index(
     display_struct  *slice_window,
     int             volume_index );
 
-public  int  get_n_volumes(
+  int  get_n_volumes(
     display_struct  *display );
 
-public  int   get_current_volume_index(
+  int   get_current_volume_index(
     display_struct   *display );
 
-public  VIO_BOOL   get_slice_window_volume(
+  VIO_BOOL   get_slice_window_volume(
     display_struct   *display,
-    Volume           *volume );
+    VIO_Volume           *volume );
 
-public  Volume  get_nth_volume(
+  VIO_Volume  get_nth_volume(
     display_struct   *display,
     int              volume_index );
 
-public  Volume   get_volume(
+  VIO_Volume   get_volume(
     display_struct   *display );
 
-public  VIO_BOOL  slice_window_exists(
+  VIO_BOOL  slice_window_exists(
     display_struct   *display );
 
-public  VIO_BOOL  get_slice_window(
+  VIO_BOOL  get_slice_window(
     display_struct   *display,
     display_struct   **slice_window );
 
-public  VIO_BOOL  get_range_of_volumes(
+  VIO_BOOL  get_range_of_volumes(
     display_struct   *display,
-    Point            *min_limit,
-    Point            *max_limit );
+    VIO_Point            *min_limit,
+    VIO_Point            *max_limit );
 
-public  void  set_slice_cursor_update(
+  void  set_slice_cursor_update(
     display_struct   *slice_window,
     int              view_index );
 
-public  void  set_slice_text_update(
+  void  set_slice_text_update(
     display_struct   *slice_window,
     int              view_index );
 
-public  void  set_slice_cross_section_update(
+  void  set_slice_cross_section_update(
     display_struct   *slice_window,
     int              view_index );
 
-public  void  set_crop_box_update(
+  void  set_crop_box_update(
     display_struct   *slice_window,
     int              view_index );
 
-public  void  set_slice_dividers_update(
+  void  set_slice_dividers_update(
     display_struct   *slice_window );
 
-public  void  set_probe_update(
+  void  set_probe_update(
     display_struct   *slice_window );
 
-public  void  set_colour_bar_update(
+  void  set_colour_bar_update(
     display_struct   *slice_window );
 
-public  void  set_atlas_update(
+  void  set_atlas_update(
     display_struct   *slice_window,
     int              view_index );
 
-public  void  set_slice_window_update(
+  void  set_slice_window_update(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
     Update_types     type );
 
-public  void  set_slice_window_all_update(
+  void  set_slice_window_all_update(
     display_struct   *slice_window,
     int              volume_index,
     Update_types     type );
 
-public  void  set_slice_viewport_update(
+  void  set_slice_viewport_update(
     display_struct   *slice_window,
     int              model_number );
 
-public  void  update_slice_window(
+  void  update_slice_window(
     display_struct   *slice_window );
 
-public  void  set_slice_composite_update(
+  void  set_slice_composite_update(
     display_struct   *slice_window,
     int              view_index,
     int              x_min,
@@ -2323,7 +2323,7 @@ public  void  set_slice_composite_update(
     int              y_min,
     int              y_max );
 
-public  VIO_BOOL  get_slice_subviewport(
+  VIO_BOOL  get_slice_subviewport(
     display_struct   *slice_window,
     int              view_index,
     int              *x_min,
@@ -2331,124 +2331,124 @@ public  VIO_BOOL  get_slice_subviewport(
     int              *y_min,
     int              *y_max );
 
-public  void  initialize_volume_cross_section(
+  void  initialize_volume_cross_section(
     display_struct    *display );
 
-public  void  rebuild_volume_outline(
+  void  rebuild_volume_outline(
     display_struct    *slice_window );
 
-public  void  rebuild_volume_cross_section(
+  void  rebuild_volume_cross_section(
     display_struct    *display );
 
-public  void  set_volume_cross_section_visibility(
+  void  set_volume_cross_section_visibility(
     display_struct    *display,
     VIO_BOOL           state );
 
-public  VIO_BOOL  get_volume_cross_section_visibility(
+  VIO_BOOL  get_volume_cross_section_visibility(
     display_struct    *display );
 
-public  void  initialize_slice_window_events(
+  void  initialize_slice_window_events(
     display_struct    *slice_window );
 
-public  void  set_voxel_cursor_from_mouse_position(
+  void  set_voxel_cursor_from_mouse_position(
     display_struct    *slice_window );
 
-public  void  initialize_slice_undo(
+  void  initialize_slice_undo(
     slice_undo_struct  *undo );
 
-public  void  delete_slice_undo(
+  void  delete_slice_undo(
     slice_undo_struct  *undo,
     int                volume_index );
 
-public  void  record_slice_labels(
+  void  record_slice_labels(
     display_struct  *display,
     int             volume_index,
     int             axis_index,
     int             slice_index );
 
-public  void  record_slice_under_mouse(
+  void  record_slice_under_mouse(
     display_struct  *display,
     int             volume_index );
 
-public  VIO_BOOL  slice_labels_to_undo(
+  VIO_BOOL  slice_labels_to_undo(
     display_struct  *display );
 
-public  int  undo_slice_labels_if_any(
+  int  undo_slice_labels_if_any(
     display_struct  *display );
 
-public  void  initialize_slice_window_view(
+  void  initialize_slice_window_view(
     display_struct    *slice_window,
     int               volume_index );
 
-public  void  set_slice_visibility(
+  void  set_slice_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view,
     VIO_BOOL           visibility );
 
-public  VIO_BOOL  get_slice_visibility(
+  VIO_BOOL  get_slice_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view );
 
-public  void  reset_slice_view(
+  void  reset_slice_view(
     display_struct    *slice_window,
     int               view );
 
-public  void  resize_slice_view(
+  void  resize_slice_view(
     display_struct    *slice_window,
     int               view );
 
-public  void  scale_slice_view(
+  void  scale_slice_view(
     display_struct    *slice_window,
     int               view,
-    Real              scale_factor );
+    VIO_Real              scale_factor );
 
-public  void  translate_slice_view(
+  void  translate_slice_view(
     display_struct    *slice_window,
     int               view,
-    Real              dx,
-    Real              dy );
+    VIO_Real              dx,
+    VIO_Real              dy );
 
-public  VIO_BOOL  find_slice_view_mouse_is_in(
+  VIO_BOOL  find_slice_view_mouse_is_in(
     display_struct    *display,
     int               x_pixel,
     int               y_pixel,
     int               *view_index );
 
-public  VIO_BOOL  convert_pixel_to_voxel(
+  VIO_BOOL  convert_pixel_to_voxel(
     display_struct    *display,
     int               volume_index,
     int               x_pixel,
     int               y_pixel,
-    Real              voxel[],
+    VIO_Real              voxel[],
     int               *view_index );
 
-public  void  convert_voxel_to_pixel(
+  void  convert_voxel_to_pixel(
     display_struct    *display,
     int               volume_index,
     int               view_index,
-    Real              voxel[],
-    Real              *x_pixel,
-    Real              *y_pixel );
+    VIO_Real              voxel[],
+    VIO_Real              *x_pixel,
+    VIO_Real              *y_pixel );
 
-public  void  get_voxel_to_pixel_transform(
+  void  get_voxel_to_pixel_transform(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
     int               *x_index,
     int               *y_index,
-    Real              *x_scale,
-    Real              *x_trans,
-    Real              *y_scale,
-    Real              *y_trans );
+    VIO_Real              *x_scale,
+    VIO_Real              *x_trans,
+    VIO_Real              *y_scale,
+    VIO_Real              *y_trans );
 
-public  VIO_BOOL  get_voxel_corresponding_to_point(
+  VIO_BOOL  get_voxel_corresponding_to_point(
     display_struct    *display,
-    Point             *point,
-    Real              voxel[] );
+    VIO_Point             *point,
+    VIO_Real              voxel[] );
 
-public  void   get_slice_window_partitions(
+  void   get_slice_window_partitions(
     display_struct    *slice_window,
     int               *left_panel_width,
     int               *left_slice_width,
@@ -2458,7 +2458,7 @@ public  void   get_slice_window_partitions(
     int               *text_panel_height,
     int               *colour_bar_panel_height );
 
-public  void  get_slice_viewport(
+  void  get_slice_viewport(
     display_struct    *slice_window,
     int               view_index,
     int               *x_min,
@@ -2466,101 +2466,101 @@ public  void  get_slice_viewport(
     int               *y_min,
     int               *y_max );
 
-public  void  get_colour_bar_viewport(
+  void  get_colour_bar_viewport(
     display_struct    *slice_window,
     int               *x_min,
     int               *x_max,
     int               *y_min,
     int               *y_max );
 
-public  void  get_text_display_viewport(
+  void  get_text_display_viewport(
     display_struct    *slice_window,
     int               *x_min,
     int               *x_max,
     int               *y_min,
     int               *y_max );
 
-public  void  get_slice_divider_intersection(
+  void  get_slice_divider_intersection(
     display_struct    *slice_window,
     int               *x,
     int               *y );
 
-public  void  set_slice_divider_position(
+  void  set_slice_divider_position(
     display_struct    *slice_window,
     int               x,
     int               y );
 
-public  VIO_BOOL  get_volume_corresponding_to_pixel(
+  VIO_BOOL  get_volume_corresponding_to_pixel(
     display_struct    *slice_window,
     int               x,
     int               y,
     int               *volume_index,
     int               *view_index,
-    Real              voxel[] );
+    VIO_Real              voxel[] );
 
-public  VIO_BOOL  get_voxel_in_slice_window(
+  VIO_BOOL  get_voxel_in_slice_window(
     display_struct    *display,
-    Real              voxel[],
+    VIO_Real              voxel[],
     int               *volume_index,
     int               *view_index );
 
-public  VIO_BOOL  get_voxel_in_three_d_window(
+  VIO_BOOL  get_voxel_in_three_d_window(
     display_struct    *display,
-    Real              voxel[] );
+    VIO_Real              voxel[] );
 
-public  VIO_BOOL  get_voxel_under_mouse(
+  VIO_BOOL  get_voxel_under_mouse(
     display_struct    *display,
     int               *volume_index,
     int               *view_index,
-    Real              voxel[] );
+    VIO_Real              voxel[] );
 
-public  void  get_current_voxel(
+  void  get_current_voxel(
     display_struct    *display,
     int               volume_index,
-    Real              voxel[] );
+    VIO_Real              voxel[] );
 
-public  VIO_BOOL  set_current_voxel(
+  VIO_BOOL  set_current_voxel(
     display_struct    *slice_window,
     int               this_volume_index,
-    Real              voxel[] );
+    VIO_Real              voxel[] );
 
-public  void  get_slice_perp_axis(
+  void  get_slice_perp_axis(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    Real             perp_axis[N_DIMENSIONS] );
+    VIO_Real             perp_axis[VIO_N_DIMENSIONS] );
 
-public  void  set_slice_plane_perp_axis(
+  void  set_slice_plane_perp_axis(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    Real             voxel_perp[] );
+    VIO_Real             voxel_perp[] );
 
-public  void  set_slice_plane(
+  void  set_slice_plane(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    Real             x_axis[],
-    Real             y_axis[] );
+    VIO_Real             x_axis[],
+    VIO_Real             y_axis[] );
 
-public  void  get_slice_plane(
+  void  get_slice_plane(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    Real             origin[],
-    Real             x_axis[],
-    Real             y_axis[] );
+    VIO_Real             origin[],
+    VIO_Real             x_axis[],
+    VIO_Real             y_axis[] );
 
-public  VIO_BOOL  get_slice_view_index_under_mouse(
+  VIO_BOOL  get_slice_view_index_under_mouse(
     display_struct   *display,
     int              *view_index );
 
-public  VIO_BOOL  get_axis_index_under_mouse(
+  VIO_BOOL  get_axis_index_under_mouse(
     display_struct   *display,
     int              *volume_index,
     int              *axis_index );
 
-public  VIO_BOOL  slice_has_ortho_axes(
+  VIO_BOOL  slice_has_ortho_axes(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
@@ -2568,10 +2568,10 @@ public  VIO_BOOL  slice_has_ortho_axes(
     int              *y_index,
     int              *axis_index );
 
-public  int  get_arbitrary_view_index(
+  int  get_arbitrary_view_index(
     display_struct   *display );
 
-public  void  get_slice_model_viewport(
+  void  get_slice_model_viewport(
     display_struct   *slice_window,
     int              model,
     int              *x_min,
@@ -2579,232 +2579,232 @@ public  void  get_slice_model_viewport(
     int              *y_min,
     int              *y_max );
 
-public  VIO_BOOL  update_cursor_from_voxel(
+  VIO_BOOL  update_cursor_from_voxel(
     display_struct    *slice_window );
 
-public  VIO_BOOL  update_voxel_from_cursor(
+  VIO_BOOL  update_voxel_from_cursor(
     display_struct    *slice_window );
 
-public  void  update_all_slice_axes_views(
+  void  update_all_slice_axes_views(
     display_struct    *slice_window,
     int               volume_index );
 
-public  void  slice_view_has_changed(
+  void  slice_view_has_changed(
     display_struct   *display,
     int              view );
 
-public  void  set_volume_transform(
+  void  set_volume_transform(
     display_struct     *display,
     int                volume_index,
     VIO_General_transform  *transform );
 
-public  void  concat_transform_to_volume(
+  void  concat_transform_to_volume(
     display_struct     *display,
     int                volume_index,
     VIO_General_transform  *transform );
 
-public  void  transform_current_volume_from_file(
+  void  transform_current_volume_from_file(
     display_struct   *display,
-    STRING           filename );
+    VIO_STR           filename );
 
-public  void  reset_current_volume_transform(
+  void  reset_current_volume_transform(
     display_struct   *display );
 
-public  VIO_BOOL  find_closest_line_point_to_point(
+  VIO_BOOL  find_closest_line_point_to_point(
     display_struct    *display,
-    Point             *point,
-    Point             *closest_line_point );
+    VIO_Point             *point,
+    VIO_Point             *closest_line_point );
 
-public  void  initialize_surface_curve(
+  void  initialize_surface_curve(
     display_struct     *display );
 
-public  void  start_surface_curve(
+  void  start_surface_curve(
     display_struct     *display );
 
-public  void  end_surface_curve(
+  void  end_surface_curve(
     display_struct     *display );
 
-public  void  close_surface_curve(
+  void  close_surface_curve(
     display_struct     *display );
 
-public  void  pick_surface_point_near_a_line(
+  void  pick_surface_point_near_a_line(
     display_struct   *display );
 
-public  void  reset_surface_curve(
+  void  reset_surface_curve(
     display_struct     *display );
 
-public  void  make_surface_curve_permanent(
+  void  make_surface_curve_permanent(
     display_struct     *display );
 
-public  VIO_BOOL  distance_along_polygons(
+  VIO_BOOL  distance_along_polygons(
     polygons_struct   *polygons,
-    Real              curvature_weight,
-    Real              min_curvature,
-    Real              max_curvature,
-    Point             *p1,
+    VIO_Real              curvature_weight,
+    VIO_Real              min_curvature,
+    VIO_Real              max_curvature,
+    VIO_Point             *p1,
     int               poly1,
-    Point             *p2,
+    VIO_Point             *p2,
     int               poly2,
-    Real              *dist,
+    VIO_Real              *dist,
     lines_struct      *lines );
 
-public  void  find_polygon_vertex_nearest_point(
+  void  find_polygon_vertex_nearest_point(
     polygons_struct  *polygons,
     int              poly,
-    Point            *point,
-    Point            *closest_vertex );
+    VIO_Point            *point,
+    VIO_Point            *closest_vertex );
 
-public  void  convert_lines_to_tubes_objects(
+  void  convert_lines_to_tubes_objects(
     display_struct    *display,
     lines_struct      *lines,
     int               n_around,
-    Real              radius );
+    VIO_Real              radius );
 
-public  void  add_action_table_function(
+  void  add_action_table_function(
     action_table_struct   *action_table,
     Event_types           event_type,
     event_function_type   function );
 
-public  void  remove_action_table_function(
+  void  remove_action_table_function(
     action_table_struct   *action_table,
     Event_types           event_type,
     event_function_type   function );
 
-public  void  push_action_table(
+  void  push_action_table(
     action_table_struct   *action_table,
     Event_types           event_type );
 
-public  void  pop_action_table(
+  void  pop_action_table(
     action_table_struct   *action_table,
     Event_types           event_type );
 
-public  int  get_event_actions(
+  int  get_event_actions(
     action_table_struct   *action_table,
     Event_types           event_type,
     event_function_type   *actions_list[] );
 
-public  void  initialize_action_table(
+  void  initialize_action_table(
     action_table_struct   *action_table );
 
-public  void  fit_view_to_domain(
+  void  fit_view_to_domain(
     view_struct   *view,
-    Point         *min_limit,
-    Point         *max_limit );
+    VIO_Point         *min_limit,
+    VIO_Point         *max_limit );
 
-public  void  initialize_lights(
+  void  initialize_lights(
     light_struct  *lights );
 
-public  void  initialize_render(
+  void  initialize_render(
     render_struct  *render );
 
-public  void  initialize_render_3D(
+  void  initialize_render_3D(
     render_struct  *render );
 
-public  void  set_render_info(
+  void  set_render_info(
     window_struct  *window,
     render_struct  *render );
 
-public  void  initialize_view(
+  void  initialize_view(
     view_struct  *view,
-    Vector       *line_of_sight,
-    Vector       *horizontal );
+    VIO_Vector       *line_of_sight,
+    VIO_Vector       *horizontal );
 
-public  void  assign_view_direction(
+  void  assign_view_direction(
     view_struct    *view,
-    Vector         *line_of_sight,
-    Vector         *hor );
+    VIO_Vector         *line_of_sight,
+    VIO_Vector         *hor );
 
-public  void  get_view_z_axis(
+  void  get_view_z_axis(
     view_struct   *view,
-    Vector        *z_axis );
+    VIO_Vector        *z_axis );
 
-public  void  get_view_centre(
+  void  get_view_centre(
     view_struct   *view,
-    Point         *centre );
+    VIO_Point         *centre );
 
-public  void  get_screen_centre(
+  void  get_screen_centre(
     view_struct   *view,
-    Point         *centre );
+    VIO_Point         *centre );
 
-public  void  get_screen_axes(
+  void  get_screen_axes(
     view_struct   *view,
-    Vector        *hor,
-    Vector        *vert );
+    VIO_Vector        *hor,
+    VIO_Vector        *vert );
 
-public  void  get_screen_point(
+  void  get_screen_point(
     view_struct  *view,
-    Real         x,
-    Real         y,
-    Point        *point );
+    VIO_Real         x,
+    VIO_Real         y,
+    VIO_Point        *point );
 
-public  void  adjust_view_for_aspect(
+  void  adjust_view_for_aspect(
     view_struct    *view,
     window_struct  *window );
 
-public  void  convert_point_from_coordinate_system(
-    Point    *origin,
-    Vector   *x_axis,
-    Vector   *y_axis,
-    Vector   *z_axis,
-    Point    *point,
-    Point    *transformed_point );
+  void  convert_point_from_coordinate_system(
+    VIO_Point    *origin,
+    VIO_Vector   *x_axis,
+    VIO_Vector   *y_axis,
+    VIO_Vector   *z_axis,
+    VIO_Point    *point,
+    VIO_Point    *transformed_point );
 
-public  void  transform_point_to_world(
+  void  transform_point_to_world(
     view_struct   *view,
-    Point         *p,
-    Point         *transformed_point );
+    VIO_Point         *p,
+    VIO_Point         *transformed_point );
 
-public  void  transform_world_to_model(
+  void  transform_world_to_model(
     view_struct   *view,
-    Point         *p,
-    Point         *transformed_point );
+    VIO_Point         *p,
+    VIO_Point         *transformed_point );
 
-public  void  transform_world_to_model_vector(
+  void  transform_world_to_model_vector(
     view_struct   *view,
-    Vector        *v,
-    Vector        *transformed_vector );
+    VIO_Vector        *v,
+    VIO_Vector        *transformed_vector );
 
-public  void  transform_world_to_screen(
+  void  transform_world_to_screen(
     view_struct   *view,
-    Point         *p,
-    Point         *transformed_point );
+    VIO_Point         *p,
+    VIO_Point         *transformed_point );
 
-public  void  transform_point_to_view_space(
+  void  transform_point_to_view_space(
     view_struct   *view,
-    Point         *p,
-    Point         *transformed_point );
+    VIO_Point         *p,
+    VIO_Point         *transformed_point );
 
-public  void  transform_point_to_screen(
+  void  transform_point_to_screen(
     view_struct   *view,
-    Point         *p,
-    Point         *transformed_point );
+    VIO_Point         *p,
+    VIO_Point         *transformed_point );
 
-public  void  set_model_scale(
+  void  set_model_scale(
     view_struct   *view,
-    Real          sx,
-    Real          sy,
-    Real          sz );
+    VIO_Real          sx,
+    VIO_Real          sy,
+    VIO_Real          sz );
 
-public  void  convert_screen_to_ray(
+  void  convert_screen_to_ray(
     view_struct   *view,
-    Real          x_screen,
-    Real          y_screen,
-    Point         *origin,
-    Vector        *direction );
+    VIO_Real          x_screen,
+    VIO_Real          y_screen,
+    VIO_Point         *origin,
+    VIO_Vector        *direction );
 
-public  void  magnify_view_size(
+  void  magnify_view_size(
     view_struct  *view,
-    Real         factor );
+    VIO_Real         factor );
 
-public  void  set_view_rectangle(
+  void  set_view_rectangle(
     view_struct   *view,
-    Real          x_min,
-    Real          x_max,
-    Real          y_min,
-    Real          y_max );
+    VIO_Real          x_min,
+    VIO_Real          x_max,
+    VIO_Real          y_min,
+    VIO_Real          y_max );
 
-public  void  transform_screen_to_pixels(
+  void  transform_screen_to_pixels(
     window_struct  *window,
-    Point          *screen,
-    Point          *pixels );
+    VIO_Point          *screen,
+    VIO_Point          *pixels );
 #endif
