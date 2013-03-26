@@ -24,14 +24,14 @@
 
 static    DEF_EVENT_FUNCTION(    add_to_surface );
 
-public  void  install_surface_extraction(
+  void  install_surface_extraction(
     display_struct     *display )
 {
     add_action_table_function( &display->action_table, NO_EVENT,
                                add_to_surface );
 }
 
-public  void  uninstall_surface_extraction(
+  void  uninstall_surface_extraction(
     display_struct     *display )
 {
     remove_action_table_function( &display->action_table, NO_EVENT,
@@ -40,7 +40,7 @@ public  void  uninstall_surface_extraction(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( add_to_surface )
+static  DEF_EVENT_FUNCTION( add_to_surface )
 {
     if( display->three_d.surface_extraction.extraction_in_progress &&
         some_voxels_remaining_to_do( &display->three_d.surface_extraction ) )

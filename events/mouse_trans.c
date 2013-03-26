@@ -22,14 +22,14 @@
 
 #include  <display.h>
 
-private    DEF_EVENT_FUNCTION( start_translation );
-private    DEF_EVENT_FUNCTION( turn_off_translation );
-private    DEF_EVENT_FUNCTION( handle_update );
-private    DEF_EVENT_FUNCTION( terminate_translation );
-private  VIO_BOOL  perform_translation(
+static    DEF_EVENT_FUNCTION( start_translation );
+static    DEF_EVENT_FUNCTION( turn_off_translation );
+static    DEF_EVENT_FUNCTION( handle_update );
+static    DEF_EVENT_FUNCTION( terminate_translation );
+static  VIO_BOOL  perform_translation(
     display_struct   *display );
 
-public  void  initialize_translation(
+  void  initialize_translation(
     display_struct   *display )
 {
     terminate_any_interactions( display );
@@ -45,7 +45,7 @@ public  void  initialize_translation(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( turn_off_translation )
+static  DEF_EVENT_FUNCTION( turn_off_translation )
 {
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
@@ -60,7 +60,7 @@ private  DEF_EVENT_FUNCTION( turn_off_translation )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( start_translation )
+static  DEF_EVENT_FUNCTION( start_translation )
 {
     add_action_table_function( &display->action_table,
                                NO_EVENT,
@@ -79,7 +79,7 @@ private  DEF_EVENT_FUNCTION( start_translation )
     return( OK );
 }
 
-private  void  update_translation(
+static  void  update_translation(
     display_struct  *display )
 {
     if( perform_translation( display ) )
@@ -91,7 +91,7 @@ private  void  update_translation(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_translation )
+static  DEF_EVENT_FUNCTION( terminate_translation )
 {
     update_translation( display );
     
@@ -109,14 +109,14 @@ private  DEF_EVENT_FUNCTION( terminate_translation )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_update )
+static  DEF_EVENT_FUNCTION( handle_update )
 {
     update_translation( display );
 
     return( OK );
 }
 
-private  VIO_BOOL  perform_translation(
+static  VIO_BOOL  perform_translation(
     display_struct   *display )
 {
     VIO_BOOL        moved;

@@ -1167,7 +1167,7 @@ selected sulcus available... \n");
                        if(status == OK){
 
                  print( "********************************************************* \n");
-                 print( "       GIVE AN INITIAL LABELLING BASED ON SP_AMss         \n");
+                 print( "       GIVE AN INITIAL LABELLING BASED TRUE SP_AMss         \n");
                  print( " RULE : if ( max_proba( ARC )  >= thresh_proba &&         \n");
                  print( "             mean_depth(ARC )  >= thresh_depth ) )        \n");
                  print( "                 set_color_and_name(ARC, name_max_proba)  \n");
@@ -1706,11 +1706,11 @@ if( (indice >= 0 && indice <= 20)
 	  {
 	     SULCUS_graph.get_arc_name(obj_index, which_hem, &name);
 	     if (name == name_arc && UNKNOWN_visible ==1 ){
-	       set_object_visibility(lst_obj[obj_index] , OFF );
+	       set_object_visibility(lst_obj[obj_index] , FALSE );
              }
              else{
                 if (name == name_arc && UNKNOWN_visible ==0 ){
-                 set_object_visibility(lst_obj[obj_index] , ON );
+                 set_object_visibility(lst_obj[obj_index] , TRUE );
               }//end if
               }//end else
 
@@ -1806,7 +1806,7 @@ if( (indice >= 0 && indice <= 20)
                                           &real_mean_depth);
 
              if(real_length <= (float) length_thresh)
-                 set_object_visibility(lst_obj[obj_index] , OFF );
+                 set_object_visibility(lst_obj[obj_index] , FALSE );
           }//end for
 
         

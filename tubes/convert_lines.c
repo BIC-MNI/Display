@@ -23,7 +23,7 @@
 
 #include  <display.h>
 
-public  void  convert_lines_to_tubes_objects(
+  void  convert_lines_to_tubes_objects(
     display_struct    *display,
     lines_struct      *lines,
     int               n_around,

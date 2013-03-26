@@ -24,7 +24,7 @@
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_colour_limits )
+  DEF_MENU_FUNCTION(set_colour_limits )
 {
     int              volume_index;
     VIO_STR           line;
@@ -77,12 +77,12 @@ public  DEF_MENU_FUNCTION(set_colour_limits )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_colour_limits )
+  DEF_MENU_UPDATE(set_colour_limits )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-private  void  set_the_colour_coding_type(
+static  void  set_the_colour_coding_type(
     display_struct       *display,
     Colour_coding_types  type )
 {
@@ -104,7 +104,7 @@ private  void  set_the_colour_coding_type(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_contour_colour_map )
+  DEF_MENU_FUNCTION(set_contour_colour_map )
 {
     set_the_colour_coding_type( display, CONTOUR_COLOUR_MAP );
 
@@ -113,14 +113,14 @@ public  DEF_MENU_FUNCTION(set_contour_colour_map )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_contour_colour_map )
+  DEF_MENU_UPDATE(set_contour_colour_map )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_hot_metal )
+  DEF_MENU_FUNCTION(set_hot_metal )
 {
     set_the_colour_coding_type( display, HOT_METAL );
 
@@ -129,14 +129,14 @@ public  DEF_MENU_FUNCTION(set_hot_metal )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_hot_metal )
+  DEF_MENU_UPDATE(set_hot_metal )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_gray_scale )
+  DEF_MENU_FUNCTION(set_gray_scale )
 {
     set_the_colour_coding_type( display, GRAY_SCALE );
 
@@ -145,14 +145,14 @@ public  DEF_MENU_FUNCTION(set_gray_scale )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_gray_scale )
+  DEF_MENU_UPDATE(set_gray_scale )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_red )
+  DEF_MENU_FUNCTION(set_red )
 {
     set_the_colour_coding_type( display, RED_COLOUR_MAP );
 
@@ -161,14 +161,14 @@ public  DEF_MENU_FUNCTION(set_red )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_red )
+  DEF_MENU_UPDATE(set_red )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_green )
+  DEF_MENU_FUNCTION(set_green )
 {
     set_the_colour_coding_type( display, GREEN_COLOUR_MAP );
 
@@ -177,14 +177,14 @@ public  DEF_MENU_FUNCTION(set_green )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_green )
+  DEF_MENU_UPDATE(set_green )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_blue )
+  DEF_MENU_FUNCTION(set_blue )
 {
     set_the_colour_coding_type( display, BLUE_COLOUR_MAP );
 
@@ -193,14 +193,14 @@ public  DEF_MENU_FUNCTION(set_blue )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_blue )
+  DEF_MENU_UPDATE(set_blue )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_spectral )
+  DEF_MENU_FUNCTION(set_spectral )
 {
     set_the_colour_coding_type( display, SPECTRAL );
 
@@ -209,14 +209,14 @@ public  DEF_MENU_FUNCTION(set_spectral )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_spectral )
+  DEF_MENU_UPDATE(set_spectral )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_arbitrary_colour_scale )
+  DEF_MENU_FUNCTION(set_arbitrary_colour_scale )
 {
     set_the_colour_coding_type( display, SINGLE_COLOUR_SCALE );
 
@@ -225,14 +225,14 @@ public  DEF_MENU_FUNCTION(set_arbitrary_colour_scale )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_arbitrary_colour_scale )
+  DEF_MENU_UPDATE(set_arbitrary_colour_scale )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_user_defined_colour_scale )
+  DEF_MENU_FUNCTION(set_user_defined_colour_scale )
 {
     set_the_colour_coding_type( display, USER_DEFINED_COLOUR_MAP );
 
@@ -241,14 +241,14 @@ public  DEF_MENU_FUNCTION(set_user_defined_colour_scale )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_user_defined_colour_scale )
+  DEF_MENU_UPDATE(set_user_defined_colour_scale )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_under_colour )
+  DEF_MENU_FUNCTION(set_under_colour )
 {
     VIO_Status                  status;
     display_struct          *slice_window;
@@ -284,7 +284,7 @@ public  DEF_MENU_FUNCTION(set_under_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_under_colour )
+  DEF_MENU_UPDATE(set_under_colour )
 {
     VIO_BOOL          active;
     display_struct   *slice_window;
@@ -306,7 +306,7 @@ public  DEF_MENU_UPDATE(set_under_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_over_colour )
+  DEF_MENU_FUNCTION(set_over_colour )
 {
     VIO_Status                  status;
     display_struct          *slice_window;
@@ -342,7 +342,7 @@ public  DEF_MENU_FUNCTION(set_over_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_over_colour )
+  DEF_MENU_UPDATE(set_over_colour )
 {
     VIO_BOOL          active;
     display_struct   *slice_window;
@@ -365,7 +365,7 @@ public  DEF_MENU_UPDATE(set_over_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_label_colour_ratio )
+  DEF_MENU_FUNCTION(set_label_colour_ratio )
 {
     VIO_Real             opacity;
     display_struct   *slice_window;
@@ -390,7 +390,7 @@ public  DEF_MENU_FUNCTION(set_label_colour_ratio )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_label_colour_ratio )
+  DEF_MENU_UPDATE(set_label_colour_ratio )
 {
     VIO_BOOL          state;
     VIO_Real             opacity;
@@ -410,7 +410,7 @@ public  DEF_MENU_UPDATE(set_label_colour_ratio )
     return( state );
 }
 
-private  void  set_filter_type(
+static  void  set_filter_type(
     display_struct   *display,
     Filter_types     filter_type )
 {
@@ -432,7 +432,7 @@ private  void  set_filter_type(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_nearest_neighbour )
+  DEF_MENU_FUNCTION(set_nearest_neighbour )
 {
     set_filter_type( display, NEAREST_NEIGHBOUR );
     return( OK );
@@ -440,14 +440,14 @@ public  DEF_MENU_FUNCTION(set_nearest_neighbour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_nearest_neighbour )
+  DEF_MENU_UPDATE(set_nearest_neighbour )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_linear_interpolation )
+  DEF_MENU_FUNCTION(set_linear_interpolation )
 {
     set_filter_type( display, LINEAR_INTERPOLATION );
     return( OK );
@@ -455,14 +455,14 @@ public  DEF_MENU_FUNCTION(set_linear_interpolation )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_linear_interpolation )
+  DEF_MENU_UPDATE(set_linear_interpolation )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_box_filter )
+  DEF_MENU_FUNCTION(set_box_filter )
 {
     set_filter_type( display, BOX_FILTER );
     return( OK );
@@ -470,14 +470,14 @@ public  DEF_MENU_FUNCTION(set_box_filter )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_box_filter )
+  DEF_MENU_UPDATE(set_box_filter )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_triangle_filter )
+  DEF_MENU_FUNCTION(set_triangle_filter )
 {
     set_filter_type( display, TRIANGLE_FILTER );
     return( OK );
@@ -485,14 +485,14 @@ public  DEF_MENU_FUNCTION(set_triangle_filter )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_triangle_filter )
+  DEF_MENU_UPDATE(set_triangle_filter )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_gaussian_filter )
+  DEF_MENU_FUNCTION(set_gaussian_filter )
 {
     set_filter_type( display, GAUSSIAN_FILTER );
     return( OK );
@@ -500,14 +500,14 @@ public  DEF_MENU_FUNCTION(set_gaussian_filter )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_gaussian_filter )
+  DEF_MENU_UPDATE(set_gaussian_filter )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_filter_half_width )
+  DEF_MENU_FUNCTION(set_filter_half_width )
 {
     int             view_index, volume_index;
     display_struct  *slice_window;
@@ -543,14 +543,14 @@ public  DEF_MENU_FUNCTION(set_filter_half_width )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_filter_half_width )
+  DEF_MENU_UPDATE(set_filter_half_width )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(set_slice_window_n_labels )
+  DEF_MENU_FUNCTION(set_slice_window_n_labels )
 {
     int             n_labels;
     display_struct  *slice_window;
@@ -576,7 +576,7 @@ public  DEF_MENU_FUNCTION(set_slice_window_n_labels )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_slice_window_n_labels )
+  DEF_MENU_UPDATE(set_slice_window_n_labels )
 {
     VIO_BOOL          state;
     int              n_labels;
@@ -598,7 +598,7 @@ public  DEF_MENU_UPDATE(set_slice_window_n_labels )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(toggle_share_labels )
+  DEF_MENU_FUNCTION(toggle_share_labels )
 {
     display_struct  *slice_window;
 
@@ -613,7 +613,7 @@ public  DEF_MENU_FUNCTION(toggle_share_labels )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_share_labels )
+  DEF_MENU_UPDATE(toggle_share_labels )
 {
     VIO_BOOL          state;
     display_struct   *slice_window;
@@ -628,7 +628,7 @@ public  DEF_MENU_UPDATE(toggle_share_labels )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(save_colour_map )
+  DEF_MENU_FUNCTION(save_colour_map )
 {
     VIO_Status          status;
     VIO_STR          filename;
@@ -656,14 +656,14 @@ public  DEF_MENU_FUNCTION(save_colour_map )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(save_colour_map )
+  DEF_MENU_UPDATE(save_colour_map )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(load_colour_map )
+  DEF_MENU_FUNCTION(load_colour_map )
 {
     VIO_STR          filename;
     display_struct  *slice_window;
@@ -689,14 +689,14 @@ public  DEF_MENU_FUNCTION(load_colour_map )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(load_colour_map )
+  DEF_MENU_UPDATE(load_colour_map )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(load_user_defined_colour_scale )
+  DEF_MENU_FUNCTION(load_user_defined_colour_scale )
 {
     VIO_STR          filename;
     display_struct  *slice_window;
@@ -732,7 +732,7 @@ public  DEF_MENU_FUNCTION(load_user_defined_colour_scale )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(load_user_defined_colour_scale )
+  DEF_MENU_UPDATE(load_user_defined_colour_scale )
 {
     return( get_n_volumes(display) > 0 );
 }

@@ -22,19 +22,19 @@
 
 #include  <display.h>
 
-private    DEF_EVENT_FUNCTION( start_front_clipping );
-private    DEF_EVENT_FUNCTION( turn_off_front_clipping );
-private    DEF_EVENT_FUNCTION( handle_update_front );
-private    DEF_EVENT_FUNCTION( terminate_front_clipping );
-private    DEF_EVENT_FUNCTION( start_back_clipping );
-private    DEF_EVENT_FUNCTION( turn_off_back_clipping );
-private    DEF_EVENT_FUNCTION( handle_update_back );
-private    DEF_EVENT_FUNCTION( terminate_back_clipping );
-private  VIO_BOOL  perform_clipping(
+static    DEF_EVENT_FUNCTION( start_front_clipping );
+static    DEF_EVENT_FUNCTION( turn_off_front_clipping );
+static    DEF_EVENT_FUNCTION( handle_update_front );
+static    DEF_EVENT_FUNCTION( terminate_front_clipping );
+static    DEF_EVENT_FUNCTION( start_back_clipping );
+static    DEF_EVENT_FUNCTION( turn_off_back_clipping );
+static    DEF_EVENT_FUNCTION( handle_update_back );
+static    DEF_EVENT_FUNCTION( terminate_back_clipping );
+static  VIO_BOOL  perform_clipping(
     display_struct   *display,
     VIO_BOOL          front_flag );
 
-public  void  initialize_front_clipping(
+  void  initialize_front_clipping(
     display_struct   *display )
 {
     terminate_any_interactions( display );
@@ -50,7 +50,7 @@ public  void  initialize_front_clipping(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( turn_off_front_clipping )
+static  DEF_EVENT_FUNCTION( turn_off_front_clipping )
 {
     remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_DOWN_EVENT,
@@ -65,7 +65,7 @@ private  DEF_EVENT_FUNCTION( turn_off_front_clipping )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( start_front_clipping )
+static  DEF_EVENT_FUNCTION( start_front_clipping )
 {
     add_action_table_function( &display->action_table,
                                NO_EVENT,
@@ -84,7 +84,7 @@ private  DEF_EVENT_FUNCTION( start_front_clipping )
     return( OK );
 }
 
-private  void  update_clipping(
+static  void  update_clipping(
     display_struct   *display,
     VIO_BOOL          front_flag )
 {
@@ -97,7 +97,7 @@ private  void  update_clipping(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_front_clipping )
+static  DEF_EVENT_FUNCTION( terminate_front_clipping )
 {
     update_clipping( display, TRUE );
     
@@ -115,14 +115,14 @@ private  DEF_EVENT_FUNCTION( terminate_front_clipping )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_update_front )
+static  DEF_EVENT_FUNCTION( handle_update_front )
 {
     update_clipping( display, TRUE );
 
     return( OK );
 }
 
-public  void  initialize_back_clipping(
+  void  initialize_back_clipping(
     display_struct   *display )
 {
     terminate_any_interactions( display );
@@ -138,7 +138,7 @@ public  void  initialize_back_clipping(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( turn_off_back_clipping )
+static  DEF_EVENT_FUNCTION( turn_off_back_clipping )
 {
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
@@ -153,7 +153,7 @@ private  DEF_EVENT_FUNCTION( turn_off_back_clipping )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( start_back_clipping )
+static  DEF_EVENT_FUNCTION( start_back_clipping )
 {
     add_action_table_function( &display->action_table,
                                NO_EVENT,
@@ -174,7 +174,7 @@ private  DEF_EVENT_FUNCTION( start_back_clipping )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_back_clipping )
+static  DEF_EVENT_FUNCTION( terminate_back_clipping )
 {
     update_clipping( display, FALSE );
     
@@ -192,14 +192,14 @@ private  DEF_EVENT_FUNCTION( terminate_back_clipping )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_update_back )
+static  DEF_EVENT_FUNCTION( handle_update_back )
 {
     update_clipping( display, FALSE );
 
     return( OK );
 }
 
-private  VIO_BOOL  perform_clipping(
+static  VIO_BOOL  perform_clipping(
     display_struct   *display,
     VIO_BOOL          front_flag )
 {

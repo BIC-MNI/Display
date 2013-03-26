@@ -22,14 +22,14 @@
 
 #include <display.h>
 
-public  void  transform_screen_to_pixels(
+  void  transform_screen_to_pixels(
     window_struct  *window,
     VIO_Point          *screen,
     VIO_Point          *pixels )
 {
-    Point_x(*pixels) = (Point_coord_type) ROUND(
+    Point_x(*pixels) = (VIO_Point_coord_type) VIO_ROUND(
                   (VIO_Real) (window->x_size - 1) * (VIO_Real) Point_x(*screen) );
-    Point_y(*pixels) = (Point_coord_type) ROUND(
+    Point_y(*pixels) = (VIO_Point_coord_type) VIO_ROUND(
                   (VIO_Real) (window->y_size - 1) * (VIO_Real) Point_y(*screen) );
     Point_z(*pixels) = 0.0f;
 }

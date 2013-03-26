@@ -21,7 +21,7 @@
 
 #include  <display.h>
 
-public  void  initialize_surface_edit(
+  void  initialize_surface_edit(
     surface_edit_struct   *surface_edit )
 {
     surface_edit->n_paint_polygons = N_painting_polygons;
@@ -37,7 +37,7 @@ public  void  initialize_surface_edit(
     surface_edit->invisible_colour = Invisible_segmenting_colour;
 }
 
-public  void  delete_surface_edit(
+  void  delete_surface_edit(
     surface_edit_struct   *surface_edit )
 {
     if( surface_edit->n_vertices_alloced > 0 )
@@ -62,7 +62,7 @@ public  void  delete_surface_edit(
     }
 }
 
-public  void  set_edited_polygons(
+  void  set_edited_polygons(
     surface_edit_struct   *surface_edit,
     polygons_struct       *polygons )
 {
@@ -74,7 +74,7 @@ public  void  set_edited_polygons(
     create_polygons_visibilities( surface_edit->polygons );
 }
 
-public  VIO_BOOL  get_edited_polygons(
+  VIO_BOOL  get_edited_polygons(
     surface_edit_struct   *surface_edit,
     polygons_struct       **polygons )
 {
@@ -84,7 +84,7 @@ public  VIO_BOOL  get_edited_polygons(
     return( surface_edit->polygons_set );
 }
 
-public  void  reset_edited_polygons(
+  void  reset_edited_polygons(
     surface_edit_struct   *surface_edit )
 {
     polygons_struct  *polygons;

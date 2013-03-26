@@ -21,7 +21,7 @@
 
 #include  <display.h>
 
-public  VIO_BOOL  update_current_marker(
+  VIO_BOOL  update_current_marker(
     display_struct   *display,
     int              volume_index,
     VIO_Real             voxel[] )
@@ -73,7 +73,7 @@ public  VIO_BOOL  update_current_marker(
     return( found );
 }
 
-private  void  initialize_marker_parameters(
+static  void  initialize_marker_parameters(
     display_struct    *marker_window )
 {
     int                 x_size, y_size;
@@ -114,7 +114,7 @@ private  void  initialize_marker_parameters(
     marker->font_size = scale * Menu_window_font_size;
 }
 
-private  DEF_EVENT_FUNCTION( handle_marker_resize )
+static  DEF_EVENT_FUNCTION( handle_marker_resize )
 {
     display_struct  *marker_window, *three_d;
 
@@ -129,7 +129,7 @@ private  DEF_EVENT_FUNCTION( handle_marker_resize )
 }
 
 
-public  VIO_Status  initialize_marker_window(
+  VIO_Status  initialize_marker_window(
     display_struct    *marker_window)
 {
     VIO_Status               status;
@@ -142,7 +142,7 @@ public  VIO_Status  initialize_marker_window(
     status = OK;
     marker = &marker_window->marker;
 
-    G_set_transparency_state( marker_window->window, OFF );
+    G_set_transparency_state( marker_window->window, FALSE );
 
     initialize_resize_events( marker_window );
     add_action_table_function( &marker_window->action_table, WINDOW_RESIZE_EVENT,

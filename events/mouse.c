@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-public  VIO_BOOL  mouse_moved(
+  VIO_BOOL  mouse_moved(
     display_struct   *display,
     VIO_Real             *new_x,
     VIO_Real             *new_y,
@@ -46,7 +46,7 @@ public  VIO_BOOL  mouse_moved(
     return( moved );
 }
 
-public  VIO_BOOL  pixel_mouse_moved(
+  VIO_BOOL  pixel_mouse_moved(
     display_struct   *display,
     int              *new_x,
     int              *new_y,
@@ -57,8 +57,8 @@ public  VIO_BOOL  pixel_mouse_moved(
 
     moved = G_get_mouse_position( display->window, new_x, new_y );
 
-    *old_x = ROUND( Point_x( display->prev_mouse_position ) );
-    *old_y = ROUND( Point_y( display->prev_mouse_position ) );
+    *old_x = VIO_ROUND( Point_x( display->prev_mouse_position ) );
+    *old_y = VIO_ROUND( Point_y( display->prev_mouse_position ) );
 
     if( moved )
     {
@@ -70,7 +70,7 @@ public  VIO_BOOL  pixel_mouse_moved(
     return( moved );
 }
 
-public  void  record_mouse_position(
+  void  record_mouse_position(
     display_struct   *display )
 {
     VIO_Real   x, y;
@@ -80,7 +80,7 @@ public  void  record_mouse_position(
     fill_Point( display->prev_mouse_position, x, y, 0.0 );
 }
 
-public  void  record_mouse_pixel_position(
+  void  record_mouse_pixel_position(
     display_struct   *display )
 {
     int   x, y;

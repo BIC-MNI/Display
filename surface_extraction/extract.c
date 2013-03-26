@@ -31,7 +31,7 @@ typedef  struct
     int       id;
 } edge_point_info;
 
-private  int  extract_polygons(
+static  int  extract_polygons(
     VIO_Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     Real                        corner_values[2][2][2],
@@ -40,7 +40,7 @@ private  int  extract_polygons(
     int                         n_polys,
     int                         sizes[],
     voxel_point_type            points_list[] );
-private  void  add_point_id_to_relevant_edges(
+static  void  add_point_id_to_relevant_edges(
     int                 sizes[],
     voxel_point_type    *edge_info,
     int                 pt_index[],
@@ -48,7 +48,7 @@ private  void  add_point_id_to_relevant_edges(
     Point_classes       pt_class,
     edge_point_info     edge_point_list[2][2][2][VIO_N_DIMENSIONS],
     hash_table_struct   *edge_points );
-private  int  add_polygon_to_list(
+static  int  add_polygon_to_list(
     VIO_Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     Real                        corner_values[2][2][2],
@@ -56,7 +56,7 @@ private  int  add_polygon_to_list(
     int                         size,
     voxel_point_type            points_list[],
     edge_point_info             edge_point_list[2][2][2][VIO_N_DIMENSIONS] );
-private  int   create_surface_point(
+static  int   create_surface_point(
     VIO_Volume              volume,
     Real                corner_values[2][2][2],
     VIO_BOOL             binary_flag,
@@ -68,7 +68,7 @@ private  int   create_surface_point(
     int                 edge_intersected,
     Point_classes       *pt_class );
 
-private  VIO_BOOL  get_voxel_values(
+static  VIO_BOOL  get_voxel_values(
     VIO_Volume                      volume,
     VIO_Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
@@ -136,7 +136,7 @@ private  VIO_BOOL  get_voxel_values(
         return( Voxel_validity_if_mixed );
 }
 
-public  VIO_BOOL  voxel_contains_surface(
+  VIO_BOOL  voxel_contains_surface(
     VIO_Volume                      volume,
     VIO_Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
@@ -192,7 +192,7 @@ public  VIO_BOOL  voxel_contains_surface(
     return( FALSE );
 }
 
-private  VIO_BOOL  extract_voxel_marching_cubes_surface(
+static  VIO_BOOL  extract_voxel_marching_cubes_surface(
     VIO_Volume                      volume,
     VIO_Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
@@ -230,7 +230,7 @@ private  VIO_BOOL  extract_voxel_marching_cubes_surface(
     return( n_nondegenerate_polys > 0 );
 }
 
-public  VIO_BOOL  extract_voxel_surface(
+  VIO_BOOL  extract_voxel_surface(
     VIO_Volume                      volume,
     VIO_Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
@@ -254,7 +254,7 @@ public  VIO_BOOL  extract_voxel_surface(
     return( found );
 }
 
-private  int  extract_polygons(
+static  int  extract_polygons(
     VIO_Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     Real                        corner_values[2][2][2],
@@ -388,7 +388,7 @@ private  int  extract_polygons(
     return( n_added_polys > 0 );
 }
 
-private  int  add_polygon_to_list(
+static  int  add_polygon_to_list(
     VIO_Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     Real                        corner_values[2][2][2],
@@ -475,7 +475,7 @@ private  int  add_polygon_to_list(
     return( non_degenerate );
 }
 
-private  int   create_surface_point(
+static  int   create_surface_point(
     VIO_Volume              volume,
     Real                corner_values[2][2][2],
     VIO_BOOL             binary_flag,
@@ -551,7 +551,7 @@ private  int   create_surface_point(
     return( pt_index );
 }
 
-private  void  add_point_id_to_relevant_edges(
+static  void  add_point_id_to_relevant_edges(
     int                 sizes[],
     voxel_point_type    *edge_info,
     int                 pt_index[],

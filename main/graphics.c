@@ -22,23 +22,23 @@
 
 #include  <display.h>
 
-private  display_struct  **windows = (display_struct **) 0;
-private  int             n_windows = 0;
+static  display_struct  **windows = (display_struct **) 0;
+static  int             n_windows = 0;
 
-private  void  initialize_graphics_window(
+static  void  initialize_graphics_window(
     display_struct   *display );
-private  void  update_graphics_overlay_planes_only(
+static  void  update_graphics_overlay_planes_only(
     display_struct       *display,
     VIO_BOOL              display_flag );
-private  void  update_graphics_normal_planes_only(
+static  void  update_graphics_normal_planes_only(
     display_struct               *display,
     update_interrupted_struct    *interrupt );
-private  void  terminate_graphics_window(
+static  void  terminate_graphics_window(
     display_struct   *display );
 
 /* --------------------------------------------------------------------- */
 
-public  int  get_list_of_windows(
+  int  get_list_of_windows(
     display_struct  ***display )
 {
     *display = windows;
@@ -46,7 +46,7 @@ public  int  get_list_of_windows(
     return( n_windows );
 }
 
-public  display_struct  *lookup_window(
+  display_struct  *lookup_window(
     Gwindow   window )
 {
     int              i;
@@ -66,7 +66,7 @@ public  display_struct  *lookup_window(
     return( display );
 }
 
-public  display_struct  *get_main_window( void )
+  display_struct  *get_main_window( void )
 {
     int   i;
 
@@ -80,7 +80,7 @@ public  display_struct  *get_main_window( void )
     return( 0 );
 }
 
-private  void  get_new_display(
+static  void  get_new_display(
     display_struct   **display )
 {
     SET_ARRAY_SIZE( windows, n_windows, n_windows+1, DEFAULT_CHUNK_SIZE );
@@ -91,7 +91,7 @@ private  void  get_new_display(
     ++n_windows;
 }
 
-private  void  free_display(
+static  void  free_display(
     display_struct   *display )
 {
     int      ind, i;
@@ -114,17 +114,17 @@ private  void  free_display(
     FREE( display );
 }
 
-private  void  delete_windows_list( void )
+static  void  delete_windows_list( void )
 {
     if( windows != (display_struct **) 0 )
         FREE( windows );
 }
 
-public  void  initialize_graphics( void )
+  void  initialize_graphics( void )
 {
 }
 
-public  void  terminate_graphics( void )
+  void  terminate_graphics( void )
 {
     int               n;
     display_struct    **graphics_windows;
@@ -140,7 +140,7 @@ public  void  terminate_graphics( void )
     G_terminate();
 }
 
-public  VIO_Status  create_graphics_window(
+  VIO_Status  create_graphics_window(
     window_types      window_type,
     VIO_BOOL           double_buffering,
     display_struct    **display,
@@ -171,26 +171,26 @@ public  VIO_Status  create_graphics_window(
     return( status );
 }
 
-public  model_struct  *get_graphics_model(
+  model_struct  *get_graphics_model(
     display_struct    *display,
     int               model_index )
 {
     return( get_model_ptr(display->models[model_index]) );
 }
 
-public  model_info_struct  *get_model_info(
+  model_info_struct  *get_model_info(
     model_struct   *model )
 {
     return( (model_info_struct *) model->extra_ptr );
 }
 
-public  Bitplane_types  get_model_bitplanes(
+  Bitplane_types  get_model_bitplanes(
     model_struct   *model )
 {
     return( get_model_info(model)->bitplanes );
 }
 
-public  void  create_model_after_current(
+  void  create_model_after_current(
     display_struct   *display )
 {
     model_struct   *model;
@@ -209,7 +209,7 @@ public  void  create_model_after_current(
     add_object_to_model( model, new_model );
 }
 
-public  void  initialize_model_info(
+  void  initialize_model_info(
     model_struct   *model )
 {
     model_info_struct  *model_info;
@@ -224,7 +224,7 @@ public  void  initialize_model_info(
     make_identity_transform( &model_info->transform );
 }
 
-public  void  initialize_3D_model_info(
+  void  initialize_3D_model_info(
     model_struct   *model )
 {
     model_info_struct  *model_info;
@@ -234,14 +234,14 @@ public  void  initialize_3D_model_info(
     initialize_render_3D( &model_info->render );
 }
 
-public  void  initialize_display_model(
+  void  initialize_display_model(
     model_struct   *model )
 {
     initialize_model( model );
     initialize_model_info( model );
 }
 
-public  void  terminate_display_model(
+  void  terminate_display_model(
     model_struct   *model )
 {
     model_info_struct  *model_info;
@@ -251,12 +251,12 @@ public  void  terminate_display_model(
     FREE( model_info );
 }
 
-public  Bitplane_types  get_cursor_bitplanes( void )
+  Bitplane_types  get_cursor_bitplanes( void )
 {
     return( (Bitplane_types) Cursor_bitplanes );
 }
 
-private  void  initialize_graphics_window(
+static  void  initialize_graphics_window(
     display_struct   *display )
 {
     int                 i;
@@ -351,7 +351,7 @@ private  void  initialize_graphics_window(
     initialize_window_callbacks( display );
 }
 
-public  void  set_update_required(
+  void  set_update_required(
     display_struct   *display,
     Bitplane_types   which_bitplanes )
 {
@@ -364,20 +364,20 @@ public  void  set_update_required(
     display->update_required[which_bitplanes] = TRUE;
 }
 
-public  VIO_BOOL  graphics_normal_planes_update_required(
+  VIO_BOOL  graphics_normal_planes_update_required(
     display_struct   *display )
 {
     return( display->update_required[NORMAL_PLANES] );
 }
 
-public  VIO_BOOL  graphics_update_required(
+  VIO_BOOL  graphics_update_required(
     display_struct   *display )
 {
     return( display->update_required[NORMAL_PLANES] ||
             display->update_required[OVERLAY_PLANES] );
 }
 
-public  void  graphics_models_have_changed(
+  void  graphics_models_have_changed(
     display_struct  *display )
 {
     rebuild_selected_list( display, display->associated[MENU_WINDOW] );
@@ -388,13 +388,13 @@ public  void  graphics_models_have_changed(
     ++display->models_changed_id;
 }
 
-private  void  display_frame_info(
+static  void  display_frame_info(
     display_struct   *display,
     int              frame_number,
     VIO_Real             update_time )
 {
     text_struct   frame_text;
-    char          buffer[EXTREMELY_LARGE_STRING_SIZE];
+    char          buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
     VIO_STR        frame_time_str;
     VIO_Point         origin;
     model_struct  *model;
@@ -420,7 +420,7 @@ private  void  display_frame_info(
     delete_text( &frame_text );
 }
 
-public  void  update_graphics(
+  void  update_graphics(
     display_struct               *display,
     update_interrupted_struct    *interrupt )
 {
@@ -438,7 +438,7 @@ public  void  update_graphics(
     }
 }
 
-private  void  draw_in_viewports(
+static  void  draw_in_viewports(
     display_struct               *display,
     update_interrupted_struct    *interrupt,
     Bitplane_types               bitplanes,
@@ -519,7 +519,7 @@ private  void  draw_in_viewports(
     }
 }
 
-private  void  update_graphics_overlay_planes_only(
+static  void  update_graphics_overlay_planes_only(
     display_struct       *display,
     VIO_BOOL              display_flag )
 {
@@ -545,7 +545,7 @@ private  void  update_graphics_overlay_planes_only(
     display->update_required[OVERLAY_PLANES] = FALSE;
 }
 
-private  void  update_graphics_normal_planes_only(
+static  void  update_graphics_normal_planes_only(
     display_struct               *display,
     update_interrupted_struct    *interrupt )
 {
@@ -599,7 +599,7 @@ private  void  update_graphics_normal_planes_only(
     }
 }
 
-public  void  delete_graphics_window(
+  void  delete_graphics_window(
     display_struct   *display )
 {
     (void) G_delete_window( display->window );
@@ -609,7 +609,7 @@ public  void  delete_graphics_window(
     free_display( display );
 }
 
-private  void  terminate_graphics_window(
+static  void  terminate_graphics_window(
     display_struct   *display )
 {
     int      i;
@@ -627,7 +627,7 @@ private  void  terminate_graphics_window(
         delete_object( display->models[i] );
 }
 
-public  void  update_view(
+  void  update_view(
     display_struct  *display )
 {
     G_set_3D_view( display->window,
@@ -647,7 +647,7 @@ public  void  update_view(
                               &display->three_d.view.modeling_transform );
 }
 
-public  void  fit_view_to_visible_models(
+  void  fit_view_to_visible_models(
     display_struct   *display )
 {
     int     c;
@@ -682,7 +682,7 @@ public  void  fit_view_to_visible_models(
     fit_view_to_domain( &display->three_d.view, &min_limit, &max_limit );
 }
 
-public  void  reset_view_parameters(
+  void  reset_view_parameters(
     display_struct   *display,
     VIO_Vector           *line_of_sight,
     VIO_Vector           *horizontal )
@@ -696,7 +696,7 @@ public  void  reset_view_parameters(
     fit_view_to_visible_models( display );
 }
 
-public  VIO_Real  size_of_domain(
+  VIO_Real  size_of_domain(
     display_struct   *display )
 {
     VIO_Vector   diff;

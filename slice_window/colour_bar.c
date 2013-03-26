@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-private  VIO_Real  get_y_pos(
+static  VIO_Real  get_y_pos(
     VIO_Real    value,
     VIO_Real    min_value,
     VIO_Real    max_value,
@@ -37,7 +37,7 @@ typedef enum
     FIRST_TEXT
 } Colour_bar_objects;
 
-public  void  initialize_colour_bar(
+  void  initialize_colour_bar(
     display_struct    *slice_window )
 {
     int               n_vertices;
@@ -60,10 +60,10 @@ public  void  initialize_colour_bar(
     model = get_graphics_model( slice_window, COLOUR_BAR_MODEL );
     model_info = get_model_info( model );
 
-    model_info->render.shaded_mode = ON;
+    model_info->render.shaded_mode = TRUE;
     model_info->render.shading_type = GOURAUD_SHADING;
-    model_info->render.master_light_switch = OFF;
-    model_info->render.backface_flag = OFF;
+    model_info->render.master_light_switch = FALSE;
+    model_info->render.backface_flag = FALSE;
 
     object = create_object( QUADMESH );
 
@@ -99,7 +99,7 @@ typedef  struct
     VIO_Real     value;
 } number_entry;
 
-public  void  rebuild_colour_bar(
+  void  rebuild_colour_bar(
     display_struct   *slice_window )
 {
     int                 i, volume_index;
@@ -109,7 +109,7 @@ public  void  rebuild_colour_bar(
     VIO_Real                start_threshold, end_threshold;
     VIO_Real                x_tick_start, x_tick_end, mult_value;
     VIO_Point               point;
-    char                buffer[EXTREMELY_LARGE_STRING_SIZE];
+    char                buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
     VIO_Colour              colour;
     colour_bar_struct   *colour_bar;
     lines_struct        *lines;
@@ -126,11 +126,11 @@ public  void  rebuild_colour_bar(
     if( !get_slice_window_volume( slice_window, &volume ) ||
         is_an_rgb_volume(volume) )
     {
-        set_object_visibility( object, OFF );
+        set_object_visibility( object, FALSE );
         return;
     }
     else
-        set_object_visibility( object, ON );
+        set_object_visibility( object, TRUE );
 
     colour_bar = &slice_window->slice.colour_bar;
 
@@ -322,7 +322,7 @@ public  void  rebuild_colour_bar(
     set_slice_viewport_update( slice_window, COLOUR_BAR_MODEL );
 }
 
-private  VIO_Real  get_y_pos(
+static  VIO_Real  get_y_pos(
     VIO_Real    value,
     VIO_Real    min_value,
     VIO_Real    max_value,
@@ -336,7 +336,7 @@ private  VIO_Real  get_y_pos(
         return( 0.0 );
 }
 
-public  int  get_colour_bar_y_pos(
+  int  get_colour_bar_y_pos(
     display_struct      *slice_window,
     VIO_Real                value )
 {
@@ -358,10 +358,10 @@ public  int  get_colour_bar_y_pos(
     bottom = (VIO_Real) colour_bar->bottom_offset;
     top    = (VIO_Real) y_max - (VIO_Real) y_min - colour_bar->top_offset;
 
-    return( ROUND(get_y_pos( value, min_value, max_value, bottom, top )) );
+    return( VIO_ROUND(get_y_pos( value, min_value, max_value, bottom, top )) );
 }
 
-public  VIO_BOOL  mouse_within_colour_bar(
+  VIO_BOOL  mouse_within_colour_bar(
     display_struct      *slice_window,
     VIO_Real                x,
     VIO_Real                y,
@@ -400,7 +400,7 @@ public  VIO_BOOL  mouse_within_colour_bar(
     return( within );
 }
 
-public  void  get_histogram_space(
+  void  get_histogram_space(
     display_struct      *slice_window,
     int                 *x1,
     int                 *x2 )
@@ -412,7 +412,7 @@ public  void  get_histogram_space(
     get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,
                               &x_min, &x_max, &y_min, &y_max );
 
-    *x1 = ROUND( colour_bar->left_offset + colour_bar->bar_width +
+    *x1 = VIO_ROUND( colour_bar->left_offset + colour_bar->bar_width +
                  colour_bar->tick_width );
     *x2 = x_max - x_min;
 }

@@ -23,7 +23,7 @@
 
 #include  <display.h>
 
-public  void  initialize_render(
+  void  initialize_render(
     render_struct  *render )
 {
     render->shaded_mode = TRUE;
@@ -36,7 +36,7 @@ public  void  initialize_render(
     render->n_curve_segments = Initial_n_curve_segments;
 }
 
-public  void  initialize_render_3D(
+  void  initialize_render_3D(
     render_struct  *render )
 {
     render->shaded_mode = Initial_render_mode;
@@ -49,7 +49,7 @@ public  void  initialize_render_3D(
     render->n_curve_segments = Initial_n_curve_segments;
 }
 
-public  void  set_render_info(
+  void  set_render_info(
     window_struct  *window,
     render_struct  *render )
 {

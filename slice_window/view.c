@@ -24,12 +24,12 @@
 #include  <display.h>
 #define ORTHOGONAL_SLICE_EPSILON 1e-5f
 
-private  void  update_all_slice_axes(
+static  void  update_all_slice_axes(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index );
 
-private  void  set_orthogonal_slice_window_view(
+static  void  set_orthogonal_slice_window_view(
     display_struct    *slice_window,
     int               view,
     int               volume_index )
@@ -91,7 +91,7 @@ private  void  set_orthogonal_slice_window_view(
     }
 }
 
-public  void  initialize_slice_window_view(
+  void  initialize_slice_window_view(
     display_struct    *slice_window,
     int               volume_index )
 {
@@ -132,7 +132,7 @@ public  void  initialize_slice_window_view(
                                 views[OBLIQUE_VIEW_INDEX].visibility = FALSE;
 }
 
-public  void  set_slice_visibility(
+  void  set_slice_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view,
@@ -148,7 +148,7 @@ public  void  set_slice_visibility(
     }
 }
 
-public  VIO_BOOL  get_slice_visibility(
+  VIO_BOOL  get_slice_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view )
@@ -156,7 +156,7 @@ public  VIO_BOOL  get_slice_visibility(
     return( slice_window->slice.volumes[volume_index].views[view].visibility );
 }
 
-private  void  match_view_scale_and_translation(
+static  void  match_view_scale_and_translation(
     display_struct    *slice_window,
     int               view,
     int               ref_volume_index )
@@ -367,7 +367,7 @@ private  void  match_view_scale_and_translation(
     slice_view_has_changed( slice_window, view );
 }
 
-public  void  reset_slice_view(
+  void  reset_slice_view(
     display_struct    *slice_window,
     int               view )
 {
@@ -433,9 +433,9 @@ public  void  reset_slice_view(
             y2 += y_offset;
         }
 
-        int_x1 = FLOOR( x1 );
+        int_x1 = VIO_FLOOR( x1 );
         int_x2 = CEILING( x2 );
-        int_y1 = FLOOR( y1 );
+        int_y1 = VIO_FLOOR( y1 );
         int_y2 = CEILING( y2 );
 
         if( !found_one )
@@ -480,10 +480,10 @@ public  void  reset_slice_view(
             x_scale = y_scale;
 
         slice_window->slice.slice_views[view].used_viewport_x_size =
-                     ROUND( FABS( x_scale * (Real) (x_max - x_min) *
+                     VIO_ROUND( VIO_FABS( x_scale * (Real) (x_max - x_min) *
                                   (1.0 + Slice_fit_oversize) ));
         slice_window->slice.slice_views[view].used_viewport_y_size =
-                     ROUND( FABS( y_scale * (Real) (y_max - y_min) *
+                     VIO_ROUND( VIO_FABS( y_scale * (Real) (y_max - y_min) *
                                   (1.0 + Slice_fit_oversize) ));
 
         x_trans = ((Real) (x_max_vp - x_min_vp + 1) - x_scale *
@@ -512,7 +512,7 @@ public  void  reset_slice_view(
     slice_view_has_changed( slice_window, view );
 }
 
-public  void  resize_slice_view(
+  void  resize_slice_view(
     display_struct    *slice_window,
     int               view )
 {
@@ -555,7 +555,7 @@ public  void  resize_slice_view(
     slice_view_has_changed( slice_window, view );
 }
 
-public  void  scale_slice_view(
+  void  scale_slice_view(
     display_struct    *slice_window,
     int               view,
     Real              scale_factor )
@@ -578,7 +578,7 @@ public  void  scale_slice_view(
     slice_view_has_changed( slice_window, view );
 }
 
-public  void  translate_slice_view(
+  void  translate_slice_view(
     display_struct    *slice_window,
     int               view,
     Real              dx,
@@ -595,7 +595,7 @@ public  void  translate_slice_view(
     slice_view_has_changed( slice_window, view );
 }
 
-public  VIO_BOOL  find_slice_view_mouse_is_in(
+  VIO_BOOL  find_slice_view_mouse_is_in(
     display_struct    *display,
     int               x_pixel,
     int               y_pixel,
@@ -629,7 +629,7 @@ public  VIO_BOOL  find_slice_view_mouse_is_in(
     return( found );
 }
 
-public  VIO_BOOL  convert_pixel_to_voxel(
+  VIO_BOOL  convert_pixel_to_voxel(
     display_struct    *display,
     int               volume_index,
     int               x_pixel,
@@ -670,7 +670,7 @@ public  VIO_BOOL  convert_pixel_to_voxel(
     return( found );
 }
 
-public  void  convert_voxel_to_pixel(
+  void  convert_voxel_to_pixel(
     display_struct    *display,
     int               volume_index,
     int               view_index,
@@ -707,7 +707,7 @@ public  void  convert_voxel_to_pixel(
     }
 }
 
-public  void  get_voxel_to_pixel_transform(
+  void  get_voxel_to_pixel_transform(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
@@ -743,7 +743,7 @@ public  void  get_voxel_to_pixel_transform(
     *y_scale = y - *y_trans;
 }
 
-public  VIO_BOOL  get_voxel_corresponding_to_point(
+  VIO_BOOL  get_voxel_corresponding_to_point(
     display_struct    *display,
     VIO_Point             *point,
     Real              voxel[] )
@@ -766,7 +766,7 @@ public  VIO_BOOL  get_voxel_corresponding_to_point(
     return( converted );
 }
 
-public  void   get_slice_window_partitions(
+  void   get_slice_window_partitions(
     display_struct    *slice_window,
     int               *left_panel_width,
     int               *left_slice_width,
@@ -783,14 +783,14 @@ public  void   get_slice_window_partitions(
     *left_panel_width = Left_panel_width;
     *text_panel_height = Text_panel_height;
     *colour_bar_panel_height = y_size - *text_panel_height;
-    *left_slice_width = ROUND( slice_window->slice.x_split *
+    *left_slice_width = VIO_ROUND( slice_window->slice.x_split *
                                (Real) (x_size - *left_panel_width) );
     *right_slice_width = x_size - *left_panel_width - *left_slice_width;
-    *bottom_slice_height = ROUND( slice_window->slice.y_split * (Real) y_size );
+    *bottom_slice_height = VIO_ROUND( slice_window->slice.y_split * (Real) y_size );
     *top_slice_height = y_size - *bottom_slice_height;
 }
 
-public  void  get_slice_viewport(
+  void  get_slice_viewport(
     display_struct    *slice_window,
     int               view_index,
     int               *x_min,
@@ -848,7 +848,7 @@ public  void  get_slice_viewport(
         *y_max = *y_min;
 }
 
-public  void  get_colour_bar_viewport(
+  void  get_colour_bar_viewport(
     display_struct    *slice_window,
     int               *x_min,
     int               *x_max,
@@ -872,7 +872,7 @@ public  void  get_colour_bar_viewport(
              Slice_divider_top;
 }
 
-public  void  get_text_display_viewport(
+  void  get_text_display_viewport(
     display_struct    *slice_window,
     int               *x_min,
     int               *x_max,
@@ -895,7 +895,7 @@ public  void  get_text_display_viewport(
     *y_max = text_panel_height - 1;
 }
 
-public  void  get_slice_divider_intersection(
+  void  get_slice_divider_intersection(
     display_struct    *slice_window,
     int               *x,
     int               *y )
@@ -914,7 +914,7 @@ public  void  get_slice_divider_intersection(
     *y = bottom_slice_height;
 }
 
-public  void  set_slice_divider_position(
+  void  set_slice_divider_position(
     display_struct    *slice_window,
     int               x,
     int               y )
@@ -949,7 +949,7 @@ public  void  set_slice_divider_position(
     }
 }
 
-public  VIO_BOOL  get_volume_corresponding_to_pixel(
+  VIO_BOOL  get_volume_corresponding_to_pixel(
     display_struct    *slice_window,
     int               x,
     int               y,
@@ -975,7 +975,7 @@ public  VIO_BOOL  get_volume_corresponding_to_pixel(
     return( *volume_index >= 0 );
 }
 
-public  VIO_BOOL  get_voxel_in_slice_window(
+  VIO_BOOL  get_voxel_in_slice_window(
     display_struct    *display,
     Real              voxel[],
     int               *volume_index,
@@ -993,7 +993,7 @@ public  VIO_BOOL  get_voxel_in_slice_window(
                                                volume_index, view_index,voxel));
 }
 
-public  VIO_BOOL  get_voxel_in_three_d_window(
+  VIO_BOOL  get_voxel_in_three_d_window(
     display_struct    *display,
     Real              voxel[] )
 {
@@ -1019,7 +1019,7 @@ public  VIO_BOOL  get_voxel_in_three_d_window(
     return( found );
 }
 
-public  VIO_BOOL  get_voxel_under_mouse(
+  VIO_BOOL  get_voxel_under_mouse(
     display_struct    *display,
     int               *volume_index,
     int               *view_index,
@@ -1051,7 +1051,7 @@ public  VIO_BOOL  get_voxel_under_mouse(
     return( found );
 }
 
-public  void  get_current_voxel(
+  void  get_current_voxel(
     display_struct    *display,
     int               volume_index,
     Real              voxel[] )
@@ -1075,7 +1075,7 @@ public  void  get_current_voxel(
     }
 }
 
-public  VIO_BOOL  set_current_voxel(
+  VIO_BOOL  set_current_voxel(
     display_struct    *slice_window,
     int               this_volume_index,
     Real              voxel[] )
@@ -1141,7 +1141,7 @@ public  VIO_BOOL  set_current_voxel(
     return( changed );
 }
 
-private  void  get_voxel_axis_perpendicular(
+static  void  get_voxel_axis_perpendicular(
     VIO_Volume   volume,
     Real     x_axis[],
     Real     y_axis[],
@@ -1159,7 +1159,7 @@ private  void  get_voxel_axis_perpendicular(
         a2 = (c + 2) % VIO_N_DIMENSIONS;
         perp_axis[c] = x_axis[a1] * y_axis[a2] - x_axis[a2] * y_axis[a1];
 
-        perp_axis[c] *= FABS( separations[a1] * separations[a2] /
+        perp_axis[c] *= VIO_FABS( separations[a1] * separations[a2] /
                              separations[c] );
 
         len += perp_axis[c] * perp_axis[c];
@@ -1173,7 +1173,7 @@ private  void  get_voxel_axis_perpendicular(
     }
 }
 
-public  void  get_slice_perp_axis(
+  void  get_slice_perp_axis(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
@@ -1185,7 +1185,7 @@ public  void  get_slice_perp_axis(
         perp_axis );
 }
 
-public  void  set_slice_plane_perp_axis(
+  void  set_slice_plane_perp_axis(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
@@ -1206,7 +1206,7 @@ public  void  set_slice_plane_perp_axis(
                             separations );
 
     for_less( c, 0, VIO_N_DIMENSIONS )
-        separations[c] = FABS( separations[c] );
+        separations[c] = VIO_FABS( separations[c] );
 
     for_less( c, 0, VIO_N_DIMENSIONS )
         perp[c] = voxel_perp[c] * separations[c];
@@ -1215,8 +1215,8 @@ public  void  set_slice_plane_perp_axis(
     {
         for_less( c, 0, VIO_N_DIMENSIONS )
         {
-            Vector_coord(axis,c) = (Point_coord_type) perp[c];
-            Vector_coord(vect,c) = (Point_coord_type)
+            Vector_coord(axis,c) = (VIO_Point_coord_type) perp[c];
+            Vector_coord(vect,c) = (VIO_Point_coord_type)
                 (slice_window->slice.cross_section_vector[c] * separations[c]);
         }
 
@@ -1232,9 +1232,9 @@ public  void  set_slice_plane_perp_axis(
     max_value = 0.0;
     for_less( c, 0, VIO_N_DIMENSIONS )
     {
-        if( c == 0 || FABS(perp[c]) > max_value )
+        if( c == 0 || VIO_FABS(perp[c]) > max_value )
         {
-            max_value = FABS(perp[c]);
+            max_value = VIO_FABS(perp[c]);
             max_axis = c;
         }
     }
@@ -1313,7 +1313,7 @@ public  void  set_slice_plane_perp_axis(
         slice_view_has_changed( slice_window, view );
 }
 
-public  void  set_slice_plane(
+  void  set_slice_plane(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
@@ -1328,7 +1328,7 @@ public  void  set_slice_plane(
     set_slice_plane_perp_axis( slice_window, volume_index, view_index, perp );
 }
 
-public  void  get_slice_plane(
+  void  get_slice_plane(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
@@ -1351,7 +1351,7 @@ public  void  get_slice_plane(
 
     for_less( c, 0, VIO_N_DIMENSIONS )
     {
-        separations[c] = FABS( separations[c] );
+        separations[c] = VIO_FABS( separations[c] );
         perp_axis[c] *= separations[c];
         x_axis[c] = slice_window->slice.volumes[volume_index].
                                     views[view_index].x_axis[c];
@@ -1400,7 +1400,7 @@ public  void  get_slice_plane(
     }
 }
 
-public  VIO_BOOL  get_slice_view_index_under_mouse(
+  VIO_BOOL  get_slice_view_index_under_mouse(
     display_struct   *display,
     int              *view_index )
 {
@@ -1424,7 +1424,7 @@ public  VIO_BOOL  get_slice_view_index_under_mouse(
     return( found );
 }
 
-public  VIO_BOOL  get_axis_index_under_mouse(
+  VIO_BOOL  get_axis_index_under_mouse(
     display_struct   *display,
     int              *volume_index,
     int              *axis_index )
@@ -1443,7 +1443,7 @@ public  VIO_BOOL  get_axis_index_under_mouse(
     return( found );
 }
 
-public  VIO_BOOL  slice_has_ortho_axes(
+  VIO_BOOL  slice_has_ortho_axes(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
@@ -1485,7 +1485,7 @@ public  VIO_BOOL  slice_has_ortho_axes(
     return( TRUE );
 }
 
-public  int  get_arbitrary_view_index(
+  int  get_arbitrary_view_index(
     display_struct   *display )
 {
     display_struct   *slice_window;
@@ -1496,7 +1496,7 @@ public  int  get_arbitrary_view_index(
         return( 0 );
 }
 
-public  void  get_slice_model_viewport(
+  void  get_slice_model_viewport(
     display_struct   *slice_window,
     int              model,
     int              *x_min,
@@ -1534,7 +1534,7 @@ public  void  get_slice_model_viewport(
     }
 }
 
-public  VIO_BOOL  update_cursor_from_voxel(
+  VIO_BOOL  update_cursor_from_voxel(
     display_struct    *slice_window )
 {
     Real              voxel[VIO_MAX_DIMENSIONS];
@@ -1570,7 +1570,7 @@ public  VIO_BOOL  update_cursor_from_voxel(
     return( changed );
 }
 
-public  VIO_BOOL  update_voxel_from_cursor(
+  VIO_BOOL  update_voxel_from_cursor(
     display_struct    *slice_window )
 {
     int               volume_index;
@@ -1595,7 +1595,7 @@ public  VIO_BOOL  update_voxel_from_cursor(
     return( changed );
 }
 
-private  void  update_all_slice_axes(
+static  void  update_all_slice_axes(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index )
@@ -1665,7 +1665,7 @@ private  void  update_all_slice_axes(
     match_view_scale_and_translation( slice_window, view_index, volume_index );
 }
 
-public  void  update_all_slice_axes_views(
+  void  update_all_slice_axes_views(
     display_struct    *slice_window,
     int               volume_index )
 {
@@ -1675,7 +1675,7 @@ public  void  update_all_slice_axes_views(
         update_all_slice_axes( slice_window, volume_index, view );
 }
 
-public  void  slice_view_has_changed(
+  void  slice_view_has_changed(
     display_struct   *display,
     int              view )
 {
@@ -1693,7 +1693,7 @@ public  void  slice_view_has_changed(
     set_slice_window_update( slice_window, -1, view, UPDATE_BOTH );
 }
 
-public  void  set_volume_transform(
+  void  set_volume_transform(
     display_struct     *display,
     int                volume_index,
     VIO_General_transform  *transform )
@@ -1719,7 +1719,7 @@ public  void  set_volume_transform(
     update_all_slice_axes_views( slice_window, ref_volume_index );
 }
 
-public  void  concat_transform_to_volume(
+  void  concat_transform_to_volume(
     display_struct     *display,
     int                volume_index,
     VIO_General_transform  *transform )
@@ -1738,7 +1738,7 @@ public  void  concat_transform_to_volume(
     delete_general_transform( &concated );
 }
 
-public  void  transform_current_volume_from_file(
+  void  transform_current_volume_from_file(
     display_struct   *display,
     VIO_STR           filename )
 {
@@ -1754,7 +1754,7 @@ public  void  transform_current_volume_from_file(
     delete_general_transform( &file_transform );
 }
 
-public  void  reset_current_volume_transform(
+  void  reset_current_volume_transform(
     display_struct   *display )
 {
     VIO_General_transform  *original_transform;

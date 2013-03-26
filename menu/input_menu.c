@@ -363,32 +363,32 @@ typedef  struct
     key_action_struct   *entries;
 } menu_definition_struct;
 
-private  int  translate_key_name(
+static  int  translate_key_name(
     VIO_STR    key_name );
-private  VIO_Status  input_menu_entry(
+static  VIO_Status  input_menu_entry(
     FILE                     *file,
     menu_definition_struct   *menu_entry );
-private  VIO_Status  input_menu(
+static  VIO_Status  input_menu(
     FILE                     *file,
     int                      *n_menus_ptr,
     menu_definition_struct   **menus_ptr );
-private  void  free_input_menu(
+static  void  free_input_menu(
     int                      n_menus,
     menu_definition_struct   *menus );
-private  void  create_menu(
+static  void  create_menu(
     menu_window_struct       *menu,
     int                      n_menus,
     menu_definition_struct   *menus );
-private  int  lookup_menu_name(
+static  int  lookup_menu_name(
     VIO_STR                    menu_name,
     int                       n_menus,
     menu_definition_struct    menus[] );
-private  VIO_BOOL  lookup_menu_action(
+static  VIO_BOOL  lookup_menu_action(
     VIO_STR                 action_name,
     menu_function_pointer  *action,
     menu_update_pointer    *update_action );
 
-public  VIO_Status  read_menu(
+  VIO_Status  read_menu(
     menu_window_struct   *menu,
     FILE                 *file )
 {
@@ -408,7 +408,7 @@ public  VIO_Status  read_menu(
     return( status );
 }
 
-private  VIO_Status  input_menu(
+static  VIO_Status  input_menu(
     FILE                     *file,
     int                      *n_menus_ptr,
     menu_definition_struct   **menus_ptr )
@@ -442,7 +442,7 @@ private  VIO_Status  input_menu(
     return( status );
 }
 
-private  VIO_Status  input_key_action(
+static  VIO_Status  input_key_action(
     FILE                *file,
     key_action_struct   *action )
 {
@@ -467,7 +467,7 @@ private  VIO_Status  input_key_action(
     return( status );
 }
 
-private  int  translate_key_name(
+static  int  translate_key_name(
     VIO_STR    str )
 {
     int     key;
@@ -495,7 +495,7 @@ private  int  translate_key_name(
     return( key );
 }
 
-private  VIO_Status  input_menu_entry(
+static  VIO_Status  input_menu_entry(
     FILE                     *file,
     menu_definition_struct   *menu_entry )
 {
@@ -562,7 +562,7 @@ private  VIO_Status  input_menu_entry(
     return( status );
 }
 
-private  void  free_input_menu(
+static  void  free_input_menu(
     int                      n_menus,
     menu_definition_struct   *menus )
 {
@@ -589,7 +589,7 @@ private  void  free_input_menu(
     }
 }
 
-private  void  create_menu(
+static  void  create_menu(
     menu_window_struct       *menu,
     int                      n_menus,
     menu_definition_struct   *menus )
@@ -668,7 +668,7 @@ private  void  create_menu(
     }
 }
 
-private  int  lookup_menu_name(
+static  int  lookup_menu_name(
     VIO_STR                    menu_name,
     int                       n_menus,
     menu_definition_struct    menus[] )
@@ -689,7 +689,7 @@ private  int  lookup_menu_name(
     return( i );
 }
 
-private  VIO_BOOL  lookup_menu_action(
+static  VIO_BOOL  lookup_menu_action(
     VIO_STR                 action_name,
     menu_function_pointer  *action,
     menu_update_pointer    *update_action )
@@ -727,7 +727,7 @@ private  VIO_BOOL  lookup_menu_action(
     return( found );
 }
 
-private  void  delete_menu_entry(
+static  void  delete_menu_entry(
     VIO_BOOL             top_flag,
     menu_entry_struct   *entry )
 {
@@ -740,7 +740,7 @@ private  void  delete_menu_entry(
         FREE( entry->children );
 }
 
-public  void  delete_menu(
+  void  delete_menu(
     menu_window_struct  *menu )
 {
     int      i;

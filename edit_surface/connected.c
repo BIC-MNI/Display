@@ -22,13 +22,13 @@
 
 #include  <display.h>
 
-private    DEF_EVENT_FUNCTION( pick_start_point );
-private    DEF_EVENT_FUNCTION( terminate_connected );
-private  void  make_connected_invisible(
+static    DEF_EVENT_FUNCTION( pick_start_point );
+static    DEF_EVENT_FUNCTION( terminate_connected );
+static  void  make_connected_invisible(
     polygons_struct   *polygons,
     int               poly_index );
 
-public  void  turn_off_connected_polygons(
+  void  turn_off_connected_polygons(
     display_struct   *display )
 {
     polygons_struct      *edit_polygons;
@@ -47,7 +47,7 @@ public  void  turn_off_connected_polygons(
     }
 }
 
-private  void  remove_events(
+static  void  remove_events(
     action_table_struct   *action_table )
 {
     pop_action_table( action_table, MIDDLE_MOUSE_DOWN_EVENT );
@@ -58,7 +58,7 @@ private  void  remove_events(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_connected )
+static  DEF_EVENT_FUNCTION( terminate_connected )
 {
     remove_events( &display->action_table );
 
@@ -67,7 +67,7 @@ private  DEF_EVENT_FUNCTION( terminate_connected )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( pick_start_point )
+static  DEF_EVENT_FUNCTION( pick_start_point )
 {
     int               poly_index;
     polygons_struct   *polygons, *edit_polygons;
@@ -89,7 +89,7 @@ private  DEF_EVENT_FUNCTION( pick_start_point )
     return( OK );
 }
 
-private  void  make_connected_invisible(
+static  void  make_connected_invisible(
     polygons_struct   *polygons,
     int               poly_index )
 {

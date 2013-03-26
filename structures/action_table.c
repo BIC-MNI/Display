@@ -27,7 +27,7 @@
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION(  null_function )
+static  DEF_EVENT_FUNCTION(  null_function )
 {
     /* function does nothing */
     return( OK );
@@ -35,7 +35,7 @@ private  DEF_EVENT_FUNCTION(  null_function )
 
 #endif
 
-private  void  set_action_table_function(
+static  void  set_action_table_function(
     action_table_struct   *action_table,
     Event_types           event_type,
     event_function_type   function )
@@ -49,7 +49,7 @@ private  void  set_action_table_function(
     t->actions[i] = function;
 }
 
-public  void  add_action_table_function(
+  void  add_action_table_function(
     action_table_struct   *action_table,
     Event_types           event_type,
     event_function_type   function )
@@ -69,7 +69,7 @@ public  void  add_action_table_function(
     }
 }
 
-public  void  remove_action_table_function(
+  void  remove_action_table_function(
     action_table_struct   *action_table,
     Event_types           event_type,
     event_function_type   function )
@@ -113,7 +113,7 @@ public  void  remove_action_table_function(
     }
 }
 
-public  void  push_action_table(
+  void  push_action_table(
     action_table_struct   *action_table,
     Event_types           event_type )
 {
@@ -132,7 +132,7 @@ public  void  push_action_table(
     }
 }
 
-public  void  pop_action_table(
+  void  pop_action_table(
     action_table_struct   *action_table,
     Event_types           event_type )
 {
@@ -150,7 +150,7 @@ public  void  pop_action_table(
     }
 }
 
-public  int  get_event_actions(
+  int  get_event_actions(
     action_table_struct   *action_table,
     Event_types           event_type,
     event_function_type   *actions_list[] )
@@ -179,7 +179,7 @@ public  int  get_event_actions(
 
 #ifdef  NOT_NEEDED
 
-private  void  turn_off_action(
+static  void  turn_off_action(
     action_table_struct   *action_table,
     Event_types           event_type )
 {
@@ -188,7 +188,7 @@ private  void  turn_off_action(
 
 #endif
 
-public  void  initialize_action_table(
+  void  initialize_action_table(
     action_table_struct   *action_table )
 {
     Event_types           event;

@@ -23,25 +23,25 @@
 
 #include  <display.h>
 
-private  VIO_Status   process_no_events_for_three_d_windows( void );
-private  void     update_all_three_d_windows( void );
-private  VIO_Status   process_no_events_for_slice_windows( void );
-private  void     update_all_slice_windows( void );
-private  VIO_Status   perform_action(
+static  VIO_Status   process_no_events_for_three_d_windows( void );
+static  void     update_all_three_d_windows( void );
+static  VIO_Status   process_no_events_for_slice_windows( void );
+static  void     update_all_slice_windows( void );
+static  VIO_Status   perform_action(
     display_struct   *display,
     Event_types      event_type,
     int              key_pressed );
-private  void  update_this_type_of_windows(
+static  void  update_this_type_of_windows(
     window_types   window_type );
 
-private  void  quit_program( void )
+static  void  quit_program( void )
 {
     print( "Quitting Display\n" );
 
     exit( 0 );
 }
 
-private  void  handle_event(
+static  void  handle_event(
     Event_types   event,
     Gwindow       window,
     int           key_pressed )
@@ -60,14 +60,14 @@ private  void  handle_event(
         quit_program();
 }
 
-private  void  update_callback(
+static  void  update_callback(
     Gwindow   window,
     void      *data )
 {
     handle_event( WINDOW_REDRAW_EVENT, window, 0 );
 }
 
-private  void  resize_callback(
+static  void  resize_callback(
     Gwindow   window,
     int       x,
     int       y,
@@ -78,7 +78,7 @@ private  void  resize_callback(
     handle_event( WINDOW_RESIZE_EVENT, window, 0 );
 }
 
-private  void  key_down_callback(
+static  void  key_down_callback(
     Gwindow   window,
     int       key,
     void      *data )
@@ -86,7 +86,7 @@ private  void  key_down_callback(
     handle_event( KEY_DOWN_EVENT, window, key );
 }
 
-private  void  mouse_movement_callback(
+static  void  mouse_movement_callback(
     Gwindow   window,
     int       x,
     int       y,
@@ -95,7 +95,7 @@ private  void  mouse_movement_callback(
     handle_event( MOUSE_MOVEMENT_EVENT, window, 0 );
 }
 
-private  void  left_down_callback(
+static  void  left_down_callback(
     Gwindow   window,
     int       x,
     int       y,
@@ -104,7 +104,7 @@ private  void  left_down_callback(
     handle_event( LEFT_MOUSE_DOWN_EVENT, window, 0 );
 }
 
-private  void  left_up_callback(
+static  void  left_up_callback(
     Gwindow   window,
     int       x,
     int       y,
@@ -113,7 +113,7 @@ private  void  left_up_callback(
     handle_event( LEFT_MOUSE_UP_EVENT, window, 0 );
 }
 
-private  void  middle_down_callback(
+static  void  middle_down_callback(
     Gwindow   window,
     int       x,
     int       y,
@@ -122,7 +122,7 @@ private  void  middle_down_callback(
     handle_event( MIDDLE_MOUSE_DOWN_EVENT, window, 0 );
 }
 
-private  void  middle_up_callback(
+static  void  middle_up_callback(
     Gwindow   window,
     int       x,
     int       y,
@@ -131,7 +131,7 @@ private  void  middle_up_callback(
     handle_event( MIDDLE_MOUSE_UP_EVENT, window, 0 );
 }
 
-private  void  right_down_callback( Gwindow   window,
+static  void  right_down_callback( Gwindow   window,
     int       x,
     int       y,
     void      *data )
@@ -139,7 +139,7 @@ private  void  right_down_callback( Gwindow   window,
     handle_event( RIGHT_MOUSE_DOWN_EVENT, window, 0 );
 }
 
-private  void  right_up_callback(
+static  void  right_up_callback(
     Gwindow   window,
     int       x,
     int       y,
@@ -148,42 +148,42 @@ private  void  right_up_callback(
     handle_event( RIGHT_MOUSE_UP_EVENT, window, 0 );
 }
 
-private  void  iconify_callback(
+static  void  iconify_callback(
     Gwindow   window,
     void      *data )
 {
     handle_event( WINDOW_ICONIZED_EVENT, window, 0 );
 }
 
-private  void  deiconify_callback(
+static  void  deiconify_callback(
     Gwindow   window,
     void      *data )
 {
     handle_event( WINDOW_DEICONIZED_EVENT, window, 0 );
 }
 
-private  void  enter_callback(
+static  void  enter_callback(
     Gwindow   window,
     void      *data )
 {
     handle_event( WINDOW_ENTER_EVENT, window, 0 );
 }
 
-private  void  leave_callback(
+static  void  leave_callback(
     Gwindow   window,
     void      *data )
 {
     handle_event( WINDOW_LEAVE_EVENT, window, 0 );
 }
 
-private  void  quit_callback(
+static  void  quit_callback(
     Gwindow   window,
     void      *data )
 {
     handle_event( WINDOW_QUIT_EVENT, window, 0 );
 }
 
-public  void  initialize_window_callbacks(
+  void  initialize_window_callbacks(
     display_struct    *display_window )
 {
     Gwindow   window;
@@ -207,7 +207,7 @@ public  void  initialize_window_callbacks(
     G_set_window_quit_function( window, quit_callback, NULL);
 }
 
-private  void  update_all_three_d( void )
+static  void  update_all_three_d( void )
 {
     VIO_Status   status;
 
@@ -219,7 +219,7 @@ private  void  update_all_three_d( void )
     update_all_three_d_windows();
 }
 
-private  void  update_all_slice( void )
+static  void  update_all_slice( void )
 {
     VIO_Status   status;
 
@@ -231,7 +231,7 @@ private  void  update_all_slice( void )
     update_all_slice_windows();
 }
 
-private  void  update_all(
+static  void  update_all(
     void   *void_ptr )
 {
     update_all_three_d();
@@ -239,7 +239,7 @@ private  void  update_all(
     G_add_timer_function( Min_interval_between_updates, update_all, NULL );
 }
 
-public  VIO_Status   main_event_loop( void )
+  VIO_Status   main_event_loop( void )
 {
     G_add_timer_function( Min_interval_between_updates, update_all, NULL );
 
@@ -248,14 +248,14 @@ public  VIO_Status   main_event_loop( void )
     return( OK );
 }
 
-public  VIO_BOOL  window_is_up_to_date(
+  VIO_BOOL  window_is_up_to_date(
     display_struct   *display )
 {
     return( !graphics_update_required( display ) &&
             !display->update_interrupted.last_was_interrupted );
 }
 
-private  void  update_all_three_d_windows( void )
+static  void  update_all_three_d_windows( void )
 {
     update_this_type_of_windows( MENU_WINDOW );
     update_this_type_of_windows( MARKER_WINDOW );
@@ -263,13 +263,13 @@ private  void  update_all_three_d_windows( void )
     update_this_type_of_windows( MARKER_WINDOW );
 }
 
-private  void  update_all_slice_windows( void )
+static  void  update_all_slice_windows( void )
 {
     update_this_type_of_windows( SLICE_WINDOW );
 }
 
 #ifdef DEBUG
-private  void  debug_update( void )
+static  void  debug_update( void )
 {
     static  VIO_BOOL  first = TRUE;
     static  VIO_Real  start_time;
@@ -294,7 +294,7 @@ private  void  debug_update( void )
 }
 #endif
 
-private  void  update_this_type_of_windows(
+static  void  update_this_type_of_windows(
     window_types   window_type )
 {
     int               i, n_windows;
@@ -319,7 +319,7 @@ private  void  update_this_type_of_windows(
     }
 }
 
-private  VIO_Status  process_no_events_for_three_d_windows( void )
+static  VIO_Status  process_no_events_for_three_d_windows( void )
 {
     VIO_Status            status;
     int               i, n_windows;
@@ -336,7 +336,7 @@ private  VIO_Status  process_no_events_for_three_d_windows( void )
     return( status );
 }
 
-private  VIO_Status  process_no_events_for_slice_windows( void )
+static  VIO_Status  process_no_events_for_slice_windows( void )
 {
     VIO_Status            status;
     int               i, n_windows;
@@ -353,7 +353,7 @@ private  VIO_Status  process_no_events_for_slice_windows( void )
     return( status );
 }
 
-private  VIO_Status   perform_action(
+static  VIO_Status   perform_action(
     display_struct   *display,
     Event_types      event_type,
     int              key_pressed )
@@ -377,7 +377,7 @@ private  VIO_Status   perform_action(
     return( status );
 }
 
-public  VIO_BOOL  is_shift_key_pressed( void )
+  VIO_BOOL  is_shift_key_pressed( void )
 {
     return( G_get_shift_key_state() ||
             G_get_ctrl_key_state() ||

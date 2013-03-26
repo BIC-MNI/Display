@@ -23,24 +23,24 @@
 
 #include  <display.h>
 
-private  void  initialize_directional(
+static  void  initialize_directional(
     light_struct  *light,
     VIO_BOOL       state );
 
-public  void  initialize_lights(
+  void  initialize_lights(
     light_struct  *lights )
 {
-    initialize_directional( &lights[0], ON );
-    initialize_directional( &lights[1], OFF );
-    initialize_directional( &lights[2], OFF );
-    initialize_directional( &lights[3], OFF );
-    initialize_directional( &lights[4], OFF );
-    initialize_directional( &lights[5], OFF );
-    initialize_directional( &lights[6], OFF );
-    initialize_directional( &lights[7], OFF );
+    initialize_directional( &lights[0], TRUE );
+    initialize_directional( &lights[1], FALSE );
+    initialize_directional( &lights[2], FALSE );
+    initialize_directional( &lights[3], FALSE );
+    initialize_directional( &lights[4], FALSE );
+    initialize_directional( &lights[5], FALSE );
+    initialize_directional( &lights[6], FALSE );
+    initialize_directional( &lights[7], FALSE );
 }
 
-private  void  initialize_directional(
+static  void  initialize_directional(
     light_struct  *light,
     VIO_BOOL       state )
 {

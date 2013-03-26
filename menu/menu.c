@@ -27,23 +27,23 @@ static    DEF_EVENT_FUNCTION( handle_character_up );
 static    DEF_EVENT_FUNCTION( handle_leaving_window );
 static    DEF_EVENT_FUNCTION( left_mouse_press );
 static    DEF_EVENT_FUNCTION( middle_mouse_press );
-private  void  turn_off_menu_entry(
+static  void  turn_off_menu_entry(
     menu_window_struct  *menu,
     menu_entry_struct   *menu_entry );
-private  VIO_Status  handle_menu_for_key(
+static  VIO_Status  handle_menu_for_key(
     display_struct      *menu_window,
     int                 key );
-private  VIO_Status  process_menu(
+static  VIO_Status  process_menu(
     display_struct      *display,
     menu_entry_struct   *menu_entry );
-private  VIO_Status  handle_mouse_press_in_menu(
+static  VIO_Status  handle_mouse_press_in_menu(
     display_struct      *menu_window,
     VIO_Real                x,
     VIO_Real                y );
-private  void  update_menu_name_text(
+static  void  update_menu_name_text(
     display_struct   *menu_window );
 
-private  void  set_menu_key_entry(
+static  void  set_menu_key_entry(
     menu_window_struct     *menu,
     int                    ch,
     menu_entry_struct      *menu_entry )
@@ -51,14 +51,14 @@ private  void  set_menu_key_entry(
     menu->key_menus[ch] = menu_entry;
 }
 
-private  menu_entry_struct  *get_menu_key_entry(
+static  menu_entry_struct  *get_menu_key_entry(
     menu_window_struct     *menu,
     int                    ch )
 {
     return( menu->key_menus[ch] );
 }
 
-private  void  turn_on_menu_entry(
+static  void  turn_on_menu_entry(
     menu_window_struct     *menu,
     menu_entry_struct      *menu_entry )
 {
@@ -79,7 +79,7 @@ private  void  turn_on_menu_entry(
     set_menu_key_entry( menu, menu_entry->key, menu_entry );
 }
 
-private  void  turn_off_menu_entry(
+static  void  turn_off_menu_entry(
     menu_window_struct  *menu,
     menu_entry_struct   *menu_entry )
 {
@@ -91,7 +91,7 @@ private  void  turn_off_menu_entry(
     set_menu_key_entry( menu, menu_entry->key, (menu_entry_struct *) 0 );
 }
 
-private  void  add_menu_actions(
+static  void  add_menu_actions(
     menu_window_struct  *menu,
     menu_entry_struct   *menu_entry )
 {
@@ -101,7 +101,7 @@ private  void  add_menu_actions(
         turn_on_menu_entry( menu, menu_entry->children[i] );
 }
 
-private  void  remove_menu_actions(
+static  void  remove_menu_actions(
     menu_window_struct  *menu,
     menu_entry_struct   *menu_entry )
 {
@@ -114,7 +114,7 @@ private  void  remove_menu_actions(
     }
 }
 
-private  void  initialize_menu_parameters(
+static  void  initialize_menu_parameters(
     display_struct    *menu_window )
 {
     int                 x_size, y_size;
@@ -157,7 +157,7 @@ private  void  initialize_menu_parameters(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_menu_resize )
+static  DEF_EVENT_FUNCTION( handle_menu_resize )
 {
     display_struct  *menu_window, *three_d;
 
@@ -185,7 +185,7 @@ static VIO_STR default_menu_string =
 #endif
 ;
 
-public  VIO_Status  initialize_menu(
+  VIO_Status  initialize_menu(
     display_struct    *menu_window,
     VIO_STR            default_directory1,
     VIO_STR            default_directory2,
@@ -205,7 +205,7 @@ public  VIO_Status  initialize_menu(
 
     menu = &menu_window->menu;
 
-    G_set_transparency_state( menu_window->window, OFF );
+    G_set_transparency_state( menu_window->window, FALSE );
 
     initialize_resize_events( menu_window );
 
@@ -310,7 +310,7 @@ public  VIO_Status  initialize_menu(
     return( status );
 }
 
-public  void  initialize_menu_actions(
+  void  initialize_menu_actions(
     display_struct    *menu_window )
 {
     add_action_table_function( &menu_window->action_table, KEY_DOWN_EVENT,
@@ -321,7 +321,7 @@ public  void  initialize_menu_actions(
                                handle_leaving_window );
 }
 
-public  void  initialize_menu_window(
+  void  initialize_menu_window(
     display_struct    *menu_window )
 {
     add_action_table_function( &menu_window->action_table,
@@ -332,7 +332,7 @@ public  void  initialize_menu_window(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_character_down )
+static  DEF_EVENT_FUNCTION( handle_character_down )
 {
     VIO_Status             status;
     display_struct     *menu_window;
@@ -348,25 +348,25 @@ private  DEF_EVENT_FUNCTION( handle_character_down )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_leaving_window )
+static  DEF_EVENT_FUNCTION( handle_leaving_window )
 {
     return( OK );
 }
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_character_up )
+static  DEF_EVENT_FUNCTION( handle_character_up )
 {
     return( OK );
 }
 
-private  VIO_BOOL  is_menu_entry_active(
+static  VIO_BOOL  is_menu_entry_active(
     menu_entry_struct  *menu_entry )
 {
     return( menu_entry->is_active );
 }
 
-private  VIO_Status  handle_menu_for_key(
+static  VIO_Status  handle_menu_for_key(
     display_struct      *menu_window,
     int                 key )
 {
@@ -384,7 +384,7 @@ private  VIO_Status  handle_menu_for_key(
     return( status );
 }
 
-private  VIO_Status  process_menu(
+static  VIO_Status  process_menu(
     display_struct      *display,
     menu_entry_struct   *menu_entry )
 {
@@ -405,7 +405,7 @@ private  VIO_Status  process_menu(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( left_mouse_press )
+static  DEF_EVENT_FUNCTION( left_mouse_press )
 {
     VIO_Status  status;
     int     x, y;
@@ -422,14 +422,14 @@ private  DEF_EVENT_FUNCTION( left_mouse_press )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( middle_mouse_press )
+static  DEF_EVENT_FUNCTION( middle_mouse_press )
 {
     pop_menu_one_level( display );
 
     return( OK );
 }
 
-private  VIO_Status  handle_mouse_press_in_menu(
+static  VIO_Status  handle_mouse_press_in_menu(
     display_struct      *menu_window,
     VIO_Real                x,
     VIO_Real                y )
@@ -447,7 +447,7 @@ private  VIO_Status  handle_mouse_press_in_menu(
     {
         status = handle_menu_for_key( menu_window, key );
     }
-    else if( mouse_is_on_object_name( three_d, ROUND(x), ROUND(y), &object ) )
+    else if( mouse_is_on_object_name( three_d, VIO_ROUND(x), VIO_ROUND(y), &object ) )
     {
         if( get_current_object( three_d, &current ) &&
             current == object && get_object_type(object) == MODEL )
@@ -465,7 +465,7 @@ private  VIO_Status  handle_mouse_press_in_menu(
     return( status );
 }
 
-public  void  update_menu_text(
+  void  update_menu_text(
     display_struct      *display,
     menu_entry_struct   *menu_entry )
 {
@@ -495,7 +495,7 @@ public  void  update_menu_text(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( push_menu )
+  DEF_MENU_FUNCTION( push_menu )
 {
     VIO_Status   status;
 
@@ -534,14 +534,14 @@ public  DEF_MENU_FUNCTION( push_menu )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(push_menu )
+  DEF_MENU_UPDATE(push_menu )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( pop_menu )
+  DEF_MENU_FUNCTION( pop_menu )
 {
     pop_menu_one_level( menu_window );
 
@@ -550,12 +550,12 @@ public  DEF_MENU_FUNCTION( pop_menu )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(pop_menu )
+  DEF_MENU_UPDATE(pop_menu )
 {
     return( menu_window->menu.depth > 0 );
 }
 
-public  void  pop_menu_one_level(
+  void  pop_menu_one_level(
     display_struct   *menu_window )
 {
     if( menu_window->menu.depth > 0 )
@@ -574,7 +574,7 @@ public  void  pop_menu_one_level(
     }
 }
 
-public  void   set_menu_text(
+  void   set_menu_text(
     display_struct      *menu_window,
     menu_entry_struct   *menu_entry,
     VIO_STR              text )
@@ -597,7 +597,7 @@ public  void   set_menu_text(
         n_chars_across = menu_entry->n_chars_across;
 
         if( line == 0 )
-            n_chars_across = ROUND( (VIO_Real) n_chars_across -
+            n_chars_across = VIO_ROUND( (VIO_Real) n_chars_across -
                                     menu->character_offset );
 
         i = 0;
@@ -608,7 +608,7 @@ public  void   set_menu_text(
                 (text[n_chars] == ' ' &&
                  (len - n_chars-1) <=
                  (menu->n_lines_in_entry-line-1) * menu_entry->n_chars_across
-                 - ROUND(menu->character_offset)) )
+                 - VIO_ROUND(menu->character_offset)) )
             {
                 ++n_chars;
                 break;
@@ -623,7 +623,7 @@ public  void   set_menu_text(
     set_update_required( menu_window, NORMAL_PLANES );
 }
 
-public  void  update_all_menu_text(
+  void  update_all_menu_text(
     display_struct   *display )
 {
     int                 key;
@@ -645,7 +645,7 @@ public  void  update_all_menu_text(
     set_update_required( marker_window, NORMAL_PLANES );
 }
 
-private  void  update_menu_name_text(
+static  void  update_menu_name_text(
     display_struct   *menu_window )
 {
     VIO_STR       new_value;

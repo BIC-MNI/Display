@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-public  void  initialize_segmenting(
+  void  initialize_segmenting(
     segmenting_struct  *segmenting )
 {
     segmenting->min_threshold = 0.0;
@@ -30,7 +30,7 @@ public  void  initialize_segmenting(
     segmenting->connectivity = (Neighbour_types) Segmenting_connectivity;
 }
 
-public  void  clear_all_labels(
+  void  clear_all_labels(
     display_struct    *display )
 {
     display_struct    *slice_window;
@@ -39,7 +39,7 @@ public  void  clear_all_labels(
         clear_labels( slice_window, get_current_volume_index(slice_window) );
 }
 
-public  void  set_labels_on_slice(
+  void  set_labels_on_slice(
     display_struct  *slice_window,
     int             volume_index,
     int             axis_index,
@@ -70,7 +70,7 @@ typedef struct
     int  x, y;
 } slice_position;
 
-public  void  set_connected_voxels_labels(
+  void  set_connected_voxels_labels(
     display_struct    *slice_window,
     int               volume_index,
     int               axis_index,

@@ -22,38 +22,38 @@
 
 #include  <display.h>
 
-public  void  set_menu_text_real(
+  void  set_menu_text_real(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
     VIO_Real               value )
 {
-    char  text[EXTREMELY_LARGE_STRING_SIZE];
+    char  text[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     (void) sprintf( text, menu_entry->label, value );
 
     set_menu_text( menu_window, menu_entry, text );
 }
 
-public  void  set_menu_text_int(
+  void  set_menu_text_int(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
     int                value )
 {
-    char  text[EXTREMELY_LARGE_STRING_SIZE];
+    char  text[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     (void) sprintf( text, menu_entry->label, value );
 
     set_menu_text( menu_window, menu_entry, text );
 }
 
-public  void  set_menu_text_boolean(
+  void  set_menu_text_boolean(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
     VIO_BOOL            value,
     VIO_STR             off_str,
     VIO_STR             on_str )
 {
-    char  text[EXTREMELY_LARGE_STRING_SIZE];
+    char  text[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     if( value )
         (void) sprintf( text, menu_entry->label, on_str );
@@ -63,7 +63,7 @@ public  void  set_menu_text_boolean(
     set_menu_text( menu_window, menu_entry, text );
 }
 
-public  void  set_menu_text_on_off(
+  void  set_menu_text_on_off(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
     VIO_BOOL            value )
@@ -71,13 +71,13 @@ public  void  set_menu_text_on_off(
     set_menu_text_boolean( menu_window, menu_entry, value, "Off", "On" );
 }
 
-public  void  set_menu_text_with_colour(
+  void  set_menu_text_with_colour(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
     VIO_Colour             colour )
 {
     VIO_STR           name;
-    char             text[EXTREMELY_LARGE_STRING_SIZE];
+    char             text[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     name = convert_colour_to_string( colour );
 
@@ -88,12 +88,12 @@ public  void  set_menu_text_with_colour(
     set_menu_text( menu_window, menu_entry, text );
 }
 
-public  void  set_menu_text_string(
+  void  set_menu_text_string(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
     VIO_STR             str )
 {
-    char  text[EXTREMELY_LARGE_STRING_SIZE];
+    char  text[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     (void) sprintf( text, menu_entry->label, str );
 

@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-private  void  intersect_plane_polygons(
+static  void  intersect_plane_polygons(
     VIO_Vector            *plane_normal,
     VIO_Real              plane_constant,
     polygons_struct   *polygons,
@@ -31,7 +31,7 @@ private  void  intersect_plane_polygons(
     int               *n_indices_alloced,
     int               *n_end_indices_alloced );
 
-public  void  intersect_plane_with_polygons(
+  void  intersect_plane_with_polygons(
     display_struct    *display,
     VIO_Vector            *plane_normal,
     VIO_Real              plane_constant,
@@ -61,7 +61,7 @@ public  void  intersect_plane_with_polygons(
     }
 }
 
-private  void  intersect_plane_polygons(
+static  void  intersect_plane_polygons(
     VIO_Vector            *plane_normal,
     VIO_Real              plane_constant,
     polygons_struct   *polygons,
@@ -93,7 +93,7 @@ private  void  intersect_plane_polygons(
     }
 }
 
-public  VIO_BOOL  intersect_plane_one_polygon(
+  VIO_BOOL  intersect_plane_one_polygon(
     VIO_Vector            *plane_normal,
     VIO_Real              plane_constant,
     polygons_struct   *polygons,

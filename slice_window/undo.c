@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-public  void  initialize_slice_undo(
+  void  initialize_slice_undo(
     slice_undo_struct  *undo )
 {
     undo->volume_index = -1;
@@ -31,7 +31,7 @@ public  void  initialize_slice_undo(
     undo->saved_labels = (int **) NULL;
 }
 
-public  void  delete_slice_undo(
+  void  delete_slice_undo(
     slice_undo_struct  *undo,
     int                volume_index )
 {
@@ -43,7 +43,7 @@ public  void  delete_slice_undo(
     }
 }
 
-public  void  record_slice_labels(
+  void  record_slice_labels(
     display_struct  *display,
     int             volume_index,
     int             axis_index,
@@ -86,7 +86,7 @@ public  void  record_slice_labels(
     }
 }
 
-public  void  record_slice_under_mouse(
+  void  record_slice_under_mouse(
     display_struct  *display,
     int             volume_index )
 {
@@ -101,14 +101,14 @@ public  void  record_slice_under_mouse(
                               &x_index, &y_index, &axis_index ) )
     {
         get_current_voxel( slice_window, volume_index, voxel );
-        slice = ROUND( voxel[axis_index] );
+        slice = VIO_ROUND( voxel[axis_index] );
         get_volume_sizes( get_nth_volume(slice_window,volume_index), sizes );
         if( slice >= 0 && slice < sizes[axis_index] )
             record_slice_labels( slice_window, volume_index, axis_index, slice);
     }
 }
 
-public  VIO_BOOL  slice_labels_to_undo(
+  VIO_BOOL  slice_labels_to_undo(
     display_struct  *display )
 {
     display_struct  *slice_window;
@@ -117,7 +117,7 @@ public  VIO_BOOL  slice_labels_to_undo(
             slice_window->slice.undo.axis_index >= 0 );
 }
 
-public  int  undo_slice_labels_if_any(
+  int  undo_slice_labels_if_any(
     display_struct  *display )
 {
     int             voxel[VIO_MAX_DIMENSIONS], sizes[VIO_MAX_DIMENSIONS];

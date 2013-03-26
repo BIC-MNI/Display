@@ -24,7 +24,7 @@
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( reverse_normals )
+  DEF_MENU_FUNCTION( reverse_normals )
 {
     object_struct   *current_object;
 
@@ -40,25 +40,25 @@ public  DEF_MENU_FUNCTION( reverse_normals )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(reverse_normals )
+  DEF_MENU_UPDATE(reverse_normals )
 {
     return( current_object_exists(display) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( advance_visible )
+  DEF_MENU_FUNCTION( advance_visible )
 {
     object_struct    *current_object;
 
     if( get_current_object( display, &current_object ) )
     {
-        current_object->visibility = OFF;
+        current_object->visibility = FALSE;
 
         advance_current_object( display );
 
         if( get_current_object( display, &current_object ) )
-            current_object->visibility = ON;
+            current_object->visibility = TRUE;
 
         graphics_models_have_changed( display );
     }
@@ -68,25 +68,25 @@ public  DEF_MENU_FUNCTION( advance_visible )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(advance_visible )
+  DEF_MENU_UPDATE(advance_visible )
 {
     return( current_object_exists(display) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( retreat_visible )
+  DEF_MENU_FUNCTION( retreat_visible )
 {
     object_struct    *current_object;
 
     if( get_current_object( display, &current_object ) )
     {
-        current_object->visibility = OFF;
+        current_object->visibility = FALSE;
 
         retreat_current_object( display );
 
         if( get_current_object( display, &current_object ) )
-            current_object->visibility = ON;
+            current_object->visibility = TRUE;
 
         graphics_models_have_changed( display );
     }
@@ -96,14 +96,14 @@ public  DEF_MENU_FUNCTION( retreat_visible )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(retreat_visible )
+  DEF_MENU_UPDATE(retreat_visible )
 {
     return( current_object_exists(display) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( make_all_invisible )
+  DEF_MENU_FUNCTION( make_all_invisible )
 {
     object_struct           *object, *current_object;
     object_traverse_struct  object_traverse;
@@ -113,7 +113,7 @@ public  DEF_MENU_FUNCTION( make_all_invisible )
         initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
 
         while( get_next_object_traverse(&object_traverse,&object) )
-               set_object_visibility( object, OFF );
+               set_object_visibility( object, FALSE );
 
         graphics_models_have_changed( display );
     }
@@ -123,14 +123,14 @@ public  DEF_MENU_FUNCTION( make_all_invisible )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(make_all_invisible )
+  DEF_MENU_UPDATE(make_all_invisible )
 {
     return( current_object_exists(display) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( make_all_visible )
+  DEF_MENU_FUNCTION( make_all_visible )
 {
     object_struct           *current_object, *object;
     object_traverse_struct  object_traverse;
@@ -140,7 +140,7 @@ public  DEF_MENU_FUNCTION( make_all_visible )
         initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
 
         while( get_next_object_traverse(&object_traverse,&object) )
-            set_object_visibility( object, ON );
+            set_object_visibility( object, TRUE );
 
         graphics_models_have_changed( display );
     }
@@ -150,14 +150,14 @@ public  DEF_MENU_FUNCTION( make_all_visible )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(make_all_visible )
+  DEF_MENU_UPDATE(make_all_visible )
 {
     return( current_object_exists(display) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( advance_selected )
+  DEF_MENU_FUNCTION( advance_selected )
 {
     advance_current_object( display );
 
@@ -168,14 +168,14 @@ public  DEF_MENU_FUNCTION( advance_selected )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(advance_selected )
+  DEF_MENU_UPDATE(advance_selected )
 {
     return( current_object_exists(display) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( retreat_selected )
+  DEF_MENU_FUNCTION( retreat_selected )
 {
     retreat_current_object( display );
 
@@ -186,14 +186,14 @@ public  DEF_MENU_FUNCTION( retreat_selected )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(retreat_selected )
+  DEF_MENU_UPDATE(retreat_selected )
 {
     return( current_object_exists(display) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( descend_selected )
+  DEF_MENU_FUNCTION( descend_selected )
 {
     push_current_object( display );
 
@@ -204,14 +204,14 @@ public  DEF_MENU_FUNCTION( descend_selected )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(descend_selected )
+  DEF_MENU_UPDATE(descend_selected )
 {
     return( current_object_is_this_type(display,MODEL) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( ascend_selected )
+  DEF_MENU_FUNCTION( ascend_selected )
 {
     pop_current_object( display );
 
@@ -222,14 +222,14 @@ public  DEF_MENU_FUNCTION( ascend_selected )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(ascend_selected )
+  DEF_MENU_UPDATE(ascend_selected )
 {
     return( display->three_d.current_object.current_level > 1 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_object_visibility )
+  DEF_MENU_FUNCTION( toggle_object_visibility )
 {
     object_struct    *current_object;
 
@@ -245,14 +245,14 @@ public  DEF_MENU_FUNCTION( toggle_object_visibility )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_object_visibility )
+  DEF_MENU_UPDATE(toggle_object_visibility )
 {
     return( current_object_exists(display) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( create_model )
+  DEF_MENU_FUNCTION( create_model )
 {
     create_model_after_current( display );
 
@@ -263,14 +263,14 @@ public  DEF_MENU_FUNCTION( create_model )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(create_model )
+  DEF_MENU_UPDATE(create_model )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( change_model_name )
+  DEF_MENU_FUNCTION( change_model_name )
 {
     object_struct    *current_object;
     VIO_STR           name;
@@ -295,12 +295,12 @@ public  DEF_MENU_FUNCTION( change_model_name )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(change_model_name )
+  DEF_MENU_UPDATE(change_model_name )
 {
     return( current_object_is_this_type(display,MODEL) );
 }
 
-public  VIO_BOOL  remove_current_object_from_hierarchy(
+  VIO_BOOL  remove_current_object_from_hierarchy(
     display_struct   *display,
     object_struct    **object )
 {
@@ -336,7 +336,7 @@ public  VIO_BOOL  remove_current_object_from_hierarchy(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( delete_current_object )
+  DEF_MENU_FUNCTION( delete_current_object )
 {
     object_struct    *object;
     display_struct   *slice_window;
@@ -373,14 +373,14 @@ public  DEF_MENU_FUNCTION( delete_current_object )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(delete_current_object )
+  DEF_MENU_UPDATE(delete_current_object )
 {
     return( current_object_exists(display) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_current_object_colour )
+  DEF_MENU_FUNCTION( set_current_object_colour )
 {
     object_struct   *current_object;
     VIO_Colour          col;
@@ -410,7 +410,7 @@ public  DEF_MENU_FUNCTION( set_current_object_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_current_object_colour )
+  DEF_MENU_UPDATE(set_current_object_colour )
 {
     return( current_object_exists(display) &&
             !current_object_is_this_type(display,MODEL) );
@@ -418,7 +418,7 @@ public  DEF_MENU_UPDATE(set_current_object_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_current_object_surfprop )
+  DEF_MENU_FUNCTION( set_current_object_surfprop )
 {
     object_struct   *current_object;
     VIO_Surfprop        spr;
@@ -447,14 +447,14 @@ public  DEF_MENU_FUNCTION( set_current_object_surfprop )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_current_object_surfprop )
+  DEF_MENU_UPDATE(set_current_object_surfprop )
 {
     return( current_object_exists(display) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( cut_object )
+  DEF_MENU_FUNCTION( cut_object )
 {
     object_struct   *object;
     model_struct    *cut_model;
@@ -471,14 +471,14 @@ public  DEF_MENU_FUNCTION( cut_object )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(cut_object )
+  DEF_MENU_UPDATE(cut_object )
 {
     return( current_object_exists(display) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( paste_object )
+  DEF_MENU_FUNCTION( paste_object )
 {
     int             n_objects;
     object_struct   *object;
@@ -508,19 +508,19 @@ public  DEF_MENU_FUNCTION( paste_object )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(paste_object )
+  DEF_MENU_UPDATE(paste_object )
 {
     return( get_graphics_model( display, CUT_BUFFER_MODEL )->n_objects > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( mark_vertices )
+  DEF_MENU_FUNCTION( mark_vertices )
 {
     object_struct  *object;
     int            i, n_points;
     VIO_Point          *points;
-    char           label[EXTREMELY_LARGE_STRING_SIZE];
+    char           label[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     if( get_current_object( display, &object ) )
     {
@@ -538,14 +538,14 @@ public  DEF_MENU_FUNCTION( mark_vertices )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(mark_vertices )
+  DEF_MENU_UPDATE(mark_vertices )
 {
     return( current_object_exists(display) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( flip_object )
+  DEF_MENU_FUNCTION( flip_object )
 {
     object_struct  *object;
     int            i, n_points, n_normals;
@@ -574,14 +574,14 @@ public  DEF_MENU_FUNCTION( flip_object )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(flip_object )
+  DEF_MENU_UPDATE(flip_object )
 {
     return( current_object_exists(display) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( scan_current_object_to_volume )
+  DEF_MENU_FUNCTION( scan_current_object_to_volume )
 {
     object_struct     *current_object;
     display_struct    *slice_window;
@@ -606,7 +606,7 @@ public  DEF_MENU_FUNCTION( scan_current_object_to_volume )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(scan_current_object_to_volume )
+  DEF_MENU_UPDATE(scan_current_object_to_volume )
 {
     return( get_n_volumes(display) > 0 && current_object_exists(display) );
 }

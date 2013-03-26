@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-private  VIO_BOOL  make_spaceball_transform(
+static  VIO_BOOL  make_spaceball_transform(
     VIO_Real       x1,
     VIO_Real       y1,
     VIO_Real       x2,
@@ -32,7 +32,7 @@ private  VIO_BOOL  make_spaceball_transform(
     VIO_Real       y_radius,
     VIO_Transform  *transform );
 
-public  VIO_BOOL  get_spaceball_transform(
+  VIO_BOOL  get_spaceball_transform(
     display_struct   *display,
     VIO_Real             x1,
     VIO_Real             y1,
@@ -74,7 +74,7 @@ public  VIO_BOOL  get_spaceball_transform(
     return( exists );
 }
 
-private  VIO_BOOL  make_spaceball_transform(
+static  VIO_BOOL  make_spaceball_transform(
     VIO_Real       x1,
     VIO_Real       y1,
     VIO_Real       x2,

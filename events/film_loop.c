@@ -22,22 +22,22 @@
 
 #include  <display.h>
 
-private    DEF_EVENT_FUNCTION( check_updated );
+static    DEF_EVENT_FUNCTION( check_updated );
 
-private  VIO_Status  create_film_loop_header(
+static  VIO_Status  create_film_loop_header(
     VIO_STR   base_filename,
     int      window_width,
     int      window_height,
     int      n_steps );
-private  VIO_STR  create_frame_filename(
+static  VIO_STR  create_frame_filename(
     VIO_STR  base_filename,
     int     step );
-private  VIO_Status  save_image_to_file(
+static  VIO_Status  save_image_to_file(
     display_struct    *display );
-private  void  display_next_frame(
+static  void  display_next_frame(
     display_struct   *display );
 
-public  VIO_Status  start_film_loop(
+  VIO_Status  start_film_loop(
     display_struct   *display,
     VIO_STR           base_filename,
     int              axis_index,
@@ -72,7 +72,7 @@ public  VIO_Status  start_film_loop(
     return( status );
 }
 
-private  void  end_film_loop(
+static  void  end_film_loop(
     display_struct   *display )
 {
     remove_action_table_function( &display->action_table, NO_EVENT,
@@ -85,7 +85,7 @@ private  void  end_film_loop(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( check_updated )
+static  DEF_EVENT_FUNCTION( check_updated )
 {
     VIO_Status    status;
 
@@ -121,7 +121,7 @@ private  DEF_EVENT_FUNCTION( check_updated )
     return( OK );
 }
 
-private  VIO_Status  create_film_loop_header(
+static  VIO_Status  create_film_loop_header(
     VIO_STR   base_filename,
     int      window_width,
     int      window_height,
@@ -175,18 +175,18 @@ private  VIO_Status  create_film_loop_header(
     return( status );
 }
 
-private  VIO_STR  create_frame_filename(
+static  VIO_STR  create_frame_filename(
     VIO_STR   base_filename,
     int      step )
 {
-    char     buffer[EXTREMELY_LARGE_STRING_SIZE];
+    char     buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     (void) sprintf( buffer, "%s_%d.rgb", base_filename, step );
 
     return( create_string( buffer ) );
 }
 
-private  VIO_Status  save_image_to_file(
+static  VIO_Status  save_image_to_file(
     display_struct    *display )
 {
     VIO_Status         status;
@@ -203,7 +203,7 @@ private  VIO_Status  save_image_to_file(
     return( status );
 }
 
-private  void  display_next_frame(
+static  void  display_next_frame(
     display_struct   *display )
 {
     apply_transform_in_view_space( display,

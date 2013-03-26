@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-private  VIO_BOOL  find_close_voxel_containing_range(
+static  VIO_BOOL  find_close_voxel_containing_range(
     VIO_Volume                     volume,
     VIO_Volume                     label_volume,
     unsigned_byte              voxel_done_flags[],
@@ -31,7 +31,7 @@ private  VIO_BOOL  find_close_voxel_containing_range(
     int                        y,
     int                        z,
     int                        found_indices[] );
-private  void  add_voxel_neighbours(
+static  void  add_voxel_neighbours(
     VIO_Volume                              volume,
     VIO_Volume                              label_volume,
     int                                 x,
@@ -41,14 +41,14 @@ private  void  add_voxel_neighbours(
     surface_extraction_struct           *surface_extraction,
     bitlist_3d_struct                   *voxels_queued,
     voxel_queue_struct                  *voxel_queue );
-private  void  delete_edge_points_no_longer_needed(
+static  void  delete_edge_points_no_longer_needed(
     surface_extraction_struct       *surface_extraction,
     VIO_Volume                          volume,
     int                             voxel_index[],
     unsigned_byte                   voxel_done_flags[],
     hash_table_struct               *edge_points );
 
-private  VIO_BOOL  surface_voxel_is_within_volume(
+static  VIO_BOOL  surface_voxel_is_within_volume(
     surface_extraction_struct   *surface_extraction,
     int                         indices[] )
 {
@@ -61,7 +61,7 @@ private  VIO_BOOL  surface_voxel_is_within_volume(
             indices[Z] <= surface_extraction->max_limits[Z] );
 }
 
-public  void  start_surface_extraction_at_point(
+  void  start_surface_extraction_at_point(
     display_struct     *display,
     VIO_Volume             volume,
     VIO_Volume             label_volume,
@@ -181,7 +181,7 @@ public  void  start_surface_extraction_at_point(
         start_surface_extraction( display );
 }
 
-private  VIO_BOOL  find_close_voxel_containing_range(
+static  VIO_BOOL  find_close_voxel_containing_range(
     VIO_Volume                     volume,
     VIO_Volume                     label_volume,
     unsigned_byte              voxel_done_flags[],
@@ -249,7 +249,7 @@ private  VIO_BOOL  find_close_voxel_containing_range(
     return( found );
 }
 
-public  VIO_BOOL  some_voxels_remaining_to_do(
+  VIO_BOOL  some_voxels_remaining_to_do(
     surface_extraction_struct   *surface_extraction )
 {
     VIO_BOOL   remaining_to_do;
@@ -267,7 +267,7 @@ public  VIO_BOOL  some_voxels_remaining_to_do(
     return( remaining_to_do );
 }
 
-private  void  update_changed_limits(
+static  void  update_changed_limits(
     surface_extraction_struct  *surf )
 {
     int   dim, min_range[VIO_N_DIMENSIONS], max_range[VIO_N_DIMENSIONS];
@@ -325,7 +325,7 @@ private  void  update_changed_limits(
     surf->max_modified[X] = -1;
 }
 
-private  void  advance_voxellated_index(
+static  void  advance_voxellated_index(
     surface_extraction_struct   *surf )
 {
     int     dim, last_changed_dim, not_changed_since;
@@ -422,7 +422,7 @@ private  void  advance_voxellated_index(
     }
 }
 
-public  VIO_BOOL  extract_more_surface(
+  VIO_BOOL  extract_more_surface(
     display_struct    *display )
 {
     int                         n_voxels_done, sizes[VIO_N_DIMENSIONS];
@@ -515,7 +515,7 @@ public  VIO_BOOL  extract_more_surface(
     return( changed );
 }
 
-public  void  tell_surface_extraction_range_of_labels_changed(
+  void  tell_surface_extraction_range_of_labels_changed(
     display_struct    *display,
     int               volume_index,
     int               range[2][VIO_N_DIMENSIONS] )
@@ -554,7 +554,7 @@ public  void  tell_surface_extraction_range_of_labels_changed(
     }
 }
 
-public  void  tell_surface_extraction_label_changed(
+  void  tell_surface_extraction_label_changed(
     display_struct    *display,
     int               volume_index,
     int               x,
@@ -574,7 +574,7 @@ public  void  tell_surface_extraction_label_changed(
                                                      range );
 }
 
-private  void  add_voxel_neighbours(
+static  void  add_voxel_neighbours(
     VIO_Volume                          volume,
     VIO_Volume                          label_volume,
     int                             x,
@@ -623,7 +623,7 @@ private  void  add_voxel_neighbours(
     }
 }
 
-private  void  delete_edge_points_no_longer_needed(
+static  void  delete_edge_points_no_longer_needed(
     surface_extraction_struct       *surface_extraction,
     VIO_Volume                          volume,
     int                             voxel_index[],
@@ -710,7 +710,7 @@ private  void  delete_edge_points_no_longer_needed(
     }
 }
 
-public  void  remove_empty_polygons(
+  void  remove_empty_polygons(
     polygons_struct  *polygons )
 {
     int    new_n_polys, new_indices, size, v, poly, p1, p2, old_indices;

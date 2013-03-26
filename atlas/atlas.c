@@ -22,16 +22,16 @@
 
 #include  <display.h>
 
-private  VIO_Status  input_pixel_map(
+static  VIO_Status  input_pixel_map(
     VIO_STR          default_directory,
     VIO_STR          image_filename,
     pixels_struct   *pixels );
 
-private  const  int   ATLAS_SIZE[VIO_N_DIMENSIONS] = { 256, 256, 80 };
-private  const  VIO_Real  ATLAS_STEPS[VIO_N_DIMENSIONS] = { 0.67, 0.86, 1.5 };
-private  const  VIO_Real  ATLAS_STARTS[VIO_N_DIMENSIONS] = {  -86.095, -126.51, -37.5 };
+static  const  int   ATLAS_SIZE[VIO_N_DIMENSIONS] = { 256, 256, 80 };
+static  const  VIO_Real  ATLAS_STEPS[VIO_N_DIMENSIONS] = { 0.67, 0.86, 1.5 };
+static  const  VIO_Real  ATLAS_STARTS[VIO_N_DIMENSIONS] = {  -86.095, -126.51, -37.5 };
 
-public  void  initialize_atlas(
+  void  initialize_atlas(
     atlas_struct   *atlas )
 {
     atlas->input = FALSE;
@@ -47,7 +47,7 @@ public  void  initialize_atlas(
     atlas->n_images = 0;
 }
 
-public  void  delete_atlas(
+  void  delete_atlas(
     atlas_struct   *atlas )
 {
     int    im;
@@ -63,7 +63,7 @@ public  void  delete_atlas(
     }
 }
 
-private  VIO_Volume  convert_pixels_to_volume(
+static  VIO_Volume  convert_pixels_to_volume(
     int            axis_index,
     VIO_Real           slice_position,
     pixels_struct  *pixels )
@@ -124,7 +124,7 @@ private  VIO_Volume  convert_pixels_to_volume(
     return( volume );
 }
 
-private  VIO_Status  input_atlas(
+static  VIO_Status  input_atlas(
     atlas_struct   *atlas,
     VIO_STR         filename )
 {
@@ -136,7 +136,7 @@ private  VIO_Status  input_atlas(
     int              axis_index, image;
     VIO_STR           atlas_directory;
     pixels_struct    pixels;
-    progress_struct  progress;
+    VIO_progress_struct  progress;
 
     atlas_directory = extract_directory( filename );
 
@@ -227,7 +227,7 @@ private  VIO_Status  input_atlas(
     return( status );
 }
 
-private  VIO_Status  input_pixel_map(
+static  VIO_Status  input_pixel_map(
     VIO_STR         default_directory,
     VIO_STR         image_filename,
     pixels_struct  *pixels )
@@ -263,12 +263,12 @@ private  VIO_Status  input_pixel_map(
     return( status );
 }
 
-public  void  regenerate_atlas_lookup(
+  void  regenerate_atlas_lookup(
     display_struct    *slice_window )
 {
 }
 
-public  void  set_atlas_state(
+  void  set_atlas_state(
     display_struct    *slice_window,
     VIO_BOOL           state )
 {
@@ -287,7 +287,7 @@ public  void  set_atlas_state(
     slice_window->slice.atlas.enabled = state;
 }
 
-public  VIO_BOOL  is_atlas_loaded(
+  VIO_BOOL  is_atlas_loaded(
     display_struct  *display )
 {
     display_struct  *slice_window;
@@ -296,7 +296,7 @@ public  VIO_BOOL  is_atlas_loaded(
             slice_window->slice.atlas.n_images > 0 );
 }
 
-private  VIO_BOOL  find_appropriate_atlas_image(
+static  VIO_BOOL  find_appropriate_atlas_image(
     atlas_struct      *atlas,
     int               x_n_pixels,
     int               y_n_pixels,
@@ -347,7 +347,7 @@ private  VIO_BOOL  find_appropriate_atlas_image(
     {
         if( atlas->images[im].axis == axis )
         {
-            dist = FABS( slice_position - atlas->images[im].axis_position );
+            dist = VIO_FABS( slice_position - atlas->images[im].axis_position );
 
             if( dist <= atlas->slice_tolerance[axis] &&
                 (*image == NULL || dist <= min_dist) )
@@ -370,13 +370,13 @@ private  VIO_BOOL  find_appropriate_atlas_image(
                 {
                     if( tmp_x_axis[dim] != 0.0 )
                     {
-                        tmp_x_scale = 1.0 / FABS( separations[dim] *
+                        tmp_x_scale = 1.0 / VIO_FABS( separations[dim] *
                                                   tmp_x_axis[dim] );
-                        scale_dist = FABS( 1.0 / FABS(tmp_x_axis[dim]) - 1.0 );
+                        scale_dist = VIO_FABS( 1.0 / VIO_FABS(tmp_x_axis[dim]) - 1.0 );
                     }
 
                     if( tmp_y_axis[dim] != 0.0 )
-                        tmp_y_scale = 1.0 / FABS( separations[dim] *
+                        tmp_y_scale = 1.0 / VIO_FABS( separations[dim] *
                                                   tmp_y_axis[dim] );
 
                     if( tmp_x_axis[dim] == 0.0 && tmp_y_axis[dim] == 0.0 )
@@ -405,7 +405,7 @@ private  VIO_BOOL  find_appropriate_atlas_image(
     return( *image != NULL );
 }
 
-public  VIO_BOOL  render_atlas_slice_to_pixels(
+  VIO_BOOL  render_atlas_slice_to_pixels(
     atlas_struct  *atlas,
     VIO_Colour        image[],
     int           image_x_size,
@@ -478,7 +478,7 @@ public  VIO_BOOL  render_atlas_slice_to_pixels(
             {
                 PIXEL_RGB_COLOUR( pixels, x, y ) = make_rgba_Colour(
                                                r_atlas,g_atlas,b_atlas,
-                                               ROUND((VIO_Real) a_atlas*opacity));
+                                               VIO_ROUND((VIO_Real) a_atlas*opacity));
             }
         }
     }

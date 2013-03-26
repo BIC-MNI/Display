@@ -24,7 +24,7 @@
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_paint_xy_brush_radius )
+  DEF_MENU_FUNCTION( set_paint_xy_brush_radius )
 {
     Real            xy_brush_radius;
     display_struct  *slice_window;
@@ -48,7 +48,7 @@ public  DEF_MENU_FUNCTION( set_paint_xy_brush_radius )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_paint_xy_brush_radius )
+  DEF_MENU_UPDATE(set_paint_xy_brush_radius )
 {
     VIO_BOOL          state;
     Real             x_brush_radius;
@@ -67,7 +67,7 @@ public  DEF_MENU_UPDATE(set_paint_xy_brush_radius )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_paint_z_brush_radius )
+  DEF_MENU_FUNCTION( set_paint_z_brush_radius )
 {
     Real            z_brush_radius;
     display_struct  *slice_window;
@@ -88,7 +88,7 @@ public  DEF_MENU_FUNCTION( set_paint_z_brush_radius )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_paint_z_brush_radius )
+  DEF_MENU_UPDATE(set_paint_z_brush_radius )
 {
     VIO_BOOL          state;
     Real             z_brush_radius;
@@ -108,7 +108,7 @@ public  DEF_MENU_UPDATE(set_paint_z_brush_radius )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_current_paint_label )
+  DEF_MENU_FUNCTION( set_current_paint_label )
 {
     int             label, view_index, volume_index;
     Real            voxel[VIO_N_DIMENSIONS];
@@ -157,7 +157,7 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_current_paint_label )
+  DEF_MENU_UPDATE(set_current_paint_label )
 {
     VIO_BOOL          state;
     int              current_label;
@@ -177,7 +177,7 @@ public  DEF_MENU_UPDATE(set_current_paint_label )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_current_erase_label )
+  DEF_MENU_FUNCTION( set_current_erase_label )
 {
     int             label, axis_index, volume_index;
     Real            voxel[VIO_N_DIMENSIONS];
@@ -223,7 +223,7 @@ public  DEF_MENU_FUNCTION( set_current_erase_label )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_current_erase_label )
+  DEF_MENU_UPDATE(set_current_erase_label )
 {
     VIO_BOOL          state;
     int              current_label;
@@ -243,7 +243,7 @@ public  DEF_MENU_UPDATE(set_current_erase_label )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_label_colour )
+  DEF_MENU_FUNCTION( set_label_colour )
 {
     display_struct   *slice_window;
     int              label;
@@ -281,12 +281,12 @@ public  DEF_MENU_FUNCTION( set_label_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_label_colour )
+  DEF_MENU_UPDATE(set_label_colour )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-private  void  copy_labels_from_adjacent_slice(
+static  void  copy_labels_from_adjacent_slice(
     display_struct   *display,
     int              src_offset )
 {
@@ -333,7 +333,7 @@ private  void  copy_labels_from_adjacent_slice(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( copy_labels_from_lower_slice )
+  DEF_MENU_FUNCTION( copy_labels_from_lower_slice )
 {
     copy_labels_from_adjacent_slice( display, -1 );
 
@@ -342,14 +342,14 @@ public  DEF_MENU_FUNCTION( copy_labels_from_lower_slice )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(copy_labels_from_lower_slice )
+  DEF_MENU_UPDATE(copy_labels_from_lower_slice )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( copy_labels_from_higher_slice )
+  DEF_MENU_FUNCTION( copy_labels_from_higher_slice )
 {
     copy_labels_from_adjacent_slice( display, 1 );
 
@@ -358,14 +358,14 @@ public  DEF_MENU_FUNCTION( copy_labels_from_higher_slice )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(copy_labels_from_higher_slice )
+  DEF_MENU_UPDATE(copy_labels_from_higher_slice )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_display_labels )
+  DEF_MENU_FUNCTION( toggle_display_labels )
 {
     display_struct  *slice_window;
 
@@ -385,7 +385,7 @@ public  DEF_MENU_FUNCTION( toggle_display_labels )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_display_labels )
+  DEF_MENU_UPDATE(toggle_display_labels )
 {
     VIO_BOOL          display_labels, state;
     display_struct   *slice_window;
@@ -406,7 +406,7 @@ public  DEF_MENU_UPDATE(toggle_display_labels )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( change_labels_in_range )
+  DEF_MENU_FUNCTION( change_labels_in_range )
 {
     display_struct  *slice_window;
     VIO_Status          status;
@@ -474,12 +474,12 @@ public  DEF_MENU_FUNCTION( change_labels_in_range )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(change_labels_in_range )
+  DEF_MENU_UPDATE(change_labels_in_range )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-private  void  calculate_label_volume(
+static  void  calculate_label_volume(
     display_struct  *slice_window,
     int             volume_index,
     int             label,
@@ -513,17 +513,17 @@ private  void  calculate_label_volume(
 
     *n_voxels = n_vox;
     *cubic_mm = (Real) n_vox * separations[X] * separations[Y] * separations[Z];
-    *cubic_mm = FABS( *cubic_mm );
+    *cubic_mm = VIO_FABS( *cubic_mm );
 
     print( "Voxel size: %g mm by %g mm by %g mm\n",
-           FABS( separations[X] ),
-           FABS( separations[Y] ),
-           FABS( separations[Z] ) );
+           VIO_FABS( separations[X] ),
+           VIO_FABS( separations[Y] ),
+           VIO_FABS( separations[Z] ) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( calculate_volume )
+  DEF_MENU_FUNCTION( calculate_volume )
 {
     display_struct  *slice_window;
     int             n_voxels;
@@ -549,14 +549,14 @@ public  DEF_MENU_FUNCTION( calculate_volume )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(calculate_volume )
+  DEF_MENU_UPDATE(calculate_volume )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( flip_labels_in_x )
+  DEF_MENU_FUNCTION( flip_labels_in_x )
 {
     display_struct  *slice_window;
 
@@ -576,12 +576,12 @@ public  DEF_MENU_FUNCTION( flip_labels_in_x )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(flip_labels_in_x )
+  DEF_MENU_UPDATE(flip_labels_in_x )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-private  void  translate_labels_callback(
+static  void  translate_labels_callback(
     display_struct   *display,
     int              x_delta,
     int              y_delta )
@@ -616,7 +616,7 @@ private  void  translate_labels_callback(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( translate_labels_up )
+  DEF_MENU_FUNCTION( translate_labels_up )
 {
     translate_labels_callback( display, 0, 1 );
 
@@ -625,14 +625,14 @@ public  DEF_MENU_FUNCTION( translate_labels_up )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(translate_labels_up )
+  DEF_MENU_UPDATE(translate_labels_up )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( translate_labels_down )
+  DEF_MENU_FUNCTION( translate_labels_down )
 {
     translate_labels_callback( display, 0, -1 );
 
@@ -641,14 +641,14 @@ public  DEF_MENU_FUNCTION( translate_labels_down )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(translate_labels_down )
+  DEF_MENU_UPDATE(translate_labels_down )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( translate_labels_left )
+  DEF_MENU_FUNCTION( translate_labels_left )
 {
     translate_labels_callback( display, -1, 0 );
 
@@ -657,14 +657,14 @@ public  DEF_MENU_FUNCTION( translate_labels_left )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(translate_labels_left )
+  DEF_MENU_UPDATE(translate_labels_left )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( translate_labels_right )
+  DEF_MENU_FUNCTION( translate_labels_right )
 {
     translate_labels_callback( display, 1, 0 );
 
@@ -673,14 +673,14 @@ public  DEF_MENU_FUNCTION( translate_labels_right )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(translate_labels_right )
+  DEF_MENU_UPDATE(translate_labels_right )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( undo_slice_labels )
+  DEF_MENU_FUNCTION( undo_slice_labels )
 {
     int   volume_index;
 
@@ -697,7 +697,7 @@ public  DEF_MENU_FUNCTION( undo_slice_labels )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(undo_slice_labels )
+  DEF_MENU_UPDATE(undo_slice_labels )
 {
     display_struct   *slice_window;
 
@@ -714,7 +714,7 @@ public  DEF_MENU_UPDATE(undo_slice_labels )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( translate_labels_arbitrary )
+  DEF_MENU_FUNCTION( translate_labels_arbitrary )
 {
     int              delta[VIO_MAX_DIMENSIONS];
     display_struct   *slice_window;
@@ -742,14 +742,14 @@ public  DEF_MENU_FUNCTION( translate_labels_arbitrary )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(translate_labels_arbitrary )
+  DEF_MENU_UPDATE(translate_labels_arbitrary )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_fast_update )
+  DEF_MENU_FUNCTION( toggle_fast_update )
 {
     display_struct  *slice_window;
 
@@ -764,7 +764,7 @@ public  DEF_MENU_FUNCTION( toggle_fast_update )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_fast_update )
+  DEF_MENU_UPDATE(toggle_fast_update )
 {
     VIO_BOOL          fast_flag, state;
     display_struct   *slice_window;
@@ -783,7 +783,7 @@ public  DEF_MENU_UPDATE(toggle_fast_update )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_cursor_follows_paintbrush )
+  DEF_MENU_FUNCTION( toggle_cursor_follows_paintbrush )
 {
     display_struct  *slice_window;
 
@@ -798,7 +798,7 @@ public  DEF_MENU_FUNCTION( toggle_cursor_follows_paintbrush )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_cursor_follows_paintbrush )
+  DEF_MENU_UPDATE(toggle_cursor_follows_paintbrush )
 {
     VIO_BOOL          follow_flag, state;
     display_struct   *slice_window;
@@ -824,7 +824,7 @@ public  DEF_MENU_UPDATE(toggle_cursor_follows_paintbrush )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_freestyle_painting )
+  DEF_MENU_FUNCTION( toggle_freestyle_painting )
 {
  /*
   * The only thing to do is to toggle the corresponding
@@ -839,7 +839,7 @@ public  DEF_MENU_FUNCTION( toggle_freestyle_painting )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_freestyle_painting )
+  DEF_MENU_UPDATE(toggle_freestyle_painting )
 {
  /*
   * This funtion determines whether or not the corresponding

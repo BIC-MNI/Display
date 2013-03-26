@@ -22,7 +22,7 @@
 #include  <display.h>
 #include  <bicpl/images.h>
 
-public  VIO_Status   save_window_to_file(
+  VIO_Status   save_window_to_file(
     display_struct  *display,
     VIO_STR          filename,
     int             x_min,

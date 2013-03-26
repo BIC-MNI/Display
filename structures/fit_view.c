@@ -25,21 +25,21 @@
 
 #define  FACTOR  1.05
 
-private  void   fit_view_to_points(
+static  void   fit_view_to_points(
     view_struct   *view,
     int           n_points,
     VIO_Point         points[] );
-private  void  orthogonal_fit_points(
+static  void  orthogonal_fit_points(
     view_struct   *view,
     VIO_Point         *centre,
     VIO_Vector        *range );
-private  void  perspective_fit_points(
+static  void  perspective_fit_points(
     view_struct   *view,
     VIO_Point         *centre,
     int           n_points,
     VIO_Point         points[] );
 
-public  void  fit_view_to_domain(
+  void  fit_view_to_domain(
     view_struct   *view,
     VIO_Point         *min_limit,
     VIO_Point         *max_limit )
@@ -68,7 +68,7 @@ public  void  fit_view_to_domain(
     fit_view_to_points( view, 8, points );
 }
 
-private  void   fit_view_to_points(
+static  void   fit_view_to_points(
     view_struct   *view,
     int           n_points,
     VIO_Point         points[] )
@@ -111,16 +111,16 @@ private  void   fit_view_to_points(
     {
         if( Vector_coord(range,c) == 0.0f )
         {
-            Point_coord(min_coord,c) -= (Point_coord_type) (size / 2.0);
-            Point_coord(max_coord,c) += (Point_coord_type) (size / 2.0);
-            Vector_coord(range,c) = (Point_coord_type) (size);
+            Point_coord(min_coord,c) -= (VIO_Point_coord_type) (size / 2.0);
+            Point_coord(max_coord,c) += (VIO_Point_coord_type) (size / 2.0);
+            Vector_coord(range,c) = (VIO_Point_coord_type) (size);
         }
     }
 
     centre_z = ((VIO_Real) Point_z(min_coord) + (VIO_Real) Point_z(max_coord)) / 2.0;
-    Point_z(min_coord) = (Point_coord_type) (centre_z - size / 2.0);
-    Point_z(max_coord) = (Point_coord_type) (centre_z + size / 2.0);
-    Vector_z(range) = (Point_coord_type) size;
+    Point_z(min_coord) = (VIO_Point_coord_type) (centre_z - size / 2.0);
+    Point_z(max_coord) = (VIO_Point_coord_type) (centre_z + size / 2.0);
+    Vector_z(range) = (VIO_Point_coord_type) size;
 
     INTERPOLATE_POINTS( centre, min_coord, max_coord, 0.5 );
 
@@ -136,7 +136,7 @@ private  void   fit_view_to_points(
     view->desired_aspect = view->window_height / view->window_width;
 }
 
-private  void  orthogonal_fit_points(
+static  void  orthogonal_fit_points(
     view_struct   *view,
     VIO_Point         *centre,
     VIO_Vector        *range )
@@ -188,7 +188,7 @@ private  void  orthogonal_fit_points(
     view->back_distance = 2.0 * ((VIO_Real) Point_z(*centre) - dz);
 }
 
-private  void  perspective_fit_points(
+static  void  perspective_fit_points(
     view_struct   *view,
     VIO_Point         *centre,
     int           n_points,

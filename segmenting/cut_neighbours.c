@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-private  void  cut_neighbour(
+static  void  cut_neighbour(
     polygons_struct   *polygons,
     int               new_neighbours[],
     int               poly,
@@ -31,7 +31,7 @@ private  void  cut_neighbour(
     int               *next_poly,
     int               *next_vertex_index );
 
-private  void  cut_polygon_neighbours_by_lines(
+static  void  cut_polygon_neighbours_by_lines(
     polygons_struct   *polygons,
     int               new_neighbours[],
     lines_struct      *lines )
@@ -39,7 +39,7 @@ private  void  cut_polygon_neighbours_by_lines(
     int              line, i, size, poly, point_index, vertex_index;
     int              first_vertex;
     VIO_Point            point;
-    progress_struct  progress;
+    VIO_progress_struct  progress;
 
     for_less( line, 0, lines->n_items )
     {
@@ -76,7 +76,7 @@ private  void  cut_polygon_neighbours_by_lines(
 
 #define  MAX_POLYS   2000
 
-private  void  cut_neighbour(
+static  void  cut_neighbour(
     polygons_struct   *polygons,
     int               new_neighbours[],
     int               poly,
@@ -176,7 +176,7 @@ private  void  cut_neighbour(
     }
 }
 
-public  void  cut_polygon_neighbours_from_lines(
+  void  cut_polygon_neighbours_from_lines(
     display_struct     *display,
     polygons_struct    *polygons )
 {

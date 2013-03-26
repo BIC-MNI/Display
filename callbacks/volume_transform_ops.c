@@ -24,7 +24,7 @@
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( transform_current_volume )
+  DEF_MENU_FUNCTION( transform_current_volume )
 {
     display_struct    *slice_window;
     VIO_STR            filename;
@@ -48,14 +48,14 @@ public  DEF_MENU_FUNCTION( transform_current_volume )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(transform_current_volume )
+  DEF_MENU_UPDATE(transform_current_volume )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( reset_volume_transform )
+  DEF_MENU_FUNCTION( reset_volume_transform )
 {
     display_struct    *slice_window;
 
@@ -69,12 +69,12 @@ public  DEF_MENU_FUNCTION( reset_volume_transform )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(reset_volume_transform )
+  DEF_MENU_UPDATE(reset_volume_transform )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-private  void  linear_transform_volume(
+static  void  linear_transform_volume(
     display_struct  *slice_window,
     VIO_Transform       *transform )
 {
@@ -89,7 +89,7 @@ private  void  linear_transform_volume(
     delete_general_transform( &gen_transform );
 }
 
-private  void  translate_current_volume(
+static  void  translate_current_volume(
     display_struct  *display,
     int             axis,
     int             dir )
@@ -112,7 +112,7 @@ private  void  translate_current_volume(
     linear_transform_volume( slice_window, &linear_transform );
 }
 
-private  void  rotate_current_volume(
+static  void  rotate_current_volume(
     display_struct  *display,
     int             axis,
     int             dir )
@@ -137,7 +137,7 @@ private  void  rotate_current_volume(
     linear_transform_volume( slice_window, &linear_transform );
 }
 
-private  void  scale_current_volume(
+static  void  scale_current_volume(
     display_struct  *display,
     int             dir )
 {
@@ -166,7 +166,7 @@ private  void  scale_current_volume(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( translate_volume_plus_x)
+  DEF_MENU_FUNCTION( translate_volume_plus_x)
 {
     translate_current_volume( display, X, +1 );
 
@@ -175,14 +175,14 @@ public  DEF_MENU_FUNCTION( translate_volume_plus_x)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(translate_volume_plus_x )
+  DEF_MENU_UPDATE(translate_volume_plus_x )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( translate_volume_minus_x)
+  DEF_MENU_FUNCTION( translate_volume_minus_x)
 {
     translate_current_volume( display, X, -1 );
 
@@ -191,14 +191,14 @@ public  DEF_MENU_FUNCTION( translate_volume_minus_x)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(translate_volume_minus_x )
+  DEF_MENU_UPDATE(translate_volume_minus_x )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( translate_volume_plus_y)
+  DEF_MENU_FUNCTION( translate_volume_plus_y)
 {
     translate_current_volume( display, Y, +1 );
 
@@ -207,14 +207,14 @@ public  DEF_MENU_FUNCTION( translate_volume_plus_y)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(translate_volume_plus_y )
+  DEF_MENU_UPDATE(translate_volume_plus_y )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( translate_volume_minus_y)
+  DEF_MENU_FUNCTION( translate_volume_minus_y)
 {
     translate_current_volume( display, Y, -1 );
 
@@ -223,14 +223,14 @@ public  DEF_MENU_FUNCTION( translate_volume_minus_y)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(translate_volume_minus_y )
+  DEF_MENU_UPDATE(translate_volume_minus_y )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( translate_volume_plus_z)
+  DEF_MENU_FUNCTION( translate_volume_plus_z)
 {
     translate_current_volume( display, Z, +1 );
 
@@ -239,14 +239,14 @@ public  DEF_MENU_FUNCTION( translate_volume_plus_z)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(translate_volume_plus_z )
+  DEF_MENU_UPDATE(translate_volume_plus_z )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( translate_volume_minus_z)
+  DEF_MENU_FUNCTION( translate_volume_minus_z)
 {
     translate_current_volume( display, Z, -1 );
 
@@ -255,14 +255,14 @@ public  DEF_MENU_FUNCTION( translate_volume_minus_z)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(translate_volume_minus_z )
+  DEF_MENU_UPDATE(translate_volume_minus_z )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( magnify_volume)
+  DEF_MENU_FUNCTION( magnify_volume)
 {
     scale_current_volume( display, +1 );
 
@@ -271,14 +271,14 @@ public  DEF_MENU_FUNCTION( magnify_volume)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(magnify_volume )
+  DEF_MENU_UPDATE(magnify_volume )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( shrink_volume)
+  DEF_MENU_FUNCTION( shrink_volume)
 {
     scale_current_volume( display, -1 );
 
@@ -287,14 +287,14 @@ public  DEF_MENU_FUNCTION( shrink_volume)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(shrink_volume )
+  DEF_MENU_UPDATE(shrink_volume )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( rotate_volume_plus_x)
+  DEF_MENU_FUNCTION( rotate_volume_plus_x)
 {
     rotate_current_volume( display, X, +1 );
 
@@ -303,14 +303,14 @@ public  DEF_MENU_FUNCTION( rotate_volume_plus_x)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(rotate_volume_plus_x )
+  DEF_MENU_UPDATE(rotate_volume_plus_x )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( rotate_volume_minus_x)
+  DEF_MENU_FUNCTION( rotate_volume_minus_x)
 {
     rotate_current_volume( display, X, -1 );
 
@@ -319,14 +319,14 @@ public  DEF_MENU_FUNCTION( rotate_volume_minus_x)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(rotate_volume_minus_x )
+  DEF_MENU_UPDATE(rotate_volume_minus_x )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( rotate_volume_plus_y)
+  DEF_MENU_FUNCTION( rotate_volume_plus_y)
 {
     rotate_current_volume( display, Y, +1 );
 
@@ -335,14 +335,14 @@ public  DEF_MENU_FUNCTION( rotate_volume_plus_y)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(rotate_volume_plus_y )
+  DEF_MENU_UPDATE(rotate_volume_plus_y )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( rotate_volume_minus_y)
+  DEF_MENU_FUNCTION( rotate_volume_minus_y)
 {
     rotate_current_volume( display, Y, -1 );
 
@@ -351,14 +351,14 @@ public  DEF_MENU_FUNCTION( rotate_volume_minus_y)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(rotate_volume_minus_y )
+  DEF_MENU_UPDATE(rotate_volume_minus_y )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( rotate_volume_plus_z)
+  DEF_MENU_FUNCTION( rotate_volume_plus_z)
 {
     rotate_current_volume( display, Z, +1 );
 
@@ -367,14 +367,14 @@ public  DEF_MENU_FUNCTION( rotate_volume_plus_z)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(rotate_volume_plus_z )
+  DEF_MENU_UPDATE(rotate_volume_plus_z )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( rotate_volume_minus_z)
+  DEF_MENU_FUNCTION( rotate_volume_minus_z)
 {
     rotate_current_volume( display, Z, -1 );
 
@@ -383,14 +383,14 @@ public  DEF_MENU_FUNCTION( rotate_volume_minus_z)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(rotate_volume_minus_z )
+  DEF_MENU_UPDATE(rotate_volume_minus_z )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_volume_rotation_step)
+  DEF_MENU_FUNCTION( set_volume_rotation_step)
 {
     VIO_Real            new_step;
     display_struct  *slice_window;
@@ -411,7 +411,7 @@ public  DEF_MENU_FUNCTION( set_volume_rotation_step)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_volume_rotation_step )
+  DEF_MENU_UPDATE(set_volume_rotation_step )
 {
     VIO_Real            step;
     display_struct  *slice_window;
@@ -429,7 +429,7 @@ public  DEF_MENU_UPDATE(set_volume_rotation_step )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_volume_scale_step)
+  DEF_MENU_FUNCTION( set_volume_scale_step)
 {
     VIO_Real            new_step;
     display_struct  *slice_window;
@@ -450,7 +450,7 @@ public  DEF_MENU_FUNCTION( set_volume_scale_step)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_volume_scale_step )
+  DEF_MENU_UPDATE(set_volume_scale_step )
 {
     VIO_Real            step;
     display_struct  *slice_window;
@@ -468,7 +468,7 @@ public  DEF_MENU_UPDATE(set_volume_scale_step )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_volume_translation_step)
+  DEF_MENU_FUNCTION( set_volume_translation_step)
 {
     VIO_Real            new_step;
     display_struct  *slice_window;
@@ -489,7 +489,7 @@ public  DEF_MENU_FUNCTION( set_volume_translation_step)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_volume_translation_step )
+  DEF_MENU_UPDATE(set_volume_translation_step )
 {
     VIO_Real            step;
     display_struct  *slice_window;
@@ -507,7 +507,7 @@ public  DEF_MENU_UPDATE(set_volume_translation_step )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( save_current_volume_transform )
+  DEF_MENU_FUNCTION( save_current_volume_transform )
 {
     VIO_Status             status;
     display_struct     *slice_window;
@@ -559,7 +559,7 @@ public  DEF_MENU_FUNCTION( save_current_volume_transform )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(save_current_volume_transform )
+  DEF_MENU_UPDATE(save_current_volume_transform )
 {
     return( get_n_volumes(display) > 0 );
 }

@@ -22,7 +22,7 @@
 
 #include <display.h>
 
-public  void  initialize_view(
+  void  initialize_view(
     view_struct  *view,
     VIO_Vector       *line_of_sight,
     VIO_Vector       *horizontal )
@@ -48,7 +48,7 @@ public  void  initialize_view(
     view->eye_separation_ratio = 0.07;
 }
 
-public  void  assign_view_direction(
+  void  assign_view_direction(
     view_struct    *view,
     VIO_Vector         *line_of_sight,
     VIO_Vector         *hor )
@@ -67,7 +67,7 @@ public  void  assign_view_direction(
     NORMALIZE_VECTOR( view->x_axis, view->x_axis );
 }
 
-public  void  get_view_z_axis(
+  void  get_view_z_axis(
     view_struct   *view,
     VIO_Vector        *z_axis )
 {
@@ -76,7 +76,7 @@ public  void  get_view_z_axis(
     Vector_z(*z_axis) = - Vector_z(view->line_of_sight);
 }
 
-public  void  get_view_centre(
+  void  get_view_centre(
     view_struct   *view,
     VIO_Point         *centre )
 {
@@ -89,7 +89,7 @@ public  void  get_view_centre(
     ADD_POINT_VECTOR( *centre, view->origin, offset_vector );
 }
 
-public  void  get_screen_centre(
+  void  get_screen_centre(
     view_struct   *view,
     VIO_Point         *centre )
 {
@@ -102,7 +102,7 @@ public  void  get_screen_centre(
     ADD_POINT_VECTOR( *centre, view->origin, offset_vector );
 }
 
-public  void  get_screen_axes(
+  void  get_screen_axes(
     view_struct   *view,
     VIO_Vector        *hor,
     VIO_Vector        *vert )
@@ -111,7 +111,7 @@ public  void  get_screen_axes(
     SCALE_VECTOR( *vert, view->y_axis, view->window_height );
 }
 
-public  void  get_screen_point(
+  void  get_screen_point(
     view_struct  *view,
     VIO_Real         x,
     VIO_Real         y,
@@ -130,7 +130,7 @@ public  void  get_screen_point(
     ADD_POINT_VECTOR( *point, *point, vert );
 }
 
-public  void  adjust_view_for_aspect(
+  void  adjust_view_for_aspect(
     view_struct    *view,
     window_struct  *window )
 {
@@ -185,7 +185,7 @@ public  void  adjust_view_for_aspect(
     view->back_distance -= eye_offset;
 }
 
-public  void  convert_point_from_coordinate_system(
+  void  convert_point_from_coordinate_system(
     VIO_Point    *origin,
     VIO_Vector   *x_axis,
     VIO_Vector   *y_axis,
@@ -199,15 +199,15 @@ public  void  convert_point_from_coordinate_system(
                             Point_y(*point) - Point_y(*origin),
                             Point_z(*point) - Point_z(*origin) );
 
-    Point_x(*transformed_point) = (Point_coord_type)
+    Point_x(*transformed_point) = (VIO_Point_coord_type)
                                  DOT_POINT_VECTOR( *x_axis, translated );
-    Point_y(*transformed_point) = (Point_coord_type)
+    Point_y(*transformed_point) = (VIO_Point_coord_type)
                                  DOT_POINT_VECTOR( *y_axis, translated );
-    Point_z(*transformed_point) = (Point_coord_type)
+    Point_z(*transformed_point) = (VIO_Point_coord_type)
                                  DOT_POINT_VECTOR( *z_axis, translated );
 }
 
-public  void  transform_point_to_world(
+  void  transform_point_to_world(
     view_struct   *view,
     VIO_Point         *p,
     VIO_Point         *transformed_point )
@@ -225,7 +225,7 @@ public  void  transform_point_to_world(
     fill_Point( *transformed_point, x, y, z );
 }
 
-public  void  transform_world_to_model(
+  void  transform_world_to_model(
     view_struct   *view,
     VIO_Point         *p,
     VIO_Point         *transformed_point )
@@ -240,7 +240,7 @@ public  void  transform_world_to_model(
     fill_Point( *transformed_point, x, y, z );
 }
 
-public  void  transform_world_to_model_vector(
+  void  transform_world_to_model_vector(
     view_struct   *view,
     VIO_Vector        *v,
     VIO_Vector        *transformed_vector )
@@ -256,7 +256,7 @@ public  void  transform_world_to_model_vector(
     fill_Vector( *transformed_vector, x, y, z );
 }
 
-public  void  transform_world_to_screen(
+  void  transform_world_to_screen(
     view_struct   *view,
     VIO_Point         *p,
     VIO_Point         *transformed_point )
@@ -266,7 +266,7 @@ public  void  transform_world_to_screen(
                 p, transformed_point );
 }
 
-public  void  transform_point_to_view_space(
+  void  transform_point_to_view_space(
     view_struct   *view,
     VIO_Point         *p,
     VIO_Point         *transformed_point )
@@ -275,7 +275,7 @@ public  void  transform_point_to_view_space(
     transform_world_to_screen( view, transformed_point, transformed_point );
 }
 
-public  void  transform_point_to_screen(
+  void  transform_point_to_screen(
     view_struct   *view,
     VIO_Point         *p,
     VIO_Point         *transformed_point )
@@ -301,7 +301,7 @@ public  void  transform_point_to_screen(
     fill_Point( *transformed_point, x, y, 0.0 );
 }
 
-public  void  set_model_scale(
+  void  set_model_scale(
     view_struct   *view,
     VIO_Real          sx,
     VIO_Real          sy,
@@ -312,7 +312,7 @@ public  void  set_model_scale(
     view->scale_factors[Z] = sz;
 }
 
-public  void  convert_screen_to_ray(
+  void  convert_screen_to_ray(
     view_struct   *view,
     VIO_Real          x_screen,
     VIO_Real          y_screen,
@@ -353,7 +353,7 @@ public  void  convert_screen_to_ray(
     }
 }
 
-public  void  magnify_view_size(
+  void  magnify_view_size(
     view_struct  *view,
     VIO_Real         factor )
 {
@@ -375,7 +375,7 @@ public  void  magnify_view_size(
     }
 }
 
-public  void  set_view_rectangle(
+  void  set_view_rectangle(
     view_struct   *view,
     VIO_Real          x_min,
     VIO_Real          x_max,

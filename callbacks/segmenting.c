@@ -23,17 +23,17 @@
 #include  <display.h>
 #include "stack.h"
 
-private  void  set_slice_labels(
+static  void  set_slice_labels(
     display_struct     *display,
     int                label );
-private  void   set_connected_labels(
+static  void   set_connected_labels(
     display_struct   *display,
     int              label,
     VIO_BOOL          use_threshold );
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_undo_feature )
+  DEF_MENU_FUNCTION( toggle_undo_feature )
 {
     display_struct   *slice_window;
 
@@ -49,7 +49,7 @@ public  DEF_MENU_FUNCTION( toggle_undo_feature )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE( toggle_undo_feature )
+  DEF_MENU_UPDATE( toggle_undo_feature )
 {
     VIO_BOOL          state, set;
     display_struct   *slice_window;
@@ -68,7 +68,7 @@ public  DEF_MENU_UPDATE( toggle_undo_feature )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( label_voxel )
+  DEF_MENU_FUNCTION( label_voxel )
 {
     Real           voxel[VIO_MAX_DIMENSIONS];
     int            view_index, int_voxel[VIO_MAX_DIMENSIONS], volume_index;
@@ -94,14 +94,14 @@ public  DEF_MENU_FUNCTION( label_voxel )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(label_voxel )
+  DEF_MENU_UPDATE(label_voxel )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( clear_voxel )
+  DEF_MENU_FUNCTION( clear_voxel )
 {
     Real           voxel[VIO_MAX_DIMENSIONS];
     display_struct *slice_window;
@@ -123,14 +123,14 @@ public  DEF_MENU_FUNCTION( clear_voxel )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(clear_voxel )
+  DEF_MENU_UPDATE(clear_voxel )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( reset_segmenting )
+  DEF_MENU_FUNCTION( reset_segmenting )
 {
     display_struct   *slice_window;
 
@@ -151,14 +151,14 @@ public  DEF_MENU_FUNCTION( reset_segmenting )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(reset_segmenting )
+  DEF_MENU_UPDATE(reset_segmenting )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_segmenting_threshold )
+  DEF_MENU_FUNCTION( set_segmenting_threshold )
 {
     display_struct   *slice_window;
     Real             min, max;
@@ -181,12 +181,12 @@ public  DEF_MENU_FUNCTION( set_segmenting_threshold )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_segmenting_threshold )
+  DEF_MENU_UPDATE(set_segmenting_threshold )
 {
     return( slice_window_exists(display) );
 }
 
-public  VIO_Status  input_label_volume_file(
+  VIO_Status  input_label_volume_file(
     display_struct   *display,
     VIO_STR           filename )
 {
@@ -229,7 +229,7 @@ public  VIO_Status  input_label_volume_file(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(load_label_data)
+  DEF_MENU_FUNCTION(load_label_data)
 {
     VIO_Status           status;
     VIO_STR           filename;
@@ -256,14 +256,14 @@ public  DEF_MENU_FUNCTION(load_label_data)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(load_label_data )
+  DEF_MENU_UPDATE(load_label_data )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(save_label_data)
+  DEF_MENU_FUNCTION(save_label_data)
 {
     VIO_Status           status;
     VIO_STR           filename, backup_filename;
@@ -327,12 +327,12 @@ public  DEF_MENU_FUNCTION(save_label_data)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(save_label_data )
+  DEF_MENU_UPDATE(save_label_data )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-public  VIO_Status input_tag_label_file(
+  VIO_Status input_tag_label_file(
     display_struct   *display,
     VIO_STR           filename )
 {
@@ -379,7 +379,7 @@ public  VIO_Status input_tag_label_file(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( load_labels )
+  DEF_MENU_FUNCTION( load_labels )
 {
     VIO_STR         filename;
 
@@ -403,12 +403,12 @@ public  DEF_MENU_FUNCTION( load_labels )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(load_labels )
+  DEF_MENU_UPDATE(load_labels )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-private  void   save_labels_as_tags(
+static  void   save_labels_as_tags(
     display_struct  *display,
     display_struct  *slice_window,
     int             desired_label )
@@ -448,7 +448,7 @@ private  void   save_labels_as_tags(
 /*
  * Create tags from a label image
  */
-public VIO_Status tags_from_label(
+ VIO_Status tags_from_label(
 	display_struct *display,
     int       *n_tag_points,
     Real      ***tags_volume1,
@@ -575,7 +575,7 @@ public VIO_Status tags_from_label(
  * Mimic the function input_tag_objects_file, but for a label image
  */
 
-public  VIO_Status   input_tag_objects_label(
+  VIO_Status   input_tag_objects_label(
     display_struct* display,
     VIO_Colour         marker_colour,
     Real           default_size,
@@ -639,7 +639,7 @@ public  VIO_Status   input_tag_objects_label(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( save_labels )
+  DEF_MENU_FUNCTION( save_labels )
 {
     display_struct *slice_window;
 
@@ -654,14 +654,14 @@ public  DEF_MENU_FUNCTION( save_labels )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(save_labels )
+  DEF_MENU_UPDATE(save_labels )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( save_current_label )
+  DEF_MENU_FUNCTION( save_current_label )
 {
     display_struct *slice_window;
 
@@ -682,14 +682,14 @@ public  DEF_MENU_FUNCTION( save_current_label )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(save_current_label )
+  DEF_MENU_UPDATE(save_current_label )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(label_slice)
+  DEF_MENU_FUNCTION(label_slice)
 {
     set_slice_labels( display, get_current_paint_label(display) );
 
@@ -698,14 +698,14 @@ public  DEF_MENU_FUNCTION(label_slice)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(label_slice )
+  DEF_MENU_UPDATE(label_slice )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(clear_slice)
+  DEF_MENU_FUNCTION(clear_slice)
 {
     set_slice_labels( display, 0 );
 
@@ -714,12 +714,12 @@ public  DEF_MENU_FUNCTION(clear_slice)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(clear_slice )
+  DEF_MENU_UPDATE(clear_slice )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-private  void  set_slice_labels(
+static  void  set_slice_labels(
     display_struct     *display,
     int                label )
 {
@@ -748,7 +748,7 @@ private  void  set_slice_labels(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(clear_connected)
+  DEF_MENU_FUNCTION(clear_connected)
 {
     set_connected_labels( display, 0, TRUE );
 
@@ -757,14 +757,14 @@ public  DEF_MENU_FUNCTION(clear_connected)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(clear_connected )
+  DEF_MENU_UPDATE(clear_connected )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(label_connected)
+  DEF_MENU_FUNCTION(label_connected)
 {
     set_connected_labels( display, get_current_paint_label(display), TRUE );
 
@@ -773,14 +773,14 @@ public  DEF_MENU_FUNCTION(label_connected)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(label_connected )
+  DEF_MENU_UPDATE(label_connected )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(label_connected_no_threshold)
+  DEF_MENU_FUNCTION(label_connected_no_threshold)
 {
     set_connected_labels( display, get_current_paint_label(display), FALSE );
 
@@ -789,12 +789,12 @@ public  DEF_MENU_FUNCTION(label_connected_no_threshold)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(label_connected_no_threshold )
+  DEF_MENU_UPDATE(label_connected_no_threshold )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-private  void   set_connected_labels(
+static  void   set_connected_labels(
     display_struct   *display,
     int              desired_label,
     VIO_BOOL          use_threshold )
@@ -848,7 +848,7 @@ private  void   set_connected_labels(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(label_connected_3d)
+  DEF_MENU_FUNCTION(label_connected_3d)
 {
     Real             voxel[VIO_MAX_DIMENSIONS];
     int              range_changed[2][VIO_N_DIMENSIONS];
@@ -897,14 +897,14 @@ public  DEF_MENU_FUNCTION(label_connected_3d)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(label_connected_3d )
+  DEF_MENU_UPDATE(label_connected_3d )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(dilate_labels)
+  DEF_MENU_FUNCTION(dilate_labels)
 {
     int              min_outside_label, max_outside_label;
     int              range_changed[2][VIO_N_DIMENSIONS];
@@ -952,14 +952,14 @@ public  DEF_MENU_FUNCTION(dilate_labels)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(dilate_labels )
+  DEF_MENU_UPDATE(dilate_labels )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(erode_labels)
+  DEF_MENU_FUNCTION(erode_labels)
 {
     int              min_outside_label, max_outside_label, set_value;
     int              range_changed[2][VIO_N_DIMENSIONS];
@@ -1009,14 +1009,14 @@ public  DEF_MENU_FUNCTION(erode_labels)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(erode_labels )
+  DEF_MENU_UPDATE(erode_labels )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(toggle_connectivity)
+  DEF_MENU_FUNCTION(toggle_connectivity)
 {
     display_struct   *slice_window;
 
@@ -1033,7 +1033,7 @@ public  DEF_MENU_FUNCTION(toggle_connectivity)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_connectivity )
+  DEF_MENU_UPDATE(toggle_connectivity )
 {
     VIO_BOOL          state;
     display_struct   *slice_window;
@@ -1064,7 +1064,7 @@ public  DEF_MENU_UPDATE(toggle_connectivity )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(toggle_crop_labels_on_output)
+  DEF_MENU_FUNCTION(toggle_crop_labels_on_output)
 {
     display_struct   *slice_window;
 
@@ -1079,7 +1079,7 @@ public  DEF_MENU_FUNCTION(toggle_crop_labels_on_output)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_crop_labels_on_output)
+  DEF_MENU_UPDATE(toggle_crop_labels_on_output)
 {
     VIO_BOOL          state, set;
     display_struct   *slice_window;
@@ -1099,7 +1099,7 @@ public  DEF_MENU_UPDATE(toggle_crop_labels_on_output)
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(clear_label_connected_3d)
+  DEF_MENU_FUNCTION(clear_label_connected_3d)
 {
     Real             voxel[VIO_MAX_DIMENSIONS];
     int              range_changed[2][VIO_N_DIMENSIONS];
@@ -1152,7 +1152,7 @@ public  DEF_MENU_FUNCTION(clear_label_connected_3d)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(clear_label_connected_3d )
+  DEF_MENU_UPDATE(clear_label_connected_3d )
 {
     return( get_n_volumes(display) > 0 );
 }

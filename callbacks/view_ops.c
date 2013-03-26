@@ -24,7 +24,7 @@
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( make_view_fit )
+  DEF_MENU_FUNCTION( make_view_fit )
 {
     fit_view_to_visible_models( display );
 
@@ -37,14 +37,14 @@ public  DEF_MENU_FUNCTION( make_view_fit )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(make_view_fit )
+  DEF_MENU_UPDATE(make_view_fit )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( reset_view )
+  DEF_MENU_FUNCTION( reset_view )
 {
     reset_view_parameters( display,
                            &Default_line_of_sight, &Default_horizontal );
@@ -58,14 +58,14 @@ public  DEF_MENU_FUNCTION( reset_view )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(reset_view )
+  DEF_MENU_UPDATE(reset_view )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( right_tilted_view )
+  DEF_MENU_FUNCTION( right_tilted_view )
 {
     static  VIO_Vector   line_of_sight = { -1.0f, 0.0f, 0.0f };
     static  VIO_Vector   up = { 0.0f, 0.5f, 0.8666f };
@@ -83,14 +83,14 @@ public  DEF_MENU_FUNCTION( right_tilted_view )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(right_tilted_view )
+  DEF_MENU_UPDATE(right_tilted_view )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( left_tilted_view )
+  DEF_MENU_FUNCTION( left_tilted_view )
 {
     static  VIO_Vector   line_of_sight = { 1.0f, 0.0f, 0.0f };
     static  VIO_Vector   up = { 0.0f, 0.5f, 0.8666f };
@@ -108,14 +108,14 @@ public  DEF_MENU_FUNCTION( left_tilted_view )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(left_tilted_view )
+  DEF_MENU_UPDATE(left_tilted_view )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( top_view )
+  DEF_MENU_FUNCTION( top_view )
 {
     static  VIO_Vector   line_of_sight = { 0.0f, 0.0f, -1.0f };
     static  VIO_Vector   horizontal = { 1.0f, 0.0f, 0.0f };
@@ -131,14 +131,14 @@ public  DEF_MENU_FUNCTION( top_view )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(top_view )
+  DEF_MENU_UPDATE(top_view )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( bottom_view )
+  DEF_MENU_FUNCTION( bottom_view )
 {
     static  VIO_Vector   line_of_sight = { 0.0f, 0.0f, 1.0f };
     static  VIO_Vector   horizontal = { -1.0f, 0.0f, 0.0f };
@@ -154,14 +154,14 @@ public  DEF_MENU_FUNCTION( bottom_view )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(bottom_view )
+  DEF_MENU_UPDATE(bottom_view )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( front_view )
+  DEF_MENU_FUNCTION( front_view )
 {
     static  VIO_Vector   line_of_sight = { 0.0f, -1.0f, 0.0f };
     static  VIO_Vector   horizontal = { -1.0f, 0.0f, 0.0f };
@@ -177,14 +177,14 @@ public  DEF_MENU_FUNCTION( front_view )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(front_view )
+  DEF_MENU_UPDATE(front_view )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( back_view )
+  DEF_MENU_FUNCTION( back_view )
 {
     static  VIO_Vector   line_of_sight = { 0.0f, 1.0f, 0.0f };
     static  VIO_Vector   horizontal = { 1.0f, 0.0f, 0.0f };
@@ -200,14 +200,14 @@ public  DEF_MENU_FUNCTION( back_view )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(back_view )
+  DEF_MENU_UPDATE(back_view )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( left_view )
+  DEF_MENU_FUNCTION( left_view )
 {
     static  VIO_Vector   line_of_sight = { 1.0f, 0.0f, 0.0f };
     static  VIO_Vector   horizontal = { 0.0f, -1.0f, 0.0f };
@@ -223,14 +223,14 @@ public  DEF_MENU_FUNCTION( left_view )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(left_view )
+  DEF_MENU_UPDATE(left_view )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( right_view )
+  DEF_MENU_FUNCTION( right_view )
 {
     static  VIO_Vector   line_of_sight = { -1.0f, 0.0f, 0.0f };
     static  VIO_Vector   horizontal = { 0.0f, 1.0f, 0.0f };
@@ -246,14 +246,14 @@ public  DEF_MENU_FUNCTION( right_view )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(right_view )
+  DEF_MENU_UPDATE(right_view )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_perspective )
+  DEF_MENU_FUNCTION( toggle_perspective )
 {
     display->three_d.view.perspective_flag =
          !display->three_d.view.perspective_flag;
@@ -267,7 +267,7 @@ public  DEF_MENU_FUNCTION( toggle_perspective )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_perspective )
+  DEF_MENU_UPDATE(toggle_perspective )
 {
     set_menu_text_boolean( menu_window, menu_entry,
                            display->three_d.view.perspective_flag,
@@ -278,7 +278,7 @@ public  DEF_MENU_UPDATE(toggle_perspective )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( magnify_view )
+  DEF_MENU_FUNCTION( magnify_view )
 {
     initialize_magnification( display );
 
@@ -287,14 +287,14 @@ public  DEF_MENU_FUNCTION( magnify_view )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(magnify_view )
+  DEF_MENU_UPDATE(magnify_view )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( translate_view )
+  DEF_MENU_FUNCTION( translate_view )
 {
     initialize_translation( display );
 
@@ -303,14 +303,14 @@ public  DEF_MENU_FUNCTION( translate_view )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(translate_view )
+  DEF_MENU_UPDATE(translate_view )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( rotate_view )
+  DEF_MENU_FUNCTION( rotate_view )
 {
     initialize_virtual_spaceball( display );
 
@@ -319,14 +319,14 @@ public  DEF_MENU_FUNCTION( rotate_view )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(rotate_view )
+  DEF_MENU_UPDATE(rotate_view )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( front_clipping )
+  DEF_MENU_FUNCTION( front_clipping )
 {
     initialize_front_clipping( display );
 
@@ -335,14 +335,14 @@ public  DEF_MENU_FUNCTION( front_clipping )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(front_clipping )
+  DEF_MENU_UPDATE(front_clipping )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( back_clipping )
+  DEF_MENU_FUNCTION( back_clipping )
 {
     initialize_back_clipping( display );
 
@@ -351,14 +351,14 @@ public  DEF_MENU_FUNCTION( back_clipping )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(back_clipping )
+  DEF_MENU_UPDATE(back_clipping )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( pick_view_rectangle )
+  DEF_MENU_FUNCTION( pick_view_rectangle )
 {
     start_picking_viewport( display );
 
@@ -367,14 +367,14 @@ public  DEF_MENU_FUNCTION( pick_view_rectangle )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(pick_view_rectangle )
+  DEF_MENU_UPDATE(pick_view_rectangle )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( create_film_loop )
+  DEF_MENU_FUNCTION( create_film_loop )
 {
     VIO_Status  status;
     int     axis_index, n_steps;
@@ -407,14 +407,14 @@ public  DEF_MENU_FUNCTION( create_film_loop )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(create_film_loop )
+  DEF_MENU_UPDATE(create_film_loop )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( save_image )
+  DEF_MENU_FUNCTION( save_image )
 {
     VIO_Status  status;
     VIO_STR  filename;
@@ -442,14 +442,14 @@ public  DEF_MENU_FUNCTION( save_image )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(save_image )
+  DEF_MENU_UPDATE(save_image )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_stereo_mode )
+  DEF_MENU_FUNCTION( toggle_stereo_mode )
 {
     display->three_d.view.stereo_flag = !display->three_d.view.stereo_flag;
 
@@ -465,14 +465,14 @@ public  DEF_MENU_FUNCTION( toggle_stereo_mode )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_stereo_mode )
+  DEF_MENU_UPDATE(toggle_stereo_mode )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_eye_separation )
+  DEF_MENU_FUNCTION( set_eye_separation )
 {
     VIO_Real   eye_separation;
 
@@ -497,7 +497,7 @@ public  DEF_MENU_FUNCTION( set_eye_separation )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_eye_separation )
+  DEF_MENU_UPDATE(set_eye_separation )
 {
     set_menu_text_real( menu_window, menu_entry,
                         display->three_d.view.eye_separation_ratio );
@@ -507,7 +507,7 @@ public  DEF_MENU_UPDATE(set_eye_separation )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( print_view )
+  DEF_MENU_FUNCTION( print_view )
 {
     VIO_Real        x, y, z;
     VIO_Transform   inverse_model;
@@ -549,14 +549,14 @@ public  DEF_MENU_FUNCTION( print_view )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(print_view )
+  DEF_MENU_UPDATE(print_view )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(type_in_3D_origin)
+  DEF_MENU_FUNCTION(type_in_3D_origin)
 {
     VIO_Real             xw, yw, zw;
 
@@ -578,14 +578,14 @@ public  DEF_MENU_FUNCTION(type_in_3D_origin)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(type_in_3D_origin)
+  DEF_MENU_UPDATE(type_in_3D_origin)
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(type_in_view_origin)
+  DEF_MENU_FUNCTION(type_in_view_origin)
 {
     VIO_Real             x, y, z;
 
@@ -609,14 +609,14 @@ public  DEF_MENU_FUNCTION(type_in_view_origin)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(type_in_view_origin)
+  DEF_MENU_UPDATE(type_in_view_origin)
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(type_in_view_line_of_sight)
+  DEF_MENU_FUNCTION(type_in_view_line_of_sight)
 {
     VIO_Real      x, y, z;
     VIO_Vector    line_of_sight, hor;
@@ -644,14 +644,14 @@ public  DEF_MENU_FUNCTION(type_in_view_line_of_sight)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(type_in_view_line_of_sight)
+  DEF_MENU_UPDATE(type_in_view_line_of_sight)
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(type_in_view_up_dir)
+  DEF_MENU_FUNCTION(type_in_view_up_dir)
 {
     VIO_Real      x, y, z;
     VIO_Vector    line_of_sight, up, hor;
@@ -679,14 +679,14 @@ public  DEF_MENU_FUNCTION(type_in_view_up_dir)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(type_in_view_up_dir)
+  DEF_MENU_UPDATE(type_in_view_up_dir)
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(type_in_view_window_width)
+  DEF_MENU_FUNCTION(type_in_view_window_width)
 {
     VIO_Real      width, scale;
 
@@ -710,14 +710,14 @@ public  DEF_MENU_FUNCTION(type_in_view_window_width)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(type_in_view_window_width)
+  DEF_MENU_UPDATE(type_in_view_window_width)
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(type_in_view_perspective_distance)
+  DEF_MENU_FUNCTION(type_in_view_perspective_distance)
 {
     VIO_Real      dist;
 
@@ -739,7 +739,7 @@ public  DEF_MENU_FUNCTION(type_in_view_perspective_distance)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(type_in_view_perspective_distance)
+  DEF_MENU_UPDATE(type_in_view_perspective_distance)
 {
     return( TRUE );
 }

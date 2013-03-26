@@ -23,7 +23,7 @@
 #include  <display.h>
 #include  <bicpl/splines.h>
 
-private  VIO_BOOL  get_current_lines(
+static  VIO_BOOL  get_current_lines(
     display_struct    *display,
     lines_struct      **lines )
 {
@@ -44,7 +44,7 @@ private  VIO_BOOL  get_current_lines(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( smooth_current_lines )
+  DEF_MENU_FUNCTION( smooth_current_lines )
 {
     VIO_Status          status;
     lines_struct    *lines;
@@ -72,14 +72,14 @@ public  DEF_MENU_FUNCTION( smooth_current_lines )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(smooth_current_lines )
+  DEF_MENU_UPDATE(smooth_current_lines )
 {
     return( current_object_is_this_type( display, LINES ) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( make_current_line_tube )
+  DEF_MENU_FUNCTION( make_current_line_tube )
 {
     VIO_Status          status;
     lines_struct    *lines;
@@ -111,14 +111,14 @@ public  DEF_MENU_FUNCTION( make_current_line_tube )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(make_current_line_tube )
+  DEF_MENU_UPDATE(make_current_line_tube )
 {
     return( current_object_is_this_type( display, LINES ) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( convert_line_to_spline_points )
+  DEF_MENU_FUNCTION( convert_line_to_spline_points )
 {
     object_struct   *object;
     lines_struct    *lines;
@@ -142,14 +142,14 @@ public  DEF_MENU_FUNCTION( convert_line_to_spline_points )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(convert_line_to_spline_points )
+  DEF_MENU_UPDATE(convert_line_to_spline_points )
 {
     return( current_object_is_this_type( display, LINES ) );
 }
  
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( make_line_circle )
+  DEF_MENU_FUNCTION( make_line_circle )
 {
     VIO_Point             centre;
     VIO_Real              x_size, y_size;
@@ -183,7 +183,7 @@ public  DEF_MENU_FUNCTION( make_line_circle )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(make_line_circle )
+  DEF_MENU_UPDATE(make_line_circle )
 {
     return( TRUE );
 }
@@ -191,7 +191,7 @@ public  DEF_MENU_UPDATE(make_line_circle )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( subdivide_current_lines )
+  DEF_MENU_FUNCTION( subdivide_current_lines )
 {
     lines_struct      *lines;
 
@@ -207,12 +207,12 @@ public  DEF_MENU_FUNCTION( subdivide_current_lines )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(subdivide_current_lines )
+  DEF_MENU_UPDATE(subdivide_current_lines )
 {
     return( current_object_is_this_type( display, LINES ) );
 }
 
-private  void  convert_to_lines(
+static  void  convert_to_lines(
     display_struct   *display,
     VIO_BOOL          closed )
 {
@@ -364,7 +364,7 @@ private  void  convert_to_lines(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( convert_markers_to_lines )
+  DEF_MENU_FUNCTION( convert_markers_to_lines )
 {
     convert_to_lines( display, FALSE );
 
@@ -373,14 +373,14 @@ public  DEF_MENU_FUNCTION( convert_markers_to_lines )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(convert_markers_to_lines )
+  DEF_MENU_UPDATE(convert_markers_to_lines )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( convert_markers_to_closed_lines )
+  DEF_MENU_FUNCTION( convert_markers_to_closed_lines )
 {
     convert_to_lines( display, TRUE );
 
@@ -389,14 +389,14 @@ public  DEF_MENU_FUNCTION( convert_markers_to_closed_lines )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(convert_markers_to_closed_lines )
+  DEF_MENU_UPDATE(convert_markers_to_closed_lines )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_line_widths )
+  DEF_MENU_FUNCTION( set_line_widths )
 {
     VIO_Status          status;
     lines_struct    *lines;
@@ -421,7 +421,7 @@ public  DEF_MENU_FUNCTION( set_line_widths )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_line_widths )
+  DEF_MENU_UPDATE(set_line_widths )
 {
     return( current_object_is_this_type( display, LINES ) );
 }

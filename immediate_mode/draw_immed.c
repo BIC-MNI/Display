@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-public  void  draw_2d_line(
+  void  draw_2d_line(
     display_struct    *display,
     View_types        view_type,
     VIO_Colour            colour,
@@ -61,7 +61,7 @@ public  void  draw_2d_line(
     FREE( lines.colours );
 }
 
-public  void  draw_2d_rectangle(
+  void  draw_2d_rectangle(
     display_struct    *display,
     View_types        view_type,
     VIO_Colour            colour,
@@ -101,7 +101,7 @@ public  void  draw_2d_rectangle(
     FREE( lines.colours );
 }
 
-public  void  draw_polygons(
+  void  draw_polygons(
     display_struct    *display,
     polygons_struct   *polygons )
 {
@@ -112,14 +112,14 @@ public  void  draw_polygons(
     G_draw_polygons( display->window, polygons );
 }
 
-public  render_struct  *get_main_render(
+  render_struct  *get_main_render(
     display_struct    *display )
 {
     return( &get_model_info(get_model_ptr(display->models[THREED_MODEL]))
                                               ->render );
 }
 
-public  void  draw_text_3d(
+  void  draw_text_3d(
     display_struct    *display,
     VIO_Point             *origin,
     VIO_Colour            colour,

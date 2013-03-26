@@ -28,7 +28,7 @@ static  DEF_EVENT_FUNCTION( terminate_picking_viewport );
 static  DEF_EVENT_FUNCTION( done_picking_viewport );
 static  DEF_EVENT_FUNCTION( show_picked_viewport );
 
-public  void  start_picking_viewport(
+  void  start_picking_viewport(
     display_struct   *display )
 {
     push_action_table( &display->action_table, MIDDLE_MOUSE_DOWN_EVENT );
@@ -50,7 +50,7 @@ public  void  start_picking_viewport(
     set_update_required( display, NORMAL_PLANES );
 }
 
-private  void  remove_events(
+static  void  remove_events(
     action_table_struct  *action_table )
 {
     pop_action_table( action_table, MIDDLE_MOUSE_DOWN_EVENT );
@@ -60,7 +60,7 @@ private  void  remove_events(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_picking_viewport )
+static  DEF_EVENT_FUNCTION( terminate_picking_viewport )
 {
     remove_action_table_function( &display->action_table, NO_EVENT,
                                   show_rectangle_at_mouse );
@@ -70,7 +70,7 @@ private  DEF_EVENT_FUNCTION( terminate_picking_viewport )
     return( OK );
 }
 
-private  void  get_coordinates(
+static  void  get_coordinates(
     VIO_Real    x1,
     VIO_Real    y1,
     VIO_Real    x2,
@@ -82,8 +82,8 @@ private  void  get_coordinates(
 {
     VIO_Real   dx, dy;
 
-    dx = FABS( x2 - x1 );
-    dy = FABS( y2 - y1 );
+    dx = VIO_FABS( x2 - x1 );
+    dy = VIO_FABS( y2 - y1 );
 
     if( dx < Viewport_min_x_size )
     {
@@ -109,7 +109,7 @@ private  void  get_coordinates(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
+static  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
 {
     VIO_Real     x, y, x_prev, y_prev, x1, y1, x2, y2;
 
@@ -131,7 +131,7 @@ private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( pick_first_corner_point )
+static  DEF_EVENT_FUNCTION( pick_first_corner_point )
 {
     VIO_Real  x, y;
 
@@ -160,7 +160,7 @@ private  DEF_EVENT_FUNCTION( pick_first_corner_point )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( show_picked_viewport )
+static  DEF_EVENT_FUNCTION( show_picked_viewport )
 {
     VIO_Real   x, y, x_prev, y_prev, x1, y1, x2, y2;
 
@@ -183,7 +183,7 @@ private  DEF_EVENT_FUNCTION( show_picked_viewport )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( done_picking_viewport )
+static  DEF_EVENT_FUNCTION( done_picking_viewport )
 {
     VIO_Real   x, y, x_min, y_min, x_max, y_max;
 

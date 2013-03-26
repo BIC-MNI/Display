@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-public  void  initialize_slice_histogram(
+  void  initialize_slice_histogram(
     display_struct   *slice_window )
 {
     lines_struct   *lines;
@@ -42,13 +42,13 @@ public  void  initialize_slice_histogram(
     initialize_lines( &slice_window->slice.unscaled_histogram_lines, WHITE );
 }
 
-public  void  delete_slice_histogram(
+  void  delete_slice_histogram(
     slice_window_struct   *slice )
 {
     delete_lines( &slice->unscaled_histogram_lines );
 }
 
-public  void  clear_histogram(
+  void  clear_histogram(
     display_struct   *slice_window )
 {
     lines_struct   *lines;
@@ -61,7 +61,7 @@ public  void  clear_histogram(
     initialize_lines( &slice_window->slice.unscaled_histogram_lines, WHITE );
 }
 
-private  void  compute_histogram_lines(
+static  void  compute_histogram_lines(
     display_struct   *slice_window,
     int              volume_index,
     VIO_BOOL          labeled_only,
@@ -74,7 +74,7 @@ private  void  compute_histogram_lines(
     int                start[VIO_MAX_DIMENSIONS], end[VIO_MAX_DIMENSIONS];
     Real               min_value, max_value, value, window_width;
     histogram_struct   histogram;
-    progress_struct    progress;
+    VIO_progress_struct    progress;
     VIO_Volume             volume;
 
     volume = get_nth_volume( slice_window, volume_index );
@@ -134,7 +134,7 @@ private  void  compute_histogram_lines(
     delete_histogram( &histogram );
 }
 
-public  void  resize_histogram(
+  void  resize_histogram(
     display_struct   *slice_window )
 {
     int            i, start, x_min, x_max;
@@ -148,7 +148,7 @@ public  void  resize_histogram(
     if( unscaled_lines->n_points == 0 )
         return;
 
-    start = ROUND( (Real) unscaled_lines->n_points * 0.05 );
+    start = VIO_ROUND( (Real) unscaled_lines->n_points * 0.05 );
     max_y = 0.0;
     for_less( i, start, unscaled_lines->n_points )
     {
@@ -172,7 +172,7 @@ public  void  resize_histogram(
     }
 }
 
-public  void  compute_histogram(
+  void  compute_histogram(
     display_struct   *slice_window,
     int              axis_index,
     int              voxel_index,

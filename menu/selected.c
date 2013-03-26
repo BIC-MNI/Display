@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-private  void  create_selected_text(
+static  void  create_selected_text(
     menu_window_struct  *menu,
     model_struct        *model )
 {
@@ -72,7 +72,7 @@ private  void  create_selected_text(
     }
 }
 
-private  void  set_text_entry(
+static  void  set_text_entry(
     display_struct    *menu_window,
     int               index,
     VIO_STR            name,
@@ -84,12 +84,12 @@ private  void  set_text_entry(
 
     replace_string( &get_text_ptr(model->objects[index+1])->string,
                     create_string(name) );
-    set_object_visibility( model->objects[index+1], ON );
+    set_object_visibility( model->objects[index+1], TRUE );
     
     get_text_ptr(model->objects[index+1])->colour = col;
 }
 
-private  void  get_box_limits(
+static  void  get_box_limits(
     menu_window_struct  *menu,
     int                 index,
     VIO_STR              label,
@@ -106,19 +106,19 @@ private  void  get_box_limits(
     if( width <= 0 )
         width = 20;
 
-    *x_min = ROUND( menu->selected_x_origin );
-    *y_min = ROUND( menu->selected_y_origin -
+    *x_min = VIO_ROUND( menu->selected_x_origin );
+    *y_min = VIO_ROUND( menu->selected_y_origin -
                     menu->character_height * (VIO_Real) index );
     *x_max = *x_min + width;
-    *y_max = ROUND( (VIO_Real) *y_min + menu->selected_box_height);
+    *y_max = VIO_ROUND( (VIO_Real) *y_min + menu->selected_box_height);
 
-    *x_min = ROUND( (VIO_Real) *x_min - menu->selected_x_offset );
-    *x_max = ROUND( (VIO_Real) *x_max + menu->selected_x_offset );
-    *y_min = ROUND( (VIO_Real) *y_min - menu->selected_y_offset );
-    *y_max = ROUND( (VIO_Real) *y_max + menu->selected_y_offset );
+    *x_min = VIO_ROUND( (VIO_Real) *x_min - menu->selected_x_offset );
+    *x_max = VIO_ROUND( (VIO_Real) *x_max + menu->selected_x_offset );
+    *y_min = VIO_ROUND( (VIO_Real) *y_min - menu->selected_y_offset );
+    *y_max = VIO_ROUND( (VIO_Real) *y_max + menu->selected_y_offset );
 }
 
-private  void  set_current_box(
+static  void  set_current_box(
     menu_window_struct  *menu,
     model_struct        *selected_model,
     int                 index,
@@ -136,10 +136,10 @@ private  void  set_current_box(
     fill_Point( points[2], x_end, y_end, 0.0 );
     fill_Point( points[3], x_start, y_end, 0.0 );
 
-    set_object_visibility( selected_model->objects[0], ON );
+    set_object_visibility( selected_model->objects[0], TRUE );
 }
 
-private  void  get_model_objects_visible(
+static  void  get_model_objects_visible(
     display_struct    *display,
     int               *start_index,
     int               *n_objects )
@@ -170,11 +170,11 @@ private  void  get_model_objects_visible(
     }
 }
 
-private  VIO_STR  get_object_label(
+static  VIO_STR  get_object_label(
     object_struct   *object,
     int             index )
 {
-    char      buffer[EXTREMELY_LARGE_STRING_SIZE];
+    char      buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
     VIO_STR    name;
 
     name = get_object_name( object );
@@ -186,7 +186,7 @@ private  VIO_STR  get_object_label(
     return( create_string( buffer ) );
 }
 
-public  void  rebuild_selected_list(
+  void  rebuild_selected_list(
     display_struct    *display,
     display_struct    *marker_window )
 {
@@ -205,7 +205,7 @@ public  void  rebuild_selected_list(
         create_selected_text( &marker_window->marker, selected_model );
 
     for_less( i, 0, N_selected_displayed+1 )
-        set_object_visibility( selected_model->objects[i], OFF );
+        set_object_visibility( selected_model->objects[i], FALSE );
 
     model = get_current_model( display );
 
@@ -247,7 +247,7 @@ public  void  rebuild_selected_list(
     set_update_required( marker_window, NORMAL_PLANES );
 }
 
-public  VIO_BOOL  mouse_is_on_object_name(
+  VIO_BOOL  mouse_is_on_object_name(
     display_struct    *display,
     int               x,
     int               y,

@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-private  void  display_objects_recursive(
+static  void  display_objects_recursive(
     Gwindow                      window,
     Bitplane_types               bitplanes,
     int                          n_objects,
@@ -33,7 +33,7 @@ private  void  display_objects_recursive(
     update_interrupted_struct    *interrupt,
     VIO_BOOL                      *past_last_object );
 
-public  void  display_objects(
+  void  display_objects(
     Gwindow                     window,
     object_struct               *object,
     update_interrupted_struct   *interrupt,
@@ -58,13 +58,13 @@ public  void  display_objects(
     }
 }
 
-private  void  draw_one_object(
+static  void  draw_one_object(
     Gwindow                      window,
     object_struct                *object,
     update_interrupted_struct    *interrupt,
     VIO_BOOL                      *past_last_object );
 
-private  void  display_objects_recursive(
+static  void  display_objects_recursive(
     Gwindow                      window,
     Bitplane_types               bitplanes,
     int                          n_objects,
@@ -126,7 +126,7 @@ private  void  display_objects_recursive(
     G_pop_transform( window );
 }
 
-private  void  draw_one_object(
+static  void  draw_one_object(
     Gwindow                      window,
     object_struct                *object,
     update_interrupted_struct    *interrupt,

@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-public  void  convert_transform_to_view_space(
+  void  convert_transform_to_view_space(
     display_struct    *display,
     VIO_Transform         *transform,
     VIO_Transform         *view_space_transform )
@@ -49,7 +49,7 @@ public  void  convert_transform_to_view_space(
                                          transform, view_space_transform );
 }
 
-public  void  apply_transform_in_view_space(
+  void  apply_transform_in_view_space(
     display_struct    *display,
     VIO_Transform         *transform )
 {
@@ -60,7 +60,7 @@ public  void  apply_transform_in_view_space(
     transform_model( display, &transform_in_cs );
 }
 
-public  void  transform_model(
+  void  transform_model(
     display_struct    *display,
     VIO_Transform         *transform )
 {
@@ -69,7 +69,7 @@ public  void  transform_model(
                        transform );
 }
 
-public  void  get_inverse_model_transform(
+  void  get_inverse_model_transform(
     display_struct    *display,
     VIO_Transform         *inverse_transform )
 {

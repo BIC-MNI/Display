@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-public  void  initialize_cursor(
+  void  initialize_cursor(
     display_struct    *display )
 {
     display->three_d.cursor.box_size[X] = 1.0;
@@ -35,25 +35,25 @@ public  void  initialize_cursor(
     initialize_cursor_plane_outline( display );
 }
 
-public  void  reset_cursor(
+  void  reset_cursor(
     display_struct    *display )
 {
     display->three_d.cursor.origin = display->three_d.centre_of_objects;
 
     rebuild_cursor_icon( display );
 
-    display->models[CURSOR_MODEL]->visibility = ON;
+    display->models[CURSOR_MODEL]->visibility = TRUE;
 
     update_cursor( display );
 }
 
-public  void  update_cursor_size(
+  void  update_cursor_size(
     display_struct    *display )
 {
     rebuild_cursor_icon( display );
 }
 
-public  void  update_cursor(
+  void  update_cursor(
     display_struct    *display )
 {
     model_struct   *model;
@@ -68,7 +68,7 @@ public  void  update_cursor(
     ++display->models_changed_id;
 }
 
-public  void  get_cursor_origin(
+  void  get_cursor_origin(
     display_struct   *display,
     VIO_Point            *origin )
 {

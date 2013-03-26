@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-public  void   terminate_any_interactions(
+  void   terminate_any_interactions(
     display_struct   *display )
 {
     VIO_Status               status;

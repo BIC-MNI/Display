@@ -51,24 +51,24 @@ static    DEF_EVENT_FUNCTION( terminate_picking_low_limit );
 static    DEF_EVENT_FUNCTION( terminate_picking_high_limit );
 static    DEF_EVENT_FUNCTION( terminate_picking_both_limits );
 
-private  void  update_limit(
+static  void  update_limit(
     display_struct   *slice_window,
     VIO_BOOL          low_limit_flag,
     VIO_BOOL          fixed_range_flag );
-private  VIO_BOOL  get_mouse_colour_bar_value(
+static  VIO_BOOL  get_mouse_colour_bar_value(
     display_struct   *slice_window,
     Real             *value );
-private  VIO_BOOL   mouse_is_near_slice_dividers(
+static  VIO_BOOL   mouse_is_near_slice_dividers(
     display_struct   *slice_window );
-private  VIO_BOOL  mouse_is_near_low_limit(
+static  VIO_BOOL  mouse_is_near_low_limit(
     display_struct   *slice_window );
-private  VIO_BOOL  mouse_is_near_high_limit(
+static  VIO_BOOL  mouse_is_near_high_limit(
     display_struct   *slice_window );
-private  VIO_BOOL  get_nearest_mouse_colour_bar_value(
+static  VIO_BOOL  get_nearest_mouse_colour_bar_value(
     display_struct   *slice_window,
     Real             *value );
 
-public  void  initialize_slice_window_events(
+  void  initialize_slice_window_events(
     display_struct    *slice_window )
 {
     add_action_table_function( &slice_window->action_table, WINDOW_RESIZE_EVENT,
@@ -92,7 +92,7 @@ public  void  initialize_slice_window_events(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( left_mouse_down )
+static  DEF_EVENT_FUNCTION( left_mouse_down )
 {
     int          view_index;
 
@@ -188,7 +188,7 @@ private  DEF_EVENT_FUNCTION( left_mouse_down )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( middle_mouse_down )
+static  DEF_EVENT_FUNCTION( middle_mouse_down )
 {
     int          view_index;
     Real         value;
@@ -250,7 +250,7 @@ private  DEF_EVENT_FUNCTION( middle_mouse_down )
     return( OK );
 }
 
-private  void  set_slice_voxel_position(
+static  void  set_slice_voxel_position(
     display_struct    *slice_window,
     int               volume_index,
     Real              voxel[] )
@@ -291,7 +291,7 @@ private  void  set_slice_voxel_position(
 
 /* ----------------------------------------------------------------------- */
 
-public  void  set_voxel_cursor_from_mouse_position(
+  void  set_voxel_cursor_from_mouse_position(
     display_struct    *slice_window )
 {
     int    volume_index, axis_index;
@@ -304,7 +304,7 @@ public  void  set_voxel_cursor_from_mouse_position(
     }
 }
 
-private  void  update_voxel_cursor(
+static  void  update_voxel_cursor(
     display_struct    *slice_window )
 {
     int    x, y, x_prev, y_prev;
@@ -315,7 +315,7 @@ private  void  update_voxel_cursor(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_picking_voxel )
+static  DEF_EVENT_FUNCTION( terminate_picking_voxel )
 {
     update_voxel_cursor( display );
 
@@ -331,7 +331,7 @@ private  DEF_EVENT_FUNCTION( terminate_picking_voxel )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_update_voxel )
+static  DEF_EVENT_FUNCTION( handle_update_voxel )
 {
     update_voxel_cursor( display );
 
@@ -340,7 +340,7 @@ private  DEF_EVENT_FUNCTION( handle_update_voxel )
 
 /* ----------------------------------------------------------------------- */
 
-private  void  update_voxel_slice(
+static  void  update_voxel_slice(
     display_struct    *slice_window )
 {
     int        view_index, dy, x, y, x_prev, y_prev;
@@ -374,7 +374,7 @@ private  void  update_voxel_slice(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_picking_slice )
+static  DEF_EVENT_FUNCTION( terminate_picking_slice )
 {
     update_voxel_slice( display );
 
@@ -390,7 +390,7 @@ private  DEF_EVENT_FUNCTION( terminate_picking_slice )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( update_picking_slice )
+static  DEF_EVENT_FUNCTION( update_picking_slice )
 {
     update_voxel_slice( display );
 
@@ -399,7 +399,7 @@ private  DEF_EVENT_FUNCTION( update_picking_slice )
 
 /* ----------------------------------------------------------------------- */
 
-private  void  update_voxel_zoom(
+static  void  update_voxel_zoom(
     display_struct    *slice_window )
 {
     int        view_index, x, y, x_prev, y_prev, dy;
@@ -418,7 +418,7 @@ private  void  update_voxel_zoom(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_slice_zooming )
+static  DEF_EVENT_FUNCTION( terminate_slice_zooming )
 {
     update_voxel_zoom( display );
 
@@ -434,7 +434,7 @@ private  DEF_EVENT_FUNCTION( terminate_slice_zooming )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( update_slice_zooming )
+static  DEF_EVENT_FUNCTION( update_slice_zooming )
 {
     update_voxel_zoom( display );
 
@@ -443,7 +443,7 @@ private  DEF_EVENT_FUNCTION( update_slice_zooming )
 
 /* ------------------------------------------------------ */
 
-private  void  perform_translation(
+static  void  perform_translation(
     display_struct   *slice_window )
 {
     int        view_index, x, y, x_prev, y_prev, dx, dy;
@@ -463,7 +463,7 @@ private  void  perform_translation(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_translation )
+static  DEF_EVENT_FUNCTION( terminate_translation )
 {
     perform_translation( display );
 
@@ -479,7 +479,7 @@ private  DEF_EVENT_FUNCTION( terminate_translation )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( update_translation )
+static  DEF_EVENT_FUNCTION( update_translation )
 {
     perform_translation( display );
 
@@ -490,7 +490,7 @@ private  DEF_EVENT_FUNCTION( update_translation )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( update_probe )
+static  DEF_EVENT_FUNCTION( update_probe )
 {
     int  x, y, x_prev, y_prev;
 
@@ -502,7 +502,7 @@ private  DEF_EVENT_FUNCTION( update_probe )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_redraw )
+static  DEF_EVENT_FUNCTION( handle_redraw )
 {
     set_slice_viewport_update( display, FULL_WINDOW_MODEL );
 
@@ -511,7 +511,7 @@ private  DEF_EVENT_FUNCTION( handle_redraw )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_redraw_overlay )
+static  DEF_EVENT_FUNCTION( handle_redraw_overlay )
 {
     int  i;
 
@@ -527,7 +527,7 @@ private  DEF_EVENT_FUNCTION( handle_redraw_overlay )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( window_size_changed )
+static  DEF_EVENT_FUNCTION( window_size_changed )
 {
     int   view;
 
@@ -545,7 +545,7 @@ private  DEF_EVENT_FUNCTION( window_size_changed )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_picking_low_limit )
+static  DEF_EVENT_FUNCTION( terminate_picking_low_limit )
 {
     update_limit( display, TRUE, FALSE );
 
@@ -561,7 +561,7 @@ private  DEF_EVENT_FUNCTION( terminate_picking_low_limit )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_update_low_limit )
+static  DEF_EVENT_FUNCTION( handle_update_low_limit )
 {
     int   x, y, x_prev, y_prev;
 
@@ -576,7 +576,7 @@ private  DEF_EVENT_FUNCTION( handle_update_low_limit )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_picking_high_limit )
+static  DEF_EVENT_FUNCTION( terminate_picking_high_limit )
 {
     update_limit( display, FALSE, FALSE );
 
@@ -592,7 +592,7 @@ private  DEF_EVENT_FUNCTION( terminate_picking_high_limit )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_update_high_limit )
+static  DEF_EVENT_FUNCTION( handle_update_high_limit )
 {
     int   x, y, x_prev, y_prev;
 
@@ -607,7 +607,7 @@ private  DEF_EVENT_FUNCTION( handle_update_high_limit )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_picking_both_limits )
+static  DEF_EVENT_FUNCTION( terminate_picking_both_limits )
 {
     update_limit( display, TRUE, TRUE );
 
@@ -623,7 +623,7 @@ private  DEF_EVENT_FUNCTION( terminate_picking_both_limits )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_update_both_limits )
+static  DEF_EVENT_FUNCTION( handle_update_both_limits )
 {
     int   x, y, x_prev, y_prev;
 
@@ -636,7 +636,7 @@ private  DEF_EVENT_FUNCTION( handle_update_both_limits )
     return( OK );
 }
 
-private  void  update_limit(
+static  void  update_limit(
     display_struct   *slice_window,
     VIO_BOOL          low_limit_flag,
     VIO_BOOL          fixed_range_flag )
@@ -717,7 +717,7 @@ private  void  update_limit(
     record_mouse_pixel_position( slice_window );
 }
 
-private  VIO_BOOL  get_mouse_colour_bar_value(
+static  VIO_BOOL  get_mouse_colour_bar_value(
     display_struct   *slice_window,
     Real             *value )
 {
@@ -740,7 +740,7 @@ private  VIO_BOOL  get_mouse_colour_bar_value(
     return( found );
 }
 
-private  VIO_BOOL  get_nearest_mouse_colour_bar_value(
+static  VIO_BOOL  get_nearest_mouse_colour_bar_value(
     display_struct   *slice_window,
     Real             *value )
 {
@@ -773,7 +773,7 @@ private  VIO_BOOL  get_nearest_mouse_colour_bar_value(
     return( found );
 }
 
-private  VIO_BOOL  mouse_is_near_low_limit(
+static  VIO_BOOL  mouse_is_near_low_limit(
     display_struct   *slice_window )
 {
     Real                  value, min_value, max_value;
@@ -799,7 +799,7 @@ private  VIO_BOOL  mouse_is_near_low_limit(
     return( near );
 }
 
-private  VIO_BOOL  mouse_is_near_high_limit(
+static  VIO_BOOL  mouse_is_near_high_limit(
     display_struct   *slice_window )
 {
     Real                  value, min_value, max_value;
@@ -827,7 +827,7 @@ private  VIO_BOOL  mouse_is_near_high_limit(
 
 #define  NEAR_ENOUGH  10
 
-private  VIO_BOOL  mouse_is_near_slice_dividers(
+static  VIO_BOOL  mouse_is_near_slice_dividers(
     display_struct   *slice_window )
 {
     int       x, y, x_div, y_div, dx, dy;
@@ -848,7 +848,7 @@ private  VIO_BOOL  mouse_is_near_slice_dividers(
 }
 /* ----------------------------------------------------------------------- */
 
-private  void  update_slice_dividers(
+static  void  update_slice_dividers(
     display_struct    *slice_window )
 {
     int    x, y, x_prev, y_prev;
@@ -861,7 +861,7 @@ private  void  update_slice_dividers(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_setting_slice_dividers )
+static  DEF_EVENT_FUNCTION( terminate_setting_slice_dividers )
 {
     update_slice_dividers( display );
 
@@ -877,7 +877,7 @@ private  DEF_EVENT_FUNCTION( terminate_setting_slice_dividers )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_update_slice_dividers )
+static  DEF_EVENT_FUNCTION( handle_update_slice_dividers )
 {
     update_slice_dividers( display );
 

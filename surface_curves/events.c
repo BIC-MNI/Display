@@ -25,7 +25,7 @@
 
 static    DEF_EVENT_FUNCTION( pick_point );
 
-private  Bitplane_types   get_surface_curve_bitplane( void )
+static  Bitplane_types   get_surface_curve_bitplane( void )
 {
     if( Surface_curve_overlay_flag && G_has_overlay_planes() )
         return( OVERLAY_PLANES );
@@ -33,7 +33,7 @@ private  Bitplane_types   get_surface_curve_bitplane( void )
         return( NORMAL_PLANES );
 }
 
-public  void  initialize_surface_curve(
+  void  initialize_surface_curve(
     display_struct     *display )
 {
     object_struct  *object;
@@ -63,7 +63,7 @@ public  void  initialize_surface_curve(
     display->three_d.surface_curve.picking_points = FALSE;
 }
 
-public  void  start_surface_curve(
+  void  start_surface_curve(
     display_struct     *display )
 {
     if( !display->three_d.surface_curve.picking_points )
@@ -87,7 +87,7 @@ public  void  start_surface_curve(
     }
 }
 
-public  void  end_surface_curve(
+  void  end_surface_curve(
     display_struct     *display )
 {
     VIO_Real  len;
@@ -101,7 +101,7 @@ public  void  end_surface_curve(
     }
 }
 
-private  void  add_point_to_curve(
+static  void  add_point_to_curve(
     display_struct   *display,
     polygons_struct  *polygons,
     int              poly_index,
@@ -143,7 +143,7 @@ private  void  add_point_to_curve(
     display->three_d.surface_curve.prev_poly_index = poly_index;
 }
 
-public  void  close_surface_curve(
+  void  close_surface_curve(
     display_struct     *display )
 {
     VIO_Point                 point;
@@ -159,7 +159,7 @@ public  void  close_surface_curve(
     }
 }
 
-private  void  pick_surface_point(
+static  void  pick_surface_point(
     display_struct   *display,
     VIO_BOOL          snap_to_line )
 {
@@ -186,20 +186,20 @@ private  void  pick_surface_point(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( pick_point )
+static  DEF_EVENT_FUNCTION( pick_point )
 {
     pick_surface_point( display, FALSE );
 
     return( OK );
 }
 
-public  void  pick_surface_point_near_a_line(
+  void  pick_surface_point_near_a_line(
     display_struct   *display )
 {
     pick_surface_point( display, TRUE );
 }
 
-public  void  reset_surface_curve(
+  void  reset_surface_curve(
     display_struct     *display )
 {
     display->three_d.surface_curve.lines->n_points = 0;
@@ -212,7 +212,7 @@ public  void  reset_surface_curve(
     set_update_required( display, get_surface_curve_bitplane() );
 }
 
-public  void  make_surface_curve_permanent(
+  void  make_surface_curve_permanent(
     display_struct     *display )
 {
     object_struct         *object;

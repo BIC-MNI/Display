@@ -26,10 +26,10 @@ static    DEF_EVENT_FUNCTION( start_magnification );
 static    DEF_EVENT_FUNCTION( turn_off_magnification );
 static    DEF_EVENT_FUNCTION( handle_update );
 static    DEF_EVENT_FUNCTION( terminate_magnification );
-private  VIO_BOOL  perform_magnification(
+static  VIO_BOOL  perform_magnification(
     display_struct   *display );
 
-public  void  initialize_magnification(
+  void  initialize_magnification(
     display_struct   *display )
 {
     terminate_any_interactions( display );
@@ -45,7 +45,7 @@ public  void  initialize_magnification(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( turn_off_magnification )
+static  DEF_EVENT_FUNCTION( turn_off_magnification )
 {
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
@@ -60,7 +60,7 @@ private  DEF_EVENT_FUNCTION( turn_off_magnification )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( start_magnification )
+static  DEF_EVENT_FUNCTION( start_magnification )
 {
     add_action_table_function( &display->action_table,
                                NO_EVENT,
@@ -79,7 +79,7 @@ private  DEF_EVENT_FUNCTION( start_magnification )
     return( OK );
 }
 
-private  void  update_magnification(
+static  void  update_magnification(
     display_struct   *display )
 {
     if( perform_magnification( display ) )
@@ -91,7 +91,7 @@ private  void  update_magnification(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_magnification )
+static  DEF_EVENT_FUNCTION( terminate_magnification )
 {
     update_magnification( display );
     
@@ -109,14 +109,14 @@ private  DEF_EVENT_FUNCTION( terminate_magnification )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_update )
+static  DEF_EVENT_FUNCTION( handle_update )
 {
     update_magnification( display );
 
     return( OK );
 }
 
-private  VIO_BOOL  perform_magnification(
+static  VIO_BOOL  perform_magnification(
     display_struct   *display )
 {
     VIO_BOOL   moved;

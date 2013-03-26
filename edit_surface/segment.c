@@ -22,16 +22,16 @@
 
 #include  <display.h>
 
-private    DEF_EVENT_FUNCTION( start_segmenting );
-private    DEF_EVENT_FUNCTION( terminate_segmenting );
-private    DEF_EVENT_FUNCTION( pick_surface_polygon );
-private    DEF_EVENT_FUNCTION( end_segmenting );
-private  void   add_polygon_under_mouse(
+static    DEF_EVENT_FUNCTION( start_segmenting );
+static    DEF_EVENT_FUNCTION( terminate_segmenting );
+static    DEF_EVENT_FUNCTION( pick_surface_polygon );
+static    DEF_EVENT_FUNCTION( end_segmenting );
+static  void   add_polygon_under_mouse(
     display_struct    *display );
-private  void  segment_polygons(
+static  void  segment_polygons(
     display_struct    *display,
     VIO_BOOL           *segmented );
-private  void   create_complete_path(
+static  void   create_complete_path(
     int                n_vertices,
     int                vertices[],
     polygons_struct    *polygons,
@@ -39,7 +39,7 @@ private  void   create_complete_path(
     int                *path_length,
     int                *path[] );
 
-public  void  start_segmenting_polygons(
+  void  start_segmenting_polygons(
     display_struct   *display )
 {
     polygons_struct      *edit_polygons;
@@ -58,7 +58,7 @@ public  void  start_segmenting_polygons(
     }
 }
 
-private  void  turn_off_segmenting(
+static  void  turn_off_segmenting(
     action_table_struct   *action_table )
 {
     pop_action_table( action_table, MIDDLE_MOUSE_DOWN_EVENT );
@@ -69,7 +69,7 @@ private  void  turn_off_segmenting(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_segmenting )
+static  DEF_EVENT_FUNCTION( terminate_segmenting )
 {
     turn_off_segmenting( &display->action_table );
 
@@ -78,7 +78,7 @@ private  DEF_EVENT_FUNCTION( terminate_segmenting )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( start_segmenting )
+static  DEF_EVENT_FUNCTION( start_segmenting )
 {
     push_action_table( &display->action_table, MIDDLE_MOUSE_UP_EVENT );
 
@@ -95,7 +95,7 @@ private  DEF_EVENT_FUNCTION( start_segmenting )
     return( OK );
 }
 
-private  void  remove_events(
+static  void  remove_events(
     action_table_struct  *action_table )
 {
     pop_action_table( action_table, MIDDLE_MOUSE_UP_EVENT );
@@ -107,7 +107,7 @@ private  void  remove_events(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( end_segmenting )
+static  DEF_EVENT_FUNCTION( end_segmenting )
 {
     VIO_BOOL  segmented;
 
@@ -127,7 +127,7 @@ private  DEF_EVENT_FUNCTION( end_segmenting )
     return( OK );
 }
 
-private  void   add_polygon_under_mouse(
+static  void   add_polygon_under_mouse(
     display_struct    *display )
 {
     int                  poly_index;
@@ -156,14 +156,14 @@ private  void   add_polygon_under_mouse(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( pick_surface_polygon )
+static  DEF_EVENT_FUNCTION( pick_surface_polygon )
 {
     add_polygon_under_mouse( display );
 
     return( OK );
 }
 
-private  void  segment_polygons(
+static  void  segment_polygons(
     display_struct    *display,
     VIO_BOOL           *segmented )
 {
@@ -196,7 +196,7 @@ private  void  segment_polygons(
         FREE( path );
 }
 
-private  void   create_complete_path(
+static  void   create_complete_path(
     int                n_vertices,
     int                vertices[],
     polygons_struct    *polygons,
@@ -241,14 +241,14 @@ private  void   create_complete_path(
 }
 
 #ifdef  DEBUG
-private  void  display_path(
+static  void  display_path(
     display_struct    *display,
     polygons_struct   *polygons,
     int               path_length,
     int               path[] )
 {
     int     i, p, start_index, end_index;
-    char    number[EXTREMELY_LARGE_STRING_SIZE];
+    char    number[VIO_EXTREMELY_LARGE_STRING_SIZE];
     VIO_Point   centroid;
 
     for_less( i, 0, path_length )

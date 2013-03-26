@@ -33,7 +33,7 @@
  * changed to cast it into an int.
  */
 
-private  void  recursive_intersect_ray_with_objects_hierarchy(
+static  void  recursive_intersect_ray_with_objects_hierarchy(
     object_struct     *current_object,
     VIO_Point             *ray_origin,
     VIO_Vector            *ray_direction,
@@ -80,7 +80,7 @@ private  void  recursive_intersect_ray_with_objects_hierarchy(
     }
 }
 
-public  VIO_BOOL  intersect_ray_with_objects_hierarchy(
+  VIO_BOOL  intersect_ray_with_objects_hierarchy(
     display_struct    *display,
     VIO_Point             *ray_origin,
     VIO_Vector            *ray_direction,

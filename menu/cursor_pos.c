@@ -21,7 +21,7 @@
 
 #include  <display.h>
 
-private  void  create_cursor_pos_text(
+static  void  create_cursor_pos_text(
     menu_window_struct  *menu,
     model_struct        *model )
 {
@@ -62,13 +62,13 @@ private  void  create_cursor_pos_text(
     add_object_to_model( model, object );
 }
 
-public  void  rebuild_cursor_position_model(
+  void  rebuild_cursor_position_model(
     display_struct    *display )
 {
     text_struct     *text;
     model_struct    *cursor_pos_model;
     display_struct  *menu_window, *marker_window;
-    char            buffer[EXTREMELY_LARGE_STRING_SIZE];
+    char            buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     menu_window = display->associated[MENU_WINDOW];
     marker_window = display->associated[MARKER_WINDOW];

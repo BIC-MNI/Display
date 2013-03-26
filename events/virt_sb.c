@@ -28,14 +28,14 @@ static    DEF_EVENT_FUNCTION( handle_update_rotation );
 static    DEF_EVENT_FUNCTION( terminate_rotation );
 static    DEF_EVENT_FUNCTION( handle_update_translation );
 static    DEF_EVENT_FUNCTION( terminate_translation );
-private  VIO_BOOL  perform_rotation(
+static  VIO_BOOL  perform_rotation(
     display_struct   *display );
-private  VIO_BOOL  perform_cursor_translation(
+static  VIO_BOOL  perform_cursor_translation(
     display_struct   *display );
-private  VIO_BOOL  mouse_close_to_cursor(
+static  VIO_BOOL  mouse_close_to_cursor(
     display_struct    *display );
 
-public  void  initialize_virtual_spaceball(
+  void  initialize_virtual_spaceball(
     display_struct   *display )
 {
     terminate_any_interactions( display );
@@ -51,7 +51,7 @@ public  void  initialize_virtual_spaceball(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( turn_off_virtual_spaceball )
+static  DEF_EVENT_FUNCTION( turn_off_virtual_spaceball )
 {
     remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_DOWN_EVENT,
@@ -66,7 +66,7 @@ private  DEF_EVENT_FUNCTION( turn_off_virtual_spaceball )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( start_virtual_spaceball )
+static  DEF_EVENT_FUNCTION( start_virtual_spaceball )
 {
     if( mouse_close_to_cursor( display ) )
     {
@@ -99,7 +99,7 @@ private  DEF_EVENT_FUNCTION( start_virtual_spaceball )
     return( OK );
 }
 
-private  void  update_rotation(
+static  void  update_rotation(
     display_struct   *display )
 {
     if( perform_rotation( display ) )
@@ -112,7 +112,7 @@ private  void  update_rotation(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_update_rotation )
+static  DEF_EVENT_FUNCTION( handle_update_rotation )
 {
     update_rotation( display );
 
@@ -121,7 +121,7 @@ private  DEF_EVENT_FUNCTION( handle_update_rotation )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_rotation )
+static  DEF_EVENT_FUNCTION( terminate_rotation )
 {
     update_rotation( display );
     
@@ -136,7 +136,7 @@ private  DEF_EVENT_FUNCTION( terminate_rotation )
     return( OK );
 }
 
-private  VIO_BOOL  perform_rotation(
+static  VIO_BOOL  perform_rotation(
     display_struct   *display )
 {
     VIO_Real           x, y;
@@ -159,7 +159,7 @@ private  VIO_BOOL  perform_rotation(
     return( moved );
 }
 
-private  void  update_translation(
+static  void  update_translation(
     display_struct   *display )
 {
     if( perform_cursor_translation( display ) )
@@ -176,7 +176,7 @@ private  void  update_translation(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_update_translation )
+static  DEF_EVENT_FUNCTION( handle_update_translation )
 {
     update_translation( display );
 
@@ -185,7 +185,7 @@ private  DEF_EVENT_FUNCTION( handle_update_translation )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_translation )
+static  DEF_EVENT_FUNCTION( terminate_translation )
 {
     update_translation( display );
     
@@ -201,7 +201,7 @@ private  DEF_EVENT_FUNCTION( terminate_translation )
     return( OK );
 }
 
-private  VIO_BOOL  perform_cursor_translation(
+static  VIO_BOOL  perform_cursor_translation(
     display_struct   *display )
 {
     VIO_Vector       mouse_dir, offset, axis_direction;
@@ -252,7 +252,7 @@ private  VIO_BOOL  perform_cursor_translation(
                 dot_prod[axis_index] =
                          DOT_VECTORS( mouse_dir,axis_screen[axis_index]) /
                          mag_mouse / mag_axis[axis_index];
-                angle[axis_index] = acos( (double) FABS(dot_prod[axis_index]) )
+                angle[axis_index] = acos( (double) VIO_FABS(dot_prod[axis_index]) )
                                     * RAD_TO_DEG;
             }
         }
@@ -260,7 +260,7 @@ private  VIO_BOOL  perform_cursor_translation(
         best_axis = X;
         for_inclusive( axis_index, Y, Z )
         {
-            if( FABS(dot_prod[axis_index]) > FABS(dot_prod[best_axis]) )
+            if( VIO_FABS(dot_prod[axis_index]) > VIO_FABS(dot_prod[best_axis]) )
             {
                 best_axis = axis_index;
             }
@@ -269,7 +269,7 @@ private  VIO_BOOL  perform_cursor_translation(
         a1 = (best_axis + 1) % VIO_N_DIMENSIONS;
         a2 = (best_axis + 2) % VIO_N_DIMENSIONS;
 
-        if( FABS(dot_prod[a1]) > FABS(dot_prod[a2]) )
+        if( VIO_FABS(dot_prod[a1]) > VIO_FABS(dot_prod[a2]) )
             second_best_axis = a1;
         else
             second_best_axis = a2;
@@ -320,7 +320,7 @@ private  VIO_BOOL  perform_cursor_translation(
     return( moved );
 }
 
-private  VIO_BOOL  mouse_close_to_cursor(
+static  VIO_BOOL  mouse_close_to_cursor(
     display_struct    *display )
 {
     VIO_BOOL  close;

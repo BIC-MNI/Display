@@ -22,12 +22,12 @@
 
 #include  <display.h>
 
-private  void  set_slice_crop_position(
+static  void  set_slice_crop_position(
     display_struct    *slice_window,
     int               x_pixel,
     int               y_pixel );
 
-public  void  initialize_crop_box(
+  void  initialize_crop_box(
     display_struct   *slice_window )
 {
     int  c;
@@ -42,13 +42,13 @@ public  void  initialize_crop_box(
     slice_window->slice.crop.crop_visible = FALSE;
 }
 
-public  void  delete_crop_box(
+  void  delete_crop_box(
     display_struct   *slice_window )
 {
     delete_string( slice_window->slice.crop.filename );
 }
 
-public  void  set_crop_filename(
+  void  set_crop_filename(
     display_struct   *slice_window,
     VIO_STR           filename )
 {
@@ -56,11 +56,11 @@ public  void  set_crop_filename(
     slice_window->slice.crop.filename = create_string( filename );
 }
 
-public  VIO_Status  create_cropped_volume_to_file(
+  VIO_Status  create_cropped_volume_to_file(
     display_struct   *slice_window,
     VIO_STR           cropped_filename )
 {
-    char                  command[EXTREMELY_LARGE_STRING_SIZE];
+    char                  command[VIO_EXTREMELY_LARGE_STRING_SIZE];
     VIO_Volume                file_volume, volume;
     volume_input_struct   volume_input;
     Real                  xw, yw, zw;
@@ -133,8 +133,8 @@ public  VIO_Status  create_cropped_volume_to_file(
     get_volume_sizes( file_volume, sizes );
     for_less( c, 0, VIO_N_DIMENSIONS )
     {
-        int_min_voxel[c] = MAX( 0, ROUND(min_voxel[c]) );
-        int_max_voxel[c] = MIN( sizes[c], ROUND(max_voxel[c]) );
+        int_min_voxel[c] = MAX( 0, VIO_ROUND(min_voxel[c]) );
+        int_max_voxel[c] = MIN( sizes[c], VIO_ROUND(max_voxel[c]) );
     }
 
     delete_volume_input( &volume_input );
@@ -160,7 +160,7 @@ public  VIO_Status  create_cropped_volume_to_file(
     return( OK );
 }
 
-public  void  crop_and_load_volume(
+  void  crop_and_load_volume(
     display_struct   *slice_window )
 {
     char        tmp_name[L_tmpnam];
@@ -185,7 +185,7 @@ public  void  crop_and_load_volume(
     delete_string( cropped_filename );
 }
 
-public  void  toggle_slice_crop_box_visibility(
+  void  toggle_slice_crop_box_visibility(
     display_struct   *slice_window )
 {
     slice_window->slice.crop.crop_visible =
@@ -194,7 +194,7 @@ public  void  toggle_slice_crop_box_visibility(
     set_crop_box_update( slice_window, -1 );
 }
 
-public  void  reset_crop_box_position(
+  void  reset_crop_box_position(
     display_struct   *display )
 {
     VIO_Volume           volume;
@@ -223,14 +223,14 @@ public  void  reset_crop_box_position(
     set_crop_box_update( slice_window, -1 );
 }
     
-private    DEF_EVENT_FUNCTION( start_picking_box );
-private    DEF_EVENT_FUNCTION( terminate_picking_box );
-private    DEF_EVENT_FUNCTION( handle_update_picking_box );
+static    DEF_EVENT_FUNCTION( start_picking_box );
+static    DEF_EVENT_FUNCTION( terminate_picking_box );
+static    DEF_EVENT_FUNCTION( handle_update_picking_box );
 
-private  void  update_picking_box(
+static  void  update_picking_box(
     display_struct    *slice_window );
 
-public  void  start_picking_crop_box(
+  void  start_picking_crop_box(
     display_struct    *slice_window )
 {
     terminate_any_interactions( slice_window );
@@ -256,7 +256,7 @@ public  void  start_picking_crop_box(
     set_crop_box_update( slice_window, -1 );
 }
 
-private  void  terminate_event(
+static  void  terminate_event(
     display_struct   *display )
 {
     pop_action_table( &display->action_table, NO_EVENT );
@@ -267,7 +267,7 @@ private  void  terminate_event(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( start_picking_box )
+static  DEF_EVENT_FUNCTION( start_picking_box )
 {
     int             volume_index;
     int             view_index, x_index, y_index, axis, x_mouse, y_mouse;
@@ -305,8 +305,8 @@ private  DEF_EVENT_FUNCTION( start_picking_box )
         slice_window->slice.crop.axis_being_moved[0] = -1;
         slice_window->slice.crop.axis_being_moved[1] = -1;
 
-        dist_low = FABS( x_low - (Real) x_mouse );
-        dist_high = FABS( x_high - (Real) x_mouse );
+        dist_low = VIO_FABS( x_low - (Real) x_mouse );
+        dist_high = VIO_FABS( x_high - (Real) x_mouse );
 
         if( dist_low <= dist_high )
         {
@@ -325,8 +325,8 @@ private  DEF_EVENT_FUNCTION( start_picking_box )
             slice_window->slice.crop.axis_being_moved[0] = x_index;
         }
 
-        dist_low = FABS( y_low - (Real) y_mouse );
-        dist_high = FABS( y_high - (Real) y_mouse );
+        dist_low = VIO_FABS( y_low - (Real) y_mouse );
+        dist_high = VIO_FABS( y_high - (Real) y_mouse );
 
         if( dist_low <= dist_high )
         {
@@ -375,7 +375,7 @@ private  DEF_EVENT_FUNCTION( start_picking_box )
     return( OK );
 }
 
-private  void  update_picking_box(
+static  void  update_picking_box(
     display_struct    *slice_window )
 {
     int    x, y, x_prev, y_prev;
@@ -386,7 +386,7 @@ private  void  update_picking_box(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_picking_box )
+static  DEF_EVENT_FUNCTION( terminate_picking_box )
 {
     update_picking_box( display );
 
@@ -397,14 +397,14 @@ private  DEF_EVENT_FUNCTION( terminate_picking_box )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_update_picking_box )
+static  DEF_EVENT_FUNCTION( handle_update_picking_box )
 {
     update_picking_box( display );
 
     return( OK );
 }
 
-private  void  set_slice_crop_position(
+static  void  set_slice_crop_position(
     display_struct    *slice_window,
     int               x_pixel,
     int               y_pixel )
@@ -475,7 +475,7 @@ private  void  set_slice_crop_position(
         set_crop_box_update( slice_window, -1 );
 }
 
-public  void  get_volume_crop_limits(
+  void  get_volume_crop_limits(
     display_struct    *display,
     int               min_voxel[],
     int               max_voxel[] )
@@ -498,10 +498,10 @@ public  void  get_volume_crop_limits(
             }
             else
             {
-                min_voxel[dim] = ROUND(slice_window->slice.crop.limits[0][dim]);
+                min_voxel[dim] = VIO_ROUND(slice_window->slice.crop.limits[0][dim]);
                 if( min_voxel[dim] < 0 )
                     min_voxel[dim] = 0;
-                max_voxel[dim] = ROUND(slice_window->slice.crop.limits[1][dim]);
+                max_voxel[dim] = VIO_ROUND(slice_window->slice.crop.limits[1][dim]);
                 if( max_voxel[dim] >= sizes[dim] )
                     max_voxel[dim] = sizes[dim]-1;
             }

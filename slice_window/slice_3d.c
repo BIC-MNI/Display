@@ -23,7 +23,7 @@
 
 #include  <display.h>
 
-public  void  initialize_volume_cross_section(
+  void  initialize_volume_cross_section(
     display_struct    *display )
 {
     model_struct   *model;
@@ -33,17 +33,17 @@ public  void  initialize_volume_cross_section(
     display->three_d.volume_outline = create_object( LINES );
     initialize_lines( get_lines_ptr( display->three_d.volume_outline ),
                       Volume_outline_colour );
-    set_object_visibility( display->three_d.volume_outline, OFF );
+    set_object_visibility( display->three_d.volume_outline, FALSE );
     add_object_to_model( model, display->three_d.volume_outline );
 
     display->three_d.cross_section = create_object( POLYGONS );
     initialize_polygons( get_polygons_ptr( display->three_d.cross_section ),
                          Cross_section_colour, &Cross_section_spr );
-    set_object_visibility( display->three_d.cross_section, OFF );
+    set_object_visibility( display->three_d.cross_section, FALSE );
     add_object_to_model( model, display->three_d.cross_section );
 }
 
-private  void   create_box(
+static  void   create_box(
     VIO_Volume         volume,
     object_struct  *object )
 {
@@ -104,7 +104,7 @@ private  void   create_box(
     }
 }
 
-public  void  rebuild_volume_outline(
+  void  rebuild_volume_outline(
     display_struct    *slice_window )
 {
     display_struct    *display;
@@ -121,7 +121,7 @@ public  void  rebuild_volume_outline(
         set_object_visibility( display->three_d.volume_outline, FALSE );
 }
 
-private  void   create_cross_section(
+static  void   create_cross_section(
     VIO_Volume         volume,
     object_struct  *object,
     Real           origin[],
@@ -168,7 +168,7 @@ private  void   create_cross_section(
     }
 }
 
-public  void  rebuild_volume_cross_section(
+  void  rebuild_volume_cross_section(
     display_struct    *display )
 {
     Real            origin[VIO_MAX_DIMENSIONS];
@@ -200,7 +200,7 @@ public  void  rebuild_volume_cross_section(
         set_object_visibility( display->three_d.cross_section, FALSE );
 }
 
-public  void  set_volume_cross_section_visibility(
+  void  set_volume_cross_section_visibility(
     display_struct    *display,
     VIO_BOOL           state )
 {
@@ -221,7 +221,7 @@ public  void  set_volume_cross_section_visibility(
     }
 }
 
-public  VIO_BOOL  get_volume_cross_section_visibility(
+  VIO_BOOL  get_volume_cross_section_visibility(
     display_struct    *display )
 {
     VIO_BOOL         state;

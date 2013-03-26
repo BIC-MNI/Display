@@ -29,7 +29,7 @@
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( menu_set_global_variable )
+  DEF_MENU_FUNCTION( menu_set_global_variable )
 {
     VIO_Status   status;
     VIO_STR   input_str, variable_name, new_value;
@@ -59,14 +59,14 @@ public  DEF_MENU_FUNCTION( menu_set_global_variable )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(menu_set_global_variable )
+  DEF_MENU_UPDATE(menu_set_global_variable )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( show_memory )
+  DEF_MENU_FUNCTION( show_memory )
 {
 #ifdef HAVE_MALLINFO
     struct  mallinfo   m;
@@ -92,7 +92,7 @@ public  DEF_MENU_FUNCTION( show_memory )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(show_memory )
+  DEF_MENU_UPDATE(show_memory )
 {
     return( TRUE );
 }

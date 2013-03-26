@@ -22,26 +22,26 @@
 
 #include  <display.h>
 
-private  void  modify_polygon(
+static  void  modify_polygon(
     polygons_struct  *polygons,
     int               poly,
     VIO_BOOL           set_visibility_flag,
     VIO_BOOL           new_visibility,
     VIO_BOOL           set_colour_flag,
     VIO_Colour            colour );
-private  VIO_BOOL  should_modify_polygon(
+static  VIO_BOOL  should_modify_polygon(
     polygons_struct   *polygons,
     int               poly,
     VIO_BOOL           set_visibility_flag,
     VIO_BOOL           new_visibility );
-private  VIO_BOOL  polygon_on_invisible_side(
+static  VIO_BOOL  polygon_on_invisible_side(
     polygons_struct  *polygons,
     int              poly_index,
     int              axis_index,
     VIO_Real             position,
     VIO_BOOL          cropping_above );
 
-public  void  set_visibility_around_poly(
+  void  set_visibility_around_poly(
     polygons_struct  *polygons,
     int              poly,
     int              max_polys_to_do,
@@ -113,7 +113,7 @@ public  void  set_visibility_around_poly(
     FREE( polygons_done_flags );
 }
 
-private  void  modify_polygon(
+static  void  modify_polygon(
     polygons_struct  *polygons,
     int               poly,
     VIO_BOOL           set_visibility_flag,
@@ -128,7 +128,7 @@ private  void  modify_polygon(
         polygons->colours[poly] = colour;
 }
 
-private  VIO_BOOL  should_modify_polygon(
+static  VIO_BOOL  should_modify_polygon(
     polygons_struct   *polygons,
     int               poly,
     VIO_BOOL           set_visibility_flag,
@@ -146,7 +146,7 @@ private  VIO_BOOL  should_modify_polygon(
         return( new_visibility || polygon_is_currently_visible );
 }
 
-public  void  crop_polygons_visibilities(
+  void  crop_polygons_visibilities(
     polygons_struct  *polygons,
     int              axis_index,
     VIO_Real             position,
@@ -166,7 +166,7 @@ public  void  crop_polygons_visibilities(
     }
 }
 
-private  VIO_BOOL  polygon_on_invisible_side(
+static  VIO_BOOL  polygon_on_invisible_side(
     polygons_struct  *polygons,
     int              poly_index,
     int              axis_index,

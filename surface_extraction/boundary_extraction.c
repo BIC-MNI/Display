@@ -21,7 +21,7 @@
 
 #include  <display.h>
 
-private  VIO_BOOL  is_boundary(
+static  VIO_BOOL  is_boundary(
     VIO_BOOL         inside_flag,
     VIO_BOOL         valid_flag,
     VIO_BOOL         neigh_inside_flag,
@@ -52,7 +52,7 @@ private  VIO_BOOL  is_boundary(
     return( boundary_flag );
 }
 
-private  VIO_BOOL  face_is_boundary(
+static  VIO_BOOL  face_is_boundary(
     VIO_BOOL         inside_flags[3][3][3],
     VIO_BOOL         valid_flags[3][3][3],
     int             c,
@@ -70,7 +70,7 @@ private  VIO_BOOL  face_is_boundary(
                          valid_flags[neigh[X]][neigh[Y]][neigh[Z]] ) );
 }
 
-private  void   get_vertex_normal(
+static  void   get_vertex_normal(
     VIO_Real                        separations[],
     int                         x,
     int                         y,
@@ -133,7 +133,7 @@ private  void   get_vertex_normal(
     }
 }
 
-private  void  add_face(
+static  void  add_face(
     surface_extraction_struct   *surface_extraction,
     VIO_Volume                      volume,
     int                         indices[VIO_N_DIMENSIONS],
@@ -169,7 +169,7 @@ private  void  add_face(
     get_volume_sizes( volume, sizes );
     get_volume_separations( volume, separations );
     for_less( dim, 0, VIO_N_DIMENSIONS )
-        separations[dim] = FABS( separations[dim] );
+        separations[dim] = VIO_FABS( separations[dim] );
 
     ind = 0;
     for_less( x, indices[a1], indices[a1] + 2 )
@@ -238,7 +238,7 @@ private  void  add_face(
     polygons->indices[start_index+3] = point_indices[2];
 }
 
-private  void  get_inside_flags(
+static  void  get_inside_flags(
     surface_extraction_struct   *surf,
     int                         voxel[],
     VIO_BOOL                     inside_flags[3][3][3],
@@ -263,7 +263,7 @@ private  void  get_inside_flags(
     }
 }
 
-public  void  read_voxellation_block(
+  void  read_voxellation_block(
     surface_extraction_struct   *surf )
 {
     int              sizes[VIO_N_DIMENSIONS];
@@ -369,7 +369,7 @@ public  void  read_voxellation_block(
     }
 }
 
-public  VIO_BOOL  extract_voxel_boundary_surface(
+  VIO_BOOL  extract_voxel_boundary_surface(
     VIO_Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel[] )

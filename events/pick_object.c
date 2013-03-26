@@ -25,10 +25,10 @@
 static    DEF_EVENT_FUNCTION( update_picked_object );
 static    DEF_EVENT_FUNCTION( terminate_picking_object );
 static    DEF_EVENT_FUNCTION( start_picking_object );
-private  void  pick_point_under_mouse(
+static  void  pick_point_under_mouse(
     display_struct    *display );
 
-public  void  initialize_picking_object(
+  void  initialize_picking_object(
     display_struct    *display )
 {
     add_action_table_function( &display->action_table,
@@ -38,7 +38,7 @@ public  void  initialize_picking_object(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( start_picking_object )
+static  DEF_EVENT_FUNCTION( start_picking_object )
 {
     push_action_table( &display->action_table, LEFT_MOUSE_UP_EVENT );
 
@@ -59,7 +59,7 @@ private  DEF_EVENT_FUNCTION( start_picking_object )
     return( OK );
 }
 
-private  void  remove_events(
+static  void  remove_events(
     action_table_struct  *action_table )
 {
     pop_action_table( action_table, LEFT_MOUSE_UP_EVENT );
@@ -71,7 +71,7 @@ private  void  remove_events(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_picking_object )
+static  DEF_EVENT_FUNCTION( terminate_picking_object )
 {
     remove_events( &display->action_table );
 
@@ -82,14 +82,14 @@ private  DEF_EVENT_FUNCTION( terminate_picking_object )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( update_picked_object )
+static  DEF_EVENT_FUNCTION( update_picked_object )
 {
     pick_point_under_mouse( display );
 
     return( OK );
 }
 
-public  VIO_BOOL  get_mouse_scene_intersection(
+  VIO_BOOL  get_mouse_scene_intersection(
     display_struct    *display,
     Object_types      desired_object_type,
     object_struct     **object,
@@ -121,7 +121,7 @@ public  VIO_BOOL  get_mouse_scene_intersection(
     return( found );
 }
 
-public  VIO_BOOL  get_polygon_under_mouse(
+  VIO_BOOL  get_polygon_under_mouse(
     display_struct    *display,
     polygons_struct   **polygons,
     int               *poly_index,
@@ -142,7 +142,7 @@ public  VIO_BOOL  get_polygon_under_mouse(
     return( found );
 }
 
-private  void  pick_point_under_mouse(
+static  void  pick_point_under_mouse(
     display_struct    *display )
 {
     VIO_Point            intersection_point;

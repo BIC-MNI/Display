@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-private  void  start_surface(
+static  void  start_surface(
     display_struct   *display,
     VIO_BOOL          use_label_flag,
     VIO_BOOL          binary_flag,
@@ -110,7 +110,7 @@ private  void  start_surface(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(start_volume_isosurface )
+  DEF_MENU_FUNCTION(start_volume_isosurface )
 {
     start_surface( display, FALSE, FALSE, FALSE );
 
@@ -119,14 +119,14 @@ public  DEF_MENU_FUNCTION(start_volume_isosurface )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(start_volume_isosurface )
+  DEF_MENU_UPDATE(start_volume_isosurface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(start_volume_binary_isosurface )
+  DEF_MENU_FUNCTION(start_volume_binary_isosurface )
 {
     start_surface( display, FALSE, TRUE, FALSE );
 
@@ -135,14 +135,14 @@ public  DEF_MENU_FUNCTION(start_volume_binary_isosurface )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(start_volume_binary_isosurface )
+  DEF_MENU_UPDATE(start_volume_binary_isosurface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(start_label_binary_isosurface )
+  DEF_MENU_FUNCTION(start_label_binary_isosurface )
 {
     start_surface( display, TRUE, TRUE, FALSE );
 
@@ -151,14 +151,14 @@ public  DEF_MENU_FUNCTION(start_label_binary_isosurface )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(start_label_binary_isosurface )
+  DEF_MENU_UPDATE(start_label_binary_isosurface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(toggle_surface_extraction)
+  DEF_MENU_FUNCTION(toggle_surface_extraction)
 {
     VIO_Volume                  volume;
 
@@ -175,7 +175,7 @@ public  DEF_MENU_FUNCTION(toggle_surface_extraction)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_surface_extraction )
+  DEF_MENU_UPDATE(toggle_surface_extraction )
 {
     set_menu_text_on_off( menu_window, menu_entry,
                   display->three_d.surface_extraction.extraction_in_progress );
@@ -185,7 +185,7 @@ public  DEF_MENU_UPDATE(toggle_surface_extraction )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(reset_surface)
+  DEF_MENU_FUNCTION(reset_surface)
 {
     if( get_n_volumes(display) > 0 )
     {
@@ -199,14 +199,14 @@ public  DEF_MENU_FUNCTION(reset_surface)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(reset_surface )
+  DEF_MENU_UPDATE(reset_surface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(make_surface_permanent)
+  DEF_MENU_FUNCTION(make_surface_permanent)
 {
     object_struct  *object;
 
@@ -235,7 +235,7 @@ public  DEF_MENU_FUNCTION(make_surface_permanent)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(make_surface_permanent )
+  DEF_MENU_UPDATE(make_surface_permanent )
 {
     return( get_n_volumes(display) > 0 &&
             display->three_d.surface_extraction.polygons->n_items > 0 );
@@ -243,7 +243,7 @@ public  DEF_MENU_UPDATE(make_surface_permanent )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(get_voxelated_label_surface)
+  DEF_MENU_FUNCTION(get_voxelated_label_surface)
 {
     start_surface( display, TRUE, FALSE, TRUE );
     return( OK );
@@ -251,14 +251,14 @@ public  DEF_MENU_FUNCTION(get_voxelated_label_surface)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(get_voxelated_label_surface )
+  DEF_MENU_UPDATE(get_voxelated_label_surface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION(get_voxelated_surface)
+  DEF_MENU_FUNCTION(get_voxelated_surface)
 {
     start_surface( display, FALSE, FALSE, TRUE );
 
@@ -267,14 +267,14 @@ public  DEF_MENU_FUNCTION(get_voxelated_surface)
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(get_voxelated_surface )
+  DEF_MENU_UPDATE(get_voxelated_surface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_surface_invalid_label_range )
+  DEF_MENU_FUNCTION( set_surface_invalid_label_range )
 {
     int      min_label, max_label;
 
@@ -294,7 +294,7 @@ public  DEF_MENU_FUNCTION( set_surface_invalid_label_range )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_surface_invalid_label_range )
+  DEF_MENU_UPDATE(set_surface_invalid_label_range )
 {
     return( TRUE );
 }

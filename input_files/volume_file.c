@@ -21,7 +21,7 @@
 
 #include  <display.h>
 
-public  VIO_Status   input_volume_file(
+  VIO_Status   input_volume_file(
     VIO_STR         filename,
     VIO_Volume         *volume_ptr )
 {

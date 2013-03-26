@@ -22,10 +22,10 @@
 
 #include  <display.h>
 
-private  void  initialize_three_d_events(
+static  void  initialize_three_d_events(
     display_struct  *display );
 
-public  void  initialize_three_d_window(
+  void  initialize_three_d_window(
     display_struct   *display )
 {
     static   VIO_Vector        line_of_sight = { 0.0f, 0.0f, -1.0f };
@@ -91,7 +91,7 @@ public  void  initialize_three_d_window(
                                       Min_interval_between_updates );
 }
 
-public  void  define_lights(
+  void  define_lights(
     display_struct   *display )
 {
     three_d_window_struct  *three_d;
@@ -110,9 +110,9 @@ public  void  define_lights(
     G_set_light_state( display->window, 0, three_d->lights[0].state );
 }
 
-private    DEF_EVENT_FUNCTION( handle_resize_three_d );
+static    DEF_EVENT_FUNCTION( handle_resize_three_d );
 
-private  void  initialize_three_d_events(
+static  void  initialize_three_d_events(
     display_struct  *display )
 {
     initialize_virtual_spaceball( display );
@@ -125,7 +125,7 @@ private  void  initialize_three_d_events(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_resize_three_d )
+static  DEF_EVENT_FUNCTION( handle_resize_three_d )
 {
     adjust_view_for_aspect( &display->three_d.view, display->window );
 
@@ -136,7 +136,7 @@ private  DEF_EVENT_FUNCTION( handle_resize_three_d )
     return( OK );
 }
 
-public  void  delete_three_d(
+  void  delete_three_d(
     display_struct  *display )
 {
     delete_string( display->three_d.default_marker_label );
@@ -146,7 +146,7 @@ public  void  delete_three_d(
     delete_cursor_plane_outline( display );
 }
 
-public  void  add_object_to_current_model(
+  void  add_object_to_current_model(
     display_struct   *display,
     object_struct     *object )
 {
@@ -161,7 +161,7 @@ public  void  add_object_to_current_model(
     graphics_models_have_changed( display );
 }
 
-public  display_struct  *get_three_d_window(
+  display_struct  *get_three_d_window(
     display_struct  *display )
 {
     return( display->associated[THREE_D_WINDOW] );

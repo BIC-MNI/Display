@@ -30,7 +30,7 @@ typedef  struct
     int             from_point;
 } vertex_struct;
 
-private  VIO_BOOL  find_shortest_path(
+static  VIO_BOOL  find_shortest_path(
     polygons_struct   *polygons,
     VIO_Real              curvature_weight,
     VIO_Real              min_curvature,
@@ -42,7 +42,7 @@ private  VIO_BOOL  find_shortest_path(
     VIO_Real              *path_dist,
     int               *last_vertex,
     vertex_struct     vertices[] );
-private  void  create_path(
+static  void  create_path(
     polygons_struct   *polygons,
     VIO_Point             *p1,
     VIO_Point             *p2,
@@ -51,7 +51,7 @@ private  void  create_path(
     vertex_struct     vertices[],
     lines_struct      *lines );
 
-public  VIO_BOOL  distance_along_polygons(
+  VIO_BOOL  distance_along_polygons(
     polygons_struct   *polygons,
     VIO_Real              curvature_weight,
     VIO_Real              min_curvature,
@@ -87,7 +87,7 @@ public  VIO_BOOL  distance_along_polygons(
     return( found );
 }
 
-private  VIO_Real  weighted_distance(
+static  VIO_Real  weighted_distance(
     polygons_struct  *polygons,
     VIO_Real             curvature_weight,
     int              from_point_index,
@@ -148,7 +148,7 @@ typedef  struct
 
 enum  { NOT_DONE_YET, VALID_VERTEX, INVALID_VERTEX } Vertex_curvature_classes;
 
-private   void   check_validity_tested(
+static   void   check_validity_tested(
     polygons_struct   *polygons,
     int               poly,
     int               vertex,
@@ -174,7 +174,7 @@ private   void   check_validity_tested(
     }
 }
 
-private  VIO_BOOL  find_shortest_path(
+static  VIO_BOOL  find_shortest_path(
     polygons_struct   *polygons,
     VIO_Real              curvature_weight,
     VIO_Real              min_curvature,
@@ -318,7 +318,7 @@ private  VIO_BOOL  find_shortest_path(
     return( found_path );
 }
 
-private  void  create_path(
+static  void  create_path(
     polygons_struct   *polygons,
     VIO_Point             *p1,
     VIO_Point             *p2,
@@ -356,7 +356,7 @@ private  void  create_path(
         add_point_to_line( lines, p2 );
 }
 
-public  void  find_polygon_vertex_nearest_point(
+  void  find_polygon_vertex_nearest_point(
     polygons_struct  *polygons,
     int              poly,
     VIO_Point            *point,

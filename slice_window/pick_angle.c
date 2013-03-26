@@ -23,18 +23,18 @@
 
 #include  <display.h>
 
-private    DEF_EVENT_FUNCTION( start_picking_angle );
-private    DEF_EVENT_FUNCTION( terminate_picking_angle );
-private    DEF_EVENT_FUNCTION( handle_update_picking_angle );
+static    DEF_EVENT_FUNCTION( start_picking_angle );
+static    DEF_EVENT_FUNCTION( terminate_picking_angle );
+static    DEF_EVENT_FUNCTION( handle_update_picking_angle );
 
-private  void  set_slice_angle(
+static  void  set_slice_angle(
     display_struct    *slice_window,
     int               x_pixel,
     int               y_pixel );
-private  void  update_picking_angle(
+static  void  update_picking_angle(
     display_struct    *slice_window );
 
-public  void  start_picking_slice_angle(
+  void  start_picking_slice_angle(
     display_struct    *slice_window )
 {
     terminate_any_interactions( slice_window );
@@ -51,7 +51,7 @@ public  void  start_picking_slice_angle(
                                LEFT_MOUSE_DOWN_EVENT, start_picking_angle );
 }
 
-private  void  terminate_event(
+static  void  terminate_event(
     display_struct   *display )
 {
     pop_action_table( &display->action_table, NO_EVENT );
@@ -62,7 +62,7 @@ private  void  terminate_event(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( start_picking_angle )
+static  DEF_EVENT_FUNCTION( start_picking_angle )
 {
     int          view_index;
 
@@ -90,7 +90,7 @@ private  DEF_EVENT_FUNCTION( start_picking_angle )
     return( OK );
 }
 
-private  void  update_picking_angle(
+static  void  update_picking_angle(
     display_struct    *slice_window )
 {
     int    x, y, x_prev, y_prev;
@@ -101,7 +101,7 @@ private  void  update_picking_angle(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_picking_angle )
+static  DEF_EVENT_FUNCTION( terminate_picking_angle )
 {
     update_picking_angle( display );
 
@@ -112,14 +112,14 @@ private  DEF_EVENT_FUNCTION( terminate_picking_angle )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_update_picking_angle )
+static  DEF_EVENT_FUNCTION( handle_update_picking_angle )
 {
     update_picking_angle( display );
 
     return( OK );
 }
 
-private  void  set_slice_angle(
+static  void  set_slice_angle(
     display_struct    *slice_window,
     int               x_pixel,
     int               y_pixel )
@@ -154,14 +154,14 @@ private  void  set_slice_angle(
 
     for_less( c, 0, VIO_N_DIMENSIONS )
     {
-        separations[c] = FABS( separations[c] );
-        Point_coord( origin, c ) = (Point_coord_type)
+        separations[c] = VIO_FABS( separations[c] );
+        Point_coord( origin, c ) = (VIO_Point_coord_type)
                                       (origin_voxel[c] * separations[c]);
-        Point_coord( in_plane_point, c ) = (Point_coord_type)
+        Point_coord( in_plane_point, c ) = (VIO_Point_coord_type)
                                       (voxel[c] * separations[c]);
-        Vector_coord( current_normal, c ) = (Point_coord_type)
+        Vector_coord( current_normal, c ) = (VIO_Point_coord_type)
                                       (perp_axis[c] * separations[c]);
-        Vector_coord( plane_normal, c ) = (Point_coord_type)
+        Vector_coord( plane_normal, c ) = (VIO_Point_coord_type)
                                       (view_perp_axis[c] * separations[c]);
     }
 
@@ -182,7 +182,7 @@ private  void  set_slice_angle(
 
         for_less( c, 0, VIO_N_DIMENSIONS )
         {
-            Vector_coord( axis1, c ) = (Point_coord_type)
+            Vector_coord( axis1, c ) = (VIO_Point_coord_type)
               (slice_window->slice.cross_section_vector[c] * separations[c]);
         }
         CROSS_VECTORS( new_normal, axis1, x_axis );

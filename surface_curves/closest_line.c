@@ -23,7 +23,7 @@
 
 #include  <display.h>
 
-public  VIO_BOOL  find_closest_line_point_to_point(
+  VIO_BOOL  find_closest_line_point_to_point(
     display_struct    *display,
     VIO_Point             *point,
     VIO_Point             *closest_line_point )

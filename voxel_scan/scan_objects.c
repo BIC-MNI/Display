@@ -21,7 +21,7 @@
 
 #include  <display.h>
 
-public  void  scan_object_to_current_volume(
+  void  scan_object_to_current_volume(
     display_struct   *slice_window,
     object_struct    *object )
 {

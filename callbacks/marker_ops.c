@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-private  VIO_BOOL  get_current_marker(
+static  VIO_BOOL  get_current_marker(
     display_struct    *display,
     marker_struct     **marker )
 {
@@ -49,7 +49,7 @@ private  VIO_BOOL  get_current_marker(
     return( found );
 }
 
-public  void  set_marker_to_defaults(
+  void  set_marker_to_defaults(
     display_struct  *display,
     marker_struct   *marker )
 {
@@ -62,7 +62,7 @@ public  void  set_marker_to_defaults(
     marker->patient_id = display->three_d.default_marker_patient_id;
 }
 
-private  void  get_position_pointed_to(
+static  void  get_position_pointed_to(
     display_struct   *display,
     VIO_Point            *pos )
 {
@@ -82,7 +82,7 @@ private  void  get_position_pointed_to(
     }
 }
 
-public  void  create_marker_at_position(
+  void  create_marker_at_position(
     display_struct    *display,
     VIO_Point             *position,
     VIO_STR            label )
@@ -107,7 +107,7 @@ public  void  create_marker_at_position(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( create_marker_at_cursor )
+  DEF_MENU_FUNCTION( create_marker_at_cursor )
 {
     VIO_Point           position;
 
@@ -120,14 +120,14 @@ public  DEF_MENU_FUNCTION( create_marker_at_cursor )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(create_marker_at_cursor )
+  DEF_MENU_UPDATE(create_marker_at_cursor )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_cursor_to_marker )
+  DEF_MENU_FUNCTION( set_cursor_to_marker )
 {
     object_struct   *object;
     display_struct  *slice_window;
@@ -153,14 +153,14 @@ public  DEF_MENU_FUNCTION( set_cursor_to_marker )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_cursor_to_marker )
+  DEF_MENU_UPDATE(set_cursor_to_marker )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( save_markers )
+  DEF_MENU_FUNCTION( save_markers )
 {
     VIO_Status                  status;
     object_struct           *object, *current_object;
@@ -253,14 +253,14 @@ public  DEF_MENU_FUNCTION( save_markers )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(save_markers )
+  DEF_MENU_UPDATE(save_markers )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_default_marker_structure_id )
+  DEF_MENU_FUNCTION( set_default_marker_structure_id )
 {
     int             id;
 
@@ -284,7 +284,7 @@ public  DEF_MENU_FUNCTION( set_default_marker_structure_id )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_default_marker_structure_id )
+  DEF_MENU_UPDATE(set_default_marker_structure_id )
 {
     set_menu_text_int( menu_window, menu_entry,
                        display->three_d.default_marker_structure_id );
@@ -294,7 +294,7 @@ public  DEF_MENU_UPDATE(set_default_marker_structure_id )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_default_marker_patient_id )
+  DEF_MENU_FUNCTION( set_default_marker_patient_id )
 {
     int             id;
 
@@ -318,7 +318,7 @@ public  DEF_MENU_FUNCTION( set_default_marker_patient_id )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_default_marker_patient_id )
+  DEF_MENU_UPDATE(set_default_marker_patient_id )
 {
     set_menu_text_int( menu_window, menu_entry,
                        display->three_d.default_marker_patient_id );
@@ -328,7 +328,7 @@ public  DEF_MENU_UPDATE(set_default_marker_patient_id )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_default_marker_size )
+  DEF_MENU_FUNCTION( set_default_marker_size )
 {
     Real        size;
 
@@ -351,7 +351,7 @@ public  DEF_MENU_FUNCTION( set_default_marker_size )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_default_marker_size )
+  DEF_MENU_UPDATE(set_default_marker_size )
 {
     set_menu_text_real( menu_window, menu_entry,
                         display->three_d.default_marker_size );
@@ -361,7 +361,7 @@ public  DEF_MENU_UPDATE(set_default_marker_size )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_default_marker_colour )
+  DEF_MENU_FUNCTION( set_default_marker_colour )
 {
     VIO_Status      status;
     VIO_STR      string;
@@ -399,7 +399,7 @@ public  DEF_MENU_FUNCTION( set_default_marker_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_default_marker_colour )
+  DEF_MENU_UPDATE(set_default_marker_colour )
 {
     set_menu_text_with_colour( menu_window, menu_entry,
                                display->three_d.default_marker_colour );
@@ -409,7 +409,7 @@ public  DEF_MENU_UPDATE(set_default_marker_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_default_marker_type )
+  DEF_MENU_FUNCTION( set_default_marker_type )
 {
     int       type;
 
@@ -433,7 +433,7 @@ public  DEF_MENU_FUNCTION( set_default_marker_type )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_default_marker_type )
+  DEF_MENU_UPDATE(set_default_marker_type )
 {
     VIO_STR    name;
 
@@ -459,7 +459,7 @@ public  DEF_MENU_UPDATE(set_default_marker_type )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_default_marker_label )
+  DEF_MENU_FUNCTION( set_default_marker_label )
 {
     VIO_Status       status;
     VIO_STR       label;
@@ -485,7 +485,7 @@ public  DEF_MENU_FUNCTION( set_default_marker_label )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_default_marker_label )
+  DEF_MENU_UPDATE(set_default_marker_label )
 {
     set_menu_text_string( menu_window, menu_entry,
                           display->three_d.default_marker_label );
@@ -495,7 +495,7 @@ public  DEF_MENU_UPDATE(set_default_marker_label )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( change_marker_structure_id )
+  DEF_MENU_FUNCTION( change_marker_structure_id )
 {
     int                     id;
     marker_struct           *marker;
@@ -528,14 +528,14 @@ public  DEF_MENU_FUNCTION( change_marker_structure_id )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(change_marker_structure_id )
+  DEF_MENU_UPDATE(change_marker_structure_id )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( change_marker_patient_id )
+  DEF_MENU_FUNCTION( change_marker_patient_id )
 {
     int                     id;
     marker_struct           *marker;
@@ -568,14 +568,14 @@ public  DEF_MENU_FUNCTION( change_marker_patient_id )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(change_marker_patient_id )
+  DEF_MENU_UPDATE(change_marker_patient_id )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( change_marker_type )
+  DEF_MENU_FUNCTION( change_marker_type )
 {
     int             type;
     marker_struct   *marker;
@@ -603,14 +603,14 @@ public  DEF_MENU_FUNCTION( change_marker_type )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(change_marker_type )
+  DEF_MENU_UPDATE(change_marker_type )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( change_marker_size )
+  DEF_MENU_FUNCTION( change_marker_size )
 {
     Real            size;
     marker_struct   *marker;
@@ -636,14 +636,14 @@ public  DEF_MENU_FUNCTION( change_marker_size )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(change_marker_size )
+  DEF_MENU_UPDATE(change_marker_size )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( change_marker_position )
+  DEF_MENU_FUNCTION( change_marker_position )
 {
     marker_struct   *marker;
 
@@ -664,14 +664,14 @@ public  DEF_MENU_FUNCTION( change_marker_position )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(change_marker_position )
+  DEF_MENU_UPDATE(change_marker_position )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( change_marker_label )
+  DEF_MENU_FUNCTION( change_marker_label )
 {
     VIO_STR          label;
     marker_struct   *marker;
@@ -697,14 +697,14 @@ public  DEF_MENU_FUNCTION( change_marker_label )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(change_marker_label )
+  DEF_MENU_UPDATE(change_marker_label )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( copy_defaults_to_marker )
+  DEF_MENU_FUNCTION( copy_defaults_to_marker )
 {
     marker_struct   *marker;
 
@@ -720,14 +720,14 @@ public  DEF_MENU_FUNCTION( copy_defaults_to_marker )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(copy_defaults_to_marker )
+  DEF_MENU_UPDATE(copy_defaults_to_marker )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( copy_defaults_to_markers )
+  DEF_MENU_FUNCTION( copy_defaults_to_markers )
 {
     int                     patient_id, structure_id;
     marker_struct           *marker;
@@ -764,14 +764,14 @@ public  DEF_MENU_FUNCTION( copy_defaults_to_markers )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(copy_defaults_to_markers )
+  DEF_MENU_UPDATE(copy_defaults_to_markers )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( move_cursor_to_home )
+  DEF_MENU_FUNCTION( move_cursor_to_home )
 {
     display->three_d.cursor.origin = Cursor_home;
     update_cursor( display );
@@ -783,7 +783,7 @@ public  DEF_MENU_FUNCTION( move_cursor_to_home )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(move_cursor_to_home )
+  DEF_MENU_UPDATE(move_cursor_to_home )
 {
     return( TRUE );
 }

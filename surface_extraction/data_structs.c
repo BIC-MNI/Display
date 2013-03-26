@@ -24,13 +24,13 @@
 
 /* ------------------ Voxel queue ------------------------ */
 
-public  void   initialize_voxel_queue(
+  void   initialize_voxel_queue(
     voxel_queue_struct  *voxel_queue )
 {
     INITIALIZE_QUEUE( *voxel_queue );
 }
 
-public  void   insert_in_voxel_queue(
+  void   insert_in_voxel_queue(
     voxel_queue_struct  *voxel_queue,
     int                 voxel[] )
 {
@@ -42,7 +42,7 @@ public  void   insert_in_voxel_queue(
     INSERT_IN_QUEUE( *voxel_queue, voxel_indices );
 }
 
-public  void   get_next_voxel_from_queue(
+  void   get_next_voxel_from_queue(
     voxel_queue_struct    *voxel_queue,
     int                   voxel[] )
 {
@@ -55,13 +55,13 @@ public  void   get_next_voxel_from_queue(
     voxel[Z] = (int) voxel_indices.i[Z];
 }
 
-public  VIO_BOOL  voxels_remaining(
+  VIO_BOOL  voxels_remaining(
     voxel_queue_struct  *voxel_queue )
 {
     return( !IS_QUEUE_EMPTY( *voxel_queue ) );
 }
 
-public  void  delete_voxel_queue(
+  void  delete_voxel_queue(
     voxel_queue_struct   *voxel_queue )
 {
     DELETE_QUEUE( *voxel_queue );
@@ -69,7 +69,7 @@ public  void  delete_voxel_queue(
 
 /* ------------------ Voxel flag, 1 bit flag structure --------------- */
 
-public  void  initialize_voxel_flags(
+  void  initialize_voxel_flags(
     bitlist_3d_struct  *voxel_flags,
     int                min_limits[],
     int                max_limits[] )
@@ -79,19 +79,19 @@ public  void  initialize_voxel_flags(
                        max_limits[Z] - min_limits[Z] + 1, voxel_flags );
 }
 
-public  void  delete_voxel_flags(
+  void  delete_voxel_flags(
     bitlist_3d_struct  *voxel_flags )
 {
     delete_bitlist_3d( voxel_flags );
 }
 
-public  void  clear_voxel_flags(
+  void  clear_voxel_flags(
     bitlist_3d_struct  *voxel_flags )
 {
     zero_bitlist_3d( voxel_flags );
 }
 
-public  VIO_BOOL  get_voxel_flag(
+  VIO_BOOL  get_voxel_flag(
     bitlist_3d_struct   *voxel_flags,
     int                 min_limits[],
     int                 voxel[] )
@@ -102,7 +102,7 @@ public  VIO_BOOL  get_voxel_flag(
                                 voxel[Z] - min_limits[Z] ) );
 }
 
-public  void  set_voxel_flag(
+  void  set_voxel_flag(
     bitlist_3d_struct      *voxel_flags,
     int                    min_limits[],
     int                    voxel[] )
@@ -110,10 +110,10 @@ public  void  set_voxel_flag(
     set_bitlist_bit_3d( voxel_flags,
                         voxel[X] - min_limits[X],
                         voxel[Y] - min_limits[Y],
-                        voxel[Z] - min_limits[Z], ON );
+                        voxel[Z] - min_limits[Z], TRUE );
 }
 
-public  void  reset_voxel_flag(
+  void  reset_voxel_flag(
     bitlist_3d_struct      *voxel_flags,
     int                    min_limits[],
     int                    voxel[] )
@@ -121,12 +121,12 @@ public  void  reset_voxel_flag(
     set_bitlist_bit_3d( voxel_flags,
                         voxel[X] - min_limits[X],
                         voxel[Y] - min_limits[Y],
-                        voxel[Z] - min_limits[Z], OFF );
+                        voxel[Z] - min_limits[Z], FALSE );
 }
 
 /* ------------------ Voxel done flags, 4 bit flag structure --------------- */
 
-public  void  initialize_voxel_done_flags(
+  void  initialize_voxel_done_flags(
     unsigned_byte   **voxel_done_flags,
     int             min_limits[],
     int             max_limits[] )
@@ -145,14 +145,14 @@ public  void  initialize_voxel_done_flags(
     }
 }
 
-public  void  delete_voxel_done_flags(
+  void  delete_voxel_done_flags(
     unsigned_byte  voxel_done_flags[] )
 {
     if( voxel_done_flags != NULL )
         FREE( voxel_done_flags );
 }
 
-public  void  clear_voxel_done_flags(
+  void  clear_voxel_done_flags(
     unsigned_byte   voxel_done_flags[],
     int             min_limits[],
     int             max_limits[] )
@@ -167,7 +167,7 @@ public  void  clear_voxel_done_flags(
         voxel_done_flags[i] = 0;
 }
 
-public  unsigned_byte  get_voxel_done_flag(
+  unsigned_byte  get_voxel_done_flag(
     int                 min_limits[],
     int                 max_limits[],
     unsigned_byte       voxel_done_flags[],
@@ -192,7 +192,7 @@ public  unsigned_byte  get_voxel_done_flag(
     return( flag );
 }
 
-public  void  set_voxel_done_flag(
+  void  set_voxel_done_flag(
     int                 min_limits[],
     int                 max_limits[],
     unsigned_byte       voxel_done_flags[],
@@ -222,20 +222,20 @@ public  void  set_voxel_done_flag(
 
 #define  INITIAL_SIZE         1000
 
-public  void  initialize_edge_points(
+  void  initialize_edge_points(
     hash_table_struct  *hash_table )
 {
     initialize_hash_table( hash_table, INITIAL_SIZE, sizeof(int),
                            Edge_point_threshold, Edge_point_new_density );
 }
 
-public  void  delete_edge_points(
+  void  delete_edge_points(
     hash_table_struct  *hash_table )
 {
     delete_hash_table( hash_table );
 }
 
-private  int  get_edge_point_key(
+static  int  get_edge_point_key(
     int                  sizes[],
     int                  x,
     int                  y,
@@ -249,7 +249,7 @@ private  int  get_edge_point_key(
     return( key );
 }
 
-public  VIO_BOOL  lookup_edge_point_id(
+  VIO_BOOL  lookup_edge_point_id(
     int                 sizes[],
     hash_table_struct   *hash_table,
     int                 x,
@@ -270,7 +270,7 @@ public  VIO_BOOL  lookup_edge_point_id(
 
 #define  LEVEL  1000
 
-public  void  record_edge_point_id(
+  void  record_edge_point_id(
     int                 sizes[],
     hash_table_struct   *hash_table,
     int                 x,
@@ -298,7 +298,7 @@ public  void  record_edge_point_id(
 #endif
 }
 
-public  void  remove_edge_point(
+  void  remove_edge_point(
     int                 sizes[],
     hash_table_struct   *hash_table,
     int                 x,

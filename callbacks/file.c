@@ -24,7 +24,7 @@
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( load_file )
+  DEF_MENU_FUNCTION( load_file )
 {
     VIO_Status   status;
     VIO_STR   filename;
@@ -48,14 +48,14 @@ public  DEF_MENU_FUNCTION( load_file )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(load_file )
+  DEF_MENU_UPDATE(load_file )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( save_file )
+  DEF_MENU_FUNCTION( save_file )
 {
     int            n_objects;
     object_struct  **object_list;
@@ -103,7 +103,7 @@ public  DEF_MENU_FUNCTION( save_file )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(save_file )
+  DEF_MENU_UPDATE(save_file )
 {
     return( TRUE );
 }

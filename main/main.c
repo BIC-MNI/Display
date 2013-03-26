@@ -26,15 +26,15 @@
 int debug = 1;
 int verbose = 1;
 
-private  void   initialize_global_colours( void );
-private  void   initialize_ratio (display_struct* display);
-private  void   initialize_view_to_fit (display_struct  *display );
-private  void   initialize_cache ();
-private  void   parse_options (int argc, char *argv[],
+static  void   initialize_global_colours( void );
+static  void   initialize_ratio (display_struct* display);
+static  void   initialize_view_to_fit (display_struct  *display );
+static  void   initialize_cache ();
+static  void   parse_options (int argc, char *argv[],
 		display_struct *graphics);
-private void  visibility_3D_window(int state);
-private void  visibility_marker_window(int state);
-private void  visibility_menu_window(int state);
+static void  visibility_3D_window(int state);
+static void  visibility_marker_window(int state);
+static void  visibility_menu_window(int state);
 
 /* The first directory is set using compiler flag -D */
 /*#define  HARD_CODED_DISPLAY_DIRECTORY1    "/usr/local/mni/lib"*/
@@ -47,7 +47,7 @@ private void  visibility_menu_window(int state);
 #include  <bicpl/globals.h>
 #define   DISPLAY_GLOBALS_FILENAME   "Display.globals"
 
-public  VIO_Status  change_global_variable(
+  VIO_Status  change_global_variable(
     VIO_STR   str,
     VIO_STR   *variable_name,
     VIO_STR   *new_value )
@@ -57,7 +57,7 @@ public  VIO_Status  change_global_variable(
                    display_globals, str, variable_name, new_value ) );
 }
 
-public  VIO_Status  set_global_variable_value(
+  VIO_Status  set_global_variable_value(
     VIO_STR   variable_name,
     VIO_STR   new_value )
 {
@@ -139,7 +139,7 @@ int  main(
 	}
 
     title = concat_strings( PROJECT_NAME, ": Menu" );
-    if( create_graphics_window( MENU_WINDOW, ON, &menu, title,
+    if( create_graphics_window( MENU_WINDOW, TRUE, &menu, title,
                                 Initial_menu_window_width,
                                 Initial_menu_window_height ) != OK )
         return( 1 );
@@ -151,7 +151,7 @@ int  main(
 	}
 
     title = concat_strings( PROJECT_NAME, ": Marker" );
-    if( create_graphics_window( MARKER_WINDOW, ON, &marker, title,
+    if( create_graphics_window( MARKER_WINDOW, TRUE, &marker, title,
                                 Initial_marker_window_width,
                                 Initial_marker_window_height ) != OK )
     	return( 1 );
@@ -226,7 +226,7 @@ int  main(
     return( EX_OK );
 }
 
-private  void      initialize_global_colours( void )
+static  void      initialize_global_colours( void )
 {
     Initial_background_colour = DARK_SLATE_GREY;
     Volume_outline_colour = RED;
@@ -271,7 +271,7 @@ private  void      initialize_global_colours( void )
     Slice_probe_ratio_colour = YELLOW;
 }
 
-private  void      initialize_view_to_fit(
+static  void      initialize_view_to_fit(
     display_struct  *display )
 {
     int      i, c, x, y, z;
@@ -331,7 +331,7 @@ private  void      initialize_view_to_fit(
     reset_cursor( display );
 }
 
-private void initialize_ratio (display_struct* slice_window)
+static void initialize_ratio (display_struct* slice_window)
 {
 	model_struct      *model;
 	VIO_Colour             colour;
@@ -358,7 +358,7 @@ private void initialize_ratio (display_struct* slice_window)
 	}
 }
 
-private void initialize_cache()
+static void initialize_cache()
 {
 	if (!Enable_volume_caching)
 		set_n_bytes_cache_threshold(-1);
@@ -382,7 +382,7 @@ private void initialize_cache()
 }
 
 
-private void parse_options(int argc, char *argv[], display_struct *graphics)
+static void parse_options(int argc, char *argv[], display_struct *graphics)
 {
 	VIO_Status retcode;
 	VIO_STR filename;

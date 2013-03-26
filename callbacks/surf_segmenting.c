@@ -22,16 +22,16 @@
 
 #include  <display.h>
 
-private  void  crop_surface(
+static  void  crop_surface(
     display_struct   *display,
     VIO_BOOL          above_flag );
-private  VIO_Status  io_polygons_visibilities(
+static  VIO_Status  io_polygons_visibilities(
     polygons_struct  *polygons,
     VIO_IO_types         io_flag );
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( reset_polygon_visibility )
+  DEF_MENU_FUNCTION( reset_polygon_visibility )
 {
     int              i;
     polygons_struct  *polygons;
@@ -55,14 +55,14 @@ public  DEF_MENU_FUNCTION( reset_polygon_visibility )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(reset_polygon_visibility )
+  DEF_MENU_UPDATE(reset_polygon_visibility )
 {
     return( current_object_is_this_type(display,POLYGONS) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( remove_invisible_parts_of_polygon )
+  DEF_MENU_FUNCTION( remove_invisible_parts_of_polygon )
 {
     polygons_struct  *polygons;
 
@@ -80,14 +80,14 @@ public  DEF_MENU_FUNCTION( remove_invisible_parts_of_polygon )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(remove_invisible_parts_of_polygon)
+  DEF_MENU_UPDATE(remove_invisible_parts_of_polygon)
 {
     return( current_object_is_this_type(display,POLYGONS) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_n_paint_polygons )
+  DEF_MENU_FUNCTION( set_n_paint_polygons )
 {
     int   n;
 
@@ -103,7 +103,7 @@ public  DEF_MENU_FUNCTION( set_n_paint_polygons )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_n_paint_polygons)
+  DEF_MENU_UPDATE(set_n_paint_polygons)
 {
     set_menu_text_int( menu_window, menu_entry,
                        display->three_d.surface_edit.n_paint_polygons );
@@ -113,7 +113,7 @@ public  DEF_MENU_UPDATE(set_n_paint_polygons)
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_vis_paint_colour )
+  DEF_MENU_FUNCTION( set_vis_paint_colour )
 {
     VIO_Status      status;
     VIO_STR      string;
@@ -151,7 +151,7 @@ public  DEF_MENU_FUNCTION( set_vis_paint_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_vis_paint_colour)
+  DEF_MENU_UPDATE(set_vis_paint_colour)
 {
     set_menu_text_with_colour( menu_window, menu_entry,
                                display->three_d.surface_edit.visible_colour );
@@ -161,7 +161,7 @@ public  DEF_MENU_UPDATE(set_vis_paint_colour)
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_invis_paint_colour )
+  DEF_MENU_FUNCTION( set_invis_paint_colour )
 {
     VIO_Status      status;
     VIO_STR      string;
@@ -199,7 +199,7 @@ public  DEF_MENU_FUNCTION( set_invis_paint_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_invis_paint_colour)
+  DEF_MENU_UPDATE(set_invis_paint_colour)
 {
     set_menu_text_with_colour( menu_window, menu_entry,
                                display->three_d.surface_edit.invisible_colour );
@@ -209,7 +209,7 @@ public  DEF_MENU_UPDATE(set_invis_paint_colour)
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_connected_invisible )
+  DEF_MENU_FUNCTION( set_connected_invisible )
 {
     polygons_struct  *polygons;
     int              poly_index;
@@ -218,7 +218,7 @@ public  DEF_MENU_FUNCTION( set_connected_invisible )
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
         set_visibility_around_poly( polygons, poly_index, polygons->n_items,
-                            TRUE, OFF, TRUE,
+                            TRUE, FALSE, TRUE,
                             display->three_d.surface_edit.invisible_colour );
 
         set_update_required( display, NORMAL_PLANES );
@@ -229,14 +229,14 @@ public  DEF_MENU_FUNCTION( set_connected_invisible )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_connected_invisible )
+  DEF_MENU_UPDATE(set_connected_invisible )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( paint_invisible )
+  DEF_MENU_FUNCTION( paint_invisible )
 {
     polygons_struct  *polygons;
     int              poly_index;
@@ -246,7 +246,7 @@ public  DEF_MENU_FUNCTION( paint_invisible )
     {
         set_visibility_around_poly( polygons, poly_index,
                        display->three_d.surface_edit.n_paint_polygons,
-                       TRUE, OFF,
+                       TRUE, FALSE,
                        TRUE, display->three_d.surface_edit.invisible_colour );
 
         set_update_required( display, NORMAL_PLANES );
@@ -257,14 +257,14 @@ public  DEF_MENU_FUNCTION( paint_invisible )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(paint_invisible)
+  DEF_MENU_UPDATE(paint_invisible)
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( paint_visible )
+  DEF_MENU_FUNCTION( paint_visible )
 {
     polygons_struct  *polygons;
     int              poly_index;
@@ -285,14 +285,14 @@ public  DEF_MENU_FUNCTION( paint_visible )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(paint_visible)
+  DEF_MENU_UPDATE(paint_visible)
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_connected_vis_colour )
+  DEF_MENU_FUNCTION( set_connected_vis_colour )
 {
     polygons_struct  *polygons;
     int              poly_index;
@@ -301,7 +301,7 @@ public  DEF_MENU_FUNCTION( set_connected_vis_colour )
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
         set_visibility_around_poly( polygons, poly_index, polygons->n_items,
-                                FALSE, OFF, TRUE,
+                                FALSE, FALSE, TRUE,
                                 display->three_d.surface_edit.visible_colour );
 
         set_update_required( display, NORMAL_PLANES );
@@ -312,14 +312,14 @@ public  DEF_MENU_FUNCTION( set_connected_vis_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_connected_vis_colour )
+  DEF_MENU_UPDATE(set_connected_vis_colour )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_connected_invis_colour )
+  DEF_MENU_FUNCTION( set_connected_invis_colour )
 {
     polygons_struct  *polygons;
     int              poly_index;
@@ -328,7 +328,7 @@ public  DEF_MENU_FUNCTION( set_connected_invis_colour )
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
         set_visibility_around_poly( polygons, poly_index, polygons->n_items,
-                            FALSE, OFF, TRUE,
+                            FALSE, FALSE, TRUE,
                             display->three_d.surface_edit.invisible_colour );
 
         set_update_required( display, NORMAL_PLANES );
@@ -339,14 +339,14 @@ public  DEF_MENU_FUNCTION( set_connected_invis_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_connected_invis_colour )
+  DEF_MENU_UPDATE(set_connected_invis_colour )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( paint_invis_colour )
+  DEF_MENU_FUNCTION( paint_invis_colour )
 {
     polygons_struct  *polygons;
     int              poly_index;
@@ -356,7 +356,7 @@ public  DEF_MENU_FUNCTION( paint_invis_colour )
     {
         set_visibility_around_poly( polygons, poly_index,
                        display->three_d.surface_edit.n_paint_polygons,
-                       FALSE, OFF, TRUE,
+                       FALSE, FALSE, TRUE,
                        display->three_d.surface_edit.invisible_colour );
 
         set_update_required( display, NORMAL_PLANES );
@@ -367,14 +367,14 @@ public  DEF_MENU_FUNCTION( paint_invis_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(paint_invis_colour)
+  DEF_MENU_UPDATE(paint_invis_colour)
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( paint_vis_colour )
+  DEF_MENU_FUNCTION( paint_vis_colour )
 {
     polygons_struct  *polygons;
     int              poly_index;
@@ -384,7 +384,7 @@ public  DEF_MENU_FUNCTION( paint_vis_colour )
     {
         set_visibility_around_poly( polygons, poly_index,
                          display->three_d.surface_edit.n_paint_polygons,
-                         FALSE, OFF, TRUE,
+                         FALSE, FALSE, TRUE,
                          display->three_d.surface_edit.visible_colour );
 
         set_update_required( display, NORMAL_PLANES );
@@ -395,14 +395,14 @@ public  DEF_MENU_FUNCTION( paint_vis_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(paint_vis_colour)
+  DEF_MENU_UPDATE(paint_vis_colour)
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_visibility_from_colour )
+  DEF_MENU_FUNCTION( set_visibility_from_colour )
 {
     int              i;
     polygons_struct  *polygons;
@@ -427,14 +427,14 @@ public  DEF_MENU_FUNCTION( set_visibility_from_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_visibility_from_colour)
+  DEF_MENU_UPDATE(set_visibility_from_colour)
 {
     return( current_object_is_this_type(display,POLYGONS) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_invis_colour_to_invis )
+  DEF_MENU_FUNCTION( set_invis_colour_to_invis )
 {
     int              i;
     polygons_struct  *polygons;
@@ -461,14 +461,14 @@ public  DEF_MENU_FUNCTION( set_invis_colour_to_invis )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_invis_colour_to_invis)
+  DEF_MENU_UPDATE(set_invis_colour_to_invis)
 {
     return( current_object_is_this_type(display,POLYGONS) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_vis_to_invis_colour )
+  DEF_MENU_FUNCTION( set_vis_to_invis_colour )
 {
     int              i;
     polygons_struct  *polygons;
@@ -495,14 +495,14 @@ public  DEF_MENU_FUNCTION( set_vis_to_invis_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_vis_to_invis_colour)
+  DEF_MENU_UPDATE(set_vis_to_invis_colour)
 {
     return( current_object_is_this_type(display,POLYGONS) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_vis_to_vis_colour )
+  DEF_MENU_FUNCTION( set_vis_to_vis_colour )
 {
     int              i;
     polygons_struct  *polygons;
@@ -529,14 +529,14 @@ public  DEF_MENU_FUNCTION( set_vis_to_vis_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_vis_to_vis_colour)
+  DEF_MENU_UPDATE(set_vis_to_vis_colour)
 {
     return( current_object_is_this_type(display,POLYGONS) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( crop_above_plane )
+  DEF_MENU_FUNCTION( crop_above_plane )
 {
     crop_surface( display, TRUE );
 
@@ -545,14 +545,14 @@ public  DEF_MENU_FUNCTION( crop_above_plane )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(crop_above_plane)
+  DEF_MENU_UPDATE(crop_above_plane)
 {
     return( current_object_is_this_type(display,POLYGONS) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( crop_below_plane )
+  DEF_MENU_FUNCTION( crop_below_plane )
 {
     crop_surface( display, FALSE );
 
@@ -561,12 +561,12 @@ public  DEF_MENU_FUNCTION( crop_below_plane )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(crop_below_plane)
+  DEF_MENU_UPDATE(crop_below_plane)
 {
     return( current_object_is_this_type(display,POLYGONS) );
 }
 
-private  void  crop_surface(
+static  void  crop_surface(
     display_struct   *display,
     VIO_BOOL          above_flag )
 {
@@ -612,7 +612,7 @@ private  void  crop_surface(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( save_polygons_visibilities )
+  DEF_MENU_FUNCTION( save_polygons_visibilities )
 {
     VIO_Status           status;
     polygons_struct  *polygons;
@@ -629,14 +629,14 @@ public  DEF_MENU_FUNCTION( save_polygons_visibilities )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(save_polygons_visibilities)
+  DEF_MENU_UPDATE(save_polygons_visibilities)
 {
     return( current_object_is_this_type(display,POLYGONS) );
 }
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( load_polygons_visibilities )
+  DEF_MENU_FUNCTION( load_polygons_visibilities )
 {
     VIO_Status           status;
     polygons_struct  *polygons;
@@ -655,12 +655,12 @@ public  DEF_MENU_FUNCTION( load_polygons_visibilities )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(load_polygons_visibilities)
+  DEF_MENU_UPDATE(load_polygons_visibilities)
 {
     return( current_object_is_this_type(display,POLYGONS) );
 }
 
-private  VIO_Status  io_polygons_visibilities(
+static  VIO_Status  io_polygons_visibilities(
     polygons_struct  *polygons,
     VIO_IO_types         io_flag )
 {

@@ -22,14 +22,14 @@
 
 #include  <display.h>
 
-private  selection_entry  *get_current_entry(
+static  selection_entry  *get_current_entry(
     display_struct   *display )
 {
     return( &display->three_d.current_object.stack
                         [display->three_d.current_object.current_level-1] );
 }
 
-public  void  advance_current_object(
+  void  advance_current_object(
     display_struct    *display )
 {
     int               object_index;
@@ -50,7 +50,7 @@ public  void  advance_current_object(
     }
 }
 
-public  void  retreat_current_object(
+  void  retreat_current_object(
     display_struct    *display )
 {
     int               object_index;
@@ -72,7 +72,7 @@ public  void  retreat_current_object(
     }
 }
 
-public  object_struct  *get_current_model_object(
+  object_struct  *get_current_model_object(
     display_struct    *display )
 {
     object_struct     *model_object;
@@ -91,7 +91,7 @@ public  object_struct  *get_current_model_object(
     return( model_object );
 }
 
-public  model_struct  *get_current_model(
+  model_struct  *get_current_model(
     display_struct    *display )
 {
     object_struct  *model_object;
@@ -104,7 +104,7 @@ public  model_struct  *get_current_model(
     return( model );
 }
 
-public  int  get_current_object_index(
+  int  get_current_object_index(
     display_struct    *display )
 {
     int               index;
@@ -121,7 +121,7 @@ public  int  get_current_object_index(
     return( index );
 }
 
-public  void  set_current_object(
+  void  set_current_object(
     display_struct    *display,
     object_struct     *object )
 {
@@ -181,7 +181,7 @@ public  void  set_current_object(
     }
 }
 
-public  void  set_current_object_index(
+  void  set_current_object_index(
     display_struct    *display,
     int               index )
 {
@@ -204,7 +204,7 @@ public  void  set_current_object_index(
     }
 }
 
-public  VIO_BOOL  get_current_object(
+  VIO_BOOL  get_current_object(
     display_struct    *display,
     object_struct     **current_object )
 {
@@ -239,7 +239,7 @@ public  VIO_BOOL  get_current_object(
     return( exists );
 }
 
-public  void  initialize_current_object(
+  void  initialize_current_object(
     display_struct    *display )
 {
     display->three_d.current_object.n_levels_alloced = 0;
@@ -251,14 +251,14 @@ public  void  initialize_current_object(
     push_current_object( display );
 }
 
-public  void  terminate_current_object(
+  void  terminate_current_object(
     selection_struct   *current_object )
 {
     if( current_object->n_levels_alloced > 0 )
         FREE( current_object->stack );
 }
 
-public  void  push_current_object(
+  void  push_current_object(
     display_struct    *display )
 {
     VIO_BOOL           previously_here;
@@ -301,13 +301,13 @@ public  void  push_current_object(
     }
 }
 
-public  VIO_BOOL  current_object_is_top_level(
+  VIO_BOOL  current_object_is_top_level(
     display_struct    *display )
 {
     return( display->three_d.current_object.current_level == 0 );
 }
 
-public  void  pop_current_object(
+  void  pop_current_object(
     display_struct    *display )
 {
     /* don't allow popping up to the top level */
@@ -316,7 +316,7 @@ public  void  pop_current_object(
         --display->three_d.current_object.current_level;
 }
 
-public  VIO_BOOL  current_object_is_this_type(
+  VIO_BOOL  current_object_is_this_type(
     display_struct    *display,
     Object_types      type )
 {
@@ -326,7 +326,7 @@ public  VIO_BOOL  current_object_is_this_type(
             get_object_type(object) == type );
 }
 
-public  VIO_BOOL  current_object_exists(
+  VIO_BOOL  current_object_exists(
     display_struct    *display )
 {
     object_struct   *object;

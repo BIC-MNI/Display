@@ -22,23 +22,23 @@
 
 #include  <display.h>
 
-private  DEF_EVENT_FUNCTION( check_update_contour );
-private  VIO_BOOL  add_to_contour(
+static  DEF_EVENT_FUNCTION( check_update_contour );
+static  VIO_BOOL  add_to_contour(
     display_struct   *display );
-private  VIO_BOOL  contour_not_finished(
+static  VIO_BOOL  contour_not_finished(
     display_struct   *display );
-private  polygons_struct  *get_next_polygons(
+static  polygons_struct  *get_next_polygons(
     object_traverse_struct  *object_traverse );
-private  void  advance_polygon(
+static  void  advance_polygon(
     display_struct   *display );
-private  void  make_cursor_contours(
+static  void  make_cursor_contours(
     display_struct   *display );
-private  void   initialize_contour(
+static  void   initialize_contour(
     display_struct   *display );
-private  void   start_new_axis(
+static  void   start_new_axis(
     display_struct   *display );
 
-public  void  initialize_cursor_plane_outline(
+  void  initialize_cursor_plane_outline(
     display_struct    *display )
 {
     add_action_table_function( &display->action_table, NO_EVENT,
@@ -53,7 +53,7 @@ public  void  initialize_cursor_plane_outline(
     make_cursor_contours( display );
 }
 
-public  void  delete_cursor_plane_outline(
+  void  delete_cursor_plane_outline(
     display_struct    *display )
 {
     if( display->three_d.cursor_contours.object_traverse.top_of_stack > 0 )
@@ -64,7 +64,7 @@ public  void  delete_cursor_plane_outline(
 
 }
 
-private  Bitplane_types   get_cursor_contour_bitplane( void )
+static  Bitplane_types   get_cursor_contour_bitplane( void )
 {
     if( Cursor_contour_overlay_flag && G_has_overlay_planes() )
         return( OVERLAY_PLANES );
@@ -72,7 +72,7 @@ private  Bitplane_types   get_cursor_contour_bitplane( void )
         return( NORMAL_PLANES );
 }
 
-private  void  make_cursor_contours(
+static  void  make_cursor_contours(
     display_struct   *display )
 {
     int             axis;
@@ -111,7 +111,7 @@ private  void  make_cursor_contours(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( check_update_contour )
+static  DEF_EVENT_FUNCTION( check_update_contour )
 {
     VIO_Real     end_time;
     VIO_BOOL  found;
@@ -144,7 +144,7 @@ private  DEF_EVENT_FUNCTION( check_update_contour )
     return( OK );
 }
 
-private  void   initialize_contour(
+static  void   initialize_contour(
     display_struct   *display )
 {
     int                     axis;
@@ -163,7 +163,7 @@ private  void   initialize_contour(
     start_new_axis( display );
 }
 
-private  void   start_new_axis(
+static  void   start_new_axis(
     display_struct   *display )
 {
     cursor_contours_struct  *contours;
@@ -181,7 +181,7 @@ private  void   start_new_axis(
     contours->poly_index = 0;
 }
 
-private  polygons_struct  *get_next_polygons(
+static  polygons_struct  *get_next_polygons(
     object_traverse_struct  *object_traverse )
 {
     object_struct    *object;
@@ -202,14 +202,14 @@ private  polygons_struct  *get_next_polygons(
     return( polygons );
 }
 
-private  VIO_BOOL  contour_not_finished(
+static  VIO_BOOL  contour_not_finished(
     display_struct   *display )
 {
     return( display->three_d.cursor_contours.current_polygons !=
             (polygons_struct *) 0 );
 }
 
-private  VIO_BOOL  add_to_contour(
+static  VIO_BOOL  add_to_contour(
     display_struct   *display )
 {
     VIO_BOOL                 found;
@@ -240,7 +240,7 @@ private  VIO_BOOL  add_to_contour(
     return( found );
 }
 
-private  void  advance_polygon(
+static  void  advance_polygon(
     display_struct   *display )
 {
     cursor_contours_struct  *contours;

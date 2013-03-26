@@ -23,17 +23,17 @@
 
 #include  <display.h>
 
-private  void  initialize_slice_window(
+static  void  initialize_slice_window(
     display_struct    *slice_window );
 
-public  void  create_slice_window(
+  void  create_slice_window(
     display_struct   *display,
     VIO_STR           filename,
     VIO_Volume           volume )
 {
     display_struct   *slice_window, *menu_window, *marker_window;
     int              sizes[VIO_N_DIMENSIONS];
-    char             title[EXTREMELY_LARGE_STRING_SIZE];
+    char             title[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     get_volume_sizes( volume, sizes );
 
@@ -58,10 +58,10 @@ public  void  create_slice_window(
     initialize_slice_window( slice_window );
 
     if( !Use_transparency_hardware )
-        G_set_transparency_state( display->window, OFF );
+        G_set_transparency_state( display->window, FALSE );
 }
 
-public  void  update_all_slice_models(
+  void  update_all_slice_models(
     display_struct   *slice_window )
 {
     set_slice_cursor_update( slice_window, -1 );
@@ -74,17 +74,17 @@ public  void  update_all_slice_models(
     set_atlas_update( slice_window, -1 );
 }
 
-private  void  initialize_slice_window(
+static  void  initialize_slice_window(
     display_struct    *slice_window )
 {
     int        i, view;
 
-    G_set_automatic_clear_state( slice_window->window, OFF );
+    G_set_automatic_clear_state( slice_window->window, FALSE );
 
     slice_window->slice.n_volumes = 0;
     slice_window->slice.current_volume_index = -1;
 
-    slice_window->slice.cursor_visibility = ON;
+    slice_window->slice.cursor_visibility = TRUE;
 
     slice_window->slice.share_labels_flag = Initial_share_labels;
     slice_window->slice.crop_labels_on_output_flag =
@@ -166,7 +166,7 @@ private  void  initialize_slice_window(
     }
 }
 
-private  void  delete_slice_window_volume_stuff(
+static  void  delete_slice_window_volume_stuff(
     display_struct   *slice_window,
     int              volume_index )
 {
@@ -195,7 +195,7 @@ private  void  delete_slice_window_volume_stuff(
     --slice_window->slice.n_volumes;
 }
 
-public  void  delete_slice_window_volume(
+  void  delete_slice_window_volume(
     display_struct   *slice_window,
     int              volume_index )
 {
@@ -211,7 +211,7 @@ public  void  delete_slice_window_volume(
     set_current_volume_index( slice_window, current_volume_index );
 }
 
-public  void  delete_slice_window(
+  void  delete_slice_window(
     display_struct   *slice_window )
 {
     while( slice_window->slice.n_volumes > 0 )
@@ -230,14 +230,14 @@ public  void  delete_slice_window(
     delete_crop_box( slice_window );
 }
 
-public  VIO_STR  get_volume_filename(
+  VIO_STR  get_volume_filename(
     display_struct    *slice_window,
     int               volume_index )
 {
     return( slice_window->slice.volumes[volume_index].filename );
 }
 
-public  void  add_slice_window_volume(
+  void  add_slice_window_volume(
     display_struct    *display,
     VIO_STR            filename,
     VIO_Volume            volume )
@@ -314,7 +314,7 @@ public  void  add_slice_window_volume(
     set_slice_window_all_update( slice_window, -1, UPDATE_BOTH );
 }
 
-public  void  set_current_volume_index(
+  void  set_current_volume_index(
     display_struct  *slice_window,
     int             volume_index )
 {
@@ -337,9 +337,9 @@ public  void  set_current_volume_index(
 
         display = get_three_d_window( slice_window );
 
-        display->three_d.cursor.box_size[X] = FABS( separations[X] );
-        display->three_d.cursor.box_size[Y] = FABS( separations[Y] );
-        display->three_d.cursor.box_size[Z] = FABS( separations[Z] );
+        display->three_d.cursor.box_size[X] = VIO_FABS( separations[X] );
+        display->three_d.cursor.box_size[Y] = VIO_FABS( separations[Y] );
+        display->three_d.cursor.box_size[Z] = VIO_FABS( separations[Z] );
 
         update_cursor_size( display );
 
@@ -365,7 +365,7 @@ public  void  set_current_volume_index(
     set_slice_window_all_update( slice_window, volume_index, UPDATE_BOTH );
 }
 
-public  int  get_n_volumes(
+  int  get_n_volumes(
     display_struct  *display )
 {
     display_struct  *slice_window;
@@ -376,7 +376,7 @@ public  int  get_n_volumes(
         return( 0 );
 }
 
-public  int   get_current_volume_index(
+  int   get_current_volume_index(
     display_struct   *display )
 {
     display_struct   *slice_window;
@@ -391,7 +391,7 @@ public  int   get_current_volume_index(
         return( -1 );
 }
 
-public  VIO_BOOL   get_slice_window_volume(
+  VIO_BOOL   get_slice_window_volume(
     display_struct   *display,
     VIO_Volume           *volume )
 {
@@ -414,7 +414,7 @@ public  VIO_BOOL   get_slice_window_volume(
     return( volume_exists );
 }
 
-public  VIO_Volume  get_nth_volume(
+  VIO_Volume  get_nth_volume(
     display_struct   *display,
     int              volume_index )
 {
@@ -428,7 +428,7 @@ public  VIO_Volume  get_nth_volume(
         return( (VIO_Volume) NULL );
 }
 
-public  VIO_Volume   get_volume(
+  VIO_Volume   get_volume(
     display_struct   *display )
 {
     VIO_Volume      volume;
@@ -438,14 +438,14 @@ public  VIO_Volume   get_volume(
     return( volume );
 }
 
-public  VIO_BOOL  slice_window_exists(
+  VIO_BOOL  slice_window_exists(
     display_struct   *display )
 {
     return( display != (display_struct *) NULL &&
             display->associated[SLICE_WINDOW] != (display_struct *) NULL );
 }
 
-public  VIO_BOOL  get_slice_window(
+  VIO_BOOL  get_slice_window(
     display_struct   *display,
     display_struct   **slice_window )
 {
@@ -462,7 +462,7 @@ public  VIO_BOOL  get_slice_window(
     return( exists );
 }
 
-public  VIO_BOOL  get_range_of_volumes(
+  VIO_BOOL  get_range_of_volumes(
     display_struct   *display,
     VIO_Point            *min_limit,
     VIO_Point            *max_limit )
@@ -502,9 +502,9 @@ public  VIO_BOOL  get_range_of_volumes(
             for_less( dim, 0, VIO_N_DIMENSIONS )
             {
                 if( first || world[dim] < (Real) Point_coord(*min_limit,dim) )
-                    Point_coord(*min_limit,dim) = (Point_coord_type) world[dim];
+                    Point_coord(*min_limit,dim) = (VIO_Point_coord_type) world[dim];
                 if( first || world[dim] > (Real) Point_coord(*max_limit,dim) )
-                    Point_coord(*max_limit,dim) = (Point_coord_type) world[dim];
+                    Point_coord(*max_limit,dim) = (VIO_Point_coord_type) world[dim];
             }
 
             first = FALSE;
@@ -514,7 +514,7 @@ public  VIO_BOOL  get_range_of_volumes(
     return( TRUE );
 }
 
-public  void  set_slice_cursor_update(
+  void  set_slice_cursor_update(
     display_struct   *slice_window,
     int              view_index )
 {
@@ -529,7 +529,7 @@ public  void  set_slice_cursor_update(
     }
 }
 
-public  void  set_slice_text_update(
+  void  set_slice_text_update(
     display_struct   *slice_window,
     int              view_index )
 {
@@ -546,7 +546,7 @@ public  void  set_slice_text_update(
     }
 }
 
-public  void  set_slice_cross_section_update(
+  void  set_slice_cross_section_update(
     display_struct   *slice_window,
     int              view_index )
 {
@@ -565,7 +565,7 @@ public  void  set_slice_cross_section_update(
     }
 }
 
-public  void  set_crop_box_update(
+  void  set_crop_box_update(
     display_struct   *slice_window,
     int              view_index )
 {
@@ -582,25 +582,25 @@ public  void  set_crop_box_update(
     }
 }
 
-public  void  set_slice_dividers_update(
+  void  set_slice_dividers_update(
     display_struct   *slice_window )
 {
     slice_window->slice.update_slice_dividers_flag = TRUE;
 }
 
-public  void  set_probe_update(
+  void  set_probe_update(
     display_struct   *slice_window )
 {
     slice_window->slice.update_probe_flag = TRUE;
 }
 
-public  void  set_colour_bar_update(
+  void  set_colour_bar_update(
     display_struct   *slice_window )
 {
     slice_window->slice.update_colour_bar_flag = TRUE;
 }
 
-public  void  set_atlas_update(
+  void  set_atlas_update(
     display_struct   *slice_window,
     int              view_index )
 {
@@ -617,7 +617,7 @@ public  void  set_atlas_update(
     }
 }
 
-public  void  set_slice_window_update(
+  void  set_slice_window_update(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
@@ -656,7 +656,7 @@ public  void  set_slice_window_update(
     }
 }
 
-public  void  set_slice_window_all_update(
+  void  set_slice_window_all_update(
     display_struct   *slice_window,
     int              volume_index,
     Update_types     type )
@@ -667,7 +667,7 @@ public  void  set_slice_window_all_update(
         set_slice_window_update( slice_window, volume_index, view, type );
 }
 
-public  void  set_slice_viewport_update(
+  void  set_slice_viewport_update(
     display_struct   *slice_window,
     int              model_number )
 {
@@ -693,7 +693,7 @@ public  void  set_slice_viewport_update(
                               get_graphics_model(slice_window,model_number)) );
 }
 
-private  VIO_BOOL  slice_viewport_has_changed(
+static  VIO_BOOL  slice_viewport_has_changed(
     display_struct   *slice_window,
     int              view )
 {
@@ -732,7 +732,7 @@ private  VIO_BOOL  slice_viewport_has_changed(
     return( changed );
 }
 
-private  VIO_BOOL  is_slice_continuing(
+static  VIO_BOOL  is_slice_continuing(
     display_struct   *slice_window,
     int              view )
 {
@@ -751,14 +751,14 @@ private  VIO_BOOL  is_slice_continuing(
     return( continuing );
 }
 
-private  VIO_BOOL  time_is_up(
+static  VIO_BOOL  time_is_up(
     Real    end_time,
     Real    current_time )
 {
     return( end_time >= 0.0 && current_time > end_time );
 }
 
-private  void  render_more_slices(
+static  void  render_more_slices(
     display_struct   *slice_window,
     VIO_BOOL          viewport_has_changed[] )
 {
@@ -968,7 +968,7 @@ private  void  render_more_slices(
     }
 }
 
-public  void  update_slice_window(
+  void  update_slice_window(
     display_struct   *slice_window )
 {
     VIO_BOOL  viewport_has_changed[N_SLICE_VIEWS];
@@ -1190,7 +1190,7 @@ public  void  update_slice_window(
     render_more_slices( slice_window, viewport_has_changed );
 }
 
-public  void  set_slice_composite_update(
+  void  set_slice_composite_update(
     display_struct   *slice_window,
     int              view_index,
     int              x_min,
@@ -1218,7 +1218,7 @@ public  void  set_slice_composite_update(
     slice_window->slice.slice_views[view_index].y_max = y_max;
 }
 
-public  VIO_BOOL  get_slice_subviewport(
+  VIO_BOOL  get_slice_subviewport(
     display_struct   *slice_window,
     int              view_index,
     int              *x_min,

@@ -28,7 +28,7 @@ static  DEF_EVENT_FUNCTION( terminate_picking_markers );
 static  DEF_EVENT_FUNCTION( done_picking_markers );
 static  DEF_EVENT_FUNCTION( show_picked_square );
 
-public  void  start_picking_markers(
+  void  start_picking_markers(
     display_struct   *display )
 {
     push_action_table( &display->action_table, LEFT_MOUSE_DOWN_EVENT );
@@ -50,7 +50,7 @@ public  void  start_picking_markers(
     set_update_required( display, NORMAL_PLANES );
 }
 
-private  void  remove_events(
+static  void  remove_events(
     action_table_struct  *action_table )
 {
     pop_action_table( action_table, LEFT_MOUSE_DOWN_EVENT );
@@ -60,7 +60,7 @@ private  void  remove_events(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_picking_markers )
+static  DEF_EVENT_FUNCTION( terminate_picking_markers )
 {
     remove_action_table_function( &display->action_table, NO_EVENT,
                                   show_rectangle_at_mouse );
@@ -70,7 +70,7 @@ private  DEF_EVENT_FUNCTION( terminate_picking_markers )
     return( OK );
 }
 
-private  void  get_coordinates(
+static  void  get_coordinates(
     VIO_Real    x1,
     VIO_Real    y1,
     VIO_Real    x2,
@@ -88,7 +88,7 @@ private  void  get_coordinates(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
+static  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
 {
     VIO_Real     x, y, x_prev, y_prev, x1, y1, x2, y2;
 
@@ -110,7 +110,7 @@ private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( pick_first_corner_point )
+static  DEF_EVENT_FUNCTION( pick_first_corner_point )
 {
     VIO_Real  x, y;
 
@@ -139,7 +139,7 @@ private  DEF_EVENT_FUNCTION( pick_first_corner_point )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( show_picked_square )
+static  DEF_EVENT_FUNCTION( show_picked_square )
 {
     VIO_Real   x, y, x_prev, y_prev, x1, y1, x2, y2;
 
@@ -162,7 +162,7 @@ private  DEF_EVENT_FUNCTION( show_picked_square )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( done_picking_markers )
+static  DEF_EVENT_FUNCTION( done_picking_markers )
 {
     VIO_Real                    x, y, x_min, y_min, x_max, y_max;
     VIO_Point                   screen_pos;

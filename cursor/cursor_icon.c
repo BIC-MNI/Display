@@ -27,20 +27,20 @@
 #define  Y_INDEX  2
 #define  Z_INDEX  3
 
-private  void   create_box(
+static  void   create_box(
     object_struct  **object );
-private  void  fill_in_box_points(
+static  void  fill_in_box_points(
     VIO_Real           size[],
     object_struct  *object );
-private  void   create_axis(
+static  void   create_axis(
     object_struct  **object,
     int            axis_index );
-private  void  fill_in_axis_points(
+static  void  fill_in_axis_points(
     VIO_Real           size,
     int            axis_index,
     object_struct  *object );
 
-public  void  rebuild_cursor_icon(
+  void  rebuild_cursor_icon(
     display_struct    *display )
 {
     int             axis_index;
@@ -73,7 +73,7 @@ public  void  rebuild_cursor_icon(
                          Z, model->objects[Z_INDEX] );
 }
 
-public  void  update_cursor_colour(
+  void  update_cursor_colour(
     display_struct   *display,
     VIO_Colour           colour )
 {
@@ -84,7 +84,7 @@ public  void  update_cursor_colour(
     get_lines_ptr(model->objects[BOX_INDEX])->colours[0] = colour;
 }
 
-private  void   create_box(
+static  void   create_box(
     object_struct  **object )
 {
     VIO_Colour         col;
@@ -134,7 +134,7 @@ private  void   create_box(
     lines->indices[15] = 6;
 }
 
-private  void  fill_in_box_points(
+static  void  fill_in_box_points(
     VIO_Real           size[],
     object_struct  *object )
 {
@@ -165,7 +165,7 @@ private  void  fill_in_box_points(
                  half_size[X],  half_size[Y],  half_size[Z] );
 }
 
-private  void   create_axis(
+static  void   create_axis(
     object_struct  **object,
     int            axis_index )
 {
@@ -195,7 +195,7 @@ private  void   create_axis(
     add_point_to_line( lines, &dummy );
 }
 
-private  void  fill_in_axis_points(
+static  void  fill_in_axis_points(
     VIO_Real           size,
     int            axis_index,
     object_struct  *object )
@@ -207,5 +207,5 @@ private  void  fill_in_axis_points(
     fill_Point( lines->points[0], 0.0, 0.0, 0.0 );
     fill_Point( lines->points[1], 0.0, 0.0, 0.0 );
 
-    Point_coord( lines->points[1], axis_index ) = (Point_coord_type) size;
+    Point_coord( lines->points[1], axis_index ) = (VIO_Point_coord_type) size;
 }

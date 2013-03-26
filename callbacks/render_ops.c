@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-private  object_struct  *get_model_object(
+static  object_struct  *get_model_object(
     display_struct    *display )
 {
     object_struct    *current_object;
@@ -38,7 +38,7 @@ private  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_render_mode )
+  DEF_MENU_FUNCTION( toggle_render_mode )
 {
     object_struct            *model_object;
     VIO_BOOL                  shaded_mode;
@@ -68,7 +68,7 @@ public  DEF_MENU_FUNCTION( toggle_render_mode )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_render_mode )
+  DEF_MENU_UPDATE(toggle_render_mode )
 {
     object_struct   *model_object;
 
@@ -84,7 +84,7 @@ public  DEF_MENU_UPDATE(toggle_render_mode )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_shading )
+  DEF_MENU_FUNCTION( toggle_shading )
 {
     object_struct            *model_object;
     Shading_types            new_shading_type;
@@ -121,7 +121,7 @@ public  DEF_MENU_FUNCTION( toggle_shading )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_shading )
+  DEF_MENU_UPDATE(toggle_shading )
 {
     object_struct   *model_object;
 
@@ -136,7 +136,7 @@ public  DEF_MENU_UPDATE(toggle_shading )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_lights )
+  DEF_MENU_FUNCTION( toggle_lights )
 {
     object_struct            *model_object;
     VIO_BOOL                  new_light_switch;
@@ -166,7 +166,7 @@ public  DEF_MENU_FUNCTION( toggle_lights )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_lights )
+  DEF_MENU_UPDATE(toggle_lights )
 {
     object_struct   *model_object;
 
@@ -181,7 +181,7 @@ public  DEF_MENU_UPDATE(toggle_lights )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_two_sided )
+  DEF_MENU_FUNCTION( toggle_two_sided )
 {
     object_struct            *model_object;
     VIO_BOOL                  new_flag;
@@ -211,7 +211,7 @@ public  DEF_MENU_FUNCTION( toggle_two_sided )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_two_sided )
+  DEF_MENU_UPDATE(toggle_two_sided )
 {
     object_struct   *model_object;
 
@@ -226,7 +226,7 @@ public  DEF_MENU_UPDATE(toggle_two_sided )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_backfacing )
+  DEF_MENU_FUNCTION( toggle_backfacing )
 {
     object_struct            *model_object;
     VIO_BOOL                  new_flag;
@@ -256,7 +256,7 @@ public  DEF_MENU_FUNCTION( toggle_backfacing )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_backfacing )
+  DEF_MENU_UPDATE(toggle_backfacing )
 {
     object_struct   *model_object;
 
@@ -271,7 +271,7 @@ public  DEF_MENU_UPDATE(toggle_backfacing )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_line_curve_flag )
+  DEF_MENU_FUNCTION( toggle_line_curve_flag )
 {
     object_struct            *model_object;
     VIO_BOOL                  new_flag;
@@ -301,7 +301,7 @@ public  DEF_MENU_FUNCTION( toggle_line_curve_flag )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_line_curve_flag )
+  DEF_MENU_UPDATE(toggle_line_curve_flag )
 {
     object_struct   *model_object;
 
@@ -316,7 +316,7 @@ public  DEF_MENU_UPDATE(toggle_line_curve_flag )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_marker_label_flag )
+  DEF_MENU_FUNCTION( toggle_marker_label_flag )
 {
     object_struct            *model_object;
     VIO_BOOL                  new_flag;
@@ -344,7 +344,7 @@ public  DEF_MENU_FUNCTION( toggle_marker_label_flag )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_marker_label_flag )
+  DEF_MENU_UPDATE(toggle_marker_label_flag )
 {
     object_struct   *model_object;
 
@@ -359,7 +359,7 @@ public  DEF_MENU_UPDATE(toggle_marker_label_flag )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( set_n_curve_segments )
+  DEF_MENU_FUNCTION( set_n_curve_segments )
 {
     int                      n_segments;
     object_struct            *model_object;
@@ -398,7 +398,7 @@ public  DEF_MENU_FUNCTION( set_n_curve_segments )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(set_n_curve_segments )
+  DEF_MENU_UPDATE(set_n_curve_segments )
 {
     object_struct   *model_object;
 
@@ -413,7 +413,7 @@ public  DEF_MENU_UPDATE(set_n_curve_segments )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_double_buffer_threed )
+  DEF_MENU_FUNCTION( toggle_double_buffer_threed )
 {
     VIO_BOOL   double_buffer;
 
@@ -428,7 +428,7 @@ public  DEF_MENU_FUNCTION( toggle_double_buffer_threed )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_double_buffer_threed )
+  DEF_MENU_UPDATE(toggle_double_buffer_threed )
 {
     set_menu_text_on_off( menu_window, menu_entry,
                           G_get_double_buffer_state(display->window) );
@@ -438,7 +438,7 @@ public  DEF_MENU_UPDATE(toggle_double_buffer_threed )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )
+  DEF_MENU_FUNCTION( toggle_double_buffer_slice )
 {
     VIO_BOOL           double_buffer;
     display_struct    *slice_window;
@@ -459,7 +459,7 @@ public  DEF_MENU_FUNCTION( toggle_double_buffer_slice )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(toggle_double_buffer_slice )
+  DEF_MENU_UPDATE(toggle_double_buffer_slice )
 {
     display_struct  *slice_window;
     VIO_BOOL         state;
@@ -474,7 +474,7 @@ public  DEF_MENU_UPDATE(toggle_double_buffer_slice )
 
 /* ARGSUSED */
 
-public  DEF_MENU_FUNCTION( change_background_colour )
+  DEF_MENU_FUNCTION( change_background_colour )
 {
     VIO_Status            status;
     display_struct    *slice_window;
@@ -506,7 +506,7 @@ public  DEF_MENU_FUNCTION( change_background_colour )
 
 /* ARGSUSED */
 
-public  DEF_MENU_UPDATE(change_background_colour )
+  DEF_MENU_UPDATE(change_background_colour )
 {
     return( TRUE );
 }

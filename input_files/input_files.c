@@ -22,7 +22,7 @@
 
 #include  <display.h>
 
-public  VIO_Status  load_graphics_file( 
+  VIO_Status  load_graphics_file( 
     display_struct   *display,
     VIO_STR           filename,
     VIO_BOOL          is_label_file )
@@ -34,7 +34,7 @@ public  VIO_Status  load_graphics_file(
     VIO_Volume                   volume_read_in;
     object_struct            *current_object;
     object_traverse_struct   object_traverse;
-    char                     volume_description[EXTREMELY_LARGE_STRING_SIZE];
+    char                     volume_description[VIO_EXTREMELY_LARGE_STRING_SIZE];
     VIO_BOOL                  volume_present;
     display_struct           *slice_window;
 
@@ -141,7 +141,7 @@ public  VIO_Status  load_graphics_file(
         while( get_next_object_traverse(&object_traverse,&current_object) )
         {
             if( !Visibility_on_input )
-                set_object_visibility( current_object, OFF );
+                set_object_visibility( current_object, FALSE );
         }
     }
 
@@ -168,7 +168,7 @@ public  VIO_Status  load_graphics_file(
                     n_items > Polygon_bintree_threshold )
                 {
                     create_polygons_bintree( polygons,
-                              ROUND( (VIO_Real) n_items * Bintree_size_factor ) );
+                              VIO_ROUND( (VIO_Real) n_items * Bintree_size_factor ) );
                 }
 
                 if( Compute_neighbours_on_input )

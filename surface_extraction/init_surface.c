@@ -22,10 +22,10 @@
 
 #include  <display.h>
 
-private  void  clear_surface_extraction(
+static  void  clear_surface_extraction(
     display_struct     *display );
 
-public  void  initialize_surface_extraction(
+  void  initialize_surface_extraction(
     display_struct     *display )
 {
     surface_extraction_struct   *surface_extraction;
@@ -53,7 +53,7 @@ public  void  initialize_surface_extraction(
     clear_surface_extraction( display );
 }
 
-private  void  clear_surface_extraction(
+static  void  clear_surface_extraction(
     display_struct     *display )
 {
     surface_extraction_struct   *surface_extraction;
@@ -69,7 +69,7 @@ private  void  clear_surface_extraction(
                          &Default_surface_property );
 }
 
-public  void  delete_surface_extraction(
+  void  delete_surface_extraction(
     display_struct    *display )
 {
     surface_extraction_struct   *surface_extraction;
@@ -96,7 +96,7 @@ public  void  delete_surface_extraction(
     surface_extraction->label_volume = NULL;
 }
 
-public  void  reset_surface_extraction(
+  void  reset_surface_extraction(
     display_struct    *display )
 {
     delete_surface_extraction( display );
@@ -104,7 +104,7 @@ public  void  reset_surface_extraction(
     clear_surface_extraction( display );
 }
 
-public  void  tell_surface_extraction_volume_deleted(
+  void  tell_surface_extraction_volume_deleted(
     display_struct    *display,
     VIO_Volume            volume,
     VIO_Volume            label_volume )
@@ -119,7 +119,7 @@ public  void  tell_surface_extraction_volume_deleted(
     }
 }
 
-public  void  start_surface_extraction(
+  void  start_surface_extraction(
     display_struct     *display )
 {
     surface_extraction_struct   *surface_extraction;
@@ -129,14 +129,14 @@ public  void  start_surface_extraction(
     surface_extraction->extraction_in_progress = TRUE;
 }
 
-public  void  stop_surface_extraction(
+  void  stop_surface_extraction(
     display_struct     *display )
 {
     if( display->three_d.surface_extraction.extraction_in_progress )
         display->three_d.surface_extraction.extraction_in_progress = FALSE;
 }
 
-public  int  get_n_voxels(
+  int  get_n_voxels(
     VIO_Volume            volume )
 {
     int   n_voxels;
@@ -156,7 +156,7 @@ public  int  get_n_voxels(
     return( n_voxels );
 }
 
-public  void  set_invalid_label_range_for_surface_extraction(
+  void  set_invalid_label_range_for_surface_extraction(
     display_struct  *display,
     int             min_label,
     int             max_label )

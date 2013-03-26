@@ -28,16 +28,16 @@ static    DEF_EVENT_FUNCTION( handle_update_rotation );
 static    DEF_EVENT_FUNCTION( terminate_rotation );
 static    DEF_EVENT_FUNCTION( terminate_rotating_slice );
 
-private  VIO_BOOL  perform_rotation(
+static  VIO_BOOL  perform_rotation(
     display_struct   *display );
 
-public  void  initialize_rotating_slice(
+  void  initialize_rotating_slice(
     display_struct   *display )
 {
     if( get_n_volumes(display) == 0 )
         return;
 
-    set_volume_cross_section_visibility( display, ON );
+    set_volume_cross_section_visibility( display, TRUE );
 
     terminate_any_interactions( display );
 
@@ -52,7 +52,7 @@ public  void  initialize_rotating_slice(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_rotating_slice )
+static  DEF_EVENT_FUNCTION( terminate_rotating_slice )
 {
     remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_DOWN_EVENT,
@@ -67,7 +67,7 @@ private  DEF_EVENT_FUNCTION( terminate_rotating_slice )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( turn_off_rotating_slice )
+static  DEF_EVENT_FUNCTION( turn_off_rotating_slice )
 {
     remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_DOWN_EVENT,
@@ -82,7 +82,7 @@ private  DEF_EVENT_FUNCTION( turn_off_rotating_slice )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( start_rotating_slice )
+static  DEF_EVENT_FUNCTION( start_rotating_slice )
 {
     add_action_table_function( &display->action_table,
                                NO_EVENT, handle_update_rotation );
@@ -99,7 +99,7 @@ private  DEF_EVENT_FUNCTION( start_rotating_slice )
     return( OK );
 }
 
-private  void  update_rotation(
+static  void  update_rotation(
     display_struct   *display )
 {
     display_struct   *slice_window;
@@ -114,7 +114,7 @@ private  void  update_rotation(
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( handle_update_rotation )
+static  DEF_EVENT_FUNCTION( handle_update_rotation )
 {
     update_rotation( display );
 
@@ -123,7 +123,7 @@ private  DEF_EVENT_FUNCTION( handle_update_rotation )
 
 /* ARGSUSED */
 
-private  DEF_EVENT_FUNCTION( terminate_rotation )
+static  DEF_EVENT_FUNCTION( terminate_rotation )
 {
     update_rotation( display );
     
@@ -138,7 +138,7 @@ private  DEF_EVENT_FUNCTION( terminate_rotation )
     return( OK );
 }
 
-private  void  transform_slice_axes(
+static  void  transform_slice_axes(
     display_struct   *slice_window,
     VIO_Transform        *transform )
 {
@@ -199,7 +199,7 @@ private  void  transform_slice_axes(
                      x_axis, y_axis );
 }
 
-private  VIO_BOOL  perform_rotation(
+static  VIO_BOOL  perform_rotation(
     display_struct   *display )
 {
     display_struct  *slice_window;
