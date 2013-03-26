@@ -71,16 +71,16 @@ private  DEF_EVENT_FUNCTION( terminate_picking_viewport )
 }
 
 private  void  get_coordinates(
-    Real    x1,
-    Real    y1,
-    Real    x2,
-    Real    y2,
-    Real    *x_min,
-    Real    *y_min,
-    Real    *x_max,
-    Real    *y_max )
+    VIO_Real    x1,
+    VIO_Real    y1,
+    VIO_Real    x2,
+    VIO_Real    y2,
+    VIO_Real    *x_min,
+    VIO_Real    *y_min,
+    VIO_Real    *x_max,
+    VIO_Real    *y_max )
 {
-    Real   dx, dy;
+    VIO_Real   dx, dy;
 
     dx = FABS( x2 - x1 );
     dy = FABS( y2 - y1 );
@@ -111,7 +111,7 @@ private  void  get_coordinates(
 
 private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
 {
-    Real     x, y, x_prev, y_prev, x1, y1, x2, y2;
+    VIO_Real     x, y, x_prev, y_prev, x1, y1, x2, y2;
 
     if( (graphics_update_required( display ) ||
          mouse_moved(display,&x,&y,&x_prev,&y_prev)) &&
@@ -133,7 +133,7 @@ private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
 
 private  DEF_EVENT_FUNCTION( pick_first_corner_point )
 {
-    Real  x, y;
+    VIO_Real  x, y;
 
     if( G_get_mouse_position_0_to_1( display->window, &x, &y ) )
     {
@@ -162,14 +162,14 @@ private  DEF_EVENT_FUNCTION( pick_first_corner_point )
 
 private  DEF_EVENT_FUNCTION( show_picked_viewport )
 {
-    Real   x, y, x_prev, y_prev, x1, y1, x2, y2;
+    VIO_Real   x, y, x_prev, y_prev, x1, y1, x2, y2;
 
     if( (graphics_update_required( display ) ||
          mouse_moved(display,&x,&y,&x_prev,&y_prev)) &&
         G_get_mouse_position_0_to_1( display->window, &x, &y ) )
     {
-        get_coordinates( (Real) Point_x(display->viewport_picking.first_corner),
-                         (Real) Point_y(display->viewport_picking.first_corner),
+        get_coordinates( (VIO_Real) Point_x(display->viewport_picking.first_corner),
+                         (VIO_Real) Point_y(display->viewport_picking.first_corner),
                          x, y, &x1, &y1, &x2, &y2 );
 
         draw_2d_rectangle( display, SCREEN_VIEW,
@@ -185,7 +185,7 @@ private  DEF_EVENT_FUNCTION( show_picked_viewport )
 
 private  DEF_EVENT_FUNCTION( done_picking_viewport )
 {
-    Real   x, y, x_min, y_min, x_max, y_max;
+    VIO_Real   x, y, x_min, y_min, x_max, y_max;
 
     remove_action_table_function( &display->action_table, NO_EVENT,
                                   show_picked_viewport );
@@ -194,8 +194,8 @@ private  DEF_EVENT_FUNCTION( done_picking_viewport )
 
     if( G_get_mouse_position_0_to_1( display->window, &x, &y ) )
     {
-        get_coordinates( (Real) Point_x(display->viewport_picking.first_corner),
-                         (Real) Point_y(display->viewport_picking.first_corner),
+        get_coordinates( (VIO_Real) Point_x(display->viewport_picking.first_corner),
+                         (VIO_Real) Point_y(display->viewport_picking.first_corner),
                          x, y, &x_min, &y_min, &x_max, &y_max );
 
         set_view_rectangle( &display->three_d.view,

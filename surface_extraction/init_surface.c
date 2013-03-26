@@ -46,7 +46,7 @@ public  void  initialize_surface_extraction(
 
     surface_extraction->polygons = get_polygons_ptr( object );
 
-    initialize_polygons( surface_extraction->polygons, WHITE, (Surfprop *) 0 );
+    initialize_polygons( surface_extraction->polygons, WHITE, (VIO_Surfprop *) 0 );
 
     install_surface_extraction( display );
 
@@ -106,8 +106,8 @@ public  void  reset_surface_extraction(
 
 public  void  tell_surface_extraction_volume_deleted(
     display_struct    *display,
-    Volume            volume,
-    Volume            label_volume )
+    VIO_Volume            volume,
+    VIO_Volume            label_volume )
 {
     display = get_three_d_window( display );
 
@@ -137,10 +137,10 @@ public  void  stop_surface_extraction(
 }
 
 public  int  get_n_voxels(
-    Volume            volume )
+    VIO_Volume            volume )
 {
     int   n_voxels;
-    int   sizes[N_DIMENSIONS];
+    int   sizes[VIO_N_DIMENSIONS];
 
     if( volume != NULL )
     {
@@ -161,6 +161,6 @@ public  void  set_invalid_label_range_for_surface_extraction(
     int             min_label,
     int             max_label )
 {
-    display->three_d.surface_extraction.min_invalid_label = (Real) min_label;
-    display->three_d.surface_extraction.max_invalid_label = (Real) max_label;
+    display->three_d.surface_extraction.min_invalid_label = (VIO_Real) min_label;
+    display->three_d.surface_extraction.max_invalid_label = (VIO_Real) max_label;
 }

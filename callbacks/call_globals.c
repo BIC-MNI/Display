@@ -31,8 +31,8 @@
 
 public  DEF_MENU_FUNCTION( menu_set_global_variable )
 {
-    Status   status;
-    STRING   input_str, variable_name, new_value;
+    VIO_Status   status;
+    VIO_STR   input_str, variable_name, new_value;
 
     print( "variable_name [= value]: " );
 

@@ -256,12 +256,12 @@ private  void  set_slice_voxel_position(
     Real              voxel[] )
 {
     display_struct    *display;
-    int               c, sizes[MAX_DIMENSIONS];
-    Real              clipped_voxel[MAX_DIMENSIONS];
+    int               c, sizes[VIO_MAX_DIMENSIONS];
+    Real              clipped_voxel[VIO_MAX_DIMENSIONS];
 
     get_volume_sizes( get_nth_volume(slice_window,volume_index), sizes );
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
     {
         if( voxel[c] < -0.5 )
             clipped_voxel[c] = -0.5;
@@ -295,7 +295,7 @@ public  void  set_voxel_cursor_from_mouse_position(
     display_struct    *slice_window )
 {
     int    volume_index, axis_index;
-    Real   voxel[N_DIMENSIONS];
+    Real   voxel[VIO_N_DIMENSIONS];
 
     if( get_voxel_in_slice_window( slice_window, voxel, &volume_index,
                                    &axis_index ) )
@@ -345,8 +345,8 @@ private  void  update_voxel_slice(
 {
     int        view_index, dy, x, y, x_prev, y_prev;
     int        c, volume_index;
-    Real       voxel[MAX_DIMENSIONS];
-    Real       perp_axis[N_DIMENSIONS];
+    Real       voxel[VIO_MAX_DIMENSIONS];
+    Real       perp_axis[VIO_N_DIMENSIONS];
 
     if( pixel_mouse_moved( slice_window, &x, &y, &x_prev, &y_prev ) &&
         find_slice_view_mouse_is_in( slice_window, x, y, &view_index ) )
@@ -362,7 +362,7 @@ private  void  update_voxel_slice(
             get_slice_perp_axis( slice_window, volume_index, view_index,
                                  perp_axis );
 
-            for_less( c, 0, N_DIMENSIONS )
+            for_less( c, 0, VIO_N_DIMENSIONS )
                 voxel[c] += (Real) dy * Move_slice_speed * perp_axis[c];
 
             if( voxel_is_within_volume( get_nth_volume(slice_window,
@@ -643,7 +643,7 @@ private  void  update_limit(
 {
     Real                  range, min_value, max_value, value;
     Real                  volume_min, volume_max;
-    Volume                volume;
+    VIO_Volume                volume;
     colour_coding_struct  *colour_coding;
 
     if( get_nearest_mouse_colour_bar_value( slice_window, &value ) &&
@@ -723,7 +723,7 @@ private  VIO_BOOL  get_mouse_colour_bar_value(
 {
     int                   x, y;
     Real                  ratio, min_value, max_value;
-    Volume                volume;
+    VIO_Volume                volume;
     VIO_BOOL               found;
 
     found = FALSE;
@@ -746,7 +746,7 @@ private  VIO_BOOL  get_nearest_mouse_colour_bar_value(
 {
     int                   x, y;
     Real                  ratio, min_value, max_value;
-    Volume                volume;
+    VIO_Volume                volume;
     VIO_BOOL               found;
 
     found = FALSE;

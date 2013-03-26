@@ -53,7 +53,7 @@ private  void  delete_slice_labels(
     slice_window_struct   *slice,
     int                   volume_index )
 {
-    if( slice->volumes[volume_index].labels == (Volume) NULL )
+    if( slice->volumes[volume_index].labels == (VIO_Volume) NULL )
         return;
 
     if( !is_shared_label_volume( slice, volume_index ) )
@@ -69,9 +69,9 @@ public  void  delete_slice_colour_coding(
     slice_window_struct   *slice,
     int                   volume_index )
 {
-    Colour   *ptr;
+    VIO_Colour   *ptr;
 
-    if( slice->volumes[volume_index].labels == (Volume) NULL )
+    if( slice->volumes[volume_index].labels == (VIO_Volume) NULL )
         return;
 
     delete_colour_coding( &slice->volumes[volume_index].colour_coding );
@@ -91,7 +91,7 @@ private  void  realloc_label_colour_table(
     int               volume_index )
 {
     int       n_labels, n_colours, n_around, n_up, u, a;
-    Colour    col;
+    VIO_Colour    col;
     Real      r, g, b, hue, sat;
 
     n_labels = get_num_labels( slice_window, volume_index );
@@ -155,11 +155,11 @@ private  VIO_BOOL  find_similar_labels(
     int               *orig_index )
 {
     int                 i, k, m;
-    int                 sizes[MAX_DIMENSIONS], this_size[MAX_DIMENSIONS];
+    int                 sizes[VIO_MAX_DIMENSIONS], this_size[VIO_MAX_DIMENSIONS];
     VIO_BOOL             same;
-    Volume              this_volume, volume;
+    VIO_Volume              this_volume, volume;
     VIO_General_transform   *this_gen_transform, *gen_transform;
-    Transform           *this_transform, *transform;
+    VIO_Transform           *this_transform, *transform;
 
     this_volume = get_nth_volume( slice_window, volume_index );
     get_volume_sizes( this_volume, this_size );
@@ -267,7 +267,7 @@ private  void  alloc_colour_table(
     int               volume_index )
 {
     Real        min_voxel, max_voxel;
-    Colour      *ptr;
+    VIO_Colour      *ptr;
 
     if( is_an_rgb_volume(get_nth_volume(slice_window,volume_index)) )
     {
@@ -291,12 +291,12 @@ public  void  initialize_slice_colour_coding(
 {
     Real              low_limit, high_limit;
     histogram_struct   histogram;
-    Volume             volume;
+    VIO_Volume             volume;
     Real               *histo_counts;
     Real               scale_factor, trans_factor;
     int                nbbins, axis_index, voxel_index;
-    int                x, y, z, sizes[MAX_DIMENSIONS];
-    int                start[MAX_DIMENSIONS], end[MAX_DIMENSIONS];
+    int                x, y, z, sizes[VIO_MAX_DIMENSIONS];
+    int                start[VIO_MAX_DIMENSIONS], end[VIO_MAX_DIMENSIONS];
     int 			   sum_count, count, idx;
     Real               min_value, max_value, value;
     progress_struct    progress;
@@ -314,10 +314,10 @@ public  void  initialize_slice_colour_coding(
     slice_window->slice.volumes[volume_index].n_labels = Initial_num_labels;
 
     slice_window->slice.volumes[volume_index].offset = 0;
-    slice_window->slice.volumes[volume_index].colour_table = (Colour *) NULL;
+    slice_window->slice.volumes[volume_index].colour_table = (VIO_Colour *) NULL;
     slice_window->slice.volumes[volume_index].label_colour_table =
-                                                 (Colour *) NULL;
-    slice_window->slice.volumes[volume_index].labels = (Volume) NULL;
+                                                 (VIO_Colour *) NULL;
+    slice_window->slice.volumes[volume_index].labels = (VIO_Volume) NULL;
 
     slice_window->slice.volumes[volume_index].labels_filename =
                                        create_string( NULL );
@@ -431,7 +431,7 @@ public  void  initialize_slice_colour_coding(
                                 low_limit, high_limit );
 }
 
-public  Volume  get_nth_label_volume(
+public  VIO_Volume  get_nth_label_volume(
     display_struct   *display,
     int              volume_index )
 {
@@ -442,10 +442,10 @@ public  Volume  get_nth_label_volume(
         return( slice_window->slice.volumes[volume_index].labels );
     }
     else
-        return( (Volume) NULL );
+        return( (VIO_Volume) NULL );
 }
 
-public  Volume  get_label_volume(
+public  VIO_Volume  get_label_volume(
     display_struct   *display )
 {
     return( get_nth_label_volume( display,
@@ -455,7 +455,7 @@ public  Volume  get_label_volume(
 public  VIO_BOOL  label_volume_exists(
     display_struct   *display )
 {
-    Volume   label;
+    VIO_Volume   label;
 
     label = get_label_volume( display );
 
@@ -467,7 +467,7 @@ public  VIO_BOOL  get_label_visibility(
     int               volume_index,
     int               view_index )
 {
-    Volume   label;
+    VIO_Volume   label;
 
     label = get_nth_label_volume( slice_window, volume_index );
 
@@ -489,15 +489,15 @@ public  int  get_num_labels(
         return( slice_window->slice.volumes[volume_index].n_labels );
 }
 
-private  Colour  apply_label_colour(
+private  VIO_Colour  apply_label_colour(
     display_struct    *slice_window,
     int               volume_index,
-    Colour            col,
+    VIO_Colour            col,
     int               label )
 {
     Real      r1, g1, b1, a1, r2, g2, b2, a2;
     Real      r, g, b, a;
-    Colour    label_col;
+    VIO_Colour    label_col;
 
     if( label != 0 )
     {
@@ -525,13 +525,13 @@ private  Colour  apply_label_colour(
     return( col );
 }
 
-private  Colour  get_slice_colour_coding(
+private  VIO_Colour  get_slice_colour_coding(
     display_struct    *slice_window,
     int               volume_index,
     Real              value,
     int               label )
 {
-    Colour           col;
+    VIO_Colour           col;
 
     col = get_colour_code( &slice_window->slice.volumes[volume_index].
                            colour_coding, value );
@@ -546,10 +546,10 @@ private  void  rebuild_colour_table(
     display_struct    *slice_window,
     int               volume_index )
 {
-    Volume           volume;
+    VIO_Volume           volume;
     int              voxel;
     Real             value, r, g, b, a, opacity;
-    Colour           colour;
+    VIO_Colour           colour;
     Real             min_voxel, max_voxel;
 
     volume = get_nth_volume(slice_window,volume_index);
@@ -581,7 +581,7 @@ public  void   set_colour_of_label(
     display_struct    *slice_window,
     int               volume_index,
     int               label,
-    Colour            colour )
+    VIO_Colour            colour )
 {
     Real  r, g, b;
 
@@ -598,7 +598,7 @@ public  void   set_colour_of_label(
     slice_window->slice.volumes[volume_index].label_colour_table[label] =colour;
 }
 
-public  Colour   get_colour_of_label(
+public  VIO_Colour   get_colour_of_label(
     display_struct    *slice_window,
     int               volume_index,
     int               label )
@@ -624,7 +624,7 @@ public  void   set_label_opacity(
 {
     int     i, n_labels;
     Real    r, g, b;
-    Colour  *table;
+    VIO_Colour  *table;
 
     slice_window->slice.volumes[volume_index].label_colour_opacity = opacity;
 
@@ -680,14 +680,14 @@ private  void  colour_code_points(
     display_struct        *slice_window,
     int                   continuity,
     Colour_flags          *colour_flag,
-    Colour                *colours[],
+    VIO_Colour                *colours[],
     int                   n_points,
-    Point                 points[] )
+    VIO_Point                 points[] )
 {
-    int      i, int_voxel[MAX_DIMENSIONS], label, volume_index, view_index;
-    Real     val, voxel[MAX_DIMENSIONS];
-    Volume   volume, label_volume;
-    Colour   colour, volume_colour;
+    int      i, int_voxel[VIO_MAX_DIMENSIONS], label, volume_index, view_index;
+    Real     val, voxel[VIO_MAX_DIMENSIONS];
+    VIO_Volume   volume, label_volume;
+    VIO_Colour   colour, volume_colour;
 
     if( *colour_flag != PER_VERTEX_COLOURS )
     {
@@ -735,7 +735,7 @@ private  void  colour_code_points(
                                            voxel, int_voxel );
                 if( int_voxel_is_within_volume( volume, int_voxel ) )
                 {
-                    volume_colour = (Colour) get_volume_voxel_value(
+                    volume_colour = (VIO_Colour) get_volume_voxel_value(
                                   volume, int_voxel[0], int_voxel[1],
                                   int_voxel[2], 0, 0 );
                 }
@@ -791,7 +791,7 @@ private  void  colour_code_object_points(
     int                    continuity,
     object_struct          *object )
 {
-    Colour                  *colours;
+    VIO_Colour                  *colours;
     Colour_flags            colour_flag;
     polygons_struct         *polygons;
     quadmesh_struct         *quadmesh;
@@ -847,13 +847,13 @@ public  STRING    get_default_colour_map_suffix( void )
     return( DEFAULT_COLOUR_MAP_SUFFIX );
 }
 
-public  Status  load_label_colour_map(
+public  VIO_Status  load_label_colour_map(
     display_struct   *slice_window,
     STRING           filename )
 {
-    Status   status;
+    VIO_Status   status;
     FILE     *file;
-    Colour   col;
+    VIO_Colour   col;
     STRING   line;
     int      n_labels, index;
 
@@ -892,14 +892,14 @@ public  Status  load_label_colour_map(
     return( status );
 }
 
-public  Status  save_label_colour_map(
+public  VIO_Status  save_label_colour_map(
     display_struct   *slice_window,
     STRING           filename )
 {
-    Status   status;
+    VIO_Status   status;
     FILE     *file;
     Real     red, green, blue;
-    Colour   col;
+    VIO_Colour   col;
     int      n_labels, index;
 
     if( open_file_with_default_suffix( filename,
@@ -940,7 +940,7 @@ public  void  clear_labels(
     display_struct   *display,
     int              volume_index )
 {
-    int    sizes[N_DIMENSIONS];
+    int    sizes[VIO_N_DIMENSIONS];
 
     get_volume_sizes( get_nth_label_volume(display,volume_index), sizes );
 
@@ -972,7 +972,7 @@ public void update_label_tag(
 	    int              z,
 	    int              label)
 {
-    Volume            label_volume;
+    VIO_Volume            label_volume;
     struct stack_list ** label_stack;
     struct stack_real *top_s;
     object_struct     *object;
@@ -981,9 +981,9 @@ public void update_label_tag(
     Real              *world_dyn;
     display_struct 	  *marker_window;
 	display_struct 	  *three_d_window;
-    Real		      world[MAX_DIMENSIONS];
-    Real              voxel_real[MAX_DIMENSIONS];
-    int			      voxel_int[MAX_DIMENSIONS];
+    Real		      world[VIO_MAX_DIMENSIONS];
+    Real              voxel_real[VIO_MAX_DIMENSIONS];
+    int			      voxel_int[VIO_MAX_DIMENSIONS];
     int			      value;
 
     marker_window = display->associated[MARKER_WINDOW];
@@ -1017,7 +1017,7 @@ public void update_label_tag(
 			rebuild_selected_list(three_d_window, marker_window);
 
 		}
-		ALLOC( world_dyn, MAX_DIMENSIONS );
+		ALLOC( world_dyn, VIO_MAX_DIMENSIONS );
 		world_dyn[X] = world[X];
 		world_dyn[Y] = world[Y];
 		world_dyn[Z] = world[Z];
@@ -1044,7 +1044,7 @@ public void update_label_tag(
 					voxel_int[X] = x;
 					voxel_int[Y] = y;
 					voxel_int[Z] = z;
-					convert_int_to_real_voxel(MAX_DIMENSIONS, voxel_int,
+					convert_int_to_real_voxel(VIO_MAX_DIMENSIONS, voxel_int,
 							voxel_real);
 					update_current_marker(marker_window, volume_index, voxel_real);
 					get_current_object( three_d_window, &object );
@@ -1055,7 +1055,7 @@ public void update_label_tag(
 				}
 				convert_world_to_voxel(label_volume, top_s->cur[X],
 						top_s->cur[Y], top_s->cur[Z], voxel_real);
-				convert_real_to_int_voxel(MAX_DIMENSIONS, voxel_real, voxel_int);
+				convert_real_to_int_voxel(VIO_MAX_DIMENSIONS, voxel_real, voxel_int);
 
 			} while (get_3D_volume_label_data(label_volume, voxel_int[X],
 					voxel_int[Y], voxel_int[Z]) != value);
@@ -1081,11 +1081,11 @@ public  void  set_voxel_label(
 
 }
 
-public  Status  load_user_defined_colour_coding(
+public  VIO_Status  load_user_defined_colour_coding(
     display_struct   *slice_window,
     STRING           filename )
 {
-    Status   status;
+    VIO_Status   status;
 
     status = input_user_defined_colour_coding( &slice_window->slice.volumes[
                          get_current_volume_index(slice_window)].colour_coding,

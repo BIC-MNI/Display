@@ -76,7 +76,7 @@ private  void  make_cursor_contours(
     display_struct   *display )
 {
     int             axis;
-    Colour          col;
+    VIO_Colour          col;
     object_struct   *object;
     lines_struct    *lines;
     model_struct    *model;
@@ -86,7 +86,7 @@ private  void  make_cursor_contours(
     else
         model = get_graphics_model( display, MISCELLANEOUS_MODEL );
 
-    for_less( axis, 0, N_DIMENSIONS )
+    for_less( axis, 0, VIO_N_DIMENSIONS )
     {
         object = create_object( LINES );
         lines = get_lines_ptr( object );
@@ -113,7 +113,7 @@ private  void  make_cursor_contours(
 
 private  DEF_EVENT_FUNCTION( check_update_contour )
 {
-    Real     end_time;
+    VIO_Real     end_time;
     VIO_BOOL  found;
 
     end_time = current_realtime_seconds() + Max_background_seconds;
@@ -152,7 +152,7 @@ private  void   initialize_contour(
 
     contours = &display->three_d.cursor_contours;
 
-    for_less( axis, 0, N_DIMENSIONS )
+    for_less( axis, 0, VIO_N_DIMENSIONS )
     {
         contours->contours[axis].lines->n_points = 0;
         contours->contours[axis].lines->n_items = 0;
@@ -213,8 +213,8 @@ private  VIO_BOOL  add_to_contour(
     display_struct   *display )
 {
     VIO_BOOL                 found;
-    Vector                  plane_normal;
-    Real                    plane_constant;
+    VIO_Vector                  plane_normal;
+    VIO_Real                    plane_constant;
     int                     axis;
     cursor_contours_struct  *contours;
 
@@ -224,7 +224,7 @@ private  VIO_BOOL  add_to_contour(
     fill_Vector( plane_normal, 0.0, 0.0, 0.0 );
     Vector_coord(plane_normal,axis) = 1.0f;
 
-    plane_constant = (Real) Point_coord( display->three_d.cursor.origin, axis );
+    plane_constant = (VIO_Real) Point_coord( display->three_d.cursor.origin, axis );
 
     found = intersect_plane_one_polygon( &plane_normal,
                               plane_constant,
@@ -259,7 +259,7 @@ private  void  advance_polygon(
         {
             ++contours->axis;
 
-            if( contours->axis < N_DIMENSIONS )
+            if( contours->axis < VIO_N_DIMENSIONS )
                 start_new_axis( display );
         }
     }

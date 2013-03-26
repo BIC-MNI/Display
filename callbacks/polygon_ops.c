@@ -54,9 +54,9 @@ public  VIO_BOOL  get_current_polygons(
 
 public  DEF_MENU_FUNCTION( input_polygons_bintree )
 {
-    Status            status;
+    VIO_Status            status;
     polygons_struct   *polygons;
-    STRING            filename;
+    VIO_STR            filename;
     FILE              *file;
 
     status = OK;
@@ -106,9 +106,9 @@ public  DEF_MENU_UPDATE(input_polygons_bintree )
 
 public  DEF_MENU_FUNCTION( save_polygons_bintree )
 {
-    Status            status;
+    VIO_Status            status;
     polygons_struct   *polygons;
-    STRING            filename;
+    VIO_STR            filename;
     FILE              *file;
 
     status = OK;
@@ -166,7 +166,7 @@ public  DEF_MENU_FUNCTION( create_bintree_for_polygons )
             delete_the_bintree( (bintree_struct **) (&polygons->bintree) );
 
         create_polygons_bintree( polygons,
-                     ROUND( (Real) polygons->n_items * Bintree_size_factor ) );
+                     ROUND( (VIO_Real) polygons->n_items * Bintree_size_factor ) );
         print( "Done.\n" );
     }
 
@@ -211,7 +211,7 @@ public  DEF_MENU_UPDATE(create_normals_for_polygon )
 public  DEF_MENU_FUNCTION( average_normals_for_polygon )
 {
     int               n_iters;
-    Real              neighbour_weight;
+    VIO_Real              neighbour_weight;
     polygons_struct   *polygons;
 
     if( get_current_polygons(display,&polygons) )
@@ -253,7 +253,7 @@ public  DEF_MENU_FUNCTION( smooth_current_polygon )
         smooth_polygon( polygons, Max_smoothing_distance,
                         Smoothing_ratio, Smoothing_threshold,
                         Smoothing_normal_ratio,
-                        FALSE, (Volume) NULL, 0, 0 );
+                        FALSE, (VIO_Volume) NULL, 0, 0 );
 
         compute_polygon_normals( polygons );
 
@@ -303,8 +303,8 @@ public  DEF_MENU_UPDATE(reverse_polygons_order )
 
 public  DEF_MENU_FUNCTION( make_polygon_sphere )
 {
-    Point             centre;
-    Real              x_size, y_size, z_size;
+    VIO_Point             centre;
+    VIO_Real              x_size, y_size, z_size;
     int               n_up, n_around;
     object_struct     *object;
 
@@ -348,8 +348,8 @@ public  DEF_MENU_UPDATE(make_polygon_sphere )
 
 public  DEF_MENU_FUNCTION( make_tetrahedral_sphere )
 {
-    Point             centre;
-    Real              x_size, y_size, z_size;
+    VIO_Point             centre;
+    VIO_Real              x_size, y_size, z_size;
     int               n_triangles;
     object_struct     *object;
 
@@ -469,7 +469,7 @@ public  DEF_MENU_UPDATE(cut_polygon_neighbours )
 
 public  DEF_MENU_FUNCTION( set_polygon_line_thickness )
 {
-    Real              line_thickness;
+    VIO_Real              line_thickness;
     polygons_struct   *polygons;
 
     if( get_current_polygons( display, &polygons ) )
@@ -498,7 +498,7 @@ public  DEF_MENU_UPDATE(set_polygon_line_thickness )
 
 public  DEF_MENU_FUNCTION( print_polygons_surface_area )
 {
-    Real              surface_area;
+    VIO_Real              surface_area;
     polygons_struct   *polygons;
 
     if( get_current_polygons( display, &polygons ) )

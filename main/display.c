@@ -29,7 +29,7 @@ private  void  display_objects_recursive(
     object_struct                *object_list[],
     render_struct                *render,
     View_types                   view_type,
-    Transform                    *transform,
+    VIO_Transform                    *transform,
     update_interrupted_struct    *interrupt,
     VIO_BOOL                      *past_last_object );
 
@@ -71,7 +71,7 @@ private  void  display_objects_recursive(
     object_struct                *object_list[],
     render_struct                *render,
     View_types                   view_type,
-    Transform                    *transform,
+    VIO_Transform                    *transform,
     update_interrupted_struct    *interrupt,
     VIO_BOOL                      *past_last_object )
 {

@@ -22,14 +22,14 @@
 
 #include  <display.h>
 
-private  Status  input_pixel_map(
-    STRING          default_directory,
-    STRING          image_filename,
+private  VIO_Status  input_pixel_map(
+    VIO_STR          default_directory,
+    VIO_STR          image_filename,
     pixels_struct   *pixels );
 
-private  const  int   ATLAS_SIZE[N_DIMENSIONS] = { 256, 256, 80 };
-private  const  Real  ATLAS_STEPS[N_DIMENSIONS] = { 0.67, 0.86, 1.5 };
-private  const  Real  ATLAS_STARTS[N_DIMENSIONS] = {  -86.095, -126.51, -37.5 };
+private  const  int   ATLAS_SIZE[VIO_N_DIMENSIONS] = { 256, 256, 80 };
+private  const  VIO_Real  ATLAS_STEPS[VIO_N_DIMENSIONS] = { 0.67, 0.86, 1.5 };
+private  const  VIO_Real  ATLAS_STARTS[VIO_N_DIMENSIONS] = {  -86.095, -126.51, -37.5 };
 
 public  void  initialize_atlas(
     atlas_struct   *atlas )
@@ -63,23 +63,23 @@ public  void  delete_atlas(
     }
 }
 
-private  Volume  convert_pixels_to_volume(
+private  VIO_Volume  convert_pixels_to_volume(
     int            axis_index,
-    Real           slice_position,
+    VIO_Real           slice_position,
     pixels_struct  *pixels )
 {
     int      x, y, sizes[2];
     int      ind, dim, x_index, y_index;
-    STRING   dim_names[2];
-    int      dim_orders[N_DIMENSIONS][2] = {
+    VIO_STR   dim_names[2];
+    int      dim_orders[VIO_N_DIMENSIONS][2] = {
                                                          { Y, Z },
                                                          { X, Z },
                                                          { X, Y }
                                                       };
-    Volume   volume;
-    Real     separations[2];
-    Real     bottom_left[2];
-    Real     world_corner[N_DIMENSIONS];
+    VIO_Volume   volume;
+    VIO_Real     separations[2];
+    VIO_Real     bottom_left[2];
+    VIO_Real     world_corner[VIO_N_DIMENSIONS];
 
     for_less( dim, 0, 2 )
         dim_names[dim] = XYZ_dimension_names[dim_orders[axis_index][dim]];
@@ -100,16 +100,16 @@ private  Volume  convert_pixels_to_volume(
     {
         ind = (int) PIXEL_COLOUR_INDEX_8( *pixels, x, y );
 
-        set_volume_voxel_value( volume, x, y, 0, 0, 0, (Real) ind );
+        set_volume_voxel_value( volume, x, y, 0, 0, 0, (VIO_Real) ind );
     }
 
     x_index = dim_orders[axis_index][0];
     y_index = dim_orders[axis_index][1];
 
-    separations[0] = ATLAS_STEPS[x_index] * (Real) ATLAS_SIZE[x_index] /
-                     (Real) pixels->x_size;
-    separations[1] = ATLAS_STEPS[y_index] * (Real) ATLAS_SIZE[y_index] /
-                     (Real) pixels->y_size;
+    separations[0] = ATLAS_STEPS[x_index] * (VIO_Real) ATLAS_SIZE[x_index] /
+                     (VIO_Real) pixels->x_size;
+    separations[1] = ATLAS_STEPS[y_index] * (VIO_Real) ATLAS_SIZE[y_index] /
+                     (VIO_Real) pixels->y_size;
 
     bottom_left[0] = -0.5;
     bottom_left[1] = -0.5;
@@ -124,17 +124,17 @@ private  Volume  convert_pixels_to_volume(
     return( volume );
 }
 
-private  Status  input_atlas(
+private  VIO_Status  input_atlas(
     atlas_struct   *atlas,
-    STRING         filename )
+    VIO_STR         filename )
 {
-    Status           status;
+    VIO_Status           status;
     FILE             *file;
-    STRING           *image_filenames, image_filename;
+    VIO_STR           *image_filenames, image_filename;
     char             axis_letter;
-    Real             talairach_position;
+    VIO_Real             talairach_position;
     int              axis_index, image;
-    STRING           atlas_directory;
+    VIO_STR           atlas_directory;
     pixels_struct    pixels;
     progress_struct  progress;
 
@@ -147,7 +147,7 @@ private  Status  input_atlas(
     if( status != OK )
         return( status );
 
-    image_filenames = (STRING *) NULL;
+    image_filenames = (VIO_STR *) NULL;
 
     while( input_string( file, &image_filename, ' ' ) == OK )
     {
@@ -227,14 +227,14 @@ private  Status  input_atlas(
     return( status );
 }
 
-private  Status  input_pixel_map(
-    STRING         default_directory,
-    STRING         image_filename,
+private  VIO_Status  input_pixel_map(
+    VIO_STR         default_directory,
+    VIO_STR         image_filename,
     pixels_struct  *pixels )
 {
-    Status         status;
-    STRING         absolute_filename;
-    File_formats   format;
+    VIO_Status         status;
+    VIO_STR         absolute_filename;
+    VIO_File_formats   format;
     Object_types   object_type;
     VIO_BOOL        eof;
     FILE           *file;
@@ -272,7 +272,7 @@ public  void  set_atlas_state(
     display_struct    *slice_window,
     VIO_BOOL           state )
 {
-    Status   status;
+    VIO_Status   status;
 
     status = OK;
 
@@ -300,21 +300,21 @@ private  VIO_BOOL  find_appropriate_atlas_image(
     atlas_struct      *atlas,
     int               x_n_pixels,
     int               y_n_pixels,
-    Real              world_start[],
-    Real              world_x_axis[],
-    Real              world_y_axis[],
-    Volume            *image,
-    Real              origin[],
-    Real              x_axis[],
-    Real              y_axis[],
-    Real              *x_scale,
-    Real              *y_scale )
+    VIO_Real              world_start[],
+    VIO_Real              world_x_axis[],
+    VIO_Real              world_y_axis[],
+    VIO_Volume            *image,
+    VIO_Real              origin[],
+    VIO_Real              x_axis[],
+    VIO_Real              y_axis[],
+    VIO_Real              *x_scale,
+    VIO_Real              *y_scale )
 {
-    Real            min_dist, dist, slice_position, best_scale, scale_dist;
-    Real            separations[2];
-    Real            tmp_x_scale, tmp_y_scale, tmp_origin[2];
-    Real            tmp_x_axis[2];
-    Real            tmp_y_axis[2];
+    VIO_Real            min_dist, dist, slice_position, best_scale, scale_dist;
+    VIO_Real            separations[2];
+    VIO_Real            tmp_x_scale, tmp_y_scale, tmp_origin[2];
+    VIO_Real            tmp_x_axis[2];
+    VIO_Real            tmp_y_axis[2];
     int             im, axis, dim, a1, a2;
 
     *image = NULL;
@@ -323,7 +323,7 @@ private  VIO_BOOL  find_appropriate_atlas_image(
 
     a1 = -1;
     a2 = -1;
-    for_less( dim, 0, N_DIMENSIONS )
+    for_less( dim, 0, VIO_N_DIMENSIONS )
     {
         if( world_x_axis[dim] != 0.0 )
         {
@@ -339,7 +339,7 @@ private  VIO_BOOL  find_appropriate_atlas_image(
         }
     }
 
-    axis = N_DIMENSIONS - a1 - a2;
+    axis = VIO_N_DIMENSIONS - a1 - a2;
 
     slice_position = world_start[axis];
 
@@ -407,25 +407,25 @@ private  VIO_BOOL  find_appropriate_atlas_image(
 
 public  VIO_BOOL  render_atlas_slice_to_pixels(
     atlas_struct  *atlas,
-    Colour        image[],
+    VIO_Colour        image[],
     int           image_x_size,
     int           image_y_size,
-    Real          world_start[],
-    Real          world_x_axis[],
-    Real          world_y_axis[] )
+    VIO_Real          world_start[],
+    VIO_Real          world_x_axis[],
+    VIO_Real          world_y_axis[] )
 {
     int            x, y;
     int            r_atlas, g_atlas, b_atlas, a_atlas;
-    Real           x_scale, y_scale;
-    Real           origin[2];
-    Real           x_axis[2];
-    Real           y_axis[2];
+    VIO_Real           x_scale, y_scale;
+    VIO_Real           origin[2];
+    VIO_Real           x_axis[2];
+    VIO_Real           y_axis[2];
     int            transparent_threshold;
     int            n_alloced;
-    Colour         atlas_pixel, *lookup;
+    VIO_Colour         atlas_pixel, *lookup;
     pixels_struct  pixels;
-    Volume         atlas_image;
-    Real           opacity;
+    VIO_Volume         atlas_image;
+    VIO_Real           opacity;
 
     if( !atlas->enabled || atlas->opacity <= 0.0 ||
         !find_appropriate_atlas_image( atlas, image_x_size, image_y_size,
@@ -478,7 +478,7 @@ public  VIO_BOOL  render_atlas_slice_to_pixels(
             {
                 PIXEL_RGB_COLOUR( pixels, x, y ) = make_rgba_Colour(
                                                r_atlas,g_atlas,b_atlas,
-                                               ROUND((Real) a_atlas*opacity));
+                                               ROUND((VIO_Real) a_atlas*opacity));
             }
         }
     }

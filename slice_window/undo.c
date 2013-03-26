@@ -38,7 +38,7 @@ public  void  delete_slice_undo(
     if( undo->axis_index >= 0 &&
         (volume_index < 0 || volume_index == undo->volume_index) )
     {
-        FREE2D( undo->saved_labels );
+        VIO_FREE2D( undo->saved_labels );
         initialize_slice_undo( undo );
     }
 }
@@ -49,9 +49,9 @@ public  void  record_slice_labels(
     int             axis_index,
     int             slice_index )
 {
-    int             voxel[MAX_DIMENSIONS], sizes[MAX_DIMENSIONS];
+    int             voxel[VIO_MAX_DIMENSIONS], sizes[VIO_MAX_DIMENSIONS];
     int             x_index, y_index;
-    Volume          label_volume;
+    VIO_Volume          label_volume;
     display_struct  *slice_window;
 
     if( Undo_enabled &&
@@ -66,10 +66,10 @@ public  void  record_slice_labels(
         label_volume = get_nth_label_volume( slice_window, volume_index );
         get_volume_sizes( label_volume, sizes );
 
-        x_index = (axis_index + 1) % N_DIMENSIONS;
-        y_index = (axis_index + 2) % N_DIMENSIONS;
+        x_index = (axis_index + 1) % VIO_N_DIMENSIONS;
+        y_index = (axis_index + 2) % VIO_N_DIMENSIONS;
 
-        ALLOC2D( slice_window->slice.undo.saved_labels,
+        VIO_ALLOC2D( slice_window->slice.undo.saved_labels,
                  sizes[x_index], sizes[y_index] );
 
         voxel[axis_index] = slice_index;
@@ -90,10 +90,10 @@ public  void  record_slice_under_mouse(
     display_struct  *display,
     int             volume_index )
 {
-    int             view_index, slice, sizes[MAX_DIMENSIONS];
+    int             view_index, slice, sizes[VIO_MAX_DIMENSIONS];
     int             x_index, y_index, axis_index;
     display_struct  *slice_window;
-    Real            voxel[MAX_DIMENSIONS];
+    Real            voxel[VIO_MAX_DIMENSIONS];
 
     if( get_slice_window( display, &slice_window ) &&
         get_slice_view_index_under_mouse( display, &view_index ) &&
@@ -120,10 +120,10 @@ public  VIO_BOOL  slice_labels_to_undo(
 public  int  undo_slice_labels_if_any(
     display_struct  *display )
 {
-    int             voxel[MAX_DIMENSIONS], sizes[MAX_DIMENSIONS];
+    int             voxel[VIO_MAX_DIMENSIONS], sizes[VIO_MAX_DIMENSIONS];
     int             volume_index, axis_index, slice_index;
     int             x_index, y_index;
-    Volume          label_volume;
+    VIO_Volume          label_volume;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -136,8 +136,8 @@ public  int  undo_slice_labels_if_any(
         label_volume = get_nth_label_volume( slice_window, volume_index );
         get_volume_sizes( label_volume, sizes );
 
-        x_index = (axis_index + 1) % N_DIMENSIONS;
-        y_index = (axis_index + 2) % N_DIMENSIONS;
+        x_index = (axis_index + 1) % VIO_N_DIMENSIONS;
+        y_index = (axis_index + 2) % VIO_N_DIMENSIONS;
 
         voxel[axis_index] = slice_index;
         for_less( voxel[x_index], 0, sizes[x_index] )

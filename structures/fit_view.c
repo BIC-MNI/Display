@@ -28,33 +28,33 @@
 private  void   fit_view_to_points(
     view_struct   *view,
     int           n_points,
-    Point         points[] );
+    VIO_Point         points[] );
 private  void  orthogonal_fit_points(
     view_struct   *view,
-    Point         *centre,
-    Vector        *range );
+    VIO_Point         *centre,
+    VIO_Vector        *range );
 private  void  perspective_fit_points(
     view_struct   *view,
-    Point         *centre,
+    VIO_Point         *centre,
     int           n_points,
-    Point         points[] );
+    VIO_Point         points[] );
 
 public  void  fit_view_to_domain(
     view_struct   *view,
-    Point         *min_limit,
-    Point         *max_limit )
+    VIO_Point         *min_limit,
+    VIO_Point         *max_limit )
 {
-    Point     points[8];
-    Real      x_min, y_min, z_min;
-    Real      x_max, y_max, z_max;
+    VIO_Point     points[8];
+    VIO_Real      x_min, y_min, z_min;
+    VIO_Real      x_max, y_max, z_max;
 
-    x_min = (Real) Point_x( *min_limit );
-    y_min = (Real) Point_y( *min_limit );
-    z_min = (Real) Point_z( *min_limit );
+    x_min = (VIO_Real) Point_x( *min_limit );
+    y_min = (VIO_Real) Point_y( *min_limit );
+    z_min = (VIO_Real) Point_z( *min_limit );
 
-    x_max = (Real) Point_x( *max_limit );
-    y_max = (Real) Point_y( *max_limit );
-    z_max = (Real) Point_z( *max_limit );
+    x_max = (VIO_Real) Point_x( *max_limit );
+    y_max = (VIO_Real) Point_y( *max_limit );
+    z_max = (VIO_Real) Point_z( *max_limit );
 
     fill_Point( points[0], x_min, y_min, z_min );
     fill_Point( points[1], x_min, y_min, z_max );
@@ -71,12 +71,12 @@ public  void  fit_view_to_domain(
 private  void   fit_view_to_points(
     view_struct   *view,
     int           n_points,
-    Point         points[] )
+    VIO_Point         points[] )
 {
     int    i, c;
-    Real   size, centre_z;
-    Point  min_coord, max_coord, centre;
-    Vector range;
+    VIO_Real   size, centre_z;
+    VIO_Point  min_coord, max_coord, centre;
+    VIO_Vector range;
 
     for_less( i, 0, n_points )
     {
@@ -88,7 +88,7 @@ private  void   fit_view_to_points(
 
     for_less( i, 1, n_points )
     {
-        for_less( c, 0, N_DIMENSIONS )
+        for_less( c, 0, VIO_N_DIMENSIONS )
         {
             if( Point_coord(min_coord,c) > Point_coord( points[i], c ) )
             {
@@ -117,7 +117,7 @@ private  void   fit_view_to_points(
         }
     }
 
-    centre_z = ((Real) Point_z(min_coord) + (Real) Point_z(max_coord)) / 2.0;
+    centre_z = ((VIO_Real) Point_z(min_coord) + (VIO_Real) Point_z(max_coord)) / 2.0;
     Point_z(min_coord) = (Point_coord_type) (centre_z - size / 2.0);
     Point_z(max_coord) = (Point_coord_type) (centre_z + size / 2.0);
     Vector_z(range) = (Point_coord_type) size;
@@ -138,23 +138,23 @@ private  void   fit_view_to_points(
 
 private  void  orthogonal_fit_points(
     view_struct   *view,
-    Point         *centre,
-    Vector        *range )
+    VIO_Point         *centre,
+    VIO_Vector        *range )
 {
-    Real    dx, dy, dz;
-    Point   eye;
-    Vector  x_axis, y_axis, line_of_sight;
-    Vector  delta_x, delta_y, delta_z;
-    Real    x_scale, y_scale, scale_factor;
+    VIO_Real    dx, dy, dz;
+    VIO_Point   eye;
+    VIO_Vector  x_axis, y_axis, line_of_sight;
+    VIO_Vector  delta_x, delta_y, delta_z;
+    VIO_Real    x_scale, y_scale, scale_factor;
 
     eye = view->origin;
     x_axis = view->x_axis;
     y_axis = view->y_axis;
     line_of_sight = view->line_of_sight;
 
-    dx = (Real) Point_x(*centre);
-    dy = (Real) Point_y(*centre);
-    dz = (Real) Point_z(*centre) - (Real) Vector_z(*range);
+    dx = (VIO_Real) Point_x(*centre);
+    dy = (VIO_Real) Point_y(*centre);
+    dz = (VIO_Real) Point_z(*centre) - (VIO_Real) Vector_z(*range);
 
     SCALE_VECTOR( delta_x, x_axis, dx );
     SCALE_VECTOR( delta_y, y_axis, dy );
@@ -166,8 +166,8 @@ private  void  orthogonal_fit_points(
 
     view->origin = eye;
 
-    x_scale = (Real) Vector_x(*range) * FACTOR / view->window_width;
-    y_scale = (Real) Vector_y(*range) * FACTOR / view->window_height;
+    x_scale = (VIO_Real) Vector_x(*range) * FACTOR / view->window_width;
+    y_scale = (VIO_Real) Vector_y(*range) * FACTOR / view->window_height;
 
     if( x_scale == 0.0 )
     {
@@ -182,24 +182,24 @@ private  void  orthogonal_fit_points(
 
     view->window_width *= scale_factor;
     view->window_height *= scale_factor;
-    view->perspective_distance = (Real) Vector_z(*range);
+    view->perspective_distance = (VIO_Real) Vector_z(*range);
 
     view->front_distance = 0.0;
-    view->back_distance = 2.0 * ((Real) Point_z(*centre) - dz);
+    view->back_distance = 2.0 * ((VIO_Real) Point_z(*centre) - dz);
 }
 
 private  void  perspective_fit_points(
     view_struct   *view,
-    Point         *centre,
+    VIO_Point         *centre,
     int           n_points,
-    Point         points[] )
+    VIO_Point         points[] )
 {
     int     i, c;
-    Real    z_min, z_pos, dist, ratio, new_persp_dist;
-    Real    dx, dy, dz, off_centre, width;
-    Point   eye;
-    Vector  x_axis, y_axis, line_of_sight;
-    Vector  delta_x, delta_y, delta_z;
+    VIO_Real    z_min, z_pos, dist, ratio, new_persp_dist;
+    VIO_Real    dx, dy, dz, off_centre, width;
+    VIO_Point   eye;
+    VIO_Vector  x_axis, y_axis, line_of_sight;
+    VIO_Vector  delta_x, delta_y, delta_z;
 
     z_min = 0.0;
 
@@ -209,12 +209,12 @@ private  void  perspective_fit_points(
         {
             if( c == X )
             {
-                off_centre = (Real) Point_x(points[i]) - (Real)Point_x(*centre);
+                off_centre = (VIO_Real) Point_x(points[i]) - (VIO_Real)Point_x(*centre);
                 width = view->window_width;
             }
             else
             {
-                off_centre = (Real) Point_y(points[i]) - (Real)Point_y(*centre);
+                off_centre = (VIO_Real) Point_y(points[i]) - (VIO_Real)Point_y(*centre);
                 width = view->window_height;
             }
 
@@ -224,15 +224,15 @@ private  void  perspective_fit_points(
             if( dist < 0.0 )
                 dist = -dist;
 
-            z_pos = (Real) Point_z(points[i]) - dist;
+            z_pos = (VIO_Real) Point_z(points[i]) - dist;
 
             if( (i == 0 && c == X) || z_pos < z_min )
                 z_min = z_pos;
         }
     }
 
-    dx = (Real) Point_x(*centre);
-    dy = (Real) Point_y(*centre);
+    dx = (VIO_Real) Point_x(*centre);
+    dy = (VIO_Real) Point_y(*centre);
     dz = z_min;
 
     eye = view->origin;
@@ -250,7 +250,7 @@ private  void  perspective_fit_points(
 
     view->origin = eye;
 
-    new_persp_dist = (Real) Point_z(*centre) - z_min;
+    new_persp_dist = (VIO_Real) Point_z(*centre) - z_min;
 
     ratio = new_persp_dist / view->perspective_distance;
 
@@ -258,6 +258,6 @@ private  void  perspective_fit_points(
     view->window_height *= ratio;
     view->perspective_distance = new_persp_dist;
 
-    view->back_distance = 2.0 * ((Real) Point_z(*centre) - dz);
+    view->back_distance = 2.0 * ((VIO_Real) Point_z(*centre) - dz);
     view->front_distance = Closest_front_plane;
 }

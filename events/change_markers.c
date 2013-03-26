@@ -71,14 +71,14 @@ private  DEF_EVENT_FUNCTION( terminate_picking_markers )
 }
 
 private  void  get_coordinates(
-    Real    x1,
-    Real    y1,
-    Real    x2,
-    Real    y2,
-    Real    *x_min,
-    Real    *y_min,
-    Real    *x_max,
-    Real    *y_max )
+    VIO_Real    x1,
+    VIO_Real    y1,
+    VIO_Real    x2,
+    VIO_Real    y2,
+    VIO_Real    *x_min,
+    VIO_Real    *y_min,
+    VIO_Real    *x_max,
+    VIO_Real    *y_max )
 {
     *x_min = MIN( x1, x2 );
     *x_max = MAX( x1, x2 );
@@ -90,7 +90,7 @@ private  void  get_coordinates(
 
 private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
 {
-    Real     x, y, x_prev, y_prev, x1, y1, x2, y2;
+    VIO_Real     x, y, x_prev, y_prev, x1, y1, x2, y2;
 
     if( (graphics_update_required( display ) ||
          mouse_moved(display,&x,&y,&x_prev,&y_prev)) &&
@@ -112,7 +112,7 @@ private  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
 
 private  DEF_EVENT_FUNCTION( pick_first_corner_point )
 {
-    Real  x, y;
+    VIO_Real  x, y;
 
     if( G_get_mouse_position_0_to_1( display->window, &x, &y ) )
     {
@@ -141,14 +141,14 @@ private  DEF_EVENT_FUNCTION( pick_first_corner_point )
 
 private  DEF_EVENT_FUNCTION( show_picked_square )
 {
-    Real   x, y, x_prev, y_prev, x1, y1, x2, y2;
+    VIO_Real   x, y, x_prev, y_prev, x1, y1, x2, y2;
 
     if( (graphics_update_required( display ) ||
          mouse_moved(display,&x,&y,&x_prev,&y_prev)) &&
         G_get_mouse_position_0_to_1( display->window, &x, &y ) )
     {
-        get_coordinates( (Real) Point_x(display->viewport_picking.first_corner),
-                         (Real) Point_y(display->viewport_picking.first_corner),
+        get_coordinates( (VIO_Real) Point_x(display->viewport_picking.first_corner),
+                         (VIO_Real) Point_y(display->viewport_picking.first_corner),
                          x, y, &x1, &y1, &x2, &y2 );
 
         draw_2d_rectangle( display, SCREEN_VIEW,
@@ -164,8 +164,8 @@ private  DEF_EVENT_FUNCTION( show_picked_square )
 
 private  DEF_EVENT_FUNCTION( done_picking_markers )
 {
-    Real                    x, y, x_min, y_min, x_max, y_max;
-    Point                   screen_pos;
+    VIO_Real                    x, y, x_min, y_min, x_max, y_max;
+    VIO_Point                   screen_pos;
     marker_struct           *marker;
     object_struct           *object, *current_object;
     object_traverse_struct  object_traverse;
@@ -177,8 +177,8 @@ private  DEF_EVENT_FUNCTION( done_picking_markers )
 
     if( G_get_mouse_position_0_to_1( display->window, &x, &y ) )
     {
-        get_coordinates( (Real) Point_x(display->viewport_picking.first_corner),
-                         (Real) Point_y(display->viewport_picking.first_corner),
+        get_coordinates( (VIO_Real) Point_x(display->viewport_picking.first_corner),
+                         (VIO_Real) Point_y(display->viewport_picking.first_corner),
                          x, y, &x_min, &y_min, &x_max, &y_max );
 
 
@@ -193,10 +193,10 @@ private  DEF_EVENT_FUNCTION( done_picking_markers )
                 transform_point_to_screen( &display->three_d.view,
                                            &marker->position, &screen_pos );
 
-                if( (Real) Point_x(screen_pos) >= x_min &&
-                    (Real) Point_x(screen_pos) <= x_max &&
-                    (Real) Point_y(screen_pos) >= y_min &&
-                    (Real) Point_y(screen_pos) <= y_max )
+                if( (VIO_Real) Point_x(screen_pos) >= x_min &&
+                    (VIO_Real) Point_x(screen_pos) <= x_max &&
+                    (VIO_Real) Point_y(screen_pos) >= y_min &&
+                    (VIO_Real) Point_y(screen_pos) <= y_max )
                 {
                     marker->type = display->three_d.default_marker_type;
                     marker->colour = display->three_d.default_marker_colour;

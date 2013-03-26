@@ -60,7 +60,7 @@ public  DEF_MENU_UPDATE(set_atlas_on_or_off )
 
 public  DEF_MENU_FUNCTION( set_atlas_opacity )
 {
-    Real             opacity;
+    VIO_Real             opacity;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
@@ -178,7 +178,7 @@ private  void  set_atlas_tolerance(
     display_struct    *display,
     int               axis )
 {
-    Real             distance_tolerance;
+    VIO_Real             distance_tolerance;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) )

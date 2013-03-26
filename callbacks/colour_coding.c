@@ -27,9 +27,9 @@
 public  DEF_MENU_FUNCTION(set_colour_limits )
 {
     int              volume_index;
-    STRING           line;
+    VIO_STR           line;
     VIO_BOOL          do_it;
-    Real             min_value, max_value;
+    VIO_Real             min_value, max_value;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -250,10 +250,10 @@ public  DEF_MENU_UPDATE(set_user_defined_colour_scale )
 
 public  DEF_MENU_FUNCTION(set_under_colour )
 {
-    Status                  status;
+    VIO_Status                  status;
     display_struct          *slice_window;
-    STRING                  line;
-    Colour                  col;
+    VIO_STR                  line;
+    VIO_Colour                  col;
 
     status = OK;
 
@@ -288,7 +288,7 @@ public  DEF_MENU_UPDATE(set_under_colour )
 {
     VIO_BOOL          active;
     display_struct   *slice_window;
-    Colour           col;
+    VIO_Colour           col;
 
     active = get_slice_window( display, &slice_window ) &&
              get_n_volumes(slice_window) > 0;
@@ -308,10 +308,10 @@ public  DEF_MENU_UPDATE(set_under_colour )
 
 public  DEF_MENU_FUNCTION(set_over_colour )
 {
-    Status                  status;
+    VIO_Status                  status;
     display_struct          *slice_window;
-    STRING                  line;
-    Colour                  col;
+    VIO_STR                  line;
+    VIO_Colour                  col;
 
     status = OK;
 
@@ -346,7 +346,7 @@ public  DEF_MENU_UPDATE(set_over_colour )
 {
     VIO_BOOL          active;
     display_struct   *slice_window;
-    Colour           col;
+    VIO_Colour           col;
 
     active = get_slice_window( display, &slice_window ) &&
              get_n_volumes(slice_window) > 0;
@@ -367,7 +367,7 @@ public  DEF_MENU_UPDATE(set_over_colour )
 
 public  DEF_MENU_FUNCTION(set_label_colour_ratio )
 {
-    Real             opacity;
+    VIO_Real             opacity;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -393,7 +393,7 @@ public  DEF_MENU_FUNCTION(set_label_colour_ratio )
 public  DEF_MENU_UPDATE(set_label_colour_ratio )
 {
     VIO_BOOL          state;
-    Real             opacity;
+    VIO_Real             opacity;
     display_struct   *slice_window;
 
     state = get_slice_window( display, &slice_window ) &&
@@ -511,7 +511,7 @@ public  DEF_MENU_FUNCTION(set_filter_half_width )
 {
     int             view_index, volume_index;
     display_struct  *slice_window;
-    Real            filter_width;
+    VIO_Real            filter_width;
 
     if( get_slice_window( display, &slice_window ) &&
         get_slice_view_index_under_mouse( display, &view_index ) &&
@@ -630,8 +630,8 @@ public  DEF_MENU_UPDATE(toggle_share_labels )
 
 public  DEF_MENU_FUNCTION(save_colour_map )
 {
-    Status          status;
-    STRING          filename;
+    VIO_Status          status;
+    VIO_STR          filename;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -665,7 +665,7 @@ public  DEF_MENU_UPDATE(save_colour_map )
 
 public  DEF_MENU_FUNCTION(load_colour_map )
 {
-    STRING          filename;
+    VIO_STR          filename;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -698,7 +698,7 @@ public  DEF_MENU_UPDATE(load_colour_map )
 
 public  DEF_MENU_FUNCTION(load_user_defined_colour_scale )
 {
-    STRING          filename;
+    VIO_STR          filename;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&

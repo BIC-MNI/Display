@@ -22,15 +22,15 @@
 #include  <display.h>
 #include  <bicpl/images.h>
 
-public  Status   save_window_to_file(
+public  VIO_Status   save_window_to_file(
     display_struct  *display,
-    STRING          filename,
+    VIO_STR          filename,
     int             x_min,
     int             x_max,
     int             y_min,
     int             y_max )
 {
-    Status          status;
+    VIO_Status          status;
     int             x_size, y_size;
     pixels_struct   pixels;
 

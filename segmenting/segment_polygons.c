@@ -28,7 +28,7 @@ private  void  modify_polygon(
     VIO_BOOL           set_visibility_flag,
     VIO_BOOL           new_visibility,
     VIO_BOOL           set_colour_flag,
-    Colour            colour );
+    VIO_Colour            colour );
 private  VIO_BOOL  should_modify_polygon(
     polygons_struct   *polygons,
     int               poly,
@@ -38,7 +38,7 @@ private  VIO_BOOL  polygon_on_invisible_side(
     polygons_struct  *polygons,
     int              poly_index,
     int              axis_index,
-    Real             position,
+    VIO_Real             position,
     VIO_BOOL          cropping_above );
 
 public  void  set_visibility_around_poly(
@@ -48,7 +48,7 @@ public  void  set_visibility_around_poly(
     VIO_BOOL          set_visibility_flag,
     VIO_BOOL          new_visibility,
     VIO_BOOL          set_colour_flag,
-    Colour           colour )
+    VIO_Colour           colour )
 {
     int                   i, index, neigh, size, n_done;
     unsigned char         *polygons_done_flags;
@@ -119,10 +119,10 @@ private  void  modify_polygon(
     VIO_BOOL           set_visibility_flag,
     VIO_BOOL           new_visibility,
     VIO_BOOL           set_colour_flag,
-    Colour            colour )
+    VIO_Colour            colour )
 {
     if( set_visibility_flag )
-        polygons->visibilities[poly] = (Smallest_int) new_visibility;
+        polygons->visibilities[poly] = (VIO_SCHAR) new_visibility;
 
     if( set_colour_flag )
         polygons->colours[poly] = colour;
@@ -137,7 +137,7 @@ private  VIO_BOOL  should_modify_polygon(
     VIO_BOOL  polygon_is_currently_visible;
 
     polygon_is_currently_visible =
-               ( polygons->visibilities == (Smallest_int *) 0 ||
+               ( polygons->visibilities == (VIO_SCHAR *) 0 ||
                  polygons->visibilities[poly] );
 
     if( !set_visibility_flag )
@@ -149,7 +149,7 @@ private  VIO_BOOL  should_modify_polygon(
 public  void  crop_polygons_visibilities(
     polygons_struct  *polygons,
     int              axis_index,
-    Real             position,
+    VIO_Real             position,
     VIO_BOOL          cropping_above )
 {
     int     i;
@@ -170,12 +170,12 @@ private  VIO_BOOL  polygon_on_invisible_side(
     polygons_struct  *polygons,
     int              poly_index,
     int              axis_index,
-    Real             position,
+    VIO_Real             position,
     VIO_BOOL          cropping_above )
 {
     VIO_BOOL  on_invisible_size_only;
     int      i, point_index, size;
-    Real     coord;
+    VIO_Real     coord;
 
     size = GET_OBJECT_SIZE( *polygons, poly_index );
 
@@ -186,7 +186,7 @@ private  VIO_BOOL  polygon_on_invisible_side(
         point_index = polygons->indices[
                     POINT_INDEX(polygons->end_indices,poly_index,i)];
 
-        coord = (Real) Point_coord(polygons->points[point_index],axis_index);
+        coord = (VIO_Real) Point_coord(polygons->points[point_index],axis_index);
 
         if( coord < position && cropping_above ||
             coord > position && !cropping_above )

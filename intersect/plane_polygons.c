@@ -23,8 +23,8 @@
 #include  <display.h>
 
 private  void  intersect_plane_polygons(
-    Vector            *plane_normal,
-    Real              plane_constant,
+    VIO_Vector            *plane_normal,
+    VIO_Real              plane_constant,
     polygons_struct   *polygons,
     lines_struct      *lines,
     int               *n_points_alloced,
@@ -33,8 +33,8 @@ private  void  intersect_plane_polygons(
 
 public  void  intersect_plane_with_polygons(
     display_struct    *display,
-    Vector            *plane_normal,
-    Real              plane_constant,
+    VIO_Vector            *plane_normal,
+    VIO_Real              plane_constant,
     lines_struct      *lines,
     int               *n_points_alloced,
     int               *n_indices_alloced,
@@ -62,8 +62,8 @@ public  void  intersect_plane_with_polygons(
 }
 
 private  void  intersect_plane_polygons(
-    Vector            *plane_normal,
-    Real              plane_constant,
+    VIO_Vector            *plane_normal,
+    VIO_Real              plane_constant,
     polygons_struct   *polygons,
     lines_struct      *lines,
     int               *n_points_alloced,
@@ -94,8 +94,8 @@ private  void  intersect_plane_polygons(
 }
 
 public  VIO_BOOL  intersect_plane_one_polygon(
-    Vector            *plane_normal,
-    Real              plane_constant,
+    VIO_Vector            *plane_normal,
+    VIO_Real              plane_constant,
     polygons_struct   *polygons,
     int               poly,
     lines_struct      *lines,
@@ -104,7 +104,7 @@ public  VIO_BOOL  intersect_plane_one_polygon(
     int               *n_end_indices_alloced )
 {
     int       point_index, n_indices;
-    Point     points[2];
+    VIO_Point     points[2];
     VIO_BOOL   intersects;
 
     intersects = get_plane_polygon_intersection( plane_normal, plane_constant,

@@ -44,11 +44,11 @@ public  void  initialize_volume_cross_section(
 }
 
 private  void   create_box(
-    Volume         volume,
+    VIO_Volume         volume,
     object_struct  *object )
 {
-    int            i, c, sizes[MAX_DIMENSIONS];
-    Real           voxel[MAX_DIMENSIONS], x, y, z;
+    int            i, c, sizes[VIO_MAX_DIMENSIONS];
+    Real           voxel[VIO_MAX_DIMENSIONS], x, y, z;
     lines_struct   *lines;
 
     lines = get_lines_ptr( object );
@@ -108,7 +108,7 @@ public  void  rebuild_volume_outline(
     display_struct    *slice_window )
 {
     display_struct    *display;
-    Volume            volume;
+    VIO_Volume            volume;
 
     display = get_three_d_window( slice_window );
 
@@ -122,7 +122,7 @@ public  void  rebuild_volume_outline(
 }
 
 private  void   create_cross_section(
-    Volume         volume,
+    VIO_Volume         volume,
     object_struct  *object,
     Real           origin[],
     Real           x_axis[],
@@ -130,9 +130,9 @@ private  void   create_cross_section(
     Real           z_axis[] )
 {
     int               i, n_points;
-    Real              voxels[2*MAX_DIMENSIONS][MAX_DIMENSIONS];
+    Real              voxels[2*VIO_MAX_DIMENSIONS][VIO_MAX_DIMENSIONS];
     Real              x, y, z, nx, ny, nz;
-    Vector            normal;
+    VIO_Vector            normal;
     polygons_struct   *polygons;
 
     polygons = get_polygons_ptr( object );
@@ -171,11 +171,11 @@ private  void   create_cross_section(
 public  void  rebuild_volume_cross_section(
     display_struct    *display )
 {
-    Real            origin[MAX_DIMENSIONS];
-    Real            x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
-    Real            z_axis[MAX_DIMENSIONS];
+    Real            origin[VIO_MAX_DIMENSIONS];
+    Real            x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
+    Real            z_axis[VIO_MAX_DIMENSIONS];
     display_struct  *slice_window;
-    Volume          volume;
+    VIO_Volume          volume;
 
     display = get_three_d_window( display );
 

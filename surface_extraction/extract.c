@@ -32,7 +32,7 @@ typedef  struct
 } edge_point_info;
 
 private  int  extract_polygons(
-    Volume                      volume,
+    VIO_Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     Real                        corner_values[2][2][2],
     int                         voxel_index[],
@@ -46,18 +46,18 @@ private  void  add_point_id_to_relevant_edges(
     int                 pt_index[],
     int                 pt_id,
     Point_classes       pt_class,
-    edge_point_info     edge_point_list[2][2][2][N_DIMENSIONS],
+    edge_point_info     edge_point_list[2][2][2][VIO_N_DIMENSIONS],
     hash_table_struct   *edge_points );
 private  int  add_polygon_to_list(
-    Volume                      volume,
+    VIO_Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     Real                        corner_values[2][2][2],
     int                         voxel_index[],
     int                         size,
     voxel_point_type            points_list[],
-    edge_point_info             edge_point_list[2][2][2][N_DIMENSIONS] );
+    edge_point_info             edge_point_list[2][2][2][VIO_N_DIMENSIONS] );
 private  int   create_surface_point(
-    Volume              volume,
+    VIO_Volume              volume,
     Real                corner_values[2][2][2],
     VIO_BOOL             binary_flag,
     Real                min_value,
@@ -69,15 +69,15 @@ private  int   create_surface_point(
     Point_classes       *pt_class );
 
 private  VIO_BOOL  get_voxel_values(
-    Volume                      volume,
-    Volume                      label_volume,
+    VIO_Volume                      volume,
+    VIO_Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel_index[],
     Real                        corner_values[2][2][2] )
 {
     VIO_BOOL     valid;
     Real        value, label;
-    int         x, y, z, voxel[MAX_DIMENSIONS], n_invalid;
+    int         x, y, z, voxel[VIO_MAX_DIMENSIONS], n_invalid;
 
     if( !volume_is_alloced( volume ) )
         return( FALSE );
@@ -137,8 +137,8 @@ private  VIO_BOOL  get_voxel_values(
 }
 
 public  VIO_BOOL  voxel_contains_surface(
-    Volume                      volume,
-    Volume                      label_volume,
+    VIO_Volume                      volume,
+    VIO_Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel_index[] )
 {
@@ -193,8 +193,8 @@ public  VIO_BOOL  voxel_contains_surface(
 }
 
 private  VIO_BOOL  extract_voxel_marching_cubes_surface(
-    Volume                      volume,
-    Volume                      label_volume,
+    VIO_Volume                      volume,
+    VIO_Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel[],
     VIO_BOOL                     first_voxel )
@@ -231,8 +231,8 @@ private  VIO_BOOL  extract_voxel_marching_cubes_surface(
 }
 
 public  VIO_BOOL  extract_voxel_surface(
-    Volume                      volume,
-    Volume                      label_volume,
+    VIO_Volume                      volume,
+    VIO_Volume                      label_volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel[],
     VIO_BOOL                     first_voxel )
@@ -255,7 +255,7 @@ public  VIO_BOOL  extract_voxel_surface(
 }
 
 private  int  extract_polygons(
-    Volume                      volume,
+    VIO_Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     Real                        corner_values[2][2][2],
     int                         voxel_index[],
@@ -265,13 +265,13 @@ private  int  extract_polygons(
     voxel_point_type            points_list[] )
 {
     voxel_point_type       *pt, *poly_points;
-    int                    corner_index[N_DIMENSIONS];
+    int                    corner_index[VIO_N_DIMENSIONS];
     int                    id, next_index;
-    edge_point_info        edge_point_list[2][2][2][N_DIMENSIONS];
+    edge_point_info        edge_point_list[2][2][2][VIO_N_DIMENSIONS];
     int                    n_added_polys, poly, p;
     int                    x, y, z, axis;
     int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
-    int                    volume_sizes[N_DIMENSIONS];
+    int                    volume_sizes[VIO_N_DIMENSIONS];
     VIO_BOOL                changed, connected;
     unsigned_byte          all_done_value, voxel_flags;
 
@@ -281,7 +281,7 @@ private  int  extract_polygons(
         {
             for_less( z, 0, 2 )
             {
-                for_less( axis, 0, N_DIMENSIONS )
+                for_less( axis, 0, VIO_N_DIMENSIONS )
                 {
                     edge_point_list[x][y][z][axis].checked = FALSE;
                 }
@@ -389,20 +389,20 @@ private  int  extract_polygons(
 }
 
 private  int  add_polygon_to_list(
-    Volume                      volume,
+    VIO_Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     Real                        corner_values[2][2][2],
     int                         voxel_index[],
     int                         size,
     voxel_point_type            points_list[],
-    edge_point_info             edge_point_list[2][2][2][N_DIMENSIONS] )
+    edge_point_info             edge_point_list[2][2][2][VIO_N_DIMENSIONS] )
 {
     polygons_struct        *polygons;
     voxel_point_type       *pt;
-    int                    corner_index[N_DIMENSIONS];
+    int                    corner_index[VIO_N_DIMENSIONS];
     int                    current_end, next_index, p, next_end, actual_size;
     int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
-    int                    sizes[N_DIMENSIONS];
+    int                    sizes[VIO_N_DIMENSIONS];
     VIO_BOOL                non_degenerate;
     Point_classes          pt_class;
 
@@ -476,7 +476,7 @@ private  int  add_polygon_to_list(
 }
 
 private  int   create_surface_point(
-    Volume              volume,
+    VIO_Volume              volume,
     Real                corner_values[2][2][2],
     VIO_BOOL             binary_flag,
     Real                min_value,
@@ -490,9 +490,9 @@ private  int   create_surface_point(
     int       pt_index;
     Real      x_w, y_w, z_w;
     Real      dx, dy, dz;
-    Real      edge_point[MAX_DIMENSIONS];
-    Point     point;
-    Vector    normal;
+    Real      edge_point[VIO_MAX_DIMENSIONS];
+    VIO_Point     point;
+    VIO_Vector    normal;
     Real      ignored;
 
     *pt_class = get_isosurface_point( corner_values, offset, edge_intersected,
@@ -557,12 +557,12 @@ private  void  add_point_id_to_relevant_edges(
     int                 pt_index[],
     int                 pt_id,
     Point_classes       pt_class,
-    edge_point_info     edge_point_list[2][2][2][N_DIMENSIONS],
+    edge_point_info     edge_point_list[2][2][2][VIO_N_DIMENSIONS],
     hash_table_struct   *edge_points )
 {
     int   axis, stored_id;
-    int   cache_pt[N_DIMENSIONS];
-    int   corner[N_DIMENSIONS];
+    int   cache_pt[VIO_N_DIMENSIONS];
+    int   corner[VIO_N_DIMENSIONS];
 
     if( pt_class == ON_FIRST_CORNER ||
         pt_class == ON_SECOND_CORNER )
@@ -581,7 +581,7 @@ private  void  add_point_id_to_relevant_edges(
             ++cache_pt[edge_info->edge_intersected];
         }
 
-        for_less( axis, 0, N_DIMENSIONS )
+        for_less( axis, 0, VIO_N_DIMENSIONS )
         {
             if( corner[axis] > 0 )
             {

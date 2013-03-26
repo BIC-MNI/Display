@@ -32,7 +32,7 @@ public  void  initialize_crop_box(
 {
     int  c;
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
     {
         slice_window->slice.crop.limits[0][c] = 0.0;
         slice_window->slice.crop.limits[1][c] = -1.0;
@@ -50,28 +50,28 @@ public  void  delete_crop_box(
 
 public  void  set_crop_filename(
     display_struct   *slice_window,
-    STRING           filename )
+    VIO_STR           filename )
 {
     delete_string( slice_window->slice.crop.filename );
     slice_window->slice.crop.filename = create_string( filename );
 }
 
-public  Status  create_cropped_volume_to_file(
+public  VIO_Status  create_cropped_volume_to_file(
     display_struct   *slice_window,
-    STRING           cropped_filename )
+    VIO_STR           cropped_filename )
 {
     char                  command[EXTREMELY_LARGE_STRING_SIZE];
-    Volume                file_volume, volume;
+    VIO_Volume                file_volume, volume;
     volume_input_struct   volume_input;
     Real                  xw, yw, zw;
-    Real                  voxel[MAX_DIMENSIONS];
-    Real                  min_voxel[MAX_DIMENSIONS];
-    Real                  max_voxel[MAX_DIMENSIONS];
+    Real                  voxel[VIO_MAX_DIMENSIONS];
+    Real                  min_voxel[VIO_MAX_DIMENSIONS];
+    Real                  max_voxel[VIO_MAX_DIMENSIONS];
     VIO_BOOL               first;
     int                   c, limit1, limit2, limit3;
-    int                   sizes[MAX_DIMENSIONS];
-    int                   int_min_voxel[MAX_DIMENSIONS];
-    int                   int_max_voxel[MAX_DIMENSIONS];
+    int                   sizes[VIO_MAX_DIMENSIONS];
+    int                   int_min_voxel[VIO_MAX_DIMENSIONS];
+    int                   int_max_voxel[VIO_MAX_DIMENSIONS];
 
     if( string_length( slice_window->slice.crop.filename ) == 0 )
     {
@@ -109,7 +109,7 @@ public  Status  create_cropped_volume_to_file(
                 convert_world_to_voxel( file_volume, xw, yw, zw, voxel );
                 if( first )
                 {
-                    for_less( c, 0, N_DIMENSIONS )
+                    for_less( c, 0, VIO_N_DIMENSIONS )
                     {
                         min_voxel[c] = voxel[c];
                         max_voxel[c] = voxel[c];
@@ -118,7 +118,7 @@ public  Status  create_cropped_volume_to_file(
                 }
                 else
                 {
-                    for_less( c, 0, N_DIMENSIONS )
+                    for_less( c, 0, VIO_N_DIMENSIONS )
                     {
                         if( voxel[c] < min_voxel[c] )
                             min_voxel[c] = voxel[c];
@@ -131,7 +131,7 @@ public  Status  create_cropped_volume_to_file(
     }
 
     get_volume_sizes( file_volume, sizes );
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
     {
         int_min_voxel[c] = MAX( 0, ROUND(min_voxel[c]) );
         int_max_voxel[c] = MIN( sizes[c], ROUND(max_voxel[c]) );
@@ -164,7 +164,7 @@ public  void  crop_and_load_volume(
     display_struct   *slice_window )
 {
     char        tmp_name[L_tmpnam];
-    STRING      cropped_filename;
+    VIO_STR      cropped_filename;
 
     (void) tmpnam( tmp_name );
 
@@ -197,15 +197,15 @@ public  void  toggle_slice_crop_box_visibility(
 public  void  reset_crop_box_position(
     display_struct   *display )
 {
-    Volume           volume;
-    int              c, sizes[MAX_DIMENSIONS];
+    VIO_Volume           volume;
+    int              c, sizes[VIO_MAX_DIMENSIONS];
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
         get_slice_window_volume( slice_window, &volume ) )
     {
         get_volume_sizes( volume, sizes );
-        for_less( c, 0, N_DIMENSIONS )
+        for_less( c, 0, VIO_N_DIMENSIONS )
         {
             slice_window->slice.crop.limits[0][c] = 0.0;
             slice_window->slice.crop.limits[1][c] = (Real) sizes[c] - 1.0;
@@ -213,7 +213,7 @@ public  void  reset_crop_box_position(
     }
     else
     {
-        for_less( c, 0, N_DIMENSIONS )
+        for_less( c, 0, VIO_N_DIMENSIONS )
         {
             slice_window->slice.crop.limits[0][c] = 0.0;
             slice_window->slice.crop.limits[1][c] = -1.0;
@@ -411,8 +411,8 @@ private  void  set_slice_crop_position(
 {
     int        view_index, volume_index, dim, limit, axis, a;
     int        x_min, x_max, y_min, y_max;
-    Real       voxel[MAX_DIMENSIONS], origin[MAX_DIMENSIONS];
-    Real       x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
+    Real       voxel[VIO_MAX_DIMENSIONS], origin[VIO_MAX_DIMENSIONS];
+    Real       x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
     Real       delta;
     VIO_BOOL    changed;
 
@@ -441,7 +441,7 @@ private  void  set_slice_crop_position(
     if( slice_window->slice.crop.axis_being_moved[0] < 0 &&
         slice_window->slice.crop.axis_being_moved[1] < 0 )
     {
-        for_less( dim, 0, N_DIMENSIONS )
+        for_less( dim, 0, VIO_N_DIMENSIONS )
         {
             delta = voxel[dim] - slice_window->slice.crop.start_voxel[dim];
             if( delta != 0.0 )
@@ -480,7 +480,7 @@ public  void  get_volume_crop_limits(
     int               min_voxel[],
     int               max_voxel[] )
 {
-    int               dim, sizes[N_DIMENSIONS];
+    int               dim, sizes[VIO_N_DIMENSIONS];
     display_struct    *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -488,7 +488,7 @@ public  void  get_volume_crop_limits(
     {
         get_volume_sizes( get_volume(slice_window), sizes );
 
-        for_less( dim, 0, N_DIMENSIONS )
+        for_less( dim, 0, VIO_N_DIMENSIONS )
         {
             if( slice_window->slice.crop.limits[0][dim] >
                 slice_window->slice.crop.limits[1][dim] )
@@ -509,7 +509,7 @@ public  void  get_volume_crop_limits(
     }
     else
     {
-        for_less( dim, 0, N_DIMENSIONS )
+        for_less( dim, 0, VIO_N_DIMENSIONS )
         {
             min_voxel[dim] = 0;
             max_voxel[dim] = 0;

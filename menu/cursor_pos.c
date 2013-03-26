@@ -26,7 +26,7 @@ private  void  create_cursor_pos_text(
     model_struct        *model )
 {
     object_struct  *object;
-    Point          origin;
+    VIO_Point          origin;
     text_struct    *text;
 
     /*--- make the label */

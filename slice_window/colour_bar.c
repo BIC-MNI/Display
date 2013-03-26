@@ -22,12 +22,12 @@
 
 #include  <display.h>
 
-private  Real  get_y_pos(
-    Real    value,
-    Real    min_value,
-    Real    max_value,
-    Real    bottom,
-    Real    top );
+private  VIO_Real  get_y_pos(
+    VIO_Real    value,
+    VIO_Real    min_value,
+    VIO_Real    max_value,
+    VIO_Real    bottom,
+    VIO_Real    top );
 
 typedef enum
 {
@@ -70,13 +70,13 @@ public  void  initialize_colour_bar(
     quadmesh = get_quadmesh_ptr( object );
     initialize_quadmesh( quadmesh, WHITE, NULL, Colour_bar_resolution, 2 );
     FREE( quadmesh->normals );
-    quadmesh->normals = (Vector *) NULL;
+    quadmesh->normals = (VIO_Vector *) NULL;
 
     quadmesh->colour_flag = PER_VERTEX_COLOURS;
     n_vertices = 2 * Colour_bar_resolution;
     REALLOC( quadmesh->colours, n_vertices );
 
-    quadmesh->normals = (Vector *) NULL;
+    quadmesh->normals = (VIO_Vector *) NULL;
 
     add_object_to_model( model, object );  
 
@@ -96,7 +96,7 @@ public  void  initialize_colour_bar(
 typedef  struct
 {
     int      priority;
-    Real     value;
+    VIO_Real     value;
 } number_entry;
 
 public  void  rebuild_colour_bar(
@@ -104,19 +104,19 @@ public  void  rebuild_colour_bar(
 {
     int                 i, volume_index;
     int                 x_min, x_max, y_min, y_max;
-    Real                x, y, bottom, top, range, delta;
-    Real                ratio, last_y, next_y, value, min_value, max_value;
-    Real                start_threshold, end_threshold;
-    Real                x_tick_start, x_tick_end, mult_value;
-    Point               point;
+    VIO_Real                x, y, bottom, top, range, delta;
+    VIO_Real                ratio, last_y, next_y, value, min_value, max_value;
+    VIO_Real                start_threshold, end_threshold;
+    VIO_Real                x_tick_start, x_tick_end, mult_value;
+    VIO_Point               point;
     char                buffer[EXTREMELY_LARGE_STRING_SIZE];
-    Colour              colour;
+    VIO_Colour              colour;
     colour_bar_struct   *colour_bar;
     lines_struct        *lines;
     object_struct       *object;
     text_struct         *text;
     quadmesh_struct     *quadmesh;
-    Volume              volume;
+    VIO_Volume              volume;
     int                 n_numbers;
     number_entry        entry, *numbers;
     model_struct        *model;
@@ -153,11 +153,11 @@ public  void  rebuild_colour_bar(
     quadmesh = get_quadmesh_ptr( model->objects[BAR] );
 
     bottom = colour_bar->bottom_offset;
-    top = (Real) y_max - (Real) y_min - colour_bar->top_offset;
+    top = (VIO_Real) y_max - (VIO_Real) y_min - colour_bar->top_offset;
 
     for_less( i, 0, quadmesh->m )
     {
-        ratio = (Real) i / (Real) (quadmesh->m-1);
+        ratio = (VIO_Real) i / (VIO_Real) (quadmesh->m-1);
 
         /* set the points */
 
@@ -202,7 +202,7 @@ public  void  rebuild_colour_bar(
     range = max_value - min_value;
 
     delta = get_good_round_value( range /
-                                  (Real) Colour_bar_desired_intervals );
+                                  (VIO_Real) Colour_bar_desired_intervals );
 
     n_numbers = 0;
     numbers = NULL;
@@ -322,12 +322,12 @@ public  void  rebuild_colour_bar(
     set_slice_viewport_update( slice_window, COLOUR_BAR_MODEL );
 }
 
-private  Real  get_y_pos(
-    Real    value,
-    Real    min_value,
-    Real    max_value,
-    Real    bottom,
-    Real    top )
+private  VIO_Real  get_y_pos(
+    VIO_Real    value,
+    VIO_Real    min_value,
+    VIO_Real    max_value,
+    VIO_Real    bottom,
+    VIO_Real    top )
 {
     if( min_value != max_value )
         return( INTERPOLATE( (value - min_value) / (max_value - min_value ),
@@ -338,11 +338,11 @@ private  Real  get_y_pos(
 
 public  int  get_colour_bar_y_pos(
     display_struct      *slice_window,
-    Real                value )
+    VIO_Real                value )
 {
-    Volume              volume;
+    VIO_Volume              volume;
     int                 x_min, y_min, x_max, y_max;
-    Real                top, bottom, min_value, max_value;
+    VIO_Real                top, bottom, min_value, max_value;
     colour_bar_struct   *colour_bar;
 
     if( !get_slice_window_volume( slice_window, &volume ) ||
@@ -355,23 +355,23 @@ public  int  get_colour_bar_y_pos(
     get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,
                               &x_min, &x_max, &y_min, &y_max );
     
-    bottom = (Real) colour_bar->bottom_offset;
-    top    = (Real) y_max - (Real) y_min - colour_bar->top_offset;
+    bottom = (VIO_Real) colour_bar->bottom_offset;
+    top    = (VIO_Real) y_max - (VIO_Real) y_min - colour_bar->top_offset;
 
     return( ROUND(get_y_pos( value, min_value, max_value, bottom, top )) );
 }
 
 public  VIO_BOOL  mouse_within_colour_bar(
     display_struct      *slice_window,
-    Real                x,
-    Real                y,
-    Real                *ratio )
+    VIO_Real                x,
+    VIO_Real                y,
+    VIO_Real                *ratio )
 {
     int                 x_min, x_max, y_min, y_max;
-    Real                top, bottom;
+    VIO_Real                top, bottom;
     VIO_BOOL             within;
     colour_bar_struct   *colour_bar;
-    Volume              volume;
+    VIO_Volume              volume;
 
     if( !get_slice_window_volume( slice_window, &volume ) ||
         is_an_rgb_volume( volume ) )
@@ -380,13 +380,13 @@ public  VIO_BOOL  mouse_within_colour_bar(
     get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,
                               &x_min, &x_max, &y_min, &y_max );
 
-    x -= (Real) x_min;
-    y -= (Real) y_min;
+    x -= (VIO_Real) x_min;
+    y -= (VIO_Real) y_min;
 
     colour_bar = &slice_window->slice.colour_bar;
 
-    bottom = (Real) colour_bar->bottom_offset;
-    top = (Real) y_max - (Real) y_min - colour_bar->top_offset;
+    bottom = (VIO_Real) colour_bar->bottom_offset;
+    top = (VIO_Real) y_max - (VIO_Real) y_min - colour_bar->top_offset;
 
     within = y >= bottom && y <= top && colour_bar->left_offset <= x &&
              (x <= colour_bar->left_offset +

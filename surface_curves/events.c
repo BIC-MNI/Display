@@ -90,7 +90,7 @@ public  void  start_surface_curve(
 public  void  end_surface_curve(
     display_struct     *display )
 {
-    Real  len;
+    VIO_Real  len;
 
     if( display->three_d.surface_curve.picking_points )
     {
@@ -105,9 +105,9 @@ private  void  add_point_to_curve(
     display_struct   *display,
     polygons_struct  *polygons,
     int              poly_index,
-    Point            *point )
+    VIO_Point            *point )
 {
-    Real                  dist;
+    VIO_Real                  dist;
     surface_curve_struct  *info;
 
     info = &display->three_d.surface_curve;
@@ -146,7 +146,7 @@ private  void  add_point_to_curve(
 public  void  close_surface_curve(
     display_struct     *display )
 {
-    Point                 point;
+    VIO_Point                 point;
     surface_curve_struct  *info;
 
     info = &display->three_d.surface_curve;
@@ -165,7 +165,7 @@ private  void  pick_surface_point(
 {
     polygons_struct       *polygons;
     int                   poly_index;
-    Point                 point, line_point, closest_vertex;
+    VIO_Point                 point, line_point, closest_vertex;
 
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {

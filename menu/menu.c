@@ -30,16 +30,16 @@ static    DEF_EVENT_FUNCTION( middle_mouse_press );
 private  void  turn_off_menu_entry(
     menu_window_struct  *menu,
     menu_entry_struct   *menu_entry );
-private  Status  handle_menu_for_key(
+private  VIO_Status  handle_menu_for_key(
     display_struct      *menu_window,
     int                 key );
-private  Status  process_menu(
+private  VIO_Status  process_menu(
     display_struct      *display,
     menu_entry_struct   *menu_entry );
-private  Status  handle_mouse_press_in_menu(
+private  VIO_Status  handle_mouse_press_in_menu(
     display_struct      *menu_window,
-    Real                x,
-    Real                y );
+    VIO_Real                x,
+    VIO_Real                y );
 private  void  update_menu_name_text(
     display_struct   *menu_window );
 
@@ -118,15 +118,15 @@ private  void  initialize_menu_parameters(
     display_struct    *menu_window )
 {
     int                 x_size, y_size;
-    Real                x_scale, y_scale, scale;
+    VIO_Real                x_scale, y_scale, scale;
     menu_window_struct  *menu;
 
     menu = &menu_window->menu;
 
     G_get_window_size( menu_window->window, &x_size, &y_size );
 
-    x_scale = (Real) x_size / (Real) menu->default_x_size;
-    y_scale = (Real) y_size / (Real) menu->default_y_size;
+    x_scale = (VIO_Real) x_size / (VIO_Real) menu->default_x_size;
+    y_scale = (VIO_Real) y_size / (VIO_Real) menu->default_y_size;
 
     scale = MIN( x_scale, y_scale );
 
@@ -177,7 +177,7 @@ private  DEF_EVENT_FUNCTION( handle_menu_resize )
 /* Allow builder to disable compiled-in menu.  In this case, Display.menu needs
  * to be installed.  The current mac OSX compiler fails here.  (July 2001).
  */
-static STRING default_menu_string = 
+static VIO_STR default_menu_string = 
 #if DISPLAY_DISABLE_MENU_FALLBACK
     NULL
 #else
@@ -185,23 +185,23 @@ static STRING default_menu_string =
 #endif
 ;
 
-public  Status  initialize_menu(
+public  VIO_Status  initialize_menu(
     display_struct    *menu_window,
-    STRING            default_directory1,
-    STRING            default_directory2,
-    STRING            default_directory3,
-    STRING            default_directory4,
-    STRING            menu_filename )
+    VIO_STR            default_directory1,
+    VIO_STR            default_directory2,
+    VIO_STR            default_directory3,
+    VIO_STR            default_directory4,
+    VIO_STR            menu_filename )
 {
-    Status               status;
-    STRING               filename;
+    VIO_Status               status;
+    VIO_STR               filename;
     menu_window_struct   *menu;
-    Point                position;
+    VIO_Point                position;
     model_struct         *model;
     int                  ch, i, dir, len;
     FILE                 *file;
     VIO_BOOL              found;
-    STRING               directories[5];
+    VIO_STR               directories[5];
 
     menu = &menu_window->menu;
 
@@ -334,7 +334,7 @@ public  void  initialize_menu_window(
 
 private  DEF_EVENT_FUNCTION( handle_character_down )
 {
-    Status             status;
+    VIO_Status             status;
     display_struct     *menu_window;
 
     status = OK;
@@ -366,11 +366,11 @@ private  VIO_BOOL  is_menu_entry_active(
     return( menu_entry->is_active );
 }
 
-private  Status  handle_menu_for_key(
+private  VIO_Status  handle_menu_for_key(
     display_struct      *menu_window,
     int                 key )
 {
-    Status             status;
+    VIO_Status             status;
     menu_entry_struct  *menu_entry;
 
     status = OK;
@@ -384,11 +384,11 @@ private  Status  handle_menu_for_key(
     return( status );
 }
 
-private  Status  process_menu(
+private  VIO_Status  process_menu(
     display_struct      *display,
     menu_entry_struct   *menu_entry )
 {
-    Status                  status;
+    VIO_Status                  status;
     menu_function_pointer   function;
 
     function = menu_entry->action;
@@ -407,14 +407,14 @@ private  Status  process_menu(
 
 private  DEF_EVENT_FUNCTION( left_mouse_press )
 {
-    Status  status;
+    VIO_Status  status;
     int     x, y;
 
     status = OK;
 
     if( G_get_mouse_position( display->window, &x, &y ) )
     {
-        status = handle_mouse_press_in_menu( display, (Real) x, (Real) y );
+        status = handle_mouse_press_in_menu( display, (VIO_Real) x, (VIO_Real) y );
     }
 
     return( status );
@@ -429,13 +429,13 @@ private  DEF_EVENT_FUNCTION( middle_mouse_press )
     return( OK );
 }
 
-private  Status  handle_mouse_press_in_menu(
+private  VIO_Status  handle_mouse_press_in_menu(
     display_struct      *menu_window,
-    Real                x,
-    Real                y )
+    VIO_Real                x,
+    VIO_Real                y )
 {
     display_struct      *three_d;
-    Status              status;
+    VIO_Status              status;
     int                 key;
     object_struct       *object, *current;
 
@@ -469,7 +469,7 @@ public  void  update_menu_text(
     display_struct      *display,
     menu_entry_struct   *menu_entry )
 {
-    Colour                  colour;
+    VIO_Colour                  colour;
     int                     i;
     VIO_BOOL                 active;
     menu_update_pointer     update_function;
@@ -497,7 +497,7 @@ public  void  update_menu_text(
 
 public  DEF_MENU_FUNCTION( push_menu )
 {
-    Status   status;
+    VIO_Status   status;
 
     status = OK;
 
@@ -577,10 +577,10 @@ public  void  pop_menu_one_level(
 public  void   set_menu_text(
     display_struct      *menu_window,
     menu_entry_struct   *menu_entry,
-    STRING              text )
+    VIO_STR              text )
 {
     int                 i, line, n_chars, len, n_chars_across;
-    STRING              *text_ptr;
+    VIO_STR              *text_ptr;
     menu_window_struct  *menu;
 
     menu = &menu_window->menu;
@@ -597,7 +597,7 @@ public  void   set_menu_text(
         n_chars_across = menu_entry->n_chars_across;
 
         if( line == 0 )
-            n_chars_across = ROUND( (Real) n_chars_across -
+            n_chars_across = ROUND( (VIO_Real) n_chars_across -
                                     menu->character_offset );
 
         i = 0;
@@ -648,7 +648,7 @@ public  void  update_all_menu_text(
 private  void  update_menu_name_text(
     display_struct   *menu_window )
 {
-    STRING       new_value;
+    VIO_STR       new_value;
     text_struct  *text;
 
     text = get_text_ptr( menu_window->menu.menu_name_text );

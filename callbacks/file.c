@@ -26,8 +26,8 @@
 
 public  DEF_MENU_FUNCTION( load_file )
 {
-    Status   status;
-    STRING   filename;
+    VIO_Status   status;
+    VIO_STR   filename;
 
     print( "Enter filename: " );
 
@@ -60,8 +60,8 @@ public  DEF_MENU_FUNCTION( save_file )
     int            n_objects;
     object_struct  **object_list;
     object_struct  *current_object;
-    Status         status;
-    STRING         filename;
+    VIO_Status         status;
+    VIO_STR         filename;
 
     status = OK;
 
@@ -90,7 +90,7 @@ public  DEF_MENU_FUNCTION( save_file )
 
         if( status == OK )
         {
-            status = output_graphics_file( filename, (File_formats) Save_format,
+            status = output_graphics_file( filename, (VIO_File_formats) Save_format,
                                            n_objects, object_list );
             print( "Done saving.\n" );
         }

@@ -140,14 +140,14 @@ private  DEF_EVENT_FUNCTION( terminate_rotation )
 
 private  void  transform_slice_axes(
     display_struct   *slice_window,
-    Transform        *transform )
+    VIO_Transform        *transform )
 {
-    Volume  volume;
+    VIO_Volume  volume;
     Real    len;
-    Real    separations[MAX_DIMENSIONS];
-    Real    origin[MAX_DIMENSIONS];
-    Real    x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
-    Real    world_x_axis[MAX_DIMENSIONS], world_y_axis[MAX_DIMENSIONS];
+    Real    separations[VIO_MAX_DIMENSIONS];
+    Real    origin[VIO_MAX_DIMENSIONS];
+    Real    x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
+    Real    world_x_axis[VIO_MAX_DIMENSIONS], world_y_axis[VIO_MAX_DIMENSIONS];
 
     volume = get_volume( slice_window );
 
@@ -204,7 +204,7 @@ private  VIO_BOOL  perform_rotation(
 {
     display_struct  *slice_window;
     Real            x, y;
-    Transform       transform, inverse, transform_in_space;
+    VIO_Transform       transform, inverse, transform_in_space;
     VIO_BOOL         moved;
 
     moved = FALSE;

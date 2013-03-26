@@ -5,7 +5,7 @@
 #include "stack.h"
 
 
-struct stack_list* push(struct stack_list* s, Real* c )
+struct stack_list* push(struct stack_list* s, VIO_Real* c )
 {
   struct stack_real* p = malloc( 1 * sizeof *p );
 

@@ -70,8 +70,8 @@ public  DEF_MENU_UPDATE( toggle_undo_feature )
 
 public  DEF_MENU_FUNCTION( label_voxel )
 {
-    Real           voxel[MAX_DIMENSIONS];
-    int            view_index, int_voxel[MAX_DIMENSIONS], volume_index;
+    Real           voxel[VIO_MAX_DIMENSIONS];
+    int            view_index, int_voxel[VIO_MAX_DIMENSIONS], volume_index;
     display_struct *slice_window;
     int 		   value;
 
@@ -79,7 +79,7 @@ public  DEF_MENU_FUNCTION( label_voxel )
         get_voxel_under_mouse( slice_window, &volume_index, &view_index, voxel))
     {
         record_slice_under_mouse( slice_window, volume_index );
-        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+        convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
         value = get_current_paint_label(slice_window);
         set_voxel_label( slice_window, volume_index,
                          int_voxel[X],
@@ -103,15 +103,15 @@ public  DEF_MENU_UPDATE(label_voxel )
 
 public  DEF_MENU_FUNCTION( clear_voxel )
 {
-    Real           voxel[MAX_DIMENSIONS];
+    Real           voxel[VIO_MAX_DIMENSIONS];
     display_struct *slice_window;
-    int            view_index, int_voxel[MAX_DIMENSIONS], volume_index;
+    int            view_index, int_voxel[VIO_MAX_DIMENSIONS], volume_index;
 
     if( get_slice_window( display, &slice_window ) &&
         get_voxel_under_mouse( slice_window, &volume_index, &view_index,voxel))
     {
         record_slice_under_mouse( slice_window, volume_index );
-        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+        convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
         set_voxel_label( slice_window, volume_index,
                          int_voxel[X], int_voxel[Y], int_voxel[Z], 0 );
         set_slice_window_all_update( slice_window, volume_index,
@@ -186,12 +186,12 @@ public  DEF_MENU_UPDATE(set_segmenting_threshold )
     return( slice_window_exists(display) );
 }
 
-public  Status  input_label_volume_file(
+public  VIO_Status  input_label_volume_file(
     display_struct   *display,
-    STRING           filename )
+    VIO_STR           filename )
 {
-    int              range[2][N_DIMENSIONS];
-    Status           status;
+    int              range[2][VIO_N_DIMENSIONS];
+    VIO_Status           status;
     display_struct   *slice_window;
 
     status = OK;
@@ -231,8 +231,8 @@ public  Status  input_label_volume_file(
 
 public  DEF_MENU_FUNCTION(load_label_data)
 {
-    Status           status;
-    STRING           filename;
+    VIO_Status           status;
+    VIO_STR           filename;
 
     status = OK;
 
@@ -265,8 +265,8 @@ public  DEF_MENU_UPDATE(load_label_data )
 
 public  DEF_MENU_FUNCTION(save_label_data)
 {
-    Status           status;
-    STRING           filename, backup_filename;
+    VIO_Status           status;
+    VIO_STR           filename, backup_filename;
     display_struct   *slice_window;
     Real             crop_threshold;
 
@@ -332,15 +332,15 @@ public  DEF_MENU_UPDATE(save_label_data )
     return( get_n_volumes(display) > 0 );
 }
 
-public  Status input_tag_label_file(
+public  VIO_Status input_tag_label_file(
     display_struct   *display,
-    STRING           filename )
+    VIO_STR           filename )
 {
-    Status         status;
+    VIO_Status         status;
     VIO_BOOL        landmark_format;
     FILE           *file;
     display_struct *slice_window;
-    Volume         volume;
+    VIO_Volume         volume;
 
     status = OK;
 
@@ -381,7 +381,7 @@ public  Status input_tag_label_file(
 
 public  DEF_MENU_FUNCTION( load_labels )
 {
-    STRING         filename;
+    VIO_STR         filename;
 
     if( get_n_volumes(display) > 0 )
     {
@@ -413,9 +413,9 @@ private  void   save_labels_as_tags(
     display_struct  *slice_window,
     int             desired_label )
 {
-    Status         status;
+    VIO_Status         status;
     FILE           *file;
-    STRING         filename;
+    VIO_STR         filename;
 
     print( "Enter filename to save: " );
     status = input_string( stdin, &filename, ' ' );
@@ -448,7 +448,7 @@ private  void   save_labels_as_tags(
 /*
  * Create tags from a label image
  */
-public Status tags_from_label(
+public VIO_Status tags_from_label(
 	display_struct *display,
     int       *n_tag_points,
     Real      ***tags_volume1,
@@ -456,21 +456,21 @@ public Status tags_from_label(
     Real      **weights,
     int       **structure_ids,
     int       **patient_ids,
-    STRING    *labels[] )
+    VIO_STR    *labels[] )
 {
 	display_struct 	*marker_window;
 	display_struct 	*slice_window;
-	Status 			status;
-	Volume 			volume;
-	Volume 			label_volume;
-	int 			sizes[MAX_DIMENSIONS];
-	int  			ind[N_DIMENSIONS];
-	Real 			real_ind[N_DIMENSIONS];
-	Real 			tags[N_DIMENSIONS];
+	VIO_Status 			status;
+	VIO_Volume 			volume;
+	VIO_Volume 			label_volume;
+	int 			sizes[VIO_MAX_DIMENSIONS];
+	int  			ind[VIO_N_DIMENSIONS];
+	Real 			real_ind[VIO_N_DIMENSIONS];
+	Real 			tags[VIO_N_DIMENSIONS];
 	int 			value;
 	int 			structure_id, patient_id;
 	Real 			weight;
-	STRING 			label;
+	VIO_STR 			label;
 	Real 			*coords;
 	int				i;
 
@@ -508,7 +508,7 @@ public Status tags_from_label(
 				convert_voxel_to_world( volume, real_ind,
 						&tags[X], &tags[Y], &tags[Z] );
 
-			    ALLOC( coords, MAX_DIMENSIONS );
+			    ALLOC( coords, VIO_MAX_DIMENSIONS );
 			    coords[X] = tags[X];
 			    coords[Y] = tags[Y];
 			    coords[Z] = tags[Z];
@@ -575,19 +575,19 @@ public Status tags_from_label(
  * Mimic the function input_tag_objects_file, but for a label image
  */
 
-public  Status   input_tag_objects_label(
+public  VIO_Status   input_tag_objects_label(
     display_struct* display,
-    Colour         marker_colour,
+    VIO_Colour         marker_colour,
     Real           default_size,
     Marker_types   default_type,
     int            *n_objects,
     object_struct  **object_list[])
 {
-    Status             status;
+    VIO_Status             status;
     object_struct      *object;
     marker_struct      *marker;
     int                i, n_volumes, n_tag_points, *structure_ids, *patient_ids;
-    STRING             *labels;
+    VIO_STR             *labels;
     double             *weights;
     double             **tags1, **tags2;
 
@@ -723,8 +723,8 @@ private  void  set_slice_labels(
     display_struct     *display,
     int                label )
 {
-    Real             voxel[MAX_DIMENSIONS];
-    int              view_index, int_voxel[MAX_DIMENSIONS], volume_index;
+    Real             voxel[VIO_MAX_DIMENSIONS];
+    int              view_index, int_voxel[VIO_MAX_DIMENSIONS], volume_index;
     int              x_index, y_index, axis_index;
     display_struct   *slice_window;
 
@@ -736,7 +736,7 @@ private  void  set_slice_labels(
     {
         record_slice_under_mouse( display, volume_index );
 
-        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+        convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
         set_labels_on_slice( slice_window, volume_index,
                              axis_index, int_voxel[axis_index],
                              label );
@@ -799,8 +799,8 @@ private  void   set_connected_labels(
     int              desired_label,
     VIO_BOOL          use_threshold )
 {
-    Real             voxel[MAX_DIMENSIONS], min_threshold, max_threshold;
-    int              view_index, int_voxel[MAX_DIMENSIONS];
+    Real             voxel[VIO_MAX_DIMENSIONS], min_threshold, max_threshold;
+    int              view_index, int_voxel[VIO_MAX_DIMENSIONS];
     int              label_under_mouse, volume_index;
     int              x_index, y_index, axis_index;
     int              min_label_threshold, max_label_threshold;
@@ -825,7 +825,7 @@ private  void   set_connected_labels(
             max_threshold = 0.0;
         }
 
-        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+        convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
 
         label_under_mouse = get_voxel_label( slice_window, volume_index,
                                              int_voxel[X],
@@ -850,16 +850,16 @@ private  void   set_connected_labels(
 
 public  DEF_MENU_FUNCTION(label_connected_3d)
 {
-    Real             voxel[MAX_DIMENSIONS];
-    int              range_changed[2][N_DIMENSIONS];
-    int              view_index, int_voxel[MAX_DIMENSIONS];
+    Real             voxel[VIO_MAX_DIMENSIONS];
+    int              range_changed[2][VIO_N_DIMENSIONS];
+    int              view_index, int_voxel[VIO_MAX_DIMENSIONS];
     int              label_under_mouse, desired_label, volume_index;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
         get_voxel_under_mouse( slice_window, &volume_index, &view_index, voxel))
     {
-        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+        convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
 
         label_under_mouse = get_voxel_label( slice_window, volume_index,
                                              int_voxel[X],
@@ -907,8 +907,8 @@ public  DEF_MENU_UPDATE(label_connected_3d )
 public  DEF_MENU_FUNCTION(dilate_labels)
 {
     int              min_outside_label, max_outside_label;
-    int              range_changed[2][N_DIMENSIONS];
-    Volume           volume;
+    int              range_changed[2][VIO_N_DIMENSIONS];
+    VIO_Volume           volume;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -962,8 +962,8 @@ public  DEF_MENU_UPDATE(dilate_labels )
 public  DEF_MENU_FUNCTION(erode_labels)
 {
     int              min_outside_label, max_outside_label, set_value;
-    int              range_changed[2][N_DIMENSIONS];
-    Volume           volume;
+    int              range_changed[2][VIO_N_DIMENSIONS];
+    VIO_Volume           volume;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -1101,9 +1101,9 @@ public  DEF_MENU_UPDATE(toggle_crop_labels_on_output)
 
 public  DEF_MENU_FUNCTION(clear_label_connected_3d)
 {
-    Real             voxel[MAX_DIMENSIONS];
-    int              range_changed[2][N_DIMENSIONS];
-    int              view_index, int_voxel[MAX_DIMENSIONS];
+    Real             voxel[VIO_MAX_DIMENSIONS];
+    int              range_changed[2][VIO_N_DIMENSIONS];
+    int              view_index, int_voxel[VIO_MAX_DIMENSIONS];
     int              label_under_mouse, desired_label, volume_index;
     display_struct   *slice_window;
 
@@ -1113,7 +1113,7 @@ public  DEF_MENU_FUNCTION(clear_label_connected_3d)
     	volume_index = get_current_volume_index( slice_window );
     	get_current_voxel( display, volume_index, voxel);
 
-        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+        convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
 
         label_under_mouse = get_voxel_label( slice_window, volume_index,
                                              int_voxel[X],

@@ -139,16 +139,16 @@ private  DEF_EVENT_FUNCTION( terminate_rotation )
 private  VIO_BOOL  perform_rotation(
     display_struct   *display )
 {
-    Real           x, y;
-    Transform      transform;
+    VIO_Real           x, y;
+    VIO_Transform      transform;
     VIO_BOOL        moved;
 
     moved = FALSE;
 
     if( G_get_mouse_position_0_to_1( display->window, &x, &y ) &&
         get_spaceball_transform( display,
-                                 (Real) Point_x(display->prev_mouse_position),
-                                 (Real) Point_y(display->prev_mouse_position),
+                                 (VIO_Real) Point_x(display->prev_mouse_position),
+                                 (VIO_Real) Point_y(display->prev_mouse_position),
                                  x, y, &transform ) )
     {
         transform_model( display, &transform );
@@ -204,16 +204,16 @@ private  DEF_EVENT_FUNCTION( terminate_translation )
 private  VIO_BOOL  perform_cursor_translation(
     display_struct   *display )
 {
-    Vector       mouse_dir, offset, axis_direction;
-    Vector       ray_direction, transformed_direction;
-    Point        ray_origin, transformed_origin;
+    VIO_Vector       mouse_dir, offset, axis_direction;
+    VIO_Vector       ray_direction, transformed_direction;
+    VIO_Point        ray_origin, transformed_origin;
     int          axis_index, best_axis, second_best_axis, a1, a2;
-    Point        pt, pt_screen, cursor_screen, new_screen_origin, new_cursor;
+    VIO_Point        pt, pt_screen, cursor_screen, new_screen_origin, new_cursor;
     VIO_BOOL      moved;
-    Real         mag_mouse, mag_axis[N_DIMENSIONS], dot_prod[N_DIMENSIONS];
-    Real         angle[N_DIMENSIONS], mouse_dist;
-    Real         x, y, x_prev, y_prev;
-    Vector       axis_screen[N_DIMENSIONS];
+    VIO_Real         mag_mouse, mag_axis[VIO_N_DIMENSIONS], dot_prod[VIO_N_DIMENSIONS];
+    VIO_Real         angle[VIO_N_DIMENSIONS], mouse_dist;
+    VIO_Real         x, y, x_prev, y_prev;
+    VIO_Vector       axis_screen[VIO_N_DIMENSIONS];
 
     moved = FALSE;
 
@@ -233,7 +233,7 @@ private  VIO_BOOL  perform_cursor_translation(
         transform_point_to_screen( &display->three_d.view, &pt,
                                    &cursor_screen );
 
-        for_less( axis_index, 0, N_DIMENSIONS )
+        for_less( axis_index, 0, VIO_N_DIMENSIONS )
         {
             pt = display->three_d.cursor.origin;
             Point_coord(pt,axis_index) += 1.0f;
@@ -266,8 +266,8 @@ private  VIO_BOOL  perform_cursor_translation(
             }
         }
 
-        a1 = (best_axis + 1) % N_DIMENSIONS;
-        a2 = (best_axis + 2) % N_DIMENSIONS;
+        a1 = (best_axis + 1) % VIO_N_DIMENSIONS;
+        a2 = (best_axis + 2) % VIO_N_DIMENSIONS;
 
         if( FABS(dot_prod[a1]) > FABS(dot_prod[a2]) )
             second_best_axis = a1;
@@ -294,8 +294,8 @@ private  VIO_BOOL  perform_cursor_translation(
         Vector_coord( axis_direction, best_axis ) = 1.0f;
 
         convert_screen_to_ray( &display->three_d.view,
-                               (Real) Point_x(new_screen_origin),
-                               (Real) Point_y(new_screen_origin),
+                               (VIO_Real) Point_x(new_screen_origin),
+                               (VIO_Real) Point_y(new_screen_origin),
                                &ray_origin, &ray_direction );
         transform_world_to_model( &display->three_d.view, &ray_origin,
                                   &transformed_origin );
@@ -324,9 +324,9 @@ private  VIO_BOOL  mouse_close_to_cursor(
     display_struct    *display )
 {
     VIO_BOOL  close;
-    Point    cursor_screen, cursor_pixels, mouse_pixels, mouse;
-    Vector   diff_vector;
-    Real     x, y, diff;
+    VIO_Point    cursor_screen, cursor_pixels, mouse_pixels, mouse;
+    VIO_Vector   diff_vector;
+    VIO_Real     x, y, diff;
 
     close = FALSE;
 

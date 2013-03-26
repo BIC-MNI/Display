@@ -25,7 +25,7 @@
 public  void  set_menu_text_real(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
-    Real               value )
+    VIO_Real               value )
 {
     char  text[EXTREMELY_LARGE_STRING_SIZE];
 
@@ -50,8 +50,8 @@ public  void  set_menu_text_boolean(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
     VIO_BOOL            value,
-    STRING             off_str,
-    STRING             on_str )
+    VIO_STR             off_str,
+    VIO_STR             on_str )
 {
     char  text[EXTREMELY_LARGE_STRING_SIZE];
 
@@ -74,9 +74,9 @@ public  void  set_menu_text_on_off(
 public  void  set_menu_text_with_colour(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
-    Colour             colour )
+    VIO_Colour             colour )
 {
-    STRING           name;
+    VIO_STR           name;
     char             text[EXTREMELY_LARGE_STRING_SIZE];
 
     name = convert_colour_to_string( colour );
@@ -91,7 +91,7 @@ public  void  set_menu_text_with_colour(
 public  void  set_menu_text_string(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
-    STRING             str )
+    VIO_STR             str )
 {
     char  text[EXTREMELY_LARGE_STRING_SIZE];
 

@@ -46,9 +46,9 @@ private  VIO_BOOL  get_current_lines(
 
 public  DEF_MENU_FUNCTION( smooth_current_lines )
 {
-    Status          status;
+    VIO_Status          status;
     lines_struct    *lines;
-    Real            smooth_distance;
+    VIO_Real            smooth_distance;
 
     status = OK;
 
@@ -81,9 +81,9 @@ public  DEF_MENU_UPDATE(smooth_current_lines )
 
 public  DEF_MENU_FUNCTION( make_current_line_tube )
 {
-    Status          status;
+    VIO_Status          status;
     lines_struct    *lines;
-    Real            radius;
+    VIO_Real            radius;
     int             n_around;
 
     status = OK;
@@ -151,8 +151,8 @@ public  DEF_MENU_UPDATE(convert_line_to_spline_points )
 
 public  DEF_MENU_FUNCTION( make_line_circle )
 {
-    Point             centre;
-    Real              x_size, y_size;
+    VIO_Point             centre;
+    VIO_Real              x_size, y_size;
     int               plane_axis, n_around;
     object_struct     *object;
 
@@ -218,10 +218,10 @@ private  void  convert_to_lines(
 {
     lines_struct            *lines;
     int                     i, c, n_markers, curr_index, max_index;
-    Real                    dist, curr_dist, ratio, next_dist;
-    Real                    desired_dist;
-    Point                   *markers, point;
-    Point                   p1, p2, p3, p4;
+    VIO_Real                    dist, curr_dist, ratio, next_dist;
+    VIO_Real                    desired_dist;
+    VIO_Point                   *markers, point;
+    VIO_Point                   p1, p2, p3, p4;
     int                     n_points;
     object_struct           *object, *current_object;
     object_traverse_struct  object_traverse;
@@ -296,9 +296,9 @@ private  void  convert_to_lines(
                 for_less( i, 0, n_points )
                 {
                     if( closed )
-                        desired_dist = (Real) i / (Real) n_points * dist;
+                        desired_dist = (VIO_Real) i / (VIO_Real) n_points * dist;
                     else
-                        desired_dist = (Real) i / (Real) (n_points-1) * dist;
+                        desired_dist = (VIO_Real) i / (VIO_Real) (n_points-1) * dist;
 
                     while( curr_index < max_index && desired_dist >= next_dist )
                     {
@@ -336,11 +336,11 @@ private  void  convert_to_lines(
                     if( ratio < 0.0 || ratio > 1.0 )
                         handle_internal_error( "Dang.\n" );
 
-                    for_less( c, 0, N_DIMENSIONS )
+                    for_less( c, 0, VIO_N_DIMENSIONS )
                     {
                         Point_coord(point,c) = (float) cubic_interpolate( ratio,
-                          (Real) Point_coord(p1,c), (Real) Point_coord(p2,c),
-                          (Real) Point_coord(p3,c), (Real) Point_coord(p4,c) );
+                          (VIO_Real) Point_coord(p1,c), (VIO_Real) Point_coord(p2,c),
+                          (VIO_Real) Point_coord(p3,c), (VIO_Real) Point_coord(p4,c) );
                     }
                     lines->points[i] = point;
                 }
@@ -398,9 +398,9 @@ public  DEF_MENU_UPDATE(convert_markers_to_closed_lines )
 
 public  DEF_MENU_FUNCTION( set_line_widths )
 {
-    Status          status;
+    VIO_Status          status;
     lines_struct    *lines;
-    Real            width;
+    VIO_Real            width;
 
     status = OK;
 

@@ -106,7 +106,7 @@ public  DEF_MENU_UPDATE(make_surface_line_permanent)
 
 public  DEF_MENU_FUNCTION( set_line_curvature_weight )
 {
-    Real        weight;
+    VIO_Real        weight;
 
     print( "The current line curvature weight is: %g\n",
            display->three_d.surface_curve.line_curvature_weight );
@@ -138,7 +138,7 @@ public  DEF_MENU_UPDATE(set_line_curvature_weight )
 
 public  DEF_MENU_FUNCTION( set_surface_curve_curvature )
 {
-    Real        min_curve, max_curve;
+    VIO_Real        min_curve, max_curve;
 
     print( "The current surface curve curvature limits are: %g %g\n",
            display->three_d.surface_curve.min_curvature,

@@ -70,12 +70,12 @@ private  void  compute_histogram_lines(
     Real             width_ratio,
     lines_struct     *lines )
 {
-    int                x, y, z, sizes[MAX_DIMENSIONS];
-    int                start[MAX_DIMENSIONS], end[MAX_DIMENSIONS];
+    int                x, y, z, sizes[VIO_MAX_DIMENSIONS];
+    int                start[VIO_MAX_DIMENSIONS], end[VIO_MAX_DIMENSIONS];
     Real               min_value, max_value, value, window_width;
     histogram_struct   histogram;
     progress_struct    progress;
-    Volume             volume;
+    VIO_Volume             volume;
 
     volume = get_nth_volume( slice_window, volume_index );
 
@@ -180,7 +180,7 @@ public  void  compute_histogram(
 {
     int            i;
     lines_struct   *unscaled_lines, *lines;
-    Volume         volume;
+    VIO_Volume         volume;
 
     clear_histogram( slice_window );
 

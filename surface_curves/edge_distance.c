@@ -26,26 +26,26 @@
 
 typedef  struct
 {
-    Real            distance;
+    VIO_Real            distance;
     int             from_point;
 } vertex_struct;
 
 private  VIO_BOOL  find_shortest_path(
     polygons_struct   *polygons,
-    Real              curvature_weight,
-    Real              min_curvature,
-    Real              max_curvature,
-    Point             *p1,
+    VIO_Real              curvature_weight,
+    VIO_Real              min_curvature,
+    VIO_Real              max_curvature,
+    VIO_Point             *p1,
     int               poly1,
-    Point             *p2,
+    VIO_Point             *p2,
     int               poly2,
-    Real              *path_dist,
+    VIO_Real              *path_dist,
     int               *last_vertex,
     vertex_struct     vertices[] );
 private  void  create_path(
     polygons_struct   *polygons,
-    Point             *p1,
-    Point             *p2,
+    VIO_Point             *p1,
+    VIO_Point             *p2,
     VIO_BOOL           first_flag,
     int               last_vertex,
     vertex_struct     vertices[],
@@ -53,14 +53,14 @@ private  void  create_path(
 
 public  VIO_BOOL  distance_along_polygons(
     polygons_struct   *polygons,
-    Real              curvature_weight,
-    Real              min_curvature,
-    Real              max_curvature,
-    Point             *p1,
+    VIO_Real              curvature_weight,
+    VIO_Real              min_curvature,
+    VIO_Real              max_curvature,
+    VIO_Point             *p1,
     int               poly1,
-    Point             *p2,
+    VIO_Point             *p2,
     int               poly2,
-    Real              *dist,
+    VIO_Real              *dist,
     lines_struct      *lines )
 {
     VIO_BOOL         found;
@@ -87,14 +87,14 @@ public  VIO_BOOL  distance_along_polygons(
     return( found );
 }
 
-private  Real  weighted_distance(
+private  VIO_Real  weighted_distance(
     polygons_struct  *polygons,
-    Real             curvature_weight,
+    VIO_Real             curvature_weight,
     int              from_point_index,
     int              next_poly_index,
     int              next_vertex_index )
 {
-    Real   dist, angle, factor;
+    VIO_Real   dist, angle, factor;
     int    size, edge, next_point_index, next_vertex, prev_vertex;
 
     next_point_index = polygons->indices[ POINT_INDEX( polygons->end_indices,
@@ -153,13 +153,13 @@ private   void   check_validity_tested(
     int               poly,
     int               vertex,
     int               point_index,
-    Real              min_curvature,
-    Real              max_curvature,
-    Smallest_int      vertex_validity[] )
+    VIO_Real              min_curvature,
+    VIO_Real              max_curvature,
+    VIO_SCHAR      vertex_validity[] )
 {
-    Real    curvature, base_length;
-    Point   centroid;
-    Vector  normal;
+    VIO_Real    curvature, base_length;
+    VIO_Point   centroid;
+    VIO_Vector  normal;
 
     if( vertex_validity[point_index] == NOT_DONE_YET )
     {
@@ -176,20 +176,20 @@ private   void   check_validity_tested(
 
 private  VIO_BOOL  find_shortest_path(
     polygons_struct   *polygons,
-    Real              curvature_weight,
-    Real              min_curvature,
-    Real              max_curvature,
-    Point             *p1,
+    VIO_Real              curvature_weight,
+    VIO_Real              min_curvature,
+    VIO_Real              max_curvature,
+    VIO_Point             *p1,
     int               poly1,
-    Point             *p2,
+    VIO_Point             *p2,
     int               poly2,
-    Real              *path_dist,
+    VIO_Real              *path_dist,
     int               *last_vertex,
     vertex_struct     vertices[] )
 {
     int                    i, p, size, point_index, next_point_index;
-    Real                   dist;
-    Smallest_int           *vertex_validity;
+    VIO_Real                   dist;
+    VIO_SCHAR           *vertex_validity;
     VIO_BOOL                found_path, closed;
     queue_struct           entry;
     int                    n_polys, *polys;
@@ -320,14 +320,14 @@ private  VIO_BOOL  find_shortest_path(
 
 private  void  create_path(
     polygons_struct   *polygons,
-    Point             *p1,
-    Point             *p2,
+    VIO_Point             *p1,
+    VIO_Point             *p2,
     VIO_BOOL           first_flag,
     int               last_vertex,
     vertex_struct     vertices[],
     lines_struct      *lines )
 {
-    Point    prev;
+    VIO_Point    prev;
 
     if( first_flag )
     {
@@ -359,12 +359,12 @@ private  void  create_path(
 public  void  find_polygon_vertex_nearest_point(
     polygons_struct  *polygons,
     int              poly,
-    Point            *point,
-    Point            *closest_vertex )
+    VIO_Point            *point,
+    VIO_Point            *closest_vertex )
 {
     int    size, p;
-    Real   dist, closest_dist;
-    Point  vertex;
+    VIO_Real   dist, closest_dist;
+    VIO_Point  vertex;
 
     size = GET_OBJECT_SIZE( *polygons, poly );
     closest_dist = 0.0;  /* for lint */

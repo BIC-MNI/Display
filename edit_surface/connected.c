@@ -71,7 +71,7 @@ private  DEF_EVENT_FUNCTION( pick_start_point )
 {
     int               poly_index;
     polygons_struct   *polygons, *edit_polygons;
-    Point             point;
+    VIO_Point             point;
 
     remove_events( &display->action_table );
 

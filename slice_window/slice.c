@@ -28,11 +28,11 @@ private  void  initialize_slice_window(
 
 public  void  create_slice_window(
     display_struct   *display,
-    STRING           filename,
-    Volume           volume )
+    VIO_STR           filename,
+    VIO_Volume           volume )
 {
     display_struct   *slice_window, *menu_window, *marker_window;
-    int              sizes[N_DIMENSIONS];
+    int              sizes[VIO_N_DIMENSIONS];
     char             title[EXTREMELY_LARGE_STRING_SIZE];
 
     get_volume_sizes( volume, sizes );
@@ -230,7 +230,7 @@ public  void  delete_slice_window(
     delete_crop_box( slice_window );
 }
 
-public  STRING  get_volume_filename(
+public  VIO_STR  get_volume_filename(
     display_struct    *slice_window,
     int               volume_index )
 {
@@ -239,13 +239,13 @@ public  STRING  get_volume_filename(
 
 public  void  add_slice_window_volume(
     display_struct    *display,
-    STRING            filename,
-    Volume            volume )
+    VIO_STR            filename,
+    VIO_Volume            volume )
 {
     display_struct         *slice_window;
-    int                    volume_index, axis, view, sizes[MAX_DIMENSIONS];
+    int                    volume_index, axis, view, sizes[VIO_MAX_DIMENSIONS];
     loaded_volume_struct   *info;
-    Real                   current_voxel[MAX_DIMENSIONS];
+    Real                   current_voxel[VIO_MAX_DIMENSIONS];
 
     if( !slice_window_exists(display) )
     {
@@ -289,7 +289,7 @@ public  void  add_slice_window_volume(
 
     if( slice_window->slice.n_volumes == 1 )
     {
-        for_less( axis, 0, N_DIMENSIONS )
+        for_less( axis, 0, VIO_N_DIMENSIONS )
             slice_window->slice.volumes[0].current_voxel[axis] =
                                                (Real) (sizes[axis] - 1) / 2.0;
     }
@@ -298,7 +298,7 @@ public  void  add_slice_window_volume(
         get_current_voxel( slice_window, get_current_volume_index(slice_window),
                            current_voxel );
 
-        for_less( axis, 0, N_DIMENSIONS )
+        for_less( axis, 0, VIO_N_DIMENSIONS )
             slice_window->slice.volumes[slice_window->slice.n_volumes - 1].
                               current_voxel[axis] = -1.0e20;
 
@@ -320,7 +320,7 @@ public  void  set_current_volume_index(
 {
     VIO_BOOL         first;
     int             view;
-    Real            separations[MAX_DIMENSIONS];
+    Real            separations[VIO_MAX_DIMENSIONS];
     display_struct  *display;
 
     if( slice_window->slice.current_volume_index < 0 )
@@ -393,7 +393,7 @@ public  int   get_current_volume_index(
 
 public  VIO_BOOL   get_slice_window_volume(
     display_struct   *display,
-    Volume           *volume )
+    VIO_Volume           *volume )
 {
     VIO_BOOL          volume_exists;
     display_struct   *slice_window;
@@ -407,14 +407,14 @@ public  VIO_BOOL   get_slice_window_volume(
     }
     else
     {
-        *volume = (Volume) NULL;
+        *volume = (VIO_Volume) NULL;
         volume_exists = FALSE;
     }
 
     return( volume_exists );
 }
 
-public  Volume  get_nth_volume(
+public  VIO_Volume  get_nth_volume(
     display_struct   *display,
     int              volume_index )
 {
@@ -425,13 +425,13 @@ public  Volume  get_nth_volume(
         return( slice_window->slice.volumes[volume_index].volume );
     }
     else
-        return( (Volume) NULL );
+        return( (VIO_Volume) NULL );
 }
 
-public  Volume   get_volume(
+public  VIO_Volume   get_volume(
     display_struct   *display )
 {
-    Volume      volume;
+    VIO_Volume      volume;
 
     (void) get_slice_window_volume( display, &volume );
 
@@ -464,13 +464,13 @@ public  VIO_BOOL  get_slice_window(
 
 public  VIO_BOOL  get_range_of_volumes(
     display_struct   *display,
-    Point            *min_limit,
-    Point            *max_limit )
+    VIO_Point            *min_limit,
+    VIO_Point            *max_limit )
 {
-    int              n_volumes, sizes[N_DIMENSIONS], dx, dy, dz, volume_index;
+    int              n_volumes, sizes[VIO_N_DIMENSIONS], dx, dy, dz, volume_index;
     int              dim;
-    Volume           volume;
-    Real             voxel[N_DIMENSIONS], world[N_DIMENSIONS];
+    VIO_Volume           volume;
+    Real             voxel[VIO_N_DIMENSIONS], world[VIO_N_DIMENSIONS];
     VIO_BOOL          first;
 
     n_volumes = get_n_volumes( display );
@@ -499,7 +499,7 @@ public  VIO_BOOL  get_range_of_volumes(
             convert_voxel_to_world( volume, voxel,
                                     &world[X], &world[Y], &world[Z] );
 
-            for_less( dim, 0, N_DIMENSIONS )
+            for_less( dim, 0, VIO_N_DIMENSIONS )
             {
                 if( first || world[dim] < (Real) Point_coord(*min_limit,dim) )
                     Point_coord(*min_limit,dim) = (Point_coord_type) world[dim];

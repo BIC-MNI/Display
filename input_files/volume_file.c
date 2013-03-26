@@ -21,18 +21,18 @@
 
 #include  <display.h>
 
-public  Status   input_volume_file(
-    STRING         filename,
-    Volume         *volume_ptr )
+public  VIO_Status   input_volume_file(
+    VIO_STR         filename,
+    VIO_Volume         *volume_ptr )
 {
-    Status              status;
+    VIO_Status              status;
     nc_type             nc_data_type;
     VIO_BOOL             signed_flag;
     Real                voxel_min, voxel_max, size_factor;
     minc_input_options  options;
-    int                 dim, limits[2][MAX_DIMENSIONS];
-    int                 sizes[MAX_DIMENSIONS];
-    Volume              volume, cropped_volume;
+    int                 dim, limits[2][VIO_MAX_DIMENSIONS];
+    int                 sizes[VIO_MAX_DIMENSIONS];
+    VIO_Volume              volume, cropped_volume;
 
     if( Convert_volumes_to_byte )
     {
@@ -56,10 +56,10 @@ public  Status   input_volume_file(
                            nc_data_type, signed_flag, voxel_min, voxel_max,
                            TRUE, &volume, &options );
 
-    if( status == OK && get_volume_n_dimensions( volume ) != N_DIMENSIONS )
+    if( status == OK && get_volume_n_dimensions( volume ) != VIO_N_DIMENSIONS )
     {
-        print( "Volume %s has %d dimensions, should have %d\n",
-               filename, get_volume_n_dimensions(volume), N_DIMENSIONS );
+        print( "VIO_Volume %s has %d dimensions, should have %d\n",
+               filename, get_volume_n_dimensions(volume), VIO_N_DIMENSIONS );
         delete_volume( volume );
         status = ERROR;
     }
@@ -68,7 +68,7 @@ public  Status   input_volume_file(
     {
         if( !find_volume_crop_bounds( volume, -1.0e30, 0.0, limits ) )
         {
-            for_less( dim, 0, N_DIMENSIONS )
+            for_less( dim, 0, VIO_N_DIMENSIONS )
             {
                 limits[0][dim] = 0;
                 limits[1][dim] = 0;
@@ -78,7 +78,7 @@ public  Status   input_volume_file(
         size_factor = 1.0;
         get_volume_sizes( volume, sizes );
 
-        for_less( dim, 0, N_DIMENSIONS )
+        for_less( dim, 0, VIO_N_DIMENSIONS )
         {
             size_factor *= (Real) (limits[1][dim] - limits[0][dim] + 1) /
                            (Real) sizes[dim];

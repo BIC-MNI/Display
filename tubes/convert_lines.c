@@ -27,7 +27,7 @@ public  void  convert_lines_to_tubes_objects(
     display_struct    *display,
     lines_struct      *lines,
     int               n_around,
-    Real              radius )
+    VIO_Real              radius )
 {
     int              i, n_quadmeshes;
     object_struct    *object;

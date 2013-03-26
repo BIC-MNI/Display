@@ -24,11 +24,11 @@
 
 public  void  convert_transform_to_view_space(
     display_struct    *display,
-    Transform         *transform,
-    Transform         *view_space_transform )
+    VIO_Transform         *transform,
+    VIO_Transform         *view_space_transform )
 {
-    Vector     z_axis;
-    Point      centre;
+    VIO_Vector     z_axis;
+    VIO_Point      centre;
 
     get_view_z_axis( &display->three_d.view, &z_axis );
 
@@ -51,9 +51,9 @@ public  void  convert_transform_to_view_space(
 
 public  void  apply_transform_in_view_space(
     display_struct    *display,
-    Transform         *transform )
+    VIO_Transform         *transform )
 {
-    Transform  transform_in_cs;
+    VIO_Transform  transform_in_cs;
 
     convert_transform_to_view_space( display, transform, &transform_in_cs );
 
@@ -62,7 +62,7 @@ public  void  apply_transform_in_view_space(
 
 public  void  transform_model(
     display_struct    *display,
-    Transform         *transform )
+    VIO_Transform         *transform )
 {
     concat_transforms( &display->three_d.view.modeling_transform,
                        &display->three_d.view.modeling_transform,
@@ -71,7 +71,7 @@ public  void  transform_model(
 
 public  void  get_inverse_model_transform(
     display_struct    *display,
-    Transform         *inverse_transform )
+    VIO_Transform         *inverse_transform )
 {
     (void) compute_transform_inverse( &display->three_d.view.modeling_transform,
                                       inverse_transform );

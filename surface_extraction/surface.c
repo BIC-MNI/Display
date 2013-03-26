@@ -23,8 +23,8 @@
 #include  <display.h>
 
 private  VIO_BOOL  find_close_voxel_containing_range(
-    Volume                     volume,
-    Volume                     label_volume,
+    VIO_Volume                     volume,
+    VIO_Volume                     label_volume,
     unsigned_byte              voxel_done_flags[],
     surface_extraction_struct  *surface_extraction,
     int                        x,
@@ -32,8 +32,8 @@ private  VIO_BOOL  find_close_voxel_containing_range(
     int                        z,
     int                        found_indices[] );
 private  void  add_voxel_neighbours(
-    Volume                              volume,
-    Volume                              label_volume,
+    VIO_Volume                              volume,
+    VIO_Volume                              label_volume,
     int                                 x,
     int                                 y,
     int                                 z,
@@ -43,7 +43,7 @@ private  void  add_voxel_neighbours(
     voxel_queue_struct                  *voxel_queue );
 private  void  delete_edge_points_no_longer_needed(
     surface_extraction_struct       *surface_extraction,
-    Volume                          volume,
+    VIO_Volume                          volume,
     int                             voxel_index[],
     unsigned_byte                   voxel_done_flags[],
     hash_table_struct               *edge_points );
@@ -63,8 +63,8 @@ private  VIO_BOOL  surface_voxel_is_within_volume(
 
 public  void  start_surface_extraction_at_point(
     display_struct     *display,
-    Volume             volume,
-    Volume             label_volume,
+    VIO_Volume             volume,
+    VIO_Volume             label_volume,
     VIO_BOOL            binary_flag,
     VIO_BOOL            voxellate_flag,
     Real               min_value,
@@ -73,12 +73,12 @@ public  void  start_surface_extraction_at_point(
     int                y,
     int                z )
 {
-    int                         dim, sizes[N_DIMENSIONS];
-    int                         indices[N_DIMENSIONS];
+    int                         dim, sizes[VIO_N_DIMENSIONS];
+    int                         indices[VIO_N_DIMENSIONS];
     surface_extraction_struct   *surf;
-    int                         voxel_indices[N_DIMENSIONS];
+    int                         voxel_indices[VIO_N_DIMENSIONS];
     int                         offset;
-    int                         min_crop[N_DIMENSIONS], max_crop[N_DIMENSIONS];
+    int                         min_crop[VIO_N_DIMENSIONS], max_crop[VIO_N_DIMENSIONS];
 
     get_volume_sizes( volume, sizes );
 
@@ -102,7 +102,7 @@ public  void  start_surface_extraction_at_point(
 
     get_volume_crop_limits( display, min_crop, max_crop );
 
-    for_less( dim, 0, N_DIMENSIONS )
+    for_less( dim, 0, VIO_N_DIMENSIONS )
     {
         surf->min_limits[dim] = min_crop[dim];
         surf->max_limits[dim] = MIN( sizes[dim]-1-offset, max_crop[dim] );
@@ -182,8 +182,8 @@ public  void  start_surface_extraction_at_point(
 }
 
 private  VIO_BOOL  find_close_voxel_containing_range(
-    Volume                     volume,
-    Volume                     label_volume,
+    VIO_Volume                     volume,
+    VIO_Volume                     label_volume,
     unsigned_byte              voxel_done_flags[],
     surface_extraction_struct  *surface_extraction,
     int                        x,
@@ -192,10 +192,10 @@ private  VIO_BOOL  find_close_voxel_containing_range(
     int                        found_indices[] )
 {
     VIO_BOOL                   found, voxel_contains;
-    int                       sizes[MAX_DIMENSIONS], voxel[N_DIMENSIONS];
+    int                       sizes[VIO_MAX_DIMENSIONS], voxel[VIO_N_DIMENSIONS];
     VIO_BOOL                   voxel_done;
     voxel_queue_struct        voxels_to_check;
-    int                       insert[N_DIMENSIONS];
+    int                       insert[VIO_N_DIMENSIONS];
     bitlist_3d_struct         voxels_searched;
 
     get_volume_sizes( volume, sizes );
@@ -270,13 +270,13 @@ public  VIO_BOOL  some_voxels_remaining_to_do(
 private  void  update_changed_limits(
     surface_extraction_struct  *surf )
 {
-    int   dim, min_range[N_DIMENSIONS], max_range[N_DIMENSIONS];
+    int   dim, min_range[VIO_N_DIMENSIONS], max_range[VIO_N_DIMENSIONS];
     int   current_min, current_max;
 
     if( surf->min_modified[X] > surf->max_modified[X] )
         return;
 
-    for_less( dim, 0, N_DIMENSIONS )
+    for_less( dim, 0, VIO_N_DIMENSIONS )
     {
         min_range[dim] = MAX( surf->min_limits[dim], surf->min_modified[dim]-1);
         max_range[dim] = MIN( surf->max_limits[dim], surf->max_modified[dim]+1);
@@ -284,7 +284,7 @@ private  void  update_changed_limits(
 
     if( surf->min_changed_limits[X] > surf->max_changed_limits[X] )
     {
-        for_less( dim, 0, N_DIMENSIONS )
+        for_less( dim, 0, VIO_N_DIMENSIONS )
         {
             surf->min_changed_limits[dim] = min_range[dim];
             surf->max_changed_limits[dim] = max_range[dim];
@@ -308,11 +308,11 @@ private  void  update_changed_limits(
 
         if( min_range[X] <= current_max && max_range[X] >= current_min )
         {
-            for_less( dim, 0, N_DIMENSIONS )
+            for_less( dim, 0, VIO_N_DIMENSIONS )
                 surf->not_changed_since[dim] = surf->current_voxel[dim];
         }
 
-        for_less( dim, 0, N_DIMENSIONS )
+        for_less( dim, 0, VIO_N_DIMENSIONS )
         {
             if( min_range[dim] < surf->min_changed_limits[dim] )
                 surf->min_changed_limits[dim] = min_range[dim];
@@ -330,7 +330,7 @@ private  void  advance_voxellated_index(
 {
     int     dim, last_changed_dim, not_changed_since;
 
-    dim = N_DIMENSIONS-1;
+    dim = VIO_N_DIMENSIONS-1;
 
     while( dim >= 0 )
     {
@@ -345,7 +345,7 @@ private  void  advance_voxellated_index(
 
     if( dim < 0 )
     {
-        dim = N_DIMENSIONS-1;
+        dim = VIO_N_DIMENSIONS-1;
 
         while( dim >= 0 )
         {
@@ -374,17 +374,17 @@ private  void  advance_voxellated_index(
         last_changed_dim = dim;
     }
     else
-        last_changed_dim = N_DIMENSIONS;
+        last_changed_dim = VIO_N_DIMENSIONS;
 
-    for_less( dim, 0, N_DIMENSIONS )
+    for_less( dim, 0, VIO_N_DIMENSIONS )
     {
         if( surf->current_voxel[dim] != surf->not_changed_since[dim] )
             break;
     }
 
-    if( dim == N_DIMENSIONS )
+    if( dim == VIO_N_DIMENSIONS )
     {
-        for_less( dim, 0, N_DIMENSIONS )
+        for_less( dim, 0, VIO_N_DIMENSIONS )
         {
             surf->min_changed_limits[dim] = 0;
             surf->max_changed_limits[dim] = -1;
@@ -408,7 +408,7 @@ private  void  advance_voxellated_index(
                 ++surf->max_changed_limits[X];
             }
 
-            for_less( dim, 0, N_DIMENSIONS )
+            for_less( dim, 0, VIO_N_DIMENSIONS )
                 surf->not_changed_since[dim] = surf->min_changed_limits[dim];
         }
         else if( last_changed_dim == 0 &&
@@ -425,10 +425,10 @@ private  void  advance_voxellated_index(
 public  VIO_BOOL  extract_more_surface(
     display_struct    *display )
 {
-    int                         n_voxels_done, sizes[N_DIMENSIONS];
-    int                         voxel_index[N_DIMENSIONS];
+    int                         n_voxels_done, sizes[VIO_N_DIMENSIONS];
+    int                         voxel_index[VIO_N_DIMENSIONS];
     surface_extraction_struct   *surf;
-    Volume                      volume, label_volume;
+    VIO_Volume                      volume, label_volume;
     Real                        stop_time;
     VIO_BOOL                     voxellate_flag, changed;
 
@@ -518,10 +518,10 @@ public  VIO_BOOL  extract_more_surface(
 public  void  tell_surface_extraction_range_of_labels_changed(
     display_struct    *display,
     int               volume_index,
-    int               range[2][N_DIMENSIONS] )
+    int               range[2][VIO_N_DIMENSIONS] )
 {
     int                         dim;
-    Volume                      label_volume;
+    VIO_Volume                      label_volume;
     surface_extraction_struct   *surface_extraction;
 
     display = get_three_d_window( display );
@@ -535,7 +535,7 @@ public  void  tell_surface_extraction_range_of_labels_changed(
         if( surface_extraction->min_modified[X] >
             surface_extraction->max_modified[X] )
         {
-            for_less( dim, 0, N_DIMENSIONS )
+            for_less( dim, 0, VIO_N_DIMENSIONS )
             {
                 surface_extraction->min_modified[dim] = range[0][dim];
                 surface_extraction->max_modified[dim] = range[1][dim];
@@ -543,7 +543,7 @@ public  void  tell_surface_extraction_range_of_labels_changed(
         }
         else
         {
-            for_less( dim, 0, N_DIMENSIONS )
+            for_less( dim, 0, VIO_N_DIMENSIONS )
             {
                 if( range[0][dim] < surface_extraction->min_modified[dim] )
                     surface_extraction->min_modified[dim] = range[0][dim];
@@ -561,7 +561,7 @@ public  void  tell_surface_extraction_label_changed(
     int               y,
     int               z )
 {
-    int   range[2][N_DIMENSIONS];
+    int   range[2][VIO_N_DIMENSIONS];
 
     range[0][X] = x;
     range[1][X] = x;
@@ -575,8 +575,8 @@ public  void  tell_surface_extraction_label_changed(
 }
 
 private  void  add_voxel_neighbours(
-    Volume                          volume,
-    Volume                          label_volume,
+    VIO_Volume                          volume,
+    VIO_Volume                          label_volume,
     int                             x,
     int                             y,
     int                             z,
@@ -586,7 +586,7 @@ private  void  add_voxel_neighbours(
     voxel_queue_struct              *voxel_queue )
 {
     int                      x_offset, y_offset, z_offset;
-    int                      neighbour[N_DIMENSIONS];
+    int                      neighbour[VIO_N_DIMENSIONS];
 
     for_inclusive( x_offset, -1, 1 )
     {
@@ -625,7 +625,7 @@ private  void  add_voxel_neighbours(
 
 private  void  delete_edge_points_no_longer_needed(
     surface_extraction_struct       *surface_extraction,
-    Volume                          volume,
+    VIO_Volume                          volume,
     int                             voxel_index[],
     unsigned_byte                   voxel_done_flags[],
     hash_table_struct               *edge_points )
@@ -634,8 +634,8 @@ private  void  delete_edge_points_no_longer_needed(
     int                 x, y, dx, dy, dz;
     VIO_BOOL             all_four_done;
     VIO_BOOL             voxel_done[3][3][3];
-    int                 indices[N_DIMENSIONS];
-    int                 sizes[N_DIMENSIONS];
+    int                 indices[VIO_N_DIMENSIONS];
+    int                 sizes[VIO_N_DIMENSIONS];
 
     get_volume_sizes( volume, sizes );
 
@@ -666,10 +666,10 @@ private  void  delete_edge_points_no_longer_needed(
         }
     }
 
-    for_less( axis_index, 0, N_DIMENSIONS )
+    for_less( axis_index, 0, VIO_N_DIMENSIONS )
     {
-        a1 = (axis_index + 1) % N_DIMENSIONS;
-        a2 = (axis_index + 2) % N_DIMENSIONS;
+        a1 = (axis_index + 1) % VIO_N_DIMENSIONS;
+        a2 = (axis_index + 2) % VIO_N_DIMENSIONS;
 
         for_less( x, 0, 2 )
         {

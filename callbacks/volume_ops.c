@@ -27,9 +27,9 @@ private  void  change_current_slice_by_one(
     int              delta )
 {
     display_struct   *slice_window;
-    Volume           volume;
-    Real             voxel[N_DIMENSIONS], separations[N_DIMENSIONS];
-    int              sizes[N_DIMENSIONS], axis_index, volume_index;
+    VIO_Volume           volume;
+    Real             voxel[VIO_N_DIMENSIONS], separations[VIO_N_DIMENSIONS];
+    int              sizes[VIO_N_DIMENSIONS], axis_index, volume_index;
 
     if( get_slice_window( display, &slice_window ) &&
         get_axis_index_under_mouse( display, &volume_index, &axis_index ) )
@@ -170,7 +170,7 @@ public  DEF_MENU_UPDATE(reset_current_slice_view )
 public  DEF_MENU_FUNCTION(colour_code_objects )
 {
     object_struct           *object, *current_object;
-    Volume                  volume;
+    VIO_Volume                  volume;
     object_traverse_struct  object_traverse;
 
     if( get_current_object(display,&current_object) &&
@@ -204,12 +204,12 @@ private  void  create_scaled_slice(
 {
     display_struct   *slice_window;
     int              x_index, y_index, axis_index, view_index;
-    Real             current_voxel[N_DIMENSIONS], perp_axis[N_DIMENSIONS];
+    Real             current_voxel[VIO_N_DIMENSIONS], perp_axis[VIO_N_DIMENSIONS];
     Real             scale_factor, value, min_value, xw, yw, zw;
-    Vector           normal;
+    VIO_Vector           normal;
     object_struct    *object;
     quadmesh_struct  *quadmesh;
-    Point            point;
+    VIO_Point            point;
     int              m, n, i, j;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -222,7 +222,7 @@ private  void  create_scaled_slice(
     {
         if( scale_slice_flag )
         {
-            Status  status;
+            VIO_Status  status;
 
             print( "Enter scaling: " );
             status = input_real( stdin, &scale_factor );
@@ -323,11 +323,11 @@ public  DEF_MENU_UPDATE(create_3d_slice_profile)
 
 public  DEF_MENU_FUNCTION(resample_slice_window_volume)
 {
-    int              sizes[N_DIMENSIONS];
+    int              sizes[VIO_N_DIMENSIONS];
     int              new_nx, new_ny, new_nz;
     char             label[EXTREMELY_LARGE_STRING_SIZE];
     display_struct   *slice_window;
-    Volume           volume, resampled_volume;
+    VIO_Volume           volume, resampled_volume;
 
     if( get_slice_window_volume( display, &volume ) &&
         get_slice_window( display, &slice_window ) )
@@ -374,10 +374,10 @@ public  DEF_MENU_FUNCTION(box_filter_slice_window_volume)
 {
     char             ch;
     Real             x_width, y_width, z_width;
-    Real             separations[N_DIMENSIONS];
+    Real             separations[VIO_N_DIMENSIONS];
     char             label[EXTREMELY_LARGE_STRING_SIZE];
     display_struct   *slice_window;
-    Volume           volume, resampled_volume;
+    VIO_Volume           volume, resampled_volume;
 
     if( get_slice_window_volume( display, &volume ) &&
         get_slice_window( display, &slice_window ) )
@@ -542,7 +542,7 @@ public  DEF_MENU_UPDATE(pick_crop_box_edge)
 public  DEF_MENU_FUNCTION(set_crop_box_filename)
 {
     display_struct   *slice_window;
-    STRING           filename;
+    VIO_STR           filename;
 
     if( get_slice_window( display, &slice_window ) )
     {
@@ -593,7 +593,7 @@ public  DEF_MENU_UPDATE(load_cropped_volume)
 
 public  DEF_MENU_FUNCTION(crop_volume_to_file)
 {
-    STRING           filename;
+    VIO_STR           filename;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
@@ -626,7 +626,7 @@ private  void  do_histogram(
     VIO_BOOL          labeled )
 {
     int              x_index, y_index, view_index, axis_index;
-    Real             voxel[MAX_DIMENSIONS], slice;
+    Real             voxel[VIO_MAX_DIMENSIONS], slice;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -689,7 +689,7 @@ public  DEF_MENU_UPDATE(redo_histogram_labeled)
 
 public  DEF_MENU_FUNCTION(print_voxel_origin)
 {
-    Real             voxel[MAX_DIMENSIONS], xw, yw, zw;
+    Real             voxel[VIO_MAX_DIMENSIONS], xw, yw, zw;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -720,9 +720,9 @@ public  DEF_MENU_UPDATE(print_voxel_origin)
 public  DEF_MENU_FUNCTION(print_slice_plane)
 {
     display_struct   *slice_window;
-    Vector           normal;
+    VIO_Vector           normal;
     int              view_index;
-    Real             perp_axis[MAX_DIMENSIONS], xw, yw, zw;
+    Real             perp_axis[VIO_MAX_DIMENSIONS], xw, yw, zw;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 &&
@@ -761,8 +761,8 @@ public  DEF_MENU_UPDATE(print_slice_plane)
 
 public  DEF_MENU_FUNCTION(type_in_voxel_origin)
 {
-    STRING           type;
-    Real             voxel[MAX_DIMENSIONS], xw, yw, zw;
+    VIO_STR           type;
+    Real             voxel[VIO_MAX_DIMENSIONS], xw, yw, zw;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -815,8 +815,8 @@ public  DEF_MENU_UPDATE(type_in_voxel_origin)
 public  DEF_MENU_FUNCTION(type_in_slice_plane)
 {
     int              view_index;
-    Real             perp_axis[MAX_DIMENSIONS], xw, yw, zw;
-    STRING           type;
+    Real             perp_axis[VIO_MAX_DIMENSIONS], xw, yw, zw;
+    VIO_STR           type;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -922,7 +922,7 @@ public  DEF_MENU_UPDATE(set_current_arbitrary_view)
 public  DEF_MENU_FUNCTION(toggle_slice_anchor)
 {
     int              c, view_index;
-    Vector           axis;
+    VIO_Vector           axis;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -944,7 +944,7 @@ public  DEF_MENU_FUNCTION(toggle_slice_anchor)
                            get_arbitrary_view_index( slice_window ),
                            &axis );
 
-            for_less( c, 0, N_DIMENSIONS )
+            for_less( c, 0, VIO_N_DIMENSIONS )
                 slice_window->slice.cross_section_vector[c] =
                                                    (Real) Vector_coord(axis,c);
         }
@@ -1227,7 +1227,7 @@ public  DEF_MENU_UPDATE(toggle_slice_interpolation )
     int              continuity;
     display_struct   *slice_window;
     VIO_BOOL          active;
-    STRING           name;
+    VIO_STR           name;
 
     active = get_slice_window( display, &slice_window );
 
@@ -1254,9 +1254,9 @@ public  DEF_MENU_UPDATE(toggle_slice_interpolation )
 public  DEF_MENU_FUNCTION( save_slice_image )
 {
     display_struct    *slice_window;
-    Status            status;
+    VIO_Status            status;
     int               view_index, x_min, x_max, y_min, y_max;
-    STRING            filename;
+    VIO_STR            filename;
 
     status = OK;
 
@@ -1297,9 +1297,9 @@ public  DEF_MENU_UPDATE(save_slice_image )
 public  DEF_MENU_FUNCTION( save_slice_window )
 {
     display_struct    *slice_window;
-    Status            status;
+    VIO_Status            status;
     int               x_size, y_size;
-    STRING            filename;
+    VIO_STR            filename;
 
     status = OK;
 

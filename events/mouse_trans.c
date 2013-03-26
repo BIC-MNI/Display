@@ -120,9 +120,9 @@ private  VIO_BOOL  perform_translation(
     display_struct   *display )
 {
     VIO_BOOL        moved;
-    Real           x, y, x_prev, y_prev;
-    Vector         delta, hor, vert;
-    Transform      transform;
+    VIO_Real           x, y, x_prev, y_prev;
+    VIO_Vector         delta, hor, vert;
+    VIO_Transform      transform;
 
     moved = FALSE;
 
@@ -137,9 +137,9 @@ private  VIO_BOOL  perform_translation(
 
         ADD_VECTORS( delta, hor, vert );
 
-        make_translation_transform( (Real) Vector_x(delta),
-                                    (Real) Vector_y(delta),
-                                    (Real) Vector_z(delta), &transform );
+        make_translation_transform( (VIO_Real) Vector_x(delta),
+                                    (VIO_Real) Vector_y(delta),
+                                    (VIO_Real) Vector_z(delta), &transform );
 
         transform_model( display, &transform );
 

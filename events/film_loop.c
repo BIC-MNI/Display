@@ -24,33 +24,33 @@
 
 private    DEF_EVENT_FUNCTION( check_updated );
 
-private  Status  create_film_loop_header(
-    STRING   base_filename,
+private  VIO_Status  create_film_loop_header(
+    VIO_STR   base_filename,
     int      window_width,
     int      window_height,
     int      n_steps );
-private  STRING  create_frame_filename(
-    STRING  base_filename,
+private  VIO_STR  create_frame_filename(
+    VIO_STR  base_filename,
     int     step );
-private  Status  save_image_to_file(
+private  VIO_Status  save_image_to_file(
     display_struct    *display );
 private  void  display_next_frame(
     display_struct   *display );
 
-public  Status  start_film_loop(
+public  VIO_Status  start_film_loop(
     display_struct   *display,
-    STRING           base_filename,
+    VIO_STR           base_filename,
     int              axis_index,
     int              n_steps )
 {
-    Status    status;
-    Real      angle;
+    VIO_Status    status;
+    VIO_Real      angle;
     int       x_size, y_size;
 
     add_action_table_function( &display->action_table, NO_EVENT,
                                check_updated );
 
-    angle = 2.0 * PI / (Real) n_steps;
+    angle = 2.0 * PI / (VIO_Real) n_steps;
 
     make_rotation_transform( angle, axis_index,
                              &display->three_d.film_loop.transform );
@@ -87,7 +87,7 @@ private  void  end_film_loop(
 
 private  DEF_EVENT_FUNCTION( check_updated )
 {
-    Status    status;
+    VIO_Status    status;
 
     status = OK;
 
@@ -121,18 +121,18 @@ private  DEF_EVENT_FUNCTION( check_updated )
     return( OK );
 }
 
-private  Status  create_film_loop_header(
-    STRING   base_filename,
+private  VIO_Status  create_film_loop_header(
+    VIO_STR   base_filename,
     int      window_width,
     int      window_height,
     int      n_steps )
 {
-    Status  status;
+    VIO_Status  status;
     int     i;
     FILE    *file;
-    STRING  header_name;
-    STRING  frame_filename;
-    STRING  no_dirs;
+    VIO_STR  header_name;
+    VIO_STR  frame_filename;
+    VIO_STR  no_dirs;
 
     header_name = concat_strings( base_filename, ".flm" );
 
@@ -175,8 +175,8 @@ private  Status  create_film_loop_header(
     return( status );
 }
 
-private  STRING  create_frame_filename(
-    STRING   base_filename,
+private  VIO_STR  create_frame_filename(
+    VIO_STR   base_filename,
     int      step )
 {
     char     buffer[EXTREMELY_LARGE_STRING_SIZE];
@@ -186,11 +186,11 @@ private  STRING  create_frame_filename(
     return( create_string( buffer ) );
 }
 
-private  Status  save_image_to_file(
+private  VIO_Status  save_image_to_file(
     display_struct    *display )
 {
-    Status         status;
-    STRING         frame_filename;
+    VIO_Status         status;
+    VIO_STR         frame_filename;
 
     frame_filename = create_frame_filename(
                            display->three_d.film_loop.base_filename,

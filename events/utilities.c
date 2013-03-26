@@ -25,7 +25,7 @@
 public  void   terminate_any_interactions(
     display_struct   *display )
 {
-    Status               status;
+    VIO_Status               status;
     event_function_type  *actions;
     int                  i, n_actions;
 

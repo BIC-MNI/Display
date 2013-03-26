@@ -25,9 +25,9 @@
 private  void  crop_surface(
     display_struct   *display,
     VIO_BOOL          above_flag );
-private  Status  io_polygons_visibilities(
+private  VIO_Status  io_polygons_visibilities(
     polygons_struct  *polygons,
-    IO_types         io_flag );
+    VIO_IO_types         io_flag );
 
 /* ARGSUSED */
 
@@ -115,9 +115,9 @@ public  DEF_MENU_UPDATE(set_n_paint_polygons)
 
 public  DEF_MENU_FUNCTION( set_vis_paint_colour )
 {
-    Status      status;
-    STRING      string;
-    Colour      colour;
+    VIO_Status      status;
+    VIO_STR      string;
+    VIO_Colour      colour;
 
     string = convert_colour_to_string(
                  display->three_d.surface_edit.visible_colour );
@@ -163,9 +163,9 @@ public  DEF_MENU_UPDATE(set_vis_paint_colour)
 
 public  DEF_MENU_FUNCTION( set_invis_paint_colour )
 {
-    Status      status;
-    STRING      string;
-    Colour      colour;
+    VIO_Status      status;
+    VIO_STR      string;
+    VIO_Colour      colour;
 
     string = convert_colour_to_string(
                    display->three_d.surface_edit.invisible_colour );
@@ -213,7 +213,7 @@ public  DEF_MENU_FUNCTION( set_connected_invisible )
 {
     polygons_struct  *polygons;
     int              poly_index;
-    Point            point;
+    VIO_Point            point;
 
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
@@ -240,7 +240,7 @@ public  DEF_MENU_FUNCTION( paint_invisible )
 {
     polygons_struct  *polygons;
     int              poly_index;
-    Point            point;
+    VIO_Point            point;
 
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
@@ -268,7 +268,7 @@ public  DEF_MENU_FUNCTION( paint_visible )
 {
     polygons_struct  *polygons;
     int              poly_index;
-    Point            point;
+    VIO_Point            point;
 
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
@@ -296,7 +296,7 @@ public  DEF_MENU_FUNCTION( set_connected_vis_colour )
 {
     polygons_struct  *polygons;
     int              poly_index;
-    Point            point;
+    VIO_Point            point;
 
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
@@ -323,7 +323,7 @@ public  DEF_MENU_FUNCTION( set_connected_invis_colour )
 {
     polygons_struct  *polygons;
     int              poly_index;
-    Point            point;
+    VIO_Point            point;
 
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
@@ -350,7 +350,7 @@ public  DEF_MENU_FUNCTION( paint_invis_colour )
 {
     polygons_struct  *polygons;
     int              poly_index;
-    Point            point;
+    VIO_Point            point;
 
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
@@ -378,7 +378,7 @@ public  DEF_MENU_FUNCTION( paint_vis_colour )
 {
     polygons_struct  *polygons;
     int              poly_index;
-    Point            point;
+    VIO_Point            point;
 
     if( get_polygon_under_mouse( display, &polygons, &poly_index, &point ) )
     {
@@ -414,7 +414,7 @@ public  DEF_MENU_FUNCTION( set_visibility_from_colour )
         for_less( i, 0, polygons->n_items )
         {
             polygons->visibilities[i] =
-                (Smallest_int) (polygons->colour_flag != PER_ITEM_COLOURS ||
+                (VIO_SCHAR) (polygons->colour_flag != PER_ITEM_COLOURS ||
                  display->three_d.surface_edit.invisible_colour !=
                  polygons->colours[i] );
         }
@@ -479,7 +479,7 @@ public  DEF_MENU_FUNCTION( set_vis_to_invis_colour )
 
         for_less( i, 0, polygons->n_items )
         {
-            if( polygons->visibilities == (Smallest_int *) 0 ||
+            if( polygons->visibilities == (VIO_SCHAR *) 0 ||
                 polygons->visibilities[i] )
             {
                 polygons->colours[i] =
@@ -513,7 +513,7 @@ public  DEF_MENU_FUNCTION( set_vis_to_vis_colour )
 
         for_less( i, 0, polygons->n_items )
         {
-            if( polygons->visibilities == (Smallest_int *) 0 ||
+            if( polygons->visibilities == (VIO_SCHAR *) 0 ||
                 polygons->visibilities[i] )
             {
                 polygons->colours[i] =
@@ -573,7 +573,7 @@ private  void  crop_surface(
     char             ch;
     int              axis_index, volume_index;
     Real             pos;
-    Real             voxel[MAX_DIMENSIONS], world[MAX_DIMENSIONS];
+    Real             voxel[VIO_MAX_DIMENSIONS], world[VIO_MAX_DIMENSIONS];
     polygons_struct  *polygons;
     display_struct   *slice_window;
 
@@ -614,7 +614,7 @@ private  void  crop_surface(
 
 public  DEF_MENU_FUNCTION( save_polygons_visibilities )
 {
-    Status           status;
+    VIO_Status           status;
     polygons_struct  *polygons;
 
     status = OK;
@@ -638,7 +638,7 @@ public  DEF_MENU_UPDATE(save_polygons_visibilities)
 
 public  DEF_MENU_FUNCTION( load_polygons_visibilities )
 {
-    Status           status;
+    VIO_Status           status;
     polygons_struct  *polygons;
 
     status = OK;
@@ -660,12 +660,12 @@ public  DEF_MENU_UPDATE(load_polygons_visibilities)
     return( current_object_is_this_type(display,POLYGONS) );
 }
 
-private  Status  io_polygons_visibilities(
+private  VIO_Status  io_polygons_visibilities(
     polygons_struct  *polygons,
-    IO_types         io_flag )
+    VIO_IO_types         io_flag )
 {
-    Status           status;
-    STRING           filename;
+    VIO_Status           status;
+    VIO_STR           filename;
     FILE             *file;
 
     create_polygons_visibilities( polygons );

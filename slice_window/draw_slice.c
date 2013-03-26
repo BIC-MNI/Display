@@ -41,12 +41,12 @@ public  void  initialize_slice_models(
     display_struct    *slice_window )
 {
     int               i, view;
-    Point             point;
+    VIO_Point             point;
     lines_struct      *lines;
     polygons_struct   *polygons;
     object_struct     *object;
     model_struct      *model;
-    Colour            colour;
+    VIO_Colour            colour;
 
     model = get_graphics_model( slice_window, FULL_WINDOW_MODEL );
 
@@ -232,7 +232,7 @@ public  void  initialize_slice_models(
     model = get_graphics_model( slice_window, SLICE_READOUT_MODEL );
 
     if( get_model_bitplanes(model) == OVERLAY_PLANES )
-        colour = (Colour) Readout_text_colour;
+        colour = (VIO_Colour) Readout_text_colour;
     else
         colour = Readout_text_rgb_colour;
 
@@ -294,7 +294,7 @@ public  void  rebuild_slice_divider(
     display_struct    *slice_window )
 {
     model_struct   *model;
-    Point          *points;
+    VIO_Point          *points;
     int            left_panel_width, left_slice_width, right_slice_width;
     int            bottom_slice_height, top_slice_height, text_panel_height;
     int            colour_bar_height;
@@ -339,14 +339,14 @@ public  void  rebuild_probe(
 {
     model_struct   *model;
     VIO_BOOL        active;
-    Volume         volume;
-    Volume         volume_ratio_num, volume_ratio_den;
-    Real           voxel[MAX_DIMENSIONS];
-    int            int_voxel[MAX_DIMENSIONS];
+    VIO_Volume         volume;
+    VIO_Volume         volume_ratio_num, volume_ratio_den;
+    Real           voxel[VIO_MAX_DIMENSIONS];
+    int            int_voxel[VIO_MAX_DIMENSIONS];
     int            label, i, view_index, volume_index;
     Real           x_world, y_world, z_world;
     text_struct    *text;
-    int            sizes[N_DIMENSIONS];
+    int            sizes[VIO_N_DIMENSIONS];
     Real           value, voxel_value;
     Real           value_ratio_num, value_ratio_den;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
@@ -369,7 +369,7 @@ public  void  rebuild_probe(
         convert_voxel_to_world( volume, voxel,
                                 &x_world, &y_world, &z_world );
 
-        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+        convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
 
         (void) evaluate_volume( volume, voxel, NULL,
                                 slice_window->slice.degrees_continuity,
@@ -522,12 +522,12 @@ public  void  get_slice_cross_section_direction(
     display_struct    *slice_window,
     int               view_index,
     int               section_index,
-    Vector            *in_plane_axis )
+    VIO_Vector            *in_plane_axis )
 {
     int            c, volume_index;
-    Real           perp_axis[N_DIMENSIONS], separations[N_DIMENSIONS];
-    Real           plane_axis[N_DIMENSIONS];
-    Vector         plane_normal, perp_normal;
+    Real           perp_axis[VIO_N_DIMENSIONS], separations[VIO_N_DIMENSIONS];
+    Real           plane_axis[VIO_N_DIMENSIONS];
+    VIO_Vector         plane_normal, perp_normal;
 
     volume_index = get_current_volume_index( slice_window );
 
@@ -535,7 +535,7 @@ public  void  get_slice_cross_section_direction(
     get_slice_perp_axis( slice_window, volume_index, section_index, perp_axis );
     get_slice_perp_axis( slice_window, volume_index, view_index, plane_axis );
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
     {
         separations[c] = FABS( separations[c] );
         Vector_coord( plane_normal, c ) = (Point_coord_type)
@@ -546,7 +546,7 @@ public  void  get_slice_cross_section_direction(
 
     CROSS_VECTORS( *in_plane_axis, plane_normal, perp_normal );
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
         Vector_coord( *in_plane_axis, c ) /= (Point_coord_type) separations[c];
 }
 
@@ -556,7 +556,7 @@ public  void  rebuild_slice_unfinished_flag(
 {
     model_struct      *model;
     Real              x_size, y_size, width;
-    Point             *points;
+    VIO_Point             *points;
     object_struct     *object;
     polygons_struct   *polygons;
     int               x_min, x_max, y_min, y_max;
@@ -616,16 +616,16 @@ public  void  rebuild_slice_cross_section(
     int               view_index )
 {
     model_struct   *model;
-    int            sizes[N_DIMENSIONS];
+    int            sizes[VIO_N_DIMENSIONS];
     int            c, section_index, x_min, x_max, y_min, y_max;
     Real           x1, y1, x2, y2, dx, dy, len, t_min, t_max;
-    Real           separations[N_DIMENSIONS];
-    Real           voxel1[N_DIMENSIONS], voxel2[N_DIMENSIONS];
-    Point          origin, v1, v2, p1, p2;
-    Vector         in_plane_axis, direction;
+    Real           separations[VIO_N_DIMENSIONS];
+    Real           voxel1[VIO_N_DIMENSIONS], voxel2[VIO_N_DIMENSIONS];
+    VIO_Point          origin, v1, v2, p1, p2;
+    VIO_Vector         in_plane_axis, direction;
     object_struct  *object;
     lines_struct   *lines;
-    Real           current_voxel[N_DIMENSIONS];
+    Real           current_voxel[VIO_N_DIMENSIONS];
 
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
     object = model->objects[2*slice_window->slice.n_volumes+
@@ -651,7 +651,7 @@ public  void  rebuild_slice_cross_section(
                       get_current_volume_index(slice_window), current_voxel );
     get_volume_separations( get_volume(slice_window), separations );
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
     {
         separations[c] = FABS( separations[c] );
         Point_coord( origin, c ) = (Point_coord_type) current_voxel[c];
@@ -681,7 +681,7 @@ public  void  rebuild_slice_cross_section(
     GET_POINT_ON_RAY( v1, origin, in_plane_axis, t_min );
     GET_POINT_ON_RAY( v2, origin, in_plane_axis, t_max );
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
     {
         voxel1[c] = (Real) Point_coord(v1,c);
         voxel2[c] = (Real) Point_coord(v2,c);
@@ -745,7 +745,7 @@ public  void  rebuild_slice_crop_box(
     model_struct   *model;
     object_struct  *object;
     lines_struct   *lines;
-    Real           voxel[N_DIMENSIONS], x, y;
+    Real           voxel[VIO_N_DIMENSIONS], x, y;
     VIO_BOOL        visibility;
 
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
@@ -811,7 +811,7 @@ public  void  rebuild_slice_cursor(
     Real           x_left, x_right, y_bottom, y_top, dx, dy;
     Real           x_centre, y_centre, tmp;
     lines_struct   *lines1, *lines2;
-    Real           current_voxel[N_DIMENSIONS];
+    Real           current_voxel[VIO_N_DIMENSIONS];
     int            x_min, x_max, y_min, y_max;
     Real           hor_pixel_start, hor_pixel_end;
     Real           vert_pixel_start, vert_pixel_end;
@@ -1019,7 +1019,7 @@ private  int  render_slice_to_pixels(
     int                   volume_index,
     int                   view_index,
     int                   which_volume,
-    Colour                colour_table[],
+    VIO_Colour                colour_table[],
     Filter_types          filter_type,
     int                   continuity,
     pixels_struct         *pixels,
@@ -1034,16 +1034,16 @@ private  int  render_slice_to_pixels(
     int                   x_sub_min, x_sub_max, y_sub_min, y_sub_max;
     int                   x, y, height, *n_alloced_ptr;
     int                   r, g, b, opacity;
-    Colour                empty, colour;
+    VIO_Colour                empty, colour;
     Real                  x_pixel, y_pixel;
     Real                  x_trans, y_trans, x_scale, y_scale;
-    Real                  current_voxel[MAX_DIMENSIONS];
-    Real                  origin[MAX_DIMENSIONS];
-    Real                  x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
+    Real                  current_voxel[VIO_MAX_DIMENSIONS];
+    Real                  origin[VIO_MAX_DIMENSIONS];
+    Real                  x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
     VIO_BOOL               first_flag, force_update_limits;
-    Colour                **colour_map;
+    VIO_Colour                **colour_map;
     loaded_volume_struct  *vol_info;
-    Volume                volume;
+    VIO_Volume                volume;
 
     if( !continuing_flag )
     {
@@ -1106,7 +1106,7 @@ private  int  render_slice_to_pixels(
                                                         .filter_width,
                     origin, x_axis, y_axis,
                     x_trans, y_trans, x_scale, y_scale,
-                    (Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
+                    (VIO_Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
                     (Real *) 0, (Real *) 0, (Real *) 0,
                     0.0, 0.0, 0.0, 0.0,
                     x_sub_max - x_sub_min + 1, y_sub_max - y_sub_min + 1,
@@ -1261,7 +1261,7 @@ private  int  render_slice_to_pixels(
                                                         .filter_width,
                     origin, x_axis, y_axis,
                     x_trans, y_trans, x_scale, y_scale,
-                    (Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
+                    (VIO_Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
                     (Real *) 0, (Real *) 0, (Real *) 0,
                     0.0, 0.0, 0.0, 0.0,
                     x_sub_max - x_sub_min + 1, y_sub_max - y_sub_min + 1,
@@ -1395,9 +1395,9 @@ public  void  rebuild_slice_text(
     object_struct  *text_object;
     text_struct    *text;
     char           buffer[EXTREMELY_LARGE_STRING_SIZE];
-    STRING         format;
+    VIO_STR         format;
     int            x_pos, y_pos;
-    Real           current_voxel[N_DIMENSIONS];
+    Real           current_voxel[VIO_N_DIMENSIONS];
 
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
     text_object = model->objects[2*slice_window->slice.n_volumes+TEXT_INDEX];
@@ -1441,15 +1441,15 @@ public  void  rebuild_atlas_slice_pixels(
     VIO_BOOL        visible;
     object_struct  *pixels_object;
     pixels_struct  *pixels, *volume_pixels;
-    Volume         volume;
-    Real           v1[N_DIMENSIONS], v2[N_DIMENSIONS];
-    int            sizes[N_DIMENSIONS];
+    VIO_Volume         volume;
+    Real           v1[VIO_N_DIMENSIONS], v2[VIO_N_DIMENSIONS];
+    int            sizes[VIO_N_DIMENSIONS];
     int            x_index, y_index, axis_index, volume_index;
     Real           x_trans, y_trans, x_scale, y_scale;
-    Real           origin[MAX_DIMENSIONS];
-    Real           x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
-    Real           world_origin[MAX_DIMENSIONS];
-    Real           world_x_axis[MAX_DIMENSIONS], world_y_axis[MAX_DIMENSIONS];
+    Real           origin[VIO_MAX_DIMENSIONS];
+    Real           x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
+    Real           world_origin[VIO_MAX_DIMENSIONS];
+    Real           world_x_axis[VIO_MAX_DIMENSIONS], world_y_axis[VIO_MAX_DIMENSIONS];
     Real           x1, y1, z1, x2, y2, z2;
 
     pixels_object = get_atlas_slice_pixels_object( slice_window, view_index );
@@ -1542,11 +1542,11 @@ public  void  rebuild_atlas_slice_pixels(
 private  void  create_composite(
     int             n_slices,
     pixels_struct   *slices[],
-    Colour          background_colour,
+    VIO_Colour          background_colour,
     int             *n_alloced,
     pixels_struct   *composite )
 {
-    Colour   *src, *dest, empty, c1, c2;
+    VIO_Colour   *src, *dest, empty, c1, c2;
     int      r1, g1, b1, a1, r2, g2, b2, a2, weight;
     int      r, g, b, a;
     int      i, n_pixels, slice, x_min, x_max, y_min, y_max, x, y;

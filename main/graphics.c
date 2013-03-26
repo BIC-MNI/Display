@@ -140,15 +140,15 @@ public  void  terminate_graphics( void )
     G_terminate();
 }
 
-public  Status  create_graphics_window(
+public  VIO_Status  create_graphics_window(
     window_types      window_type,
     VIO_BOOL           double_buffering,
     display_struct    **display,
-    STRING            title,
+    VIO_STR            title,
     int               width,
     int               height )
 {
-    Status   status;
+    VIO_Status   status;
 
     get_new_display( display );
 
@@ -391,12 +391,12 @@ public  void  graphics_models_have_changed(
 private  void  display_frame_info(
     display_struct   *display,
     int              frame_number,
-    Real             update_time )
+    VIO_Real             update_time )
 {
     text_struct   frame_text;
     char          buffer[EXTREMELY_LARGE_STRING_SIZE];
-    STRING        frame_time_str;
-    Point         origin;
+    VIO_STR        frame_time_str;
+    VIO_Point         origin;
     model_struct  *model;
 
     fill_Point( origin, Frame_info_x, Frame_info_y, 0.0 );
@@ -549,7 +549,7 @@ private  void  update_graphics_normal_planes_only(
     display_struct               *display,
     update_interrupted_struct    *interrupt )
 {
-    Real          start, end;
+    VIO_Real          start, end;
     int           i;
     VIO_BOOL       past_last_object, out_of_date;
 
@@ -651,8 +651,8 @@ public  void  fit_view_to_visible_models(
     display_struct   *display )
 {
     int     c;
-    Point   min_limit, max_limit;
-    Point   misc_min_limit, misc_max_limit;
+    VIO_Point   min_limit, max_limit;
+    VIO_Point   misc_min_limit, misc_max_limit;
 
     if( !get_range_of_object( display->models[THREED_MODEL],
                               TRUE, &min_limit, &max_limit ) )
@@ -670,7 +670,7 @@ public  void  fit_view_to_visible_models(
     else if( get_range_of_object( display->models[MISCELLANEOUS_MODEL],
                                   TRUE, &misc_min_limit, &misc_max_limit ) )
     {
-        for_less( c, 0, N_DIMENSIONS )
+        for_less( c, 0, VIO_N_DIMENSIONS )
         {
             if( Point_coord(misc_min_limit,c) < Point_coord(min_limit,c) )
                 Point_coord(min_limit,c) = Point_coord(misc_min_limit,c);
@@ -684,8 +684,8 @@ public  void  fit_view_to_visible_models(
 
 public  void  reset_view_parameters(
     display_struct   *display,
-    Vector           *line_of_sight,
-    Vector           *horizontal )
+    VIO_Vector           *line_of_sight,
+    VIO_Vector           *horizontal )
 {
     initialize_view( &display->three_d.view,
                      line_of_sight, horizontal );
@@ -696,10 +696,10 @@ public  void  reset_view_parameters(
     fit_view_to_visible_models( display );
 }
 
-public  Real  size_of_domain(
+public  VIO_Real  size_of_domain(
     display_struct   *display )
 {
-    Vector   diff;
+    VIO_Vector   diff;
 
     SUB_POINTS( diff, display->three_d.max_limit, display->three_d.min_limit );
 

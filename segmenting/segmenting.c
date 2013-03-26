@@ -46,14 +46,14 @@ public  void  set_labels_on_slice(
     int             position,
     int             label )
 {
-    int     voxel[N_DIMENSIONS], sizes[N_DIMENSIONS], a1, a2;
+    int     voxel[VIO_N_DIMENSIONS], sizes[VIO_N_DIMENSIONS], a1, a2;
 
     get_volume_sizes( get_nth_label_volume(slice_window,volume_index), sizes );
 
     voxel[axis_index] = position;
 
-    a1 = (axis_index + 1) % N_DIMENSIONS;
-    a2 = (axis_index + 2) % N_DIMENSIONS;
+    a1 = (axis_index + 1) % VIO_N_DIMENSIONS;
+    a2 = (axis_index + 2) % VIO_N_DIMENSIONS;
 
     for_less( voxel[a1], 0, sizes[a1] )
     {
@@ -75,19 +75,19 @@ public  void  set_connected_voxels_labels(
     int               volume_index,
     int               axis_index,
     int               position[],
-    Real              min_threshold,
-    Real              max_threshold,
+    VIO_Real              min_threshold,
+    VIO_Real              max_threshold,
     int               label_min_threshold,
     int               label_max_threshold,
     Neighbour_types   connectivity,
     int               label )
 {
-    int                             voxel[N_DIMENSIONS], sizes[N_DIMENSIONS];
+    int                             voxel[VIO_N_DIMENSIONS], sizes[VIO_N_DIMENSIONS];
     int                             a1, a2, x, y;
     int                             dir, n_dirs, *dx, *dy;
     slice_position                  entry;
     QUEUE_STRUCT( slice_position )  queue;
-    Volume                          volume, label_volume;
+    VIO_Volume                          volume, label_volume;
 
     volume = get_nth_volume( slice_window, volume_index );
     label_volume = get_nth_label_volume( slice_window, volume_index );
@@ -100,8 +100,8 @@ public  void  set_connected_voxels_labels(
     voxel[1] = position[1];
     voxel[2] = position[2];
 
-    a1 = (axis_index + 1) % N_DIMENSIONS;
-    a2 = (axis_index + 2) % N_DIMENSIONS;
+    a1 = (axis_index + 1) % VIO_N_DIMENSIONS;
+    a2 = (axis_index + 2) % VIO_N_DIMENSIONS;
 
     INITIALIZE_QUEUE( queue );
 

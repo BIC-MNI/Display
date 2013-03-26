@@ -28,7 +28,7 @@ private  void  create_selected_text(
 {
     int            i;
     object_struct  *object;
-    Point          origin;
+    VIO_Point          origin;
     text_struct    *text;
     lines_struct   *lines;
 
@@ -62,7 +62,7 @@ private  void  create_selected_text(
 
         fill_Point( origin,
                     menu->selected_x_origin,
-                    menu->selected_y_origin - menu->character_height * (Real) i,
+                    menu->selected_y_origin - menu->character_height * (VIO_Real) i,
                     0.0 );
 
         initialize_text( text, &origin, BLACK,
@@ -75,8 +75,8 @@ private  void  create_selected_text(
 private  void  set_text_entry(
     display_struct    *menu_window,
     int               index,
-    STRING            name,
-    Colour            col )
+    VIO_STR            name,
+    VIO_Colour            col )
 {
     model_struct   *model;
 
@@ -92,7 +92,7 @@ private  void  set_text_entry(
 private  void  get_box_limits(
     menu_window_struct  *menu,
     int                 index,
-    STRING              label,
+    VIO_STR              label,
     int                 *x_min,
     int                 *x_max,
     int                 *y_min,
@@ -108,24 +108,24 @@ private  void  get_box_limits(
 
     *x_min = ROUND( menu->selected_x_origin );
     *y_min = ROUND( menu->selected_y_origin -
-                    menu->character_height * (Real) index );
+                    menu->character_height * (VIO_Real) index );
     *x_max = *x_min + width;
-    *y_max = ROUND( (Real) *y_min + menu->selected_box_height);
+    *y_max = ROUND( (VIO_Real) *y_min + menu->selected_box_height);
 
-    *x_min = ROUND( (Real) *x_min - menu->selected_x_offset );
-    *x_max = ROUND( (Real) *x_max + menu->selected_x_offset );
-    *y_min = ROUND( (Real) *y_min - menu->selected_y_offset );
-    *y_max = ROUND( (Real) *y_max + menu->selected_y_offset );
+    *x_min = ROUND( (VIO_Real) *x_min - menu->selected_x_offset );
+    *x_max = ROUND( (VIO_Real) *x_max + menu->selected_x_offset );
+    *y_min = ROUND( (VIO_Real) *y_min - menu->selected_y_offset );
+    *y_max = ROUND( (VIO_Real) *y_max + menu->selected_y_offset );
 }
 
 private  void  set_current_box(
     menu_window_struct  *menu,
     model_struct        *selected_model,
     int                 index,
-    STRING              label )
+    VIO_STR              label )
 {
     int            x_start, x_end, y_start, y_end;
-    Point          *points;
+    VIO_Point          *points;
 
     get_box_limits( menu, index, label, &x_start, &x_end, &y_start, &y_end );
 
@@ -170,12 +170,12 @@ private  void  get_model_objects_visible(
     }
 }
 
-private  STRING  get_object_label(
+private  VIO_STR  get_object_label(
     object_struct   *object,
     int             index )
 {
     char      buffer[EXTREMELY_LARGE_STRING_SIZE];
-    STRING    name;
+    VIO_STR    name;
 
     name = get_object_name( object );
 
@@ -191,8 +191,8 @@ public  void  rebuild_selected_list(
     display_struct    *marker_window )
 {
     int            i, start_index, n_objects, selected_index;
-    Colour         col;
-    STRING         label;
+    VIO_Colour         col;
+    VIO_STR         label;
     model_struct   *selected_model, *model;
     text_struct    *text;
 //    display_struct *marker_window;
@@ -239,7 +239,7 @@ public  void  rebuild_selected_list(
                     marker_window->marker.selected_x_origin,
                     marker_window->marker.selected_y_origin -
                     marker_window->marker.character_height *
-                    (Real) (i - start_index),
+                    (VIO_Real) (i - start_index),
                     0.0 );
     }
 
@@ -255,7 +255,7 @@ public  VIO_BOOL  mouse_is_on_object_name(
 {
     int            i, start_index, n_objects;
     int            x_min, x_max, y_min, y_max;
-    STRING         label;
+    VIO_STR         label;
     model_struct   *model;
     display_struct *menu_window;
 

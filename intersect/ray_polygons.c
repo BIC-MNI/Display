@@ -35,16 +35,16 @@
 
 private  void  recursive_intersect_ray_with_objects_hierarchy(
     object_struct     *current_object,
-    Point             *ray_origin,
-    Vector            *ray_direction,
+    VIO_Point             *ray_origin,
+    VIO_Vector            *ray_direction,
     Object_types      desired_object_type,
     object_struct     **object,
     int               *closest_object_index,
-    Real              *closest_dist,
+    VIO_Real              *closest_dist,
     VIO_BOOL           *found )
 {
     int                      i, object_index;
-    Real                     dist;
+    VIO_Real                     dist;
     model_struct             *model;
 
     if( !current_object->visibility )
@@ -67,7 +67,7 @@ private  void  recursive_intersect_ray_with_objects_hierarchy(
     {
         if( intersect_ray_with_object( ray_origin, ray_direction,
                                        current_object, &object_index, &dist,
-                                       (Real **) NULL ) > 0 )
+                                       (VIO_Real **) NULL ) > 0 )
         {
             if( !*found || dist < *closest_dist )
             {
@@ -82,15 +82,15 @@ private  void  recursive_intersect_ray_with_objects_hierarchy(
 
 public  VIO_BOOL  intersect_ray_with_objects_hierarchy(
     display_struct    *display,
-    Point             *ray_origin,
-    Vector            *ray_direction,
+    VIO_Point             *ray_origin,
+    VIO_Vector            *ray_direction,
     Object_types      desired_object_type,
     object_struct     **object,
     int               *closest_object_index,
-    Point             *intersection_point )
+    VIO_Point             *intersection_point )
 {
     VIO_BOOL                  intersects;
-    Real                     closest_dist;
+    VIO_Real                     closest_dist;
 
     intersects = FALSE;
     closest_dist = 1.0e30;

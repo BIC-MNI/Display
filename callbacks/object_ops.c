@@ -273,7 +273,7 @@ public  DEF_MENU_UPDATE(create_model )
 public  DEF_MENU_FUNCTION( change_model_name )
 {
     object_struct    *current_object;
-    STRING           name;
+    VIO_STR           name;
 
     if( get_current_object( display, &current_object ) &&
         current_object->object_type == MODEL )
@@ -340,7 +340,7 @@ public  DEF_MENU_FUNCTION( delete_current_object )
 {
     object_struct    *object;
     display_struct   *slice_window;
-    Real              voxel[MAX_DIMENSIONS];
+    Real              voxel[VIO_MAX_DIMENSIONS];
     VIO_BOOL           changed;
     int               volume_index;
 
@@ -383,8 +383,8 @@ public  DEF_MENU_UPDATE(delete_current_object )
 public  DEF_MENU_FUNCTION( set_current_object_colour )
 {
     object_struct   *current_object;
-    Colour          col;
-    STRING          line;
+    VIO_Colour          col;
+    VIO_STR          line;
 
     if( get_current_object( display, &current_object ) &&
         get_object_type(current_object) != MODEL )
@@ -421,7 +421,7 @@ public  DEF_MENU_UPDATE(set_current_object_colour )
 public  DEF_MENU_FUNCTION( set_current_object_surfprop )
 {
     object_struct   *current_object;
-    Surfprop        spr;
+    VIO_Surfprop        spr;
 
     if( get_current_object( display, &current_object ) )
     {
@@ -519,7 +519,7 @@ public  DEF_MENU_FUNCTION( mark_vertices )
 {
     object_struct  *object;
     int            i, n_points;
-    Point          *points;
+    VIO_Point          *points;
     char           label[EXTREMELY_LARGE_STRING_SIZE];
 
     if( get_current_object( display, &object ) )
@@ -549,8 +549,8 @@ public  DEF_MENU_FUNCTION( flip_object )
 {
     object_struct  *object;
     int            i, n_points, n_normals;
-    Point          *points;
-    Vector         *normals;
+    VIO_Point          *points;
+    VIO_Vector         *normals;
 
     if( get_current_object( display, &object ) )
     {

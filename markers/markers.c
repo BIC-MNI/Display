@@ -24,15 +24,15 @@
 public  VIO_BOOL  update_current_marker(
     display_struct   *display,
     int              volume_index,
-    Real             voxel[] )
+    VIO_Real             voxel[] )
 {
     object_traverse_struct  object_traverse;
     VIO_BOOL                 found;
     object_struct           *object, *closest_marker;
-    Volume                  volume;
-    Point                   voxel_pos;
-    Real                    x_w, y_w, z_w;
-    Real                    dist, closest_dist;
+    VIO_Volume                  volume;
+    VIO_Point                   voxel_pos;
+    VIO_Real                    x_w, y_w, z_w;
+    VIO_Real                    dist, closest_dist;
 
     initialize_object_traverse( &object_traverse, FALSE, 1,
                                 &display->models[THREED_MODEL] );
@@ -77,15 +77,15 @@ private  void  initialize_marker_parameters(
     display_struct    *marker_window )
 {
     int                 x_size, y_size;
-    Real                x_scale, y_scale, scale;
+    VIO_Real                x_scale, y_scale, scale;
     menu_window_struct  *marker;
 
     marker = &marker_window->marker;
 
     G_get_window_size( marker_window->window, &x_size, &y_size );
 
-    x_scale = (Real) x_size / (Real) marker->default_x_size;
-    y_scale = (Real) y_size / (Real) marker->default_y_size;
+    x_scale = (VIO_Real) x_size / (VIO_Real) marker->default_x_size;
+    y_scale = (VIO_Real) y_size / (VIO_Real) marker->default_y_size;
 
     scale = MIN( x_scale, y_scale );
 
@@ -129,12 +129,12 @@ private  DEF_EVENT_FUNCTION( handle_marker_resize )
 }
 
 
-public  Status  initialize_marker_window(
+public  VIO_Status  initialize_marker_window(
     display_struct    *marker_window)
 {
-    Status               status;
+    VIO_Status               status;
     menu_window_struct   *marker;
-    Point                position;
+    VIO_Point                position;
     model_struct         *model;
     int                  ch, i, dir, len;
     VIO_BOOL              found;

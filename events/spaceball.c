@@ -23,32 +23,32 @@
 #include  <display.h>
 
 private  VIO_BOOL  make_spaceball_transform(
-    Real       x1,
-    Real       y1,
-    Real       x2,
-    Real       y2,
-    Point      *centre,
-    Real       x_radius,
-    Real       y_radius,
-    Transform  *transform );
+    VIO_Real       x1,
+    VIO_Real       y1,
+    VIO_Real       x2,
+    VIO_Real       y2,
+    VIO_Point      *centre,
+    VIO_Real       x_radius,
+    VIO_Real       y_radius,
+    VIO_Transform  *transform );
 
 public  VIO_BOOL  get_spaceball_transform(
     display_struct   *display,
-    Real             x1,
-    Real             y1,
-    Real             x2,
-    Real             y2,
-    Transform        *transform )
+    VIO_Real             x1,
+    VIO_Real             y1,
+    VIO_Real             x2,
+    VIO_Real             y2,
+    VIO_Transform        *transform )
 {
-    static  Point  centre = { 0.5f, 0.5f, 0.0f };
-    Transform      spaceball_transform;
-    Real           x_radius, y_radius;
+    static  VIO_Point  centre = { 0.5f, 0.5f, 0.0f };
+    VIO_Transform      spaceball_transform;
+    VIO_Real           x_radius, y_radius;
     int            x_size, y_size;
-    Real           aspect;
+    VIO_Real           aspect;
     VIO_BOOL        exists;
 
     G_get_window_size( display->window, &x_size, &y_size );
-    aspect = (Real) y_size / (Real) x_size;
+    aspect = (VIO_Real) y_size / (VIO_Real) x_size;
 
     if( aspect < 1.0 )
     {
@@ -75,27 +75,27 @@ public  VIO_BOOL  get_spaceball_transform(
 }
 
 private  VIO_BOOL  make_spaceball_transform(
-    Real       x1,
-    Real       y1,
-    Real       x2,
-    Real       y2,
-    Point      *centre,
-    Real       x_radius,
-    Real       y_radius,
-    Transform  *transform )
+    VIO_Real       x1,
+    VIO_Real       y1,
+    VIO_Real       x2,
+    VIO_Real       y2,
+    VIO_Point      *centre,
+    VIO_Real       x_radius,
+    VIO_Real       y_radius,
+    VIO_Transform  *transform )
 {
     VIO_BOOL  transform_created;
-    Real     x_old, y_old, z_old, x_new, y_new, z_new;
-    Real     dist_old, dist_new;
-    Real     angle, sin_angle;
-    Vector   v0, v1;
-    Vector   axis_of_rotation;
+    VIO_Real     x_old, y_old, z_old, x_new, y_new, z_new;
+    VIO_Real     dist_old, dist_new;
+    VIO_Real     angle, sin_angle;
+    VIO_Vector   v0, v1;
+    VIO_Vector   axis_of_rotation;
 
-    x_old = (x1 - (Real) Point_x(*centre)) / x_radius;
-    y_old = (y1 - (Real) Point_y(*centre)) / y_radius;
+    x_old = (x1 - (VIO_Real) Point_x(*centre)) / x_radius;
+    y_old = (y1 - (VIO_Real) Point_y(*centre)) / y_radius;
 
-    x_new = (x2 - (Real) Point_x(*centre)) / x_radius;
-    y_new = (y2 - (Real) Point_y(*centre)) / y_radius;
+    x_new = (x2 - (VIO_Real) Point_x(*centre)) / x_radius;
+    y_new = (y2 - (VIO_Real) Point_y(*centre)) / y_radius;
 
     dist_old = x_old * x_old + y_old * y_old;
     dist_new = x_new * x_new + y_new * y_new;

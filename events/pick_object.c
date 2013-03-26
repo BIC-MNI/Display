@@ -94,12 +94,12 @@ public  VIO_BOOL  get_mouse_scene_intersection(
     Object_types      desired_object_type,
     object_struct     **object,
     int               *object_index,
-    Point             *intersection )
+    VIO_Point             *intersection )
 {
     VIO_BOOL          found;
-    Real             x, y;
-    Point            origin, transformed_origin;
-    Vector           direction, transformed_direction;
+    VIO_Real             x, y;
+    VIO_Point            origin, transformed_origin;
+    VIO_Vector           direction, transformed_direction;
 
     found = FALSE;
 
@@ -125,7 +125,7 @@ public  VIO_BOOL  get_polygon_under_mouse(
     display_struct    *display,
     polygons_struct   **polygons,
     int               *poly_index,
-    Point             *intersection )
+    VIO_Point             *intersection )
 {
     VIO_BOOL          found;
     object_struct    *object;
@@ -145,7 +145,7 @@ public  VIO_BOOL  get_polygon_under_mouse(
 private  void  pick_point_under_mouse(
     display_struct    *display )
 {
-    Point            intersection_point;
+    VIO_Point            intersection_point;
     object_struct    *object;
     int              object_index;
     object_struct    *current;

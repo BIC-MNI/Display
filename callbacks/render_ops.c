@@ -476,10 +476,10 @@ public  DEF_MENU_UPDATE(toggle_double_buffer_slice )
 
 public  DEF_MENU_FUNCTION( change_background_colour )
 {
-    Status            status;
+    VIO_Status            status;
     display_struct    *slice_window;
-    Colour            col;
-    STRING            line;
+    VIO_Colour            col;
+    VIO_STR            line;
 
     print( "Enter colour name or 3 or 4 colour components: " );
 

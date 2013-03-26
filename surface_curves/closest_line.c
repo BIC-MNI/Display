@@ -25,12 +25,12 @@
 
 public  VIO_BOOL  find_closest_line_point_to_point(
     display_struct    *display,
-    Point             *point,
-    Point             *closest_line_point )
+    VIO_Point             *point,
+    VIO_Point             *closest_line_point )
 {
     VIO_BOOL                  found;
     int                      i;
-    Real                     dist, closest_dist;
+    VIO_Real                     dist, closest_dist;
     lines_struct             *lines;
     object_struct            *current_object;
     object_traverse_struct   object_traverse;

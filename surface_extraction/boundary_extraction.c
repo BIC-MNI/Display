@@ -58,7 +58,7 @@ private  VIO_BOOL  face_is_boundary(
     int             c,
     int             offset )
 {
-    int  neigh[N_DIMENSIONS];
+    int  neigh[VIO_N_DIMENSIONS];
 
     neigh[0] = 1;
     neigh[1] = 1;
@@ -71,15 +71,15 @@ private  VIO_BOOL  face_is_boundary(
 }
 
 private  void   get_vertex_normal(
-    Real                        separations[],
+    VIO_Real                        separations[],
     int                         x,
     int                         y,
     int                         z,
     VIO_BOOL                     inside_flags[3][3][3],
     VIO_BOOL                     valid_flags[3][3][3],
-    Real                        voxel_normal[] )
+    VIO_Real                        voxel_normal[] )
 {
-    int   ind[N_DIMENSIONS], corner[N_DIMENSIONS], neigh[N_DIMENSIONS];
+    int   ind[VIO_N_DIMENSIONS], corner[VIO_N_DIMENSIONS], neigh[VIO_N_DIMENSIONS];
     int   a1, a2, tx, ty, offset, dim;
 
     corner[X] = x;
@@ -90,10 +90,10 @@ private  void   get_vertex_normal(
     voxel_normal[Y] = 0.0;
     voxel_normal[Z] = 0.0;
 
-    for_less( dim, 0, N_DIMENSIONS )
+    for_less( dim, 0, VIO_N_DIMENSIONS )
     {
-        a1 = (dim + 1) % N_DIMENSIONS;
-        a2 = (dim + 2) % N_DIMENSIONS;
+        a1 = (dim + 1) % VIO_N_DIMENSIONS;
+        a2 = (dim + 2) % VIO_N_DIMENSIONS;
 
         for( offset = -1;  offset <= 1;  offset +=2  )
         for_less( tx, 0, 2 )
@@ -135,8 +135,8 @@ private  void   get_vertex_normal(
 
 private  void  add_face(
     surface_extraction_struct   *surface_extraction,
-    Volume                      volume,
-    int                         indices[N_DIMENSIONS],
+    VIO_Volume                      volume,
+    int                         indices[VIO_N_DIMENSIONS],
     int                         c,
     int                         offset,
     VIO_BOOL                     inside_flags[3][3][3],
@@ -146,29 +146,29 @@ private  void  add_face(
 {
     int                  a1, a2, point_index, ind, dim, start_index;
     int                  point_indices[4], x, y;
-    int                  sizes[N_DIMENSIONS];
-    int                  corner_index[N_DIMENSIONS];
-    Real                 voxel[N_DIMENSIONS], xw, yw, zw;
-    Real                 voxel_normal[N_DIMENSIONS], separations[N_DIMENSIONS];
-    Point                point;
-    Vector               normal;
+    int                  sizes[VIO_N_DIMENSIONS];
+    int                  corner_index[VIO_N_DIMENSIONS];
+    VIO_Real                 voxel[VIO_N_DIMENSIONS], xw, yw, zw;
+    VIO_Real                 voxel_normal[VIO_N_DIMENSIONS], separations[VIO_N_DIMENSIONS];
+    VIO_Point                point;
+    VIO_Vector               normal;
 
     if( offset == -1 )
     {
-        a1 = (c + 1) % N_DIMENSIONS;
-        a2 = (c + 2) % N_DIMENSIONS;
+        a1 = (c + 1) % VIO_N_DIMENSIONS;
+        a2 = (c + 2) % VIO_N_DIMENSIONS;
         corner_index[c] = indices[c];
     }
     else
     {
-        a1 = (c + 2) % N_DIMENSIONS;
-        a2 = (c + 1) % N_DIMENSIONS;
+        a1 = (c + 2) % VIO_N_DIMENSIONS;
+        a2 = (c + 1) % VIO_N_DIMENSIONS;
         corner_index[c] = indices[c] + 1;
     }
 
     get_volume_sizes( volume, sizes );
     get_volume_separations( volume, separations );
-    for_less( dim, 0, N_DIMENSIONS )
+    for_less( dim, 0, VIO_N_DIMENSIONS )
         separations[dim] = FABS( separations[dim] );
 
     ind = 0;
@@ -192,9 +192,9 @@ private  void  add_face(
                                   corner_index[Y],
                                   corner_index[Z],
                                   0, point_index );
-            voxel[X] = (Real) corner_index[X] - 0.5;
-            voxel[Y] = (Real) corner_index[Y] - 0.5;
-            voxel[Z] = (Real) corner_index[Z] - 0.5;
+            voxel[X] = (VIO_Real) corner_index[X] - 0.5;
+            voxel[Y] = (VIO_Real) corner_index[Y] - 0.5;
+            voxel[Z] = (VIO_Real) corner_index[Z] - 0.5;
             convert_voxel_to_world( volume, voxel, &xw, &yw, &zw );
             fill_Point( point, xw, yw, zw );
 
@@ -266,17 +266,17 @@ private  void  get_inside_flags(
 public  void  read_voxellation_block(
     surface_extraction_struct   *surf )
 {
-    int              sizes[N_DIMENSIONS];
+    int              sizes[VIO_N_DIMENSIONS];
     int              dx, dy, dz, ind, nx, ny, nz;
-    Real             values[(SURFACE_BLOCK_SIZE+2)*
+    VIO_Real             values[(SURFACE_BLOCK_SIZE+2)*
                             (SURFACE_BLOCK_SIZE+2)*
                             (SURFACE_BLOCK_SIZE+2)];
-    Real             labels[(SURFACE_BLOCK_SIZE+2)*
+    VIO_Real             labels[(SURFACE_BLOCK_SIZE+2)*
                             (SURFACE_BLOCK_SIZE+2)*
                             (SURFACE_BLOCK_SIZE+2)];
-    Real             value, label;
-    Real             min_value, max_value, min_label, max_label;
-    Volume           volume, label_volume;
+    VIO_Real             value, label;
+    VIO_Real             min_value, max_value, min_label, max_label;
+    VIO_Volume           volume, label_volume;
 
     volume = surf->volume;
     label_volume = surf->label_volume;
@@ -312,14 +312,14 @@ public  void  read_voxellation_block(
                 dz < 0 || dz >= sizes[Z] )
             {
                 values[ind] = surf->min_value - 1.0;
-                labels[ind] = (Real) surf->min_invalid_label - 1.0;
+                labels[ind] = (VIO_Real) surf->min_invalid_label - 1.0;
             }
             else
             {
                 values[ind] = get_volume_real_value( volume, dx, dy, dz, 0, 0 );
                 if( label_volume != NULL )
                 {
-                    values[ind] = (Real) get_3D_volume_label_data( label_volume,
+                    values[ind] = (VIO_Real) get_3D_volume_label_data( label_volume,
                                                                dx, dy, dz );
                 }
             }
@@ -370,11 +370,11 @@ public  void  read_voxellation_block(
 }
 
 public  VIO_BOOL  extract_voxel_boundary_surface(
-    Volume                      volume,
+    VIO_Volume                      volume,
     surface_extraction_struct   *surface_extraction,
     int                         voxel[] )
 {
-    int              dim, offset, sizes[N_DIMENSIONS];
+    int              dim, offset, sizes[VIO_N_DIMENSIONS];
     int              face_index, poly_index, size, start_index, p;
     VIO_BOOL          modified, face_exists, should_exist;
     VIO_BOOL          inside_flags[3][3][3];
@@ -388,7 +388,7 @@ public  VIO_BOOL  extract_voxel_boundary_surface(
 
     modified = FALSE;
 
-    for_less( dim, 0, N_DIMENSIONS )
+    for_less( dim, 0, VIO_N_DIMENSIONS )
     {
         for( offset = -1;  offset <= 1;  offset += 2 )
         {

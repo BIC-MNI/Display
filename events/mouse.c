@@ -24,17 +24,17 @@
 
 public  VIO_BOOL  mouse_moved(
     display_struct   *display,
-    Real             *new_x,
-    Real             *new_y,
-    Real             *old_x,
-    Real             *old_y )
+    VIO_Real             *new_x,
+    VIO_Real             *new_y,
+    VIO_Real             *old_x,
+    VIO_Real             *old_y )
 {
     VIO_BOOL   moved;
 
     moved = G_get_mouse_position_0_to_1( display->window, new_x, new_y );
 
-    *old_x = (Real) Point_x( display->prev_mouse_position );
-    *old_y = (Real) Point_y( display->prev_mouse_position );
+    *old_x = (VIO_Real) Point_x( display->prev_mouse_position );
+    *old_y = (VIO_Real) Point_y( display->prev_mouse_position );
 
     if( moved )
     {
@@ -73,7 +73,7 @@ public  VIO_BOOL  pixel_mouse_moved(
 public  void  record_mouse_position(
     display_struct   *display )
 {
-    Real   x, y;
+    VIO_Real   x, y;
 
     (void) G_get_mouse_position_0_to_1( display->window, &x, &y );
 
@@ -87,5 +87,5 @@ public  void  record_mouse_pixel_position(
 
     (void) G_get_mouse_position( display->window, &x, &y );
 
-    fill_Point( display->prev_mouse_position, (Real) x, (Real) y, 0.0 );
+    fill_Point( display->prev_mouse_position, (VIO_Real) x, (VIO_Real) y, 0.0 );
 }

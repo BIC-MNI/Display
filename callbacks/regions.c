@@ -111,8 +111,8 @@ public  DEF_MENU_UPDATE(set_paint_z_brush_radius )
 public  DEF_MENU_FUNCTION( set_current_paint_label )
 {
     int             label, view_index, volume_index;
-    Real            voxel[N_DIMENSIONS];
-    int             int_voxel[N_DIMENSIONS];
+    Real            voxel[VIO_N_DIMENSIONS];
+    int             int_voxel[VIO_N_DIMENSIONS];
     display_struct  *slice_window;
     VIO_BOOL         done;
 
@@ -124,7 +124,7 @@ public  DEF_MENU_FUNCTION( set_current_paint_label )
             get_voxel_in_slice_window( slice_window, voxel,
                                        &volume_index, &view_index ) )
         {
-            convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+            convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
             label = get_voxel_label( slice_window, volume_index,
                                      int_voxel[X], int_voxel[Y], int_voxel[Z] );
             if( label != 0 )
@@ -180,8 +180,8 @@ public  DEF_MENU_UPDATE(set_current_paint_label )
 public  DEF_MENU_FUNCTION( set_current_erase_label )
 {
     int             label, axis_index, volume_index;
-    Real            voxel[N_DIMENSIONS];
-    int             int_voxel[N_DIMENSIONS];
+    Real            voxel[VIO_N_DIMENSIONS];
+    int             int_voxel[VIO_N_DIMENSIONS];
     display_struct  *slice_window;
     VIO_BOOL         done;
 
@@ -191,7 +191,7 @@ public  DEF_MENU_FUNCTION( set_current_erase_label )
 
         if( get_voxel_under_mouse( display, &volume_index, &axis_index, voxel ))
         {
-            convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+            convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
             label = get_voxel_label( slice_window, volume_index,
                                      int_voxel[X], int_voxel[Y], int_voxel[Z] );
             done = TRUE;
@@ -247,8 +247,8 @@ public  DEF_MENU_FUNCTION( set_label_colour )
 {
     display_struct   *slice_window;
     int              label;
-    STRING           line;
-    Colour           col;
+    VIO_STR           line;
+    VIO_Colour           col;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
@@ -290,12 +290,12 @@ private  void  copy_labels_from_adjacent_slice(
     display_struct   *display,
     int              src_offset )
 {
-    Real             real_dest_index[MAX_DIMENSIONS];
-    int              src_index[N_DIMENSIONS], dest_index[MAX_DIMENSIONS];
+    Real             real_dest_index[VIO_MAX_DIMENSIONS];
+    int              src_index[VIO_N_DIMENSIONS], dest_index[VIO_MAX_DIMENSIONS];
     int              view_index, x_index, y_index, axis_index;
     int              volume_index;
     display_struct   *slice_window;
-    Volume           volume;
+    VIO_Volume           volume;
 
     if( get_slice_window( display, &slice_window ) &&
         get_voxel_under_mouse( display, &volume_index,
@@ -305,7 +305,7 @@ private  void  copy_labels_from_adjacent_slice(
     {
         volume = get_nth_volume( slice_window, volume_index );
 
-        convert_real_to_int_voxel( N_DIMENSIONS, real_dest_index, dest_index );
+        convert_real_to_int_voxel( VIO_N_DIMENSIONS, real_dest_index, dest_index );
 
         src_index[X] = 0;
         src_index[Y] = 0;
@@ -409,12 +409,12 @@ public  DEF_MENU_UPDATE(toggle_display_labels )
 public  DEF_MENU_FUNCTION( change_labels_in_range )
 {
     display_struct  *slice_window;
-    Status          status;
+    VIO_Status          status;
     int             src_min, src_max, dest_label;
-    int             range_changed[2][N_DIMENSIONS];
+    int             range_changed[2][VIO_N_DIMENSIONS];
     Real            min_threshold, max_threshold;
-    STRING          line;
-    Volume          volume;
+    VIO_STR          line;
+    VIO_Volume          volume;
 
     if( get_slice_window( display, &slice_window ) &&
         get_slice_window_volume( slice_window, &volume ) )
@@ -486,10 +486,10 @@ private  void  calculate_label_volume(
     int             *n_voxels,
     Real            *cubic_mm )
 {
-    int     x, y, z, sizes[MAX_DIMENSIONS];
+    int     x, y, z, sizes[VIO_MAX_DIMENSIONS];
     int     n_vox;
-    Real    separations[MAX_DIMENSIONS];
-    Volume  label_volume;
+    Real    separations[VIO_MAX_DIMENSIONS];
+    VIO_Volume  label_volume;
 
     label_volume = get_nth_label_volume(slice_window,volume_index);
 
@@ -588,7 +588,7 @@ private  void  translate_labels_callback(
 {
     display_struct  *slice_window;
     int             view_index, axis_index, x_index, y_index;
-    int             delta[N_DIMENSIONS];
+    int             delta[VIO_N_DIMENSIONS];
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 &&
@@ -716,7 +716,7 @@ public  DEF_MENU_UPDATE(undo_slice_labels )
 
 public  DEF_MENU_FUNCTION( translate_labels_arbitrary )
 {
-    int              delta[MAX_DIMENSIONS];
+    int              delta[VIO_MAX_DIMENSIONS];
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&

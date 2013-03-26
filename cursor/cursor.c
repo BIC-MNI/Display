@@ -70,7 +70,7 @@ public  void  update_cursor(
 
 public  void  get_cursor_origin(
     display_struct   *display,
-    Point            *origin )
+    VIO_Point            *origin )
 {
     display = get_three_d_window( display );
 

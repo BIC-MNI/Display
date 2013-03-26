@@ -23,9 +23,9 @@
 #include  <display.h>
 
 public  object_struct   *create_3d_slice_quadmesh(
-    Volume         volume,
+    VIO_Volume         volume,
     int            axis_index,
-    Real           voxel_position )
+    VIO_Real           voxel_position )
 {
     object_struct    *object;
     quadmesh_struct  *quadmesh;

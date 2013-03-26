@@ -47,19 +47,19 @@ private void  visibility_menu_window(int state);
 #include  <bicpl/globals.h>
 #define   DISPLAY_GLOBALS_FILENAME   "Display.globals"
 
-public  Status  change_global_variable(
-    STRING   str,
-    STRING   *variable_name,
-    STRING   *new_value )
+public  VIO_Status  change_global_variable(
+    VIO_STR   str,
+    VIO_STR   *variable_name,
+    VIO_STR   *new_value )
 {
     return( set_or_get_global_variable(
                    SIZEOF_STATIC_ARRAY(display_globals),
                    display_globals, str, variable_name, new_value ) );
 }
 
-public  Status  set_global_variable_value(
-    STRING   variable_name,
-    STRING   new_value )
+public  VIO_Status  set_global_variable_value(
+    VIO_STR   variable_name,
+    VIO_STR   new_value )
 {
     return( set_global_variable( SIZEOF_STATIC_ARRAY(display_globals),
                                  display_globals, variable_name, new_value ) );
@@ -71,14 +71,14 @@ int  main(
     char    *argv[] )
 {
     int              i, view;
-    STRING           filename;
+    VIO_STR           filename;
     display_struct   *graphics;
     display_struct   *menu, *slice_window, *marker;
-    STRING           globals_filename, runtime_directory;
+    VIO_STR           globals_filename, runtime_directory;
     int              n_directories;
-    STRING           *directories;
-    STRING           title;
-    STRING           variable_name, variable_value;
+    VIO_STR           *directories;
+    VIO_STR           title;
+    VIO_STR           variable_name, variable_value;
     VIO_BOOL          next_is_label_volume;
 
     set_alloc_checking( TRUE );
@@ -275,9 +275,9 @@ private  void      initialize_view_to_fit(
     display_struct  *display )
 {
     int      i, c, x, y, z;
-    Real     voxel[N_DIMENSIONS], world[N_DIMENSIONS];
-    int      sizes[N_DIMENSIONS];
-    Volume   volume;
+    Real     voxel[VIO_N_DIMENSIONS], world[VIO_N_DIMENSIONS];
+    int      sizes[VIO_N_DIMENSIONS];
+    VIO_Volume   volume;
     VIO_BOOL  found;
 
     found = get_range_of_object( display->models[THREED_MODEL], FALSE,
@@ -301,7 +301,7 @@ private  void      initialize_view_to_fit(
             convert_voxel_to_world( volume, voxel,
                                     &world[X], &world[Y], &world[Z] );
 
-            for_less( c, 0, N_DIMENSIONS )
+            for_less( c, 0, VIO_N_DIMENSIONS )
             {
                 if( !found ||
                     world[c] < (Real) Point_coord(display->three_d.min_limit,c))
@@ -334,7 +334,7 @@ private  void      initialize_view_to_fit(
 private void initialize_ratio (display_struct* slice_window)
 {
 	model_struct      *model;
-	Colour             colour;
+	VIO_Colour             colour;
 	int 			   retcode;
 	text_struct       *text;
 
@@ -372,9 +372,9 @@ private void initialize_cache()
 
 		if (Volume_cache_block_size > 0)
 		{
-			int dim, block_sizes[MAX_DIMENSIONS];
+			int dim, block_sizes[VIO_MAX_DIMENSIONS];
 
-			for_less( dim, 0, MAX_DIMENSIONS )
+			for_less( dim, 0, VIO_MAX_DIMENSIONS )
 				block_sizes[dim] = Volume_cache_block_size;
 			set_default_cache_block_sizes(block_sizes);
 		}
@@ -384,10 +384,10 @@ private void initialize_cache()
 
 private void parse_options(int argc, char *argv[], display_struct *graphics)
 {
-	Status retcode;
-	STRING filename;
-	STRING globals_filename;
-	STRING variable_name, variable_value;
+	VIO_Status retcode;
+	VIO_STR filename;
+	VIO_STR globals_filename;
+	VIO_STR variable_name, variable_value;
 	VIO_BOOL next_is_label_volume;
 
 	initialize_argument_processing(argc, argv);

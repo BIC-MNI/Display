@@ -120,7 +120,7 @@ private  VIO_BOOL  perform_magnification(
     display_struct   *display )
 {
     VIO_BOOL   moved;
-    Real      x, y, x_prev, y_prev, delta, factor;
+    VIO_Real      x, y, x_prev, y_prev, delta, factor;
 
     moved = FALSE;
 

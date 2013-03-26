@@ -204,8 +204,8 @@ private  VIO_BOOL  perform_clipping(
     VIO_BOOL          front_flag )
 {
     VIO_BOOL   moved;
-    Real      x, y, x_prev, y_prev;
-    Real      delta, dist;
+    VIO_Real      x, y, x_prev, y_prev;
+    VIO_Real      delta, dist;
 
     moved = FALSE;
 

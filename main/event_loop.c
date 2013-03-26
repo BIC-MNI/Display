@@ -23,11 +23,11 @@
 
 #include  <display.h>
 
-private  Status   process_no_events_for_three_d_windows( void );
+private  VIO_Status   process_no_events_for_three_d_windows( void );
 private  void     update_all_three_d_windows( void );
-private  Status   process_no_events_for_slice_windows( void );
+private  VIO_Status   process_no_events_for_slice_windows( void );
 private  void     update_all_slice_windows( void );
-private  Status   perform_action(
+private  VIO_Status   perform_action(
     display_struct   *display,
     Event_types      event_type,
     int              key_pressed );
@@ -46,7 +46,7 @@ private  void  handle_event(
     Gwindow       window,
     int           key_pressed )
 {
-    Status          status;
+    VIO_Status          status;
     display_struct  *display;
 
     display = lookup_window( window );
@@ -209,7 +209,7 @@ public  void  initialize_window_callbacks(
 
 private  void  update_all_three_d( void )
 {
-    Status   status;
+    VIO_Status   status;
 
     status = process_no_events_for_three_d_windows();
 
@@ -221,7 +221,7 @@ private  void  update_all_three_d( void )
 
 private  void  update_all_slice( void )
 {
-    Status   status;
+    VIO_Status   status;
 
     status = process_no_events_for_slice_windows();
 
@@ -239,7 +239,7 @@ private  void  update_all(
     G_add_timer_function( Min_interval_between_updates, update_all, NULL );
 }
 
-public  Status   main_event_loop( void )
+public  VIO_Status   main_event_loop( void )
 {
     G_add_timer_function( Min_interval_between_updates, update_all, NULL );
 
@@ -272,9 +272,9 @@ private  void  update_all_slice_windows( void )
 private  void  debug_update( void )
 {
     static  VIO_BOOL  first = TRUE;
-    static  Real  start_time;
+    static  VIO_Real  start_time;
     static  int   count;
-    Real  end_time;
+    VIO_Real  end_time;
 
     if( first )
     {
@@ -287,7 +287,7 @@ private  void  debug_update( void )
     if( count == 20 )
     {
         end_time = current_realtime_seconds();
-        print( "FPS: %6.2g\n", (Real) count / (end_time - start_time) );
+        print( "FPS: %6.2g\n", (VIO_Real) count / (end_time - start_time) );
         count = 0;
         start_time = end_time;
     }
@@ -319,9 +319,9 @@ private  void  update_this_type_of_windows(
     }
 }
 
-private  Status  process_no_events_for_three_d_windows( void )
+private  VIO_Status  process_no_events_for_three_d_windows( void )
 {
-    Status            status;
+    VIO_Status            status;
     int               i, n_windows;
     display_struct    **windows;
 
@@ -336,9 +336,9 @@ private  Status  process_no_events_for_three_d_windows( void )
     return( status );
 }
 
-private  Status  process_no_events_for_slice_windows( void )
+private  VIO_Status  process_no_events_for_slice_windows( void )
 {
-    Status            status;
+    VIO_Status            status;
     int               i, n_windows;
     display_struct    **windows;
 
@@ -353,12 +353,12 @@ private  Status  process_no_events_for_slice_windows( void )
     return( status );
 }
 
-private  Status   perform_action(
+private  VIO_Status   perform_action(
     display_struct   *display,
     Event_types      event_type,
     int              key_pressed )
 {
-    Status               status;
+    VIO_Status               status;
     event_function_type  *actions;
     int                  i, n_actions;
 

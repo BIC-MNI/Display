@@ -31,9 +31,9 @@ private  void  start_surface(
     display_struct  *slice_window;
     VIO_BOOL         input_okay;
     Real            min_value, max_value;
-    Real            voxel[MAX_DIMENSIONS];
-    int             int_voxel[MAX_DIMENSIONS];
-    Volume          volume, label_volume;
+    Real            voxel[VIO_MAX_DIMENSIONS];
+    int             int_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Volume          volume, label_volume;
 
     if( get_n_volumes(display) == 0 ||
         !get_slice_window(display,&slice_window) )
@@ -97,7 +97,7 @@ private  void  start_surface(
                                           &display->three_d.cursor.origin,
                                           voxel ) )
     {
-        convert_real_to_int_voxel( N_DIMENSIONS, voxel, int_voxel );
+        convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
         start_surface_extraction_at_point( display, volume, label_volume,
                                            binary_flag, voxelate_flag,
                                            min_value,
@@ -160,7 +160,7 @@ public  DEF_MENU_UPDATE(start_label_binary_isosurface )
 
 public  DEF_MENU_FUNCTION(toggle_surface_extraction)
 {
-    Volume                  volume;
+    VIO_Volume                  volume;
 
     if( get_slice_window_volume( display, &volume ) )
     {

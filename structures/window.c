@@ -24,12 +24,12 @@
 
 public  void  transform_screen_to_pixels(
     window_struct  *window,
-    Point          *screen,
-    Point          *pixels )
+    VIO_Point          *screen,
+    VIO_Point          *pixels )
 {
     Point_x(*pixels) = (Point_coord_type) ROUND(
-                  (Real) (window->x_size - 1) * (Real) Point_x(*screen) );
+                  (VIO_Real) (window->x_size - 1) * (VIO_Real) Point_x(*screen) );
     Point_y(*pixels) = (Point_coord_type) ROUND(
-                  (Real) (window->y_size - 1) * (Real) Point_y(*screen) );
+                  (VIO_Real) (window->y_size - 1) * (VIO_Real) Point_y(*screen) );
     Point_z(*pixels) = 0.0f;
 }

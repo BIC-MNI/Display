@@ -131,8 +131,8 @@ private  void   add_polygon_under_mouse(
     display_struct    *display )
 {
     int                  poly_index;
-    Real                 x, y, x_prev, y_prev;
-    Point                point;
+    VIO_Real                 x, y, x_prev, y_prev;
+    VIO_Point                point;
     polygons_struct      *edit_polygons, *polygons;
     surface_edit_struct  *surface_edit;
 
@@ -249,7 +249,7 @@ private  void  display_path(
 {
     int     i, p, start_index, end_index;
     char    number[EXTREMELY_LARGE_STRING_SIZE];
-    Point   centroid;
+    VIO_Point   centroid;
 
     for_less( i, 0, path_length )
     {
@@ -264,9 +264,9 @@ private  void  display_path(
             Point_z(centroid) += Point_z(polygons->points[polygons->indices[p]]);
         }
 
-        Point_x(centroid) /= (Real) (end_index - start_index);
-        Point_y(centroid) /= (Real) (end_index - start_index);
-        Point_z(centroid) /= (Real) (end_index - start_index);
+        Point_x(centroid) /= (VIO_Real) (end_index - start_index);
+        Point_y(centroid) /= (VIO_Real) (end_index - start_index);
+        Point_z(centroid) /= (VIO_Real) (end_index - start_index);
 
         (void) sprintf( number, "%d", i+1 );
 

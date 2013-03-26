@@ -25,13 +25,13 @@
 public  void  draw_2d_line(
     display_struct    *display,
     View_types        view_type,
-    Colour            colour,
-    Real              x1,
-    Real              y1,
-    Real              x2,
-    Real              y2 )
+    VIO_Colour            colour,
+    VIO_Real              x1,
+    VIO_Real              y1,
+    VIO_Real              x2,
+    VIO_Real              y2 )
 {
-    static    Point     end_points[2];
+    static    VIO_Point     end_points[2];
     static    int       end_indices[] = { 2 };
     static    int       indices[]     = { 0, 1 };
     static    lines_struct  lines = {
@@ -64,18 +64,18 @@ public  void  draw_2d_line(
 public  void  draw_2d_rectangle(
     display_struct    *display,
     View_types        view_type,
-    Colour            colour,
-    Real              x1,
-    Real              y1,
-    Real              x2,
-    Real              y2 )
+    VIO_Colour            colour,
+    VIO_Real              x1,
+    VIO_Real              y1,
+    VIO_Real              x2,
+    VIO_Real              y2 )
 {
-    static    Point     corners[4];
+    static    VIO_Point     corners[4];
     static    int       end_indices[] = { 5 };
     static    int       indices[]     = { 0, 1, 2, 3, 0 };
     static    lines_struct  lines = {
                                         ONE_COLOUR,
-                                        (Colour *) 0,
+                                        (VIO_Colour *) 0,
                                         1.0f,
                                         4,
                                         corners,
@@ -121,9 +121,9 @@ public  render_struct  *get_main_render(
 
 public  void  draw_text_3d(
     display_struct    *display,
-    Point             *origin,
-    Colour            colour,
-    STRING            str )
+    VIO_Point             *origin,
+    VIO_Colour            colour,
+    VIO_STR            str )
 {
     text_struct    text;
 

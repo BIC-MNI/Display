@@ -30,13 +30,13 @@
 private  void   create_box(
     object_struct  **object );
 private  void  fill_in_box_points(
-    Real           size[],
+    VIO_Real           size[],
     object_struct  *object );
 private  void   create_axis(
     object_struct  **object,
     int            axis_index );
 private  void  fill_in_axis_points(
-    Real           size,
+    VIO_Real           size,
     int            axis_index,
     object_struct  *object );
 
@@ -55,7 +55,7 @@ public  void  rebuild_cursor_icon(
 
         add_object_to_model( model, object );
 
-        for_less( axis_index, 0, N_DIMENSIONS )
+        for_less( axis_index, 0, VIO_N_DIMENSIONS )
         {
             create_axis( &object, axis_index );
 
@@ -75,7 +75,7 @@ public  void  rebuild_cursor_icon(
 
 public  void  update_cursor_colour(
     display_struct   *display,
-    Colour           colour )
+    VIO_Colour           colour )
 {
     model_struct    *model;
 
@@ -87,7 +87,7 @@ public  void  update_cursor_colour(
 private  void   create_box(
     object_struct  **object )
 {
-    Colour         col;
+    VIO_Colour         col;
     lines_struct   *lines;
 
     *object = create_object( LINES );
@@ -135,10 +135,10 @@ private  void   create_box(
 }
 
 private  void  fill_in_box_points(
-    Real           size[],
+    VIO_Real           size[],
     object_struct  *object )
 {
-    Real           half_size[N_DIMENSIONS];
+    VIO_Real           half_size[VIO_N_DIMENSIONS];
     lines_struct   *lines;
 
     lines = get_lines_ptr( object );
@@ -169,9 +169,9 @@ private  void   create_axis(
     object_struct  **object,
     int            axis_index )
 {
-    static Colour  axis_colours[N_DIMENSIONS] = { 1, 2, 3 };
-    Colour         col;
-    static Point   dummy = { 0.0f, 0.0f, 0.0f };
+    static VIO_Colour  axis_colours[VIO_N_DIMENSIONS] = { 1, 2, 3 };
+    VIO_Colour         col;
+    static VIO_Point   dummy = { 0.0f, 0.0f, 0.0f };
     lines_struct   *lines;
 
     *object = create_object( LINES );
@@ -196,7 +196,7 @@ private  void   create_axis(
 }
 
 private  void  fill_in_axis_points(
-    Real           size,
+    VIO_Real           size,
     int            axis_index,
     object_struct  *object )
 {

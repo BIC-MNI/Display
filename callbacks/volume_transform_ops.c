@@ -27,7 +27,7 @@
 public  DEF_MENU_FUNCTION( transform_current_volume )
 {
     display_struct    *slice_window;
-    STRING            filename;
+    VIO_STR            filename;
 
     if( get_slice_window( display, &slice_window ) )
     {
@@ -76,7 +76,7 @@ public  DEF_MENU_UPDATE(reset_volume_transform )
 
 private  void  linear_transform_volume(
     display_struct  *slice_window,
-    Transform       *transform )
+    VIO_Transform       *transform )
 {
     VIO_General_transform   gen_transform;
 
@@ -95,8 +95,8 @@ private  void  translate_current_volume(
     int             dir )
 {
     display_struct  *slice_window;
-    Transform       linear_transform;
-    Real            trans[N_DIMENSIONS];
+    VIO_Transform       linear_transform;
+    VIO_Real            trans[VIO_N_DIMENSIONS];
 
     if( !get_slice_window( display, &slice_window ) )
         return;
@@ -104,7 +104,7 @@ private  void  translate_current_volume(
     trans[X] = 0.0;
     trans[Y] = 0.0;
     trans[Z] = 0.0;
-    trans[axis] = slice_window->slice.volume_translation_step * (Real) dir;
+    trans[axis] = slice_window->slice.volume_translation_step * (VIO_Real) dir;
 
     make_translation_transform( trans[X], trans[Y], trans[Z],
                                 &linear_transform );
@@ -118,14 +118,14 @@ private  void  rotate_current_volume(
     int             dir )
 {
     display_struct  *slice_window;
-    Transform       translation, linear_transform;
-    Real            angle;
-    Point           origin;
+    VIO_Transform       translation, linear_transform;
+    VIO_Real            angle;
+    VIO_Point           origin;
 
     if( !get_slice_window( display, &slice_window ) )
         return;
 
-    angle = (Real) dir * slice_window->slice.volume_rotation_step;
+    angle = (VIO_Real) dir * slice_window->slice.volume_rotation_step;
 
     make_rotation_transform( angle * DEG_TO_RAD, axis, &translation );
 
@@ -142,9 +142,9 @@ private  void  scale_current_volume(
     int             dir )
 {
     display_struct  *slice_window;
-    Transform       scale_trans, linear_transform;
-    Real            scale;
-    Point           origin;
+    VIO_Transform       scale_trans, linear_transform;
+    VIO_Real            scale;
+    VIO_Point           origin;
 
     if( !get_slice_window( display, &slice_window ) )
         return;
@@ -392,7 +392,7 @@ public  DEF_MENU_UPDATE(rotate_volume_minus_z )
 
 public  DEF_MENU_FUNCTION( set_volume_rotation_step)
 {
-    Real            new_step;
+    VIO_Real            new_step;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
@@ -413,7 +413,7 @@ public  DEF_MENU_FUNCTION( set_volume_rotation_step)
 
 public  DEF_MENU_UPDATE(set_volume_rotation_step )
 {
-    Real            step;
+    VIO_Real            step;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
@@ -431,7 +431,7 @@ public  DEF_MENU_UPDATE(set_volume_rotation_step )
 
 public  DEF_MENU_FUNCTION( set_volume_scale_step)
 {
-    Real            new_step;
+    VIO_Real            new_step;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
@@ -452,7 +452,7 @@ public  DEF_MENU_FUNCTION( set_volume_scale_step)
 
 public  DEF_MENU_UPDATE(set_volume_scale_step )
 {
-    Real            step;
+    VIO_Real            step;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
@@ -470,7 +470,7 @@ public  DEF_MENU_UPDATE(set_volume_scale_step )
 
 public  DEF_MENU_FUNCTION( set_volume_translation_step)
 {
-    Real            new_step;
+    VIO_Real            new_step;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
@@ -491,7 +491,7 @@ public  DEF_MENU_FUNCTION( set_volume_translation_step)
 
 public  DEF_MENU_UPDATE(set_volume_translation_step )
 {
-    Real            step;
+    VIO_Real            step;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
@@ -509,10 +509,10 @@ public  DEF_MENU_UPDATE(set_volume_translation_step )
 
 public  DEF_MENU_FUNCTION( save_current_volume_transform )
 {
-    Status             status;
+    VIO_Status             status;
     display_struct     *slice_window;
-    Volume             volume;
-    STRING             filename, comments;
+    VIO_Volume             volume;
+    VIO_STR             filename, comments;
     VIO_General_transform  *original_transform, *volume_transform;
     VIO_General_transform  incremental_transform, inverse;
 

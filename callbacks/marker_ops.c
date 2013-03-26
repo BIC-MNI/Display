@@ -64,10 +64,10 @@ public  void  set_marker_to_defaults(
 
 private  void  get_position_pointed_to(
     display_struct   *display,
-    Point            *pos )
+    VIO_Point            *pos )
 {
     int             axis_index, volume_index;
-    Real            voxel[MAX_DIMENSIONS];
+    Real            voxel[VIO_MAX_DIMENSIONS];
     Real            x_w, y_w, z_w;
 
     if( get_voxel_under_mouse( display, &volume_index, &axis_index, voxel ) )
@@ -84,8 +84,8 @@ private  void  get_position_pointed_to(
 
 public  void  create_marker_at_position(
     display_struct    *display,
-    Point             *position,
-    STRING            label )
+    VIO_Point             *position,
+    VIO_STR            label )
 {
     object_struct   *object;
     marker_struct   *marker;
@@ -109,7 +109,7 @@ public  void  create_marker_at_position(
 
 public  DEF_MENU_FUNCTION( create_marker_at_cursor )
 {
-    Point           position;
+    VIO_Point           position;
 
     get_position_pointed_to( display, &position );
 
@@ -162,17 +162,17 @@ public  DEF_MENU_UPDATE(set_cursor_to_marker )
 
 public  DEF_MENU_FUNCTION( save_markers )
 {
-    Status                  status;
+    VIO_Status                  status;
     object_struct           *object, *current_object;
-    Volume                  volume;
-    STRING                  filename;
+    VIO_Volume                  volume;
+    VIO_STR                  filename;
     FILE                    *file;
     marker_struct           *marker;
     object_traverse_struct  object_traverse;
     int                     n_tags;
     Real                    **tags, *weights;
     int                     *structure_ids, *patient_ids;
-    STRING                  *labels;
+    VIO_STR                  *labels;
 
     object = get_current_model_object( display );
 
@@ -187,7 +187,7 @@ public  DEF_MENU_FUNCTION( save_markers )
         status = ERROR;
 
     if( !get_slice_window_volume( display, &volume ) )
-        volume = (Volume) NULL;
+        volume = (VIO_Volume) NULL;
 
     n_tags = 0;
     tags = NULL;
@@ -205,7 +205,7 @@ public  DEF_MENU_FUNCTION( save_markers )
             {
                 marker = get_marker_ptr(current_object);
                 SET_ARRAY_SIZE( tags, n_tags, n_tags+1, DEFAULT_CHUNK_SIZE);
-                ALLOC( tags[n_tags], N_DIMENSIONS );
+                ALLOC( tags[n_tags], VIO_N_DIMENSIONS );
                 SET_ARRAY_SIZE( weights, n_tags, n_tags+1, DEFAULT_CHUNK_SIZE);
                 SET_ARRAY_SIZE( structure_ids, n_tags, n_tags+1,
                                 DEFAULT_CHUNK_SIZE);
@@ -363,9 +363,9 @@ public  DEF_MENU_UPDATE(set_default_marker_size )
 
 public  DEF_MENU_FUNCTION( set_default_marker_colour )
 {
-    Status      status;
-    STRING      string;
-    Colour      colour;
+    VIO_Status      status;
+    VIO_STR      string;
+    VIO_Colour      colour;
 
     string = convert_colour_to_string( display->three_d.default_marker_colour );
 
@@ -435,7 +435,7 @@ public  DEF_MENU_FUNCTION( set_default_marker_type )
 
 public  DEF_MENU_UPDATE(set_default_marker_type )
 {
-    STRING    name;
+    VIO_STR    name;
 
     switch( display->three_d.default_marker_type )
     {
@@ -461,8 +461,8 @@ public  DEF_MENU_UPDATE(set_default_marker_type )
 
 public  DEF_MENU_FUNCTION( set_default_marker_label )
 {
-    Status       status;
-    STRING       label;
+    VIO_Status       status;
+    VIO_STR       label;
 
     print( "The current default marker label is: %s\n",
                  display->three_d.default_marker_label );
@@ -673,7 +673,7 @@ public  DEF_MENU_UPDATE(change_marker_position )
 
 public  DEF_MENU_FUNCTION( change_marker_label )
 {
-    STRING          label;
+    VIO_STR          label;
     marker_struct   *marker;
 
     if( get_current_marker(display,&marker) )

@@ -27,7 +27,7 @@ private  void  cut_neighbour(
     int               new_neighbours[],
     int               poly,
     int               vertex_index,
-    Point             *point,
+    VIO_Point             *point,
     int               *next_poly,
     int               *next_vertex_index );
 
@@ -38,7 +38,7 @@ private  void  cut_polygon_neighbours_by_lines(
 {
     int              line, i, size, poly, point_index, vertex_index;
     int              first_vertex;
-    Point            point;
+    VIO_Point            point;
     progress_struct  progress;
 
     for_less( line, 0, lines->n_items )
@@ -81,7 +81,7 @@ private  void  cut_neighbour(
     int               new_neighbours[],
     int               poly,
     int               vertex_index,
-    Point             *point,
+    VIO_Point             *point,
     int               *next_poly,
     int               *next_vertex_index )
 {

@@ -22,16 +22,16 @@
 
 #include  <display.h>
 
-public  Status  load_graphics_file( 
+public  VIO_Status  load_graphics_file( 
     display_struct   *display,
-    STRING           filename,
+    VIO_STR           filename,
     VIO_BOOL          is_label_file )
 {
-    Status                   status;
+    VIO_Status                   status;
     object_struct            *object;
     model_struct             *model;
-    int                      n_items, sizes[N_DIMENSIONS];
-    Volume                   volume_read_in;
+    int                      n_items, sizes[VIO_N_DIMENSIONS];
+    VIO_Volume                   volume_read_in;
     object_struct            *current_object;
     object_traverse_struct   object_traverse;
     char                     volume_description[EXTREMELY_LARGE_STRING_SIZE];
@@ -168,7 +168,7 @@ public  Status  load_graphics_file(
                     n_items > Polygon_bintree_threshold )
                 {
                     create_polygons_bintree( polygons,
-                              ROUND( (Real) n_items * Bintree_size_factor ) );
+                              ROUND( (VIO_Real) n_items * Bintree_size_factor ) );
                 }
 
                 if( Compute_neighbours_on_input )

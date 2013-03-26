@@ -25,8 +25,8 @@
 typedef  struct
 {
     int       key;
-    STRING    key_name;
-    Real      x_pos, y_pos, length;
+    VIO_STR    key_name;
+    VIO_Real      x_pos, y_pos, length;
     VIO_BOOL   in_slanted_part_of_keyboard;
 } position_struct;
 
@@ -84,12 +84,12 @@ private  VIO_BOOL  lookup_key(
 private  void   compute_key_position(
     menu_window_struct   *menu,
     int                  key,
-    Real                 *x1,
-    Real                 *y1,
-    Real                 *x2,
-    Real                 *y2,
-    Real                 *length );
-private  STRING  get_key_string(
+    VIO_Real                 *x1,
+    VIO_Real                 *y1,
+    VIO_Real                 *x2,
+    VIO_Real                 *y2,
+    VIO_Real                 *length );
+private  VIO_STR  get_key_string(
     int     key );
 private  object_struct   *create_menu_box(
     display_struct    *menu_window,
@@ -100,8 +100,8 @@ private  object_struct   *create_menu_character(
 private  VIO_BOOL   point_within_menu_key_entry(
     display_struct   *menu_window,
     int              key,
-    Real             x,
-    Real             y );
+    VIO_Real             x,
+    VIO_Real             y );
 private  void   set_menu_text_position(
     display_struct    *menu_window,
     menu_entry_struct *menu_entry );
@@ -166,7 +166,7 @@ private  void   create_menu_text(
     menu_entry_struct *menu_entry )
 {
     int             i;
-    Point           origin;
+    VIO_Point           origin;
     text_struct     *text;
     model_struct    *model;
 
@@ -202,10 +202,10 @@ private  void   set_menu_text_position(
     display_struct    *menu_window,
     menu_entry_struct *menu_entry )
 {
-    Real            x, y, length;
+    VIO_Real            x, y, length;
     int             i;
     text_struct     *text;
-    STRING          key_string;
+    VIO_STR          key_string;
 
     for_less( i, 0, menu_window->menu.n_lines_in_entry )
     {
@@ -215,7 +215,7 @@ private  void   set_menu_text_position(
                               NULL, NULL, &length );
 
         x += menu_window->menu.x_menu_text_offset;
-        y += (Real) (menu_window->menu.n_lines_in_entry - i) *
+        y += (VIO_Real) (menu_window->menu.n_lines_in_entry - i) *
              menu_window->menu.character_height -
              menu_window->menu.y_menu_text_offset;
 
@@ -232,7 +232,7 @@ private  void   set_menu_text_position(
     }
 
     menu_entry->n_chars_across = (int)
-                 (length * (Real) menu_window->menu.n_chars_per_unit_across);
+                 (length * (VIO_Real) menu_window->menu.n_chars_per_unit_across);
 }
 
 private  VIO_BOOL  lookup_key(
@@ -260,15 +260,15 @@ private  VIO_BOOL  lookup_key(
 private  void   compute_key_position(
     menu_window_struct   *menu,
     int                  key,
-    Real                 *x1,
-    Real                 *y1,
-    Real                 *x2,
-    Real                 *y2,
-    Real                 *length )
+    VIO_Real                 *x1,
+    VIO_Real                 *y1,
+    VIO_Real                 *x2,
+    VIO_Real                 *y2,
+    VIO_Real                 *length )
 {
     VIO_BOOL          found;
     position_struct  *desc;
-    Real             x_dx, y_dy;
+    VIO_Real             x_dx, y_dy;
 
     found = lookup_key( key, &desc );
 
@@ -289,40 +289,40 @@ private  void   compute_key_position(
     }
     else
     {
-        x_dx = menu->x_dx + (Real) menu->n_chars_per_unit_across *
+        x_dx = menu->x_dx + (VIO_Real) menu->n_chars_per_unit_across *
                menu->character_width;
-        y_dy = menu->y_dy + (Real) menu->n_lines_in_entry *
+        y_dy = menu->y_dy + (VIO_Real) menu->n_lines_in_entry *
                menu->character_height;
 
-        *x1 = menu->x_menu_origin + (Real) desc->x_pos * x_dx;
-        *y1 = menu->y_menu_origin + (Real) desc->y_pos * y_dy;
+        *x1 = menu->x_menu_origin + (VIO_Real) desc->x_pos * x_dx;
+        *y1 = menu->y_menu_origin + (VIO_Real) desc->y_pos * y_dy;
 
         if( desc->in_slanted_part_of_keyboard )
         {
-            *x1 += (Real) desc->y_pos * menu->y_dx;
-            *y1 += (Real) desc->x_pos * menu->x_dy;
+            *x1 += (VIO_Real) desc->y_pos * menu->y_dx;
+            *y1 += (VIO_Real) desc->x_pos * menu->x_dy;
         }
 
         *length = desc->length;
 
         if( x2 != NULL )
         {
-            *x2 = *x1 + *length * (Real) menu->n_chars_per_unit_across *
+            *x2 = *x1 + *length * (VIO_Real) menu->n_chars_per_unit_across *
                         menu->character_width;
         }
 
         if( y2 != NULL )
         {
-            *y2 = *y1 + (Real) menu->n_lines_in_entry * menu->character_height;
+            *y2 = *y1 + (VIO_Real) menu->n_lines_in_entry * menu->character_height;
         }
     }
 }
 
-private  STRING  get_key_string(
+private  VIO_STR  get_key_string(
     int      key )
 {
     char              buffer[EXTREMELY_LARGE_STRING_SIZE];
-    STRING            string;
+    VIO_STR            string;
     position_struct   *desc;
 
     if( lookup_key( key, &desc ) )
@@ -336,12 +336,12 @@ private  STRING  get_key_string(
     return( string );
 }
 
-public  Real  get_size_of_menu_text_area(
+public  VIO_Real  get_size_of_menu_text_area(
     display_struct   *menu_window,
     int              key,
     int              line_number )
 {
-    Real          size, x1, y1, x2, y2, length;
+    VIO_Real          size, x1, y1, x2, y2, length;
     text_struct   *text;
 
     compute_key_position( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length);
@@ -349,7 +349,7 @@ public  Real  get_size_of_menu_text_area(
     text = get_text_ptr(
                 menu_window->menu.key_menus[key]->text_list[line_number] );
 
-    size = x2 - (Real) Point_x(text->origin);
+    size = x2 - (VIO_Real) Point_x(text->origin);
 
     return( size );
 }
@@ -397,7 +397,7 @@ private  void   set_menu_box_position(
     object_struct     *box_object )
 {
     lines_struct    *lines;
-    Real            x1, y1, x2, y2, length;
+    VIO_Real            x1, y1, x2, y2, length;
 
     lines = get_lines_ptr( box_object );
 
@@ -413,8 +413,8 @@ private  object_struct   *create_menu_character(
     display_struct    *menu_window,
     int               key )
 {
-    Real            x, y, length;
-    Point           origin;
+    VIO_Real            x, y, length;
+    VIO_Point           origin;
     object_struct   *object;
     text_struct     *text;
     model_struct    *model;
@@ -425,7 +425,7 @@ private  object_struct   *create_menu_character(
 
     fill_Point( origin,
                 x + menu_window->menu.x_menu_text_offset,
-                y + (Real) menu_window->menu.n_lines_in_entry *
+                y + (VIO_Real) menu_window->menu.n_lines_in_entry *
                     menu_window->menu.character_height -
                     menu_window->menu.y_menu_text_offset,
                 0.0 );
@@ -450,7 +450,7 @@ private  void   set_menu_character_position(
     int               key,
     object_struct     *text_object )
 {
-    Real            x, y, length;
+    VIO_Real            x, y, length;
     text_struct     *text;
 
     text = get_text_ptr( text_object );
@@ -459,7 +459,7 @@ private  void   set_menu_character_position(
 
     fill_Point( text->origin,
                 x + menu_window->menu.x_menu_text_offset,
-                y + (Real) menu_window->menu.n_lines_in_entry *
+                y + (VIO_Real) menu_window->menu.n_lines_in_entry *
                     menu_window->menu.character_height -
                     menu_window->menu.y_menu_text_offset,
                 0.0 );
@@ -470,10 +470,10 @@ private  void   set_menu_character_position(
 private  VIO_BOOL   point_within_menu_key_entry(
     display_struct   *menu_window,
     int              key,
-    Real             x,
-    Real             y )
+    VIO_Real             x,
+    VIO_Real             y )
 {
-    Real      x1, y1, x2, y2, length;
+    VIO_Real      x1, y1, x2, y2, length;
 
     compute_key_position( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length);
 
@@ -485,8 +485,8 @@ private  VIO_BOOL   point_within_menu_key_entry(
 
 public  VIO_BOOL   lookup_key_for_mouse_position(
     display_struct   *menu_window,
-    Real             x,
-    Real             y,
+    VIO_Real             x,
+    VIO_Real             y,
     int              *key )
 {
     int      i;

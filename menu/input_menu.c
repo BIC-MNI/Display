@@ -330,7 +330,7 @@ MENU_F(smalls_invisible) \
 
 typedef  struct
 {
-    STRING                  action_name;
+    VIO_STR                  action_name;
     menu_function_pointer   action;
     menu_update_pointer     update_action;
 }
@@ -351,24 +351,24 @@ typedef  struct
 {
     VIO_BOOL            permanent_flag;
     int                key;
-    STRING             action_name;
-    STRING             label;
+    VIO_STR             action_name;
+    VIO_STR             label;
     menu_entry_struct  *menu_entry;
 }  key_action_struct;
 
 typedef  struct
 {
-    STRING              menu_name;
+    VIO_STR              menu_name;
     int                 n_entries;
     key_action_struct   *entries;
 } menu_definition_struct;
 
 private  int  translate_key_name(
-    STRING    key_name );
-private  Status  input_menu_entry(
+    VIO_STR    key_name );
+private  VIO_Status  input_menu_entry(
     FILE                     *file,
     menu_definition_struct   *menu_entry );
-private  Status  input_menu(
+private  VIO_Status  input_menu(
     FILE                     *file,
     int                      *n_menus_ptr,
     menu_definition_struct   **menus_ptr );
@@ -380,19 +380,19 @@ private  void  create_menu(
     int                      n_menus,
     menu_definition_struct   *menus );
 private  int  lookup_menu_name(
-    STRING                    menu_name,
+    VIO_STR                    menu_name,
     int                       n_menus,
     menu_definition_struct    menus[] );
 private  VIO_BOOL  lookup_menu_action(
-    STRING                 action_name,
+    VIO_STR                 action_name,
     menu_function_pointer  *action,
     menu_update_pointer    *update_action );
 
-public  Status  read_menu(
+public  VIO_Status  read_menu(
     menu_window_struct   *menu,
     FILE                 *file )
 {
-    Status                   status;
+    VIO_Status                   status;
     int                      n_menus;
     menu_definition_struct   *menus;
 
@@ -408,12 +408,12 @@ public  Status  read_menu(
     return( status );
 }
 
-private  Status  input_menu(
+private  VIO_Status  input_menu(
     FILE                     *file,
     int                      *n_menus_ptr,
     menu_definition_struct   **menus_ptr )
 {
-    Status                   status;
+    VIO_Status                   status;
     int                      n_menus;
     menu_definition_struct   *menus;
     menu_definition_struct   menu_entry;
@@ -442,12 +442,12 @@ private  Status  input_menu(
     return( status );
 }
 
-private  Status  input_key_action(
+private  VIO_Status  input_key_action(
     FILE                *file,
     key_action_struct   *action )
 {
-    Status         status;
-    STRING         key_name;
+    VIO_Status         status;
+    VIO_STR         key_name;
 
     status = input_quoted_string( file, &key_name );
 
@@ -468,7 +468,7 @@ private  Status  input_key_action(
 }
 
 private  int  translate_key_name(
-    STRING    str )
+    VIO_STR    str )
 {
     int     key;
 
@@ -495,13 +495,13 @@ private  int  translate_key_name(
     return( key );
 }
 
-private  Status  input_menu_entry(
+private  VIO_Status  input_menu_entry(
     FILE                     *file,
     menu_definition_struct   *menu_entry )
 {
-    Status              status;
+    VIO_Status              status;
     VIO_BOOL             found_brace;
-    STRING              permanent_string;
+    VIO_STR              permanent_string;
     VIO_BOOL             permanent_flag;
     key_action_struct   entry;
 
@@ -669,7 +669,7 @@ private  void  create_menu(
 }
 
 private  int  lookup_menu_name(
-    STRING                    menu_name,
+    VIO_STR                    menu_name,
     int                       n_menus,
     menu_definition_struct    menus[] )
 {
@@ -690,13 +690,13 @@ private  int  lookup_menu_name(
 }
 
 private  VIO_BOOL  lookup_menu_action(
-    STRING                 action_name,
+    VIO_STR                 action_name,
     menu_function_pointer  *action,
     menu_update_pointer    *update_action )
 {
     VIO_BOOL  found;
     int      i;
-    STRING   table_name;
+    VIO_STR   table_name;
 
     found = FALSE;
 

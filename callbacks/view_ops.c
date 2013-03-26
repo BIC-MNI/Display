@@ -67,9 +67,9 @@ public  DEF_MENU_UPDATE(reset_view )
 
 public  DEF_MENU_FUNCTION( right_tilted_view )
 {
-    static  Vector   line_of_sight = { -1.0f, 0.0f, 0.0f };
-    static  Vector   up = { 0.0f, 0.5f, 0.8666f };
-    Vector           horizontal;
+    static  VIO_Vector   line_of_sight = { -1.0f, 0.0f, 0.0f };
+    static  VIO_Vector   up = { 0.0f, 0.5f, 0.8666f };
+    VIO_Vector           horizontal;
 
     CROSS_VECTORS( horizontal, line_of_sight, up );
     reset_view_parameters( display, &line_of_sight, &horizontal );
@@ -92,9 +92,9 @@ public  DEF_MENU_UPDATE(right_tilted_view )
 
 public  DEF_MENU_FUNCTION( left_tilted_view )
 {
-    static  Vector   line_of_sight = { 1.0f, 0.0f, 0.0f };
-    static  Vector   up = { 0.0f, 0.5f, 0.8666f };
-    Vector           horizontal;
+    static  VIO_Vector   line_of_sight = { 1.0f, 0.0f, 0.0f };
+    static  VIO_Vector   up = { 0.0f, 0.5f, 0.8666f };
+    VIO_Vector           horizontal;
 
     CROSS_VECTORS( horizontal, line_of_sight, up );
     reset_view_parameters( display, &line_of_sight, &horizontal );
@@ -117,8 +117,8 @@ public  DEF_MENU_UPDATE(left_tilted_view )
 
 public  DEF_MENU_FUNCTION( top_view )
 {
-    static  Vector   line_of_sight = { 0.0f, 0.0f, -1.0f };
-    static  Vector   horizontal = { 1.0f, 0.0f, 0.0f };
+    static  VIO_Vector   line_of_sight = { 0.0f, 0.0f, -1.0f };
+    static  VIO_Vector   horizontal = { 1.0f, 0.0f, 0.0f };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -140,8 +140,8 @@ public  DEF_MENU_UPDATE(top_view )
 
 public  DEF_MENU_FUNCTION( bottom_view )
 {
-    static  Vector   line_of_sight = { 0.0f, 0.0f, 1.0f };
-    static  Vector   horizontal = { -1.0f, 0.0f, 0.0f };
+    static  VIO_Vector   line_of_sight = { 0.0f, 0.0f, 1.0f };
+    static  VIO_Vector   horizontal = { -1.0f, 0.0f, 0.0f };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -163,8 +163,8 @@ public  DEF_MENU_UPDATE(bottom_view )
 
 public  DEF_MENU_FUNCTION( front_view )
 {
-    static  Vector   line_of_sight = { 0.0f, -1.0f, 0.0f };
-    static  Vector   horizontal = { -1.0f, 0.0f, 0.0f };
+    static  VIO_Vector   line_of_sight = { 0.0f, -1.0f, 0.0f };
+    static  VIO_Vector   horizontal = { -1.0f, 0.0f, 0.0f };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -186,8 +186,8 @@ public  DEF_MENU_UPDATE(front_view )
 
 public  DEF_MENU_FUNCTION( back_view )
 {
-    static  Vector   line_of_sight = { 0.0f, 1.0f, 0.0f };
-    static  Vector   horizontal = { 1.0f, 0.0f, 0.0f };
+    static  VIO_Vector   line_of_sight = { 0.0f, 1.0f, 0.0f };
+    static  VIO_Vector   horizontal = { 1.0f, 0.0f, 0.0f };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -209,8 +209,8 @@ public  DEF_MENU_UPDATE(back_view )
 
 public  DEF_MENU_FUNCTION( left_view )
 {
-    static  Vector   line_of_sight = { 1.0f, 0.0f, 0.0f };
-    static  Vector   horizontal = { 0.0f, -1.0f, 0.0f };
+    static  VIO_Vector   line_of_sight = { 1.0f, 0.0f, 0.0f };
+    static  VIO_Vector   horizontal = { 0.0f, -1.0f, 0.0f };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -232,8 +232,8 @@ public  DEF_MENU_UPDATE(left_view )
 
 public  DEF_MENU_FUNCTION( right_view )
 {
-    static  Vector   line_of_sight = { -1.0f, 0.0f, 0.0f };
-    static  Vector   horizontal = { 0.0f, 1.0f, 0.0f };
+    static  VIO_Vector   line_of_sight = { -1.0f, 0.0f, 0.0f };
+    static  VIO_Vector   horizontal = { 0.0f, 1.0f, 0.0f };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -376,9 +376,9 @@ public  DEF_MENU_UPDATE(pick_view_rectangle )
 
 public  DEF_MENU_FUNCTION( create_film_loop )
 {
-    Status  status;
+    VIO_Status  status;
     int     axis_index, n_steps;
-    STRING  base_filename;
+    VIO_STR  base_filename;
 
     print( "Enter base_filename, axis_index, and n_steps: " );
 
@@ -387,7 +387,7 @@ public  DEF_MENU_FUNCTION( create_film_loop )
     if( input_string( stdin, &base_filename, ' ' ) == OK &&
         input_int( stdin, &axis_index ) == OK &&
         input_int( stdin, &n_steps ) == OK &&
-        axis_index >= 0 && axis_index < N_DIMENSIONS && n_steps > 1 )
+        axis_index >= 0 && axis_index < VIO_N_DIMENSIONS && n_steps > 1 )
     {
         status = start_film_loop( display, base_filename, axis_index,
                                   n_steps );
@@ -416,8 +416,8 @@ public  DEF_MENU_UPDATE(create_film_loop )
 
 public  DEF_MENU_FUNCTION( save_image )
 {
-    Status  status;
-    STRING  filename;
+    VIO_Status  status;
+    VIO_STR  filename;
 
     status = OK;
 
@@ -474,7 +474,7 @@ public  DEF_MENU_UPDATE(toggle_stereo_mode )
 
 public  DEF_MENU_FUNCTION( set_eye_separation )
 {
-    Real   eye_separation;
+    VIO_Real   eye_separation;
 
     print( "Current eye separation / perspective distance ratio: %g\n",
            display->three_d.view.eye_separation_ratio );
@@ -509,29 +509,29 @@ public  DEF_MENU_UPDATE(set_eye_separation )
 
 public  DEF_MENU_FUNCTION( print_view )
 {
-    Real        x, y, z;
-    Transform   inverse_model;
+    VIO_Real        x, y, z;
+    VIO_Transform   inverse_model;
 
     get_inverse_model_transform( display, &inverse_model );
 
     transform_point( &inverse_model,
-                     (Real) Point_x(display->three_d.view.origin),
-                     (Real) Point_y(display->three_d.view.origin),
-                     (Real) Point_z(display->three_d.view.origin),
+                     (VIO_Real) Point_x(display->three_d.view.origin),
+                     (VIO_Real) Point_y(display->three_d.view.origin),
+                     (VIO_Real) Point_z(display->three_d.view.origin),
                       &x, &y, &z );
     print( "-eye  %g %g %g\n", x, y, z );
 
     transform_vector( &inverse_model,
-                      (Real) Vector_x(display->three_d.view.line_of_sight),
-                      (Real) Vector_y(display->three_d.view.line_of_sight),
-                      (Real) Vector_z(display->three_d.view.line_of_sight),
+                      (VIO_Real) Vector_x(display->three_d.view.line_of_sight),
+                      (VIO_Real) Vector_y(display->three_d.view.line_of_sight),
+                      (VIO_Real) Vector_z(display->three_d.view.line_of_sight),
                       &x, &y, &z );
     print( "-view %g %g %g  ", x, y, z );
 
     transform_vector( &inverse_model,
-                      (Real) Vector_x(display->three_d.view.y_axis),
-                      (Real) Vector_y(display->three_d.view.y_axis),
-                      (Real) Vector_z(display->three_d.view.y_axis),
+                      (VIO_Real) Vector_x(display->three_d.view.y_axis),
+                      (VIO_Real) Vector_y(display->three_d.view.y_axis),
+                      (VIO_Real) Vector_z(display->three_d.view.y_axis),
                       &x, &y, &z );
     print( "   %g %g %g\n", x, y, z );
 
@@ -558,7 +558,7 @@ public  DEF_MENU_UPDATE(print_view )
 
 public  DEF_MENU_FUNCTION(type_in_3D_origin)
 {
-    Real             xw, yw, zw;
+    VIO_Real             xw, yw, zw;
 
     print( "Enter x y z world coordinate: " );
 
@@ -587,7 +587,7 @@ public  DEF_MENU_UPDATE(type_in_3D_origin)
 
 public  DEF_MENU_FUNCTION(type_in_view_origin)
 {
-    Real             x, y, z;
+    VIO_Real             x, y, z;
 
     print( "Enter x y z eye coordinate: " );
 
@@ -618,8 +618,8 @@ public  DEF_MENU_UPDATE(type_in_view_origin)
 
 public  DEF_MENU_FUNCTION(type_in_view_line_of_sight)
 {
-    Real      x, y, z;
-    Vector    line_of_sight, hor;
+    VIO_Real      x, y, z;
+    VIO_Vector    line_of_sight, hor;
 
     print( "Enter x y z line_of_sight coordinate: " );
 
@@ -653,8 +653,8 @@ public  DEF_MENU_UPDATE(type_in_view_line_of_sight)
 
 public  DEF_MENU_FUNCTION(type_in_view_up_dir)
 {
-    Real      x, y, z;
-    Vector    line_of_sight, up, hor;
+    VIO_Real      x, y, z;
+    VIO_Vector    line_of_sight, up, hor;
 
     print( "Enter x y z up coordinate: " );
 
@@ -688,7 +688,7 @@ public  DEF_MENU_UPDATE(type_in_view_up_dir)
 
 public  DEF_MENU_FUNCTION(type_in_view_window_width)
 {
-    Real      width, scale;
+    VIO_Real      width, scale;
 
     print( "Current window width: %g\n", display->three_d.view.window_width );
     print( "Enter window width: " );
@@ -719,7 +719,7 @@ public  DEF_MENU_UPDATE(type_in_view_window_width)
 
 public  DEF_MENU_FUNCTION(type_in_view_perspective_distance)
 {
-    Real      dist;
+    VIO_Real      dist;
 
     print( "Current perspective distance: %g\n",
            display->three_d.view.perspective_distance );

@@ -36,9 +36,9 @@ private  void  set_orthogonal_slice_window_view(
 {
     int      axis;
     Real     cosine, sine;
-    Real     separations[MAX_DIMENSIONS];
+    Real     separations[VIO_MAX_DIMENSIONS];
 
-    for_less( axis, 0, N_DIMENSIONS )
+    for_less( axis, 0, VIO_N_DIMENSIONS )
     {
         slice_window->slice.volumes[volume_index].views[view].x_axis[axis]
                                                            = 0.0;
@@ -100,7 +100,7 @@ public  void  initialize_slice_window_view(
     for_less( view, 0, N_SLICE_VIEWS )
     {
         slice_window->slice.volumes[volume_index].views[view].visibility = TRUE;
-        for_less( axis, 0, N_DIMENSIONS )
+        for_less( axis, 0, VIO_N_DIMENSIONS )
         {
             slice_window->slice.volumes[volume_index].views[view].x_axis[axis]
                                                                = 0.0;
@@ -161,18 +161,18 @@ private  void  match_view_scale_and_translation(
     int               view,
     int               ref_volume_index )
 {
-    Volume  volume;
+    VIO_Volume  volume;
     int     volume_index, axis;
-    Real    separations[MAX_DIMENSIONS];
-    Real    ref_x_axis[N_DIMENSIONS], ref_y_axis[N_DIMENSIONS];
+    Real    separations[VIO_MAX_DIMENSIONS];
+    Real    ref_x_axis[VIO_N_DIMENSIONS], ref_y_axis[VIO_N_DIMENSIONS];
     Real    x_axis_x, x_axis_y, x_axis_z, y_axis_x, y_axis_y, y_axis_z;
     Real    x_len, y_len, current_x_len, current_y_len;
     Real    x_offset, y_offset;
     Real    xw, yw, zw;
-    Real    current_voxel[MAX_DIMENSIONS];
+    Real    current_voxel[VIO_MAX_DIMENSIONS];
     Real    x_scale, y_scale, x_trans, y_trans;
-    Real    origin[MAX_DIMENSIONS];
-    Real    x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
+    Real    origin[VIO_MAX_DIMENSIONS];
+    Real    x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
     Real    current_x_scale, current_y_scale;
 
     if( get_n_volumes(slice_window) == 0 )
@@ -186,7 +186,7 @@ private  void  match_view_scale_and_translation(
     get_volume_separations( get_nth_volume(slice_window,ref_volume_index),
                             separations );
 
-    for_less( axis, 0, N_DIMENSIONS )
+    for_less( axis, 0, VIO_N_DIMENSIONS )
     {
         x_axis[axis] = slice_window->slice.volumes[ref_volume_index].
                            views[view].x_axis[axis];
@@ -196,7 +196,7 @@ private  void  match_view_scale_and_translation(
 
     x_len = 0.0;
     y_len = 0.0;
-    for_less( axis, 0, N_DIMENSIONS )
+    for_less( axis, 0, VIO_N_DIMENSIONS )
     {
         x_len += x_axis[axis] * x_axis[axis] *
                  separations[axis] * separations[axis];
@@ -212,7 +212,7 @@ private  void  match_view_scale_and_translation(
     if( y_len == 0.0 )
         y_len = 1.0;
 
-    for_less( axis, 0, N_DIMENSIONS )
+    for_less( axis, 0, VIO_N_DIMENSIONS )
     {
         x_axis[axis] /= x_len;
         y_axis[axis] /= y_len;
@@ -251,7 +251,7 @@ private  void  match_view_scale_and_translation(
 
         get_volume_separations( volume, separations );
 
-        for_less( axis, 0, N_DIMENSIONS )
+        for_less( axis, 0, VIO_N_DIMENSIONS )
         {
             x_axis[axis] = slice_window->slice.volumes[volume_index].
                            views[view].x_axis[axis];
@@ -261,7 +261,7 @@ private  void  match_view_scale_and_translation(
 
         x_len = 0.0;
         y_len = 0.0;
-        for_less( axis, 0, N_DIMENSIONS )
+        for_less( axis, 0, VIO_N_DIMENSIONS )
         {
             x_len += x_axis[axis] * x_axis[axis] *
                      separations[axis] * separations[axis];
@@ -277,7 +277,7 @@ private  void  match_view_scale_and_translation(
         if( y_len == 0.0 )
             y_len = 1.0;
 
-        for_less( axis, 0, N_DIMENSIONS )
+        for_less( axis, 0, VIO_N_DIMENSIONS )
         {
             x_axis[axis] /= x_len;
             y_axis[axis] /= y_len;
@@ -372,19 +372,19 @@ public  void  reset_slice_view(
     int               view )
 {
     VIO_BOOL found_one;
-    Volume  volume;
+    VIO_Volume  volume;
     Real    x1, x2, y1, y2, x_offset, y_offset;
     int     int_x1, int_x2, int_y1, int_y2, current_volume_index;
     int     x_min, x_max, y_min, y_max;
     int     x_min_vp, x_max_vp, y_min_vp, y_max_vp;
     int     volume_index;
     Real    xw, yw, zw;
-    Real    current_voxel[MAX_DIMENSIONS];
+    Real    current_voxel[VIO_MAX_DIMENSIONS];
     Real    x_scale, y_scale, x_trans, y_trans;
-    Real    current_origin[MAX_DIMENSIONS];
-    Real    current_x_axis[MAX_DIMENSIONS], current_y_axis[MAX_DIMENSIONS];
-    Real    origin[MAX_DIMENSIONS];
-    Real    x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];
+    Real    current_origin[VIO_MAX_DIMENSIONS];
+    Real    current_x_axis[VIO_MAX_DIMENSIONS], current_y_axis[VIO_MAX_DIMENSIONS];
+    Real    origin[VIO_MAX_DIMENSIONS];
+    Real    x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
 
     if( get_n_volumes(slice_window) == 0 )
         return;
@@ -640,8 +640,8 @@ public  VIO_BOOL  convert_pixel_to_voxel(
     VIO_BOOL           found;
     display_struct    *slice_window;
     int               x_min, x_max, y_min, y_max;
-    Real              origin[MAX_DIMENSIONS];
-    Real              x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];;
+    Real              origin[VIO_MAX_DIMENSIONS];
+    Real              x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];;
 
     found = FALSE;
 
@@ -678,11 +678,11 @@ public  void  convert_voxel_to_pixel(
     Real              *x_pixel,
     Real              *y_pixel )
 {
-    Volume            volume;
+    VIO_Volume            volume;
     display_struct    *slice_window;
     Real              x_real_pixel, y_real_pixel;
-    Real              origin[MAX_DIMENSIONS];
-    Real              x_axis[MAX_DIMENSIONS], y_axis[MAX_DIMENSIONS];;
+    Real              origin[VIO_MAX_DIMENSIONS];
+    Real              x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];;
 
     if( get_slice_window( display, &slice_window ) )
     {
@@ -719,7 +719,7 @@ public  void  get_voxel_to_pixel_transform(
     Real              *y_trans )
 {
     int     axis;
-    Real    voxel[MAX_DIMENSIONS], x, y;
+    Real    voxel[VIO_MAX_DIMENSIONS], x, y;
 
     if( !slice_has_ortho_axes( slice_window, volume_index,
                                view_index, x_index, y_index, &axis ) )
@@ -745,10 +745,10 @@ public  void  get_voxel_to_pixel_transform(
 
 public  VIO_BOOL  get_voxel_corresponding_to_point(
     display_struct    *display,
-    Point             *point,
+    VIO_Point             *point,
     Real              voxel[] )
 {
-    Volume          volume;
+    VIO_Volume          volume;
     VIO_BOOL         converted;
 
     converted = FALSE;
@@ -1000,7 +1000,7 @@ public  VIO_BOOL  get_voxel_in_three_d_window(
     VIO_BOOL          found;
     object_struct    *object;
     int              object_index;
-    Point            intersection_point;
+    VIO_Point            intersection_point;
     display_struct   *slice_window;
 
     found = FALSE;
@@ -1061,7 +1061,7 @@ public  void  get_current_voxel(
 
     if( get_slice_window( display, &slice_window ) )
     {
-        for_less( c, 0, N_DIMENSIONS )
+        for_less( c, 0, VIO_N_DIMENSIONS )
         {
             voxel[c] = slice_window->slice.volumes[volume_index].
                                              current_voxel[c];
@@ -1083,7 +1083,7 @@ public  VIO_BOOL  set_current_voxel(
     VIO_BOOL           changed;
     int               i, view, volume_index;
     int               axis, x_index, y_index;
-    Real              xw, yw, zw, used_voxel[N_DIMENSIONS];
+    Real              xw, yw, zw, used_voxel[VIO_N_DIMENSIONS];
 
     changed = FALSE;
 
@@ -1094,14 +1094,14 @@ public  VIO_BOOL  set_current_voxel(
     {
         if( volume_index == this_volume_index )
         {
-            for_less( i, 0, N_DIMENSIONS )
+            for_less( i, 0, VIO_N_DIMENSIONS )
                 used_voxel[i] = voxel[i];
         }
         else
             convert_world_to_voxel( get_nth_volume(slice_window,volume_index),
                                     xw, yw, zw, used_voxel );
 
-        for_less( i, 0, N_DIMENSIONS )
+        for_less( i, 0, VIO_N_DIMENSIONS )
         {
             if( used_voxel[i] != slice_window->slice.volumes[volume_index].
                                              current_voxel[i] )
@@ -1142,21 +1142,21 @@ public  VIO_BOOL  set_current_voxel(
 }
 
 private  void  get_voxel_axis_perpendicular(
-    Volume   volume,
+    VIO_Volume   volume,
     Real     x_axis[],
     Real     y_axis[],
     Real     perp_axis[] )
 {
     int      c, a1, a2;
-    Real     len, separations[MAX_DIMENSIONS];
+    Real     len, separations[VIO_MAX_DIMENSIONS];
 
     get_volume_separations( volume, separations );
 
     len = 0.0;
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
     {
-        a1 = (c + 1) % N_DIMENSIONS;
-        a2 = (c + 2) % N_DIMENSIONS;
+        a1 = (c + 1) % VIO_N_DIMENSIONS;
+        a2 = (c + 2) % VIO_N_DIMENSIONS;
         perp_axis[c] = x_axis[a1] * y_axis[a2] - x_axis[a2] * y_axis[a1];
 
         perp_axis[c] *= FABS( separations[a1] * separations[a2] /
@@ -1168,7 +1168,7 @@ private  void  get_voxel_axis_perpendicular(
     if( len != 0.0 )
     {
         len = sqrt( len );
-        for_less( c, 0, N_DIMENSIONS )
+        for_less( c, 0, VIO_N_DIMENSIONS )
             perp_axis[c] /= len;
     }
 }
@@ -1177,7 +1177,7 @@ public  void  get_slice_perp_axis(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    Real             perp_axis[N_DIMENSIONS] )
+    Real             perp_axis[VIO_N_DIMENSIONS] )
 {
     get_voxel_axis_perpendicular( get_nth_volume(slice_window,volume_index),
         slice_window->slice.volumes[volume_index].views[view_index].x_axis,
@@ -1193,27 +1193,27 @@ public  void  set_slice_plane_perp_axis(
 {
     Real     max_value, len, sign;
     Real     len_x_axis, len_y_axis, factor;
-    Real     used_x_axis[MAX_DIMENSIONS];
-    Real     used_y_axis[MAX_DIMENSIONS];
-    Real     separations[MAX_DIMENSIONS];
-    Real     sep[MAX_DIMENSIONS];
-    Real     perp[MAX_DIMENSIONS];
-    Vector   axis, vect, new_axis, tmp;
+    Real     used_x_axis[VIO_MAX_DIMENSIONS];
+    Real     used_y_axis[VIO_MAX_DIMENSIONS];
+    Real     separations[VIO_MAX_DIMENSIONS];
+    Real     sep[VIO_MAX_DIMENSIONS];
+    Real     perp[VIO_MAX_DIMENSIONS];
+    VIO_Vector   axis, vect, new_axis, tmp;
     int      x_index, y_index, view;
     int      c, max_axis;
 
     get_volume_separations( get_nth_volume(slice_window,volume_index),
                             separations );
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
         separations[c] = FABS( separations[c] );
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
         perp[c] = voxel_perp[c] * separations[c];
 
     if( slice_window->slice.cross_section_vector_present )
     {
-        for_less( c, 0, N_DIMENSIONS )
+        for_less( c, 0, VIO_N_DIMENSIONS )
         {
             Vector_coord(axis,c) = (Point_coord_type) perp[c];
             Vector_coord(vect,c) = (Point_coord_type)
@@ -1225,12 +1225,12 @@ public  void  set_slice_plane_perp_axis(
         if( DOT_VECTORS( new_axis, axis ) < 0.0 )
             SCALE_VECTOR( new_axis, new_axis, -1.0f );
 
-        for_less( c, 0, N_DIMENSIONS )
+        for_less( c, 0, VIO_N_DIMENSIONS )
             perp[c] = (Real) Vector_coord( new_axis, c );
     }
 
     max_value = 0.0;
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
     {
         if( c == 0 || FABS(perp[c]) > max_value )
         {
@@ -1263,7 +1263,7 @@ public  void  set_slice_plane_perp_axis(
 
     factor = used_x_axis[x_index] * perp[x_index] / len;
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
         used_x_axis[c] -= factor * perp[c];
 
     used_y_axis[X] = perp[Y] * used_x_axis[Z] - used_x_axis[Y] * perp[Z];
@@ -1272,7 +1272,7 @@ public  void  set_slice_plane_perp_axis(
 
     len_x_axis = 0.0;
     len_y_axis = 0.0;
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
     {
         used_x_axis[c] /= separations[c];
         used_y_axis[c] /= separations[c];
@@ -1291,13 +1291,13 @@ public  void  set_slice_plane_perp_axis(
     else
         sign = 1.0;
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
     {
         used_x_axis[c] /= len_x_axis;
         used_y_axis[c] /= sign * len_y_axis;
     }
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
     {
         slice_window->slice.volumes[volume_index].views[view_index].x_axis[c] =
                                                                 used_x_axis[c];
@@ -1320,7 +1320,7 @@ public  void  set_slice_plane(
     Real             x_axis[],
     Real             y_axis[] )
 {
-    Real     perp[MAX_DIMENSIONS];
+    Real     perp[VIO_MAX_DIMENSIONS];
 
     get_voxel_axis_perpendicular( get_nth_volume(slice_window,volume_index),
                                   x_axis, y_axis, perp );
@@ -1337,8 +1337,8 @@ public  void  get_slice_plane(
     Real             y_axis[] )
 {
     int    c, axis;
-    Real   separations[MAX_DIMENSIONS];
-    Real   voxel[MAX_DIMENSIONS], perp_axis[MAX_DIMENSIONS];
+    Real   separations[VIO_MAX_DIMENSIONS];
+    Real   voxel[VIO_MAX_DIMENSIONS], perp_axis[VIO_MAX_DIMENSIONS];
     Real   voxel_dot_perp, perp_dot_perp, factor;
 
     get_volume_separations( get_nth_volume(slice_window,volume_index),
@@ -1349,7 +1349,7 @@ public  void  get_slice_plane(
 
     axis = -1;
 
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
     {
         separations[c] = FABS( separations[c] );
         perp_axis[c] *= separations[c];
@@ -1372,29 +1372,29 @@ public  void  get_slice_plane(
 
     if( axis >= 0 )
     {
-        for_less( c, 0, N_DIMENSIONS )
+        for_less( c, 0, VIO_N_DIMENSIONS )
             origin[c] = 0.0;
         origin[axis] = voxel[axis];
     }
     else
     {
         voxel_dot_perp = 0.0;
-        for_less( c, 0, N_DIMENSIONS )
+        for_less( c, 0, VIO_N_DIMENSIONS )
             voxel_dot_perp += voxel[c] * separations[c] * perp_axis[c];
 
         perp_dot_perp = 0.0;
-        for_less( c, 0, N_DIMENSIONS )
+        for_less( c, 0, VIO_N_DIMENSIONS )
             perp_dot_perp += perp_axis[c] * perp_axis[c];
 
         if( perp_dot_perp == 0.0 )
         {
-            for_less( c, 0, N_DIMENSIONS )
+            for_less( c, 0, VIO_N_DIMENSIONS )
                 origin[c] = 0.0;
         }
         else
         {
             factor = voxel_dot_perp / perp_dot_perp;
-            for_less( c, 0, N_DIMENSIONS )
+            for_less( c, 0, VIO_N_DIMENSIONS )
                 origin[c] = factor * perp_axis[c] / separations[c];
         }
     }
@@ -1405,7 +1405,7 @@ public  VIO_BOOL  get_slice_view_index_under_mouse(
     int              *view_index )
 {
     VIO_BOOL          found;
-    Volume           volume;
+    VIO_Volume           volume;
     display_struct   *slice_window;
     int              x, y;
 
@@ -1430,7 +1430,7 @@ public  VIO_BOOL  get_axis_index_under_mouse(
     int              *axis_index )
 {
     VIO_BOOL          found;
-    Real             voxel[MAX_DIMENSIONS];
+    Real             voxel[VIO_MAX_DIMENSIONS];
     int              view_index, x_index, y_index;
     display_struct   *slice_window;
 
@@ -1451,9 +1451,9 @@ public  VIO_BOOL  slice_has_ortho_axes(
     int              *y_index,
     int              *axis_index )
 {
-    Real     origin[N_DIMENSIONS];
-    Real     x_axis[N_DIMENSIONS];
-    Real     y_axis[N_DIMENSIONS];
+    Real     origin[VIO_N_DIMENSIONS];
+    Real     x_axis[VIO_N_DIMENSIONS];
+    Real     y_axis[VIO_N_DIMENSIONS];
     int      c;
 
     get_slice_plane( slice_window, volume_index, view_index,
@@ -1461,7 +1461,7 @@ public  VIO_BOOL  slice_has_ortho_axes(
 
     *x_index = -1;
     *y_index = -1;
-    for_less( c, 0, N_DIMENSIONS )
+    for_less( c, 0, VIO_N_DIMENSIONS )
     {
         if( fabs(x_axis[c]) > ORTHOGONAL_SLICE_EPSILON )
         {
@@ -1480,7 +1480,7 @@ public  VIO_BOOL  slice_has_ortho_axes(
     if( *x_index == *y_index )
         return( FALSE );
 
-    *axis_index = N_DIMENSIONS - *x_index - *y_index;
+    *axis_index = VIO_N_DIMENSIONS - *x_index - *y_index;
 
     return( TRUE );
 }
@@ -1537,10 +1537,10 @@ public  void  get_slice_model_viewport(
 public  VIO_BOOL  update_cursor_from_voxel(
     display_struct    *slice_window )
 {
-    Real              voxel[MAX_DIMENSIONS];
+    Real              voxel[VIO_MAX_DIMENSIONS];
     Real              x_w, y_w, z_w;
     VIO_BOOL           changed;
-    Point             new_origin;
+    VIO_Point             new_origin;
     display_struct    *display;
 
     if( get_n_volumes(slice_window) == 0 )
@@ -1574,7 +1574,7 @@ public  VIO_BOOL  update_voxel_from_cursor(
     display_struct    *slice_window )
 {
     int               volume_index;
-    Real              voxel[MAX_DIMENSIONS];
+    Real              voxel[VIO_MAX_DIMENSIONS];
     VIO_BOOL           changed;
     display_struct    *display;
 
@@ -1602,10 +1602,10 @@ private  void  update_all_slice_axes(
 {
     int    v, axis;
     Real   x_axis_x, x_axis_y, x_axis_z, y_axis_x, y_axis_y, y_axis_z;
-    Real   x_mag, y_mag, x_axis[N_DIMENSIONS], y_axis[N_DIMENSIONS];
-    Real   ref_x_axis[N_DIMENSIONS], ref_y_axis[N_DIMENSIONS];
+    Real   x_mag, y_mag, x_axis[VIO_N_DIMENSIONS], y_axis[VIO_N_DIMENSIONS];
+    Real   ref_x_axis[VIO_N_DIMENSIONS], ref_y_axis[VIO_N_DIMENSIONS];
 
-    for_less( axis, 0, N_DIMENSIONS )
+    for_less( axis, 0, VIO_N_DIMENSIONS )
     {
         ref_x_axis[axis] = slice_window->slice.volumes[volume_index].
                            views[view_index].x_axis[axis];
@@ -1627,7 +1627,7 @@ private  void  update_all_slice_axes(
         if( volumes_are_same_grid( get_nth_volume(slice_window,volume_index),
                                    get_nth_volume(slice_window,v) ) )
         {
-            for_less( axis, 0, N_DIMENSIONS )
+            for_less( axis, 0, VIO_N_DIMENSIONS )
             {
                 x_axis[axis] = ref_x_axis[axis];
                 y_axis[axis] = ref_y_axis[axis];
@@ -1653,7 +1653,7 @@ private  void  update_all_slice_axes(
         if( y_mag == 0.0 )
             y_mag = 1.0;
 
-        for_less( axis, 0, N_DIMENSIONS )
+        for_less( axis, 0, VIO_N_DIMENSIONS )
         {
             slice_window->slice.volumes[v].views[view_index].x_axis[axis] =
                                                           x_axis[axis] / x_mag;
@@ -1698,7 +1698,7 @@ public  void  set_volume_transform(
     int                volume_index,
     VIO_General_transform  *transform )
 {
-    Volume             volume;
+    VIO_Volume             volume;
     display_struct     *slice_window;
     VIO_General_transform  copy;
     int                ref_volume_index;
@@ -1724,7 +1724,7 @@ public  void  concat_transform_to_volume(
     int                volume_index,
     VIO_General_transform  *transform )
 {
-    Volume             volume;
+    VIO_Volume             volume;
     VIO_General_transform  *volume_transform, concated;
 
     volume = get_nth_volume( display, volume_index );
@@ -1740,7 +1740,7 @@ public  void  concat_transform_to_volume(
 
 public  void  transform_current_volume_from_file(
     display_struct   *display,
-    STRING           filename )
+    VIO_STR           filename )
 {
     VIO_General_transform  file_transform;
 
