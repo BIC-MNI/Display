@@ -56,7 +56,7 @@ static  void  handle_event(
 
     status = perform_action( display, event, key_pressed );
 
-    if( status == QUIT )
+    if( status == VIO_QUIT )
         quit_program();
 }
 
@@ -213,7 +213,7 @@ static  void  update_all_three_d( void )
 
     status = process_no_events_for_three_d_windows();
 
-    if( status == QUIT )
+    if( status == VIO_QUIT )
         quit_program();
 
     update_all_three_d_windows();
@@ -225,7 +225,7 @@ static  void  update_all_slice( void )
 
     status = process_no_events_for_slice_windows();
 
-    if( status == QUIT )
+    if( status == VIO_QUIT )
         quit_program();
 
     update_all_slice_windows();
@@ -245,7 +245,7 @@ static  void  update_all(
 
     G_main_loop();
 
-    return( OK );
+    return( VIO_OK );
 }
 
   VIO_BOOL  window_is_up_to_date(
@@ -325,7 +325,7 @@ static  VIO_Status  process_no_events_for_three_d_windows( void )
     int               i, n_windows;
     display_struct    **windows;
 
-    status = OK;
+    status = VIO_OK;
 
     n_windows = get_list_of_windows( &windows );
 
@@ -342,7 +342,7 @@ static  VIO_Status  process_no_events_for_slice_windows( void )
     int               i, n_windows;
     display_struct    **windows;
 
-    status = OK;
+    status = VIO_OK;
 
     n_windows = get_list_of_windows( &windows );
 
@@ -365,12 +365,12 @@ static  VIO_Status   perform_action(
     n_actions = get_event_actions( &display->action_table, event_type,
                                    &actions );
 
-    status = OK;
+    status = VIO_OK;
 
     for_less( i, 0, n_actions )
     {
         status = (*actions[i]) ( display, event_type, key_pressed );
-        if( status != OK )
+        if( status != VIO_OK )
             break;
     }
 

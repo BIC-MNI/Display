@@ -158,7 +158,7 @@ static  void  delete_windows_list( void )
 
     G_set_background_colour( (*display)->window, Initial_background_colour );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         (*display)->window_type = window_type;
         initialize_graphics_window( *display );
