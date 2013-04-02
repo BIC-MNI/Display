@@ -127,7 +127,7 @@ int  main(
 
     if( create_graphics_window( THREE_D_WINDOW,
                                 Graphics_double_buffer_flag,
-                                &graphics, title, 0, 0 ) != OK )
+                                &graphics, title, 0, 0 ) != VIO_OK )
         return( 1 );
     delete_string( title );
 
@@ -141,7 +141,7 @@ int  main(
     title = concat_strings( PROJECT_NAME, ": Menu" );
     if( create_graphics_window( MENU_WINDOW, TRUE, &menu, title,
                                 Initial_menu_window_width,
-                                Initial_menu_window_height ) != OK )
+                                Initial_menu_window_height ) != VIO_OK )
         return( 1 );
     delete_string( title );
 	if( Hide_menu_window )
@@ -153,7 +153,7 @@ int  main(
     title = concat_strings( PROJECT_NAME, ": Marker" );
     if( create_graphics_window( MARKER_WINDOW, TRUE, &marker, title,
                                 Initial_marker_window_width,
-                                Initial_marker_window_height ) != OK )
+                                Initial_marker_window_height ) != VIO_OK )
     	return( 1 );
 
     delete_string( title );
@@ -183,10 +183,10 @@ int  main(
 			 getenv( "HOME" ),
 			 HARD_CODED_DISPLAY_DIRECTORY1,
 			 HARD_CODED_DISPLAY_DIRECTORY2,
-			 MENU_FILENAME ) != OK )
+			 MENU_FILENAME ) != VIO_OK )
 	return 1;
 
-    if( initialize_marker_window( marker ) != OK )
+    if( initialize_marker_window( marker ) != VIO_OK )
     return 1;
 
     delete_string( runtime_directory );
@@ -275,7 +275,7 @@ static  void      initialize_view_to_fit(
     display_struct  *display )
 {
     int      i, c, x, y, z;
-    Real     voxel[VIO_N_DIMENSIONS], world[VIO_N_DIMENSIONS];
+    VIO_Real     voxel[VIO_N_DIMENSIONS], world[VIO_N_DIMENSIONS];
     int      sizes[VIO_N_DIMENSIONS];
     VIO_Volume   volume;
     VIO_BOOL  found;
@@ -294,20 +294,20 @@ static  void      initialize_view_to_fit(
         for_less( y, 0, 2 )
         for_less( z, 0, 2 )
         {
-            voxel[X] = -0.5 + (Real) sizes[X] * (Real) x;
-            voxel[Y] = -0.5 + (Real) sizes[Y] * (Real) y;
-            voxel[Z] = -0.5 + (Real) sizes[Z] * (Real) z;
+            voxel[VIO_X] = -0.5 + (VIO_Real) sizes[VIO_X] * (VIO_Real) x;
+            voxel[VIO_Y] = -0.5 + (VIO_Real) sizes[VIO_Y] * (VIO_Real) y;
+            voxel[VIO_Z] = -0.5 + (VIO_Real) sizes[VIO_Z] * (VIO_Real) z;
 
             convert_voxel_to_world( volume, voxel,
-                                    &world[X], &world[Y], &world[Z] );
+                                    &world[VIO_X], &world[VIO_Y], &world[VIO_Z] );
 
             for_less( c, 0, VIO_N_DIMENSIONS )
             {
                 if( !found ||
-                    world[c] < (Real) Point_coord(display->three_d.min_limit,c))
+                    world[c] < (VIO_Real) Point_coord(display->three_d.min_limit,c))
                     Point_coord(display->three_d.min_limit,c) = (float) world[c];
                 if( !found ||
-                    world[c] > (Real) Point_coord(display->three_d.max_limit,c))
+                    world[c] > (VIO_Real) Point_coord(display->three_d.max_limit,c))
                     Point_coord(display->three_d.max_limit,c) = (float) world[c];
             }
             
@@ -391,7 +391,7 @@ static void parse_options(int argc, char *argv[], display_struct *graphics)
 	VIO_BOOL next_is_label_volume;
 
 	initialize_argument_processing(argc, argv);
-	retcode = OK;
+	retcode = VIO_OK;
 	next_is_label_volume = FALSE;
 
 	while (get_string_argument("", &filename))
@@ -433,34 +433,34 @@ static void parse_options(int argc, char *argv[], display_struct *graphics)
 		}
 		else if (equal_strings(filename, "-skiperror"))
 		{
-			if( set_global_variable_value("Exit_error_load_file", "FALSE") != OK )
+			if( set_global_variable_value("Exit_error_load_file", "FALSE") != VIO_OK )
 			{
 				print("Error setting skiperror variable from command line.\n");
-				retcode = ERROR;
+				retcode = VIO_ERROR;
 			}
 		}
 		else if (equal_strings(filename, "-gray"))
 		{
-			if( set_global_variable_value("Initial_colour_coding_type", "0") != OK )
+			if( set_global_variable_value("Initial_colour_coding_type", "0") != VIO_OK )
 			{
 				print("Error setting gray variable from command line.\n");
-				retcode = ERROR;
+				retcode = VIO_ERROR;
 			}
 		}
 		else if (equal_strings(filename, "-hot"))
 		{
-			if( set_global_variable_value("Initial_colour_coding_type", "1") != OK )
+			if( set_global_variable_value("Initial_colour_coding_type", "1") != VIO_OK )
 			{
 				print("Error setting hot variable from command line.\n");
-				retcode = ERROR;
+				retcode = VIO_ERROR;
 			}
 		}
 		else if (equal_strings(filename, "-spectral"))
 		{
-			if( set_global_variable_value("Initial_colour_coding_type", "13") != OK )
+			if( set_global_variable_value("Initial_colour_coding_type", "13") != VIO_OK )
 			{
 				print("Error setting spectral variable from command line.\n");
-				retcode = ERROR;
+				retcode = VIO_ERROR;
 			}
 		}
 		else if (equal_strings(filename, "-ratio"))
@@ -471,10 +471,10 @@ static void parse_options(int argc, char *argv[], display_struct *graphics)
 				exit(EX_USAGE);
 			}
 
-			if( set_global_variable_value("Ratio_volume_index", variable_value) != OK )
+			if( set_global_variable_value("Ratio_volume_index", variable_value) != VIO_OK )
 			{
 				print("Error setting ratio variable from command line.\n");
-				retcode = ERROR;
+				retcode = VIO_ERROR;
 			}
 		}
 		else if (equal_strings(filename, "-label"))
@@ -482,16 +482,16 @@ static void parse_options(int argc, char *argv[], display_struct *graphics)
 			if (next_is_label_volume)
 			{
 				print("Ignoring extraneous -label\n");
-				retcode = ERROR;
+				retcode = VIO_ERROR;
 			}
 			next_is_label_volume = TRUE;
 		}
 		else if (equal_strings(filename, "-labeltags"))
 		{
-			if( set_global_variable_value("Tags_from_label", "TRUE") != OK )
+			if( set_global_variable_value("Tags_from_label", "TRUE") != VIO_OK )
 			{
 				print("Error setting labeltags variable from command line.\n");
-				retcode = ERROR;
+				retcode = VIO_ERROR;
 			}
 		}
 		else if (equal_strings(filename, "-output-label"))
@@ -502,10 +502,10 @@ static void parse_options(int argc, char *argv[], display_struct *graphics)
 				exit(EX_USAGE);
 			}
 
-			if( set_global_variable_value("Output_label_filename", variable_value) != OK)
+			if( set_global_variable_value("Output_label_filename", variable_value) != VIO_OK)
 			{
 				print("Error setting output variable from command line.\n");
-				retcode = ERROR;
+				retcode = VIO_ERROR;
 			}
 		}
 		else if (equal_strings(filename, "-range"))
@@ -519,19 +519,19 @@ static void parse_options(int argc, char *argv[], display_struct *graphics)
 
 			if (Initial_histogram_contrast)
 			{
-				if (set_global_variable_value("Initial_histogram_low", variable_name) != OK
-						|| set_global_variable_value("Initial_histogram_high", variable_value) != OK)
+				if (set_global_variable_value("Initial_histogram_low", variable_name) != VIO_OK
+						|| set_global_variable_value("Initial_histogram_high", variable_value) != VIO_OK)
 				{
 					print("Error setting range variable from command line.\n");
-					retcode = ERROR;
+					retcode = VIO_ERROR;
 				}
 			}
 			else{
-				if (set_global_variable_value("Initial_low_absolute_position", variable_name) != OK
-						|| set_global_variable_value("Initial_high_absolute_position", variable_value) != OK)
+				if (set_global_variable_value("Initial_low_absolute_position", variable_name) != VIO_OK
+						|| set_global_variable_value("Initial_high_absolute_position", variable_value) != VIO_OK)
 				{
 					print("Error setting range variable from command line.\n");
-					retcode = ERROR;
+					retcode = VIO_ERROR;
 				}
 			}
 		}
@@ -544,10 +544,10 @@ static void parse_options(int argc, char *argv[], display_struct *graphics)
 				exit(EX_USAGE);
 			}
 
-			if (set_global_variable_value(variable_name, variable_value) != OK)
+			if (set_global_variable_value(variable_name, variable_value) != VIO_OK)
 			{
 				print("Error setting global variable from command line.\n");
-				retcode = ERROR;
+				retcode = VIO_ERROR;
 			}
 		}
 		else
@@ -555,12 +555,12 @@ static void parse_options(int argc, char *argv[], display_struct *graphics)
 			if (filename[0] == '-')
 			{
 				print("Error: unknown option %s\n", filename);
-				retcode = ERROR;
+				retcode = VIO_ERROR;
 			}
 			else
 			{
 				initialize_cache();
-				if (load_graphics_file(graphics, filename, next_is_label_volume) != OK)
+				if (load_graphics_file(graphics, filename, next_is_label_volume) != VIO_OK)
 				{
 					print("Error loading %s\n", filename);
 					if (Exit_error_load_file)
@@ -574,10 +574,10 @@ static void parse_options(int argc, char *argv[], display_struct *graphics)
 	if (next_is_label_volume)
 	{
 		print("Ignoring extraneous -label\n");
-		retcode = ERROR;
+		retcode = VIO_ERROR;
 	}
 
-	if (Exit_error_load_file && retcode != OK)
+	if (Exit_error_load_file && retcode != VIO_OK)
 		exit(EX_USAGE);
 }
 
