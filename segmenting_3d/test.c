@@ -1,27 +1,27 @@
 #include  <mni.h>
 
 public  void  initialize_segmenting_3d(
-    Volume    volume,
-    Volume    label_volume,
+    VIO_Volume    volume,
+    VIO_Volume    label_volume,
     int       n_dimensions,
     int       voxel_pos,
     int       axis,
-    Real      min_threshold,
-    Real      max_threshold,
+    VIO_Real      min_threshold,
+    VIO_Real      max_threshold,
     unsigned char      ****distance_transform,
     unsigned char      ****cuts,
     bitlist_3d_struct  *to_do );
 
 public  VIO_BOOL  expand_labels_3d(
-    Volume             label_volume,
+    VIO_Volume             label_volume,
     unsigned char      ***distance_transform,
     unsigned char      ***cuts,
     bitlist_3d_struct  *to_do,
     int       n_dimensions,
     int       voxel_pos,
     int       axis );
-private  void  print_volume( char [], Volume, int );
-private  void  modify_labels( Volume, Volume );
+private  void  print_volume( char [], VIO_Volume, int );
+private  void  modify_labels( VIO_Volume, VIO_Volume );
 
 int  main(
     int   argc,
@@ -29,7 +29,7 @@ int  main(
 {
     Status               status;
     char                 *input_volume_filename;
-    Volume               volume, label_volume;
+    VIO_Volume               volume, label_volume;
     unsigned char        ***dist_transform, ***cuts;
     bitlist_3d_struct    to_do;
     int                  iteration;
@@ -46,24 +46,24 @@ int  main(
                            NC_UNSPECIFIED, FALSE, 0.0, 0.0,
                            TRUE, &volume, (minc_input_options *) NULL );
 
-    if( status != OK )
+    if( status != VIO_OK )
         return( 1 );
 
     label_volume = create_label_volume( volume );
 
     modify_labels( volume, label_volume );
 
-    initialize_segmenting_3d( volume, label_volume, 2, 0, Z,
-                              (Real) '1', 256.0, &dist_transform,
+    initialize_segmenting_3d( volume, label_volume, 2, 0, VIO_Z,
+                              (VIO_Real) '1', 256.0, &dist_transform,
                               &cuts, &to_do );
 
     iteration = 0;
 
-    print_volume( "Volume", volume, 0 );
+    print_volume( "VIO_Volume", volume, 0 );
     print_volume( "Labels", label_volume, '0' );
 
     while( expand_labels_3d( label_volume, dist_transform, cuts, &to_do,
-                             2, 0, Z ) )
+                             2, 0, VIO_Z ) )
     {
         ++iteration;
         print( "Done iteration %d\n", iteration );
@@ -78,7 +78,7 @@ int  main(
 
 private  void  print_volume(
     char   title[],
-    Volume volume,
+    VIO_Volume volume,
     int    offset )
 {
     int   x, y, z, sizes[MAX_DIMENSIONS];
@@ -89,11 +89,11 @@ private  void  print_volume(
 
     get_volume_sizes( volume, sizes );
 
-    for_less( z, 0, sizes[Z] )
+    for_less( z, 0, sizes[VIO_Z] )
     {
-        for_less( y, 0, sizes[Y] )
+        for_less( y, 0, sizes[VIO_Y] )
         {
-            for_less( x, 0, sizes[X] )
+            for_less( x, 0, sizes[VIO_X] )
             {
                 GET_VOXEL_3D( voxel, volume, x, y, z );
                 if( voxel & 128 )
@@ -109,19 +109,19 @@ private  void  print_volume(
 }
 
 private  void  modify_labels(
-    Volume volume,
-    Volume label_volume )
+    VIO_Volume volume,
+    VIO_Volume label_volume )
 {
     int   x, y, z, sizes[MAX_DIMENSIONS];
     int   voxel;
 
     get_volume_sizes( volume, sizes );
 
-    for_less( x, 0, sizes[X] )
+    for_less( x, 0, sizes[VIO_X] )
     {
-        for_less( y, 0, sizes[Y] )
+        for_less( y, 0, sizes[VIO_Y] )
         {
-            for_less( z, 0, sizes[Z] )
+            for_less( z, 0, sizes[VIO_Z] )
             {
                 GET_VOXEL_3D( voxel, volume, x, y, z );
                 if( voxel == (int) '\n' )

@@ -38,9 +38,9 @@
     view->desired_aspect = 0.0;
     view->window_width = 1.0;
     view->window_height = 1.0;
-    view->scale_factors[X] = 1.0;
-    view->scale_factors[Y] = 1.0;
-    view->scale_factors[Z] = 1.0;
+    view->scale_factors[VIO_X] = 1.0;
+    view->scale_factors[VIO_Y] = 1.0;
+    view->scale_factors[VIO_Z] = 1.0;
 
     make_identity_transform( &view->modeling_transform );
 
@@ -215,9 +215,9 @@
     VIO_Real   x_scaled, y_scaled, z_scaled;
     VIO_Real   x, y, z;
 
-    x_scaled = view->scale_factors[X] * (VIO_Real) Point_x(*p);
-    y_scaled = view->scale_factors[Y] * (VIO_Real) Point_y(*p);
-    z_scaled = view->scale_factors[Z] * (VIO_Real) Point_z(*p);
+    x_scaled = view->scale_factors[VIO_X] * (VIO_Real) Point_x(*p);
+    y_scaled = view->scale_factors[VIO_Y] * (VIO_Real) Point_y(*p);
+    z_scaled = view->scale_factors[VIO_Z] * (VIO_Real) Point_z(*p);
 
     transform_point( &view->modeling_transform, x_scaled, y_scaled, z_scaled,
                      &x, &y, &z );
@@ -307,9 +307,9 @@
     VIO_Real          sy,
     VIO_Real          sz )
 {
-    view->scale_factors[X] = sx;
-    view->scale_factors[Y] = sy;
-    view->scale_factors[Z] = sz;
+    view->scale_factors[VIO_X] = sx;
+    view->scale_factors[VIO_Y] = sy;
+    view->scale_factors[VIO_Z] = sz;
 }
 
   void  convert_screen_to_ray(

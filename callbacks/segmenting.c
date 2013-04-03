@@ -44,7 +44,7 @@ static  void   set_connected_labels(
         delete_slice_undo( &slice_window->slice.undo, -1 );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -70,7 +70,7 @@ static  void   set_connected_labels(
 
   DEF_MENU_FUNCTION( label_voxel )
 {
-    Real           voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real           voxel[VIO_MAX_DIMENSIONS];
     int            view_index, int_voxel[VIO_MAX_DIMENSIONS], volume_index;
     display_struct *slice_window;
     int 		   value;
@@ -82,14 +82,14 @@ static  void   set_connected_labels(
         convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
         value = get_current_paint_label(slice_window);
         set_voxel_label( slice_window, volume_index,
-                         int_voxel[X],
-                         int_voxel[Y],
-                         int_voxel[Z], value );
+                         int_voxel[VIO_X],
+                         int_voxel[VIO_Y],
+                         int_voxel[VIO_Z], value );
         set_slice_window_all_update( slice_window, volume_index,
                                      UPDATE_LABELS );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -103,7 +103,7 @@ static  void   set_connected_labels(
 
   DEF_MENU_FUNCTION( clear_voxel )
 {
-    Real           voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real           voxel[VIO_MAX_DIMENSIONS];
     display_struct *slice_window;
     int            view_index, int_voxel[VIO_MAX_DIMENSIONS], volume_index;
 
@@ -113,12 +113,12 @@ static  void   set_connected_labels(
         record_slice_under_mouse( slice_window, volume_index );
         convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
         set_voxel_label( slice_window, volume_index,
-                         int_voxel[X], int_voxel[Y], int_voxel[Z], 0 );
+                         int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z], 0 );
         set_slice_window_all_update( slice_window, volume_index,
                                      UPDATE_LABELS );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -146,7 +146,7 @@ static  void   set_connected_labels(
         pop_menu_one_level( display->associated[MENU_WINDOW] );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -161,13 +161,13 @@ static  void   set_connected_labels(
   DEF_MENU_FUNCTION( set_segmenting_threshold )
 {
     display_struct   *slice_window;
-    Real             min, max;
+    VIO_Real             min, max;
 
     if( get_slice_window( display, &slice_window ) )
     {
         print( "Enter min and max threshold: " );
 
-        if( input_real( stdin, &min ) == OK && input_real( stdin, &max ) == OK )
+        if( input_real( stdin, &min ) == VIO_OK && input_real( stdin, &max ) == VIO_OK )
         {
             slice_window->slice.segmenting.min_threshold = min;
             slice_window->slice.segmenting.max_threshold = max;
@@ -176,7 +176,7 @@ static  void   set_connected_labels(
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -194,7 +194,7 @@ static  void   set_connected_labels(
     VIO_Status           status;
     display_struct   *slice_window;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
@@ -202,7 +202,7 @@ static  void   set_connected_labels(
         status = load_label_volume( filename,
                                     get_label_volume(slice_window) );
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             replace_string( &slice_window->slice.volumes[
                       get_current_volume_index(slice_window)].labels_filename,
@@ -215,9 +215,9 @@ static  void   set_connected_labels(
         set_slice_window_all_update( slice_window,
                      get_current_volume_index(slice_window), UPDATE_LABELS );
 
-        range[0][X] = 0;
-        range[0][Y] = 0;
-        range[0][Z] = 0;
+        range[0][VIO_X] = 0;
+        range[0][VIO_Y] = 0;
+        range[0][VIO_Z] = 0;
         get_volume_sizes( get_volume(slice_window), range[1] );
         tell_surface_extraction_range_of_labels_changed( display, 
                               get_current_volume_index(slice_window),
@@ -234,7 +234,7 @@ static  void   set_connected_labels(
     VIO_Status           status;
     VIO_STR           filename;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_n_volumes(display) > 0 )
     {
@@ -268,9 +268,9 @@ static  void   set_connected_labels(
     VIO_Status           status;
     VIO_STR           filename, backup_filename;
     display_struct   *slice_window;
-    Real             crop_threshold;
+    VIO_Real             crop_threshold;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
@@ -287,7 +287,7 @@ static  void   set_connected_labels(
 			(void) input_newline( stdin );
     	}
 
-        if( status == OK && check_clobber_file( filename ) )
+        if( status == VIO_OK && check_clobber_file( filename ) )
         {
             if( !slice_window->slice.crop_labels_on_output_flag )
                 crop_threshold = 0.0;
@@ -296,7 +296,7 @@ static  void   set_connected_labels(
 
             status = make_backup_file( filename, &backup_filename );
 
-            if( status == OK )
+            if( status == VIO_OK )
             {
                 status = save_label_volume( filename,
                           backup_filename,
@@ -305,7 +305,7 @@ static  void   set_connected_labels(
                 cleanup_backup_file( filename, backup_filename, status );
             }
 
-            if( status == OK )
+            if( status == VIO_OK )
                 print( "Label saved to %s\n", filename );
             else
             {
@@ -342,7 +342,7 @@ static  void   set_connected_labels(
     display_struct *slice_window;
     VIO_Volume         volume;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_slice_window_volume( display, &volume ) &&
         get_slice_window( display, &slice_window ) )
@@ -354,7 +354,7 @@ static  void   set_connected_labels(
                             get_default_tag_file_suffix(),
                             READ_FILE, ASCII_FORMAT, &file );
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             if( landmark_format )
                 status = input_landmarks_as_labels( file, volume,
@@ -364,7 +364,7 @@ static  void   set_connected_labels(
                                         get_label_volume(slice_window) );
         }
 
-        if( status == OK )
+        if( status == VIO_OK )
             status = close_file( file );
 
         delete_slice_undo( &slice_window->slice.undo,
@@ -386,7 +386,7 @@ static  void   set_connected_labels(
     if( get_n_volumes(display) > 0 )
     {
         print( "Enter filename: " );
-        if( input_string( stdin, &filename, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == VIO_OK )
         {
             (void) input_tag_label_file( display, filename );
 
@@ -398,7 +398,7 @@ static  void   set_connected_labels(
         delete_string( filename );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -421,14 +421,14 @@ static  void   save_labels_as_tags(
     status = input_string( stdin, &filename, ' ' );
     (void) input_newline( stdin );
 
-    if( status == OK && check_clobber_file_default_suffix( filename,
+    if( status == VIO_OK && check_clobber_file_default_suffix( filename,
                                             get_default_tag_file_suffix() ) )
     {
         status = open_file_with_default_suffix( filename,
                          get_default_tag_file_suffix(),
                          WRITE_FILE, ASCII_FORMAT, &file );
 
-        if( status == OK )
+        if( status == VIO_OK )
             status = output_labels_as_tags( file,
                       get_volume(slice_window),
                       get_label_volume(slice_window),
@@ -436,7 +436,7 @@ static  void   save_labels_as_tags(
                       display->three_d.default_marker_size,
                       display->three_d.default_marker_patient_id );
 
-        if( status == OK )
+        if( status == VIO_OK )
             status = close_file( file );
 
         print( "Done saving.\n" );
@@ -451,9 +451,9 @@ static  void   save_labels_as_tags(
  VIO_Status tags_from_label(
 	display_struct *display,
     int       *n_tag_points,
-    Real      ***tags_volume1,
-    Real      ***tags_volume2,
-    Real      **weights,
+    VIO_Real      ***tags_volume1,
+    VIO_Real      ***tags_volume2,
+    VIO_Real      **weights,
     int       **structure_ids,
     int       **patient_ids,
     VIO_STR    *labels[] )
@@ -465,16 +465,16 @@ static  void   save_labels_as_tags(
 	VIO_Volume 			label_volume;
 	int 			sizes[VIO_MAX_DIMENSIONS];
 	int  			ind[VIO_N_DIMENSIONS];
-	Real 			real_ind[VIO_N_DIMENSIONS];
-	Real 			tags[VIO_N_DIMENSIONS];
+	VIO_Real 			real_ind[VIO_N_DIMENSIONS];
+	VIO_Real 			tags[VIO_N_DIMENSIONS];
 	int 			value;
 	int 			structure_id, patient_id;
-	Real 			weight;
+	VIO_Real 			weight;
 	VIO_STR 			label;
-	Real 			*coords;
+	VIO_Real 			*coords;
 	int				i;
 
-	status = OK;
+	status = VIO_OK;
 	slice_window = display->associated[SLICE_WINDOW];
 	marker_window = display->associated[MARKER_WINDOW];
 	volume = get_volume(slice_window);
@@ -492,26 +492,26 @@ static  void   save_labels_as_tags(
     	marker_window->label_stack[i] = NULL;
 
 
-    for_less (ind[X], 0, sizes[X])
+    for_less (ind[VIO_X], 0, sizes[VIO_X])
 	{
-		real_ind[X] = (Real) ind[X];
-		for_less (ind[Y], 0, sizes[Y])
+		real_ind[VIO_X] = (VIO_Real) ind[VIO_X];
+		for_less (ind[VIO_Y], 0, sizes[VIO_Y])
 		{
-			real_ind[Y] = (Real) ind[Y];
-			for_less (ind[Z], 0, sizes[Z])
+			real_ind[VIO_Y] = (VIO_Real) ind[VIO_Y];
+			for_less (ind[VIO_Z], 0, sizes[VIO_Z])
 			{
-				real_ind[Z] = (Real) ind[Z];
+				real_ind[VIO_Z] = (VIO_Real) ind[VIO_Z];
 				value = get_volume_label_data( label_volume, ind );
 				if (!value)
 					continue;
 
 				convert_voxel_to_world( volume, real_ind,
-						&tags[X], &tags[Y], &tags[Z] );
+						&tags[VIO_X], &tags[VIO_Y], &tags[VIO_Z] );
 
 			    ALLOC( coords, VIO_MAX_DIMENSIONS );
-			    coords[X] = tags[X];
-			    coords[Y] = tags[Y];
-			    coords[Z] = tags[Z];
+			    coords[VIO_X] = tags[VIO_X];
+			    coords[VIO_Y] = tags[VIO_Y];
+			    coords[VIO_Z] = tags[VIO_Z];
 
 				if (marker_window->label_stack[value] != NULL)
 				{
@@ -526,9 +526,9 @@ static  void   save_labels_as_tags(
 					SET_ARRAY_SIZE( *tags_volume1, *n_tag_points, *n_tag_points+1,
 		                            DEFAULT_CHUNK_SIZE );
 		            ALLOC( (*tags_volume1)[*n_tag_points], 3 );
-		            (*tags_volume1)[*n_tag_points][X] = tags[X];
-		            (*tags_volume1)[*n_tag_points][Y] = tags[Y];
-		            (*tags_volume1)[*n_tag_points][Z] = tags[Z];
+		            (*tags_volume1)[*n_tag_points][VIO_X] = tags[VIO_X];
+		            (*tags_volume1)[*n_tag_points][VIO_Y] = tags[VIO_Y];
+		            (*tags_volume1)[*n_tag_points][VIO_Z] = tags[VIO_Z];
 
 		            if (weights != NULL)
 					{
@@ -578,7 +578,7 @@ static  void   save_labels_as_tags(
   VIO_Status   input_tag_objects_label(
     display_struct* display,
     VIO_Colour         marker_colour,
-    Real           default_size,
+    VIO_Real           default_size,
     Marker_types   default_type,
     int            *n_objects,
     object_struct  **object_list[])
@@ -598,13 +598,13 @@ static  void   save_labels_as_tags(
                              &tags1, &tags2, &weights,
                              &structure_ids, &patient_ids, &labels );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         for_less( i, 0, n_tag_points )
         {
             object = create_object( MARKER );
             marker = get_marker_ptr( object );
-            fill_Point( marker->position, tags1[i][X], tags1[i][Y],tags1[i][Z]);
+            fill_Point( marker->position, tags1[i][VIO_X], tags1[i][VIO_Y],tags1[i][VIO_Z]);
             marker->label = create_string( labels[i] );
 
             if( structure_ids[i] >= 0 )
@@ -649,7 +649,7 @@ static  void   save_labels_as_tags(
         save_labels_as_tags( display, slice_window, -1 );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -677,7 +677,7 @@ static  void   save_labels_as_tags(
             print( "You first have to set the current label > 0.\n" );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -693,7 +693,7 @@ static  void   save_labels_as_tags(
 {
     set_slice_labels( display, get_current_paint_label(display) );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -709,7 +709,7 @@ static  void   save_labels_as_tags(
 {
     set_slice_labels( display, 0 );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -723,7 +723,7 @@ static  void  set_slice_labels(
     display_struct     *display,
     int                label )
 {
-    Real             voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real             voxel[VIO_MAX_DIMENSIONS];
     int              view_index, int_voxel[VIO_MAX_DIMENSIONS], volume_index;
     int              x_index, y_index, axis_index;
     display_struct   *slice_window;
@@ -752,7 +752,7 @@ static  void  set_slice_labels(
 {
     set_connected_labels( display, 0, TRUE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -768,7 +768,7 @@ static  void  set_slice_labels(
 {
     set_connected_labels( display, get_current_paint_label(display), TRUE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -784,7 +784,7 @@ static  void  set_slice_labels(
 {
     set_connected_labels( display, get_current_paint_label(display), FALSE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -799,7 +799,7 @@ static  void   set_connected_labels(
     int              desired_label,
     VIO_BOOL          use_threshold )
 {
-    Real             voxel[VIO_MAX_DIMENSIONS], min_threshold, max_threshold;
+    VIO_Real             voxel[VIO_MAX_DIMENSIONS], min_threshold, max_threshold;
     int              view_index, int_voxel[VIO_MAX_DIMENSIONS];
     int              label_under_mouse, volume_index;
     int              x_index, y_index, axis_index;
@@ -828,9 +828,9 @@ static  void   set_connected_labels(
         convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
 
         label_under_mouse = get_voxel_label( slice_window, volume_index,
-                                             int_voxel[X],
-                                             int_voxel[Y],
-                                             int_voxel[Z] );
+                                             int_voxel[VIO_X],
+                                             int_voxel[VIO_Y],
+                                             int_voxel[VIO_Z] );
 
         min_label_threshold = label_under_mouse;
         max_label_threshold = label_under_mouse;
@@ -850,7 +850,7 @@ static  void   set_connected_labels(
 
   DEF_MENU_FUNCTION(label_connected_3d)
 {
-    Real             voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real             voxel[VIO_MAX_DIMENSIONS];
     int              range_changed[2][VIO_N_DIMENSIONS];
     int              view_index, int_voxel[VIO_MAX_DIMENSIONS];
     int              label_under_mouse, desired_label, volume_index;
@@ -862,14 +862,14 @@ static  void   set_connected_labels(
         convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
 
         label_under_mouse = get_voxel_label( slice_window, volume_index,
-                                             int_voxel[X],
-                                             int_voxel[Y],
-                                             int_voxel[Z] );
+                                             int_voxel[VIO_X],
+                                             int_voxel[VIO_Y],
+                                             int_voxel[VIO_Z] );
 
         desired_label = get_current_paint_label( slice_window );
 
         print( "Filling 3d from %d %d %d, label %d becomes %d\n",
-               int_voxel[X], int_voxel[Y], int_voxel[Z],
+               int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z],
                label_under_mouse, desired_label );
 
         (void) fill_connected_voxels( get_nth_volume(slice_window,volume_index),
@@ -892,7 +892,7 @@ static  void   set_connected_labels(
                                                volume_index, range_changed );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -916,19 +916,19 @@ static  void   set_connected_labels(
     {
         print( "Enter min and max outside label: " );
 
-        if( input_int( stdin, &min_outside_label ) == OK &&
-            input_int( stdin, &max_outside_label ) == OK )
+        if( input_int( stdin, &min_outside_label ) == VIO_OK &&
+            input_int( stdin, &max_outside_label ) == VIO_OK )
         {
             (void) dilate_voxels_3d( get_volume(display),
                                   get_label_volume(display),
-                                  (Real) get_current_paint_label(display),
-                                  (Real) get_current_paint_label(display),
+                                  (VIO_Real) get_current_paint_label(display),
+                                  (VIO_Real) get_current_paint_label(display),
                                   0.0, -1.0,
-                                  (Real) min_outside_label,
-                                  (Real) max_outside_label,
+                                  (VIO_Real) min_outside_label,
+                                  (VIO_Real) max_outside_label,
                                   slice_window->slice.segmenting.min_threshold,
                                   slice_window->slice.segmenting.max_threshold,
-                                  (Real) get_current_paint_label(display),
+                                  (VIO_Real) get_current_paint_label(display),
                                   slice_window->slice.segmenting.connectivity,
                                   range_changed );
 
@@ -947,7 +947,7 @@ static  void   set_connected_labels(
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -971,21 +971,21 @@ static  void   set_connected_labels(
     {
         print( "Enter min and max outside label: " );
 
-        if( input_int( stdin, &min_outside_label ) == OK &&
-            input_int( stdin, &max_outside_label ) == OK )
+        if( input_int( stdin, &min_outside_label ) == VIO_OK &&
+            input_int( stdin, &max_outside_label ) == VIO_OK )
         {
             if( min_outside_label <= max_outside_label )
                 set_value = MAX( min_outside_label, 0 );
             (void) dilate_voxels_3d( get_volume(display),
                                   get_label_volume(display),
-                                  (Real) min_outside_label,
-                                  (Real) max_outside_label,
+                                  (VIO_Real) min_outside_label,
+                                  (VIO_Real) max_outside_label,
                                   0.0, -1.0,
-                                  (Real) get_current_paint_label(display),
-                                  (Real) get_current_paint_label(display),
+                                  (VIO_Real) get_current_paint_label(display),
+                                  (VIO_Real) get_current_paint_label(display),
                                   slice_window->slice.segmenting.min_threshold,
                                   slice_window->slice.segmenting.max_threshold,
-                                  (Real) set_value,
+                                  (VIO_Real) set_value,
                                   slice_window->slice.segmenting.connectivity,
                                   range_changed );
 
@@ -1004,7 +1004,7 @@ static  void   set_connected_labels(
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -1028,7 +1028,7 @@ static  void   set_connected_labels(
             slice_window->slice.segmenting.connectivity = FOUR_NEIGHBOURS;
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -1074,7 +1074,7 @@ static  void   set_connected_labels(
                             !slice_window->slice.crop_labels_on_output_flag;
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -1101,7 +1101,7 @@ static  void   set_connected_labels(
 
   DEF_MENU_FUNCTION(clear_label_connected_3d)
 {
-    Real             voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real             voxel[VIO_MAX_DIMENSIONS];
     int              range_changed[2][VIO_N_DIMENSIONS];
     int              view_index, int_voxel[VIO_MAX_DIMENSIONS];
     int              label_under_mouse, desired_label, volume_index;
@@ -1116,15 +1116,15 @@ static  void   set_connected_labels(
         convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
 
         label_under_mouse = get_voxel_label( slice_window, volume_index,
-                                             int_voxel[X],
-                                             int_voxel[Y],
-                                             int_voxel[Z] );
+                                             int_voxel[VIO_X],
+                                             int_voxel[VIO_Y],
+                                             int_voxel[VIO_Z] );
 
         /* desired_label = get_current_paint_label( slice_window ); */
 		desired_label = 0;
 
         print( "Clear 3d from %d %d %d, label %d becomes %d\n",
-               int_voxel[X], int_voxel[Y], int_voxel[Z],
+               int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z],
                label_under_mouse, desired_label );
 
         (void) fill_connected_voxels( get_nth_volume(slice_window,volume_index),
@@ -1147,7 +1147,7 @@ static  void   set_connected_labels(
                                                volume_index, range_changed );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */

@@ -35,7 +35,7 @@ public  DEF_MENU_FUNCTION( start_deforming_object )
         turn_on_deformation( display, object, FALSE );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -60,7 +60,7 @@ public  DEF_MENU_FUNCTION( start_annealing_deforming_object )
         turn_on_deformation( display, object, TRUE );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -76,21 +76,21 @@ public  DEF_MENU_UPDATE(start_annealing_deforming_object )
 
 public  DEF_MENU_FUNCTION( set_annealing_parameters )
 {
-    Real              fifty_percent_threshold, temperature_factor;
-    Real              max_trans, max_rotate, max_scale_offset;
+    VIO_Real              fifty_percent_threshold, temperature_factor;
+    VIO_Real              max_trans, max_rotate, max_scale_offset;
     int               min_n_to_move, max_n_to_move, stop_criteria;
 
     print( "Enter 50%% thresh, temp factor, min_n_to_move, max_n_to_move,\n" );
     print( "      max_trans, max_rotate, max_scale, stop_criteria: " );
 
-    if( input_real( stdin, &fifty_percent_threshold ) == OK &&
-        input_real( stdin, &temperature_factor ) == OK &&
-        input_int( stdin, &min_n_to_move ) == OK &&
-        input_int( stdin, &max_n_to_move ) == OK &&
-        input_real( stdin, &max_trans ) == OK &&
-        input_real( stdin, &max_rotate ) == OK &&
-        input_real( stdin, &max_scale_offset ) == OK &&
-        input_int( stdin, &stop_criteria ) == OK )
+    if( input_real( stdin, &fifty_percent_threshold ) == VIO_OK &&
+        input_real( stdin, &temperature_factor ) == VIO_OK &&
+        input_int( stdin, &min_n_to_move ) == VIO_OK &&
+        input_int( stdin, &max_n_to_move ) == VIO_OK &&
+        input_real( stdin, &max_trans ) == VIO_OK &&
+        input_real( stdin, &max_rotate ) == VIO_OK &&
+        input_real( stdin, &max_scale_offset ) == VIO_OK &&
+        input_int( stdin, &stop_criteria ) == VIO_OK )
     {
         display->three_d.deform.anneal.temperature = fifty_percent_threshold /
                                                            log( 2.0 );
@@ -104,7 +104,7 @@ public  DEF_MENU_FUNCTION( set_annealing_parameters )
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -120,7 +120,7 @@ public  DEF_MENU_FUNCTION( stop_deforming_object )
 {
     turn_off_deformation( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -134,7 +134,7 @@ public  DEF_MENU_UPDATE(stop_deforming_object )
 
 public  DEF_MENU_FUNCTION( set_deformation_boundary )
 {
-    Real   min_val, max_val, grad_threshold, angle, tolerance;
+    VIO_Real   min_val, max_val, grad_threshold, angle, tolerance;
     char   ch;
 
     print( "Current boundary: min %g max %g  grad_mag %g  min_dot %g max_dot %g tol %g\n",
@@ -147,12 +147,12 @@ public  DEF_MENU_FUNCTION( set_deformation_boundary )
 
     print( "Enter min_val, max_val, grad_mag_threshold, angle, [+,-,or none] tolerance: " );
 
-    if( input_real( stdin, &min_val ) == OK &&
-        input_real( stdin, &max_val ) == OK &&
-        input_real( stdin, &grad_threshold ) == OK &&
-        input_real( stdin, &angle ) == OK &&
-        input_nonwhite_character( stdin, &ch ) == OK &&
-        input_real( stdin, &tolerance ) == OK )
+    if( input_real( stdin, &min_val ) == VIO_OK &&
+        input_real( stdin, &max_val ) == VIO_OK &&
+        input_real( stdin, &grad_threshold ) == VIO_OK &&
+        input_real( stdin, &angle ) == VIO_OK &&
+        input_nonwhite_character( stdin, &ch ) == VIO_OK &&
+        input_real( stdin, &tolerance ) == VIO_OK )
     {
         set_boundary_definition( &display->three_d.deform.deform.
                                           boundary_definition,
@@ -162,7 +162,7 @@ public  DEF_MENU_FUNCTION( set_deformation_boundary )
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -176,22 +176,22 @@ public  DEF_MENU_UPDATE(set_deformation_boundary )
 
 public  DEF_MENU_FUNCTION( set_deformation_model )
 {
-    Real           model_weight, min_curvature, max_curvature;
+    VIO_Real           model_weight, min_curvature, max_curvature;
     int            up_to_n_points;
     STRING         model_name;
     Status         status;
 
-    status = OK;
+    status = VIO_OK;
     print("Enter up_to_n_points, model_weight, deformation_model, \n" );
     print("      min and max curvature: ");
 
     model_name = NULL;
 
-    if( input_int( stdin, &up_to_n_points ) == OK &&
-        input_real( stdin, &model_weight ) == OK &&
-        input_string( stdin, &model_name, ' ' ) == OK &&
-        input_real( stdin, &min_curvature ) == OK &&
-        input_real( stdin, &max_curvature ) == OK )
+    if( input_int( stdin, &up_to_n_points ) == VIO_OK &&
+        input_real( stdin, &model_weight ) == VIO_OK &&
+        input_string( stdin, &model_name, ' ' ) == VIO_OK &&
+        input_real( stdin, &min_curvature ) == VIO_OK &&
+        input_real( stdin, &max_curvature ) == VIO_OK )
     {
         status = add_deformation_model(
                            &display->three_d.deform.deform.deformation_model,
@@ -217,18 +217,18 @@ public  DEF_MENU_UPDATE(set_deformation_model )
 
 public  DEF_MENU_FUNCTION( set_deformation_original_positions )
 {
-    Real           max_position_offset;
+    VIO_Real           max_position_offset;
     int            n_points;
     Point          *points;
     STRING         position_filename;
     Status         status;
     object_struct  *object;
 
-    status = OK;
+    status = VIO_OK;
     print("Enter none|original_position_filename max_offset: " );
 
-    if( input_string( stdin, &position_filename, ' ' ) == OK &&
-        input_real( stdin, &max_position_offset ) == OK )
+    if( input_string( stdin, &position_filename, ' ' ) == VIO_OK &&
+        input_real( stdin, &max_position_offset ) == VIO_OK )
     {
         if( get_current_object( display, &object ) &&
             (object->object_type == LINES || object->object_type == POLYGONS) )
@@ -244,7 +244,7 @@ public  DEF_MENU_FUNCTION( set_deformation_original_positions )
         else
         {
             print( "Set the current object to be deformed.\n" );
-            status = ERROR;
+            status = VIO_ERROR;
         }
     }
 
@@ -266,18 +266,18 @@ public  DEF_MENU_UPDATE(set_deformation_original_positions )
 
 public  DEF_MENU_FUNCTION( set_deformation_parameters )
 {
-    Real           fractional_step, max_step, max_search_distance;
-    Real           movement_threshold;
+    VIO_Real           fractional_step, max_step, max_search_distance;
+    VIO_Real           movement_threshold;
     int            degrees_continuity;
 
     print("Enter fractional_step, max_step, max_search_distance,\n" );
     print("      degrees_continuity, movement_threshold: " );
 
-    if( input_real( stdin, &fractional_step ) == OK &&
-        input_real( stdin, &max_step ) == OK &&
-        input_real( stdin, &max_search_distance ) == OK &&
-        input_int( stdin, &degrees_continuity ) == OK &&
-        input_real( stdin, &movement_threshold ) == OK )
+    if( input_real( stdin, &fractional_step ) == VIO_OK &&
+        input_real( stdin, &max_step ) == VIO_OK &&
+        input_real( stdin, &max_search_distance ) == VIO_OK &&
+        input_int( stdin, &degrees_continuity ) == VIO_OK &&
+        input_real( stdin, &movement_threshold ) == VIO_OK )
     {
         display->three_d.deform.deform.fractional_step = fractional_step;
         display->three_d.deform.deform.max_step = max_step;
@@ -289,7 +289,7 @@ public  DEF_MENU_FUNCTION( set_deformation_parameters )
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -307,7 +307,7 @@ public  DEF_MENU_FUNCTION( reset_deformation_model )
     initialize_deformation_model(
                   &display->three_d.deform.deform.deformation_model );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -323,7 +323,7 @@ public  DEF_MENU_FUNCTION( show_deformation_model )
 {
     print_deformation_model( &display->three_d.deform.deform.deformation_model);
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */

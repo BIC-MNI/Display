@@ -109,7 +109,7 @@ sum_nbp_right = 0;
 @NAME       : check_representation
 @INPUT      : 
 @OUTPUT     : 
-@RETURNS    : ERROR : is associated arc data can not be found
+@RETURNS    : VIO_ERROR : is associated arc data can not be found
 @DESCRIPTION: check that the selected object with 'obj_index' index can
               be matched with an arc of the graph of IDdisplay == obj_index
               compute also the hemisphere where this curve is
@@ -222,19 +222,19 @@ Status status;
          status = SULCUS_graph.getDigitalRepresentation(obj_index,last_possibility, 
                                                &nb_length, &nb_depth);
 
-          if(nb_length != nbp) {//this is for sure an ERROR
-          status = ERROR;
+          if(nb_length != nbp) {//this is for sure an VIO_ERROR
+          status = VIO_ERROR;
           object_found = NO;
             }//end if 
           else{
              *which_hem = last_possibility ;
-             status = OK;
+             status = VIO_OK;
              object_found = YES;   /* ok my rabbit ... */
           }
       }
       else{
          
-        status = OK;
+        status = VIO_OK;
         object_found = YES;
        }
     }//end case of LINES
@@ -318,19 +318,19 @@ Status status;
          status = SULCUS_graph.getDigitalRepresentation(obj_index,last_possibility, 
                                                &nb_length, &nb_depth);
 
-          if(nb_length != nbp || nb_depth != nbd) {//this is for sure an ERROR
-          status = ERROR;
+          if(nb_length != nbp || nb_depth != nbd) {//this is for sure an VIO_ERROR
+          status = VIO_ERROR;
           object_found = NO;
           }//end if
           else{
              *which_hem = last_possibility ; 
-             status = OK;
+             status = VIO_OK;
              object_found = YES;   /* ok my rabbit ... */
           }       
             
         }
          else{
-          status = OK;
+          status = VIO_OK;
           object_found = YES;
           }
 
@@ -342,7 +342,7 @@ Status status;
     
 if(object_found == NO){
         printf("selected object is not part of the graph structure ! \n");
-        status = ERROR;  
+        status = VIO_ERROR;  
    }
             
            return( status );
@@ -380,7 +380,7 @@ Status status;
 lines_struct     *lines;
 quadmesh_struct  *quadmesh;
 
-status = ERROR;
+status = VIO_ERROR;
 
 ///supress a warning: int obj_index nor used
 
@@ -410,7 +410,7 @@ if( get_object_type( current_object ) == LINES)
         
         
 
-        status = OK;
+        status = VIO_OK;
         }
 
 
@@ -430,7 +430,7 @@ if( get_object_type( current_object ) == QUADMESH )
         
         
 
-        status = OK;
+        status = VIO_OK;
         }
 
 
@@ -470,7 +470,7 @@ int              hem_found;
 
 Status           status;
 
-status = OK;
+status = VIO_OK;
 
 
 
@@ -496,14 +496,14 @@ hem_found = NO;
                            
                             *which_hem = left ;
                             hem_found = YES;
-                            status = OK; 
+                            status = VIO_OK; 
                          }
 
                         if(number_obj == nb_arc_right){
                                                             
                              *which_hem = right; 
                              hem_found = YES;
-                             status = OK;
+                             status = VIO_OK;
                              
                           }
 
@@ -511,7 +511,7 @@ hem_found = NO;
            cout<<"hemisphere not found"<<endl;
            cout<<"ERROR: please select the model of the left or the right hemisphere";
            cout<<endl;
-           status = ERROR;
+           status = VIO_ERROR;
                         }
                          
 
@@ -538,7 +538,7 @@ int score_left =0 , score_right = 0;
           
 
           
-         if(status == ERROR){
+         if(status == VIO_ERROR){
             cout<<"ERROR: in find_model_hem("<<endl;
             exit(0);
          }
@@ -587,7 +587,7 @@ seg_name         name;
 int              number_obj, obj_index;
 Status           status;
 
-status = OK;
+status = VIO_OK;
 
 
     number_obj = model->n_objects;
@@ -599,7 +599,7 @@ status = OK;
        
           status = SULCUS_graph.get_arc_name(obj_index, which_hem, &name);//without assumptions
        
-          if(status == ERROR){
+          if(status == VIO_ERROR){
             cout<<"ERROR: arc not found in get_arc_name"<<endl;
             exit(0);
             }
@@ -607,7 +607,7 @@ status = OK;
           status = set_color_GLOBAL_tab_of_name( list_obj[obj_index],
                                                  obj_index,
                                                  name);
-         if(status == ERROR){
+         if(status == VIO_ERROR){
             cout<<"ERROR: found in set_color_GLOBAL_tab_of_name"<<endl;
             exit(0);
          }
@@ -662,20 +662,20 @@ return status;
 
       if(lastpoint == NULL){
          cout<<"please enter filename with extension "<<endl<<flush;
-         status = ERROR;
+         status = VIO_ERROR;
       }
       else{
           ret = strcmp(lastpoint,SULDATAEXTENSION);
           if(ret == 0)
-             status = OK;
+             status = VIO_OK;
           else{
              cout<<"bad extension for file name "<<endl<<flush;
-             status = ERROR;
+             status = VIO_ERROR;
           }
       }
     
 
-    if( status == OK ){
+    if( status == VIO_OK ){
         SULCUS_graph.read_bin_graph(file_graph);
         GRAPH_READ = YES;
 
@@ -738,7 +738,7 @@ return status;
                             obj_index, &which_hem);
         
      
-      if( status == OK){
+      if( status == VIO_OK){
        
         
         
@@ -812,7 +812,7 @@ if( get_current_object( display, &current_object ) )
                             obj_index, &which_hem);
         
      
-      if( status == OK){
+      if( status == VIO_OK){
        
         
 
@@ -894,7 +894,7 @@ if( get_current_object( display, &current_object ) )
 
        status = check_name_with_hemisphere(NEW_name_indice, which_hem);
 
-       if( status != OK){
+       if( status != VIO_OK){
          
          cout<<" ---> CONFLICT BETWEEN NAME AND HEMISPHERE ! "<<endl;
          cout<<"  name : no change  "<<endl;
@@ -902,7 +902,7 @@ if( get_current_object( display, &current_object ) )
        else{
 
      
-      if( status == OK){
+      if( status == VIO_OK){
        
         
 
@@ -912,7 +912,7 @@ if( get_current_object( display, &current_object ) )
         /* HERE :change the color of the selected curve */
 
 
-        if(status == OK)
+        if(status == VIO_OK)
         status =set_color_GLOBAL_tab_of_name(current_object, obj_index, new_name);
         
         graphics_models_have_changed( display );
@@ -998,7 +998,7 @@ if( get_current_object( display, &current_object ) )
                             obj_index, &which_hem);
         
      
-if( status == OK){
+if( status == VIO_OK){
 
           
 
@@ -1076,7 +1076,7 @@ if( status == OK){
 
      }//if get slice
 
-}//if status is OK
+}//if status is VIO_OK
 
 else{
 
@@ -1135,7 +1135,7 @@ selected sulcus available... \n");
  int             number_obj ;
  int             nb_arc_left =0, nb_arc_right=0;
  int             hem_found ;
- Real           thresh_proba, thresh_depth;
+ VIO_Real           thresh_proba, thresh_depth;
  model_struct    *model;
  Object_types    object_type ;
  Status          status;
@@ -1164,7 +1164,7 @@ selected sulcus available... \n");
 
                        cout<<"which hem : "<<which_hem<<endl;
 
-                       if(status == OK){
+                       if(status == VIO_OK){
 
                  print( "********************************************************* \n");
                  print( "       GIVE AN INITIAL LABELLING BASED TRUE SP_AMss         \n");
@@ -1177,26 +1177,26 @@ selected sulcus available... \n");
 
                  print( "WARNING : THIS WILL CHANGE THE WHOLE LABELLING OF THE GRAPH \n");
                  print( "Continue ? (answer by yes or no) \n");
-                 if(input_string( stdin, &answer, ' ' ) == OK ){
+                 if(input_string( stdin, &answer, ' ' ) == VIO_OK ){
 
                     if(strcmp(answer,"yes") ==0){
-                             status = OK;
+                             status = VIO_OK;
                      }
                            else
-                              status = ERROR;
+                              status = VIO_ERROR;
                         }
 
-                   if(status ==OK){
+                   if(status ==VIO_OK){
 
                         print( "Enter proba_threshold  and depth_threshold:");
-                        if( input_real( stdin, &thresh_proba ) == OK && 
-                            input_real( stdin, &thresh_depth ) == OK ){
+                        if( input_real( stdin, &thresh_proba ) == VIO_OK && 
+                            input_real( stdin, &thresh_depth ) == VIO_OK ){
 
                     cout<<"echo : proba: "<<thresh_proba<<" ; depth: "<<thresh_depth<<endl;
                           
                            if(thresh_proba < 0.0 || thresh_proba > 1.0){
                               print(" input failed \n");
-                              status = ERROR;
+                              status = VIO_ERROR;
                            }
                            else{
                                                   
@@ -1206,7 +1206,7 @@ selected sulcus available... \n");
                            
                           status =match_name_with_color(model, SULCUS_graph, which_hem );
                           graphics_models_have_changed( display );
-                          if(status == ERROR){
+                          if(status == VIO_ERROR){
                              cout<<"ERROR: in match_name_with_color "<<endl;
                              exit(0);
                           }
@@ -1214,18 +1214,18 @@ selected sulcus available... \n");
                           
                           cout<<" initial guess  computed "<<endl;
                            
-                          status = OK;
+                          status = VIO_OK;
                            }//end else
 
-                           }//input thresholds OK
+                           }//input thresholds VIO_OK
                         }//input given
 
                         else{
                            print(" input failed \n");
-                           status = ERROR;
+                           status = VIO_ERROR;
                         }//end else
 
-                     }//if status == OK
+                     }//if status == VIO_OK
                      else
                         print(" aborted ! \n");
 
@@ -1239,7 +1239,7 @@ selected sulcus available... \n");
           default    : cout<<"ERROR: please select the model of the left or the right hemisphere";
                        cout<<endl;
 
-                       status = ERROR;
+                       status = VIO_ERROR;
                        break;
  
         }//end switch
@@ -1247,7 +1247,7 @@ selected sulcus available... \n");
    }
   else{
        cout<<"sulci_menu5 : no curent object !"<<endl;
-       status = ERROR;
+       status = VIO_ERROR;
     }
 
 
@@ -1343,7 +1343,7 @@ return status;
  int             number_obj ;
  int             nb_arc_left =0, nb_arc_right=0;
  int             hem_found ;
- Real           thresh_length, thresh_depth, thresh_scalar;
+ VIO_Real           thresh_length, thresh_depth, thresh_scalar;
  model_struct    *model;
  Object_types    object_type ;
  Status          status;
@@ -1376,14 +1376,14 @@ if( get_current_object( display, &current_object) )
                            
                             which_hem = left ;
                             hem_found = YES;
-                            status = OK; 
+                            status = VIO_OK; 
                          }
 
                         if(number_obj == nb_arc_right){
                                                             
                              which_hem = right; 
                              hem_found = YES;
-                             status = OK; 
+                             status = VIO_OK; 
                           }
 
 
@@ -1392,7 +1392,7 @@ if( get_current_object( display, &current_object) )
          cout<<"hemisphere not found"<<endl;
          cout<<"ERROR: please select the model of the left or the right hemisphere";
          cout<<endl;
-         status = ERROR;
+         status = VIO_ERROR;
           }
                                                      
 
@@ -1400,7 +1400,7 @@ if( get_current_object( display, &current_object) )
         cout<<"which hem : "<<which_hem<<endl;
 
 
-       if(status ==OK){ //hemisphere found
+       if(status ==VIO_OK){ //hemisphere found
 
                  print( "********************************************************* \n");
                  print( " INFO : FIND AUTOMATICALLY THE SIDES BRANCHES        \n");
@@ -1410,26 +1410,26 @@ if( get_current_object( display, &current_object) )
 
                  print( "Continue ? (answer by yes or no) \n");
 
-                 if(input_string( stdin, &answer, ' ' ) == OK ){
+                 if(input_string( stdin, &answer, ' ' ) == VIO_OK ){
 
                     if(strcmp(answer,"yes") ==0){
-                             status = OK;
+                             status = VIO_OK;
                      }
                            else
-                              status = ERROR;
+                              status = VIO_ERROR;
 
                  }//if answer given
 
 
 
-            if(status == OK ){
+            if(status == VIO_OK ){
 
 
             print( "Enter depth_threshold  , length_threshold and scalar_threshold:");
 
-                        if( input_real( stdin, &thresh_depth)   == OK && 
-                            input_real( stdin, &thresh_length ) == OK && 
-                            input_real( stdin, &thresh_scalar ) == OK  ){
+                        if( input_real( stdin, &thresh_depth)   == VIO_OK && 
+                            input_real( stdin, &thresh_length ) == VIO_OK && 
+                            input_real( stdin, &thresh_scalar ) == VIO_OK  ){
 
 cout<<"echo : depth: "<<thresh_depth<<" ; length: "<<thresh_length;
 cout<<" ; scalar: "<<thresh_scalar<<endl;
@@ -1443,7 +1443,7 @@ cout<<" ; scalar: "<<thresh_scalar<<endl;
                            
                           status =match_name_with_color(model, SULCUS_graph, which_hem );
                           graphics_models_have_changed( display );
-                          if(status == ERROR){
+                          if(status == VIO_ERROR){
                              cout<<"ERROR: in match_name_with_color "<<endl;
                              exit(0);
                           }
@@ -1451,17 +1451,17 @@ cout<<" ; scalar: "<<thresh_scalar<<endl;
                           
                           cout<<" initial guess  computed "<<endl;
                            
-                          status = OK;
+                          status = VIO_OK;
                            }//end else
 
-                           }//input thresholds OK
+                           }//input thresholds VIO_OK
                         
                         else{
                            print(" input failed \n");
                            status = ERROR;
                         }//end else
 
-                     }//if status == OK
+                     }//if status == VIO_OK
                      else {
                         print(" aborted ! \n");
 
@@ -1474,7 +1474,7 @@ cout<<" ; scalar: "<<thresh_scalar<<endl;
        
    default    : cout<<"ERROR: please select the model of the left or the right hemisphere";
                 cout<<endl;
-                status = ERROR;
+                status = VIO_ERROR;
                break;
  
 
@@ -1493,7 +1493,7 @@ cout<<" ; scalar: "<<thresh_scalar<<endl;
  }//if get current object 
 else{
  cout<<"sulci_menu9 : no curent object !"<<endl;
- status = ERROR;
+ status = VIO_ERROR;
     }
 
 
@@ -1576,20 +1576,20 @@ return status;
          //cout<<"please enter filename with extension "<<endl<<flush;
          strcat(file_graph,SULDATAEXTENSION);
          fprintf(stdout,"after strcat file_graph = %s \n",file_graph);
-         status = OK;
+         status = VIO_OK;
       }
       else{
           ret = strcmp(lastpoint,SULDATAEXTENSION);
           if(ret == 0)
-             status = OK;
+             status = VIO_OK;
           else{
              cout<<"bad extension for file name "<<endl<<flush;
-             status = ERROR;
+             status = VIO_ERROR;
           }
       }
     
 
-    if( status == OK ){
+    if( status == VIO_OK ){
 
        continu=control_write(file_graph);
 
@@ -1641,7 +1641,7 @@ return status;
   
     int      indice ;
     Status     status;
-                 status = OK;
+                 status = VIO_OK;
 
 cout<<endl;
 cout<<"TABLE: (note: add 100 for Right Hemisphere)"<<endl;
@@ -1693,7 +1693,7 @@ if( (indice >= 0 && indice <= 20)
      case MODEL :
           
 	  model    = get_model_ptr(current_object);
-          if (find_model_hem(model, SULCUS_graph, &which_hem) == ERROR) break;
+          if (find_model_hem(model, SULCUS_graph, &which_hem) == VIO_ERROR) break;
 	  /*printf("enter a name of arc : ");
 	  scanf("%i",&name_arc);*/
 	  name_arc = unknown_name;
@@ -1734,7 +1734,7 @@ if( (indice >= 0 && indice <= 20)
      }//end switch
    }//endif
 	
-   return( OK );
+   return( VIO_OK );
 
 }
 
@@ -1766,7 +1766,7 @@ if( (indice >= 0 && indice <= 20)
   int			  obj_index, nb_arc_left, nb_arc_right;
   model_struct         	  *model;
   Status		  status;
-  Real                    length_thresh;
+  VIO_Real                    length_thresh;
   float                   real_length, real_max_depth, real_mean_depth ;
   ARCDATA	          *ARC_left, *ARC_right, *ARC;
   hemisphere              which_hem;
@@ -1818,7 +1818,7 @@ if( (indice >= 0 && indice <= 20)
      }//end switch
    }//endif
 	
-   return( OK );
+   return( VIO_OK );
 
 }
 
@@ -1886,11 +1886,11 @@ if( (indice >= 0 && indice <= 20)
    printf("current graph : nb of node per hemisphere and arc \n");
    printf("left  : %i %i\nright : %i %i\n",nb_arc_left, nb_vertex_left, nb_arc_right, nb_vertex_right);
       
-   if( Read_New_Graph( &file_graph ) == OK ) status = SULCUS_graph_etiq.read_bin_graph(file_graph);
+   if( Read_New_Graph( &file_graph ) == VIO_OK ) status = SULCUS_graph_etiq.read_bin_graph(file_graph);
    else printf("can not read graph\n");
    
    delete_string( file_graph);
-   if(status == OK){
+   if(status == VIO_OK){
    SULCUS_graph_etiq.valsGet(NULL,
   		             &nb_vertex_left_etiq ,NULL,
 		             &nb_arc_left_etiq    ,NULL,
@@ -1905,11 +1905,11 @@ if( (indice >= 0 && indice <= 20)
    }
    switch (status) 
    {
-     case ERROR : printf("ERROR:: the graphs are from different subject\n");
+     case VIO_ERROR : printf("ERROR:: the graphs are from different subject\n");
                   break;
 	  
-     case OK    : printf("OK::  same subject...\n");
-     		  //OK let's work
+     case VIO_OK    : printf("OK::  same subject...\n");
+     		  //VIO_OK let's work
 		  
 		  if (which_hem == left) nb_arc_max = nb_arc_left;
 		  else nb_arc_max = nb_arc_right;
@@ -1920,7 +1920,7 @@ if( (indice >= 0 && indice <= 20)
       		     statusbis = SULCUS_graph_etiq.get_arc_name(obj_index, which_hem, &name_arc_etiq);
 		     
 		     
-		     if ((status == OK) && (statusbis == OK))
+		     if ((status == VIO_OK) && (statusbis == VIO_OK))
 		        if (name_arc != name_arc_etiq){
 		        cout<<"number:"<<obj_index<<"  name etiq: "<<GLOBAL_tab_of_name[name_arc_etiq]<<"  name initial: "<<GLOBAL_tab_of_name[name_arc]<<endl;
 			switch (which_hem){
@@ -1955,7 +1955,7 @@ if( (indice >= 0 && indice <= 20)
    
    			default    : cout<<"ERROR: please select the model of the left or the right hemisphere";
                        		     cout<<endl;
-                       		     status = ERROR;
+                       		     status = VIO_ERROR;
  
    }//end switch of MODEL
    }//endif
@@ -1986,16 +1986,16 @@ static Status Read_New_Graph(STRING *file_graph)
    if(lastpoint == NULL)
    {
          cout<<"please enter filename with extension "<<endl<<flush;
-         status = ERROR;
+         status = VIO_ERROR;
    }
    else
    {
           ret = strcmp(lastpoint,SULDATAEXTENSION);
-          if(ret == 0) status = OK;  
+          if(ret == 0) status = VIO_OK;  
           else
 	  {
              cout<<"bad extension for file name "<<endl<<flush;
-             status = ERROR;
+             status = VIO_ERROR;
           }
     }
    return(status);
@@ -2011,8 +2011,8 @@ static Status Is_Different(int nb_arc_left, int nb_arc_right,
    
    if ((nb_arc_left == nb_arc_left_etiq) && (nb_arc_right == nb_arc_right_etiq) &&
    	(nb_vertex_left == nb_vertex_left_etiq) && (nb_vertex_right == nb_vertex_right_etiq))
-   	status = OK;
-   else status = ERROR;
+   	status = VIO_OK;
+   else status = VIO_ERROR;
    
    return (status);
 }

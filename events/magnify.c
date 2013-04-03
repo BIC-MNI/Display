@@ -55,7 +55,7 @@ static  DEF_EVENT_FUNCTION( turn_off_magnification )
                                   MIDDLE_MOUSE_DOWN_EVENT,
                                   start_magnification );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -76,7 +76,7 @@ static  DEF_EVENT_FUNCTION( start_magnification )
 
     record_mouse_position( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  update_magnification(
@@ -104,7 +104,7 @@ static  DEF_EVENT_FUNCTION( terminate_magnification )
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_magnification );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -113,7 +113,7 @@ static  DEF_EVENT_FUNCTION( handle_update )
 {
     update_magnification( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  VIO_BOOL  perform_magnification(

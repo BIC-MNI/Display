@@ -80,7 +80,7 @@
                 slice_window->slice.undo.
                     saved_labels[voxel[x_index]][voxel[y_index]] =
                          get_voxel_label( display, volume_index,
-                                          voxel[X], voxel[Y], voxel[Z] );
+                                          voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z] );
             }
         }
     }
@@ -93,7 +93,7 @@
     int             view_index, slice, sizes[VIO_MAX_DIMENSIONS];
     int             x_index, y_index, axis_index;
     display_struct  *slice_window;
-    Real            voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real            voxel[VIO_MAX_DIMENSIONS];
 
     if( get_slice_window( display, &slice_window ) &&
         get_slice_view_index_under_mouse( display, &view_index ) &&
@@ -145,7 +145,7 @@
             for_less( voxel[y_index], 0, sizes[y_index] )
             {
                 set_voxel_label( display, volume_index,
-                                 voxel[X], voxel[Y], voxel[Z],
+                                 voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z],
                                  slice_window->slice.undo.
                                  saved_labels[voxel[x_index]][voxel[y_index]] );
             }

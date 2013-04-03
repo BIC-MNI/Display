@@ -44,7 +44,7 @@ public  DEF_MENU_FUNCTION( georges_menu1 )
         }
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -59,7 +59,7 @@ public  DEF_MENU_UPDATE(georges_menu1 )
 public  DEF_MENU_FUNCTION( georges_menu2 )
 {
     print( "Georges menu 2\n" );
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -75,7 +75,7 @@ public  DEF_MENU_FUNCTION( georges_menu3 )
 {
     print( "Georges menu 3\n" );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -91,7 +91,7 @@ public  DEF_MENU_FUNCTION( georges_menu4 )
 {
     print( "Georges menu 4\n" );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */

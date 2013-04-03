@@ -53,7 +53,7 @@ static void  visibility_menu_window(int state);
     VIO_STR   *new_value )
 {
     return( set_or_get_global_variable(
-                   SIZEOF_STATIC_ARRAY(display_globals),
+                   VIO_SIZEOF_STATIC_ARRAY(display_globals),
                    display_globals, str, variable_name, new_value ) );
 }
 
@@ -61,7 +61,7 @@ static void  visibility_menu_window(int state);
     VIO_STR   variable_name,
     VIO_STR   new_value )
 {
-    return( set_global_variable( SIZEOF_STATIC_ARRAY(display_globals),
+    return( set_global_variable( VIO_SIZEOF_STATIC_ARRAY(display_globals),
                                  display_globals, variable_name, new_value ) );
 }
 
@@ -110,7 +110,7 @@ int  main(
 
         if( file_exists( globals_filename ) )
         {
-            (void) input_globals_file( SIZEOF_STATIC_ARRAY(display_globals),
+            (void) input_globals_file( VIO_SIZEOF_STATIC_ARRAY(display_globals),
                                        display_globals, globals_filename );
         }
 
@@ -218,7 +218,7 @@ int  main(
 
     delete_marching_cubes_table();
 
-    delete_global_variables( SIZEOF_STATIC_ARRAY(display_globals),
+    delete_global_variables( VIO_SIZEOF_STATIC_ARRAY(display_globals),
                              display_globals );
 
     output_alloc_to_file( ".alloc_stats" );

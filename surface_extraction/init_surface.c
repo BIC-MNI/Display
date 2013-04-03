@@ -146,7 +146,7 @@ static  void  clear_surface_extraction(
     {
         get_volume_sizes( volume, sizes );
 
-        n_voxels = sizes[X] * sizes[Y] * sizes[Z];
+        n_voxels = sizes[VIO_X] * sizes[VIO_Y] * sizes[VIO_Z];
     }
     else
     {

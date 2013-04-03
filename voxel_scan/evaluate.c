@@ -35,11 +35,11 @@ private  void  apply_surface_point_to_distances(
     double                  y,
     double                  z,
     surface_fitting_struct  *fit_data,
-    Real                    surface_point_distances[] );
+    VIO_Real                    surface_point_distances[] );
 private  double  distance_measure(
     int     n_surface_points,
-    Real    surface_point_distances[],
-    Real    distance_threshold );
+    VIO_Real    surface_point_distances[],
+    VIO_Real    distance_threshold );
 private  double  get_radius_of_curvature(
     double   dx,
     double   dy,
@@ -88,7 +88,7 @@ public  double   evaluate_fit_in_volume_with_distances(
     double                  u_max,
     double                  v_min,
     double                  v_max,
-    Real                    surface_point_distances[] )
+    VIO_Real                    surface_point_distances[] )
 {
     int                     i, j, ni, nj, n_samples, n_fitting_samples;
     double                  used_u_min, used_u_max, used_v_min, used_v_max;
@@ -120,7 +120,7 @@ public  double   evaluate_fit_in_volume_with_distances(
     {
         for_less( i, 0, fit_data->n_surface_points )
         {
-            if( surface_point_distances != (Real *) 0 )
+            if( surface_point_distances != (VIO_Real *) 0 )
             {
                 fit_data->surface_point_distances[i] =
                                         surface_point_distances[i];
@@ -173,7 +173,7 @@ public  void   evaluate_distances_to_surface(
     double                  u_max,
     double                  v_min,
     double                  v_max,
-    Real                    surface_point_distances[],
+    VIO_Real                    surface_point_distances[],
     VIO_BOOL                 hole_present,
     double                  u_min_hole,
     double                  u_max_hole,
@@ -307,11 +307,11 @@ private  double   evaluate_fit_at_uv(
 {
     double   surface_estimate, curvature, fit, u_curvature, v_curvature;
     double   x, y, z, sign_normal;
-    Real     dx, dy, dz;
+    VIO_Real     dx, dy, dz;
     double   dxuu, dyuu, dzuu, dxvv, dyvv, dzvv;
     double   dxu, dyu, dzu, dxv, dyv, dzv;
     Vector   surface_normal, function_deriv;
-    Real     val;
+    VIO_Real     val;
 
     fit_data->surface_representation->evaluate_surface_at_uv( u, v,
                                  fit_data->descriptors, parameters, &x, &y, &z,
@@ -328,9 +328,9 @@ private  double   evaluate_fit_at_uv(
             if( get_volume_voxel_activity( label_volume,
             if( evaluate_volume_in_world( volume, x, y, z, Volume_continuity,
                                           TRUE, &val,
-                                          (Real *) 0, (Real *) 0, (Real *) 0,
-                                          (Real *) 0, (Real *) 0, (Real *) 0,
-                                          (Real *) 0, (Real *) 0, (Real *) 0 ) )
+                                          (VIO_Real *) 0, (VIO_Real *) 0, (VIO_Real *) 0,
+                                          (VIO_Real *) 0, (VIO_Real *) 0, (VIO_Real *) 0,
+                                          (VIO_Real *) 0, (VIO_Real *) 0, (VIO_Real *) 0 ) )
             {
                 surface_estimate = ABS( val - fit_data->isovalue );
             }
@@ -349,9 +349,9 @@ private  double   evaluate_fit_at_uv(
 #ifdef adsf
             if( evaluate_volume_in_world( volume, x, y, z, Volume_continuity,
                                           TRUE, &val, &dx, &dy, &dz,
-                                          (Real *) NULL, (Real *) NULL,
-                                          (Real *) NULL, (Real *) NULL,
-                                          (Real *) NULL, (Real *) NULL ) )
+                                          (VIO_Real *) NULL, (VIO_Real *) NULL,
+                                          (VIO_Real *) NULL, (VIO_Real *) NULL,
+                                          (VIO_Real *) NULL, (VIO_Real *) NULL ) )
             {
                 get_surface_normal_from_derivs( dxu, dyu, dzu, dxv, dyv, dzv,
                                                 &surface_normal );
@@ -421,7 +421,7 @@ private  double   evaluate_fit_at_uv(
         curvature = DOT_VECTORS( du, dv );
 #else
         Vector   du, dv, duu, dvv;
-        Real     mag_du, mag_dv, mag_duu, mag_dvv;
+        VIO_Real     mag_du, mag_dv, mag_duu, mag_dvv;
 
         fill_Vector( du, dxu, dyu, dzu );
         fill_Vector( dv, dxv, dyv, dzv );
@@ -456,7 +456,7 @@ private  void  apply_surface_point_to_distances(
     double                  y,
     double                  z,
     surface_fitting_struct  *fit_data,
-    Real                    surface_point_distances[] )
+    VIO_Real                    surface_point_distances[] )
 {
     int     i;
     double  dx, dy, dz, dist;
@@ -480,11 +480,11 @@ private  void  apply_surface_point_to_distances(
 
 private  double  distance_measure(
     int     n_surface_points,
-    Real    surface_point_distances[],
-    Real    distance_threshold )
+    VIO_Real    surface_point_distances[],
+    VIO_Real    distance_threshold )
 {
     int     i;
-    Real    sum, dist;
+    VIO_Real    sum, dist;
 
     sum = 0.0;
 

@@ -3,7 +3,7 @@
 #include  <def_globals.h>
 
 typedef struct {
-    Real           position;
+    VIO_Real           position;
     Colour         colour;
     Colour_spaces  interpolation_space;
 } colour_point;
@@ -12,7 +12,7 @@ public  void  rebuild_colour_coding( colour_coding )
     colour_coding_struct   *colour_coding;
 {
     int    i, index, n_entries;
-    Real   range;
+    VIO_Real   range;
     void   build_gray_scale_coding();
     void   build_hot_metal_coding();
     void   build_contour_coding();
@@ -48,7 +48,7 @@ public  void  rebuild_colour_coding( colour_coding )
             range = colour_coding->max_value - colour_coding->min_value;
             for_less( i, 0, n_entries )
             {
-                index = (int) ( ((Real) i + 0.5) / (Real) n_entries * range +
+                index = (int) ( ((VIO_Real) i + 0.5) / (VIO_Real) n_entries * range +
                                 colour_coding->min_value + 0.5 );
 
                 if( index < colour_coding->min_index ||
@@ -81,7 +81,7 @@ private  void  build_user_defined_coding( colour_coding )
 
     ALLOC( status, desc, n_intervals * 2 );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         for_less( i, 0, n_intervals )
         {
@@ -96,12 +96,12 @@ private  void  build_user_defined_coding( colour_coding )
                 max_colour = colour_coding->user_defined_max_colour;
             }
 
-            desc[2*i+0].position = (Real) i / (Real) n_intervals;
+            desc[2*i+0].position = (VIO_Real) i / (VIO_Real) n_intervals;
             desc[2*i+0].colour = min_colour;
             desc[2*i+0].interpolation_space =
                          colour_coding->user_defined_interpolation_space;
 
-            desc[2*i+1].position = (Real) (i+1) / (Real) n_intervals;
+            desc[2*i+1].position = (VIO_Real) (i+1) / (VIO_Real) n_intervals;
             desc[2*i+1].colour = max_colour;
             desc[2*i+1].interpolation_space =
                          colour_coding->user_defined_interpolation_space;
@@ -118,7 +118,7 @@ public  void  build_gray_scale_coding( colour_coding )
     static  colour_point  desc[] = { {0.0, { BLACK_COL }, RGB_SPACE },
                                      {1.0, { WHITE_COL }, RGB_SPACE } };
 
-    rebuild_colour_map( colour_coding, SIZEOF_STATIC_ARRAY(desc), desc );
+    rebuild_colour_map( colour_coding, VIO_SIZEOF_STATIC_ARRAY(desc), desc );
 }
 
 public  void  build_spectral_coding( colour_coding )
@@ -131,7 +131,7 @@ public  void  build_spectral_coding( colour_coding )
                                      {0.86,    { 1.0, 0.0, 1.0 }, HSL_SPACE },
                                      {1.0,     { 1.0, 1.0, 1.0 }, HSL_SPACE } };
 
-    rebuild_colour_map( colour_coding, SIZEOF_STATIC_ARRAY(desc), desc );
+    rebuild_colour_map( colour_coding, VIO_SIZEOF_STATIC_ARRAY(desc), desc );
 }
 
 public  void  build_hot_metal_coding( colour_coding )
@@ -144,7 +144,7 @@ public  void  build_hot_metal_coding( colour_coding )
                                      {0.75, { 1.0, 1.0, 0.5 }, RGB_SPACE },
                                      {1.0,  { 1.0, 1.0, 1.0 }, RGB_SPACE } };
 
-    rebuild_colour_map( colour_coding, SIZEOF_STATIC_ARRAY(desc), desc );
+    rebuild_colour_map( colour_coding, VIO_SIZEOF_STATIC_ARRAY(desc), desc );
 }
 
 public  void  build_contour_coding( colour_coding )
@@ -164,7 +164,7 @@ public  void  build_contour_coding( colour_coding )
                                      {0.833, { 0.3, 0.3, 0.3 }, RGB_SPACE },
                                      {1.0,   { 1.0, 1.0, 1.0 }, RGB_SPACE } };
 
-    rebuild_colour_map( colour_coding, SIZEOF_STATIC_ARRAY(desc), desc );
+    rebuild_colour_map( colour_coding, VIO_SIZEOF_STATIC_ARRAY(desc), desc );
 }
 
 private  void  rebuild_colour_map( colour_coding, n_points, points ) 
@@ -184,10 +184,10 @@ private  void  rebuild_colour_map( colour_coding, n_points, points )
             if( i == 0 )
                 first_entry = 0;
             else
-                first_entry = ROUND( points[i].position * (Real) (n_entries-1));
+                first_entry = ROUND( points[i].position * (VIO_Real) (n_entries-1));
 
             if( i < n_points-1 )
-                last_entry = ROUND( points[i+1].position * (Real)(n_entries-1));
+                last_entry = ROUND( points[i+1].position * (VIO_Real)(n_entries-1));
             else
                 last_entry = n_entries - 1;
 
@@ -210,7 +210,7 @@ private  void  interpolate_colours( first_entry, last_entry, table,
     Colour_spaces  interpolation_space;
 {
     int   i;
-    Real  ratio, r,g, b, r0, g0, b0, r1, g1, b1;
+    VIO_Real  ratio, r,g, b, r0, g0, b0, r1, g1, b1;
     void  hsl_to_rgb();
     void  rgb_to_hsl();
 
@@ -235,8 +235,8 @@ private  void  interpolate_colours( first_entry, last_entry, table,
 
     for_inclusive( i, first_entry, last_entry )
     {
-        ratio = (Real) (i - first_entry) /
-                (Real) (last_entry - first_entry);
+        ratio = (VIO_Real) (i - first_entry) /
+                (VIO_Real) (last_entry - first_entry);
 
         r = r0 + (r1 - r0) * ratio;
         g = g0 + (g1 - g0) * ratio;

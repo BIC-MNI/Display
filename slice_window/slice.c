@@ -38,7 +38,7 @@ static  void  initialize_slice_window(
     get_volume_sizes( volume, sizes );
 
     (void) sprintf( title, "%s [%d * %d * %d]", filename,
-                    sizes[X], sizes[Y], sizes[Z] );
+                    sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
 
     (void) create_graphics_window( SLICE_WINDOW, Slice_double_buffer_flag,
                                    &slice_window, title, 0, 0 );
@@ -245,7 +245,7 @@ static  void  delete_slice_window_volume_stuff(
     display_struct         *slice_window;
     int                    volume_index, axis, view, sizes[VIO_MAX_DIMENSIONS];
     loaded_volume_struct   *info;
-    Real                   current_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real                   current_voxel[VIO_MAX_DIMENSIONS];
 
     if( !slice_window_exists(display) )
     {
@@ -291,7 +291,7 @@ static  void  delete_slice_window_volume_stuff(
     {
         for_less( axis, 0, VIO_N_DIMENSIONS )
             slice_window->slice.volumes[0].current_voxel[axis] =
-                                               (Real) (sizes[axis] - 1) / 2.0;
+                                               (VIO_Real) (sizes[axis] - 1) / 2.0;
     }
     else
     {
@@ -320,7 +320,7 @@ static  void  delete_slice_window_volume_stuff(
 {
     VIO_BOOL         first;
     int             view;
-    Real            separations[VIO_MAX_DIMENSIONS];
+    VIO_Real            separations[VIO_MAX_DIMENSIONS];
     display_struct  *display;
 
     if( slice_window->slice.current_volume_index < 0 )
@@ -337,9 +337,9 @@ static  void  delete_slice_window_volume_stuff(
 
         display = get_three_d_window( slice_window );
 
-        display->three_d.cursor.box_size[X] = VIO_FABS( separations[X] );
-        display->three_d.cursor.box_size[Y] = VIO_FABS( separations[Y] );
-        display->three_d.cursor.box_size[Z] = VIO_FABS( separations[Z] );
+        display->three_d.cursor.box_size[VIO_X] = VIO_FABS( separations[VIO_X] );
+        display->three_d.cursor.box_size[VIO_Y] = VIO_FABS( separations[VIO_Y] );
+        display->three_d.cursor.box_size[VIO_Z] = VIO_FABS( separations[VIO_Z] );
 
         update_cursor_size( display );
 
@@ -470,7 +470,7 @@ static  void  delete_slice_window_volume_stuff(
     int              n_volumes, sizes[VIO_N_DIMENSIONS], dx, dy, dz, volume_index;
     int              dim;
     VIO_Volume           volume;
-    Real             voxel[VIO_N_DIMENSIONS], world[VIO_N_DIMENSIONS];
+    VIO_Real             voxel[VIO_N_DIMENSIONS], world[VIO_N_DIMENSIONS];
     VIO_BOOL          first;
 
     n_volumes = get_n_volumes( display );
@@ -492,18 +492,18 @@ static  void  delete_slice_window_volume_stuff(
         for_less( dy, 0, 2 )
         for_less( dz, 0, 2 )
         {
-            voxel[X] = -0.5 + (Real) dx * (Real) sizes[X];
-            voxel[Y] = -0.5 + (Real) dy * (Real) sizes[Y];
-            voxel[Z] = -0.5 + (Real) dz * (Real) sizes[Z];
+            voxel[VIO_X] = -0.5 + (VIO_Real) dx * (VIO_Real) sizes[VIO_X];
+            voxel[VIO_Y] = -0.5 + (VIO_Real) dy * (VIO_Real) sizes[VIO_Y];
+            voxel[VIO_Z] = -0.5 + (VIO_Real) dz * (VIO_Real) sizes[VIO_Z];
 
             convert_voxel_to_world( volume, voxel,
-                                    &world[X], &world[Y], &world[Z] );
+                                    &world[VIO_X], &world[VIO_Y], &world[VIO_Z] );
 
             for_less( dim, 0, VIO_N_DIMENSIONS )
             {
-                if( first || world[dim] < (Real) Point_coord(*min_limit,dim) )
+                if( first || world[dim] < (VIO_Real) Point_coord(*min_limit,dim) )
                     Point_coord(*min_limit,dim) = (VIO_Point_coord_type) world[dim];
-                if( first || world[dim] > (Real) Point_coord(*max_limit,dim) )
+                if( first || world[dim] > (VIO_Real) Point_coord(*max_limit,dim) )
                     Point_coord(*max_limit,dim) = (VIO_Point_coord_type) world[dim];
             }
 
@@ -752,8 +752,8 @@ static  VIO_BOOL  is_slice_continuing(
 }
 
 static  VIO_BOOL  time_is_up(
-    Real    end_time,
-    Real    current_time )
+    VIO_Real    end_time,
+    VIO_Real    current_time )
 {
     return( end_time >= 0.0 && current_time > end_time );
 }
@@ -770,8 +770,8 @@ static  void  render_more_slices(
     int      view, v, v_index, view_index, which_volume;
     int      slice_is_visible, n_pixels_drawn;
     int      current_update_volume, current_update_view, n_volumes;
-    Real     update_time, end_time, current_time, prev_time;
-    Real     time_to_create;
+    VIO_Real     update_time, end_time, current_time, prev_time;
+    VIO_Real     time_to_create;
 
     no_viewport_changed = TRUE;
     for_less( view, 0, N_SLICE_VIEWS )
@@ -899,7 +899,7 @@ static  void  render_more_slices(
                                         volumes[v].views[view].
                                              n_pixels_redraw = (int)
                                                (MAX( 1.0,
-                                                     0.5*(Real)n_pixels_drawn));
+                                                     0.5*(VIO_Real)n_pixels_drawn));
                                     }
                                 }
 

@@ -62,7 +62,7 @@ static  DEF_EVENT_FUNCTION( terminate_rotating_slice )
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_rotating_slice );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -77,7 +77,7 @@ static  DEF_EVENT_FUNCTION( turn_off_rotating_slice )
                                   TERMINATE_INTERACTION_EVENT,
                                   turn_off_rotating_slice );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -96,7 +96,7 @@ static  DEF_EVENT_FUNCTION( start_rotating_slice )
 
     record_mouse_position( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  update_rotation(
@@ -118,7 +118,7 @@ static  DEF_EVENT_FUNCTION( handle_update_rotation )
 {
     update_rotation( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -135,7 +135,7 @@ static  DEF_EVENT_FUNCTION( terminate_rotation )
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_rotation );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  transform_slice_axes(
@@ -143,11 +143,11 @@ static  void  transform_slice_axes(
     VIO_Transform        *transform )
 {
     VIO_Volume  volume;
-    Real    len;
-    Real    separations[VIO_MAX_DIMENSIONS];
-    Real    origin[VIO_MAX_DIMENSIONS];
-    Real    x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
-    Real    world_x_axis[VIO_MAX_DIMENSIONS], world_y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real    len;
+    VIO_Real    separations[VIO_MAX_DIMENSIONS];
+    VIO_Real    origin[VIO_MAX_DIMENSIONS];
+    VIO_Real    x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real    world_x_axis[VIO_MAX_DIMENSIONS], world_y_axis[VIO_MAX_DIMENSIONS];
 
     volume = get_volume( slice_window );
 
@@ -158,40 +158,40 @@ static  void  transform_slice_axes(
     get_volume_separations( volume, separations );
 
     convert_voxel_vector_to_world( volume, x_axis,
-                        &world_x_axis[X], &world_x_axis[Y], &world_x_axis[Z] );
+                        &world_x_axis[VIO_X], &world_x_axis[VIO_Y], &world_x_axis[VIO_Z] );
 
     convert_voxel_vector_to_world( volume, y_axis,
-                        &world_y_axis[X], &world_y_axis[Y], &world_y_axis[Z] );
+                        &world_y_axis[VIO_X], &world_y_axis[VIO_Y], &world_y_axis[VIO_Z] );
 
     transform_vector( transform,
-                      world_x_axis[X], world_x_axis[Y], world_x_axis[Z],
-                      &world_x_axis[X], &world_x_axis[Y], &world_x_axis[Z] );
+                      world_x_axis[VIO_X], world_x_axis[VIO_Y], world_x_axis[VIO_Z],
+                      &world_x_axis[VIO_X], &world_x_axis[VIO_Y], &world_x_axis[VIO_Z] );
     transform_vector( transform,
-                      world_y_axis[X], world_y_axis[Y], world_y_axis[Z],
-                      &world_y_axis[X], &world_y_axis[Y], &world_y_axis[Z] );
+                      world_y_axis[VIO_X], world_y_axis[VIO_Y], world_y_axis[VIO_Z],
+                      &world_y_axis[VIO_X], &world_y_axis[VIO_Y], &world_y_axis[VIO_Z] );
 
     convert_world_vector_to_voxel( volume,
-                      world_x_axis[X], world_x_axis[Y], world_x_axis[Z],
+                      world_x_axis[VIO_X], world_x_axis[VIO_Y], world_x_axis[VIO_Z],
                       x_axis );
 
     convert_world_vector_to_voxel( volume,
-                      world_y_axis[X], world_y_axis[Y], world_y_axis[Z],
+                      world_y_axis[VIO_X], world_y_axis[VIO_Y], world_y_axis[VIO_Z],
                       y_axis );
 
-    len = sqrt(x_axis[X]*x_axis[X] + x_axis[Y]*x_axis[Y] + x_axis[Z]*x_axis[Z]);
+    len = sqrt(x_axis[VIO_X]*x_axis[VIO_X] + x_axis[VIO_Y]*x_axis[VIO_Y] + x_axis[VIO_Z]*x_axis[VIO_Z]);
     if( len > 0.0 )
     {
-        x_axis[X] /= len;
-        x_axis[Y] /= len;
-        x_axis[Z] /= len;
+        x_axis[VIO_X] /= len;
+        x_axis[VIO_Y] /= len;
+        x_axis[VIO_Z] /= len;
     }
 
-    len = sqrt(y_axis[X]*y_axis[X] + y_axis[Y]*y_axis[Y] + y_axis[Z]*y_axis[Z]);
+    len = sqrt(y_axis[VIO_X]*y_axis[VIO_X] + y_axis[VIO_Y]*y_axis[VIO_Y] + y_axis[VIO_Z]*y_axis[VIO_Z]);
     if( len > 0.0 )
     {
-        y_axis[X] /= len;
-        y_axis[Y] /= len;
-        y_axis[Z] /= len;
+        y_axis[VIO_X] /= len;
+        y_axis[VIO_Y] /= len;
+        y_axis[VIO_Z] /= len;
     }
 
     set_slice_plane( slice_window,get_current_volume_index( slice_window ),
@@ -203,7 +203,7 @@ static  VIO_BOOL  perform_rotation(
     display_struct   *display )
 {
     display_struct  *slice_window;
-    Real            x, y;
+    VIO_Real            x, y;
     VIO_Transform       transform, inverse, transform_in_space;
     VIO_BOOL         moved;
 
@@ -211,8 +211,8 @@ static  VIO_BOOL  perform_rotation(
 
     if( G_get_mouse_position_0_to_1( display->window, &x, &y ) &&
         get_spaceball_transform( display,
-                                 (Real) Point_x(display->prev_mouse_position),
-                                 (Real) Point_y(display->prev_mouse_position),
+                                 (VIO_Real) Point_x(display->prev_mouse_position),
+                                 (VIO_Real) Point_y(display->prev_mouse_position),
                                  x, y, &transform ) &&
         get_slice_window( display, &slice_window ) )
     {

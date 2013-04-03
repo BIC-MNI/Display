@@ -39,7 +39,7 @@ public  void  delete_marker_segmentation(
     }
 }
 
-public  Real  get_marker_threshold(
+public  VIO_Real  get_marker_threshold(
     marker_segment_struct  *seg )
 {
     return( seg->threshold_distance );
@@ -47,7 +47,7 @@ public  Real  get_marker_threshold(
 
 public  void  set_marker_threshold(
     marker_segment_struct  *seg,
-    Real                   threshold )
+    VIO_Real                   threshold )
 {
     if( threshold >= 0.0 )
     {
@@ -58,11 +58,11 @@ public  void  set_marker_threshold(
 
 private  VIO_BOOL  markers_are_neighbours(
     marker_segment_struct  *seg,
-    Real                   threshold_distance,
+    VIO_Real                   threshold_distance,
     int                    i,
     int                    j,
-    Real                   closest_dists[],
-    Real                   *dist )
+    VIO_Real                   closest_dists[],
+    VIO_Real                   *dist )
 {
     VIO_BOOL   neigh_flag, dist_to_marker;
 
@@ -93,16 +93,16 @@ private  VIO_BOOL  markers_are_neighbours(
 
 private  void  classify(
     marker_segment_struct    *seg,
-    Real                     threshold_distance,
+    VIO_Real                     threshold_distance,
     model_struct             *model,
     int                      n_indices,
     int                      indices[] )
 {
-    Real                             *closest_dist;
+    VIO_Real                             *closest_dist;
     VIO_BOOL                          *in_queue;
     int                              i, ind, marker_index;
     marker_struct                    *marker1, *marker2;
-    Real                             dist;
+    VIO_Real                             dist;
     PRIORITY_QUEUE_STRUCT( int )     queue;
 
     ALLOC( closest_dist, model->n_objects );
@@ -193,7 +193,7 @@ private  void  set_up_new_model(
 {
     int                   i, j;
     marker_struct         *marker1, *marker2;
-    Real                  dist;
+    VIO_Real                  dist;
 
     delete_marker_segmentation( seg );
 
@@ -227,7 +227,7 @@ private  void  set_up_new_model(
 
 public  void  make_guess_classification(
     marker_segment_struct    *seg,
-    Real                     threshold_dist,
+    VIO_Real                     threshold_dist,
     model_struct             *model )
 {
     int                   i, n_ids, *marker_indices;
@@ -282,7 +282,7 @@ public  void  make_guess_classification(
             if( marker->structure_id < Marker_segment_id )
             {
                 marker->structure_id = Marker_segment_id + n_ids + 1;
-                marker->colour = colours[n_ids % SIZEOF_STATIC_ARRAY(colours)];
+                marker->colour = colours[n_ids % VIO_SIZEOF_STATIC_ARRAY(colours)];
 
                 ADD_ELEMENT_TO_ARRAY( marker_indices, n_ids, i,
                                       DEFAULT_CHUNK_SIZE );
@@ -300,10 +300,10 @@ public  void  make_guess_classification(
         FREE( marker_indices );
 }
 
-private  Real  get_threshold_distance(
+private  VIO_Real  get_threshold_distance(
     display_struct   *display )
 {
-    Real            threshold;
+    VIO_Real            threshold;
 
     threshold = display->three_d.marker_segmentation.threshold_distance;
 
@@ -314,7 +314,7 @@ public  void  segment_markers(
     display_struct   *display,
     model_struct     *model )
 {
-    Real                      threshold_distance;
+    VIO_Real                      threshold_distance;
     marker_segment_struct     *seg;
 
     seg = &display->three_d.marker_segmentation;

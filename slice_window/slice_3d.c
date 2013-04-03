@@ -48,7 +48,7 @@ static  void   create_box(
     object_struct  *object )
 {
     int            i, c, sizes[VIO_MAX_DIMENSIONS];
-    Real           voxel[VIO_MAX_DIMENSIONS], x, y, z;
+    VIO_Real           voxel[VIO_MAX_DIMENSIONS], x, y, z;
     lines_struct   *lines;
 
     lines = get_lines_ptr( object );
@@ -96,7 +96,7 @@ static  void   create_box(
             if( (i & (1 << c)) == 0 )
                 voxel[c] = -0.5;
             else
-                voxel[c] = (Real) sizes[c] - 0.5;
+                voxel[c] = (VIO_Real) sizes[c] - 0.5;
         }
 
         convert_voxel_to_world( volume, voxel, &x, &y, &z );
@@ -124,14 +124,14 @@ static  void   create_box(
 static  void   create_cross_section(
     VIO_Volume         volume,
     object_struct  *object,
-    Real           origin[],
-    Real           x_axis[],
-    Real           y_axis[],
-    Real           z_axis[] )
+    VIO_Real           origin[],
+    VIO_Real           x_axis[],
+    VIO_Real           y_axis[],
+    VIO_Real           z_axis[] )
 {
     int               i, n_points;
-    Real              voxels[2*VIO_MAX_DIMENSIONS][VIO_MAX_DIMENSIONS];
-    Real              x, y, z, nx, ny, nz;
+    VIO_Real              voxels[2*VIO_MAX_DIMENSIONS][VIO_MAX_DIMENSIONS];
+    VIO_Real              x, y, z, nx, ny, nz;
     VIO_Vector            normal;
     polygons_struct   *polygons;
 
@@ -171,9 +171,9 @@ static  void   create_cross_section(
   void  rebuild_volume_cross_section(
     display_struct    *display )
 {
-    Real            origin[VIO_MAX_DIMENSIONS];
-    Real            x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
-    Real            z_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real            origin[VIO_MAX_DIMENSIONS];
+    VIO_Real            x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real            z_axis[VIO_MAX_DIMENSIONS];
     display_struct  *slice_window;
     VIO_Volume          volume;
 

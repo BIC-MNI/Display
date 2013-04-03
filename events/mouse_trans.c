@@ -55,7 +55,7 @@ static  DEF_EVENT_FUNCTION( turn_off_translation )
                                   MIDDLE_MOUSE_DOWN_EVENT,
                                   start_translation );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -76,7 +76,7 @@ static  DEF_EVENT_FUNCTION( start_translation )
 
     record_mouse_position( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  update_translation(
@@ -104,7 +104,7 @@ static  DEF_EVENT_FUNCTION( terminate_translation )
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_translation );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -113,7 +113,7 @@ static  DEF_EVENT_FUNCTION( handle_update )
 {
     update_translation( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  VIO_BOOL  perform_translation(

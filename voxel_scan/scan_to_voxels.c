@@ -9,40 +9,40 @@ private  int  n_evals;
 private  void  recursive_scan(
     surface_rep_struct  *surface_rep,
     double              descriptors[],
-    Volume              volume,
+    VIO_Volume              volume,
     double              parameters[],
-    Real                u1,
-    Real                u2,
-    Real                v1,
-    Real                v2,
+    VIO_Real                u1,
+    VIO_Real                u2,
+    VIO_Real                v1,
+    VIO_Real                v2,
     Point               *centre_voxel,
-    Real                max_voxel_dist,
-    Real                max_parametric_dist );
+    VIO_Real                max_voxel_dist,
+    VIO_Real                max_parametric_dist );
 private  VIO_BOOL  should_subdivide(
-    Real   du_parametric,
-    Real   dv_parametric,
+    VIO_Real   du_parametric,
+    VIO_Real   dv_parametric,
     Point  points[],
-    Real   max_voxel_dist,
-    Real   max_parametric_dist );
+    VIO_Real   max_voxel_dist,
+    VIO_Real   max_parametric_dist );
 private  void  convert_surface_uv_to_voxel(
     surface_rep_struct  *surface_rep,
     double              descriptors[],
-    Volume              volume,
+    VIO_Volume              volume,
     double              parameters[],
-    Real                u,
-    Real                v,
+    VIO_Real                u,
+    VIO_Real                v,
     Point               *point );
 void  label_voxel_point(
-    Volume         volume,
+    VIO_Volume         volume,
     Point          *point );
 
 public  void  scan_to_voxels(
     surface_rep_struct  *surface_rep,
     double              descriptors[],
-    Volume              volume,
+    VIO_Volume              volume,
     double              parameters[],
-    Real                max_voxel_distance,
-    Real                max_parametric_scan_distance )
+    VIO_Real                max_voxel_distance,
+    VIO_Real                max_parametric_scan_distance )
 {
     Point  centre_voxel;
 
@@ -62,27 +62,27 @@ public  void  scan_to_voxels(
 private  void  recursive_scan(
     surface_rep_struct  *surface_rep,
     double              descriptors[],
-    Volume              volume,
+    VIO_Volume              volume,
     double              parameters[],
-    Real                u1,
-    Real                u2,
-    Real                v1,
-    Real                v2,
+    VIO_Real                u1,
+    VIO_Real                u2,
+    VIO_Real                v1,
+    VIO_Real                v2,
     Point               *centre_voxel,
-    Real                max_voxel_dist,
-    Real                max_parametric_dist )
+    VIO_Real                max_voxel_dist,
+    VIO_Real                max_parametric_dist )
 {
     int              i;
-    Real             u14, u34, v14, v34;
-    Real             u_middle, v_middle;
+    VIO_Real             u14, u34, v14, v34;
+    VIO_Real             u_middle, v_middle;
     Point            voxels[4];
 
     label_voxel_point( volume, centre_voxel );
 
-    u14 = INTERPOLATE( 0.25, u1, u2 );
-    u34 = INTERPOLATE( 0.75, u1, u2 );
-    v14 = INTERPOLATE( 0.25, v1, v2 );
-    v34 = INTERPOLATE( 0.75, v1, v2 );
+    u14 = VIO_INTERPOLATE( 0.25, u1, u2 );
+    u34 = VIO_INTERPOLATE( 0.75, u1, u2 );
+    v14 = VIO_INTERPOLATE( 0.25, v1, v2 );
+    v34 = VIO_INTERPOLATE( 0.75, v1, v2 );
 
     n_evals += 4;
     convert_surface_uv_to_voxel( surface_rep, descriptors,
@@ -121,11 +121,11 @@ private  void  recursive_scan(
 }
 
 private  VIO_BOOL  should_subdivide(
-    Real   du_parametric,
-    Real   dv_parametric,
+    VIO_Real   du_parametric,
+    VIO_Real   dv_parametric,
     Point  points[],
-    Real   max_voxel_dist,
-    Real   max_parametric_dist )
+    VIO_Real   max_voxel_dist,
+    VIO_Real   max_parametric_dist )
 {
     Point    min_corner, max_corner;
     VIO_BOOL  subdivide;
@@ -149,14 +149,14 @@ private  VIO_BOOL  should_subdivide(
 private  void  convert_surface_uv_to_voxel(
     surface_rep_struct  *surface_rep,
     double              descriptors[],
-    Volume              volume,
+    VIO_Volume              volume,
     double              parameters[],
-    Real                u,
-    Real                v,
+    VIO_Real                u,
+    VIO_Real                v,
     Point               *point )
 {
     double   voxel[MAX_DIMENSIONS];
-    Real     x_w, y_w, z_w;
+    VIO_Real     x_w, y_w, z_w;
 
     surface_rep->evaluate_surface_at_uv( u, v, descriptors, parameters,
                                  &x_w, &y_w, &z_w,
@@ -166,19 +166,19 @@ private  void  convert_surface_uv_to_voxel(
                                  (double *) 0, (double *) 0, (double *) 0 );
 
     convert_world_to_voxel( volume, x_w, y_w, z_w, voxel );
-    fill_Point( *point, voxel[X], voxel[Y], voxel[Z] );
+    fill_Point( *point, voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z] );
 }
 
 void  label_voxel_point(
-    Volume         volume,
+    VIO_Volume         volume,
     Point          *point )
 {
-    Real  voxel[N_DIMENSIONS];
+    VIO_Real  voxel[N_DIMENSIONS];
     int   int_voxel[N_DIMENSIONS];
 
-    voxel[X] = Point_x(*point);
-    voxel[Y] = Point_y(*point);
-    voxel[Z] = Point_z(*point);
+    voxel[VIO_X] = Point_x(*point);
+    voxel[VIO_Y] = Point_y(*point);
+    voxel[VIO_Z] = Point_z(*point);
 
     if( voxel_is_within_volume( volume, voxel ) )
     {

@@ -205,9 +205,9 @@ static  void  perspective_fit_points(
 
     for_less( i, 0, n_points )
     {
-        for_inclusive( c, X, Y )
+        for_inclusive( c, VIO_X, VIO_Y )
         {
-            if( c == X )
+            if( c == VIO_X )
             {
                 off_centre = (VIO_Real) Point_x(points[i]) - (VIO_Real)Point_x(*centre);
                 width = view->window_width;
@@ -226,7 +226,7 @@ static  void  perspective_fit_points(
 
             z_pos = (VIO_Real) Point_z(points[i]) - dist;
 
-            if( (i == 0 && c == X) || z_pos < z_min )
+            if( (i == 0 && c == VIO_X) || z_pos < z_min )
                 z_min = z_pos;
         }
     }

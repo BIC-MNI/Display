@@ -50,7 +50,7 @@ static  VIO_Status  io_polygons_visibilities(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -75,7 +75,7 @@ static  VIO_Status  io_polygons_visibilities(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -93,12 +93,12 @@ static  VIO_Status  io_polygons_visibilities(
 
     print( "Enter # paint polygons: " );
 
-    if( input_int( stdin, &n ) == OK && n >= 0 )
+    if( input_int( stdin, &n ) == VIO_OK && n >= 0 )
         display->three_d.surface_edit.n_paint_polygons = n;
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -130,7 +130,7 @@ static  VIO_Status  io_polygons_visibilities(
 
     status = input_line( stdin, &string );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         colour = convert_string_to_colour( string );
 
@@ -178,7 +178,7 @@ static  VIO_Status  io_polygons_visibilities(
 
     status = input_line( stdin, &string );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         colour = convert_string_to_colour( string );
 
@@ -224,7 +224,7 @@ static  VIO_Status  io_polygons_visibilities(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -252,7 +252,7 @@ static  VIO_Status  io_polygons_visibilities(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -280,7 +280,7 @@ static  VIO_Status  io_polygons_visibilities(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -307,7 +307,7 @@ static  VIO_Status  io_polygons_visibilities(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -334,7 +334,7 @@ static  VIO_Status  io_polygons_visibilities(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -362,7 +362,7 @@ static  VIO_Status  io_polygons_visibilities(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -390,7 +390,7 @@ static  VIO_Status  io_polygons_visibilities(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -422,7 +422,7 @@ static  VIO_Status  io_polygons_visibilities(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -456,7 +456,7 @@ static  VIO_Status  io_polygons_visibilities(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -490,7 +490,7 @@ static  VIO_Status  io_polygons_visibilities(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -524,7 +524,7 @@ static  VIO_Status  io_polygons_visibilities(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -540,7 +540,7 @@ static  VIO_Status  io_polygons_visibilities(
 {
     crop_surface( display, TRUE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -556,7 +556,7 @@ static  VIO_Status  io_polygons_visibilities(
 {
     crop_surface( display, FALSE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -572,8 +572,8 @@ static  void  crop_surface(
 {
     char             ch;
     int              axis_index, volume_index;
-    Real             pos;
-    Real             voxel[VIO_MAX_DIMENSIONS], world[VIO_MAX_DIMENSIONS];
+    VIO_Real             pos;
+    VIO_Real             voxel[VIO_MAX_DIMENSIONS], world[VIO_MAX_DIMENSIONS];
     polygons_struct  *polygons;
     display_struct   *slice_window;
 
@@ -585,13 +585,13 @@ static  void  crop_surface(
             get_current_voxel( slice_window, volume_index, voxel );
 
             convert_voxel_to_world( get_nth_volume(slice_window,volume_index),
-                                    voxel, &world[X], &world[Y], &world[Z] );
+                                    voxel, &world[VIO_X], &world[VIO_Y], &world[VIO_Z] );
             pos = world[axis_index];
         }
         else
         {
             print( "Specify an axis: " );
-            while( input_nonwhite_character( stdin, &ch ) == OK &&
+            while( input_nonwhite_character( stdin, &ch ) == VIO_OK &&
                    ch != '\n' && (ch < 'x' || ch > 'z') )
             {}
 
@@ -602,7 +602,7 @@ static  void  crop_surface(
             if( axis_index < 0 || axis_index > 2 )
                 return;
 
-            pos = (Real) Point_coord(display->three_d.cursor.origin,axis_index);
+            pos = (VIO_Real) Point_coord(display->three_d.cursor.origin,axis_index);
         }
 
         crop_polygons_visibilities( polygons, axis_index, pos, above_flag );
@@ -617,7 +617,7 @@ static  void  crop_surface(
     VIO_Status           status;
     polygons_struct  *polygons;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_current_polygons(display,&polygons) )
     {
@@ -641,7 +641,7 @@ static  void  crop_surface(
     VIO_Status           status;
     polygons_struct  *polygons;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_current_polygons(display,&polygons) )
     {
@@ -676,16 +676,16 @@ static  VIO_Status  io_polygons_visibilities(
 
     (void) input_newline( stdin );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = open_file_with_default_suffix( filename, "vis", io_flag,
                                                 BINARY_FORMAT, &file );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = io_binary_data( file, io_flag, (void *) polygons->visibilities,
                                  sizeof(polygons->visibilities[0]),
                                  polygons->n_items );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = close_file( file );
 
     delete_string( filename );

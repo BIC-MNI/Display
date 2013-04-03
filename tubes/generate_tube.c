@@ -6,8 +6,8 @@ private  void   fill_in_ellipse_points(
     Vector  tube_normals[],
     Point   *centre,
     int     n_around,
-    Real    x[],
-    Real    y[],
+    VIO_Real    x[],
+    VIO_Real    y[],
     Vector  *hor,
     Vector  *vert );
 
@@ -46,12 +46,12 @@ public  void  generate_tube(
     int    n_points,
     Point  points[],
     int    n_around,
-    Real   radius,
+    VIO_Real   radius,
     Point  tube_points[],
     Vector tube_normals[] )
 {
     int      i;
-    Real     *x, *y, angle;
+    VIO_Real     *x, *y, angle;
     Vector   hor, vert, dir, prev_dir, normal;
     VIO_BOOL  wrap_around;
 
@@ -89,8 +89,8 @@ public  void  generate_tube(
         project_vector_to_plane( &hor, &prev_dir, &normal, &hor );
         project_vector_to_plane( &vert, &prev_dir, &normal, &vert );
 
-        fill_in_ellipse_points( &tube_points[IJ(i,0,n_around)],
-                                &tube_normals[IJ(i,0,n_around)],
+        fill_in_ellipse_points( &tube_points[VIO_IJ(i,0,n_around)],
+                                &tube_normals[VIO_IJ(i,0,n_around)],
                                 &points[i], n_around, x, y, &hor, &vert );
 
         if( i < n_points-1 )
@@ -111,8 +111,8 @@ private  void   fill_in_ellipse_points(
     Vector  tube_normals[],
     Point   *centre,
     int     n_around,
-    Real    x[],
-    Real    y[],
+    VIO_Real    x[],
+    VIO_Real    y[],
     Vector  *hor,
     Vector  *vert )
 {
@@ -139,7 +139,7 @@ public  void  project_vector_to_plane(
     Vector   *projected )
 {
     Vector   offset;
-    Real     t, n_dot_d, n_dot_v;
+    VIO_Real     t, n_dot_d, n_dot_v;
 
     n_dot_d = DOT_VECTORS( *normal, *direction );
 

@@ -60,7 +60,7 @@ static  DEF_EVENT_FUNCTION( turn_off_front_clipping )
                                   TERMINATE_INTERACTION_EVENT,
                                   turn_off_front_clipping );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -81,7 +81,7 @@ static  DEF_EVENT_FUNCTION( start_front_clipping )
 
     record_mouse_position( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  update_clipping(
@@ -110,7 +110,7 @@ static  DEF_EVENT_FUNCTION( terminate_front_clipping )
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_front_clipping );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -119,7 +119,7 @@ static  DEF_EVENT_FUNCTION( handle_update_front )
 {
     update_clipping( display, TRUE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
   void  initialize_back_clipping(
@@ -148,7 +148,7 @@ static  DEF_EVENT_FUNCTION( turn_off_back_clipping )
                                   MIDDLE_MOUSE_DOWN_EVENT,
                                   start_back_clipping );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -169,7 +169,7 @@ static  DEF_EVENT_FUNCTION( start_back_clipping )
 
     record_mouse_position( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -187,7 +187,7 @@ static  DEF_EVENT_FUNCTION( terminate_back_clipping )
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_back_clipping );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -196,7 +196,7 @@ static  DEF_EVENT_FUNCTION( handle_update_back )
 {
     update_clipping( display, FALSE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  VIO_BOOL  perform_clipping(

@@ -37,7 +37,7 @@
         set_atlas_update( slice_window, -1 );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -66,7 +66,7 @@
     if( get_slice_window( display, &slice_window ) )
     {
         print( "Enter atlas opacity: " );
-        if( input_real( stdin, &opacity ) == OK && opacity >= 0.0 &&
+        if( input_real( stdin, &opacity ) == VIO_OK && opacity >= 0.0 &&
             opacity <= 1.0 )
         {
             slice_window->slice.atlas.opacity = opacity;
@@ -75,7 +75,7 @@
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -95,7 +95,7 @@
     if( get_slice_window( display, &slice_window ) )
     {
         print( "Enter value above which atlas is transparent (e.g. 220): " );
-        if( input_int( stdin, &threshold ) == OK && threshold >= 0 )
+        if( input_int( stdin, &threshold ) == VIO_OK && threshold >= 0 )
         {
             slice_window->slice.atlas.transparent_threshold = threshold;
             set_atlas_update( slice_window, -1 );
@@ -103,7 +103,7 @@
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -123,7 +123,7 @@ static  void  flip_atlas_on_an_axis(
     {
         slice_window->slice.atlas.flipped[axis] =
                              !slice_window->slice.atlas.flipped[axis];
-        if( axis == X )
+        if( axis == VIO_X )
             regenerate_atlas_lookup( slice_window );
         set_atlas_update( slice_window, -1 );
     }
@@ -133,8 +133,8 @@ static  void  flip_atlas_on_an_axis(
 
   DEF_MENU_FUNCTION( flip_atlas_x )
 {
-    flip_atlas_on_an_axis( display, X );
-    return( OK );
+    flip_atlas_on_an_axis( display, VIO_X );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -148,8 +148,8 @@ static  void  flip_atlas_on_an_axis(
 
   DEF_MENU_FUNCTION( flip_atlas_y )
 {
-    flip_atlas_on_an_axis( display, Y );
-    return( OK );
+    flip_atlas_on_an_axis( display, VIO_Y );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -163,8 +163,8 @@ static  void  flip_atlas_on_an_axis(
 
   DEF_MENU_FUNCTION( flip_atlas_z )
 {
-    flip_atlas_on_an_axis( display, Z );
-    return( OK );
+    flip_atlas_on_an_axis( display, VIO_Z );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -185,7 +185,7 @@ static  void  set_atlas_tolerance(
     {
         print( "Enter new tolerance: " );
 
-        if( input_real( stdin, &distance_tolerance ) == OK )
+        if( input_real( stdin, &distance_tolerance ) == VIO_OK )
         {
             slice_window->slice.atlas.slice_tolerance[axis] =
                              distance_tolerance;
@@ -200,8 +200,8 @@ static  void  set_atlas_tolerance(
 
   DEF_MENU_FUNCTION( set_atlas_tolerance_x )
 {
-    set_atlas_tolerance( display, X );
-    return( OK );
+    set_atlas_tolerance( display, VIO_X );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -215,8 +215,8 @@ static  void  set_atlas_tolerance(
 
   DEF_MENU_FUNCTION( set_atlas_tolerance_y )
 {
-    set_atlas_tolerance( display, Y );
-    return( OK );
+    set_atlas_tolerance( display, VIO_Y );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -230,8 +230,8 @@ static  void  set_atlas_tolerance(
 
   DEF_MENU_FUNCTION( set_atlas_tolerance_z )
 {
-    set_atlas_tolerance( display, Z );
-    return( OK );
+    set_atlas_tolerance( display, VIO_Z );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */

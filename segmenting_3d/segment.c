@@ -51,7 +51,7 @@ private  int  neighbour_deltas[][N_DIMENSIONS] = {
                                            };
 
 #define  FOR_LOOP_NEIGHBOURS( i, x, y, z, nx, ny, nz ) \
-    for_less( i, 0, SIZEOF_STATIC_ARRAY( neighbour_deltas ) ) \
+    for_less( i, 0, VIO_SIZEOF_STATIC_ARRAY( neighbour_deltas ) ) \
     { \
         (nx) = (x) + neighbour_deltas[i][X]; \
         (ny) = (y) + neighbour_deltas[i][Y]; \

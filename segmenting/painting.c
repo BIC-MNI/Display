@@ -46,8 +46,8 @@ static  void  paint_labels(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    Real             start_voxel[],
-    Real             end_voxel[],
+    VIO_Real             start_voxel[],
+    VIO_Real             end_voxel[],
     int              label );
 
 
@@ -91,13 +91,13 @@ static  int  scale_x_mouse(
     display_struct  *slice_window,
     int             x )
 {
-    Real   x_real;
+    VIO_Real   x_real;
     if( slice_window->slice.segmenting.mouse_scale_factor > 0.0 &&
         slice_window->slice.segmenting.mouse_scale_factor != 1.0 )
     {
-        x_real = (Real) slice_window->slice.segmenting.x_mouse_start +
+        x_real = (VIO_Real) slice_window->slice.segmenting.x_mouse_start +
                  slice_window->slice.segmenting.mouse_scale_factor *
-                 (Real) (x - slice_window->slice.segmenting.x_mouse_start);
+                 (VIO_Real) (x - slice_window->slice.segmenting.x_mouse_start);
         x = VIO_ROUND( x_real );
     }
 
@@ -108,13 +108,13 @@ static  int  scale_y_mouse(
     display_struct  *slice_window,
     int             y )
 {
-    Real   y_real;
+    VIO_Real   y_real;
     if( slice_window->slice.segmenting.mouse_scale_factor > 0.0 &&
         slice_window->slice.segmenting.mouse_scale_factor != 1.0 )
     {
-        y_real = (Real) slice_window->slice.segmenting.y_mouse_start +
+        y_real = (VIO_Real) slice_window->slice.segmenting.y_mouse_start +
                  slice_window->slice.segmenting.mouse_scale_factor *
-                 (Real) (y - slice_window->slice.segmenting.y_mouse_start);
+                 (VIO_Real) (y - slice_window->slice.segmenting.y_mouse_start);
         y = VIO_ROUND( y_real );
     }
 
@@ -130,7 +130,7 @@ static  DEF_EVENT_FUNCTION( right_mouse_down )
 
     if( !get_slice_window( display, &slice_window ) ||
         !get_axis_index_under_mouse( slice_window, &volume_index, &axis_index ))
-        return( OK );
+        return( VIO_OK );
 
     /*
      * START OF MANDLIZATION:
@@ -200,7 +200,7 @@ static  DEF_EVENT_FUNCTION( right_mouse_down )
         slice_window->slice.segmenting.x_mouse_start = x_pixel;
         slice_window->slice.segmenting.y_mouse_start = y_pixel;
       }
-      return( OK );
+      return( VIO_OK );
     }
 
     /*
@@ -252,7 +252,7 @@ static  DEF_EVENT_FUNCTION( right_mouse_down )
     
     record_mouse_pixel_position( slice_window );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -284,7 +284,7 @@ static  DEF_EVENT_FUNCTION( end_painting )
 
     update_all_menu_text( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -293,14 +293,14 @@ static  DEF_EVENT_FUNCTION( handle_update_painting )
 {
     (void) update_paint_labels( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  VIO_BOOL  get_brush_voxel_centre(
     display_struct    *slice_window,
     int               x_pixel,
     int               y_pixel,
-    Real              voxel[],
+    VIO_Real              voxel[],
     int               *volume_index,
     int               *view_index )
 {
@@ -311,9 +311,9 @@ static  VIO_BOOL  get_brush_voxel_centre(
 
     if( inside && Snap_brush_to_centres )
     {
-        voxel[X] = (Real) VIO_ROUND( voxel[X] );
-        voxel[Y] = (Real) VIO_ROUND( voxel[Y] );
-        voxel[Z] = (Real) VIO_ROUND( voxel[Z] );
+        voxel[VIO_X] = (VIO_Real) VIO_ROUND( voxel[VIO_X] );
+        voxel[VIO_Y] = (VIO_Real) VIO_ROUND( voxel[VIO_Y] );
+        voxel[VIO_Z] = (VIO_Real) VIO_ROUND( voxel[VIO_Z] );
     }
 
     return( inside );
@@ -328,7 +328,7 @@ static  int  sweep_paint_labels(
     int               label )
 {
     int         view_index, volume_index, volume_index2;
-    Real        start_voxel[VIO_MAX_DIMENSIONS], end_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real        start_voxel[VIO_MAX_DIMENSIONS], end_voxel[VIO_MAX_DIMENSIONS];
 
     if( get_brush_voxel_centre( slice_window, x1, y1, start_voxel,
                                 &volume_index, &view_index ) &&
@@ -386,11 +386,11 @@ static  VIO_BOOL  get_brush(
     int              *a1,
     int              *a2,
     int              *axis,
-    Real             radius[] )
+    VIO_Real             radius[] )
 {
     int      c;
     VIO_BOOL  okay;
-    Real     separations[VIO_MAX_DIMENSIONS];
+    VIO_Real     separations[VIO_MAX_DIMENSIONS];
 
     okay = FALSE;
 
@@ -421,18 +421,18 @@ static  VIO_BOOL  get_brush(
 }
 
 static  VIO_BOOL  inside_swept_brush(
-    Real       origin[],
+    VIO_Real       origin[],
     VIO_Vector     *delta,
-    Real       radius[],
+    VIO_Real       radius[],
     int        voxel[] )
 {
     int      c;
-    Real     d, mag, t, t_min, t_max;
+    VIO_Real     d, mag, t, t_min, t_max;
     VIO_Point    voxel_offset, voxel_origin;
     VIO_Vector   scaled_delta;
     VIO_BOOL  inside;
 
-    if( radius[X] == 0.0 && radius[Y] == 0.0 && radius[Z] == 0.0 )
+    if( radius[VIO_X] == 0.0 && radius[VIO_Y] == 0.0 && radius[VIO_Z] == 0.0 )
     {
         if( delta == NULL )
         {
@@ -441,11 +441,11 @@ static  VIO_BOOL  inside_swept_brush(
         else
             scaled_delta = *delta;
 
-        fill_Point( voxel_origin, origin[X], origin[Y], origin[Z] );
+        fill_Point( voxel_origin, origin[VIO_X], origin[VIO_Y], origin[VIO_Z] );
         inside = clip_line_to_box( &voxel_origin, &scaled_delta,
-                              (Real) voxel[X] - 0.5, (Real) voxel[X] + 0.5,
-                              (Real) voxel[Y] - 0.5, (Real) voxel[Y] + 0.5,
-                              (Real) voxel[Z] - 0.5, (Real) voxel[Z] + 0.5,
+                              (VIO_Real) voxel[VIO_X] - 0.5, (VIO_Real) voxel[VIO_X] + 0.5,
+                              (VIO_Real) voxel[VIO_Y] - 0.5, (VIO_Real) voxel[VIO_Y] + 0.5,
+                              (VIO_Real) voxel[VIO_Z] - 0.5, (VIO_Real) voxel[VIO_Z] + 0.5,
                               &t_min, &t_max ) &&
                  t_min <= 1.0 && t_max >= 0.0;
     }
@@ -457,7 +457,7 @@ static  VIO_BOOL  inside_swept_brush(
                 Vector_coord(voxel_offset,c) = 0.0f;
             else
                 Vector_coord(voxel_offset,c) = (VIO_Point_coord_type)
-                               (((Real) voxel[c] - origin[c]) / radius[c]);
+                               (((VIO_Real) voxel[c] - origin[c]) / radius[c]);
         }
 
         if( delta != NULL )
@@ -507,22 +507,22 @@ static  void  fast_paint_labels(
     int              a1,
     int              a2,
     int              axis,
-    Real             start_voxel[],
+    VIO_Real             start_voxel[],
     int              min_voxel[],
     int              max_voxel[],
     VIO_Vector           *delta,
-    Real             radius[],
+    VIO_Real             radius[],
     int              label )
 {
     VIO_Volume         volume;
     int            value, sizes[VIO_N_DIMENSIONS], tmp;
-    Real           min_threshold, max_threshold, volume_value;
+    VIO_Real           min_threshold, max_threshold, volume_value;
     int            ind[VIO_N_DIMENSIONS], new_n_starts, *y_starts, y_inc, x_inc;
     int            x_min_pixel, y_min_pixel, x_max_pixel, y_max_pixel;
     pixels_struct  *pixels;
-    Real           x_offset, x_scale, y_offset, y_scale;
-    Real           x_trans, y_trans;
-    Real           real_x_start, real_x_end, real_y_start;
+    VIO_Real           x_offset, x_scale, y_offset, y_scale;
+    VIO_Real           x_trans, y_trans;
+    VIO_Real           real_x_start, real_x_end, real_y_start;
     int            i, j, x_start, x_end, y_start, y_end;
     VIO_Colour         colour;
     VIO_BOOL        update_required;
@@ -565,8 +565,8 @@ static  void  fast_paint_labels(
         y_inc = -1;
     }
 
-    x_trans -= (Real) pixels->x_position;
-    y_trans -= (Real) pixels->y_position;
+    x_trans -= (VIO_Real) pixels->x_position;
+    y_trans -= (VIO_Real) pixels->y_position;
 
     ind[axis] = min_voxel[axis];
 
@@ -583,9 +583,9 @@ static  void  fast_paint_labels(
 
     for_inclusive( ind[a2], min_voxel[a2]-1, max_voxel[a2]+1 )
     {
-        real_y_start = y_scale * ((Real) ind[a2] - y_offset) + y_trans;
+        real_y_start = y_scale * ((VIO_Real) ind[a2] - y_offset) + y_trans;
 
-        y_start = CEILING( real_y_start );
+        y_start = VIO_CEILING( real_y_start );
 
         if( y_start < 0 )
             y_start = 0;
@@ -595,10 +595,10 @@ static  void  fast_paint_labels(
         y_starts[ind[a2] - min_voxel[a2]+1] = y_start;
     }
 
-    real_x_start = x_scale * ((Real) min_voxel[a1] - x_offset) + x_trans;
-    x_min_pixel = CEILING( real_x_start );
-    real_x_start = x_scale * ((Real) max_voxel[a1] - x_offset) + x_trans;
-    x_max_pixel = CEILING( real_x_start );
+    real_x_start = x_scale * ((VIO_Real) min_voxel[a1] - x_offset) + x_trans;
+    x_min_pixel = VIO_CEILING( real_x_start );
+    real_x_start = x_scale * ((VIO_Real) max_voxel[a1] - x_offset) + x_trans;
+    x_max_pixel = VIO_CEILING( real_x_start );
     if( x_min_pixel > x_max_pixel )
     {
         tmp = x_min_pixel;
@@ -606,10 +606,10 @@ static  void  fast_paint_labels(
         x_max_pixel = tmp;
     }
 
-    real_y_start = y_scale * ((Real) min_voxel[a2] - y_offset) + y_trans;
-    y_min_pixel = CEILING( real_y_start );
-    real_y_start = y_scale * ((Real) max_voxel[a2] - y_offset) + y_trans;
-    y_max_pixel = CEILING( real_y_start );
+    real_y_start = y_scale * ((VIO_Real) min_voxel[a2] - y_offset) + y_trans;
+    y_min_pixel = VIO_CEILING( real_y_start );
+    real_y_start = y_scale * ((VIO_Real) max_voxel[a2] - y_offset) + y_trans;
+    y_max_pixel = VIO_CEILING( real_y_start );
     if( y_min_pixel > y_max_pixel )
     {
         tmp = y_min_pixel;
@@ -619,11 +619,11 @@ static  void  fast_paint_labels(
 
     for_inclusive( ind[a1], min_voxel[a1], max_voxel[a1] )
     {
-        real_x_start = x_scale * ((Real) ind[a1] - x_offset) + x_trans;
-        real_x_end = x_scale * ((Real) (ind[a1]+x_inc) - x_offset) + x_trans;
+        real_x_start = x_scale * ((VIO_Real) ind[a1] - x_offset) + x_trans;
+        real_x_end = x_scale * ((VIO_Real) (ind[a1]+x_inc) - x_offset) + x_trans;
 
-        x_start = CEILING( real_x_start );
-        x_end = CEILING( real_x_end );
+        x_start = VIO_CEILING( real_x_start );
+        x_end = VIO_CEILING( real_x_end );
 
         if( x_start < 0 )
             x_start = 0;
@@ -638,7 +638,7 @@ static  void  fast_paint_labels(
             if( inside_swept_brush( start_voxel, delta, radius, ind ) )
             {
                 value = get_voxel_label( slice_window, volume_index,
-                                         ind[X], ind[Y], ind[Z] );
+                                         ind[VIO_X], ind[VIO_Y], ind[VIO_Z] );
 
                 if( value == label )
                     continue;
@@ -646,7 +646,7 @@ static  void  fast_paint_labels(
                 if( min_threshold < max_threshold )
                 {
                     volume_value = get_volume_real_value( volume,
-                                               ind[X], ind[Y], ind[Z], 0, 0 );
+                                               ind[VIO_X], ind[VIO_Y], ind[VIO_Z], 0, 0 );
 
                     if( volume_value < min_threshold ||
                         volume_value > max_threshold )
@@ -654,7 +654,7 @@ static  void  fast_paint_labels(
                 }
 
                 set_voxel_label( slice_window, volume_index,
-                                 ind[X], ind[Y], ind[Z], label );
+                                 ind[VIO_X], ind[VIO_Y], ind[VIO_Z], label );
 
                 for_less( i, x_start, x_end )
                 {
@@ -683,16 +683,16 @@ static  void  paint_labels(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    Real             start_voxel[],
-    Real             end_voxel[],
+    VIO_Real             start_voxel[],
+    VIO_Real             end_voxel[],
     int              label )
 {
     VIO_Volume         volume, label_volume;
     int            a1, a2, axis, value, c, sizes[VIO_N_DIMENSIONS];
     int            min_voxel[VIO_N_DIMENSIONS], max_voxel[VIO_N_DIMENSIONS];
-    Real           min_limit, max_limit;
-    Real           min_threshold, max_threshold, volume_value;
-    Real           radius[VIO_N_DIMENSIONS];
+    VIO_Real           min_limit, max_limit;
+    VIO_Real           min_threshold, max_threshold, volume_value;
+    VIO_Real           radius[VIO_N_DIMENSIONS];
     VIO_Vector         delta;
     int            ind[VIO_N_DIMENSIONS];
     VIO_BOOL        update_required;
@@ -726,7 +726,7 @@ static  void  paint_labels(
             else
             {
                 min_voxel[c] = VIO_FLOOR( min_limit + 0.5 );
-                max_voxel[c] = CEILING( max_limit + 0.5 );
+                max_voxel[c] = VIO_CEILING( max_limit + 0.5 );
             }
 
             if( min_voxel[c] < 0 )
@@ -759,7 +759,7 @@ static  void  paint_labels(
                                                 radius, ind ) )
                         {
                             value = get_voxel_label( slice_window, volume_index,
-                                                     ind[X], ind[Y], ind[Z] );
+                                                     ind[VIO_X], ind[VIO_Y], ind[VIO_Z] );
 
                             if( value == label )
                                 continue;
@@ -767,7 +767,7 @@ static  void  paint_labels(
                             if( min_threshold < max_threshold )
                             {
                                 volume_value = get_volume_real_value( volume,
-                                              ind[X], ind[Y], ind[Z], 0, 0 );
+                                              ind[VIO_X], ind[VIO_Y], ind[VIO_Z], 0, 0 );
 
                                 if( volume_value < min_threshold ||
                                     volume_value > max_threshold )
@@ -775,7 +775,7 @@ static  void  paint_labels(
                             }
 
                             set_voxel_label( slice_window, volume_index,
-                                             ind[X], ind[Y], ind[Z], label );
+                                             ind[VIO_X], ind[VIO_Y], ind[VIO_Z], label );
 
                             update_required = TRUE;
                         }
@@ -803,25 +803,25 @@ static   void    add_point_to_contour(
     int              y_centre_pixel,
     int              a1,
     int              a2,
-    Real             x_scale,
-    Real             x_trans,
-    Real             y_scale,
-    Real             y_trans,
+    VIO_Real             x_scale,
+    VIO_Real             x_trans,
+    VIO_Real             y_scale,
+    VIO_Real             y_trans,
     int              voxel[],
     Directions       dir,
     lines_struct     *lines )
 {
     int     x_pixel, y_pixel, next_dir;
-    Real    real_x_pixel, real_y_pixel;
+    VIO_Real    real_x_pixel, real_y_pixel;
     VIO_Point   point;
 
     next_dir = (dir + 1) % (int) N_DIRECTIONS;
 
-    real_x_pixel = x_scale * ((Real) voxel[a1] +
-                              ((Real) dx[dir] + (Real) dx[next_dir]) / 2.0) +
+    real_x_pixel = x_scale * ((VIO_Real) voxel[a1] +
+                              ((VIO_Real) dx[dir] + (VIO_Real) dx[next_dir]) / 2.0) +
                    x_trans;
-    real_y_pixel = y_scale * ((Real) voxel[a2] +
-                              ((Real) dy[dir] + (Real) dy[next_dir]) / 2.0) +
+    real_y_pixel = y_scale * ((VIO_Real) voxel[a2] +
+                              ((VIO_Real) dy[dir] + (VIO_Real) dy[next_dir]) / 2.0) +
                    y_trans;
 
     x_pixel = VIO_ROUND( real_x_pixel );
@@ -837,14 +837,14 @@ static   void    add_point_to_contour(
     else if( y_pixel > y_centre_pixel )
         y_pixel += Brush_outline_offset;
 
-    fill_Point( point, (Real) x_pixel, (Real) y_pixel, 0.0 );
+    fill_Point( point, (VIO_Real) x_pixel, (VIO_Real) y_pixel, 0.0 );
 
     add_point_to_line( lines, &point );
 }
 
 static  VIO_BOOL  neighbour_is_inside(
-    Real       centre[],
-    Real       radius[],
+    VIO_Real       centre[],
+    VIO_Real       radius[],
     int        a1,
     int        a2,
     int        voxel[],
@@ -871,23 +871,23 @@ static  void  get_brush_contour(
     int               view_index,
     int               a1,
     int               a2,
-    Real              centre[VIO_N_DIMENSIONS],
-    Real              radius[VIO_N_DIMENSIONS],
+    VIO_Real              centre[VIO_N_DIMENSIONS],
+    VIO_Real              radius[VIO_N_DIMENSIONS],
     int               start_voxel[VIO_N_DIMENSIONS],
     Directions        start_dir,
     lines_struct      *lines )
 {
     int          current_voxel[VIO_N_DIMENSIONS];
     Directions   dir;
-    Real         x_scale, x_trans, y_scale, y_trans;
+    VIO_Real         x_scale, x_trans, y_scale, y_trans;
 
     get_voxel_to_pixel_transform( slice_window, volume_index, view_index,
                                   &a1, &a2,
                                   &x_scale, &x_trans, &y_scale, &y_trans );
 
-    current_voxel[X] = start_voxel[X];
-    current_voxel[Y] = start_voxel[Y];
-    current_voxel[Z] = start_voxel[Z];
+    current_voxel[VIO_X] = start_voxel[VIO_X];
+    current_voxel[VIO_Y] = start_voxel[VIO_Y];
+    current_voxel[VIO_Z] = start_voxel[VIO_Z];
     dir = start_dir;
 
     do
@@ -907,9 +907,9 @@ static  void  get_brush_contour(
                                 (int) N_DIRECTIONS);
         }
     }
-    while( current_voxel[X] != start_voxel[X] ||
-           current_voxel[Y] != start_voxel[Y] ||
-           current_voxel[Z] != start_voxel[Z] ||
+    while( current_voxel[VIO_X] != start_voxel[VIO_X] ||
+           current_voxel[VIO_Y] != start_voxel[VIO_Y] ||
+           current_voxel[VIO_Z] != start_voxel[VIO_Z] ||
            dir != start_dir );
 
     ADD_ELEMENT_TO_ARRAY( lines->indices, lines->end_indices[lines->n_items-1],
@@ -963,10 +963,10 @@ static  void   update_brush(
     int               y,
     VIO_BOOL           erase_brush )
 {
-    Real          centre[VIO_N_DIMENSIONS];
+    VIO_Real          centre[VIO_N_DIMENSIONS];
     int           view, axis, a1, a2, start_voxel[VIO_N_DIMENSIONS], volume_index;
     int           x_min, x_max, y_min, y_max;
-    Real          radius[VIO_N_DIMENSIONS];
+    VIO_Real          radius[VIO_N_DIMENSIONS];
     lines_struct  *lines;
 
 
@@ -1016,46 +1016,46 @@ static  void   update_brush(
     int             label_x, label_x_opp;
     int             int_voxel[VIO_MAX_DIMENSIONS], sizes[VIO_MAX_DIMENSIONS];
     int             int_voxel_opp[VIO_MAX_DIMENSIONS];
-    Real            voxel[VIO_MAX_DIMENSIONS], flip_voxel;
+    VIO_Real            voxel[VIO_MAX_DIMENSIONS], flip_voxel;
     VIO_Volume          label_volume;
 
     label_volume = get_label_volume( slice_window );
 
     convert_world_to_voxel( label_volume, 0.0, 0.0, 0.0, voxel );
 
-    flip_voxel = voxel[X];
+    flip_voxel = voxel[VIO_X];
 
     get_volume_sizes( label_volume, sizes );
 
-    for_less( int_voxel[X], 0, sizes[X] )
+    for_less( int_voxel[VIO_X], 0, sizes[VIO_X] )
     {
-        int_voxel_opp[X] = VIO_ROUND( flip_voxel +
-                                  (flip_voxel - (Real) int_voxel[X]) );
-        if( int_voxel_opp[X] <= int_voxel[X] ||
-            int_voxel_opp[X] < 0 || int_voxel_opp[X] >= sizes[X] )
+        int_voxel_opp[VIO_X] = VIO_ROUND( flip_voxel +
+                                  (flip_voxel - (VIO_Real) int_voxel[VIO_X]) );
+        if( int_voxel_opp[VIO_X] <= int_voxel[VIO_X] ||
+            int_voxel_opp[VIO_X] < 0 || int_voxel_opp[VIO_X] >= sizes[VIO_X] )
             continue;
 
-        for_less( int_voxel[Y], 0, sizes[Y] )
+        for_less( int_voxel[VIO_Y], 0, sizes[VIO_Y] )
         {
-            int_voxel_opp[Y] = int_voxel[Y];
-            for_less( int_voxel[Z], 0, sizes[Z] )
+            int_voxel_opp[VIO_Y] = int_voxel[VIO_Y];
+            for_less( int_voxel[VIO_Z], 0, sizes[VIO_Z] )
             {
-                int_voxel_opp[Z] = int_voxel[Z];
+                int_voxel_opp[VIO_Z] = int_voxel[VIO_Z];
 
                 label_x = get_voxel_label( slice_window,
                                  get_current_volume_index(slice_window),
-                                 int_voxel[X], int_voxel[Y], int_voxel[Z] );
+                                 int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z] );
                 label_x_opp = get_voxel_label( slice_window,
                         get_current_volume_index(slice_window),
-                        int_voxel_opp[X], int_voxel_opp[Y], int_voxel_opp[Z] );
+                        int_voxel_opp[VIO_X], int_voxel_opp[VIO_Y], int_voxel_opp[VIO_Z] );
 
                 set_voxel_label( slice_window,
                                  get_current_volume_index(slice_window),
-                                 int_voxel_opp[X], int_voxel_opp[Y],
-                                 int_voxel_opp[Z], label_x );
+                                 int_voxel_opp[VIO_X], int_voxel_opp[VIO_Y],
+                                 int_voxel_opp[VIO_Z], label_x );
                 set_voxel_label( slice_window,
                                  get_current_volume_index(slice_window),
-                                 int_voxel[X], int_voxel[Y], int_voxel[Z],
+                                 int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z],
                                  label_x_opp );
             }
         }
@@ -1095,39 +1095,39 @@ static  void   update_brush(
         }
     }
 
-    initialize_progress_report( &progress, FALSE, sizes[X] * sizes[Y],
+    initialize_progress_report( &progress, FALSE, sizes[VIO_X] * sizes[VIO_Y],
                                 "Translating Labels" );
 
-    for( dest_voxel[X] = first[X];  dest_voxel[X] != last[X];
-         dest_voxel[X] += increment[X] )
+    for( dest_voxel[VIO_X] = first[VIO_X];  dest_voxel[VIO_X] != last[VIO_X];
+         dest_voxel[VIO_X] += increment[VIO_X] )
     {
-        src_voxel[X] = dest_voxel[X] - delta[X];
+        src_voxel[VIO_X] = dest_voxel[VIO_X] - delta[VIO_X];
 
-        for( dest_voxel[Y] = first[Y];  dest_voxel[Y] != last[Y];
-             dest_voxel[Y] += increment[Y] )
+        for( dest_voxel[VIO_Y] = first[VIO_Y];  dest_voxel[VIO_Y] != last[VIO_Y];
+             dest_voxel[VIO_Y] += increment[VIO_Y] )
         {
-            src_voxel[Y] = dest_voxel[Y] - delta[Y];
+            src_voxel[VIO_Y] = dest_voxel[VIO_Y] - delta[VIO_Y];
 
-            for( dest_voxel[Z] = first[Z];  dest_voxel[Z] != last[Z];
-                 dest_voxel[Z] += increment[Z] )
+            for( dest_voxel[VIO_Z] = first[VIO_Z];  dest_voxel[VIO_Z] != last[VIO_Z];
+                 dest_voxel[VIO_Z] += increment[VIO_Z] )
             {
-                src_voxel[Z] = dest_voxel[Z] - delta[Z];
+                src_voxel[VIO_Z] = dest_voxel[VIO_Z] - delta[VIO_Z];
 
                 if( int_voxel_is_within_volume( label_volume, src_voxel ) )
                 {
                     label = get_voxel_label( slice_window, volume_index,
-                                 src_voxel[X], src_voxel[Y], src_voxel[Z] );
+                                 src_voxel[VIO_X], src_voxel[VIO_Y], src_voxel[VIO_Z] );
                 }
                 else
                     label = 0;
 
                 set_voxel_label( slice_window, volume_index,
-                                 dest_voxel[X], dest_voxel[Y], dest_voxel[Z],
+                                 dest_voxel[VIO_X], dest_voxel[VIO_Y], dest_voxel[VIO_Z],
                                  label );
             }
 
-            update_progress_report( &progress, dest_voxel[X] * sizes[Y] +
-                                               dest_voxel[Y] + 1 );
+            update_progress_report( &progress, dest_voxel[VIO_X] * sizes[VIO_Y] +
+                                               dest_voxel[VIO_Y] + 1 );
         }
     }
 
@@ -1140,13 +1140,13 @@ static  void   update_brush(
     int              axis,
     int              src_voxel,
     int              dest_voxel,
-    Real             min_threshold,
-    Real             max_threshold )
+    VIO_Real             min_threshold,
+    VIO_Real             max_threshold )
 {
     int               x, y, a1, a2, value;
     int               sizes[VIO_N_DIMENSIONS], src_indices[VIO_N_DIMENSIONS];
     int               dest_indices[VIO_N_DIMENSIONS];
-    Real              volume_value;
+    VIO_Real              volume_value;
     VIO_Volume            volume, label_volume;
 
     volume = get_nth_volume( slice_window, volume_index );
@@ -1169,13 +1169,13 @@ static  void   update_brush(
             dest_indices[a2] = y;
 
             value = get_voxel_label( slice_window, volume_index,
-                                     src_indices[X], src_indices[Y],
-                                     src_indices[Z] );
+                                     src_indices[VIO_X], src_indices[VIO_Y],
+                                     src_indices[VIO_Z] );
 
             if( min_threshold < max_threshold )
             {
                 volume_value = get_volume_real_value( volume,
-                            dest_indices[X], dest_indices[Y], dest_indices[Z],
+                            dest_indices[VIO_X], dest_indices[VIO_Y], dest_indices[VIO_Z],
                             0, 0 );
                 if( volume_value < min_threshold ||
                     volume_value > max_threshold )
@@ -1183,7 +1183,7 @@ static  void   update_brush(
             }
 
             set_voxel_label( slice_window, volume_index,
-                             dest_indices[X], dest_indices[Y], dest_indices[Z],
+                             dest_indices[VIO_X], dest_indices[VIO_Y], dest_indices[VIO_Z],
                              value );
         }
     }

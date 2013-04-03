@@ -50,7 +50,7 @@
 
     volume_present = FALSE;
 
-    status = OK;
+    status = VIO_OK;
 
     if( filename_extension_matches(filename,"mnc") ||
         filename_extension_matches(filename,"mni") ||
@@ -62,7 +62,7 @@
         {
             status = input_volume_file( filename, &volume_read_in );
 
-            if( status == OK )
+            if( status == VIO_OK )
                 volume_present = TRUE;
         }
         else
@@ -70,7 +70,7 @@
             if( get_n_volumes(display) == 0 )
             {
                 print( "No volume to load labels for.\n" );
-                status = ERROR;
+                status = VIO_ERROR;
             }
             else
             {
@@ -90,7 +90,7 @@
     else if( filename_extension_matches(filename,"cnt") )
     {
         print( "Cannot read .cnt files.\n" );
-        status = ERROR;
+        status = VIO_ERROR;
     }
     else if( filename_extension_matches(filename,
                                         get_default_colour_map_suffix()) &&
@@ -103,12 +103,12 @@
                     get_default_transform_file_suffix()) )
     {
         transform_current_volume_from_file( display, filename );
-        status = OK;
+        status = VIO_OK;
     }
     else if( filename_extension_matches(filename,"roi") )
     {
         print( "Cannot read .roi files.\n" );
-        status = ERROR;
+        status = VIO_ERROR;
     }
     else
     {
@@ -132,7 +132,7 @@
         }
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         print( "Objects input.\n" );
 
@@ -145,7 +145,7 @@
         }
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         initialize_object_traverse( &object_traverse, FALSE, 1, &object );
 
@@ -177,7 +177,7 @@
         }
     }
 
-    if( status == OK && model->n_objects > 0 )
+    if( status == VIO_OK && model->n_objects > 0 )
     {
         model = get_current_model( display );
 
@@ -201,12 +201,12 @@
     else
         delete_object( object );
 
-    if( status == OK && volume_present )
+    if( status == VIO_OK && volume_present )
     {
         get_volume_sizes( volume_read_in, sizes );
 
         (void) sprintf( volume_description, "%s : %d %d %d",
-                        filename, sizes[X], sizes[Y], sizes[Z] );
+                        filename, sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
 
         add_slice_window_volume( display, volume_description, volume_read_in );
     }

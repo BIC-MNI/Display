@@ -74,8 +74,8 @@ private  void  create_quadmesh_of_surface(
             get_surface_normal_from_derivs( dux, duy, duz, dvx, dvy, dvz,
                                             &normal );
 
-            fill_Point( quadmesh->points[IJ(i,j,n)], x, y, z );
-            quadmesh->normals[IJ(i,j,n)] = normal;
+            fill_Point( quadmesh->points[VIO_IJ(i,j,n)], x, y, z );
+            quadmesh->normals[VIO_IJ(i,j,n)] = normal;
         }
     }
 }

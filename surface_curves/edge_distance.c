@@ -125,7 +125,7 @@ static  VIO_Real  weighted_distance(
         {
             angle = get_polygon_edge_angle( polygons, next_poly_index, edge );
 
-            factor = angle / PI;
+            factor = angle / M_PI;
 
             if( curvature_weight < 0.0 )
                 dist = dist * (1.0 - curvature_weight * factor);

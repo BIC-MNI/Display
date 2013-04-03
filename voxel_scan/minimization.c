@@ -32,16 +32,16 @@ public  void  apply_one_parameter_minimization(
     double              max_parameter_deltas[],
     double              parameter_deltas[],
     void                (*evaluate_distances_function)
-                                   ( void *, double [], Real [],
+                                   ( void *, double [], VIO_Real [],
                                       double, double, double, double ),
     double              (*evaluate_fit_function)( void *, double [],
                                      double, double, double, double,
-                                     Real [] ),
+                                     VIO_Real [] ),
     void                *evaluation_ptr )
 {
     double   prev_fit, fit, prev_parameter;
     int      n_iterations, current_parameter;
-    Real     *distances_without_this_parameter;
+    VIO_Real     *distances_without_this_parameter;
     double   u_min, u_max, v_min, v_max, gain, total_gain;
 
 #ifdef TESTING
@@ -64,7 +64,7 @@ public  void  apply_one_parameter_minimization(
     n_iterations = 0;
 
     fit = (*evaluate_fit_function) ( evaluation_ptr, parameters,
-                                     0.0, 1.0, 0.0, 1.0, (Real *) 0 );
+                                     0.0, 1.0, 0.0, 1.0, (VIO_Real *) 0 );
 
     do
     {
@@ -87,7 +87,7 @@ double  t1, t2;
 
 #ifdef DEBUG
 t1 = (*evaluate_fit_function) ( evaluation_ptr, parameters,
-                                         0.0, 1.0, 0.0, 1.0, (Real *) 0 );
+                                         0.0, 1.0, 0.0, 1.0, (VIO_Real *) 0 );
 #endif
 
             one_parameter_minimization( parameters, current_parameter,
@@ -102,7 +102,7 @@ t1 = (*evaluate_fit_function) ( evaluation_ptr, parameters,
 
 #ifdef DEBUG
 t2 = (*evaluate_fit_function) ( evaluation_ptr, parameters,
-                                         0.0, 1.0, 0.0, 1.0, (Real *) 0 );
+                                         0.0, 1.0, 0.0, 1.0, (VIO_Real *) 0 );
 #endif
 
             print( "Parameter[%d]:  %g -> %g    = gain of %g\n",
@@ -119,7 +119,7 @@ t2 = (*evaluate_fit_function) ( evaluation_ptr, parameters,
         ++n_iterations;
 
         fit = (*evaluate_fit_function) ( evaluation_ptr, parameters,
-                                         0.0, 1.0, 0.0, 1.0, (Real *) 0 );
+                                         0.0, 1.0, 0.0, 1.0, (VIO_Real *) 0 );
 
         print( "Fit has improved from %g to %g\n", prev_fit, fit );
 
@@ -154,11 +154,11 @@ private  void  test_min( surface_rep,
     double              max_parameter_deltas[];
     double              parameter_deltas[];
     void                (*evaluate_distances_function)
-                                   ( void *, double [], Real [],
+                                   ( void *, double [], VIO_Real [],
                                       double, double, double, double );
     double              (*evaluate_fit_function)( void *, double [],
                                      double, double, double, double,
-                                     Real [] );
+                                     VIO_Real [] );
     void                *evaluation_ptr;
 {
     int      which_parameter;
@@ -171,10 +171,10 @@ private  void  test_min( surface_rep,
     which_parameter = 0;
 
     t1 = (*evaluate_fit_function) ( evaluation_ptr, parameters,
-                                    0.0, 1.0, 0.0, 1.0, (Real *) 0 );
+                                    0.0, 1.0, 0.0, 1.0, (VIO_Real *) 0 );
 
     t2 = (*evaluate_fit_function) ( evaluation_ptr, parameters,
-                                    0.0, 1.0, 0.0, 0.999, (Real *) 0 );
+                                    0.0, 1.0, 0.0, 0.999, (VIO_Real *) 0 );
 
     if( t1 != t2 )
     {
@@ -194,27 +194,27 @@ private  void  test_min( surface_rep,
     prev_parameter = parameters[which_parameter];
 
     prev = (*evaluate_fit_function) ( evaluation_ptr, parameters,
-                                     0.0, 1.0, 0.0, 1.0, (Real *) 0 );
+                                     0.0, 1.0, 0.0, 1.0, (VIO_Real *) 0 );
 
     prev_part1 = (*evaluate_fit_function) ( evaluation_ptr, parameters,
-                                     u_min, u_max, v_min, v_max, (Real *) 0 );
+                                     u_min, u_max, v_min, v_max, (VIO_Real *) 0 );
 
 /*
     prev_part2 = (*evaluate_fit_function) ( evaluation_ptr, parameters,
-                                 u_min2, u_max2, v_min2, v_max2, (Real *) 0 );
+                                 u_min2, u_max2, v_min2, v_max2, (VIO_Real *) 0 );
 */
 
     parameters[which_parameter] *= 1.05;
 
     next = (*evaluate_fit_function) ( evaluation_ptr, parameters,
-                                     0.0, 1.0, 0.0, 1.0, (Real *) 0 );
+                                     0.0, 1.0, 0.0, 1.0, (VIO_Real *) 0 );
 
     next_part1 = (*evaluate_fit_function) ( evaluation_ptr, parameters,
-                                     u_min, u_max, v_min, v_max, (Real *) 0 );
+                                     u_min, u_max, v_min, v_max, (VIO_Real *) 0 );
 
 /*
     next_part2 = (*evaluate_fit_function) ( evaluation_ptr, parameters,
-                                 u_min2, u_max2, v_min2, v_max2, (Real *) 0 );
+                                 u_min2, u_max2, v_min2, v_max2, (VIO_Real *) 0 );
 */
 
 

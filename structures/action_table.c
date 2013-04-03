@@ -30,7 +30,7 @@
 static  DEF_EVENT_FUNCTION(  null_function )
 {
     /* function does nothing */
-    return( OK );
+    return( VIO_OK );
 }
 
 #endif

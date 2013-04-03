@@ -5,7 +5,7 @@ public  Status   input_landmark_file(
     char           filename[],
     model_struct   *model,
     Colour         marker_colour,
-    Real           default_size,
+    VIO_Real           default_size,
     Marker_types   default_type )
 {
     Status                  status;
@@ -16,10 +16,10 @@ public  Status   input_landmark_file(
     status = open_file_with_default_suffix( filename, "lmk", READ_FILE,
                                             ASCII_FORMAT, &file );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         while( io_tag_point( file, READ_FILE, volume, default_size,
-                             &marker ) == OK )
+                             &marker ) == VIO_OK )
         {
             marker.colour = marker_colour;
             marker.type = default_type;
@@ -40,7 +40,7 @@ public  Status  io_tag_point(
     FILE            *file,
     IO_types        io_direction,
     Volume          volume,
-    Real            default_size,
+    VIO_Real            default_size,
     marker_struct   *marker )
 {
     Status   status;
@@ -48,10 +48,10 @@ public  Status  io_tag_point(
     Point    position;
     int      sizes[N_DIMENSIONS];
     int      len, offset;
-    Real     x, y, z;
-    Real     x_w, y_w, z_w;
+    VIO_Real     x, y, z;
+    VIO_Real     x_w, y_w, z_w;
 
-    status = OK;
+    status = VIO_OK;
 
     if( io_direction == WRITE_FILE )
     {
@@ -69,14 +69,14 @@ public  Status  io_tag_point(
 
             get_volume_sizes( volume, sizes );
 
-            convert_voxel_to_talairach( x, y, z, sizes[X], sizes[Y], sizes[Z],
+            convert_voxel_to_talairach( x, y, z, sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z],
                                         &x, &y, &z );
 
             fill_Point( position, x, y, z );
         }
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = io_point( file, io_direction, ASCII_FORMAT, &position );
 
     if( io_direction == READ_FILE )
@@ -92,7 +92,7 @@ public  Status  io_tag_point(
             convert_talairach_to_voxel( Point_x(position),
                                         Point_y(position),
                                         Point_z(position),
-                                        sizes[X], sizes[Y], sizes[Z],
+                                        sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z],
                                         &x, &y, &z );
 
             convert_voxel_to_world( volume, x, y, z, &x_w, &y_w, &z_w );
@@ -102,7 +102,7 @@ public  Status  io_tag_point(
 
 #define USE_X_POSITION_FOR_WEIGHT
 #ifdef  USE_X_POSITION_FOR_WEIGHT
-    if( status == OK )
+    if( status == VIO_OK )
     {
         if( io_direction == WRITE_FILE )
             status = io_float( file, io_direction, ASCII_FORMAT,
@@ -114,30 +114,30 @@ public  Status  io_tag_point(
         }
     }
 #else
-    if( status == OK )
+    if( status == VIO_OK )
         status = io_real( file, io_direction, ASCII_FORMAT, &marker->size );
 #endif
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = io_int( file, io_direction, ASCII_FORMAT,
                          &marker->structure_id );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = io_int( file, io_direction, ASCII_FORMAT,
                          &marker->patient_id );
 
     if( io_direction == WRITE_FILE )
     {
-        if( status == OK && strlen(marker->label) > 0 )
+        if( status == VIO_OK && strlen(marker->label) > 0 )
             status = io_quoted_string( file, io_direction, ASCII_FORMAT,
                                        marker->label, MAX_STRING_LENGTH );
     }
     else
     {
-        if( status == OK )
+        if( status == VIO_OK )
             status = input_line( file, line, MAX_STRING_LENGTH );
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             strip_blanks( line, line );
 
@@ -155,7 +155,7 @@ public  Status  io_tag_point(
         }
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = io_newline( file, io_direction, ASCII_FORMAT );
 
     return( status );

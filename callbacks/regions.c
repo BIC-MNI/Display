@@ -26,14 +26,14 @@
 
   DEF_MENU_FUNCTION( set_paint_xy_brush_radius )
 {
-    Real            xy_brush_radius;
+    VIO_Real            xy_brush_radius;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
     {
         print( "Enter xy brush size: " );
 
-        if( input_real( stdin, &xy_brush_radius ) == OK &&
+        if( input_real( stdin, &xy_brush_radius ) == VIO_OK &&
             xy_brush_radius >= 0.0 )
         {
             slice_window->slice.x_brush_radius = xy_brush_radius;
@@ -43,7 +43,7 @@
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -51,7 +51,7 @@
   DEF_MENU_UPDATE(set_paint_xy_brush_radius )
 {
     VIO_BOOL          state;
-    Real             x_brush_radius;
+    VIO_Real             x_brush_radius;
     display_struct   *slice_window;
 
     state = get_slice_window( display, &slice_window );
@@ -69,21 +69,21 @@
 
   DEF_MENU_FUNCTION( set_paint_z_brush_radius )
 {
-    Real            z_brush_radius;
+    VIO_Real            z_brush_radius;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
     {
         print( "Enter out of plane brush size: " );
 
-        if( input_real( stdin, &z_brush_radius ) == OK &&
+        if( input_real( stdin, &z_brush_radius ) == VIO_OK &&
             z_brush_radius >= 0.0 )
             slice_window->slice.z_brush_radius = z_brush_radius;
 
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -91,7 +91,7 @@
   DEF_MENU_UPDATE(set_paint_z_brush_radius )
 {
     VIO_BOOL          state;
-    Real             z_brush_radius;
+    VIO_Real             z_brush_radius;
     display_struct   *slice_window;
 
     state = get_slice_window( display, &slice_window );
@@ -111,7 +111,7 @@
   DEF_MENU_FUNCTION( set_current_paint_label )
 {
     int             label, view_index, volume_index;
-    Real            voxel[VIO_N_DIMENSIONS];
+    VIO_Real            voxel[VIO_N_DIMENSIONS];
     int             int_voxel[VIO_N_DIMENSIONS];
     display_struct  *slice_window;
     VIO_BOOL         done;
@@ -126,7 +126,7 @@
         {
             convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
             label = get_voxel_label( slice_window, volume_index,
-                                     int_voxel[X], int_voxel[Y], int_voxel[Z] );
+                                     int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z] );
             if( label != 0 )
                 done = TRUE;
         }
@@ -135,7 +135,7 @@
         {
             print( "Enter current paint label: " );
 
-            if( input_int( stdin, &label ) == OK &&
+            if( input_int( stdin, &label ) == VIO_OK &&
                 label >= 0 && label < get_num_labels(slice_window,
                                       get_current_volume_index(slice_window)) )
                 done = TRUE;
@@ -152,7 +152,7 @@
         }
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -180,7 +180,7 @@
   DEF_MENU_FUNCTION( set_current_erase_label )
 {
     int             label, axis_index, volume_index;
-    Real            voxel[VIO_N_DIMENSIONS];
+    VIO_Real            voxel[VIO_N_DIMENSIONS];
     int             int_voxel[VIO_N_DIMENSIONS];
     display_struct  *slice_window;
     VIO_BOOL         done;
@@ -193,7 +193,7 @@
         {
             convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
             label = get_voxel_label( slice_window, volume_index,
-                                     int_voxel[X], int_voxel[Y], int_voxel[Z] );
+                                     int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z] );
             done = TRUE;
         }
 
@@ -201,7 +201,7 @@
         {
             print( "Enter current erase label: " );
 
-            if( input_int( stdin, &label ) == OK &&
+            if( input_int( stdin, &label ) == VIO_OK &&
                 label >= 0 && label < get_num_labels(slice_window,
                                       get_current_volume_index(slice_window)) )
                 done = TRUE;
@@ -218,7 +218,7 @@
         }
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -255,11 +255,11 @@
     {
         print( "Enter the label number and colour for this label: " );
 
-        if( input_int( stdin, &label ) == OK &&
+        if( input_int( stdin, &label ) == VIO_OK &&
             label >= 1 && label < get_num_labels(slice_window,
                             get_current_volume_index(slice_window)) )
         {
-            if( input_line( stdin, &line ) == OK )
+            if( input_line( stdin, &line ) == VIO_OK )
             {
                 col = convert_string_to_colour( line );
 
@@ -276,7 +276,7 @@
             (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -290,7 +290,7 @@ static  void  copy_labels_from_adjacent_slice(
     display_struct   *display,
     int              src_offset )
 {
-    Real             real_dest_index[VIO_MAX_DIMENSIONS];
+    VIO_Real             real_dest_index[VIO_MAX_DIMENSIONS];
     int              src_index[VIO_N_DIMENSIONS], dest_index[VIO_MAX_DIMENSIONS];
     int              view_index, x_index, y_index, axis_index;
     int              volume_index;
@@ -307,9 +307,9 @@ static  void  copy_labels_from_adjacent_slice(
 
         convert_real_to_int_voxel( VIO_N_DIMENSIONS, real_dest_index, dest_index );
 
-        src_index[X] = 0;
-        src_index[Y] = 0;
-        src_index[Z] = 0;
+        src_index[VIO_X] = 0;
+        src_index[VIO_Y] = 0;
+        src_index[VIO_Z] = 0;
         src_index[axis_index] = dest_index[axis_index] + src_offset;
 
         if( int_voxel_is_within_volume( volume, src_index ) )
@@ -337,7 +337,7 @@ static  void  copy_labels_from_adjacent_slice(
 {
     copy_labels_from_adjacent_slice( display, -1 );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -353,7 +353,7 @@ static  void  copy_labels_from_adjacent_slice(
 {
     copy_labels_from_adjacent_slice( display, 1 );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -380,7 +380,7 @@ static  void  copy_labels_from_adjacent_slice(
                         get_current_volume_index(slice_window), UPDATE_LABELS );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -412,49 +412,49 @@ static  void  copy_labels_from_adjacent_slice(
     VIO_Status          status;
     int             src_min, src_max, dest_label;
     int             range_changed[2][VIO_N_DIMENSIONS];
-    Real            min_threshold, max_threshold;
+    VIO_Real            min_threshold, max_threshold;
     VIO_STR          line;
     VIO_Volume          volume;
 
     if( get_slice_window( display, &slice_window ) &&
         get_slice_window_volume( slice_window, &volume ) )
     {
-        status = OK;
+        status = VIO_OK;
         print( "Label or range to change from: " );
 
         status = input_line( stdin, &line );
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             if( sscanf( line, "%d %d", &src_min, &src_max ) != 2 )
             {
                 if( sscanf( line, "%d", &src_min ) == 1 )
                     src_max = src_min;
                 else
-                    status = ERROR;
+                    status = VIO_ERROR;
             }
 
             delete_string( line );
         }
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             print( "Label to change to: " );
             status = input_int( stdin, &dest_label );
         }
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             print( "Min and max of value range: " );
             status = input_real( stdin, &min_threshold );
         }
 
-        if( status == OK )
+        if( status == VIO_OK )
             status = input_real( stdin, &max_threshold );
 
         (void) input_newline( stdin );
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             modify_labels_in_range( volume, get_label_volume(slice_window),
                                     src_min, src_max, dest_label,
@@ -469,7 +469,7 @@ static  void  copy_labels_from_adjacent_slice(
         }
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -484,11 +484,11 @@ static  void  calculate_label_volume(
     int             volume_index,
     int             label,
     int             *n_voxels,
-    Real            *cubic_mm )
+    VIO_Real            *cubic_mm )
 {
     int     x, y, z, sizes[VIO_MAX_DIMENSIONS];
     int     n_vox;
-    Real    separations[VIO_MAX_DIMENSIONS];
+    VIO_Real    separations[VIO_MAX_DIMENSIONS];
     VIO_Volume  label_volume;
 
     label_volume = get_nth_label_volume(slice_window,volume_index);
@@ -496,11 +496,11 @@ static  void  calculate_label_volume(
     get_volume_sizes( label_volume, sizes );
     n_vox = 0;
 
-    for_less( x, 0, sizes[X] )
+    for_less( x, 0, sizes[VIO_X] )
     {
-        for_less( y, 0, sizes[Y] )
+        for_less( y, 0, sizes[VIO_Y] )
         {
-            for_less( z, 0, sizes[Z] )
+            for_less( z, 0, sizes[VIO_Z] )
             {
                 if( get_voxel_label( slice_window, volume_index,
                                      x, y, z ) == label )
@@ -512,13 +512,13 @@ static  void  calculate_label_volume(
     get_volume_separations( label_volume, separations );
 
     *n_voxels = n_vox;
-    *cubic_mm = (Real) n_vox * separations[X] * separations[Y] * separations[Z];
+    *cubic_mm = (VIO_Real) n_vox * separations[VIO_X] * separations[VIO_Y] * separations[VIO_Z];
     *cubic_mm = VIO_FABS( *cubic_mm );
 
     print( "Voxel size: %g mm by %g mm by %g mm\n",
-           VIO_FABS( separations[X] ),
-           VIO_FABS( separations[Y] ),
-           VIO_FABS( separations[Z] ) );
+           VIO_FABS( separations[VIO_X] ),
+           VIO_FABS( separations[VIO_Y] ),
+           VIO_FABS( separations[VIO_Z] ) );
 }
 
 /* ARGSUSED */
@@ -527,7 +527,7 @@ static  void  calculate_label_volume(
 {
     display_struct  *slice_window;
     int             n_voxels;
-    Real            cubic_millimetres;
+    VIO_Real            cubic_millimetres;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
@@ -544,7 +544,7 @@ static  void  calculate_label_volume(
                cubic_millimetres / 1000.0 );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -571,7 +571,7 @@ static  void  calculate_label_volume(
                         get_current_volume_index(slice_window), UPDATE_LABELS );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -597,9 +597,9 @@ static  void  translate_labels_callback(
                        get_current_volume_index( slice_window ), view_index,
                        &x_index, &y_index, &axis_index ) )
     {
-        delta[X] = 0;
-        delta[Y] = 0;
-        delta[Z] = 0;
+        delta[VIO_X] = 0;
+        delta[VIO_Y] = 0;
+        delta[VIO_Z] = 0;
 
         delta[x_index] = x_delta;
         delta[y_index] = y_delta;
@@ -620,7 +620,7 @@ static  void  translate_labels_callback(
 {
     translate_labels_callback( display, 0, 1 );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -636,7 +636,7 @@ static  void  translate_labels_callback(
 {
     translate_labels_callback( display, 0, -1 );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -652,7 +652,7 @@ static  void  translate_labels_callback(
 {
     translate_labels_callback( display, -1, 0 );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -668,7 +668,7 @@ static  void  translate_labels_callback(
 {
     translate_labels_callback( display, 1, 0 );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -692,7 +692,7 @@ static  void  translate_labels_callback(
                                      volume_index, UPDATE_LABELS );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -724,9 +724,9 @@ static  void  translate_labels_callback(
     {
         print( "Enter offset to translate for x, y and z: " );
 
-        if( input_int( stdin, &delta[X] ) == OK &&
-            input_int( stdin, &delta[Y] ) == OK &&
-            input_int( stdin, &delta[Z] ) == OK )
+        if( input_int( stdin, &delta[VIO_X] ) == VIO_OK &&
+            input_int( stdin, &delta[VIO_Y] ) == VIO_OK &&
+            input_int( stdin, &delta[VIO_Z] ) == VIO_OK )
         {
             translate_labels( slice_window,
                               get_current_volume_index(slice_window), delta );
@@ -737,7 +737,7 @@ static  void  translate_labels_callback(
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -759,7 +759,7 @@ static  void  translate_labels_callback(
                        !slice_window->slice.segmenting.fast_updating_allowed;
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -793,7 +793,7 @@ static  void  translate_labels_callback(
                      !slice_window->slice.segmenting.cursor_follows_paintbrush;
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -834,7 +834,7 @@ static  void  translate_labels_callback(
  Toggle_freestyle_painting = !Toggle_freestyle_painting;
  First_straightline_right_mouse_down = TRUE;
 
- return( OK );
+ return( VIO_OK );
 }
 
 /* ARGSUSED */

@@ -10,9 +10,9 @@ public  void  one_parameter_minimization(
     double          v_max,
     double          max_delta_parameter,
     double          *delta_parameter,
-    Real            distances_without_this_parameter[],
+    VIO_Real            distances_without_this_parameter[],
     double          (*evaluate_fit_function)( void *, double [],
-                                  double, double, double, double, Real [] ),
+                                  double, double, double, double, VIO_Real [] ),
     void            *evaluation_ptr,
     double          *fitting_gain )
 {

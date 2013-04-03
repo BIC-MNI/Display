@@ -28,7 +28,7 @@
     VIO_Status              status;
     nc_type             nc_data_type;
     VIO_BOOL             signed_flag;
-    Real                voxel_min, voxel_max, size_factor;
+    VIO_Real                voxel_min, voxel_max, size_factor;
     minc_input_options  options;
     int                 dim, limits[2][VIO_MAX_DIMENSIONS];
     int                 sizes[VIO_MAX_DIMENSIONS];
@@ -56,12 +56,12 @@
                            nc_data_type, signed_flag, voxel_min, voxel_max,
                            TRUE, &volume, &options );
 
-    if( status == OK && get_volume_n_dimensions( volume ) != VIO_N_DIMENSIONS )
+    if( status == VIO_OK && get_volume_n_dimensions( volume ) != VIO_N_DIMENSIONS )
     {
         print( "VIO_Volume %s has %d dimensions, should have %d\n",
                filename, get_volume_n_dimensions(volume), VIO_N_DIMENSIONS );
         delete_volume( volume );
-        status = ERROR;
+        status = VIO_ERROR;
     }
 
     if( Crop_volumes_on_input )
@@ -80,8 +80,8 @@
 
         for_less( dim, 0, VIO_N_DIMENSIONS )
         {
-            size_factor *= (Real) (limits[1][dim] - limits[0][dim] + 1) /
-                           (Real) sizes[dim];
+            size_factor *= (VIO_Real) (limits[1][dim] - limits[0][dim] + 1) /
+                           (VIO_Real) sizes[dim];
         }
 
         if( size_factor <= Crop_if_smaller )
@@ -94,7 +94,7 @@
         }
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
         *volume_ptr = volume;
 
     return( status );

@@ -28,7 +28,7 @@ static  void  change_current_slice_by_one(
 {
     display_struct   *slice_window;
     VIO_Volume           volume;
-    Real             voxel[VIO_N_DIMENSIONS], separations[VIO_N_DIMENSIONS];
+    VIO_Real             voxel[VIO_N_DIMENSIONS], separations[VIO_N_DIMENSIONS];
     int              sizes[VIO_N_DIMENSIONS], axis_index, volume_index;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -43,12 +43,12 @@ static  void  change_current_slice_by_one(
 
         get_current_voxel( slice_window, volume_index, voxel );
 
-        voxel[axis_index] = (Real) VIO_ROUND( voxel[axis_index] + (Real) delta );
+        voxel[axis_index] = (VIO_Real) VIO_ROUND( voxel[axis_index] + (VIO_Real) delta );
 
         if( voxel[axis_index] < 0.0 )
             voxel[axis_index] = 0.0;
-        else if( voxel[axis_index] > (Real) sizes[axis_index]-1.0 )
-            voxel[axis_index] = (Real) sizes[axis_index] - 1.0;
+        else if( voxel[axis_index] > (VIO_Real) sizes[axis_index]-1.0 )
+            voxel[axis_index] = (VIO_Real) sizes[axis_index] - 1.0;
 
         if( set_current_voxel( slice_window, volume_index, voxel ))
         {
@@ -67,7 +67,7 @@ static  void  change_current_slice_by_one(
 {
     change_current_slice_by_one( display, 1 );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -83,7 +83,7 @@ static  void  change_current_slice_by_one(
 {
     change_current_slice_by_one( display, -1 );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -109,7 +109,7 @@ static  void  change_current_slice_by_one(
                 !get_slice_visibility(slice_window,volume_index,view_index) );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -131,7 +131,7 @@ static  void  change_current_slice_by_one(
                                 !get_volume_cross_section_visibility(display) );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -155,7 +155,7 @@ static  void  change_current_slice_by_one(
         reset_slice_view( slice_window, view_index );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -187,7 +187,7 @@ static  void  change_current_slice_by_one(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -204,8 +204,8 @@ static  void  create_scaled_slice(
 {
     display_struct   *slice_window;
     int              x_index, y_index, axis_index, view_index;
-    Real             current_voxel[VIO_N_DIMENSIONS], perp_axis[VIO_N_DIMENSIONS];
-    Real             scale_factor, value, min_value, xw, yw, zw;
+    VIO_Real             current_voxel[VIO_N_DIMENSIONS], perp_axis[VIO_N_DIMENSIONS];
+    VIO_Real             scale_factor, value, min_value, xw, yw, zw;
     VIO_Vector           normal;
     object_struct    *object;
     quadmesh_struct  *quadmesh;
@@ -227,7 +227,7 @@ static  void  create_scaled_slice(
             print( "Enter scaling: " );
             status = input_real( stdin, &scale_factor );
             (void) input_newline( stdin );
-            if( status != OK )
+            if( status != VIO_OK )
                 return;
         }
 
@@ -247,9 +247,9 @@ static  void  create_scaled_slice(
             {
                 (void) get_quadmesh_point( quadmesh, i, j, &point );
                 evaluate_volume_in_world( get_volume(display),
-                                          (Real) Point_x(point),
-                                          (Real) Point_y(point),
-                                          (Real) Point_z(point), 0, FALSE,
+                                          (VIO_Real) Point_x(point),
+                                          (VIO_Real) Point_y(point),
+                                          (VIO_Real) Point_z(point), 0, FALSE,
                                           min_value, &value,
                                           NULL, NULL, NULL,
                                           NULL, NULL, NULL, NULL, NULL, NULL );
@@ -293,7 +293,7 @@ static  void  create_scaled_slice(
 {
     create_scaled_slice( display, FALSE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -309,7 +309,7 @@ static  void  create_scaled_slice(
 {
     create_scaled_slice( display, TRUE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -335,13 +335,13 @@ static  void  create_scaled_slice(
         get_volume_sizes( volume, sizes );
 
         print( "The original volume is %d by %d by %d.\n",
-               sizes[X], sizes[Y], sizes[Z] );
+               sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
 
         print( "Enter desired resampled size: " );
 
-        if( input_int( stdin, &new_nx ) == OK &&
-            input_int( stdin, &new_ny ) == OK &&
-            input_int( stdin, &new_nz ) == OK &&
+        if( input_int( stdin, &new_nx ) == VIO_OK &&
+            input_int( stdin, &new_ny ) == VIO_OK &&
+            input_int( stdin, &new_nz ) == VIO_OK &&
             (new_nx > 0 || new_ny > 0 || new_nz > 0) )
         {
             resampled_volume = smooth_resample_volume(
@@ -358,7 +358,7 @@ static  void  create_scaled_slice(
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -373,8 +373,8 @@ static  void  create_scaled_slice(
   DEF_MENU_FUNCTION(box_filter_slice_window_volume)
 {
     char             ch;
-    Real             x_width, y_width, z_width;
-    Real             separations[VIO_N_DIMENSIONS];
+    VIO_Real             x_width, y_width, z_width;
+    VIO_Real             separations[VIO_N_DIMENSIONS];
     char             label[VIO_EXTREMELY_LARGE_STRING_SIZE];
     display_struct   *slice_window;
     VIO_Volume           volume, resampled_volume;
@@ -386,10 +386,10 @@ static  void  create_scaled_slice(
 
         print( "Enter box filter  x_width, y_width, z_width, v/w: " );
 
-        if( input_real( stdin, &x_width ) == OK &&
-            input_real( stdin, &y_width ) == OK &&
-            input_real( stdin, &z_width ) == OK &&
-            input_nonwhite_character( stdin, &ch ) == OK &&
+        if( input_real( stdin, &x_width ) == VIO_OK &&
+            input_real( stdin, &y_width ) == VIO_OK &&
+            input_real( stdin, &z_width ) == VIO_OK &&
+            input_nonwhite_character( stdin, &ch ) == VIO_OK &&
             (ch == 'w' ||
              x_width > 1.0 || y_width > 1.0 || z_width > 1.0) )
         {
@@ -400,9 +400,9 @@ static  void  create_scaled_slice(
 
             if( ch == 'w' )
             {
-                x_width /= VIO_FABS( separations[X] );
-                y_width /= VIO_FABS( separations[Y] );
-                z_width /= VIO_FABS( separations[Z] );
+                x_width /= VIO_FABS( separations[VIO_X] );
+                y_width /= VIO_FABS( separations[VIO_Y] );
+                z_width /= VIO_FABS( separations[VIO_Z] );
             }
 
             resampled_volume = create_box_filtered_volume( volume,
@@ -415,7 +415,7 @@ static  void  create_scaled_slice(
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -437,7 +437,7 @@ static  void  create_scaled_slice(
         start_picking_slice_angle( slice_window );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -453,7 +453,7 @@ static  void  create_scaled_slice(
 {
     initialize_rotating_slice( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -474,7 +474,7 @@ static  void  create_scaled_slice(
         reset_crop_box_position( slice_window );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -495,7 +495,7 @@ static  void  create_scaled_slice(
         toggle_slice_crop_box_visibility( slice_window );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -527,7 +527,7 @@ static  void  create_scaled_slice(
         start_picking_crop_box( slice_window );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -548,7 +548,7 @@ static  void  create_scaled_slice(
     {
         print( "Enter crop filename: " );
 
-        if( input_string( stdin, &filename, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == VIO_OK )
         {
             set_crop_filename( slice_window, filename );
         }
@@ -558,7 +558,7 @@ static  void  create_scaled_slice(
         delete_string( filename );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -579,7 +579,7 @@ static  void  create_scaled_slice(
         crop_and_load_volume( slice_window );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -600,9 +600,9 @@ static  void  create_scaled_slice(
     {
         print( "Enter filename to create: " );
 
-        if( input_string( stdin, &filename, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == VIO_OK )
         {
-            if( create_cropped_volume_to_file( slice_window, filename ) == OK )
+            if( create_cropped_volume_to_file( slice_window, filename ) == VIO_OK )
                 print( "Created %s.\n", filename );
         }
 
@@ -611,7 +611,7 @@ static  void  create_scaled_slice(
         delete_string( filename );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -626,7 +626,7 @@ static  void  do_histogram(
     VIO_BOOL          labeled )
 {
     int              x_index, y_index, view_index, axis_index;
-    Real             voxel[VIO_MAX_DIMENSIONS], slice;
+    VIO_Real             voxel[VIO_MAX_DIMENSIONS], slice;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -659,7 +659,7 @@ static  void  do_histogram(
 {
     do_histogram( display, FALSE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -675,7 +675,7 @@ static  void  do_histogram(
 {
     do_histogram( display, TRUE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -689,7 +689,7 @@ static  void  do_histogram(
 
   DEF_MENU_FUNCTION(print_voxel_origin)
 {
-    Real             voxel[VIO_MAX_DIMENSIONS], xw, yw, zw;
+    VIO_Real             voxel[VIO_MAX_DIMENSIONS], xw, yw, zw;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -705,7 +705,7 @@ static  void  do_histogram(
         print( "Current world origin: %g %g %g\n", xw, yw, zw );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -722,7 +722,7 @@ static  void  do_histogram(
     display_struct   *slice_window;
     VIO_Vector           normal;
     int              view_index;
-    Real             perp_axis[VIO_MAX_DIMENSIONS], xw, yw, zw;
+    VIO_Real             perp_axis[VIO_MAX_DIMENSIONS], xw, yw, zw;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 &&
@@ -747,7 +747,7 @@ static  void  do_histogram(
                Vector_x(normal), Vector_y(normal), Vector_z(normal) );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -762,7 +762,7 @@ static  void  do_histogram(
   DEF_MENU_FUNCTION(type_in_voxel_origin)
 {
     VIO_STR           type;
-    Real             voxel[VIO_MAX_DIMENSIONS], xw, yw, zw;
+    VIO_Real             voxel[VIO_MAX_DIMENSIONS], xw, yw, zw;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -770,10 +770,10 @@ static  void  do_histogram(
     {
         print( "Enter x y z world coordinate and v|w: " );
 
-        if( input_real( stdin, &xw ) == OK &&
-            input_real( stdin, &yw ) == OK &&
-            input_real( stdin, &zw ) == OK &&
-            input_string( stdin, &type, ' ' ) == OK )
+        if( input_real( stdin, &xw ) == VIO_OK &&
+            input_real( stdin, &yw ) == VIO_OK &&
+            input_real( stdin, &zw ) == VIO_OK &&
+            input_string( stdin, &type, ' ' ) == VIO_OK )
         {
             if( type[0] == 'w' )
             {
@@ -800,7 +800,7 @@ static  void  do_histogram(
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -815,7 +815,7 @@ static  void  do_histogram(
   DEF_MENU_FUNCTION(type_in_slice_plane)
 {
     int              view_index;
-    Real             perp_axis[VIO_MAX_DIMENSIONS], xw, yw, zw;
+    VIO_Real             perp_axis[VIO_MAX_DIMENSIONS], xw, yw, zw;
     VIO_STR           type;
     display_struct   *slice_window;
 
@@ -827,10 +827,10 @@ static  void  do_histogram(
                view_index );
         print( "and v or w for voxel or world: " );
 
-        if( input_real( stdin, &xw ) == OK &&
-            input_real( stdin, &yw ) == OK &&
-            input_real( stdin, &zw ) == OK &&
-            input_string( stdin, &type, ' ' ) == OK )
+        if( input_real( stdin, &xw ) == VIO_OK &&
+            input_real( stdin, &yw ) == VIO_OK &&
+            input_real( stdin, &zw ) == VIO_OK &&
+            input_string( stdin, &type, ' ' ) == VIO_OK )
         {
             if( type[0] == 'w' )
             {
@@ -855,7 +855,7 @@ static  void  do_histogram(
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -878,7 +878,7 @@ static  void  do_histogram(
         set_slice_cross_section_update( slice_window, -1 );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -907,7 +907,7 @@ static  void  do_histogram(
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -946,11 +946,11 @@ static  void  do_histogram(
 
             for_less( c, 0, VIO_N_DIMENSIONS )
                 slice_window->slice.cross_section_vector[c] =
-                                                   (Real) Vector_coord(axis,c);
+                                                   (VIO_Real) Vector_coord(axis,c);
         }
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -973,7 +973,7 @@ static  void  do_histogram(
                                     get_current_volume_index(slice_window) );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -998,7 +998,7 @@ static  void  do_histogram(
         set_current_volume_index( slice_window, current );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -1033,7 +1033,7 @@ static  void  do_histogram(
         set_current_volume_index( slice_window, current );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -1048,7 +1048,7 @@ static  void  do_histogram(
   DEF_MENU_FUNCTION(set_current_volume_opacity)
 {
     int              current;
-    Real             opacity;
+    VIO_Real             opacity;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -1060,7 +1060,7 @@ static  void  do_histogram(
         {
             print( "Enter volume opacity ( 0.0 <= o <= 1.0 ): " );
 
-            if( input_real( stdin, &opacity ) == OK &&
+            if( input_real( stdin, &opacity ) == VIO_OK &&
                 opacity >= 0.0 )
             {
                 set_volume_opacity( slice_window, current, opacity );
@@ -1070,14 +1070,14 @@ static  void  do_histogram(
         }
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
 
   DEF_MENU_UPDATE(set_current_volume_opacity)
 {
-    Real             opacity;
+    VIO_Real             opacity;
     int              current_index;
     display_struct   *slice_window;
 
@@ -1163,7 +1163,7 @@ static  void  change_visible_volume(
 {
     change_visible_volume( display, 1 );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -1182,7 +1182,7 @@ static  void  change_visible_volume(
 {
     change_visible_volume( display, -1 );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -1217,7 +1217,7 @@ static  void  change_visible_volume(
         set_slice_window_all_update( slice_window, -1, UPDATE_SLICE );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -1258,7 +1258,7 @@ static  void  change_visible_volume(
     int               view_index, x_min, x_max, y_min, y_max;
     VIO_STR            filename;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 &&
@@ -1266,7 +1266,7 @@ static  void  change_visible_volume(
     {
         print( "Enter filename: " );
 
-        if( input_string( stdin, &filename, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == VIO_OK )
         {
             get_slice_viewport( slice_window, view_index,
                                 &x_min, &x_max, &y_min, &y_max );
@@ -1301,13 +1301,13 @@ static  void  change_visible_volume(
     int               x_size, y_size;
     VIO_STR            filename;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_slice_window( display, &slice_window ) )
     {
         print( "Enter filename: " );
 
-        if( input_string( stdin, &filename, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == VIO_OK )
         {
             G_get_window_size( slice_window->window, &x_size, &y_size );
 
@@ -1344,7 +1344,7 @@ static  void  change_visible_volume(
                        !slice_window->slice.incremental_update_allowed;
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -1369,7 +1369,7 @@ static  void  change_visible_volume(
   DEF_MENU_FUNCTION( toggle_shift_key )
 {
     print( "Obsolete function:  Cannot toggle shift key\n" );
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -1394,7 +1394,7 @@ static  void  change_visible_volume(
             slice_window->slice.slice_views[view].update_cursor_flag = TRUE;
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -1426,12 +1426,12 @@ static  void  change_visible_volume(
     if( get_slice_window( display, &slice_window ) )
     {
         print( "Enter the index of the volume which represents the labels: " );
-        if( input_int( stdin, &src_index ) != OK || src_index < 1 ||
+        if( input_int( stdin, &src_index ) != VIO_OK || src_index < 1 ||
             src_index > get_n_volumes(display) )
         {
             (void) input_newline( stdin );
             print_error( "Index out of range, operation cancelled.\n" );
-            return( ERROR );
+            return( VIO_ERROR );
         }
 
         (void) input_newline( stdin );
@@ -1443,15 +1443,15 @@ static  void  change_visible_volume(
 
         if( output_volume( filename, NC_UNSPECIFIED, FALSE, 0.0, 0.0,
                            get_nth_volume(slice_window,src_index),
-                           "Label volume\n", NULL ) != OK )
-            return( ERROR );
+                           "Label volume\n", NULL ) != VIO_OK )
+            return( VIO_ERROR );
 
         input_label_volume_file( display, filename );
 
         remove_file( filename );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */

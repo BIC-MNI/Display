@@ -66,8 +66,8 @@ static  VIO_BOOL  face_is_boundary(
     neigh[c] += offset;
 
     return( is_boundary( inside_flags[1][1][1], valid_flags[1][1][1],
-                         inside_flags[neigh[X]][neigh[Y]][neigh[Z]],
-                         valid_flags[neigh[X]][neigh[Y]][neigh[Z]] ) );
+                         inside_flags[neigh[VIO_X]][neigh[VIO_Y]][neigh[VIO_Z]],
+                         valid_flags[neigh[VIO_X]][neigh[VIO_Y]][neigh[VIO_Z]] ) );
 }
 
 static  void   get_vertex_normal(
@@ -82,13 +82,13 @@ static  void   get_vertex_normal(
     int   ind[VIO_N_DIMENSIONS], corner[VIO_N_DIMENSIONS], neigh[VIO_N_DIMENSIONS];
     int   a1, a2, tx, ty, offset, dim;
 
-    corner[X] = x;
-    corner[Y] = y;
-    corner[Z] = z;
+    corner[VIO_X] = x;
+    corner[VIO_Y] = y;
+    corner[VIO_Z] = z;
 
-    voxel_normal[X] = 0.0;
-    voxel_normal[Y] = 0.0;
-    voxel_normal[Z] = 0.0;
+    voxel_normal[VIO_X] = 0.0;
+    voxel_normal[VIO_Y] = 0.0;
+    voxel_normal[VIO_Z] = 0.0;
 
     for_less( dim, 0, VIO_N_DIMENSIONS )
     {
@@ -102,18 +102,18 @@ static  void   get_vertex_normal(
             ind[a1] = corner[a1] + tx;
             ind[a2] = corner[a2] + ty;
             ind[dim] = corner[dim];
-            neigh[X] = ind[X];
-            neigh[Y] = ind[Y];
-            neigh[Z] = ind[Z];
+            neigh[VIO_X] = ind[VIO_X];
+            neigh[VIO_Y] = ind[VIO_Y];
+            neigh[VIO_Z] = ind[VIO_Z];
             if( offset == -1 )
                 ++ind[dim];
             else
                 ++neigh[dim];
             
-            if( is_boundary( inside_flags[ind[X]][ind[Y]][ind[Z]],
-                             valid_flags[ind[X]][ind[Y]][ind[Z]],
-                             inside_flags[neigh[X]][neigh[Y]][neigh[Z]],
-                             valid_flags[neigh[X]][neigh[Y]][neigh[Z]] ) )
+            if( is_boundary( inside_flags[ind[VIO_X]][ind[VIO_Y]][ind[VIO_Z]],
+                             valid_flags[ind[VIO_X]][ind[VIO_Y]][ind[VIO_Z]],
+                             inside_flags[neigh[VIO_X]][neigh[VIO_Y]][neigh[VIO_Z]],
+                             valid_flags[neigh[VIO_X]][neigh[VIO_Y]][neigh[VIO_Z]] ) )
             {
                 if( neigh[dim] > ind[dim] )
                     voxel_normal[dim] += 1.0 / separations[dim];
@@ -123,13 +123,13 @@ static  void   get_vertex_normal(
         }
     }
 
-    if( voxel_normal[X] == 0.0 &&     /* shouldn't happen often */
-        voxel_normal[Y] == 0.0 &&
-        voxel_normal[Z] == 0.0 )
+    if( voxel_normal[VIO_X] == 0.0 &&     /* shouldn't happen often */
+        voxel_normal[VIO_Y] == 0.0 &&
+        voxel_normal[VIO_Z] == 0.0 )
     {
-        voxel_normal[X] = 1.0;
-        voxel_normal[Y] = 1.0;
-        voxel_normal[Z] = 1.0;
+        voxel_normal[VIO_X] = 1.0;
+        voxel_normal[VIO_Y] = 1.0;
+        voxel_normal[VIO_Z] = 1.0;
     }
 }
 
@@ -180,21 +180,21 @@ static  void  add_face(
 
         if( !lookup_edge_point_id( sizes,
                                    &surface_extraction->edge_points,
-                                   corner_index[X],
-                                   corner_index[Y],
-                                   corner_index[Z],
+                                   corner_index[VIO_X],
+                                   corner_index[VIO_Y],
+                                   corner_index[VIO_Z],
                                    0, &point_index ) )
         {
             point_index = polygons->n_points;
 
             record_edge_point_id( sizes, &surface_extraction->edge_points,
-                                  corner_index[X],
-                                  corner_index[Y],
-                                  corner_index[Z],
+                                  corner_index[VIO_X],
+                                  corner_index[VIO_Y],
+                                  corner_index[VIO_Z],
                                   0, point_index );
-            voxel[X] = (VIO_Real) corner_index[X] - 0.5;
-            voxel[Y] = (VIO_Real) corner_index[Y] - 0.5;
-            voxel[Z] = (VIO_Real) corner_index[Z] - 0.5;
+            voxel[VIO_X] = (VIO_Real) corner_index[VIO_X] - 0.5;
+            voxel[VIO_Y] = (VIO_Real) corner_index[VIO_Y] - 0.5;
+            voxel[VIO_Z] = (VIO_Real) corner_index[VIO_Z] - 0.5;
             convert_voxel_to_world( volume, voxel, &xw, &yw, &zw );
             fill_Point( point, xw, yw, zw );
 
@@ -205,9 +205,9 @@ static  void  add_face(
         }
 
         get_vertex_normal( separations,
-                           corner_index[X] - indices[X],
-                           corner_index[Y] - indices[Y],
-                           corner_index[Z] - indices[Z],
+                           corner_index[VIO_X] - indices[VIO_X],
+                           corner_index[VIO_Y] - indices[VIO_Y],
+                           corner_index[VIO_Z] - indices[VIO_Z],
                            inside_flags, valid_flags, voxel_normal );
 
         convert_voxel_vector_to_world( volume, voxel_normal, &xw, &yw, &zw );
@@ -246,9 +246,9 @@ static  void  get_inside_flags(
 {
     int   dx, dy, dz, x_off, y_off, z_off;
 
-    x_off = voxel[X] - surf->min_block[X];
-    y_off = voxel[Y] - surf->min_block[Y];
-    z_off = voxel[Z] - surf->min_block[Z];
+    x_off = voxel[VIO_X] - surf->min_block[VIO_X];
+    y_off = voxel[VIO_Y] - surf->min_block[VIO_Y];
+    z_off = voxel[VIO_Z] - surf->min_block[VIO_Z];
 
     for_less( dx, 0, 3 )
     for_less( dy, 0, 3 )
@@ -292,24 +292,24 @@ static  void  get_inside_flags(
     else
         label_volume = NULL;
 
-    nx = surf->max_block[X] - surf->min_block[X] + 3;
-    ny = surf->max_block[Y] - surf->min_block[Y] + 3;
-    nz = surf->max_block[Z] - surf->min_block[Z] + 3;
+    nx = surf->max_block[VIO_X] - surf->min_block[VIO_X] + 3;
+    ny = surf->max_block[VIO_Y] - surf->min_block[VIO_Y] + 3;
+    nz = surf->max_block[VIO_Z] - surf->min_block[VIO_Z] + 3;
 
-    if( surf->min_block[X] <= 0 || surf->max_block[X] >= sizes[X]-1 ||
-        surf->min_block[Y] <= 0 || surf->max_block[Y] >= sizes[Y]-1 ||
-        surf->min_block[Z] <= 0 || surf->max_block[Z] >= sizes[Z]-1 ||
+    if( surf->min_block[VIO_X] <= 0 || surf->max_block[VIO_X] >= sizes[VIO_X]-1 ||
+        surf->min_block[VIO_Y] <= 0 || surf->max_block[VIO_Y] >= sizes[VIO_Y]-1 ||
+        surf->min_block[VIO_Z] <= 0 || surf->max_block[VIO_Z] >= sizes[VIO_Z]-1 ||
         label_volume != NULL &&
         !volume_is_alloced( label_volume ) && !volume_is_cached(label_volume) )
     {
         ind = 0;
-        for_inclusive( dx, surf->min_block[X]-1, surf->max_block[X]+1 )
-        for_inclusive( dy, surf->min_block[Y]-1, surf->max_block[Y]+1 )
-        for_inclusive( dz, surf->min_block[Z]-1, surf->max_block[Z]+1 )
+        for_inclusive( dx, surf->min_block[VIO_X]-1, surf->max_block[VIO_X]+1 )
+        for_inclusive( dy, surf->min_block[VIO_Y]-1, surf->max_block[VIO_Y]+1 )
+        for_inclusive( dz, surf->min_block[VIO_Z]-1, surf->max_block[VIO_Z]+1 )
         {
-            if( dx < 0 || dx >= sizes[X] ||
-                dy < 0 || dy >= sizes[Y] ||
-                dz < 0 || dz >= sizes[Z] )
+            if( dx < 0 || dx >= sizes[VIO_X] ||
+                dy < 0 || dy >= sizes[VIO_Y] ||
+                dz < 0 || dz >= sizes[VIO_Z] )
             {
                 values[ind] = surf->min_value - 1.0;
                 labels[ind] = (VIO_Real) surf->min_invalid_label - 1.0;
@@ -329,16 +329,16 @@ static  void  get_inside_flags(
     else
     {
         get_volume_value_hyperslab_3d( volume,
-                                       surf->min_block[X]-1,
-                                       surf->min_block[Y]-1,
-                                       surf->min_block[Z]-1,
+                                       surf->min_block[VIO_X]-1,
+                                       surf->min_block[VIO_Y]-1,
+                                       surf->min_block[VIO_Z]-1,
                                        nx, ny, nz, values );
         if( label_volume != NULL )
         {
             get_volume_value_hyperslab_3d( label_volume,
-                                       surf->min_block[X]-1,
-                                       surf->min_block[Y]-1,
-                                       surf->min_block[Z]-1,
+                                       surf->min_block[VIO_X]-1,
+                                       surf->min_block[VIO_Y]-1,
+                                       surf->min_block[VIO_Z]-1,
                                        nx, ny, nz, labels );
         }
     }
@@ -395,7 +395,7 @@ static  void  get_inside_flags(
             face_index = 2 * dim + (offset+1) / 2;
             face_exists = lookup_edge_point_id( sizes,
                                                 &surface_extraction->faces_done,
-                                                voxel[X], voxel[Y], voxel[Z],
+                                                voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z],
                                                 face_index, &poly_index );
             should_exist = face_is_boundary( inside_flags, valid_flags, dim,
                                              offset );
@@ -416,7 +416,7 @@ static  void  get_inside_flags(
 
                 record_edge_point_id( sizes,
                                       &surface_extraction->faces_done,
-                                      voxel[X], voxel[Y], voxel[Z],
+                                      voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z],
                                       face_index, poly_index );
 
                 modified = TRUE;
@@ -425,7 +425,7 @@ static  void  get_inside_flags(
             {
                 remove_edge_point( sizes,
                                    &surface_extraction->faces_done,
-                                   voxel[X], voxel[Y], voxel[Z],
+                                   voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z],
                                    face_index );
 
                 INSERT_IN_QUEUE( surface_extraction->deleted_faces, poly_index);

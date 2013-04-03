@@ -92,9 +92,9 @@ static  void  make_cursor_contours(
         lines = get_lines_ptr( object );
         switch( axis )
         {
-        case X:  col = RED;    break;
-        case Y:  col = GREEN;  break;
-        case Z:  col = BLUE;   break;
+        case VIO_X:  col = RED;    break;
+        case VIO_Y:  col = GREEN;  break;
+        case VIO_Z:  col = BLUE;   break;
         }
         initialize_lines( lines, col );
         lines->line_thickness = (float) Cursor_contour_thickness;
@@ -141,7 +141,7 @@ static  DEF_EVENT_FUNCTION( check_update_contour )
             set_update_required( display, get_cursor_contour_bitplane() );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void   initialize_contour(

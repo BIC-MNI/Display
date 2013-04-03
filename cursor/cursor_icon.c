@@ -66,11 +66,11 @@ static  void  fill_in_axis_points(
     fill_in_box_points( display->three_d.cursor.box_size,
                         model->objects[BOX_INDEX] );
     fill_in_axis_points( display->three_d.cursor.axis_size,
-                         X, model->objects[X_INDEX] );
+                         VIO_X, model->objects[X_INDEX] );
     fill_in_axis_points( display->three_d.cursor.axis_size,
-                         Y, model->objects[Y_INDEX] );
+                         VIO_Y, model->objects[Y_INDEX] );
     fill_in_axis_points( display->three_d.cursor.axis_size,
-                         Z, model->objects[Z_INDEX] );
+                         VIO_Z, model->objects[Z_INDEX] );
 }
 
   void  update_cursor_colour(
@@ -143,26 +143,26 @@ static  void  fill_in_box_points(
 
     lines = get_lines_ptr( object );
 
-    half_size[X] = size[X] / 2.0;
-    half_size[Y] = size[Y] / 2.0;
-    half_size[Z] = size[Z] / 2.0;
+    half_size[VIO_X] = size[VIO_X] / 2.0;
+    half_size[VIO_Y] = size[VIO_Y] / 2.0;
+    half_size[VIO_Z] = size[VIO_Z] / 2.0;
 
     fill_Point( lines->points[0],
-                -half_size[X], -half_size[Y], -half_size[Z] );
+                -half_size[VIO_X], -half_size[VIO_Y], -half_size[VIO_Z] );
     fill_Point( lines->points[1],
-                -half_size[X], -half_size[Y],  half_size[Z] );
+                -half_size[VIO_X], -half_size[VIO_Y],  half_size[VIO_Z] );
     fill_Point( lines->points[2],
-                -half_size[X],  half_size[Y], -half_size[Z] );
+                -half_size[VIO_X],  half_size[VIO_Y], -half_size[VIO_Z] );
     fill_Point( lines->points[3],
-                -half_size[X],  half_size[Y],  half_size[Z] );
+                -half_size[VIO_X],  half_size[VIO_Y],  half_size[VIO_Z] );
     fill_Point( lines->points[4],
-                 half_size[X], -half_size[Y], -half_size[Z] );
+                 half_size[VIO_X], -half_size[VIO_Y], -half_size[VIO_Z] );
     fill_Point( lines->points[5],
-                 half_size[X], -half_size[Y],  half_size[Z] );
+                 half_size[VIO_X], -half_size[VIO_Y],  half_size[VIO_Z] );
     fill_Point( lines->points[6],
-                 half_size[X],  half_size[Y], -half_size[Z] );
+                 half_size[VIO_X],  half_size[VIO_Y], -half_size[VIO_Z] );
     fill_Point( lines->points[7],
-                 half_size[X],  half_size[Y],  half_size[Z] );
+                 half_size[VIO_X],  half_size[VIO_Y],  half_size[VIO_Z] );
 }
 
 static  void   create_axis(
@@ -183,9 +183,9 @@ static  void   create_axis(
     {
         switch( axis_index )
         {
-        case X:  col = RED;    break;
-        case Y:  col = GREEN;  break;
-        case Z:  col = BLUE;   break;
+        case VIO_X:  col = RED;    break;
+        case VIO_Y:  col = GREEN;  break;
+        case VIO_Z:  col = BLUE;   break;
         }
     }
 

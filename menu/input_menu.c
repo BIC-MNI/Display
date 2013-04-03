@@ -341,7 +341,7 @@ action_lookup_struct;
 FUNCTION_LIST
 
 #undef   MENU_F
-#define  MENU_F(f) {CREATE_STRING(f),f,GLUE(menu_update_,f)},
+#define  MENU_F(f) {#f,f,menu_update_##f},
 
 static  action_lookup_struct   actions[] = {
                                                FUNCTION_LIST
@@ -398,7 +398,7 @@ static  VIO_BOOL  lookup_menu_action(
 
     status = input_menu( file, &n_menus, &menus );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         create_menu( menu, n_menus, menus );
 
@@ -418,22 +418,22 @@ static  VIO_Status  input_menu(
     menu_definition_struct   *menus;
     menu_definition_struct   menu_entry;
 
-    status = OK;
+    status = VIO_OK;
 
     n_menus = 0;
     menus = NULL;
 
-    while( status == OK &&
-           input_string( file, &menu_entry.menu_name, ' ' ) == OK )
+    while( status == VIO_OK &&
+           input_string( file, &menu_entry.menu_name, ' ' ) == VIO_OK )
     {
         status = input_menu_entry( file, &menu_entry );
-        if( status == OK )
+        if( status == VIO_OK )
         {
             ADD_ELEMENT_TO_ARRAY( menus, n_menus, menu_entry, 10 );
         }
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         *n_menus_ptr = n_menus;
         *menus_ptr = menus;
@@ -451,17 +451,17 @@ static  VIO_Status  input_key_action(
 
     status = input_quoted_string( file, &key_name );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         action->key = translate_key_name( key_name );
 
         delete_string( key_name );
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = input_possibly_quoted_string( file, &action->action_name );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = input_quoted_string( file, &action->label );
 
     return( status );
@@ -507,7 +507,7 @@ static  VIO_Status  input_menu_entry(
 
     status = skip_input_until( file, '{' );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         found_brace = FALSE;
 
@@ -517,7 +517,7 @@ static  VIO_Status  input_menu_entry(
         {
             status = input_string( file, &permanent_string, ' ' );
 
-            if( status == OK )
+            if( status == VIO_OK )
             {
                 if( equal_strings( permanent_string, "}" ) )
                 {
@@ -534,29 +534,29 @@ static  VIO_Status  input_menu_entry(
                 else
                 {
                     print( "Expected permanent or transient.\n" );
-                    status = ERROR;
+                    status = VIO_ERROR;
                 }
             }
 
             delete_string( permanent_string );
 
-            if( status == OK && !found_brace )
+            if( status == VIO_OK && !found_brace )
             {
                 entry.permanent_flag = permanent_flag;
 
                 status = input_key_action( file, &entry );
 
-                if( status == OK )
+                if( status == VIO_OK )
                 {
                     ADD_ELEMENT_TO_ARRAY( menu_entry->entries,
                                           menu_entry->n_entries,
                                           entry, 1 );
                 }
 
-                status = OK;
+                status = VIO_OK;
             }
 
-        } while( status == OK && !found_brace );
+        } while( status == VIO_OK && !found_brace );
     }
 
     return( status );
@@ -700,7 +700,7 @@ static  VIO_BOOL  lookup_menu_action(
 
     found = FALSE;
 
-    for_less( i, 0, SIZEOF_STATIC_ARRAY(actions) )
+    for_less( i, 0, VIO_SIZEOF_STATIC_ARRAY(actions) )
     {
         table_name = actions[i].action_name;
         while( *table_name == ' ' )

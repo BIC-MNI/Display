@@ -50,7 +50,7 @@ static  void  display_next_frame(
     add_action_table_function( &display->action_table, NO_EVENT,
                                check_updated );
 
-    angle = 2.0 * PI / (VIO_Real) n_steps;
+    angle = 2.0 * M_PI / (VIO_Real) n_steps;
 
     make_rotation_transform( angle, axis_index,
                              &display->three_d.film_loop.transform );
@@ -89,7 +89,7 @@ static  DEF_EVENT_FUNCTION( check_updated )
 {
     VIO_Status    status;
 
-    status = OK;
+    status = VIO_OK;
 
     if( window_is_up_to_date( display ) )
     {
@@ -98,7 +98,7 @@ static  DEF_EVENT_FUNCTION( check_updated )
 
         status = save_image_to_file( display );
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             ++display->three_d.film_loop.current_step;
 
@@ -118,7 +118,7 @@ static  DEF_EVENT_FUNCTION( check_updated )
             end_film_loop( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  VIO_Status  create_film_loop_header(
@@ -138,17 +138,17 @@ static  VIO_Status  create_film_loop_header(
 
     status = open_file( header_name, WRITE_FILE, ASCII_FORMAT, &file );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = io_int( file, WRITE_FILE, ASCII_FORMAT, &window_width );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = io_int( file, WRITE_FILE, ASCII_FORMAT, &window_height );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = io_colour( file, WRITE_FILE, ASCII_FORMAT,
                             &Initial_background_colour );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
 
     for_less( i, 0, n_steps )
@@ -157,17 +157,17 @@ static  VIO_Status  create_film_loop_header(
 
         no_dirs = remove_directories_from_filename( frame_filename );
 
-        if( status == OK )
+        if( status == VIO_OK )
             status = output_string( file, no_dirs );
 
-        if( status == OK )
+        if( status == VIO_OK )
             status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
 
         delete_string( frame_filename );
         delete_string( no_dirs );
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = close_file( file );
 
     delete_string( header_name );

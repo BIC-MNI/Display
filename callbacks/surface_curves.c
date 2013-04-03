@@ -28,7 +28,7 @@
 {
     start_surface_curve( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -44,7 +44,7 @@
 {
     end_surface_curve( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -60,7 +60,7 @@
 {
     close_surface_curve( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -76,7 +76,7 @@
 {
     reset_surface_curve( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -92,7 +92,7 @@
 {
     make_surface_curve_permanent( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -113,14 +113,14 @@
 
     print( "Enter the new value: " );
 
-    if( input_real( stdin, &weight ) == OK )
+    if( input_real( stdin, &weight ) == VIO_OK )
     {
         display->three_d.surface_curve.line_curvature_weight = weight;
     }
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 
@@ -146,8 +146,8 @@
 
     print( "Enter the new value: " );
 
-    if( input_real( stdin, &min_curve ) == OK &&
-        input_real( stdin, &max_curve ) == OK )
+    if( input_real( stdin, &min_curve ) == VIO_OK &&
+        input_real( stdin, &max_curve ) == VIO_OK )
     {
         display->three_d.surface_curve.min_curvature = min_curve;
         display->three_d.surface_curve.max_curvature = max_curve;
@@ -155,7 +155,7 @@
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 
@@ -172,7 +172,7 @@
 {
     pick_surface_point_near_a_line( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 

@@ -73,7 +73,7 @@ static  DEF_EVENT_FUNCTION( terminate_segmenting )
 {
     turn_off_segmenting( &display->action_table );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -92,7 +92,7 @@ static  DEF_EVENT_FUNCTION( start_segmenting )
 
     fill_Point( display->prev_mouse_position, -1.0, -1.0, -1.0 );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  remove_events(
@@ -124,7 +124,7 @@ static  DEF_EVENT_FUNCTION( end_segmenting )
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void   add_polygon_under_mouse(
@@ -160,7 +160,7 @@ static  DEF_EVENT_FUNCTION( pick_surface_polygon )
 {
     add_polygon_under_mouse( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  segment_polygons(

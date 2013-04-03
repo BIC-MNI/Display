@@ -12,14 +12,14 @@ private  void  recursive_polygon_scan(
     Volume              volume,
     Volume              label_volume,
     int                 label,
-    Real                max_distance );
+    VIO_Real                max_distance );
 
 public  void  scan_polygons_to_voxels(
     polygons_struct     *polygons,
     Volume              volume,
     Volume              label_volume,
     int                 label,
-    Real                max_distance )
+    VIO_Real                max_distance )
 {
     int        i, poly, size;
     Point      vertices[MAX_TEMP_STORAGE];
@@ -48,11 +48,11 @@ private  void  recursive_polygon_scan(
     Volume              volume,
     Volume              label_volume,
     int                 label,
-    Real                max_distance )
+    VIO_Real                max_distance )
 {
     Point            midpoints[4], min_point, max_point, centre;
     Point            sub_points[4];
-    Real             voxel[MAX_DIMENSIONS];
+    VIO_Real             voxel[MAX_DIMENSIONS];
     int              edge, int_voxel[MAX_DIMENSIONS];
 
     get_range_points( size, vertices, &min_point, &max_point );
@@ -64,7 +64,7 @@ private  void  recursive_polygon_scan(
         get_points_centroid( size, vertices, &centre );
         convert_world_to_voxel( volume, Point_x(centre), Point_y(centre),
                                 Point_z(centre), voxel );
-        fill_Point( centre, voxel[X], voxel[Y], voxel[Z] );
+        fill_Point( centre, voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z] );
 
         if( voxel_is_within_volume( volume, voxel ) )
         {

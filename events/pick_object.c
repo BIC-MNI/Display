@@ -56,7 +56,7 @@ static  DEF_EVENT_FUNCTION( start_picking_object )
                                LEFT_MOUSE_UP_EVENT,
                                terminate_picking_object );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  remove_events(
@@ -77,7 +77,7 @@ static  DEF_EVENT_FUNCTION( terminate_picking_object )
 
     pick_point_under_mouse( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -86,7 +86,7 @@ static  DEF_EVENT_FUNCTION( update_picked_object )
 {
     pick_point_under_mouse( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
   VIO_BOOL  get_mouse_scene_intersection(

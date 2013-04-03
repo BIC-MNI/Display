@@ -55,7 +55,7 @@ private  DEF_EVENT_FUNCTION( start_rotating )     /* ARGSUSED */
 
     record_mouse_position( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 private  DEF_EVENT_FUNCTION( terminate_rotation )     /* ARGSUSED */
@@ -66,7 +66,7 @@ private  DEF_EVENT_FUNCTION( terminate_rotation )     /* ARGSUSED */
     pop_action_table( &display->action_table, MIDDLE_MOUSE_UP_EVENT );
     pop_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 private  void  modify_slice_transform(
@@ -80,9 +80,9 @@ private  void  modify_slice_transform(
     if( get_current_volume( display, &volume ) )
     {
         get_volume_size( volume, &nx, &ny, &nz );
-        Point_x(centre_of_rotation) = (Real) nx / 2.0;
-        Point_y(centre_of_rotation) = (Real) ny / 2.0;
-        Point_z(centre_of_rotation) = (Real) nz / 2.0;
+        Point_x(centre_of_rotation) = (VIO_Real) nx / 2.0;
+        Point_y(centre_of_rotation) = (VIO_Real) ny / 2.0;
+        Point_z(centre_of_rotation) = (VIO_Real) nz / 2.0;
 
         make_transform_relative_to_point( &centre_of_rotation, transform,
                                           transform );
@@ -108,7 +108,7 @@ private  DEF_EVENT_FUNCTION( handle_update_rotation )      /* ARGSUSED */
 {
     update_rotation( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 private  Boolean  compute_rotation(
@@ -116,7 +116,7 @@ private  Boolean  compute_rotation(
     Transform        *transform )
 {
     static  Point  centre = { 0.5, 0.5, 0.0 };
-    Real           x1, x2, y1, y2, curr_angle, prev_angle;
+    VIO_Real           x1, x2, y1, y2, curr_angle, prev_angle;
     Boolean        moved;
 
     moved = FALSE;
@@ -134,7 +134,7 @@ private  Boolean  compute_rotation(
 
         if( prev_angle != curr_angle )
         {
-            make_rotation_transform( curr_angle - prev_angle, Z, transform );
+            make_rotation_transform( curr_angle - prev_angle, VIO_Z, transform );
             moved = TRUE;
         }
         else

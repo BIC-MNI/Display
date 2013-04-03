@@ -122,7 +122,7 @@ static  VIO_BOOL  make_spaceball_transform(
             angle = asin( (double) sin_angle );
             if( DOT_VECTORS( v0, v1 ) < 0.0 )
             {
-                angle += PI / 2.0;
+                angle += M_PI / 2.0;
             }
 
             make_rotation_about_axis( &axis_of_rotation, angle, transform );

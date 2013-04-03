@@ -24,14 +24,14 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( exit_program )
+DEF_MENU_FUNCTION( exit_program )
 {
-    return( QUIT );
+    return( VIO_QUIT );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(exit_program )
+DEF_MENU_UPDATE(exit_program )
 {
     return( TRUE );
 }

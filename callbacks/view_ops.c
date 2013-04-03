@@ -32,7 +32,7 @@
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -53,7 +53,7 @@
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -78,7 +78,7 @@
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -103,7 +103,7 @@
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -126,7 +126,7 @@
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -149,7 +149,7 @@
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -172,7 +172,7 @@
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -195,7 +195,7 @@
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -218,7 +218,7 @@
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -241,7 +241,7 @@
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -262,7 +262,7 @@
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -282,7 +282,7 @@
 {
     initialize_magnification( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -298,7 +298,7 @@
 {
     initialize_translation( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -314,7 +314,7 @@
 {
     initialize_virtual_spaceball( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -330,7 +330,7 @@
 {
     initialize_front_clipping( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -346,7 +346,7 @@
 {
     initialize_back_clipping( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -362,7 +362,7 @@
 {
     start_picking_viewport( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -384,9 +384,9 @@
 
     base_filename = NULL;
 
-    if( input_string( stdin, &base_filename, ' ' ) == OK &&
-        input_int( stdin, &axis_index ) == OK &&
-        input_int( stdin, &n_steps ) == OK &&
+    if( input_string( stdin, &base_filename, ' ' ) == VIO_OK &&
+        input_int( stdin, &axis_index ) == VIO_OK &&
+        input_int( stdin, &n_steps ) == VIO_OK &&
         axis_index >= 0 && axis_index < VIO_N_DIMENSIONS && n_steps > 1 )
     {
         status = start_film_loop( display, base_filename, axis_index,
@@ -395,7 +395,7 @@
     else
     {
         print( "Invalid values.\n" );
-        status = ERROR;
+        status = VIO_ERROR;
     }
 
     (void) input_newline( stdin );
@@ -419,15 +419,15 @@
     VIO_Status  status;
     VIO_STR  filename;
 
-    status = OK;
+    status = VIO_OK;
 
     print( "Enter filename: " );
 
-    if( input_string( stdin, &filename, ' ' ) == OK )
+    if( input_string( stdin, &filename, ' ' ) == VIO_OK )
     {
         status = save_window_to_file( display, filename, 0, -1, 0, -1 );
 
-        if( status == OK )
+        if( status == VIO_OK )
             print( "Done saving image to %s.\n", filename );
         else
             print( "Could not save image to %s.\n", filename );
@@ -460,7 +460,7 @@
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -481,7 +481,7 @@
 
     print( "Enter new eye separation_ratio: " );
 
-    if( input_real( stdin, &eye_separation ) == OK )
+    if( input_real( stdin, &eye_separation ) == VIO_OK )
     {
         display->three_d.view.eye_separation_ratio = eye_separation;
 
@@ -492,7 +492,7 @@
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -544,7 +544,7 @@
                display->three_d.view.perspective_distance );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -562,9 +562,9 @@
 
     print( "Enter x y z world coordinate: " );
 
-    if( input_real( stdin, &xw ) == OK &&
-        input_real( stdin, &yw ) == OK &&
-        input_real( stdin, &zw ) == OK )
+    if( input_real( stdin, &xw ) == VIO_OK &&
+        input_real( stdin, &yw ) == VIO_OK &&
+        input_real( stdin, &zw ) == VIO_OK )
     {
         fill_Point( display->three_d.cursor.origin, xw, yw, zw );
         update_cursor( display );
@@ -573,7 +573,7 @@
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -591,9 +591,9 @@
 
     print( "Enter x y z eye coordinate: " );
 
-    if( input_real( stdin, &x ) == OK &&
-        input_real( stdin, &y ) == OK &&
-        input_real( stdin, &z ) == OK )
+    if( input_real( stdin, &x ) == VIO_OK &&
+        input_real( stdin, &y ) == VIO_OK &&
+        input_real( stdin, &z ) == VIO_OK )
     {
         transform_point( &display->three_d.view.modeling_transform,
                          x, y, z, &x, &y, &z );
@@ -604,7 +604,7 @@
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -623,9 +623,9 @@
 
     print( "Enter x y z line_of_sight coordinate: " );
 
-    if( input_real( stdin, &x ) == OK &&
-        input_real( stdin, &y ) == OK &&
-        input_real( stdin, &z ) == OK )
+    if( input_real( stdin, &x ) == VIO_OK &&
+        input_real( stdin, &y ) == VIO_OK &&
+        input_real( stdin, &z ) == VIO_OK )
     {
         transform_vector( &display->three_d.view.modeling_transform,
                           x, y, z, &x, &y, &z );
@@ -639,7 +639,7 @@
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -658,9 +658,9 @@
 
     print( "Enter x y z up coordinate: " );
 
-    if( input_real( stdin, &x ) == OK &&
-        input_real( stdin, &y ) == OK &&
-        input_real( stdin, &z ) == OK )
+    if( input_real( stdin, &x ) == VIO_OK &&
+        input_real( stdin, &y ) == VIO_OK &&
+        input_real( stdin, &z ) == VIO_OK )
     {
         transform_vector( &display->three_d.view.modeling_transform,
                           x, y, z, &x, &y, &z );
@@ -674,7 +674,7 @@
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -693,7 +693,7 @@
     print( "Current window width: %g\n", display->three_d.view.window_width );
     print( "Enter window width: " );
 
-    if( input_real( stdin, &width ) == OK &&
+    if( input_real( stdin, &width ) == VIO_OK &&
         width > 0.0 )
     {
         scale = width / display->three_d.view.window_width;
@@ -705,7 +705,7 @@
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -725,7 +725,7 @@
            display->three_d.view.perspective_distance );
     print( "Enter perspective distance: " );
 
-    if( input_real( stdin, &dist ) == OK && dist > 0.0 )
+    if( input_real( stdin, &dist ) == VIO_OK && dist > 0.0 )
     {
         display->three_d.view.perspective_distance = dist;
         update_view( display );
@@ -734,7 +734,7 @@
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */

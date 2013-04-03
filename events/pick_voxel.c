@@ -37,7 +37,7 @@ private  DEF_EVENT_FUNCTION( start_picking_voxel )
 
     update_voxel_cursor( graphics );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 private  DEF_EVENT_FUNCTION( end_picking_voxel )
@@ -64,7 +64,7 @@ private  DEF_EVENT_FUNCTION( handle_update_voxel )
         update_voxel_cursor( graphics );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 private  void  update_voxel_cursor( slice_window )
@@ -78,8 +78,8 @@ private  void  update_voxel_cursor( slice_window )
     Boolean           update_current_marker();
     void              rebuild_selected_list();
 
-    if( get_voxel_in_slice_window( slice_window, &indices[X],
-                 &indices[Y], &indices[Z], &axis_index ) )
+    if( get_voxel_in_slice_window( slice_window, &indices[VIO_X],
+                 &indices[VIO_Y], &indices[VIO_Z], &axis_index ) )
     {
         for_less( c, 0, N_DIMENSIONS )
         {
@@ -87,8 +87,8 @@ private  void  update_voxel_cursor( slice_window )
                 indices[c] = slice_window->slice.slice_index[c];
         }
 
-        if( set_current_voxel( slice_window, indices[X], indices[Y],
-                               indices[Z] ) )
+        if( set_current_voxel( slice_window, indices[VIO_X], indices[VIO_Y],
+                               indices[VIO_Z] ) )
         {
             set_update_required( slice_window, NORMAL_PLANES );
         }
@@ -100,7 +100,7 @@ private  void  update_voxel_cursor( slice_window )
         }
 
         if( update_current_marker( slice_window->associated[THREE_D_WINDOW],
-                                   indices[X], indices[Y], indices[Z] ) )
+                                   indices[VIO_X], indices[VIO_Y], indices[VIO_Z] ) )
         {
             rebuild_selected_list( slice_window->associated[THREE_D_WINDOW],
                                    slice_window->associated[MENU_WINDOW] );

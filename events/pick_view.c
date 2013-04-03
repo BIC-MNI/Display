@@ -67,7 +67,7 @@ static  DEF_EVENT_FUNCTION( terminate_picking_viewport )
 
     remove_events( &display->action_table );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  get_coordinates(
@@ -126,7 +126,7 @@ static  DEF_EVENT_FUNCTION( show_rectangle_at_mouse )
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -155,7 +155,7 @@ static  DEF_EVENT_FUNCTION( pick_first_corner_point )
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -178,7 +178,7 @@ static  DEF_EVENT_FUNCTION( show_picked_viewport )
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -208,5 +208,5 @@ static  DEF_EVENT_FUNCTION( done_picking_viewport )
         set_update_required( display, NORMAL_PLANES );
     }
     
-    return( OK );
+    return( VIO_OK );
 }

@@ -30,8 +30,8 @@ static  void  start_surface(
 {
     display_struct  *slice_window;
     VIO_BOOL         input_okay;
-    Real            min_value, max_value;
-    Real            voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real            min_value, max_value;
+    VIO_Real            voxel[VIO_MAX_DIMENSIONS];
     int             int_voxel[VIO_MAX_DIMENSIONS];
     VIO_Volume          volume, label_volume;
 
@@ -62,14 +62,14 @@ static  void  start_surface(
         if( binary_flag || voxelate_flag )
         {
             print( "Enter min and max inside value: " );
-            if( input_real( stdin, &min_value ) != OK ||
-                input_real( stdin, &max_value ) != OK )
+            if( input_real( stdin, &min_value ) != VIO_OK ||
+                input_real( stdin, &max_value ) != VIO_OK )
                 input_okay = FALSE;
         }
         else
         {
             print( "Enter isovalue: " );
-            if( input_real( stdin, &min_value ) != OK )
+            if( input_real( stdin, &min_value ) != VIO_OK )
                 input_okay = FALSE;
             max_value = min_value;
         }
@@ -102,9 +102,9 @@ static  void  start_surface(
                                            binary_flag, voxelate_flag,
                                            min_value,
                                            max_value,
-                                           int_voxel[X],
-                                           int_voxel[Y],
-                                           int_voxel[Z] );
+                                           int_voxel[VIO_X],
+                                           int_voxel[VIO_Y],
+                                           int_voxel[VIO_Z] );
     }
 }
 
@@ -114,7 +114,7 @@ static  void  start_surface(
 {
     start_surface( display, FALSE, FALSE, FALSE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -130,7 +130,7 @@ static  void  start_surface(
 {
     start_surface( display, FALSE, TRUE, FALSE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -146,7 +146,7 @@ static  void  start_surface(
 {
     start_surface( display, TRUE, TRUE, FALSE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -170,7 +170,7 @@ static  void  start_surface(
             start_surface_extraction( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -194,7 +194,7 @@ static  void  start_surface(
         graphics_models_have_changed( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -230,7 +230,7 @@ static  void  start_surface(
         add_object_to_current_model( display, object );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -246,7 +246,7 @@ static  void  start_surface(
   DEF_MENU_FUNCTION(get_voxelated_label_surface)
 {
     start_surface( display, TRUE, FALSE, TRUE );
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -262,7 +262,7 @@ static  void  start_surface(
 {
     start_surface( display, FALSE, FALSE, TRUE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -280,8 +280,8 @@ static  void  start_surface(
 
     print( "Enter min label and max label corresponding to invalid voxels: " );
 
-    if( input_int( stdin, &min_label ) == OK &&
-        input_int( stdin, &max_label ) == OK )
+    if( input_int( stdin, &min_label ) == VIO_OK &&
+        input_int( stdin, &max_label ) == VIO_OK )
     {
         set_invalid_label_range_for_surface_extraction( display,
                                                         min_label, max_label );
@@ -289,7 +289,7 @@ static  void  start_surface(
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */

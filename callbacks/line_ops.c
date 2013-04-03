@@ -50,7 +50,7 @@ static  VIO_BOOL  get_current_lines(
     lines_struct    *lines;
     VIO_Real            smooth_distance;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_current_lines( display, &lines ) )
     {
@@ -60,7 +60,7 @@ static  VIO_BOOL  get_current_lines(
 
         (void) input_newline( stdin );
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             smooth_lines( lines, smooth_distance );
             set_update_required( display, NORMAL_PLANES );
@@ -86,7 +86,7 @@ static  VIO_BOOL  get_current_lines(
     VIO_Real            radius;
     int             n_around;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_current_lines( display, &lines ) )
     {
@@ -94,15 +94,15 @@ static  VIO_BOOL  get_current_lines(
 
         status = input_int( stdin, &n_around );
 
-        if( status == OK )
+        if( status == VIO_OK )
             status = input_real( stdin, &radius );
 
         (void) input_newline( stdin );
 
-        if( status == OK )
+        if( status == VIO_OK )
             convert_lines_to_tubes_objects( display, lines, n_around, radius );
 
-        if( status == OK )
+        if( status == VIO_OK )
             graphics_models_have_changed( display );
     }
 
@@ -137,7 +137,7 @@ static  VIO_BOOL  get_current_lines(
         add_object_to_current_model( display, object );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -159,13 +159,13 @@ static  VIO_BOOL  get_current_lines(
     print( "Enter x_centre, y_centre, z_centre, plane_axis, x_size, y_size\n" );
     print( "      n_around: " );
     
-    if( input_float( stdin, &Point_x(centre) ) == OK &&
-        input_float( stdin, &Point_y(centre) ) == OK &&
-        input_float( stdin, &Point_z(centre) ) == OK &&
-        input_int( stdin, &plane_axis ) == OK &&
-        input_real( stdin, &x_size ) == OK &&
-        input_real( stdin, &y_size ) == OK &&
-        input_int( stdin, &n_around ) == OK )
+    if( input_float( stdin, &Point_x(centre) ) == VIO_OK &&
+        input_float( stdin, &Point_y(centre) ) == VIO_OK &&
+        input_float( stdin, &Point_z(centre) ) == VIO_OK &&
+        input_int( stdin, &plane_axis ) == VIO_OK &&
+        input_real( stdin, &x_size ) == VIO_OK &&
+        input_real( stdin, &y_size ) == VIO_OK &&
+        input_int( stdin, &n_around ) == VIO_OK )
     {
         object = create_object( LINES );
 
@@ -178,7 +178,7 @@ static  VIO_BOOL  get_current_lines(
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -202,7 +202,7 @@ static  VIO_BOOL  get_current_lines(
         graphics_models_have_changed( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -260,7 +260,7 @@ static  void  convert_to_lines(
 
         print( "Enter number of points desired: " );
 
-        if( input_int( stdin, &n_points ) == OK )
+        if( input_int( stdin, &n_points ) == VIO_OK )
         {
             interpolate = (n_points >= 2);
             if( !interpolate )
@@ -368,7 +368,7 @@ static  void  convert_to_lines(
 {
     convert_to_lines( display, FALSE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -384,7 +384,7 @@ static  void  convert_to_lines(
 {
     convert_to_lines( display, TRUE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -402,12 +402,12 @@ static  void  convert_to_lines(
     lines_struct    *lines;
     VIO_Real            width;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_current_lines( display, &lines ) )
     {
         print( "Enter line width: " );
-        if( input_real( stdin, &width ) == OK )
+        if( input_real( stdin, &width ) == VIO_OK )
         {
             lines->line_thickness = (float) width;
             set_update_required( display, NORMAL_PLANES );

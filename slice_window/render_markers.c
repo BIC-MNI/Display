@@ -58,9 +58,9 @@ private  void  scan_convert_marker(
     Volume           label_volume,
     marker_struct    *marker )
 {
-    Real           low[N_DIMENSIONS], high[N_DIMENSIONS];
+    VIO_Real           low[N_DIMENSIONS], high[N_DIMENSIONS];
     int            min_voxel[N_DIMENSIONS], max_voxel[N_DIMENSIONS];
-    Real           voxel[N_DIMENSIONS];
+    VIO_Real           voxel[N_DIMENSIONS];
     int            c, label, int_voxel[N_DIMENSIONS];
 
     label = lookup_label_colour( slice_window, marker->colour );
@@ -92,11 +92,11 @@ private  void  scan_convert_marker(
         }
     }
 
-    for_inclusive( voxel[X], min_voxel[X], max_voxel[X] )
+    for_inclusive( voxel[VIO_X], min_voxel[VIO_X], max_voxel[VIO_X] )
     {
-        for_inclusive( voxel[Y], min_voxel[Y], max_voxel[Y] )
+        for_inclusive( voxel[VIO_Y], min_voxel[VIO_Y], max_voxel[VIO_Y] )
         {
-            for_inclusive( voxel[Z], min_voxel[Z], max_voxel[Z] )
+            for_inclusive( voxel[VIO_Z], min_voxel[VIO_Z], max_voxel[VIO_Z] )
             {
                 if( voxel_is_within_volume( volume, voxel ) )
 

@@ -36,9 +36,9 @@
 {
     voxel_index_struct   voxel_indices;
 
-    voxel_indices.i[X] = (short) voxel[X];
-    voxel_indices.i[Y] = (short) voxel[Y];
-    voxel_indices.i[Z] = (short) voxel[Z];
+    voxel_indices.i[VIO_X] = (short) voxel[VIO_X];
+    voxel_indices.i[VIO_Y] = (short) voxel[VIO_Y];
+    voxel_indices.i[VIO_Z] = (short) voxel[VIO_Z];
     INSERT_IN_QUEUE( *voxel_queue, voxel_indices );
 }
 
@@ -50,9 +50,9 @@
 
     REMOVE_FROM_QUEUE( *voxel_queue, voxel_indices );
 
-    voxel[X] = (int) voxel_indices.i[X];
-    voxel[Y] = (int) voxel_indices.i[Y];
-    voxel[Z] = (int) voxel_indices.i[Z];
+    voxel[VIO_X] = (int) voxel_indices.i[VIO_X];
+    voxel[VIO_Y] = (int) voxel_indices.i[VIO_Y];
+    voxel[VIO_Z] = (int) voxel_indices.i[VIO_Z];
 }
 
   VIO_BOOL  voxels_remaining(
@@ -74,9 +74,9 @@
     int                min_limits[],
     int                max_limits[] )
 {
-    create_bitlist_3d( max_limits[X] - min_limits[X] + 1,
-                       max_limits[Y] - min_limits[Y] + 1,
-                       max_limits[Z] - min_limits[Z] + 1, voxel_flags );
+    create_bitlist_3d( max_limits[VIO_X] - min_limits[VIO_X] + 1,
+                       max_limits[VIO_Y] - min_limits[VIO_Y] + 1,
+                       max_limits[VIO_Z] - min_limits[VIO_Z] + 1, voxel_flags );
 }
 
   void  delete_voxel_flags(
@@ -97,9 +97,9 @@
     int                 voxel[] )
 {
     return( get_bitlist_bit_3d( voxel_flags,
-                                voxel[X] - min_limits[X],
-                                voxel[Y] - min_limits[Y],
-                                voxel[Z] - min_limits[Z] ) );
+                                voxel[VIO_X] - min_limits[VIO_X],
+                                voxel[VIO_Y] - min_limits[VIO_Y],
+                                voxel[VIO_Z] - min_limits[VIO_Z] ) );
 }
 
   void  set_voxel_flag(
@@ -108,9 +108,9 @@
     int                    voxel[] )
 {
     set_bitlist_bit_3d( voxel_flags,
-                        voxel[X] - min_limits[X],
-                        voxel[Y] - min_limits[Y],
-                        voxel[Z] - min_limits[Z], TRUE );
+                        voxel[VIO_X] - min_limits[VIO_X],
+                        voxel[VIO_Y] - min_limits[VIO_Y],
+                        voxel[VIO_Z] - min_limits[VIO_Z], TRUE );
 }
 
   void  reset_voxel_flag(
@@ -119,23 +119,23 @@
     int                    voxel[] )
 {
     set_bitlist_bit_3d( voxel_flags,
-                        voxel[X] - min_limits[X],
-                        voxel[Y] - min_limits[Y],
-                        voxel[Z] - min_limits[Z], FALSE );
+                        voxel[VIO_X] - min_limits[VIO_X],
+                        voxel[VIO_Y] - min_limits[VIO_Y],
+                        voxel[VIO_Z] - min_limits[VIO_Z], FALSE );
 }
 
 /* ------------------ Voxel done flags, 4 bit flag structure --------------- */
 
   void  initialize_voxel_done_flags(
-    unsigned_byte   **voxel_done_flags,
+    VIO_UCHAR   **voxel_done_flags,
     int             min_limits[],
     int             max_limits[] )
 {
     int   n_voxels;
 
-    n_voxels = (max_limits[X] - min_limits[X] + 1) *
-               (max_limits[Y] - min_limits[Y] + 1) *
-               (max_limits[Z] - min_limits[Z] + 1);
+    n_voxels = (max_limits[VIO_X] - min_limits[VIO_X] + 1) *
+               (max_limits[VIO_Y] - min_limits[VIO_Y] + 1) *
+               (max_limits[VIO_Z] - min_limits[VIO_Z] + 1);
 
     if( n_voxels > 0 )
     {
@@ -146,48 +146,48 @@
 }
 
   void  delete_voxel_done_flags(
-    unsigned_byte  voxel_done_flags[] )
+    VIO_UCHAR  voxel_done_flags[] )
 {
     if( voxel_done_flags != NULL )
         FREE( voxel_done_flags );
 }
 
   void  clear_voxel_done_flags(
-    unsigned_byte   voxel_done_flags[],
+    VIO_UCHAR   voxel_done_flags[],
     int             min_limits[],
     int             max_limits[] )
 {
     int   i, n_voxels;
 
-    n_voxels = (max_limits[X] - min_limits[X] + 1) *
-               (max_limits[Y] - min_limits[Y] + 1) *
-               (max_limits[Z] - min_limits[Z] + 1);
+    n_voxels = (max_limits[VIO_X] - min_limits[VIO_X] + 1) *
+               (max_limits[VIO_Y] - min_limits[VIO_Y] + 1) *
+               (max_limits[VIO_Z] - min_limits[VIO_Z] + 1);
 
     for_less( i, 0, (n_voxels + 1) / 2 )
         voxel_done_flags[i] = 0;
 }
 
-  unsigned_byte  get_voxel_done_flag(
+  VIO_UCHAR  get_voxel_done_flag(
     int                 min_limits[],
     int                 max_limits[],
-    unsigned_byte       voxel_done_flags[],
+    VIO_UCHAR       voxel_done_flags[],
     int                 voxel[] )
 {
     int            index, byte_index;
-    unsigned_byte  flag;
+    VIO_UCHAR  flag;
 
-    index = IJK( voxel[X] - min_limits[X],
-                 voxel[Y] - min_limits[Y],
-                 voxel[Z] - min_limits[Z],
-                 max_limits[Y] - min_limits[Y] + 1, 
-                 max_limits[Z] - min_limits[Z] + 1 );
+    index = VIO_IJK( voxel[VIO_X] - min_limits[VIO_X],
+                 voxel[VIO_Y] - min_limits[VIO_Y],
+                 voxel[VIO_Z] - min_limits[VIO_Z],
+                 max_limits[VIO_Y] - min_limits[VIO_Y] + 1, 
+                 max_limits[VIO_Z] - min_limits[VIO_Z] + 1 );
 
     byte_index = index >> 1;
 
     if( index & 1 )
-        flag = (unsigned_byte) ((int) voxel_done_flags[byte_index] >> 4);
+        flag = (VIO_UCHAR) ((int) voxel_done_flags[byte_index] >> 4);
     else
-        flag = (unsigned_byte) ((int) voxel_done_flags[byte_index] & 15);
+        flag = (VIO_UCHAR) ((int) voxel_done_flags[byte_index] & 15);
 
     return( flag );
 }
@@ -195,26 +195,26 @@
   void  set_voxel_done_flag(
     int                 min_limits[],
     int                 max_limits[],
-    unsigned_byte       voxel_done_flags[],
+    VIO_UCHAR       voxel_done_flags[],
     int                 voxel[],
-    unsigned_byte       flag )
+    VIO_UCHAR       flag )
 {
     int            index, byte_index;
 
-    index = IJK( voxel[X] - min_limits[X],
-                 voxel[Y] - min_limits[Y],
-                 voxel[Z] - min_limits[Z],
-                 max_limits[Y] - min_limits[Y] + 1, 
-                 max_limits[Z] - min_limits[Z] + 1 );
+    index = VIO_IJK( voxel[VIO_X] - min_limits[VIO_X],
+                 voxel[VIO_Y] - min_limits[VIO_Y],
+                 voxel[VIO_Z] - min_limits[VIO_Z],
+                 max_limits[VIO_Y] - min_limits[VIO_Y] + 1, 
+                 max_limits[VIO_Z] - min_limits[VIO_Z] + 1 );
 
     byte_index = index >> 1;
 
     if( index & 1 )
-        voxel_done_flags[byte_index] = (unsigned_byte)
+        voxel_done_flags[byte_index] = (VIO_UCHAR)
                  (((int) voxel_done_flags[byte_index] & 15) |
                                        ((int) flag << 4));
     else
-        voxel_done_flags[byte_index] = (unsigned_byte)
+        voxel_done_flags[byte_index] = (VIO_UCHAR)
                  (((int) voxel_done_flags[byte_index] & 240) | (int) flag);
 }
 
@@ -244,7 +244,7 @@ static  int  get_edge_point_key(
 {
     int   key;
 
-    key = IJK( x, y, z, sizes[Y]+1,sizes[Z]+1) * 6 + edge;
+    key = VIO_IJK( x, y, z, sizes[VIO_Y]+1,sizes[VIO_Z]+1) * 6 + edge;
 
     return( key );
 }

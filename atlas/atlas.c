@@ -38,12 +38,12 @@ static  const  VIO_Real  ATLAS_STARTS[VIO_N_DIMENSIONS] = {  -86.095, -126.51, -
     atlas->enabled = FALSE;
     atlas->opacity = Initial_atlas_opacity;
     atlas->transparent_threshold = Initial_atlas_transparent_threshold;
-    atlas->slice_tolerance[X] = Initial_atlas_tolerance_x;
-    atlas->slice_tolerance[Y] = Initial_atlas_tolerance_y;
-    atlas->slice_tolerance[Z] = Initial_atlas_tolerance_z;
-    atlas->flipped[X] = FALSE;
-    atlas->flipped[Y] = FALSE;
-    atlas->flipped[Z] = FALSE;
+    atlas->slice_tolerance[VIO_X] = Initial_atlas_tolerance_x;
+    atlas->slice_tolerance[VIO_Y] = Initial_atlas_tolerance_y;
+    atlas->slice_tolerance[VIO_Z] = Initial_atlas_tolerance_z;
+    atlas->flipped[VIO_X] = FALSE;
+    atlas->flipped[VIO_Y] = FALSE;
+    atlas->flipped[VIO_Z] = FALSE;
     atlas->n_images = 0;
 }
 
@@ -72,9 +72,9 @@ static  VIO_Volume  convert_pixels_to_volume(
     int      ind, dim, x_index, y_index;
     VIO_STR   dim_names[2];
     int      dim_orders[VIO_N_DIMENSIONS][2] = {
-                                                         { Y, Z },
-                                                         { X, Z },
-                                                         { X, Y }
+                                                         { VIO_Y, VIO_Z },
+                                                         { VIO_X, VIO_Z },
+                                                         { VIO_X, VIO_Y }
                                                       };
     VIO_Volume   volume;
     VIO_Real     separations[2];
@@ -144,16 +144,16 @@ static  VIO_Status  input_atlas(
 
     status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
 
-    if( status != OK )
+    if( status != VIO_OK )
         return( status );
 
     image_filenames = (VIO_STR *) NULL;
 
-    while( input_string( file, &image_filename, ' ' ) == OK )
+    while( input_string( file, &image_filename, ' ' ) == VIO_OK )
     {
-        status = ERROR;
+        status = VIO_ERROR;
 
-        if( input_nonwhite_character( file, &axis_letter ) != OK )
+        if( input_nonwhite_character( file, &axis_letter ) != VIO_OK )
             break;
 
         if( axis_letter >= 'x' && axis_letter <= 'z' )
@@ -163,7 +163,7 @@ static  VIO_Status  input_atlas(
         else
             break;
 
-        if( input_real( file, &talairach_position ) != OK )
+        if( input_real( file, &talairach_position ) != VIO_OK )
             break;
 
         SET_ARRAY_SIZE( image_filenames,
@@ -178,10 +178,10 @@ static  VIO_Status  input_atlas(
 
         ++atlas->n_images;
 
-        status = OK;
+        status = VIO_OK;
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         status = close_file( file );
 
@@ -193,7 +193,7 @@ static  VIO_Status  input_atlas(
             status = input_pixel_map( atlas_directory,
                                       image_filenames[image],
                                       &pixels );
-            if( status != OK )
+            if( status != VIO_OK )
                 break;
 
             atlas->images[image].image = convert_pixels_to_volume(
@@ -209,7 +209,7 @@ static  VIO_Status  input_atlas(
         terminate_progress_report( &progress );
     }
 
-    if( status == OK && atlas->n_images > 0 )
+    if( status == VIO_OK && atlas->n_images > 0 )
     {
         for_less( image, 0, atlas->n_images )
             delete_string( image_filenames[image] );
@@ -217,7 +217,7 @@ static  VIO_Status  input_atlas(
         FREE( image_filenames );
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
         atlas->input = TRUE;
     else
         print( "Error inputting atlas.\n" );
@@ -244,18 +244,18 @@ static  VIO_Status  input_pixel_map(
 
     status = open_file( absolute_filename, READ_FILE, BINARY_FORMAT, &file );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = input_object_type( file, &object_type, &format, &eof );
 
-    if( status == OK && !eof && object_type == PIXELS )
+    if( status == VIO_OK && !eof && object_type == PIXELS )
         status = io_pixels( file, READ_FILE, format, pixels );
     else
-        status = ERROR;
+        status = VIO_ERROR;
 
-    if( status == OK && pixels->pixel_type != COLOUR_INDEX_8BIT_PIXEL )
-        status = ERROR;
+    if( status == VIO_OK && pixels->pixel_type != COLOUR_INDEX_8BIT_PIXEL )
+        status = VIO_ERROR;
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = close_file( file );
 
     delete_string( absolute_filename );
@@ -274,13 +274,13 @@ static  VIO_Status  input_pixel_map(
 {
     VIO_Status   status;
 
-    status = OK;
+    status = VIO_OK;
 
     if( state && !slice_window->slice.atlas.input )
     {
         status = input_atlas( &slice_window->slice.atlas, Atlas_filename );
 
-        if( status == OK )
+        if( status == VIO_OK )
             regenerate_atlas_lookup( slice_window );
     }
 
@@ -353,16 +353,16 @@ static  VIO_BOOL  find_appropriate_atlas_image(
                 (*image == NULL || dist <= min_dist) )
             {
                 convert_world_to_voxel( atlas->images[im].image,
-                                world_start[X], world_start[Y], world_start[Z],
+                                world_start[VIO_X], world_start[VIO_Y], world_start[VIO_Z],
                                 tmp_origin );
 
                 convert_world_vector_to_voxel( atlas->images[im].image,
-                                       world_x_axis[X], world_x_axis[Y],
-                                       world_x_axis[Z], tmp_x_axis );
+                                       world_x_axis[VIO_X], world_x_axis[VIO_Y],
+                                       world_x_axis[VIO_Z], tmp_x_axis );
 
                 convert_world_vector_to_voxel( atlas->images[im].image,
-                                       world_y_axis[X], world_y_axis[Y],
-                                       world_y_axis[Z], tmp_y_axis );
+                                       world_y_axis[VIO_X], world_y_axis[VIO_Y],
+                                       world_y_axis[VIO_Z], tmp_y_axis );
 
                 get_volume_separations( atlas->images[im].image, separations );
 

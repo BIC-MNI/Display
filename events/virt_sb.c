@@ -61,7 +61,7 @@ static  DEF_EVENT_FUNCTION( turn_off_virtual_spaceball )
                                   TERMINATE_INTERACTION_EVENT,
                                   turn_off_virtual_spaceball );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -96,7 +96,7 @@ static  DEF_EVENT_FUNCTION( start_virtual_spaceball )
 
     record_mouse_position( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  update_rotation(
@@ -116,7 +116,7 @@ static  DEF_EVENT_FUNCTION( handle_update_rotation )
 {
     update_rotation( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -133,7 +133,7 @@ static  DEF_EVENT_FUNCTION( terminate_rotation )
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_rotation );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  VIO_BOOL  perform_rotation(
@@ -180,7 +180,7 @@ static  DEF_EVENT_FUNCTION( handle_update_translation )
 {
     update_translation( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -198,7 +198,7 @@ static  DEF_EVENT_FUNCTION( terminate_translation )
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_translation );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  VIO_BOOL  perform_cursor_translation(
@@ -253,12 +253,12 @@ static  VIO_BOOL  perform_cursor_translation(
                          DOT_VECTORS( mouse_dir,axis_screen[axis_index]) /
                          mag_mouse / mag_axis[axis_index];
                 angle[axis_index] = acos( (double) VIO_FABS(dot_prod[axis_index]) )
-                                    * RAD_TO_DEG;
+                                    * VIO_RAD_TO_DEG;
             }
         }
 
-        best_axis = X;
-        for_inclusive( axis_index, Y, Z )
+        best_axis = VIO_X;
+        for_inclusive( axis_index, VIO_Y, VIO_Z )
         {
             if( VIO_FABS(dot_prod[axis_index]) > VIO_FABS(dot_prod[best_axis]) )
             {

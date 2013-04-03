@@ -45,7 +45,7 @@
 
         print( "Enter new values: " );
 
-        if( input_line( stdin, &line ) == OK )
+        if( input_line( stdin, &line ) == VIO_OK )
         {
             do_it = TRUE;
             if( sscanf( line, "%lf %lf", &min_value, &max_value ) != 2 )
@@ -72,7 +72,7 @@
         }
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -108,7 +108,7 @@ static  void  set_the_colour_coding_type(
 {
     set_the_colour_coding_type( display, CONTOUR_COLOUR_MAP );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -124,7 +124,7 @@ static  void  set_the_colour_coding_type(
 {
     set_the_colour_coding_type( display, HOT_METAL );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -140,7 +140,7 @@ static  void  set_the_colour_coding_type(
 {
     set_the_colour_coding_type( display, GRAY_SCALE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -156,7 +156,7 @@ static  void  set_the_colour_coding_type(
 {
     set_the_colour_coding_type( display, RED_COLOUR_MAP );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -172,7 +172,7 @@ static  void  set_the_colour_coding_type(
 {
     set_the_colour_coding_type( display, GREEN_COLOUR_MAP );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -188,7 +188,7 @@ static  void  set_the_colour_coding_type(
 {
     set_the_colour_coding_type( display, BLUE_COLOUR_MAP );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -204,7 +204,7 @@ static  void  set_the_colour_coding_type(
 {
     set_the_colour_coding_type( display, SPECTRAL );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -220,7 +220,7 @@ static  void  set_the_colour_coding_type(
 {
     set_the_colour_coding_type( display, SINGLE_COLOUR_SCALE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -236,7 +236,7 @@ static  void  set_the_colour_coding_type(
 {
     set_the_colour_coding_type( display, USER_DEFINED_COLOUR_MAP );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -255,7 +255,7 @@ static  void  set_the_colour_coding_type(
     VIO_STR                  line;
     VIO_Colour                  col;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
@@ -264,7 +264,7 @@ static  void  set_the_colour_coding_type(
 
         status = input_line( stdin, &line );
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             col = convert_string_to_colour( line );
 
@@ -313,7 +313,7 @@ static  void  set_the_colour_coding_type(
     VIO_STR                  line;
     VIO_Colour                  col;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
@@ -322,7 +322,7 @@ static  void  set_the_colour_coding_type(
 
         status = input_line( stdin, &line );
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             col = convert_string_to_colour( line );
 
@@ -375,7 +375,7 @@ static  void  set_the_colour_coding_type(
     {
         print( "Enter new label colour opacity: " );
 
-        if( input_real( stdin, &opacity ) == OK &&
+        if( input_real( stdin, &opacity ) == VIO_OK &&
             opacity >= 0.0 && opacity <= 1.0 )
         {
             set_label_opacity( slice_window,
@@ -385,7 +385,7 @@ static  void  set_the_colour_coding_type(
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -435,7 +435,7 @@ static  void  set_filter_type(
   DEF_MENU_FUNCTION(set_nearest_neighbour )
 {
     set_filter_type( display, NEAREST_NEIGHBOUR );
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -450,7 +450,7 @@ static  void  set_filter_type(
   DEF_MENU_FUNCTION(set_linear_interpolation )
 {
     set_filter_type( display, LINEAR_INTERPOLATION );
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -465,7 +465,7 @@ static  void  set_filter_type(
   DEF_MENU_FUNCTION(set_box_filter )
 {
     set_filter_type( display, BOX_FILTER );
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -480,7 +480,7 @@ static  void  set_filter_type(
   DEF_MENU_FUNCTION(set_triangle_filter )
 {
     set_filter_type( display, TRIANGLE_FILTER );
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -495,7 +495,7 @@ static  void  set_filter_type(
   DEF_MENU_FUNCTION(set_gaussian_filter )
 {
     set_filter_type( display, GAUSSIAN_FILTER );
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -525,7 +525,7 @@ static  void  set_filter_type(
 
         print( "Enter new value: " );
 
-        if( input_real( stdin, &filter_width ) == OK &&
+        if( input_real( stdin, &filter_width ) == VIO_OK &&
             filter_width >= 0.0 )
         {
             slice_window->slice.volumes[volume_index].views[view_index]
@@ -538,7 +538,7 @@ static  void  set_filter_type(
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -560,7 +560,7 @@ static  void  set_filter_type(
     {
         print( "Enter number of labels: " );
 
-        if( input_int( stdin, &n_labels ) == OK )
+        if( input_int( stdin, &n_labels ) == VIO_OK )
         {
             set_slice_window_number_labels( slice_window,
                          get_current_volume_index(slice_window), n_labels );
@@ -571,7 +571,7 @@ static  void  set_filter_type(
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -608,7 +608,7 @@ static  void  set_filter_type(
                              !slice_window->slice.share_labels_flag;
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -642,7 +642,7 @@ static  void  set_filter_type(
         status = input_string( stdin, &filename, ' ' );
         (void) input_newline( stdin );
 
-        if( status == OK && check_clobber_file_default_suffix( filename,
+        if( status == VIO_OK && check_clobber_file_default_suffix( filename,
                                            get_default_colour_map_suffix() ) )
         {
             (void) save_label_colour_map( slice_window, filename );
@@ -651,7 +651,7 @@ static  void  set_filter_type(
         delete_string( filename );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -672,7 +672,7 @@ static  void  set_filter_type(
         get_n_volumes(slice_window) > 0 )
     {
         print( "Enter name of colour map file to load: " );
-        if( input_string( stdin, &filename, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == VIO_OK )
         {
             (void) load_label_colour_map( slice_window, filename );
             set_slice_window_all_update( slice_window,
@@ -684,7 +684,7 @@ static  void  set_filter_type(
         delete_string( filename );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -705,9 +705,9 @@ static  void  set_filter_type(
         get_n_volumes(slice_window) > 0 )
     {
         print( "Enter name of piecewise colour coding file to load: " );
-        if( input_string( stdin, &filename, ' ' ) == OK )
+        if( input_string( stdin, &filename, ' ' ) == VIO_OK )
         {
-            if( load_user_defined_colour_coding( slice_window, filename ) == OK)
+            if( load_user_defined_colour_coding( slice_window, filename ) == VIO_OK)
             {
                 set_colour_coding_type( &slice_window->slice.volumes[
                         get_current_volume_index(slice_window)].colour_coding,
@@ -727,7 +727,7 @@ static  void  set_filter_type(
         delete_string( filename );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */

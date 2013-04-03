@@ -63,7 +63,7 @@ static  object_struct  *get_model_object(
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -116,7 +116,7 @@ static  object_struct  *get_model_object(
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -161,7 +161,7 @@ static  object_struct  *get_model_object(
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -206,7 +206,7 @@ static  object_struct  *get_model_object(
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -251,7 +251,7 @@ static  object_struct  *get_model_object(
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -296,7 +296,7 @@ static  object_struct  *get_model_object(
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -339,7 +339,7 @@ static  object_struct  *get_model_object(
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -373,7 +373,7 @@ static  object_struct  *get_model_object(
                                    render.n_curve_segments );
     print( "Enter number of curve segments: " );
 
-    if( input_int( stdin, &n_segments ) == OK && n_segments > 0 )
+    if( input_int( stdin, &n_segments ) == VIO_OK && n_segments > 0 )
     {
         initialize_object_traverse( &object_traverse, FALSE, 1, &model_object );
 
@@ -393,7 +393,7 @@ static  object_struct  *get_model_object(
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -423,7 +423,7 @@ static  object_struct  *get_model_object(
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -454,7 +454,7 @@ static  object_struct  *get_model_object(
         set_slice_viewport_update( slice_window, FULL_WINDOW_MODEL );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -485,7 +485,7 @@ static  object_struct  *get_model_object(
 
     status = input_line( stdin, &line );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         col = convert_string_to_colour( line );
 
@@ -501,7 +501,7 @@ static  object_struct  *get_model_object(
 
     delete_string( line );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */

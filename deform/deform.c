@@ -43,7 +43,7 @@ public  void  delete_deformation(
 private  DEF_EVENT_FUNCTION( deform_object )
 {
     polygons_struct   *polygons;
-    Real              end_time;
+    VIO_Real              end_time;
 
     end_time = current_realtime_seconds() + Max_background_seconds;
 
@@ -100,7 +100,7 @@ private  DEF_EVENT_FUNCTION( deform_object )
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 public  void  turn_on_deformation(

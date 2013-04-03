@@ -169,7 +169,7 @@ static  DEF_EVENT_FUNCTION( handle_menu_resize )
     rebuild_cursor_position_model( three_d );
     update_menu_name_text( menu_window );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 
@@ -247,17 +247,17 @@ static VIO_STR default_menu_string =
             print_error(
                 "Cannot find menu file %s and no compiled-in fallback\n",
                 menu_filename );
-            return( ERROR );
+            return( VIO_ERROR );
         }
 
         filename = get_temporary_filename();
 
-        if( open_file( filename, WRITE_FILE, ASCII_FORMAT, &file ) != OK )
+        if( open_file( filename, WRITE_FILE, ASCII_FORMAT, &file ) != VIO_OK )
         {
             print_error(
                 "Cannot open temporary Display.menu file for write: %s\n",
                 filename );
-            return( ERROR );
+            return( VIO_ERROR );
         }
 
         len = string_length( default_menu_string );
@@ -274,7 +274,7 @@ static VIO_STR default_menu_string =
 
     delete_string( filename );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         status = read_menu( menu, file );
 
@@ -283,7 +283,7 @@ static VIO_STR default_menu_string =
         menu->entries[0].current_depth = 0;
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         build_menu( menu_window );
 
@@ -337,7 +337,7 @@ static  DEF_EVENT_FUNCTION( handle_character_down )
     VIO_Status             status;
     display_struct     *menu_window;
 
-    status = OK;
+    status = VIO_OK;
 
     menu_window = display->associated[MENU_WINDOW];
 
@@ -350,14 +350,14 @@ static  DEF_EVENT_FUNCTION( handle_character_down )
 
 static  DEF_EVENT_FUNCTION( handle_leaving_window )
 {
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
 
 static  DEF_EVENT_FUNCTION( handle_character_up )
 {
-    return( OK );
+    return( VIO_OK );
 }
 
 static  VIO_BOOL  is_menu_entry_active(
@@ -373,7 +373,7 @@ static  VIO_Status  handle_menu_for_key(
     VIO_Status             status;
     menu_entry_struct  *menu_entry;
 
-    status = OK;
+    status = VIO_OK;
 
     menu_entry = get_menu_key_entry( &menu_window->menu, key );
 
@@ -397,7 +397,7 @@ static  VIO_Status  process_menu(
                           display->associated[MENU_WINDOW],
                           menu_entry );
 
-    if( status == OK )
+    if( status == VIO_OK )
         update_all_menu_text( display );
 
     return( status );
@@ -410,7 +410,7 @@ static  DEF_EVENT_FUNCTION( left_mouse_press )
     VIO_Status  status;
     int     x, y;
 
-    status = OK;
+    status = VIO_OK;
 
     if( G_get_mouse_position( display->window, &x, &y ) )
     {
@@ -426,7 +426,7 @@ static  DEF_EVENT_FUNCTION( middle_mouse_press )
 {
     pop_menu_one_level( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  VIO_Status  handle_mouse_press_in_menu(
@@ -439,7 +439,7 @@ static  VIO_Status  handle_mouse_press_in_menu(
     int                 key;
     object_struct       *object, *current;
 
-    status = OK;
+    status = VIO_OK;
 
     three_d = get_three_d_window( menu_window );
 
@@ -499,7 +499,7 @@ static  VIO_Status  handle_mouse_press_in_menu(
 {
     VIO_Status   status;
 
-    status = OK;
+    status = VIO_OK;
 
     while( menu_window->menu.depth > menu_entry->current_depth )
     {
@@ -515,7 +515,7 @@ static  VIO_Status  handle_mouse_press_in_menu(
     if( menu_window->menu.depth >= MAX_MENU_DEPTH )
     {
         print( "Max menu depth\n" );
-        status = ERROR;
+        status = VIO_ERROR;
     }
     else
     {
@@ -545,7 +545,7 @@ static  VIO_Status  handle_mouse_press_in_menu(
 {
     pop_menu_one_level( menu_window );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */

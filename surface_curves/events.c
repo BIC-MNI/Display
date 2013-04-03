@@ -190,7 +190,7 @@ static  DEF_EVENT_FUNCTION( pick_point )
 {
     pick_surface_point( display, FALSE );
 
-    return( OK );
+    return( VIO_OK );
 }
 
   void  pick_surface_point_near_a_line(

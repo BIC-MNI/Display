@@ -49,5 +49,5 @@ static  DEF_EVENT_FUNCTION( add_to_surface )
             graphics_models_have_changed( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }

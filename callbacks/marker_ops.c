@@ -67,8 +67,8 @@ static  void  get_position_pointed_to(
     VIO_Point            *pos )
 {
     int             axis_index, volume_index;
-    Real            voxel[VIO_MAX_DIMENSIONS];
-    Real            x_w, y_w, z_w;
+    VIO_Real            voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real            x_w, y_w, z_w;
 
     if( get_voxel_under_mouse( display, &volume_index, &axis_index, voxel ) )
     {
@@ -115,7 +115,7 @@ static  void  get_position_pointed_to(
 
     create_marker_at_position( display, &position, NULL );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -148,7 +148,7 @@ static  void  get_position_pointed_to(
         }
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -170,7 +170,7 @@ static  void  get_position_pointed_to(
     marker_struct           *marker;
     object_traverse_struct  object_traverse;
     int                     n_tags;
-    Real                    **tags, *weights;
+    VIO_Real                    **tags, *weights;
     int                     *structure_ids, *patient_ids;
     VIO_STR                  *labels;
 
@@ -182,9 +182,9 @@ static  void  get_position_pointed_to(
 
     (void) input_newline( stdin );
 
-    if( status == OK && !check_clobber_file_default_suffix( filename,
+    if( status == VIO_OK && !check_clobber_file_default_suffix( filename,
                                              get_default_tag_file_suffix() ) )
-        status = ERROR;
+        status = VIO_ERROR;
 
     if( !get_slice_window_volume( display, &volume ) )
         volume = (VIO_Volume) NULL;
@@ -195,7 +195,7 @@ static  void  get_position_pointed_to(
     structure_ids = NULL;
     patient_ids = NULL;
     labels = NULL;
-    if( status == OK )
+    if( status == VIO_OK )
     {
         initialize_object_traverse( &object_traverse, TRUE, 1, &object );
 
@@ -214,10 +214,10 @@ static  void  get_position_pointed_to(
                 SET_ARRAY_SIZE( labels, n_tags, n_tags+1, DEFAULT_CHUNK_SIZE);
                 labels[n_tags] = create_string( marker->label );
 
-                tags[n_tags][X] = (Real) Point_x(marker->position);
-                tags[n_tags][Y] = (Real) Point_y(marker->position);
-                tags[n_tags][Z] = (Real) Point_z(marker->position);
-                weights[n_tags] = (Real) marker->size;
+                tags[n_tags][VIO_X] = (VIO_Real) Point_x(marker->position);
+                tags[n_tags][VIO_Y] = (VIO_Real) Point_y(marker->position);
+                tags[n_tags][VIO_Z] = (VIO_Real) Point_z(marker->position);
+                weights[n_tags] = (VIO_Real) marker->size;
                 structure_ids[n_tags] = marker->structure_id;
                 patient_ids[n_tags] = marker->patient_id;
                 ++n_tags;
@@ -225,23 +225,23 @@ static  void  get_position_pointed_to(
         }
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = open_file_with_default_suffix( filename,
                               get_default_tag_file_suffix(), WRITE_FILE,
                               ASCII_FORMAT, &file );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = output_tag_points( file, (char *) NULL, 1, n_tags,
-                                    tags, (Real **) NULL, weights,
+                                    tags, (VIO_Real **) NULL, weights,
                                     structure_ids, patient_ids, labels );
 
     if( n_tags > 0 )
     {
-        free_tag_points( 1, n_tags, tags, (Real **) NULL,
+        free_tag_points( 1, n_tags, tags, (VIO_Real **) NULL,
                          weights, structure_ids, patient_ids, labels );
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = close_file( file );
 
     delete_string( filename );
@@ -269,7 +269,7 @@ static  void  get_position_pointed_to(
 
     print( "Enter the new value: " );
 
-    if( input_int( stdin, &id ) == OK )
+    if( input_int( stdin, &id ) == VIO_OK )
     {
         display->three_d.default_marker_structure_id = id;
         print( "The new default marker id is: %d\n",
@@ -279,7 +279,7 @@ static  void  get_position_pointed_to(
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -303,7 +303,7 @@ static  void  get_position_pointed_to(
 
     print( "Enter the new value: " );
 
-    if( input_int( stdin, &id ) == OK )
+    if( input_int( stdin, &id ) == VIO_OK )
     {
         display->three_d.default_marker_patient_id = id;
         print( "The new default marker id is: %d\n",
@@ -313,7 +313,7 @@ static  void  get_position_pointed_to(
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -330,14 +330,14 @@ static  void  get_position_pointed_to(
 
   DEF_MENU_FUNCTION( set_default_marker_size )
 {
-    Real        size;
+    VIO_Real        size;
 
     print( "The current default marker size is: %g\n",
            display->three_d.default_marker_size );
 
     print( "Enter the new value: " );
 
-    if( input_real( stdin, &size ) == OK )
+    if( input_real( stdin, &size ) == VIO_OK )
     {
         display->three_d.default_marker_size = size;
         print( "The new default marker size is: %g\n",
@@ -346,7 +346,7 @@ static  void  get_position_pointed_to(
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -377,12 +377,12 @@ static  void  get_position_pointed_to(
 
     status = input_line( stdin, &string );
 
-    if( status == OK )
+    if( status == VIO_OK )
         colour = convert_string_to_colour( string );
 
     delete_string( string );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         display->three_d.default_marker_colour = colour;
 
@@ -418,7 +418,7 @@ static  void  get_position_pointed_to(
 
     print( "Enter the new type [0-%d]:", N_MARKER_TYPES-1 );
 
-    if( input_int( stdin, &type ) == OK && type >= 0 && type < N_MARKER_TYPES )
+    if( input_int( stdin, &type ) == VIO_OK && type >= 0 && type < N_MARKER_TYPES )
     {
         display->three_d.default_marker_type = (Marker_types) type;
         print( "The new default marker type is: %d\n",
@@ -428,7 +428,7 @@ static  void  get_position_pointed_to(
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -471,7 +471,7 @@ static  void  get_position_pointed_to(
 
     status = input_string( stdin, &label, ' ' );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         replace_string( &display->three_d.default_marker_label, label );
         print( "The new default marker label is: %s\n",
@@ -480,7 +480,7 @@ static  void  get_position_pointed_to(
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -504,7 +504,7 @@ static  void  get_position_pointed_to(
 
     print( "Enter the new structure id: " );
 
-    if( input_int( stdin, &id ) == OK &&
+    if( input_int( stdin, &id ) == VIO_OK &&
         get_current_object( display, &current_object ) )
     {
         initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
@@ -523,7 +523,7 @@ static  void  get_position_pointed_to(
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -544,7 +544,7 @@ static  void  get_position_pointed_to(
 
     print( "Enter the new patient id: " );
 
-    if( input_int( stdin, &id ) == OK &&
+    if( input_int( stdin, &id ) == VIO_OK &&
         get_current_object( display, &current_object ) )
     {
         initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
@@ -563,7 +563,7 @@ static  void  get_position_pointed_to(
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -586,7 +586,7 @@ static  void  get_position_pointed_to(
 
         print( "Enter the new type [0-%d]: ", N_MARKER_TYPES-1 );
 
-        if( input_int( stdin, &type ) == OK &&
+        if( input_int( stdin, &type ) == VIO_OK &&
             type >= 0 && type < N_MARKER_TYPES )
         {
             marker->type = (Marker_types) type;
@@ -598,7 +598,7 @@ static  void  get_position_pointed_to(
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -612,7 +612,7 @@ static  void  get_position_pointed_to(
 
   DEF_MENU_FUNCTION( change_marker_size )
 {
-    Real            size;
+    VIO_Real            size;
     marker_struct   *marker;
 
     if( get_current_marker(display,&marker) )
@@ -621,7 +621,7 @@ static  void  get_position_pointed_to(
 
         print( "Enter the new value: " );
 
-        if( input_real( stdin, &size ) == OK && size >= 0.0 )
+        if( input_real( stdin, &size ) == VIO_OK && size >= 0.0 )
         {
             marker->size = size;
             print( "The new size of this marker is: %g\n", marker->size );
@@ -631,7 +631,7 @@ static  void  get_position_pointed_to(
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -659,7 +659,7 @@ static  void  get_position_pointed_to(
         graphics_models_have_changed( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -682,7 +682,7 @@ static  void  get_position_pointed_to(
 
         print( "Enter the new label: " );
 
-        if( input_string( stdin, &label, ' ' ) == OK )
+        if( input_string( stdin, &label, ' ' ) == VIO_OK )
         {
             replace_string( &marker->label, label );
             print( "The new marker label is: %s\n", marker->label );
@@ -692,7 +692,7 @@ static  void  get_position_pointed_to(
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -715,7 +715,7 @@ static  void  get_position_pointed_to(
         graphics_models_have_changed( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -759,7 +759,7 @@ static  void  get_position_pointed_to(
         graphics_models_have_changed( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -778,7 +778,7 @@ static  void  get_position_pointed_to(
 
     set_update_required( display, get_cursor_bitplanes() );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */

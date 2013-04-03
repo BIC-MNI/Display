@@ -87,7 +87,7 @@ static  DEF_EVENT_FUNCTION( start_picking_angle )
             terminate_event( display ); 
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  update_picking_angle(
@@ -107,7 +107,7 @@ static  DEF_EVENT_FUNCTION( terminate_picking_angle )
 
     terminate_event( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -116,7 +116,7 @@ static  DEF_EVENT_FUNCTION( handle_update_picking_angle )
 {
     update_picking_angle( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  set_slice_angle(
@@ -125,10 +125,10 @@ static  void  set_slice_angle(
     int               y_pixel )
 {
     int        c, view_index, volume_index;
-    Real       origin_voxel[VIO_MAX_DIMENSIONS], voxel[VIO_MAX_DIMENSIONS];
-    Real       perp_axis[VIO_MAX_DIMENSIONS], view_perp_axis[VIO_MAX_DIMENSIONS];
-    Real       separations[VIO_MAX_DIMENSIONS], factor, mag, scale;
-    Real       new_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real       origin_voxel[VIO_MAX_DIMENSIONS], voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real       perp_axis[VIO_MAX_DIMENSIONS], view_perp_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real       separations[VIO_MAX_DIMENSIONS], factor, mag, scale;
+    VIO_Real       new_axis[VIO_MAX_DIMENSIONS];
     VIO_Point      origin, in_plane_point;
     VIO_Vector     current_normal, plane_normal, x_axis, current_in_plane;
     VIO_Vector     offset, new_normal, in_plane;
@@ -218,7 +218,7 @@ static  void  set_slice_angle(
         return;
 
     for_less( c, 0, VIO_N_DIMENSIONS )
-        new_axis[c] = (Real) Vector_coord( new_normal, c ) / separations[c];
+        new_axis[c] = (VIO_Real) Vector_coord( new_normal, c ) / separations[c];
 
     set_slice_plane_perp_axis( slice_window, volume_index,
                                get_arbitrary_view_index(slice_window),

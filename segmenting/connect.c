@@ -12,10 +12,10 @@ public  void  disconnect_components(
     int             axis[],
     int             n_labels,
     label_struct    labels[],
-    Real            min_threshold,
-    Real            max_threshold )
+    VIO_Real            min_threshold,
+    VIO_Real            max_threshold )
 {
-    Real          val;
+    VIO_Real          val;
     int           i;
     pixel_struct  **pixels;
     int           x, y, index[N_DIMENSIONS], size[N_DIMENSIONS];
@@ -23,15 +23,15 @@ public  void  disconnect_components(
 
     get_volume_sizes( volume, size );
 
-    ALLOC2D( pixels, size[axis[X]], size[axis[Y]] );
+    ALLOC2D( pixels, size[axis[VIO_X]], size[axis[VIO_Y]] );
 
-    index[axis[Z]] = voxel_indices[axis[Z]];
-    for_less( x, 0, size[axis[X]] )
+    index[axis[VIO_Z]] = voxel_indices[axis[VIO_Z]];
+    for_less( x, 0, size[axis[VIO_X]] )
     {
-        index[axis[X]] = x;
-        for_less( y, 0, size[axis[Y]] )
+        index[axis[VIO_X]] = x;
+        for_less( y, 0, size[axis[VIO_Y]] )
         {
-            index[axis[Y]] = y;
+            index[axis[VIO_Y]] = y;
 
             if( get_voxel_activity_flag( volume, index ) )
             {
@@ -49,23 +49,23 @@ public  void  disconnect_components(
 
     for_less( i, 0, n_labels )
     {
-        if( labels[i].voxel_indices[axis[Z]] == voxel_indices[Z] )
+        if( labels[i].voxel_indices[axis[VIO_Z]] == voxel_indices[VIO_Z] )
         {
-            pixels[labels[i].voxel_indices[axis[X]]]
-                  [labels[i].voxel_indices[axis[Y]]].label = labels[i].id;
+            pixels[labels[i].voxel_indices[axis[VIO_X]]]
+                  [labels[i].voxel_indices[axis[VIO_Y]]].label = labels[i].id;
         }
     }
 
-    label_components( size[axis[X]], size[axis[Y]], pixels,
+    label_components( size[axis[VIO_X]], size[axis[VIO_Y]], pixels,
                       REGION_OF_INTEREST );
 
-    index[axis[Z]] = voxel_indices[axis[Z]];
-    for_less( x, 0, size[axis[X]] )
+    index[axis[VIO_Z]] = voxel_indices[axis[VIO_Z]];
+    for_less( x, 0, size[axis[VIO_X]] )
     {
-        index[axis[X]] = x;
-        for_less( y, 0, size[axis[Y]] )
+        index[axis[VIO_X]] = x;
+        for_less( y, 0, size[axis[VIO_Y]] )
         {
-            index[axis[Y]] = y;
+            index[axis[VIO_Y]] = y;
 
             if( pixels[x][y].inside )
             {

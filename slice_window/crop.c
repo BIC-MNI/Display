@@ -63,10 +63,10 @@ static  void  set_slice_crop_position(
     char                  command[VIO_EXTREMELY_LARGE_STRING_SIZE];
     VIO_Volume                file_volume, volume;
     volume_input_struct   volume_input;
-    Real                  xw, yw, zw;
-    Real                  voxel[VIO_MAX_DIMENSIONS];
-    Real                  min_voxel[VIO_MAX_DIMENSIONS];
-    Real                  max_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real                  xw, yw, zw;
+    VIO_Real                  voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real                  min_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real                  max_voxel[VIO_MAX_DIMENSIONS];
     VIO_BOOL               first;
     int                   c, limit1, limit2, limit3;
     int                   sizes[VIO_MAX_DIMENSIONS];
@@ -76,7 +76,7 @@ static  void  set_slice_crop_position(
     if( string_length( slice_window->slice.crop.filename ) == 0 )
     {
         print( "You have not set the crop filename yet.\n" );
-        return( ERROR );
+        return( VIO_ERROR );
     }
 
     if( start_volume_input( slice_window->slice.crop.filename, 3,
@@ -84,12 +84,12 @@ static  void  set_slice_crop_position(
                             NC_UNSPECIFIED, FALSE, 0.0, 0.0,
                             TRUE, &file_volume,
                             (minc_input_options *) NULL,
-                            &volume_input ) != OK )
+                            &volume_input ) != VIO_OK )
     {
         print( "Error in cropping MINC file: %s\n",
                slice_window->slice.crop.filename );
 
-        return( ERROR );
+        return( VIO_ERROR );
     }
 
     volume = get_volume( slice_window );
@@ -143,10 +143,10 @@ static  void  set_slice_crop_position(
     (void) sprintf( command, Crop_volume_command,
                     slice_window->slice.crop.filename,
                     cropped_filename,
-                    int_min_voxel[X], int_min_voxel[Y], int_min_voxel[Z],
-                    int_max_voxel[X] - int_min_voxel[X] + 1,
-                    int_max_voxel[Y] - int_min_voxel[Y] + 1,
-                    int_max_voxel[Z] - int_min_voxel[Z] + 1 );
+                    int_min_voxel[VIO_X], int_min_voxel[VIO_Y], int_min_voxel[VIO_Z],
+                    int_max_voxel[VIO_X] - int_min_voxel[VIO_X] + 1,
+                    int_max_voxel[VIO_Y] - int_min_voxel[VIO_Y] + 1,
+                    int_max_voxel[VIO_Z] - int_min_voxel[VIO_Z] + 1 );
 
     print( "Issuing system command:\n\t%s\n", command );
 
@@ -154,10 +154,10 @@ static  void  set_slice_crop_position(
     {
         print( "Error cropping volume: %s\n",
                slice_window->slice.crop.filename );
-        return( ERROR );
+        return( VIO_ERROR );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
   void  crop_and_load_volume(
@@ -170,7 +170,7 @@ static  void  set_slice_crop_position(
 
     cropped_filename = concat_strings( tmp_name, ".mnc" );
 
-    if( create_cropped_volume_to_file( slice_window, cropped_filename ) == OK )
+    if( create_cropped_volume_to_file( slice_window, cropped_filename ) == VIO_OK )
     {
         (void) load_graphics_file( get_three_d_window(slice_window),
                                    cropped_filename, FALSE );
@@ -208,7 +208,7 @@ static  void  set_slice_crop_position(
         for_less( c, 0, VIO_N_DIMENSIONS )
         {
             slice_window->slice.crop.limits[0][c] = 0.0;
-            slice_window->slice.crop.limits[1][c] = (Real) sizes[c] - 1.0;
+            slice_window->slice.crop.limits[1][c] = (VIO_Real) sizes[c] - 1.0;
         }
     }
     else
@@ -273,8 +273,8 @@ static  DEF_EVENT_FUNCTION( start_picking_box )
     int             view_index, x_index, y_index, axis, x_mouse, y_mouse;
     int             limit_being_moved;
     int             x_min, x_max, y_min, y_max;
-    Real            x_low, y_low, x_high, y_high;
-    Real            best_dist, dist_low, dist_high;
+    VIO_Real            x_low, y_low, x_high, y_high;
+    VIO_Real            best_dist, dist_low, dist_high;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -305,8 +305,8 @@ static  DEF_EVENT_FUNCTION( start_picking_box )
         slice_window->slice.crop.axis_being_moved[0] = -1;
         slice_window->slice.crop.axis_being_moved[1] = -1;
 
-        dist_low = VIO_FABS( x_low - (Real) x_mouse );
-        dist_high = VIO_FABS( x_high - (Real) x_mouse );
+        dist_low = VIO_FABS( x_low - (VIO_Real) x_mouse );
+        dist_high = VIO_FABS( x_high - (VIO_Real) x_mouse );
 
         if( dist_low <= dist_high )
         {
@@ -325,8 +325,8 @@ static  DEF_EVENT_FUNCTION( start_picking_box )
             slice_window->slice.crop.axis_being_moved[0] = x_index;
         }
 
-        dist_low = VIO_FABS( y_low - (Real) y_mouse );
-        dist_high = VIO_FABS( y_high - (Real) y_mouse );
+        dist_low = VIO_FABS( y_low - (VIO_Real) y_mouse );
+        dist_high = VIO_FABS( y_high - (VIO_Real) y_mouse );
 
         if( dist_low <= dist_high )
         {
@@ -372,7 +372,7 @@ static  DEF_EVENT_FUNCTION( start_picking_box )
         update_picking_box( slice_window );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  update_picking_box(
@@ -392,7 +392,7 @@ static  DEF_EVENT_FUNCTION( terminate_picking_box )
 
     terminate_event( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -401,7 +401,7 @@ static  DEF_EVENT_FUNCTION( handle_update_picking_box )
 {
     update_picking_box( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  set_slice_crop_position(
@@ -411,9 +411,9 @@ static  void  set_slice_crop_position(
 {
     int        view_index, volume_index, dim, limit, axis, a;
     int        x_min, x_max, y_min, y_max;
-    Real       voxel[VIO_MAX_DIMENSIONS], origin[VIO_MAX_DIMENSIONS];
-    Real       x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
-    Real       delta;
+    VIO_Real       voxel[VIO_MAX_DIMENSIONS], origin[VIO_MAX_DIMENSIONS];
+    VIO_Real       x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real       delta;
     VIO_BOOL    changed;
 
     volume_index = get_current_volume_index( slice_window );
@@ -428,7 +428,7 @@ static  void  set_slice_crop_position(
     y_pixel -= y_min;
 
     (void) convert_slice_pixel_to_voxel( get_nth_volume(slice_window,
-                                volume_index), (Real) x_pixel, (Real) y_pixel,
+                                volume_index), (VIO_Real) x_pixel, (VIO_Real) y_pixel,
          origin, x_axis, y_axis,
          slice_window->slice.volumes[volume_index].views[view_index].x_trans,
          slice_window->slice.volumes[volume_index].views[view_index].y_trans,

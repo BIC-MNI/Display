@@ -35,10 +35,10 @@
 
     (void) input_newline( stdin );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = load_graphics_file( display, filename, FALSE );
 
-    if( status == OK )
+    if( status == VIO_OK )
         graphics_models_have_changed( display );
 
     delete_string( filename );
@@ -63,7 +63,7 @@
     VIO_Status         status;
     VIO_STR         filename;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_current_object( display, &current_object ) )
     {
@@ -73,9 +73,9 @@
 
         (void) input_newline( stdin );
 
-        if( status == OK && !check_clobber_file_default_suffix( filename,
+        if( status == VIO_OK && !check_clobber_file_default_suffix( filename,
                                                                 "obj" ) )
-            status = ERROR;
+            status = VIO_ERROR;
 
         if( current_object->object_type == MODEL )
         {
@@ -88,7 +88,7 @@
             object_list = &current_object;
         }
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             status = output_graphics_file( filename, (VIO_File_formats) Save_format,
                                            n_objects, object_list );

@@ -59,7 +59,7 @@
     VIO_STR            filename;
     FILE              *file;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_current_polygons(display,&polygons) &&
         polygons->bintree == (bintree_struct_ptr) 0 )
@@ -70,20 +70,20 @@
 
         (void) input_newline( stdin );
 
-        if( status == OK )
+        if( status == VIO_OK )
             status = open_file_with_default_suffix( filename, "btr", READ_FILE,
                                                     BINARY_FORMAT, &file );
 
-        if( status == OK )
+        if( status == VIO_OK )
             polygons->bintree = allocate_bintree();
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             status = io_bintree( file, READ_FILE, BINARY_FORMAT,
                                  polygons->bintree );
         }
 
-        if( status == OK )
+        if( status == VIO_OK )
             status = close_file( file );
 
         delete_string( filename );
@@ -111,7 +111,7 @@
     VIO_STR            filename;
     FILE              *file;
 
-    status = OK;
+    status = VIO_OK;
 
     if( get_current_polygons(display,&polygons) &&
         polygons->bintree != (bintree_struct_ptr) 0 )
@@ -122,20 +122,20 @@
 
         (void) input_newline( stdin );
 
-        if( status == OK && !check_clobber_file_default_suffix( filename,"btr"))
-            status = ERROR;
+        if( status == VIO_OK && !check_clobber_file_default_suffix( filename,"btr"))
+            status = VIO_ERROR;
 
-        if( status == OK )
+        if( status == VIO_OK )
             status = open_file_with_default_suffix( filename, "btr",
                                             WRITE_FILE, BINARY_FORMAT, &file );
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             status = io_bintree( file, WRITE_FILE, BINARY_FORMAT,
                                  polygons->bintree );
         }
 
-        if( status == OK )
+        if( status == VIO_OK )
             status = close_file( file );
 
         delete_string( filename );
@@ -170,7 +170,7 @@
         print( "Done.\n" );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -195,7 +195,7 @@
         print( "Done computing polygon normals.\n" );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -218,8 +218,8 @@
     {
         print( "Enter #iterations  neighbour_weight: " );
 
-        if( input_int( stdin, &n_iters ) == OK &&
-            input_real( stdin, &neighbour_weight ) == OK )
+        if( input_int( stdin, &n_iters ) == VIO_OK &&
+            input_real( stdin, &neighbour_weight ) == VIO_OK )
         {
             average_polygon_normals( polygons, n_iters, neighbour_weight );
 
@@ -231,7 +231,7 @@
         print( "Done averaging polygon normals.\n" );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -264,7 +264,7 @@
         print( "Done smoothing polygon.\n" );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -288,7 +288,7 @@
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -311,14 +311,14 @@
     print( "Enter x_centre, y_centre, z_centre, x_size, y_size, z_size,\n" );
     print( "      n_up, n_around: " );
     
-    if( input_float( stdin, &Point_x(centre) ) == OK &&
-        input_float( stdin, &Point_y(centre) ) == OK &&
-        input_float( stdin, &Point_z(centre) ) == OK &&
-        input_real( stdin, &x_size ) == OK &&
-        input_real( stdin, &y_size ) == OK &&
-        input_real( stdin, &z_size ) == OK &&
-        input_int( stdin, &n_up ) == OK &&
-        input_int( stdin, &n_around ) == OK )
+    if( input_float( stdin, &Point_x(centre) ) == VIO_OK &&
+        input_float( stdin, &Point_y(centre) ) == VIO_OK &&
+        input_float( stdin, &Point_z(centre) ) == VIO_OK &&
+        input_real( stdin, &x_size ) == VIO_OK &&
+        input_real( stdin, &y_size ) == VIO_OK &&
+        input_real( stdin, &z_size ) == VIO_OK &&
+        input_int( stdin, &n_up ) == VIO_OK &&
+        input_int( stdin, &n_around ) == VIO_OK )
     {
         object = create_object( POLYGONS );
 
@@ -334,7 +334,7 @@
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -356,13 +356,13 @@
     print( "Enter x_centre, y_centre, z_centre, x_size, y_size, z_size,\n" );
     print( "      n_triangles: " );
     
-    if( input_float( stdin, &Point_x(centre) ) == OK &&
-        input_float( stdin, &Point_y(centre) ) == OK &&
-        input_float( stdin, &Point_z(centre) ) == OK &&
-        input_real( stdin, &x_size ) == OK &&
-        input_real( stdin, &y_size ) == OK &&
-        input_real( stdin, &z_size ) == OK &&
-        input_int( stdin, &n_triangles ) == OK )
+    if( input_float( stdin, &Point_x(centre) ) == VIO_OK &&
+        input_float( stdin, &Point_y(centre) ) == VIO_OK &&
+        input_float( stdin, &Point_z(centre) ) == VIO_OK &&
+        input_real( stdin, &x_size ) == VIO_OK &&
+        input_real( stdin, &y_size ) == VIO_OK &&
+        input_real( stdin, &z_size ) == VIO_OK &&
+        input_int( stdin, &n_triangles ) == VIO_OK )
     {
         object = create_object( POLYGONS );
 
@@ -377,7 +377,7 @@
 
     (void) input_newline( stdin );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -402,7 +402,7 @@
         graphics_models_have_changed( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -428,7 +428,7 @@
         check_polygons_neighbours_computed( polygons );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -454,7 +454,7 @@
         print( "...done\n" );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -483,7 +483,7 @@
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -507,7 +507,7 @@
         print( "Surface area of polygons: %g\n", surface_area );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -529,7 +529,7 @@
         if( polygons == display->three_d.surface_extraction.polygons )
         {
             print( "Cannot coalesce in progress surface extraction.\n" );
-            return( OK );
+            return( VIO_OK );
         }
 
         coalesce_object_points( &polygons->n_points, &polygons->points,
@@ -546,7 +546,7 @@
         graphics_models_have_changed( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -568,7 +568,7 @@
         if( polygons == display->three_d.surface_extraction.polygons )
         {
             print( "Cannot separate in progress surface extraction.\n" );
-            return( OK );
+            return( VIO_OK );
         }
 
         separate_object_points( &polygons->n_points, &polygons->points,
@@ -583,7 +583,7 @@
         graphics_models_have_changed( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */

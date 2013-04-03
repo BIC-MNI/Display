@@ -62,7 +62,7 @@ static  DEF_EVENT_FUNCTION( terminate_connected )
 {
     remove_events( &display->action_table );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -86,7 +86,7 @@ static  DEF_EVENT_FUNCTION( pick_start_point )
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  make_connected_invisible(

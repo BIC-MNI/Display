@@ -60,7 +60,7 @@
         for_less( voxel[a2], 0, sizes[a2] )
         {
             set_voxel_label( slice_window, volume_index,
-                             voxel[X], voxel[Y], voxel[Z], label );
+                             voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z], label );
         }
     }
 }
@@ -111,7 +111,7 @@ typedef struct
                                 label) )
     {
         set_voxel_label( slice_window, volume_index,
-                         voxel[X], voxel[Y], voxel[Z], label );
+                         voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z], label );
         entry.x = voxel[a1];
         entry.y = voxel[a2];
         INSERT_IN_QUEUE( queue, entry );
@@ -137,7 +137,7 @@ typedef struct
                                      label))
             {
                 set_voxel_label( slice_window, volume_index,
-                                 voxel[X], voxel[Y], voxel[Z], label );
+                                 voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z], label );
                 entry.x = voxel[a1];
                 entry.y = voxel[a2];
                 INSERT_IN_QUEUE( queue, entry );

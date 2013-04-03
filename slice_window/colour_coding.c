@@ -92,7 +92,7 @@ static  void  realloc_label_colour_table(
 {
     int       n_labels, n_colours, n_around, n_up, u, a;
     VIO_Colour    col;
-    Real      r, g, b, hue, sat;
+    VIO_Real      r, g, b, hue, sat;
 
     n_labels = get_num_labels( slice_window, volume_index );
     ALLOC( slice_window->slice.volumes[volume_index].label_colour_table,
@@ -128,8 +128,8 @@ static  void  realloc_label_colour_table(
 
             for_less( a, 0, n_around )
             {
-                hue = (Real) a / (Real) n_around;
-                sat = 0.2 + (0.5 - 0.2) * ((Real) u / (Real) n_up);
+                hue = (VIO_Real) a / (VIO_Real) n_around;
+                sat = 0.2 + (0.5 - 0.2) * ((VIO_Real) u / (VIO_Real) n_up);
 
                 hsl_to_rgb( hue, 1.0, sat, &r, &g, &b );
                 col = make_Colour_0_1( r, g, b );
@@ -176,9 +176,9 @@ static  VIO_BOOL  find_similar_labels(
         volume = get_nth_volume( slice_window, i );
         get_volume_sizes( volume, sizes );
 
-        if( sizes[X] != this_size[X] ||
-            sizes[Y] != this_size[Y] ||
-            sizes[Z] != this_size[Z] )
+        if( sizes[VIO_X] != this_size[VIO_X] ||
+            sizes[VIO_Y] != this_size[VIO_Y] ||
+            sizes[VIO_Z] != this_size[VIO_Z] )
             continue;
 
         gen_transform = get_voxel_to_world_transform( volume );
@@ -244,7 +244,7 @@ static  void  create_colour_coding(
         slice->volumes[volume_index].labels_filename = create_string( NULL );
 
         set_volume_voxel_range( slice->volumes[volume_index].labels, 0.0,
-                            (Real) slice->volumes[volume_index].n_labels-1.0 );
+                            (VIO_Real) slice->volumes[volume_index].n_labels-1.0 );
     }
 
     realloc_label_colour_table( slice_window, volume_index );
@@ -266,7 +266,7 @@ static  void  alloc_colour_table(
     display_struct    *slice_window,
     int               volume_index )
 {
-    Real        min_voxel, max_voxel;
+    VIO_Real        min_voxel, max_voxel;
     VIO_Colour      *ptr;
 
     if( is_an_rgb_volume(get_nth_volume(slice_window,volume_index)) )
@@ -289,19 +289,19 @@ static  void  alloc_colour_table(
     display_struct    *slice_window,
     int               volume_index )
 {
-    Real              low_limit, high_limit;
+    VIO_Real              low_limit, high_limit;
     histogram_struct   histogram;
     VIO_Volume             volume;
-    Real               *histo_counts;
-    Real               scale_factor, trans_factor;
+    VIO_Real               *histo_counts;
+    VIO_Real               scale_factor, trans_factor;
     int                nbbins, axis_index, voxel_index;
     int                x, y, z, sizes[VIO_MAX_DIMENSIONS];
     int                start[VIO_MAX_DIMENSIONS], end[VIO_MAX_DIMENSIONS];
     int 			   sum_count, count, idx;
-    Real               min_value, max_value, value;
+    VIO_Real               min_value, max_value, value;
     VIO_progress_struct    progress;
     VIO_BOOL			   low_limit_done, high_limit_done;
-    Real                delta;
+    VIO_Real                delta;
 
 
     initialize_colour_coding(
@@ -340,12 +340,12 @@ static  void  alloc_colour_table(
           delta=1e-6;
         
         initialize_histogram( &histogram, delta, min_value );
-        start[X] = 0;
-        end[X] = sizes[X];
-        start[Y] = 0;
-        end[Y] = sizes[Y];
-        start[Z] = 0;
-        end[Z] = sizes[Z];
+        start[VIO_X] = 0;
+        end[VIO_X] = sizes[VIO_X];
+        start[VIO_Y] = 0;
+        end[VIO_Y] = sizes[VIO_Y];
+        start[VIO_Z] = 0;
+        end[VIO_Z] = sizes[VIO_Z];
 
         axis_index = -1;
         voxel_index = 0;
@@ -358,14 +358,14 @@ static  void  alloc_colour_table(
 
         if( axis_index < 0 )
         {
-            initialize_progress_report( &progress, FALSE, sizes[X] * sizes[Y],
+            initialize_progress_report( &progress, FALSE, sizes[VIO_X] * sizes[VIO_Y],
                                         "Histogramming" );
         }
-        for_less( x, start[X], end[X] )
+        for_less( x, start[VIO_X], end[VIO_X] )
         {
-            for_less( y, start[Y], end[Y] )
+            for_less( y, start[VIO_Y], end[VIO_Y] )
             {
-                for_less( z, start[Z], end[Z] )
+                for_less( z, start[VIO_Z], end[VIO_Z] )
                 {
                     {
                         value = get_volume_real_value( volume, x, y, z, 0, 0 );
@@ -374,7 +374,7 @@ static  void  alloc_colour_table(
                 }
 
                 if( axis_index < 0 )
-                    update_progress_report( &progress, x * sizes[Y] + y + 1 );
+                    update_progress_report( &progress, x * sizes[VIO_Y] + y + 1 );
             }
         }
 
@@ -393,13 +393,13 @@ static  void  alloc_colour_table(
 		high_limit_done = FALSE;
 		for_less( idx, Initial_histogram_low_clip_index, nbbins )
 		{
-			if (!(low_limit_done) && (count / (Real)sum_count > Initial_histogram_low))
+			if (!(low_limit_done) && (count / (VIO_Real)sum_count > Initial_histogram_low))
 			{
 				low_limit = idx * histogram.delta + histogram.offset;
 				low_limit_done = TRUE;
 			}
 
-			if (count / (Real) sum_count >= Initial_histogram_high)
+			if (count / (VIO_Real) sum_count >= Initial_histogram_high)
 			{
 				high_limit = idx * histogram.delta + histogram.offset;
 				high_limit_done = TRUE;
@@ -495,8 +495,8 @@ static  VIO_Colour  apply_label_colour(
     VIO_Colour            col,
     int               label )
 {
-    Real      r1, g1, b1, a1, r2, g2, b2, a2;
-    Real      r, g, b, a;
+    VIO_Real      r1, g1, b1, a1, r2, g2, b2, a2;
+    VIO_Real      r, g, b, a;
     VIO_Colour    label_col;
 
     if( label != 0 )
@@ -528,7 +528,7 @@ static  VIO_Colour  apply_label_colour(
 static  VIO_Colour  get_slice_colour_coding(
     display_struct    *slice_window,
     int               volume_index,
-    Real              value,
+    VIO_Real              value,
     int               label )
 {
     VIO_Colour           col;
@@ -548,9 +548,9 @@ static  void  rebuild_colour_table(
 {
     VIO_Volume           volume;
     int              voxel;
-    Real             value, r, g, b, a, opacity;
+    VIO_Real             value, r, g, b, a, opacity;
     VIO_Colour           colour;
-    Real             min_voxel, max_voxel;
+    VIO_Real             min_voxel, max_voxel;
 
     volume = get_nth_volume(slice_window,volume_index);
 
@@ -563,7 +563,7 @@ static  void  rebuild_colour_table(
 
     for_inclusive( voxel, (int) min_voxel, (int) max_voxel )
     {
-        value = convert_voxel_to_value( volume, (Real) voxel );
+        value = convert_voxel_to_value( volume, (VIO_Real) voxel );
         colour = get_colour_code( &slice_window->slice.volumes[volume_index].
                                   colour_coding, value );
 
@@ -583,7 +583,7 @@ static  void  rebuild_colour_table(
     int               label,
     VIO_Colour            colour )
 {
-    Real  r, g, b;
+    VIO_Real  r, g, b;
 
     if( get_Colour_a(colour) == 255 )
     {
@@ -610,7 +610,7 @@ static  void  rebuild_colour_table(
   void   set_volume_opacity(
     display_struct   *slice_window,
     int              volume_index,
-    Real             opacity )
+    VIO_Real             opacity )
 {
     slice_window->slice.volumes[volume_index].opacity = opacity;
 
@@ -620,10 +620,10 @@ static  void  rebuild_colour_table(
   void   set_label_opacity(
     display_struct   *slice_window,
     int              volume_index,
-    Real             opacity )
+    VIO_Real             opacity )
 {
     int     i, n_labels;
-    Real    r, g, b;
+    VIO_Real    r, g, b;
     VIO_Colour  *table;
 
     slice_window->slice.volumes[volume_index].label_colour_opacity = opacity;
@@ -666,8 +666,8 @@ static  void  rebuild_colour_table(
   void  change_colour_coding_range(
     display_struct    *slice_window,
     int               volume_index,
-    Real              min_value,
-    Real              max_value )
+    VIO_Real              min_value,
+    VIO_Real              max_value )
 {
     set_colour_coding_min_max( &slice_window->slice.volumes[volume_index].
                               colour_coding,
@@ -685,7 +685,7 @@ static  void  colour_code_points(
     VIO_Point                 points[] )
 {
     int      i, int_voxel[VIO_MAX_DIMENSIONS], label, volume_index, view_index;
-    Real     val, voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real     val, voxel[VIO_MAX_DIMENSIONS];
     VIO_Volume   volume, label_volume;
     VIO_Colour   colour, volume_colour;
 
@@ -724,9 +724,9 @@ static  void  colour_code_points(
             label_volume = get_nth_label_volume( slice_window, volume_index );
 
             convert_world_to_voxel( volume,
-                                    (Real) Point_x(points[i]),
-                                    (Real) Point_y(points[i]),
-                                    (Real) Point_z(points[i]), voxel );
+                                    (VIO_Real) Point_x(points[i]),
+                                    (VIO_Real) Point_y(points[i]),
+                                    (VIO_Real) Point_z(points[i]), voxel );
 
 
             if( is_an_rgb_volume( volume ) )
@@ -763,8 +763,8 @@ static  void  colour_code_points(
                 if( int_voxel_is_within_volume( volume, int_voxel ) )
                 {
                     label = get_voxel_label( slice_window, volume_index,
-                                             int_voxel[X], int_voxel[Y],
-                                             int_voxel[Z] );
+                                             int_voxel[VIO_X], int_voxel[VIO_Y],
+                                             int_voxel[VIO_Z] );
                 }
             }
 
@@ -842,36 +842,36 @@ static  void  colour_code_object_points(
         colour_code_object_points( slice_window, Volume_continuity, object );
 }
 
-  STRING    get_default_colour_map_suffix( void )
+  VIO_STR    get_default_colour_map_suffix( void )
 {
     return( DEFAULT_COLOUR_MAP_SUFFIX );
 }
 
   VIO_Status  load_label_colour_map(
     display_struct   *slice_window,
-    STRING           filename )
+    VIO_STR           filename )
 {
     VIO_Status   status;
     FILE     *file;
     VIO_Colour   col;
-    STRING   line;
+    VIO_STR   line;
     int      n_labels, index;
 
     if( open_file_with_default_suffix( filename,
                                        get_default_colour_map_suffix(),
-                                       READ_FILE, ASCII_FORMAT, &file ) != OK )
-        return( ERROR );
+                                       READ_FILE, ASCII_FORMAT, &file ) != VIO_OK )
+        return( VIO_ERROR );
 
     n_labels = get_num_labels( slice_window,
                                get_current_volume_index(slice_window) );
 
-    status = OK;
-    while( input_int( file, &index ) == OK )
+    status = VIO_OK;
+    while( input_int( file, &index ) == VIO_OK )
     {
-        if( input_line( file, &line ) != OK )
+        if( input_line( file, &line ) != VIO_OK )
         {
             print_error( "Error loading labels colour map.\n" );
-            status = ERROR;
+            status = VIO_ERROR;
             break;
         }
 
@@ -894,18 +894,18 @@ static  void  colour_code_object_points(
 
   VIO_Status  save_label_colour_map(
     display_struct   *slice_window,
-    STRING           filename )
+    VIO_STR           filename )
 {
     VIO_Status   status;
     FILE     *file;
-    Real     red, green, blue;
+    VIO_Real     red, green, blue;
     VIO_Colour   col;
     int      n_labels, index;
 
     if( open_file_with_default_suffix( filename,
                                        get_default_colour_map_suffix(),
-                                       WRITE_FILE, ASCII_FORMAT, &file ) != OK )
-        return( ERROR );
+                                       WRITE_FILE, ASCII_FORMAT, &file ) != VIO_OK )
+        return( VIO_ERROR );
 
     n_labels = get_num_labels( slice_window,
                                get_current_volume_index(slice_window) );
@@ -920,13 +920,13 @@ static  void  colour_code_object_points(
         green = get_Colour_g_0_1( col );
         blue = get_Colour_b_0_1( col );
 
-        if( output_int( file, index ) != OK ||
-            output_real( file, red ) != OK ||
-            output_real( file, green ) != OK ||
-            output_real( file, blue ) != OK ||
-            output_newline( file ) != OK )
+        if( output_int( file, index ) != VIO_OK ||
+            output_real( file, red ) != VIO_OK ||
+            output_real( file, green ) != VIO_OK ||
+            output_real( file, blue ) != VIO_OK ||
+            output_newline( file ) != VIO_OK )
         {
-            status = ERROR;
+            status = VIO_ERROR;
             break;
         }
     }
@@ -946,7 +946,7 @@ static  void  colour_code_object_points(
 
     tell_surface_extraction_label_changed( display, volume_index, 0, 0, 0 );
     tell_surface_extraction_label_changed( display, volume_index,
-                                           sizes[X]-1, sizes[Y]-1, sizes[Z]-1 );
+                                           sizes[VIO_X]-1, sizes[VIO_Y]-1, sizes[VIO_Z]-1 );
     set_all_volume_label_data( get_nth_label_volume(display,volume_index),
                                0 );
 }
@@ -978,11 +978,11 @@ static  void  colour_code_object_points(
     object_struct     *object;
     marker_struct     *marker;
     model_struct      *current_model;
-    Real              *world_dyn;
+    VIO_Real              *world_dyn;
     display_struct 	  *marker_window;
 	display_struct 	  *three_d_window;
-    Real		      world[VIO_MAX_DIMENSIONS];
-    Real              voxel_real[VIO_MAX_DIMENSIONS];
+    VIO_Real		      world[VIO_MAX_DIMENSIONS];
+    VIO_Real              voxel_real[VIO_MAX_DIMENSIONS];
     int			      voxel_int[VIO_MAX_DIMENSIONS];
     int			      value;
 
@@ -991,10 +991,10 @@ static  void  colour_code_object_points(
     label_stack = marker_window->label_stack;
     label_volume = get_nth_label_volume(display, volume_index);
 
-    voxel_real[X] = x;
-	voxel_real[Y] = y;
-	voxel_real[Z] = z;
-    convert_voxel_to_world( label_volume, voxel_real, &world[X], &world[Y], &world[Z] );
+    voxel_real[VIO_X] = x;
+	voxel_real[VIO_Y] = y;
+	voxel_real[VIO_Z] = z;
+    convert_voxel_to_world( label_volume, voxel_real, &world[VIO_X], &world[VIO_Y], &world[VIO_Z] );
 	if (label) /* add a voxel to a label region */
 	{
 		if (label_stack[label] == NULL)
@@ -1003,7 +1003,7 @@ static  void  colour_code_object_points(
 
 			object = create_object( MARKER );
             marker = get_marker_ptr( object );
-            fill_Point( marker->position, world[X], world[Y], world[Z]);
+            fill_Point( marker->position, world[VIO_X], world[VIO_Y], world[VIO_Z]);
             marker->label = create_string( "" );
             marker->structure_id = -1;
             marker->patient_id = -1;
@@ -1018,9 +1018,9 @@ static  void  colour_code_object_points(
 
 		}
 		ALLOC( world_dyn, VIO_MAX_DIMENSIONS );
-		world_dyn[X] = world[X];
-		world_dyn[Y] = world[Y];
-		world_dyn[Z] = world[Z];
+		world_dyn[VIO_X] = world[VIO_X];
+		world_dyn[VIO_Y] = world[VIO_Y];
+		world_dyn[VIO_Z] = world[VIO_Z];
 		label_stack[label] = push(label_stack[label], world_dyn);
 	}
 
@@ -1029,9 +1029,9 @@ static  void  colour_code_object_points(
 	if (value) /* only on not label voxel */
 	{
 		top_s = top(label_stack[value]);
-		if ((top_s->cur[X] - world[X]) < 1e-10f
-				&& (top_s->cur[Y] - world[Y]) < 1e-10f
-				&& (top_s->cur[Z] - world[Z]) < 1e-10f)
+		if ((top_s->cur[VIO_X] - world[VIO_X]) < 1e-10f
+				&& (top_s->cur[VIO_Y] - world[VIO_Y]) < 1e-10f
+				&& (top_s->cur[VIO_Z] - world[VIO_Z]) < 1e-10f)
 		{
 			do
 			{
@@ -1041,9 +1041,9 @@ static  void  colour_code_object_points(
 				{
 					FREE( label_stack[value] );
 					label_stack[value] = NULL;
-					voxel_int[X] = x;
-					voxel_int[Y] = y;
-					voxel_int[Z] = z;
+					voxel_int[VIO_X] = x;
+					voxel_int[VIO_Y] = y;
+					voxel_int[VIO_Z] = z;
 					convert_int_to_real_voxel(VIO_MAX_DIMENSIONS, voxel_int,
 							voxel_real);
 					update_current_marker(marker_window, volume_index, voxel_real);
@@ -1053,12 +1053,12 @@ static  void  colour_code_object_points(
 					rebuild_selected_list(three_d_window, marker_window);
 					break;
 				}
-				convert_world_to_voxel(label_volume, top_s->cur[X],
-						top_s->cur[Y], top_s->cur[Z], voxel_real);
+				convert_world_to_voxel(label_volume, top_s->cur[VIO_X],
+						top_s->cur[VIO_Y], top_s->cur[VIO_Z], voxel_real);
 				convert_real_to_int_voxel(VIO_MAX_DIMENSIONS, voxel_real, voxel_int);
 
-			} while (get_3D_volume_label_data(label_volume, voxel_int[X],
-					voxel_int[Y], voxel_int[Z]) != value);
+			} while (get_3D_volume_label_data(label_volume, voxel_int[VIO_X],
+					voxel_int[VIO_Y], voxel_int[VIO_Z]) != value);
 		}
 	}
 }
@@ -1083,7 +1083,7 @@ static  void  colour_code_object_points(
 
   VIO_Status  load_user_defined_colour_coding(
     display_struct   *slice_window,
-    STRING           filename )
+    VIO_STR           filename )
 {
     VIO_Status   status;
 

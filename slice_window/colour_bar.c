@@ -161,24 +161,24 @@ typedef  struct
 
         /* set the points */
 
-        y = INTERPOLATE( ratio, bottom, top );
+        y = VIO_INTERPOLATE( ratio, bottom, top );
 
-        fill_Point( quadmesh->points[IJ(i,1,2)],
+        fill_Point( quadmesh->points[VIO_IJ(i,1,2)],
                     colour_bar->left_offset, y, 0.0 );
 
-        fill_Point( quadmesh->points[IJ(i,0,2)],
+        fill_Point( quadmesh->points[VIO_IJ(i,0,2)],
                     colour_bar->left_offset + colour_bar->bar_width,
                     y, 0.0 );
 
         /* set the colours */
 
-        value = INTERPOLATE( ratio, min_value, max_value );
+        value = VIO_INTERPOLATE( ratio, min_value, max_value );
 
         colour = get_colour_code( &slice_window->slice.volumes[volume_index].
                                   colour_coding, value );
 
-        quadmesh->colours[IJ(i,0,2)] = colour;
-        quadmesh->colours[IJ(i,1,2)] = colour;
+        quadmesh->colours[VIO_IJ(i,0,2)] = colour;
+        quadmesh->colours[VIO_IJ(i,1,2)] = colour;
     }
 
     /* now rebuild the tick marks and numbers */
@@ -330,7 +330,7 @@ static  VIO_Real  get_y_pos(
     VIO_Real    top )
 {
     if( min_value != max_value )
-        return( INTERPOLATE( (value - min_value) / (max_value - min_value ),
+        return( VIO_INTERPOLATE( (value - min_value) / (max_value - min_value ),
                              bottom, top ) );
     else
         return( 0.0 );

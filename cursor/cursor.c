@@ -25,9 +25,9 @@
   void  initialize_cursor(
     display_struct    *display )
 {
-    display->three_d.cursor.box_size[X] = 1.0;
-    display->three_d.cursor.box_size[Y] = 1.0;
-    display->three_d.cursor.box_size[Z] = 1.0;
+    display->three_d.cursor.box_size[VIO_X] = 1.0;
+    display->three_d.cursor.box_size[VIO_Y] = 1.0;
+    display->three_d.cursor.box_size[VIO_Z] = 1.0;
     display->three_d.cursor.axis_size = Cursor_axis_size;
 
     reset_cursor( display );

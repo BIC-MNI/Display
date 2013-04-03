@@ -125,7 +125,7 @@ static  DEF_EVENT_FUNCTION( handle_marker_resize )
     rebuild_cursor_position_model( three_d );
     rebuild_selected_list( three_d, marker_window );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 
@@ -139,7 +139,7 @@ static  DEF_EVENT_FUNCTION( handle_marker_resize )
     int                  ch, i, dir, len;
     VIO_BOOL              found;
 
-    status = OK;
+    status = VIO_OK;
     marker = &marker_window->marker;
 
     G_set_transparency_state( marker_window->window, FALSE );
@@ -163,7 +163,7 @@ static  DEF_EVENT_FUNCTION( handle_marker_resize )
 //    directories[4] = default_directory4;
 
 
-//    if( status == OK )
+//    if( status == VIO_OK )
 //    {
 //        status = read_menu( menu, file );
 //
@@ -172,7 +172,7 @@ static  DEF_EVENT_FUNCTION( handle_marker_resize )
 //        menu->entries[0].current_depth = 0;
 //    }
 
-//    if( status == OK )
+//    if( status == VIO_OK )
 //    {
 //        build_menu( menu_window );
 //

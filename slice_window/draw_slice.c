@@ -310,17 +310,17 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
                                  &bottom_slice_height, &top_slice_height,
                                  &text_panel_height, &colour_bar_height );
 
-    fill_Point( points[0], (Real) left_panel_width,               0.0, 0.0 );
-    fill_Point( points[1], (Real) left_panel_width, (Real) (y_size-1), 0.0 );
+    fill_Point( points[0], (VIO_Real) left_panel_width,               0.0, 0.0 );
+    fill_Point( points[1], (VIO_Real) left_panel_width, (VIO_Real) (y_size-1), 0.0 );
 
-    fill_Point( points[2], (Real) (left_panel_width + left_slice_width),
+    fill_Point( points[2], (VIO_Real) (left_panel_width + left_slice_width),
                                          0.0, 0.0 );
-    fill_Point( points[3], (Real) (left_panel_width + left_slice_width),
-                           (Real) (y_size-1), 0.0 );
+    fill_Point( points[3], (VIO_Real) (left_panel_width + left_slice_width),
+                           (VIO_Real) (y_size-1), 0.0 );
 
-    fill_Point( points[4], (Real) left_panel_width, (Real) bottom_slice_height,
+    fill_Point( points[4], (VIO_Real) left_panel_width, (VIO_Real) bottom_slice_height,
                            0.0 );
-    fill_Point( points[5], (Real) (x_size-1),       (Real) bottom_slice_height,
+    fill_Point( points[5], (VIO_Real) (x_size-1),       (VIO_Real) bottom_slice_height,
                            0.0 );
 
     set_slice_viewport_update( slice_window, FULL_WINDOW_MODEL );
@@ -341,17 +341,17 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
     VIO_BOOL        active;
     VIO_Volume         volume;
     VIO_Volume         volume_ratio_num, volume_ratio_den;
-    Real           voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real           voxel[VIO_MAX_DIMENSIONS];
     int            int_voxel[VIO_MAX_DIMENSIONS];
     int            label, i, view_index, volume_index;
-    Real           x_world, y_world, z_world;
+    VIO_Real           x_world, y_world, z_world;
     text_struct    *text;
     int            sizes[VIO_N_DIMENSIONS];
-    Real           value, voxel_value;
-    Real           value_ratio_num, value_ratio_den;
+    VIO_Real           value, voxel_value;
+    VIO_Real           value_ratio_num, value_ratio_den;
     int            x_pos, y_pos, x_min, x_max, y_min, y_max;
     char           buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
-    Real 		   ratio;
+    VIO_Real 		   ratio;
     int            ratio_num_index, ratio_den_index;
 
     active = get_voxel_in_slice_window( slice_window, voxel, &volume_index,
@@ -378,7 +378,7 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
         voxel_value = convert_value_to_voxel( volume, value );
 
         label = get_voxel_label( slice_window, volume_index,
-                                 int_voxel[X], int_voxel[Y], int_voxel[Z] );
+                                 int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z] );
 
         if( slice_window->slice.print_probe_ratio)
 		{
@@ -418,15 +418,15 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
                 break;
             case X_VOXEL_PROBE_INDEX:
                 (void) sprintf( buffer, Slice_probe_x_voxel_format,
-                                voxel[X] );
+                                voxel[VIO_X] );
                 break;
             case Y_VOXEL_PROBE_INDEX:
                 (void) sprintf( buffer, Slice_probe_y_voxel_format,
-                                voxel[Y] );
+                                voxel[VIO_Y] );
                 break;
             case Z_VOXEL_PROBE_INDEX:
                 (void) sprintf( buffer, Slice_probe_z_voxel_format,
-                                voxel[Z] );
+                                voxel[VIO_Z] );
                 break;
 
             case X_WORLD_PROBE_INDEX:
@@ -461,7 +461,7 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
         }
         else
         {
-            buffer[0] = END_OF_STRING;
+            buffer[0] = VIO_END_OF_STRING;
         }
 
         x_pos = Probe_x_pos + i * Probe_x_delta;
@@ -481,10 +481,10 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
 
 static  void  get_cursor_size(
     int    slice_index,
-    Real   *hor_start,
-    Real   *hor_end,
-    Real   *vert_start,
-    Real   *vert_end )
+    VIO_Real   *hor_start,
+    VIO_Real   *hor_end,
+    VIO_Real   *vert_start,
+    VIO_Real   *vert_end )
 {
     switch( slice_index )
     {
@@ -525,8 +525,8 @@ static  void  get_cursor_size(
     VIO_Vector            *in_plane_axis )
 {
     int            c, volume_index;
-    Real           perp_axis[VIO_N_DIMENSIONS], separations[VIO_N_DIMENSIONS];
-    Real           plane_axis[VIO_N_DIMENSIONS];
+    VIO_Real           perp_axis[VIO_N_DIMENSIONS], separations[VIO_N_DIMENSIONS];
+    VIO_Real           plane_axis[VIO_N_DIMENSIONS];
     VIO_Vector         plane_normal, perp_normal;
 
     volume_index = get_current_volume_index( slice_window );
@@ -555,7 +555,7 @@ static  void  get_cursor_size(
     int               view_index )
 {
     model_struct      *model;
-    Real              x_size, y_size, width;
+    VIO_Real              x_size, y_size, width;
     VIO_Point             *points;
     object_struct     *object;
     polygons_struct   *polygons;
@@ -569,8 +569,8 @@ static  void  get_cursor_size(
     get_slice_model_viewport( slice_window, SLICE_MODEL1 + view_index,
                               &x_min, &x_max, &y_min, &y_max );
 
-    x_size = (Real) (x_max - x_min + 1);
-    y_size = (Real) (y_max - y_min + 1);
+    x_size = (VIO_Real) (x_max - x_min + 1);
+    y_size = (VIO_Real) (y_max - y_min + 1);
     width = Unfinished_flag_width;
 
     fill_Point( points[0], 0.0, 0.0, 0.0 );
@@ -618,14 +618,14 @@ static  void  get_cursor_size(
     model_struct   *model;
     int            sizes[VIO_N_DIMENSIONS];
     int            c, section_index, x_min, x_max, y_min, y_max;
-    Real           x1, y1, x2, y2, dx, dy, len, t_min, t_max;
-    Real           separations[VIO_N_DIMENSIONS];
-    Real           voxel1[VIO_N_DIMENSIONS], voxel2[VIO_N_DIMENSIONS];
+    VIO_Real           x1, y1, x2, y2, dx, dy, len, t_min, t_max;
+    VIO_Real           separations[VIO_N_DIMENSIONS];
+    VIO_Real           voxel1[VIO_N_DIMENSIONS], voxel2[VIO_N_DIMENSIONS];
     VIO_Point          origin, v1, v2, p1, p2;
     VIO_Vector         in_plane_axis, direction;
     object_struct  *object;
     lines_struct   *lines;
-    Real           current_voxel[VIO_N_DIMENSIONS];
+    VIO_Real           current_voxel[VIO_N_DIMENSIONS];
 
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
     object = model->objects[2*slice_window->slice.n_volumes+
@@ -669,9 +669,9 @@ static  void  get_cursor_size(
     get_volume_sizes( get_volume(slice_window), sizes );
 
     if( !clip_line_to_box( &origin, &in_plane_axis,
-                           -0.5, (Real) sizes[X]-0.5,
-                           -0.5, (Real) sizes[Y]-0.5,
-                           -0.5, (Real) sizes[Z]-0.5,
+                           -0.5, (VIO_Real) sizes[VIO_X]-0.5,
+                           -0.5, (VIO_Real) sizes[VIO_Y]-0.5,
+                           -0.5, (VIO_Real) sizes[VIO_Z]-0.5,
                            &t_min, &t_max ) )
     {
         set_object_visibility( object, FALSE );
@@ -683,8 +683,8 @@ static  void  get_cursor_size(
 
     for_less( c, 0, VIO_N_DIMENSIONS )
     {
-        voxel1[c] = (Real) Point_coord(v1,c);
-        voxel2[c] = (Real) Point_coord(v2,c);
+        voxel1[c] = (VIO_Real) Point_coord(v1,c);
+        voxel2[c] = (VIO_Real) Point_coord(v2,c);
     }
 
     convert_voxel_to_pixel( slice_window,get_current_volume_index(slice_window),
@@ -699,10 +699,10 @@ static  void  get_cursor_size(
 
     if( len >= 0.0 )
     {
-        x1 -= (Real) EXTRA_PIXELS * dx / len;
-        y1 -= (Real) EXTRA_PIXELS * dy / len;
-        x2 += (Real) EXTRA_PIXELS * dx / len;
-        y2 += (Real) EXTRA_PIXELS * dy / len;
+        x1 -= (VIO_Real) EXTRA_PIXELS * dx / len;
+        y1 -= (VIO_Real) EXTRA_PIXELS * dy / len;
+        x2 += (VIO_Real) EXTRA_PIXELS * dx / len;
+        y2 += (VIO_Real) EXTRA_PIXELS * dy / len;
     }
 
     get_slice_model_viewport( slice_window, SLICE_MODEL1 + view_index,
@@ -712,8 +712,8 @@ static  void  get_cursor_size(
     fill_Vector( direction, x2 - x1, y2 - y1, 0.0 );
 
     if( !clip_line_to_box( &origin, &direction, 
-                           0.0, (Real) (x_max - x_min),
-                           0.0, (Real) (y_max - y_min),
+                           0.0, (VIO_Real) (x_max - x_min),
+                           0.0, (VIO_Real) (y_max - y_min),
                            -1.0, 1.0, &t_min, &t_max ) )
     {
         t_min = 0.0;
@@ -745,7 +745,7 @@ static  void  get_cursor_size(
     model_struct   *model;
     object_struct  *object;
     lines_struct   *lines;
-    Real           voxel[VIO_N_DIMENSIONS], x, y;
+    VIO_Real           voxel[VIO_N_DIMENSIONS], x, y;
     VIO_BOOL        visibility;
 
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
@@ -808,13 +808,13 @@ static  void  get_cursor_size(
     model_struct   *model;
     object_struct  *obj1, *obj2;
     int            x_index, y_index, axis, volume_index;
-    Real           x_left, x_right, y_bottom, y_top, dx, dy;
-    Real           x_centre, y_centre, tmp;
+    VIO_Real           x_left, x_right, y_bottom, y_top, dx, dy;
+    VIO_Real           x_centre, y_centre, tmp;
     lines_struct   *lines1, *lines2;
-    Real           current_voxel[VIO_N_DIMENSIONS];
+    VIO_Real           current_voxel[VIO_N_DIMENSIONS];
     int            x_min, x_max, y_min, y_max;
-    Real           hor_pixel_start, hor_pixel_end;
-    Real           vert_pixel_start, vert_pixel_end;
+    VIO_Real           hor_pixel_start, hor_pixel_end;
+    VIO_Real           vert_pixel_start, vert_pixel_end;
     int            volume, n_volumes;
     VIO_BOOL        visible;
 
@@ -913,10 +913,10 @@ static  void  get_cursor_size(
         x_left += dx;
         x_right += dx;
     }
-    else if( x_centre > (Real) (x_max - x_min) )
+    else if( x_centre > (VIO_Real) (x_max - x_min) )
     {
-        dx = (Real) x_max - (Real) x_min - x_centre;
-        x_centre = (Real) x_max - (Real) x_min;
+        dx = (VIO_Real) x_max - (VIO_Real) x_min - x_centre;
+        x_centre = (VIO_Real) x_max - (VIO_Real) x_min;
         x_left += dx;
         x_right += dx;
     }
@@ -928,10 +928,10 @@ static  void  get_cursor_size(
         y_top += dy;
         y_bottom += dy;
     }
-    else if( y_centre > (Real) (y_max - y_min) )
+    else if( y_centre > (VIO_Real) (y_max - y_min) )
     {
-        dy = (Real) y_max - (Real) y_min - y_centre;
-        y_centre = (Real) y_max - (Real) y_min;
+        dy = (VIO_Real) y_max - (VIO_Real) y_min - y_centre;
+        y_centre = (VIO_Real) y_max - (VIO_Real) y_min;
         y_top += dy;
         y_bottom += dy;
     }
@@ -1035,11 +1035,11 @@ static  int  render_slice_to_pixels(
     int                   x, y, height, *n_alloced_ptr;
     int                   r, g, b, opacity;
     VIO_Colour                empty, colour;
-    Real                  x_pixel, y_pixel;
-    Real                  x_trans, y_trans, x_scale, y_scale;
-    Real                  current_voxel[VIO_MAX_DIMENSIONS];
-    Real                  origin[VIO_MAX_DIMENSIONS];
-    Real                  x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real                  x_pixel, y_pixel;
+    VIO_Real                  x_trans, y_trans, x_scale, y_scale;
+    VIO_Real                  current_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real                  origin[VIO_MAX_DIMENSIONS];
+    VIO_Real                  x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
     VIO_BOOL               first_flag, force_update_limits;
     VIO_Colour                **colour_map;
     loaded_volume_struct  *vol_info;
@@ -1069,8 +1069,8 @@ static  int  render_slice_to_pixels(
                                   &x_sub_min, &x_sub_max,
                                   &y_sub_min, &y_sub_max );
 
-    x_trans -= (Real) x_sub_min;
-    y_trans -= (Real) y_sub_min;
+    x_trans -= (VIO_Real) x_sub_min;
+    y_trans -= (VIO_Real) y_sub_min;
 
     get_slice_plane( slice_window, volume_index, view_index,
                      origin, x_axis, y_axis );
@@ -1107,7 +1107,7 @@ static  int  render_slice_to_pixels(
                     origin, x_axis, y_axis,
                     x_trans, y_trans, x_scale, y_scale,
                     (VIO_Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
-                    (Real *) 0, (Real *) 0, (Real *) 0,
+                    (VIO_Real *) 0, (VIO_Real *) 0, (VIO_Real *) 0,
                     0.0, 0.0, 0.0, 0.0,
                     x_sub_max - x_sub_min + 1, y_sub_max - y_sub_min + 1,
                     RGB_PIXEL,
@@ -1199,7 +1199,7 @@ static  int  render_slice_to_pixels(
             }
             else
             {
-                width = (int) sqrt( (Real) n_pixels_redraw ) + 1;
+                width = (int) sqrt( (VIO_Real) n_pixels_redraw ) + 1;
                 if( width < 1 )
                     width = 1;
 
@@ -1262,7 +1262,7 @@ static  int  render_slice_to_pixels(
                     origin, x_axis, y_axis,
                     x_trans, y_trans, x_scale, y_scale,
                     (VIO_Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
-                    (Real *) 0, (Real *) 0, (Real *) 0,
+                    (VIO_Real *) 0, (VIO_Real *) 0, (VIO_Real *) 0,
                     0.0, 0.0, 0.0, 0.0,
                     x_sub_max - x_sub_min + 1, y_sub_max - y_sub_min + 1,
                     x_min, x_max, y_min, y_max,
@@ -1397,7 +1397,7 @@ static  int  render_slice_to_pixels(
     char           buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
     VIO_STR         format;
     int            x_pos, y_pos;
-    Real           current_voxel[VIO_N_DIMENSIONS];
+    VIO_Real           current_voxel[VIO_N_DIMENSIONS];
 
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
     text_object = model->objects[2*slice_window->slice.n_volumes+TEXT_INDEX];
@@ -1413,9 +1413,9 @@ static  int  render_slice_to_pixels(
 
         switch( axis_index )
         {
-        case X:  format = Slice_index_x_format;  break;
-        case Y:  format = Slice_index_y_format;  break;
-        case Z:  format = Slice_index_z_format;  break;
+        case VIO_X:  format = Slice_index_x_format;  break;
+        case VIO_Y:  format = Slice_index_y_format;  break;
+        case VIO_Z:  format = Slice_index_z_format;  break;
         }
 
         get_current_voxel( slice_window,
@@ -1442,15 +1442,15 @@ static  int  render_slice_to_pixels(
     object_struct  *pixels_object;
     pixels_struct  *pixels, *volume_pixels;
     VIO_Volume         volume;
-    Real           v1[VIO_N_DIMENSIONS], v2[VIO_N_DIMENSIONS];
+    VIO_Real           v1[VIO_N_DIMENSIONS], v2[VIO_N_DIMENSIONS];
     int            sizes[VIO_N_DIMENSIONS];
     int            x_index, y_index, axis_index, volume_index;
-    Real           x_trans, y_trans, x_scale, y_scale;
-    Real           origin[VIO_MAX_DIMENSIONS];
-    Real           x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
-    Real           world_origin[VIO_MAX_DIMENSIONS];
-    Real           world_x_axis[VIO_MAX_DIMENSIONS], world_y_axis[VIO_MAX_DIMENSIONS];
-    Real           x1, y1, z1, x2, y2, z2;
+    VIO_Real           x_trans, y_trans, x_scale, y_scale;
+    VIO_Real           origin[VIO_MAX_DIMENSIONS];
+    VIO_Real           x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real           world_origin[VIO_MAX_DIMENSIONS];
+    VIO_Real           world_x_axis[VIO_MAX_DIMENSIONS], world_y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real           x1, y1, z1, x2, y2, z2;
 
     pixels_object = get_atlas_slice_pixels_object( slice_window, view_index );
     pixels = get_pixels_ptr( pixels_object );
@@ -1493,38 +1493,38 @@ static  int  render_slice_to_pixels(
                          origin, x_axis, y_axis );
 
         (void) convert_slice_pixel_to_voxel( volume,
-                        (Real) volume_pixels->x_position,
-                        (Real) volume_pixels->y_position,
+                        (VIO_Real) volume_pixels->x_position,
+                        (VIO_Real) volume_pixels->y_position,
                         origin, x_axis, y_axis,
                         x_trans, y_trans, x_scale, y_scale, v1 );
         (void) convert_slice_pixel_to_voxel( volume,
-                        (Real) volume_pixels->x_position+1.0,
-                        (Real) volume_pixels->y_position,
+                        (VIO_Real) volume_pixels->x_position+1.0,
+                        (VIO_Real) volume_pixels->y_position,
                         origin, x_axis, y_axis,
                         x_trans, y_trans, x_scale, y_scale, v2 );
 
         convert_voxel_to_world( volume, v1, &x1, &y1, &z1 );
         convert_voxel_to_world( volume, v2, &x2, &y2, &z2 );
 
-        world_origin[X] = x1;
-        world_origin[Y] = y1;
-        world_origin[Z] = z1;
+        world_origin[VIO_X] = x1;
+        world_origin[VIO_Y] = y1;
+        world_origin[VIO_Z] = z1;
 
-        world_x_axis[X] = x2 - x1;
-        world_x_axis[Y] = y2 - y1;
-        world_x_axis[Z] = z2 - z1;
+        world_x_axis[VIO_X] = x2 - x1;
+        world_x_axis[VIO_Y] = y2 - y1;
+        world_x_axis[VIO_Z] = z2 - z1;
 
         (void) convert_slice_pixel_to_voxel( volume,
-                        (Real) volume_pixels->x_position,
-                        (Real) volume_pixels->y_position+1.0,
+                        (VIO_Real) volume_pixels->x_position,
+                        (VIO_Real) volume_pixels->y_position+1.0,
                         origin, x_axis, y_axis,
                         x_trans, y_trans, x_scale, y_scale, v2 );
 
         convert_voxel_to_world( volume, v2, &x2, &y2, &z2 );
 
-        world_y_axis[X] = x2 - x1;
-        world_y_axis[Y] = y2 - y1;
-        world_y_axis[Z] = z2 - z1;
+        world_y_axis[VIO_X] = x2 - x1;
+        world_y_axis[VIO_Y] = y2 - y1;
+        world_y_axis[VIO_Z] = z2 - z1;
 
         get_volume_sizes( volume, sizes );
 

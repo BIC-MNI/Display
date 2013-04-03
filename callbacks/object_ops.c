@@ -35,7 +35,7 @@
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -63,7 +63,7 @@
         graphics_models_have_changed( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -91,7 +91,7 @@
         graphics_models_have_changed( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -118,7 +118,7 @@
         graphics_models_have_changed( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -145,7 +145,7 @@
         graphics_models_have_changed( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -163,7 +163,7 @@
 
     rebuild_selected_list( display, menu_window );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -181,7 +181,7 @@
 
     rebuild_selected_list( display, menu_window );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -199,7 +199,7 @@
 
     rebuild_selected_list( display, menu_window );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -217,7 +217,7 @@
 
     rebuild_selected_list( display, menu_window );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -240,7 +240,7 @@
         graphics_models_have_changed( display );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -258,7 +258,7 @@
 
     graphics_models_have_changed( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -280,7 +280,7 @@
     {
         print( "Enter the new model name: " );
 
-        if( input_string( stdin, &name, ' ' ) == OK )
+        if( input_string( stdin, &name, ' ' ) == VIO_OK )
         {
             replace_string( &get_model_ptr(current_object)->filename, name );
         }
@@ -290,7 +290,7 @@
         rebuild_selected_list( display, menu_window );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -340,7 +340,7 @@
 {
     object_struct    *object;
     display_struct   *slice_window;
-    Real              voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real              voxel[VIO_MAX_DIMENSIONS];
     VIO_BOOL           changed;
     int               volume_index;
 
@@ -357,7 +357,7 @@
                    display->three_d.surface_extraction.polygons )
     {
         print( "Cannot delete the polygons used for surface extraction.\n" );
-        return( OK );
+        return( VIO_OK );
     }
 
     if( remove_current_object_from_hierarchy( display, &object ) )
@@ -368,7 +368,7 @@
     }
     rebuild_selected_list( display->associated[THREE_D_WINDOW], display->associated[MARKER_WINDOW]);
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -392,7 +392,7 @@
         print( "Enter colour name or 3 or 4 colour components: " );
 
 
-        if( input_line( stdin, &line ) == OK )
+        if( input_line( stdin, &line ) == VIO_OK )
         {
             col = convert_string_to_colour( line );
 
@@ -405,7 +405,7 @@
         delete_string( line );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -427,11 +427,11 @@
     {
         print( "Enter ambient, diffuse, specular, shininess, opacity: " );
 
-        if( input_float( stdin, &Surfprop_a(spr) ) == OK &&
-            input_float( stdin, &Surfprop_d(spr) ) == OK &&
-            input_float( stdin, &Surfprop_s(spr) ) == OK &&
-            input_float( stdin, &Surfprop_se(spr) ) == OK &&
-            input_float( stdin, &Surfprop_t(spr) ) == OK )
+        if( input_float( stdin, &Surfprop_a(spr) ) == VIO_OK &&
+            input_float( stdin, &Surfprop_d(spr) ) == VIO_OK &&
+            input_float( stdin, &Surfprop_s(spr) ) == VIO_OK &&
+            input_float( stdin, &Surfprop_se(spr) ) == VIO_OK &&
+            input_float( stdin, &Surfprop_t(spr) ) == VIO_OK )
         {
             set_object_surfprop( current_object, &spr );
 
@@ -442,7 +442,7 @@
         (void) input_newline( stdin );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -466,7 +466,7 @@
         add_object_to_model( cut_model, object );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -503,7 +503,7 @@
         rebuild_selected_list( display, menu_window );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -533,7 +533,7 @@
         }
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -569,7 +569,7 @@
         set_update_required( display, NORMAL_PLANES );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -601,7 +601,7 @@
                      get_current_volume_index(slice_window), UPDATE_LABELS );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */

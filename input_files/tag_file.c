@@ -3,7 +3,7 @@
 public  Status   input_tag_file(
     char           filename[],
     Colour         marker_colour,
-    Real           default_size,
+    VIO_Real           default_size,
     Marker_types   default_type,
     int            *n_objects,
     object_struct  **object_list[] )
@@ -20,7 +20,7 @@ public  Status   input_tag_file(
     status = open_file_with_default_suffix( filename, "tag", READ_FILE,
                                             ASCII_FORMAT, &file );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         status = input_tag_points( file, &n_volumes, &n_tag_points,
                                    &tags1, &tags2, &weights,
@@ -28,13 +28,13 @@ public  Status   input_tag_file(
                                    &labels );
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         for_less( i, 0, n_tag_points )
         {
             object = create_object( MARKER );
             marker = get_marker_ptr( object );
-            fill_Point( marker->position, tags1[i][X], tags1[i][Y],tags1[i][Z]);
+            fill_Point( marker->position, tags1[i][VIO_X], tags1[i][VIO_Y],tags1[i][VIO_Z]);
             (void) strcpy( marker->label, labels[i] );
 
             if( structure_ids[i] >= 0 )
@@ -62,7 +62,7 @@ public  Status   input_tag_file(
                          structure_ids, patient_ids, labels );
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = close_file( file );
 
     return( status );

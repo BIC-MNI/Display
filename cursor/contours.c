@@ -43,7 +43,7 @@ public  void  update_cursor_contours(
 {
     int                      axis;
     Vector                   plane_normal;
-    Real                     plane_constant;
+    VIO_Real                     plane_constant;
     cursor_contours_struct   *contours;
 
     if( Show_cursor_contours )

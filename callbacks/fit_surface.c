@@ -21,7 +21,7 @@ public  DEF_MENU_FUNCTION(set_model_parameters)   /* ARGSUSED */
     print( "Enter new values of parameters: " );
     for_less( i, 0, n_parameters )
     {
-        if( input_double( stdin, &tmp_parameters[i] ) != OK )
+        if( input_double( stdin, &tmp_parameters[i] ) != VIO_OK )
         {
             tmp_parameters[i] = display->three_d.surface_fitting.parameters[i];
             ch = getchar();
@@ -41,31 +41,31 @@ public  DEF_MENU_FUNCTION(set_model_parameters)   /* ARGSUSED */
 
     FREE( tmp_parameters );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_UPDATE(set_model_parameters)   /* ARGSUSED */
 {
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_FUNCTION(delete_all_surface_points)   /* ARGSUSED */
 {
     delete_surface_fitting_points( &display->three_d.surface_fitting );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_UPDATE(delete_all_surface_points)   /* ARGSUSED */
 {
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_FUNCTION(add_surface_point)   /* ARGSUSED */
 {
     int      axis_index, int_voxel[MAX_DIMENSIONS];
-    Real     voxel[MAX_DIMENSIONS];
-    Real     x_w, y_w, z_w;
+    VIO_Real     voxel[MAX_DIMENSIONS];
+    VIO_Real     x_w, y_w, z_w;
     Point    point;
 
     if( get_voxel_under_mouse( display, voxel, &axis_index ) )
@@ -83,19 +83,19 @@ public  DEF_MENU_FUNCTION(add_surface_point)   /* ARGSUSED */
 
     add_surface_fitting_point( &display->three_d.surface_fitting, &point );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_UPDATE(add_surface_point)   /* ARGSUSED */
 {
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_FUNCTION(delete_surface_point)   /* ARGSUSED */
 {
     int      axis_index, int_voxel[MAX_DIMENSIONS];
-    Real     voxel[MAX_DIMENSIONS];
-    Real     x_w, y_w, z_w;
+    VIO_Real     voxel[MAX_DIMENSIONS];
+    VIO_Real     x_w, y_w, z_w;
     Point    point;
 
     if( get_voxel_under_mouse( display, voxel, &axis_index ) )
@@ -111,18 +111,18 @@ public  DEF_MENU_FUNCTION(delete_surface_point)   /* ARGSUSED */
 
     delete_surface_fitting_point( &display->three_d.surface_fitting, &point );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_UPDATE(delete_surface_point)   /* ARGSUSED */
 {
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_FUNCTION(show_all_surface_points)   /* ARGSUSED */
 {
     int            i;
-    Real           voxel[MAX_DIMENSIONS];
+    VIO_Real           voxel[MAX_DIMENSIONS];
     int            int_voxel[MAX_DIMENSIONS];
     Volume         volume;
 
@@ -143,12 +143,12 @@ public  DEF_MENU_FUNCTION(show_all_surface_points)   /* ARGSUSED */
         set_slice_window_all_update( display->associated[SLICE_WINDOW] );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_UPDATE(show_all_surface_points)   /* ARGSUSED */
 {
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_FUNCTION(save_surface_points)   /* ARGSUSED */
@@ -164,23 +164,23 @@ public  DEF_MENU_FUNCTION(save_surface_points)   /* ARGSUSED */
 
     (void) input_newline( stdin );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = open_file_with_default_suffix( filename, "obj", WRITE_FILE,
                                                 ASCII_FORMAT, &file );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         for_less( i, 0, display->three_d.surface_fitting.n_surface_points )
         {
             status = io_point( file, WRITE_FILE, ASCII_FORMAT,
                        &display->three_d.surface_fitting.surface_points[i] );
 
-            if( status == OK )
+            if( status == VIO_OK )
                 status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
         }
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = close_file( file );
 
     return( status );
@@ -188,12 +188,12 @@ public  DEF_MENU_FUNCTION(save_surface_points)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(save_surface_points)   /* ARGSUSED */
 {
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_FUNCTION(load_surface_points)   /* ARGSUSED */
 {
-    Real     voxel[MAX_DIMENSIONS];
+    VIO_Real     voxel[MAX_DIMENSIONS];
     int      int_voxel[MAX_DIMENSIONS];
     FILE     *file;
     Point    point;
@@ -206,15 +206,15 @@ public  DEF_MENU_FUNCTION(load_surface_points)   /* ARGSUSED */
 
     (void) input_newline( stdin );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = open_file_with_default_suffix( filename, "obj", READ_FILE,
                                                 ASCII_FORMAT, &file );
 
-    while( status == OK )
+    while( status == VIO_OK )
     {
         status = io_point( file, READ_FILE, ASCII_FORMAT, &point );
 
-        if( status == OK )
+        if( status == VIO_OK )
         {
             add_surface_fitting_point(
                              &display->three_d.surface_fitting, &point );
@@ -230,15 +230,15 @@ public  DEF_MENU_FUNCTION(load_surface_points)   /* ARGSUSED */
 
     set_slice_window_all_update( display->associated[SLICE_WINDOW] );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = close_file( file );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_UPDATE(load_surface_points)   /* ARGSUSED */
 {
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
@@ -309,12 +309,12 @@ public  DEF_MENU_FUNCTION(fit_surface)   /* ARGSUSED */
     display_parameters( &display->three_d.surface_fitting,
                         display->three_d.surface_fitting.parameters );
        
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_UPDATE(fit_surface)   /* ARGSUSED */
 {
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_FUNCTION(create_surface_model)   /* ARGSUSED */
@@ -332,12 +332,12 @@ public  DEF_MENU_FUNCTION(create_surface_model)   /* ARGSUSED */
 
     add_object_to_current_model( display, object );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_UPDATE(create_surface_model)   /* ARGSUSED */
 {
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_FUNCTION(scan_model_to_voxels)   /* ARGSUSED */
@@ -361,12 +361,12 @@ public  DEF_MENU_FUNCTION(scan_model_to_voxels)   /* ARGSUSED */
         set_slice_window_all_update( display->associated[SLICE_WINDOW] );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_UPDATE(scan_model_to_voxels)   /* ARGSUSED */
 {
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_FUNCTION(load_model_parameters)   /* ARGSUSED */
@@ -383,10 +383,10 @@ public  DEF_MENU_FUNCTION(load_model_parameters)   /* ARGSUSED */
 
     (void) input_newline( stdin );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = open_file( filename, READ_FILE, ASCII_FORMAT, &file );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         n_parameters = display->three_d.surface_fitting.
            surface_representation->
@@ -395,20 +395,20 @@ public  DEF_MENU_FUNCTION(load_model_parameters)   /* ARGSUSED */
         ALLOC( tmp_parameters, n_parameters );
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         for_less( i, 0, n_parameters )
         {
             status = io_double( file, READ_FILE, ASCII_FORMAT,
                                 &tmp_parameters[i] );
-            if( status != OK )  break;
+            if( status != VIO_OK )  break;
         }
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = close_file( file );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         for_less( i, 0, n_parameters )
             display->three_d.surface_fitting.parameters[i] = tmp_parameters[i];
@@ -421,7 +421,7 @@ public  DEF_MENU_FUNCTION(load_model_parameters)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(load_model_parameters)   /* ARGSUSED */
 {
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_FUNCTION(save_model_parameters)   /* ARGSUSED */
@@ -437,27 +437,27 @@ public  DEF_MENU_FUNCTION(save_model_parameters)   /* ARGSUSED */
 
     (void) input_newline( stdin );
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = open_file( filename, WRITE_FILE, ASCII_FORMAT, &file );
 
     n_parameters = display->three_d.surface_fitting.
            surface_representation->
            get_num_parameters( display->three_d.surface_fitting.descriptors );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         for_less( i, 0, n_parameters )
         {
             status = io_double( file, WRITE_FILE, ASCII_FORMAT,
                          &display->three_d.surface_fitting.parameters[i] );
-            if( status == OK && i % 4 == 3 )
+            if( status == VIO_OK && i % 4 == 3 )
                 status = io_newline( file, WRITE_FILE, ASCII_FORMAT );
 
-            if( status != OK )  break;
+            if( status != VIO_OK )  break;
         }
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
         status = close_file( file );
 
     return( status );
@@ -465,7 +465,7 @@ public  DEF_MENU_FUNCTION(save_model_parameters)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(save_model_parameters)   /* ARGSUSED */
 {
-    return( OK );
+    return( VIO_OK );
 }
 
 public  DEF_MENU_FUNCTION(convert_to_new_representation)   /* ARGSUSED */
@@ -481,7 +481,7 @@ public  DEF_MENU_FUNCTION(convert_to_new_representation)   /* ARGSUSED */
 
     status = input_nonwhite_character( stdin, &ch );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         switch( ch )
         {
@@ -492,18 +492,18 @@ public  DEF_MENU_FUNCTION(convert_to_new_representation)   /* ARGSUSED */
         case 'S':   new_rep = SPLINE;   break;
 
         default:    print( "Invalid type: %c.\n", ch );
-                    status = ERROR;
+                    status = VIO_ERROR;
                     break;
         }
     }
 
-    if( status == OK && !lookup_surface_representation( new_rep, &surface_rep ))
+    if( status == VIO_OK && !lookup_surface_representation( new_rep, &surface_rep ))
     {
         print( "Could not find representation.\n" );
-        status = ERROR;
+        status = VIO_ERROR;
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         ALLOC( new_descriptors, surface_rep->n_descriptors );
 
@@ -514,7 +514,7 @@ public  DEF_MENU_FUNCTION(convert_to_new_representation)   /* ARGSUSED */
         }
     }
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         convert_to_new_surface_representation(
                        &display->three_d.surface_fitting, surface_rep,
@@ -528,5 +528,5 @@ public  DEF_MENU_FUNCTION(convert_to_new_representation)   /* ARGSUSED */
 
 public  DEF_MENU_UPDATE(convert_to_new_representation)   /* ARGSUSED */
 {
-    return( OK );
+    return( VIO_OK );
 }

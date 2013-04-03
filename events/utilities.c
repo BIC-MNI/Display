@@ -33,12 +33,12 @@
                                    TERMINATE_INTERACTION_EVENT,
                                    &actions );
 
-    status = OK;
+    status = VIO_OK;
 
     for_less( i, 0, n_actions )
     {
         status = (*actions[i]) ( display, TERMINATE_INTERACTION_EVENT, 0 );
-        if( status != OK )
+        if( status != VIO_OK )
         {
             break;
         }

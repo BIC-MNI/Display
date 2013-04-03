@@ -121,7 +121,7 @@ static  void   set_menu_character_position(
 {
     int      i, key;
 
-    for_less( i, 0, SIZEOF_STATIC_ARRAY(positions) )
+    for_less( i, 0, VIO_SIZEOF_STATIC_ARRAY(positions) )
     {
         if( positions[i].length > 0.0 )
         {
@@ -144,7 +144,7 @@ static  void   set_menu_character_position(
 {
     int      i, key;
 
-    for_less( i, 0, SIZEOF_STATIC_ARRAY(positions) )
+    for_less( i, 0, VIO_SIZEOF_STATIC_ARRAY(positions) )
     {
         if( positions[i].length > 0.0 )
         {
@@ -244,7 +244,7 @@ static  VIO_BOOL  lookup_key(
 
     found = FALSE;
 
-    for_less( i, 0, SIZEOF_STATIC_ARRAY(positions) )
+    for_less( i, 0, VIO_SIZEOF_STATIC_ARRAY(positions) )
     {
         if( positions[i].key == key )
         {
@@ -494,7 +494,7 @@ static  VIO_BOOL   point_within_menu_key_entry(
 
     found = FALSE;
 
-    for_less( i, 0, SIZEOF_STATIC_ARRAY(positions) )
+    for_less( i, 0, VIO_SIZEOF_STATIC_ARRAY(positions) )
     {
         if( point_within_menu_key_entry( menu_window, positions[i].key, x, y ) )
         {

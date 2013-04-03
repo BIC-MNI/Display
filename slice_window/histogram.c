@@ -67,12 +67,12 @@ static  void  compute_histogram_lines(
     VIO_BOOL          labeled_only,
     int              axis_index,
     int              voxel_index,
-    Real             width_ratio,
+    VIO_Real             width_ratio,
     lines_struct     *lines )
 {
     int                x, y, z, sizes[VIO_MAX_DIMENSIONS];
     int                start[VIO_MAX_DIMENSIONS], end[VIO_MAX_DIMENSIONS];
-    Real               min_value, max_value, value, window_width;
+    VIO_Real               min_value, max_value, value, window_width;
     histogram_struct   histogram;
     VIO_progress_struct    progress;
     VIO_Volume             volume;
@@ -85,12 +85,12 @@ static  void  compute_histogram_lines(
     initialize_histogram( &histogram,
                           (max_value - min_value) / 1000.0, min_value );
 
-    start[X] = 0;
-    end[X] = sizes[X];
-    start[Y] = 0;
-    end[Y] = sizes[Y];
-    start[Z] = 0;
-    end[Z] = sizes[Z];
+    start[VIO_X] = 0;
+    end[VIO_X] = sizes[VIO_X];
+    start[VIO_Y] = 0;
+    end[VIO_Y] = sizes[VIO_Y];
+    start[VIO_Z] = 0;
+    end[VIO_Z] = sizes[VIO_Z];
 
     if( axis_index >= 0 && voxel_index >= 0 && voxel_index < sizes[axis_index] )
     {
@@ -100,15 +100,15 @@ static  void  compute_histogram_lines(
 
     if( axis_index < 0 )
     {
-        initialize_progress_report( &progress, FALSE, sizes[X] * sizes[Y],
+        initialize_progress_report( &progress, FALSE, sizes[VIO_X] * sizes[VIO_Y],
                                     "Histogramming" );
     }
 
-    for_less( x, start[X], end[X] )
+    for_less( x, start[VIO_X], end[VIO_X] )
     {
-        for_less( y, start[Y], end[Y] )
+        for_less( y, start[VIO_Y], end[VIO_Y] )
         {
-            for_less( z, start[Z], end[Z] )
+            for_less( z, start[VIO_Z], end[VIO_Z] )
             {
                 if( !labeled_only ||
                     get_voxel_label( slice_window, volume_index, x, y, z ) != 0)
@@ -119,7 +119,7 @@ static  void  compute_histogram_lines(
             }
 
             if( axis_index < 0 )
-                update_progress_report( &progress, x * sizes[Y] + y + 1 );
+                update_progress_report( &progress, x * sizes[VIO_Y] + y + 1 );
         }
     }
 
@@ -138,8 +138,8 @@ static  void  compute_histogram_lines(
     display_struct   *slice_window )
 {
     int            i, start, x_min, x_max;
-    Real           x, y;
-    Real           max_y;
+    VIO_Real           x, y;
+    VIO_Real           max_y;
     lines_struct   *unscaled_lines, *lines;
 
     unscaled_lines = &slice_window->slice.unscaled_histogram_lines;
@@ -148,26 +148,26 @@ static  void  compute_histogram_lines(
     if( unscaled_lines->n_points == 0 )
         return;
 
-    start = VIO_ROUND( (Real) unscaled_lines->n_points * 0.05 );
+    start = VIO_ROUND( (VIO_Real) unscaled_lines->n_points * 0.05 );
     max_y = 0.0;
     for_less( i, start, unscaled_lines->n_points )
     {
-        if( i == start || (Real) Point_y(unscaled_lines->points[i]) > max_y )
-            max_y = (Real) Point_y(unscaled_lines->points[i]);
+        if( i == start || (VIO_Real) Point_y(unscaled_lines->points[i]) > max_y )
+            max_y = (VIO_Real) Point_y(unscaled_lines->points[i]);
     }
 
     get_histogram_space( slice_window, &x_min, &x_max );
 
     for_less( i, 0, lines->n_points )
     {
-        x = (Real) x_min + (Real) (x_max - x_min) * Histogram_x_scale *
-            (Real) Point_y(unscaled_lines->points[i]) / (Real) max_y;
+        x = (VIO_Real) x_min + (VIO_Real) (x_max - x_min) * Histogram_x_scale *
+            (VIO_Real) Point_y(unscaled_lines->points[i]) / (VIO_Real) max_y;
 
-        if( x > (Real) x_max )
-            x = (Real) x_max;
+        if( x > (VIO_Real) x_max )
+            x = (VIO_Real) x_max;
 
-        y = (Real) get_colour_bar_y_pos( slice_window,
-                                  (Real) Point_x(unscaled_lines->points[i]) );
+        y = (VIO_Real) get_colour_bar_y_pos( slice_window,
+                                  (VIO_Real) Point_x(unscaled_lines->points[i]) );
         fill_Point( lines->points[i], x, y, 0.0 );
     }
 }

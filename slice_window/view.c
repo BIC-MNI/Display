@@ -35,8 +35,8 @@ static  void  set_orthogonal_slice_window_view(
     int               volume_index )
 {
     int      axis;
-    Real     cosine, sine;
-    Real     separations[VIO_MAX_DIMENSIONS];
+    VIO_Real     cosine, sine;
+    VIO_Real     separations[VIO_MAX_DIMENSIONS];
 
     for_less( axis, 0, VIO_N_DIMENSIONS )
     {
@@ -53,40 +53,40 @@ static  void  set_orthogonal_slice_window_view(
     {
     case 0:
         slice_window->slice.volumes[volume_index].views[0].
-        x_axis[Slice_view1_axis1] = FSIGN(separations[Slice_view1_axis1]);
+        x_axis[Slice_view1_axis1] = VIO_FSIGN(separations[Slice_view1_axis1]);
         slice_window->slice.volumes[volume_index].views[0].
-        y_axis[Slice_view1_axis2] = FSIGN(separations[Slice_view1_axis2]);
+        y_axis[Slice_view1_axis2] = VIO_FSIGN(separations[Slice_view1_axis2]);
         break;
 
     case 1:
         slice_window->slice.volumes[volume_index].views[1].
-        x_axis[Slice_view2_axis1] = FSIGN(separations[Slice_view2_axis1]);
+        x_axis[Slice_view2_axis1] = VIO_FSIGN(separations[Slice_view2_axis1]);
         slice_window->slice.volumes[volume_index].views[1].
-        y_axis[Slice_view2_axis2] = FSIGN(separations[Slice_view2_axis2]);
+        y_axis[Slice_view2_axis2] = VIO_FSIGN(separations[Slice_view2_axis2]);
         break;
 
     case 2:
         slice_window->slice.volumes[volume_index].views[2].
-        x_axis[Slice_view3_axis1] = FSIGN(separations[Slice_view3_axis1]);
+        x_axis[Slice_view3_axis1] = VIO_FSIGN(separations[Slice_view3_axis1]);
         slice_window->slice.volumes[volume_index].views[2].
-        y_axis[Slice_view3_axis2] = FSIGN(separations[Slice_view3_axis2]);
+        y_axis[Slice_view3_axis2] = VIO_FSIGN(separations[Slice_view3_axis2]);
         break;
 
     case 3:
-        cosine = cos( 45.0 * DEG_TO_RAD );
-        sine = sin( 45.0 * DEG_TO_RAD );
+        cosine = cos( 45.0 * VIO_DEG_TO_RAD );
+        sine = sin( 45.0 * VIO_DEG_TO_RAD );
 
         slice_window->slice.volumes[volume_index].
-                    views[3].x_axis[X] = cosine * FSIGN(separations[X]);
+                    views[3].x_axis[VIO_X] = cosine * VIO_FSIGN(separations[VIO_X]);
         slice_window->slice.volumes[volume_index].
-                    views[3].x_axis[Y] = sine * FSIGN(separations[Y]);
-        slice_window->slice.volumes[volume_index].views[3].x_axis[Z] = 0.0;
+                    views[3].x_axis[VIO_Y] = sine * VIO_FSIGN(separations[VIO_Y]);
+        slice_window->slice.volumes[volume_index].views[3].x_axis[VIO_Z] = 0.0;
 
         slice_window->slice.volumes[volume_index].
-                    views[3].y_axis[X] = -sine * FSIGN(separations[X]);
+                    views[3].y_axis[VIO_X] = -sine * VIO_FSIGN(separations[VIO_X]);
         slice_window->slice.volumes[volume_index].
-                    views[3].y_axis[Y] = cosine * FSIGN(separations[Y]);
-        slice_window->slice.volumes[volume_index].views[3].y_axis[Z] = 0.0;
+                    views[3].y_axis[VIO_Y] = cosine * VIO_FSIGN(separations[VIO_Y]);
+        slice_window->slice.volumes[volume_index].views[3].y_axis[VIO_Z] = 0.0;
         break;
     }
 }
@@ -163,17 +163,17 @@ static  void  match_view_scale_and_translation(
 {
     VIO_Volume  volume;
     int     volume_index, axis;
-    Real    separations[VIO_MAX_DIMENSIONS];
-    Real    ref_x_axis[VIO_N_DIMENSIONS], ref_y_axis[VIO_N_DIMENSIONS];
-    Real    x_axis_x, x_axis_y, x_axis_z, y_axis_x, y_axis_y, y_axis_z;
-    Real    x_len, y_len, current_x_len, current_y_len;
-    Real    x_offset, y_offset;
-    Real    xw, yw, zw;
-    Real    current_voxel[VIO_MAX_DIMENSIONS];
-    Real    x_scale, y_scale, x_trans, y_trans;
-    Real    origin[VIO_MAX_DIMENSIONS];
-    Real    x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
-    Real    current_x_scale, current_y_scale;
+    VIO_Real    separations[VIO_MAX_DIMENSIONS];
+    VIO_Real    ref_x_axis[VIO_N_DIMENSIONS], ref_y_axis[VIO_N_DIMENSIONS];
+    VIO_Real    x_axis_x, x_axis_y, x_axis_z, y_axis_x, y_axis_y, y_axis_z;
+    VIO_Real    x_len, y_len, current_x_len, current_y_len;
+    VIO_Real    x_offset, y_offset;
+    VIO_Real    xw, yw, zw;
+    VIO_Real    current_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real    x_scale, y_scale, x_trans, y_trans;
+    VIO_Real    origin[VIO_MAX_DIMENSIONS];
+    VIO_Real    x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real    current_x_scale, current_y_scale;
 
     if( get_n_volumes(slice_window) == 0 )
         return;
@@ -221,24 +221,24 @@ static  void  match_view_scale_and_translation(
     convert_voxel_vector_to_world( get_nth_volume(slice_window,
                                                   ref_volume_index),
                                    x_axis,
-                                   &ref_x_axis[X], &ref_x_axis[Y],
-                                   &ref_x_axis[Z] );
+                                   &ref_x_axis[VIO_X], &ref_x_axis[VIO_Y],
+                                   &ref_x_axis[VIO_Z] );
 
     convert_voxel_vector_to_world( get_nth_volume(slice_window,
                                                   ref_volume_index),
                                    y_axis,
-                                   &ref_y_axis[X], &ref_y_axis[Y],
-                                   &ref_y_axis[Z] );
+                                   &ref_y_axis[VIO_X], &ref_y_axis[VIO_Y],
+                                   &ref_y_axis[VIO_Z] );
 
-    current_x_len = sqrt( ref_x_axis[X] * ref_x_axis[X] +
-                          ref_x_axis[Y] * ref_x_axis[Y] +
-                          ref_x_axis[Z] * ref_x_axis[Z] );
+    current_x_len = sqrt( ref_x_axis[VIO_X] * ref_x_axis[VIO_X] +
+                          ref_x_axis[VIO_Y] * ref_x_axis[VIO_Y] +
+                          ref_x_axis[VIO_Z] * ref_x_axis[VIO_Z] );
     if( current_x_len == 0.0 )
         current_x_len = 1.0;
 
-    current_y_len = sqrt( ref_y_axis[X] * ref_y_axis[X] +
-                          ref_y_axis[Y] * ref_y_axis[Y] +
-                          ref_y_axis[Z] * ref_y_axis[Z] );
+    current_y_len = sqrt( ref_y_axis[VIO_X] * ref_y_axis[VIO_X] +
+                          ref_y_axis[VIO_Y] * ref_y_axis[VIO_Y] +
+                          ref_y_axis[VIO_Z] * ref_y_axis[VIO_Z] );
     if( current_y_len == 0.0 )
         current_y_len = 1.0;
 
@@ -304,19 +304,19 @@ static  void  match_view_scale_and_translation(
 #define DEBUG
 #define  TOL 1.0e-3
 
-        if( !numerically_close( current_x_scale * ref_x_axis[X], x_scale * x_axis_x, TOL ) ||
-            !numerically_close( current_x_scale * ref_x_axis[Y], x_scale * x_axis_y, TOL ) ||
-            !numerically_close( current_x_scale * ref_x_axis[Z], x_scale * x_axis_z, TOL ) ||
-            !numerically_close( current_y_scale * ref_y_axis[X], y_scale * y_axis_x, TOL ) ||
-            !numerically_close( current_y_scale * ref_y_axis[Y], y_scale * y_axis_y, TOL ) ||
-            !numerically_close( current_y_scale * ref_y_axis[Z], y_scale * y_axis_z, TOL ) )
+        if( !numerically_close( current_x_scale * ref_x_axis[VIO_X], x_scale * x_axis_x, TOL ) ||
+            !numerically_close( current_x_scale * ref_x_axis[VIO_Y], x_scale * x_axis_y, TOL ) ||
+            !numerically_close( current_x_scale * ref_x_axis[VIO_Z], x_scale * x_axis_z, TOL ) ||
+            !numerically_close( current_y_scale * ref_y_axis[VIO_X], y_scale * y_axis_x, TOL ) ||
+            !numerically_close( current_y_scale * ref_y_axis[VIO_Y], y_scale * y_axis_y, TOL ) ||
+            !numerically_close( current_y_scale * ref_y_axis[VIO_Z], y_scale * y_axis_z, TOL ) )
         {
-            print( "Error:  %g %g %g\n", current_x_scale * ref_x_axis[X], current_x_scale * ref_x_axis[Y],
-                   current_x_scale * ref_x_axis[Z] );
+            print( "Error:  %g %g %g\n", current_x_scale * ref_x_axis[VIO_X], current_x_scale * ref_x_axis[VIO_Y],
+                   current_x_scale * ref_x_axis[VIO_Z] );
             print( "     :  %g %g %g\n", x_scale * x_axis_x,
                    x_scale * x_axis_y, x_scale * x_axis_z );
-            print( "Error:  %g %g %g\n", current_y_scale * ref_y_axis[X], current_y_scale * ref_y_axis[Y],
-                   current_y_scale * ref_y_axis[Z] );
+            print( "Error:  %g %g %g\n", current_y_scale * ref_y_axis[VIO_X], current_y_scale * ref_y_axis[VIO_Y],
+                   current_y_scale * ref_y_axis[VIO_Z] );
             print( "     :  %g %g %g\n", y_scale * y_axis_x,
                    y_scale * y_axis_y, y_scale * y_axis_z );
         }
@@ -344,7 +344,7 @@ static  void  match_view_scale_and_translation(
 
 #ifdef DEBUG
 {
-    Real  test_x_offset, test_y_offset;
+    VIO_Real  test_x_offset, test_y_offset;
 
     get_slice_plane( slice_window, volume_index, view,
                      origin, x_axis, y_axis );
@@ -373,18 +373,18 @@ static  void  match_view_scale_and_translation(
 {
     VIO_BOOL found_one;
     VIO_Volume  volume;
-    Real    x1, x2, y1, y2, x_offset, y_offset;
+    VIO_Real    x1, x2, y1, y2, x_offset, y_offset;
     int     int_x1, int_x2, int_y1, int_y2, current_volume_index;
     int     x_min, x_max, y_min, y_max;
     int     x_min_vp, x_max_vp, y_min_vp, y_max_vp;
     int     volume_index;
-    Real    xw, yw, zw;
-    Real    current_voxel[VIO_MAX_DIMENSIONS];
-    Real    x_scale, y_scale, x_trans, y_trans;
-    Real    current_origin[VIO_MAX_DIMENSIONS];
-    Real    current_x_axis[VIO_MAX_DIMENSIONS], current_y_axis[VIO_MAX_DIMENSIONS];
-    Real    origin[VIO_MAX_DIMENSIONS];
-    Real    x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real    xw, yw, zw;
+    VIO_Real    current_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real    x_scale, y_scale, x_trans, y_trans;
+    VIO_Real    current_origin[VIO_MAX_DIMENSIONS];
+    VIO_Real    current_x_axis[VIO_MAX_DIMENSIONS], current_y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real    origin[VIO_MAX_DIMENSIONS];
+    VIO_Real    x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
 
     if( get_n_volumes(slice_window) == 0 )
         return;
@@ -434,9 +434,9 @@ static  void  match_view_scale_and_translation(
         }
 
         int_x1 = VIO_FLOOR( x1 );
-        int_x2 = CEILING( x2 );
+        int_x2 = VIO_CEILING( x2 );
         int_y1 = VIO_FLOOR( y1 );
-        int_y2 = CEILING( y2 );
+        int_y2 = VIO_CEILING( y2 );
 
         if( !found_one )
         {
@@ -469,9 +469,9 @@ static  void  match_view_scale_and_translation(
     }
     else
     {
-        x_scale = (Real) (x_max_vp - x_min_vp + 1) / (Real) (x_max - x_min) /
+        x_scale = (VIO_Real) (x_max_vp - x_min_vp + 1) / (VIO_Real) (x_max - x_min) /
                              (1.0 + Slice_fit_oversize);
-        y_scale = (Real) (y_max_vp - y_min_vp + 1) / (Real) (y_max - y_min) /
+        y_scale = (VIO_Real) (y_max_vp - y_min_vp + 1) / (VIO_Real) (y_max - y_min) /
                              (1.0 + Slice_fit_oversize);
 
         if( x_scale < y_scale )
@@ -480,16 +480,16 @@ static  void  match_view_scale_and_translation(
             x_scale = y_scale;
 
         slice_window->slice.slice_views[view].used_viewport_x_size =
-                     VIO_ROUND( VIO_FABS( x_scale * (Real) (x_max - x_min) *
+                     VIO_ROUND( VIO_FABS( x_scale * (VIO_Real) (x_max - x_min) *
                                   (1.0 + Slice_fit_oversize) ));
         slice_window->slice.slice_views[view].used_viewport_y_size =
-                     VIO_ROUND( VIO_FABS( y_scale * (Real) (y_max - y_min) *
+                     VIO_ROUND( VIO_FABS( y_scale * (VIO_Real) (y_max - y_min) *
                                   (1.0 + Slice_fit_oversize) ));
 
-        x_trans = ((Real) (x_max_vp - x_min_vp + 1) - x_scale *
-                          (Real) (x_max - x_min))/2.0 - x_scale * (Real) x_min;
-        y_trans = ((Real) (y_max_vp - y_min_vp + 1) - y_scale *
-                          (Real) (y_max - y_min))/2.0 - y_scale * (Real) y_min;
+        x_trans = ((VIO_Real) (x_max_vp - x_min_vp + 1) - x_scale *
+                          (VIO_Real) (x_max - x_min))/2.0 - x_scale * (VIO_Real) x_min;
+        y_trans = ((VIO_Real) (y_max_vp - y_min_vp + 1) - y_scale *
+                          (VIO_Real) (y_max - y_min))/2.0 - y_scale * (VIO_Real) y_min;
     }
 
     slice_window->slice.volumes[current_volume_index].views[view].x_trans =
@@ -558,7 +558,7 @@ static  void  match_view_scale_and_translation(
   void  scale_slice_view(
     display_struct    *slice_window,
     int               view,
-    Real              scale_factor )
+    VIO_Real              scale_factor )
 {
     int     volume_index;
     int     x_min, x_max, y_min, y_max;
@@ -581,8 +581,8 @@ static  void  match_view_scale_and_translation(
   void  translate_slice_view(
     display_struct    *slice_window,
     int               view,
-    Real              dx,
-    Real              dy )
+    VIO_Real              dx,
+    VIO_Real              dy )
 {
     int        volume_index;
 
@@ -634,14 +634,14 @@ static  void  match_view_scale_and_translation(
     int               volume_index,
     int               x_pixel,
     int               y_pixel,
-    Real              voxel[],
+    VIO_Real              voxel[],
     int               *view_index )
 {
     VIO_BOOL           found;
     display_struct    *slice_window;
     int               x_min, x_max, y_min, y_max;
-    Real              origin[VIO_MAX_DIMENSIONS];
-    Real              x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];;
+    VIO_Real              origin[VIO_MAX_DIMENSIONS];
+    VIO_Real              x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];;
 
     found = FALSE;
 
@@ -658,7 +658,7 @@ static  void  match_view_scale_and_translation(
         y_pixel -= y_min;
 
         found = convert_slice_pixel_to_voxel( get_nth_volume(slice_window,
-                                volume_index), (Real) x_pixel, (Real) y_pixel,
+                                volume_index), (VIO_Real) x_pixel, (VIO_Real) y_pixel,
          origin, x_axis, y_axis,
          slice_window->slice.volumes[volume_index].views[*view_index].x_trans,
          slice_window->slice.volumes[volume_index].views[*view_index].y_trans,
@@ -674,15 +674,15 @@ static  void  match_view_scale_and_translation(
     display_struct    *display,
     int               volume_index,
     int               view_index,
-    Real              voxel[],
-    Real              *x_pixel,
-    Real              *y_pixel )
+    VIO_Real              voxel[],
+    VIO_Real              *x_pixel,
+    VIO_Real              *y_pixel )
 {
     VIO_Volume            volume;
     display_struct    *slice_window;
-    Real              x_real_pixel, y_real_pixel;
-    Real              origin[VIO_MAX_DIMENSIONS];
-    Real              x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];;
+    VIO_Real              x_real_pixel, y_real_pixel;
+    VIO_Real              origin[VIO_MAX_DIMENSIONS];
+    VIO_Real              x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];;
 
     if( get_slice_window( display, &slice_window ) )
     {
@@ -713,13 +713,13 @@ static  void  match_view_scale_and_translation(
     int               view_index,
     int               *x_index,
     int               *y_index,
-    Real              *x_scale,
-    Real              *x_trans,
-    Real              *y_scale,
-    Real              *y_trans )
+    VIO_Real              *x_scale,
+    VIO_Real              *x_trans,
+    VIO_Real              *y_scale,
+    VIO_Real              *y_trans )
 {
     int     axis;
-    Real    voxel[VIO_MAX_DIMENSIONS], x, y;
+    VIO_Real    voxel[VIO_MAX_DIMENSIONS], x, y;
 
     if( !slice_has_ortho_axes( slice_window, volume_index,
                                view_index, x_index, y_index, &axis ) )
@@ -746,7 +746,7 @@ static  void  match_view_scale_and_translation(
   VIO_BOOL  get_voxel_corresponding_to_point(
     display_struct    *display,
     VIO_Point             *point,
-    Real              voxel[] )
+    VIO_Real              voxel[] )
 {
     VIO_Volume          volume;
     VIO_BOOL         converted;
@@ -756,9 +756,9 @@ static  void  match_view_scale_and_translation(
     if( get_slice_window_volume( display, &volume ) )
     {
         convert_world_to_voxel( volume,
-                                (Real) Point_x(*point),
-                                (Real) Point_y(*point),
-                                (Real) Point_z(*point), voxel );
+                                (VIO_Real) Point_x(*point),
+                                (VIO_Real) Point_y(*point),
+                                (VIO_Real) Point_z(*point), voxel );
 
         converted = voxel_is_within_volume( volume, voxel );
     }
@@ -784,9 +784,9 @@ static  void  match_view_scale_and_translation(
     *text_panel_height = Text_panel_height;
     *colour_bar_panel_height = y_size - *text_panel_height;
     *left_slice_width = VIO_ROUND( slice_window->slice.x_split *
-                               (Real) (x_size - *left_panel_width) );
+                               (VIO_Real) (x_size - *left_panel_width) );
     *right_slice_width = x_size - *left_panel_width - *left_slice_width;
-    *bottom_slice_height = VIO_ROUND( slice_window->slice.y_split * (Real) y_size );
+    *bottom_slice_height = VIO_ROUND( slice_window->slice.y_split * (VIO_Real) y_size );
     *top_slice_height = y_size - *bottom_slice_height;
 }
 
@@ -923,7 +923,7 @@ static  void  match_view_scale_and_translation(
     int  left_panel_width, left_slice_width, right_slice_width;
     int  bottom_slice_height, top_slice_height, text_panel_height;
     int  colour_bar_panel_height;
-    Real x_split, y_split;
+    VIO_Real x_split, y_split;
 
     get_slice_window_partitions( slice_window,
                                  &left_panel_width, &left_slice_width,
@@ -931,10 +931,10 @@ static  void  match_view_scale_and_translation(
                                  &bottom_slice_height, &top_slice_height,
                                  &text_panel_height, &colour_bar_panel_height );
 
-    x_split = (Real) (x - left_panel_width) /
-              (Real) (left_slice_width + right_slice_width);
-    y_split = (Real) y /
-              (Real) (bottom_slice_height + top_slice_height);
+    x_split = (VIO_Real) (x - left_panel_width) /
+              (VIO_Real) (left_slice_width + right_slice_width);
+    y_split = (VIO_Real) y /
+              (VIO_Real) (bottom_slice_height + top_slice_height);
 
     if( x_split > 0.0 && x_split < 1.0 && y_split > 0.0 && y_split < 1.0 )
     {
@@ -955,7 +955,7 @@ static  void  match_view_scale_and_translation(
     int               y,
     int               *volume_index,
     int               *view_index,
-    Real              voxel[] )
+    VIO_Real              voxel[] )
 {
     if( !get_slice_window( slice_window, &slice_window ) )
         return( FALSE );
@@ -977,7 +977,7 @@ static  void  match_view_scale_and_translation(
 
   VIO_BOOL  get_voxel_in_slice_window(
     display_struct    *display,
-    Real              voxel[],
+    VIO_Real              voxel[],
     int               *volume_index,
     int               *view_index )
 {
@@ -995,7 +995,7 @@ static  void  match_view_scale_and_translation(
 
   VIO_BOOL  get_voxel_in_three_d_window(
     display_struct    *display,
-    Real              voxel[] )
+    VIO_Real              voxel[] )
 {
     VIO_BOOL          found;
     object_struct    *object;
@@ -1023,7 +1023,7 @@ static  void  match_view_scale_and_translation(
     display_struct    *display,
     int               *volume_index,
     int               *view_index,
-    Real              voxel[] )
+    VIO_Real              voxel[] )
 {
     display_struct    *three_d, *slice_window;
     VIO_BOOL           found;
@@ -1054,7 +1054,7 @@ static  void  match_view_scale_and_translation(
   void  get_current_voxel(
     display_struct    *display,
     int               volume_index,
-    Real              voxel[] )
+    VIO_Real              voxel[] )
 {
     int              c;
     display_struct   *slice_window;
@@ -1069,21 +1069,21 @@ static  void  match_view_scale_and_translation(
     }
     else
     {
-        voxel[X] = 0.0;
-        voxel[Y] = 0.0;
-        voxel[Z] = 0.0;
+        voxel[VIO_X] = 0.0;
+        voxel[VIO_Y] = 0.0;
+        voxel[VIO_Z] = 0.0;
     }
 }
 
   VIO_BOOL  set_current_voxel(
     display_struct    *slice_window,
     int               this_volume_index,
-    Real              voxel[] )
+    VIO_Real              voxel[] )
 {
     VIO_BOOL           changed;
     int               i, view, volume_index;
     int               axis, x_index, y_index;
-    Real              xw, yw, zw, used_voxel[VIO_N_DIMENSIONS];
+    VIO_Real              xw, yw, zw, used_voxel[VIO_N_DIMENSIONS];
 
     changed = FALSE;
 
@@ -1143,12 +1143,12 @@ static  void  match_view_scale_and_translation(
 
 static  void  get_voxel_axis_perpendicular(
     VIO_Volume   volume,
-    Real     x_axis[],
-    Real     y_axis[],
-    Real     perp_axis[] )
+    VIO_Real     x_axis[],
+    VIO_Real     y_axis[],
+    VIO_Real     perp_axis[] )
 {
     int      c, a1, a2;
-    Real     len, separations[VIO_MAX_DIMENSIONS];
+    VIO_Real     len, separations[VIO_MAX_DIMENSIONS];
 
     get_volume_separations( volume, separations );
 
@@ -1177,7 +1177,7 @@ static  void  get_voxel_axis_perpendicular(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    Real             perp_axis[VIO_N_DIMENSIONS] )
+    VIO_Real             perp_axis[VIO_N_DIMENSIONS] )
 {
     get_voxel_axis_perpendicular( get_nth_volume(slice_window,volume_index),
         slice_window->slice.volumes[volume_index].views[view_index].x_axis,
@@ -1189,15 +1189,15 @@ static  void  get_voxel_axis_perpendicular(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    Real             voxel_perp[] )
+    VIO_Real             voxel_perp[] )
 {
-    Real     max_value, len, sign;
-    Real     len_x_axis, len_y_axis, factor;
-    Real     used_x_axis[VIO_MAX_DIMENSIONS];
-    Real     used_y_axis[VIO_MAX_DIMENSIONS];
-    Real     separations[VIO_MAX_DIMENSIONS];
-    Real     sep[VIO_MAX_DIMENSIONS];
-    Real     perp[VIO_MAX_DIMENSIONS];
+    VIO_Real     max_value, len, sign;
+    VIO_Real     len_x_axis, len_y_axis, factor;
+    VIO_Real     used_x_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real     used_y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real     separations[VIO_MAX_DIMENSIONS];
+    VIO_Real     sep[VIO_MAX_DIMENSIONS];
+    VIO_Real     perp[VIO_MAX_DIMENSIONS];
     VIO_Vector   axis, vect, new_axis, tmp;
     int      x_index, y_index, view;
     int      c, max_axis;
@@ -1226,7 +1226,7 @@ static  void  get_voxel_axis_perpendicular(
             SCALE_VECTOR( new_axis, new_axis, -1.0f );
 
         for_less( c, 0, VIO_N_DIMENSIONS )
-            perp[c] = (Real) Vector_coord( new_axis, c );
+            perp[c] = (VIO_Real) Vector_coord( new_axis, c );
     }
 
     max_value = 0.0;
@@ -1241,14 +1241,14 @@ static  void  get_voxel_axis_perpendicular(
 
     switch( max_axis )
     {
-    case X: x_index = Y;   y_index = Z;  break;
-    case Y: x_index = X;   y_index = Z;  break;
-    case Z: x_index = X;   y_index = Y;  break;
+    case VIO_X: x_index = VIO_Y;   y_index = VIO_Z;  break;
+    case VIO_Y: x_index = VIO_X;   y_index = VIO_Z;  break;
+    case VIO_Z: x_index = VIO_X;   y_index = VIO_Y;  break;
     }
 
-    used_x_axis[X] = 0.0;
-    used_x_axis[Y] = 0.0;
-    used_x_axis[Z] = 0.0;
+    used_x_axis[VIO_X] = 0.0;
+    used_x_axis[VIO_Y] = 0.0;
+    used_x_axis[VIO_Z] = 0.0;
 
     get_volume_separations( get_nth_volume(slice_window,volume_index), sep );
 
@@ -1257,7 +1257,7 @@ static  void  get_voxel_axis_perpendicular(
     else
         used_x_axis[x_index] = 1.0;
 
-    len = perp[X] * perp[X] + perp[Y] * perp[Y] + perp[Z] * perp[Z];
+    len = perp[VIO_X] * perp[VIO_X] + perp[VIO_Y] * perp[VIO_Y] + perp[VIO_Z] * perp[VIO_Z];
     if( len == 0.0 )
         return;
 
@@ -1266,9 +1266,9 @@ static  void  get_voxel_axis_perpendicular(
     for_less( c, 0, VIO_N_DIMENSIONS )
         used_x_axis[c] -= factor * perp[c];
 
-    used_y_axis[X] = perp[Y] * used_x_axis[Z] - used_x_axis[Y] * perp[Z];
-    used_y_axis[Y] = perp[Z] * used_x_axis[X] - used_x_axis[Z] * perp[X];
-    used_y_axis[Z] = perp[X] * used_x_axis[Y] - used_x_axis[X] * perp[Y];
+    used_y_axis[VIO_X] = perp[VIO_Y] * used_x_axis[VIO_Z] - used_x_axis[VIO_Y] * perp[VIO_Z];
+    used_y_axis[VIO_Y] = perp[VIO_Z] * used_x_axis[VIO_X] - used_x_axis[VIO_Z] * perp[VIO_X];
+    used_y_axis[VIO_Z] = perp[VIO_X] * used_x_axis[VIO_Y] - used_x_axis[VIO_X] * perp[VIO_Y];
 
     len_x_axis = 0.0;
     len_y_axis = 0.0;
@@ -1317,10 +1317,10 @@ static  void  get_voxel_axis_perpendicular(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    Real             x_axis[],
-    Real             y_axis[] )
+    VIO_Real             x_axis[],
+    VIO_Real             y_axis[] )
 {
-    Real     perp[VIO_MAX_DIMENSIONS];
+    VIO_Real     perp[VIO_MAX_DIMENSIONS];
 
     get_voxel_axis_perpendicular( get_nth_volume(slice_window,volume_index),
                                   x_axis, y_axis, perp );
@@ -1332,14 +1332,14 @@ static  void  get_voxel_axis_perpendicular(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    Real             origin[],
-    Real             x_axis[],
-    Real             y_axis[] )
+    VIO_Real             origin[],
+    VIO_Real             x_axis[],
+    VIO_Real             y_axis[] )
 {
     int    c, axis;
-    Real   separations[VIO_MAX_DIMENSIONS];
-    Real   voxel[VIO_MAX_DIMENSIONS], perp_axis[VIO_MAX_DIMENSIONS];
-    Real   voxel_dot_perp, perp_dot_perp, factor;
+    VIO_Real   separations[VIO_MAX_DIMENSIONS];
+    VIO_Real   voxel[VIO_MAX_DIMENSIONS], perp_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real   voxel_dot_perp, perp_dot_perp, factor;
 
     get_volume_separations( get_nth_volume(slice_window,volume_index),
                             separations );
@@ -1430,7 +1430,7 @@ static  void  get_voxel_axis_perpendicular(
     int              *axis_index )
 {
     VIO_BOOL          found;
-    Real             voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real             voxel[VIO_MAX_DIMENSIONS];
     int              view_index, x_index, y_index;
     display_struct   *slice_window;
 
@@ -1451,9 +1451,9 @@ static  void  get_voxel_axis_perpendicular(
     int              *y_index,
     int              *axis_index )
 {
-    Real     origin[VIO_N_DIMENSIONS];
-    Real     x_axis[VIO_N_DIMENSIONS];
-    Real     y_axis[VIO_N_DIMENSIONS];
+    VIO_Real     origin[VIO_N_DIMENSIONS];
+    VIO_Real     x_axis[VIO_N_DIMENSIONS];
+    VIO_Real     y_axis[VIO_N_DIMENSIONS];
     int      c;
 
     get_slice_plane( slice_window, volume_index, view_index,
@@ -1537,8 +1537,8 @@ static  void  get_voxel_axis_perpendicular(
   VIO_BOOL  update_cursor_from_voxel(
     display_struct    *slice_window )
 {
-    Real              voxel[VIO_MAX_DIMENSIONS];
-    Real              x_w, y_w, z_w;
+    VIO_Real              voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real              x_w, y_w, z_w;
     VIO_BOOL           changed;
     VIO_Point             new_origin;
     display_struct    *display;
@@ -1574,7 +1574,7 @@ static  void  get_voxel_axis_perpendicular(
     display_struct    *slice_window )
 {
     int               volume_index;
-    Real              voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real              voxel[VIO_MAX_DIMENSIONS];
     VIO_BOOL           changed;
     display_struct    *display;
 
@@ -1601,9 +1601,9 @@ static  void  update_all_slice_axes(
     int               view_index )
 {
     int    v, axis;
-    Real   x_axis_x, x_axis_y, x_axis_z, y_axis_x, y_axis_y, y_axis_z;
-    Real   x_mag, y_mag, x_axis[VIO_N_DIMENSIONS], y_axis[VIO_N_DIMENSIONS];
-    Real   ref_x_axis[VIO_N_DIMENSIONS], ref_y_axis[VIO_N_DIMENSIONS];
+    VIO_Real   x_axis_x, x_axis_y, x_axis_z, y_axis_x, y_axis_y, y_axis_z;
+    VIO_Real   x_mag, y_mag, x_axis[VIO_N_DIMENSIONS], y_axis[VIO_N_DIMENSIONS];
+    VIO_Real   ref_x_axis[VIO_N_DIMENSIONS], ref_y_axis[VIO_N_DIMENSIONS];
 
     for_less( axis, 0, VIO_N_DIMENSIONS )
     {
@@ -1641,14 +1641,14 @@ static  void  update_all_slice_axes(
                                       y_axis_x, y_axis_y, y_axis_z, y_axis );
         }
 
-        x_mag = sqrt( x_axis[X] * x_axis[X] + x_axis[Y] * x_axis[Y] +
-                      x_axis[Z] * x_axis[Z] );
+        x_mag = sqrt( x_axis[VIO_X] * x_axis[VIO_X] + x_axis[VIO_Y] * x_axis[VIO_Y] +
+                      x_axis[VIO_Z] * x_axis[VIO_Z] );
 
         if( x_mag == 0.0 )
             x_mag = 1.0;
 
-        y_mag = sqrt( y_axis[X] * y_axis[X] + y_axis[Y] * y_axis[Y] +
-                      y_axis[Z] * y_axis[Z] );
+        y_mag = sqrt( y_axis[VIO_X] * y_axis[VIO_X] + y_axis[VIO_Y] * y_axis[VIO_Y] +
+                      y_axis[VIO_Z] * y_axis[VIO_Z] );
 
         if( y_mag == 0.0 )
             y_mag = 1.0;
@@ -1744,7 +1744,7 @@ static  void  update_all_slice_axes(
 {
     VIO_General_transform  file_transform;
 
-    if( input_transform_file( filename, &file_transform ) != OK )
+    if( input_transform_file( filename, &file_transform ) != VIO_OK )
         return;
 
     concat_transform_to_volume( display,

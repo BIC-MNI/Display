@@ -57,7 +57,7 @@ static  void  update_limit(
     VIO_BOOL          fixed_range_flag );
 static  VIO_BOOL  get_mouse_colour_bar_value(
     display_struct   *slice_window,
-    Real             *value );
+    VIO_Real             *value );
 static  VIO_BOOL   mouse_is_near_slice_dividers(
     display_struct   *slice_window );
 static  VIO_BOOL  mouse_is_near_low_limit(
@@ -66,7 +66,7 @@ static  VIO_BOOL  mouse_is_near_high_limit(
     display_struct   *slice_window );
 static  VIO_BOOL  get_nearest_mouse_colour_bar_value(
     display_struct   *slice_window,
-    Real             *value );
+    VIO_Real             *value );
 
   void  initialize_slice_window_events(
     display_struct    *slice_window )
@@ -97,7 +97,7 @@ static  DEF_EVENT_FUNCTION( left_mouse_down )
     int          view_index;
 
     if( get_n_volumes( display ) == 0 )
-        return( OK );
+        return( VIO_OK );
 
     if( mouse_is_near_slice_dividers( display ) )
     {
@@ -183,7 +183,7 @@ static  DEF_EVENT_FUNCTION( left_mouse_down )
 
     record_mouse_pixel_position( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -191,10 +191,10 @@ static  DEF_EVENT_FUNCTION( left_mouse_down )
 static  DEF_EVENT_FUNCTION( middle_mouse_down )
 {
     int          view_index;
-    Real         value;
+    VIO_Real         value;
 
     if( get_n_volumes( display ) == 0 )
-        return( OK );
+        return( VIO_OK );
 
     if( get_slice_view_index_under_mouse( display, &view_index ) )
     {
@@ -247,17 +247,17 @@ static  DEF_EVENT_FUNCTION( middle_mouse_down )
 
     record_mouse_pixel_position( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  set_slice_voxel_position(
     display_struct    *slice_window,
     int               volume_index,
-    Real              voxel[] )
+    VIO_Real              voxel[] )
 {
     display_struct    *display;
     int               c, sizes[VIO_MAX_DIMENSIONS];
-    Real              clipped_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real              clipped_voxel[VIO_MAX_DIMENSIONS];
 
     get_volume_sizes( get_nth_volume(slice_window,volume_index), sizes );
 
@@ -265,8 +265,8 @@ static  void  set_slice_voxel_position(
     {
         if( voxel[c] < -0.5 )
             clipped_voxel[c] = -0.5;
-        else if( voxel[c] > (Real) sizes[c] - 0.5 )
-            clipped_voxel[c] = (Real) sizes[c] - 0.5;
+        else if( voxel[c] > (VIO_Real) sizes[c] - 0.5 )
+            clipped_voxel[c] = (VIO_Real) sizes[c] - 0.5;
         else
             clipped_voxel[c] = voxel[c];
     }
@@ -295,7 +295,7 @@ static  void  set_slice_voxel_position(
     display_struct    *slice_window )
 {
     int    volume_index, axis_index;
-    Real   voxel[VIO_N_DIMENSIONS];
+    VIO_Real   voxel[VIO_N_DIMENSIONS];
 
     if( get_voxel_in_slice_window( slice_window, voxel, &volume_index,
                                    &axis_index ) )
@@ -326,7 +326,7 @@ static  DEF_EVENT_FUNCTION( terminate_picking_voxel )
                                   LEFT_MOUSE_UP_EVENT,
                                   terminate_picking_voxel );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -335,7 +335,7 @@ static  DEF_EVENT_FUNCTION( handle_update_voxel )
 {
     update_voxel_cursor( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ----------------------------------------------------------------------- */
@@ -345,8 +345,8 @@ static  void  update_voxel_slice(
 {
     int        view_index, dy, x, y, x_prev, y_prev;
     int        c, volume_index;
-    Real       voxel[VIO_MAX_DIMENSIONS];
-    Real       perp_axis[VIO_N_DIMENSIONS];
+    VIO_Real       voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real       perp_axis[VIO_N_DIMENSIONS];
 
     if( pixel_mouse_moved( slice_window, &x, &y, &x_prev, &y_prev ) &&
         find_slice_view_mouse_is_in( slice_window, x, y, &view_index ) )
@@ -363,7 +363,7 @@ static  void  update_voxel_slice(
                                  perp_axis );
 
             for_less( c, 0, VIO_N_DIMENSIONS )
-                voxel[c] += (Real) dy * Move_slice_speed * perp_axis[c];
+                voxel[c] += (VIO_Real) dy * Move_slice_speed * perp_axis[c];
 
             if( voxel_is_within_volume( get_nth_volume(slice_window,
                                            volume_index), voxel ) )
@@ -385,7 +385,7 @@ static  DEF_EVENT_FUNCTION( terminate_picking_slice )
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_picking_slice );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -394,7 +394,7 @@ static  DEF_EVENT_FUNCTION( update_picking_slice )
 {
     update_voxel_slice( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ----------------------------------------------------------------------- */
@@ -403,14 +403,14 @@ static  void  update_voxel_zoom(
     display_struct    *slice_window )
 {
     int        view_index, x, y, x_prev, y_prev, dy;
-    Real       scale_factor;
+    VIO_Real       scale_factor;
 
     if( pixel_mouse_moved( slice_window, &x, &y, &x_prev, &y_prev ) &&
         find_slice_view_mouse_is_in( slice_window, x, y, &view_index ) )
     {
         dy = y - y_prev;
 
-        scale_factor = pow( 2.0, (Real) dy / Pixels_per_double_size );
+        scale_factor = pow( 2.0, (VIO_Real) dy / Pixels_per_double_size );
 
         scale_slice_view( slice_window, view_index, scale_factor );
     }
@@ -429,7 +429,7 @@ static  DEF_EVENT_FUNCTION( terminate_slice_zooming )
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_slice_zooming );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -438,7 +438,7 @@ static  DEF_EVENT_FUNCTION( update_slice_zooming )
 {
     update_voxel_zoom( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ------------------------------------------------------ */
@@ -454,7 +454,7 @@ static  void  perform_translation(
         dx = x - x_prev;
         dy = y - y_prev;
 
-        translate_slice_view( slice_window, view_index, (Real) dx, (Real) dy );
+        translate_slice_view( slice_window, view_index, (VIO_Real) dx, (VIO_Real) dy );
         set_slice_window_update( slice_window, -1, view_index, UPDATE_BOTH );
 
         record_mouse_pixel_position( slice_window );
@@ -474,7 +474,7 @@ static  DEF_EVENT_FUNCTION( terminate_translation )
                                   LEFT_MOUSE_UP_EVENT,
                                   terminate_translation );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -483,7 +483,7 @@ static  DEF_EVENT_FUNCTION( update_translation )
 {
     perform_translation( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ----------------------------------------------------------------------- */
@@ -497,7 +497,7 @@ static  DEF_EVENT_FUNCTION( update_probe )
     if( pixel_mouse_moved(display,&x,&y,&x_prev,&y_prev) )
         set_probe_update( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -506,7 +506,7 @@ static  DEF_EVENT_FUNCTION( handle_redraw )
 {
     set_slice_viewport_update( display, FULL_WINDOW_MODEL );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -522,7 +522,7 @@ static  DEF_EVENT_FUNCTION( handle_redraw_overlay )
             set_slice_viewport_update( display, i );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -538,7 +538,7 @@ static  DEF_EVENT_FUNCTION( window_size_changed )
     set_slice_window_all_update( display, -1, UPDATE_BOTH );
     resize_histogram( display );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ------------------------------------------------------------------ */
@@ -556,7 +556,7 @@ static  DEF_EVENT_FUNCTION( terminate_picking_low_limit )
                                   LEFT_MOUSE_UP_EVENT,
                                   terminate_picking_low_limit );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -571,7 +571,7 @@ static  DEF_EVENT_FUNCTION( handle_update_low_limit )
         update_limit( display, TRUE, FALSE );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -587,7 +587,7 @@ static  DEF_EVENT_FUNCTION( terminate_picking_high_limit )
                                   LEFT_MOUSE_UP_EVENT,
                                   terminate_picking_high_limit );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -602,7 +602,7 @@ static  DEF_EVENT_FUNCTION( handle_update_high_limit )
         update_limit( display, FALSE, FALSE );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -618,7 +618,7 @@ static  DEF_EVENT_FUNCTION( terminate_picking_both_limits )
                                   MIDDLE_MOUSE_UP_EVENT,
                                   terminate_picking_both_limits );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -633,7 +633,7 @@ static  DEF_EVENT_FUNCTION( handle_update_both_limits )
         update_limit( display, TRUE, TRUE );
     }
 
-    return( OK );
+    return( VIO_OK );
 }
 
 static  void  update_limit(
@@ -641,8 +641,8 @@ static  void  update_limit(
     VIO_BOOL          low_limit_flag,
     VIO_BOOL          fixed_range_flag )
 {
-    Real                  range, min_value, max_value, value;
-    Real                  volume_min, volume_max;
+    VIO_Real                  range, min_value, max_value, value;
+    VIO_Real                  volume_min, volume_max;
     VIO_Volume                volume;
     colour_coding_struct  *colour_coding;
 
@@ -719,21 +719,21 @@ static  void  update_limit(
 
 static  VIO_BOOL  get_mouse_colour_bar_value(
     display_struct   *slice_window,
-    Real             *value )
+    VIO_Real             *value )
 {
     int                   x, y;
-    Real                  ratio, min_value, max_value;
+    VIO_Real                  ratio, min_value, max_value;
     VIO_Volume                volume;
     VIO_BOOL               found;
 
     found = FALSE;
 
     if( G_get_mouse_position( slice_window->window, &x, &y ) &&
-        mouse_within_colour_bar( slice_window, (Real) x, (Real) y, &ratio ) &&
+        mouse_within_colour_bar( slice_window, (VIO_Real) x, (VIO_Real) y, &ratio ) &&
         get_slice_window_volume( slice_window, &volume ) )
     {
         get_volume_real_range( volume, &min_value, &max_value );
-        *value = INTERPOLATE( ratio, min_value, max_value );
+        *value = VIO_INTERPOLATE( ratio, min_value, max_value );
         found = TRUE;
     }
 
@@ -742,10 +742,10 @@ static  VIO_BOOL  get_mouse_colour_bar_value(
 
 static  VIO_BOOL  get_nearest_mouse_colour_bar_value(
     display_struct   *slice_window,
-    Real             *value )
+    VIO_Real             *value )
 {
     int                   x, y;
-    Real                  ratio, min_value, max_value;
+    VIO_Real                  ratio, min_value, max_value;
     VIO_Volume                volume;
     VIO_BOOL               found;
 
@@ -754,7 +754,7 @@ static  VIO_BOOL  get_nearest_mouse_colour_bar_value(
     if( G_get_mouse_position( slice_window->window, &x, &y ) &&
         get_slice_window_volume( slice_window, &volume ) )
     {
-        (void) mouse_within_colour_bar( slice_window, (Real) x, (Real) y,
+        (void) mouse_within_colour_bar( slice_window, (VIO_Real) x, (VIO_Real) y,
                                         &ratio );
 
         if( ratio < 0.0 )
@@ -763,7 +763,7 @@ static  VIO_BOOL  get_nearest_mouse_colour_bar_value(
             ratio = 1.0;
 
         get_volume_real_range( volume, &min_value, &max_value );
-        *value = INTERPOLATE( ratio, min_value, max_value );
+        *value = VIO_INTERPOLATE( ratio, min_value, max_value );
 
         found = TRUE;
     }
@@ -776,7 +776,7 @@ static  VIO_BOOL  get_nearest_mouse_colour_bar_value(
 static  VIO_BOOL  mouse_is_near_low_limit(
     display_struct   *slice_window )
 {
-    Real                  value, min_value, max_value;
+    VIO_Real                  value, min_value, max_value;
     VIO_BOOL               near;
     colour_coding_struct  *colour_coding;
 
@@ -802,7 +802,7 @@ static  VIO_BOOL  mouse_is_near_low_limit(
 static  VIO_BOOL  mouse_is_near_high_limit(
     display_struct   *slice_window )
 {
-    Real                  value, min_value, max_value;
+    VIO_Real                  value, min_value, max_value;
     VIO_BOOL               near;
     colour_coding_struct  *colour_coding;
 
@@ -841,7 +841,7 @@ static  VIO_BOOL  mouse_is_near_slice_dividers(
 
         dx = x - x_div;
         dy = y - y_div;
-        near = ABS(dx) < NEAR_ENOUGH && ABS(dy) < NEAR_ENOUGH;
+        near = VIO_ABS(dx) < NEAR_ENOUGH && VIO_ABS(dy) < NEAR_ENOUGH;
     }
 
     return( near );
@@ -872,7 +872,7 @@ static  DEF_EVENT_FUNCTION( terminate_setting_slice_dividers )
                                   LEFT_MOUSE_UP_EVENT,
                                   terminate_setting_slice_dividers );
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -881,5 +881,5 @@ static  DEF_EVENT_FUNCTION( handle_update_slice_dividers )
 {
     update_slice_dividers( display );
 
-    return( OK );
+    return( VIO_OK );
 }

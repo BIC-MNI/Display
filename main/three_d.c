@@ -133,7 +133,7 @@ static  DEF_EVENT_FUNCTION( handle_resize_three_d )
 
     set_update_required( display, NORMAL_PLANES );
 
-    return( OK );
+    return( VIO_OK );
 }
 
   void  delete_three_d(

@@ -38,12 +38,12 @@
 
     status = input_string( stdin, &input_str, '\n' );
 
-    if( status == OK )
+    if( status == VIO_OK )
     {
         status = change_global_variable( input_str,
                                          &variable_name, &new_value );
 
-        if( status == OK )
+        if( status == VIO_OK )
             print( "%s = %s\n", variable_name, new_value );
 
         delete_string( variable_name );
@@ -51,7 +51,7 @@
         delete_string( input_str );
     }
 
-    if( status != OK )
+    if( status != VIO_OK )
         print( "Error in setting global variable\n" );
 
     return( status );
@@ -87,7 +87,7 @@
     print( "\n" );
 #endif
 
-    return( OK );
+    return( VIO_OK );
 }
 
 /* ARGSUSED */

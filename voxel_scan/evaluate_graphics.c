@@ -28,7 +28,7 @@ public  double   evaluate_graphics_fit_with_range(
     double          u_max,
     double          v_min,
     double          v_max,
-    Real            surface_point_distances[] )
+    VIO_Real            surface_point_distances[] )
 {
     Volume                  volume;
     display_struct          *display;
@@ -48,7 +48,7 @@ public  double   evaluate_graphics_fit_with_range(
 public  void   evaluate_graphics_surface_point_distances(
     void            *evaluation_ptr,
     double          parameters[],
-    Real            distances[],
+    VIO_Real            distances[],
     double          u_min_parm,
     double          u_max_parm,
     double          v_min_parm,
