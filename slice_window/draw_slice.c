@@ -1020,7 +1020,7 @@ static  int  render_slice_to_pixels(
     int                   view_index,
     int                   which_volume,
     VIO_Colour                colour_table[],
-    Filter_types          filter_type,
+    VIO_Filter_types          filter_type,
     int                   continuity,
     pixels_struct         *pixels,
     VIO_BOOL               incremental_flag,

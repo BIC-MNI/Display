@@ -412,7 +412,7 @@ static  void  set_the_colour_coding_type(
 
 static  void  set_filter_type(
     display_struct   *display,
-    Filter_types     filter_type )
+    VIO_Filter_types     filter_type )
 {
     int             view_index, volume_index;
     display_struct  *slice_window;

@@ -113,7 +113,7 @@ typedef  struct
         VIO_Real                   x_scaling, y_scaling;
         VIO_BOOL                update_flag;
         VIO_BOOL                update_labels_flag;
-        Filter_types           filter_type;
+        VIO_Filter_types           filter_type;
         VIO_Real                   filter_width;
         int                    n_pixels_redraw;
         VIO_BOOL                update_in_progress[2];

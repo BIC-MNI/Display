@@ -276,7 +276,7 @@ static  void  delete_slice_window_volume_stuff(
         info->views[view].visibility = TRUE;
         info->views[view].update_flag = TRUE;
         info->views[view].update_labels_flag = TRUE;
-        info->views[view].filter_type = (Filter_types) Default_filter_type;
+        info->views[view].filter_type = (VIO_Filter_types) Default_filter_type;
         info->views[view].filter_width = Default_filter_width;
         info->views[view].n_pixels_redraw = Initial_n_pixels_redraw;
         info->views[view].update_in_progress[0] = FALSE;
