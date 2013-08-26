@@ -457,7 +457,7 @@ static  VIO_Status  handle_mouse_press_in_menu(
         else
             set_current_object( three_d, object );
 
-        rebuild_selected_list( three_d, menu_window );
+        rebuild_selected_list( three_d, three_d->associated[MARKER_WINDOW]  );
         update_all_menu_text( menu_window );
     }
 

@@ -518,7 +518,7 @@ static  void  get_position_pointed_to(
             }
         }
 
-        rebuild_selected_list( display, menu_window );
+        rebuild_selected_list( display, display->associated[MARKER_WINDOW]  );
     }
 
     (void) input_newline( stdin );
@@ -558,7 +558,7 @@ static  void  get_position_pointed_to(
             }
         }
 
-        rebuild_selected_list( display, menu_window );
+        rebuild_selected_list( display, display->associated[MARKER_WINDOW]  );
     }
 
     (void) input_newline( stdin );

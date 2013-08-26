@@ -29,7 +29,7 @@ static  void  display_objects_recursive(
     object_struct                *object_list[],
     render_struct                *render,
     View_types                   view_type,
-    VIO_Transform                    *transform,
+    VIO_Transform                *transform,
     update_interrupted_struct    *interrupt,
     VIO_BOOL                      *past_last_object );
 
@@ -38,7 +38,7 @@ static  void  display_objects_recursive(
     object_struct               *object,
     update_interrupted_struct   *interrupt,
     Bitplane_types              bitplanes,
-    VIO_BOOL                     *past_last_object )
+    VIO_BOOL                    *past_last_object )
 {
     model_struct         *model;
     model_info_struct    *model_info;
@@ -62,7 +62,7 @@ static  void  draw_one_object(
     Gwindow                      window,
     object_struct                *object,
     update_interrupted_struct    *interrupt,
-    VIO_BOOL                      *past_last_object );
+    VIO_BOOL                     *past_last_object );
 
 static  void  display_objects_recursive(
     Gwindow                      window,
@@ -71,9 +71,9 @@ static  void  display_objects_recursive(
     object_struct                *object_list[],
     render_struct                *render,
     View_types                   view_type,
-    VIO_Transform                    *transform,
+    VIO_Transform                *transform,
     update_interrupted_struct    *interrupt,
-    VIO_BOOL                      *past_last_object )
+    VIO_BOOL                     *past_last_object )
 {
     int                  i;
     model_struct         *model;

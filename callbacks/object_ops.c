@@ -161,7 +161,7 @@
 {
     advance_current_object( display );
 
-    rebuild_selected_list( display, menu_window );
+    rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
 
     return( VIO_OK );
 }
@@ -179,7 +179,7 @@
 {
     retreat_current_object( display );
 
-    rebuild_selected_list( display, menu_window );
+    rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
 
     return( VIO_OK );
 }
@@ -197,7 +197,7 @@
 {
     push_current_object( display );
 
-    rebuild_selected_list( display, menu_window );
+    rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
 
     return( VIO_OK );
 }
@@ -215,7 +215,7 @@
 {
     pop_current_object( display );
 
-    rebuild_selected_list( display, menu_window );
+    rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
 
     return( VIO_OK );
 }
@@ -287,7 +287,7 @@
 
         (void) input_newline( stdin );
 
-        rebuild_selected_list( display, menu_window );
+        rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
     }
 
     return( VIO_OK );
@@ -399,7 +399,7 @@
             set_object_colour( current_object, col );
 
             set_update_required( display, NORMAL_PLANES );
-            rebuild_selected_list( display, menu_window );
+            rebuild_selected_list( display, display->associated[MARKER_WINDOW]  );
         }
 
         delete_string( line );
@@ -436,7 +436,7 @@
             set_object_surfprop( current_object, &spr );
 
             set_update_required( display, NORMAL_PLANES );
-            rebuild_selected_list( display, menu_window );
+            rebuild_selected_list( display, display->associated[MARKER_WINDOW]  );
         }
 
         (void) input_newline( stdin );
@@ -500,7 +500,7 @@
     if( n_objects > 0 )
     {
         graphics_models_have_changed( display );
-        rebuild_selected_list( display, menu_window );
+        rebuild_selected_list( display, display->associated[MARKER_WINDOW]  );
     }
 
     return( VIO_OK );

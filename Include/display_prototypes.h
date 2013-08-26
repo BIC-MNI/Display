@@ -1818,7 +1818,7 @@
 
   void  rebuild_selected_list(
     display_struct    *display,
-    display_struct    *menu_window );
+    display_struct    *marker_window );
 
   VIO_BOOL  mouse_is_on_object_name(
     display_struct    *display,

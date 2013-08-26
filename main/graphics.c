@@ -380,10 +380,10 @@ static  void  initialize_graphics_window(
   void  graphics_models_have_changed(
     display_struct  *display )
 {
-    rebuild_selected_list( display, display->associated[MENU_WINDOW] );
+    rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
 
     set_update_required( display, NORMAL_PLANES );
-    set_update_required( display->associated[MENU_WINDOW], NORMAL_PLANES );
+    set_update_required( display->associated[MARKER_WINDOW], NORMAL_PLANES );
 
     ++display->models_changed_id;
 }

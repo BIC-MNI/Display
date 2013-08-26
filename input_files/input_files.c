@@ -27,15 +27,15 @@
     VIO_STR           filename,
     VIO_BOOL          is_label_file )
 {
-    VIO_Status                   status;
+    VIO_Status               status;
     object_struct            *object;
     model_struct             *model;
     int                      n_items, sizes[VIO_N_DIMENSIONS];
-    VIO_Volume                   volume_read_in;
+    VIO_Volume               volume_read_in;
     object_struct            *current_object;
     object_traverse_struct   object_traverse;
     char                     volume_description[VIO_EXTREMELY_LARGE_STRING_SIZE];
-    VIO_BOOL                  volume_present;
+    VIO_BOOL                 volume_present;
     display_struct           *slice_window;
 
     object = create_object( MODEL );
@@ -126,9 +126,8 @@
                                      display->three_d.default_marker_colour,
                                      display->three_d.default_marker_size,
                                      display->three_d.default_marker_type,
-                                     &model->n_objects,&model->objects
-                                     //display->label_stack 
-                                             ); //VF:
+                                     &model->n_objects,
+                                     &model->objects); //VF:
         }
     }
 
@@ -195,7 +194,7 @@
             set_current_object_index( display, model->n_objects-1 );
         }
 
-        rebuild_selected_list( display, display->associated[MENU_WINDOW] );
+        /*rebuild_selected_list( display, display->associated[MENU_WINDOW] );*/
         rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
     }
     else

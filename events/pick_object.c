@@ -160,7 +160,7 @@ static  void  pick_point_under_mouse(
         {
             set_current_object( display, object );
             rebuild_selected_list( display,
-                                   display->associated[MENU_WINDOW] );
+                                   display->associated[MARKER_WINDOW] );
         }
 
         set_update_required( display, get_cursor_bitplanes() );

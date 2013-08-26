@@ -94,15 +94,15 @@ typedef  struct  display_struct
     menu_window_struct         marker;
 
     Gwindow                    window;
-    VIO_Point                      prev_mouse_position;
+    VIO_Point                  prev_mouse_position;
     action_table_struct        action_table;
     int                        models_changed_id;
     object_struct              *models[N_MODELS];
-    struct stack_list 		   **label_stack;
+    struct stack_list          **label_stack;
 
 
     int                        frame_number;
-    VIO_BOOL                    update_required[N_BITPLANE_TYPES];
+    VIO_BOOL                   update_required[N_BITPLANE_TYPES];
     update_interrupted_struct  update_interrupted;
 
     viewport_picking_struct    viewport_picking;

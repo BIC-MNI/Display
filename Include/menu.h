@@ -36,8 +36,8 @@ typedef  menu_function_type  (*menu_function_pointer);
    menu_entry_struct *menu_entry )
 
 typedef  VIO_BOOL   menu_update_type( struct display_struct    *,
-                                     struct display_struct    *,
-                                     struct menu_entry_struct * );
+                                      struct display_struct    *,
+                                      struct menu_entry_struct * );
 
 typedef  menu_update_type  (*menu_update_pointer);
 
@@ -48,10 +48,10 @@ typedef  menu_update_type  (*menu_update_pointer);
 
 typedef  struct  menu_entry_struct
 {
-    VIO_BOOL                     permanent_flag;
+    VIO_BOOL                    permanent_flag;
     int                         key;
-    VIO_STR                      label;
-    VIO_BOOL                     is_active;
+    VIO_STR                     label;
+    VIO_BOOL                    is_active;
     int                         current_depth;
     int                         n_children;
     int                         n_chars_across;

@@ -103,9 +103,11 @@ private  void  update_voxel_cursor( slice_window )
                                    indices[VIO_X], indices[VIO_Y], indices[VIO_Z] ) )
         {
             rebuild_selected_list( slice_window->associated[THREE_D_WINDOW],
-                                   slice_window->associated[MENU_WINDOW] );
+                                   slice_window->associated[MARKER_WINDOW] );
 
             set_update_required( slice_window->associated[MENU_WINDOW],
+                                 NORMAL_PLANES );
+            set_update_required( slice_window->associated[MARKER_WINDOW],
                                  NORMAL_PLANES );
         }
     }
