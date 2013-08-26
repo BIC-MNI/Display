@@ -142,9 +142,9 @@ static  void  delete_windows_list( void )
 
   VIO_Status  create_graphics_window(
     window_types      window_type,
-    VIO_BOOL           double_buffering,
+    VIO_BOOL          double_buffering,
     display_struct    **display,
-    VIO_STR            title,
+    VIO_STR           title,
     int               width,
     int               height )
 {
@@ -289,7 +289,7 @@ static  void  initialize_graphics_window(
         case THREE_D_WINDOW:   view_type = MODEL_VIEW;   break;
         case MENU_WINDOW:      view_type = PIXEL_VIEW;   break;
         case SLICE_WINDOW:     view_type = PIXEL_VIEW;   break;
-        case MARKER_WINDOW:	   view_type = PIXEL_VIEW;   break;
+        case MARKER_WINDOW:    view_type = PIXEL_VIEW;   break;
         }
 
         model_info->view_type = view_type;
@@ -341,7 +341,7 @@ static  void  initialize_graphics_window(
         initialize_menu_window( display );
 
     if( display->window_type == MARKER_WINDOW )
-        initialize_menu_window( display );
+        initialize_marker_window( display );
 
     display->frame_number = 0;
     display->update_required[NORMAL_PLANES] = FALSE;

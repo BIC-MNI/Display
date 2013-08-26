@@ -24,9 +24,9 @@
 #include  <display.h>
 
 static  VIO_Status   process_no_events_for_three_d_windows( void );
-static  void     update_all_three_d_windows( void );
+static  void         update_all_three_d_windows( void );
 static  VIO_Status   process_no_events_for_slice_windows( void );
-static  void     update_all_slice_windows( void );
+static  void         update_all_slice_windows( void );
 static  VIO_Status   perform_action(
     display_struct   *display,
     Event_types      event_type,

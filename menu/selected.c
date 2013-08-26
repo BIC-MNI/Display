@@ -28,7 +28,7 @@ static  void  create_selected_text(
 {
     int            i;
     object_struct  *object;
-    VIO_Point          origin;
+    VIO_Point      origin;
     text_struct    *text;
     lines_struct   *lines;
 

@@ -24,15 +24,15 @@
   VIO_BOOL  update_current_marker(
     display_struct   *display,
     int              volume_index,
-    VIO_Real             voxel[] )
+    VIO_Real         voxel[] )
 {
     object_traverse_struct  object_traverse;
-    VIO_BOOL                 found;
+    VIO_BOOL                found;
     object_struct           *object, *closest_marker;
-    VIO_Volume                  volume;
-    VIO_Point                   voxel_pos;
-    VIO_Real                    x_w, y_w, z_w;
-    VIO_Real                    dist, closest_dist;
+    VIO_Volume              volume;
+    VIO_Point               voxel_pos;
+    VIO_Real                x_w, y_w, z_w;
+    VIO_Real                dist, closest_dist;
 
     initialize_object_traverse( &object_traverse, FALSE, 1,
                                 &display->models[THREED_MODEL] );
@@ -77,7 +77,7 @@ static  void  initialize_marker_parameters(
     display_struct    *marker_window )
 {
     int                 x_size, y_size;
-    VIO_Real                x_scale, y_scale, scale;
+    VIO_Real            x_scale, y_scale, scale;
     menu_window_struct  *marker;
 
     marker = &marker_window->marker;
@@ -132,12 +132,12 @@ static  DEF_EVENT_FUNCTION( handle_marker_resize )
   VIO_Status  initialize_marker_window(
     display_struct    *marker_window)
 {
-    VIO_Status               status;
+    VIO_Status           status;
     menu_window_struct   *marker;
-    VIO_Point                position;
+    VIO_Point            position;
     model_struct         *model;
     int                  ch, i, dir, len;
-    VIO_BOOL              found;
+    VIO_BOOL             found;
 
     status = VIO_OK;
     marker = &marker_window->marker;
@@ -152,49 +152,11 @@ static  DEF_EVENT_FUNCTION( handle_marker_resize )
     marker->default_y_size = Canonical_marker_window_height;
 
     initialize_marker_parameters( marker_window );
-
-//    for_less( ch, 0, N_CHARACTERS )
-//        set_menu_key_entry( menu, ch, NULL );
-
-//    directories[0] = "";
-//    directories[1] = default_directory1;
-//    directories[2] = default_directory2;
-//    directories[3] = default_directory3;
-//    directories[4] = default_directory4;
-
-
-//    if( status == VIO_OK )
-//    {
-//        status = read_menu( menu, file );
-//
-//        menu->depth = 0;
-//        menu->stack[0] = &menu->entries[0];
-//        menu->entries[0].current_depth = 0;
-//    }
-
-//    if( status == VIO_OK )
-//    {
-//        build_menu( menu_window );
-//
-//        add_menu_actions( menu, &menu->entries[0] );
-//
-//        set_update_required( menu_window, NORMAL_PLANES );
-//
-//        status = close_file( file );
-//    }
-//
-//    model = get_graphics_model( menu_window, UTILITY_MODEL );
-//    menu->menu_name_text = create_object( TEXT );
-//    fill_Point( position, menu->x_menu_name, menu->y_menu_name, 0.0 );
-//    initialize_text( get_text_ptr(menu->menu_name_text), &position,
-//                     Menu_name_colour, (Font_types) Menu_name_font,
-//                     menu->font_size );
-//
-//    add_object_to_model( model, menu->menu_name_text );
-//
-//    update_menu_name_text( menu_window );
-//
-//    rebuild_cursor_position_model( menu_window );
-
+    
+    add_action_table_function( &menu_window->action_table,
+                               LEFT_MOUSE_DOWN_EVENT, left_mouse_press );
+    add_action_table_function( &menu_window->action_table,
+                               MIDDLE_MOUSE_DOWN_EVENT, middle_mouse_press );
     return( status );
 }
+

@@ -71,11 +71,11 @@ int  main(
     char    *argv[] )
 {
     int              i, view;
-    VIO_STR           filename;
+    VIO_STR          filename;
     display_struct   *graphics;
     display_struct   *menu, *slice_window, *marker;
     VIO_STR           globals_filename, runtime_directory;
-    int              n_directories;
+    int               n_directories;
     VIO_STR           *directories;
     VIO_STR           title;
     VIO_STR           variable_name, variable_value;
