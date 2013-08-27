@@ -21,6 +21,15 @@
 
 #include  <display.h>
 
+static    DEF_EVENT_FUNCTION( left_mouse_press );
+static    DEF_EVENT_FUNCTION( middle_mouse_press );
+
+static  VIO_Status  handle_mouse_press_in_marker(
+    display_struct      *marker_window,
+    VIO_Real                x,
+    VIO_Real                y );
+
+
   VIO_BOOL  update_current_marker(
     display_struct   *display,
     int              volume_index,
@@ -153,10 +162,86 @@ static  DEF_EVENT_FUNCTION( handle_marker_resize )
 
     initialize_marker_parameters( marker_window );
     
-    add_action_table_function( &menu_window->action_table,
+    add_action_table_function( &marker_window->action_table,
                                LEFT_MOUSE_DOWN_EVENT, left_mouse_press );
-    add_action_table_function( &menu_window->action_table,
+    add_action_table_function( &marker_window->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT, middle_mouse_press );
+    return( status );
+}
+
+/* ARGSUSED */
+
+static  DEF_EVENT_FUNCTION( handle_character_down )
+{
+  return VIO_OK;
+}
+
+/* ARGSUSED */
+
+static  DEF_EVENT_FUNCTION( handle_leaving_window )
+{
+    return( VIO_OK );
+}
+
+/* ARGSUSED */
+
+static  DEF_EVENT_FUNCTION( handle_character_up )
+{
+    return( VIO_OK );
+}
+
+/* ARGSUSED */
+
+static  DEF_EVENT_FUNCTION( left_mouse_press )
+{
+    VIO_Status  status;
+    int     x, y;
+
+    status = VIO_OK;
+
+    if( G_get_mouse_position( display->window, &x, &y ) )
+    {
+        status = handle_mouse_press_in_marker( display, (VIO_Real) x, (VIO_Real) y );
+    }
+
+    return( status );
+}
+
+/* ARGSUSED */
+
+static  DEF_EVENT_FUNCTION( middle_mouse_press )
+{
+    pop_menu_one_level( display );
+
+    return( VIO_OK );
+}
+
+static  VIO_Status  handle_mouse_press_in_marker(
+    display_struct      *marker_window,
+    VIO_Real                x,
+    VIO_Real                y )
+{
+    display_struct      *three_d;
+    VIO_Status          status;
+    int                 key;
+    object_struct       *object, *current;
+
+    status = VIO_OK;
+
+    three_d = get_three_d_window( marker_window );
+
+    if( mouse_is_on_object_name( three_d, VIO_ROUND(x), VIO_ROUND(y), &object ) )
+    {
+        if( get_current_object( three_d, &current ) &&
+            current == object && get_object_type(object) == MODEL )
+        {
+            push_current_object( three_d );
+        }
+        else
+            set_current_object( three_d, object );
+
+        rebuild_selected_list( three_d, three_d->associated[MARKER_WINDOW]);
+    }
     return( status );
 }
 

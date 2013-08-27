@@ -379,13 +379,13 @@ START_GLOBALS
     DEF_GLOBAL( Hide_menu_window, VIO_BOOL, FALSE)
 
     DEF_GLOBAL( Initial_marker_window_width, int, 250 )
-    DEF_GLOBAL( Initial_marker_window_height, int, 600 )
+    DEF_GLOBAL( Initial_marker_window_height, int, 500 )
     DEF_GLOBAL( Canonical_marker_window_width, int, 250 )
-    DEF_GLOBAL( Canonical_marker_window_height, int, 600 )
+    DEF_GLOBAL( Canonical_marker_window_height, int, 500 )
 
     DEF_GLOBAL( N_selected_displayed, int, 50 )
     DEF_GLOBAL( Selected_x_origin, VIO_Real, 20.0 )
-    DEF_GLOBAL( Selected_y_origin, VIO_Real, 580.0 )
+    DEF_GLOBAL( Selected_y_origin, VIO_Real, 480.0 )
     DEF_GLOBAL_COLOUR( Selected_colour )
     DEF_GLOBAL_COLOUR( Visible_colour )
     DEF_GLOBAL_COLOUR( Invisible_colour )

@@ -90,8 +90,11 @@ Default_marker_label = "Marker";
 Marker_pick_size = 3.0;
 
 N_selected_displayed = 12;
-Selected_x_origin = 650.0;
-Selected_y_origin = 240.0;
+Selected_x_origin = 480;
+Selected_y_origin = 20.0;
+Initial_marker_window_height = 500;
+Initial_marker_window_width = 250;
+
 Selected_colour = Green;
 Visible_colour = White;
 Invisible_colour = 0.4 0.4 0.4;

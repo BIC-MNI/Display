@@ -27,6 +27,7 @@ static    DEF_EVENT_FUNCTION( handle_character_up );
 static    DEF_EVENT_FUNCTION( handle_leaving_window );
 static    DEF_EVENT_FUNCTION( left_mouse_press );
 static    DEF_EVENT_FUNCTION( middle_mouse_press );
+
 static  void  turn_off_menu_entry(
     menu_window_struct  *menu,
     menu_entry_struct   *menu_entry );
@@ -447,20 +448,6 @@ static  VIO_Status  handle_mouse_press_in_menu(
     {
         status = handle_menu_for_key( menu_window, key );
     }
-    else if( mouse_is_on_object_name( three_d, VIO_ROUND(x), VIO_ROUND(y), &object ) )
-    {
-        if( get_current_object( three_d, &current ) &&
-            current == object && get_object_type(object) == MODEL )
-        {
-            push_current_object( three_d );
-        }
-        else
-            set_current_object( three_d, object );
-
-        rebuild_selected_list( three_d, three_d->associated[MARKER_WINDOW]  );
-        update_all_menu_text( menu_window );
-    }
-
 
     return( status );
 }
