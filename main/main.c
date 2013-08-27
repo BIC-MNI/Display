@@ -123,6 +123,33 @@ int  main(
     set_alloc_checking( Alloc_checking_enabled );
 
     initialize_graphics();
+
+    title = concat_strings( PROJECT_NAME, ": Menu" );
+    if( create_graphics_window( MENU_WINDOW, TRUE, &menu, title,
+                                Initial_menu_window_width,
+                                Initial_menu_window_height ) != VIO_OK )
+        return( 1 );
+    delete_string( title );
+    
+    if( Hide_menu_window )
+    {
+      glutSetWindow(menu->window->GS_window->WS_window.window_id);
+      glutVisibilityFunc(visibility_menu_window);
+    }
+
+    title = concat_strings( PROJECT_NAME, ": Marker" );
+    if( create_graphics_window( MARKER_WINDOW, TRUE, &marker, title,
+                                Initial_marker_window_width,
+                                Initial_marker_window_height ) != VIO_OK )
+        return( 1 );
+
+    delete_string( title );
+    if( Hide_marker_window )
+    {
+      glutSetWindow(marker->window->GS_window->WS_window.window_id);
+      glutVisibilityFunc(visibility_marker_window);
+    }
+
     title = concat_strings( PROJECT_NAME, ": 3D View" );
 
     if( create_graphics_window( THREE_D_WINDOW,
@@ -131,38 +158,12 @@ int  main(
         return( 1 );
     delete_string( title );
 
-	G_set_transparency_state( graphics->window, Graphics_transparency_flag);
-	if( Hide_3D_window )
-	{
-		glutSetWindow(graphics->window->GS_window->WS_window.window_id);
-		glutVisibilityFunc(visibility_3D_window);
-	}
-
-    title = concat_strings( PROJECT_NAME, ": Menu" );
-    if( create_graphics_window( MENU_WINDOW, TRUE, &menu, title,
-                                Initial_menu_window_width,
-                                Initial_menu_window_height ) != VIO_OK )
-        return( 1 );
-    delete_string( title );
-	if( Hide_menu_window )
-	{
-		glutSetWindow(menu->window->GS_window->WS_window.window_id);
-		glutVisibilityFunc(visibility_menu_window);
-	}
-
-    title = concat_strings( PROJECT_NAME, ": Marker" );
-    if( create_graphics_window( MARKER_WINDOW, TRUE, &marker, title,
-                                Initial_marker_window_width,
-                                Initial_marker_window_height ) != VIO_OK )
-    	return( 1 );
-
-    delete_string( title );
-    if( Hide_marker_window )
+    G_set_transparency_state( graphics->window, Graphics_transparency_flag);
+    if( Hide_3D_window )
     {
-		glutSetWindow(marker->window->GS_window->WS_window.window_id);
-		glutVisibilityFunc(visibility_marker_window);
+      glutSetWindow(graphics->window->GS_window->WS_window.window_id);
+      glutVisibilityFunc(visibility_3D_window);
     }
-
 
     graphics->associated[THREE_D_WINDOW] = graphics;
     graphics->associated[MENU_WINDOW] = menu;
@@ -180,12 +181,12 @@ int  main(
     marker->associated[MARKER_WINDOW] = marker;
 
     if( initialize_menu( menu, runtime_directory,
-			 getenv( "HOME" ),
-			 HARD_CODED_DISPLAY_DIRECTORY1,
-			 HARD_CODED_DISPLAY_DIRECTORY2,
-			 MENU_FILENAME ) != VIO_OK )
-	return 1;
-
+     getenv( "HOME" ),
+     HARD_CODED_DISPLAY_DIRECTORY1,
+     HARD_CODED_DISPLAY_DIRECTORY2,
+     MENU_FILENAME ) != VIO_OK )
+       return 1;
+     
     if( initialize_marker_window( marker ) != VIO_OK )
     return 1;
 
@@ -200,7 +201,7 @@ int  main(
         initialize_ratio( slice_window );
     }
 
-    initialize_cache( graphics );
+    initialize_cache(  );/*graphics*/
     initialize_view_to_fit( graphics );
 
     rebuild_selected_list( graphics, marker );

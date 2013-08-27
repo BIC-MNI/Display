@@ -90,8 +90,8 @@ Default_marker_label = "Marker";
 Marker_pick_size = 3.0;
 
 N_selected_displayed = 12;
-Selected_x_origin = 480;
-Selected_y_origin = 20.0;
+Selected_x_origin = 20;
+Selected_y_origin = 480.0;
 Initial_marker_window_height = 500;
 Initial_marker_window_width = 250;
 
