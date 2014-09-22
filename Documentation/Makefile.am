@@ -1,22 +1,24 @@
 
-manual_sources = Display.tex david.sty displaywindows.rgb.gz menu.rgb.gz
+manual_sources = Display.tex displaywindows.rgb.gz menu.rgb.gz
 
 EXTRA_DIST = Changes.list README Release_notes.v1.1 \
 	how_to_texture_map.txt to_dos $(manual_sources)
 
+# Convert from "native" graphics to something LaTeX can handle.
 
-displaywindows.ps: displaywindows.rgb.gz
-	convert displaywindows.rgb.gz displaywindows.ps
+GRAPHICS_EXT = jpg
 
-menu.ps: menu.rgb.gz
-	convert menu.rgb.gz menu.ps
+displaywindows.$(GRAPHICS_EXT): displaywindows.rgb.gz
+	convert displaywindows.rgb.gz displaywindows.$(GRAPHICS_EXT)
 
-Display.dvi: $(manual_sources) displaywindows.ps menu.ps
-	latex Display.tex
+menu.$(GRAPHICS_EXT): menu.rgb.gz
+	convert menu.rgb.gz menu.$(GRAPHICS_EXT)
 
-Display.ps: Display.dvi
-	dvips Display -o Display.ps
+# Go straight to PDF so that JPG files work as expected.
+
+Display.pdf: $(manual_sources) displaywindows.$(GRAPHICS_EXT) menu.$(GRAPHICS_EXT)
+	pdflatex Display.tex
 
 
-CLEANFILES = Display.aux Display.dvi Display.log Display.ps Display.toc \
-	displaywindows.ps menu.ps
+CLEANFILES = Display.aux Display.log Display.toc \
+	displaywindows.$(GRAPHICS_EXT) menu.$(GRAPHICS_EXT)

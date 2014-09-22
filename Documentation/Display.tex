@@ -1,5 +1,6 @@
-\documentstyle[david,psfig]{article}
-
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage[hmargin=1in]{geometry}
 \title{{\bf MNI-Display} - Program for Display and Segmentation of Surfaces and Volumes}
 \author{David MacDonald}
 
@@ -77,8 +78,12 @@ Note that the above files are generally compressed.  If the file ends in
 
 \section{\display Windows}
 
-\psfigure{displaywindows.ps}{5.7in}{top left: 3D window, top right: slice window,
-centre: menu window, bottom: text entry window.}{windows}
+\begin{figure}
+\includegraphics[width=\textwidth]{displaywindows}
+\caption{top left: 3D window, top right: slice window,centre: menu
+  window, bottom: text entry window.}
+\label{windows}
+\end{figure}
 
 Figure \ref{windows} shows the four windows used by \display (three of which
 are created when the program is run):
@@ -190,7 +195,11 @@ Colour Bar:  &  The limits of the colour bar for the current volume
 
 \section{Complete Menu Reference}
 
-\psfigure{menu.ps}{7in}{Top level menu}{menu}
+\begin{figure}
+\includegraphics[width=\textwidth]{menu}
+\caption{Top level menu}
+\label{menu}
+\end{figure}
 
 The following is a complete listing of every menu selection, with a
 short description of each.
