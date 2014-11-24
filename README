@@ -12,3 +12,12 @@ Any comments, questions, bug reports, or patches may be
 sent to
 	Andrew Janke - a.janke@gmail.com
 
+
+How to enable 3D window , which was removed  by certain folks who never use 3D view:
+
+There are two possibilities:
+
+1. run Display with option -global Hide_3D_window FALSE , 
+2. copy  file <prefix>/lib/Display.globals into your home directory
+and add line “  Hide_3D_window = FALSE ;  “ there .
+
