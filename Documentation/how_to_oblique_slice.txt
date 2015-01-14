@@ -1,0 +1,35 @@
+Displaying an oblique slice in MNI Display
+------------------------------------------
+
+Robert Vincent (robert.d.vincent@mcgill.ca)
+
+The fourth (lower right) panel in Display's "slice window" is normally
+blank. However, it is possible to use this panel to view a slice cut
+through an arbitrary oblique plane through the volume. Since I had no
+idea that this was possible, I decided it might be useful to write
+down some basic instructions.
+
+1. First, run Display normally and load a volume.
+
+2. From the top level menu, select the "Slice Menu" (keyboard shortcut
+'S').
+
+3. Select 'D' or "Toggle Slice Crs-S" to display the slice cross
+section. This is optional, but it will display a green line that shows
+the intersection of the oblique plane with the current slices.
+
+4. Use the 'E' or "Pick Slice Angle" command to adjust this plane to
+the desired orientation.
+
+5. Select the 'R' or "Visible: 1" command to display the oblique
+slice.
+
+6. Note that there appears to be a bug which sometimes causes the
+oblique slice to display only partially. If this occurs, you can use
+Ctrl-Left Mouse to drag the slice back to the centre. You can also use
+the usual slice window commands (e.g. Ctrl-Middle Mouse to zoom).
+
+7. Once the oblique slice is displayed, you can use the 'E' command to
+change the slice angle relative to any of the three orthogonal slices,
+and you can drag the cursor in the slice window to change the location
+of the oblique slice.
