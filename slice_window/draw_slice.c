@@ -334,6 +334,55 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
         return( NORMAL_PLANES );
 }
 
+
+/* Calculate distance from mouse to either cursor or currently
+ * selected marker.
+ */
+static VIO_Real
+calculate_user_distance(display_struct *slice_window, char *distance_origin)
+{
+  VIO_Real       voxel_position[VIO_MAX_DIMENSIONS];
+  int            volume_index;
+  int            axis_index;
+  VIO_Real       x_w, y_w, z_w;
+  VIO_Point      mouse_point;
+  display_struct *display;
+  marker_struct  *marker;
+  object_struct  *object;
+  VIO_Point      origin_point;
+  VIO_Real       distance_value;
+
+  if (get_voxel_in_slice_window(slice_window, voxel_position,
+                                &volume_index, &axis_index))
+  {
+    display = get_three_d_window( slice_window );
+
+    /* See if a marker is selected.
+     */
+    if (get_current_object(display, &object) && object->object_type == MARKER) 
+    {
+      marker = get_marker_ptr(object);
+      origin_point = marker->position;
+      sprintf(distance_origin, "%d", get_current_object_index(display));
+    }
+    else
+    {
+      origin_point = display->three_d.cursor.origin;
+      strcpy(distance_origin, "c");
+    }
+              
+    convert_voxel_to_world(slice_window->slice.volumes[volume_index].volume,
+                           voxel_position, &x_w, &y_w, &z_w );
+    fill_Point( mouse_point, x_w, y_w, z_w );
+    distance_value = distance_between_points(&origin_point, &mouse_point);
+  }
+  else {
+    distance_value = -1.0;
+    distance_origin[0] = 0;
+  }
+  return distance_value;
+}
+
   void  rebuild_probe(
     display_struct    *slice_window )
 {
@@ -353,6 +402,8 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
     char           buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
     VIO_Real 		   ratio;
     int            ratio_num_index, ratio_den_index;
+    VIO_Real       distance_value;
+    char           distance_origin[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     active = get_voxel_in_slice_window( slice_window, voxel, &volume_index,
                                         &view_index );
@@ -398,6 +449,8 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
 	                                FALSE, 0.0, &value_ratio_den, NULL, NULL );
 			ratio = value_ratio_num / value_ratio_den;
 		}
+
+        distance_value = calculate_user_distance(slice_window, distance_origin);
 
     }
 
@@ -457,6 +510,10 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
             	else
             		(void) sprintf( buffer, "" );
                 break;
+
+            case DISTANCE_PROBE_INDEX:
+                (void) sprintf(buffer, Slice_probe_distance_format, distance_origin, distance_value);
+                break;
             }
         }
         else
@@ -465,10 +522,31 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
         }
 
         x_pos = Probe_x_pos + i * Probe_x_delta;
-        y_pos = Probe_y_pos + (N_READOUT_MODELS-i-1) * Probe_y_delta +
-                ((N_READOUT_MODELS-i+1) / 3) * Probe_y_pos;
-
-
+        switch (i) {
+        case VOLUME_INDEX:
+          y_pos = Probe_y_pos + (N_READOUT_MODELS-i-1) * Probe_y_delta + 
+            (3 * Probe_y_pos);
+          break;
+        case X_VOXEL_PROBE_INDEX:
+        case Y_VOXEL_PROBE_INDEX:
+        case Z_VOXEL_PROBE_INDEX:
+          y_pos = Probe_y_pos + (N_READOUT_MODELS-i-1) * Probe_y_delta + 
+            (2 * Probe_y_pos);
+          break;
+        case X_WORLD_PROBE_INDEX:
+        case Y_WORLD_PROBE_INDEX:
+        case Z_WORLD_PROBE_INDEX:
+          y_pos = Probe_y_pos + (N_READOUT_MODELS-i-1) * Probe_y_delta + 
+            (1 * Probe_y_pos);
+          break;
+        case VOXEL_PROBE_INDEX:
+        case VAL_PROBE_INDEX:
+        case LABEL_PROBE_INDEX:
+        case RATIO_PROBE_INDEX:
+        case DISTANCE_PROBE_INDEX:
+          y_pos = Probe_y_pos + (N_READOUT_MODELS-i-1) * Probe_y_delta;
+          break;
+        }
 
         delete_string( text->string );
         text->string = create_string( buffer );

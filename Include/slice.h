@@ -39,6 +39,7 @@ typedef enum {
                VAL_PROBE_INDEX,
                LABEL_PROBE_INDEX,
                RATIO_PROBE_INDEX,
+               DISTANCE_PROBE_INDEX,
                N_READOUT_MODELS     } Slice_readout_indices;
 
 typedef  struct
