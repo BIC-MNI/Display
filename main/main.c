@@ -429,7 +429,7 @@ static void parse_options(int argc, char *argv[], display_struct *graphics)
 		}
 		else if (equal_strings(filename, "-version"))
 		{
-			print("%s %s\n", PROJECT_NAME, PROJECT_VERSION );
+                        print("%s %s (%s)\n", PROJECT_NAME, PROJECT_VERSION, __DATE__ );
 			exit(EX_OK);
 		}
 		else if (equal_strings(filename, "-skiperror"))
