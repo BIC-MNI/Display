@@ -489,7 +489,7 @@ static  int  translate_key_name(
     else
     {
         print( "Error in key name: \\%s\n", str );
-        key = (int) "]";
+        key = (int) ']';
     }
 
     return( key );
