@@ -2722,32 +2722,14 @@
     view_struct   *view,
     VIO_Point         *centre );
 
-  void  get_screen_centre(
-    view_struct   *view,
-    VIO_Point         *centre );
-
   void  get_screen_axes(
     view_struct   *view,
     VIO_Vector        *hor,
     VIO_Vector        *vert );
 
-  void  get_screen_point(
-    view_struct  *view,
-    VIO_Real         x,
-    VIO_Real         y,
-    VIO_Point        *point );
-
   void  adjust_view_for_aspect(
     view_struct    *view,
     window_struct  *window );
-
-  void  convert_point_from_coordinate_system(
-    VIO_Point    *origin,
-    VIO_Vector   *x_axis,
-    VIO_Vector   *y_axis,
-    VIO_Vector   *z_axis,
-    VIO_Point    *point,
-    VIO_Point    *transformed_point );
 
   void  transform_point_to_world(
     view_struct   *view,
@@ -2763,11 +2745,6 @@
     view_struct   *view,
     VIO_Vector        *v,
     VIO_Vector        *transformed_vector );
-
-  void  transform_world_to_screen(
-    view_struct   *view,
-    VIO_Point         *p,
-    VIO_Point         *transformed_point );
 
   void  transform_point_to_view_space(
     view_struct   *view,

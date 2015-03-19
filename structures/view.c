@@ -22,6 +22,30 @@
 
 #include <display.h>
 
+static  void  get_screen_point(
+    view_struct  *view,
+    VIO_Real         x,
+    VIO_Real         y,
+    VIO_Point        *point );
+
+static  void  get_screen_centre(
+    view_struct   *view,
+    VIO_Point         *centre );
+
+static  void  convert_point_from_coordinate_system(
+    VIO_Point    *origin,
+    VIO_Vector   *x_axis,
+    VIO_Vector   *y_axis,
+    VIO_Vector   *z_axis,
+    VIO_Point    *point,
+    VIO_Point    *transformed_point );
+
+static  void  transform_world_to_screen(
+    view_struct   *view,
+    VIO_Point         *p,
+    VIO_Point         *transformed_point );
+
+
   void  initialize_view(
     view_struct  *view,
     VIO_Vector       *line_of_sight,
@@ -89,7 +113,7 @@
     ADD_POINT_VECTOR( *centre, view->origin, offset_vector );
 }
 
-  void  get_screen_centre(
+static  void  get_screen_centre(
     view_struct   *view,
     VIO_Point         *centre )
 {
@@ -111,7 +135,7 @@
     SCALE_VECTOR( *vert, view->y_axis, view->window_height );
 }
 
-  void  get_screen_point(
+static  void  get_screen_point(
     view_struct  *view,
     VIO_Real         x,
     VIO_Real         y,
@@ -256,7 +280,7 @@
     fill_Vector( *transformed_vector, x, y, z );
 }
 
-  void  transform_world_to_screen(
+static  void  transform_world_to_screen(
     view_struct   *view,
     VIO_Point         *p,
     VIO_Point         *transformed_point )
