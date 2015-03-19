@@ -94,6 +94,8 @@ MENU_F(rotate_slice_axes)
 #define  MENU2 \
 MENU_F(move_slice_plus) \
 MENU_F(move_slice_minus) \
+MENU_F(move_time_plus) \
+MENU_F(move_time_minus) \
 MENU_F(menu_set_global_variable) \
 MENU_F(pick_view_rectangle) \
 MENU_F(toggle_object_visibility) \

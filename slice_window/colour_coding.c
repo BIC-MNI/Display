@@ -941,7 +941,7 @@ static  void  colour_code_object_points(
     display_struct   *display,
     int              volume_index )
 {
-    int    sizes[VIO_N_DIMENSIONS];
+    int    sizes[VIO_MAX_DIMENSIONS];
 
     get_volume_sizes( get_nth_label_volume(display,volume_index), sizes );
 

@@ -94,7 +94,7 @@ static  void   create_menu_text(
 static  VIO_BOOL  lookup_key(
     int              key,
     position_struct  **desc );
-static  void   compute_key_position(
+static  int  compute_key_position(
     menu_window_struct   *menu,
     int                  key,
     VIO_Real                 *x1,
@@ -224,8 +224,10 @@ static  void   set_menu_text_position(
     {
         text = get_text_ptr( menu_entry->text_list[i] );
 
-        compute_key_position( &menu_window->menu, menu_entry->key, &x, &y,
-                              NULL, NULL, &length );
+        if (!compute_key_position( &menu_window->menu, menu_entry->key, &x, &y,
+                                   NULL, NULL, &length )) {
+            continue;
+        }
 
         x += menu_window->menu.x_menu_text_offset;
         y += (VIO_Real) (menu_window->menu.n_lines_in_entry - i) *
@@ -270,7 +272,7 @@ static  VIO_BOOL  lookup_key(
     return( found );
 }
 
-static  void   compute_key_position(
+static  int   compute_key_position(
     menu_window_struct   *menu,
     int                  key,
     VIO_Real                 *x1,
@@ -329,6 +331,7 @@ static  void   compute_key_position(
             *y2 = *y1 + (VIO_Real) menu->n_lines_in_entry * menu->character_height;
         }
     }
+    return found;
 }
 
 static  VIO_STR  get_key_string(
@@ -357,7 +360,9 @@ static  VIO_STR  get_key_string(
     VIO_Real          size, x1, y1, x2, y2, length;
     text_struct   *text;
 
-    compute_key_position( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length);
+    if (!compute_key_position( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length)) {
+      return 0;
+    }
 
     text = get_text_ptr(
                 menu_window->menu.key_menus[key]->text_list[line_number] );
@@ -414,7 +419,9 @@ static  void   set_menu_box_position(
 
     lines = get_lines_ptr( box_object );
 
-    compute_key_position( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length);
+    if (!compute_key_position( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length)) {
+      return;
+    }
 
     fill_Point( lines->points[0], x1, y1, 0.0 );
     fill_Point( lines->points[1], x2, y1, 0.0 );
@@ -434,7 +441,9 @@ static  object_struct   *create_menu_character(
 
     object = create_object( TEXT );
 
-    compute_key_position( &menu_window->menu, key, &x, &y, NULL, NULL, &length);
+    if (!compute_key_position( &menu_window->menu, key, &x, &y, NULL, NULL, &length)) {
+      return;
+    }
 
     fill_Point( origin,
                 x + menu_window->menu.x_menu_text_offset,
@@ -468,7 +477,9 @@ static  void   set_menu_character_position(
 
     text = get_text_ptr( text_object );
 
-    compute_key_position( &menu_window->menu, key, &x, &y, NULL, NULL, &length);
+    if (!compute_key_position( &menu_window->menu, key, &x, &y, NULL, NULL, &length)) {
+      return;
+    }
 
     fill_Point( text->origin,
                 x + menu_window->menu.x_menu_text_offset,
@@ -488,7 +499,9 @@ static  VIO_BOOL   point_within_menu_key_entry(
 {
     VIO_Real      x1, y1, x2, y2, length;
 
-    compute_key_position( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length);
+    if (!compute_key_position( &menu_window->menu, key, &x1, &y1, &x2, &y2, &length)) {
+      return FALSE;
+    }
 
     if( length <= 0.0 )
         return( FALSE );

@@ -1086,6 +1086,14 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
 
   DEF_MENU_UPDATE(move_slice_minus );
 
+  DEF_MENU_FUNCTION(move_time_plus);
+
+  DEF_MENU_UPDATE(move_time_plus );
+
+  DEF_MENU_FUNCTION(move_time_minus);
+
+  DEF_MENU_UPDATE(move_time_minus );
+
   DEF_MENU_FUNCTION(toggle_slice_visibility);
 
   DEF_MENU_UPDATE(toggle_slice_visibility );

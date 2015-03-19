@@ -21,7 +21,9 @@
 
 #include  <display.h>
 
-  VIO_Status   input_volume_file(
+char *XYZT_dimension_names[] = { MIxspace, MIyspace, MIzspace, MItime };
+
+VIO_Status   input_volume_file(
     VIO_STR         filename,
     VIO_Volume         *volume_ptr )
 {
@@ -52,13 +54,13 @@
     set_default_minc_input_options( &options );
     set_minc_input_vector_to_colour_flag( &options, TRUE );
 
-    status = input_volume( filename, 3, XYZ_dimension_names,
+    status = input_volume( filename, 0, XYZT_dimension_names,
                            nc_data_type, signed_flag, voxel_min, voxel_max,
                            TRUE, &volume, &options );
 
-    if( status == VIO_OK && get_volume_n_dimensions( volume ) != VIO_N_DIMENSIONS )
+    if( status == VIO_OK && get_volume_n_dimensions( volume ) < VIO_N_DIMENSIONS )
     {
-        print( "VIO_Volume %s has %d dimensions, should have %d\n",
+        print( "VIO_Volume %s has %d dimensions, should have at least %d\n",
                filename, get_volume_n_dimensions(volume), VIO_N_DIMENSIONS );
         delete_volume( volume );
         status = VIO_ERROR;

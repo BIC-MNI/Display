@@ -32,7 +32,7 @@ static  void  initialize_slice_window(
     VIO_Volume           volume )
 {
     display_struct   *slice_window, *menu_window, *marker_window;
-    int              sizes[VIO_N_DIMENSIONS];
+    int              sizes[VIO_MAX_DIMENSIONS];
     char             title[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     get_volume_sizes( volume, sizes );
@@ -53,7 +53,7 @@ static  void  initialize_slice_window(
 
     display->associated[SLICE_WINDOW] = slice_window;
     menu_window->associated[SLICE_WINDOW] = slice_window;
-	marker_window->associated[SLICE_WINDOW] = slice_window;
+    marker_window->associated[SLICE_WINDOW] = slice_window;
 
     initialize_slice_window( slice_window );
 
@@ -470,10 +470,10 @@ static  void  delete_slice_window_volume_stuff(
     VIO_Point            *min_limit,
     VIO_Point            *max_limit )
 {
-    int              n_volumes, sizes[VIO_N_DIMENSIONS], dx, dy, dz, volume_index;
+    int              n_volumes, sizes[VIO_MAX_DIMENSIONS], dx, dy, dz, volume_index;
     int              dim;
     VIO_Volume           volume;
-    VIO_Real             voxel[VIO_N_DIMENSIONS], world[VIO_N_DIMENSIONS];
+    VIO_Real         voxel[VIO_MAX_DIMENSIONS], world[VIO_N_DIMENSIONS];
     VIO_BOOL          first;
 
     n_volumes = get_n_volumes( display );

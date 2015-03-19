@@ -208,8 +208,13 @@
     {
         get_volume_sizes( volume_read_in, sizes );
 
-        (void) sprintf( volume_description, "%s : %d %d %d",
+        (void) sprintf( volume_description, "%s : X:%d Y:%d Z:%d",
                         filename, sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
+        if (get_volume_n_dimensions(volume_read_in) > VIO_N_DIMENSIONS)
+        {
+          sprintf(volume_description + strlen(volume_description),
+                  " T:%d", sizes[VIO_T]);
+        }
 
         add_slice_window_volume( display, volume_description, volume_read_in );
     }

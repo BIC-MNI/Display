@@ -327,7 +327,7 @@ static  void  set_slice_voxel_position(
 
     get_volume_sizes( get_nth_volume(slice_window,volume_index), sizes );
 
-    for_less( c, 0, VIO_N_DIMENSIONS )
+    for_less( c, 0, VIO_MAX_DIMENSIONS )
     {
         if( voxel[c] < -0.5 )
             clipped_voxel[c] = -0.5;
@@ -361,7 +361,7 @@ static  void  set_slice_voxel_position(
     display_struct    *slice_window )
 {
     int    volume_index, axis_index;
-    VIO_Real   voxel[VIO_N_DIMENSIONS];
+    VIO_Real   voxel[VIO_MAX_DIMENSIONS];
 
     if( get_voxel_in_slice_window( slice_window, voxel, &volume_index,
                                    &axis_index ) )

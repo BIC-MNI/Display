@@ -7,6 +7,8 @@ root \
     permanent '+'      move_slice_plus              '+ Slice' 'Increase voxel coordinate in the slice view under the mouse.' \
     permanent '='      move_slice_plus              '+ Slice' 'Increase voxel coordinate in the slice view under the mouse.' \
     permanent '-'      move_slice_minus             '- Slice' 'Decrease voxel coordinate in the slice view under the mouse.' \
+    permanent '<'      move_time_minus              '' '' \
+    permanent '>'      move_time_plus               '' '' \
  \
     transient 'q'      volume_config                'Volume Config' 'Commands for volume configuration.' \
     transient 'w'      view_3d                      '3D View' 'Commands for manipulation of 3D object view.' \

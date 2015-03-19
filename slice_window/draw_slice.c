@@ -628,8 +628,9 @@ static  void  get_cursor_size(
     VIO_Vector            *in_plane_axis )
 {
     int            c, volume_index;
-    VIO_Real           perp_axis[VIO_N_DIMENSIONS], separations[VIO_N_DIMENSIONS];
-    VIO_Real           plane_axis[VIO_N_DIMENSIONS];
+    VIO_Real       perp_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real       separations[VIO_MAX_DIMENSIONS];
+    VIO_Real       plane_axis[VIO_MAX_DIMENSIONS];
     VIO_Vector         plane_normal, perp_normal;
 
     volume_index = get_current_volume_index( slice_window );
@@ -719,16 +720,16 @@ static  void  get_cursor_size(
     int               view_index )
 {
     model_struct   *model;
-    int            sizes[VIO_N_DIMENSIONS];
+    int            sizes[VIO_MAX_DIMENSIONS];
     int            c, section_index, x_min, x_max, y_min, y_max;
     VIO_Real           x1, y1, x2, y2, dx, dy, len, t_min, t_max;
-    VIO_Real           separations[VIO_N_DIMENSIONS];
-    VIO_Real           voxel1[VIO_N_DIMENSIONS], voxel2[VIO_N_DIMENSIONS];
+    VIO_Real       separations[VIO_MAX_DIMENSIONS];
+    VIO_Real       voxel1[VIO_MAX_DIMENSIONS], voxel2[VIO_MAX_DIMENSIONS];
     VIO_Point          origin, v1, v2, p1, p2;
     VIO_Vector         in_plane_axis, direction;
     object_struct  *object;
     lines_struct   *lines;
-    VIO_Real           current_voxel[VIO_N_DIMENSIONS];
+    VIO_Real       current_voxel[VIO_MAX_DIMENSIONS];
 
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
     object = model->objects[2*slice_window->slice.n_volumes+
@@ -848,7 +849,7 @@ static  void  get_cursor_size(
     model_struct   *model;
     object_struct  *object;
     lines_struct   *lines;
-    VIO_Real           voxel[VIO_N_DIMENSIONS], x, y;
+    VIO_Real           voxel[VIO_MAX_DIMENSIONS], x, y;
     VIO_BOOL        visibility;
 
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
@@ -914,7 +915,7 @@ static  void  get_cursor_size(
     VIO_Real           x_left, x_right, y_bottom, y_top, dx, dy;
     VIO_Real           x_centre, y_centre, tmp;
     lines_struct   *lines1, *lines2;
-    VIO_Real           current_voxel[VIO_N_DIMENSIONS];
+    VIO_Real       current_voxel[VIO_MAX_DIMENSIONS];
     int            x_min, x_max, y_min, y_max;
     VIO_Real           hor_pixel_start, hor_pixel_end;
     VIO_Real           vert_pixel_start, vert_pixel_end;
@@ -1489,15 +1490,36 @@ static  int  render_slice_to_pixels(
     char           buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
     VIO_STR         format;
     int            x_pos, y_pos;
-    VIO_Real           current_voxel[VIO_N_DIMENSIONS];
+    VIO_Real       current_voxel[VIO_MAX_DIMENSIONS];
+    int            volume_index;
+    VIO_Volume     volume;
 
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
-    text_object = model->objects[2*slice_window->slice.n_volumes+TEXT_INDEX];
+    text_object = model->objects[2 * slice_window->slice.n_volumes + TEXT_INDEX];
+    volume_index = get_current_volume_index( slice_window );
+    volume = get_nth_volume(slice_window, volume_index);
 
-    if( get_n_volumes( slice_window ) != 0 &&
-        slice_has_ortho_axes( slice_window,
-                              get_current_volume_index( slice_window ),
-                              view_index, &x_index, &y_index, &axis_index ) )
+    axis_index = -1;
+
+    /*
+     * See if we need to display a voxel position.
+     * We use the X, Y, or Z axis if appropriate. For the oblique
+     * plane we adopt the convention of displaying the time axis
+     * position, if any.
+     */
+    if( get_n_volumes( slice_window ) != 0)
+    {
+        if (!slice_has_ortho_axes( slice_window, volume_index,
+                                   view_index, &x_index, &y_index, &axis_index ))
+        {
+            if (get_volume_n_dimensions(volume) > 3)
+            {
+               axis_index = VIO_T; /* Display the time position. */
+            }
+        }
+    }
+
+    if (axis_index >= 0)
     {
         set_object_visibility( text_object, TRUE );
 
@@ -1508,10 +1530,12 @@ static  int  render_slice_to_pixels(
         case VIO_X:  format = Slice_index_x_format;  break;
         case VIO_Y:  format = Slice_index_y_format;  break;
         case VIO_Z:  format = Slice_index_z_format;  break;
+        case VIO_T:  format = Slice_index_t_format;  break;
         }
 
         get_current_voxel( slice_window,
-                      get_current_volume_index(slice_window), current_voxel );
+                           get_current_volume_index(slice_window),
+                           current_voxel );
 
         (void) sprintf( buffer, format, current_voxel[axis_index] );
 
@@ -1534,8 +1558,8 @@ static  int  render_slice_to_pixels(
     object_struct  *pixels_object;
     pixels_struct  *pixels, *volume_pixels;
     VIO_Volume         volume;
-    VIO_Real           v1[VIO_N_DIMENSIONS], v2[VIO_N_DIMENSIONS];
-    int            sizes[VIO_N_DIMENSIONS];
+    VIO_Real           v1[VIO_MAX_DIMENSIONS], v2[VIO_MAX_DIMENSIONS];
+    int            sizes[VIO_MAX_DIMENSIONS];
     int            x_index, y_index, axis_index, volume_index;
     VIO_Real           x_trans, y_trans, x_scale, y_scale;
     VIO_Real           origin[VIO_MAX_DIMENSIONS];

@@ -71,8 +71,8 @@ typedef  struct
     int       axis_being_moved[2];
     int       limit_being_moved[2];
     int       view_index;
-    VIO_Real      start_voxel[VIO_N_DIMENSIONS];
-    VIO_Real      limits[2][VIO_N_DIMENSIONS];
+    VIO_Real  start_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real  limits[2][VIO_MAX_DIMENSIONS];
     VIO_STR    filename;
 } crop_struct;
 
@@ -101,15 +101,15 @@ typedef  struct
     colour_coding_struct   colour_coding;
     VIO_BOOL               display_labels;
     VIO_Real               opacity;
-    VIO_Real               current_voxel[VIO_N_DIMENSIONS];
+    VIO_Real               current_voxel[VIO_MAX_DIMENSIONS];
 
     struct
     {
         VIO_BOOL               visibility;
         int                    n_pixels_alloced;
         int                    n_label_pixels_alloced;
-        VIO_Real               x_axis[VIO_N_DIMENSIONS];
-        VIO_Real               y_axis[VIO_N_DIMENSIONS];
+        VIO_Real               x_axis[VIO_MAX_DIMENSIONS];
+        VIO_Real               y_axis[VIO_MAX_DIMENSIONS];
         VIO_Real               x_trans, y_trans;
         VIO_Real               x_scaling, y_scaling;
         VIO_BOOL               update_flag;

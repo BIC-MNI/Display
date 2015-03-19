@@ -57,6 +57,10 @@ typedef  enum  { THREE_D_WINDOW,
                  N_WINDOW_TYPES }
                window_types;
 
+#ifndef VIO_T
+#define VIO_T 3                 /* Time axis. */
+#endif
+
 typedef  struct
 {
     cursor_struct              cursor;

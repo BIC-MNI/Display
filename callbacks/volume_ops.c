@@ -20,14 +20,87 @@
 
 #include  <display.h>
 
+static void
+change_current_time_by_one(
+                           display_struct   *display,
+                           int              delta
+                           )
+{
+    display_struct  *slice_window;
+    VIO_Volume      volume;
+    VIO_Real        voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real        separations[VIO_MAX_DIMENSIONS];
+    int             sizes[VIO_MAX_DIMENSIONS];
+    int             axis_index;
+    int             volume_index;
+
+    if( get_slice_window( display, &slice_window ) &&
+        get_axis_index_under_mouse( display, &volume_index, &axis_index ) )
+    {
+        volume = get_nth_volume( slice_window, volume_index );
+        get_volume_sizes( volume, sizes );
+        get_volume_separations( volume, separations );
+
+        if( separations[VIO_T] < 0.0 )
+            delta = -delta;
+
+        get_current_voxel( slice_window, volume_index, voxel );
+
+        voxel[VIO_T] = (VIO_Real) VIO_ROUND( voxel[VIO_T] + (VIO_Real) delta );
+
+        if( voxel[VIO_T] < 0.0 )
+            voxel[VIO_T] = 0.0;
+        else if( voxel[VIO_T] > (VIO_Real) sizes[VIO_T] - 1.0 )
+            voxel[VIO_T] = (VIO_Real) sizes[VIO_T] - 1.0;
+
+        if( set_current_voxel( slice_window, volume_index, voxel ))
+        {
+            if( update_cursor_from_voxel( slice_window ) )
+            {
+                set_update_required( get_three_d_window(slice_window),
+                                     get_cursor_bitplanes() );
+            }
+        }
+    }
+}
+
+DEF_MENU_FUNCTION(move_time_plus)
+{
+    change_current_time_by_one( display, 1 );
+
+    return( VIO_OK );
+}
+
+/* ARGSUSED */
+
+DEF_MENU_UPDATE(move_time_plus )
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+DEF_MENU_FUNCTION(move_time_minus)
+{
+    change_current_time_by_one( display, -1 );
+
+    return( VIO_OK );
+}
+
+/* ARGSUSED */
+
+DEF_MENU_UPDATE(move_time_minus)
+{
+    return( get_n_volumes(display) > 0 );
+}
+
 static  void  change_current_slice_by_one(
     display_struct   *display,
     int              delta )
 {
     display_struct   *slice_window;
     VIO_Volume           volume;
-    VIO_Real             voxel[VIO_N_DIMENSIONS], separations[VIO_N_DIMENSIONS];
-    int              sizes[VIO_N_DIMENSIONS], axis_index, volume_index;
+    VIO_Real         voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real         separations[VIO_MAX_DIMENSIONS];
+    int              sizes[VIO_MAX_DIMENSIONS], axis_index, volume_index;
 
     if( get_slice_window( display, &slice_window ) &&
         get_axis_index_under_mouse( display, &volume_index, &axis_index ) )
@@ -221,7 +294,7 @@ static  void  create_scaled_slice(
 {
     display_struct   *slice_window;
     int              x_index, y_index, axis_index, view_index;
-    VIO_Real             current_voxel[VIO_N_DIMENSIONS], perp_axis[VIO_N_DIMENSIONS];
+    VIO_Real         current_voxel[VIO_MAX_DIMENSIONS], perp_axis[VIO_MAX_DIMENSIONS];
     VIO_Real             scale_factor, value, min_value, xw, yw, zw;
     VIO_Vector           normal;
     object_struct    *object;
@@ -335,7 +408,7 @@ DEF_MENU_UPDATE(create_3d_slice_profile)
 
 DEF_MENU_FUNCTION(resample_slice_window_volume)
 {
-    int              sizes[VIO_N_DIMENSIONS];
+    int              sizes[VIO_MAX_DIMENSIONS];
     int              new_nx, new_ny, new_nz;
     char             label[VIO_EXTREMELY_LARGE_STRING_SIZE];
     display_struct   *slice_window;
@@ -382,7 +455,7 @@ DEF_MENU_FUNCTION(box_filter_slice_window_volume)
 {
     char             ch;
     VIO_Real             x_width, y_width, z_width;
-    VIO_Real             separations[VIO_N_DIMENSIONS];
+    VIO_Real             separations[VIO_MAX_DIMENSIONS];
     char             label[VIO_EXTREMELY_LARGE_STRING_SIZE];
     display_struct   *slice_window;
     VIO_Volume           volume, resampled_volume;
