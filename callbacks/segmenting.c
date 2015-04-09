@@ -78,7 +78,9 @@ static  void   set_connected_labels(
     if( get_slice_window( display, &slice_window ) &&
         get_voxel_under_mouse( slice_window, &volume_index, &view_index, voxel))
     {
-        record_slice_under_mouse( slice_window, volume_index );
+        if ( slice_window->slice.toggle_undo_feature ){
+            record_slice_under_mouse( slice_window, volume_index );
+        }
         convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
         value = get_current_paint_label(slice_window);
         set_voxel_label( slice_window, volume_index,
@@ -110,7 +112,9 @@ static  void   set_connected_labels(
     if( get_slice_window( display, &slice_window ) &&
         get_voxel_under_mouse( slice_window, &volume_index, &view_index,voxel))
     {
-        record_slice_under_mouse( slice_window, volume_index );
+        if ( slice_window->slice.toggle_undo_feature ){
+            record_slice_under_mouse( slice_window, volume_index );
+        }
         convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
         set_voxel_label( slice_window, volume_index,
                          int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z], 0 );
@@ -734,7 +738,9 @@ static  void  set_slice_labels(
         slice_has_ortho_axes( slice_window, volume_index, view_index,
                               &x_index, &y_index, &axis_index ) )
     {
-        record_slice_under_mouse( display, volume_index );
+        if ( slice_window->slice.toggle_undo_feature ){
+            record_slice_under_mouse( display, volume_index );
+        }
 
         convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
         set_labels_on_slice( slice_window, volume_index,
@@ -812,7 +818,9 @@ static  void   set_connected_labels(
         slice_has_ortho_axes( slice_window, volume_index, view_index,
                               &x_index, &y_index, &axis_index ) )
     {
-        record_slice_under_mouse( display, volume_index );
+        if ( slice_window->slice.toggle_undo_feature ){
+            record_slice_under_mouse( display, volume_index );
+        }
 
         if( use_threshold )
         {
