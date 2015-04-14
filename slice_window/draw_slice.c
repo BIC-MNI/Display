@@ -1134,15 +1134,10 @@ static  int  render_slice_to_pixels(
 
     vol_info = &slice_window->slice.volumes[volume_index];
 
-    x_trans = slice_window->slice.volumes[volume_index].views[view_index]
-                                                                    .x_trans;
-    y_trans = slice_window->slice.volumes[volume_index].views[view_index]
-                                                                    .y_trans;
-    x_scale = slice_window->slice.volumes[volume_index].views[view_index]
-                                                                    .x_scaling;
-    y_scale = slice_window->slice.volumes[volume_index].views[view_index]
-                                                                    .y_scaling;
-
+    x_trans = vol_info->views[view_index].x_trans;
+    y_trans = vol_info->views[view_index].y_trans;
+    x_scale = vol_info->views[view_index].x_scaling;
+    y_scale = vol_info->views[view_index].y_scaling;
     (void) get_slice_subviewport( slice_window, view_index,
                                   &x_sub_min, &x_sub_max,
                                   &y_sub_min, &y_sub_max );
@@ -1167,21 +1162,18 @@ static  int  render_slice_to_pixels(
 
     if( which_volume == 0 )
     {
-        n_alloced_ptr = &slice_window->slice.volumes[volume_index].
-                                      views[view_index].n_pixels_alloced;
+        n_alloced_ptr = &vol_info->views[view_index].n_pixels_alloced;
     }
     else
     {
-        n_alloced_ptr = &slice_window->slice.volumes[volume_index].
-                                      views[view_index].n_label_pixels_alloced;
+        n_alloced_ptr = &vol_info->views[view_index].n_label_pixels_alloced;
     }
 
     if( first_flag )
     {
         set_volume_slice_pixel_range(
                     volume, filter_type,
-                    slice_window->slice.volumes[volume_index].views[view_index]
-                                                        .filter_width,
+                    vol_info->views[view_index].filter_width,
                     origin, x_axis, y_axis,
                     x_trans, y_trans, x_scale, y_scale,
                     (VIO_Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
@@ -1335,8 +1327,7 @@ static  int  render_slice_to_pixels(
         {
             create_volume_slice(
                     volume, filter_type,
-                    slice_window->slice.volumes[volume_index].views[view_index]
-                                                        .filter_width,
+                    vol_info->views[view_index].filter_width,
                     origin, x_axis, y_axis,
                     x_trans, y_trans, x_scale, y_scale,
                     (VIO_Volume) NULL, NEAREST_NEIGHBOUR, 0.0,
@@ -1353,11 +1344,9 @@ static  int  render_slice_to_pixels(
             pixels->x_position += x_sub_min;
             pixels->y_position += y_sub_min;
 
-            if( is_an_rgb_volume( volume ) &&
-                slice_window->slice.volumes[volume_index].opacity != 1.0 )
+            if( is_an_rgb_volume( volume ) && vol_info->opacity != 1.0 )
             {
-                opacity = VIO_ROUND( 255.0 *
-                            slice_window->slice.volumes[volume_index].opacity );
+                opacity = VIO_ROUND( 255.0 * vol_info->opacity );
 
                 for_inclusive( x, x_min, x_max )
                 {
