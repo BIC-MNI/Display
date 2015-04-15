@@ -72,6 +72,7 @@ static  void  initialize_slice_window(
     set_probe_update( slice_window );
     set_colour_bar_update( slice_window );
     set_atlas_update( slice_window, -1 );
+    set_slice_outline_update( slice_window, -1 );
 }
 
 static  void  initialize_slice_window(
@@ -152,6 +153,7 @@ static  void  initialize_slice_window(
         slice_window->slice.slice_views[view].update_crop_flag = FALSE;
         slice_window->slice.slice_views[view].update_atlas_flag = FALSE;
         slice_window->slice.slice_views[view].update_composite_flag = FALSE;
+        slice_window->slice.slice_views[view].update_outline_flag = FALSE;
         slice_window->slice.slice_views[view].sub_region_specified = FALSE;
         slice_window->slice.slice_views[view].prev_sub_region_specified = FALSE;
         slice_window->slice.slice_views[view].x_min = 0;
@@ -250,6 +252,7 @@ static  void  delete_slice_window_volume_stuff(
     if( !slice_window_exists(display) )
     {
         create_slice_window( display, filename, volume );
+        initialize_slice_object_outline(display);
     }
 
     (void) get_slice_window( display, &slice_window );
@@ -546,6 +549,24 @@ static  void  delete_slice_window_volume_stuff(
     }
 }
 
+void
+set_slice_outline_update(
+                         display_struct   *slice_window,
+                         int              view_index )
+{
+  if( view_index >= 0 )
+  {
+    slice_window->slice.slice_views[view_index].update_outline_flag = TRUE;
+  }
+  else
+  {
+    for_less( view_index, 0, N_SLICE_VIEWS )
+    {
+      slice_window->slice.slice_views[view_index].update_outline_flag = TRUE;
+    }
+  }
+}
+
   void  set_slice_cross_section_update(
     display_struct   *slice_window,
     int              view_index )
@@ -727,6 +748,9 @@ static  VIO_BOOL  slice_viewport_has_changed(
         changed = TRUE;
 
     if( slice_window->slice.slice_views[view].update_composite_flag )
+        changed = TRUE;
+
+    if( slice_window->slice.slice_views[view].update_outline_flag )
         changed = TRUE;
 
     return( changed );
@@ -1097,6 +1121,11 @@ static  void  render_more_slices(
             slice_window->slice.slice_views[view].update_crop_flag = FALSE;
         }
 
+        if( slice_window->slice.slice_views[view].update_outline_flag )
+        {
+            rebuild_slice_object_outline(slice_window, view );
+            slice_window->slice.slice_views[view].update_outline_flag = FALSE;
+        }
 
         if( original_sub_region_specified[view] )
         {

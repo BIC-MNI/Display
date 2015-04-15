@@ -2312,6 +2312,10 @@
     display_struct   *slice_window,
     int              model_number );
 
+  void set_slice_outline_update(
+    display_struct   *slice_window,
+    int              view_index );
+
   void  update_slice_window(
     display_struct   *slice_window );
 
@@ -2784,4 +2788,9 @@
     window_struct  *window,
     VIO_Point          *screen,
     VIO_Point          *pixels );
+
+/* from slice_view/outline.c */
+void rebuild_slice_object_outline(display_struct *slice_window, int view_index);
+void initialize_slice_object_outline(display_struct *display);
+
 #endif

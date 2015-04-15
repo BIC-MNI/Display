@@ -1124,6 +1124,7 @@ static  void  match_view_scale_and_translation(
                             set_crop_box_update( slice_window, view );
                             set_atlas_update( slice_window, view );
                             set_slice_text_update( slice_window, view );
+                            set_slice_outline_update( slice_window, view );
                         }
                     }
                 }
@@ -1137,6 +1138,7 @@ static  void  match_view_scale_and_translation(
     rebuild_volume_cross_section( slice_window );
     set_slice_cursor_update( slice_window, -1 );
     set_probe_update( slice_window );
+    set_slice_outline_update( slice_window, -1 );
 
     return( changed );
 }
@@ -1689,6 +1691,7 @@ static  void  update_all_slice_axes(
     set_crop_box_update( slice_window, view );
     set_probe_update( slice_window );
     set_atlas_update( slice_window, view );
+    set_slice_outline_update( slice_window, view );
 
     set_slice_window_update( slice_window, -1, view, UPDATE_BOTH );
 }

@@ -138,6 +138,7 @@ typedef  struct
     VIO_BOOL       update_crop_flag;
     VIO_BOOL       update_atlas_flag;
     VIO_BOOL       update_composite_flag;
+    VIO_BOOL       update_outline_flag; /* TRUE if outline needs updating. */
 
     int           n_atlas_pixels_alloced;
     int           n_composite_pixels_alloced;
@@ -155,6 +156,14 @@ typedef  struct
     int           prev_y_min;
     int           prev_y_max;
 } slice_view_struct;
+
+typedef struct
+{
+    object_struct  *lines;
+    int           n_points_alloced;
+    int           n_indices_alloced;
+    int           n_end_indices_alloced;
+} outline_struct;
 
 typedef  struct
 {
@@ -218,6 +227,8 @@ typedef  struct
     VIO_Real                   volume_translation_step;
     VIO_Real                   volume_scale_step;
 
+    outline_struct         outlines[N_SLICE_VIEWS];
+    
 } slice_window_struct;
 
 
