@@ -497,6 +497,22 @@ static  DEF_EVENT_FUNCTION( update_probe )
     if( pixel_mouse_moved(display,&x,&y,&x_prev,&y_prev) )
         set_probe_update( display );
 
+    /** TODO: Figure out how to make this generic. DMcD never
+     * implemented cursor setting in his graphics library.
+     */
+    if (mouse_is_near_low_limit(display)) {
+      glutSetCursor(GLUT_CURSOR_INFO);
+    }
+    else if (mouse_is_near_high_limit(display)) {
+      glutSetCursor(GLUT_CURSOR_INFO);
+    }
+    else if (mouse_is_near_slice_dividers(display)) {
+      glutSetCursor(GLUT_CURSOR_CROSSHAIR);
+    }
+    else {
+      glutSetCursor(GLUT_CURSOR_INHERIT);
+    }
+
     return( VIO_OK );
 }
 
