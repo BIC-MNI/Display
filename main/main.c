@@ -125,7 +125,8 @@ int  main(
     initialize_graphics();
 
     title = concat_strings( PROJECT_NAME, ": Menu" );
-    if( create_graphics_window( MENU_WINDOW, TRUE, &menu, title,
+    if( create_graphics_window( MENU_WINDOW, 
+                                Graphics_double_buffer_flag, &menu, title,
                                 Initial_menu_window_width,
                                 Initial_menu_window_height ) != VIO_OK )
         return( 1 );
@@ -138,7 +139,8 @@ int  main(
     }
 
     title = concat_strings( PROJECT_NAME, ": Marker" );
-    if( create_graphics_window( MARKER_WINDOW, TRUE, &marker, title,
+    if( create_graphics_window( MARKER_WINDOW, 
+                                Graphics_double_buffer_flag, &marker, title,
                                 Initial_marker_window_width,
                                 Initial_marker_window_height ) != VIO_OK )
         return( 1 );
