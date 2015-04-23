@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file object_ops.c
+ * \brief Menu commands for manipulating geometric objects and models.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,21 +13,22 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+ */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#ifndef lint
-
-#endif
-
-
 #include  <display.h>
 
+/**
+ * \brief Reverses the direction of the normal vectors of the currently
+ * selected polygon(s).
+ *
+ * Default menu path: Polygons (Z) -> Reverse Normals (G)
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( reverse_normals )
+DEF_MENU_FUNCTION( reverse_normals )
 {
     object_struct   *current_object;
 
@@ -40,14 +44,18 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(reverse_normals )
+DEF_MENU_UPDATE(reverse_normals )
 {
     return( current_object_exists(display) );
 }
 
+/** 
+ * \brief Make the current object on the marker list invisible, and 
+ * advance to the next object, making it visible.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( advance_visible )
+DEF_MENU_FUNCTION( advance_visible )
 {
     object_struct    *current_object;
 
@@ -68,14 +76,18 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(advance_visible )
+DEF_MENU_UPDATE(advance_visible )
 {
     return( current_object_exists(display) );
 }
 
+/** 
+ * \brief Make the current object on the marker list invisible, and 
+ * move to the previous object, making it visible.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( retreat_visible )
+DEF_MENU_FUNCTION( retreat_visible )
 {
     object_struct    *current_object;
 
@@ -96,14 +108,18 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(retreat_visible )
+DEF_MENU_UPDATE(retreat_visible )
 {
     return( current_object_exists(display) );
 }
 
+/**
+ * \brief Hide all of the objects contained within the currently selected 
+ * model.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( make_all_invisible )
+DEF_MENU_FUNCTION( make_all_invisible )
 {
     object_struct           *object, *current_object;
     object_traverse_struct  object_traverse;
@@ -123,14 +139,19 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(make_all_invisible )
+DEF_MENU_UPDATE(make_all_invisible )
 {
     return( current_object_exists(display) );
 }
 
+/**
+ * \brief Show all of the objects contained within the currently selected 
+ * model.
+ */
+
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( make_all_visible )
+DEF_MENU_FUNCTION( make_all_visible )
 {
     object_struct           *current_object, *object;
     object_traverse_struct  object_traverse;
@@ -150,14 +171,22 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(make_all_visible )
+DEF_MENU_UPDATE(make_all_visible )
 {
     return( current_object_exists(display) );
 }
 
+/**
+ * \brief Select the object after the current object in the marker list.
+ *
+ * \param display The top-level display structure.
+ *
+ * Default menu path: Down (Right arrow)
+ */
+
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( advance_selected )
+DEF_MENU_FUNCTION( advance_selected )
 {
     advance_current_object( display );
 
@@ -168,14 +197,20 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(advance_selected )
+DEF_MENU_UPDATE(advance_selected )
 {
     return( current_object_exists(display) );
 }
 
+/**
+ * \brief Select the object before the current object in the marker list.
+ *
+ * \param display The top-level display structure.
+ */
+
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( retreat_selected )
+DEF_MENU_FUNCTION( retreat_selected )
 {
     retreat_current_object( display );
 
@@ -186,14 +221,23 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(retreat_selected )
+DEF_MENU_UPDATE(retreat_selected )
 {
     return( current_object_exists(display) );
 }
 
+/**
+ * \brief Descend into the currently selected model on the marker list.
+ *
+ * If the object is a model containing other objects, the marker list
+ * will be updated to show the substructure, if any, associated  with the
+ * currently selected model.
+ *
+ * \param display The top-level display structure.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( descend_selected )
+DEF_MENU_FUNCTION( descend_selected )
 {
     push_current_object( display );
 
@@ -204,14 +248,22 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(descend_selected )
+DEF_MENU_UPDATE(descend_selected )
 {
     return( current_object_is_this_type(display,MODEL) );
 }
 
+/**
+ * \brief Pop the marker list display.
+ *
+ * If the marker list is currently displaying the substructure of a model,
+ * the marker list will be "popped" back to the next higher level.
+ *
+ * \param display The top-level display structure.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( ascend_selected )
+DEF_MENU_FUNCTION( ascend_selected )
 {
     pop_current_object( display );
 
@@ -222,14 +274,17 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(ascend_selected )
+DEF_MENU_UPDATE(ascend_selected )
 {
     return( display->three_d.current_object.current_level > 1 );
 }
 
 /* ARGSUSED */
+/** 
+ * \brief Toggle the visibility state of the currently selected object.
+ */
 
-  DEF_MENU_FUNCTION( toggle_object_visibility )
+DEF_MENU_FUNCTION( toggle_object_visibility )
 {
     object_struct    *current_object;
 
@@ -245,14 +300,21 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_object_visibility )
+DEF_MENU_UPDATE(toggle_object_visibility )
 {
     return( current_object_exists(display) );
 }
 
+/**
+ * \brief Create a new, empty model and place it in the marker list. 
+ * 
+ * Models are container objects that can be used to hold other objects,
+ * including lines, polygons, and markers.
+ */
+
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( create_model )
+DEF_MENU_FUNCTION( create_model )
 {
     create_model_after_current( display );
 
@@ -263,17 +325,21 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(create_model )
+DEF_MENU_UPDATE(create_model )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( change_model_name )
+/**
+ * \brief Change the name of the model that is currently selected in the
+ * marker list.
+ */
+DEF_MENU_FUNCTION( change_model_name )
 {
     object_struct    *current_object;
-    VIO_STR           name;
+    VIO_STR          name;
 
     if( get_current_object( display, &current_object ) &&
         current_object->object_type == MODEL )
@@ -295,16 +361,23 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(change_model_name )
+DEF_MENU_UPDATE(change_model_name )
 {
     return( current_object_is_this_type(display,MODEL) );
 }
 
-  VIO_BOOL  remove_current_object_from_hierarchy(
+/**
+ * \brief Removes the currently object from the marker list, and from any 
+ * containing model.
+ * \param display The 3D window object.
+ * \param object A pointer to and object pointer, where the deleted object
+ * will be returned.
+ */
+VIO_BOOL  remove_current_object_from_hierarchy(
     display_struct   *display,
     object_struct    **object )
 {
-    VIO_BOOL          removed;
+    VIO_BOOL         removed;
     int              obj_index;
     model_struct     *current_model;
 
@@ -334,27 +407,39 @@
     return( removed );
 }
 
+/**
+ * \brief Delete the currently selected object.
+ *
+ * Has the side effect of moving the cursor to the location of the currently
+ * selected marker before deleting it.
+ *
+ * Default menu path: Objects (R) -> Delete Object (Q) -> Really Delete (B)
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( delete_current_object )
+DEF_MENU_FUNCTION( delete_current_object )
 {
     object_struct    *object;
     display_struct   *slice_window;
-    VIO_Real              voxel[VIO_MAX_DIMENSIONS];
-    VIO_BOOL           changed;
-    int               volume_index;
+    VIO_Real         voxel[VIO_MAX_DIMENSIONS];
+    VIO_BOOL         changed;
+    int              volume_index;
 
     slice_window = display->associated[SLICE_WINDOW];
+
+    /* If we are about to delete a marker, immediately move 
+     * the cursor to the position of the marker we are about
+     * to delete.
+     */
     set_cursor_to_marker(display, menu_window, menu_entry);
-    if( slice_window != (display_struct  *) 0 )
+    if( slice_window != NULL )
     {
         (void) update_voxel_from_cursor( slice_window );
     }
 
-	if( get_current_object( display, &object ) &&
+    if( get_current_object( display, &object ) &&
         get_object_type( object ) == POLYGONS &&
-        get_polygons_ptr(object) ==
-                   display->three_d.surface_extraction.polygons )
+        get_polygons_ptr(object) == display->three_d.surface_extraction.polygons )
     {
         print( "Cannot delete the polygons used for surface extraction.\n" );
         return( VIO_OK );
@@ -373,24 +458,29 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(delete_current_object )
+DEF_MENU_UPDATE(delete_current_object )
 {
     return( current_object_exists(display) );
 }
 
+/**
+ * \brief Prompt the user for a new colour for the currently selected object.
+ *
+ * If the user fails to enter a valid colour, will just set the color to 
+ * black.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_current_object_colour )
+DEF_MENU_FUNCTION( set_current_object_colour )
 {
     object_struct   *current_object;
-    VIO_Colour          col;
-    VIO_STR          line;
+    VIO_Colour      col;
+    VIO_STR         line;
 
     if( get_current_object( display, &current_object ) &&
         get_object_type(current_object) != MODEL )
     {
         print( "Enter colour name or 3 or 4 colour components: " );
-
 
         if( input_line( stdin, &line ) == VIO_OK )
         {
@@ -398,8 +488,7 @@
 
             set_object_colour( current_object, col );
 
-            set_update_required( display, NORMAL_PLANES );
-            rebuild_selected_list( display, display->associated[MARKER_WINDOW]  );
+            graphics_models_have_changed( display );
         }
 
         delete_string( line );
@@ -410,18 +499,21 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_current_object_colour )
+DEF_MENU_UPDATE(set_current_object_colour )
 {
     return( current_object_exists(display) &&
             !current_object_is_this_type(display,MODEL) );
 }
 
+/**
+ * \brief Set the surface properties for the currently selected object.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_current_object_surfprop )
+DEF_MENU_FUNCTION( set_current_object_surfprop )
 {
     object_struct   *current_object;
-    VIO_Surfprop        spr;
+    VIO_Surfprop    spr;
 
     if( get_current_object( display, &current_object ) )
     {
@@ -447,14 +539,18 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_current_object_surfprop )
+DEF_MENU_UPDATE(set_current_object_surfprop )
 {
     return( current_object_exists(display) );
 }
 
+/**
+ * \brief Cut the currently selected object from the marker list, and add 
+ * it to the cut buffer.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( cut_object )
+DEF_MENU_FUNCTION( cut_object )
 {
     object_struct   *object;
     model_struct    *cut_model;
@@ -471,14 +567,17 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(cut_object )
+DEF_MENU_UPDATE(cut_object )
 {
     return( current_object_exists(display) );
 }
 
+/**
+ * \brief Move objects from the cut buffer to the currently selected model.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( paste_object )
+DEF_MENU_FUNCTION( paste_object )
 {
     int             n_objects;
     object_struct   *object;
@@ -508,18 +607,21 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(paste_object )
+DEF_MENU_UPDATE(paste_object )
 {
     return( get_graphics_model( display, CUT_BUFFER_MODEL )->n_objects > 0 );
 }
 
+/**
+ * \brief Create a marker for each vertex in the current object.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( mark_vertices )
+DEF_MENU_FUNCTION( mark_vertices )
 {
     object_struct  *object;
     int            i, n_points;
-    VIO_Point          *points;
+    VIO_Point      *points;
     char           label[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     if( get_current_object( display, &object ) )
@@ -538,19 +640,22 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(mark_vertices )
+DEF_MENU_UPDATE(mark_vertices )
 {
     return( current_object_exists(display) );
 }
 
+/**
+ * \brief Completely invert a geometric object.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( flip_object )
+DEF_MENU_FUNCTION( flip_object )
 {
     object_struct  *object;
     int            i, n_points, n_normals;
-    VIO_Point          *points;
-    VIO_Vector         *normals;
+    VIO_Point      *points;
+    VIO_Vector     *normals;
 
     if( get_current_object( display, &object ) )
     {
@@ -574,14 +679,17 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(flip_object )
+DEF_MENU_UPDATE(flip_object )
 {
     return( current_object_exists(display) );
 }
 
+/**
+ * \brief Create an approximation of an object or surface in the current label volume.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( scan_current_object_to_volume )
+DEF_MENU_FUNCTION( scan_current_object_to_volume )
 {
     object_struct     *current_object;
     display_struct    *slice_window;
@@ -606,7 +714,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(scan_current_object_to_volume )
+DEF_MENU_UPDATE(scan_current_object_to_volume )
 {
     return( get_n_volumes(display) > 0 && current_object_exists(display) );
 }
