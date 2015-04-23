@@ -1,5 +1,7 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file volume_ops.c
+ * \brief Menu commands for manipulating and navigating voxel data.
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +12,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+ */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -61,9 +58,12 @@ static  void  change_current_slice_by_one(
     }
 }
 
+/**
+ * \brief Move one positive step along the slice dimension.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(move_slice_plus)
+DEF_MENU_FUNCTION(move_slice_plus)
 {
     change_current_slice_by_one( display, 1 );
 
@@ -72,14 +72,17 @@ static  void  change_current_slice_by_one(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(move_slice_plus )
+DEF_MENU_UPDATE(move_slice_plus )
 {
     return( get_n_volumes(display) > 0 );
 }
 
+/**
+ * \brief Move one negative step along the slice dimension.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(move_slice_minus)
+DEF_MENU_FUNCTION(move_slice_minus)
 {
     change_current_slice_by_one( display, -1 );
 
@@ -88,14 +91,17 @@ static  void  change_current_slice_by_one(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(move_slice_minus )
+DEF_MENU_UPDATE(move_slice_minus )
 {
     return( get_n_volumes(display) > 0 );
 }
 
+/**
+ * \brief Toggle the visibility of a slice view.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(toggle_slice_visibility)
+DEF_MENU_FUNCTION(toggle_slice_visibility)
 {
     int              view_index, volume_index;
     display_struct   *slice_window;
@@ -114,14 +120,18 @@ static  void  change_current_slice_by_one(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_slice_visibility )
+DEF_MENU_UPDATE(toggle_slice_visibility )
 {
     return( get_n_volumes(display) > 0 );
 }
 
+/**
+ * \brief Toggles the visibility of the oblique cross-section plane in
+ * the 3D view window.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(toggle_cross_section_visibility)
+DEF_MENU_FUNCTION(toggle_cross_section_visibility)
 {
     display_struct   *slice_window;
 
@@ -136,14 +146,17 @@ static  void  change_current_slice_by_one(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_cross_section_visibility )
+DEF_MENU_UPDATE(toggle_cross_section_visibility )
 {
     return( slice_window_exists(display) );
 }
 
+/**
+ * \brief Resets the translation and zoom of the slice view under the mouse cursor, if any.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(reset_current_slice_view)
+DEF_MENU_FUNCTION(reset_current_slice_view)
 {
     int              view_index;
     display_struct   *slice_window;
@@ -160,14 +173,17 @@ static  void  change_current_slice_by_one(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(reset_current_slice_view )
+DEF_MENU_UPDATE(reset_current_slice_view )
 {
     return( get_n_volumes(display) > 0 );
 }
 
+/**
+ * \brief Colourize the currently selected 3D object.
+ */
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(colour_code_objects )
+DEF_MENU_FUNCTION(colour_code_objects )
 {
     object_struct           *object, *current_object;
     VIO_Volume                  volume;
@@ -192,7 +208,7 @@ static  void  change_current_slice_by_one(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(colour_code_objects )
+DEF_MENU_UPDATE(colour_code_objects )
 {
     return( get_n_volumes(display) > 0 &&
             current_object_exists(display) );
@@ -289,7 +305,7 @@ static  void  create_scaled_slice(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(create_3d_slice)
+DEF_MENU_FUNCTION(create_3d_slice)
 {
     create_scaled_slice( display, FALSE );
 
@@ -298,14 +314,14 @@ static  void  create_scaled_slice(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(create_3d_slice)
+DEF_MENU_UPDATE(create_3d_slice)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(create_3d_slice_profile)
+DEF_MENU_FUNCTION(create_3d_slice_profile)
 {
     create_scaled_slice( display, TRUE );
 
@@ -314,14 +330,14 @@ static  void  create_scaled_slice(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(create_3d_slice_profile)
+DEF_MENU_UPDATE(create_3d_slice_profile)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(resample_slice_window_volume)
+DEF_MENU_FUNCTION(resample_slice_window_volume)
 {
     int              sizes[VIO_N_DIMENSIONS];
     int              new_nx, new_ny, new_nz;
@@ -363,14 +379,14 @@ static  void  create_scaled_slice(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(resample_slice_window_volume)
+DEF_MENU_UPDATE(resample_slice_window_volume)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(box_filter_slice_window_volume)
+DEF_MENU_FUNCTION(box_filter_slice_window_volume)
 {
     char             ch;
     VIO_Real             x_width, y_width, z_width;
@@ -420,14 +436,14 @@ static  void  create_scaled_slice(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(box_filter_slice_window_volume)
+DEF_MENU_UPDATE(box_filter_slice_window_volume)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(pick_slice_angle_point)
+DEF_MENU_FUNCTION(pick_slice_angle_point)
 {
     display_struct   *slice_window;
 
@@ -442,14 +458,14 @@ static  void  create_scaled_slice(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(pick_slice_angle_point)
+DEF_MENU_UPDATE(pick_slice_angle_point)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( rotate_slice_axes )
+DEF_MENU_FUNCTION( rotate_slice_axes )
 {
     initialize_rotating_slice( display );
 
@@ -458,14 +474,14 @@ static  void  create_scaled_slice(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(rotate_slice_axes )
+DEF_MENU_UPDATE(rotate_slice_axes )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(reset_slice_crop)
+DEF_MENU_FUNCTION(reset_slice_crop)
 {
     display_struct   *slice_window;
 
@@ -479,14 +495,14 @@ static  void  create_scaled_slice(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(reset_slice_crop)
+DEF_MENU_UPDATE(reset_slice_crop)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(toggle_slice_crop_visibility)
+DEF_MENU_FUNCTION(toggle_slice_crop_visibility)
 {
     display_struct   *slice_window;
 
@@ -500,7 +516,7 @@ static  void  create_scaled_slice(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_slice_crop_visibility)
+DEF_MENU_UPDATE(toggle_slice_crop_visibility)
 {
     display_struct   *slice_window;
     VIO_BOOL          visible;
@@ -517,7 +533,7 @@ static  void  create_scaled_slice(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(pick_crop_box_edge)
+DEF_MENU_FUNCTION(pick_crop_box_edge)
 {
     display_struct   *slice_window;
 
@@ -532,14 +548,14 @@ static  void  create_scaled_slice(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(pick_crop_box_edge)
+DEF_MENU_UPDATE(pick_crop_box_edge)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(set_crop_box_filename)
+DEF_MENU_FUNCTION(set_crop_box_filename)
 {
     display_struct   *slice_window;
     VIO_STR           filename;
@@ -563,14 +579,14 @@ static  void  create_scaled_slice(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_crop_box_filename)
+DEF_MENU_UPDATE(set_crop_box_filename)
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(load_cropped_volume)
+DEF_MENU_FUNCTION(load_cropped_volume)
 {
     display_struct   *slice_window;
 
@@ -584,14 +600,14 @@ static  void  create_scaled_slice(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(load_cropped_volume)
+DEF_MENU_UPDATE(load_cropped_volume)
 {
     return( slice_window_exists(display) );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(crop_volume_to_file)
+DEF_MENU_FUNCTION(crop_volume_to_file)
 {
     VIO_STR           filename;
     display_struct   *slice_window;
@@ -616,7 +632,7 @@ static  void  create_scaled_slice(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(crop_volume_to_file)
+DEF_MENU_UPDATE(crop_volume_to_file)
 {
     return( slice_window_exists(display) );
 }
@@ -655,7 +671,7 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(redo_histogram)
+DEF_MENU_FUNCTION(redo_histogram)
 {
     do_histogram( display, FALSE );
 
@@ -664,14 +680,14 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(redo_histogram)
+DEF_MENU_UPDATE(redo_histogram)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(redo_histogram_labeled)
+DEF_MENU_FUNCTION(redo_histogram_labeled)
 {
     do_histogram( display, TRUE );
 
@@ -680,14 +696,14 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(redo_histogram_labeled)
+DEF_MENU_UPDATE(redo_histogram_labeled)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(print_voxel_origin)
+DEF_MENU_FUNCTION(print_voxel_origin)
 {
     VIO_Real             voxel[VIO_MAX_DIMENSIONS], xw, yw, zw;
     display_struct   *slice_window;
@@ -710,14 +726,14 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(print_voxel_origin)
+DEF_MENU_UPDATE(print_voxel_origin)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(print_slice_plane)
+DEF_MENU_FUNCTION(print_slice_plane)
 {
     display_struct   *slice_window;
     VIO_Vector           normal;
@@ -752,14 +768,14 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(print_slice_plane)
+DEF_MENU_UPDATE(print_slice_plane)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(type_in_voxel_origin)
+DEF_MENU_FUNCTION(type_in_voxel_origin)
 {
     VIO_STR           type;
     VIO_Real             voxel[VIO_MAX_DIMENSIONS], xw, yw, zw;
@@ -805,14 +821,14 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(type_in_voxel_origin)
+DEF_MENU_UPDATE(type_in_voxel_origin)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(type_in_slice_plane)
+DEF_MENU_FUNCTION(type_in_slice_plane)
 {
     int              view_index;
     VIO_Real             perp_axis[VIO_MAX_DIMENSIONS], xw, yw, zw;
@@ -860,14 +876,14 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(type_in_slice_plane)
+DEF_MENU_UPDATE(type_in_slice_plane)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(toggle_slice_cross_section_visibility)
+DEF_MENU_FUNCTION(toggle_slice_cross_section_visibility)
 {
     display_struct   *slice_window;
 
@@ -883,14 +899,14 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_slice_cross_section_visibility)
+DEF_MENU_UPDATE(toggle_slice_cross_section_visibility)
 {
     return( slice_window_exists(display) );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(set_current_arbitrary_view)
+DEF_MENU_FUNCTION(set_current_arbitrary_view)
 {
     int              view_index;
     display_struct   *slice_window;
@@ -912,14 +928,14 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_current_arbitrary_view)
+DEF_MENU_UPDATE(set_current_arbitrary_view)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(toggle_slice_anchor)
+DEF_MENU_FUNCTION(toggle_slice_anchor)
 {
     int              c, view_index;
     VIO_Vector           axis;
@@ -955,14 +971,14 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_slice_anchor)
+DEF_MENU_UPDATE(toggle_slice_anchor)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(delete_current_volume)
+DEF_MENU_FUNCTION(delete_current_volume)
 {
     display_struct   *slice_window;
 
@@ -978,14 +994,14 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(delete_current_volume)
+DEF_MENU_UPDATE(delete_current_volume)
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(toggle_current_volume)
+DEF_MENU_FUNCTION(toggle_current_volume)
 {
     int              current;
     display_struct   *slice_window;
@@ -1003,7 +1019,7 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_current_volume)
+DEF_MENU_UPDATE(toggle_current_volume)
 {
     int              current_index;
 
@@ -1019,7 +1035,7 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(prev_current_volume)
+DEF_MENU_FUNCTION(prev_current_volume)
 {
     int              current;
     display_struct   *slice_window;
@@ -1038,14 +1054,14 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(prev_current_volume)
+DEF_MENU_UPDATE(prev_current_volume)
 {
     return( get_n_volumes(display) > 1 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(set_current_volume_opacity)
+DEF_MENU_FUNCTION(set_current_volume_opacity)
 {
     int              current;
     VIO_Real             opacity;
@@ -1075,7 +1091,7 @@ static  void  do_histogram(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_current_volume_opacity)
+DEF_MENU_UPDATE(set_current_volume_opacity)
 {
     VIO_Real             opacity;
     int              current_index;
@@ -1159,7 +1175,7 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(next_volume_visible)
+DEF_MENU_FUNCTION(next_volume_visible)
 {
     change_visible_volume( display, 1 );
 
@@ -1168,7 +1184,7 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(next_volume_visible)
+DEF_MENU_UPDATE(next_volume_visible)
 {
     set_menu_text_int( menu_window, menu_entry,
                        get_current_visible_volume(display) + 1 );
@@ -1178,7 +1194,7 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(prev_volume_visible)
+DEF_MENU_FUNCTION(prev_volume_visible)
 {
     change_visible_volume( display, -1 );
 
@@ -1187,7 +1203,7 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(prev_volume_visible)
+DEF_MENU_UPDATE(prev_volume_visible)
 {
     set_menu_text_int( menu_window, menu_entry,
                        get_current_visible_volume(display) + 1 );
@@ -1197,7 +1213,7 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(toggle_slice_interpolation)
+DEF_MENU_FUNCTION(toggle_slice_interpolation)
 {
     int              continuity;
     display_struct   *slice_window;
@@ -1222,7 +1238,7 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_slice_interpolation )
+DEF_MENU_UPDATE(toggle_slice_interpolation )
 {
     int              continuity;
     display_struct   *slice_window;
@@ -1251,7 +1267,7 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( save_slice_image )
+DEF_MENU_FUNCTION( save_slice_image )
 {
     display_struct    *slice_window;
     VIO_Status            status;
@@ -1287,14 +1303,14 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(save_slice_image )
+DEF_MENU_UPDATE(save_slice_image )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( save_slice_window )
+DEF_MENU_FUNCTION( save_slice_window )
 {
     display_struct    *slice_window;
     VIO_Status            status;
@@ -1327,14 +1343,14 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(save_slice_window )
+DEF_MENU_UPDATE(save_slice_window )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(toggle_incremental_slice_update)
+DEF_MENU_FUNCTION(toggle_incremental_slice_update)
 {
     display_struct   *slice_window;
 
@@ -1349,7 +1365,7 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_incremental_slice_update)
+DEF_MENU_UPDATE(toggle_incremental_slice_update)
 {
     display_struct   *slice_window;
     VIO_BOOL          state;
@@ -1366,7 +1382,7 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( toggle_shift_key )
+DEF_MENU_FUNCTION( toggle_shift_key )
 {
     print( "Obsolete function:  Cannot toggle shift key\n" );
     return( VIO_OK );
@@ -1374,14 +1390,14 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_shift_key )
+DEF_MENU_UPDATE(toggle_shift_key )
 {
     return( FALSE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(toggle_cursor_visibility)
+DEF_MENU_FUNCTION(toggle_cursor_visibility)
 {
     int              view;
     display_struct   *slice_window;
@@ -1399,7 +1415,7 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_cursor_visibility )
+DEF_MENU_UPDATE(toggle_cursor_visibility )
 {
     VIO_BOOL          state, visible;
     display_struct   *slice_window;
@@ -1417,7 +1433,7 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(insert_volume_as_labels)
+DEF_MENU_FUNCTION(insert_volume_as_labels)
 {
     int              src_index, rnd;
     char             filename[VIO_EXTREMELY_LARGE_STRING_SIZE];
@@ -1456,7 +1472,7 @@ static  void  change_visible_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(insert_volume_as_labels )
+DEF_MENU_UPDATE(insert_volume_as_labels )
 {
     return( get_n_volumes(display) >= 2 );
 }
