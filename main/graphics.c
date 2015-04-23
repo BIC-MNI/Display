@@ -385,6 +385,15 @@ static  void  initialize_graphics_window(
     set_update_required( display, NORMAL_PLANES );
     set_update_required( display->associated[MARKER_WINDOW], NORMAL_PLANES );
 
+    /*
+     * If necessary, tell the slice window it needs to update.
+     */
+    if (Object_outline_enabled)
+    {
+        set_slice_outline_update( display->associated[SLICE_WINDOW], -1 );
+        set_update_required( display->associated[SLICE_WINDOW], NORMAL_PLANES );
+    }
+
     ++display->models_changed_id;
 }
 
