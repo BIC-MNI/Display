@@ -1,83 +1,55 @@
-AUTOMAKE_OPTIONS = check-news
-ACLOCAL_AMFLAGS = -I m4
+AUTOMAKE_OPTIONS = subdir-objects
+ACLOCAL_AMFLAGS =
 
 EXTRA_DIST = INSTALL.display \
 	Hardware/supports_gl.c Include/atlas.h Include/display.h \
 	Include/display_prototypes.h Include/display_types.h \
 	Include/global_variables.h Include/main.h Include/menu.h \
 	Include/slice.h Include/surface_extract.h \
-	epm-header.in \
-	$(m4_files)
-
-SUBDIRS = Graphics \
-	markers \
-	menu \
-	segmenting \
-	atlas \
-	callbacks \
-	current_obj \
-	cursor \
-	cursor_contours \
-	edit_surface \
-	events \
-	images \
-	immediate_mode \
-	input_files \
-	intersect \
-	main \
-	slice_window \
-	structures \
-	surface_curves \
-	surface_extraction \
-	tubes \
-	voxel_scan \
-	Documentation
-
-m4_files = \
-   m4/acx_pthread.m4 \
-   m4/ax_check_gl.m4 \
-   m4/ax_check_glu.m4 \
-   m4/ax_check_glut.m4 \
-   m4/ax_lang_compiler_ms.m4 \
-   m4/lf_link_headers.m4 \
-	m4/mni_REQUIRE_LIB.m4 \
-	m4/mni_REQUIRE_MNILIBS.m4 \
-	m4/mni_REQUIRE_OPENINVENTOR.m4 \
-	m4/mni_cxx_have_koenig_lookup.m4 \
-	m4/smr_CGAL_MAKEFILE.m4 \
-	m4/smr_OPTIONAL_LIB.m4 \
-	m4/smr_REQUIRED_LIB.m4 \
-	m4/smr_WITH_BUILD_PATH.m4
+	menu/Display.menu.include \
+	menu/Display.menu.base \
+	Graphics/G_graphics/draw_quadmesh.include.c \
+	Graphics/G_graphics/draw_polygons.include.c
 
 PROTOTYPE_FILE = Include/display_prototypes.h
 
-
 bin_PROGRAMS = Display
 
-# Adding a dummy source file to register is a work-around for a bug in 
-# automake, which does not (in version 1.4) allow linking together
-# only objects in subdirectories.
-
-Display_SOURCES = dummy.c
-
-dummy.c:
-	touch $@
-
-CLEANFILES = dummy.c Display.menu
-
-Display_LDFLAGS = $(X_LIBS)
-Display_LDADD = $(display_obj) \
-	Graphics/libbicgl.a $(GL_LIBS) $(GLU_LIBS) $(GLUT_LIBS)
-if USE_SEAL
-Display_LDADD += -lbicseal
-endif
-Display_LDADD += $(MNI_LIBS) $(malloc_LIBS)
+CLEANFILES = Display.menu
 
 Display_DEPENDENCIES = Display.menu $(display_obj)
 
+AM_CPPFLAGS = \
+	-I$(top_srcdir)/Include \
+	-I$(top_srcdir)/Graphics/OpenGL_graphics/Include \
+	-I$(top_srcdir)/Graphics/Include \
+	-I$(top_srcdir)/Graphics/GLUT_windows/Include
 
+noinst_HEADERS = \
+	Include/atlas.h \
+	Include/display.h \
+	Include/display_prototypes.h \
+	Include/display_types.h \
+	Include/global_variables.h \
+	Include/main.h \
+	Include/menu.h \
+	Include/slice.h \
+	Include/stack.h \
+	Include/surface_extract.h \
+	Graphics/Include/graphics.h \
+	Graphics/Include/GS_graphics.h \
+	Graphics/Include/graphics_base.h \
+	Graphics/Include/graphics_prototypes.h \
+	Graphics/Include/graphics_struct.h \
+	Graphics/Include/random_order.h \
+	Graphics/Include/GL/glut.h \
+	Graphics/Include/GL/freeglut_std.h \
+	Graphics/OpenGL_graphics/Include/GS_graphics.h \
+	Graphics/OpenGL_graphics/Include/opengl_graphics_prototypes.h \
+	Graphics/GLUT_windows/Include/WS_graphics.h \
+	Graphics/GLUT_windows/Include/glut_window_prototypes.h
 
-display_src = \
+Display_SOURCES = \
            main/main.c \
            main/display.c \
            main/event_loop.c \
@@ -152,6 +124,7 @@ display_src = \
            slice_window/crop.c \
            slice_window/draw_slice.c \
            slice_window/histogram.c \
+	slice_window/outline.c \
            slice_window/pick_angle.c \
            slice_window/quadmesh.c \
            slice_window/slice.c \
@@ -162,24 +135,37 @@ display_src = \
            surface_curves/closest_line.c \
            surface_curves/events.c \
            surface_curves/edge_distance.c \
-           tubes/convert_lines.c \
+	stack/stack.c \
            structures/action_table.c \
            structures/fit_view.c \
            structures/lights.c \
            structures/render.c \
            structures/view.c \
-           structures/window.c
+           structures/window.c \
+           tubes/convert_lines.c \
+	Graphics/G_graphics/draw.c \
+	Graphics/G_graphics/draw_objects.c \
+	Graphics/G_graphics/event_loop.c \
+	Graphics/G_graphics/graphics_structs.c \
+	Graphics/G_graphics/lights.c \
+	Graphics/G_graphics/random_order.c \
+	Graphics/G_graphics/render.c \
+	Graphics/G_graphics/view.c \
+	Graphics/G_graphics/windows.c \
+	Graphics/GLUT_windows/glut_windows.c \
+	Graphics/OpenGL_graphics/colour_def.c \
+	Graphics/OpenGL_graphics/draw.c \
+	Graphics/OpenGL_graphics/event_loop.c \
+	Graphics/OpenGL_graphics/lights.c \
+	Graphics/OpenGL_graphics/render.c \
+	Graphics/OpenGL_graphics/view.c \
+	Graphics/OpenGL_graphics/windows.c
 
 display_obj = $(display_src:.c=.o)
 
 if USE_SEAL
 display_obj += callbacks/seal.o
 endif
-
-
-
-#$(PROTOTYPE_FILE): $(display_src)
-#	@$(MAKE_PROTOTYPES) $@ $(display_src)
 
 Display.menu: menu/Display.menu.include
 	sed -e 's/\\//g' -e 's/\"//'    \
