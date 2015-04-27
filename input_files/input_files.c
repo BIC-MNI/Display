@@ -56,6 +56,10 @@
         filename_extension_matches(filename,"mni") ||
         filename_extension_matches(filename,"nil") ||
         filename_extension_matches(filename,"iff") ||
+        filename_extension_matches(filename,"mgh") ||
+        filename_extension_matches(filename,"mgz") ||
+        filename_extension_matches(filename,"nii") ||
+        filename_extension_matches(filename,"hdr") ||
         filename_extension_matches(filename,"fre") )
     {
         if( !is_label_file )
