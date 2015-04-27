@@ -431,7 +431,16 @@ static void parse_options(int argc, char *argv[], display_struct *graphics)
 		}
 		else if (equal_strings(filename, "-version"))
 		{
+#ifndef GLUT_VERSION
+#define GLUT_VERSION 0x1FC
+#endif
+                        int glutVersion = glutGet(GLUT_VERSION);
+
                         print("%s %s (%s)\n", PROJECT_NAME, PROJECT_VERSION, __DATE__ );
+                        print("GLUT %d.%d.%d\n", glutVersion / 10000,
+                              (glutVersion / 100) % 100,
+                              glutVersion % 100);
+                        print("OpenGL %s\n", glGetString(GL_VERSION));
 			exit(EX_OK);
 		}
 		else if (equal_strings(filename, "-skiperror"))
