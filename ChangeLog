@@ -1,3 +1,26 @@
+2015-04-27  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * main/main.c: Added version reporting for glut and OpenGL.
+
+2015-04-26  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * input_files.c: Recognize .mgz, .mgh, and .nii as volume extensions.
+
+2015-04-23  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * callbacks/volume_ops.c: Add some comments, minor formatting changes.
+   * slice_window/slice_events.c: Rudimentary cursor visual cues.
+   * main/main.c: Use the Graphics_double_buffer_flag for the marker and menu
+	windows.
+   * callbacks/object_ops.c: Add some comments, trigger slice redraw when
+	object visibility or colour changes.
+   * main/graphics.c: Trigger slice redraw when graphics models change.
+2015-04-15  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * slice_window/outline.c: Added code to draw outlines of 3d object in slice
+	window.
+   * CMakeLists.txt: Add slice_window/outline.c to file list.
+   * Include/display_prototypes.h: Add prototypes for outline.c functions.
+   * Include/global_variables.h: Add globals for outline function.
+   * Include/slice.h: Add fields for outline drawing.
+   * slice_window/{slice.c, view.c}: Add calls to outlining functions.
+
 2012-03-02  Andrew L Janke <a.janke@gmail.com>
    * autogen.sh: added libtoolize line
 
