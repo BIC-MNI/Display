@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file mouse_trans.c
+ * \brief Functions to implement translation of the 3D object view.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -26,11 +24,9 @@ static    DEF_EVENT_FUNCTION( start_translation );
 static    DEF_EVENT_FUNCTION( turn_off_translation );
 static    DEF_EVENT_FUNCTION( handle_update );
 static    DEF_EVENT_FUNCTION( terminate_translation );
-static  VIO_BOOL  perform_translation(
-    display_struct   *display );
+static  VIO_BOOL  perform_translation( display_struct *display );
 
-  void  initialize_translation(
-    display_struct   *display )
+void  initialize_translation( display_struct *display )
 {
     terminate_any_interactions( display );
 
@@ -45,7 +41,7 @@ static  VIO_BOOL  perform_translation(
 
 /* ARGSUSED */
 
-static  DEF_EVENT_FUNCTION( turn_off_translation )
+static DEF_EVENT_FUNCTION( turn_off_translation )
 {
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
@@ -60,7 +56,7 @@ static  DEF_EVENT_FUNCTION( turn_off_translation )
 
 /* ARGSUSED */
 
-static  DEF_EVENT_FUNCTION( start_translation )
+static DEF_EVENT_FUNCTION( start_translation )
 {
     add_action_table_function( &display->action_table,
                                NO_EVENT,
@@ -79,8 +75,7 @@ static  DEF_EVENT_FUNCTION( start_translation )
     return( VIO_OK );
 }
 
-static  void  update_translation(
-    display_struct  *display )
+void mouse_translation_update( display_struct  *display )
 {
     if( perform_translation( display ) )
     {
@@ -91,9 +86,9 @@ static  void  update_translation(
 
 /* ARGSUSED */
 
-static  DEF_EVENT_FUNCTION( terminate_translation )
+static DEF_EVENT_FUNCTION( terminate_translation )
 {
-    update_translation( display );
+    mouse_translation_update( display );
     
     remove_action_table_function( &display->action_table,
                                   NO_EVENT, handle_update );
@@ -109,20 +104,19 @@ static  DEF_EVENT_FUNCTION( terminate_translation )
 
 /* ARGSUSED */
 
-static  DEF_EVENT_FUNCTION( handle_update )
+static DEF_EVENT_FUNCTION( handle_update )
 {
-    update_translation( display );
+    mouse_translation_update( display );
 
     return( VIO_OK );
 }
 
-static  VIO_BOOL  perform_translation(
-    display_struct   *display )
+static VIO_BOOL perform_translation( display_struct   *display )
 {
-    VIO_BOOL        moved;
-    VIO_Real           x, y, x_prev, y_prev;
-    VIO_Vector         delta, hor, vert;
-    VIO_Transform      transform;
+    VIO_BOOL       moved;
+    VIO_Real       x, y, x_prev, y_prev;
+    VIO_Vector     delta, hor, vert;
+    VIO_Transform  transform;
 
     moved = FALSE;
 

@@ -148,6 +148,23 @@ static  void  right_up_callback(
     handle_event( RIGHT_MOUSE_UP_EVENT, window, 0 );
 }
 
+static  void  scroll_down_callback( Gwindow   window,
+    int       x,
+    int       y,
+    void      *data )
+{
+    handle_event( SCROLL_DOWN_EVENT, window, 0 );
+}
+
+static  void  scroll_up_callback(
+    Gwindow   window,
+    int       x,
+    int       y,
+    void      *data )
+{
+    handle_event( SCROLL_UP_EVENT, window, 0 );
+}
+
 static  void  iconify_callback(
     Gwindow   window,
     void      *data )
@@ -200,6 +217,8 @@ static  void  quit_callback(
     G_set_middle_mouse_up_function( window, middle_up_callback, NULL);
     G_set_right_mouse_down_function( window, right_down_callback, NULL);
     G_set_right_mouse_up_function( window, right_up_callback, NULL);
+    G_set_scroll_down_function( window, scroll_down_callback, NULL);
+    G_set_scroll_up_function( window, scroll_up_callback, NULL);
     G_set_iconify_function( window, iconify_callback, NULL);
     G_set_deiconify_function( window, deiconify_callback, NULL);
     G_set_window_enter_function( window, enter_callback, NULL);
@@ -377,10 +396,13 @@ static  VIO_Status   perform_action(
     return( status );
 }
 
-  VIO_BOOL  is_shift_key_pressed( void )
+VIO_BOOL  is_shift_key_pressed( void )
 {
-    return( G_get_shift_key_state() ||
-            G_get_ctrl_key_state() ||
-            G_get_alt_key_state() );
+  return( G_get_shift_key_state() || G_get_alt_key_state());
+}
+
+VIO_BOOL  is_ctrl_key_pressed( void )
+{
+    return( G_get_ctrl_key_state());
 }
 

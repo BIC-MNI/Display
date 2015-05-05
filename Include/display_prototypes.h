@@ -27,6 +27,8 @@
 
   VIO_BOOL  is_shift_key_pressed( void );
 
+  VIO_BOOL  is_ctrl_key_pressed( void );
+
   int  get_list_of_windows(
     display_struct  ***display );
 
@@ -1605,7 +1607,10 @@
     int              axis_index,
     int              n_steps );
 
+/* From events/magnify.c */
   void  initialize_magnification(
+    display_struct   *display );
+  void  initialize_scroll_magnification(
     display_struct   *display );
 
   VIO_BOOL  mouse_moved(
@@ -1628,7 +1633,10 @@
   void  record_mouse_pixel_position(
     display_struct   *display );
 
+  /* from events/mouse_trans.c */
   void  initialize_translation(
+    display_struct   *display );
+  void  mouse_translation_update(
     display_struct   *display );
 
   void  initialize_picking_object(

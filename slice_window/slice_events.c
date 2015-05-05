@@ -44,6 +44,8 @@ static    DEF_EVENT_FUNCTION( terminate_picking_voxel );
 
 static    DEF_EVENT_FUNCTION( left_mouse_down );
 static    DEF_EVENT_FUNCTION( middle_mouse_down );
+static    DEF_EVENT_FUNCTION( scroll_down );
+static    DEF_EVENT_FUNCTION( scroll_up );
 static    DEF_EVENT_FUNCTION( handle_update_low_limit );
 static    DEF_EVENT_FUNCTION( handle_update_high_limit );
 static    DEF_EVENT_FUNCTION( handle_update_both_limits );
@@ -84,6 +86,12 @@ static  VIO_BOOL  get_nearest_mouse_colour_bar_value(
     add_action_table_function( &slice_window->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT,
                                middle_mouse_down );
+    add_action_table_function( &slice_window->action_table,
+                               SCROLL_DOWN_EVENT,
+                               scroll_down );
+    add_action_table_function( &slice_window->action_table,
+                               SCROLL_UP_EVENT,
+                               scroll_up );
     add_action_table_function( &slice_window->action_table, NO_EVENT,
                                update_probe );
 
@@ -183,6 +191,34 @@ static  DEF_EVENT_FUNCTION( left_mouse_down )
 
     record_mouse_pixel_position( display );
 
+    return( VIO_OK );
+}
+
+static  DEF_EVENT_FUNCTION( scroll_down )
+{
+    int          view_index;
+
+    if( get_n_volumes( display ) == 0 )
+        return( VIO_OK );
+
+    if( get_slice_view_index_under_mouse( display, &view_index ) )
+    {
+        scale_slice_view( display, view_index, 1.0/(1.1) );
+    }
+    return( VIO_OK );
+}
+
+static  DEF_EVENT_FUNCTION( scroll_up )
+{
+    int          view_index;
+
+    if( get_n_volumes( display ) == 0 )
+        return( VIO_OK );
+
+    if( get_slice_view_index_under_mouse( display, &view_index ) )
+    {
+        scale_slice_view( display, view_index, 1.1 );
+    }
     return( VIO_OK );
 }
 

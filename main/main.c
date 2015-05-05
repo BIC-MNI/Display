@@ -206,6 +206,8 @@ int  main(
     initialize_cache(  );/*graphics*/
     initialize_view_to_fit( graphics );
 
+    initialize_scroll_magnification( graphics );
+
     rebuild_selected_list( graphics, marker );
     reset_view_parameters( graphics, &Default_line_of_sight,
                            &Default_horizontal );

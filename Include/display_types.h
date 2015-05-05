@@ -83,6 +83,8 @@ typedef  enum  {
                    WINDOW_QUIT_EVENT,
                    WINDOW_LEAVE_EVENT,
                    WINDOW_ENTER_EVENT,
+                   SCROLL_DOWN_EVENT,
+                   SCROLL_UP_EVENT,
                    N_EVENT_TYPES
                } Event_types;
 
@@ -94,9 +96,20 @@ typedef  VIO_Status  (*event_function_type)( struct display_struct *,
                                                Event_types     event_type, \
                                                int             key_pressed )
 
-#define  MAX_ACTION_STACK  5
-#define  MAX_ACTIONS       10
+#define  MAX_ACTION_STACK  5  /*!< Maximum depth of action_table_entry stack. */
+#define  MAX_ACTIONS       10 /*!< Maximum actions per action_table_entry. */
 
+/** \struct action_table_entry 
+ * The action table is structured to permit
+ * multiple actions per event, and support a global mechanism for "pushing" and 
+ * "popping" actions.
+ * Each table entry can contain up to \c MAX_ACTIONS in total, and each
+ * entry maintains an individual stack of the previously registered actions.
+ * This stack can be pushed at most \c MAX_ACTION_STACK times.
+ * The \c last_index field stores the index of the last valid action table 
+ * entry in the structure. Therefore it starts at -1 to indicate that there are
+ * NO valid entries in an empty \c action_table_entry.
+ */
 typedef  struct
 {
     int                   stack_index;
