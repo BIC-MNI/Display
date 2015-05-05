@@ -100,26 +100,33 @@ convert_world_lines_to_pixel(object_struct *lines_object,
 }
 
 /**
- * Given an input colour and an arbitrary "index", generate a colour
+ * Given an an arbitrary object "index", generate a colour
  * which should be different from the previous colour in a significant
  * way, and probably unlike other previous colours.
- * \param prev_colour The colour we are now replacing.
  * \param index An arbitrary index we use to differentiate the contexts
  * in which the colours are used.
  */
 static VIO_Colour
-get_contrasting_colour(VIO_Colour prev_colour, int index)
+get_automatic_colour(int index)
 {
-  int r = get_Colour_r(prev_colour);
-  int g = get_Colour_g(prev_colour);
-  int b = get_Colour_b(prev_colour);
-  if (index & 1)
-    r = 255 - r;
-  if (index & 2)
-    g = 255 - g;
-  if (index & 4)
-    b = 255 - b;
-  return make_Colour(r, g, b);
+  switch (index) {
+  case 0:
+    return GREEN;
+  case 1:
+    return BLUE;
+  case 2:
+    return RED;
+  case 3:
+    return YELLOW;
+  case 4:
+    return MAGENTA;
+  case 5:
+    return CYAN;
+  case 6:
+    return ORANGE;
+  default:
+    return WHITE;
+  }
 }
 
 /**
@@ -147,7 +154,6 @@ intersect_plane_with_polygons_coloured(display_struct *display,
   object_traverse_struct object_traverse; 
   lines_struct           *lines;
   VIO_Colour             current_colour;
-  VIO_Colour             previous_colour;
   object_struct          *current_object;
   int                    colours_size;
   int                    colours_alloced;
@@ -177,7 +183,6 @@ intersect_plane_with_polygons_coloured(display_struct *display,
   colours_size = 0;
   colours_alloced = 0;
   colours_ptr = NULL;
-  previous_colour = BLACK;
 
   /* This value just counts up the polygons as we see them, it is used
    * only to try to guarantee that we use a "unique" colour for each
@@ -204,11 +209,10 @@ intersect_plane_with_polygons_coloured(display_struct *display,
        * don't repeat colours if we can avoid it.
        */
       if (!get_object_colour(current_object, &current_colour) ||
-          current_colour == previous_colour)
+          current_colour == WHITE)
       {
-        current_colour = get_contrasting_colour(previous_colour, poly_no);
+        current_colour = get_automatic_colour(poly_no);
       }
-      previous_colour = current_colour;
       poly_no++;
 
       for (i = 0; i < current_polygons->n_items; i++) {
