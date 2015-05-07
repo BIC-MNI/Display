@@ -234,6 +234,11 @@ intersect_plane_with_polygons_coloured(display_struct *display,
       }
     }
   }
+
+  if (lines->colours != NULL)
+  {
+    FREE(lines->colours);
+  }
   set_object_colours(lines_object, colours_ptr);
   lines->colour_flag = PER_ITEM_COLOURS;
 }
@@ -258,7 +263,7 @@ rebuild_slice_object_outline(display_struct *slice_window, int view_index)
   int            volume_index;
   outline_struct *outline_ptr;
   display_struct *display;
-  VIO_Real       perp_axis[3];
+  VIO_Real       perp_axis[VIO_N_DIMENSIONS];
   VIO_Point      world_origin;
 
   /* If the display of the outline isn't enabled, just bail out
@@ -270,6 +275,8 @@ rebuild_slice_object_outline(display_struct *slice_window, int view_index)
   /* See if we should display anything.
    */
   volume_index = get_current_volume_index(slice_window);
+  if (volume_index < 0)
+    return;
   if (!get_slice_visibility(slice_window, volume_index, view_index))
     return;
 
