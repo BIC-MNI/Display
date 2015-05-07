@@ -15,10 +15,6 @@
 #include <config.h>
 #endif
 
-#ifndef lint
-
-#endif
-
 #include  <display.h>
 
 char *XYZT_dimension_names[] = { MIxspace, MIyspace, MIzspace, MItime };
@@ -54,7 +50,7 @@ VIO_Status   input_volume_file(
     set_default_minc_input_options( &options );
     set_minc_input_vector_to_colour_flag( &options, TRUE );
 
-    status = input_volume( filename, 0, XYZT_dimension_names,
+    status = input_volume( filename, 4, XYZT_dimension_names,
                            nc_data_type, signed_flag, voxel_min, voxel_max,
                            TRUE, &volume, &options );
 
