@@ -91,7 +91,7 @@ typedef  struct  display_struct
     three_d_window_struct      three_d;    /* should be a union of three */
     menu_window_struct         menu;
     slice_window_struct        slice;
-    menu_window_struct         marker;
+    marker_window_struct       marker;
 
     Gwindow                    window;
     VIO_Point                  prev_mouse_position;

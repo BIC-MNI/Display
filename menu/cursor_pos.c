@@ -62,6 +62,9 @@ static  void  create_cursor_pos_text(
     add_object_to_model( model, object );
 }
 
+/**
+ * Generates the text associated with the 
+ */
   void  rebuild_cursor_position_model(
     display_struct    *display )
 {
@@ -69,7 +72,9 @@ static  void  create_cursor_pos_text(
     model_struct    *cursor_pos_model;
     display_struct  *menu_window, *marker_window;
     char            buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
+    display_struct  *three_d_window;
 
+    three_d_window = get_three_d_window(display);
     menu_window = display->associated[MENU_WINDOW];
     marker_window = display->associated[MARKER_WINDOW];
 
@@ -93,11 +98,11 @@ static  void  create_cursor_pos_text(
                 menu_window->menu.cursor_pos_x_origin,
                 menu_window->menu.cursor_pos_y_origin -
                 menu_window->menu.character_height, 0.0 );
-
+    
     (void) sprintf( buffer, Cursor_pos_format,
-                    Point_x(display->three_d.cursor.origin),
-                    Point_y(display->three_d.cursor.origin),
-                    Point_z(display->three_d.cursor.origin) );
+                    Point_x(three_d_window->three_d.cursor.origin),
+                    Point_y(three_d_window->three_d.cursor.origin),
+                    Point_z(three_d_window->three_d.cursor.origin) );
 
     replace_string( &text->string, create_string(buffer) );
 

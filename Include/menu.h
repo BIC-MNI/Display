@@ -58,12 +58,16 @@ typedef  struct  menu_entry_struct
     struct  menu_entry_struct   **children;
     menu_function_pointer       action;
     menu_update_pointer         update_action;
+    VIO_STR                     help_text;
     object_struct               **text_list;
 } menu_entry_struct;
 
 #define  MAX_MENU_DEPTH     10
 #define  N_CHARACTERS       256
 
+#define N_HELP_LINES 3
+
+/* Fields used by the menu window. */
 typedef  struct
 {
     int                  default_x_size;
@@ -80,7 +84,6 @@ typedef  struct
     VIO_Real                 character_height;
     VIO_Real                 character_width;
     VIO_Real                 character_offset;
-    VIO_Real                 selected_box_height;
 
     VIO_Real                 x_menu_name;
     VIO_Real                 y_menu_name;
@@ -88,10 +91,8 @@ typedef  struct
     VIO_Real                 x_menu_origin;
     VIO_Real                 y_menu_origin;
 
-    VIO_Real                 selected_x_origin;
-    VIO_Real                 selected_y_origin;
-    VIO_Real                 selected_x_offset;
-    VIO_Real                 selected_y_offset;
+    VIO_Real                 help_x_origin;
+    VIO_Real                 help_y_origin;
 
     VIO_Real                 cursor_pos_x_origin;
     VIO_Real                 cursor_pos_y_origin;
@@ -111,7 +112,28 @@ typedef  struct
     object_struct        *text_objects[N_CHARACTERS];
 
     object_struct        *menu_name_text;
+    object_struct        *menu_help_text[N_HELP_LINES];
 
 } menu_window_struct;
+
+/* Fields used by the marker window. */
+typedef  struct
+{
+    int                  default_x_size;
+    int                  default_y_size;
+
+    VIO_Real             character_height;
+    VIO_Real             character_width;
+    VIO_Real             character_offset;
+
+    VIO_Real             selected_box_height;
+    VIO_Real             selected_x_origin;
+    VIO_Real             selected_y_origin;
+    VIO_Real             selected_x_offset;
+    VIO_Real             selected_y_offset;
+
+    VIO_Real             font_size;
+
+} marker_window_struct;
 
 #endif

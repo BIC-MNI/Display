@@ -23,8 +23,8 @@
 #include  <display.h>
 
 static  void  create_selected_text(
-    menu_window_struct  *menu,
-    model_struct        *model )
+    marker_window_struct *marker,
+    model_struct         *model )
 {
     int            i;
     object_struct  *object;
@@ -61,26 +61,26 @@ static  void  create_selected_text(
         text = get_text_ptr( object );
 
         fill_Point( origin,
-                    menu->selected_x_origin,
-                    menu->selected_y_origin - menu->character_height * (VIO_Real) i,
+                    marker->selected_x_origin,
+                    marker->selected_y_origin - marker->character_height * (VIO_Real) i,
                     0.0 );
 
         initialize_text( text, &origin, BLACK,
-                         (Font_types) Menu_window_font, menu->font_size );
+                         (Font_types) Menu_window_font, marker->font_size );
 
         add_object_to_model( model, object );
     }
 }
 
 static  void  set_text_entry(
-    display_struct    *menu_window,
+    display_struct    *marker_window,
     int               index,
     VIO_STR            name,
     VIO_Colour            col )
 {
     model_struct   *model;
 
-    model = get_graphics_model( menu_window, SELECTED_MODEL );
+    model = get_graphics_model( marker_window, SELECTED_MODEL );
 
     replace_string( &get_text_ptr(model->objects[index+1])->string,
                     create_string(name) );
@@ -90,7 +90,7 @@ static  void  set_text_entry(
 }
 
 static  void  get_box_limits(
-    menu_window_struct  *menu,
+    marker_window_struct  *marker,
     int                 index,
     VIO_STR              label,
     int                 *x_min,
@@ -101,25 +101,25 @@ static  void  get_box_limits(
     int            width;
 
     width = (int) G_get_text_length( label, (Font_types) Menu_window_font,
-                                     menu->font_size );
+                                     marker->font_size );
 
     if( width <= 0 )
         width = 20;
 
-    *x_min = VIO_ROUND( menu->selected_x_origin );
-    *y_min = VIO_ROUND( menu->selected_y_origin -
-                    menu->character_height * (VIO_Real) index );
+    *x_min = VIO_ROUND( marker->selected_x_origin );
+    *y_min = VIO_ROUND( marker->selected_y_origin -
+                    marker->character_height * (VIO_Real) index );
     *x_max = *x_min + width;
-    *y_max = VIO_ROUND( (VIO_Real) *y_min + menu->selected_box_height);
+    *y_max = VIO_ROUND( (VIO_Real) *y_min + marker->selected_box_height);
 
-    *x_min = VIO_ROUND( (VIO_Real) *x_min - menu->selected_x_offset );
-    *x_max = VIO_ROUND( (VIO_Real) *x_max + menu->selected_x_offset );
-    *y_min = VIO_ROUND( (VIO_Real) *y_min - menu->selected_y_offset );
-    *y_max = VIO_ROUND( (VIO_Real) *y_max + menu->selected_y_offset );
+    *x_min = VIO_ROUND( (VIO_Real) *x_min - marker->selected_x_offset );
+    *x_max = VIO_ROUND( (VIO_Real) *x_max + marker->selected_x_offset );
+    *y_min = VIO_ROUND( (VIO_Real) *y_min - marker->selected_y_offset );
+    *y_max = VIO_ROUND( (VIO_Real) *y_max + marker->selected_y_offset );
 }
 
 static  void  set_current_box(
-    menu_window_struct  *menu,
+    marker_window_struct  *marker,
     model_struct        *selected_model,
     int                 index,
     VIO_STR              label )
@@ -127,7 +127,7 @@ static  void  set_current_box(
     int            x_start, x_end, y_start, y_end;
     VIO_Point          *points;
 
-    get_box_limits( menu, index, label, &x_start, &x_end, &y_start, &y_end );
+    get_box_limits( marker, index, label, &x_start, &x_end, &y_start, &y_end );
 
     points = get_lines_ptr(selected_model->objects[0])->points;
 
@@ -195,9 +195,6 @@ static  VIO_STR  get_object_label(
     VIO_STR         label;
     model_struct   *selected_model, *model;
     text_struct    *text;
-//    display_struct *marker_window;
-//
-//    marker_window = menu_window->associated[MARKER_WINDOW];
 
     selected_model = get_graphics_model( marker_window, SELECTED_MODEL );
 
@@ -243,7 +240,6 @@ static  VIO_STR  get_object_label(
                     0.0 );
     }
 
-    //set_update_required( menu_window, NORMAL_PLANES );
     set_update_required( marker_window, NORMAL_PLANES );
 }
 
@@ -257,9 +253,9 @@ static  VIO_STR  get_object_label(
     int            x_min, x_max, y_min, y_max;
     VIO_STR         label;
     model_struct   *model;
-    display_struct *menu_window;
+    display_struct *marker_window;
 
-    menu_window = display->associated[MENU_WINDOW];
+    marker_window = display->associated[MARKER_WINDOW];
 
     model = get_current_model( display );
     get_model_objects_visible( display, &start_index, &n_objects );
@@ -268,7 +264,7 @@ static  VIO_STR  get_object_label(
     {
         label = get_object_label( model->objects[i], i );
 
-        get_box_limits( &menu_window->menu, i - start_index, label,
+        get_box_limits( &marker_window->marker, i - start_index, label,
                         &x_min, &x_max, &y_min, &y_max );
 
         delete_string( label );

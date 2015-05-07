@@ -87,7 +87,7 @@ static  void  initialize_marker_parameters(
 {
     int                 x_size, y_size;
     VIO_Real            x_scale, y_scale, scale;
-    menu_window_struct  *marker;
+    marker_window_struct  *marker;
 
     marker = &marker_window->marker;
 
@@ -98,28 +98,14 @@ static  void  initialize_marker_parameters(
 
     scale = MIN( x_scale, y_scale );
 
-    marker->x_dx = scale * X_menu_dx;
-    marker->x_dy = scale * X_menu_dy;
-    marker->y_dx = scale * Y_menu_dx;
-    marker->y_dy = scale * Y_menu_dy;
-    marker->n_chars_per_unit_across = Menu_n_chars_per_entry;
-    marker->n_lines_in_entry = Menu_n_lines_per_entry;
     marker->character_width = scale * Menu_character_width;
     marker->character_height = scale * Menu_character_height;
     marker->character_offset = scale * Menu_key_character_offset;
-    marker->x_menu_text_offset = scale * X_menu_text_offset;
-    marker->y_menu_text_offset = scale * Y_menu_text_offset;
-    marker->x_menu_origin = scale * X_menu_origin;
-    marker->y_menu_origin = scale * Y_menu_origin;
-    marker->cursor_pos_x_origin = scale * Cursor_pos_x_origin;
-    marker->cursor_pos_y_origin = scale * Cursor_pos_y_origin;
     marker->selected_x_origin = scale * Selected_x_origin;
     marker->selected_y_origin = scale * Selected_y_origin;
     marker->selected_x_offset = scale * Selected_box_x_offset;
     marker->selected_y_offset = scale * Selected_box_y_offset;
     marker->selected_box_height = scale * Character_height_in_pixels;
-    marker->x_menu_name = scale * Menu_name_x;
-    marker->y_menu_name = scale * Menu_name_y;
     marker->font_size = scale * Menu_window_font_size;
 }
 
@@ -127,7 +113,7 @@ static  DEF_EVENT_FUNCTION( handle_marker_resize )
 {
     display_struct  *marker_window, *three_d;
 
-    three_d = display->associated[THREE_D_WINDOW];
+    three_d = get_three_d_window(display);
     marker_window = three_d->associated[MARKER_WINDOW];
 
     initialize_marker_parameters( marker_window );
@@ -142,7 +128,7 @@ static  DEF_EVENT_FUNCTION( handle_marker_resize )
     display_struct    *marker_window)
 {
     VIO_Status           status;
-    menu_window_struct   *marker;
+    marker_window_struct *marker;
     VIO_Point            position;
     model_struct         *model;
     int                  ch, i, dir, len;

@@ -31,10 +31,10 @@ typedef  struct
 } position_struct;
 
 static   position_struct   positions[] = {
-                           {(int) LEFT_ARROW_KEY, "<", 6.5, 0.0, 0.5, FALSE},
-                           {(int) DOWN_ARROW_KEY, "v", 7.0, 0.0, 0.5, FALSE},
-                           {(int) RIGHT_ARROW_KEY, ">", 7.5, 0.0, 0.5, FALSE},
-                           {(int) UP_ARROW_KEY, "^", 7.0, 1.0, 0.5, FALSE},
+                           {(int) LEFT_ARROW_KEY, "<", 7.0, 0.0, 0.6, FALSE},
+                           {(int) DOWN_ARROW_KEY, "v", 7.6, 0.0, 0.6, FALSE},
+                           {(int) RIGHT_ARROW_KEY, ">", 8.2, 0.0, 0.6, FALSE},
+                           {(int) UP_ARROW_KEY, "^", 7.6, 1.0, 0.6, FALSE},
 
                            {' ', "space", 1.0, 0.0, 3.0, FALSE },
 
@@ -70,9 +70,9 @@ static   position_struct   positions[] = {
                            {'6', "6", 5.0, 4.0, 1.0, TRUE },
                            {'7', "7", 6.0, 4.0, 1.0, TRUE },
 
-                           {'+', "+", 7.2, 2.0, 0.4, TRUE },
-                           {'=', "=", 0.0, 0.0, 0.0, TRUE },
-                           {'-', "-", 7.7, 2.0, 0.4, TRUE }
+                           {'+', "+", 7.6, 2.0, 0.6, TRUE },
+                           {'=', "=", 0.0, 0.0, 0.0, TRUE }, /* Invisible? */
+                           {'-', "-", 8.3, 2.0, 0.6, TRUE }
                          };
 
 static  void   create_menu_text(

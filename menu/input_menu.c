@@ -349,16 +349,17 @@ static  action_lookup_struct   actions[] = {
 
 typedef  struct
 {
-    VIO_BOOL            permanent_flag;
+    VIO_BOOL           permanent_flag;
     int                key;
-    VIO_STR             action_name;
-    VIO_STR             label;
+    VIO_STR            action_name;
+    VIO_STR            label;
+    VIO_STR            help_text;
     menu_entry_struct  *menu_entry;
 }  key_action_struct;
 
 typedef  struct
 {
-    VIO_STR              menu_name;
+    VIO_STR             menu_name;
     int                 n_entries;
     key_action_struct   *entries;
 } menu_definition_struct;
@@ -464,6 +465,9 @@ static  VIO_Status  input_key_action(
     if( status == VIO_OK )
         status = input_quoted_string( file, &action->label );
 
+    if( status == VIO_OK )
+        status = input_quoted_string( file, &action->help_text );
+
     return( status );
 }
 
@@ -534,6 +538,7 @@ static  VIO_Status  input_menu_entry(
                 else
                 {
                     print( "Expected permanent or transient.\n" );
+                    print( " Got: %s (%s) %d\n", permanent_string, menu_entry->menu_name, menu_entry->n_entries);
                     status = VIO_ERROR;
                 }
             }
@@ -579,6 +584,7 @@ static  void  free_input_menu(
                 {
                     delete_string( menus[i].entries[j].action_name );
                     delete_string( menus[i].entries[j].label );
+                    delete_string( menus[i].entries[j].help_text );
                 }
 
                 FREE( menus[i].entries );
@@ -618,6 +624,8 @@ static  void  create_menu(
             menu->entries[entry_index].key = menus[i].entries[c].key;
             menu->entries[entry_index].label = create_string(
                                                  menus[i].entries[c].label );
+            menu->entries[entry_index].help_text = create_string(
+                                                                 menus[i].entries[c].help_text );
             ++entry_index;
         }
     }

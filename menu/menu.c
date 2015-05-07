@@ -1,5 +1,7 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/** \file menu.c
+ * \brief Event handling for the menu.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,23 +12,20 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
 static    DEF_EVENT_FUNCTION( handle_character_down );
 static    DEF_EVENT_FUNCTION( handle_character_up );
 static    DEF_EVENT_FUNCTION( handle_leaving_window );
+
 static    DEF_EVENT_FUNCTION( left_mouse_press );
 static    DEF_EVENT_FUNCTION( middle_mouse_press );
+static    DEF_EVENT_FUNCTION( handle_mouse_position );
 
 static  void  turn_off_menu_entry(
     menu_window_struct  *menu,
@@ -43,6 +42,9 @@ static  VIO_Status  handle_mouse_press_in_menu(
     VIO_Real                y );
 static  void  update_menu_name_text(
     display_struct   *menu_window );
+
+static VIO_BOOL update_menu_help_text(
+    display_struct   *menu_window, VIO_STR help_text );
 
 static  void  set_menu_key_entry(
     menu_window_struct     *menu,
@@ -146,11 +148,8 @@ static  void  initialize_menu_parameters(
     menu->y_menu_origin = scale * Y_menu_origin;
     menu->cursor_pos_x_origin = scale * Cursor_pos_x_origin;
     menu->cursor_pos_y_origin = scale * Cursor_pos_y_origin;
-    menu->selected_x_origin = scale * Selected_x_origin;
-    menu->selected_y_origin = scale * Selected_y_origin;
-    menu->selected_x_offset = scale * Selected_box_x_offset;
-    menu->selected_y_offset = scale * Selected_box_y_offset;
-    menu->selected_box_height = scale * Character_height_in_pixels;
+    menu->help_x_origin = scale * 640;
+    menu->help_y_origin = scale * 220;
     menu->x_menu_name = scale * Menu_name_x;
     menu->y_menu_name = scale * Menu_name_y;
     menu->font_size = scale * Menu_window_font_size;
@@ -162,7 +161,7 @@ static  DEF_EVENT_FUNCTION( handle_menu_resize )
 {
     display_struct  *menu_window, *three_d;
 
-    three_d = display->associated[THREE_D_WINDOW];
+    three_d = get_three_d_window(display);
     menu_window = three_d->associated[MENU_WINDOW];
 
     initialize_menu_parameters( menu_window );
@@ -306,12 +305,28 @@ static VIO_STR default_menu_string =
 
     update_menu_name_text( menu_window );
 
+    for (i = 0; i < N_HELP_LINES; i++)
+    {
+      menu->menu_help_text[i] = create_object( TEXT );
+      fill_Point( position, menu->help_x_origin, menu->help_y_origin - (i * menu->font_size), 0.0);
+      initialize_text( get_text_ptr(menu->menu_help_text[i]), &position,
+                       WHITE, (Font_types) Menu_name_font,
+                       menu->font_size );
+      add_object_to_model( model, menu->menu_help_text[i] );
+    }
+
     rebuild_cursor_position_model( menu_window );
 
     return( status );
 }
 
-  void  initialize_menu_actions(
+/**
+ * This function is used to install handlers for actions in EVERY window, 
+ * so that we can intercept keys in each application window. As a result,
+ * the event functions have to assume they can be called in the context
+ * of any application window.
+ */
+void  initialize_menu_actions(
     display_struct    *menu_window )
 {
     add_action_table_function( &menu_window->action_table, KEY_DOWN_EVENT,
@@ -322,29 +337,54 @@ static VIO_STR default_menu_string =
                                handle_leaving_window );
 }
 
-  void  initialize_menu_window(
+/**
+ * This function is used to install handlers for actions in the menu window
+ * only. This handles mouse events, for example, within the menu.
+ */
+void  initialize_menu_window(
     display_struct    *menu_window )
 {
     add_action_table_function( &menu_window->action_table,
                                LEFT_MOUSE_DOWN_EVENT, left_mouse_press );
     add_action_table_function( &menu_window->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT, middle_mouse_press );
+    add_action_table_function( &menu_window->action_table, NO_EVENT,
+                               handle_mouse_position );
+}
+
+static  DEF_EVENT_FUNCTION( handle_mouse_position )
+{
+    int x, y;
+
+    if( G_get_mouse_position( display->window, &x, &y ) )
+    {
+        int key;
+        menu_entry_struct *menu_entry;
+        if( lookup_key_for_mouse_position( display, x, y, &key ) &&
+            (menu_entry = get_menu_key_entry( &display->menu, key )) != NULL)
+        {
+          if (update_menu_help_text(display, menu_entry->help_text))
+          {
+            set_update_required( display, NORMAL_PLANES );
+          }
+        }
+        else
+        {
+          if (update_menu_help_text(display, "Hover over a virtual key for help.")) 
+          {
+            set_update_required( display, NORMAL_PLANES );
+          }
+        }
+    }
 }
 
 /* ARGSUSED */
 
 static  DEF_EVENT_FUNCTION( handle_character_down )
 {
-    VIO_Status             status;
-    display_struct     *menu_window;
+    display_struct  *menu_window = display->associated[MENU_WINDOW];
 
-    status = VIO_OK;
-
-    menu_window = display->associated[MENU_WINDOW];
-
-    status = handle_menu_for_key( menu_window, key_pressed );
-
-    return( status );
+    return handle_menu_for_key( menu_window, key_pressed );
 }
 
 /* ARGSUSED */
@@ -394,7 +434,7 @@ static  VIO_Status  process_menu(
 
     function = menu_entry->action;
 
-    status = (*function)( display->associated[THREE_D_WINDOW],
+    status = (*function)( get_three_d_window(display),
                           display->associated[MENU_WINDOW],
                           menu_entry );
 
@@ -432,17 +472,13 @@ static  DEF_EVENT_FUNCTION( middle_mouse_press )
 
 static  VIO_Status  handle_mouse_press_in_menu(
     display_struct      *menu_window,
-    VIO_Real                x,
-    VIO_Real                y )
+    VIO_Real            x,
+    VIO_Real            y )
 {
-    display_struct      *three_d;
-    VIO_Status              status;
+    VIO_Status          status;
     int                 key;
-    object_struct       *object, *current;
 
     status = VIO_OK;
-
-    three_d = get_three_d_window( menu_window );
 
     if( lookup_key_for_mouse_position( menu_window, x, y, &key ) )
     {
@@ -453,20 +489,17 @@ static  VIO_Status  handle_mouse_press_in_menu(
 }
 
   void  update_menu_text(
-    display_struct      *display,
+    display_struct      *menu_window,
     menu_entry_struct   *menu_entry )
 {
-    VIO_Colour                  colour;
+    VIO_Colour              colour;
     int                     i;
-    VIO_BOOL                 active;
+    VIO_BOOL                active;
     menu_update_pointer     update_function;
-    display_struct          *menu_window;
-
-    menu_window = display->associated[MENU_WINDOW];
 
     update_function = menu_entry->update_action;
 
-    active = (*update_function)( display->associated[THREE_D_WINDOW],
+    active = (*update_function)( get_three_d_window(menu_window),
                                  menu_window, menu_entry );
 
     menu_entry->is_active = active;
@@ -625,7 +658,7 @@ static  VIO_Status  handle_mouse_press_in_menu(
         menu_entry = get_menu_key_entry( &menu_window->menu, key );
 
         if( menu_entry != (menu_entry_struct *) 0 )
-            update_menu_text( display, menu_entry );
+            update_menu_text( menu_window, menu_entry );
     }
 
     set_update_required( menu_window, NORMAL_PLANES );
@@ -648,4 +681,73 @@ static  void  update_menu_name_text(
 
     if( !equal_strings( text->string, new_value ) )
         replace_string( &text->string, create_string(new_value) );
+}
+
+static int truncate_to_at_most(char *str_ptr, int max_length)
+{
+  int length = strlen(str_ptr);
+  if (length < max_length)
+  {
+    return length;
+  }
+  else
+  {
+    while (--max_length >= 0)
+    {
+      if (str_ptr[max_length] == ' ') {
+        break;
+      }
+    }
+  }
+  return max_length;
+}
+
+#define MAX_LINE_LENGTH 40      /* This is determined by trial and error. */
+
+static VIO_BOOL update_menu_help_text(
+    display_struct *menu_window, VIO_STR new_value)
+{
+    text_struct *text;
+    char buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
+    int i;
+    VIO_BOOL changed = FALSE;
+    int remaining_length = string_length(new_value);
+    char *buf_ptr = &buffer[0];
+    menu_window_struct  *menu = &menu_window->menu;
+
+    strcpy(buffer, new_value);
+
+    for (i = 0; i < N_HELP_LINES; i++) 
+    {
+      int k;
+
+      if (remaining_length > MAX_LINE_LENGTH)
+      {
+        k = truncate_to_at_most(buf_ptr, MAX_LINE_LENGTH);
+        buf_ptr[k++] = '\0';
+      }
+      else
+      {
+        k = remaining_length;
+      } 
+
+      text = get_text_ptr( menu->menu_help_text[i] );
+
+      fill_Point( text->origin, 
+                  menu->help_x_origin, /* X */
+                  menu->help_y_origin - i * menu->font_size, /* Y */
+                  0.0 );
+
+      text->size = menu->font_size;
+
+      if( !equal_strings( text->string, buf_ptr ) )
+      {
+        replace_string( &text->string, create_string(buf_ptr) );
+        changed = TRUE;
+      }
+
+      buf_ptr += k;
+      remaining_length -= k;
+    }
+    return changed;
 }
