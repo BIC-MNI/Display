@@ -227,6 +227,7 @@ static  VIO_Status  handle_mouse_press_in_marker(
             set_current_object( three_d, object );
 
         rebuild_selected_list( three_d, three_d->associated[MARKER_WINDOW]);
+        update_all_menu_text( three_d );
     }
     return( status );
 }
