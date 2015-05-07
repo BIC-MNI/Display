@@ -194,6 +194,8 @@ static  DEF_EVENT_FUNCTION( left_mouse_down )
     return( VIO_OK );
 }
 
+#define OPACITY_DELTA 0.08
+
 static  DEF_EVENT_FUNCTION( scroll_down )
 {
     int          view_index;
@@ -203,7 +205,21 @@ static  DEF_EVENT_FUNCTION( scroll_down )
 
     if( get_slice_view_index_under_mouse( display, &view_index ) )
     {
-        scale_slice_view( display, view_index, 1.0/(1.1) );
+        if (is_ctrl_key_pressed() )
+        {
+          int volume_index = get_current_volume_index( display );
+          VIO_Real opacity = display->slice.volumes[volume_index].opacity;
+          opacity -= OPACITY_DELTA;
+          if (opacity < 0.0)
+          {
+              opacity = 0.0;
+          }
+          set_volume_opacity(display, volume_index, opacity);
+        }
+        else
+        {
+            scale_slice_view( display, view_index, 1.0/(1.1) );
+        }
     }
     return( VIO_OK );
 }
@@ -217,7 +233,21 @@ static  DEF_EVENT_FUNCTION( scroll_up )
 
     if( get_slice_view_index_under_mouse( display, &view_index ) )
     {
-        scale_slice_view( display, view_index, 1.1 );
+        if (is_ctrl_key_pressed() )
+        {
+          int volume_index = get_current_volume_index( display );
+          VIO_Real opacity = display->slice.volumes[volume_index].opacity;
+          opacity += OPACITY_DELTA;
+          if (opacity > 1.0)
+          {
+              opacity = 1.0;
+          }
+          set_volume_opacity(display, volume_index, opacity);
+        }
+        else
+        {
+            scale_slice_view( display, view_index, 1.1 );
+        }
     }
     return( VIO_OK );
 }
