@@ -1,5 +1,5 @@
 /** \file menu.c
- * \brief Event handling for the menu.
+ * \brief Event handling for the menu window.
  *
  * \copyright
               Copyright 1993,1994,1995 David MacDonald,
@@ -380,6 +380,12 @@ static  DEF_EVENT_FUNCTION( handle_mouse_position )
 
 /* ARGSUSED */
 
+/** 
+ * This function is somewhat unusual in that it can be called from a 
+ * variety of contexts (windows), so we can't count on the callback
+ * window being the menu window. So we do need to get the menu window
+ * as the first thing.
+ */
 static  DEF_EVENT_FUNCTION( handle_character_down )
 {
     display_struct  *menu_window = display->associated[MENU_WINDOW];
@@ -488,7 +494,12 @@ static  VIO_Status  handle_mouse_press_in_menu(
     return( status );
 }
 
-  void  update_menu_text(
+/** 
+ * Given a pointer to the menu window and menu entry, this function
+ * will call the update function for this menu entry. This will update
+ * the appearance and active status of the menu item.
+ */
+void  update_menu_text(
     display_struct      *menu_window,
     menu_entry_struct   *menu_entry )
 {
@@ -515,7 +526,7 @@ static  VIO_Status  handle_mouse_press_in_menu(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( push_menu )
+DEF_MENU_FUNCTION( push_menu )
 {
     VIO_Status   status;
 
@@ -554,14 +565,14 @@ static  VIO_Status  handle_mouse_press_in_menu(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(push_menu )
+DEF_MENU_UPDATE(push_menu )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( pop_menu )
+DEF_MENU_FUNCTION( pop_menu )
 {
     pop_menu_one_level( menu_window );
 
@@ -570,12 +581,12 @@ static  VIO_Status  handle_mouse_press_in_menu(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(pop_menu )
+DEF_MENU_UPDATE(pop_menu )
 {
     return( menu_window->menu.depth > 0 );
 }
 
-  void  pop_menu_one_level(
+void  pop_menu_one_level(
     display_struct   *menu_window )
 {
     if( menu_window->menu.depth > 0 )
@@ -594,7 +605,7 @@ static  VIO_Status  handle_mouse_press_in_menu(
     }
 }
 
-  void   set_menu_text(
+void   set_menu_text(
     display_struct      *menu_window,
     menu_entry_struct   *menu_entry,
     VIO_STR              text )
@@ -643,7 +654,13 @@ static  VIO_Status  handle_mouse_press_in_menu(
     set_update_required( menu_window, NORMAL_PLANES );
 }
 
-  void  update_all_menu_text(
+/**
+ * This function will update the menu text for each of the 
+ * menu items.
+ *
+ * \param display Any of the top-level display_struct objects.
+ */
+void  update_all_menu_text(
     display_struct   *display )
 {
     int                 key;

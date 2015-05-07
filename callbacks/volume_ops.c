@@ -1,6 +1,7 @@
 /**
  * \file volume_ops.c
  * \brief Menu commands for manipulating and navigating voxel data.
+ *
  * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,

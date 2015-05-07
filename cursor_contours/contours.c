@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ \file cursor_contours/contours.c
+ \brief Show current slice position as a contour on the 3D model.
+
+ \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -38,7 +36,7 @@ static  void   initialize_contour(
 static  void   start_new_axis(
     display_struct   *display );
 
-  void  initialize_cursor_plane_outline(
+void  initialize_cursor_plane_outline(
     display_struct    *display )
 {
     add_action_table_function( &display->action_table, NO_EVENT,
@@ -53,7 +51,7 @@ static  void   start_new_axis(
     make_cursor_contours( display );
 }
 
-  void  delete_cursor_plane_outline(
+void  delete_cursor_plane_outline(
     display_struct    *display )
 {
     if( display->three_d.cursor_contours.object_traverse.top_of_stack > 0 )
