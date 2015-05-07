@@ -429,6 +429,7 @@ static  void  alloc_colour_table(
     }
     change_colour_coding_range( slice_window, volume_index,
                                 low_limit, high_limit );
+    FREE( histo_counts );
 }
 
   VIO_Volume  get_nth_label_volume(
