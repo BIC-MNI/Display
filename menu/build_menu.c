@@ -72,6 +72,8 @@ static   position_struct   positions[] = {
 
                            {'+', "+", 7.6, 2.0, 0.6, TRUE },
                            {'=', "=", 0.0, 0.0, 0.0, TRUE }, /* Invisible? */
+                           {'>', ">", 0.0, 0.0, 0.0, TRUE }, /* Invisible? */
+                           {'<', "<", 0.0, 0.0, 0.0, TRUE }, /* Invisible? */
                            {'-', "-", 8.3, 2.0, 0.6, TRUE },
 
                            {BICGL_F1_KEY, "F1", 0, 0, 0, FALSE },
