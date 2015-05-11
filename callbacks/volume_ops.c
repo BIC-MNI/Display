@@ -31,34 +31,36 @@ change_current_time_by_one(
     VIO_Real        voxel[VIO_MAX_DIMENSIONS];
     VIO_Real        separations[VIO_MAX_DIMENSIONS];
     int             sizes[VIO_MAX_DIMENSIONS];
-    int             axis_index;
     int             volume_index;
 
-    if( get_slice_window( display, &slice_window ) &&
-        get_axis_index_under_mouse( display, &volume_index, &axis_index ) )
+    if( get_slice_window( display, &slice_window ))
     {
-        volume = get_nth_volume( slice_window, volume_index );
-        get_volume_sizes( volume, sizes );
-        get_volume_separations( volume, separations );
-
-        if( separations[VIO_T] < 0.0 )
-            delta = -delta;
-
-        get_current_voxel( slice_window, volume_index, voxel );
-
-        voxel[VIO_T] = (VIO_Real) VIO_ROUND( voxel[VIO_T] + (VIO_Real) delta );
-
-        if( voxel[VIO_T] < 0.0 )
-            voxel[VIO_T] = 0.0;
-        else if( voxel[VIO_T] > (VIO_Real) sizes[VIO_T] - 1.0 )
-            voxel[VIO_T] = (VIO_Real) sizes[VIO_T] - 1.0;
-
-        if( set_current_voxel( slice_window, volume_index, voxel ))
+        volume_index = get_current_volume_index( slice_window );
+        if (volume_index >= 0)
         {
-            if( update_cursor_from_voxel( slice_window ) )
+            volume = get_nth_volume( slice_window, volume_index );
+            get_volume_sizes( volume, sizes );
+            get_volume_separations( volume, separations );
+
+            if( separations[VIO_T] < 0.0 )
+                delta = -delta;
+
+            get_current_voxel( slice_window, volume_index, voxel );
+
+            voxel[VIO_T] = (VIO_Real) VIO_ROUND( voxel[VIO_T] + (VIO_Real) delta );
+
+            if( voxel[VIO_T] < 0.0 )
+                voxel[VIO_T] = 0.0;
+            else if( voxel[VIO_T] > (VIO_Real) sizes[VIO_T] - 1.0 )
+                voxel[VIO_T] = (VIO_Real) sizes[VIO_T] - 1.0;
+
+            if( set_current_voxel( slice_window, volume_index, voxel ))
             {
-                set_update_required( get_three_d_window(slice_window),
-                                     get_cursor_bitplanes() );
+                if( update_cursor_from_voxel( slice_window ) )
+                {
+                    set_update_required( get_three_d_window(slice_window),
+                                         get_cursor_bitplanes() );
+                }
             }
         }
     }
