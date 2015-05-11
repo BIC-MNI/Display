@@ -186,9 +186,15 @@ DEF_MENU_FUNCTION(toggle_slice_visibility)
         get_n_volumes(slice_window) > 0 &&
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
-        volume_index = get_current_volume_index( slice_window );
-        set_slice_visibility( slice_window, volume_index, view_index,
-                !get_slice_visibility(slice_window,volume_index,view_index) );
+
+        for (volume_index = 0; volume_index < get_n_volumes(slice_window); 
+             volume_index++)
+        {
+            VIO_BOOL is_vis = get_slice_visibility(slice_window, volume_index, 
+                                                   view_index);
+            set_slice_visibility( slice_window, volume_index, view_index,
+                                  !is_vis );
+        }
     }
 
     return( VIO_OK );
