@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/** 
+ * \file slice_window/view.c
+ * \brief Create and maintain views of the slice window.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,19 +13,18 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#ifndef lint
-
-#endif
-
-
 #include  <display.h>
-#define ORTHOGONAL_SLICE_EPSILON 1e-5f
+/**
+ * Sets the maximum size of a direction cosine before it is considered to
+ * contribute too much to the vector to be considered "orthogonal."
+ */
+#define ORTHOGONAL_SLICE_EPSILON 1.5e-2f
 
 static  void  update_all_slice_axes(
     display_struct    *slice_window,
@@ -37,56 +39,41 @@ static  void  set_orthogonal_slice_window_view(
     int      axis;
     VIO_Real     cosine, sine;
     VIO_Real     separations[VIO_MAX_DIMENSIONS];
+    struct volume_view_struct *volume_view_ptr;
+
+    volume_view_ptr = &slice_window->slice.volumes[volume_index].views[view];
 
     for_less( axis, 0, VIO_N_DIMENSIONS )
     {
-        slice_window->slice.volumes[volume_index].views[view].x_axis[axis]
-                                                           = 0.0;
-        slice_window->slice.volumes[volume_index].views[view].y_axis[axis]
-                                                           = 0.0;
+        volume_view_ptr->x_axis[axis] = 0.0;
+        volume_view_ptr->y_axis[axis] = 0.0;
     }
 
-    get_volume_separations( get_nth_volume(slice_window,volume_index),
+    get_volume_separations( get_nth_volume(slice_window, volume_index),
                             separations );
 
     switch( view )
     {
     case 0:
-        slice_window->slice.volumes[volume_index].views[0].
-        x_axis[Slice_view1_axis1] = VIO_FSIGN(separations[Slice_view1_axis1]);
-        slice_window->slice.volumes[volume_index].views[0].
-        y_axis[Slice_view1_axis2] = VIO_FSIGN(separations[Slice_view1_axis2]);
+        volume_view_ptr->x_axis[Slice_view1_axis1] = 
+          VIO_FSIGN(separations[Slice_view1_axis1]);
+        volume_view_ptr->y_axis[Slice_view1_axis2] = 
+          VIO_FSIGN(separations[Slice_view1_axis2]);
         break;
 
     case 1:
-        slice_window->slice.volumes[volume_index].views[1].
-        x_axis[Slice_view2_axis1] = VIO_FSIGN(separations[Slice_view2_axis1]);
-        slice_window->slice.volumes[volume_index].views[1].
-        y_axis[Slice_view2_axis2] = VIO_FSIGN(separations[Slice_view2_axis2]);
+        volume_view_ptr->x_axis[Slice_view2_axis1] = 
+          VIO_FSIGN(separations[Slice_view2_axis1]);
+        volume_view_ptr->y_axis[Slice_view2_axis2] = 
+          VIO_FSIGN(separations[Slice_view2_axis2]);
         break;
 
     case 2:
-        slice_window->slice.volumes[volume_index].views[2].
-        x_axis[Slice_view3_axis1] = VIO_FSIGN(separations[Slice_view3_axis1]);
-        slice_window->slice.volumes[volume_index].views[2].
-        y_axis[Slice_view3_axis2] = VIO_FSIGN(separations[Slice_view3_axis2]);
-        break;
-
     case 3:
-        cosine = cos( 45.0 * VIO_DEG_TO_RAD );
-        sine = sin( 45.0 * VIO_DEG_TO_RAD );
-
-        slice_window->slice.volumes[volume_index].
-                    views[3].x_axis[VIO_X] = cosine * VIO_FSIGN(separations[VIO_X]);
-        slice_window->slice.volumes[volume_index].
-                    views[3].x_axis[VIO_Y] = sine * VIO_FSIGN(separations[VIO_Y]);
-        slice_window->slice.volumes[volume_index].views[3].x_axis[VIO_Z] = 0.0;
-
-        slice_window->slice.volumes[volume_index].
-                    views[3].y_axis[VIO_X] = -sine * VIO_FSIGN(separations[VIO_X]);
-        slice_window->slice.volumes[volume_index].
-                    views[3].y_axis[VIO_Y] = cosine * VIO_FSIGN(separations[VIO_Y]);
-        slice_window->slice.volumes[volume_index].views[3].y_axis[VIO_Z] = 0.0;
+        volume_view_ptr->x_axis[Slice_view3_axis1] = 
+          VIO_FSIGN(separations[Slice_view3_axis1]);
+        volume_view_ptr->y_axis[Slice_view3_axis2] = 
+          VIO_FSIGN(separations[Slice_view3_axis2]);
         break;
     }
 }
@@ -403,9 +390,6 @@ static  void  match_view_scale_and_translation(
 
     for_less( volume_index, 0, slice_window->slice.n_volumes )
     {
-        if( !get_slice_visibility( slice_window, volume_index, view ) )
-            continue;
-
         get_slice_plane( slice_window, volume_index, view,
                          origin, x_axis, y_axis );
 

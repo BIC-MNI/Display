@@ -103,7 +103,7 @@ typedef  struct
     VIO_Real               opacity;
     VIO_Real               current_voxel[VIO_MAX_DIMENSIONS];
 
-    struct
+    struct volume_view_struct
     {
         VIO_BOOL               visibility;
         int                    n_pixels_alloced;
