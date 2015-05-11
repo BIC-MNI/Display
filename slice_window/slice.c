@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file slice.c
+ * \brief Basic functions for creating the slice window.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,16 +13,11 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -232,6 +230,9 @@ static  void  delete_slice_window_volume_stuff(
     delete_crop_box( slice_window );
 }
 
+/**
+ * Get the file name associated with a particular volume index.
+ */
   VIO_STR  get_volume_filename(
     display_struct    *slice_window,
     int               volume_index )
@@ -239,15 +240,21 @@ static  void  delete_slice_window_volume_stuff(
     return( slice_window->slice.volumes[volume_index].filename );
 }
 
+/**
+ * Creates the slice window if it does not already exist, then adds a
+ * new volume to the slice window.
+ */
   void  add_slice_window_volume(
     display_struct    *display,
     VIO_STR            filename,
     VIO_Volume            volume )
 {
     display_struct         *slice_window;
-    int                    volume_index, axis, view, sizes[VIO_MAX_DIMENSIONS];
+    int                    new_volume_index;
+    int                    cur_volume_index;
+    int                    axis, view, sizes[VIO_MAX_DIMENSIONS];
     loaded_volume_struct   *info;
-    VIO_Real                   current_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real               current_voxel[VIO_MAX_DIMENSIONS];
 
     if( !slice_window_exists(display) )
     {
@@ -261,18 +268,28 @@ static  void  delete_slice_window_volume_stuff(
                     slice_window->slice.n_volumes,
                     slice_window->slice.n_volumes+1, 1 );
 
-    ++slice_window->slice.n_volumes;
-    volume_index = slice_window->slice.n_volumes-1;
-    info = &slice_window->slice.volumes[volume_index];
+    new_volume_index = slice_window->slice.n_volumes++;
+    info = &slice_window->slice.volumes[new_volume_index];
 
     info->volume = volume;
     copy_general_transform( get_voxel_to_world_transform(volume),
                             &info->original_transform );
     info->filename = create_string( filename );
     info->display_labels = Initial_display_labels;
-    info->opacity = 1.0;
 
     get_volume_sizes( volume, sizes );
+
+    /* The first volume is always opaque. However, subsequent volumes are
+     * not. That way the user can see she has loaded multiple volumes.
+     */
+    if (new_volume_index == 0)
+    {
+        info->opacity = 1.0;
+    }
+    else
+    {
+        info->opacity = 0.66;
+    }
 
     for_less( view, 0, N_SLICE_VIEWS )
     {
@@ -286,10 +303,13 @@ static  void  delete_slice_window_volume_stuff(
         info->views[view].update_in_progress[1] = FALSE;
     }
 
-    initialize_slice_models_for_volume( slice_window, volume_index );
-    initialize_slice_colour_coding( slice_window, volume_index );
-    initialize_slice_window_view( slice_window, volume_index );
+    initialize_slice_models_for_volume( slice_window, new_volume_index );
+    initialize_slice_colour_coding( slice_window, new_volume_index );
+    initialize_slice_window_view( slice_window, new_volume_index );
 
+    /* Set the initial voxel position. Normally this is set to the centre
+     * of the first loaded volume in voxel space.
+     */
     if( slice_window->slice.n_volumes == 1 )
     {
         for_less( axis, 0, VIO_N_DIMENSIONS )
@@ -298,21 +318,17 @@ static  void  delete_slice_window_volume_stuff(
     }
     else
     {
-        get_current_voxel( slice_window, get_current_volume_index(slice_window),
-                           current_voxel );
+        cur_volume_index = get_current_volume_index(slice_window);
+        get_current_voxel( slice_window, cur_volume_index, current_voxel );
 
         for_less( axis, 0, VIO_N_DIMENSIONS )
-            slice_window->slice.volumes[slice_window->slice.n_volumes - 1].
-                              current_voxel[axis] = -1.0e20;
+            slice_window->slice.volumes[new_volume_index].current_voxel[axis] = -1.0e20;
 
-        (void) set_current_voxel( slice_window,
-                                  get_current_volume_index(slice_window),
-                                  current_voxel );
-        update_all_slice_axes_views( slice_window,
-                                     get_current_volume_index(slice_window) );
+        set_current_voxel( slice_window, cur_volume_index, current_voxel );
+        update_all_slice_axes_views( slice_window, cur_volume_index );
     }
 
-    set_current_volume_index( slice_window, slice_window->slice.n_volumes - 1 );
+    set_current_volume_index( slice_window, new_volume_index );
 
     set_slice_window_all_update( slice_window, -1, UPDATE_BOTH );
 }
@@ -444,23 +460,17 @@ static  void  delete_slice_window_volume_stuff(
   VIO_BOOL  slice_window_exists(
     display_struct   *display )
 {
-    return( display != (display_struct *) NULL &&
-            display->associated[SLICE_WINDOW] != (display_struct *) NULL );
+    return( display != NULL && display->associated[SLICE_WINDOW] != NULL );
 }
 
   VIO_BOOL  get_slice_window(
     display_struct   *display,
     display_struct   **slice_window )
 {
-    VIO_BOOL  exists;
+    VIO_BOOL exists = slice_window_exists(display);
 
-    exists = FALSE;
-
-    if( slice_window_exists( display ) )
-    {
+    if( exists)
         *slice_window = display->associated[SLICE_WINDOW];
-        exists = TRUE;
-    }
 
     return( exists );
 }
