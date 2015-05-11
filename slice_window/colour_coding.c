@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file slice_window/colour_coding.c
+ * \brief Functions to handle colour coding for the slice window.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,16 +13,11 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -285,151 +283,187 @@ static  void  alloc_colour_table(
                                               ptr - (int) min_voxel;
 }
 
-  void  initialize_slice_colour_coding(
+
+/**
+ * Sets the initial volume color coding contrast by calculating a
+ * histogram over the whole volume. This takes a while for larger
+ * volumes, so it should be automatically disabled if the volume
+ * is larger than some threshold.
+ */
+static VIO_BOOL
+calculate_contrast_from_histogram(VIO_Volume volume,
+                                  VIO_Real *low_limit, 
+                                  VIO_Real *high_limit)
+{
+  VIO_Real            min_value, max_value;
+  VIO_BOOL            low_limit_done, high_limit_done;
+  VIO_Real            delta;
+  VIO_Real            *histo_counts;
+  int                 bin_count;
+  int                 x, y, z;
+  int                 sizes[VIO_MAX_DIMENSIONS];
+  VIO_Real            sum_count;
+  size_t              count;
+  size_t              idx;
+  histogram_struct    histogram;
+  VIO_progress_struct progress;
+  VIO_Real            scale_factor, trans_factor;
+  size_t              n_voxels;
+
+  get_volume_real_range( volume, &min_value, &max_value );
+  get_volume_sizes( volume, sizes );
+
+  /*
+   * Check the number of voxels in the volume. Don't bother to perform
+   * this elaborate histogram-based calculation for very large volumes.
+   */
+  n_voxels = sizes[0];
+  for (idx = 1; idx < get_volume_n_dimensions(volume); idx++)
+  {
+    n_voxels *= sizes[idx];
+  }
+  if (n_voxels > 500000000)
+  {
+    return FALSE;
+  }
+        
+  delta = fabs( (max_value - min_value) / 1000.0 );
+        
+  if (delta < 1e-6) 
+    delta = 1e-6;
+        
+  initialize_histogram( &histogram, delta, min_value );
+
+  initialize_progress_report( &progress, FALSE, sizes[VIO_X] * sizes[VIO_Y],
+                              "Histogramming" );
+
+  for_less( x, 0, sizes[VIO_X] )
+  {
+    for_less( y, 0, sizes[VIO_Y] )
+    {
+      for_less( z, 0, sizes[VIO_Z] )
+      {
+        add_to_histogram( &histogram,
+                          get_volume_real_value( volume, x, y, z, 0, 0 ) );
+      }
+
+      update_progress_report( &progress, x * sizes[VIO_Y] + y + 1 );
+    }
+  }
+
+  terminate_progress_report( &progress );
+
+  bin_count = get_histogram_counts( &histogram, &histo_counts,
+                                    Default_filter_width, 
+                                    &scale_factor, &trans_factor );
+
+  sum_count = 0.0;
+  for_less( idx, Initial_histogram_low_clip_index, bin_count )
+    sum_count += (VIO_Real) histo_counts[idx];
+
+  count = 0;
+  low_limit_done = FALSE;
+  high_limit_done = FALSE;
+  for_less( idx, Initial_histogram_low_clip_index, bin_count )
+  {
+    if (!low_limit_done && (count / sum_count > Initial_histogram_low))
+    {
+      *low_limit = idx * histogram.delta + histogram.offset;
+      low_limit_done = TRUE;
+    }
+
+    if (count / sum_count >= Initial_histogram_high)
+    {
+      *high_limit = idx * histogram.delta + histogram.offset;
+      high_limit_done = TRUE;
+      break;
+    }
+    count += histo_counts[idx];
+  }
+
+  FREE(histo_counts);
+
+  if (!low_limit_done)
+    *low_limit = histogram.min_index * histogram.delta + histogram.offset;
+  
+  if (!high_limit_done)
+    *high_limit = (histogram.max_index + 1) * histogram.delta + histogram.offset;
+  delete_histogram(&histogram);
+  return TRUE;
+}
+
+/**
+ * Simple way to compute the initial contrast, without
+ * going to all the trouble to calculate a histogram.
+ */
+static void
+calculate_contrast_from_range(VIO_Volume volume,
+                              VIO_Real *low_limit,
+                              VIO_Real *high_limit)
+{
+  VIO_Real min_value, max_value;
+
+  get_volume_real_range( volume, &min_value, &max_value );
+
+  if (Initial_low_absolute_position >= 0)
+    *low_limit = Initial_low_absolute_position;
+  else
+    *low_limit = min_value + Initial_low_limit_position * (max_value - min_value);
+
+  if (Initial_high_absolute_position >= 0)
+    *high_limit = Initial_high_absolute_position;
+  else
+    *high_limit = min_value + Initial_high_limit_position * (max_value - min_value);
+}
+
+/**
+ * Set up the colour coding parameters for the slice view.
+ */
+void  initialize_slice_colour_coding(
     display_struct    *slice_window,
     int               volume_index )
 {
-    VIO_Real              low_limit, high_limit;
-    histogram_struct   histogram;
-    VIO_Volume             volume;
-    VIO_Real               *histo_counts;
-    VIO_Real               scale_factor, trans_factor;
-    int                nbbins, axis_index, voxel_index;
-    int                x, y, z, sizes[VIO_MAX_DIMENSIONS];
-    int                start[VIO_MAX_DIMENSIONS], end[VIO_MAX_DIMENSIONS];
-    int 			   sum_count, count, idx;
-    VIO_Real               min_value, max_value, value;
-    VIO_progress_struct    progress;
-    VIO_BOOL			   low_limit_done, high_limit_done;
-    VIO_Real                delta;
+    VIO_Real           low_limit, high_limit;
+    Colour_coding_types colour_coding_type = Initial_colour_coding_type;
+    loaded_volume_struct *loaded_volume_ptr;
+    VIO_Volume         volume;
 
+    /* For volumes after the first, adopt a different colour coding
+     * scheme than the default.
+     */
+    if (volume_index != 0 && colour_coding_type != SPECTRAL)
+    {
+        colour_coding_type = SPECTRAL;
+    }
 
-    initialize_colour_coding(
-           &slice_window->slice.volumes[volume_index].colour_coding,
-           (Colour_coding_types) Initial_colour_coding_type,
-           Colour_below, Colour_above, 0.0, 1.0 );
+    loaded_volume_ptr = &slice_window->slice.volumes[volume_index];
 
-    slice_window->slice.volumes[volume_index].label_colour_opacity =
-                                                        Label_colour_opacity;
-    slice_window->slice.volumes[volume_index].n_labels = Initial_num_labels;
+    initialize_colour_coding(&loaded_volume_ptr->colour_coding, 
+                             colour_coding_type,
+                             Colour_below, Colour_above, 0.0, 1.0 );
 
-    slice_window->slice.volumes[volume_index].offset = 0;
-    slice_window->slice.volumes[volume_index].colour_table = (VIO_Colour *) NULL;
-    slice_window->slice.volumes[volume_index].label_colour_table =
-                                                 (VIO_Colour *) NULL;
-    slice_window->slice.volumes[volume_index].labels = (VIO_Volume) NULL;
-
-    slice_window->slice.volumes[volume_index].labels_filename =
-                                       create_string( NULL );
+    loaded_volume_ptr->label_colour_opacity = Label_colour_opacity;
+    loaded_volume_ptr->n_labels = Initial_num_labels;
+    loaded_volume_ptr->offset = 0;
+    loaded_volume_ptr->colour_table = NULL;
+    loaded_volume_ptr->label_colour_table = NULL;
+    loaded_volume_ptr->labels = NULL;
+    loaded_volume_ptr->labels_filename = create_string( NULL );
 
     alloc_colour_table( slice_window, volume_index );
     rebuild_colour_table( slice_window, volume_index );
     create_colour_coding( slice_window, volume_index );
 
-    get_volume_real_range( get_nth_volume(slice_window,volume_index),
-                           &min_value, &max_value );
+    volume = get_nth_volume(slice_window, volume_index);
 
-    if( Initial_histogram_contrast ) {
-        volume = get_nth_volume( slice_window, volume_index );
-        get_volume_real_range( volume, &min_value, &max_value );
-        get_volume_sizes( volume, sizes );
-        
-        delta = fabs ( (max_value - min_value)/1000);
-        
-        if(delta<1e-6) 
-          delta=1e-6;
-        
-        initialize_histogram( &histogram, delta, min_value );
-        start[VIO_X] = 0;
-        end[VIO_X] = sizes[VIO_X];
-        start[VIO_Y] = 0;
-        end[VIO_Y] = sizes[VIO_Y];
-        start[VIO_Z] = 0;
-        end[VIO_Z] = sizes[VIO_Z];
-
-        axis_index = -1;
-        voxel_index = 0;
-
-        if( axis_index >= 0 && voxel_index >= 0 && voxel_index < sizes[axis_index] )
-        {
-            start[axis_index] = voxel_index;
-            end[axis_index] = voxel_index+1;
-        }
-
-        if( axis_index < 0 )
-        {
-            initialize_progress_report( &progress, FALSE, sizes[VIO_X] * sizes[VIO_Y],
-                                        "Histogramming" );
-        }
-        for_less( x, start[VIO_X], end[VIO_X] )
-        {
-            for_less( y, start[VIO_Y], end[VIO_Y] )
-            {
-                for_less( z, start[VIO_Z], end[VIO_Z] )
-                {
-                    {
-                        value = get_volume_real_value( volume, x, y, z, 0, 0 );
-                        add_to_histogram( &histogram, value );
-                    }
-                }
-
-                if( axis_index < 0 )
-                    update_progress_report( &progress, x * sizes[VIO_Y] + y + 1 );
-            }
-        }
-
-        if( axis_index < 0 )
-            terminate_progress_report( &progress );
-
-        nbbins = get_histogram_counts( &histogram, &histo_counts,
-        		Default_filter_width, &scale_factor, &trans_factor );
-
-        sum_count = 0;
-        for_less( idx, Initial_histogram_low_clip_index, nbbins )
-			sum_count += histo_counts[idx];
-
-		count = 0;
-		low_limit_done = FALSE;
-		high_limit_done = FALSE;
-		for_less( idx, Initial_histogram_low_clip_index, nbbins )
-		{
-			if (!(low_limit_done) && (count / (VIO_Real)sum_count > Initial_histogram_low))
-			{
-				low_limit = idx * histogram.delta + histogram.offset;
-				low_limit_done = TRUE;
-			}
-
-			if (count / (VIO_Real) sum_count >= Initial_histogram_high)
-			{
-				high_limit = idx * histogram.delta + histogram.offset;
-				high_limit_done = TRUE;
-				break;
-			}
-			count += histo_counts[idx];
-		}
-
-		if (!low_limit_done)
-			low_limit = histogram.min_index * histogram.delta + histogram.offset ;
-
-		if (!high_limit_done)
-			high_limit = (histogram.max_index + 1) * histogram.delta + histogram.offset ;
-        delete_histogram(&histogram);
-    }
-    else
+    if ( !Initial_histogram_contrast ||
+         !calculate_contrast_from_histogram(volume, &low_limit, &high_limit))
     {
-    	if (Initial_low_absolute_position >= 0)
-			low_limit = Initial_low_absolute_position;
-		else
-			low_limit = min_value + Initial_low_limit_position * (max_value - min_value);
-
-		if (Initial_high_absolute_position >= 0)
-			high_limit = Initial_high_absolute_position;
-		else
-			high_limit = min_value + Initial_high_limit_position * (max_value - min_value);
+        calculate_contrast_from_range(volume, &low_limit, &high_limit);
     }
-    change_colour_coding_range( slice_window, volume_index,
+
+    change_colour_coding_range( slice_window, volume_index, 
                                 low_limit, high_limit );
-    FREE( histo_counts );
 }
 
   VIO_Volume  get_nth_label_volume(
@@ -677,6 +711,10 @@ static  void  rebuild_colour_table(
     colour_coding_has_changed( slice_window, volume_index, UPDATE_SLICE );
 }
 
+/**
+ * Colour code each of the points associated with an object, by copying
+ * the encoded colours from an associated volume.
+ */
 static  void  colour_code_points(
     display_struct        *slice_window,
     int                   continuity,
