@@ -183,7 +183,6 @@ static  void  delete_slice_window_volume_stuff(
     delete_general_transform( &slice_window->slice.volumes[volume_index].
                               original_transform );
     delete_volume( slice_window->slice.volumes[volume_index].volume );
-    delete_slice_colour_coding( &slice_window->slice, volume_index );
     delete_slice_models_for_volume( slice_window, volume_index );
     delete_string( slice_window->slice.volumes[volume_index].filename );
 
