@@ -1,6 +1,7 @@
 /**
  * \file slice_window/colour_coding.c
- * \brief Functions to handle colour coding for the slice window.
+ * \brief Functions to handle colour coding and label volumes for the 
+ * slice window.
  *
  * \copyright
               Copyright 1993,1994,1995 David MacDonald,
@@ -29,6 +30,9 @@ static  void  rebuild_colour_table(
     display_struct    *slice_window,
     int               volume_index );
 
+/**
+ * Returns TRUE if the current volume shares its label volume with another volume.
+ */
 static  VIO_BOOL  is_shared_label_volume(
     slice_window_struct   *slice,
     int                   volume_index )
@@ -47,6 +51,10 @@ static  VIO_BOOL  is_shared_label_volume(
     return( FALSE );
 }
 
+/**
+ * Delete the current volume's labels if they both exist and are not
+ * shared with any other volume.
+ */
 static  void  delete_slice_labels(
     slice_window_struct   *slice,
     int                   volume_index )
@@ -81,6 +89,7 @@ static  void  delete_slice_labels(
     {
         ptr += (int) slice->volumes[volume_index].offset;
         FREE( ptr );
+        slice->volumes[volume_index].colour_table = NULL;
     }
 }
 
@@ -147,6 +156,11 @@ static  void  realloc_label_colour_table(
         set_colour_of_label( slice_window, volume_index, 255, BLACK );
 }
 
+/**
+ * Checks currently loaded volumes for a label volume that would be
+ * considered similar to the new volume, and can therefore be shared
+ * with it.
+ */
 static  VIO_BOOL  find_similar_labels(
     display_struct    *slice_window,
     int               volume_index,
@@ -236,13 +250,22 @@ static  void  create_colour_coding(
     }
     else
     {
-        slice->volumes[volume_index].labels = create_label_volume(
+        VIO_Volume labels = create_label_volume(
                           get_nth_volume( slice_window, volume_index ), type );
 
+        /* Constrain the label volume to only three dimensions.
+         * TODO: Is this really the right thing to do?
+         */
+        if (get_volume_n_dimensions(labels) > 3)
+        {
+            set_volume_n_dimensions(labels, 3);
+        }
+
+        slice->volumes[volume_index].labels = labels;
         slice->volumes[volume_index].labels_filename = create_string( NULL );
 
         set_volume_voxel_range( slice->volumes[volume_index].labels, 0.0,
-                            (VIO_Real) slice->volumes[volume_index].n_labels-1.0 );
+                                slice->volumes[volume_index].n_labels - 1.0 );
     }
 
     realloc_label_colour_table( slice_window, volume_index );
