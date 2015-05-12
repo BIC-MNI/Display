@@ -1,5 +1,14 @@
+2015-05-07  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * menu/<multiple>: Add simple help text for commands.
+   * menu/<multiple>: Removed menu commands for Magnify 3D,
+	Translate 3D, and Rotate 3D, as these functions are now
+	available directly using the mouse.
+
 2015-05-05  Robert D. Vincent <robert.d.vincent@mcgill.ca>
-   * <multiple>: Added support for scrolling events.
+   * <multiple>: Added support for scrolling events, scrolling now
+	changes the zoom level in 3D and slice windows.
+   * events/magnify.c: Allow translation of the 3D view using the right
+	mouse button.
 
 2015-04-27  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * main/main.c: Added version reporting for glut and OpenGL.
