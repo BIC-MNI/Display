@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file draw_slice.c
+ * \brief Drawing the slice window and its controls
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,14 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifndef lint
-
 #endif
 
 #include  <display.h>
@@ -1488,38 +1487,30 @@ static  int  render_slice_to_pixels(
     object_struct  *text_object;
     text_struct    *text;
     char           buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
-    VIO_STR         format;
+    VIO_STR        format;
     int            x_pos, y_pos;
     VIO_Real       current_voxel[VIO_MAX_DIMENSIONS];
     int            volume_index;
-    VIO_Volume     volume;
 
+    /*
+     * Get the model associated with this slice view.
+     */
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
+
+    /*
+     * Get the text object associated with the slice view model.
+     */
     text_object = model->objects[2 * slice_window->slice.n_volumes + TEXT_INDEX];
     volume_index = get_current_volume_index( slice_window );
-    volume = get_nth_volume(slice_window, volume_index);
-
-    axis_index = -1;
 
     /*
      * See if we need to display a voxel position.
-     * We use the X, Y, or Z axis if appropriate. For the oblique
-     * plane we adopt the convention of displaying the time axis
-     * position, if any.
+     * We use the X, Y, or Z axis if appropriate.
      */
-    if( get_n_volumes( slice_window ) != 0)
-    {
-        if (!slice_has_ortho_axes( slice_window, volume_index,
-                                   view_index, &x_index, &y_index, &axis_index ))
-        {
-            if (get_volume_n_dimensions(volume) > 3)
-            {
-               axis_index = VIO_T; /* Display the time position. */
-            }
-        }
-    }
-
-    if (axis_index >= 0)
+    if( volume_index >= 0 &&
+        get_slice_visibility(slice_window, volume_index, view_index) &&
+        slice_has_ortho_axes( slice_window, volume_index,
+                              view_index, &x_index, &y_index, &axis_index ))
     {
         set_object_visibility( text_object, TRUE );
 
@@ -1530,12 +1521,9 @@ static  int  render_slice_to_pixels(
         case VIO_X:  format = Slice_index_x_format;  break;
         case VIO_Y:  format = Slice_index_y_format;  break;
         case VIO_Z:  format = Slice_index_z_format;  break;
-        case VIO_T:  format = Slice_index_t_format;  break;
         }
 
-        get_current_voxel( slice_window,
-                           get_current_volume_index(slice_window),
-                           current_voxel );
+        get_current_voxel( slice_window, volume_index, current_voxel );
 
         (void) sprintf( buffer, format, current_voxel[axis_index] );
 

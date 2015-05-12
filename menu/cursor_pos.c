@@ -63,21 +63,27 @@ static  void  create_cursor_pos_text(
 }
 
 /**
- * Generates the text associated with the 
+ * Generates the text associated with the cursor position display
+ * in the menu window. This shows the current position in world 
+ * coordinates.
  */
   void  rebuild_cursor_position_model(
     display_struct    *display )
 {
     text_struct     *text;
     model_struct    *cursor_pos_model;
-    display_struct  *menu_window, *marker_window;
+    display_struct  *menu_window;
     char            buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
     display_struct  *three_d_window;
+    display_struct  *slice_window;
+    int             volume_index;
 
     three_d_window = get_three_d_window(display);
-    menu_window = display->associated[MENU_WINDOW];
-    marker_window = display->associated[MARKER_WINDOW];
 
+    if (!get_slice_window(display, &slice_window))
+        return;
+
+    menu_window = display->associated[MENU_WINDOW];
     if( menu_window == NULL )
         return;
 
@@ -104,8 +110,34 @@ static  void  create_cursor_pos_text(
                     Point_y(three_d_window->three_d.cursor.origin),
                     Point_z(three_d_window->three_d.cursor.origin) );
 
+    /*
+     * See if we need to display the time position. This is a more
+     * work than the position, as we will have to transform the 
+     * time correctly using starts and steps.
+     */
+    volume_index = get_current_volume_index(slice_window);
+    if (volume_index >= 0)
+    {
+        VIO_Volume volume = get_nth_volume(slice_window, volume_index);
+        if (get_volume_n_dimensions(volume) > 3)
+        {
+            VIO_Real voxel[VIO_MAX_DIMENSIONS];
+            VIO_Real starts[VIO_MAX_DIMENSIONS];
+            VIO_Real steps[VIO_MAX_DIMENSIONS];
+            char temp[64];
+
+            get_current_voxel(slice_window, volume_index, voxel);
+            get_volume_starts(volume, starts);
+            get_volume_separations(volume, steps);
+            
+            sprintf(temp, Cursor_time_format, 
+                    starts[VIO_T] + voxel[VIO_T] * steps[VIO_T]);
+            strcat(buffer, temp);
+        }
+    }
+    
+
     replace_string( &text->string, create_string(buffer) );
 
     set_update_required( menu_window, NORMAL_PLANES );
-    set_update_required( marker_window, NORMAL_PLANES );
 }

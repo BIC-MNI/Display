@@ -20,6 +20,9 @@
 
 #include  <display.h>
 
+/**
+ * Move the time coordinate forward or backward by \c delta.
+ */
 static void
 change_current_time_by_one(
                            display_struct   *display,
@@ -33,36 +36,40 @@ change_current_time_by_one(
     int             sizes[VIO_MAX_DIMENSIONS];
     int             volume_index;
 
-    if( get_slice_window( display, &slice_window ))
+    if( !get_slice_window( display, &slice_window ))
+        return;
+
+    volume_index = get_current_volume_index( slice_window );
+    if (volume_index < 0)
+        return;
+
+    volume = get_nth_volume( slice_window, volume_index );
+    get_volume_sizes( volume, sizes );
+    get_volume_separations( volume, separations );
+
+    /* Does time ever have a negative step size? I guess it's
+     * not impossible...
+     */
+    if( separations[VIO_T] < 0.0 )
+      delta = -delta;
+    
+    get_current_voxel( slice_window, volume_index, voxel );
+            
+    voxel[VIO_T] = VIO_ROUND( voxel[VIO_T] + delta );
+
+    /* Check that the time position stays in range.
+     */
+    if( voxel[VIO_T] < 0.0 )
+      voxel[VIO_T] = 0.0;
+
+    if( voxel[VIO_T] > sizes[VIO_T] - 1.0 )
+      voxel[VIO_T] = sizes[VIO_T] - 1.0;
+
+    if( set_current_voxel( slice_window, volume_index, voxel ) &&
+        update_cursor_from_voxel( slice_window ) )
     {
-        volume_index = get_current_volume_index( slice_window );
-        if (volume_index >= 0)
-        {
-            volume = get_nth_volume( slice_window, volume_index );
-            get_volume_sizes( volume, sizes );
-            get_volume_separations( volume, separations );
-
-            if( separations[VIO_T] < 0.0 )
-                delta = -delta;
-
-            get_current_voxel( slice_window, volume_index, voxel );
-
-            voxel[VIO_T] = (VIO_Real) VIO_ROUND( voxel[VIO_T] + (VIO_Real) delta );
-
-            if( voxel[VIO_T] < 0.0 )
-                voxel[VIO_T] = 0.0;
-            else if( voxel[VIO_T] > (VIO_Real) sizes[VIO_T] - 1.0 )
-                voxel[VIO_T] = (VIO_Real) sizes[VIO_T] - 1.0;
-
-            if( set_current_voxel( slice_window, volume_index, voxel ))
-            {
-                if( update_cursor_from_voxel( slice_window ) )
-                {
-                    set_update_required( get_three_d_window(slice_window),
-                                         get_cursor_bitplanes() );
-                }
-            }
-        }
+        set_update_required( get_three_d_window(slice_window), 
+                             get_cursor_bitplanes() );
     }
 }
 

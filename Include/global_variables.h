@@ -116,7 +116,6 @@ START_GLOBALS
     DEF_GLOBAL( Slice_index_x_format, VIO_STR, "X = %8g" )
     DEF_GLOBAL( Slice_index_y_format, VIO_STR, "Y = %8g" )
     DEF_GLOBAL( Slice_index_z_format, VIO_STR, "Z = %8g" )
-    DEF_GLOBAL( Slice_index_t_format, VIO_STR, "T = %8g" )
     DEF_GLOBAL( Slice_probe_volume_index_format, VIO_STR, "V# %6d" )
     DEF_GLOBAL( Slice_probe_x_voxel_format, VIO_STR, "Xv %6.1f" )
     DEF_GLOBAL( Slice_probe_y_voxel_format, VIO_STR, "Yv %6.1f" )
@@ -348,6 +347,7 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_pos_y_origin, VIO_Real, 30.0 )
     DEF_GLOBAL( Cursor_pos_title, VIO_STR, "Cursor Pos:" )
     DEF_GLOBAL( Cursor_pos_format, VIO_STR, "%.1f %.1f %.1f" )
+    DEF_GLOBAL( Cursor_time_format, VIO_STR, " %.1f" )
 
     DEF_GLOBAL_COLOUR( Unfinished_flag_colour )
     DEF_GLOBAL( Unfinished_flag_width, VIO_Real, 5.0 )

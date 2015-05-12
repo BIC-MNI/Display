@@ -1532,40 +1532,34 @@ static  void  get_voxel_axis_perpendicular(
     }
 }
 
-  VIO_BOOL  update_cursor_from_voxel(
+/**
+ * Given a new voxel position has been set, update the cursor
+ * position in world coordinates as well.
+ */
+VIO_BOOL  update_cursor_from_voxel(
     display_struct    *slice_window )
 {
-    VIO_Real              voxel[VIO_MAX_DIMENSIONS];
-    VIO_Real              x_w, y_w, z_w;
-    VIO_BOOL           changed;
-    VIO_Point             new_origin;
+    VIO_Real          voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real          x_w, y_w, z_w;
     display_struct    *display;
+    int               volume_index;
 
-    if( get_n_volumes(slice_window) == 0 )
-        return( FALSE );
+    volume_index = get_current_volume_index(slice_window);
+    if (volume_index < 0)
+        return FALSE;
 
     display = get_three_d_window( slice_window );
 
-    get_current_voxel( slice_window, get_current_volume_index(slice_window),
-                       voxel );
+    get_current_voxel( slice_window, volume_index, voxel );
 
-    convert_voxel_to_world( get_volume(slice_window), voxel, &x_w, &y_w, &z_w );
-    fill_Point( new_origin, x_w, y_w, z_w );
+    convert_voxel_to_world( get_nth_volume(slice_window, volume_index), 
+                            voxel, &x_w, &y_w, &z_w );
 
-    if( !EQUAL_POINTS( new_origin, display->three_d.cursor.origin ) )
-    {
-        display->three_d.cursor.origin = new_origin;
+    fill_Point( display->three_d.cursor.origin, x_w, y_w, z_w );
 
-        update_cursor( display );
+    update_cursor( display );
 
-        changed = TRUE;
-    }
-    else
-    {
-        changed = FALSE;
-    }
-
-    return( changed );
+    return TRUE;
 }
 
   VIO_BOOL  update_voxel_from_cursor(
