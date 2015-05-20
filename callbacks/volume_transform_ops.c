@@ -1,5 +1,9 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file volume_transform_ops.c
+ * \brief Menu commands to create and apply linear transformations to 
+ * volume coordinate systems.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,36 +14,27 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( transform_current_volume )
+DEF_MENU_FUNCTION( transform_current_volume )
 {
     display_struct    *slice_window;
-    VIO_STR            filename;
+    VIO_STR           filename;
 
     if( get_slice_window( display, &slice_window ) )
     {
-        print( "Enter transform filename: " );
-
-        if( input_string( stdin, &filename, ' ' ) == VIO_OK )
+        if (get_user_file( "Enter transform filename: ", FALSE, 
+                           &filename ) == VIO_OK)
         {
             transform_current_volume_from_file( slice_window, filename );
         }
-
-        (void) input_newline( stdin );
-
         delete_string( filename );
     }
 
@@ -48,14 +43,14 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(transform_current_volume )
+DEF_MENU_UPDATE(transform_current_volume )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( reset_volume_transform )
+DEF_MENU_FUNCTION( reset_volume_transform )
 {
     display_struct    *slice_window;
 
@@ -69,7 +64,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(reset_volume_transform )
+DEF_MENU_UPDATE(reset_volume_transform )
 {
     return( get_n_volumes(display) > 0 );
 }
@@ -95,8 +90,8 @@ static  void  translate_current_volume(
     int             dir )
 {
     display_struct  *slice_window;
-    VIO_Transform       linear_transform;
-    VIO_Real            trans[VIO_N_DIMENSIONS];
+    VIO_Transform   linear_transform;
+    VIO_Real        trans[VIO_N_DIMENSIONS];
 
     if( !get_slice_window( display, &slice_window ) )
         return;
@@ -118,9 +113,9 @@ static  void  rotate_current_volume(
     int             dir )
 {
     display_struct  *slice_window;
-    VIO_Transform       translation, linear_transform;
-    VIO_Real            angle;
-    VIO_Point           origin;
+    VIO_Transform   translation, linear_transform;
+    VIO_Real        angle;
+    VIO_Point       origin;
 
     if( !get_slice_window( display, &slice_window ) )
         return;
@@ -142,9 +137,9 @@ static  void  scale_current_volume(
     int             dir )
 {
     display_struct  *slice_window;
-    VIO_Transform       scale_trans, linear_transform;
-    VIO_Real            scale;
-    VIO_Point           origin;
+    VIO_Transform   scale_trans, linear_transform;
+    VIO_Real        scale;
+    VIO_Point       origin;
 
     if( !get_slice_window( display, &slice_window ) )
         return;
@@ -166,7 +161,7 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( translate_volume_plus_x)
+DEF_MENU_FUNCTION( translate_volume_plus_x)
 {
     translate_current_volume( display, VIO_X, +1 );
 
@@ -175,14 +170,14 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(translate_volume_plus_x )
+DEF_MENU_UPDATE(translate_volume_plus_x )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( translate_volume_minus_x)
+DEF_MENU_FUNCTION( translate_volume_minus_x)
 {
     translate_current_volume( display, VIO_X, -1 );
 
@@ -191,14 +186,14 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(translate_volume_minus_x )
+DEF_MENU_UPDATE(translate_volume_minus_x )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( translate_volume_plus_y)
+DEF_MENU_FUNCTION( translate_volume_plus_y)
 {
     translate_current_volume( display, VIO_Y, +1 );
 
@@ -207,14 +202,14 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(translate_volume_plus_y )
+DEF_MENU_UPDATE(translate_volume_plus_y )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( translate_volume_minus_y)
+DEF_MENU_FUNCTION( translate_volume_minus_y)
 {
     translate_current_volume( display, VIO_Y, -1 );
 
@@ -223,14 +218,14 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(translate_volume_minus_y )
+DEF_MENU_UPDATE(translate_volume_minus_y )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( translate_volume_plus_z)
+DEF_MENU_FUNCTION( translate_volume_plus_z)
 {
     translate_current_volume( display, VIO_Z, +1 );
 
@@ -239,14 +234,14 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(translate_volume_plus_z )
+DEF_MENU_UPDATE(translate_volume_plus_z )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( translate_volume_minus_z)
+DEF_MENU_FUNCTION( translate_volume_minus_z)
 {
     translate_current_volume( display, VIO_Z, -1 );
 
@@ -255,14 +250,14 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(translate_volume_minus_z )
+DEF_MENU_UPDATE(translate_volume_minus_z )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( magnify_volume)
+DEF_MENU_FUNCTION( magnify_volume)
 {
     scale_current_volume( display, +1 );
 
@@ -271,14 +266,14 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(magnify_volume )
+DEF_MENU_UPDATE(magnify_volume )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( shrink_volume)
+DEF_MENU_FUNCTION( shrink_volume)
 {
     scale_current_volume( display, -1 );
 
@@ -287,14 +282,14 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(shrink_volume )
+DEF_MENU_UPDATE(shrink_volume )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( rotate_volume_plus_x)
+DEF_MENU_FUNCTION( rotate_volume_plus_x)
 {
     rotate_current_volume( display, VIO_X, +1 );
 
@@ -303,14 +298,14 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(rotate_volume_plus_x )
+DEF_MENU_UPDATE(rotate_volume_plus_x )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( rotate_volume_minus_x)
+DEF_MENU_FUNCTION( rotate_volume_minus_x)
 {
     rotate_current_volume( display, VIO_X, -1 );
 
@@ -319,14 +314,14 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(rotate_volume_minus_x )
+DEF_MENU_UPDATE(rotate_volume_minus_x )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( rotate_volume_plus_y)
+DEF_MENU_FUNCTION( rotate_volume_plus_y)
 {
     rotate_current_volume( display, VIO_Y, +1 );
 
@@ -335,14 +330,14 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(rotate_volume_plus_y )
+DEF_MENU_UPDATE(rotate_volume_plus_y )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( rotate_volume_minus_y)
+DEF_MENU_FUNCTION( rotate_volume_minus_y)
 {
     rotate_current_volume( display, VIO_Y, -1 );
 
@@ -351,14 +346,14 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(rotate_volume_minus_y )
+DEF_MENU_UPDATE(rotate_volume_minus_y )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( rotate_volume_plus_z)
+DEF_MENU_FUNCTION( rotate_volume_plus_z)
 {
     rotate_current_volume( display, VIO_Z, +1 );
 
@@ -367,14 +362,14 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(rotate_volume_plus_z )
+DEF_MENU_UPDATE(rotate_volume_plus_z )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( rotate_volume_minus_z)
+DEF_MENU_FUNCTION( rotate_volume_minus_z)
 {
     rotate_current_volume( display, VIO_Z, -1 );
 
@@ -383,37 +378,34 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(rotate_volume_minus_z )
+DEF_MENU_UPDATE(rotate_volume_minus_z )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_volume_rotation_step)
+DEF_MENU_FUNCTION( set_volume_rotation_step)
 {
-    VIO_Real            new_step;
+    VIO_Real        new_step;
     display_struct  *slice_window;
+    char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     if( get_slice_window( display, &slice_window ) )
     {
-        print( "Current rotation step: %g\n",
-               slice_window->slice.volume_rotation_step );
-        print( "Enter rotation step: " );
-        if( input_real( stdin, &new_step ) == VIO_OK )
+        sprintf( prompt, "Current rotation step: %g\nEnter rotation step: ",
+                 slice_window->slice.volume_rotation_step );
+        if( get_user_input( prompt, "r", &new_step ) == VIO_OK )
             slice_window->slice.volume_rotation_step = new_step;
-
-        (void) input_newline( stdin );
     }
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_volume_rotation_step )
+DEF_MENU_UPDATE(set_volume_rotation_step )
 {
-    VIO_Real            step;
+    VIO_Real        step;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
@@ -429,30 +421,27 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_volume_scale_step)
+DEF_MENU_FUNCTION( set_volume_scale_step)
 {
-    VIO_Real            new_step;
+    VIO_Real        new_step;
     display_struct  *slice_window;
+    char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     if( get_slice_window( display, &slice_window ) )
     {
-        print( "Current scale step: %g\n",
+        sprintf( prompt, "Current scale step: %g\nEnter scale step: ",
                slice_window->slice.volume_scale_step );
-        print( "Enter scale step: " );
-        if( input_real( stdin, &new_step ) == VIO_OK )
+        if( get_user_input( prompt, "r", &new_step ) == VIO_OK )
             slice_window->slice.volume_scale_step = new_step;
-
-        (void) input_newline( stdin );
     }
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_volume_scale_step )
+DEF_MENU_UPDATE(set_volume_scale_step )
 {
-    VIO_Real            step;
+    VIO_Real        step;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
@@ -468,30 +457,28 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_volume_translation_step)
+DEF_MENU_FUNCTION( set_volume_translation_step)
 {
-    VIO_Real            new_step;
+    VIO_Real        new_step;
     display_struct  *slice_window;
+    char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     if( get_slice_window( display, &slice_window ) )
     {
-        print( "Current translation step: %g\n",
-               slice_window->slice.volume_translation_step );
-        print( "Enter translation step: " );
-        if( input_real( stdin, &new_step ) == VIO_OK )
+        sprintf( prompt, 
+                 "Current translation step: %g\nEnter translation step: ",
+                 slice_window->slice.volume_translation_step );
+        if( get_user_input( prompt, "r", &new_step ) == VIO_OK )
             slice_window->slice.volume_translation_step = new_step;
-
-        (void) input_newline( stdin );
     }
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_volume_translation_step )
+DEF_MENU_UPDATE(set_volume_translation_step )
 {
-    VIO_Real            step;
+    VIO_Real        step;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
@@ -507,23 +494,19 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( save_current_volume_transform )
+DEF_MENU_FUNCTION( save_current_volume_transform )
 {
-    VIO_Status             status;
-    display_struct     *slice_window;
-    VIO_Volume             volume;
-    VIO_STR             filename, comments;
-    VIO_General_transform  *original_transform, *volume_transform;
-    VIO_General_transform  incremental_transform, inverse;
+    VIO_Status            status;
+    display_struct        *slice_window;
+    VIO_Volume            volume;
+    VIO_STR               filename, comments;
+    VIO_General_transform *original_transform, *volume_transform;
+    VIO_General_transform incremental_transform, inverse;
 
     if( get_slice_window( display, &slice_window ) &&
         get_slice_window_volume( slice_window, &volume ) )
     {
-        print( "Enter output filename: " );
-
-        status = input_string( stdin, &filename, ' ' );
-
-        (void) input_newline( stdin );
+        status = get_user_file( "Enter output filename: ", TRUE, &filename);
 
         if( status == VIO_OK )
         {
@@ -559,7 +542,7 @@ static  void  scale_current_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(save_current_volume_transform )
+DEF_MENU_UPDATE(save_current_volume_transform )
 {
     return( get_n_volumes(display) > 0 );
 }

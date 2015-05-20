@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file render_ops.c
+ * \brief Menu commands to control 3D rendering parameters and views.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -38,7 +36,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( toggle_render_mode )
+DEF_MENU_FUNCTION( toggle_render_mode )
 {
     object_struct            *model_object;
     VIO_BOOL                  shaded_mode;
@@ -68,7 +66,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_render_mode )
+DEF_MENU_UPDATE(toggle_render_mode )
 {
     object_struct   *model_object;
 
@@ -84,7 +82,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( toggle_shading )
+DEF_MENU_FUNCTION( toggle_shading )
 {
     object_struct            *model_object;
     Shading_types            new_shading_type;
@@ -121,7 +119,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_shading )
+DEF_MENU_UPDATE(toggle_shading )
 {
     object_struct   *model_object;
 
@@ -136,7 +134,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( toggle_lights )
+DEF_MENU_FUNCTION( toggle_lights )
 {
     object_struct            *model_object;
     VIO_BOOL                  new_light_switch;
@@ -166,7 +164,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_lights )
+DEF_MENU_UPDATE(toggle_lights )
 {
     object_struct   *model_object;
 
@@ -181,7 +179,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( toggle_two_sided )
+DEF_MENU_FUNCTION( toggle_two_sided )
 {
     object_struct            *model_object;
     VIO_BOOL                  new_flag;
@@ -211,7 +209,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_two_sided )
+DEF_MENU_UPDATE(toggle_two_sided )
 {
     object_struct   *model_object;
 
@@ -226,7 +224,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( toggle_backfacing )
+DEF_MENU_FUNCTION( toggle_backfacing )
 {
     object_struct            *model_object;
     VIO_BOOL                  new_flag;
@@ -256,7 +254,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_backfacing )
+DEF_MENU_UPDATE(toggle_backfacing )
 {
     object_struct   *model_object;
 
@@ -271,7 +269,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( toggle_line_curve_flag )
+DEF_MENU_FUNCTION( toggle_line_curve_flag )
 {
     object_struct            *model_object;
     VIO_BOOL                  new_flag;
@@ -301,7 +299,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_line_curve_flag )
+DEF_MENU_UPDATE(toggle_line_curve_flag )
 {
     object_struct   *model_object;
 
@@ -316,7 +314,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( toggle_marker_label_flag )
+DEF_MENU_FUNCTION( toggle_marker_label_flag )
 {
     object_struct            *model_object;
     VIO_BOOL                  new_flag;
@@ -344,7 +342,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_marker_label_flag )
+DEF_MENU_UPDATE(toggle_marker_label_flag )
 {
     object_struct   *model_object;
 
@@ -359,21 +357,23 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_n_curve_segments )
+DEF_MENU_FUNCTION( set_n_curve_segments )
 {
     int                      n_segments;
     object_struct            *model_object;
     object_struct            *object;
     object_traverse_struct   object_traverse;
+    char                     prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     model_object = get_model_object( display );
 
-    print( "Current number of curve segments is %d.\n",
+
+    sprintf( prompt, "Current number of curve segments is %d.\n"
+             "Enter number of curve segments: ",
             get_model_info(get_model_ptr(model_object))->
                                    render.n_curve_segments );
-    print( "Enter number of curve segments: " );
 
-    if( input_int( stdin, &n_segments ) == VIO_OK && n_segments > 0 )
+    if( get_user_input(prompt, "d", &n_segments ) == VIO_OK && n_segments > 0 )
     {
         initialize_object_traverse( &object_traverse, FALSE, 1, &model_object );
 
@@ -391,14 +391,12 @@ static  object_struct  *get_model_object(
         print( "New number of curve segments: %d\n", n_segments );
     }
 
-    (void) input_newline( stdin );
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_n_curve_segments )
+DEF_MENU_UPDATE(set_n_curve_segments )
 {
     object_struct   *model_object;
 
@@ -413,7 +411,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( toggle_double_buffer_threed )
+DEF_MENU_FUNCTION( toggle_double_buffer_threed )
 {
     VIO_BOOL   double_buffer;
 
@@ -428,7 +426,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_double_buffer_threed )
+DEF_MENU_UPDATE(toggle_double_buffer_threed )
 {
     set_menu_text_on_off( menu_window, menu_entry,
                           G_get_double_buffer_state(display->window) );
@@ -438,7 +436,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( toggle_double_buffer_slice )
+DEF_MENU_FUNCTION( toggle_double_buffer_slice )
 {
     VIO_BOOL           double_buffer;
     display_struct    *slice_window;
@@ -459,7 +457,7 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_double_buffer_slice )
+DEF_MENU_UPDATE(toggle_double_buffer_slice )
 {
     display_struct  *slice_window;
     VIO_BOOL         state;
@@ -474,16 +472,15 @@ static  object_struct  *get_model_object(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( change_background_colour )
+DEF_MENU_FUNCTION( change_background_colour )
 {
-    VIO_Status            status;
+    VIO_Status        status;
     display_struct    *slice_window;
-    VIO_Colour            col;
-    VIO_STR            line;
+    VIO_Colour        col;
+    VIO_STR           line;
 
-    print( "Enter colour name or 3 or 4 colour components: " );
-
-    status = input_line( stdin, &line );
+    status = get_user_input( "Enter colour name or 3 or 4 colour components: ",
+                             "s", &line);
 
     if( status == VIO_OK )
     {

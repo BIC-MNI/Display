@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file regions.c
+ * \brief Menu commands to control painting (segmenting) in the slice view.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,48 +13,39 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_paint_xy_brush_radius )
+DEF_MENU_FUNCTION( set_paint_xy_brush_radius )
 {
-    VIO_Real            xy_brush_radius;
+    VIO_Real        xy_brush_radius;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
     {
-        print( "Enter xy brush size: " );
-
-        if( input_real( stdin, &xy_brush_radius ) == VIO_OK &&
-            xy_brush_radius >= 0.0 )
+        if ( get_user_input( "Enter xy brush size: ", "r", 
+                             &xy_brush_radius ) == VIO_OK &&
+             xy_brush_radius >= 0.0 )
         {
             slice_window->slice.x_brush_radius = xy_brush_radius;
             slice_window->slice.y_brush_radius = xy_brush_radius;
         }
-
-        (void) input_newline( stdin );
     }
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_paint_xy_brush_radius )
+DEF_MENU_UPDATE(set_paint_xy_brush_radius )
 {
-    VIO_BOOL          state;
-    VIO_Real             x_brush_radius;
+    VIO_BOOL         state;
+    VIO_Real         x_brush_radius;
     display_struct   *slice_window;
 
     state = get_slice_window( display, &slice_window );
@@ -67,20 +61,17 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_paint_z_brush_radius )
+DEF_MENU_FUNCTION( set_paint_z_brush_radius )
 {
-    VIO_Real            z_brush_radius;
+    VIO_Real        z_brush_radius;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
     {
-        print( "Enter out of plane brush size: " );
-
-        if( input_real( stdin, &z_brush_radius ) == VIO_OK &&
+        if (get_user_input( "Enter out of plane brush size: ", "r",
+                            &z_brush_radius) == VIO_OK &&
             z_brush_radius >= 0.0 )
             slice_window->slice.z_brush_radius = z_brush_radius;
-
-        (void) input_newline( stdin );
     }
 
     return( VIO_OK );
@@ -88,10 +79,10 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_paint_z_brush_radius )
+DEF_MENU_UPDATE(set_paint_z_brush_radius )
 {
-    VIO_BOOL          state;
-    VIO_Real             z_brush_radius;
+    VIO_BOOL         state;
+    VIO_Real         z_brush_radius;
     display_struct   *slice_window;
 
     state = get_slice_window( display, &slice_window );
@@ -133,14 +124,11 @@
 
         if( !done )
         {
-            print( "Enter current paint label: " );
-
-            if( input_int( stdin, &label ) == VIO_OK &&
+            if (get_user_input( "Enter current paint label: ", "d",
+                                &label ) == VIO_OK &&
                 label >= 0 && label < get_num_labels(slice_window,
                                       get_current_volume_index(slice_window)) )
                 done = TRUE;
-
-            (void) input_newline( stdin );
         }
 
         if( done )
@@ -157,7 +145,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_current_paint_label )
+DEF_MENU_UPDATE(set_current_paint_label )
 {
     VIO_BOOL          state;
     int              current_label;
@@ -177,7 +165,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_current_erase_label )
+DEF_MENU_FUNCTION( set_current_erase_label )
 {
     int             label, axis_index, volume_index;
     VIO_Real            voxel[VIO_N_DIMENSIONS];
@@ -199,14 +187,11 @@
 
         if( !done )
         {
-            print( "Enter current erase label: " );
-
-            if( input_int( stdin, &label ) == VIO_OK &&
+            if (get_user_input( "Enter current erase label: ", "d", 
+                                &label ) == VIO_OK &&
                 label >= 0 && label < get_num_labels(slice_window,
                                       get_current_volume_index(slice_window)) )
                 done = TRUE;
-
-            (void) input_newline( stdin );
         }
 
         if( done )
@@ -223,9 +208,9 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_current_erase_label )
+DEF_MENU_UPDATE(set_current_erase_label )
 {
-    VIO_BOOL          state;
+    VIO_BOOL         state;
     int              current_label;
     display_struct   *slice_window;
 
@@ -243,37 +228,29 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_label_colour )
+DEF_MENU_FUNCTION( set_label_colour )
 {
     display_struct   *slice_window;
     int              label;
-    VIO_STR           line;
-    VIO_Colour           col;
+    VIO_STR          line;
+    VIO_Colour       col;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        print( "Enter the label number and colour for this label: " );
-
-        if( input_int( stdin, &label ) == VIO_OK &&
-            label >= 1 && label < get_num_labels(slice_window,
-                            get_current_volume_index(slice_window)) )
+        int volume_index = get_current_volume_index(slice_window);
+        if (get_user_input("Enter the label number and colour for this label: ",
+                           "ds", &label, &line) == VIO_OK &&
+            label >= 1 && label < get_num_labels(slice_window, volume_index))
         {
-            if( input_line( stdin, &line ) == VIO_OK )
-            {
-                col = convert_string_to_colour( line );
+            col = convert_string_to_colour( line );
 
-                set_colour_of_label( slice_window,
-                                get_current_volume_index(slice_window),
-                                label, col );
+            set_colour_of_label( slice_window, volume_index, label, col );
 
-                set_slice_window_all_update( slice_window,
-                       get_current_volume_index(slice_window), UPDATE_LABELS );
-            }
+            set_slice_window_all_update( slice_window, volume_index, 
+                                         UPDATE_LABELS );
             delete_string( line );
         }
-        else
-            (void) input_newline( stdin );
     }
 
     return( VIO_OK );
@@ -281,7 +258,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_label_colour )
+DEF_MENU_UPDATE(set_label_colour )
 {
     return( get_n_volumes(display) > 0 );
 }
@@ -290,12 +267,12 @@ static  void  copy_labels_from_adjacent_slice(
     display_struct   *display,
     int              src_offset )
 {
-    VIO_Real             real_dest_index[VIO_MAX_DIMENSIONS];
+    VIO_Real         real_dest_index[VIO_MAX_DIMENSIONS];
     int              src_index[VIO_N_DIMENSIONS], dest_index[VIO_MAX_DIMENSIONS];
     int              view_index, x_index, y_index, axis_index;
     int              volume_index;
     display_struct   *slice_window;
-    VIO_Volume           volume;
+    VIO_Volume       volume;
 
     if( get_slice_window( display, &slice_window ) &&
         get_voxel_under_mouse( display, &volume_index,
@@ -420,10 +397,9 @@ static  void  copy_labels_from_adjacent_slice(
         get_slice_window_volume( slice_window, &volume ) )
     {
         status = VIO_OK;
-        print( "Label or range to change from: " );
 
-        status = input_line( stdin, &line );
-
+        status = get_user_input( "Label or range to change from: ", "s",
+                                 &line);
         if( status == VIO_OK )
         {
             if( sscanf( line, "%d %d", &src_min, &src_max ) != 2 )
@@ -439,20 +415,14 @@ static  void  copy_labels_from_adjacent_slice(
 
         if( status == VIO_OK )
         {
-            print( "Label to change to: " );
-            status = input_int( stdin, &dest_label );
+            status = get_user_input( "Label to change to: ", "d", &dest_label);
         }
 
         if( status == VIO_OK )
         {
-            print( "Min and max of value range: " );
-            status = input_real( stdin, &min_threshold );
+            status = get_user_input( "Min and max of value range: ", "rr",
+                                     &min_threshold, &max_threshold);
         }
-
-        if( status == VIO_OK )
-            status = input_real( stdin, &max_threshold );
-
-        (void) input_newline( stdin );
 
         if( status == VIO_OK )
         {
@@ -714,7 +684,7 @@ static  void  translate_labels_callback(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( translate_labels_arbitrary )
+DEF_MENU_FUNCTION( translate_labels_arbitrary )
 {
     int              delta[VIO_MAX_DIMENSIONS];
     display_struct   *slice_window;
@@ -722,19 +692,17 @@ static  void  translate_labels_callback(
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        print( "Enter offset to translate for x, y and z: " );
-
-        if( input_int( stdin, &delta[VIO_X] ) == VIO_OK &&
-            input_int( stdin, &delta[VIO_Y] ) == VIO_OK &&
-            input_int( stdin, &delta[VIO_Z] ) == VIO_OK )
+        if (get_user_input( "Enter offset to translate for x, y and z: " , 
+                            "ddd", 
+                            &delta[VIO_X], 
+                            &delta[VIO_Y], 
+                            &delta[VIO_Z] ) == VIO_OK)
         {
             translate_labels( slice_window,
                               get_current_volume_index(slice_window), delta );
             set_slice_window_all_update( slice_window,
                         get_current_volume_index(slice_window), UPDATE_LABELS );
         }
-
-        (void) input_newline( stdin );
     }
 
     return( VIO_OK );
@@ -742,14 +710,14 @@ static  void  translate_labels_callback(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(translate_labels_arbitrary )
+DEF_MENU_UPDATE(translate_labels_arbitrary )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( toggle_fast_update )
+DEF_MENU_FUNCTION( toggle_fast_update )
 {
     display_struct  *slice_window;
 
@@ -764,7 +732,7 @@ static  void  translate_labels_callback(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_fast_update )
+DEF_MENU_UPDATE(toggle_fast_update )
 {
     VIO_BOOL          fast_flag, state;
     display_struct   *slice_window;
@@ -783,7 +751,7 @@ static  void  translate_labels_callback(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( toggle_cursor_follows_paintbrush )
+DEF_MENU_FUNCTION( toggle_cursor_follows_paintbrush )
 {
     display_struct  *slice_window;
 
@@ -798,7 +766,7 @@ static  void  translate_labels_callback(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_cursor_follows_paintbrush )
+DEF_MENU_UPDATE(toggle_cursor_follows_paintbrush )
 {
     VIO_BOOL          follow_flag, state;
     display_struct   *slice_window;
@@ -824,7 +792,7 @@ static  void  translate_labels_callback(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( toggle_freestyle_painting )
+DEF_MENU_FUNCTION( toggle_freestyle_painting )
 {
  /*
   * The only thing to do is to toggle the corresponding
@@ -839,7 +807,7 @@ static  void  translate_labels_callback(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_freestyle_painting )
+DEF_MENU_UPDATE(toggle_freestyle_painting )
 {
  /*
   * This funtion determines whether or not the corresponding
@@ -859,4 +827,3 @@ static  void  translate_labels_callback(
  }
  return( state );
 }
-

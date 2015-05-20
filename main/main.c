@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file main.c
+ * \brief Main program and argument processing.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,11 +13,7 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
-
-#ifndef lint
-
-#endif
+*/
 
 #include "config.h"
 #include  <display.h>
@@ -31,10 +30,7 @@ static  void   initialize_ratio (display_struct* display);
 static  void   initialize_view_to_fit (display_struct  *display );
 static  void   initialize_cache ();
 static  void   parse_options (int argc, char *argv[],
-		display_struct *graphics);
-static void  visibility_3D_window(int state);
-static void  visibility_marker_window(int state);
-static void  visibility_menu_window(int state);
+                              display_struct *graphics);
 
 /* The first directory is set using compiler flag -D */
 /*#define  HARD_CODED_DISPLAY_DIRECTORY1    "/usr/local/mni/lib"*/
@@ -47,7 +43,7 @@ static void  visibility_menu_window(int state);
 #include  <bicpl/globals.h>
 #define   DISPLAY_GLOBALS_FILENAME   "Display.globals"
 
-  VIO_Status  change_global_variable(
+VIO_Status  change_global_variable(
     VIO_STR   str,
     VIO_STR   *variable_name,
     VIO_STR   *new_value )
@@ -57,7 +53,7 @@ static void  visibility_menu_window(int state);
                    display_globals, str, variable_name, new_value ) );
 }
 
-  VIO_Status  set_global_variable_value(
+VIO_Status  set_global_variable_value(
     VIO_STR   variable_name,
     VIO_STR   new_value )
 {
@@ -65,7 +61,25 @@ static void  visibility_menu_window(int state);
                                  display_globals, variable_name, new_value ) );
 }
 
+/**
+ * Unhide the 3D and "marker" window if they are loaded.
+ */
+static void
+unhide_if_objects_loaded(display_struct *graphics, display_struct *markers)
+{
+  model_struct *model = get_current_model( graphics );
+  if (model->n_objects > 1)
+  {
+    G_set_visibility(graphics->window, TRUE);
+    G_set_visibility(markers->window, TRUE);
+  }
+}
 
+
+/**
+ * The main program. Initializes key data structures, reads configuration
+ * and command line, creates windows, then drops into the main event loop.
+ */
 int  main(
     int     argc,
     char    *argv[] )
@@ -132,13 +146,9 @@ int  main(
         return( 1 );
     delete_string( title );
     
-    if( Hide_menu_window )
-    {
-      glutSetWindow(menu->window->GS_window->WS_window.window_id);
-      glutVisibilityFunc(visibility_menu_window);
-    }
+    G_set_visibility(menu->window, !Hide_menu_window);
 
-    title = concat_strings( PROJECT_NAME, ": Marker" );
+    title = concat_strings( PROJECT_NAME, ": Objects" );
     if( create_graphics_window( MARKER_WINDOW, 
                                 Graphics_double_buffer_flag, &marker, title,
                                 Initial_marker_window_width,
@@ -146,11 +156,7 @@ int  main(
         return( 1 );
 
     delete_string( title );
-    if( Hide_marker_window )
-    {
-      glutSetWindow(marker->window->GS_window->WS_window.window_id);
-      glutVisibilityFunc(visibility_marker_window);
-    }
+    G_set_visibility(marker->window, !Hide_marker_window);
 
     title = concat_strings( PROJECT_NAME, ": 3D View" );
 
@@ -161,11 +167,7 @@ int  main(
     delete_string( title );
 
     G_set_transparency_state( graphics->window, Graphics_transparency_flag);
-    if( Hide_3D_window )
-    {
-      glutSetWindow(graphics->window->GS_window->WS_window.window_id);
-      glutVisibilityFunc(visibility_3D_window);
-    }
+    G_set_visibility(graphics->window, !Hide_3D_window);
 
     graphics->associated[THREE_D_WINDOW] = graphics;
     graphics->associated[MENU_WINDOW] = menu;
@@ -190,7 +192,7 @@ int  main(
        return 1;
      
     if( initialize_marker_window( marker ) != VIO_OK )
-    return 1;
+       return 1;
 
     delete_string( runtime_directory );
 
@@ -214,6 +216,9 @@ int  main(
 
     update_view( graphics );
     update_all_menu_text( graphics );
+
+    unhide_if_objects_loaded(graphics, marker);
+
     set_update_required( graphics, NORMAL_PLANES );
     set_update_required( marker, NORMAL_PLANES );
 
@@ -338,286 +343,382 @@ static  void      initialize_view_to_fit(
 
 static void initialize_ratio (display_struct* slice_window)
 {
-	model_struct      *model;
-	VIO_Colour             colour;
-	int 			   retcode;
-	text_struct       *text;
+  model_struct      *model;
+  VIO_Colour        colour;
+  int               retcode;
+  text_struct       *text;
 
-	slice_window->slice.print_probe_ratio = FALSE;
+  slice_window->slice.ratio_enabled = FALSE;
 
-	if( string_length(Ratio_volume_index) )
-	{
-		retcode = sscanf(Ratio_volume_index, Ratio_volume_index_format,
-					&slice_window->slice.ratio_volume_index_numerator,
-					&slice_window->slice.ratio_volume_index_denominator);
-		if( retcode != 2 )
-			fprintf(stderr, "Error: can not parse %s with %s\n",
-					Ratio_volume_index, Ratio_volume_index_format);
-		else
-		{
-			slice_window->slice.print_probe_ratio = TRUE;
-			model = get_graphics_model( slice_window, SLICE_READOUT_MODEL );
-			text = get_text_ptr( model->objects[RATIO_PROBE_INDEX] );
-			text->colour = Slice_probe_ratio_colour;
-		}
-	}
+  if( string_length(Ratio_volume_index) )
+  {
+    retcode = sscanf(Ratio_volume_index, Ratio_volume_index_format,
+                     &slice_window->slice.ratio_volume_numerator,
+                     &slice_window->slice.ratio_volume_denominator);
+    if( retcode != 2 )
+      fprintf(stderr, "Error: can not parse %s with %s\n",
+              Ratio_volume_index, Ratio_volume_index_format);
+    else
+    {
+      slice_window->slice.ratio_enabled = TRUE;
+      model = get_graphics_model( slice_window, SLICE_READOUT_MODEL );
+      text = get_text_ptr( model->objects[RATIO_PROBE_INDEX] );
+      text->colour = Slice_probe_ratio_colour;
+    }
+  }
 }
 
 static void initialize_cache()
 {
-	if (!Enable_volume_caching)
-		set_n_bytes_cache_threshold(-1);
-	else
-	{
-		if (Volume_cache_threshold >= 0)
-			set_n_bytes_cache_threshold(Volume_cache_threshold);
+  if (!Enable_volume_caching)
+    set_n_bytes_cache_threshold(-1);
+  else
+  {
+    if (Volume_cache_threshold >= 0)
+      set_n_bytes_cache_threshold(Volume_cache_threshold);
 
-		if (Volume_cache_size >= 0)
-			set_default_max_bytes_in_cache(Volume_cache_size);
+    if (Volume_cache_size >= 0)
+      set_default_max_bytes_in_cache(Volume_cache_size);
 
-		if (Volume_cache_block_size > 0)
-		{
-			int dim, block_sizes[VIO_MAX_DIMENSIONS];
+    if (Volume_cache_block_size > 0)
+    {
+      int dim, block_sizes[VIO_MAX_DIMENSIONS];
 
-			for_less( dim, 0, VIO_MAX_DIMENSIONS )
-				block_sizes[dim] = Volume_cache_block_size;
-			set_default_cache_block_sizes(block_sizes);
-		}
-	}
+      for_less( dim, 0, VIO_MAX_DIMENSIONS )
+        block_sizes[dim] = Volume_cache_block_size;
+      set_default_cache_block_sizes(block_sizes);
+    }
+  }
 }
 
 
-static void parse_options(int argc, char *argv[], display_struct *graphics)
+/**
+ * Try to make sense out of command-line arguments.
+ */
+
+static void 
+parse_options(int argc, char *argv[], display_struct *graphics)
 {
-	VIO_Status retcode;
-	VIO_STR filename;
-	VIO_STR globals_filename;
-	VIO_STR variable_name, variable_value;
-	VIO_BOOL next_is_label_volume;
+  VIO_Status retcode;
+  VIO_STR filename;
+  VIO_STR globals_filename;
+  VIO_BOOL next_is_label_volume;
 
-	initialize_argument_processing(argc, argv);
-	retcode = VIO_OK;
-	next_is_label_volume = FALSE;
+  initialize_argument_processing(argc, argv);
+  retcode = VIO_OK;
+  next_is_label_volume = FALSE;
 
-	while (get_string_argument("", &filename))
-	{
-		if (equal_strings(filename, "-help"))
-		{
-			print("Usage: Display [OPTION1] [FILE1] [OPTION2] [FILE2]...\n"
-				  "Interactively display and segment three dimensional images.\n"
-				  "\n");
-			print("  %-25s %s\n", "-version",
-					"Output version information and exit.");
-			print("  %-25s %s\n", "-skiperror",
-					"Skip on error when parsing arguments or loading file.");
-			print("  %-25s %s\n", "-label FILENAME",
-					"Interpret FILENAME as a label to be displayed over other images.");
-			print("  %-25s %s\n", "-labeltags",
-					"Input tags from the label file.");
-			print("  %-25s %s\n", "-output-label FILENAME",
-					"Use FILENAME to save labels instead of prompting the user.");
-			print("  %-25s %s\n", "-ratio N1,N2",
-								"Display the images ratio of N1/N2. The first image index is 0.");
-			print("  %-25s %s\n", "-range MINIMUM MAXIMUM",
-					"Set the contrast range.");
-			print("  %-25s %s\n", "-gray",
-					"Use gray color map.");
-			print("  %-25s %s\n", "-hot",
-					"Use hot color map.");
-			print("  %-25s %s\n", "-spectral",
-					"Use spectral color map.");
-			print("  %-25s %s\n", "-global NAME VALUE",
-					"Set the global variable NAME to VALUE.");
-			print("\nReport bugs to minc-development@bic.mni.mcgill.ca\n");
-			exit(EX_OK);
-		}
-		else if (equal_strings(filename, "-version"))
-		{
+  while (get_string_argument("", &filename))
+  {
+    if (equal_strings(filename, "-help"))
+    {
+      print("Usage: Display [OPTION1] [FILE1] [OPTION2] [FILE2]...\n"
+            "Interactively display and segment three dimensional images.\n"
+            "\n");
+      print("  %-25s %s\n", "-version",
+            "Output version information and exit.");
+      print("  %-25s %s\n", "-skiperror",
+            "Skip on error when parsing arguments or loading file.");
+      print("  %-25s %s\n", "-label FILENAME",
+            "Interpret FILENAME as a label to be displayed over other images.");
+      print("  %-25s %s\n", "-labeltags",
+            "Input tags from the label file.");
+      print("  %-25s %s\n", "-output-label FILENAME",
+            "Use FILENAME to save labels instead of prompting the user.");
+      print("  %-25s %s\n", "-ratio N1,N2",
+            "Display the images ratio of N1/N2. The first image index is 0.");
+      print("  %-25s %s\n", "-range MINIMUM MAXIMUM",
+            "Set the contrast range.");
+      print("  %-25s %s\n", "-gray",
+            "Use gray colour map for subsequently loaded volumes.");
+      print("  %-25s %s\n", "-hot",
+            "Use hot colour map for subsequently loaded volumes.");
+      print("  %-25s %s\n", "-spectral",
+            "Use spectral colour map for subsequently loaded volumes.");
+      print("  %-25s %s\n", "-red",
+            "Use red colour map for subsequently loaded volumes.");
+      print("  %-25s %s\n", "-blue",
+            "Use blue colour map for subsequently loaded volumes.");
+      print("  %-25s %s\n", "-green",
+            "Use green colour map for subsequently loaded volumes.");
+      print("  %-25s %s\n", "-global NAME VALUE",
+            "Set the global variable NAME to VALUE.");
+      print("\nReport bugs to %s\n", PACKAGE_BUGREPORT);
+      exit(EX_OK);
+    }
+    else if (equal_strings(filename, "-version"))
+    {
 #ifndef GLUT_VERSION
 #define GLUT_VERSION 0x1FC
 #endif
-                        int glutVersion = glutGet(GLUT_VERSION);
+      int glutVersion = glutGet(GLUT_VERSION);
 
-                        print("%s %s (%s)\n", PROJECT_NAME, PROJECT_VERSION, __DATE__ );
-                        print("GLUT %d.%d.%d\n", glutVersion / 10000,
-                              (glutVersion / 100) % 100,
-                              glutVersion % 100);
-                        print("OpenGL %s\n", glGetString(GL_VERSION));
-			exit(EX_OK);
-		}
-		else if (equal_strings(filename, "-skiperror"))
-		{
-			if( set_global_variable_value("Exit_error_load_file", "FALSE") != VIO_OK )
-			{
-				print("Error setting skiperror variable from command line.\n");
-				retcode = VIO_ERROR;
-			}
-		}
-		else if (equal_strings(filename, "-gray"))
-		{
-			if( set_global_variable_value("Initial_colour_coding_type", "0") != VIO_OK )
-			{
-				print("Error setting gray variable from command line.\n");
-				retcode = VIO_ERROR;
-			}
-		}
-		else if (equal_strings(filename, "-hot"))
-		{
-			if( set_global_variable_value("Initial_colour_coding_type", "1") != VIO_OK )
-			{
-				print("Error setting hot variable from command line.\n");
-				retcode = VIO_ERROR;
-			}
-		}
-		else if (equal_strings(filename, "-spectral"))
-		{
-			if( set_global_variable_value("Initial_colour_coding_type", "13") != VIO_OK )
-			{
-				print("Error setting spectral variable from command line.\n");
-				retcode = VIO_ERROR;
-			}
-		}
-		else if (equal_strings(filename, "-ratio"))
-		{
-			if (!get_string_argument("", &variable_value))
-			{
-				print_error("Error in arguments after -ratio.\n");
-				exit(EX_USAGE);
-			}
+      print("%s %s (%s)\n", PROJECT_NAME, PROJECT_VERSION, __DATE__ );
+      print("GLUT %d.%d.%d\n", glutVersion / 10000,
+            (glutVersion / 100) % 100,
+            glutVersion % 100);
+      print("OpenGL %s\n", glGetString(GL_VERSION));
+      exit(EX_OK);
+    }
+    else if (equal_strings(filename, "-skiperror"))
+    {
+      Exit_error_load_file = FALSE;
+    }
+    else if (equal_strings(filename, "-gray"))
+    {
+      Initial_colour_coding_type = GRAY_SCALE;
+    }
+    else if (equal_strings(filename, "-hot"))
+    {
+      Initial_colour_coding_type = HOT_METAL;
+    }
+    else if (equal_strings(filename, "-spectral"))
+    {
+      Initial_colour_coding_type = SPECTRAL;
+    }
+    else if (equal_strings(filename, "-red"))
+    {
+      Initial_colour_coding_type = RED_COLOUR_MAP;
+    }
+    else if (equal_strings(filename, "-green"))
+    {
+      Initial_colour_coding_type = GREEN_COLOUR_MAP;
+    }
+    else if (equal_strings(filename, "-blue"))
+    {
+      Initial_colour_coding_type = BLUE_COLOUR_MAP;
+    }
+    else if (equal_strings(filename, "-ratio"))
+    {
+      VIO_STR ratio_string;
 
-			if( set_global_variable_value("Ratio_volume_index", variable_value) != VIO_OK )
-			{
-				print("Error setting ratio variable from command line.\n");
-				retcode = VIO_ERROR;
-			}
-		}
-		else if (equal_strings(filename, "-label"))
-		{
-			if (next_is_label_volume)
-			{
-				print("Ignoring extraneous -label\n");
-				retcode = VIO_ERROR;
-			}
-			next_is_label_volume = TRUE;
-		}
-		else if (equal_strings(filename, "-labeltags"))
-		{
-			if( set_global_variable_value("Tags_from_label", "TRUE") != VIO_OK )
-			{
-				print("Error setting labeltags variable from command line.\n");
-				retcode = VIO_ERROR;
-			}
-		}
-		else if (equal_strings(filename, "-output-label"))
-		{
-			if (!get_string_argument("", &variable_value))
-			{
-				print_error("Error in arguments after -output.\n");
-				exit(EX_USAGE);
-			}
+      if (!get_string_argument(Ratio_volume_index, &ratio_string))
+      {
+        print_error("Error in arguments after -ratio.\n");
+        exit(EX_USAGE);
+      }
+      Ratio_volume_index = create_string(ratio_string);
+    }
+    else if (equal_strings(filename, "-label"))
+    {
+      if (next_is_label_volume)
+      {
+        print("Ignoring extraneous -label\n");
+        retcode = VIO_ERROR;
+      }
+      next_is_label_volume = TRUE;
+    }
+    else if (equal_strings(filename, "-labeltags"))
+    {
+      Tags_from_label = TRUE;
+    }
+    else if (equal_strings(filename, "-output-label"))
+    {
+      VIO_STR file_name;
 
-			if( set_global_variable_value("Output_label_filename", variable_value) != VIO_OK)
-			{
-				print("Error setting output variable from command line.\n");
-				retcode = VIO_ERROR;
-			}
-		}
-		else if (equal_strings(filename, "-range"))
-		{
-			if (!get_string_argument("", &variable_name)
-					|| !get_string_argument("", &variable_value))
-			{
-				print_error("Error in arguments after -range.\n");
-				exit(EX_USAGE);
-			}
+      if (!get_string_argument("", &file_name))
+      {
+        print_error("Error in arguments after -output.\n");
+        exit(EX_USAGE);
+      }
 
-			if (Initial_histogram_contrast)
-			{
-				if (set_global_variable_value("Initial_histogram_low", variable_name) != VIO_OK
-						|| set_global_variable_value("Initial_histogram_high", variable_value) != VIO_OK)
-				{
-					print("Error setting range variable from command line.\n");
-					retcode = VIO_ERROR;
-				}
-			}
-			else{
-				if (set_global_variable_value("Initial_low_absolute_position", variable_name) != VIO_OK
-						|| set_global_variable_value("Initial_high_absolute_position", variable_value) != VIO_OK)
-				{
-					print("Error setting range variable from command line.\n");
-					retcode = VIO_ERROR;
-				}
-			}
-		}
-		else if (equal_strings(filename, "-global"))
-		{
-			if (!get_string_argument("", &variable_name)
-					|| !get_string_argument("", &variable_value))
-			{
-				print_error("Error in arguments after -global.\n");
-				exit(EX_USAGE);
-			}
+      /*
+       * get_string_argument will just return a pointer to the correct
+       * element of argv[], so while we should be able to count on it
+       * existing at a later point in the program, I prefer to make an
+       * explicit copy using create_string().
+       */
+      Output_label_filename = create_string(file_name);
+    }
+    else if (equal_strings(filename, "-range"))
+    {
+      VIO_Real lo_val, hi_val;
 
-			if (set_global_variable_value(variable_name, variable_value) != VIO_OK)
-			{
-				print("Error setting global variable from command line.\n");
-				retcode = VIO_ERROR;
-			}
-		}
-		else
-		{
-			if (filename[0] == '-')
-			{
-				print("Error: unknown option %s\n", filename);
-				retcode = VIO_ERROR;
-			}
-			else
-			{
-				initialize_cache();
-				if (load_graphics_file(graphics, filename, next_is_label_volume) != VIO_OK)
-				{
-					print("Error loading %s\n", filename);
-					if (Exit_error_load_file)
-						exit(EX_NOINPUT);
-				}
-				next_is_label_volume = FALSE;
-			}
-		}
-	}
+      if (!get_real_argument(0.0, &lo_val) || !get_real_argument(1.0, &hi_val))
+      {
+        print_error("Error in arguments after -range.\n");
+        exit(EX_USAGE);
+      }
 
-	if (next_is_label_volume)
-	{
-		print("Ignoring extraneous -label\n");
-		retcode = VIO_ERROR;
-	}
+      if (Initial_histogram_contrast)
+      {
+        Initial_histogram_low = lo_val;
+        Initial_histogram_high = hi_val;
+      }
+      else
+      {
+        Initial_low_absolute_position = lo_val;
+        Initial_high_absolute_position = hi_val;
+      }
+    }
+    else if (equal_strings(filename, "-global"))
+    {
+      VIO_STR variable_name, variable_value;
 
-	if (Exit_error_load_file && retcode != VIO_OK)
-		exit(EX_USAGE);
+      if (!get_string_argument("", &variable_name) ||
+          !get_string_argument("", &variable_value))
+      {
+        print_error("Error in arguments after -global.\n");
+        exit(EX_USAGE);
+      }
+
+      if (set_global_variable_value(variable_name, variable_value) != VIO_OK)
+      {
+        print("Error setting global variable from command line.\n");
+        retcode = VIO_ERROR;
+      }
+    }
+    else
+    {
+      if (filename[0] == '-')
+      {
+        print("Error: unknown option %s\n", filename);
+        retcode = VIO_ERROR;
+      }
+      else
+      {
+        initialize_cache();
+        if (load_graphics_file(graphics, filename, next_is_label_volume) != VIO_OK)
+        {
+          print("Error loading %s\n", filename);
+          if (Exit_error_load_file)
+            exit(EX_NOINPUT);
+        }
+        next_is_label_volume = FALSE;
+      }
+    }
+  }
+
+  if (next_is_label_volume)
+  {
+    print("Ignoring extraneous -label\n");
+    retcode = VIO_ERROR;
+  }
+
+  if (Exit_error_load_file && retcode != VIO_OK)
+    exit(EX_USAGE);
 }
 
-void visibility_marker_window(int state)
+#include  <stdarg.h>
+
+VIO_Status
+get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
 {
-	if (Hide_marker_window)
-	{
-		if (state == GLUT_VISIBLE)
-			glutHideWindow();
-	}
+  FILE *in_fp = NULL;
+  VIO_Status status = VIO_OK;
+
+  if (Use_zenity_for_input)
+  {
+    char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
+    sprintf(command, "zenity --title \"Display: %s\" --file-selection",
+            prompt);
+    if (saving)
+    {
+      strcat(command, " --save");
+    }
+    in_fp = popen(command, "r");
+    if (in_fp == NULL)
+    {
+      status = VIO_ERROR;
+    }
+  }
+  if (in_fp == NULL)
+  {
+      print("%s", prompt);
+      in_fp = stdin;
+  }
+  status = input_string(in_fp, filename, ' ');
+  if (in_fp != stdin)
+  {
+    pclose(in_fp);
+  }
+  return status;
 }
 
-void visibility_3D_window(int state)
+/**
+ * Generic function to get user input. This consolidates all of what
+ * was previously scattered around the program, such that we can now
+ * use a helper (such as zenity) to ask for information from the 
+ * user.
+ * \param prompt A text prompt to display, hopefully explaining the
+ * action the user should take.
+ * \param format A text string that specifies the input expected.
+ * This consists of a string consisting of a series of the characters 
+ * 'd', 'f', 'r',  'c', or 's' corresponding to an int, float, VIO_Real, 
+ * char, or VIO_STR value.
+ * \returns VIO_OK if successful.
+ */
+VIO_Status
+get_user_input(const char *prompt, const char *format, ...)
 {
-	if (Hide_3D_window)
-	{
-		if (state == GLUT_VISIBLE)
-			glutHideWindow();
-	}
-}
+  const char *cp;
+  va_list ap;
+  VIO_Real *p_real;
+  float *p_float;
+  int *p_int;
+  VIO_STR *p_str;
+  char *p_char;
+  FILE *in_fp = NULL;
 
-void visibility_menu_window(int state)
-{
-	if (Hide_menu_window)
-	{
-		if (state == GLUT_VISIBLE)
-			glutHideWindow();
-	}
+  if (Use_zenity_for_input)
+  {
+    char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
+    sprintf(command, "zenity --entry --title=\"Display: Dialog\" --text=\"%s\"",
+            prompt);
+    in_fp = popen(command, "r");
+  }
+  if (in_fp == NULL)
+  {
+      print("%s", prompt);
+      in_fp = stdin;
+  }
+
+  va_start(ap, format);
+  for (cp = format; *cp != '\0'; cp++) {
+    switch (*cp) {
+    case 'r': 
+      p_real = va_arg(ap, VIO_Real *);
+      if (input_real(in_fp, p_real) != VIO_OK)
+      {
+        return VIO_ERROR;
+      }
+      break;
+    case 'f':
+      p_float = va_arg(ap, float *);
+      if (input_float(in_fp, p_float) != VIO_OK)
+      {
+        return VIO_ERROR;
+      }
+      break;
+    case 's': 
+      p_str = va_arg(ap, VIO_STR *);
+      if (input_string(in_fp, p_str, ' ') != VIO_OK)
+      {
+        return VIO_ERROR;
+      }
+      break;
+    case 'd':
+      p_int = va_arg(ap, int *);
+      if (input_int(in_fp, p_int) != VIO_OK)
+      {
+        return VIO_ERROR;
+      }
+      break;
+    case 'c':
+      p_char = va_arg(ap, char *);
+      if (input_nonwhite_character(in_fp, p_char) != VIO_OK)
+      {
+        return VIO_ERROR;
+      }
+      break;
+    default:
+      return VIO_ERROR;
+    }
+  }
+  va_end(ap);
+  if (in_fp != stdin)
+  {
+      pclose(in_fp);
+  }
+  return VIO_OK;
 }

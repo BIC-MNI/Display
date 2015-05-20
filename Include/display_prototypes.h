@@ -10,6 +10,10 @@
     VIO_STR   variable_name,
     VIO_STR   new_value );
 
+VIO_Status get_user_input(const char *prompt, const char *format, ...);
+
+VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename);
+
   void  display_objects(
     Gwindow                     window,
     object_struct               *object,

@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file polygon_ops.c
+ * \brief Menu commands to operate on polygons.
+ * 
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,16 +13,11 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#ifndef lint
-
-#endif
-
- 
 #include  <display.h>
 
   VIO_BOOL  get_current_polygons(
@@ -64,11 +62,7 @@
     if( get_current_polygons(display,&polygons) &&
         polygons->bintree == (bintree_struct_ptr) 0 )
     {
-        print( "Enter filename: " );
-
-        status = input_string( stdin, &filename, ' ' );
-
-        (void) input_newline( stdin );
+        status = get_user_file( "Enter filename: " , FALSE, &filename);
 
         if( status == VIO_OK )
             status = open_file_with_default_suffix( filename, "btr", READ_FILE,
@@ -116,11 +110,7 @@
     if( get_current_polygons(display,&polygons) &&
         polygons->bintree != (bintree_struct_ptr) 0 )
     {
-        print( "Enter filename: " );
-
-        status = input_string( stdin, &filename, ' ' );
-
-        (void) input_newline( stdin );
+        status = get_user_file( "Enter filename: " , TRUE, &filename);
 
         if( status == VIO_OK && !check_clobber_file_default_suffix( filename,"btr"))
             status = VIO_ERROR;
@@ -200,7 +190,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(create_normals_for_polygon )
+DEF_MENU_UPDATE(create_normals_for_polygon )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
@@ -208,7 +198,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( average_normals_for_polygon )
+DEF_MENU_FUNCTION( average_normals_for_polygon )
 {
     int               n_iters;
     VIO_Real              neighbour_weight;
@@ -216,17 +206,14 @@
 
     if( get_current_polygons(display,&polygons) )
     {
-        print( "Enter #iterations  neighbour_weight: " );
+        if (get_user_input( "Enter #iterations  neighbour_weight: ", "dr",
+                            &n_iters, &neighbour_weight) == VIO_OK)
 
-        if( input_int( stdin, &n_iters ) == VIO_OK &&
-            input_real( stdin, &neighbour_weight ) == VIO_OK )
         {
             average_polygon_normals( polygons, n_iters, neighbour_weight );
 
             graphics_models_have_changed( display );
         }
-
-        (void) input_newline( stdin );
 
         print( "Done averaging polygon normals.\n" );
     }
@@ -236,7 +223,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(average_normals_for_polygon )
+DEF_MENU_UPDATE(average_normals_for_polygon )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
@@ -244,7 +231,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( smooth_current_polygon )
+DEF_MENU_FUNCTION( smooth_current_polygon )
 {
     polygons_struct   *polygons;
 
@@ -303,22 +290,14 @@
 
   DEF_MENU_FUNCTION( make_polygon_sphere )
 {
-    VIO_Point             centre;
-    VIO_Real              x_size, y_size, z_size;
+    VIO_Point         centre;
+    VIO_Real          x_size, y_size, z_size;
     int               n_up, n_around;
     object_struct     *object;
 
-    print( "Enter x_centre, y_centre, z_centre, x_size, y_size, z_size,\n" );
-    print( "      n_up, n_around: " );
-    
-    if( input_float( stdin, &Point_x(centre) ) == VIO_OK &&
-        input_float( stdin, &Point_y(centre) ) == VIO_OK &&
-        input_float( stdin, &Point_z(centre) ) == VIO_OK &&
-        input_real( stdin, &x_size ) == VIO_OK &&
-        input_real( stdin, &y_size ) == VIO_OK &&
-        input_real( stdin, &z_size ) == VIO_OK &&
-        input_int( stdin, &n_up ) == VIO_OK &&
-        input_int( stdin, &n_around ) == VIO_OK )
+    if (get_user_input( "Enter x_centre, y_centre, z_centre, x_size, y_size, z_size,\n      n_up, n_around: ",  "fffrrrdd", 
+                        &Point_x(centre), &Point_y(centre), &Point_z(centre),
+                        &x_size, &y_size, &z_size, &n_up, &n_around) == VIO_OK)
     {
         object = create_object( POLYGONS );
 
@@ -331,9 +310,6 @@
 
         add_object_to_current_model( display, object );
     }
-
-    (void) input_newline( stdin );
-
     return( VIO_OK );
 }
 
@@ -353,16 +329,9 @@
     int               n_triangles;
     object_struct     *object;
 
-    print( "Enter x_centre, y_centre, z_centre, x_size, y_size, z_size,\n" );
-    print( "      n_triangles: " );
-    
-    if( input_float( stdin, &Point_x(centre) ) == VIO_OK &&
-        input_float( stdin, &Point_y(centre) ) == VIO_OK &&
-        input_float( stdin, &Point_z(centre) ) == VIO_OK &&
-        input_real( stdin, &x_size ) == VIO_OK &&
-        input_real( stdin, &y_size ) == VIO_OK &&
-        input_real( stdin, &z_size ) == VIO_OK &&
-        input_int( stdin, &n_triangles ) == VIO_OK )
+    if (get_user_input( "Enter x_centre, y_centre, z_centre, x_size, y_size, z_size,\n      n_triangles: ", "fffrrrd", 
+                        &Point_x(centre), &Point_y(centre), &Point_z(centre),
+                        &x_size, &y_size, &z_size, &n_triangles ) == VIO_OK)
     {
         object = create_object( POLYGONS );
 
@@ -374,9 +343,6 @@
 
         add_object_to_current_model( display, object );
     }
-
-    (void) input_newline( stdin );
-
     return( VIO_OK );
 }
 
@@ -474,13 +440,12 @@
 
     if( get_current_polygons( display, &polygons ) )
     {
-        print( "Enter line thickness: " );
-        if( input_real( stdin, &line_thickness ) )
+        if (get_user_input( "Enter line thickness: " , "r", 
+                            &line_thickness ) == VIO_OK)
         {
             polygons->line_thickness = (float) line_thickness;
             graphics_models_have_changed( display );
         }
-        (void) input_newline( stdin );
     }
 
     return( VIO_OK );

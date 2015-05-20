@@ -335,133 +335,155 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
 }
 
 
-/* Calculate distance from mouse to either cursor or currently
+/**
+ * Calculate the ratio between two selected volumes.
+ * \param slice_window The slice window structure.
+ * \param voxel The voxel coordinates of the mouse.
+ * \returns The ratio between the two volumes at this voxel, or
+ * INFINITY if the denominator is zero.
+ */
+static VIO_Real
+calculate_volume_ratio(display_struct *slice_window, VIO_Real voxel[])
+{
+    VIO_Volume volume_num;      /* Volume in the numerator. */
+    VIO_Volume volume_den;      /* Volume in the denominator. */
+    VIO_Real value_num;         /* Real value of the numerator. */
+    VIO_Real value_den;         /* Real value of the denominator. */
+
+    volume_num = get_nth_volume( slice_window,
+                                 slice_window->slice.ratio_volume_numerator);
+    volume_den = get_nth_volume( slice_window,
+                                 slice_window->slice.ratio_volume_denominator);
+
+    evaluate_volume( volume_den, voxel, NULL,
+                     slice_window->slice.degrees_continuity,
+                     FALSE, 0.0, &value_den, NULL, NULL );
+
+    /* If the denominator is zero, don't even bother to calculate the
+     * ratio.
+     */
+    if (value_den == 0.0)
+        return INFINITY;
+
+    evaluate_volume( volume_num, voxel, NULL,
+                     slice_window->slice.degrees_continuity,
+                     FALSE, 0.0, &value_num, NULL, NULL );
+
+    return value_num / value_den;
+}
+
+/**
+ * Calculate distance from mouse to either cursor or currently
  * selected marker.
  */
 static VIO_Real
-calculate_user_distance(display_struct *slice_window, char *distance_origin)
+calculate_user_distance(display_struct *slice_window, 
+                        const VIO_Real world[],
+                        char *distance_origin)
 {
-  VIO_Real       voxel_position[VIO_MAX_DIMENSIONS];
-  int            volume_index;
-  int            axis_index;
-  VIO_Real       x_w, y_w, z_w;
   VIO_Point      mouse_point;
   display_struct *display;
-  marker_struct  *marker;
   object_struct  *object;
   VIO_Point      origin_point;
-  VIO_Real       distance_value;
 
-  if (get_voxel_in_slice_window(slice_window, voxel_position,
-                                &volume_index, &axis_index))
+  display = get_three_d_window( slice_window );
+
+  /* See if a marker is selected.
+   */
+  if (get_current_object(display, &object) && object->object_type == MARKER) 
   {
-    display = get_three_d_window( slice_window );
-
-    /* See if a marker is selected.
-     */
-    if (get_current_object(display, &object) && object->object_type == MARKER) 
-    {
-      marker = get_marker_ptr(object);
-      origin_point = marker->position;
-      sprintf(distance_origin, "%d", get_current_object_index(display));
-    }
-    else
-    {
-      origin_point = display->three_d.cursor.origin;
-      strcpy(distance_origin, "c");
-    }
+    marker_struct *marker = get_marker_ptr(object);
+    origin_point = marker->position;
+    sprintf(distance_origin, "%d", get_current_object_index(display));
+  }
+  else
+  {
+    origin_point = display->three_d.cursor.origin;
+    strcpy(distance_origin, "c");
+  }
               
-    convert_voxel_to_world(slice_window->slice.volumes[volume_index].volume,
-                           voxel_position, &x_w, &y_w, &z_w );
-    fill_Point( mouse_point, x_w, y_w, z_w );
-    distance_value = distance_between_points(&origin_point, &mouse_point);
-  }
-  else {
-    distance_value = -1.0;
-    distance_origin[0] = 0;
-  }
-  return distance_value;
+  fill_Point( mouse_point, world[VIO_X], world[VIO_Y], world[VIO_Z] );
+  return distance_between_points(&origin_point, &mouse_point);
 }
 
-  void  rebuild_probe(
-    display_struct    *slice_window )
+/**
+ * Calculate and format the values that will appear in the "probe" or
+ * "slice readout" section of the slice window. These are the numeric
+ * information fields that generally appear at the lower left corner
+ * of the slice window.
+ */
+void  
+rebuild_probe(display_struct *slice_window)
 {
-    model_struct   *model;
-    VIO_BOOL        active;
-    VIO_Volume         volume;
-    VIO_Volume         volume_ratio_num, volume_ratio_den;
-    VIO_Real           voxel[VIO_MAX_DIMENSIONS];
-    int            int_voxel[VIO_MAX_DIMENSIONS];
-    int            label, i, view_index, volume_index;
-    VIO_Real           x_world, y_world, z_world;
-    text_struct    *text;
-    int            sizes[VIO_N_DIMENSIONS];
-    VIO_Real           value, voxel_value;
-    VIO_Real           value_ratio_num, value_ratio_den;
-    int            x_pos, y_pos, x_min, x_max, y_min, y_max;
-    char           buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
-    VIO_Real 		   ratio;
-    int            ratio_num_index, ratio_den_index;
-    VIO_Real       distance_value;
-    char           distance_origin[VIO_EXTREMELY_LARGE_STRING_SIZE];
+    model_struct *model;        /* Graphics model for the readout (probe). */
+    VIO_BOOL     active;        /* True if mouse is over a slice. */
+    int          i;             /* Loop counter. */
+    int          view_index;    /* The view under the mouse. */
+    int          volume_index;  /* The currently selected volume. */
+    VIO_Real     voxel[VIO_MAX_DIMENSIONS]; /* Current voxel coordinates. */
+    VIO_Real     world[VIO_N_DIMENSIONS];   /* Current world coordinates. */
+    VIO_Real     real_value;  /* Real voxel value */
+    VIO_Real     voxel_value; /* Raw voxel value */
+    int          label;       /* Label of current voxel. */
+    VIO_Real     ratio;       /* Ratio between given volume voxels. */
+    VIO_Real     distance_value; /* Distance from mouse to another point. */
+    char         distance_origin[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
+    /*
+     * Get the voxel coordinates corresponding to the current mouse
+     * position, if the mouse is actively over one of the visible 
+     * slice views.
+     */
     active = get_voxel_in_slice_window( slice_window, voxel, &volume_index,
                                         &view_index );
 
     if( active )
     {
-        get_slice_model_viewport( slice_window, SLICE_READOUT_MODEL,
-                                  &x_min, &x_max, &y_min, &y_max );
+        int        ivoxel[VIO_MAX_DIMENSIONS];
+        VIO_Volume volume = get_nth_volume( slice_window, volume_index );
 
-        volume = get_nth_volume( slice_window, volume_index );
-
-        get_volume_sizes( volume, sizes );
-
+        /* Get the current world coordinates.
+         */
         convert_voxel_to_world( volume, voxel,
-                                &x_world, &y_world, &z_world );
+                                &world[VIO_X], &world[VIO_Y], &world[VIO_Z]);
 
-        convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
-
+        /* Get the "real" (scaled) value of the voxel under the mouse.
+         */
         (void) evaluate_volume( volume, voxel, NULL,
                                 slice_window->slice.degrees_continuity,
-                                FALSE, 0.0, &value, NULL, NULL );
+                                FALSE, 0.0, &real_value, NULL, NULL );
 
-        voxel_value = convert_value_to_voxel( volume, value );
+        /* Get the "raw" value of the voxel.
+         */
+        voxel_value = convert_value_to_voxel( volume, real_value );
+
+        /* Convert the voxel coordinates to integer format.
+         */
+        convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, ivoxel );
 
         label = get_voxel_label( slice_window, volume_index,
-                                 int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z] );
+                                 ivoxel[VIO_X], ivoxel[VIO_Y], ivoxel[VIO_Z] );
 
-        if( slice_window->slice.print_probe_ratio)
-		{
-        	int ratio_num_index =
-        			slice_window->slice.ratio_volume_index_numerator;
-        	int ratio_den_index =
-        	        slice_window->slice.ratio_volume_index_denominator;
+        if( slice_window->slice.ratio_enabled)
+            ratio = calculate_volume_ratio(slice_window, voxel);
 
-			volume_ratio_num = get_nth_volume( slice_window, ratio_num_index );
-			volume_ratio_den = get_nth_volume( slice_window, ratio_den_index );
-
-			(void) evaluate_volume( volume_ratio_num, voxel, NULL,
-                                    slice_window->slice.degrees_continuity,
-	                                FALSE, 0.0, &value_ratio_num, NULL, NULL );
-			(void) evaluate_volume( volume_ratio_den, voxel, NULL,
-                                    slice_window->slice.degrees_continuity,
-	                                FALSE, 0.0, &value_ratio_den, NULL, NULL );
-			ratio = value_ratio_num / value_ratio_den;
-		}
-
-        distance_value = calculate_user_distance(slice_window, distance_origin);
-
+        distance_value = calculate_user_distance(slice_window, world, 
+                                                 distance_origin);
     }
 
-    /* --- do slice readout models */
+    /* Reformat each of the text objects in the slice readout model. */
 
     model = get_graphics_model( slice_window, SLICE_READOUT_MODEL );
 
     for_less( i, 0, N_READOUT_MODELS )
     {
-    	text = get_text_ptr( model->objects[i] );
-    	if( active )
+        char        buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
+        text_struct *text;
+        int         x_pos, y_pos;
+
+        buffer[0] = VIO_END_OF_STRING;
+
+        if( active )
         {
             switch( i )
             {
@@ -481,34 +503,36 @@ calculate_user_distance(display_struct *slice_window, char *distance_origin)
                 (void) sprintf( buffer, Slice_probe_z_voxel_format,
                                 voxel[VIO_Z] );
                 break;
-
             case X_WORLD_PROBE_INDEX:
                 (void) sprintf( buffer, Slice_probe_x_world_format,
-                                x_world );
+                                world[VIO_X] );
                 break;
             case Y_WORLD_PROBE_INDEX:
                 (void) sprintf( buffer, Slice_probe_y_world_format,
-                                y_world );
+                                world[VIO_Y] );
                 break;
             case Z_WORLD_PROBE_INDEX:
-                (void) sprintf( buffer, Slice_probe_z_world_format,
-                                z_world );
+                (void) sprintf( buffer, Slice_probe_z_world_format, 
+                                world[VIO_Z] );
                 break;
             case VOXEL_PROBE_INDEX:
-                (void) sprintf( buffer, Slice_probe_voxel_format,
+                (void) sprintf( buffer, Slice_probe_voxel_format, 
                                 voxel_value );
                 break;
             case VAL_PROBE_INDEX:
-                (void) sprintf( buffer, Slice_probe_val_format, value );
+                (void) sprintf( buffer, Slice_probe_val_format, real_value );
                 break;
             case LABEL_PROBE_INDEX:
                 (void) sprintf( buffer, Slice_probe_label_format, label );
                 break;
             case RATIO_PROBE_INDEX:
-            	if( slice_window->slice.print_probe_ratio )
-            		(void) sprintf( buffer, Slice_probe_ratio_format, ratio );
-            	else
-            		(void) sprintf( buffer, "" );
+                if( slice_window->slice.ratio_enabled )
+                {
+                    (void) sprintf( buffer, Slice_probe_ratio_format, 
+                                    slice_window->slice.ratio_volume_numerator,
+                                    slice_window->slice.ratio_volume_denominator,
+                                    ratio );
+                }
                 break;
 
             case DISTANCE_PROBE_INDEX:
@@ -516,13 +540,10 @@ calculate_user_distance(display_struct *slice_window, char *distance_origin)
                 break;
             }
         }
-        else
-        {
-            buffer[0] = VIO_END_OF_STRING;
-        }
 
         x_pos = Probe_x_pos + i * Probe_x_delta;
-        switch (i) {
+        switch (i)
+        {
         case VOLUME_INDEX:
           y_pos = Probe_y_pos + (N_READOUT_MODELS-i-1) * Probe_y_delta + 
             (3 * Probe_y_pos);
@@ -548,9 +569,13 @@ calculate_user_distance(display_struct *slice_window, char *distance_origin)
           break;
         }
 
+        /* Set the text and position of the text object.
+         * We should not really have to reset the origin every time, 
+         * but it is probably not terribly expensive to calculate.
+         */
+        text = get_text_ptr( model->objects[i] );
         delete_string( text->string );
         text->string = create_string( buffer );
-
         fill_Point( text->origin, x_pos, y_pos, 0.0 );
     }
 

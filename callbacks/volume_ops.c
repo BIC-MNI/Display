@@ -239,12 +239,7 @@ static  void  create_scaled_slice(
     {
         if( scale_slice_flag )
         {
-            VIO_Status  status;
-
-            print( "Enter scaling: " );
-            status = input_real( stdin, &scale_factor );
-            (void) input_newline( stdin );
-            if( status != VIO_OK )
+          if (get_user_input("Enter scaling: ", "r", &scale_factor) != VIO_OK)
                 return;
         }
 
@@ -349,16 +344,14 @@ DEF_MENU_FUNCTION(resample_slice_window_volume)
     if( get_slice_window_volume( display, &volume ) &&
         get_slice_window( display, &slice_window ) )
     {
+        char prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
+
         get_volume_sizes( volume, sizes );
 
-        print( "The original volume is %d by %d by %d.\n",
-               sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
-
-        print( "Enter desired resampled size: " );
-
-        if( input_int( stdin, &new_nx ) == VIO_OK &&
-            input_int( stdin, &new_ny ) == VIO_OK &&
-            input_int( stdin, &new_nz ) == VIO_OK &&
+        sprintf(prompt, "The original volume is %d by %d by %d.\n"
+                "Enter desired resampled size: ", 
+                sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
+        if (get_user_input( prompt, "ddd", &new_nx, &new_ny, &new_nz) == VIO_OK &&
             (new_nx > 0 || new_ny > 0 || new_nz > 0) )
         {
             resampled_volume = smooth_resample_volume(
@@ -371,8 +364,6 @@ DEF_MENU_FUNCTION(resample_slice_window_volume)
 
             add_slice_window_volume( slice_window, label, resampled_volume );
         }
-
-        (void) input_newline( stdin );
     }
 
     return( VIO_OK );
@@ -401,12 +392,9 @@ DEF_MENU_FUNCTION(box_filter_slice_window_volume)
     {
         get_volume_separations( volume, separations );
 
-        print( "Enter box filter  x_width, y_width, z_width, v/w: " );
+        if (get_user_input( "Enter box filter x_width, y_width, z_width, v/w: " ,
+                            "rrrc", &x_width, &y_width, &z_width, &ch) == VIO_OK &&
 
-        if( input_real( stdin, &x_width ) == VIO_OK &&
-            input_real( stdin, &y_width ) == VIO_OK &&
-            input_real( stdin, &z_width ) == VIO_OK &&
-            input_nonwhite_character( stdin, &ch ) == VIO_OK &&
             (ch == 'w' ||
              x_width > 1.0 || y_width > 1.0 || z_width > 1.0) )
         {
@@ -428,8 +416,6 @@ DEF_MENU_FUNCTION(box_filter_slice_window_volume)
 
             add_slice_window_volume( slice_window, label, resampled_volume );
         }
-
-        (void) input_newline( stdin );
     }
 
     return( VIO_OK );
@@ -563,14 +549,10 @@ DEF_MENU_FUNCTION(set_crop_box_filename)
 
     if( get_slice_window( display, &slice_window ) )
     {
-        print( "Enter crop filename: " );
-
-        if( input_string( stdin, &filename, ' ' ) == VIO_OK )
+      if (get_user_file( "Enter crop filename: ", FALSE, &filename ) == VIO_OK)
         {
             set_crop_filename( slice_window, filename );
         }
-
-        (void) input_newline( stdin );
 
         delete_string( filename );
     }
@@ -615,15 +597,11 @@ DEF_MENU_FUNCTION(crop_volume_to_file)
 
     if( get_slice_window( display, &slice_window ) )
     {
-        print( "Enter filename to create: " );
-
-        if( input_string( stdin, &filename, ' ' ) == VIO_OK )
+      if (get_user_file( "Enter filename to create: ", TRUE, &filename ) == VIO_OK)
         {
             if( create_cropped_volume_to_file( slice_window, filename ) == VIO_OK )
                 print( "Created %s.\n", filename );
         }
-
-        (void) input_newline( stdin );
 
         delete_string( filename );
     }
@@ -778,21 +756,17 @@ DEF_MENU_UPDATE(print_slice_plane)
 
 DEF_MENU_FUNCTION(type_in_voxel_origin)
 {
-    VIO_STR           type;
-    VIO_Real             voxel[VIO_MAX_DIMENSIONS], xw, yw, zw;
+    char             type;
+    VIO_Real         voxel[VIO_MAX_DIMENSIONS], xw, yw, zw;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        print( "Enter x y z world coordinate and v|w: " );
-
-        if( input_real( stdin, &xw ) == VIO_OK &&
-            input_real( stdin, &yw ) == VIO_OK &&
-            input_real( stdin, &zw ) == VIO_OK &&
-            input_string( stdin, &type, ' ' ) == VIO_OK )
-        {
-            if( type[0] == 'w' )
+      if (get_user_input("Enter x y z world coordinate and v|w: ",
+                         "rrrc", &xw, &yw, &zw, &type) == VIO_OK)
+      {
+            if( type == 'w' )
             {
                 convert_world_to_voxel( get_volume(slice_window), xw, yw, zw,
                                         voxel );
@@ -810,11 +784,7 @@ DEF_MENU_FUNCTION(type_in_voxel_origin)
                 if( update_cursor_from_voxel( slice_window ) )
                     set_update_required( display, NORMAL_PLANES );
             }
-
-            delete_string( type );
         }
-
-        (void) input_newline( stdin );
     }
 
     return( VIO_OK );
@@ -833,23 +803,20 @@ DEF_MENU_FUNCTION(type_in_slice_plane)
 {
     int              view_index;
     VIO_Real             perp_axis[VIO_MAX_DIMENSIONS], xw, yw, zw;
-    VIO_STR           type;
+    char             type;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 &&
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
-        print( "View %d:  enter x y z plane normal in world coordinate\n",
-               view_index );
-        print( "and v or w for voxel or world: " );
-
-        if( input_real( stdin, &xw ) == VIO_OK &&
-            input_real( stdin, &yw ) == VIO_OK &&
-            input_real( stdin, &zw ) == VIO_OK &&
-            input_string( stdin, &type, ' ' ) == VIO_OK )
+        char prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
+        sprintf(prompt, 
+                "View %d: enter x y z plane normal in world coordinate\n" 
+                "and v or w for voxel or world: ", view_index );
+        if (get_user_input(prompt, "rrrc", &xw, &yw, &zw, &type) == VIO_OK)
         {
-            if( type[0] == 'w' )
+            if( type == 'w' )
             {
                 convert_world_vector_to_voxel( get_volume(slice_window),
                                                xw, yw, zw, perp_axis );
@@ -865,11 +832,7 @@ DEF_MENU_FUNCTION(type_in_slice_plane)
                                        get_current_volume_index(slice_window),
                                        view_index, perp_axis);
             reset_slice_view( slice_window, view_index );
-
-            delete_string( type );
         }
-
-        (void) input_newline( stdin );
     }
 
     return( VIO_OK );
@@ -1075,15 +1038,11 @@ DEF_MENU_FUNCTION(set_current_volume_opacity)
 
         if( current >= 0 )
         {
-            print( "Enter volume opacity ( 0.0 <= o <= 1.0 ): " );
-
-            if( input_real( stdin, &opacity ) == VIO_OK &&
-                opacity >= 0.0 )
+            if (get_user_input("Enter volume opacity ( 0.0 <= o <= 1.0 ): ",
+                               "r", &opacity) == VIO_OK && opacity >= 0.0)
             {
                 set_volume_opacity( slice_window, current, opacity );
             }
-
-            (void) input_newline( stdin );
         }
     }
 
@@ -1281,9 +1240,7 @@ DEF_MENU_FUNCTION( save_slice_image )
         get_n_volumes(slice_window) > 0 &&
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
-        print( "Enter filename: " );
-
-        if( input_string( stdin, &filename, ' ' ) == VIO_OK )
+      if( get_user_file("Enter filename: " , TRUE, &filename) == VIO_OK)
         {
             get_slice_viewport( slice_window, view_index,
                                 &x_min, &x_max, &y_min, &y_max );
@@ -1293,8 +1250,6 @@ DEF_MENU_FUNCTION( save_slice_image )
 
             print( "Done saving slice image to %s.\n", filename );
         }
-
-        (void) input_newline( stdin );
 
         delete_string( filename );
     }
@@ -1322,9 +1277,7 @@ DEF_MENU_FUNCTION( save_slice_window )
 
     if( get_slice_window( display, &slice_window ) )
     {
-        print( "Enter filename: " );
-
-        if( input_string( stdin, &filename, ' ' ) == VIO_OK )
+      if (get_user_file( "Enter filename: " , TRUE, &filename) == VIO_OK)
         {
             G_get_window_size( slice_window->window, &x_size, &y_size );
 
@@ -1333,9 +1286,6 @@ DEF_MENU_FUNCTION( save_slice_window )
 
             print( "Done saving slice window to %s.\n", filename );
         }
-
-        (void) input_newline( stdin );
-
         delete_string( filename );
     }
 
@@ -1442,16 +1392,13 @@ DEF_MENU_FUNCTION(insert_volume_as_labels)
 
     if( get_slice_window( display, &slice_window ) )
     {
-        print( "Enter the index of the volume which represents the labels: " );
-        if( input_int( stdin, &src_index ) != VIO_OK || src_index < 1 ||
-            src_index > get_n_volumes(display) )
+      if (get_user_input( "Enter the index of the volume which represents the labels: ", "d", &src_index ) != VIO_OK ||
+          src_index < 1 ||
+          src_index > get_n_volumes(display) )
         {
-            (void) input_newline( stdin );
             print_error( "Index out of range, operation cancelled.\n" );
             return( VIO_ERROR );
         }
-
-        (void) input_newline( stdin );
 
         --src_index;
 

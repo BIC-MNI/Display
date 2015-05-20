@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file surf_segmenting.c
+ * \brief Commands for manipulating surfaces.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -27,7 +25,7 @@ static  void  crop_surface(
     VIO_BOOL          above_flag );
 static  VIO_Status  io_polygons_visibilities(
     polygons_struct  *polygons,
-    VIO_IO_types         io_flag );
+    VIO_IO_types     io_flag );
 
 /* ARGSUSED */
 
@@ -91,13 +89,11 @@ static  VIO_Status  io_polygons_visibilities(
 {
     int   n;
 
-    print( "Enter # paint polygons: " );
-
-    if( input_int( stdin, &n ) == VIO_OK && n >= 0 )
+    if (get_user_input( "Enter # paint polygons: ", "d", &n) == VIO_OK &&
+        n >= 0)
+    {
         display->three_d.surface_edit.n_paint_polygons = n;
-
-    (void) input_newline( stdin );
-
+    }
     return( VIO_OK );
 }
 
@@ -115,20 +111,21 @@ static  VIO_Status  io_polygons_visibilities(
 
   DEF_MENU_FUNCTION( set_vis_paint_colour )
 {
-    VIO_Status      status;
+    VIO_Status   status;
     VIO_STR      string;
-    VIO_Colour      colour;
+    VIO_Colour   colour;
+    char         prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     string = convert_colour_to_string(
                  display->three_d.surface_edit.visible_colour );
 
-    print( "The current visible paint colour is: %s\n", string );
+    sprintf( prompt, "The current visible paint colour is: %s\n"
+             "Enter the new colour name or 3 or 4 colour components: ",
+             string );
 
     delete_string( string );
 
-    print( "Enter the new colour name or 3 or 4 colour components: " );
-
-    status = input_line( stdin, &string );
+    status = get_user_input(prompt, "s", &string );
 
     if( status == VIO_OK )
     {
@@ -163,20 +160,21 @@ static  VIO_Status  io_polygons_visibilities(
 
   DEF_MENU_FUNCTION( set_invis_paint_colour )
 {
-    VIO_Status      status;
+    VIO_Status   status;
     VIO_STR      string;
-    VIO_Colour      colour;
+    VIO_Colour   colour;
+    char         prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     string = convert_colour_to_string(
                    display->three_d.surface_edit.invisible_colour );
 
-    print( "The current invisible paint colour is: %s\n", string );
+    sprintf( prompt, "The current invisible paint colour is: %s\n"
+             "Enter the new colour name or 3 or 4 colour components: ",
+             string );
 
     delete_string( string );
 
-    print( "Enter the new colour name or 3 or 4 colour components: " );
-
-    status = input_line( stdin, &string );
+    status = get_user_input( prompt, "s", &string );
 
     if( status == VIO_OK )
     {
@@ -590,13 +588,8 @@ static  void  crop_surface(
         }
         else
         {
-            print( "Specify an axis: " );
-            while( input_nonwhite_character( stdin, &ch ) == VIO_OK &&
-                   ch != '\n' && (ch < 'x' || ch > 'z') )
-            {}
-
-            if( ch != '\n' )
-                (void) input_newline( stdin );
+            if (get_user_input( "Specify an axis: ", "c", &ch) != VIO_OK)
+                return;
 
             axis_index = ch - 'x';
             if( axis_index < 0 || axis_index > 2 )
@@ -662,19 +655,15 @@ static  void  crop_surface(
 
 static  VIO_Status  io_polygons_visibilities(
     polygons_struct  *polygons,
-    VIO_IO_types         io_flag )
+    VIO_IO_types     io_flag )
 {
-    VIO_Status           status;
-    VIO_STR           filename;
+    VIO_Status       status;
+    VIO_STR          filename;
     FILE             *file;
 
     create_polygons_visibilities( polygons );
 
-    print( "Enter filename: " );
-
-    status = input_string( stdin, &filename, ' ' );
-
-    (void) input_newline( stdin );
+    status = get_user_file("Enter filename: ", io_flag == WRITE_FILE, &filename);
 
     if( status == VIO_OK )
         status = open_file_with_default_suffix( filename, "vis", io_flag,

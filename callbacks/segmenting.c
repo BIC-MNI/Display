@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file callbacks/segmenting.c
+ * \brief Menu commands to control painting (segmenting) in the slice view.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 #include "stack.h"
@@ -33,7 +31,7 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( toggle_undo_feature )
+DEF_MENU_FUNCTION( toggle_undo_feature )
 {
     display_struct   *slice_window;
 
@@ -49,7 +47,7 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE( toggle_undo_feature )
+DEF_MENU_UPDATE( toggle_undo_feature )
 {
     VIO_BOOL          state, set;
     display_struct   *slice_window;
@@ -68,7 +66,7 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( label_voxel )
+DEF_MENU_FUNCTION( label_voxel )
 {
     VIO_Real           voxel[VIO_MAX_DIMENSIONS];
     int            view_index, int_voxel[VIO_MAX_DIMENSIONS], volume_index;
@@ -96,14 +94,14 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(label_voxel )
+DEF_MENU_UPDATE(label_voxel )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( clear_voxel )
+DEF_MENU_FUNCTION( clear_voxel )
 {
     VIO_Real           voxel[VIO_MAX_DIMENSIONS];
     display_struct *slice_window;
@@ -127,14 +125,14 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(clear_voxel )
+DEF_MENU_UPDATE(clear_voxel )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( reset_segmenting )
+DEF_MENU_FUNCTION( reset_segmenting )
 {
     display_struct   *slice_window;
 
@@ -155,29 +153,26 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(reset_segmenting )
+DEF_MENU_UPDATE(reset_segmenting )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_segmenting_threshold )
+DEF_MENU_FUNCTION( set_segmenting_threshold )
 {
     display_struct   *slice_window;
     VIO_Real             min, max;
 
     if( get_slice_window( display, &slice_window ) )
     {
-        print( "Enter min and max threshold: " );
-
-        if( input_real( stdin, &min ) == VIO_OK && input_real( stdin, &max ) == VIO_OK )
+        if (get_user_input( "Enter min and max threshold: ", "rr", 
+                            &min, &max) == VIO_OK)
         {
             slice_window->slice.segmenting.min_threshold = min;
             slice_window->slice.segmenting.max_threshold = max;
         }
-
-        (void) input_newline( stdin );
     }
 
     return( VIO_OK );
@@ -185,7 +180,7 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_segmenting_threshold )
+DEF_MENU_UPDATE(set_segmenting_threshold )
 {
     return( slice_window_exists(display) );
 }
@@ -233,7 +228,7 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(load_label_data)
+DEF_MENU_FUNCTION(load_label_data)
 {
     VIO_Status           status;
     VIO_STR           filename;
@@ -242,11 +237,7 @@ static  void   set_connected_labels(
 
     if( get_n_volumes(display) > 0 )
     {
-        print( "Enter filename to load: " );
-
-        status = input_string( stdin, &filename, ' ' );
-
-        (void) input_newline( stdin );
+        status = get_user_file( "Enter filename to load: ", FALSE, &filename );
 
         status = input_label_volume_file( display, filename );
 
@@ -260,14 +251,14 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(load_label_data )
+DEF_MENU_UPDATE(load_label_data )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(save_label_data)
+DEF_MENU_FUNCTION(save_label_data)
 {
     VIO_Status           status;
     VIO_STR           filename, backup_filename;
@@ -281,14 +272,11 @@ static  void   set_connected_labels(
     {
 
     	if( string_length(Output_label_filename) )
-    		filename = Output_label_filename;
+    	    filename = Output_label_filename;
     	else
     	{
-    		print( "Enter filename to save: " );
-
-			status = input_string( stdin, &filename, ' ' );
-
-			(void) input_newline( stdin );
+            status = get_user_file( "Enter filename to save: ", TRUE,
+                                    &filename);
     	}
 
         if( status == VIO_OK && check_clobber_file( filename ) )
@@ -331,7 +319,7 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(save_label_data )
+DEF_MENU_UPDATE(save_label_data )
 {
     return( get_n_volumes(display) > 0 );
 }
@@ -383,22 +371,18 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( load_labels )
+DEF_MENU_FUNCTION( load_labels )
 {
     VIO_STR         filename;
 
     if( get_n_volumes(display) > 0 )
     {
-        print( "Enter filename: " );
-        if( input_string( stdin, &filename, ' ' ) == VIO_OK )
+        if (get_user_file("Enter filename: ", FALSE, &filename) == VIO_OK)
         {
             (void) input_tag_label_file( display, filename );
 
             print( "Done loading.\n" );
         }
-
-        (void) input_newline( stdin );
-
         delete_string( filename );
     }
 
@@ -407,7 +391,7 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(load_labels )
+DEF_MENU_UPDATE(load_labels )
 {
     return( get_n_volumes(display) > 0 );
 }
@@ -421,9 +405,7 @@ static  void   save_labels_as_tags(
     FILE           *file;
     VIO_STR         filename;
 
-    print( "Enter filename to save: " );
-    status = input_string( stdin, &filename, ' ' );
-    (void) input_newline( stdin );
+    status = get_user_file( "Enter filename to save: ", TRUE, &filename);
 
     if( status == VIO_OK && check_clobber_file_default_suffix( filename,
                                             get_default_tag_file_suffix() ) )
@@ -643,7 +625,7 @@ static  void   save_labels_as_tags(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( save_labels )
+DEF_MENU_FUNCTION( save_labels )
 {
     display_struct *slice_window;
 
@@ -658,14 +640,14 @@ static  void   save_labels_as_tags(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(save_labels )
+DEF_MENU_UPDATE(save_labels )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( save_current_label )
+DEF_MENU_FUNCTION( save_current_label )
 {
     display_struct *slice_window;
 
@@ -686,14 +668,14 @@ static  void   save_labels_as_tags(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(save_current_label )
+DEF_MENU_UPDATE(save_current_label )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(label_slice)
+DEF_MENU_FUNCTION(label_slice)
 {
     set_slice_labels( display, get_current_paint_label(display) );
 
@@ -702,14 +684,14 @@ static  void   save_labels_as_tags(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(label_slice )
+DEF_MENU_UPDATE(label_slice )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(clear_slice)
+DEF_MENU_FUNCTION(clear_slice)
 {
     set_slice_labels( display, 0 );
 
@@ -718,7 +700,7 @@ static  void   save_labels_as_tags(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(clear_slice )
+DEF_MENU_UPDATE(clear_slice )
 {
     return( get_n_volumes(display) > 0 );
 }
@@ -754,7 +736,7 @@ static  void  set_slice_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(clear_connected)
+DEF_MENU_FUNCTION(clear_connected)
 {
     set_connected_labels( display, 0, TRUE );
 
@@ -763,14 +745,14 @@ static  void  set_slice_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(clear_connected )
+DEF_MENU_UPDATE(clear_connected )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(label_connected)
+DEF_MENU_FUNCTION(label_connected)
 {
     set_connected_labels( display, get_current_paint_label(display), TRUE );
 
@@ -779,14 +761,14 @@ static  void  set_slice_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(label_connected )
+DEF_MENU_UPDATE(label_connected )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(label_connected_no_threshold)
+DEF_MENU_FUNCTION(label_connected_no_threshold)
 {
     set_connected_labels( display, get_current_paint_label(display), FALSE );
 
@@ -795,7 +777,7 @@ static  void  set_slice_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(label_connected_no_threshold )
+DEF_MENU_UPDATE(label_connected_no_threshold )
 {
     return( get_n_volumes(display) > 0 );
 }
@@ -856,7 +838,7 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(label_connected_3d)
+DEF_MENU_FUNCTION(label_connected_3d)
 {
     VIO_Real             voxel[VIO_MAX_DIMENSIONS];
     int              range_changed[2][VIO_N_DIMENSIONS];
@@ -905,14 +887,14 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(label_connected_3d )
+DEF_MENU_UPDATE(label_connected_3d )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(dilate_labels)
+DEF_MENU_FUNCTION(dilate_labels)
 {
     int              min_outside_label, max_outside_label;
     int              range_changed[2][VIO_N_DIMENSIONS];
@@ -922,10 +904,10 @@ static  void   set_connected_labels(
     if( get_slice_window( display, &slice_window ) &&
         get_slice_window_volume( slice_window, &volume) )
     {
-        print( "Enter min and max outside label: " );
-
-        if( input_int( stdin, &min_outside_label ) == VIO_OK &&
-            input_int( stdin, &max_outside_label ) == VIO_OK )
+        if (get_user_input( "Enter min and max outside label: ",
+                            "dd", 
+                            &min_outside_label,
+                            &max_outside_label ) == VIO_OK )
         {
             (void) dilate_voxels_3d( get_volume(display),
                                   get_label_volume(display),
@@ -951,8 +933,6 @@ static  void   set_connected_labels(
             tell_surface_extraction_range_of_labels_changed( display,
                      get_current_volume_index(slice_window), range_changed );
         }
-
-        (void) input_newline( stdin );
     }
 
     return( VIO_OK );
@@ -960,27 +940,26 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(dilate_labels )
+DEF_MENU_UPDATE(dilate_labels )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(erode_labels)
+DEF_MENU_FUNCTION(erode_labels)
 {
     int              min_outside_label, max_outside_label, set_value;
     int              range_changed[2][VIO_N_DIMENSIONS];
-    VIO_Volume           volume;
+    VIO_Volume       volume;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
         get_slice_window_volume( slice_window, &volume) )
     {
-        print( "Enter min and max outside label: " );
-
-        if( input_int( stdin, &min_outside_label ) == VIO_OK &&
-            input_int( stdin, &max_outside_label ) == VIO_OK )
+      if (get_user_input( "Enter min and max outside label: ", "dd",
+                          &min_outside_label,
+                          &max_outside_label ) == VIO_OK )
         {
             if( min_outside_label <= max_outside_label )
                 set_value = MAX( min_outside_label, 0 );
@@ -1008,8 +987,6 @@ static  void   set_connected_labels(
             tell_surface_extraction_range_of_labels_changed( display,
                      get_current_volume_index(slice_window), range_changed );
         }
-
-        (void) input_newline( stdin );
     }
 
     return( VIO_OK );
@@ -1017,14 +994,14 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(erode_labels )
+DEF_MENU_UPDATE(erode_labels )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(toggle_connectivity)
+DEF_MENU_FUNCTION(toggle_connectivity)
 {
     display_struct   *slice_window;
 
@@ -1041,7 +1018,7 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_connectivity )
+DEF_MENU_UPDATE(toggle_connectivity )
 {
     VIO_BOOL          state;
     display_struct   *slice_window;
@@ -1072,7 +1049,7 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(toggle_crop_labels_on_output)
+DEF_MENU_FUNCTION(toggle_crop_labels_on_output)
 {
     display_struct   *slice_window;
 
@@ -1087,7 +1064,7 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_crop_labels_on_output)
+DEF_MENU_UPDATE(toggle_crop_labels_on_output)
 {
     VIO_BOOL          state, set;
     display_struct   *slice_window;
@@ -1107,7 +1084,7 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(clear_label_connected_3d)
+DEF_MENU_FUNCTION(clear_label_connected_3d)
 {
     VIO_Real             voxel[VIO_MAX_DIMENSIONS];
     int              range_changed[2][VIO_N_DIMENSIONS];
@@ -1160,7 +1137,7 @@ static  void   set_connected_labels(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(clear_label_connected_3d )
+DEF_MENU_UPDATE(clear_label_connected_3d )
 {
     return( get_n_volumes(display) > 0 );
 }

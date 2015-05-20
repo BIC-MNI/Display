@@ -372,7 +372,7 @@ START_GLOBALS
     DEF_GLOBAL( Exit_error_load_file, VIO_BOOL, TRUE )
     DEF_GLOBAL( Ratio_volume_index, VIO_STR, "" )
     DEF_GLOBAL( Ratio_volume_index_format, VIO_STR, "%d,%d" )
-    DEF_GLOBAL( Slice_probe_ratio_format, VIO_STR, "Ratio %6.2f" )
+    DEF_GLOBAL( Slice_probe_ratio_format, VIO_STR, "%d/%d %6.2f" )
     DEF_GLOBAL_COLOUR( Slice_probe_ratio_colour )
 
     DEF_GLOBAL( Hide_3D_window, VIO_BOOL, TRUE)
@@ -399,5 +399,5 @@ START_GLOBALS
   
     DEF_GLOBAL( Object_outline_width, VIO_Real, 1.0 )
     DEF_GLOBAL( Object_outline_enabled, VIO_BOOL, TRUE )
-
+    DEF_GLOBAL( Use_zenity_for_input, VIO_BOOL, TRUE )
 END_GLOBALS

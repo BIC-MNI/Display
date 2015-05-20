@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file surface_extract.c
+ * \brief Menu commands for generating surfaces from labeled volumes.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -29,9 +27,9 @@ static  void  start_surface(
     VIO_BOOL          voxelate_flag )
 {
     display_struct  *slice_window;
-    VIO_BOOL         input_okay;
-    VIO_Real            min_value, max_value;
-    VIO_Real            voxel[VIO_MAX_DIMENSIONS];
+    VIO_BOOL        input_okay;
+    VIO_Real        min_value, max_value;
+    VIO_Real        voxel[VIO_MAX_DIMENSIONS];
     int             int_voxel[VIO_MAX_DIMENSIONS];
     VIO_Volume          volume, label_volume;
 
@@ -61,20 +59,16 @@ static  void  start_surface(
 
         if( binary_flag || voxelate_flag )
         {
-            print( "Enter min and max inside value: " );
-            if( input_real( stdin, &min_value ) != VIO_OK ||
-                input_real( stdin, &max_value ) != VIO_OK )
+            if (get_user_input("Enter min and max inside value: " ,
+                               "rr", &min_value, &max_value) != VIO_OK)
                 input_okay = FALSE;
         }
         else
         {
-            print( "Enter isovalue: " );
-            if( input_real( stdin, &min_value ) != VIO_OK )
+            if (get_user_input( "Enter isovalue: ", "r", &min_value) != VIO_OK)
                 input_okay = FALSE;
             max_value = min_value;
         }
-
-        (void) input_newline( stdin );
 
         if( !input_okay )
             return;
@@ -110,7 +104,7 @@ static  void  start_surface(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(start_volume_isosurface )
+DEF_MENU_FUNCTION(start_volume_isosurface )
 {
     start_surface( display, FALSE, FALSE, FALSE );
 
@@ -119,14 +113,14 @@ static  void  start_surface(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(start_volume_isosurface )
+DEF_MENU_UPDATE(start_volume_isosurface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(start_volume_binary_isosurface )
+DEF_MENU_FUNCTION(start_volume_binary_isosurface )
 {
     start_surface( display, FALSE, TRUE, FALSE );
 
@@ -135,14 +129,14 @@ static  void  start_surface(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(start_volume_binary_isosurface )
+DEF_MENU_UPDATE(start_volume_binary_isosurface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(start_label_binary_isosurface )
+DEF_MENU_FUNCTION(start_label_binary_isosurface )
 {
     start_surface( display, TRUE, TRUE, FALSE );
 
@@ -151,14 +145,14 @@ static  void  start_surface(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(start_label_binary_isosurface )
+DEF_MENU_UPDATE(start_label_binary_isosurface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(toggle_surface_extraction)
+DEF_MENU_FUNCTION(toggle_surface_extraction)
 {
     VIO_Volume                  volume;
 
@@ -175,7 +169,7 @@ static  void  start_surface(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(toggle_surface_extraction )
+DEF_MENU_UPDATE(toggle_surface_extraction )
 {
     set_menu_text_on_off( menu_window, menu_entry,
                   display->three_d.surface_extraction.extraction_in_progress );
@@ -185,7 +179,7 @@ static  void  start_surface(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(reset_surface)
+DEF_MENU_FUNCTION(reset_surface)
 {
     if( get_n_volumes(display) > 0 )
     {
@@ -199,14 +193,14 @@ static  void  start_surface(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(reset_surface )
+DEF_MENU_UPDATE(reset_surface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(make_surface_permanent)
+DEF_MENU_FUNCTION(make_surface_permanent)
 {
     object_struct  *object;
 
@@ -235,7 +229,7 @@ static  void  start_surface(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(make_surface_permanent )
+DEF_MENU_UPDATE(make_surface_permanent )
 {
     return( get_n_volumes(display) > 0 &&
             display->three_d.surface_extraction.polygons->n_items > 0 );
@@ -243,7 +237,7 @@ static  void  start_surface(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(get_voxelated_label_surface)
+DEF_MENU_FUNCTION(get_voxelated_label_surface)
 {
     start_surface( display, TRUE, FALSE, TRUE );
     return( VIO_OK );
@@ -251,14 +245,14 @@ static  void  start_surface(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(get_voxelated_label_surface )
+DEF_MENU_UPDATE(get_voxelated_label_surface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION(get_voxelated_surface)
+DEF_MENU_FUNCTION(get_voxelated_surface)
 {
     start_surface( display, FALSE, FALSE, TRUE );
 
@@ -267,34 +261,29 @@ static  void  start_surface(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(get_voxelated_surface )
+DEF_MENU_UPDATE(get_voxelated_surface )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_surface_invalid_label_range )
+DEF_MENU_FUNCTION( set_surface_invalid_label_range )
 {
     int      min_label, max_label;
 
-    print( "Enter min label and max label corresponding to invalid voxels: " );
-
-    if( input_int( stdin, &min_label ) == VIO_OK &&
-        input_int( stdin, &max_label ) == VIO_OK )
+    if (get_user_input( "Enter min label and max label corresponding to invalid voxels: ",
+                        "dd", &min_label, &max_label ) == VIO_OK )
     {
         set_invalid_label_range_for_surface_extraction( display,
                                                         min_label, max_label );
     }
-
-    (void) input_newline( stdin );
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_surface_invalid_label_range )
+DEF_MENU_UPDATE(set_surface_invalid_label_range )
 {
     return( TRUE );
 }

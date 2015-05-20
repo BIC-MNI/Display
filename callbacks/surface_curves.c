@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file callbacks/surface_curves.c
+ * \brief Menu commands for drawing curves on 3D surfaces.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,21 +13,16 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( start_surface_line )
+DEF_MENU_FUNCTION( start_surface_line )
 {
     start_surface_curve( display );
 
@@ -33,14 +31,14 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(start_surface_line)
+DEF_MENU_UPDATE(start_surface_line)
 {
     return( !display->three_d.surface_curve.picking_points );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( end_surface_line )
+DEF_MENU_FUNCTION( end_surface_line )
 {
     end_surface_curve( display );
 
@@ -49,14 +47,14 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(end_surface_line)
+DEF_MENU_UPDATE(end_surface_line)
 {
     return( display->three_d.surface_curve.picking_points );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( close_surface_line )
+DEF_MENU_FUNCTION( close_surface_line )
 {
     close_surface_curve( display );
 
@@ -65,14 +63,14 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(close_surface_line)
+DEF_MENU_UPDATE(close_surface_line)
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( reset_surface_line )
+DEF_MENU_FUNCTION( reset_surface_line )
 {
     reset_surface_curve( display );
 
@@ -81,14 +79,14 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(reset_surface_line)
+DEF_MENU_UPDATE(reset_surface_line)
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( make_surface_line_permanent )
+DEF_MENU_FUNCTION( make_surface_line_permanent )
 {
     make_surface_curve_permanent( display );
 
@@ -97,36 +95,33 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(make_surface_line_permanent)
+DEF_MENU_UPDATE(make_surface_line_permanent)
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_line_curvature_weight )
+DEF_MENU_FUNCTION( set_line_curvature_weight )
 {
-    VIO_Real        weight;
+    VIO_Real    weight;
+    char        prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    print( "The current line curvature weight is: %g\n",
-           display->three_d.surface_curve.line_curvature_weight );
+    sprintf( prompt,
+             "The current line curvature weight is: %g\nEnter the new value: ",
+             display->three_d.surface_curve.line_curvature_weight);
 
-    print( "Enter the new value: " );
-
-    if( input_real( stdin, &weight ) == VIO_OK )
+    if( get_user_input( prompt, "r", &weight ) == VIO_OK )
     {
         display->three_d.surface_curve.line_curvature_weight = weight;
     }
-
-    (void) input_newline( stdin );
-
     return( VIO_OK );
 }
 
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_line_curvature_weight )
+DEF_MENU_UPDATE(set_line_curvature_weight )
 {
     set_menu_text_real( menu_window, menu_entry,
                         display->three_d.surface_curve.line_curvature_weight );
@@ -136,39 +131,36 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_surface_curve_curvature )
+DEF_MENU_FUNCTION( set_surface_curve_curvature )
 {
-    VIO_Real        min_curve, max_curve;
+    VIO_Real    min_curve, max_curve;
+    char        prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    print( "The current surface curve curvature limits are: %g %g\n",
-           display->three_d.surface_curve.min_curvature,
-           display->three_d.surface_curve.min_curvature );
+    sprintf( prompt,
+             "The current surface curve curvature limits are: %g %g\n"
+             "Enter the new value: ",
+             display->three_d.surface_curve.min_curvature,
+             display->three_d.surface_curve.min_curvature );
 
-    print( "Enter the new value: " );
-
-    if( input_real( stdin, &min_curve ) == VIO_OK &&
-        input_real( stdin, &max_curve ) == VIO_OK )
+    if (get_user_input(prompt, "rr", &min_curve, &max_curve ) == VIO_OK )
     {
         display->three_d.surface_curve.min_curvature = min_curve;
         display->three_d.surface_curve.max_curvature = max_curve;
     }
-
-    (void) input_newline( stdin );
-
     return( VIO_OK );
 }
 
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_surface_curve_curvature )
+DEF_MENU_UPDATE(set_surface_curve_curvature )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( pick_surface_point_on_line )
+DEF_MENU_FUNCTION( pick_surface_point_on_line )
 {
     pick_surface_point_near_a_line( display );
 
@@ -178,7 +170,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(pick_surface_point_on_line )
+DEF_MENU_UPDATE(pick_surface_point_on_line )
 {
     return( TRUE );
 }

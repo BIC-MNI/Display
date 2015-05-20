@@ -484,6 +484,46 @@ static  int  translate_key_name(
         key = UP_ARROW_KEY;
     else if( equal_strings( str, "down" ) || equal_strings( str, "\\down" ) )
         key = DOWN_ARROW_KEY;
+    else if (equal_strings(str, "delete"))
+        key = DELETE_KEY;
+    else if (equal_strings(str, "escape"))
+        key = ESCAPE_KEY;
+    else if (equal_strings(str, "f1")) {
+        key = BICGL_F1_KEY;
+    }
+    else if (equal_strings(str, "f2")) {
+        key = BICGL_F2_KEY;
+    }
+    else if (equal_strings(str, "f3")) {
+        key = BICGL_F3_KEY;
+    }
+    else if (equal_strings(str, "f4")) {
+        key = BICGL_F4_KEY;
+    }
+    else if (equal_strings(str, "f5")) {
+        key = BICGL_F5_KEY;
+    }
+    else if (equal_strings(str, "f6")) {
+        key = BICGL_F6_KEY;
+    }
+    else if (equal_strings(str, "f7")) {
+        key = BICGL_F7_KEY;
+    }
+    else if (equal_strings(str, "f8")) {
+        key = BICGL_F8_KEY;
+    }
+    else if (equal_strings(str, "f9")) {
+        key = BICGL_F9_KEY;
+    }
+    else if (equal_strings(str, "f10")) {
+        key = BICGL_F10_KEY;
+    }
+    else if (equal_strings(str, "f11")) {
+        key = BICGL_F11_KEY;
+    }
+    else if (equal_strings(str, "f12")) {
+        key = BICGL_F12_KEY;
+    }
     else if( string_length( str ) == 1 )
     {
         key = (int) str[0];

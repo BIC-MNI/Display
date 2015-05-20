@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file line_ops.c
+ * \brief Menu commands for creating 3D lines objects.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 #include  <bicpl/splines.h>
@@ -44,21 +42,18 @@ static  VIO_BOOL  get_current_lines(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( smooth_current_lines )
+DEF_MENU_FUNCTION( smooth_current_lines )
 {
-    VIO_Status          status;
+    VIO_Status      status;
     lines_struct    *lines;
-    VIO_Real            smooth_distance;
+    VIO_Real        smooth_distance;
 
     status = VIO_OK;
 
     if( get_current_lines( display, &lines ) )
     {
-        print( "Enter smoothing distance: " );
-
-        status = input_real( stdin, &smooth_distance );
-
-        (void) input_newline( stdin );
+        status = get_user_input( "Enter smoothing distance: ", "r", 
+                                 &smooth_distance );
 
         if( status == VIO_OK )
         {
@@ -72,32 +67,27 @@ static  VIO_BOOL  get_current_lines(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(smooth_current_lines )
+DEF_MENU_UPDATE(smooth_current_lines )
 {
     return( current_object_is_this_type( display, LINES ) );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( make_current_line_tube )
+DEF_MENU_FUNCTION( make_current_line_tube )
 {
-    VIO_Status          status;
+    VIO_Status      status;
     lines_struct    *lines;
-    VIO_Real            radius;
+    VIO_Real        radius;
     int             n_around;
 
     status = VIO_OK;
 
     if( get_current_lines( display, &lines ) )
     {
-        print( "Enter n_around radius: " );
-
-        status = input_int( stdin, &n_around );
-
-        if( status == VIO_OK )
-            status = input_real( stdin, &radius );
-
-        (void) input_newline( stdin );
+        status = get_user_input( "Enter n_around radius: ", "dr", 
+                                 &n_around,
+                                 &radius );
 
         if( status == VIO_OK )
             convert_lines_to_tubes_objects( display, lines, n_around, radius );
@@ -111,14 +101,14 @@ static  VIO_BOOL  get_current_lines(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(make_current_line_tube )
+DEF_MENU_UPDATE(make_current_line_tube )
 {
     return( current_object_is_this_type( display, LINES ) );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( convert_line_to_spline_points )
+DEF_MENU_FUNCTION( convert_line_to_spline_points )
 {
     object_struct   *object;
     lines_struct    *lines;
@@ -142,48 +132,53 @@ static  VIO_BOOL  get_current_lines(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(convert_line_to_spline_points )
+DEF_MENU_UPDATE(convert_line_to_spline_points )
 {
     return( current_object_is_this_type( display, LINES ) );
 }
  
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( make_line_circle )
+DEF_MENU_FUNCTION( make_line_circle )
 {
-    VIO_Point             centre;
-    VIO_Real              x_size, y_size;
+    VIO_Point         centre;
+    VIO_Real          x_size, y_size;
     int               plane_axis, n_around;
     object_struct     *object;
 
-    print( "Enter x_centre, y_centre, z_centre, plane_axis, x_size, y_size\n" );
-    print( "      n_around: " );
     
-    if( input_float( stdin, &Point_x(centre) ) == VIO_OK &&
-        input_float( stdin, &Point_y(centre) ) == VIO_OK &&
-        input_float( stdin, &Point_z(centre) ) == VIO_OK &&
-        input_int( stdin, &plane_axis ) == VIO_OK &&
-        input_real( stdin, &x_size ) == VIO_OK &&
-        input_real( stdin, &y_size ) == VIO_OK &&
-        input_int( stdin, &n_around ) == VIO_OK )
+    if (get_user_input( 
+           "Enter x_centre, y_centre, z_centre, plane_axis, x_size, y_size\n"
+           "      n_around: ", "fffdrrd",
+           &Point_x(centre),
+           &Point_y(centre),
+           &Point_z(centre),
+           &plane_axis,
+           &x_size,
+           &y_size,
+           &n_around ) == VIO_OK)
     {
-        object = create_object( LINES );
+        if (plane_axis < 0 || plane_axis > 2)
+        {
+            print("Plane must be 0, 1, or 2.\n");
+        }
+        else
+        {
+            object = create_object( LINES );
 
-        create_line_circle( &centre, plane_axis, x_size, y_size,
-                            n_around, get_lines_ptr(object) );
+            create_line_circle( &centre, plane_axis, x_size, y_size,
+                                n_around, get_lines_ptr(object) );
 
-        get_lines_ptr(object)->colours[0] = WHITE;
-        add_object_to_current_model( display, object );
+            get_lines_ptr(object)->colours[0] = WHITE;
+            add_object_to_current_model( display, object );
+        }
     }
-
-    (void) input_newline( stdin );
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(make_line_circle )
+DEF_MENU_UPDATE(make_line_circle )
 {
     return( TRUE );
 }
@@ -191,7 +186,7 @@ static  VIO_BOOL  get_current_lines(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( subdivide_current_lines )
+DEF_MENU_FUNCTION( subdivide_current_lines )
 {
     lines_struct      *lines;
 
@@ -207,7 +202,7 @@ static  VIO_BOOL  get_current_lines(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(subdivide_current_lines )
+DEF_MENU_UPDATE(subdivide_current_lines )
 {
     return( current_object_is_this_type( display, LINES ) );
 }
@@ -258,9 +253,8 @@ static  void  convert_to_lines(
             dist += distance_between_points( &markers[n_markers-1],
                                              &markers[0] );
 
-        print( "Enter number of points desired: " );
-
-        if( input_int( stdin, &n_points ) == VIO_OK )
+        if (get_user_input( "Enter number of points desired: ", "d",
+                            &n_points ) == VIO_OK )
         {
             interpolate = (n_points >= 2);
             if( !interpolate )
@@ -353,9 +347,6 @@ static  void  convert_to_lines(
 
             add_object_to_current_model( display, object );
         }
-
-
-        (void) input_newline( stdin );
     }
 
     if( n_markers > 0 )
@@ -364,7 +355,7 @@ static  void  convert_to_lines(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( convert_markers_to_lines )
+DEF_MENU_FUNCTION( convert_markers_to_lines )
 {
     convert_to_lines( display, FALSE );
 
@@ -373,14 +364,14 @@ static  void  convert_to_lines(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(convert_markers_to_lines )
+DEF_MENU_UPDATE(convert_markers_to_lines )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( convert_markers_to_closed_lines )
+DEF_MENU_FUNCTION( convert_markers_to_closed_lines )
 {
     convert_to_lines( display, TRUE );
 
@@ -389,14 +380,14 @@ static  void  convert_to_lines(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(convert_markers_to_closed_lines )
+DEF_MENU_UPDATE(convert_markers_to_closed_lines )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_line_widths )
+DEF_MENU_FUNCTION( set_line_widths )
 {
     VIO_Status          status;
     lines_struct    *lines;
@@ -406,14 +397,11 @@ static  void  convert_to_lines(
 
     if( get_current_lines( display, &lines ) )
     {
-        print( "Enter line width: " );
-        if( input_real( stdin, &width ) == VIO_OK )
+        if (get_user_input( "Enter line width: ", "r", &width) == VIO_OK)
         {
             lines->line_thickness = (float) width;
             set_update_required( display, NORMAL_PLANES );
         }
-
-        (void) input_newline( stdin );
     }
 
     return( status );
@@ -421,7 +409,7 @@ static  void  convert_to_lines(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_line_widths )
+DEF_MENU_UPDATE(set_line_widths )
 {
     return( current_object_is_this_type( display, LINES ) );
 }

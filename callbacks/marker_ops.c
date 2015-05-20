@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file marker_ops.c
+ * \brief Menu commands to manipulate markers.
+ * 
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -49,7 +47,7 @@ static  VIO_BOOL  get_current_marker(
     return( found );
 }
 
-  void  set_marker_to_defaults(
+void  set_marker_to_defaults(
     display_struct  *display,
     marker_struct   *marker )
 {
@@ -67,8 +65,8 @@ static  void  get_position_pointed_to(
     VIO_Point            *pos )
 {
     int             axis_index, volume_index;
-    VIO_Real            voxel[VIO_MAX_DIMENSIONS];
-    VIO_Real            x_w, y_w, z_w;
+    VIO_Real        voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real        x_w, y_w, z_w;
 
     if( get_voxel_under_mouse( display, &volume_index, &axis_index, voxel ) )
     {
@@ -82,7 +80,7 @@ static  void  get_position_pointed_to(
     }
 }
 
-  void  create_marker_at_position(
+void  create_marker_at_position(
     display_struct    *display,
     VIO_Point             *position,
     VIO_STR            label )
@@ -107,7 +105,7 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( create_marker_at_cursor )
+DEF_MENU_FUNCTION( create_marker_at_cursor )
 {
     VIO_Point           position;
 
@@ -120,14 +118,14 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(create_marker_at_cursor )
+DEF_MENU_UPDATE(create_marker_at_cursor )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_cursor_to_marker )
+DEF_MENU_FUNCTION( set_cursor_to_marker )
 {
     object_struct   *object;
     display_struct  *slice_window;
@@ -153,34 +151,30 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_cursor_to_marker )
+DEF_MENU_UPDATE(set_cursor_to_marker )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( save_markers )
+DEF_MENU_FUNCTION( save_markers )
 {
-    VIO_Status                  status;
+    VIO_Status              status;
     object_struct           *object, *current_object;
-    VIO_Volume                  volume;
-    VIO_STR                  filename;
+    VIO_Volume              volume;
+    VIO_STR                 filename;
     FILE                    *file;
     marker_struct           *marker;
     object_traverse_struct  object_traverse;
     int                     n_tags;
-    VIO_Real                    **tags, *weights;
+    VIO_Real                **tags, *weights;
     int                     *structure_ids, *patient_ids;
-    VIO_STR                  *labels;
+    VIO_STR                 *labels;
 
     object = get_current_model_object( display );
 
-    print( "Enter filename: " );
-
-    status = input_string( stdin, &filename, ' ' );
-
-    (void) input_newline( stdin );
+    status = get_user_file( "Enter filename: ", TRUE, &filename );
 
     if( status == VIO_OK && !check_clobber_file_default_suffix( filename,
                                              get_default_tag_file_suffix() ) )
@@ -253,38 +247,35 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(save_markers )
+DEF_MENU_UPDATE(save_markers )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_default_marker_structure_id )
+DEF_MENU_FUNCTION( set_default_marker_structure_id )
 {
     int             id;
+    char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    print( "The current default marker id is: %d\n",
-           display->three_d.default_marker_structure_id );
+    sprintf( prompt, 
+             "The current default marker id is: %d\nEnter the new value: ",
+             display->three_d.default_marker_structure_id );
 
-    print( "Enter the new value: " );
-
-    if( input_int( stdin, &id ) == VIO_OK )
+    if( get_user_input( prompt, "d", &id ) == VIO_OK )
     {
         display->three_d.default_marker_structure_id = id;
         print( "The new default marker id is: %d\n",
                display->three_d.default_marker_structure_id );
 
     }
-
-    (void) input_newline( stdin );
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_default_marker_structure_id )
+DEF_MENU_UPDATE(set_default_marker_structure_id )
 {
     set_menu_text_int( menu_window, menu_entry,
                        display->three_d.default_marker_structure_id );
@@ -294,31 +285,28 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_default_marker_patient_id )
+DEF_MENU_FUNCTION( set_default_marker_patient_id )
 {
     int             id;
+    char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    print( "The current default marker id is: %d\n",
+    sprintf( prompt, 
+             "The current default marker id is: %d\nEnter the new value: ",
            display->three_d.default_marker_patient_id );
 
-    print( "Enter the new value: " );
-
-    if( input_int( stdin, &id ) == VIO_OK )
+    if( get_user_input( prompt, "d", &id ) == VIO_OK )
     {
         display->three_d.default_marker_patient_id = id;
         print( "The new default marker id is: %d\n",
                display->three_d.default_marker_patient_id );
 
     }
-
-    (void) input_newline( stdin );
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_default_marker_patient_id )
+DEF_MENU_UPDATE(set_default_marker_patient_id )
 {
     set_menu_text_int( menu_window, menu_entry,
                        display->three_d.default_marker_patient_id );
@@ -328,30 +316,27 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_default_marker_size )
+DEF_MENU_FUNCTION( set_default_marker_size )
 {
     VIO_Real        size;
+    char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    print( "The current default marker size is: %g\n",
-           display->three_d.default_marker_size );
+    sprintf( prompt,
+             "The current default marker size is: %g\nEnter the new value: ",
+             display->three_d.default_marker_size );
 
-    print( "Enter the new value: " );
-
-    if( input_real( stdin, &size ) == VIO_OK )
+    if( get_user_input( prompt, "r", &size ) == VIO_OK )
     {
         display->three_d.default_marker_size = size;
         print( "The new default marker size is: %g\n",
                display->three_d.default_marker_size );
     }
-
-    (void) input_newline( stdin );
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_default_marker_size )
+DEF_MENU_UPDATE(set_default_marker_size )
 {
     set_menu_text_real( menu_window, menu_entry,
                         display->three_d.default_marker_size );
@@ -361,21 +346,23 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_default_marker_colour )
+DEF_MENU_FUNCTION( set_default_marker_colour )
 {
-    VIO_Status      status;
-    VIO_STR      string;
-    VIO_Colour      colour;
+    VIO_Status  status;
+    VIO_STR     string;
+    VIO_Colour  colour;
+    char        prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     string = convert_colour_to_string( display->three_d.default_marker_colour );
 
-    print( "The current default marker colour is: %s\n", string );
+    sprintf( prompt, 
+             "The current default marker colour is: %s\n"
+             "Enter the new colour name or 3 or 4 colour components: ",
+             string );
 
     delete_string( string );
 
-    print( "Enter the new colour name or 3 or 4 colour components: " );
-
-    status = input_line( stdin, &string );
+    status = get_user_input( prompt, "s", &string );
 
     if( status == VIO_OK )
         colour = convert_string_to_colour( string );
@@ -399,7 +386,7 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_default_marker_colour )
+DEF_MENU_UPDATE(set_default_marker_colour )
 {
     set_menu_text_with_colour( menu_window, menu_entry,
                                display->three_d.default_marker_colour );
@@ -409,31 +396,30 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_default_marker_type )
+DEF_MENU_FUNCTION( set_default_marker_type )
 {
     int       type;
+    char      prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    print( "The current default marker type is: %d\n",
-              (int) display->three_d.default_marker_type );
+    sprintf( prompt, 
+             "The current default marker type is: %d\nEnter the new type [0-%d]:",
+             (int) display->three_d.default_marker_type,
+             N_MARKER_TYPES-1);
 
-    print( "Enter the new type [0-%d]:", N_MARKER_TYPES-1 );
-
-    if( input_int( stdin, &type ) == VIO_OK && type >= 0 && type < N_MARKER_TYPES )
+    if( get_user_input( prompt, "d", &type ) == VIO_OK &&
+        type >= 0 && type < N_MARKER_TYPES )
     {
         display->three_d.default_marker_type = (Marker_types) type;
         print( "The new default marker type is: %d\n",
                (int) display->three_d.default_marker_type );
 
     }
-
-    (void) input_newline( stdin );
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_default_marker_type )
+DEF_MENU_UPDATE(set_default_marker_type )
 {
     VIO_STR    name;
 
@@ -459,17 +445,18 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_default_marker_label )
+DEF_MENU_FUNCTION( set_default_marker_label )
 {
-    VIO_Status       status;
-    VIO_STR       label;
+    VIO_Status   status;
+    VIO_STR      label;
+    char         prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    print( "The current default marker label is: %s\n",
-                 display->three_d.default_marker_label );
+    sprintf( prompt, 
+             "The current default marker label is: %s\n"
+             "Enter the new default label: ",
+             display->three_d.default_marker_label );
 
-    print( "Enter the new default label: " );
-
-    status = input_string( stdin, &label, ' ' );
+    status = get_user_input( prompt, "s", &label );
 
     if( status == VIO_OK )
     {
@@ -477,15 +464,12 @@ static  void  get_position_pointed_to(
         print( "The new default marker label is: %s\n",
                display->three_d.default_marker_label );
     }
-
-    (void) input_newline( stdin );
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_default_marker_label )
+DEF_MENU_UPDATE(set_default_marker_label )
 {
     set_menu_text_string( menu_window, menu_entry,
                           display->three_d.default_marker_label );
@@ -495,16 +479,14 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( change_marker_structure_id )
+DEF_MENU_FUNCTION( change_marker_structure_id )
 {
     int                     id;
     marker_struct           *marker;
     object_struct           *current_object, *object;
     object_traverse_struct  object_traverse;
 
-    print( "Enter the new structure id: " );
-
-    if( input_int( stdin, &id ) == VIO_OK &&
+    if (get_user_input( "Enter the new structure id: ", "d", &id) == VIO_OK &&
         get_current_object( display, &current_object ) )
     {
         initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
@@ -520,31 +502,26 @@ static  void  get_position_pointed_to(
 
         rebuild_selected_list( display, display->associated[MARKER_WINDOW]  );
     }
-
-    (void) input_newline( stdin );
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(change_marker_structure_id )
+DEF_MENU_UPDATE(change_marker_structure_id )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( change_marker_patient_id )
+DEF_MENU_FUNCTION( change_marker_patient_id )
 {
     int                     id;
     marker_struct           *marker;
     object_struct           *current_object, *object;
     object_traverse_struct  object_traverse;
 
-    print( "Enter the new patient id: " );
-
-    if( input_int( stdin, &id ) == VIO_OK &&
+    if (get_user_input( "Enter the new patient id: ", "d", &id ) == VIO_OK &&
         get_current_object( display, &current_object ) )
     {
         initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
@@ -560,33 +537,32 @@ static  void  get_position_pointed_to(
 
         rebuild_selected_list( display, display->associated[MARKER_WINDOW]  );
     }
-
-    (void) input_newline( stdin );
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(change_marker_patient_id )
+DEF_MENU_UPDATE(change_marker_patient_id )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( change_marker_type )
+DEF_MENU_FUNCTION( change_marker_type )
 {
     int             type;
     marker_struct   *marker;
+    char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     if( get_current_marker(display,&marker) )
     {
-        print( "The current marker type is: %d\n", (int) marker->type );
+         sprintf( prompt,
+                 "The current marker type is: %d\n"
+                 "Enter the new type [0-%d]: ",
+                  (int) marker->type, N_MARKER_TYPES-1 );
 
-        print( "Enter the new type [0-%d]: ", N_MARKER_TYPES-1 );
-
-        if( input_int( stdin, &type ) == VIO_OK &&
+       if( get_user_input( prompt, "d", &type ) == VIO_OK &&
             type >= 0 && type < N_MARKER_TYPES )
         {
             marker->type = (Marker_types) type;
@@ -594,8 +570,6 @@ static  void  get_position_pointed_to(
                (int) marker->type );
             graphics_models_have_changed( display );
         }
-
-        (void) input_newline( stdin );
     }
 
     return( VIO_OK );
@@ -603,32 +577,31 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(change_marker_type )
+DEF_MENU_UPDATE(change_marker_type )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( change_marker_size )
+DEF_MENU_FUNCTION( change_marker_size )
 {
-    VIO_Real            size;
+    VIO_Real        size;
     marker_struct   *marker;
+    char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     if( get_current_marker(display,&marker) )
     {
-        print( "The current size of this marker is: %g\n", marker->size );
+        sprintf( prompt, "The current size of this marker is: %g\n"
+                 "Enter the new value: ",
+                 marker->size );
 
-        print( "Enter the new value: " );
-
-        if( input_real( stdin, &size ) == VIO_OK && size >= 0.0 )
+        if( get_user_input( prompt, "r", &size ) == VIO_OK && size >= 0.0 )
         {
             marker->size = size;
             print( "The new size of this marker is: %g\n", marker->size );
             graphics_models_have_changed( display );
         }
-
-        (void) input_newline( stdin );
     }
 
     return( VIO_OK );
@@ -636,14 +609,14 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(change_marker_size )
+DEF_MENU_UPDATE(change_marker_size )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( change_marker_position )
+DEF_MENU_FUNCTION( change_marker_position )
 {
     marker_struct   *marker;
 
@@ -664,32 +637,31 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(change_marker_position )
+DEF_MENU_UPDATE(change_marker_position )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( change_marker_label )
+DEF_MENU_FUNCTION( change_marker_label )
 {
-    VIO_STR          label;
+    VIO_STR         label;
     marker_struct   *marker;
+    char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     if( get_current_marker(display,&marker) )
     {
-        print( "The current marker label is: %s\n", marker->label );
+        sprintf( prompt,
+                 "The current marker label is: %s\nEnter the new label: ",
+                 marker->label );
 
-        print( "Enter the new label: " );
-
-        if( input_string( stdin, &label, ' ' ) == VIO_OK )
+        if( get_user_input( prompt, "s", &label ) == VIO_OK )
         {
             replace_string( &marker->label, label );
             print( "The new marker label is: %s\n", marker->label );
             graphics_models_have_changed( display );
         }
-
-        (void) input_newline( stdin );
     }
 
     return( VIO_OK );
@@ -697,14 +669,14 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(change_marker_label )
+DEF_MENU_UPDATE(change_marker_label )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( copy_defaults_to_marker )
+DEF_MENU_FUNCTION( copy_defaults_to_marker )
 {
     marker_struct   *marker;
 
@@ -720,14 +692,14 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(copy_defaults_to_marker )
+DEF_MENU_UPDATE(copy_defaults_to_marker )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( copy_defaults_to_markers )
+DEF_MENU_FUNCTION( copy_defaults_to_markers )
 {
     int                     patient_id, structure_id;
     marker_struct           *marker;
@@ -764,14 +736,14 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(copy_defaults_to_markers )
+DEF_MENU_UPDATE(copy_defaults_to_markers )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( move_cursor_to_home )
+DEF_MENU_FUNCTION( move_cursor_to_home )
 {
     display->three_d.cursor.origin = Cursor_home;
     update_cursor( display );
@@ -783,7 +755,7 @@ static  void  get_position_pointed_to(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(move_cursor_to_home )
+DEF_MENU_UPDATE(move_cursor_to_home )
 {
     return( TRUE );
 }

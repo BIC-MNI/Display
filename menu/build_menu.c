@@ -72,7 +72,20 @@ static   position_struct   positions[] = {
 
                            {'+', "+", 7.6, 2.0, 0.6, TRUE },
                            {'=', "=", 0.0, 0.0, 0.0, TRUE }, /* Invisible? */
-                           {'-', "-", 8.3, 2.0, 0.6, TRUE }
+                           {'-', "-", 8.3, 2.0, 0.6, TRUE },
+
+                           {BICGL_F1_KEY, "F1", 0, 0, 0, FALSE },
+                           {BICGL_F2_KEY, "F2", 0, 0, 0, FALSE },
+                           {BICGL_F3_KEY, "F3", 0, 0, 0, FALSE },
+                           {BICGL_F4_KEY, "F4", 0, 0, 0, FALSE },
+                           {BICGL_F5_KEY, "F5", 0, 0, 0, FALSE },
+                           {BICGL_F6_KEY, "F6", 0, 0, 0, FALSE },
+                           {BICGL_F7_KEY, "F7", 0, 0, 0, FALSE },
+                           {BICGL_F8_KEY, "F8", 0, 0, 0, FALSE },
+                           {BICGL_F9_KEY, "F9", 0, 0, 0, FALSE },
+                           {BICGL_F10_KEY, "F10", 0, 0, 0, FALSE },
+                           {BICGL_F11_KEY, "F11", 0, 0, 0, FALSE },
+                           {BICGL_F12_KEY, "F12", 0, 0, 0, FALSE }
                          };
 
 static  void   create_menu_text(

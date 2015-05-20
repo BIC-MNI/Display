@@ -88,36 +88,36 @@ typedef enum { UPDATE_SLICE, UPDATE_LABELS, UPDATE_BOTH } Update_types;
 
 typedef  struct
 {
-    VIO_STR                 filename;
-    VIO_Volume                 volume;
-    VIO_Volume                 labels;
-    VIO_General_transform      original_transform;
-    VIO_STR                 labels_filename;
+    VIO_STR                filename;
+    VIO_Volume             volume;
+    VIO_Volume             labels;
+    VIO_General_transform  original_transform;
+    VIO_STR                labels_filename;
     int                    n_labels;
     int                    offset;
-    VIO_Colour                 *colour_table;
-    VIO_Colour                 *label_colour_table;
-    VIO_Real                   label_colour_opacity;
+    VIO_Colour             *colour_table;
+    VIO_Colour             *label_colour_table;
+    VIO_Real               label_colour_opacity;
     colour_coding_struct   colour_coding;
-    VIO_BOOL                display_labels;
-    VIO_Real                   opacity;
-    VIO_Real                   current_voxel[VIO_N_DIMENSIONS];
+    VIO_BOOL               display_labels;
+    VIO_Real               opacity;
+    VIO_Real               current_voxel[VIO_N_DIMENSIONS];
 
     struct
     {
-        VIO_BOOL                visibility;
+        VIO_BOOL               visibility;
         int                    n_pixels_alloced;
         int                    n_label_pixels_alloced;
-        VIO_Real                   x_axis[VIO_N_DIMENSIONS];
-        VIO_Real                   y_axis[VIO_N_DIMENSIONS];
-        VIO_Real                   x_trans, y_trans;
-        VIO_Real                   x_scaling, y_scaling;
-        VIO_BOOL                update_flag;
-        VIO_BOOL                update_labels_flag;
-        VIO_Filter_types           filter_type;
-        VIO_Real                   filter_width;
+        VIO_Real               x_axis[VIO_N_DIMENSIONS];
+        VIO_Real               y_axis[VIO_N_DIMENSIONS];
+        VIO_Real               x_trans, y_trans;
+        VIO_Real               x_scaling, y_scaling;
+        VIO_BOOL               update_flag;
+        VIO_BOOL               update_labels_flag;
+        VIO_Filter_types       filter_type;
+        VIO_Real               filter_width;
         int                    n_pixels_redraw;
-        VIO_BOOL                update_in_progress[2];
+        VIO_BOOL               update_in_progress[2];
         int                    x_min_update[2];
         int                    x_max_update[2];
         int                    y_min_update[2];
@@ -132,25 +132,25 @@ typedef  struct
     int           prev_viewport_y_size;
     int           used_viewport_x_size;
     int           used_viewport_y_size;
-    VIO_BOOL       update_cursor_flag;
-    VIO_BOOL       update_text_flag;
-    VIO_BOOL       update_cross_section_flag;
-    VIO_BOOL       update_crop_flag;
-    VIO_BOOL       update_atlas_flag;
-    VIO_BOOL       update_composite_flag;
-    VIO_BOOL       update_outline_flag; /* TRUE if outline needs updating. */
+    VIO_BOOL      update_cursor_flag;
+    VIO_BOOL      update_text_flag;
+    VIO_BOOL      update_cross_section_flag;
+    VIO_BOOL      update_crop_flag;
+    VIO_BOOL      update_atlas_flag;
+    VIO_BOOL      update_composite_flag;
+    VIO_BOOL      update_outline_flag; /* TRUE if outline needs updating. */
 
     int           n_atlas_pixels_alloced;
     int           n_composite_pixels_alloced;
 
-    VIO_BOOL       use_sub_region;
+    VIO_BOOL      use_sub_region;
 
-    VIO_BOOL       sub_region_specified;
+    VIO_BOOL      sub_region_specified;
     int           x_min;
     int           x_max;
     int           y_min;
     int           y_max;
-    VIO_BOOL       prev_sub_region_specified;
+    VIO_BOOL      prev_sub_region_specified;
     int           prev_x_min;
     int           prev_x_max;
     int           prev_y_min;
@@ -159,7 +159,7 @@ typedef  struct
 
 typedef struct
 {
-    object_struct  *lines;
+    object_struct *lines;
     int           n_points_alloced;
     int           n_indices_alloced;
     int           n_end_indices_alloced;
@@ -171,29 +171,29 @@ typedef  struct
     loaded_volume_struct   *volumes;
     int                    current_volume_index;
 
-    VIO_BOOL                toggle_undo_feature;
+    VIO_BOOL               toggle_undo_feature;
 
-    VIO_BOOL                crop_labels_on_output_flag;
-    VIO_BOOL                share_labels_flag;
+    VIO_BOOL               crop_labels_on_output_flag;
+    VIO_BOOL               share_labels_flag;
     colour_bar_struct      colour_bar;
 
-    VIO_BOOL				   print_probe_ratio;
-    int					   ratio_volume_index_numerator;
-    int                    ratio_volume_index_denominator;
+    VIO_BOOL               ratio_enabled;
+    int			   ratio_volume_numerator;
+    int                    ratio_volume_denominator;
 
-    VIO_BOOL                using_transparency;
-    VIO_BOOL                degrees_continuity;
+    VIO_BOOL               using_transparency;
+    int                    degrees_continuity;
 
     slice_view_struct      slice_views[N_SLICE_VIEWS];
     void                   *render_storage;
 
-    VIO_Real                   x_split, y_split;
+    VIO_Real               x_split, y_split;
 
     segmenting_struct      segmenting;
     atlas_struct           atlas;
     crop_struct            crop;
 
-    VIO_Real                   x_brush_radius, y_brush_radius, z_brush_radius;
+    VIO_Real               x_brush_radius, y_brush_radius, z_brush_radius;
     int                    current_paint_label;
     int                    current_erase_label;
     int                    painting_view_index;
@@ -203,29 +203,29 @@ typedef  struct
     lines_struct           unscaled_histogram_lines;
     object_struct          *histogram_object;
 
-    VIO_BOOL                cursor_visibility;
+    VIO_BOOL               cursor_visibility;
 
     int                    cross_section_index;
-    VIO_BOOL                cross_section_visibility;
-    VIO_BOOL                cross_section_vector_present;
-    VIO_Real                   cross_section_vector[VIO_MAX_DIMENSIONS];
+    VIO_BOOL               cross_section_visibility;
+    VIO_BOOL               cross_section_vector_present;
+    VIO_Real               cross_section_vector[VIO_MAX_DIMENSIONS];
 
-    VIO_BOOL                update_slice_dividers_flag;
-    VIO_BOOL                update_colour_bar_flag;
-    VIO_BOOL                update_probe_flag;
+    VIO_BOOL               update_slice_dividers_flag;
+    VIO_BOOL               update_colour_bar_flag;
+    VIO_BOOL               update_probe_flag;
 
-    VIO_BOOL                viewport_update_flags[N_MODELS][2];
+    VIO_BOOL               viewport_update_flags[N_MODELS][2];
 
-    VIO_BOOL                incremental_update_allowed;
-    VIO_Real                   allowable_slice_update_time;
-    VIO_Real                   total_slice_update_time1;
-    VIO_Real                   total_slice_update_time2;
+    VIO_BOOL               incremental_update_allowed;
+    VIO_Real               allowable_slice_update_time;
+    VIO_Real               total_slice_update_time1;
+    VIO_Real               total_slice_update_time2;
     int                    current_update_volume;
     int                    current_update_view;
 
-    VIO_Real                   volume_rotation_step;
-    VIO_Real                   volume_translation_step;
-    VIO_Real                   volume_scale_step;
+    VIO_Real               volume_rotation_step;
+    VIO_Real               volume_translation_step;
+    VIO_Real               volume_scale_step;
 
     outline_struct         outlines[N_SLICE_VIEWS];
     

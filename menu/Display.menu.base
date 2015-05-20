@@ -229,7 +229,7 @@ lines \
     transient 's'    convert_line_to_spline_points    'Spline Line' '' \
  \
     transient 'z'    convert_markers_to_lines         'Convert Markers' '' \
-    transient 'x'    make_line_circle                 'Make Line Circle' '' \
+    transient 'x'    make_line_circle                 'Make Line Circle' 'Create a circle at a specified point in a specified plane.' \
     transient 'c'    subdivide_current_lines          'Subdivide Line' '' \
     transient 'v'    convert_markers_to_closed_lines  'Convert Closed Markers' '' \
 } \

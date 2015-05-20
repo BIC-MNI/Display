@@ -344,15 +344,10 @@ DEF_MENU_FUNCTION( change_model_name )
     if( get_current_object( display, &current_object ) &&
         current_object->object_type == MODEL )
     {
-        print( "Enter the new model name: " );
-
-        if( input_string( stdin, &name, ' ' ) == VIO_OK )
+        if (get_user_input( "Enter the new model name: ", "s", &name) == VIO_OK)
         {
             replace_string( &get_model_ptr(current_object)->filename, name );
         }
-
-        (void) input_newline( stdin );
-
         rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
     }
 
@@ -480,9 +475,8 @@ DEF_MENU_FUNCTION( set_current_object_colour )
     if( get_current_object( display, &current_object ) &&
         get_object_type(current_object) != MODEL )
     {
-        print( "Enter colour name or 3 or 4 colour components: " );
-
-        if( input_line( stdin, &line ) == VIO_OK )
+        if( get_user_input( "Enter colour name or 3 or 4 colour components: ",
+                            "s", &line ) == VIO_OK )
         {
             col = convert_string_to_colour( line );
 
@@ -517,21 +511,19 @@ DEF_MENU_FUNCTION( set_current_object_surfprop )
 
     if( get_current_object( display, &current_object ) )
     {
-        print( "Enter ambient, diffuse, specular, shininess, opacity: " );
-
-        if( input_float( stdin, &Surfprop_a(spr) ) == VIO_OK &&
-            input_float( stdin, &Surfprop_d(spr) ) == VIO_OK &&
-            input_float( stdin, &Surfprop_s(spr) ) == VIO_OK &&
-            input_float( stdin, &Surfprop_se(spr) ) == VIO_OK &&
-            input_float( stdin, &Surfprop_t(spr) ) == VIO_OK )
+      if (get_user_input( "Enter ambient, diffuse, specular, shininess, opacity: ",
+                          "fffff",
+                          &Surfprop_a(spr),
+                          &Surfprop_d(spr),
+                          &Surfprop_s(spr),
+                          &Surfprop_se(spr),
+                          &Surfprop_t(spr) ) == VIO_OK )
         {
             set_object_surfprop( current_object, &spr );
 
             set_update_required( display, NORMAL_PLANES );
             rebuild_selected_list( display, display->associated[MARKER_WINDOW]  );
         }
-
-        (void) input_newline( stdin );
     }
 
     return( VIO_OK );

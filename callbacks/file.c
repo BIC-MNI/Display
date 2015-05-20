@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file file.c
+ * \brief Menu commands for loading and saving various types of files.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,30 +13,21 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( load_file )
+DEF_MENU_FUNCTION( load_file )
 {
     VIO_Status   status;
     VIO_STR   filename;
 
-    print( "Enter filename: " );
-
-    status = input_string( stdin, &filename, ' ' );
-
-    (void) input_newline( stdin );
+    status = get_user_file("Enter path of file to load: " , FALSE, &filename);
 
     if( status == VIO_OK )
         status = load_graphics_file( display, filename, FALSE );
@@ -48,14 +42,14 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(load_file )
+DEF_MENU_UPDATE(load_file )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( save_file )
+DEF_MENU_FUNCTION( save_file )
 {
     int            n_objects;
     object_struct  **object_list;
@@ -67,11 +61,7 @@
 
     if( get_current_object( display, &current_object ) )
     {
-        print( "Enter filename: " );
-
-        status = input_string( stdin, &filename, ' ' );
-
-        (void) input_newline( stdin );
+        status = get_user_file("Enter path of file to save: ", TRUE, &filename);
 
         if( status == VIO_OK && !check_clobber_file_default_suffix( filename,
                                                                 "obj" ) )
@@ -103,7 +93,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(save_file )
+DEF_MENU_UPDATE(save_file )
 {
     return( TRUE );
 }

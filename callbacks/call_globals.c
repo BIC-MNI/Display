@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file call_globals.c
+ * \brief Menu commands to change or examine global variables.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -29,15 +27,12 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( menu_set_global_variable )
+DEF_MENU_FUNCTION( menu_set_global_variable )
 {
     VIO_Status   status;
     VIO_STR   input_str, variable_name, new_value;
 
-    print( "variable_name [= value]: " );
-
-    status = input_string( stdin, &input_str, '\n' );
-
+    status = get_user_input( "variable_name [= value]: ", "s", input_str);
     if( status == VIO_OK )
     {
         status = change_global_variable( input_str,
@@ -59,14 +54,14 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(menu_set_global_variable )
+DEF_MENU_UPDATE(menu_set_global_variable )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( show_memory )
+DEF_MENU_FUNCTION( show_memory )
 {
 #ifdef HAVE_MALLINFO
     struct  mallinfo   m;
@@ -92,7 +87,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(show_memory )
+DEF_MENU_UPDATE(show_memory )
 {
     return( TRUE );
 }
