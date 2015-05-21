@@ -4,6 +4,8 @@
 /* the configured options and settings for Display */
 #cmakedefine PROJECT_NAME "@PROJECT_NAME@"
 #cmakedefine PROJECT_VERSION "@PROJECT_VERSION@"
+#cmakedefine GIT_BRANCH "@GIT_BRANCH@"
+#cmakedefine GIT_COMMIT "@GIT_COMMIT@"
 
 #cmakedefine MINC2 @MINC2@
 
