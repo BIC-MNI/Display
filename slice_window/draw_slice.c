@@ -29,7 +29,8 @@ typedef  enum  {
                  CURSOR_INDEX1,
                  CURSOR_INDEX2,
                  UNFINISHED_BAR,
-                 TEXT_INDEX
+                 TEXT_INDEX,
+                 FOV_INDEX,
                } Slice_model_indices;
 
 typedef  enum  { DIVIDER_INDEX } Full_window_indices;
@@ -215,8 +216,17 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
         set_object_visibility( object, FALSE );
         add_object_to_model( model, object );
 
-        /*--- make text */
+        /*--- make cursor position text */
 
+        object = create_object( TEXT );
+
+        initialize_text( get_text_ptr(object), NULL,
+                         Slice_text_colour,
+                         (Font_types) Slice_text_font, Slice_text_font_size );
+
+        add_object_to_model( model, object );
+
+        /*--- make field of view text */
         object = create_object( TEXT );
 
         initialize_text( get_text_ptr(object), NULL,
@@ -1478,6 +1488,122 @@ static  int  render_slice_to_pixels(
                             interrupted, continuing_flag, finished ) );
 }
 
+static VIO_BOOL
+compute_slice_field_of_view(display_struct *display,
+                            int volume_index,
+                            int view_index, 
+                            VIO_Real *fov_width_ptr,
+                            VIO_Real *fov_height_ptr)
+{
+  VIO_Volume volume = get_nth_volume( display, volume_index );
+  int      x_vp_min, x_vp_max, y_vp_min, y_vp_max;
+  VIO_Real v_min[VIO_MAX_DIMENSIONS];
+  VIO_Real v_max[VIO_MAX_DIMENSIONS];
+  int      width_index, height_index, axis_index;
+  VIO_Real w_min[VIO_N_DIMENSIONS];
+  VIO_Real w_max[VIO_N_DIMENSIONS];
+  VIO_BOOL need_eff = FALSE;
+  int      x, y;
+
+  if( !slice_has_ortho_axes( display, volume_index, view_index, 
+                             &width_index, &height_index, &axis_index ))
+  {
+    return FALSE;
+  }
+
+  get_slice_viewport( display, view_index,
+                      &x_vp_min, &x_vp_max, &y_vp_min, &y_vp_max );
+
+  for (x = x_vp_min; x <= x_vp_max; x++)
+  {
+    for (y = y_vp_min; y <= y_vp_max; y++)
+    {
+      if (convert_pixel_to_voxel(display, volume_index, x, y, 
+                                 v_min, &view_index))
+      {
+        x = x_vp_max + 1;
+        break;
+      }
+    } 
+  }
+
+  for (x = x_vp_max; x >= x_vp_min; x--)
+  {
+    for (y = y_vp_max; y >= y_vp_min; y--)
+    {
+      if (convert_pixel_to_voxel(display, volume_index, x, y,
+                                 v_max, &view_index))
+      {
+        x = x_vp_min - 1;
+        break;
+      }
+    }
+  }
+
+  convert_voxel_to_world( volume, v_min,
+                          &w_min[VIO_X], &w_min[VIO_Y], &w_min[VIO_Z]);
+    
+  convert_voxel_to_world( volume, v_max,
+                          &w_max[VIO_X], &w_max[VIO_Y], &w_max[VIO_Z]);
+    
+  *fov_width_ptr = w_max[width_index] - w_min[width_index];
+  *fov_height_ptr = w_max[height_index] - w_min[height_index];
+  return TRUE;
+}
+
+/**
+ * Recreates the field of view text if it is enabled.
+ */
+void 
+rebuild_slice_field_of_view(display_struct *slice_window,
+                           int view_index)
+{
+  int volume_index = get_current_volume_index(slice_window);
+  /*
+   * Get the model associated with this slice view.
+   */
+  model_struct *model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
+
+  /*
+   * Get the text object associated with the slice view model.
+   */
+  object_struct *text_object = model->objects[2 * slice_window->slice.n_volumes + FOV_INDEX];
+  VIO_Real fov_w, fov_h;
+
+  if (!Show_slice_field_of_view ||
+      volume_index < 0 ||
+      !get_slice_visibility(slice_window, volume_index, view_index) ||
+      !compute_slice_field_of_view(slice_window, volume_index, view_index,
+                                   &fov_w, &fov_h))
+  {
+    set_object_visibility(text_object, FALSE);
+  }
+  else
+  {
+    char buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
+    int x_min, x_max, y_min, y_max;
+    text_struct *text_ptr;
+
+    get_slice_viewport( slice_window, view_index,
+                        &x_min, &x_max, &y_min, &y_max );
+
+    sprintf(buffer, "%5.3gW %5.3gH", fov_w, fov_h);
+
+    text_ptr = get_text_ptr( text_object );
+    replace_string( &text_ptr->string, create_string(buffer) );
+        
+    fill_Point( text_ptr->origin, 
+                (int) Point_x(Slice_index_offset), 
+                (int) (y_max - y_min) - 2 * Point_y(Slice_index_offset),
+                0.0 );
+
+    set_object_visibility(text_object, TRUE);
+  }
+}
+
+/**
+ * Recreates the cursor position text for each slice view.
+ */
   void  rebuild_slice_text(
     display_struct    *slice_window,
     int               view_index )

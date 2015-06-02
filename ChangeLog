@@ -1,3 +1,8 @@
+2015-06-02  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * slice_window/{slice.c, view.c, draw_slice.c}: Added field-of-view
+	display for each orthogonal slice view.
+   * Include/global_variables.h: Added boolean "Show_slice_field_of_view".
+
 2015-05-07  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * menu/<multiple>: Add simple help text for commands.
    * menu/<multiple>: Removed menu commands for Magnify 3D,

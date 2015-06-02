@@ -401,4 +401,5 @@ START_GLOBALS
     DEF_GLOBAL( Object_outline_width, VIO_Real, 1.0 )
     DEF_GLOBAL( Object_outline_enabled, VIO_BOOL, TRUE )
     DEF_GLOBAL( Use_zenity_for_input, VIO_BOOL, TRUE )
+    DEF_GLOBAL( Show_slice_field_of_view, VIO_BOOL, TRUE )
 END_GLOBALS

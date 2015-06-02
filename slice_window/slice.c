@@ -1108,6 +1108,7 @@ static  void  render_more_slices(
         if( slice_window->slice.slice_views[view].update_cursor_flag )
         {
             rebuild_slice_cursor( slice_window, view );
+            rebuild_slice_field_of_view( slice_window, view );
             slice_window->slice.slice_views[view].update_cursor_flag = FALSE;
         }
 

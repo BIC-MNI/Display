@@ -539,24 +539,95 @@ static  void  match_view_scale_and_translation(
     slice_view_has_changed( slice_window, view );
 }
 
-  void  scale_slice_view(
+/**
+ * Gets the minimum absolute step size associated with a volume. This
+ * is used by scale_slice_view() to make an intelligent choice about the
+ * minimum allowable scaling.
+ * \param slice_window The display_struct associated with the slice view.
+ * \param volume_index The index of the volume to use.
+ * \returns The step size with the minimum magnitude (absolute value).
+ */
+static VIO_Real
+get_volume_min_step(display_struct *slice_window, int volume_index)
+{
+  VIO_Volume volume = get_nth_volume(slice_window, volume_index);
+  VIO_Real steps[VIO_MAX_DIMENSIONS];
+  int i;
+  VIO_Real min_step;
+
+  get_volume_separations(volume, steps);
+  min_step = fabs(steps[0]);
+  for (i = 1; i < get_volume_n_dimensions(volume); i++)
+  {
+    VIO_Real tmp = fabs(steps[i]);
+    if (tmp < min_step)
+      min_step = tmp;
+  }
+  return min_step;
+}
+
+/**
+ * Control zooming of the slice viewport. If the scale_factor is
+ * greater than one, this will increase the number of pixels per voxel
+ * (the apparent voxel size). If the scale_factor is less than one, the
+ * number of pixels per voxel will decrease. We impose limits to
+ * prevent ridiculous scaling: Our voxels should never be bigger than 
+ * the viewport, and they should never be less than 10% of the full
+ * size.
+ *
+ * \param slice_window The display_struct of the slice window.
+ * \param view The index of the affected view.
+ * \param scale_factor A scaling factor. 
+ */
+void  scale_slice_view(
     display_struct    *slice_window,
     int               view,
-    VIO_Real              scale_factor )
+    VIO_Real          scale_factor )
 {
     int     volume_index;
     int     x_min, x_max, y_min, y_max;
+    int     x_size, y_size;
+    loaded_volume_struct *volumes_ptr;
 
     get_slice_viewport( slice_window, view, &x_min, &x_max, &y_min, &y_max );
 
+    x_size = x_max - x_min + 1;
+    y_size = y_max - y_min + 1;
+
+    volumes_ptr = slice_window->slice.volumes;
+
+    /* Verify that this scaling isn't insane. I disallow scaling of 
+     * less than 10%, or where the scaling would create voxels that
+     * are larger than the viewport!
+     */
+    for_less( volume_index, 0, slice_window->slice.n_volumes )
+    {
+
+      VIO_Real x_scale = volumes_ptr[volume_index].views[view].x_scaling;
+      VIO_Real step = get_volume_min_step(slice_window, volume_index);
+
+      /* Make sure the voxels aren't ridiculously large...
+       */
+      if (scale_factor > 1.0 && x_scale * step >= x_size) {
+        return;
+      }
+
+      /* Make sure the image does not get smaller than 10% of its
+       * original size.
+       */
+      if (scale_factor < 1.0 && x_scale < 0.1) {
+        return;
+      }
+    }
+    
     for_less( volume_index, 0, slice_window->slice.n_volumes )
     {
         scale_slice_about_viewport_centre( scale_factor,
-             x_max - x_min + 1, y_max - y_min + 1,
-             &slice_window->slice.volumes[volume_index].views[view].x_trans,
-             &slice_window->slice.volumes[volume_index].views[view].y_trans,
-             &slice_window->slice.volumes[volume_index].views[view].x_scaling,
-             &slice_window->slice.volumes[volume_index].views[view].y_scaling );
+             x_size, y_size,
+             &volumes_ptr[volume_index].views[view].x_trans,
+             &volumes_ptr[volume_index].views[view].y_trans,
+             &volumes_ptr[volume_index].views[view].x_scaling,
+             &volumes_ptr[volume_index].views[view].y_scaling );
     }
 
     slice_view_has_changed( slice_window, view );
