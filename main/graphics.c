@@ -388,7 +388,7 @@ static  void  initialize_graphics_window(
     /*
      * If necessary, tell the slice window it needs to update.
      */
-    if (Object_outline_enabled)
+    if (Object_outline_enabled && display->associated[SLICE_WINDOW] != NULL)
     {
         set_slice_outline_update( display->associated[SLICE_WINDOW], -1 );
         set_update_required( display->associated[SLICE_WINDOW], NORMAL_PLANES );
