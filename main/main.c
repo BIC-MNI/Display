@@ -699,9 +699,25 @@ get_user_input(const char *prompt, const char *format, ...)
       break;
     case 's': 
       p_str = va_arg(ap, VIO_STR *);
-      if (input_string(in_fp, p_str, ' ') != VIO_OK)
+      if (*(cp + 1) == '\0')
       {
-        return VIO_ERROR;
+        /* If last in the format, the string is terminated by a
+         * newline rather than a space. This allows inclusion of a
+         * space in string inputs.
+         */
+        if (input_string(in_fp, p_str, '\n') != VIO_OK)
+        {
+          return VIO_ERROR;
+        }
+      }
+      else 
+      {
+        /* Otherwise terminate the string at a space, like sscanf().
+         */
+        if (input_string(in_fp, p_str, ' ') != VIO_OK)
+        {
+          return VIO_ERROR;
+        }
       }
       break;
     case 'd':
