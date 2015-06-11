@@ -7,7 +7,7 @@
 
  \author Robert D. Vincent
 
-@COPYRIGHT  :
+\copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -18,7 +18,7 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -265,12 +265,15 @@ rebuild_slice_object_outline(display_struct *slice_window, int view_index)
   display_struct *display;
   VIO_Real       perp_axis[VIO_N_DIMENSIONS];
   VIO_Point      world_origin;
+  VIO_Real       xw, yw, zw;
 
   /* If the display of the outline isn't enabled, just bail out
    * immediately.
    */
   if (!Object_outline_enabled)
     return;
+
+  display = get_three_d_window(slice_window);
 
   /* See if we should display anything.
    */
@@ -280,17 +283,21 @@ rebuild_slice_object_outline(display_struct *slice_window, int view_index)
   if (!get_slice_visibility(slice_window, volume_index, view_index))
     return;
 
-  display = get_three_d_window(slice_window);
-  world_origin = display->three_d.cursor.origin;
+  get_cursor_origin(slice_window, &world_origin);
 
-  /* Get the axis perpendicular to this view.
+  /* Get the axis perpendicular to this view. This is in voxel coordinates.
    */
   get_slice_perp_axis(slice_window, volume_index, view_index, perp_axis);
+
+  /* Convert the perpendicular axis from voxel to world coordinates.
+   */
+  convert_voxel_vector_to_world(get_nth_volume(slice_window, volume_index),
+                                perp_axis, &xw, &yw, &zw);
 
   /* Convert the perpendicular axis to the actual VIO_Vector form that 
    * we'll need later.
    */
-  fill_Vector(plane_normal, perp_axis[0], perp_axis[1], perp_axis[2]);
+  fill_Vector(plane_normal, xw, yw, zw);
 
   /* Get the constant along the normal axis by taking the dot product
    * of the origin with the normal.
