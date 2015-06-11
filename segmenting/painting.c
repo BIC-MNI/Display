@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file painting.c
+ * \brief Functions to implement labeling of the loaded volumes(s).
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,13 +13,9 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifndef lint
-
 #endif
 
 #include  <display.h>
@@ -27,6 +26,8 @@ static  DEF_EVENT_FUNCTION( handle_update_painting );
 
 static  int  update_paint_labels(
     display_struct  *slice_window );
+
+static void erase_brush(display_struct *slice_window);
 
 static  void   update_brush(
     display_struct    *slice_window,
@@ -46,12 +47,55 @@ static  void  paint_labels(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    VIO_Real             start_voxel[],
-    VIO_Real             end_voxel[],
+    VIO_Real         start_voxel[],
+    VIO_Real         end_voxel[],
     int              label );
 
 
-  int  get_current_paint_label(
+/**
+ * Set the current painting mode flag. This switches between free and 
+ * line drawing modes.
+ */
+void
+set_painting_mode(display_struct *display, VIO_BOOL freestyle)
+{
+  display_struct *slice_window;
+
+  if (get_slice_window(display, &slice_window))
+  {
+    int curr_view_index = slice_window->slice.painting_view_index;
+
+
+    /* If we've switched back to free painting mode from line painting
+     * mode, we have to remove the brush outline from the current view.
+     */
+    if (freestyle && !Toggle_freestyle_painting && curr_view_index >= 0)
+    {
+      model_struct *model = get_graphics_model( slice_window,
+                                                SLICE_MODEL1 + curr_view_index);
+      remove_object_from_model( model, slice_window->slice.brush_outline );
+
+      erase_brush(slice_window);
+    }
+  }
+  Toggle_freestyle_painting = freestyle;
+}
+
+/**
+ * Get the current painting mode flag.
+ */
+VIO_BOOL
+get_painting_mode(display_struct *display)
+{
+  return Toggle_freestyle_painting;
+}
+
+/**
+ * Get the integer label to apply to newly painting voxels.
+ * \param display Any top-level display_struct
+ * \returns The current paint label.
+ */
+int  get_current_paint_label(
     display_struct    *display )
 {
     display_struct    *slice_window;
@@ -62,12 +106,39 @@ static  void  paint_labels(
         return( 0 );
 }
 
-  void  initialize_voxel_labeling(
+/**
+ * Get the integer label to apply to newly erased voxels.
+ * \param display Any top-level display_struct
+ * \returns The current erase label.
+ */
+int 
+get_current_erase_label(display_struct *display)
+{
+    display_struct *slice_window;
+
+    if (get_slice_window( display, &slice_window ) )
+        return ( slice_window->slice.current_erase_label );
+    else
+        return ( 0 );
+}
+                                   
+/**
+ * Initialize data structures and event handling for voxel labeling 
+ * and painting. This function sets the "right mouse down" event
+ * in the slice window as the event that initiates actual painting.
+ * It also initializes some important state variables.
+ * \param slice_window The display_struct of the slice window.
+ */
+void  initialize_voxel_labeling(
     display_struct    *slice_window )
 {
     add_action_table_function( &slice_window->action_table,
                                RIGHT_MOUSE_DOWN_EVENT,
                                right_mouse_down );
+    slice_window->slice.brush_outline = create_object( LINES );
+    initialize_lines( get_lines_ptr(slice_window->slice.brush_outline),
+                      Brush_outline_colour );
+    
     slice_window->slice.segmenting.n_starts_alloced = 0;
     slice_window->slice.segmenting.mouse_scale_factor =
                                                Initial_mouse_scale_factor;
@@ -78,15 +149,32 @@ static  void  paint_labels(
                            Default_cursor_follows_paintbrush_flag;
 }
 
-  void  delete_voxel_labeling(
+/**
+ * Delete any data associated with voxel labeling operations. This
+ * only consists of freeing the fields used to optimize the so-called
+ * fast painting mode.
+ *
+ * \param slice The slice_window_struct for the slice window.
+ */
+void  delete_voxel_labeling(
     slice_window_struct    *slice )
 {
     if( slice->segmenting.n_starts_alloced > 0 )
     {
         FREE( slice->segmenting.y_starts );
     }
+
+    delete_object(slice->brush_outline);
 }
 
+/**
+ * Scales the mouse position according to the current setting of
+ * the mouse_scale_factor. Scaling is calculated as 
+ * x_scaled = x_origin + mouse_scale_factor * (x - x_origin).
+ * This means that distances from the original "mouse down" position
+ * are scaled by the factor. It is not at all clear to me that this 
+ * functionality is useful.
+ */
 static  int  scale_x_mouse(
     display_struct  *slice_window,
     int             x )
@@ -104,6 +192,14 @@ static  int  scale_x_mouse(
     return( x );
 }
 
+/**
+ * Scales the mouse position according to the current setting of
+ * the mouse_scale_factor. Scaling is calculated as 
+ * y_scaled = y_origin + mouse_scale_factor * (y - y_origin).
+ * This means that distances from the original "mouse down" position
+ * are scaled by the factor. It is not at all clear to me that this 
+ * functionality is useful.
+ */
 static  int  scale_y_mouse(
     display_struct  *slice_window,
     int             y )
@@ -121,12 +217,98 @@ static  int  scale_y_mouse(
     return( y );
 }
 
-/* ARGSUSED */
+/**
+ * Draw straight lines only. This implements a mode wherein repeated right
+ * clicks draw straight lines between the clicked coordinates. The process
+ * terminates when the mouse moves to another slice view.
+ */
+static void
+draw_straight_lines(display_struct *slice_window)
+{
+  int x_pixel, y_pixel, label, view_index, volume_index;
 
+  G_get_mouse_position( slice_window->window, &x_pixel, &y_pixel );
+  if (!find_slice_view_mouse_is_in( slice_window, x_pixel, y_pixel, 
+                                    &view_index ))
+  {
+      view_index = -1;
+  }
+
+  if (view_index == slice_window->slice.painting_view_index)
+  {
+    if( is_shift_key_pressed( ) )
+      label = get_current_erase_label( slice_window );
+    else
+      label = get_current_paint_label( slice_window );
+
+    /*
+     * If the control key is pressed, we don't actually draw the line.
+     */
+    if (!is_ctrl_key_pressed())
+    {
+      /*
+       * Draw a straight line between current and previous position.
+       */
+      sweep_paint_labels( slice_window,
+                          slice_window->slice.segmenting.x_mouse_start,
+                          slice_window->slice.segmenting.y_mouse_start,
+                          x_pixel, y_pixel,
+                          label );
+
+      volume_index = get_current_volume_index( slice_window );
+
+      set_slice_window_all_update( slice_window, volume_index, UPDATE_LABELS );
+
+      update_all_menu_text( slice_window );
+    }
+  }
+  else if (Draw_brush_outline)
+  {
+    if (slice_window->slice.painting_view_index >= 0)
+    {
+      /* If the view index has changed, we need to remove the 
+       * brush from the current view.
+       */
+      remove_object_from_model(get_graphics_model( slice_window,
+                                                   SLICE_MODEL1 + slice_window->slice.painting_view_index ),
+                               slice_window->slice.brush_outline );
+    }
+
+    /* Erase the brush from this view.
+     */
+    erase_brush(slice_window);
+
+    if (view_index >= 0)
+    {
+      /* And add it to the new view. Its position will be updated below.
+       */
+      add_object_to_model(get_graphics_model(slice_window,
+                                             SLICE_MODEL1 + view_index),
+                          slice_window->slice.brush_outline );
+    }
+  }
+
+  slice_window->slice.painting_view_index = view_index;
+  slice_window->slice.segmenting.x_mouse_start = x_pixel;
+  slice_window->slice.segmenting.y_mouse_start = y_pixel;
+
+  if( Draw_brush_outline)
+  {
+    update_brush( slice_window, x_pixel, y_pixel, TRUE );
+  }
+}
+
+
+/**
+ * Handle a right button press on the mouse. This initiates a painting
+ * stroke.
+ */
 static  DEF_EVENT_FUNCTION( right_mouse_down )
 {
-    int             x_pixel, y_pixel, label, axis_index, volume_index;
     display_struct  *slice_window;
+    int             volume_index, axis_index;
+    int             x_pixel, y_pixel;
+    int             label;
 
     if( !get_slice_window( display, &slice_window ) ||
         !get_axis_index_under_mouse( slice_window, &volume_index, &axis_index ))
@@ -137,69 +319,9 @@ static  DEF_EVENT_FUNCTION( right_mouse_down )
      * If not in Toggle_freestyle_painting mode draw a straight line.
      */
 
-    if ( !Toggle_freestyle_painting ) {
-      (void) G_get_mouse_position( slice_window->window, &x_pixel, &y_pixel );
-      if ( First_straightline_right_mouse_down ) {
-        slice_window->slice.segmenting.x_mouse_start = x_pixel;
-        slice_window->slice.segmenting.y_mouse_start = y_pixel;
-        First_straightline_right_mouse_down = FALSE;
-      } else {
-
-        /*
-         * Draw a straight line between current and previous position.
-         */
-
-        if( is_shift_key_pressed( ) ) {
-          label = slice_window->slice.current_erase_label;
-        } else {
-          label = get_current_paint_label( slice_window );
-        }
-        (void) sweep_paint_labels( slice_window,
-                                   x_pixel, y_pixel,
-                                   slice_window->slice.segmenting.x_mouse_start,
-                                   slice_window->slice.segmenting.y_mouse_start, label );
-
-        if( Draw_brush_outline &&
-            find_slice_view_mouse_is_in( slice_window, x_pixel, y_pixel,
-                                         &slice_window->slice.painting_view_index )) {
-          slice_window->slice.brush_outline = create_object( LINES );
-          initialize_lines( get_lines_ptr(slice_window->slice.brush_outline),
-                            Brush_outline_colour );
-
-          add_object_to_model( get_graphics_model( slice_window,
-                                                   SLICE_MODEL1 +
-                                                   slice_window->slice.painting_view_index ),
-                               slice_window->slice.brush_outline );
-          update_brush( slice_window, x_pixel, y_pixel, FALSE );
-        } else {
-          slice_window->slice.painting_view_index = -1;
-        }
-
-        volume_index = update_paint_labels( display );
-
-        if( Draw_brush_outline &&
-            display->slice.painting_view_index >= 0 ) {
-          remove_object_from_model( get_graphics_model( display,
-                                                        SLICE_MODEL1
-                                                        + display->slice.painting_view_index ),
-                                    display->slice.brush_outline );
-
-          delete_object( display->slice.brush_outline );
-          display->slice.painting_view_index = -1;
-        }
-
-        set_slice_window_all_update( display, volume_index, UPDATE_LABELS );
-
-        update_all_menu_text( display );
-
-        /*
-         * The straight line has been drawn.
-         * Now save current position as previous position.
-         */
-
-        slice_window->slice.segmenting.x_mouse_start = x_pixel;
-        slice_window->slice.segmenting.y_mouse_start = y_pixel;
-      }
+    if ( !Toggle_freestyle_painting )
+    {
+      draw_straight_lines(slice_window);
       return( VIO_OK );
     }
 
@@ -222,12 +344,13 @@ static  DEF_EVENT_FUNCTION( right_mouse_down )
     slice_window->slice.segmenting.x_mouse_start = x_pixel;
     slice_window->slice.segmenting.y_mouse_start = y_pixel;
 
-    if ( slice_window->slice.toggle_undo_feature ){
+    if ( slice_window->slice.toggle_undo_feature )
+    {
         record_slice_under_mouse( slice_window, volume_index );
     }
 
     if( is_shift_key_pressed() )
-        label = slice_window->slice.current_erase_label;
+        label = get_current_erase_label( slice_window );
     else
         label = get_current_paint_label( slice_window );
 
@@ -238,10 +361,6 @@ static  DEF_EVENT_FUNCTION( right_mouse_down )
         find_slice_view_mouse_is_in( slice_window, x_pixel, y_pixel,
                                      &slice_window->slice.painting_view_index ))
     {
-        slice_window->slice.brush_outline = create_object( LINES );
-        initialize_lines( get_lines_ptr(slice_window->slice.brush_outline),
-                          Brush_outline_colour );
-
         add_object_to_model( get_graphics_model( slice_window,
                        SLICE_MODEL1 + slice_window->slice.painting_view_index ),
                              slice_window->slice.brush_outline );
@@ -257,6 +376,9 @@ static  DEF_EVENT_FUNCTION( right_mouse_down )
 
 /* ARGSUSED */
 
+/**
+ * End a painting stroke when in "free" painting mode.
+ */
 static  DEF_EVENT_FUNCTION( end_painting )
 {
     int   volume_index;
@@ -276,7 +398,6 @@ static  DEF_EVENT_FUNCTION( end_painting )
                        SLICE_MODEL1 + display->slice.painting_view_index ),
                                   display->slice.brush_outline );
 
-        delete_object( display->slice.brush_outline );
         display->slice.painting_view_index = -1;
     }
 
@@ -289,6 +410,9 @@ static  DEF_EVENT_FUNCTION( end_painting )
 
 /* ARGSUSED */
 
+/**
+ * Update a painting stroke when in "free" painting mode.
+ */
 static  DEF_EVENT_FUNCTION( handle_update_painting )
 {
     (void) update_paint_labels( display );
@@ -296,11 +420,26 @@ static  DEF_EVENT_FUNCTION( handle_update_painting )
     return( VIO_OK );
 }
 
+/**
+ * Gets the voxel coordinate, volume index, and view index 
+ * corresponding to the the given x and y pixel coordinates, generally
+ * derived from the mouse position.
+ *
+ * If the Snap_brush_to_centres global is set, the returned 
+ * coordinates are rounded to a whole voxel position.
+ *
+ * \param slice_window The display_struct corresponding to the slice window.
+ * \param x_pixel The X coordinate of the mouse, in pixels.
+ * \param y_pixel The Y coordinate of the mouse, in pixels.
+ * \param voxel The voxel coordinates corresponding to this pixel position.
+ * \param volume_index The volume index corresponding to this pixel position.
+ * \param view_index The view index corresponding to this pixel position.
+ */
 static  VIO_BOOL  get_brush_voxel_centre(
     display_struct    *slice_window,
     int               x_pixel,
     int               y_pixel,
-    VIO_Real              voxel[],
+    VIO_Real          voxel[],
     int               *volume_index,
     int               *view_index )
 {
@@ -319,6 +458,17 @@ static  VIO_BOOL  get_brush_voxel_centre(
     return( inside );
 }
 
+/**
+ * Apply paint labels between the previous (x1, y1) and current (x2, y2)
+ * mouse position.
+ *
+ * \param slice_window The display_struct of the slice view window.
+ * \param x1 The previous X coordinate of the mouse, in pixels.
+ * \param y1 The previous Y coordinate of the mouse, in pixels.
+ * \param x2 The current X coordinate of the mouse, in pixels.
+ * \param y2 The current Y coordinate of the mouse, in pixels.
+ * \param label The label value to apply to the affected voxels.
+ */
 static  int  sweep_paint_labels(
     display_struct    *slice_window,
     int               x1,
@@ -327,14 +477,18 @@ static  int  sweep_paint_labels(
     int               y2,
     int               label )
 {
-    int         view_index, volume_index, volume_index2;
-    VIO_Real        start_voxel[VIO_MAX_DIMENSIONS], end_voxel[VIO_MAX_DIMENSIONS];
+    int      view_index, view_index2;
+    int      volume_index, volume_index2;
+    VIO_Real start_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real end_voxel[VIO_MAX_DIMENSIONS];
 
     if( get_brush_voxel_centre( slice_window, x1, y1, start_voxel,
                                 &volume_index, &view_index ) &&
         get_brush_voxel_centre( slice_window, x2, y2, end_voxel,
-                                &volume_index2, &view_index ) &&
-        volume_index == volume_index2 )
+                                &volume_index2, &view_index2 ) &&
+        volume_index == volume_index2 &&
+        view_index == slice_window->slice.painting_view_index &&
+        view_index2 == slice_window->slice.painting_view_index)
     {
         if( slice_window->slice.segmenting.cursor_follows_paintbrush )
             set_voxel_cursor_from_mouse_position( slice_window );
@@ -347,6 +501,11 @@ static  int  sweep_paint_labels(
     return( volume_index );
 }
 
+/**
+ * Implement mouse movements during painting.
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \returns The current volume index.
+ */
 static  int  update_paint_labels(
     display_struct  *slice_window )
 {
@@ -355,7 +514,7 @@ static  int  update_paint_labels(
     if( pixel_mouse_moved(slice_window,&x,&y,&x_prev,&y_prev) )
     {
         if( is_shift_key_pressed() )
-            label = slice_window->slice.current_erase_label;
+            label = get_current_erase_label( slice_window );
         else
             label = get_current_paint_label( slice_window );
 
@@ -379,6 +538,21 @@ static  int  update_paint_labels(
     return( volume_index );
 }
 
+/**
+ * Get the brush dimensions associated with the current volume and view.
+ * We check that the view has orthogonal axes and refuse to paint if not.
+ *
+ * \param slice_window The display_struct of the slice view window.
+ * \param volume_index The index of the active volume.
+ * \param view_index The index of the slice view under the mouse.
+ * \param a1 The axis that corresponds to the horizontal direction in this
+ * view.
+ * \param a2 The axis that corresponds to the vertical direction in this
+ * view.
+ * \param axis The axis that corresponds to the perpendicular (slice) 
+ * direction in this view.
+ * \param radius The radius of the current brush in each of the 3 directions.
+ */
 static  VIO_BOOL  get_brush(
     display_struct   *slice_window,
     int              volume_index,
@@ -386,18 +560,18 @@ static  VIO_BOOL  get_brush(
     int              *a1,
     int              *a2,
     int              *axis,
-    VIO_Real             radius[] )
+    VIO_Real         radius[] )
 {
     int      c;
-    VIO_BOOL  okay;
-    VIO_Real     separations[VIO_MAX_DIMENSIONS];
+    VIO_BOOL okay;
+    VIO_Real separations[VIO_MAX_DIMENSIONS];
 
     okay = FALSE;
 
     if( slice_has_ortho_axes( slice_window, volume_index, view_index,
                               a1, a2, axis ) )
     {
-        get_volume_separations( get_nth_volume(slice_window,volume_index),
+        get_volume_separations( get_nth_volume(slice_window, volume_index),
                                 separations );
 
         radius[*a1] = slice_window->slice.x_brush_radius /
@@ -420,11 +594,21 @@ static  VIO_BOOL  get_brush(
     return( okay );
 }
 
+/**
+ * Tests whether the current voxel coordinate is inside the current 
+ * painting brush coordinates.
+ *
+ * \param origin The current position of the brush in voxel coordinates.
+ * \param delta A vector representing the distance the brush moved in 
+ * voxel coordinates.
+ * \param radius The three-dimensional brush radius.
+ * \param voxel The voxel coordinate position to test.
+ */
 static  VIO_BOOL  inside_swept_brush(
-    VIO_Real       origin[],
-    VIO_Vector     *delta,
-    VIO_Real       radius[],
-    int        voxel[] )
+    const VIO_Real   origin[],
+    const VIO_Vector *delta,
+    const VIO_Real   radius[],
+    const int        voxel[] )
 {
     int      c;
     VIO_Real     d, mag, t, t_min, t_max;
@@ -500,6 +684,12 @@ static  VIO_BOOL  inside_swept_brush(
     return( inside );
 }
 
+/** 
+ * Implements the "fast" painting algorithm. Fast painting just means
+ * that painting takes place only in the current slice, and NOT in
+ * adjacent slices. Writes label colour directly into the pixel object
+ * for this slice, which is pretty weird.
+ */
 static  void  fast_paint_labels(
     display_struct   *slice_window,
     int              volume_index,
@@ -507,25 +697,25 @@ static  void  fast_paint_labels(
     int              a1,
     int              a2,
     int              axis,
-    VIO_Real             start_voxel[],
-    int              min_voxel[],
-    int              max_voxel[],
-    VIO_Vector           *delta,
-    VIO_Real             radius[],
+    const VIO_Real   start_voxel[],
+    const int        min_voxel[],
+    const int        max_voxel[],
+    const VIO_Vector *delta,
+    const VIO_Real   radius[],
     int              label )
 {
-    VIO_Volume         volume;
-    int            value, sizes[VIO_N_DIMENSIONS], tmp;
-    VIO_Real           min_threshold, max_threshold, volume_value;
+    VIO_Volume     volume;
+    int            value, sizes[VIO_MAX_DIMENSIONS], tmp;
+    VIO_Real       min_threshold, max_threshold, volume_value;
     int            ind[VIO_N_DIMENSIONS], new_n_starts, *y_starts, y_inc, x_inc;
     int            x_min_pixel, y_min_pixel, x_max_pixel, y_max_pixel;
     pixels_struct  *pixels;
-    VIO_Real           x_offset, x_scale, y_offset, y_scale;
-    VIO_Real           x_trans, y_trans;
-    VIO_Real           real_x_start, real_x_end, real_y_start;
+    VIO_Real       x_offset, x_scale, y_offset, y_scale;
+    VIO_Real       x_trans, y_trans;
+    VIO_Real       real_x_start, real_x_end, real_y_start;
     int            i, j, x_start, x_end, y_start, y_end;
-    VIO_Colour         colour;
-    VIO_BOOL        update_required;
+    VIO_Colour     colour;
+    VIO_BOOL       update_required;
  
     volume = get_nth_volume( slice_window, volume_index );
     min_threshold = slice_window->slice.segmenting.min_threshold;
@@ -565,6 +755,9 @@ static  void  fast_paint_labels(
         y_inc = -1;
     }
 
+    /* Adjust the x_trans and y_trans values by the current position
+     * of the pixels object corresponding to this slice.
+     */
     x_trans -= (VIO_Real) pixels->x_position;
     y_trans -= (VIO_Real) pixels->y_position;
 
@@ -579,6 +772,10 @@ static  void  fast_paint_labels(
         slice_window->slice.segmenting.n_starts_alloced = new_n_starts;
     }
 
+    /* Pre-calculate all of the y_start values. This is probably done
+     * to avoid having to recompute this every time through the 
+     * inner loop. It is of questionable value.
+     */
     y_starts = slice_window->slice.segmenting.y_starts;
 
     for_inclusive( ind[a2], min_voxel[a2]-1, max_voxel[a2]+1 )
@@ -632,8 +829,8 @@ static  void  fast_paint_labels(
 
         for_inclusive( ind[a2], min_voxel[a2], max_voxel[a2] )
         {
-            y_start = y_starts[ind[a2] - min_voxel[a2]+1];
-            y_end = y_starts[ind[a2] - min_voxel[a2]+1 + y_inc];
+            y_start = y_starts[ind[a2] - min_voxel[a2] + 1];
+            y_end = y_starts[ind[a2] - min_voxel[a2] + 1 + y_inc];
 
             if( inside_swept_brush( start_voxel, delta, radius, ind ) )
             {
@@ -656,6 +853,8 @@ static  void  fast_paint_labels(
                 set_voxel_label( slice_window, volume_index,
                                  ind[VIO_X], ind[VIO_Y], ind[VIO_Z], label );
 
+                /* Update the pixel object directly.
+                 */
                 for_less( i, x_start, x_end )
                 {
                     for_less( j, y_start, y_end )
@@ -679,6 +878,16 @@ static  void  fast_paint_labels(
     }
 }
 
+/**
+ * Paint labels in the selected volume and view, from the start position
+ * up to the ending position.
+ * \param slice_window The display_struct of the slice view window.
+ * \param volume_index The number of the selected volume.
+ * \param view_index The number of the selected view.
+ * \param start_voxel The start voxel coordinate.
+ * \param end_voxel The final voxel coordinate.
+ * \param label The label value to apply.
+ */
 static  void  paint_labels(
     display_struct   *slice_window,
     int              volume_index,
@@ -687,26 +896,25 @@ static  void  paint_labels(
     VIO_Real             end_voxel[],
     int              label )
 {
-    VIO_Volume         volume, label_volume;
-    int            a1, a2, axis, value, c, sizes[VIO_N_DIMENSIONS];
+    VIO_Volume     volume, label_volume;
+    int            a1, a2, axis, c, sizes[VIO_MAX_DIMENSIONS];
     int            min_voxel[VIO_N_DIMENSIONS], max_voxel[VIO_N_DIMENSIONS];
-    VIO_Real           min_limit, max_limit;
-    VIO_Real           min_threshold, max_threshold, volume_value;
-    VIO_Real           radius[VIO_N_DIMENSIONS];
-    VIO_Vector         delta;
-    int            ind[VIO_N_DIMENSIONS];
-    VIO_BOOL        update_required;
+    VIO_Real       min_limit, max_limit;
+    VIO_Real       radius[VIO_N_DIMENSIONS];
+    VIO_Vector     delta;
+    VIO_BOOL       update_required;
  
     if( get_brush( slice_window, volume_index, view_index,
                    &a1, &a2, &axis, radius ) )
     {
         volume = get_nth_volume( slice_window, volume_index );
         label_volume = get_nth_label_volume( slice_window, volume_index );
-        min_threshold = slice_window->slice.segmenting.min_threshold;
-        max_threshold = slice_window->slice.segmenting.max_threshold;
         update_required = FALSE;
         get_volume_sizes( volume, sizes );
 
+        /* Delta will just hold the difference between end voxel and
+         * the start voxel.
+         */
         for_less( c, 0, VIO_N_DIMENSIONS )
         {
             Vector_coord(delta,c) = (VIO_Point_coord_type)
@@ -749,6 +957,12 @@ static  void  paint_labels(
         }
         else
         {
+            VIO_Real min_threshold = slice_window->slice.segmenting.min_threshold;
+            VIO_Real max_threshold = slice_window->slice.segmenting.max_threshold;
+            VIO_Real volume_value;
+            int      value;
+            int      ind[VIO_N_DIMENSIONS];
+
             for_inclusive( ind[a1], min_voxel[a1], max_voxel[a1] )
             {
                 for_inclusive( ind[a2], min_voxel[a2], max_voxel[a2] )
@@ -916,33 +1130,35 @@ static  void  get_brush_contour(
                           0, DEFAULT_CHUNK_SIZE );
 }
 
+/**
+ * Given a lines_struct object, find the maximum and minimum pixel
+ * extents of the lines. This is used to optimize incremental painting
+ * and repainting of the brush outline.
+ * \param lines The lines_struct to examine.
+ * \param x_min The minimum x coordinate in pixel units.
+ * \param x_max The maximum x coordinate in pixel units.
+ * \param y_min The minimum y coordinate in pixel units.
+ * \param y_max The maximum y coordinate in pixel units.
+ */
 static  VIO_BOOL   get_lines_limits(
-    lines_struct  *lines,
+    const lines_struct  *lines,
     int           *x_min,
     int           *x_max,
     int           *y_min,
     int           *y_max )
 {
-    int           i, x, y;
-
-    *x_min = 0;
-    *x_max = 0;
-    *y_min = 0;
-    *y_max = 0;
-
-    for_less( i, 0, lines->n_points )
+    if (lines->n_points > 0)
     {
-        x = (int) Point_x(lines->points[i]);
-        y = (int) Point_y(lines->points[i]);
-        if( i == 0 )
+        int i;
+        int line_pixels = VIO_ROUND(lines->line_thickness);
+
+        *x_min = *x_max = (int) Point_x(lines->points[0]);
+        *y_min = *y_max = (int) Point_y(lines->points[0]);
+
+        for_less( i, 1, lines->n_points )
         {
-            *x_min = x;
-            *x_max = x;
-            *y_min = y;
-            *y_max = y;
-        }
-        else
-        {
+            int x = (int) Point_x(lines->points[i]);
+            int y = (int) Point_y(lines->points[i]);
             if( x < *x_min )
                 *x_min = x;
             if( x > *x_max )
@@ -952,41 +1168,67 @@ static  VIO_BOOL   get_lines_limits(
             if( y > *y_max )
                 *y_max = y;
         }
-    }
 
+        /* Extend the area by the line width in each direction.
+         */
+        (*x_min) -= line_pixels;
+        (*x_max) += line_pixels;
+        (*y_min) -= line_pixels;
+        (*y_max) += line_pixels;
+    }
+    else
+    {
+        *x_min = *x_max = 0;
+        *y_min = *y_max = 0;
+    }
     return( lines->n_points > 0 );
 }
 
+static void
+erase_brush(display_struct *slice_window)
+{
+  lines_struct *lines = get_lines_ptr( slice_window->slice.brush_outline );
+  int x_min, x_max;
+  int y_min, y_max;
+
+  if (get_lines_limits( lines, &x_min, &x_max, &y_min, &y_max ) &&
+      slice_window->slice.painting_view_index >= 0 )
+    {
+      set_slice_composite_update( slice_window,
+                                  slice_window->slice.painting_view_index,
+                                  x_min, x_max, y_min, y_max );
+    }
+}
+
+/**
+ * Update the position of the brush outline.
+ */
 static  void   update_brush(
     display_struct    *slice_window,
     int               x,
     int               y,
-    VIO_BOOL           erase_brush )
+    VIO_BOOL           erase_flag )
 {
-    VIO_Real          centre[VIO_N_DIMENSIONS];
-    int           view, axis, a1, a2, start_voxel[VIO_N_DIMENSIONS], volume_index;
+    VIO_Real      centre[VIO_N_DIMENSIONS];
+    int           volume_index, view_index;
+    int           axis, a1, a2, start_voxel[VIO_N_DIMENSIONS];
     int           x_min, x_max, y_min, y_max;
-    VIO_Real          radius[VIO_N_DIMENSIONS];
+    VIO_Real      radius[VIO_N_DIMENSIONS];
     lines_struct  *lines;
 
-
-    lines = get_lines_ptr( slice_window->slice.brush_outline );
-
-    if( erase_brush &&
-        get_lines_limits( lines, &x_min, &x_max, &y_min, &y_max ) &&
-        slice_window->slice.painting_view_index >= 0 )
+    if( erase_flag)
     {
-        set_slice_composite_update( slice_window,
-                                    slice_window->slice.painting_view_index,
-                                    x_min, x_max, y_min, y_max );
+      erase_brush(slice_window);
     }
 
+    lines = get_lines_ptr( slice_window->slice.brush_outline );
     delete_lines( lines );
     initialize_lines( lines, Brush_outline_colour );
 
     if( get_brush_voxel_centre( slice_window, x, y, centre,
-                                &volume_index, &view ) &&
-        get_brush( slice_window, volume_index, view, &a1, &a2, &axis, radius ) )
+                                &volume_index, &view_index ) &&
+        view_index == slice_window->slice.painting_view_index &&
+        get_brush( slice_window, volume_index, view_index, &a1, &a2, &axis, radius ) )
     {
         start_voxel[a1] = VIO_ROUND( centre[a1] );
         start_voxel[a2] = VIO_ROUND( centre[a2] );
@@ -999,12 +1241,12 @@ static  void   update_brush(
         if( start_voxel[a1] > VIO_ROUND( centre[a1] ) )
             --start_voxel[a1];
 
-        get_brush_contour( slice_window, x, y, volume_index, view, a1, a2,
+        get_brush_contour( slice_window, x, y, volume_index, view_index, a1, a2,
                            centre, radius, start_voxel, POSITIVE_X, lines );
 
         if( get_lines_limits( lines, &x_min, &x_max, &y_min, &y_max ) )
         {
-            set_slice_composite_update( slice_window, view,
+            set_slice_composite_update( slice_window, view_index,
                                         x_min, x_max, y_min, y_max );
         }
     }
