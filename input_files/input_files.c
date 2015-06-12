@@ -38,7 +38,7 @@
     VIO_Status               status;
     object_struct            *object;
     model_struct             *model;
-    int                      n_items, sizes[VIO_N_DIMENSIONS];
+    int                      n_items, sizes[VIO_MAX_DIMENSIONS];
     VIO_Volume               volume_read_in;
     object_struct            *current_object;
     object_traverse_struct   object_traverse;
