@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file transforms.c
+ * \brief Some specialized transform handling for Display.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -34,7 +32,7 @@
 
     if( Use_cursor_origin )
     {
-        centre = display->three_d.cursor.origin;
+        get_cursor_origin(display, &centre);
         transform_point_to_world( &display->three_d.view, &centre, &centre );
     }
     else

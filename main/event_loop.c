@@ -1,5 +1,14 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file event_loop.c
+ * \brief Implements the most basic level of event processing for the
+ * program.
+ *
+ * One of the more peculiar things about MNI-Display is that it pumps timer
+ * messages to itself to enforce regular redrawing of the view, rather than
+ * doing it in response to conventional update messages. This is where this
+ * approach is implemented.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,29 +19,17 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-
-#ifndef lint
-
-#endif
-
-
 #include  <display.h>
 
-static  VIO_Status   process_no_events_for_three_d_windows( void );
-static  void         update_all_three_d_windows( void );
-static  VIO_Status   process_no_events_for_slice_windows( void );
-static  void         update_all_slice_windows( void );
 static  VIO_Status   perform_action(
     display_struct   *display,
     Event_types      event_type,
     int              key_pressed );
-static  void  update_this_type_of_windows(
-    window_types   window_type );
 
 static  void  quit_program( void )
 {
@@ -226,41 +223,50 @@ static  void  quit_callback(
     G_set_window_quit_function( window, quit_callback, NULL);
 }
 
-static  void  update_all_three_d( void )
+/**
+ * This function implements the basic "heartbeat" of the program.
+ * It just sends a "NO_EVENT" event to each of the windows, then
+ * checks for a quit condition and exits if appropriate. Otherwise
+ * we repaint everything.
+ * \param void_ptr Ignored.
+ */
+static  void
+timer_function(void   *void_ptr)
 {
-    VIO_Status   status;
+    VIO_Status        status;
+    int               i, n_windows;
+    display_struct    **windows;
 
-    status = process_no_events_for_three_d_windows();
+    status = VIO_OK;
+
+    n_windows = get_list_of_windows( &windows );
+    for_less( i, 0, n_windows )
+        if( windows[i] != NULL )
+            status = perform_action( windows[i], NO_EVENT, 0 );
 
     if( status == VIO_QUIT )
         quit_program();
 
-    update_all_three_d_windows();
-}
+    for_less( i, 0, n_windows )
+        if( windows[i] != NULL )
+        {
+            if( windows[i]->window_type == SLICE_WINDOW )
+                update_slice_window( windows[i] );
 
-static  void  update_all_slice( void )
-{
-    VIO_Status   status;
+#ifdef DEBUG
+            if( windows[i]->window_type == SLICE_WINDOW )
+                debug_update();
+#endif
 
-    status = process_no_events_for_slice_windows();
+            update_graphics( windows[i], &windows[i]->update_interrupted );
+        }
 
-    if( status == VIO_QUIT )
-        quit_program();
-
-    update_all_slice_windows();
-}
-
-static  void  update_all(
-    void   *void_ptr )
-{
-    update_all_three_d();
-    update_all_slice();
-    G_add_timer_function( Min_interval_between_updates, update_all, NULL );
+    G_add_timer_function( Min_interval_between_updates, timer_function, NULL );
 }
 
   VIO_Status   main_event_loop( void )
 {
-    G_add_timer_function( Min_interval_between_updates, update_all, NULL );
+    G_add_timer_function( Min_interval_between_updates, timer_function, NULL );
 
     G_main_loop();
 
@@ -272,19 +278,6 @@ static  void  update_all(
 {
     return( !graphics_update_required( display ) &&
             !display->update_interrupted.last_was_interrupted );
-}
-
-static  void  update_all_three_d_windows( void )
-{
-    update_this_type_of_windows( MENU_WINDOW );
-    update_this_type_of_windows( MARKER_WINDOW );
-    update_this_type_of_windows( THREE_D_WINDOW );
-    update_this_type_of_windows( MARKER_WINDOW );
-}
-
-static  void  update_all_slice_windows( void )
-{
-    update_this_type_of_windows( SLICE_WINDOW );
 }
 
 #ifdef DEBUG
@@ -312,65 +305,6 @@ static  void  debug_update( void )
     }
 }
 #endif
-
-static  void  update_this_type_of_windows(
-    window_types   window_type )
-{
-    int               i, n_windows;
-    display_struct    **windows;
-
-    n_windows = get_list_of_windows( &windows );
-
-    for_less( i, 0, n_windows )
-    {
-        if( windows[i]->window_type == window_type )
-        {
-            if( window_type == SLICE_WINDOW )
-                update_slice_window( windows[i] );
-
-#ifdef DEBUG
-            if( window_type == SLICE_WINDOW )
-                debug_update();
-#endif
-
-            update_graphics( windows[i], &windows[i]->update_interrupted );
-        }
-    }
-}
-
-static  VIO_Status  process_no_events_for_three_d_windows( void )
-{
-    VIO_Status            status;
-    int               i, n_windows;
-    display_struct    **windows;
-
-    status = VIO_OK;
-
-    n_windows = get_list_of_windows( &windows );
-
-    for_less( i, 0, n_windows )
-        if( windows[i]->window_type != SLICE_WINDOW )
-            status = perform_action( windows[i], NO_EVENT, 0 );
-
-    return( status );
-}
-
-static  VIO_Status  process_no_events_for_slice_windows( void )
-{
-    VIO_Status            status;
-    int               i, n_windows;
-    display_struct    **windows;
-
-    status = VIO_OK;
-
-    n_windows = get_list_of_windows( &windows );
-
-    for_less( i, 0, n_windows )
-        if( windows[i]->window_type == SLICE_WINDOW )
-            status = perform_action( windows[i], NO_EVENT, 0 );
-
-    return( status );
-}
 
 static  VIO_Status   perform_action(
     display_struct   *display,

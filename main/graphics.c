@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file graphics.c
+ * \brief Basic creation and initialization of "graphics" windows.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,19 +13,14 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#ifndef lint
-
-#endif
-
-
 #include  <display.h>
 
-static  display_struct  **windows = (display_struct **) 0;
+static  display_struct  *windows[N_WINDOW_TYPES];
 static  int             n_windows = 0;
 
 static  void  initialize_graphics_window(
@@ -38,7 +36,12 @@ static  void  terminate_graphics_window(
 
 /* --------------------------------------------------------------------- */
 
-  int  get_list_of_windows(
+/**
+ * Returns a pointer to the windows array.
+ * \param display A pointer to the array of display_struct pointers.
+ * \returns The number of windows that exist.
+ */
+int get_list_of_windows(
     display_struct  ***display )
 {
     *display = windows;
@@ -46,7 +49,7 @@ static  void  terminate_graphics_window(
     return( n_windows );
 }
 
-  display_struct  *lookup_window(
+display_struct  *lookup_window(
     Gwindow   window )
 {
     int              i;
@@ -54,9 +57,9 @@ static  void  terminate_graphics_window(
 
     display = NULL;
 
-    for_less( i, 0, n_windows )
+    for_less( i, 0, N_WINDOW_TYPES )
     {
-        if( windows[i]->window == window )
+        if( windows[i] != NULL && windows[i]->window == window )
         {
             display = windows[i];
             break;
@@ -66,81 +69,41 @@ static  void  terminate_graphics_window(
     return( display );
 }
 
-  display_struct  *get_main_window( void )
+static  void  
+get_new_display(window_types window_type,
+                display_struct   **display )
 {
-    int   i;
-
-    for_less( i, 0, n_windows )
+    if (windows[window_type] != NULL)
     {
-        if( windows[i]->window_type == THREE_D_WINDOW )
-            return( windows[i] );
+      print_error("Creating a second window of type %d\n", window_type);
     }
+    ALLOC( windows[window_type], 1 );
 
-    print( "Error:  get_main_window()\n" );
-    return( 0 );
-}
-
-static  void  get_new_display(
-    display_struct   **display )
-{
-    SET_ARRAY_SIZE( windows, n_windows, n_windows+1, DEFAULT_CHUNK_SIZE );
-
-    ALLOC( windows[n_windows], 1 );
-
-    *display = windows[n_windows];
+    *display = windows[window_type];
     ++n_windows;
 }
 
-static  void  free_display(
-    display_struct   *display )
-{
-    int      ind, i;
-
-    for_less( ind, 0, n_windows )
-    {
-        if( windows[ind] == display )
-        {
-            break;
-        }
-    }
-
-    for_less( i, ind, n_windows-1 )
-    {
-        windows[i] = windows[i+1];
-    }
-
-    --n_windows;
-
-    FREE( display );
-}
-
-static  void  delete_windows_list( void )
-{
-    if( windows != (display_struct **) 0 )
-        FREE( windows );
-}
-
-  void  initialize_graphics( void )
+void  initialize_graphics( void )
 {
 }
 
-  void  terminate_graphics( void )
+void  terminate_graphics( void )
 {
-    int               n;
-    display_struct    **graphics_windows;
+    int i;
 
-    while( get_list_of_windows( &graphics_windows ) > 0 )
+    for_less( i, 0, N_WINDOW_TYPES )
     {
-        n = get_list_of_windows( &graphics_windows );
-        delete_graphics_window( graphics_windows[n-1] );
+      if (windows[i] != NULL)
+      {
+        delete_graphics_window( windows[i] );
+        windows[i] = NULL;
+      }
     }
-
-    delete_windows_list();
 
     G_terminate();
 }
 
-  VIO_Status  create_graphics_window(
+VIO_Status  create_graphics_window(
     window_types      window_type,
     VIO_BOOL          double_buffering,
     display_struct    **display,
@@ -150,7 +113,7 @@ static  void  delete_windows_list( void )
 {
     VIO_Status   status;
 
-    get_new_display( display );
+    get_new_display( window_type, display );
 
     status = G_create_window( title, -1, -1, width, height,
                               FALSE, double_buffering, TRUE, 2,
@@ -190,7 +153,9 @@ static  void  delete_windows_list( void )
     return( get_model_info(model)->bitplanes );
 }
 
-  void  create_model_after_current(
+/** Creates a new model an inserts it into the current model.
+ */
+void  create_model_after_current(
     display_struct   *display )
 {
     model_struct   *model;
@@ -269,6 +234,9 @@ static  void  initialize_graphics_window(
     display->associated[SLICE_WINDOW] = (display_struct *) 0;
     display->associated[MARKER_WINDOW] = (display_struct *) 0;
 
+    /* Always associate with myself. */
+    display->associated[display->window_type] = display;
+
     display->models_changed_id = 0;
 
     initialize_action_table( &display->action_table );
@@ -290,6 +258,7 @@ static  void  initialize_graphics_window(
         case MENU_WINDOW:      view_type = PIXEL_VIEW;   break;
         case SLICE_WINDOW:     view_type = PIXEL_VIEW;   break;
         case MARKER_WINDOW:    view_type = PIXEL_VIEW;   break;
+        default:               print_error("Illegal window type."); break;
         }
 
         model_info->view_type = view_type;
@@ -615,7 +584,7 @@ static  void  update_graphics_normal_planes_only(
 
     terminate_graphics_window( display );
 
-    free_display( display );
+    FREE( display );
 }
 
 static  void  terminate_graphics_window(
