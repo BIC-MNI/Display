@@ -299,8 +299,8 @@ static  void  get_inside_flags(
     if( surf->min_block[VIO_X] <= 0 || surf->max_block[VIO_X] >= sizes[VIO_X]-1 ||
         surf->min_block[VIO_Y] <= 0 || surf->max_block[VIO_Y] >= sizes[VIO_Y]-1 ||
         surf->min_block[VIO_Z] <= 0 || surf->max_block[VIO_Z] >= sizes[VIO_Z]-1 ||
-        label_volume != NULL &&
-        !volume_is_alloced( label_volume ) && !volume_is_cached(label_volume) )
+        (label_volume != NULL &&
+         !volume_is_alloced( label_volume ) && !volume_is_cached(label_volume)))
     {
         ind = 0;
         for_inclusive( dx, surf->min_block[VIO_X]-1, surf->max_block[VIO_X]+1 )
