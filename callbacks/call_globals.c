@@ -32,7 +32,7 @@ DEF_MENU_FUNCTION( menu_set_global_variable )
     VIO_Status   status;
     VIO_STR   input_str, variable_name, new_value;
 
-    status = get_user_input( "variable_name [= value]: ", "s", input_str);
+    status = get_user_input( "variable_name [= value]: ", "s", &input_str);
     if( status == VIO_OK )
     {
         status = change_global_variable( input_str,
