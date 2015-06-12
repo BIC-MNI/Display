@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file menu/cursor_pos.c
+ * \brief Maintain the cursor position text in the menu window.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,13 +13,9 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifndef lint
-
 #endif
 
 #include  <display.h>
@@ -74,11 +73,11 @@ static  void  create_cursor_pos_text(
     model_struct    *cursor_pos_model;
     display_struct  *menu_window;
     char            buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
-    display_struct  *three_d_window;
     display_struct  *slice_window;
     int             volume_index;
+    VIO_Point       cursor_origin;
 
-    three_d_window = get_three_d_window(display);
+    get_cursor_origin(display, &cursor_origin);
 
     if (!get_slice_window(display, &slice_window))
         return;
@@ -106,9 +105,9 @@ static  void  create_cursor_pos_text(
                 menu_window->menu.character_height, 0.0 );
     
     (void) sprintf( buffer, Cursor_pos_format,
-                    Point_x(three_d_window->three_d.cursor.origin),
-                    Point_y(three_d_window->three_d.cursor.origin),
-                    Point_z(three_d_window->three_d.cursor.origin) );
+                    Point_x(cursor_origin),
+                    Point_y(cursor_origin),
+                    Point_z(cursor_origin) );
 
     /*
      * See if we need to display the time position. This is a more
