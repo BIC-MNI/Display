@@ -794,15 +794,8 @@ DEF_MENU_UPDATE(toggle_cursor_follows_paintbrush )
 
 DEF_MENU_FUNCTION( toggle_freestyle_painting )
 {
- /*
-  * The only thing to do is to toggle the corresponding
-  * global variable.
-  */
-
- Toggle_freestyle_painting = !Toggle_freestyle_painting;
- First_straightline_right_mouse_down = TRUE;
-
- return( VIO_OK );
+  set_painting_mode( display, !get_painting_mode( display ) );
+  return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -823,7 +816,7 @@ DEF_MENU_UPDATE(toggle_freestyle_painting )
    get_n_volumes(slice_window) > 0;
 
  if( state ) {
-   set_menu_text_on_off( menu_window, menu_entry,Toggle_freestyle_painting  );
+   set_menu_text_on_off( menu_window, menu_entry, get_painting_mode( display ));
  }
  return( state );
 }
