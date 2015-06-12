@@ -33,13 +33,12 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
 
   VIO_BOOL  is_ctrl_key_pressed( void );
 
+  /* main/graphics.c */
   int  get_list_of_windows(
     display_struct  ***display );
 
   display_struct  *lookup_window(
     Gwindow   window );
-
-  display_struct  *get_main_window( void );
 
   void  initialize_graphics( void );
 
@@ -729,6 +728,8 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   DEF_MENU_FUNCTION( change_background_colour );
 
   DEF_MENU_UPDATE(change_background_colour );
+ 
+  /* from callbacks/segmenting.c */
 
   DEF_MENU_FUNCTION( label_voxel );
 
@@ -767,6 +768,14 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   DEF_MENU_UPDATE(load_labels );
 
   DEF_MENU_FUNCTION( save_labels );
+
+  VIO_Status   input_tag_objects_label(
+    display_struct* display,
+    VIO_Colour         marker_colour,
+    VIO_Real           default_size,
+    Marker_types   default_type,
+    int            *n_objects,
+    object_struct  **object_list[]);
 
   DEF_MENU_UPDATE(save_labels );
 
@@ -1406,11 +1415,15 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
     int             y_min,
     int             y_max );
 
-  VIO_BOOL  update_current_marker(
+/* markers/markers.c */
+VIO_BOOL  update_current_marker(
     display_struct   *display,
     int              volume_index,
     VIO_Real             voxel[] );
 
+VIO_Status  initialize_marker_window(display_struct    *marker_window);
+
+/* surface_extraction/boundary_extraction.c */  
   void  read_voxellation_block(
     surface_extraction_struct   *surf );
 
@@ -1761,6 +1774,14 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   void  update_cursor(
     display_struct    *display );
 
+  void  set_cursor_origin(
+    display_struct   *display,
+    const VIO_Point  *origin );
+
+  void  get_cursor_origin(
+    display_struct   *display,
+    VIO_Point            *origin );
+
   void  get_cursor_origin(
     display_struct   *display,
     VIO_Point            *origin );
@@ -1791,6 +1812,8 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
 
   void  rebuild_cursor_position_model(
     display_struct    *display );
+
+  /* menu/menu.c */
 
   VIO_Status  initialize_menu(
     display_struct    *menu_window,
@@ -1829,6 +1852,7 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   void  update_all_menu_text(
     display_struct   *display );
 
+  /* menu/input_menu.c */
   VIO_Status  read_menu(
     menu_window_struct   *menu,
     FILE                 *file );
@@ -1836,6 +1860,7 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   void  delete_menu(
     menu_window_struct  *menu );
 
+  /* menu/selected.c */
   void  rebuild_selected_list(
     display_struct    *display,
     display_struct    *marker_window );
@@ -1846,6 +1871,7 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
     int               y,
     object_struct     **object_under_mouse );
 
+  /* menu/text.c */
   void  set_menu_text_real(
     display_struct     *menu_window,
     menu_entry_struct  *menu_entry,
@@ -1878,6 +1904,7 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
     menu_entry_struct  *menu_entry,
     VIO_STR             str );
 
+/* cursor_contours/contours.c */
   void  initialize_cursor_plane_outline(
     display_struct    *display );
 
@@ -1888,19 +1915,20 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
     display_struct     *display,
     polygons_struct    *polygons );
 
-  int  get_current_paint_label(
-    display_struct    *display );
+/* from segmenting/painting.c */
+int  get_current_paint_label(display_struct *display);
+int  get_current_erase_label(display_struct *display);
 
-  void  initialize_voxel_labeling(
-    display_struct    *slice_window );
+void set_painting_mode(display_struct *display, VIO_BOOL freestyle);
+VIO_BOOL get_painting_mode(display_struct *display);
 
-  void  delete_voxel_labeling(
-    slice_window_struct    *slice );
+void  initialize_voxel_labeling(display_struct *slice_window);
 
-  void  flip_labels_around_zero(
-    display_struct  *slice_window );
+void  delete_voxel_labeling(slice_window_struct *slice);
 
-  void  translate_labels(
+void  flip_labels_around_zero(display_struct *slice_window);
+
+void  translate_labels(
     display_struct   *slice_window,
     int              volume_index,
     int              delta[] );
@@ -1913,6 +1941,8 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
     int              dest_voxel,
     VIO_Real             min_threshold,
     VIO_Real             max_threshold );
+
+/* from segmenting/segmenting.c */
 
   void  initialize_segmenting(
     segmenting_struct  *segmenting );
@@ -2179,6 +2209,8 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
     VIO_BOOL           interrupted,
     VIO_BOOL           continuing_flag,
     VIO_BOOL           *finished );
+
+void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
 
   void  rebuild_slice_text(
     display_struct    *slice_window,
@@ -2813,4 +2845,8 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
 void rebuild_slice_object_outline(display_struct *slice_window, int view_index);
 void initialize_slice_object_outline(display_struct *display);
 
+/* from callbacks/object_ops.c */
+VIO_BOOL  remove_current_object_from_hierarchy(
+    display_struct   *display,
+    object_struct    **object );
 #endif

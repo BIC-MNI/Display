@@ -76,7 +76,7 @@ static  void  get_position_pointed_to(
     }
     else
     {
-        *pos = display->three_d.cursor.origin;
+        get_cursor_origin(display, pos);
     }
 }
 
@@ -133,13 +133,9 @@ DEF_MENU_FUNCTION( set_cursor_to_marker )
     if( get_current_object( display, &object ) &&
         object->object_type == MARKER )
     {
+        set_cursor_origin(display, &get_marker_ptr(object)->position);
+
         slice_window = display->associated[SLICE_WINDOW];
-
-        display->three_d.cursor.origin = get_marker_ptr(object)->position;
-
-        update_cursor( display );
-        set_update_required( display, get_cursor_bitplanes() );
-
         if( slice_window != (display_struct  *) 0 )
         {
             (void) update_voxel_from_cursor( slice_window );
@@ -745,11 +741,7 @@ DEF_MENU_UPDATE(copy_defaults_to_markers )
 
 DEF_MENU_FUNCTION( move_cursor_to_home )
 {
-    display->three_d.cursor.origin = Cursor_home;
-    update_cursor( display );
-
-    set_update_required( display, get_cursor_bitplanes() );
-
+    set_cursor_origin(display, &Cursor_home);
     return( VIO_OK );
 }
 

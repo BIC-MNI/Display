@@ -66,8 +66,8 @@ DEF_MENU_UPDATE(reset_view )
 
 DEF_MENU_FUNCTION( right_tilted_view )
 {
-    static  VIO_Vector   line_of_sight = { -1.0f, 0.0f, 0.0f };
-    static  VIO_Vector   up = { 0.0f, 0.5f, 0.8666f };
+    static  VIO_Vector   line_of_sight = { { -1.0f, 0.0f, 0.0f } };
+    static  VIO_Vector   up = { { 0.0f, 0.5f, 0.8666f } };
     VIO_Vector           horizontal;
 
     CROSS_VECTORS( horizontal, line_of_sight, up );
@@ -91,8 +91,8 @@ DEF_MENU_UPDATE(right_tilted_view )
 
 DEF_MENU_FUNCTION( left_tilted_view )
 {
-    static  VIO_Vector   line_of_sight = { 1.0f, 0.0f, 0.0f };
-    static  VIO_Vector   up = { 0.0f, 0.5f, 0.8666f };
+    static  VIO_Vector   line_of_sight = { { 1.0f, 0.0f, 0.0f } };
+    static  VIO_Vector   up = { { 0.0f, 0.5f, 0.8666f } };
     VIO_Vector           horizontal;
 
     CROSS_VECTORS( horizontal, line_of_sight, up );
@@ -116,8 +116,8 @@ DEF_MENU_UPDATE(left_tilted_view )
 
 DEF_MENU_FUNCTION( top_view )
 {
-    static  VIO_Vector   line_of_sight = { 0.0f, 0.0f, -1.0f };
-    static  VIO_Vector   horizontal = { 1.0f, 0.0f, 0.0f };
+    static  VIO_Vector   line_of_sight = { { 0.0f, 0.0f, -1.0f } };
+    static  VIO_Vector   horizontal = { { 1.0f, 0.0f, 0.0f } };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -139,8 +139,8 @@ DEF_MENU_UPDATE(top_view )
 
 DEF_MENU_FUNCTION( bottom_view )
 {
-    static  VIO_Vector   line_of_sight = { 0.0f, 0.0f, 1.0f };
-    static  VIO_Vector   horizontal = { -1.0f, 0.0f, 0.0f };
+    static  VIO_Vector   line_of_sight = { { 0.0f, 0.0f, 1.0f } };
+    static  VIO_Vector   horizontal = { { -1.0f, 0.0f, 0.0f } };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -162,8 +162,8 @@ DEF_MENU_UPDATE(bottom_view )
 
 DEF_MENU_FUNCTION( front_view )
 {
-    static  VIO_Vector   line_of_sight = { 0.0f, -1.0f, 0.0f };
-    static  VIO_Vector   horizontal = { -1.0f, 0.0f, 0.0f };
+    static  VIO_Vector   line_of_sight = { { 0.0f, -1.0f, 0.0f } };
+    static  VIO_Vector   horizontal = { { -1.0f, 0.0f, 0.0f } };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -185,8 +185,8 @@ DEF_MENU_UPDATE(front_view )
 
 DEF_MENU_FUNCTION( back_view )
 {
-    static  VIO_Vector   line_of_sight = { 0.0f, 1.0f, 0.0f };
-    static  VIO_Vector   horizontal = { 1.0f, 0.0f, 0.0f };
+    static  VIO_Vector   line_of_sight = { { 0.0f, 1.0f, 0.0f } };
+    static  VIO_Vector   horizontal = { { 1.0f, 0.0f, 0.0f } };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -208,8 +208,8 @@ DEF_MENU_UPDATE(back_view )
 
 DEF_MENU_FUNCTION( left_view )
 {
-    static  VIO_Vector   line_of_sight = { 1.0f, 0.0f, 0.0f };
-    static  VIO_Vector   horizontal = { 0.0f, -1.0f, 0.0f };
+    static  VIO_Vector   line_of_sight = { { 1.0f, 0.0f, 0.0f } };
+    static  VIO_Vector   horizontal = { { 0.0f, -1.0f, 0.0f } };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -231,8 +231,8 @@ DEF_MENU_UPDATE(left_view )
 
 DEF_MENU_FUNCTION( right_view )
 {
-    static  VIO_Vector   line_of_sight = { -1.0f, 0.0f, 0.0f };
-    static  VIO_Vector   horizontal = { 0.0f, 1.0f, 0.0f };
+    static  VIO_Vector   line_of_sight = { { -1.0f, 0.0f, 0.0f } };
+    static  VIO_Vector   horizontal = { { 0.0f, 1.0f, 0.0f } };
 
     reset_view_parameters( display, &line_of_sight, &horizontal );
 
@@ -552,9 +552,9 @@ DEF_MENU_FUNCTION(type_in_3D_origin)
     if (get_user_input( "Enter x y z world coordinate: ", "rrr",
                         &xw, &yw, &zw) == VIO_OK)
     {
-        fill_Point( display->three_d.cursor.origin, xw, yw, zw );
-        update_cursor( display );
-        set_update_required( display, get_cursor_bitplanes() );
+        VIO_Point origin;
+        fill_Point( origin, xw, yw, zw );
+        set_cursor_origin(display, &origin);
     }
     return( VIO_OK );
 }
