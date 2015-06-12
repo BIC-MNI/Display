@@ -1,3 +1,14 @@
+2015-06-11  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * various: Lots of new comments, reformatting, and warning fixes.
+   * various: Use get_cursor_origin() to get the cursor location.
+   * slice_window/outline.c: Fix outline drawing to use the plane
+	normal in world rather than voxel coordinates.
+   * main/{event_loop.c, graphics.c, display.c}: Some simplification.
+   * segmenting/painting.c: Fix a few issues with painting, especially when
+	the brush is dragged outside the window bounds.
+   * menu/*, markers/*: Streamline the menu and object window drawing code.
+   * menu/*: Use '1' and '2' for "previous time point" and "next time point"
+	commands.
 2015-06-02  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * slice_window/{slice.c, view.c, draw_slice.c}: Added field-of-view
 	display for each orthogonal slice view.
