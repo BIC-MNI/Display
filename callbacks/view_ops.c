@@ -527,7 +527,7 @@ DEF_MENU_FUNCTION( print_view )
     print( "-window_width %g\n",
            display->three_d.view.window_width );
 
-    if( display->three_d.view.perspective_flag );
+    if( display->three_d.view.perspective_flag )
     {
         print( "-perspective_distance %g\n",
                display->three_d.view.perspective_distance );
