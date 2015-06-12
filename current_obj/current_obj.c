@@ -1,5 +1,25 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file current_obj.c
+ * \brief Functions to manipulate the object list.
+ *
+ * The object list contains the graphical objects (surfaces, lines,
+ * etc.) that are displayed in the 3D window. The loaded objects are
+ * contained within a special top-level model
+ * (display->models[THREED_MODEL]) that is created at run time. In
+ * terms of the graphical object library in bicpl/bicgl, models are
+ * graphical objects that contain other graphical objects, including
+ * models.
+ *
+ * The position at each level is represented as a selection_entry,
+ * which contains a pointer to the active model and the index of the
+ * selected object within the active model. We can descend further
+ * into the hierarchy if the selected object is itself a model. A
+ * single selection_struct is used to represent the current location
+ * within the object hierarchy.  The selection_struct contains a stack
+ * which is a list of selection_entry objects recording the active model
+ * and object indices at each level of the hierarchy.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,73 +30,84 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#ifndef lint
-
-#endif
-
-
 #include  <display.h>
 
-static  selection_entry  *get_current_entry(
-    display_struct   *display )
+/**
+ * Gets the selection_entry at the top of the selection_struct stack.
+ * \param display The display_struct of the 3D window.  
+ * \returns A pointer to the selection_entry representing the current
+ * position in the object hierarchy.
+ */
+static selection_entry *
+get_current_entry(display_struct *display)
 {
-    return( &display->three_d.current_object.stack
-                        [display->three_d.current_object.current_level-1] );
+    selection_struct *selection_ptr = &display->three_d.current_object;
+
+    if (selection_ptr->current_level <= 0)
+    {
+        HANDLE_INTERNAL_ERROR("Object stack is empty!");
+        return NULL;
+    }
+    
+    return( &selection_ptr->stack[selection_ptr->current_level - 1] );
 }
 
-  void  advance_current_object(
-    display_struct    *display )
+/**
+ * Selects the next object in the currently active model. Wraps
+ * back to the first object in the model if it advances past the end
+ * of the model's object list.
+ *
+ * \param display The display_struct of the 3D window.
+ */
+void
+advance_current_object(display_struct *display)
 {
-    int               object_index;
-    selection_entry   *entry;
-    model_struct      *model;
-
     if( !current_object_is_top_level(display) )
     {
-        entry = get_current_entry( display );
+        selection_entry *entry_ptr = get_current_entry( display );
+        model_struct    *model_ptr = get_model_ptr( entry_ptr->model_object );
 
-        object_index = entry->object_index;
-        model = get_model_ptr( entry->model_object );
-
-        if( model->n_objects > 0 )
+        if (++entry_ptr->object_index >= model_ptr->n_objects)
         {
-            entry->object_index = (object_index + 1) % model->n_objects;
+            entry_ptr->object_index = 0;
         }
     }
 }
 
-  void  retreat_current_object(
-    display_struct    *display )
+/**
+ * Selects the previous object in the currently active model. Wraps back
+ * to the last object in the list if it tries to go past the beginning.
+ * \param display The display_struct of the 3D window.
+ */
+void
+retreat_current_object(display_struct *display)
 {
-    int               object_index;
-    selection_entry   *entry;
-    model_struct      *model;
-
     if( !current_object_is_top_level(display) )
     {
-        entry = get_current_entry( display );
+        selection_entry *entry_ptr = get_current_entry( display );
+        model_struct    *model_ptr = get_model_ptr( entry_ptr->model_object );
 
-        object_index = entry->object_index;
-        model = get_model_ptr( entry->model_object );
-
-        if( model->n_objects > 0 )
+        if (--entry_ptr->object_index < 0)
         {
-            entry->object_index = (object_index - 1 + model->n_objects) %
-                                  model->n_objects;
+            entry_ptr->object_index = model_ptr->n_objects - 1;
         }
     }
 }
 
-  object_struct  *get_current_model_object(
-    display_struct    *display )
+/**
+ * Returns the currently selected model as a generic object_struct.
+ * \param display The display_struct of the 3D window.
+ * \returns An object_struct corresponding to the current model.
+ */
+object_struct *
+get_current_model_object(display_struct *display)
 {
     object_struct     *model_object;
-    selection_entry   *entry;
 
     if( current_object_is_top_level(display) )
     {
@@ -84,118 +115,167 @@ static  selection_entry  *get_current_entry(
     }
     else
     {
-        entry = get_current_entry( display );
-        model_object = entry->model_object;
+        model_object = get_current_entry( display )->model_object;
     }
 
     return( model_object );
 }
 
-  model_struct  *get_current_model(
-    display_struct    *display )
+/**
+ * Returns the currently selected model as a model_struct.
+ * \param display The display_struct of the 3D window.
+ * \returns An model_struct corresponding to the current model.
+ */
+model_struct *
+get_current_model(display_struct *display)
 {
-    object_struct  *model_object;
-    model_struct   *model;
-
-    model_object = get_current_model_object( display );
-
-    model = get_model_ptr( model_object );
-
-    return( model );
+    return get_model_ptr( get_current_model_object( display ) );
 }
 
-  int  get_current_object_index(
-    display_struct    *display )
+/**
+ * Returns the index of the currently selected object.
+ * \param display The display_struct of the 3D window.
+ * \returns An integer representing the position of the selected
+ * entry within the currently active model.
+ */
+int  
+get_current_object_index(display_struct *display)
 {
-    int               index;
-    selection_entry   *entry;
+    int index;
 
     if( current_object_is_top_level(display) )
         index = -1;
     else
-    {
-        entry = get_current_entry( display );
-        index = entry->object_index;
-    }
-
+        index = get_current_entry( display )->object_index;
     return( index );
 }
 
-  void  set_current_object(
-    display_struct    *display,
-    object_struct     *object )
+/**
+ * Check whether the object index is within the bounds of the current
+ * model.
+ * \param entry_ptr The selection_entry to check.
+ * \returns TRUE if the object_index field of the selection_entry is
+ * still within the bounds of the model's size.
+ */
+static VIO_BOOL
+index_within_bounds(selection_entry *entry_ptr)
 {
-    VIO_BOOL            found, done;
-    selection_struct   *current_selection;
+  model_struct *model_ptr = get_model_ptr(entry_ptr->model_object);
+  return (entry_ptr->object_index >= 0 && 
+          entry_ptr->object_index < model_ptr->n_objects);
+}
+
+/**
+ * Makes a given object the current object. Will recursively search 
+ * through the entire model list and its substructure in order to find
+ * the object.
+ *
+ * \param display The display_struct of the 3D window.
+ * \param sought_object A pointer to the object_struct to select.
+ */
+void
+set_current_object(display_struct *display, object_struct *sought_object)
+{
+    VIO_BOOL           done;
+    selection_struct   *selection_ptr;
     object_struct      *current_object;
+    selection_entry    *entry_ptr;
 
-    current_selection = &display->three_d.current_object;
+    /* Get a pointer to the current selection_struct and initialize it
+     * appropriately. This assumes that the stack has been allocated
+     * correctly.
+     */
+    selection_ptr = &display->three_d.current_object;
 
-    current_selection->current_level = 1;
-    current_selection->max_levels = 1;
-    current_selection->stack[0].object_index = 0;
+    if (selection_ptr->n_levels_alloced <= 0)
+    {
+        HANDLE_INTERNAL_ERROR("Stack is not initialized.");
+        return;
+    }
 
-    found = FALSE;
+    /* Start the selection at the beginning.
+     */
+    selection_ptr->current_level = 1;
+    selection_ptr->max_levels = 1;
+    selection_ptr->stack[0].object_index = 0;
+
     done = FALSE;
 
-    while( !found && !done )
+    while( !done )
     {
+        /* See if the currently selected object corresponds to the
+         * thing we are looking for. If so, we are done.
+         */
         if( get_current_object( display, &current_object ) &&
-            current_object == object )
+            current_object == sought_object )
         {
-            found = TRUE;
+            done = TRUE;
         }
-        else if( current_object->object_type == MODEL &&
+        /* Otherwise, see if the current object is a non-empty model.
+         * If so, we're going to descend into it.
+         */
+        else if( get_object_type(current_object) == MODEL &&
                  get_model_ptr(current_object)->n_objects > 0 )
         {
             push_current_object( display );
-            current_selection->stack[current_selection->current_level-1].
-                    object_index = 0;
+            entry_ptr = get_current_entry( display );
+            entry_ptr->object_index = 0;
         }
         else
         {
-            while( current_selection->current_level > 1 &&
-                   current_selection->stack[current_selection->current_level-1].
-                    object_index >=
-                   get_model_ptr( current_selection->stack
-                                  [current_selection->current_level-1].
-                                  model_object )->n_objects-1 )
-            {
-                pop_current_object( display );
-            }
+            /* Advance to the next object in the model.
+             */
+            entry_ptr = get_current_entry( display );
+            ++entry_ptr->object_index;
 
-            if( current_selection->current_level == 1 &&
-                current_selection->stack[current_selection->current_level-1].
-                    object_index >=
-                 get_model_ptr(current_selection->stack[0].model_object)->
-                                                                  n_objects-1 )
+            /* We may have reached the end of this model's objects.
+             * If so, we want to pop back up to the previous level, 
+             * or possible declare the search a failure.
+             */
+            while (!done && !index_within_bounds(entry_ptr))
             {
-                done = TRUE;
-            }
-            else
-            {
-                ++current_selection->stack[current_selection->current_level-1].
-                    object_index;
+                if ( selection_ptr->current_level <= 1 )
+                {
+                    /* If we can't pop the stack, we failed to
+                     * find the requested object and we're done.
+                     */
+                    done = TRUE;
+                }
+                else
+                {
+                    /* Otherwise pop the stack.
+                     */
+                    pop_current_object( display );
+
+                    /* Advance to the next object in the model.
+                     */
+                    entry_ptr = get_current_entry( display );
+                    ++entry_ptr->object_index;
+                }
             }
         }
     }
 }
 
-  void  set_current_object_index(
-    display_struct    *display,
-    int               index )
+/**
+ * Set the current object to be the one at the given index within the
+ * currently active model. Does nothing if the index is outside the
+ * range (0, n_objects-1), with the exception that an index of zero is
+ * always legal.
+ *
+ * \param display The display_struct of the 3D window.
+ * \param index The number of the object to select.
+ */
+void
+set_current_object_index(display_struct *display, int index )
 {
-    selection_entry   *entry;
-
     if( !current_object_is_top_level(display) )
     {
-        entry = get_current_entry( display );
+        model_struct *model_ptr = get_current_model( display );
 
-        if( index == 0 ||
-            (index >= 0 &&
-             index < get_model_ptr(entry->model_object)->n_objects) )
+        if( index == 0 || (index >= 0 && index < model_ptr->n_objects) )
         {
-            entry->object_index = index;
+            get_current_entry(display)->object_index = index;
         }
         else
         {
@@ -204,43 +284,43 @@ static  selection_entry  *get_current_entry(
     }
 }
 
-  VIO_BOOL  get_current_object(
-    display_struct    *display,
-    object_struct     **current_object )
+/**
+ * Get the currently selected object.
+ * \param display The display_struct of the 3D window.
+ * \param current_object A pointer to a pointer to an object_struct.
+ */
+VIO_BOOL
+get_current_object(display_struct *display, object_struct  **current_object )
 {
-    int               object_index;
-    VIO_BOOL           exists;
-    model_struct      *model;
-    selection_entry   *entry;
-
     if( current_object_is_top_level(display) )
     {
         *current_object = display->models[THREED_MODEL];
-        exists = TRUE;
     }
     else
     {
-        entry = get_current_entry( display );
-        object_index = entry->object_index;
-        model = get_model_ptr( entry->model_object );
+        selection_entry *entry_ptr = get_current_entry( display );
 
-        if( object_index >= 0 && object_index < model->n_objects )
+        if( index_within_bounds(entry_ptr) )
         {
-            *current_object = model->objects[object_index];
-            exists = TRUE;
+            model_struct *model_ptr = get_model_ptr( entry_ptr->model_object );
+            *current_object = model_ptr->objects[entry_ptr->object_index];
         }
         else
         {
-            *current_object = (object_struct *) 0;
-            exists = FALSE;
+            *current_object = NULL;
         }
     }
 
-    return( exists );
+    return( *current_object != NULL );
 }
 
-  void  initialize_current_object(
-    display_struct    *display )
+/**
+ * Initializes the selection_struct that represents the currently selected
+ * object.
+ * \param display The display_struct for the 3D window.
+ */
+void
+initialize_current_object(display_struct *display)
 {
     display->three_d.current_object.n_levels_alloced = 0;
     display->three_d.current_object.max_levels = 0;
@@ -251,85 +331,141 @@ static  selection_entry  *get_current_entry(
     push_current_object( display );
 }
 
-  void  terminate_current_object(
-    selection_struct   *current_object )
+/**
+ * Frees the stack in the selection_struct.
+ * \param current_object The selection_struct associated with the 3D window.
+ */
+void
+terminate_current_object(selection_struct *current_object)
 {
     if( current_object->n_levels_alloced > 0 )
         FREE( current_object->stack );
 }
 
-  void  push_current_object(
-    display_struct    *display )
+/**
+ * Pushes the selection_struct to the next level, if the current
+ * object is a model. If we are pushing into the same model again, we
+ * also maintain the current object index within that model, otherwise
+ * we reset the object index to zero.
+ *
+ * \param display The display_struct for the 3D window.
+ */
+void
+push_current_object(display_struct *display)
 {
-    VIO_BOOL           previously_here;
-    selection_entry   entry, *entry_ptr;
-    selection_struct  *selection;
-    object_struct     *current_object;
+    selection_struct  *selection_ptr;
+    object_struct     *object_ptr;
+    selection_entry   entry;
 
-    if( get_current_object( display, &current_object ) &&
-        current_object->object_type == MODEL )
+    /* If the current selection is not an model, give up.
+     */
+    if ( !get_current_object( display, &object_ptr ) ||
+         get_object_type(object_ptr) != MODEL )
     {
-        previously_here = FALSE;
+        return;
+    }
 
-        selection = &display->three_d.current_object;
+    selection_ptr = &display->three_d.current_object;
 
-        if( selection->current_level < selection->max_levels )
+    if( selection_ptr->current_level < selection_ptr->max_levels )
+    {
+        /* See if the next level is still valid.
+         */
+        selection_entry *entry_ptr = &selection_ptr->stack[selection_ptr->current_level];
+        if( entry_ptr->model_object == object_ptr &&
+            index_within_bounds( entry_ptr ) )
         {
-            entry_ptr = &selection->stack[selection->current_level];
-            if( entry_ptr->model_object == current_object &&
-                entry_ptr->object_index >= 0 &&
-                entry_ptr->object_index <
-                                      get_model_ptr(current_object)->n_objects )
-            {
-                previously_here = TRUE;
-                ++selection->current_level;
-            }
-        }
-
-        if( !previously_here )
-        {
-            entry.object_index = 0;
-            entry.model_object = current_object;
-
-            ADD_ELEMENT_TO_ARRAY_WITH_SIZE( selection->stack,
-                 selection->n_levels_alloced, selection->current_level, entry,
-                 DEFAULT_CHUNK_SIZE )
-
-            if( selection->current_level > selection->max_levels )
-                selection->max_levels = selection->current_level;
+            /* Just descend into the next level, retaining the object
+             * index.
+             */
+            ++selection_ptr->current_level;
+            return;
         }
     }
+
+    /* The next level has changed, so need to add a level to
+     * the stack.
+     */
+    entry.object_index = 0;
+    entry.model_object = object_ptr;
+
+    /*
+     * This macro will add the entry to the stack at the position
+     * selection_ptr->current_level, and increments the current_level. 
+     * If needed, the array will grow and selection_ptr->n_levels_alloced
+     * will be increased as well.
+     */
+    ADD_ELEMENT_TO_ARRAY_WITH_SIZE( selection_ptr->stack,
+                                    selection_ptr->n_levels_alloced,
+                                    selection_ptr->current_level,
+                                    entry,
+                                    DEFAULT_CHUNK_SIZE )
+
+    /*
+     * Finally update the max_levels value to reflect the maximum
+     * stack depth.
+     */
+    if( selection_ptr->current_level > selection_ptr->max_levels )
+        selection_ptr->max_levels = selection_ptr->current_level;
 }
 
-  VIO_BOOL  current_object_is_top_level(
-    display_struct    *display )
+/**
+ * Returns true if the selection stack is empty (i.e. the selection is 
+ * at the single top level model). In practice, this should always
+ * return FALSE, as we push into the top-level model
+ * during initialization, and never pop above the top-level model.
+ *
+ * \param display The display_struct of the 3D window.
+ * \returns TRUE if the current location is the automatically created 
+ * top-level model.
+ */
+VIO_BOOL
+current_object_is_top_level(display_struct *display)
 {
     return( display->three_d.current_object.current_level == 0 );
 }
 
-  void  pop_current_object(
-    display_struct    *display )
+/**
+ * Pop the object stack up a level. The values at the previous level
+ * are left undisturbed, in case we push back down into this same
+ * object again. We never pop all the way back to the top-level 
+ * model.
+ *
+ * \param display The display_struct of the 3D window.
+ */
+void
+pop_current_object(display_struct *display )
 {
-    /* don't allow popping up to the top level */
-
+    /* Don't allow popping up to the top level.
+     */
     if( display->three_d.current_object.current_level > 1 )
         --display->three_d.current_object.current_level;
 }
 
-  VIO_BOOL  current_object_is_this_type(
-    display_struct    *display,
-    Object_types      type )
+/**
+ * Check whether or not the selected object has the requested type.
+ * \param display The display_struct of the 3D window.
+ * \param object_type The type of object (e.g. POLYGONS, LINES, PIXELS).
+ * \returns TRUE if the selected object is of type \c object_type.
+ */
+VIO_BOOL
+current_object_is_this_type(display_struct *display, Object_types object_type)
 {
-    object_struct   *object;
+    object_struct *object_ptr;
 
-    return( get_current_object( display, &object ) &&
-            get_object_type(object) == type );
+    return( get_current_object( display, &object_ptr ) &&
+            get_object_type(object_ptr) == object_type );
 }
 
-  VIO_BOOL  current_object_exists(
-    display_struct    *display )
+/**
+ * Returns true if the currently selected object is found.
+ * \param display The display_struct of the 3D window.
+ * \returns TRUE if there is a valid selected object.
+ */
+VIO_BOOL
+current_object_exists(display_struct *display)
 {
-    object_struct   *object;
+    object_struct *object_ptr;
 
-    return( get_current_object( display, &object ) );
+    return( get_current_object( display, &object_ptr ) );
 }
