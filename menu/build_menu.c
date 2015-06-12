@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file build_menu.c
+ * \brief Functions to create the menu command structures.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,24 +13,21 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
 typedef  struct
 {
-    int       key;
-    VIO_STR    key_name;
-    VIO_Real      x_pos, y_pos, length;
-    VIO_BOOL   in_slanted_part_of_keyboard;
+    int       key;              /**< BICGL code for this key. */
+    VIO_STR   key_name;         /**< Text name for this key. */
+    VIO_Real  x_pos;            /**< X position of key box. */
+    VIO_Real  y_pos;            /**< Y position of key box. */
+    VIO_Real  length;           /**< Length of key box, zero if invisible. */
+    VIO_BOOL  in_slanted_part_of_keyboard; /**< True if rows are offset. */
 } position_struct;
 
 static   position_struct   positions[] = {
@@ -87,7 +87,10 @@ static   position_struct   positions[] = {
                            {BICGL_F9_KEY, "F9", 0, 0, 0, FALSE },
                            {BICGL_F10_KEY, "F10", 0, 0, 0, FALSE },
                            {BICGL_F11_KEY, "F11", 0, 0, 0, FALSE },
-                           {BICGL_F12_KEY, "F12", 0, 0, 0, FALSE }
+                           {BICGL_F12_KEY, "F12", 0, 0, 0, FALSE },
+                           {BICGL_PGUP_KEY, "Page Up", 0, 0, 0, FALSE },
+                           {BICGL_PGDN_KEY, "Page Down", 0, 0, 0, FALSE },
+                           {'\032', "Ctrl-Z", 0, 0, 0, FALSE }
                          };
 
 static  void   create_menu_text(
@@ -131,16 +134,25 @@ static  void   set_menu_character_position(
 
 /* -------------------------------------------------------------------- */
 
-  void  build_menu(
-    display_struct    *menu_window )
+/** Given a newly created display_struct, create the graphical objects
+ * corresponding to the text labels and boxes that make up the menu
+ * window.
+ * \param menu_window The menu window to build.
+ */
+void
+build_menu(display_struct *menu_window)
 {
-    int      i, key;
+    int      i;
 
     for_less( i, 0, VIO_SIZEOF_STATIC_ARRAY(positions) )
     {
         if( positions[i].length > 0.0 )
         {
-            key = positions[i].key;
+            int key = positions[i].key;
+            if (key < 0 || key >= N_CHARACTERS)
+            {
+                HANDLE_INTERNAL_ERROR("Key value outside legal range");
+            }
             menu_window->menu.box_objects[key] =
                                    create_menu_box( menu_window, key );
             menu_window->menu.text_objects[key] =
@@ -154,16 +166,19 @@ static  void   set_menu_character_position(
     rebuild_menu( menu_window );
 }
 
-  void  rebuild_menu(
-    display_struct    *menu_window )
+/** Given an already filled-in display_struct, recalculate the positions
+ * for the menu key boxes, their key labels, and their text objects.
+ * \param menu_window The menu window to rebuild.
+ */
+void rebuild_menu(display_struct *menu_window)
 {
-    int      i, key;
+    int      i;
 
     for_less( i, 0, VIO_SIZEOF_STATIC_ARRAY(positions) )
     {
         if( positions[i].length > 0.0 )
         {
-            key = positions[i].key;
+            int key = positions[i].key;
             set_menu_box_position( menu_window, key,
                                    menu_window->menu.box_objects[key] );
             set_menu_character_position( menu_window, key,
@@ -172,7 +187,12 @@ static  void   set_menu_character_position(
     }
 
     for_less( i, 1, menu_window->menu.n_entries )
-        set_menu_text_position( menu_window, &menu_window->menu.entries[i] );
+    {
+        menu_entry_struct *menu_entry = &menu_window->menu.entries[i];
+        set_menu_text_position( menu_window, menu_entry );
+        set_menu_text( menu_window, menu_entry, menu_entry->label );
+        update_menu_text( menu_window, menu_entry );
+    }
 }
 
 
@@ -248,8 +268,8 @@ static  void   set_menu_text_position(
         text->size = menu_window->menu.font_size;
     }
 
-    menu_entry->n_chars_across = (int)
-                 (length * (VIO_Real) menu_window->menu.n_chars_per_unit_across);
+    menu_entry->key_text_width = (length * menu_window->menu.basic_key_width) - 
+      (1.5 * menu_window->menu.x_menu_text_offset);
 }
 
 static  VIO_BOOL  lookup_key(
@@ -291,8 +311,8 @@ static  int   compute_key_position(
 
     if( !found )
     {
-        print( "Character %c\n", key );
-        HANDLE_INTERNAL_ERROR( "Unrecognized menu key\n" );
+        print( "Warning: Character %c (\\0%o) is not in the menu.\n", 
+               key, key );
     }
     else if( desc->length <= 0.0 )
     {
@@ -306,8 +326,8 @@ static  int   compute_key_position(
     }
     else
     {
-        x_dx = menu->x_dx + (VIO_Real) menu->n_chars_per_unit_across *
-               menu->character_width;
+        x_dx = menu->x_dx + menu->basic_key_width;
+                                                       
         y_dy = menu->y_dy + (VIO_Real) menu->n_lines_in_entry *
                menu->character_height;
 
@@ -324,8 +344,7 @@ static  int   compute_key_position(
 
         if( x2 != NULL )
         {
-            *x2 = *x1 + *length * (VIO_Real) menu->n_chars_per_unit_across *
-                        menu->character_width;
+            *x2 = *x1 + *length * menu->basic_key_width;
         }
 
         if( y2 != NULL )
@@ -444,7 +463,7 @@ static  object_struct   *create_menu_character(
     object = create_object( TEXT );
 
     if (!compute_key_position( &menu_window->menu, key, &x, &y, NULL, NULL, &length)) {
-      return;
+      return NULL;
     }
 
     fill_Point( origin,

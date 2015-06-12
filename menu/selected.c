@@ -1,5 +1,9 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file selected.c
+ * \brief Build and maintain the object list associated with the marker
+ * or object window.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +14,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -62,7 +61,7 @@ static  void  create_selected_text(
 
         fill_Point( origin,
                     marker->selected_x_origin,
-                    marker->selected_y_origin - marker->character_height * (VIO_Real) i,
+                    marker->selected_y_origin - marker->font_size * 2.0 * i,
                     0.0 );
 
         initialize_text( text, &origin, BLACK,
@@ -106,16 +105,13 @@ static  void  get_box_limits(
     if( width <= 0 )
         width = 20;
 
-    *x_min = VIO_ROUND( marker->selected_x_origin );
-    *y_min = VIO_ROUND( marker->selected_y_origin -
-                    marker->character_height * (VIO_Real) index );
-    *x_max = *x_min + width;
-    *y_max = VIO_ROUND( (VIO_Real) *y_min + marker->selected_box_height);
+    *x_min = VIO_ROUND( marker->selected_x_origin - marker->selected_x_offset );
+    *x_max = VIO_ROUND(*x_min + width + marker->selected_x_offset );
 
-    *x_min = VIO_ROUND( (VIO_Real) *x_min - marker->selected_x_offset );
-    *x_max = VIO_ROUND( (VIO_Real) *x_max + marker->selected_x_offset );
-    *y_min = VIO_ROUND( (VIO_Real) *y_min - marker->selected_y_offset );
-    *y_max = VIO_ROUND( (VIO_Real) *y_max + marker->selected_y_offset );
+    *y_min = VIO_ROUND( marker->selected_y_origin -
+                        marker->font_size * 2.0 * index - 
+                        marker->selected_y_offset);
+    *y_max = VIO_ROUND( *y_min + marker->font_size + marker->selected_y_offset);
 }
 
 static  void  set_current_box(
@@ -235,7 +231,7 @@ static  VIO_STR  get_object_label(
         fill_Point( text->origin,
                     marker_window->marker.selected_x_origin,
                     marker_window->marker.selected_y_origin -
-                    marker_window->marker.character_height *
+                    marker_window->marker.font_size * 2.0 *
                     (VIO_Real) (i - start_index),
                     0.0 );
     }

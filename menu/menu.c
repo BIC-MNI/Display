@@ -94,6 +94,12 @@ static  void  turn_off_menu_entry(
     set_menu_key_entry( menu, menu_entry->key, (menu_entry_struct *) 0 );
 }
 
+/**
+ * Show all of the child entries associated with a menu_entry_struct.
+ *
+ * \param menu The menu_window_struct defining the state of the menu window.
+ * \param menu_entry The menu_entry_struct whose commands should be shown.
+ */
 static  void  add_menu_actions(
     menu_window_struct  *menu,
     menu_entry_struct   *menu_entry )
@@ -104,6 +110,14 @@ static  void  add_menu_actions(
         turn_on_menu_entry( menu, menu_entry->children[i] );
 }
 
+/**
+ * Hide all of the child entries associated with a  menu_entry_struct. 
+ * Does not remove entries if the permanent_flag is TRUE. Used when popping
+ * up the menu hierarchy.
+ *
+ * \param menu The menu_window_struct defining the state of the menu window.
+ * \param menu_entry The menu_entry_struct whose commands should be hidden.
+ */
 static  void  remove_menu_actions(
     menu_window_struct  *menu,
     menu_entry_struct   *menu_entry )
@@ -117,11 +131,35 @@ static  void  remove_menu_actions(
     }
 }
 
-static  void  initialize_menu_parameters(
-    display_struct    *menu_window )
+/**
+ * Calculates the basic width of the keys. This was determined
+ * empirically to give decent results. I could not find a string
+ * which gave consistent results when fed to G_get_text_length().
+ */
+static VIO_Real 
+get_basic_menu_key_width(menu_window_struct *menu)
+{
+  return 13.0 * (3.0 * menu->font_size / 5.0);
+}
+
+/**
+ * Calculates the character offset that accounts for the width of the
+ * fixed key labels.
+ */
+static int 
+get_menu_character_offset(menu_window_struct *menu)
+{
+  return G_get_text_length("X ", Menu_window_font, menu->font_size);
+}
+
+/**
+ * Recompute the menu's layout parameters after a resize.
+ */
+static void
+initialize_menu_parameters(display_struct *menu_window)
 {
     int                 x_size, y_size;
-    VIO_Real                x_scale, y_scale, scale;
+    VIO_Real            x_scale, y_scale, scale;
     menu_window_struct  *menu;
 
     menu = &menu_window->menu;
@@ -137,11 +175,7 @@ static  void  initialize_menu_parameters(
     menu->x_dy = scale * X_menu_dy;
     menu->y_dx = scale * Y_menu_dx;
     menu->y_dy = scale * Y_menu_dy;
-    menu->n_chars_per_unit_across = Menu_n_chars_per_entry;
     menu->n_lines_in_entry = Menu_n_lines_per_entry;
-    menu->character_width = scale * Menu_character_width;
-    menu->character_height = scale * Menu_character_height;
-    menu->character_offset = scale * Menu_key_character_offset;
     menu->x_menu_text_offset = scale * X_menu_text_offset;
     menu->y_menu_text_offset = scale * Y_menu_text_offset;
     menu->x_menu_origin = scale * X_menu_origin;
@@ -153,6 +187,13 @@ static  void  initialize_menu_parameters(
     menu->x_menu_name = scale * Menu_name_x;
     menu->y_menu_name = scale * Menu_name_y;
     menu->font_size = scale * Menu_window_font_size;
+
+    /* Do this after setting the font size above. 
+     */
+    menu->basic_key_width = get_basic_menu_key_width(menu);
+    menu->character_height = G_get_text_height(Menu_window_font,
+                                               menu->font_size) * 2.0;
+    menu->character_offset = get_menu_character_offset(menu);
 }
 
 /* ARGSUSED */
@@ -344,6 +385,7 @@ void  initialize_menu_actions(
 void  initialize_menu_window(
     display_struct    *menu_window )
 {
+
     add_action_table_function( &menu_window->action_table,
                                LEFT_MOUSE_DOWN_EVENT, left_mouse_press );
     add_action_table_function( &menu_window->action_table,
@@ -376,6 +418,7 @@ static  DEF_EVENT_FUNCTION( handle_mouse_position )
           }
         }
     }
+    return VIO_OK;
 }
 
 /* ARGSUSED */
@@ -586,6 +629,12 @@ DEF_MENU_UPDATE(pop_menu )
     return( menu_window->menu.depth > 0 );
 }
 
+/**
+ * Pops the menu to the next level up in the hierarchy.
+ * If the current menu.depth field is zero or less, does nothing.
+ * Otherwise, it removes all of the menu actions associated with the
+ * current 
+ */
 void  pop_menu_one_level(
     display_struct   *menu_window )
 {
@@ -605,50 +654,72 @@ void  pop_menu_one_level(
     }
 }
 
+/**
+ * Set the text for a menu entry, breaking up the text into 
+ * separate lines semi-intelligently.
+ * \param menu_window The menu window structure
+ * \param menu_entry The menu entry information.
+ * \param full_text The full text which should be displayed for this entry.
+ */
 void   set_menu_text(
     display_struct      *menu_window,
     menu_entry_struct   *menu_entry,
-    VIO_STR              text )
+    VIO_STR              full_text )
 {
-    int                 i, line, n_chars, len, n_chars_across;
-    VIO_STR              *text_ptr;
     menu_window_struct  *menu;
+    int                 line;
+    int                 full_text_len;
+    int                 full_text_pos;
+    int                 part_text_len;
+    int                 part_text_width;
+    char                part_text_buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     menu = &menu_window->menu;
 
-    len = string_length( text );
-    n_chars = 0;
+    full_text_len = string_length( full_text );
+    full_text_pos = 0;
 
     for_less( line, 0, menu->n_lines_in_entry )
     {
-        text_ptr = &get_text_ptr(menu_entry->text_list[line])->string;
-        delete_string( *text_ptr );
-        *text_ptr = create_string( NULL );
+        part_text_len = 0;
+        part_text_buffer[0] = 0;
 
-        n_chars_across = menu_entry->n_chars_across;
-
-        if( line == 0 )
-            n_chars_across = VIO_ROUND( (VIO_Real) n_chars_across -
-                                    menu->character_offset );
-
-        i = 0;
-
-        while( n_chars < len && i < n_chars_across )
+        while( full_text_pos < full_text_len )
         {
-            if( text[n_chars] == '\n' ||
-                (text[n_chars] == ' ' &&
-                 (len - n_chars-1) <=
-                 (menu->n_lines_in_entry-line-1) * menu_entry->n_chars_across
-                 - VIO_ROUND(menu->character_offset)) )
+            char ch = full_text[full_text_pos++];
+            if( ch == '\n')
+                break;
+
+            part_text_buffer[part_text_len++] = ch;
+            part_text_buffer[part_text_len] = 0;
+
+            part_text_width = ((line == 0) ? menu->character_offset : 0) + 
+              G_get_text_length(part_text_buffer,
+                                Menu_window_font,
+                                menu->font_size);
+
+            if (part_text_width >= menu_entry->key_text_width)
             {
-                ++n_chars;
+                char *space_ptr = strrchr(part_text_buffer, ' ');
+                if (space_ptr == NULL || line != 0)
+                {
+                  /* No space in the string so far. */
+                  full_text_pos--;
+                  part_text_buffer[--part_text_len] = 0;
+                }
+                else
+                {
+                  /* Try to break on the space. */
+                  *space_ptr = 0;
+                  full_text_pos = (space_ptr - part_text_buffer) + 1;
+                }
                 break;
             }
 
-            concat_char_to_string( text_ptr, text[n_chars] );
-            ++n_chars;
-            ++i;
         }
+
+        replace_string(&get_text_ptr(menu_entry->text_list[line])->string,
+                       create_string(part_text_buffer));
     }
 
     set_update_required( menu_window, NORMAL_PLANES );

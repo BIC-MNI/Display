@@ -6,11 +6,8 @@ START_GLOBALS
     DEF_GLOBAL( Progress_threshold, int, 1000 )
 
     DEF_GLOBAL( Maximum_display_time, VIO_Real, 0.3 )
-    DEF_GLOBAL( Min_interval_between_events, VIO_Real, 0.03 )
     DEF_GLOBAL( Min_interval_between_updates, VIO_Real, 0.02 )
     DEF_GLOBAL( Max_background_seconds, VIO_Real, 0.2 )
-    DEF_GLOBAL( Event_timeout_factor, VIO_Real, 0.5 )
-    DEF_GLOBAL( Size_of_interrupted, int, 250 )
     DEF_GLOBAL( Interval_of_check, int, 250 )
 
     DEF_GLOBAL( Initial_perspective_flag, VIO_BOOL, FALSE )
@@ -24,7 +21,6 @@ START_GLOBALS
     DEF_GLOBAL( Graphics_transparency_flag, VIO_BOOL, TRUE )
     DEF_GLOBAL( Slice_readout_plane, int, 1 )
     DEF_GLOBAL( Display_frame_info, VIO_BOOL, FALSE )
-    DEF_GLOBAL( Display_update_min, VIO_Real, 1.0 )
     DEF_GLOBAL( Frame_info_x, VIO_Real, 10.0 )
     DEF_GLOBAL( Frame_info_y, VIO_Real, 10.0 )
     DEF_GLOBAL( Initial_n_pixels_redraw, int, 100 )
@@ -387,13 +383,12 @@ START_GLOBALS
 
     DEF_GLOBAL( N_selected_displayed, int, 50 )
     DEF_GLOBAL( Selected_x_origin, VIO_Real, 20.0 )
-    DEF_GLOBAL( Selected_y_origin, VIO_Real, 480.0 )
     DEF_GLOBAL_COLOUR( Selected_colour )
     DEF_GLOBAL_COLOUR( Visible_colour )
     DEF_GLOBAL_COLOUR( Invisible_colour )
-    DEF_GLOBAL( Character_height_in_pixels, VIO_Real, 10.0 )
     DEF_GLOBAL( Selected_box_x_offset, VIO_Real, 2.0 )
     DEF_GLOBAL( Selected_box_y_offset, VIO_Real, 2.0 )
+    DEF_GLOBAL( Object_window_font_size, VIO_Real, 10.0 )
     DEF_GLOBAL( Tags_from_label, VIO_BOOL, FALSE )
 
     DEF_GLOBAL( Initial_undo_feature, VIO_BOOL, TRUE )

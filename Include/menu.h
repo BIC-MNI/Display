@@ -15,10 +15,6 @@
               express or implied warranty.
 ---------------------------------------------------------------------------- */
 
-#ifndef lint
-static char display_menu_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/menu.h,v 1.26 2001/05/27 00:19:36 stever Exp $";
-#endif
-
 #include  <volume_io.h>
 
 struct display_struct;
@@ -48,91 +44,101 @@ typedef  menu_update_type  (*menu_update_pointer);
 
 typedef  struct  menu_entry_struct
 {
-    VIO_BOOL                    permanent_flag;
-    int                         key;
-    VIO_STR                     label;
-    VIO_BOOL                    is_active;
-    int                         current_depth;
-    int                         n_children;
-    int                         n_chars_across;
-    struct  menu_entry_struct   **children;
-    menu_function_pointer       action;
-    menu_update_pointer         update_action;
-    VIO_STR                     help_text;
-    object_struct               **text_list;
+    VIO_BOOL                   permanent_flag; /**< TRUE if permanent.  */
+    int                        key;   /**< Key for this command.  */
+    VIO_STR                    label; /**< "Raw" command label text. */
+    VIO_BOOL                   is_active; /**< True if enabled/active.  */
+    int                        current_depth; /**< Nesting depth. */
+    int                        n_children; /**< Number of submenu items. */
+    int                        key_text_width; /**< Text width in pixels. */
+    struct  menu_entry_struct  **children; /**< Submenu items. */
+    menu_function_pointer      action; /**< Menu action function   */
+    menu_update_pointer        update_action; /**< Menu text update function. */
+    VIO_STR                    help_text;     /**< Command help text. */
+    object_struct              **text_list;   /**< Text objects for label.  */
 } menu_entry_struct;
 
-#define  MAX_MENU_DEPTH     10
-#define  N_CHARACTERS       256
+#define  MAX_MENU_DEPTH     10  /**< Maximum menu hierarchy depth. */
+#define  N_CHARACTERS       256 /**< Number of "keys" that can be displayed. */
 
-#define N_HELP_LINES 3
+#define N_HELP_LINES 3          /**< Number of help text lines. */
 
-/* Fields used by the menu window. */
+/** Structure that defines the menu window. 
+ *
+ * The menu displays a number of boxes that are intended to correspond
+ * the buttons on a keyboard. Each box or button has both a fixed key label
+ * and a varying command label.
+ *
+ * The menu window also displays: 
+ *  - A menu title for the currently active menu.
+ *  - The current cursor position in world coordinates.
+ *  - Dynamic help text describing the function of the button under the 
+ *    mouse.
+ */
 typedef  struct
 {
-    int                  default_x_size;
-    int                  default_y_size;
+    int               default_x_size; /**< Original window width.  */
+    int               default_y_size; /**< Original window height.  */
 
-    VIO_Real                 x_dx;
-    VIO_Real                 x_dy;
-    VIO_Real                 y_dx;
-    VIO_Real                 y_dy;
+    VIO_Real          x_dx;     /**< X spacing between key boxes. */
+    VIO_Real          y_dy;     /**< Y spacing between key boxes. */
+    VIO_Real          x_dy;     /**< Normally zero. */
+    VIO_Real          y_dx;     /**< Accounts for slanted key column offsets. */
 
-    int                  n_chars_per_unit_across;
-    int                  n_lines_in_entry;
+    int               n_lines_in_entry; /**< Text lines per key entry.  */
 
-    VIO_Real                 character_height;
-    VIO_Real                 character_width;
-    VIO_Real                 character_offset;
+    VIO_Real          basic_key_width; /**< Max. width of text in box.  */
+    VIO_Real          character_height; /**< Height of current font. */
+    VIO_Real          character_offset; /**< Offset for key labels.  */
 
-    VIO_Real                 x_menu_name;
-    VIO_Real                 y_menu_name;
+    VIO_Real          x_menu_name; /**< X coordinate for menu name text. */
+    VIO_Real          y_menu_name; /**< Y coordinate for menu name text. */
 
-    VIO_Real                 x_menu_origin;
-    VIO_Real                 y_menu_origin;
+    VIO_Real          x_menu_origin; /**< X coordinate for first box.  */
+    VIO_Real          y_menu_origin; /**< Y coordinate for first box.  */
 
-    VIO_Real                 help_x_origin;
-    VIO_Real                 help_y_origin;
+    VIO_Real          help_x_origin; /**< X coordinate for help text. */
+    VIO_Real          help_y_origin; /**< Y coordinate for help text. */
 
-    VIO_Real                 cursor_pos_x_origin;
-    VIO_Real                 cursor_pos_y_origin;
+    VIO_Real          cursor_pos_x_origin; /**< X coordinate for cursor text. */
+    VIO_Real          cursor_pos_y_origin; /**< Y coordinate for cursor text. */
 
-    VIO_Real                 x_menu_text_offset;
-    VIO_Real                 y_menu_text_offset;
-    VIO_Real                 font_size;
+    VIO_Real          x_menu_text_offset; /**< X offset for key text.  */
+    VIO_Real          y_menu_text_offset; /**< Y offset for key text. */
 
-    int                  n_entries;
-    menu_entry_struct    *entries;
+    VIO_Real          font_size; /**< Desired font height in pixels. */
 
-    int                  depth;
-    menu_entry_struct    *stack[MAX_MENU_DEPTH];
+    int               n_entries; /**< Total number of menu entries.  */
+    menu_entry_struct *entries;  /**< List of all menu entries.  */
 
-    menu_entry_struct    *key_menus[N_CHARACTERS];
-    object_struct        *box_objects[N_CHARACTERS];
-    object_struct        *text_objects[N_CHARACTERS];
+    int               depth;    /**< Current menu stack depth.  */
+    menu_entry_struct *stack[MAX_MENU_DEPTH]; /**<   */
 
-    object_struct        *menu_name_text;
-    object_struct        *menu_help_text[N_HELP_LINES];
+    menu_entry_struct *key_menus[N_CHARACTERS]; /**< Currently displayed entries.  */
+    object_struct     *box_objects[N_CHARACTERS]; /**< Key box objects. */
+    object_struct     *text_objects[N_CHARACTERS]; /**< Key text labels. */
+
+    object_struct     *menu_name_text; /**< Menu name text object. */
+    object_struct     *menu_help_text[N_HELP_LINES]; /**< Help text objects. */
 
 } menu_window_struct;
 
-/* Fields used by the marker window. */
+/** Structure that defines the marker window. 
+ *
+ * The marker, or object list window used to be part of the menu window,
+ * but is now a separate top-level window.
+ */
 typedef  struct
 {
-    int                  default_x_size;
-    int                  default_y_size;
+    int      default_x_size;    /**< Original window width.  */
+    int      default_y_size;    /**< Original window height.  */
 
-    VIO_Real             character_height;
-    VIO_Real             character_width;
-    VIO_Real             character_offset;
+    VIO_Real selected_x_origin;
+    VIO_Real selected_y_origin;
+    VIO_Real selected_x_offset;
+    VIO_Real selected_y_offset;
 
-    VIO_Real             selected_box_height;
-    VIO_Real             selected_x_origin;
-    VIO_Real             selected_y_origin;
-    VIO_Real             selected_x_offset;
-    VIO_Real             selected_y_offset;
-
-    VIO_Real             font_size;
+    VIO_Real font_size;         /**< Desired size of marker window font.  */
 
 } marker_window_struct;
 
