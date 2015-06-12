@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file three_d.c
+ * \brief Basic initialization for the 3D view window.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -28,8 +26,8 @@ static  void  initialize_three_d_events(
   void  initialize_three_d_window(
     display_struct   *display )
 {
-    static   VIO_Vector        line_of_sight = { 0.0f, 0.0f, -1.0f };
-    static                 VIO_Vector    horizontal = { 1.0f, 0.0f, 0.0f };
+    static VIO_Vector      line_of_sight = { { 0.0f, 0.0f, -1.0f } };
+    static VIO_Vector      horizontal = { { 1.0f, 0.0f, 0.0f } };
     three_d_window_struct  *three_d;
 
     initialize_resize_events( display );

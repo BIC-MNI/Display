@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file crop.c
+ * \brief Functions for implementing the cropping operation in the slice window.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,14 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifndef lint
-
 #endif
 
 #include  <display.h>
@@ -27,7 +26,7 @@ static  void  set_slice_crop_position(
     int               x_pixel,
     int               y_pixel );
 
-  void  initialize_crop_box(
+void  initialize_crop_box(
     display_struct   *slice_window )
 {
     int  c;
@@ -42,13 +41,13 @@ static  void  set_slice_crop_position(
     slice_window->slice.crop.crop_visible = FALSE;
 }
 
-  void  delete_crop_box(
+void  delete_crop_box(
     display_struct   *slice_window )
 {
     delete_string( slice_window->slice.crop.filename );
 }
 
-  void  set_crop_filename(
+void  set_crop_filename(
     display_struct   *slice_window,
     VIO_STR           filename )
 {
@@ -56,7 +55,7 @@ static  void  set_slice_crop_position(
     slice_window->slice.crop.filename = create_string( filename );
 }
 
-  VIO_Status  create_cropped_volume_to_file(
+VIO_Status  create_cropped_volume_to_file(
     display_struct   *slice_window,
     VIO_STR           cropped_filename )
 {
@@ -160,7 +159,7 @@ static  void  set_slice_crop_position(
     return( VIO_OK );
 }
 
-  void  crop_and_load_volume(
+void  crop_and_load_volume(
     display_struct   *slice_window )
 {
     char        tmp_name[L_tmpnam];
@@ -185,7 +184,7 @@ static  void  set_slice_crop_position(
     delete_string( cropped_filename );
 }
 
-  void  toggle_slice_crop_box_visibility(
+void  toggle_slice_crop_box_visibility(
     display_struct   *slice_window )
 {
     slice_window->slice.crop.crop_visible =
@@ -194,7 +193,7 @@ static  void  set_slice_crop_position(
     set_crop_box_update( slice_window, -1 );
 }
 
-  void  reset_crop_box_position(
+void  reset_crop_box_position(
     display_struct   *display )
 {
     VIO_Volume           volume;
@@ -411,10 +410,10 @@ static  void  set_slice_crop_position(
 {
     int        view_index, volume_index, dim, limit, axis, a;
     int        x_min, x_max, y_min, y_max;
-    VIO_Real       voxel[VIO_MAX_DIMENSIONS], origin[VIO_MAX_DIMENSIONS];
-    VIO_Real       x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
-    VIO_Real       delta;
-    VIO_BOOL    changed;
+    VIO_Real   voxel[VIO_MAX_DIMENSIONS], origin[VIO_MAX_DIMENSIONS];
+    VIO_Real   x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real   delta;
+    VIO_BOOL   changed;
 
     volume_index = get_current_volume_index( slice_window );
     view_index = slice_window->slice.crop.view_index;
@@ -459,10 +458,10 @@ static  void  set_slice_crop_position(
             if( limit >= 0 )
             {
                 axis = slice_window->slice.crop.axis_being_moved[a];
-                if( limit == 0 &&
-                    voxel[axis] < slice_window->slice.crop.limits[1][axis] ||
-                    limit == 1 &&
-                    voxel[axis] > slice_window->slice.crop.limits[0][axis] )
+                if( (limit == 0 &&
+                     voxel[axis] < slice_window->slice.crop.limits[1][axis]) ||
+                    (limit == 1 &&
+                     voxel[axis] > slice_window->slice.crop.limits[0][axis]) )
                 {
                     slice_window->slice.crop.limits[limit][axis] = voxel[axis];
                     changed = TRUE;

@@ -416,18 +416,13 @@ DEF_MENU_FUNCTION( delete_current_object )
 {
     object_struct    *object;
     display_struct   *slice_window;
-    VIO_Real         voxel[VIO_MAX_DIMENSIONS];
-    VIO_BOOL         changed;
-    int              volume_index;
-
-    slice_window = display->associated[SLICE_WINDOW];
 
     /* If we are about to delete a marker, immediately move 
      * the cursor to the position of the marker we are about
      * to delete.
      */
     set_cursor_to_marker(display, menu_window, menu_entry);
-    if( slice_window != NULL )
+    if (get_slice_window(display, &slice_window))
     {
         (void) update_voxel_from_cursor( slice_window );
     }

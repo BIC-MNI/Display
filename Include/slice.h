@@ -1,8 +1,10 @@
 #ifndef  DEF_SLICE
 #define  DEF_SLICE
 
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/** \file slice.h
+ * \brief Definitions for slice view window (3-axis volume view).
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -13,46 +15,83 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
-
-#ifndef lint
-static char display_slice_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/slice.h,v 1.73 1998/02/20 15:00:00 david Exp $";
-#endif
+*/
 
 #include  <volume_io.h>
 #include  <atlas.h>
 #include  <display_types.h>
 
-#define   N_SLICE_VIEWS   4
+#define N_SLICE_VIEWS 4     /**< Total number of slice view panels. */
 
-#define   OBLIQUE_VIEW_INDEX    (N_SLICE_VIEWS-1)
+#define OBLIQUE_VIEW_INDEX (N_SLICE_VIEWS-1) /**< Default oblique view. */
 
+/**
+ * Indices associated with each of the slice readout ("probe") text elements.
+ */
 typedef enum {
-               VOLUME_INDEX,
-               X_VOXEL_PROBE_INDEX,
-               Y_VOXEL_PROBE_INDEX,
-               Z_VOXEL_PROBE_INDEX,
-               X_WORLD_PROBE_INDEX,
-               Y_WORLD_PROBE_INDEX,
-               Z_WORLD_PROBE_INDEX,
-               VOXEL_PROBE_INDEX,
-               VAL_PROBE_INDEX,
-               LABEL_PROBE_INDEX,
-               RATIO_PROBE_INDEX,
-               DISTANCE_PROBE_INDEX,
-               N_READOUT_MODELS     } Slice_readout_indices;
+  VOLUME_INDEX,                 /**< Current volume. */
+  X_VOXEL_PROBE_INDEX,          /**< Voxel X coordinate.  */
+  Y_VOXEL_PROBE_INDEX,          /**< Voxel Y coordinate. */
+  Z_VOXEL_PROBE_INDEX,          /**< Voxel Z coordinate. */
+  X_WORLD_PROBE_INDEX,          /**< World X coordinate. */
+  Y_WORLD_PROBE_INDEX,          /**< World Y coordinate. */
+  Z_WORLD_PROBE_INDEX,          /**< World Z coordinate. */
+  VOXEL_PROBE_INDEX,            /**< Current voxel raw value. */
+  VAL_PROBE_INDEX,              /**< Current voxel real value. */
+  LABEL_PROBE_INDEX,            /**< Current voxel label. */
+  RATIO_PROBE_INDEX,            /**< Volume ratio. */
+  DISTANCE_PROBE_INDEX,         /**< Distance to cursor. */
+  N_READOUT_MODELS              /**< Total number of elements.  */
+} Slice_readout_indices;
 
-typedef  struct
+/**
+ * Information corresponding to the current label painting, or segmenting,
+ * operations.
+ */
+typedef  struct segmenting_struct
 {
-    VIO_Real              min_threshold;
-    VIO_Real              max_threshold;
-    Neighbour_types   connectivity;
-    int               n_starts_alloced;
-    int               *y_starts;
-    int               x_mouse_start, y_mouse_start;
-    VIO_Real              mouse_scale_factor;
-    VIO_BOOL           fast_updating_allowed;
-    VIO_BOOL           cursor_follows_paintbrush;
+    /** Minimum painting threshold. If current voxel's real value is 
+     * less than this threshold, it will not be painted. If min_threshold
+     * is greater than max_threshold, these values are ignored.
+     */
+    VIO_Real        min_threshold;
+
+    /** Maximum painting threshold. If current voxel's real value is 
+     * greater than this threshold, it will not be painted. If min_threshold
+     * is greater than max_threshold, these values are ignored.
+     */
+    VIO_Real        max_threshold;
+
+    Neighbour_types connectivity;
+
+    /** Number of start positions allocated by the fast painting operation.
+     */
+    int             n_starts_alloced;
+    int             *y_starts;
+
+    /** Start X position of the ongoing brush stroke.
+     */
+    int             x_mouse_start;
+
+    /** Start Y position of the ongoing brush stroke.
+     */
+    int             y_mouse_start;
+
+    /** Controls the translation of the mouse position to the 
+     * actual slice position. Probably never needs to be set to
+     * anything except 1.0.
+     */
+    VIO_Real        mouse_scale_factor;
+  
+    /** True if updates should be made in the current slice only, if 
+     * possible.
+     */
+    VIO_BOOL        fast_updating_allowed;
+
+     /** True if cursor position is continuously updated as the paintbrush
+      * is moved.
+      */
+    VIO_BOOL        cursor_follows_paintbrush;
 } segmenting_struct;
 
 typedef struct

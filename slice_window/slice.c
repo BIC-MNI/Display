@@ -1033,16 +1033,16 @@ static  void  render_more_slices(
                 slice_window->slice.slice_views[view].sub_region_specified;
 
         if( slice_window->slice.slice_views[view].sub_region_specified ||
-            slice_window->slice.slice_views[view].prev_sub_region_specified &&
-            (viewport_has_changed[view] ||
-             slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0]) )
+            (slice_window->slice.slice_views[view].prev_sub_region_specified &&
+             (viewport_has_changed[view] ||
+              slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0])))
         {
             slice_window->slice.slice_views[view].use_sub_region =
                                        original_sub_region_specified[view];
 
             if( viewport_has_changed[view] ||
-                slice_is_continuing[view] && !prev_use_sub_region &&
-                slice_window->slice.slice_views[view].sub_region_specified ||
+                (slice_is_continuing[view] && !prev_use_sub_region &&
+                 slice_window->slice.slice_views[view].sub_region_specified) ||
                 slice_window->slice.viewport_update_flags[SLICE_MODEL1+view][0])
             {
                 slice_window->slice.slice_views[view].use_sub_region = FALSE;

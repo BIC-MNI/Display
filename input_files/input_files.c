@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file input_files.c
+ * \brief Function to load graphics or volume files.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,18 +13,23 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#ifndef lint
-
-#endif
-
-
 #include  <display.h>
 
+/**
+ * Load either a graphical object (MNI .obj format, e.g.) or a volume file
+ * (MINC voxel data, e.g.).
+ * \param display A pointer to the display_struct of the 3D view window.
+ * \param filename The name of the file to open.
+ * \param is_label_file A boolean that indicates whether the volume file
+ * should be treated as containing anatomical labels for an existing
+ * volume.
+ * \returns VIO_OK on success.
+ */
   VIO_Status  load_graphics_file( 
     display_struct   *display,
     VIO_STR           filename,
@@ -85,8 +93,9 @@
                   display->three_d.default_marker_colour,
                   display->three_d.default_marker_size,
                   display->three_d.default_marker_type,
-                  &model->n_objects, &model->objects,
-                  &display->label_stack);
+                  &model->n_objects, &model->objects);
+                /* TODO: why was this here??
+                   &display->label_stack); */
                 }
             }
         }

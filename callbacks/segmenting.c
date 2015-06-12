@@ -434,7 +434,7 @@ static  void   save_labels_as_tags(
 /*
  * Create tags from a label image
  */
- VIO_Status tags_from_label(
+static VIO_Status tags_from_label(
 	display_struct *display,
     int       *n_tag_points,
     VIO_Real      ***tags_volume1,
@@ -1086,14 +1086,13 @@ DEF_MENU_UPDATE(toggle_crop_labels_on_output)
 
 DEF_MENU_FUNCTION(clear_label_connected_3d)
 {
-    VIO_Real             voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real         voxel[VIO_MAX_DIMENSIONS];
     int              range_changed[2][VIO_N_DIMENSIONS];
-    int              view_index, int_voxel[VIO_MAX_DIMENSIONS];
+    int              int_voxel[VIO_MAX_DIMENSIONS];
     int              label_under_mouse, desired_label, volume_index;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) )
-//        get_voxel_under_mouse( slice_window, &volume_index, &view_index, voxel))
     {
     	volume_index = get_current_volume_index( slice_window );
     	get_current_voxel( display, volume_index, voxel);

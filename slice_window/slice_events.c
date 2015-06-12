@@ -857,8 +857,8 @@ static  VIO_BOOL  get_nearest_mouse_colour_bar_value(
 static  VIO_BOOL  mouse_is_near_low_limit(
     display_struct   *slice_window )
 {
-    VIO_Real                  value, min_value, max_value;
-    VIO_BOOL               near;
+    VIO_Real              value, min_value, max_value;
+    VIO_BOOL              near;
     colour_coding_struct  *colour_coding;
 
     near = FALSE;
@@ -870,10 +870,10 @@ static  VIO_BOOL  mouse_is_near_low_limit(
 
         get_colour_coding_min_max( colour_coding, &min_value, &max_value );
 
-        if( min_value <= max_value &&
-            value < (colour_coding->min_value+colour_coding->max_value)/2.0 ||
-            min_value > max_value &&
-            value > (colour_coding->min_value+colour_coding->max_value)/2.0 )
+        if( (min_value <= max_value &&
+             value < (colour_coding->min_value+colour_coding->max_value)/2.0) ||
+            (min_value > max_value &&
+             value > (colour_coding->min_value+colour_coding->max_value)/2.0) )
             near = TRUE;
     }
 
@@ -883,8 +883,8 @@ static  VIO_BOOL  mouse_is_near_low_limit(
 static  VIO_BOOL  mouse_is_near_high_limit(
     display_struct   *slice_window )
 {
-    VIO_Real                  value, min_value, max_value;
-    VIO_BOOL               near;
+    VIO_Real              value, min_value, max_value;
+    VIO_BOOL              near;
     colour_coding_struct  *colour_coding;
 
     near = FALSE;
@@ -896,10 +896,10 @@ static  VIO_BOOL  mouse_is_near_high_limit(
 
         get_colour_coding_min_max( colour_coding, &min_value, &max_value );
 
-        if( min_value <= max_value &&
-            value > (colour_coding->min_value+colour_coding->max_value)/2.0 ||
-            min_value > max_value &&
-            value < (colour_coding->min_value+colour_coding->max_value)/2.0 )
+        if( (min_value <= max_value &&
+             value > (colour_coding->min_value+colour_coding->max_value)/2.0) ||
+            (min_value > max_value &&
+             value < (colour_coding->min_value+colour_coding->max_value)/2.0) )
             near = TRUE;
     }
 

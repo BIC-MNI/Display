@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file mouse.c
+ * \brief Functions to track current and previous mouse position.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,19 +13,23 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#ifndef lint
-
-#endif
-
-
 #include  <display.h>
 
-  VIO_BOOL  mouse_moved(
+/**
+ * Returns true if the mouse has moved, and returns the current and
+ * previous mouse positions in fractional units (between zero and one).
+ * \param display The display_struct for the relevant window.
+ * \param new_x The updated X position (between 0 and 1).
+ * \param new_y The updated Y position (between 0 and 1).
+ * \param old_x The previous X position (between 0 and 1).
+ * \param old_y The previous Y position (between 0 and 1).
+ */
+VIO_BOOL  mouse_moved(
     display_struct   *display,
     VIO_Real             *new_x,
     VIO_Real             *new_y,
@@ -46,7 +53,17 @@
     return( moved );
 }
 
-  VIO_BOOL  pixel_mouse_moved(
+/**
+ * Returns true if the mouse has moved, and returns the current and
+ * previous mouse positions in pixel units (from zero to the window
+ * dimensions in pixels).
+ * \param display The display_struct for the relevant window.
+ * \param new_x The updated X position (between 0 and window_x).
+ * \param new_y The updated Y position (between 0 and window_y).
+ * \param old_x The previous X position (between 0 and window_x).
+ * \param old_y The previous Y position (between 0 and window_y).
+ */
+VIO_BOOL  pixel_mouse_moved(
     display_struct   *display,
     int              *new_x,
     int              *new_y,
@@ -70,7 +87,14 @@
     return( moved );
 }
 
-  void  record_mouse_position(
+/**
+ * Save the current mouse position in the field
+ * display_struct::prev_mouse_position. The saved value will be in
+ * fractional units in the range 0...1.  
+ *
+ * \param display The display_struct for the relevant window.
+ */
+void  record_mouse_position(
     display_struct   *display )
 {
     VIO_Real   x, y;
@@ -80,7 +104,16 @@
     fill_Point( display->prev_mouse_position, x, y, 0.0 );
 }
 
-  void  record_mouse_pixel_position(
+/**
+ * Save the current mouse position in the field
+ * display_struct::prev_mouse_position. The saved value will be in 
+ * pixel units.
+ * Since this shares the same field with record_mouse_position(), one 
+ * cannot safely intermingle calls to pixel_mouse_moved() and mouse_moved().
+ *
+ * \param display The display_struct for the relevant window.
+ */
+void  record_mouse_pixel_position(
     display_struct   *display )
 {
     int   x, y;

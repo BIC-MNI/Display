@@ -1,5 +1,9 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file pick_object.c
+ * \brief Handling picking (selecting) objects based on clicks in the 
+ * 3D window.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +14,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -28,7 +27,11 @@ static    DEF_EVENT_FUNCTION( start_picking_object );
 static  void  pick_point_under_mouse(
     display_struct    *display );
 
-  void  initialize_picking_object(
+/**
+ * Configures the left mouse button to set the current object in the
+ * object list.
+ */
+void  initialize_picking_object(
     display_struct    *display )
 {
     add_action_table_function( &display->action_table,
@@ -89,7 +92,16 @@ static  DEF_EVENT_FUNCTION( update_picked_object )
     return( VIO_OK );
 }
 
-  VIO_BOOL  get_mouse_scene_intersection(
+/**
+ * Find the object that intersects with the current mouse point.
+ * \param display The display_struct of the 3D window.
+ * \param desired_object_type The type of object we are looking for, or -1
+ * if any object should be considered.
+ * \param object The object_struct of the object that was found.
+ * \param object_index The index of the found object.
+ * \param intersection The position of the intersection in model space.
+ */
+VIO_BOOL  get_mouse_scene_intersection(
     display_struct    *display,
     Object_types      desired_object_type,
     object_struct     **object,
@@ -121,7 +133,15 @@ static  DEF_EVENT_FUNCTION( update_picked_object )
     return( found );
 }
 
-  VIO_BOOL  get_polygon_under_mouse(
+/**
+ * Get the polygon object under the mouse, if any.
+ * \param display The display_struct of the 3D window.
+ * \param polygons The polygons_struct of the found object.
+ * \param poly_index The index of the polygons.
+ * \param intersection The position of the intersection between the
+ * mouse and the polygons.
+ */
+VIO_BOOL  get_polygon_under_mouse(
     display_struct    *display,
     polygons_struct   **polygons,
     int               *poly_index,
@@ -142,8 +162,13 @@ static  DEF_EVENT_FUNCTION( update_picked_object )
     return( found );
 }
 
-static  void  pick_point_under_mouse(
-    display_struct    *display )
+/**
+ * Identify the 3D object under the mouse cursor, and select it in the 
+ * object list if found. Also updates the 3D and slice window cursors.
+ * \param display The display_struct of the 3D window.
+ */
+static void
+pick_point_under_mouse(display_struct    *display)
 {
     VIO_Point            intersection_point;
     object_struct    *object;

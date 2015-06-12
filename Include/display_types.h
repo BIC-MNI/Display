@@ -15,10 +15,6 @@
               express or implied warranty.
 ---------------------------------------------------------------------------- */
 
-#ifndef lint
-static char display_types_rcsid[] = "$Header: /private-cvsroot/visualization/Display/Include/display_types.h,v 1.21 1998/02/20 14:59:58 david Exp $";
-#endif
-
 #include  <graphics.h>
 
 #define  N_MODELS    7
@@ -129,12 +125,23 @@ typedef  struct
     VIO_Point         line_direction;
 } point_position_struct;
 
+/**
+ * This structure represents the currently selected object at a particular
+ * level. It represents the selection as an index into a model.
+ */
 typedef  struct
 {
-    int            object_index;
-    object_struct  *model_object;
+    int            object_index; /**< The index of the current object. */
+    object_struct  *model_object; /**< The model containing the current object. */
 } selection_entry;
 
+/*
+ * This structure represents the entire stack of object selections, so that
+ * we can track back up through the hierarchy to the top level. At each
+ * level we record the index and model that is selected. As we descend, we
+ * add additional levels to the stack to represent the index and model of
+ * substructure into which we've descended.
+ */
 typedef  struct
 {
     int                n_levels_alloced;

@@ -85,15 +85,12 @@ int  main(
     char    *argv[] )
 {
     int              i, view;
-    VIO_STR          filename;
     display_struct   *graphics;
     display_struct   *menu, *slice_window, *marker;
     VIO_STR           globals_filename, runtime_directory;
     int               n_directories;
     VIO_STR           *directories;
     VIO_STR           title;
-    VIO_STR           variable_name, variable_value;
-    VIO_BOOL          next_is_label_volume;
 
     set_alloc_checking( TRUE );
 
@@ -344,7 +341,6 @@ static  void      initialize_view_to_fit(
 static void initialize_ratio (display_struct* slice_window)
 {
   model_struct      *model;
-  VIO_Colour        colour;
   int               retcode;
   text_struct       *text;
 
@@ -401,7 +397,6 @@ parse_options(int argc, char *argv[], display_struct *graphics)
 {
   VIO_Status retcode;
   VIO_STR filename;
-  VIO_STR globals_filename;
   VIO_BOOL next_is_label_volume;
 
   initialize_argument_processing(argc, argv);

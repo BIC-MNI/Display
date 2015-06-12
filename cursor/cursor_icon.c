@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file cursor_icon.c
+ * \brief Functions to create and manipulate the 3D window cursor model.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -171,7 +169,7 @@ static  void   create_axis(
 {
     static VIO_Colour  axis_colours[VIO_N_DIMENSIONS] = { 1, 2, 3 };
     VIO_Colour         col;
-    static VIO_Point   dummy = { 0.0f, 0.0f, 0.0f };
+    static VIO_Point   dummy = { { 0.0f, 0.0f, 0.0f } };
     lines_struct   *lines;
 
     *object = create_object( LINES );

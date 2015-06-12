@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file input_menu.c
+ * \brief Read menu a menu command layout from a file.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,13 +13,9 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifndef lint
-
 #endif
 
 #include  <display.h>
@@ -351,19 +350,19 @@ static  action_lookup_struct   actions[] = {
 
 typedef  struct
 {
-    VIO_BOOL           permanent_flag;
-    int                key;
-    VIO_STR            action_name;
-    VIO_STR            label;
-    VIO_STR            help_text;
-    menu_entry_struct  *menu_entry;
+    VIO_BOOL           permanent_flag; /**< TRUE if permanent command.  */
+    int                key;            /**< Key code of this command.  */
+    VIO_STR            action_name;    /**< Name of command function.  */
+    VIO_STR            label;          /**< User-visible text name. */
+    VIO_STR            help_text;      /**< "Help" text for this command. */
+    menu_entry_struct  *menu_entry;    /**< Menu entry for this key.  */
 }  key_action_struct;
 
 typedef  struct
 {
-    VIO_STR             menu_name;
-    int                 n_entries;
-    key_action_struct   *entries;
+    VIO_STR             menu_name; /**< Name of this menu.  */
+    int                 n_entries; /**< Number of key entries in this menu.  */
+    key_action_struct   *entries;  /**< Key entries in this menu.  */
 } menu_definition_struct;
 
 static  int  translate_key_name(
@@ -391,7 +390,13 @@ static  VIO_BOOL  lookup_menu_action(
     menu_function_pointer  *action,
     menu_update_pointer    *update_action );
 
-  VIO_Status  read_menu(
+/**
+ * Read a menu from a file.
+ * \param menu The menu_window_struct.
+ * \param file An open file stream.
+ * \returns VIO_OK if the menu is read successfully.
+ */
+VIO_Status  read_menu(
     menu_window_struct   *menu,
     FILE                 *file )
 {
@@ -490,47 +495,45 @@ static  int  translate_key_name(
         key = DELETE_KEY;
     else if (equal_strings(str, "escape"))
         key = ESCAPE_KEY;
-    else if (equal_strings(str, "f1")) {
+    else if (equal_strings(str, "f1"))
         key = BICGL_F1_KEY;
-    }
-    else if (equal_strings(str, "f2")) {
+    else if (equal_strings(str, "f2"))
         key = BICGL_F2_KEY;
-    }
-    else if (equal_strings(str, "f3")) {
+    else if (equal_strings(str, "f3"))
         key = BICGL_F3_KEY;
-    }
-    else if (equal_strings(str, "f4")) {
+    else if (equal_strings(str, "f4"))
         key = BICGL_F4_KEY;
-    }
-    else if (equal_strings(str, "f5")) {
+    else if (equal_strings(str, "f5"))
         key = BICGL_F5_KEY;
-    }
-    else if (equal_strings(str, "f6")) {
+    else if (equal_strings(str, "f6"))
         key = BICGL_F6_KEY;
-    }
-    else if (equal_strings(str, "f7")) {
+    else if (equal_strings(str, "f7"))
         key = BICGL_F7_KEY;
-    }
-    else if (equal_strings(str, "f8")) {
+    else if (equal_strings(str, "f8"))
         key = BICGL_F8_KEY;
-    }
-    else if (equal_strings(str, "f9")) {
+    else if (equal_strings(str, "f9"))
         key = BICGL_F9_KEY;
-    }
-    else if (equal_strings(str, "f10")) {
+    else if (equal_strings(str, "f10"))
         key = BICGL_F10_KEY;
-    }
-    else if (equal_strings(str, "f11")) {
+    else if (equal_strings(str, "f11"))
         key = BICGL_F11_KEY;
-    }
-    else if (equal_strings(str, "f12")) {
+    else if (equal_strings(str, "f12"))
         key = BICGL_F12_KEY;
-    }
+    else if (equal_strings(str, "pageup"))
+        key = BICGL_PGUP_KEY;
+    else if (equal_strings(str, "pagedown"))
+        key = BICGL_PGDN_KEY;
+    else if (equal_strings(str, "insert"))
+        key = BICGL_INSERT_KEY;
+    else if (equal_strings(str, "home"))
+        key = BICGL_HOME_KEY;
+    else if (equal_strings(str, "end"))
+        key = BICGL_END_KEY;
+    else if (!strncmp(str, "ctrl-", 5))
+        key = str[5] - 'a' + 1; /* Convert to control character. */
     else if( string_length( str ) == 1 )
     {
         key = (int) str[0];
-        if( key < 0 )
-            key += 128;
     }
     else
     {
@@ -538,17 +541,21 @@ static  int  translate_key_name(
         key = (int) ']';
     }
 
+    if (key < 0 || key >= N_CHARACTERS)
+    {
+        HANDLE_INTERNAL_ERROR("Illegal key value!");
+    }
     return( key );
 }
 
 static  VIO_Status  input_menu_entry(
     FILE                     *file,
-    menu_definition_struct   *menu_entry )
+    menu_definition_struct   *menu_def )
 {
-    VIO_Status              status;
-    VIO_BOOL             found_brace;
-    VIO_STR              permanent_string;
-    VIO_BOOL             permanent_flag;
+    VIO_Status          status;
+    VIO_BOOL            found_brace;
+    VIO_STR             permanent_string;
+    VIO_BOOL            permanent_flag;
     key_action_struct   entry;
 
     status = skip_input_until( file, '{' );
@@ -557,7 +564,7 @@ static  VIO_Status  input_menu_entry(
     {
         found_brace = FALSE;
 
-        menu_entry->n_entries = 0;
+        menu_def->n_entries = 0;
 
         do
         {
@@ -580,7 +587,7 @@ static  VIO_Status  input_menu_entry(
                 else
                 {
                     print( "Expected permanent or transient.\n" );
-                    print( " Got: %s (%s) %d\n", permanent_string, menu_entry->menu_name, menu_entry->n_entries);
+                    print( " Got: %s (%s) %d\n", permanent_string, menu_def->menu_name, menu_def->n_entries);
                     status = VIO_ERROR;
                 }
             }
@@ -595,8 +602,8 @@ static  VIO_Status  input_menu_entry(
 
                 if( status == VIO_OK )
                 {
-                    ADD_ELEMENT_TO_ARRAY( menu_entry->entries,
-                                          menu_entry->n_entries,
+                    ADD_ELEMENT_TO_ARRAY( menu_def->entries,
+                                          menu_def->n_entries,
                                           entry, 1 );
                 }
 
@@ -790,7 +797,11 @@ static  void  delete_menu_entry(
         FREE( entry->children );
 }
 
-  void  delete_menu(
+/**
+ * Free all of the memory associated with the menu window.
+ * \param menu The menu_window_struct corresponding to the current menu.
+ */
+void  delete_menu(
     menu_window_struct  *menu )
 {
     int      i;

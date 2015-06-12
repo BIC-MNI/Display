@@ -59,6 +59,7 @@ static DEF_EVENT_FUNCTION(start_translation)
                             NO_EVENT,
                             change_translation);
   record_mouse_position(display);
+  return VIO_OK;
 }
 
 static DEF_EVENT_FUNCTION(stop_translation)
@@ -66,6 +67,7 @@ static DEF_EVENT_FUNCTION(stop_translation)
   remove_action_table_function(&display->action_table,
                                NO_EVENT,
                                change_translation);
+  return VIO_OK;
 }
 
 /**
@@ -96,6 +98,7 @@ static DEF_EVENT_FUNCTION(increase_magnification)
     magnify_view_size( &display->three_d.view, 1.1 );
     update_view( display );
     set_update_required( display, NORMAL_PLANES );
+    return VIO_OK;
 }
 
 static DEF_EVENT_FUNCTION(decrease_magnification)
@@ -103,6 +106,7 @@ static DEF_EVENT_FUNCTION(decrease_magnification)
     magnify_view_size( &display->three_d.view, 1.0 / 1.1 );
     update_view( display );
     set_update_required( display, NORMAL_PLANES );
+    return VIO_OK;
 }
 
 /* ARGSUSED */

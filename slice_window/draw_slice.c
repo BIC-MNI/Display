@@ -1502,7 +1502,6 @@ compute_slice_field_of_view(display_struct *display,
   int      width_index, height_index, axis_index;
   VIO_Real w_min[VIO_N_DIMENSIONS];
   VIO_Real w_max[VIO_N_DIMENSIONS];
-  VIO_BOOL need_eff = FALSE;
   int      x, y;
 
   if( !slice_has_ortho_axes( display, volume_index, view_index, 

@@ -1,5 +1,9 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file pick_view.c
+ * \brief Functions to implement selection of the viewport in the
+ * 3D view window.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +14,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -28,7 +27,11 @@ static  DEF_EVENT_FUNCTION( terminate_picking_viewport );
 static  DEF_EVENT_FUNCTION( done_picking_viewport );
 static  DEF_EVENT_FUNCTION( show_picked_viewport );
 
-  void  start_picking_viewport(
+/**
+ * Put the UI into the mode where we are selecting a rectangular area
+ * for the new 3D viewport.
+ */
+void  start_picking_viewport(
     display_struct   *display )
 {
     push_action_table( &display->action_table, MIDDLE_MOUSE_DOWN_EVENT );

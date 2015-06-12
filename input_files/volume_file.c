@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file volume_file.c
+ * \brief Function to load a volume (e.g. MINC) file.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,27 +13,45 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
 #include  <display.h>
 
-char *XYZT_dimension_names[] = { MIxspace, MIyspace, MIzspace, MItime };
+/** We limit ourselves to 4-dimensional volumes at the moment. RGB volumes
+ * (containing a vector_dimension of length three) are a special case.
+ */
+#define MAX_VOLUME_DIMENSIONS 4
 
+/** This is the order of the dimensions we want for all loaded volumes.
+ */
+char *XYZT_dimension_names[MAX_VOLUME_DIMENSIONS] = { 
+  MIxspace, MIyspace, MIzspace, MItime
+};
+
+/**
+ * Read a volume file using the volume_io library call input_volume().
+ * Also applies cropping and voxel type conversion if specified by the
+ * global state.
+ * \param filename The path of the file to read.
+ * \param volume_ptr A pointer to a VIO_Volume handle that represents
+ * the loaded volume.
+ * \returns VIO_OK on success, VIO_ERROR on failure.
+ */ 
 VIO_Status   input_volume_file(
     VIO_STR         filename,
-    VIO_Volume         *volume_ptr )
+    VIO_Volume      *volume_ptr )
 {
-    VIO_Status              status;
+    VIO_Status          status;
     nc_type             nc_data_type;
-    VIO_BOOL             signed_flag;
-    VIO_Real                voxel_min, voxel_max, size_factor;
+    VIO_BOOL            signed_flag;
+    VIO_Real            voxel_min, voxel_max, size_factor;
     minc_input_options  options;
     int                 dim, limits[2][VIO_MAX_DIMENSIONS];
     int                 sizes[VIO_MAX_DIMENSIONS];
-    VIO_Volume              volume, cropped_volume;
+    VIO_Volume          volume, cropped_volume;
 
     if( Convert_volumes_to_byte )
     {
@@ -50,7 +71,8 @@ VIO_Status   input_volume_file(
     set_default_minc_input_options( &options );
     set_minc_input_vector_to_colour_flag( &options, TRUE );
 
-    status = input_volume( filename, 4, XYZT_dimension_names,
+    status = input_volume( filename, MAX_VOLUME_DIMENSIONS,
+                           XYZT_dimension_names,
                            nc_data_type, signed_flag, voxel_min, voxel_max,
                            TRUE, &volume, &options );
 

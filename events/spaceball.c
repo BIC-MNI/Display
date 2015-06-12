@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file spaceball.c
+ * \brief Create the transform used to implement the virtual spaceball.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -40,7 +38,7 @@ static  VIO_BOOL  make_spaceball_transform(
     VIO_Real             y2,
     VIO_Transform        *transform )
 {
-    static  VIO_Point  centre = { 0.5f, 0.5f, 0.0f };
+    static  VIO_Point  centre = { { 0.5f, 0.5f, 0.0f } };
     VIO_Transform      spaceball_transform;
     VIO_Real           x_radius, y_radius;
     int            x_size, y_size;

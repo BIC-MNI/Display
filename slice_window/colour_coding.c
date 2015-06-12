@@ -742,9 +742,9 @@ static  void  colour_code_points(
     display_struct        *slice_window,
     int                   continuity,
     Colour_flags          *colour_flag,
-    VIO_Colour                *colours[],
+    VIO_Colour            *colours[],
     int                   n_points,
-    VIO_Point                 points[] )
+    VIO_Point             points[] )
 {
     int      i, int_voxel[VIO_MAX_DIMENSIONS], label, volume_index, view_index;
     VIO_Real     val, voxel[VIO_MAX_DIMENSIONS];
@@ -853,7 +853,7 @@ static  void  colour_code_object_points(
     int                    continuity,
     object_struct          *object )
 {
-    VIO_Colour                  *colours;
+    VIO_Colour              *colours;
     Colour_flags            colour_flag;
     polygons_struct         *polygons;
     quadmesh_struct         *quadmesh;
@@ -890,6 +890,12 @@ static  void  colour_code_object_points(
         colours = &marker->colour;
         colour_code_points( slice_window, continuity,
                             &colour_flag, &colours, 1, &marker->position );
+        break;
+
+    default:
+        /* Do not apply colour coding to a MODEL, PIXELS,
+         * or TEXT object.
+         */
         break;
     }
 }

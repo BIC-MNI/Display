@@ -51,7 +51,7 @@ static  void  transform_world_to_screen(
     VIO_Vector       *line_of_sight,
     VIO_Vector       *horizontal )
 {
-    static  VIO_Point   origin = { 0.0f, 0.0f, 1.0f };
+    static  VIO_Point   origin = { { 0.0f, 0.0f, 1.0f } };
 
     view->perspective_flag = FALSE;
     view->origin = origin;
