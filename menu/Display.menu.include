@@ -7,8 +7,8 @@ root \
     permanent '+'      move_slice_plus              '+ Slice' 'Increase voxel coordinate in the slice view under the mouse.' \
     permanent '='      move_slice_plus              '+ Slice' 'Increase voxel coordinate in the slice view under the mouse.' \
     permanent '-'      move_slice_minus             '- Slice' 'Decrease voxel coordinate in the slice view under the mouse.' \
-    permanent '<'      move_time_minus              '' '' \
-    permanent '>'      move_time_plus               '' '' \
+    transient '1'      move_time_minus              '- Time' 'Move to the previous time coordinate.' \
+    transient '2'      move_time_plus               '+ Time' 'Move to the next time coordinate.' \
  \
     transient 'q'      volume_config                'Volume Config' 'Commands for volume configuration.' \
     transient 'w'      view_3d                      '3D View' 'Commands for manipulation of 3D object view.' \
@@ -35,6 +35,9 @@ root \
     permanent 'right' descend_selected             'Down' 'View the contents of this item on the object list' \
     permanent 'down'  advance_selected             'Next' 'Select the next item on the object list.' \
     permanent 'up'    retreat_selected             'Prev' 'Select the previous item on the object list.' \
+    permanent 'pageup'   prev_current_volume       '' '' \
+    permanent 'pagedown' toggle_current_volume     '' '' \
+    permanent 'ctrl-z'   undo_slice_labels         '' '' \
 } \
  \
 quit \
@@ -367,16 +370,16 @@ segmenting \
     transient 'v'    calculate_volume                 'Calculate Volume' '' \
     transient 'b'    toggle_display_labels           'Show Labels: %s' '' \
     transient 'n'    copy_labels_from_lower_slice  'Copy from Lt/Inf/Post Slice' '' \
-    transient 'm'    toggle_undo_feature              'Enable Undo: %s' '' \
+    transient 'm'    toggle_undo_feature              'Enable Undo: %s' 'Control whether the undo feature is available.' \
  \
     transient '1'    set_current_erase_label          'Set Erase Lbl: %d' '' \
     transient '2'    toggle_fast_update               'Fast Update: %s' '' \
-    transient '3'    toggle_cursor_follows_paintbrush 'Cursor Follows: %s' '' \
-    transient '4'    toggle_cursor_visibility         'Cursor Vis: %s' '' \
+    transient '3'    toggle_cursor_follows_paintbrush 'Cursor Follows: %s' 'Control whether the cursor moves with the paintbrush.' \
+    transient '4'    toggle_cursor_visibility         'Cursor Vis: %s' 'Control whether the cursor is visible.' \
     transient '5'    toggle_connectivity              'Connectivity: %d' 'Selects either 4- or 8-connectivity for fill, dilation, and erosion.' \
     transient '6'    label_connected_3d               'Fill 3D' '' \
  \
-    transient '7'    undo_slice_labels                'Undo' 'Undo the previous label operation.' \
+    transient '7'    undo_slice_labels                'Undo' 'Undo the previous painting operation.' \
 } \
  \
 reset_segmenting_confirm \
