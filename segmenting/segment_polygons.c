@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file segment_polygons.c
+ * \brief Helper functions for surface segmentation.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,45 +13,40 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+ */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
 static  void  modify_polygon(
     polygons_struct  *polygons,
     int               poly,
-    VIO_BOOL           set_visibility_flag,
-    VIO_BOOL           new_visibility,
-    VIO_BOOL           set_colour_flag,
-    VIO_Colour            colour );
+    VIO_BOOL          set_visibility_flag,
+    VIO_BOOL          new_visibility,
+    VIO_BOOL          set_colour_flag,
+    VIO_Colour        colour );
 static  VIO_BOOL  should_modify_polygon(
     polygons_struct   *polygons,
     int               poly,
-    VIO_BOOL           set_visibility_flag,
-    VIO_BOOL           new_visibility );
+    VIO_BOOL          set_visibility_flag,
+    VIO_BOOL          new_visibility );
 static  VIO_BOOL  polygon_on_invisible_side(
     polygons_struct  *polygons,
     int              poly_index,
     int              axis_index,
-    VIO_Real             position,
-    VIO_BOOL          cropping_above );
+    VIO_Real         position,
+    VIO_BOOL         cropping_above );
 
   void  set_visibility_around_poly(
     polygons_struct  *polygons,
     int              poly,
     int              max_polys_to_do,
-    VIO_BOOL          set_visibility_flag,
-    VIO_BOOL          new_visibility,
-    VIO_BOOL          set_colour_flag,
-    VIO_Colour           colour )
+    VIO_BOOL         set_visibility_flag,
+    VIO_BOOL         new_visibility,
+    VIO_BOOL         set_colour_flag,
+    VIO_Colour       colour )
 {
     int                   i, index, neigh, size, n_done;
     unsigned char         *polygons_done_flags;
@@ -170,12 +168,12 @@ static  VIO_BOOL  polygon_on_invisible_side(
     polygons_struct  *polygons,
     int              poly_index,
     int              axis_index,
-    VIO_Real             position,
-    VIO_BOOL          cropping_above )
+    VIO_Real         position,
+    VIO_BOOL         cropping_above )
 {
-    VIO_BOOL  on_invisible_size_only;
+    VIO_BOOL on_invisible_size_only;
     int      i, point_index, size;
-    VIO_Real     coord;
+    VIO_Real coord;
 
     size = GET_OBJECT_SIZE( *polygons, poly_index );
 
@@ -188,8 +186,8 @@ static  VIO_BOOL  polygon_on_invisible_side(
 
         coord = (VIO_Real) Point_coord(polygons->points[point_index],axis_index);
 
-        if( coord < position && cropping_above ||
-            coord > position && !cropping_above )
+        if( (coord < position && cropping_above) ||
+            (coord > position && !cropping_above) )
         {
             on_invisible_size_only = FALSE;
             break;
