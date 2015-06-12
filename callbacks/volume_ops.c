@@ -20,6 +20,7 @@
 
 #include  <display.h>
 
+
 /**
  * Move the time coordinate forward or backward by \c delta.
  */
@@ -35,6 +36,7 @@ change_current_time_by_one(
     VIO_Real        separations[VIO_MAX_DIMENSIONS];
     int             sizes[VIO_MAX_DIMENSIONS];
     int             volume_index;
+    VIO_Real        new_position;
 
     if( !get_slice_window( display, &slice_window ))
         return;
@@ -51,25 +53,25 @@ change_current_time_by_one(
      * not impossible...
      */
     if( separations[VIO_T] < 0.0 )
-      delta = -delta;
+        delta = -delta;
     
     get_current_voxel( slice_window, volume_index, voxel );
             
-    voxel[VIO_T] = VIO_ROUND( voxel[VIO_T] + delta );
+    new_position = VIO_ROUND( voxel[VIO_T] + delta );
 
     /* Check that the time position stays in range.
      */
-    if( voxel[VIO_T] < 0.0 )
-      voxel[VIO_T] = 0.0;
+    if( new_position < 0.0 )
+        new_position = 0.0;
 
-    if( voxel[VIO_T] > sizes[VIO_T] - 1.0 )
-      voxel[VIO_T] = sizes[VIO_T] - 1.0;
+    if( new_position > sizes[VIO_T] - 1.0 )
+        new_position = sizes[VIO_T] - 1.0;
 
-    if( set_current_voxel( slice_window, volume_index, voxel ) &&
-        update_cursor_from_voxel( slice_window ) )
+    if (new_position != voxel[VIO_T])
     {
-        set_update_required( get_three_d_window(slice_window), 
-                             get_cursor_bitplanes() );
+        voxel[VIO_T] = new_position;
+        if( set_current_voxel( slice_window, volume_index, voxel ))
+            update_cursor_from_voxel( slice_window );
     }
 }
 
@@ -82,9 +84,18 @@ DEF_MENU_FUNCTION(move_time_plus)
 
 /* ARGSUSED */
 
-DEF_MENU_UPDATE(move_time_plus )
+DEF_MENU_UPDATE(move_time_plus)
 {
-    return( get_n_volumes(display) > 0 );
+    display_struct *slice_window;
+    VIO_Volume volume;
+
+    if( !get_slice_window( display, &slice_window ))
+        return FALSE;
+
+    if ((volume = get_volume(slice_window)) == NULL)
+        return FALSE;
+
+    return( get_volume_n_dimensions(volume) > 3 );
 }
 
 DEF_MENU_FUNCTION(move_time_minus)
@@ -98,7 +109,16 @@ DEF_MENU_FUNCTION(move_time_minus)
 
 DEF_MENU_UPDATE(move_time_minus)
 {
-    return( get_n_volumes(display) > 0 );
+    display_struct *slice_window;
+    VIO_Volume volume;
+
+    if( !get_slice_window( display, &slice_window ))
+        return FALSE;
+
+    if ((volume = get_volume(slice_window)) == NULL)
+        return FALSE;
+
+    return( get_volume_n_dimensions(volume) > 3 );
 }
 
 static  void  change_current_slice_by_one(
@@ -380,7 +400,8 @@ static  void  create_scaled_slice(
         fill_Vector( normal, xw, yw, zw );
         NORMALIZE_VECTOR( normal, normal );
 
-        create_slice_3d( get_volume(display), &display->three_d.cursor.origin, &normal,
+        get_cursor_origin(display, &point);
+        create_slice_3d( get_volume(display), &point, &normal,
                          get_polygons_ptr(object) );
 
         add_object_to_current_model( display, object );
@@ -1512,3 +1533,4 @@ DEF_MENU_UPDATE(insert_volume_as_labels )
 {
     return( get_n_volumes(display) >= 2 );
 }
+
