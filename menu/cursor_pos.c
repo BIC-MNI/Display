@@ -104,10 +104,11 @@ static  void  create_cursor_pos_text(
                 menu_window->menu.cursor_pos_y_origin -
                 menu_window->menu.character_height, 0.0 );
     
-    (void) sprintf( buffer, Cursor_pos_format,
-                    Point_x(cursor_origin),
-                    Point_y(cursor_origin),
-                    Point_z(cursor_origin) );
+    (void) snprintf( buffer, VIO_EXTREMELY_LARGE_STRING_SIZE,
+                     Cursor_pos_format,
+                     Point_x(cursor_origin),
+                     Point_y(cursor_origin),
+                     Point_z(cursor_origin) );
 
     /*
      * See if we need to display the time position. This is a more
@@ -121,17 +122,13 @@ static  void  create_cursor_pos_text(
         if (get_volume_n_dimensions(volume) > 3)
         {
             VIO_Real voxel[VIO_MAX_DIMENSIONS];
-            VIO_Real starts[VIO_MAX_DIMENSIONS];
-            VIO_Real steps[VIO_MAX_DIMENSIONS];
             char temp[64];
+            VIO_Real world_time;
 
             get_current_voxel(slice_window, volume_index, voxel);
-            get_volume_starts(volume, starts);
-            get_volume_separations(volume, steps);
-            
-            sprintf(temp, Cursor_time_format, 
-                    starts[VIO_T] + voxel[VIO_T] * steps[VIO_T]);
-            strcat(buffer, temp);
+            world_time = nonspatial_voxel_to_world(volume, VIO_T, voxel[VIO_T]);
+            sprintf(temp, Cursor_time_format, world_time);
+            strncat(buffer, temp, VIO_EXTREMELY_LARGE_STRING_SIZE);
         }
     }
     
