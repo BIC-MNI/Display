@@ -603,6 +603,26 @@ parse_options(int argc, char *argv[], display_struct *graphics)
 
 #include  <stdarg.h>
 
+static FILE *
+try_popen(const char *command, const char *mode)
+{
+  FILE *fp = popen(command, "r");
+  int c;
+
+  if (fp == NULL)
+    return NULL;
+  else if ((c = fgetc(fp)) == EOF)
+  {
+    pclose(fp);
+    return NULL;
+  }
+  else
+  {
+    ungetc(c, fp);
+    return fp;
+  }
+}
+
 VIO_Status
 get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
 {
@@ -612,17 +632,14 @@ get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   if (Use_zenity_for_input)
   {
     char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
-    sprintf(command, "zenity --title \"Display: %s\" --file-selection",
-            prompt);
+    snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
+             "zzenity --title \"Display: %s\" --file-selection",
+             prompt);
     if (saving)
     {
-      strcat(command, " --save");
+      strncat(command, " --save", VIO_EXTREMELY_LARGE_STRING_SIZE);
     }
-    in_fp = popen(command, "r");
-    if (in_fp == NULL)
-    {
-      status = VIO_ERROR;
-    }
+    in_fp = try_popen(command, "r");
   }
   if (in_fp == NULL)
   {
@@ -665,9 +682,10 @@ get_user_input(const char *prompt, const char *format, ...)
   if (Use_zenity_for_input)
   {
     char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
-    sprintf(command, "zenity --entry --title=\"Display: Dialog\" --text=\"%s\"",
+    snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
+             "zenity --entry --title=\"Display: Dialog\" --text=\"%s\"",
             prompt);
-    in_fp = popen(command, "r");
+    in_fp = try_popen(command, "r");
   }
   if (in_fp == NULL)
   {

@@ -66,8 +66,11 @@ static  void  delete_slice_labels(
         delete_volume( slice->volumes[volume_index].labels );
 
     slice->volumes[volume_index].labels = NULL;
-    delete_string( slice->volumes[volume_index].labels_filename );
-
+    if (slice->volumes[volume_index].labels_filename != NULL)
+    {
+        delete_string( slice->volumes[volume_index].labels_filename );
+        slice->volumes[volume_index].labels_filename = NULL;
+    }
     FREE( slice->volumes[volume_index].label_colour_table );
 }
 
@@ -236,7 +239,11 @@ static  void  create_colour_coding(
     else
         type = NC_LONG;
 
-    delete_string( slice->volumes[volume_index].labels_filename );
+    if (slice->volumes[volume_index].labels_filename != NULL)
+    {
+        delete_string( slice->volumes[volume_index].labels_filename );
+        slice->volumes[volume_index].labels_filename = NULL;
+    }
 
     /*--- this will break if you change the number of labels for a shared
           volume.  Later I will rewrite this code to handle this case */

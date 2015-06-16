@@ -1,3 +1,10 @@
+2015-06-16  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * main/main.c: Fix input fallback behavior when zenity not found.
+   * slice_window/colour_coding: Fix issue with double-free of labels_filename.
+   * slice_window/outline.c: Improve color assignment algorithm.
+   * menu/cursor_pos.c: Use nonspatial_voxel_to_world() to convert time
+	from voxel to world.
+
 2015-06-11  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * various: Lots of new comments, reformatting, and warning fixes.
    * various: Use get_cursor_origin() to get the cursor location.
