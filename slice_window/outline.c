@@ -109,7 +109,8 @@ convert_world_lines_to_pixel(object_struct *lines_object,
 static VIO_Colour
 get_automatic_colour(int index)
 {
-  switch (index) {
+  switch (index)
+  {
   case 0:
     return GREEN;
   case 1:
@@ -190,7 +191,7 @@ intersect_plane_with_polygons_coloured(display_struct *display,
    */
   poly_no = 0;
 
-  initialize_object_traverse(&object_traverse, TRUE, N_MODELS, display->models);
+  initialize_object_traverse(&object_traverse, FALSE, N_MODELS, display->models);
 
   while (get_next_object_traverse(&object_traverse, &current_object))
   {
@@ -200,30 +201,33 @@ intersect_plane_with_polygons_coloured(display_struct *display,
 
       /* Ignore empty polygons.
        */
-      if (current_polygons->n_items == 0) {
+      if (current_polygons->n_items == 0)
+      {
         continue;
       }
-
-      /* This is where we colourize the polygons. Most polygons
-       * will just specify a white colour, so we make sure we
-       * don't repeat colours if we can avoid it.
-       */
-      if (!get_object_colour(current_object, &current_colour) ||
-          current_colour == WHITE)
+        
+      if (get_object_visibility(current_object))
       {
-        current_colour = get_automatic_colour(poly_no);
-      }
-      poly_no++;
+        /* This is where we colourize the polygons. Most polygons
+         * will just specify a white colour, so we make sure we
+         * don't repeat colours if we can avoid it.
+         */
+        if (!get_object_colour(current_object, &current_colour) ||
+            current_colour == WHITE)
+        {
+          current_colour = get_automatic_colour(poly_no);
+        }
 
-      for (i = 0; i < current_polygons->n_items; i++) {
-        if (intersect_plane_one_polygon(plane_normal,
-                                        plane_constant,
-                                        current_polygons,
-                                        i,
-                                        lines,
-                                        n_points_alloced,
-                                        n_indices_alloced,
-                                        n_end_indices_alloced ))
+        for (i = 0; i < current_polygons->n_items; i++)
+        {
+          if (intersect_plane_one_polygon(plane_normal,
+                                          plane_constant,
+                                          current_polygons,
+                                          i,
+                                          lines,
+                                          n_points_alloced,
+                                          n_indices_alloced,
+                                          n_end_indices_alloced ))
           {
             ADD_ELEMENT_TO_ARRAY_WITH_SIZE(colours_ptr,
                                            colours_alloced,
@@ -231,7 +235,9 @@ intersect_plane_with_polygons_coloured(display_struct *display,
                                            current_colour,
                                            DEFAULT_CHUNK_SIZE);
           }
+        }
       }
+      poly_no++;                /* Increment even if invisible. */
     }
   }
 
