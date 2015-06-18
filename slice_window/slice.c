@@ -39,7 +39,11 @@ static  void  initialize_slice_window(
                     sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
 
     (void) create_graphics_window( SLICE_WINDOW, Slice_double_buffer_flag,
-                                   &slice_window, title, 0, 0 );
+                                   &slice_window, title,
+                                   Initial_slice_window_x,
+                                   Initial_slice_window_y,
+                                   Initial_slice_window_width,
+                                   Initial_slice_window_height);
 
     menu_window = display->associated[MENU_WINDOW];
     marker_window = display->associated[MARKER_WINDOW];

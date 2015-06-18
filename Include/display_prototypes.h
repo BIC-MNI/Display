@@ -44,11 +44,15 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
 
   void  terminate_graphics( void );
 
+  void print_graphics_state(FILE *);
+
   VIO_Status  create_graphics_window(
     window_types      window_type,
     VIO_BOOL           double_buffering,
     display_struct    **display,
     VIO_STR            title,
+    int               x,
+    int               y,
     int               width,
     int               height );
 

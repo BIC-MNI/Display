@@ -126,6 +126,16 @@ int  main(
         }
 
         delete_string( globals_filename );
+
+        globals_filename = get_absolute_filename( ".mni-displayrc", 
+                                                  directories[i] );
+        if( file_exists( globals_filename ) )
+        {
+            (void) input_globals_file( VIO_SIZEOF_STATIC_ARRAY(display_globals),
+                                       display_globals, globals_filename );
+        }
+
+        delete_string( globals_filename );
     }
 
     if( n_directories > 0 )
@@ -138,6 +148,8 @@ int  main(
     title = concat_strings( PROJECT_NAME, ": Menu" );
     if( create_graphics_window( MENU_WINDOW, 
                                 Graphics_double_buffer_flag, &menu, title,
+                                Initial_menu_window_x,
+                                Initial_menu_window_y,
                                 Initial_menu_window_width,
                                 Initial_menu_window_height ) != VIO_OK )
         return( 1 );
@@ -148,6 +160,8 @@ int  main(
     title = concat_strings( PROJECT_NAME, ": Objects" );
     if( create_graphics_window( MARKER_WINDOW, 
                                 Graphics_double_buffer_flag, &marker, title,
+                                Initial_marker_window_x,
+                                Initial_marker_window_y,
                                 Initial_marker_window_width,
                                 Initial_marker_window_height ) != VIO_OK )
         return( 1 );
@@ -159,7 +173,11 @@ int  main(
 
     if( create_graphics_window( THREE_D_WINDOW,
                                 Graphics_double_buffer_flag,
-                                &graphics, title, 0, 0 ) != VIO_OK )
+                                &graphics, title, 
+                                Initial_3D_window_x, 
+                                Initial_3D_window_y,
+                                Initial_3D_window_width, 
+                                Initial_3D_window_height) != VIO_OK )
         return( 1 );
     delete_string( title );
 

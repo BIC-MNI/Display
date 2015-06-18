@@ -49,6 +49,13 @@ int get_list_of_windows(
     return( n_windows );
 }
 
+/**
+ * Find the display_struct associated with the given Gwindow.
+ * Uses a linear search, which is probably ok given that N_WINDOW_TYPES
+ * is small.
+ * \param window The window handle for which we want the display_struct.
+ * \return A pointer to the display_struct associated with the window.
+ */
 display_struct  *lookup_window(
     Gwindow   window )
 {
@@ -69,24 +76,37 @@ display_struct  *lookup_window(
     return( display );
 }
 
-static  void  
-get_new_display(window_types window_type,
-                display_struct   **display )
+/**
+ * Allocates space for a new window of the given type. It is an
+ * error to create two windows of the same type.
+ *
+ * \param window_type The type of the window to create.
+ * \return A pointer to a new, uninitialized display_struct.
+ */
+static display_struct *
+get_new_display(window_types window_type)
 {
     if (windows[window_type] != NULL)
     {
       print_error("Creating a second window of type %d\n", window_type);
+      return NULL;
     }
-    ALLOC( windows[window_type], 1 );
 
-    *display = windows[window_type];
+    ALLOC( windows[window_type], 1 );
     ++n_windows;
+    return windows[window_type];
 }
 
+/**
+ * Start up the graphics library.
+ */
 void  initialize_graphics( void )
 {
 }
 
+/**
+ * Stop the graphics library and free any memory associated with it.
+ */
 void  terminate_graphics( void )
 {
     int i;
@@ -103,19 +123,49 @@ void  terminate_graphics( void )
     G_terminate();
 }
 
+/**
+ * Prints the state of the graphics system, so that it can be 
+ * saved in a configuration file, e.g. This assumes knowledge
+ * of the relevant global variables. We should find a way to encode
+ * this information in the variable structures themselves, and create
+ * a function to print a global.
+ * \param fp The stream to which we write the data.
+ */
+void print_graphics_state(FILE *fp)
+{
+  int i;
+  static char *names[] = { "3D", "menu", "slice", "marker" };
+  for_less( i, 0, N_WINDOW_TYPES )
+  {
+    if (windows[i] != NULL) {
+      int x, y;
+      int cx, cy;
+      G_get_window_position(windows[i]->window, &x, &y);
+      G_get_window_size(windows[i]->window, &cx, &cy);
+      
+      fprintf(fp, "Initial_%s_window_x = %d;\n", names[i], x);
+      fprintf(fp, "Initial_%s_window_y = %d;\n", names[i], y);
+      fprintf(fp, "Initial_%s_window_width = %d;\n", names[i], cx);
+      fprintf(fp, "Initial_%s_window_height = %d;\n", names[i], cy);
+    }
+  }
+}
+
 VIO_Status  create_graphics_window(
     window_types      window_type,
     VIO_BOOL          double_buffering,
     display_struct    **display,
     VIO_STR           title,
+    int               x,
+    int               y,
     int               width,
     int               height )
 {
     VIO_Status   status;
 
-    get_new_display( window_type, display );
+    *display = get_new_display( window_type );
 
-    status = G_create_window( title, -1, -1, width, height,
+    status = G_create_window( title, x, y, width, height,
                               FALSE, double_buffering, TRUE, 2,
                               &(*display)->window );
 

@@ -47,6 +47,7 @@ quit \
  \
     transient 'a'    menu_set_global_variable       'Global Var' 'Set or get the current value of a global variable.' \
     transient 't'    show_memory                    'Show Memory' 'Show memory usage.' \
+    transient 'w'    save_window_state              'Save Layout' 'Saves window sizes and positions to be restored next time the program is started.' \
 } \
  \
 file \

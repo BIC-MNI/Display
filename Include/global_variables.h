@@ -37,6 +37,8 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Directional_light_colour )
     DEF_GLOBAL3( Light_direction, VIO_Vector, 1.0f, -1.0f, -1.0f )
 
+    DEF_GLOBAL( Initial_menu_window_x, int, -1 )
+    DEF_GLOBAL( Initial_menu_window_y, int, -1 )
     DEF_GLOBAL( Initial_menu_window_width, int, 850 )
     DEF_GLOBAL( Initial_menu_window_height, int, 260 )
     DEF_GLOBAL( Canonical_menu_window_width, int, 850 )
@@ -376,6 +378,8 @@ START_GLOBALS
     DEF_GLOBAL( Hide_marker_window, VIO_BOOL, TRUE)
     DEF_GLOBAL( Hide_menu_window, VIO_BOOL, FALSE)
 
+    DEF_GLOBAL( Initial_marker_window_x, int, -1 )
+    DEF_GLOBAL( Initial_marker_window_y, int, -1 )
     DEF_GLOBAL( Initial_marker_window_width, int, 250 )
     DEF_GLOBAL( Initial_marker_window_height, int, 500 )
     DEF_GLOBAL( Canonical_marker_window_width, int, 250 )
@@ -397,4 +401,12 @@ START_GLOBALS
     DEF_GLOBAL( Object_outline_enabled, VIO_BOOL, TRUE )
     DEF_GLOBAL( Use_zenity_for_input, VIO_BOOL, TRUE )
     DEF_GLOBAL( Show_slice_field_of_view, VIO_BOOL, TRUE )
+    DEF_GLOBAL( Initial_slice_window_x, int, -1 )
+    DEF_GLOBAL( Initial_slice_window_y, int, -1 )
+    DEF_GLOBAL( Initial_slice_window_width, int, -1 )
+    DEF_GLOBAL( Initial_slice_window_height, int, -1 )
+    DEF_GLOBAL( Initial_3D_window_x, int, -1 )
+    DEF_GLOBAL( Initial_3D_window_y, int, -1 )
+    DEF_GLOBAL( Initial_3D_window_width, int, -1 )
+    DEF_GLOBAL( Initial_3D_window_height, int, -1 )
 END_GLOBALS

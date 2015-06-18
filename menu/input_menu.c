@@ -159,7 +159,8 @@ MENU_F(set_vis_paint_colour) \
 MENU_F(set_invis_paint_colour) \
 MENU_F(set_n_paint_polygons) \
 MENU_F(coalesce_current_polygons) \
-MENU_F(separate_current_polygons)
+MENU_F(separate_current_polygons) \
+MENU_F(save_window_state)
 
 #define MENU3 \
 MENU_F(input_polygons_bintree) \
