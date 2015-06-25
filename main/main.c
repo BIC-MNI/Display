@@ -651,7 +651,7 @@ get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   {
     char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
     snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
-             "zzenity --title \"Display: %s\" --file-selection",
+             "zenity --title \"Display: %s\" --file-selection",
              prompt);
     if (saving)
     {
