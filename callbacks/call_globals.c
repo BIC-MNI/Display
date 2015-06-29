@@ -30,7 +30,7 @@
 DEF_MENU_FUNCTION( menu_set_global_variable )
 {
     VIO_Status   status;
-    VIO_STR   input_str, variable_name, new_value;
+    VIO_STR   input_str, variable_name, new_value = NULL;
 
     status = get_user_input( "variable_name [= value]: ", "s", &input_str);
     if( status == VIO_OK )
@@ -42,7 +42,8 @@ DEF_MENU_FUNCTION( menu_set_global_variable )
             print( "%s = %s\n", variable_name, new_value );
 
         delete_string( variable_name );
-        delete_string( new_value );
+        if (new_value != NULL)
+            delete_string( new_value );
         delete_string( input_str );
     }
 
