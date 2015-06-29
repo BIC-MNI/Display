@@ -1,3 +1,11 @@
+2015-06-29  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * callbacks/call_globals.c, segmenting/painting.c: Fix some memory
+	access bugs.
+
+2015-06-18  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * callbacks/quit.c, main/graphics.c, et al.: Save and restore
+	window state from ~/.mni-displayrc
+
 2015-06-16  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * main/main.c: Fix input fallback behavior when zenity not found.
    * slice_window/colour_coding: Fix issue with double-free of labels_filename.
