@@ -1057,8 +1057,8 @@ static   void    add_point_to_contour(
 }
 
 static  VIO_BOOL  neighbour_is_inside(
-    VIO_Real       centre[],
-    VIO_Real       radius[],
+    const VIO_Real   centre[],
+    const VIO_Real   radius[],
     int        a1,
     int        a2,
     int        voxel[],
@@ -1085,15 +1085,15 @@ static  void  get_brush_contour(
     int               view_index,
     int               a1,
     int               a2,
-    VIO_Real              centre[VIO_N_DIMENSIONS],
-    VIO_Real              radius[VIO_N_DIMENSIONS],
-    int               start_voxel[VIO_N_DIMENSIONS],
+    const VIO_Real    centre[VIO_N_DIMENSIONS],
+    const VIO_Real    radius[VIO_N_DIMENSIONS],
+    const int         start_voxel[VIO_N_DIMENSIONS],
     Directions        start_dir,
     lines_struct      *lines )
 {
     int          current_voxel[VIO_N_DIMENSIONS];
     Directions   dir;
-    VIO_Real         x_scale, x_trans, y_scale, y_trans;
+    VIO_Real     x_scale, x_trans, y_scale, y_trans;
 
     get_voxel_to_pixel_transform( slice_window, volume_index, view_index,
                                   &a1, &a2,
@@ -1207,9 +1207,9 @@ static  void   update_brush(
     display_struct    *slice_window,
     int               x,
     int               y,
-    VIO_BOOL           erase_flag )
+    VIO_BOOL          erase_flag )
 {
-    VIO_Real      centre[VIO_N_DIMENSIONS];
+    VIO_Real      centre[VIO_MAX_DIMENSIONS];
     int           volume_index, view_index;
     int           axis, a1, a2, start_voxel[VIO_N_DIMENSIONS];
     int           x_min, x_max, y_min, y_max;
