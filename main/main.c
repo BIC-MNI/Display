@@ -300,8 +300,8 @@ static  void      initialize_view_to_fit(
     display_struct  *display )
 {
     int      i, c, x, y, z;
-    VIO_Real     voxel[VIO_N_DIMENSIONS], world[VIO_N_DIMENSIONS];
-    int      sizes[VIO_N_DIMENSIONS];
+    VIO_Real voxel[VIO_N_DIMENSIONS], world[VIO_N_DIMENSIONS];
+    int      sizes[VIO_MAX_DIMENSIONS];
     VIO_Volume   volume;
     VIO_BOOL  found;
 
