@@ -307,6 +307,7 @@ static  DEF_EVENT_FUNCTION( right_mouse_down )
 {
     display_struct  *slice_window;
     int             volume_index, axis_index;
+    int             view_index;
     int             x_pixel, y_pixel;
     int             label;
 
@@ -354,17 +355,21 @@ static  DEF_EVENT_FUNCTION( right_mouse_down )
     else
         label = get_current_paint_label( slice_window );
 
-    (void) sweep_paint_labels( slice_window,
-                               x_pixel, y_pixel, x_pixel, y_pixel, label );
-
-    if( Draw_brush_outline &&
-        find_slice_view_mouse_is_in( slice_window, x_pixel, y_pixel,
-                                     &slice_window->slice.painting_view_index ))
+    if (find_slice_view_mouse_is_in(slice_window, x_pixel, y_pixel,
+                                    &view_index ))
     {
-        add_object_to_model( get_graphics_model( slice_window,
-                       SLICE_MODEL1 + slice_window->slice.painting_view_index ),
-                             slice_window->slice.brush_outline );
-        update_brush( slice_window, x_pixel, y_pixel, FALSE );
+        slice_window->slice.painting_view_index = view_index;
+
+        sweep_paint_labels( slice_window, x_pixel, y_pixel, x_pixel, y_pixel,
+                            label );
+
+        if( Draw_brush_outline)
+        {
+            int model_index = SLICE_MODEL1 + view_index;
+            add_object_to_model(get_graphics_model(slice_window, model_index),
+                                slice_window->slice.brush_outline);
+            update_brush( slice_window, x_pixel, y_pixel, FALSE );
+        }
     }
     else
         slice_window->slice.painting_view_index = -1;
