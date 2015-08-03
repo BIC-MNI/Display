@@ -310,22 +310,27 @@ static  void  delete_slice_window_volume_stuff(
     initialize_slice_colour_coding( slice_window, new_volume_index );
     initialize_slice_window_view( slice_window, new_volume_index );
 
+    /* Initialize the current_voxel field.
+     */
+    for_less( axis, 0, VIO_MAX_DIMENSIONS )
+        info->current_voxel[axis] = 0.0;
+
     /* Set the initial voxel position. Normally this is set to the centre
      * of the first loaded volume in voxel space.
      */
     if( slice_window->slice.n_volumes == 1 )
     {
         for_less( axis, 0, VIO_N_DIMENSIONS )
-            slice_window->slice.volumes[0].current_voxel[axis] =
-                                               (VIO_Real) (sizes[axis] - 1) / 2.0;
+            info->current_voxel[axis] = (sizes[axis] - 1.0) / 2.0;
     }
     else
     {
         cur_volume_index = get_current_volume_index(slice_window);
+
         get_current_voxel( slice_window, cur_volume_index, current_voxel );
 
         for_less( axis, 0, VIO_N_DIMENSIONS )
-            slice_window->slice.volumes[new_volume_index].current_voxel[axis] = -1.0e20;
+            info->current_voxel[axis] = -1.0e20;
 
         set_current_voxel( slice_window, cur_volume_index, current_voxel );
         update_all_slice_axes_views( slice_window, cur_volume_index );

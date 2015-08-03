@@ -56,6 +56,9 @@ typedef  enum  { THREE_D_WINDOW,
 #ifndef VIO_T
 #define VIO_T 3                 /* Time axis. */
 #endif
+#ifndef VIO_V
+#define VIO_V 4                 /* Vector axis. */
+#endif
 
 typedef  struct
 {

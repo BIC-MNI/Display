@@ -688,7 +688,7 @@ void  scale_slice_view(
     int               volume_index,
     int               x_pixel,
     int               y_pixel,
-    VIO_Real              voxel[],
+    VIO_Real          voxel[],
     int               *view_index )
 {
     VIO_BOOL          found;
@@ -720,6 +720,7 @@ void  scale_slice_view(
          slice_window->slice.volumes[volume_index].views[*view_index].y_scaling,
          voxel );
          voxel[VIO_T] = origin[VIO_T];
+         voxel[VIO_V] = 0.0;
     }
 
     return( found );
@@ -798,16 +799,21 @@ void  scale_slice_view(
     *y_scale = y - *y_trans;
 }
 
-  VIO_BOOL  get_voxel_corresponding_to_point(
-    display_struct    *display,
-    VIO_Point             *point,
-    VIO_Real              voxel[] )
+VIO_BOOL  get_voxel_corresponding_to_point(
+    display_struct *display,
+    VIO_Point      *point,
+    VIO_Real       voxel[] )
 {
-    VIO_Volume          volume;
-    VIO_BOOL         converted;
+    VIO_Volume     volume;
+    VIO_BOOL       converted = FALSE;
+    int i;
 
-    converted = FALSE;
-
+    /* Properly initialize voxel[i].
+     */
+    for_less( i, 0, VIO_MAX_DIMENSIONS )
+    {
+        voxel[i] = 0.0;
+    }
     if( get_slice_window_volume( display, &volume ) )
     {
         convert_world_to_voxel( volume,
@@ -1162,10 +1168,10 @@ get_voxel_in_three_d_window(
     }
     else
     {
-        voxel[VIO_X] = 0.0;
-        voxel[VIO_Y] = 0.0;
-        voxel[VIO_Z] = 0.0;
-        voxel[VIO_T] = 0.0;
+        for_less( c, 0, VIO_MAX_DIMENSIONS )
+        {
+            voxel[c] = 0.0;
+        }
     }
 }
 
@@ -1192,8 +1198,13 @@ get_voxel_in_three_d_window(
                 used_voxel[i] = voxel[i];
         }
         else
+        {
             convert_world_to_voxel( get_nth_volume(slice_window,volume_index),
                                     xw, yw, zw, used_voxel );
+            /* TODO - properly set time here? */
+            for_less( i, VIO_N_DIMENSIONS, VIO_MAX_DIMENSIONS )
+              used_voxel[i] = 0.0;
+        }
 
         for_less( i, 0, VIO_MAX_DIMENSIONS )
         {
