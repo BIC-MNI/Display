@@ -424,9 +424,9 @@ DEF_MENU_FUNCTION( save_image )
             print( "Done saving image to %s.\n", filename );
         else
             print( "Could not save image to %s.\n", filename );
-    }
 
-    delete_string( filename );
+        delete_string( filename );
+    }
 
     return( status );
 }

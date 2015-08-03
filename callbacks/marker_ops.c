@@ -171,9 +171,13 @@ DEF_MENU_FUNCTION( save_markers )
     object = get_current_model_object( display );
 
     status = get_user_file( "Enter filename: ", TRUE, &filename );
+    if (status != VIO_OK)
+    {
+        return VIO_ERROR;
+    }
 
-    if( status == VIO_OK && !check_clobber_file_default_suffix( filename,
-                                             get_default_tag_file_suffix() ) )
+    if( !check_clobber_file_default_suffix( filename,
+                                            get_default_tag_file_suffix() ) )
         status = VIO_ERROR;
 
     if( !get_slice_window_volume( display, &volume ) )
@@ -361,16 +365,14 @@ DEF_MENU_FUNCTION( set_default_marker_colour )
     status = get_user_input( prompt, "s", &string );
 
     if( status == VIO_OK )
+    {
         colour = convert_string_to_colour( string );
 
-    delete_string( string );
+        delete_string( string );
 
-    if( status == VIO_OK )
-    {
         display->three_d.default_marker_colour = colour;
 
-        string = convert_colour_to_string(
-                     display->three_d.default_marker_colour );
+        string = convert_colour_to_string( colour );
 
         print( "The new default marker colour is: %s\n", string );
 

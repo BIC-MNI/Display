@@ -606,16 +606,18 @@ DEF_MENU_FUNCTION(save_colour_map )
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        status = get_user_file( "Enter name of colour map file to save: ", 
+        status = get_user_file( "Enter name of colour map file to save: ",
                                 TRUE, &filename);
-
-        if( status == VIO_OK && check_clobber_file_default_suffix( filename,
-                                           get_default_colour_map_suffix() ) )
+        if (status == VIO_OK)
         {
-            (void) save_label_colour_map( slice_window, filename );
-        }
+            if (check_clobber_file_default_suffix( filename,
+                                                   get_default_colour_map_suffix() ) )
+            {
+                (void) save_label_colour_map( slice_window, filename );
+            }
 
-        delete_string( filename );
+            delete_string( filename );
+        }
     }
 
     return( VIO_OK );
@@ -645,8 +647,8 @@ DEF_MENU_FUNCTION(load_colour_map )
             set_slice_window_all_update( slice_window,
                        get_current_volume_index(slice_window), UPDATE_LABELS );
 
+            delete_string( filename );
         }
-        delete_string( filename );
     }
 
     return( VIO_OK );
@@ -686,8 +688,8 @@ DEF_MENU_FUNCTION(load_user_defined_colour_scale )
             set_slice_window_all_update( slice_window,
                        get_current_volume_index(slice_window), UPDATE_SLICE );
 
+            delete_string( filename );
         }
-        delete_string( filename );
     }
 
     return( VIO_OK );

@@ -28,9 +28,12 @@ DEF_MENU_FUNCTION( load_file )
     VIO_STR   filename;
 
     status = get_user_file("Enter path of file to load: " , FALSE, &filename);
+    if (status != VIO_OK)
+    {
+        return VIO_ERROR;
+    }
 
-    if( status == VIO_OK )
-        status = load_graphics_file( display, filename, FALSE );
+    status = load_graphics_file( display, filename, FALSE );
 
     if( status == VIO_OK )
         graphics_models_have_changed( display );
@@ -62,6 +65,10 @@ DEF_MENU_FUNCTION( save_file )
     if( get_current_object( display, &current_object ) )
     {
         status = get_user_file("Enter path of file to save: ", TRUE, &filename);
+        if (status != VIO_OK)
+        {
+            return VIO_ERROR;
+        }
 
         if( status == VIO_OK && !check_clobber_file_default_suffix( filename,
                                                                 "obj" ) )

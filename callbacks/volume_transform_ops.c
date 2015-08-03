@@ -34,8 +34,8 @@ DEF_MENU_FUNCTION( transform_current_volume )
                            &filename ) == VIO_OK)
         {
             transform_current_volume_from_file( slice_window, filename );
+            delete_string( filename );
         }
-        delete_string( filename );
     }
 
     return( VIO_OK );
@@ -532,9 +532,8 @@ DEF_MENU_FUNCTION( save_current_volume_transform )
             delete_string( comments );
             delete_general_transform( &inverse );
             delete_general_transform( &incremental_transform );
+            delete_string( filename );
         }
-
-        delete_string( filename );
     }
 
     return( VIO_OK );

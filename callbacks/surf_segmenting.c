@@ -664,20 +664,23 @@ static  VIO_Status  io_polygons_visibilities(
     create_polygons_visibilities( polygons );
 
     status = get_user_file("Enter filename: ", io_flag == WRITE_FILE, &filename);
-
     if( status == VIO_OK )
+    {
         status = open_file_with_default_suffix( filename, "vis", io_flag,
                                                 BINARY_FORMAT, &file );
+        if (status == VIO_OK)
+        {
 
-    if( status == VIO_OK )
-        status = io_binary_data( file, io_flag, (void *) polygons->visibilities,
-                                 sizeof(polygons->visibilities[0]),
-                                 polygons->n_items );
+            status = io_binary_data( file, io_flag, 
+                                     (void *) polygons->visibilities,
+                                     sizeof(polygons->visibilities[0]),
+                                     polygons->n_items );
 
-    if( status == VIO_OK )
-        status = close_file( file );
+            close_file( file );
+        }
 
-    delete_string( filename );
+        delete_string( filename );
+    }
 
     return( status );
 }

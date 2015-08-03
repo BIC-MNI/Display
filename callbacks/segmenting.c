@@ -238,12 +238,14 @@ DEF_MENU_FUNCTION(load_label_data)
     if( get_n_volumes(display) > 0 )
     {
         status = get_user_file( "Enter filename to load: ", FALSE, &filename );
+        if (status == VIO_OK)
+        {
+            status = input_label_volume_file( display, filename );
 
-        status = input_label_volume_file( display, filename );
+            delete_string( filename );
 
-        delete_string( filename );
-
-        print( "Done\n" );
+            print( "Done\n" );
+        }
     }
 
     return( status );
@@ -277,6 +279,10 @@ DEF_MENU_FUNCTION(save_label_data)
     	{
             status = get_user_file( "Enter filename to save: ", TRUE,
                                     &filename);
+            if (status != VIO_OK)
+            {
+                return VIO_ERROR;
+            }
     	}
 
         if( status == VIO_OK && check_clobber_file( filename ) )
@@ -311,10 +317,7 @@ DEF_MENU_FUNCTION(save_label_data)
             }
         }
 
-        if (status == VIO_OK)
-        {
-            delete_string( filename );
-        }
+        delete_string( filename );
     }
 
     return( status );
@@ -385,8 +388,9 @@ DEF_MENU_FUNCTION( load_labels )
             (void) input_tag_label_file( display, filename );
 
             print( "Done loading.\n" );
+
+            delete_string( filename );
         }
-        delete_string( filename );
     }
 
     return( VIO_OK );
@@ -409,9 +413,13 @@ static  void   save_labels_as_tags(
     VIO_STR         filename;
 
     status = get_user_file( "Enter filename to save: ", TRUE, &filename);
+    if (status != VIO_OK)
+    {
+        return;
+    }
 
-    if( status == VIO_OK && check_clobber_file_default_suffix( filename,
-                                            get_default_tag_file_suffix() ) )
+    if( check_clobber_file_default_suffix( filename,
+                                           get_default_tag_file_suffix() ) )
     {
         status = open_file_with_default_suffix( filename,
                          get_default_tag_file_suffix(),

@@ -63,26 +63,25 @@
         polygons->bintree == (bintree_struct_ptr) 0 )
     {
         status = get_user_file( "Enter filename: " , FALSE, &filename);
-
-        if( status == VIO_OK )
+        if (status == VIO_OK )
+        {
             status = open_file_with_default_suffix( filename, "btr", READ_FILE,
                                                     BINARY_FORMAT, &file );
 
-        if( status == VIO_OK )
-            polygons->bintree = allocate_bintree();
+            if( status == VIO_OK )
+            {
+                polygons->bintree = allocate_bintree();
 
-        if( status == VIO_OK )
-        {
-            status = io_bintree( file, READ_FILE, BINARY_FORMAT,
-                                 polygons->bintree );
+                status = io_bintree( file, READ_FILE, BINARY_FORMAT,
+                                     polygons->bintree );
+
+                close_file( file );
+            }
+
+            delete_string( filename );
+
+            print( "Done.\n" );
         }
-
-        if( status == VIO_OK )
-            status = close_file( file );
-
-        delete_string( filename );
-
-        print( "Done.\n" );
     }
 
     return( status );
@@ -112,25 +111,27 @@
     {
         status = get_user_file( "Enter filename: " , TRUE, &filename);
 
-        if( status == VIO_OK && !check_clobber_file_default_suffix( filename,"btr"))
-            status = VIO_ERROR;
+        if( status == VIO_OK)
+        { 
+            if (check_clobber_file_default_suffix( filename,"btr"))
+            {
+                status = open_file_with_default_suffix( filename, "btr",
+                                                        WRITE_FILE, 
+                                                        BINARY_FORMAT, &file );
 
-        if( status == VIO_OK )
-            status = open_file_with_default_suffix( filename, "btr",
-                                            WRITE_FILE, BINARY_FORMAT, &file );
+                if( status == VIO_OK )
+                {
+                    status = io_bintree( file, WRITE_FILE, BINARY_FORMAT,
+                                         polygons->bintree );
 
-        if( status == VIO_OK )
-        {
-            status = io_bintree( file, WRITE_FILE, BINARY_FORMAT,
-                                 polygons->bintree );
+                    close_file( file );
+                }
+            }
+
+            delete_string( filename );
+
+            print( "Done.\n" );
         }
-
-        if( status == VIO_OK )
-            status = close_file( file );
-
-        delete_string( filename );
-
-        print( "Done.\n" );
     }
 
     return( status );

@@ -659,11 +659,10 @@ DEF_MENU_FUNCTION(set_crop_box_filename)
     if( get_slice_window( display, &slice_window ) )
     {
       if (get_user_file( "Enter crop filename: ", FALSE, &filename ) == VIO_OK)
-        {
-            set_crop_filename( slice_window, filename );
-        }
-
+      {
+        set_crop_filename( slice_window, filename );
         delete_string( filename );
+      }
     }
 
     return( VIO_OK );
@@ -710,9 +709,9 @@ DEF_MENU_FUNCTION(crop_volume_to_file)
         {
             if( create_cropped_volume_to_file( slice_window, filename ) == VIO_OK )
                 print( "Created %s.\n", filename );
-        }
 
-        delete_string( filename );
+            delete_string( filename );
+        }
     }
 
     return( VIO_OK );
@@ -1349,7 +1348,7 @@ DEF_MENU_FUNCTION( save_slice_image )
         get_n_volumes(slice_window) > 0 &&
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
-      if( get_user_file("Enter filename: " , TRUE, &filename) == VIO_OK)
+        if( get_user_file("Enter filename: " , TRUE, &filename) == VIO_OK)
         {
             get_slice_viewport( slice_window, view_index,
                                 &x_min, &x_max, &y_min, &y_max );
@@ -1358,9 +1357,9 @@ DEF_MENU_FUNCTION( save_slice_image )
                                           x_min, x_max, y_min, y_max );
 
             print( "Done saving slice image to %s.\n", filename );
-        }
 
-        delete_string( filename );
+            delete_string( filename );
+        }
     }
 
     return( status );
@@ -1394,8 +1393,9 @@ DEF_MENU_FUNCTION( save_slice_window )
                                           0, x_size-1, 0, y_size-1 );
 
             print( "Done saving slice window to %s.\n", filename );
+
+            delete_string( filename );
         }
-        delete_string( filename );
     }
 
     return( status );
