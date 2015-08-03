@@ -311,7 +311,10 @@ DEF_MENU_FUNCTION(save_label_data)
             }
         }
 
-        delete_string( filename );
+        if (status == VIO_OK)
+        {
+            delete_string( filename );
+        }
     }
 
     return( status );
