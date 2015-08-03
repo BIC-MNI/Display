@@ -622,7 +622,7 @@ parse_options(int argc, char *argv[], display_struct *graphics)
 #include  <stdarg.h>
 
 static FILE *
-try_popen(const char *command, const char *mode)
+try_popen(const char *command, const char *mode, int *error_code)
 {
   FILE *fp = popen(command, "r");
   int c;
@@ -631,7 +631,7 @@ try_popen(const char *command, const char *mode)
     return NULL;
   else if ((c = fgetc(fp)) == EOF)
   {
-    pclose(fp);
+    *error_code = pclose(fp);
     return NULL;
   }
   else
@@ -641,11 +641,16 @@ try_popen(const char *command, const char *mode)
   }
 }
 
+/* Return code from pclose() when zenity's cancel button is pressed.
+ */
+#define ZENITY_CANCELLED 256
+
 VIO_Status
 get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
 {
   FILE *in_fp = NULL;
   VIO_Status status = VIO_OK;
+  int error_code = 0;
 
   if (Use_zenity_for_input)
   {
@@ -657,12 +662,19 @@ get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
     {
       strncat(command, " --save", VIO_EXTREMELY_LARGE_STRING_SIZE);
     }
-    in_fp = try_popen(command, "r");
+    in_fp = try_popen(command, "r", &error_code);
   }
   if (in_fp == NULL)
   {
+    if (error_code != ZENITY_CANCELLED)
+    {
       print("%s", prompt);
       in_fp = stdin;
+    }
+    else
+    {
+      return VIO_ERROR;
+    }
   }
   status = input_string(in_fp, filename, ' ');
   if (in_fp != stdin)
@@ -696,6 +708,7 @@ get_user_input(const char *prompt, const char *format, ...)
   VIO_STR *p_str;
   char *p_char;
   FILE *in_fp = NULL;
+  int error_code = 0;
 
   if (Use_zenity_for_input)
   {
@@ -703,12 +716,19 @@ get_user_input(const char *prompt, const char *format, ...)
     snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
              "zenity --entry --title=\"Display: Dialog\" --text=\"%s\"",
             prompt);
-    in_fp = try_popen(command, "r");
+    in_fp = try_popen(command, "r", &error_code);
   }
   if (in_fp == NULL)
   {
+    if (error_code != ZENITY_CANCELLED)
+    {
       print("%s", prompt);
       in_fp = stdin;
+    }
+    else
+    {
+      return VIO_ERROR;
+    }
   }
 
   va_start(ap, format);
