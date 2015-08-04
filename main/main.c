@@ -619,7 +619,9 @@ parse_options(int argc, char *argv[], display_struct *graphics)
     exit(EX_USAGE);
 }
 
-#include  <stdarg.h>
+#include <unistd.h>
+#include <stdarg.h>
+#include <libgen.h>
 
 static FILE *
 try_popen(const char *command, const char *mode, int *error_code)
@@ -641,6 +643,46 @@ try_popen(const char *command, const char *mode, int *error_code)
   }
 }
 
+#define FILE_OPEN_DIR_MAX VIO_EXTREMELY_LARGE_STRING_SIZE
+
+static char File_open_dir[FILE_OPEN_DIR_MAX] = {0};
+
+/**
+ * Set the "file open" directory to be used by default for subsequent
+ * file accesses. This is used to initialize the directory shown in the
+ * zenity dialog box when used.
+ * \param pathname The full file pathname from which we must extract the 
+ * directory name.
+ */
+void
+set_file_open_directory(const char *pathname)
+{
+  int length = 0;
+  strncpy(File_open_dir, pathname, FILE_OPEN_DIR_MAX);
+  strncpy(File_open_dir, dirname(File_open_dir), FILE_OPEN_DIR_MAX);
+  length = strlen(File_open_dir);
+  if (File_open_dir[length - 1] != '/' && length < FILE_OPEN_DIR_MAX)
+  {
+    File_open_dir[length++] = '/';
+    File_open_dir[length] = 0;
+  }
+}
+
+/**
+ * Get the file open directory name.
+ * \return The initial directory for the file open dialog.
+ */
+const char *
+get_file_open_directory(void)
+{
+    if (strlen(File_open_dir) == 0)
+    {
+      getcwd(File_open_dir, FILE_OPEN_DIR_MAX);
+      set_file_open_directory(File_open_dir);
+    }
+    return File_open_dir;
+}
+
 /* Return code from pclose() when zenity's cancel button is pressed.
  */
 #define ZENITY_CANCELLED 256
@@ -655,9 +697,10 @@ get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   if (Use_zenity_for_input)
   {
     char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
+
     snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
-             "zenity --title \"Display: %s\" --file-selection",
-             prompt);
+             "zenity --title \"Display: %s\" --file-selection --filename=%s",
+             prompt, get_file_open_directory());
     if (saving)
     {
       strncat(command, " --save", VIO_EXTREMELY_LARGE_STRING_SIZE);
@@ -680,6 +723,12 @@ get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   if (in_fp != stdin)
   {
     pclose(in_fp);
+  }
+  if (status == VIO_OK)
+  {
+    /* Now that we have the filename, use it to update the working directory.
+     */
+    set_file_open_directory(*filename);
   }
   return status;
 }
@@ -732,8 +781,10 @@ get_user_input(const char *prompt, const char *format, ...)
   }
 
   va_start(ap, format);
-  for (cp = format; *cp != '\0'; cp++) {
-    switch (*cp) {
+  for (cp = format; *cp != '\0'; cp++)
+  {
+    switch (*cp)
+    {
     case 'r': 
       p_real = va_arg(ap, VIO_Real *);
       if (input_real(in_fp, p_real) != VIO_OK)
