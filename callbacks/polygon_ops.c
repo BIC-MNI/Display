@@ -75,6 +75,14 @@
                 status = io_bintree( file, READ_FILE, BINARY_FORMAT,
                                      polygons->bintree );
 
+                /* If the operation fails, clean up the partially-loaded
+                 * bintree.
+                 */
+                if (status != VIO_OK)
+                {
+                    delete_the_bintree( &polygons->bintree );
+                }
+
                 close_file( file );
             }
 
