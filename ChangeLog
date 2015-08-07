@@ -1,3 +1,15 @@
+2015-08-04  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * {various} - Eliminate memory allocation issues associated with errors
+	during string or file input.
+   * main/main.c - Manage initial directory used by file open/save dialogs.
+
+2015-08-03  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * main/main.c - Fix handling of a number of issues in the new input
+	dialogs, especially avoid re-prompting when the "Cancel" button
+	is pressed (Github issue #6).
+   * segmenting/painting.c - Don't require cursor to move before labeling
+	voxels (Github issue #7).
+
 2015-06-29  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * callbacks/call_globals.c, segmenting/painting.c: Fix some memory
 	access bugs.
