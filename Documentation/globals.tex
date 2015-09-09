@@ -1,0 +1,339 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage[hmargin=1in]{geometry}
+\title{{\bf MNI-Display} - Global configuration variables. }
+\author{Robert D. Vincent}
+
+\newcommand{\ident}[1]{{\bf\tt #1}\ }
+\newcommand{\display}{\ident{MNI-Display}}
+%\newcommand{\menu}[1]{{\scriptsize \fbox{\bf #1}}}
+%\newcommand{\menutwo}[2]{{\scriptsize \fbox{\bf #1}/\fbox{\bf #2}}}
+%\newcommand{\menuthree}[3]{{\scriptsize \fbox{\bf #1}/\fbox{\bf #2}/\fbox{\bf #3}}}
+
+%\psdraft
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+
+\display includes many ``global variables'' that can be set in a
+configuration file, from the command line, or using a command within
+the program.  program itself. These globals serve a wide range of
+purposes - they may control the appearance of the user interface, set
+parameters for surface extraction, control editing behavior, or even
+affect low-level graphics performance. Many of the globals are not
+intended to be changed during program execution, as their values may
+only be read at startup. Others can be changed dynamically while the
+program is running, and may take effect immediately. Some globals are
+set implicitly by specific commands in the \display user interface.
+
+Most of these globals have not been rigorously tested over their
+entire possible range. Input checking is often minimal. It is
+therefore possible to alter the behavior of the program in unexpected
+or confusing ways. This document will not be comprehensive, but will
+attempt to explain some of the most useful variables.
+
+Every global variable has a name and a type, and the program will only
+accept values it recognizes as being in the proper type. 
+
+Variable names typically start with an initial capital letter and
+consist of several descriptive words separated by underscores. In all
+contexts, \display requires that the name be given exactly as
+specified, with the correct capitalization.
+
+Variable types may be one of the following:
+\begin{itemize}
+\item String - Any string of ASCII characters.
+\item Boolean - A string representing a boolean (true or false) value. Only the first character of the string is examined, with a 't' or `T' indicating true and an 'f' or 'F' indicating false.
+\item Integer - A whole decimal number.
+\item Real - A decimal number with an optional fractional part.
+\item Point - A set of three floating-point number
+s specifying a position
+along the X,Y, and Z axes.
+\item Vector - A set of three floating-point numbers specifying a direction
+along the X,Y, and Z axes.
+\item Colour - Either a string that gives a colour name (e.g. ``BLUE'') or a series of 3 or 4 numbers specifying RGB or RGBA values in the range 0-1.
+\item Surface property - A set of five floating-point parameters that give
+the surface properties of an object.
+\end{itemize}
+
+Certain types, especially String or Integer, may have other
+interpretations depending on the specific variable. For example, some
+strings may be interpreted as filenames or formatting strings.
+
+\section{Setting globals in a configuration file}
+The most reliable way to set global variables is through the configuration file, which is loaded very early in the initialization process. Many of the configuration values are used only during program initialization, so setting them from the command line or the internal command may have no effect!
+
+By default, the configuration file is named {\tt Display.globals}, and
+it is most commonly located in the user's home directory. However, the 
+program searches for the file in each of the following locations, in order:
+\begin{enumerate}
+\item /usr/local/lib/
+\item The hard-coded installation directory for the package.
+\item The directory that contains the binary image for \display.
+\item The user's home directory.
+\item The current directory ('.').
+\end{enumerate}
+
+Note that if a file named {\tt Display.globals} is present in any of these
+directories, each such file will be loaded. Therefore it is possible
+for later configuration files to add or replace values set in
+previously loaded configuration files.
+
+We have recently added a separate configuration file named {\tt
+  .mni-displayrc} which is identical in syntax to {\tt
+  Display.globals}, but which is intended only for internal use by the
+program. It may be overwritten by certain commands in the user interface.
+
+A configuration file consists of a series of lines consisting of a
+variable name, followed by one or more spaces, an equals sign ('='),
+and finally a variable value. Each line is terminated with a semicolon
+(';'). Comments may be included by using a hash ('\#') as the first character
+on a line. Comments and empty lines are ignored.
+
+Here is an example {\tt Display.globals} file:
+\begin{verbatim}
+# Here is a comment.
+Default_marker_label = Hippocampus;
+#Default_marker_size = 0.02;
+Hide_3D_window = false;
+Hide_marker_window = false;
+Atlas_filename = /data1/users/bert/talairach/Talairach_atlas.list
+Max_polygon_scan_distance=0.5;
+Object_outline_enabled = True;
+Convert_volumes_to_byte=False;
+Slice_readout_text_font = 0;
+Maximum_display_time = 0.1;
+Display_frame_info = True;
+\end{verbatim}
+
+
+\section{Setting globals on the command line}
+
+A global can be set from the command line by specifying the {\tt
+ -global} command line option. The command line is parsed after the
+configuration files are loaded, so values specified on the command
+line may override the setting in the configuration files. This will
+not be true for all globals, as many of them are only used during the
+earliest part of program initialization.
+
+The command line option takes a variable name and value separated from
+the option by spaces:
+\begin{verbatim}
+Display -global Default_paint_label 5 my_t1_image.mnc
+\end{verbatim}
+This example will set the initial value used for voxel labeling (``painting'') to 5 instead of the default, which is 1.
+
+You can repeat the {\tt -global} option as many times as you like, to
+set any number of globals.
+
+\section{Setting globals with a menu command}
+
+There is a command within \display which allows you to inspect or
+change the value of any global variable. In the default menu
+structure, this command is accessed from the ``Quit'' sub-menu, so one
+can invoke the command by pressing the '7' key followed by the 'A'
+key. This will prompt you to enter a string. If you simply want to check the value of a variable, you may just enter the variable's name and press Enter. If you want to change the variable's value, you enter the variable's name followed by an equals sign ('=') and the desired new value.
+
+Again, be warned that, as with the command line, changing some globals
+through this menu command will have no effect. Not all globals will change
+the operation of the program after it is initialized.
+
+\section{List of useful globals}
+
+\newcommand{\globalentry}[5]{\subsection{{\tt #1}}
+\paragraph{Type}{#2}%
+\paragraph{Default value}{#3}%
+\paragraph{Description}{#4}%
+\if\relax\detokenize{#5}\relax%
+  %
+  \else
+  \paragraph{Command}{#5}%
+  \fi
+}
+
+\globalentry{Atlas\_filename}
+{String}{/avgbrain/atlas/talairach/obj/Talairach\_atlas.list}
+{Gives the location for the list of Talairach atlas files.}{}
+
+\globalentry{Closest\_front\_plane}
+{Real}{1.0e-5}
+{Sets the smallest position of the front plane used in 3D rendering.}{}
+
+\globalentry{Convert\_volumes\_to\_byte}
+{Boolean}{True}
+{If true, volumes are converted to byte as they are loaded, which reduces the possible number of intensities to 256. Set this to false if you need to visualize a file with a higher precision.}{}
+
+\globalentry{Cursor\_rgb\_colour}
+{Colour}{BLUE}
+{Defines the colour of the small box at the centre of the cursor in the 3D window. The colours of the three axes lines are fixed at X=RED, Y=GREEN, Z=BLUE.}{}
+
+\globalentry{Default\_paint\_label}
+{Integer}{1}
+{The initial value used to label voxels when painting the slice window.}
+{{\bf F} Segmenting / {\bf D} Set Paint Lbl}
+
+\globalentry{Draw\_brush\_outline}
+{Boolean}{True}
+{If true, the outline of the current brush shape will be drawn as voxels are painted in the slice window. If false, only the altered voxel labels themselves will be drawn.}{}
+
+\globalentry{Hide\_3D\_window}
+{Boolean}{True}
+{If true, the 3D window will be hidden by default. However, if any surface or other geometric objects are loaded, this option will be overridden and the 3D window will be displayed in any case.}{}
+
+\globalentry{Hide\_marker\_window}{Boolean}{True}
+{If true, the object list window will be hidden by default. However, if any surface or other geometric objects are loaded, this option will be overridden and the object list window will be displayed in any case.}{}
+
+\globalentry{Hide\_menu\_window}
+{Boolean}{False}
+{If true, the menu window will be hidden. Command keystrokes will continue to work normally, but the virtual keyboard will not be available.}{}
+
+\globalentry{Histogram\_colour}
+{Colour}{WHITE}
+{Sets the colour of the histogram curve, as drawn in the slice window if requested.}{}
+
+\globalentry{Initial\_background\_colour}
+{Colour}{0.184314, 0.309804, 0.309804} 
+{Sets the background colour of each of the windows. Only
+the slice window is created late enough for this to have an effect
+from the command line, and it has no effect if changed from the menu
+command. For some inexplicable reason, the default dark greenish
+background is given the symbolic name {\tt DARK\_SLATE\_GREY}. While the
+background colour can be changed through a menu command, the command will not
+change the colour for the menu or object windows.}{}
+
+\globalentry{Initial\_colour\_coding\_type} {Integer}{1} {Sets the
+  colour coding scheme used by the first loaded volume in the slice
+  window. The most useful values are 0 for grayscale, 1 for hotmetal,
+  13 for spectral, 14 for red, 15 for green, 16 for blue, and 17 for
+  contour. Other possibly useful values include 3 for ``cold metal'',
+  5 for ``green metal'', 7 for ``lime metal'', 9 for ``red metal'',
+  and 11 for ``purple metal''.}{}
+
+\globalentry{Initial\_perspective\_flag}
+{Boolean}{False}
+{Sets the initial value of the projection approach used in 3D rendering. A value of false selects parallel projection, whereas true selects perspective projection.}
+{{\bf W} 3D view / {\bf D} Proj}
+
+\globalentry{Initial\_render\_mode}
+{Boolean}{True}
+{If true, 3D objects are rendered in shaded mode by default. If false, 3D objects are rendered in wireframe mode by default.}
+{{\bf E} 3D Render / {\bf A} Mode}
+
+\globalentry{Initial\_shading\_type}
+{Integer}{1}
+{Selects either Gouraud (1) or flat (0) shading as the default used in the 3D window.}
+{{\bf E} 3D Render / {\bf S} Shading}
+
+\globalentry{Initial\_undo\_feature}
+{Boolean}{True}
+{Determines the initial state of the ``undo'' option. Set to false if you want undo disabled by default, but wish to leave it under user control. To disable undo completely, set Undo\_enabled to false.}
+{{\bf F} Segmenting / {\bf M} Enable Undo}
+
+\globalentry{Menu\_character\_colour} {Colour}{CYAN}
+{For active commands, sets the colour of the command name text
+  associated with each virtual key in the menu window.}{}
+
+\globalentry{Menu\_character\_inactive\_colour} {Colour}{SLATE\_GREY}
+{For inactive commands, sets the colour of the command name text
+  associated with each virtual key in the menu window.}{}
+
+\globalentry{Menu\_box\_colour}
+{Colour}{WHITE}
+{Sets the colour of the box that outlines each virtual key in the menu window.}{}
+
+\globalentry{Menu\_key\_colour}
+{Colour}{WHITE}
+{Sets the colour of the key name associated with each virtual key in the menu window.}{}
+
+\globalentry{Move\_slice\_speed}
+{Real}{0.25}
+{Sets the speed at which the slice is changed when the middle button is pressed in the slice window. Use a smaller number to make the slice change more slowly.}{}
+
+\globalentry{Object\_outline\_enabled}
+{Boolean}{True}
+{If true, any graphics object or surface that is visible in the 3D window will also be displayed by projecting its outline onto the planes of the slice window.}{}
+
+\globalentry{Pixels\_per\_double\_size}
+{Real}{100.0}
+{Sets the number of pixels the cursor must move to double the zoom level when using the original ``shift+middle button'' zoom in the slice window. Smaller numbers yield give faster zooming.}{}
+
+\globalentry{Save\_format}
+{Integer}{0}
+{Controls whether graphical objects will be saved in ASCII (0) or binary (1) format.}{}
+
+\globalentry{Show\_slice\_field\_of\_view}
+{Boolean}{True}
+{If true, displays the current width and height of the field of view of each panel in the slice window.}{}
+
+\globalentry{Slice\_cross\_section\_colour}
+{Colour}{GREEN}
+{Sets the colour of the slice cross section, the projection of the oblique cross section plane in the three orthogonal planes in the slice window.}{}
+
+\globalentry{Slice\_cursor\_colour1}
+{Colour}{RED}
+{Sets the color of the ``inner'' part of the slice windows's cursor.}{}
+
+\globalentry{Slice\_cursor\_colour2}
+{Colour}{BLUE}
+{Sets the color of the ``outer'' part of the slice windows's cursor.}{}
+
+\globalentry{Slice\_divider\_colour}
+{Colour}{BLUE}
+{Sets the colour of the slice dividers, the lines that define the four quadrants of the slice window.}{}
+
+\globalentry{Slice\_readout\_text\_font}
+{Integer}{0}
+{Selects either a fixed-width (0) or proportional-spaced (1) font for the
+coordinate and value information displayed in the lower-left corner of the slice window.}{}
+
+\globalentry{Undo\_enabled}
+{Boolean}{True}
+{Determines whether or not the ``undo'' option is {\em ever} enabled when painting the slice window. The undo function requires memory and processing time that may be impractical with very high resolution images. This option silently disabled the undo feature without giving the user the opportunity to turn in back on in the menu.}{}
+
+\globalentry{Use\_cursor\_origin}
+{Boolean}{True}
+{If true, certain operations, such as rotation of the 3D image, are centered on the current cursor origin. If false, the rotations are centered on the middle of the window.}{}
+
+\globalentry{Use\_zenity\_for\_input}
+{Boolean}{True}
+{If true, \display will attempt to use the Zenity program for user interaction
+such as prompts for file names and other user input. If false, 
+\display will revert to using the terminal window for all user interaction.}{}
+
+\section{List of developer globals}
+These globals are useful primarily for developers or when debugging problems
+with \display. They may be removed or changed with little notice.
+
+\globalentry{Alloc\_checking\_enabled}
+{Boolean}{False}
+{Enables memory allocation checks. This is primarily intended for use by developers when debugging problems in \display.}{}
+
+\globalentry{Display\_frame\_info}
+{Boolean}{False}
+{If true, adds an indication of the frame number and elapsed rendering time to the lower left corner of each of the graphics windows. The actual position is determined by the globals {\tt Frame\_info\_x} and {\tt Frame\_info\_y}}{}
+
+\globalentry{Interval\_of\_check} {Integer}{250}
+{Set the count of rendering operations (typically measured in triangles, e.g.) performed between each elapsed time check. Like {\tt Maximum\_display\_time} this is another parameter relating to the interruptibility of lengthy graphics operations, and is now largely obsolete.}{}
+
+\globalentry{Max\_background\_seconds}{Real}{0.2}
+{Controls the maximum amount of time certain ``background'' operations may run before they are interrupted.}{}
+
+\globalentry{Maximum\_display\_time} {Real}{0.3} 
+{Sets the maximum amount of time in seconds that the graphics library may 
+spend rendering objects in the 3D window before the operation may be 
+interrupted. This is used to control the maximum interface latency 
+experienced by the user. Because of changes in the OpenGL interface and the
+performance improvements in computers, this functionality is largely obsolete.}{}
+
+\globalentry{Min\_interval\_between\_updates}{Real}{0.02}
+{Sets the number of seconds between timer events. Each timer event may
+start another redraw operation, so this variable controls the maximum
+frame rate of the application.}{}
+
+\end{document}
