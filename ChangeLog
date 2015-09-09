@@ -1,3 +1,10 @@
+2015-09-09  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * main/main.c - Force slice cursor and 3D cursor to be consistent
+	during initialization. This corrects a bug where the two values
+	are initialized independently and could be quite different if the
+	extent of the loaded 3D objects was much greater than the extent of
+	the loaded volume.
+
 2015-08-04  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * {various} - Eliminate memory allocation issues associated with errors
 	during string or file input.

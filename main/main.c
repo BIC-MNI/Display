@@ -234,6 +234,11 @@ int  main(
 
     unhide_if_objects_loaded(graphics, marker);
 
+    /* Doublecheck that the 3D cursor is consistent with the current
+     * voxel coordinates.
+     */
+    update_cursor_from_voxel( slice_window );
+
     set_update_required( graphics, NORMAL_PLANES );
     set_update_required( marker, NORMAL_PLANES );
 
