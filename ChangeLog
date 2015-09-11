@@ -1,4 +1,8 @@
 2015-09-21  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * slice_window/undo.c, etc.: Implement N-level undo during
+	painting.
+
+2015-09-21  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * slice_window/colour_coding.c, slice_window/draw_slice.c: Avoid
 	creating or using unreasonably large or small colour tables.
 	Instead, use the color_coding_struct object directly by

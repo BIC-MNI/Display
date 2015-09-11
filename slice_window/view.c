@@ -1026,6 +1026,7 @@ VIO_BOOL  get_voxel_corresponding_to_point(
  * \param voxel The voxel coordinates corresponding to this cursor position.
  * \returns TRUE if an active volume and view can be identified.
  */
+
 VIO_BOOL  get_volume_corresponding_to_pixel(
     display_struct    *slice_window,
     int               x,
@@ -1036,6 +1037,16 @@ VIO_BOOL  get_volume_corresponding_to_pixel(
 {
     if( !get_slice_window( slice_window, &slice_window ) )
         return( FALSE );
+
+    *volume_index = get_current_volume_index( slice_window );
+
+    if( slice_window->slice.volumes[*volume_index].opacity > 0.0 &&
+        convert_pixel_to_voxel( slice_window, *volume_index, x, y,
+                                voxel, view_index ) &&
+        get_slice_visibility( slice_window, *volume_index, *view_index ) )
+    {
+        return (*volume_index >= 0);
+    }
 
     for( *volume_index = slice_window->slice.n_volumes-1;  *volume_index >= 0;
          --(*volume_index) )

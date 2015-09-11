@@ -258,6 +258,7 @@ static  void  create_colour_coding(
     if( slice->share_labels_flag &&
         find_similar_labels( slice_window, volume_index, &orig_index ) )
     {
+      printf("sharing labels.\n");
         slice->volumes[volume_index].labels = slice->volumes[orig_index].labels;
         slice->volumes[volume_index].labels_filename =
                     create_string( slice->volumes[orig_index].labels_filename );

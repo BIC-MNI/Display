@@ -1918,7 +1918,10 @@ void  translate_labels(
     int              volume_index,
     int              delta[] );
 
-  void  copy_labels_slice_to_slice(
+void set_voxel_label_with_undo(display_struct *slice_window, int volume_index,
+                               int voxel[], int label);
+
+void  copy_labels_slice_to_slice(
     display_struct   *slice_window,
     int              volume_index,
     int              axis,
@@ -2395,27 +2398,22 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
     display_struct    *slice_window );
 
   void  initialize_slice_undo(
-    slice_undo_struct  *undo );
+    volume_undo_struct  *undo );
 
   void  delete_slice_undo(
-    slice_undo_struct  *undo,
+    display_struct     *slice_window,
     int                volume_index );
-
-  void  record_slice_labels(
-    display_struct  *display,
-    int             volume_index,
-    int             axis_index,
-    int             slice_index );
-
-  void  record_slice_under_mouse(
-    display_struct  *display,
-    int             volume_index );
 
   VIO_BOOL  slice_labels_to_undo(
     display_struct  *display );
 
   int  undo_slice_labels_if_any(
     display_struct  *display );
+
+  void undo_finish(display_struct *slice_window, int volume_index);
+  void undo_start(display_struct *slice_window, int volume_index);
+  void undo_save(display_struct *slice_window, int volume_index,
+                 const int voxel[], int label);
 
   void  initialize_slice_window_view(
     display_struct    *slice_window,

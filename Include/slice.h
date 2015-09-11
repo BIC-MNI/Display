@@ -115,13 +115,26 @@ typedef  struct
     VIO_STR    filename;
 } crop_struct;
 
-typedef  struct
+#define N_SPARSE_HASH 101
+#define N_SPARSE_COORD 4
+
+typedef struct sparse_array_entry {
+  struct sparse_array_entry *link;
+  int coord[N_SPARSE_COORD];
+  int value;
+} sparse_array_entry_t;
+
+typedef struct sparse_array {
+  int n_entries;
+  int n_dimensions;
+  sparse_array_entry_t *table[N_SPARSE_HASH];
+} sparse_array_t;
+
+typedef struct
 {
-    int              volume_index;
-    int              axis_index;
-    int              slice_index;
-    int              **saved_labels;
-} slice_undo_struct;
+    int            n_undo;
+    sparse_array_t *prior_labels;
+} volume_undo_struct;
 
 typedef enum { UPDATE_SLICE, UPDATE_LABELS, UPDATE_BOTH } Update_types;
 
@@ -141,6 +154,7 @@ typedef  struct
     VIO_BOOL               display_labels;
     VIO_Real               opacity;
     VIO_Real               current_voxel[VIO_MAX_DIMENSIONS];
+    volume_undo_struct     undo;
 
     struct volume_view_struct
     {
@@ -235,9 +249,9 @@ typedef  struct
     VIO_Real               x_brush_radius, y_brush_radius, z_brush_radius;
     int                    current_paint_label;
     int                    current_erase_label;
+    int                    painting_volume_index;
     int                    painting_view_index;
     object_struct          *brush_outline;
-    slice_undo_struct      undo;
 
     lines_struct           unscaled_histogram_lines;
     object_struct          *histogram_object;

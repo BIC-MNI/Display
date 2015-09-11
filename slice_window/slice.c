@@ -133,8 +133,6 @@ static  void  initialize_slice_window(
 
     set_atlas_state( slice_window, Default_atlas_state );
 
-    initialize_slice_undo( &slice_window->slice.undo );
-
     slice_window->slice.cross_section_index = OBLIQUE_VIEW_INDEX;
     slice_window->slice.cross_section_visibility = FALSE;
     slice_window->slice.cross_section_vector_present = FALSE;
@@ -225,7 +223,7 @@ static  void  delete_slice_window_volume_stuff(
 
     delete_render_storage( slice_window->slice.render_storage );
 
-    delete_slice_undo( &slice_window->slice.undo, -1 );
+    delete_slice_undo( slice_window, -1 );
     delete_slice_histogram( &slice_window->slice );
 
     delete_atlas( &slice_window->slice.atlas );
@@ -309,6 +307,8 @@ static  void  delete_slice_window_volume_stuff(
     initialize_slice_models_for_volume( slice_window, new_volume_index );
     initialize_slice_colour_coding( slice_window, new_volume_index );
     initialize_slice_window_view( slice_window, new_volume_index );
+    initialize_slice_undo( &slice_window->slice.volumes[new_volume_index].undo );
+
 
     /* Initialize the current_voxel field.
      */

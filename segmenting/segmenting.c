@@ -57,8 +57,7 @@
     {
         for_less( voxel[a2], 0, sizes[a2] )
         {
-            set_voxel_label( slice_window, volume_index,
-                             voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z], label );
+            set_voxel_label_with_undo(slice_window, volume_index, voxel, label);
         }
     }
 }
@@ -68,24 +67,25 @@ typedef struct
     int  x, y;
 } slice_position;
 
-  void  set_connected_voxels_labels(
+void  set_connected_voxels_labels(
     display_struct    *slice_window,
     int               volume_index,
     int               axis_index,
     int               position[],
-    VIO_Real              min_threshold,
-    VIO_Real              max_threshold,
+    VIO_Real          min_threshold,
+    VIO_Real          max_threshold,
     int               label_min_threshold,
     int               label_max_threshold,
     Neighbour_types   connectivity,
     int               label )
 {
-    int                             voxel[VIO_N_DIMENSIONS], sizes[VIO_N_DIMENSIONS];
+    int                             voxel[VIO_MAX_DIMENSIONS];
+    int                             sizes[VIO_MAX_DIMENSIONS];
     int                             a1, a2, x, y;
     int                             dir, n_dirs, *dx, *dy;
     slice_position                  entry;
     QUEUE_STRUCT( slice_position )  queue;
-    VIO_Volume                          volume, label_volume;
+    VIO_Volume                      volume, label_volume;
 
     volume = get_nth_volume( slice_window, volume_index );
     label_volume = get_nth_label_volume( slice_window, volume_index );
@@ -104,12 +104,12 @@ typedef struct
     INITIALIZE_QUEUE( queue );
 
     if( should_change_this_one( volume, label_volume, voxel,
-                                min_threshold, max_threshold, 
+                                min_threshold, max_threshold,
                                 label_min_threshold, label_max_threshold,
                                 label) )
     {
-        set_voxel_label( slice_window, volume_index,
-                         voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z], label );
+        set_voxel_label_with_undo(slice_window, volume_index, voxel, label);
+
         entry.x = voxel[a1];
         entry.y = voxel[a2];
         INSERT_IN_QUEUE( queue, entry );
@@ -134,8 +134,9 @@ typedef struct
                                      label_min_threshold, label_max_threshold,
                                      label))
             {
-                set_voxel_label( slice_window, volume_index,
-                                 voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z], label );
+                set_voxel_label_with_undo(slice_window, volume_index, voxel,
+                                          label);
+
                 entry.x = voxel[a1];
                 entry.y = voxel[a2];
                 INSERT_IN_QUEUE( queue, entry );

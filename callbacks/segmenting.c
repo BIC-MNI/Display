@@ -35,11 +35,12 @@ DEF_MENU_FUNCTION( toggle_undo_feature )
 {
     display_struct   *slice_window;
 
-    if( get_slice_window( display, &slice_window) && 
-            ! (slice_window->slice.toggle_undo_feature =
-                !slice_window->slice.toggle_undo_feature) )
+    if ( get_slice_window( display, &slice_window))
     {
-        delete_slice_undo( &slice_window->slice.undo, -1 );
+        slice_window->slice.toggle_undo_feature =
+            !slice_window->slice.toggle_undo_feature;
+
+        delete_slice_undo( slice_window, -1 );
     }
 
     return( VIO_OK );
@@ -68,25 +69,37 @@ DEF_MENU_UPDATE( toggle_undo_feature )
 
 DEF_MENU_FUNCTION( label_voxel )
 {
-    VIO_Real           voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real       voxel[VIO_MAX_DIMENSIONS];
     int            view_index, int_voxel[VIO_MAX_DIMENSIONS], volume_index;
     display_struct *slice_window;
-    int 		   value;
+    int            value;
+    int            vprev;
 
     if( get_slice_window( display, &slice_window ) &&
         get_voxel_under_mouse( slice_window, &volume_index, &view_index, voxel))
     {
-        if ( slice_window->slice.toggle_undo_feature ){
-            record_slice_under_mouse( slice_window, volume_index );
-        }
         convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
         value = get_current_paint_label(slice_window);
-        set_voxel_label( slice_window, volume_index,
-                         int_voxel[VIO_X],
-                         int_voxel[VIO_Y],
-                         int_voxel[VIO_Z], value );
-        set_slice_window_all_update( slice_window, volume_index,
-                                     UPDATE_LABELS );
+        vprev = get_voxel_label( slice_window, volume_index,
+                                 int_voxel[VIO_X],
+                                 int_voxel[VIO_Y],
+                                 int_voxel[VIO_Z]);
+        if (value != vprev)
+        {
+            undo_start(slice_window, volume_index);
+
+            set_voxel_label( slice_window, volume_index,
+                             int_voxel[VIO_X],
+                             int_voxel[VIO_Y],
+                             int_voxel[VIO_Z], value );
+
+            undo_save(slice_window, volume_index, int_voxel, vprev);
+
+            undo_finish(slice_window, volume_index);
+
+            set_slice_window_all_update( slice_window, volume_index,
+                                         UPDATE_LABELS );
+        }
     }
 
     return( VIO_OK );
@@ -103,21 +116,31 @@ DEF_MENU_UPDATE(label_voxel )
 
 DEF_MENU_FUNCTION( clear_voxel )
 {
-    VIO_Real           voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real       voxel[VIO_MAX_DIMENSIONS];
     display_struct *slice_window;
-    int            view_index, int_voxel[VIO_MAX_DIMENSIONS], volume_index;
+    int            view_index, ivox[VIO_MAX_DIMENSIONS], volume_index;
+    int            value;
 
     if( get_slice_window( display, &slice_window ) &&
-        get_voxel_under_mouse( slice_window, &volume_index, &view_index,voxel))
+        get_voxel_under_mouse( slice_window, &volume_index, &view_index, voxel))
     {
-        if ( slice_window->slice.toggle_undo_feature ){
-            record_slice_under_mouse( slice_window, volume_index );
+        convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, ivox );
+        value = get_voxel_label( slice_window, volume_index,
+                                 ivox[VIO_X], ivox[VIO_Y], ivox[VIO_Z]);
+        if (value != 0)
+        {
+            undo_start(slice_window, volume_index);
+
+            set_voxel_label( slice_window, volume_index,
+                             ivox[VIO_X], ivox[VIO_Y], ivox[VIO_Z], 0 );
+
+            undo_save(slice_window, volume_index, ivox, value);
+
+            undo_finish(slice_window, volume_index);
+
+            set_slice_window_all_update( slice_window, volume_index,
+                                         UPDATE_LABELS );
         }
-        convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
-        set_voxel_label( slice_window, volume_index,
-                         int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z], 0 );
-        set_slice_window_all_update( slice_window, volume_index,
-                                     UPDATE_LABELS );
     }
 
     return( VIO_OK );
@@ -140,7 +163,7 @@ DEF_MENU_FUNCTION( reset_segmenting )
         get_n_volumes(slice_window) > 0 )
     {
         clear_all_labels( slice_window );
-        delete_slice_undo( &slice_window->slice.undo,
+        delete_slice_undo( slice_window,
                            get_current_volume_index(slice_window) );
         set_slice_window_all_update( slice_window,
                      get_current_volume_index(slice_window), UPDATE_LABELS );
@@ -167,7 +190,7 @@ DEF_MENU_FUNCTION( set_segmenting_threshold )
 
     if( get_slice_window( display, &slice_window ) )
     {
-        if (get_user_input( "Enter min and max threshold: ", "rr", 
+        if (get_user_input( "Enter min and max threshold: ", "rr",
                             &min, &max) == VIO_OK)
         {
             slice_window->slice.segmenting.min_threshold = min;
@@ -185,12 +208,12 @@ DEF_MENU_UPDATE(set_segmenting_threshold )
     return( slice_window_exists(display) );
 }
 
-  VIO_Status  input_label_volume_file(
-    display_struct   *display,
-    VIO_STR           filename )
+VIO_Status
+input_label_volume_file(display_struct *display,
+                        VIO_STR        filename )
 {
     int              range[2][VIO_N_DIMENSIONS];
-    VIO_Status           status;
+    VIO_Status       status;
     display_struct   *slice_window;
 
     status = VIO_OK;
@@ -208,7 +231,7 @@ DEF_MENU_UPDATE(set_segmenting_threshold )
                       create_string(filename) );
         }
 
-        delete_slice_undo( &slice_window->slice.undo,
+        delete_slice_undo( slice_window,
                            get_current_volume_index(slice_window) );
 
         set_slice_window_all_update( slice_window,
@@ -218,7 +241,7 @@ DEF_MENU_UPDATE(set_segmenting_threshold )
         range[0][VIO_Y] = 0;
         range[0][VIO_Z] = 0;
         get_volume_sizes( get_volume(slice_window), range[1] );
-        tell_surface_extraction_range_of_labels_changed( display, 
+        tell_surface_extraction_range_of_labels_changed( display,
                               get_current_volume_index(slice_window),
                               range );
     }
@@ -330,15 +353,15 @@ DEF_MENU_UPDATE(save_label_data )
     return( get_n_volumes(display) > 0 );
 }
 
-  VIO_Status input_tag_label_file(
-    display_struct   *display,
-    VIO_STR           filename )
+VIO_Status
+input_tag_label_file(display_struct *display,
+                     VIO_STR        filename )
 {
-    VIO_Status         status;
-    VIO_BOOL        landmark_format;
+    VIO_Status     status;
+    VIO_BOOL       landmark_format;
     FILE           *file;
     display_struct *slice_window;
-    VIO_Volume         volume;
+    VIO_Volume     volume;
 
     status = VIO_OK;
 
@@ -365,7 +388,7 @@ DEF_MENU_UPDATE(save_label_data )
         if( status == VIO_OK )
             status = close_file( file );
 
-        delete_slice_undo( &slice_window->slice.undo,
+        delete_slice_undo( slice_window,
                            get_current_volume_index(slice_window) );
 
         set_slice_window_all_update( slice_window,
@@ -720,7 +743,7 @@ static  void  set_slice_labels(
     display_struct     *display,
     int                label )
 {
-    VIO_Real             voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real         voxel[VIO_MAX_DIMENSIONS];
     int              view_index, int_voxel[VIO_MAX_DIMENSIONS], volume_index;
     int              x_index, y_index, axis_index;
     display_struct   *slice_window;
@@ -731,14 +754,14 @@ static  void  set_slice_labels(
         slice_has_ortho_axes( slice_window, volume_index, view_index,
                               &x_index, &y_index, &axis_index ) )
     {
-        if ( slice_window->slice.toggle_undo_feature ){
-            record_slice_under_mouse( display, volume_index );
-        }
+        undo_start( slice_window, volume_index );
 
         convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
         set_labels_on_slice( slice_window, volume_index,
                              axis_index, int_voxel[axis_index],
                              label );
+
+        undo_finish( slice_window, volume_index );
 
         set_slice_window_all_update( slice_window, volume_index,
                                      UPDATE_LABELS );
@@ -796,9 +819,9 @@ DEF_MENU_UPDATE(label_connected_no_threshold )
 static  void   set_connected_labels(
     display_struct   *display,
     int              desired_label,
-    VIO_BOOL          use_threshold )
+    VIO_BOOL         use_threshold )
 {
-    VIO_Real             voxel[VIO_MAX_DIMENSIONS], min_threshold, max_threshold;
+    VIO_Real         voxel[VIO_MAX_DIMENSIONS], min_threshold, max_threshold;
     int              view_index, int_voxel[VIO_MAX_DIMENSIONS];
     int              label_under_mouse, volume_index;
     int              x_index, y_index, axis_index;
@@ -811,9 +834,7 @@ static  void   set_connected_labels(
         slice_has_ortho_axes( slice_window, volume_index, view_index,
                               &x_index, &y_index, &axis_index ) )
     {
-        if ( slice_window->slice.toggle_undo_feature ){
-            record_slice_under_mouse( display, volume_index );
-        }
+        undo_start(slice_window, volume_index);
 
         if( use_threshold )
         {
@@ -843,6 +864,8 @@ static  void   set_connected_labels(
                           slice_window->slice.segmenting.connectivity,
                           desired_label );
 
+        undo_finish(slice_window, volume_index);
+
         set_slice_window_all_update( slice_window, volume_index, UPDATE_LABELS);
     }
 }
@@ -851,7 +874,7 @@ static  void   set_connected_labels(
 
 DEF_MENU_FUNCTION(label_connected_3d)
 {
-    VIO_Real             voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real         voxel[VIO_MAX_DIMENSIONS];
     int              range_changed[2][VIO_N_DIMENSIONS];
     int              view_index, int_voxel[VIO_MAX_DIMENSIONS];
     int              label_under_mouse, desired_label, volume_index;
@@ -883,7 +906,7 @@ DEF_MENU_FUNCTION(label_connected_3d)
                                slice_window->slice.segmenting.max_threshold,
                                range_changed );
 
-        delete_slice_undo( &slice_window->slice.undo, volume_index );
+        delete_slice_undo( slice_window, volume_index );
 
         print( "Done\n" );
 
@@ -909,14 +932,14 @@ DEF_MENU_FUNCTION(dilate_labels)
 {
     int              min_outside_label, max_outside_label;
     int              range_changed[2][VIO_N_DIMENSIONS];
-    VIO_Volume           volume;
+    VIO_Volume       volume;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
         get_slice_window_volume( slice_window, &volume) )
     {
         if (get_user_input( "Enter min and max outside label: ",
-                            "dd", 
+                            "dd",
                             &min_outside_label,
                             &max_outside_label ) == VIO_OK )
         {
@@ -933,7 +956,7 @@ DEF_MENU_FUNCTION(dilate_labels)
                                   slice_window->slice.segmenting.connectivity,
                                   range_changed );
 
-            delete_slice_undo( &slice_window->slice.undo,
+            delete_slice_undo( slice_window,
                                get_current_volume_index(slice_window) );
 
             print( "Done\n" );
@@ -987,7 +1010,7 @@ DEF_MENU_FUNCTION(erode_labels)
                                   slice_window->slice.segmenting.connectivity,
                                   range_changed );
 
-            delete_slice_undo( &slice_window->slice.undo,
+            delete_slice_undo( slice_window,
                                get_current_volume_index(slice_window) );
 
             print( "Done\n" );
@@ -1046,10 +1069,10 @@ DEF_MENU_UPDATE(toggle_connectivity )
     switch( connectivity )
     {
     case  FOUR_NEIGHBOURS:
-        n_neigh = 4; 
+        n_neigh = 4;
         break;
     case  EIGHT_NEIGHBOURS:
-        n_neigh = 8; 
+        n_neigh = 8;
         break;
     }
 
@@ -1132,7 +1155,7 @@ DEF_MENU_FUNCTION(clear_label_connected_3d)
                                slice_window->slice.segmenting.max_threshold,
                                range_changed );
 
-        delete_slice_undo( &slice_window->slice.undo, volume_index );
+        delete_slice_undo( slice_window, volume_index );
 
         print( "Done\n" );
 

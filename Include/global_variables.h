@@ -392,6 +392,7 @@ START_GLOBALS
     DEF_GLOBAL( Tags_from_label, VIO_BOOL, FALSE )
 
     DEF_GLOBAL( Initial_undo_feature, VIO_BOOL, TRUE )
+    DEF_GLOBAL( Undo_list_length, int, 20 )
   
     DEF_GLOBAL( Object_outline_width, VIO_Real, 1.0 )
     DEF_GLOBAL( Object_outline_enabled, VIO_BOOL, TRUE )

@@ -291,16 +291,17 @@ static  void  copy_labels_from_adjacent_slice(
 
         if( int_voxel_is_within_volume( volume, src_index ) )
         {
-            record_slice_labels( display, volume_index, axis_index,
-                                 dest_index[axis_index] );
+            undo_start(slice_window, volume_index);
 
             copy_labels_slice_to_slice(
-                         display, volume_index,
+                         slice_window, volume_index,
                          axis_index,
                          src_index[axis_index],
                          dest_index[axis_index],
                          slice_window->slice.segmenting.min_threshold,
                          slice_window->slice.segmenting.max_threshold );
+
+            undo_finish(slice_window, volume_index);
 
             set_slice_window_all_update( slice_window, volume_index,
                                          UPDATE_LABELS );
@@ -430,7 +431,7 @@ static  void  copy_labels_from_adjacent_slice(
                                     src_min, src_max, dest_label,
                                     min_threshold, max_threshold,
                                     range_changed );
-            delete_slice_undo( &slice_window->slice.undo,
+            delete_slice_undo( slice_window,
                                get_current_volume_index(slice_window) );
             set_slice_window_all_update( slice_window,
                        get_current_volume_index(slice_window), UPDATE_LABELS );
@@ -534,7 +535,7 @@ static  void  calculate_label_volume(
         get_n_volumes(slice_window) > 0 )
     {
         flip_labels_around_zero( slice_window );
-        delete_slice_undo( &slice_window->slice.undo,
+        delete_slice_undo( slice_window,
                            get_current_volume_index(slice_window) );
 
         set_slice_window_all_update( slice_window,
@@ -576,7 +577,7 @@ static  void  translate_labels_callback(
 
         translate_labels( slice_window, get_current_volume_index(slice_window),
                           delta );
-        delete_slice_undo( &slice_window->slice.undo,
+        delete_slice_undo( slice_window,
                            get_current_volume_index(slice_window) );
 
         set_slice_window_all_update( slice_window,
@@ -667,19 +668,9 @@ static  void  translate_labels_callback(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(undo_slice_labels )
+DEF_MENU_UPDATE(undo_slice_labels )
 {
-    display_struct   *slice_window;
-
-    if( get_slice_window( display, &slice_window ) )
-    {
-      return( slice_window->slice.toggle_undo_feature &&
-			slice_labels_to_undo(display) );
-    } else {
-      return slice_labels_to_undo(display);
-    }
-
-
+    return slice_labels_to_undo(display);
 }
 
 /* ARGSUSED */
@@ -815,7 +806,8 @@ DEF_MENU_UPDATE(toggle_freestyle_painting )
  state = get_slice_window( display, &slice_window ) &&
    get_n_volumes(slice_window) > 0;
 
- if( state ) {
+ if( state )
+ {
    set_menu_text_on_off( menu_window, menu_entry, get_painting_mode( display ));
  }
  return( state );
