@@ -332,22 +332,6 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
 
   DEF_MENU_UPDATE(save_file );
 
-  DEF_MENU_FUNCTION( georges_menu1 );
-
-  DEF_MENU_UPDATE(georges_menu1 );
-
-  DEF_MENU_FUNCTION( georges_menu2 );
-
-  DEF_MENU_UPDATE(georges_menu2 );
-
-  DEF_MENU_FUNCTION( georges_menu3 );
-
-  DEF_MENU_UPDATE(georges_menu3 );
-
-  DEF_MENU_FUNCTION( georges_menu4 );
-
-  DEF_MENU_UPDATE(georges_menu4 );
-
   DEF_MENU_FUNCTION( smooth_current_lines );
 
   DEF_MENU_UPDATE(smooth_current_lines );

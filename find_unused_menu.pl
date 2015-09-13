@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 
-    $menu = "Display.menu";
+    $menu = "menu/Display.menu.include";
     $input = "menu/input_menu.c";
 
     $list = `grep MENU_F $input`;
