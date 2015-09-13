@@ -663,8 +663,10 @@ void
 set_file_open_directory(const char *pathname)
 {
   int length = 0;
-  strncpy(File_open_dir, pathname, FILE_OPEN_DIR_MAX);
-  strncpy(File_open_dir, dirname(File_open_dir), FILE_OPEN_DIR_MAX);
+  char temp_path[FILE_OPEN_DIR_MAX];
+
+  strncpy(temp_path, pathname, FILE_OPEN_DIR_MAX);
+  strncpy(File_open_dir, dirname(temp_path), FILE_OPEN_DIR_MAX);
   length = strlen(File_open_dir);
   if (File_open_dir[length - 1] != '/' && length < FILE_OPEN_DIR_MAX)
   {
@@ -680,10 +682,11 @@ set_file_open_directory(const char *pathname)
 const char *
 get_file_open_directory(void)
 {
+    char temp_path[FILE_OPEN_DIR_MAX];
     if (strlen(File_open_dir) == 0)
     {
-      getcwd(File_open_dir, FILE_OPEN_DIR_MAX);
-      set_file_open_directory(File_open_dir);
+      getcwd(temp_path, FILE_OPEN_DIR_MAX);
+      set_file_open_directory(temp_path);
     }
     return File_open_dir;
 }
