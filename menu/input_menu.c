@@ -1,6 +1,6 @@
 /**
  * \file input_menu.c
- * \brief Read menu a menu command layout from a file.
+ * \brief Read a menu command layout from a file.
  *
  * \copyright
               Copyright 1993,1994,1995 David MacDonald,
