@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file pick_angle.c
+ * \brief Select the angle for the oblique plane in the slice window.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,32 +13,32 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#ifndef lint
-
-#endif
-
-
 #include  <display.h>
+#include  <assert.h>
 
 static    DEF_EVENT_FUNCTION( start_picking_angle );
 static    DEF_EVENT_FUNCTION( terminate_picking_angle );
 static    DEF_EVENT_FUNCTION( handle_update_picking_angle );
 
-static  void  set_slice_angle(
-    display_struct    *slice_window,
-    int               x_pixel,
-    int               y_pixel );
-static  void  update_picking_angle(
-    display_struct    *slice_window );
+static void set_slice_angle( display_struct *slice_window, int x_pixel,
+                             int y_pixel );
+static void update_picking_angle( display_struct *slice_window );
 
-  void  start_picking_slice_angle(
-    display_struct    *slice_window )
+/**
+ * Enter the mode where the clicking the left mouse button will select
+ * the oblique slice angle. This simply involves some fiddling with the
+ * action table for mouse down and up events.
+ *
+ * \param slice_window The display_struct of the slice window.
+ */
+void
+start_picking_slice_angle( display_struct *slice_window )
 {
     terminate_any_interactions( slice_window );
 
@@ -51,9 +54,17 @@ static  void  update_picking_angle(
                                LEFT_MOUSE_DOWN_EVENT, start_picking_angle );
 }
 
-static  void  terminate_event(
+/**
+ * Exit the "angle picking" mode. This involves more fiddling with the
+ * action table for mouse down and up events.
+ *
+ * \param display The display_struct of the slice window.
+ */
+static  void
+terminate_event(
     display_struct   *display )
 {
+    assert(display->window_type == SLICE_WINDOW);
     pop_action_table( &display->action_table, NO_EVENT );
     pop_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT );
     pop_action_table( &display->action_table, LEFT_MOUSE_DOWN_EVENT );
@@ -84,14 +95,18 @@ static  DEF_EVENT_FUNCTION( start_picking_angle )
         update_picking_angle( display );
 
         if( view_index == get_arbitrary_view_index(display) )
-            terminate_event( display ); 
+            terminate_event( display );
     }
 
     return( VIO_OK );
 }
 
-static  void  update_picking_angle(
-    display_struct    *slice_window )
+/**
+ * If the mouse has moved, update the angle of the oblique plane accordingly.
+ * \param slice_window The display_struct of the slice window.
+ */
+static void
+update_picking_angle( display_struct *slice_window )
 {
     int    x, y, x_prev, y_prev;
 
@@ -119,23 +134,30 @@ static  DEF_EVENT_FUNCTION( handle_update_picking_angle )
     return( VIO_OK );
 }
 
-static  void  set_slice_angle(
-    display_struct    *slice_window,
-    int               x_pixel,
-    int               y_pixel )
+/**
+ * Actually set the slice angle using the x and y coordinates (e.g. from the
+ * mouse).
+ * \param slice_window The display_struct of the slice window.
+ * \param x_pixel The x pixel coordinate of the mouse.
+ * \param y_pixel The y pixel coordinate of the mouse.
+ */
+static void
+set_slice_angle( display_struct *slice_window, int x_pixel, int y_pixel )
 {
     int        c, view_index, volume_index;
-    VIO_Real       origin_voxel[VIO_MAX_DIMENSIONS], voxel[VIO_MAX_DIMENSIONS];
-    VIO_Real       perp_axis[VIO_MAX_DIMENSIONS], view_perp_axis[VIO_MAX_DIMENSIONS];
-    VIO_Real       separations[VIO_MAX_DIMENSIONS], factor, mag, scale;
-    VIO_Real       new_axis[VIO_MAX_DIMENSIONS];
-    VIO_Point      origin, in_plane_point;
-    VIO_Vector     current_normal, plane_normal, x_axis, current_in_plane;
-    VIO_Vector     offset, new_normal, in_plane;
+    VIO_Real   origin_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real   user_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real   perp_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real   view_perp_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real   separations[VIO_MAX_DIMENSIONS];
+    VIO_Real   new_axis[VIO_MAX_DIMENSIONS];
+    VIO_Point  origin, in_plane_point;
+    VIO_Vector current_normal, plane_normal, x_axis;
+    VIO_Vector new_normal;
 
     volume_index = get_current_volume_index( slice_window );
     if( !convert_pixel_to_voxel( slice_window, volume_index,
-                                 x_pixel, y_pixel, voxel, &view_index ) )
+                                 x_pixel, y_pixel, user_voxel, &view_index ) )
     {
         return;
     }
@@ -143,7 +165,7 @@ static  void  set_slice_angle(
     /*--- get the information in voxel coordinates */
 
     get_current_voxel( slice_window, volume_index, origin_voxel );
-    get_volume_separations( get_nth_volume(slice_window,volume_index),
+    get_volume_separations( get_nth_volume(slice_window, volume_index),
                             separations );
     get_slice_perp_axis( slice_window, volume_index, view_index,
                          view_perp_axis );
@@ -158,7 +180,7 @@ static  void  set_slice_angle(
         Point_coord( origin, c ) = (VIO_Point_coord_type)
                                       (origin_voxel[c] * separations[c]);
         Point_coord( in_plane_point, c ) = (VIO_Point_coord_type)
-                                      (voxel[c] * separations[c]);
+                                      (user_voxel[c] * separations[c]);
         Vector_coord( current_normal, c ) = (VIO_Point_coord_type)
                                       (perp_axis[c] * separations[c]);
         Vector_coord( plane_normal, c ) = (VIO_Point_coord_type)
@@ -189,6 +211,10 @@ static  void  set_slice_angle(
     }
     else
     {
+        VIO_Real factor, mag, scale;
+        VIO_Vector offset, in_plane;
+        VIO_Vector current_in_plane;
+
         /*--- find the projection of the new normal into the plane */
 
         NORMALIZE_VECTOR( x_axis, x_axis );

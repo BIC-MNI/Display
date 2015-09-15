@@ -1,5 +1,12 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file slice_3d.c
+ * \brief Functions for displaying the current oblique plane and volume
+ * bounding box onto the 3D view window.
+ *
+ * Generally bound to the key sequence 'S' (Slice view) / 'Q' (Toggle
+ * plane visibility)
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,23 +17,27 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#ifndef lint
-
-#endif
-
-
 #include  <display.h>
+#include  <assert.h>
 
-  void  initialize_volume_cross_section(
-    display_struct    *display )
+/**
+ * Initialize the objects used to display the volume bounding box and
+ * oblique plane in the 3D view window.
+ *
+ * \param display The display_struct of the 3D view window.
+ */
+void
+initialize_volume_cross_section( display_struct *display )
 {
     model_struct   *model;
+
+    assert(display->window_type == THREE_D_WINDOW);
 
     model = get_graphics_model( display, MISCELLANEOUS_MODEL );
 
@@ -43,12 +54,16 @@
     add_object_to_model( model, display->three_d.cross_section );
 }
 
-static  void   create_box(
-    VIO_Volume         volume,
-    object_struct  *object )
+/**
+ * Create the bounding box for the volume.
+ * \param volume The volume for which the box is created.
+ * \param object The lines object which will be used to draw the box.
+ */
+static void
+create_box( VIO_Volume volume, object_struct  *object )
 {
     int            i, c, sizes[VIO_MAX_DIMENSIONS];
-    VIO_Real           voxel[VIO_MAX_DIMENSIONS], x, y, z;
+    VIO_Real       voxel[VIO_MAX_DIMENSIONS], x, y, z;
     lines_struct   *lines;
 
     lines = get_lines_ptr( object );
@@ -104,8 +119,14 @@ static  void   create_box(
     }
 }
 
-  void  rebuild_volume_outline(
-    display_struct    *slice_window )
+/**
+ * Recreate the bounding box of the volume for display in the 3D view
+ * window.
+ *
+ * \param slice_window The display_struct of the slice window.
+ */
+void
+rebuild_volume_outline( display_struct *slice_window )
 {
     display_struct    *display;
     VIO_Volume            volume;
@@ -121,18 +142,30 @@ static  void   create_box(
         set_object_visibility( display->three_d.volume_outline, FALSE );
 }
 
-static  void   create_cross_section(
-    VIO_Volume         volume,
+/**
+ * Create the object that represents the cross section of the oblique
+ * (arbitrary) view in the 3D view window.
+ *
+ * \param volume The loaded volume.
+ * \param object The polygons object which represents the plane.
+ * \param origin The current location in voxel coordinates.
+ * \param x_axis The current row direction.
+ * \param y_axis The current column direction.
+ * \param z_axis The current slice direction.
+ */
+static void
+create_cross_section(
+    VIO_Volume     volume,
     object_struct  *object,
-    VIO_Real           origin[],
-    VIO_Real           x_axis[],
-    VIO_Real           y_axis[],
-    VIO_Real           z_axis[] )
+    VIO_Real       origin[],
+    VIO_Real       x_axis[],
+    VIO_Real       y_axis[],
+    VIO_Real       z_axis[] )
 {
     int               i, n_points;
-    VIO_Real              voxels[2*VIO_MAX_DIMENSIONS][VIO_MAX_DIMENSIONS];
-    VIO_Real              x, y, z, nx, ny, nz;
-    VIO_Vector            normal;
+    VIO_Real          voxels[2*VIO_MAX_DIMENSIONS][VIO_MAX_DIMENSIONS];
+    VIO_Real          x, y, z, nx, ny, nz;
+    VIO_Vector        normal;
     polygons_struct   *polygons;
 
     polygons = get_polygons_ptr( object );
@@ -168,14 +201,21 @@ static  void   create_cross_section(
     }
 }
 
-  void  rebuild_volume_cross_section(
-    display_struct    *display )
+/**
+ * Recreate the cross section of the oblique plane for display
+ * in the 3D view window.
+ *
+ * \param slice_window The display_struct of the slice window.
+ */
+void
+rebuild_volume_cross_section( display_struct *display )
 {
-    VIO_Real            origin[VIO_MAX_DIMENSIONS];
-    VIO_Real            x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
-    VIO_Real            z_axis[VIO_MAX_DIMENSIONS];
-    display_struct  *slice_window;
-    VIO_Volume          volume;
+    VIO_Real       origin[VIO_MAX_DIMENSIONS];
+    VIO_Real       x_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real       y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real       z_axis[VIO_MAX_DIMENSIONS];
+    display_struct *slice_window;
+    VIO_Volume     volume;
 
     display = get_three_d_window( display );
 
@@ -187,6 +227,7 @@ static  void   create_cross_section(
                          get_current_volume_index(slice_window),
                          get_arbitrary_view_index(slice_window),
                          origin, x_axis, y_axis );
+
         get_slice_perp_axis( slice_window,
                              get_current_volume_index(slice_window),
                              get_arbitrary_view_index(slice_window), z_axis );
@@ -200,11 +241,18 @@ static  void   create_cross_section(
         set_object_visibility( display->three_d.cross_section, FALSE );
 }
 
-  void  set_volume_cross_section_visibility(
-    display_struct    *display,
-    VIO_BOOL           state )
+/**
+ * Set the current visibility of the volume "cross section" in the 3D view
+ * window. This turns on or off the display of the plane of the current view
+ * and the bounding box of the current volume in the 3D view window.
+ * \param display The display_struct for any of the top-level windows.
+ * \param state True if the plane and box should be displayed.
+ */
+void
+set_volume_cross_section_visibility( display_struct *display, VIO_BOOL state )
 {
     display_struct  *slice_window;
+
 
     display = get_three_d_window( display );
     state = state && get_n_volumes(display) > 0;
@@ -221,8 +269,16 @@ static  void   create_cross_section(
     }
 }
 
-  VIO_BOOL  get_volume_cross_section_visibility(
-    display_struct    *display )
+/**
+ * Returns the flag controlling the display of the plane of the
+ * current view and the bounding box of the current volume in the 3D
+ * view window.
+ * \param display The display_struct for any of the top-level windows.
+ * \returns The current visibility state of the cross section.
+ */
+
+VIO_BOOL
+get_volume_cross_section_visibility( display_struct    *display )
 {
     VIO_BOOL         state;
 

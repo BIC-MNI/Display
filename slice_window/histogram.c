@@ -1,5 +1,12 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file histogram.c
+ * \brief Compute and display the histogram of voxel values.
+ *
+ * The functions in this file are responsible for computing and displaying
+ * the histograms of volume voxel values that may be displayed in the slice
+ * window, just to the right of the colour bar widget.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,20 +17,21 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#ifndef lint
-
-#endif
-
 #include  <display.h>
 
-  void  initialize_slice_histogram(
-    display_struct   *slice_window )
+/**
+ * Initialize the data structures associated with the volume histogram.
+ *
+ * \param slice_window The display_struct of the slice window.
+ */
+void
+initialize_slice_histogram( display_struct *slice_window )
 {
     lines_struct   *lines;
     object_struct  *object;
@@ -42,14 +50,25 @@
     initialize_lines( &slice_window->slice.unscaled_histogram_lines, WHITE );
 }
 
-  void  delete_slice_histogram(
-    slice_window_struct   *slice )
+/**
+ * Initialize the data structures associated with the volume histogram.
+ *
+ * \param slice The slice_window_struct associated with the slice window.
+ */
+void
+delete_slice_histogram( slice_window_struct   *slice )
 {
     delete_lines( &slice->unscaled_histogram_lines );
 }
 
-  void  clear_histogram(
-    display_struct   *slice_window )
+/**
+ * Clear and re-initialize the line objects used to display the volume
+ * histogram.
+ *
+ * \param slice_window The display_struct of the slice window.
+ */
+void
+clear_histogram( display_struct *slice_window )
 {
     lines_struct   *lines;
 
@@ -61,21 +80,37 @@
     initialize_lines( &slice_window->slice.unscaled_histogram_lines, WHITE );
 }
 
-static  void  compute_histogram_lines(
-    display_struct   *slice_window,
-    int              volume_index,
-    VIO_BOOL          labeled_only,
-    int              axis_index,
-    int              voxel_index,
-    VIO_Real             width_ratio,
-    lines_struct     *lines )
+/**
+ * Helper function to actually compute the histogram lines for
+ * a volume.
+ *
+ * \param slice_window The display_struct of the slice window.
+ * \param volume_index The index of the selected volume.
+ * \param labeled_only True if we should ignore unlabeled voxels.
+ * \param axis_index If axis_index >= 0, compute the histogram only for a
+ * slice perpendicular to the given axis. Otherwise compute histogram for
+ * the entire volume.
+ * \param voxel_index The voxel coordinate along axis_index, if computing a
+ * single slice histogram.
+ * \param width_ratio The ratio of the window width to the range of the
+ * histogram.
+ * \param lines The lines_struct for the unscaled histogram lines.
+ */
+static void
+compute_histogram_lines(display_struct *slice_window,
+                        int            volume_index,
+                        VIO_BOOL       labeled_only,
+                        int            axis_index,
+                        int            voxel_index,
+                        VIO_Real       width_ratio,
+                        lines_struct   *lines )
 {
-    int                x, y, z, sizes[VIO_MAX_DIMENSIONS];
-    int                start[VIO_MAX_DIMENSIONS], end[VIO_MAX_DIMENSIONS];
-    VIO_Real               min_value, max_value, value, window_width;
-    histogram_struct   histogram;
-    VIO_progress_struct    progress;
-    VIO_Volume             volume;
+    int                 x, y, z, sizes[VIO_MAX_DIMENSIONS];
+    int                 start[VIO_MAX_DIMENSIONS], end[VIO_MAX_DIMENSIONS];
+    VIO_Real            min_value, max_value, value, window_width;
+    histogram_struct    histogram;
+    VIO_progress_struct progress;
+    VIO_Volume          volume;
 
     volume = get_nth_volume( slice_window, volume_index );
 
@@ -134,12 +169,16 @@ static  void  compute_histogram_lines(
     delete_histogram( &histogram );
 }
 
-  void  resize_histogram(
-    display_struct   *slice_window )
+/**
+ * Resize the histogram lines to fit the current slice window.
+ * \param slice_window The display_struct of the slice window.
+ */
+void
+resize_histogram( display_struct *slice_window )
 {
     int            i, start, x_min, x_max;
-    VIO_Real           x, y;
-    VIO_Real           max_y;
+    VIO_Real       x, y;
+    VIO_Real       max_y;
     lines_struct   *unscaled_lines, *lines;
 
     unscaled_lines = &slice_window->slice.unscaled_histogram_lines;
@@ -172,19 +211,30 @@ static  void  compute_histogram_lines(
     }
 }
 
-  void  compute_histogram(
-    display_struct   *slice_window,
-    int              axis_index,
-    int              voxel_index,
-    VIO_BOOL          labeled_only )
+/**
+ * Function to compute the histogram lines for a volume.
+ *
+ * \param slice_window The display_struct of the slice window.
+ * \param axis_index If axis_index >= 0, compute the histogram only for a
+ * slice perpendicular to the given axis. Otherwise compute histogram for
+ * the entire volume.
+ * \param voxel_index The voxel coordinate along axis_index, if computing a
+ * single slice histogram.
+ * \param labeled_only True if we should ignore unlabeled voxels.
+ */
+void
+compute_histogram( display_struct *slice_window,
+                   int            axis_index,
+                   int            voxel_index,
+                   VIO_BOOL       labeled_only )
 {
     int            i;
     lines_struct   *unscaled_lines, *lines;
-    VIO_Volume         volume;
+    VIO_Volume     volume;
 
     clear_histogram( slice_window );
 
-    if( !get_slice_window_volume(slice_window,&volume) ||
+    if( !get_slice_window_volume(slice_window, &volume) ||
         is_an_rgb_volume(volume) )
         return;
 

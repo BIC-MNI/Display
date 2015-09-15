@@ -1,5 +1,13 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file colour_bar.c
+ * \brief Draw and maintain the "colour bar" widget.
+ *
+ * The colour bar is the widget that generally appears on the left side
+ * of the slice window. It displays the mapping between voxel values and
+ * colours, and allows the user to select the lower and upper
+ * bound of the colour map.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,14 +18,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifndef lint
-
 #endif
 
 #include  <display.h>
@@ -37,8 +41,15 @@ typedef enum
     FIRST_TEXT
 } Colour_bar_objects;
 
-  void  initialize_colour_bar(
-    display_struct    *slice_window )
+/**
+ * Initialize data structures used to display the colour bar widget
+ * in the slice window.
+ *
+ * \param slice_window The display_struct of the slice window.
+ */
+
+void
+initialize_colour_bar( display_struct *slice_window )
 {
     int               n_vertices;
     object_struct     *object;
@@ -78,7 +89,7 @@ typedef enum
 
     quadmesh->normals = (VIO_Vector *) NULL;
 
-    add_object_to_model( model, object );  
+    add_object_to_model( model, object );
 
     object = create_object( LINES );
 
@@ -90,33 +101,38 @@ typedef enum
     lines->n_points = 0;
     lines->n_items = 0;
 
-    add_object_to_model( model, object );  
+    add_object_to_model( model, object );
 }
 
 typedef  struct
 {
     int      priority;
-    VIO_Real     value;
+    VIO_Real value;
 } number_entry;
 
-  void  rebuild_colour_bar(
-    display_struct   *slice_window )
+/**
+ * Construct a new colour bar object for the slice window.
+ *
+ * \param slice_window The display_struct of the slice window.
+ */
+void
+rebuild_colour_bar( display_struct *slice_window )
 {
     int                 i, volume_index;
     int                 x_min, x_max, y_min, y_max;
-    VIO_Real                x, y, bottom, top, range, delta;
-    VIO_Real                ratio, last_y, next_y, value, min_value, max_value;
-    VIO_Real                start_threshold, end_threshold;
-    VIO_Real                x_tick_start, x_tick_end, mult_value;
-    VIO_Point               point;
+    VIO_Real            x, y, bottom, top, range, delta;
+    VIO_Real            ratio, last_y, next_y, value, min_value, max_value;
+    VIO_Real            start_threshold, end_threshold;
+    VIO_Real            x_tick_start, x_tick_end, mult_value;
+    VIO_Point           point;
     char                buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
-    VIO_Colour              colour;
+    VIO_Colour          colour;
     colour_bar_struct   *colour_bar;
     lines_struct        *lines;
     object_struct       *object;
     text_struct         *text;
     quadmesh_struct     *quadmesh;
-    VIO_Volume              volume;
+    VIO_Volume          volume;
     int                 n_numbers;
     number_entry        entry, *numbers;
     model_struct        *model;
@@ -209,7 +225,7 @@ typedef  struct
 
     mult_value = round_to_nearest_multiple( min_value, delta );
     while( mult_value <= min_value && delta > 0.0 )
-         mult_value = round_to_nearest_multiple( mult_value + delta, delta );
+        mult_value = round_to_nearest_multiple( mult_value + delta, delta );
 
     value = min_value;
     while( value <= max_value )
@@ -222,7 +238,7 @@ typedef  struct
             entry.priority = 1;
         else
             entry.priority = 0;
-           
+
         ADD_ELEMENT_TO_ARRAY( numbers, n_numbers, entry, DEFAULT_CHUNK_SIZE );
 
         if( value < start_threshold && mult_value >= start_threshold )
@@ -322,7 +338,18 @@ typedef  struct
     set_slice_viewport_update( slice_window, COLOUR_BAR_MODEL );
 }
 
-static  VIO_Real  get_y_pos(
+/**
+ * Calculates the y pixel position on the colour map corresponding to a
+ * given voxel value.
+ *
+ * \param value The voxel value for which we will calculate the y position.
+ * \param min_value The minimum voxel value.
+ * \param max_value The maximum voxel value.
+ * \param bottom The y-coordinate of the bottom of the widget.
+ * \param top The y-coordinate of the top of the widget.
+ */
+static VIO_Real
+get_y_pos(
     VIO_Real    value,
     VIO_Real    min_value,
     VIO_Real    max_value,
@@ -336,13 +363,18 @@ static  VIO_Real  get_y_pos(
         return( 0.0 );
 }
 
-  int  get_colour_bar_y_pos(
-    display_struct      *slice_window,
-    VIO_Real                value )
+/**
+ * Get the y coordinate (in pixels) of the row corresponding to the
+ * colour map value.
+ * \param slice_window The display_struct of the slice window.
+ * \param value The value which we want to check.
+ */
+int
+get_colour_bar_y_pos(display_struct *slice_window, VIO_Real value )
 {
-    VIO_Volume              volume;
+    VIO_Volume          volume;
     int                 x_min, y_min, x_max, y_max;
-    VIO_Real                top, bottom, min_value, max_value;
+    VIO_Real            top, bottom, min_value, max_value;
     colour_bar_struct   *colour_bar;
 
     if( !get_slice_window_volume( slice_window, &volume ) ||
@@ -354,24 +386,33 @@ static  VIO_Real  get_y_pos(
     get_volume_real_range( volume, &min_value, &max_value );
     get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,
                               &x_min, &x_max, &y_min, &y_max );
-    
+
     bottom = (VIO_Real) colour_bar->bottom_offset;
     top    = (VIO_Real) y_max - (VIO_Real) y_min - colour_bar->top_offset;
 
     return( VIO_ROUND(get_y_pos( value, min_value, max_value, bottom, top )) );
 }
 
-  VIO_BOOL  mouse_within_colour_bar(
-    display_struct      *slice_window,
-    VIO_Real                x,
-    VIO_Real                y,
-    VIO_Real                *ratio )
+/**
+ * Check whether the pixel address is currently inside the colour bar.
+ * \param slice_window
+ * \param x The x pixel coordinate (of the mouse, e.g.)
+ * \param y The y pixel coordinate (of the mouse, e.g.)
+ * \param ratio Returns the ratio of the y parameter to the
+ * height of the entire widget.
+ * \returns True if the pixel coordinates are inside the colour bar.
+ */
+VIO_BOOL
+mouse_within_colour_bar(display_struct *slice_window,
+                        VIO_Real       x,
+                        VIO_Real       y,
+                        VIO_Real       *ratio )
 {
-    int                 x_min, x_max, y_min, y_max;
-    VIO_Real                top, bottom;
-    VIO_BOOL             within;
-    colour_bar_struct   *colour_bar;
-    VIO_Volume              volume;
+    int               x_min, x_max, y_min, y_max;
+    VIO_Real          top, bottom;
+    VIO_BOOL          within;
+    colour_bar_struct *colour_bar;
+    VIO_Volume        volume;
 
     if( !get_slice_window_volume( slice_window, &volume ) ||
         is_an_rgb_volume( volume ) )
@@ -400,7 +441,14 @@ static  VIO_Real  get_y_pos(
     return( within );
 }
 
-  void  get_histogram_space(
+/**
+ * Get the dimensions of the space available for the histogram.
+ *
+ * \param slice_window The display_struct of the slice window.
+ * \param x1 Returns the minimum x pixel coordinate for the histogram.
+ * \param x2 Returns the maximum x pixel coordinate for the histogram.
+ */
+void  get_histogram_space(
     display_struct      *slice_window,
     int                 *x1,
     int                 *x2 )
@@ -412,7 +460,7 @@ static  VIO_Real  get_y_pos(
     get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,
                               &x_min, &x_max, &y_min, &y_max );
 
-    *x1 = VIO_ROUND( colour_bar->left_offset + colour_bar->bar_width +
-                 colour_bar->tick_width );
-    *x2 = x_max - x_min;
+    *x1 = x_min + VIO_ROUND( colour_bar->left_offset + colour_bar->bar_width +
+                             colour_bar->tick_width );
+    *x2 = x_max;
 }
