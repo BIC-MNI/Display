@@ -1,5 +1,9 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file rotate_slice.c
+ *
+ * \brief Support rotation of the oblique slice in the 3D window.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,20 +14,14 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+ */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#ifndef lint
-
-#endif
-
-
 #include  <display.h>
 
 static    DEF_EVENT_FUNCTION( start_rotating_slice );
-static    DEF_EVENT_FUNCTION( turn_off_rotating_slice );
 static    DEF_EVENT_FUNCTION( handle_update_rotation );
 static    DEF_EVENT_FUNCTION( terminate_rotation );
 static    DEF_EVENT_FUNCTION( terminate_rotating_slice );
@@ -31,7 +29,7 @@ static    DEF_EVENT_FUNCTION( terminate_rotating_slice );
 static  VIO_BOOL  perform_rotation(
     display_struct   *display );
 
-  void  initialize_rotating_slice(
+void  initialize_rotating_slice(
     display_struct   *display )
 {
     if( get_n_volumes(display) == 0 )
@@ -61,21 +59,6 @@ static  DEF_EVENT_FUNCTION( terminate_rotating_slice )
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_rotating_slice );
-
-    return( VIO_OK );
-}
-
-/* ARGSUSED */
-
-static  DEF_EVENT_FUNCTION( turn_off_rotating_slice )
-{
-    remove_action_table_function( &display->action_table,
-                                  MIDDLE_MOUSE_DOWN_EVENT,
-                                  start_rotating_slice );
-
-    remove_action_table_function( &display->action_table,
-                                  TERMINATE_INTERACTION_EVENT,
-                                  turn_off_rotating_slice );
 
     return( VIO_OK );
 }
@@ -126,7 +109,7 @@ static  DEF_EVENT_FUNCTION( handle_update_rotation )
 static  DEF_EVENT_FUNCTION( terminate_rotation )
 {
     update_rotation( display );
-    
+
     remove_action_table_function( &display->action_table,
                                   NO_EVENT, handle_update_rotation );
     remove_action_table_function( &display->action_table,

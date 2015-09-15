@@ -334,7 +334,7 @@ calculate_contrast_from_histogram(VIO_Volume volume,
   int                 sizes[VIO_MAX_DIMENSIONS];
   VIO_Real            sum_count;
   size_t              count;
-  size_t              idx;
+  int                 idx;
   histogram_struct    histogram;
   VIO_progress_struct progress;
   VIO_Real            scale_factor, trans_factor;

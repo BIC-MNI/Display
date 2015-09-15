@@ -1,5 +1,10 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file draw_immed.c
+ * \brief Immediate drawing functions.
+ *
+ * Used for drawing "immediately" on the display.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,28 +15,23 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+ */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#ifndef lint
-
-#endif
-
-
 #include  <display.h>
 
-  void  draw_2d_line(
+void  draw_2d_line(
     display_struct    *display,
     View_types        view_type,
-    VIO_Colour            colour,
-    VIO_Real              x1,
-    VIO_Real              y1,
-    VIO_Real              x2,
-    VIO_Real              y2 )
+    VIO_Colour        colour,
+    VIO_Real          x1,
+    VIO_Real          y1,
+    VIO_Real          x2,
+    VIO_Real          y2 )
 {
-    static    VIO_Point     end_points[2];
+    static    VIO_Point end_points[2];
     static    int       end_indices[] = { 2 };
     static    int       indices[]     = { 0, 1 };
     static    lines_struct  lines = {
@@ -42,7 +42,8 @@
                                         end_points,
                                         1,
                                         end_indices,
-                                        indices
+                                        indices,
+                                        NULL
                                     };
 
     G_set_view_type( display->window, view_type );
@@ -61,16 +62,16 @@
     FREE( lines.colours );
 }
 
-  void  draw_2d_rectangle(
+void  draw_2d_rectangle(
     display_struct    *display,
     View_types        view_type,
-    VIO_Colour            colour,
-    VIO_Real              x1,
-    VIO_Real              y1,
-    VIO_Real              x2,
-    VIO_Real              y2 )
+    VIO_Colour        colour,
+    VIO_Real          x1,
+    VIO_Real          y1,
+    VIO_Real          x2,
+    VIO_Real          y2 )
 {
-    static    VIO_Point     corners[4];
+    static    VIO_Point corners[4];
     static    int       end_indices[] = { 5 };
     static    int       indices[]     = { 0, 1, 2, 3, 0 };
     static    lines_struct  lines = {
@@ -81,7 +82,8 @@
                                         corners,
                                         1,
                                         end_indices,
-                                        indices
+                                        indices,
+                                        NULL
                                     };
 
     G_set_view_type( display->window, view_type );
@@ -101,9 +103,9 @@
     FREE( lines.colours );
 }
 
-  void  draw_polygons(
-    display_struct    *display,
-    polygons_struct   *polygons )
+void
+draw_polygons( display_struct    *display,
+               polygons_struct   *polygons )
 {
     G_set_view_type( display->window, MODEL_VIEW );
 
@@ -112,18 +114,18 @@
     G_draw_polygons( display->window, polygons );
 }
 
-  render_struct  *get_main_render(
-    display_struct    *display )
+render_struct  *
+get_main_render( display_struct *display )
 {
     return( &get_model_info(get_model_ptr(display->models[THREED_MODEL]))
                                               ->render );
 }
 
-  void  draw_text_3d(
-    display_struct    *display,
-    VIO_Point             *origin,
-    VIO_Colour            colour,
-    VIO_STR            str )
+void
+draw_text_3d( display_struct *display,
+              VIO_Point      *origin,
+              VIO_Colour     colour,
+              VIO_STR        str )
 {
     text_struct    text;
 
