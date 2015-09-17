@@ -7,7 +7,6 @@ START_GLOBALS
 
     DEF_GLOBAL( Maximum_display_time, VIO_Real, 0.3 )
     DEF_GLOBAL( Min_interval_between_updates, VIO_Real, 0.02 )
-    DEF_GLOBAL( Max_background_seconds, VIO_Real, 0.2 )
     DEF_GLOBAL( Interval_of_check, int, 250 )
 
     DEF_GLOBAL( Initial_perspective_flag, VIO_BOOL, FALSE )
@@ -142,10 +141,7 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Cursor_colour )
     DEF_GLOBAL_COLOUR( Cursor_rgb_colour )
     DEF_GLOBAL( Show_cursor_contours, VIO_BOOL, FALSE )
-    DEF_GLOBAL( Cursor_contour_overlay_flag, VIO_BOOL, FALSE )
     DEF_GLOBAL( Cursor_contour_thickness, VIO_Real, 3.0 )
-    DEF_GLOBAL( Cursor_beep_on_surface, int, 0 )
-    DEF_GLOBAL( Cursor_size_factor, VIO_Real, 0.05 )
     DEF_GLOBAL( Cursor_axis_size, VIO_Real, 50.0 )
 
     DEF_GLOBAL( Cursor_hor_start_0, VIO_Real, 3.0 )

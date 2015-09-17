@@ -1896,9 +1896,6 @@ VIO_Status  initialize_marker_window(display_struct    *marker_window);
   void  initialize_cursor_plane_outline(
     display_struct    *display );
 
-  void  delete_cursor_plane_outline(
-    display_struct    *display );
-
   void  cut_polygon_neighbours_from_lines(
     display_struct     *display,
     polygons_struct    *polygons );

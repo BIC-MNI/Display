@@ -141,7 +141,6 @@ static  DEF_EVENT_FUNCTION( handle_resize_three_d )
     terminate_current_object( &display->three_d.current_object );
     delete_surface_edit( &display->three_d.surface_edit );
     delete_surface_extraction( display );
-    delete_cursor_plane_outline( display );
 }
 
   void  add_object_to_current_model(

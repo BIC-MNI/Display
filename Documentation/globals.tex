@@ -267,6 +267,12 @@ change the colour for the menu or object windows.}{}
 {Integer}{0}
 {Controls whether graphical objects will be saved in ASCII (0) or binary (1) format.}{}
 
+\globalentry{Show\_cursor\_contours}
+{Boolean}{False}
+{If true, the ``cursor contours'' will be displayed in the 3D
+  view. These contours are defined by the intersection between the slice
+  view planes and the 3D objects.}{}
+
 \globalentry{Show\_slice\_field\_of\_view}
 {Boolean}{True}
 {If true, displays the current width and height of the field of view of each panel in the slice window.}{}
@@ -320,9 +326,6 @@ with \display. They may be removed or changed with little notice.
 
 \globalentry{Interval\_of\_check} {Integer}{250}
 {Set the count of rendering operations (typically measured in triangles, e.g.) performed between each elapsed time check. Like {\tt Maximum\_display\_time} this is another parameter relating to the interruptibility of lengthy graphics operations, and is now largely obsolete.}{}
-
-\globalentry{Max\_background\_seconds}{Real}{0.2}
-{Controls the maximum amount of time certain ``background'' operations may run before they are interrupted.}{}
 
 \globalentry{Maximum\_display\_time} {Real}{0.3} 
 {Sets the maximum amount of time in seconds that the graphics library may 

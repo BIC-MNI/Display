@@ -233,17 +233,13 @@ typedef  struct
     View_types                   view_type;
     Bitplane_types               bitplanes;
     render_struct                render;
-    VIO_Transform                    transform;
+    VIO_Transform                transform;
 } model_info_struct;
 
 typedef  struct
 {
     contour_struct           contours[VIO_N_DIMENSIONS];
     int                      models_changed_id;
-    int                      axis;
-    polygons_struct          *current_polygons;
-    int                      poly_index;
-    object_traverse_struct   object_traverse;
 } cursor_contours_struct;
 
 #endif
