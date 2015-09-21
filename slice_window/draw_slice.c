@@ -1132,8 +1132,9 @@ static  int  render_slice_to_pixels(
     int                   volume_index,
     int                   view_index,
     int                   which_volume,
-    VIO_Colour                colour_table[],
-    VIO_Filter_types          filter_type,
+    VIO_Colour            colour_table[],
+    colour_coding_struct  *colour_coding,
+    VIO_Filter_types      filter_type,
     int                   continuity,
     pixels_struct         *pixels,
     VIO_BOOL               incremental_flag,
@@ -1188,7 +1189,7 @@ static  int  render_slice_to_pixels(
     else
         volume = get_nth_label_volume( slice_window, volume_index );
 
-    if( is_an_rgb_volume(volume ) )
+    if( is_an_rgb_volume(volume ) || colour_table == NULL )
         colour_map = NULL;
     else
         colour_map = &colour_table;
@@ -1360,7 +1361,7 @@ static  int  render_slice_to_pixels(
 
         if( x_min <= x_max && y_min <= y_max )
         {
-            create_volume_slice(
+            create_volume_slice_coding(
                     volume, filter_type,
                     vol_info->views[view_index].filter_width,
                     origin, x_axis, y_axis,
@@ -1373,6 +1374,7 @@ static  int  render_slice_to_pixels(
                     RGB_PIXEL, continuity,
                     (unsigned short **) NULL, colour_map,
                     make_rgba_Colour( 0, 0, 0, 0 ),
+                    colour_coding,
                     slice_window->slice.render_storage,
                     TRUE, n_alloced_ptr, pixels );
 
@@ -1466,26 +1468,25 @@ static  int  render_slice_to_pixels(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
-    VIO_BOOL           incremental_flag,
-    VIO_BOOL           interrupted,
-    VIO_BOOL           continuing_flag,
-    VIO_BOOL           *finished )
+    VIO_BOOL          incremental_flag,
+    VIO_BOOL          interrupted,
+    VIO_BOOL          continuing_flag,
+    VIO_BOOL          *finished )
 {
     object_struct  *pixels_object;
     pixels_struct  *pixels;
-
+    loaded_volume_struct *vol_ptr = &slice_window->slice.volumes[volume_index];
     pixels_object = get_slice_pixels_object( slice_window, volume_index,
                                              view_index );
     pixels = get_pixels_ptr( pixels_object );
 
     return( render_slice_to_pixels( slice_window, volume_index, view_index, 0,
-                            slice_window->slice.volumes[volume_index].
-                                                      colour_table,
-                            slice_window->slice.volumes[volume_index].
-                                      views[view_index].filter_type,
-                            slice_window->slice.degrees_continuity,
-                            pixels, incremental_flag,
-                            interrupted, continuing_flag, finished ) );
+                                    vol_ptr->colour_table,
+                                    &vol_ptr->colour_coding,
+                                    vol_ptr->views[view_index].filter_type,
+                                    slice_window->slice.degrees_continuity,
+                                    pixels, incremental_flag,
+                                    interrupted, continuing_flag, finished ) );
 }
 
 static VIO_BOOL
@@ -1982,14 +1983,14 @@ static  void  create_volume_and_label_composite(
                                        composite_pixels );
 }
 
-  int  rebuild_label_slice_pixels_for_volume(
+int  rebuild_label_slice_pixels_for_volume(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
-    VIO_BOOL           incremental_flag,
-    VIO_BOOL           interrupted,
-    VIO_BOOL           continuing_flag,
-    VIO_BOOL           *finished )
+    VIO_BOOL          incremental_flag,
+    VIO_BOOL          interrupted,
+    VIO_BOOL          continuing_flag,
+    VIO_BOOL          *finished )
 {
     pixels_struct   *pixels;
 
@@ -1997,14 +1998,15 @@ static  void  create_volume_and_label_composite(
                                    slice_window, volume_index, view_index ) );
 
     return( render_slice_to_pixels( slice_window, volume_index, view_index, 1,
-                            slice_window->slice.volumes[volume_index].
-                                                   label_colour_table,
-                            NEAREST_NEIGHBOUR,
-                            -1, pixels, incremental_flag,
-                            interrupted, continuing_flag, finished ) );
+                                    slice_window->slice.volumes[volume_index].
+                                        label_colour_table,
+                                    NULL,
+                                    NEAREST_NEIGHBOUR,
+                                    -1, pixels, incremental_flag,
+                                    interrupted, continuing_flag, finished ) );
 }
 
-  void  update_slice_pixel_visibilities(
+void  update_slice_pixel_visibilities(
     display_struct    *slice_window,
     int               view )
 {

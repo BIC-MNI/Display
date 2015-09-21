@@ -1,3 +1,14 @@
+2015-09-21  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * slice_window/colour_coding.c, slice_window/draw_slice.c: Avoid
+	creating or using unreasonably large or small colour tables.
+	Instead, use the color_coding_struct object directly by
+	calling the new bicpl API "create_volume_slice_coding()".
+	Requires bicpl version >= 1.4.70.
+
+2015-09-17  Robert D. Vincent <robert.d.vincent@mcgill.ca
+   * cursor_contours/contours.c: Did some refactoring, which should
+	have little visible impact.
+
 2015-09-09  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * main/main.c - Force slice cursor and 3D cursor to be consistent
 	during initialization. This corrects a bug where the two values

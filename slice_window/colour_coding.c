@@ -22,7 +22,14 @@
 
 #include  <display.h>
 
-#define    MAX_LABEL_COLOUR_TABLE_SIZE    2000000
+/* Define the minimum and maximum colour table sizes we use. We don't
+ * allow colour tables to be much greater than the 16M or so colours
+ * possible with standard 24-bit colour depth. However, we also want
+ * to guard against using the color table if it is too small, for example,
+ * if we are loading an image with voxel values in the 0-1 range.
+ */
+#define    MAX_COLOUR_TABLE_SIZE    16777216
+#define    MIN_COLOUR_TABLE_SIZE    2
 
 #define    DEFAULT_COLOUR_MAP_SUFFIX                    "map"
 
@@ -296,17 +303,31 @@ static  void  alloc_colour_table(
 {
     VIO_Real        min_voxel, max_voxel;
     VIO_Colour      *ptr;
+    VIO_Volume      volume = get_nth_volume(slice_window, volume_index);
+    VIO_Real        colour_table_size;
 
-    if( is_an_rgb_volume(get_nth_volume(slice_window,volume_index)) )
+    if( is_an_rgb_volume(volume) )
     {
         slice_window->slice.volumes[volume_index].colour_table = NULL;
         return;
     }
 
-    get_volume_voxel_range( get_nth_volume(slice_window,volume_index),
-                            &min_voxel, &max_voxel );
+    get_volume_voxel_range( volume,  &min_voxel, &max_voxel );
+
+    colour_table_size = max_voxel - min_voxel + 1;
+    if ( colour_table_size > MAX_COLOUR_TABLE_SIZE ||
+         colour_table_size < MIN_COLOUR_TABLE_SIZE)
+    {
+        slice_window->slice.volumes[volume_index].colour_table = NULL;
+        return;
+    }
 
     ALLOC( ptr, (int) max_voxel - (int) min_voxel + 1 );
+    if ( ptr == NULL )
+    {
+        print_error("Failed to allocate colour table!\n");
+        return;
+    }
 
     slice_window->slice.volumes[volume_index].offset = (int) min_voxel;
     slice_window->slice.volumes[volume_index].colour_table =
@@ -447,7 +468,10 @@ calculate_contrast_from_range(VIO_Volume volume,
 }
 
 /**
- * Set up the colour coding parameters for the slice view.
+ * Set up the colour coding parameters for the slice view. Allocates and
+ * rebuilds the "colour table" that provides rapid access to the mapping
+ * from voxel values to colours. The colour table is derived from the
+ * abstract colour map.
  */
 void  initialize_slice_colour_coding(
     display_struct    *slice_window,
@@ -607,19 +631,26 @@ static  VIO_Colour  get_slice_colour_coding(
     return( col );
 }
 
+/**
+ * For each value in the voxel range of the data, create an entry in the
+ * colour table corresponding to the appropriate colour for that value.
+ * The resulting colour table is used in render_slice_to_pixels() to 
+ * provide fast access to the colour map.
+ */
 static  void  rebuild_colour_table(
     display_struct    *slice_window,
     int               volume_index )
 {
-    VIO_Volume           volume;
+    VIO_Volume       volume;
     int              voxel;
-    VIO_Real             value, r, g, b, a, opacity;
-    VIO_Colour           colour;
-    VIO_Real             min_voxel, max_voxel;
+    VIO_Real         value, r, g, b, a, opacity;
+    VIO_Colour       colour;
+    VIO_Real         min_voxel, max_voxel;
 
     volume = get_nth_volume(slice_window,volume_index);
 
-    if( is_an_rgb_volume(volume) )
+    if( is_an_rgb_volume(volume) ||
+        slice_window->slice.volumes[volume_index].colour_table == NULL)
         return;
 
     get_volume_voxel_range( volume, &min_voxel, &max_voxel );
