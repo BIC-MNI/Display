@@ -28,6 +28,7 @@
 #define  THREED_MODEL           2
 #define  MISCELLANEOUS_MODEL    3
 #define  CUT_BUFFER_MODEL       4
+#define  STATUS_MODEL           5
 
 /* for menu windows */
 
@@ -62,13 +63,23 @@ typedef  enum  { THREE_D_WINDOW,
 
 typedef  struct
 {
+  object_struct *owner;
+  int           ndims;
+  int           *dims;
+  VIO_Real      *data;
+  VIO_Real      min_v;
+  VIO_Real      max_v;
+} vertex_data_struct;
+
+typedef  struct
+{
     cursor_struct              cursor;
     view_struct                view;
     light_struct               lights[N_LIGHTS];
     selection_struct           current_object;
-    VIO_Point                      min_limit;
-    VIO_Point                      max_limit;
-    VIO_Point                      centre_of_objects;
+    VIO_Point                  min_limit;
+    VIO_Point                  max_limit;
+    VIO_Point                  centre_of_objects;
     surface_extraction_struct  surface_extraction;
     film_loop_struct           film_loop;
     surface_edit_struct        surface_edit;
@@ -77,11 +88,15 @@ typedef  struct
     int                        default_marker_structure_id;
     int                        default_marker_patient_id;
     Marker_types               default_marker_type;
-    VIO_Real                       default_marker_size;
-    VIO_Colour                     default_marker_colour;
-    VIO_STR                     default_marker_label;
+    VIO_Real                   default_marker_size;
+    VIO_Colour                 default_marker_colour;
+    VIO_STR                    default_marker_label;
     object_struct              *volume_outline;
     object_struct              *cross_section;
+    int                        vertex_data_count;
+    vertex_data_struct         **vertex_data_array;
+    object_struct              *mouse_obj;
+    int                        mouse_point;
 } three_d_window_struct;
 
 

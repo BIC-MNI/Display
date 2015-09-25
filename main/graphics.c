@@ -304,7 +304,12 @@ static  void  initialize_graphics_window(
 
         switch( display->window_type )
         {
-        case THREE_D_WINDOW:   view_type = MODEL_VIEW;   break;
+        case THREE_D_WINDOW:
+            if (i == STATUS_MODEL)
+                view_type = PIXEL_VIEW;
+            else
+                view_type = MODEL_VIEW;
+            break;
         case MENU_WINDOW:      view_type = PIXEL_VIEW;   break;
         case SLICE_WINDOW:     view_type = PIXEL_VIEW;   break;
         case MARKER_WINDOW:    view_type = PIXEL_VIEW;   break;

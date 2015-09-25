@@ -22,6 +22,57 @@
 
 /* ARGSUSED */
 
+DEF_MENU_FUNCTION( load_vertex_data )
+{
+    object_struct      *object;
+    VIO_STR            filename;
+    VIO_Status         status = VIO_OK;
+    vertex_data_struct *vtxd_ptr;
+    polygons_struct    *polygons;
+
+    if( !get_current_object( display, &object ) || 
+        object->object_type != POLYGONS)
+    {
+        return VIO_ERROR;
+    }
+
+    status = get_user_file("Enter path to vertex data: ", FALSE, &filename);
+    if (status != VIO_OK)
+    {
+        return VIO_ERROR;
+    }
+
+    if ((vtxd_ptr = input_vertex_data(filename)) == NULL)
+    {
+        print_error("Failed to read vertex data from '%s'.\n", filename);
+        return VIO_ERROR;
+    }
+
+    print("Loaded %d vertex data items, in range [%f ... %f]\n",
+          vtxd_ptr->dims[0],
+          vtxd_ptr->min_v, vtxd_ptr->max_v);
+
+    polygons = get_polygons_ptr(object);
+
+    if (polygons->n_points != vtxd_ptr->dims[0])
+    {
+        print("Vertex data requires a polygon object with the same length.\n");
+        return VIO_ERROR;
+    }
+
+    attach_vertex_data(display, object, vtxd_ptr);
+
+    return VIO_OK;
+}
+
+DEF_MENU_UPDATE( load_vertex_data )
+{
+    object_struct *object;
+
+    return (get_current_object(display, &object) &&
+            object->object_type == POLYGONS);
+}
+
 DEF_MENU_FUNCTION( load_file )
 {
     VIO_Status   status;

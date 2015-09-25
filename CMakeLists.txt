@@ -210,7 +210,8 @@ SET(C_SRC
            main/transforms.c 
            atlas/atlas.c 
            input_files/input_files.c 
-           input_files/volume_file.c 
+           input_files/volume_file.c
+           input_files/vertex_data.c
            callbacks/atlas.c 
            callbacks/call_globals.c 
            callbacks/colour_coding.c 

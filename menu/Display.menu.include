@@ -61,10 +61,11 @@ file \
     transient 't'    save_current_label              'Save Curr Lbl .tag' 'Saves the current label to the named tag file.' \
     transient 'y'    load_user_defined_colour_scale  'Load UserDef ColCode' 'Loads a user-defined colour map (.ccd).' \
  \
+    transient 'u'    load_vertex_data                'Load Vertex Data' 'Load per-vertex surface data (e.g. cortical thickness)' \
     transient 'a'    save_markers                    'Save Mrkrs as .tag' 'Save current markers as a set of tag points.' \
     transient 's'    save_slice_image                'Save Slice Image' 'Saves an image of the slice under the mouse cursor.' \
-    transient 'f'    load_file                       'Load File' 'Prompts for a filename and loads the file.' \
-    transient 'd'    save_file                       'Save File' 'Prompts for a filename and saves to the file the current 3D object.' \
+    transient 'f'    load_file                       'Load File' 'Prompts for a filename from which to read a volume or object.' \
+    transient 'd'    save_file                       'Save File' 'Prompts for a filename and saves the current 3D object to the file.' \
     transient 'g'    save_slice_window               'Save Slice Window' 'Save an image of the entire slice window.' \
     transient 'h'    save_image                      'Save 3D Window' 'Save an image of the entire 3D window.' \
  \

@@ -23,6 +23,10 @@
 static  void  initialize_three_d_events(
     display_struct  *display );
 
+static void define_lights( display_struct *display );
+
+static void initialize_status( display_struct *display );
+
   void  initialize_three_d_window(
     display_struct   *display )
 {
@@ -87,10 +91,134 @@ static  void  initialize_three_d_events(
 
     G_set_window_update_min_interval( display->window,
                                       Min_interval_between_updates );
+
+    initialize_status(display);
+
+    display->three_d.vertex_data_array = NULL;
+    display->three_d.vertex_data_count = 0;
+    display->three_d.mouse_obj = NULL;
+    display->three_d.mouse_point = 0;
 }
 
-  void  define_lights(
-    display_struct   *display )
+static void
+initialize_status(display_struct *display)
+{
+    model_struct *model_ptr = get_graphics_model( display, STATUS_MODEL );
+    object_struct *object_ptr = create_object(TEXT);
+    text_struct *text_ptr = get_text_ptr(object_ptr);
+    VIO_Point origin;
+
+    fill_Point(origin, 10.0, 10.0, 0.0);
+    initialize_text(text_ptr, &origin, Readout_text_rgb_colour,
+                    Slice_readout_text_font, Slice_readout_text_font_size);
+    text_ptr->string = create_string("");
+    set_object_visibility(object_ptr, FALSE);
+    add_object_to_model(model_ptr, object_ptr);
+}
+
+/**
+ * Colour code each of the points associated with an object, by copying
+ * the encoded colours from an associated volume.
+ */
+static void
+colour_code_vertices( vertex_data_struct *vtxd_ptr,
+                      Colour_flags       *colour_flag,
+                      VIO_Colour         *colours[])
+{
+    int i;
+    colour_coding_struct ccs;
+    int n_points = vtxd_ptr->dims[0];
+
+    if( *colour_flag != PER_VERTEX_COLOURS )
+    {
+        if( n_points > 0 )
+        {
+            REALLOC( *colours, n_points );
+        }
+        else
+        {
+            FREE( *colours );
+        }
+        *colour_flag = PER_VERTEX_COLOURS;
+    }
+
+    initialize_colour_coding(&ccs, GRAY_SCALE, BLACK, WHITE,
+                             vtxd_ptr->min_v,
+                             vtxd_ptr->max_v);
+    set_colour_coding_type(&ccs, SPECTRAL);
+
+    for_less( i, 0, vtxd_ptr->dims[0] )
+    {
+        (*colours)[i] = get_colour_code(&ccs, vtxd_ptr->data[i]);
+    }
+
+    delete_colour_coding(&ccs);
+}
+
+/**
+ * Associate vertex data with the currently selected graphics
+ * object. The object must be a polygon and it must contain same
+ * number of vertices as the surface file has data elements.
+ * \param display The display_struct of the 3D view window.
+ * \param object The object to associate with the vertex data.
+ * \param vtx_data_ptr The vertex data to associate with the object.
+ */
+void
+attach_vertex_data(display_struct *display, 
+                    object_struct *object,
+                    vertex_data_struct *vtxd_ptr)
+{
+    polygons_struct *polygons = get_polygons_ptr(object);
+
+    ADD_ELEMENT_TO_ARRAY(display->three_d.vertex_data_array,
+                         display->three_d.vertex_data_count,
+                         vtxd_ptr,
+                         1);
+    vtxd_ptr->owner = object;
+    colour_code_vertices(vtxd_ptr,
+                         &polygons->colour_flag, &polygons->colours);
+    set_update_required( display, NORMAL_PLANES );
+}
+
+/**
+ * Finds the surface value associated with the current index in the
+ * object. Used to display the surface value in the status line of the
+ * 3D view window.
+ * \param display The display_struct of the 3D view window.
+ * \param object The object whose data we are looking for.
+ * \param index The vertex number of the value we want.
+ * \param value_ptr The value to return.
+ * \returns TRUE if a value is found.
+ */
+static VIO_BOOL
+find_vertex_data(display_struct *display, object_struct *object,
+                 int index, VIO_Real *value_ptr)
+{
+    int i;
+    for (i = 0; i < display->three_d.vertex_data_count; i++)
+    {
+        if (display->three_d.vertex_data_array[i]->owner == object)
+        {
+            break;
+        }
+    }
+    if (i < display->three_d.vertex_data_count)
+    {
+        vertex_data_struct *vtxd_ptr = display->three_d.vertex_data_array[i];
+        if (index >= 0 && index < vtxd_ptr->dims[0])
+        {
+            *value_ptr = vtxd_ptr->data[index];
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+/**
+ * Define light sources for the 3D view window.
+ */
+static void
+define_lights( display_struct   *display )
 {
     three_d_window_struct  *three_d;
 
@@ -109,6 +237,90 @@ static  void  initialize_three_d_events(
 }
 
 static    DEF_EVENT_FUNCTION( handle_resize_three_d );
+static    DEF_EVENT_FUNCTION( handle_mouse_movement );
+
+static void
+update_status(display_struct *display)
+{
+    int              object_index;
+    VIO_Point        intersection_point;
+    object_struct    *object;
+    polygons_struct  *polygons;
+    int              poly_index;
+    VIO_Point        poly_point;
+    char             buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
+
+    model_struct *model_ptr = get_graphics_model( display, STATUS_MODEL );
+    object_struct *object_ptr = model_ptr->objects[0];
+    text_struct *text_ptr = get_text_ptr(object_ptr);
+
+    if( get_mouse_scene_intersection( display, (Object_types) -1, &object,
+                                      &object_index, &intersection_point )
+        && object->object_type == POLYGONS)
+    {
+      VIO_Point pts[32];
+      int i;
+      int n;
+      VIO_Real min_d = 1e38;
+      int min_p = -1;
+
+      polygons = get_polygons_ptr(object);
+      poly_index = object_index;
+      poly_point = intersection_point;
+
+      n = get_polygon_points(polygons, poly_index, pts);
+
+      for (i = 0; i < n; i++) {
+        int x = POINT_INDEX(polygons->end_indices, poly_index, i);
+        VIO_Real d = distance_between_points(&pts[i], &poly_point);
+        if (d < min_d)
+        {
+          min_d = d;
+          min_p = polygons->indices[x];
+        }
+      }
+
+      set_object_visibility(object_ptr, TRUE);
+
+      if (object != display->three_d.mouse_obj ||
+          min_p != display->three_d.mouse_point)
+      {
+        VIO_Real value;
+
+        display->three_d.mouse_point = min_p;
+        display->three_d.mouse_obj = object;
+        sprintf(buffer, "V#%6d P#%6d X %6.2f Y %6.2f Z %6.2f ",
+                min_p, poly_index,
+                Point_x(poly_point),
+                Point_y(poly_point),
+                Point_z(poly_point));
+
+        if (find_vertex_data(display, object, min_p, &value))
+        {
+          sprintf(&buffer[strlen(buffer) - 1], "%8.3f", value);
+        }
+        else
+        {
+          strcat(buffer, "--------");
+        }
+
+        replace_string(&text_ptr->string, create_string(buffer));
+
+        set_update_required( display, NORMAL_PLANES );
+      }
+    }
+    else
+    {
+        set_object_visibility(object_ptr, FALSE);
+        set_update_required( display, NORMAL_PLANES );
+    }
+}
+
+static DEF_EVENT_FUNCTION(handle_mouse_movement)
+{
+    update_status(display);
+    return VIO_OK;
+}
 
 static  void  initialize_three_d_events(
     display_struct  *display )
@@ -119,6 +331,9 @@ static  void  initialize_three_d_events(
 
     add_action_table_function( &display->action_table, WINDOW_RESIZE_EVENT,
                                handle_resize_three_d );
+
+    add_action_table_function( &display->action_table, NO_EVENT,
+                               handle_mouse_movement );
 }
 
 /* ARGSUSED */

@@ -120,8 +120,9 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   void  initialize_three_d_window(
     display_struct   *display );
 
-  void  define_lights(
-    display_struct   *display );
+void attach_vertex_data(display_struct *display,
+                        object_struct *object,
+                        vertex_data_struct *vtxd_ptr);
 
   void  delete_three_d(
     display_struct  *display );
@@ -183,6 +184,11 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   VIO_Status   input_volume_file(
     VIO_STR         filename,
     VIO_Volume         *volume_ptr );
+
+/*** input_files/vertex_data.c ***/
+
+vertex_data_struct *input_vertex_data( const char *filename );
+
 
   DEF_MENU_FUNCTION( set_atlas_on_or_off );
 
@@ -323,6 +329,10 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   DEF_MENU_FUNCTION(load_user_defined_colour_scale );
 
   DEF_MENU_UPDATE(load_user_defined_colour_scale );
+
+DEF_MENU_FUNCTION( load_vertex_data );
+
+DEF_MENU_UPDATE( load_vertex_data );
 
   DEF_MENU_FUNCTION( load_file );
 
@@ -596,6 +606,10 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   DEF_MENU_FUNCTION( exit_program );
 
   DEF_MENU_UPDATE(exit_program );
+
+DEF_MENU_FUNCTION(save_window_state);
+
+DEF_MENU_UPDATE(save_window_state);
 
   DEF_MENU_FUNCTION( set_paint_xy_brush_radius );
 
