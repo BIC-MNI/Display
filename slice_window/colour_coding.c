@@ -398,9 +398,8 @@ calculate_contrast_from_histogram(VIO_Volume volume,
         add_to_histogram( &histogram,
                           get_volume_real_value( volume, x, y, z, 0, 0 ) );
       }
-
-      update_progress_report( &progress, x * sizes[VIO_Y] + y + 1 );
     }
+    update_progress_report( &progress, x * sizes[VIO_Y] + y + 1 );
   }
 
   terminate_progress_report( &progress );
@@ -440,6 +439,16 @@ calculate_contrast_from_histogram(VIO_Volume volume,
   
   if (!high_limit_done)
     *high_limit = (histogram.max_index + 1) * histogram.delta + histogram.offset;
+  /** 
+   * Correct lower and upper limits here in case of an extremely skewed
+   * distribution. This helps do a better job of displaying images with
+   * a white background, such as the BigBrain.
+   */
+  if (*low_limit > (max_value - min_value) / 2.0)
+  {
+    *low_limit = min_value + (max_value - min_value) * Initial_histogram_low;
+  }
+
   delete_histogram(&histogram);
   return TRUE;
 }

@@ -1,3 +1,7 @@
+2015-10-08  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * slice_window/colour_coding.c: Slight tweak to the initial colour
+	range to better handle BigBrain images.
+
 2015-09-21  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * slice_window/undo.c, etc.: Implement N-level undo during
 	painting.
