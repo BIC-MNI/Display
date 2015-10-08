@@ -2,6 +2,12 @@
    * slice_window/colour_coding.c: Slight tweak to the initial colour
 	range to better handle BigBrain images.
 
+2015-09-25  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * callbacks/file.c, input_files/vertex_data.c, main/graphics.c,
+	main/three_d.c, menu/input_menu.c, menu/Display.menu.include:
+	Support the loading and display of per-vertex (e.g. cortical
+	thickness) data for surface polygon objects.
+
 2015-09-21  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * slice_window/undo.c, etc.: Implement N-level undo during
 	painting.
