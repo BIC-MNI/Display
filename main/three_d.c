@@ -244,27 +244,46 @@ update_status(display_struct *display)
 {
     int              object_index;
     VIO_Point        intersection_point;
-    object_struct    *object;
+    object_struct    *object_ptr;
     polygons_struct  *polygons;
     int              poly_index;
     VIO_Point        poly_point;
     char             buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
+    VIO_BOOL         hide_display;
 
     model_struct *model_ptr = get_graphics_model( display, STATUS_MODEL );
-    object_struct *object_ptr = model_ptr->objects[0];
-    text_struct *text_ptr = get_text_ptr(object_ptr);
+    object_struct *text_object_ptr = model_ptr->objects[0];
+    text_struct *text_ptr = get_text_ptr(text_object_ptr);
 
-    if( get_mouse_scene_intersection( display, (Object_types) -1, &object,
-                                      &object_index, &intersection_point )
-        && object->object_type == POLYGONS)
+    if( get_mouse_scene_intersection( display, (Object_types) -1,
+                                      &object_ptr, &object_index,
+                                      &intersection_point )
+        && object_ptr->object_type == POLYGONS)
+    {
+      hide_display = FALSE;
+    }
+    else if (get_cursor_scene_intersection( display, (Object_types) -1,
+                                            &object_ptr, &object_index,
+                                            &intersection_point)
+             && object_ptr->object_type == POLYGONS)
+    {
+      hide_display = FALSE;
+    }
+    else
+    {
+      hide_display = TRUE;
+    }
+
+    if (!hide_display)
     {
       VIO_Point pts[32];
       int i;
       int n;
       VIO_Real min_d = 1e38;
-      int min_p = -1;
+      int min_i = -1;
+      VIO_Point min_pt;
 
-      polygons = get_polygons_ptr(object);
+      polygons = get_polygons_ptr(object_ptr);
       poly_index = object_index;
       poly_point = intersection_point;
 
@@ -276,26 +295,28 @@ update_status(display_struct *display)
         if (d < min_d)
         {
           min_d = d;
-          min_p = polygons->indices[x];
+          min_i = polygons->indices[x];
+          min_pt = pts[i];
         }
       }
 
-      set_object_visibility(object_ptr, TRUE);
+      set_object_visibility( text_object_ptr, TRUE );
 
-      if (object != display->three_d.mouse_obj ||
-          min_p != display->three_d.mouse_point)
+      if (object_ptr != display->three_d.mouse_obj ||
+          min_i != display->three_d.mouse_point)
       {
         VIO_Real value;
 
-        display->three_d.mouse_point = min_p;
-        display->three_d.mouse_obj = object;
-        sprintf(buffer, "V#%6d P#%6d X %6.2f Y %6.2f Z %6.2f ",
-                min_p, poly_index,
-                Point_x(poly_point),
-                Point_y(poly_point),
-                Point_z(poly_point));
+        display->three_d.mouse_point = min_i;
+        display->three_d.mouse_obj = object_ptr;
+        sprintf(buffer, "O#%2d V#%6d P#%6d X %6.3f Y %6.3f Z %6.3f ",
+                get_object_index(display, object_ptr),
+                min_i, poly_index,
+                Point_x(min_pt),
+                Point_y(min_pt),
+                Point_z(min_pt));
 
-        if (find_vertex_data(display, object, min_p, &value))
+        if (find_vertex_data(display, object_ptr, min_i, &value))
         {
           sprintf(&buffer[strlen(buffer) - 1], "%8.3f", value);
         }
@@ -311,7 +332,7 @@ update_status(display_struct *display)
     }
     else
     {
-        set_object_visibility(object_ptr, FALSE);
+        set_object_visibility( text_object_ptr, FALSE );
         set_update_required( display, NORMAL_PLANES );
     }
 }

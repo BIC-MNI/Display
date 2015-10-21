@@ -134,6 +134,48 @@ VIO_BOOL  get_mouse_scene_intersection(
 }
 
 /**
+ * Find the object that intersects with the current cursor.
+ * \param display The display_struct of the 3D window.
+ * \param desired_object_type The type of object we are looking for, or -1
+ * if any object should be considered.
+ * \param object The object_struct of the object that was found.
+ * \param object_index The index of the found object.
+ * \param intersection The position of the intersection in model space.
+ */
+VIO_BOOL  get_cursor_scene_intersection(
+    display_struct    *display,
+    Object_types      desired_object_type,
+    object_struct     **object,
+    int               *object_index,
+    VIO_Point         *intersection )
+{
+    VIO_Point        origin, transformed_origin;
+    VIO_Vector       direction, transformed_direction;
+
+    get_cursor_origin(display, &origin);
+
+    /* This is based on examining what is consistently returned by
+     * convert_screen_to_ray().
+     */
+    Vector_x(direction) = 0;
+    Vector_y(direction) = 0;
+    Vector_z(direction) = -1;
+
+    transform_world_to_model( &display->three_d.view, &origin,
+                              &transformed_origin );
+    transform_world_to_model_vector( &display->three_d.view, &direction,
+                                     &transformed_direction );
+
+    return intersect_ray_with_objects_hierarchy(display,
+                                                &transformed_origin,
+                                                &transformed_direction,
+                                                desired_object_type,
+                                                object,
+                                                object_index,
+                                                intersection);
+}
+
+/**
  * Get the polygon object under the mouse, if any.
  * \param display The display_struct of the 3D window.
  * \param polygons The polygons_struct of the found object.

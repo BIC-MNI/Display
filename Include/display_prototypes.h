@@ -1356,6 +1356,8 @@ DEF_MENU_UPDATE(save_window_state);
     display_struct    *display,
     object_struct     *object );
 
+int get_object_index(display_struct *display, object_struct *object_ptr );
+
   void  set_current_object_index(
     display_struct    *display,
     int               index );
@@ -1675,6 +1677,13 @@ VIO_Status  initialize_marker_window(display_struct    *marker_window);
     object_struct     **object,
     int               *object_index,
     VIO_Point             *intersection );
+
+VIO_BOOL get_cursor_scene_intersection(
+    display_struct    *display,
+    Object_types      desired_object_type,
+    object_struct     **object,
+    int               *object_index,
+    VIO_Point         *intersection );
 
   VIO_BOOL  get_polygon_under_mouse(
     display_struct    *display,

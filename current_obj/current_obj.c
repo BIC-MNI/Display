@@ -258,6 +258,62 @@ set_current_object(display_struct *display, object_struct *sought_object)
 }
 
 /**
+  * This is a helper function for get_object_index().  It looks
+  * through a model object for the given object pointer, and returns
+  * the index of the object in the model. If the object is found in a
+  * sub-model of the object, we just return the index of the higher-
+  * level model.
+  * \param model_object A pointer to the model object in which we search.
+  * \param sought_object A pointer to the object to find.
+  * \returns An index greater than or equal to zero if found, -1 if
+  * not found.
+  */
+static int
+get_object_index_recursive(object_struct *model_object,
+                           object_struct *sought_object)
+{
+    model_struct *model_ptr = get_model_ptr(model_object);
+    int i;
+    
+    for (i = 0; i < model_ptr->n_objects; i++)
+    {
+        if (sought_object == model_ptr->objects[i])
+        {
+            return i;           /* Return position on list */
+        }
+        else if (model_ptr->objects[i]->object_type == MODEL)
+        {
+            /* If we find the object inside a sub-model, we return the
+             * index of the top-level model that contained the object.
+             * This is to keep the value consistent with what is
+             * reported in the object list window.
+             */
+            int n = get_object_index_recursive(model_ptr->objects[i],
+                                               sought_object);
+            if (n >= 0)
+            {
+                return i;
+            }
+        }
+    }
+    return (-1);
+}
+
+/**
+ * Returns the index of the model in the top-level object list.
+ * \param display A pointer to the display_struct of the 3D view.
+ * \param object_ptr A pointer to the object to find.
+ * \returns An index greater than or equal to zero if found, -1 if
+ * not found.
+ */
+int
+get_object_index(display_struct *display, object_struct *object_ptr )
+{
+    return get_object_index_recursive(display->models[THREED_MODEL], 
+                                      object_ptr);
+}
+
+/**
  * Set the current object to be the one at the given index within the
  * currently active model. Does nothing if the index is outside the
  * range (0, n_objects-1), with the exception that an index of zero is
