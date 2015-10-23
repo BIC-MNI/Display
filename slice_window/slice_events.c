@@ -322,11 +322,15 @@ static  void  set_slice_voxel_position(
 {
     display_struct    *display;
     int               c, sizes[VIO_MAX_DIMENSIONS];
-    VIO_Real              clipped_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real          clipped_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Volume        volume = get_nth_volume( slice_window, volume_index );
+    int               n_dimensions;
 
-    get_volume_sizes( get_nth_volume(slice_window,volume_index), sizes );
+    get_volume_sizes( volume, sizes );
 
-    for_less( c, 0, VIO_MAX_DIMENSIONS )
+    n_dimensions = get_volume_n_dimensions( volume );
+
+    for_less( c, 0, n_dimensions )
     {
         if( voxel[c] < -0.5 )
             clipped_voxel[c] = -0.5;

@@ -1191,15 +1191,20 @@ get_voxel_in_three_d_window(
     int               this_volume_index,
     VIO_Real              voxel[] )
 {
-    VIO_BOOL           changed;
+    VIO_BOOL          changed;
     int               i, view, volume_index;
     int               axis, x_index, y_index;
-    VIO_Real              xw, yw, zw, used_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real          xw, yw, zw, used_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Volume        volume;
+    int               n_dimensions;
 
     changed = FALSE;
 
-    convert_voxel_to_world( get_nth_volume(slice_window,this_volume_index),
-                            voxel, &xw, &yw, &zw );
+    volume = get_nth_volume( slice_window, this_volume_index );
+
+    convert_voxel_to_world( volume, voxel, &xw, &yw, &zw );
+
+    n_dimensions = get_volume_n_dimensions( volume );
 
     for_less( volume_index, 0, slice_window->slice.n_volumes )
     {
@@ -1214,10 +1219,10 @@ get_voxel_in_three_d_window(
                                     xw, yw, zw, used_voxel );
             /* TODO - properly set time here? */
             for_less( i, VIO_N_DIMENSIONS, VIO_MAX_DIMENSIONS )
-              used_voxel[i] = 0.0;
+                used_voxel[i] = 0.0;
         }
 
-        for_less( i, 0, VIO_MAX_DIMENSIONS )
+        for_less( i, 0, n_dimensions )
         {
             if( used_voxel[i] != slice_window->slice.volumes[volume_index].
                                              current_voxel[i] )

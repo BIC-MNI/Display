@@ -24,6 +24,8 @@
 static  void  initialize_slice_window(
     display_struct    *slice_window );
 
+static void initialize_ratio (display_struct* slice_window);
+
   void  create_slice_window(
     display_struct   *display,
     VIO_STR           filename,
@@ -166,6 +168,34 @@ static  void  initialize_slice_window(
 
         rebuild_slice_unfinished_flag( slice_window, view );
     }
+
+    initialize_ratio( slice_window );
+}
+
+static void initialize_ratio (display_struct* slice_window)
+{
+  model_struct      *model;
+  int               retcode;
+  text_struct       *text;
+
+  slice_window->slice.ratio_enabled = FALSE;
+
+  if( string_length(Ratio_volume_index) )
+  {
+    retcode = sscanf(Ratio_volume_index, Ratio_volume_index_format,
+                     &slice_window->slice.ratio_volume_numerator,
+                     &slice_window->slice.ratio_volume_denominator);
+    if( retcode != 2 )
+      fprintf(stderr, "Error: can not parse %s with %s\n",
+              Ratio_volume_index, Ratio_volume_index_format);
+    else
+    {
+      slice_window->slice.ratio_enabled = TRUE;
+      model = get_graphics_model( slice_window, SLICE_READOUT_MODEL );
+      text = get_text_ptr( model->objects[RATIO_PROBE_INDEX] );
+      text->colour = Slice_probe_ratio_colour;
+    }
+  }
 }
 
 static  void  delete_slice_window_volume_stuff(

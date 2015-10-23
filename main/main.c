@@ -219,6 +219,10 @@ int  main(
             reset_slice_view( slice_window, view );
         initialize_ratio( slice_window );
     }
+    else
+    {
+        slice_window = NULL;
+    }
 
     initialize_cache(  );/*graphics*/
     initialize_view_to_fit( graphics );
@@ -237,7 +241,8 @@ int  main(
     /* Doublecheck that the 3D cursor is consistent with the current
      * voxel coordinates.
      */
-    update_cursor_from_voxel( slice_window );
+    if (slice_window != NULL)
+        update_cursor_from_voxel( slice_window );
 
     set_update_required( graphics, NORMAL_PLANES );
     set_update_required( marker, NORMAL_PLANES );
