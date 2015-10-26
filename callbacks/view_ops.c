@@ -277,54 +277,6 @@ DEF_MENU_UPDATE(toggle_perspective )
 
 /* ARGSUSED */
 
-DEF_MENU_FUNCTION( magnify_view )
-{
-    initialize_magnification( display );
-
-    return( VIO_OK );
-}
-
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(magnify_view )
-{
-    return( TRUE );
-}
-
-/* ARGSUSED */
-
-DEF_MENU_FUNCTION( translate_view )
-{
-    initialize_translation( display );
-
-    return( VIO_OK );
-}
-
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(translate_view )
-{
-    return( TRUE );
-}
-
-/* ARGSUSED */
-
-DEF_MENU_FUNCTION( rotate_view )
-{
-    initialize_virtual_spaceball( display );
-
-    return( VIO_OK );
-}
-
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(rotate_view )
-{
-    return( TRUE );
-}
-
-/* ARGSUSED */
-
 DEF_MENU_FUNCTION( front_clipping )
 {
     initialize_front_clipping( display );

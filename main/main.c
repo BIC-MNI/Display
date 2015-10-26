@@ -26,7 +26,6 @@ int debug = 1;
 int verbose = 1;
 
 static  void   initialize_global_colours( void );
-static  void   initialize_ratio (display_struct* display);
 static  void   initialize_view_to_fit (display_struct  *display );
 static  void   initialize_cache ();
 static  void   parse_options (int argc, char *argv[],
@@ -60,21 +59,6 @@ VIO_Status  set_global_variable_value(
     return( set_global_variable( VIO_SIZEOF_STATIC_ARRAY(display_globals),
                                  display_globals, variable_name, new_value ) );
 }
-
-/**
- * Unhide the 3D and "marker" window if they are loaded.
- */
-static void
-unhide_if_objects_loaded(display_struct *graphics, display_struct *markers)
-{
-  model_struct *model = get_current_model( graphics );
-  if (model->n_objects > 1)
-  {
-    G_set_visibility(graphics->window, TRUE);
-    G_set_visibility(markers->window, TRUE);
-  }
-}
-
 
 /**
  * The main program. Initializes key data structures, reads configuration
@@ -217,7 +201,6 @@ int  main(
     {
         for_less( view, 0, N_SLICE_VIEWS )
             reset_slice_view( slice_window, view );
-        initialize_ratio( slice_window );
     }
     else
     {
@@ -235,8 +218,6 @@ int  main(
 
     update_view( graphics );
     update_all_menu_text( graphics );
-
-    unhide_if_objects_loaded(graphics, marker);
 
     /* Doublecheck that the 3D cursor is consistent with the current
      * voxel coordinates.
@@ -364,32 +345,6 @@ static  void      initialize_view_to_fit(
                  0.5 );
 
     reset_cursor( display );
-}
-
-static void initialize_ratio (display_struct* slice_window)
-{
-  model_struct      *model;
-  int               retcode;
-  text_struct       *text;
-
-  slice_window->slice.ratio_enabled = FALSE;
-
-  if( string_length(Ratio_volume_index) )
-  {
-    retcode = sscanf(Ratio_volume_index, Ratio_volume_index_format,
-                     &slice_window->slice.ratio_volume_numerator,
-                     &slice_window->slice.ratio_volume_denominator);
-    if( retcode != 2 )
-      fprintf(stderr, "Error: can not parse %s with %s\n",
-              Ratio_volume_index, Ratio_volume_index_format);
-    else
-    {
-      slice_window->slice.ratio_enabled = TRUE;
-      model = get_graphics_model( slice_window, SLICE_READOUT_MODEL );
-      text = get_text_ptr( model->objects[RATIO_PROBE_INDEX] );
-      text->colour = Slice_probe_ratio_colour;
-    }
-  }
 }
 
 static void initialize_cache()

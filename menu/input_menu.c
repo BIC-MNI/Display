@@ -61,9 +61,6 @@ MENU_F(retreat_visible) \
 MENU_F(reverse_normals) \
 MENU_F(set_current_object_colour) \
 MENU_F(set_current_object_surfprop) \
-MENU_F(magnify_view) \
-MENU_F(translate_view) \
-MENU_F(rotate_view) \
 MENU_F(front_clipping) \
 MENU_F(back_clipping) \
 MENU_F(right_tilted_view) \

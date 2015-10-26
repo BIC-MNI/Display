@@ -20,60 +20,7 @@
 
 #include  <display.h>
 
-static    DEF_EVENT_FUNCTION( start_translation );
-static    DEF_EVENT_FUNCTION( turn_off_translation );
-static    DEF_EVENT_FUNCTION( handle_update );
-static    DEF_EVENT_FUNCTION( terminate_translation );
 static  VIO_BOOL  perform_translation( display_struct *display );
-
-void  initialize_translation( display_struct *display )
-{
-    terminate_any_interactions( display );
-
-    add_action_table_function( &display->action_table,
-                               TERMINATE_INTERACTION_EVENT,
-                               turn_off_translation );
-
-    add_action_table_function( &display->action_table,
-                               MIDDLE_MOUSE_DOWN_EVENT,
-                               start_translation );
-}
-
-/* ARGSUSED */
-
-static DEF_EVENT_FUNCTION( turn_off_translation )
-{
-    remove_action_table_function( &display->action_table,
-                                  TERMINATE_INTERACTION_EVENT,
-                                  turn_off_translation );
-
-    remove_action_table_function( &display->action_table,
-                                  MIDDLE_MOUSE_DOWN_EVENT,
-                                  start_translation );
-
-    return( VIO_OK );
-}
-
-/* ARGSUSED */
-
-static DEF_EVENT_FUNCTION( start_translation )
-{
-    add_action_table_function( &display->action_table,
-                               NO_EVENT,
-                               handle_update );
-
-    add_action_table_function( &display->action_table,
-                               MIDDLE_MOUSE_UP_EVENT,
-                               terminate_translation );
-
-    add_action_table_function( &display->action_table,
-                               TERMINATE_INTERACTION_EVENT,
-                               terminate_translation );
-
-    record_mouse_position( display );
-
-    return( VIO_OK );
-}
 
 void mouse_translation_update( display_struct  *display )
 {
@@ -82,33 +29,6 @@ void mouse_translation_update( display_struct  *display )
         update_view( display );
         set_update_required( display, NORMAL_PLANES );
     }
-}
-
-/* ARGSUSED */
-
-static DEF_EVENT_FUNCTION( terminate_translation )
-{
-    mouse_translation_update( display );
-    
-    remove_action_table_function( &display->action_table,
-                                  NO_EVENT, handle_update );
-    remove_action_table_function( &display->action_table,
-                                  MIDDLE_MOUSE_UP_EVENT,
-                                  terminate_translation );
-    remove_action_table_function( &display->action_table,
-                                  TERMINATE_INTERACTION_EVENT,
-                                  terminate_translation );
-
-    return( VIO_OK );
-}
-
-/* ARGSUSED */
-
-static DEF_EVENT_FUNCTION( handle_update )
-{
-    mouse_translation_update( display );
-
-    return( VIO_OK );
 }
 
 static VIO_BOOL perform_translation( display_struct   *display )

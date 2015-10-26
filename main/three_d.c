@@ -100,6 +100,25 @@ static void initialize_status( display_struct *display );
     display->three_d.mouse_point = 0;
 }
 
+/**
+ * Unhide the 3D and "marker" window if there are objects loaded. This
+ * overrides any global settings.
+ *
+ * \param graphics A pointer to the display_struct of the 3D View window.
+ * \param markers A pointer to the display_struct of the object list window.
+ */
+void
+show_three_d_window(display_struct *graphics, 
+                    display_struct *markers)
+{
+    model_struct *model = get_current_model( graphics );
+    if (model->n_objects > 1)
+    {
+        G_set_visibility(graphics->window, TRUE);
+        G_set_visibility(markers->window, TRUE);
+    }
+}
+
 static void
 initialize_status(display_struct *display)
 {

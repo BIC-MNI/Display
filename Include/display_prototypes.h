@@ -120,6 +120,9 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   void  initialize_three_d_window(
     display_struct   *display );
 
+void show_three_d_window( display_struct *three_d,
+                          display_struct *markers );
+
 void attach_vertex_data(display_struct *display,
                         object_struct *object,
                         vertex_data_struct *vtxd_ptr);
@@ -1021,18 +1024,6 @@ DEF_MENU_UPDATE(save_window_state);
 
   DEF_MENU_UPDATE(toggle_perspective );
 
-  DEF_MENU_FUNCTION( magnify_view );
-
-  DEF_MENU_UPDATE(magnify_view );
-
-  DEF_MENU_FUNCTION( translate_view );
-
-  DEF_MENU_UPDATE(translate_view );
-
-  DEF_MENU_FUNCTION( rotate_view );
-
-  DEF_MENU_UPDATE(rotate_view );
-
   DEF_MENU_FUNCTION( front_clipping );
 
   DEF_MENU_UPDATE(front_clipping );
@@ -1642,6 +1633,8 @@ VIO_Status  initialize_marker_window(display_struct    *marker_window);
   void  initialize_scroll_magnification(
     display_struct   *display );
 
+DEF_EVENT_FUNCTION(start_translation);
+
   VIO_BOOL  mouse_moved(
     display_struct   *display,
     VIO_Real             *new_x,
@@ -1663,8 +1656,7 @@ VIO_Status  initialize_marker_window(display_struct    *marker_window);
     display_struct   *display );
 
   /* from events/mouse_trans.c */
-  void  initialize_translation(
-    display_struct   *display );
+
   void  mouse_translation_update(
     display_struct   *display );
 

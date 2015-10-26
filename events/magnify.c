@@ -28,6 +28,8 @@ static    DEF_EVENT_FUNCTION( increase_magnification );
 static    DEF_EVENT_FUNCTION( decrease_magnification );
 static    VIO_BOOL perform_magnification( display_struct *display );
 
+static    DEF_EVENT_FUNCTION(stop_translation);
+
 /** 
  * This function starts the magnification process. It accomplishes this
  * by installing handlers for the middle mouse down event (\a start_magnification)
@@ -47,17 +49,25 @@ void  initialize_magnification( display_struct *display )
                                start_magnification );
 
 }
+
 static DEF_EVENT_FUNCTION(change_translation)
 {
   mouse_translation_update(display);
   return VIO_OK;
 }
 
-static DEF_EVENT_FUNCTION(start_translation)
+DEF_EVENT_FUNCTION(start_translation)
 {
   add_action_table_function(&display->action_table,
                             NO_EVENT,
                             change_translation);
+  add_action_table_function(&display->action_table,
+                            LEFT_MOUSE_UP_EVENT,
+                            stop_translation);
+  add_action_table_function(&display->action_table,
+                            TERMINATE_INTERACTION_EVENT,
+                            stop_translation);
+  
   record_mouse_position(display);
   return VIO_OK;
 }
@@ -67,6 +77,12 @@ static DEF_EVENT_FUNCTION(stop_translation)
   remove_action_table_function(&display->action_table,
                                NO_EVENT,
                                change_translation);
+  remove_action_table_function(&display->action_table,
+                               TERMINATE_INTERACTION_EVENT,
+                               stop_translation);
+  remove_action_table_function(&display->action_table,
+                               LEFT_MOUSE_UP_EVENT,
+                               stop_translation);
   return VIO_OK;
 }
 

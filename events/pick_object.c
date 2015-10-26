@@ -47,18 +47,24 @@ static  DEF_EVENT_FUNCTION( start_picking_object )
 
     push_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT );
 
-    add_action_table_function( &display->action_table,
-                               NO_EVENT,
-                               update_picked_object );
+    if (is_shift_key_pressed())
+    {
+        start_translation(display, event_type, key_pressed);
+    }
+    else 
+    {
+        add_action_table_function( &display->action_table,
+                                   NO_EVENT,
+                                   update_picked_object );
 
-    add_action_table_function( &display->action_table,
-                               TERMINATE_INTERACTION_EVENT,
-                               terminate_picking_object );
+        add_action_table_function( &display->action_table,
+                                   TERMINATE_INTERACTION_EVENT,
+                                   terminate_picking_object );
 
-    add_action_table_function( &display->action_table,
-                               LEFT_MOUSE_UP_EVENT,
-                               terminate_picking_object );
-
+        add_action_table_function( &display->action_table,
+                                   LEFT_MOUSE_UP_EVENT,
+                                   terminate_picking_object );
+    }
     return( VIO_OK );
 }
 

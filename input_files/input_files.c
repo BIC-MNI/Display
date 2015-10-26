@@ -207,8 +207,9 @@
             set_current_object_index( display, model->n_objects-1 );
         }
 
-        /*rebuild_selected_list( display, display->associated[MENU_WINDOW] );*/
         rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
+
+        show_three_d_window( display, display->associated[MARKER_WINDOW] );
     }
     else
         delete_object( object );
