@@ -130,6 +130,7 @@ static  void  set_orthogonal_slice_window_view(
         slice_window->slice.volumes[volume_index].views[view].visibility =
                                                        visibility;
 
+        set_slice_outline_update( slice_window, -1 );
         set_slice_window_update( slice_window, volume_index, view, UPDATE_BOTH);
     }
 }
