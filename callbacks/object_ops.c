@@ -49,6 +49,18 @@ DEF_MENU_UPDATE(reverse_normals )
     return( current_object_exists(display) );
 }
 
+static void
+set_object_global_visibility( object_struct *object_ptr, VIO_BOOL is_visible )
+{
+  object_traverse_struct object_traverse;
+  object_struct *sub_object_ptr;
+
+  initialize_object_traverse( &object_traverse, FALSE, 1, &object_ptr);
+
+  while (get_next_object_traverse(&object_traverse, &sub_object_ptr))
+    set_object_visibility(sub_object_ptr, is_visible);
+}
+
 /** 
  * \brief Make the current object on the marker list invisible, and 
  * advance to the next object, making it visible.
@@ -61,12 +73,12 @@ DEF_MENU_FUNCTION( advance_visible )
 
     if( get_current_object( display, &current_object ) )
     {
-        current_object->visibility = FALSE;
+        set_object_global_visibility( current_object, FALSE );
 
         advance_current_object( display );
 
         if( get_current_object( display, &current_object ) )
-            current_object->visibility = TRUE;
+          set_object_global_visibility( current_object, TRUE );
 
         graphics_models_have_changed( display );
     }
@@ -93,12 +105,12 @@ DEF_MENU_FUNCTION( retreat_visible )
 
     if( get_current_object( display, &current_object ) )
     {
-        current_object->visibility = FALSE;
+        set_object_global_visibility( current_object, FALSE );
 
         retreat_current_object( display );
 
         if( get_current_object( display, &current_object ) )
-            current_object->visibility = TRUE;
+            set_object_global_visibility( current_object, TRUE );
 
         graphics_models_have_changed( display );
     }
@@ -121,19 +133,13 @@ DEF_MENU_UPDATE(retreat_visible )
 
 DEF_MENU_FUNCTION( make_all_invisible )
 {
-    object_struct           *object, *current_object;
-    object_traverse_struct  object_traverse;
+    object_struct           *current_object;
 
     if( get_current_object( display, &current_object ) )
     {
-        initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
-
-        while( get_next_object_traverse(&object_traverse,&object) )
-               set_object_visibility( object, FALSE );
-
+        set_object_global_visibility( current_object, FALSE );
         graphics_models_have_changed( display );
     }
-
     return( VIO_OK );
 }
 
@@ -153,19 +159,13 @@ DEF_MENU_UPDATE(make_all_invisible )
 
 DEF_MENU_FUNCTION( make_all_visible )
 {
-    object_struct           *current_object, *object;
-    object_traverse_struct  object_traverse;
+    object_struct           *current_object;
 
     if( get_current_object( display, &current_object ) )
     {
-        initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
-
-        while( get_next_object_traverse(&object_traverse,&object) )
-            set_object_visibility( object, TRUE );
-
+        set_object_global_visibility( current_object, TRUE );
         graphics_models_have_changed( display );
     }
-
     return( VIO_OK );
 }
 
@@ -290,11 +290,10 @@ DEF_MENU_FUNCTION( toggle_object_visibility )
 
     if( get_current_object( display, &current_object ) )
     {
-        current_object->visibility = !current_object->visibility;
-
+        set_object_global_visibility( current_object,
+                                      !current_object->visibility );
         graphics_models_have_changed( display );
     }
-
     return( VIO_OK );
 }
 
