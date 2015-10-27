@@ -331,7 +331,7 @@ update_status(display_struct *display)
 
         display->three_d.mouse_point = min_i;
         display->three_d.mouse_obj = object_ptr;
-        sprintf(buffer, "O#%2d V#%6d P#%6d X %6.3f Y %6.3f Z %6.3f ",
+        sprintf(buffer, "O#%2d V#%6d P#%6d X %6.3f Y %6.3f Z %6.3f D ",
                 get_object_index(display, object_ptr),
                 min_i, poly_index,
                 Point_x(min_pt),
