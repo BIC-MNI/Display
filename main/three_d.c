@@ -111,8 +111,11 @@ void
 show_three_d_window(display_struct *graphics, 
                     display_struct *markers)
 {
-    model_struct *model = get_current_model( graphics );
-    if (model->n_objects > 1)
+    object_struct *object_ptr;
+
+    if( get_current_object( graphics, &object_ptr ) &&
+        (get_object_type(object_ptr) != POLYGONS ||
+         get_polygons_ptr(object_ptr)->n_items > 1))
     {
         G_set_visibility(graphics->window, TRUE);
         G_set_visibility(markers->window, TRUE);
