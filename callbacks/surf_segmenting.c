@@ -590,10 +590,22 @@ static  void  crop_surface(
         {
             if (get_user_input( "Specify an axis: ", "c", &ch) != VIO_OK)
                 return;
-
-            axis_index = ch - 'x';
-            if( axis_index < 0 || axis_index > 2 )
-                return;
+            switch (ch) {
+            case 'x':
+            case 'X':
+              axis_index = 0;
+              break;
+            case 'y':
+            case 'Y':
+              axis_index = 1;
+              break;
+            case 'z':
+            case 'Z':
+              axis_index = 2;
+              break;
+            default:
+              return;
+            }
 
             pos = (VIO_Real) Point_coord(display->three_d.cursor.origin,axis_index);
         }
