@@ -38,6 +38,9 @@ root \
     permanent 'pageup'   prev_current_volume       '' '' \
     permanent 'pagedown' toggle_current_volume     '' '' \
     permanent 'ctrl-z'   undo_slice_labels         '' '' \
+    permanent 'ctrl-o'   load_file                 '' '' \
+    permanent 'ctrl-s'   save_file                 '' '' \
+    permanent 'Esc'      reset_interactions        '' '' \
 } \
  \
 quit \

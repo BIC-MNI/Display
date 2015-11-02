@@ -1248,6 +1248,9 @@ DEF_MENU_UPDATE(save_window_state);
 
   DEF_MENU_UPDATE(insert_volume_as_labels );
 
+DEF_MENU_FUNCTION(reset_interactions);
+DEF_MENU_UPDATE(reset_interactions);
+
   DEF_MENU_FUNCTION( transform_current_volume );
 
   DEF_MENU_UPDATE(transform_current_volume );

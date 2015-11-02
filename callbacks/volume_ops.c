@@ -1534,3 +1534,18 @@ DEF_MENU_UPDATE(insert_volume_as_labels )
     return( get_n_volumes(display) >= 2 );
 }
 
+DEF_MENU_FUNCTION(reset_interactions)
+{
+    terminate_any_interactions(display);
+    if (display->window_type == THREE_D_WINDOW)
+    {
+        initialize_virtual_spaceball(display);
+    }
+    return VIO_OK;
+}
+
+DEF_MENU_UPDATE(reset_interactions)
+{
+    return TRUE;
+}
+

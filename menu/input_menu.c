@@ -306,6 +306,7 @@ MENU_F(set_volume_rotation_step) \
 MENU_F(set_volume_translation_step) \
 MENU_F(set_volume_scale_step) \
 MENU_F(insert_volume_as_labels) \
+MENU_F(reset_interactions) \
 MENU_F(save_current_volume_transform)
 
 #define MENU_SEAL \
@@ -528,8 +529,10 @@ static  int  translate_key_name(
         key = BICGL_HOME_KEY;
     else if (equal_strings(str, "end"))
         key = BICGL_END_KEY;
-    else if (!strncmp(str, "ctrl-", 5))
+    else if (!strncasecmp(str, "ctrl-", 5))
         key = str[5] - 'a' + 1; /* Convert to control character. */
+    else if (!strncasecmp(str, "esc", 3))
+        key = 27;               /* Escape key */
     else if( string_length( str ) == 1 )
     {
         key = (int) str[0];
