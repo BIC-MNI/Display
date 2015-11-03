@@ -41,6 +41,8 @@ root \
     permanent 'ctrl-o'   load_file                 '' '' \
     permanent 'ctrl-s'   save_file                 '' '' \
     permanent 'Esc'      reset_interactions        '' '' \
+    permanent '>'        move_time_plus            '' '' \
+    permanent '<'        move_time_minus           '' '' \
 } \
  \
 quit \
@@ -123,7 +125,6 @@ slice_view \
  \
     transient '1'    create_3d_slice_profile         'Create 3D profile' 'Creates a height profile using values of the slice under the mouse cursor and adds it to the 3D window.' \
     transient '2'    set_current_volume_opacity      'Vol Opacity: %g' 'Set the opacity of the current volume.' \
-    transient '6'    toggle_double_buffer_slice      'Slice DblBuf: %s' 'Toggles between single and double buffer mode.' \
 } \
  \
 volume_cropping \
@@ -207,7 +208,6 @@ render_3d \
     transient 'z'    set_n_curve_segments         'Set # Curve Segments: %d' 'Not for general use.' \
  \
     transient 'q'    change_background_colour     'Change Background' 'Prompts for a new background colour for the 3D and slice windows.' \
-    transient 'w'    toggle_double_buffer_threed  '3D DblBuf: %s' 'Turns double buffering on or off.' \
 } \
  \
 objects \

@@ -38,6 +38,11 @@ root \
     permanent 'pageup'   prev_current_volume       '' '' \
     permanent 'pagedown' toggle_current_volume     '' '' \
     permanent 'ctrl-z'   undo_slice_labels         '' '' \
+    permanent 'ctrl-o'   load_file                 '' '' \
+    permanent 'ctrl-s'   save_file                 '' '' \
+    permanent 'Esc'      reset_interactions        '' '' \
+    permanent '>'        move_time_plus            '' '' \
+    permanent '<'        move_time_minus           '' '' \
 } \
  \
 quit \
@@ -61,10 +66,11 @@ file \
     transient 't'    save_current_label              'Save Curr Lbl .tag' 'Saves the current label to the named tag file.' \
     transient 'y'    load_user_defined_colour_scale  'Load UserDef ColCode' 'Loads a user-defined colour map (.ccd).' \
  \
+    transient 'u'    load_vertex_data                'Load Vertex Data' 'Load per-vertex surface data (e.g. cortical thickness)' \
     transient 'a'    save_markers                    'Save Mrkrs as .tag' 'Save current markers as a set of tag points.' \
     transient 's'    save_slice_image                'Save Slice Image' 'Saves an image of the slice under the mouse cursor.' \
-    transient 'f'    load_file                       'Load File' 'Prompts for a filename and loads the file.' \
-    transient 'd'    save_file                       'Save File' 'Prompts for a filename and saves to the file the current 3D object.' \
+    transient 'f'    load_file                       'Load File' 'Prompts for a filename from which to read a volume or object.' \
+    transient 'd'    save_file                       'Save File' 'Prompts for a filename and saves the current 3D object to the file.' \
     transient 'g'    save_slice_window               'Save Slice Window' 'Save an image of the entire slice window.' \
     transient 'h'    save_image                      'Save 3D Window' 'Save an image of the entire 3D window.' \
  \
@@ -119,7 +125,6 @@ slice_view \
  \
     transient '1'    create_3d_slice_profile         'Create 3D profile' 'Creates a height profile using values of the slice under the mouse cursor and adds it to the 3D window.' \
     transient '2'    set_current_volume_opacity      'Vol Opacity: %g' 'Set the opacity of the current volume.' \
-    transient '6'    toggle_double_buffer_slice      'Slice DblBuf: %s' 'Toggles between single and double buffer mode.' \
 } \
  \
 volume_cropping \
@@ -203,7 +208,6 @@ render_3d \
     transient 'z'    set_n_curve_segments         'Set # Curve Segments: %d' 'Not for general use.' \
  \
     transient 'q'    change_background_colour     'Change Background' 'Prompts for a new background colour for the 3D and slice windows.' \
-    transient 'w'    toggle_double_buffer_threed  '3D DblBuf: %s' 'Turns double buffering on or off.' \
 } \
  \
 objects \
