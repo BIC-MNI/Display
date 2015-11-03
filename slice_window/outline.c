@@ -86,7 +86,7 @@ convert_world_lines_to_pixel(object_struct *lines_object,
   {
     VIO_Real x;
     VIO_Real y;
-    VIO_Real voxel[VIO_N_DIMENSIONS];
+    VIO_Real voxel[VIO_MAX_DIMENSIONS];
 
     convert_world_to_voxel(volume, 
                            Point_x(lines->points[i]),
