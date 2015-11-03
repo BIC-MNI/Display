@@ -645,8 +645,8 @@ get_file_open_directory(void)
     char temp_path[FILE_OPEN_DIR_MAX];
     if (strlen(File_open_dir) == 0)
     {
-      getcwd(temp_path, FILE_OPEN_DIR_MAX);
-      set_file_open_directory(temp_path);
+      if (getcwd(temp_path, FILE_OPEN_DIR_MAX) != NULL)
+        set_file_open_directory(temp_path);
     }
     return File_open_dir;
 }
