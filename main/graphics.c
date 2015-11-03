@@ -21,7 +21,6 @@
 #include  <display.h>
 
 static  display_struct  *windows[N_WINDOW_TYPES];
-static  int             n_windows = 0;
 
 static  void  initialize_graphics_window(
     display_struct   *display );
@@ -37,16 +36,17 @@ static  void  terminate_graphics_window(
 /* --------------------------------------------------------------------- */
 
 /**
- * Returns a pointer to the windows array.
- * \param display A pointer to the array of display_struct pointers.
- * \returns The number of windows that exist.
+ * Retrieves a pointer to the windows array.
+ * \param display A pointer to the array of display_struct pointers. Some of
+ * the array entries may be NULL.
+ * \returns The number of window entries in the list.
  */
 int get_list_of_windows(
     display_struct  ***display )
 {
     *display = windows;
 
-    return( n_windows );
+    return( N_WINDOW_TYPES );
 }
 
 /**
@@ -93,7 +93,6 @@ get_new_display(window_types window_type)
     }
 
     ALLOC( windows[window_type], 1 );
-    ++n_windows;
     return windows[window_type];
 }
 
