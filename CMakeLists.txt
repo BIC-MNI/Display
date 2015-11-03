@@ -368,4 +368,3 @@ target_link_libraries(Display ${BICGL_LIBRARIES} ${LINK_LIBRARIES})
   
 # Generate an install target
 install(TARGETS Display RUNTIME DESTINATION bin)
-INSTALL(FILES Display.globals DESTINATION lib${LIB_SUFFIX})
