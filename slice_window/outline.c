@@ -286,8 +286,18 @@ rebuild_slice_object_outline(display_struct *slice_window, int view_index)
   volume_index = get_current_volume_index(slice_window);
   if (volume_index < 0)
     return;
+
+  outline_ptr = &slice_window->slice.outlines[view_index];
+
   if (!get_slice_visibility(slice_window, volume_index, view_index))
+  {
+    if (get_object_visibility(outline_ptr->lines))
+    {
+      set_object_visibility(outline_ptr->lines, FALSE);
+      set_update_required( slice_window, NORMAL_PLANES);
+    }
     return;
+  }
 
   get_cursor_origin(slice_window, &world_origin);
 
@@ -312,8 +322,6 @@ rebuild_slice_object_outline(display_struct *slice_window, int view_index)
                     Point_y(world_origin) * Vector_y(plane_normal) + 
                     Point_z(world_origin) * Vector_z(plane_normal));
 
-  outline_ptr = &slice_window->slice.outlines[view_index];
-
   /* Calculate the intersection between the polygons and the plane.
    */
   intersect_plane_with_polygons_coloured(display,
@@ -329,7 +337,7 @@ rebuild_slice_object_outline(display_struct *slice_window, int view_index)
   convert_world_lines_to_pixel(outline_ptr->lines, slice_window, volume_index, 
                                view_index);
 
-  set_update_required( slice_window,
-                       get_model_bitplanes(get_graphics_model(slice_window, 
-                                                              SLICE_MODEL1 + view_index)));
+  set_object_visibility(outline_ptr->lines, TRUE);
+
+  set_update_required( slice_window, NORMAL_PLANES);
 }
