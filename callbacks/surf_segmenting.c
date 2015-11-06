@@ -141,8 +141,6 @@ static  VIO_Status  io_polygons_visibilities(
         print( "The new visible paint colour is: %s\n", string );
     }
 
-    delete_string( string );
-
     return( status );
 }
 
