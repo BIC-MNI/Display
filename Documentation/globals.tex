@@ -1,27 +1,7 @@
-\documentclass{article}
-\usepackage[T1]{fontenc}
-\usepackage{graphicx}
-\usepackage[hmargin=1in]{geometry}
-\title{{\bf MNI-Display} - Global configuration variables. }
-\author{Robert D. Vincent}
+\section{Configuration variables}
+\label{secGlobals}
 
-\newcommand{\ident}[1]{{\bf\tt #1}\ }
-\newcommand{\display}{\ident{MNI-Display}}
-%\newcommand{\menu}[1]{{\scriptsize \fbox{\bf #1}}}
-%\newcommand{\menutwo}[2]{{\scriptsize \fbox{\bf #1}/\fbox{\bf #2}}}
-%\newcommand{\menuthree}[3]{{\scriptsize \fbox{\bf #1}/\fbox{\bf #2}/\fbox{\bf #3}}}
-
-%\psdraft
-
-\begin{document}
-
-\maketitle
-
-\tableofcontents
-
-\section{Introduction}
-
-\display includes many ``global variables'' that can be set in a
+\display{} includes many ``global variables'' that can be set in a
 configuration file, from the command line, or using a command within
 the program.  program itself. These globals serve a wide range of
 purposes - they may control the appearance of the user interface, set
@@ -30,7 +10,7 @@ affect low-level graphics performance. Many of the globals are not
 intended to be changed during program execution, as their values may
 only be read at startup. Others can be changed dynamically while the
 program is running, and may take effect immediately. Some globals are
-set implicitly by specific commands in the \display user interface.
+set implicitly by specific commands in the \display{} user interface.
 
 Most of these globals have not been rigorously tested over their
 entire possible range. Input checking is often minimal. It is
@@ -43,7 +23,7 @@ accept values it recognizes as being in the proper type.
 
 Variable names typically start with an initial capital letter and
 consist of several descriptive words separated by underscores. In all
-contexts, \display requires that the name be given exactly as
+contexts, \display{} requires that the name be given exactly as
 specified, with the correct capitalization.
 
 Variable types may be one of the following:
@@ -66,7 +46,7 @@ Certain types, especially String or Integer, may have other
 interpretations depending on the specific variable. For example, some
 strings may be interpreted as filenames or formatting strings.
 
-\section{Setting globals in a configuration file}
+\subsection{Setting globals in a configuration file}
 The most reliable way to set global variables is through the configuration file, which is loaded very early in the initialization process. Many of the configuration values are used only during program initialization, so setting them from the command line or the internal command may have no effect!
 
 By default, the configuration file is named {\tt Display.globals}, and
@@ -113,7 +93,7 @@ Display_frame_info = True;
 \end{verbatim}
 
 
-\section{Setting globals on the command line}
+\subsection{Setting globals on the command line}
 
 A global can be set from the command line by specifying the {\tt
  -global} command line option. The command line is parsed after the
@@ -132,9 +112,9 @@ This example will set the initial value used for voxel labeling (``painting'') t
 You can repeat the {\tt -global} option as many times as you like, to
 set any number of globals.
 
-\section{Setting globals with a menu command}
+\subsection{Setting globals with a menu command}
 
-There is a command within \display which allows you to inspect or
+There is a command within \display{} which allows you to inspect or
 change the value of any global variable. In the default menu
 structure, this command is accessed from the ``Quit'' sub-menu, so one
 can invoke the command by pressing the '7' key followed by the 'A'
@@ -144,9 +124,9 @@ Again, be warned that, as with the command line, changing some globals
 through this menu command will have no effect. Not all globals will change
 the operation of the program after it is initialized.
 
-\section{List of useful globals}
+\subsection{List of useful globals}
 
-\newcommand{\globalentry}[5]{\subsection{{\tt #1}}
+\newcommand{\globalentry}[5]{\subsubsection{{\tt #1}}
 \paragraph{Type}{#2}%
 \paragraph{Default value}{#3}%
 \paragraph{Description}{#4}%
@@ -308,11 +288,15 @@ coordinate and value information displayed in the lower-left corner of the slice
 
 \globalentry{Use\_zenity\_for\_input}
 {Boolean}{True}
-{If true, \display will attempt to use the Zenity program for user interaction
+{If true, \display{} will attempt to use the Zenity program for user interaction
 such as prompts for file names and other user input. If false, 
-\display will revert to using the terminal window for all user interaction.}{}
+\display{} will revert to using the terminal window for all user interaction.}{}
 
-\section{List of developer globals}
+\globalentry{Visibility\_on\_input}
+{Boolean}{True}
+{If true, \display{} will make newly-loaded 3D objects visibile immediately.}{}
+
+\subsection{List of developer globals}
 These globals are useful primarily for developers or when debugging problems
 with \display. They may be removed or changed with little notice.
 
@@ -339,4 +323,3 @@ performance improvements in computers, this functionality is largely obsolete.}{
 start another redraw operation, so this variable controls the maximum
 frame rate of the application.}{}
 
-\end{document}
