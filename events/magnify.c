@@ -58,6 +58,8 @@ static DEF_EVENT_FUNCTION(change_translation)
 
 DEF_EVENT_FUNCTION(start_translation)
 {
+  push_action_table(&display->action_table, NO_EVENT);
+
   add_action_table_function(&display->action_table,
                             NO_EVENT,
                             change_translation);
@@ -83,6 +85,8 @@ static DEF_EVENT_FUNCTION(stop_translation)
   remove_action_table_function(&display->action_table,
                                LEFT_MOUSE_UP_EVENT,
                                stop_translation);
+
+  pop_action_table(&display->action_table, NO_EVENT);
   return VIO_OK;
 }
 

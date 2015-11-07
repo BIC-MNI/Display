@@ -75,6 +75,8 @@ static  DEF_EVENT_FUNCTION( start_virtual_spaceball )
 {
     if( mouse_close_to_cursor( display ) )
     {
+        push_action_table(&display->action_table, NO_EVENT);
+
         add_action_table_function( &display->action_table,
                                    NO_EVENT, handle_update_translation );
 
@@ -88,6 +90,8 @@ static  DEF_EVENT_FUNCTION( start_virtual_spaceball )
     }
     else
     {
+        push_action_table( &display->action_table, NO_EVENT );
+
         add_action_table_function( &display->action_table,
                                    NO_EVENT, handle_update_rotation );
 
@@ -137,6 +141,7 @@ static  DEF_EVENT_FUNCTION( terminate_rotation )
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_rotation );
+    pop_action_table( &display->action_table, NO_EVENT );
 
     return( VIO_OK );
 }
@@ -202,6 +207,8 @@ static  DEF_EVENT_FUNCTION( terminate_translation )
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
                                   terminate_translation );
+
+    pop_action_table(&display->action_table, NO_EVENT);
 
     return( VIO_OK );
 }
