@@ -303,7 +303,7 @@ update_status(display_struct *display)
       int n;
       VIO_Real min_d = 1e38;
       int min_i = -1;
-      VIO_Point min_pt;
+      VIO_Point min_pt = {{0}};
 
       polygons = get_polygons_ptr(object_ptr);
       poly_index = object_index;
@@ -347,21 +347,32 @@ update_status(display_struct *display)
           strcat(buffer, "--------");
         }
 
-        replace_string(&text_ptr->string, create_string(buffer));
+        if (strcmp(text_ptr->string, buffer) != 0)
+        {
+          replace_string(&text_ptr->string, create_string(buffer));
 
-        set_update_required( display, NORMAL_PLANES );
+          set_update_required( display, NORMAL_PLANES );
+        }
       }
     }
     else
     {
+      if (get_object_visibility( text_object_ptr ))
+      {
         set_object_visibility( text_object_ptr, FALSE );
         set_update_required( display, NORMAL_PLANES );
+      }
     }
 }
 
 static DEF_EVENT_FUNCTION(handle_mouse_movement)
 {
-    update_status(display);
+    int x, y, ox, oy;
+
+    if( pixel_mouse_moved(display, &x, &y, &ox, &oy))
+    {
+        update_status(display);
+    }
     return VIO_OK;
 }
 
