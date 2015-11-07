@@ -74,8 +74,8 @@ VIO_BOOL  pixel_mouse_moved(
 
     moved = G_get_mouse_position( display->window, new_x, new_y );
 
-    *old_x = VIO_ROUND( Point_x( display->prev_mouse_position ) );
-    *old_y = VIO_ROUND( Point_y( display->prev_mouse_position ) );
+    *old_x = VIO_ROUND( Point_x( display->prev_mouse_pixel_position ) );
+    *old_y = VIO_ROUND( Point_y( display->prev_mouse_pixel_position ) );
 
     if( moved )
     {
@@ -90,7 +90,7 @@ VIO_BOOL  pixel_mouse_moved(
 /**
  * Save the current mouse position in the field
  * display_struct::prev_mouse_position. The saved value will be in
- * fractional units in the range 0...1.  
+ * fractional units in the range 0...1.
  *
  * \param display The display_struct for the relevant window.
  */
@@ -106,10 +106,8 @@ void  record_mouse_position(
 
 /**
  * Save the current mouse position in the field
- * display_struct::prev_mouse_position. The saved value will be in 
+ * display_struct::prev_mouse_pixel_position. The saved value will be in
  * pixel units.
- * Since this shares the same field with record_mouse_position(), one 
- * cannot safely intermingle calls to pixel_mouse_moved() and mouse_moved().
  *
  * \param display The display_struct for the relevant window.
  */
@@ -120,5 +118,5 @@ void  record_mouse_pixel_position(
 
     (void) G_get_mouse_position( display->window, &x, &y );
 
-    fill_Point( display->prev_mouse_position, (VIO_Real) x, (VIO_Real) y, 0.0 );
+    fill_Point( display->prev_mouse_pixel_position, (VIO_Real) x, (VIO_Real) y, 0.0 );
 }

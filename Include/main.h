@@ -113,6 +113,7 @@ typedef  struct  display_struct
 
     Gwindow                    window;
     VIO_Point                  prev_mouse_position;
+    VIO_Point                  prev_mouse_pixel_position;
     action_table_struct        action_table;
     int                        models_changed_id;
     object_struct              *models[N_MODELS];
