@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file init_surface.c
+ * \brief Initialize, start, and stop surface extraction.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,22 +13,22 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
 static  void  clear_surface_extraction(
     display_struct     *display );
 
-  void  initialize_surface_extraction(
+/**
+ * Initializes the data structures used by surface extraction. Surface
+ * extraction runs asynchronously when it is operating, attached to the
+ * timer event (i.e. NO_EVENT).
+ */
+void  initialize_surface_extraction(
     display_struct     *display )
 {
     surface_extraction_struct   *surface_extraction;
@@ -48,8 +51,6 @@ static  void  clear_surface_extraction(
 
     initialize_polygons( surface_extraction->polygons, WHITE, (VIO_Surfprop *) 0 );
 
-    install_surface_extraction( display );
-
     clear_surface_extraction( display );
 }
 
@@ -69,7 +70,10 @@ static  void  clear_surface_extraction(
                          &Default_surface_property );
 }
 
-  void  delete_surface_extraction(
+/**
+ * Delete the extracted surface.
+ */
+void  delete_surface_extraction(
     display_struct    *display )
 {
     surface_extraction_struct   *surface_extraction;
@@ -96,15 +100,23 @@ static  void  clear_surface_extraction(
     surface_extraction->label_volume = NULL;
 }
 
-  void  reset_surface_extraction(
-    display_struct    *display )
+/**
+ * Stop surface extraction and delete the extracted surface.
+ */
+void  reset_surface_extraction( display_struct    *display )
 {
     delete_surface_extraction( display );
 
     clear_surface_extraction( display );
+
+    uninstall_surface_extraction( display );
 }
 
-  void  tell_surface_extraction_volume_deleted(
+/**
+ * Called to give the surface extraction code a chance to clean up after
+ * itself when the volume it is working on has been deleted.
+ */
+void  tell_surface_extraction_volume_deleted(
     display_struct    *display,
     VIO_Volume            volume,
     VIO_Volume            label_volume )
@@ -119,44 +131,28 @@ static  void  clear_surface_extraction(
     }
 }
 
-  void  start_surface_extraction(
-    display_struct     *display )
+/**
+ * Start surface extraction by installing the asynchronous event handler and
+ * setting the flag.
+ */
+void start_surface_extraction( display_struct *display )
 {
-    surface_extraction_struct   *surface_extraction;
-
-    surface_extraction = &display->three_d.surface_extraction;
-
-    surface_extraction->extraction_in_progress = TRUE;
+    install_surface_extraction( display );
+    display->three_d.surface_extraction.extraction_in_progress = TRUE;
 }
 
-  void  stop_surface_extraction(
-    display_struct     *display )
+/**
+ * Stop (or pause) surface extraction. Just clears the flag.
+ */
+void stop_surface_extraction( display_struct *display )
 {
-    if( display->three_d.surface_extraction.extraction_in_progress )
-        display->three_d.surface_extraction.extraction_in_progress = FALSE;
+    display->three_d.surface_extraction.extraction_in_progress = FALSE;
 }
 
-  int  get_n_voxels(
-    VIO_Volume            volume )
-{
-    int   n_voxels;
-    int   sizes[VIO_N_DIMENSIONS];
-
-    if( volume != NULL )
-    {
-        get_volume_sizes( volume, sizes );
-
-        n_voxels = sizes[VIO_X] * sizes[VIO_Y] * sizes[VIO_Z];
-    }
-    else
-    {
-        n_voxels = 0;
-    }
-
-    return( n_voxels );
-}
-
-  void  set_invalid_label_range_for_surface_extraction(
+/**
+ * Sets the minimum and maximum label values for surface extraction.
+ */
+void  set_invalid_label_range_for_surface_extraction(
     display_struct  *display,
     int             min_label,
     int             max_label )

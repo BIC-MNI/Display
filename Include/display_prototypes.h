@@ -1559,9 +1559,6 @@ VIO_Status  initialize_marker_window(display_struct    *marker_window);
   void  stop_surface_extraction(
     display_struct     *display );
 
-  int  get_n_voxels(
-    VIO_Volume            volume );
-
   void  set_invalid_label_range_for_surface_extraction(
     display_struct  *display,
     int             min_label,
