@@ -188,13 +188,7 @@ START_GLOBALS
     DEF_GLOBAL( Voxel_validity_if_mixed, VIO_BOOL, FALSE )
     DEF_GLOBAL( Set_invalid_to_zero, VIO_BOOL, FALSE )
 
-    DEF_GLOBAL( Max_fast_colour_lookup, int, 100000 )
-    DEF_GLOBAL( Colour_table_size, int, 1000 )
     DEF_GLOBAL_COLOUR( Colour_below )
-    DEF_GLOBAL( User_defined_n_intervals, int, 4 )
-    DEF_GLOBAL_COLOUR( User_defined_min_colour )
-    DEF_GLOBAL_COLOUR( User_defined_max_colour )
-    DEF_GLOBAL( User_defined_colour_coding_flip, VIO_BOOL, TRUE )
     DEF_GLOBAL( Initial_low_absolute_position, VIO_Real, -1 )
     DEF_GLOBAL( Initial_high_absolute_position, VIO_Real, -1 )
     DEF_GLOBAL( Initial_histogram_contrast, VIO_BOOL, TRUE )

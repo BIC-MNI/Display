@@ -268,8 +268,6 @@ static  void      initialize_global_colours( void )
     Slice_crop_box_colour = GREEN;
     Extracted_surface_colour = WHITE;
     Colour_below = BLACK;
-    User_defined_min_colour = BLACK;
-    User_defined_max_colour = WHITE;
     Colour_above = WHITE;
     Colour_bar_tick_colour = WHITE;
     Colour_bar_text_colour = WHITE;
