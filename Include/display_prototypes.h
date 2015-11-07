@@ -345,6 +345,14 @@ DEF_MENU_UPDATE( load_vertex_data );
 
   DEF_MENU_UPDATE(save_file );
 
+  DEF_MENU_FUNCTION( save_oblique_plane );
+
+  DEF_MENU_UPDATE( save_oblique_plane );
+
+  DEF_MENU_FUNCTION( load_oblique_plane );
+
+  DEF_MENU_UPDATE( load_oblique_plane );
+
   DEF_MENU_FUNCTION( smooth_current_lines );
 
   DEF_MENU_UPDATE(smooth_current_lines );

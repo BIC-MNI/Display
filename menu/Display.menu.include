@@ -59,6 +59,8 @@ file \
 { \
  \
     transient '1'    toggle_crop_labels_on_output    'Crop Save Lbls: %s' 'Crop labels on output.' \
+    transient '2'    load_oblique_plane              'Load Oblique Plane' '' \
+    transient '3'    save_oblique_plane              'Save Oblique Plane' '' \
     transient 'q'    load_label_data                 'Load Labels .mnc' 'Sets the current labels based on the contents of a given volume file.' \
     transient 'w'    save_label_data                 'Save Labels .mnc' 'Saves the current labels to a given volume file name.' \
     transient 'e'    load_labels                     'Load Labels .tag' 'Loads a set of tags into the current label volume.' \

@@ -30,7 +30,7 @@ DEF_MENU_FUNCTION( load_vertex_data )
     vertex_data_struct *vtxd_ptr;
     polygons_struct    *polygons;
 
-    if( !get_current_object( display, &object ) || 
+    if( !get_current_object( display, &object ) ||
         object->object_type != POLYGONS)
     {
         return VIO_ERROR;
@@ -155,3 +155,146 @@ DEF_MENU_UPDATE(save_file )
 {
     return( TRUE );
 }
+
+DEF_MENU_FUNCTION(load_oblique_plane)
+{
+    display_struct *slice_window;
+    float          wx, wy, wz;
+    VIO_Real       perp_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real       voxel[VIO_MAX_DIMENSIONS];
+    VIO_STR        filename;
+    VIO_Status     status;
+    int            volume_index;
+    FILE           *fp;
+    int            version;
+    VIO_Volume     volume;
+    int            view_index = get_arbitrary_view_index( display );
+
+    if( !get_slice_window( display, &slice_window ))
+    {
+        return VIO_ERROR;
+    }
+    status = get_user_file("Enter path to saved oblique plane: ", FALSE,
+                           &filename);
+    if (status != VIO_OK)
+    {
+        return VIO_ERROR;
+    }
+
+    volume = get_volume( slice_window );
+    volume_index = get_current_volume_index( slice_window );
+
+    if ((fp = fopen(filename, "r")) == NULL)
+    {
+        print_error("Can't open file '%s'.\n", filename);
+        return VIO_ERROR;
+    }
+
+    if (fscanf(fp, "MNI-Oblique-Plane V%d\n", &version) != 1 || version != 1)
+    {
+        print_error("Missing or incorrect version (%d).\n", version);
+        return VIO_ERROR;
+    }
+
+    if (fscanf(fp, "%g %g %g\n", &wx, &wy, &wz) != 3)
+    {
+        print_error("Can't read oblique plane vector.\n");
+        return VIO_ERROR;
+    }
+    convert_world_vector_to_voxel(volume, wx, wy, wz, perp_axis);
+
+    if (fscanf(fp, "%g %g %g\n", &wx, &wy, &wz) != 3)
+    {
+        print_error("Can't read oblique plane origin.\n");
+        return VIO_ERROR;
+    }
+    fclose(fp);
+
+    convert_world_to_voxel(volume, wx, wy, wz, voxel);
+
+    set_slice_plane_perp_axis( slice_window, volume_index, view_index,
+                               perp_axis);
+
+    set_current_voxel( slice_window, volume_index, voxel );
+    update_cursor_from_voxel( slice_window );
+    reset_slice_view( slice_window, view_index );
+
+    for (volume_index = 0; volume_index < get_n_volumes(slice_window);
+         volume_index++)
+    {
+        set_slice_visibility( slice_window, volume_index, view_index, TRUE );
+    }
+    return( VIO_OK );
+}
+
+DEF_MENU_UPDATE(load_oblique_plane)
+{
+    display_struct *slice_window;
+
+    return (get_slice_window( display, &slice_window ) &&
+            get_n_volumes( slice_window ) > 0);
+}
+
+DEF_MENU_FUNCTION(save_oblique_plane)
+{
+    display_struct *slice_window;
+    VIO_STR        filename;
+    VIO_Status     status;
+    int            view_index = get_arbitrary_view_index( display );
+    int            volume_index;
+    VIO_Real       voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real       xw, yw, zw;
+    VIO_Vector     normal;
+    FILE           *fp;
+    VIO_Volume     volume;
+
+    if( !get_slice_window( display, &slice_window ) ||
+        get_n_volumes( slice_window ) == 0)
+    {
+        return VIO_ERROR;
+    }
+
+    status = get_user_file("Enter path to save oblique plane: ", TRUE,
+                           &filename);
+    if (status != VIO_OK)
+    {
+        return VIO_ERROR;
+    }
+
+    if ((fp = fopen(filename, "w")) == NULL)
+    {
+        print_error("Unable to open file '%s'.\n", filename);
+        return VIO_ERROR;
+    }
+
+    volume = get_volume( slice_window );
+    volume_index = get_current_volume_index( slice_window );
+    get_slice_perp_axis( slice_window, volume_index, view_index, voxel );
+
+    convert_voxel_vector_to_world( volume, voxel, &xw, &yw, &zw );
+
+    fill_Vector( normal, xw, yw, zw );
+    NORMALIZE_VECTOR( normal, normal );
+
+    fprintf(fp, "MNI-Oblique-Plane V1\n");
+    fprintf(fp, "%g %g %g\n",
+            Vector_x(normal), Vector_y(normal), Vector_z(normal) );
+
+    get_current_voxel( slice_window, volume_index, voxel );
+
+    convert_voxel_to_world( volume, voxel, &xw, &yw, &zw );
+
+    fprintf(fp, "%g %g %g\n", xw, yw, zw );
+    fclose(fp);
+    return( VIO_OK );
+}
+
+DEF_MENU_UPDATE(save_oblique_plane)
+{
+    display_struct *slice_window;
+
+    return (get_slice_window( display, &slice_window ) &&
+            get_n_volumes( slice_window ) > 0);
+}
+
+
