@@ -59,8 +59,8 @@ file \
 { \
  \
     transient '1'    toggle_crop_labels_on_output    'Crop Save Lbls: %s' 'Crop labels on output.' \
-    transient '2'    load_oblique_plane              'Load Oblique Plane' '' \
-    transient '3'    save_oblique_plane              'Save Oblique Plane' '' \
+    transient '2'    load_oblique_plane              'Load Oblique Plane' 'Restore the oblique plane view parameters from a file.' \
+    transient '3'    save_oblique_plane              'Save Oblique Plane' 'Save the current parameters of the oblique plane view to a file.' \
     transient 'q'    load_label_data                 'Load Labels .mnc' 'Sets the current labels based on the contents of a given volume file.' \
     transient 'w'    save_label_data                 'Save Labels .mnc' 'Saves the current labels to a given volume file name.' \
     transient 'e'    load_labels                     'Load Labels .tag' 'Loads a set of tags into the current label volume.' \
@@ -254,27 +254,27 @@ delete_object_menu \
  \
 surface_segmentation \
 { \
-    transient '5'    set_invis_colour_to_invis         'Invis Col -> Invis' '' \
+    transient '5'    set_invis_colour_to_invis         'Invis Col -> Invis' 'Marks all polygons painted with the invisible color as invisible.' \
  \
-    transient 'q'    reset_polygon_visibility          'Reset Visible' '' \
+    transient 'q'    reset_polygon_visibility          'Reset Visible'  'Marks the entire polygon as visible.' \
     transient 'w'    set_visibility_from_colour        'Set Coloured Visible' '' \
     transient 'e'    remove_invisible_parts_of_polygon 'Remove Invisible' '' \
-    transient 'r'    crop_above_plane                  'Crop Above' '' \
-    transient 't'    crop_below_plane                  'Crop Below' '' \
+    transient 'r'    crop_above_plane                  'Crop Above' 'Crop the surface above a given plane.' \
+    transient 't'    crop_below_plane                  'Crop Below' 'Crop the surface below a given plane.' \
     transient 'y'    reset_polygon_neighbours          'Reset Neighbours' '' \
  \
     transient 'a'    set_vis_to_invis_colour           'Vis -> Invis Colour' '' \
     transient 's'    set_vis_to_vis_colour             'Vis -> Vis Colour' '' \
-    transient 'd'    paint_invisible                   'Paint Invisible' '' \
-    transient 'f'    paint_visible                     'Paint Visible' '' \
-    transient 'g'    set_vis_paint_colour              'Vis Col: %s' '' \
-    transient 'h'    set_invis_paint_colour            'Invis: %s' '' \
+    transient 'd'    paint_invisible                   'Paint Invisible'  'Mark the region under the mouse with the invisible colour and make it transparent.' \
+    transient 'f'    paint_visible                     'Paint Visible'  'Mark the region under the mouse with the visible colour and make it visible.' \
+    transient 'g'    set_vis_paint_colour              'Vis Col: %s'  'Set the colour used to mark visible parts of the surface.' \
+    transient 'h'    set_invis_paint_colour            'Invis: %s' 'Set the colour used to mark to invisible parts of the surface.' \
  \
-    transient 'z'    set_connected_vis_colour          'Connected Vis Colour' '' \
-    transient 'x'    set_connected_invis_colour        'Connected Invis Colour' '' \
-    transient 'c'    paint_invis_colour                'Paint Invis Colour' '' \
-    transient 'v'    paint_vis_colour                  'Paint Vis Colour' '' \
-    transient 'b'    set_n_paint_polygons              'Paint size: %d polygons' '' \
+    transient 'z'    set_connected_vis_colour          'Connected Vis Colour' 'Set all connected polygons to the visible colour.' \
+    transient 'x'    set_connected_invis_colour        'Connected Invis Colour' 'Set all connected polygons to the invisible colour' \
+    transient 'c'    paint_invis_colour                'Paint Invis Colour' 'Apply the current visible colour to the region under the mouse.' \
+    transient 'v'    paint_vis_colour                  'Paint Vis Colour' 'Apply the current invisible colour to the surface under the mouse.' \
+    transient 'b'    set_n_paint_polygons              'Paint size: %d polygons' 'Sets the number of polygons affected by each paint operation.' \
  \
     transient '1'    cut_polygon_neighbours            'Cut Neighbours' '' \
 } \
