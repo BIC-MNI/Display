@@ -1294,12 +1294,55 @@ can then be coloured.
 
 \subsection{Surface Segmentation}
 
-This menu is used for segmenting the surface into various coloured regions
-or to make parts of the surface invisible.  It is still experimental and
-is therefore not for general usage.
+This menu is used for segmenting the a polygonal surface into various
+coloured regions or to make parts of the surface invisible. Every face
+of a polygonal surface can be rendered invisible if the appropriate flag
+is cleared. To assist with these operations, \display{} defines two
+colours, the ``visible'' colour and the ``invisible'' colour. Polygonal
+faces that have been marked with the current ``invisible'' colour {\em
+ may} be hidden or removed from the polygonal object.
+
+Changes made to a polygonal surface may be saved by using the 
+\menutwo{File}{Save File} command.
+
+\begin{description}
+\item[\menutwo{Surface Segmentation}{Invis Col -> Invis}] Finds each
+  face that has been painted with the current invisible colour, and
+  actually makes that face invisible (transparent).
+
+\item[\menutwo{Surface Segmentation}{Reset Visible}] Makes every face of
+  the current polygonal surface visible and sets it to the visible colour.
+
+\item[\menutwo{Surface Segmentation}{Set Coloured Visible}] Makes every
+  face of the current polygonal surface invisible if it is painted with
+  the current invisible colour. Otherwise the face is made visible.
+
+\item[\menutwo{Surface Segmentation}{Remove Invisible}] Actually removes 
+invisible faces from the polygonal surface.
+
+\item[\menutwo{Surface Segmentation}{Remove Invisible}] Actually removes 
+invisible faces from the polygonal surface.
+
+\item[\menutwo{Surface Segmentation}{Crop Above}] Remove all faces that
+  are entirely above the current X, Y, or Z plane. Prompts for the plane
+  to use.
+
+\item[\menutwo{Surface Segmentation}{Crop Below}] Remove all faces that
+  are entirely below the current X, Y, or Z plane. Prompts for the plane
+  to use.
+
+\item[\menutwo{Surface Segmentation}{Reset Neighbors}]
+
+\item[\menutwo{Surface Segmentation}{Vis -> Vis Colour}] Sets every
+visible face such that it is also marked with the visible colour.
+
+\item[\menutwo{Surface Segmentation}{Vis -> Invis Colour}] Sets every
+visible face such that it is also marked with the invisible colour.
 
 \section{Step by Step Examples Using \display{}}
 \subsection{How to Change Colour Coding}
+
+\end{description}
 
 To select a specific colour coding option, you can specify it on the
 command line:
