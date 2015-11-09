@@ -1,3 +1,6 @@
+2015-11-06  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * callbacks/file.c: Save/load oblique slice settings.
+
 2015-10-08  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * slice_window/colour_coding.c: Slight tweak to the initial colour
 	range to better handle BigBrain images.
