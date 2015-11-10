@@ -375,7 +375,49 @@ static void initialize_cache()
 
 
 /**
+ * This function writes the current set of global variables and values
+ * to a file. If the file already exists, it will be overwritten.
+ *
+ * \param filename The desired filename to receive the globals.
+ */
+static void
+write_globals_to_file(int n_globals,
+                      global_struct globals[],
+                      const VIO_STR filename)
+{
+  int i;
+  FILE *fp;
+
+  if ( open_file( filename, WRITE_FILE, ASCII_FORMAT, &fp) != VIO_OK )
+  {
+    return;
+  }
+
+  for_less (i, 0, n_globals)
+  {
+    VIO_STR value;
+
+    /* TODO: It would be nicer if the globals.c in BICPL exported a
+     * "format_global" function or something to handle this for us,
+     * rather than doing an expensive lookup on a table we already
+     * scanning...
+     */
+    if (get_global_variable( n_globals, globals, globals[i].variable_name,
+                             &value ) == VIO_OK)
+    {
+      fprintf( fp, "%s = %s;\n", globals[i].variable_name, value );
+      delete_string( value );
+    }
+  }
+  close_file(fp);
+}
+
+/**
  * Try to make sense out of command-line arguments.
+ *
+ * \param argc The argument count, from main().
+ * \param argv The argument vector, also from main().
+ * \param graphics A pointer to the display_struct for the 3D window.
  */
 
 static void
@@ -580,6 +622,12 @@ parse_options(int argc, char *argv[], display_struct *graphics)
         exit(EX_USAGE);
       }
 
+      if (equal_strings(variable_name, "write"))
+      {
+        write_globals_to_file(VIO_SIZEOF_STATIC_ARRAY(display_globals),
+                              display_globals, variable_value);
+        exit(EX_OK);
+      }
       if (set_global_variable_value(variable_name, variable_value) != VIO_OK)
       {
         print("Error setting global variable from command line.\n");
