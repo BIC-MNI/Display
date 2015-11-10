@@ -6,6 +6,9 @@
 \usepackage[font=footnotesize]{caption}
 \usepackage{titling}
 \usepackage{url}
+\usepackage{pifont}
+\renewcommand\labelitemi{\ding{109}}
+\renewcommand\labelitemii{\ding{111}}
 \graphicspath{{images/}}
 \newcommand{\ident}[1]{{\tt #1}}
 \newcommand{\display}{\mbox{MNI-Display}}
@@ -186,30 +189,70 @@ Note that the above files may be compressed.  If the file ends in
 \ident{.gz}, then it is compressed and the full name of the file, including the
 \ident{.gz}, must be specified to \display{}.
 
-Note that you can load more than one of either the volumetric images
-or the 3D object files. If you do load multiple files of the same
-type, they will be displayed in the appropriate window
+Note that you can load more than one of either the volumetric images or
+the 3D object files. If you do load multiple files of the same type,
+they will be displayed in the appropriate window
 simultanously. \display{} will attempt to overlay the two images, as
-long as they are in approximately the same location in the world
-coordinate space.
+long as they are in approximately the same location relative to the
+world coordinate space.
 
-Command line options to \display{} are keywords introduced with a dash ('-') character, often with an additional argument. Supported options include:
+Command line options to \display{} are keywords introduced with a dash
+('-') character, often with one or more additional arguments. Supported
+options include:
 
 \begin{itemize}
 \item \ident{-help} : Print basic usage information and exit.
 \item \ident{-version} : Print program and library version information and exit.
-\item \ident{-label <filename>} : Load volume labels from the given file in \ident{.mnc} or \ident{.tag} format.
+\item \ident{-label} $filename$ : Load volume labels from the given file in \ident{.mnc} or \ident{.tag} format.
 \item \ident{-skiperror} : Ignore errors encountered when loading files from the command line.
-\item \ident{-ratio <V1>,<V2>} : Display the value of volume \ident{V1} divided by volume \ident{V2} at each voxel. You must load at least two volumes for this option to have any effect.
-\item \ident{-range <minimum> <maximum>} : Set the initial range used to map volume data to colours.
+\item \ident{-ratio} $V_1$,$V_2$ : Display the value of volume number $V_1$
+  divided by value of volume number $V_2$ as part of the slice window status. You must load at least two
+  volumes for this option to have any effect.
+\item \ident{-global} $name$ $value$ : Set the configuration variable of the given name to the specified value. \display{} supports an extremely large number of configuration options, many of these are described in Section \ref{secGlobals}.
+\item {\bf Initial range options:} These options request \display{} to
+  use different approaches to setting the initial range of the colour
+  mapping used to convert voxel values into colours. They each set two
+  values, $M_{min}$ and $M_{max}$, that define this range. Voxel values
+  less than $M_{min}$ are assigned the ``under'' colour, and voxels
+  greater than $M_{max}$ are assigned the ``over'' colour.
+\begin{itemize}
+\item \ident{-range} $A_{min}$ $A_{max}$ : Set the initial range used to
+  map volume data to colours to the {\em absolute} values specified. The
+  value $A_{min}$ should be less than $A_{max}$.
+\item \ident{-rel\_range} $R_{min}$ $R_{max}$ : Set the initial range used to
+  map volume data to colours to the {\em relative} values specified as a
+  fraction of the total data range, $M_{min} = V_{min} + R_{min}
+  (V_{max} - V_{min})$ where $(V_{min},V_{max})$ is the real range of
+  the voxel data. For example, if $R_{min}=0.2$, $V_{min}=-1.0$, and 
+  $V_{max}=+1.0$, then $M_{min}=-0.6$.
+\item \ident{-hist\_range} $P_{min}$ $P_{max}$ : Set the initial range used to
+  map volume data to colours to the percentile values specified. For
+  example, a $P_{min}$ value of 0.2 attempts to set $M_{min}$ such that
+  20\% of all voxels will have values below the colour coding range.
+\end{itemize}
+\item {\bf Volume colour coding options}:
+\begin{itemize}
 \item \ident{-gray} : Use grayscale colour map for subsequently loaded volumes.
 \item \ident{-hot} : Use hot colour map for subsequently loaded volumes.
 \item \ident{-spectral} : Use spectral colour map for subsequently loaded volumes.
 \item \ident{-red} : Use red colour map for subsequently loaded volumes.
 \item \ident{-blue} : Use blue colour map for subsequently loaded volumes.
-\item \ident{-green} : Use green colour map for subsequently loaded volumes.
-\item \ident{-global <name> <value>} : Set the configuration variable of the given name to the specified value. \display{} supports an extremely large number of configuration options, many of these are described in Section \ref{secGlobals}.
+\item \ident{-green} : Use green colour map for subsequently loaded
+  volumes.
 \end{itemize}
+\end{itemize}
+
+The colour mapping options normally apply to the volumes specified after
+the option, and these options can be repeated to set different values
+for subsequently loaded volumes. For example:
+
+\begin{verbatim}
+Display -gray -rel_range 0.1 0.9 t1.mnc -spectral -range 0 1000 rs.mnc
+\end{verbatim}
+would load the first volume with the gray colour map and
+the colour coding range set at 10\% and 90\% of the real voxel
+range. The second volume would be loaded with the spectral colour map
+and absolute colour coding range set to 0, 1000.
 
 \section{\display{} Windows}
 When \display{} starts, it normally creates up to four different

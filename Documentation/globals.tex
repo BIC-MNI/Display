@@ -3,7 +3,7 @@
 
 \display{} includes many ``global variables'' that can be set in a
 configuration file, from the command line, or using a command within
-the program.  program itself. These globals serve a wide range of
+the program.  These globals serve a wide range of
 purposes - they may control the appearance of the user interface, set
 parameters for surface extraction, control editing behavior, or even
 affect low-level graphics performance. Many of the globals are not
@@ -187,6 +187,24 @@ background is given the symbolic name {\tt DARK\_SLATE\_GREY}. While the
 background colour can be changed through a menu command, the command will not
 change the colour for the menu or object windows.}{}
 
+\globalentry{Initial\_coding\_range\_absolute}{Boolean}{False}{If true,
+the variables Initial\_coding\_range\_low and
+Initial\_coding\_range\_high are interpreted as absolute upper and lower
+bounds on the initial colour coding range. If false, they are treated as 
+fractions of the actual range.}{}
+
+\globalentry{Initial\_coding\_range\_high}{Real}{0.75}{If
+  Initial\_coding\_range\_absolute is true, this variable sets the
+  initial value of the high range of the colour coding. If
+  Initial\_coding\_range\_absolute is false, this value is interpreted
+  as a fraction of the actual range.}{}
+
+\globalentry{Initial\_coding\_range\_low}{Real}{0.25}{If
+  Initial\_coding\_range\_absolute is true, this variable sets the
+  initial value of the low range of the colour coding. If
+  Initial\_coding\_range\_absolute is false, this value is interpreted
+  as a fraction of the actual range.}{}
+
 \globalentry{Initial\_colour\_coding\_type} {Integer}{1} {Sets the
   colour coding scheme used by the first loaded volume in the slice
   window. The most useful values are 0 for grayscale, 1 for hotmetal,
@@ -194,6 +212,30 @@ change the colour for the menu or object windows.}{}
   contour. Other possibly useful values include 3 for ``cold metal'',
   5 for ``green metal'', 7 for ``lime metal'', 9 for ``red metal'',
   and 11 for ``purple metal''.}{}
+
+\globalentry{Initial\_histogram\_contrast}
+{Boolean}{True}
+{If true, \display{} will calculate a histogram of each loaded volume
+  and use it to set the initial colour coding range. The low range will
+  be set attempt to keep Initial\_histogram\_low voxels below the range,
+  and Initial\_histogram\_high voxels above the range.}{}
+
+\globalentry{Initial\_histogram\_high}
+{Real}{0.99999}
+{If this Initial\_histogram\_contrast flag is true, this variable
+  determines the percentile used for the initial high colour range.}{}
+
+\globalentry{Initial\_histogram\_low}
+{Real}{0.2}
+{If this Initial\_histogram\_contrast flag is true, this variable
+  determines the percentile used for the initial low colour range.}{}
+
+\globalentry{Initial\_histogram\_low\_clip\_index}
+{Integer}{4}
+{If this Initial\_histogram\_contrast flag is true, this variable
+ determines the number of bins to ignore from the low portion of the 
+histogram. In other words, by default we don't consider histogram bins
+0-3 to contribute to the percentiles used to calculate the range.}{}
 
 \globalentry{Initial\_perspective\_flag}
 {Boolean}{False}

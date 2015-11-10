@@ -78,7 +78,12 @@ int  main(
 
     set_alloc_checking( TRUE );
 
+    /* Perform critical initialization of global variables before doing
+     * anything else.
+     */
     initialize_global_colours();
+    Current_colour_coding_type = Initial_colour_coding_type;
+
 
     if( getenv( "DISPLAY_DIRECTORY" ) != (char *) NULL )
         runtime_directory = create_string( getenv( "DISPLAY_DIRECTORY" ) );
@@ -111,7 +116,7 @@ int  main(
 
         delete_string( globals_filename );
 
-        globals_filename = get_absolute_filename( ".mni-displayrc", 
+        globals_filename = get_absolute_filename( ".mni-displayrc",
                                                   directories[i] );
         if( file_exists( globals_filename ) )
         {
@@ -130,7 +135,7 @@ int  main(
     initialize_graphics();
 
     title = concat_strings( PROJECT_NAME, ": Menu" );
-    if( create_graphics_window( MENU_WINDOW, 
+    if( create_graphics_window( MENU_WINDOW,
                                 Graphics_double_buffer_flag, &menu, title,
                                 Initial_menu_window_x,
                                 Initial_menu_window_y,
@@ -138,11 +143,11 @@ int  main(
                                 Initial_menu_window_height ) != VIO_OK )
         return( 1 );
     delete_string( title );
-    
+
     G_set_visibility(menu->window, !Hide_menu_window);
 
     title = concat_strings( PROJECT_NAME, ": Objects" );
-    if( create_graphics_window( MARKER_WINDOW, 
+    if( create_graphics_window( MARKER_WINDOW,
                                 Graphics_double_buffer_flag, &marker, title,
                                 Initial_marker_window_x,
                                 Initial_marker_window_y,
@@ -157,10 +162,10 @@ int  main(
 
     if( create_graphics_window( THREE_D_WINDOW,
                                 Graphics_double_buffer_flag,
-                                &graphics, title, 
-                                Initial_3D_window_x, 
+                                &graphics, title,
+                                Initial_3D_window_x,
                                 Initial_3D_window_y,
-                                Initial_3D_window_width, 
+                                Initial_3D_window_width,
                                 Initial_3D_window_height) != VIO_OK )
         return( 1 );
     delete_string( title );
@@ -189,7 +194,7 @@ int  main(
      HARD_CODED_DISPLAY_DIRECTORY2,
      MENU_FILENAME ) != VIO_OK )
        return 1;
-     
+
     if( initialize_marker_window( marker ) != VIO_OK )
        return 1;
 
@@ -324,7 +329,7 @@ static  void      initialize_view_to_fit(
                     world[c] > (VIO_Real) Point_coord(display->three_d.max_limit,c))
                     Point_coord(display->three_d.max_limit,c) = (float) world[c];
             }
-            
+
             found = TRUE;
         }
     }
@@ -373,7 +378,7 @@ static void initialize_cache()
  * Try to make sense out of command-line arguments.
  */
 
-static void 
+static void
 parse_options(int argc, char *argv[], display_struct *graphics)
 {
   VIO_Status retcode;
@@ -404,7 +409,11 @@ parse_options(int argc, char *argv[], display_struct *graphics)
       print("  %-25s %s\n", "-ratio N1,N2",
             "Display the images ratio of N1/N2. The first image index is 0.");
       print("  %-25s %s\n", "-range MINIMUM MAXIMUM",
-            "Set the contrast range.");
+            "Set the absolute contrast range.");
+      print("  %-25s %s\n", "-hist_range MINIMUM MAXIMUM",
+            "Set the histogram contrast range.");
+      print("  %-25s %s\n", "-rel_range MINIMUM MAXIMUM",
+            "Set the relative contrast range.");
       print("  %-25s %s\n", "-gray",
             "Use gray colour map for subsequently loaded volumes.");
       print("  %-25s %s\n", "-hot",
@@ -432,9 +441,9 @@ parse_options(int argc, char *argv[], display_struct *graphics)
 #endif
       int glutVersion = glutGet(GLUT_VERSION);
 
-      print("%s %s (built %s) git:%s/%s\n", PROJECT_NAME, PROJECT_VERSION, __DATE__, 
+      print("%s %s (built %s) git:%s/%s\n", PROJECT_NAME, PROJECT_VERSION, __DATE__,
             GIT_BRANCH, GIT_COMMIT );
-      print("%s %d.%d.%d API V%d\n", 
+      print("%s %d.%d.%d API V%d\n",
             FREEGLUT ? "FreeGLUT" : "GLUT",
             glutVersion / 10000,
             (glutVersion / 100) % 100,
@@ -449,27 +458,27 @@ parse_options(int argc, char *argv[], display_struct *graphics)
     }
     else if (equal_strings(filename, "-gray"))
     {
-      Initial_colour_coding_type = GRAY_SCALE;
+      Current_colour_coding_type = GRAY_SCALE;
     }
     else if (equal_strings(filename, "-hot"))
     {
-      Initial_colour_coding_type = HOT_METAL;
+      Current_colour_coding_type = HOT_METAL;
     }
     else if (equal_strings(filename, "-spectral"))
     {
-      Initial_colour_coding_type = SPECTRAL;
+      Current_colour_coding_type = SPECTRAL;
     }
     else if (equal_strings(filename, "-red"))
     {
-      Initial_colour_coding_type = RED_COLOUR_MAP;
+      Current_colour_coding_type = RED_COLOUR_MAP;
     }
     else if (equal_strings(filename, "-green"))
     {
-      Initial_colour_coding_type = GREEN_COLOUR_MAP;
+      Current_colour_coding_type = GREEN_COLOUR_MAP;
     }
     else if (equal_strings(filename, "-blue"))
     {
-      Initial_colour_coding_type = BLUE_COLOUR_MAP;
+      Current_colour_coding_type = BLUE_COLOUR_MAP;
     }
     else if (equal_strings(filename, "-ratio"))
     {
@@ -513,26 +522,52 @@ parse_options(int argc, char *argv[], display_struct *graphics)
        */
       Output_label_filename = create_string(file_name);
     }
-    else if (equal_strings(filename, "-range"))
+    else if (equal_strings(filename, "-hist_range"))
+    {
+      VIO_Real lo_val, hi_val;
+
+      if (!get_real_argument(0.0, &lo_val) ||
+          !get_real_argument(1.0, &hi_val) ||
+          lo_val > hi_val ||
+          lo_val < 0 || lo_val > 1 ||
+          hi_val < 0 || hi_val > 1)
+      {
+        print_error("Error in arguments after -hist_range.\n");
+        exit(EX_USAGE);
+      }
+      Initial_histogram_contrast = TRUE;
+      Initial_histogram_low = lo_val;
+      Initial_histogram_high = hi_val;
+    }
+    else if (equal_strings(filename, "-rel_range") ||
+             equal_strings(filename, "-range"))
     {
       VIO_Real lo_val, hi_val;
 
       if (!get_real_argument(0.0, &lo_val) || !get_real_argument(1.0, &hi_val))
       {
-        print_error("Error in arguments after -range.\n");
+        print_error("Error in arguments after %s.\n", filename);
         exit(EX_USAGE);
       }
 
-      if (Initial_histogram_contrast)
+      if (equal_strings(filename, "-rel_range"))
       {
-        Initial_histogram_low = lo_val;
-        Initial_histogram_high = hi_val;
+        if ((lo_val > 1.0 || lo_val < 0.0) ||
+            (hi_val > 1.0 || hi_val < 0.0) ||
+            (hi_val < lo_val))
+        {
+          print_error("Error in arguments after -rel_range.\n");
+          exit(EX_USAGE);
+        }
+        Initial_coding_range_absolute = FALSE;
       }
       else
       {
-        Initial_low_absolute_position = lo_val;
-        Initial_high_absolute_position = hi_val;
+        Initial_coding_range_absolute = TRUE;
       }
+      Initial_histogram_contrast = FALSE;
+      Initial_coding_range_low = lo_val;
+      Initial_coding_range_high = hi_val;
     }
     else if (equal_strings(filename, "-global"))
     {
@@ -614,7 +649,7 @@ static char File_open_dir[FILE_OPEN_DIR_MAX] = {0};
  * Set the "file open" directory to be used by default for subsequent
  * file accesses. This is used to initialize the directory shown in the
  * zenity dialog box when used.
- * \param pathname The full file pathname from which we must extract the 
+ * \param pathname The full file pathname from which we must extract the
  * directory name.
  */
 void
@@ -702,13 +737,13 @@ get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
 /**
  * Generic function to get user input. This consolidates all of what
  * was previously scattered around the program, such that we can now
- * use a helper (such as zenity) to ask for information from the 
+ * use a helper (such as zenity) to ask for information from the
  * user.
  * \param prompt A text prompt to display, hopefully explaining the
  * action the user should take.
  * \param format A text string that specifies the input expected.
- * This consists of a string consisting of a series of the characters 
- * 'd', 'f', 'r',  'c', or 's' corresponding to an int, float, VIO_Real, 
+ * This consists of a string consisting of a series of the characters
+ * 'd', 'f', 'r',  'c', or 's' corresponding to an int, float, VIO_Real,
  * char, or VIO_STR value.
  * \returns VIO_OK if successful.
  */
@@ -751,7 +786,7 @@ get_user_input(const char *prompt, const char *format, ...)
   {
     switch (*cp)
     {
-    case 'r': 
+    case 'r':
       p_real = va_arg(ap, VIO_Real *);
       if (input_real(in_fp, p_real) != VIO_OK)
       {
@@ -765,7 +800,7 @@ get_user_input(const char *prompt, const char *format, ...)
         return VIO_ERROR;
       }
       break;
-    case 's': 
+    case 's':
       p_str = va_arg(ap, VIO_STR *);
       if (*(cp + 1) == '\0')
       {
@@ -778,7 +813,7 @@ get_user_input(const char *prompt, const char *format, ...)
           return VIO_ERROR;
         }
       }
-      else 
+      else
       {
         /* Otherwise terminate the string at a space, like sscanf().
          */

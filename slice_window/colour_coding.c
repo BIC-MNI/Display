@@ -466,15 +466,16 @@ calculate_contrast_from_range(VIO_Volume volume,
 
   get_volume_real_range( volume, &min_value, &max_value );
 
-  if (Initial_low_absolute_position >= 0)
-    *low_limit = Initial_low_absolute_position;
+  if (Initial_coding_range_absolute)
+  {
+      *low_limit = Initial_coding_range_low;
+      *high_limit = Initial_coding_range_high;
+  }
   else
-    *low_limit = min_value + Initial_low_limit_position * (max_value - min_value);
-
-  if (Initial_high_absolute_position >= 0)
-    *high_limit = Initial_high_absolute_position;
-  else
-    *high_limit = min_value + Initial_high_limit_position * (max_value - min_value);
+  {
+      *low_limit = min_value + Initial_coding_range_low * (max_value - min_value);
+      *high_limit = min_value + Initial_coding_range_high * (max_value - min_value);
+  }
 }
 
 /**
@@ -488,14 +489,14 @@ void  initialize_slice_colour_coding(
     int               volume_index )
 {
     VIO_Real           low_limit, high_limit;
-    Colour_coding_types colour_coding_type = Initial_colour_coding_type;
+    Colour_coding_types colour_coding_type = Current_colour_coding_type;
     loaded_volume_struct *loaded_volume_ptr;
     VIO_Volume         volume;
 
-    /* For volumes after the first, adopt a different colour coding
+    /* For volumes after the first, adopt a different color coding
      * scheme than the default.
      */
-    if (volume_index != 0 && colour_coding_type != SPECTRAL)
+    if (volume_index > 0 && colour_coding_type == Initial_colour_coding_type)
     {
         colour_coding_type = SPECTRAL;
     }

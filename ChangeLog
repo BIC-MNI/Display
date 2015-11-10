@@ -1,3 +1,9 @@
+2015-11-10  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * main/main.c, slice_window/colour_coding.c,	Include/global_variables.h:
+	Update the way we implement the initial colour range options.
+   * Documentation/Display.tex, Documentation/globals.tex: Document
+	these changes.
+
 2015-11-06  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * callbacks/file.c: Save/load oblique slice settings.
 
