@@ -39,6 +39,18 @@ static  VIO_BOOL  polygon_on_invisible_side(
     VIO_Real         position,
     VIO_BOOL         cropping_above );
 
+/**
+ * Modify the visibility and/or colour of polygons in a neighbourhood around
+ * the currently selected polygon.
+ * \param polygons A pointer to the polygons_struct
+ * \param poly The index of the face
+ * \param max_polys_to_do The maximum number of polygons to modify
+ * \param set_visibility_flag True if we should set the visibility.
+ * \param new_visibility The new visiblility state, if set_visibility_flag
+ * is true.
+ * \param set_colour_flag True if we should set the colour.
+ * \param colour The colour to apply if set_colour_flag is true.
+ */
   void  set_visibility_around_poly(
     polygons_struct  *polygons,
     int              poly,
@@ -126,6 +138,11 @@ static  void  modify_polygon(
         polygons->colours[poly] = colour;
 }
 
+/** 
+ * See if this polygon should be modified. We only change the polygon's
+ * colour or visibility if it is currently visible, or if we are changing 
+ * the visibility state.
+ */
 static  VIO_BOOL  should_modify_polygon(
     polygons_struct   *polygons,
     int               poly,
