@@ -78,12 +78,7 @@ int  main(
 
     set_alloc_checking( TRUE );
 
-    /* Perform critical initialization of global variables before doing
-     * anything else.
-     */
     initialize_global_colours();
-    Current_colour_coding_type = Initial_colour_coding_type;
-
 
     if( getenv( "DISPLAY_DIRECTORY" ) != (char *) NULL )
         runtime_directory = create_string( getenv( "DISPLAY_DIRECTORY" ) );
@@ -126,6 +121,11 @@ int  main(
 
         delete_string( globals_filename );
     }
+
+    /* Perform critical initialization of global variables before doing
+     * anything else.
+     */
+    Current_colour_coding_type = Initial_colour_coding_type;
 
     if( n_directories > 0 )
         FREE( directories );
