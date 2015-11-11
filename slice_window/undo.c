@@ -48,13 +48,14 @@ sparse_array_initialize(sparse_array_t *array_ptr, int n_dimensions)
  */
 int sparse_array_hash(sparse_array_t *array_ptr, const int *coord)
 {
-    int i, h = coord[0];
+    int i;
+    unsigned int h = coord[0];
 
     for (i = 1; i < array_ptr->n_dimensions; i++)
     {
-        h *= coord[i];
+      h = h * 19087 + coord[i];
     }
-    return h % N_SPARSE_HASH;
+    return (int) (h % N_SPARSE_HASH);
 }
 
 /**
@@ -101,6 +102,8 @@ sparse_array_apply(sparse_array_t *array_ptr, void *data,
     }
 }
 
+#define DEBUG_HASH 0
+
 /**
  * Find an entry in the the given sparse array that corresponds to the
  * given coordinate.
@@ -115,9 +118,18 @@ sparse_array_find(sparse_array_t *array_ptr, const int *coord)
     int i;
     int h = sparse_array_hash(array_ptr, coord);
     sparse_array_entry_t *entry_ptr;
+    
+#if DEBUG_HASH
+    static int max_len = -1;
+    int len = 0;
+#endif
+
     for (entry_ptr = array_ptr->table[h]; entry_ptr != NULL;
          entry_ptr = entry_ptr->link)
     {
+#if DEBUG_HASH
+        len++;
+#endif
         if (entry_ptr->coord[0] == coord[0])
         {
             for (i = 1; i < array_ptr->n_dimensions; i++)
@@ -133,6 +145,25 @@ sparse_array_find(sparse_array_t *array_ptr, const int *coord)
             }
         }
     }
+#if DEBUG_HASH
+    if (len > max_len)
+    {
+      int c = 0;
+      int u = 0;
+      printf("Not found in %d after %d items\n", h, len);
+      max_len = len;
+      for (i = 0; i < N_SPARSE_HASH; i++) {
+        if (array_ptr->table[i])
+          u++;
+
+        for (entry_ptr = array_ptr->table[i]; entry_ptr != NULL;
+             entry_ptr = entry_ptr->link)
+          c++;
+      }
+
+      printf("  (%d items in %d non-empty buckets.)\n", c, u);
+    }
+#endif
     return NULL;
 }
 

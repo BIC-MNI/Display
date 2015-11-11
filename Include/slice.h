@@ -115,7 +115,7 @@ typedef  struct
     VIO_STR    filename;
 } crop_struct;
 
-#define N_SPARSE_HASH 101
+#define N_SPARSE_HASH 19009
 #define N_SPARSE_COORD 4
 
 typedef struct sparse_array_entry {
