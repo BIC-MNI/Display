@@ -1,6 +1,6 @@
 /**
  * \file slice_window/colour_coding.c
- * \brief Functions to handle colour coding and label volumes for the 
+ * \brief Functions to handle colour coding and label volumes for the
  * slice window.
  *
  * \copyright
@@ -227,7 +227,7 @@ static  VIO_BOOL  find_similar_labels(
 
     return( i < get_n_volumes(slice_window) );
 }
-    
+
 
 static  void  create_colour_coding(
     display_struct    *slice_window,
@@ -255,13 +255,11 @@ static  void  create_colour_coding(
         slice->volumes[volume_index].labels_filename = NULL;
     }
 
-    /*--- this will break if you change the number of labels for a shared
-          volume.  Later I will rewrite this code to handle this case */
-
     if( slice->share_labels_flag &&
         find_similar_labels( slice_window, volume_index, &orig_index ) )
     {
-        printf("sharing labels.\n");
+        printf("Volume %d is sharing labels with volume %d.\n",
+               volume_index, orig_index);
         slice->volumes[volume_index].labels = slice->volumes[orig_index].labels;
         slice->volumes[volume_index].labels_filename =
                     create_string( slice->volumes[orig_index].labels_filename );
@@ -290,7 +288,9 @@ static  void  create_colour_coding(
 }
 
 /**
- * Sets the number of labels associated with a given volume.
+ * Sets the number of labels associated with a given volume. If the
+ * labels are shared amongs several volumes, updates each volume to
+ * reflect the new labels and ranges.
  *
  * \param slice_window A pointer to the slice windows' display_struct.
  * \param volume_index The index (zero-based) of the volume.
@@ -306,6 +306,7 @@ void set_slice_window_number_labels(
     nc_type             old_type;
     VIO_BOOL            signed_flag;
     slice_window_struct *slice;
+    int                 i;
 
     slice = &slice_window->slice;
 
@@ -332,21 +333,41 @@ void set_slice_window_number_labels(
         /* If we can't make a copy of the new label volume,
          * we can't set the new number of labels.
          */
-        if (new_label_volume == NULL)
+        if ( new_label_volume == NULL )
         {
             return;
         }
 
+        /* Now substitute the new labels for each of the volumes that
+         * shared the original label volume.
+         */
+        for_less( i, 0, slice->n_volumes )
+        {
+            if (slice->volumes[i].labels == label_volume)
+            {
+                slice->volumes[i].labels = new_label_volume;
+            }
+        }
+
         delete_volume( label_volume );
 
-        slice->volumes[volume_index].labels = new_label_volume;
+        label_volume = new_label_volume;
     }
 
-    FREE( slice->volumes[volume_index].label_colour_table );
-            
-    slice->volumes[volume_index].n_labels = n_labels;
+    set_volume_voxel_range( label_volume, 0.0, n_labels - 1.0 );
+    set_volume_real_range( label_volume, 0.0, n_labels - 1.0 );
 
-    realloc_label_colour_table( slice_window, volume_index );
+    for_less( i, 0, slice->n_volumes )
+    {
+        if (slice->volumes[i].labels == label_volume)
+        {
+            FREE( slice->volumes[i].label_colour_table );
+
+            slice->volumes[i].n_labels = n_labels;
+
+            realloc_label_colour_table( slice_window, i );
+        }
+    }
 }
 
 static  void  alloc_colour_table(
@@ -395,7 +416,7 @@ static  void  alloc_colour_table(
  */
 static VIO_BOOL
 calculate_contrast_from_histogram(VIO_Volume volume,
-                                  VIO_Real *low_limit, 
+                                  VIO_Real *low_limit,
                                   VIO_Real *high_limit)
 {
   VIO_Real            min_value, max_value;
@@ -429,12 +450,12 @@ calculate_contrast_from_histogram(VIO_Volume volume,
   {
     return FALSE;
   }
-        
+
   delta = fabs( (max_value - min_value) / 1000.0 );
-        
-  if (delta < 1e-6) 
+
+  if (delta < 1e-6)
     delta = 1e-6;
-        
+
   initialize_histogram( &histogram, delta, min_value );
 
   initialize_progress_report( &progress, FALSE, sizes[VIO_X] * sizes[VIO_Y],
@@ -456,7 +477,7 @@ calculate_contrast_from_histogram(VIO_Volume volume,
   terminate_progress_report( &progress );
 
   bin_count = get_histogram_counts( &histogram, &histo_counts,
-                                    Default_filter_width, 
+                                    Default_filter_width,
                                     &scale_factor, &trans_factor );
 
   sum_count = 0.0;
@@ -487,10 +508,10 @@ calculate_contrast_from_histogram(VIO_Volume volume,
 
   if (!low_limit_done)
     *low_limit = histogram.min_index * histogram.delta + histogram.offset;
-  
+
   if (!high_limit_done)
     *high_limit = (histogram.max_index + 1) * histogram.delta + histogram.offset;
-  /** 
+  /**
    * Correct lower and upper limits here in case of an extremely skewed
    * distribution. This helps do a better job of displaying images with
    * a white background, such as the BigBrain.
@@ -547,7 +568,7 @@ void  initialize_slice_colour_coding(
     /* For volumes after the first, adopt a different color coding
      * scheme than the default.
      */
-    if (volume_index > 0 && 
+    if (volume_index > 0 &&
         colour_coding_type == (Colour_coding_types) Initial_colour_coding_type)
     {
         colour_coding_type = SPECTRAL;
@@ -555,7 +576,7 @@ void  initialize_slice_colour_coding(
 
     loaded_volume_ptr = &slice_window->slice.volumes[volume_index];
 
-    initialize_colour_coding(&loaded_volume_ptr->colour_coding, 
+    initialize_colour_coding(&loaded_volume_ptr->colour_coding,
                              colour_coding_type,
                              Colour_below, Colour_above, 0.0, 1.0 );
 
@@ -579,7 +600,7 @@ void  initialize_slice_colour_coding(
         calculate_contrast_from_range(volume, &low_limit, &high_limit);
     }
 
-    change_colour_coding_range( slice_window, volume_index, 
+    change_colour_coding_range( slice_window, volume_index,
                                 low_limit, high_limit );
 }
 
@@ -697,7 +718,7 @@ static  VIO_Colour  get_slice_colour_coding(
 /**
  * For each value in the voxel range of the data, create an entry in the
  * colour table corresponding to the appropriate colour for that value.
- * The resulting colour table is used in render_slice_to_pixels() to 
+ * The resulting colour table is used in render_slice_to_pixels() to
  * provide fast access to the colour map.
  */
 static  void  rebuild_colour_table(
@@ -1262,4 +1283,3 @@ static  void  colour_code_object_points(
 
     return( status );
 }
-
