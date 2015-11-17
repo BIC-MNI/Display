@@ -1040,6 +1040,8 @@ VIO_BOOL  get_volume_corresponding_to_pixel(
         return( FALSE );
 
     *volume_index = get_current_volume_index( slice_window );
+    if (*volume_index < 0)
+        return( FALSE );
 
     if( slice_window->slice.volumes[*volume_index].opacity > 0.0 &&
         convert_pixel_to_voxel( slice_window, *volume_index, x, y,
