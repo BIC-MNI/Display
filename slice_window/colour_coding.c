@@ -236,12 +236,15 @@ static  void  create_colour_coding(
     int                   orig_index;
     nc_type               type;
     slice_window_struct   *slice;
+    int                   n_labels;
 
     slice = &slice_window->slice;
 
-    if( slice->volumes[volume_index].n_labels <= (1 << 8) )
+    n_labels = get_num_labels( slice_window, volume_index );
+
+    if( n_labels <= (1 << 8) )
         type = NC_BYTE;
-    else if( slice->volumes[volume_index].n_labels <= (1 << 16) )
+    else if( n_labels <= (1 << 16) )
         type = NC_SHORT;
     else
         type = NC_LONG;
@@ -258,7 +261,7 @@ static  void  create_colour_coding(
     if( slice->share_labels_flag &&
         find_similar_labels( slice_window, volume_index, &orig_index ) )
     {
-      printf("sharing labels.\n");
+        printf("sharing labels.\n");
         slice->volumes[volume_index].labels = slice->volumes[orig_index].labels;
         slice->volumes[volume_index].labels_filename =
                     create_string( slice->volumes[orig_index].labels_filename );
@@ -279,23 +282,71 @@ static  void  create_colour_coding(
         slice->volumes[volume_index].labels = labels;
         slice->volumes[volume_index].labels_filename = create_string( NULL );
 
-        set_volume_voxel_range( slice->volumes[volume_index].labels, 0.0,
-                                slice->volumes[volume_index].n_labels - 1.0 );
+        set_volume_voxel_range( labels, 0.0, n_labels - 1.0 );
+        set_volume_real_range( labels, 0.0, n_labels - 1.0 );
     }
 
     realloc_label_colour_table( slice_window, volume_index );
 }
 
-  void  set_slice_window_number_labels(
+/**
+ * Sets the number of labels associated with a given volume.
+ *
+ * \param slice_window A pointer to the slice windows' display_struct.
+ * \param volume_index The index (zero-based) of the volume.
+ * \param n_labels The new number of labels.
+ */
+void set_slice_window_number_labels(
     display_struct    *slice_window,
     int               volume_index,
     int               n_labels )
 {
-    delete_slice_labels( &slice_window->slice, volume_index );
+    VIO_Volume          label_volume;
+    nc_type             new_type;
+    nc_type             old_type;
+    VIO_BOOL            signed_flag;
+    slice_window_struct *slice;
 
-    slice_window->slice.volumes[volume_index].n_labels = n_labels;
+    slice = &slice_window->slice;
 
-    create_colour_coding( slice_window, volume_index );
+    label_volume = get_nth_label_volume( slice_window, volume_index );
+    if (label_volume == NULL)
+    {
+        return;
+    }
+
+    if( n_labels <= (1 << 8) )
+        new_type = NC_BYTE;
+    else if( n_labels <= (1 << 16) )
+        new_type = NC_SHORT;
+    else
+        new_type = NC_LONG;
+
+    old_type = get_volume_nc_data_type( label_volume, &signed_flag );
+
+    if (nctypelen(new_type) > nctypelen(old_type))
+    {
+        VIO_Volume new_label_volume = copy_volume_new_type( label_volume,
+                                                            new_type,
+                                                            FALSE );
+        /* If we can't make a copy of the new label volume,
+         * we can't set the new number of labels.
+         */
+        if (new_label_volume == NULL)
+        {
+            return;
+        }
+
+        delete_volume( label_volume );
+
+        slice->volumes[volume_index].labels = new_label_volume;
+    }
+
+    FREE( slice->volumes[volume_index].label_colour_table );
+            
+    slice->volumes[volume_index].n_labels = n_labels;
+
+    realloc_label_colour_table( slice_window, volume_index );
 }
 
 static  void  alloc_colour_table(
@@ -496,7 +547,8 @@ void  initialize_slice_colour_coding(
     /* For volumes after the first, adopt a different color coding
      * scheme than the default.
      */
-    if (volume_index > 0 && colour_coding_type == Initial_colour_coding_type)
+    if (volume_index > 0 && 
+        colour_coding_type == (Colour_coding_types) Initial_colour_coding_type)
     {
         colour_coding_type = SPECTRAL;
     }

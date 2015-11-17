@@ -208,6 +208,48 @@ DEF_MENU_UPDATE(set_segmenting_threshold )
     return( slice_window_exists(display) );
 }
 
+/**
+ * Opens the volume file of the given name and checks the
+ * data type, voxel range, and real range. This is used to 
+ * set up the existing label volume to receive the new data.
+ * \param filename The path to the volume file.
+ * \param data_type A pointer to hold the file's voxel data type.
+ * \param voxel_range A 2-element array to hold the file's voxel data
+ * range. These are the values actually recorded in the voxels.
+ * \param real_range A 2-element array to hold the file's real data 
+ * range. These are the scaled values that represent the "true" values
+ * associated with a volume.
+ */
+VIO_Status get_type_and_range_of_volume( VIO_STR filename, 
+                                         VIO_Data_types *data_type,
+                                         VIO_Real voxel_range[],
+                                         VIO_Real real_range[])
+{
+    VIO_Volume volume;
+
+    if( input_volume_header_only( filename, VIO_N_DIMENSIONS,
+                                  NULL,
+                                  &volume, NULL ) != VIO_OK )
+    {
+        return( VIO_ERROR );
+    }
+
+    if (data_type != NULL)
+    {
+        *data_type = get_volume_data_type( volume );
+    }
+    if (voxel_range != NULL)
+    {
+        get_volume_voxel_range( volume, &voxel_range[0], &voxel_range[1]);
+    }
+    if (real_range != NULL)
+    {
+        get_volume_real_range( volume, &real_range[0], &real_range[1]);
+    }
+    delete_volume( volume );
+    return VIO_OK;
+}
+
 VIO_Status
 input_label_volume_file(display_struct *display,
                         VIO_STR        filename )
@@ -215,35 +257,49 @@ input_label_volume_file(display_struct *display,
     int              range[2][VIO_N_DIMENSIONS];
     VIO_Status       status;
     display_struct   *slice_window;
+    int              volume_index;
+    VIO_Data_types   data_type;
+    VIO_Real         voxel_range[2];
+    VIO_Real         real_range[2];
 
     status = VIO_OK;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        status = load_label_volume( filename,
-                                    get_label_volume(slice_window) );
+        slice_window_struct *slice = &slice_window->slice;
+
+        volume_index = get_current_volume_index( slice_window );
+        get_type_and_range_of_volume( filename, &data_type, voxel_range,
+                                      real_range );
+
+        if (real_range[0] == 0 && 
+            real_range[1] > get_num_labels( slice_window, volume_index ))
+        {
+            set_slice_window_number_labels( slice_window, volume_index, 
+                                            (int) VIO_ROUND(real_range[1]) + 1);
+        }
+
+        status = load_label_volume( filename, get_label_volume(slice_window) );
 
         if( status == VIO_OK )
         {
-            replace_string( &slice_window->slice.volumes[
-                      get_current_volume_index(slice_window)].labels_filename,
-                      create_string(filename) );
+            replace_string( &slice->volumes[volume_index].labels_filename,
+                            create_string(filename) );
         }
 
-        delete_slice_undo( slice_window,
-                           get_current_volume_index(slice_window) );
+        delete_slice_undo( slice_window, volume_index );
 
-        set_slice_window_all_update( slice_window,
-                     get_current_volume_index(slice_window), UPDATE_LABELS );
+        set_slice_window_all_update( slice_window, volume_index, 
+                                     UPDATE_LABELS );
 
         range[0][VIO_X] = 0;
         range[0][VIO_Y] = 0;
         range[0][VIO_Z] = 0;
         get_volume_sizes( get_volume(slice_window), range[1] );
         tell_surface_extraction_range_of_labels_changed( display,
-                              get_current_volume_index(slice_window),
-                              range );
+                                                         volume_index,
+                                                         range );
     }
 
     return( status );
