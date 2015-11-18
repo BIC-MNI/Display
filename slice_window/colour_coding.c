@@ -21,6 +21,7 @@
 #endif
 
 #include  <display.h>
+#include  <assert.h>
 
 /* Define the minimum and maximum colour table sizes we use. We don't
  * allow colour tables to be much greater than the 16M or so colours
@@ -62,7 +63,7 @@ static  VIO_BOOL  is_shared_label_volume(
  * Delete the current volume's labels if they both exist and are not
  * shared with any other volume.
  */
-static  void  delete_slice_labels(
+static  void  delete_volume_labels(
     slice_window_struct   *slice,
     int                   volume_index )
 {
@@ -87,14 +88,10 @@ static  void  delete_slice_labels(
 {
     VIO_Colour   *ptr;
 
-    if( slice->volumes[volume_index].labels == (VIO_Volume) NULL )
-        return;
-
     delete_colour_coding( &slice->volumes[volume_index].colour_coding );
-    delete_slice_labels( slice, volume_index );
+    delete_volume_labels( slice, volume_index );
 
     ptr = slice->volumes[volume_index].colour_table;
-
     if( ptr != NULL )
     {
         ptr += (int) slice->volumes[volume_index].offset;
@@ -170,11 +167,13 @@ static  void  realloc_label_colour_table(
  * Checks currently loaded volumes for a label volume that would be
  * considered similar to the new volume, and can therefore be shared
  * with it.
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The selected volume index.
+ * \returns The index of a similar volume, or -1 if none found.
  */
-static  VIO_BOOL  find_similar_labels(
+static int find_similar_labels(
     display_struct    *slice_window,
-    int               volume_index,
-    int               *orig_index )
+    int               volume_index)
 {
     int                 i, k, m;
     int                 sizes[VIO_MAX_DIMENSIONS], this_size[VIO_MAX_DIMENSIONS];
@@ -187,7 +186,7 @@ static  VIO_BOOL  find_similar_labels(
     get_volume_sizes( this_volume, this_size );
     this_gen_transform = get_voxel_to_world_transform( this_volume );
     if( get_transform_type(this_gen_transform) != LINEAR )
-        return( FALSE );
+        return( -1 );
     this_transform = get_linear_transform_ptr( this_gen_transform );
 
     for_less( i, 0, get_n_volumes(slice_window) )
@@ -219,16 +218,19 @@ static  VIO_BOOL  find_similar_labels(
         }
 
         if( same )
-            break;
+            return( i );
     }
-
-    if( i < get_n_volumes(slice_window) )
-        *orig_index = i;
-
-    return( i < get_n_volumes(slice_window) );
+    return( -1 );
 }
 
 
+/**
+ * Creates a new, empty label volume to associate with the given volume.
+ * Resets the label filename, if one is set.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The selected volume index.
+ */
 static  void  create_colour_coding(
     display_struct    *slice_window,
     int               volume_index )
@@ -256,7 +258,7 @@ static  void  create_colour_coding(
     }
 
     if( slice->share_labels_flag &&
-        find_similar_labels( slice_window, volume_index, &orig_index ) )
+        (orig_index = find_similar_labels( slice_window, volume_index )) >= 0 )
     {
         printf("Volume %d is sharing labels with volume %d.\n",
                volume_index, orig_index);
@@ -1154,106 +1156,143 @@ static  void  colour_code_object_points(
 }
 
 
- void update_label_tag(
-	    display_struct   *display,
-	    int              volume_index,
-	    int              x,
-	    int              y,
-	    int              z,
-	    int              label)
+/**
+ * If we are auto-generating tags from the labels, this function will
+ * update the tags list to reflect the new labels. It is therefore called
+ * after each label operation.
+ * \param slice_window A pointer to the display_struct for the slice window.
+ * \param volume_index The desired volume index.
+ * \param x The voxel x coordinate
+ * \param y The voxel y coordinate
+ * \param z The voxel z coordinate
+ * \param label The newly applied label.
+ */
+void update_label_tag(
+        display_struct   *slice_window,
+        int              volume_index,
+        int              x,
+        int              y,
+        int              z,
+        int              label)
 {
-    VIO_Volume            label_volume;
+    VIO_Volume        label_volume;
     struct stack_list ** label_stack;
-    struct stack_real *top_s;
     object_struct     *object;
     marker_struct     *marker;
     model_struct      *current_model;
-    VIO_Real              *world_dyn;
-    display_struct 	  *marker_window;
-	display_struct 	  *three_d_window;
-    VIO_Real		      world[VIO_MAX_DIMENSIONS];
-    VIO_Real              voxel_real[VIO_MAX_DIMENSIONS];
-    int			      voxel_int[VIO_MAX_DIMENSIONS];
-    int			      value;
+    VIO_Real          *world_dyn;
+    display_struct    *marker_window;
+    display_struct    *three_d_window;
+    VIO_Real          world[VIO_MAX_DIMENSIONS];
+    VIO_Real          voxel_real[VIO_MAX_DIMENSIONS];
+    int               value;
+    int               n_labels;
+    loaded_volume_struct *volume_ptr;
 
-    marker_window = display->associated[MARKER_WINDOW];
-    three_d_window = display->associated[THREE_D_WINDOW];
-    label_stack = marker_window->label_stack;
-    label_volume = get_nth_label_volume(display, volume_index);
+    marker_window = slice_window->associated[MARKER_WINDOW];
+    three_d_window = slice_window->associated[THREE_D_WINDOW];
+    label_volume = get_nth_label_volume(slice_window, volume_index);
+    n_labels = get_num_labels( slice_window, volume_index );
+    volume_ptr = &slice_window->slice.volumes[volume_index];
+    label_stack = volume_ptr->label_stack;
 
     voxel_real[VIO_X] = x;
-	voxel_real[VIO_Y] = y;
-	voxel_real[VIO_Z] = z;
-    convert_voxel_to_world( label_volume, voxel_real, &world[VIO_X], &world[VIO_Y], &world[VIO_Z] );
-	if (label) /* add a voxel to a label region */
-	{
-		if (label_stack[label] == NULL)
-		{
-			label_stack[label] = stack_new();
+    voxel_real[VIO_Y] = y;
+    voxel_real[VIO_Z] = z;
+    convert_voxel_to_world( label_volume, voxel_real,
+                            &world[VIO_X], &world[VIO_Y], &world[VIO_Z] );
+    if ( label > 0 && label < n_labels ) /* add a voxel to a label region */
+    {
+        volume_ptr->label_count[label]++;
+        if (label_stack[label] == NULL)
+        {
+            label_stack[label] = stack_new();
 
-			object = create_object( MARKER );
+            object = create_object( MARKER );
             marker = get_marker_ptr( object );
             fill_Point( marker->position, world[VIO_X], world[VIO_Y], world[VIO_Z]);
             marker->label = create_string( "" );
-            marker->structure_id = -1;
+            marker->structure_id = label;
             marker->patient_id = -1;
-            marker->size = display->three_d.default_marker_size;
-            marker->colour = display->three_d.default_marker_colour;
-            marker->type = display->three_d.default_marker_type;
+            marker->size = three_d_window->three_d.default_marker_size;
+            marker->colour = get_colour_of_label( slice_window, volume_index,
+                                                  label );
+            marker->type = three_d_window->three_d.default_marker_type;
 
             current_model = get_current_model( three_d_window );
             add_object_to_list(&current_model->n_objects,
-					&current_model->objects, object);
-			rebuild_selected_list(three_d_window, marker_window);
+                               &current_model->objects, object);
+            rebuild_selected_list(three_d_window, marker_window);
+        }
+        ALLOC( world_dyn, VIO_N_DIMENSIONS );
+        world_dyn[VIO_X] = x;
+        world_dyn[VIO_Y] = y;
+        world_dyn[VIO_Z] = z;
+        label_stack[label] = push(label_stack[label], world_dyn);
+    }
 
-		}
-		ALLOC( world_dyn, VIO_MAX_DIMENSIONS );
-		world_dyn[VIO_X] = world[VIO_X];
-		world_dyn[VIO_Y] = world[VIO_Y];
-		world_dyn[VIO_Z] = world[VIO_Z];
-		label_stack[label] = push(label_stack[label], world_dyn);
-	}
+    /* Get the current value of this voxel, if any. If we
+     * are about to change the value, we want to update the
+     * stack of the old label appropriately.
+     */
+    value = get_3D_volume_label_data(label_volume, x, y, z);
 
-	/* remove a voxel from a label region */
-	value = get_3D_volume_label_data(label_volume, x, y, z);
-	if (value) /* only on not label voxel */
-	{
-		top_s = top(label_stack[value]);
-		if ((top_s->cur[VIO_X] - world[VIO_X]) < 1e-10f
-				&& (top_s->cur[VIO_Y] - world[VIO_Y]) < 1e-10f
-				&& (top_s->cur[VIO_Z] - world[VIO_Z]) < 1e-10f)
-		{
-			do
-			{
-				top_s = top_s->next;
-				pop(label_stack[value]);
-				if (top_s == NULL)
-				{
-					FREE( label_stack[value] );
-					label_stack[value] = NULL;
-					voxel_int[VIO_X] = x;
-					voxel_int[VIO_Y] = y;
-					voxel_int[VIO_Z] = z;
-					convert_int_to_real_voxel(VIO_MAX_DIMENSIONS, voxel_int,
-							voxel_real);
-					update_current_marker(marker_window, volume_index, voxel_real);
-					get_current_object( three_d_window, &object );
-					remove_current_object_from_hierarchy(three_d_window, &object);
-					delete_object(object);
-					rebuild_selected_list(three_d_window, marker_window);
-					break;
-				}
-				convert_world_to_voxel(label_volume, top_s->cur[VIO_X],
-						top_s->cur[VIO_Y], top_s->cur[VIO_Z], voxel_real);
-				convert_real_to_int_voxel(VIO_MAX_DIMENSIONS, voxel_real, voxel_int);
+    if (value != label && value > 0 && value < n_labels )
+    {
+        struct stack_real *top_s;
+        struct stack_real *prv_s;
 
-			} while (get_3D_volume_label_data(label_volume, voxel_int[VIO_X],
-					voxel_int[VIO_Y], voxel_int[VIO_Z]) != value);
-		}
-	}
+        if (volume_ptr->label_count[value] != 0)
+          volume_ptr->label_count[value]--;
+
+        for (prv_s = NULL, top_s = top(label_stack[value]);
+             top_s != NULL;
+             prv_s = top_s, top_s = top_s->next)
+        {
+            if (fabs(top_s->cur[VIO_X] - x) < 1e-10 &&
+                fabs(top_s->cur[VIO_Y] - y) < 1e-10 &&
+                fabs(top_s->cur[VIO_Z] - z) < 1e-10)
+            {
+                if (top_s == label_stack[value]->head)
+                {
+                    label_stack[value]->head = top_s->next;
+                }
+                else
+                {
+                    prv_s->next = top_s->next;
+                }
+                FREE(top_s->cur);
+                FREE(top_s);
+                break;
+            }
+        }
+
+        if (volume_ptr->label_count[value] == 0)
+        {
+            FREE( label_stack[value] );
+            label_stack[value] = NULL;
+
+            update_current_marker(three_d_window, volume_index, voxel_real);
+            get_current_object( three_d_window, &object );
+            remove_current_object_from_hierarchy(three_d_window, &object);
+            delete_object(object);
+            rebuild_selected_list(three_d_window, marker_window);
+        }
+    }
 }
 
-  void  set_voxel_label(
+/**
+ * Set the label associated with the given voxel coordinates and the
+ * specified volume.
+ *
+ * \param display A pointer to the display_struct for the slice view window.
+ * \param volume_index The zero-based index of the volume.
+ * \param x The voxel x coordinate
+ * \param y The voxel y coordinate
+ * \param z The voxel z coordinate
+ * \param label The desired label value.
+ */
+void  set_voxel_label(
     display_struct   *display,
     int              volume_index,
     int              x,
@@ -1261,13 +1300,14 @@ static  void  colour_code_object_points(
     int              z,
     int              label )
 {
+    assert( display->window_type == SLICE_WINDOW );
 
     tell_surface_extraction_label_changed( display, volume_index, x, y, z );
     if( Tags_from_label )
-    	update_label_tag(display, volume_index, x, y, z, label);
+        update_label_tag(display, volume_index, x, y, z, label);
 
     set_volume_label_data_5d( get_nth_label_volume(display, volume_index),
-    		x, y, z, 0, 0, label );
+            x, y, z, 0, 0, label );
 
 }
 

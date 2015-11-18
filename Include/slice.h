@@ -155,6 +155,8 @@ typedef  struct
     VIO_Real               opacity;
     VIO_Real               current_voxel[VIO_MAX_DIMENSIONS];
     volume_undo_struct     undo;
+    struct stack_list      **label_stack;
+    unsigned int           *label_count;
 
     struct volume_view_struct
     {

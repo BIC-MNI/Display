@@ -784,9 +784,6 @@ DEF_MENU_UPDATE(save_window_state);
 
   VIO_Status   input_tag_objects_label(
     display_struct* display,
-    VIO_Colour         marker_colour,
-    VIO_Real           default_size,
-    Marker_types   default_type,
     int            *n_objects,
     object_struct  **object_list[]);
 

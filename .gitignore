@@ -16,3 +16,7 @@ Display.menu
 epm-header
 stamp-h1
 .metadata
+*.aux
+*.log
+*.toc
+

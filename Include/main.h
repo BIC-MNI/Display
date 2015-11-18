@@ -117,8 +117,6 @@ typedef  struct  display_struct
     action_table_struct        action_table;
     int                        models_changed_id;
     object_struct              *models[N_MODELS];
-    struct stack_list          **label_stack;
-
 
     int                        frame_number;
     VIO_BOOL                   update_required[N_BITPLANE_TYPES];
