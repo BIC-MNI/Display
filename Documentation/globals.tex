@@ -159,6 +159,12 @@ the operation of the program after it is initialized.
 {The colour to display for all voxels that lie above the current maximum
  value of the colour coding range.}{}
 
+\globalentry{Crop\_label\_volume\_threshold}
+{Real}{0.9}
+{Sets the maximum size ratio for label volume cropping. If cropping is enabled,
+ output label volumes will only be cropped if the size of the resulting
+ volume is less than this value times the original size.}{}
+
 \globalentry{Cursor\_rgb\_colour}
 {Colour}{Blue}
 {Defines the colour of the small box at the centre of the cursor in the 3D window. The colours of the three axes lines are fixed at X=RED, Y=GREEN, Z=BLUE.}{}
@@ -330,6 +336,15 @@ histogram. In other words, by default we don't consider histogram bins
 {Integer}{0}
 {Selects either a fixed-width (0) or proportional-spaced (1) font for the
 coordinate and value information displayed in the lower-left corner of the slice window.}{}
+
+\globalentry{Tags\_from\_label}
+{Boolean}{False}
+{If true, \display{} will attempt to automatically maintain a list of
+ tags associated with each label. A marker object will be created
+ corresponding an example location that has been marked with each label
+ value. A marker will be removed if all of the voxels associated
+ with its label value are erased.
+ This is still quite experimental and may produce unexpected results.}{}
 
 \globalentry{Undo\_enabled}
 {Boolean}{True}
