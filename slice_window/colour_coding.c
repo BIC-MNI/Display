@@ -23,15 +23,23 @@
 #include  <display.h>
 #include  <assert.h>
 
-/* Define the minimum and maximum colour table sizes we use. We don't
+/** 
+ * Define the maximum colour table sizes we use. We don't
  * allow colour tables to be much greater than the 16M or so colours
- * possible with standard 24-bit colour depth. However, we also want
- * to guard against using the color table if it is too small, for example,
- * if we are loading an image with voxel values in the 0-1 range.
+ * possible with standard 24-bit colour depth.
  */
 #define    MAX_COLOUR_TABLE_SIZE    16777216
+
+/**
+ * We also want to guard against using the color table if it is too
+ * small, for example, if we are loading an image with voxel values in
+ * the 0-1 range.
+ */
 #define    MIN_COLOUR_TABLE_SIZE    2
 
+/**
+ * Define the default extension used by label colour map files.
+ */
 #define    DEFAULT_COLOUR_MAP_SUFFIX                    "map"
 
 static  void  rebuild_colour_table(
@@ -40,6 +48,10 @@ static  void  rebuild_colour_table(
 
 /**
  * Returns TRUE if the current volume shares its label volume with another volume.
+ * \param slice A pointer to the slice_window_struct from the slice window's
+ * display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \returns TRUE if the labels of this volume are shared with another volume.
  */
 static  VIO_BOOL  is_shared_label_volume(
     slice_window_struct   *slice,
@@ -60,8 +72,13 @@ static  VIO_BOOL  is_shared_label_volume(
 }
 
 /**
- * Delete the current volume's labels if they both exist and are not
+ * Delete the current volume's labels if they labels exist and are not
  * shared with any other volume.
+ *
+ * \param slice A pointer to the slice_window_struct from the slice window's
+ * display_struct.
+ * \param volume_index The zero-based index of the volume that is being
+ * removed.
  */
 static  void  delete_volume_labels(
     slice_window_struct   *slice,
@@ -82,7 +99,17 @@ static  void  delete_volume_labels(
     FREE( slice->volumes[volume_index].label_colour_table );
 }
 
-  void  delete_slice_colour_coding(
+/**
+ * Deletes all of the colour coding and labeling information associated
+ * with a particular volume. Used when a volume is being deleted, or when
+ * the program is exiting.
+ *
+ * \param slice A pointer to the slice_window_struct from the slice window's
+ * display_struct.
+ * \param volume_index The zero-based index of the volume that is being
+ * removed.
+ */
+void  delete_slice_colour_coding(
     slice_window_struct   *slice,
     int                   volume_index )
 {
@@ -411,10 +438,15 @@ static  void  alloc_colour_table(
 
 
 /**
- * Sets the initial volume color coding contrast by calculating a
+ * Sets the initial volume color coding range by calculating a
  * histogram over the whole volume. This takes a while for larger
  * volumes, so it should be automatically disabled if the volume
  * is larger than some threshold.
+ *
+ * \param volume The loaded volume.
+ * \param low_limit Address of variable that will receive the lower limit.
+ * \param high_limit Address of variable that will receive the upper limit.
+ * \returns TRUE if both values were calculated.
  */
 static VIO_BOOL
 calculate_contrast_from_histogram(VIO_Volume volume,
@@ -528,8 +560,12 @@ calculate_contrast_from_histogram(VIO_Volume volume,
 }
 
 /**
- * Simple way to compute the initial contrast, without
+ * Simple way to compute the initial colour coding range, without
  * going to all the trouble to calculate a histogram.
+ *
+ * \param volume The loaded volume.
+ * \param low_limit Address of variable that will receive the lower limit.
+ * \param high_limit Address of variable that will receive the upper limit.
  */
 static void
 calculate_contrast_from_range(VIO_Volume volume,
@@ -557,6 +593,9 @@ calculate_contrast_from_range(VIO_Volume volume,
  * rebuilds the "colour table" that provides rapid access to the mapping
  * from voxel values to colours. The colour table is derived from the
  * abstract colour map.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the selected volume.
  */
 void  initialize_slice_colour_coding(
     display_struct    *slice_window,
@@ -606,7 +645,16 @@ void  initialize_slice_colour_coding(
                                 low_limit, high_limit );
 }
 
-  VIO_Volume  get_nth_label_volume(
+/**
+ * Get a pointer to the label volume corresponding to a particular
+ * volume index. If label sharing is enabled, this may not be unique
+ * to this volume index.
+ *
+ * \param display A pointer to any of the top-level display_struct objects.
+ * \param volume_index The zero-based index of the desired volume.
+ * \returns A pointer to the appropriate label volume, or NULL if failure.
+ */
+VIO_Volume  get_nth_label_volume(
     display_struct   *display,
     int              volume_index )
 {
@@ -620,14 +668,28 @@ void  initialize_slice_colour_coding(
         return( (VIO_Volume) NULL );
 }
 
-  VIO_Volume  get_label_volume(
+/**
+ * Get a pointer to the label volume corresponding to the current
+ * volume index.
+ *
+ * \param display A pointer to any of the top-level display_struct objects.
+ * \returns A pointer to the appropriate label volume, or NULL if failure.
+ */
+VIO_Volume  get_label_volume(
     display_struct   *display )
 {
     return( get_nth_label_volume( display,
                                   get_current_volume_index(display)) );
 }
 
-  VIO_BOOL  label_volume_exists(
+/**
+ * Test whether a the current label volume "exists".
+ *
+ * \param display A pointer to any top-level window's display_struct.
+ * \returns TRUE if the selected current volume has a valid label volume
+ * associated with it.
+ */
+VIO_BOOL  label_volume_exists(
     display_struct   *display )
 {
     VIO_Volume   label;
@@ -637,7 +699,18 @@ void  initialize_slice_colour_coding(
     return( is_label_volume_initialized( label ) );
 }
 
-  VIO_BOOL  get_label_visibility(
+/**
+ * Test whether the labels associated with a particular volume and view
+ * are actually visible. Tests the visiblity of the slice, the visibility
+ * of labels in general, and the validity of the label volume.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param view_index The view index (0...N_SLICE_VIEWS - 1) of the
+ * desired view.
+ * \returns TRUE if the labels are visible in this volume and view.
+ */
+VIO_BOOL  get_label_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index )
@@ -651,7 +724,16 @@ void  initialize_slice_colour_coding(
             is_label_volume_initialized( label ) );
 }
 
-  int  get_num_labels(
+/**
+ * Get the number of labels currently associated with a volume. Label
+ * values can range from zero (which usually means "erased" or empty)
+ * up to one less than the number of labels.
+ *
+ * \param display A pointer to any top-level window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \returns The number of labels configured for this volume.
+ */
+int  get_num_labels(
     display_struct   *display,
     int              volume_index )
 {
@@ -664,10 +746,19 @@ void  initialize_slice_colour_coding(
         return( slice_window->slice.volumes[volume_index].n_labels );
 }
 
+/**
+ * Manually composite the colour of the current label with another colour.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param col The colour we want to combine with the label's colour.
+ * \param label The label value.
+ * \returns The combined colour.
+ */
 static  VIO_Colour  apply_label_colour(
     display_struct    *slice_window,
     int               volume_index,
-    VIO_Colour            col,
+    VIO_Colour        col,
     int               label )
 {
     VIO_Real      r1, g1, b1, a1, r2, g2, b2, a2;
@@ -700,10 +791,19 @@ static  VIO_Colour  apply_label_colour(
     return( col );
 }
 
+/**
+ * Get the combined slice colour coding for the given value and label.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param value The value of the volume at this position.
+ * \param label The label assigned at this position.
+ * \returns The combined colour.
+ */
 static  VIO_Colour  get_slice_colour_coding(
     display_struct    *slice_window,
     int               volume_index,
-    VIO_Real              value,
+    VIO_Real          value,
     int               label )
 {
     VIO_Colour           col;
@@ -720,8 +820,12 @@ static  VIO_Colour  get_slice_colour_coding(
 /**
  * For each value in the voxel range of the data, create an entry in the
  * colour table corresponding to the appropriate colour for that value.
- * The resulting colour table is used in render_slice_to_pixels() to
+ * The resulting colour table is stored in the slice window's display_struct,
+ * where it is used in render_slice_to_pixels() to
  * provide fast access to the colour map.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
  */
 static  void  rebuild_colour_table(
     display_struct    *slice_window,
@@ -759,11 +863,18 @@ static  void  rebuild_colour_table(
     }
 }
 
-  void   set_colour_of_label(
+/**
+ * Sets the colour associated with a particular label value.
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param label The label whose colour we wish to set.
+ * \param colour The RGBA colour to associate with this label.
+ */
+void   set_colour_of_label(
     display_struct    *slice_window,
     int               volume_index,
     int               label,
-    VIO_Colour            colour )
+    VIO_Colour        colour )
 {
     VIO_Real  r, g, b;
 
@@ -780,7 +891,15 @@ static  void  rebuild_colour_table(
     slice_window->slice.volumes[volume_index].label_colour_table[label] =colour;
 }
 
-  VIO_Colour   get_colour_of_label(
+/**
+ * Get the colour associated with a particular volume and label.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param label The label value whose color we want.
+ * \returns The colour associated with the label and volume.
+ */
+VIO_Colour   get_colour_of_label(
     display_struct    *slice_window,
     int               volume_index,
     int               label )
@@ -789,28 +908,47 @@ static  void  rebuild_colour_table(
                                              label_colour_table[label] );
 }
 
-  void   set_volume_opacity(
+/**
+ * Set the opacity (alpha-value) for a volume. This sets the opacity of
+ * the actual volume slice.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param opacity The new opacity to set.
+ */
+void   set_volume_opacity(
     display_struct   *slice_window,
     int              volume_index,
-    VIO_Real             opacity )
+    VIO_Real         opacity )
 {
     slice_window->slice.volumes[volume_index].opacity = opacity;
 
     colour_coding_has_changed( slice_window, volume_index, UPDATE_BOTH );
 }
 
-  void   set_label_opacity(
+/**
+ * Set the opacity (alpha-value) for all of a volume's labels, as
+ * overlaid on the volume slice. Sets the transparency of the label
+ * display - an opacity of one implies opaque labels, while an opacity
+ * of zero makes the labels invisible.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param opacity The new opacity to set, a floating point number in the
+ * range [0,1].
+ */
+void   set_label_opacity(
     display_struct   *slice_window,
     int              volume_index,
-    VIO_Real             opacity )
+    VIO_Real         opacity )
 {
-    int     i, n_labels;
-    VIO_Real    r, g, b;
-    VIO_Colour  *table;
+    int        i, n_labels;
+    VIO_Real   r, g, b;
+    VIO_Colour *table;
 
     slice_window->slice.volumes[volume_index].label_colour_opacity = opacity;
 
-    n_labels = get_num_labels(slice_window,volume_index);
+    n_labels = get_num_labels( slice_window, volume_index );
     table = slice_window->slice.volumes[volume_index].label_colour_table;
 
     for_less( i, 1, n_labels )
@@ -824,7 +962,15 @@ static  void  rebuild_colour_table(
     colour_coding_has_changed( slice_window, volume_index, UPDATE_LABELS );
 }
 
-  void  colour_coding_has_changed(
+/**
+ * Called to let the display system know that the colour coding of the
+ * slice window has changed.
+ * \param display A pointer to any top-level window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param type A hint about the type of update required: UPDATE_LABELS,
+ * UPDATE_SLICE, or UPDATE_BOTH.
+ */
+void  colour_coding_has_changed(
     display_struct    *display,
     int               volume_index,
     Update_types      type )
@@ -845,14 +991,28 @@ static  void  rebuild_colour_table(
     }
 }
 
-  void  change_colour_coding_range(
+/**
+ * Set the minimum and maximum values of the slice colour coding. Values
+ * between the minimum and maximum are smoothly interpolated within the
+ * chosen colour map, values below the minimum are painted using the "under"
+ * colour, those above the maximum are painted using the "over" colour.
+ *
+ * This is called, for example, when the "sliders" on the colour bar
+ * widget are moved.
+ *
+ * \param slice_window A pointer to slice window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param min_value The new minimum value.
+ * \param max_value The new maximum value.
+ */
+void  change_colour_coding_range(
     display_struct    *slice_window,
     int               volume_index,
     VIO_Real              min_value,
     VIO_Real              max_value )
 {
     set_colour_coding_min_max( &slice_window->slice.volumes[volume_index].
-                              colour_coding,
+                               colour_coding,
                                min_value, max_value );
 
     colour_coding_has_changed( slice_window, volume_index, UPDATE_SLICE );
@@ -860,7 +1020,15 @@ static  void  rebuild_colour_table(
 
 /**
  * Colour code each of the points associated with an object, by copying
- * the encoded colours from an associated volume.
+ * the encoded colours from an associated volume to the vertices of the
+ * object. Actually does most of the work for colour_code_object_points().
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param continuity Type of continuity to use in interpolation.
+ * \param colour_flag Pointer to the colour flag of the object.
+ * \param colours Pointer to the colour array of the object.
+ * \param n_points Number of points in the object.
+ * \param points The array of points associated with this object.
  */
 static  void  colour_code_points(
     display_struct        *slice_window,
@@ -870,10 +1038,11 @@ static  void  colour_code_points(
     int                   n_points,
     VIO_Point             points[] )
 {
-    int      i, int_voxel[VIO_MAX_DIMENSIONS], label, volume_index, view_index;
-    VIO_Real     val, voxel[VIO_MAX_DIMENSIONS];
-    VIO_Volume   volume, label_volume;
-    VIO_Colour   colour, volume_colour;
+    int        i, int_voxel[VIO_MAX_DIMENSIONS];
+    int        label, volume_index, view_index;
+    VIO_Real   val, voxel[VIO_MAX_DIMENSIONS];
+    VIO_Volume volume, label_volume;
+    VIO_Colour colour, volume_colour;
 
     if( *colour_flag != PER_VERTEX_COLOURS )
     {
@@ -972,6 +1141,15 @@ static  void  colour_code_points(
     }
 }
 
+/**
+ * Colour code each of the points associated with an object, by copying
+ * the encoded colours from an associated volume to the vertices of the
+ * object.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param continuity Type of continuity to use in interpolation.
+ * \param object The object to colour code.
+ */
 static  void  colour_code_object_points(
     display_struct         *slice_window,
     int                    continuity,
@@ -1024,7 +1202,16 @@ static  void  colour_code_object_points(
     }
 }
 
-  void  colour_code_an_object(
+/**
+ * Public interface for colour_code_object_points(). This function
+ * will apply the colours of the currently selected volume to the vertices
+ * of the given 3D graphical object.
+ *
+ * \param display A pointer to one of the windows' display_struct.
+ * \param object The object to colour code. This can be any polygon,
+ * quadmesh, marker, or lines object.
+ */
+void  colour_code_an_object(
     display_struct   *display,
     object_struct    *object )
 {
@@ -1034,24 +1221,53 @@ static  void  colour_code_object_points(
         colour_code_object_points( slice_window, Volume_continuity, object );
 }
 
-  VIO_STR    get_default_colour_map_suffix( void )
+/**
+ * Get the default filename extension for label colour maps.
+ * \returns A static pointer to the extension.
+ */
+VIO_STR    get_default_colour_map_suffix( void )
 {
     return( DEFAULT_COLOUR_MAP_SUFFIX );
 }
 
-  VIO_Status  load_label_colour_map(
+/**
+ * Load a label colour map from a file (with the default extension .map).
+ * Label colour map files are ASCII text where each line has
+ * the format:
+ *
+ * > label red green blue
+ * OR
+ * > label colour-name
+ * 
+ * The label values are integers, while the RGB colour values are floating
+ * point numbers in the interval [0,1]. Colour names are symbolic names 
+ * such as "black", "white", "blue", "transparent", "violet", etc.
+ *
+ * For each line, if the label
+ * is within the current range, the colour of this label is replaced in the 
+ * colour map. In other words, it is possible to have an incomplete colour
+ * map file that specifies only a few labels of interest.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param filename The filename to load from. The extension ".map" will be
+ * added if there is no extension specified.
+ * \returns VIO_OK on success.
+ */
+VIO_Status  load_label_colour_map(
     display_struct   *slice_window,
     VIO_STR           filename )
 {
-    VIO_Status   status;
-    FILE     *file;
-    VIO_Colour   col;
-    VIO_STR   line;
-    int      n_labels, index;
+    VIO_Status status;
+    FILE       *file;
+    VIO_Colour col;
+    VIO_STR    line;
+    int        n_labels, index;
 
     if( open_file_with_default_suffix( filename,
                                        get_default_colour_map_suffix(),
-                                       READ_FILE, ASCII_FORMAT, &file ) != VIO_OK )
+                                       READ_FILE, 
+                                       ASCII_FORMAT, 
+                                       &file ) != VIO_OK )
         return( VIO_ERROR );
 
     n_labels = get_num_labels( slice_window,
@@ -1084,15 +1300,29 @@ static  void  colour_code_object_points(
     return( status );
 }
 
-  VIO_Status  save_label_colour_map(
+/**
+ * Saves the current label colour map to a file (with the extension .map).
+ * When written, colour map files are ASCII text where each line has
+ * the format:
+ *
+ * > label red green blue
+ *
+ * The label values are integers, while the colour values are floating
+ * point numbers in the interval [0,1].
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param filename The filename to save under. The extension ".map" will be
+ * added if there is no extension specified.
+ * \returns VIO_OK on success.
+ */
+VIO_Status  save_label_colour_map(
     display_struct   *slice_window,
     VIO_STR           filename )
 {
-    VIO_Status   status;
-    FILE     *file;
-    VIO_Real     red, green, blue;
-    VIO_Colour   col;
-    int      n_labels, index;
+    VIO_Status status;
+    FILE       *file;
+    VIO_Real   red, green, blue;
+    VIO_Colour col;
+    int        n_labels, index;
 
     if( open_file_with_default_suffix( filename,
                                        get_default_colour_map_suffix(),
@@ -1128,22 +1358,43 @@ static  void  colour_code_object_points(
     return( status );
 }
 
-  void  clear_labels(
+/**
+ * Set all of the labels in the label volume to the erased state, clearing
+ * all of the labels on the volume.
+ *
+ * \param display A pointer to any top-level window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ */
+void  clear_labels(
     display_struct   *display,
     int              volume_index )
 {
-    int    sizes[VIO_MAX_DIMENSIONS];
+    int        sizes[VIO_MAX_DIMENSIONS];
+    VIO_Volume label_volume;
 
-    get_volume_sizes( get_nth_label_volume(display,volume_index), sizes );
+    label_volume = get_nth_label_volume( display, volume_index );
+
+    get_volume_sizes( label_volume, sizes );
 
     tell_surface_extraction_label_changed( display, volume_index, 0, 0, 0 );
     tell_surface_extraction_label_changed( display, volume_index,
-                                           sizes[VIO_X]-1, sizes[VIO_Y]-1, sizes[VIO_Z]-1 );
-    set_all_volume_label_data( get_nth_label_volume(display,volume_index),
-                               0 );
+                                           sizes[VIO_X] - 1,
+                                           sizes[VIO_Y] - 1,
+                                           sizes[VIO_Z] - 1 );
+    set_all_volume_label_data( label_volume, 0 );
 }
 
-  int  get_voxel_label(
+/**
+ * Return the integer label value associated with a particular voxel of a
+ * particular volume.
+ * \param display A pointer to any top-level window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param x The voxel x coordinate of the desired voxel.
+ * \param y The voxel y coordinate of the desired voxel.
+ * \param z The voxel z coordinate of the desired voxel.
+ * \returns The label value associated with this voxel.
+ */
+int  get_voxel_label(
     display_struct   *display,
     int              volume_index,
     int              x,
@@ -1151,7 +1402,7 @@ static  void  colour_code_object_points(
     int              z )
 {
     return( get_3D_volume_label_data(
-                     get_nth_label_volume(display,volume_index),
+                     get_nth_label_volume( display, volume_index ),
                      x, y, z ) );
 }
 
@@ -1311,15 +1562,37 @@ void  set_voxel_label(
 
 }
 
-  VIO_Status  load_user_defined_colour_coding(
+/**
+ * Loads a colour coding for the _actual volume data_, rather than the
+ * labels. Colour coding files are different from the colour map
+ * files used to assign colours to integer label. Instead, these files
+ * are intended to express a smooth colour mapping over a continuous
+ * value.
+ *
+ * Each line consists of a floating-point value followed by a colour, 
+ * usually expressed in RGB format:
+ * 
+ * > fraction red blue green
+ * 
+ * Each of the four values must be in the range [0,1] and the `fraction`
+ * must increase monotonically, and the file should always include _at least_
+ * a value for `fraction=0` and `fraction=1`.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param filename The path to the colour coding file to load.
+ * \returns VIO_OK if all goes well.
+ */
+VIO_Status  load_user_defined_colour_coding(
     display_struct   *slice_window,
     VIO_STR           filename )
 {
-    VIO_Status   status;
+    VIO_Status status;
+    int        volume_index;
+
+    volume_index = get_current_volume_index( slice_window );
 
     status = input_user_defined_colour_coding( &slice_window->slice.volumes[
-                         get_current_volume_index(slice_window)].colour_coding,
-                         filename );
+                         volume_index ].colour_coding, filename );
 
     return( status );
 }
