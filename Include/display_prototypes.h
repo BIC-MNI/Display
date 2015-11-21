@@ -2435,6 +2435,9 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
   void undo_save(display_struct *slice_window, int volume_index,
                  const int voxel[], int label);
 
+/*
+ * slice_window/view.c 
+ */
   void  initialize_slice_window_view(
     display_struct    *slice_window,
     int               volume_index );
@@ -2487,9 +2490,9 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
     display_struct    *display,
     int               volume_index,
     int               view_index,
-    VIO_Real              voxel[],
-    VIO_Real              *x_pixel,
-    VIO_Real              *y_pixel );
+    VIO_Real          voxel[],
+    VIO_Real          *x_pixel,
+    VIO_Real          *y_pixel );
 
   void  get_voxel_to_pixel_transform(
     display_struct    *slice_window,
@@ -2503,9 +2506,9 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
     VIO_Real              *y_trans );
 
   VIO_BOOL  get_voxel_corresponding_to_point(
-    display_struct    *display,
-    VIO_Point             *point,
-    VIO_Real              voxel[] );
+    display_struct  *display,
+    const VIO_Point *point,
+    VIO_Real        voxel[] );
 
   void   get_slice_window_partitions(
     display_struct    *slice_window,
@@ -2544,7 +2547,7 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
     int               *x,
     int               *y );
 
-  void  set_slice_divider_position(
+  void  set_slice_divider_intersection(
     display_struct    *slice_window,
     int               x,
     int               y );
@@ -2563,10 +2566,6 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
     int               *volume_index,
     int               *view_index );
 
-  VIO_BOOL  get_voxel_in_three_d_window(
-    display_struct    *display,
-    VIO_Real              voxel[] );
-
   VIO_BOOL  get_voxel_under_mouse(
     display_struct    *display,
     int               *volume_index,
@@ -2576,31 +2575,31 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
   void  get_current_voxel(
     display_struct    *display,
     int               volume_index,
-    VIO_Real              voxel[] );
+    VIO_Real          voxel[] );
 
   VIO_BOOL  set_current_voxel(
     display_struct    *slice_window,
-    int               this_volume_index,
-    VIO_Real              voxel[] );
+    int               ref_volume_index,
+    VIO_Real          voxel[] );
 
   void  get_slice_perp_axis(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    VIO_Real             perp_axis[VIO_N_DIMENSIONS] );
+    VIO_Real         perp_axis[VIO_N_DIMENSIONS] );
 
   void  set_slice_plane_perp_axis(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    VIO_Real             voxel_perp[] );
+    const VIO_Real   voxel_perp[] );
 
   void  set_slice_plane(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    VIO_Real             x_axis[],
-    VIO_Real             y_axis[] );
+    const VIO_Real   x_axis[],
+    const VIO_Real   y_axis[] );
 
   void  get_slice_plane(
     display_struct   *slice_window,
@@ -2648,10 +2647,6 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
     display_struct    *slice_window,
     int               volume_index );
 
-  void  slice_view_has_changed(
-    display_struct   *display,
-    int              view );
-
   void  set_volume_transform(
     display_struct     *display,
     int                volume_index,
@@ -2669,6 +2664,7 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
   void  reset_current_volume_transform(
     display_struct   *display );
 
+/* from closest_line.c */
   VIO_BOOL  find_closest_line_point_to_point(
     display_struct    *display,
     VIO_Point             *point,

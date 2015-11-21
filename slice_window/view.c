@@ -1,4 +1,4 @@
-/** 
+/**
  * \file slice_window/view.c
  * \brief Create and maintain views of the slice window.
  *
@@ -20,6 +20,7 @@
 #endif
 
 #include  <display.h>
+#include  <assert.h>
 /**
  * Sets the maximum size of a direction cosine before it is considered to
  * contribute too much to the vector to be considered "orthogonal."
@@ -31,53 +32,107 @@ static  void  update_all_slice_axes(
     int               volume_index,
     int               view_index );
 
+static void  slice_view_has_changed(
+    display_struct   *slice_window,
+    int              view_index );
+
+/**
+ * Tiny helper function to take the magnitude of
+ * an array (its dot product with itself).
+ * \param array The array for which we want the magnitude.
+ * \param n The length of the array.
+ * \returns The magnitude of the array.
+ */
+static VIO_Real array_magnitude(const VIO_Real array[], int n)
+{
+    VIO_Real sum = 0.0;
+    int      i;
+    for_less(i, 0, n)
+        sum += array[i] * array[i];
+    return sqrt(sum);
+}
+
+/**
+ * Tiny helper function to normalize an array, such that
+ * its length will be one.
+ *
+ * \param array The array which we want to normalize.
+ * \param n The length of the array.
+ * \returns The magnitude of the array.
+ */
+static VIO_Real array_normalize(VIO_Real array[], int n)
+{
+    VIO_Real len = array_magnitude(array, n);
+    if (len != 0.0)
+    {
+        int i;
+        for_less(i, 0, n)
+            array[i] /= len;
+    }
+    return len;
+}
+
+/**
+ * Initialize the view axes of the views for a particular volume.
+ *
+ * \param slice_window The display_struct of the slice window.
+ * \param view_index The index of the desired view.
+ * \param volume_index The zero-based index of the desired volume.
+ */
 static  void  set_orthogonal_slice_window_view(
     display_struct    *slice_window,
-    int               view,
+    int               view_index,
     int               volume_index )
 {
-    int      axis;
-    VIO_Real     separations[VIO_MAX_DIMENSIONS];
-    struct volume_view_struct *volume_view_ptr;
+    int             axis;
+    VIO_Real        separations[VIO_MAX_DIMENSIONS];
+    volume_view_ptr view_ptr;
 
-    volume_view_ptr = &slice_window->slice.volumes[volume_index].views[view];
+    view_ptr = &slice_window->slice.volumes[volume_index].views[view_index];
 
     for_less( axis, 0, VIO_N_DIMENSIONS )
     {
-        volume_view_ptr->x_axis[axis] = 0.0;
-        volume_view_ptr->y_axis[axis] = 0.0;
+        view_ptr->x_axis[axis] = 0.0;
+        view_ptr->y_axis[axis] = 0.0;
     }
 
     get_volume_separations( get_nth_volume(slice_window, volume_index),
                             separations );
 
-    switch( view )
+    switch( view_index )
     {
     case 0:
-        volume_view_ptr->x_axis[Slice_view1_axis1] = 
+        view_ptr->x_axis[Slice_view1_axis1] =
           VIO_FSIGN(separations[Slice_view1_axis1]);
-        volume_view_ptr->y_axis[Slice_view1_axis2] = 
+        view_ptr->y_axis[Slice_view1_axis2] =
           VIO_FSIGN(separations[Slice_view1_axis2]);
         break;
 
     case 1:
-        volume_view_ptr->x_axis[Slice_view2_axis1] = 
+        view_ptr->x_axis[Slice_view2_axis1] =
           VIO_FSIGN(separations[Slice_view2_axis1]);
-        volume_view_ptr->y_axis[Slice_view2_axis2] = 
+        view_ptr->y_axis[Slice_view2_axis2] =
           VIO_FSIGN(separations[Slice_view2_axis2]);
         break;
 
     case 2:
     case 3:
-        volume_view_ptr->x_axis[Slice_view3_axis1] = 
+        /** \todo Should we really handle both views the same way? */
+        view_ptr->x_axis[Slice_view3_axis1] =
           VIO_FSIGN(separations[Slice_view3_axis1]);
-        volume_view_ptr->y_axis[Slice_view3_axis2] = 
+        view_ptr->y_axis[Slice_view3_axis2] =
           VIO_FSIGN(separations[Slice_view3_axis2]);
         break;
     }
 }
 
-  void  initialize_slice_window_view(
+/**
+ * Initialize the views of a volume.
+ *
+ * \param slice_window The display_struct of the slice window.
+ * \param volume_index The zero-based index of the desired volume.
+ */
+void  initialize_slice_window_view(
     display_struct    *slice_window,
     int               volume_index )
 {
@@ -118,38 +173,64 @@ static  void  set_orthogonal_slice_window_view(
                                 views[OBLIQUE_VIEW_INDEX].visibility = FALSE;
 }
 
-  void  set_slice_visibility(
+/**
+ * Set the visibility of a given volume in a view, and update the
+ * display accordingly.
+ *
+ * \param slice_window The display_struct of the slice window.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param view_index The index of the desired view.
+ * \param visibility The desired visibility state.
+ */
+void  set_slice_visibility(
     display_struct    *slice_window,
     int               volume_index,
-    int               view,
-    VIO_BOOL           visibility )
+    int               view_index,
+    VIO_BOOL          visibility )
 {
-    if( visibility != slice_window->slice.volumes[volume_index].
-                                   views[view].visibility )
+    loaded_volume_struct *lv_ptr = &slice_window->slice.volumes[volume_index];
+    if( visibility != lv_ptr->views[view_index].visibility )
     {
-        slice_window->slice.volumes[volume_index].views[view].visibility =
-                                                       visibility;
-
+        lv_ptr->views[view_index].visibility = visibility;
         set_slice_outline_update( slice_window, -1 );
-        set_slice_window_update( slice_window, volume_index, view, UPDATE_BOTH);
+        set_slice_window_update( slice_window, volume_index, view_index,
+                                 UPDATE_BOTH);
     }
 }
 
-  VIO_BOOL  get_slice_visibility(
+/**
+ * Predicate to test slice visibility.
+ *
+ * \param slice_window The display_struct of the slice window.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param view_index The index of the desired view.
+ * \returns TRUE if the volume is visible in the view.
+ */
+VIO_BOOL  get_slice_visibility(
     display_struct    *slice_window,
     int               volume_index,
-    int               view )
+    int               view_index )
 {
-    return( slice_window->slice.volumes[volume_index].views[view].visibility );
+    return( slice_window->slice.volumes[volume_index].views[view_index].
+            visibility );
 }
 
+/**
+ * Align the scaling and translation of all volumes in a particular view,
+ * using the given volume index to specify a reference volume.
+ *
+ * \param slice_window The display_struct of the slice window.
+ * \param view_index The index of the affected view.
+ * \param ref_volume_index The zero-based index of the reference volume.
+ */
 static  void  match_view_scale_and_translation(
     display_struct    *slice_window,
-    int               view,
+    int               view_index,
     int               ref_volume_index )
 {
     VIO_Volume  volume;
-    int     volume_index, axis;
+    VIO_Volume  ref_volume;
+    int         volume_index, axis;
     VIO_Real    separations[VIO_MAX_DIMENSIONS];
     VIO_Real    ref_x_axis[VIO_MAX_DIMENSIONS], ref_y_axis[VIO_MAX_DIMENSIONS];
     VIO_Real    x_axis_x, x_axis_y, x_axis_z, y_axis_x, y_axis_y, y_axis_z;
@@ -162,23 +243,24 @@ static  void  match_view_scale_and_translation(
     VIO_Real    x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
     VIO_Real    current_x_scale, current_y_scale;
 
-    if( get_n_volumes(slice_window) == 0 )
+    if( get_n_volumes( slice_window ) == 0 )
         return;
 
-    current_x_scale = slice_window->slice.volumes[ref_volume_index].
-                                              views[view].x_scaling;
-    current_y_scale = slice_window->slice.volumes[ref_volume_index].
-                                              views[view].y_scaling;
+    ref_volume = get_nth_volume( slice_window, ref_volume_index );
 
-    get_volume_separations( get_nth_volume(slice_window,ref_volume_index),
-                            separations );
+    current_x_scale = slice_window->slice.volumes[ref_volume_index].
+                                              views[view_index].x_scaling;
+    current_y_scale = slice_window->slice.volumes[ref_volume_index].
+                                              views[view_index].y_scaling;
+
+    get_volume_separations( ref_volume, separations );
 
     for_less( axis, 0, VIO_N_DIMENSIONS )
     {
         x_axis[axis] = slice_window->slice.volumes[ref_volume_index].
-                           views[view].x_axis[axis];
+                           views[view_index].x_axis[axis];
         y_axis[axis] = slice_window->slice.volumes[ref_volume_index].
-                           views[view].y_axis[axis];
+                           views[view_index].y_axis[axis];
     }
 
     x_len = 0.0;
@@ -205,14 +287,12 @@ static  void  match_view_scale_and_translation(
         y_axis[axis] /= y_len;
     }
 
-    convert_voxel_vector_to_world( get_nth_volume(slice_window,
-                                                  ref_volume_index),
+    convert_voxel_vector_to_world( ref_volume,
                                    x_axis,
                                    &ref_x_axis[VIO_X], &ref_x_axis[VIO_Y],
                                    &ref_x_axis[VIO_Z] );
 
-    convert_voxel_vector_to_world( get_nth_volume(slice_window,
-                                                  ref_volume_index),
+    convert_voxel_vector_to_world( ref_volume,
                                    y_axis,
                                    &ref_y_axis[VIO_X], &ref_y_axis[VIO_Y],
                                    &ref_y_axis[VIO_Z] );
@@ -229,7 +309,7 @@ static  void  match_view_scale_and_translation(
     if( current_y_len == 0.0 )
         current_y_len = 1.0;
 
-    for_less( volume_index, 0, slice_window->slice.n_volumes )
+    for_less( volume_index, 0, get_n_volumes( slice_window ) )
     {
         if( volume_index == ref_volume_index )
             continue;
@@ -241,9 +321,9 @@ static  void  match_view_scale_and_translation(
         for_less( axis, 0, VIO_N_DIMENSIONS )
         {
             x_axis[axis] = slice_window->slice.volumes[volume_index].
-                           views[view].x_axis[axis];
+                           views[view_index].x_axis[axis];
             y_axis[axis] = slice_window->slice.volumes[volume_index].
-                           views[view].y_axis[axis];
+                           views[view_index].y_axis[axis];
         }
 
         x_len = 0.0;
@@ -309,24 +389,24 @@ static  void  match_view_scale_and_translation(
         }
 #endif
 
-        get_slice_plane( slice_window, volume_index, view,
+        get_slice_plane( slice_window, volume_index, view_index,
                          origin, x_axis, y_axis );
 
         convert_voxel_to_world( volume, origin, &xw, &yw, &zw );
-        convert_world_to_voxel( get_nth_volume(slice_window,ref_volume_index),
+        convert_world_to_voxel( ref_volume,
                                 xw, yw, zw, current_voxel );
         convert_voxel_to_pixel( slice_window, ref_volume_index,
-                                view, current_voxel,
+                                view_index, current_voxel,
                                 &x_offset, &y_offset );
 
         x_trans = x_offset;
         y_trans = y_offset;
 
-        slice_window->slice.volumes[volume_index].views[view].x_trans = x_trans;
-        slice_window->slice.volumes[volume_index].views[view].y_trans = y_trans;
-        slice_window->slice.volumes[volume_index].views[view].x_scaling =
+        slice_window->slice.volumes[volume_index].views[view_index].x_trans = x_trans;
+        slice_window->slice.volumes[volume_index].views[view_index].y_trans = y_trans;
+        slice_window->slice.volumes[volume_index].views[view_index].x_scaling =
                                                                 x_scale;
-        slice_window->slice.volumes[volume_index].views[view].y_scaling =
+        slice_window->slice.volumes[volume_index].views[view_index].y_scaling =
                                                                 y_scale;
 
 #ifdef DEBUG
@@ -351,46 +431,59 @@ static  void  match_view_scale_and_translation(
 #endif
     }
 
-    slice_view_has_changed( slice_window, view );
+    slice_view_has_changed( slice_window, view_index );
 }
 
-  void  reset_slice_view(
+/**
+ * Completely reset the slice view back to "normal", whatever that is.
+ *
+ * \param slice_window The display_struct of the slice window.
+ * \param view_index The index of the affected view.
+ */
+void  reset_slice_view(
     display_struct    *slice_window,
-    int               view )
+    int               view_index )
 {
-    VIO_BOOL found_one;
-    VIO_Volume  volume;
-    VIO_Real    x1, x2, y1, y2, x_offset, y_offset;
-    int     int_x1, int_x2, int_y1, int_y2, current_volume_index;
-    int     x_min, x_max, y_min, y_max;
-    int     x_min_vp, x_max_vp, y_min_vp, y_max_vp;
-    int     volume_index;
-    VIO_Real    xw, yw, zw;
-    VIO_Real    current_voxel[VIO_MAX_DIMENSIONS];
-    VIO_Real    x_scale, y_scale, x_trans, y_trans;
-    VIO_Real    current_origin[VIO_MAX_DIMENSIONS];
-    VIO_Real    current_x_axis[VIO_MAX_DIMENSIONS], current_y_axis[VIO_MAX_DIMENSIONS];
-    VIO_Real    origin[VIO_MAX_DIMENSIONS];
-    VIO_Real    x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
+    VIO_BOOL   found_one;
+    VIO_Volume volume;
+    VIO_Real   x1, x2, y1, y2, x_offset, y_offset;
+    int        int_x1, int_x2, int_y1, int_y2;
+    int        current_volume_index;
+    VIO_Volume current_volume;
+    int        x_min, x_max, y_min, y_max;
+    int        x_min_vp, x_max_vp, y_min_vp, y_max_vp;
+    int        volume_index;
+    VIO_Real   xw, yw, zw;
+    VIO_Real   current_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real   x_scale, y_scale, x_trans, y_trans;
+    VIO_Real   current_origin[VIO_MAX_DIMENSIONS];
+    VIO_Real   current_x_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real   current_y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real   origin[VIO_MAX_DIMENSIONS];
+    VIO_Real   x_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real   y_axis[VIO_MAX_DIMENSIONS];
+
+    slice_window_struct *slice_ptr = &slice_window->slice;
 
     if( get_n_volumes(slice_window) == 0 )
         return;
 
-    get_slice_viewport( slice_window, view,
+    get_slice_viewport( slice_window, view_index,
                         &x_min_vp, &x_max_vp, &y_min_vp, &y_max_vp );
 
     current_volume_index = get_current_volume_index( slice_window );
+    current_volume = get_volume( slice_window );
 
-    update_all_slice_axes( slice_window, current_volume_index, view );
+    update_all_slice_axes( slice_window, current_volume_index, view_index );
 
-    get_slice_plane( slice_window, current_volume_index, view,
+    get_slice_plane( slice_window, current_volume_index, view_index,
                      current_origin, current_x_axis, current_y_axis );
 
     found_one = FALSE;
 
-    for_less( volume_index, 0, slice_window->slice.n_volumes )
+    for_less( volume_index, 0, get_n_volumes( slice_window ) )
     {
-        get_slice_plane( slice_window, volume_index, view,
+        get_slice_plane( slice_window, volume_index, view_index,
                          origin, x_axis, y_axis );
 
         volume = get_nth_volume( slice_window, volume_index );
@@ -402,9 +495,9 @@ static  void  match_view_scale_and_translation(
         if( volume_index != current_volume_index )
         {
             convert_voxel_to_world( volume, origin, &xw, &yw, &zw );
-            convert_world_to_voxel( get_volume(slice_window), xw, yw, zw,
+            convert_world_to_voxel( current_volume, xw, yw, zw,
                                     current_voxel );
-            convert_voxel_to_slice_pixel( get_volume(slice_window),
+            convert_voxel_to_slice_pixel( current_volume,
                                           current_voxel, current_origin,
                                           current_x_axis, current_y_axis,
                                           0.0, 0.0, 1.0, 1.0,
@@ -463,10 +556,10 @@ static  void  match_view_scale_and_translation(
         else
             x_scale = y_scale;
 
-        slice_window->slice.slice_views[view].used_viewport_x_size =
+        slice_ptr->slice_views[view_index].used_viewport_x_size =
                      VIO_ROUND( VIO_FABS( x_scale * (VIO_Real) (x_max - x_min) *
                                   (1.0 + Slice_fit_oversize) ));
-        slice_window->slice.slice_views[view].used_viewport_y_size =
+        slice_ptr->slice_views[view_index].used_viewport_y_size =
                      VIO_ROUND( VIO_FABS( y_scale * (VIO_Real) (y_max - y_min) *
                                   (1.0 + Slice_fit_oversize) ));
 
@@ -476,73 +569,79 @@ static  void  match_view_scale_and_translation(
                           (VIO_Real) (y_max - y_min))/2.0 - y_scale * (VIO_Real) y_min;
     }
 
-    slice_window->slice.volumes[current_volume_index].views[view].x_trans =
+    slice_ptr->volumes[current_volume_index].views[view_index].x_trans =
                                                               x_trans;
-    slice_window->slice.volumes[current_volume_index].views[view].y_trans =
+    slice_ptr->volumes[current_volume_index].views[view_index].y_trans =
                                                               y_trans;
-    slice_window->slice.volumes[current_volume_index].views[view].x_scaling =
+    slice_ptr->volumes[current_volume_index].views[view_index].x_scaling =
                                                               x_scale;
-    slice_window->slice.volumes[current_volume_index].views[view].y_scaling =
+    slice_ptr->volumes[current_volume_index].views[view_index].y_scaling =
                                                               y_scale;
 
-    match_view_scale_and_translation( slice_window, view,
-                                      get_current_volume_index(slice_window) );
+    match_view_scale_and_translation( slice_window, view_index,
+                                      current_volume_index );
 
-    slice_window->slice.slice_views[view].prev_viewport_x_size =
+    slice_ptr->slice_views[view_index].prev_viewport_x_size =
                                        (x_max_vp - x_min_vp + 1);
-    slice_window->slice.slice_views[view].prev_viewport_y_size =
+    slice_ptr->slice_views[view_index].prev_viewport_y_size =
                                        (y_max_vp - y_min_vp + 1);
 
-    slice_view_has_changed( slice_window, view );
+    slice_view_has_changed( slice_window, view_index );
 }
 
-  void  resize_slice_view(
+/**
+ * Resize a slice view, assuming that the size of the viewport changed,
+ * for example.
+ *
+ * \param slice_window The display_struct of the slice window.
+ * \param view_index The index of the affected view.
+ */
+void  resize_slice_view(
     display_struct    *slice_window,
-    int               view )
+    int               view_index )
 {
     int            volume_index;
     int            x_min, x_max, y_min, y_max;
     int            used_viewport_x_size, used_viewport_y_size;
+    slice_window_struct *slice_ptr = &slice_window->slice;
 
-    get_slice_viewport( slice_window, view, &x_min, &x_max, &y_min, &y_max );
+    get_slice_viewport( slice_window, view_index,
+                        &x_min, &x_max, &y_min, &y_max );
 
-    for_less( volume_index, 0, slice_window->slice.n_volumes )
+    for_less( volume_index, 0, get_n_volumes( slice_window ) )
     {
         resize_volume_slice(
-             slice_window->slice.slice_views[view].prev_viewport_x_size,
-             slice_window->slice.slice_views[view].prev_viewport_y_size,
-             slice_window->slice.slice_views[view].used_viewport_x_size,
-             slice_window->slice.slice_views[view].used_viewport_y_size,
+             slice_ptr->slice_views[view_index].prev_viewport_x_size,
+             slice_ptr->slice_views[view_index].prev_viewport_y_size,
+             slice_ptr->slice_views[view_index].used_viewport_x_size,
+             slice_ptr->slice_views[view_index].used_viewport_y_size,
              x_max - x_min + 1, y_max - y_min + 1,
-             &slice_window->slice.volumes[volume_index].views[view]
-                                                  .x_trans,
-             &slice_window->slice.volumes[volume_index].views[view]
-                                                  .y_trans,
-             &slice_window->slice.volumes[volume_index].views[view]
-                                                  .x_scaling,
-             &slice_window->slice.volumes[volume_index].views[view]
-                                                  .y_scaling,
+             &slice_ptr->volumes[volume_index].views[view_index].x_trans,
+             &slice_ptr->volumes[volume_index].views[view_index].y_trans,
+             &slice_ptr->volumes[volume_index].views[view_index].x_scaling,
+             &slice_ptr->volumes[volume_index].views[view_index].y_scaling,
              &used_viewport_x_size, &used_viewport_y_size );
     }
 
-    slice_window->slice.slice_views[view].used_viewport_x_size =
+    slice_ptr->slice_views[view_index].used_viewport_x_size =
                                           used_viewport_x_size;
-    slice_window->slice.slice_views[view].used_viewport_y_size =
+    slice_ptr->slice_views[view_index].used_viewport_y_size =
                                           used_viewport_y_size;
-    slice_window->slice.slice_views[view].prev_viewport_x_size =
+    slice_ptr->slice_views[view_index].prev_viewport_x_size =
                                           (x_max - x_min + 1);
-    slice_window->slice.slice_views[view].prev_viewport_y_size =
+    slice_ptr->slice_views[view_index].prev_viewport_y_size =
                                           (y_max - y_min + 1);
 
-    rebuild_slice_unfinished_flag( slice_window, view );
+    rebuild_slice_unfinished_flag( slice_window, view_index );
 
-    slice_view_has_changed( slice_window, view );
+    slice_view_has_changed( slice_window, view_index );
 }
 
 /**
  * Gets the minimum absolute step size associated with a volume. This
  * is used by scale_slice_view() to make an intelligent choice about the
  * minimum allowable scaling.
+ *
  * \param slice_window The display_struct associated with the slice view.
  * \param volume_index The index of the volume to use.
  * \returns The step size with the minimum magnitude (absolute value).
@@ -571,17 +670,17 @@ get_volume_min_step(display_struct *slice_window, int volume_index)
  * greater than one, this will increase the number of pixels per voxel
  * (the apparent voxel size). If the scale_factor is less than one, the
  * number of pixels per voxel will decrease. We impose limits to
- * prevent ridiculous scaling: Our voxels should never be bigger than 
+ * prevent ridiculous scaling: Our voxels should never be bigger than
  * the viewport, and they should never be less than 10% of the full
  * size.
  *
  * \param slice_window The display_struct of the slice window.
- * \param view The index of the affected view.
- * \param scale_factor A scaling factor. 
+ * \param view_index The index of the affected view.
+ * \param scale_factor A scaling factor.
  */
 void  scale_slice_view(
     display_struct    *slice_window,
-    int               view,
+    int               view_index,
     VIO_Real          scale_factor )
 {
     int     volume_index;
@@ -589,21 +688,22 @@ void  scale_slice_view(
     int     x_size, y_size;
     loaded_volume_struct *volumes_ptr;
 
-    get_slice_viewport( slice_window, view, &x_min, &x_max, &y_min, &y_max );
+    get_slice_viewport( slice_window, view_index,
+                        &x_min, &x_max, &y_min, &y_max );
 
     x_size = x_max - x_min + 1;
     y_size = y_max - y_min + 1;
 
     volumes_ptr = slice_window->slice.volumes;
 
-    /* Verify that this scaling isn't insane. I disallow scaling of 
+    /* Verify that this scaling isn't insane. I disallow scaling of
      * less than 10%, or where the scaling would create voxels that
      * are larger than the viewport!
      */
-    for_less( volume_index, 0, slice_window->slice.n_volumes )
+    for_less( volume_index, 0, get_n_volumes( slice_window ) )
     {
 
-      VIO_Real x_scale = volumes_ptr[volume_index].views[view].x_scaling;
+      VIO_Real x_scale = volumes_ptr[volume_index].views[view_index].x_scaling;
       VIO_Real step = get_volume_min_step(slice_window, volume_index);
 
       /* Make sure the voxels aren't ridiculously large...
@@ -619,38 +719,57 @@ void  scale_slice_view(
         return;
       }
     }
-    
-    for_less( volume_index, 0, slice_window->slice.n_volumes )
+
+    for_less( volume_index, 0, get_n_volumes( slice_window ) )
     {
         scale_slice_about_viewport_centre( scale_factor,
              x_size, y_size,
-             &volumes_ptr[volume_index].views[view].x_trans,
-             &volumes_ptr[volume_index].views[view].y_trans,
-             &volumes_ptr[volume_index].views[view].x_scaling,
-             &volumes_ptr[volume_index].views[view].y_scaling );
+             &volumes_ptr[volume_index].views[view_index].x_trans,
+             &volumes_ptr[volume_index].views[view_index].y_trans,
+             &volumes_ptr[volume_index].views[view_index].x_scaling,
+             &volumes_ptr[volume_index].views[view_index].y_scaling );
     }
 
-    slice_view_has_changed( slice_window, view );
+    slice_view_has_changed( slice_window, view_index );
 }
 
-  void  translate_slice_view(
+/**
+ * Move the slice relative to the the viewport.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param view_index The index of one of the four slice view panels.
+ * \param dx Number of pixels to translate in the column direction.
+ * \param dy Number of pixels to translate in the row direction.
+ */
+void  translate_slice_view(
     display_struct    *slice_window,
-    int               view,
-    VIO_Real              dx,
-    VIO_Real              dy )
+    int               view_index,
+    VIO_Real          dx,
+    VIO_Real          dy )
 {
-    int        volume_index;
+    int                 volume_index;
+    slice_window_struct *slice_ptr = &slice_window->slice;
 
-    for_less( volume_index, 0, slice_window->slice.n_volumes )
+    for_less( volume_index, 0, get_n_volumes( slice_window ) )
     {
-        slice_window->slice.volumes[volume_index].views[view].x_trans += dx;
-        slice_window->slice.volumes[volume_index].views[view].y_trans += dy;
+        slice_ptr->volumes[volume_index].views[view_index].x_trans += dx;
+        slice_ptr->volumes[volume_index].views[view_index].y_trans += dy;
     }
 
-    slice_view_has_changed( slice_window, view );
+    slice_view_has_changed( slice_window, view_index );
 }
 
-  VIO_BOOL  find_slice_view_mouse_is_in(
+/**
+ * Determines whether the mouse is over one of the slice views, and if so,
+ * returns the index of that view.
+ * 
+ * \param display A pointer to a display_struct.
+ * \param x_pixel The x coordinate of the mouse.
+ * \param y_pixel The y coordinate of the mouse.
+ * \param view_index Receives the index of the view.
+ * \returns TRUE if the mouse is over a slice view.
+ */
+VIO_BOOL  find_slice_view_mouse_is_in(
     display_struct    *display,
     int               x_pixel,
     int               y_pixel,
@@ -684,7 +803,23 @@ void  scale_slice_view(
     return( found );
 }
 
-  VIO_BOOL  convert_pixel_to_voxel(
+/**
+ * Convert a window position in pixel coordinates to a voxel coordinate
+ * relative to the given volume, also returning the view index associated
+ * with the position.
+ *
+ * \param display A pointer to a display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param view_index The index of one of the four slice view panels.
+ * \param x_pixel The x pixel coordinate relative to the window.
+ * \param y_pixel The y pixel coordinate relative to the window.
+ * \param voxel Receives the voxel coordinate.
+ * \param view_index Receives the index of the view corresponding to this
+ * position.
+ * \returns TRUE if the pixel coordinate can be transformed to 
+ * a valid voxel coordinate.
+ */
+VIO_BOOL  convert_pixel_to_voxel(
     display_struct    *display,
     int               volume_index,
     int               x_pixel,
@@ -727,13 +862,23 @@ void  scale_slice_view(
     return( found );
 }
 
-  void  convert_voxel_to_pixel(
+/**
+ * Convert a voxel coordinate to a pixel coordinate.
+ *
+ * \param display A pointer to a display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param view_index The index of one of the four slice view panels.
+ * \param voxel The voxel coordinate to transform.
+ * \param x_pixel Receives the x pixel coordinate.
+ * \param y_pixel Receives the y pixel coordinate.
+ */
+void  convert_voxel_to_pixel(
     display_struct    *display,
     int               volume_index,
     int               view_index,
-    VIO_Real              voxel[],
-    VIO_Real              *x_pixel,
-    VIO_Real              *y_pixel )
+    VIO_Real          voxel[],
+    VIO_Real          *x_pixel,
+    VIO_Real          *y_pixel )
 {
     VIO_Volume            volume;
     display_struct    *slice_window;
@@ -764,19 +909,33 @@ void  scale_slice_view(
     }
 }
 
-  void  get_voxel_to_pixel_transform(
+/**
+ * Get the parameters needed to transform voxel coordinates to pixel
+ * coordinates for the given volume and view.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param view_index The index of one of the four slice view panels.
+ * \param x_index Receives the index of the column axis.
+ * \param y_index Receives the index of the row axis.
+ * \param x_scale Receives the scaling to apply in the column direction.
+ * \param x_trans Receives the offset to apply in the column direction.
+ * \param y_scale Receives the scaling to apply in the row direction.
+ * \param y_trans Receives the offset to apply in the row direction.
+ */
+void  get_voxel_to_pixel_transform(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index,
     int               *x_index,
     int               *y_index,
-    VIO_Real              *x_scale,
-    VIO_Real              *x_trans,
-    VIO_Real              *y_scale,
-    VIO_Real              *y_trans )
+    VIO_Real          *x_scale,
+    VIO_Real          *x_trans,
+    VIO_Real          *y_scale,
+    VIO_Real          *y_trans )
 {
     int     axis;
-    VIO_Real    voxel[VIO_MAX_DIMENSIONS], x, y;
+    VIO_Real  voxel[VIO_MAX_DIMENSIONS], x, y;
 
     if( !slice_has_ortho_axes( slice_window, volume_index,
                                view_index, x_index, y_index, &axis ) )
@@ -800,10 +959,21 @@ void  scale_slice_view(
     *y_scale = y - *y_trans;
 }
 
+/** 
+ * Gets the voxel coordinate corresponding to a particular point in world
+ * coordinates. The voxel coordinates are calculated with respect to the
+ * current volume.
+ *
+ * \param display A pointer to any display_struct.
+ * \param point A pointer to the point to be converted.
+ * \param voxel Receives the voxel coordinates of the point.
+ * \returns TRUE if the voxel coordinates are valid and lie within the
+ * current volume.
+ */
 VIO_BOOL  get_voxel_corresponding_to_point(
-    display_struct *display,
-    VIO_Point      *point,
-    VIO_Real       voxel[] )
+    display_struct  *display,
+    const VIO_Point *point,
+    VIO_Real        voxel[] )
 {
     VIO_Volume     volume;
     VIO_BOOL       converted = FALSE;
@@ -828,7 +998,22 @@ VIO_BOOL  get_voxel_corresponding_to_point(
     return( converted );
 }
 
-  void   get_slice_window_partitions(
+/**
+ * Gets the various size parameters that control the layout of the
+ * slice view window. All of the returned values are expressed in
+ * pixel units.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param left_panel_width Receives the width of the left panel 
+ * that contains the colour bar and text readout.
+ * \param left_slice_width Receives the width of the left-hand slice views.
+ * \param right_slice_width Receives he width of the right-hand slice views.
+ * \param bottom_slice_height Receives the height of the bottom slice views.
+ * \param top_slice_height Receives the height of the upper slice views.
+ * \param text_panel_height Receives the height of the text readout panel.
+ * \param colour_bar_panel_height Receives the height of the colour bar.
+ */
+void   get_slice_window_partitions(
     display_struct    *slice_window,
     int               *left_panel_width,
     int               *left_slice_width,
@@ -852,7 +1037,18 @@ VIO_BOOL  get_voxel_corresponding_to_point(
     *top_slice_height = y_size - *bottom_slice_height;
 }
 
-  void  get_slice_viewport(
+/**
+ * Gets the rectangular region associated with one of the four slice
+ * views.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param view_index The zero-based index of the view.
+ * \param x_min Receives the minimum x coordinate of the viewport.
+ * \param x_max Receives the maximum x coordinate of the viewport.
+ * \param y_min Receives the minimum y coordinate of the viewport.
+ * \param y_max Receives the maximum y coordinate of the viewport.
+ */
+void  get_slice_viewport(
     display_struct    *slice_window,
     int               view_index,
     int               *x_min,
@@ -910,7 +1106,18 @@ VIO_BOOL  get_voxel_corresponding_to_point(
         *y_max = *y_min;
 }
 
-  void  get_colour_bar_viewport(
+/**
+ * Gets the rectangular region associated with the colour bar, the
+ * widget used to set the lower and upper limits of the volume colour
+ * coding.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param x_min Receives the minimum x coordinate of the viewport.
+ * \param x_max Receives the maximum x coordinate of the viewport.
+ * \param y_min Receives the minimum y coordinate of the viewport.
+ * \param y_max Receives the maximum y coordinate of the viewport.
+ */
+void  get_colour_bar_viewport(
     display_struct    *slice_window,
     int               *x_min,
     int               *x_max,
@@ -934,7 +1141,17 @@ VIO_BOOL  get_voxel_corresponding_to_point(
              Slice_divider_top;
 }
 
-  void  get_text_display_viewport(
+/**
+ * Gets the rectangular region associated with the text display (also
+ * referred to as the "probe" or "readout" in other contexts).
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param x_min Receives the minimum x coordinate of the viewport.
+ * \param x_max Receives the maximum x coordinate of the viewport.
+ * \param y_min Receives the minimum y coordinate of the viewport.
+ * \param y_max Receives the maximum y coordinate of the viewport.
+ */
+void  get_text_display_viewport(
     display_struct    *slice_window,
     int               *x_min,
     int               *x_max,
@@ -957,7 +1174,15 @@ VIO_BOOL  get_voxel_corresponding_to_point(
     *y_max = text_panel_height - 2;
 }
 
-  void  get_slice_divider_intersection(
+/**
+ * Gets the position of the intersection of the slice dividers that define the
+ * relative sizes of the four view panels.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param x Receives the x position.
+ * \param y Receives the y position.
+ */
+void  get_slice_divider_intersection(
     display_struct    *slice_window,
     int               *x,
     int               *y )
@@ -976,7 +1201,15 @@ VIO_BOOL  get_voxel_corresponding_to_point(
     *y = bottom_slice_height;
 }
 
-  void  set_slice_divider_position(
+/**
+ * Sets the position of the intersection of the slice dividers that define the
+ * relative sizes of the four view panels. Updates the display accordingly.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param x The new x position.
+ * \param y The new y position.
+ */
+void  set_slice_divider_intersection(
     display_struct    *slice_window,
     int               x,
     int               y )
@@ -1027,7 +1260,6 @@ VIO_BOOL  get_voxel_corresponding_to_point(
  * \param voxel The voxel coordinates corresponding to this cursor position.
  * \returns TRUE if an active volume and view can be identified.
  */
-
 VIO_BOOL  get_volume_corresponding_to_pixel(
     display_struct    *slice_window,
     int               x,
@@ -1051,7 +1283,7 @@ VIO_BOOL  get_volume_corresponding_to_pixel(
         return (*volume_index >= 0);
     }
 
-    for( *volume_index = slice_window->slice.n_volumes-1;  *volume_index >= 0;
+    for( *volume_index = get_n_volumes( slice_window ) - 1;  *volume_index >= 0;
          --(*volume_index) )
     {
         if( slice_window->slice.volumes[*volume_index].opacity > 0.0 &&
@@ -1067,14 +1299,14 @@ VIO_BOOL  get_volume_corresponding_to_pixel(
 }
 
 /**
- * If the mouse cursor is over any of the slice views, get the voxel 
- * position, the volume index, and the view index corresponding to 
+ * If the mouse cursor is over any of the slice views, get the voxel
+ * position, the volume index, and the view index corresponding to
  * the mouse cursor position.
  *
  * \param display Any display_struct.
  * \param voxel The voxel position corresponding to the mouse position.
- * \param volume_index The index of the currently selected volume.
- * \param view_index The number of the slice view under the mouse.
+ * \param volume_index Receives the index of the desired volume.
+ * \param view_index Receives the index of the slice view under the mouse.
  * \returns TRUE if the mouse is over one of the the slice views.
  */
 VIO_BOOL  get_voxel_in_slice_window(
@@ -1104,16 +1336,17 @@ VIO_BOOL  get_voxel_in_slice_window(
  *
  * \param display The display_struct of the 3D window.
  * \param voxel The returned voxel coordinates.
+ * \returns TRUE if the voxel coordinate was found.
  */
-VIO_BOOL
+static VIO_BOOL
 get_voxel_in_three_d_window(
     display_struct    *display,
-    VIO_Real              voxel[] )
+    VIO_Real          voxel[] )
 {
-    VIO_BOOL          found;
+    VIO_BOOL         found;
     object_struct    *object;
     int              object_index;
-    VIO_Point            intersection_point;
+    VIO_Point        intersection_point;
     display_struct   *slice_window;
 
     found = FALSE;
@@ -1132,19 +1365,33 @@ get_voxel_in_three_d_window(
     return( found );
 }
 
-  VIO_BOOL  get_voxel_under_mouse(
+/**
+ * Get the voxel coordinates, volume index, and view index corresponding 
+ * to the current mouse cursor position. These values are calculated for
+ * either the 3D view or the slice view windows.
+ *
+ * \param display A pointer to any display_struct.
+ * \param volume_index Receives the index of the volume under the mouse.
+ * \param view_index Receives the index of the view under the mouse. 
+ * \param voxel Receives the voxel coordinates corresponding to the 
+ * mouse position, with respect to the volume.
+ * \returns TRUE if a valid voxel location can be calculated.
+ */
+VIO_BOOL  get_voxel_under_mouse(
     display_struct    *display,
     int               *volume_index,
     int               *view_index,
-    VIO_Real              voxel[] )
+    VIO_Real          voxel[] )
 {
     display_struct    *three_d, *slice_window;
     VIO_BOOL           found;
 
     three_d = display->associated[THREE_D_WINDOW];
 
-    if( !get_slice_window(three_d,&slice_window) )
+    if( !get_slice_window(three_d, &slice_window) )
+    {
         found = FALSE;
+    }
     else if( G_is_mouse_in_window( slice_window->window ) )
     {
         found = get_voxel_in_slice_window( slice_window, voxel,
@@ -1164,10 +1411,17 @@ get_voxel_in_three_d_window(
     return( found );
 }
 
-  void  get_current_voxel(
+/**
+ * Get the current voxel coordinate for a given volume.
+ *
+ * \param display A pointer to a display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param voxel The returned voxel position.
+ */
+void  get_current_voxel(
     display_struct    *display,
     int               volume_index,
-    VIO_Real              voxel[] )
+    VIO_Real          voxel[] )
 {
     int              c;
     display_struct   *slice_window;
@@ -1189,77 +1443,104 @@ get_voxel_in_three_d_window(
     }
 }
 
-  VIO_BOOL  set_current_voxel(
+/**
+ * Sets the current position for all volumes with respect to a
+ * specific voxel position in a given volume. Arranges for the actual
+ * display to be updated to reflect the new position.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param ref_volume_index The zero-based index of the reference volume.
+ * \param ref_voxel The voxel position in the reference volume.
+ * \returns TRUE if the current position was updated for any volume.
+ */
+VIO_BOOL  set_current_voxel(
     display_struct    *slice_window,
-    int               this_volume_index,
-    VIO_Real              voxel[] )
+    int               ref_volume_index,
+    VIO_Real          ref_voxel[] )
 {
     VIO_BOOL          changed;
-    int               i, view, volume_index;
-    int               axis, x_index, y_index;
-    VIO_Real          xw, yw, zw, used_voxel[VIO_MAX_DIMENSIONS];
+    int               i, view_index, volume_index;
+    VIO_Real          ref_w[VIO_N_DIMENSIONS];
+    VIO_Real          new_voxel[VIO_MAX_DIMENSIONS];
     VIO_Volume        volume;
     int               n_dimensions;
+    int               cur_volume_index;
+
+    cur_volume_index = get_current_volume_index( slice_window );
 
     changed = FALSE;
 
-    volume = get_nth_volume( slice_window, this_volume_index );
+    volume = get_nth_volume( slice_window, ref_volume_index );
 
-    convert_voxel_to_world( volume, voxel, &xw, &yw, &zw );
+    convert_voxel_to_world( volume, ref_voxel,
+                            &ref_w[VIO_X], &ref_w[VIO_Y], &ref_w[VIO_Z] );
 
     n_dimensions = get_volume_n_dimensions( volume );
 
-    for_less( volume_index, 0, slice_window->slice.n_volumes )
+    for_less( volume_index, 0, get_n_volumes( slice_window ) )
     {
-        if( volume_index == this_volume_index )
+        loaded_volume_struct *lv_ptr = &slice_window->slice.volumes[volume_index];
+        if( volume_index == ref_volume_index )
         {
+            /* For the reference volume, there is obviously no need to
+             * transform the voxel coordinates.
+             */
             for_less( i, 0, VIO_MAX_DIMENSIONS )
-                used_voxel[i] = voxel[i];
+                new_voxel[i] = ref_voxel[i];
         }
         else
         {
-            convert_world_to_voxel( get_nth_volume(slice_window,volume_index),
-                                    xw, yw, zw, used_voxel );
-            /* TODO - properly set time here? */
+            /* For all other volumes, we need to transform from the
+             * world space of the reference volume to the voxel space
+             * of this volume.
+             */
+            convert_world_to_voxel( get_nth_volume(slice_window, volume_index),
+                                    ref_w[VIO_X], ref_w[VIO_Y], ref_w[VIO_Z],
+                                    new_voxel );
+
+            /* Make sure all elements of the array are initialized.
+             */
             for_less( i, VIO_N_DIMENSIONS, VIO_MAX_DIMENSIONS )
-                used_voxel[i] = 0.0;
+                new_voxel[i] = 0.0;
         }
 
         for_less( i, 0, n_dimensions )
         {
-            if( used_voxel[i] != slice_window->slice.volumes[volume_index].
-                                             current_voxel[i] )
+            if( new_voxel[i] != lv_ptr->current_voxel[i] )
             {
-                slice_window->slice.volumes[volume_index].current_voxel[i] =
-                                                     used_voxel[i];
+                lv_ptr->current_voxel[i] = new_voxel[i];
+                changed = TRUE;
 
-                for_less( view, 0, N_SLICE_VIEWS )
+                for_less( view_index, 0, N_SLICE_VIEWS )
                 {
+                    int axis_index, x_index, y_index;
+
                     /* Force an update for the slice view if it is:
                        1. Non-orthogonal (oblique).
                        2. The current (changing) axis 'i'
                        3. The time axis.
                     */
-                    if( !slice_has_ortho_axes( slice_window, volume_index, view,
-                                               &x_index, &y_index, &axis ) ||
-                        axis == i || VIO_T == i )
+                    if( !slice_has_ortho_axes( slice_window, volume_index,
+                                               view_index, &x_index,
+                                               &y_index, &axis_index ) ||
+                        axis_index == i || VIO_T == i )
                     {
                         set_slice_window_update( slice_window, volume_index,
-                                                 view, UPDATE_BOTH );
+                                                 view_index, UPDATE_BOTH );
 
-                        if( volume_index ==
-                            get_current_volume_index(slice_window) )
+                        /* Special handling necessary if the
+                         * currently selected volume is changing.
+                         */
+                        if( volume_index == cur_volume_index )
                         {
-                            set_crop_box_update( slice_window, view );
-                            set_atlas_update( slice_window, view );
-                            set_slice_text_update( slice_window, view );
-                            set_slice_outline_update( slice_window, view );
+                            set_crop_box_update( slice_window, view_index );
+                            set_atlas_update( slice_window, view_index );
+                            set_slice_text_update( slice_window, view_index );
+                            set_slice_outline_update( slice_window, view_index );
                         }
                     }
                 }
             }
-
-            changed = TRUE;
         }
     }
 
@@ -1267,7 +1548,7 @@ get_voxel_in_three_d_window(
     rebuild_volume_cross_section( slice_window );
     set_slice_cursor_update( slice_window, -1 );
     set_probe_update( slice_window );
-    set_slice_outline_update( slice_window, -1 );
+    set_slice_outline_update( slice_window, -1 ); /* Is this needed?? */
 
     return( changed );
 }
@@ -1278,11 +1559,11 @@ get_voxel_in_three_d_window(
  * normalized to length one.
  *
  * \param volume The volume for which this information is desired.
- * \param x_axis An array containing the three components of the column 
+ * \param x_axis An array containing the three components of the column
  * direction (left-right) in the view panel, in voxel coordinates.
  * \param y_axis An array containing the three components of the row
  * direction (up-down) in the view panel, in voxel coordinates.
- * \param perp_axis The output array, which will be filled in with the 
+ * \param perp_axis The output array, which will be filled in with the
  * perpendicular axis for this view panel. Again, this is in voxel coordinates.
  */
 static  void  get_voxel_axis_perpendicular(
@@ -1292,11 +1573,10 @@ static  void  get_voxel_axis_perpendicular(
     VIO_Real       perp_axis[] )
 {
     int      c, a1, a2;
-    VIO_Real len, separations[VIO_MAX_DIMENSIONS];
+    VIO_Real separations[VIO_MAX_DIMENSIONS];
 
     get_volume_separations( volume, separations );
 
-    len = 0.0;
     for_less( c, 0, VIO_N_DIMENSIONS )
     {
         a1 = (c + 1) % VIO_N_DIMENSIONS;
@@ -1305,45 +1585,48 @@ static  void  get_voxel_axis_perpendicular(
 
         perp_axis[c] *= VIO_FABS( separations[a1] * separations[a2] /
                              separations[c] );
-
-        len += perp_axis[c] * perp_axis[c];
     }
 
-    /* Normalize the result. */
-    if( len != 0.0 )
-    {
-        len = sqrt( len );
-        for_less( c, 0, VIO_N_DIMENSIONS )
-            perp_axis[c] /= len;
-    }
+    array_normalize( perp_axis, VIO_N_DIMENSIONS );
 }
 
 /**
- * Get the axis perpendicular to the given volume and slice view. The 
+ * Get the axis perpendicular to the given volume and slice view. The
  * value returned is in _voxel_ coordinates.
- * \param slice_window A pointer to the display_struct of the slice (volume) 
- * view window.
- * \param volume_index The index of the desired volume.
- * \param view_index The index of the desired view panel.
- * \param perp_axis The returned axis components.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param view_index The index of one of the four slice view panels.
+ * \param voxel_perp The returned axis components.
  */
 void  get_slice_perp_axis(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    VIO_Real         perp_axis[] )
+    VIO_Real         voxel_perp[] )
 {
     get_voxel_axis_perpendicular( get_nth_volume(slice_window,volume_index),
         slice_window->slice.volumes[volume_index].views[view_index].x_axis,
         slice_window->slice.volumes[volume_index].views[view_index].y_axis,
-        perp_axis );
+        voxel_perp );
 }
 
+/**
+ * Sets the plane of the given volume and view, from a
+ * given perpendicular axis.
+ *
+ * Primarily used to set the axis of the arbitrary (oblique) view.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param view_index The index of one of the four slice view panels.
+ * \param voxel_perp The axis perpendicular to the desired plane.
+ */
 void  set_slice_plane_perp_axis(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    VIO_Real             voxel_perp[] )
+    const VIO_Real   voxel_perp[] )
 {
     VIO_Real     max_value, len, sign;
     VIO_Real     len_x_axis, len_y_axis, factor;
@@ -1467,35 +1750,57 @@ void  set_slice_plane_perp_axis(
         slice_view_has_changed( slice_window, view );
 }
 
-  void  set_slice_plane(
+/**
+ * Sets the plane of the given volume and view, from a
+ * given pair of row and column axes.
+ *
+ * Primarily used to set the axis of the arbitrary (oblique) view.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param view_index The index of one of the four slice view panels.
+ * \param x_axis The unit vector of the column direction.
+ * \param y_axis The unit vector of the row direction.
+ */
+void  set_slice_plane(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    VIO_Real             x_axis[],
-    VIO_Real             y_axis[] )
+    const VIO_Real   x_axis[],
+    const VIO_Real   y_axis[] )
 {
     VIO_Real     perp[VIO_MAX_DIMENSIONS];
 
-    get_voxel_axis_perpendicular( get_nth_volume(slice_window,volume_index),
+    get_voxel_axis_perpendicular( get_nth_volume( slice_window, volume_index ),
                                   x_axis, y_axis, perp );
 
     set_slice_plane_perp_axis( slice_window, volume_index, view_index, perp );
 }
 
-  void  get_slice_plane(
+/**
+ * Get the plane and origin of the given volume and view.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param view_index The index of one of the four slice view panels.
+ * \param origin Receives the current origin of the view in voxel coordinates.
+ * \param x_axis Receives the vector corresponding to the column direction.
+ * \param y_axis Receives the vector corresponding to the row direction.
+ */
+void  get_slice_plane(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    VIO_Real             origin[],
-    VIO_Real             x_axis[],
-    VIO_Real             y_axis[] )
+    VIO_Real         origin[],
+    VIO_Real         x_axis[],
+    VIO_Real         y_axis[] )
 {
-    int    c, axis;
+    int        c, axis;
     VIO_Real   separations[VIO_MAX_DIMENSIONS];
     VIO_Real   voxel[VIO_MAX_DIMENSIONS], perp_axis[VIO_MAX_DIMENSIONS];
     VIO_Real   voxel_dot_perp, perp_dot_perp, factor;
 
-    get_volume_separations( get_nth_volume(slice_window,volume_index),
+    get_volume_separations( get_nth_volume( slice_window, volume_index ),
                             separations );
 
     get_current_voxel( slice_window, volume_index, voxel );
@@ -1559,16 +1864,23 @@ void  set_slice_plane_perp_axis(
     y_axis[VIO_T] = 0.0;
 }
 
-  VIO_BOOL  get_slice_view_index_under_mouse(
+/**
+ * Gets the slice view index corresponding to the current mouse position.
+ *
+ * The slice view index is a value from 0 to N_SLICE_VIEWS - 1 that
+ * corresponds to one of the four slice view panels.
+ *
+ * \param display A pointer to a top-level display_struct.
+ * \param view_index Receives the index of the view under the mouse, if any.
+ * \returns TRUE if the mouse is over one of the slice view panels.
+ */
+VIO_BOOL  get_slice_view_index_under_mouse(
     display_struct   *display,
     int              *view_index )
 {
-    VIO_BOOL          found;
-    VIO_Volume           volume;
-    display_struct   *slice_window;
-    int              x, y;
-
-    found = FALSE;
+    VIO_Volume     volume;
+    display_struct *slice_window;
+    int            x, y;
 
     if( get_slice_window( display, &slice_window ) &&
         get_slice_window_volume( slice_window, &volume ) )
@@ -1576,20 +1888,32 @@ void  set_slice_plane_perp_axis(
         if( G_get_mouse_position( slice_window->window, &x, &y ) &&
             find_slice_view_mouse_is_in( slice_window, x, y, view_index ) )
         {
-            found = TRUE;
+            return TRUE;
         }
     }
-
-    return( found );
+    return FALSE;
 }
 
-  VIO_BOOL  get_axis_index_under_mouse(
+/**
+ * Get the volume index and index of the slice axis for the slice
+ * view under the mouse.
+ *
+ * If the mouse is over the current sagittal plane, for example, this
+ * function will return the index of the X axis of the volume, and also
+ * returns the volume_index of the volume under the mouse.
+ *
+ * \param display A pointer to a top-level display_struct.
+ * \param volume_index Receives the zero-based index of the volume.
+ * \param axis_index Receives the slice axis index.
+ * \returns TRUE if the mouse is over one of the orthogonal slice views.
+ */
+VIO_BOOL  get_axis_index_under_mouse(
     display_struct   *display,
     int              *volume_index,
     int              *axis_index )
 {
-    VIO_BOOL          found;
-    VIO_Real             voxel[VIO_MAX_DIMENSIONS];
+    VIO_BOOL         found;
+    VIO_Real         voxel[VIO_MAX_DIMENSIONS];
     int              view_index, x_index, y_index;
     display_struct   *slice_window;
 
@@ -1602,7 +1926,24 @@ void  set_slice_plane_perp_axis(
     return( found );
 }
 
-  VIO_BOOL  slice_has_ortho_axes(
+/**
+ * See if the given volume and view have orthogonal axes. Also returns
+ * the indices of the column, row, and slice axes.
+ *
+ * Certain operations are disallowed if the current slice has oblique
+ * axes, so this function exists to make checking for that condition
+ * as easy as possible.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param view_index The view index of the desired view.
+ * \param x_index Receives the index of the voxel column axis.
+ * \param y_index Receives the index of the voxel row axis.
+ * \param axis_index Receives the index of the voxel slice axis.
+ *
+ * \returns TRUE if the slice view axes are orthogonal.
+ */
+VIO_BOOL  slice_has_ortho_axes(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
@@ -1644,7 +1985,13 @@ void  set_slice_plane_perp_axis(
     return( TRUE );
 }
 
-  int  get_arbitrary_view_index(
+/**
+ * Retrieve the view index of the current arbitrary (oblique) view.
+ *
+ * \param display A pointer to a top-level display_struct.
+ * \returns The current oblique view index (between 0 and N_SLICE_VIEWS - 1).
+ */
+int  get_arbitrary_view_index(
     display_struct   *display )
 {
     display_struct   *slice_window;
@@ -1655,9 +2002,20 @@ void  set_slice_plane_perp_axis(
         return( 0 );
 }
 
-  void  get_slice_model_viewport(
+/**
+ * Returns the rectangular viewport (i.e. window coordinates) for each of the
+ * parts of the slice view window.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param model_index The number of the model whose viewport we want.
+ * \param x_min Receives the minimum x-coordinate of the rectangle.
+ * \param x_max Receives the maximum x-coordinate of the rectangle.
+ * \param y_min Receives the minimum y-coordinate of the rectangle.
+ * \param y_max Receives the maximum y-coordinate of the rectangle.
+ */
+void  get_slice_model_viewport(
     display_struct   *slice_window,
-    int              model,
+    int              model_index,
     int              *x_min,
     int              *x_max,
     int              *y_min,
@@ -1665,7 +2023,7 @@ void  set_slice_plane_perp_axis(
 {
     int   x_size, y_size;
 
-    switch( model )
+    switch( model_index )
     {
     case FULL_WINDOW_MODEL:
         G_get_window_size( slice_window->window, &x_size, &y_size );
@@ -1679,7 +2037,7 @@ void  set_slice_plane_perp_axis(
     case SLICE_MODEL2:
     case SLICE_MODEL3:
     case SLICE_MODEL4:
-        get_slice_viewport( slice_window, model - SLICE_MODEL1,
+        get_slice_viewport( slice_window, model_index - SLICE_MODEL1,
                             x_min, x_max, y_min, y_max );
         break;
 
@@ -1694,47 +2052,56 @@ void  set_slice_plane_perp_axis(
 }
 
 /**
- * Given a new voxel position has been set, update the cursor
- * position in world coordinates as well.
+ * Update the 3D view window's cursor position (in world coordinates)
+ * based upon the voxel cursor position in the slice view window.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \returns TRUE if the cursor was updated successfully.
  */
 VIO_BOOL  update_cursor_from_voxel(
     display_struct    *slice_window )
 {
-    VIO_Real          voxel[VIO_MAX_DIMENSIONS];
-    VIO_Real          x_w, y_w, z_w;
-    int               volume_index;
-    VIO_Point         origin;
+    VIO_Real  voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real  x_w, y_w, z_w;
+    int       volume_index;
+    VIO_Point origin;
 
-    volume_index = get_current_volume_index(slice_window);
+    volume_index = get_current_volume_index( slice_window );
     if (volume_index < 0)
         return FALSE;
 
     get_current_voxel( slice_window, volume_index, voxel );
 
-    convert_voxel_to_world( get_nth_volume(slice_window, volume_index), 
+    convert_voxel_to_world( get_nth_volume( slice_window, volume_index ),
                             voxel, &x_w, &y_w, &z_w );
 
     fill_Point( origin, x_w, y_w, z_w );
 
-    set_cursor_origin(slice_window, &origin);
+    set_cursor_origin( slice_window, &origin );
 
     return TRUE;
 }
 
-  VIO_BOOL  update_voxel_from_cursor(
-    display_struct    *slice_window )
+/**
+ * Update the slice view window's voxel position based on the value of
+ * the 3D view window's cursor.
+ *
+ * \param display A pointer to a top-level display_struct.
+ * \returns TRUE if the voxel position was changed.
+ */
+VIO_BOOL update_voxel_from_cursor(
+    display_struct    *display )
 {
-    int               volume_index;
-    VIO_Real          voxel[VIO_MAX_DIMENSIONS];
-    VIO_Real          prev_voxel[VIO_MAX_DIMENSIONS];
-    VIO_BOOL          changed;
+    display_struct    *slice_window;
+    VIO_BOOL          changed = FALSE;
 
-    changed = FALSE;
-
-    if( get_slice_window(slice_window, &slice_window) &&
+    if( get_slice_window(display, &slice_window) &&
         get_n_volumes(slice_window) > 0 )
     {
         VIO_Point cursor_origin;
+        int       volume_index;
+        VIO_Real  voxel[VIO_MAX_DIMENSIONS];
+        VIO_Real  prev_voxel[VIO_MAX_DIMENSIONS];
 
         get_cursor_origin(slice_window, &cursor_origin);
 
@@ -1742,7 +2109,10 @@ VIO_BOOL  update_cursor_from_voxel(
                                                  &cursor_origin,
                                                  voxel );
         volume_index = get_current_volume_index( slice_window );
-        get_current_voxel(slice_window, volume_index, prev_voxel);
+        get_current_voxel( slice_window, volume_index, prev_voxel );
+
+        /* Don't change the time position.
+         */
         voxel[VIO_T] = prev_voxel[VIO_T];
         changed = set_current_voxel( slice_window, volume_index, voxel );
     }
@@ -1750,114 +2120,157 @@ VIO_BOOL  update_cursor_from_voxel(
     return( changed );
 }
 
+/**
+ * Update the slice axes for a view, using a particular volume as the
+ * "reference" volume. All other volumes will be aligned to the voxel
+ * space of the reference volume.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param ref_volume_index The zero-based index of the reference volume.
+ * \param view_index The view index to update.
+ */
 static  void  update_all_slice_axes(
     display_struct    *slice_window,
-    int               volume_index,
+    int               ref_volume_index,
     int               view_index )
 {
-    int    v, axis;
-    VIO_Real   x_axis_x, x_axis_y, x_axis_z, y_axis_x, y_axis_y, y_axis_z;
-    VIO_Real   x_mag, y_mag, x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
-    VIO_Real   ref_x_axis[VIO_MAX_DIMENSIONS], ref_y_axis[VIO_MAX_DIMENSIONS];
+    int        volume_index, axis;
+    VIO_Real   ref_x_world[VIO_N_DIMENSIONS];
+    VIO_Real   ref_y_world[VIO_N_DIMENSIONS];
+    VIO_Volume ref_volume;
+    volume_view_ptr ref_view;
 
-    for_less( axis, 0, VIO_N_DIMENSIONS )
+    ref_volume = get_nth_volume( slice_window, ref_volume_index );
+
+    ref_view = &slice_window->slice.volumes[ref_volume_index].views[view_index];
+
+    convert_voxel_vector_to_world( ref_volume, ref_view->x_axis,
+                                   &ref_x_world[VIO_X],
+                                   &ref_x_world[VIO_Y],
+                                   &ref_x_world[VIO_Z]);
+
+    convert_voxel_vector_to_world( ref_volume, ref_view->y_axis,
+                                   &ref_y_world[VIO_X],
+                                   &ref_y_world[VIO_Y],
+                                   &ref_y_world[VIO_Z]);
+
+    for_less( volume_index, 0, get_n_volumes( slice_window ) )
     {
-        ref_x_axis[axis] = slice_window->slice.volumes[volume_index].
-                           views[view_index].x_axis[axis];
-        ref_y_axis[axis] = slice_window->slice.volumes[volume_index].
-                            views[view_index].y_axis[axis];
-    }
+        VIO_Volume volume = get_nth_volume( slice_window, volume_index );
+        VIO_Real   x_axis[VIO_MAX_DIMENSIONS];
+        VIO_Real   y_axis[VIO_MAX_DIMENSIONS];
+        VIO_Real   x_mag, y_mag;
+        volume_view_ptr view;
 
-    convert_voxel_vector_to_world( get_nth_volume(slice_window,volume_index),
-                            ref_x_axis, &x_axis_x, &x_axis_y, &x_axis_z );
-
-    convert_voxel_vector_to_world( get_nth_volume(slice_window,volume_index),
-                            ref_y_axis, &y_axis_x, &y_axis_y, &y_axis_z );
-
-    for_less( v, 0, slice_window->slice.n_volumes )
-    {
-        if( v == volume_index )
+        if( volume_index == ref_volume_index )
             continue;
 
-        if( volumes_are_same_grid( get_nth_volume(slice_window,volume_index),
-                                   get_nth_volume(slice_window,v) ) )
+        if( volumes_are_same_grid( ref_volume, volume ) )
         {
             for_less( axis, 0, VIO_N_DIMENSIONS )
             {
-                x_axis[axis] = ref_x_axis[axis];
-                y_axis[axis] = ref_y_axis[axis];
+                x_axis[axis] = ref_view->x_axis[axis];
+                y_axis[axis] = ref_view->y_axis[axis];
             }
         }
         else
         {
-            convert_world_vector_to_voxel(get_nth_volume(slice_window,v),
-                                      x_axis_x, x_axis_y, x_axis_z, x_axis );
-            convert_world_vector_to_voxel(get_nth_volume(slice_window,v),
-                                      y_axis_x, y_axis_y, y_axis_z, y_axis );
+            convert_world_vector_to_voxel( volume,
+                                           ref_x_world[VIO_X],
+                                           ref_x_world[VIO_Y],
+                                           ref_x_world[VIO_Z],
+                                           x_axis );
+            convert_world_vector_to_voxel( volume,
+                                           ref_y_world[VIO_X],
+                                           ref_y_world[VIO_Y],
+                                           ref_y_world[VIO_Z],
+                                           y_axis );
         }
 
-        x_mag = sqrt( x_axis[VIO_X] * x_axis[VIO_X] + x_axis[VIO_Y] * x_axis[VIO_Y] +
-                      x_axis[VIO_Z] * x_axis[VIO_Z] );
-
+        x_mag = array_magnitude( x_axis, VIO_N_DIMENSIONS );
         if( x_mag == 0.0 )
             x_mag = 1.0;
 
-        y_mag = sqrt( y_axis[VIO_X] * y_axis[VIO_X] + y_axis[VIO_Y] * y_axis[VIO_Y] +
-                      y_axis[VIO_Z] * y_axis[VIO_Z] );
-
+        y_mag = array_magnitude( y_axis, VIO_N_DIMENSIONS );
         if( y_mag == 0.0 )
             y_mag = 1.0;
 
+        view = &slice_window->slice.volumes[volume_index].views[view_index];
+
         for_less( axis, 0, VIO_N_DIMENSIONS )
         {
-            slice_window->slice.volumes[v].views[view_index].x_axis[axis] =
-                                                          x_axis[axis] / x_mag;
-            slice_window->slice.volumes[v].views[view_index].y_axis[axis] =
-                                                          y_axis[axis] / y_mag;
+            view->x_axis[axis] = x_axis[axis] / x_mag;
+            view->y_axis[axis] = y_axis[axis] / y_mag;
         }
     }
 
-    match_view_scale_and_translation( slice_window, view_index, volume_index );
+    match_view_scale_and_translation( slice_window, view_index,
+                                      ref_volume_index );
 }
 
-  void  update_all_slice_axes_views(
+/**
+ * Update the axes of all four slice views, using a particular volume
+ * as the reference volume. All other volumes will be aligned to the
+ * reference volume.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param volume_index The zero-based index of the reference volume.
+ */
+void  update_all_slice_axes_views(
     display_struct    *slice_window,
     int               volume_index )
 {
-    int   view;
+    int   view_index;
 
-    for_less( view, 0, N_SLICE_VIEWS )
-        update_all_slice_axes( slice_window, volume_index, view );
+    for_less( view_index, 0, N_SLICE_VIEWS )
+        update_all_slice_axes( slice_window, volume_index, view_index );
 }
 
-  void  slice_view_has_changed(
-    display_struct   *display,
-    int              view )
+/**
+ * Trigger redisplay of a particular slice view.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param view_index The view number (0-3) to update.
+ */
+static void  slice_view_has_changed(
+    display_struct   *slice_window,
+    int              view_index )
 {
-    display_struct   *slice_window;
+    assert( slice_window->window_type == SLICE_WINDOW );
 
-    if( !get_slice_window( display, &slice_window ) )
-        return;
-
-    set_slice_cursor_update( slice_window, view );
-    set_slice_cross_section_update( slice_window, view );
-    set_crop_box_update( slice_window, view );
+    set_slice_cursor_update( slice_window, view_index );
+    set_slice_cross_section_update( slice_window, view_index );
+    set_crop_box_update( slice_window, view_index );
     set_probe_update( slice_window );
-    set_atlas_update( slice_window, view );
-    set_slice_outline_update( slice_window, view );
-
-    set_slice_window_update( slice_window, -1, view, UPDATE_BOTH );
+    set_atlas_update( slice_window, view_index );
+    set_slice_outline_update( slice_window, view_index );
+    set_slice_window_update( slice_window, -1, view_index, UPDATE_BOTH );
 }
 
-  void  set_volume_transform(
+/**
+ * Update the voxel-to-world transform of a particular volume.
+ *
+ * Once the new transform is set, the slice view will be updated
+ * accordingly. Both the reported position and the visualized
+ * alignment of loaded volumes may change. The first volume is always
+ * used as the "reference" volume - all other volumes are aligned to
+ * its voxel coordinates.
+ *
+ * TODO: Allow user to change the reference volume index on the fly?
+ *
+ * \param display A pointer to a top-level window's display_struct.
+ * \param volume_index The zero-based index of the current volume.
+ * \param transform The new transform to apply to this volume.
+ */
+void  set_volume_transform(
     display_struct     *display,
     int                volume_index,
     VIO_General_transform  *transform )
 {
-    VIO_Volume             volume;
+    VIO_Volume         volume;
     display_struct     *slice_window;
     VIO_General_transform  copy;
-    int                ref_volume_index;
+    const int          ref_volume_index = 0;
 
     if( !get_slice_window( display, &slice_window ) )
         return;
@@ -1870,12 +2283,21 @@ static  void  update_all_slice_axes(
 
     (void) update_voxel_from_cursor( display );
 
-    ref_volume_index = 0;
-
+    /*
+     * Update all views. We use the first volume as the "reference"
+     * volume, all other volumes are aligned to it.
+     */
     update_all_slice_axes_views( slice_window, ref_volume_index );
 }
 
-  void  concat_transform_to_volume(
+/**
+ * Append a new transform to the transform of a volume.
+ *
+ * \param display A pointer to a top-level window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \param transform The transform to concatenate to the volume transform.
+ */
+void  concat_transform_to_volume(
     display_struct     *display,
     int                volume_index,
     VIO_General_transform  *transform )
@@ -1894,7 +2316,14 @@ static  void  update_all_slice_axes(
     delete_general_transform( &concated );
 }
 
-  void  transform_current_volume_from_file(
+/**
+ * Read a transform from the given file and append it to the transform of
+ * the currently-selected volume.
+ *
+ * \param display A pointer to a top-level window's display_struct.
+ * \param filename The path to a transform file.
+ */
+void  transform_current_volume_from_file(
     display_struct   *display,
     VIO_STR           filename )
 {
@@ -1910,18 +2339,20 @@ static  void  update_all_slice_axes(
     delete_general_transform( &file_transform );
 }
 
-  void  reset_current_volume_transform(
-    display_struct   *display )
+/**
+ * Reset the transform of the currently selected volume. This is used
+ * to clear any volume transform operations.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ */
+void  reset_current_volume_transform(
+    display_struct *slice_window )
 {
-    VIO_General_transform  *original_transform;
-    display_struct     *slice_window;
+    int volume_index;
 
-    if( !get_slice_window( display, &slice_window ) )
-        return;
+    volume_index = get_current_volume_index( slice_window );
 
-    original_transform = &slice_window->slice.volumes
-                   [get_current_volume_index(slice_window)].original_transform;
-
-    set_volume_transform( display, get_current_volume_index(slice_window),
-                          original_transform );
+    set_volume_transform( slice_window, volume_index,
+                          &(slice_window->slice.volumes[volume_index]
+                            .original_transform) );
 }

@@ -94,7 +94,7 @@ typedef  struct segmenting_struct
     VIO_BOOL        cursor_follows_paintbrush;
 } segmenting_struct;
 
-typedef struct
+typedef struct colour_bar
 {
     VIO_Real             top_offset;
     VIO_Real             bottom_offset;
@@ -104,7 +104,7 @@ typedef struct
     int              desired_n_intervals;
 } colour_bar_struct;
 
-typedef  struct
+typedef struct crop
 {
     VIO_BOOL   crop_visible;
     int       axis_being_moved[2];
@@ -118,13 +118,15 @@ typedef  struct
 #define N_SPARSE_HASH 19009
 #define N_SPARSE_COORD 4
 
-typedef struct sparse_array_entry {
+typedef struct sparse_array_entry
+{
   struct sparse_array_entry *link;
   int coord[N_SPARSE_COORD];
   int value;
 } sparse_array_entry_t;
 
-typedef struct sparse_array {
+typedef struct sparse_array
+{
   int n_entries;
   int n_dimensions;
   sparse_array_entry_t *table[N_SPARSE_HASH];
@@ -138,7 +140,29 @@ typedef struct
 
 typedef enum { UPDATE_SLICE, UPDATE_LABELS, UPDATE_BOTH } Update_types;
 
-typedef  struct
+typedef struct volume_view
+{
+    VIO_BOOL               visibility;
+    int                    n_pixels_alloced;
+    int                    n_label_pixels_alloced;
+    VIO_Real               x_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real               y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real               x_trans, y_trans;
+    VIO_Real               x_scaling, y_scaling;
+    VIO_BOOL               update_flag;
+    VIO_BOOL               update_labels_flag;
+    VIO_Filter_types       filter_type;
+    VIO_Real               filter_width;
+    int                    n_pixels_redraw;
+    VIO_BOOL               update_in_progress[2];
+    int                    x_min_update[2];
+    int                    x_max_update[2];
+    int                    y_min_update[2];
+    int                    y_max_update[2];
+    int                    edge_index[2];
+}  *volume_view_ptr, volume_view_struct;
+
+typedef struct loaded_volume
 {
     VIO_STR                filename;
     VIO_Volume             volume;
@@ -158,30 +182,10 @@ typedef  struct
     struct stack_list      **label_stack;
     unsigned int           *label_count;
 
-    struct volume_view_struct
-    {
-        VIO_BOOL               visibility;
-        int                    n_pixels_alloced;
-        int                    n_label_pixels_alloced;
-        VIO_Real               x_axis[VIO_MAX_DIMENSIONS];
-        VIO_Real               y_axis[VIO_MAX_DIMENSIONS];
-        VIO_Real               x_trans, y_trans;
-        VIO_Real               x_scaling, y_scaling;
-        VIO_BOOL               update_flag;
-        VIO_BOOL               update_labels_flag;
-        VIO_Filter_types       filter_type;
-        VIO_Real               filter_width;
-        int                    n_pixels_redraw;
-        VIO_BOOL               update_in_progress[2];
-        int                    x_min_update[2];
-        int                    x_max_update[2];
-        int                    y_min_update[2];
-        int                    y_max_update[2];
-        int                    edge_index[2];
-    }  views[N_SLICE_VIEWS];
+    volume_view_struct views[N_SLICE_VIEWS];
 } loaded_volume_struct;
 
-typedef  struct
+typedef  struct slice_view
 {
     int           prev_viewport_x_size;
     int           prev_viewport_y_size;
@@ -212,7 +216,7 @@ typedef  struct
     int           prev_y_max;
 } slice_view_struct;
 
-typedef struct
+typedef struct outline
 {
     object_struct *lines;
     int           n_points_alloced;
@@ -220,7 +224,7 @@ typedef struct
     int           n_end_indices_alloced;
 } outline_struct;
 
-typedef  struct
+typedef struct slice_window
 {
     int                    n_volumes;
     loaded_volume_struct   *volumes;

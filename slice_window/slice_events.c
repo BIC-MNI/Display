@@ -939,7 +939,7 @@ static  void  update_slice_dividers(
 
     if( pixel_mouse_moved( slice_window, &x, &y, &x_prev, &y_prev ) )
     {
-        set_slice_divider_position( slice_window, x, y );
+        set_slice_divider_intersection( slice_window, x, y );
     }
 }
 
