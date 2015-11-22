@@ -39,6 +39,13 @@ static  VIO_BOOL  polygon_on_invisible_side(
     VIO_Real         position,
     VIO_BOOL         cropping_above );
 
+/**
+ * Initialize the elements of the surface_edit_struct. These values
+ * are only referenced in callbacks/surf_segmenting.c, so maybe I should
+ * move them there, or create a nice interface for getting/setting them.
+ *
+ * \param surface_edit The structure to initialize.
+ */
 void  initialize_surface_edit(
     surface_edit_struct   *surface_edit )
 {
@@ -131,37 +138,55 @@ void  initialize_surface_edit(
     FREE( polygons_done_flags );
 }
 
+/**
+ * Change the colour or visibility of a polygonal face.
+ *
+ * \param polygons A pointer to a polygons_struct.
+ * \param poly_index The index of the specific polygonal face to check.
+ * \param set_visibility_flag TRUE if the visibility _should_ be modified.
+ * \param new_visibility The new visibility state to apply, if
+ * set_visibility_flag is TRUE.
+ * \param set_colour_flag TRUE if the colour _should_ be modified.
+ * \param new_colour The new colour to apply, if set_colour_flag is TRUE.
+ */
 static  void  modify_polygon(
     polygons_struct  *polygons,
-    int               poly,
-    VIO_BOOL           set_visibility_flag,
-    VIO_BOOL           new_visibility,
-    VIO_BOOL           set_colour_flag,
-    VIO_Colour            colour )
+    int              poly_index,
+    VIO_BOOL         set_visibility_flag,
+    VIO_BOOL         new_visibility,
+    VIO_BOOL         set_colour_flag,
+    VIO_Colour       new_colour )
 {
     if( set_visibility_flag )
-        polygons->visibilities[poly] = (VIO_SCHAR) new_visibility;
+        polygons->visibilities[poly_index] = new_visibility;
 
     if( set_colour_flag )
-        polygons->colours[poly] = colour;
+        polygons->colours[poly_index] = new_colour;
 }
 
-/** 
- * See if this polygon should be modified. We only change the polygon's
- * colour or visibility if it is currently visible, or if we are changing 
- * the visibility state.
+/**
+ * See if the specific face of a polygon object should be modified. We
+ * only change the polygon's colour or visibility if it is currently
+ * visible, or if we are changing the visibility state.
+ *
+ * \param polygons A pointer to a polygons_struct.
+ * \param poly_index The index of the specific polygonal face to check.
+ * \param set_visibility_flag TRUE if the visibility _should_ be modified.
+ * \param new_visibility The new visibility state to apply, if
+ * set_visibility_flag is TRUE.
+ * \returns TRUE if this polygonal face should be modified.
  */
 static  VIO_BOOL  should_modify_polygon(
     polygons_struct   *polygons,
-    int               poly,
-    VIO_BOOL           set_visibility_flag,
-    VIO_BOOL           new_visibility )
+    int               poly_index,
+    VIO_BOOL          set_visibility_flag,
+    VIO_BOOL          new_visibility )
 {
     VIO_BOOL  polygon_is_currently_visible;
 
     polygon_is_currently_visible =
-               ( polygons->visibilities == (VIO_SCHAR *) 0 ||
-                 polygons->visibilities[poly] );
+               ( polygons->visibilities == NULL ||
+                 polygons->visibilities[poly_index] );
 
     if( !set_visibility_flag )
         return( polygon_is_currently_visible );
@@ -169,11 +194,22 @@ static  VIO_BOOL  should_modify_polygon(
         return( new_visibility || polygon_is_currently_visible );
 }
 
-  void  crop_polygons_visibilities(
+/**
+ * Make all of the polygon's faces invisible if they are on the specified
+ * side of a given plane.
+ *
+ * \param polygons A pointer to a polygons_struct.
+ * \param axis_index The world axis perpendicular to the cropping plane,
+ * one of VIO_X, VIO_Y, or VIO_Z.
+ * \param position The coordinate defining the plane's position on the axis.
+ * \param cropping_above TRUE if cropping should be applied to faces above
+ * the plane, FALSE if below.
+ */
+void  crop_polygons_visibilities(
     polygons_struct  *polygons,
     int              axis_index,
-    VIO_Real             position,
-    VIO_BOOL          cropping_above )
+    VIO_Real         position,
+    VIO_BOOL         cropping_above )
 {
     int     i;
 
@@ -189,6 +225,20 @@ static  VIO_BOOL  should_modify_polygon(
     }
 }
 
+/**
+ * Check whether a polygonal face is entirely on the "invisible" side of
+ * a cropping plane.
+ *
+ * \param polygons A pointer to a polygons_struct.
+ * \param poly_index The index of the polygonal face.
+ * \param axis_index The world axis perpendicular to the cropping plane,
+ * one of VIO_X, VIO_Y, or VIO_Z.
+ * \param position The coordinate defining the plane's position on the axis.
+ * \param cropping_above TRUE if cropping should be applied to faces above
+ * the plane, FALSE if below.
+ * \returns TRUE if the polygonal face is entirely invisible with respect
+ * to the cropping plane.
+ */
 static  VIO_BOOL  polygon_on_invisible_side(
     polygons_struct  *polygons,
     int              poly_index,
