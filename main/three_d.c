@@ -408,7 +408,6 @@ static  DEF_EVENT_FUNCTION( handle_resize_three_d )
 {
     delete_string( display->three_d.default_marker_label );
     terminate_current_object( &display->three_d.current_object );
-    delete_surface_edit( &display->three_d.surface_edit );
     delete_surface_extraction( display );
 }
 

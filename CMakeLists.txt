@@ -231,9 +231,6 @@ SET(C_SRC
            callbacks/volume_ops.c 
            callbacks/volume_transform_ops.c 
            current_obj/current_obj.c 
-           edit_surface/connected.c 
-           edit_surface/edit.c 
-           edit_surface/segment.c 
            images/images.c 
            markers/markers.c 
            surface_extraction/boundary_extraction.c 

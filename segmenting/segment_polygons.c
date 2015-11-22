@@ -39,6 +39,14 @@ static  VIO_BOOL  polygon_on_invisible_side(
     VIO_Real         position,
     VIO_BOOL         cropping_above );
 
+void  initialize_surface_edit(
+    surface_edit_struct   *surface_edit )
+{
+    surface_edit->n_paint_polygons = N_painting_polygons;
+    surface_edit->visible_colour = Visible_segmenting_colour;
+    surface_edit->invisible_colour = Invisible_segmenting_colour;
+}
+
 /**
  * Modify the visibility and/or colour of polygons in a neighbourhood around
  * the currently selected polygon.

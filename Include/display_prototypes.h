@@ -1387,29 +1387,6 @@ int get_object_index(display_struct *display, object_struct *object_ptr );
   VIO_BOOL  current_object_exists(
     display_struct    *display );
 
-  void  turn_off_connected_polygons(
-    display_struct   *display );
-
-  void  initialize_surface_edit(
-    surface_edit_struct   *surface_edit );
-
-  void  delete_surface_edit(
-    surface_edit_struct   *surface_edit );
-
-  void  set_edited_polygons(
-    surface_edit_struct   *surface_edit,
-    polygons_struct       *polygons );
-
-  VIO_BOOL  get_edited_polygons(
-    surface_edit_struct   *surface_edit,
-    polygons_struct       **polygons );
-
-  void  reset_edited_polygons(
-    surface_edit_struct   *surface_edit );
-
-  void  start_segmenting_polygons(
-    display_struct   *display );
-
   VIO_Status   save_window_to_file(
     display_struct  *display,
     VIO_STR          filename,
@@ -1976,6 +1953,10 @@ void  copy_labels_slice_to_slice(
     int               label_max_threshold,
     Neighbour_types   connectivity,
     int               label );
+
+  /* from segmenting/segment_polygons.c */
+  void  initialize_surface_edit(
+    surface_edit_struct   *surface_edit );
 
   void  set_visibility_around_poly(
     polygons_struct  *polygons,

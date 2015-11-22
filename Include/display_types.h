@@ -181,26 +181,14 @@ typedef  struct
     VIO_Transform     transform;
 } film_loop_struct;
 
+/**
+ * Parameters used in surface segmenting. See callbacks/surf_segmenting.c
+ */
 typedef  struct
 {
     int              n_paint_polygons;
-
-    VIO_Colour           visible_colour;
-    VIO_Colour           invisible_colour;
-
-    polygons_struct  *polygons;
-    VIO_BOOL          polygons_set;
-    int              n_vertices;
-    int              n_vertices_alloced;
-    int              *vertices;
-
-    int              n_undos;
-    int              n_undos_alloced;
-    int              *undo_indices;
-
-    int              n_invisible;
-    int              n_invisible_alloced;
-    int              *invisible_indices;
+    VIO_Colour       visible_colour;
+    VIO_Colour       invisible_colour;
 } surface_edit_struct;
 
 typedef  struct
