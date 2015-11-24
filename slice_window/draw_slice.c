@@ -1804,10 +1804,10 @@ static  void  create_composite(
             x_min = slices[slice]->x_position;
         if( slices[slice]->y_position < y_min )
             y_min = slices[slice]->y_position;
-        if( slices[slice]->x_position + slices[0]->x_size - 1 > x_max )
-            x_max = slices[slice]->x_position + slices[0]->x_size - 1;
-        if( slices[slice]->y_position + slices[0]->y_size - 1 > y_max )
-            y_max = slices[slice]->y_position + slices[0]->y_size - 1;
+        if( slices[slice]->x_position + slices[slice]->x_size - 1 > x_max )
+            x_max = slices[slice]->x_position + slices[slice]->x_size - 1;
+        if( slices[slice]->y_position + slices[slice]->y_size - 1 > y_max )
+            y_max = slices[slice]->y_position + slices[slice]->y_size - 1;
     }
 
     if( x_max - x_min + 1 != composite->x_size ||
