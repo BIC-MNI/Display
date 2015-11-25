@@ -331,7 +331,7 @@ typedef struct loaded_volume
      * The offset added to the colour_table pointer to compensate for a
      * non-zero minimum value.
      */
-    int                    offset;
+    int                    colour_offset;
 
     /**
      * Array used to map voxel values to precomputed colour coding values

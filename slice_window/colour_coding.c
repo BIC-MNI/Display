@@ -31,13 +31,6 @@
 #define    MAX_COLOUR_TABLE_SIZE    16777216
 
 /**
- * We also want to guard against using the color table if it is too
- * small, for example, if we are loading an image with voxel values in
- * the 0-1 range.
- */
-#define    MIN_COLOUR_TABLE_SIZE    2
-
-/**
  * Define the default extension used by label colour map files.
  */
 #define    DEFAULT_COLOUR_MAP_SUFFIX                    "map"
@@ -121,7 +114,7 @@ void  delete_slice_colour_coding(
     ptr = slice->volumes[volume_index].colour_table;
     if( ptr != NULL )
     {
-        ptr += (int) slice->volumes[volume_index].offset;
+        ptr += slice->volumes[volume_index].colour_offset;
         FREE( ptr );
         slice->volumes[volume_index].colour_table = NULL;
     }
@@ -407,6 +400,7 @@ static  void  alloc_colour_table(
     VIO_Colour      *ptr;
     VIO_Volume      volume = get_nth_volume(slice_window, volume_index);
     VIO_Real        colour_table_size;
+    VIO_Data_types  data_type;
 
     if( is_an_rgb_volume(volume) )
     {
@@ -414,12 +408,17 @@ static  void  alloc_colour_table(
         return;
     }
 
+    data_type = get_volume_data_type( volume );
     get_volume_voxel_range( volume,  &min_voxel, &max_voxel );
 
     colour_table_size = max_voxel - min_voxel + 1;
-    if ( colour_table_size > MAX_COLOUR_TABLE_SIZE ||
-         colour_table_size < MIN_COLOUR_TABLE_SIZE)
+    if ( data_type == VIO_FLOAT || data_type == VIO_DOUBLE ||
+         colour_table_size > MAX_COLOUR_TABLE_SIZE )
     {
+        /** It is impractical or undesirable to optimize colour map
+         * access with an integral colour table in these cases, so
+         * don't bother.
+         */
         slice_window->slice.volumes[volume_index].colour_table = NULL;
         return;
     }
@@ -431,7 +430,7 @@ static  void  alloc_colour_table(
         return;
     }
 
-    slice_window->slice.volumes[volume_index].offset = (int) min_voxel;
+    slice_window->slice.volumes[volume_index].colour_offset = (int) min_voxel;
     slice_window->slice.volumes[volume_index].colour_table =
                                               ptr - (int) min_voxel;
 }
@@ -623,7 +622,7 @@ void  initialize_slice_colour_coding(
 
     loaded_volume_ptr->label_colour_opacity = Label_colour_opacity;
     loaded_volume_ptr->n_labels = Initial_num_labels;
-    loaded_volume_ptr->offset = 0;
+    loaded_volume_ptr->colour_offset = 0;
     loaded_volume_ptr->colour_table = NULL;
     loaded_volume_ptr->label_colour_table = NULL;
     loaded_volume_ptr->labels = NULL;
