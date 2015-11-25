@@ -192,7 +192,12 @@ void attach_vertex_data(display_struct *display,
 
 vertex_data_struct *input_vertex_data( const char *filename );
 
-
+  /** \defgroup Commands Menu command functions
+   *
+   * Top-level command functions callable directly from the menu.
+   *
+   * @{
+   */
   DEF_MENU_FUNCTION( set_atlas_on_or_off );
 
   DEF_MENU_UPDATE(set_atlas_on_or_off );
@@ -464,7 +469,7 @@ DEF_MENU_UPDATE( load_vertex_data );
   DEF_MENU_FUNCTION( scan_current_object_to_volume );
 
   DEF_MENU_UPDATE(scan_current_object_to_volume );
-
+/** @} */
   void  set_marker_to_defaults(
     display_struct  *display,
     marker_struct   *marker );
@@ -474,6 +479,9 @@ DEF_MENU_UPDATE( load_vertex_data );
     VIO_Point             *position,
     VIO_STR            label );
 
+  /** \addtogroup Commands
+   * @{
+   */
   DEF_MENU_FUNCTION( create_marker_at_cursor );
 
   DEF_MENU_UPDATE(create_marker_at_cursor );
@@ -545,10 +553,15 @@ DEF_MENU_UPDATE( load_vertex_data );
   DEF_MENU_FUNCTION( move_cursor_to_home );
 
   DEF_MENU_UPDATE(move_cursor_to_home );
+  /** @} */
 
   VIO_BOOL  get_current_polygons(
     display_struct      *display,
     polygons_struct     **polygons );
+
+  /** \addtogroup Commands
+   * @{
+   */
 
   DEF_MENU_FUNCTION( input_polygons_bintree );
 
@@ -759,11 +772,15 @@ DEF_MENU_UPDATE(save_window_state);
   DEF_MENU_FUNCTION( set_segmenting_threshold );
 
   DEF_MENU_UPDATE(set_segmenting_threshold );
+  /** @} */
 
   VIO_Status  input_label_volume_file(
     display_struct   *display,
     VIO_STR           filename );
 
+  /** \addtogroup Commands
+   * @{
+   */
   DEF_MENU_FUNCTION(load_label_data);
 
   DEF_MENU_UPDATE(load_label_data );
@@ -772,20 +789,11 @@ DEF_MENU_UPDATE(save_window_state);
 
   DEF_MENU_UPDATE(save_label_data );
 
-  VIO_Status input_tag_label_file(
-    display_struct   *display,
-    VIO_STR           filename );
-
   DEF_MENU_FUNCTION( load_labels );
 
   DEF_MENU_UPDATE(load_labels );
 
   DEF_MENU_FUNCTION( save_labels );
-
-  VIO_Status   input_tag_objects_label(
-    display_struct* display,
-    int            *n_objects,
-    object_struct  **object_list[]);
 
   DEF_MENU_UPDATE(save_labels );
 
@@ -836,6 +844,21 @@ DEF_MENU_UPDATE(save_window_state);
   DEF_MENU_FUNCTION(toggle_crop_labels_on_output);
 
   DEF_MENU_UPDATE(toggle_crop_labels_on_output);
+
+  /** @} */
+
+  VIO_Status input_tag_label_file(
+    display_struct   *display,
+    VIO_STR           filename );
+
+  VIO_Status   input_tag_objects_label(
+    display_struct* display,
+    int            *n_objects,
+    object_struct  **object_list[]);
+
+  /** \addtogroup Commands
+   * @{
+   */
 
   DEF_MENU_FUNCTION( reset_polygon_visibility );
 
@@ -1335,6 +1358,7 @@ DEF_MENU_UPDATE(reset_interactions);
   DEF_MENU_FUNCTION( save_current_volume_transform );
 
   DEF_MENU_UPDATE(save_current_volume_transform );
+  /** @} */
 
   void  advance_current_object(
     display_struct    *display );
