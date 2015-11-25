@@ -2,6 +2,18 @@
  * \file crop.c
  * \brief Functions for implementing the cropping operation in the slice window.
  *
+ * Cropping operations are a bit strange in Display. The program
+ * does not directly crop a volume. Instead, it allows the user to
+ * select a crop box based on the currently loaded volume(s), then
+ * the user can _apply_ that crop box to a separate input file, the
+ * name of the input file must be specified by the user.
+ *
+ * An external program (mincreshape) is invoked to crop the volume.
+ * The output of the cropping operation can be stored in a temporary file
+ * and immediately loaded, or it can be saved to a given file.
+ *
+ * There is no way to simply crop the currently loaded volume.
+ *
  * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
