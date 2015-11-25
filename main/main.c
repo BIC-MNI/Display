@@ -235,6 +235,15 @@ int  main(
 
     (void) main_event_loop();
 
+    /** \note In the current implementation of GLUT and FreeGLUT, the
+     * main loop _never_ returns. So no code is executed after this
+     * point. FreeGLUT implements methods to work around this
+     * However, these workarounds seem to immediately shut down the
+     * windowing system such that any calls to GLUT functions will
+     * force an exit anyway, complaining that a glut function was
+     * called before glutInit().
+     */
+
     terminate_graphics();
 
     delete_marching_cubes_table();
