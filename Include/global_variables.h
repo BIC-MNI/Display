@@ -400,4 +400,8 @@ START_GLOBALS
     DEF_GLOBAL( Initial_3D_window_y, int, -1 )
     DEF_GLOBAL( Initial_3D_window_width, int, -1 )
     DEF_GLOBAL( Initial_3D_window_height, int, -1 )
+
+    DEF_GLOBAL( Secondary_x_brush_radius, VIO_Real, 3.0 )
+    DEF_GLOBAL( Secondary_y_brush_radius, VIO_Real, 3.0 )
+    DEF_GLOBAL( Secondary_z_brush_radius, VIO_Real, 3.0 )
 END_GLOBALS

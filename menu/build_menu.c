@@ -93,6 +93,7 @@ static   position_struct   positions[] = {
                            {26, "Ctrl-Z", 0, 0, 0, FALSE },
                            {15, "Ctrl-O", 0, 0, 0, FALSE },
                            {19, "Ctrl-S", 0, 0, 0, FALSE },
+                           { 2, "Ctrl-B", 0, 0, 0, FALSE },
                            {27, "Esc", 0, 0, 0, FALSE }
                          };
 

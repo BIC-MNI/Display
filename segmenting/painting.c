@@ -148,6 +148,21 @@ void  initialize_voxel_labeling(
                            Default_fast_painting_flag;
     slice_window->slice.segmenting.cursor_follows_paintbrush =
                            Default_cursor_follows_paintbrush_flag;
+
+    slice_window->slice.segmenting.brush_index = 0;
+    slice_window->slice.segmenting.brush[0].radius[VIO_X] =
+      Default_x_brush_radius;
+    slice_window->slice.segmenting.brush[0].radius[VIO_Y] =
+      Default_y_brush_radius;
+    slice_window->slice.segmenting.brush[0].radius[VIO_Z] =
+      Default_z_brush_radius;
+
+    slice_window->slice.segmenting.brush[1].radius[VIO_X] =
+      Secondary_x_brush_radius;
+    slice_window->slice.segmenting.brush[1].radius[VIO_Y] =
+      Secondary_y_brush_radius;
+    slice_window->slice.segmenting.brush[1].radius[VIO_Z] =
+      Secondary_z_brush_radius;
 }
 
 /**

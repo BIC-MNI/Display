@@ -845,6 +845,9 @@ DEF_MENU_UPDATE(save_window_state);
 
   DEF_MENU_UPDATE(toggle_crop_labels_on_output);
 
+DEF_MENU_FUNCTION(toggle_secondary_brush);
+DEF_MENU_UPDATE(toggle_secondary_brush);
+
   /** @} */
 
   VIO_Status input_tag_label_file(

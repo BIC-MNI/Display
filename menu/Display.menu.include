@@ -40,6 +40,7 @@ root \
     permanent 'ctrl-z'   undo_slice_labels         '' '' \
     permanent 'ctrl-o'   load_file                 '' '' \
     permanent 'ctrl-s'   save_file                 '' '' \
+    permanent 'ctrl-b'   toggle_secondary_brush    '' '' \
     permanent 'Esc'      reset_interactions        '' '' \
     permanent '>'        move_time_plus            '' '' \
     permanent '<'        move_time_minus           '' '' \

@@ -1406,4 +1406,63 @@ DEF_MENU_UPDATE(clear_label_connected_3d )
     return( get_n_volumes(display) > 0 );
 }
 
+/**
+ * Helper function to copy the current brush state into the selected
+ * brush structure.
+ */
+static void
+save_brush( display_struct *slice_window, int index )
+{
+    brush_struct *cur_br = &slice_window->slice.segmenting.brush[index];
+    /* Save the current values in the current brush. */
+    cur_br->radius[VIO_X] = slice_window->slice.x_brush_radius;
+    cur_br->radius[VIO_Y] = slice_window->slice.y_brush_radius;
+    cur_br->radius[VIO_Z] = slice_window->slice.z_brush_radius;
+}
+
+/**
+ * Helper function to load the current brush state from the selected
+ * brush structure.
+ */
+static void
+load_brush( display_struct *slice_window, int index )
+{
+    brush_struct *cur_br = &slice_window->slice.segmenting.brush[index];
+    /* Save the current values in the current brush. */
+    slice_window->slice.x_brush_radius = cur_br->radius[VIO_X];
+    slice_window->slice.y_brush_radius = cur_br->radius[VIO_Y];
+    slice_window->slice.z_brush_radius = cur_br->radius[VIO_Z];
+}
+
+/**
+ * Toggle the current brush. The state of the current brush is saved, and
+ * a new brush is loaded.
+ */
 /* ARGSUSED */
+DEF_MENU_FUNCTION(toggle_secondary_brush)
+{
+    display_struct *slice_window;
+
+    if ( get_slice_window( display, &slice_window ) )
+    {
+      int index = slice_window->slice.segmenting.brush_index;
+
+      save_brush( slice_window, index );
+
+      /* Increment the brush index, wrapping if necessary. */
+      if (++index >= N_BRUSHES)
+        index = 0;
+
+      load_brush( slice_window, index );
+
+      slice_window->slice.segmenting.brush_index = index;
+    }
+    return( VIO_OK );
+}
+
+/* ARGSUSED */
+
+DEF_MENU_UPDATE(toggle_secondary_brush)
+{
+    return( TRUE );
+}

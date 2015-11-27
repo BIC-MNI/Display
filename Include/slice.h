@@ -50,6 +50,16 @@ typedef enum {
 } Slice_readout_indices;
 
 /**
+ * \brief Describes a brush.
+ */
+typedef struct brush
+{
+    VIO_Real radius[VIO_N_DIMENSIONS];
+} brush_struct;
+
+#define N_BRUSHES 2
+
+/**
  * \brief Information about the current label painting, or segmenting,
  * operations.
  */
@@ -104,6 +114,9 @@ typedef  struct segmenting_struct
       * is moved.
       */
     VIO_BOOL        cursor_follows_paintbrush;
+
+    int             brush_index;
+    brush_struct    brush[N_BRUSHES];
 } segmenting_struct;
 
 /**

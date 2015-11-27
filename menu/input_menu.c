@@ -87,7 +87,8 @@ MENU_F(toggle_slice_visibility) \
 MENU_F(toggle_cross_section_visibility) \
 MENU_F(toggle_slice_cross_section_visibility) \
 MENU_F(set_current_arbitrary_view) \
-MENU_F(rotate_slice_axes)
+MENU_F(rotate_slice_axes) \
+MENU_F(toggle_secondary_brush)
 
 
 #define  MENU2 \
