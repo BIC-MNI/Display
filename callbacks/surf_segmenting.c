@@ -673,7 +673,8 @@ static  VIO_Status  io_polygons_visibilities(
 
     create_polygons_visibilities( polygons );
 
-    status = get_user_file("Enter filename: ", io_flag == WRITE_FILE, &filename);
+    status = get_user_file("Enter filename: ", io_flag == WRITE_FILE,
+                           "vis", &filename);
     if( status == VIO_OK )
     {
         status = open_file_with_default_suffix( filename, "vis", io_flag,

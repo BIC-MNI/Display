@@ -741,12 +741,34 @@ get_file_open_directory(void)
     return File_open_dir;
 }
 
-/* Return code from pclose() when zenity's cancel button is pressed.
+static VIO_BOOL has_no_extension(const char *filename)
+{
+  const char *dot_p = strrchr(filename, '.');
+  const char *start_p = strrchr(filename, '/');
+  if (start_p == NULL)
+    start_p = strrchr(filename, '\\'); /* for MS-DOS */
+  if (start_p == NULL)
+    start_p = filename;
+  return (dot_p == NULL || dot_p - start_p < 0);
+}
+
+/**
+ * Return code from pclose() when zenity's cancel button is pressed.
  */
 #define ZENITY_CANCELLED 256
 
+/**
+ * Prompt the user for filename. Confirm the operation with the user
+ * if they are saving a file and the filename they select exists.
+ *
+ * \param prompt The prompt string to display.
+ * \param saving TRUE if saving the file, false otherwise.
+ * \param extension The default extension for this file, if any.
+ * \param filename Receives the returned filename.
+ */
 VIO_Status
-get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
+get_user_file(const char *prompt, VIO_BOOL saving, char *extension,
+              VIO_STR *filename)
 {
   FILE *in_fp = NULL;
   VIO_Status status = VIO_OK;
@@ -757,11 +779,12 @@ get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
     char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
-             "zenity --title \"Display: %s\" --file-selection --filename=%s",
+             "zenity --title \"MNI-Display: %s\" --file-selection --filename=%s",
              prompt, get_file_open_directory());
     if (saving)
     {
-      strncat(command, " --save", VIO_EXTREMELY_LARGE_STRING_SIZE);
+      strncat(command, " --save --confirm-overwrite",
+              VIO_EXTREMELY_LARGE_STRING_SIZE);
     }
     in_fp = try_popen(command, "r", &error_code);
   }
@@ -780,8 +803,51 @@ get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename)
   status = input_string(in_fp, filename, ' ');
   if (in_fp != stdin)
   {
+    VIO_STR expanded = expand_filename( *filename );
+
     pclose(in_fp);
+
+    if( has_no_extension( expanded ) )
+    {
+      concat_to_string( &expanded, "." );
+      concat_to_string( &expanded, extension );
+
+      if ( file_exists( expanded ) )
+      {
+        FILE *yn_fp;
+        char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
+
+        snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
+                 "zenity --title \'MNI-Display\' --question --text \'File \"%s\" "
+                 "already exists, are you sure you want to replace it?\'",
+                 expanded);
+
+        yn_fp = try_popen(command, "r", &error_code);
+        if (yn_fp == NULL)
+        {
+          status = (error_code == 0) ? VIO_OK : VIO_ERROR;
+        }
+        else
+        {
+          status = VIO_ERROR;
+          pclose(yn_fp);
+        }
+      }
+    }
+    delete_string( expanded );
   }
+  else if (saving && status == VIO_OK)
+  {
+    if (extension != NULL)
+    {
+      check_clobber_file_default_suffix(*filename, extension);
+    }
+    else
+    {
+      check_clobber_file(*filename);
+    }
+  }
+
   if (status == VIO_OK)
   {
     /* Now that we have the filename, use it to update the working directory.
@@ -821,7 +887,7 @@ get_user_input(const char *prompt, const char *format, ...)
   {
     char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
     snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
-             "zenity --entry --title=\"Display: Dialog\" --text=\"%s\"",
+             "zenity --entry --title=\"MNI-Display: Dialog\" --text=\"%s\"",
             prompt);
     in_fp = try_popen(command, "r", &error_code);
   }

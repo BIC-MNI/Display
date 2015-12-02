@@ -30,7 +30,7 @@ DEF_MENU_FUNCTION( transform_current_volume )
 
     if( get_slice_window( display, &slice_window ) )
     {
-        if (get_user_file( "Enter transform filename: ", FALSE, 
+        if (get_user_file( "Enter transform filename: ", FALSE, NULL,
                            &filename ) == VIO_OK)
         {
             transform_current_volume_from_file( slice_window, filename );
@@ -506,7 +506,9 @@ DEF_MENU_FUNCTION( save_current_volume_transform )
     if( get_slice_window( display, &slice_window ) &&
         get_slice_window_volume( slice_window, &volume ) )
     {
-        status = get_user_file( "Enter output filename: ", TRUE, &filename);
+        status = get_user_file( "Enter output filename: ", TRUE,
+                                get_default_transform_file_suffix(),
+                                &filename);
 
         if( status == VIO_OK )
         {
@@ -522,12 +524,8 @@ DEF_MENU_FUNCTION( save_current_volume_transform )
 
             comments = create_string( "Transform created by Display" );
 
-            if( check_clobber_file_default_suffix( filename,
-                                     get_default_transform_file_suffix() ) )
-            {
-                (void) output_transform_file( filename, comments,
-                                              &incremental_transform );
-            }
+            (void) output_transform_file( filename, comments,
+                                          &incremental_transform );
 
             delete_string( comments );
             delete_general_transform( &inverse );

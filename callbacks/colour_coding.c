@@ -607,15 +607,12 @@ DEF_MENU_FUNCTION(save_colour_map )
         get_n_volumes(slice_window) > 0 )
     {
         status = get_user_file( "Enter name of colour map file to save: ",
-                                TRUE, &filename);
+                                TRUE,
+                                get_default_colour_map_suffix(),
+                                &filename);
         if (status == VIO_OK)
         {
-            if (check_clobber_file_default_suffix( filename,
-                                                   get_default_colour_map_suffix() ) )
-            {
-                (void) save_label_colour_map( slice_window, filename );
-            }
-
+            (void) save_label_colour_map( slice_window, filename );
             delete_string( filename );
         }
     }
@@ -641,7 +638,7 @@ DEF_MENU_FUNCTION(load_colour_map )
         get_n_volumes(slice_window) > 0 )
     {
         if (get_user_file( "Enter name of colour map file to load: ",
-                           FALSE, &filename ) == VIO_OK )
+                           FALSE, NULL, &filename ) == VIO_OK )
         {
             (void) load_label_colour_map( slice_window, filename );
             set_slice_window_all_update( slice_window,
@@ -672,7 +669,7 @@ DEF_MENU_FUNCTION(load_user_defined_colour_scale )
         get_n_volumes(slice_window) > 0 )
     {
         if (get_user_file("Enter name of piecewise colour coding file to load: ",
-                          FALSE, &filename) == VIO_OK)
+                          FALSE, NULL, &filename) == VIO_OK)
         {
             if( load_user_defined_colour_coding( slice_window, filename ) == VIO_OK)
             {

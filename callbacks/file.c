@@ -36,7 +36,8 @@ DEF_MENU_FUNCTION( load_vertex_data )
         return VIO_ERROR;
     }
 
-    status = get_user_file("Enter path to vertex data: ", FALSE, &filename);
+    status = get_user_file("Enter path to vertex data: ", FALSE, NULL,
+                           &filename);
     if (status != VIO_OK)
     {
         return VIO_ERROR;
@@ -78,7 +79,8 @@ DEF_MENU_FUNCTION( load_file )
     VIO_Status   status;
     VIO_STR   filename;
 
-    status = get_user_file("Enter path of file to load: " , FALSE, &filename);
+    status = get_user_file("Enter path of file to load: " , FALSE, NULL,
+                           &filename);
     if (status != VIO_OK)
     {
         return VIO_ERROR;
@@ -115,15 +117,12 @@ DEF_MENU_FUNCTION( save_file )
 
     if( get_current_object( display, &current_object ) )
     {
-        status = get_user_file("Enter path of file to save: ", TRUE, &filename);
+        status = get_user_file("Enter path of file to save: ", TRUE, "obj",
+                               &filename);
         if (status != VIO_OK)
         {
             return VIO_ERROR;
         }
-
-        if( status == VIO_OK && !check_clobber_file_default_suffix( filename,
-                                                                "obj" ) )
-            status = VIO_ERROR;
 
         if( current_object->object_type == MODEL )
         {
@@ -174,7 +173,7 @@ DEF_MENU_FUNCTION(load_oblique_plane)
     {
         return VIO_ERROR;
     }
-    status = get_user_file("Enter path to saved oblique plane: ", FALSE,
+    status = get_user_file("Enter path to saved oblique plane: ", FALSE, NULL,
                            &filename);
     if (status != VIO_OK)
     {
@@ -254,7 +253,7 @@ DEF_MENU_FUNCTION(save_oblique_plane)
         return VIO_ERROR;
     }
 
-    status = get_user_file("Enter path to save oblique plane: ", TRUE,
+    status = get_user_file("Enter path to save oblique plane: ", TRUE, NULL,
                            &filename);
     if (status != VIO_OK)
     {

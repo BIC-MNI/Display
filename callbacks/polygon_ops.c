@@ -62,7 +62,7 @@
     if( get_current_polygons(display,&polygons) &&
         polygons->bintree == (bintree_struct_ptr) 0 )
     {
-        status = get_user_file( "Enter filename: " , FALSE, &filename);
+        status = get_user_file( "Enter filename: " , FALSE, NULL, &filename);
         if (status == VIO_OK )
         {
             status = open_file_with_default_suffix( filename, "btr", READ_FILE,
@@ -117,23 +117,20 @@
     if( get_current_polygons(display,&polygons) &&
         polygons->bintree != (bintree_struct_ptr) 0 )
     {
-        status = get_user_file( "Enter filename: " , TRUE, &filename);
+        status = get_user_file( "Enter filename: " , TRUE, "btr", &filename);
 
         if( status == VIO_OK)
         { 
-            if (check_clobber_file_default_suffix( filename,"btr"))
+            status = open_file_with_default_suffix( filename, "btr",
+                                                    WRITE_FILE, 
+                                                    BINARY_FORMAT, &file );
+
+            if( status == VIO_OK )
             {
-                status = open_file_with_default_suffix( filename, "btr",
-                                                        WRITE_FILE, 
-                                                        BINARY_FORMAT, &file );
+                status = io_bintree( file, WRITE_FILE, BINARY_FORMAT,
+                                     polygons->bintree );
 
-                if( status == VIO_OK )
-                {
-                    status = io_bintree( file, WRITE_FILE, BINARY_FORMAT,
-                                         polygons->bintree );
-
-                    close_file( file );
-                }
+                close_file( file );
             }
 
             delete_string( filename );

@@ -658,7 +658,8 @@ DEF_MENU_FUNCTION(set_crop_box_filename)
 
     if( get_slice_window( display, &slice_window ) )
     {
-      if (get_user_file( "Enter crop filename: ", FALSE, &filename ) == VIO_OK)
+      if (get_user_file( "Enter crop filename: ", FALSE, NULL,
+                         &filename ) == VIO_OK)
       {
         set_crop_filename( slice_window, filename );
         delete_string( filename );
@@ -705,7 +706,8 @@ DEF_MENU_FUNCTION(crop_volume_to_file)
 
     if( get_slice_window( display, &slice_window ) )
     {
-      if (get_user_file( "Enter filename to create: ", TRUE, &filename ) == VIO_OK)
+      if (get_user_file( "Enter filename to create: ", TRUE, NULL,
+                         &filename ) == VIO_OK)
         {
             if( create_cropped_volume_to_file( slice_window, filename ) == VIO_OK )
                 print( "Created %s.\n", filename );
@@ -1348,7 +1350,7 @@ DEF_MENU_FUNCTION( save_slice_image )
         get_n_volumes(slice_window) > 0 &&
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
-        if( get_user_file("Enter filename: " , TRUE, &filename) == VIO_OK)
+        if( get_user_file("Enter filename: " , TRUE, NULL, &filename) == VIO_OK)
         {
             get_slice_viewport( slice_window, view_index,
                                 &x_min, &x_max, &y_min, &y_max );
@@ -1385,7 +1387,8 @@ DEF_MENU_FUNCTION( save_slice_window )
 
     if( get_slice_window( display, &slice_window ) )
     {
-      if (get_user_file( "Enter filename: " , TRUE, &filename) == VIO_OK)
+        if (get_user_file( "Enter filename: " , TRUE, NULL,
+                           &filename) == VIO_OK)
         {
             G_get_window_size( slice_window->window, &x_size, &y_size );
 

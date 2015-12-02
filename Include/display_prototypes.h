@@ -12,7 +12,8 @@
 
 VIO_Status get_user_input(const char *prompt, const char *format, ...);
 
-VIO_Status get_user_file(const char *prompt, VIO_BOOL saving, VIO_STR *filename);
+VIO_Status get_user_file(const char *prompt, VIO_BOOL saving,
+                         char *extension, VIO_STR *filename);
 
   void  display_objects(
     Gwindow                     window,

@@ -366,7 +366,8 @@ DEF_MENU_FUNCTION(load_label_data)
 
     if( get_n_volumes(display) > 0 )
     {
-        status = get_user_file( "Enter filename to load: ", FALSE, &filename );
+        status = get_user_file( "Enter filename to load: ", FALSE, NULL,
+                                &filename );
         if (status == VIO_OK)
         {
             status = input_label_volume_file( display, filename );
@@ -409,7 +410,7 @@ DEF_MENU_FUNCTION(save_label_data)
     	    filename = Output_label_filename;
     	else
     	{
-            status = get_user_file( "Enter filename to save: ", TRUE,
+            status = get_user_file( "Enter filename to save: ", TRUE, NULL,
                                     &filename);
             if (status != VIO_OK)
             {
@@ -417,7 +418,7 @@ DEF_MENU_FUNCTION(save_label_data)
             }
     	}
 
-        if( status == VIO_OK && check_clobber_file( filename ) )
+        if( status == VIO_OK )
         {
             if( !slice_window->slice.crop_labels_on_output_flag )
                 crop_threshold = 0.0;
@@ -530,7 +531,7 @@ DEF_MENU_FUNCTION( load_labels )
 
     if( get_n_volumes(display) > 0 )
     {
-        if (get_user_file("Enter filename: ", FALSE, &filename) == VIO_OK)
+        if (get_user_file("Enter filename: ", FALSE, NULL, &filename) == VIO_OK)
         {
             (void) input_tag_label_file( display, filename );
 
@@ -562,36 +563,33 @@ static  void   save_labels_as_tags(
     display_struct  *slice_window,
     int             desired_label )
 {
-    VIO_Status         status;
+    VIO_Status     status;
     FILE           *file;
-    VIO_STR         filename;
+    VIO_STR        filename;
 
-    status = get_user_file( "Enter filename to save: ", TRUE, &filename);
+    status = get_user_file( "Enter filename to save: ", TRUE,
+                            get_default_tag_file_suffix(), &filename);
     if (status != VIO_OK)
     {
         return;
     }
 
-    if( check_clobber_file_default_suffix( filename,
-                                           get_default_tag_file_suffix() ) )
-    {
-        status = open_file_with_default_suffix( filename,
-                         get_default_tag_file_suffix(),
-                         WRITE_FILE, ASCII_FORMAT, &file );
+    status = open_file_with_default_suffix( filename,
+                     get_default_tag_file_suffix(),
+                     WRITE_FILE, ASCII_FORMAT, &file );
 
-        if( status == VIO_OK )
-            status = output_labels_as_tags( file,
-                      get_volume(slice_window),
-                      get_label_volume(slice_window),
-                      desired_label,
-                      display->three_d.default_marker_size,
-                      display->three_d.default_marker_patient_id );
+    if( status == VIO_OK )
+        status = output_labels_as_tags( file,
+                  get_volume(slice_window),
+                  get_label_volume(slice_window),
+                  desired_label,
+                  display->three_d.default_marker_size,
+                  display->three_d.default_marker_patient_id );
 
-        if( status == VIO_OK )
-            status = close_file( file );
+    if( status == VIO_OK )
+        status = close_file( file );
 
-        print( "Done saving.\n" );
-    }
+    print( "Done saving.\n" );
 
     delete_string( filename );
 }

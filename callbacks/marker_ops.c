@@ -170,15 +170,12 @@ DEF_MENU_FUNCTION( save_markers )
 
     object = get_current_model_object( display );
 
-    status = get_user_file( "Enter filename: ", TRUE, &filename );
+    status = get_user_file( "Enter filename: ", TRUE,
+                            get_default_tag_file_suffix(), &filename );
     if (status != VIO_OK)
     {
         return VIO_ERROR;
     }
-
-    if( !check_clobber_file_default_suffix( filename,
-                                            get_default_tag_file_suffix() ) )
-        status = VIO_ERROR;
 
     if( !get_slice_window_volume( display, &volume ) )
         volume = (VIO_Volume) NULL;

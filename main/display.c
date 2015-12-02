@@ -26,7 +26,7 @@ static struct display_stats {
   int n_past_last_object;
   int n_interrupted;
   int n_continuing;
-} stats = { 0 };
+} stats = { 0, 0, 0 };
 
 /**
  * Draw a single object.

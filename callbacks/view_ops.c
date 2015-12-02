@@ -368,7 +368,7 @@ DEF_MENU_FUNCTION( save_image )
 
     status = VIO_OK;
 
-    if (get_user_file( "Enter filename: ", TRUE, &filename ) == VIO_OK)
+    if (get_user_file( "Enter filename: ", TRUE, NULL, &filename ) == VIO_OK)
     {
         status = save_window_to_file( display, filename, 0, -1, 0, -1 );
 
