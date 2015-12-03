@@ -405,7 +405,9 @@ DEF_MENU_FUNCTION(save_label_data)
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-
+        /* Use the filename given on the command line via the
+         * -output-label option, if any.
+         */
     	if( string_length(Output_label_filename) )
     	    filename = Output_label_filename;
     	else
@@ -450,7 +452,10 @@ DEF_MENU_FUNCTION(save_label_data)
             }
         }
 
-        delete_string( filename );
+        /* If we set a fixed label filename, don't free it here!
+         */
+        if (filename != Output_label_filename)
+          delete_string( filename );
     }
 
     return( status );
