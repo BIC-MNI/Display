@@ -23,8 +23,8 @@
   void  initialize_segmenting(
     segmenting_struct  *segmenting )
 {
-    segmenting->min_threshold = 0.0;
-    segmenting->max_threshold = -1.0;
+    segmenting->min_threshold = Default_min_threshold;
+    segmenting->max_threshold = Default_max_threshold;
     segmenting->connectivity = (Neighbour_types) Segmenting_connectivity;
 }
 

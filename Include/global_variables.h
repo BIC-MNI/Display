@@ -300,6 +300,8 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Brush_outline_colour )
     DEF_GLOBAL( Brush_outline_offset, int, 0 )
     DEF_GLOBAL( Snap_brush_to_centres, VIO_BOOL, TRUE )
+    DEF_GLOBAL( Default_min_threshold, VIO_Real, 0.0 )
+    DEF_GLOBAL( Default_max_threshold, VIO_Real, -1.0 )
     DEF_GLOBAL( Undo_enabled, VIO_BOOL, TRUE )
 
     DEF_GLOBAL( Volume_continuity, int, 0 )
