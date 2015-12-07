@@ -500,6 +500,7 @@ DEF_MENU_UPDATE(print_view )
 DEF_MENU_FUNCTION(type_in_3D_origin)
 {
     VIO_Real             xw, yw, zw;
+    display_struct       *slice_window;
 
     if (get_user_input( "Enter x y z world coordinate: ", "rrr",
                         &xw, &yw, &zw) == VIO_OK)
@@ -507,6 +508,12 @@ DEF_MENU_FUNCTION(type_in_3D_origin)
         VIO_Point origin;
         fill_Point( origin, xw, yw, zw );
         set_cursor_origin(display, &origin);
+
+        slice_window = display->associated[SLICE_WINDOW];
+        if( slice_window != (display_struct  *) 0 )
+        {
+            (void) update_voxel_from_cursor( slice_window );
+        }
     }
     return( VIO_OK );
 }
