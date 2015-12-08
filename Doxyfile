@@ -1937,6 +1937,12 @@ INCLUDE_FILE_PATTERNS  =
 
 PREDEFINED += DEF_MENU_FUNCTION(m)="VIO_Status m(display_struct *display, display_struct *menu_window, menu_entry_struct *menu_entry )"
 PREDEFINED += DEF_EVENT_FUNCTION(f)="VIO_Status f(display_struct *display, Event_types event_type, int key_pressed )"
+PREDEFINED += DEF_GLOBAL(name,type,def)="type name = def;"
+PREDEFINED += DEF_GLOBAL5(a,b,c,d,e,f,g)="b a = { c, d, e, f, g };"
+PREDEFINED += DEF_GLOBAL3(a,b,c,d,e)="b a = { c, d, e };"
+PREDEFINED += DEF_GLOBAL_COLOUR(name)="VIO_Colour name;"
+PREDEFINED += START_GLOBALS=
+PREDEFINED += END_GLOBALS=
 
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
