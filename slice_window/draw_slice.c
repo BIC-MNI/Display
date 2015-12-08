@@ -351,6 +351,13 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
  * \returns The ratio between the two volumes at this voxel, or
  * INFINITY if the denominator is zero.
  */
+#ifndef INFINITY
+#include <math.h>
+#endif
+#ifndef INFINITY
+#define INFINITY (-1.0)
+#endif
+
 static VIO_Real
 calculate_volume_ratio(display_struct *slice_window, VIO_Real voxel[])
 {
