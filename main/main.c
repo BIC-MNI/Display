@@ -758,6 +758,15 @@ static VIO_BOOL has_no_extension(const char *filename)
 #define ZENITY_CANCELLED 256
 
 /**
+ * Specifying "env -u WINDOWID forces zenity to start in the middle of
+ * the current workspace rather than in front of the terminal from which
+ * Display was probably launched.
+ *
+ * TODO: Move to globals?
+ */
+static const char Zenity_command[] = "env -u WINDOWID zenity";
+
+/**
  * Prompt the user for filename. Confirm the operation with the user
  * if they are saving a file and the filename they select exists.
  *
@@ -779,7 +788,8 @@ get_user_file(const char *prompt, VIO_BOOL saving, char *extension,
     char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
-             "zenity --title \"MNI-Display: %s\" --file-selection --filename=%s",
+             "%s --title \"MNI-Display: %s\" --file-selection --filename=%s",
+             Zenity_command,
              prompt, get_file_open_directory());
     if (saving)
     {
@@ -818,8 +828,9 @@ get_user_file(const char *prompt, VIO_BOOL saving, char *extension,
         char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
         snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
-                 "zenity --title \'MNI-Display\' --question --text \'File \"%s\" "
+                 "%s --title \'MNI-Display\' --question --text \'File \"%s\" "
                  "already exists, are you sure you want to replace it?\'",
+                 Zenity_command,
                  expanded);
 
         yn_fp = try_popen(command, "r", &error_code);
@@ -887,7 +898,8 @@ get_user_input(const char *prompt, const char *format, ...)
   {
     char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
     snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
-             "zenity --entry --title=\"MNI-Display: Dialog\" --text=\"%s\"",
+             "%s --entry --title=\"MNI-Display: Dialog\" --text=\"%s\"",
+            Zenity_command,
             prompt);
     in_fp = try_popen(command, "r", &error_code);
   }
