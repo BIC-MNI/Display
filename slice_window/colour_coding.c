@@ -554,6 +554,14 @@ calculate_contrast_from_histogram(VIO_Volume volume,
     *low_limit = min_value + (max_value - min_value) * Initial_histogram_low;
   }
 
+  /*
+   * Check range of low and high limit - force them to make sense.
+   */
+  if (*low_limit < min_value)
+    *low_limit = min_value;
+  if (*high_limit > max_value)
+    *high_limit = max_value;
+
   delete_histogram(&histogram);
   return TRUE;
 }
