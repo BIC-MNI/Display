@@ -1,26 +1,86 @@
+/** \file global_variables.h
+ * \brief Definitions of global parameters and options.
+ * \defgroup globals Global variables
+ * @{
+ */
 START_GLOBALS
+/** Enables memory allocation checks. This is primarily intended for
+    use by developers when debugging problems in MNI-Display. */
     DEF_GLOBAL( Alloc_checking_enabled, VIO_BOOL, FALSE )
 
+/** Sets the background colour of each of the windows. Only the slice
+    window is created late enough for this to have an effect from the
+    command line, and it has no effect if changed from the menu
+    command. For some inexplicable reason, the default dark greenish
+    background is given the symbolic name DARK_SLATE_GREY. While the
+    background colour can be changed through a menu command, the command
+    will not change the colour for the menu or object windows. */
     DEF_GLOBAL_COLOUR( Initial_background_colour )
 
-    DEF_GLOBAL( Progress_threshold, int, 1000 )
-
+/** Sets the maximum amount of time in seconds that the graphics
+    library may spend rendering objects in the 3D window before the
+    operation may be interrupted. This is used to control the maximum
+    interface latency experienced by the user. Because of changes in the
+    OpenGL interface and the performance improvements in computers, this
+    functionality is largely obsolete. */
     DEF_GLOBAL( Maximum_display_time, VIO_Real, 0.3 )
+
+/** Sets the number of seconds between timer events. Each timer event may
+    start another redraw operation, so this variable controls the maximum
+    frame rate of the application.  */
     DEF_GLOBAL( Min_interval_between_updates, VIO_Real, 0.02 )
+
+/** Set the count of rendering operations (typically measured in
+    triangles, e.g.) performed between each elapsed time check. Like
+    \c Maximum_display_time this is another parameter relating to
+    the interruptibility of lengthy graphics operations, and is now
+    largely obsolete.
+*/
     DEF_GLOBAL( Interval_of_check, int, 250 )
 
+/** Sets the initial value of the projection approach used in 3D
+    rendering. A value of false selects parallel projection, whereas
+    true selects perspective projection. */
     DEF_GLOBAL( Initial_perspective_flag, VIO_BOOL, FALSE )
+
     DEF_GLOBAL( Perspective_distance_factor, VIO_Real, 2.0 )
+
+/** Sets the smallest position of the front plane used in 3D rendering. */
     DEF_GLOBAL( Closest_front_plane, VIO_Real, 1.0e-5 )
+
+/** If true, 3D objects are rendered in shaded mode by default. If
+    false, 3D objects are rendered in wireframe mode by default. */
     DEF_GLOBAL( Initial_render_mode, VIO_BOOL, TRUE )
+
+/** Selects either Gouraud (1) or flat (0) shading as the default used
+    in the 3D window. */
     DEF_GLOBAL( Initial_shading_type, int, 1 )
+
     DEF_GLOBAL( Initial_light_switch, VIO_BOOL, TRUE )
+
+/** True if should use OpenGL/GLUT double buffering in the slice window.
+    Probably obsolete. */
     DEF_GLOBAL( Slice_double_buffer_flag, VIO_BOOL, TRUE )
+
+/** True if should use OpenGL/GLUT double buffering in the 3D window.
+    Probably obsolete. */
     DEF_GLOBAL( Graphics_double_buffer_flag, VIO_BOOL, TRUE )
+
+/** True if should use OpenGL transparency to implement overlays, otherwise
+    compositing will be performed internally. */
     DEF_GLOBAL( Graphics_transparency_flag, VIO_BOOL, TRUE )
+
     DEF_GLOBAL( Slice_readout_plane, int, 1 )
+
+/** If true, adds an indication of the frame number and elapsed
+    rendering time to the lower left corner of each of the graphics
+    windows. The actual position is determined by the globals
+    Frame_info_x and Frame_info_y */
     DEF_GLOBAL( Display_frame_info, VIO_BOOL, FALSE )
+
+/** Position of frame info if displayed. */
     DEF_GLOBAL( Frame_info_x, VIO_Real, 10.0 )
+/** Position of frame info if displayed. */
     DEF_GLOBAL( Frame_info_y, VIO_Real, 10.0 )
     DEF_GLOBAL( Initial_n_pixels_redraw, int, 100 )
     DEF_GLOBAL( Initial_slice_update_time, VIO_Real, 0.01 )
@@ -389,7 +449,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Initial_undo_feature, VIO_BOOL, TRUE )
     DEF_GLOBAL( Undo_list_length, int, 20 )
-  
+
     DEF_GLOBAL( Object_outline_width, VIO_Real, 1.0 )
     DEF_GLOBAL( Object_outline_enabled, VIO_BOOL, TRUE )
     DEF_GLOBAL( Use_zenity_for_input, VIO_BOOL, TRUE )
@@ -407,3 +467,4 @@ START_GLOBALS
     DEF_GLOBAL( Secondary_y_brush_radius, VIO_Real, 3.0 )
     DEF_GLOBAL( Secondary_z_brush_radius, VIO_Real, 3.0 )
 END_GLOBALS
+/** @} */
