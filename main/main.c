@@ -709,14 +709,29 @@ static char File_open_dir[FILE_OPEN_DIR_MAX] = {0};
  * \param pathname The full file pathname from which we must extract the
  * directory name.
  */
+
+#include <sys/stat.h>
+
 void
 set_file_open_directory(const char *pathname)
 {
   int length = 0;
   char temp_path[FILE_OPEN_DIR_MAX];
+  struct stat stbuf;
 
-  strncpy(temp_path, pathname, FILE_OPEN_DIR_MAX);
-  strncpy(File_open_dir, dirname(temp_path), FILE_OPEN_DIR_MAX);
+  /* First see if it is already a path name.
+   */
+  if ( stat( pathname, &stbuf ) == 0 && S_ISDIR( stbuf.st_mode ) )
+  {
+    strncpy( File_open_dir, pathname, FILE_OPEN_DIR_MAX );
+  }
+  else
+  {
+    /* Else strip off the non-directory part of the name. */
+    strncpy( temp_path, pathname, FILE_OPEN_DIR_MAX );
+    strncpy( File_open_dir, dirname(temp_path), FILE_OPEN_DIR_MAX );
+  }
+
   length = strlen(File_open_dir);
   if (File_open_dir[length - 1] != '/' && length < FILE_OPEN_DIR_MAX)
   {
