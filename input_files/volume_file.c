@@ -78,7 +78,7 @@ VIO_Status   input_volume_file(
 
     if( status == VIO_OK && get_volume_n_dimensions( volume ) < VIO_N_DIMENSIONS )
     {
-        print( "VIO_Volume %s has %d dimensions, should have at least %d\n",
+        print( "Volume %s has %d dimensions, should have at least %d\n",
                filename, get_volume_n_dimensions(volume), VIO_N_DIMENSIONS );
         delete_volume( volume );
         status = VIO_ERROR;

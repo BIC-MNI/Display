@@ -1977,7 +1977,7 @@ VIO_BOOL  slice_has_ortho_axes(
         }
     }
 
-    if( *x_index == *y_index )
+    if( *x_index < 0 || *y_index < 0 || *x_index == *y_index )
         return( FALSE );
 
     *axis_index = VIO_N_DIMENSIONS - *x_index - *y_index;
