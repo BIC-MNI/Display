@@ -40,6 +40,8 @@ root \
     permanent 'ctrl-z'   undo_slice_labels         '' '' \
     permanent 'ctrl-o'   load_file                 '' '' \
     permanent 'ctrl-s'   save_file                 '' '' \
+    permanent 'ctrl-b'   toggle_secondary_brush    '' '' \
+    permanent 'ctrl-v'   menu_next_vertex_data     '' '' \
     permanent 'Esc'      reset_interactions        '' '' \
     permanent '>'        move_time_plus            '' '' \
     permanent '<'        move_time_minus           '' '' \
@@ -68,7 +70,7 @@ file \
     transient 't'    save_current_label              'Save Curr Lbl .tag' 'Saves the current label to the named tag file.' \
     transient 'y'    load_user_defined_colour_scale  'Load UserDef ColCode' 'Loads a user-defined colour map (.ccd).' \
  \
-    transient 'u'    load_vertex_data                'Load Vertex Data' 'Load per-vertex surface data (e.g. cortical thickness)' \
+    transient 'u'    menu_load_vertex_data           'Load Vertex Data' 'Load per-vertex surface data (e.g. cortical thickness)' \
     transient 'a'    save_markers                    'Save Mrkrs as .tag' 'Save current markers as a set of tag points.' \
     transient 's'    save_slice_image                'Save Slice Image' 'Saves an image of the slice under the mouse cursor.' \
     transient 'f'    load_file                       'Load File' 'Prompts for a filename from which to read a volume or object.' \

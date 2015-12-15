@@ -297,6 +297,8 @@ static  void      initialize_global_colours( void )
     Cursor_pos_colour = GREEN;
     Unfinished_flag_colour = GREEN;
     Slice_probe_ratio_colour = YELLOW;
+    Initial_vertex_under_colour = BLACK;
+    Initial_vertex_over_colour = WHITE;
 }
 
 static  void      initialize_view_to_fit(
@@ -997,4 +999,84 @@ get_user_input(const char *prompt, const char *format, ...)
       pclose(in_fp);
   }
   return VIO_OK;
+}
+
+/**
+ * Prompt the user to select a colour coding type.
+ *
+ * \param prompt A text prompt to display, hopefully explaining the
+ * action the user should take.
+ * \param cc_type_ptr Where to put the returned colour coding type.
+ * \returns VIO_OK if successful.
+ */
+VIO_Status
+get_user_coding_type(const char *prompt, Colour_coding_types *cc_type_ptr)
+{
+    FILE *in_fp = NULL;
+    int error_code = 0;
+    VIO_STR line;
+    char *or_bar_ptr;
+    static const char colour_coding[] = {
+        "Gray Spectral \"Hot Metal\" Red Blue Green"
+    };
+
+    if (Use_zenity_for_input)
+    {
+        char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
+        snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
+                 "%s --list --title=\"MNI-Display: Coding type\" --text=\"%s\" --column \"Colour coding\" %s",
+                 Zenity_command,
+                 prompt,
+                 colour_coding);
+        in_fp = try_popen(command, "r", &error_code);
+    }
+    if (in_fp == NULL)
+    {
+        if (error_code != ZENITY_CANCELLED)
+        {
+            print("%s", prompt);
+            in_fp = stdin;
+        }
+        else
+        {
+            return VIO_ERROR;
+        }
+    }
+
+    if (input_string(in_fp, &line, '\n') != VIO_OK)
+    {
+        return VIO_ERROR;
+    }
+
+    /* Zenity seems to return a result of the form "Selection|Selection"
+     * in some cases (as with a double click on an item). We deal with
+     * that here.
+     */
+    if ((or_bar_ptr = strchr(line, '|')) != NULL)
+    {
+        *or_bar_ptr = 0;
+    }
+
+    if (!strcmp(line, "Gray"))
+        *cc_type_ptr = GRAY_SCALE;
+    else if (!strcmp(line, "Spectral"))
+        *cc_type_ptr = SPECTRAL;
+    else if (!strcmp(line, "Hot Metal"))
+        *cc_type_ptr = HOT_METAL;
+    else if (!strcmp(line, "Red"))
+        *cc_type_ptr = RED_COLOUR_MAP;
+    else if (!strcmp(line, "Blue"))
+        *cc_type_ptr = BLUE_COLOUR_MAP;
+    else if (!strcmp(line, "Green"))
+        *cc_type_ptr = GREEN_COLOUR_MAP;
+    else
+        *cc_type_ptr = SPECTRAL;
+
+    delete_string( line );
+
+    if (in_fp != stdin)
+    {
+        pclose(in_fp);
+    }
+    return VIO_OK;
 }

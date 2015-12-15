@@ -34,8 +34,7 @@ START_GLOBALS
     triangles, e.g.) performed between each elapsed time check. Like
     \c Maximum_display_time this is another parameter relating to
     the interruptibility of lengthy graphics operations, and is now
-    largely obsolete.
-*/
+    largely obsolete. */
     DEF_GLOBAL( Interval_of_check, int, 250 )
 
 /** Sets the initial value of the projection approach used in 3D
@@ -248,6 +247,8 @@ START_GLOBALS
     DEF_GLOBAL( Voxel_validity_if_mixed, VIO_BOOL, FALSE )
     DEF_GLOBAL( Set_invalid_to_zero, VIO_BOOL, FALSE )
 
+/** The colour to display for all voxels that lie below the current minimum
+    value of the colour coding range. */
     DEF_GLOBAL_COLOUR( Colour_below )
     DEF_GLOBAL( Initial_histogram_contrast, VIO_BOOL, TRUE )
     DEF_GLOBAL( Initial_histogram_low_clip_index, int, 4 )
@@ -256,7 +257,16 @@ START_GLOBALS
     DEF_GLOBAL( Initial_coding_range_low, VIO_Real, 0.25 )
     DEF_GLOBAL( Initial_coding_range_high, VIO_Real, 0.75 )
     DEF_GLOBAL( Initial_coding_range_absolute, VIO_BOOL, FALSE )
+/** The colour to display for all voxels that lie above the current maximum
+    value of the colour coding range. */
     DEF_GLOBAL_COLOUR( Colour_above )
+
+/** Sets the colour coding scheme used by the first loaded volume in
+    the slice window. The most useful values are 0 for grayscale, 1
+    for hotmetal, 13 for spectral, 14 for red, 15 for green, 16 for
+    blue, and 17 for contour. Other possibly useful values include 3
+    for ``cold metal'', 5 for ``green metal'', 7 for ``lime metal'', 9
+    for ``red metal'', and 11 for ``purple metal''. */
     DEF_GLOBAL( Initial_colour_coding_type, int, 1 )
     DEF_GLOBAL( Current_colour_coding_type, int, 1 )
     DEF_GLOBAL( User_defined_interpolation_space, int, 1 )
@@ -466,5 +476,19 @@ START_GLOBALS
     DEF_GLOBAL( Secondary_x_brush_radius, VIO_Real, 3.0 )
     DEF_GLOBAL( Secondary_y_brush_radius, VIO_Real, 3.0 )
     DEF_GLOBAL( Secondary_z_brush_radius, VIO_Real, 3.0 )
+
+/** Sets the colour coding type used by the vertex colouring in
+    the 3D window. The most useful values are 0 for grayscale, 1
+    for hotmetal, 13 for spectral, 14 for red, 15 for green, 16 for
+    blue, and 17 for contour. Other possibly useful values include 3
+    for ``cold metal'', 5 for ``green metal'', 7 for ``lime metal'', 9
+    for ``red metal'', and 11 for ``purple metal''. */
+    DEF_GLOBAL( Initial_vertex_coding_type, int, 13 )
+/** The colour to display for all vertices that lie below the current minimum
+    value of the colour coding range. */
+    DEF_GLOBAL_COLOUR( Initial_vertex_under_colour )
+/** The colour to display for all vertices that lie above the current maximum
+    value of the colour coding range. */
+    DEF_GLOBAL_COLOUR( Initial_vertex_over_colour )
 END_GLOBALS
 /** @} */

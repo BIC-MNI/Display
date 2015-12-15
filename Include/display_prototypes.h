@@ -14,6 +14,7 @@ VIO_Status get_user_input(const char *prompt, const char *format, ...);
 
 VIO_Status get_user_file(const char *prompt, VIO_BOOL saving,
                          char *extension, VIO_STR *filename);
+VIO_Status get_user_coding_type(const char *prompt, Colour_coding_types *cc_type_ptr);
 
   void  display_objects(
     Gwindow                     window,
@@ -127,6 +128,7 @@ void show_three_d_window( display_struct *three_d,
 void attach_vertex_data(display_struct *display,
                         object_struct *object,
                         vertex_data_struct *vtxd_ptr);
+VIO_BOOL advance_vertex_data(display_struct *display, object_struct *object);
 
   void  delete_three_d(
     display_struct  *display );
@@ -339,9 +341,13 @@ vertex_data_struct *input_vertex_data( const char *filename );
 
   DEF_MENU_UPDATE(load_user_defined_colour_scale );
 
-DEF_MENU_FUNCTION( load_vertex_data );
+DEF_MENU_FUNCTION( menu_next_vertex_data );
 
-DEF_MENU_UPDATE( load_vertex_data );
+DEF_MENU_UPDATE( menu_next_vertex_data );
+
+DEF_MENU_FUNCTION( menu_load_vertex_data );
+
+DEF_MENU_UPDATE( menu_load_vertex_data );
 
   DEF_MENU_FUNCTION( load_file );
 
@@ -2003,6 +2009,15 @@ void  copy_labels_slice_to_slice(
 
   void  initialize_colour_bar(
     display_struct    *slice_window );
+
+void rebuild_ticks_and_text(colour_bar_struct *colour_bar,
+                            model_struct *model,
+                            int lines_offset,
+                            int text_offset,
+                            VIO_Real min_range, VIO_Real max_range,
+                            VIO_Real min_limit, VIO_Real max_limit,
+                            VIO_Real bottom, VIO_Real top,
+                            VIO_BOOL histogram_present);
 
   void  rebuild_colour_bar(
     display_struct   *slice_window );

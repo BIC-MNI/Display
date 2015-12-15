@@ -29,6 +29,7 @@
 #define  MISCELLANEOUS_MODEL    3
 #define  CUT_BUFFER_MODEL       4
 #define  STATUS_MODEL           5
+#define  VTX_CODING_MODEL       6
 
 /* for menu windows */
 
@@ -64,11 +65,13 @@ typedef  enum  { THREE_D_WINDOW,
 typedef  struct
 {
   object_struct *owner;
+  int           column_index;
+  colour_coding_struct colour_coding;
   int           ndims;
   int           *dims;
   VIO_Real      *data;
-  VIO_Real      min_v;
-  VIO_Real      max_v;
+  VIO_Real      *min_v;
+  VIO_Real      *max_v;
 } vertex_data_struct;
 
 typedef  struct

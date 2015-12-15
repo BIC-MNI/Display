@@ -110,6 +110,178 @@ typedef  struct
     VIO_Real value;
 } number_entry;
 
+void
+rebuild_ticks_and_text(colour_bar_struct *colour_bar,
+                       model_struct *model,
+                       int lines_offset,
+                       int text_offset,
+                       VIO_Real min_range, VIO_Real max_range,
+                       VIO_Real min_limit, VIO_Real max_limit,
+                       VIO_Real bottom, VIO_Real top,
+                       VIO_BOOL histogram_present
+                       )
+{
+  lines_struct *lines;
+
+  const int x_tick_start = colour_bar->left_offset + colour_bar->bar_width;
+  const int x_tick_end = x_tick_start + colour_bar->tick_width;
+  VIO_Real range;
+  VIO_Real delta;
+  int n_numbers;
+  struct number_entry
+  {
+    enum Label_priority {
+      PRI_NORMAL=0,               /* Normal ticks */
+      PRI_RANGE=1,                /* Absolute range */
+      PRI_LIMIT=2                 /* Coding limits */
+    } priority;
+    VIO_Real value;
+  };
+  struct number_entry *numbers;
+  struct number_entry entry;
+  char buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
+  VIO_Real mult_value;
+  VIO_Point point;
+  object_struct *object;
+  text_struct *text;
+  VIO_Real last_y;
+  VIO_Real next_y;
+  int i;
+  int x, y;
+  VIO_Colour colour;
+  VIO_Real value;
+
+  lines = get_lines_ptr( model->objects[lines_offset] );
+
+  delete_lines( lines );
+
+  lines->n_points = 0;
+  lines->n_items = 0;
+
+  while( model->n_objects > text_offset )
+  {
+    delete_object( model->objects[text_offset] );
+    remove_ith_object_from_model( model, text_offset );
+  }
+
+  range = max_range - min_range;
+
+  delta = get_good_round_value( range /
+                                (VIO_Real) colour_bar->desired_n_intervals );
+
+  n_numbers = 0;
+  numbers = NULL;
+
+  mult_value = round_to_nearest_multiple( min_range, delta );
+  while( mult_value <= min_range && delta > 0.0 )
+    mult_value = round_to_nearest_multiple( mult_value + delta, delta );
+
+  value = min_range;
+  while( value <= max_range )
+  {
+    entry.value = value;
+
+    if( value == min_limit || value == max_limit )
+      entry.priority = PRI_LIMIT;
+    else if( (value == min_range || value == max_range) )
+      entry.priority = PRI_RANGE;
+    else
+      entry.priority = PRI_NORMAL;
+
+    ADD_ELEMENT_TO_ARRAY( numbers, n_numbers, entry, DEFAULT_CHUNK_SIZE );
+
+    if( value < min_limit && mult_value >= min_limit )
+      value = min_limit;
+    else if( value < max_limit && mult_value >= max_limit )
+      value = max_limit;
+    else if( value < max_range && mult_value >= max_range )
+      value = max_range;
+    else
+    {
+      value = mult_value;
+      mult_value = round_to_nearest_multiple( mult_value + delta, delta );
+    }
+
+    if( delta <= 0.0 )
+      break;
+  }
+
+  last_y = 0.0;
+
+  for_less( i, 0, n_numbers )
+  {
+    y = get_y_pos( numbers[i].value, min_range, max_range, bottom, top );
+
+    if( i < n_numbers-1 )
+      next_y = get_y_pos( numbers[i+1].value, min_range, max_range,
+                          bottom, top );
+
+    if( (i == 0 || y - last_y > Colour_bar_closest_text) &&
+        (i == n_numbers-1 ||
+         next_y - y > Colour_bar_closest_text ||
+         numbers[i].priority > numbers[i+1].priority ) )
+    {
+      if( numbers[i].priority == PRI_LIMIT &&
+          numbers[i].value == min_limit)
+        colour = Colour_bar_min_limit_colour;
+      else if( numbers[i].priority == PRI_LIMIT &&
+               numbers[i].value == max_limit )
+        colour = Colour_bar_max_limit_colour;
+      else if( numbers[i].priority == PRI_RANGE )
+        colour = Colour_bar_range_colour;
+      else
+        colour = Colour_bar_text_colour;
+
+      SET_ARRAY_SIZE( lines->colours, lines->n_items,
+                      lines->n_items+1, DEFAULT_CHUNK_SIZE );
+
+      lines->colours[lines->n_items] = colour;
+
+      start_new_line( lines );
+
+      if( numbers[i].priority == 2 )
+        x = colour_bar->left_offset;
+      else
+        x = x_tick_start;
+
+      fill_Point( point, x, y, 0.0 );
+
+      add_point_to_line( lines, &point );
+
+      if( Histogram_extra_width > 0.0 && histogram_present &&
+          (numbers[i].value == min_limit ||
+           numbers[i].value == max_limit) )
+      {
+        fill_Point( point, x_tick_end + Histogram_extra_width, y, 0.0 );
+      }
+      else
+      {
+        fill_Point( point, x_tick_end, y, 0.0 );
+      }
+      add_point_to_line( lines, &point );
+
+      object = create_object( TEXT );
+      text = get_text_ptr( object );
+      text->font = (Font_types) Colour_bar_text_font;
+      text->size = Colour_bar_text_size;
+      text->colour = colour;
+      fill_Point( text->origin, x_tick_end,
+                  y - G_get_text_height( text->font, text->size ) / 2.0,
+                  0.0 );
+      sprintf( buffer, Colour_bar_number_format, numbers[i].value );
+
+      text->string = create_string( buffer );
+
+      add_object_to_model( model, object );
+
+      last_y = y;
+    }
+  }
+
+  if( n_numbers > 0 )
+    FREE( numbers );
+}
+
 /**
  * Construct a new colour bar object for the slice window.
  *
@@ -119,22 +291,16 @@ void
 rebuild_colour_bar( display_struct *slice_window )
 {
     int                 i, volume_index;
+    VIO_Real            y;
     int                 x_min, x_max, y_min, y_max;
-    VIO_Real            x, y, bottom, top, range, delta;
-    VIO_Real            ratio, last_y, next_y, value, min_value, max_value;
+    VIO_Real            bottom, top;
+    VIO_Real            ratio, value, min_value, max_value;
     VIO_Real            start_threshold, end_threshold;
-    VIO_Real            x_tick_start, x_tick_end, mult_value;
-    VIO_Point           point;
-    char                buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
     VIO_Colour          colour;
     colour_bar_struct   *colour_bar;
-    lines_struct        *lines;
     object_struct       *object;
-    text_struct         *text;
     quadmesh_struct     *quadmesh;
     VIO_Volume          volume;
-    int                 n_numbers;
-    number_entry        entry, *numbers;
     model_struct        *model;
 
     object = slice_window->models[COLOUR_BAR_MODEL];
@@ -198,142 +364,12 @@ rebuild_colour_bar( display_struct *slice_window )
     }
 
     /* now rebuild the tick marks and numbers */
-
-    lines = get_lines_ptr( model->objects[TICKS] );
-
-    delete_lines( lines );
-
-    lines->n_points = 0;
-    lines->n_items = 0;
-
-    x_tick_start = colour_bar->left_offset + colour_bar->bar_width;
-    x_tick_end = x_tick_start + colour_bar->tick_width;
-
-    while( model->n_objects > FIRST_TEXT )
-    {
-        delete_object( model->objects[FIRST_TEXT] );
-        remove_ith_object_from_model( model, FIRST_TEXT );
-    }
-
-    range = max_value - min_value;
-
-    delta = get_good_round_value( range /
-                                  (VIO_Real) Colour_bar_desired_intervals );
-
-    n_numbers = 0;
-    numbers = NULL;
-
-    mult_value = round_to_nearest_multiple( min_value, delta );
-    while( mult_value <= min_value && delta > 0.0 )
-        mult_value = round_to_nearest_multiple( mult_value + delta, delta );
-
-    value = min_value;
-    while( value <= max_value )
-    {
-        entry.value = value;
-
-        if( (value == start_threshold || value == end_threshold) )
-            entry.priority = 2;
-        else if( value == min_value || value == max_value )
-            entry.priority = 1;
-        else
-            entry.priority = 0;
-
-        ADD_ELEMENT_TO_ARRAY( numbers, n_numbers, entry, DEFAULT_CHUNK_SIZE );
-
-        if( value < start_threshold && mult_value >= start_threshold )
-            value = start_threshold;
-        else if( value < end_threshold && mult_value >= end_threshold )
-            value = end_threshold;
-        else if( value < max_value && mult_value >= max_value )
-            value = max_value;
-        else
-        {
-            value = mult_value;
-            mult_value = round_to_nearest_multiple( mult_value + delta, delta );
-        }
-
-        if( delta <= 0.0 )
-            break;
-    }
-
-    last_y = 0.0;
-
-    for_less( i, 0, n_numbers )
-    {
-        y = get_y_pos( numbers[i].value, min_value, max_value, bottom,
-                       top );
-
-        if( i < n_numbers-1 )
-            next_y = get_y_pos( numbers[i+1].value, min_value, max_value,
-                                bottom, top );
-
-        if( (i == 0 || y - last_y > Colour_bar_closest_text) &&
-            (i == n_numbers-1 ||
-                next_y - y > Colour_bar_closest_text ||
-                numbers[i].priority > numbers[i+1].priority ) )
-        {
-            if( numbers[i].priority == 2 && numbers[i].value == start_threshold)
-                colour = Colour_bar_min_limit_colour;
-            else if( numbers[i].priority == 2 &&
-                     numbers[i].value == end_threshold )
-                colour = Colour_bar_max_limit_colour;
-            else if( numbers[i].priority == 1 )
-                colour = Colour_bar_range_colour;
-            else
-                colour = Colour_bar_text_colour;
-
-            SET_ARRAY_SIZE( lines->colours, lines->n_items,
-                            lines->n_items+1, DEFAULT_CHUNK_SIZE );
-
-            lines->colours[lines->n_items] = colour;
-
-            start_new_line( lines );
-
-            if( numbers[i].priority == 2 )
-                x = colour_bar->left_offset;
-            else
-                x = x_tick_start;
-
-            fill_Point( point, x, y, 0.0 );
-
-            add_point_to_line( lines, &point );
-
-            if( Histogram_extra_width > 0.0 &&
-                slice_window->slice.unscaled_histogram_lines.n_points > 0 &&
-                (numbers[i].value == start_threshold ||
-                 numbers[i].value == end_threshold) )
-            {
-                fill_Point( point, x_tick_end + Histogram_extra_width, y, 0.0 );
-            }
-            else
-            {
-                fill_Point( point, x_tick_end, y, 0.0 );
-            }
-            add_point_to_line( lines, &point );
-
-            object = create_object( TEXT );
-
-            text = get_text_ptr( object );
-            text->font = (Font_types) Colour_bar_text_font;
-            text->size = Colour_bar_text_size;
-            text->colour = colour;
-            fill_Point( text->origin, x_tick_end,
-                        y - G_get_text_height( text->font, text->size ) / 2.0,
-                        0.0 );
-            (void) sprintf( buffer, Colour_bar_number_format,
-                            numbers[i].value );
-
-            text->string = create_string( buffer );
-
-            add_object_to_model( model, object );
-
-            last_y = y;
-        }
-    }
-
-    if( n_numbers > 0 )
-        FREE( numbers );
+    rebuild_ticks_and_text( colour_bar, model,
+                            TICKS, FIRST_TEXT,
+                            min_value, max_value,
+                            start_threshold, end_threshold,
+                            bottom, top,
+                            slice_window->slice.unscaled_histogram_lines.n_points > 0);
 
     set_slice_viewport_update( slice_window, COLOUR_BAR_MODEL );
 }

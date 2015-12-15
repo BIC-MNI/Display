@@ -26,7 +26,8 @@ MENU_F(show_memory) \
 MENU_F(pop_menu) \
 MENU_F(push_menu) \
 MENU_F(toggle_shift_key) \
-MENU_F(load_vertex_data) \
+MENU_F(menu_load_vertex_data) \
+MENU_F(menu_next_vertex_data) \
 MENU_F(load_file) \
 MENU_F(save_file) \
 MENU_F(load_oblique_plane) \

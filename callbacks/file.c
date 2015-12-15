@@ -22,7 +22,29 @@
 
 /* ARGSUSED */
 
-DEF_MENU_FUNCTION( load_vertex_data )
+DEF_MENU_FUNCTION( menu_next_vertex_data )
+{
+    object_struct       *object;
+
+    if( !get_current_object( display, &object ) ||
+        object->object_type != POLYGONS)
+    {
+        return VIO_ERROR;
+    }
+
+    advance_vertex_data( display, object );
+    return VIO_OK;
+}
+
+DEF_MENU_UPDATE( menu_next_vertex_data )
+{
+    object_struct *object;
+
+    return (get_current_object(display, &object) &&
+            object->object_type == POLYGONS);
+}
+
+DEF_MENU_FUNCTION( menu_load_vertex_data )
 {
     object_struct      *object;
     VIO_STR            filename;
@@ -51,7 +73,7 @@ DEF_MENU_FUNCTION( load_vertex_data )
 
     print("Loaded %d vertex data items, in range [%f ... %f]\n",
           vtxd_ptr->dims[0],
-          vtxd_ptr->min_v, vtxd_ptr->max_v);
+          vtxd_ptr->min_v[0], vtxd_ptr->max_v[0]);
 
     polygons = get_polygons_ptr(object);
 
@@ -66,7 +88,7 @@ DEF_MENU_FUNCTION( load_vertex_data )
     return VIO_OK;
 }
 
-DEF_MENU_UPDATE( load_vertex_data )
+DEF_MENU_UPDATE( menu_load_vertex_data )
 {
     object_struct *object;
 
