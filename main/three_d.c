@@ -30,7 +30,8 @@ static void update_status_line(display_struct *display);
 static void initialize_vertex_colour_bar( display_struct *display );
 static void update_vertex_colour_coding( display_struct *display,
                                          vertex_data_struct *vtxd_ptr);
-static void update_vertex_colour_bar( display_struct *display );
+static void update_vertex_colour_bar( display_struct *display,
+                                      vertex_data_struct *vtxd_ptr );
 void set_vertex_colour_bar_visibility(display_struct *display, VIO_BOOL visible);
 static vertex_data_struct *find_vertex_data( display_struct *display,
                                             object_struct *object);
@@ -40,7 +41,9 @@ static VIO_BOOL get_vertex_value(display_struct *display,
                                  int *column_ptr);
 
 /**
- * Initializes the 3D window structure.
+ * Initializes the 3D window structure (three_d_window_struct).
+ *
+ * \param display The display_struct of the 3D view window.
  */
 void  initialize_three_d_window(
     display_struct   *display )
@@ -140,6 +143,12 @@ show_three_d_window(display_struct *graphics,
     }
 }
 
+/**
+ * Create the graphical objects and data structures used to maintain the
+ * status line in the 3D view window.
+ *
+ * \param display The display_struct for the 3D view window.
+ */
 static void
 initialize_status_line(display_struct *display)
 {
@@ -158,6 +167,8 @@ initialize_status_line(display_struct *display)
 
 /**
  * Define light sources for the 3D view window.
+ *
+ * \param display The display_struct of the 3D view window.
  */
 static void
 define_lights( display_struct   *display )
@@ -186,6 +197,16 @@ static    DEF_EVENT_FUNCTION( adjust_hi_limit );
 static    DEF_EVENT_FUNCTION( finish_lo_limit );
 static    DEF_EVENT_FUNCTION( finish_hi_limit );
 
+/**
+ * Handle general mouse movement. The only normal purpose for this is to
+ * update the 3D view window's status line.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param event_type The event code for this event.
+ * \param key_pressed The keyboard code associated with this event, if any.
+ *
+ * \returns VIO_OK if the event processing should continue.
+ */
 static DEF_EVENT_FUNCTION(handle_mouse_movement)
 {
     int x, y, ox, oy;
@@ -197,9 +218,16 @@ static DEF_EVENT_FUNCTION(handle_mouse_movement)
     return VIO_OK;
 }
 
+/**
+ * Install handlers for various window events we need to accept.
+ *
+ * \param display The display_struct of the 3D view window.
+ */
 static  void  initialize_three_d_events(
     display_struct  *display )
 {
+    /* Install these first so they get first crack at the mouse events.
+     */
     add_action_table_function( &display->action_table, WINDOW_RESIZE_EVENT,
                                handle_resize_three_d );
 
@@ -209,6 +237,8 @@ static  void  initialize_three_d_events(
     add_action_table_function( &display->action_table, NO_EVENT,
                                handle_mouse_movement );
 
+    /* Now install the other mouse handling functions.
+     */
     initialize_virtual_spaceball( display );
 
     initialize_picking_object( display );
@@ -216,6 +246,15 @@ static  void  initialize_three_d_events(
 
 /* ARGSUSED */
 
+/**
+ * Event handler for window resize operations.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param event_type The event code for this event.
+ * \param key_pressed The keyboard code associated with this event, if any.
+ *
+ * \returns VIO_OK if the event processing should continue.
+ */
 static  DEF_EVENT_FUNCTION( handle_resize_three_d )
 {
     adjust_view_for_aspect( &display->three_d.view, display->window );
@@ -227,7 +266,12 @@ static  DEF_EVENT_FUNCTION( handle_resize_three_d )
     return( VIO_OK );
 }
 
-  void  delete_three_d(
+/** 
+ * Delete the resources allocated for the 3D view window.
+ *
+ * \param display The display_struct for the 3D view window.
+ */
+void  delete_three_d(
     display_struct  *display )
 {
     delete_string( display->three_d.default_marker_label );
@@ -235,7 +279,13 @@ static  DEF_EVENT_FUNCTION( handle_resize_three_d )
     delete_surface_extraction( display );
 }
 
-  void  add_object_to_current_model(
+/**
+ * Add the given object to the currently selected model.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param object The graphical object to add to the current model.
+ */
+void  add_object_to_current_model(
     display_struct   *display,
     object_struct     *object )
 {
@@ -250,11 +300,26 @@ static  DEF_EVENT_FUNCTION( handle_resize_three_d )
     graphics_models_have_changed( display );
 }
 
+/**
+ * Returns a pointer to display_struct of the the 3D view window, 
+ * given any other display_struct.
+ *
+ * \param display A pointer to any window's display_struct.
+ * \returns A pointer to the 3D view window's display_struct.
+ */
 display_struct  *get_three_d_window( display_struct  *display )
 {
     return( display->associated[THREE_D_WINDOW] );
 }
 
+/**
+ * Redraw the status line for the 3D view window.
+ *
+ * The status line displays information about the vertex nearest the
+ * current mouse position.
+ *
+ * \param display The display_struct of the 3D view window.
+ */
 static void
 update_status_line( display_struct *display )
 {
@@ -362,8 +427,13 @@ update_status_line( display_struct *display )
 }
 
 /**
- * Colour code each of the points associated with an object, by copying
- * the encoded colours from an associated volume.
+ * Colour code each of the points associated with a polygon object, by 
+ * generating colours based on a set of vertex data.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param vtxd_ptr The currently active vertex_data_struct 
+ * \param colour_flag A pointer to the polygon object's colour flag.
+ * \param colours A pointer to the polygon object's colour array.
  */
 static void
 colour_code_vertices( display_struct     *display,
@@ -446,8 +516,11 @@ attach_vertex_data(display_struct *display,
 
 /**
  * Select the next column of the vertex data array to display.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param object The object whose vertex data we should display.
  */
-VIO_BOOL
+void
 advance_vertex_data(display_struct *display, object_struct *object)
 {
     int index;
@@ -470,9 +543,41 @@ advance_vertex_data(display_struct *display, object_struct *object)
     update_vertex_colour_coding( display, vtxd_ptr );
     display->three_d.mouse_point = -1;
     update_status_line( display );
-    return TRUE;
 }
 
+/**
+ * Called to indicate that the currently selected object may have changed.
+ *
+ * This function will update the vertex colour bar to reflect the currently
+ * selected object, or it will entirely hide the vertex colour bar if there
+ * is no vertex data associated with the new object.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param object The newly selected object.
+ */
+void
+switch_vertex_data( display_struct *display, object_struct *object )
+{
+    vertex_data_struct *vtxd_ptr = find_vertex_data( display, object );
+    if (vtxd_ptr == NULL)
+    {
+        set_vertex_colour_bar_visibility( display, FALSE );
+    }
+    else
+    {
+        update_vertex_colour_coding( display, vtxd_ptr );
+    }
+}
+
+
+/**
+ * Find the vertex data structure associated with an object, if any.
+ *
+ * \param display The display_struct for the 3D view window.
+ * \param object The object for which we want the vertex data.
+ * \returns A vertex data pointer, or NULL if no vertex data is associated
+ * with the object.
+ */
 static vertex_data_struct *
 find_vertex_data( display_struct *display, object_struct *object )
 {
@@ -517,6 +622,14 @@ get_vertex_value(display_struct *display, object_struct *object,
 #define VTX_TICK_WIDTH 10
 #define VTX_TOL 4
 
+/**
+ * Change the upper or lower limit of the colour coding for the
+ * vertex data based on the position of the mouse.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param is_lo_limit TRUE if we should adjust the low limit, otherwise
+ * we adjust the high limit.
+ */
 static void
 adjust_limit(display_struct *display, VIO_BOOL is_lo_limit)
 {
@@ -558,13 +671,32 @@ adjust_limit(display_struct *display, VIO_BOOL is_lo_limit)
     update_vertex_colour_coding( display, vtxd_ptr );
 }
 
+/**
+ * Change the lower limit of the colour coding for the vertex data 
+ * based on the position of the mouse.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param event_type The event code for this event.
+ * \param key_pressed The keyboard code associated with this event, if any.
+ *
+ * \returns VIO_OK if the event processing should continue.
+ */
 static DEF_EVENT_FUNCTION(adjust_lo_limit)
 {
     adjust_limit( display, TRUE );
     return VIO_OK;
 }
 
-
+/**
+ * Change the lower limit of the colour coding for the vertex data 
+ * based on the position of the mouse.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param event_type The event code for this event.
+ * \param key_pressed The keyboard code associated with this event, if any.
+ *
+ * \returns VIO_OK if the event processing should continue.
+ */
 static DEF_EVENT_FUNCTION(adjust_hi_limit)
 {
     adjust_limit( display, FALSE );
@@ -572,6 +704,16 @@ static DEF_EVENT_FUNCTION(adjust_hi_limit)
 }
 
 
+/**
+ * Finish changing the lower limit of the colour coding for the vertex data.
+ * Removes the action handlers installed on the mouse down event.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param event_type The event code for this event.
+ * \param key_pressed The keyboard code associated with this event, if any.
+ *
+ * \returns VIO_OK if the event processing should continue.
+ */
 static DEF_EVENT_FUNCTION(finish_lo_limit)
 {
   remove_action_table_function( &display->action_table, NO_EVENT,
@@ -581,6 +723,16 @@ static DEF_EVENT_FUNCTION(finish_lo_limit)
   return VIO_OK;
 }
 
+/**
+ * Finish changing the upper limit of the colour coding for the vertex data.
+ * Removes the action handlers installed on the mouse down event.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param event_type The event code for this event.
+ * \param key_pressed The keyboard code associated with this event, if any.
+ *
+ * \returns VIO_OK if the event processing should continue.
+ */
 static DEF_EVENT_FUNCTION(finish_hi_limit)
 {
   remove_action_table_function( &display->action_table, NO_EVENT,
@@ -593,6 +745,11 @@ static DEF_EVENT_FUNCTION(finish_hi_limit)
 
 /**
  * Update vertex colour coding and redisplay associated UI elements.
+ *
+ * Called whenever either the vertex data or colour coding is changed.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param vtxd_ptr The vertex_data_struct that has been updated.
  */
 static void
 update_vertex_colour_coding( display_struct *display,
@@ -601,7 +758,7 @@ update_vertex_colour_coding( display_struct *display,
     polygons_struct *polygons = get_polygons_ptr( vtxd_ptr->owner );
     colour_code_vertices( display, vtxd_ptr, &polygons->colour_flag,
                           &polygons->colours );
-    update_vertex_colour_bar( display );
+    update_vertex_colour_bar( display, vtxd_ptr );
     set_vertex_colour_bar_visibility( display, TRUE );
     set_update_required( display, NORMAL_PLANES );
 }
@@ -673,6 +830,11 @@ prompt_vertex_coding_colours( display_struct *display,
  * This function particularly implements left mouse clicks in the
  * vertex colour bar. This implements functions such as the selection of
  * the colour coding bounds, or the choice of over/under colour.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param event_type The event code for this event.
+ * \param key_pressed The keyboard code associated with this event, if any.
+ *
  * \returns VIO_OK if this function did _not_ handle this event, or VIO_ERROR
  * if this function function "consumed" the event.
  */
@@ -743,6 +905,8 @@ static DEF_EVENT_FUNCTION( handle_left_down )
 
 /**
  * Initialize colour bar objects for vertex display.
+ *
+ * \param display The display_struct of the 3D view window.
  */
 static void
 initialize_vertex_colour_bar( display_struct *display )
@@ -785,7 +949,9 @@ initialize_vertex_colour_bar( display_struct *display )
 }
 
 /**
- *
+ * Enables or disables display of the vertex colour bar.
+ * \param display The display_struct of the 3D view window.
+ * \param visible TRUE if the colour bar should be visible.
  */
 void
 set_vertex_colour_bar_visibility(display_struct *display, VIO_BOOL visible)
@@ -803,9 +969,13 @@ set_vertex_colour_bar_visibility(display_struct *display, VIO_BOOL visible)
 /**
  * This function updates the vertex coding colour bar to reflect
  * the current colour coding range and state.
+ * 
+ * \param display The display_struct of the 3D view window.
+ * \param vtxd_ptr The selected vertex_data_struct
  */
 static void
-update_vertex_colour_bar(display_struct *display )
+update_vertex_colour_bar( display_struct *display, 
+                          vertex_data_struct *vtxd_ptr )
 {
   model_struct *model;
   pixels_struct *pixels;
@@ -815,12 +985,7 @@ update_vertex_colour_bar(display_struct *display )
   VIO_Real value;
   VIO_Colour colour;
   int x, y;
-  vertex_data_struct *vtxd_ptr;
   colour_bar_struct colour_bar;
-
-  vtxd_ptr = find_vertex_data( display, display->three_d.mouse_obj );
-  if (vtxd_ptr == NULL)
-      return;
 
   min_range = vtxd_ptr->min_v[vtxd_ptr->column_index];
   max_range = vtxd_ptr->max_v[vtxd_ptr->column_index];

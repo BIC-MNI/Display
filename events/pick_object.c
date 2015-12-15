@@ -218,7 +218,7 @@ VIO_BOOL  get_polygon_under_mouse(
 static void
 pick_point_under_mouse(display_struct    *display)
 {
-    VIO_Point            intersection_point;
+    VIO_Point        intersection_point;
     object_struct    *object;
     int              object_index;
     object_struct    *current;
@@ -226,8 +226,7 @@ pick_point_under_mouse(display_struct    *display)
     if( get_mouse_scene_intersection( display, (Object_types) -1, &object,
                                       &object_index, &intersection_point ) )
     {
-        display->three_d.cursor.origin = intersection_point;
-        update_cursor( display );
+        set_cursor_origin( display, &intersection_point );
 
         if( !get_current_object( display, &current ) || current != object )
         {
@@ -236,8 +235,6 @@ pick_point_under_mouse(display_struct    *display)
                                    display->associated[MARKER_WINDOW] );
         }
 
-        set_update_required( display, get_cursor_bitplanes() );
-
         if( update_voxel_from_cursor( display->associated[SLICE_WINDOW] ) )
         {
             set_update_required( display->associated[SLICE_WINDOW],
@@ -245,5 +242,6 @@ pick_point_under_mouse(display_struct    *display)
         }
 
         update_all_menu_text( display );
+        switch_vertex_data( display, object );
     }
 }

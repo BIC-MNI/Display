@@ -128,7 +128,10 @@ void show_three_d_window( display_struct *three_d,
 void attach_vertex_data(display_struct *display,
                         object_struct *object,
                         vertex_data_struct *vtxd_ptr);
-VIO_BOOL advance_vertex_data(display_struct *display, object_struct *object);
+
+void advance_vertex_data(display_struct *display, object_struct *object);
+
+void switch_vertex_data(display_struct *display, object_struct *object);
 
   void  delete_three_d(
     display_struct  *display );
