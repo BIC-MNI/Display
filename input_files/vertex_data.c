@@ -29,13 +29,27 @@ int split_line(char *text_ptr, int sep, char ***argv)
 }
 
 vertex_data_struct *
-input_vertex_data( const char *filename )
+input_vertex_data( VIO_STR filename )
 {
     FILE *fp;
     int  len = 0;
     int  n_line = 0;
     char buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
     vertex_data_struct *vtxd_ptr;
+    int sep;
+
+    if (string_ends_in( filename, ".csv" ))
+    {
+        sep = ',';
+    }
+    else if (string_ends_in( filename, ".tsv" ))
+    {
+        sep = '\t';
+    }
+    else
+    {
+        sep = ' ';
+    }
 
     if ((fp = fopen(filename, "r")) == NULL)
     {
@@ -54,7 +68,7 @@ input_vertex_data( const char *filename )
     {
         float v;
         char **argv;
-        int n = split_line(buffer, ' ', &argv);
+        int n = split_line(buffer, sep, &argv);
         int i;
 
         n_line++;

@@ -193,7 +193,7 @@ VIO_BOOL advance_vertex_data(display_struct *display, object_struct *object);
 
 /*** input_files/vertex_data.c ***/
 
-vertex_data_struct *input_vertex_data( const char *filename );
+vertex_data_struct *input_vertex_data( VIO_STR filename );
 
   /** \defgroup Commands Menu command functions
    *
