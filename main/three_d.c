@@ -527,7 +527,7 @@ advance_vertex_data(display_struct *display, object_struct *object)
     vertex_data_struct *vtxd_ptr = find_vertex_data( display, object );
 
     if ( vtxd_ptr == NULL )
-        return FALSE;
+        return;
 
     index = vtxd_ptr->column_index + 1;
     if ( index >= vtxd_ptr->dims[1] )
