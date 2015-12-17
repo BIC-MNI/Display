@@ -1,3 +1,7 @@
+2015-12-15  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * various: Fully implement vertex data, including colour coding support
+	and multicolumn text data files.
+
 2015-11-10  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * main/main.c, slice_window/colour_coding.c,	Include/global_variables.h:
 	Update the way we implement the initial colour range options.
