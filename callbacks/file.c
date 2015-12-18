@@ -203,39 +203,59 @@ DEF_MENU_FUNCTION( save_file )
 
         if( status == VIO_OK )
         {
-            if (string_ends_in(filename, ".ply"))
+            if (filename_extension_matches(filename, "ply"))
             {
                 if (n_objects == 1 && object_list[0]->object_type == POLYGONS)
                 {
+                    print("Saving polygonal object in Stanford PLY format.\n");
                     status = output_stanford_ply(filename, object_list[0]);
                 }
                 else
                 {
-                    print("Can only write a single polygonal surface to a Stanford .ply file.\n");
+                    print("Can only write a single polygonal surface to "
+                          "a Stanford .ply file.\n");
                     status = VIO_ERROR;
                 }
             }
-            else if (string_ends_in(filename, ".x3d"))
+            else if (filename_extension_matches(filename, "x3d"))
             {
                 if (n_objects == 1 && object_list[0]->object_type == POLYGONS)
                 {
+                    print("Saving polygonal object in X3D format.\n");
                     status = output_x3d(filename, object_list[0]);
                 }
                 else
                 {
-                    print("Can only write a single polygonal surface to an .x3d file.\n");
+                    print("Can only write a single polygonal surface to "
+                          "an .x3d file.\n");
                     status = VIO_ERROR;
                 }
             }
-            else if (string_ends_in(filename, ".wf.obj"))
+            else if (filename_extension_matches(filename, "wf.obj"))
             {
                 if (n_objects == 1 && object_list[0]->object_type == POLYGONS)
                 {
+                    print("Saving polygonal object in Wavefront OBJ format.\n");
                     status = output_wavefront_obj(filename, object_list[0]);
                 }
                 else
                 {
-                    print("Can only write a single polygonal surface to a Wavefront .obj file.\n");
+                    print("Can only write a single polygonal surface to "
+                          "a Wavefront .obj file.\n");
+                    status = VIO_ERROR;
+                }
+            }
+            else if (filename_extension_matches(filename, "gii"))
+            {
+                if (n_objects == 1 && object_list[0]->object_type == POLYGONS)
+                {
+                    print("Saving polygonal object in GIFTI format.\n");
+                    status = output_gifti(filename, object_list[0]);
+                }
+                else
+                {
+                    print("Can only write a single polygonal surface to "
+                          "a GIFTI file.\n");
                     status = VIO_ERROR;
                 }
             }
@@ -245,7 +265,10 @@ DEF_MENU_FUNCTION( save_file )
                                                (VIO_File_formats) Save_format,
                                                n_objects, object_list );
             }
-            print( "Done saving.\n" );
+            if ( status == VIO_OK )
+                print( "Done saving.\n" );
+            else
+                print( "An error occurred saving the file.\n");
         }
 
         delete_string( filename );

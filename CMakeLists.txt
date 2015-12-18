@@ -60,7 +60,7 @@ SET(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 
 #----------------------------------------------------------------------
 
-ADD_DEFINITIONS(-DHAVE_CONFIG_H)
+ADD_DEFINITIONS(-DHAVE_CONFIG_H -DHAVE_ZLIB)
 
 # aliases
 SET(VERSION "${PACKAGE_VERSION}")
@@ -173,10 +173,8 @@ IF(NOT MINC_TOOLKIT_BUILD)
   find_package(OpenGL REQUIRED)
 
   # GLUT
-#   FIND_PACKAGE( Threads )
-  #FIND_PACKAGE( GL REQUIRED )
-  #FIND_PACKAGE( GLU REQUIRED )
   find_package( GLUT REQUIRED )
+  find_package( GIFTI )
 ELSE(NOT MINC_TOOLKIT_BUILD)
   INCLUDE( ${LIBMINC_USE_FILE} )
 ENDIF(NOT MINC_TOOLKIT_BUILD)
@@ -193,8 +191,9 @@ include_directories( ${BICPL_INCLUDE_DIR} )
 include_directories( ${BICGL_INCLUDE_DIR} )
 include_directories( ${OPENGL_INCLUDE_DIR} )
 include_directories( ${GLUT_INCLUDE_DIR} )
+include_directories( ${NIFTI_INCLUDE_DIR} )
+include_directories( ${GIFTI_INCLUDE_DIR} )
 #include_directories( ${GLU_INCLUDE_DIR} )
-
 
 # Look for C source files. Dirty but easy way.
 # file (GLOB_RECURSE C_SRC "./*.c")
@@ -338,7 +337,9 @@ IF(NOT MINC_TOOLKIT_BUILD)
         ${BICPL_LIBRARY}
         ${GLUT_glut_LIBRARY} 
         ${OPENGL_gl_LIBRARY}
-         -lm -pthread)
+        ${GIFTI_LIBRARY}
+        ${NIFTI_LIBRARY}
+         -lexpat -lm -pthread)
   ELSE (DISPLAY_BUILD_STATIC)
     SET (LINK_LIBRARIES   
         ${MINC_LIBRARIES}
@@ -347,19 +348,26 @@ IF(NOT MINC_TOOLKIT_BUILD)
         ${ZLIB_LIBRARIES}
         ${BICPL_LIBRARY}
         ${GLUT_glut_LIBRARY} 
-        ${OPENGL_gl_LIBRARY} )
+        ${OPENGL_gl_LIBRARY}
+        ${GIFTI_LIBRARY}
+        ${NIFTI_LIBRARY}
+        -lexpat -lm -pthread)
   ENDIF (DISPLAY_BUILD_STATIC)
 ELSE(NOT MINC_TOOLKIT_BUILD)
   IF(LIBMINC_STATIC_LIBRARIES AND BICPL_STATIC_LIBRARIES)
     SET (LINK_LIBRARIES
       ${GLUT_LIBRARIES} ${OPENGL_gl_LIBRARY}
       ${BICPL_STATIC_LIBRARIES} ${LIBMINC_STATIC_LIBRARIES}
-        m pthread)
+      ${GIFTI_LIBRARY}
+      ${NIFTI_LIBRARY}
+        expat m pthread)
   ELSE(LIBMINC_STATIC_LIBRARIES AND BICPL_STATIC_LIBRARIES)
     SET (LINK_LIBRARIES
       ${GLUT_LIBRARIES} ${OPENGL_gl_LIBRARY}
       ${BICPL_LIBRARIES} ${LIBMINC_LIBRARIES}
-        m pthread)
+      ${GIFTI_LIBRARY}
+      ${NIFTI_LIBRARY}
+        expat m pthread)
   ENDIF( LIBMINC_STATIC_LIBRARIES AND BICPL_STATIC_LIBRARIES)    
 ENDIF(NOT MINC_TOOLKIT_BUILD)
 

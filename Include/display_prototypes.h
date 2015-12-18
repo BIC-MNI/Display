@@ -2871,6 +2871,7 @@ VIO_Status change_current_object_opacity(display_struct *display,
 VIO_Status output_wavefront_obj(VIO_STR filename, object_struct *object_ptr);
 VIO_Status output_stanford_ply(VIO_STR filename, object_struct *object_ptr);
 VIO_Status output_x3d(VIO_STR filename, object_struct *object_ptr);
+VIO_Status output_gifti(VIO_STR filename, object_struct *object_ptr);
 
 /* from slice_window/rulers.c */
 void initialize_slice_rulers( model_struct *model_ptr );

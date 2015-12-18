@@ -20,6 +20,10 @@
 
 #include  <display.h>
 
+#if GIFTI_FOUND
+#include "gifti_io.h"
+#endif /* GIFTI_FOUND */
+
 /**
  * Load either a graphical object (MNI .obj format, e.g.) or a volume file
  * (MINC voxel data, e.g.).
@@ -95,11 +99,72 @@
             }
         }
     }
-    else if( filename_extension_matches(filename,"cnt") )
+#if GIFTI_FOUND
+    else if( filename_extension_matches( filename, "gii" ) )
     {
-        print( "Cannot read .cnt files.\n" );
-        status = VIO_ERROR;
+        gifti_image *gii_ptr = gifti_read_image( filename, 1 );
+        if ( gii_ptr == NULL )
+        {
+          status = VIO_ERROR;
+        }
+        else 
+        {
+          /* Obsessively check all of the attributes of a GIFTI surface.
+           */
+          if ( gii_ptr->numDA == 2 &&
+               gii_ptr->darray[0]->intent == NIFTI_INTENT_POINTSET &&
+               gii_ptr->darray[0]->datatype == NIFTI_TYPE_FLOAT32 &&
+               gii_ptr->darray[0]->num_dim == 2 &&
+               gii_ptr->darray[0]->dims[1] == 3 &&
+               gii_ptr->darray[1]->intent == NIFTI_INTENT_TRIANGLE &&
+               gii_ptr->darray[1]->datatype == NIFTI_TYPE_INT32 &&
+               gii_ptr->darray[1]->num_dim == 2 &&
+               gii_ptr->darray[1]->dims[1] == 3 )
+          {
+            object_struct *object_ptr = create_object( POLYGONS );
+            polygons_struct *polygons_ptr = get_polygons_ptr( object_ptr );
+            float *float32_ptr;
+            int *int32_ptr;
+            int i;
+
+            initialize_polygons( polygons_ptr, WHITE, NULL );
+
+            polygons_ptr->n_points = gii_ptr->darray[0]->dims[0];
+            ALLOC( polygons_ptr->points, polygons_ptr->n_points );
+            float32_ptr = (float *) gii_ptr->darray[0]->data;
+            for_less( i, 0, polygons_ptr->n_points )
+            {
+              int j = i * VIO_N_DIMENSIONS;
+              fill_Point(polygons_ptr->points[i],
+                         float32_ptr[j + 0],
+                         float32_ptr[j + 1],
+                         float32_ptr[j + 2]);
+            }
+
+            polygons_ptr->n_items = gii_ptr->darray[1]->dims[0];
+            ALLOC( polygons_ptr->indices, polygons_ptr->n_items * 3 );
+            ALLOC( polygons_ptr->end_indices, polygons_ptr->n_items );
+            int32_ptr = (int *) gii_ptr->darray[1]->data;
+            for_less( i, 0, polygons_ptr->n_items * 3 )
+            {
+              polygons_ptr->indices[i] = int32_ptr[i];
+            }
+            for_less( i, 0, polygons_ptr->n_items )
+            {
+              polygons_ptr->end_indices[i] = (i + 1) * 3;
+            }
+            ALLOC( polygons_ptr->normals, polygons_ptr->n_points );
+            compute_polygon_normals( polygons_ptr );
+            add_object_to_model( model, object_ptr );
+          }
+          else
+          {
+            print("Sorry, I can only read GIfTI surfaces.\n");
+          }
+          gifti_free_image( gii_ptr );
+        }
     }
+#endif /* GIFTI_FOUND */
     else if( filename_extension_matches(filename,
                                         get_default_colour_map_suffix()) &&
              get_n_volumes(display) > 0 &&
@@ -112,11 +177,6 @@
     {
         transform_current_volume_from_file( display, filename );
         status = VIO_OK;
-    }
-    else if( filename_extension_matches(filename,"roi") )
-    {
-        print( "Cannot read .roi files.\n" );
-        status = VIO_ERROR;
     }
     else
     {

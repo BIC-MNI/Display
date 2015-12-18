@@ -89,4 +89,7 @@
 /* Define to 1 if the X Window System is missing or not being used. */
 #cmakedefine X_DISPLAY_MISSING 1
 
+/* Define to 1 if the GIFTI library is present and should be used. */
+#cmakedefine GIFTI_FOUND 1
+
 #endif // CONFIG_H
