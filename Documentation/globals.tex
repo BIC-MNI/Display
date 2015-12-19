@@ -174,6 +174,15 @@ the operation of the program after it is initialized.
 {The initial value used to label voxels when painting the slice window.}
 {{\bf F} Segmenting / {\bf D} Set Paint Lbl}
 
+\globalentry{Default\_x\_brush\_radius}{Real}{3.0}{Default width of the
+ primary brush in world units.}{}
+
+\globalentry{Default\_y\_brush\_radius}{Real}{3.0}{Default height of the
+primary brush in world units.}{}
+
+\globalentry{Default\_z\_brush\_radius}{Real}{0.0}{Default depth of the
+ primary brush in world units.}{}
+
 \globalentry{Draw\_brush\_outline}
 {Boolean}{True}
 {If true, the outline of the current brush shape will be drawn as voxels are painted in the slice window. If false, only the altered voxel labels themselves will be drawn.}{}
@@ -305,6 +314,15 @@ histogram. In other words, by default we don't consider histogram bins
  objects will be saved in ASCII (0) or binary (1) format. In general,
  ASCII format is more likely to be portable among different machine
  architectures.}{}
+
+\globalentry{Secondary\_x\_brush\_radius}{Real}{3.0}{Defines the width of
+ of the secondary brush in world units.}{}
+
+\globalentry{Secondary\_y\_brush\_radius}{Real}{3.0}{Defines the height of
+ of the secondary brush in world units.}{}
+
+\globalentry{Secondary\_z\_brush\_radius}{Real}{3.0}{Defines the depth
+  of the secondary brush in world units.}{}
 
 \globalentry{Show\_cursor\_contours}
 {Boolean}{False}

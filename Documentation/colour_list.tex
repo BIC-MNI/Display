@@ -1,8 +1,14 @@
-\documentclass{article}
-\usepackage{longtable}
-\usepackage{xcolor}
-\begin{document}
-\begin{longtable}{lll}
+\newpage
+\section{List of colour names}
+
+The following is a table of all of the colour names supported by
+\display{}, with the corresponding integer RGB values and approximate example
+swatches. In the user interface, these names can be entered with either
+spaces or underscores.
+
+\begin{longtable}{l|l|l}
+{\bf Text name} & {\bf Integer RGB values} & {\bf Sample swatch}\\
+\hline
 ALICE\_BLUE & 240 248 255 & \colorbox[RGB]{240 248 255}{\phantom{MMMMMMMM}}\\
 ANTIQUE\_WHITE & 250 235 215 & \colorbox[RGB]{250 235 215}{\phantom{MMMMMMMM}}\\
 AQUAMARINE & 127 255 212 & \colorbox[RGB]{127 255 212}{\phantom{MMMMMMMM}}\\
@@ -147,4 +153,3 @@ WHITE\_SMOKE & 245 245 245 & \colorbox[RGB]{245 245 245}{\phantom{MMMMMMMM}}\\
 YELLOW & 255 255 0 & \colorbox[RGB]{255 255 0}{\phantom{MMMMMMMM}}\\
 YELLOW\_GREEN & 154 205 50 & \colorbox[RGB]{154 205 50}{\phantom{MMMMMMMM}}
 \end{longtable}
-\end{document}

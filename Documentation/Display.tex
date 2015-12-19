@@ -7,6 +7,8 @@
 \usepackage{titling}
 \usepackage{url}
 \usepackage{pifont}
+\usepackage{longtable}
+\usepackage{xcolor}
 \renewcommand\labelitemi{\ding{109}}
 \renewcommand\labelitemii{\ding{111}}
 \graphicspath{{images/}}
@@ -48,10 +50,11 @@ oriented system based on keystrokes and mouse (or touchpad) operations.
 \subsection{Visualization features}
 \display{} supports a large number of visualization features.
 \begin{itemize}
-\item Support for overlaying multiple volumetric images irrespective of differences in their sample grid sizes.
+\item Overlaying multiple volumetric images irrespective of differences in their sample grid sizes.
 \item Visualization of 3D surfaces, and the intersection of the 3D surface with the volumetric data.
-\item The ability to display an oblique (non-orthogonal) plane through the volumetric data.
+\item Displaying an arbitrary, oblique plane through the volumetric data.
 \item Flexible choices for mapping from voxel data to colours.
+\item Associating arbitrary per-vertex data with a surface.
 \end{itemize}
 
 \subsection{Segmentation features}
@@ -60,6 +63,7 @@ oriented system based on keystrokes and mouse (or touchpad) operations.
 \item Support for per-voxel labeling of volumetric data.
 \item Arbitrary mapping from label values to colours.
 \item Powerful fill, dilation, and erosion operations.
+\item Multi-step undo of painting operations.
 \end{itemize}
 
 \subsection{Coordinate system}
@@ -524,6 +528,21 @@ numerical list of red-green-blue values, such as \mbox{\ident{0.3 0.7 0.7}}
 (or \mbox{\ident{0.3 0.7 0.7 0.5}} for a semitransparent colour) may
 be entered.
 
+\subsection{Keyboard Shortcuts}
+\display{} now supports a number of keyboard shortcuts for rapid access
+to certain commands. Many of these are accessed by holding down the
+Control ('Ctrl') key and typing another key.
+
+\begin{itemize}
+\item Ctrl+B - Toggle between the primary and the secondary brush.
+\item Ctrl+O - Open a file (\menutwo{File}{Load File}).
+\item Ctrl+S - Save a file (\menutwo{File}{Save File}).
+\item Ctrl+V - Select the next column in multicolumn vertex data.
+\item Ctrl+Z - Undo the previous painting command.
+\item \ident{>} - Move to the next time position (\menu{+ Time}).
+\item \ident{<} - Move to the previous time position (\menu{- Time}).
+\end{itemize}
+
 \section{Complete Menu Reference}
 
 The following is a complete listing of every menu selection, with a
@@ -617,8 +636,9 @@ slice window is opened, if not already opened.
   object is a polygon, this command will load per-vertex data to
   associate with this polygon. It will set the colours of the vertices
   appropriately, using the full range of the data and the spectral
-  colour map. The file is assumed to be a text file (extension \ident{.txt}), with exactly the
-  same number of numeric values as there are vertices in the polygon.
+  colour map. The file is assumed to be a text file (extension
+  \ident{.txt}, \ident{.tsv}, or \ident{.csv}), with exactly the
+  same number of lines as there are vertices in the polygon.
 \item[\menutwo{File}{Load Poly Visib.}]  Not for general use.
 \item[\menutwo{File}{Save Poly Visib.}]  Not for general use.
 \item[\menutwo{File}{Save Bintree}]  Not for general use.
@@ -837,131 +857,156 @@ limit, which results in an inverted colour map,
 
 \subsection{Segmenting}
 
-This menu contains all the controls for modifying the current label volume,
-which is overlaid on the current volume.  At each voxel in the current
-volume, there is an associated integer value, which is
-stored in the current label volume.  Segmenting consists of painting regions
-of a label volume to change the values from the default of 0.
-When the right mouse button is pressed over a slice in the slice
-window, the current paint label value is painted into the label volume of the
-most recently loaded visible volume.  If the \ident{control} key or
-\ident{shift} key is held down
-at the same time, erasing will be performed, by storing the value 0.
+This menu contains all the controls for modifying the current label
+volume, which is overlaid on the current volume. For each voxel in the
+current volume, there is an associated integer value, which is stored in
+the current label volume. Segmenting consists of painting regions of a
+label volume to change the values from the default of 0.  When the right
+mouse button is pressed over a slice in the slice window, the current
+paint label value is painted into the label volume of the most recently
+loaded visible volume.  
+
+\subsubsection{Erasing}
+
+The default value of all labels is zero, which is considered to be the
+``erased'' value. The erased value can be changed through the menu
+commands If the \ident{control} key or \ident{shift}
+key is held down along with the right mouse button, erasing will be
+performed, by storing the value 0 (or the current erase value, if it has
+been set to something other than zero).
+
+\subsubsection{Secondary brush}
+\display{} implements a secondary brush size which can be quickly
+selected as an alternative to the primary brush size. This allows rapid
+switching from fine-grained to coarse-grained painting. By default the
+secondary brush is a sphere 3 units in diameter. The Ctrl-B key
+is used to toggle between these brushes, and the menu commands to set
+the brush size will set the size of the current brush.
 
 \begin{description}
-\item[\menutwo{Segmenting}{Clear All Labels}]  Sets all labels of the
-         current volume to 0.   Provides a cancel/confirm submenu.
-\item[\menutwo{Segmenting}{Set Paint Label}]  Sets the current label
-    used for painting, where 0 erases.  If the mouse is positioned over
-    a voxel that has a non-zero label when this menu item is selected, then
-    the current label is set to that value.  Otherwise, the user is prompted
-    to type in an integer label, between 0 and 255 (or higher if the number
-    of labels has been changed).
-\item[\menutwo{Segmenting}{XY Radius}]  Prompts for the in-slice 
-    brush radius used in painting on the volume slices (right mouse button).
-    Any voxel which intersects the brush is painted.
-    A radius of zero is therefore paints any voxel the mouse is in.
-    This gives the most fine control over painting.
-\item[\menutwo{Segmenting}{Out-Plane Radius}]  Prompts for the brush
-    radius in the direction perpendicular to the slice plane.  This
-    defaults to zero, for slice-by-slice painting.  If this is non-zero, then
-    a ellipsoidal brush is used, and updating the display is a little
-    slower because all slice views are updated as painting is performed.
-\item[\menutwo{Segmenting}{Undo}]  Provides a one-level undo, which, in certain
-    cases, may be used to reset the state of the labels to before the
-    previous operation.  If the previous operation on the labels was a load
-    from file, or a 3D operation such as 3D fill, the undo cannot be performed.
+\item[\menutwo{Segmenting}{Clear All Labels}] Sets all labels of the
+    current volume to the erased state. Provides a cancel/confirm
+    submenu, but {\em cannot be undone}.
+\item[\menutwo{Segmenting}{Set Paint Label}] Sets the current label used
+  for painting. If the mouse is positioned over a voxel that has a
+  non-zero label when this menu command is selected, then the current
+  paint value is copied from that voxel. Otherwise, the user is prompted
+  to type in an integer label, between 0 and one less than the total
+  number of labels.
+\item[\menutwo{Segmenting}{Set Erase Label}] Sets the current label
+  value used for erasing. If the mouse is positioned over a voxel that
+  has a non-zero label when this menu item is selected, then the current
+  erase value is copied from that voxel. Otherwise, the user is prompted
+  to type in an integer label, between 0 and one less than the total
+  number of labels.
+\item[\menutwo{Segmenting}{XY Radius}] Prompts for the in-slice brush
+  radius (i.e. both the width and height) used in painting on the volume
+  slices. Any voxel which intersects the brush is painted. A radius of
+  zero therefore paints only voxel the mouse is in. This gives the
+  finest control over painting.
+\item[\menutwo{Segmenting}{Out-Plane Radius}] Prompts for the brush
+  depth, the radius in the direction perpendicular to the slice plane. This
+  defaults to zero, for slice-by-slice painting. If this is non-zero,
+  then a ellipsoidal brush is used, and updating the display is a little
+  slower because all slice views are updated as painting is performed.
+\item[\menutwo{Segmenting}{Undo}]  Reverses the last painting or erasing
+  operation which, in many cases, may be used to reset the state of the 
+  labels to before the previous operation. Operations that affect many
+  different slices, such as loading labels from a file, or a 3D
+  operation such as 3D fill, cannot generally be undone.
 \item[\menutwo{Segmenting}{Label Voxel}]  Sets the label of the voxel
-    underneath the mouse to the current paint label.
+  underneath the mouse to the current paint label. Can be undone.
 \item[\menutwo{Segmenting}{Clear Voxel}]  Sets the label of the voxel
-    underneath the mouse to 0.
+  underneath the mouse to the current erase label. Can be undone.
 \item[\menutwo{Segmenting}{Label Slice}]  Sets the label of the 
-    entire slice pointed to by the mouse to the current paint label.
+  entire slice pointed to by the mouse to the current paint label. Can
+  be undone.
 \item[\menutwo{Segmenting}{Clear Slice}]  Sets the label of the 
-    entire slice pointed to by the mouse to 0.
+  entire slice pointed to by the mouse to erase label. Can be undone.
 \item[\menutwo{Segmenting}{Set Threshold}]  Prompts for a minimum and
-    maximum volume val\-ue, and uses these limits for subsequent segmentation
-    operations.  When painting with the right mouse button, only
-    voxels whose values are within this range are affected.  Operations
-    such as dilation, erosion, and 2D and 3D filling are also affected by
-    the current threshold.  By
-    default, there is no segmenting threshold, which can be explicitly
-    specified, if desired, by a max value which is less than the min value.
-\item[\menutwo{Segmenting}{Label Fill}]  If the mouse is pointing
-    to a voxel which is within the selected segmenting range and which
-    has a label not equal to the current paint label, then all similarly
-    labeled voxels on this slice connected
-    to the starting voxel are assigned the current paint label, by a
-    flood fill algorithm.
-\item[\menutwo{Segmenting}{Label Fill No Thrs}]  Same as
-    \menutwo{Segmenting}{Label Fill}, except ignoring the threshold.
-    If the mouse is pointing to a voxel has a label not equal to the
-    current paint label, then all
-    similarly labeled voxels on this slice connected
-    to the starting voxel are assigned the current paint label, by a
-    flood fill algorithm.
-\item[\menutwo{Segmenting}{Clear Fill}]  If the mouse is pointing
-    to a voxel which is within the selected segmenting range and which
-    has a nonzero label, then all similarly labeled voxels on this slice
-    connected to the starting voxel are assigned the paint label 0, by a
-    flood fill algorithm.
-\item[\menutwo{Segmenting}{Connectivity}]  Toggles between using
-    8(26)-neighbour
-    and using 4(6)-neighbour connectivity in 2D(3D) operations such as fill,
-    dilate, and erode.
-\item[\menutwo{Segmenting}{Erode 3D}]  Prompts the user for a label range
-    which corresponds to outside the labels of interest, and erodes regions
-    of the current paint label which are neighbouring the typed-in label
-    range.  Typically the user will type in ``0 -1'' to specify all labels
-    which are not equal to the current paint label.
-\item[\menutwo{Segmenting}{Dilate 3D}]  Prompts the user for a label range
-    which corresponds to outside the labels of interest, and dilates regions
-    of the current paint label which are neighbouring the typed-in label
-    range.  Typically the user will type in ``0 -1'' to specify all labels
-    which are not equal to the current paint label.
-\item[\menutwo{Segmenting}{Copy from Rt/Sup/Ant}]  If the mouse is
-    pointing to a slice in the slice window, then the labels of the
-    neighbouring slice are copied to this slice.
-    For transverse
-    slices, the neighbour is the slice just superior to this one.
-    For coronal
-    slices, the neighbour is the slice just anterior to this one.
-    For sagittal
-    slices, the neighbour is the slice just to the right of this one.
-\item[\menutwo{Segmenting}{Copy from Lt/Inf/Pos}]  If the mouse is
-    pointing to a slice in the slice window, then the labels of the
-    neighbouring slice are copied to this slice.
-    For transverse
-    slices, the neighbour is the slice just inferior to this one.
-    For coronal
-    slices, the neighbour is the slice just posterior to this one.
-    For sagittal
-    slices, the neighbour is the slice just to the left of this one.
-\item[\menutwo{Segmenting}{Fill 3D}]  If the mouse is pointing to a
-    voxel which has a label which is not equal to the current paint
-    label and is within the threshold, then
-    all similarly labeled voxels in the entire volume which are connected to
-    this one are assigned the current paint label.
-    This may take a few seconds to a minute.
-\item[\menutwo{Segmenting}{Calculate Volume}]  Calculates the
-    total volume of all voxels which have the current paint label.
-    This takes a few seconds to perform.
-\item[\menutwo{Segmenting}{Change Labels}]  Prompts for a source
-    and destination label value, as well as a volume value minimum and
-    maximum value.  All voxels which have the source label value and
-    are within the specified value range are changed to have the
-    destination label.  If the maximum value specified is less than
-    the minimum value, then this range is ignored, and the operation
-    simply changes all occurrences of the source label to the
-    destination label.
-\item[\menutwo{Segmenting}{Fast Update}]  Toggles between updating only
-    the slice on which the mouse is painting or all slices, in order to
-    provide a speed
-    tradeoff.  By default, fast update is on, which results in fast painting.
-\item[\menutwo{Segmenting}{Cursor Follows}]  Toggles the mode where the
-    slice cursor follows the mouse during painting.  This results in slower
-    update speeds, but all slice views show updated labels as painting
-    progresses, which may be helpful for detail work.
+  maximum volume value, and uses these limits for subsequent segmentation
+  operations.  When painting with the right mouse button, only
+  voxels whose values are within this range are affected.  Operations
+  such as dilation, erosion, and 2D and 3D filling are also affected by
+  the current threshold.  By default, there is no segmenting threshold,
+  which can be explicitly specified, if desired, by a maximum value which is 
+  less than the minimum value.
+\item[\menutwo{Segmenting}{Label Fill}] If the mouse is pointing to a
+  voxel which is within the selected segmenting range and which has a
+  label not equal to the current paint label, then all similarly labeled
+  voxels on this slice connected to the starting voxel are assigned the
+  current paint label, by a flood fill algorithm. Can be undone.
+\item[\menutwo{Segmenting}{Label Fill No Thrs}] Same as
+  \menutwo{Segmenting}{Label Fill}, except ignoring the threshold. If
+  the mouse is pointing to a voxel has a label not equal to the current
+  paint label, then all similarly labeled voxels on this slice connected
+  to the starting voxel are assigned the current paint label, by a flood
+  fill algorithm.
+\item[\menutwo{Segmenting}{Clear Fill}] If the mouse is pointing to a
+  voxel which is within the selected segmenting range and which has a
+  nonzero label, then all similarly labeled voxels on this slice
+  connected to the starting voxel are assigned the erase label value, by
+  a flood fill algorithm.
+\item[\menutwo{Segmenting}{Connectivity}] Toggles between using 8 (or
+  26)-neighbour and 4 (or 6)-neighbour connectivity in 2D (3D)
+  operations such as fill, dilate, and erode.
+\item[\menutwo{Segmenting}{Erode 3D}] Prompts the user for a label range
+  which corresponds to outside the labels of interest, and erodes
+  regions of the current paint label which are neighbouring the typed-in
+  label range. Typically the user will type in ``0 -1'' to specify all
+  labels which are not equal to the current paint label. {\em Cannot be
+    undone}.
+\item[\menutwo{Segmenting}{Dilate 3D}] Prompts the user for a label
+  range which corresponds to outside the labels of interest, and dilates
+  regions of the current paint label which are neighbouring the typed-in
+  label range. Typically the user will type in ``0 -1'' to specify all
+  labels which are not equal to the current paint label. {\em Cannot be
+    undone}.
+\item[\menutwo{Segmenting}{Copy from Rt/Sup/Ant}] If the mouse is
+  pointing to a slice in the slice window, then the labels of the
+  neighbouring slice are copied to this slice.  For transverse slices,
+  the neighbour is the slice just superior to this one.  For coronal
+  slices, the neighbour is the slice just anterior to this one.  For
+  sagittal slices, the neighbour is the slice just to the right of this
+  one. Can be undone.
+\item[\menutwo{Segmenting}{Copy from Lt/Inf/Pos}] If the mouse is
+  pointing to a slice in the slice window, then the labels of the
+  neighbouring slice are copied to this slice.  For transverse slices,
+  the neighbour is the slice just inferior to this one.  For coronal
+  slices, the neighbour is the slice just posterior to this one.  For
+  sagittal slices, the neighbour is the slice just to the left of this
+  one. Can be undone.
+\item[\menutwo{Segmenting}{Fill 3D}] If the mouse is pointing to a voxel
+  which has a label which is not equal to the current paint label and is
+  within the threshold, then all similarly labeled voxels in the entire
+  volume which are connected to this one are assigned the current paint
+  label.  This may take a few seconds to a minute. {\em Cannot be undone}.
+\item[\menutwo{Segmenting}{Calculate Volume}] Calculates the total
+  volume of all voxels which have the current paint label. This may
+  take few seconds to complete.
+\item[\menutwo{Segmenting}{Change Labels}] Prompts for a source and
+  destination label value, as well as a volume value minimum and maximum
+  value.  All voxels which have the source label value and are within
+  the specified value range are changed to have the destination label.
+  If the maximum value specified is less than the minimum value, then
+  this range is ignored, and the operation simply changes all
+  occurrences of the source label to the destination label.
+\item[\menutwo{Segmenting}{Fast Update}] Toggles between updating only
+  the slice on which the mouse is painting or all slices, in order to
+  provide a speed tradeoff.  By default, fast update is on, which
+  results in fast painting.
+\item[\menutwo{Segmenting}{Cursor Follows}] Toggles the mode where the
+  slice cursor follows the mouse during painting.  This results in
+  slower update speeds, but all slice views show updated labels as
+  painting progresses, which may be helpful for detail work.
+\item[\menutwo{Segmenting}{Cursor Vis}]  Toggles the visibility of the 
+  crosshairs cursor in the slice view window.
+\item[\menutwo{Segmenting}{Freestyle}] Toggles freestyle painting, where
+  the brush follows every movement of the mouse, and straight-line
+  painting, in which straight line segments are drawn between successive
+  right mouse clicks.
+\item[\menutwo{Segmenting}{Enable Undo}] Toggles the state of the undo feature.
+  Allows the undo logic to be enabled or disabled.
 \end{description}
 
 \subsection{Translate Labels}
@@ -970,15 +1015,15 @@ This is a menu which may be used to translate position of the all
 labels by integral voxel increments.
 
 \begin{description}
-\item[\menutwo{Segmenting}{Trans \^\ }]  Moves all labels one voxel in the
+\item[\menutwo{Translate Labels}{Trans \^\ }]  Moves all labels one voxel in the
   upward direction of the slice pointed to by the mouse.
-\item[\menutwo{Segmenting}{Trans v}]  Moves all labels one voxel in the
+\item[\menutwo{Translate Labels}{Trans v}]  Moves all labels one voxel in the
   downward direction of the slice pointed to by the mouse.
-  \item[\menutwo{Segmenting}{Trans $<$}]  Moves all labels one voxel to the
-    left direction of the slice pointed to by the mouse.
-\item[\menutwo{Segmenting}{Trans $>$}]  Moves all labels one voxel in the
-    right direction of the slice pointed to by the mouse.
-\item[\menutwo{Segmenting}{Big Translate}]  Prompts for 3 voxel
+\item[\menutwo{Translate Labels}{Trans $<$}]  Moves all labels one voxel to the
+  left direction of the slice pointed to by the mouse.
+\item[\menutwo{Translate Labels}{Trans $>$}]  Moves all labels one voxel in the
+  right direction of the slice pointed to by the mouse.
+\item[\menutwo{Translate Labels}{Big Translate}]  Prompts for 3 voxel
   offsets and moves all labels by this amount.
 \end{description}
 
@@ -1232,7 +1277,7 @@ click on its image in the 3D window.
 \item[\menutwo{Markers}{Move Cursor Home}]  Moves the 3D cursor to the
         origin, which should be 0, 0, 0 in Talairach space.  This is useful
         for making slides with the cursor as a reference to AC-PC.
-\item[\menuthree{Markers}{Delete Object}]
+\item[\menutwo{Markers}{Delete Object}]
         This is the same as the \menutwo{Objects}{Delete Object}, duplicated
         in this menu for convenience.
 \item[\menutwo{Markers}{Classify Markers}]  Attempts to group markers by
@@ -1673,6 +1718,22 @@ can take some time.
 \item The extracted surface can then be smoothed using \menutwo{Polygons}{Smooth Polygon}.
 \end{enumerate}
 
+\appendix
+
+%% Commented out until we actually have something to say that is true 
+%% and useful.
+%% \section{Running \display{} on Mac OS X}
+
+%% \subsection{How to Display 3D Window on Mac}
+
+%% \subsection{How to Set Preferences on Mac}
+
+%% \subsection{Object Hierarchy on the Mac}
+
+\input{globals.tex}
+
+\input{colour_list.tex}
+
 \section{What is the Object (.obj) File Format}
 
 The \ident{.obj} files read and written by \display{} use a simple
@@ -1686,17 +1747,5 @@ The format is described in detail elsewhere, as part of the
 documentation of the BICPL library. You can access the \LaTeX{}
 sources of the document at this URL:
 \url{https://github.com/BIC-MNI/bicpl/blob/master/Documentation/mni_obj_format.tex}
-
-%% Commented out until we actually have something to say that is true 
-%% and useful.
-%% \section{Running \display{} on Mac OS X}
-
-%% \subsection{How to Display 3D Window on Mac}
-
-%% \subsection{How to Set Preferences on Mac}
-
-%% \subsection{Object Hierarchy on the Mac}
-
-\input{globals.tex}
 
 \end{document}
