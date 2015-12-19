@@ -102,7 +102,7 @@ DEF_MENU_UPDATE(set_paint_z_brush_radius )
   DEF_MENU_FUNCTION( set_current_paint_label )
 {
     int             label, view_index, volume_index;
-    VIO_Real            voxel[VIO_N_DIMENSIONS];
+    VIO_Real        voxel[VIO_MAX_DIMENSIONS];
     int             int_voxel[VIO_N_DIMENSIONS];
     display_struct  *slice_window;
     VIO_BOOL         done;
@@ -168,7 +168,7 @@ DEF_MENU_UPDATE(set_current_paint_label )
 DEF_MENU_FUNCTION( set_current_erase_label )
 {
     int             label, axis_index, volume_index;
-    VIO_Real            voxel[VIO_N_DIMENSIONS];
+    VIO_Real        voxel[VIO_MAX_DIMENSIONS];
     int             int_voxel[VIO_N_DIMENSIONS];
     display_struct  *slice_window;
     VIO_BOOL         done;
