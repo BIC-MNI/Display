@@ -22,6 +22,17 @@
 
 /* ARGSUSED */
 
+/**
+ * \brief Select next column of per-vertex data.
+ * If the per-vertex data associated with the current object contains
+ * multiple columns, this function will cause the next column of data
+ * to be displayed.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( menu_next_vertex_data )
 {
     object_struct       *object;
@@ -44,6 +55,16 @@ DEF_MENU_UPDATE( menu_next_vertex_data )
             object->object_type == POLYGONS);
 }
 
+/**
+ * \brief Load per-vertex data from a file.
+ * Reads per-vertex data, in a simple text format (either .csv, .tsv, or
+ * .txt). The data may consist of multiple columns.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( menu_load_vertex_data )
 {
     object_struct      *object;
@@ -96,10 +117,22 @@ DEF_MENU_UPDATE( menu_load_vertex_data )
             object->object_type == POLYGONS);
 }
 
+/**
+ * \brief Load a volume or graphical object from a file.
+ *
+ * By default this function will load either an MNI .OBJ format file
+ * or a MINC format volume. However, it will transparently support a
+ * number of other formats as implemented in the BICPL/Volume IO
+ * libraries.
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( load_file )
 {
-    VIO_Status   status;
-    VIO_STR   filename;
+    VIO_Status status;
+    VIO_STR    filename;
 
     status = get_user_file("Enter path of file to load: " , FALSE, NULL,
                            &filename);
@@ -127,13 +160,24 @@ DEF_MENU_UPDATE(load_file )
 
 /* ARGSUSED */
 
+/**
+ * \brief Write a graphical object to a file. 
+ * By default this function will write an MNI .OBJ format file.
+ * However, it can now also write Stanford .PLY, Wavefront .OBJ, or
+ * X3D files based on the filename extension the user provides.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( save_file )
 {
     int            n_objects;
     object_struct  **object_list;
     object_struct  *current_object;
-    VIO_Status         status;
-    VIO_STR         filename;
+    VIO_Status     status;
+    VIO_STR        filename;
 
     status = VIO_OK;
 
@@ -159,8 +203,48 @@ DEF_MENU_FUNCTION( save_file )
 
         if( status == VIO_OK )
         {
-            status = output_graphics_file( filename, (VIO_File_formats) Save_format,
-                                           n_objects, object_list );
+            if (string_ends_in(filename, ".ply"))
+            {
+                if (n_objects == 1 && object_list[0]->object_type == POLYGONS)
+                {
+                    status = output_stanford_ply(filename, object_list[0]);
+                }
+                else
+                {
+                    print("Can only write a single polygonal surface to a Stanford .ply file.\n");
+                    status = VIO_ERROR;
+                }
+            }
+            else if (string_ends_in(filename, ".x3d"))
+            {
+                if (n_objects == 1 && object_list[0]->object_type == POLYGONS)
+                {
+                    status = output_x3d(filename, object_list[0]);
+                }
+                else
+                {
+                    print("Can only write a single polygonal surface to an .x3d file.\n");
+                    status = VIO_ERROR;
+                }
+            }
+            else if (string_ends_in(filename, ".wf.obj"))
+            {
+                if (n_objects == 1 && object_list[0]->object_type == POLYGONS)
+                {
+                    status = output_wavefront_obj(filename, object_list[0]);
+                }
+                else
+                {
+                    print("Can only write a single polygonal surface to a Wavefront .obj file.\n");
+                    status = VIO_ERROR;
+                }
+            }
+            else
+            {
+                status = output_graphics_file( filename, 
+                                               (VIO_File_formats) Save_format,
+                                               n_objects, object_list );
+            }
             print( "Done saving.\n" );
         }
 
@@ -177,6 +261,14 @@ DEF_MENU_UPDATE(save_file )
     return( TRUE );
 }
 
+/**
+ * \brief Load the specification of an oblique plane.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION(load_oblique_plane)
 {
     display_struct *slice_window;
@@ -256,6 +348,14 @@ DEF_MENU_UPDATE(load_oblique_plane)
             get_n_volumes( slice_window ) > 0);
 }
 
+/**
+ * \brief Save the specification of an oblique plane.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION(save_oblique_plane)
 {
     display_struct *slice_window;

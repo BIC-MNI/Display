@@ -212,6 +212,7 @@ SET(C_SRC
            input_files/input_files.c 
            input_files/volume_file.c
            input_files/vertex_data.c
+           input_files/poly_formats.c
            callbacks/atlas.c 
            callbacks/call_globals.c 
            callbacks/colour_coding.c 

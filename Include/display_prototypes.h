@@ -2875,4 +2875,10 @@ void initialize_slice_object_outline(display_struct *display);
 VIO_BOOL  remove_current_object_from_hierarchy(
     display_struct   *display,
     object_struct    **object );
+
+/* from input_files/poly_formats.c */
+VIO_Status output_wavefront_obj(VIO_STR filename, object_struct *object_ptr);
+VIO_Status output_stanford_ply(VIO_STR filename, object_struct *object_ptr);
+VIO_Status output_x3d(VIO_STR filename, object_struct *object_ptr);
+
 #endif

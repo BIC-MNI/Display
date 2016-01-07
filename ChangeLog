@@ -1,3 +1,7 @@
+2016-01-07  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * callbacks/file.c, input_files/poly_formats.c: Support output of
+	.x3d, .ply, and Wavefront .obj format surfaces.
+
 2015-12-15  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * various: Fully implement vertex data, including colour coding support
 	and multicolumn text data files.
