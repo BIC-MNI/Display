@@ -17,25 +17,10 @@ START_GLOBALS
     will not change the colour for the menu or object windows. */
     DEF_GLOBAL_COLOUR( Initial_background_colour )
 
-/** Sets the maximum amount of time in seconds that the graphics
-    library may spend rendering objects in the 3D window before the
-    operation may be interrupted. This is used to control the maximum
-    interface latency experienced by the user. Because of changes in the
-    OpenGL interface and the performance improvements in computers, this
-    functionality is largely obsolete. */
-    DEF_GLOBAL( Maximum_display_time, VIO_Real, 0.3 )
-
 /** Sets the number of seconds between timer events. Each timer event may
     start another redraw operation, so this variable controls the maximum
     frame rate of the application.  */
     DEF_GLOBAL( Min_interval_between_updates, VIO_Real, 0.02 )
-
-/** Set the count of rendering operations (typically measured in
-    triangles, e.g.) performed between each elapsed time check. Like
-    \c Maximum_display_time this is another parameter relating to
-    the interruptibility of lengthy graphics operations, and is now
-    largely obsolete. */
-    DEF_GLOBAL( Interval_of_check, int, 250 )
 
 /** Sets the initial value of the projection approach used in 3D
     rendering. A value of false selects parallel projection, whereas

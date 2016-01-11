@@ -88,7 +88,6 @@ Max_polygon_scan_distance=0.5;
 Object_outline_enabled = True;
 Convert_volumes_to_byte=False;
 Slice_readout_text_font = 0;
-Maximum_display_time = 0.1;
 Display_frame_info = True;
 \end{verbatim}
 
@@ -393,16 +392,6 @@ with \display. They may be removed or changed with little notice.
 \globalentry{Display\_frame\_info}
 {Boolean}{False}
 {If true, adds an indication of the frame number and elapsed rendering time to the lower left corner of each of the graphics windows. The actual position is determined by the globals {\tt Frame\_info\_x} and {\tt Frame\_info\_y}}{}
-
-\globalentry{Interval\_of\_check} {Integer}{250}
-{Set the count of rendering operations (typically measured in triangles, e.g.) performed between each elapsed time check. Like {\tt Maximum\_display\_time} this is another parameter relating to the interruptibility of lengthy graphics operations, and is now largely obsolete.}{}
-
-\globalentry{Maximum\_display\_time} {Real}{0.3} 
-{Sets the maximum amount of time in seconds that the graphics library may 
-spend rendering objects in the 3D window before the operation may be 
-interrupted. This is used to control the maximum interface latency 
-experienced by the user. Because of changes in the OpenGL interface and the
-performance improvements in computers, this functionality is largely obsolete.}{}
 
 \globalentry{Min\_interval\_between\_updates}{Real}{0.02}
 {Sets the number of seconds between timer events. Each timer event may
