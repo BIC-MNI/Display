@@ -114,7 +114,10 @@ involve core functionality.
 \begin{itemize}
 \item The intersection between a 3D surface and the loaded volume is automatically displayed in the slice window.
 \item Dynamic scans (e.g. DTI, fMRI, and PET) can now be loaded in \display{}.
-\item Input support for FreeSurfer (.MGZ/.MGH) and NIfTI-1 (.NII) volumes.
+\item Input support for FreeSurfer (.mgz/.mgh) and NIfTI-1 (.nii)
+  volumes.
+\item Output support for surface formats including Wavefront OBJ,
+  Stanford PLY and X3D.
 \item The previous 20 painting operations can be undone.
 \item A user can now load per-vertex data, such as cortical thickness measurements, for visualization on 3D surfaces.
 \end{itemize}
@@ -340,7 +343,10 @@ lines, with lighting and camera control. A representation of the cursor is
 also generally visible as a set of three coloured lines, where the X-axis is red, the Y-axis is green, and the Z-axis is blue.
 
 A user can also select per-vertex data, such as cortical thickness
-measurements, which may be used to ``colourize'' the 3D image.
+measurements, which may be used to ``colourize'' the 3D image. If vertex
+data is associated with an 3D object, a colour bar will be displayed on
+the lower left side of the 3D view window when the cursor crosshairs are
+over that object.
 
 In the 3D window, the following mouse operations are available:
 
@@ -352,12 +358,34 @@ objects around the cursor. If the mouse is close to the cursor, translates
 the cursor along the axes.
 \item Right button: translates the position of the 3D objects within the
 window.
-\item Scroll wheel: zooms the 3D objects.
+\item Scroll: zooms the 3D objects.
+\item Control-Scroll: Changes the opacity of the selected object.
 \item Shift-Left Button: While holding down the \ident{shift} key, the
  left mouse button translates the position of the 3D objects within
  the window.
-\item Control-Scroll wheel: Changes the opacity of the selected volume.
 \end{itemize}
+
+In addition, when per-vertex data is associated with an object and the
+object's colour bar is therefore displayed, the following mouse commands
+apply when the mouse cursor is in the colour bar:
+\begin{itemize}
+\item Left Button: If near the upper or lower limits of the colour bar,
+clicking the left button will allow you to drag the limit and change the
+current upper or lower limits of the colour coding.
+\item Shift+Left Button: Performs three different functions depending on
+exactly where the button is clicked:
+\begin{itemize}
+\item In the area above the upper limit,
+ this will display a dialog that allows you to set the ``over'' colour
+ for the object's colour coding.
+\item In the area below the lower limit,
+ this will display a dialog that allows you to set the ``under'' colour
+ for the object's colour coding.
+\item In the area between the limits, this will display a dialog that
+allows you to set the colour coding method used for this object.
+\end{itemize}
+\end{itemize}
+
 
 The 3D window also contains a ``status line'' that gives information about
 the object relative to either the cursor or the mouse pointer. The fields
@@ -380,7 +408,9 @@ Label & Description \\
 \ident{V\#} & The index of the nearest vertex. \\
 \ident{P\#} & The index of the nearest polygonal face. \\
 \ident{X Y Z} & The coordinates of the nearest vertex. \\
-\ident{D} & The value of the per-vertex data for that vertex, if loaded. \\
+\ident{D} & The value of the per-vertex data for that vertex, if
+loaded. The number in parentheses gives the data column that is
+currently displayed.\\
 \hline
 \end{tabular}
 \label{tab3DFields}
@@ -481,6 +511,7 @@ current brush label and size.
 \item Shift-Right Button: While holding down the \ident{shift} key,
   holding down the right button erases regions of the labels.
 \item Scroll: The scroll wheel changes the zoom level of the current slice.
+\item Control-Scroll: Changes the opacity of the selected volume.
 \end{itemize}
 
 The upper and lower limits of the colour bar for the current volume
@@ -526,7 +557,8 @@ Whenever the user is prompted to type in a colour, either the name of
 a colour, such as \ident{red}, \ident{yellow}, or \ident{pink}, or a
 numerical list of red-green-blue values, such as \mbox{\ident{0.3 0.7 0.7}}
 (or \mbox{\ident{0.3 0.7 0.7 0.5}} for a semitransparent colour) may
-be entered.
+be entered. A complete listing of colour names support by \display{} is
+given in Appendix \ref{app:colours}.
 
 \subsection{Keyboard Shortcuts}
 \display{} now supports a number of keyboard shortcuts for rapid access
@@ -538,7 +570,7 @@ Control ('Ctrl') key and typing another key.
 \item Ctrl+O - Open a file (\menutwo{File}{Load File}).
 \item Ctrl+S - Save a file (\menutwo{File}{Save File}).
 \item Ctrl+V - Select the next column in multicolumn vertex data.
-\item Ctrl+Z - Undo the previous painting command.
+\item Ctrl+Z - Undo the previous painting command (\menutwo{Segmenting}{Undo}).
 \item \ident{>} - Move to the next time position (\menu{+ Time}).
 \item \ident{<} - Move to the previous time position (\menu{- Time}).
 \end{itemize}
@@ -619,8 +651,11 @@ file data of various types.
   of the four slice viewports, prompts for a filename and saves the
   contents of the slice viewport to the file, in .rgb format.
 \item[\menutwo{File}{Save File}]  Prompts for a filename and saves
- the current object, or all objects under the current object, if it is
- a model object. This selection cannot be used to save a volume file.
+ the current object, or all objects under the current object, if the
+ current object is a model object. Files are typically saved in MNI .obj
+ format, but single polygonal surfaces can also be saved in Stanford
+ (.ply), X3D (.x3d), or Wavefront (.wf.obj) format.
+ This selection cannot be used to save a volume file.
 \item[\menutwo{File}{Load File}]  Prompts for a filename and loads the file.
 If it is a volume file (ends in \ident{.mnc}), then the
 slice window is opened, if not already opened.
@@ -879,7 +914,7 @@ been set to something other than zero).
 \display{} implements a secondary brush size which can be quickly
 selected as an alternative to the primary brush size. This allows rapid
 switching from fine-grained to coarse-grained painting. By default the
-secondary brush is a sphere 3 units in diameter. The Ctrl-B key
+secondary brush is a sphere 3 units in diameter. The Ctrl+B key combination
 is used to toggle between these brushes, and the menu commands to set
 the brush size will set the size of the current brush.
 
@@ -1481,7 +1516,7 @@ for the default mapping of label values to colour names.
 using the current label value and brush size, or you can use the \menutwo{Segmenting}{Label Voxel} command to set the voxel directly under the mouse pointer.
 \item If you make a mistake in drawing labels, you can undo up to the last 20
 painting operations using the \menutwo{Segmenting}{Undo} command. You can also
-access this command with the Ctrl-Z key combination.
+access this command with the Ctrl+Z key combination.
 \item When you wish to save the labels, you can use either the command \menutwo{File}{Save Labels .mnc} or \menutwo{File}{Save Labels .tag}. The ASCII tag file format ({\tt .tag}) may become overly large if you have defined many labels. The MINC ({\tt .mnc}) format will be more space-efficient in this case.
 \item Remember that you can zoom in and out to examine more or less detail in the slice by using the scroll wheel or the shift key + middle mouse button.
 

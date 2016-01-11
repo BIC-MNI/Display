@@ -28,8 +28,7 @@ static  void  update_graphics_overlay_planes_only(
     display_struct       *display,
     VIO_BOOL              display_flag );
 static  void  update_graphics_normal_planes_only(
-    display_struct               *display,
-    update_interrupted_struct    *interrupt );
+    display_struct               *display );
 static  void  terminate_graphics_window(
     display_struct   *display );
 
@@ -369,7 +368,6 @@ static  void  initialize_graphics_window(
     display->frame_number = 0;
     display->update_required[NORMAL_PLANES] = FALSE;
     display->update_required[OVERLAY_PLANES] = FALSE;
-    display->update_interrupted.last_was_interrupted = FALSE;
 
     initialize_window_callbacks( display );
 }
@@ -378,12 +376,6 @@ static  void  initialize_graphics_window(
     display_struct   *display,
     Bitplane_types   which_bitplanes )
 {
-    if( display->update_interrupted.last_was_interrupted )
-    {
-        display->update_interrupted.last_was_interrupted = FALSE;
-        G_update_window( display->window );
-    }
-
     display->update_required[which_bitplanes] = TRUE;
 }
 
@@ -452,17 +444,11 @@ static  void  display_frame_info(
     delete_text( &frame_text );
 }
 
-  void  update_graphics(
-    display_struct               *display,
-    update_interrupted_struct    *interrupt )
+  void  update_graphics( display_struct *display )
 {
-    if( interrupt->last_was_interrupted ||
-        display->update_required[NORMAL_PLANES] )
+    if (display->update_required[NORMAL_PLANES] )
     {
-        update_graphics_normal_planes_only( display, interrupt );
-
-        update_graphics_overlay_planes_only( display,
-                                             !interrupt->current_interrupted );
+        update_graphics_normal_planes_only( display );
     }
     else if( display->update_required[OVERLAY_PLANES] )
     {
@@ -472,9 +458,7 @@ static  void  display_frame_info(
 
 static  void  draw_in_viewports(
     display_struct               *display,
-    update_interrupted_struct    *interrupt,
-    Bitplane_types               bitplanes,
-    VIO_BOOL                      *past_last_object )
+    Bitplane_types               bitplanes )
 {
     int           i, x_min, x_max, y_min, y_max;
     int           x_sub_min, x_sub_max, y_sub_min, y_sub_max;
@@ -482,13 +466,27 @@ static  void  draw_in_viewports(
 
     redrawing_whole_window = FALSE;
 
-    for_less( i, 0, N_MODELS )
+    if (display->window_type != SLICE_WINDOW)
     {
-        if( display->window_type == SLICE_WINDOW &&
-            get_model_bitplanes(get_graphics_model(display,i)) == bitplanes )
+        /* Find display all of the opaque objects. */
+        for_less( i, 0, N_MODELS )
+        {
+            display_objects( display->window, display->models[i],
+                             bitplanes, DISPLAY_OPAQUE );
+        }
+
+        /* Now display all of the translucent objects. */
+        for_less( i, 0, N_MODELS )
+        {
+            display_objects( display->window, display->models[i],
+                             bitplanes, DISPLAY_TRANSLUCENT );
+        }
+    }
+    else
+    {
+        for_less( i, 0, N_MODELS )
         {
             draw_model = display->slice.viewport_update_flags[i][0];
-
             if( draw_model )
             {
                 get_slice_model_viewport( display, i, &x_min, &x_max,
@@ -536,18 +534,13 @@ static  void  draw_in_viewports(
                 else
                     display->slice.viewport_update_flags[i][0] = FALSE;
             }
-        }
-        else
-            draw_model = TRUE;
 
-        if( draw_model )
-        {
-            display_objects( display->window, display->models[i],
-                             interrupt, bitplanes, past_last_object );
+            if( draw_model )
+            {
+                display_objects( display->window, display->models[i],
+                                 bitplanes, DISPLAY_BOTH );
+            }
         }
-
-        if( interrupt != NULL && interrupt->current_interrupted )
-            break;
     }
 }
 
@@ -555,18 +548,13 @@ static  void  update_graphics_overlay_planes_only(
     display_struct       *display,
     VIO_BOOL              display_flag )
 {
-    VIO_BOOL       past_last_object;
-
     if( G_has_overlay_planes() )
     {
         G_set_bitplanes( display->window, OVERLAY_PLANES );
 
         if( display_flag )
         {
-            past_last_object = FALSE;
-
-            draw_in_viewports( display, (update_interrupted_struct *) 0,
-                               OVERLAY_PLANES, &past_last_object );
+            draw_in_viewports( display, OVERLAY_PLANES );
         }
 
         G_update_window( display->window );
@@ -577,58 +565,26 @@ static  void  update_graphics_overlay_planes_only(
     display->update_required[OVERLAY_PLANES] = FALSE;
 }
 
-static  void  update_graphics_normal_planes_only(
-    display_struct               *display,
-    update_interrupted_struct    *interrupt )
+static  void  update_graphics_normal_planes_only( display_struct *display )
 {
-    VIO_Real          start, end;
+    VIO_Real      start, end;
     int           i;
-    VIO_BOOL       past_last_object, out_of_date;
+    VIO_BOOL      out_of_date;
 
     start = current_realtime_seconds();
 
-    G_start_interrupt_test( display->window );
-
-    if( interrupt->last_was_interrupted )
-        G_continue_last_update( display->window );
-
-    interrupt->current_interrupted = FALSE;
-    past_last_object = FALSE;
-
-    draw_in_viewports( display, interrupt, NORMAL_PLANES, &past_last_object );
-
-    interrupt->last_was_interrupted = interrupt->current_interrupted;
+    draw_in_viewports( display, NORMAL_PLANES );
 
     end = current_realtime_seconds();
 
     ++display->frame_number;
 
-    if( !interrupt->current_interrupted && Display_frame_info )
+    if( Display_frame_info )
         display_frame_info( display, display->frame_number, end - start );
 
-    if( !interrupt->current_interrupted )
-        G_update_window( display->window );
+    G_update_window( display->window );
 
     display->update_required[NORMAL_PLANES] = FALSE;
-
-    if( display->window_type == SLICE_WINDOW &&
-        !display->update_interrupted.last_was_interrupted &&
-        G_get_double_buffer_state( display->window ) )
-    {
-        out_of_date = FALSE;
-        for_less( i, 0, N_MODELS )
-        {
-            if( get_model_bitplanes(get_graphics_model(display,i)) ==
-                                     NORMAL_PLANES &&
-                display->slice.viewport_update_flags[i][0] )
-            {
-                out_of_date = TRUE;
-            }
-        }
-
-        if( out_of_date )
-            display->update_required[NORMAL_PLANES] = TRUE;
-    }
 }
 
   void  delete_graphics_window(

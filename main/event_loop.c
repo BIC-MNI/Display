@@ -258,7 +258,7 @@ timer_function(void   *void_ptr)
                 debug_update();
 #endif
 
-            update_graphics( windows[i], &windows[i]->update_interrupted );
+            update_graphics( windows[i] );
         }
 
     G_add_timer_function( Min_interval_between_updates, timer_function, NULL );
@@ -276,8 +276,7 @@ timer_function(void   *void_ptr)
   VIO_BOOL  window_is_up_to_date(
     display_struct   *display )
 {
-    return( !graphics_update_required( display ) &&
-            !display->update_interrupted.last_was_interrupted );
+    return( !graphics_update_required( display ) );
 }
 
 #ifdef DEBUG

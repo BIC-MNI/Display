@@ -16,12 +16,15 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving,
                          char *extension, VIO_STR *filename);
 VIO_Status get_user_coding_type(const char *prompt, Colour_coding_types *cc_type_ptr);
 
+#define DISPLAY_OPAQUE 1
+#define DISPLAY_TRANSLUCENT 2
+#define DISPLAY_BOTH (DISPLAY_OPAQUE | DISPLAY_TRANSLUCENT)
+
   void  display_objects(
     Gwindow                     window,
     object_struct               *object,
-    update_interrupted_struct   *interrupt,
     Bitplane_types              bitplanes,
-    VIO_BOOL                     *past_last_object );
+    int                         opaque_flags);
 
   void  initialize_window_callbacks(
     display_struct    *display_window );
@@ -98,9 +101,7 @@ VIO_Status get_user_coding_type(const char *prompt, Colour_coding_types *cc_type
   void  graphics_models_have_changed(
     display_struct  *display );
 
-  void  update_graphics(
-    display_struct               *display,
-    update_interrupted_struct    *interrupt );
+  void  update_graphics( display_struct *display );
 
   void  delete_graphics_window(
     display_struct   *display );
@@ -2875,6 +2876,9 @@ void initialize_slice_object_outline(display_struct *display);
 VIO_BOOL  remove_current_object_from_hierarchy(
     display_struct   *display,
     object_struct    **object );
+
+VIO_Status change_current_object_opacity(display_struct *display,
+                                         VIO_Real delta);
 
 /* from input_files/poly_formats.c */
 VIO_Status output_wavefront_obj(VIO_STR filename, object_struct *object_ptr);

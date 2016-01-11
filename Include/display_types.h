@@ -153,13 +153,6 @@ typedef  struct
 
 typedef  struct
 {
-    VIO_BOOL        last_was_interrupted;
-    object_struct  *object_interrupted;
-    VIO_BOOL        current_interrupted;
-} update_interrupted_struct;
-
-typedef  struct
-{
     VIO_Point   first_corner;
     VIO_Point   second_corner;
 } viewport_picking_struct;

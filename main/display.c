@@ -18,65 +18,24 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif 
+#endif
 
 #include  <display.h>
-
-static struct display_stats {
-  int n_past_last_object;
-  int n_interrupted;
-  int n_continuing;
-} stats = { 0, 0, 0 };
 
 /**
  * Draw a single object.
  * \param window The window where the object is to be drawn.
  * \param object The object to draw.
- * \param interrupt Container for information need to restart the drawing
- * if it is interrupted.
- * \param past_last_object Pointer to boolean used to flag whether the current
- * object was interrupted and therefore should be redrawn.
  */
 static void
 draw_one_object(Gwindow                   window,
-                object_struct             *object,
-                update_interrupted_struct *interrupt,
-                VIO_BOOL                  *past_last_object )
+                object_struct             *object )
 {
-    VIO_BOOL  continuing;
-
-    continuing = (G_get_drawing_interrupt_state(window) &&
-                  interrupt != NULL &&
-                  interrupt->last_was_interrupted);
-
-    if (continuing)
-      stats.n_continuing++;
-
-    if( continuing && object == interrupt->object_interrupted )
-    {
-        *past_last_object = TRUE;
-        stats.n_past_last_object++;
-    }
-
-    if( !continuing || *past_last_object )
-    {
-        draw_object( window, object );
-
-        if( G_get_drawing_interrupt_state(window) &&
-            interrupt != NULL &&
-            G_get_interrupt_occurred( window ) )
-        {
-            stats.n_interrupted++;
-
-            interrupt->current_interrupted = TRUE;
-            G_clear_drawing_interrupt_flag( window );
-            interrupt->object_interrupted = object;
-        }
-    }
+    draw_object( window, object );
 }
 
 /**
- * Display the objects, descending into any model objects and 
+ * Display the objects, descending into any model objects and
  * recursively displaying their contents.
  *
  * \param window The window to update.
@@ -86,10 +45,8 @@ draw_one_object(Gwindow                   window,
  * \param render A render_struct controlling the rendering of this model.
  * \param view_type The View_type of the model.
  * \param transform A transform which is applied to this model.
- * \param interrupt Container for information need to restart the drawing
- * if it is interrupted.
- * \param past_last_object Pointer to boolean used to flag whether the current
- * object was interrupted and therefore should be redrawn.
+ * \param opaque_flag If bit 0 set, display opaque objects. If bit 1 set,
+ * display translucent objects.
  */
 static  void
 display_objects_recursive(
@@ -100,8 +57,7 @@ display_objects_recursive(
     render_struct                *render,
     View_types                   view_type,
     VIO_Transform                *transform,
-    update_interrupted_struct    *interrupt,
-    VIO_BOOL                     *past_last_object )
+    int                          opaque_flag )
 {
     int                  i;
     model_struct         *model;
@@ -130,8 +86,7 @@ display_objects_recursive(
                                                &model_info->render,
                                                model_info->view_type,
                                                &model_info->transform,
-                                               interrupt,
-                                               past_last_object );
+                                               opaque_flag );
 
                     /* Restore the previous state.
                      */
@@ -141,15 +96,33 @@ display_objects_recursive(
                          view_type == WORLD_VIEW || view_type == MODEL_VIEW );
                 }
             }
-            else
+            else if ( object_list[i]->object_type == POLYGONS )
             {
-                draw_one_object( window, object_list[i], interrupt,
-                                 past_last_object );
+                polygons_struct *polygons = get_polygons_ptr( object_list[i] );
+                if (((opaque_flag & DISPLAY_OPAQUE) != 0 &&
+                     Surfprop_t(polygons->surfprop) == 1.0) ||
+                    ((opaque_flag & DISPLAY_TRANSLUCENT) != 0 &&
+                     Surfprop_t(polygons->surfprop) < 1.0))
+                {
+                    draw_one_object( window, object_list[i] );
+                }
+            }
+            else if ( object_list[i]->object_type == QUADMESH )
+            {
+                quadmesh_struct *quadmesh = get_quadmesh_ptr( object_list[i] );
+                if (((opaque_flag & DISPLAY_OPAQUE) != 0 &&
+                     Surfprop_t(quadmesh->surfprop) == 1.0) ||
+                    ((opaque_flag & DISPLAY_TRANSLUCENT) != 0 &&
+                     Surfprop_t(quadmesh->surfprop) < 1.0))
+                {
+                    draw_one_object( window, object_list[i] );
+                }
+            }
+            else if ((opaque_flag & DISPLAY_OPAQUE) != 0)
+            {
+                draw_one_object( window, object_list[i] );
             }
         }
-
-        if( interrupt != NULL && interrupt->current_interrupted )
-            break;
     }
 
     G_pop_transform( window );
@@ -160,18 +133,13 @@ display_objects_recursive(
  * within the model.
  * \param window The window to update.
  * \param object The model object whose contents we want to draw.
- * \param interrupt Container for information need to restart the drawing
- * if it is interrupted.
  * \param bitplanes Either NORMAL_PLANES or OVERLAY_PLANES.
- * \param past_last_object Pointer to boolean used to flag whether the current
- * object was interrupted and therefore should be redrawn.
  */
 void  display_objects(
     Gwindow                     window,
     object_struct               *object,
-    update_interrupted_struct   *interrupt,
     Bitplane_types              bitplanes,
-    VIO_BOOL                    *past_last_object )
+    VIO_BOOL                    opaque_flag )
 {
     model_struct         *model;
     model_info_struct    *model_info;
@@ -187,6 +155,6 @@ void  display_objects(
                                    &model_info->render,
                                    model_info->view_type,
                                    &model_info->transform,
-                                   interrupt, past_last_object );
+                                   opaque_flag );
     }
 }

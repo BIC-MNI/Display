@@ -61,6 +61,42 @@ set_object_global_visibility( object_struct *object_ptr, VIO_BOOL is_visible )
     set_object_visibility(sub_object_ptr, is_visible);
 }
 
+/**
+ * Change the opacity of the currently selected object.
+ *
+ * \param display The display_struct of a the 3D view window.
+ * \param delta The amount by which to change the opacity. This
+ * should be a number between zero and one.
+ */
+VIO_Status
+change_current_object_opacity(display_struct *display, VIO_Real delta)
+{
+    object_struct   *current_object;
+
+    if( get_current_object( display, &current_object ) )
+    {
+      VIO_Real opacity;
+      VIO_Surfprop *spr_ptr = get_object_surfprop( current_object );
+      if (spr_ptr == NULL)
+      {
+          return VIO_OK;
+      }
+      opacity = Surfprop_t(*spr_ptr);
+      opacity += delta;
+      /* Force the opacity to stay within the interval [0, 1]. */
+      if (opacity > 1.0)
+        opacity = 1.0;
+      if (opacity < 0.0)
+        opacity = 0.0;
+      Surfprop_t(*spr_ptr) = opacity;
+      set_object_surfprop( current_object, spr_ptr );
+      set_update_required( display, NORMAL_PLANES );
+      /* Is this really necessary? */
+      rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
+    }
+    return( VIO_OK );
+}
+
 /** 
  * \brief Make the current object on the marker list invisible, and 
  * advance to the next object, making it visible.
@@ -516,7 +552,7 @@ DEF_MENU_FUNCTION( set_current_object_surfprop )
             set_object_surfprop( current_object, &spr );
 
             set_update_required( display, NORMAL_PLANES );
-            rebuild_selected_list( display, display->associated[MARKER_WINDOW]  );
+            rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
         }
     }
 
@@ -585,7 +621,7 @@ DEF_MENU_FUNCTION( paste_object )
     if( n_objects > 0 )
     {
         graphics_models_have_changed( display );
-        rebuild_selected_list( display, display->associated[MARKER_WINDOW]  );
+        rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
     }
 
     return( VIO_OK );

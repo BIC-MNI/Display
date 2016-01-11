@@ -115,17 +115,31 @@ void initialize_scroll_magnification(display_struct *display)
 
 static DEF_EVENT_FUNCTION(increase_magnification)
 {
-    magnify_view_size( &display->three_d.view, 1.1 );
-    update_view( display );
-    set_update_required( display, NORMAL_PLANES );
+    if (is_ctrl_key_pressed())
+    {
+        change_current_object_opacity( display, 0.05 );
+    }
+    else
+    {
+        magnify_view_size( &display->three_d.view, 1.1 );
+        update_view( display );
+        set_update_required( display, NORMAL_PLANES );
+    }
     return VIO_OK;
 }
 
 static DEF_EVENT_FUNCTION(decrease_magnification)
 {
-    magnify_view_size( &display->three_d.view, 1.0 / 1.1 );
-    update_view( display );
-    set_update_required( display, NORMAL_PLANES );
+    if (is_ctrl_key_pressed())
+    {
+        change_current_object_opacity( display, -0.05 );
+    }
+    else
+    {
+        magnify_view_size( &display->three_d.view, 1.0 / 1.1 );
+        update_view( display );
+        set_update_required( display, NORMAL_PLANES );
+    }
     return VIO_OK;
 }
 
