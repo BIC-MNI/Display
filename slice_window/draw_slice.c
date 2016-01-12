@@ -608,6 +608,7 @@ static  void  get_cursor_size(
     switch( slice_index )
     {
     case 0:
+    default:
         *hor_start = Cursor_hor_start_0;
         *hor_end = Cursor_hor_end_0;
         *vert_start = Cursor_vert_start_0;

@@ -453,7 +453,7 @@ calculate_contrast_from_histogram(VIO_Volume volume,
                                   VIO_Real *high_limit)
 {
   VIO_Real            min_value, max_value;
-  VIO_BOOL            low_limit_done, high_limit_done;
+  VIO_BOOL            low_limit_done;
   VIO_Real            delta;
   VIO_Real            *histo_counts;
   int                 bin_count;
@@ -519,7 +519,9 @@ calculate_contrast_from_histogram(VIO_Volume volume,
 
   count = 0;
   low_limit_done = FALSE;
-  high_limit_done = FALSE;
+  *low_limit = histogram.min_index * histogram.delta + histogram.offset;
+  *high_limit = (histogram.max_index + 1) * histogram.delta + histogram.offset;
+
   for_less( idx, Initial_histogram_low_clip_index, bin_count )
   {
     if (!low_limit_done && (count / sum_count > Initial_histogram_low))
@@ -531,7 +533,6 @@ calculate_contrast_from_histogram(VIO_Volume volume,
     if (count / sum_count >= Initial_histogram_high)
     {
       *high_limit = idx * histogram.delta + histogram.offset;
-      high_limit_done = TRUE;
       break;
     }
     count += histo_counts[idx];
@@ -539,11 +540,6 @@ calculate_contrast_from_histogram(VIO_Volume volume,
 
   FREE(histo_counts);
 
-  if (!low_limit_done)
-    *low_limit = histogram.min_index * histogram.delta + histogram.offset;
-
-  if (!high_limit_done)
-    *high_limit = (histogram.max_index + 1) * histogram.delta + histogram.offset;
   /**
    * Correct lower and upper limits here in case of an extremely skewed
    * distribution. This helps do a better job of displaying images with
@@ -1112,6 +1108,8 @@ static  void  colour_code_points(
                                         continuity, FALSE,
                                         get_volume_real_min(volume),
                                         &val, NULL, NULL );
+
+                volume_colour = get_colour_code( &slice_window->slice.volumes[volume_index].colour_coding, val );
             }
 
             label = 0;

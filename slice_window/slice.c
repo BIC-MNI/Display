@@ -293,7 +293,11 @@ static  void  delete_slice_window_volume_stuff(
         initialize_slice_object_outline(display);
     }
 
-    (void) get_slice_window( display, &slice_window );
+    if ( !get_slice_window( display, &slice_window ) )
+    {
+        HANDLE_INTERNAL_ERROR("Failed to create slice window.");
+        return;
+    }
 
     SET_ARRAY_SIZE( slice_window->slice.volumes,
                     slice_window->slice.n_volumes,
@@ -1211,6 +1215,13 @@ static  void  render_more_slices(
                       slice_window->slice.slice_views[view].prev_y_max;
                 }
             }
+        }
+        else
+        {
+            x_sub_min = 0.0;
+            x_sub_max = 0.0;
+            y_sub_min = 0.0;
+            y_sub_max = 0.0;
         }
 
         update_slice_pixel_visibilities( slice_window, view );

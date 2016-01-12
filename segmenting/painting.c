@@ -250,6 +250,8 @@ draw_straight_lines(display_struct *slice_window)
       view_index = -1;
   }
 
+  volume_index = get_current_volume_index( slice_window );
+
   if (view_index == slice_window->slice.painting_view_index)
   {
     if( is_shift_key_pressed( ) )
@@ -270,8 +272,6 @@ draw_straight_lines(display_struct *slice_window)
                           slice_window->slice.segmenting.y_mouse_start,
                           x_pixel, y_pixel,
                           label );
-
-      volume_index = get_current_volume_index( slice_window );
 
       set_slice_window_all_update( slice_window, volume_index, UPDATE_LABELS );
 

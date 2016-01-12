@@ -21,6 +21,7 @@
 
 #include  <display.h>
 #include  <assert.h>
+
 /**
  * Sets the maximum size of a direction cosine before it is considered to
  * contribute too much to the vector to be considered "orthogonal."
@@ -444,7 +445,6 @@ void  reset_slice_view(
     display_struct    *slice_window,
     int               view_index )
 {
-    VIO_BOOL   found_one;
     VIO_Volume volume;
     VIO_Real   x1, x2, y1, y2, x_offset, y_offset;
     int        int_x1, int_x2, int_y1, int_y2;
@@ -479,7 +479,10 @@ void  reset_slice_view(
     get_slice_plane( slice_window, current_volume_index, view_index,
                      current_origin, current_x_axis, current_y_axis );
 
-    found_one = FALSE;
+    x_min = INT_MAX;
+    x_max = -INT_MAX;
+    y_min = INT_MAX;
+    y_max = -INT_MAX;
 
     for_less( volume_index, 0, get_n_volumes( slice_window ) )
     {
@@ -515,29 +518,17 @@ void  reset_slice_view(
         int_y1 = VIO_FLOOR( y1 );
         int_y2 = VIO_CEILING( y2 );
 
-        if( !found_one )
-        {
+        if( int_x1 < x_min )
             x_min = int_x1;
+        if( int_x2 > x_max )
             x_max = int_x2;
+        if( int_y1 < y_min )
             y_min = int_y1;
+        if( int_y2 > y_max )
             y_max = int_y2;
-        }
-        else
-        {
-            if( int_x1 < x_min )
-                x_min = int_x1;
-            if( int_x2 > x_max )
-                x_max = int_x2;
-            if( int_y1 < y_min )
-                y_min = int_y1;
-            if( int_y2 > y_max )
-                y_max = int_y2;
-        }
-
-        found_one = TRUE;
     }
 
-    if( !found_one || x_min == x_max || y_min == y_max )
+    if( get_n_volumes( slice_window ) == 0 || x_min == x_max || y_min == y_max )
     {
         x_trans = 0.0;
         y_trans = 0.0;
@@ -880,11 +871,11 @@ void  convert_voxel_to_pixel(
     VIO_Real          *x_pixel,
     VIO_Real          *y_pixel )
 {
-    VIO_Volume            volume;
+    VIO_Volume        volume;
     display_struct    *slice_window;
-    VIO_Real              x_real_pixel, y_real_pixel;
-    VIO_Real              origin[VIO_MAX_DIMENSIONS];
-    VIO_Real              x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];;
+    VIO_Real          x_real_pixel, y_real_pixel;
+    VIO_Real          origin[VIO_MAX_DIMENSIONS];
+    VIO_Real          x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
 
     if( get_slice_window( display, &slice_window ) )
     {
@@ -906,6 +897,8 @@ void  convert_voxel_to_pixel(
     else
     {
         HANDLE_INTERNAL_ERROR( "convert_voxel_to_pixel" );
+        *x_pixel = 0;
+        *y_pixel = 0;
     }
 }
 
@@ -934,8 +927,9 @@ void  get_voxel_to_pixel_transform(
     VIO_Real          *y_scale,
     VIO_Real          *y_trans )
 {
-    int     axis;
-    VIO_Real  voxel[VIO_MAX_DIMENSIONS], x, y;
+    int      axis;
+    VIO_Real voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real x, y;
 
     if( !slice_has_ortho_axes( slice_window, volume_index,
                                view_index, x_index, y_index, &axis ) )
