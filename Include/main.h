@@ -100,6 +100,7 @@ typedef  struct
     vertex_data_struct         **vertex_data_array;
     object_struct              *mouse_obj;
     int                        mouse_point;
+    colour_bar_struct          colour_bar;
 } three_d_window_struct;
 
 

@@ -360,7 +360,7 @@ the cursor along the axes.
 window.
 \item Scroll: zooms the 3D objects.
 \item Control-Scroll: Changes the opacity of the selected object.
-\item Shift-Left Button: While holding down the \ident{shift} key, the
+\item Shift+Left Button: While holding down the \ident{shift} key, the
  left mouse button translates the position of the 3D objects within
  the window.
 \end{itemize}
@@ -372,6 +372,8 @@ apply when the mouse cursor is in the colour bar:
 \item Left Button: If near the upper or lower limits of the colour bar,
 clicking the left button will allow you to drag the limit and change the
 current upper or lower limits of the colour coding.
+\item Middle Button: Allows you to drag both limits simultaneously, maintaining a 
+constant difference between them.
 \item Shift+Left Button: Performs three different functions depending on
 exactly where the button is clicked:
 \begin{itemize}
@@ -514,10 +516,26 @@ current brush label and size.
 \item Control-Scroll: Changes the opacity of the selected volume.
 \end{itemize}
 
-The upper and lower limits of the colour bar for the current volume
-can be moved individually by pressing the left mouse button on the bar
-near the desired limit. Pressing the middle button on the colour bar
-will allow both limits to be moved simultaneously.
+In addition, the following mouse commands apply when the mouse cursor is in the colour bar:
+\begin{itemize}
+\item Left Button: If near the upper or lower limits of the colour bar,
+clicking the left button will allow you to drag the limit and change the
+current upper or lower limits of the colour coding.
+\item Middle Button: Allows you to drag both limits simultaneously, maintaining a 
+constant difference between them.
+\item Shift+Left Button: Performs three different functions depending on
+exactly where the button is clicked:
+\begin{itemize}
+\item In the area above the upper limit,
+ this will display a dialog that allows you to set the ``over'' colour
+ for the volume's colour coding.
+\item In the area below the lower limit,
+ this will display a dialog that allows you to set the ``under'' colour
+ for the volume's colour coding.
+\item In the area between the limits, this will display a dialog that
+allows you to set the colour coding method used for this volume.
+\end{itemize}
+\end{itemize}
 
 The relative sizes of the four slice views can be adjusted by clicking
 and dragging with the right button down while the mouse cursor is

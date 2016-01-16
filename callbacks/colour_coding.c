@@ -253,9 +253,9 @@ DEF_MENU_FUNCTION(set_under_colour )
 
             colour_coding_has_changed( slice_window,
                       get_current_volume_index(slice_window), UPDATE_SLICE );
-        }
 
-        delete_string( line );
+            delete_string( line );
+        }
     }
 
     return( status );
@@ -309,9 +309,9 @@ DEF_MENU_FUNCTION(set_over_colour )
 
             colour_coding_has_changed( slice_window,
                       get_current_volume_index(slice_window), UPDATE_SLICE );
-        }
 
-        delete_string( line );
+            delete_string( line );
+        }
     }
 
     return( status );

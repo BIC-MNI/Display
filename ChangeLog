@@ -1,3 +1,8 @@
+2016-01-16  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * slice_window/slice_events.c, callbacks/colour_coding.c, main/three_d.c: Increase
+	consistency between behaviors of the vertex and volume colour bars. Also added
+	some documentation and fixed some bugs.
+
 2016-01-07  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * callbacks/file.c, input_files/poly_formats.c: Support output of
 	.x3d, .ply, and Wavefront .obj format surfaces.

@@ -27,7 +27,8 @@ static void define_lights( display_struct *display );
 static void initialize_status_line( display_struct *display );
 static void update_status_line(display_struct *display);
 
-static void initialize_vertex_colour_bar( display_struct *display );
+static void initialize_vertex_colour_bar( display_struct *display,
+                                          colour_bar_struct *cb_ptr );
 static void update_vertex_colour_coding( display_struct *display,
                                          vertex_data_struct *vtxd_ptr);
 static void update_vertex_colour_bar( display_struct *display,
@@ -39,6 +40,15 @@ static VIO_BOOL get_vertex_value(display_struct *display,
                                  object_struct *object,
                                  int index, VIO_Real *value_ptr,
                                  int *column_ptr);
+
+/* Parameters of the vertex data colour bar in the 3D view window.
+ */
+#define VTX_COLOURBAR_X 10
+#define VTX_COLOURBAR_WIDTH 20
+#define VTX_COLOURBAR_Y 30
+#define VTX_COLOURBAR_HEIGHT 200
+#define VTX_TICK_WIDTH 10
+#define VTX_TOL 4
 
 /**
  * Initializes the 3D window structure (three_d_window_struct).
@@ -84,6 +94,15 @@ void  initialize_three_d_window(
                 three_d->max_limit );
     SCALE_POINT( three_d->centre_of_objects, three_d->centre_of_objects, 0.5 );
 
+    /* Set up the colour bar first so it sees mouse events first! */
+    display->three_d.colour_bar.top_offset = Colour_bar_top_offset;
+    display->three_d.colour_bar.bottom_offset = VTX_COLOURBAR_Y;
+    display->three_d.colour_bar.left_offset = VTX_COLOURBAR_X;
+    display->three_d.colour_bar.bar_width = VTX_COLOURBAR_WIDTH;
+    display->three_d.colour_bar.tick_width = VTX_TICK_WIDTH;
+    display->three_d.colour_bar.desired_n_intervals = Colour_bar_desired_intervals;
+    initialize_vertex_colour_bar( display, &display->three_d.colour_bar );
+
     initialize_three_d_events( display );
 
     reset_view_parameters( display, &Default_line_of_sight,
@@ -110,8 +129,6 @@ void  initialize_three_d_window(
 
     display->three_d.vertex_data_array = NULL;
     display->three_d.vertex_data_count = 0;
-
-    initialize_vertex_colour_bar( display );
 
     display->three_d.mouse_obj = NULL;
     display->three_d.mouse_point = -1;
@@ -188,6 +205,7 @@ define_lights( display_struct   *display )
 static    DEF_EVENT_FUNCTION( handle_resize_three_d );
 static    DEF_EVENT_FUNCTION( handle_mouse_movement );
 static    DEF_EVENT_FUNCTION( handle_left_down );
+static    DEF_EVENT_FUNCTION( handle_middle_down );
 static    DEF_EVENT_FUNCTION( adjust_lo_limit );
 static    DEF_EVENT_FUNCTION( adjust_hi_limit );
 static    DEF_EVENT_FUNCTION( finish_lo_limit );
@@ -222,13 +240,8 @@ static DEF_EVENT_FUNCTION(handle_mouse_movement)
 static  void  initialize_three_d_events(
     display_struct  *display )
 {
-    /* Install these first so they get first crack at the mouse events.
-     */
     add_action_table_function( &display->action_table, WINDOW_RESIZE_EVENT,
                                handle_resize_three_d );
-
-    add_action_table_function( &display->action_table, LEFT_MOUSE_DOWN_EVENT,
-                               handle_left_down );
 
     add_action_table_function( &display->action_table, NO_EVENT,
                                handle_mouse_movement );
@@ -611,13 +624,6 @@ get_vertex_value(display_struct *display, object_struct *object,
     return TRUE;
 }
 
-#define VTX_COLOURBAR_X 10
-#define VTX_COLOURBAR_WIDTH 20
-#define VTX_COLOURBAR_Y 30
-#define VTX_COLOURBAR_HEIGHT 200
-#define VTX_TICK_WIDTH 10
-#define VTX_TOL 4
-
 /**
  * Change the upper or lower limit of the colour coding for the
  * vertex data based on the position of the mouse.
@@ -739,6 +745,40 @@ static DEF_EVENT_FUNCTION(finish_hi_limit)
 }
 
 
+static DEF_EVENT_FUNCTION(adjust_both_limits)
+{
+    VIO_Real lo_limit, hi_limit;
+    VIO_Real delta;
+    vertex_data_struct *vtxd_ptr;
+
+    vtxd_ptr = find_vertex_data( display, display->three_d.mouse_obj );
+    if (vtxd_ptr == NULL)
+    {
+        return;
+    }
+
+    get_colour_coding_min_max( &vtxd_ptr->colour_coding, &lo_limit, &hi_limit );
+
+    delta = hi_limit - lo_limit;
+
+    adjust_limit( display, TRUE );
+
+    get_colour_coding_min_max( &vtxd_ptr->colour_coding, &lo_limit, &hi_limit );
+    set_colour_coding_min_max( &vtxd_ptr->colour_coding, lo_limit, lo_limit + delta );
+
+    return VIO_OK;
+}
+
+static DEF_EVENT_FUNCTION(finish_both_limits)
+{
+  remove_action_table_function( &display->action_table, NO_EVENT,
+                                adjust_both_limits );
+  remove_action_table_function( &display->action_table, MIDDLE_MOUSE_UP_EVENT,
+                                finish_both_limits );
+  return VIO_OK;
+}
+
+
 /**
  * Update vertex colour coding and redisplay associated UI elements.
  *
@@ -821,7 +861,48 @@ prompt_vertex_coding_colours( display_struct *display,
 }
 
 /**
- * Handle left mouse clicks in the 3D window.
+ * Check whether a point in pixel coordinates lies within the colour bar.
+ * \param x The column position of the pixel coordinate.
+ * \param y The row position of the pixel coordinate.
+ * \param cb_ptr A pointer to the colour_bar_struct.
+ */
+VIO_BOOL
+point_is_inside_colour_bar(int x, int y, colour_bar_struct *cb_ptr)
+{
+    return (x < cb_ptr->left_offset ||
+            x > cb_ptr->left_offset + cb_ptr->bar_width + cb_ptr->tick_width ||
+            y < cb_ptr->bottom_offset - VTX_TOL ||
+            y > cb_ptr->bottom_offset + VTX_COLOURBAR_HEIGHT + VTX_TOL);
+}
+
+/**
+ * Handle middle mouse clicks in the 3D window.
+ *
+ * This function particularly implements middle mouse clicks in the
+ * vertex colour bar. This implements the simultaneous movement of
+ * the colour coding bounds.
+ */
+static DEF_EVENT_FUNCTION( handle_middle_down )
+{
+    int x, y;
+    colour_bar_struct *cb_ptr = &display->three_d.colour_bar;
+
+    G_get_mouse_position( display->window, &x, &y );
+
+    if (!point_is_inside_colour_bar(x, y, &display->three_d.colour_bar))
+    {
+        return VIO_OK;     /* Ignore clicks outside the colour bar. */
+    }
+
+    add_action_table_function( &display->action_table, NO_EVENT,
+                               adjust_both_limits );
+    add_action_table_function( &display->action_table, MIDDLE_MOUSE_UP_EVENT,
+                               finish_both_limits );
+    return VIO_ERROR;
+}
+
+/**
+ * Handle left mouse clicks in the vertex colourbar.
  *
  * This function particularly implements left mouse clicks in the
  * vertex colour bar. This implements functions such as the selection of
@@ -844,10 +925,7 @@ static DEF_EVENT_FUNCTION( handle_left_down )
 
     G_get_mouse_position( display->window, &x, &y );
 
-    if (x < VTX_COLOURBAR_X ||
-        x > VTX_COLOURBAR_X + VTX_COLOURBAR_WIDTH + VTX_TICK_WIDTH ||
-        y < VTX_COLOURBAR_Y - VTX_TOL ||
-        y > VTX_COLOURBAR_Y + VTX_COLOURBAR_HEIGHT + VTX_TOL)
+    if (!point_is_inside_colour_bar(x, y, &display->three_d.colour_bar))
     {
         return VIO_OK;     /* Ignore clicks outside the colour bar. */
     }
@@ -903,9 +981,11 @@ static DEF_EVENT_FUNCTION( handle_left_down )
  * Initialize colour bar objects for vertex display.
  *
  * \param display The display_struct of the 3D view window.
+ * \param cb_ptr The colour bar structure.
  */
 static void
-initialize_vertex_colour_bar( display_struct *display )
+initialize_vertex_colour_bar( display_struct *display, 
+                              colour_bar_struct *cb_ptr )
 {
     object_struct     *object;
     pixels_struct     *pixels;
@@ -940,6 +1020,13 @@ initialize_vertex_colour_bar( display_struct *display )
     lines->n_items = 0;
 
     add_object_to_model( model, object );
+
+
+    add_action_table_function( &display->action_table, LEFT_MOUSE_DOWN_EVENT,
+                               handle_left_down );
+
+    add_action_table_function( &display->action_table, MIDDLE_MOUSE_DOWN_EVENT,
+                               handle_middle_down );
 
     set_vertex_colour_bar_visibility( display, FALSE );
 }
@@ -981,7 +1068,6 @@ update_vertex_colour_bar( display_struct *display,
   VIO_Real value;
   VIO_Colour colour;
   int x, y;
-  colour_bar_struct colour_bar;
 
   min_range = vtxd_ptr->min_v[vtxd_ptr->column_index];
   max_range = vtxd_ptr->max_v[vtxd_ptr->column_index];
@@ -1007,15 +1093,8 @@ update_vertex_colour_bar( display_struct *display,
     }
   }
 
-  colour_bar.top_offset = Colour_bar_top_offset;
-  colour_bar.bottom_offset = VTX_COLOURBAR_Y;
-  colour_bar.left_offset = VTX_COLOURBAR_X;
-  colour_bar.bar_width = VTX_COLOURBAR_WIDTH;
-  colour_bar.tick_width = VTX_TICK_WIDTH;
-  colour_bar.desired_n_intervals = Colour_bar_desired_intervals;
-
   /* now rebuild the tick marks and numbers */
-  rebuild_ticks_and_text( &colour_bar, model,
+  rebuild_ticks_and_text( &display->three_d.colour_bar, model,
                           1,
                           2,
                           min_range, max_range,
