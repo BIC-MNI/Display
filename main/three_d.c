@@ -754,7 +754,7 @@ static DEF_EVENT_FUNCTION(adjust_both_limits)
     vtxd_ptr = find_vertex_data( display, display->three_d.mouse_obj );
     if (vtxd_ptr == NULL)
     {
-        return;
+        return VIO_OK;
     }
 
     get_colour_coding_min_max( &vtxd_ptr->colour_coding, &lo_limit, &hi_limit );
@@ -869,10 +869,10 @@ prompt_vertex_coding_colours( display_struct *display,
 VIO_BOOL
 point_is_inside_colour_bar(int x, int y, colour_bar_struct *cb_ptr)
 {
-    return (x < cb_ptr->left_offset ||
-            x > cb_ptr->left_offset + cb_ptr->bar_width + cb_ptr->tick_width ||
-            y < cb_ptr->bottom_offset - VTX_TOL ||
-            y > cb_ptr->bottom_offset + VTX_COLOURBAR_HEIGHT + VTX_TOL);
+    return (x >= cb_ptr->left_offset &&
+            x <= cb_ptr->left_offset + cb_ptr->bar_width + cb_ptr->tick_width &&
+            y >= cb_ptr->bottom_offset - VTX_TOL &&
+            y <= cb_ptr->bottom_offset + VTX_COLOURBAR_HEIGHT + VTX_TOL);
 }
 
 /**
@@ -885,7 +885,6 @@ point_is_inside_colour_bar(int x, int y, colour_bar_struct *cb_ptr)
 static DEF_EVENT_FUNCTION( handle_middle_down )
 {
     int x, y;
-    colour_bar_struct *cb_ptr = &display->three_d.colour_bar;
 
     G_get_mouse_position( display->window, &x, &y );
 
