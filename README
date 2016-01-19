@@ -5,7 +5,7 @@ objects.
 If you wish to build from sources, please see the build instructions in
 https://github.com/BIC-MNI/minc-toolkit/
 
-Prebuilt binaries can be obtained by contacting rdvincent
+Prebuilt binaries can be obtained by contacting robert.d.vincent@mcgill.ca
 
 The following libraries must be installed before building Display.
 
