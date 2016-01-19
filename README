@@ -1,5 +1,11 @@
-MNI-Display is an interactive program to display and segment 3 dimensional
-images, as well as to display and manipulate 3D geometric objects.
+MNI-Display is an interactive program to display and segment 3 and 4
+dimensional images, as well as to display and manipulate 3D geometric
+objects.
+
+If you wish to build from sources, please see the build instructions in
+https://github.com/BIC-MNI/minc-toolkit/
+
+Prebuilt binaries can be obtained by contacting rdvincent
 
 The following libraries must be installed before building Display.
 
@@ -8,16 +14,14 @@ The following libraries must be installed before building Display.
   MINC and bicpl
     - available from http://packages.bic.mni.mcgill.ca/tgz
 
-Any comments, questions, bug reports, or patches may be
-sent to
-	Andrew Janke - a.janke@gmail.com
+---------
 
-
-How to enable 3D window , which was removed  by certain folks who never use 3D view:
+How to enable 3D window, which was removed by certain folks who never
+use 3D view:
 
 There are two possibilities:
 
-1. run Display with option -global Hide_3D_window FALSE , 
-2. copy  file <prefix>/lib/Display.globals into your home directory
-and add line “  Hide_3D_window = FALSE ;  “ there .
+1. Run Display with option -global Hide_3D_window FALSE , 
+2. Create file Display.globals into your home directory
+and add the line “  Hide_3D_window = FALSE ;  “ there .
 
