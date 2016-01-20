@@ -101,6 +101,8 @@ typedef  struct
     object_struct              *mouse_obj;
     int                        mouse_point;
     colour_bar_struct          colour_bar;
+    int                        animation_axis;
+    VIO_Real                   animation_rpm;
 } three_d_window_struct;
 
 

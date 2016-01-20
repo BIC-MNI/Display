@@ -19,6 +19,7 @@
 #endif
 
 #include  <display.h>
+#include <math.h>
 
 static  void  initialize_three_d_events( display_struct *display );
 
@@ -132,6 +133,7 @@ void  initialize_three_d_window(
 
     display->three_d.mouse_obj = NULL;
     display->three_d.mouse_point = -1;
+    display->three_d.animation_axis = -1;
 }
 
 /**
@@ -229,7 +231,56 @@ static DEF_EVENT_FUNCTION(handle_mouse_movement)
     {
         update_status_line( display );
     }
+
+    if (display->three_d.animation_axis >= 0)
+    {
+        VIO_Transform transform;
+
+        VIO_Real radians_per_frame = (2 * M_PI *
+                                      Min_interval_between_updates *
+                                      display->three_d.animation_rpm);
+
+        make_rotation_transform( radians_per_frame,
+                                 display->three_d.animation_axis,
+                                 &transform );
+
+        apply_transform_in_view_space( display, &transform );
+
+        update_view( display );
+
+        set_update_required( display, NORMAL_PLANES );
+    }
     return VIO_OK;
+}
+
+DEF_MENU_FUNCTION(animation_toggle)
+{
+  if (display->three_d.animation_axis < VIO_X)
+  {
+    int volume_index;
+    int axis_index;
+
+    if (get_axis_index_under_mouse( display, &volume_index, &axis_index) &&
+        (axis_index >= VIO_X && axis_index <= VIO_Z))
+    {
+      display->three_d.animation_axis = axis_index;
+    }
+    else
+    {
+      /* For now, just rotate around the Z axis */
+      display->three_d.animation_axis = VIO_Z;
+    }
+    display->three_d.animation_rpm = 1.0 / 5.0; /* 0.2 revolutions/second */
+  }
+  else
+  {
+    display->three_d.animation_axis = -1;
+  }
+}
+
+DEF_MENU_UPDATE(animation_toggle)
+{
+  return TRUE;
 }
 
 /**

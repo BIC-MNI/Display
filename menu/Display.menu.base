@@ -45,6 +45,7 @@ root \
     permanent 'Esc'      reset_interactions        '' '' \
     permanent '>'        move_time_plus            '' '' \
     permanent '<'        move_time_minus           '' '' \
+    permanent 'f12'      animation_toggle          '' '' \
 } \
  \
 quit \
