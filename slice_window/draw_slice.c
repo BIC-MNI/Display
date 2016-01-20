@@ -21,23 +21,10 @@
 
 #include  <display.h>
 
-typedef  enum  {
-                 ATLAS_SLICE_INDEX,
-                 COMPOSITE_SLICE_INDEX,
-                 CROSS_SECTION_INDEX,
-                 CROP_BOX_INDEX,
-                 CURSOR_INDEX1,
-                 CURSOR_INDEX2,
-                 UNFINISHED_BAR,
-                 TEXT_INDEX,
-                 FOV_INDEX,
-               } Slice_model_indices;
-
-typedef  enum  { DIVIDER_INDEX } Full_window_indices;
-
-
-
-  void  initialize_slice_models(
+/** Initialize the models and objects associated with the slice window.
+ * \param slice_window A pointer to the display_struct of the slice window.
+ */
+void  initialize_slice_models(
     display_struct    *slice_window )
 {
     int               i, view;
@@ -174,47 +161,8 @@ typedef  enum  { DIVIDER_INDEX } Full_window_indices;
 
         add_object_to_model( model, object );
 
-        /* --- make cross section */
-
-        object = create_object( POLYGONS );
-        polygons = get_polygons_ptr( object );
-        initialize_polygons( polygons, Unfinished_flag_colour, NULL );
-
-        polygons->n_points = 8;
-        polygons->n_items = 4;
-
-        ALLOC( polygons->points, polygons->n_points );
-        polygons->normals = NULL;
-        ALLOC( polygons->end_indices, polygons->n_items );
-        ALLOC( polygons->indices, 16 );
-
-        polygons->end_indices[0] = 4;
-        polygons->end_indices[1] = 8;
-        polygons->end_indices[2] = 12;
-        polygons->end_indices[3] = 16;
-
-        polygons->indices[0] = 0;
-        polygons->indices[1] = 1;
-        polygons->indices[2] = 5;
-        polygons->indices[3] = 4;
-
-        polygons->indices[4] = 1;
-        polygons->indices[5] = 2;
-        polygons->indices[6] = 6;
-        polygons->indices[7] = 5;
-
-        polygons->indices[8] = 2;
-        polygons->indices[9] = 3;
-        polygons->indices[10] = 7;
-        polygons->indices[11] = 6;
-
-        polygons->indices[12] = 3;
-        polygons->indices[13] = 0;
-        polygons->indices[14] = 4;
-        polygons->indices[15] = 7;
-
-        set_object_visibility( object, FALSE );
-        add_object_to_model( model, object );
+        /* --- make rulers */
+        initialize_slice_rulers( model );
 
         /*--- make cursor position text */
 
@@ -669,65 +617,6 @@ static  void  get_cursor_size(
 
     for_less( c, 0, VIO_N_DIMENSIONS )
         Vector_coord( *in_plane_axis, c ) /= (VIO_Point_coord_type) separations[c];
-}
-
-  void  rebuild_slice_unfinished_flag(
-    display_struct    *slice_window,
-    int               view_index )
-{
-    model_struct      *model;
-    VIO_Real              x_size, y_size, width;
-    VIO_Point             *points;
-    object_struct     *object;
-    polygons_struct   *polygons;
-    int               x_min, x_max, y_min, y_max;
-
-    model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
-    object = model->objects[2*slice_window->slice.n_volumes+UNFINISHED_BAR];
-    polygons = get_polygons_ptr( object );
-    points = polygons->points;
-
-    get_slice_model_viewport( slice_window, SLICE_MODEL1 + view_index,
-                              &x_min, &x_max, &y_min, &y_max );
-
-    x_size = (VIO_Real) (x_max - x_min + 1);
-    y_size = (VIO_Real) (y_max - y_min + 1);
-    width = Unfinished_flag_width;
-
-    fill_Point( points[0], 0.0, 0.0, 0.0 );
-    fill_Point( points[1], x_size, 0.0, 0.0 );
-    fill_Point( points[2], x_size, y_size, 0.0 );
-    fill_Point( points[3], 0.0, y_size, 0.0 );
-
-    fill_Point( points[4], width, width, 0.0 );
-    fill_Point( points[5], x_size-1.0-width, width, 0.0 );
-    fill_Point( points[6], x_size-1.0-width, y_size-1.0-width, 0.0 );
-    fill_Point( points[7], width, y_size-1.0-width, 0.0 );
-}
-
-  VIO_BOOL  get_slice_unfinished_flag_visibility(
-    display_struct    *slice_window,
-    int               view_index )
-{
-    model_struct      *model;
-    object_struct     *object;
-
-    model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
-    object = model->objects[2*slice_window->slice.n_volumes+UNFINISHED_BAR];
-    return( get_object_visibility( object ) );
-}
-
-  void  set_slice_unfinished_flag_visibility(
-    display_struct    *slice_window,
-    int               view_index,
-    VIO_BOOL           state )
-{
-    model_struct      *model;
-    object_struct     *object;
-
-    model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
-    object = model->objects[2*slice_window->slice.n_volumes+UNFINISHED_BAR];
-    set_object_visibility( object, state );
 }
 
 #define  EXTRA_PIXELS   10

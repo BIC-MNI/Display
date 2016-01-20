@@ -295,7 +295,6 @@ static  void      initialize_global_colours( void )
     Histogram_colour = WHITE;
     Menu_name_colour = GREEN;
     Cursor_pos_colour = GREEN;
-    Unfinished_flag_colour = GREEN;
     Slice_probe_ratio_colour = YELLOW;
     Initial_vertex_under_colour = BLACK;
     Initial_vertex_over_colour = WHITE;

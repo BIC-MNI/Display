@@ -1552,3 +1552,26 @@ DEF_MENU_UPDATE(reset_interactions)
     return TRUE;
 }
 
+DEF_MENU_FUNCTION(slice_rulers_toggle)
+{
+  display_struct *slice_window;
+
+  if (get_slice_window( display, &slice_window ))
+  {
+    int view_index;
+    for (view_index = 0; view_index < N_SLICE_VIEWS; view_index++)
+    {
+      VIO_BOOL state = get_slice_rulers_visibility( slice_window, view_index );
+      set_slice_rulers_visibility( slice_window, view_index, !state );
+    }
+    /* This is a bit hacky, it relies on knowing that the rulers are 
+     * drawn when the update_cursor_flag is set.
+     */
+    set_slice_cursor_update( slice_window, -1 );
+  }
+}
+
+DEF_MENU_UPDATE(slice_rulers_toggle)
+{
+    return TRUE;
+}

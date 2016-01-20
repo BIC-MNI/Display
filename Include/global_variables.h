@@ -154,9 +154,9 @@ START_GLOBALS
     DEF_GLOBAL3( Slice_index_offset, VIO_Point, 10.0f, 5.0f, 0.0f )
     DEF_GLOBAL( Readout_text_colour, int, 2 )
     DEF_GLOBAL_COLOUR( Readout_text_rgb_colour )
-    DEF_GLOBAL( Slice_index_x_format, VIO_STR, "X = %8g" )
-    DEF_GLOBAL( Slice_index_y_format, VIO_STR, "Y = %8g" )
-    DEF_GLOBAL( Slice_index_z_format, VIO_STR, "Z = %8g" )
+    DEF_GLOBAL( Slice_index_x_format, VIO_STR, "X=%6g" )
+    DEF_GLOBAL( Slice_index_y_format, VIO_STR, "Y=%6g" )
+    DEF_GLOBAL( Slice_index_z_format, VIO_STR, "Z=%6g" )
     DEF_GLOBAL( Slice_probe_volume_index_format, VIO_STR, "V# %6d" )
     DEF_GLOBAL( Slice_probe_x_voxel_format, VIO_STR, "Xv %6.1f" )
     DEF_GLOBAL( Slice_probe_y_voxel_format, VIO_STR, "Yv %6.1f" )
@@ -394,9 +394,6 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_pos_format, VIO_STR, "%.1f %.1f %.1f" )
     DEF_GLOBAL( Cursor_time_format, VIO_STR, " %.1f" )
 
-    DEF_GLOBAL_COLOUR( Unfinished_flag_colour )
-    DEF_GLOBAL( Unfinished_flag_width, VIO_Real, 5.0 )
-
     DEF_GLOBAL( Initial_volume_rotation_step, VIO_Real, 1.0 )
     DEF_GLOBAL( Initial_volume_translation_step, VIO_Real, 1.0 )
     DEF_GLOBAL( Initial_volume_scale_step, VIO_Real, 1.05 )
@@ -458,8 +455,11 @@ START_GLOBALS
     DEF_GLOBAL( Initial_3D_window_width, int, -1 )
     DEF_GLOBAL( Initial_3D_window_height, int, -1 )
 
+/** Defines the half-width of the secondary brush in world units. */
     DEF_GLOBAL( Secondary_x_brush_radius, VIO_Real, 3.0 )
+/** Defines the half-height of the secondary brush in world units. */
     DEF_GLOBAL( Secondary_y_brush_radius, VIO_Real, 3.0 )
+/** Defines the half-depth of the secondary brush in world units. */
     DEF_GLOBAL( Secondary_z_brush_radius, VIO_Real, 3.0 )
 
 /** Sets the colour coding type used by the vertex colouring in
@@ -475,5 +475,41 @@ START_GLOBALS
 /** The colour to display for all vertices that lie above the current maximum
     value of the colour coding range. */
     DEF_GLOBAL_COLOUR( Initial_vertex_over_colour )
+
+/** 
+ * Defines the length in pixels of the longest (10's) tick marks in
+ * the rulers.
+ */
+     DEF_GLOBAL( Ruler_big_tick_length, int, 12 )
+
+/** 
+ * Defines the length in pixels of the medium (5's) tick marks in the
+ * rulers.
+ */
+     DEF_GLOBAL( Ruler_medium_tick_length, int, 9 )
+
+/** 
+ * Defines the length in pixels of the small (1's) tick marks in the
+ * rulers.
+ */
+     DEF_GLOBAL( Ruler_small_tick_length, int, 5 )
+
+/** 
+ * Defines the offset in pixels for the Y axis relative to the
+ * left-hand side of the slice view.
+ */
+     DEF_GLOBAL( Ruler_y_axis_x_offset, int, 38 )
+
+/** 
+ * Defines the offset in pixels for the X axis relative to the bottom
+ * edge of the slice view.
+ */
+     DEF_GLOBAL( Ruler_x_axis_y_offset, int, 25 )
+
+/** 
+ * If TRUE, the rulers will be displayed by default.
+ */
+     DEF_GLOBAL( Ruler_initially_visible, VIO_BOOL, FALSE )
+
 END_GLOBALS
 /** @} */

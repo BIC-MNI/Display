@@ -50,13 +50,39 @@ typedef enum {
 } Slice_readout_indices;
 
 /**
+ * Indices of object associated with each of the slice views. Note
+ * that this ordering is very dependent on the order of initialization
+ * in initialize_slice_models().
+ */
+typedef  enum  {
+  ATLAS_SLICE_INDEX,            /**< Pixels object for atlas.  */
+  COMPOSITE_SLICE_INDEX,        /**< Pixels of the volume voxels. */
+  CROSS_SECTION_INDEX,          /**< Lines indicating arbitrary plane. */
+  CROP_BOX_INDEX,               /**< Polygons defining the crop box. */
+  CURSOR_INDEX1,                /**< Part of the slice cursor. */
+  CURSOR_INDEX2,                /**< Part of the slice cursor. */
+  RULERS,                       /**< The axis ruler models. */
+  TEXT_INDEX,                   /**< The text axis position label. */
+  FOV_INDEX,                    /**< The field-of-view text. */
+} Slice_model_indices;
+
+/**
+ * Indices associated with the \c FULL_WINDOW_MODEL in the slice window.
+ */
+typedef  enum  { 
+  DIVIDER_INDEX                 /**< Slice divider lines. */
+} Full_window_indices;
+
+/**
  * \brief Describes a brush.
  */
 typedef struct brush
 {
+    /** Defines the X, Y, and Z radius for a brush. */
     VIO_Real radius[VIO_N_DIMENSIONS];
 } brush_struct;
 
+/** Number of brushes supported. Allows support for secondary brush. */
 #define N_BRUSHES 2
 
 /**
@@ -115,7 +141,13 @@ typedef  struct segmenting_struct
       */
     VIO_BOOL        cursor_follows_paintbrush;
 
+    /** The index of the currently active brush. Must be greater than and 
+     * less than N_BRUSHES.
+     */
     int             brush_index;
+
+    /** Sizes of the various different brushes.
+     */
     brush_struct    brush[N_BRUSHES];
 } segmenting_struct;
 
@@ -298,7 +330,10 @@ typedef struct volume_view
      * Per-volume (0=data, 1=label) storage of state information (??).
      */
     int                    edge_index[2];
-}  *volume_view_ptr, volume_view_struct;
+}  volume_view_struct;
+
+/** Shorthand for a pointer to a volume_view_struct */
+typedef volume_view_struct *volume_view_ptr;
 
 /**
  * \brief Represents a single loaded volume in the program.

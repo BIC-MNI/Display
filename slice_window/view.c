@@ -623,7 +623,7 @@ void  resize_slice_view(
     slice_ptr->slice_views[view_index].prev_viewport_y_size =
                                           (y_max - y_min + 1);
 
-    rebuild_slice_unfinished_flag( slice_window, view_index );
+    rebuild_slice_rulers( slice_window, view_index ); /*???*/
 
     slice_view_has_changed( slice_window, view_index );
 }

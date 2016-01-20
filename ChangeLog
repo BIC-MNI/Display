@@ -1,4 +1,8 @@
 2016-01-20  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * various: Add rulers for Ayca and the Petrides lab. These are toggled
+	using the F10 key.
+
+2016-01-20  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * main/three_d.c, etc.: Simple autorotation feature tied to F12 key for now
 
 2016-01-16  Robert D. Vincent <robert.d.vincent@mcgill.ca>

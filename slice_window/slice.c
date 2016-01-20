@@ -165,8 +165,6 @@ static  void  initialize_slice_window(
 
         slice_window->slice.slice_views[view].n_atlas_pixels_alloced = 0;
         slice_window->slice.slice_views[view].n_composite_pixels_alloced = 0;
-
-        rebuild_slice_unfinished_flag( slice_window, view );
     }
 
     initialize_ratio( slice_window );
@@ -1039,8 +1037,6 @@ static  void  render_more_slices(
 
         if( viewport_pixels_modified[view] )
             composite_volume_and_labels( slice_window, view );
-
-        set_slice_unfinished_flag_visibility( slice_window, view, interrupted );
     }
 }
 
@@ -1152,6 +1148,7 @@ static  void  render_more_slices(
         {
             rebuild_slice_cursor( slice_window, view );
             rebuild_slice_field_of_view( slice_window, view );
+            rebuild_slice_rulers( slice_window, view );
             slice_window->slice.slice_views[view].update_cursor_flag = FALSE;
         }
 

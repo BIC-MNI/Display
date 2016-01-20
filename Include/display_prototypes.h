@@ -2198,19 +2198,6 @@ void rebuild_ticks_and_text(colour_bar_struct *colour_bar,
     int               section_index,
     VIO_Vector            *in_plane_axis );
 
-  void  rebuild_slice_unfinished_flag(
-    display_struct    *slice_window,
-    int               view_index );
-
-  VIO_BOOL  get_slice_unfinished_flag_visibility(
-    display_struct    *slice_window,
-    int               view_index );
-
-  void  set_slice_unfinished_flag_visibility(
-    display_struct    *slice_window,
-    int               view_index,
-    VIO_BOOL           state );
-
   void  rebuild_slice_cross_section(
     display_struct    *slice_window,
     int               view_index );
@@ -2885,4 +2872,12 @@ VIO_Status output_wavefront_obj(VIO_STR filename, object_struct *object_ptr);
 VIO_Status output_stanford_ply(VIO_STR filename, object_struct *object_ptr);
 VIO_Status output_x3d(VIO_STR filename, object_struct *object_ptr);
 
+/* from slice_window/rulers.c */
+void initialize_slice_rulers( model_struct *model_ptr );
+void rebuild_slice_rulers( display_struct *slice_window, int view_index );
+VIO_BOOL get_slice_rulers_visibility( display_struct *slice_window,
+                                      int view_index );
+void set_slice_rulers_visibility( display_struct *slice_window,
+                                  int            view_index,
+                                  VIO_BOOL       state );
 #endif
