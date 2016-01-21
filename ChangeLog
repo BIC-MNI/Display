@@ -1,3 +1,6 @@
+2016-01-20  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * main/three_d.c, etc.: Simple autorotation feature tied to F12 key for now
+
 2016-01-16  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * slice_window/slice_events.c, callbacks/colour_coding.c, main/three_d.c: Increase
 	consistency between behaviors of the vertex and volume colour bars. Also added
