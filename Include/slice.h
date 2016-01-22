@@ -740,6 +740,25 @@ typedef struct slice_window
      */
     outline_struct         outlines[N_SLICE_VIEWS];
 
+    /**
+     * Lines object for the measurement (ctrl+left click) feature.
+     */
+    object_struct          *measure_line;
+
+    /**
+     * Text object for the measurement (ctrl+left click) feature.
+     */
+    object_struct          *measure_text;
+
+    /**
+     * View index where measurement is taking place.
+     */
+    int                    measure_view;
+
+    /**
+     * Origin of measurement operation in world coordinates.
+     */
+    VIO_Point             measure_origin;
 } slice_window_struct;
 
 

@@ -511,5 +511,19 @@ START_GLOBALS
  */
      DEF_GLOBAL( Ruler_initially_visible, VIO_BOOL, FALSE )
 
+/**
+ * Defines the size of the font used during measurement.
+ */
+     DEF_GLOBAL( Measure_text_size, VIO_Real, 12.0 )
+
+/**
+ * Defines the font type used during measurement.
+ */
+     DEF_GLOBAL( Measure_text_font, int, 0 )
+
+/**
+ * Defines the colour used to measurement display.
+ */
+     DEF_GLOBAL_COLOUR( Measure_colour )
 END_GLOBALS
 /** @} */

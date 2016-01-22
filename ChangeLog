@@ -1,3 +1,7 @@
+2016-01-22  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * slice_window/slice_events.c, etc.: Finally add a measurement feature
+	very similar to that of BrainBrowser. Ctrl+Left Click now starts 
+	displaying a line and length that can be dragged around the slice.
 2016-01-20  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * various: Add rulers for Ayca and the Petrides lab. These are toggled
 	using the F10 key.

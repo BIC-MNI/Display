@@ -67,6 +67,8 @@ static  VIO_BOOL  mouse_is_near_low_limit(
 static  VIO_BOOL  mouse_is_near_high_limit(
     display_struct   *slice_window );
 
+static void initialize_measurement( display_struct *slice_window );
+
 /**
  * \brief Install handlers for events in the slice window.
  * 
@@ -103,6 +105,8 @@ void  initialize_slice_window_events(
                                update_probe );
 
     fill_Point( slice_window->prev_mouse_position, 0.0, 0.0, 0.0 );
+
+    initialize_measurement( slice_window );
 }
 
 /**
@@ -187,6 +191,151 @@ static VIO_BOOL  get_colour_bar_positions( display_struct *slice_window,
     return TRUE;
 }
 
+static void
+initialize_measurement( display_struct *slice_window )
+{
+    slice_window->slice.measure_line = NULL;
+    slice_window->slice.measure_text = NULL;
+    slice_window->slice.measure_view = -1;
+}
+
+static void
+remove_measurement( display_struct *slice_window )
+{
+    model_struct *model_ptr;
+    int view_index = slice_window->slice.measure_view;
+
+    if (view_index < 0)
+        return;
+
+    model_ptr = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
+    remove_object_from_model( model_ptr, slice_window->slice.measure_line );
+    remove_object_from_model( model_ptr, slice_window->slice.measure_text );
+    slice_window->slice.measure_view = -1; /* Unassociated. */
+}
+
+static
+DEF_EVENT_FUNCTION( update_measurement )
+{
+    int       volume_index, axis_index;
+    VIO_Real  voxel[VIO_N_DIMENSIONS];
+    VIO_Point measure_now;
+    VIO_Real  wx, wy, wz;
+    VIO_Real  px, py;
+
+    if( get_voxel_in_slice_window( display, voxel, &volume_index,
+                                   &axis_index ) )
+    {
+      VIO_Volume volume = get_nth_volume( display, volume_index );
+      char buffer[128];
+      text_struct *text_ptr = get_text_ptr( display->slice.measure_text );
+      lines_struct *line_ptr = get_lines_ptr( display->slice.measure_line );
+      VIO_Real distance;
+
+      convert_voxel_to_world( volume, voxel, &wx, &wy, &wz );
+      fill_Point( measure_now, wx, wy, wz );
+      
+      delete_string( text_ptr->string );
+      distance = distance_between_points( &display->slice.measure_origin,
+                                          &measure_now );
+      sprintf( buffer, "%g", distance );
+      text_ptr->string = create_string( buffer );
+
+      
+      fill_Point( text_ptr->origin, 
+                  (Point_x( line_ptr->points[0] ) + Point_x( line_ptr->points[1])) / 2.0 ,
+                  (Point_y( line_ptr->points[0] ) + Point_y( line_ptr->points[1])) / 2.0,
+                  0.0 );
+
+      convert_voxel_to_pixel( display, volume_index, 
+                              display->slice.measure_view,
+                              voxel, &px, &py );
+
+      fill_Point(line_ptr->points[1], px, py, 0.0);
+
+      G_set_update_flag( display->window ); /* Immediate update */
+    }
+    return (VIO_OK);
+}
+
+static
+DEF_EVENT_FUNCTION( terminate_measurement )
+{
+    pop_action_table( &display->action_table, NO_EVENT );
+    pop_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT );
+
+    remove_action_table_function( &display->action_table,
+                                  LEFT_MOUSE_UP_EVENT,
+                                  terminate_measurement );
+
+    G_set_update_flag( display->window ); /* immediate update */
+    return( VIO_OK );
+}
+
+static void
+start_measurement(display_struct *slice_window, int view_index)
+{
+    int          volume_index, axis_index;
+    VIO_Real     voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real     wx, wy, wz;
+    lines_struct *line_ptr;
+    text_struct  *text_ptr;
+    model_struct *model_ptr;
+    VIO_Real     px, py;
+
+    if( !get_voxel_in_slice_window( slice_window, voxel, &volume_index,
+                                    &axis_index ) )
+    {
+        return;
+    }
+      
+    VIO_Volume volume = get_nth_volume( slice_window, volume_index );
+    convert_voxel_to_world( volume, voxel, &wx, &wy, &wz );
+    fill_Point( slice_window->slice.measure_origin, wx, wy, wz );
+
+    if (slice_window->slice.measure_line == NULL)
+    {
+        slice_window->slice.measure_line = create_object( LINES );
+        line_ptr = get_lines_ptr( slice_window->slice.measure_line );
+        set_object_visibility( slice_window->slice.measure_line, TRUE );
+
+        initialize_lines(line_ptr, Measure_colour );
+        line_ptr->n_points = 2;
+        line_ptr->n_items = 1;
+        ALLOC( line_ptr->points, line_ptr->n_points );
+        ALLOC( line_ptr->end_indices, line_ptr->n_items );
+        ALLOC( line_ptr->indices, line_ptr->n_points );
+        line_ptr->end_indices[0] = 2;
+        line_ptr->indices[0] = 0;
+        line_ptr->indices[1] = 1;
+
+        slice_window->slice.measure_text = create_object( TEXT );
+        text_ptr = get_text_ptr( slice_window->slice.measure_text );
+        set_object_visibility( slice_window->slice.measure_text, TRUE );
+
+        initialize_text( text_ptr, NULL, Measure_colour,
+                         Measure_text_font,
+                         Measure_text_size );
+
+    }
+    else
+    {
+        line_ptr = get_lines_ptr( slice_window->slice.measure_line );
+    }
+
+    convert_voxel_to_pixel( slice_window, volume_index, view_index,
+                            voxel, &px, &py );
+
+    fill_Point( line_ptr->points[0], px, py, 0.0 );
+    fill_Point( line_ptr->points[1], px, py, 0.0 );
+
+    slice_window->slice.measure_view = view_index;
+    model_ptr = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
+    add_object_to_model( model_ptr, slice_window->slice.measure_line );
+    add_object_to_model( model_ptr, slice_window->slice.measure_text );
+    G_set_update_flag( slice_window->window ); /* immediate update */
+}
+
 /* ARGSUSED */
 
 /** 
@@ -211,6 +360,8 @@ static  DEF_EVENT_FUNCTION( left_mouse_down )
 
     if( get_n_volumes( display ) == 0 )
         return( VIO_OK );
+
+    remove_measurement( display );
 
     if( mouse_is_near_slice_dividers( display ) )
     {
@@ -244,6 +395,20 @@ static  DEF_EVENT_FUNCTION( left_mouse_down )
             add_action_table_function( &display->action_table,
                                        TERMINATE_INTERACTION_EVENT,
                                        terminate_translation );
+        }
+        else if (is_ctrl_key_pressed() )
+        {
+            add_action_table_function( &display->action_table,
+                                       NO_EVENT, update_measurement );
+
+            add_action_table_function( &display->action_table,
+                                       LEFT_MOUSE_UP_EVENT,
+                                       terminate_measurement );
+            add_action_table_function( &display->action_table,
+                                       TERMINATE_INTERACTION_EVENT,
+                                       terminate_measurement );
+
+            start_measurement(display, view_index);
         }
         else
         {
@@ -338,6 +503,8 @@ static  DEF_EVENT_FUNCTION( scroll_down )
     if( get_n_volumes( display ) == 0 )
         return( VIO_OK );
 
+    remove_measurement( display );
+
     if( get_slice_view_index_under_mouse( display, &view_index ) )
     {
         if (is_ctrl_key_pressed() )
@@ -377,6 +544,8 @@ static  DEF_EVENT_FUNCTION( scroll_up )
 
     if( get_n_volumes( display ) == 0 )
         return( VIO_OK );
+
+    remove_measurement( display );
 
     if( get_slice_view_index_under_mouse( display, &view_index ) )
     {
@@ -425,6 +594,8 @@ static  DEF_EVENT_FUNCTION( middle_mouse_down )
 
     if( get_n_volumes( display ) == 0 )
         return( VIO_OK );
+
+    remove_measurement( display );
 
     if( get_slice_view_index_under_mouse( display, &view_index ) )
     {

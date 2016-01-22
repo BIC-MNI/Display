@@ -5,6 +5,7 @@
 \usepackage{txfonts}
 \usepackage[font=footnotesize]{caption}
 \usepackage{titling}
+\usepackage[colorlinks=true]{hyperref}
 \usepackage{url}
 \usepackage{pifont}
 \usepackage{longtable}
@@ -359,7 +360,7 @@ the cursor along the axes.
 \item Right button: translates the position of the 3D objects within the
 window.
 \item Scroll: zooms the 3D objects.
-\item Control-Scroll: Changes the opacity of the selected object.
+\item Ctrl+Scroll: Changes the opacity of the selected object.
 \item Shift+Left Button: While holding down the \ident{shift} key, the
  left mouse button translates the position of the 3D objects within
  the window.
@@ -513,7 +514,9 @@ current brush label and size.
 \item Shift-Right Button: While holding down the \ident{shift} key,
   holding down the right button erases regions of the labels.
 \item Scroll: The scroll wheel changes the zoom level of the current slice.
-\item Control-Scroll: Changes the opacity of the selected volume.
+\item Ctrl+Scroll: Changes the opacity of the selected volume.
+\item Ctrl+Left Button: Starts displaying a line measuring the
+ distance between the start and end of the mouse movement.
 \end{itemize}
 
 In addition, the following mouse commands apply when the mouse cursor is in the colour bar:
@@ -581,7 +584,7 @@ given in Appendix \ref{app:colours}.
 \subsection{Keyboard Shortcuts}
 \display{} now supports a number of keyboard shortcuts for rapid access
 to certain commands. Many of these are accessed by holding down the
-Control ('Ctrl') key and typing another key.
+control ('Ctrl') key and typing another key.
 
 \begin{itemize}
 \item Ctrl+B - Toggle between the primary and the secondary brush.
@@ -591,6 +594,8 @@ Control ('Ctrl') key and typing another key.
 \item Ctrl+Z - Undo the previous painting command (\menutwo{Segmenting}{Undo}).
 \item \ident{>} - Move to the next time position (\menu{+ Time}).
 \item \ident{<} - Move to the previous time position (\menu{- Time}).
+\item \ident{F10} - Toggle display of rulers in the slice view window.
+\item \ident{F12} - Toggle autorotation of the 3D objects.
 \end{itemize}
 
 \section{Complete Menu Reference}
