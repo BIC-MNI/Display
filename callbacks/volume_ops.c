@@ -1569,6 +1569,7 @@ DEF_MENU_FUNCTION(slice_rulers_toggle)
      */
     set_slice_cursor_update( slice_window, -1 );
   }
+  return VIO_OK;
 }
 
 DEF_MENU_UPDATE(slice_rulers_toggle)
