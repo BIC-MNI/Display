@@ -293,7 +293,20 @@ START_GLOBALS
     DEF_GLOBAL( Marching_cubes_method, int, 1 )
 
     DEF_GLOBAL( Compute_neighbours_on_input, VIO_BOOL, FALSE )
+/**
+ * If greater or equal to zero, a bintree will be generated automatically
+ * for any polygonal object loaded where the number of faces (n_items) is
+ * greater than this value. This may affect the speed of some 3D view
+ * operations.
+ */
     DEF_GLOBAL( Polygon_bintree_threshold, int, -1 )
+/**
+ * If greater or equal to zero, a bintree will be generated automatically
+ * for any lines object loaded where the number of segments (n_items) or
+ * points (n_points) is greater than this value. This may affect the 
+ * speed of some 3D view operations.
+ */
+    DEF_GLOBAL( Lines_bintree_threshold, int, 10000 )
     DEF_GLOBAL( Bintree_size_factor, VIO_Real, 0.3 )
 
     DEF_GLOBAL( Save_format, int, 0 )

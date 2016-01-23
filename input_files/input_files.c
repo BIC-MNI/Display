@@ -181,6 +181,18 @@
                 if( Compute_neighbours_on_input )
                     check_polygons_neighbours_computed( polygons );
             }
+            else if ( current_object->object_type == LINES )
+            {
+                lines_struct *lines_ptr = get_lines_ptr( current_object );
+                if (Lines_bintree_threshold >= 0 &&
+                    (lines_ptr->n_items > Lines_bintree_threshold ||
+                     lines_ptr->n_points > Lines_bintree_threshold))
+                {
+                    create_lines_bintree( lines_ptr,
+                                          VIO_ROUND( lines_ptr->n_items *
+                                                     Bintree_size_factor ) );
+                }
+            }
         }
     }
 
