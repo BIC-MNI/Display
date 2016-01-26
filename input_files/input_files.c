@@ -136,6 +136,36 @@
                                      display->three_d.default_marker_type,
                                      &model->n_objects,
                                      &model->objects); //VF:
+
+            /* Hacks to deal with non-world coordinates in foreign object
+             * files.
+             */
+            if ((filename_extension_matches( filename, "dft") ||
+                 filename_extension_matches( filename, "dfc")) &&
+                model->n_objects == 1 &&
+                model->objects[0]->object_type == LINES)
+            {
+                VIO_Real origin[VIO_N_DIMENSIONS];
+                int i;
+                VIO_Volume volume = get_volume(display);
+                lines_struct *lines_ptr = get_lines_ptr( model->objects[0] );
+
+                /* BrainSuite files need to have their points translated by
+                 * the volume file's origin. TODO: Not clear if they may
+                 * also need to be rotated!
+                 */
+                get_transform_origin_real(get_linear_transform_ptr( &volume->voxel_to_world_transform ),
+                                          origin );
+                                        
+                for (i = 0; i < lines_ptr->n_points; i++)
+                {
+                    fill_Point(lines_ptr->points[i],
+                               Point_x(lines_ptr->points[i]) + origin[VIO_X],
+                               Point_y(lines_ptr->points[i]) + origin[VIO_Y],
+                               Point_z(lines_ptr->points[i]) + origin[VIO_Z]);
+                    
+                }
+            }
         }
     }
 
