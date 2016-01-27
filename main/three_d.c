@@ -276,6 +276,7 @@ DEF_MENU_FUNCTION(animation_toggle)
   {
     display->three_d.animation_axis = -1;
   }
+  return VIO_OK;
 }
 
 DEF_MENU_UPDATE(animation_toggle)
