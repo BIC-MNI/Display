@@ -22,7 +22,6 @@
 #include  <display.h>
 
 static    DEF_EVENT_FUNCTION( start_virtual_spaceball );
-static    DEF_EVENT_FUNCTION( turn_off_virtual_spaceball );
 static    DEF_EVENT_FUNCTION( handle_update_rotation );
 static    DEF_EVENT_FUNCTION( terminate_rotation );
 static    DEF_EVENT_FUNCTION( handle_update_translation );
@@ -43,36 +42,18 @@ static  VIO_BOOL  mouse_close_to_cursor(
 void  initialize_virtual_spaceball(
     display_struct   *display )
 {
-    terminate_any_interactions( display );
-
     add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT,
                                start_virtual_spaceball );
-
-    add_action_table_function( &display->action_table,
-                               TERMINATE_INTERACTION_EVENT,
-                               turn_off_virtual_spaceball );
-}
-
-/* ARGSUSED */
-
-static  DEF_EVENT_FUNCTION( turn_off_virtual_spaceball )
-{
-    remove_action_table_function( &display->action_table,
-                                  MIDDLE_MOUSE_DOWN_EVENT,
-                                  start_virtual_spaceball );
-
-    remove_action_table_function( &display->action_table,
-                                  TERMINATE_INTERACTION_EVENT,
-                                  turn_off_virtual_spaceball );
-
-    return( VIO_OK );
 }
 
 /* ARGSUSED */
 
 static  DEF_EVENT_FUNCTION( start_virtual_spaceball )
 {
+    if (is_shift_key_pressed())
+        return VIO_OK;          /* continue processing event. */
+
     if( mouse_close_to_cursor( display ) )
     {
         push_action_table(&display->action_table, NO_EVENT);
@@ -105,7 +86,7 @@ static  DEF_EVENT_FUNCTION( start_virtual_spaceball )
 
     record_mouse_position( display );
 
-    return( VIO_OK );
+    return( VIO_ERROR );        /* stop processing, we handled this. */
 }
 
 static  void  update_rotation(
@@ -332,6 +313,14 @@ static  VIO_BOOL  perform_cursor_translation(
     return( moved );
 }
 
+/**
+ * Test whether the mouse is within an imaginary circle around the 3D
+ * view cursor, where the global ::Cursor_pick_distance defines the
+ * radius of the circle in pixels.
+ *
+ * \param display A pointer to the display_struct of the 3D view window.
+ * \returns TRUE if the cursor is within the circle.
+ */
 static  VIO_BOOL  mouse_close_to_cursor(
     display_struct    *display )
 {

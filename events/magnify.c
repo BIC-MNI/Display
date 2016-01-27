@@ -21,33 +21,27 @@
 #include  <display.h>
 
 static    DEF_EVENT_FUNCTION( start_magnification );
-static    DEF_EVENT_FUNCTION( turn_off_magnification );
-static    DEF_EVENT_FUNCTION( handle_update );
-static    DEF_EVENT_FUNCTION( terminate_magnification );
+static    DEF_EVENT_FUNCTION( change_magnification );
+static    DEF_EVENT_FUNCTION( stop_magnification );
 static    DEF_EVENT_FUNCTION( increase_magnification );
 static    DEF_EVENT_FUNCTION( decrease_magnification );
 static    VIO_BOOL perform_magnification( display_struct *display );
 
 static    DEF_EVENT_FUNCTION(stop_translation);
+static    DEF_EVENT_FUNCTION(change_translation);
 
 /** 
- * This function starts the magnification process. It accomplishes this
- * by installing handlers for the middle mouse down event (\a start_magnification)
- * and a termination event (\a turn_off_magnification).
+ * This function starts the magnification process. It accomplishes
+ * this by installing handlers for the middle mouse down event and a
+ * termination event.
+ *
  * \param display The top-level \a display_struct
  */
 void  initialize_magnification( display_struct *display )
 {
-    terminate_any_interactions( display );
-
-    add_action_table_function( &display->action_table,
-                               TERMINATE_INTERACTION_EVENT,
-                               turn_off_magnification );
-
     add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT,
                                start_magnification );
-
 }
 
 static DEF_EVENT_FUNCTION(change_translation)
@@ -145,75 +139,54 @@ static DEF_EVENT_FUNCTION(decrease_magnification)
 
 /* ARGSUSED */
 
-/** Stops any magnification in progress.
- */
-static  DEF_EVENT_FUNCTION( turn_off_magnification )
-{
-    remove_action_table_function( &display->action_table,
-                                  TERMINATE_INTERACTION_EVENT,
-                                  turn_off_magnification );
-
-    remove_action_table_function( &display->action_table,
-                                  MIDDLE_MOUSE_DOWN_EVENT,
-                                  start_magnification );
-
-    return( VIO_OK );
-}
-
-/* ARGSUSED */
-
 static  DEF_EVENT_FUNCTION( start_magnification )
 {
+    if (!is_shift_key_pressed())
+        return VIO_OK;
+
+    push_action_table(&display->action_table, NO_EVENT);
+
     add_action_table_function( &display->action_table,
                                NO_EVENT,
-                               handle_update );
+                               change_magnification );
 
     add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_UP_EVENT,
-                               terminate_magnification );
+                               stop_magnification );
 
     add_action_table_function( &display->action_table,
                                TERMINATE_INTERACTION_EVENT,
-                               terminate_magnification );
+                               stop_magnification );
 
     record_mouse_position( display );
 
-    return( VIO_OK );
-}
-
-static  void  update_magnification(
-    display_struct   *display )
-{
-    if( perform_magnification( display ) )
-    {
-        update_view( display );
-        set_update_required( display, NORMAL_PLANES );
-    }
+    return( VIO_ERROR );
 }
 
 /* ARGSUSED */
 
-static  DEF_EVENT_FUNCTION( terminate_magnification )
+static  DEF_EVENT_FUNCTION( stop_magnification )
 {
-    update_magnification( display );
+    perform_magnification( display );
     
     remove_action_table_function( &display->action_table,
-                                  NO_EVENT, handle_update );
+                                  NO_EVENT, change_magnification );
     remove_action_table_function( &display->action_table,
                                   MIDDLE_MOUSE_UP_EVENT,
-                                  terminate_magnification );
+                                  stop_magnification );
     remove_action_table_function( &display->action_table,
                                   TERMINATE_INTERACTION_EVENT,
-                                  terminate_magnification );
+                                  stop_magnification );
 
+    pop_action_table(&display->action_table, NO_EVENT);
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-static  DEF_EVENT_FUNCTION( handle_update )
+static  DEF_EVENT_FUNCTION( change_magnification )
 {
-    update_magnification( display );
+    perform_magnification( display );
 
     return( VIO_OK );
 }
@@ -239,6 +212,9 @@ static  VIO_BOOL  perform_magnification(
         magnify_view_size( &display->three_d.view, factor );
 
         moved = TRUE;
+
+        update_view( display );
+        set_update_required( display, NORMAL_PLANES );
     }
 
     return( moved );

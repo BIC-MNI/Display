@@ -297,6 +297,8 @@ static  void  initialize_three_d_events(
     add_action_table_function( &display->action_table, NO_EVENT,
                                handle_mouse_movement );
 
+    initialize_magnification( display );
+
     /* Now install the other mouse handling functions.
      */
     initialize_virtual_spaceball( display );

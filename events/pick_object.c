@@ -43,10 +43,6 @@ void  initialize_picking_object(
 
 static  DEF_EVENT_FUNCTION( start_picking_object )
 {
-    push_action_table( &display->action_table, LEFT_MOUSE_UP_EVENT );
-
-    push_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT );
-
     if (is_shift_key_pressed())
     {
         start_translation(display, event_type, key_pressed);
@@ -68,21 +64,18 @@ static  DEF_EVENT_FUNCTION( start_picking_object )
     return( VIO_OK );
 }
 
-static  void  remove_events(
-    action_table_struct  *action_table )
-{
-    pop_action_table( action_table, LEFT_MOUSE_UP_EVENT );
-    pop_action_table( action_table, TERMINATE_INTERACTION_EVENT );
-
-    remove_action_table_function( action_table, NO_EVENT,
-                                  update_picked_object );
-}
-
 /* ARGSUSED */
 
 static  DEF_EVENT_FUNCTION( terminate_picking_object )
 {
-    remove_events( &display->action_table );
+    remove_action_table_function( &display->action_table, NO_EVENT,
+                                  update_picked_object );
+    remove_action_table_function( &display->action_table,
+                                  TERMINATE_INTERACTION_EVENT,
+                                  terminate_picking_object );
+    remove_action_table_function( &display->action_table,
+                                  LEFT_MOUSE_UP_EVENT,
+                                  terminate_picking_object );
 
     pick_point_under_mouse( display );
 
