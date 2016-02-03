@@ -30,6 +30,9 @@
 /** Define the default arbitrary (oblique) view. */
 #define OBLIQUE_VIEW_INDEX (N_SLICE_VIEWS-1)
 
+/** number of measurement lines supported. */
+#define N_MEASUREMENTS 3
+
 /**
  * Indices associated with each of the slice readout ("probe") text elements.
  */
@@ -743,12 +746,12 @@ typedef struct slice_window
     /**
      * Lines object for the measurement (ctrl+left click) feature.
      */
-    object_struct          *measure_line;
+    object_struct          *measure_line[N_MEASUREMENTS];
 
     /**
      * Text object for the measurement (ctrl+left click) feature.
      */
-    object_struct          *measure_text;
+    object_struct          *measure_text[N_MEASUREMENTS];
 
     /**
      * View index where measurement is taking place.
@@ -758,7 +761,18 @@ typedef struct slice_window
     /**
      * Origin of measurement operation in world coordinates.
      */
-    VIO_Point             measure_origin;
+    VIO_Point             measure_origin[N_MEASUREMENTS];
+
+    /**
+     * Current measure number.
+     */
+    int                   measure_number;
+
+    /**
+     * Profile axis.
+     */
+    int                   profile_axis;
+
 } slice_window_struct;
 
 

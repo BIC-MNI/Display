@@ -298,7 +298,7 @@ static  void      initialize_global_colours( void )
     Slice_probe_ratio_colour = YELLOW;
     Initial_vertex_under_colour = BLACK;
     Initial_vertex_over_colour = WHITE;
-    Measure_colour = RED;
+    Measure_colour = YELLOW;
 }
 
 static  void      initialize_view_to_fit(
