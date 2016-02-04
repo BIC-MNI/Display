@@ -13,6 +13,7 @@
  * lines, but I don't implement it here (yet).
  */
 
+#include "config.h"
 #include <display.h>
 
 /**
