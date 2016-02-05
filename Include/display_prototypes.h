@@ -2884,4 +2884,9 @@ VIO_BOOL get_slice_rulers_visibility( display_struct *slice_window,
 void set_slice_rulers_visibility( display_struct *slice_window,
                                   int            view_index,
                                   VIO_BOOL       state );
+
+/* from slice_window/intensity_plot.c */
+void initialize_intensity_plot(display_struct *display);
+void rebuild_intensity_plot(display_struct *display);
+
 #endif

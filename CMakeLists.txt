@@ -283,6 +283,7 @@ SET(C_SRC
            slice_window/undo.c 
            slice_window/view.c 
            slice_window/outline.c
+           slice_window/intensity_plot.c
            surface_curves/closest_line.c 
            surface_curves/events.c 
            surface_curves/edge_distance.c 

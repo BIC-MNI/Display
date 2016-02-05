@@ -764,14 +764,19 @@ typedef struct slice_window
     VIO_Point             measure_origin[N_MEASUREMENTS];
 
     /**
+     * End of measurement operation in world coordinates.
+     */
+    VIO_Point             measure_end[N_MEASUREMENTS];
+
+    /**
      * Current measure number.
      */
     int                   measure_number;
 
     /**
-     * Profile axis.
+     * Intensity plot axis.
      */
-    int                   profile_axis;
+    int                   intensity_plot_axis;
 
 } slice_window_struct;
 

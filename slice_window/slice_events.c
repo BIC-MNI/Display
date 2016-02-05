@@ -58,7 +58,7 @@ static  void  update_limit(
     VIO_BOOL          fixed_range_flag );
 static  VIO_BOOL  get_mouse_colour_bar_value(
     display_struct   *slice_window,
-    VIO_Real         *value, 
+    VIO_Real         *value,
     VIO_BOOL         nearest);
 static  VIO_BOOL   mouse_is_near_slice_dividers(
     display_struct   *slice_window );
@@ -71,7 +71,7 @@ static void initialize_measurement( display_struct *slice_window );
 
 /**
  * \brief Install handlers for events in the slice window.
- * 
+ *
  * The slice window intercepts standard events like resize and redraw.
  * It also handles left, middle, and right mouse down events, which are
  * used to request various UI tasks.
@@ -148,7 +148,7 @@ prompt_volume_coding_type( display_struct *slice_window )
  * \returns TRUE if the mouse cursor was in the colour bar and no other error
  * occurs.
  */
-static VIO_BOOL  get_colour_bar_positions( display_struct *slice_window, 
+static VIO_BOOL  get_colour_bar_positions( display_struct *slice_window,
                                            VIO_Real *y_lo, VIO_Real *y_hi)
 {
     int               x, y;
@@ -190,8 +190,18 @@ static VIO_BOOL  get_colour_bar_positions( display_struct *slice_window,
     return TRUE;
 }
 
+/**
+ * Static array for fast lookup of the measurement line colours.
+ * TODO: Make N_MEASUREMENTS configurable??
+ * TODO: Make all colours configurable?
+ */
 static VIO_Colour measure_colours[N_MEASUREMENTS];
 
+/**
+ * \brief Initialize the measurement line structures.
+ *
+ * \param slice_window A pointer to the display_struct of the slice window.
+ */
 static void
 initialize_measurement( display_struct *slice_window )
 {
@@ -208,6 +218,15 @@ initialize_measurement( display_struct *slice_window )
     slice_window->slice.measure_number = 0;
 }
 
+/**
+ * \brief Remove the measurement lines from the slice view.
+ *
+ * Called when an event occurs such that the measurement lines need to
+ * be deleted from the slice view - e.g. when the window is resized or
+ * when a non-measurement mouse click occurs.
+ *
+ * \param slice_window A pointer to the display_struct for the slice window.
+ */
 static void
 remove_measurement( display_struct *slice_window )
 {
@@ -238,12 +257,23 @@ remove_measurement( display_struct *slice_window )
     slice_window->slice.measure_number = 0;
 }
 
+/**
+ * \brief Update the position of a measurement line.
+ *
+ * Called in response to mouse movement during a "ctrl-left click"
+ * measurement event.
+ *
+ * \param display A pointer to the display_struct for the window.
+ * \param event_type The event type.
+ * \param key_pressed The keyboard code, if any.
+ * \returns VIO_OK if processing of this event should continue, or
+ * VIO_ERROR if processing should stop.
+ */
 static
 DEF_EVENT_FUNCTION( update_measurement )
 {
     int       volume_index, axis_index;
     VIO_Real  voxel[VIO_MAX_DIMENSIONS];
-    VIO_Point measure_now;
     VIO_Real  wx, wy, wz;
     VIO_Real  px, py;
 
@@ -263,11 +293,11 @@ DEF_EVENT_FUNCTION( update_measurement )
       text_ptr = get_text_ptr( display->slice.measure_text[n_meas] );
       line_ptr = get_lines_ptr( display->slice.measure_line[n_meas] );
       convert_voxel_to_world( volume, voxel, &wx, &wy, &wz );
-      fill_Point( measure_now, wx, wy, wz );
-      
+      fill_Point( display->slice.measure_end[n_meas], wx, wy, wz );
+
       delete_string( text_ptr->string );
       distance = distance_between_points( &display->slice.measure_origin[n_meas],
-                                          &measure_now );
+                                          &display->slice.measure_end[n_meas] );
       sprintf( buffer, "%g", distance );
       text_ptr->string = create_string( buffer );
 
@@ -279,7 +309,7 @@ DEF_EVENT_FUNCTION( update_measurement )
       y1 = Point_y( line_ptr->points[1] );
 
       y_text_off = ((x0 - x1) * (y0 - y1) < 0) ? 4.0 : -12.0;
-      
+
       fill_Point( text_ptr->origin,
                   (x0 + x1) / 2.0 + 4.0,
                   (y0 + y1) / 2.0 + y_text_off,
@@ -296,6 +326,15 @@ DEF_EVENT_FUNCTION( update_measurement )
     return (VIO_OK);
 }
 
+/**
+ * \brief Stop dragging a measurement line.
+ *
+ * \param display A pointer to the display_struct for the window.
+ * \param event_type The event type.
+ * \param key_pressed The keyboard code, if any.
+ * \returns VIO_OK if processing of this event should continue, or
+ * VIO_ERROR if processing should stop.
+ */
 static
 DEF_EVENT_FUNCTION( terminate_measurement )
 {
@@ -310,10 +349,25 @@ DEF_EVENT_FUNCTION( terminate_measurement )
     if (++display->slice.measure_number >= N_MEASUREMENTS)
         display->slice.measure_number = 0;
 
+    /*
+     * Trigger update of the intensity profile graph.
+     */
+    set_slice_cursor_update( display, get_arbitrary_view_index( display ) );
+
     G_set_update_flag( display->window ); /* immediate update */
     return( VIO_OK );
 }
 
+/**
+ * \brief Start dragging a measurement line.
+ *
+ * These are one of N_MEASUREMENTS lines that can be used to show a
+ * specific segment in any direction along the slice view. Each is
+ * displayed with a length in world units (generally mm).
+ *
+ * \param slice_window A pointer to the display_struct for the slice window.
+ * \param view_index The keyboard code, if any.
+ */
 static void
 start_measurement(display_struct *slice_window, int view_index)
 {
@@ -339,7 +393,7 @@ start_measurement(display_struct *slice_window, int view_index)
     {
         return;
     }
-      
+
     VIO_Volume volume = get_nth_volume( slice_window, volume_index );
     VIO_Colour col = measure_colours[n_meas];
     convert_voxel_to_world( volume, voxel, &wx, &wy, &wz );
@@ -393,9 +447,9 @@ start_measurement(display_struct *slice_window, int view_index)
 
 /* ARGSUSED */
 
-/** 
+/**
  * \brief Event handler for left mouse button down events.
- * 
+ *
  * The left mouse button is used to change the current cursor position, if
  * the mouse pointer is over a slice view. If the mouse pointer is near the
  * middle of the slice dividers, this starts adjusting the relative sizes of
@@ -482,7 +536,7 @@ static  DEF_EVENT_FUNCTION( left_mouse_down )
             set_voxel_cursor_from_mouse_position( display );
         }
     }
-    else if (is_shift_key_pressed() && 
+    else if (is_shift_key_pressed() &&
              get_colour_bar_positions( display, &lo_y, &hi_y))
     {
         int x, y;
@@ -540,9 +594,9 @@ static  DEF_EVENT_FUNCTION( left_mouse_down )
  */
 #define OPACITY_DELTA 0.08
 
-/** 
+/**
  * \brief Event handler for scroll down events.
- * 
+ *
  * Changes the zoom level of the slice image under the mouse pointer, or
  * the opacity of the volume if the control key is depressed.
  *
@@ -582,9 +636,9 @@ static  DEF_EVENT_FUNCTION( scroll_down )
     return( VIO_OK );
 }
 
-/** 
+/**
  * \brief Event handler for scroll up events.
- * 
+ *
  * Changes the zoom level of the slice image under the mouse pointer, or
  * the opacity of the volume if the control key is pressed.
  *
@@ -626,13 +680,13 @@ static  DEF_EVENT_FUNCTION( scroll_up )
 
 /* ARGSUSED */
 
-/** 
+/**
  * \brief Event handler for middle mouse button down events.
- * 
+ *
  * The middle mouse button is used to change the current slice, if
  * the mouse pointer is over a slice view and the shift key is not
  * pressed. If the shift key is pressed, then the zoom level will
- * be adjusted. 
+ * be adjusted.
  *
  * If the mouse cursor is over the colour bar, both the upper and
  * lower colour limits will be updated simultaneously.
@@ -757,7 +811,7 @@ static  void  set_slice_voxel_position(
 /* ----------------------------------------------------------------------- */
 
 /**
- * Sets the current volume's voxel cursor position to coincide with the 
+ * Sets the current volume's voxel cursor position to coincide with the
  * position of the mouse pointer.
  *
  * \param slice_window The display_struct of the slice window.
@@ -793,9 +847,9 @@ static  void  update_voxel_cursor(
 
 /* ARGSUSED */
 
-/** 
+/**
  * \brief Event handler for left mouse button up events during cursor movement.
- * 
+ *
  * \param display A pointer to the display_struct for the window.
  * \param event_type The event type.
  * \param key_pressed The keyboard code, if any.
@@ -816,9 +870,9 @@ static  DEF_EVENT_FUNCTION( terminate_picking_voxel )
     return( VIO_OK );
 }
 
-/** 
+/**
  * \brief Event handler for mouse movement events during cursor movement.
- * 
+ *
  * \param display A pointer to the display_struct for the window.
  * \param event_type The event type.
  * \param key_pressed The keyboard code, if any.
@@ -874,9 +928,9 @@ static  void  update_voxel_slice(
 
 /* ARGSUSED */
 
-/** 
+/**
  * \brief Event handler for left mouse button up events during mouse-button slice selection.
- * 
+ *
  * \param display A pointer to the display_struct for the window.
  * \param event_type The event type.
  * \param key_pressed The keyboard code, if any.
@@ -899,9 +953,9 @@ static  DEF_EVENT_FUNCTION( terminate_picking_slice )
 
 /* ARGSUSED */
 
-/** 
+/**
  * \brief Event handler for mouse movement events during mouse-button slice selection.
- * 
+ *
  * \param display A pointer to the display_struct for the window.
  * \param event_type The event type.
  * \param key_pressed The keyboard code, if any.
@@ -943,9 +997,9 @@ static  void  update_voxel_zoom(
 
 /* ARGSUSED */
 
-/** 
+/**
  * \brief Event handler for left mouse button up events during mouse-button zooming.
- * 
+ *
  * \param display A pointer to the display_struct for the window.
  * \param event_type The event type.
  * \param key_pressed The keyboard code, if any.
@@ -968,9 +1022,9 @@ static  DEF_EVENT_FUNCTION( terminate_slice_zooming )
 
 /* ARGSUSED */
 
-/** 
+/**
  * \brief Event handler for mouse movement events during mouse-button zooming.
- * 
+ *
  * \param display A pointer to the display_struct for the window.
  * \param event_type The event type.
  * \param key_pressed The keyboard code, if any.
@@ -986,7 +1040,7 @@ static  DEF_EVENT_FUNCTION( update_slice_zooming )
 
 /* ------------------------------------------------------ */
 
-/** 
+/**
  * Translate the slice view according to the mouse movement. This is used
  * to implement the "Shift+Left button" dragging of the slice views.
  *
@@ -1012,9 +1066,9 @@ static  void  perform_translation(
 
 /* ARGSUSED */
 
-/** 
+/**
  * \brief Event handler for left mouse button up events during mouse-button slice translation.
- * 
+ *
  * \param display A pointer to the display_struct for the window.
  * \param event_type The event type.
  * \param key_pressed The keyboard code, if any.
@@ -1037,9 +1091,9 @@ static  DEF_EVENT_FUNCTION( terminate_translation )
 
 /* ARGSUSED */
 
-/** 
+/**
  * \brief Event handler for mouse movement events during mouse-button slice translation.
- * 
+ *
  * \param display A pointer to the display_struct for the window.
  * \param event_type The event type.
  * \param key_pressed The keyboard code, if any.
@@ -1059,7 +1113,7 @@ static  DEF_EVENT_FUNCTION( update_translation )
 
 /**
  * \brief Trigger update of the voxel position and data readout.
- * 
+ *
  * This function is called in response to "NO_EVENT" events, which
  * generally correspond to timer or mouse movement events. It is
  * used to update the voxel information readout located in the lower
@@ -1153,6 +1207,8 @@ static  DEF_EVENT_FUNCTION( window_size_changed )
 {
     int   view;
 
+    remove_measurement( display );
+
     for_less( view, 0, N_SLICE_VIEWS )
         resize_slice_view( display, view );
 
@@ -1192,7 +1248,7 @@ static  DEF_EVENT_FUNCTION( terminate_picking_low_limit )
 /**
  * \brief Event handler that updates the lower colour coding limit.
  *
- * This function is called in response to a left mouse down or 
+ * This function is called in response to a left mouse down or
  * subsequent mouse drag event. It updates the lower colour coding
  * limit according to the current mouse position.
  *
@@ -1246,7 +1302,7 @@ static  DEF_EVENT_FUNCTION( terminate_picking_high_limit )
 /**
  * \brief Event handler that updates the upper colour coding limit.
  *
- * This function is called in response to a left mouse down or 
+ * This function is called in response to a left mouse down or
  * subsequent mouse drag event. It updates the upper colour coding
  * limit according to the current mouse position.
  *
@@ -1298,7 +1354,7 @@ static  DEF_EVENT_FUNCTION( terminate_picking_both_limits )
 /**
  * \brief Event handler that updates both colour coding limits simultaneously.
  *
- * This function is called in response to a middle mouse down or 
+ * This function is called in response to a middle mouse down or
  * subsequent mouse drag event. It updates both colour coding
  * limits according to the current mouse position.
  *
@@ -1366,7 +1422,7 @@ static  void  update_limit(
             else
             {
 #ifdef CANNOT_MOVE_THROUGH_OTHER_LIMIT
-                if( value > max_value ) 
+                if( value > max_value )
                     min_value = max_value;
                 else
 #endif
@@ -1383,7 +1439,7 @@ static  void  update_limit(
             else
             {
 #ifdef CANNOT_MOVE_THROUGH_OTHER_LIMIT
-                if( value < min_value ) 
+                if( value < min_value )
                     max_value = min_value;
                 else
 #endif
@@ -1417,19 +1473,19 @@ static  void  update_limit(
 
 /**
  * \brief Get the colour bar value associated with the current mouse position.
- * 
+ *
  * If the \p nearest flag is clear, the cursor must be within the colour
  * bar for this function to return TRUE, indicating success.
- * 
- * If the \p nearest flag is set, the value nearest to the current mouse 
- * position is returned in the \p value parameter. This means that the 
+ *
+ * If the \p nearest flag is set, the value nearest to the current mouse
+ * position is returned in the \p value parameter. This means that the
  * mouse can be anywhere on the screen. This is used to "capture" the mouse
  * after the button is pressed.
  *
  * \param slice_window The display_struct of the slice window.
  * \param value A pointer to the location that will receive the colour bar
  * value corresponding to the mouse cursor location.
- * \param nearest A flag indicating that this function should return TRUE 
+ * \param nearest A flag indicating that this function should return TRUE
  * even if the mouse is outside the colour bar (or even the window).
  * \returns TRUE if the colour bar value is valid.
  */
@@ -1461,7 +1517,7 @@ static  VIO_BOOL  get_mouse_colour_bar_value(
 }
 
 /**
- * Returns TRUE if the mouse cursor in the colour bar, and is nearer to the 
+ * Returns TRUE if the mouse cursor in the colour bar, and is nearer to the
  * lower limit of the colour coding range. Used to decide which of the values
  * will be updated on a mouse click in the colour bar.
  *
@@ -1495,7 +1551,7 @@ static  VIO_BOOL  mouse_is_near_low_limit(
 }
 
 /**
- * Returns TRUE if the mouse cursor in the colour bar, and is nearer to the 
+ * Returns TRUE if the mouse cursor in the colour bar, and is nearer to the
  * upper limit of the colour coding range. Used to decide which of the values
  * will be updated on a mouse click in the colour bar.
  *
@@ -1532,11 +1588,11 @@ static  VIO_BOOL  mouse_is_near_high_limit(
 #define  NEAR_ENOUGH  10
 
 /**
- * \brief Check whether the mouse pointer is close to the centre of the 
+ * \brief Check whether the mouse pointer is close to the centre of the
  * slice dividers.
  *
  * Used to detect when a mouse down event should initiate dragging of the
- * slice dividers. 
+ * slice dividers.
  *
  * \param slice_window A pointer to the display_struct of the slice window.
  * \returns TRUE if the mouse pointer is close
@@ -1582,9 +1638,9 @@ static  void  update_slice_dividers(
 
 /* ARGSUSED */
 
-/** 
+/**
  * \brief Event handler for left mouse button up events during movement of the slice dividers.
- * 
+ *
  * \param display A pointer to the display_struct for the window.
  * \param event_type The event type.
  * \param key_pressed The keyboard code, if any.
@@ -1605,9 +1661,9 @@ static  DEF_EVENT_FUNCTION( terminate_setting_slice_dividers )
     return( VIO_OK );
 }
 
-/** 
+/**
  * \brief Event handler for mouse movement events during movement of the slice dividers.
- * 
+ *
  * \param display A pointer to the display_struct for the window.
  * \param event_type The event type.
  * \param key_pressed The keyboard code, if any.

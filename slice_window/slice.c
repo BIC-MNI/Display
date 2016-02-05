@@ -168,6 +168,7 @@ static  void  initialize_slice_window(
     }
 
     initialize_ratio( slice_window );
+    initialize_intensity_plot( slice_window );
 }
 
 static void initialize_ratio (display_struct* slice_window)
@@ -1122,6 +1123,15 @@ static  void  render_more_slices(
             original_sub_region_specified[view] &&
             slice_window->slice.incremental_update_allowed )
             one_buffer_flag[view] = FALSE;
+    }
+
+    for_less( view, 0, N_SLICE_VIEWS )
+    {
+        if (slice_window->slice.slice_views[view].update_cursor_flag)
+        {
+            rebuild_intensity_plot( slice_window );
+            break;
+        }
     }
 
     if( slice_window->slice.update_slice_dividers_flag )

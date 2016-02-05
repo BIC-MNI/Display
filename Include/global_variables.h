@@ -217,6 +217,14 @@ START_GLOBALS
     DEF_GLOBAL( Cursor_mouse_threshold, VIO_Real, 0.0 )
     DEF_GLOBAL( Max_cursor_angle, VIO_Real, 20.0 )
     DEF_GLOBAL( Min_cursor_angle_diff, VIO_Real, 5.0 )
+/**
+ * Defines the radius in pixels of an imaginary circle around the
+ * cursor in the 3D view. If the mouse pointer is within this circle,
+ * a middle mouse click will start translating the cursor position
+ * rather than rotating the 3D view.
+ *
+ * See mouse_close_to_cursor()
+ */
     DEF_GLOBAL( Cursor_pick_distance, VIO_Real, 10.0 )
 
     DEF_GLOBAL_COLOUR( Slice_cross_section_colour )
@@ -539,8 +547,13 @@ START_GLOBALS
      DEF_GLOBAL( Measure_text_font, int, 0 )
 
 /**
- * Defines the colour used to measurement display.
+ * Defines the colour used for the measurement display.
  */
      DEF_GLOBAL_COLOUR( Measure_colour )
+
+/**
+ * Defines the initial value for the intensity plot axis.
+ */
+     DEF_GLOBAL( Initial_intensity_plot_axis, int, -1 )
 END_GLOBALS
 /** @} */
