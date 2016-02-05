@@ -608,6 +608,7 @@ void  initialize_slice_colour_coding(
     Colour_coding_types colour_coding_type = Current_colour_coding_type;
     loaded_volume_struct *loaded_volume_ptr;
     VIO_Volume         volume;
+    VIO_Real           colour_below, colour_above;
 
     /* For volumes after the first, adopt a different color coding
      * scheme than the default.
@@ -616,13 +617,19 @@ void  initialize_slice_colour_coding(
         colour_coding_type == (Colour_coding_types) Initial_colour_coding_type)
     {
         colour_coding_type = SPECTRAL;
+        colour_below = make_rgba_Colour(0, 0, 0, 0);
     }
+    else
+    {
+        colour_below = Colour_below;
+    }
+    colour_above = Colour_above;
 
     loaded_volume_ptr = &slice_window->slice.volumes[volume_index];
 
     initialize_colour_coding(&loaded_volume_ptr->colour_coding,
                              colour_coding_type,
-                             Colour_below, Colour_above, 0.0, 1.0 );
+                             colour_below, colour_above, 0.0, 1.0 );
 
     loaded_volume_ptr->label_colour_opacity = Label_colour_opacity;
     loaded_volume_ptr->n_labels = Initial_num_labels;
