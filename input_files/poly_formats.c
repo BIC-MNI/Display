@@ -21,7 +21,7 @@
  * of an MNI polygonal surface.
  *
  * This function will write a SINGLE polygonal surface object, with 
- * o colour information. These files do not support vertex or face colouring.
+ * no colour information. These files do not support vertex or face colouring.
  *
  * References:
  * https://en.wikipedia.org/wiki/Wavefront_.obj_file
