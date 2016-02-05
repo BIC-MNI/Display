@@ -568,8 +568,6 @@ static  void  update_graphics_overlay_planes_only(
 static  void  update_graphics_normal_planes_only( display_struct *display )
 {
     VIO_Real      start, end;
-    int           i;
-    VIO_BOOL      out_of_date;
 
     start = current_realtime_seconds();
 
