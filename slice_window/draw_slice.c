@@ -30,7 +30,6 @@ void  initialize_slice_models(
     int               i, view;
     VIO_Point             point;
     lines_struct      *lines;
-    polygons_struct   *polygons;
     object_struct     *object;
     model_struct      *model;
     VIO_Colour            colour;
