@@ -853,6 +853,74 @@ update_vertex_colour_coding( display_struct *display,
     set_update_required( display, NORMAL_PLANES );
 }
 
+
+/**
+ * \brief Copy used-defined colour coding from one colour_coding_struct
+ * to another.
+ *
+ * Since there is only one place in the user interface to load a custom
+ * colour coding, it can be useful to copy the loaded custom values into
+ * one of the vertex colour coding objects. Unfortunately there was no
+ * way to do this. TODO: Move this code to bicpl?
+ *
+ * \param dst_ptr Pointer to destination colour_coding_struct.
+ * \param src_ptr Pointer to source colour_coding_struct.
+ * \returns TRUE if the source has valid user-defined colour coding
+ * information and the operation was successful, or if the destination
+ * already has what appears to be valid colour coding information.
+ */
+static VIO_BOOL
+copy_user_defined_colour_coding(colour_coding_struct *dst_ptr,
+                                const colour_coding_struct *src_ptr)
+{
+    if (src_ptr->user_defined_n_colour_points <= 0)
+    {
+        return (dst_ptr->user_defined_n_colour_points > 0);
+    }
+
+    if (dst_ptr->user_defined_n_colour_points > 0)
+        FREE( dst_ptr->user_defined_colour_points );
+
+    ALLOC( dst_ptr->user_defined_colour_points,
+           src_ptr->user_defined_n_colour_points );
+
+    dst_ptr->user_defined_n_colour_points =
+      src_ptr->user_defined_n_colour_points;
+
+    memcpy(dst_ptr->user_defined_colour_points,
+           src_ptr->user_defined_colour_points,
+           (src_ptr->user_defined_n_colour_points *
+            sizeof (src_ptr->user_defined_colour_points[0])));
+
+    return TRUE;
+}
+
+/**
+ * \brief Copy the user-defined colour coding from the slice window.
+ *
+ * \param display A pointer to the display_struct of the 3D view window.
+ * \param vtxd_ptr A pointer to the vertex_display_struct to receive the
+ * colour coding information.
+ * \returns TRUE if it is ok to adopt the user-defined colour coding.
+ */
+static VIO_BOOL
+get_colour_coding_from_slice_view( display_struct *display,
+                                   vertex_data_struct *vtxd_ptr)
+{
+    display_struct *slice_window;
+    int            volume_index;
+
+    if (!get_slice_window( display, &slice_window ))
+        return FALSE;
+
+    volume_index = get_current_volume_index( slice_window );
+    if (volume_index < 0)
+        return FALSE;
+
+    return copy_user_defined_colour_coding( &vtxd_ptr->colour_coding,
+                   &slice_window->slice.volumes[volume_index].colour_coding );
+}
+
 /**
  * Prompt the user to select the colour coding type for the vertex colour
  * coding.
@@ -869,11 +937,18 @@ prompt_vertex_coding_type( display_struct *display,
                            vertex_data_struct *vtxd_ptr )
 {
     Colour_coding_types cc_type;
+    VIO_Status status;
 
-    if( get_user_coding_type( "Select a new colour coding type", &cc_type ) == VIO_OK )
+    status = get_user_coding_type( "Select a new colour coding type",
+                                   &cc_type );
+    if (status == VIO_OK)
     {
-        set_colour_coding_type( &vtxd_ptr->colour_coding, cc_type );
-        update_vertex_colour_coding( display, vtxd_ptr );
+        if (cc_type != USER_DEFINED_COLOUR_MAP ||
+            get_colour_coding_from_slice_view( display, vtxd_ptr ))
+        {
+            set_colour_coding_type( &vtxd_ptr->colour_coding, cc_type );
+            update_vertex_colour_coding( display, vtxd_ptr );
+        }
     }
 }
 

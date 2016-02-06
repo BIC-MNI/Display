@@ -1017,7 +1017,7 @@ get_user_coding_type(const char *prompt, Colour_coding_types *cc_type_ptr)
     VIO_STR line;
     char *or_bar_ptr;
     static const char colour_coding[] = {
-        "Gray Spectral \"Hot Metal\" Red Blue Green"
+        "Gray Spectral \"Hot Metal\" Red Blue Green User-Defined"
     };
 
     if (Use_zenity_for_input)
@@ -1069,6 +1069,8 @@ get_user_coding_type(const char *prompt, Colour_coding_types *cc_type_ptr)
         *cc_type_ptr = BLUE_COLOUR_MAP;
     else if (!strcmp(line, "Green"))
         *cc_type_ptr = GREEN_COLOUR_MAP;
+    else if (!strcmp(line, "User-Defined"))
+        *cc_type_ptr = USER_DEFINED_COLOUR_MAP;
     else
         *cc_type_ptr = SPECTRAL;
 
