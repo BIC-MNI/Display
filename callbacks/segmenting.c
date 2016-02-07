@@ -302,12 +302,14 @@ input_label_volume_file(display_struct *display,
                         VIO_STR        filename )
 {
     int              range[2][VIO_N_DIMENSIONS];
+    int              sizes[VIO_MAX_DIMENSIONS];
     VIO_Status       status;
     display_struct   *slice_window;
     int              volume_index;
     VIO_Data_types   data_type;
     VIO_Real         voxel_range[2];
     VIO_Real         real_range[2];
+    int              i;
 
     status = VIO_OK;
 
@@ -343,7 +345,16 @@ input_label_volume_file(display_struct *display,
         range[0][VIO_X] = 0;
         range[0][VIO_Y] = 0;
         range[0][VIO_Z] = 0;
-        get_volume_sizes( get_volume(slice_window), range[1] );
+
+        /* Get sizes through an intermediate variable, since
+         * there can be more than three dimensions in the file
+         * itself.
+         */
+        get_volume_sizes( get_volume(slice_window), sizes );
+        for (i = 0; i < VIO_N_DIMENSIONS; i++)
+        {
+            range[1][i] = sizes[i];
+        }
         tell_surface_extraction_range_of_labels_changed( display,
                                                          volume_index,
                                                          range );
