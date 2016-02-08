@@ -142,7 +142,11 @@ START_GLOBALS
     DEF_GLOBAL( Slice_divider_right, int, 5 )
     DEF_GLOBAL( Slice_divider_top, int, 5 )
     DEF_GLOBAL( Slice_divider_bottom, int, 5 )
+/** Sets the initial X position of the slice dividers, as a fraction
+    of the overall slice view area. */
     DEF_GLOBAL( Slice_divider_x_position, VIO_Real, 0.5 )
+/** Sets the initial Y position of the slice dividers, as a fraction
+    of the overall slice view area. */
     DEF_GLOBAL( Slice_divider_y_position, VIO_Real, 0.5 )
     DEF_GLOBAL( Left_panel_width, int, 90 )
     DEF_GLOBAL( Text_panel_height, int, 200 )
