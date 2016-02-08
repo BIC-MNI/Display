@@ -32,7 +32,7 @@ VIO_Real get_nice_value(VIO_Real x)
   double l10 = log10(x);
   double t1 = pow(10.0, floor(1-l10));
   double t2 = round(x * t1);
-  return t2 / t1;
+  return round(t2 / t1);
 }
 
 /**
@@ -76,8 +76,8 @@ initialize_intensity_plot(display_struct *display)
  * \returns An pointer to a text object.
  */
 static object_struct *
-create_tick_label(int position, const VIO_Point *tick_pt, VIO_BOOL is_x_axis,
-                  int tick_length)
+create_tick_label(VIO_Real position, const VIO_Point *tick_pt, 
+                  VIO_BOOL is_x_axis, int tick_length)
 {
   object_struct *object_ptr;
   text_struct   *text_ptr;
@@ -91,7 +91,7 @@ create_tick_label(int position, const VIO_Point *tick_pt, VIO_BOOL is_x_axis,
     return NULL;
 
   set_object_visibility( object_ptr, TRUE );
-  snprintf( label, sizeof( label ) - 1, "%d", position );
+  snprintf( label, sizeof( label ) - 1, "%g", position );
 
   cw = G_get_text_length( label, Colour_bar_text_font, Colour_bar_text_size );
 
@@ -152,11 +152,8 @@ rebuild_intensity_plot(display_struct *display)
 
   get_volume_real_range( volume, &min_value, &max_value );
 
-  int x_index;
-  if (display->slice.intensity_plot_axis >= 0)
-    x_index = display->slice.intensity_plot_axis;
-  else
-    x_index = (get_volume_n_dimensions( volume ) > 3) ? VIO_T : VIO_X;
+  char temp[128];
+  snprintf( temp, sizeof(temp) - 1, "%g", max_value );
 
   VIO_Real max_data = -DBL_MAX;
   VIO_Real min_data = DBL_MAX;
@@ -165,6 +162,7 @@ rebuild_intensity_plot(display_struct *display)
   VIO_Vector step;
   int i;
   int sizes[VIO_MAX_DIMENSIONS];
+  int x_index;
 
   get_volume_sizes( volume, sizes );
 
@@ -173,27 +171,118 @@ rebuild_intensity_plot(display_struct *display)
   int n_meas = slice_window->slice.measure_number - 1;
   if (n_meas < 0)
     n_meas = N_MEASUREMENTS - 1;
+
   if (slice_window->slice.measure_line[n_meas] != NULL)
   {
     pt_start = slice_window->slice.measure_origin[n_meas];
     pt_end = slice_window->slice.measure_end[n_meas];
+    x_index = -1;
   }
   else
   {
     VIO_Real voxel_start[VIO_MAX_DIMENSIONS];
     VIO_Real voxel_end[VIO_MAX_DIMENSIONS];
+    int      axis_index = -1;
+    int      view_index;
+
+    get_slice_view_index_under_mouse( display, &view_index );
+
+    if (display->slice.intensity_plot_axis >= 0)
+    {
+      x_index = display->slice.intensity_plot_axis;
+    }
+    else
+    {
+      if (get_volume_n_dimensions( volume ) > 3)
+      {
+        x_index = VIO_T;
+      }
+      else if (get_axis_index_under_mouse( display, &volume_index, &axis_index ))
+      {
+        /* The zooming behavior would be somewhat strange if we always
+         * used the perpendicular axis for the plot axis, because the
+         * perpendicular axis doesn't zoom from the user's
+         * perspective. To make zooming somewhat intuitive, I assign
+         * axes to the intensity plot according to the following
+         * reasoning:
+         *
+         * 1. We should always either the row or column axis of a slice
+         *    as the axis for the intensity plot, so that zooming and
+         *    panning can be used to adjust the horizontal axis of the
+         *    intensity plot.
+         *   
+         * 2. Since X is the column axis for two plots, and Z is the row
+         *    axis for for two, there is no way to have a simple rule like
+         *    "always use the row axis" - we'd always miss an axis.
+         *
+         * 3. So we use the column (width) axis for the view with perpendicular
+         *    X and Z, which gives us Y and X. We use the row (height) axis for
+         *    the view with perpendicular Y, since we covered it's width 
+         *    axis elsewhere.
+         */
+        switch (axis_index) {
+        case VIO_X:
+          x_index = VIO_Y;      /* width */
+          break;
+        case VIO_Y:
+          x_index = VIO_Z;      /* height */
+          break;
+        default:
+          x_index = VIO_X;      /* width */
+          break;
+        }
+      }
+      else
+      {
+        x_index = VIO_X;
+      }
+    }
 
     get_current_voxel( slice_window, volume_index, voxel );
 
-    for (i = 0; i < VIO_MAX_DIMENSIONS; i++)
+    /* Copy non-spatial dimensions unchanged. */
+    for (i = VIO_N_DIMENSIONS; i < VIO_MAX_DIMENSIONS; i++)
     {
       voxel_start[i] = voxel[i];
       voxel_end[i] = voxel[i];
       world_start[i] = voxel[i];
       world_end[i] = voxel[i];
     }
-    voxel_start[x_index] = world_start[x_index] = 0;
-    voxel_end[x_index] = world_end[x_index] = sizes[x_index] - 1;
+
+    if (axis_index < 0)
+    {
+      voxel_start[x_index] = world_start[x_index] = 0;
+      voxel_end[x_index] = world_end[x_index] = sizes[x_index] - 1;
+    }
+    else
+    {
+      VIO_Real x, y;
+      int x_min, x_max;
+      int y_min, y_max;
+
+      get_slice_viewport( slice_window, view_index,
+                          &x_min, &x_max, &y_min, &y_max);
+
+      convert_voxel_to_pixel( display, volume_index, view_index, voxel,
+                              &x, &y); 
+      x += x_min;
+      y += y_min;
+
+      if (axis_index == VIO_Y)
+      {
+        x_min = x_max = x;
+      }
+      else
+      {
+        y_min = y_max = y;
+      }
+
+      convert_pixel_to_voxel( display, volume_index, x_min, y_min,
+                              voxel_start, &view_index);
+
+      convert_pixel_to_voxel( display, volume_index, x_max, y_max,
+                              voxel_end, &view_index );
+    }
 
     convert_voxel_to_world( volume, voxel_start, 
                             &world_start[VIO_X],
@@ -251,8 +340,8 @@ rebuild_intensity_plot(display_struct *display)
 
   if (!use_volume_range)
   {
-    min_value = min_data;
-    max_value = max_data;
+    min_value = floor(min_data);
+    max_value = ceil(max_data);
   }
 
   object_struct *object_ptr = model_ptr->objects[1];
@@ -271,9 +360,6 @@ rebuild_intensity_plot(display_struct *display)
 
   get_slice_viewport( slice_window, arb_view_index,
                       &x_min, &x_max, &y_min, &y_max);
-
-  char temp[128];
-  snprintf( temp, sizeof(temp) - 1, "%g", max_value );
 
   const int cx_axis = 10 + G_get_text_length( temp, Colour_bar_text_font,
                                               Colour_bar_text_size );
@@ -340,7 +426,15 @@ rebuild_intensity_plot(display_struct *display)
   initialize_text( text_ptr, &pt, Colour_bar_text_colour, Colour_bar_text_font,
                    Colour_bar_text_size+2 );
 
-  text_ptr->string = create_string( "mm" );
+  if (x_index < 0)
+  {
+    text_ptr->string = create_string( "mm" );
+  }
+  else
+  {
+    const char *axis_names[] = {"X", "Y", "Z", "T", "V"};
+    text_ptr->string = create_string( axis_names[x_index] );
+  }
   add_object_to_model( model_ptr, object_ptr );
 
   /* Add the Y-axis tick marks */
@@ -365,3 +459,21 @@ rebuild_intensity_plot(display_struct *display)
 
   set_slice_viewport_update( slice_window, FULL_WINDOW_MODEL );
 }
+
+DEF_MENU_FUNCTION(toggle_intensity_plot_scaling)
+{
+}
+
+DEF_MENU_UPDATE(toggle_intensity_plot_scaling)
+{
+}
+
+DEF_MENU_FUNCTION(toggle_intensity_plot_axis)
+{
+}
+
+DEF_MENU_UPDATE(toggle_intensity_plot_axis)
+{
+}
+
+
