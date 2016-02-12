@@ -41,6 +41,40 @@ DEF_MENU_UPDATE(make_view_fit )
     return( TRUE );
 }
 
+/**
+ * Perform an application-wide reset of the cursor position. This should
+ * put the cursor back where it was when the application launched.
+ * \param display A pointer to the display_struct of a top-level window.
+ */
+void
+app_reset_cursor_position( display_struct *display )
+{
+    /* If volumes are loaded, we want to do this through the slice
+     * window.
+     */
+    if ( get_n_volumes( display ) != 0 )
+    {
+        int volume_index  = get_current_volume_index( display );
+        VIO_Volume volume = get_nth_volume( display, volume_index );
+        display_struct      *slice_window;
+        VIO_Real            voxel[VIO_MAX_DIMENSIONS];
+
+        get_slice_window( display, &slice_window );
+
+        convert_world_to_voxel( volume,
+                                Point_x(display->three_d.centre_of_objects),
+                                Point_y(display->three_d.centre_of_objects),
+                                Point_z(display->three_d.centre_of_objects),
+                                voxel );
+        if( set_current_voxel( slice_window, volume_index, voxel ))
+            update_cursor_from_voxel( slice_window );
+    }
+    else
+    {
+        reset_cursor( display ); /* Reset 3D window only. */
+    }
+}
+
 /* ARGSUSED */
 
 DEF_MENU_FUNCTION( reset_view )
@@ -48,6 +82,8 @@ DEF_MENU_FUNCTION( reset_view )
     reset_view_parameters( display,
                            &Default_line_of_sight, &Default_horizontal );
 
+    app_reset_cursor_position( display );
+    
     update_view( display );
 
     set_update_required( display, NORMAL_PLANES );
