@@ -743,35 +743,44 @@ typedef struct slice_window
      */
     outline_struct         outlines[N_SLICE_VIEWS];
 
-    /**
-     * Lines object for the measurement (ctrl+left click) feature.
-     */
-    object_struct          *measure_line[N_MEASUREMENTS];
-
+    /** Measurement line structure */
+    struct measurement_line {
+      /**
+       * Lines object for the measurement (ctrl+left click) feature.
+       */
+      object_struct *line;
     /**
      * Text object for the measurement (ctrl+left click) feature.
      */
-    object_struct          *measure_text[N_MEASUREMENTS];
-
-    /**
-     * View index where measurement is taking place.
-     */
-    int                    measure_view;
-
+      object_struct *text;
     /**
      * Origin of measurement operation in world coordinates.
      */
-    VIO_Point             measure_origin[N_MEASUREMENTS];
+      VIO_Point      origin;
 
     /**
      * End of measurement operation in world coordinates.
      */
-    VIO_Point             measure_end[N_MEASUREMENTS];
+      VIO_Point       end;
+
+    /**
+     * Array for fast lookup of the measurement line colours.
+     * TODO: Make N_MEASUREMENTS configurable??
+     * TODO: Make all colours configurable?
+     */
+      VIO_Colour       colour;
+    } measure[N_MEASUREMENTS];
+
+    /**
+     * View index where measurement operations are taking place.
+     */
+    int                    measure_view;
 
     /**
      * Current measure number.
      */
     int                   measure_number;
+
 
     /**
      * Intensity plot axis.

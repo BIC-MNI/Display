@@ -190,12 +190,6 @@ static VIO_BOOL  get_colour_bar_positions( display_struct *slice_window,
     return TRUE;
 }
 
-/**
- * Static array for fast lookup of the measurement line colours.
- * TODO: Make N_MEASUREMENTS configurable??
- * TODO: Make all colours configurable?
- */
-static VIO_Colour measure_colours[N_MEASUREMENTS];
 
 /**
  * \brief Initialize the measurement line structures.
@@ -208,12 +202,15 @@ initialize_measurement( display_struct *slice_window )
     int i;
     for (i = 0; i < N_MEASUREMENTS; i++)
     {
-        slice_window->slice.measure_line[i] = NULL;
-        slice_window->slice.measure_text[i] = NULL;
+        slice_window->slice.measure[i].line = NULL;
+        slice_window->slice.measure[i].text = NULL;
+        if (i == 0)
+          slice_window->slice.measure[i].colour = Measure_colour;
+        else if (i == 1)
+          slice_window->slice.measure[i].colour = MAGENTA;
+        else
+          slice_window->slice.measure[i].colour = CYAN;
     }
-    measure_colours[0] = Measure_colour;
-    measure_colours[1] = MAGENTA;
-    measure_colours[2] = CYAN;
     slice_window->slice.measure_view = -1;
     slice_window->slice.measure_number = 0;
 }
@@ -240,17 +237,17 @@ remove_measurement( display_struct *slice_window )
     model_ptr = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
     for (i = 0; i < N_MEASUREMENTS; i++)
     {
-      if (slice_window->slice.measure_line[i] != NULL)
+      if (slice_window->slice.measure[i].line != NULL)
       {
         remove_object_from_model( model_ptr,
-                                  slice_window->slice.measure_line[i] );
+                                  slice_window->slice.measure[i].line );
         remove_object_from_model( model_ptr,
-                                  slice_window->slice.measure_text[i] );
-        delete_object( slice_window->slice.measure_line[i] );
-        delete_object( slice_window->slice.measure_text[i] );
+                                  slice_window->slice.measure[i].text );
+        delete_object( slice_window->slice.measure[i].line );
+        delete_object( slice_window->slice.measure[i].text );
 
-        slice_window->slice.measure_line[i] = NULL;
-        slice_window->slice.measure_text[i] = NULL;
+        slice_window->slice.measure[i].line = NULL;
+        slice_window->slice.measure[i].text = NULL;
       }
     }
     slice_window->slice.measure_view = -1; /* Unassociated. */
@@ -288,16 +285,16 @@ DEF_EVENT_FUNCTION( update_measurement )
       VIO_Real x0, x1;
       VIO_Real y0, y1;
       VIO_Real y_text_off;
-      int n_meas = display->slice.measure_number;
+      struct measurement_line *meas_ptr = 
+        &display->slice.measure[display->slice.measure_number];
 
-      text_ptr = get_text_ptr( display->slice.measure_text[n_meas] );
-      line_ptr = get_lines_ptr( display->slice.measure_line[n_meas] );
+      text_ptr = get_text_ptr( meas_ptr->text );
+      line_ptr = get_lines_ptr( meas_ptr->line );
       convert_voxel_to_world( volume, voxel, &wx, &wy, &wz );
-      fill_Point( display->slice.measure_end[n_meas], wx, wy, wz );
+      fill_Point( meas_ptr->end, wx, wy, wz );
 
       delete_string( text_ptr->string );
-      distance = distance_between_points( &display->slice.measure_origin[n_meas],
-                                          &display->slice.measure_end[n_meas] );
+      distance = distance_between_points( &meas_ptr->origin, &meas_ptr->end );
       sprintf( buffer, "%g", distance );
       text_ptr->string = create_string( buffer );
 
@@ -378,7 +375,7 @@ start_measurement(display_struct *slice_window, int view_index)
     text_struct  *text_ptr;
     model_struct *model_ptr;
     VIO_Real     px, py;
-    int          n_meas;
+    struct measurement_line *meas_ptr;
 
     if (slice_window->slice.measure_view != -1 &&
         slice_window->slice.measure_view != view_index)
@@ -386,7 +383,7 @@ start_measurement(display_struct *slice_window, int view_index)
         remove_measurement( slice_window );
     }
 
-    n_meas = slice_window->slice.measure_number;
+    meas_ptr = &slice_window->slice.measure[slice_window->slice.measure_number];
 
     if( !get_voxel_in_slice_window( slice_window, voxel, &volume_index,
                                     &axis_index ) )
@@ -395,15 +392,15 @@ start_measurement(display_struct *slice_window, int view_index)
     }
 
     VIO_Volume volume = get_nth_volume( slice_window, volume_index );
-    VIO_Colour col = measure_colours[n_meas];
+    VIO_Colour col = meas_ptr->colour;
     convert_voxel_to_world( volume, voxel, &wx, &wy, &wz );
-    fill_Point( slice_window->slice.measure_origin[n_meas], wx, wy, wz );
+    fill_Point( meas_ptr->origin, wx, wy, wz );
 
-    if (slice_window->slice.measure_line[n_meas] == NULL)
+    if (meas_ptr->line == NULL)
     {
-        slice_window->slice.measure_line[n_meas] = create_object( LINES );
-        line_ptr = get_lines_ptr( slice_window->slice.measure_line[n_meas] );
-        set_object_visibility( slice_window->slice.measure_line[n_meas], TRUE );
+        meas_ptr->line = create_object( LINES );
+        line_ptr = get_lines_ptr( meas_ptr->line );
+        set_object_visibility( meas_ptr->line, TRUE );
 
         initialize_lines(line_ptr, col );
         line_ptr->n_points = 2;
@@ -415,9 +412,9 @@ start_measurement(display_struct *slice_window, int view_index)
         line_ptr->indices[0] = 0;
         line_ptr->indices[1] = 1;
 
-        slice_window->slice.measure_text[n_meas] = create_object( TEXT );
-        text_ptr = get_text_ptr( slice_window->slice.measure_text[n_meas] );
-        set_object_visibility( slice_window->slice.measure_text[n_meas], TRUE );
+        meas_ptr->text = create_object( TEXT );
+        text_ptr = get_text_ptr( meas_ptr->text );
+        set_object_visibility( meas_ptr->text, TRUE );
 
         initialize_text( text_ptr, NULL, col,
                          Measure_text_font,
@@ -425,14 +422,12 @@ start_measurement(display_struct *slice_window, int view_index)
 
         model_ptr = get_graphics_model( slice_window,
                                         SLICE_MODEL1 + view_index );
-        add_object_to_model( model_ptr,
-                             slice_window->slice.measure_line[n_meas] );
-        add_object_to_model( model_ptr,
-                             slice_window->slice.measure_text[n_meas] );
+        add_object_to_model( model_ptr, meas_ptr->line );
+        add_object_to_model( model_ptr, meas_ptr->text );
     }
     else
     {
-        line_ptr = get_lines_ptr( slice_window->slice.measure_line[n_meas] );
+        line_ptr = get_lines_ptr( meas_ptr->line );
     }
 
     convert_voxel_to_pixel( slice_window, volume_index, view_index,

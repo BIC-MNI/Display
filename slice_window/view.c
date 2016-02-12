@@ -637,7 +637,7 @@ void  resize_slice_view(
  * \param volume_index The index of the volume to use.
  * \returns The step size with the minimum magnitude (absolute value).
  */
-static VIO_Real
+VIO_Real
 get_volume_min_step(display_struct *slice_window, int volume_index)
 {
   VIO_Volume volume = get_nth_volume(slice_window, volume_index);
@@ -801,7 +801,6 @@ VIO_BOOL  find_slice_view_mouse_is_in(
  *
  * \param display A pointer to a display_struct.
  * \param volume_index The zero-based index of the desired volume.
- * \param view_index The index of one of the four slice view panels.
  * \param x_pixel The x pixel coordinate relative to the window.
  * \param y_pixel The y pixel coordinate relative to the window.
  * \param voxel Receives the voxel coordinate.
