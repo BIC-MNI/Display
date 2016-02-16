@@ -134,7 +134,7 @@ involve core functionality.
 terminal window.
 \end{itemize}
 
-The new version also includes many bug fixes and performance inprovements.
+The new version also includes many bug fixes and performance improvements.
 
 \section{Installing and Running \display{}}
 
@@ -200,7 +200,7 @@ Note that the above files may be compressed.  If the file ends in
 Note that you can load more than one of either the volumetric images or
 the 3D object files. If you do load multiple files of the same type,
 they will be displayed in the appropriate window
-simultanously. \display{} will attempt to overlay the two images, as
+simultaneously. \display{} will attempt to overlay the two images, as
 long as they are in approximately the same location relative to the
 world coordinate space.
 
@@ -489,7 +489,7 @@ system.
 
 In other words, every loaded volume has one ``voxel'' colour map that
 is used for translating the values of the original volumetric dataset
-into a set of colors, and there is a second ``label'' colour map used
+into a set of colours, and there is a second ``label'' colour map used
 to translate each user-assigned label value into a colour.
 
 The slice window will also display a ``trace'' of any registered
@@ -731,19 +731,19 @@ slice window is opened, if not already opened.
 \item[\menutwo{Slice View}{Toggle Slice Visibility}] If the mouse is in the slice
   window and is pointing to one of the 4 slices, then the visibility
   of that slice for the current volume is toggled.
-\item[\menutwo{Slice}{Box Filter Volume}]  Prompts for 3 box filter
+\item[\menutwo{Slice View}{Box Filter Volume}]  Prompts for 3 box filter
  widths and another specifier.  If the specifier is the
  character ``w'', then the
  filter widths are assumed to be in world coordinates, otherwise
  it is assumed to be voxel coordinates. The current volume is resampled
  using a box filter, creating new volume which is overlaid on the original volume.
-\item[\menutwo{Slice}{Resample Volume}]  Prompts for 3 size parameter and
+\item[\menutwo{Slice View}{Resample Volume}]  Prompts for 3 size parameter and
   resamples the current volume to the given size, creating another
   volume.  Creates a volume with a smaller number of voxels by box
   filtering.  It is preferable to use \menutwo{Slice}{Box Filter Volume},
   which maintains the number of voxels.
-\item[\menutwo{SliceView }{Create 3D Slice}] Creates and displays a flat, colorized rendering of the slice pointed to by the mouse in the 3D window.
-\item[\menutwo{SliceView }{Create 3D Profile}] Creates and displays a 3D object surface reflecting the relative intensities of the voxels in the current slice.
+\item[\menutwo{Slice View}{Create 3D Slice}] Creates and displays a flat, colourized rendering of the slice pointed to by the mouse in the 3D window.
+\item[\menutwo{Slice View}{Create 3D Profile}] Creates and displays a 3D object surface reflecting the relative intensities of the voxels in the current slice.
 \item[\menutwo{Slice View}{Recompute Histogram}] Creates a histogram of
   values in the current volume, which is displayed in the slice view
   window near the colour coding bar. If the mouse is pointing to a
@@ -772,7 +772,7 @@ slice window is opened, if not already opened.
  slice in the 3D window, the orientation of the current view slice
  can be chosen from within the slice window.  After selecting this command, 
  the left mouse button selects a position on one of the other slices.  The
- line through the slice cursur and this position is used to define
+ line through the slice cursor and this position is used to define
  the slice plane of the current view slice.
 \item[\menutwo{Slice View}{Toggle Slice Anchor}]  Turns on and off the anchoring
  of the current view slice to pass through the cross section of the
@@ -1125,20 +1125,22 @@ of the surface extraction.
     Note that as the user paints and erases labels, the 3D surface will update
     to reflect the changes.
 \item[\menutwo{Create Surface}{Label Voxelate}]  Same as
-    \menutwo{Create Surface}{Volume Voxelate} exc\-ept it operates on
+    \menutwo{Create Surface}{Volume Voxelate} except it operates on
     the label volume.  For instance, if the user has painted a region
     with label 1, then to create a 3D voxelated surface of this region,
     select this menu option, and type in ``1 1'' for the min and max values.
 \item[\menutwo{Create Surface}{Extracting}]  If a surface extraction
     is in progress, this button toggles the extraction process on and
     off.  This allows suspension and resumption of surface extraction.
-\item[\menutwo{Create Surface}{Reset Surface}]  Cancels the current
-    surface extraction, if any is in progress, deleting the extracting
-    surface.  This must be selected before starting
-    another surface creation.
-\item[\menutwo{Create Surface}{Make Permanent}]  If a surface extraction
-    is in progress, the currently extracted surface is made a permanent
-    member of the 3D object hierarchy, and the extraction terminated.
+\item[\menutwo{Create Surface}{Reset Surface}] Cancels the current
+  surface extraction, if any is in progress, deleting the extracting
+  surface. You must either make a created surface permanent, or reset
+  the extracted surface, before you can create another surface.
+\item[\menutwo{Create Surface}{Make Permanent}] If a surface
+  extraction is in progress, the currently extracted surface is made a
+  permanent member of the 3D object hierarchy, and the extraction
+  terminated.  You must either make a created surface permanent, or
+  reset the extracted surface, before you can create another surface.
 \item[\menutwo{Create Surface}{Set Invalid Lbl Range}]  Modifies the surface
     extraction so that any voxels with label values with the specified range,
     which the user types in, are not used for the surface extraction.
@@ -1477,7 +1479,7 @@ invisible faces from the polygonal surface.
   are entirely below the current X, Y, or Z plane. Prompts for the plane
   to use.
 
-\item[\menutwo{Surface Segmentation}{Reset Neighbors}]
+\item[\menutwo{Surface Segmentation}{Reset Neighbours}]
 
 \item[\menutwo{Surface Segmentation}{Vis -> Vis Colour}] Sets every
 visible face such that it is also marked with the visible colour.
@@ -1547,7 +1549,7 @@ access this command with the Ctrl+Z key combination.
 
 \begin{table}
 \centering
-\caption{Table of standard label color codes used in \display{}. Only
+\caption{Table of standard label colour codes used in \display{}. Only
  the first 25 entries are shown. Entries from 14 and above are
  derived automatically from the label value and are not necessarily associated
 with colour names.}
@@ -1615,7 +1617,12 @@ Display prefix_104_t1_final.mnc -label prefix_104_labels.mnc
 \item Select \menutwo{Create Surface}{Label Bin-Isosurfac}.
 \item Then, in the dialog window, type the MIN and MAX of the label - for example, if your value is 1, type 0.5 1.5. 
 \item This performs a marching cubes rendering of the label in the objects window.
+\item If you want to save the extracted surface, you must use the \menutwo{Create Surface}{Make Permanent} command to copy the surface into the object hierarchy
+ before you can create another surface.
+\item Alternatively, you can delete the extracted surface and try again by selecting the \menutwo{Create Surface}{Reset Surface} command.
+\item The extracted surface can then be smoothed using \menutwo{Polygons}{Smooth Polygon}.
 \end{enumerate}
+You can smoo
 
 \subsection{How to Draw a Curve on the Cortical Surface}
 \begin{enumerate}
@@ -1730,7 +1737,7 @@ Display ti_final.mnc avg_model.obj brain_stem_model.obj cerebellum_model.obj
 \end{verbatim}
 
 \begin{enumerate}
-\item Rotate the 3D model, using either the \menu{3D View} menu or the middle mououse button, until you have the desired viewing angle.
+\item Rotate the 3D model, using either the \menu{3D View} menu or the middle mouse button, until you have the desired viewing angle.
 \item Select the polygon object you want to crop. You may select an object either by using the arrow keys or by clicking the mouse over the object in the 3D View.
 \item In the Slice View window, navigate to the slice coordinate in the view where you want to cut the object.
 \item Press the key corresponding to the \menutwo{Surface Segmentation}{Crop Above} or \menutwo{Surface Segmentation}{Crop Below} command while your mouse is still over the sagittal, coronal, or transverse slice.
