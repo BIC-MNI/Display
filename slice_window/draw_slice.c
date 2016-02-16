@@ -391,6 +391,7 @@ rebuild_probe(display_struct *slice_window)
     VIO_Real     ratio;       /* Ratio between given volume voxels. */
     VIO_Real     distance_value; /* Distance from mouse to another point. */
     char         distance_origin[VIO_EXTREMELY_LARGE_STRING_SIZE];
+    VIO_BOOL     is_rgb_volume = FALSE;
 
     /*
      * Get the voxel coordinates corresponding to the current mouse
@@ -404,6 +405,8 @@ rebuild_probe(display_struct *slice_window)
     {
         int        ivoxel[VIO_MAX_DIMENSIONS];
         VIO_Volume volume = get_nth_volume( slice_window, volume_index );
+
+        is_rgb_volume = is_an_rgb_volume( volume );
 
         /* Get the current world coordinates.
          */
@@ -479,11 +482,29 @@ rebuild_probe(display_struct *slice_window)
                                 world[VIO_Z] );
                 break;
             case VOXEL_PROBE_INDEX:
-                (void) sprintf( buffer, Slice_probe_voxel_format, 
-                                voxel_value );
+                if ( is_rgb_volume )
+                {
+                  VIO_Colour colour = (VIO_Colour)(long)voxel_value;
+                  sprintf( buffer, "Vx %02x%02x%02x",
+                           get_Colour_r(colour), get_Colour_g(colour),
+                           get_Colour_b(colour));
+                }
+                else
+                {
+                    (void) sprintf( buffer, Slice_probe_voxel_format,
+                                    voxel_value );
+                }
                 break;
             case VAL_PROBE_INDEX:
-                (void) sprintf( buffer, Slice_probe_val_format, real_value );
+                if ( is_rgb_volume )
+                {
+                    strcpy( buffer, "Vl    RGB");
+                }
+                else
+                {
+                    (void) sprintf( buffer, Slice_probe_val_format,
+                                    real_value );
+                }
                 break;
             case LABEL_PROBE_INDEX:
                 (void) sprintf( buffer, Slice_probe_label_format, label );
