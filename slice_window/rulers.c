@@ -22,7 +22,7 @@
 #include  <display.h>
 
 /**
- * \brief Initialize the objects used by the slice ruler. 
+ * \brief Initialize the objects used by the slice ruler.
  *
  * Adds a new model at the \c RULERS relative offset. Initially this
  * new model contains only a single lines object that is used to
@@ -89,14 +89,14 @@ create_tick_label(int position, const VIO_Point *tick_pt, VIO_BOOL is_x_axis)
   cw = G_get_text_length( label, Colour_bar_text_font, Colour_bar_text_size );
   if (is_x_axis)
   {
-    fill_Point(pt, 
+    fill_Point(pt,
                Point_x( *tick_pt ) - cw / 2.0 + 0.5,
                Point_y( *tick_pt ) - Ruler_x_axis_y_offset, 0);
   }
   else
   {
     ch = G_get_text_height( Colour_bar_text_font, Colour_bar_text_size );
-    fill_Point(pt, 
+    fill_Point(pt,
                Point_x( *tick_pt ) - cw - Ruler_big_tick_length,
                Point_y( *tick_pt ) - ch / 2.0 + 1, 0);
   }
@@ -130,11 +130,15 @@ rebuild_slice_rulers( display_struct *slice_window, int view_index )
   VIO_Real          voxel[VIO_MAX_DIMENSIONS];
   VIO_Real          w_ll[VIO_N_DIMENSIONS];
   VIO_Real          w_ur[VIO_N_DIMENSIONS];
+  VIO_Real          w_lr[VIO_N_DIMENSIONS];
+  VIO_Real          w_ul[VIO_N_DIMENSIONS];
   int               x, y;
   int               dummy_index;
   VIO_BOOL          draw_ones;
+  int               x_min, y_min;
   int               x_max, y_max;
   VIO_Real          ratio;
+  VIO_Real          x_diff, y_diff, axis_diff;
 
   /* Don't even bother to display this for the oblique plane yet.
    */
@@ -156,7 +160,7 @@ rebuild_slice_rulers( display_struct *slice_window, int view_index )
   model_ptr = get_model_ptr( object_ptr );
   while (model_ptr->n_objects > 1)
   {
-    /* Unfortunately there is no atomic call to remove and object from
+    /* Unfortunately there is no atomic call to remove an object from
      * the model and delete it. TODO: Add something like this!
      */
     delete_object( model_ptr->objects[1] );
@@ -166,7 +170,7 @@ rebuild_slice_rulers( display_struct *slice_window, int view_index )
 
   delete_lines( lines_ptr );
   initialize_lines( lines_ptr, Colour_bar_tick_colour );
-  
+
   if (!get_slice_visibility( slice_window, volume_index, view_index ) ||
       !get_object_visibility( object_ptr ))
   {
@@ -187,47 +191,63 @@ rebuild_slice_rulers( display_struct *slice_window, int view_index )
   convert_pixel_to_voxel( slice_window, volume_index, x_min_vp, y_min_vp,
                           voxel, &dummy_index);
   convert_voxel_to_world( volume, voxel, &w_ll[0], &w_ll[1], &w_ll[2]);
+
+  convert_pixel_to_voxel( slice_window, volume_index, x_min_vp, y_max_vp,
+                          voxel, &dummy_index);
+  convert_voxel_to_world( volume, voxel, &w_ul[0], &w_ul[1], &w_ul[2]);
+
+  convert_pixel_to_voxel( slice_window, volume_index, x_max_vp, y_min_vp,
+                          voxel, &dummy_index);
+  convert_voxel_to_world( volume, voxel, &w_lr[0], &w_lr[1], &w_lr[2]);
+
   convert_pixel_to_voxel( slice_window, volume_index, x_max_vp, y_max_vp,
                           voxel, &dummy_index);
   convert_voxel_to_world( volume, voxel, &w_ur[0], &w_ur[1], &w_ur[2]);
 
-  x = (int) VIO_ROUND( w_ll[x_index] );
-  if (x < -500) 
+  x_min = (int) VIO_ROUND( w_ll[x_index] );
+  if (x_min < -500)
     return;
-  x_max = (int) VIO_ROUND( w_ur[x_index] );
-  if (x_max > 500) 
+  x_max = (int) VIO_ROUND( w_lr[x_index] );
+  if (x_max > 500)
     return;
 
-  ratio = (VIO_Real) (x_max_vp - x_min_vp) / (x_max - x);
+  y_diff = (w_lr[y_index] - w_ll[y_index]);
+  axis_diff = (w_lr[axis_index] - w_ll[axis_index]);
+  ratio = (VIO_Real) (x_max_vp - x_min_vp) / (x_max - x_min);
   draw_ones = (ratio > 3);
   if (ratio < 0.6)
     return;
 
-  for ( ; x < x_max; x++)
+  for (x = x_min; x < x_max; x++)
   {
     VIO_Real world[VIO_N_DIMENSIONS];
     VIO_Real voxel[VIO_MAX_DIMENSIONS];
     VIO_Real p_x, p_y;
     VIO_Point pt1, pt2;
+    VIO_Real fraction = (VIO_Real) x / (x_max - x_min);
 
     world[x_index] = x;
-    world[y_index] = w_ll[y_index];
-    world[axis_index] = 0;
+    world[y_index] = w_ll[y_index] + y_diff * fraction;
+    world[axis_index] = w_ll[axis_index] + axis_diff * fraction;
 
     convert_world_to_voxel( volume, world[0], world[1], world[2], voxel );
     convert_voxel_to_pixel( slice_window, volume_index, view_index,
                             voxel, &p_x, &p_y);
-    if (p_x < Ruler_y_axis_x_offset) 
+    if (p_x < Ruler_y_axis_x_offset)
     {
       continue;
     }
 
-    fill_Point(pt1, p_x, p_y + Ruler_x_axis_y_offset, 0);
+    fill_Point(pt1, p_x, Ruler_x_axis_y_offset, 0);
     pt2 = pt1;
 
     if ((x % 10) == 0)
     {
-      add_object_to_model( model_ptr, create_tick_label( x, &pt1, TRUE ));
+      /* Adding this check helps keep us from writing beyond the end of
+       * the viewport (viewport clipping is imperfect in the bicgl).
+       */
+      if (Point_x(pt1) + 10 < (x_max_vp - x_min_vp))
+        add_object_to_model( model_ptr, create_tick_label( x, &pt1, TRUE ));
       Point_y(pt2) -= Ruler_big_tick_length;
     }
     else if ((x % 5) == 0)
@@ -247,39 +267,42 @@ rebuild_slice_rulers( display_struct *slice_window, int view_index )
     add_point_to_line(lines_ptr, &pt2);
   }
 
-  y = (int) VIO_ROUND( w_ll[y_index] );
-  if (y < -500) 
+  y_min = (int) VIO_ROUND( w_ll[y_index] );
+  if (y_min < -500)
     return;
-  y_max = (int) VIO_ROUND( w_ur[y_index] );
-  if (y_max > 500) 
+  y_max = (int) VIO_ROUND( w_ul[y_index] );
+  if (y_max > 500)
     return;
 
-  ratio = (VIO_Real) (y_max_vp - y_min_vp) / (VIO_Real) (y_max - y);
+  x_diff = (w_ul[x_index] - w_ll[x_index]);
+  axis_diff = (w_ul[axis_index] - w_ll[axis_index]);
+  ratio = (VIO_Real) (y_max_vp - y_min_vp) / (VIO_Real) (y_max - y_min);
   draw_ones = (ratio > 3.0);
   if (ratio < 0.6)
     return;
 
-  for ( ; y < y_max; y++)
+  for (y = y_min ; y < y_max; y++)
   {
     VIO_Real world[VIO_N_DIMENSIONS];
     VIO_Real voxel[VIO_MAX_DIMENSIONS];
     VIO_Real p_x, p_y;
     VIO_Point pt1, pt2;
+    VIO_Real fraction = (VIO_Real) y / (y_max - y_min);
 
-    world[x_index] = w_ll[x_index];
+    world[x_index] = w_ll[x_index] + x_diff * fraction;
     world[y_index] = y;
-    world[axis_index] = 0;
+    world[axis_index] = w_ll[axis_index] + axis_diff * fraction;
+
 
     convert_world_to_voxel( volume, world[0], world[1], world[2], voxel );
     convert_voxel_to_pixel( slice_window, volume_index, view_index,
                             voxel, &p_x, &p_y);
-
-    if (p_y < Ruler_x_axis_y_offset) 
+    if (p_y < Ruler_x_axis_y_offset)
     {
       continue;
     }
 
-    fill_Point(pt1, p_x + Ruler_y_axis_x_offset, p_y, 0);
+    fill_Point(pt1, Ruler_y_axis_x_offset, p_y, 0);
     pt2 = pt1;
     if ((y % 10) == 0)
     {
@@ -305,9 +328,9 @@ rebuild_slice_rulers( display_struct *slice_window, int view_index )
 }
 
 /**
- * \brief Get the visibility state of the slice rulers. 
+ * \brief Get the visibility state of the slice rulers.
  *
- * The visibility state of the rulers model controls the visibility of 
+ * The visibility state of the rulers model controls the visibility of
  * the entire ruler.
  *
  * \param slice_window A pointer to the display_struct of the slice window.
@@ -326,9 +349,9 @@ get_slice_rulers_visibility( display_struct *slice_window, int view_index )
 }
 
 /**
- * \brief Set the visibility state of the slice rulers. 
+ * \brief Set the visibility state of the slice rulers.
  *
- * The visibility state of the rulers model controls the visibility of 
+ * The visibility state of the rulers model controls the visibility of
  * the entire ruler.
  *
  * \param slice_window A pointer to the display_struct of the slice window.
