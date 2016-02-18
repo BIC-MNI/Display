@@ -2476,6 +2476,8 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
     display_struct    *slice_window,
     int               view );
 
+VIO_Real get_volume_min_step(display_struct *slice_window, int volume_index);
+
   void  scale_slice_view(
     display_struct    *slice_window,
     int               view,

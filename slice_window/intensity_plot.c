@@ -29,10 +29,10 @@
  */
 VIO_Real get_nice_value(VIO_Real x)
 {
-  double l10 = log10(x);
-  double t1 = pow(10.0, floor(1-l10));
-  double t2 = round(x * t1);
-  return round(t2 / t1);
+ if (x == 0) return 0;
+  VIO_Real scale = pow(10.0, floor(log10(fabs(x))));
+  VIO_Real value = scale * trunc(x / scale);
+  return value;
 }
 
 /**
@@ -91,7 +91,9 @@ create_tick_label(VIO_Real position, const VIO_Point *tick_pt,
     return NULL;
 
   set_object_visibility( object_ptr, TRUE );
-  snprintf( label, sizeof( label ) - 1, "%g", position );
+  if (fabs(position) < 1e-8)
+    position = 0;
+  snprintf( label, sizeof( label ) - 1, "%.4g", position );
 
   cw = G_get_text_length( label, Colour_bar_text_font, Colour_bar_text_size );
 
@@ -131,9 +133,8 @@ get_pixels_extent( display_struct *display, int volume_index, int view_index,
   VIO_Volume volume;
   VIO_Real voxel[VIO_MAX_DIMENSIONS];
   int x1, x2, y1, y2;
-  int i;
 
-  printf("%s: %d %d %d\n", __func__, volume_index, view_index, x_index );
+  //printf("%s: %d %d %d\n", __func__, volume_index, view_index, x_index );
 
   if (display->window_type != SLICE_WINDOW)
     return FALSE;
@@ -151,14 +152,17 @@ get_pixels_extent( display_struct *display, int volume_index, int view_index,
     return FALSE;
 
   get_current_voxel( display, volume_index, voxel );
-  printf("voxel %f %f %f\n", voxel[0], voxel[1], voxel[2]);
-  printf("pixels %d %d %d %d\n",
-         pixels_ptr->x_position, pixels_ptr->y_position,
-         pixels_ptr->x_size, pixels_ptr->y_size);
   convert_voxel_to_world( volume, voxel, &world[0], &world[1], &world[2] );
 
   get_slice_viewport( display, view_index,
                       &x_min, &x_max, &y_min, &y_max);
+
+#if 0
+  printf("voxel %f %f %f\n", voxel[0], voxel[1], voxel[2]);
+  printf("pixels %d %d %d %d\n",
+         pixels_ptr->x_position, pixels_ptr->y_position,
+         pixels_ptr->x_size, pixels_ptr->y_size);
+#endif
 
   x1 = pixels_ptr->x_position + x_min;
   y1 = pixels_ptr->y_position + y_min;
@@ -180,7 +184,7 @@ get_pixels_extent( display_struct *display, int volume_index, int view_index,
 
   fill_Point(*pt_start, world[0], world[1], world[2] );
 
-  printf("Start %f %f %f\n", world[0], world[1], world[2] );
+  //printf("Start %f %f %f\n", world[0], world[1], world[2] );
 
   convert_pixel_to_voxel( display, volume_index, x2, y2, v, &dummy);
   convert_voxel_to_world( volume, v, &w[0], &w[1], &w[2] );
@@ -188,7 +192,7 @@ get_pixels_extent( display_struct *display, int volume_index, int view_index,
 
   fill_Point(*pt_end, world[0], world[1], world[2] );
 
-  printf("Finish %f %f %f\n", world[0], world[1], world[2] );
+  //printf("Finish %f %f %f\n", world[0], world[1], world[2] );
 
   return TRUE;
 }
@@ -203,9 +207,9 @@ get_plot_end_points( display_struct *display,
   VIO_Real voxel[VIO_MAX_DIMENSIONS];
   int sizes[VIO_MAX_DIMENSIONS];
   int x_index;
-  int i;
   VIO_Volume volume = get_nth_volume( display, volume_index );
   int n_meas = display->slice.measure_number - 1;
+
   if (n_meas < 0)
     n_meas = N_MEASUREMENTS - 1;
 
@@ -384,7 +388,7 @@ get_time_plot_data( VIO_Volume volume,
 static void
 get_spatial_plot_data( VIO_Volume volume, 
                        VIO_Real distance, 
-                       VIO_Real min_step,
+                       int n_samples,
                        int degrees_continuity,
                        const VIO_Point *pt_start,
                        const VIO_Point *pt_end,
@@ -393,26 +397,22 @@ get_spatial_plot_data( VIO_Volume volume,
                        VIO_Real *max_data)
 {
   int        i;
-  VIO_Vector  step;
+  VIO_Vector step;
   VIO_Real   world[VIO_MAX_DIMENSIONS];
   VIO_Real   voxel[VIO_MAX_DIMENSIONS];
-  int        n_samples;
-
 
   fill_Vector(step,
               Point_x(*pt_end) - Point_x(*pt_start),
               Point_y(*pt_end) - Point_y(*pt_start),
               Point_z(*pt_end) - Point_z(*pt_start));
 
-  Vector_x(step) /= distance;
-  Vector_y(step) /= distance;
-  Vector_z(step) /= distance;
+  Vector_x(step) /= n_samples;
+  Vector_y(step) /= n_samples;
+  Vector_z(step) /= n_samples;
   
   world[VIO_X] = Point_x(*pt_start);
   world[VIO_Y] = Point_y(*pt_start);
   world[VIO_Z] = Point_z(*pt_start);
-
-  n_samples = VIO_ROUND(distance);
 
   *max_data = -DBL_MAX;
   *min_data = DBL_MAX;
@@ -441,6 +441,13 @@ get_spatial_plot_data( VIO_Volume volume,
 }
 
 #define TICK_LENGTH 10
+
+static int
+value_to_pixel_offset(VIO_Real value, VIO_Real min_value, VIO_Real range,
+                      int n_pixels)
+{
+  return (value - min_value) / range * n_pixels;
+}
 
 void
 rebuild_intensity_plot( display_struct *display )
@@ -479,6 +486,7 @@ rebuild_intensity_plot( display_struct *display )
   VIO_Colour plot_colour;
   VIO_Real min_data, max_data;
   VIO_Real distance;
+  int n_samples;
 
   x_index = get_plot_end_points( display, volume_index, &pt_start, &pt_end,
                                  &plot_colour);
@@ -488,6 +496,8 @@ rebuild_intensity_plot( display_struct *display )
     get_volume_sizes( volume, sizes );
 
     distance = sizes[VIO_T];
+
+    n_samples = VIO_ROUND(distance);
     get_time_plot_data( volume,
                         display->slice.degrees_continuity,
                         &pt_start,
@@ -496,10 +506,14 @@ rebuild_intensity_plot( display_struct *display )
   }
   else
   {
+    VIO_Real min_step = get_volume_min_step(display, volume_index);
+
     distance = distance_between_points( &pt_start, &pt_end );
 
+    n_samples = VIO_ROUND(distance / min_step);
+
     get_spatial_plot_data( volume, distance,
-                           get_volume_min_step( display, volume_index ),
+                           n_samples,
                            display->slice.degrees_continuity,
                            &pt_start, &pt_end,
                            data, &min_data, &max_data );
@@ -539,9 +553,9 @@ rebuild_intensity_plot( display_struct *display )
   VIO_Real d_range = max_value - min_value;
   int i;
 
-  for (i = 0; i < distance; i++)
+  for (i = 0; i < n_samples; i++)
   {
-    Point_x(pt) = x_min + cx_axis + x_range * (VIO_Real) i / distance;
+    Point_x(pt) = x_min + cx_axis + x_range * (VIO_Real) i / n_samples;
     Point_y(pt) = y_min + cy_axis + y_range * (data[i] - min_value) / d_range;
     Point_z(pt) = 0.0;
     add_point_to_line( lines_ptr, &pt );
@@ -575,18 +589,49 @@ rebuild_intensity_plot( display_struct *display )
    */
   VIO_Real d_tick = get_nice_value( distance / 10.0 );
   int n_ticks = (int) ceil( distance / d_tick );
+  VIO_Real x_start, x_end;
 
-  for (i = 0; i < n_ticks; i++)
+  switch (x_index)
+  {
+  case VIO_X:
+    x_start = Point_x(pt_start);
+    x_end = Point_x(pt_end);
+    break;
+  case VIO_Y:
+    x_start = Point_y(pt_start);
+    x_end = Point_y(pt_end);
+    break;
+  case VIO_Z:
+    x_start = Point_z(pt_start);
+    x_end = Point_z(pt_end);
+    break;
+  default:
+    x_start = 0;
+    x_end = distance;
+    break;
+  }
+
+  VIO_Real min_tick = get_nice_value( x_start );
+  VIO_Real max_tick = x_end;
+  VIO_Real cur_tick;
+
+  if (d_tick <= 0)
+    d_tick = 1;
+
+  for (cur_tick = min_tick; cur_tick <= max_tick; cur_tick += d_tick)
   {
     start_new_line( lines_ptr );
-    Point_x(pt) = x_min + cx_axis + (i * d_tick) * x_range / distance;
+    Point_x(pt) = x_min + cx_axis + value_to_pixel_offset(cur_tick,
+                                                          x_start,
+                                                          distance,
+                                                          x_range);
     Point_y(pt) = y_min + cy_axis;
     Point_z(pt) = 0;
     add_point_to_line( lines_ptr, &pt );
     Point_y(pt) -= TICK_LENGTH;
     add_point_to_line( lines_ptr, &pt );
 
-    object_ptr = create_tick_label( i * d_tick, &pt, TRUE, TICK_LENGTH );
+    object_ptr = create_tick_label( cur_tick, &pt, TRUE, TICK_LENGTH );
     add_object_to_model( model_ptr, object_ptr );
   }
 
