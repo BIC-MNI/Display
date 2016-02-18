@@ -30,6 +30,7 @@ root \
     transient 'c'      lines                        'Lines' 'Commands to create and manipulate lines.' \
     transient 'v'      surface_curves               'Surface Curves' 'Commands for drawing curves on surfaces.' \
     transient 'b'      markers                      'Markers' 'Commands to create and manipulate saved points in the volume.' \
+    transient 'n'      intensity_plot               'Intensity Plot' 'Commands to visualize intensity plots.' \
  \
     permanent 'left'  ascend_selected              'Up' 'Return to the previous level of the object list.' \
     permanent 'right' descend_selected             'Down' 'View the contents of this item on the object list' \
@@ -460,4 +461,12 @@ volume_config \
     transient 's'    toggle_slice_interpolation      'Interp: %s' 'Selects nearest neighbor, trilinear, or tricubic interpolation for all slice views.' \
     transient 'd'    toggle_incremental_slice_update 'Increm Update: %s' 'Toggles incremental update of the slice window.' \
 } \
+\
+intensity_plot \
+{ \
+    transient 'e' toggle_intensity_plot_enable 'Enabled: %s' 'Enable or disable the intensity plots.' \
+    transient 's' toggle_intensity_plot_scaling 'Scaled: %s' 'Enable or disable Y-axis scaling of the intensity plots.' \
+    transient 'a' toggle_intensity_plot_axis 'Axis: %s' 'Select the preferred axis for intensity plots.' \
+} \
+\
 "

@@ -783,6 +783,16 @@ typedef struct slice_window
 
 
     /**
+     * True if intensity plot is enabled.
+     */
+    VIO_BOOL              intensity_plot_is_enabled;
+
+    /**
+     * True if intensity plot is scaled to the Y range.
+     */
+    VIO_BOOL             intensity_plot_is_scaled;
+
+    /**
      * Intensity plot axis.
      */
     int                   intensity_plot_axis;

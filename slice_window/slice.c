@@ -1052,6 +1052,7 @@ static  void  render_more_slices(
     int      x_sub_min, x_sub_max;
     int      y_sub_min, y_sub_max;
     int      view;
+    VIO_BOOL render_intensity_plot = FALSE;
 
     for_less( view, 0, N_SLICE_VIEWS )
     {
@@ -1125,15 +1126,6 @@ static  void  render_more_slices(
             one_buffer_flag[view] = FALSE;
     }
 
-    for_less( view, 0, N_SLICE_VIEWS )
-    {
-        if (slice_window->slice.slice_views[view].update_cursor_flag)
-        {
-            rebuild_intensity_plot( slice_window );
-            break;
-        }
-    }
-
     if( slice_window->slice.update_slice_dividers_flag )
     {
         rebuild_slice_divider( slice_window );
@@ -1159,6 +1151,7 @@ static  void  render_more_slices(
             rebuild_slice_cursor( slice_window, view );
             rebuild_slice_field_of_view( slice_window, view );
             rebuild_slice_rulers( slice_window, view );
+            render_intensity_plot = TRUE; /* For later */
             slice_window->slice.slice_views[view].update_cursor_flag = FALSE;
         }
 
@@ -1284,6 +1277,9 @@ static  void  render_more_slices(
     }
 
     render_more_slices( slice_window, viewport_has_changed );
+
+    if (render_intensity_plot)
+      rebuild_intensity_plot( slice_window );
 }
 
   void  set_slice_composite_update(
