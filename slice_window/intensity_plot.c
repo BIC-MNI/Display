@@ -173,14 +173,14 @@ create_tick_label(VIO_Real position, const VIO_Point *tick_pt,
  * \param volume_index The index of the relevant loaded volume.
  * \param view_index The index of the current view.
  * \param horiz_axis_index The index of the relevant axis.
- * \param pt_start The world coordinates of the start (left or lower) position.
- * \param pt_end The world coordinates of the end (right or upper) position.
+ * \param start The world coordinates of the start (left or lower) position.
+ * \param end The world coordinates of the end (right or upper) position.
  * \returns TRUE if the calculation was performed successfully.
  */
 VIO_BOOL
 get_pixels_extent( display_struct *display, int volume_index, int view_index,
                    int horiz_axis_index,
-                   VIO_Point *pt_start, VIO_Point *pt_end )
+                   VIO_Real start[], VIO_Real end[] )
 {
   object_struct *object_ptr;
   pixels_struct *pixels_ptr;
@@ -192,6 +192,7 @@ get_pixels_extent( display_struct *display, int volume_index, int view_index,
   VIO_Volume volume;
   VIO_Real voxel[VIO_MAX_DIMENSIONS];
   int x1, x2, y1, y2;
+  int i;
 
   if (display->window_type != SLICE_WINDOW)
     return FALSE;
@@ -234,13 +235,15 @@ get_pixels_extent( display_struct *display, int volume_index, int view_index,
   convert_voxel_to_world( volume, v, &w[0], &w[1], &w[2] );
   world[horiz_axis_index] = w[horiz_axis_index];
 
-  fill_Point(*pt_start, world[0], world[1], world[2] );
+  for (i = 0; i < VIO_N_DIMENSIONS; i++)
+    start[i] = world[i];
 
   convert_pixel_to_voxel( display, volume_index, x2, y2, v, &dummy);
   convert_voxel_to_world( volume, v, &w[0], &w[1], &w[2] );
   world[horiz_axis_index] = w[horiz_axis_index];
 
-  fill_Point(*pt_end, world[0], world[1], world[2] );
+  for (i = 0; i < VIO_N_DIMENSIONS; i++)
+    end[i] = world[i];
 
   return TRUE;
 }
@@ -254,8 +257,8 @@ get_pixels_extent( display_struct *display, int volume_index, int view_index,
  *
  * \param display The display_struct of the slice view window.
  * \param volume_index The index of the currently-selected volume.
- * \param pt_start The start point for the data.
- * \param pt_end The ending point for the data.
+ * \param start The start point for the data.
+ * \param end The ending point for the data.
  * \param colour The colour to use for the plot.
  * \returns The index of the volume axis to use, or -1 if there points
  * are not parallel to an axis.
@@ -263,28 +266,30 @@ get_pixels_extent( display_struct *display, int volume_index, int view_index,
 static int
 get_plot_end_points( display_struct *display,
                      int volume_index,
-                     VIO_Point *pt_start,
-                     VIO_Point *pt_end,
+                     VIO_Real start[],
+                     VIO_Real end[],
                      VIO_Colour *colour)
 {
-  VIO_Real   voxel[VIO_MAX_DIMENSIONS];
   int        horiz_axis_index;
   VIO_Volume volume = get_nth_volume( display, volume_index );
   int        n_meas = display->slice.measure_number - 1;
 
-  if (n_meas < 0)
+  if ( n_meas < 0 )
     n_meas = N_MEASUREMENTS - 1;
 
   if ( display->slice.measure[n_meas].line != NULL )
   {
-    *pt_start = display->slice.measure[n_meas].origin;
-    *pt_end = display->slice.measure[n_meas].end;
+    start[VIO_X] = Point_x( display->slice.measure[n_meas].origin );
+    start[VIO_Y] = Point_y( display->slice.measure[n_meas].origin );
+    start[VIO_Z] = Point_z( display->slice.measure[n_meas].origin );
+    end[VIO_X] = Point_x( display->slice.measure[n_meas].end );
+    end[VIO_Y] = Point_y( display->slice.measure[n_meas].end );
+    end[VIO_Z] = Point_z( display->slice.measure[n_meas].end );
     *colour = display->slice.measure[n_meas].colour;
     horiz_axis_index = -1;
   }
   else
   {
-    VIO_Real world_start[VIO_MAX_DIMENSIONS];
     int      axis_index = -1;
     int      view_index;
 
@@ -292,8 +297,6 @@ get_plot_end_points( display_struct *display,
 
     if (!get_slice_view_index_under_mouse( display, &view_index ))
       view_index = 0;
-
-    get_current_voxel( display, volume_index, voxel );
 
     if (display->slice.intensity_plot_axis >= 0)
     {
@@ -321,12 +324,26 @@ get_plot_end_points( display_struct *display,
 
       if (get_volume_n_dimensions( volume ) > VIO_N_DIMENSIONS)
       {
+        int label;
+        VIO_Real r_voxel[VIO_MAX_DIMENSIONS];
+        int i_voxel[VIO_MAX_DIMENSIONS];
+        int i;
+
         horiz_axis_index = VIO_T;
-        convert_voxel_to_world( volume, voxel, &world_start[VIO_X],
-                                &world_start[VIO_Y],
-                                &world_start[VIO_Z]);
-        fill_Point(*pt_start, world_start[VIO_X],
-                   world_start[VIO_Y], world_start[VIO_Z]);
+
+        get_current_voxel( display, volume_index, r_voxel );
+
+        convert_voxel_to_world( volume, r_voxel,
+                                &start[VIO_X],
+                                &start[VIO_Y],
+                                &start[VIO_Z]);
+
+        convert_real_to_int_voxel( get_volume_n_dimensions( volume ),
+                                   r_voxel, i_voxel );
+        label = get_voxel_label( display, volume_index,
+                                 i_voxel[VIO_X], i_voxel[VIO_Y], i_voxel[VIO_Z]);
+        if ( label != 0 )
+          *colour = get_colour_of_label( display, volume_index, label );
 
         return VIO_T;
       }
@@ -374,7 +391,7 @@ get_plot_end_points( display_struct *display,
     }
 
     get_pixels_extent( display, volume_index, view_index, horiz_axis_index,
-                       pt_start, pt_end );
+                       start, end );
   }
   return horiz_axis_index;
 }
@@ -397,41 +414,97 @@ static void clear_intensity_plot( model_struct *model_ptr )
 }
 
 
+/** Simple structure used to accumulate data in a volume when we are
+ * plotting the timecourse of a label.
+ */
+struct accumulator_struct
+{
+  VIO_Volume volume; /**< The volume from which we are accumulating data. */
+  int time;      /**< Time point associated with this accumulation. */
+  double total;  /**< Total value of all points accumulated. */
+  int n_points;  /**< Number of points accumulated. */
+};
+
+/**
+ * Helper function called in sparse_array_apply().
+ * \param n_dimensions Number of dimensions in the sparse array.
+ * \param coord The coordinates of this location.
+ * \param value The value stored at this coordinate.
+ * \param data The address of an accumulator_struct.
+ */
+static void apply_accumulate( int n_dimensions, const int *coord, int value,
+                              void *data )
+{
+  struct accumulator_struct *acc_ptr = (struct accumulator_struct *) data;
+
+  acc_ptr->total += get_volume_real_value( acc_ptr->volume, coord[VIO_X], 
+                                           coord[VIO_Y], coord[VIO_Z],
+                                           acc_ptr->time, 0);
+  acc_ptr->n_points++;
+}
+
 /**
  * \brief Get plot data from a time axis.
  *
  * \param volume The volume containing the data.
+ * \param label_volume The label volume associated with the volume.
  * \param degrees_continuity The type of interpolation to perform.
  * \param n_samples The number of samples to take along the plot.
- * \param pt_start The starting point of the data collection.
+ * \param origin The spatial origin of the data collection.
  * \param data The buffer for the data samples (OUTPUT).
  * \param min_data The minimum value in the data buffer (OUTPUT).
  * \param max_data The maximum value in the data buffer (OUTPUT).
  */
 static void
 get_time_plot_data( VIO_Volume volume,
+                    VIO_Volume label_volume,
                     int degrees_continuity,
-                    const VIO_Point *pt_start,
+                    VIO_Real origin[],
                     int n_samples,
                     VIO_Real data[],
                     VIO_Real *min_data,
                     VIO_Real *max_data)
 {
-  VIO_Real voxel[VIO_MAX_DIMENSIONS];
+  VIO_Real r_voxel[VIO_MAX_DIMENSIONS];
+  int i_voxel[VIO_MAX_DIMENSIONS];
   int i;
-  double radius = 0;
-  double delta = 1.0;
+  int label;
   int sizes[VIO_MAX_DIMENSIONS];
+  sparse_array_t label_set;
 
   get_volume_sizes( volume, sizes );
 
   convert_world_to_voxel( volume,
-                          Point_x(*pt_start),
-                          Point_y(*pt_start),
-                          Point_z(*pt_start),
-                          voxel );
+                          origin[VIO_X],
+                          origin[VIO_Y],
+                          origin[VIO_Z],
+                          r_voxel );
 
-  voxel[4] = 0;
+  convert_real_to_int_voxel( get_volume_n_dimensions( volume ),
+                             r_voxel, i_voxel );
+
+  label = get_3D_volume_label_data( label_volume,
+                                    i_voxel[VIO_X],
+                                    i_voxel[VIO_Y],
+                                    i_voxel[VIO_Z] );
+
+  sparse_array_initialize( &label_set, VIO_N_DIMENSIONS );
+
+  if ( label != 0 )
+  {
+    int coord[VIO_N_DIMENSIONS];
+
+    for (coord[VIO_X] = 0; coord[VIO_X] < sizes[VIO_X]; coord[VIO_X]++)
+      for (coord[VIO_Y] = 0; coord[VIO_Y] < sizes[VIO_Y]; coord[VIO_Y]++)
+        for (coord[VIO_Z] = 0; coord[VIO_Z] < sizes[VIO_Z]; coord[VIO_Z]++)
+          if ( get_3D_volume_label_data( label_volume,
+                                         coord[VIO_X],
+                                         coord[VIO_Y],
+                                         coord[VIO_Z] ) == label )
+            sparse_array_insert( &label_set, coord, 0 );
+  }
+
+  r_voxel[VIO_V] = 0;
   *min_data = +DBL_MAX;
   *max_data = -DBL_MAX;
   for (i = 0; i < n_samples; i++)
@@ -439,31 +512,22 @@ get_time_plot_data( VIO_Volume volume,
     double val;
     double x, y, z;
 
-    voxel[VIO_T] = i;
+    r_voxel[VIO_T] = i;
 
-    if (radius > 0.0)
+    if ( label_set.n_entries > 0 )
     {
-      double num = 0;
-      double den = 0;
-      VIO_Real t = i;
-      for (x = voxel[VIO_X]-radius; x <= voxel[VIO_X]+radius; x += delta)
+      struct accumulator_struct acc;
+
+      acc.time = i;
+      acc.volume = volume;
+      acc.total = 0;
+      acc.n_points = 0;
+
+      sparse_array_apply( &label_set, &acc, apply_accumulate );
+
+      if (acc.n_points > 0)
       {
-        for (y = voxel[VIO_Y]-radius; y <= voxel[VIO_Y]+radius; y += delta)
-        {
-          for (z = voxel[VIO_Z]-radius; z <= voxel[VIO_Z]+radius; z += delta)
-          {
-            if (x >= 0 && x < sizes[VIO_X] &&
-                y >= 0 && y < sizes[VIO_Y] &&
-                z >= 0 && z < sizes[VIO_Z]) {
-              num += get_volume_real_value( volume, x, y, z, t, 0);
-              den += 1.0;
-            }
-          }
-        }
-      }
-      if (den > 0)
-      {
-        val = num / den;
+        val = acc.total / acc.n_points;
       }
       else
       {
@@ -472,7 +536,7 @@ get_time_plot_data( VIO_Volume volume,
     }
     else
     {
-      evaluate_volume( volume, voxel, NULL,
+      evaluate_volume( volume, r_voxel, NULL,
                        degrees_continuity, FALSE, 0.0,
                        &val, NULL, NULL );
     }
@@ -482,6 +546,8 @@ get_time_plot_data( VIO_Volume volume,
       *min_data = val;
     data[i] = val;
   }
+
+  sparse_array_free( &label_set );
 }
 
 /**
@@ -491,8 +557,8 @@ get_time_plot_data( VIO_Volume volume,
  * \param distance The total length of the plot in world units.
  * \param n_samples The number of samples to take along the plot.
  * \param degrees_continuity The type of interpolation to perform.
- * \param pt_start The starting point of the data collection.
- * \param pt_end The ending point of the data collection.
+ * \param start The starting point of the data collection.
+ * \param end The ending point of the data collection.
  * \param data The buffer for the data samples (OUTPUT).
  * \param min_data The minimum value in the data buffer (OUTPUT).
  * \param max_data The maximum value in the data buffer (OUTPUT).
@@ -502,8 +568,8 @@ get_spatial_plot_data( VIO_Volume volume,
                        VIO_Real distance,
                        int n_samples,
                        int degrees_continuity,
-                       const VIO_Point *pt_start,
-                       const VIO_Point *pt_end,
+                       const VIO_Real start[],
+                       const VIO_Real end[],
                        VIO_Real data[],
                        VIO_Real *min_data,
                        VIO_Real *max_data)
@@ -514,17 +580,17 @@ get_spatial_plot_data( VIO_Volume volume,
   VIO_Real   voxel[VIO_MAX_DIMENSIONS];
 
   fill_Vector(step,
-              Point_x(*pt_end) - Point_x(*pt_start),
-              Point_y(*pt_end) - Point_y(*pt_start),
-              Point_z(*pt_end) - Point_z(*pt_start));
+              end[VIO_X] - start[VIO_X],
+              end[VIO_Y] - start[VIO_Y],
+              end[VIO_Z] - start[VIO_Z]);
 
   Vector_x(step) /= n_samples;
   Vector_y(step) /= n_samples;
   Vector_z(step) /= n_samples;
 
-  world[VIO_X] = Point_x(*pt_start);
-  world[VIO_Y] = Point_y(*pt_start);
-  world[VIO_Z] = Point_z(*pt_start);
+  world[VIO_X] = start[VIO_X];
+  world[VIO_Y] = start[VIO_Y];
+  world[VIO_Z] = start[VIO_Z];
 
   *max_data = -DBL_MAX;
   *min_data = DBL_MAX;
@@ -586,25 +652,48 @@ create_tick_lines( model_struct *model_ptr, lines_struct *lines_ptr,
                    VIO_BOOL is_horz_axis )
 {
   VIO_Real range = max_value - min_value;
-  VIO_Real min_tick = trunc_to_n_digits( min_value, 1 );
+  VIO_Real min_tick;
   VIO_Real max_tick = max_value;
-  VIO_Real delta_tick = trunc_to_n_digits( range / 10.0, 1 );
+  VIO_Real delta_tick;
   VIO_Point pt1, pt2;
   VIO_Point ptLabel;
   VIO_Real cur_tick;
   object_struct *object_ptr;
+  int n_digits;
+  const int min_tick_width = 30;    /* minimum width of a tick. */
+  const int min_n_ticks = 2;
 
-  if (delta_tick <= 0)
+  int desired_ticks = n_pixels / min_tick_width;
+  if (desired_ticks < min_n_ticks)
+    desired_ticks = min_n_ticks;
+
+
+  delta_tick = trunc_to_n_digits( range / desired_ticks, 1 );
+  if (delta_tick <= 0)          /* Make sure it's positive */
     delta_tick = 1;
 
-  /* Back up the minimum tick value by the tick delta.
+  /* Calculate a good value to use for the lowest tick mark.
+   * This is done by truncating the minimum value to a fixed
+   * number of significant digits. We don't want the truncated
+   * value to be more than one delta less than the actual
+   * minimum, so we keep increasing the number of significant
+   * digits until we get something good.
    */
-  while ( min_tick - delta_tick > min_value )
-    min_tick -= delta_tick;
+  for (n_digits = 1; n_digits < 5; n_digits++)
+  {
+    min_tick = trunc_to_n_digits( min_value, n_digits );
+    if ( fabs(min_tick - min_value) < delta_tick )
+      break;
+  }
 
   for (cur_tick = min_tick; cur_tick <= max_tick; cur_tick += delta_tick)
   {
     VIO_Real tick_pos = (cur_tick - min_value) * n_pixels / range;
+
+    /* Don't draw ticks on the wrong side of the other axis:
+     */
+    if (tick_pos < 0)
+      continue;
 
     start_new_line( lines_ptr );
     if (is_horz_axis)
@@ -628,6 +717,29 @@ create_tick_lines( model_struct *model_ptr, lines_struct *lines_ptr,
 }
 
 /**
+ * Somewhat more general than distance_between_points(), this function
+ * is intended to calculate the Euclidean distance between any two 
+ * vectors of arbitrary dimensionality.
+ *
+ * \param v1 The first vector with \c n_dims components.
+ * \param v2 The second vector with \c n_dims components.
+ * \param n_dims The number of dimensions in the vectors.
+ * \returns The distance between the two vectors.
+ */
+VIO_Real
+euclidean_distance( const VIO_Real v1[], const VIO_Real v2[], int n_dims )
+{
+  int i;
+  VIO_Real total = 0;
+  for (i = 0; i < n_dims; i++)
+  {
+    VIO_Real diff = v1[i] - v2[i];
+    total += diff * diff;
+  }
+  return sqrt(total);
+}
+
+/**
  * \brief Lay out the intensity plot.
  *
  * Based on the current settings, loaded volume(s), cursor position, and
@@ -644,9 +756,9 @@ rebuild_intensity_plot( display_struct *display )
   int arb_view_index = get_arbitrary_view_index( display );
   model_struct *model_ptr = get_graphics_model( display, FULL_WINDOW_MODEL );
   VIO_Volume volume;
-  VIO_Real data[IP_MAX_DATA];
+  VIO_Real *data;
   int horiz_axis_index;
-  VIO_Point pt_start, pt_end;
+  VIO_Real start[VIO_N_DIMENSIONS], end[VIO_N_DIMENSIONS];
   VIO_Colour plot_colour;
   VIO_Real min_data, max_data;
   VIO_Real plot_domain;
@@ -677,21 +789,21 @@ rebuild_intensity_plot( display_struct *display )
   volume = get_nth_volume( display, volume_index );
 
   horiz_axis_index = get_plot_end_points( display, volume_index,
-                                          &pt_start, &pt_end, &plot_colour );
+                                          start, end, &plot_colour );
 
-  if (horiz_axis_index == VIO_T)
+  if ( horiz_axis_index == VIO_T )
   {
     int sizes[VIO_MAX_DIMENSIONS];
     get_volume_sizes( volume, sizes );
 
     plot_domain = n_samples = sizes[VIO_T];
 
-    if (n_samples > IP_MAX_DATA)
-      return;
+    ALLOC( data, n_samples );
 
     get_time_plot_data( volume,
+                        get_nth_label_volume( display, volume_index ),
                         display->slice.degrees_continuity,
-                        &pt_start,
+                        start,
                         n_samples,
                         data, &min_data, &max_data );
   }
@@ -699,17 +811,16 @@ rebuild_intensity_plot( display_struct *display )
   {
     VIO_Real min_step = get_volume_min_step(display, volume_index);
 
-    plot_domain = distance_between_points( &pt_start, &pt_end );
+    plot_domain = euclidean_distance( start, end, VIO_N_DIMENSIONS );
 
     n_samples = VIO_ROUND(plot_domain / min_step);
 
-    if (n_samples > IP_MAX_DATA)
-      return;
+    ALLOC( data, n_samples );
 
     get_spatial_plot_data( volume, plot_domain,
                            n_samples,
                            display->slice.degrees_continuity,
-                           &pt_start, &pt_end,
+                           start, end,
                            data, &min_data, &max_data );
   }
 
@@ -779,24 +890,15 @@ rebuild_intensity_plot( display_struct *display )
 
   /* Add the horizontal axis tick marks.
    */
-  switch (horiz_axis_index)
+  if (horiz_axis_index < 0 || horiz_axis_index >= VIO_N_DIMENSIONS )
   {
-  case VIO_X:
-    x_start = Point_x( pt_start );
-    x_end = Point_x( pt_end );
-    break;
-  case VIO_Y:
-    x_start = Point_y( pt_start );
-    x_end = Point_y( pt_end );
-    break;
-  case VIO_Z:
-    x_start = Point_z( pt_start );
-    x_end = Point_z( pt_end );
-    break;
-  default:
     x_start = 0;
     x_end = plot_domain;
-    break;
+  }
+  else
+  {
+    x_start = start[horiz_axis_index];
+    x_end = end[horiz_axis_index];
   }
 
   create_tick_lines( model_ptr, lines_ptr, x_start, x_end, plot_width, horz_offset, vert_offset, TRUE );
@@ -826,6 +928,7 @@ rebuild_intensity_plot( display_struct *display )
   add_object_to_model( model_ptr, object_ptr );
 
   set_slice_viewport_update( display, FULL_WINDOW_MODEL );
+  FREE( data );
 }
 
 /**

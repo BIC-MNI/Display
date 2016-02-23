@@ -2450,6 +2450,13 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
   void undo_save(display_struct *slice_window, int volume_index,
                  const int voxel[], int label);
 
+void sparse_array_initialize(sparse_array_t *array_ptr, int n_dimensions);
+void sparse_array_insert(sparse_array_t *array_ptr, const int *coord,
+                         int value);
+void sparse_array_free(sparse_array_t *array_ptr);
+void sparse_array_apply(sparse_array_t *array_ptr, void *data,
+                        sparse_apply_func_t func);
+  
 /*
  * slice_window/view.c 
  */

@@ -28,7 +28,7 @@
  * \param array_ptr The sparse array object to initialize.
  * \param n_dimensions The number of dimensions in this particular array.
  */
-static void
+void
 sparse_array_initialize(sparse_array_t *array_ptr, int n_dimensions)
 {
     int i;
@@ -57,18 +57,6 @@ int sparse_array_hash(sparse_array_t *array_ptr, const int *coord)
     }
     return (int) (h % N_SPARSE_HASH);
 }
-
-/**
- * The type of function pointers in the sparse_array_apply() function. This 
- * function will be called with the coordinates and value of every item in
- * the array.
- *
- * \param n_dim The number of dimensions in the sparse array.
- * \param coord The coordinates of the item.
- * \param value The value of the item.
- * \param data A possibly useful opaque data pointer.
- */
-typedef void (*sparse_apply_func_t)(int n_dim, const int *coord, int value, void *data);
 
 /**
  * Apply a function to every element in a sparse array.

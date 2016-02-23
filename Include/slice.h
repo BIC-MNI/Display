@@ -251,6 +251,18 @@ typedef struct sparse_array
 } sparse_array_t;
 
 /**
+ * The type of function pointers in the sparse_array_apply() function. This 
+ * function will be called with the coordinates and value of every item in
+ * the array.
+ *
+ * \param n_dim The number of dimensions in the sparse array.
+ * \param coord The coordinates of the item.
+ * \param value The value of the item.
+ * \param data A possibly useful opaque data pointer.
+ */
+typedef void (*sparse_apply_func_t)(int n_dim, const int *coord, int value, void *data);
+
+/**
  * \brief Represents an undo-able event by recording all of the coordinates
  * and values affected by an event.
  */
