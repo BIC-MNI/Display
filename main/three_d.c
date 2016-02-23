@@ -175,7 +175,6 @@ initialize_status_line(display_struct *display)
     fill_Point(origin, 10.0, 10.0, 0.0);
     initialize_text(text_ptr, &origin, Readout_text_rgb_colour,
                     Slice_readout_text_font, Slice_readout_text_font_size);
-    text_ptr->string = create_string("");
     set_object_visibility(object_ptr, FALSE);
     add_object_to_model(model_ptr, object_ptr);
 }
