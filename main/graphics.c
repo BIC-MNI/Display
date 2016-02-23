@@ -287,6 +287,9 @@ static  void  initialize_graphics_window(
 
     display->models_changed_id = 0;
 
+    fill_Point( display->prev_mouse_position, -1, -1, -1);
+    fill_Point( display->prev_mouse_pixel_position, -1, -1, -1);
+
     initialize_action_table( &display->action_table );
 
     initialize_menu_actions( display );
