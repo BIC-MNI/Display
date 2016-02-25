@@ -20,6 +20,9 @@
 
 #include  <display.h>
 
+/**
+ * Start a surface extraction process in response to a user command.
+ */
 static  void  start_surface(
     display_struct   *display,
     VIO_BOOL          use_label_flag,
@@ -100,6 +103,9 @@ static  void  start_surface(
                                            int_voxel[VIO_Y],
                                            int_voxel[VIO_Z] );
     }
+
+    /* Make sure the 3D view window is visible! */
+    show_three_d_window( display, display->associated[MARKER_WINDOW] );
 }
 
 /* ARGSUSED */

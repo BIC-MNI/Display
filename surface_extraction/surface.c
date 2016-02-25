@@ -73,7 +73,7 @@ static  VIO_BOOL  surface_voxel_is_within_volume(
     int                y,
     int                z )
 {
-    int                         dim, sizes[VIO_N_DIMENSIONS];
+    int                         dim, sizes[VIO_MAX_DIMENSIONS];
     int                         indices[VIO_N_DIMENSIONS];
     surface_extraction_struct   *surf;
     int                         voxel_indices[VIO_N_DIMENSIONS];
@@ -425,7 +425,7 @@ static  void  advance_voxellated_index(
   VIO_BOOL  extract_more_surface(
     display_struct    *display )
 {
-    int                         n_voxels_done, sizes[VIO_N_DIMENSIONS];
+    int                         n_voxels_done, sizes[VIO_MAX_DIMENSIONS];
     int                         voxel_index[VIO_N_DIMENSIONS];
     surface_extraction_struct   *surf;
     VIO_Volume                      volume, label_volume;
@@ -636,7 +636,7 @@ static  void  delete_edge_points_no_longer_needed(
     VIO_BOOL             all_four_done;
     VIO_BOOL             voxel_done[3][3][3];
     int                 indices[VIO_N_DIMENSIONS];
-    int                 sizes[VIO_N_DIMENSIONS];
+    int                 sizes[VIO_MAX_DIMENSIONS];
 
     get_volume_sizes( volume, sizes );
 

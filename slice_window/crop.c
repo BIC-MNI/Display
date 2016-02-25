@@ -491,7 +491,7 @@ static  void  set_slice_crop_position(
     int               min_voxel[],
     int               max_voxel[] )
 {
-    int               dim, sizes[VIO_N_DIMENSIONS];
+    int               dim, sizes[VIO_MAX_DIMENSIONS];
     display_struct    *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&

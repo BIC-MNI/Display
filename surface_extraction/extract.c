@@ -271,7 +271,7 @@ static  int  extract_polygons(
     int                    n_added_polys, poly, p;
     int                    x, y, z, axis;
     int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
-    int                    volume_sizes[VIO_N_DIMENSIONS];
+    int                    volume_sizes[VIO_MAX_DIMENSIONS];
     VIO_BOOL                changed, connected;
     VIO_UCHAR          all_done_value, voxel_flags;
 
@@ -402,7 +402,7 @@ static  int  add_polygon_to_list(
     int                    corner_index[VIO_N_DIMENSIONS];
     int                    current_end, next_index, p, next_end, actual_size;
     int                    point_ids[MAX_POINTS_PER_VOXEL_POLYGON];
-    int                    sizes[VIO_N_DIMENSIONS];
+    int                    sizes[VIO_MAX_DIMENSIONS];
     VIO_BOOL                non_degenerate;
     Point_classes          pt_class;
 
@@ -487,13 +487,26 @@ static  int   create_surface_point(
     int                 edge_intersected,
     Point_classes       *pt_class )
 {
-    int       pt_index;
-    VIO_Real      x_w, y_w, z_w;
-    VIO_Real      dx, dy, dz;
-    VIO_Real      edge_point[VIO_MAX_DIMENSIONS];
-    VIO_Point     point;
-    VIO_Vector    normal;
-    VIO_Real      ignored;
+    int        pt_index;
+    VIO_Real   x_w, y_w, z_w;
+    VIO_Real   *dx, *dy, *dz;
+    VIO_Real   edge_point[VIO_MAX_DIMENSIONS];
+    VIO_Point  point;
+    VIO_Vector normal;
+    VIO_Real   *ignored;
+    int        sizes[VIO_MAX_DIMENSIONS];
+    int        n_dimensions;
+    int        n_values;
+    int        i;
+
+    n_dimensions = get_volume_n_dimensions( volume );
+    get_volume_sizes( volume, sizes );
+
+    n_values = 1;
+    for (i = VIO_N_DIMENSIONS; i < n_dimensions; i++)
+    {
+        n_values *= sizes[i];
+    }
 
     *pt_class = get_isosurface_point( corner_values, offset, edge_intersected,
                                       binary_flag, min_value, max_value,
@@ -515,17 +528,27 @@ static  int   create_surface_point(
 
     /* --------------------- now get normal ---------------------- */
 
+    ALLOC( dx, n_values );
+    ALLOC( dy, n_values );
+    ALLOC( dz, n_values );
+    ALLOC( ignored, n_values );
+
     evaluate_volume_in_world( volume,
                               (VIO_Real) Point_x(point),
                               (VIO_Real) Point_y(point),
                               (VIO_Real) Point_z(point),
                               Volume_continuity, FALSE,
                               get_volume_real_min(volume),
-                              &ignored,
-                              &dx, &dy, &dz,
+                              ignored,
+                              dx, dy, dz,
                               NULL, NULL, NULL, NULL, NULL, NULL );
 
-    fill_Vector( normal, dx, dy, dz );
+    fill_Vector( normal, dx[0], dy[0], dz[0] );
+
+    FREE( dx );
+    FREE( dy );
+    FREE( dz );
+    FREE( ignored );
 
     NORMALIZE_VECTOR( normal, normal );
 
