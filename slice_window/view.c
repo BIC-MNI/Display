@@ -938,9 +938,10 @@ void  get_voxel_to_pixel_transform(
         return;
     }
 
-    voxel[axis] = 0.0;
-    voxel[*x_index] = 0.0;
-    voxel[*y_index] = 0.0;
+    /* Get the position of the origin.
+     */
+    for_less( axis, 0, VIO_MAX_DIMENSIONS )
+      voxel[axis] = 0.0;
     convert_voxel_to_pixel( slice_window, volume_index, view_index, voxel,
                             x_trans, y_trans );
 
