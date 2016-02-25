@@ -115,10 +115,11 @@ involve core functionality.
 \begin{itemize}
 \item The intersection between a 3D surface and the loaded volume is automatically displayed in the slice window.
 \item Dynamic scans (e.g. DTI, fMRI, and PET) can now be loaded in \display{}.
-\item Input support for FreeSurfer (.mgz/.mgh) and NIfTI-1 (.nii)
+\item The ability to read FreeSurfer (.mgz/.mgh) and NIfTI-1 (.nii)
   volumes.
 \item Output support for surface formats including Wavefront OBJ,
-  Stanford PLY and X3D.
+  Stanford PLY, GIFTI, and X3D.
+\item The ability to read and display GIFTI (.gii) or BrainSuite surfaces (.dfs) and BrainSuite tractography (.dft) files.
 \item The previous 20 painting operations can be undone.
 \item A user can now load per-vertex data, such as cortical thickness measurements, for visualization on 3D surfaces.
 \end{itemize}
@@ -458,7 +459,7 @@ number of useful value about the voxel under the mouse pointer, as
 detailed in Table \ref{tabSliceFields}.
 \begin{table}
 \centering
-\caption{Fields displayed in the lower-left corner of the slice view window.}
+\caption{Fields in the status display in the lower-left corner of the slice view window.}
 \begin{tabular}{lp{0.8\linewidth}}
 Label & Description \\
 \hline
@@ -795,39 +796,65 @@ slice window is opened, if not already opened.
 \end{description}
 
 \subsection{Volume Config}
+This menu includes several miscellaneous commands, as well as two sets
+of options for controlling the filtering or smoothing of data in the
+Slice View window.
+
+The global interpolation command, \menutwo{Volume Config}{Interp:},
+changes the interpolation method used for all volume accesses. As
+such, it will change both the volume display and the specific values
+shown in the Slice View status. This interpolation smooths across all
+of the dimensions of the volume.
+
+The per-view interpolation methods only affect individual views (the
+sagittal, coronal, or transverse planes). This interpolation occurs
+only between slices, perpendicular to the slice view plane. The filter
+width setting controls how many slices will be included in the
+filtered display.
 
 \begin{description}
-\item[\menutwo{Volume Config}{Delete Volume}] Brings up a submenu that
- allows the user to delete the current volume. This does {\em not} affect the file from which the volume was loaded, it merely removes the volume from memory.
 \item[\menutwo{Volume Config}{Nearest Neighbour}]  Sets the filter type of
   the current volume slice under the mouse to nearest
   neighbour (this is the default).
 \item[\menutwo{Volume Config}{Linear Int Filter}]  Sets the filter type of
   the current volume slice under the mouse to linear interpolation
   between the two nearest slices.
-\item[\menutwo{Volume Config}{Box Filter}]  Sets the filter type of
-  the current volume slice under the mouse to a box filter.
-\item[\menutwo{Volume Config}{Triangle Filter}]  Sets the filter type of
-  the current volume slice under the mouse to a
-  triangle filter.
-\item[\menutwo{Volume Config}{Gaussian Filter}]  Sets the filter type of
-  the current volume slice under the mouse to a
-  Gaussian filter.
-\item[\menutwo{Volume Config}{Filter Width}]  Prompts the user for
-  the full width half maximum for the slice filter of the current volume.
-  Only applies to box, triangle, and Gaussian filters.
-\item[\menutwo{Volume Config}{Share Labels}] Switches back and forth
-  between sharing label volumes across volumes which have identical
-  sampling, and giving each a separate label volume. The default is
-  yes, so that users can paint one set of labels on top of several
-  similar volumes, such as T1 and T2 volumes of the same patient.
-\item[\menutwo{Volume Config}{Interp:}]  Toggles interpolation method used 
-  for displayed slices among nearest neighbour (default), trilinear, and 
-  tricubic.
-\item[\menutwo{Volume Config}{Increm Update:}]  Toggles the incremental
-  update mode of the slice window.  When it is on, the slice
-  window incrementally updates the slice window.  This is useful
-  when the slice window takes long to update, such as with cached
+\item[\menutwo{Volume Config}{Box Filter}]  Sets the per-view filter type of
+  the volume slice under the mouse to a box filter. If the mouse is not 
+  over a slice view, this command has no effect.
+\item[\menutwo{Volume Config}{Triangle Filter}] Sets the per-view filter type of
+  the volume slice under the mouse to a triangle filter. If the mouse is not 
+  over a slice view, this command has no effect.
+\item[\menutwo{Volume Config}{Gaussian Filter}] Sets the per-view filter type of
+  the volume slice under the mouse to a Gaussian filter. If the mouse is not 
+  over a slice view, this command has no effect.
+\item[\menutwo{Volume Config}{Filter Width}] Prompts the user for the
+  full width half maximum for the per-view filter of the slice view
+  under the mouse. Each view has its own filter width. This value
+  applies only to box, triangle, or Gaussian filters. It does not
+  apply to the nearest-neighbour or linear filters. If the mouse is not 
+  over a slice view, this command has no effect.
+\item[\menutwo{Volume Config}{Interp:}] Toggles the global
+  interpolation method used for rendering slice images for the entire
+  volume. The choices are nearest neighbour (the default), trilinear,
+  and tricubic. This setting will affect the values shown in the Slice
+  View status display, as they will also be interpolated.\
+\item[\menutwo{Volume Config}{Delete Volume}] Brings up a submenu that
+  allows the user to delete the current volume. This does {\em not}
+  affect the file from which the volume was loaded, it merely removes
+  the volume from memory.
+\item[\menutwo{Volume Config}{Share Labels}] Toggles whether or not
+  segmenting labels are shared across volumes with identical
+  sampling. If this option is {\tt Off}, each loaded volume is
+  associated with its own independent label volume. If this option is
+  {\tt On}, the default, a single label volume will be shared between
+  all volumes with identical sampling grids. Sharing labels allows
+  users can paint a single set of labels on several similar volumes,
+  such as T1 and T2 volumes of the same patient.
+\item[\menutwo{Volume Config}{Increm Update:}] Toggles the incremental
+  update mode of the slice window. When it is on, the slice
+  window incrementally updates the slice window. This may still be useful
+  when the slice window takes a long time to update, such as with cached
   volumes or in trilinear interpolation mode.
 \end{description}
 

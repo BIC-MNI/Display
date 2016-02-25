@@ -384,9 +384,44 @@ DEF_MENU_UPDATE(set_label_colour_ratio )
     return( state );
 }
 
+/**
+ * \brief Return a human-readable description of a filter.
+ * \param filter_type The value (VIO_Filter_types) to describe.
+ * \returns A constant string describing the filter type, e.g. "Gaussian".
+ */
+const char *
+get_filter_name( VIO_Filter_types filter_type )
+{
+  switch ( filter_type )
+  {
+  case GAUSSIAN_FILTER:
+    return "Gaussian";
+  case BOX_FILTER:
+    return "box";
+  case LINEAR_INTERPOLATION:
+    return "linear";
+  case NEAREST_NEIGHBOUR:
+    return "nearest neighbour";
+  case TRIANGLE_FILTER:
+    return "triangle";
+  default:
+    return "unknown";
+  }
+}
+
+/**
+ * \brief Sets the filter type used for the slice under the mouse cursor.
+ *
+ * Each slice view can have its own independent setting for a slice filter
+ * that averages slices across the axis perpendicular to the view. If the
+ * mouse is not over a slice view, this function will not change anything.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param filter_type The desired filter type.
+ */
 static  void  set_filter_type(
     display_struct   *display,
-    VIO_Filter_types     filter_type )
+    VIO_Filter_types filter_type )
 {
     int             view_index, volume_index;
     display_struct  *slice_window;
@@ -395,12 +430,26 @@ static  void  set_filter_type(
         get_slice_view_index_under_mouse( display, &view_index ) &&
         get_n_volumes(slice_window) > 0 )
     {
+        volume_view_struct *vv_ptr;
         volume_index = get_current_volume_index( slice_window );
-        slice_window->slice.volumes[volume_index].views[view_index].filter_type
-                                                         = filter_type;
+
+        vv_ptr = &slice_window->slice.volumes[volume_index].views[view_index];
+        vv_ptr->filter_type = filter_type;
+
+        print("The %s view is now using a %s filter",
+              get_view_name( slice_window, volume_index, view_index ),
+              get_filter_name( filter_type ));
+        if ( filter_type != NEAREST_NEIGHBOUR &&
+             filter_type != LINEAR_INTERPOLATION )
+            print(" with FWHM %.2f", vv_ptr->filter_width );
+        print(".\n");
 
         set_slice_window_update( slice_window, volume_index, view_index,
                                  UPDATE_SLICE );
+    }
+    else
+    {
+        print("The filter type was not changed.\n");
     }
 }
 

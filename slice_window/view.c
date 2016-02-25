@@ -2351,3 +2351,37 @@ void  reset_current_volume_transform(
                           &(slice_window->slice.volumes[volume_index]
                             .original_transform) );
 }
+
+/**
+ * \brief Get a text name for the given view index.
+ *
+ * Used when describing these views to the user.
+ *
+ * \param slice_window A pointer to the slice view window's display_struct.
+ * \param volume_index The volume index.
+ * \param view_index The view index we want to describe.
+ * \returns A constant string like "sagittal", e.g.
+ */
+const char *
+get_view_name( display_struct *slice_window, int volume_index, int view_index )
+{
+  int x_index, y_index, axis_index;
+
+  if (slice_has_ortho_axes( slice_window, volume_index, view_index,
+                            &x_index, &y_index, &axis_index ))
+  {
+    switch ( axis_index )
+    {
+    case VIO_X:
+      return "sagittal";
+    case VIO_Y:
+      return "coronal";
+    case VIO_Z:
+      return "transverse";
+    }
+  }
+  else
+  {
+    return "oblique";
+  }
+}

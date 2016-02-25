@@ -2679,6 +2679,9 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
   void  reset_current_volume_transform(
     display_struct   *display );
 
+const char *get_view_name( display_struct *slice_window, int volume_index,
+                           int view_index );
+
 /* from closest_line.c */
   VIO_BOOL  find_closest_line_point_to_point(
     display_struct    *display,
