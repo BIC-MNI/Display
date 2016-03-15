@@ -366,30 +366,29 @@ segmenting \
     transient 'r'    label_connected_no_threshold     'Label Fill No Thrs' 'Applies the current paint label to all connected voxels regardless of the threshold range.' \
     transient 't'    clear_connected                  'Clear Fill' 'Clears the paint label of all connected voxels within the threshold range.' \
     transient 'y'    set_segmenting_threshold         'Set Threshold' 'Sets upper and lower threshold for segmentation, such that voxels outside this range will not be labeled.' \
-    transient 'u'    change_labels_in_range           'Change Labels' '' \
- \
+    transient 'u'    change_labels_in_range           'Change Labels' 'Change a label, or a range of labels, to another label.' \
     transient 'a'    label_slice                      'Label Slice' 'Sets the label of the entire slice under the mouse cursor.' \
     transient 's'    clear_slice_confirm              'Clear Slice' 'Clears the labels of the entire slice under the mouse cursor.' \
     transient 'd'    set_current_paint_label          'Set Paint Lbl: %d' 'Selects the current label value, either from the current voxel or by prompting the user.' \
     transient 'f'    set_paint_xy_brush_radius        'XY Radius: %g' 'Prompts for the radius of the in-plane brush radius.' \
     transient 'g'    set_paint_z_brush_radius         'Out-plane Rad: %g' 'Prompts for the radius of the out-of-plane brush radius.' \
-    transient 'h'    copy_labels_from_higher_slice    'Copy from Rt/Sup/Ant Slice' '' \
-    transient 'j'    toggle_freestyle_painting         'Freestyle: %s' 'Toggles free vs. line drawing mode.' \
+    transient 'h'    copy_labels_from_higher_slice    'Copy from Rt/Sup/Ant Slice' 'Copy all label values from the upper slice to the current slice.' \
+    transient 'j'    toggle_freestyle_painting        'Freestyle: %s' 'Toggles free vs. line drawing mode.' \
  \
     transient 'z'    reset_segmenting_confirm         'Clear All Labels' 'Sets all labels of current volume to zero (if confirmed).' \
-    transient 'x'    erode_labels                     'Erode 3D' '' \
-    transient 'c'    dilate_labels                    'Dilate 3D' '' \
-    transient 'v'    calculate_volume                 'Calculate Volume' '' \
-    transient 'b'    toggle_display_labels           'Show Labels: %s' '' \
-    transient 'n'    copy_labels_from_lower_slice  'Copy from Lt/Inf/Post Slice' '' \
+    transient 'x'    erode_labels                     'Erode 3D' 'Erode the current label.' \
+    transient 'c'    dilate_labels                    'Dilate 3D' 'Dilate the current label.' \
+    transient 'v'    calculate_volume                 'Calculate Volume' 'Calculate the volume of a particular label.' \
+    transient 'b'    toggle_display_labels            'Show Labels: %s' 'Enable or disable the label overlay on the slice images.' \
+    transient 'n'    copy_labels_from_lower_slice     'Copy from Lt/Inf/Post Slice' 'Copy all label values from the lower slice to the current slice.' \
     transient 'm'    toggle_undo_feature              'Enable Undo: %s' 'Control whether the undo feature is available.' \
  \
-    transient '1'    set_current_erase_label          'Set Erase Lbl: %d' '' \
-    transient '2'    toggle_fast_update               'Fast Update: %s' '' \
+    transient '1'    set_current_erase_label          'Set Erase Lbl: %d' 'Set the label value used during erase operations.' \
+    transient '2'    toggle_fast_update               'Fast Update: %s' 'Enable or disable fast label updates.' \
     transient '3'    toggle_cursor_follows_paintbrush 'Cursor Follows: %s' 'Control whether the cursor moves with the paintbrush.' \
     transient '4'    toggle_cursor_visibility         'Cursor Vis: %s' 'Control whether the cursor is visible.' \
     transient '5'    toggle_connectivity              'Connectivity: %d' 'Selects either 4- or 8-connectivity for fill, dilation, and erosion.' \
-    transient '6'    label_connected_3d               'Fill 3D' '' \
+    transient '6'    label_connected_3d               'Fill 3D' 'Fill a 3D region with the current paint label.' \
  \
     transient '7'    undo_slice_labels                'Undo' 'Undo the previous painting operation.' \
 } \

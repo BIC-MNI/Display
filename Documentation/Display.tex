@@ -1069,12 +1069,13 @@ the brush size will set the size of the current brush.
 \item[\menutwo{Segmenting}{Calculate Volume}] Calculates the total
   volume of all voxels which have the current paint label. This may
   take few seconds to complete.
-\item[\menutwo{Segmenting}{Change Labels}] Prompts for a source and
-  destination label value, as well as a volume value minimum and maximum
-  value.  All voxels which have the source label value and are within
+\item[\menutwo{Segmenting}{Change Labels}] Replaces a label, or a range of 
+  labels, with a new label value. Prompts for a source label or label range, a
+  destination label value, and as a volume value minimum and maximum
+  value. All voxels which have the source label value and are within
   the specified value range are changed to have the destination label.
-  If the maximum value specified is less than the minimum value, then
-  this range is ignored, and the operation simply changes all
+  If the maximum value specified is less than or equal to the minimum value,
+  then this range is ignored, and the operation simply changes all
   occurrences of the source label to the destination label.
 \item[\menutwo{Segmenting}{Fast Update}] Toggles between updating only
   the slice on which the mouse is painting or all slices, in order to
@@ -1514,10 +1515,10 @@ visible face such that it is also marked with the visible colour.
 \item[\menutwo{Surface Segmentation}{Vis -> Invis Colour}] Sets every
 visible face such that it is also marked with the invisible colour.
 
+\end{description}
+
 \section{Step by Step Examples Using \display{}}
 \subsection{How to Change Colour Coding}
-
-\end{description}
 
 To select a specific colour coding option, you can specify it on the
 command line:
@@ -1617,9 +1618,9 @@ Label Value & Colour Name & Colour RGB \\
 
 \subsection{How to Load Labels}
 
-You can always load labels by using the {\tt -label} option and
-specifying either the {\tt .tag} or {\tt .mnc} file on the command
-line:
+When \display{} starts from the command line, you can load labels by 
+using the {\tt -label} option and
+specifying the desired {\tt .tag} or {\tt .mnc} file:
 \begin{verbatim}
 Display patient_t1.mnc -label patient_t1.tag
 \end{verbatim}
@@ -1631,6 +1632,32 @@ Display patient_t1.mnc -label patient_t1.mnc
 If you prefer, you can load labels while \display{} is already running
 by using either the \menutwo{File}{Load Labels .tag} or
 \menutwo{File}{Load Labels .mnc} command as appropriate.
+
+\subsection{How to change one label value to another}
+
+The \menutwo{Segmenting}{Change Labels} command allows you to either
+change a single label to another value, or to erase all voxels of a
+particular label. This is similar to a ``global search and replace'' feature.
+Because of the potentially large number of changed voxels, this 
+command {\em cannot} be undone!
+
+To change one label to another, perform the following steps:
+
+\begin{enumerate}
+\item Select the \menutwo{Segmenting}{Change Labels} command. 
+\item When prompted for the ``Label or range to change from'', enter the existing label value you want to change and press OK.
+\item You will no be prompted for the ``Label to change to:''. Enter the new label value and press OK.
+\item You will finally be prompted for the ``Min and max of value range:''. You can just enter ``0 0'' here. Press OK.
+\item \display{} will now change all instances of the original label to the new label.
+\end{enumerate}
+
+To restrict the change to apply only to voxels whose ranges are within
+a specific intensity threshold, you can specify that range in step 4
+above. If the second value is greater than the first, then only those
+voxels with values lying within that interval will be affected by this
+command.
+
+To erase a label, specify the label value zero ('0') in step three above. The minimum/maximum range still applies if specified.
 
 \subsection{How to Create a 3D Rendering of a Label}
 
