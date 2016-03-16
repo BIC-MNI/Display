@@ -18,13 +18,14 @@
 \newcommand{\menu}[1]{{\scriptsize \fbox{\bf #1}}}
 \newcommand{\menutwo}[2]{{\scriptsize \fbox{\bf #1}/\fbox{\bf #2}}}
 \newcommand{\menuthree}[3]{{\scriptsize \fbox{\bf #1}/\fbox{\bf #2}/\fbox{\bf #3}}}
+\newcommand{\emptybox}{\phantom{MMMMMMMM}}
 
 \title{{\bf \display} - Software for Visualization and Segmentation of Surfaces and Volumes}
 \author{Robert D. Vincent, Athena Buckthought, and David MacDonald}
 \pretitle{
 \begin{center}
 \Large
-\includegraphics[width=0.3\columnwidth]{neuro-logo.jpg}\\[\bigskipamount]
+\includegraphics[width=0.3\columnwidth]{neuro-logo.png}\\[\bigskipamount]
 }
 \posttitle{
 \end{center}
@@ -1101,7 +1102,7 @@ This is a menu which may be used to translate position of the all
 labels by integral voxel increments.
 
 \begin{description}
-\item[\menutwo{Translate Labels}{Trans \^\ }]  Moves all labels one voxel in the
+\item[\menutwo{Translate Labels}{Trans \textasciicircum }]  Moves all labels one voxel in the
   upward direction of the slice pointed to by the mouse.
 \item[\menutwo{Translate Labels}{Trans v}]  Moves all labels one voxel in the
   downward direction of the slice pointed to by the mouse.
