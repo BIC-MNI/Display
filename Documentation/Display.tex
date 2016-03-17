@@ -313,22 +313,36 @@ This window always has the title ``Display: Menu''.
 \begin{figure}
 \centering
 \includegraphics[width=0.9\linewidth]{display-obj-list.png}
-\caption{The object list window}
+\caption{The object list window. The first entry in the list is the built-in polygonal object used to surface generation. The other two entries refer to files loaded from the command line.}
 \label{winObjList}
 \end{figure}
 
-All 3D objects loaded and created in \display{},
-(with the exception of volumes) are listed in the object hierarchy. The
-arrow keys are used to move around in this hierarchy and to select the
-current object. Also, clicking on an object in the 3D view window or on the
-name of the object in the object list hierarchy with the left mouse button
-will make it the current selection.
+All 3D objects loaded and created in \display{}, with the exception of
+volumes, are listed in the object hierarchy. The first entry in the
+object hierarchy list, which initially consists of the text {\tt
+  '0:Polygons(0:0)'}, refers to the built-in surface object used when
+surfaces are created in \display{}.
 
-The 3D objects used by \display{} may be one of several types. They may
-be {\em markers} that record a single 3D position. They may be {\em
- polygons} that represent a complex surface using a series of points
-or vertices to create a triangular mesh. They may be {\em lines} that
-represent a simple curve or shape. Finally, {\em model} objects act as containers for any number of other objects, including other models.
+The loaded objects are listed in the order they were listed on the
+command line. Each loaded file is indicated by a list entry that
+includes the file name followed by the file name in parentheses, and
+an arrow.  Loaded files are always treated as Model objects, which are
+objects that can contain other objects, including polygons. You can
+explore the items contained in the model by using the arrow keys to
+navigate into the object hierarchy.
+
+The arrow keys are used to move around in this hierarchy and to select
+the current object. Also, clicking on an object in the 3D view window
+or on the name of the object in the object list hierarchy with the
+left mouse button will make it the current selection.
+
+The 3D objects used by \display{} may be one of several types. They
+may be {\em Markers} that record a single 3D position. They may be
+{\em Polygons} that represent a complex surface using a series of
+points or vertices to create a triangular mesh. They may be {\em
+  Lines} that represent a simple curve or shape, or a set of curves
+such as diffusion tractography. Finally, {\em Model} objects act as
+containers for any number of other objects, including other models.
 
 This window always has the title ``Display: Objects''.
 
@@ -676,11 +690,14 @@ file data of various types.
   of the four slice viewports, prompts for a filename and saves the
   contents of the slice viewport to the file, in .rgb format.
 \item[\menutwo{File}{Save File}]  Prompts for a filename and saves
- the current object, or all objects under the current object, if the
+ the current object, or all objects contained in the current object, if the
  current object is a model object. Files are typically saved in MNI .obj
  format, but single polygonal surfaces can also be saved in Stanford
- (.ply), X3D (.x3d), or Wavefront (.wf.obj) format.
- This selection cannot be used to save a volume file.
+ (.ply), X3D (.x3d), or Wavefront (.wf.obj) format. \display{} will select
+the format based on the extension of the filename you supply.
+ 
+This selection {\em cannot} be used to save a volume file.
+
 \item[\menutwo{File}{Load File}]  Prompts for a filename and loads the file.
 If it is a volume file (ends in \ident{.mnc}), then the
 slice window is opened, if not already opened.
@@ -1840,11 +1857,27 @@ can take some time.
 
 \appendix
 
-%% Commented out until we actually have something to say that is true 
-%% and useful.
-%% \section{Running \display{} on Mac OS X}
+\section{Running \display{} on Mac OS X}
 
-%% \subsection{How to Display 3D Window on Mac}
+This section is for special notes about using \display{} on Apple
+Macintosh computer systems.
+
+\subsection{Installing Zenity on OS X}
+
+\display{} uses a tool called ``zenity'' to display dialog windows. Unfortunately this tool is not automatically installed on Windows or Macintosh computers. The good news is that one can install zenity with only a couple of commands.
+
+\begin{enumerate}
+\item First install Homebrew (from http://brew.sh) by running the following command in a terminal window:
+\begin{verbatim}
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+\end{verbatim}
+
+\item Once you have Homebrew installed, install Zenity with the command:
+\begin{verbatim}
+brew install homebrew/x11/zenity
+\end{verbatim}
+\end{enumerate}
+
 
 %% \subsection{How to Set Preferences on Mac}
 
