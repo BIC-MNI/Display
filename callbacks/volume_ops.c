@@ -1445,21 +1445,6 @@ DEF_MENU_UPDATE(toggle_incremental_slice_update)
 
 /* ARGSUSED */
 
-DEF_MENU_FUNCTION( toggle_shift_key )
-{
-    print( "Obsolete function:  Cannot toggle shift key\n" );
-    return( VIO_OK );
-}
-
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(toggle_shift_key )
-{
-    return( FALSE );
-}
-
-/* ARGSUSED */
-
 DEF_MENU_FUNCTION(toggle_cursor_visibility)
 {
     int              view;
@@ -1575,4 +1560,41 @@ DEF_MENU_FUNCTION(slice_rulers_toggle)
 DEF_MENU_UPDATE(slice_rulers_toggle)
 {
     return TRUE;
+}
+
+DEF_MENU_FUNCTION( make_all_volumes_visible )
+{
+  display_struct *slice_window;
+  int view_index;
+  int volume_index;
+  int is_vis;
+
+  if( get_slice_window( display, &slice_window ) &&
+      get_n_volumes(slice_window) > 0 )
+  {
+    for_less( view_index, 0, N_SLICE_VIEWS )
+    {
+      is_vis = FALSE;
+
+      /* If any slice is visible, make them all visible.
+       */
+      for_less( volume_index, 0, get_n_volumes( slice_window ))
+        if (get_slice_visibility( slice_window, volume_index, view_index ))
+          is_vis = TRUE;
+
+      /* Now cycle through again and actually make them all visible.
+       */
+      for_less( volume_index, 0, get_n_volumes( slice_window ))
+        set_slice_visibility( slice_window, volume_index, view_index, is_vis );
+    }
+  }
+      
+}
+
+DEF_MENU_UPDATE( make_all_volumes_visible )
+{
+  display_struct *slice_window;
+
+  return ( get_slice_window( display, &slice_window ) &&
+           get_n_volumes(slice_window) > 0 );
 }

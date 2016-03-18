@@ -1122,6 +1122,7 @@ DEF_MENU_UPDATE(toggle_secondary_brush);
 
   DEF_MENU_UPDATE(type_in_view_perspective_distance);
 
+/* from callbacks/volume_ops.c */
   DEF_MENU_FUNCTION(move_slice_plus);
 
   DEF_MENU_UPDATE(move_slice_plus );
@@ -1278,10 +1279,6 @@ DEF_MENU_UPDATE(toggle_secondary_brush);
 
   DEF_MENU_UPDATE(toggle_incremental_slice_update);
 
-  DEF_MENU_FUNCTION( toggle_shift_key );
-
-  DEF_MENU_UPDATE(toggle_shift_key );
-
   DEF_MENU_FUNCTION(toggle_cursor_visibility);
 
   DEF_MENU_UPDATE(toggle_cursor_visibility );
@@ -1293,6 +1290,13 @@ DEF_MENU_UPDATE(toggle_secondary_brush);
 DEF_MENU_FUNCTION(reset_interactions);
 DEF_MENU_UPDATE(reset_interactions);
 
+DEF_MENU_FUNCTION(slice_rulers_toggle);
+DEF_MENU_UPDATE(slice_rulers_toggle);
+
+DEF_MENU_FUNCTION(make_all_volumes_visible);
+DEF_MENU_UPDATE(make_all_volumes_visible);
+
+/* from callbacks/volume_transform_ops.c */
   DEF_MENU_FUNCTION( transform_current_volume );
 
   DEF_MENU_UPDATE(transform_current_volume );

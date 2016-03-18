@@ -25,7 +25,6 @@ MENU_F(exit_program) \
 MENU_F(show_memory) \
 MENU_F(pop_menu) \
 MENU_F(push_menu) \
-MENU_F(toggle_shift_key) \
 MENU_F(menu_load_vertex_data) \
 MENU_F(menu_next_vertex_data) \
 MENU_F(load_file) \
@@ -94,7 +93,8 @@ MENU_F(animation_toggle) \
 MENU_F(slice_rulers_toggle) \
 MENU_F(toggle_intensity_plot_axis) \
 MENU_F(toggle_intensity_plot_enabled) \
-MENU_F(toggle_intensity_plot_scaling)
+MENU_F(toggle_intensity_plot_scaling) \
+MENU_F(make_all_volumes_visible)
 
 #define  MENU2 \
 MENU_F(move_slice_plus) \
