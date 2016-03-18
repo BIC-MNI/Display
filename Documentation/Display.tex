@@ -847,18 +847,21 @@ Appendix \ref{secGlobals}.
 \end{description}
 
 \subsection{Slice View}
+
+The slice view menu is primarily concerned with manipulating the
+orientation and position of the three (or four) slice views. It also
+allows you to select which of the volumes is the currently active
+volume.
+
 \begin{description}
-\item[\menu{+ Slice}]  Moves the cursor to the next slice.
-\item[\menu{- Slice}]  Moves the cursor to the previous slice.
+\item[\menu{+ Slice}] Moves the cursor to the next slice.
+\item[\menu{- Slice}] Moves the cursor to the previous slice.
 \item[\menu{+ Time}]  Moves to the next time point in a dynamic scan.
 \item[\menu{- Time}]  Moves to the previous time point in a dynamic scan.
 \item[\menutwo{Slice View}{Curr Volume}] If more than one volume is loaded, then
-  this button increases the current volume index. For many operations,
-  the current volume is used as the target volume. This button allows
-  selection of which of the multiple loaded volumes to perform
-  subsequent operations on.
+  this button increases the current volume index. If the the last volume is currently selected, this will return to the index of the first volume. The current volume index is displayed in the lower left corner of the slice view, with the field title {\tt V\#}. For many operations, including intensity plots and colour-coding selection,  the current volume is used as the target volume.
 \item[\menutwo{Slice View}{Prev Volume}] If more than one volume is loaded, then
-  this button decreases the current volume index.
+  this button decreases the current volume index. If this command is chosen when the first volume is selected, the current volume index will be set to the last volume loaded.
 \item[\menutwo{Slice View}{Reset Slice View}]  If the mouse is in the slice view
    window and is pointing to one of the 4 slices, then the view for
    that slice is reset and resized to fit the viewport.
@@ -886,9 +889,6 @@ Appendix \ref{secGlobals}.
 \item[\menutwo{Slice View}{Histogram of Label}]  Same as
  \menutwo{Slice View}{Recompute Histogram}, but only includes values
   which are in labeled (segmented) regions.
-%%delete me!
-\item[\menutwo{Slice View}{Slice DblBuf:}]  Toggles between single and double buffer
-  mode for the slice view window.
 \item[\menutwo{Slice View}{Toggle Plane Visibility}] This menu selection
   toggles the visibility of the cross section plane in the 3D View
   window.
@@ -924,6 +924,7 @@ Appendix \ref{secGlobals}.
 \item[\menutwo{Slice View}{Visible:}]  Makes only one volume visible, cycling
  through all loaded volumes as the button is pressed.  Whichever volume
  is made visible is set to the current volume.
+\item[\menutwo{Slice View}{Make All Visible}] Make all of the volumes visible again.
 \item[\menutwo{Slice View}{Vol Opacity:}]  Prompts the user for an opacity
   value and sets the opacity of the current volume.
 \end{description}
@@ -1310,10 +1311,9 @@ of the surface extraction.
 \subsection{Atlas}
 
 This menu controls the display of the Talairach atlas overlaid on the
-the slice views.  The colour atlas book by Talairach and Tournoux
-has been scanned into a digital
-format and can be overlaid on any volume for reference and comparison
-purposes.
+the slice views.  The colour atlas book by Talairach and Tournoux has
+been scanned into a digital format and can be overlaid on any volume
+for reference and comparison purposes.
 
 \begin{description}
 \item[\menutwo{Atlas}{Atlas State}]  Toggles between displaying scanned images
@@ -1340,6 +1340,9 @@ purposes.
 \end{description}
 
 \subsection{3D View}
+
+This menu allows for the rapid setting of the orientation and
+magnification of object in the 3D view window. It also has some experimental features related to 3D rendering.
 
 \begin{description}
 \item[\menutwo{3D View}{Front View}]  Selects a view of the front of
@@ -1431,32 +1434,35 @@ click on its image in the 3D window.
 
 \subsection{3D Render}
 
+This menu contains commands to changing the way 3D objects are
+displayed in the 3D view window.
+
 \begin{description}
-\item[\menutwo{Render}{Change Background}]  Prompts for a colour to
-        set the background colour of the 3D window and slice window.
-\item[\menutwo{Render}{Wireframe or Shaded}]  Toggles the display mode of the
-        current model between a wireframe rendering and a solid, shaded 
-        rendering.  The default is wireframe.
-\item[\menutwo{Render}{Gouraud or Flat}]  Toggles the display mode of the
-        current object between a flat or smooth shading.  The default is
-        smooth (Gouraud).
-\item[\menutwo{Render}{Lights}]  Toggles the lights on and off.  If lights
-        are off, all objects are coloured uniformly.
-\item[\menutwo{Render}{3D DblBuf}]  Toggles the double buffer mode of the
-        3D window.  If double buffering is on, the window is smoothly
-        updated, but the colour resolution may be poor.
-        When double buffering is off, the colour resolution improves, but
-        the 3D window flickers when updated.  When taking snapshots,
-        turn off double buffering so as to get the best colour resolution.
-        This option is only available on IRIS/GL versions of the program.
-\item[\menutwo{Render}{Marker Labels}]  Toggles the display of the text
-        labels of the markers in the 3D window.
-\item[\menutwo{Render}{Set \# Curve Segments}]  Not for general use.
-\item[\menutwo{Render}{2 Sided}]  Not for general use.
-\item[\menutwo{Render}{Backface}]  Not for general use.
+\item[\menutwo{3D Render}{Change Background}] Prompts for a colour to
+  set the background colour of the 3D window and slice window.
+\item[\menutwo{3D Render}{Mode: Wireframe or Shaded}] Toggles the
+  display mode of the current model between a wireframe rendering and
+  a solid, shaded rendering. The default is shaded.
+\item[\menutwo{3D Render}{Shading: Gouraud or Flat}] Toggles the
+  display mode of the current object between a flat or smooth shading.
+  The default is smooth (Gouraud).
+\item[\menutwo{3D Render}{Lights: On or Off}] Toggles the lights on and off.  If
+  lights are off, all objects are coloured uniformly.
+\item[\menutwo{3D Render}{2 Sided}]  Not for general use.
+\item[\menutwo{3D Render}{Backface}]  Not for general use.
+\item[\menutwo{3D Render}{Set \# Curve Segments}]  Not for general use.
+\item[\menutwo{3D Render}{Marker Labels: Off or On}] Toggles the
+  display of the text labels of the markers in the 3D window.
+\item[\menutwo{3D Render}{Lines as Curves: Off or On}] Toggles whether
+  lines are drawn straight or curved. May not be supported on OpenGL.
 \end{description}
 
 \subsection{Markers}
+
+This menu contains commands for creating and manipulating
+markers. Markers are graphical object that define a specific point in
+the volume. Each marker can be associated with a number of pieces of
+metadata, such as a label, a colour, a structure ID, and a patient ID.
 
 \begin{description}
 \item[\menutwo{Markers}{Create Marker}]  If the mouse is in the slice window
@@ -1522,10 +1528,40 @@ click on its image in the 3D window.
 
 \subsection{Polygons}
 
+This menu contains commands for creating and manipulating polygonal
+objects. These are used to define surfaces.
+
 \begin{description}
-\item[\menutwo{Polygons}{Compute Normals}]  Computes normals for the
+\item[\menutwo{Polygons}{Print Surface Area}] Computes and prints the surface area of the currently selected polygonal object.
+\item[\menutwo{Polygons}{Set Line Thickness}]  Prompts for a line thickness
+     value used in displaying the current polygons in wireframe mode.
+     Default value is 1.
+\item[\menutwo{Polygons}{Make Quad Ellipsoid}]  Same as
+     \menutwo{Polygons}{Make Tetrahedral Ellipsoid} except that the resulting
+     polygons consist of triangles and quadrilaterals defined by lines of
+     longitude and latitude, and rather than specifying the number of items
+     composing it, the user specifies the number of intervals around and up
+     the ellipsoid.
+\item[\menutwo{Polygons}{Subdivide Polygons}]  Not for general use.
+\item[\menutwo{Polygons}{Create Bintree}]  Not for general use. Creates a ``bintree'', similar to a KD-tree, that can speed up certain operations on polygons.
+\item[\menutwo{Polygons}{Compute Normals}] Computes normals for the
      current polygon, for use in displaying a smooth lighted surface in
-     the 3D window. 
+     the 3D window.
+\item[\menutwo{Polygons}{Reverse Polygons}] Not for general use.
+\item[\menutwo{Polygons}{Reverse Normals}]  Not for general use.
+\item[\menutwo{Polygons}{Make Tetrahedral Ellipsoid}]  Prompts for 3 numbers
+     for the centre, 3 numbers for the radii, and an integer for the number
+     of triangles, and creates an triangulation of an ellipsoid.  The
+     resulting polygon is a subdivision of a tetrahedron, an octohedron,
+     or dodecahedron, depending on the number of triangles specified, which
+     will be rounded to an appropriate multiple of 4 times either 4, 8, or 20.
+\item[\menutwo{Polygons}{Coalesce Polygons}]  Causes individual polygons in
+     the current polygons object to share common vertices, which results in
+     the object appearing to be more smoothly shaded.
+\item[\menutwo{Polygons}{Separate Polygons}]  Causes individual polygons in
+     the current polygons object not to share common vertices, which has
+     the visual effect of causing the object to be flat shaded.
+\item[\menutwo{Polygons}{Smooth Polygon}]  Not for general use.
 \item[\menutwo{Polygons}{Average Normals}]  A second way to compute
      normals for a polygon, which results in smoother shading.
      Prompts for a number of
@@ -1537,32 +1573,6 @@ click on its image in the 3D window.
      of 0 causes no change in each iteration, where a value of 1
      sets each vertex normal to the average of its neighbour vertex
      normals.  Typically, use the values ``5 1'' for this selection.
-\item[\menutwo{Polygons}{Set Line Thickness}]  Prompts for a line thickness
-     value used in displaying the current polygons in wireframe mode.
-     Default value is 1.
-\item[\menutwo{Polygons}{Make Tetrahedral Ellipsoid}]  Prompts for 3 numbers
-     for the centre, 3 numbers for the radii, and an integer for the number
-     of triangles, and creates an triangulation of an ellipsoid.  The
-     resulting polygon is a subdivision of a tetrahedron, an octohedron,
-     or dodecahedron, depending on the number of triangles specified, which
-     will be rounded to an appropriate multiple of 4 times either 4, 8, or 20.
-\item[\menutwo{Polygons}{Make Quad Ellipsoid}]  Same as
-     \menutwo{Polygons}{Make Tetrahedral Ellipsoid} except that the resulting
-     polygons consist of triangles and quadrilaterals defined by lines of
-     longitude and latitude, and rather than specifying the number of items
-     composing it, the user specifies the number of intervals around and up
-     the ellipsoid.
-\item[\menutwo{Polygons}{Separate Polygons}]  Causes individual polygons in
-     the current polygons object not to share common vertices, which has
-     the visual effect of causing the object to be flat shaded.
-\item[\menutwo{Polygons}{Coalesce Polygons}]  Causes individual polygons in
-     the current polygons object to share common vertices, which results in
-     the object appearing to be more smoothly shaded.
-\item[\menutwo{Polygons}{Subdivide Polygons}]  Not for general use.
-\item[\menutwo{Polygons}{Create Bintree}]  Not for general use.
-\item[\menutwo{Polygons}{Reverse Polygons}]  Not for general use.
-\item[\menutwo{Polygons}{Reverse Normals}]  Not for general use.
-\item[\menutwo{Polygons}{Smooth Polygon}]  Not for general use.
 \end{description}
 
 \subsection{Surface Curves}
@@ -1614,9 +1624,12 @@ Changes made to a polygonal surface may be saved by using the
 \menutwo{File}{Save File} command.
 
 \begin{description}
+
+\item[\menutwo{Surface Segmentation}{Cut Neighbours}] TBD
+
 \item[\menutwo{Surface Segmentation}{Invis Col -> Invis}] Finds each
-  face that has been painted with the current invisible colour, and
-  actually makes that face invisible (transparent).
+ face that has been painted with the current invisible colour, and
+ actually makes that face invisible (transparent).
 
 \item[\menutwo{Surface Segmentation}{Reset Visible}] Makes every face of
   the current polygonal surface visible and sets it to the visible colour.
@@ -1624,9 +1637,6 @@ Changes made to a polygonal surface may be saved by using the
 \item[\menutwo{Surface Segmentation}{Set Coloured Visible}] Makes every
   face of the current polygonal surface invisible if it is painted with
   the current invisible colour. Otherwise the face is made visible.
-
-\item[\menutwo{Surface Segmentation}{Remove Invisible}] Actually removes 
-invisible faces from the polygonal surface.
 
 \item[\menutwo{Surface Segmentation}{Remove Invisible}] Actually removes 
 invisible faces from the polygonal surface.
@@ -1639,14 +1649,66 @@ invisible faces from the polygonal surface.
   are entirely below the current X, Y, or Z plane. Prompts for the plane
   to use.
 
-\item[\menutwo{Surface Segmentation}{Reset Neighbours}]
-
-\item[\menutwo{Surface Segmentation}{Vis -> Vis Colour}] Sets every
-visible face such that it is also marked with the visible colour.
+\item[\menutwo{Surface Segmentation}{Reset Neighbours}] TBD
 
 \item[\menutwo{Surface Segmentation}{Vis -> Invis Colour}] Sets every
 visible face such that it is also marked with the invisible colour.
 
+\item[\menutwo{Surface Segmentation}{Vis -> Vis Colour}] Sets every
+visible face such that it is also marked with the visible colour.
+
+\item[\menutwo{Surface Segmentation}{Paint Invisible}]  Paints the group of faces near the mouse cursor with the invisible colour, and makes them invisible. The numberof faces is determined by the current paint size.
+
+\item[\menutwo{Surface Segmentation}{Paint Visible}] Paints the group of faces near the mouse cursor with the visible colour, and makes them visible. The numberof faces is determined by the current paint size.
+
+\item[\menutwo{Surface Segmentation}{Vis Col:}] Prompts the user to enter a new colour to use for the visible colour.
+
+\item[\menutwo{Surface Segmentation}{Invis:}] Prompts the user to enter a new colour to use for the invisible colour.
+
+\item[\menutwo{Surface Segmentation}{Connected Vis Colour}] Sets all connected polygonal faces to the current visible colour.
+
+\item[\menutwo{Surface Segmentation}{Connected Invis Colour}] Sets all connected polygonal faces to the current invisible colour.
+
+\item[\menutwo{Surface Segmentation}{Paint Vis Colour}] Paints the group of faces near the mouse cursor with the visible colour. The number of faces is determined by the current paint size.
+
+\item[\menutwo{Surface Segmentation}{Paint Invis Colour}] Paints the group of faces near the mouse cursor with the invisible colour. The number of faces is determined by the current paint size.
+
+\item[\menutwo{Surface Segmentation}{Paint size:}] Prompts the user to enter a new paint size, the number of polygons (faces) to change on each paint operation.
+
+
+\end{description}
+
+\subsection{Volume Transform}
+\label{secVolXfm}
+This menu contains commands that allow you to apply an arbitrary rigid
+body transform to a loaded volume. It also contains a few useful
+commands related to volumes and the slice view.
+
+\begin{description}
+\item[\menutwo{Volume Transform}{Prev Visible}] Select the previous volume and make it visible.
+\item[\menutwo{Volume Transform}{Scale Down Volume}] Transform the volume by dividing its size by the current scale step.
+\item[\menutwo{Volume Transform}{Scale Up Volume}] Transform the volume by multiplying its size by the current scale step.
+\item[\menutwo{Volume Transform}{Insert Volume as Labels}] Insert a selected volume as the label volume of the currently selected volume.
+\item[\menutwo{Volume Transform}{Visible: 1}] Makes only one volume visible, cycling through all loaded volumes as the button is pressed.  Whichever volume
+ is made visible is set to the current volume.
+\item[\menutwo{Volume Transform}{Xform Volume Frm File}] Prompts the user for a transform file name, and then transforms the current volume accordingly.
+\item[\menutwo{Volume Transform}{Reset Vol Xform}] Resets the volume transform to its original state, that is, the transform specified in the file itself.
+\item[\menutwo{Volume Transform}{Trans Step: 1}] Prompts the user to enter a new value for the translation step, in world units.
+\item[\menutwo{Volume Transform}{Rot Step: 1}] Prompts the user to enter a new value for the rotation step, in degrees.
+\item[\menutwo{Volume Transform}{Save Volume Xform}] Prompts the user for a filename and saves the current volume transform as a {\tt .xfm} file.
+\item[\menutwo{Volume Transform}{Scale Step: 1.05}] Prompts the user to enter a new value for the scale step, as a fraction of the current size.
+\item[\menutwo{Volume Transform}{Trans + X}] Translates the volume towards the positive X axis using the current translation step.
+\item[\menutwo{Volume Transform}{Trans + Y}] Translates the volume towards the positive Y axis using the current translation step.
+\item[\menutwo{Volume Transform}{Trans + Z}] Translates the volume towards the positive Z axis using the current translation step.
+\item[\menutwo{Volume Transform}{Rot + X}] Rotates the volume clockwise around the X axis using the current rotation step.
+\item[\menutwo{Volume Transform}{Rot + Y}] Rotates the volume clockwise around the Y axis using the current rotation step.
+\item[\menutwo{Volume Transform}{Rot + Z}] Rotates the volume clockwise around the Z axis using the current rotation step.
+\item[\menutwo{Volume Transform}{Trans - X}] Translates the volume towards the negative X axis using the current translation step.
+\item[\menutwo{Volume Transform}{Trans - Y}] Translates the volume towards the negative Y axis using the current translation step.
+\item[\menutwo{Volume Transform}{Trans - Z}] Translates the volume towards the negative Z axis using the current translation step.
+\item[\menutwo{Volume Transform}{Rot - X}] Rotates the volume counterclockwise around the X axis using the current rotation step.
+\item[\menutwo{Volume Transform}{Rot - Y}] Rotates the volume counterclockwise around the Y axis using the current rotation step.
+\item[\menutwo{Volume Transform}{Rot - Z}] Rotates the volume counterclockwise around the Z axis using the current rotation step.
 \end{description}
 
 \section{Step by Step Examples Using \display{}}
