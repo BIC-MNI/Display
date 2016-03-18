@@ -57,6 +57,8 @@ oriented system based on keystrokes and mouse (or touchpad) operations.
 \item Displaying an arbitrary, oblique plane through the volumetric data.
 \item Flexible choices for mapping from voxel data to colours.
 \item Associating arbitrary per-vertex data with a surface.
+\item Displaying intensity cross-sections along X, Y, Z, or time axes,
+  or along arbitrary measurement lines.
 \end{itemize}
 
 \subsection{Segmentation features}
@@ -448,8 +450,8 @@ dash characters.
 \caption{Slice window showing the three orthogonal planes. Normally,
  the upper left quadrant will display the sagittal plane, the upper
  right will display the coronal plane, and the lower left will
- display the transverse plane. The lower right quadrant will display
- the optional oblique plane if enabled (Section \ref{secOblique}).}
+ display the transverse plane. The lower right quadrant will either display
+ the intensity plot (Section \ref{secIntensity}) or the optional oblique plane if enabled (Section \ref{secOblique}).}
 \label{winSlice}
 \end{figure}
 
@@ -458,7 +460,9 @@ options for mapping the voxel intensities into colours. Normally the
 three orthogonal planes of a volumetric image will be displayed: The
 sagittal in the upper left, the coronal in the upper right, and the
 transverse in the lower left. The lower right quadrant is generally
-used to display an optional oblique slice through an arbitrary plane.
+used to display either an intensity plot (Section \ref{secIntensity})
+or an optional oblique slice through an arbitrary plane (Section
+\ref{secOblique}).
 
 In each of the three orthogonal quadrants, the width and height of the
 field-of-view is displayed in world units near the top of the
@@ -532,7 +536,7 @@ current brush label and size.
 \item Scroll: The scroll wheel changes the zoom level of the current slice.
 \item Ctrl+Scroll: Changes the opacity of the selected volume.
 \item Ctrl+Left Button: Starts displaying a line measuring the
- distance between the start and end of the mouse movement.
+ distance between the start and end of the mouse movement. There can be up to three of these line displayed at a given time. The intensity plot will display the intensity along the most recently drawn line (the colour of the plot will reflect this).
 \end{itemize}
 
 In addition, the following mouse commands apply when the mouse cursor is in the colour bar:
@@ -688,7 +692,9 @@ file data of various types.
   in tag file format.
 \item[\menutwo{File}{Save Slice Image}]  If the mouse is pointing to one
   of the four slice viewports, prompts for a filename and saves the
-  contents of the slice viewport to the file, in .rgb format.
+  contents of the slice viewport to the file, in .rgb format. This will
+  work for the intensity plot as well as the slice images.
+
 \item[\menutwo{File}{Save File}]  Prompts for a filename and saves
  the current object, or all objects contained in the current object, if the
  current object is a model object. Files are typically saved in MNI .obj
@@ -728,6 +734,79 @@ slice window is opened, if not already opened.
 \item[\menutwo{File}{Load Colour Map}]  Prompts for a filename and
   loads the current label colour map as an ASCII file, with a default
   suffix of \ident{.map}.
+\end{description}
+
+\subsection{Intensity Plot}
+\label{secIntensity}
+
+\display{} can show a graph in the lower-right quadrant of the slice
+view window. This graph depicts the intensity values along a line
+through the current cursor position, parallel to one of the spatial
+axes. The intensity plot may also show the timecourse of the current
+cursor position or an ROI if the time axis is present.  The
+\menu{Intensity Plot} menu contains commands used to manipulate some
+of the options for displaying this data.
+
+By default, the intensity plot is enabled and the horizontal axis is
+selected automatically using the following algorithm:
+
+\begin{enumerate}
+\item If the current volume has a time dimension, the intensity of the
+  current cursor location is plotted through time.
+\item If a measurement line has just been drawn, the intensity plot is taken along that line.
+\item If the mouse is over the sagittal view, the intensity plot is taken along the Y (posterior-anterior) axis.
+\item If the mouse is over the coronal view, the intensity plot is taken through the Z (inferior-superior) axis.
+\item If the mouse is over the transverse view, the intensity plot is taken through the X (left-right) axis.
+\end{enumerate}
+
+In each case, a letter 'X', 'Y', 'Z', or 'T' will be displayed on the
+horizontal plot axis to indicate which of the axes is being used. If a
+measurement line is plotted, the horizontal axis simply shows the
+length in 'mm' along the line.
+
+As explained above, when a time-varying (e.g. fMRI, DWI, or PET) image
+is loaded, the intensity plot will automatically be computed using the
+time axis. Furthurmore, whenever the image is segmented, the labels
+will be used to define regions of interest whose mean intensity will
+be plotted over the timecourse of the ROI.
+
+For example, if you load an fMRI image and wish to examine the
+timecourse of an specific region of interest, first paint the ROI
+using the segmenting features of \display{}. Then, move the cursor
+inside the ROI. The intensity plot will change colour to reflect the
+colour of the ROI's label. The intensity values will be computed as
+the unweighted mean of all voxels with the selected label, for each
+time point in the image.
+
+In any case, the intensity plot will be automatically disabled
+whenever the oblique image is enabled.
+
+\begin{description}
+\item[\menutwo{Intensity Plot}{Enabled: On}] Toggles the intensity plot
+ on or off. If for some reason you do {\em not} wish to see intensity
+ plots, they can be disabled with this menu option.
+
+\item[\menutwo{Intensity Plot}{Scaled: On}] If this option is {\bf on},
+ the vertical axis of the intensity plot will be automatically scaled
+ to the actual data range of the currently selected data. If this
+ option is {\bf off}, the vertical axis will be permanently set to
+ the full range of the voxel intensities of this volume.
+
+\item[\menutwo{Intensity Plot}{Axis: Auto}] This option allows to you
+ specify a preferred choice for the horizontal axis in the intensity
+ plot. This command allows you to cycle through the choices {\tt
+  Auto}, {\tt X}, {\tt Y}, and {\tt Z}. The time dimension, {\tt T},
+ is also available for time-varying scans. The {\tt Auto} mode uses
+ the logic described above to set the horizontal axis based on the
+ dimensions of the loaded volume and the position of the mouse
+ cursor.
+
+If one of the specific axes is selected, that axis will be used as the
+horizontal axis in the intensity plot irrespective of the current
+location of the mouse cursor. However, if a measurement line is drawn,
+the intensity along that line will still be displayed on the intensity
+plot axis.
+
 \end{description}
 
 \subsection{Quit}
