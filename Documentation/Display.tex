@@ -730,8 +730,44 @@ slice window is opened, if not already opened.
   suffix of \ident{.map}.
 \end{description}
 
-\subsection{Slice View}
+\subsection{Quit}
 
+The Quit menu's principle function is to allow users to explicitly
+confirm their intention to quit \display{}. However, the menu includes a
+few miscellaneous commands.
+
+\begin{description}
+\item[\menutwo{Quit}{Really Quit}] Select this if you are sure you want
+  to exit \display{}. The program will close.
+
+\item[\menutwo{Quit}{Don't Quit}] Select this if you do not want to quit
+  \display{}. You can also just press the space bar to return to the
+  previous menu.
+
+\item[\menutwo{Quit}{Show Memory}] This command is intended for
+  development and debugging purposes. It prints some possibly useful
+  information about the memory usage of \display{}.
+
+\item[\menutwo{Quit}{Global Var}] This command allows you to inspect or
+  set the value of any of the many global variables (configuration
+  options) that are supported in \display{}. When you choose this
+  command, it will prompt you to enter a string. The string can either
+  be the name of a global variable, or a global variable name followed
+  by an equals sign and a new value. In the former case, the command
+  will print the current value of the global variable. In the latter
+  case, the command will set the current value of the global variable.
+
+For a list of many of the useful global variables in \display{}, see
+Appendix \ref{secGlobals}.
+
+\item[\menutwo{Quit}{Save Layout}] This command will save the current
+  locations and sizes of all four windows (Menu, Slice View, Object
+  List, and 3D View). The saved information will be used to restore the
+  window layout the next time \display{} is used. The information is
+  saved in your home directory in a file named {\tt .mni-displayrc}.
+\end{description}
+
+\subsection{Slice View}
 \begin{description}
 \item[\menu{+ Slice}]  Moves the cursor to the next slice.
 \item[\menu{- Slice}]  Moves the cursor to the previous slice.
@@ -1130,7 +1166,6 @@ labels by integral voxel increments.
 \item[\menutwo{Translate Labels}{Big Translate}]  Prompts for 3 voxel
   offsets and moves all labels by this amount.
 \end{description}
-
 
 \subsection{Create Surface}
 

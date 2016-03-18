@@ -113,15 +113,18 @@ set any number of globals.
 
 \subsection{Setting globals with a menu command}
 
-There is a command within \display{} which allows you to inspect or
-change the value of any global variable. In the default menu
-structure, this command is accessed from the ``Quit'' sub-menu, so one
-can invoke the command by pressing the '7' key followed by the 'A'
-key. This will prompt you to enter a string. If you simply want to check the value of a variable, you may just enter the variable's name and press Enter. If you want to change the variable's value, you enter the variable's name followed by an equals sign ('=') and the desired new value.
+The \menutwo{Quit}{Global Var} menu command allows you to inspect or
+change the value of any global variable. In the default menu structure,
+this command is accessed from the ``Quit'' sub-menu, so one can invoke
+the command by pressing the '7' key followed by the 'A' key. This will
+prompt you to enter a string. If you simply want to check the value of a
+variable, you may just enter the variable's name and press Enter. If you
+want to change the variable's value, you enter the variable's name
+followed by an equals sign ('=') and the desired new value.
 
 Again, be warned that, as with the command line, changing some globals
-through this menu command will have no effect. Not all globals will change
-the operation of the program after it is initialized.
+through this menu command will have no effect. Not all globals will take 
+effect after \display{} has been initialized.
 
 \subsection{List of useful globals}
 
