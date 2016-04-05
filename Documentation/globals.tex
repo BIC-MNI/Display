@@ -279,6 +279,10 @@ histogram. In other words, by default we don't consider histogram bins
 {Selects either Gouraud (1) or flat (0) shading as the default used in the 3D window.}
 {{\bf E} 3D Render / {\bf S} Shading}
 
+\globalentry{Initial\_slice\_continuity}{Integer}{-1} 
+{Selects either nearest-neighbour (-1), trilinear (0), or tricubic (2) for the
+ initial slice interpolation method.}{}
+
 \globalentry{Initial\_undo\_feature}
 {Boolean}{True}
 {Determines the initial state of the ``undo'' option. Set to false if you want undo disabled by default, but wish to leave it under user control. To disable undo completely, set Undo\_enabled to false.}
