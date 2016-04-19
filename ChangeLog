@@ -1,6 +1,16 @@
+2016-04-19  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * callbacks/render_ops.c, main/graphics.c, slice_window/colour_bar.c,
+	structures/render.c, Include/display_types.h: Add support for
+	wireframe overlay and point rendering modes. Requires updated
+	bicgl.
+
+2016-02-23  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * slice_window/intensity_plot.c (and elsewhere): Add intensity plot
+	that mimics and extends some old xdisp features.
+
 2016-01-22  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * slice_window/slice_events.c, etc.: Finally add a measurement feature
-	very similar to that of BrainBrowser. Ctrl+Left Click now starts 
+	very similar to that of BrainBrowser. Ctrl+Left Click now starts
 	displaying a line and length that can be dragged around the slice.
 2016-01-20  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * various: Add rulers for Ayca and the Petrides lab. These are toggled

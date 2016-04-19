@@ -346,13 +346,13 @@ static  void  initialize_graphics_window(
 
         if( display->window_type == THREE_D_WINDOW && i == OVERLAY_MODEL )
         {
-            model_info->render.shaded_mode = FALSE;
+            model_info->render.shaded_mode = WIREFRAME;
             model_info->render.master_light_switch = FALSE;
         }
 
         if( display->window_type == THREE_D_WINDOW && i == MISCELLANEOUS_MODEL )
         {
-            model_info->render.shaded_mode = TRUE;
+            model_info->render.shaded_mode = FILLED;
             model_info->render.backface_flag = FALSE;
         }
 

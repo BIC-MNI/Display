@@ -71,7 +71,7 @@ initialize_colour_bar( display_struct *slice_window )
     model = get_graphics_model( slice_window, COLOUR_BAR_MODEL );
     model_info = get_model_info( model );
 
-    model_info->render.shaded_mode = TRUE;
+    model_info->render.shaded_mode = FILLED;
     model_info->render.shading_type = GOURAUD_SHADING;
     model_info->render.master_light_switch = FALSE;
     model_info->render.backface_flag = FALSE;

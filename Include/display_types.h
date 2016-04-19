@@ -47,7 +47,7 @@ typedef  struct
 
 typedef  struct
 {
-    VIO_BOOL         shaded_mode;
+    Shading_modes   shaded_mode;
     Shading_types   shading_type;
     VIO_BOOL         master_light_switch;
     VIO_BOOL         backface_flag;

@@ -45,8 +45,22 @@ DEF_MENU_FUNCTION( toggle_render_mode )
 
     model_object = get_model_object( display );
 
-    shaded_mode = !get_model_info(get_model_ptr(model_object))->
-                   render.shaded_mode;
+    switch (get_model_info(get_model_ptr(model_object))->render.shaded_mode)
+    {
+    case OVERLAY:
+      shaded_mode = WIREFRAME;
+      break;
+    case POINT:
+      shaded_mode = FILLED;
+      break;
+    case WIREFRAME:
+      shaded_mode = POINT;
+      break;
+    case FILLED:
+    default:
+      shaded_mode = OVERLAY;
+      break;
+    }
 
     initialize_object_traverse( &object_traverse, FALSE, 1, &model_object );
 
@@ -69,13 +83,27 @@ DEF_MENU_FUNCTION( toggle_render_mode )
 DEF_MENU_UPDATE(toggle_render_mode )
 {
     object_struct   *model_object;
+    char            *mode_name;
 
     model_object = get_model_object( display );
 
-    set_menu_text_boolean( menu_window, menu_entry,
-               get_model_info(get_model_ptr(model_object))->render.shaded_mode,
-               "Wireframe", "Shaded" );
-
+    switch (get_model_info( get_model_ptr( model_object ))->render.shaded_mode)
+    {
+    case OVERLAY:
+      mode_name = "Overlay";
+      break;
+    case POINT:
+      mode_name = "Point";
+      break;
+    case WIREFRAME:
+      mode_name = "Wireframe";
+      break;
+    case FILLED:
+    default:
+      mode_name = "Shaded";
+      break;
+    }
+    set_menu_text_string( menu_window, menu_entry, mode_name );
     return( TRUE );
 }
 

@@ -26,8 +26,8 @@
   void  initialize_render(
     render_struct  *render )
 {
-    render->shaded_mode = TRUE;
-    render->shading_type = (Shading_types) GOURAUD_SHADING;
+    render->shaded_mode = FILLED;
+    render->shading_type = GOURAUD_SHADING;
     render->master_light_switch = FALSE;
     render->backface_flag = FALSE;
     render->two_sided_surface_flag = FALSE;
