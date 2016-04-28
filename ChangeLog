@@ -1,3 +1,7 @@
+2016-04-28  Robert D. Vincent <robert.d.vincent@mcgill.ca>
+   * input_files/input_files.c: Warn user if they load a volume with
+	a non-rigid transform, as this can lead to weird shearing effects.
+
 2016-04-19  Robert D. Vincent <robert.d.vincent@mcgill.ca>
    * callbacks/render_ops.c, main/graphics.c, slice_window/colour_bar.c,
 	structures/render.c, Include/display_types.h: Add support for

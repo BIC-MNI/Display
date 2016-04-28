@@ -20,6 +20,42 @@
 
 #include  <display.h>
 
+/**
+ * Get the determinant of the 3x3 transform (i.e. the direction
+ * cosines).
+ *
+ * This is useful, for example, in checking whether or not
+ * we have a rigid body transform (the determinant of a rigid
+ * transform is either 1.0 or -1.0).
+
+ * \param volume The volume whose determinant we want.
+ * \returns The determinant of the 3x3 matrix formed by the direction cosines.
+ */
+VIO_Real get_volume_transform_determinant( VIO_Volume volume )
+{
+     VIO_Real m[VIO_N_DIMENSIONS][VIO_N_DIMENSIONS];
+     int i;
+
+     for_less( i, 0, VIO_N_DIMENSIONS )
+         get_volume_direction_cosine( volume, i, m[i] );
+
+     return (+ m[0][0] * m[1][1] * m[2][2] - m[0][0] * m[2][1] * m[1][2]
+             - m[1][0] * m[0][1] * m[2][2] + m[1][0] * m[2][1] * m[0][2]
+             + m[2][0] * m[0][1] * m[1][2] - m[2][0] * m[1][1] * m[0][2] );
+}
+
+/**
+ * Check whether this volume's voxel to world transform specifies a
+ * rigid body transform.
+ * \param volume The volume whose transform we want to check.
+ * \returns TRUE if the transform is a rigid body transform.
+ */
+VIO_BOOL is_volume_transform_rigid( VIO_Volume volume )
+{
+    VIO_Real det = get_volume_transform_determinant( volume );
+    return (fabs( fabs( det ) - 1.0 ) < 1e-6 );
+}
+
 #if GIFTI_FOUND
 #include "gifti_io.h"
 #endif /* GIFTI_FOUND */
@@ -34,7 +70,7 @@
  * volume.
  * \returns VIO_OK on success.
  */
-  VIO_Status  load_graphics_file( 
+  VIO_Status  load_graphics_file(
     display_struct   *display,
     VIO_STR           filename,
     VIO_BOOL          is_label_file )
@@ -107,7 +143,7 @@
         {
           status = VIO_ERROR;
         }
-        else 
+        else
         {
           /* Obsessively check all of the attributes of a GIFTI surface.
            */
@@ -224,7 +260,7 @@
                                Point_x(lines_ptr->points[i]) + origin[VIO_X],
                                Point_y(lines_ptr->points[i]) + origin[VIO_Y],
                                Point_z(lines_ptr->points[i]) + origin[VIO_Z]);
-                    
+
                   }
                 }
             }
@@ -329,6 +365,14 @@
         {
           sprintf(volume_description + strlen(volume_description),
                   " T:%d", sizes[VIO_T]);
+        }
+
+        if ( !is_volume_transform_rigid( volume_read_in ) )
+        {
+          char *message = {
+            "WARNING: Volume transform is not rigid. This may cause distortion or\n"
+            "         other odd effects if this volume is superimposed on another volume.\n" };
+          print( message );
         }
 
         add_slice_window_volume( display, volume_description, volume_read_in );
