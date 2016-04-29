@@ -872,7 +872,6 @@ DEF_MENU_FUNCTION( move_vertex_to_cursor ) {
               polygons->points[i].coords[2] += dz * mag[i];
             }
           }
-          if( mag ) free( mag );
 
           /* do a bit of Taubin smoothing on the final mesh
              around the neighbourhood of the moved vertex. */
@@ -901,14 +900,13 @@ DEF_MENU_FUNCTION( move_vertex_to_cursor ) {
               }
             }
 
-            if( iter % 2 == 0 ) {
-              relax = 1.0 - lambda;
-            } else {
-              relax = 1.0 - mu;
-            }
-
             for( i = 0; i < polygons->n_points; i++ ) {
               if( mask[i] > 0 ) {
+                if( iter % 2 == 0 ) {
+                  relax = 1.0 - lambda * sqrt(mag[i]);
+                } else {
+                  relax = 1.0 - mu * sqrt(mag[i]);
+                }
                 for( dim = 0; dim < 3; dim++ ) {
                   polygons->points[i].coords[dim] = relax * polygons->points[i].coords[dim] + 
                                                     ( 1.0 - relax ) * new_coords[3*i+dim];
@@ -917,6 +915,7 @@ DEF_MENU_FUNCTION( move_vertex_to_cursor ) {
             }
           }
 
+          if( mag ) free( mag );
           if( new_coords ) free( new_coords );
           if( mask ) free( mask );
           if( n_ngh ) FREE( n_ngh );
