@@ -54,9 +54,9 @@ change_current_time_by_one(
      */
     if( separations[VIO_T] < 0.0 )
         delta = -delta;
-    
+
     get_current_voxel( slice_window, volume_index, voxel );
-            
+
     new_position = VIO_ROUND( voxel[VIO_T] + delta );
 
     /* Check that the time position stays in range.
@@ -214,10 +214,10 @@ DEF_MENU_FUNCTION(toggle_slice_visibility)
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
 
-        for (volume_index = 0; volume_index < get_n_volumes(slice_window); 
+        for (volume_index = 0; volume_index < get_n_volumes(slice_window);
              volume_index++)
         {
-            VIO_BOOL is_vis = get_slice_visibility(slice_window, volume_index, 
+            VIO_BOOL is_vis = get_slice_visibility(slice_window, volume_index,
                                                    view_index);
             set_slice_visibility( slice_window, volume_index, view_index,
                                   !is_vis );
@@ -323,37 +323,59 @@ DEF_MENU_UPDATE(colour_code_objects )
             current_object_exists(display) );
 }
 
+/**
+ * This function does several interesting things:
+ * 1. If scale_slice_flag is FALSE and the mouse cursor is over one of the
+ * three perpendicular slice views, it creates a 3D colourized quadmesh of the
+ * current slice and displays this quadmesh in the 3D window. This gives you
+ * a single slice that can be superimposed on other 3D objects.
+ * 2. If slice_scale_flag is TRUE and the mouse cursor is over one of the
+ * three perpendicular slice views, it creates a 3D monochrome quadmesh whose
+ * height along the perpendicular axis reflects the intensity of the voxel
+ * at each point.
+ * 3. If the mouse cursor is over the oblique slice, it just creates a
+ * monochrome polygon. Not sure what the point of this is!!
+ */
 static  void  create_scaled_slice(
     display_struct   *display,
     VIO_BOOL          scale_slice_flag )
 {
     display_struct   *slice_window;
     int              x_index, y_index, axis_index, view_index;
-    VIO_Real         current_voxel[VIO_MAX_DIMENSIONS], perp_axis[VIO_MAX_DIMENSIONS];
-    VIO_Real             scale_factor, value, min_value, xw, yw, zw;
-    VIO_Vector           normal;
+    VIO_Real         current_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real         perp_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real         value, min_value, xw, yw, zw;
+    VIO_Real         scaling;
+    VIO_Vector       normal;
     object_struct    *object;
     quadmesh_struct  *quadmesh;
-    VIO_Point            point;
+    VIO_Point        point;
     int              m, n, i, j;
+    int              volume_index;
+    VIO_Volume       volume;
 
-    if( get_slice_window( display, &slice_window ) &&
-        get_n_volumes(slice_window) > 0 &&
-        get_slice_view_index_under_mouse( slice_window, &view_index ) &&
-        slice_has_ortho_axes( slice_window,
-                         get_current_volume_index(slice_window), view_index,
+    if( !get_slice_window( display, &slice_window ) ||
+        !get_n_volumes(slice_window) > 0 ||
+        !get_slice_view_index_under_mouse( slice_window, &view_index ))
+    {
+        return;                 /* give up! */
+    }
+
+    volume_index = get_current_volume_index( slice_window );
+    volume = get_volume( display );
+
+    if (slice_has_ortho_axes( slice_window, volume_index, view_index,
                               &x_index, &y_index, &axis_index ) )
 
     {
         if( scale_slice_flag )
         {
-          if (get_user_input("Enter scaling: ", "r", &scale_factor) != VIO_OK)
+            if (get_user_input("Enter scaling: ", "r", &scaling) != VIO_OK)
                 return;
         }
 
-        get_current_voxel( slice_window,
-                        get_current_volume_index(slice_window), current_voxel );
-        object = create_3d_slice_quadmesh( get_volume(display), axis_index,
+        get_current_voxel( slice_window, volume_index, current_voxel );
+        object = create_3d_slice_quadmesh( volume, axis_index,
                                            current_voxel[axis_index] );
 
         if( scale_slice_flag )
@@ -361,23 +383,24 @@ static  void  create_scaled_slice(
             quadmesh = get_quadmesh_ptr( object );
             m = quadmesh->m;
             n = quadmesh->n;
-            min_value = get_volume_real_min( get_volume(slice_window) );
+            min_value = get_volume_real_min( volume );
             for_less( i, 0, m )
-            for_less( j, 0, n )
             {
-                (void) get_quadmesh_point( quadmesh, i, j, &point );
-                evaluate_volume_in_world( get_volume(display),
-                                          (VIO_Real) Point_x(point),
-                                          (VIO_Real) Point_y(point),
-                                          (VIO_Real) Point_z(point), 0, FALSE,
-                                          min_value, &value,
-                                          NULL, NULL, NULL,
-                                          NULL, NULL, NULL, NULL, NULL, NULL );
-                Point_coord(point,axis_index) += (float) (scale_factor *
-                                                          (value - min_value));
-                set_quadmesh_point( quadmesh, i, j, &point, NULL );
+                for_less( j, 0, n )
+                {
+                    get_quadmesh_point( quadmesh, i, j, &point );
+                    evaluate_volume_in_world( volume,
+                                              Point_x(point),
+                                              Point_y(point),
+                                              Point_z(point), 0, FALSE,
+                                              min_value, &value,
+                                              NULL, NULL, NULL,
+                                              NULL, NULL, NULL, NULL, NULL, NULL );
+                    Point_coord(point, axis_index) += (scaling *
+                                                       (value - min_value));
+                    set_quadmesh_point( quadmesh, i, j, &point, NULL );
+                }
             }
-
             compute_quadmesh_normals( quadmesh );
         }
 
@@ -386,26 +409,24 @@ static  void  create_scaled_slice(
 
         add_object_to_current_model( display, object );
     }
-    else if( get_slice_window( display, &slice_window ) &&
-             get_n_volumes(slice_window) > 0 &&
-             get_slice_view_index_under_mouse( slice_window, &view_index ) )
-
+    else
     {
         object = create_object( POLYGONS );
 
-        get_slice_perp_axis( slice_window, get_current_volume_index(slice_window),
+        get_slice_perp_axis( slice_window, volume_index,
                              view_index, perp_axis );
-        convert_voxel_vector_to_world( get_volume(slice_window),
-                                       perp_axis, &xw, &yw, &zw );
+        convert_voxel_vector_to_world( volume, perp_axis, &xw, &yw, &zw );
         fill_Vector( normal, xw, yw, zw );
         NORMALIZE_VECTOR( normal, normal );
 
-        get_cursor_origin(display, &point);
-        create_slice_3d( get_volume(display), &point, &normal,
-                         get_polygons_ptr(object) );
+        get_cursor_origin( display, &point );
+        create_slice_3d( volume, &point, &normal, get_polygons_ptr( object ) );
 
         add_object_to_current_model( display, object );
     }
+
+    show_three_d_window( get_three_d_window( display ),
+                         display->associated[MARKER_WINDOW] );
 }
 
 /* ARGSUSED */
@@ -458,7 +479,7 @@ DEF_MENU_FUNCTION(resample_slice_window_volume)
         get_volume_sizes( volume, sizes );
 
         sprintf(prompt, "The original volume is %d by %d by %d.\n"
-                "Enter desired resampled size: ", 
+                "Enter desired resampled size: ",
                 sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
         if (get_user_input( prompt, "ddd", &new_nx, &new_ny, &new_nz) == VIO_OK &&
             (new_nx > 0 || new_ny > 0 || new_nz > 0) )
@@ -921,8 +942,8 @@ DEF_MENU_FUNCTION(type_in_slice_plane)
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
         char prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
-        sprintf(prompt, 
-                "View %d: enter x y z plane normal in world coordinate\n" 
+        sprintf(prompt,
+                "View %d: enter x y z plane normal in world coordinate\n"
                 "and v or w for voxel or world: ", view_index );
         if (get_user_input(prompt, "rrrc", &xw, &yw, &zw, &type) == VIO_OK)
         {
@@ -1293,9 +1314,9 @@ DEF_MENU_FUNCTION(toggle_slice_interpolation)
         continuity = slice_window->slice.degrees_continuity;
         if( continuity == -1 )
             continuity = 0;
-        else if( continuity == 0 )  
+        else if( continuity == 0 )
             continuity = 2;
-        else if( continuity == 2 )  
+        else if( continuity == 2 )
             continuity = -1;
 
         slice_window->slice.degrees_continuity = continuity;
@@ -1549,7 +1570,7 @@ DEF_MENU_FUNCTION(slice_rulers_toggle)
       VIO_BOOL state = get_slice_rulers_visibility( slice_window, view_index );
       set_slice_rulers_visibility( slice_window, view_index, !state );
     }
-    /* This is a bit hacky, it relies on knowing that the rulers are 
+    /* This is a bit hacky, it relies on knowing that the rulers are
      * drawn when the update_cursor_flag is set.
      */
     set_slice_cursor_update( slice_window, -1 );
@@ -1588,7 +1609,7 @@ DEF_MENU_FUNCTION( make_all_volumes_visible )
         set_slice_visibility( slice_window, volume_index, view_index, is_vis );
     }
   }
-      
+  return VIO_OK;
 }
 
 DEF_MENU_UPDATE( make_all_volumes_visible )
