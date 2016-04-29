@@ -302,6 +302,10 @@ polygons \
     transient 'x'    separate_current_polygons         'Separate Polygons' 'Eliminate shared vertices from polygons.' \
     transient 'c'    smooth_current_polygon            'Smooth Polygon' 'Not for general use.' \
     transient 'v'    average_normals_for_polygon       'Average Normals' 'Compute averaged normals for the current polygon.' \
+    transient 'm'    find_nearest_vertex               'Nearest Vertex' 'Move to nearest vertex on current surface.' \
+    transient 'n'    move_vertex_to_cursor             'Move Vertex' 'Move nearest vertex to current cursor position.' \
+    transient 'j'    smooth_around_vertex              'Smooth Around Vertex' 'Smooth mesh around current cursor position.' \
+    transient 'u'    set_vector_based_params           'Vector Surface Params' 'Define number of smoothing levels around vertex and fwhm for extent of motion of surface.' \
 } \
  \
 markers \

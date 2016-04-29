@@ -173,6 +173,10 @@ MENU_F(input_polygons_bintree) \
 MENU_F(create_bintree_for_polygons) \
 MENU_F(create_normals_for_polygon) \
 MENU_F(average_normals_for_polygon) \
+MENU_F(find_nearest_vertex) \
+MENU_F(move_vertex_to_cursor) \
+MENU_F(smooth_around_vertex) \
+MENU_F(set_vector_based_params) \
 MENU_F(reset_polygon_neighbours) \
 MENU_F(cut_polygon_neighbours) \
 MENU_F(make_polygon_sphere) \

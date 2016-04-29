@@ -555,5 +555,21 @@ START_GLOBALS
  * Defines the initial value for the intensity plot axis.
  */
      DEF_GLOBAL( Initial_intensity_plot_axis, int, -1 )
+
+/**
+ * Defines the nearest vertex to move on the current object.
+ */
+     DEF_GLOBAL( Nearest_vertex_to_move, int, -1 )
+
+/**
+ * Defines the number of levels for moving a vertex on the current object.
+ */
+     DEF_GLOBAL( Levels_around_vertex_to_move, int, 10 )
+
+/**
+ * Defines the FWHM for extent of movement when moving a vertex on the current object.
+ */
+     DEF_GLOBAL( FWHM_around_vertex_to_move, VIO_Real, 5.0 )
+
 END_GLOBALS
 /** @} */

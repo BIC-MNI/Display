@@ -124,7 +124,9 @@ involve core functionality.
   Stanford PLY, GIFTI, and X3D.
 \item The ability to read and display GIFTI (.gii) or BrainSuite surfaces (.dfs) and BrainSuite tractography (.dft) files.
 \item The previous 20 painting operations can be undone.
-\item A user can now load per-vertex data, such as cortical thickness measurements, for visualization on 3D surfaces.
+\item A user can now load per-vertex data, such as cortical thickness
+  measurements, for visualization on 3D surfaces.
+\item The ability to edit surfaces directly within \display{}.
 \end{itemize}
 
 \subsection{User interface}
@@ -1530,6 +1532,16 @@ metadata, such as a label, a colour, a structure ID, and a patient ID.
 This menu contains commands for creating and manipulating polygonal
 objects. These are used to define surfaces.
 
+Surface-based editing have recently been added to \display{}. In this
+mode, the user can stretch and deform a surface in 3-D to take a new
+shape.  It is a very efficient way of correcting voxel-based annotations
+that define a 3-D surface, as an opposed to correcting the voxel-based
+labels in each of the 3 planes.
+
+The surface is loaded in \display{} together with the volume and 
+possibly labels. After editions, the modified surface must be saved 
+using \menutwo{File}{Save File}.
+
 \begin{description}
 \item[\menutwo{Polygons}{Print Surface Area}] Computes and prints the surface area of the currently selected polygonal object.
 \item[\menutwo{Polygons}{Set Line Thickness}]  Prompts for a line thickness
@@ -1572,6 +1584,20 @@ objects. These are used to define surfaces.
      of 0 causes no change in each iteration, where a value of 1
      sets each vertex normal to the average of its neighbour vertex
      normals.  Typically, use the values ``5 1'' for this selection.
+\item[\menutwo{Polygons}{Move Vertex}] Move a vertex and its surrounding 
+neighbours on a triangulated mesh towards a user-specified location pointed
+to by the last mouse click.
+\item[\menutwo{Polygons}{Nearest Vertex}] Select the initial vertex
+ around which the mesh will be moved.
+\item[\menutwo{Polygons}{Smooth Around Vertex}] Perform geometric
+  smoothing of the mesh around the selected vertex.
+\item[\menutwo{Polygons}{Vector Surface Params}] Set the parameters for
+ surface-based editing. The first parameter is the number of levels
+ of connected triangles around the selected vertex (default 10). The
+ second parameter defines a radius of action (in terms of a fwhm)
+ around which the vertex and its neighbours are moved in a smooth
+ fashion (default 5 units in world coordinates).
+
 \end{description}
 
 \subsection{Surface Curves}

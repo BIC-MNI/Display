@@ -598,6 +598,22 @@ DEF_MENU_UPDATE( menu_load_vertex_data );
 
   DEF_MENU_UPDATE(smooth_current_polygon );
 
+  DEF_MENU_FUNCTION( find_nearest_vertex );
+
+  DEF_MENU_UPDATE( find_nearest_vertex );
+
+  DEF_MENU_FUNCTION( move_vertex_to_cursor );
+
+  DEF_MENU_UPDATE( move_vertex_to_cursor );
+
+  DEF_MENU_FUNCTION( smooth_around_vertex );
+
+  DEF_MENU_UPDATE( smooth_around_vertex );
+
+  DEF_MENU_FUNCTION( set_vector_based_params );
+
+  DEF_MENU_UPDATE( set_vector_based_params );
+
   DEF_MENU_FUNCTION( reverse_polygons_order );
 
   DEF_MENU_UPDATE(reverse_polygons_order );
