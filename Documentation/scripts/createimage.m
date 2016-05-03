@@ -18,7 +18,6 @@ for i=0:MI,
 end
 hold on;
 for k=0:C/2:M,
-    k
     x = [0 (N-1)];
     y = [k k];
     plot(x, y, 'Color', 'k', 'LineStyle', ':');
@@ -34,8 +33,10 @@ set(ax, 'XTick', [0:C:N]);
 set(ax, 'YTick', [0:C:M]);
 set(ax, 'XTickLabel', xticks);
 set(ax, 'YTickLabel', yticks);
+set(ax, 'FontSize', 16);
 
-xlabel('Voxel j axis');
-ylabel('Voxel k axis');
+xlabel('Voxel j axis', 'FontSize', 16);
+ylabel('Voxel k axis', 'FontSize', 16);
 
-print -dpng coordinates.png
+print('coordinates.tiff', '-dtiffn', '-r225')
+
