@@ -58,6 +58,9 @@ initialize_colour_bar( display_struct *slice_window )
     model_struct      *model;
     model_info_struct *model_info;
     colour_bar_struct *colour_bar;
+    VIO_Surfprop      spr = {   /* surface properties for color bar */
+      1, 0, 0, 0, 1
+    };
 
     colour_bar = &slice_window->slice.colour_bar;
 
@@ -79,9 +82,7 @@ initialize_colour_bar( display_struct *slice_window )
     object = create_object( QUADMESH );
 
     quadmesh = get_quadmesh_ptr( object );
-    initialize_quadmesh( quadmesh, WHITE, NULL, Colour_bar_resolution, 2 );
-    FREE( quadmesh->normals );
-    quadmesh->normals = (VIO_Vector *) NULL;
+    initialize_quadmesh( quadmesh, WHITE, &spr, Colour_bar_resolution, 2 );
 
     quadmesh->colour_flag = PER_VERTEX_COLOURS;
     n_vertices = 2 * Colour_bar_resolution;

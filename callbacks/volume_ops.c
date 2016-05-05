@@ -384,6 +384,7 @@ static  void  create_scaled_slice(
             m = quadmesh->m;
             n = quadmesh->n;
             min_value = get_volume_real_min( volume );
+            colour_code_an_object( display, object );
             for_less( i, 0, m )
             {
                 for_less( j, 0, n )
@@ -403,9 +404,9 @@ static  void  create_scaled_slice(
             }
             compute_quadmesh_normals( quadmesh );
         }
-
-        if( !scale_slice_flag )
+        else {
             colour_code_an_object( display, object );
+        }
 
         add_object_to_current_model( display, object );
     }
