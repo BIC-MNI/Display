@@ -1532,8 +1532,9 @@ rebuild_slice_field_of_view(display_struct *slice_window,
     char           buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
     VIO_STR        format;
     int            x_pos, y_pos;
-    VIO_Real       current_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real       voxel[VIO_MAX_DIMENSIONS];
     int            volume_index;
+    VIO_Real       world[VIO_N_DIMENSIONS];
 
     /*
      * Get the model associated with this slice view.
@@ -1566,16 +1567,16 @@ rebuild_slice_field_of_view(display_struct *slice_window,
         case VIO_Z:  format = Slice_index_z_format;  break;
         }
 
-        get_current_voxel( slice_window, volume_index, current_voxel );
+        get_current_voxel( slice_window, volume_index, voxel );
 
-        (void) sprintf( buffer, format, current_voxel[axis_index] );
+        convert_voxel_to_world( get_volume( slice_window ), voxel,
+                                &world[VIO_X], &world[VIO_Y], &world[VIO_Z]);
+
+        sprintf( buffer, format, voxel[axis_index], world[axis_index]);
 
         replace_string( &text->string, create_string(buffer) );
 
-        x_pos = (int) Point_x(Slice_index_offset);
-        y_pos = (int) Point_y(Slice_index_offset);
-
-        fill_Point( text->origin, x_pos, y_pos, 0.0 );
+        text->origin = Slice_index_offset;
     }
     else
         set_object_visibility( text_object, FALSE );

@@ -1522,6 +1522,8 @@ VIO_BOOL  set_current_voxel(
                         set_slice_window_update( slice_window, volume_index,
                                                  view_index, UPDATE_BOTH );
 
+                        set_slice_text_update( slice_window, -1 );
+
                         /* Special handling necessary if the
                          * currently selected volume is changing.
                          */
@@ -1529,7 +1531,6 @@ VIO_BOOL  set_current_voxel(
                         {
                             set_crop_box_update( slice_window, view_index );
                             set_atlas_update( slice_window, view_index );
-                            set_slice_text_update( slice_window, view_index );
                             set_slice_outline_update( slice_window, view_index );
                         }
                     }
