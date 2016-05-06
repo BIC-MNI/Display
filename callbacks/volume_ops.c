@@ -121,7 +121,7 @@ DEF_MENU_UPDATE(move_time_minus)
     return( get_volume_n_dimensions(volume) > 3 );
 }
 
-static  void  change_current_slice_by_one(
+static  void  change_current_slice_by_delta(
     display_struct   *display,
     int              delta )
 {
@@ -164,16 +164,11 @@ static  void  change_current_slice_by_one(
 /**
  * \brief Move one positive step along the slice dimension.
  */
-/* ARGSUSED */
-
 DEF_MENU_FUNCTION(move_slice_plus)
 {
-    change_current_slice_by_one( display, 1 );
-
+    change_current_slice_by_delta( display, Slice_change_step );
     return( VIO_OK );
 }
-
-/* ARGSUSED */
 
 DEF_MENU_UPDATE(move_slice_plus )
 {
@@ -181,18 +176,27 @@ DEF_MENU_UPDATE(move_slice_plus )
 }
 
 /**
- * \brief Move one negative step along the slice dimension.
+ * \brief Move ten positive steps along the slice dimension.
  */
-/* ARGSUSED */
-
-DEF_MENU_FUNCTION(move_slice_minus)
+DEF_MENU_FUNCTION(fast_forward_slice)
 {
-    change_current_slice_by_one( display, -1 );
-
+    change_current_slice_by_delta( display, Slice_change_step * Slice_change_fast );
     return( VIO_OK );
 }
 
-/* ARGSUSED */
+DEF_MENU_UPDATE(fast_forward_slice)
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+/**
+ * \brief Move one negative step along the slice dimension.
+ */
+DEF_MENU_FUNCTION(move_slice_minus)
+{
+    change_current_slice_by_delta( display, -Slice_change_step );
+    return( VIO_OK );
+}
 
 DEF_MENU_UPDATE(move_slice_minus )
 {
@@ -200,10 +204,22 @@ DEF_MENU_UPDATE(move_slice_minus )
 }
 
 /**
+ * \brief Move ten negative steps along the slice dimension.
+ */
+DEF_MENU_FUNCTION(fast_rewind_slice)
+{
+    change_current_slice_by_delta( display, -Slice_change_step * Slice_change_fast );
+    return( VIO_OK );
+}
+
+DEF_MENU_UPDATE(fast_rewind_slice)
+{
+    return( get_n_volumes(display) > 0 );
+}
+
+/**
  * \brief Toggle the visibility of a slice view.
  */
-/* ARGSUSED */
-
 DEF_MENU_FUNCTION(toggle_slice_visibility)
 {
     int              view_index, volume_index;
@@ -253,8 +269,6 @@ DEF_MENU_FUNCTION(toggle_cross_section_visibility)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(toggle_cross_section_visibility )
 {
     return( slice_window_exists(display) );
@@ -263,8 +277,6 @@ DEF_MENU_UPDATE(toggle_cross_section_visibility )
 /**
  * \brief Resets the translation and zoom of the slice view under the mouse cursor, if any.
  */
-/* ARGSUSED */
-
 DEF_MENU_FUNCTION(reset_current_slice_view)
 {
     int              view_index;

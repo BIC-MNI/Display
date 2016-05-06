@@ -53,6 +53,8 @@ static   position_struct   positions[] = {
                            {'g', "G", 4.0, 2.0, 1.0, TRUE },
                            {'h', "H", 5.0, 2.0, 1.0, TRUE },
                            {'j', "J", 6.0, 2.0, 1.0, TRUE },
+                           {'k', "K", 0.0, 0.0, 0.0, TRUE }, /* Invisible */
+                           {'l', "L", 0.0, 0.0, 0.0, TRUE }, /* Invisible */
 
                            {'q', "Q", 0.0, 3.0, 1.0, TRUE },
                            {'w', "W", 1.0, 3.0, 1.0, TRUE },
@@ -61,6 +63,9 @@ static   position_struct   positions[] = {
                            {'t', "T", 4.0, 3.0, 1.0, TRUE },
                            {'y', "Y", 5.0, 3.0, 1.0, TRUE },
                            {'u', "U", 6.0, 3.0, 1.0, TRUE },
+                           {'i', "I", 0.0, 0.0, 0.0, TRUE }, /* Invisible */
+                           {'o', "O", 0.0, 0.0, 0.0, TRUE }, /* Invisible */
+                           {'p', "P", 0.0, 0.0, 0.0, TRUE }, /* Invisible */
 
                            {'1', "1", 0.0, 4.0, 1.0, TRUE },
                            {'2', "2", 1.0, 4.0, 1.0, TRUE },
@@ -69,12 +74,17 @@ static   position_struct   positions[] = {
                            {'5', "5", 4.0, 4.0, 1.0, TRUE },
                            {'6', "6", 5.0, 4.0, 1.0, TRUE },
                            {'7', "7", 6.0, 4.0, 1.0, TRUE },
+                           {'8', "8", 0.0, 0.0, 0.0, TRUE }, /* Invisible */
+                           {'9', "9", 0.0, 0.0, 0.0, TRUE }, /* Invisible */
+                           {'0', "0", 0.0, 0.0, 0.0, TRUE }, /* Invisible */
 
                            {'+', "+", 7.6, 2.0, 0.6, TRUE },
-                           {'=', "=", 0.0, 0.0, 0.0, TRUE }, /* Invisible? */
-                           {'>', ">", 0.0, 0.0, 0.0, TRUE }, /* Invisible? */
-                           {'<', "<", 0.0, 0.0, 0.0, TRUE }, /* Invisible? */
                            {'-', "-", 8.3, 2.0, 0.6, TRUE },
+                           {'=', "=", 0.0, 0.0, 0.0, TRUE }, /* Invisible */
+                           {'>', ">", 0.0, 0.0, 0.0, TRUE }, /* Invisible */
+                           {'<', "<", 0.0, 0.0, 0.0, TRUE }, /* Invisible */
+                           {'[', "[", 0.0, 0.0, 0.0, TRUE }, /* Invisible */
+                           {']', "]", 0.0, 0.0, 0.0, TRUE }, /* Invisible */
 
                            {BICGL_F1_KEY, "F1", 0, 0, 0, FALSE },
                            {BICGL_F2_KEY, "F2", 0, 0, 0, FALSE },

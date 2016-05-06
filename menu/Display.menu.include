@@ -7,6 +7,8 @@ root \
     permanent '+'      move_slice_plus              '+ Slice' 'Increase voxel coordinate in the slice view under the mouse.' \
     permanent '='      move_slice_plus              '+ Slice' 'Increase voxel coordinate in the slice view under the mouse.' \
     permanent '-'      move_slice_minus             '- Slice' 'Decrease voxel coordinate in the slice view under the mouse.' \
+    permanent '['      fast_rewind_slice            '-- Slice' '' \
+    permanent ']'      fast_forward_slice           '++ Slice' '' \
     transient '1'      move_time_minus              '- Time' 'Move to the previous time coordinate.' \
     transient '2'      move_time_plus               '+ Time' 'Move to the next time coordinate.' \
  \

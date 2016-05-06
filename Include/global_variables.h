@@ -136,6 +136,8 @@ START_GLOBALS
     DEF_GLOBAL( Viewport_min_y_size, VIO_Real, 0.1 )
 
     DEF_GLOBAL( Slice_magnification_step, VIO_Real, 1.2 )
+    DEF_GLOBAL( Slice_change_step, int, 1 )
+    DEF_GLOBAL( Slice_change_fast, int, 10 )
     DEF_GLOBAL( Slice_fit_oversize, VIO_Real, 0.05 )
     DEF_GLOBAL_COLOUR( Slice_divider_colour )
     DEF_GLOBAL( Slice_divider_left, int, 5 )

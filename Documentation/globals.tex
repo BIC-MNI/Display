@@ -342,7 +342,18 @@ histogram. In other words, by default we don't consider histogram bins
 
 \globalentry{Show\_slice\_field\_of\_view}
 {Boolean}{True}
-{If true, displays the current width and height of the field of view of each panel in the slice window.}{}
+{If true, displays the current width and height of the field of view of
+  each panel in the slice window.}{}
+
+\globalentry{Slice\_change\_step}
+{Integer}{1}
+{Sets the number of slices to move when the '+' or '-' keys are
+  pressed.}{}
+
+\globalentry{Slice\_change\_fast}
+{Integer}{10}
+{Sets the amount by which to multiply {\tt Slice\_change\_step} when
+  changing slice using the '[' or ']' keys.}{}
 
 \globalentry{Slice\_cross\_section\_colour}
 {Colour}{GREEN}

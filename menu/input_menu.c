@@ -99,6 +99,8 @@ MENU_F(make_all_volumes_visible)
 #define  MENU2 \
 MENU_F(move_slice_plus) \
 MENU_F(move_slice_minus) \
+MENU_F(fast_forward_slice) \
+MENU_F(fast_rewind_slice) \
 MENU_F(move_time_plus) \
 MENU_F(move_time_minus) \
 MENU_F(menu_set_global_variable) \
