@@ -2378,10 +2378,10 @@ get_view_name( display_struct *slice_window, int volume_index, int view_index )
       return "coronal";
     case VIO_Z:
       return "transverse";
+    default:
+      return "UNKNOWN";
     }
   }
-  else
-  {
-    return "oblique";
-  }
+
+  return "oblique";
 }
