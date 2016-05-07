@@ -1531,7 +1531,6 @@ rebuild_slice_field_of_view(display_struct *slice_window,
     text_struct    *text;
     char           buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
     VIO_STR        format;
-    int            x_pos, y_pos;
     VIO_Real       voxel[VIO_MAX_DIMENSIONS];
     int            volume_index;
     VIO_Real       world[VIO_N_DIMENSIONS];

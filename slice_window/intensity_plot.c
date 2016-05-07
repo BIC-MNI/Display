@@ -327,7 +327,6 @@ get_plot_end_points( display_struct *display,
         int label;
         VIO_Real r_voxel[VIO_MAX_DIMENSIONS];
         int i_voxel[VIO_MAX_DIMENSIONS];
-        int i;
 
         horiz_axis_index = VIO_T;
 
@@ -510,7 +509,6 @@ get_time_plot_data( VIO_Volume volume,
   for (i = 0; i < n_samples; i++)
   {
     double val;
-    double x, y, z;
 
     r_voxel[VIO_T] = i;
 
