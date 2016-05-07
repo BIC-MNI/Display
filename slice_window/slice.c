@@ -28,20 +28,15 @@ static void initialize_ratio (display_struct* slice_window);
 
   void  create_slice_window(
     display_struct   *display,
-    VIO_STR           filename,
     VIO_Volume           volume )
 {
     display_struct   *slice_window, *menu_window, *marker_window;
     int              sizes[VIO_MAX_DIMENSIONS];
-    char             title[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     get_volume_sizes( volume, sizes );
 
-    (void) sprintf( title, "%s [%d * %d * %d]", filename,
-                    sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
-
     (void) create_graphics_window( SLICE_WINDOW, Slice_double_buffer_flag,
-                                   &slice_window, title,
+                                   &slice_window, "", /* title set elsewhere */
                                    Initial_slice_window_x,
                                    Initial_slice_window_y,
                                    Initial_slice_window_width,
@@ -216,6 +211,7 @@ static  void  delete_slice_window_volume_stuff(
     delete_volume( slice_window->slice.volumes[volume_index].volume );
     delete_slice_models_for_volume( slice_window, volume_index );
     delete_string( slice_window->slice.volumes[volume_index].filename );
+    delete_string( slice_window->slice.volumes[volume_index].description );
 
     for_less( i, volume_index, slice_window->slice.n_volumes-1 )
         slice_window->slice.volumes[i] = slice_window->slice.volumes[i+1];
@@ -273,10 +269,15 @@ static  void  delete_slice_window_volume_stuff(
 /**
  * Creates the slice window if it does not already exist, then adds a
  * new volume to the slice window.
+ * \param display A pointer to a top-level display_struct.
+ * \param The file (or path) name of the volume.
+ * \param Descriptive text to associate with the volume.
+ * \param The loaded volume.
  */
   void  add_slice_window_volume(
     display_struct    *display,
     VIO_STR            filename,
+    VIO_STR            description,
     VIO_Volume            volume )
 {
     display_struct         *slice_window;
@@ -288,7 +289,7 @@ static  void  delete_slice_window_volume_stuff(
 
     if( !slice_window_exists(display) )
     {
-        create_slice_window( display, filename, volume );
+        create_slice_window( display, volume );
         initialize_slice_object_outline(display);
     }
 
@@ -309,6 +310,7 @@ static  void  delete_slice_window_volume_stuff(
     copy_general_transform( get_voxel_to_world_transform(volume),
                             &info->original_transform );
     info->filename = create_string( filename );
+    info->description = create_string( description );
     info->display_labels = Initial_display_labels;
 
     get_volume_sizes( volume, sizes );
@@ -410,7 +412,7 @@ static  void  delete_slice_window_volume_stuff(
         }
 
         G_set_window_title( slice_window->window,
-                            slice_window->slice.volumes[volume_index].filename);
+                            slice_window->slice.volumes[volume_index].description);
     }
     else
     {

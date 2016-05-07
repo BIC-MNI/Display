@@ -2306,10 +2306,7 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
     int            axis_index,
     VIO_Real           voxel_position );
 
-  void  create_slice_window(
-    display_struct   *display,
-    VIO_STR           filename,
-    VIO_Volume           volume );
+void  create_slice_window( display_struct *display, VIO_Volume volume );
 
   void  update_all_slice_models(
     display_struct   *slice_window );
@@ -2325,10 +2322,10 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
     display_struct    *slice_window,
     int               volume_index );
 
-  void  add_slice_window_volume(
-    display_struct    *display,
-    VIO_STR            filename,
-    VIO_Volume            volume );
+void add_slice_window_volume(display_struct *display,
+                             VIO_STR        filename,
+                             VIO_STR        description,
+                             VIO_Volume     volume );
 
   void  set_current_volume_index(
     display_struct  *slice_window,

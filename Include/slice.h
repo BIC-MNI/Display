@@ -361,6 +361,12 @@ typedef struct loaded_volume
     VIO_STR                filename;
 
     /**
+     * The description (typically filename + X: Y: Z: [T: ])
+     * for this volume.
+     */
+    VIO_STR                description;
+
+    /**
      * The pointer to the volume_io structure used to access the volume
      * data and current coordinate transform.
      */

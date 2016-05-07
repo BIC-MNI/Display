@@ -413,61 +413,78 @@ DEF_MENU_FUNCTION(save_label_data)
 
     status = VIO_OK;
 
-    if( get_slice_window( display, &slice_window ) &&
-        get_n_volumes(slice_window) > 0 )
+    /* This command can only function if there is an active slice
+     * window with a loaded volume.
+     */
+    if( !get_slice_window( display, &slice_window ) ||
+        get_n_volumes(slice_window) <= 0 )
     {
-        /* Use the filename given on the command line via the
-         * -output-label option, if any.
-         */
-    	if( string_length(Output_label_filename) )
-    	    filename = Output_label_filename;
-    	else
-    	{
-            status = get_user_file( "Enter filename to save: ", TRUE, NULL,
-                                    &filename);
-            if (status != VIO_OK)
-            {
-                return VIO_ERROR;
-            }
-    	}
+        return VIO_ERROR;
+    }
 
-        if( status == VIO_OK )
+    /* Use the filename given on the command line via the
+     * -output-label option, if any.
+     */
+    if( string_length(Output_label_filename) )
+        filename = Output_label_filename;
+    else
+    {
+        /* Prompt the user for a filename. */
+        if ( get_user_file( "Enter filename to save: ", TRUE, NULL,
+                            &filename) != VIO_OK )
         {
-            if( !slice_window->slice.crop_labels_on_output_flag )
-                crop_threshold = 0.0;
-            else
-                crop_threshold = Crop_label_volumes_threshold;
+            return VIO_ERROR;
+        }
+    }
 
-            status = make_backup_file( filename, &backup_filename );
+    if( !slice_window->slice.crop_labels_on_output_flag )
+        crop_threshold = 0.0;
+    else
+        crop_threshold = Crop_label_volumes_threshold;
 
-            if( status == VIO_OK )
-            {
-                status = save_label_volume( filename,
-                          backup_filename,
-                          get_label_volume(slice_window), crop_threshold );
-
-                cleanup_backup_file( filename, backup_filename, status );
-            }
-
-            if( status == VIO_OK )
-                print( "Label saved to %s\n", filename );
-            else
-            {
-                print( "\n" );
-                print( "###############################################\n" );
-                print( "#                                             #\n" );
-                print( "#  Error:  Labels were NOT saved.             #\n" );
-                print( "#                                             #\n" );
-                print( "###############################################\n" );
-                print( "\n" );
-            }
+    status = make_backup_file( filename, &backup_filename );
+    if( status == VIO_OK )
+    {
+        VIO_BOOL made_backup = backup_filename != NULL;
+        if ( !made_backup )
+        {
+            /* If NOT replacing an existing file, THEN treat the
+             * original volume as the template from which to copy
+             * volume ordering, etc.
+             */
+            int volume_index = get_current_volume_index( slice_window );
+            backup_filename = get_volume_filename( slice_window, volume_index );
         }
 
-        /* If we set a fixed label filename, don't free it here!
-         */
-        if (filename != Output_label_filename)
-          delete_string( filename );
+        status = save_label_volume( filename,
+                                    backup_filename,
+                                    get_label_volume(slice_window),
+                                    crop_threshold );
+        if ( made_backup )
+        {
+            /* We made a backup, so clean it up now.
+             */
+            cleanup_backup_file( filename, backup_filename, status );
+        }
     }
+
+    if( status == VIO_OK )
+        print( "Label saved to %s\n", filename );
+    else
+    {
+        print( "\n" );
+        print( "###############################################\n" );
+        print( "#                                             #\n" );
+        print( "#  Error:  Labels were NOT saved.             #\n" );
+        print( "#                                             #\n" );
+        print( "###############################################\n" );
+        print( "\n" );
+    }
+
+    /* If we set a fixed label filename, don't free it here!
+     */
+    if (filename != Output_label_filename)
+        delete_string( filename );
 
     return( status );
 }

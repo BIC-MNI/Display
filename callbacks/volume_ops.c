@@ -505,7 +505,7 @@ DEF_MENU_FUNCTION(resample_slice_window_volume)
                             get_volume_filename(slice_window,
                                    get_current_volume_index(slice_window) ) );
 
-            add_slice_window_volume( slice_window, label, resampled_volume );
+            add_slice_window_volume( slice_window, "", label, resampled_volume );
         }
     }
 
@@ -557,7 +557,7 @@ DEF_MENU_FUNCTION(box_filter_slice_window_volume)
                                         NC_BYTE, FALSE, 0.0, 0.0,
                                         x_width, y_width, z_width );
 
-            add_slice_window_volume( slice_window, label, resampled_volume );
+            add_slice_window_volume( slice_window, "", label, resampled_volume );
         }
     }
 

@@ -375,7 +375,8 @@ VIO_BOOL is_volume_transform_rigid( VIO_Volume volume )
           print( message );
         }
 
-        add_slice_window_volume( display, volume_description, volume_read_in );
+        add_slice_window_volume( display, filename, volume_description,
+                                 volume_read_in );
     }
 
     return( status );
