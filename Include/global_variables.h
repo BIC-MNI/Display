@@ -294,7 +294,7 @@ START_GLOBALS
     DEF_GLOBAL( Initial_display_labels, VIO_BOOL, TRUE )
     DEF_GLOBAL( Initial_share_labels, VIO_BOOL, TRUE )
     DEF_GLOBAL( Initial_num_labels, int, 256 )
-    DEF_GLOBAL( Label_colour_opacity, VIO_Real, 0.7 )
+    DEF_GLOBAL( Label_colour_opacity, VIO_Real, 0.5 )
 
     DEF_GLOBAL( Use_cursor_origin, VIO_BOOL, TRUE )
 
