@@ -57,3 +57,21 @@ DEF_MENU_UPDATE(save_window_state)
 {
   return TRUE;
 }
+
+DEF_MENU_FUNCTION(save_global_config)
+{
+    VIO_STR filename;
+    if (get_user_file( "Enter a filename for the saved globals.", TRUE,
+                       NULL, &filename ) == VIO_OK)
+    {
+        write_globals_to_file( filename );
+        delete_string( filename );
+    }
+    return VIO_OK;
+}
+
+DEF_MENU_UPDATE(save_global_config)
+{
+  return TRUE;
+}
+

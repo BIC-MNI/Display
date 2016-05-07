@@ -391,13 +391,13 @@ static void initialize_cache()
  *
  * \param filename The desired filename to receive the globals.
  */
-static void
-write_globals_to_file(int n_globals,
-                      global_struct globals[],
-                      const VIO_STR filename)
+void
+write_globals_to_file( const VIO_STR filename )
 {
   int i;
   FILE *fp;
+  const int n_globals = VIO_SIZEOF_STATIC_ARRAY(display_globals);
+  global_struct *globals = display_globals;
 
   if ( open_file( filename, WRITE_FILE, ASCII_FORMAT, &fp) != VIO_OK )
   {
@@ -410,7 +410,7 @@ write_globals_to_file(int n_globals,
 
     /* TODO: It would be nicer if the globals.c in BICPL exported a
      * "format_global" function or something to handle this for us,
-     * rather than doing an expensive lookup on a table we already
+     * rather than doing an expensive lookup on a table we are already
      * scanning...
      */
     if (get_global_variable( n_globals, globals, globals[i].variable_name,
@@ -633,12 +633,6 @@ parse_options(int argc, char *argv[], display_struct *graphics)
         exit(EX_USAGE);
       }
 
-      if (equal_strings(variable_name, "write"))
-      {
-        write_globals_to_file(VIO_SIZEOF_STATIC_ARRAY(display_globals),
-                              display_globals, variable_value);
-        exit(EX_OK);
-      }
       if (set_global_variable_value(variable_name, variable_value) != VIO_OK)
       {
         print("Error setting global variable from command line.\n");

@@ -16,6 +16,8 @@ VIO_Status get_user_file(const char *prompt, VIO_BOOL saving,
                          char *extension, VIO_STR *filename);
 VIO_Status get_user_coding_type(const char *prompt, Colour_coding_types *cc_type_ptr);
 
+void write_globals_to_file( const VIO_STR filename );
+
 #define DISPLAY_OPAQUE 1
 #define DISPLAY_TRANSLUCENT 2
 #define DISPLAY_BOTH (DISPLAY_OPAQUE | DISPLAY_TRANSLUCENT)
