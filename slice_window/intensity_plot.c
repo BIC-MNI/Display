@@ -667,9 +667,8 @@ create_tick_lines( model_struct *model_ptr, lines_struct *lines_ptr,
   if (desired_ticks < min_n_ticks)
     desired_ticks = min_n_ticks;
 
-
   delta_tick = trunc_to_n_digits( range / desired_ticks, 1 );
-  if (delta_tick <= 0)          /* Make sure it's positive */
+  if (delta_tick <= 1e-10)      /* Make sure it's positive */
     delta_tick = 1;
 
   /* Calculate a good value to use for the lowest tick mark.
