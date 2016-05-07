@@ -834,7 +834,7 @@ get_user_file(const char *prompt, VIO_BOOL saving, char *extension,
 
     pclose(in_fp);
 
-    if( has_no_extension( expanded ) )
+    if( has_no_extension( expanded ) && extension != NULL )
     {
       concat_to_string( &expanded, "." );
       concat_to_string( &expanded, extension );
