@@ -19,4 +19,11 @@ stamp-h1
 *.aux
 *.log
 *.toc
-
+*.4ct
+*.4tc
+*.dvi
+*.idv
+*.lg
+*.out
+*.tmp
+*.xref
