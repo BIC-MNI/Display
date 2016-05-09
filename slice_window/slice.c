@@ -36,7 +36,8 @@ static void initialize_ratio (display_struct* slice_window);
     get_volume_sizes( volume, sizes );
 
     (void) create_graphics_window( SLICE_WINDOW, Slice_double_buffer_flag,
-                                   &slice_window, "", /* title set elsewhere */
+                                   &slice_window, 
+                                   "Display: Slice View",
                                    Initial_slice_window_x,
                                    Initial_slice_window_y,
                                    Initial_slice_window_width,
