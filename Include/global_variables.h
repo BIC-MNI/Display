@@ -445,9 +445,10 @@ START_GLOBALS
     DEF_GLOBAL( Slice_probe_ratio_format, VIO_STR, "%d/%d %6.2f" )
     DEF_GLOBAL_COLOUR( Slice_probe_ratio_colour )
 
-    DEF_GLOBAL( Hide_3D_window, VIO_BOOL, TRUE)
-    DEF_GLOBAL( Hide_marker_window, VIO_BOOL, TRUE)
-    DEF_GLOBAL( Hide_menu_window, VIO_BOOL, FALSE)
+    DEF_GLOBAL( Hide_3D_window, VIO_BOOL, TRUE )
+    DEF_GLOBAL( Hide_marker_window, VIO_BOOL, TRUE )
+    DEF_GLOBAL( Hide_menu_window, VIO_BOOL, FALSE )
+    DEF_GLOBAL( Show_slice_window, VIO_BOOL, TRUE )
 
     DEF_GLOBAL( Initial_marker_window_x, int, -1 )
     DEF_GLOBAL( Initial_marker_window_y, int, -1 )

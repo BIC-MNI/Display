@@ -30,6 +30,7 @@ static  void   initialize_view_to_fit (display_struct  *display );
 static  void   initialize_cache ();
 static  void   parse_options (int argc, char *argv[],
                               display_struct *graphics);
+static  void   create_empty_slice( display_struct *display );
 
 /* The first directory is set using compiler flag -D */
 /*#define  HARD_CODED_DISPLAY_DIRECTORY1    "/usr/local/mni/lib"*/
@@ -202,6 +203,10 @@ int  main(
 
     parse_options(argc, argv, graphics);
 
+    if( !get_slice_window( graphics, &slice_window ) && Show_slice_window )
+    {
+        create_empty_slice( graphics );
+    }
     if( get_slice_window( graphics, &slice_window ) )
     {
         for_less( view, 0, N_SLICE_VIEWS )
@@ -668,6 +673,70 @@ parse_options(int argc, char *argv[], display_struct *graphics)
 
   if (Exit_error_load_file && retcode != VIO_OK)
     exit(EX_USAGE);
+}
+
+/**
+ * When no volumes are loaded, we can create an "empty" slice view that
+ * corresponds to the reported size of the loaded 3D objects. This allows
+ * the user to inspect the outline projection of the 3D objects in the
+ * slice view window without actually loading a real volume.
+ *
+ * \param display A pointer to the display_struct for the 3D view
+ * window.
+ */
+static void
+create_empty_slice( display_struct *display )
+{
+  VIO_Volume volume;
+  VIO_Point pt_min, pt_max;
+  VIO_BOOL found;
+  int sizes[VIO_N_DIMENSIONS];
+  VIO_Real starts[VIO_N_DIMENSIONS];
+  VIO_Real steps[VIO_N_DIMENSIONS];
+  VIO_Real extent[VIO_N_DIMENSIONS];
+  int i;
+
+  /* Get the size of the loaded 3D objects in world space.
+   */
+  if (!get_range_of_object( display->models[THREED_MODEL], 
+                            FALSE, &pt_min, &pt_max ))
+  {
+      return;                   /* Nothing loaded, so don't bother.*/
+  }
+
+  /* Create a "fake" unsigned byte volume that will be used as the
+   * backdrop for projections of the loaded surfaces.
+   */
+  volume = create_volume(VIO_N_DIMENSIONS, XYZ_dimension_names,
+                         NC_BYTE, FALSE, 0, 255);
+
+  /* Use the extent of the 3D objects to set the size of the "fake"
+   * volume of so that it will fit the objects cleanly.
+   */
+  extent[VIO_X] = (int) (ceil(Point_x(pt_max)) - floor(Point_x(pt_min)));
+  extent[VIO_Y] = (int) (ceil(Point_y(pt_max)) - floor(Point_y(pt_min)));
+  extent[VIO_Z] = (int) (ceil(Point_z(pt_max)) - floor(Point_z(pt_min)));
+
+  /* We use a constant size of 256x256x256 to give a fine-grained
+   * projection, so we adjust the steps to give the right extent for
+   * the fixed size.
+   */
+  sizes[VIO_X] = sizes[VIO_Y] = sizes[VIO_Z] = 256;
+  for (i = 0; i < VIO_N_DIMENSIONS; i++)
+  {
+    steps[i] = extent[i] / sizes[i];
+  }
+
+  /* The starts are just the lowest point in world space for each axis.
+   */
+  starts[VIO_X] = floor(Point_x(pt_min));
+  starts[VIO_Y] = floor(Point_y(pt_min));
+  starts[VIO_Z] = floor(Point_z(pt_min));
+  set_volume_sizes( volume, sizes );
+  set_volume_starts( volume, starts );
+  set_volume_separations( volume, steps );
+  alloc_volume_data( volume );
+  add_slice_window_volume( display, "", "", volume );
 }
 
 #include <unistd.h>
