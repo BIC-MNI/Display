@@ -736,17 +736,18 @@ DEF_MENU_UPDATE(copy_defaults_to_markers )
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-/* ARGSUSED */
-
+/** Move the cursor to the home (0,0,0) position in world coordinates.
+ */
 DEF_MENU_FUNCTION( move_cursor_to_home )
 {
-    set_cursor_origin(display, &Cursor_home);
+    set_cursor_origin( display, &Cursor_home );
+    update_voxel_from_cursor( display );
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-DEF_MENU_UPDATE(move_cursor_to_home )
+DEF_MENU_UPDATE( move_cursor_to_home )
 {
     return( TRUE );
 }
