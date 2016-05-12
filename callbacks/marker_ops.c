@@ -603,7 +603,6 @@ DEF_MENU_FUNCTION( change_marker_type )
 {
     int             type;
     marker_struct   *marker;
-    char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     if( get_current_marker(display, &marker) )
     {

@@ -450,7 +450,6 @@ VIO_BOOL  remove_current_object_from_hierarchy(
 DEF_MENU_FUNCTION( delete_current_object )
 {
     object_struct    *object;
-    display_struct   *slice_window;
 
     /* If we are about to delete a marker, immediately move 
      * the cursor to the position of the marker we are about
