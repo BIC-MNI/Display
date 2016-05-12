@@ -167,6 +167,11 @@ effect after \display{} has been initialized.
  output label volumes will only be cropped if the size of the resulting
  volume is less than this value times the original size.}{}
 
+\globalentry{Cursor\_home}
+{Point}{0 0 0}
+{Sets the ``home'' location of the cursor in world coordinates, used by 
+\menutwo{Markers}{Move Cursor Home}.}{}
+
 \globalentry{Cursor\_rgb\_colour}
 {Colour}{Blue}
 {Defines the colour of the small box at the centre of the cursor in the 3D window. The colours of the three axes lines are fixed at X=RED, Y=GREEN, Z=BLUE.}{}
@@ -341,7 +346,7 @@ histogram. In other words, by default we don't consider histogram bins
   view planes and the 3D objects.}{}
 
 \globalentry{Show\_slice\_field\_of\_view}
-{Boolean}{True}
+{Boolean}{False}
 {If true, displays the current width and height of the field of view of
   each panel in the slice window.}{}
 

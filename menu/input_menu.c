@@ -218,6 +218,7 @@ MENU_F(copy_defaults_to_markers) \
 MENU_F(change_marker_structure_id) \
 MENU_F(change_marker_patient_id) \
 MENU_F(change_marker_label) \
+MENU_F(change_marker_colour) \
 MENU_F(change_marker_size) \
 MENU_F(change_marker_position) \
 MENU_F(change_marker_type) \

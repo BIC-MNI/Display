@@ -483,14 +483,11 @@ DEF_MENU_UPDATE( menu_load_vertex_data );
 
   DEF_MENU_UPDATE(scan_current_object_to_volume );
 /** @} */
-  void  set_marker_to_defaults(
-    display_struct  *display,
-    marker_struct   *marker );
 
   void  create_marker_at_position(
     display_struct    *display,
-    VIO_Point             *position,
-    VIO_STR            label );
+    VIO_Point         *position,
+    VIO_STR           label );
 
   /** \addtogroup Commands
    * @{

@@ -20,21 +20,27 @@
 
 #include  <display.h>
 
+/**
+ * Retrieves a pointer to the currently selected marker, if any.
+ *
+ * \param display A pointer to a top-level display_struct.
+ * \param marker Location for the marker_struct pointer retrieved.
+ */
 static  VIO_BOOL  get_current_marker(
     display_struct    *display,
     marker_struct     **marker )
 {
-    VIO_BOOL                 found;
+    VIO_BOOL                found;
     object_struct           *current_object, *object;
-    object_traverse_struct  object_traverse;
+    object_traverse_struct  obj_traverse;
 
     found = FALSE;
 
     if( get_current_object( display, &current_object ) )
     {
-        initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
+        initialize_object_traverse( &obj_traverse, FALSE, 1, &current_object );
 
-        while( get_next_object_traverse(&object_traverse,&object) )
+        while( get_next_object_traverse( &obj_traverse, &object ) )
         {
             if( !found && object->object_type == MARKER )
             {
@@ -47,22 +53,35 @@ static  VIO_BOOL  get_current_marker(
     return( found );
 }
 
-void  set_marker_to_defaults(
+/**
+ * Initialize a marker object to the current default values.
+ *
+ * \param display A pointer to a top-level display_struct.
+ * \param marker A pointer to the marker_struct to update.
+ */
+static void  set_marker_to_defaults(
     display_struct  *display,
     marker_struct   *marker )
 {
     marker->type = display->three_d.default_marker_type;
     marker->colour = display->three_d.default_marker_colour;
     marker->size = display->three_d.default_marker_size;
-    delete_string( marker->label );
-    marker->label = create_string( display->three_d.default_marker_label );
+    replace_string( &marker->label,
+                    create_string( display->three_d.default_marker_label ) );
     marker->structure_id = display->three_d.default_marker_structure_id;
     marker->patient_id = display->three_d.default_marker_patient_id;
 }
 
+/**
+ * Get the position in world coordinates associated with the mouse, if 
+ * possible. Otherwise returns the position of the cursor.
+ *
+ * \param display A pointer to a top-level display_struct.
+ * \param pos A VIO_Point to be filled in with the appropriate position.
+ */
 static  void  get_position_pointed_to(
     display_struct   *display,
-    VIO_Point            *pos )
+    VIO_Point        *pos )
 {
     int             axis_index, volume_index;
     VIO_Real        voxel[VIO_MAX_DIMENSIONS];
@@ -70,20 +89,27 @@ static  void  get_position_pointed_to(
 
     if( get_voxel_under_mouse( display, &volume_index, &axis_index, voxel ) )
     {
-        convert_voxel_to_world( get_nth_volume(display,volume_index),
+        convert_voxel_to_world( get_nth_volume(display, volume_index),
                                 voxel, &x_w, &y_w, &z_w );
         fill_Point( *pos, x_w, y_w, z_w );
     }
     else
     {
-        get_cursor_origin(display, pos);
+        get_cursor_origin( display, pos );
     }
 }
 
-void  create_marker_at_position(
+/**
+ * Public function to create a marker at a particular point in world space.
+ *
+ * \param display A pointer to a top-level display_struct.
+ * \param position The desired 3D point where the marker should be placed.
+ * \param label A text label to associate with the marker.
+ */
+void create_marker_at_position(
     display_struct    *display,
-    VIO_Point             *position,
-    VIO_STR            label )
+    VIO_Point         *position,
+    VIO_STR           label )
 {
     object_struct   *object;
     marker_struct   *marker;
@@ -103,8 +129,15 @@ void  create_marker_at_position(
     add_object_to_current_model( display, object );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to create a new marker at the current cursor position,
+ * using the current marker default properties.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( create_marker_at_cursor )
 {
     VIO_Point           position;
@@ -116,44 +149,45 @@ DEF_MENU_FUNCTION( create_marker_at_cursor )
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(create_marker_at_cursor )
+DEF_MENU_UPDATE( create_marker_at_cursor )
 {
     return( TRUE );
 }
 
-/* ARGSUSED */
-
+/** 
+ * Command to move the crosshair cursor to the position of the currently
+ * selected marker.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( set_cursor_to_marker )
 {
-    object_struct   *object;
-    display_struct  *slice_window;
+    marker_struct   *marker;
 
-    if( get_current_object( display, &object ) &&
-        object->object_type == MARKER )
+    if( get_current_marker( display, &marker ) )
     {
-        set_cursor_origin(display, &get_marker_ptr(object)->position);
-
-        slice_window = display->associated[SLICE_WINDOW];
-        if( slice_window != (display_struct  *) 0 )
-        {
-            (void) update_voxel_from_cursor( slice_window );
-        }
+        set_cursor_origin( display, &marker->position );
+        update_voxel_from_cursor( display );
     }
-
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(set_cursor_to_marker )
+DEF_MENU_UPDATE( set_cursor_to_marker )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to save all markers to a .tag file.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( save_markers )
 {
     VIO_Status              status;
@@ -162,7 +196,7 @@ DEF_MENU_FUNCTION( save_markers )
     VIO_STR                 filename;
     FILE                    *file;
     marker_struct           *marker;
-    object_traverse_struct  object_traverse;
+    object_traverse_struct  obj_traverse;
     int                     n_tags;
     VIO_Real                **tags, *weights;
     int                     *structure_ids, *patient_ids;
@@ -188,9 +222,9 @@ DEF_MENU_FUNCTION( save_markers )
     labels = NULL;
     if( status == VIO_OK )
     {
-        initialize_object_traverse( &object_traverse, TRUE, 1, &object );
+        initialize_object_traverse( &obj_traverse, TRUE, 1, &object );
 
-        while( get_next_object_traverse(&object_traverse,&current_object) )
+        while( get_next_object_traverse(&obj_traverse, &current_object) )
         {
             if( current_object->object_type == MARKER )
             {
@@ -242,15 +276,19 @@ DEF_MENU_FUNCTION( save_markers )
     return( status );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(save_markers )
+DEF_MENU_UPDATE( save_markers )
 {
     return( TRUE );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to set the current default marker structure ID.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( set_default_marker_structure_id )
 {
     int             id;
@@ -270,9 +308,7 @@ DEF_MENU_FUNCTION( set_default_marker_structure_id )
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(set_default_marker_structure_id )
+DEF_MENU_UPDATE( set_default_marker_structure_id )
 {
     set_menu_text_int( menu_window, menu_entry,
                        display->three_d.default_marker_structure_id );
@@ -280,8 +316,14 @@ DEF_MENU_UPDATE(set_default_marker_structure_id )
     return( TRUE );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to set the current default marker patient ID.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( set_default_marker_patient_id )
 {
     int             id;
@@ -289,7 +331,7 @@ DEF_MENU_FUNCTION( set_default_marker_patient_id )
 
     sprintf( prompt, 
              "The current default marker id is: %d\nEnter the new value: ",
-           display->three_d.default_marker_patient_id );
+             display->three_d.default_marker_patient_id );
 
     if( get_user_input( prompt, "d", &id ) == VIO_OK )
     {
@@ -301,9 +343,7 @@ DEF_MENU_FUNCTION( set_default_marker_patient_id )
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(set_default_marker_patient_id )
+DEF_MENU_UPDATE( set_default_marker_patient_id )
 {
     set_menu_text_int( menu_window, menu_entry,
                        display->three_d.default_marker_patient_id );
@@ -311,8 +351,14 @@ DEF_MENU_UPDATE(set_default_marker_patient_id )
     return( TRUE );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to change the size used for new markers.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( set_default_marker_size )
 {
     VIO_Real        size;
@@ -331,9 +377,7 @@ DEF_MENU_FUNCTION( set_default_marker_size )
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(set_default_marker_size )
+DEF_MENU_UPDATE( set_default_marker_size )
 {
     set_menu_text_real( menu_window, menu_entry,
                         display->three_d.default_marker_size );
@@ -341,8 +385,14 @@ DEF_MENU_UPDATE(set_default_marker_size )
     return( TRUE );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to change the colour used for new markers.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( set_default_marker_colour )
 {
     VIO_Status  status;
@@ -364,24 +414,16 @@ DEF_MENU_FUNCTION( set_default_marker_colour )
     if( status == VIO_OK )
     {
         colour = convert_string_to_colour( string );
-
         delete_string( string );
-
         display->three_d.default_marker_colour = colour;
-
         string = convert_colour_to_string( colour );
-
         print( "The new default marker colour is: %s\n", string );
-
         delete_string( string );
     }
-
     return( status );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(set_default_marker_colour )
+DEF_MENU_UPDATE( set_default_marker_colour )
 {
     set_menu_text_with_colour( menu_window, menu_entry,
                                display->three_d.default_marker_colour );
@@ -389,32 +431,28 @@ DEF_MENU_UPDATE(set_default_marker_colour )
     return( TRUE );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to change the type used for new markers.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( set_default_marker_type )
 {
-    int       type;
-    char      prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
-
-    sprintf( prompt, 
-             "The current default marker type is: %d\nEnter the new type [0-%d]:",
-             (int) display->three_d.default_marker_type,
-             N_MARKER_TYPES-1);
-
-    if( get_user_input( prompt, "d", &type ) == VIO_OK &&
-        type >= 0 && type < N_MARKER_TYPES )
+    int type = (int) display->three_d.default_marker_type + 1;
+    if (type >= N_MARKER_TYPES)
     {
-        display->three_d.default_marker_type = (Marker_types) type;
-        print( "The new default marker type is: %d\n",
-               (int) display->three_d.default_marker_type );
-
+        type = 0;
     }
+    display->three_d.default_marker_type = (Marker_types) type;
+    print( "The new default marker type is: %d\n",
+           (int) display->three_d.default_marker_type );
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(set_default_marker_type )
+DEF_MENU_UPDATE( set_default_marker_type )
 {
     VIO_STR    name;
 
@@ -432,14 +470,18 @@ DEF_MENU_UPDATE(set_default_marker_type )
         name = "Undefined";
         break;
     }
-
     set_menu_text_string( menu_window, menu_entry, name );
-
     return( TRUE );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to change the structure ID of the currently selected marker.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( set_default_marker_label )
 {
     VIO_Status   status;
@@ -462,9 +504,7 @@ DEF_MENU_FUNCTION( set_default_marker_label )
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(set_default_marker_label )
+DEF_MENU_UPDATE( set_default_marker_label )
 {
     set_menu_text_string( menu_window, menu_entry,
                           display->three_d.default_marker_label );
@@ -472,21 +512,28 @@ DEF_MENU_UPDATE(set_default_marker_label )
     return( TRUE );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to change the structure ID of all markers in the currently
+ * selected model.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( change_marker_structure_id )
 {
     int                     id;
     marker_struct           *marker;
     object_struct           *current_object, *object;
-    object_traverse_struct  object_traverse;
+    object_traverse_struct  obj_traverse;
 
     if (get_user_input( "Enter the new structure id: ", "d", &id) == VIO_OK &&
         get_current_object( display, &current_object ) )
     {
-        initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
+        initialize_object_traverse( &obj_traverse, FALSE, 1, &current_object);
 
-        while( get_next_object_traverse(&object_traverse,&object) )
+        while( get_next_object_traverse( &obj_traverse, &object ) )
         {
             if( object->object_type == MARKER )
             {
@@ -500,28 +547,32 @@ DEF_MENU_FUNCTION( change_marker_structure_id )
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(change_marker_structure_id )
+DEF_MENU_UPDATE( change_marker_structure_id )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to change the patient ID of all markers in the current model.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( change_marker_patient_id )
 {
     int                     id;
     marker_struct           *marker;
     object_struct           *current_object, *object;
-    object_traverse_struct  object_traverse;
+    object_traverse_struct  obj_traverse;
 
     if (get_user_input( "Enter the new patient id: ", "d", &id ) == VIO_OK &&
         get_current_object( display, &current_object ) )
     {
-        initialize_object_traverse( &object_traverse, FALSE, 1,&current_object);
+        initialize_object_traverse( &obj_traverse, FALSE, 1, &current_object);
 
-        while( get_next_object_traverse(&object_traverse,&object) )
+        while( get_next_object_traverse( &obj_traverse, &object) )
         {
             if( object->object_type == MARKER )
             {
@@ -535,57 +586,106 @@ DEF_MENU_FUNCTION( change_marker_patient_id )
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(change_marker_patient_id )
+DEF_MENU_UPDATE( change_marker_patient_id )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to change the type of the currently selected marker.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( change_marker_type )
 {
     int             type;
     marker_struct   *marker;
     char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    if( get_current_marker(display,&marker) )
+    if( get_current_marker(display, &marker) )
     {
-         sprintf( prompt,
-                 "The current marker type is: %d\n"
-                 "Enter the new type [0-%d]: ",
-                  (int) marker->type, N_MARKER_TYPES-1 );
-
-       if( get_user_input( prompt, "d", &type ) == VIO_OK &&
-            type >= 0 && type < N_MARKER_TYPES )
+        type = (int) marker->type + 1;
+        if (type >= N_MARKER_TYPES)
         {
-            marker->type = (Marker_types) type;
-            print( "The new value of this marker type is: %d\n",
-               (int) marker->type );
-            graphics_models_have_changed( display );
+            type = 0;
         }
+        marker->type = (Marker_types) type;
+        print( "The new value of this marker type is: %d\n",
+               (int) marker->type );
+        graphics_models_have_changed( display );
     }
-
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(change_marker_type )
+DEF_MENU_UPDATE( change_marker_type )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-/* ARGSUSED */
+/**
+ * Command to change the colour of the currently selected marker.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
+DEF_MENU_FUNCTION( change_marker_colour )
+{
+    marker_struct   *marker;
 
+    if( get_current_marker(display, &marker) )
+    {
+        VIO_STR    string = convert_colour_to_string( marker->colour );
+        char       prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
+        VIO_Colour colour;
+        VIO_Status status;
+
+        sprintf( prompt, 
+                 "The current marker colour is: %s\n"
+                 "Enter the new colour name or 3 or 4 colour components: ",
+                 string );
+
+        delete_string( string );
+
+        status = get_user_input( prompt, "s", &string );
+        if( status == VIO_OK )
+        {
+            colour = convert_string_to_colour( string );
+            delete_string( string );
+            marker->colour = colour;
+            string = convert_colour_to_string( colour );
+            print( "The new colour of this marker is: %s\n", string );
+            delete_string( string );
+            graphics_models_have_changed( display );
+        }
+    }
+    return( VIO_OK );
+}
+
+DEF_MENU_UPDATE( change_marker_colour )
+{
+    return( current_object_is_this_type( display, MARKER ) );
+}
+
+/**
+ * Command to change the size of the currently selected marker.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( change_marker_size )
 {
     VIO_Real        size;
     marker_struct   *marker;
     char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    if( get_current_marker(display,&marker) )
+    if( get_current_marker(display, &marker) )
     {
         sprintf( prompt, "The current size of this marker is: %g\n"
                  "Enter the new value: ",
@@ -602,20 +702,25 @@ DEF_MENU_FUNCTION( change_marker_size )
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(change_marker_size )
+DEF_MENU_UPDATE( change_marker_size )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to change the position of the currently selected marker, by
+ * moving the marker to the current mouse (or cursor) position.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( change_marker_position )
 {
     marker_struct   *marker;
 
-    if( get_current_marker(display,&marker) )
+    if( get_current_marker( display, &marker ) )
     {
         get_position_pointed_to( display, &marker->position );
 
@@ -630,15 +735,19 @@ DEF_MENU_FUNCTION( change_marker_position )
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(change_marker_position )
+DEF_MENU_UPDATE( change_marker_position )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to change the label of the currently selected marker.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( change_marker_label )
 {
     VIO_STR         label;
@@ -662,15 +771,20 @@ DEF_MENU_FUNCTION( change_marker_label )
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(change_marker_label )
+DEF_MENU_UPDATE( change_marker_label )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to copy the current default settings to the currently selected
+ * marker.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( copy_defaults_to_marker )
 {
     marker_struct   *marker;
@@ -685,31 +799,36 @@ DEF_MENU_FUNCTION( copy_defaults_to_marker )
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(copy_defaults_to_marker )
+DEF_MENU_UPDATE( copy_defaults_to_marker )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to copy the current default settings to all markers whose
+ * patient and structure ids match that of the current marker.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
+ */
 DEF_MENU_FUNCTION( copy_defaults_to_markers )
 {
     int                     patient_id, structure_id;
     marker_struct           *marker;
     object_struct           *object, *current_object;
-    object_traverse_struct  object_traverse;
+    object_traverse_struct  obj_traverse;
 
-    if( get_current_marker(display,&marker) )
+    if( get_current_marker( display, &marker) )
     {
         patient_id = marker->patient_id;
         structure_id = marker->structure_id;
 
         object = display->models[THREED_MODEL];
-        initialize_object_traverse( &object_traverse, TRUE, 1, &object );
+        initialize_object_traverse( &obj_traverse, TRUE, 1, &object );
 
-        while( get_next_object_traverse(&object_traverse, &current_object) )
+        while( get_next_object_traverse( &obj_traverse, &current_object ) )
         {
             if( current_object->object_type == MARKER )
             {
@@ -722,21 +841,24 @@ DEF_MENU_FUNCTION( copy_defaults_to_markers )
                 }
             }
         }
-
         graphics_models_have_changed( display );
     }
-
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(copy_defaults_to_markers )
+DEF_MENU_UPDATE( copy_defaults_to_markers )
 {
     return( current_object_is_this_type( display, MARKER ) );
 }
 
-/** Move the cursor to the home (0,0,0) position in world coordinates.
+/** 
+ * Command to move the cursor to the home (0,0,0) position in world
+ * coordinates.
+ *
+ * \param display A pointer to the display_struct of a top-level window.
+ * \param menu_window A pointer to the display_struct of the menu window.
+ * \param menu_entry  A pointer to the menu_entry for this command.
+ * \returns VIO_OK if successful.
  */
 DEF_MENU_FUNCTION( move_cursor_to_home )
 {
@@ -744,8 +866,6 @@ DEF_MENU_FUNCTION( move_cursor_to_home )
     update_voxel_from_cursor( display );
     return( VIO_OK );
 }
-
-/* ARGSUSED */
 
 DEF_MENU_UPDATE( move_cursor_to_home )
 {

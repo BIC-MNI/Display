@@ -457,10 +457,6 @@ DEF_MENU_FUNCTION( delete_current_object )
      * to delete.
      */
     set_cursor_to_marker(display, menu_window, menu_entry);
-    if (get_slice_window(display, &slice_window))
-    {
-        (void) update_voxel_from_cursor( slice_window );
-    }
 
     if( get_current_object( display, &object ) &&
         get_object_type( object ) == POLYGONS &&

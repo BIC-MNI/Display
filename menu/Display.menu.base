@@ -321,6 +321,7 @@ markers \
     transient 'e'    change_marker_structure_id  'Chg Structure Id' 'Prompts for a new structure ID for the currently selected markers.' \
     transient 'r'    change_marker_patient_id    'Chg Patient Id' 'Prompts for a new patient ID for the currently selected markers.' \
     transient 't'    change_marker_type          'Chg Marker Type' 'Prompts for a new type for the currently selected markers.' \
+    transient 'y'    change_marker_colour        'Chg Marker Colour' 'Prompts for a new colour for the currently selected markers.' \
     transient 'u'    change_marker_position      'Change Marker Position' 'Moves the currently selected marker to a new cursor position.' \
  \
     transient 'd'    set_cursor_to_marker        'Move to Marker' 'Moves the cursor to the position of the currently selected marker.' \
