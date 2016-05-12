@@ -68,6 +68,7 @@ input_vertex_data( VIO_STR filename )
     char buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
     vertex_data_struct *vtxd_ptr;
     int sep;
+    int is_vertstats = 0;
 
     if (string_ends_in( filename, ".csv" ))
     {
@@ -76,6 +77,11 @@ input_vertex_data( VIO_STR filename )
     else if (string_ends_in( filename, ".tsv" ))
     {
         sep = '\t';
+    }
+    else if (string_ends_in( filename, ".vertstats" ))
+    {
+        is_vertstats = 1;
+        sep = ' ';
     }
     else
     {
@@ -93,6 +99,8 @@ input_vertex_data( VIO_STR filename )
     ADD_ELEMENT_TO_ARRAY(vtxd_ptr->dims, len, 0, 1 );
     ADD_ELEMENT_TO_ARRAY(vtxd_ptr->dims, len, 0, 1 );
 
+    vtxd_ptr->column_names = NULL;
+
     len = 0;
 
     while (fgets(buffer, sizeof(buffer) - 1, fp))
@@ -103,6 +111,21 @@ input_vertex_data( VIO_STR filename )
         int i;
 
         n_line++;
+
+        if (n == 1 && !strcmp(buffer, "<header>"))
+        {
+          is_vertstats = 1;
+        }
+
+        if (is_vertstats)
+        {
+          if (!strcmp(buffer, "</header>"))
+          {
+            n_line = 0;
+            is_vertstats = 0;
+          }
+          continue;
+        }
 
         if (vtxd_ptr->dims[1] == 0)
         {
@@ -122,6 +145,15 @@ input_vertex_data( VIO_STR filename )
           }
           else
           {
+            if ( n_line == 1 )
+            {
+              /* Assume this line is a header line. */
+              ALLOC(vtxd_ptr->column_names, n);
+              for (i = 0; i < n; i++)
+              {
+                vtxd_ptr->column_names[i] = create_string( items[i] );
+              }
+            }
             n = 0;
           }
         }

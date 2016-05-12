@@ -72,6 +72,7 @@ typedef  struct
   VIO_Real      *data;
   VIO_Real      *min_v;
   VIO_Real      *max_v;
+  VIO_STR       *column_names;
 } vertex_data_struct;
 
 typedef  struct

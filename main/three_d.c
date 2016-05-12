@@ -40,7 +40,7 @@ static vertex_data_struct *find_vertex_data( display_struct *display,
 static VIO_BOOL get_vertex_value(display_struct *display,
                                  object_struct *object,
                                  int index, VIO_Real *value_ptr,
-                                 int *column_ptr);
+                                 VIO_STR *column_ptr);
 
 /* Parameters of the vertex data colour bar in the 3D view window.
  */
@@ -458,7 +458,7 @@ update_status_line( display_struct *display )
             min_i != display->three_d.mouse_point)
         {
             VIO_Real value;
-            int column;
+            VIO_STR column;
 
             display->three_d.mouse_point = min_i;
             display->three_d.mouse_obj = object_ptr;
@@ -471,7 +471,7 @@ update_status_line( display_struct *display )
 
             if (get_vertex_value(display, object_ptr, min_i, &value, &column))
             {
-                sprintf(&buffer[strlen(buffer) - 1], "%8.3g (%d)", value, column);
+              sprintf(&buffer[strlen(buffer) - 1], "%8.3g (%s)", value, column);
             }
             else
             {
@@ -576,6 +576,20 @@ attach_vertex_data(display_struct *display,
     update_vertex_colour_coding( display, vtxd_ptr );
 }
 
+static char *
+get_column_name( vertex_data_struct *vtxd_ptr, int index )
+{
+  static char _name[32];
+
+  if (index >= vtxd_ptr->dims[1] || vtxd_ptr->column_names == NULL ||
+      vtxd_ptr->column_names[index] == NULL)
+  {
+    snprintf( _name, sizeof(_name), "%d", index );
+    return _name;
+  }
+  return vtxd_ptr->column_names[index];
+}
+
 /**
  * Select the next column of the vertex data array to display.
  *
@@ -596,8 +610,10 @@ advance_vertex_data(display_struct *display, object_struct *object)
         index = 0;
     vtxd_ptr->column_index = index;
 
-    print( "Switched to column %d, minimum %g, maximum %g\n",
-          index, vtxd_ptr->min_v[index], vtxd_ptr->max_v[index] );
+    print( "Switched to column %d (%s), minimum %g, maximum %g\n",
+           index, 
+           get_column_name( vtxd_ptr, index ),
+           vtxd_ptr->min_v[index], vtxd_ptr->max_v[index] );
 
     set_colour_coding_min_max( &vtxd_ptr->colour_coding,
                                vtxd_ptr->min_v[index], vtxd_ptr->max_v[index] );
@@ -665,13 +681,13 @@ find_vertex_data( display_struct *display, object_struct *object )
  */
 static VIO_BOOL
 get_vertex_value(display_struct *display, object_struct *object,
-                 int index, VIO_Real *value_ptr, int *column_ptr)
+                 int index, VIO_Real *value_ptr, VIO_STR *column_ptr)
 {
     vertex_data_struct *vtxd_ptr = find_vertex_data( display, object );
     if (vtxd_ptr == NULL || index < 0 || index >= vtxd_ptr->dims[0])
       return FALSE;
 
-    *column_ptr = vtxd_ptr->column_index;
+    *column_ptr = get_column_name( vtxd_ptr, vtxd_ptr->column_index );
     *value_ptr = vtxd_ptr->data[index * vtxd_ptr->dims[1] +
                                 vtxd_ptr->column_index];
     return TRUE;
