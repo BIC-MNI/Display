@@ -1523,10 +1523,8 @@ static  VIO_BOOL  mouse_is_near_low_limit(
     display_struct   *slice_window )
 {
     VIO_Real              value, min_value, max_value;
-    VIO_BOOL              near;
+    VIO_BOOL              is_near = FALSE;
     colour_coding_struct  *colour_coding;
-
-    near = FALSE;
 
     if( get_mouse_colour_bar_value( slice_window, &value, FALSE ) )
     {
@@ -1539,10 +1537,10 @@ static  VIO_BOOL  mouse_is_near_low_limit(
              value < (colour_coding->min_value+colour_coding->max_value)/2.0) ||
             (min_value > max_value &&
              value > (colour_coding->min_value+colour_coding->max_value)/2.0) )
-            near = TRUE;
+            is_near = TRUE;
     }
 
-    return( near );
+    return( is_near );
 }
 
 /**
@@ -1557,10 +1555,8 @@ static  VIO_BOOL  mouse_is_near_high_limit(
     display_struct   *slice_window )
 {
     VIO_Real              value, min_value, max_value;
-    VIO_BOOL              near;
+    VIO_BOOL              is_near = FALSE;
     colour_coding_struct  *colour_coding;
-
-    near = FALSE;
 
     if( get_mouse_colour_bar_value( slice_window, &value, FALSE ) )
     {
@@ -1573,10 +1569,10 @@ static  VIO_BOOL  mouse_is_near_high_limit(
              value > (colour_coding->min_value+colour_coding->max_value)/2.0) ||
             (min_value > max_value &&
              value < (colour_coding->min_value+colour_coding->max_value)/2.0) )
-            near = TRUE;
+            is_near = TRUE;
     }
 
-    return( near );
+    return( is_near );
 }
 
 /** parameter for mouse_is_near_slice_dividers() */
@@ -1596,9 +1592,7 @@ static  VIO_BOOL  mouse_is_near_slice_dividers(
     display_struct   *slice_window )
 {
     int       x, y, x_div, y_div, dx, dy;
-    VIO_BOOL   near;
-
-    near = FALSE;
+    VIO_BOOL  is_near = FALSE;
 
     if( G_get_mouse_position( slice_window->window, &x, &y ) )
     {
@@ -1606,10 +1600,10 @@ static  VIO_BOOL  mouse_is_near_slice_dividers(
 
         dx = x - x_div;
         dy = y - y_div;
-        near = VIO_ABS(dx) < NEAR_ENOUGH && VIO_ABS(dy) < NEAR_ENOUGH;
+        is_near = VIO_ABS(dx) < NEAR_ENOUGH && VIO_ABS(dy) < NEAR_ENOUGH;
     }
 
-    return( near );
+    return( is_near );
 }
 /* ----------------------------------------------------------------------- */
 
