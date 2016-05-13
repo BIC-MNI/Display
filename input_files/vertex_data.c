@@ -34,6 +34,22 @@ int split_line(char *text_ptr, int sep, char ***argv)
 
   for (save_ptr = text_ptr; *text_ptr != '\0'; text_ptr++)
   {
+    /* Handle quotes if present.
+     */
+    if (*text_ptr == '"' || *text_ptr == '\'')
+    {
+      int qch = *text_ptr++;
+      save_ptr = text_ptr;
+      while (*text_ptr != qch)
+      {
+        if (*text_ptr == '\0')
+          return -1;
+
+        text_ptr++;
+      }
+      if (*text_ptr == qch)
+        *text_ptr++ = '\0';
+    }
     if (*text_ptr == sep || *text_ptr == '\n')
     {
       ADD_ELEMENT_TO_ARRAY( (*argv), len, save_ptr, 1 );
@@ -77,11 +93,6 @@ input_vertex_data( VIO_STR filename )
     else if (string_ends_in( filename, ".tsv" ))
     {
         sep = '\t';
-    }
-    else if (string_ends_in( filename, ".vertstats" ))
-    {
-        is_vertstats = 1;
-        sep = ' ';
     }
     else
     {
