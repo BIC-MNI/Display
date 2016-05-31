@@ -100,11 +100,13 @@ static   position_struct   positions[] = {
                            {BICGL_F12_KEY, "F12", 0, 0, 0, FALSE },
                            {BICGL_PGUP_KEY, "Page Up", 0, 0, 0, FALSE },
                            {BICGL_PGDN_KEY, "Page Down", 0, 0, 0, FALSE },
-                           {26, "Ctrl-Z", 0, 0, 0, FALSE },
+                           {BICGL_HOME_KEY, "Home", 0, 0, 0, FALSE },
+                           {BICGL_END_KEY, "End", 0, 0, 0, FALSE },
+                           { 2, "Ctrl-B", 0, 0, 0, FALSE },
                            {15, "Ctrl-O", 0, 0, 0, FALSE },
                            {19, "Ctrl-S", 0, 0, 0, FALSE },
-                           { 2, "Ctrl-B", 0, 0, 0, FALSE },
                            {22, "Ctrl-V", 0, 0, 0, FALSE },
+                           {26, "Ctrl-Z", 0, 0, 0, FALSE },
                            {27, "Esc", 0, 0, 0, FALSE }
                          };
 
