@@ -18,7 +18,6 @@
 #include "config.h"
 #include  <display.h>
 
-
 #define  MAX_TITLE_LENGTH   200
 
 /* These two globals are required for SEAL's LibSul/SULGRAPHDATA */
@@ -653,8 +652,21 @@ parse_options(int argc, char *argv[], display_struct *graphics)
       }
       else
       {
+        VIO_Colour default_colour = WHITE;
+        VIO_STR colour_string = NULL;
+
         initialize_cache();
-        if (load_graphics_file(graphics, filename, next_is_label_volume) != VIO_OK)
+
+        colour_string = strchr( filename, ':');
+        if (colour_string != NULL)
+        {
+          *colour_string++ = 0;
+          default_colour = convert_string_to_colour( colour_string );
+        }
+
+        if (load_graphics_file_with_colour(graphics, filename, 
+                                           next_is_label_volume,
+                                           default_colour) != VIO_OK)
         {
           print("Error loading %s\n", filename);
           if (Exit_error_load_file)

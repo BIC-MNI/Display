@@ -75,6 +75,29 @@ VIO_BOOL is_volume_transform_rigid( VIO_Volume volume )
     VIO_STR           filename,
     VIO_BOOL          is_label_file )
 {
+  return load_graphics_file_with_colour( display, filename, is_label_file,
+                                         WHITE );
+}
+
+/**
+ * Load either a graphical object (MNI .obj format, e.g.) or a volume file
+ * (MINC voxel data, e.g.).
+ * \param display A pointer to the display_struct of the 3D view window.
+ * \param filename The name of the file to open.
+ * \param is_label_file A boolean that indicates whether the volume file
+ * should be treated as containing anatomical labels for an existing
+ * volume.
+ * \param preferred_colour Specifies a colour to be applied to the object
+ * (if it is a polygons object with a single colour).
+ * \returns VIO_OK on success.
+ */
+VIO_Status
+load_graphics_file_with_colour(
+    display_struct   *display,
+    VIO_STR           filename,
+    VIO_BOOL          is_label_file,
+    VIO_Colour        preferred_colour)
+{
     VIO_Status               status;
     object_struct            *object;
     model_struct             *model;
@@ -303,6 +326,11 @@ VIO_BOOL is_volume_transform_rigid( VIO_Volume volume )
 
                 polygons = get_polygons_ptr( current_object );
 
+                if ( polygons->colour_flag == ONE_COLOUR )
+                {
+                    polygons->colours[0] = preferred_colour;
+                }
+
                 n_items = polygons->n_items;
 
                 if( Polygon_bintree_threshold >= 0 &&
@@ -325,6 +353,17 @@ VIO_BOOL is_volume_transform_rigid( VIO_Volume volume )
                     create_lines_bintree( lines_ptr,
                                           VIO_ROUND( lines_ptr->n_items *
                                                      Bintree_size_factor ) );
+                }
+            }
+            else if( current_object->object_type == QUADMESH )
+            {
+                quadmesh_struct   *quadmesh;
+
+                quadmesh = get_quadmesh_ptr( current_object );
+
+                if ( quadmesh->colour_flag == ONE_COLOUR )
+                {
+                    quadmesh->colours[0] = preferred_colour;
                 }
             }
         }

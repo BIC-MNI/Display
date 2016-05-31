@@ -193,6 +193,13 @@ void switch_vertex_data(display_struct *display, object_struct *object);
     VIO_STR           filename,
     VIO_BOOL          is_label_file );
 
+VIO_Status
+load_graphics_file_with_colour(
+    display_struct   *display,
+    VIO_STR           filename,
+    VIO_BOOL          is_label_file,
+    VIO_Colour        preferred_colour);
+
   VIO_Status   input_volume_file(
     VIO_STR         filename,
     VIO_Volume         *volume_ptr );
