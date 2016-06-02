@@ -574,5 +574,9 @@ START_GLOBALS
  */
      DEF_GLOBAL( FWHM_around_vertex_to_move, VIO_Real, 5.0 )
 
+/**
+ * True if Display should draw the outlines of markers in the slice window.
+ */
+     DEF_GLOBAL( Show_markers_on_slice, VIO_BOOL, TRUE )
 END_GLOBALS
 /** @} */

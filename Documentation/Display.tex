@@ -191,7 +191,7 @@ where each file is one of:
 \item A volumetric image, containing an MRI, PET, or other 3 or 4 dimensional volume, with a filename extension \ident{.mnc}, \ident{.nii}, or \ident{.mgh}.
 
 \item A 3D object file containing 3D surfaces, lines, or other objects, and
-with the filename extension \ident{.obj}.
+with the filename extension \ident{.obj}. A specific colour can be requested for the surface by appending a colon (':') followed by the name of a colour.
 
 \item A tag point file containing a list of 3D points, such as those chosen from a volume, with the filename extension \ident{.tag}.
 
@@ -245,6 +245,8 @@ options include:
   20\% of all voxels will have values below the colour coding range.
 \end{itemize}
 \item {\bf Volume colour coding options}:
+These options apply to the colour coding used to display volumetric
+data, they have no effect on surfaces.
 \begin{itemize}
 \item \ident{-gray} : Use grayscale colour map for subsequently loaded volumes.
 \item \ident{-hot} : Use hot colour map for subsequently loaded volumes.
@@ -1432,7 +1434,8 @@ click on its image in the 3D window.
      slice window, by assigning the current paint label to any voxel
      which is touching the object.  Works for polygons, lines, and
      markers.
-\item[\menutwo{Objects}{Show Vertices}]  Not for general use.
+\item[\menutwo{Objects}{Show Vertices}] Creates a marker for every point on
+ a surface.
 \end{description}
 
 \subsection{3D Render}
@@ -1465,6 +1468,13 @@ This menu contains commands for creating and manipulating
 markers. Markers are graphical objects that define a specific point in
 the volume. Each marker can be associated with a number of pieces of
 metadata, such as a label, a colour, a structure ID, and a patient ID.
+
+Markers are now displayed both in the slice view and the 3D view
+window. Markers will appear as outlines superimposed on the slice
+view, or as 3D shaded objects in the 3D view. You can disable the
+display of markers in the slice view by setting the global variable
+{\tt Show\_markers\_on\_slice}. Individual markers can be turned on or off 
+using the the \menutwo{Objects}{Toggle Visible} command.
 
 \begin{description}
 \item[\menutwo{Markers}{Create Marker}]  If the mouse is in the slice window
