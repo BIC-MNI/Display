@@ -23,7 +23,6 @@
 
 static    DEF_EVENT_FUNCTION( window_size_changed );
 static    DEF_EVENT_FUNCTION( handle_redraw );
-static    DEF_EVENT_FUNCTION( handle_redraw_overlay );
 static    DEF_EVENT_FUNCTION( update_probe );
 
 static    DEF_EVENT_FUNCTION( update_translation );
@@ -86,9 +85,6 @@ void  initialize_slice_window_events(
                                window_size_changed );
     add_action_table_function( &slice_window->action_table, WINDOW_REDRAW_EVENT,
                                handle_redraw );
-    add_action_table_function( &slice_window->action_table,
-                               REDRAW_OVERLAY_EVENT,
-                               handle_redraw_overlay );
     add_action_table_function( &slice_window->action_table,
                                LEFT_MOUSE_DOWN_EVENT,
                                left_mouse_down );
@@ -1161,33 +1157,6 @@ static  DEF_EVENT_FUNCTION( handle_redraw )
 
     return( VIO_OK );
 }
-
-/* ARGSUSED */
-
-/**
- * \brief Handle window overlay redraw events. Probably obsolete.
- *
- * \param display A pointer to the display_struct for the window.
- * \param event_type The event type.
- * \param key_pressed The keyboard code, if any.
- * \returns VIO_OK if processing of this event should continue, or
- * VIO_ERROR if processing should stop.
- */
-static  DEF_EVENT_FUNCTION( handle_redraw_overlay )
-{
-    int  i;
-
-    for_less( i, 0, N_MODELS )
-    {
-        if( get_model_bitplanes( get_graphics_model(display,i) ) ==
-                                                            OVERLAY_PLANES )
-            set_slice_viewport_update( display, i );
-    }
-
-    return( VIO_OK );
-}
-
-/* ARGSUSED */
 
 /**
  * \brief Handle window geometry changed events.
