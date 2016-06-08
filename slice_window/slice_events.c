@@ -1118,9 +1118,19 @@ static  DEF_EVENT_FUNCTION( update_translation )
 static  DEF_EVENT_FUNCTION( update_probe )
 {
     int  x, y, x_prev, y_prev;
-
+    int  version;
     if( pixel_mouse_moved(display,&x,&y,&x_prev,&y_prev) )
         set_probe_update( display );
+
+    /* Check the FreeGLUT version and make sure it is later than 2.4.0 
+     * before we try setting the cursor.
+     */
+#ifndef GLUT_VERSION
+#define GLUT_VERSION 0x1FC
+#endif
+    version = glutGet(GLUT_VERSION);
+    if (version <= 20400)
+        return VIO_OK;
 
     /** TODO: Figure out how to make this generic. DMcD never
      * implemented cursor setting in his graphics library.
