@@ -1241,6 +1241,7 @@ static  void  render_more_slices(
         {
             composite_volume_and_labels( slice_window, view );
             slice_window->slice.slice_views[view].update_composite_flag = FALSE;
+            render_intensity_plot = TRUE;
         }
 
         if( one_buffer_flag[view] )

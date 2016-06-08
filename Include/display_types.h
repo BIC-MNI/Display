@@ -17,7 +17,7 @@
 
 #include  <graphics.h>
 
-#define  N_MODELS    7
+#define  N_MODELS    8
 
 typedef  struct
 {

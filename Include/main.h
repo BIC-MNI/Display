@@ -47,6 +47,7 @@
 #define  SLICE_MODEL4           4
 #define  COLOUR_BAR_MODEL       5
 #define  SLICE_READOUT_MODEL    6
+#define  INTENSITY_PLOT_MODEL   7
 
 typedef  enum  { THREE_D_WINDOW,
                  MENU_WINDOW,

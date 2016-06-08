@@ -28,6 +28,11 @@
 #define IP_TICK_LENGTH 10
 
 /**
+ * Object index of the quadmesh behind the plot.
+ */
+#define IP_BKGD_OBJ_IND 0
+
+/**
  * Object index of the plot (the actual graph curve) in the model.
  */
 #define IP_PLOT_OBJ_IND 1
@@ -78,9 +83,18 @@ VIO_Real trunc_to_n_digits(VIO_Real value, int n_digits)
 void
 initialize_intensity_plot(display_struct *display)
 {
-  model_struct *model_ptr = get_graphics_model( display, FULL_WINDOW_MODEL );
+  model_struct *model_ptr = get_graphics_model( display, INTENSITY_PLOT_MODEL );
   object_struct *object_ptr;
   lines_struct *lines_ptr;
+  quadmesh_struct *quadmesh_ptr;
+  VIO_Surfprop spr = { 1, 0, 0, 0, 1 };
+
+  /* Create background */
+  object_ptr = create_object( QUADMESH );
+  quadmesh_ptr = get_quadmesh_ptr( object_ptr );
+  initialize_quadmesh( quadmesh_ptr, WHITE, &spr, 10, 2 );
+  set_object_visibility( object_ptr, TRUE );
+  add_object_to_model( model_ptr, object_ptr );
 
   /* Create graph */
   object_ptr = create_object( LINES );
@@ -163,6 +177,81 @@ create_tick_label(VIO_Real position, const VIO_Point *tick_pt,
 }
 
 /**
+ * Gets the full size in pixels for this volume and view. This
+ * function is useful because it is surprisingly tricky to figure out
+ * exactly what the current field of view is in world
+ * coordinates. This function gives us the current field of view in
+ * pixel coordinates, which lets us work out the world coordinates.
+ *
+ * \param display A pointer to the display_struct of the slice view window.
+ * \param volume_index The index of the relevant loaded volume.
+ * \param view_index The index of the current view.
+ * \param x_position The X (horizontal) position of the slice view, in
+ * viewport-relative coordinates.
+ * \param y_position The Y (vertical) position of the slice view, in 
+ * viewport-relative coordinates.
+ * \param x_size The horizontal size of the slice view, in pixels.
+ * \param y_size The vertical size of the slice view, in pixels.
+ */
+static void get_pixels_size(
+    display_struct        *slice_window,
+    int                   volume_index,
+    int                   view_index,
+    int                   *x_position,
+    int                   *y_position,
+    int                   *x_size,
+    int                   *y_size)
+{
+    loaded_volume_struct  *vol_info;
+    VIO_Volume            volume;
+    VIO_Real              x_trans, y_trans, x_scale, y_scale;
+    int                   x_min, x_max, y_min, y_max;
+    VIO_Real              origin[VIO_MAX_DIMENSIONS];
+    VIO_Real              x_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real              y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real              real_x_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real              real_y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real              real_origin[VIO_MAX_DIMENSIONS];
+    int                   x_pixel_start, x_pixel_end;
+    int                   y_pixel_start, y_pixel_end;
+
+    vol_info = &slice_window->slice.volumes[volume_index];
+
+    x_trans = vol_info->views[view_index].x_trans;
+    y_trans = vol_info->views[view_index].y_trans;
+    x_scale = vol_info->views[view_index].x_scaling;
+    y_scale = vol_info->views[view_index].y_scaling;
+
+    get_slice_viewport( slice_window, view_index,
+                        &x_min, &x_max,
+                        &y_min, &y_max );
+
+    get_slice_plane( slice_window, volume_index, view_index,
+                     origin, x_axis, y_axis );
+
+    volume = get_nth_volume( slice_window, volume_index );
+
+    get_mapping( volume, origin, x_axis, y_axis,
+                 x_trans, y_trans, x_scale, y_scale,
+                 real_origin, real_x_axis, real_y_axis );
+
+    x_pixel_start = 0;
+    y_pixel_start = 0;
+    x_pixel_end = x_max - x_min;
+    y_pixel_end = y_max - y_min;
+
+    clip_viewport_to_volume( volume, real_origin,
+                             real_x_axis, real_y_axis,
+                             &x_pixel_start, &x_pixel_end,
+                             &y_pixel_start, &y_pixel_end );
+
+    *x_position = x_pixel_start;
+    *y_position = y_pixel_start;
+    *x_size = x_pixel_end - x_pixel_start + 1;
+    *y_size = y_pixel_end - y_pixel_start + 1;
+}
+
+/**
  * \brief Calculate the field of view of the slice pixels, in world units.
  *
  * To determine the domain of an intensity plot, we get the pixels object
@@ -172,27 +261,25 @@ create_tick_label(VIO_Real position, const VIO_Point *tick_pt,
  * \param display A pointer to the display_struct of the slice view window.
  * \param volume_index The index of the relevant loaded volume.
  * \param view_index The index of the current view.
- * \param horiz_axis_index The index of the relevant axis.
- * \param start The world coordinates of the start (left or lower) position.
- * \param end The world coordinates of the end (right or upper) position.
+ * \param horiz_axis_index The index of the axis to use as the horizontal
+ * axis of the plot (one of VIO_X, VIO_Y, or VIO_Z).
+ * \param start The resulting world coordinates of the start (left or lower)
+ * position.
+ * \param end The resulting world coordinates of the end (right or upper)
+ * position.
  * \returns TRUE if the calculation was performed successfully.
  */
 VIO_BOOL
 get_pixels_extent( display_struct *display, int volume_index, int view_index,
-                   int horiz_axis_index,
-                   VIO_Real start[], VIO_Real end[] )
+                   int horiz_axis_index, VIO_Real start[], VIO_Real end[] )
 {
-  object_struct *object_ptr;
-  pixels_struct *pixels_ptr;
-  VIO_Real v[VIO_MAX_DIMENSIONS];
-  VIO_Real w[VIO_N_DIMENSIONS];
-  VIO_Real world[VIO_N_DIMENSIONS];
-  int dummy;
-  int x_min, y_min, x_max, y_max;
+  int        x_min, y_min, x_max, y_max;
+  int        x_pos, y_pos, x_size, y_size;
   VIO_Volume volume;
-  VIO_Real voxel[VIO_MAX_DIMENSIONS];
-  int x1, x2, y1, y2;
-  int i;
+  VIO_Real   voxel[VIO_MAX_DIMENSIONS];
+  int        x1, x2, y1, y2;
+  VIO_Real   x_cur, y_cur;
+  int        dummy_index;
 
   if (display->window_type != SLICE_WINDOW)
     return FALSE;
@@ -201,49 +288,47 @@ get_pixels_extent( display_struct *display, int volume_index, int view_index,
   if (volume == NULL)
     return FALSE;
 
-  object_ptr = get_slice_pixels_object( display, volume_index, view_index );
-  if (object_ptr == NULL)
-    return FALSE;
-
-  pixels_ptr = get_pixels_ptr( object_ptr );
-  if (pixels_ptr == NULL)
-    return FALSE;
-
   get_current_voxel( display, volume_index, voxel );
-  convert_voxel_to_world( volume, voxel, &world[0], &world[1], &world[2] );
+  convert_voxel_to_pixel( display, volume_index, view_index, voxel,
+                          &x_cur, &y_cur);
 
   /* Get the viewport in pixel coordinates for this view.
    * The viewport coordinates are relative to the entire window.
    */
   get_slice_viewport( display, view_index, &x_min, &x_max, &y_min, &y_max );
 
-  x1 = pixels_ptr->x_position + x_min;
-  y1 = pixels_ptr->y_position + y_min;
+  /* Get the position and size of the pixel object for this window.
+   * These coordinates are given relative to the viewport.
+   * This reflects the current zoom/pan settings and lets us correctly
+   * calculate the effective current field of view.
+   */
+  get_pixels_size( display, volume_index, view_index, &x_pos, &y_pos,
+                   &x_size, &y_size );
 
+  /* If we are viewing the volume's X or Y axis, the plot axis is across the 
+   * screen X axis (the horizontal or column axis).
+   */
   if (horiz_axis_index == VIO_X || horiz_axis_index == VIO_Y)
   {
-    x2 = pixels_ptr->x_position + x_min + pixels_ptr->x_size - 1;
-    y2 = y1;
+    x1 = x_min + x_pos;
+    x2 = x_min + x_pos + x_size - 1;
+    y1 = y2 = y_min + VIO_ROUND( y_cur );
   }
+  /* If we are viewing the volume's Z axis, the plot axis is across the
+   * screen Y axis (the vertical or row axis).
+   */
   else
   {
-    x2 = x1;
-    y2 = pixels_ptr->y_position + y_min + pixels_ptr->y_size - 1;
+    x1 = x2 = x_min + VIO_ROUND(x_cur);
+    y1 = y_min + y_pos;
+    y2 = y_min + y_pos + y_size - 1;
   }
 
-  convert_pixel_to_voxel( display, volume_index, x1, y1, v, &dummy );
-  convert_voxel_to_world( volume, v, &w[0], &w[1], &w[2] );
-  world[horiz_axis_index] = w[horiz_axis_index];
+  convert_pixel_to_voxel( display, volume_index, x1, y1, voxel, &dummy_index );
+  convert_voxel_to_world( volume, voxel, &start[0], &start[1], &start[2] );
 
-  for (i = 0; i < VIO_N_DIMENSIONS; i++)
-    start[i] = world[i];
-
-  convert_pixel_to_voxel( display, volume_index, x2, y2, v, &dummy);
-  convert_voxel_to_world( volume, v, &w[0], &w[1], &w[2] );
-  world[horiz_axis_index] = w[horiz_axis_index];
-
-  for (i = 0; i < VIO_N_DIMENSIONS; i++)
-    end[i] = world[i];
+  convert_pixel_to_voxel( display, volume_index, x2, y2, voxel, &dummy_index );
+  convert_voxel_to_world( volume, voxel, &end[0], &end[1], &end[2] );
 
   return TRUE;
 }
@@ -385,7 +470,7 @@ get_plot_end_points( display_struct *display,
       else
       {
         horiz_axis_index = VIO_Y;
-        axis_index = VIO_X;
+        view_index = 0;
       }
     }
 
@@ -405,10 +490,10 @@ static void clear_intensity_plot( model_struct *model_ptr )
 {
   /* Remove tick objects, if any.
    */
-  while (model_ptr->n_objects > 3)
+  while (model_ptr->n_objects > IP_AXIS_OBJ_IND+1)
   {
-    delete_object( model_ptr->objects[3] );
-    remove_ith_object_from_model( model_ptr, 3 );
+    delete_object( model_ptr->objects[IP_AXIS_OBJ_IND + 1] );
+    remove_ith_object_from_model( model_ptr, IP_AXIS_OBJ_IND + 1 );
   }
 }
 
@@ -562,7 +647,9 @@ get_time_plot_data( VIO_Volume volume,
  * \param max_data The maximum value in the data buffer (OUTPUT).
  */
 static void
-get_spatial_plot_data( VIO_Volume volume,
+get_spatial_plot_data( display_struct *slice_window,
+                       int volume_index,
+                       VIO_Volume volume,
                        VIO_Real distance,
                        int n_samples,
                        int degrees_continuity,
@@ -570,12 +657,16 @@ get_spatial_plot_data( VIO_Volume volume,
                        const VIO_Real end[],
                        VIO_Real data[],
                        VIO_Real *min_data,
-                       VIO_Real *max_data)
+                       VIO_Real *max_data,
+                       VIO_Colour colours[])
 {
   int        i;
   VIO_Vector step;
   VIO_Real   world[VIO_MAX_DIMENSIONS];
   VIO_Real   voxel[VIO_MAX_DIMENSIONS];
+  int        int_voxel[VIO_MAX_DIMENSIONS];
+  int        label;
+  VIO_Volume label_volume = get_nth_label_volume( slice_window, volume_index );
 
   fill_Vector(step,
               end[VIO_X] - start[VIO_X],
@@ -603,6 +694,24 @@ get_spatial_plot_data( VIO_Volume volume,
     evaluate_volume( volume, voxel, NULL,
                      degrees_continuity, FALSE, 0.0,
                      &val, NULL, NULL );
+
+    convert_real_to_int_voxel( get_volume_n_dimensions(volume),
+                               voxel, int_voxel );
+
+    if ( int_voxel_is_within_volume( label_volume, int_voxel ) )
+    {
+        label = get_3D_volume_label_data( label_volume,
+                                          int_voxel[VIO_X],
+                                          int_voxel[VIO_Y],
+                                          int_voxel[VIO_Z] );
+
+    }
+    else
+    {
+        label = 0;
+    }
+
+    colours[i] = slice_window->slice.volumes[volume_index].label_colour_table[label];
 
     if (val < *min_data)
       *min_data = val;
@@ -751,9 +860,10 @@ rebuild_intensity_plot( display_struct *display )
 {
   int volume_index = get_current_volume_index( display );
   int arb_view_index = get_arbitrary_view_index( display );
-  model_struct *model_ptr = get_graphics_model( display, FULL_WINDOW_MODEL );
+  model_struct *model_ptr = get_graphics_model( display, INTENSITY_PLOT_MODEL );
   VIO_Volume volume;
   VIO_Real *data;
+  VIO_Colour *colours;
   int horiz_axis_index;
   VIO_Real start[VIO_N_DIMENSIONS], end[VIO_N_DIMENSIONS];
   VIO_Colour plot_colour;
@@ -766,6 +876,7 @@ rebuild_intensity_plot( display_struct *display )
   int x_min, x_max;
   int y_min, y_max;
   VIO_Real x_start, x_end;
+  quadmesh_struct *quadmesh_ptr = NULL;
 
   assert( display->window_type == SLICE_WINDOW );
 
@@ -807,18 +918,38 @@ rebuild_intensity_plot( display_struct *display )
   else
   {
     VIO_Real min_step = get_volume_min_step(display, volume_index);
+    int i;
+    VIO_Surfprop spr = {1, 0, 0, 0, 1};
+    quadmesh_ptr = get_quadmesh_ptr(model_ptr->objects[IP_BKGD_OBJ_IND]);
 
     plot_domain = euclidean_distance( start, end, VIO_N_DIMENSIONS );
 
     n_samples = VIO_ROUND(plot_domain / min_step);
+    if (n_samples <= 0)
+      return;
 
     ALLOC( data, n_samples );
+    delete_quadmesh(quadmesh_ptr);
+    initialize_quadmesh(quadmesh_ptr, WHITE, &spr, n_samples, 2);
+    quadmesh_ptr->colour_flag = PER_VERTEX_COLOURS;
+    REALLOC( quadmesh_ptr->colours, n_samples * 2 );
+    ALLOC( colours, n_samples );
 
-    get_spatial_plot_data( volume, plot_domain,
+    get_spatial_plot_data( display,
+                           volume_index,
+                           volume,
+                           plot_domain,
                            n_samples,
                            display->slice.degrees_continuity,
                            start, end,
-                           data, &min_data, &max_data );
+                           data, &min_data, &max_data,
+                           colours );
+    for (i = 0; i < n_samples; i++)
+    {
+      quadmesh_ptr->colours[VIO_IJ(i,0,2)] = colours[i];
+      quadmesh_ptr->colours[VIO_IJ(i,1,2)] = colours[i];
+    }
+    FREE(colours);
   }
 
   if ( display->slice.intensity_plot_is_scaled )
@@ -838,12 +969,13 @@ rebuild_intensity_plot( display_struct *display )
 
   initialize_lines( lines_ptr, plot_colour );
 
-  get_slice_viewport( display, arb_view_index, &x_min, &x_max, &y_min, &y_max);
+  get_slice_model_viewport( display, INTENSITY_PLOT_MODEL,
+                            &x_min, &x_max, &y_min, &y_max);
 
   const int cx_axis = IP_TICK_LENGTH + get_tick_label_width( max_value );
   const int cy_axis = 20;
-  const int horz_offset = x_min + cx_axis;
-  const int vert_offset = y_min + cy_axis;
+  const int horz_offset = cx_axis;
+  const int vert_offset = cy_axis;
   const VIO_Real plot_height = (y_max - y_min) - cy_axis;
   const VIO_Real plot_width = (x_max - x_min) - cx_axis - 8;
   const VIO_Real plot_range = max_value - min_value;
@@ -859,6 +991,13 @@ rebuild_intensity_plot( display_struct *display )
                vert_offset + plot_height * (data[i] - min_value) / plot_range,
                0.0);
     add_point_to_line( lines_ptr, &pt );
+    if (quadmesh_ptr != NULL)
+    {
+      Point_y(pt) = vert_offset + plot_height;
+      quadmesh_ptr->points[VIO_IJ(i, 1, 2)] = pt;
+      Point_y(pt) = vert_offset;
+      quadmesh_ptr->points[VIO_IJ(i, 0, 2)] = pt;
+    }
   }
 
   set_object_visibility( object_ptr, TRUE );
@@ -924,7 +1063,7 @@ rebuild_intensity_plot( display_struct *display )
   }
   add_object_to_model( model_ptr, object_ptr );
 
-  set_slice_viewport_update( display, FULL_WINDOW_MODEL );
+  set_slice_viewport_update( display, INTENSITY_PLOT_MODEL );
   FREE( data );
 }
 

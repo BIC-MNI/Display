@@ -853,14 +853,17 @@ VIO_BOOL  convert_pixel_to_voxel(
 }
 
 /**
- * Convert a voxel coordinate to a pixel coordinate.
+ * Convert a voxel coordinate to a pixel coordinate. The returned
+ * pixel coordinate is given _relative to the viewport_! Therefore
+ * this function is not exactly the inverse of convert_pixel_to_voxel().
+ * That function takes a pixel coordinate _relative to the window_.
  *
  * \param display A pointer to a display_struct.
  * \param volume_index The zero-based index of the desired volume.
  * \param view_index The index of one of the four slice view panels.
  * \param voxel The voxel coordinate to transform.
- * \param x_pixel Receives the x pixel coordinate.
- * \param y_pixel Receives the y pixel coordinate.
+ * \param x_pixel Receives the x pixel coordinate relative to the viewport.
+ * \param y_pixel Receives the y pixel coordinate relative to the viewport.
  */
 void  convert_voxel_to_pixel(
     display_struct    *display,
@@ -2033,6 +2036,12 @@ void  get_slice_model_viewport(
     case SLICE_MODEL3:
     case SLICE_MODEL4:
         get_slice_viewport( slice_window, model_index - SLICE_MODEL1,
+                            x_min, x_max, y_min, y_max );
+        break;
+
+    case INTENSITY_PLOT_MODEL:
+        get_slice_viewport( slice_window,
+                            get_arbitrary_view_index(slice_window),
                             x_min, x_max, y_min, y_max );
         break;
 
