@@ -147,11 +147,8 @@ void
 show_three_d_window(display_struct *graphics,
                     display_struct *markers)
 {
-    object_struct *object_ptr;
-
-    if( get_current_object( graphics, &object_ptr ) &&
-        (get_object_type(object_ptr) != POLYGONS ||
-         get_polygons_ptr(object_ptr)->n_items > 1))
+    model_struct *model_ptr = get_graphics_model( graphics, THREED_MODEL );
+    if ( model_ptr->n_objects > 1 )
     {
         G_set_visibility(graphics->window, TRUE);
         G_set_visibility(markers->window, TRUE);
@@ -337,7 +334,6 @@ void  delete_three_d(
     display_struct  *display )
 {
     delete_string( display->three_d.default_marker_label );
-    terminate_current_object( &display->three_d.current_object );
     delete_surface_extraction( display );
 }
 
@@ -357,7 +353,7 @@ void  add_object_to_current_model(
 
     add_object_to_model( model, object );
 
-    set_current_object_index( display, model->n_objects-1 );
+    set_current_object( display, object );
 
     graphics_models_have_changed( display );
 }

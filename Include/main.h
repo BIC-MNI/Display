@@ -81,7 +81,7 @@ typedef  struct
     cursor_struct              cursor;
     view_struct                view;
     light_struct               lights[N_LIGHTS];
-    selection_struct           current_object;
+    int                        current_object;
     VIO_Point                  min_limit;
     VIO_Point                  max_limit;
     VIO_Point                  centre_of_objects;

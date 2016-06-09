@@ -1436,18 +1436,6 @@ int get_object_index(display_struct *display, object_struct *object_ptr );
   void  initialize_current_object(
     display_struct    *display );
 
-  void  terminate_current_object(
-    selection_struct   *current_object );
-
-  void  push_current_object(
-    display_struct    *display );
-
-  VIO_BOOL  current_object_is_top_level(
-    display_struct    *display );
-
-  void  pop_current_object(
-    display_struct    *display );
-
   VIO_BOOL  current_object_is_this_type(
     display_struct    *display,
     Object_types      type );
@@ -1923,6 +1911,13 @@ VIO_BOOL get_cursor_scene_intersection(
     int               x,
     int               y,
     object_struct     **object_under_mouse );
+
+object_struct *find_index_in_hierarchy( display_struct *display, int global_index );
+
+int find_object_in_hierarchy( display_struct *display, object_struct *object_ptr );
+
+object_struct *find_containing_model( display_struct *display, int global_index );
+
 
   /* menu/text.c */
   void  set_menu_text_real(

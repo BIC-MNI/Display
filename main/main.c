@@ -195,9 +195,6 @@ int  main(
      MENU_FILENAME ) != VIO_OK )
        return 1;
 
-    if( initialize_marker_window( marker ) != VIO_OK )
-       return 1;
-
     delete_string( runtime_directory );
 
     parse_options(argc, argv, graphics);

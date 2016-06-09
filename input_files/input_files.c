@@ -371,21 +371,7 @@ load_graphics_file_with_colour(
 
     if( status == VIO_OK && model->n_objects > 0 )
     {
-        model = get_current_model( display );
-
-        add_object_to_model( model, object );
-
-        if( current_object_is_top_level(display) )
-        {
-            if( model->n_objects == 1 )               /* first object */
-            {
-                push_current_object( display );
-            }
-        }
-        else
-        {
-            set_current_object_index( display, model->n_objects-1 );
-        }
+        add_object_to_model( get_current_model( display ), object );
 
         rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
 

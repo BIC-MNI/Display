@@ -23,12 +23,8 @@
 #include  <display.h>
 
 static    DEF_EVENT_FUNCTION( left_mouse_press );
-
-static  VIO_Status  handle_mouse_press_in_marker(
-    display_struct      *marker_window,
-    VIO_Real                x,
-    VIO_Real                y );
-
+static    DEF_EVENT_FUNCTION( right_mouse_press );
+static    DEF_EVENT_FUNCTION( middle_mouse_press );
 
 /**
  * Select the marker that is closest to the given voxel position.
@@ -139,8 +135,8 @@ VIO_Status  initialize_marker_window(
     G_set_transparency_state( marker_window->window, FALSE );
 
     initialize_resize_events( marker_window );
-    add_action_table_function( &marker_window->action_table, WINDOW_RESIZE_EVENT,
-                               handle_marker_resize );
+    add_action_table_function( &marker_window->action_table, 
+                               WINDOW_RESIZE_EVENT, handle_marker_resize );
 
     marker->default_x_size = Canonical_marker_window_width;
     marker->default_y_size = Canonical_marker_window_height;
@@ -149,54 +145,106 @@ VIO_Status  initialize_marker_window(
     
     add_action_table_function( &marker_window->action_table,
                                LEFT_MOUSE_DOWN_EVENT, left_mouse_press );
-    return( status );
-}
 
-/* ARGSUSED */
+    add_action_table_function( &marker_window->action_table,
+                               RIGHT_MOUSE_DOWN_EVENT, right_mouse_press ); 
 
-static  DEF_EVENT_FUNCTION( left_mouse_press )
-{
-    VIO_Status  status;
-    int     x, y;
-
-    status = VIO_OK;
-
-    if( G_get_mouse_position( display->window, &x, &y ) )
-    {
-        status = handle_mouse_press_in_marker( display, (VIO_Real) x, (VIO_Real) y );
-    }
+    add_action_table_function( &marker_window->action_table,
+                               MIDDLE_MOUSE_DOWN_EVENT, middle_mouse_press );
 
     return( status );
 }
 
-/* ARGSUSED */
-
-static  VIO_Status  handle_mouse_press_in_marker(
-    display_struct      *marker_window,
-    VIO_Real                x,
-    VIO_Real                y )
+static DEF_EVENT_FUNCTION( left_mouse_press )
 {
+  VIO_Status status = VIO_OK;
+  int        x, y;
+
+  if( G_get_mouse_position( display->window, &x, &y ) )
+  {
     display_struct      *three_d;
-    VIO_Status          status;
     object_struct       *object, *current;
 
-    status = VIO_OK;
+    three_d = get_three_d_window( display );
 
-    three_d = get_three_d_window( marker_window );
-
-    if( mouse_is_on_object_name( three_d, VIO_ROUND(x), VIO_ROUND(y), &object ) )
+    if( mouse_is_on_object_name( three_d, x, y, &object ) )
     {
-        if( get_current_object( three_d, &current ) &&
-            current == object && get_object_type(object) == MODEL )
-        {
-            push_current_object( three_d );
-        }
-        else
-            set_current_object( three_d, object );
+      if ( get_current_object( three_d, &current ) && current != object )
+      {
+        set_current_object( three_d, object );
+      }
 
-        rebuild_selected_list( three_d, marker_window);
-        update_all_menu_text( three_d );
+      if (is_shift_key_pressed())
+      {
+        set_current_object_colour( three_d, NULL, NULL );
+      }
+      rebuild_selected_list( three_d, display );
+      update_all_menu_text( three_d );
     }
-    return( status );
+  }
+  return( status );
+}
+
+static DEF_EVENT_FUNCTION( middle_mouse_press )
+{
+  VIO_Status status = VIO_OK;
+  int        x, y;
+
+  if( G_get_mouse_position( display->window, &x, &y ) )
+  {
+    display_struct      *three_d = get_three_d_window( display );
+    object_struct       *object, *current;
+
+    if( mouse_is_on_object_name( three_d, x, y, &object ) )
+    {
+      if ( get_current_object( three_d, &current ) && current != object )
+      {
+        set_current_object( three_d, object );
+      }
+
+      if (is_shift_key_pressed())
+      {
+        toggle_render_mode( three_d, NULL, NULL );
+      }
+      else if (is_ctrl_key_pressed())
+      {
+      }
+      else
+      {
+        set_object_visibility( object, !get_object_visibility( object ));
+      }
+      graphics_models_have_changed( three_d );
+      rebuild_selected_list( three_d, display );
+      update_all_menu_text( three_d );
+    }
+  }
+  return( status );
+}
+
+static  DEF_EVENT_FUNCTION( right_mouse_press )
+{
+  VIO_Status status = VIO_OK;
+  int        x, y;
+
+  if( G_get_mouse_position( display->window, &x, &y ) )
+  {
+    display_struct      *three_d = get_three_d_window( display );
+    object_struct       *object, *current;
+
+    if( mouse_is_on_object_name( three_d, x, y, &object ) )
+    {
+      if ( get_current_object( three_d, &current ) && current != object )
+      {
+        set_current_object( three_d, object );
+      }
+      if ( current->object_type == MARKER )
+      {
+        set_cursor_to_marker( three_d, NULL, NULL );
+      }
+      rebuild_selected_list( three_d, display );
+      update_all_menu_text( three_d );
+    }
+  }
+  return( status );
 }
 

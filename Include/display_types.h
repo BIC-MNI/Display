@@ -135,22 +135,6 @@ typedef  struct
     object_struct  *model_object; /**< The model containing the current object. */
 } selection_entry;
 
-/*
- * This structure represents the entire stack of object selections, so that
- * we can track back up through the hierarchy to the top level. At each
- * level we record the index and model that is selected. As we descend, we
- * add additional levels to the stack to represent the index and model of
- * substructure into which we've descended.
- */
-typedef  struct
-{
-    int                n_levels_alloced;
-    int                max_levels;
-    int                current_level;
-
-    selection_entry    *stack;
-} selection_struct;
-
 typedef  struct
 {
     VIO_Point   first_corner;

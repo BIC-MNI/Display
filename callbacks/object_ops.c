@@ -275,8 +275,6 @@ DEF_MENU_UPDATE(retreat_selected )
 
 DEF_MENU_FUNCTION( descend_selected )
 {
-    push_current_object( display );
-
     rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
 
     return( VIO_OK );
@@ -301,8 +299,6 @@ DEF_MENU_UPDATE(descend_selected )
 
 DEF_MENU_FUNCTION( ascend_selected )
 {
-    pop_current_object( display );
-
     rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
 
     return( VIO_OK );
@@ -312,7 +308,7 @@ DEF_MENU_FUNCTION( ascend_selected )
 
 DEF_MENU_UPDATE(ascend_selected )
 {
-    return( display->three_d.current_object.current_level > 1 );
+    return( display->three_d.current_object > 1 );
 }
 
 /* ARGSUSED */
@@ -411,19 +407,13 @@ VIO_BOOL  remove_current_object_from_hierarchy(
     int              obj_index;
     model_struct     *current_model;
 
-    if( !current_object_is_top_level( display ) &&
-        get_current_object( display, object ) )
+    if( get_current_object( display, object ) )
     {
         obj_index = get_current_object_index( display );
 
         current_model = get_current_model( display );
 
-        remove_ith_object_from_model( current_model, obj_index );
-
-        if( current_model->n_objects == 0 )
-            obj_index = 0;
-        else if( obj_index >= current_model->n_objects )
-            obj_index = current_model->n_objects - 1;
+        remove_object_from_model( current_model, *object );
 
         set_current_object_index( display, obj_index );
 
