@@ -44,11 +44,11 @@ START_GLOBALS
 
 /** True if should use OpenGL/GLUT double buffering in the slice window.
     Probably obsolete. */
-    DEF_GLOBAL( Slice_double_buffer_flag, VIO_BOOL, TRUE )
+    DEF_GLOBAL( Slice_double_buffer_flag, VIO_BOOL, FALSE )
 
 /** True if should use OpenGL/GLUT double buffering in the 3D window.
     Probably obsolete. */
-    DEF_GLOBAL( Graphics_double_buffer_flag, VIO_BOOL, TRUE )
+    DEF_GLOBAL( Graphics_double_buffer_flag, VIO_BOOL, FALSE )
 
 /** True if should use OpenGL transparency to implement overlays, otherwise
     compositing will be performed internally. */
