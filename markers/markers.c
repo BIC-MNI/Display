@@ -62,13 +62,15 @@ VIO_BOOL  update_current_marker(
 
     while( get_next_object_traverse( &object_traverse, &object ) )
     {
+        marker_struct *marker_ptr;
         if( object->object_type == MARKER &&
+            (marker_ptr = get_marker_ptr( object )) != NULL &&
             points_within_distance( &voxel_pos,
-                                    &get_marker_ptr(object)->position,
+                                    &marker_ptr->position,
                                     Marker_pick_size ) )
         {
             dist = distance_between_points( &voxel_pos,
-                                            &get_marker_ptr(object)->position );
+                                            &marker_ptr->position );
 
             if( !found || dist < closest_dist )
             {
@@ -79,7 +81,7 @@ VIO_BOOL  update_current_marker(
         }
     }
 
-    if( found && (!get_current_object(display,&object) ||
+    if( found && (!get_current_object( display, &object ) ||
                   object != closest_marker) )
     {
         set_current_object( display, closest_marker );

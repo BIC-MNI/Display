@@ -393,41 +393,6 @@ DEF_MENU_UPDATE(change_model_name )
 }
 
 /**
- * \brief Removes the currently object from the marker list, and from any 
- * containing model.
- * \param display The 3D window object.
- * \param object A pointer to and object pointer, where the deleted object
- * will be returned.
- */
-VIO_BOOL  remove_current_object_from_hierarchy(
-    display_struct   *display,
-    object_struct    **object )
-{
-    VIO_BOOL         removed;
-    int              obj_index;
-    model_struct     *current_model;
-
-    if( get_current_object( display, object ) )
-    {
-        obj_index = get_current_object_index( display );
-
-        current_model = get_current_model( display );
-
-        remove_object_from_model( current_model, *object );
-
-        set_current_object_index( display, obj_index );
-
-        graphics_models_have_changed( display );
-
-        removed = TRUE;
-    }
-    else
-        removed = FALSE;
-
-    return( removed );
-}
-
-/**
  * \brief Delete the currently selected object.
  *
  * Has the side effect of moving the cursor to the location of the currently
@@ -457,6 +422,8 @@ DEF_MENU_FUNCTION( delete_current_object )
 
     if( remove_current_object_from_hierarchy( display, &object ) )
     {
+        graphics_models_have_changed( display );
+
         clear_label_connected_3d(display, menu_window, menu_entry);
         delete_object( object );
         pop_menu_one_level( display->associated[MENU_WINDOW] );
@@ -564,6 +531,8 @@ DEF_MENU_FUNCTION( cut_object )
 
     if( remove_current_object_from_hierarchy( display, &object ) )
     {
+        graphics_models_have_changed( display );
+
         cut_model = get_graphics_model( display, CUT_BUFFER_MODEL );
 
         add_object_to_model( cut_model, object );

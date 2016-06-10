@@ -1574,11 +1574,14 @@ void update_label_tag(
             FREE( label_stack[value] );
             label_stack[value] = NULL;
 
-            update_current_marker(three_d_window, volume_index, voxel_real);
+            update_current_marker( three_d_window, volume_index, voxel_real );
             get_current_object( three_d_window, &object );
-            remove_current_object_from_hierarchy(three_d_window, &object);
-            delete_object(object);
-            rebuild_selected_list(three_d_window, marker_window);
+            if (remove_current_object_from_hierarchy( three_d_window, &object ))
+            {
+              graphics_models_have_changed( three_d_window );
+              delete_object( object );
+              rebuild_selected_list( three_d_window, marker_window );
+            }
         }
     }
 }

@@ -22,32 +22,40 @@
 #include  <stack.h>
 
 /* for graphics windows */
-
-#define  CURSOR_MODEL           0
-#define  OVERLAY_MODEL          1
-#define  THREED_MODEL           2
-#define  MISCELLANEOUS_MODEL    3
-#define  CUT_BUFFER_MODEL       4
-#define  STATUS_MODEL           5
-#define  VTX_CODING_MODEL       6
+enum three_d_models {
+  CURSOR_MODEL,
+  OVERLAY_MODEL,
+  THREED_MODEL,
+  MISCELLANEOUS_MODEL,
+  CUT_BUFFER_MODEL,
+  STATUS_MODEL,
+  VTX_CODING_MODEL
+};
 
 /* for menu windows */
-
-#define  MENU_BUTTONS_MODEL     0
-#define  SELECTED_MODEL         1
-#define  UTILITY_MODEL          2
-#define  CURSOR_POS_MODEL       3
+enum menu_models {
+  MENU_BUTTONS_MODEL,
+  UTILITY_MODEL,
+  CURSOR_POS_MODEL
+};
 
 /* for slice windows */
 
-#define  FULL_WINDOW_MODEL      0
-#define  SLICE_MODEL1           1
-#define  SLICE_MODEL2           2
-#define  SLICE_MODEL3           3
-#define  SLICE_MODEL4           4
-#define  COLOUR_BAR_MODEL       5
-#define  SLICE_READOUT_MODEL    6
-#define  INTENSITY_PLOT_MODEL   7
+enum slice_models {
+  FULL_WINDOW_MODEL,
+  SLICE_MODEL1,
+  SLICE_MODEL2,
+  SLICE_MODEL3,
+  SLICE_MODEL4,
+  COLOUR_BAR_MODEL,
+  SLICE_READOUT_MODEL,
+  INTENSITY_PLOT_MODEL
+};
+
+/* for marker windows */
+enum marker_models {
+  SELECTED_MODEL
+};
 
 typedef  enum  { THREE_D_WINDOW,
                  MENU_WINDOW,

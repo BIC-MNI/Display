@@ -46,12 +46,12 @@ advance_current_object( display_struct *display )
 }
 
 /**
- * Selects the previous object in the currently active model. Wraps back
- * to the last object in the list if it tries to go past the beginning.
+ * Selects the previous object in the object hierarchy.
+
  * \param display The display_struct of the 3D window.
  */
 void
-retreat_current_object(display_struct *display)
+retreat_current_object( display_struct *display )
 {
   if (display->three_d.current_object > 0)
   {
@@ -148,9 +148,11 @@ set_current_object_index( display_struct *display, int index )
 }
 
 /**
- * Get the currently selected object.
+ * Get the currently selected object, if any.
+ *
  * \param display The display_struct of the 3D window.
  * \param current_object A pointer to a pointer to an object_struct.
+ * \returns TRUE if the current object is valid.
  */
 VIO_BOOL
 get_current_object(display_struct *display, object_struct  **current_object )
@@ -198,3 +200,39 @@ current_object_exists( display_struct *display )
 
     return( get_current_object( display, &object_ptr ) );
 }
+
+/**
+ * \brief Removes the current object from the marker list, and from any 
+ * containing model. 
+ *
+ * Does not delete the object, but rather returns a pointer to the object
+ * so that it can be saved or moved elsewhere in the hierarchy.
+ *
+ * \param display The 3D window object.
+ * \param object A pointer to and object pointer, where the deleted object
+ * will be returned.
+ * \returns True if the object was found and returned.
+ */
+VIO_BOOL  remove_current_object_from_hierarchy(
+    display_struct   *display,
+    object_struct    **object )
+{
+    int              obj_index;
+    model_struct     *current_model;
+
+    if( !get_current_object( display, object ) )
+    {
+        return FALSE;
+    }
+
+    obj_index = get_current_object_index( display );
+
+    current_model = get_current_model( display );
+
+    remove_object_from_model( current_model, *object );
+
+    set_current_object_index( display, obj_index );
+
+    return TRUE;
+}
+
