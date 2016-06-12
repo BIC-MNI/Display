@@ -280,8 +280,8 @@ static  void  create_colour_coding(
     if( slice->share_labels_flag &&
         (orig_index = find_similar_labels( slice_window, volume_index )) >= 0 )
     {
-        printf("Volume %d is sharing labels with volume %d.\n",
-               volume_index, orig_index);
+        print("Volume %d is sharing labels with volume %d.\n",
+              volume_index, orig_index);
         slice->volumes[volume_index].labels = slice->volumes[orig_index].labels;
         slice->volumes[volume_index].labels_filename =
                     create_string( slice->volumes[orig_index].labels_filename );
@@ -1029,6 +1029,33 @@ void  change_colour_coding_range(
 }
 
 /**
+ * \brief See if the chosen volume is currently visible.
+ *
+ * Move this to view.c?
+ *
+ * \param slice_window A pointer to the slice window's main data structure.
+ * \param volume_index The zero-based index of the desired volume.
+ * \returns TRUE if the volume is visible.
+ */
+VIO_BOOL
+get_volume_visibility( display_struct *slice_window, int volume_index )
+{
+    int view_index;
+
+    if( slice_window->slice.volumes[volume_index].opacity == 0.0 )
+        return FALSE;
+
+    for_less( view_index, 0, N_SLICE_VIEWS )
+    {
+        if( get_slice_visibility( slice_window, volume_index, view_index ))
+        {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+/**
  * Colour code each of the points associated with an object, by copying
  * the encoded colours from an associated volume to the vertices of the
  * object. Actually does most of the work for colour_code_object_points().
@@ -1039,6 +1066,7 @@ void  change_colour_coding_range(
  * \param colours Pointer to the colour array of the object.
  * \param n_points Number of points in the object.
  * \param points The array of points associated with this object.
+ * \param labels_only Only copy label colours.
  */
 static  void  colour_code_points(
     display_struct        *slice_window,
@@ -1046,7 +1074,8 @@ static  void  colour_code_points(
     Colour_flags          *colour_flag,
     VIO_Colour            *colours[],
     int                   n_points,
-    VIO_Point             points[] )
+    VIO_Point             points[],
+    VIO_BOOL              labels_only )
 {
     int        i, int_voxel[VIO_MAX_DIMENSIONS];
     int        label, volume_index, view_index;
@@ -1073,17 +1102,10 @@ static  void  colour_code_points(
 
         for_less( volume_index, 0, slice_window->slice.n_volumes )
         {
-            if( slice_window->slice.volumes[volume_index].opacity == 0.0 )
-                continue;
-
-            for_less( view_index, 0, N_SLICE_VIEWS )
+            if ( !get_volume_visibility( slice_window, volume_index ) )
             {
-                if( get_slice_visibility(slice_window,volume_index,view_index))
-                    break;
-            }
-
-            if( view_index == N_SLICE_VIEWS )
                 continue;
+            }
 
             volume = get_nth_volume( slice_window, volume_index );
             label_volume = get_nth_label_volume( slice_window, volume_index );
@@ -1092,7 +1114,6 @@ static  void  colour_code_points(
                                     (VIO_Real) Point_x(points[i]),
                                     (VIO_Real) Point_y(points[i]),
                                     (VIO_Real) Point_z(points[i]), voxel );
-
 
             if( is_an_rgb_volume( volume ) )
             {
@@ -1105,9 +1126,11 @@ static  void  colour_code_points(
                                   int_voxel[2], 0, 0 );
                 }
                 else
+                {
                     volume_colour = get_colour_coding_under_colour(
                                &slice_window->slice.volumes[volume_index].
                                         colour_coding );
+                }
             }
             else
             {
@@ -1135,18 +1158,28 @@ static  void  colour_code_points(
                 }
             }
 
-            if( is_an_rgb_volume( volume ) )
+            if (labels_only)
             {
-                volume_colour = apply_label_colour( slice_window,
-                                     volume_index, volume_colour, label );
+                colour = get_colour_of_label( slice_window, volume_index,
+                                              label );
             }
             else
             {
-                volume_colour = get_slice_colour_coding( slice_window,
-                                         volume_index, val, label );
-            }
+                if( is_an_rgb_volume( volume ) )
+                {
+                    volume_colour = apply_label_colour( slice_window,
+                                                        volume_index,
+                                                        volume_colour, label );
+                }
+                else
+                {
+                    volume_colour = get_slice_colour_coding( slice_window,
+                                                             volume_index,
+                                                             val, label );
+                }
 
-            COMPOSITE_COLOURS( colour, volume_colour, colour )
+                COMPOSITE_COLOURS( colour, volume_colour, colour )
+            }
         }
 
         (*colours)[i] = colour;
@@ -1161,11 +1194,13 @@ static  void  colour_code_points(
  * \param slice_window A pointer to the slice window's display_struct.
  * \param continuity Type of continuity to use in interpolation.
  * \param object The object to colour code.
+ * \param labels_only Copy the colours from the label volume _only_.
  */
 static  void  colour_code_object_points(
     display_struct         *slice_window,
     int                    continuity,
-    object_struct          *object )
+    object_struct          *object,
+    VIO_BOOL               labels_only )
 {
     VIO_Colour              *colours;
     Colour_flags            colour_flag;
@@ -1180,7 +1215,7 @@ static  void  colour_code_object_points(
         polygons = get_polygons_ptr( object );
         colour_code_points( slice_window, continuity,
                             &polygons->colour_flag, &polygons->colours,
-                            polygons->n_points, polygons->points );
+                            polygons->n_points, polygons->points, labels_only );
         break;
 
     case QUADMESH:
@@ -1188,14 +1223,14 @@ static  void  colour_code_object_points(
         colour_code_points( slice_window, continuity,
                             &quadmesh->colour_flag, &quadmesh->colours,
                             quadmesh->m * quadmesh->n,
-                            quadmesh->points );
+                            quadmesh->points, labels_only );
         break;
 
     case LINES:
         lines = get_lines_ptr( object );
         colour_code_points( slice_window, continuity,
                             &lines->colour_flag, &lines->colours,
-                            lines->n_points, lines->points );
+                            lines->n_points, lines->points, labels_only );
         break;
 
     case MARKER:
@@ -1203,7 +1238,8 @@ static  void  colour_code_object_points(
         colour_flag = PER_VERTEX_COLOURS;
         colours = &marker->colour;
         colour_code_points( slice_window, continuity,
-                            &colour_flag, &colours, 1, &marker->position );
+                            &colour_flag, &colours, 1, &marker->position,
+                            labels_only );
         break;
 
     default:
@@ -1222,15 +1258,18 @@ static  void  colour_code_object_points(
  * \param display A pointer to one of the windows' display_struct.
  * \param object The object to colour code. This can be any polygon,
  * quadmesh, marker, or lines object.
+ * \param labels_only Copy the colours from the label volume _only_.
  */
 void  colour_code_an_object(
     display_struct   *display,
-    object_struct    *object )
+    object_struct    *object,
+    VIO_BOOL         labels_only )
 {
     display_struct   *slice_window;
 
-    if( get_slice_window( display, &slice_window) )
-        colour_code_object_points( slice_window, Volume_continuity, object );
+    if( get_slice_window( display, &slice_window ) )
+        colour_code_object_points( slice_window, Volume_continuity,
+                                   object, labels_only );
 }
 
 /**

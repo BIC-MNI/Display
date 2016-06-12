@@ -1,7 +1,21 @@
+2016-06-11 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* slice_window/colour_coding.c, callbacks/volume_ops.c, etc.:
+	Implement ability to "colourize" a 3D object using only the
+	current label colours.
+
+2016-06-07 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* slice_window/intensity_plot.c, etc.: Display the label colours
+	superimposed on the intensity plot graph.
+
 2016-06-02 Robert D. Vincent <robert.d.vincent@mcgill.ca>
 	* slice_window/outline.c, Include/global_variables.h: Draw
 	the outlines of markers in the slice windows. Can be disabled
 	with the Show_markers_on_slice global.
+
+2016-05-31 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* main/main.c: Allow specific colours to be assigned to loaded
+	surfaces by appending ':<colour>' to the file name as it appears
+	on the command line.
 
 2016-05-12 Robert D. Vincent <robert.d.vincent@mcgill.ca>
 	* callbacks/marker_ops.c, menu/*: Update marker commands. Command

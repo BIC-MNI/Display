@@ -1177,6 +1177,10 @@ DEF_MENU_UPDATE(toggle_secondary_brush);
 
   DEF_MENU_UPDATE(colour_code_objects );
 
+  DEF_MENU_FUNCTION( label_objects );
+
+  DEF_MENU_UPDATE( label_objects );
+
   DEF_MENU_FUNCTION(create_3d_slice);
 
   DEF_MENU_UPDATE(create_3d_slice);
@@ -2133,7 +2137,8 @@ void rebuild_ticks_and_text(colour_bar_struct *colour_bar,
 
   void  colour_code_an_object(
     display_struct   *display,
-    object_struct    *object );
+    object_struct    *object,
+    VIO_BOOL         labels_only );
 
   VIO_STR    get_default_colour_map_suffix( void );
 

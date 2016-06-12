@@ -272,6 +272,7 @@ MENU_F(reset_surface_line) \
 MENU_F(set_surface_curve_curvature) \
 MENU_F(pick_surface_point_on_line) \
 MENU_F(colour_code_objects) \
+MENU_F(label_objects) \
 MENU_F(set_label_colour_ratio) \
 MENU_F(set_contour_colour_map) \
 MENU_F(set_hot_metal) \

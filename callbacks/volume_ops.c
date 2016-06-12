@@ -23,6 +23,9 @@
 
 /**
  * Move the time coordinate forward or backward by \c delta.
+ * \param display A pointer to a top-level window.
+ * \param delta The amount (positive or negative) by which to move
+ * the cursor along the time axis.
  */
 static void
 change_current_time_by_one(
@@ -75,14 +78,19 @@ change_current_time_by_one(
     }
 }
 
+/**
+ * \brief Command to move forward one position along the time axis.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(move_time_plus)
 {
     change_current_time_by_one( display, 1 );
 
     return( VIO_OK );
 }
-
-/* ARGSUSED */
 
 DEF_MENU_UPDATE(move_time_plus)
 {
@@ -98,14 +106,19 @@ DEF_MENU_UPDATE(move_time_plus)
     return( get_volume_n_dimensions(volume) > 3 );
 }
 
+/**
+ * \brief Command to move backward one position along the time axis.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(move_time_minus)
 {
     change_current_time_by_one( display, -1 );
 
     return( VIO_OK );
 }
-
-/* ARGSUSED */
 
 DEF_MENU_UPDATE(move_time_minus)
 {
@@ -121,9 +134,14 @@ DEF_MENU_UPDATE(move_time_minus)
     return( get_volume_n_dimensions(volume) > 3 );
 }
 
-static  void  change_current_slice_by_delta(
-    display_struct   *display,
-    int              delta )
+/**
+ * Helper function to change the slice coordinate by a given value.
+ * \param display A pointer to a top-level window.
+ * \param delta The amount (positive or negative) by which to move
+ * the cursor along the slice axis.
+ */
+static void
+change_current_slice_by_delta( display_struct *display, int delta )
 {
     display_struct   *slice_window;
     VIO_Volume           volume;
@@ -162,7 +180,11 @@ static  void  change_current_slice_by_delta(
 }
 
 /**
- * \brief Move one positive step along the slice dimension.
+ * \brief Command to move one positive step along the slice dimension.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
  */
 DEF_MENU_FUNCTION(move_slice_plus)
 {
@@ -176,7 +198,11 @@ DEF_MENU_UPDATE(move_slice_plus )
 }
 
 /**
- * \brief Move ten positive steps along the slice dimension.
+ * \brief Command to move ten positive steps along the slice dimension.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
  */
 DEF_MENU_FUNCTION(fast_forward_slice)
 {
@@ -190,7 +216,11 @@ DEF_MENU_UPDATE(fast_forward_slice)
 }
 
 /**
- * \brief Move one negative step along the slice dimension.
+ * \brief Command to move one negative step along the slice dimension.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
  */
 DEF_MENU_FUNCTION(move_slice_minus)
 {
@@ -204,7 +234,11 @@ DEF_MENU_UPDATE(move_slice_minus )
 }
 
 /**
- * \brief Move ten negative steps along the slice dimension.
+ * \brief Command to move ten negative steps along the slice dimension.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
  */
 DEF_MENU_FUNCTION(fast_rewind_slice)
 {
@@ -218,7 +252,11 @@ DEF_MENU_UPDATE(fast_rewind_slice)
 }
 
 /**
- * \brief Toggle the visibility of a slice view.
+ * \brief Command to toggle the visibility of a slice view.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
  */
 DEF_MENU_FUNCTION(toggle_slice_visibility)
 {
@@ -243,8 +281,6 @@ DEF_MENU_FUNCTION(toggle_slice_visibility)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(toggle_slice_visibility )
 {
     return( get_n_volumes(display) > 0 );
@@ -253,8 +289,11 @@ DEF_MENU_UPDATE(toggle_slice_visibility )
 /**
  * \brief Toggles the visibility of the oblique cross-section plane in
  * the 3D view window.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
  */
-/* ARGSUSED */
 
 DEF_MENU_FUNCTION(toggle_cross_section_visibility)
 {
@@ -275,7 +314,12 @@ DEF_MENU_UPDATE(toggle_cross_section_visibility )
 }
 
 /**
- * \brief Resets the translation and zoom of the slice view under the mouse cursor, if any.
+ * \brief Resets the translation and zoom of the slice view under the
+ * mouse cursor, if any.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
  */
 DEF_MENU_FUNCTION(reset_current_slice_view)
 {
@@ -292,47 +336,76 @@ DEF_MENU_FUNCTION(reset_current_slice_view)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(reset_current_slice_view )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /**
- * \brief Colourize the currently selected 3D object.
+ * Helper function to copy the colours from the slice view to the current
+ * 3D object.
+ * \param display A pointer to a top-level window.
+ * \param labels_only If TRUE, only the colours of the labels will be copied
+ * to the object. If FALSE, the composite of all visible volumes and labels
+ * will be copied.
  */
-/* ARGSUSED */
-
-DEF_MENU_FUNCTION(colour_code_objects )
+static void
+copy_colours_to_object( display_struct *display, VIO_BOOL labels_only )
 {
     object_struct           *object, *current_object;
-    VIO_Volume                  volume;
+    VIO_Volume              volume;
     object_traverse_struct  object_traverse;
 
-    if( get_current_object(display,&current_object) &&
+    if( get_current_object( display, &current_object ) &&
         get_slice_window_volume( display, &volume ) )
     {
         initialize_object_traverse( &object_traverse, FALSE, 1,
                                     &current_object );
 
-        while( get_next_object_traverse(&object_traverse,&object) )
+        while( get_next_object_traverse( &object_traverse, &object ) )
         {
-            colour_code_an_object( display, object );
+            colour_code_an_object( display, object, labels_only );
         }
-
         set_update_required( display, NORMAL_PLANES );
     }
+}
 
+/**
+ * \brief Colourize the currently selected 3D object using the label colours
+ * only.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
+DEF_MENU_FUNCTION( label_objects )
+{
+    copy_colours_to_object( display, TRUE );
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-DEF_MENU_UPDATE(colour_code_objects )
+DEF_MENU_UPDATE( label_objects )
 {
-    return( get_n_volumes(display) > 0 &&
-            current_object_exists(display) );
+    return( get_n_volumes( display ) > 0 && current_object_exists( display ) );
+}
+
+/**
+ * \brief Colourize the currently selected 3D object using the label and
+ * volume colours together.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
+DEF_MENU_FUNCTION( colour_code_objects )
+{
+    copy_colours_to_object( display, TRUE );
+    return( VIO_OK );
+}
+
+DEF_MENU_UPDATE( colour_code_objects )
+{
+    return( get_n_volumes( display ) > 0 && current_object_exists( display ) );
 }
 
 /**
@@ -347,10 +420,12 @@ DEF_MENU_UPDATE(colour_code_objects )
  * at each point.
  * 3. If the mouse cursor is over the oblique slice, it just creates a
  * monochrome polygon. Not sure what the point of this is!!
+ * \param display A pointer to a top-level window.
+ * \param scale_slice_flag TRUE if the quadmesh height should be proportional
+ * to the intensity of the slice.
  */
-static  void  create_scaled_slice(
-    display_struct   *display,
-    VIO_BOOL          scale_slice_flag )
+static void
+create_scaled_slice( display_struct *display, VIO_BOOL scale_slice_flag )
 {
     display_struct   *slice_window;
     int              x_index, y_index, axis_index, view_index;
@@ -396,7 +471,7 @@ static  void  create_scaled_slice(
             m = quadmesh->m;
             n = quadmesh->n;
             min_value = get_volume_real_min( volume );
-            colour_code_an_object( display, object );
+            colour_code_an_object( display, object, FALSE );
             for_less( i, 0, m )
             {
                 for_less( j, 0, n )
@@ -416,8 +491,9 @@ static  void  create_scaled_slice(
             }
             compute_quadmesh_normals( quadmesh );
         }
-        else {
-            colour_code_an_object( display, object );
+        else
+        {
+            colour_code_an_object( display, object, FALSE );
         }
 
         add_object_to_current_model( display, object );
@@ -442,40 +518,53 @@ static  void  create_scaled_slice(
                          display->associated[MARKER_WINDOW] );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Create a flat quadmesh colourized as the current slice, to be
+ * displayed in the 3D window.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(create_3d_slice)
 {
     create_scaled_slice( display, FALSE );
-
     return( VIO_OK );
 }
-
-/* ARGSUSED */
 
 DEF_MENU_UPDATE(create_3d_slice)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * Command to create a 3D object that is a quadmesh where the height is
+ * proportional to the intensity of the image.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(create_3d_slice_profile)
 {
     create_scaled_slice( display, TRUE );
-
     return( VIO_OK );
 }
-
-/* ARGSUSED */
 
 DEF_MENU_UPDATE(create_3d_slice_profile)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to resample a volume to a new size.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(resample_slice_window_volume)
 {
     int              sizes[VIO_MAX_DIMENSIONS];
@@ -512,15 +601,18 @@ DEF_MENU_FUNCTION(resample_slice_window_volume)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(resample_slice_window_volume)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to apply a box filter to the current volume.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(box_filter_slice_window_volume)
 {
     char             ch;
@@ -564,15 +656,18 @@ DEF_MENU_FUNCTION(box_filter_slice_window_volume)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(box_filter_slice_window_volume)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to select the angle of the oblique slice.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(pick_slice_angle_point)
 {
     display_struct   *slice_window;
@@ -586,15 +681,18 @@ DEF_MENU_FUNCTION(pick_slice_angle_point)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(pick_slice_angle_point)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to start the rotation of the oblique slice plane.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION( rotate_slice_axes )
 {
     initialize_rotating_slice( display );
@@ -602,15 +700,18 @@ DEF_MENU_FUNCTION( rotate_slice_axes )
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(rotate_slice_axes )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to reset the position of the crop box.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(reset_slice_crop)
 {
     display_struct   *slice_window;
@@ -623,15 +724,18 @@ DEF_MENU_FUNCTION(reset_slice_crop)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(reset_slice_crop)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to toggle the visibility of the crop box.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(toggle_slice_crop_visibility)
 {
     display_struct   *slice_window;
@@ -643,8 +747,6 @@ DEF_MENU_FUNCTION(toggle_slice_crop_visibility)
 
     return( VIO_OK );
 }
-
-/* ARGSUSED */
 
 DEF_MENU_UPDATE(toggle_slice_crop_visibility)
 {
@@ -661,8 +763,13 @@ DEF_MENU_UPDATE(toggle_slice_crop_visibility)
     return( slice_window_exists(display) );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to select an edge of the crop box.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(pick_crop_box_edge)
 {
     display_struct   *slice_window;
@@ -676,15 +783,18 @@ DEF_MENU_FUNCTION(pick_crop_box_edge)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(pick_crop_box_edge)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to set the name of the file to be cropped.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(set_crop_box_filename)
 {
     display_struct   *slice_window;
@@ -703,15 +813,18 @@ DEF_MENU_FUNCTION(set_crop_box_filename)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(set_crop_box_filename)
 {
     return( TRUE );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to crop and then load the cropped volume.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(load_cropped_volume)
 {
     display_struct   *slice_window;
@@ -724,15 +837,18 @@ DEF_MENU_FUNCTION(load_cropped_volume)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(load_cropped_volume)
 {
     return( slice_window_exists(display) );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to crop the volume to a given file.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(crop_volume_to_file)
 {
     VIO_STR           filename;
@@ -753,13 +869,18 @@ DEF_MENU_FUNCTION(crop_volume_to_file)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(crop_volume_to_file)
 {
     return( slice_window_exists(display) );
 }
 
+/**
+ * Helper function to create the optional histogram that appears alongside
+ * the colour bar in the slice window.
+ *
+ * \param display A pointer to a top-level window.
+ * \param labeled True if the histogram should consider only labeled voxels.
+ */
 static  void  do_histogram(
     display_struct   *display,
     VIO_BOOL          labeled )
@@ -792,8 +913,13 @@ static  void  do_histogram(
     }
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to recalculate the voxel intensity histogram.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(redo_histogram)
 {
     do_histogram( display, FALSE );
@@ -801,15 +927,19 @@ DEF_MENU_FUNCTION(redo_histogram)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(redo_histogram)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to recalculate the intensity histogram for labeled
+ * voxels only.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(redo_histogram_labeled)
 {
     do_histogram( display, TRUE );
@@ -817,15 +947,19 @@ DEF_MENU_FUNCTION(redo_histogram_labeled)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(redo_histogram_labeled)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to print the current cursor position in both voxel and world
+ * coordinates.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(print_voxel_origin)
 {
     VIO_Real             voxel[VIO_MAX_DIMENSIONS], xw, yw, zw;
@@ -847,15 +981,19 @@ DEF_MENU_FUNCTION(print_voxel_origin)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(print_voxel_origin)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to print the current plane orientation for the slice
+ * view under the mouse.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(print_slice_plane)
 {
     display_struct   *slice_window;
@@ -889,15 +1027,19 @@ DEF_MENU_FUNCTION(print_slice_plane)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(print_slice_plane)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to allow the user to enter a specific position for
+ * the cursor.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(type_in_voxel_origin)
 {
     char             type;
@@ -934,15 +1076,19 @@ DEF_MENU_FUNCTION(type_in_voxel_origin)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(type_in_voxel_origin)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to allow the user to enter a specific plane orientation for
+ * the slice view.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(type_in_slice_plane)
 {
     int              view_index;
@@ -982,15 +1128,19 @@ DEF_MENU_FUNCTION(type_in_slice_plane)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(type_in_slice_plane)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to toggle the projection of the oblique plane in the
+ * other three slice views.
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(toggle_slice_cross_section_visibility)
 {
     display_struct   *slice_window;
@@ -1005,15 +1155,19 @@ DEF_MENU_FUNCTION(toggle_slice_cross_section_visibility)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(toggle_slice_cross_section_visibility)
 {
     return( slice_window_exists(display) );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to set which slice view shows the oblique plane.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(set_current_arbitrary_view)
 {
     int              view_index;
@@ -1034,15 +1188,19 @@ DEF_MENU_FUNCTION(set_current_arbitrary_view)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(set_current_arbitrary_view)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to toggle the state of the slice anchor mode.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(toggle_slice_anchor)
 {
     int              c, view_index;
@@ -1077,15 +1235,19 @@ DEF_MENU_FUNCTION(toggle_slice_anchor)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(toggle_slice_anchor)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to remove the current volume from the display.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(delete_current_volume)
 {
     display_struct   *slice_window;
@@ -1100,32 +1262,34 @@ DEF_MENU_FUNCTION(delete_current_volume)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(delete_current_volume)
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to set the current volume to be the "next" volume in
+ * the list.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(toggle_current_volume)
 {
-    int              current;
     display_struct   *slice_window;
+    int              n_volumes;
 
     if( get_slice_window( display, &slice_window ) &&
-        get_n_volumes(slice_window) > 1 )
+        ( n_volumes = get_n_volumes( slice_window ) ) > 1 )
     {
-        current = get_current_volume_index( slice_window );
-        current = (current + 1) % slice_window->slice.n_volumes;
-        set_current_volume_index( slice_window, current );
+        int current_index = get_current_volume_index( slice_window );
+        current_index = (current_index + 1) % n_volumes;
+        set_current_volume_index( slice_window, current_index );
     }
-
     return( VIO_OK );
 }
-
-/* ARGSUSED */
 
 DEF_MENU_UPDATE(toggle_current_volume)
 {
@@ -1141,38 +1305,47 @@ DEF_MENU_UPDATE(toggle_current_volume)
     return( get_n_volumes(display) > 1 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to set the current volume to be the "previous" volume in
+ * the list.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(prev_current_volume)
 {
-    int              current;
     display_struct   *slice_window;
+    int              n_volumes;
 
     if( get_slice_window( display, &slice_window ) &&
-        get_n_volumes(slice_window) > 1 )
+        ( n_volumes = get_n_volumes(slice_window) ) > 1 )
     {
-        current = get_current_volume_index( slice_window );
-        current = (current - 1 + slice_window->slice.n_volumes) %
-                   slice_window->slice.n_volumes;
-        set_current_volume_index( slice_window, current );
+        int current_index = get_current_volume_index( slice_window );
+        current_index = (current_index - 1 + n_volumes) % n_volumes;
+        set_current_volume_index( slice_window, current_index );
     }
-
     return( VIO_OK );
 }
-
-/* ARGSUSED */
 
 DEF_MENU_UPDATE(prev_current_volume)
 {
     return( get_n_volumes(display) > 1 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to set the opacity (alpha) of the current volume.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(set_current_volume_opacity)
 {
     int              current;
-    VIO_Real             opacity;
+    VIO_Real         opacity;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -1193,11 +1366,9 @@ DEF_MENU_FUNCTION(set_current_volume_opacity)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(set_current_volume_opacity)
 {
-    VIO_Real             opacity;
+    VIO_Real         opacity;
     int              current_index;
     display_struct   *slice_window;
 
@@ -1213,19 +1384,26 @@ DEF_MENU_UPDATE(set_current_volume_opacity)
     return( get_n_volumes(display) > 1 );
 }
 
-static  int  get_current_visible_volume(
-    display_struct   *display )
+/**
+ * Helper function to return the first visible volume, if any.
+ *
+ * \param display A pointer to a top-level window.
+ * \returns The zero-based index of the _first_ visible volume.
+ */
+static int
+get_current_visible_volume( display_struct *display )
 {
     int              current_visible, volume_index, view;
     display_struct   *slice_window;
+    int              n_volumes;
 
     current_visible = -1;
     if( get_slice_window( display, &slice_window ) &&
-        get_n_volumes(slice_window) > 0 )
+        ( n_volumes = get_n_volumes( slice_window ) ) > 0 )
     {
         for_less( view, 0, N_SLICE_VIEWS )
         {
-            for_less( volume_index, 0, get_n_volumes(slice_window) )
+            for_less( volume_index, 0, n_volumes )
             {
                 if( get_slice_visibility( slice_window, volume_index, view ) )
                 {
@@ -1237,39 +1415,45 @@ static  int  get_current_visible_volume(
                 break;
         }
 
-        if( volume_index < get_n_volumes(slice_window) )
+        if( volume_index < n_volumes )
             current_visible = volume_index;
     }
 
     return( current_visible );
 }
 
-static  void  change_visible_volume(
-    display_struct   *display,
-    int              increment )
+/**
+ * Change which volume is visible, by advancing the current volume by
+ * "increment" and making that volume visible.
+ * \param display A pointer to a top-level window.
+ * \param increment The amount by which to increment the current visible
+ * volume.
+ */
+static void
+change_visible_volume( display_struct *display, int increment )
 {
     int              current, view, volume_index;
     display_struct   *slice_window;
-    VIO_BOOL          all_invisible;
+    VIO_BOOL         all_invisible;
+    int              n_volumes;
 
     if( get_slice_window( display, &slice_window ) &&
-        get_n_volumes(slice_window) > 0 )
+        ( n_volumes = get_n_volumes(slice_window) ) > 0 )
     {
         current = get_current_visible_volume( slice_window );
-        current = (current + increment + get_n_volumes(slice_window)) %
-                  get_n_volumes(slice_window);
+        current = (current + increment + n_volumes) % n_volumes;
 
         for_less( view, 0, N_SLICE_VIEWS )
         {
             all_invisible = TRUE;
-            for_less( volume_index, 0, get_n_volumes(slice_window) )
+            for_less( volume_index, 0, n_volumes )
             {
                 if( get_slice_visibility( slice_window, volume_index, view ) )
                     all_invisible = FALSE;
                 set_slice_visibility( slice_window, volume_index, view, FALSE );
             }
 
-            if( !all_invisible || get_n_volumes(slice_window) == 1 )
+            if( !all_invisible || n_volumes == 1 )
                 set_slice_visibility( slice_window, current, view, TRUE );
         }
 
@@ -1277,16 +1461,20 @@ static  void  change_visible_volume(
     }
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to advance to the next volume and make it visible.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(next_volume_visible)
 {
     change_visible_volume( display, 1 );
 
     return( VIO_OK );
 }
-
-/* ARGSUSED */
 
 DEF_MENU_UPDATE(next_volume_visible)
 {
@@ -1296,16 +1484,20 @@ DEF_MENU_UPDATE(next_volume_visible)
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to back up to the previous volume and make it visible.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(prev_volume_visible)
 {
     change_visible_volume( display, -1 );
 
     return( VIO_OK );
 }
-
-/* ARGSUSED */
 
 DEF_MENU_UPDATE(prev_volume_visible)
 {
@@ -1315,8 +1507,14 @@ DEF_MENU_UPDATE(prev_volume_visible)
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to cycle through the supported interpolation modes.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(toggle_slice_interpolation)
 {
     int              continuity;
@@ -1326,21 +1524,18 @@ DEF_MENU_FUNCTION(toggle_slice_interpolation)
     {
         continuity = slice_window->slice.degrees_continuity;
         if( continuity == -1 )
-            continuity = 0;
+            continuity = 0;     /* 0 -> trilinear */
         else if( continuity == 0 )
-            continuity = 2;
+            continuity = 2;     /* 2 -> tricubic */
         else if( continuity == 2 )
-            continuity = -1;
+            continuity = -1;    /* -1 -> nearest neighbour */
 
         slice_window->slice.degrees_continuity = continuity;
 
         set_slice_window_all_update( slice_window, -1, UPDATE_SLICE );
     }
-
     return( VIO_OK );
 }
-
-/* ARGSUSED */
 
 DEF_MENU_UPDATE(toggle_slice_interpolation )
 {
@@ -1358,25 +1553,34 @@ DEF_MENU_UPDATE(toggle_slice_interpolation )
 
     switch( continuity )
     {
-    case 0:   name = "trilinear";   break;
-    case 2:   name = "tricubic";   break;
-    case -1:
-    default:  name = "near neigh";   break;
+    case 0:
+        name = "trilinear";
+        break;
+    case 2:
+        name = "tricubic";
+        break;
+    default:
+        name = "near neigh";
+        break;
     }
-
     set_menu_text_string( menu_window, menu_entry, name );
-
     return( active );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to save an image of the slice view under the mouse.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION( save_slice_image )
 {
     display_struct    *slice_window;
-    VIO_Status            status;
+    VIO_Status        status;
     int               view_index, x_min, x_max, y_min, y_max;
-    VIO_STR            filename;
+    VIO_STR           filename;
 
     status = VIO_OK;
 
@@ -1401,21 +1605,25 @@ DEF_MENU_FUNCTION( save_slice_image )
     return( status );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(save_slice_image )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to save an image of the entire slice view.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION( save_slice_window )
 {
     display_struct    *slice_window;
-    VIO_Status            status;
+    VIO_Status        status;
     int               x_size, y_size;
-    VIO_STR            filename;
+    VIO_STR           filename;
 
     status = VIO_OK;
 
@@ -1438,15 +1646,25 @@ DEF_MENU_FUNCTION( save_slice_window )
     return( status );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(save_slice_window )
 {
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
 
+/**
+ * \brief Command to toggle incremental slice update.
+ *
+ * Incremental slice update allows for partial redrawing of the slice
+ * window when, for example, the interpolation takes a long time (perhaps
+ * because tricubic interpolation is selected, e.g.). It is not mostly
+ * obsolete and may be removed.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(toggle_incremental_slice_update)
 {
     display_struct   *slice_window;
@@ -1459,8 +1677,6 @@ DEF_MENU_FUNCTION(toggle_incremental_slice_update)
 
     return( VIO_OK );
 }
-
-/* ARGSUSED */
 
 DEF_MENU_UPDATE(toggle_incremental_slice_update)
 {
@@ -1477,8 +1693,14 @@ DEF_MENU_UPDATE(toggle_incremental_slice_update)
     return( slice_window_exists(display) );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to toggle the visibility of the slice view crosshair cursor.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(toggle_cursor_visibility)
 {
     int              view;
@@ -1494,8 +1716,6 @@ DEF_MENU_FUNCTION(toggle_cursor_visibility)
 
     return( VIO_OK );
 }
-
-/* ARGSUSED */
 
 DEF_MENU_UPDATE(toggle_cursor_visibility )
 {
@@ -1513,8 +1733,14 @@ DEF_MENU_UPDATE(toggle_cursor_visibility )
     return( state );
 }
 
-/* ARGSUSED */
-
+/**
+ * \brief Command to reassign a loaded volume as labels.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(insert_volume_as_labels)
 {
     int              src_index, rnd;
@@ -1549,13 +1775,19 @@ DEF_MENU_FUNCTION(insert_volume_as_labels)
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
 DEF_MENU_UPDATE(insert_volume_as_labels )
 {
     return( get_n_volumes(display) >= 2 );
 }
 
+/**
+ * \brief Command to terminate existing interactions and reset the UI.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(reset_interactions)
 {
     terminate_any_interactions(display);
@@ -1571,6 +1803,14 @@ DEF_MENU_UPDATE(reset_interactions)
     return TRUE;
 }
 
+/**
+ * \brief Command to toggle the visibility of the slice rulers.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION(slice_rulers_toggle)
 {
   display_struct *slice_window;
@@ -1596,29 +1836,42 @@ DEF_MENU_UPDATE(slice_rulers_toggle)
     return TRUE;
 }
 
+/**
+ * \brief Command to make all volumes visible (again).
+ *
+ * This will not change the visibility of any single slice view. So if the
+ * sagittal view has been hidden, the volumes will appear only in the other
+ * views.
+ *
+ * \param display A pointer to a top-level window.
+ * \param menu_window A pointer to the menu window.
+ * \param menu_entry A pointer to the menu entry for this command.
+ * \returns VIO_OK for normal operation.
+ */
 DEF_MENU_FUNCTION( make_all_volumes_visible )
 {
   display_struct *slice_window;
-  int view_index;
-  int volume_index;
-  int is_vis;
+  int            view_index;
+  int            volume_index;
+  int            is_vis;
+  int            n_volumes;
 
   if( get_slice_window( display, &slice_window ) &&
-      get_n_volumes(slice_window) > 0 )
+      ( n_volumes = get_n_volumes(slice_window) ) > 0 )
   {
     for_less( view_index, 0, N_SLICE_VIEWS )
     {
       is_vis = FALSE;
 
-      /* If any slice is visible, make them all visible.
+      /* See if any of the volumes are visible in this slice view.
        */
-      for_less( volume_index, 0, get_n_volumes( slice_window ))
+      for_less( volume_index, 0, n_volumes )
         if (get_slice_visibility( slice_window, volume_index, view_index ))
           is_vis = TRUE;
 
-      /* Now cycle through again and actually make them all visible.
+      /* Now make all of the volumes visible if any of them were visible.
        */
-      for_less( volume_index, 0, get_n_volumes( slice_window ))
+      for_less( volume_index, 0, n_volumes )
         set_slice_visibility( slice_window, volume_index, view_index, is_vis );
     }
   }

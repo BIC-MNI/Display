@@ -156,6 +156,7 @@ delete_current_volume_menu \
  \
 colour_coding \
 { \
+    transient '1'    label_objects                   'Label Objects'   'Sets the colours of the current 3D object using the current label colours and positions only.' \
     transient 'q'    set_user_defined_colour_scale   'UserDef ColCode' 'Selects the user-defined colour coding (loaded in File menu).' \
     transient 'w'    set_arbitrary_colour_scale      'Arb Colour (Over)' 'Selects arbitrary colour coding using the current over colour.' \
     transient 'e'    set_red                         'Red' 'Selects the red colour coding method for the current volume.' \
