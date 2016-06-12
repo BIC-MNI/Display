@@ -701,7 +701,6 @@ create_empty_slice( display_struct *display )
 {
   VIO_Volume volume;
   VIO_Point pt_min, pt_max;
-  VIO_BOOL found;
   int sizes[VIO_N_DIMENSIONS];
   VIO_Real starts[VIO_N_DIMENSIONS];
   VIO_Real steps[VIO_N_DIMENSIONS];
