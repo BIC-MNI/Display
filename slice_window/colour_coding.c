@@ -1078,7 +1078,7 @@ static  void  colour_code_points(
     VIO_BOOL              labels_only )
 {
     int        i, int_voxel[VIO_MAX_DIMENSIONS];
-    int        label, volume_index, view_index;
+    int        label, volume_index;
     VIO_Real   val, voxel[VIO_MAX_DIMENSIONS];
     VIO_Volume volume, label_volume;
     VIO_Colour colour, volume_colour;
