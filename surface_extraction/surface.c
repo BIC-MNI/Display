@@ -510,7 +510,7 @@ static  void  advance_voxellated_index(
         print( "Surface extraction finished\n" );
         stop_surface_extraction( display );
         update_all_menu_text( display );
-        show_three_d_window( display, display->associated[MARKER_WINDOW] );
+        show_three_d_window( display, get_display_by_type( MARKER_WINDOW ) );
     }
 
     return( changed );

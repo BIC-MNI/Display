@@ -173,21 +173,6 @@ int  main(
     G_set_transparency_state( graphics->window, Graphics_transparency_flag);
     G_set_visibility(graphics->window, !Hide_3D_window);
 
-    graphics->associated[THREE_D_WINDOW] = graphics;
-    graphics->associated[MENU_WINDOW] = menu;
-    graphics->associated[SLICE_WINDOW] = (display_struct *) 0;
-    graphics->associated[MARKER_WINDOW] = marker;
-
-    menu->associated[THREE_D_WINDOW] = graphics;
-    menu->associated[MENU_WINDOW] = menu;
-    menu->associated[SLICE_WINDOW] = (display_struct *) 0;
-    menu->associated[MARKER_WINDOW] = marker;
-
-    marker->associated[THREE_D_WINDOW] = graphics;
-    marker->associated[MENU_WINDOW] = menu;
-    marker->associated[SLICE_WINDOW] = (display_struct *) 0;
-    marker->associated[MARKER_WINDOW] = marker;
-
     if( initialize_menu( menu, runtime_directory,
      getenv( "HOME" ),
      HARD_CODED_DISPLAY_DIRECTORY1,

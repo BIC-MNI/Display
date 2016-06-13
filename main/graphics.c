@@ -18,9 +18,10 @@
 #include <config.h>
 #endif
 
-#include  <display.h>
+#include <display.h>
+#include <assert.h>
 
-static  display_struct  *windows[N_WINDOW_TYPES];
+static  display_struct  *_windows[N_WINDOW_TYPES];
 
 static  void  initialize_graphics_window(
     display_struct   *display );
@@ -43,9 +44,19 @@ static  void  terminate_graphics_window(
 int get_list_of_windows(
     display_struct  ***display )
 {
-    *display = windows;
+    *display = _windows;
 
     return( N_WINDOW_TYPES );
+}
+
+/**
+ * Find a window of the given type.
+ */
+display_struct *get_display_by_type( window_types type )
+{
+  if ( type >= N_WINDOW_TYPES )
+    return NULL;
+  return _windows[ type ];
 }
 
 /**
@@ -65,9 +76,9 @@ display_struct  *lookup_window(
 
     for_less( i, 0, N_WINDOW_TYPES )
     {
-        if( windows[i] != NULL && windows[i]->window == window )
+        if( _windows[i] != NULL && _windows[i]->window == window )
         {
-            display = windows[i];
+            display = _windows[i];
             break;
         }
     }
@@ -85,14 +96,14 @@ display_struct  *lookup_window(
 static display_struct *
 get_new_display(window_types window_type)
 {
-    if (windows[window_type] != NULL)
+    if ( _windows[window_type] != NULL )
     {
       print_error("Creating a second window of type %d\n", window_type);
       return NULL;
     }
 
-    ALLOC( windows[window_type], 1 );
-    return windows[window_type];
+    ALLOC( _windows[window_type], 1 );
+    return _windows[window_type];
 }
 
 /**
@@ -111,14 +122,13 @@ void  terminate_graphics( void )
 
     for_less( i, 0, N_WINDOW_TYPES )
     {
-      if (windows[i] != NULL)
+      if ( _windows[i] != NULL )
       {
-        delete_graphics_window( windows[i] );
-        windows[i] = NULL;
+        terminate_graphics_window( _windows[i] );
+        FREE( _windows[i] );
+        _windows[i] = NULL;
       }
     }
-
-    G_terminate();
 }
 
 /**
@@ -135,11 +145,11 @@ void print_graphics_state(FILE *fp)
   static char *names[] = { "3D", "menu", "slice", "marker" };
   for_less( i, 0, N_WINDOW_TYPES )
   {
-    if (windows[i] != NULL) {
+    if ( _windows[i] != NULL ) {
       int x, y;
       int cx, cy;
-      G_get_window_position(windows[i]->window, &x, &y);
-      G_get_window_size(windows[i]->window, &cx, &cy);
+      G_get_window_position( _windows[i]->window, &x, &y );
+      G_get_window_size( _windows[i]->window, &cx, &cy );
       
       fprintf(fp, "Initial_%s_window_x = %d;\n", names[i], x);
       fprintf(fp, "Initial_%s_window_y = %d;\n", names[i], y);
@@ -277,14 +287,6 @@ static  void  initialize_graphics_window(
     model_struct        *model;
     model_info_struct   *model_info;
 
-    display->associated[THREE_D_WINDOW] = (display_struct *) 0;
-    display->associated[MENU_WINDOW] = (display_struct *) 0;
-    display->associated[SLICE_WINDOW] = (display_struct *) 0;
-    display->associated[MARKER_WINDOW] = (display_struct *) 0;
-
-    /* Always associate with myself. */
-    display->associated[display->window_type] = display;
-
     display->models_changed_id = 0;
 
     fill_Point( display->prev_mouse_position, -1, -1, -1);
@@ -398,18 +400,18 @@ static  void  initialize_graphics_window(
   void  graphics_models_have_changed(
     display_struct  *display )
 {
-    rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
+    rebuild_selected_list( display, _windows[MARKER_WINDOW] );
 
     set_update_required( display, NORMAL_PLANES );
-    set_update_required( display->associated[MARKER_WINDOW], NORMAL_PLANES );
+    set_update_required( _windows[MARKER_WINDOW], NORMAL_PLANES );
 
     /*
      * If necessary, tell the slice window it needs to update.
      */
-    if (Object_outline_enabled && display->associated[SLICE_WINDOW] != NULL)
+    if (Object_outline_enabled && _windows[SLICE_WINDOW] != NULL)
     {
-        set_slice_outline_update( display->associated[SLICE_WINDOW], -1 );
-        set_update_required( display->associated[SLICE_WINDOW], NORMAL_PLANES );
+        set_slice_outline_update( _windows[SLICE_WINDOW], -1 );
+        set_update_required( _windows[SLICE_WINDOW], NORMAL_PLANES );
     }
 
     ++display->models_changed_id;
@@ -586,16 +588,6 @@ static  void  update_graphics_normal_planes_only( display_struct *display )
     G_update_window( display->window );
 
     display->update_required[NORMAL_PLANES] = FALSE;
-}
-
-  void  delete_graphics_window(
-    display_struct   *display )
-{
-    (void) G_delete_window( display->window );
-
-    terminate_graphics_window( display );
-
-    FREE( display );
 }
 
 static  void  terminate_graphics_window(

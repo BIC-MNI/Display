@@ -44,6 +44,8 @@ void write_globals_to_file( const VIO_STR filename );
   int  get_list_of_windows(
     display_struct  ***display );
 
+display_struct *get_display_by_type( window_types type );
+
   display_struct  *lookup_window(
     Gwindow   window );
 
@@ -104,9 +106,6 @@ void write_globals_to_file( const VIO_STR filename );
     display_struct  *display );
 
   void  update_graphics( display_struct *display );
-
-  void  delete_graphics_window(
-    display_struct   *display );
 
   void  update_view(
     display_struct  *display );
@@ -1907,6 +1906,12 @@ VIO_BOOL get_cursor_scene_intersection(
     display_struct    *marker_window );
 
   VIO_BOOL  mouse_is_on_object_name(
+    display_struct    *display,
+    int               x,
+    int               y,
+    object_struct     **object_under_mouse );
+
+  VIO_BOOL  mouse_is_on_object_checkbox(
     display_struct    *display,
     int               x,
     int               y,

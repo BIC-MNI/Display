@@ -545,7 +545,7 @@ DEF_MENU_FUNCTION(type_in_3D_origin)
         fill_Point( origin, xw, yw, zw );
         set_cursor_origin(display, &origin);
 
-        slice_window = display->associated[SLICE_WINDOW];
+        slice_window = get_display_by_type( SLICE_WINDOW );
         if( slice_window != (display_struct  *) 0 )
         {
             (void) update_voxel_from_cursor( slice_window );

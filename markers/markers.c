@@ -169,7 +169,17 @@ static DEF_EVENT_FUNCTION( left_mouse_press )
 
     three_d = get_three_d_window( display );
 
-    if( mouse_is_on_object_name( three_d, x, y, &object ) )
+    if (mouse_is_on_object_checkbox( three_d, x, y, &object ) )
+    {
+      if ( get_current_object( three_d, &current ) && current != object )
+      {
+        set_current_object( three_d, object );
+      }
+
+      set_object_visibility( object, !get_object_visibility( object ));
+      graphics_models_have_changed( three_d );
+    }
+    else if( mouse_is_on_object_name( three_d, x, y, &object ) )
     {
       if ( get_current_object( three_d, &current ) && current != object )
       {
@@ -210,10 +220,6 @@ static DEF_EVENT_FUNCTION( middle_mouse_press )
       }
       else if (is_ctrl_key_pressed())
       {
-      }
-      else
-      {
-        set_object_visibility( object, !get_object_visibility( object ));
       }
       graphics_models_have_changed( three_d );
       rebuild_selected_list( three_d, display );

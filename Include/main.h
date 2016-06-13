@@ -120,9 +120,7 @@ typedef  struct  display_struct
 {
     window_types               window_type;
 
-    struct  display_struct     *associated[N_WINDOW_TYPES];
-
-    three_d_window_struct      three_d;    /* should be a union of three */
+    three_d_window_struct      three_d;    /* should be a union of four */
     menu_window_struct         menu;
     slice_window_struct        slice;
     marker_window_struct       marker;

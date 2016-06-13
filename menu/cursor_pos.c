@@ -82,7 +82,7 @@ static  void  create_cursor_pos_text(
     if (!get_slice_window(display, &slice_window))
         return;
 
-    menu_window = display->associated[MENU_WINDOW];
+    menu_window = get_display_by_type( MENU_WINDOW );
     if( menu_window == NULL )
         return;
 

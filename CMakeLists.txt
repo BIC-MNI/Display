@@ -325,8 +325,13 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 #message(STATUS "RPATH: ${CMAKE_INSTALL_RPATH}")
 #----------------------------------------------------------------------
 
+add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/checkbox.h
+  COMMAND ppm_to_pixels ${CMAKE_CURRENT_SOURCE_DIR}/tools/checkbox.ppm ${CMAKE_CURRENT_BINARY_DIR}/checkbox.h
+  DEPENDS ppm_to_pixels )
+
 # Compile each source file to a module
-add_executable (Display  ${C_SRC}  )
+add_executable (Display  ${C_SRC} checkbox.h )
+add_executable (ppm_to_pixels tools/ppm_to_pixels.c )
 
 # Link all modules to create the executable
 IF(NOT MINC_TOOLKIT_BUILD)
@@ -374,6 +379,7 @@ ELSE(NOT MINC_TOOLKIT_BUILD)
 ENDIF(NOT MINC_TOOLKIT_BUILD)
 
 target_link_libraries(Display ${BICGL_LIBRARIES} ${LINK_LIBRARIES})
-  
+target_link_libraries(ppm_to_pixels ${BICGL_LIBRARIES} ${LINK_LIBRARIES})
+
 # Generate an install target
 install(TARGETS Display RUNTIME DESTINATION bin)

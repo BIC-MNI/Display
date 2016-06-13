@@ -469,7 +469,7 @@ DEF_MENU_FUNCTION( toggle_double_buffer_slice )
     VIO_BOOL           double_buffer;
     display_struct    *slice_window;
 
-    slice_window = display->associated[SLICE_WINDOW];
+    slice_window = get_display_by_type( SLICE_WINDOW );
 
     if( slice_window != (display_struct  *) 0 )
     {
@@ -498,40 +498,46 @@ DEF_MENU_UPDATE(toggle_double_buffer_slice )
     return( state && G_can_switch_double_buffering() );
 }
 
-/* ARGSUSED */
 
+/**
+ * \brief Command to change the background colour of the Display windows.
+ */
 DEF_MENU_FUNCTION( change_background_colour )
 {
-    VIO_Status        status;
-    display_struct    *slice_window;
-    VIO_Colour        col;
-    VIO_STR           line;
+  VIO_Status status;
+  VIO_STR    line;
 
-    status = get_user_input( "Enter colour name or 3 or 4 colour components: ",
-                             "s", &line);
+  status = get_user_input( "Enter colour name or 3 or 4 colour components: ",
+                           "s", &line);
 
-    if( status == VIO_OK )
+  if( status == VIO_OK )
+  {
+    display_struct **windows;
+    int            n_windows = get_list_of_windows( &windows );
+    int            i;
+    VIO_Colour     col = convert_string_to_colour( line );
+
+    for_less( i, 0, n_windows )
     {
-        col = convert_string_to_colour( line );
-
-        G_set_background_colour( display->window, col );
-        set_update_required( display, NORMAL_PLANES );
-
-        if( get_slice_window( display, &slice_window ) )
+      if ( windows[i] != NULL )
+      {
+        G_set_background_colour( windows[i]->window, col );
+        if ( windows[i]->window_type == SLICE_WINDOW )
         {
-            G_set_background_colour( slice_window->window, col );
-            set_slice_viewport_update( slice_window, FULL_WINDOW_MODEL );
+          set_slice_viewport_update( windows[i], FULL_WINDOW_MODEL );
         }
+        else
+        {
+          set_update_required( windows[i], NORMAL_PLANES );
+        }
+      }
     }
-
-    delete_string( line );
-
-    return( VIO_OK );
+  }
+  delete_string( line );
+  return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-  DEF_MENU_UPDATE(change_background_colour )
+DEF_MENU_UPDATE( change_background_colour )
 {
     return( TRUE );
 }

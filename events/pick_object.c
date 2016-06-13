@@ -225,12 +225,12 @@ pick_point_under_mouse(display_struct    *display)
         {
             set_current_object( display, object );
             rebuild_selected_list( display,
-                                   display->associated[MARKER_WINDOW] );
+                                   get_display_by_type( MARKER_WINDOW ) );
         }
 
-        if( update_voxel_from_cursor( display->associated[SLICE_WINDOW] ) )
+        if( update_voxel_from_cursor( get_display_by_type( SLICE_WINDOW ) ) )
         {
-            set_update_required( display->associated[SLICE_WINDOW],
+            set_update_required( get_display_by_type( SLICE_WINDOW ),
                                  NORMAL_PLANES );
         }
 

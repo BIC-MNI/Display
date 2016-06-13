@@ -105,7 +105,7 @@ static  void  start_surface(
     }
 
     /* Make sure the 3D view window is visible! */
-    show_three_d_window( display, display->associated[MARKER_WINDOW] );
+    show_three_d_window( display, get_display_by_type( MARKER_WINDOW ) );
 }
 
 /* ARGSUSED */

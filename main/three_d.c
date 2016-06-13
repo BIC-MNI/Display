@@ -367,7 +367,7 @@ void  add_object_to_current_model(
  */
 display_struct  *get_three_d_window( display_struct  *display )
 {
-    return( display->associated[THREE_D_WINDOW] );
+    return( get_display_by_type( THREE_D_WINDOW ) );
 }
 
 /**

@@ -197,7 +197,7 @@ DEF_MENU_FUNCTION( reset_segmenting )
          * structure.  That's really pretty evil, as it breaks the
          * menu configurability.
          */
-        pop_menu_one_level( display->associated[MENU_WINDOW] );
+        pop_menu_one_level( get_display_by_type( MENU_WINDOW ) );
     }
 
     return( VIO_OK );
@@ -807,7 +807,7 @@ VIO_Status   input_tag_objects_label(
 
     *n_objects = 0;
 
-    three_d_window = display->associated[THREE_D_WINDOW];
+    three_d_window = get_three_d_window( display );
 
     if (!get_slice_window( display, &slice_window ))
         return VIO_ERROR;

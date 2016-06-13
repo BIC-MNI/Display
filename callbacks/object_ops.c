@@ -92,7 +92,7 @@ change_current_object_opacity(display_struct *display, VIO_Real delta)
       set_object_surfprop( current_object, spr_ptr );
       set_update_required( display, NORMAL_PLANES );
       /* Is this really necessary? */
-      rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
+      rebuild_selected_list( display, get_display_by_type( MARKER_WINDOW ) );
     }
     return( VIO_OK );
 }
@@ -226,7 +226,7 @@ DEF_MENU_FUNCTION( advance_selected )
 {
     advance_current_object( display );
 
-    rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
+    rebuild_selected_list( display, get_display_by_type( MARKER_WINDOW ) );
 
     return( VIO_OK );
 }
@@ -250,7 +250,7 @@ DEF_MENU_FUNCTION( retreat_selected )
 {
     retreat_current_object( display );
 
-    rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
+    rebuild_selected_list( display, get_display_by_type( MARKER_WINDOW ) );
 
     return( VIO_OK );
 }
@@ -275,8 +275,7 @@ DEF_MENU_UPDATE(retreat_selected )
 
 DEF_MENU_FUNCTION( descend_selected )
 {
-    rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
-
+    rebuild_selected_list( display, get_display_by_type( MARKER_WINDOW ) );
     return( VIO_OK );
 }
 
@@ -299,8 +298,7 @@ DEF_MENU_UPDATE(descend_selected )
 
 DEF_MENU_FUNCTION( ascend_selected )
 {
-    rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
-
+    rebuild_selected_list( display, get_display_by_type( MARKER_WINDOW ) );
     return( VIO_OK );
 }
 
@@ -379,7 +377,7 @@ DEF_MENU_FUNCTION( change_model_name )
         {
             replace_string( &get_model_ptr(current_object)->filename, name );
         }
-        rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
+        rebuild_selected_list( display, get_display_by_type( MARKER_WINDOW ) );
     }
 
     return( VIO_OK );
@@ -426,9 +424,10 @@ DEF_MENU_FUNCTION( delete_current_object )
 
         clear_label_connected_3d(display, menu_window, menu_entry);
         delete_object( object );
-        pop_menu_one_level( display->associated[MENU_WINDOW] );
+        pop_menu_one_level( get_display_by_type( MENU_WINDOW ) );
     }
-    rebuild_selected_list( display->associated[THREE_D_WINDOW], display->associated[MARKER_WINDOW]);
+    rebuild_selected_list( get_display_by_type( THREE_D_WINDOW ), 
+                           get_display_by_type( MARKER_WINDOW ) );
 
     return( VIO_OK );
 }
@@ -504,7 +503,7 @@ DEF_MENU_FUNCTION( set_current_object_surfprop )
             set_object_surfprop( current_object, &spr );
 
             set_update_required( display, NORMAL_PLANES );
-            rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
+            rebuild_selected_list( display, get_display_by_type( MARKER_WINDOW ) );
         }
     }
 
@@ -575,7 +574,7 @@ DEF_MENU_FUNCTION( paste_object )
     if( n_objects > 0 )
     {
         graphics_models_have_changed( display );
-        rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
+        rebuild_selected_list( display, get_display_by_type( MARKER_WINDOW ) );
     }
 
     return( VIO_OK );

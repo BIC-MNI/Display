@@ -30,7 +30,7 @@ static void initialize_ratio (display_struct* slice_window);
     display_struct   *display,
     VIO_Volume           volume )
 {
-    display_struct   *slice_window, *menu_window, *marker_window;
+    display_struct   *slice_window;
     int              sizes[VIO_MAX_DIMENSIONS];
 
     get_volume_sizes( volume, sizes );
@@ -42,18 +42,6 @@ static void initialize_ratio (display_struct* slice_window);
                                    Initial_slice_window_y,
                                    Initial_slice_window_width,
                                    Initial_slice_window_height);
-
-    menu_window = display->associated[MENU_WINDOW];
-    marker_window = display->associated[MARKER_WINDOW];
-
-    slice_window->associated[THREE_D_WINDOW] = display;
-    slice_window->associated[MENU_WINDOW] = menu_window;
-    slice_window->associated[SLICE_WINDOW] = slice_window;
-    slice_window->associated[MARKER_WINDOW] = marker_window;
-
-    display->associated[SLICE_WINDOW] = slice_window;
-    menu_window->associated[SLICE_WINDOW] = slice_window;
-    marker_window->associated[SLICE_WINDOW] = slice_window;
 
     initialize_slice_window( slice_window );
 
@@ -504,19 +492,16 @@ static  void  delete_slice_window_volume_stuff(
   VIO_BOOL  slice_window_exists(
     display_struct   *display )
 {
-    return( display != NULL && display->associated[SLICE_WINDOW] != NULL );
+    return( get_display_by_type( SLICE_WINDOW ) != NULL );
 }
 
   VIO_BOOL  get_slice_window(
     display_struct   *display,
     display_struct   **slice_window )
 {
-    VIO_BOOL exists = slice_window_exists(display);
+  *slice_window = get_display_by_type( SLICE_WINDOW );
 
-    if( exists)
-        *slice_window = display->associated[SLICE_WINDOW];
-
-    return( exists );
+    return( *slice_window != NULL );
 }
 
   VIO_BOOL  get_range_of_volumes(

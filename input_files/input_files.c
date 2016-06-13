@@ -373,9 +373,9 @@ load_graphics_file_with_colour(
     {
         add_object_to_model( get_current_model( display ), object );
 
-        rebuild_selected_list( display, display->associated[MARKER_WINDOW] );
+        rebuild_selected_list( display, get_display_by_type( MARKER_WINDOW ) );
 
-        show_three_d_window( display, display->associated[MARKER_WINDOW] );
+        show_three_d_window( display, get_display_by_type( MARKER_WINDOW ) );
     }
     else
         delete_object( object );

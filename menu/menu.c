@@ -203,7 +203,7 @@ static  DEF_EVENT_FUNCTION( handle_menu_resize )
     display_struct  *menu_window, *three_d;
 
     three_d = get_three_d_window(display);
-    menu_window = three_d->associated[MENU_WINDOW];
+    menu_window = get_display_by_type( MENU_WINDOW );
 
     initialize_menu_parameters( menu_window );
     rebuild_menu( menu_window );
@@ -431,7 +431,7 @@ static  DEF_EVENT_FUNCTION( handle_mouse_position )
  */
 static  DEF_EVENT_FUNCTION( handle_character_down )
 {
-    display_struct  *menu_window = display->associated[MENU_WINDOW];
+    display_struct  *menu_window = get_display_by_type( MENU_WINDOW );
 
     return handle_menu_for_key( menu_window, key_pressed );
 }
@@ -484,7 +484,7 @@ static  VIO_Status  process_menu(
     function = menu_entry->action;
 
     status = (*function)( get_three_d_window(display),
-                          display->associated[MENU_WINDOW],
+                          get_display_by_type( MENU_WINDOW ),
                           menu_entry );
 
     if( status == VIO_OK )
@@ -738,8 +738,8 @@ void  update_all_menu_text(
     display_struct      *menu_window, *marker_window;
     menu_entry_struct   *menu_entry;
 
-    menu_window = display->associated[MENU_WINDOW];
-    marker_window = display->associated[MARKER_WINDOW];
+    menu_window = get_display_by_type( MENU_WINDOW );
+    marker_window = get_display_by_type( MARKER_WINDOW );
 
     for_less( key, 0, N_CHARACTERS )
     {

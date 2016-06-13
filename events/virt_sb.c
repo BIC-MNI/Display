@@ -157,9 +157,9 @@ static  void  update_translation(
     {
         set_update_required( display, get_cursor_bitplanes() );
 
-        if( update_voxel_from_cursor( display->associated[SLICE_WINDOW] ) )
+        if( update_voxel_from_cursor( get_display_by_type( SLICE_WINDOW ) ) )
         {
-            set_update_required( display->associated[SLICE_WINDOW],
+            set_update_required( get_display_by_type( SLICE_WINDOW ),
                                  NORMAL_PLANES );
         }
     }

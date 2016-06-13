@@ -659,7 +659,7 @@ static  void  translate_labels_callback(
 
     if( volume_index >= 0 )
     {
-        set_slice_window_all_update( display->associated[SLICE_WINDOW],
+        set_slice_window_all_update( get_display_by_type( SLICE_WINDOW ),
                                      volume_index, UPDATE_LABELS );
     }
 

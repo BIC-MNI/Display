@@ -21,10 +21,10 @@
 
 #include <display.h>
 #include <assert.h>
+#include "checkbox.h"
 
-#define CHECKBOX 0
-#define CB_HEIGHT 16
-#define CB_WIDTH 0
+static int cb_height;
+static int cb_width;
 
 /**
  * Create the text objects associated with the marker window.
@@ -40,9 +40,6 @@ create_selected_text( display_struct *marker_window )
     VIO_Point      origin;
     text_struct    *text_ptr;
     lines_struct   *lines_ptr;
-#if CHECKBOX
-    pixels_struct  file_pixels;
-#endif
 
     object_ptr = create_object( LINES );
 
@@ -64,12 +61,6 @@ create_selected_text( display_struct *marker_window )
     lines_ptr->indices[4] = 0;
     lines_ptr->end_indices[0] = 4 + 1;
 
-#if CHECKBOX
-    int status = input_rgb_file( "/tmp/checkbox.ppm", &file_pixels );
-
-    printf("%d %d %d\n", status, file_pixels.x_size, file_pixels.y_size );
-#endif
-
     add_object_to_model( model_ptr, object_ptr );
 
     for_less( i, 0, N_selected_displayed )
@@ -79,8 +70,8 @@ create_selected_text( display_struct *marker_window )
         text_ptr = get_text_ptr( object_ptr );
 
         fill_Point( origin,
-                    marker->selected_x_origin + CB_WIDTH,
-                    marker->selected_y_origin - CB_HEIGHT * i + (CB_HEIGHT - marker->font_size) / 2,
+                    marker->selected_x_origin + cb_width,
+                    marker->selected_y_origin - (cb_height+2) * i + ((cb_height+2) - marker->font_size) / 2,
                     0.0 );
 
         initialize_text( text_ptr, &origin, BLACK,
@@ -89,7 +80,9 @@ create_selected_text( display_struct *marker_window )
         add_object_to_model( model_ptr, object_ptr );
     }
 
-#if CHECKBOX
+    cb_width = checkbox.x_size / 2;
+    cb_height = checkbox.y_size;
+
     for_less( i, 0, N_selected_displayed )
     {
         object_ptr = create_object( PIXELS );
@@ -98,30 +91,15 @@ create_selected_text( display_struct *marker_window )
 
         initialize_pixels( pixels_ptr, 
                            marker->selected_x_origin,
-                           marker->selected_y_origin - CB_HEIGHT * 2.0 * i,
-                           CB_WIDTH,
-                           CB_HEIGHT,
+                           marker->selected_y_origin - cb_height * 2.0 * i,
+                           cb_width,
+                           cb_height,
                            1.0,
                            1.0,
                            RGB_PIXEL );
 
-        int x, y;
-        for (x = 0; x < CB_WIDTH; x++)
-        {
-          for (y = 0; y < CB_HEIGHT; y++)
-          {
-            VIO_Colour c = PIXEL_RGB_COLOUR(file_pixels, 32+x, y);
-            if (c == 0xffff00ff)
-            {
-              c = make_rgba_Colour(255, 255, 255, 0);
-            }
-            PIXEL_RGB_COLOUR(*pixels_ptr, x, y) = c;
-          }
-        }
-
         add_object_to_model( model_ptr, object_ptr );
     }
-#endif
 }
 
 /**
@@ -141,22 +119,19 @@ set_text_entry( display_struct *marker_window,
   text_ptr->colour = colour;
   text_ptr->size = marker_window->marker.font_size;
   fill_Point( text_ptr->origin,
-              marker_window->marker.selected_x_origin + CB_WIDTH,
-              marker_window->marker.selected_y_origin - CB_HEIGHT * index + (CB_HEIGHT - marker_window->marker.font_size) / 2,
+              marker_window->marker.selected_x_origin + cb_width,
+              marker_window->marker.selected_y_origin - (cb_height + 2) * index + ((cb_height + 2) - marker_window->marker.font_size) / 2,
               0.0 );
   set_object_visibility( object_ptr, TRUE );
-
-#if CHECKBOX
 
   object_ptr = model_ptr->objects[index + N_selected_displayed + 1];
 
   pixels_struct *pixels_ptr = get_pixels_ptr( object_ptr );
 
   pixels_ptr->x_position = marker_window->marker.selected_x_origin;
-  pixels_ptr->y_position = marker_window->marker.selected_y_origin - CB_HEIGHT * index;
+  pixels_ptr->y_position = marker_window->marker.selected_y_origin - (cb_height+2) * index - 1;
   
   set_object_visibility( object_ptr, TRUE );
-#endif
 }
 
 /**
@@ -180,12 +155,12 @@ get_box_limits( marker_window_struct *marker,
         width = 20;
 
     *x_min = VIO_ROUND( marker->selected_x_origin - marker->selected_x_offset );
-    *x_max = VIO_ROUND(*x_min + width + CB_WIDTH + marker->selected_x_offset + 4);
+    *x_max = VIO_ROUND(*x_min + width + cb_width + marker->selected_x_offset + 4);
 
     *y_min = VIO_ROUND( marker->selected_y_origin -
-                        CB_HEIGHT * index - 
+                        (cb_height+2) * index - 
                         marker->selected_y_offset);
-    *y_max = VIO_ROUND( *y_min + CB_HEIGHT + marker->selected_y_offset);
+    *y_max = VIO_ROUND( *y_min + (cb_height+2) + marker->selected_y_offset);
 }
 
 /** 
@@ -205,6 +180,14 @@ set_current_box( marker_window_struct *marker,
 
     points = get_lines_ptr( selected_model->objects[0] )->points;
 
+    /* Adjust the highlight box such that it is inset slightly within the
+     * overall height of the list item.
+     */
+    y_start -= 1;
+    y_end -= 2;
+
+    /* Now set the four corners of the highlight box.
+     */
     fill_Point( points[0], x_start, y_start, 0.0 );
     fill_Point( points[1], x_end, y_start, 0.0 );
     fill_Point( points[2], x_end, y_end, 0.0 );
@@ -273,6 +256,9 @@ rebuild_callback( int global_index, int local_index, int depth,
   VIO_STR    name;
   char       label[VIO_EXTREMELY_LARGE_STRING_SIZE];
   VIO_Colour colour;
+  int        offset;
+  int        x, y;
+  pixels_struct *pixels_ptr;
 
   name = get_object_name( object_ptr );
 
@@ -282,10 +268,12 @@ rebuild_callback( int global_index, int local_index, int depth,
     {
       colour = Visible_colour;
     }
+    offset = cb_width*1;
   }
   else
   {
     colour = Invisible_colour;
+    offset = cb_width*0;
   }
 
   snprintf( label, sizeof( label ), "%*s %d %s", depth * 4, "",
@@ -297,6 +285,22 @@ rebuild_callback( int global_index, int local_index, int depth,
   {
     set_current_box( &rebuild_info->marker_window->marker,
                      rebuild_info->selected_model, global_index, label );
+  }
+
+  object_ptr = rebuild_info->selected_model->objects[global_index + 1 + N_selected_displayed];
+  pixels_ptr = get_pixels_ptr( object_ptr );
+
+  for_less( x, 0, cb_width )
+  {
+    for_less( y, 0, cb_height )
+    {
+      VIO_Colour c = PIXEL_RGB_COLOUR( checkbox, offset + x, y );
+      if ( c == MAGENTA )
+      {
+        c = G_get_background_colour( rebuild_info->marker_window->window );
+      }
+      PIXEL_RGB_COLOUR( *pixels_ptr, x, y ) = c;
+    }
   }
 
   delete_string( name );
@@ -326,7 +330,7 @@ rebuild_selected_list( display_struct *display,
         create_selected_text( marker_window );
     }
 
-    for_less( i, 0, N_selected_displayed + 1 )
+    for_less( i, 0, N_selected_displayed * 2 + 1 )
     {
         set_object_visibility( selected_model->objects[i], FALSE );
     }
@@ -346,7 +350,8 @@ struct mouse_state
 };
 
 static VIO_BOOL
-mouse_callback( int global_index, int local_index, int depth, object_struct *object_ptr, void *data )
+mouse_name_callback( int global_index, int local_index, int depth,
+                     object_struct *object_ptr, void *data )
 {
   struct mouse_state *mouse_info = (struct mouse_state *) data;
   int x_min, x_max, y_min, y_max;
@@ -374,7 +379,7 @@ mouse_is_on_object_name( display_struct *display,
                          int            y,
                          object_struct  **object_under_mouse )
 {
-    display_struct *marker_window = display->associated[MARKER_WINDOW];
+    display_struct *marker_window = get_display_by_type( MARKER_WINDOW );
     struct mouse_state mouse_info;
 
     assert( display->window_type == THREE_D_WINDOW );
@@ -385,7 +390,53 @@ mouse_is_on_object_name( display_struct *display,
     mouse_info.object_under_mouse = NULL;
 
     iterate_objects( get_graphics_model( display, THREED_MODEL ),
-                     mouse_callback,
+                     mouse_name_callback,
+                     &mouse_info );
+                                    
+    *object_under_mouse = mouse_info.object_under_mouse;
+    return( *object_under_mouse != NULL );
+}
+
+static VIO_BOOL
+mouse_checkbox_callback( int global_index, int local_index, int depth,
+                         object_struct *object_ptr, void *data )
+{
+  struct mouse_state *mouse_info = (struct mouse_state *) data;
+  int x_min, x_max, y_min, y_max;
+  model_struct *model_ptr = get_graphics_model( mouse_info->marker_window,
+                                                SELECTED_MODEL );
+  pixels_struct *pixels_ptr = get_pixels_ptr( model_ptr->objects[global_index + N_selected_displayed + 1] );
+
+  x_min = pixels_ptr->x_position;
+  y_min = pixels_ptr->y_position;
+  x_max = pixels_ptr->x_position + pixels_ptr->x_size - 1;
+  y_max = pixels_ptr->y_position + pixels_ptr->y_size - 1;
+
+  if( x_min <= mouse_info->x && mouse_info->x <= x_max && 
+      y_min <= mouse_info->y && mouse_info->y <= y_max )
+  {
+    mouse_info->object_under_mouse = object_ptr;
+    return FALSE;
+  }
+  return TRUE;
+}
+
+VIO_BOOL
+mouse_is_on_object_checkbox( display_struct *display, int x, int y,
+                             object_struct **object_under_mouse )
+{
+    display_struct *marker_window = get_display_by_type( MARKER_WINDOW );
+    struct mouse_state mouse_info;
+
+    assert( display->window_type == THREE_D_WINDOW );
+
+    mouse_info.marker_window = marker_window;
+    mouse_info.x = x;
+    mouse_info.y = y;
+    mouse_info.object_under_mouse = NULL;
+
+    iterate_objects( get_graphics_model( display, THREED_MODEL ),
+                     mouse_checkbox_callback,
                      &mouse_info );
                                     
     *object_under_mouse = mouse_info.object_under_mouse;

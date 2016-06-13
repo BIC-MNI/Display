@@ -515,7 +515,7 @@ create_scaled_slice( display_struct *display, VIO_BOOL scale_slice_flag )
     }
 
     show_three_d_window( get_three_d_window( display ),
-                         display->associated[MARKER_WINDOW] );
+                         get_display_by_type( MARKER_WINDOW ) );
 }
 
 /**

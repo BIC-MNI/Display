@@ -1491,8 +1491,8 @@ void update_label_tag(
     int               n_labels;
     loaded_volume_struct *volume_ptr;
 
-    marker_window = slice_window->associated[MARKER_WINDOW];
-    three_d_window = slice_window->associated[THREE_D_WINDOW];
+    marker_window = get_display_by_type( MARKER_WINDOW );
+    three_d_window = get_display_by_type( THREE_D_WINDOW );
     label_volume = get_nth_label_volume(slice_window, volume_index);
     n_labels = get_num_labels( slice_window, volume_index );
     volume_ptr = &slice_window->slice.volumes[volume_index];

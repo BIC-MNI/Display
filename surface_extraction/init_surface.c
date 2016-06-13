@@ -122,6 +122,8 @@ void  tell_surface_extraction_volume_deleted(
     VIO_Volume            label_volume )
 {
     display = get_three_d_window( display );
+    if ( display == NULL )
+        return;
 
     if( display->three_d.surface_extraction.volume == volume ||
         display->three_d.surface_extraction.volume == label_volume ||

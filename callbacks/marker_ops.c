@@ -542,7 +542,7 @@ DEF_MENU_FUNCTION( change_marker_structure_id )
             }
         }
 
-        rebuild_selected_list( display, display->associated[MARKER_WINDOW]  );
+        rebuild_selected_list( display, get_display_by_type( MARKER_WINDOW ) );
     }
     return( VIO_OK );
 }
@@ -581,7 +581,7 @@ DEF_MENU_FUNCTION( change_marker_patient_id )
             }
         }
 
-        rebuild_selected_list( display, display->associated[MARKER_WINDOW]  );
+        rebuild_selected_list( display, get_display_by_type( MARKER_WINDOW ) );
     }
     return( VIO_OK );
 }

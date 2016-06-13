@@ -1401,7 +1401,7 @@ VIO_BOOL  get_voxel_under_mouse(
     display_struct    *three_d, *slice_window;
     VIO_BOOL           found;
 
-    three_d = display->associated[THREE_D_WINDOW];
+    three_d = get_display_by_type( THREE_D_WINDOW );
 
     if( !get_slice_window(three_d, &slice_window) )
     {
