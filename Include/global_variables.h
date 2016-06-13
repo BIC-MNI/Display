@@ -407,7 +407,7 @@ START_GLOBALS
 
     DEF_GLOBAL( Use_transparency_hardware, VIO_BOOL, TRUE )
 
-    DEF_GLOBAL( Crop_volume_command, VIO_STR, "mincreshape %s %s -start %d,%d,%d -count %d,%d,%d" )
+    DEF_GLOBAL( Crop_volume_command, VIO_STR, "mincreshape -clobber %s %s -start %d,%d,%d -count %d,%d,%d" )
 
     DEF_GLOBAL( Crop_volumes_on_input, VIO_BOOL, FALSE )
     DEF_GLOBAL( Crop_if_smaller, VIO_Real, 0.75 )

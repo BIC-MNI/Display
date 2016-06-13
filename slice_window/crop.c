@@ -32,6 +32,7 @@
 #endif
 
 #include  <display.h>
+#include  <unistd.h>
 
 static  void  set_slice_crop_position(
     display_struct    *slice_window,
@@ -174,12 +175,11 @@ VIO_Status  create_cropped_volume_to_file(
 void  crop_and_load_volume(
     display_struct   *slice_window )
 {
-    char        tmp_name[L_tmpnam];
-    VIO_STR      cropped_filename;
+    char     tmp_name[] = { "mni-displayXXXXXX" };
+    VIO_STR  cropped_filename;
+    int      fd = mkstemp( tmp_name );
 
-    (void) tmpnam( tmp_name );
-
-    cropped_filename = concat_strings( tmp_name, ".mnc" );
+    cropped_filename = create_string( tmp_name );
 
     if( create_cropped_volume_to_file( slice_window, cropped_filename ) == VIO_OK )
     {
@@ -187,6 +187,8 @@ void  crop_and_load_volume(
                                    cropped_filename, FALSE );
 
         remove_file( cropped_filename );
+
+        close( fd );
 
         slice_window->slice.crop.crop_visible = FALSE;
 
