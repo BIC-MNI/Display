@@ -887,11 +887,14 @@ rebuild_intensity_plot( display_struct *display )
    */
   if ( !display->slice.intensity_plot_is_enabled ||
        volume_index < 0 ||
-       get_slice_visibility( display, volume_index, arb_view_index ))
+       get_slice_visibility( display, -1, arb_view_index ))
   {
-    set_object_visibility( model_ptr->objects[IP_PLOT_OBJ_IND], FALSE );
-    set_object_visibility( model_ptr->objects[IP_AXIS_OBJ_IND], FALSE );
-    return;
+      int i;
+      for_less ( i, 0, model_ptr->n_objects )
+      {
+          set_object_visibility( model_ptr->objects[i], FALSE );
+      }
+      return;
   }
 
   volume = get_nth_volume( display, volume_index );

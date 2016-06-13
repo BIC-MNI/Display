@@ -203,17 +203,35 @@ void  set_slice_visibility(
  * Predicate to test slice visibility.
  *
  * \param slice_window The display_struct of the slice window.
- * \param volume_index The zero-based index of the desired volume.
+ * \param volume_index The zero-based index of the desired volume. If a
+ * negative value is passed for the volume index, all volumes will be
+ * checked for visibility.
  * \param view_index The index of the desired view.
  * \returns TRUE if the volume is visible in the view.
  */
-VIO_BOOL  get_slice_visibility(
+VIO_BOOL get_slice_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index )
 {
-    return( slice_window->slice.volumes[volume_index].views[view_index].
-            visibility );
+    if ( volume_index >= 0 )
+    {
+        return( slice_window->slice.volumes[volume_index].views[view_index].
+                visibility );
+    }
+    else
+    {
+        int n_volumes = get_n_volumes( slice_window );
+        int i;
+        for_less( i, 0, n_volumes )
+        {
+            if ( get_slice_visibility( slice_window, i, view_index ) )
+            {
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
 }
 
 /**
