@@ -46,7 +46,7 @@ static void initialize_ratio (display_struct* slice_window);
     initialize_slice_window( slice_window );
 
     if( !Use_transparency_hardware )
-        G_set_transparency_state( display->window, FALSE );
+        G_set_transparency_state( slice_window->window, FALSE );
 }
 
   void  update_all_slice_models(
@@ -185,13 +185,14 @@ static  void  delete_slice_window_volume_stuff(
     display_struct   *slice_window,
     int              volume_index )
 {
-    int              i;
-    display_struct   *display;
+    int            i;
+    display_struct *display = get_three_d_window( slice_window );
+    VIO_Volume     volume = get_nth_volume( slice_window, volume_index );
+    VIO_Volume     label_volume = get_nth_label_volume( slice_window,
+                                                        volume_index );
 
-    display = get_three_d_window( slice_window );
+    tell_surface_extraction_volume_deleted( display, volume, label_volume );
 
-    tell_surface_extraction_volume_deleted( display, get_volume(slice_window),
-                                            get_label_volume(slice_window) );
     clear_histogram( slice_window );
     delete_slice_colour_coding( &slice_window->slice, volume_index );
 
