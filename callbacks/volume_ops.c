@@ -262,22 +262,52 @@ DEF_MENU_FUNCTION(toggle_slice_visibility)
 {
     int              view_index, volume_index;
     display_struct   *slice_window;
+    int              n_volumes;
 
     if( get_slice_window( display, &slice_window ) &&
-        get_n_volumes(slice_window) > 0 &&
+        ( n_volumes = get_n_volumes( slice_window ) ) > 0 &&
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
-
-        for (volume_index = 0; volume_index < get_n_volumes(slice_window);
-             volume_index++)
+        if( get_slice_visibility( slice_window, -1, view_index ) )
         {
-            VIO_BOOL is_vis = get_slice_visibility(slice_window, volume_index,
-                                                   view_index);
-            set_slice_visibility( slice_window, volume_index, view_index,
-                                  !is_vis );
+            /* If any volume is visible in this slace, make them all
+             * invisible.
+             */
+            for_less( volume_index, 0, n_volumes )
+            {
+                set_slice_visibility( slice_window, volume_index,
+                                      view_index, FALSE );
+            }
+        }
+        else
+        {
+            /* Show the volumes that are visible in the other slice views.
+             */
+            int n_visible = 0;
+            for_less( volume_index, 0, n_volumes )
+            {
+                if( get_volume_visibility( slice_window, volume_index ) )
+                {
+                    set_slice_visibility( slice_window, volume_index, 
+                                          view_index, TRUE );
+
+                    n_visible++;
+                }
+            }
+            /* If _no_ volumes are currently visible in any view, then
+             *  make them all visible in this view.
+             */
+            if (n_visible == 0)
+            {
+                for_less( volume_index, 0, n_volumes )
+                {
+                    set_slice_visibility( slice_window, volume_index, 
+                                          view_index, TRUE );
+
+                }
+            }
         }
     }
-
     return( VIO_OK );
 }
 
