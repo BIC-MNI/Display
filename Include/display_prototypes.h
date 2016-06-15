@@ -55,6 +55,8 @@ display_struct *get_display_by_type( window_types type );
 
   void print_graphics_state(FILE *);
 
+void create_parent_window( void );
+
   VIO_Status  create_graphics_window(
     window_types      window_type,
     VIO_BOOL           double_buffering,
@@ -2502,6 +2504,9 @@ void sparse_array_apply(sparse_array_t *array_ptr, void *data,
     display_struct    *slice_window,
     int               volume_index,
     int               view );
+
+VIO_BOOL get_volume_visibility( display_struct *slice_window,
+                                int volume_index );
 
   void  reset_slice_view(
     display_struct    *slice_window,

@@ -235,6 +235,31 @@ VIO_BOOL get_slice_visibility(
 }
 
 /**
+ * \brief See if the chosen volume is currently visible.
+ *
+ * \param slice_window A pointer to the slice window's main data structure.
+ * \param volume_index The zero-based index of the desired volume.
+ * \returns TRUE if the volume is visible.
+ */
+VIO_BOOL
+get_volume_visibility( display_struct *slice_window, int volume_index )
+{
+    int view_index;
+
+    if( slice_window->slice.volumes[volume_index].opacity == 0.0 )
+        return FALSE;
+
+    for_less( view_index, 0, N_SLICE_VIEWS )
+    {
+        if( get_slice_visibility( slice_window, volume_index, view_index ))
+        {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+/**
  * Align the scaling and translation of all volumes in a particular view,
  * using the given volume index to specify a reference volume.
  *

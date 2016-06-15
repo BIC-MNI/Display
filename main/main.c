@@ -134,6 +134,9 @@ int  main(
 
     initialize_graphics();
 
+    if (Single_window)
+      create_parent_window();
+
     title = concat_strings( PROJECT_NAME, ": Menu" );
     if( create_graphics_window( MENU_WINDOW,
                                 Graphics_double_buffer_flag, &menu, title,

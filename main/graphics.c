@@ -159,6 +159,89 @@ void print_graphics_state(FILE *fp)
   }
 }
 
+static Gwindow _parent_window = NULL;
+
+Gwindow get_parent_window()
+{
+  return _parent_window;
+}
+
+#define MENU_HEIGHT 0.3
+#define MARKER_HEIGHT 0.2
+#define COLUMN_WIDTH 0.5
+
+/**
+ * Organize the windows into the desired locations.
+ */
+static void
+parent_resize( Gwindow win, int _x, int _y, int width, int height, void *data )
+{
+  int i;
+  int n_windows;
+  display_struct  **windows, *display;
+  int x, y, cx, cy;
+  const int M = 2;
+
+  n_windows = get_list_of_windows( &windows );
+
+  for_less( i, 0, n_windows )
+  {
+    if( windows[i] == NULL )
+      continue;
+
+    display = windows[i];
+
+    switch ( display->window_type )
+    {
+    case MENU_WINDOW:
+      x = (int)(width * COLUMN_WIDTH);
+      y = height - (int)(height*MENU_HEIGHT) + M;
+      cx = (int)(width * COLUMN_WIDTH) - M;
+      cy = (int)(height*MENU_HEIGHT) - 2 * M;
+      break;
+
+    case MARKER_WINDOW:
+      x = (int)(width * COLUMN_WIDTH);
+      y = height - (int)(height*(MENU_HEIGHT + MARKER_HEIGHT)) + M;
+      cx = (int)(width * COLUMN_WIDTH) - M;
+      cy = (int)(height*MARKER_HEIGHT) - M;
+      break;
+
+    case THREE_D_WINDOW:
+      x = (int)(width * COLUMN_WIDTH);
+      y = 0 + M;
+      cx = (int)(width * COLUMN_WIDTH) - M;
+      cy = height - (int)(height*(MARKER_HEIGHT+MENU_HEIGHT)) - M;
+      break;
+
+    case SLICE_WINDOW:
+      x = 0 + M;
+      y = 0 + M;
+      cx = (int)(width * COLUMN_WIDTH) - 2 * M;
+      cy = height - 2 * M;
+      break;
+
+    default:
+      continue;
+    }
+    G_set_geometry( display->window, x, y, cx, cy );
+    G_set_update_flag( display->window );
+  }
+}
+
+static void parent_update( Gwindow win, void *data )
+{
+  G_clear_window( win );
+}
+
+void create_parent_window()
+{
+  G_create_child_window( "MNI-Display", 0, 0, 1200, 850, FALSE, FALSE, TRUE, 0,
+                         &_parent_window, NULL );
+  G_set_update_function( _parent_window, parent_update, NULL );
+  G_set_resize_function( _parent_window, parent_resize, NULL );
+}
+
 VIO_Status  create_graphics_window(
     window_types      window_type,
     VIO_BOOL          double_buffering,
@@ -170,12 +253,13 @@ VIO_Status  create_graphics_window(
     int               height )
 {
     VIO_Status   status;
+    Gwindow      parent = get_parent_window();
 
     *display = get_new_display( window_type );
 
-    status = G_create_window( title, x, y, width, height,
-                              FALSE, double_buffering, TRUE, 2,
-                              &(*display)->window );
+    status = G_create_child_window( title, x, y, width, height,
+                                    FALSE, double_buffering, TRUE, 2,
+                                    &(*display)->window, parent );
 
     G_set_background_colour( (*display)->window, Initial_background_colour );
 

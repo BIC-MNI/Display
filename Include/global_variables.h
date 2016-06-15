@@ -578,5 +578,10 @@ START_GLOBALS
  * True if Display should draw the outlines of markers in the slice window.
  */
      DEF_GLOBAL( Show_markers_on_slice, VIO_BOOL, TRUE )
+
+/**
+ * True if Display should combine all of the windows into a single window.
+ */
+     DEF_GLOBAL( Single_window, VIO_BOOL, FALSE )
 END_GLOBALS
 /** @} */

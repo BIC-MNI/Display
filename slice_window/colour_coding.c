@@ -1029,33 +1029,6 @@ void  change_colour_coding_range(
 }
 
 /**
- * \brief See if the chosen volume is currently visible.
- *
- * Move this to view.c?
- *
- * \param slice_window A pointer to the slice window's main data structure.
- * \param volume_index The zero-based index of the desired volume.
- * \returns TRUE if the volume is visible.
- */
-VIO_BOOL
-get_volume_visibility( display_struct *slice_window, int volume_index )
-{
-    int view_index;
-
-    if( slice_window->slice.volumes[volume_index].opacity == 0.0 )
-        return FALSE;
-
-    for_less( view_index, 0, N_SLICE_VIEWS )
-    {
-        if( get_slice_visibility( slice_window, volume_index, view_index ))
-        {
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
-
-/**
  * Colour code each of the points associated with an object, by copying
  * the encoded colours from an associated volume to the vertices of the
  * object. Actually does most of the work for colour_code_object_points().
