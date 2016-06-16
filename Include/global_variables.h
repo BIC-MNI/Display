@@ -401,7 +401,7 @@ START_GLOBALS
 
     DEF_GLOBAL_COLOUR( Menu_name_colour )
     DEF_GLOBAL( Menu_name_x, VIO_Real, 5.0 )
-    DEF_GLOBAL( Menu_name_y, VIO_Real, 20.0 )
+    DEF_GLOBAL( Menu_name_y, VIO_Real, 10.0 )
     DEF_GLOBAL( Menu_name_font, int, 1 )
     DEF_GLOBAL( Menu_name_font_size, VIO_Real, 12.0 )
 

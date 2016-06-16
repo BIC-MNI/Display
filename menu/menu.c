@@ -27,6 +27,8 @@ static    DEF_EVENT_FUNCTION( left_mouse_press );
 static    DEF_EVENT_FUNCTION( middle_mouse_press );
 static    DEF_EVENT_FUNCTION( handle_mouse_position );
 
+#define MAX_LINE_LENGTH 40      /* This is determined by trial and error. */
+
 static  void  turn_off_menu_entry(
     menu_window_struct  *menu,
     menu_entry_struct   *menu_entry );
@@ -111,7 +113,7 @@ static  void  add_menu_actions(
 }
 
 /**
- * Hide all of the child entries associated with a  menu_entry_struct. 
+ * Hide all of the child entries associated with a  menu_entry_struct.
  * Does not remove entries if the permanent_flag is TRUE. Used when popping
  * up the menu hierarchy.
  *
@@ -136,7 +138,7 @@ static  void  remove_menu_actions(
  * empirically to give decent results. I could not find a string
  * which gave consistent results when fed to G_get_text_length().
  */
-static VIO_Real 
+static VIO_Real
 get_basic_menu_key_width(menu_window_struct *menu)
 {
   return 13.0 * (3.0 * menu->font_size / 5.0);
@@ -146,7 +148,7 @@ get_basic_menu_key_width(menu_window_struct *menu)
  * Calculates the character offset that accounts for the width of the
  * fixed key labels.
  */
-static int 
+static int
 get_menu_character_offset(menu_window_struct *menu)
 {
   return G_get_text_length("X ", Menu_window_font, menu->font_size);
@@ -160,9 +162,8 @@ initialize_menu_parameters(display_struct *menu_window)
 {
     int                 x_size, y_size;
     VIO_Real            x_scale, y_scale, scale;
-    menu_window_struct  *menu;
-
-    menu = &menu_window->menu;
+    menu_window_struct  *menu = &menu_window->menu;
+    int                 tmp;
 
     G_get_window_size( menu_window->window, &x_size, &y_size );
 
@@ -171,29 +172,45 @@ initialize_menu_parameters(display_struct *menu_window)
 
     scale = MIN( x_scale, y_scale );
 
-    menu->x_dx = scale * X_menu_dx;
-    menu->x_dy = scale * X_menu_dy;
-    menu->y_dx = scale * Y_menu_dx;
-    menu->y_dy = scale * Y_menu_dy;
-    menu->n_lines_in_entry = Menu_n_lines_per_entry;
-    menu->x_menu_text_offset = scale * X_menu_text_offset;
-    menu->y_menu_text_offset = scale * Y_menu_text_offset;
-    menu->x_menu_origin = scale * X_menu_origin;
-    menu->y_menu_origin = scale * Y_menu_origin;
-    menu->cursor_pos_x_origin = scale * Cursor_pos_x_origin;
-    menu->cursor_pos_y_origin = scale * Cursor_pos_y_origin;
-    menu->help_x_origin = scale * 640;
-    menu->help_y_origin = scale * 220;
-    menu->x_menu_name = scale * Menu_name_x;
-    menu->y_menu_name = scale * Menu_name_y;
     menu->font_size = scale * Menu_window_font_size;
 
-    /* Do this after setting the font size above. 
+    menu->x_dx = x_scale * X_menu_dx;
+    menu->x_dy = y_scale * X_menu_dy;
+    menu->y_dx = x_scale * Y_menu_dx;
+    menu->y_dy = y_scale * Y_menu_dy;
+
+    menu->n_lines_in_entry = Menu_n_lines_per_entry;
+    menu->x_menu_text_offset = X_menu_text_offset;
+    menu->y_menu_text_offset = Y_menu_text_offset;
+
+    menu->x_menu_origin = x_scale * X_menu_origin;
+    menu->y_menu_origin = y_scale * Y_menu_origin;
+
+    menu->x_menu_name = x_scale * Menu_name_x;
+    menu->y_menu_name = y_scale * Menu_name_y;
+
+    /* Do this only after setting the font size above.
      */
     menu->basic_key_width = get_basic_menu_key_width(menu);
     menu->character_height = G_get_text_height(Menu_window_font,
                                                menu->font_size) * 2.0;
     menu->character_offset = get_menu_character_offset(menu);
+
+    /* The help text X position is roughly aligned to the right of the
+     * menu window.
+     */
+    menu->help_x_origin = x_size - MAX_LINE_LENGTH * menu->font_size / 2.0;
+
+    /* The help text Y position is aligned to the top row of "keys" on the
+     * menu window.
+     */
+    tmp = menu->n_lines_in_entry * menu->character_height;
+    menu->help_y_origin = menu->y_menu_origin + (4.0 * (menu->y_dy + tmp) +
+                                                 tmp / 2.0);
+
+    menu->cursor_pos_x_origin = menu->x_menu_origin + (2.0 * menu->x_dx +
+                                                       4.0 * menu->basic_key_width);
+    menu->cursor_pos_y_origin = menu->y_menu_origin + menu->character_height;
 }
 
 /* ARGSUSED */
@@ -209,6 +226,7 @@ static  DEF_EVENT_FUNCTION( handle_menu_resize )
     rebuild_menu( menu_window );
     rebuild_cursor_position_model( three_d );
     update_menu_name_text( menu_window );
+    update_menu_help_text( menu_window, NULL );
 
     return( VIO_OK );
 }
@@ -218,7 +236,7 @@ static  DEF_EVENT_FUNCTION( handle_menu_resize )
 /* Allow builder to disable compiled-in menu.  In this case, Display.menu needs
  * to be installed.  The current mac OSX compiler fails here.  (July 2001).
  */
-static VIO_STR default_menu_string = 
+static VIO_STR default_menu_string =
 #if DISPLAY_DISABLE_MENU_FALLBACK
     NULL
 #else
@@ -283,7 +301,7 @@ static VIO_STR default_menu_string =
 
     if( !found )
     {
-	if( default_menu_string == NULL ) 
+	if( default_menu_string == NULL )
 	{
             print_error(
                 "Cannot find menu file %s and no compiled-in fallback\n",
@@ -362,7 +380,7 @@ static VIO_STR default_menu_string =
 }
 
 /**
- * This function is used to install handlers for actions in EVERY window, 
+ * This function is used to install handlers for actions in EVERY window,
  * so that we can intercept keys in each application window. As a result,
  * the event functions have to assume they can be called in the context
  * of any application window.
@@ -412,7 +430,7 @@ static  DEF_EVENT_FUNCTION( handle_mouse_position )
         }
         else
         {
-          if (update_menu_help_text(display, "Hover over a virtual key for help.")) 
+          if (update_menu_help_text(display, "Hover over a virtual key for help."))
           {
             set_update_required( display, NORMAL_PLANES );
           }
@@ -423,8 +441,8 @@ static  DEF_EVENT_FUNCTION( handle_mouse_position )
 
 /* ARGSUSED */
 
-/** 
- * This function is somewhat unusual in that it can be called from a 
+/**
+ * This function is somewhat unusual in that it can be called from a
  * variety of contexts (windows), so we can't count on the callback
  * window being the menu window. So we do need to get the menu window
  * as the first thing.
@@ -537,7 +555,7 @@ static  VIO_Status  handle_mouse_press_in_menu(
     return( status );
 }
 
-/** 
+/**
  * Given a pointer to the menu window and menu entry, this function
  * will call the update function for this menu entry. This will update
  * the appearance and active status of the menu item.
@@ -633,7 +651,7 @@ DEF_MENU_UPDATE(pop_menu )
  * Pops the menu to the next level up in the hierarchy.
  * If the current menu.depth field is zero or less, does nothing.
  * Otherwise, it removes all of the menu actions associated with the
- * current 
+ * current
  */
 void  pop_menu_one_level(
     display_struct   *menu_window )
@@ -655,7 +673,7 @@ void  pop_menu_one_level(
 }
 
 /**
- * Set the text for a menu entry, breaking up the text into 
+ * Set the text for a menu entry, breaking up the text into
  * separate lines semi-intelligently.
  * \param menu_window The menu window structure
  * \param menu_entry The menu entry information.
@@ -693,7 +711,7 @@ void   set_menu_text(
             part_text_buffer[part_text_len++] = ch;
             part_text_buffer[part_text_len] = 0;
 
-            part_text_width = ((line == 0) ? menu->character_offset : 0) + 
+            part_text_width = ((line == 0) ? menu->character_offset : 0) +
               G_get_text_length(part_text_buffer,
                                 Menu_window_font,
                                 menu->font_size);
@@ -726,7 +744,7 @@ void   set_menu_text(
 }
 
 /**
- * This function will update the menu text for each of the 
+ * This function will update the menu text for each of the
  * menu items.
  *
  * \param display Any of the top-level display_struct objects.
@@ -790,8 +808,6 @@ static int truncate_to_at_most(char *str_ptr, int max_length)
   return max_length;
 }
 
-#define MAX_LINE_LENGTH 40      /* This is determined by trial and error. */
-
 static VIO_BOOL update_menu_help_text(
     display_struct *menu_window, VIO_STR new_value)
 {
@@ -803,39 +819,54 @@ static VIO_BOOL update_menu_help_text(
     char *buf_ptr = &buffer[0];
     menu_window_struct  *menu = &menu_window->menu;
 
-    strcpy(buffer, new_value);
-
-    for (i = 0; i < N_HELP_LINES; i++) 
+    if (new_value != NULL)
     {
-      int k;
+      strcpy(buffer, new_value);
 
-      if (remaining_length > MAX_LINE_LENGTH)
+      for (i = 0; i < N_HELP_LINES; i++)
       {
-        k = truncate_to_at_most(buf_ptr, MAX_LINE_LENGTH);
-        buf_ptr[k++] = '\0';
+        int k;
+
+        if (remaining_length > MAX_LINE_LENGTH)
+        {
+          k = truncate_to_at_most(buf_ptr, MAX_LINE_LENGTH);
+          buf_ptr[k++] = '\0';
+        }
+        else
+        {
+          k = remaining_length;
+        }
+
+        text = get_text_ptr( menu->menu_help_text[i] );
+
+        if( !equal_strings( text->string, buf_ptr ) )
+        {
+          replace_string( &text->string, create_string(buf_ptr) );
+          changed = TRUE;
+        }
+
+        buf_ptr += k;
+        remaining_length -= k;
       }
-      else
-      {
-        k = remaining_length;
-      } 
+    }
 
+    for (i = 0; i < N_HELP_LINES; i++)
+    {
+      int x = menu->help_x_origin;
+      int y = menu->help_y_origin - i * menu->font_size;
       text = get_text_ptr( menu->menu_help_text[i] );
 
-      fill_Point( text->origin, 
-                  menu->help_x_origin, /* X */
-                  menu->help_y_origin - i * menu->font_size, /* Y */
-                  0.0 );
-
-      text->size = menu->font_size;
-
-      if( !equal_strings( text->string, buf_ptr ) )
+      if ( x != Point_x( text->origin ) || y != Point_y( text->origin ))
       {
-        replace_string( &text->string, create_string(buf_ptr) );
         changed = TRUE;
+        fill_Point( text->origin, x, y, 0.0 );
       }
-
-      buf_ptr += k;
-      remaining_length -= k;
+      if ( text->size != menu->font_size )
+      {
+        changed = TRUE;
+        text->size = menu->font_size;
+      }
     }
+
     return changed;
 }
