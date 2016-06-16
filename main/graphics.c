@@ -166,8 +166,8 @@ Gwindow get_parent_window()
   return _parent_window;
 }
 
-#define MENU_HEIGHT 0.3
-#define MARKER_HEIGHT 0.2
+#define MENU_HEIGHT 0.35
+#define MARKER_HEIGHT 0.15
 #define COLUMN_WIDTH 0.5
 
 /**
@@ -236,7 +236,7 @@ static void parent_update( Gwindow win, void *data )
 
 void create_parent_window()
 {
-  G_create_child_window( "MNI-Display", 0, 0, 1200, 850, FALSE, FALSE, TRUE, 0,
+  G_create_child_window( "MNI-Display", 0, 0, 1024, 768, FALSE, FALSE, TRUE, 0,
                          &_parent_window, NULL );
   G_set_update_function( _parent_window, parent_update, NULL );
   G_set_resize_function( _parent_window, parent_resize, NULL );

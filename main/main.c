@@ -135,7 +135,12 @@ int  main(
     initialize_graphics();
 
     if (Single_window)
+    {
+      Hide_menu_window = FALSE;
+      Hide_3D_window = FALSE;
+      Hide_marker_window = FALSE;
       create_parent_window();
+    }
 
     title = concat_strings( PROJECT_NAME, ": Menu" );
     if( create_graphics_window( MENU_WINDOW,
