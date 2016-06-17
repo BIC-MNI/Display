@@ -205,6 +205,12 @@ void  initialize_slice_models(
     }
 }
 
+/**
+ * Create the graphical models used for a specific volume.
+ *
+ * \param slice_window A pointer to the slice window.
+ * \param The zero-based index of the volume.
+ */
   void  initialize_slice_models_for_volume(
     display_struct    *slice_window,
     int               volume_index )
@@ -227,6 +233,12 @@ void  initialize_slice_models(
     }
 }
 
+/**
+ * Delete the graphical models used for a specific volume.
+ *
+ * \param slice_window A pointer to the slice window.
+ * \param The zero-based index of the volume.
+ */
   void  delete_slice_models_for_volume(
     display_struct    *slice_window,
     int               volume_index )
@@ -246,6 +258,11 @@ void  initialize_slice_models(
     }
 }
 
+/**
+ * Reposition the slice dividers - the lines separating the four slice views.
+ *
+ * \param slice_window A pointer to the slice window.
+ */
   void  rebuild_slice_divider(
     display_struct    *slice_window )
 {
@@ -289,7 +306,6 @@ void  initialize_slice_models(
     else
         return( NORMAL_PLANES );
 }
-
 
 /**
  * Calculate the ratio between two selected volumes.
@@ -1044,6 +1060,29 @@ static  object_struct  *get_atlas_slice_pixels_object(
                            COMPOSITE_SLICE_INDEX] );
 }
 
+/**
+ * \brief Creates a rendering of a slice for a given volume and view.
+ *
+ * Can perform the rendering in a piecemeal fashion if the incremental_flag
+ * is TRUE.
+
+ * \param slice_window A pointer to the display_struct for the slice window.
+ * \param volume_index The index of the volume (
+ * \param view_index The index of the view (0-3)
+ * \param which_volume If zero, the normal volume is used. If one, the
+ * label volume is used.
+ * \param colour_table The colour table used for fast colour lookup.
+ * \param colour_coding The full colour coding structure used to translate
+ * voxel intensities to colours.
+ * \param filter_type Controls what sort of filter is applied across slices.
+ * \param continuity Sets the in-slice interpolation method, where -1 means
+ * nearest-neighbour, 0 means trilinear, and 2 means tricubic.
+ * \param pixels The resulting pixel structure suitable for display.
+ * \param incremental_flag True if incremental update is enabled.
+ * \param interrupted True if update was interrupted (?).
+ * \param continuing_flag True if update is continuing (?).
+ * \param finished Set to True when entire slice is rendered.
+ */
 static  int  render_slice_to_pixels(
     display_struct        *slice_window,
     int                   volume_index,
