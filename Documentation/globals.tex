@@ -66,8 +66,8 @@ for later configuration files to add or replace values set in
 previously loaded configuration files.
 
 We have recently added a separate configuration file named {\tt
-  .mni-displayrc} which is identical in syntax to {\tt
-  Display.globals}, but which is intended only for internal use by the
+ .mni-displayrc} which is identical in syntax to {\tt
+ Display.globals}, but which is intended only for internal use by the
 program. It may be overwritten by certain commands in the user interface.
 
 A configuration file consists of a series of lines consisting of a
@@ -354,6 +354,13 @@ histogram. In other words, by default we don't consider histogram bins
 {Boolean}{False}
 {If true, displays the current width and height of the field of view of
   each panel in the slice window.}{}
+
+\globalentry{Single\_window}
+{Boolean}{False} 
+{If true, \display{} will combine all four different user interface
+ windows into a single large window. This is still an experimental
+ feature, provided for purposes of eliciting user feedback. This
+ variable must be set in {\tt Display.globals} for it to take effect.}{}
 
 \globalentry{Slice\_change\_fast}
 {Integer}{10}

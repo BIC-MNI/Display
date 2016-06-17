@@ -136,8 +136,9 @@ involve core functionality.
 \item Better integration with modern mice and trackpads.
 \item Addition of new information in the 3D View and Slice View windows.
 \item New mouse and key bindings to speed access to important commands.
-\item User interaction can now use a graphical interface rather than the
-terminal window.
+\item User interaction can now use a graphical interface and dialog
+  boxes rather than the terminal window.
+\item New layout and functionality in the object list window.
 \end{itemize}
 
 The new version also includes many bug fixes and performance improvements.
@@ -329,10 +330,18 @@ object hierarchy list, which initially consists of the text {\tt
   '0:Polygons(0:0)'}, refers to the built-in surface object used when
 surfaces are created in \display{}.
 
-The loaded objects are listed in the order they were listed on the
+The 3D objects used by \display{} may be one of several types. They
+may be {\em Markers} that record a single 3D position. They may be
+{\em Polygons} that represent a complex surface using a series of
+points or vertices to create a triangular mesh. They may be {\em
+  Lines} that represent a simple curve or shape, or a set of curves
+such as diffusion tractography. Finally, {\em Model} objects act as
+containers for any number of other objects, including other models.
+
+The loaded objects are listed in the order they were given on the
 command line. Each loaded file is indicated by a list entry that
-includes the file name followed by the file name in parentheses, and
-an arrow.  Loaded files are always treated as Model objects, which are
+includes the word 'Model' followed by the file name in parentheses, and
+an arrow.  Loaded files are always treated as model objects, which are
 objects that can contain other objects, including polygons. You can
 explore the items contained in the model by using the arrow keys to
 navigate into the object hierarchy.
@@ -342,15 +351,26 @@ the current object. Also, clicking on an object in the 3D view window
 or on the name of the object in the object list hierarchy with the
 left mouse button will make it the current selection.
 
-The 3D objects used by \display{} may be one of several types. They
-may be {\em Markers} that record a single 3D position. They may be
-{\em Polygons} that represent a complex surface using a series of
-points or vertices to create a triangular mesh. They may be {\em
-  Lines} that represent a simple curve or shape, or a set of curves
-such as diffusion tractography. Finally, {\em Model} objects act as
-containers for any number of other objects, including other models.
+Objects that are created by the user, such as new markers or surfaces,
+will be added to the currently selected model, and they will be added to
+the list in the object list window.
 
 This window always has the title ``Display: Objects''.
+
+In the object  window, the following mouse operations are available:
+
+\begin{itemize}
+
+\item Left Button: If pressed over the object name, selects the named
+  object to be the current object. If pressed over the checkbox, toggles
+  the visibility of the object.
+\item Shift+Left Button: If pressed over an object name, this command
+  will allow the user to set the colour of the selected object.
+\item Shift+Middle Button: Toggles the rendering mode of the object
+  between shaded, wireframe overlay, wireframe only, and point only mode.
+\item Right button: If pressed over a marker object, the cursor is
+immediately moved to the location of the marker.
+\end{itemize}
 
 \subsection{3D View Window}
 
@@ -783,6 +803,12 @@ colour of the ROI's label. The intensity values will be computed as
 the unweighted mean of all voxels with the selected label, for each
 time point in the image.
 
+When displaying a line along a spatial dimension, the background colour
+of the intensity plot will now reflect the labeling of voxels along the
+line. This is intended to help guide labeling by showing changes in
+intensity superimposed on the labels. The colours of the background will
+be immediately updated as changes are made to the labeling.
+
 In any case, the intensity plot will be automatically disabled
 whenever the oblique image is enabled.
 
@@ -1076,7 +1102,12 @@ limit, which results in an inverted colour map,
   clears the current label volume.
 \item[\menutwo{Colour Coding}{Colour Code Objects}]  Changes the
   colours of the current object in the 3D window according to the current
-  colour coding parameters of the loaded volumes.
+  colour coding parameters of the loaded volumes. This copies both the
+  colours of any visible volumes as well as their associated labels.
+\item[\menutwo{Colour Coding}{Label Objects}]  Changes the
+  colours of the current object in the 3D window according to the current
+  colours of any visible labels, ignore the colours associated with the 
+  volumes.
 \end{description}
 
 \subsection{Segmenting}
