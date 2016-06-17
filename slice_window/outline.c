@@ -363,10 +363,10 @@ intersect_plane_with_polygons_coloured(display_struct *display,
           int start = (item == 0) ? 0 : source_lines->end_indices[item - 1];
           int j;
 
-          for_less( j, 0, size )
+          for_less( j, 0, size - 1 )
           {
             int i1 = source_lines->indices[start + j];
-            int i2 = source_lines->indices[start + (j + 1) % size];
+            int i2 = source_lines->indices[start + j + 1];
 
             VIO_Point p1 = source_lines->points[i1];
             VIO_Point p2 = source_lines->points[i2];
