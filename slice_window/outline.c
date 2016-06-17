@@ -285,6 +285,20 @@ intersect_plane_with_markers(display_struct *display,
   }
 }
 
+VIO_Colour
+get_line_segment_colour(lines_struct *lines, int iindex, int pindex)
+{
+  switch ( lines->colour_flag )
+  {
+  case PER_ITEM_COLOURS:
+    return lines->colours[iindex];
+  case PER_VERTEX_COLOURS:
+    return lines->colours[pindex];
+  default:
+    return lines->colours[0];
+  }
+}
+
 /**
  * Like the functions in intersect/plane_polygons.c, this function
  * calculates the intersection between a plane and a set of polygons.
@@ -311,7 +325,7 @@ intersect_plane_with_polygons_coloured(display_struct *display,
   VIO_Colour             current_colour;
   object_struct          *current_object;
   int                    poly_no;
-  int                    i;
+  int                    item;
 
   /* We generate a list of colours for the lines, so that each surface
    * can have a different colour.  If possible, we use the colours of
@@ -327,10 +341,83 @@ intersect_plane_with_polygons_coloured(display_struct *display,
    */
   poly_no = 0;
 
-  initialize_object_traverse(&object_traverse, FALSE, N_MODELS, display->models);
+  initialize_object_traverse(&object_traverse, FALSE, 1,
+                             &display->models[THREED_MODEL]);
 
   while (get_next_object_traverse(&object_traverse, &current_object))
   {
+    if (current_object->object_type == LINES)
+    {
+      lines_struct *source_lines = get_lines_ptr(current_object);
+      if (source_lines->n_items == 0)
+      {
+        continue;
+      }
+
+      if (get_object_visibility(current_object))
+      {
+        for (item = 0; item < source_lines->n_items; item++)
+        {
+          int size = GET_OBJECT_SIZE(*source_lines, item);
+          int n_indices = NUMBER_INDICES(*lines);
+          int start = (item == 0) ? 0 : source_lines->end_indices[item - 1];
+          int j;
+
+          for_less( j, 0, size )
+          {
+            int i1 = source_lines->indices[start + j];
+            int i2 = source_lines->indices[start + (j + 1) % size];
+
+            VIO_Point p1 = source_lines->points[i1];
+            VIO_Point p2 = source_lines->points[i2];
+
+            VIO_Real d1 = DIST_FROM_PLANE(*plane_normal, plane_constant, p1);
+            VIO_Real d2 = DIST_FROM_PLANE(*plane_normal, plane_constant, p2);
+
+            if (fabs(d1) < Object_outline_distance &&
+                fabs(d2) < Object_outline_distance)
+            {
+                int point_index = lines->n_points;
+
+                ADD_ELEMENT_TO_ARRAY_WITH_SIZE(lines->points,
+                                               *n_points_alloced,
+                                               lines->n_points,
+                                               p1, DEFAULT_CHUNK_SIZE);
+
+                ADD_ELEMENT_TO_ARRAY_WITH_SIZE(lines->points,
+                                               *n_points_alloced,
+                                               lines->n_points,
+                                               p2, DEFAULT_CHUNK_SIZE);
+
+                ADD_ELEMENT_TO_ARRAY_WITH_SIZE(lines->indices,
+                                               *n_indices_alloced,
+                                               n_indices,
+                                               point_index,
+                                               DEFAULT_CHUNK_SIZE);
+
+                ADD_ELEMENT_TO_ARRAY_WITH_SIZE(lines->indices,
+                                               *n_indices_alloced,
+                                               n_indices,
+                                               point_index+1,
+                                               DEFAULT_CHUNK_SIZE);
+
+                ADD_ELEMENT_TO_ARRAY_WITH_SIZE(lines->end_indices,
+                                               *n_end_indices_alloced,
+                                               lines->n_items,
+                                               n_indices,
+                                               DEFAULT_CHUNK_SIZE);
+                int n_colours = lines->n_items - 1;
+                ADD_ELEMENT_TO_ARRAY(lines->colours,
+                                     n_colours,
+                                     get_line_segment_colour(source_lines,
+                                                             item, i1),
+                                     DEFAULT_CHUNK_SIZE);
+            }
+          }
+        }
+      }
+    }
+
     if (current_object->object_type == POLYGONS)
     {
       polygons_struct *current_polygons = get_polygons_ptr(current_object);
@@ -354,12 +441,12 @@ intersect_plane_with_polygons_coloured(display_struct *display,
           current_colour = get_automatic_colour(poly_no);
         }
 
-        for (i = 0; i < current_polygons->n_items; i++)
+        for (item = 0; item < current_polygons->n_items; item++)
         {
           if (intersect_plane_one_polygon(plane_normal,
                                           plane_constant,
                                           current_polygons,
-                                          i,
+                                          item,
                                           lines,
                                           n_points_alloced,
                                           n_indices_alloced,
@@ -427,7 +514,7 @@ rebuild_slice_object_outline(display_struct *slice_window, int view_index)
     if (get_object_visibility(outline_ptr->lines))
     {
       set_object_visibility(outline_ptr->lines, FALSE);
-      set_update_required( slice_window, NORMAL_PLANES);
+      set_update_required(slice_window, NORMAL_PLANES);
     }
     return;
   }
