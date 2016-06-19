@@ -131,7 +131,7 @@ get_automatic_colour(int index)
 }
 
 /**
- * Function to return points for the four possible corners of 
+ * Function to return points for the four possible corners of
  * a square.
  */
 static void
@@ -198,8 +198,8 @@ intersect_plane_with_markers(display_struct *display,
   object_traverse_struct object_traverse;
   object_struct          *current_object;
 
-  initialize_object_traverse( &object_traverse, FALSE, N_MODELS,
-                              display->models );
+  initialize_object_traverse( &object_traverse, FALSE, 1,
+                              &display->models[THREED_MODEL] );
 
   while ( get_next_object_traverse(&object_traverse, &current_object) )
   {
@@ -261,7 +261,7 @@ intersect_plane_with_markers(display_struct *display,
           ADD_ELEMENT_TO_ARRAY_WITH_SIZE( lines->indices,
                                           *n_indices_alloced,
                                           n_indices,
-                                          point_index + i, 
+                                          point_index + i,
                                           DEFAULT_CHUNK_SIZE );
         }
         ADD_ELEMENT_TO_ARRAY_WITH_SIZE( lines->indices,
@@ -285,7 +285,10 @@ intersect_plane_with_markers(display_struct *display,
   }
 }
 
-VIO_Colour
+/**
+ * Get an appropriate colour for a line segment.
+ */
+static VIO_Colour
 get_line_segment_colour(lines_struct *lines, int iindex, int pindex)
 {
   switch ( lines->colour_flag )
@@ -296,6 +299,111 @@ get_line_segment_colour(lines_struct *lines, int iindex, int pindex)
     return lines->colours[pindex];
   default:
     return lines->colours[0];
+  }
+}
+
+/**
+ * This function calculates the intersection between a plane and a set
+ * of lines. Line segments are displayed on the plane if they are
+ * within a specified distance of the plane. It assigns distinct
+ * colours to the segments of outline it creates.
+ *
+ * \param display The display_struct for the three-D window.
+ * \param plane_normal A vector normal to the current view's plane.
+ * \param plane_constant A scalar giving the position in the current view.
+ * \param dst_lines A structure representing the outline to display.
+ * \param n_points_alloced Number of points in lines_struct.
+ * \param n_indices_alloced Number of indices in lines_struct.
+ * \param n_end_indices_alloced Number of end_indices in lines_struct.
+ */
+static void
+intersect_plane_with_lines_coloured(display_struct *display,
+                                    VIO_Vector *plane_normal,
+                                    VIO_Real plane_constant,
+                                    lines_struct *dst_lines,
+                                    int *n_points_alloced,
+                                    int *n_indices_alloced,
+                                    int *n_end_indices_alloced)
+{
+  object_traverse_struct object_traverse;
+  object_struct          *current_object;
+  int                    item;
+
+  initialize_object_traverse(&object_traverse, FALSE, 1,
+                             &display->models[THREED_MODEL]);
+
+  while (get_next_object_traverse(&object_traverse, &current_object))
+  {
+    if (current_object->object_type == LINES &&
+        get_object_visibility( current_object ))
+    {
+      lines_struct *src_lines = get_lines_ptr(current_object);
+      int start_index = 0;
+
+      if (src_lines->n_items == 0)
+      {
+        continue;
+      }
+
+      for (item = 0; item < src_lines->n_items;
+           start_index = src_lines->end_indices[item++])
+      {
+        int size = GET_OBJECT_SIZE(*src_lines, item);
+        int n_indices = NUMBER_INDICES(*dst_lines);
+        int j;
+
+        for_less( j, 0, size - 1 )
+        {
+          int i1 = src_lines->indices[start_index + j];
+          int i2 = src_lines->indices[start_index + j + 1];
+
+          VIO_Point p1 = src_lines->points[i1];
+          VIO_Point p2 = src_lines->points[i2];
+
+          VIO_Real d1 = DIST_FROM_PLANE(*plane_normal, plane_constant, p1);
+          VIO_Real d2 = DIST_FROM_PLANE(*plane_normal, plane_constant, p2);
+
+          if (fabs(d1) < Object_outline_distance &&
+              fabs(d2) < Object_outline_distance)
+          {
+            int point_index = dst_lines->n_points;
+
+            ADD_ELEMENT_TO_ARRAY_WITH_SIZE(dst_lines->points,
+                                           *n_points_alloced,
+                                           dst_lines->n_points,
+                                           p1, DEFAULT_CHUNK_SIZE);
+
+            ADD_ELEMENT_TO_ARRAY_WITH_SIZE(dst_lines->points,
+                                           *n_points_alloced,
+                                           dst_lines->n_points,
+                                           p2, DEFAULT_CHUNK_SIZE);
+
+            ADD_ELEMENT_TO_ARRAY_WITH_SIZE(dst_lines->indices,
+                                           *n_indices_alloced,
+                                           n_indices,
+                                           point_index,
+                                           DEFAULT_CHUNK_SIZE);
+
+            ADD_ELEMENT_TO_ARRAY_WITH_SIZE(dst_lines->indices,
+                                           *n_indices_alloced,
+                                           n_indices,
+                                           point_index+1,
+                                           DEFAULT_CHUNK_SIZE);
+
+            ADD_ELEMENT_TO_ARRAY_WITH_SIZE(dst_lines->end_indices,
+                                           *n_end_indices_alloced,
+                                           dst_lines->n_items,
+                                           n_indices,
+                                           DEFAULT_CHUNK_SIZE);
+            int n_colours = dst_lines->n_items - 1;
+            ADD_ELEMENT_TO_ARRAY(dst_lines->colours,
+                                 n_colours,
+                                 get_line_segment_colour(src_lines, item, i1),
+                                 DEFAULT_CHUNK_SIZE);
+          }
+        }
+      }
+    }
   }
 }
 
@@ -346,78 +454,6 @@ intersect_plane_with_polygons_coloured(display_struct *display,
 
   while (get_next_object_traverse(&object_traverse, &current_object))
   {
-    if (current_object->object_type == LINES)
-    {
-      lines_struct *source_lines = get_lines_ptr(current_object);
-      if (source_lines->n_items == 0)
-      {
-        continue;
-      }
-
-      if (get_object_visibility(current_object))
-      {
-        for (item = 0; item < source_lines->n_items; item++)
-        {
-          int size = GET_OBJECT_SIZE(*source_lines, item);
-          int n_indices = NUMBER_INDICES(*lines);
-          int start = (item == 0) ? 0 : source_lines->end_indices[item - 1];
-          int j;
-
-          for_less( j, 0, size - 1 )
-          {
-            int i1 = source_lines->indices[start + j];
-            int i2 = source_lines->indices[start + j + 1];
-
-            VIO_Point p1 = source_lines->points[i1];
-            VIO_Point p2 = source_lines->points[i2];
-
-            VIO_Real d1 = DIST_FROM_PLANE(*plane_normal, plane_constant, p1);
-            VIO_Real d2 = DIST_FROM_PLANE(*plane_normal, plane_constant, p2);
-
-            if (fabs(d1) < Object_outline_distance &&
-                fabs(d2) < Object_outline_distance)
-            {
-                int point_index = lines->n_points;
-
-                ADD_ELEMENT_TO_ARRAY_WITH_SIZE(lines->points,
-                                               *n_points_alloced,
-                                               lines->n_points,
-                                               p1, DEFAULT_CHUNK_SIZE);
-
-                ADD_ELEMENT_TO_ARRAY_WITH_SIZE(lines->points,
-                                               *n_points_alloced,
-                                               lines->n_points,
-                                               p2, DEFAULT_CHUNK_SIZE);
-
-                ADD_ELEMENT_TO_ARRAY_WITH_SIZE(lines->indices,
-                                               *n_indices_alloced,
-                                               n_indices,
-                                               point_index,
-                                               DEFAULT_CHUNK_SIZE);
-
-                ADD_ELEMENT_TO_ARRAY_WITH_SIZE(lines->indices,
-                                               *n_indices_alloced,
-                                               n_indices,
-                                               point_index+1,
-                                               DEFAULT_CHUNK_SIZE);
-
-                ADD_ELEMENT_TO_ARRAY_WITH_SIZE(lines->end_indices,
-                                               *n_end_indices_alloced,
-                                               lines->n_items,
-                                               n_indices,
-                                               DEFAULT_CHUNK_SIZE);
-                int n_colours = lines->n_items - 1;
-                ADD_ELEMENT_TO_ARRAY(lines->colours,
-                                     n_colours,
-                                     get_line_segment_colour(source_lines,
-                                                             item, i1),
-                                     DEFAULT_CHUNK_SIZE);
-            }
-          }
-        }
-      }
-    }
-
     if (current_object->object_type == POLYGONS)
     {
       polygons_struct *current_polygons = get_polygons_ptr(current_object);
@@ -571,6 +607,16 @@ rebuild_slice_object_outline(display_struct *slice_window, int view_index)
                                          &outline_ptr->n_points_alloced,
                                          &outline_ptr->n_indices_alloced,
                                          &outline_ptr->n_end_indices_alloced);
+
+  /* Calculate the intersection between any lines and the plane.
+   */
+  intersect_plane_with_lines_coloured(display,
+                                      &plane_normal,
+                                      plane_constant,
+                                      lines,
+                                      &outline_ptr->n_points_alloced,
+                                      &outline_ptr->n_indices_alloced,
+                                      &outline_ptr->n_end_indices_alloced);
 
   if (Show_markers_on_slice)
     intersect_plane_with_markers( display,
