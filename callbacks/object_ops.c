@@ -464,9 +464,9 @@ DEF_MENU_FUNCTION( set_current_object_colour )
             set_object_colour( current_object, col );
 
             graphics_models_have_changed( display );
-        }
 
-        delete_string( line );
+            delete_string( line );
+        }
     }
 
     return( VIO_OK );
