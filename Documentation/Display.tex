@@ -223,7 +223,7 @@ options include:
 \item \ident{-ratio} $V_1$,$V_2$ : Display the value of volume number $V_1$
   divided by value of volume number $V_2$ as part of the slice window status. You must load at least two
   volumes for this option to have any effect.
-\item \ident{-global} $name$ $value$ : Set the configuration variable of the given name to the specified value. \display{} supports an extremely large number of configuration options, many of these are described in Section \ref{secGlobals}.
+\item \ident{-global} $name$ $value$ : Set the configuration variable of the given name to the specified value. \display{} supports an extremely large number of configuration options, many of these are described in Appendix \ref{secGlobals}.
 \item {\bf Initial range options:} These options request \display{} to
   use different approaches to setting the initial range of the colour
   mapping used to convert voxel values into colours. They each set two
@@ -270,6 +270,20 @@ would load the first volume with the gray colour map and
 the colour coding range set at 10\% and 90\% of the real voxel
 range. The second volume would be loaded with the spectral colour map
 and absolute colour coding range set to 0, 1000.
+
+Note that the colour options for surfaces are different from those for
+volumes. To request a specific colour for a loaded surface, simply give
+the colour name after the filename, separated by a colon:
+
+\begin{verbatim}
+Display -gray s005_t1.mnc s005_gray.obj:yellow s005_white.obj:cyan
+\end{verbatim}
+This command line specifies that the volume will be shown using the
+grayscale colour map, while the first surface will be yellow and the
+second cyan.
+
+See Appendix \ref{app:colours} for a complete list of colour names that
+\display{} recognizes.
 
 \section{\display{} Windows}
 When \display{} starts, it normally creates up to four different
@@ -327,7 +341,7 @@ This window always has the title ``Display: Menu''.
 All 3D objects loaded and created in \display{}, with the exception of
 volumes, are listed in the object hierarchy. The first entry in the
 object hierarchy list, which initially consists of the text {\tt
-  '0:Polygons(0:0)'}, refers to the built-in surface object used when
+  '0 Polygons(0:0)'}, refers to the built-in surface object used when
 surfaces are created in \display{}.
 
 The 3D objects used by \display{} may be one of several types. They

@@ -5,6 +5,7 @@ SOURCES = Display.tex globals.tex colour_list.tex $(wildcard images/*.png)
 
 Display.pdf: $(SOURCES)
 	pdflatex Display.tex
+	pdflatex Display.tex
 
 Display.html: $(SOURCES) Display.cfg
 	htlatex Display.tex Display.cfg
