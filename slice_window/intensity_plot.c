@@ -763,12 +763,14 @@ create_tick_lines( model_struct *model_ptr, lines_struct *lines_ptr,
   VIO_Real max_tick = max_value;
   VIO_Real delta_tick;
   VIO_Point pt1, pt2;
-  VIO_Point ptLabel;
+  VIO_Point pt_label;
   VIO_Real cur_tick;
   object_struct *object_ptr;
   int n_digits;
   const int min_tick_width = 30;    /* minimum width of a tick. */
   const int min_n_ticks = 2;
+  const int text_height = G_get_text_height( Colour_bar_text_font,
+                                             Colour_bar_text_size );
 
   int desired_ticks = n_pixels / min_tick_width;
   if (desired_ticks < min_n_ticks)
@@ -801,23 +803,28 @@ create_tick_lines( model_struct *model_ptr, lines_struct *lines_ptr,
     if (tick_pos < 0)
       continue;
 
+    /* Don't draw ticks too close to the top of the vertical axis.
+     */
+    if (!is_horz_axis && tick_pos >= n_pixels - text_height / 2)
+      continue;
+
     start_new_line( lines_ptr );
     if (is_horz_axis)
     {
       fill_Point( pt1, horz_offset + tick_pos, vert_offset, 0 );
       fill_Point( pt2, horz_offset + tick_pos, vert_offset - IP_TICK_LENGTH, 0 );
-      fill_Point( ptLabel, Point_x( pt2 ), Point_y( pt2 ) - IP_TICK_LENGTH, 0 );
+      fill_Point( pt_label, Point_x( pt2 ), Point_y( pt2 ) - IP_TICK_LENGTH, 0 );
     }
     else
     {
       fill_Point(pt1, horz_offset, vert_offset + tick_pos, 0);
       fill_Point(pt2, horz_offset - IP_TICK_LENGTH, vert_offset + tick_pos, 0);
-      ptLabel = pt2;
+      pt_label = pt2;
     }
     add_point_to_line( lines_ptr, &pt1 );
     add_point_to_line( lines_ptr, &pt2 );
 
-    object_ptr = create_tick_label( cur_tick, &ptLabel, is_horz_axis );
+    object_ptr = create_tick_label( cur_tick, &pt_label, is_horz_axis );
     add_object_to_model( model_ptr, object_ptr );
   }
 }
