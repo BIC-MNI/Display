@@ -509,20 +509,12 @@ find_model_callback(int global_index, int local_index, int depth,
 
   if (object_ptr->object_type == MODEL )
   {
-    if ( find_info->find_index == global_index )
+    model_struct *model_ptr = get_model_ptr( object_ptr );
+    if ( find_info->find_index > global_index &&
+         find_info->find_index <= global_index + model_ptr->n_objects )
     {
       find_info->object_ptr = object_ptr;
       return FALSE;
-    }
-    else
-    {
-      model_struct *model_ptr = get_model_ptr( object_ptr );
-      if ( find_info->find_index > global_index &&
-           find_info->find_index <= global_index + model_ptr->n_objects )
-      {
-        find_info->object_ptr = object_ptr;
-        return FALSE;
-      }
     }
   }
   return TRUE;
