@@ -20,7 +20,11 @@ CLEANFILES = \
 	Display.log \
 	Display.out \
 	Display.tmp \
-	Display.xref
+	Display.xref \
+	Display.pdf \
+	Display.html \
+	Display.toc \
+	Display.css
 
 clean:
 	rm -f $(CLEANFILES)

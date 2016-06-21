@@ -14,7 +14,7 @@
 \renewcommand\labelitemii{\ding{111}}
 \graphicspath{{images/}}
 \newcommand{\ident}[1]{{\tt #1}}
-\newcommand{\display}{\mbox{MNI-Display}}
+\newcommand{\display}{\mbox{MNI Display}}
 \newcommand{\menu}[1]{{\scriptsize \fbox{\bf #1}}}
 \newcommand{\menutwo}[2]{{\scriptsize \fbox{\bf #1}/\fbox{\bf #2}}}
 \newcommand{\menuthree}[3]{{\scriptsize \fbox{\bf #1}/\fbox{\bf #2}/\fbox{\bf #3}}}
@@ -52,11 +52,14 @@ oriented system based on keystrokes and mouse (or touchpad) operations.
 \subsection{Visualization features}
 \display{} supports a large number of visualization features.
 \begin{itemize}
-\item Overlaying multiple volumetric images irrespective of differences in their sample grid sizes.
-\item Visualization of 3D surfaces, and the intersection of the 3D surface with the volumetric data.
+\item Overlaying multiple volumetric images irrespective of differences
+ in their sample grid sizes. For example, you can display a 4D functional
+ PET or fMRI image overlaid on a high-resolution 3D structural image.
+\item Visualization of 3D surfaces, such as cortical surfaces produced
+  by CIVET, and the intersection of the 3D surfaces with the volumetric data.
 \item Displaying an arbitrary, oblique plane through the volumetric data.
 \item Flexible choices for mapping from voxel data to colours.
-\item Associating arbitrary per-vertex data with a surface.
+\item Associating arbitrary per-vertex data with a 3D surface.
 \item Displaying intensity cross-sections along X, Y, Z, or time axes,
   or along arbitrary measurement lines.
 \end{itemize}
@@ -141,7 +144,7 @@ involve core functionality.
 \item New layout and functionality in the object list window.
 \end{itemize}
 
-The new version also includes many bug fixes and performance improvements.
+Each new version also includes many bug fixes and performance improvements.
 
 \section{Installing and Running \display{}}
 
@@ -295,7 +298,7 @@ and markers. If no 3D objects are loaded, it may not be displayed.
 \item The slice window displays up to 4 views of slices through one or more 
 volumes. If no volumes are loaded, it may not be displayed.
 \item The menu window shows the current menu command options.
-\item The object window shows a list of the currently loaded 3D objects.
+\item The object list window shows a list of the currently loaded 3D objects.
 \end{itemize}
 
 \subsection{Menu Window}
@@ -371,7 +374,7 @@ the list in the object list window.
 
 This window always has the title ``Display: Objects''.
 
-In the object  window, the following mouse operations are available:
+In the object list window, the following mouse operations are available:
 
 \begin{itemize}
 
@@ -675,14 +678,10 @@ the list, where the currently selected object is always displayed with
 a surrounding box:
 
 \begin{description}
-\item[\menu{Prev}]  Sets the current object to the one before
-the current object.
-\item[\menu{Next}]  Sets the current object to the one after
-the current object.
-\item[\menu{Up}]  Sets the current object to the one above
-the current object (up one level in the tree).
-\item[\menu{Down}]  Sets the current object to the one below
-the current object, if the current object is a model.
+\item[\menu{Prev}]  Sets the current object to the previous
+item in the object list.
+\item[\menu{Next}]  Sets the current object to the next item
+in the object list.
 \end{description}
 
 \subsection{File}
@@ -781,10 +780,10 @@ slice window is opened, if not already opened.
 \display{} can show a graph in the lower-right quadrant of the slice
 view window. This graph depicts the intensity values along a line
 through the current cursor position, parallel to one of the spatial
-axes. The intensity plot may also show the timecourse of the current
-cursor position or an ROI if the time axis is present.  The
-\menu{Intensity Plot} menu contains commands used to manipulate some
-of the options for displaying this data.
+axes. If a time axis is present, the intensity plot may also show the
+timecourse of the current cursor position or an ROI. The
+\menu{Intensity Plot} menu contains commands used to manipulate some of
+the options for displaying this data.
 
 By default, the intensity plot is enabled and the horizontal axis is
 selected automatically using the following algorithm:
@@ -856,7 +855,7 @@ plot axis.
 
 \subsection{Quit}
 
-The Quit menu's principle function is to allow users to explicitly
+The Quit menu's main function is to allow users to explicitly
 confirm their intention to quit \display{}. However, the menu includes a
 few miscellaneous commands.
 
@@ -1392,7 +1391,8 @@ for reference and comparison purposes.
 \subsection{3D View}
 
 This menu allows for the rapid setting of the orientation and
-magnification of object in the 3D view window. It also has some experimental features related to 3D rendering.
+magnification of object in the 3D view window. It also has some
+experimental features related to 3D rendering.
 
 \begin{description}
 \item[\menutwo{3D View}{Front View}]  Selects a view of the front of
@@ -1415,32 +1415,41 @@ magnification of object in the 3D view window. It also has some experimental fea
 \item[\menutwo{3D View}{Fit View}]  Without changing the view direction,
       magnifies the objects to just fit inside the window.  Useful when
       the user desires to see the full extent of all objects.
-\item[\menutwo{3D View}{Parallel/Perspective}]  Toggles between a
+\item[\menutwo{3D View}{Proj: Parallel/Perspective}]  Toggles between a
       parallel and perspective view of the 3D objects.
 \item[\menutwo{3D View}{Film Loop}]  Creates a movie of the 3D window.
       Prompts for a filename prefix, an axis index (0-2), and a number
       of frames.  The objects are spun around the specified axis, saving
       a separate frame to file for each increment.
+\item[\menutwo{3D View}{Type-in Cursor Pos}] Prompts the user to enter
+  the cursor position in world coordinates.
+\item[\menutwo{3D View}{Print View}] Prints the current view parameters
+on the command-line terminal.
 \item[\menutwo{3D View}{Front Plane}]  Not for general use.
 \item[\menutwo{3D View}{Back Plane}]  Not for general use.
-\item[\menutwo{3D View}{Toggle Stereo}]  Not for general use.
+\item[\menutwo{3D View}{Toggle Stereo}]  Not for general use. Stereo
+ mode is not properly implemented.
 \item[\menutwo{3D View}{Eye Width}]  Not for general use.
 \item[\menutwo{3D View}{Pick View}]  Not for general use.
+\item[\menutwo{3D View}{Set Persp Distance}]  Not for general use.
+\item[\menutwo{3D View}{Set Eye}]  Not for general use.
+\item[\menutwo{3D View}{Set Window Width}]  Not for general use.
+\item[\menutwo{3D View}{Set Line of Sight}]  Not for general use.
+\item[\menutwo{3D View}{Set Up Dir}]  Not for general use.
 \end{description}
 
 \subsection{Objects}
 
-This menu operates on the objects in the 3D window,
-which also have textual representations in the Menu window, in the form of
-the object hierarchy, which consists of lines, polygons, markers, and
-collections of these, called \ident{models}.  Generally, object operations
-apply to the currently selected object which is the one which has a green
-rectangle around its textual representation in the menu hierarchy.  Selection
-of the current object can be performed by using the arrow keys to navigate
-the hierarchy, or by clicking on the desired object text in the Menu window.
-A second click on a model object will descend a level to the set of objects
-contained in the model.  Another way to select the current object is to
-click on its image in the 3D window.
+This menu operates on the objects in the 3D window, which are also
+listed in the Object List window. The object list is a hierarchical list
+consisting of lines, polygons, markers, and collections of these, called
+{\em models}. Generally, object operations apply to the currently
+selected object which is the one which has a green rectangle around its
+textual representation in the object list. Selection of the current
+object can be performed by using the arrow keys to navigate the
+hierarchy, or by clicking on the desired object text in the Object list
+window. Another way to select the current object is to click on its
+image in the 3D window.
 
 \begin{description}
 \item[\menutwo{Objects}{Delete Object}]  Puts up a confirm/cancel submenu
@@ -1448,11 +1457,11 @@ click on its image in the 3D window.
         is a model, the model and all objects it contains are deleted.
 \item[\menutwo{Objects}{Change Colour}]  Prompts for a new colour for the
         current object.
-\item[\menutwo{Objects}{Change Surface Prop}]  Prompts for an ambient
-        coefficient (0--1), a diffuse coefficient (0--1), a
-        specular coefficient (0--1), a specular exponent (0--100 or so),
-        and an opacity (near 0 is transparent, 1 is fully opaque).
-        The currently selected object is assigned these lighting parameters.
+\item[\menutwo{Objects}{Change Surface Prop}] Prompts for an ambient
+  coefficient (0--1), a diffuse coefficient (0--1), a specular
+  coefficient (0--1), a specular exponent (0--100 or so), and an opacity
+  (near 0 is transparent, 1 is fully opaque).  The currently selected
+  object is assigned these lighting parameters.
 \item[\menutwo{Objects}{Invisible}]  Turns the current object invisible.
 \item[\menutwo{Objects}{Visible}]  Turns the current object visible.
 \item[\menutwo{Objects}{Toggle Visible}]  Toggles the visibility of the
@@ -1480,7 +1489,7 @@ click on its image in the 3D window.
      which is touching the object.  Works for polygons, lines, and
      markers.
 \item[\menutwo{Objects}{Show Vertices}] Creates a marker for every point on
- a surface.
+ a surface. You probably don't want to do this!
 \end{description}
 
 \subsection{3D Render}
