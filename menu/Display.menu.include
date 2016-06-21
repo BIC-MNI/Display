@@ -34,8 +34,6 @@ root \
     transient 'b'      markers                      'Markers' 'Commands to create and manipulate saved points in the volume.' \
     transient 'n'      intensity_plot               'Intensity Plot' 'Commands to visualize intensity plots.' \
  \
-    permanent 'left'  ascend_selected              'Up' 'Return to the previous level of the object list.' \
-    permanent 'right' descend_selected             'Down' 'View the contents of this item on the object list' \
     permanent 'down'  advance_selected             'Next' 'Select the next item on the object list.' \
     permanent 'up'    retreat_selected             'Prev' 'Select the previous item on the object list.' \
     permanent 'pageup'   prev_current_volume       '' '' \
