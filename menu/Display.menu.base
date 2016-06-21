@@ -203,6 +203,8 @@ view_3d \
     transient 'e'    type_in_3D_origin       'Type-in Cursor Pos' 'Prompts the user for the 3D origin.' \
     transient 'r'    toggle_stereo_mode      'Toggle Stereo' 'Not for general use.' \
     transient 't'    set_eye_separation      'Eye Width: %g' 'Not for general use.' \
+    transient 'j'    left_tilted_view        'Left Tilted View' 'View object from the left, tilted forward.' \
+    transient 'm'    right_tilted_view       'Right Tilted View' 'View object from the right, tilted forward.' \
 } \
  \
 render_3d \
