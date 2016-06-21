@@ -434,6 +434,8 @@ DEF_MENU_FUNCTION( toggle_stereo_mode )
 
     if( display->three_d.view.stereo_flag )
         G_set_background_colour( display->window, WHITE );
+    else
+        G_set_background_colour( display->window, Initial_background_colour );
 
     update_view( display );
 
