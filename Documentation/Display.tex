@@ -462,7 +462,7 @@ position.
 
 \begin{table}
 \centering
-\caption{Fields displayed in the lower-left corner of the slice view window.}
+\caption{Fields displayed in the status line of the 3D window.}
 \begin{tabular}{lp{0.8\linewidth}}
 Label & Description \\
 \hline
@@ -557,6 +557,22 @@ The slice window will also display a ``trace'' of any registered
 surface that is displayed in the 3D View window. These traces
 represent the intersection between the surface and the plane in the
 current slice view(s).
+
+Multiple volumes can be overlaid on one another in the slice
+view. These volumes need not have the same sampling grid, as long as
+they have the same position in world space. Each volume can have its own
+labels and colour map.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\linewidth]{display-2vol.png}
+\caption{Slice window showing a 4D lower-resolution scan using the
+  spectral colour map, superimposed on a 3D high-resolution scan using
+  the grayscale colour map. The currently active volume is the 4D scan,
+  so the intensity plot is showing the timecourse of the current
+  cursor position along the time axis.}
+\label{slice2Vol}
+\end{figure}
 
 In the slice window, the following mouse operations are available:
 
