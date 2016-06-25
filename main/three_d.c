@@ -325,7 +325,7 @@ static  DEF_EVENT_FUNCTION( handle_resize_three_d )
     return( VIO_OK );
 }
 
-/** 
+/**
  * Delete the resources allocated for the 3D view window.
  *
  * \param display The display_struct for the 3D view window.
@@ -359,7 +359,7 @@ void  add_object_to_current_model(
 }
 
 /**
- * Returns a pointer to display_struct of the the 3D view window, 
+ * Returns a pointer to display_struct of the the 3D view window,
  * given any other display_struct.
  *
  * \param display A pointer to any window's display_struct.
@@ -423,9 +423,8 @@ update_status_line( display_struct *display )
     }
     else
     {
-        VIO_Point pts[32];
         int i;
-        int n;
+        int n_pts_in_poly;
         VIO_Real min_d = 1e38;
         int min_i = -1;
         VIO_Point min_pt = {{0}};
@@ -434,17 +433,19 @@ update_status_line( display_struct *display )
         poly_index = object_index;
         poly_point = intersection_point;
 
-        n = get_polygon_points(polygons, poly_index, pts);
+        n_pts_in_poly = GET_OBJECT_SIZE(*polygons, poly_index);
 
-        for (i = 0; i < n; i++)
+        for (i = 0; i < n_pts_in_poly; i++)
         {
-            int x = POINT_INDEX(polygons->end_indices, poly_index, i);
-            VIO_Real d = distance_between_points(&pts[i], &poly_point);
+            int i_in = POINT_INDEX( polygons->end_indices, poly_index, i );
+            int i_pt = polygons->indices[i_in];
+            VIO_Real d = distance_between_points( &polygons->points[i_pt],
+                                                  &poly_point);
             if (d < min_d)
             {
                 min_d = d;
-                min_i = polygons->indices[x];
-                min_pt = pts[i];
+                min_i = i_pt;
+                min_pt = polygons->points[i_pt];
             }
         }
 
@@ -485,11 +486,11 @@ update_status_line( display_struct *display )
 }
 
 /**
- * Colour code each of the points associated with a polygon object, by 
+ * Colour code each of the points associated with a polygon object, by
  * generating colours based on a set of vertex data.
  *
  * \param display The display_struct of the 3D view window.
- * \param vtxd_ptr The currently active vertex_data_struct 
+ * \param vtxd_ptr The currently active vertex_data_struct
  * \param colour_flag A pointer to the polygon object's colour flag.
  * \param colours A pointer to the polygon object's colour array.
  */
@@ -607,7 +608,7 @@ advance_vertex_data(display_struct *display, object_struct *object)
     vtxd_ptr->column_index = index;
 
     print( "Switched to column %d (%s), minimum %g, maximum %g\n",
-           index, 
+           index,
            get_column_name( vtxd_ptr, index ),
            vtxd_ptr->min_v[index], vtxd_ptr->max_v[index] );
 
@@ -739,7 +740,7 @@ adjust_limit(display_struct *display, VIO_BOOL is_lo_limit)
 }
 
 /**
- * Change the lower limit of the colour coding for the vertex data 
+ * Change the lower limit of the colour coding for the vertex data
  * based on the position of the mouse.
  *
  * \param display The display_struct of the 3D view window.
@@ -755,7 +756,7 @@ static DEF_EVENT_FUNCTION(adjust_lo_limit)
 }
 
 /**
- * Change the lower limit of the colour coding for the vertex data 
+ * Change the lower limit of the colour coding for the vertex data
  * based on the position of the mouse.
  *
  * \param display The display_struct of the 3D view window.
@@ -1123,7 +1124,7 @@ static DEF_EVENT_FUNCTION( handle_left_down )
  * \param cb_ptr The colour bar structure.
  */
 static void
-initialize_vertex_colour_bar( display_struct *display, 
+initialize_vertex_colour_bar( display_struct *display,
                               colour_bar_struct *cb_ptr )
 {
     object_struct     *object;
@@ -1191,12 +1192,12 @@ set_vertex_colour_bar_visibility(display_struct *display, VIO_BOOL visible)
 /**
  * This function updates the vertex coding colour bar to reflect
  * the current colour coding range and state.
- * 
+ *
  * \param display The display_struct of the 3D view window.
  * \param vtxd_ptr The selected vertex_data_struct
  */
 static void
-update_vertex_colour_bar( display_struct *display, 
+update_vertex_colour_bar( display_struct *display,
                           vertex_data_struct *vtxd_ptr )
 {
   model_struct *model;
