@@ -8,6 +8,10 @@ ENDIF (GIFTI_INCLUDE_DIR AND GIFTI_LIBRARY)
 
 IF (GIFTI_FOUND)
    IF (NOT GIFTI_FIND_QUIETLY)
+   
+      # ADD expat library to GIFTI_LIBRARY ?
+      # TODO: search for expat library separately?
+      SET(GIFTI_LIBRARY ${GIFTI_LIBRARY} expat)
       MESSAGE(STATUS "Found GIfTI headers: ${GIFTI_INCLUDE_DIR}")
       MESSAGE(STATUS "Found GIfTI library: ${GIFTI_LIBRARY}")
    ENDIF (NOT GIFTI_FIND_QUIETLY)
