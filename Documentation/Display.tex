@@ -125,7 +125,7 @@ involve core functionality.
   volumes.
 \item Output support for surface formats including Wavefront OBJ,
   Stanford PLY, GIFTI, and X3D.
-\item The ability to read and display GIFTI (.gii) or BrainSuite surfaces (.dfs) and BrainSuite tractography (.dft) files.
+\item Input support for surface and geometric formats including Wavefront OBJ, Stanford (\ident{.ply}), GIFTI (\ident{.gii}), BrainSuite surfaces (\ident{.dfs}), BrainSuite tractography (\ident{.dft}), and FreeSurfer surfaces.
 \item The previous 20 painting operations can be undone.
 \item A user can now load per-vertex data, such as cortical thickness
   measurements, for visualization on 3D surfaces.
@@ -194,8 +194,11 @@ where each file is one of:
 \begin{itemize}
 \item A volumetric image, containing an MRI, PET, or other 3 or 4 dimensional volume, with a filename extension \ident{.mnc}, \ident{.nii}, or \ident{.mgh}.
 
-\item A 3D object file containing 3D surfaces, lines, or other objects, and
-with the filename extension \ident{.obj}. A specific colour can be requested for the surface by appending a colon (':') followed by the name of a colour.
+\item A 3D object file containing 3D surfaces, lines, or other
+ objects, and with the filename extension \ident{.obj} (for MNI or
+ Wavefront surfaces), \ident{.gii} (GIFTI), \ident{.dfs} (BrainSuite surface)
+ \ident{.dft} (BrainSuite tractography), and \ident{.ply} (Stanford PLY). 
+A specific colour can be requested for the surface by appending a colon (':') and the name of a colour to the file name 
 
 \item A tag point file containing a list of 3D points, such as those chosen from a volume, with the filename extension \ident{.tag}.
 
@@ -203,7 +206,7 @@ with the filename extension \ident{.obj}. A specific colour can be requested for
 codes, with the file extension \ident{.map}.
 \end{itemize}
 
-Note that the above files may be compressed.  If the file ends in
+Note that many of the above files may be compressed. If the file ends in
 \ident{.gz}, then it is compressed and the full name of the file, including the
 \ident{.gz}, must be specified to \display{}.
 
