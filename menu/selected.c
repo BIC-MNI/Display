@@ -260,6 +260,11 @@ rebuild_callback( int global_index, int local_index, int depth,
   int        x, y;
   pixels_struct *pixels_ptr;
 
+  if ( global_index >= N_selected_displayed )
+  {
+    return FALSE;
+  }
+
   name = get_object_name( object_ptr );
 
   if( get_object_visibility( object_ptr ) )
