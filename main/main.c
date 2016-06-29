@@ -839,15 +839,6 @@ static VIO_BOOL has_no_extension(const char *filename)
 #define ZENITY_CANCELLED 256
 
 /**
- * Specifying "env -u WINDOWID forces zenity to start in the middle of
- * the current workspace rather than in front of the terminal from which
- * Display was probably launched.
- *
- * TODO: Move to globals?
- */
-static const char Zenity_command[] = "env -u WINDOWID zenity";
-
-/**
  * Prompt the user for filename. Confirm the operation with the user
  * if they are saving a file and the filename they select exists.
  *

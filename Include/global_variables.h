@@ -584,5 +584,15 @@ START_GLOBALS
  * True if Display should combine all of the windows into a single window.
  */
      DEF_GLOBAL( Single_window, VIO_BOOL, FALSE )
+
+/**
+ * Gives the correct invocation of the Zenity command for popup dialogs.
+ *
+ * Specifying "env -u WINDOWID forces zenity to start in the middle of
+ * the current workspace rather than in front of the terminal from which
+ * Display was probably launched.
+ */
+     DEF_GLOBAL( Zenity_command, VIO_STR, "env -u WINDOWID zenity" )
+
 END_GLOBALS
 /** @} */
