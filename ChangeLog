@@ -1,3 +1,8 @@
+2016-06-28 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* intersect/plane_polygons.c: Fix bug which caused strange gaps
+	in the surface's outline in the slice window. Removed unused
+	code.
+
 2016-06-11 Robert D. Vincent <robert.d.vincent@mcgill.ca>
 	* slice_window/colour_coding.c, callbacks/volume_ops.c, etc.:
 	Implement ability to "colourize" a 3D object using only the
