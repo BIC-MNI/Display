@@ -860,7 +860,7 @@ get_user_file(const char *prompt, VIO_BOOL saving, char *extension,
     char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
-             "%s --title \"MNI-Display: %s\" --file-selection --filename=%s",
+             "%s --title \"MNI Display: %s\" --file-selection --filename=%s",
              Zenity_command,
              prompt, get_file_open_directory());
     if (saving)
@@ -900,7 +900,7 @@ get_user_file(const char *prompt, VIO_BOOL saving, char *extension,
         char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
         snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
-                 "%s --title \'MNI-Display\' --question --text \'File \"%s\" "
+                 "%s --title \'MNI Display\' --question --text \'File \"%s\" "
                  "already exists, are you sure you want to replace it?\'",
                  Zenity_command,
                  expanded);
@@ -970,7 +970,7 @@ get_user_input(const char *prompt, const char *format, ...)
   {
     char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
     snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
-             "%s --entry --title=\"MNI-Display: Dialog\" --text=\"%s\"",
+             "%s --entry --title=\"MNI Display: Dialog\" --text=\"%s\"",
             Zenity_command,
             prompt);
     in_fp = try_popen(command, "r", &error_code);
@@ -1079,7 +1079,7 @@ get_user_coding_type(const char *prompt, Colour_coding_types *cc_type_ptr)
     {
         char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
         snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
-                 "%s --list --title=\"MNI-Display: Coding type\" --text=\"%s\" --column \"Colour coding\" %s",
+                 "%s --list --title=\"MNI Display: Coding type\" --text=\"%s\" --column \"Colour coding\" %s",
                  Zenity_command,
                  prompt,
                  colour_coding);
@@ -1136,4 +1136,79 @@ get_user_coding_type(const char *prompt, Colour_coding_types *cc_type_ptr)
         pclose(in_fp);
     }
     return VIO_OK;
+}
+
+
+/**
+ * Prompt the user for filename. Confirm the operation with the user
+ * if they are saving a file and the filename they select exists.
+ *
+ * \param prompt The prompt string to display.
+ * \returns VIO_OK if the user chose "yes", VIO_ERROR otherwise.
+ */
+VIO_Status
+get_user_yes_or_no(const char *prompt)
+{
+  FILE *in_fp = NULL;
+  VIO_Status status = VIO_ERROR; /* no by default */
+  int error_code = 1000;
+
+  if (Use_zenity_for_input)
+  {
+    char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
+
+    snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
+             "%s --title \'MNI Display\' --question --text \"%s?\"",
+             Zenity_command, prompt );
+
+    in_fp = try_popen(command, "r", &error_code);
+    if (in_fp == NULL)
+    {
+      error_code = WEXITSTATUS( error_code );
+      status = (error_code == 0) ? VIO_OK : VIO_ERROR;
+    }
+    else
+    {
+      error_code = 1;
+      status = VIO_ERROR;
+      pclose(in_fp);
+    }
+  }
+
+  /* Exit status of zero or one indicates user successfully chose
+   * either yes (0) or no (1). Otherwise, we need to prompt on the
+   * command line.
+   */
+  if ( error_code != 0 && error_code != 1 )
+  {
+    VIO_STR line;
+    VIO_BOOL answered = FALSE;
+    while (!answered)
+    {
+      print("%s (yes/no)? ", prompt);
+      if (input_string(stdin, &line, '\n') == VIO_OK)
+      {
+        if (!strcasecmp(line, "yes"))
+        {
+          status = VIO_OK;
+          answered = TRUE;
+        }
+        else if (!strcasecmp(line, "no"))
+        {
+          answered = TRUE;
+        }
+        else
+        {
+          print("Please answer yes or no.\n");
+        }
+        delete_string( line );
+      }
+      else
+      {
+        print("Sorry, I didn't catch that.\n");
+      }
+    }
+  }
+
+  return status;
 }

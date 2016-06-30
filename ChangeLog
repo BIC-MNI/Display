@@ -1,3 +1,14 @@
+2016-06-30 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* main/main.c, callbacks/object_ops.c, Include/display_prototypes.h:
+	Prompt the user before carrying out the "Show Vertices" command.
+
+2016-06-29 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* CMakeLists.txt: Bump version to 2.0.6
+	* menu/selected.c: Fix potential crash when too many object are
+	created
+	* Include/global_variables.h, main/main.c: Make Zenity_command a
+	configurable global.
+
 2016-06-28 Robert D. Vincent <robert.d.vincent@mcgill.ca>
 	* intersect/plane_polygons.c: Fix bug which caused strange gaps
 	in the surface's outline in the slice window. Removed unused

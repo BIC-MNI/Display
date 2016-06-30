@@ -15,6 +15,7 @@ VIO_Status get_user_input(const char *prompt, const char *format, ...);
 VIO_Status get_user_file(const char *prompt, VIO_BOOL saving,
                          char *extension, VIO_STR *filename);
 VIO_Status get_user_coding_type(const char *prompt, Colour_coding_types *cc_type_ptr);
+VIO_Status get_user_yes_or_no(const char *prompt);
 
 void write_globals_to_file( const VIO_STR filename );
 

@@ -603,10 +603,17 @@ DEF_MENU_FUNCTION( mark_vertices )
     {
         n_points = get_object_points( object, &points );
 
-        for_less( i, 0, n_points )
+        snprintf( label, VIO_EXTREMELY_LARGE_STRING_SIZE,
+                  "This command will create %d markers and cannot be undone. "
+                  "Are you sure you want to do this",
+                  n_points );
+        if ( get_user_yes_or_no( label ) == VIO_OK )
         {
-            (void) sprintf( label, "%d", i );
-            create_marker_at_position( display, &points[i], label );
+            for_less( i, 0, n_points )
+            {
+                (void) sprintf( label, "%d", i );
+                create_marker_at_position( display, &points[i], label );
+            }
         }
     }
 
