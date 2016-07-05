@@ -1149,13 +1149,13 @@ get_user_coding_type(const char *prompt, Colour_coding_types *cc_type_ptr)
 VIO_Status
 get_user_yes_or_no(const char *prompt)
 {
-  FILE *in_fp = NULL;
   VIO_Status status = VIO_ERROR; /* no by default */
-  int error_code = 1000;
+  int error_code = -1;
 
   if (Use_zenity_for_input)
   {
     char command[VIO_EXTREMELY_LARGE_STRING_SIZE];
+    FILE *in_fp;
 
     snprintf(command, VIO_EXTREMELY_LARGE_STRING_SIZE,
              "%s --title \'MNI Display\' --question --text \"%s?\"",
@@ -1164,22 +1164,21 @@ get_user_yes_or_no(const char *prompt)
     in_fp = try_popen(command, "r", &error_code);
     if (in_fp == NULL)
     {
-      error_code = WEXITSTATUS( error_code );
-      status = (error_code == 0) ? VIO_OK : VIO_ERROR;
+      error_code = WEXITSTATUS(error_code);
     }
     else
     {
       error_code = 1;
-      status = VIO_ERROR;
       pclose(in_fp);
     }
+    status = (error_code == 0) ? VIO_OK : VIO_ERROR;
   }
 
   /* Exit status of zero or one indicates user successfully chose
    * either yes (0) or no (1). Otherwise, we need to prompt on the
    * command line.
    */
-  if ( error_code != 0 && error_code != 1 )
+  if (error_code != 0 && error_code != 1)
   {
     VIO_STR line;
     VIO_BOOL answered = FALSE;
@@ -1201,7 +1200,7 @@ get_user_yes_or_no(const char *prompt)
         {
           print("Please answer yes or no.\n");
         }
-        delete_string( line );
+        delete_string(line);
       }
       else
       {
