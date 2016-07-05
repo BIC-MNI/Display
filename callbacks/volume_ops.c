@@ -429,7 +429,7 @@ DEF_MENU_UPDATE( label_objects )
  */
 DEF_MENU_FUNCTION( colour_code_objects )
 {
-    copy_colours_to_object( display, TRUE );
+    copy_colours_to_object( display, FALSE );
     return( VIO_OK );
 }
 
