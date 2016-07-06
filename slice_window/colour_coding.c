@@ -23,7 +23,7 @@
 #include  <display.h>
 #include  <assert.h>
 
-/** 
+/**
  * Define the maximum colour table sizes we use. We don't
  * allow colour tables to be much greater than the 16M or so colours
  * possible with standard 24-bit colour depth.
@@ -1061,6 +1061,14 @@ static  void  colour_code_points(
         if( n_points > 0 )
         {
             REALLOC( *colours, n_points );
+
+            if ( *colour_flag == ONE_COLOUR )
+            {
+                for_less( i, 1, n_points )
+                {
+                    (*colours)[i] = (*colours)[0];
+                }
+            }
         }
         else
         {
@@ -1071,7 +1079,7 @@ static  void  colour_code_points(
 
     for_less( i, 0, n_points )
     {
-        colour = make_rgba_Colour( 0, 0, 0, 0 );
+        colour = (*colours)[i]; /* start with original surface colour. */
 
         for_less( volume_index, 0, slice_window->slice.n_volumes )
         {
@@ -1262,13 +1270,13 @@ VIO_STR    get_default_colour_map_suffix( void )
  * > label red green blue
  * OR
  * > label colour-name
- * 
+ *
  * The label values are integers, while the RGB colour values are floating
- * point numbers in the interval [0,1]. Colour names are symbolic names 
+ * point numbers in the interval [0,1]. Colour names are symbolic names
  * such as "black", "white", "blue", "transparent", "violet", etc.
  *
  * For each line, if the label
- * is within the current range, the colour of this label is replaced in the 
+ * is within the current range, the colour of this label is replaced in the
  * colour map. In other words, it is possible to have an incomplete colour
  * map file that specifies only a few labels of interest.
  *
@@ -1289,8 +1297,8 @@ VIO_Status  load_label_colour_map(
 
     if( open_file_with_default_suffix( filename,
                                        get_default_colour_map_suffix(),
-                                       READ_FILE, 
-                                       ASCII_FORMAT, 
+                                       READ_FILE,
+                                       ASCII_FORMAT,
                                        &file ) != VIO_OK )
         return( VIO_ERROR );
 
@@ -1596,11 +1604,11 @@ void  set_voxel_label(
  * are intended to express a smooth colour mapping over a continuous
  * value.
  *
- * Each line consists of a floating-point value followed by a colour, 
+ * Each line consists of a floating-point value followed by a colour,
  * usually expressed in RGB format:
- * 
+ *
  * > fraction red blue green
- * 
+ *
  * Each of the four values must be in the range [0,1] and the `fraction`
  * must increase monotonically, and the file should always include _at least_
  * a value for `fraction=0` and `fraction=1`.
