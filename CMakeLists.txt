@@ -273,6 +273,7 @@ SET(C_SRC
            slice_window/colour_bar.c 
            slice_window/colour_coding.c 
            slice_window/crop.c 
+           slice_window/distinct_colours.c
            slice_window/draw_slice.c 
            slice_window/histogram.c 
            slice_window/pick_angle.c 

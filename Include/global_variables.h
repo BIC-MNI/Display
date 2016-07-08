@@ -594,5 +594,13 @@ START_GLOBALS
  */
      DEF_GLOBAL( Zenity_command, VIO_STR, "env -u WINDOWID zenity" )
 
+/**
+ * Select the default label colour table. A value of one selects a
+ * "standard" table used in other tools around the BIC. A value of
+ * two selects a set of perceptually-distinct colours. Any other value
+ * selects the "classic" colour table used for many years.
+ */
+     DEF_GLOBAL( Initial_label_colour_table, int, 0 )
+
 END_GLOBALS
 /** @} */

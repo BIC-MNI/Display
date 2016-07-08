@@ -2176,6 +2176,7 @@ void rebuild_ticks_and_text(colour_bar_struct *colour_bar,
     display_struct   *slice_window,
     VIO_STR           filename );
 
+/* slice_window/crop.c */
   void  initialize_crop_box(
     display_struct   *slice_window );
 
@@ -2207,6 +2208,10 @@ void rebuild_ticks_and_text(colour_bar_struct *colour_bar,
     int               min_voxel[],
     int               max_voxel[] );
 
+/* slice_window/distinct_colours.c */
+void distinct_colours( int n_colours, VIO_Colour bkgd, VIO_Colour colours[] );
+
+/* slice-window/draw_slice.c */  
   void  initialize_slice_models(
     display_struct    *slice_window );
 
