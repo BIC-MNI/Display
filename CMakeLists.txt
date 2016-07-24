@@ -380,11 +380,13 @@ ENDIF(NOT MINC_TOOLKIT_BUILD)
 
 target_link_libraries(Display ${BICGL_LIBRARIES} ${LINK_LIBRARIES})
 
-IF(BICPL_STATIC_LIBRARIES) # fixing dynamic libraries hell on macosx
-        target_link_libraries(ppm_to_pixels ${BICGL_LIBRARIES} ${BICPL_STATIC_LIBRARIES})
-ELSE(BICPL_STATIC_LIBRARIES)
-        target_link_libraries(ppm_to_pixels ${BICGL_LIBRARIES} ${BICPL_LIBRARIES})
-ENDIF(BICPL_STATIC_LIBRARIES)
+#IF(BICPL_STATIC_LIBRARIES) # fixing dynamic libraries hell on macosx
+#        target_link_libraries(ppm_to_pixels ${BICGL_LIBRARIES} ${BICPL_STATIC_LIBRARIES})
+#ELSE(BICPL_STATIC_LIBRARIES)
+#        target_link_libraries(ppm_to_pixels ${BICGL_LIBRARIES} ${BICPL_LIBRARIES})
+#ENDIF(BICPL_STATIC_LIBRARIES)
+
+target_link_libraries(ppm_to_pixels ${BICGL_LIBRARIES} ${LINK_LIBRARIES})
         
 # Generate an install target
 install(TARGETS Display RUNTIME DESTINATION bin)
