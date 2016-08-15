@@ -35,6 +35,7 @@ int ppm_to_pixels(char *infile, char *outfile)
     fprintf(fp, "  { pixels }\n");
     fprintf(fp, "};\n");
     fclose(fp);
+    delete_pixels( &file_pixels );
     return 0;
 }
 
