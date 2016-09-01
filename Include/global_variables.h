@@ -387,6 +387,12 @@ START_GLOBALS
     DEF_GLOBAL( Undo_enabled, VIO_BOOL, TRUE )
 
     DEF_GLOBAL( Volume_continuity, int, 0 )
+
+/**
+ * If true, volumes are converted to byte as they are loaded, which
+ * reduces the possible number of intensities to 256. Set this to
+ * false if you need to visualize a file with a higher precision.
+ */
     DEF_GLOBAL( Convert_volumes_to_byte, VIO_BOOL, TRUE )
 
     DEF_GLOBAL( Move_slice_speed, VIO_Real, 0.25 )
