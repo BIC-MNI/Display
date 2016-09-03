@@ -472,7 +472,7 @@ create_scaled_slice( display_struct *display, VIO_BOOL scale_slice_flag )
     VIO_Volume       volume;
 
     if( !get_slice_window( display, &slice_window ) ||
-        !get_n_volumes(slice_window) > 0 ||
+        !(get_n_volumes(slice_window) > 0) ||
         !get_slice_view_index_under_mouse( slice_window, &view_index ))
     {
         return;                 /* give up! */
