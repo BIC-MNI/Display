@@ -230,6 +230,8 @@ static  void  delete_slice_window_volume_stuff(
   void  delete_slice_window(
     display_struct   *slice_window )
 {
+    delete_slice_undo( slice_window, -1 );
+
     while( slice_window->slice.n_volumes > 0 )
     {
         delete_slice_window_volume_stuff( slice_window,
@@ -238,7 +240,6 @@ static  void  delete_slice_window_volume_stuff(
 
     delete_render_storage( slice_window->slice.render_storage );
 
-    delete_slice_undo( slice_window, -1 );
     delete_slice_histogram( &slice_window->slice );
 
     delete_atlas( &slice_window->slice.atlas );

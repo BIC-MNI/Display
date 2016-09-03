@@ -396,6 +396,7 @@ delete_slice_undo(display_struct *slice_window, int volume_index )
             sparse_array_free(&undo_ptr->prior_labels[j]);
         }
         undo_ptr->n_undo = 0;
+        FREE(undo_ptr->prior_labels);
     }
 }
 

@@ -810,7 +810,10 @@ static  void  delete_menu_entry(
     delete_string( entry->label );
 
     if( !top_flag )
+    {
         FREE( entry->text_list );
+        delete_string( entry->help_text );
+    }
 
     if( entry->n_children > 0 )
         FREE( entry->children );
