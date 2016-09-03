@@ -76,8 +76,6 @@ int  main(
     VIO_STR           *directories;
     VIO_STR           title;
 
-    set_alloc_checking( TRUE );
-
     initialize_global_colours();
 
     if( getenv( "DISPLAY_DIRECTORY" ) != (char *) NULL )
@@ -129,8 +127,6 @@ int  main(
 
     if( n_directories > 0 )
         FREE( directories );
-
-    set_alloc_checking( Alloc_checking_enabled );
 
     initialize_graphics();
 
@@ -244,8 +240,6 @@ int  main(
 
     delete_global_variables( VIO_SIZEOF_STATIC_ARRAY(display_globals),
                              display_globals );
-
-    output_alloc_to_file( ".alloc_stats" );
 
     return( EX_OK );
 }
