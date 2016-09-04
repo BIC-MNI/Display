@@ -172,7 +172,7 @@ create_tick_label(VIO_Real position, const VIO_Point *tick_pt,
   text_ptr = get_text_ptr( object_ptr );
   initialize_text( text_ptr, &pt, Colour_bar_text_colour, Colour_bar_text_font,
                    Colour_bar_text_size );
-  text_ptr->string = create_string( label );
+  replace_string(&text_ptr->string, create_string( label ));
   return object_ptr;
 }
 
@@ -1065,11 +1065,11 @@ rebuild_intensity_plot( display_struct *display )
 
   if ( horiz_axis_index < 0 )
   {
-    text_ptr->string = create_string( "mm" );
+    replace_string(&text_ptr->string, create_string( "mm" ));
   }
   else
   {
-    text_ptr->string = create_string( axis_names[horiz_axis_index] );
+    replace_string(&text_ptr->string, create_string( axis_names[horiz_axis_index] ));
   }
   add_object_to_model( model_ptr, object_ptr );
 

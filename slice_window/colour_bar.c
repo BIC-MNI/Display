@@ -88,7 +88,8 @@ initialize_colour_bar( display_struct *slice_window )
     n_vertices = 2 * Colour_bar_resolution;
     REALLOC( quadmesh->colours, n_vertices );
 
-    quadmesh->normals = (VIO_Vector *) NULL;
+    FREE( quadmesh->normals );
+    quadmesh->normals = NULL;
 
     add_object_to_model( model, object );
 
