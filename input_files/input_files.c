@@ -390,6 +390,11 @@ load_graphics_file_with_colour(
         {
           sprintf(volume_description + strlen(volume_description),
                   " T:%d", sizes[VIO_T]);
+          if (get_volume_n_dimensions( volume_read_in ) == VIO_MAX_DIMENSIONS)
+          {
+            sprintf(volume_description + strlen(volume_description),
+                    " V:%d", sizes[VIO_V]);
+          }
         }
 
         if ( !is_volume_transform_rigid( volume_read_in ) )

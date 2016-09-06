@@ -1903,6 +1903,9 @@ void  get_slice_plane(
     origin[VIO_T] = voxel[VIO_T];
     x_axis[VIO_T] = 0.0;
     y_axis[VIO_T] = 0.0;
+    origin[VIO_V] = 0.0;
+    x_axis[VIO_V] = 0.0;
+    y_axis[VIO_V] = 0.0;
 }
 
 /**
@@ -2161,6 +2164,7 @@ VIO_BOOL update_voxel_from_cursor(
         /* Don't change the time position.
          */
         voxel[VIO_T] = prev_voxel[VIO_T];
+        voxel[VIO_V] = 0.0;
         changed = set_current_voxel( slice_window, volume_index, voxel );
     }
 
