@@ -409,27 +409,7 @@ get_plot_end_points( display_struct *display,
 
       if (get_volume_n_dimensions( volume ) > VIO_N_DIMENSIONS)
       {
-        int label;
-        VIO_Real r_voxel[VIO_MAX_DIMENSIONS];
-        int i_voxel[VIO_MAX_DIMENSIONS];
-
         horiz_axis_index = VIO_T;
-
-        get_current_voxel( display, volume_index, r_voxel );
-
-        convert_voxel_to_world( volume, r_voxel,
-                                &start[VIO_X],
-                                &start[VIO_Y],
-                                &start[VIO_Z]);
-
-        convert_real_to_int_voxel( get_volume_n_dimensions( volume ),
-                                   r_voxel, i_voxel );
-        label = get_voxel_label( display, volume_index,
-                                 i_voxel[VIO_X], i_voxel[VIO_Y], i_voxel[VIO_Z]);
-        if ( label != 0 )
-          *colour = get_colour_of_label( display, volume_index, label );
-
-        return VIO_T;
       }
       else if (get_axis_index_under_mouse( display, &dummy_index, &axis_index ))
       {
@@ -474,8 +454,31 @@ get_plot_end_points( display_struct *display,
       }
     }
 
-    get_pixels_extent( display, volume_index, view_index, horiz_axis_index,
-                       start, end );
+    if ( horiz_axis_index == VIO_T || horiz_axis_index == VIO_V )
+    {
+      int label;
+      VIO_Real r_voxel[VIO_MAX_DIMENSIONS];
+      int i_voxel[VIO_MAX_DIMENSIONS];
+
+      get_current_voxel( display, volume_index, r_voxel );
+
+      convert_voxel_to_world( volume, r_voxel,
+                              &start[VIO_X],
+                              &start[VIO_Y],
+                              &start[VIO_Z]);
+
+      convert_real_to_int_voxel( get_volume_n_dimensions( volume ),
+                                 r_voxel, i_voxel );
+      label = get_voxel_label( display, volume_index,
+                               i_voxel[VIO_X], i_voxel[VIO_Y], i_voxel[VIO_Z]);
+      if ( label != 0 )
+        *colour = get_colour_of_label( display, volume_index, label );
+    }
+    else
+    {
+      get_pixels_extent( display, volume_index, view_index, horiz_axis_index,
+                         start, end );
+    }
   }
   return horiz_axis_index;
 }
@@ -528,26 +531,28 @@ static void apply_accumulate( int n_dimensions, const int *coord, int value,
 }
 
 /**
- * \brief Get plot data from a time axis.
+ * \brief Get plot data from a non-spatial axis.
  *
  * \param volume The volume containing the data.
  * \param label_volume The label volume associated with the volume.
  * \param degrees_continuity The type of interpolation to perform.
  * \param n_samples The number of samples to take along the plot.
  * \param origin The spatial origin of the data collection.
+ * \param horiz_axis_index The axis (VIO_V or VIO_T) to vary.
  * \param data The buffer for the data samples (OUTPUT).
  * \param min_data The minimum value in the data buffer (OUTPUT).
  * \param max_data The maximum value in the data buffer (OUTPUT).
  */
 static void
-get_time_plot_data( VIO_Volume volume,
-                    VIO_Volume label_volume,
-                    int degrees_continuity,
-                    VIO_Real origin[],
-                    int n_samples,
-                    VIO_Real data[],
-                    VIO_Real *min_data,
-                    VIO_Real *max_data)
+get_nonspatial_plot_data( VIO_Volume volume,
+                          VIO_Volume label_volume,
+                          int degrees_continuity,
+                          const VIO_Real origin[],
+                          int n_samples,
+                          int horiz_axis_index,
+                          VIO_Real data[],
+                          VIO_Real *min_data,
+                          VIO_Real *max_data)
 {
   VIO_Real r_voxel[VIO_MAX_DIMENSIONS];
   int i_voxel[VIO_MAX_DIMENSIONS];
@@ -588,14 +593,13 @@ get_time_plot_data( VIO_Volume volume,
             sparse_array_insert( &label_set, coord, 0 );
   }
 
-  r_voxel[VIO_V] = 0;
   *min_data = +DBL_MAX;
   *max_data = -DBL_MAX;
   for (i = 0; i < n_samples; i++)
   {
     double val;
 
-    r_voxel[VIO_T] = i;
+    r_voxel[horiz_axis_index] = i;
 
     if ( label_set.n_entries > 0 )
     {
@@ -909,21 +913,22 @@ rebuild_intensity_plot( display_struct *display )
   horiz_axis_index = get_plot_end_points( display, volume_index,
                                           start, end, &plot_colour );
 
-  if ( horiz_axis_index == VIO_T )
+  if ( horiz_axis_index == VIO_T || horiz_axis_index == VIO_V )
   {
     int sizes[VIO_MAX_DIMENSIONS];
     get_volume_sizes( volume, sizes );
 
-    plot_domain = n_samples = sizes[VIO_T];
+    plot_domain = n_samples = sizes[horiz_axis_index];
 
     ALLOC( data, n_samples );
 
-    get_time_plot_data( volume,
-                        get_nth_label_volume( display, volume_index ),
-                        display->slice.degrees_continuity,
-                        start,
-                        n_samples,
-                        data, &min_data, &max_data );
+    get_nonspatial_plot_data( volume,
+                              get_nth_label_volume( display, volume_index ),
+                              display->slice.degrees_continuity,
+                              start,
+                              n_samples,
+                              horiz_axis_index,
+                              data, &min_data, &max_data );
   }
   else
   {
