@@ -129,6 +129,8 @@ load_graphics_file_with_colour(
         filename_extension_matches(filename,"iff") ||
         filename_extension_matches(filename,"mgh") ||
         filename_extension_matches(filename,"mgz") ||
+        filename_extension_matches(filename,"nrrd") ||
+        filename_extension_matches(filename,"nhdr") ||
         filename_extension_matches(filename,"nii") ||
         filename_extension_matches(filename,"hdr") ||
         filename_extension_matches(filename,"fre") )
