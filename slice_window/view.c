@@ -749,7 +749,7 @@ void  scale_slice_view(
       /* Make sure the image does not get smaller than 10% of its
        * original size.
        */
-      if (scale_factor < 1.0 && x_scale < 0.1) {
+      if (scale_factor < 1.0 && x_scale * step < 0.1) {
         return;
       }
     }
