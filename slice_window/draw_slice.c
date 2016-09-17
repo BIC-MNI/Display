@@ -1865,7 +1865,7 @@ static  VIO_BOOL  composite_is_visible(
             if( slice_window->slice.volumes[i].opacity < 1.0 )
                 return( TRUE );
 
-            if( get_label_visibility( slice_window, i, view ) )
+            if( get_labels_visibility( slice_window, i, view ) )
                 return( TRUE );
 
             if( get_Colour_a_0_1( get_colour_coding_under_colour(
@@ -1982,8 +1982,8 @@ void  update_slice_pixel_visibilities(
 
         set_object_visibility( get_label_slice_pixels_object(
                                               slice_window,volume_index,view),
-                               get_label_visibility( slice_window,
-                                              volume_index,view ) &&
+                               get_labels_visibility( slice_window,
+                                                      volume_index, view ) &&
                                !composite_visibility );
     }
 

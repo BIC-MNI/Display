@@ -747,3 +747,25 @@ DEF_MENU_UPDATE(load_user_defined_colour_scale )
 {
     return( get_n_volumes(display) > 0 );
 }
+
+DEF_MENU_FUNCTION( toggle_label_visibility )
+{
+  int            label;
+  display_struct *slice_window;
+  int            volume_index;
+
+  if( get_slice_window( display, &slice_window ) &&
+      ( volume_index = get_current_volume_index( slice_window ) ) >= 0 &&
+      get_user_input( "Enter a label value: ", "d", &label ) == VIO_OK)
+  {
+    VIO_BOOL fvis = is_label_visible( slice_window, volume_index, label );
+    set_label_visible( slice_window, volume_index, label, !fvis );
+    colour_coding_has_changed( slice_window, volume_index, UPDATE_LABELS );
+  }
+  return VIO_OK;
+}
+
+DEF_MENU_UPDATE( toggle_label_visibility )
+{
+    return( get_n_volumes( display ) > 0 );
+}

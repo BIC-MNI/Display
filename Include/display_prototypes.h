@@ -260,6 +260,7 @@ vertex_data_struct *input_vertex_data( VIO_STR filename );
 
   DEF_MENU_UPDATE(show_memory );
 
+/* callbacks/colour_coding.c */
   DEF_MENU_FUNCTION(set_colour_limits );
 
   DEF_MENU_UPDATE(set_colour_limits );
@@ -356,6 +357,11 @@ vertex_data_struct *input_vertex_data( VIO_STR filename );
 
   DEF_MENU_UPDATE(load_user_defined_colour_scale );
 
+DEF_MENU_FUNCTION( toggle_label_visibility );
+
+DEF_MENU_UPDATE( toggle_label_visibility );
+
+/**/
 DEF_MENU_FUNCTION( menu_next_vertex_data );
 
 DEF_MENU_UPDATE( menu_next_vertex_data );
@@ -2078,6 +2084,7 @@ void rebuild_ticks_and_text(colour_bar_struct *colour_bar,
     slice_window_struct   *slice,
     int                   volume_index );
 
+
   void  set_slice_window_number_labels(
     display_struct    *slice_window,
     int               volume_index,
@@ -2097,7 +2104,7 @@ void rebuild_ticks_and_text(colour_bar_struct *colour_bar,
   VIO_BOOL  label_volume_exists(
     display_struct   *display );
 
-  VIO_BOOL  get_label_visibility(
+  VIO_BOOL  get_labels_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index );
@@ -2175,6 +2182,12 @@ void rebuild_ticks_and_text(colour_bar_struct *colour_bar,
   VIO_Status  load_user_defined_colour_coding(
     display_struct   *slice_window,
     VIO_STR           filename );
+
+void set_label_visible( display_struct *slice_window,
+                         int volume_label, int label, VIO_BOOL is_visible );
+
+VIO_BOOL is_label_visible( display_struct *slice_window,
+                           int volume_label, int label );
 
 /* slice_window/crop.c */
   void  initialize_crop_box(

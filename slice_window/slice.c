@@ -908,8 +908,8 @@ static  void  render_more_slices(
                     {
                         update_flag_ptr = &slice_window->slice.volumes[v].
                                               views[view].update_labels_flag;
-                        slice_is_visible = get_label_visibility( slice_window,
-                                                                 v, view );
+                        slice_is_visible = get_labels_visibility( slice_window,
+                                                                  v, view );
                     }
 
                     if( (*update_flag_ptr || update_in_progress[which_volume])&&

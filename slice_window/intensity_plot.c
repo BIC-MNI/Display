@@ -671,6 +671,7 @@ get_spatial_plot_data( display_struct *slice_window,
   int        int_voxel[VIO_MAX_DIMENSIONS];
   int        label;
   VIO_Volume label_volume = get_nth_label_volume( slice_window, volume_index );
+  VIO_Colour col;
 
   fill_Vector(step,
               end[VIO_X] - start[VIO_X],
@@ -715,7 +716,10 @@ get_spatial_plot_data( display_struct *slice_window,
         label = 0;
     }
 
-    colours[i] = slice_window->slice.volumes[volume_index].label_colour_table[label];
+    col = slice_window->slice.volumes[volume_index].label_colour_table[label];
+    if (get_Colour_a(col) == 0)
+      col = make_rgba_Colour(0, 0, 0, 0);
+    colours[i] = col;
 
     if (val < *min_data)
       *min_data = val;

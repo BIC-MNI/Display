@@ -419,6 +419,8 @@ typedef struct loaded_volume
     /**
      * Array used to map label values to colour values. Because label
      * values are integers, this table is a straightforward map.
+     * It holds the _current_ colours used to draw the labels, so for
+     * temporarily disabled labels, it might be cleared.
      */
     VIO_Colour             *label_colour_table;
 

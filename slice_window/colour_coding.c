@@ -1051,7 +1051,7 @@ VIO_BOOL  label_volume_exists(
  * desired view.
  * \returns TRUE if the labels are visible in this volume and view.
  */
-VIO_BOOL  get_label_visibility(
+VIO_BOOL  get_labels_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index )
@@ -1205,6 +1205,19 @@ static  void  rebuild_colour_table(
 }
 
 /**
+ * Get the opacity (alpha-value of all of a volume's labels.
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \returns The current opacity, a floating point number in the range
+ * [0, 1].
+ */
+VIO_Real get_label_opacity( display_struct *slice_window,
+                            int volume_index )
+{
+  return slice_window->slice.volumes[volume_index].label_colour_opacity;
+}
+
+/**
  * Sets the colour associated with a particular label value.
  * \param slice_window A pointer to the slice window's display_struct.
  * \param volume_index The zero-based index of the desired volume.
@@ -1217,16 +1230,16 @@ void   set_colour_of_label(
     int               label,
     VIO_Colour        colour )
 {
-    VIO_Real  r, g, b;
-
     if( get_Colour_a(colour) == 255 )
     {
+        VIO_Real  r, g, b;
+
         r = get_Colour_r_0_1( colour );
         g = get_Colour_g_0_1( colour );
         b = get_Colour_b_0_1( colour );
 
         colour = make_rgba_Colour_0_1( r, g, b,
-              slice_window->slice.volumes[volume_index].label_colour_opacity );
+                             get_label_opacity( slice_window, volume_index ) );
     }
 
     slice_window->slice.volumes[volume_index].label_colour_table[label] =colour;
@@ -1961,4 +1974,52 @@ VIO_Status  load_user_defined_colour_coding(
                          volume_index ].colour_coding, filename );
 
     return( status );
+}
+
+/**
+ * Set the visibility of an individual label.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the volume.
+ * \param label The label whose visibility we want to change.
+ * \param is_visible TRUE if the label should be visible, FALSE if not.
+ */
+void
+set_label_visible( display_struct *slice_window, int volume_index,
+                   int label, VIO_BOOL is_visible)
+{
+  VIO_Colour *table;
+  VIO_Colour col;
+  VIO_Real r, g, b, a;          /*  colour components */
+
+  if ( label >= get_num_labels( slice_window, volume_index ) )
+    return;
+
+  table = slice_window->slice.volumes[volume_index].label_colour_table;
+  col = table[label];
+  r = get_Colour_r_0_1( col );
+  g = get_Colour_g_0_1( col );
+  b = get_Colour_b_0_1( col );
+  a = ( is_visible ) ? get_label_opacity( slice_window, volume_index ) : 0;
+  table[label] = make_rgba_Colour_0_1( r, g, b, a );
+}
+
+/**
+ * Check the visibility of an individual label.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the volume.
+ * \param label The label whose visibility we want to change.
+ * \returns TRUE if the label is currently visible.
+ */
+VIO_BOOL
+is_label_visible( display_struct *slice_window, int volume_index, int label )
+{
+  VIO_Colour *table;
+
+  if ( label >= get_num_labels( slice_window, volume_index ))
+    return FALSE;
+
+  table = slice_window->slice.volumes[volume_index].label_colour_table;
+  return get_Colour_a( table[label] ) > 0;
 }
