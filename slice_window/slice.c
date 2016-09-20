@@ -230,7 +230,7 @@ static  void  delete_slice_window_volume_stuff(
   void  delete_slice_window(
     display_struct   *slice_window )
 {
-    delete_slice_undo( slice_window, -1 );
+    shutdown_slice_undo( slice_window );
 
     while( slice_window->slice.n_volumes > 0 )
     {

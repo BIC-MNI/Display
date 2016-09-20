@@ -230,6 +230,23 @@ initialize_slice_undo(volume_undo_struct  *undo)
 }
 
 /**
+ * Program is shutting down, completely delete slice undo information.
+ *
+ * \param slice_window The display_struct for the volume.
+ */
+void
+shutdown_slice_undo(display_struct *slice_window )
+{
+    int i;
+    delete_slice_undo( slice_window, -1 );
+    for_less (i, 0, get_n_volumes( slice_window ))
+    {
+        volume_undo_struct *undo_ptr = &slice_window->slice.volumes[i].undo;
+        FREE(undo_ptr->prior_labels);
+    }
+}
+
+/**
  * Complete recording a brush stroke for later undo operations.
  *
  * \param slice_window The display_struct for the slice window.
@@ -396,7 +413,6 @@ delete_slice_undo(display_struct *slice_window, int volume_index )
             sparse_array_free(&undo_ptr->prior_labels[j]);
         }
         undo_ptr->n_undo = 0;
-        FREE(undo_ptr->prior_labels);
     }
 }
 

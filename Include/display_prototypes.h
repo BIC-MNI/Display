@@ -2484,6 +2484,8 @@ void add_slice_window_volume(display_struct *display,
   void  initialize_slice_undo(
     volume_undo_struct  *undo );
 
+void shutdown_slice_undo( display_struct *slice_window );
+
   void  delete_slice_undo(
     display_struct     *slice_window,
     int                volume_index );
