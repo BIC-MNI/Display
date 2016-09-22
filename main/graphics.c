@@ -400,6 +400,7 @@ static  void  initialize_graphics_window(
         case MENU_WINDOW:      view_type = PIXEL_VIEW;   break;
         case SLICE_WINDOW:     view_type = PIXEL_VIEW;   break;
         case MARKER_WINDOW:    view_type = PIXEL_VIEW;   break;
+        case LABEL_WINDOW:     view_type = PIXEL_VIEW;   break;
         default:               print_error("Illegal window type."); break;
         }
 
@@ -453,6 +454,9 @@ static  void  initialize_graphics_window(
 
     if( display->window_type == MARKER_WINDOW )
         initialize_marker_window( display );
+
+    if( display->window_type == LABEL_WINDOW )
+        initialize_label_window( display );
 
     display->frame_number = 0;
     display->update_required[NORMAL_PLANES] = FALSE;

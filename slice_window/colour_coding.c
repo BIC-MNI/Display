@@ -1997,7 +1997,7 @@ set_label_visible( display_struct *slice_window, int volume_index,
   VIO_Colour col;
   VIO_Real r, g, b, a;          /*  colour components */
 
-  if ( label >= get_num_labels( slice_window, volume_index ) )
+  if ( label <= 0 || label >= get_num_labels( slice_window, volume_index ) )
     return;
 
   table = slice_window->slice.volumes[volume_index].label_colour_table;
@@ -2022,7 +2022,7 @@ is_label_visible( display_struct *slice_window, int volume_index, int label )
 {
   VIO_Colour *table;
 
-  if ( label >= get_num_labels( slice_window, volume_index ))
+  if ( label <= 0 || label >= get_num_labels( slice_window, volume_index ))
     return FALSE;
 
   table = slice_window->slice.volumes[volume_index].label_colour_table;

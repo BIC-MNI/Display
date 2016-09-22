@@ -232,7 +232,8 @@ SET(C_SRC
            callbacks/volume_ops.c 
            callbacks/volume_transform_ops.c 
            current_obj/current_obj.c 
-           images/images.c 
+           images/images.c
+           label_window/label_window.c
            markers/markers.c 
            surface_extraction/boundary_extraction.c 
            surface_extraction/data_structs.c 

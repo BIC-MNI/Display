@@ -61,6 +61,7 @@ typedef  enum  { THREE_D_WINDOW,
                  MENU_WINDOW,
                  SLICE_WINDOW,
                  MARKER_WINDOW,
+                 LABEL_WINDOW,
                  N_WINDOW_TYPES }
                window_types;
 
@@ -116,6 +117,33 @@ typedef  struct
 } three_d_window_struct;
 
 
+typedef struct label_window
+{
+    int      default_x_size;    /**< Original window width.  */
+    int      default_y_size;    /**< Original window height.  */
+
+    /** Defines the position in pixesl of the left side of the selection box.
+     */
+    VIO_Real selected_x_origin;
+
+    /** Defines the position in pixels of the bottom of the selection box.
+     */
+    VIO_Real selected_y_origin;
+
+    /** Defines the x padding of text within the selection box.
+     */
+    VIO_Real selected_x_offset;
+
+    /** Defines the y padding of text within the selection box.
+     */
+    VIO_Real selected_y_offset;
+  
+    VIO_Real font_size;         /**< Desired size of marker window font.  */
+
+    int top_index;
+    int n_visible;
+} label_window_struct;
+
 typedef  struct  display_struct
 {
     window_types               window_type;
@@ -124,6 +152,7 @@ typedef  struct  display_struct
     menu_window_struct         menu;
     slice_window_struct        slice;
     marker_window_struct       marker;
+    label_window_struct        label;
 
     Gwindow                    window;
     VIO_Point                  prev_mouse_position;

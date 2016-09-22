@@ -364,6 +364,8 @@ static  void  delete_slice_window_volume_stuff(
 
     set_current_volume_index( slice_window, new_volume_index );
 
+    rebuild_label_window( slice_window );
+
     set_slice_window_all_update( slice_window, -1, UPDATE_BOTH );
 }
 

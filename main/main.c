@@ -70,7 +70,7 @@ int  main(
 {
     int              i, view;
     display_struct   *graphics;
-    display_struct   *menu, *slice_window, *marker;
+    display_struct   *menu, *slice_window, *marker, *label;
     VIO_STR           globals_filename, runtime_directory;
     int               n_directories;
     VIO_STR           *directories;
@@ -160,7 +160,17 @@ int  main(
         return( 1 );
 
     delete_string( title );
+    
     G_set_visibility(marker->window, !Hide_marker_window);
+
+    title = concat_strings( PROJECT_NAME, ": Labels" );
+    if( create_graphics_window( LABEL_WINDOW,
+                                Graphics_double_buffer_flag, &label, title,
+                                0, 0, 250, 500 ) != VIO_OK )
+        return( 1 );
+
+    delete_string( title );
+    G_set_visibility(label->window, TRUE);
 
     title = concat_strings( PROJECT_NAME, ": 3D View" );
 
@@ -222,6 +232,7 @@ int  main(
 
     set_update_required( graphics, NORMAL_PLANES );
     set_update_required( marker, NORMAL_PLANES );
+    set_update_required( label, NORMAL_PLANES );
 
     (void) main_event_loop();
 
