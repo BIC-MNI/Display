@@ -42,6 +42,100 @@ typedef enum
 } Colour_bar_objects;
 
 /**
+ * Create the graphical object that will be used to display the colour bar
+ * object itself. This used to be a quadmesh, but we now use a polygons
+ * object. The appearance in the UI should be identical.
+ * \returns The newly-created object.
+ */
+static object_struct *
+create_colour_bar_object(void)
+{
+    object_struct   *object_ptr = create_object( POLYGONS );
+    VIO_Surfprop    spr = { 1, 0, 0, 0, 1 }; /* surface properties */
+    polygons_struct *polygons_ptr = get_polygons_ptr( object_ptr );
+    int             n_vertices = 2 * Colour_bar_resolution;
+    int             i;
+
+    initialize_polygons( polygons_ptr, WHITE, &spr );
+
+    polygons_ptr->colour_flag = PER_VERTEX_COLOURS;
+    REALLOC( polygons_ptr->colours, n_vertices );
+    polygons_ptr->n_points = n_vertices;
+    polygons_ptr->n_items = (Colour_bar_resolution - 1) * 2;
+    REALLOC( polygons_ptr->points, n_vertices );
+    REALLOC( polygons_ptr->indices, polygons_ptr->n_items * 3);
+    REALLOC( polygons_ptr->end_indices, polygons_ptr->n_items );
+
+    for (i = 0; i < polygons_ptr->n_items; i += 2)
+    {
+      int n = i * 3;
+
+      /* Each 'row' of the colour bar consists of two triangles, which
+       * are combined to make a thin rectangle.
+       */
+      polygons_ptr->indices[n + 0] = i + 0;
+      polygons_ptr->indices[n + 1] = i + 1;
+      polygons_ptr->indices[n + 2] = i + 2;
+      polygons_ptr->end_indices[i + 0] = n + 3;
+
+      polygons_ptr->indices[n + 3] = i + 1;
+      polygons_ptr->indices[n + 4] = i + 2;
+      polygons_ptr->indices[n + 5] = i + 3;
+      polygons_ptr->end_indices[i + 1] = n + 6;
+    }
+    return object_ptr;
+}
+
+/**
+ * Update the position and colours of the colour bar object.
+ * \param object_ptr The object to update.
+ * \param left The left (minimum x) coordinate of the colour bar.
+ * \param right The right (maximum x) coordinate of the colour bar.
+ * \param bottom The bottom (minimum y) coordinate of the colour bar.
+ * \param top The top (maximum y) coordinate of the colour bar.
+ * \param min_value The minimum value of the overall data range. 
+ * \param max_value The maximum value of the overall data range.
+ * \param ccs_ptr A pointer to the colour coding structure.
+ */
+static void
+update_colour_bar_object( object_struct        *object_ptr, 
+                          VIO_Real             left,
+                          VIO_Real             right,
+                          VIO_Real             bottom, 
+                          VIO_Real             top,
+                          VIO_Real             min_value,
+                          VIO_Real             max_value,
+                          colour_coding_struct *ccs_ptr)
+{
+  int i;
+  polygons_struct *polygons = get_polygons_ptr( object_ptr );
+  VIO_Real ratio, value, y;
+  VIO_Colour colour;
+  VIO_Real range = (VIO_Real) (Colour_bar_resolution - 1);
+
+  for_less( i, 0, Colour_bar_resolution )
+  {
+    ratio = (VIO_Real) i / (VIO_Real) range;
+
+    /* set the points */
+
+    y = VIO_INTERPOLATE( ratio, bottom, top );
+
+    fill_Point( polygons->points[i * 2 + 0], left, y, 0.0 );
+
+    fill_Point( polygons->points[i * 2 + 1], right, y, 0.0 );
+
+    /* set the colours */
+
+    value = VIO_INTERPOLATE( ratio, min_value, max_value );
+
+    colour = get_colour_code( ccs_ptr, value );
+
+    polygons->colours[i * 2 + 0] = polygons->colours[i * 2 + 1] = colour;
+  }
+}
+
+/**
  * Initialize data structures used to display the colour bar widget
  * in the slice window.
  *
@@ -51,16 +145,11 @@ typedef enum
 void
 initialize_colour_bar( display_struct *slice_window )
 {
-    int               n_vertices;
     object_struct     *object;
-    quadmesh_struct   *quadmesh;
     lines_struct      *lines;
     model_struct      *model;
     model_info_struct *model_info;
     colour_bar_struct *colour_bar;
-    VIO_Surfprop      spr = {   /* surface properties for color bar */
-      1, 0, 0, 0, 1
-    };
 
     colour_bar = &slice_window->slice.colour_bar;
 
@@ -79,19 +168,8 @@ initialize_colour_bar( display_struct *slice_window )
     model_info->render.master_light_switch = FALSE;
     model_info->render.backface_flag = FALSE;
 
-    object = create_object( QUADMESH );
-
-    quadmesh = get_quadmesh_ptr( object );
-    initialize_quadmesh( quadmesh, WHITE, &spr, Colour_bar_resolution, 2 );
-
-    quadmesh->colour_flag = PER_VERTEX_COLOURS;
-    n_vertices = 2 * Colour_bar_resolution;
-    REALLOC( quadmesh->colours, n_vertices );
-
-    FREE( quadmesh->normals );
-    quadmesh->normals = NULL;
-
-    add_object_to_model( model, object );
+    /* Create and add the colour bar object itself. */
+    add_object_to_model( model, create_colour_bar_object() );
 
     object = create_object( LINES );
 
@@ -292,18 +370,16 @@ rebuild_ticks_and_text(colour_bar_struct *colour_bar,
 void
 rebuild_colour_bar( display_struct *slice_window )
 {
-    int                 i, volume_index;
-    VIO_Real            y;
+    int                 volume_index;
     int                 x_min, x_max, y_min, y_max;
-    VIO_Real            bottom, top;
-    VIO_Real            ratio, value, min_value, max_value;
+    VIO_Real            min_value, max_value;
     VIO_Real            start_threshold, end_threshold;
-    VIO_Colour          colour;
     colour_bar_struct   *colour_bar;
     object_struct       *object;
-    quadmesh_struct     *quadmesh;
     VIO_Volume          volume;
     model_struct        *model;
+    VIO_Real            top;
+    VIO_Real            bottom;
 
     object = slice_window->models[COLOUR_BAR_MODEL];
 
@@ -334,36 +410,17 @@ rebuild_colour_bar( display_struct *slice_window )
     get_slice_model_viewport( slice_window, COLOUR_BAR_MODEL,
                               &x_min, &x_max, &y_min, &y_max );
 
-    quadmesh = get_quadmesh_ptr( model->objects[BAR] );
-
     bottom = colour_bar->bottom_offset;
     top = (VIO_Real) y_max - (VIO_Real) y_min - colour_bar->top_offset;
 
-    for_less( i, 0, quadmesh->m )
-    {
-        ratio = (VIO_Real) i / (VIO_Real) (quadmesh->m-1);
-
-        /* set the points */
-
-        y = VIO_INTERPOLATE( ratio, bottom, top );
-
-        fill_Point( quadmesh->points[VIO_IJ(i,1,2)],
-                    colour_bar->left_offset, y, 0.0 );
-
-        fill_Point( quadmesh->points[VIO_IJ(i,0,2)],
-                    colour_bar->left_offset + colour_bar->bar_width,
-                    y, 0.0 );
-
-        /* set the colours */
-
-        value = VIO_INTERPOLATE( ratio, min_value, max_value );
-
-        colour = get_colour_code( &slice_window->slice.volumes[volume_index].
-                                  colour_coding, value );
-
-        quadmesh->colours[VIO_IJ(i,0,2)] = colour;
-        quadmesh->colours[VIO_IJ(i,1,2)] = colour;
-    }
+    update_colour_bar_object( model->objects[BAR],
+                              colour_bar->left_offset,
+                              colour_bar->left_offset + colour_bar->bar_width,
+                              bottom,
+                              top,
+                              min_value,
+                              max_value,
+                              &slice_window->slice.volumes[volume_index].colour_coding);
 
     /* now rebuild the tick marks and numbers */
     rebuild_ticks_and_text( colour_bar, model,
