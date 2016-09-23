@@ -1098,22 +1098,21 @@ static  int  render_slice_to_pixels(
     VIO_BOOL               continuing_flag,
     VIO_BOOL               *finished )
 {
-    int                   n_pixels_drawn, n_pixels_redraw;
-    int                   width, x_min, x_max, y_min, y_max;
-    int                   x_centre, y_centre, edge_index;
-    int                   x_sub_min, x_sub_max, y_sub_min, y_sub_max;
-    int                   x, y, height, *n_alloced_ptr;
-    int                   r, g, b, opacity;
-    VIO_Colour                empty, colour;
-    VIO_Real                  x_pixel, y_pixel;
-    VIO_Real                  x_trans, y_trans, x_scale, y_scale;
-    VIO_Real                  current_voxel[VIO_MAX_DIMENSIONS];
-    VIO_Real                  origin[VIO_MAX_DIMENSIONS];
-    VIO_Real                  x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
-    VIO_BOOL               first_flag, force_update_limits;
-    VIO_Colour                **colour_map;
-    loaded_volume_struct  *vol_info;
-    VIO_Volume                volume;
+    int                  n_pixels_drawn, n_pixels_redraw;
+    int                  width, x_min, x_max, y_min, y_max;
+    int                  x_centre, y_centre, edge_index;
+    int                  x_sub_min, x_sub_max, y_sub_min, y_sub_max;
+    int                  x, y, height, *n_alloced_ptr;
+    VIO_Colour           empty, colour;
+    VIO_Real             x_pixel, y_pixel;
+    VIO_Real             x_trans, y_trans, x_scale, y_scale;
+    VIO_Real             current_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real             origin[VIO_MAX_DIMENSIONS];
+    VIO_Real             x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
+    VIO_BOOL             first_flag, force_update_limits;
+    VIO_Colour           **colour_map;
+    loaded_volume_struct *vol_info;
+    VIO_Volume           volume;
 
     if( !continuing_flag )
     {
@@ -1329,7 +1328,7 @@ static  int  render_slice_to_pixels(
                     x_min, x_max, y_min, y_max,
                     RGB_PIXEL, continuity,
                     (unsigned short **) NULL, colour_map,
-                    make_rgba_Colour( 0, 0, 0, 0 ),
+                    TRANSPARENT,
                     colour_coding,
                     slice_window->slice.render_storage,
                     TRUE, n_alloced_ptr, pixels );
@@ -1337,15 +1336,22 @@ static  int  render_slice_to_pixels(
             pixels->x_position += x_sub_min;
             pixels->y_position += y_sub_min;
 
-            if( is_an_rgb_volume( volume ) && vol_info->opacity != 1.0 )
+            /* If the colour_map is not used, we may need to modify
+             * the rendered pixels to account for changes in the
+             * opacity.
+             */
+            if( colour_map == NULL && vol_info->opacity != 1.0 )
             {
-                opacity = VIO_ROUND( 255.0 * vol_info->opacity );
+                int r, g, b;
+                int opacity = VIO_ROUND( 255.0 * vol_info->opacity );
 
                 for_inclusive( x, x_min, x_max )
                 {
                     for_inclusive( y, y_min, y_max )
                     {
                         colour = PIXEL_RGB_COLOUR( *pixels, x, y );
+                        if ( colour == 0 ) /* TRANSPARENT */
+                            continue;
                         r = get_Colour_r( colour );
                         g = get_Colour_g( colour );
                         b = get_Colour_b( colour );
@@ -1388,7 +1394,7 @@ static  int  render_slice_to_pixels(
 
     if( first_flag && !(*finished) )
     {
-        empty = make_rgba_Colour( 0, 0, 0, 0 );
+        empty = TRANSPARENT;
         for_less( y, 0, pixels->y_size )
         {
             for_less( x, 0, vol_info->views[view_index].x_min_update
@@ -1793,7 +1799,7 @@ static  void  create_composite(
     for_less( i, 0, n_pixels )
         dest[i] = background_colour;
 
-    empty = make_rgba_Colour( 0, 0, 0, 0 );
+    empty = TRANSPARENT;
 
     for_less( slice, 0, n_slices )
     {
