@@ -269,6 +269,15 @@ fractions of the actual range.}{}
 histogram. In other words, by default we don't consider histogram bins
 0-3 to contribute to the percentiles used to calculate the range.}{}
 
+\globalentry{Initial\_label\_colour\_table} {Integer}{0}
+{This variable controls the normal or default colours used for labels
+in \display{}. A value of zero (the default) selects the 'classic'
+colour table used in \display{} for many years. However, this table
+has known deficiencies, including many repeated colours. A value of
+1 selects a standard colour table that is used in other tools at
+the MNI. A value of 2 selects an experimental colour table that
+attempts to maximize the visual distance between colours.}{}
+
 \globalentry{Initial\_perspective\_flag}
 {Boolean}{False}
 {Sets the initial value of the projection approach used in 3D rendering. A value of false selects parallel projection, whereas true selects perspective projection.}

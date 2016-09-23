@@ -1,10 +1,50 @@
+2016-09-23 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* slice_window/draw_slice.c: Fix bug which caused floating-point
+	images to fail to respond to opacity changes.
+
+2016-09-22 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* slice_window/colour_bar.c: Use a polygon rather than a quadmesh
+	to implement the slice window's colour bar. This is done to avoid
+	an apparent issue where some graphics drivers were not rendering
+	quadmeshes correctly.
+
+2016-09-17 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* slice_window/colour_coding.c, callbacks/colour_coding.c, etc.:
+	Implement a command that allows individual labels to be temporarily
+	hidden.
+
+2016-09-15 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* input_files/input_files.c: Support NRRD files (TODO: make this
+	type of change unnecessary, since the real changes were all in
+	volume_io).
+
+2016-09-07 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* slice_window/intensity_plot.c: Better handling for time and
+	vector dimension plots.
+
+2016-09-03 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* input_files/volume_file.c: Don't crash if a file contains
+	a vector dimension.
+
+2016-09-01 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* Include/global_variables.h: Make Convert_volumes_to_byte FALSE
+	by default.
+
+2016-07-08 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* slice_window/colour_coding.c, slice_window/distinct_colours.c:
+	Support alternative default colour tables for labels.
+
+2016-07-06 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* slice_window/colour_coding.c: Improve behavior of object
+	colourization.
+
 2016-06-30 Robert D. Vincent <robert.d.vincent@mcgill.ca>
 	* main/main.c, callbacks/object_ops.c, Include/display_prototypes.h:
 	Prompt the user before carrying out the "Show Vertices" command.
 
 2016-06-29 Robert D. Vincent <robert.d.vincent@mcgill.ca>
 	* CMakeLists.txt: Bump version to 2.0.6
-	* menu/selected.c: Fix potential crash when too many object are
+	* menu/selected.c: Fix potential crash when too many objects are
 	created
 	* Include/global_variables.h, main/main.c: Make Zenity_command a
 	configurable global.

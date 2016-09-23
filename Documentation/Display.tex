@@ -121,8 +121,8 @@ involve core functionality.
 \begin{itemize}
 \item The intersection between a 3D surface and the loaded volume is automatically displayed in the slice window.
 \item Dynamic scans (e.g. DTI, fMRI, and PET) can now be loaded in \display{}.
-\item The ability to read FreeSurfer (.mgz/.mgh) and NIfTI-1 (.nii)
-  volumes.
+\item Support for reading FreeSurfer (.mgz/.mgh), NIfTI-1 (.nii/.hdr), and
+  NRRD (.nrrd/.nhdr) volumes.
 \item Output support for surface formats including Wavefront OBJ,
   Stanford PLY, GIFTI, and X3D.
 \item Input support for surface and geometric formats including Wavefront OBJ, Stanford (\ident{.ply}), GIFTI (\ident{.gii}), BrainSuite surfaces (\ident{.dfs}), BrainSuite tractography (\ident{.dft}), and FreeSurfer surfaces.
@@ -1153,6 +1153,11 @@ mouse button is pressed over a slice in the slice window, the current
 paint label value is painted into the label volume of the most recently
 loaded visible volume.  
 
+The mapping from label values to colours is arbitrary and can
+be configured by loading a discrete colour map \ident{.map} file. The
+default mappings of label values to colours can be configured using the
+{\tt Initial\_label\_colour\_table} command.
+
 \subsubsection{Erasing}
 
 The default value of all labels is zero, which is considered to be the
@@ -1279,10 +1284,9 @@ the brush size will set the size of the current brush.
   If the maximum value specified is less than or equal to the minimum value,
   then this range is ignored, and the operation simply changes all
   occurrences of the source label to the destination label.
-\item[\menutwo{Segmenting}{Fast Update}] Toggles between updating only
-  the slice on which the mouse is painting or all slices, in order to
-  provide a speed tradeoff.  By default, fast update is on, which
-  results in fast painting.
+\item[\menutwo{Segmenting}{Show/Hide Label}] Toggles the visibility
+  of a particular label. The command allows you to make specific label
+  values invisible temporarily. The user is prompted for the label value.
 \item[\menutwo{Segmenting}{Cursor Follows}] Toggles the mode where the
   slice cursor follows the mouse during painting.  This results in
   slower update speeds, but all slice views show updated labels as
