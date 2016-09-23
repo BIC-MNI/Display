@@ -45,21 +45,26 @@ static  void  initialize_label_parameters(
 
     cb_width = checkbox.x_size / 2;
     cb_height = checkbox.y_size;
-    
+
     label->selected_x_offset = Selected_box_x_offset;
     label->selected_y_offset = Selected_box_y_offset;
     label->font_size = 15;
     label->selected_x_origin = Selected_x_origin;
     label->selected_y_origin = y_size - (label->font_size * 2.0);
     label->top_index = 0;
-    label->n_visible = label->selected_y_origin / (cb_height * 2);
+    label->n_visible = VIO_ROUND((VIO_Real) label->selected_y_origin / (cb_height * 2.0));
 }
 
 static DEF_EVENT_FUNCTION( handle_label_resize )
 {
     display_struct *label_window = get_display_by_type( LABEL_WINDOW );
     display_struct *slice_window = get_display_by_type( SLICE_WINDOW );
+    model_struct *model_ptr = get_graphics_model( label_window, SELECTED_MODEL );
     initialize_label_parameters( label_window );
+
+    delete_object_list( model_ptr->n_objects, model_ptr->objects );
+    model_ptr->n_objects = 0;
+
     rebuild_label_window( slice_window );
     return( VIO_OK );
 }
@@ -81,19 +86,19 @@ initialize_label_window(display_struct *label_window)
     G_set_transparency_state( label_window->window, FALSE );
 
     initialize_resize_events( label_window );
-    add_action_table_function( &label_window->action_table, 
+    add_action_table_function( &label_window->action_table,
                                WINDOW_RESIZE_EVENT, handle_label_resize );
 
     label->default_x_size = 250;
     label->default_y_size = 500;
 
     initialize_label_parameters( label_window );
-    
+
     add_action_table_function( &label_window->action_table,
                                LEFT_MOUSE_DOWN_EVENT, left_mouse_press );
 
     add_action_table_function( &label_window->action_table,
-                               RIGHT_MOUSE_DOWN_EVENT, right_mouse_press ); 
+                               RIGHT_MOUSE_DOWN_EVENT, right_mouse_press );
 
     add_action_table_function( &label_window->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT, middle_mouse_press );
@@ -114,12 +119,12 @@ static DEF_EVENT_FUNCTION( left_mouse_press )
   int volume_index = get_current_volume_index( slice_window );
   display_struct *label_window = get_display_by_type( LABEL_WINDOW );
   label_window_struct *label = &label_window->label;
-  
+
   if( G_get_mouse_position( display->window, &x, &y ) )
   {
     int i = VIO_ROUND((label->selected_y_origin - y) / (cb_height * 2.0) );
     int i_label = i + 1 + label->top_index;
-    
+
     if ( x >= label->selected_x_origin &&
          x < label->selected_x_origin + cb_width )
     {
@@ -132,6 +137,7 @@ static DEF_EVENT_FUNCTION( left_mouse_press )
     {
       slice_window->slice.current_paint_label = i_label;
       print( "Paint label set to: %d\n", i_label );
+      rebuild_label_window( slice_window );
     }
   }
   return( VIO_OK );
@@ -165,7 +171,8 @@ static DEF_EVENT_FUNCTION( scroll_down )
     display_struct *slice_window = get_display_by_type( SLICE_WINDOW );
     int volume_index = get_current_volume_index( slice_window );
     int n_labels = get_num_labels( slice_window, volume_index );
-    if ( label_window->label.top_index + label_window->label.n_visible < n_labels )
+    label_window_struct *label = &label_window->label;
+    if ( label->top_index + label->n_visible + 1 < n_labels )
       label_window->label.top_index++;
     rebuild_label_window( slice_window );
     return VIO_OK;
@@ -181,7 +188,7 @@ static DEF_EVENT_FUNCTION( scroll_up )
     return VIO_OK;
 }
 
-/** 
+/**
  * Given a colour, return whether to use a black or white text with it
  * such that the contrast is maximized.
  */
@@ -204,16 +211,20 @@ create_label_objects( display_struct *slice_window, int n_visible,
   pixels_struct *pixels_ptr;
   quadmesh_struct *quadmesh_ptr;
   VIO_Point origin;
-  VIO_Surfprop  spr = {
-    1, 0, 0, 0, 1
-  };
+  VIO_Surfprop  spr = { 1, 0, 0, 0, 1 };
   int volume_index = get_current_volume_index( slice_window );
-  
+  lines_struct *lines_ptr;
+
+  object_ptr = create_object( LINES );
+  lines_ptr = get_lines_ptr( object_ptr );
+  initialize_lines_with_size( lines_ptr, WHITE, 4, TRUE );
+  add_object_to_model( model_ptr, object_ptr );
+
   for_less( i, 0, n_visible )
   {
     VIO_Colour colour = get_colour_of_label( slice_window, volume_index, i );
     object_ptr = create_object( QUADMESH );
-    
+
     quadmesh_ptr = get_quadmesh_ptr( object_ptr );
 
     initialize_quadmesh( quadmesh_ptr, colour, &spr, 2, 2 );
@@ -222,7 +233,7 @@ create_label_objects( display_struct *slice_window, int n_visible,
 
     add_object_to_model( model_ptr, object_ptr );
   }
-  
+
   for_less( i, 0, n_visible )
   {
     object_ptr = create_object( TEXT );
@@ -243,7 +254,7 @@ create_label_objects( display_struct *slice_window, int n_visible,
 
     pixels_ptr = get_pixels_ptr( object_ptr );
 
-    initialize_pixels( pixels_ptr, 0, 0, 
+    initialize_pixels( pixels_ptr, 0, 0,
                        cb_width,
                        cb_height,
                        1.0,
@@ -258,73 +269,76 @@ create_label_objects( display_struct *slice_window, int n_visible,
 void
 rebuild_label_window(display_struct *slice_window)
 {
-  int i;
-  display_struct *label_window = get_display_by_type( LABEL_WINDOW );
+  int                 i;
+  display_struct      *label_window = get_display_by_type( LABEL_WINDOW );
   label_window_struct *label = &label_window->label;
-  int n_labels;
-  object_struct *object_ptr;
-  text_struct *text_ptr;
-  quadmesh_struct *quadmesh_ptr;
-  pixels_struct *pixels_ptr;
-  int volume_index;
-  int n_object = 0;
-  model_struct   *model_ptr = get_graphics_model( label_window,
-                                                  SELECTED_MODEL );
-  int x_size, y_size;
-  int i_label;
-  VIO_Colour colour;
-  
-  volume_index = get_current_volume_index( slice_window );
-  n_labels = get_num_labels( slice_window, volume_index  );
+  object_struct       *object_ptr;
+  text_struct         *text_ptr;
+  lines_struct        *lines_ptr;
+  quadmesh_struct     *quadmesh_ptr;
+  pixels_struct       *pixels_ptr;
+  int                 volume_index = get_current_volume_index( slice_window );
+  int                 n_object = 0;
+  model_struct        *model_ptr;
+  int                 x_size, y_size;
+  int                 i_label;
+  VIO_Colour          colour;
+  int                 show_selected;
 
   G_get_window_size( label_window->window, &x_size, &y_size );
 
+  model_ptr = get_graphics_model( label_window, SELECTED_MODEL );
   if( model_ptr->n_objects == 0 )
   {
     create_label_objects( slice_window, label->n_visible, model_ptr );
   }
 
-  printf("%s %d %d\n", __func__, n_labels, label->n_visible);
+  object_ptr = model_ptr->objects[n_object++];
+  lines_ptr = get_lines_ptr( object_ptr );
 
+  show_selected = FALSE;
   for_less( i, 0, label->n_visible )
   {
-    VIO_Real x, y;
+    VIO_Real top, bottom, left, right;
     i_label = i + 1 + label->top_index;
     colour = get_colour_of_label( slice_window, volume_index, i_label );
 
     object_ptr = model_ptr->objects[n_object++];
-    
+
     quadmesh_ptr = get_quadmesh_ptr( object_ptr );
     quadmesh_ptr->colours[0] = colour;
 
-    x = label->selected_x_origin+cb_width+2;
-    y = label->selected_y_origin - cb_height * 2.0 * i;
-    
-    fill_Point( quadmesh_ptr->points[VIO_IJ(0, 0, 2)], x, y, 0.0 );
+    left = label->selected_x_origin + cb_width + 2;
+    right = left + 200;
+    bottom = label->selected_y_origin - cb_height * 2.0 * i;
+    top = bottom + cb_height;
 
-    x = label->selected_x_origin+cb_width+2+200;
-    y = label->selected_y_origin - cb_height * 2.0 * i;
-    
-    fill_Point( quadmesh_ptr->points[VIO_IJ(0, 1, 2)], x, y, 0.0 );
+    fill_Point( quadmesh_ptr->points[VIO_IJ(0, 0, 2)], left, bottom, 0.0 );
+    fill_Point( quadmesh_ptr->points[VIO_IJ(0, 1, 2)], right, bottom, 0.0 );
+    fill_Point( quadmesh_ptr->points[VIO_IJ(1, 1, 2)], right, top, 0.0 );
+    fill_Point( quadmesh_ptr->points[VIO_IJ(1, 0, 2)], left, top, 0.0 );
 
-    x = label->selected_x_origin+cb_width+2+200;
-    y += cb_height;
-      
-    fill_Point( quadmesh_ptr->points[VIO_IJ(1, 1, 2)], x, y, 0.0 );
-
-    x = label->selected_x_origin+cb_width+2;
-    fill_Point( quadmesh_ptr->points[VIO_IJ(1, 0, 2)], x, y, 0.0 );
+    if ( i_label == slice_window->slice.current_paint_label )
+    {
+      fill_Point( lines_ptr->points[0], left - 1, bottom - 1, 0.0 );
+      fill_Point( lines_ptr->points[1], right + 1, bottom - 1, 0.0 );
+      fill_Point( lines_ptr->points[2], right + 1, top + 1, 0.0 );
+      fill_Point( lines_ptr->points[3], left - 1, top + 1, 0.0 );
+      show_selected = TRUE;
+    }
   }
-  
+
+  set_object_visibility( model_ptr->objects[0], show_selected );
+
   for_less( i, 0, label->n_visible )
   {
     char tmp[256];
     i_label = i + 1 + label->top_index;
     colour = get_colour_of_label( slice_window, volume_index, i_label );
-    
+
 
     object_ptr = model_ptr->objects[n_object++];
-    
+
     text_ptr = get_text_ptr( object_ptr );
 
     fill_Point( text_ptr->origin,
@@ -367,4 +381,3 @@ rebuild_label_window(display_struct *slice_window)
   }
   set_update_required( label_window, NORMAL_PLANES );
 }
-
