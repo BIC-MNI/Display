@@ -129,18 +129,18 @@ static  VIO_Status  io_polygons_visibilities(
 
     if( status == VIO_OK )
     {
-        colour = convert_string_to_colour( string );
+        status = string_to_colour( string, &colour );
 
         delete_string( string );
 
-        display->three_d.surface_edit.visible_colour = colour;
-
+        if ( status == VIO_OK )
+        {
+            display->three_d.surface_edit.visible_colour = colour;
+        }
         string = convert_colour_to_string(
-                    display->three_d.surface_edit.visible_colour );
-
+                     display->three_d.surface_edit.visible_colour );
         print( "The new visible paint colour is: %s\n", string );
     }
-
     return( status );
 }
 
@@ -176,12 +176,14 @@ static  VIO_Status  io_polygons_visibilities(
 
     if( status == VIO_OK )
     {
-        colour = convert_string_to_colour( string );
+        status = string_to_colour( string, &colour );
 
         delete_string( string );
 
-        display->three_d.surface_edit.invisible_colour = colour;
-
+        if ( status == VIO_OK )
+        {
+            display->three_d.surface_edit.invisible_colour = colour;
+        }
         string = convert_colour_to_string(
                      display->three_d.surface_edit.invisible_colour );
 

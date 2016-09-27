@@ -243,13 +243,14 @@ DEF_MENU_FUNCTION( set_label_colour )
                            "ds", &label, &line) == VIO_OK &&
             label >= 1 && label < get_num_labels(slice_window, volume_index))
         {
-            col = convert_string_to_colour( line );
+            if ( string_to_colour( line, &col ) == VIO_OK )
+            {
+                set_colour_of_label( slice_window, volume_index, label, col );
 
-            set_colour_of_label( slice_window, volume_index, label, col );
-
-            set_slice_window_all_update( slice_window, volume_index, 
-                                         UPDATE_LABELS );
-            delete_string( line );
+                set_slice_window_all_update( slice_window, volume_index, 
+                                             UPDATE_LABELS );
+                delete_string( line );
+            }
         }
     }
 

@@ -413,12 +413,15 @@ DEF_MENU_FUNCTION( set_default_marker_colour )
 
     if( status == VIO_OK )
     {
-        colour = convert_string_to_colour( string );
+        status = string_to_colour( string, &colour );
         delete_string( string );
-        display->three_d.default_marker_colour = colour;
-        string = convert_colour_to_string( colour );
-        print( "The new default marker colour is: %s\n", string );
-        delete_string( string );
+        if (status == VIO_OK )
+        {
+            display->three_d.default_marker_colour = colour;
+            string = convert_colour_to_string( colour );
+            print( "The new default marker colour is: %s\n", string );
+            delete_string( string );
+        }
     }
     return( status );
 }
@@ -653,13 +656,16 @@ DEF_MENU_FUNCTION( change_marker_colour )
         status = get_user_input( prompt, "s", &string );
         if( status == VIO_OK )
         {
-            colour = convert_string_to_colour( string );
+            status = string_to_colour( string, &colour );
             delete_string( string );
-            marker->colour = colour;
-            string = convert_colour_to_string( colour );
-            print( "The new colour of this marker is: %s\n", string );
-            delete_string( string );
-            graphics_models_have_changed( display );
+            if ( status == VIO_OK )
+            {
+                marker->colour = colour;
+                string = convert_colour_to_string( colour );
+                print( "The new colour of this marker is: %s\n", string );
+                delete_string( string );
+                graphics_models_have_changed( display );
+            }
         }
     }
     return( VIO_OK );

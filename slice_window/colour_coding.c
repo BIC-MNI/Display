@@ -1659,7 +1659,12 @@ VIO_Status  load_label_colour_map(
             break;
         }
 
-        col = convert_string_to_colour( line );
+        status = string_to_colour( line, &col );
+        if ( status != VIO_OK )
+        {
+            print_error( "Incorrect colour value.\n" );
+            break;
+        }
 
         delete_string( line );
 

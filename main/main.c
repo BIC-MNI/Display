@@ -645,7 +645,11 @@ parse_options(int argc, char *argv[], display_struct *graphics)
         if (colour_string != NULL)
         {
           *colour_string++ = 0;
-          default_colour = convert_string_to_colour( colour_string );
+          if (string_to_colour( colour_string, &default_colour ) != VIO_OK)
+          {
+              print("Colour '%s' not recognized.\n", colour_string );
+              default_colour = WHITE;
+          }
         }
 
         if (load_graphics_file_with_colour(graphics, filename, 

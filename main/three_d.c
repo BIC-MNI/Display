@@ -980,14 +980,15 @@ prompt_vertex_coding_colours( display_struct *display,
 {
     VIO_STR line;
     char text[VIO_EXTREMELY_LARGE_STRING_SIZE];
+    VIO_Colour colour;
 
     snprintf(text, VIO_EXTREMELY_LARGE_STRING_SIZE,
              "Enter new %s colour name or 3 or 4 colour components: ",
              is_under ? "under" : "over");
 
-    if( get_user_input( text, "s", &line ) == VIO_OK )
+    if( get_user_input( text, "s", &line ) == VIO_OK &&
+        string_to_colour( line, &colour ) == VIO_OK )
     {
-        VIO_Colour colour = convert_string_to_colour( line );
         if (is_under)
         {
             set_colour_coding_under_colour( &vtxd_ptr->colour_coding, colour );

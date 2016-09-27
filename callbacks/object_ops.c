@@ -459,12 +459,11 @@ DEF_MENU_FUNCTION( set_current_object_colour )
         if( get_user_input( "Enter colour name or 3 or 4 colour components: ",
                             "s", &line ) == VIO_OK )
         {
-            col = convert_string_to_colour( line );
-
-            set_object_colour( current_object, col );
-
-            graphics_models_have_changed( display );
-
+            if (string_to_colour( line, &col ) == VIO_OK )
+            {
+                set_object_colour( current_object, col );
+                graphics_models_have_changed( display );
+            }
             delete_string( line );
         }
     }

@@ -504,18 +504,16 @@ DEF_MENU_UPDATE(toggle_double_buffer_slice )
  */
 DEF_MENU_FUNCTION( change_background_colour )
 {
-  VIO_Status status;
   VIO_STR    line;
+  VIO_Colour col;
 
-  status = get_user_input( "Enter colour name or 3 or 4 colour components: ",
-                           "s", &line);
-
-  if( status == VIO_OK )
+  if ( get_user_input( "Enter colour name or 3 or 4 colour components: ",
+                           "s", &line) == VIO_OK &&
+       string_to_colour( line, &col ) == VIO_OK )
   {
     display_struct **windows;
     int            n_windows = get_list_of_windows( &windows );
     int            i;
-    VIO_Colour     col = convert_string_to_colour( line );
 
     for_less( i, 0, n_windows )
     {
@@ -532,8 +530,8 @@ DEF_MENU_FUNCTION( change_background_colour )
         }
       }
     }
+    delete_string( line );
   }
-  delete_string( line );
   return( VIO_OK );
 }
 
