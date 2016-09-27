@@ -240,8 +240,9 @@ rebuild_ticks_and_text(colour_bar_struct *colour_bar,
 
   while( model->n_objects > text_offset )
   {
-    delete_object( model->objects[text_offset] );
-    remove_ith_object_from_model( model, text_offset );
+    int object_index = model->n_objects - 1;
+    delete_object( model->objects[object_index] );
+    remove_ith_object_from_model( model, object_index );
   }
 
   range = max_range - min_range;
