@@ -208,7 +208,8 @@ load_graphics_file_with_colour(
 
 /*** input_files/vertex_data.c ***/
 
-vertex_data_struct *input_vertex_data( VIO_STR filename );
+VIO_Status load_vertex_data_file( display_struct *display,
+                                  object_struct *object, VIO_STR filename );
 
   /** \defgroup Commands Menu command functions
    *

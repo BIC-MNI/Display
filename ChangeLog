@@ -1,3 +1,7 @@
+2016-09-28 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* main/main.c, input_files/vertex_data.c, callbacks/file.c: Allow
+	user to specify a vertex data file on the command line.
+
 2016-09-23 Robert D. Vincent <robert.d.vincent@mcgill.ca>
 	* slice_window/draw_slice.c: Fix bug which caused floating-point
 	images to fail to respond to opacity changes.

@@ -70,8 +70,6 @@ DEF_MENU_FUNCTION( menu_load_vertex_data )
     object_struct      *object;
     VIO_STR            filename;
     VIO_Status         status = VIO_OK;
-    vertex_data_struct *vtxd_ptr;
-    polygons_struct    *polygons;
 
     if( !get_current_object( display, &object ) ||
         object->object_type != POLYGONS)
@@ -81,32 +79,12 @@ DEF_MENU_FUNCTION( menu_load_vertex_data )
 
     status = get_user_file("Enter path to vertex data: ", FALSE, NULL,
                            &filename);
-    if (status != VIO_OK)
+    if (status == VIO_OK)
     {
-        return VIO_ERROR;
+        status = load_vertex_data_file( display, object, filename );
+        delete_string( filename );
     }
-
-    if ((vtxd_ptr = input_vertex_data(filename)) == NULL)
-    {
-        print_error("Failed to read vertex data from '%s'.\n", filename);
-        return VIO_ERROR;
-    }
-
-    print("Loaded %d vertex data items, in range [%f ... %f]\n",
-          vtxd_ptr->dims[0],
-          vtxd_ptr->min_v[0], vtxd_ptr->max_v[0]);
-
-    polygons = get_polygons_ptr(object);
-
-    if (polygons->n_points != vtxd_ptr->dims[0])
-    {
-        print("Vertex data requires a polygon object with the same length.\n");
-        return VIO_ERROR;
-    }
-
-    attach_vertex_data(display, object, vtxd_ptr);
-
-    return VIO_OK;
+    return status;
 }
 
 DEF_MENU_UPDATE( menu_load_vertex_data )

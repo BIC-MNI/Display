@@ -75,7 +75,7 @@ int split_line(char *text_ptr, int sep, char ***argv)
  * \param filename The name of the file to read.
  * \returns A pointer to the vertex_data_struct, or NULL if failure.
  */
-vertex_data_struct *
+static vertex_data_struct *
 input_vertex_data( VIO_STR filename )
 {
     FILE *fp;
@@ -193,7 +193,47 @@ input_vertex_data( VIO_STR filename )
     }
     vtxd_ptr->dims[0] = len / vtxd_ptr->dims[1];
     print("Read %d lines of vertex data.\n", vtxd_ptr->dims[0]);
-    print("There are %d items per line.\n", vtxd_ptr->dims[1]);
+    if (vtxd_ptr->dims[1] == 1)
+      print("There is 1 item per line.\n");
+    else
+      print("There are %d items per line.\n", vtxd_ptr->dims[1]);
     fclose(fp);
     return vtxd_ptr;
+}
+
+/**
+ * Load a vertex data file and associate it with the given object.
+ * If the passed object pointer is NULL, 
+ * \param display A pointer to the 3D window's display information.
+ * \param object The object to attach to, or NULL if we should use
+ * the most recently loaded polygonal object.
+ * \param filename The filename of the vertex data file.
+ * \returns VIO_OK on successful reading and attaching of the vertex
+ * data.
+ */
+VIO_Status
+load_vertex_data_file( display_struct *display, object_struct *object_ptr, 
+                       VIO_STR filename )
+{
+    vertex_data_struct *vtxd_ptr;
+    polygons_struct    *polygons_ptr;
+
+    if ((vtxd_ptr = input_vertex_data(filename)) == NULL)
+    {
+        print_error("Failed to read vertex data from '%s'.\n", filename);
+        return VIO_ERROR;
+    }
+
+    print("Loaded %d vertex data items, in range [%f ... %f]\n",
+          vtxd_ptr->dims[0],
+          vtxd_ptr->min_v[0], vtxd_ptr->max_v[0]);
+
+    polygons_ptr = get_polygons_ptr( object_ptr );
+    if (polygons_ptr->n_points != vtxd_ptr->dims[0])
+    {
+        print("Vertex data requires a polygon object of the same length.\n");
+        return VIO_ERROR;
+    }
+    attach_vertex_data(display, object_ptr, vtxd_ptr);
+    return VIO_OK;
 }
