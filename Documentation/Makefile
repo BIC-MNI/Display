@@ -1,7 +1,8 @@
 # Makefile for the Display documentation
 all: Display.pdf Display.html
 
-SOURCES = Display.tex globals.tex colour_list.tex $(wildcard images/*.png)
+SOURCES = Display.tex globals.tex colour_list.tex menu_file_format.tex \
+	$(wildcard images/*.png)
 
 Display.pdf: $(SOURCES)
 	pdflatex Display.tex
