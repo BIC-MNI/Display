@@ -491,8 +491,25 @@ static  VIO_Status  input_key_action(
         status = input_quoted_string( file, &action->label );
 
     if( status == VIO_OK )
-        status = input_quoted_string( file, &action->help_text );
-
+    {
+        /* 
+         * Look for the optional help text.
+         */
+        char ch;
+        status = input_nonwhite_character( file, &ch );
+        if ( status == VIO_OK )
+        {
+            unget_character( file, ch );
+            if ( ch == '\'' || ch == '"' )
+            {
+                status = input_quoted_string( file, &action->help_text );
+            }
+            else
+            {
+                action->help_text = create_string("");
+            }
+        }
+    }
     return( status );
 }
 
