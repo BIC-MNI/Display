@@ -198,7 +198,7 @@ intersect_plane_with_markers(display_struct *display,
   object_traverse_struct object_traverse;
   object_struct          *current_object;
 
-  initialize_object_traverse( &object_traverse, FALSE, 1,
+  initialize_object_traverse( &object_traverse, TRUE, 1,
                               &display->models[THREED_MODEL] );
 
   while ( get_next_object_traverse(&object_traverse, &current_object) )
@@ -329,7 +329,7 @@ intersect_plane_with_lines_coloured(display_struct *display,
   object_struct          *current_object;
   int                    item;
 
-  initialize_object_traverse(&object_traverse, FALSE, 1,
+  initialize_object_traverse(&object_traverse, TRUE, 1,
                              &display->models[THREED_MODEL]);
 
   while (get_next_object_traverse(&object_traverse, &current_object))
@@ -412,49 +412,60 @@ intersect_plane_with_lines_coloured(display_struct *display,
  * calculates the intersection between a plane and a set of polygons.
  * Unlike those older functions, it assigns distinct colours to the
  * outline it creates.
- * \param display The display_struct for the three-D window.
+ *
+ * We generate a list of colours for the lines, so that each surface
+ * can have a different colour.  If possible, we use the colours of
+ * the polygons themselves. However, most polygons are going to be
+ * plain white. Rather than just adopt white as our color, we
+ * artificially "colourize" the surfaces so that duplicate colours
+ * aren't easily possible.
+ *
+ * The value poly_no just counts up the polygons as we see them, it is
+ * used to try to guarantee that we assign a consistent colour for
+ * each polygonal object.
+ *
  * \param plane_normal A vector normal to the current view's plane.
  * \param plane_constant A scalar giving the position in the current view.
  * \param lines A structure representing the lines to display.
  * \param n_points_alloced Number of points in lines_struct.
  * \param n_indices_alloced Number of indices in lines_struct.
  * \param n_end_indices_alloced Number of end_indices in lines_struct.
+ * \param poly_no Pointer to the polygon index.
+
+ * \param model_ptr The model that may contain polygons.
+ * \param is_visible TRUE if this model (and its parent) is visible.
  */
 static void
-intersect_plane_with_polygons_coloured(display_struct *display,
-                                       VIO_Vector *plane_normal,
+intersect_plane_with_polygons_coloured(VIO_Vector *plane_normal,
                                        VIO_Real plane_constant,
                                        lines_struct *lines,
                                        int *n_points_alloced,
                                        int *n_indices_alloced,
-                                       int *n_end_indices_alloced)
+                                       int *n_end_indices_alloced,
+                                       int *poly_no,
+                                       model_struct *model_ptr,
+                                       VIO_BOOL is_visible)
 {
-  object_traverse_struct object_traverse;
-  VIO_Colour             current_colour;
-  object_struct          *current_object;
-  int                    poly_no;
-  int                    item;
+  int i_obj;
 
-  /* We generate a list of colours for the lines, so that each surface
-   * can have a different colour.  If possible, we use the colours of
-   * the polygons themselves. However, most polygons are going to be
-   * plain white. Rather than just adopt white as our color, we
-   * artificially "colourize" the surfaces so that duplicate colours
-   * aren't easily possible.
-   */
-
-  /* This value just counts up the polygons as we see them, it is used
-   * only to try to guarantee that we use a "unique" colour for each
-   * polygonal object.
-   */
-  poly_no = 0;
-
-  initialize_object_traverse(&object_traverse, FALSE, 1,
-                             &display->models[THREED_MODEL]);
-
-  while (get_next_object_traverse(&object_traverse, &current_object))
+  for (i_obj = 0; i_obj < model_ptr->n_objects; i_obj++)
   {
-    if (current_object->object_type == POLYGONS)
+    object_struct *current_object = model_ptr->objects[i_obj];
+    VIO_BOOL current_visible = get_object_visibility(current_object);
+
+    if (current_object->object_type == MODEL)
+    {
+      intersect_plane_with_polygons_coloured(plane_normal,
+                                             plane_constant,
+                                             lines,
+                                             n_points_alloced,
+                                             n_indices_alloced,
+                                             n_end_indices_alloced,
+                                             poly_no,
+                                             get_model_ptr(current_object),
+                                             is_visible && current_visible);
+    }
+    else if (current_object->object_type == POLYGONS)
     {
       polygons_struct *current_polygons = get_polygons_ptr(current_object);
 
@@ -465,8 +476,11 @@ intersect_plane_with_polygons_coloured(display_struct *display,
         continue;
       }
 
-      if (get_object_visibility(current_object))
+      if (is_visible && current_visible)
       {
+        VIO_Colour             current_colour;
+        int                    item;
+
         /* This is where we colourize the polygons. Most polygons
          * will just specify a white colour, so we make sure we
          * don't repeat colours if we can avoid it.
@@ -474,7 +488,7 @@ intersect_plane_with_polygons_coloured(display_struct *display,
         if (!get_object_colour(current_object, &current_colour) ||
             current_colour == WHITE)
         {
-          current_colour = get_automatic_colour(poly_no);
+          current_colour = get_automatic_colour(*poly_no);
         }
 
         for (item = 0; item < current_polygons->n_items; item++)
@@ -496,7 +510,7 @@ intersect_plane_with_polygons_coloured(display_struct *display,
           }
         }
       }
-      poly_no++;                /* Increment even if invisible. */
+      (*poly_no)++;             /* Increment even if invisible. */
     }
   }
 }
@@ -528,6 +542,7 @@ rebuild_slice_object_outline(display_struct *slice_window, int view_index)
   VIO_Real       x_axis[VIO_MAX_DIMENSIONS];
   VIO_Real       y_axis[VIO_MAX_DIMENSIONS];
   lines_struct   *lines;
+  int            poly_no = 0;
 
   /* If the display of the outline isn't enabled, just bail out
    * immediately.
@@ -600,13 +615,15 @@ rebuild_slice_object_outline(display_struct *slice_window, int view_index)
 
   /* Calculate the intersection between the polygons and the plane.
    */
-  intersect_plane_with_polygons_coloured(display,
-                                         &plane_normal,
+  intersect_plane_with_polygons_coloured(&plane_normal,
                                          plane_constant,
                                          lines,
                                          &outline_ptr->n_points_alloced,
                                          &outline_ptr->n_indices_alloced,
-                                         &outline_ptr->n_end_indices_alloced);
+                                         &outline_ptr->n_end_indices_alloced,
+                                         &poly_no,
+                                         get_model_ptr(display->models[THREED_MODEL]),
+                                         TRUE);
 
   /* Calculate the intersection between any lines and the plane.
    */
