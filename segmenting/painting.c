@@ -333,6 +333,7 @@ static  DEF_EVENT_FUNCTION( right_mouse_down )
 
     volume_index = get_current_volume_index( slice_window );
 
+    make_current_label_visible( slice_window, volume_index );
     /*
      * START OF MANDLIZATION:
      * If not in Toggle_freestyle_painting mode draw a straight line.
@@ -921,8 +922,8 @@ static  void  paint_labels(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    VIO_Real             start_voxel[],
-    VIO_Real             end_voxel[],
+    VIO_Real         start_voxel[],
+    VIO_Real         end_voxel[],
     int              label )
 {
     VIO_Volume     volume, label_volume;
@@ -1407,6 +1408,10 @@ static  void   update_brush(
     terminate_progress_report( &progress );
 }
 
+/**
+ * Set a label at a particular voxel position, saving undo information if
+ * requested.
+ */
 void
 set_voxel_label_with_undo(display_struct *slice_window, int volume_index,
                           int voxel[], int label)
@@ -1424,6 +1429,9 @@ set_voxel_label_with_undo(display_struct *slice_window, int volume_index,
                      voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z], label );
 }
 
+/**
+ * Copy labels from a source slice to a destination slice.
+ */
 void  copy_labels_slice_to_slice(
     display_struct   *slice_window,
     int              volume_index,
@@ -1477,3 +1485,21 @@ void  copy_labels_slice_to_slice(
         }
     }
 }
+
+/** 
+ * Make the current paint label visible, unconditionally.
+ * \param slice_window A pointer to slice window's display_struct
+ * \param volume_index The index of the selected volume.
+ */
+void
+make_current_label_visible( display_struct *slice_window, int volume_index )
+{                     
+  /* Make sure the label is visible!! */
+  int label = get_current_paint_label( slice_window );
+  if (!is_label_visible( slice_window, volume_index, label ))
+  {
+    set_label_visible( slice_window, volume_index, label, TRUE );
+    colour_coding_has_changed( slice_window, volume_index, UPDATE_LABELS );
+  }
+}
+

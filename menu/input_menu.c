@@ -170,7 +170,8 @@ MENU_F(coalesce_current_polygons) \
 MENU_F(separate_current_polygons) \
 MENU_F(save_window_state) \
 MENU_F(save_global_config) \
-MENU_F(toggle_label_visibility)
+MENU_F(toggle_label_visibility) \
+MENU_F(toggle_current_label_visibility)
 
 #define MENU3 \
 MENU_F(input_polygons_bintree) \

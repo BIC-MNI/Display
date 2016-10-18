@@ -362,6 +362,10 @@ DEF_MENU_FUNCTION( toggle_label_visibility );
 
 DEF_MENU_UPDATE( toggle_label_visibility );
 
+DEF_MENU_FUNCTION( toggle_current_label_visibility );
+
+DEF_MENU_UPDATE( toggle_current_label_visibility );
+
 /**/
 DEF_MENU_FUNCTION( menu_next_vertex_data );
 
@@ -2004,6 +2008,9 @@ void  copy_labels_slice_to_slice(
     int              dest_voxel,
     VIO_Real             min_threshold,
     VIO_Real             max_threshold );
+
+void make_current_label_visible( display_struct *slice_window,
+                                 int volume_index );
 
 /* from segmenting/segmenting.c */
 

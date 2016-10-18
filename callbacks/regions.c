@@ -293,6 +293,7 @@ static  void  copy_labels_from_adjacent_slice(
         if( int_voxel_is_within_volume( volume, src_index ) )
         {
             undo_start(slice_window, volume_index);
+            make_current_label_visible( slice_window, volume_index );
 
             copy_labels_slice_to_slice(
                          slice_window, volume_index,

@@ -766,6 +766,10 @@ DEF_MENU_UPDATE(load_user_defined_colour_scale )
     return( get_n_volumes(display) > 0 );
 }
 
+/**
+ * Prompts the user for a  label value and toggles the visibility of
+ * that label.
+ */
 DEF_MENU_FUNCTION( toggle_label_visibility )
 {
   int            label;
@@ -784,6 +788,30 @@ DEF_MENU_FUNCTION( toggle_label_visibility )
 }
 
 DEF_MENU_UPDATE( toggle_label_visibility )
+{
+    return( get_n_volumes( display ) > 0 );
+}
+
+/**
+ * Toggles the visibility of the current painting label.
+ */
+DEF_MENU_FUNCTION( toggle_current_label_visibility )
+{
+  display_struct *slice_window;
+  int            volume_index;
+
+  if( get_slice_window( display, &slice_window ) &&
+      ( volume_index = get_current_volume_index( slice_window ) ) >= 0 )
+  {
+    int label = slice_window->slice.current_paint_label;
+    VIO_BOOL fvis = is_label_visible( slice_window, volume_index, label );
+    set_label_visible( slice_window, volume_index, label, !fvis );
+    colour_coding_has_changed( slice_window, volume_index, UPDATE_LABELS );
+  }
+  return VIO_OK;
+}
+
+DEF_MENU_UPDATE( toggle_current_label_visibility )
 {
     return( get_n_volumes( display ) > 0 );
 }

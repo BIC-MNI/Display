@@ -384,6 +384,7 @@ segmenting \
     transient 'g'    set_paint_z_brush_radius         'Out-plane Rad: %g' 'Prompts for the radius of the out-of-plane brush radius.' \
     transient 'h'    copy_labels_from_higher_slice    'Copy from Rt/Sup/Ant Slice' 'Copy all label values from the upper slice to the current slice.' \
     transient 'j'    toggle_freestyle_painting        'Freestyle: %s' 'Toggles free vs. line drawing mode.' \
+    transient 'l'    toggle_current_label_visibility  '' '' \
  \
     transient 'z'    reset_segmenting_confirm         'Clear All Labels' 'Sets all labels of current volume to zero (if confirmed).' \
     transient 'x'    erode_labels                     'Erode 3D' 'Erode the current label.' \
@@ -394,7 +395,7 @@ segmenting \
     transient 'm'    toggle_undo_feature              'Enable Undo: %s' 'Control whether the undo feature is available.' \
  \
     transient '1'    set_current_erase_label          'Set Erase Lbl: %d' 'Set the label value used during erase operations.' \
-    transient '2'    toggle_fast_update               'Fast Update: %s' 'Enable or disable fast label updates.' \
+    transient '2'    toggle_label_visibility          'Show/Hide Label' 'Toggle the visibility of a chosen label value.' \
     transient '3'    toggle_cursor_follows_paintbrush 'Cursor Follows: %s' 'Control whether the cursor moves with the paintbrush.' \
     transient '4'    toggle_cursor_visibility         'Cursor Vis: %s' 'Control whether the cursor is visible.' \
     transient '5'    toggle_connectivity              'Connectivity: %d' 'Selects either 4- or 8-connectivity for fill, dilation, and erosion.' \

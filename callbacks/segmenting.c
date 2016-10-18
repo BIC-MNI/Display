@@ -99,6 +99,7 @@ maybe_set_single_voxel(display_struct *slice_window,
     }
 
     undo_start(slice_window, volume_index);
+    make_current_label_visible( slice_window, volume_index );
 
     set_voxel_label( slice_window, volume_index,
                      int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z],
@@ -982,6 +983,7 @@ static  void  set_slice_labels(
                               &x_index, &y_index, &axis_index ) )
     {
         undo_start( slice_window, volume_index );
+        make_current_label_visible( slice_window, volume_index );
 
         convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
         set_labels_on_slice( slice_window, volume_index,
@@ -1100,6 +1102,7 @@ static  void   set_connected_labels(
                               &x_index, &y_index, &axis_index ) )
     {
         undo_start(slice_window, volume_index);
+        make_current_label_visible( slice_window, volume_index );
 
         if( use_threshold )
         {
