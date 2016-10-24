@@ -19,6 +19,7 @@
 #endif
 
 #include  <display.h>
+#include <float.h>
 
 /**
  * Get the determinant of the 3x3 transform (i.e. the direction
@@ -77,6 +78,53 @@ VIO_BOOL is_volume_transform_rigid( VIO_Volume volume )
 {
   return load_graphics_file_with_colour( display, filename, is_label_file,
                                          WHITE );
+}
+
+/**
+ * \brief Convert BrainSuite coordinates to world space.
+ * 
+ * This is needed because BrainSuite files surface and fiber track files 
+ * use a "sort-of" voxel coordinate for their xyz values, but they use 
+ * NIfTI-1 for volumetric data. We need to transform the points into 
+ * our voxel space, then into world space.
+ * 
+ * \param volume The loaded volume from which we get the transform.
+ * \param n_points The number of points to fix.
+ * \param points The array of points that need fixing.
+ */
+static void
+fix_brainsuite_points(VIO_Volume volume, int n_points, VIO_Point points[])
+{
+  VIO_Real steps[VIO_MAX_DIMENSIONS];
+  int sizes[VIO_MAX_DIMENSIONS];
+  int i, j;
+
+  get_volume_sizes( volume, sizes );
+  get_volume_separations( volume, steps );
+
+  for (i = 0; i < n_points; i++)
+  {
+    VIO_Real voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real wx, wy, wz;
+
+    voxel[VIO_X] = Point_x(points[i]);
+    voxel[VIO_Y] = Point_y(points[i]);
+    voxel[VIO_Z] = Point_z(points[i]);
+
+    for (j = 0; j < VIO_N_DIMENSIONS; j++)
+    {
+      if (steps[j] < 0)
+      {
+        voxel[j] = (sizes[j] - voxel[j] / fabs(steps[j]));
+      }
+      else
+      {
+        voxel[j] /= steps[j];
+      }
+    }
+    convert_voxel_to_world( volume, voxel, &wx, &wy, &wz );
+    fill_Point( points[i], wx, wy, wz );
+  }
 }
 
 /**
@@ -261,39 +309,23 @@ load_graphics_file_with_colour(
             /* Hacks to deal with non-world coordinates in foreign object
              * files.
              */
-            if ((filename_extension_matches( filename, "dft") ||
-                 filename_extension_matches( filename, "dfc")) &&
-                model->n_objects == 1 &&
-                model->objects[0]->object_type == LINES)
+            if (filename_extension_matches( filename, "dft") ||
+                filename_extension_matches( filename, "dfc") ||
+                filename_extension_matches( filename, "dfs"))
             {
-                VIO_Real origin[VIO_N_DIMENSIONS];
-                int i;
                 VIO_Volume volume = get_volume(display);
-                lines_struct *lines_ptr = get_lines_ptr( model->objects[0] );
-
-                if (volume != NULL)
+                if ( volume != NULL ) 
                 {
-                  /* BrainSuite files need to have their points translated by
-                   * the volume file's origin. TODO: Not clear if they may
-                   * also need to be rotated!
-                   */
-                  get_transform_origin_real(get_linear_transform_ptr( &volume->voxel_to_world_transform ),
-                                            origin );
-                  for (i = 0; i < lines_ptr->n_points; i++)
-                  {
-                    fill_Point(lines_ptr->points[i],
-                               Point_x(lines_ptr->points[i]) + origin[VIO_X],
-                               Point_y(lines_ptr->points[i]) + origin[VIO_Y],
-                               Point_z(lines_ptr->points[i]) + origin[VIO_Z]);
+                  int i;
 
+                  for (i = 0; i < model->n_objects; i++)
+                  {
+                    int n_points;
+                    VIO_Point *points;
+                    n_points = get_object_points(model->objects[i], &points);
+                    fix_brainsuite_points(volume, n_points, points);
                   }
                 }
-            }
-            if (filename_extension_matches( filename, "dfs") &&
-                model->n_objects == 1 &&
-                model->objects[0]->object_type == POLYGONS)
-            {
-              /* I have no idea how this works yet... */
             }
         }
     }
