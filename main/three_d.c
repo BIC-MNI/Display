@@ -137,21 +137,53 @@ void  initialize_three_d_window(
 }
 
 /**
- * Unhide the 3D and "marker" window if there are objects loaded. This
- * overrides any global settings.
+ * \brief Show the 3D and "marker" window if any objects are loaded or created. 
+ *
+ * This overrides any global settings.
+ *
+ * We want to automatically force the window to be visible if either
+ * of two conditions are met:
+ *
+ *  1. A new 3D object has been loaded.
+ *  2. A surface has been created.
+ *
+ * The first check is easy, in that the root model will definitely
+ * contain at least two objects if a file has been loaded.
+ *
+ * The second check is harder and requires that we inspect the special
+ * polygons object in the first position of the model, and see if it
+ * contains any points or items.
  *
  * \param graphics A pointer to the display_struct of the 3D View window.
  * \param markers A pointer to the display_struct of the object list window.
  */
 void
-show_three_d_window(display_struct *graphics,
-                    display_struct *markers)
+show_three_d_window( display_struct *graphics,
+                     display_struct *markers )
 {
     model_struct *model_ptr = get_graphics_model( graphics, THREED_MODEL );
-    if ( model_ptr->n_objects > 1 )
+
+    if ( model_ptr->n_objects >= 1 ) /* At least one object? */
     {
-        G_set_visibility(graphics->window, TRUE);
-        G_set_visibility(markers->window, TRUE);
+      if ( model_ptr->n_objects == 1 )
+      {
+        object_struct *object_ptr = model_ptr->objects[0];
+        polygons_struct *poly_ptr;
+        if ( object_ptr->object_type != POLYGONS )
+        {
+          return;         /* Sanity check, should never reach this. */
+        }
+
+        /* See if a surface has been created.
+         */
+        poly_ptr = get_polygons_ptr( object_ptr );
+        if ( poly_ptr->n_points == 0 && poly_ptr->n_items == 0 )
+        {
+          return;
+        }
+      }
+      G_set_visibility( graphics->window, TRUE );
+      G_set_visibility( markers->window, TRUE );
     }
 }
 
