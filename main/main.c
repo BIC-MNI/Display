@@ -61,6 +61,18 @@ VIO_Status  set_global_variable_value(
 }
 
 /**
+ * Default error function for Display. Display just prints any errors to
+ * the tty that is connected to the Display process.
+ *
+ * \param msg The message to print.
+ */
+static void
+display_error( char *msg )
+{
+    fputs( msg, stderr );
+}
+
+/**
  * The main program. Initializes key data structures, reads configuration
  * and command line, creates windows, then drops into the main event loop.
  */
@@ -76,6 +88,7 @@ int  main(
     VIO_STR           *directories;
     VIO_STR           title;
 
+    set_print_error_function( display_error );
     initialize_global_colours();
 
     if( getenv( "DISPLAY_DIRECTORY" ) != (char *) NULL )
