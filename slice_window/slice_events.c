@@ -510,7 +510,7 @@ static  DEF_EVENT_FUNCTION( update_probe )
       glutSetCursor(GLUT_CURSOR_CROSSHAIR);
     }
     else {
-      glutSetCursor(GLUT_CURSOR_INHERIT);
+      glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
     }
 
     return( VIO_OK );

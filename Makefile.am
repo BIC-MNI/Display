@@ -42,8 +42,6 @@ noinst_HEADERS = \
 	Graphics/Include/graphics_prototypes.h \
 	Graphics/Include/graphics_struct.h \
 	Graphics/Include/random_order.h \
-	Graphics/Include/GL/glut.h \
-	Graphics/Include/GL/freeglut_std.h \
 	Graphics/OpenGL_graphics/Include/GS_graphics.h \
 	Graphics/OpenGL_graphics/Include/opengl_graphics_prototypes.h \
 	Graphics/GLUT_windows/Include/WS_graphics.h \

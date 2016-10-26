@@ -35,6 +35,7 @@ dnl Find all the X stuff
 AC_CHECK_HEADER([math.h])
 AC_CHECK_LIB(m,sqrt)
 AC_CHECK_LIB(netcdf,ncopen, [], [AC_MSG_ERROR([-lnetcdf not found])])
+AC_CHECK_LIB(z,compress2,[],[AC_MSG_ERROR([-lz not found])])
 AC_CHECK_LIB(hdf5,H5open, [], [AC_MSG_ERROR([-lhdf5 not found])])
 AC_CHECK_HEADER([minc2.h], [], [
                            AC_MSG_ERROR([Could not find minc2.h])
