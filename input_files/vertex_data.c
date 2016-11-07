@@ -9,6 +9,11 @@
 #include <display.h>
 #include <float.h>
 
+#if GIFTI_FOUND
+#include <time.h>
+#include "gifti_io.h"
+#endif /* GIFTI_FOUND */
+
 /**
  * Allocate this many array entries at a time.
  */
@@ -76,7 +81,7 @@ int split_line(char *text_ptr, int sep, char ***argv)
  * \returns A pointer to the vertex_data_struct, or NULL if failure.
  */
 static vertex_data_struct *
-input_vertex_data( VIO_STR filename )
+input_vertstats_vertex_data( VIO_STR filename )
 {
     FILE *fp;
     int  len = 0;
@@ -201,6 +206,126 @@ input_vertex_data( VIO_STR filename )
     return vtxd_ptr;
 }
 
+
+#if GIFTI_FOUND
+static vertex_data_struct *
+input_gifti_vertex_data( VIO_STR filename )
+{
+  vertex_data_struct *vtxd_ptr;
+  gifti_image *gii_ptr;
+  int i, j;
+  int intent;
+  int num_dim;
+  int datatype;
+  int length;
+
+  gii_ptr = gifti_read_image( filename, 1 );
+  if ( gii_ptr == NULL && gii_ptr->numDA == 0 )
+  {
+    return NULL;
+  }
+
+  intent = gii_ptr->darray[0]->intent;
+  num_dim = gii_ptr->darray[0]->num_dim;
+  datatype = gii_ptr->darray[0]->datatype;
+  length = gii_ptr->darray[0]->dims[0];
+
+  for ( i = 1; i < gii_ptr->numDA; i++ )
+  {
+    if ( intent != gii_ptr->darray[i]->intent )
+    {
+      print("Inconsistent GIFTI intent.");
+      return NULL;
+    }
+    if ( num_dim != gii_ptr->darray[i]->num_dim )
+    {
+      print("Inconsistent GIFTI dimension count.");
+      return NULL;
+    }
+    if ( datatype != gii_ptr->darray[i]->datatype )
+    {
+      print("Inconsistent GIFTI data type.");
+      return NULL;
+    }
+  }
+
+  /* Require that datasets either have a single dimension, or two
+   * dimensions with a singleton second dimension.
+   */
+  if ( (num_dim != 1 &&
+        (num_dim != 2 || gii_ptr->darray[0]->dims[1] != 1)))
+  {
+    print("Incorrect dimension count for shape or label data.");
+    return NULL;
+  }
+
+  if ( intent == NIFTI_INTENT_LABEL || intent == NIFTI_INTENT_NONE )
+  {
+    if ( datatype != NIFTI_TYPE_INT32 )
+    {
+      print("Incorrect data type for GIFTI label data.");
+      return NULL;
+    }
+  }
+  else if ( intent == NIFTI_INTENT_SHAPE )
+  {
+    if ( datatype != NIFTI_TYPE_FLOAT32 )
+    {
+      print("Incorrect data type for GIFTI shape data.");
+      return NULL;
+    }
+  }
+  else
+  {
+    print("Unrecognized or unsupported GIFTI intent.");
+    return NULL;
+  }
+        
+  ALLOC( vtxd_ptr, 1 );
+  vtxd_ptr->ndims = 2;
+  ALLOC( vtxd_ptr->dims, 2 );
+  vtxd_ptr->dims[0] = length;
+  vtxd_ptr->dims[1] = gii_ptr->numDA;
+  vtxd_ptr->column_names = NULL;
+  ALLOC( vtxd_ptr->data, length * gii_ptr->numDA );
+  ALLOC( vtxd_ptr->max_v, gii_ptr->numDA );
+  ALLOC( vtxd_ptr->min_v, gii_ptr->numDA );
+
+  for ( i = 0; i < gii_ptr->numDA; i++ )
+  {
+    vtxd_ptr->max_v[i] = -DBL_MAX;
+    vtxd_ptr->min_v[i] = DBL_MAX;
+    if ( datatype == NIFTI_TYPE_INT32 )
+    {
+      int32_t *data_ptr = (int32_t *)gii_ptr->darray[i]->data;
+      for ( j = 0; j < length; j++ )
+      {
+        float v = *data_ptr++;
+        if ( v > vtxd_ptr->max_v[i] )
+          vtxd_ptr->max_v[i] = v;
+        if ( v < vtxd_ptr->min_v[i] )
+          vtxd_ptr->min_v[i] = v;
+        vtxd_ptr->data[i * length + j] = v;
+      }
+    }
+    else
+    {
+      float *data_ptr = (float *)gii_ptr->darray[i]->data;
+      for ( j = 0; j < length; j++ )
+      {
+        float v = *data_ptr++;
+        if ( v > vtxd_ptr->max_v[i] )
+          vtxd_ptr->max_v[i] = v;
+        if ( v < vtxd_ptr->min_v[i] )
+          vtxd_ptr->min_v[i] = v;
+        vtxd_ptr->data[i * length + j] = v;
+      }
+    }
+  }
+  return vtxd_ptr;
+}
+#endif
+
 /**
  * Load a vertex data file and associate it with the given object.
  * If the passed object pointer is NULL, 
@@ -215,10 +340,15 @@ VIO_Status
 load_vertex_data_file( display_struct *display, object_struct *object_ptr, 
                        VIO_STR filename )
 {
-    vertex_data_struct *vtxd_ptr;
+    vertex_data_struct *vtxd_ptr = NULL;
     polygons_struct    *polygons_ptr;
 
-    if ((vtxd_ptr = input_vertex_data(filename)) == NULL)
+#if GIFTI_FOUND
+    if( filename_extension_matches(filename, "gii"))
+      vtxd_ptr = input_gifti_vertex_data( filename );
+#endif
+    if (vtxd_ptr == NULL &&
+        (vtxd_ptr = input_vertstats_vertex_data(filename)) == NULL)
     {
         print_error("Failed to read vertex data from '%s'.\n", filename);
         return VIO_ERROR;
