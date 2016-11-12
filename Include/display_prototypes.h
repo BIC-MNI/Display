@@ -208,6 +208,7 @@ load_graphics_file_with_colour(
 
 /*** input_files/vertex_data.c ***/
 
+void delete_vertex_data( vertex_data_struct * );
 VIO_Status load_vertex_data_file( display_struct *display,
                                   object_struct *object, VIO_STR filename );
 

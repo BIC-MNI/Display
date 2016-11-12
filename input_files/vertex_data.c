@@ -1,4 +1,4 @@
-/** 
+/**
  * \file vertex_data.c
  * \brief Input functions for surface data.
  */
@@ -66,8 +66,27 @@ int split_line(char *text_ptr, int sep, char ***argv)
 }
 
 /**
+ * \brief Free memory associated with a vertex data object.
+ *
+ * Deletes the various allocated fields associated with a vertex data
+ * object, as well as the structure itself.
+ *
+ * \param vtxd_ptr The vertex data to delete.
+ */
+void
+delete_vertex_data( vertex_data_struct *vtxd_ptr )
+{
+  delete_colour_coding( &vtxd_ptr->colour_coding );
+  FREE( vtxd_ptr->data );
+  FREE( vtxd_ptr->min_v );
+  FREE( vtxd_ptr->max_v );
+  FREE( vtxd_ptr->dims );
+  FREE( vtxd_ptr );
+}
+
+/**
  * \brief Read per-vertex data from a text file.
- * 
+ *
  * Data is assumed to be a series of lines with a consistent number of
  * fields per line. Conceptually, each line corresponds to a vertex,
  * and each column corresponds to a separate per-vertex statistic or
@@ -75,13 +94,13 @@ int split_line(char *text_ptr, int sep, char ***argv)
  * probably will fail if there are more then one hundred. If the
  * initial lines don't contain numeric data, they will be
  * ignored. Tries to be somewhat intelligent by adapting the separator
- * character according to the file name extension.  
+ * character according to the file name extension.
  *
  * \param filename The name of the file to read.
  * \returns A pointer to the vertex_data_struct, or NULL if failure.
  */
 static vertex_data_struct *
-input_vertstats_vertex_data( VIO_STR filename )
+input_vertstats_vertex_data( const VIO_STR filename )
 {
     FILE *fp;
     int  len = 0;
@@ -206,10 +225,33 @@ input_vertstats_vertex_data( VIO_STR filename )
     return vtxd_ptr;
 }
 
-
 #if GIFTI_FOUND
+
+/**
+ * trivial structure used only to allow proper sorting of indices
+ * according to key value.
+ */
+typedef struct label_key {
+  int index;
+  int key;
+} label_key_t;
+
+/**
+ * Function to perform comparisons for qsort().
+ */
+static int lblcmp(const void *a, const void *b)
+{
+  return ((const label_key_t *)a)->key - ((const label_key_t *)b)->key;
+}
+
+/**
+ * \brief Read per-vertex data from a GIFTI shape or label file.
+ *
+ * \param filename The name of the file to read.
+ * \returns A pointer to the vertex_data_struct, or NULL if failure.
+ */
 static vertex_data_struct *
-input_gifti_vertex_data( VIO_STR filename )
+input_gifti_vertex_data( const VIO_STR filename )
 {
   vertex_data_struct *vtxd_ptr;
   gifti_image *gii_ptr;
@@ -220,11 +262,15 @@ input_gifti_vertex_data( VIO_STR filename )
   int length;
 
   gii_ptr = gifti_read_image( filename, 1 );
-  if ( gii_ptr == NULL && gii_ptr->numDA == 0 )
+  if ( gii_ptr == NULL || gii_ptr->numDA == 0 )
   {
     return NULL;
   }
 
+  /* Check the consistency of these fields. In practice, most GIFTI
+   * shape and label files seem to contain a single dataarray. But
+   * we definitely want to detect any inconsistencies.
+   */
   intent = gii_ptr->darray[0]->intent;
   num_dim = gii_ptr->darray[0]->num_dim;
   datatype = gii_ptr->darray[0]->datatype;
@@ -235,16 +281,19 @@ input_gifti_vertex_data( VIO_STR filename )
     if ( intent != gii_ptr->darray[i]->intent )
     {
       print("Inconsistent GIFTI intent.");
+      gifti_free_image( gii_ptr );
       return NULL;
     }
     if ( num_dim != gii_ptr->darray[i]->num_dim )
     {
       print("Inconsistent GIFTI dimension count.");
+      gifti_free_image( gii_ptr );
       return NULL;
     }
     if ( datatype != gii_ptr->darray[i]->datatype )
     {
       print("Inconsistent GIFTI data type.");
+      gifti_free_image( gii_ptr );
       return NULL;
     }
   }
@@ -256,6 +305,7 @@ input_gifti_vertex_data( VIO_STR filename )
         (num_dim != 2 || gii_ptr->darray[0]->dims[1] != 1)))
   {
     print("Incorrect dimension count for shape or label data.");
+    gifti_free_image( gii_ptr );
     return NULL;
   }
 
@@ -264,6 +314,7 @@ input_gifti_vertex_data( VIO_STR filename )
     if ( datatype != NIFTI_TYPE_INT32 )
     {
       print("Incorrect data type for GIFTI label data.");
+      gifti_free_image( gii_ptr );
       return NULL;
     }
   }
@@ -272,15 +323,17 @@ input_gifti_vertex_data( VIO_STR filename )
     if ( datatype != NIFTI_TYPE_FLOAT32 )
     {
       print("Incorrect data type for GIFTI shape data.");
+      gifti_free_image( gii_ptr );
       return NULL;
     }
   }
   else
   {
     print("Unrecognized or unsupported GIFTI intent.");
+    gifti_free_image( gii_ptr );
     return NULL;
   }
-        
+
   ALLOC( vtxd_ptr, 1 );
   vtxd_ptr->ndims = 2;
   ALLOC( vtxd_ptr->dims, 2 );
@@ -290,6 +343,8 @@ input_gifti_vertex_data( VIO_STR filename )
   ALLOC( vtxd_ptr->data, length * gii_ptr->numDA );
   ALLOC( vtxd_ptr->max_v, gii_ptr->numDA );
   ALLOC( vtxd_ptr->min_v, gii_ptr->numDA );
+
+  vtxd_ptr->colour_coding.user_defined_n_colour_points = 0;
 
   for ( i = 0; i < gii_ptr->numDA; i++ )
   {
@@ -322,13 +377,83 @@ input_gifti_vertex_data( VIO_STR filename )
       }
     }
   }
+
+  if (gii_ptr->labeltable.length != 0)
+  {
+    VIO_Colour *colours;
+    VIO_Real *positions;
+    label_key_t *indices;
+    VIO_Real min_key, max_key;
+    int n_labels = gii_ptr->labeltable.length;
+
+    ALLOC(colours, n_labels);
+    ALLOC(positions, n_labels);
+    ALLOC(indices, n_labels);
+
+    initialize_colour_coding( &vtxd_ptr->colour_coding,
+                              USER_DEFINED_COLOUR_MAP,
+                              Initial_vertex_under_colour,
+                              Initial_vertex_over_colour,
+                              0.0, 1.0 );
+
+    /* Find minimum and maximum key values while copying the keys
+     * and indices into our own array, which will will then sort.
+     */
+    min_key = max_key = gii_ptr->labeltable.key[0];
+    for ( i = 0; i < n_labels; i++ )
+    {
+      indices[i].index = i;
+      indices[i].key = gii_ptr->labeltable.key[i];
+
+      if ( gii_ptr->labeltable.key[i] > max_key )
+      {
+        max_key = gii_ptr->labeltable.key[i];
+      }
+      if ( gii_ptr->labeltable.key[i] < min_key )
+      {
+        min_key = gii_ptr->labeltable.key[i];
+      }
+    }
+
+    /* Sort the array- we do this so that the colour coding
+     * function will see monotonically increasing position
+     * values, as required.
+     */
+    qsort(indices, n_labels, sizeof(label_key_t), lblcmp);
+
+    /* Create the colour and position arrays needed to set up
+     * the colour coding.
+     */
+    for ( i = 0; i < n_labels; i++)
+    {
+      int j = indices[i].index * 4; /* index into RGBA quadruples */
+
+      colours[i] = make_rgba_Colour_0_1(gii_ptr->labeltable.rgba[j + 0],
+                                        gii_ptr->labeltable.rgba[j + 1],
+                                        gii_ptr->labeltable.rgba[j + 2],
+                                        gii_ptr->labeltable.rgba[j + 3]);
+
+      positions[i] = (indices[i].key - min_key) / (max_key - min_key);
+    }
+
+    /* Configure the colour coding.
+     */
+    define_colour_coding_user_defined(&vtxd_ptr->colour_coding, n_labels,
+                                      colours, positions, RGB_SPACE);
+    set_colour_coding_min_max(&vtxd_ptr->colour_coding, min_key, max_key);
+
+    FREE(colours);
+    FREE(positions);
+    FREE(indices);
+  }
+  gifti_free_image( gii_ptr );
   return vtxd_ptr;
 }
 #endif
 
 /**
  * Load a vertex data file and associate it with the given object.
- * If the passed object pointer is NULL, 
+ * If the passed object pointer is NULL,
  * \param display A pointer to the 3D window's display information.
  * \param object The object to attach to, or NULL if we should use
  * the most recently loaded polygonal object.
@@ -337,7 +462,7 @@ input_gifti_vertex_data( VIO_STR filename )
  * data.
  */
 VIO_Status
-load_vertex_data_file( display_struct *display, object_struct *object_ptr, 
+load_vertex_data_file( display_struct *display, object_struct *object_ptr,
                        VIO_STR filename )
 {
     vertex_data_struct *vtxd_ptr = NULL;

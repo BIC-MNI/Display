@@ -365,8 +365,16 @@ static  DEF_EVENT_FUNCTION( handle_resize_three_d )
 void  delete_three_d(
     display_struct  *display )
 {
+    int i;
     delete_string( display->three_d.default_marker_label );
     delete_surface_extraction( display );
+
+    for_less(i, 0, display->three_d.vertex_data_count )
+    {
+      vertex_data_struct *vtxd_ptr = display->three_d.vertex_data_array[i];
+      delete_vertex_data( vtxd_ptr );
+    }
+    FREE( display->three_d.vertex_data_array);
 }
 
 /**
@@ -593,14 +601,17 @@ attach_vertex_data(display_struct *display,
     vtxd_ptr->owner = object;
     vtxd_ptr->column_index = 0;
 
-    initialize_colour_coding( &vtxd_ptr->colour_coding,
-                              Initial_vertex_coding_type,
-                              Initial_vertex_under_colour,
-                              Initial_vertex_over_colour,
-                              0.0, 1.0 );
+    if (vtxd_ptr->colour_coding.user_defined_n_colour_points == 0)
+    {
+        initialize_colour_coding( &vtxd_ptr->colour_coding,
+                                  Initial_vertex_coding_type,
+                                  Initial_vertex_under_colour,
+                                  Initial_vertex_over_colour,
+                                  0.0, 1.0 );
 
-    set_colour_coding_min_max( &vtxd_ptr->colour_coding,
-                               vtxd_ptr->min_v[0], vtxd_ptr->max_v[0] );
+        set_colour_coding_min_max( &vtxd_ptr->colour_coding,
+                                   vtxd_ptr->min_v[0], vtxd_ptr->max_v[0] );
+    }
 
     update_vertex_colour_coding( display, vtxd_ptr );
 }
