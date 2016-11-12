@@ -108,7 +108,7 @@ create_surface \
 slice_view \
 { \
     transient '5'    prev_current_volume             'Prev Volume' 'Selects the previous volume to be the current (active) volume.' \
- \
+    transient '6'    move_to_top                     'Move to top' 'Move the current volume to the top of the hierarchy.' \
     transient 'q'    toggle_cross_section_visibility 'Toggle Plane Visibility' 'Toggles the visibility of the arbitrary view plane in the 3D window.' \
     transient 'w'    rotate_slice_axes               'Rotate Slice' 'Sets the 3D view to use the middle mouse button to rotate the arbitrary view plane.' \
     transient 'e'    pick_slice_angle_point          'Pick Slice Angle' 'Sets the angle of the arbitrary slice view picking a point on a slice view.' \

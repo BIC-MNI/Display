@@ -1915,3 +1915,18 @@ DEF_MENU_UPDATE( make_all_volumes_visible )
   return ( get_slice_window( display, &slice_window ) &&
            get_n_volumes(slice_window) > 0 );
 }
+
+DEF_MENU_FUNCTION(move_to_top)
+{
+  int volume_index = get_current_volume_index( display );
+  move_slice_window_volume( display, volume_index );
+  return VIO_OK;
+}
+
+DEF_MENU_UPDATE(move_to_top)
+{
+  display_struct *slice_window;
+
+  return ( get_slice_window( display, &slice_window ) &&
+           get_n_volumes(slice_window) > 1 );
+}
