@@ -1232,14 +1232,14 @@ void   set_colour_of_label(
 {
     if( get_Colour_a(colour) == 255 )
     {
-        VIO_Real  r, g, b;
+        VIO_Real  r, g, b, a;
 
         r = get_Colour_r_0_1( colour );
         g = get_Colour_g_0_1( colour );
         b = get_Colour_b_0_1( colour );
+        a = get_label_opacity( slice_window, volume_index );
 
-        colour = make_rgba_Colour_0_1( r, g, b,
-                             get_label_opacity( slice_window, volume_index ) );
+        colour = make_rgba_Colour_0_1( r, g, b, a );
     }
 
     slice_window->slice.volumes[volume_index].label_colour_table[label] =colour;
