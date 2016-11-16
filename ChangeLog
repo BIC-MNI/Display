@@ -1,3 +1,14 @@
+2016-11-16 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* callbacks/line_ops.c, etc.: Add some new operations on lines,
+	for use with diffusion track data.
+
+2016-11-12 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* callbacks/volume_ops.c, etc.: Implement "Move to top" command.
+
+2016-11-07 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* input_files/vertex_data.c: Support GIFTI vertex data (shape or
+	label files).
+
 2016-09-28 Robert D. Vincent <robert.d.vincent@mcgill.ca>
 	* main/main.c, input_files/vertex_data.c, callbacks/file.c: Allow
 	user to specify a vertex data file on the command line.
