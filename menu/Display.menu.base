@@ -245,15 +245,17 @@ objects \
  \
 lines \
 { \
-    transient 'a'    set_line_widths                  'Set Line Width' '' \
-    transient 'd'    smooth_current_lines             'Smooth Lines' '' \
-    transient 'f'    make_current_line_tube           'Create Tube' '' \
-    transient 's'    convert_line_to_spline_points    'Spline Line' '' \
+    transient 'q'    menu_colourize_lines             'Colourize by XYZ' 'Colour segments according to their orientation.' \
+    transient 'w'    menu_threshold_lines             'Threshold by length' 'Copy lines object, removing short curves.' \
+    transient 'a'    set_line_widths                  'Set Line Width' 'Set the width of the current lines object.' \
+    transient 'd'    smooth_current_lines             'Smooth Lines' 'Smooth the current lines object.' \
+    transient 'f'    make_current_line_tube           'Create Tube' 'Create a quadmesh surrounding each line.' \
+    transient 's'    convert_line_to_spline_points    'Spline Line' 'Smooth the current lines object using spline curves.' \
  \
-    transient 'z'    convert_markers_to_lines         'Convert Markers' '' \
+    transient 'z'    convert_markers_to_lines         'Convert Markers' 'Convert markers to open curves' \
     transient 'x'    make_line_circle                 'Make Line Circle' 'Create a circle at a specified point in a specified plane.' \
-    transient 'c'    subdivide_current_lines          'Subdivide Line' '' \
-    transient 'v'    convert_markers_to_closed_lines  'Convert Closed Markers' '' \
+    transient 'c'    subdivide_current_lines          'Subdivide Line' 'Split each line segment into two.' \
+    transient 'v'    convert_markers_to_closed_lines  'Convert Closed Markers' 'Convert markers to closed curves.' \
 } \
  \
 delete_object_menu \

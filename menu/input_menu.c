@@ -95,6 +95,8 @@ MENU_F(toggle_intensity_plot_axis) \
 MENU_F(toggle_intensity_plot_enabled) \
 MENU_F(toggle_intensity_plot_scaling) \
 MENU_F(move_to_top) \
+MENU_F(menu_colourize_lines) \
+MENU_F(menu_threshold_lines) \
 MENU_F(make_all_volumes_visible)
 
 #define  MENU2 \

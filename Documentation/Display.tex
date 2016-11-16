@@ -125,7 +125,10 @@ involve core functionality.
   NRRD (.nrrd/.nhdr) volumes.
 \item Output support for surface formats including Wavefront OBJ,
   Stanford PLY, GIFTI, and X3D.
-\item Input support for surface and geometric formats including Wavefront OBJ, Stanford (\ident{.ply}), GIFTI (\ident{.gii}), BrainSuite surfaces (\ident{.dfs}), BrainSuite tractography (\ident{.dft}), and FreeSurfer surfaces.
+\item Input support for surface and geometric formats including
+  Wavefront OBJ, Stanford (\ident{.ply}), GIFTI (\ident{.gii}),
+  BrainSuite surfaces (\ident{.dfs}), BrainSuite tractography
+  (\ident{.dft}), TrackVis (\ident{.trk}) and FreeSurfer surfaces.
 \item The previous 20 painting operations can be undone.
 \item A user can now load per-vertex data, such as cortical thickness
   measurements, for visualization on 3D surfaces.
@@ -225,7 +228,10 @@ options include:
 \item \ident{-help} : Print basic usage information and exit.
 \item \ident{-version} : Print program and library version information and exit.
 \item \ident{-label} $filename$ : Load volume labels from the given file in \ident{.mnc} or \ident{.tag} format.
-\item \ident{-vertex} $filename$ : Load per-vertex statistics from the given file and associate it with the most recently loaded surface. Data must be in \ident{.vertstats}, \ident{.csv}, \ident{.tsv}, or \ident{.txt} format.
+\item \ident{-vertex} $filename$ : Load per-vertex statistics from the
+  given file and associate it with the most recently loaded
+  surface. Data must be in GIFTI, \ident{.vertstats}, \ident{.csv},
+  \ident{.tsv}, or \ident{.txt} format.
 \item \ident{-skiperror} : Ignore errors encountered when loading files from the command line.
 \item \ident{-ratio} $V_1$,$V_2$ : Display the value of volume number $V_1$
   divided by value of volume number $V_2$ as part of the slice window status. You must load at least two
@@ -1317,8 +1323,8 @@ mouse button), the current label will always be re-enabled.
 
 \subsection{Translate Labels}
 
-This is a menu which may be used to translate position of the all
-labels by integral voxel increments.
+This menu may be used to translate the position of all labels by
+integral voxel increments.
 
 \begin{description}
 \item[\menutwo{Translate Labels}{Trans \textasciicircum }]  Moves all labels one voxel in the
@@ -1331,6 +1337,50 @@ labels by integral voxel increments.
   right direction of the slice pointed to by the mouse.
 \item[\menutwo{Translate Labels}{Big Translate}]  Prompts for 3 voxel
   offsets and moves all labels by this amount.
+\end{description}
+
+\subsection{Lines}
+
+This menu is used to perform various operations on lines objects,
+including tractography data. Lines objects consist of a set of one or
+more curves, each of which is defined by one or more line segments.
+
+\begin{description}
+\item[\menutwo{Lines}{Set Line Width}] Sets the width used for drawing
+ the selected lines object.
+\item[\menutwo{Lines}{Spline Line}] Converts a lines object to a new set of
+ lines using spline interpolation. Each segment is smoothed to contain
+ the number of segments defined using the \menutwo{3D Render}{Set \#
+ Curve Segments} command.
+\item[\menutwo{Lines}{Smooth Lines}] Prompts for a smoothing distance
+  and attempts to smooth the current lines object.
+\item[\menutwo{Lines}{Create Tube}] Create ``tubes'', or quadmeshes,
+ along the tracks of the lines object. Prompts for the number of points
+ in the circumference of the tubes, and the radius of the tubes.
+\item[\menutwo{Lines}{Convert Markers}] Transforms the markers contained
+  within the current model into an open curve. If you specify
+  zero for the number of points, the curve will be created using
+  the markers without interpolation. If you specify two or more for the
+  number of points, cubic interpolation will be used to create a curve
+  containing exactly as many points as requested.
+\item[\menutwo{Lines}{Make Line Circle}] Creates a circle or ellipse
+ using user-supplied parameters consisting of three centre
+ coordinates, an axis index (0=X, 1=Y, or 2=Z), a width and height,
+ and a number of segments.
+\item[\menutwo{Lines}{Subdivide Line}] Doubles the number of points used
+  to define a curve or line segment, by splitting each segment in half.
+\item[\menutwo{Lines}{Convert Closed Marker}] Transforms the markers contained
+  within the current model into a closed, segmented curve. If you specify
+  zero for the number of points, the curve will be created using
+  the markers without interpolation. If you specify two or more for the
+  number of points, cubic interpolation will be used to create a curve
+  containing exactly as many points as requested.
+\item[\menutwo{Lines}{Colourize by XYZ}] Apply colours to the line
+  segments according to their direction, with X=red, Y=green, and
+  Z=blue.
+\item[\menutwo{Lines}{Threshold by length}] Create a new lines object
+  from the current lines object, by removing all lines that are less
+  than a particular value in length.  
 \end{description}
 
 \subsection{Create Surface}
@@ -1546,7 +1596,8 @@ displayed in the 3D view window.
   lights are off, all objects are coloured uniformly.
 \item[\menutwo{3D Render}{2 Sided}]  Not for general use.
 \item[\menutwo{3D Render}{Backface}]  Not for general use.
-\item[\menutwo{3D Render}{Set \# Curve Segments}]  Not for general use.
+\item[\menutwo{3D Render}{Set \# Curve Segments}] Sets the number of
+  curve segments used for spline interpolation.
 \item[\menutwo{3D Render}{Marker Labels: Off or On}] Toggles the
   display of the text labels of the markers in the 3D window.
 \item[\menutwo{3D Render}{Lines as Curves: Off or On}] Toggles whether
