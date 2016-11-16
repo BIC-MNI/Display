@@ -67,6 +67,13 @@ retreat_current_object( display_struct *display )
 object_struct *
 get_current_model_object( display_struct *display )
 {
+  object_struct *object_ptr;
+
+  if (get_current_object( display, &object_ptr ) &&
+      get_object_type( object_ptr ) == MODEL )
+  {
+    return object_ptr;
+  }
   return find_containing_model( display, display->three_d.current_object );
 }
 
