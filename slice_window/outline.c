@@ -125,6 +125,22 @@ get_automatic_colour(int index)
     return CYAN;
   case 6:
     return ORANGE;
+  case 7:
+    return PURPLE;
+  case 8:
+    return FOREST_GREEN;
+  case 9:
+    return CORAL;
+  case 10:
+    return YELLOW_GREEN;
+  case 11:
+    return DEEP_PINK;
+  case 12:
+    return DARK_TURQUOISE;
+  case 13:
+    return DARK_SALMON;
+  case 14:
+    return FIREBRICK;
   default:
     return WHITE;
   }
