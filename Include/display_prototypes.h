@@ -2347,6 +2347,7 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
     int            axis_index,
     VIO_Real           voxel_position );
 
+/* slice_window/slice.c */
 void  create_slice_window( display_struct *display, VIO_Volume volume );
 
   void  update_all_slice_models(
@@ -2468,6 +2469,10 @@ void add_slice_window_volume(display_struct *display,
     int              *y_min,
     int              *y_max );
 
+void move_slice_window_volume(display_struct *display,
+                              int            volume_index);
+
+/* slice_window/outline.c */
   void  initialize_volume_cross_section(
     display_struct    *display );
 
