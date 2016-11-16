@@ -379,6 +379,8 @@ void  delete_three_d(
 
 /**
  * Add the given object to the currently selected model.
+ * Makes the new object the currently selected object, and 
+ * shows the 3D and object windows if necessary.
  *
  * \param display The display_struct of the 3D view window.
  * \param object The graphical object to add to the current model.
@@ -394,6 +396,8 @@ void  add_object_to_current_model(
     add_object_to_model( model, object );
 
     set_current_object( display, object );
+
+    show_three_d_window( display, get_display_by_type( MARKER_WINDOW ) );
 
     graphics_models_have_changed( display );
 }

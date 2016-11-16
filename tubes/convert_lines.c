@@ -42,7 +42,7 @@
         quadmesh = get_quadmesh_ptr( object );
         *quadmesh = quadmeshes[i];
 
-        add_object_to_model( get_current_model(display), object );
+        add_object_to_current_model( display, object );
     }
 
     if( n_quadmeshes > 0 )

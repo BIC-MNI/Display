@@ -543,9 +543,6 @@ create_scaled_slice( display_struct *display, VIO_BOOL scale_slice_flag )
 
         add_object_to_current_model( display, object );
     }
-
-    show_three_d_window( get_three_d_window( display ),
-                         get_display_by_type( MARKER_WINDOW ) );
 }
 
 /**

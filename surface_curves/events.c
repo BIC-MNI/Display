@@ -229,7 +229,7 @@ static  DEF_EVENT_FUNCTION( pick_point )
 
         *(get_lines_ptr(object)) = *(info->lines);
 
-        add_object_to_model( get_current_model(display), object );
+        add_object_to_current_model( display, object );
 
         ALLOC( info->lines->colours, 1 );
 
