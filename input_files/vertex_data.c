@@ -135,6 +135,7 @@ input_vertstats_vertex_data( const VIO_STR filename )
     ADD_ELEMENT_TO_ARRAY(vtxd_ptr->dims, len, 0, 1 );
 
     vtxd_ptr->column_names = NULL;
+    vtxd_ptr->colour_coding.user_defined_n_colour_points = 0;
 
     len = 0;
 

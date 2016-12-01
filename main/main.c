@@ -434,37 +434,24 @@ static object_struct *
 get_most_recent_surface( display_struct *display )
 {
   model_struct *model_ptr = get_current_model( display );
-  object_struct *result_ptr = NULL;
   object_struct *object_ptr;
-  int n;
+  int i;
 
-  if ( model_ptr->n_objects <= 1 )
+  if ( model_ptr == NULL )
   {
     return NULL;
   }
 
-  /* Get the most recently loaded model. */
-  n = model_ptr->n_objects;
-  while ( --n > 0 && result_ptr == NULL )
+  for (i = 0; i < model_ptr->n_objects; i++)
   {
-    object_ptr = model_ptr->objects[n];
-    if ( object_ptr->object_type == MODEL )
+    object_ptr = model_ptr->objects[i];
+    if ( object_ptr->object_type == POLYGONS && 
+         get_polygons_ptr(object_ptr)->n_items > 0 )
     {
-      int i;
-      model_struct *sub_model_ptr;
-
-      sub_model_ptr = get_model_ptr( object_ptr );
-      for_less (i, 0, sub_model_ptr->n_objects )
-      {
-        if ( sub_model_ptr->objects[i]->object_type == POLYGONS )
-        {
-          result_ptr = sub_model_ptr->objects[i];
-          break;
-        }
-      }
+      return object_ptr;
     }
   }
-  return result_ptr;
+  return NULL;
 }
 
 /**
