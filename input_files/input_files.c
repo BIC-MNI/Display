@@ -241,15 +241,43 @@ load_graphics_file_with_colour(
             polygons_ptr->n_points = gii_ptr->darray[0]->dims[0];
             ALLOC( polygons_ptr->points, polygons_ptr->n_points );
             float32_ptr = (float *) gii_ptr->darray[0]->data;
-            for_less( i, 0, polygons_ptr->n_points )
-            {
-              int j = i * VIO_N_DIMENSIONS;
-              fill_Point(polygons_ptr->points[i],
-                         float32_ptr[j + 0],
-                         float32_ptr[j + 1],
-                         float32_ptr[j + 2]);
-            }
+            /* See if there is a transform defined for the surface points,
+             * and apply it if present.
+             */
+            if (gii_ptr->darray[0]->coordsys != NULL &&
+                gii_ptr->darray[0]->coordsys[0] != NULL) {
+              double (*xfm)[4] =  gii_ptr->darray[0]->coordsys[0]->xform;
 
+              /* Information about the "meaning" of the transform is
+                 located in these two files.
+                 gii_ptr->darray[0]->coordsys[0]->dataspace,
+                 gii_ptr->darray[0]->coordsys[0]->xformspace);
+                 For now we just apply the transform blindly.
+              */
+              for_less( i, 0, polygons_ptr->n_points )
+              {
+                int j = i * VIO_N_DIMENSIONS;
+                double x = float32_ptr[j + 0];
+                double y = float32_ptr[j + 1];
+                double z = float32_ptr[j + 2];
+                x = x * xfm[0][0] + y * xfm[0][1] + z * xfm[0][2] + xfm[0][3];
+                y = x * xfm[1][0] + y * xfm[1][1] + z * xfm[1][2] + xfm[1][3];
+                z = x * xfm[2][0] + y * xfm[2][1] + z * xfm[2][2] + xfm[2][3];
+                fill_Point(polygons_ptr->points[i], x, y, z);
+              }
+            }
+            else
+            {
+              print("No GIFTI spatial transform found.\n");
+              for_less( i, 0, polygons_ptr->n_points )
+              {
+                int j = i * VIO_N_DIMENSIONS;
+                fill_Point(polygons_ptr->points[i],
+                           float32_ptr[j + 0],
+                           float32_ptr[j + 1],
+                           float32_ptr[j + 2]);
+              }
+            }
             polygons_ptr->n_items = gii_ptr->darray[1]->dims[0];
             ALLOC( polygons_ptr->indices, polygons_ptr->n_items * 3 );
             ALLOC( polygons_ptr->end_indices, polygons_ptr->n_items );

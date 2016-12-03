@@ -281,19 +281,19 @@ input_gifti_vertex_data( const VIO_STR filename )
   {
     if ( intent != gii_ptr->darray[i]->intent )
     {
-      print("Inconsistent GIFTI intent.");
+      print("Inconsistent GIFTI intent.\n");
       gifti_free_image( gii_ptr );
       return NULL;
     }
     if ( num_dim != gii_ptr->darray[i]->num_dim )
     {
-      print("Inconsistent GIFTI dimension count.");
+      print("Inconsistent GIFTI dimension count.\n");
       gifti_free_image( gii_ptr );
       return NULL;
     }
     if ( datatype != gii_ptr->darray[i]->datatype )
     {
-      print("Inconsistent GIFTI data type.");
+      print("Inconsistent GIFTI data type.\n");
       gifti_free_image( gii_ptr );
       return NULL;
     }
@@ -305,16 +305,16 @@ input_gifti_vertex_data( const VIO_STR filename )
   if ( (num_dim != 1 &&
         (num_dim != 2 || gii_ptr->darray[0]->dims[1] != 1)))
   {
-    print("Incorrect dimension count for shape or label data.");
+    print("Incorrect dimension count for shape or label data.\n");
     gifti_free_image( gii_ptr );
     return NULL;
   }
 
   if ( intent == NIFTI_INTENT_LABEL || intent == NIFTI_INTENT_NONE )
   {
-    if ( datatype != NIFTI_TYPE_INT32 )
+    if ( datatype != NIFTI_TYPE_INT32 && datatype != NIFTI_TYPE_UINT32 )
     {
-      print("Incorrect data type for GIFTI label data.");
+      print("Incorrect data type for GIFTI label data.\n");
       gifti_free_image( gii_ptr );
       return NULL;
     }
@@ -323,14 +323,14 @@ input_gifti_vertex_data( const VIO_STR filename )
   {
     if ( datatype != NIFTI_TYPE_FLOAT32 )
     {
-      print("Incorrect data type for GIFTI shape data.");
+      print("Incorrect data type for GIFTI shape data.\n");
       gifti_free_image( gii_ptr );
       return NULL;
     }
   }
   else
   {
-    print("Unrecognized or unsupported GIFTI intent.");
+    print("Unrecognized or unsupported GIFTI intent.\n");
     gifti_free_image( gii_ptr );
     return NULL;
   }
@@ -354,6 +354,19 @@ input_gifti_vertex_data( const VIO_STR filename )
     if ( datatype == NIFTI_TYPE_INT32 )
     {
       int32_t *data_ptr = (int32_t *)gii_ptr->darray[i]->data;
+      for ( j = 0; j < length; j++ )
+      {
+        float v = *data_ptr++;
+        if ( v > vtxd_ptr->max_v[i] )
+          vtxd_ptr->max_v[i] = v;
+        if ( v < vtxd_ptr->min_v[i] )
+          vtxd_ptr->min_v[i] = v;
+        vtxd_ptr->data[i * length + j] = v;
+      }
+    }
+    else if ( datatype == NIFTI_TYPE_UINT32 )
+    {
+      uint32_t *data_ptr = (uint32_t *)gii_ptr->darray[i]->data;
       for ( j = 0; j < length; j++ )
       {
         float v = *data_ptr++;
