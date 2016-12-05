@@ -59,6 +59,172 @@ VIO_BOOL is_volume_transform_rigid( VIO_Volume volume )
 
 #if GIFTI_FOUND
 #include "gifti_io.h"
+
+static VIO_Status
+read_gifti_surface( const char *filename, model_struct *model )
+{
+  gifti_image *gii_ptr = gifti_read_image( filename, 1 );
+  if ( gii_ptr == NULL )
+  {
+    print_error("Unknown error reading GIFTI file.\n");
+    return VIO_ERROR;
+  }
+  /* Check that all of the properties of the GIFTI file are
+   * set correctly for a surface.
+   */
+  else if ( gii_ptr->numDA != 2 ||
+            gii_ptr->darray[0]->intent != NIFTI_INTENT_POINTSET ||
+            gii_ptr->darray[0]->datatype != NIFTI_TYPE_FLOAT32 ||
+            gii_ptr->darray[0]->num_dim != 2 ||
+            gii_ptr->darray[0]->dims[1] != 3 ||
+            gii_ptr->darray[1]->intent != NIFTI_INTENT_TRIANGLE ||
+            gii_ptr->darray[1]->datatype != NIFTI_TYPE_INT32 ||
+            gii_ptr->darray[1]->num_dim != 2 ||
+            gii_ptr->darray[1]->dims[1] != 3 )
+  {
+    print_error("This file does not look like a GIFTI surface.\n");
+    gifti_free_image( gii_ptr );
+    return VIO_ERROR;
+  }
+  else
+  {
+    object_struct   *object_ptr = create_object( POLYGONS );
+    polygons_struct *polygons_ptr = get_polygons_ptr( object_ptr );
+    float           *float32_ptr;
+    int32_t         *int32_ptr;
+    VIO_Transform   xfm;
+    int             rh1, rh2;
+    giiCoordSystem  *gii_coord_ptr;
+    int             n_indices;
+    int             x_ind, y_ind, z_ind;
+    int             x_dir, y_dir, z_dir;
+    int             i, j;
+
+    /* Interpret the GIFTI_orientation parameter, which controls
+     * translation of the GIFTI vertices into Display's RAS space.
+     */
+    for_less ( i, 0, VIO_N_DIMENSIONS )
+    {
+      switch ( GIFTI_orientation[i] )
+      {
+      case 'R': case 'r':
+        x_ind = i;
+        x_dir = 1;
+        break;
+      case 'L': case 'l':
+        x_ind = i;
+        x_dir = -1;
+        break;
+      case 'A': case 'a':
+        y_ind = i;
+        y_dir = 1;
+        break;
+      case 'P': case 'p':
+        y_ind = i;
+        y_dir = -1;
+        break;
+      case 'S': case 's':
+        z_ind = i;
+        z_dir = 1;
+        break;
+      case 'I': case 'i':
+        z_ind = i;
+        z_dir = -1;
+        break;
+      default:
+        print_error("ERROR in GIFTI_orientation.\n");
+        gifti_free_image( gii_ptr );
+        return VIO_ERROR;
+      }
+    }
+
+    make_identity_transform( &xfm );
+    initialize_polygons( polygons_ptr, WHITE, NULL );
+
+    /* See if there is a transform defined for the surface points,
+     * and apply it if present.
+     */
+    if (gii_ptr->darray[0]->coordsys != NULL &&
+        (gii_coord_ptr = gii_ptr->darray[0]->coordsys[0]) != NULL)
+    {
+      /* Information about the "meaning" of the transform is
+         located in these two files.
+         gii_ptr->darray[0]->coordsys[0]->dataspace,
+         gii_ptr->darray[0]->coordsys[0]->xformspace);
+         For now we just apply the transform blindly.
+      */
+      for (i = 0; i < 4; i++)
+      {
+        for (j = 0; j < 4; j++)
+        {
+          Transform_elem(xfm, i, j) = gii_coord_ptr->xform[i][j];
+        }
+      }
+    }
+    else
+    {
+      /* This is just an informational message. It could be removed.
+       */
+      print("No GIFTI spatial transform found.\n");
+    }
+
+    /* Calculate right-handedness flag pre-adjustment. */
+    rh1 = is_transform_right_handed( &xfm );
+    /* Swap the orientations of the transform rows if needed. */
+    for ( j = 0; j < 4; j++ )
+    {
+      Transform_elem( xfm, 0, j ) *= x_dir;
+      Transform_elem( xfm, 1, j ) *= y_dir;
+      Transform_elem( xfm, 2, j ) *= z_dir;
+    }
+
+    /* Calculate right-handedness flag post-adjustment. */
+    rh2 = is_transform_right_handed( &xfm );
+
+    /* Copy the vertices from the GIFTI object.
+     */
+    polygons_ptr->n_points = gii_ptr->darray[0]->dims[0];
+    ALLOC( polygons_ptr->points, polygons_ptr->n_points );
+    float32_ptr = (float *) gii_ptr->darray[0]->data;
+    for ( i = j = 0; i < polygons_ptr->n_points; i++, j += 3 )
+    {
+      VIO_Real x = float32_ptr[j + x_ind];
+      VIO_Real y = float32_ptr[j + y_ind];
+      VIO_Real z = float32_ptr[j + z_ind];
+      transform_point( &xfm, x, y, z, &x, &y, &z );
+      fill_Point( polygons_ptr->points[i], x, y, z );
+    }
+    /* Now copy the indices and the end indices. We assume that
+     * the surface is triangular.
+     */
+    polygons_ptr->n_items = gii_ptr->darray[1]->dims[0];
+    n_indices = polygons_ptr->n_items * 3;
+    ALLOC( polygons_ptr->indices, n_indices );
+    ALLOC( polygons_ptr->end_indices, polygons_ptr->n_items );
+    int32_ptr = (int32_t *) gii_ptr->darray[1]->data;
+    for ( i = 0; i < n_indices; i++ )
+    {
+      polygons_ptr->indices[i] = int32_ptr[i];
+    }
+    for ( i = 0, j = 3; i < polygons_ptr->n_items; i++, j += 3 )
+    {
+      polygons_ptr->end_indices[i] = j;
+    }
+    ALLOC( polygons_ptr->normals, polygons_ptr->n_points );
+    compute_polygon_normals( polygons_ptr );
+    /* If the handedness changed because of our reorientation,
+     * try to reverse the direction of the normals. This seems
+     * to be the right thing to do in many, but not all, cases.
+     */
+    if ( rh1 != rh2 )
+    {
+      reverse_vectors( polygons_ptr->n_points, polygons_ptr->normals );
+    }
+    add_object_to_model( model, object_ptr );
+    gifti_free_image( gii_ptr );
+  }
+  return VIO_OK;
+}
 #endif /* GIFTI_FOUND */
 
 /**
@@ -211,95 +377,7 @@ load_graphics_file_with_colour(
 #if GIFTI_FOUND
     else if( filename_extension_matches( filename, "gii" ) )
     {
-        gifti_image *gii_ptr = gifti_read_image( filename, 1 );
-        if ( gii_ptr == NULL )
-        {
-          status = VIO_ERROR;
-        }
-        else
-        {
-          /* Obsessively check all of the attributes of a GIFTI surface.
-           */
-          if ( gii_ptr->numDA == 2 &&
-               gii_ptr->darray[0]->intent == NIFTI_INTENT_POINTSET &&
-               gii_ptr->darray[0]->datatype == NIFTI_TYPE_FLOAT32 &&
-               gii_ptr->darray[0]->num_dim == 2 &&
-               gii_ptr->darray[0]->dims[1] == 3 &&
-               gii_ptr->darray[1]->intent == NIFTI_INTENT_TRIANGLE &&
-               gii_ptr->darray[1]->datatype == NIFTI_TYPE_INT32 &&
-               gii_ptr->darray[1]->num_dim == 2 &&
-               gii_ptr->darray[1]->dims[1] == 3 )
-          {
-            object_struct *object_ptr = create_object( POLYGONS );
-            polygons_struct *polygons_ptr = get_polygons_ptr( object_ptr );
-            float *float32_ptr;
-            int *int32_ptr;
-            int i;
-
-            initialize_polygons( polygons_ptr, WHITE, NULL );
-
-            polygons_ptr->n_points = gii_ptr->darray[0]->dims[0];
-            ALLOC( polygons_ptr->points, polygons_ptr->n_points );
-            float32_ptr = (float *) gii_ptr->darray[0]->data;
-            /* See if there is a transform defined for the surface points,
-             * and apply it if present.
-             */
-            if (gii_ptr->darray[0]->coordsys != NULL &&
-                gii_ptr->darray[0]->coordsys[0] != NULL) {
-              double (*xfm)[4] =  gii_ptr->darray[0]->coordsys[0]->xform;
-
-              /* Information about the "meaning" of the transform is
-                 located in these two files.
-                 gii_ptr->darray[0]->coordsys[0]->dataspace,
-                 gii_ptr->darray[0]->coordsys[0]->xformspace);
-                 For now we just apply the transform blindly.
-              */
-              for_less( i, 0, polygons_ptr->n_points )
-              {
-                int j = i * VIO_N_DIMENSIONS;
-                double x = float32_ptr[j + 0];
-                double y = float32_ptr[j + 1];
-                double z = float32_ptr[j + 2];
-                x = x * xfm[0][0] + y * xfm[0][1] + z * xfm[0][2] + xfm[0][3];
-                y = x * xfm[1][0] + y * xfm[1][1] + z * xfm[1][2] + xfm[1][3];
-                z = x * xfm[2][0] + y * xfm[2][1] + z * xfm[2][2] + xfm[2][3];
-                fill_Point(polygons_ptr->points[i], x, y, z);
-              }
-            }
-            else
-            {
-              print("No GIFTI spatial transform found.\n");
-              for_less( i, 0, polygons_ptr->n_points )
-              {
-                int j = i * VIO_N_DIMENSIONS;
-                fill_Point(polygons_ptr->points[i],
-                           float32_ptr[j + 0],
-                           float32_ptr[j + 1],
-                           float32_ptr[j + 2]);
-              }
-            }
-            polygons_ptr->n_items = gii_ptr->darray[1]->dims[0];
-            ALLOC( polygons_ptr->indices, polygons_ptr->n_items * 3 );
-            ALLOC( polygons_ptr->end_indices, polygons_ptr->n_items );
-            int32_ptr = (int *) gii_ptr->darray[1]->data;
-            for_less( i, 0, polygons_ptr->n_items * 3 )
-            {
-              polygons_ptr->indices[i] = int32_ptr[i];
-            }
-            for_less( i, 0, polygons_ptr->n_items )
-            {
-              polygons_ptr->end_indices[i] = (i + 1) * 3;
-            }
-            ALLOC( polygons_ptr->normals, polygons_ptr->n_points );
-            compute_polygon_normals( polygons_ptr );
-            add_object_to_model( model, object_ptr );
-          }
-          else
-          {
-            print("Sorry, I can only read GIfTI surfaces.\n");
-          }
-          gifti_free_image( gii_ptr );
-        }
+      status = read_gifti_surface( filename, model );
     }
 #endif /* GIFTI_FOUND */
     else if( filename_extension_matches(filename,

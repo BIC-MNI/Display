@@ -608,5 +608,17 @@ START_GLOBALS
  */
      DEF_GLOBAL( Initial_label_colour_table, int, 0 )
 
+/**
+ * Controls the interpretation of GIFTI vertex data in surface files.
+ * The correct behavior is to define coordinate indices as follows: 0
+ * as -L +R, 1 as -P, +A, and 2 as -I, +S, or what we call "RAS".
+ * However, GIFTI files seem to routinely violate this rule. Each
+ * position in this three-letter string can be set to one of L or R, A
+ * or P, or I or S. The letter specifies the positive direction for
+ * that coordinate index. This allows you to specify the order and
+ * direction of the mapping. For example, setting this to LIP would
+ * specify: 0 as -R, +L, 1 as -S, +I, and 2 as -A, +P.
+ */
+     DEF_GLOBAL( GIFTI_orientation, VIO_STR, "RAS" )
 END_GLOBALS
 /** @} */
