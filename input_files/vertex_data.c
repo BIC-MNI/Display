@@ -66,6 +66,38 @@ int split_line(char *text_ptr, int sep, char ***argv)
 }
 
 /**
+ * \brief Create and initialize a vertex data object.
+ *
+ * Allocates the memory and initializes the fields for a
+ * vertex data object.
+ *
+ * \param n_dimensions The initial number of dimensions.
+ * \returns An empty vertex data object.
+ */
+static vertex_data_struct *
+create_vertex_data( int n_dimensions )
+{
+  vertex_data_struct *vtxd_ptr;
+  int i;
+
+  ALLOC( vtxd_ptr, 1 );
+  ALLOC( vtxd_ptr->dims, n_dimensions );
+  vtxd_ptr->ndims = n_dimensions;
+  for (i = 0; i < n_dimensions; i++) {
+    vtxd_ptr->dims[i] = 0;
+  }
+  vtxd_ptr->max_v = vtxd_ptr->min_v = NULL;
+  vtxd_ptr->data = NULL;
+  vtxd_ptr->column_names = NULL;
+  /* We don't want to fully initialize the colour coding, because
+     we need to read in the data before we know exactly which colour
+     coding is appropriate.
+  */
+  vtxd_ptr->colour_coding.user_defined_n_colour_points = 0;
+  return vtxd_ptr;
+}
+
+/**
  * \brief Free memory associated with a vertex data object.
  *
  * Deletes the various allocated fields associated with a vertex data
@@ -227,15 +259,8 @@ input_vertstats_vertex_data( const VIO_STR filename )
     {
         return NULL;
     }
-    ALLOC(vtxd_ptr, 1);
 
-    vtxd_ptr->ndims = 2;
-
-    ADD_ELEMENT_TO_ARRAY(vtxd_ptr->dims, len, 0, 1 );
-    ADD_ELEMENT_TO_ARRAY(vtxd_ptr->dims, len, 0, 1 );
-
-    vtxd_ptr->column_names = NULL;
-    vtxd_ptr->colour_coding.user_defined_n_colour_points = 0;
+    vtxd_ptr = create_vertex_data( 2 );
 
     len = 0;
 
@@ -444,17 +469,14 @@ input_gifti_vertex_data( const VIO_STR filename )
     return NULL;
   }
 
-  ALLOC( vtxd_ptr, 1 );
-  vtxd_ptr->ndims = 2;
-  ALLOC( vtxd_ptr->dims, 2 );
+  vtxd_ptr = create_vertex_data( 2 );
+
   vtxd_ptr->dims[0] = length;
   vtxd_ptr->dims[1] = gii_ptr->numDA;
-  vtxd_ptr->column_names = NULL;
+
   ALLOC( vtxd_ptr->data, length * gii_ptr->numDA );
   ALLOC( vtxd_ptr->max_v, gii_ptr->numDA );
   ALLOC( vtxd_ptr->min_v, gii_ptr->numDA );
-
-  vtxd_ptr->colour_coding.user_defined_n_colour_points = 0;
 
   for ( i = 0; i < gii_ptr->numDA; i++ )
   {
