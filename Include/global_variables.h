@@ -620,5 +620,11 @@ START_GLOBALS
  * specify: 0 as -R, +L, 1 as -S, +I, and 2 as -A, +P.
  */
      DEF_GLOBAL( GIFTI_orientation, VIO_STR, "RAS" )
+
+/**
+ * Sets the maximum tolerance for considering vertex data as labels
+ * (as opposed to continuous data).
+ */
+     DEF_GLOBAL( Vertex_label_tolerance, VIO_Real, 0.1 )
 END_GLOBALS
 /** @} */

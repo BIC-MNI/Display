@@ -85,6 +85,105 @@ delete_vertex_data( vertex_data_struct *vtxd_ptr )
 }
 
 /**
+ * Helper function for sorting vertex values.
+ */
+static int realcmp(const void *a, const void *b)
+{
+  VIO_Real x = *(const VIO_Real *)a;
+  VIO_Real y = *(const VIO_Real *)b;
+  if (x > y) return 1;
+  else if (x < y) return -1;
+  return 0;
+}
+
+/**
+ * Use a discrete "label" colour map for this vertex data set, rather
+ * rather than the default continuous map. We model the discrete map
+ * by creating a custom continuous colour map with distinct colour
+ * points for each integral value.
+ */
+void use_label_colour_map( vertex_data_struct *vtxd_ptr, int len )
+{
+  VIO_Real  *indices;
+  int        n_labels;
+  int        i;
+  VIO_Real   min_label;
+  VIO_Real   max_label;
+  VIO_Colour *colours;
+  VIO_Real   *positions;
+
+  if ( len <= 0 )
+    return;
+
+  /* Create a private copy of the vertex data, rounded to integer.
+   */
+  ALLOC(indices, len);
+
+  for (i = 0; i < len; i++)
+  {
+    indices[i] = vtxd_ptr->data[i];
+  }
+
+  /* Sort the private copy- we do this so that the colour coding
+   * function will see monotonically increasing position values, as
+   * required.
+   */
+  qsort(indices, len, sizeof(VIO_Real), realcmp);
+  n_labels = 1;
+  for ( i = 1; i < len; i++ )
+  {
+    if ( indices[n_labels - 1] != indices[i] )
+    {
+      indices[n_labels++] = indices[i];
+    }
+  }
+  print("Identified %d/%d distinct values.\n", n_labels, len);
+  if (n_labels < len / 4)
+  {
+    min_label = indices[0];
+    max_label = indices[n_labels - 1];
+    ALLOC( colours, n_labels );
+    ALLOC( positions, n_labels );
+
+    /* Create the colour and position arrays needed to set up
+     * the colour coding.
+     */
+    distinct_colours( n_labels, Initial_background_colour, colours );
+    for ( i = 0; i < n_labels; i++ )
+    {
+      positions[i] = ( indices[i] - min_label ) / ( max_label - min_label);
+    }
+
+    /* For experimental purposes, report what we are doing. */
+       
+    print(" %4s  %8s %4s %3s %3s %3s\n", "#", "Label", "Fr.", "R", "G", "B");
+    for (i = 0; i < n_labels; i++)
+    {
+      print(" %4d) %8.2f %4.2f %3d %3d %3d\n",
+            i, indices[i], positions[i],
+            get_Colour_r(colours[i]),
+            get_Colour_g(colours[i]),
+            get_Colour_b(colours[i]));
+    }
+
+    /* Configure the colour coding.
+     */
+    initialize_colour_coding( &vtxd_ptr->colour_coding,
+                              USER_DEFINED_COLOUR_MAP,
+                              colours[0],
+                              colours[n_labels-1],
+                              0.0, 1.0 );
+    define_colour_coding_user_defined(&vtxd_ptr->colour_coding, n_labels,
+                                      colours, positions, RGB_SPACE);
+    set_colour_coding_min_max(&vtxd_ptr->colour_coding, min_label,
+                              max_label);
+    FREE(positions);
+    FREE(colours);
+  }
+  FREE(indices);
+}
+
+/**
  * \brief Read per-vertex data from a text file.
  *
  * Data is assumed to be a series of lines with a consistent number of
@@ -109,6 +208,7 @@ input_vertstats_vertex_data( const VIO_STR filename )
     vertex_data_struct *vtxd_ptr;
     int sep;
     int is_vertstats = 0;
+    int n_integer = 0;
 
     if (string_ends_in( filename, ".csv" ))
     {
@@ -212,11 +312,20 @@ input_vertstats_vertex_data( const VIO_STR filename )
             vtxd_ptr->max_v[i] = v;
           if (v < vtxd_ptr->min_v[i])
             vtxd_ptr->min_v[i] = v;
+          if (fabs(v - round(v)) < Vertex_label_tolerance)
+          {
+            ++n_integer;
+          }
           ADD_ELEMENT_TO_ARRAY(vtxd_ptr->data, len, v, VERTEX_DATA_INCREMENT);
         }
         FREE(items);
     }
     vtxd_ptr->dims[0] = len / vtxd_ptr->dims[1];
+
+    if ( n_integer == len )
+    {
+      use_label_colour_map( vtxd_ptr, len );
+    }
     print("Read %d lines of vertex data.\n", vtxd_ptr->dims[0]);
     if (vtxd_ptr->dims[1] == 1)
       print("There is 1 item per line.\n");
