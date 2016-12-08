@@ -1,3 +1,7 @@
+2016-12-08 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* slice_window/scalebars.c, etc.: Add support for scalebars
+	on each slice view.
+
 2016-11-16 Robert D. Vincent <robert.d.vincent@mcgill.ca>
 	* callbacks/line_ops.c, etc.: Add some new operations on lines,
 	for use with diffusion track data.

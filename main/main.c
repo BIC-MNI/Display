@@ -300,6 +300,7 @@ static  void      initialize_global_colours( void )
     Initial_vertex_under_colour = BLACK;
     Initial_vertex_over_colour = WHITE;
     Measure_colour = YELLOW;
+    Scalebar_colour = make_rgba_Colour(0, 255, 255, 128);
 }
 
 static  void      initialize_view_to_fit(

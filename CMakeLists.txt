@@ -279,6 +279,7 @@ SET(C_SRC
            slice_window/pick_angle.c 
            slice_window/quadmesh.c 
            slice_window/rulers.c
+           slice_window/scalebars.c
            slice_window/slice.c 
            slice_window/slice_3d.c 
            slice_window/slice_events.c 

@@ -626,5 +626,26 @@ START_GLOBALS
  * (as opposed to continuous data).
  */
      DEF_GLOBAL( Vertex_label_tolerance, VIO_Real, 0.1 )
+
+/**
+ * If TRUE, scalebar display on the slice view is enabled.
+ */
+     DEF_GLOBAL( Scalebar_enabled, VIO_BOOL, FALSE )
+
+/**
+ * Set the quadrant of the scalebar, one of the following:
+ * 1: upper right, 2: upper left, 3: lower left, 4: lower right
+ */
+     DEF_GLOBAL( Scalebar_quadrant, int, 1 )
+
+/**
+ * Height of the scalebar in pixels.
+ */
+     DEF_GLOBAL( Scalebar_height, int, 8 )
+
+/**
+ * The colour to use for the scalebar.
+ */
+     DEF_GLOBAL_COLOUR( Scalebar_colour )
 END_GLOBALS
 /** @} */

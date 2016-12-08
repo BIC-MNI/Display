@@ -65,6 +65,7 @@ typedef  enum  {
   CURSOR_INDEX1,                /**< Part of the slice cursor. */
   CURSOR_INDEX2,                /**< Part of the slice cursor. */
   RULERS,                       /**< The axis ruler models. */
+  SCALEBAR,                     /**< The scalebar model. */
   TEXT_INDEX,                   /**< The text axis position label. */
   FOV_INDEX,                    /**< The field-of-view text. */
 } Slice_model_indices;

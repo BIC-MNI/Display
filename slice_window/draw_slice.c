@@ -162,6 +162,7 @@ void  initialize_slice_models(
 
         /* --- make rulers */
         initialize_slice_rulers( model );
+        initialize_slice_scalebar( model );
 
         /*--- make cursor position text */
 

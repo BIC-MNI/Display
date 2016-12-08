@@ -2962,6 +2962,12 @@ void set_slice_rulers_visibility( display_struct *slice_window,
                                   int            view_index,
                                   VIO_BOOL       state );
 
+/* from slice_window/scalebars.c */
+void initialize_slice_scalebar( model_struct *model_ptr );
+void rebuild_slice_scalebar( display_struct *slice_window, int view_index );
+void rebuild_one_scalebar( model_struct *model_ptr, VIO_Real ppm, int quadrant,
+                           int cy_bar, int x_size, int y_size );
+
 /* from slice_window/intensity_plot.c */
 void initialize_intensity_plot(display_struct *display);
 void rebuild_intensity_plot(display_struct *display);

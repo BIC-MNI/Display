@@ -1228,6 +1228,7 @@ static  void  render_more_slices(
             rebuild_slice_cursor( slice_window, view );
             rebuild_slice_field_of_view( slice_window, view );
             rebuild_slice_rulers( slice_window, view );
+            rebuild_slice_scalebar( slice_window, view );
             render_intensity_plot = TRUE; /* For later */
             slice_window->slice.slice_views[view].update_cursor_flag = FALSE;
         }
