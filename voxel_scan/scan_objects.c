@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file voxel_scan/scan_objects.c
+ * \brief Support for labeling voxels that intersect a loaded 3D object.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,18 +13,21 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+ */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#ifndef lint
-
-#endif
-
 #include  <display.h>
 
-  void  scan_object_to_current_volume(
+/**
+ * Given a 3D graphical object, this function will "scan" it to the current
+ * label volume by setting each voxel that intersects the object to have the
+ * current paint label.
+ * \param slice_window A pointer to the slice window structure.
+ * \param object A pointer to the object to scan.
+ */
+void  scan_object_to_current_volume(
     display_struct   *slice_window,
     object_struct    *object )
 {
