@@ -1,5 +1,7 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/** \file menu/text.c
+ *  \brief Set menu text to reflect current status.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +12,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+ */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -29,7 +26,7 @@
 {
     char  text[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    (void) sprintf( text, menu_entry->label, value );
+    snprintf( text, sizeof(text), menu_entry->label, value );
 
     set_menu_text( menu_window, menu_entry, text );
 }
@@ -41,7 +38,7 @@
 {
     char  text[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    (void) sprintf( text, menu_entry->label, value );
+    snprintf( text, sizeof(text), menu_entry->label, value );
 
     set_menu_text( menu_window, menu_entry, text );
 }
@@ -56,9 +53,9 @@
     char  text[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     if( value )
-        (void) sprintf( text, menu_entry->label, on_str );
+        snprintf( text, sizeof(text), menu_entry->label, on_str );
     else
-        (void) sprintf( text, menu_entry->label, off_str );
+        snprintf( text, sizeof(text), menu_entry->label, off_str );
 
     set_menu_text( menu_window, menu_entry, text );
 }
@@ -81,7 +78,7 @@
 
     name = convert_colour_to_string( colour );
 
-    (void) sprintf( text, menu_entry->label, name );
+    snprintf( text, sizeof(text), menu_entry->label, name );
 
     delete_string( name );
 
@@ -95,7 +92,7 @@
 {
     char  text[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    (void) sprintf( text, menu_entry->label, str );
+    snprintf( text, sizeof(text), menu_entry->label, str );
 
     set_menu_text( menu_window, menu_entry, text );
 }
