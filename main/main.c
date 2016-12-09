@@ -25,7 +25,6 @@ int debug = 1;
 int verbose = 1;
 
 static  void   initialize_global_colours( void );
-static  void   initialize_view_to_fit (display_struct  *display );
 static  void   initialize_cache ();
 static  void   parse_options (int argc, char *argv[],
                               display_struct *graphics);
@@ -303,8 +302,7 @@ static  void      initialize_global_colours( void )
     Scalebar_colour = make_rgba_Colour(0, 255, 255, 128);
 }
 
-static  void      initialize_view_to_fit(
-    display_struct  *display )
+void initialize_view_to_fit( display_struct  *display )
 {
     int      i, c, x, y, z;
     VIO_Real voxel[VIO_N_DIMENSIONS], world[VIO_N_DIMENSIONS];
@@ -724,7 +722,7 @@ parse_options(int argc, char *argv[], display_struct *graphics)
             }
           }
 
-          if (load_graphics_file_with_colour(graphics, filename, 
+          if (load_graphics_file_with_colour(graphics, filename,
                                              next_is_label_volume,
                                              default_colour) != VIO_OK)
           {

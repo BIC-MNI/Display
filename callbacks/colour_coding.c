@@ -20,39 +20,36 @@
 
 #include  <display.h>
 
-/* ARGSUSED */
+static colour_coding_struct *
+get_colour_coding( display_struct *slice_window, int volume_index )
+{
+    return &slice_window->slice.volumes[volume_index].colour_coding;
+}
 
 DEF_MENU_FUNCTION(set_colour_limits )
 {
-    int              volume_index;
-    VIO_Real         min_value, max_value;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
-        get_n_volumes(slice_window) > 0 )
+        get_n_volumes( slice_window ) > 0 )
     {
+        VIO_Real min_value, max_value;
         char prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
-        volume_index = get_current_volume_index( slice_window );
+        colour_coding_struct *colour_coding;
+        int volume_index = get_current_volume_index( slice_window );
 
-        sprintf(prompt, "Current limits:\t%g\t%g\nEnter new values:",
-               slice_window->slice.volumes[volume_index].
-                                             colour_coding.min_value,
-               slice_window->slice.volumes[volume_index].
-                                             colour_coding.max_value );
+        colour_coding = get_colour_coding( slice_window, volume_index );
+        get_colour_coding_min_max( colour_coding, &min_value, &max_value );
+        snprintf(prompt, sizeof( prompt ),
+                 "Current limits: %g %g\nEnter new values:",
+                 min_value, max_value );
 
         if( get_user_input( prompt, "rr", &min_value, &max_value ) == VIO_OK )
         {
             change_colour_coding_range( slice_window,
                                         volume_index, min_value, max_value);
-
-            print( "    New limits:\t%g\t%g\n",
-                   slice_window->slice.volumes[volume_index].
-                                                  colour_coding.min_value,
-                   slice_window->slice.volumes[volume_index].
-                                                  colour_coding.max_value );
         }
     }
-
     return( VIO_OK );
 }
 
@@ -61,12 +58,6 @@ DEF_MENU_FUNCTION(set_colour_limits )
 DEF_MENU_UPDATE(set_colour_limits )
 {
     return( get_n_volumes(display) > 0 );
-}
-
-static colour_coding_struct *
-get_colour_coding( display_struct *slice_window, int volume_index )
-{
-    return &slice_window->slice.volumes[volume_index].colour_coding;
 }
 
 static  void  set_the_colour_coding_type(
@@ -562,10 +553,10 @@ DEF_MENU_FUNCTION(set_filter_half_width )
 
         volume_index = get_current_volume_index( slice_window );
 
-        sprintf( prompt,
-                 "Current filter full width half max: %g\nEnter new value: ",
-                slice_window->slice.volumes[volume_index].views[view_index]
-                                                  .filter_width );
+        snprintf( prompt, sizeof( prompt ),
+                  "Current filter full width half max: %g\nEnter new value: ",
+                  slice_window->slice.volumes[volume_index].views[view_index]
+                  .filter_width );
 
         if( get_user_input( prompt, "r", &filter_width ) == VIO_OK &&
             filter_width >= 0.0 )

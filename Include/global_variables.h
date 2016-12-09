@@ -647,5 +647,23 @@ START_GLOBALS
  * The colour to use for the scalebar.
  */
      DEF_GLOBAL_COLOUR( Scalebar_colour )
+
+/**
+ * If TRUE, the 3D view zoom level and position be updated when a new
+ * graphics file is loaded. The advantage of enabling this option is that
+ * the 3D view will always expand to show loaded objects outside the
+ * current viewport. The disadvantage is that it will reset your current
+ * zoom and rotation.
+ */
+     DEF_GLOBAL( Update_3d_view_on_load, VIO_BOOL, TRUE )
+
+/**
+ * If TRUE, the 3D view zoom level and position be updated when a new
+ * graphics object is created. The advantage of enabling this option is that
+ * the 3D view will always expand to show created objects outside the
+ * current viewport. The disadvantage is that it will reset your current
+ * zoom and rotation.
+ */
+     DEF_GLOBAL( Update_3d_view_on_new, VIO_BOOL, TRUE )
 END_GLOBALS
 /** @} */

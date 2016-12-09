@@ -23,7 +23,9 @@
 #include <assert.h>
 #include "checkbox.h"
 
+/** The height of the checkbox glyph in pixels. */
 static int cb_height;
+/** The width of the checkbox glyph in pixels. */
 static int cb_width;
 
 /**
@@ -104,6 +106,11 @@ create_selected_text( display_struct *marker_window )
 
 /**
  * Set the contents of a list item's text in the marker window.
+ *
+ * \param marker_window A pointer to the marker window.
+ * \param index The index of the object in the selected list.
+ * \param name The new name to display for the object.
+ * \param colour The new colour for this object's list entry.
  */
 static void
 set_text_entry( display_struct *marker_window,
@@ -140,7 +147,7 @@ set_text_entry( display_struct *marker_window,
 static void
 get_box_limits( marker_window_struct *marker,
                 int                  index,
-                VIO_STR              label,
+                const VIO_STR        label,
                 int                  *x_min,
                 int                  *x_max,
                 int                  *y_min,
@@ -164,14 +171,20 @@ get_box_limits( marker_window_struct *marker,
 }
 
 /** 
- * Sets the position of the lines object that surrounds the selected
- * object.
+ * Sets the position of the rectangular lines object that surrounds the 
+ * selected object.
+ *
+ * \param marker A pointer to the specific state of the marker window.
+ * \param selected_model A pointer to the model of the "selected list."
+ * \param index The index of the currently selected object.
+ * \param label The label text that will be used for the selected object,
+ * used to set the size of the select
  */
 static  void
 set_current_box( marker_window_struct *marker,
                  model_struct         *selected_model,
                  int                  index,
-                 VIO_STR              label )
+                 const VIO_STR        label )
 {
     int            x_start, x_end, y_start, y_end;
     VIO_Point      *points;
@@ -241,10 +254,16 @@ iterate_objects( model_struct *model_ptr, object_callback func,
   return -1;
 }
 
+/**
+ * Structure used to keep track of the list rebuilding process.
+ */
 struct rebuild_state
 {
+  /** Input pointer to the marker window */
   display_struct *marker_window;
+  /** Input pointer to the current selected object. */
   object_struct  *selected_object;
+  /** Input pointer to the current selected model. */
   model_struct *selected_model;
 };
 
@@ -347,10 +366,19 @@ rebuild_selected_list( display_struct *display,
     set_update_required( marker_window, NORMAL_PLANES );
 }
 
+/**
+ * Structure used when searching for a particular object relative to
+ * the mouse position.
+ */
 struct mouse_state
 {
+  /** A pointer to the marker window. */
   display_struct *marker_window;
-  int x, y;
+  /** The x coordinate of the mouse. */
+  int x;
+  /** The y coordinate of the mouse. */
+  int y;
+  /** A pointer to the returned object. */
   object_struct *object_under_mouse;
 };
 
@@ -469,9 +497,16 @@ find_object_in_hierarchy( display_struct *display, object_struct *object_ptr )
                           object_ptr );
 }
 
+/** 
+ * Structure that keeps track of the "state" of a search for a specific
+ * object index.
+ */
 struct find_state
 {
+  /** The index we are looking for. */
   int find_index;
+
+  /** A pointer to the returned object. */
   object_struct *object_ptr;
 };
 

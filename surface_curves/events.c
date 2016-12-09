@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/** 
+ * \file surface_curves/events.c
+ * \brief Event handling for surface curve drawing.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,16 +13,11 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -229,7 +227,7 @@ static  DEF_EVENT_FUNCTION( pick_point )
 
         *(get_lines_ptr(object)) = *(info->lines);
 
-        add_object_to_current_model( display, object );
+        add_object_to_current_model( display, object, FALSE );
 
         ALLOC( info->lines->colours, 1 );
 

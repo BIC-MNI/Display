@@ -359,7 +359,8 @@ calculate_volume_ratio(display_struct *slice_window, VIO_Real voxel[])
 static VIO_Real
 calculate_user_distance(display_struct *slice_window, 
                         const VIO_Real world[],
-                        char *distance_origin)
+                        int  origin_len,
+                        char *origin_str)
 {
   VIO_Point      mouse_point;
   display_struct *display;
@@ -374,12 +375,12 @@ calculate_user_distance(display_struct *slice_window,
   {
     marker_struct *marker = get_marker_ptr(object);
     origin_point = marker->position;
-    sprintf(distance_origin, "%d", get_current_object_index(display));
+    snprintf(origin_str, origin_len, "%d", get_current_object_index(display));
   }
   else
   {
     origin_point = display->three_d.cursor.origin;
-    strcpy(distance_origin, "c");
+    strncpy(origin_str, "c", origin_len);
   }
               
   fill_Point( mouse_point, world[VIO_X], world[VIO_Y], world[VIO_Z] );
@@ -450,7 +451,8 @@ rebuild_probe(display_struct *slice_window)
         if( slice_window->slice.ratio_enabled)
             ratio = calculate_volume_ratio(slice_window, voxel);
 
-        distance_value = calculate_user_distance(slice_window, world, 
+        distance_value = calculate_user_distance(slice_window, world,
+                                                 sizeof(distance_origin),
                                                  distance_origin);
     }
 
@@ -471,73 +473,75 @@ rebuild_probe(display_struct *slice_window)
             switch( i )
             {
             case VOLUME_INDEX:
-                (void) sprintf( buffer, Slice_probe_volume_index_format,
-                                volume_index + 1 );
+                snprintf( buffer, sizeof(buffer),
+                          Slice_probe_volume_index_format, volume_index + 1 );
                 break;
             case X_VOXEL_PROBE_INDEX:
-                (void) sprintf( buffer, Slice_probe_x_voxel_format,
-                                voxel[VIO_X] );
+                snprintf( buffer, sizeof(buffer), Slice_probe_x_voxel_format,
+                          voxel[VIO_X] );
                 break;
             case Y_VOXEL_PROBE_INDEX:
-                (void) sprintf( buffer, Slice_probe_y_voxel_format,
-                                voxel[VIO_Y] );
+                snprintf( buffer, sizeof(buffer), Slice_probe_y_voxel_format,
+                          voxel[VIO_Y] );
                 break;
             case Z_VOXEL_PROBE_INDEX:
-                (void) sprintf( buffer, Slice_probe_z_voxel_format,
-                                voxel[VIO_Z] );
+                snprintf( buffer, sizeof(buffer), Slice_probe_z_voxel_format,
+                          voxel[VIO_Z] );
                 break;
             case X_WORLD_PROBE_INDEX:
-                (void) sprintf( buffer, Slice_probe_x_world_format,
-                                world[VIO_X] );
+                snprintf( buffer, sizeof(buffer), Slice_probe_x_world_format,
+                          world[VIO_X] );
                 break;
             case Y_WORLD_PROBE_INDEX:
-                (void) sprintf( buffer, Slice_probe_y_world_format,
-                                world[VIO_Y] );
+                snprintf( buffer, sizeof(buffer), Slice_probe_y_world_format,
+                          world[VIO_Y] );
                 break;
             case Z_WORLD_PROBE_INDEX:
-                (void) sprintf( buffer, Slice_probe_z_world_format, 
-                                world[VIO_Z] );
+                snprintf( buffer, sizeof(buffer), Slice_probe_z_world_format, 
+                          world[VIO_Z] );
                 break;
             case VOXEL_PROBE_INDEX:
                 if ( is_rgb_volume )
                 {
                   VIO_Colour colour = (VIO_Colour)(long)voxel_value;
-                  sprintf( buffer, "Vx %02x%02x%02x",
+                  snprintf( buffer, sizeof(buffer), "Vx %02x%02x%02x",
                            get_Colour_r(colour), get_Colour_g(colour),
                            get_Colour_b(colour));
                 }
                 else
                 {
-                    (void) sprintf( buffer, Slice_probe_voxel_format,
-                                    voxel_value );
+                  snprintf( buffer, sizeof(buffer), Slice_probe_voxel_format,
+                            voxel_value );
                 }
                 break;
             case VAL_PROBE_INDEX:
                 if ( is_rgb_volume )
                 {
-                    strcpy( buffer, "Vl    RGB");
+                    strncpy( buffer, "Vl    RGB", sizeof(buffer));
                 }
                 else
                 {
-                    (void) sprintf( buffer, Slice_probe_val_format,
-                                    real_value );
+                    snprintf( buffer, sizeof(buffer), Slice_probe_val_format,
+                              real_value );
                 }
                 break;
             case LABEL_PROBE_INDEX:
-                (void) sprintf( buffer, Slice_probe_label_format, label );
+                snprintf( buffer, sizeof(buffer), Slice_probe_label_format,
+                          label );
                 break;
             case RATIO_PROBE_INDEX:
                 if( slice_window->slice.ratio_enabled )
                 {
-                    (void) sprintf( buffer, Slice_probe_ratio_format, 
-                                    slice_window->slice.ratio_volume_numerator,
-                                    slice_window->slice.ratio_volume_denominator,
-                                    ratio );
+                    snprintf( buffer, sizeof(buffer), Slice_probe_ratio_format, 
+                              slice_window->slice.ratio_volume_numerator,
+                              slice_window->slice.ratio_volume_denominator,
+                              ratio );
                 }
                 break;
 
             case DISTANCE_PROBE_INDEX:
-                (void) sprintf(buffer, Slice_probe_distance_format, distance_origin, distance_value);
+                snprintf(buffer, sizeof(buffer), Slice_probe_distance_format,
+                         distance_origin, distance_value);
                 break;
             }
         }
@@ -1013,7 +1017,7 @@ static  void  get_cursor_size(
     fill_Point( lines2->points[15],x_centre+1.0, y_bottom-vert_pixel_end,0.0);
 }
 
-  object_struct  *get_slice_pixels_object(
+object_struct  *get_slice_pixels_object(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index )
@@ -1025,7 +1029,17 @@ static  void  get_cursor_size(
     return( model->objects[2*volume_index] );
 }
 
-  object_struct  *get_label_slice_pixels_object(
+pixels_struct  *get_slice_pixels_ptr(
+    display_struct    *slice_window,
+    int               volume_index,
+    int               view_index )
+{
+  return get_pixels_ptr( get_slice_pixels_object( slice_window,
+                                                  volume_index,
+                                                  view_index ));
+}
+
+object_struct  *get_label_slice_pixels_object(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index )
@@ -1035,6 +1049,16 @@ static  void  get_cursor_size(
     model = get_graphics_model( slice_window, SLICE_MODEL1 + view_index );
 
     return( model->objects[2*volume_index+1] );
+}
+
+pixels_struct  *get_label_slice_pixels_ptr(
+    display_struct    *slice_window,
+    int               volume_index,
+    int               view_index )
+{
+  return get_pixels_ptr( get_label_slice_pixels_object( slice_window,
+                                                        volume_index,
+                                                        view_index ));
 }
 
 static  object_struct  *get_atlas_slice_pixels_object(
@@ -1049,7 +1073,7 @@ static  object_struct  *get_atlas_slice_pixels_object(
                            ATLAS_SLICE_INDEX] );
 }
 
-  object_struct  *get_composite_slice_pixels_object(
+object_struct  *get_composite_slice_pixels_object(
     display_struct    *slice_window,
     int               view_index )
 {
@@ -1059,6 +1083,14 @@ static  object_struct  *get_atlas_slice_pixels_object(
 
     return( model->objects[2*slice_window->slice.n_volumes+
                            COMPOSITE_SLICE_INDEX] );
+}
+
+static pixels_struct  *get_composite_slice_pixels_ptr(
+    display_struct    *slice_window,
+    int               view_index )
+{
+  return get_pixels_ptr( get_composite_slice_pixels_object( slice_window,
+                                                            view_index ) );
 }
 
 /**
@@ -1436,13 +1468,9 @@ static  int  render_slice_to_pixels(
     VIO_BOOL          continuing_flag,
     VIO_BOOL          *finished )
 {
-    object_struct  *pixels_object;
     pixels_struct  *pixels;
     loaded_volume_struct *vol_ptr = &slice_window->slice.volumes[volume_index];
-    pixels_object = get_slice_pixels_object( slice_window, volume_index,
-                                             view_index );
-    pixels = get_pixels_ptr( pixels_object );
-
+    pixels = get_slice_pixels_ptr( slice_window, volume_index, view_index );
     return( render_slice_to_pixels( slice_window, volume_index, view_index, 0,
                                     vol_ptr->colour_table,
                                     &vol_ptr->colour_coding,
@@ -1550,7 +1578,7 @@ rebuild_slice_field_of_view(display_struct *slice_window,
     get_slice_viewport( slice_window, view_index,
                         &x_min, &x_max, &y_min, &y_max );
 
-    sprintf(buffer, "%5.3gW %5.3gH", fov_w, fov_h);
+    snprintf(buffer, sizeof(buffer), "%5.3gW %5.3gH", fov_w, fov_h);
 
     text_ptr = get_text_ptr( text_object );
     replace_string( &text_ptr->string, create_string(buffer) );
@@ -1567,7 +1595,7 @@ rebuild_slice_field_of_view(display_struct *slice_window,
 /**
  * Recreates the cursor position text for each slice view.
  */
-  void  rebuild_slice_text(
+void  rebuild_slice_text(
     display_struct    *slice_window,
     int               view_index )
 {
@@ -1617,7 +1645,8 @@ rebuild_slice_field_of_view(display_struct *slice_window,
         convert_voxel_to_world( get_volume( slice_window ), voxel,
                                 &world[VIO_X], &world[VIO_Y], &world[VIO_Z]);
 
-        sprintf( buffer, format, voxel[axis_index], world[axis_index]);
+        snprintf( buffer, sizeof(buffer), format,
+                  voxel[axis_index], world[axis_index]);
 
         replace_string( &text->string, create_string(buffer) );
 
@@ -1634,20 +1663,21 @@ rebuild_slice_field_of_view(display_struct *slice_window,
     VIO_BOOL        visible;
     object_struct  *pixels_object;
     pixels_struct  *pixels, *volume_pixels;
-    VIO_Volume         volume;
-    VIO_Real           v1[VIO_MAX_DIMENSIONS], v2[VIO_MAX_DIMENSIONS];
+    VIO_Volume     volume;
+    VIO_Real       v1[VIO_MAX_DIMENSIONS], v2[VIO_MAX_DIMENSIONS];
     int            sizes[VIO_MAX_DIMENSIONS];
     int            x_index, y_index, axis_index, volume_index;
-    VIO_Real           x_trans, y_trans, x_scale, y_scale;
-    VIO_Real           origin[VIO_MAX_DIMENSIONS];
-    VIO_Real           x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
-    VIO_Real           world_origin[VIO_MAX_DIMENSIONS];
-    VIO_Real           world_x_axis[VIO_MAX_DIMENSIONS], world_y_axis[VIO_MAX_DIMENSIONS];
-    VIO_Real           x1, y1, z1, x2, y2, z2;
+    VIO_Real       x_trans, y_trans, x_scale, y_scale;
+    VIO_Real       origin[VIO_MAX_DIMENSIONS];
+    VIO_Real       x_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real       y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real       world_origin[VIO_MAX_DIMENSIONS];
+    VIO_Real       world_x_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real       world_y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real       x1, y1, z1, x2, y2, z2;
 
     pixels_object = get_atlas_slice_pixels_object( slice_window, view_index );
     pixels = get_pixels_ptr( pixels_object );
-
     volume_index = get_current_volume_index( slice_window );
 
     if( volume_index >= 0 &&
@@ -1656,15 +1686,14 @@ rebuild_slice_field_of_view(display_struct *slice_window,
     {
         volume = get_volume( slice_window );
 
-        volume_pixels = get_pixels_ptr(
-            get_slice_pixels_object( slice_window, volume_index,
-                                                 view_index ) );
+        volume_pixels = get_slice_pixels_ptr( slice_window, volume_index,
+                                              view_index );
 
         if( pixels->x_size != volume_pixels->x_size ||
             pixels->y_size != volume_pixels->y_size )
         {
             modify_pixels_size( &slice_window->slice.slice_views[view_index].
-                                       n_atlas_pixels_alloced,
+                                n_atlas_pixels_alloced,
                                 pixels,
                                 volume_pixels->x_size,
                                 volume_pixels->y_size, RGB_PIXEL );
@@ -1732,10 +1761,15 @@ rebuild_slice_field_of_view(display_struct *slice_window,
     set_object_visibility( pixels_object, visible );
 }
 
+/**
+ * This function is used to create the 'composite' slice image used when
+ * we don't rely on hardware compositing. Once upon a time it was probably
+ * useful to support this in software. Today it is probably of little use.
+ */
 static  void  create_composite(
     int             n_slices,
     pixels_struct   *slices[],
-    VIO_Colour          background_colour,
+    VIO_Colour      background_colour,
     int             *n_alloced,
     pixels_struct   *composite )
 {
@@ -1903,12 +1937,12 @@ static  void  create_volume_and_label_composite(
     {
         if( slice_window->slice.volumes[v].views[view_index].visibility )
         {
-            slices[n_slices] = get_pixels_ptr( get_slice_pixels_object(
-                                               slice_window, v, view_index ) );
+            slices[n_slices] = get_slice_pixels_ptr( slice_window, v,
+                                                     view_index );
             ++n_slices;
 
-            label_pixels = get_pixels_ptr(
-                 get_label_slice_pixels_object( slice_window, v, view_index ) );
+            label_pixels = get_label_slice_pixels_ptr( slice_window, v,
+                                                       view_index );
 
             if( label_pixels->x_size > 0 && label_pixels->y_size > 0 )
             {
@@ -1939,8 +1973,8 @@ static  void  create_volume_and_label_composite(
         return;
     }
 
-    composite_pixels = get_pixels_ptr(
-           get_composite_slice_pixels_object( slice_window, view_index ) );
+    composite_pixels = get_composite_slice_pixels_ptr( slice_window,
+                                                       view_index );
 
     create_volume_and_label_composite( slice_window, view_index,
                                        composite_pixels );
@@ -1957,8 +1991,7 @@ int  rebuild_label_slice_pixels_for_volume(
 {
     pixels_struct   *pixels;
 
-    pixels = get_pixels_ptr( get_label_slice_pixels_object(
-                                   slice_window, volume_index, view_index ) );
+    pixels = get_label_slice_pixels_ptr( slice_window, volume_index, view_index );
 
     return( render_slice_to_pixels( slice_window, volume_index, view_index, 1,
                                     slice_window->slice.volumes[volume_index].
@@ -1983,17 +2016,19 @@ void  update_slice_pixel_visibilities(
         visibility = slice_window->slice.volumes[volume_index].
                                         views[view].visibility;
 
-        set_object_visibility( get_slice_pixels_object(
-                                              slice_window,volume_index,view ),
+        set_object_visibility( get_slice_pixels_object( slice_window,
+                                                        volume_index,
+                                                        view ),
                                visibility && !composite_visibility );
 
-        set_object_visibility( get_label_slice_pixels_object(
-                                              slice_window,volume_index,view),
+        set_object_visibility( get_label_slice_pixels_object( slice_window,
+                                                              volume_index,
+                                                              view),
                                get_labels_visibility( slice_window,
                                                       volume_index, view ) &&
                                !composite_visibility );
     }
 
-    set_object_visibility( get_composite_slice_pixels_object(slice_window,view),
+    set_object_visibility( get_composite_slice_pixels_object(slice_window, view),
                            composite_visibility );
 }

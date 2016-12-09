@@ -378,27 +378,76 @@ void  delete_three_d(
 }
 
 /**
+ * Add the given object to the main 3D model.
+ * Makes the new object the currently selected object, and 
+ * shows the 3D and object windows if necessary.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param object The graphical object to add to the current model.
+ * \param f_update_view Force update of view.
+ */
+void  add_object_to_main_model(
+    display_struct   *display,
+    object_struct    *object,
+    VIO_BOOL         f_update_view ) 
+{
+    model_struct   *model = get_graphics_model( display, THREED_MODEL );
+      
+    add_object_to_model( model, object );
+
+    set_current_object( display, object );
+
+    if ( model->n_objects == 2 )
+    {
+        show_three_d_window( display, get_display_by_type( MARKER_WINDOW ) );
+    }
+    if ( f_update_view )
+    {
+        initialize_view_to_fit( display );
+        reset_view_parameters( display, &Default_line_of_sight,
+                               &Default_horizontal );
+        update_view( display );
+    }
+        
+    graphics_models_have_changed( display );
+}
+
+/**
  * Add the given object to the currently selected model.
  * Makes the new object the currently selected object, and 
  * shows the 3D and object windows if necessary.
  *
  * \param display The display_struct of the 3D view window.
  * \param object The graphical object to add to the current model.
+ * \param f_update_view Force update of view.
  */
 void  add_object_to_current_model(
     display_struct   *display,
-    object_struct     *object )
+    object_struct    *object,
+    VIO_BOOL         f_update_view ) 
 {
     model_struct   *model;
+    VIO_BOOL       is_toplevel;
 
     model = get_current_model( display );
-
+    is_toplevel = ( model == get_graphics_model( display, THREED_MODEL ) );
+      
     add_object_to_model( model, object );
 
     set_current_object( display, object );
 
-    show_three_d_window( display, get_display_by_type( MARKER_WINDOW ) );
-
+    if ( is_toplevel && model->n_objects == 2 )
+    {
+        show_three_d_window( display, get_display_by_type( MARKER_WINDOW ) );
+    }
+    if ( f_update_view )
+    {
+        initialize_view_to_fit( display );
+        reset_view_parameters( display, &Default_line_of_sight,
+                               &Default_horizontal );
+        update_view( display );
+    }
+        
     graphics_models_have_changed( display );
 }
 
@@ -499,24 +548,29 @@ update_status_line( display_struct *display )
             min_i != display->three_d.mouse_point)
         {
             VIO_Real value;
-            VIO_STR column;
+            VIO_STR  column;
+            int      partial_length;
 
             display->three_d.mouse_point = min_i;
             display->three_d.mouse_obj = object_ptr;
-            sprintf(buffer, "O#%2d V#%6d P#%6d X %6.3f Y %6.3f Z %6.3f D ",
-                    get_object_index(display, object_ptr),
-                    min_i, poly_index,
-                    Point_x(min_pt),
-                    Point_y(min_pt),
-                    Point_z(min_pt));
+            snprintf(buffer, sizeof(buffer),
+                     "O#%2d V#%6d P#%6d X %6.3f Y %6.3f Z %6.3f D ",
+                     get_object_index(display, object_ptr),
+                     min_i, poly_index,
+                     Point_x(min_pt),
+                     Point_y(min_pt),
+                     Point_z(min_pt));
 
+            partial_length = strlen(buffer);
             if (get_vertex_value(display, object_ptr, min_i, &value, &column))
             {
-              sprintf(&buffer[strlen(buffer) - 1], "%8.3g (%s)", value, column);
+                snprintf(&buffer[partial_length - 1],
+                         sizeof(buffer) - partial_length,
+                         "%8.3g (%s)", value, column);
             }
             else
             {
-                strcat(buffer, "--------");
+                strncat(buffer, "--------", sizeof(buffer) - partial_length);
             }
 
             if (strcmp(text_ptr->string, buffer) != 0)

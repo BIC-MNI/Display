@@ -441,6 +441,26 @@ coordinate and value information displayed in the lower-left corner of the slice
 {Boolean}{True}
 {Determines whether or not the ``undo'' option is {\em ever} enabled when painting the slice window. The undo function requires memory and processing time that may be impractical with very high resolution images. This option silently disabled the undo feature without giving the user the opportunity to turn in back on in the menu.}{}
 
+\globalentry{Update\_3d\_view\_on\_load}
+{Boolean}{True}
+{
+If TRUE, the 3D view zoom level and position be updated when a new
+graphics file is loaded. The advantage of enabling this option is that
+the 3D view will always expand to show loaded objects outside the
+current viewport. The disadvantage is that it will reset your current
+zoom and rotation.
+}{}
+            
+\globalentry{Update\_3d\_view\_on\_new}
+{Boolean}{True}
+{
+If TRUE, the 3D view zoom level and position be updated when a new
+graphics object is created. The advantage of enabling this option is that
+the 3D view will always expand to show created objects outside the
+current viewport. The disadvantage is that it will reset your current
+zoom and rotation.
+}{}
+            
 \globalentry{Use\_cursor\_origin}
 {Boolean}{True}
 {If true, certain operations, such as rotation of the 3D image, are centered on the current cursor origin. If false, the rotations are centered on the middle of the window.}{}

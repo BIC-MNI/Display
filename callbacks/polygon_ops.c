@@ -314,7 +314,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
         get_polygons_ptr(object)->colours[0] = WHITE;
         compute_polygon_normals( get_polygons_ptr(object) );
 
-        add_object_to_current_model( display, object );
+        add_object_to_current_model( display, object, Update_3d_view_on_new );
     }
     return( VIO_OK );
 }
@@ -347,7 +347,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
         get_polygons_ptr(object)->colours[0] = WHITE;
         compute_polygon_normals( get_polygons_ptr(object) );
 
-        add_object_to_current_model( display, object );
+        add_object_to_current_model( display, object, Update_3d_view_on_new );
     }
     return( VIO_OK );
 }

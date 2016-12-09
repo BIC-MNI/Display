@@ -1,24 +1,26 @@
 #ifndef  DEF_display_prototypes
 #define  DEF_display_prototypes
 
-  VIO_Status  change_global_variable(
-    VIO_STR   str,
-    VIO_STR   *variable_name,
-    VIO_STR   *new_value );
+/* main/main.c */
+VIO_Status change_global_variable( VIO_STR str, VIO_STR *variable_name,
+                                   VIO_STR *new_value );
 
-  VIO_Status  set_global_variable_value(
-    VIO_STR   variable_name,
-    VIO_STR   new_value );
+VIO_Status set_global_variable_value( VIO_STR variable_name,
+                                      VIO_STR new_value );
 
 VIO_Status get_user_input(const char *prompt, const char *format, ...);
 
 VIO_Status get_user_file(const char *prompt, VIO_BOOL saving,
                          char *extension, VIO_STR *filename);
-VIO_Status get_user_coding_type(const char *prompt, Colour_coding_types *cc_type_ptr);
+VIO_Status get_user_coding_type(const char *prompt,
+                                Colour_coding_types *cc_type_ptr);
 VIO_Status get_user_yes_or_no(const char *prompt);
 
 void write_globals_to_file( const VIO_STR filename );
 
+void initialize_view_to_fit( display_struct  *display );
+
+/* main/display.c */
 #define DISPLAY_OPAQUE 1
 #define DISPLAY_TRANSLUCENT 2
 #define DISPLAY_BOTH (DISPLAY_OPAQUE | DISPLAY_TRANSLUCENT)
@@ -143,7 +145,13 @@ void switch_vertex_data(display_struct *display, object_struct *object);
 
   void  add_object_to_current_model(
     display_struct   *display,
-    object_struct     *object );
+    object_struct    *object,
+    VIO_BOOL         f_update_view );
+
+  void  add_object_to_main_model(
+    display_struct   *display,
+    object_struct    *object,
+    VIO_BOOL         f_update_view );
 
   display_struct  *get_three_d_window(
     display_struct  *display );
@@ -200,7 +208,7 @@ load_graphics_file_with_colour(
     display_struct   *display,
     VIO_STR           filename,
     VIO_BOOL          is_label_file,
-    VIO_Colour        preferred_colour);
+    VIO_Colour        preferred_colour );
 
   VIO_Status   input_volume_file(
     VIO_STR         filename,

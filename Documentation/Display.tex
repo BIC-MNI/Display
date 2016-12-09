@@ -1262,18 +1262,16 @@ mouse button), the current label will always be re-enabled.
 \item[\menutwo{Segmenting}{Connectivity}] Toggles between using 8 (or
   26)-neighbour and 4 (or 6)-neighbour connectivity in 2D (3D)
   operations such as fill, dilate, and erode.
-\item[\menutwo{Segmenting}{Erode 3D}] Prompts the user for a label range
-  which corresponds to outside the labels of interest, and erodes
-  regions of the current paint label which are neighbouring the typed-in
-  label range. Typically the user will type in ``0 -1'' to specify all
-  labels which are not equal to the current paint label. {\em Cannot be
-    undone}.
-\item[\menutwo{Segmenting}{Dilate 3D}] Prompts the user for a label
-  range which corresponds to outside the labels of interest, and dilates
-  regions of the current paint label which are neighbouring the typed-in
-  label range. Typically the user will type in ``0 -1'' to specify all
-  labels which are not equal to the current paint label. {\em Cannot be
-    undone}.
+\item[\menutwo{Segmenting}{Erode 3D}] Prompts the user for an integer
+  label range, and erodes regions of the current paint label which are
+  neighbouring this label range. Typically the user will enter
+  ``0 -1'' to specify all labels which are not equal to the current
+  paint label. {\em Cannot be undone}.
+\item[\menutwo{Segmenting}{Dilate 3D}] Prompts the user for an integer
+  label range, and dilates regions of the current paint label which are
+  neighbouring this label range. Typically the user will enter
+  ``0 -1'' to specify all labels which are not equal to the current
+  paint label. {\em Cannot be undone}.
 \item[\menutwo{Segmenting}{Copy from Rt/Sup/Ant}] If the mouse is
   pointing to a slice in the slice window, then the labels of the
   neighbouring slice are copied to this slice.  For transverse slices,

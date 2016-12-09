@@ -293,6 +293,26 @@ fix_brainsuite_points(VIO_Volume volume, int n_points, VIO_Point points[])
   }
 }
 
+static VIO_BOOL is_volume_filename( const VIO_STR filename )
+{
+  static char *volume_extensions[] = {
+    /* standard volume types we support. */
+    "hdr", "mnc", "mgh", "mgz", "nii", "nhdr", "nrrd",
+    /* obsolete volume types?? */
+    "fre", "iff", "mni", "nil",
+    NULL
+  };
+
+  int i;
+  
+  for (i = 0; volume_extensions[i] != NULL; i++)
+  {
+    if (filename_extension_matches( filename, volume_extensions[i] ) )
+      return TRUE;
+  }
+  return FALSE;
+}
+
 /**
  * Load either a graphical object (MNI .obj format, e.g.) or a volume file
  * (MINC voxel data, e.g.).
@@ -305,23 +325,25 @@ fix_brainsuite_points(VIO_Volume volume, int n_points, VIO_Point points[])
  * (if it is a polygons object with a single colour).
  * \returns VIO_OK on success.
  */
+
 VIO_Status
 load_graphics_file_with_colour(
     display_struct   *display,
     VIO_STR           filename,
     VIO_BOOL          is_label_file,
-    VIO_Colour        preferred_colour)
+    VIO_Colour        preferred_colour )
 {
-    VIO_Status               status;
-    object_struct            *object;
-    model_struct             *model;
-    int                      n_items, sizes[VIO_MAX_DIMENSIONS];
-    VIO_Volume               volume_read_in;
-    object_struct            *current_object;
-    object_traverse_struct   object_traverse;
-    char                     volume_description[VIO_EXTREMELY_LARGE_STRING_SIZE];
-    VIO_BOOL                 volume_present;
-    display_struct           *slice_window;
+    VIO_Status             status;
+    object_struct          *object;
+    model_struct           *model;
+    int                    n_items;
+    int                    sizes[VIO_MAX_DIMENSIONS];
+    VIO_Volume             volume_read_in;
+    object_struct          *current_object;
+    object_traverse_struct object_traverse;
+    char                   volume_description[VIO_EXTREMELY_LARGE_STRING_SIZE];
+    VIO_BOOL               volume_present;
+    display_struct         *slice_window;
 
     object = create_object( MODEL );
 
@@ -337,17 +359,7 @@ load_graphics_file_with_colour(
 
     status = VIO_OK;
 
-    if( filename_extension_matches(filename,"mnc") ||
-        filename_extension_matches(filename,"mni") ||
-        filename_extension_matches(filename,"nil") ||
-        filename_extension_matches(filename,"iff") ||
-        filename_extension_matches(filename,"mgh") ||
-        filename_extension_matches(filename,"mgz") ||
-        filename_extension_matches(filename,"nrrd") ||
-        filename_extension_matches(filename,"nhdr") ||
-        filename_extension_matches(filename,"nii") ||
-        filename_extension_matches(filename,"hdr") ||
-        filename_extension_matches(filename,"fre") )
+    if( is_volume_filename( filename ) )
     {
         if( !is_label_file )
         {
@@ -368,8 +380,8 @@ load_graphics_file_with_colour(
                 status = input_label_volume_file( display, filename );
                 if (Tags_from_label)
                 {
-                input_tag_objects_label(display,
-                  &model->n_objects, &model->objects);
+                  input_tag_objects_label(display,
+                                          &model->n_objects, &model->objects);
                 }
             }
         }
@@ -511,27 +523,34 @@ load_graphics_file_with_colour(
 
     if( status == VIO_OK && model->n_objects > 0 )
     {
-        add_object_to_current_model( display, object );
+        add_object_to_main_model( display, object, Update_3d_view_on_load );
 
         rebuild_selected_list( display, get_display_by_type( MARKER_WINDOW ) );
     }
     else
+    {
         delete_object( object );
+    }
 
     if( status == VIO_OK && volume_present )
     {
         get_volume_sizes( volume_read_in, sizes );
 
-        (void) sprintf( volume_description, "%s : X:%d Y:%d Z:%d",
-                        filename, sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
+        snprintf( volume_description, sizeof( volume_description ),
+                  "%s : X:%d Y:%d Z:%d",
+                  filename, sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
         if (get_volume_n_dimensions(volume_read_in) > VIO_N_DIMENSIONS)
         {
-          sprintf(volume_description + strlen(volume_description),
-                  " T:%d", sizes[VIO_T]);
+          int partial_length = strlen( volume_description );
+          snprintf( volume_description + partial_length,
+                    sizeof( volume_description ) - partial_length,
+                    " T:%d", sizes[VIO_T] );
           if (get_volume_n_dimensions( volume_read_in ) == VIO_MAX_DIMENSIONS)
           {
-            sprintf(volume_description + strlen(volume_description),
-                    " V:%d", sizes[VIO_V]);
+            partial_length = strlen( volume_description );
+            snprintf( volume_description + partial_length,
+                      sizeof( volume_description ) - partial_length,
+                      " V:%d", sizes[VIO_V] );
           }
         }
 

@@ -610,7 +610,7 @@ DEF_MENU_FUNCTION( mark_vertices )
         {
             for_less( i, 0, n_points )
             {
-                (void) sprintf( label, "%d", i );
+                snprintf( label, sizeof( label ), "%d", i );
                 create_marker_at_position( display, &points[i], label );
             }
         }

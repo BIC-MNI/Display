@@ -124,7 +124,7 @@ DEF_MENU_FUNCTION( convert_line_to_spline_points )
         object = create_object( LINES );
 
         *(get_lines_ptr(object)) = new_lines;
-        add_object_to_current_model( display, object );
+        add_object_to_current_model( display, object, FALSE );
     }
 
     return( VIO_OK );
@@ -170,7 +170,7 @@ DEF_MENU_FUNCTION( make_line_circle )
                                 n_around, get_lines_ptr(object) );
 
             get_lines_ptr(object)->colours[0] = WHITE;
-            add_object_to_current_model( display, object );
+            add_object_to_current_model( display, object, FALSE );
         }
     }
     return( VIO_OK );
@@ -348,7 +348,7 @@ static  void  convert_to_lines(
                     lines->points[i] = markers[i];
             }
 
-            add_object_to_current_model( display, object );
+            add_object_to_current_model( display, object, FALSE );
         }
     }
 
@@ -577,7 +577,7 @@ DEF_MENU_FUNCTION( menu_threshold_lines )
     if ( get_user_input( "Enter length threshold: ", "r", &thresh ) == VIO_OK )
     {
       object_ptr = filter_lines_by_length( lines_ptr,  thresh );
-      add_object_to_current_model( display, object_ptr );
+      add_object_to_current_model( display, object_ptr, FALSE );
       graphics_models_have_changed( display );
     }
   }

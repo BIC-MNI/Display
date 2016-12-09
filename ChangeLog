@@ -1,3 +1,9 @@
+2016-12-09 Robert D. Vincent <robert.d.vincent@mcgill.ca>
+	* Many!: Optionally reset the 3D view when loading or creating
+	a 3D object. Obsessively use snprintf, strncpy, and strncat
+	instead of the non-length-constrained versions of those
+	functions. Other general cleanup and refactoring.
+
 2016-12-08 Robert D. Vincent <robert.d.vincent@mcgill.ca>
 	* slice_window/scalebars.c, etc.: Add support for scalebars
 	on each slice view.

@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file images/images.c
+ * \brief Code to save images from the slice or 3d view windows.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,27 +13,43 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+ */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifndef lint
-
 #endif
 
 #include  <display.h>
 #include  <bicpl/images.h>
 
-  VIO_Status   save_window_to_file(
+/**
+ * \brief Save all or part of a window to a file.
+ * 
+ * Saves a rectangular section of a window to a file. If the parameters are
+ * arranged such that x_max <= x_min or y_min <= y_max, the entire window 
+ * image is saved.
+ *
+ * \param display Any of the top-level window structures.
+ * \param filename The filename in which to save the image.
+ * \param x_min The minimum X coordinate, in pixels relative to the window
+ * origin.
+ * \param x_max The maximum X coordinate, in pixels relative to the window
+ * origin.
+ * \param y_min The minimum Y coordinate, in pixels relative to the window 
+ * origin.
+ * \param y_max The maximum Y coordinate, in pixels relative to the window 
+ * origin.
+ * \returns VIO_OK on success.
+ */
+ 
+VIO_Status   save_window_to_file(
     display_struct  *display,
-    VIO_STR          filename,
+    VIO_STR         filename,
     int             x_min,
     int             x_max,
     int             y_min,
     int             y_max )
 {
-    VIO_Status          status;
+    VIO_Status      status;
     int             x_size, y_size;
     pixels_struct   pixels;
 

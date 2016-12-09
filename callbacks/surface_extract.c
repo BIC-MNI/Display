@@ -227,7 +227,7 @@ DEF_MENU_FUNCTION(make_surface_permanent)
         display->three_d.surface_extraction.polygons->n_points = 0;
         reset_surface_extraction( display );
 
-        add_object_to_current_model( display, object );
+        add_object_to_current_model( display, object, Update_3d_view_on_new );
     }
 
     return( VIO_OK );

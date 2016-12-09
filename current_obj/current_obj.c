@@ -225,7 +225,7 @@ VIO_BOOL  remove_current_object_from_hierarchy(
     object_struct    **object )
 {
     int              obj_index;
-    model_struct     *current_model;
+    object_struct    *parent_ptr;
 
     if( !get_current_object( display, object ) )
     {
@@ -234,9 +234,9 @@ VIO_BOOL  remove_current_object_from_hierarchy(
 
     obj_index = get_current_object_index( display );
 
-    current_model = get_current_model( display );
+    parent_ptr = find_containing_model( display, obj_index );
 
-    remove_object_from_model( current_model, *object );
+    remove_object_from_model( get_model_ptr( parent_ptr ), *object );
 
     set_current_object_index( display, obj_index );
 
