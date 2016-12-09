@@ -152,13 +152,13 @@ VIO_Status  create_cropped_volume_to_file(
     delete_volume_input( &volume_input );
     delete_volume( file_volume );
 
-    (void) sprintf( command, Crop_volume_command,
-                    slice_window->slice.crop.filename,
-                    cropped_filename,
-                    int_min_voxel[VIO_X], int_min_voxel[VIO_Y], int_min_voxel[VIO_Z],
-                    int_max_voxel[VIO_X] - int_min_voxel[VIO_X] + 1,
-                    int_max_voxel[VIO_Y] - int_min_voxel[VIO_Y] + 1,
-                    int_max_voxel[VIO_Z] - int_min_voxel[VIO_Z] + 1 );
+    snprintf( command, sizeof(command), Crop_volume_command,
+              slice_window->slice.crop.filename,
+              cropped_filename,
+              int_min_voxel[VIO_X], int_min_voxel[VIO_Y], int_min_voxel[VIO_Z],
+              int_max_voxel[VIO_X] - int_min_voxel[VIO_X] + 1,
+              int_max_voxel[VIO_Y] - int_min_voxel[VIO_Y] + 1,
+              int_max_voxel[VIO_Z] - int_min_voxel[VIO_Z] + 1 );
 
     print( "Issuing system command:\n\t%s\n", command );
 

@@ -107,9 +107,10 @@ DEF_MENU_FUNCTION( set_line_curvature_weight )
     VIO_Real    weight;
     char        prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    sprintf( prompt,
-             "The current line curvature weight is: %g\nEnter the new value: ",
-             display->three_d.surface_curve.line_curvature_weight);
+    snprintf( prompt, sizeof( prompt ),
+              "The current line curvature weight is: %g\n"
+              "Enter the new value: ",
+              display->three_d.surface_curve.line_curvature_weight);
 
     if( get_user_input( prompt, "r", &weight ) == VIO_OK )
     {
@@ -136,11 +137,11 @@ DEF_MENU_FUNCTION( set_surface_curve_curvature )
     VIO_Real    min_curve, max_curve;
     char        prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    sprintf( prompt,
-             "The current surface curve curvature limits are: %g %g\n"
-             "Enter the new value: ",
-             display->three_d.surface_curve.min_curvature,
-             display->three_d.surface_curve.min_curvature );
+    snprintf( prompt, sizeof( prompt ),
+              "The current surface curve curvature limits are: %g %g\n"
+              "Enter the new value: ",
+              display->three_d.surface_curve.min_curvature,
+              display->three_d.surface_curve.min_curvature );
 
     if (get_user_input(prompt, "rr", &min_curve, &max_curve ) == VIO_OK )
     {

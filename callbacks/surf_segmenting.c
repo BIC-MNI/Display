@@ -119,9 +119,10 @@ static  VIO_Status  io_polygons_visibilities(
     string = convert_colour_to_string(
                  display->three_d.surface_edit.visible_colour );
 
-    sprintf( prompt, "The current visible paint colour is: %s\n"
-             "Enter the new colour name or 3 or 4 colour components: ",
-             string );
+    snprintf( prompt, sizeof( prompt ),
+              "The current visible paint colour is: %s\n"
+              "Enter the new colour name or 3 or 4 colour components: ",
+              string );
 
     delete_string( string );
 
@@ -166,9 +167,10 @@ static  VIO_Status  io_polygons_visibilities(
     string = convert_colour_to_string(
                    display->three_d.surface_edit.invisible_colour );
 
-    sprintf( prompt, "The current invisible paint colour is: %s\n"
-             "Enter the new colour name or 3 or 4 colour components: ",
-             string );
+    snprintf( prompt, sizeof( prompt ),
+              "The current invisible paint colour is: %s\n"
+              "Enter the new colour name or 3 or 4 colour components: ",
+              string );
 
     delete_string( string );
 

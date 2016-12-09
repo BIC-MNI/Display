@@ -389,17 +389,20 @@ DEF_MENU_FUNCTION( set_n_curve_segments )
 {
     int                      n_segments;
     object_struct            *model_object;
+    model_struct             *model_ptr;
+    model_info_struct        *model_info_ptr;
     object_struct            *object;
     object_traverse_struct   object_traverse;
     char                     prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
     model_object = get_model_object( display );
+    model_ptr = get_model_ptr( model_object );
+    model_info_ptr = get_model_info( model_ptr );
 
-
-    sprintf( prompt, "Current number of curve segments is %d.\n"
-             "Enter number of curve segments: ",
-            get_model_info(get_model_ptr(model_object))->
-                                   render.n_curve_segments );
+    snprintf( prompt, sizeof( prompt ),
+              "Current number of curve segments is %d.\n"
+              "Enter number of curve segments: ",
+              model_info_ptr->render.n_curve_segments );
 
     if( get_user_input(prompt, "d", &n_segments ) == VIO_OK && n_segments > 0 )
     {
@@ -409,8 +412,7 @@ DEF_MENU_FUNCTION( set_n_curve_segments )
         {
             if( object->object_type == MODEL )
             {
-                get_model_info(get_model_ptr(model_object))->render.
-                                       n_curve_segments = n_segments;
+                model_info_ptr->render.n_curve_segments = n_segments;
             }
         }
 

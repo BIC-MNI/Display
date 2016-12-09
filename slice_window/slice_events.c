@@ -291,7 +291,7 @@ DEF_EVENT_FUNCTION( update_measurement )
 
       delete_string( text_ptr->string );
       distance = distance_between_points( &meas_ptr->origin, &meas_ptr->end );
-      sprintf( buffer, "%g", distance );
+      snprintf( buffer, sizeof(buffer), "%g", distance );
       text_ptr->string = create_string( buffer );
 
       /* Figure out the best text position.

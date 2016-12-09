@@ -393,10 +393,13 @@ DEF_MENU_FUNCTION( set_volume_rotation_step)
 
     if( get_slice_window( display, &slice_window ) )
     {
-        sprintf( prompt, "Current rotation step: %g\nEnter rotation step: ",
-                 slice_window->slice.volume_rotation_step );
+        snprintf( prompt, sizeof( prompt ),
+                  "Current rotation step: %g\nEnter rotation step: ",
+                  slice_window->slice.volume_rotation_step );
         if( get_user_input( prompt, "r", &new_step ) == VIO_OK )
+        {
             slice_window->slice.volume_rotation_step = new_step;
+        }
     }
     return( VIO_OK );
 }
@@ -429,10 +432,13 @@ DEF_MENU_FUNCTION( set_volume_scale_step)
 
     if( get_slice_window( display, &slice_window ) )
     {
-        sprintf( prompt, "Current scale step: %g\nEnter scale step: ",
-               slice_window->slice.volume_scale_step );
+        snprintf( prompt, sizeof( prompt ),
+                  "Current scale step: %g\nEnter scale step: ",
+                  slice_window->slice.volume_scale_step );
         if( get_user_input( prompt, "r", &new_step ) == VIO_OK )
+        {
             slice_window->slice.volume_scale_step = new_step;
+        }
     }
     return( VIO_OK );
 }
@@ -465,11 +471,13 @@ DEF_MENU_FUNCTION( set_volume_translation_step)
 
     if( get_slice_window( display, &slice_window ) )
     {
-        sprintf( prompt, 
-                 "Current translation step: %g\nEnter translation step: ",
-                 slice_window->slice.volume_translation_step );
+        snprintf( prompt, sizeof( prompt ),
+                  "Current translation step: %g\nEnter translation step: ",
+                  slice_window->slice.volume_translation_step );
         if( get_user_input( prompt, "r", &new_step ) == VIO_OK )
+        {
             slice_window->slice.volume_translation_step = new_step;
+        }
     }
     return( VIO_OK );
 }

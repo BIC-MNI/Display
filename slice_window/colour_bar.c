@@ -349,7 +349,8 @@ rebuild_ticks_and_text(colour_bar_struct *colour_bar,
       fill_Point( text->origin, x_tick_end,
                   y - G_get_text_height( text->font, text->size ) / 2.0,
                   0.0 );
-      sprintf( buffer, Colour_bar_number_format, numbers[i].value );
+      snprintf( buffer, sizeof(buffer), Colour_bar_number_format,
+                numbers[i].value );
 
       text->string = create_string( buffer );
 
