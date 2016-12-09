@@ -314,9 +314,9 @@ rebuild_slice_scalebar( display_struct *slice_window, int view_index )
   x_diff = ( w_lr[x_index] - w_ll[x_index] );
 
   /* Compute pixels per metre. */
-  ppm = ( x_max - x_min ) * 1000.0 / x_diff;
+  ppm = ( x_max - x_min + 1 ) * 1000.0 / x_diff;
 
   rebuild_one_scalebar( model_ptr, ppm, Scalebar_quadrant, Scalebar_height,
-                        x_max - x_min, y_max - y_min );
+                        x_max - x_min + 1, y_max - y_min + 1);
 }
 
