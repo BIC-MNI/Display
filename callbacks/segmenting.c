@@ -427,7 +427,7 @@ DEF_MENU_FUNCTION(save_label_data)
      * -output-label option, if any.
      */
     if( string_length(Output_label_filename) )
-        filename = Output_label_filename;
+        filename = create_string(Output_label_filename);
     else
     {
         /* Prompt the user for a filename. */
@@ -482,11 +482,7 @@ DEF_MENU_FUNCTION(save_label_data)
         print( "\n" );
     }
 
-    /* If we set a fixed label filename, don't free it here!
-     */
-    if (filename != Output_label_filename)
-        delete_string( filename );
-
+    delete_string( filename );
     return( status );
 }
 
@@ -904,10 +900,10 @@ DEF_MENU_FUNCTION( save_current_label )
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        if( slice_window->slice.current_paint_label > 0 )
+        int label = get_current_paint_label( display );
+        if( label > 0 )
         {
-            save_labels_as_tags( display, slice_window,
-                                 slice_window->slice.current_paint_label );
+            save_labels_as_tags( display, slice_window, label );
         }
         else
             print( "You first have to set the current label > 0.\n" );
@@ -1211,7 +1207,76 @@ DEF_MENU_UPDATE(label_connected_3d )
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
+/**
+ * Helper function for 3D dilation or erosion.
+ * \param display A pointer to a window structure.
+ * \param do_erosion TRUE if erosion, FALSE if dilation.
+ */
+static void
+dilation_or_erosion_command(display_struct *display, VIO_BOOL do_erosion )
+{
+  int              min_inside_label, max_inside_label;
+  int              min_outside_label, max_outside_label;
+  int              min_user_label, max_user_label;
+  int              set_label;
+  int              range_changed[2][VIO_N_DIMENSIONS];
+  int              volume_index;
+  display_struct   *slice_window;
+
+  if( !get_slice_window( display, &slice_window ) )
+    return;
+
+  volume_index = get_current_volume_index( slice_window );
+  if ( volume_index < 0 )
+    return;
+
+  if (get_user_input( "Enter min and max outside label: ", "dd",
+                      &min_user_label, &max_user_label ) != VIO_OK )
+  {
+    print( "Error in input label range.\n");
+    return;
+  }
+
+  if (do_erosion)
+  {
+    set_label = get_current_erase_label( display );
+    if( min_user_label <= max_user_label )
+    {
+      set_label = MAX( min_user_label, set_label );
+    }
+    min_inside_label = min_user_label;
+    max_inside_label = max_user_label;
+    min_outside_label = max_outside_label = get_current_paint_label( display );
+  }
+  else
+  {
+    set_label = get_current_paint_label( display );
+    min_inside_label = max_inside_label = get_current_paint_label( display );
+    min_outside_label = min_user_label;
+    max_outside_label = max_user_label;
+  }
+
+  dilate_voxels_3d( get_volume( display ),
+                    get_label_volume( display ),
+                    min_inside_label,
+                    max_inside_label,
+                    0.0, -1.0,  /* ignore inside voxel range. */
+                    min_outside_label,
+                    max_outside_label,
+                    slice_window->slice.segmenting.min_threshold,
+                    slice_window->slice.segmenting.max_threshold,
+                    set_label,
+                    slice_window->slice.segmenting.connectivity,
+                    range_changed );
+
+  delete_slice_undo( slice_window, volume_index );
+
+  set_slice_window_all_update( slice_window, volume_index, UPDATE_LABELS );
+
+  tell_surface_extraction_range_of_labels_changed( display, volume_index,
+                                                   range_changed );
+  print( "Done\n" );
+}
 
 /**
  * Menu command to dilate a labeled region in 3D.
@@ -1220,46 +1285,8 @@ DEF_MENU_UPDATE(label_connected_3d )
  */
 DEF_MENU_FUNCTION(dilate_labels)
 {
-    int              min_outside_label, max_outside_label;
-    int              range_changed[2][VIO_N_DIMENSIONS];
-    VIO_Volume       volume;
-    display_struct   *slice_window;
-
-    if( get_slice_window( display, &slice_window ) &&
-        get_slice_window_volume( slice_window, &volume) )
-    {
-        if (get_user_input( "Enter min and max outside label: ",
-                            "dd",
-                            &min_outside_label,
-                            &max_outside_label ) == VIO_OK )
-        {
-            (void) dilate_voxels_3d( get_volume(display),
-                                  get_label_volume(display),
-                                  (VIO_Real) get_current_paint_label(display),
-                                  (VIO_Real) get_current_paint_label(display),
-                                  0.0, -1.0,
-                                  (VIO_Real) min_outside_label,
-                                  (VIO_Real) max_outside_label,
-                                  slice_window->slice.segmenting.min_threshold,
-                                  slice_window->slice.segmenting.max_threshold,
-                                  (VIO_Real) get_current_paint_label(display),
-                                  slice_window->slice.segmenting.connectivity,
-                                  range_changed );
-
-            delete_slice_undo( slice_window,
-                               get_current_volume_index(slice_window) );
-
-            print( "Done\n" );
-
-            set_slice_window_all_update( slice_window,
-                     get_current_volume_index(slice_window), UPDATE_LABELS );
-
-            tell_surface_extraction_range_of_labels_changed( display,
-                     get_current_volume_index(slice_window), range_changed );
-        }
-    }
-
-    return( VIO_OK );
+  dilation_or_erosion_command( display, FALSE );
+  return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -1278,47 +1305,8 @@ DEF_MENU_UPDATE(dilate_labels )
  */
 DEF_MENU_FUNCTION(erode_labels)
 {
-    int              min_outside_label, max_outside_label, set_value;
-    int              range_changed[2][VIO_N_DIMENSIONS];
-    VIO_Volume       volume;
-    display_struct   *slice_window;
-
-    if( get_slice_window( display, &slice_window ) &&
-        get_slice_window_volume( slice_window, &volume) )
-    {
-      if (get_user_input( "Enter min and max outside label: ", "dd",
-                          &min_outside_label,
-                          &max_outside_label ) == VIO_OK )
-        {
-            if( min_outside_label <= max_outside_label )
-                set_value = MAX( min_outside_label, 0 );
-            (void) dilate_voxels_3d( get_volume(display),
-                                  get_label_volume(display),
-                                  (VIO_Real) min_outside_label,
-                                  (VIO_Real) max_outside_label,
-                                  0.0, -1.0,
-                                  (VIO_Real) get_current_paint_label(display),
-                                  (VIO_Real) get_current_paint_label(display),
-                                  slice_window->slice.segmenting.min_threshold,
-                                  slice_window->slice.segmenting.max_threshold,
-                                  (VIO_Real) set_value,
-                                  slice_window->slice.segmenting.connectivity,
-                                  range_changed );
-
-            delete_slice_undo( slice_window,
-                               get_current_volume_index(slice_window) );
-
-            print( "Done\n" );
-
-            set_slice_window_all_update( slice_window,
-                     get_current_volume_index(slice_window), UPDATE_LABELS );
-
-            tell_surface_extraction_range_of_labels_changed( display,
-                     get_current_volume_index(slice_window), range_changed );
-        }
-    }
-
-    return( VIO_OK );
+  dilation_or_erosion_command( display, TRUE );
+  return( VIO_OK );
 }
 
 /* ARGSUSED */
