@@ -379,6 +379,7 @@ segmenting \
     transient 't'    clear_connected                  'Clear Fill' 'Clears the paint label of all connected voxels within the threshold range.' \
     transient 'y'    set_segmenting_threshold         'Set Threshold' 'Sets upper and lower threshold for segmentation, such that voxels outside this range will not be labeled.' \
     transient 'u'    change_labels_in_range           'Change Labels' 'Change a label, or a range of labels, to another label.' \
+    transient 'i'    flip_labels_in_x                 'Flip Labels' '' \
     transient 'a'    label_slice                      'Label Slice' 'Sets the label of the entire slice under the mouse cursor.' \
     transient 's'    clear_slice_confirm              'Clear Slice' 'Clears the labels of the entire slice under the mouse cursor.' \
     transient 'd'    set_current_paint_label          'Set Paint Lbl: %d' 'Selects the current label value, either from the current voxel or by prompting the user.' \

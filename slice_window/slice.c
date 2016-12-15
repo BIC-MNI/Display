@@ -104,7 +104,6 @@ static  void  initialize_slice_window(
     initialize_slice_histogram( slice_window );
     initialize_colour_bar( slice_window );
     initialize_slice_models( slice_window );
-    initialize_segmenting( &slice_window->slice.segmenting );
     initialize_atlas( &slice_window->slice.atlas );
     initialize_voxel_labeling( slice_window );
     initialize_crop_box( slice_window );

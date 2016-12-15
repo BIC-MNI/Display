@@ -329,6 +329,7 @@ MENU_F(set_volume_translation_step) \
 MENU_F(set_volume_scale_step) \
 MENU_F(insert_volume_as_labels) \
 MENU_F(reset_interactions) \
+MENU_F(flip_labels_in_x) \
 MENU_F(save_current_volume_transform)
 
 #define MENU_SEAL \

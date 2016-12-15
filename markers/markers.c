@@ -26,12 +26,14 @@ static    DEF_EVENT_FUNCTION( left_mouse_press );
 static    DEF_EVENT_FUNCTION( right_mouse_press );
 static    DEF_EVENT_FUNCTION( middle_mouse_press );
 
+extern int Checkbox_height;
+
 /**
  * Select the marker that is closest to the given voxel position.
  * \param display The display_struct of the 3D view window.
  * \param volume_index The index of the active volume.
  * \param voxel The voxel position.
- * \returns TRUE if a marker was found that was within the 
+ * \returns TRUE if a marker was found that was within the
  * Marker_pick_size of the voxel position.
  */
 VIO_BOOL  update_current_marker(
@@ -90,11 +92,16 @@ VIO_BOOL  update_current_marker(
     return( found );
 }
 
+/**
+ * Initialize the parameters of the marker window.
+ * \param marker_window A pointer to the marker window.
+ */
 static  void  initialize_marker_parameters(
     display_struct    *marker_window )
 {
     int                  x_size, y_size;
     marker_window_struct *marker;
+    model_struct         *selected_model;
 
     marker = &marker_window->marker;
 
@@ -105,8 +112,28 @@ static  void  initialize_marker_parameters(
     marker->font_size = Object_window_font_size;
     marker->selected_x_origin = Selected_x_origin;
     marker->selected_y_origin = y_size - (marker->font_size * 2.0);
+    marker->n_top_index = 0;
+    marker->n_item_count = (int)(y_size / (Checkbox_height + 2.0));
+    selected_model = get_graphics_model( marker_window, SELECTED_MODEL );
+    while (selected_model->n_objects > 0)
+    {
+      object_struct *object = selected_model->objects[0];
+      remove_ith_object_from_model( selected_model, 0 );
+      delete_object(object);
+    }
 }
 
+/**
+ * \brief Handle resizing of the marker window. 
+ *
+ * This function has to recompute the marker window parameters and rebuild
+ * the display.
+ *
+ * \param display A pointer to a top-level window.
+ * \param event_type The type code of this event.
+ * \param key_pressed The key code pressed.
+ * \returns VIO_OK for normal operation.
+ */ 
 static  DEF_EVENT_FUNCTION( handle_marker_resize )
 {
     display_struct *three_d;
@@ -125,31 +152,23 @@ static  DEF_EVENT_FUNCTION( handle_marker_resize )
  * \param marker_window The display_struct for the object (marker) window.
  * \returns VIO_OK if all goes well.
  */
-VIO_Status  initialize_marker_window(
-    display_struct    *marker_window)
+VIO_Status  initialize_marker_window( display_struct *marker_window)
 {
-    VIO_Status           status;
-    marker_window_struct *marker;
-
-    status = VIO_OK;
-    marker = &marker_window->marker;
+    VIO_Status status = VIO_OK;
 
     G_set_transparency_state( marker_window->window, FALSE );
 
     initialize_resize_events( marker_window );
-    add_action_table_function( &marker_window->action_table, 
+    add_action_table_function( &marker_window->action_table,
                                WINDOW_RESIZE_EVENT, handle_marker_resize );
 
-    marker->default_x_size = Canonical_marker_window_width;
-    marker->default_y_size = Canonical_marker_window_height;
-
     initialize_marker_parameters( marker_window );
-    
+
     add_action_table_function( &marker_window->action_table,
                                LEFT_MOUSE_DOWN_EVENT, left_mouse_press );
 
     add_action_table_function( &marker_window->action_table,
-                               RIGHT_MOUSE_DOWN_EVENT, right_mouse_press ); 
+                               RIGHT_MOUSE_DOWN_EVENT, right_mouse_press );
 
     add_action_table_function( &marker_window->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT, middle_mouse_press );
@@ -157,6 +176,14 @@ VIO_Status  initialize_marker_window(
     return( status );
 }
 
+/**
+ * Handle left mouse press events in the object list ("marker") window.
+ *
+ * \param display A pointer to a top-level window.
+ * \param event_type The type code of this event.
+ * \param key_pressed The key code pressed.
+ * \returns VIO_OK for normal operation.
+ */
 static DEF_EVENT_FUNCTION( left_mouse_press )
 {
   VIO_Status status = VIO_OK;
@@ -197,6 +224,14 @@ static DEF_EVENT_FUNCTION( left_mouse_press )
   return( status );
 }
 
+/**
+ * Handle middle mouse press events in the object list ("marker") window.
+ *
+ * \param display A pointer to a top-level window.
+ * \param event_type The type code of this event.
+ * \param key_pressed The key code pressed.
+ * \returns VIO_OK for normal operation.
+ */
 static DEF_EVENT_FUNCTION( middle_mouse_press )
 {
   VIO_Status status = VIO_OK;
@@ -229,6 +264,14 @@ static DEF_EVENT_FUNCTION( middle_mouse_press )
   return( status );
 }
 
+/**
+ * Handle right mouse press events in the object list ("marker") window.
+ *
+ * \param display A pointer to a top-level window.
+ * \param event_type The type code of this event.
+ * \param key_pressed The key code pressed.
+ * \returns VIO_OK for normal operation.
+ */
 static  DEF_EVENT_FUNCTION( right_mouse_press )
 {
   VIO_Status status = VIO_OK;
@@ -255,4 +298,3 @@ static  DEF_EVENT_FUNCTION( right_mouse_press )
   }
   return( status );
 }
-

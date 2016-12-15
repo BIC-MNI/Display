@@ -1465,6 +1465,16 @@ int get_object_index(display_struct *display, object_struct *object_ptr );
   VIO_BOOL  current_object_exists(
     display_struct    *display );
 
+VIO_BOOL  remove_current_object_from_hierarchy(
+    display_struct   *display,
+    object_struct    **object );
+
+VIO_BOOL  remove_given_object_from_hierarchy(
+    display_struct   *display,
+    object_struct    *object );
+
+/* images/images.c */
+
   VIO_Status   save_window_to_file(
     display_struct  *display,
     VIO_STR          filename,
@@ -2023,30 +2033,26 @@ void make_current_label_visible( display_struct *slice_window,
 
 /* from segmenting/segmenting.c */
 
-  void  initialize_segmenting(
-    segmenting_struct  *segmenting );
+void clear_all_labels( display_struct    *display );
 
-  void  clear_all_labels(
-    display_struct    *display );
-
-  void  set_labels_on_slice(
+void set_labels_on_slice(
     display_struct  *slice_window,
     int             volume_index,
     int             axis_index,
     int             position,
     int             label );
 
-  void  set_connected_voxels_labels(
-    display_struct    *slice_window,
-    int               volume_index,
-    int               axis_index,
-    int               position[],
-    VIO_Real              min_threshold,
-    VIO_Real              max_threshold,
-    int               label_min_threshold,
-    int               label_max_threshold,
-    Neighbour_types   connectivity,
-    int               label );
+void set_connected_voxels_labels(
+    display_struct  *slice_window,
+    int             volume_index,
+    int             axis_index,
+    int             position[],
+    VIO_Real        min_threshold,
+    VIO_Real        max_threshold,
+    int             label_min_threshold,
+    int             label_max_threshold,
+    Neighbour_types connectivity,
+    int             label );
 
   /* from segmenting/segment_polygons.c */
   void  initialize_surface_edit(
@@ -2205,6 +2211,18 @@ void set_label_visible( display_struct *slice_window,
 
 VIO_BOOL is_label_visible( display_struct *slice_window,
                            int volume_label, int label );
+
+/* slice_window/label_tags.c */
+void update_label_tag( display_struct *slice_window,
+                       int            volume_index,
+                       int            x,
+                       int            y,
+                       int            z,
+                       int            label );
+
+VIO_Status input_tag_objects_label( display_struct *display,
+                                    int            *n_objects,
+                                    object_struct  **object_list[] );
 
 /* slice_window/crop.c */
   void  initialize_crop_box(
@@ -2948,10 +2966,6 @@ void rebuild_slice_object_outline(display_struct *slice_window, int view_index);
 void initialize_slice_object_outline(display_struct *display);
 
 /* from callbacks/object_ops.c */
-VIO_BOOL  remove_current_object_from_hierarchy(
-    display_struct   *display,
-    object_struct    **object );
-
 VIO_Status change_current_object_opacity(display_struct *display,
                                          VIO_Real delta);
 

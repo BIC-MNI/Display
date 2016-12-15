@@ -451,16 +451,16 @@ typedef struct loaded_volume
     volume_undo_struct     undo;
 
     /**
-     * Label stack used by this volume. This is only used if
-     * Tags_from_label is true.
-     */
-    struct stack_list      **label_stack;
-
-    /**
      * Count of of labels of each value. This is only used if
      * Tags_from_label is true.
      */
-    unsigned int           *label_count;
+    int           *label_count;
+
+    /**
+     * Markers associated with each label. This is only used if
+     * Tags_from_label is true.
+     */
+    object_struct **label_tags;
 
     /**
      * View-specific parameters for this volume.

@@ -287,6 +287,7 @@ SET(C_SRC
            slice_window/view.c 
            slice_window/outline.c
            slice_window/intensity_plot.c
+           slice_window/label_tags.c
            surface_curves/closest_line.c 
            surface_curves/events.c 
            surface_curves/edge_distance.c 
@@ -297,7 +298,6 @@ SET(C_SRC
            structures/render.c 
            structures/view.c 
            structures/window.c
-           stack/stack.c
 )
 
 #message(STATUS "${C_SRC}")

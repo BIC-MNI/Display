@@ -38,7 +38,7 @@
 void
 advance_current_object( display_struct *display )
 {
-  if (find_index_in_hierarchy( display, 
+  if (find_index_in_hierarchy( display,
                                display->three_d.current_object + 1 ) != NULL )
   {
     display->three_d.current_object++;
@@ -94,14 +94,14 @@ get_current_model( display_struct *display )
  * \returns An integer representing the position of the selected
  * entry within the object list.
  */
-int  
+int
 get_current_object_index( display_struct *display )
 {
     return( display->three_d.current_object );
 }
 
 /**
- * Makes a given object the current object. Will recursively search 
+ * Makes a given object the current object. Will recursively search
  * through the entire model list and its substructure in order to find
  * the object.
  *
@@ -209,14 +209,14 @@ current_object_exists( display_struct *display )
 }
 
 /**
- * \brief Removes the current object from the marker list, and from any 
- * containing model. 
+ * \brief Removes the current object from the marker list, and from any
+ * containing model.
  *
  * Does not delete the object, but rather returns a pointer to the object
  * so that it can be saved or moved elsewhere in the hierarchy.
  *
  * \param display The 3D window object.
- * \param object A pointer to and object pointer, where the deleted object
+ * \param object A pointer to an object pointer, where the removed object
  * will be returned.
  * \returns True if the object was found and returned.
  */
@@ -243,3 +243,42 @@ VIO_BOOL  remove_current_object_from_hierarchy(
     return TRUE;
 }
 
+/**
+ * \brief Removes the given object from the marker list, and from any
+ * containing model.
+ *
+ * Does not delete the object, but rather returns a pointer to the object
+ * so that it can be saved or moved elsewhere in the hierarchy.
+ *
+ * \param display The 3D window object.
+ * \param object A pointer to the object to remove.
+ * \returns True if the object was found and removed.
+ */
+VIO_BOOL  remove_given_object_from_hierarchy(
+    display_struct   *display,
+    object_struct    *object )
+{
+    int              obj_index;
+    object_struct    *parent_ptr;
+
+    obj_index = get_object_index( display, object );
+
+    if ( obj_index < 0 )
+    {
+      return FALSE;
+    }
+
+    parent_ptr = find_containing_model( display, obj_index );
+    if ( parent_ptr == NULL )
+    {
+      return FALSE;
+    }
+
+    remove_object_from_model( get_model_ptr( parent_ptr ), object );
+
+    if ( obj_index == get_current_object_index( display ) )
+    {
+      set_current_object_index( display, obj_index );
+    }
+    return TRUE;
+}
