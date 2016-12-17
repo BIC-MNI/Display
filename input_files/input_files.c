@@ -18,7 +18,7 @@
 #include <config.h>
 #endif
 
-#include  <display.h>
+#include <display.h>
 #include <float.h>
 
 /**
@@ -34,15 +34,15 @@
  */
 VIO_Real get_volume_transform_determinant( VIO_Volume volume )
 {
-     VIO_Real m[VIO_N_DIMENSIONS][VIO_N_DIMENSIONS];
-     int i;
+  VIO_Real m[VIO_N_DIMENSIONS][VIO_N_DIMENSIONS];
+  int i;
 
-     for_less( i, 0, VIO_N_DIMENSIONS )
-         get_volume_direction_cosine( volume, i, m[i] );
+  for_less( i, 0, VIO_N_DIMENSIONS )
+    get_volume_direction_cosine( volume, i, m[i] );
 
-     return (+ m[0][0] * m[1][1] * m[2][2] - m[0][0] * m[2][1] * m[1][2]
-             - m[1][0] * m[0][1] * m[2][2] + m[1][0] * m[2][1] * m[0][2]
-             + m[2][0] * m[0][1] * m[1][2] - m[2][0] * m[1][1] * m[0][2] );
+  return (+ m[0][0] * m[1][1] * m[2][2] - m[0][0] * m[2][1] * m[1][2]
+          - m[1][0] * m[0][1] * m[2][2] + m[1][0] * m[2][1] * m[0][2]
+          + m[2][0] * m[0][1] * m[1][2] - m[2][0] * m[1][1] * m[0][2] );
 }
 
 /**
@@ -53,8 +53,8 @@ VIO_Real get_volume_transform_determinant( VIO_Volume volume )
  */
 VIO_BOOL is_volume_transform_rigid( VIO_Volume volume )
 {
-    VIO_Real det = get_volume_transform_determinant( volume );
-    return (fabs( fabs( det ) - 1.0 ) < 1e-6 );
+  VIO_Real det = get_volume_transform_determinant( volume );
+  return (fabs( fabs( det ) - 1.0 ) < 1e-6 );
 }
 
 #if GIFTI_FOUND
@@ -66,7 +66,7 @@ read_gifti_surface( const char *filename, model_struct *model )
   gifti_image *gii_ptr = gifti_read_image( filename, 1 );
   if ( gii_ptr == NULL )
   {
-    print_error("Unknown error reading GIFTI file.\n");
+    print_error( "Unknown error reading GIFTI file.\n" );
     return VIO_ERROR;
   }
   /* Check that all of the properties of the GIFTI file are
@@ -82,7 +82,7 @@ read_gifti_surface( const char *filename, model_struct *model )
             gii_ptr->darray[1]->num_dim != 2 ||
             gii_ptr->darray[1]->dims[1] != 3 )
   {
-    print_error("This file does not look like a GIFTI surface.\n");
+    print_error( "This file does not look like a GIFTI surface.\n" );
     gifti_free_image( gii_ptr );
     return VIO_ERROR;
   }
@@ -132,7 +132,7 @@ read_gifti_surface( const char *filename, model_struct *model )
         z_dir = -1;
         break;
       default:
-        print_error("ERROR in GIFTI_orientation.\n");
+        print_error( "ERROR in GIFTI_orientation.\n" );
         gifti_free_image( gii_ptr );
         return VIO_ERROR;
       }
@@ -165,7 +165,7 @@ read_gifti_surface( const char *filename, model_struct *model )
     {
       /* This is just an informational message. It could be removed.
        */
-      print("No GIFTI spatial transform found.\n");
+      print( "No GIFTI spatial transform found.\n" );
     }
 
     /* Calculate right-handedness flag pre-adjustment. */
@@ -237,7 +237,7 @@ read_gifti_surface( const char *filename, model_struct *model )
  * volume.
  * \returns VIO_OK on success.
  */
-  VIO_Status  load_graphics_file(
+VIO_Status  load_graphics_file(
     display_struct   *display,
     VIO_STR           filename,
     VIO_BOOL          is_label_file )
@@ -248,12 +248,12 @@ read_gifti_surface( const char *filename, model_struct *model )
 
 /**
  * \brief Convert BrainSuite coordinates to world space.
- * 
- * This is needed because BrainSuite files surface and fiber track files 
- * use a "sort-of" voxel coordinate for their xyz values, but they use 
- * NIfTI-1 for volumetric data. We need to transform the points into 
+ *
+ * This is needed because BrainSuite files surface and fiber track files
+ * use a "sort-of" voxel coordinate for their xyz values, but they use
+ * NIfTI-1 for volumetric data. We need to transform the points into
  * our voxel space, then into world space.
- * 
+ *
  * \param volume The loaded volume from which we get the transform.
  * \param n_points The number of points to fix.
  * \param points The array of points that need fixing.
@@ -293,6 +293,13 @@ fix_brainsuite_points(VIO_Volume volume, int n_points, VIO_Point points[])
   }
 }
 
+/**
+ * Examine a filename's extension to determine whether it is
+ * a volume file, such as MINC or NIfTI-1.
+ *
+ * \param filename The filename to check.
+ * \returns TRUE if the filename appears to be a volume.
+ */
 static VIO_BOOL is_volume_filename( const VIO_STR filename )
 {
   static char *volume_extensions[] = {
@@ -304,13 +311,134 @@ static VIO_BOOL is_volume_filename( const VIO_STR filename )
   };
 
   int i;
-  
+
   for (i = 0; volume_extensions[i] != NULL; i++)
   {
     if (filename_extension_matches( filename, volume_extensions[i] ) )
       return TRUE;
   }
   return FALSE;
+}
+
+static void
+format_slice_window_title( VIO_Volume volume,
+                           const VIO_STR filename,
+                           char title[],
+                           int title_max_length )
+{
+  int sizes[VIO_MAX_DIMENSIONS];
+  int n_dimensions = get_volume_n_dimensions( volume );
+  int title_cur_length = 0;
+
+  get_volume_sizes( volume, sizes );
+
+  title_cur_length = snprintf( title, title_max_length, "%s : X:%d Y:%d Z:%d",
+                               filename,
+                               sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
+
+  if ( n_dimensions > VIO_N_DIMENSIONS)
+  {
+    title_cur_length += snprintf( title + title_cur_length,
+                                  title_max_length - title_cur_length,
+                                  " T:%d", sizes[VIO_T] );
+  }
+  if ( n_dimensions == VIO_MAX_DIMENSIONS )
+  {
+    title_cur_length += snprintf( title + title_cur_length,
+                                  title_max_length - title_cur_length,
+                                  " V:%d", sizes[VIO_V] );
+  }
+}
+
+/**
+ * Handle postprocessing of newly loaded polygons.
+ *
+ * \param object_ptr Pointer to a lines object.
+ */
+static void
+finish_loading_polygons( object_struct *object_ptr,
+                         VIO_Colour preferred_colour,
+                         int index )
+{
+  polygons_struct *polygons_ptr = get_polygons_ptr( object_ptr );
+  if ( polygons_ptr->colour_flag == ONE_COLOUR )
+  {
+    if ( preferred_colour == TRANSPARENT )
+    {
+      if ( polygons_ptr->colours[0] == WHITE )
+      {
+        polygons_ptr->colours[0] = get_automatic_colour( index );
+      }
+    }
+    else
+    {
+      polygons_ptr->colours[0] = preferred_colour;
+    }
+  }
+
+  if( Polygon_bintree_threshold >= 0 &&
+      ( polygons_ptr->n_points > Polygon_bintree_threshold ||
+        polygons_ptr->n_items > Polygon_bintree_threshold ) )
+  {
+    create_polygons_bintree( polygons_ptr, VIO_ROUND( polygons_ptr->n_items *
+                                                      Bintree_size_factor ) );
+  }
+
+  if( Compute_neighbours_on_input )
+  {
+    check_polygons_neighbours_computed( polygons_ptr );
+  }
+}
+
+/**
+ * Handle postprocessing of newly loaded polygons.
+ *
+ * \param object_ptr Pointer to a polygons object.
+ * \param preferred_colour The colour to use if the surface is solid white,
+ * or TRANSPARENT if we should choose a colour automatically.
+ * \param index The ordinal number of this surface.
+ */
+static void
+finish_loading_lines( object_struct *object_ptr )
+{
+  lines_struct *lines_ptr = get_lines_ptr( object_ptr );
+  if (Lines_bintree_threshold >= 0 &&
+      ( lines_ptr->n_items > Lines_bintree_threshold ||
+        lines_ptr->n_points > Lines_bintree_threshold ) )
+  {
+    create_lines_bintree( lines_ptr, VIO_ROUND( lines_ptr->n_items *
+                                                Bintree_size_factor ) );
+  }
+}
+
+/**
+ * Handle postprocessing of a newly loaded quadmesh.
+ *
+ * \param object_ptr Pointer to a quadmesh object.
+ * \param preferred_colour The colour to use if the surface is solid white,
+ * or TRANSPARENT if we should choose a colour automatically.
+ * \param index The ordinal number of this surface.
+ */
+static void
+finish_loading_quadmesh( object_struct *object_ptr,
+                         VIO_Colour preferred_colour,
+                         int index )
+{
+  quadmesh_struct *quadmesh_ptr = get_quadmesh_ptr( object_ptr );
+  if ( quadmesh_ptr->colour_flag == ONE_COLOUR )
+  {
+    if ( preferred_colour == TRANSPARENT )
+    {
+      if ( quadmesh_ptr->colours[0] == WHITE )
+      {
+        quadmesh_ptr->colours[0] = get_automatic_colour( index );
+      }
+    }
+    else
+    {
+      quadmesh_ptr->colours[0] = preferred_colour;
+    }
+  }
 }
 
 /**
@@ -328,243 +456,185 @@ static VIO_BOOL is_volume_filename( const VIO_STR filename )
 
 VIO_Status
 load_graphics_file_with_colour(
-    display_struct   *display,
-    VIO_STR           filename,
-    VIO_BOOL          is_label_file,
-    VIO_Colour        preferred_colour )
+  display_struct *display,
+  VIO_STR        filename,
+  VIO_BOOL       is_label_file,
+  VIO_Colour     preferred_colour )
 {
-    VIO_Status             status;
-    object_struct          *object;
-    model_struct           *model;
-    int                    n_items;
-    int                    sizes[VIO_MAX_DIMENSIONS];
-    VIO_Volume             volume_read_in;
-    object_struct          *current_object;
-    object_traverse_struct object_traverse;
-    char                   volume_description[VIO_EXTREMELY_LARGE_STRING_SIZE];
-    VIO_BOOL               volume_present;
-    display_struct         *slice_window;
+  VIO_Status             status;
+  object_struct          *new_object_ptr = create_object( MODEL );
+  model_struct           *new_model_ptr;
+  VIO_Volume             volume_read_in = NULL;
+  object_struct          *current_object;
+  object_traverse_struct object_traverse;
+  display_struct         *slice_window;
 
-    object = create_object( MODEL );
+  print( "Input %s\n", filename );
 
-    print( "Input %s\n", filename );
+  new_model_ptr = get_model_ptr( new_object_ptr );
+  initialize_display_model( new_model_ptr );
+  initialize_3D_model_info( new_model_ptr );
 
-    model = get_model_ptr( object );
-    initialize_display_model( model );
-    initialize_3D_model_info( model );
+  replace_string( &new_model_ptr->filename, create_string( filename ) );
 
-    replace_string( &model->filename, create_string(filename) );
+  status = VIO_OK;
 
-    volume_present = FALSE;
-
-    status = VIO_OK;
-
-    if( is_volume_filename( filename ) )
+  if( is_volume_filename( filename ) )
+  {
+    if( !is_label_file )
     {
-        if( !is_label_file )
-        {
-            status = input_volume_file( filename, &volume_read_in );
+      status = input_volume_file( filename, &volume_read_in );
 
-            if( status == VIO_OK )
-                volume_present = TRUE;
-        }
-        else
-        {
-            if( get_n_volumes(display) == 0 )
-            {
-                print( "No volume to load labels for.\n" );
-                status = VIO_ERROR;
-            }
-            else
-            {
-                status = input_label_volume_file( display, filename );
-                if (Tags_from_label)
-                {
-                  input_tag_objects_label(display,
-                                          &model->n_objects, &model->objects);
-                }
-            }
-        }
+      if( status != VIO_OK )
+        volume_read_in = NULL;
     }
+    else
+    {
+      if( get_n_volumes( display ) == 0 )
+      {
+        print( "No volume to load labels for.\n" );
+        status = VIO_ERROR;
+      }
+      else
+      {
+        status = input_label_volume_file( display, filename );
+        if ( Tags_from_label )
+        {
+          input_tag_objects_label( display, &new_model_ptr->n_objects,
+                                   &new_model_ptr->objects );
+        }
+      }
+    }
+  }
 #if GIFTI_FOUND
-    else if( filename_extension_matches( filename, "gii" ) )
-    {
-      status = read_gifti_surface( filename, model );
-    }
+  else if( filename_extension_matches( filename, "gii" ) )
+  {
+    status = read_gifti_surface( filename, new_model_ptr );
+  }
 #endif /* GIFTI_FOUND */
-    else if( filename_extension_matches(filename,
-                                        get_default_colour_map_suffix()) &&
-             get_n_volumes(display) > 0 &&
-             get_slice_window( display, &slice_window ) )
+  else if( filename_extension_matches(filename,
+                                      get_default_colour_map_suffix()) &&
+           get_n_volumes(display) > 0 &&
+           get_slice_window( display, &slice_window ) )
+  {
+    status = load_label_colour_map( slice_window, filename );
+  }
+  else if( filename_extension_matches(filename,
+                                      get_default_transform_file_suffix()) )
+  {
+    transform_current_volume_from_file( display, filename );
+    status = VIO_OK;
+  }
+  else
+  {
+    if( is_label_file &&
+        (filename_extension_matches( filename,
+                                     get_default_tag_file_suffix() ) ||
+         filename_extension_matches( filename,
+                                     get_default_landmark_file_suffix()) ) )
     {
-        status = load_label_colour_map( slice_window, filename );
-    }
-    else if( filename_extension_matches(filename,
-                    get_default_transform_file_suffix()) )
-    {
-        transform_current_volume_from_file( display, filename );
-        status = VIO_OK;
-    }
-    else
-    {
-        if( is_label_file &&
-            (filename_extension_matches( filename,
-                                         get_default_tag_file_suffix() ) ||
-             filename_extension_matches( filename,
-                                         get_default_landmark_file_suffix()) ) )
-        {
-            status = input_tag_label_file( display, filename );
-        }
-        else
-        {
-            status = input_objects_any_format( get_volume(display), filename,
-                                     display->three_d.default_marker_colour,
-                                     display->three_d.default_marker_size,
-                                     display->three_d.default_marker_type,
-                                     &model->n_objects,
-                                     &model->objects); //VF:
-
-            /* Hacks to deal with non-world coordinates in foreign object
-             * files.
-             */
-            if (filename_extension_matches( filename, "dft") ||
-                filename_extension_matches( filename, "dfc") ||
-                filename_extension_matches( filename, "dfs"))
-            {
-                VIO_Volume volume = get_volume(display);
-                if ( volume != NULL ) 
-                {
-                  int i;
-
-                  for (i = 0; i < model->n_objects; i++)
-                  {
-                    int n_points;
-                    VIO_Point *points;
-                    n_points = get_object_points(model->objects[i], &points);
-                    fix_brainsuite_points(volume, n_points, points);
-                  }
-                }
-            }
-        }
-    }
-
-    if( status == VIO_OK )
-    {
-        print( "Objects input.\n" );
-
-        initialize_object_traverse( &object_traverse, FALSE, 1, &object );
-
-        while( get_next_object_traverse(&object_traverse,&current_object) )
-        {
-            if( !Visibility_on_input )
-                set_object_visibility( current_object, FALSE );
-        }
-    }
-
-    if( status == VIO_OK )
-    {
-        initialize_object_traverse( &object_traverse, FALSE, 1, &object );
-
-        while( get_next_object_traverse(&object_traverse,&current_object) )
-        {
-            if( current_object != object &&
-                current_object->object_type == MODEL )
-            {
-                initialize_3D_model_info( get_model_ptr(current_object) );
-            }
-            else if( current_object->object_type == POLYGONS )
-            {
-                polygons_struct   *polygons;
-
-                polygons = get_polygons_ptr( current_object );
-
-                if ( polygons->colour_flag == ONE_COLOUR )
-                {
-                    polygons->colours[0] = preferred_colour;
-                }
-
-                n_items = polygons->n_items;
-
-                if( Polygon_bintree_threshold >= 0 &&
-                    n_items > Polygon_bintree_threshold )
-                {
-                    create_polygons_bintree( polygons,
-                              VIO_ROUND( (VIO_Real) n_items * Bintree_size_factor ) );
-                }
-
-                if( Compute_neighbours_on_input )
-                    check_polygons_neighbours_computed( polygons );
-            }
-            else if ( current_object->object_type == LINES )
-            {
-                lines_struct *lines_ptr = get_lines_ptr( current_object );
-                if (Lines_bintree_threshold >= 0 &&
-                    (lines_ptr->n_items > Lines_bintree_threshold ||
-                     lines_ptr->n_points > Lines_bintree_threshold))
-                {
-                    create_lines_bintree( lines_ptr,
-                                          VIO_ROUND( lines_ptr->n_items *
-                                                     Bintree_size_factor ) );
-                }
-            }
-            else if( current_object->object_type == QUADMESH )
-            {
-                quadmesh_struct   *quadmesh;
-
-                quadmesh = get_quadmesh_ptr( current_object );
-
-                if ( quadmesh->colour_flag == ONE_COLOUR )
-                {
-                    quadmesh->colours[0] = preferred_colour;
-                }
-            }
-        }
-    }
-
-    if( status == VIO_OK && model->n_objects > 0 )
-    {
-        add_object_to_main_model( display, object, Update_3d_view_on_load );
-
-        rebuild_selected_list( display, get_display_by_type( MARKER_WINDOW ) );
+      status = input_tag_label_file( display, filename );
     }
     else
     {
-        delete_object( object );
-    }
+      VIO_Volume volume = get_volume( display );
+      status = input_objects_any_format( volume, filename,
+                                         display->three_d.default_marker_colour,
+                                         display->three_d.default_marker_size,
+                                         display->three_d.default_marker_type,
+                                         &new_model_ptr->n_objects,
+                                         &new_model_ptr->objects);
 
-    if( status == VIO_OK && volume_present )
-    {
-        get_volume_sizes( volume_read_in, sizes );
-
-        snprintf( volume_description, sizeof( volume_description ),
-                  "%s : X:%d Y:%d Z:%d",
-                  filename, sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
-        if (get_volume_n_dimensions(volume_read_in) > VIO_N_DIMENSIONS)
+      /* Hacks to deal with non-world coordinates in foreign object
+       * files.
+       */
+      if (filename_extension_matches( filename, "dft") ||
+          filename_extension_matches( filename, "dfc") ||
+          filename_extension_matches( filename, "dfs"))
+      {
+        if ( volume != NULL )
         {
-          int partial_length = strlen( volume_description );
-          snprintf( volume_description + partial_length,
-                    sizeof( volume_description ) - partial_length,
-                    " T:%d", sizes[VIO_T] );
-          if (get_volume_n_dimensions( volume_read_in ) == VIO_MAX_DIMENSIONS)
+          int i;
+          for_less (i, 0, new_model_ptr->n_objects )
           {
-            partial_length = strlen( volume_description );
-            snprintf( volume_description + partial_length,
-                      sizeof( volume_description ) - partial_length,
-                      " V:%d", sizes[VIO_V] );
+            int       n_points;
+            VIO_Point *points;
+            n_points = get_object_points( new_model_ptr->objects[i], &points );
+            fix_brainsuite_points( volume, n_points, points );
           }
         }
+      }
+    }
+  }
 
-        if ( !is_volume_transform_rigid( volume_read_in ) )
-        {
-          char *message = {
-            "WARNING: Volume transform is not rigid. This may cause distortion or\n"
-            "         other odd effects if this volume is superimposed on another volume.\n" };
-          print( message );
-        }
+  if( status == VIO_OK )
+  {
+    static int n_surfaces = 0;
+    print( "Objects input.\n" );
 
-        add_slice_window_volume( display, filename, volume_description,
-                                 volume_read_in );
+    if ( !Visibility_on_input )
+    {
+      initialize_object_traverse( &object_traverse, FALSE, 1, &new_object_ptr );
+
+      while( get_next_object_traverse( &object_traverse, &current_object ) )
+      {
+        set_object_visibility( current_object, FALSE );
+      }
     }
 
-    return( status );
+    initialize_object_traverse( &object_traverse, FALSE, 1, &new_object_ptr );
+    while( get_next_object_traverse( &object_traverse, &current_object ) )
+    {
+      if( current_object != new_object_ptr &&
+          current_object->object_type == MODEL )
+      {
+        initialize_3D_model_info( get_model_ptr( current_object ) );
+      }
+      else if( current_object->object_type == POLYGONS )
+      {
+        finish_loading_polygons( current_object, preferred_colour,
+                                 n_surfaces++ );
+      }
+      else if ( current_object->object_type == LINES )
+      {
+        finish_loading_lines( current_object );
+      }
+      else if( current_object->object_type == QUADMESH )
+      {
+        finish_loading_quadmesh( current_object, preferred_colour,
+                                 n_surfaces++ );
+      }
+    }
+  }
+
+  if( status == VIO_OK && new_model_ptr->n_objects > 0 )
+  {
+    add_object_to_main_model( display, new_object_ptr, Update_3d_view_on_load );
+    rebuild_selected_list( display, get_display_by_type( MARKER_WINDOW ) );
+  }
+  else
+  {
+    delete_object( new_object_ptr );
+  }
+
+  if( status == VIO_OK && volume_read_in != NULL )
+  {
+    char title[VIO_EXTREMELY_LARGE_STRING_SIZE];
+
+    format_slice_window_title( volume_read_in, filename, title,
+                               sizeof( title ) );
+
+    if ( !is_volume_transform_rigid( volume_read_in ) )
+    {
+      char *message = {
+        "WARNING: Volume transform is not rigid. This may cause distortion or\n"
+        "         other odd effects if this volume is superimposed on another volume.\n"
+      };
+      print( message );
+    }
+
+    add_slice_window_volume( display, filename, title, volume_read_in );
+  }
+
+  return( status );
 }

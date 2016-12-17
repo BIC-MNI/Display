@@ -688,7 +688,7 @@ parse_options(int argc, char *argv[], display_struct *graphics)
       }
       else
       {
-        VIO_Colour default_colour = WHITE;
+        VIO_Colour default_colour = TRANSPARENT;
         VIO_STR colour_string = NULL;
 
         initialize_cache();
@@ -718,7 +718,7 @@ parse_options(int argc, char *argv[], display_struct *graphics)
             if (string_to_colour( colour_string, &default_colour ) != VIO_OK)
             {
               print("Colour '%s' not recognized.\n", colour_string );
-              default_colour = WHITE;
+              default_colour = TRANSPARENT;
             }
           }
 

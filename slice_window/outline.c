@@ -100,13 +100,14 @@ convert_world_lines_to_pixel(object_struct *lines_object,
 }
 
 /**
- * Given an an arbitrary object "index", generate a colour
- * which should be different from the previous colour in a significant
- * way, and probably unlike other previous colours.
+ * Given an an arbitrary object "index", generate a colour which
+ * should be different from the previous colour in a significant way,
+ * and probably unlike other previous colours.
  * \param index An arbitrary index we use to differentiate the contexts
  * in which the colours are used.
+ * \returns An RGBA colour.
  */
-static VIO_Colour
+VIO_Colour
 get_automatic_colour(int index)
 {
   switch (index)
@@ -497,14 +498,15 @@ intersect_plane_with_polygons_coloured(VIO_Vector *plane_normal,
         VIO_Colour             current_colour;
         int                    item;
 
-        /* This is where we colourize the polygons. Most polygons
-         * will just specify a white colour, so we make sure we
-         * don't repeat colours if we can avoid it.
+        /* For multicoloured objects, we use an automatic colour
+         * for the outline rather than trying to trace all of the
+         * colour detail.
+         * \todo: Trace a properly coloured outline of a surface
+         * with per-vertex colours.
          */
-        if (!get_object_colour(current_object, &current_colour) ||
-            current_colour == WHITE)
+        if ( !get_object_colour( current_object, &current_colour ) )
         {
-          current_colour = get_automatic_colour(*poly_no);
+          current_colour = get_automatic_colour( *poly_no );
         }
 
         for (item = 0; item < current_polygons->n_items; item++)
