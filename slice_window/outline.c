@@ -497,20 +497,28 @@ intersect_plane_with_polygons_coloured(VIO_Vector *plane_normal,
       {
         VIO_Colour             current_colour;
         int                    item;
-
-        /* For multicoloured objects, we use an automatic colour
-         * for the outline rather than trying to trace all of the
-         * colour detail.
-         * \todo: Trace a properly coloured outline of a surface
-         * with per-vertex colours.
-         */
-        if ( !get_object_colour( current_object, &current_colour ) )
-        {
-          current_colour = get_automatic_colour( *poly_no );
-        }
+        int                    k;
 
         for (item = 0; item < current_polygons->n_items; item++)
         {
+          switch ( current_polygons->colour_flag )
+          {
+          default:
+            current_colour = current_polygons->colours[0];
+            break;
+          case PER_ITEM_COLOURS:
+            current_colour = current_polygons->colours[item];
+            break;
+          case PER_VERTEX_COLOURS:
+            /* This will not be precise, but it's probably the best
+             * I can do without rewriting intersect_plane_one_polygon
+             * to calculate the correct coloration of the line segment.
+             */
+            k = current_polygons->end_indices[item] - 1;
+            k = current_polygons->indices[k];
+            current_colour = current_polygons->colours[k];
+            break;
+          }
           if (intersect_plane_one_polygon(plane_normal,
                                           plane_constant,
                                           current_polygons,
