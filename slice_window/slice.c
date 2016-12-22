@@ -36,7 +36,7 @@ static void initialize_ratio (display_struct* slice_window);
     get_volume_sizes( volume, sizes );
 
     (void) create_graphics_window( SLICE_WINDOW, Slice_double_buffer_flag,
-                                   &slice_window, 
+                                   &slice_window,
                                    "Display: Slice View",
                                    Initial_slice_window_x,
                                    Initial_slice_window_y,
@@ -104,7 +104,6 @@ static  void  initialize_slice_window(
     initialize_slice_histogram( slice_window );
     initialize_colour_bar( slice_window );
     initialize_slice_models( slice_window );
-    initialize_segmenting( &slice_window->slice.segmenting );
     initialize_atlas( &slice_window->slice.atlas );
     initialize_voxel_labeling( slice_window );
     initialize_crop_box( slice_window );
@@ -230,6 +229,8 @@ static  void  delete_slice_window_volume_stuff(
   void  delete_slice_window(
     display_struct   *slice_window )
 {
+    shutdown_slice_undo( slice_window );
+
     while( slice_window->slice.n_volumes > 0 )
     {
         delete_slice_window_volume_stuff( slice_window,
@@ -238,7 +239,6 @@ static  void  delete_slice_window_volume_stuff(
 
     delete_render_storage( slice_window->slice.render_storage );
 
-    delete_slice_undo( slice_window, -1 );
     delete_slice_histogram( &slice_window->slice );
 
     delete_atlas( &slice_window->slice.atlas );
@@ -366,7 +366,94 @@ static  void  delete_slice_window_volume_stuff(
     set_slice_window_all_update( slice_window, -1, UPDATE_BOTH );
 }
 
-  void  set_current_volume_index(
+/**
+ * Reset the slice (and label) pixel objects. We reset the pixels
+ * (essentially deleting them) when we make a major change such as
+ * altering the order of the volumes.
+ *
+ * \param slice_window A pointer to the slice window.
+ * \param volume_index The index of the volume whose pixels should be reset.
+ */
+static void
+reset_slice_pixels( display_struct *slice_window, int volume_index )
+{
+  int view_index;
+  loaded_volume_struct *lvs_ptr;
+
+  lvs_ptr = &slice_window->slice.volumes[volume_index];
+
+  for (view_index = 0; view_index < N_SLICE_VIEWS; view_index++)
+  {
+    object_struct *object_ptr;
+    pixels_struct *pixels_ptr;
+
+    object_ptr = get_slice_pixels_object( slice_window, volume_index,
+                                          view_index );
+    pixels_ptr = get_pixels_ptr( object_ptr );
+    delete_pixels( pixels_ptr );
+    lvs_ptr->views[view_index].n_pixels_alloced = 0;
+
+    object_ptr = get_label_slice_pixels_object( slice_window, volume_index,
+                                                view_index );
+    pixels_ptr = get_pixels_ptr( object_ptr );
+    delete_pixels( pixels_ptr );
+    lvs_ptr->views[view_index].n_label_pixels_alloced = 0;
+  }
+}
+
+/**
+ * Move the volume at volume_index to the "top" of the stack of
+ * volumes from a visual perspective, meaning the volume will be moved
+ * to the end of the volume list.
+ *
+ * \param display A pointer to a top-level window.
+ * \param volume_index The zero-based index of the volume to move.
+ */
+void
+move_slice_window_volume(display_struct *display,
+                         int            volume_index)
+{
+  display_struct       *slice_window;
+  int                  last_index;
+  loaded_volume_struct loaded_volume_temp;
+
+  if ( !get_slice_window( display, &slice_window ) )
+  {
+    return;
+  }
+
+  /* Get the index of the last volume - it will be the last one drawn
+   * and therefore the top of the stack from a visual perspective.
+   */
+  last_index = slice_window->slice.n_volumes - 1;
+  if ( volume_index == last_index )
+  {
+    return;
+  }
+
+  /* Exchange the two volume with the last volume structures. */
+  loaded_volume_temp = slice_window->slice.volumes[last_index];
+
+  slice_window->slice.volumes[last_index] =
+    slice_window->slice.volumes[volume_index];
+
+  slice_window->slice.volumes[volume_index] = loaded_volume_temp;
+
+  /* Reset the pixel objects associated with these volumes, so they
+   * will be rebuilt with the proper size (and contents).
+   */
+  reset_slice_pixels( slice_window, last_index );
+  reset_slice_pixels( slice_window, volume_index );
+
+  /* Trigger redrawing of the slice views.
+   */
+  update_all_slice_axes_views( slice_window, volume_index );
+  update_all_slice_axes_views( slice_window, last_index );
+  set_current_volume_index( slice_window, last_index );
+  set_slice_window_all_update( slice_window, -1, UPDATE_BOTH );
+}
+
+void  set_current_volume_index(
     display_struct  *slice_window,
     int             volume_index )
 {
@@ -907,8 +994,8 @@ static  void  render_more_slices(
                     {
                         update_flag_ptr = &slice_window->slice.volumes[v].
                                               views[view].update_labels_flag;
-                        slice_is_visible = get_label_visibility( slice_window,
-                                                                 v, view );
+                        slice_is_visible = get_labels_visibility( slice_window,
+                                                                  v, view );
                     }
 
                     if( (*update_flag_ptr || update_in_progress[which_volume])&&
@@ -1140,6 +1227,7 @@ static  void  render_more_slices(
             rebuild_slice_cursor( slice_window, view );
             rebuild_slice_field_of_view( slice_window, view );
             rebuild_slice_rulers( slice_window, view );
+            rebuild_slice_scalebar( slice_window, view );
             render_intensity_plot = TRUE; /* For later */
             slice_window->slice.slice_views[view].update_cursor_flag = FALSE;
         }

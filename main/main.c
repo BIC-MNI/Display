@@ -25,7 +25,6 @@ int debug = 1;
 int verbose = 1;
 
 static  void   initialize_global_colours( void );
-static  void   initialize_view_to_fit (display_struct  *display );
 static  void   initialize_cache ();
 static  void   parse_options (int argc, char *argv[],
                               display_struct *graphics);
@@ -61,6 +60,18 @@ VIO_Status  set_global_variable_value(
 }
 
 /**
+ * Default error function for Display. Display just prints any errors to
+ * the tty that is connected to the Display process.
+ *
+ * \param msg The message to print.
+ */
+static void
+display_error( char *msg )
+{
+    fputs( msg, stderr );
+}
+
+/**
  * The main program. Initializes key data structures, reads configuration
  * and command line, creates windows, then drops into the main event loop.
  */
@@ -76,8 +87,7 @@ int  main(
     VIO_STR           *directories;
     VIO_STR           title;
 
-    set_alloc_checking( TRUE );
-
+    set_print_error_function( display_error );
     initialize_global_colours();
 
     if( getenv( "DISPLAY_DIRECTORY" ) != (char *) NULL )
@@ -129,8 +139,6 @@ int  main(
 
     if( n_directories > 0 )
         FREE( directories );
-
-    set_alloc_checking( Alloc_checking_enabled );
 
     initialize_graphics();
 
@@ -245,8 +253,6 @@ int  main(
     delete_global_variables( VIO_SIZEOF_STATIC_ARRAY(display_globals),
                              display_globals );
 
-    output_alloc_to_file( ".alloc_stats" );
-
     return( EX_OK );
 }
 
@@ -293,10 +299,10 @@ static  void      initialize_global_colours( void )
     Initial_vertex_under_colour = BLACK;
     Initial_vertex_over_colour = WHITE;
     Measure_colour = YELLOW;
+    Scalebar_colour = make_rgba_Colour(0, 255, 255, 128);
 }
 
-static  void      initialize_view_to_fit(
-    display_struct  *display )
+void initialize_view_to_fit( display_struct  *display )
 {
     int      i, c, x, y, z;
     VIO_Real voxel[VIO_N_DIMENSIONS], world[VIO_N_DIMENSIONS];
@@ -418,6 +424,36 @@ write_globals_to_file( const VIO_STR filename )
 }
 
 /**
+ * Find the most recently loaded polygonal object. It should be inside
+ * the last model on the 3D window's main list of models.
+ * \param display A pointer to the 3D window's display.
+ * \returns NULL on failure, otherwise a valid polygonal object pointer.
+ */
+static object_struct *
+get_most_recent_surface( display_struct *display )
+{
+  model_struct *model_ptr = get_current_model( display );
+  object_struct *object_ptr;
+  int i;
+
+  if ( model_ptr == NULL )
+  {
+    return NULL;
+  }
+
+  for (i = 0; i < model_ptr->n_objects; i++)
+  {
+    object_ptr = model_ptr->objects[i];
+    if ( object_ptr->object_type == POLYGONS && 
+         get_polygons_ptr(object_ptr)->n_items > 0 )
+    {
+      return object_ptr;
+    }
+  }
+  return NULL;
+}
+
+/**
  * Try to make sense out of command-line arguments.
  *
  * \param argc The argument count, from main().
@@ -428,13 +464,12 @@ write_globals_to_file( const VIO_STR filename )
 static void
 parse_options(int argc, char *argv[], display_struct *graphics)
 {
-  VIO_Status retcode;
+  VIO_Status retcode = VIO_OK;
   VIO_STR filename;
-  VIO_BOOL next_is_label_volume;
+  VIO_BOOL next_is_label_volume = FALSE;
+  VIO_BOOL next_is_vertex_file = FALSE;
 
   initialize_argument_processing(argc, argv);
-  retcode = VIO_OK;
-  next_is_label_volume = FALSE;
 
   while (get_string_argument("", &filename))
   {
@@ -449,6 +484,8 @@ parse_options(int argc, char *argv[], display_struct *graphics)
             "Skip on error when parsing arguments or loading file.");
       print("  %-25s %s\n", "-label FILENAME",
             "Interpret FILENAME as a label to be displayed over other images.");
+      print("  %-25s %s\n", "-vertex FILENAME",
+            "Interpret FILENAME as data to be displayed over surfaces.");
       print("  %-25s %s\n", "-labeltags",
             "Input tags from the label file.");
       print("  %-25s %s\n", "-output-label FILENAME",
@@ -547,6 +584,15 @@ parse_options(int argc, char *argv[], display_struct *graphics)
       }
       next_is_label_volume = TRUE;
     }
+    else if (equal_strings(filename, "-vertex"))
+    {
+      if (next_is_vertex_file)
+      {
+        print("Ignoring extraneous -vertex\n");
+        retcode = VIO_ERROR;
+      }
+      next_is_vertex_file = TRUE;
+    }
     else if (equal_strings(filename, "-labeltags"))
     {
       Tags_from_label = TRUE;
@@ -642,27 +688,50 @@ parse_options(int argc, char *argv[], display_struct *graphics)
       }
       else
       {
-        VIO_Colour default_colour = WHITE;
+        VIO_Colour default_colour = TRANSPARENT;
         VIO_STR colour_string = NULL;
 
         initialize_cache();
 
-        colour_string = strchr( filename, ':');
-        if (colour_string != NULL)
+        if (next_is_vertex_file)
         {
-          *colour_string++ = 0;
-          default_colour = convert_string_to_colour( colour_string );
+          object_struct *object = get_most_recent_surface( graphics );
+          if ( object == NULL )
+          {
+            print("Can't load vertex data before a surface!\n");
+            retcode = VIO_ERROR;
+          }
+          else if (load_vertex_data_file( graphics, object, filename ) != VIO_OK)
+          {
+            print("Error loading %s\n", filename);
+            if (Exit_error_load_file)
+              exit(EX_NOINPUT);
+          }
+          next_is_vertex_file = FALSE;
         }
+        else
+        {
+          colour_string = strchr( filename, ':');
+          if (colour_string != NULL)
+          {
+            *colour_string++ = 0;
+            if (string_to_colour( colour_string, &default_colour ) != VIO_OK)
+            {
+              print("Colour '%s' not recognized.\n", colour_string );
+              default_colour = TRANSPARENT;
+            }
+          }
 
-        if (load_graphics_file_with_colour(graphics, filename, 
-                                           next_is_label_volume,
-                                           default_colour) != VIO_OK)
-        {
-          print("Error loading %s\n", filename);
-          if (Exit_error_load_file)
-            exit(EX_NOINPUT);
+          if (load_graphics_file_with_colour(graphics, filename,
+                                             next_is_label_volume,
+                                             default_colour) != VIO_OK)
+          {
+            print("Error loading %s\n", filename);
+            if (Exit_error_load_file)
+              exit(EX_NOINPUT);
+          }
+          next_is_label_volume = FALSE;
         }
-        next_is_label_volume = FALSE;
       }
     }
   }

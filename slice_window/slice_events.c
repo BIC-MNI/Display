@@ -291,7 +291,7 @@ DEF_EVENT_FUNCTION( update_measurement )
 
       delete_string( text_ptr->string );
       distance = distance_between_points( &meas_ptr->origin, &meas_ptr->end );
-      sprintf( buffer, "%g", distance );
+      snprintf( buffer, sizeof(buffer), "%g", distance );
       text_ptr->string = create_string( buffer );
 
       /* Figure out the best text position.
@@ -534,11 +534,19 @@ static  DEF_EVENT_FUNCTION( left_mouse_down )
 
         G_get_mouse_position( display->window, &x, &y);
         if (y <= lo_y)
+        {
             set_under_colour( display, NULL, NULL );
+            update_all_menu_text( get_display_by_type( MENU_WINDOW ) );
+        }
         else if (y >= hi_y)
+        {
             set_over_colour( display, NULL, NULL );
+            update_all_menu_text( get_display_by_type( MENU_WINDOW ) );
+        }
         else
+        {
             prompt_volume_coding_type( display );
+        }
         return VIO_ERROR;
     }
     else if( mouse_is_near_low_limit( display ) )

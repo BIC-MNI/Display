@@ -20,39 +20,36 @@
 
 #include  <display.h>
 
-/* ARGSUSED */
+static colour_coding_struct *
+get_colour_coding( display_struct *slice_window, int volume_index )
+{
+    return &slice_window->slice.volumes[volume_index].colour_coding;
+}
 
 DEF_MENU_FUNCTION(set_colour_limits )
 {
-    int              volume_index;
-    VIO_Real         min_value, max_value;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
-        get_n_volumes(slice_window) > 0 )
+        get_n_volumes( slice_window ) > 0 )
     {
+        VIO_Real min_value, max_value;
         char prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
-        volume_index = get_current_volume_index( slice_window );
+        colour_coding_struct *colour_coding;
+        int volume_index = get_current_volume_index( slice_window );
 
-        sprintf(prompt, "Current limits:\t%g\t%g\nEnter new values:",
-               slice_window->slice.volumes[volume_index].
-                                             colour_coding.min_value,
-               slice_window->slice.volumes[volume_index].
-                                             colour_coding.max_value );
+        colour_coding = get_colour_coding( slice_window, volume_index );
+        get_colour_coding_min_max( colour_coding, &min_value, &max_value );
+        snprintf(prompt, sizeof( prompt ),
+                 "Current limits: %g %g\nEnter new values:",
+                 min_value, max_value );
 
         if( get_user_input( prompt, "rr", &min_value, &max_value ) == VIO_OK )
         {
             change_colour_coding_range( slice_window,
                                         volume_index, min_value, max_value);
-
-            print( "    New limits:\t%g\t%g\n",
-                   slice_window->slice.volumes[volume_index].
-                                                  colour_coding.min_value,
-                   slice_window->slice.volumes[volume_index].
-                                                  colour_coding.max_value );
         }
     }
-
     return( VIO_OK );
 }
 
@@ -68,18 +65,17 @@ static  void  set_the_colour_coding_type(
     Colour_coding_types  type )
 {
     display_struct          *slice_window;
-    colour_coding_struct    *colour_coding;
 
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        colour_coding = &slice_window->slice.volumes
-                 [get_current_volume_index(slice_window)].colour_coding;
+        colour_coding_struct *colour_coding;
+        int volume_index = get_current_volume_index( slice_window );
+        colour_coding = get_colour_coding( slice_window, volume_index );
 
         set_colour_coding_type( colour_coding, type );
 
-        colour_coding_has_changed( slice_window,
-                      get_current_volume_index(slice_window), UPDATE_SLICE );
+        colour_coding_has_changed( slice_window, volume_index, UPDATE_SLICE );
     }
 }
 
@@ -241,19 +237,24 @@ DEF_MENU_FUNCTION(set_under_colour )
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        status = get_user_input("Enter under colour name or 3 or 4 colour components: ", "s", &line);
+        status = get_user_input( "Enter under colour name or 3 or 4 colour components: ", "s", &line );
 
         if( status == VIO_OK )
         {
-            col = convert_string_to_colour( line );
-
-            set_colour_coding_under_colour( &slice_window->slice.
-                 volumes[get_current_volume_index(slice_window)].colour_coding,
-                 col );
-
-            colour_coding_has_changed( slice_window,
-                      get_current_volume_index(slice_window), UPDATE_SLICE );
-
+            status = string_to_colour( line, &col );
+            if ( status == VIO_OK )
+            {
+                int volume_index = get_current_volume_index( slice_window );
+                colour_coding_struct *ccs = get_colour_coding( slice_window,
+                                                               volume_index );
+                set_colour_coding_under_colour( ccs, col );
+                colour_coding_has_changed( slice_window, volume_index,
+                                           UPDATE_SLICE );
+            }
+            else
+            {
+                print( "Colour '%s' not recognized.\n",  line );
+            }
             delete_string( line );
         }
     }
@@ -265,9 +266,9 @@ DEF_MENU_FUNCTION(set_under_colour )
 
 DEF_MENU_UPDATE(set_under_colour )
 {
-    VIO_BOOL          active;
+    VIO_BOOL         active;
     display_struct   *slice_window;
-    VIO_Colour           col;
+    VIO_Colour       col;
 
     active = get_slice_window( display, &slice_window ) &&
              get_n_volumes(slice_window) > 0;
@@ -275,11 +276,13 @@ DEF_MENU_UPDATE(set_under_colour )
     if( !active )
         col = WHITE;
     else
-        col = get_colour_coding_under_colour( &slice_window->slice.
-               volumes[get_current_volume_index(slice_window)].colour_coding );
-
+    {
+        int volume_index = get_current_volume_index( slice_window );
+        colour_coding_struct *ccs = get_colour_coding( slice_window,
+                                                       volume_index );
+        col = get_colour_coding_under_colour( ccs );
+    }
     set_menu_text_with_colour( menu_window, menu_entry, col );
-
     return( active );
 }
 
@@ -301,15 +304,20 @@ DEF_MENU_FUNCTION(set_over_colour )
 
         if( status == VIO_OK )
         {
-            col = convert_string_to_colour( line );
-
-            set_colour_coding_over_colour( &slice_window->slice.
-                volumes[get_current_volume_index(slice_window)].colour_coding,
-                col );
-
-            colour_coding_has_changed( slice_window,
-                      get_current_volume_index(slice_window), UPDATE_SLICE );
-
+            status = string_to_colour( line, &col );
+            if ( status == VIO_OK )
+            {
+                int volume_index = get_current_volume_index( slice_window );
+                colour_coding_struct *ccs = get_colour_coding( slice_window,
+                                                               volume_index );
+                set_colour_coding_over_colour( ccs, col );
+                colour_coding_has_changed( slice_window, volume_index,
+                                           UPDATE_SLICE );
+            }
+            else
+            {
+                print( "Colour '%s' not recognized.\n",  line );
+            }
             delete_string( line );
         }
     }
@@ -321,9 +329,9 @@ DEF_MENU_FUNCTION(set_over_colour )
 
 DEF_MENU_UPDATE(set_over_colour )
 {
-    VIO_BOOL          active;
+    VIO_BOOL         active;
     display_struct   *slice_window;
-    VIO_Colour           col;
+    VIO_Colour       col;
 
     active = get_slice_window( display, &slice_window ) &&
              get_n_volumes(slice_window) > 0;
@@ -331,12 +339,13 @@ DEF_MENU_UPDATE(set_over_colour )
     if( !active )
         col = WHITE;
     else
-        col = get_colour_coding_over_colour(
-               &slice_window->slice.
-               volumes[get_current_volume_index(slice_window)].colour_coding );
-
+    {
+        int volume_index = get_current_volume_index( slice_window );
+        colour_coding_struct *ccs = get_colour_coding( slice_window,
+                                                       volume_index );
+        col = get_colour_coding_over_colour( ccs );
+    }
     set_menu_text_with_colour( menu_window, menu_entry, col );
-
     return( active );
 }
 
@@ -544,10 +553,10 @@ DEF_MENU_FUNCTION(set_filter_half_width )
 
         volume_index = get_current_volume_index( slice_window );
 
-        sprintf( prompt, 
-                 "Current filter full width half max: %g\nEnter new value: ",
-                slice_window->slice.volumes[volume_index].views[view_index]
-                                                  .filter_width );
+        snprintf( prompt, sizeof( prompt ),
+                  "Current filter full width half max: %g\nEnter new value: ",
+                  slice_window->slice.volumes[volume_index].views[view_index]
+                  .filter_width );
 
         if( get_user_input( prompt, "r", &filter_width ) == VIO_OK &&
             filter_width >= 0.0 )
@@ -622,7 +631,7 @@ DEF_MENU_FUNCTION(toggle_share_labels )
 
     if( get_slice_window( display, &slice_window ) )
     {
-        slice_window->slice.share_labels_flag = 
+        slice_window->slice.share_labels_flag =
                              !slice_window->slice.share_labels_flag;
     }
 
@@ -720,19 +729,19 @@ DEF_MENU_FUNCTION(load_user_defined_colour_scale )
         if (get_user_file("Enter name of piecewise colour coding file to load: ",
                           FALSE, NULL, &filename) == VIO_OK)
         {
+            int volume_index = get_current_volume_index( slice_window );
             if( load_user_defined_colour_coding( slice_window, filename ) == VIO_OK)
             {
-                set_colour_coding_type( &slice_window->slice.volumes[
-                        get_current_volume_index(slice_window)].colour_coding,
-                        USER_DEFINED_COLOUR_MAP );
+                set_colour_coding_type( get_colour_coding( slice_window,
+                                                           volume_index ),
+                                        USER_DEFINED_COLOUR_MAP );
             }
 
-            colour_coding_has_changed( slice_window,
-                                       get_current_volume_index(slice_window),
+            colour_coding_has_changed( slice_window, volume_index,
                                        UPDATE_SLICE );
 
-            set_slice_window_all_update( slice_window,
-                       get_current_volume_index(slice_window), UPDATE_SLICE );
+            set_slice_window_all_update( slice_window, volume_index,
+                                         UPDATE_SLICE );
 
             delete_string( filename );
         }
@@ -746,4 +755,54 @@ DEF_MENU_FUNCTION(load_user_defined_colour_scale )
 DEF_MENU_UPDATE(load_user_defined_colour_scale )
 {
     return( get_n_volumes(display) > 0 );
+}
+
+/**
+ * Prompts the user for a  label value and toggles the visibility of
+ * that label.
+ */
+DEF_MENU_FUNCTION( toggle_label_visibility )
+{
+  int            label;
+  display_struct *slice_window;
+  int            volume_index;
+
+  if( get_slice_window( display, &slice_window ) &&
+      ( volume_index = get_current_volume_index( slice_window ) ) >= 0 &&
+      get_user_input( "Enter a label value: ", "d", &label ) == VIO_OK)
+  {
+    VIO_BOOL fvis = is_label_visible( slice_window, volume_index, label );
+    set_label_visible( slice_window, volume_index, label, !fvis );
+    colour_coding_has_changed( slice_window, volume_index, UPDATE_LABELS );
+  }
+  return VIO_OK;
+}
+
+DEF_MENU_UPDATE( toggle_label_visibility )
+{
+    return( get_n_volumes( display ) > 0 );
+}
+
+/**
+ * Toggles the visibility of the current painting label.
+ */
+DEF_MENU_FUNCTION( toggle_current_label_visibility )
+{
+  display_struct *slice_window;
+  int            volume_index;
+
+  if( get_slice_window( display, &slice_window ) &&
+      ( volume_index = get_current_volume_index( slice_window ) ) >= 0 )
+  {
+    int label = slice_window->slice.current_paint_label;
+    VIO_BOOL fvis = is_label_visible( slice_window, volume_index, label );
+    set_label_visible( slice_window, volume_index, label, !fvis );
+    colour_coding_has_changed( slice_window, volume_index, UPDATE_LABELS );
+  }
+  return VIO_OK;
+}
+
+DEF_MENU_UPDATE( toggle_current_label_visibility )
+{
+    return( get_n_volumes( display ) > 0 );
 }

@@ -148,7 +148,7 @@ effect after \display{} has been initialized.
 {Sets the smallest position of the front plane used in 3D rendering.}{}
 
 \globalentry{Convert\_volumes\_to\_byte}
-{Boolean}{True}
+{Boolean}{False}
 {If true, volumes are converted to byte as they are loaded, which reduces the possible number of intensities to 256. Set this to false if you need to visualize a file with a higher precision.}{}
 
 \globalentry{Colour\_below}
@@ -269,6 +269,15 @@ fractions of the actual range.}{}
 histogram. In other words, by default we don't consider histogram bins
 0-3 to contribute to the percentiles used to calculate the range.}{}
 
+\globalentry{Initial\_label\_colour\_table} {Integer}{0}
+{This variable controls the normal or default colours used for labels
+in \display{}. A value of zero (the default) selects the 'classic'
+colour table used in \display{} for many years. However, this table
+has known deficiencies, including many repeated colours. A value of
+1 selects a standard colour table that is used in other tools at
+the MNI. A value of 2 selects an experimental colour table that
+attempts to maximize the visual distance between colours.}{}
+
 \globalentry{Initial\_perspective\_flag}
 {Boolean}{False}
 {Sets the initial value of the projection approach used in 3D rendering. A value of false selects parallel projection, whereas true selects perspective projection.}
@@ -329,6 +338,24 @@ histogram. In other words, by default we don't consider histogram bins
  objects will be saved in ASCII (0) or binary (1) format. In general,
  ASCII format is more likely to be portable among different machine
  architectures.}{}
+
+\globalentry{Scalebar\_colour}{Colour}{CYAN}{
+The colour to use for the scalebar.
+}{}
+
+\globalentry{Scalebar\_enabled}{Boolean}{False}{
+If TRUE, scalebar display on the slice view is enabled.
+}{}
+
+\globalentry{Scalebar\_height}{Integer}{8}{
+Height of the scalebar in pixels.
+}{}
+
+\globalentry{Scalebar\_quadrant}{Integer}{1}{
+Set the quadrant of the scalebar, one of the following:
+1: upper right, 2: upper left, 3: lower left, 4: lower right
+}{}
+
 
 \globalentry{Secondary\_x\_brush\_radius}{Real}{3.0}{Defines the width
  of the secondary brush in world units.}{}
@@ -414,6 +441,26 @@ coordinate and value information displayed in the lower-left corner of the slice
 {Boolean}{True}
 {Determines whether or not the ``undo'' option is {\em ever} enabled when painting the slice window. The undo function requires memory and processing time that may be impractical with very high resolution images. This option silently disabled the undo feature without giving the user the opportunity to turn in back on in the menu.}{}
 
+\globalentry{Update\_3d\_view\_on\_load}
+{Boolean}{True}
+{
+If TRUE, the 3D view zoom level and position be updated when a new
+graphics file is loaded. The advantage of enabling this option is that
+the 3D view will always expand to show loaded objects outside the
+current viewport. The disadvantage is that it will reset your current
+zoom and rotation.
+}{}
+            
+\globalentry{Update\_3d\_view\_on\_new}
+{Boolean}{True}
+{
+If TRUE, the 3D view zoom level and position be updated when a new
+graphics object is created. The advantage of enabling this option is that
+the 3D view will always expand to show created objects outside the
+current viewport. The disadvantage is that it will reset your current
+zoom and rotation.
+}{}
+            
 \globalentry{Use\_cursor\_origin}
 {Boolean}{True}
 {If true, certain operations, such as rotation of the 3D image, are centered on the current cursor origin. If false, the rotations are centered on the middle of the window.}{}

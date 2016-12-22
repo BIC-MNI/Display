@@ -65,6 +65,7 @@ typedef  enum  {
   CURSOR_INDEX1,                /**< Part of the slice cursor. */
   CURSOR_INDEX2,                /**< Part of the slice cursor. */
   RULERS,                       /**< The axis ruler models. */
+  SCALEBAR,                     /**< The scalebar model. */
   TEXT_INDEX,                   /**< The text axis position label. */
   FOV_INDEX,                    /**< The field-of-view text. */
 } Slice_model_indices;
@@ -419,6 +420,8 @@ typedef struct loaded_volume
     /**
      * Array used to map label values to colour values. Because label
      * values are integers, this table is a straightforward map.
+     * It holds the _current_ colours used to draw the labels, so for
+     * temporarily disabled labels, it might be cleared.
      */
     VIO_Colour             *label_colour_table;
 
@@ -448,16 +451,16 @@ typedef struct loaded_volume
     volume_undo_struct     undo;
 
     /**
-     * Label stack used by this volume. This is only used if
-     * Tags_from_label is true.
-     */
-    struct stack_list      **label_stack;
-
-    /**
      * Count of of labels of each value. This is only used if
      * Tags_from_label is true.
      */
-    unsigned int           *label_count;
+    int           *label_count;
+
+    /**
+     * Markers associated with each label. This is only used if
+     * Tags_from_label is true.
+     */
+    object_struct **label_tags;
 
     /**
      * View-specific parameters for this volume.

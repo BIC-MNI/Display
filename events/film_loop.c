@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file events/film_loop.c
+ * \brief Create a 'film loop' of frames of a rotating object.
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +13,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+ */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -181,7 +179,7 @@ static  VIO_STR  create_frame_filename(
 {
     char     buffer[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    (void) sprintf( buffer, "%s_%d.rgb", base_filename, step );
+    snprintf( buffer, sizeof(buffer), "%s_%d.rgb", base_filename, step );
 
     return( create_string( buffer ) );
 }

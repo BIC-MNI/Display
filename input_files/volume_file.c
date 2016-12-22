@@ -20,15 +20,16 @@
 
 #include  <display.h>
 
-/** We limit ourselves to 4-dimensional volumes at the moment. RGB volumes
+/** We limit ourselves to 5-dimensional volumes, but don't really handle
+ * the vector_dimemsion in a useful way. RGB volumes
  * (containing a vector_dimension of length three) are a special case.
  */
-#define MAX_VOLUME_DIMENSIONS 4
+#define MAX_VOLUME_DIMENSIONS 5
 
 /** This is the order of the dimensions we want for all loaded volumes.
  */
 char *XYZT_dimension_names[MAX_VOLUME_DIMENSIONS] = { 
-  MIxspace, MIyspace, MIzspace, MItime
+  MIxspace, MIyspace, MIzspace, MItime, MIvector_dimension
 };
 
 /**

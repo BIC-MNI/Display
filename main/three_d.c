@@ -137,21 +137,53 @@ void  initialize_three_d_window(
 }
 
 /**
- * Unhide the 3D and "marker" window if there are objects loaded. This
- * overrides any global settings.
+ * \brief Show the 3D and "marker" window if any objects are loaded or created. 
+ *
+ * This overrides any global settings.
+ *
+ * We want to automatically force the window to be visible if either
+ * of two conditions are met:
+ *
+ *  1. A new 3D object has been loaded.
+ *  2. A surface has been created.
+ *
+ * The first check is easy, in that the root model will definitely
+ * contain at least two objects if a file has been loaded.
+ *
+ * The second check is harder and requires that we inspect the special
+ * polygons object in the first position of the model, and see if it
+ * contains any points or items.
  *
  * \param graphics A pointer to the display_struct of the 3D View window.
  * \param markers A pointer to the display_struct of the object list window.
  */
 void
-show_three_d_window(display_struct *graphics,
-                    display_struct *markers)
+show_three_d_window( display_struct *graphics,
+                     display_struct *markers )
 {
     model_struct *model_ptr = get_graphics_model( graphics, THREED_MODEL );
-    if ( model_ptr->n_objects > 1 )
+
+    if ( model_ptr->n_objects >= 1 ) /* At least one object? */
     {
-        G_set_visibility(graphics->window, TRUE);
-        G_set_visibility(markers->window, TRUE);
+      if ( model_ptr->n_objects == 1 )
+      {
+        object_struct *object_ptr = model_ptr->objects[0];
+        polygons_struct *poly_ptr;
+        if ( object_ptr->object_type != POLYGONS )
+        {
+          return;         /* Sanity check, should never reach this. */
+        }
+
+        /* See if a surface has been created.
+         */
+        poly_ptr = get_polygons_ptr( object_ptr );
+        if ( poly_ptr->n_points == 0 && poly_ptr->n_items == 0 )
+        {
+          return;
+        }
+      }
+      G_set_visibility( graphics->window, TRUE );
+      G_set_visibility( markers->window, TRUE );
     }
 }
 
@@ -333,28 +365,89 @@ static  DEF_EVENT_FUNCTION( handle_resize_three_d )
 void  delete_three_d(
     display_struct  *display )
 {
+    int i;
     delete_string( display->three_d.default_marker_label );
     delete_surface_extraction( display );
+
+    for_less(i, 0, display->three_d.vertex_data_count )
+    {
+      vertex_data_struct *vtxd_ptr = display->three_d.vertex_data_array[i];
+      delete_vertex_data( vtxd_ptr );
+    }
+    FREE( display->three_d.vertex_data_array);
 }
 
 /**
- * Add the given object to the currently selected model.
+ * Add the given object to the main 3D model.
+ * Makes the new object the currently selected object, and 
+ * shows the 3D and object windows if necessary.
  *
  * \param display The display_struct of the 3D view window.
  * \param object The graphical object to add to the current model.
+ * \param f_update_view Force update of view.
  */
-void  add_object_to_current_model(
+void  add_object_to_main_model(
     display_struct   *display,
-    object_struct     *object )
+    object_struct    *object,
+    VIO_BOOL         f_update_view ) 
 {
-    model_struct   *model;
-
-    model = get_current_model( display );
-
+    model_struct   *model = get_graphics_model( display, THREED_MODEL );
+      
     add_object_to_model( model, object );
 
     set_current_object( display, object );
 
+    if ( model->n_objects == 2 )
+    {
+        show_three_d_window( display, get_display_by_type( MARKER_WINDOW ) );
+    }
+    if ( f_update_view )
+    {
+        initialize_view_to_fit( display );
+        reset_view_parameters( display, &Default_line_of_sight,
+                               &Default_horizontal );
+        update_view( display );
+    }
+        
+    graphics_models_have_changed( display );
+}
+
+/**
+ * Add the given object to the currently selected model.
+ * Makes the new object the currently selected object, and 
+ * shows the 3D and object windows if necessary.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param object The graphical object to add to the current model.
+ * \param f_update_view Force update of view.
+ */
+void  add_object_to_current_model(
+    display_struct   *display,
+    object_struct    *object,
+    VIO_BOOL         f_update_view ) 
+{
+    model_struct   *model;
+    VIO_BOOL       is_toplevel;
+
+    model = get_current_model( display );
+    is_toplevel = ( model == get_graphics_model( display, THREED_MODEL ) );
+      
+    add_object_to_model( model, object );
+
+    set_current_object( display, object );
+
+    if ( is_toplevel && model->n_objects == 2 )
+    {
+        show_three_d_window( display, get_display_by_type( MARKER_WINDOW ) );
+    }
+    if ( f_update_view )
+    {
+        initialize_view_to_fit( display );
+        reset_view_parameters( display, &Default_line_of_sight,
+                               &Default_horizontal );
+        update_view( display );
+    }
+        
     graphics_models_have_changed( display );
 }
 
@@ -455,24 +548,29 @@ update_status_line( display_struct *display )
             min_i != display->three_d.mouse_point)
         {
             VIO_Real value;
-            VIO_STR column;
+            VIO_STR  column;
+            int      partial_length;
 
             display->three_d.mouse_point = min_i;
             display->three_d.mouse_obj = object_ptr;
-            sprintf(buffer, "O#%2d V#%6d P#%6d X %6.3f Y %6.3f Z %6.3f D ",
-                    get_object_index(display, object_ptr),
-                    min_i, poly_index,
-                    Point_x(min_pt),
-                    Point_y(min_pt),
-                    Point_z(min_pt));
+            snprintf(buffer, sizeof(buffer),
+                     "O#%2d V#%6d P#%6d X %6.3f Y %6.3f Z %6.3f D ",
+                     get_object_index(display, object_ptr),
+                     min_i, poly_index,
+                     Point_x(min_pt),
+                     Point_y(min_pt),
+                     Point_z(min_pt));
 
+            partial_length = strlen(buffer);
             if (get_vertex_value(display, object_ptr, min_i, &value, &column))
             {
-              sprintf(&buffer[strlen(buffer) - 1], "%8.3g (%s)", value, column);
+                snprintf(&buffer[partial_length - 1],
+                         sizeof(buffer) - partial_length,
+                         "%8.3g (%s)", value, column);
             }
             else
             {
-                strcat(buffer, "--------");
+                strncat(buffer, "--------", sizeof(buffer) - partial_length);
             }
 
             if (strcmp(text_ptr->string, buffer) != 0)
@@ -561,14 +659,17 @@ attach_vertex_data(display_struct *display,
     vtxd_ptr->owner = object;
     vtxd_ptr->column_index = 0;
 
-    initialize_colour_coding( &vtxd_ptr->colour_coding,
-                              Initial_vertex_coding_type,
-                              Initial_vertex_under_colour,
-                              Initial_vertex_over_colour,
-                              0.0, 1.0 );
+    if (vtxd_ptr->colour_coding.user_defined_n_colour_points == 0)
+    {
+        initialize_colour_coding( &vtxd_ptr->colour_coding,
+                                  Initial_vertex_coding_type,
+                                  Initial_vertex_under_colour,
+                                  Initial_vertex_over_colour,
+                                  0.0, 1.0 );
 
-    set_colour_coding_min_max( &vtxd_ptr->colour_coding,
-                               vtxd_ptr->min_v[0], vtxd_ptr->max_v[0] );
+        set_colour_coding_min_max( &vtxd_ptr->colour_coding,
+                                   vtxd_ptr->min_v[0], vtxd_ptr->max_v[0] );
+    }
 
     update_vertex_colour_coding( display, vtxd_ptr );
 }
@@ -980,14 +1081,15 @@ prompt_vertex_coding_colours( display_struct *display,
 {
     VIO_STR line;
     char text[VIO_EXTREMELY_LARGE_STRING_SIZE];
+    VIO_Colour colour;
 
     snprintf(text, VIO_EXTREMELY_LARGE_STRING_SIZE,
              "Enter new %s colour name or 3 or 4 colour components: ",
              is_under ? "under" : "over");
 
-    if( get_user_input( text, "s", &line ) == VIO_OK )
+    if( get_user_input( text, "s", &line ) == VIO_OK &&
+        string_to_colour( line, &colour ) == VIO_OK )
     {
-        VIO_Colour colour = convert_string_to_colour( line );
         if (is_under)
         {
             set_colour_coding_under_colour( &vtxd_ptr->colour_coding, colour );

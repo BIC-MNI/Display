@@ -472,7 +472,7 @@ create_scaled_slice( display_struct *display, VIO_BOOL scale_slice_flag )
     VIO_Volume       volume;
 
     if( !get_slice_window( display, &slice_window ) ||
-        !get_n_volumes(slice_window) > 0 ||
+        !(get_n_volumes(slice_window) > 0) ||
         !get_slice_view_index_under_mouse( slice_window, &view_index ))
     {
         return;                 /* give up! */
@@ -526,7 +526,7 @@ create_scaled_slice( display_struct *display, VIO_BOOL scale_slice_flag )
             colour_code_an_object( display, object, FALSE );
         }
 
-        add_object_to_current_model( display, object );
+        add_object_to_current_model( display, object, Update_3d_view_on_new );
     }
     else
     {
@@ -541,11 +541,8 @@ create_scaled_slice( display_struct *display, VIO_BOOL scale_slice_flag )
         get_cursor_origin( display, &point );
         create_slice_3d( volume, &point, &normal, get_polygons_ptr( object ) );
 
-        add_object_to_current_model( display, object );
+        add_object_to_current_model( display, object, Update_3d_view_on_new );
     }
-
-    show_three_d_window( get_three_d_window( display ),
-                         get_display_by_type( MARKER_WINDOW ) );
 }
 
 /**
@@ -601,7 +598,7 @@ DEF_MENU_FUNCTION(resample_slice_window_volume)
     int              new_nx, new_ny, new_nz;
     char             label[VIO_EXTREMELY_LARGE_STRING_SIZE];
     display_struct   *slice_window;
-    VIO_Volume           volume, resampled_volume;
+    VIO_Volume       volume, resampled_volume;
 
     if( get_slice_window_volume( display, &volume ) &&
         get_slice_window( display, &slice_window ) )
@@ -610,19 +607,21 @@ DEF_MENU_FUNCTION(resample_slice_window_volume)
 
         get_volume_sizes( volume, sizes );
 
-        sprintf(prompt, "The original volume is %d by %d by %d.\n"
-                "Enter desired resampled size: ",
-                sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
+        snprintf( prompt, sizeof( prompt ),
+                  "The original volume is %d by %d by %d.\n"
+                  "Enter desired resampled size: ",
+                  sizes[VIO_X], sizes[VIO_Y], sizes[VIO_Z] );
         if (get_user_input( prompt, "ddd", &new_nx, &new_ny, &new_nz) == VIO_OK &&
             (new_nx > 0 || new_ny > 0 || new_nz > 0) )
         {
             resampled_volume = smooth_resample_volume(
                                         volume, new_nx, new_ny, new_nz );
 
-            (void) sprintf( label, "Subsampled to %d,%d,%d: %s",
-                            new_nx, new_ny, new_nz,
-                            get_volume_filename(slice_window,
-                                   get_current_volume_index(slice_window) ) );
+            snprintf( label, sizeof( label ),
+                      "Subsampled to %d,%d,%d: %s",
+                      new_nx, new_ny, new_nz,
+                      get_volume_filename(slice_window,
+                                          get_current_volume_index(slice_window) ) );
 
             add_slice_window_volume( slice_window, "", label, resampled_volume );
         }
@@ -663,10 +662,10 @@ DEF_MENU_FUNCTION(box_filter_slice_window_volume)
             (ch == 'w' ||
              x_width > 1.0 || y_width > 1.0 || z_width > 1.0) )
         {
-            (void) sprintf( label, "Box Filtered at %g,%g,%g,%c: %s",
-                            x_width, y_width, z_width, ch,
-                            get_volume_filename(slice_window,
-                                   get_current_volume_index(slice_window) ) );
+            snprintf( label, sizeof( label ),
+                      "Box Filtered at %g, %g, %g, %c: %s",
+                      x_width, y_width, z_width, ch,
+                      get_volume_filename(slice_window, get_current_volume_index(slice_window) ) );
 
             if( ch == 'w' )
             {
@@ -1131,9 +1130,9 @@ DEF_MENU_FUNCTION(type_in_slice_plane)
         get_slice_view_index_under_mouse( slice_window, &view_index ) )
     {
         char prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
-        sprintf(prompt,
-                "View %d: enter x y z plane normal in world coordinate\n"
-                "and v or w for voxel or world: ", view_index );
+        snprintf( prompt, sizeof( prompt ),
+                  "View %d: enter x y z plane normal in world coordinate\n"
+                  "and v or w for voxel or world: ", view_index );
         if (get_user_input(prompt, "rrrc", &xw, &yw, &zw, &type) == VIO_OK)
         {
             if( type == 'w' )
@@ -1790,10 +1789,10 @@ DEF_MENU_FUNCTION(insert_volume_as_labels)
         --src_index;
 
         rnd = get_random_int( 1000000000 );
-        (void) sprintf( filename, "/tmp/tmp_labels_%d.mnc", rnd );
+        snprintf( filename, sizeof( filename ), "/tmp/tmp_labels_%d.mnc", rnd );
 
         if( output_volume( filename, NC_UNSPECIFIED, FALSE, 0.0, 0.0,
-                           get_nth_volume(slice_window,src_index),
+                           get_nth_volume( slice_window, src_index ),
                            "Label volume\n", NULL ) != VIO_OK )
             return( VIO_ERROR );
 
@@ -1914,4 +1913,19 @@ DEF_MENU_UPDATE( make_all_volumes_visible )
 
   return ( get_slice_window( display, &slice_window ) &&
            get_n_volumes(slice_window) > 0 );
+}
+
+DEF_MENU_FUNCTION(move_to_top)
+{
+  int volume_index = get_current_volume_index( display );
+  move_slice_window_volume( display, volume_index );
+  return VIO_OK;
+}
+
+DEF_MENU_UPDATE(move_to_top)
+{
+  display_struct *slice_window;
+
+  return ( get_slice_window( display, &slice_window ) &&
+           get_n_volumes(slice_window) > 1 );
 }

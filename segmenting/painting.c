@@ -33,7 +33,7 @@ static  void   update_brush(
     display_struct    *slice_window,
     int               x,
     int               y,
-    VIO_BOOL           erase_brush );
+    VIO_BOOL          erase_brush );
 
 static  int  sweep_paint_labels(
     display_struct    *slice_window,
@@ -132,37 +132,51 @@ get_current_erase_label(display_struct *display)
 void  initialize_voxel_labeling(
     display_struct    *slice_window )
 {
-    add_action_table_function( &slice_window->action_table,
-                               RIGHT_MOUSE_DOWN_EVENT,
-                               right_mouse_down );
-    slice_window->slice.brush_outline = create_object( LINES );
-    initialize_lines( get_lines_ptr(slice_window->slice.brush_outline),
-                      Brush_outline_colour );
+  segmenting_struct *segmenting_ptr;
+  int               i;
+    
+  add_action_table_function( &slice_window->action_table,
+                             RIGHT_MOUSE_DOWN_EVENT,
+                             right_mouse_down );
+  slice_window->slice.brush_outline = create_object( LINES );
+  initialize_lines( get_lines_ptr( slice_window->slice.brush_outline ),
+                    Brush_outline_colour );
 
-    slice_window->slice.segmenting.n_starts_alloced = 0;
-    slice_window->slice.segmenting.mouse_scale_factor =
-                                               Initial_mouse_scale_factor;
-    slice_window->slice.painting_view_index = -1;
-    slice_window->slice.painting_volume_index = -1;
-    slice_window->slice.segmenting.fast_updating_allowed =
-                           Default_fast_painting_flag;
-    slice_window->slice.segmenting.cursor_follows_paintbrush =
-                           Default_cursor_follows_paintbrush_flag;
+  segmenting_ptr = &slice_window->slice.segmenting;
 
-    slice_window->slice.segmenting.brush_index = 0;
-    slice_window->slice.segmenting.brush[0].radius[VIO_X] =
-      Default_x_brush_radius;
-    slice_window->slice.segmenting.brush[0].radius[VIO_Y] =
-      Default_y_brush_radius;
-    slice_window->slice.segmenting.brush[0].radius[VIO_Z] =
-      Default_z_brush_radius;
+  segmenting_ptr->min_threshold = Default_min_threshold;
+  segmenting_ptr->max_threshold = Default_max_threshold;
+  segmenting_ptr->connectivity = Segmenting_connectivity;
 
-    slice_window->slice.segmenting.brush[1].radius[VIO_X] =
-      Secondary_x_brush_radius;
-    slice_window->slice.segmenting.brush[1].radius[VIO_Y] =
-      Secondary_y_brush_radius;
-    slice_window->slice.segmenting.brush[1].radius[VIO_Z] =
-      Secondary_z_brush_radius;
+  segmenting_ptr->n_starts_alloced = 0;
+  segmenting_ptr->y_starts = NULL;
+
+  segmenting_ptr->x_mouse_start = -1;
+  segmenting_ptr->y_mouse_start = -1;
+  
+  segmenting_ptr->mouse_scale_factor = Initial_mouse_scale_factor;
+  slice_window->slice.painting_view_index = -1;
+  slice_window->slice.painting_volume_index = -1;
+  segmenting_ptr->fast_updating_allowed = Default_fast_painting_flag;
+  segmenting_ptr->cursor_follows_paintbrush =
+    Default_cursor_follows_paintbrush_flag;
+
+  segmenting_ptr->brush_index = 0;
+  for_less( i, 0, N_BRUSHES )
+  {
+    if ( i == 0 )
+    {
+      segmenting_ptr->brush[i].radius[VIO_X] = Default_x_brush_radius;
+      segmenting_ptr->brush[i].radius[VIO_Y] = Default_y_brush_radius;
+      segmenting_ptr->brush[i].radius[VIO_Z] = Default_z_brush_radius;
+    }
+    else
+    {
+      segmenting_ptr->brush[i].radius[VIO_X] = Secondary_x_brush_radius;
+      segmenting_ptr->brush[i].radius[VIO_Y] = Secondary_y_brush_radius;
+      segmenting_ptr->brush[i].radius[VIO_Z] = Secondary_z_brush_radius;
+    }
+  }
 }
 
 /**
@@ -333,6 +347,7 @@ static  DEF_EVENT_FUNCTION( right_mouse_down )
 
     volume_index = get_current_volume_index( slice_window );
 
+    make_current_label_visible( slice_window, volume_index );
     /*
      * START OF MANDLIZATION:
      * If not in Toggle_freestyle_painting mode draw a straight line.
@@ -921,8 +936,8 @@ static  void  paint_labels(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
-    VIO_Real             start_voxel[],
-    VIO_Real             end_voxel[],
+    VIO_Real         start_voxel[],
+    VIO_Real         end_voxel[],
     int              label )
 {
     VIO_Volume     volume, label_volume;
@@ -1224,11 +1239,11 @@ erase_brush(display_struct *slice_window)
 
   if (get_lines_limits( lines, &x_min, &x_max, &y_min, &y_max ) &&
       slice_window->slice.painting_view_index >= 0 )
-    {
+  {
       set_slice_composite_update( slice_window,
                                   slice_window->slice.painting_view_index,
                                   x_min, x_max, y_min, y_max );
-    }
+  }
 }
 
 /**
@@ -1283,130 +1298,190 @@ static  void   update_brush(
     }
 }
 
-  void  flip_labels_around_zero(
-    display_struct  *slice_window )
+/**
+ * Mirrors labels across the central X plane, so that left becomes right
+ * and vice versa.
+ *
+ * \param slice_window A pointer to the slice window.
+ */
+void
+flip_labels_around_zero( display_struct  *slice_window )
 {
-    int             label_x, label_x_opp;
-    int             int_voxel[VIO_MAX_DIMENSIONS], sizes[VIO_MAX_DIMENSIONS];
-    int             int_voxel_opp[VIO_MAX_DIMENSIONS];
-    VIO_Real            voxel[VIO_MAX_DIMENSIONS], flip_voxel;
-    VIO_Volume          label_volume;
+  int                 sizes[VIO_MAX_DIMENSIONS];
+  int                 y, z;
+  int                 x1, x2;
+  VIO_Real            voxel[VIO_MAX_DIMENSIONS];
+  VIO_Real            flip_voxel;
+  VIO_Volume          label_volume;
+  int                 volume_index;
+  VIO_progress_struct progress;
 
-    label_volume = get_label_volume( slice_window );
+  label_volume = get_label_volume( slice_window );
+  
+  /* Make sure the labels are allocated before trying this operation.
+   */
+  if ( !volume_is_alloced( label_volume ) )
+  {
+    return;
+  }
 
-    convert_world_to_voxel( label_volume, 0.0, 0.0, 0.0, voxel );
+  volume_index = get_current_volume_index( slice_window );
 
-    flip_voxel = voxel[VIO_X];
+  convert_world_to_voxel( label_volume, 0.0, 0.0, 0.0, voxel );
 
-    get_volume_sizes( label_volume, sizes );
+  flip_voxel = voxel[VIO_X];
 
-    for_less( int_voxel[VIO_X], 0, sizes[VIO_X] )
-    {
-        int_voxel_opp[VIO_X] = VIO_ROUND( flip_voxel +
-                                  (flip_voxel - (VIO_Real) int_voxel[VIO_X]) );
-        if( int_voxel_opp[VIO_X] <= int_voxel[VIO_X] ||
-            int_voxel_opp[VIO_X] < 0 || int_voxel_opp[VIO_X] >= sizes[VIO_X] )
-            continue;
+  get_volume_sizes( label_volume, sizes );
 
-        for_less( int_voxel[VIO_Y], 0, sizes[VIO_Y] )
-        {
-            int_voxel_opp[VIO_Y] = int_voxel[VIO_Y];
-            for_less( int_voxel[VIO_Z], 0, sizes[VIO_Z] )
-            {
-                int_voxel_opp[VIO_Z] = int_voxel[VIO_Z];
+  initialize_progress_report( &progress, FALSE, sizes[VIO_X] * sizes[VIO_Y],
+                              "Flipping Labels" );
 
-                label_x = get_voxel_label( slice_window,
-                                 get_current_volume_index(slice_window),
-                                 int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z] );
-                label_x_opp = get_voxel_label( slice_window,
-                        get_current_volume_index(slice_window),
-                        int_voxel_opp[VIO_X], int_voxel_opp[VIO_Y], int_voxel_opp[VIO_Z] );
-
-                set_voxel_label( slice_window,
-                                 get_current_volume_index(slice_window),
-                                 int_voxel_opp[VIO_X], int_voxel_opp[VIO_Y],
-                                 int_voxel_opp[VIO_Z], label_x );
-                set_voxel_label( slice_window,
-                                 get_current_volume_index(slice_window),
-                                 int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z],
-                                 label_x_opp );
-            }
-        }
+  for_less( x1, 0, sizes[VIO_X] )
+  {
+    x2 = VIO_ROUND( flip_voxel + (flip_voxel - (VIO_Real) x1) );
+    if( x2 <= x1 || x2 < 0 || x2 >= sizes[VIO_X] ) {
+      /* In practice, this condition will be true for about half of 
+       * the volume.
+       */
+      continue;
     }
+
+    for_less( y, 0, sizes[VIO_Y] )
+    {
+      for_less( z, 0, sizes[VIO_Z] )
+      {
+        int l1 = get_volume_voxel_value( label_volume, x1, y, z, 0, 0 );
+        int l2 = get_volume_voxel_value( label_volume, x2, y, z, 0, 0 );
+        /* As a small optimization, don't bother to flip if the voxels
+         * already have the same value.
+         */
+        if ( l1 != l2 )
+        {
+          set_voxel_label( slice_window, volume_index, x1, y, z, l2 );
+          set_voxel_label( slice_window, volume_index, x2, y, z, l1 );
+        }
+      }
+    }
+    update_progress_report( &progress, x1 * sizes[VIO_Y] + y + 1 );
+  }
+  terminate_progress_report( &progress );
 }
 
-  void  translate_labels(
-    display_struct   *slice_window,
-    int              volume_index,
-    int              delta[] )
+/**
+ * \brief Translate labels along one or more voxel axes.
+ *
+ * Translates exactly zero or one voxel unit, in either direction, on any of
+ * the three spatial axes.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param volume_index The index of the volume whose labels to translate.
+ * \param An array of three "deltas" that define the sign of the translation 
+ * along the three spatial axes.
+ */
+void
+translate_labels(
+  display_struct *slice_window,
+  int            volume_index,
+  int            delta[VIO_N_DIMENSIONS] )
 {
-    int               c, label;
-    int               src_voxel[VIO_MAX_DIMENSIONS], dest_voxel[VIO_MAX_DIMENSIONS];
-    int               sizes[VIO_MAX_DIMENSIONS];
-    int               first[VIO_MAX_DIMENSIONS], last[VIO_MAX_DIMENSIONS];
-    int               increment[VIO_MAX_DIMENSIONS];
-    VIO_progress_struct   progress;
-    VIO_Volume            label_volume;
+  int                 c, label;
+  int                 src_voxel[VIO_N_DIMENSIONS]; /* source location */
+  int                 dst_voxel[VIO_N_DIMENSIONS]; /* destination location */
+  int                 sizes[VIO_MAX_DIMENSIONS];
+  int                 first[VIO_N_DIMENSIONS]; /* start position */
+  int                 last[VIO_N_DIMENSIONS];  /* end position */
+  int                 increment[VIO_N_DIMENSIONS]; /* increment */
+  VIO_progress_struct progress;
+  VIO_Volume          label_volume;
 
-    label_volume = get_nth_label_volume( slice_window, volume_index );
+  label_volume = get_nth_label_volume( slice_window, volume_index );
 
-    get_volume_sizes( label_volume, sizes );
+  /* Make sure the labels are allocated before trying this operation.
+   */
+  if ( !volume_is_alloced( label_volume ) )
+  {
+    return;
+  }
 
-    for_less( c, 0, VIO_N_DIMENSIONS )
+  get_volume_sizes( label_volume, sizes );
+
+  /* Set up the loop limits and directions. We count down for a positive
+   * delta and count up for a negative delta. This allows us to copy the
+   * data in place.
+   */
+  for_less( c, 0, VIO_N_DIMENSIONS )
+  {
+    if( delta[c] > 0 )
     {
-        if( delta[c] > 0 )
+      first[c] = sizes[c]-1;
+      last[c] = -1;
+      increment[c] = -1;
+    }
+    else
+    {
+      first[c] = 0;
+      last[c] = sizes[c];
+      increment[c] = 1;
+    }
+  }
+
+  initialize_progress_report( &progress, FALSE, sizes[VIO_X] * sizes[VIO_Y],
+                              "Translating Labels" );
+
+  for( dst_voxel[VIO_X] = first[VIO_X];
+       dst_voxel[VIO_X] != last[VIO_X];
+       dst_voxel[VIO_X] += increment[VIO_X] )
+  {
+    src_voxel[VIO_X] = dst_voxel[VIO_X] - delta[VIO_X];
+
+    for( dst_voxel[VIO_Y] = first[VIO_Y];
+         dst_voxel[VIO_Y] != last[VIO_Y];
+         dst_voxel[VIO_Y] += increment[VIO_Y] )
+    {
+      src_voxel[VIO_Y] = dst_voxel[VIO_Y] - delta[VIO_Y];
+
+      for( dst_voxel[VIO_Z] = first[VIO_Z];
+           dst_voxel[VIO_Z] != last[VIO_Z];
+           dst_voxel[VIO_Z] += increment[VIO_Z] )
+      {
+        src_voxel[VIO_Z] = dst_voxel[VIO_Z] - delta[VIO_Z];
+
+        if (src_voxel[VIO_X] >= 0 && src_voxel[VIO_X] < sizes[VIO_X] &&
+            src_voxel[VIO_Y] >= 0 && src_voxel[VIO_Y] < sizes[VIO_Y] &&
+            src_voxel[VIO_Z] >= 0 && src_voxel[VIO_Z] < sizes[VIO_Z])
         {
-            first[c] = sizes[c]-1;
-            last[c] = -1;
-            increment[c] = -1;
+          label = get_volume_voxel_value( label_volume,
+                                          src_voxel[VIO_X],
+                                          src_voxel[VIO_Y],
+                                          src_voxel[VIO_Z], 0, 0 );
         }
         else
         {
-            first[c] = 0;
-            last[c] = sizes[c];
-            increment[c] = 1;
+          label = 0;
         }
+
+        set_voxel_label( slice_window, volume_index,
+                         dst_voxel[VIO_X], dst_voxel[VIO_Y], dst_voxel[VIO_Z],
+                         label );
+      }
+
+      update_progress_report( &progress, dst_voxel[VIO_X] * sizes[VIO_Y] +
+                              dst_voxel[VIO_Y] + 1 );
     }
+  }
 
-    initialize_progress_report( &progress, FALSE, sizes[VIO_X] * sizes[VIO_Y],
-                                "Translating Labels" );
-
-    for( dest_voxel[VIO_X] = first[VIO_X];  dest_voxel[VIO_X] != last[VIO_X];
-         dest_voxel[VIO_X] += increment[VIO_X] )
-    {
-        src_voxel[VIO_X] = dest_voxel[VIO_X] - delta[VIO_X];
-
-        for( dest_voxel[VIO_Y] = first[VIO_Y];  dest_voxel[VIO_Y] != last[VIO_Y];
-             dest_voxel[VIO_Y] += increment[VIO_Y] )
-        {
-            src_voxel[VIO_Y] = dest_voxel[VIO_Y] - delta[VIO_Y];
-
-            for( dest_voxel[VIO_Z] = first[VIO_Z];  dest_voxel[VIO_Z] != last[VIO_Z];
-                 dest_voxel[VIO_Z] += increment[VIO_Z] )
-            {
-                src_voxel[VIO_Z] = dest_voxel[VIO_Z] - delta[VIO_Z];
-
-                if( int_voxel_is_within_volume( label_volume, src_voxel ) )
-                {
-                    label = get_voxel_label( slice_window, volume_index,
-                                 src_voxel[VIO_X], src_voxel[VIO_Y], src_voxel[VIO_Z] );
-                }
-                else
-                    label = 0;
-
-                set_voxel_label( slice_window, volume_index,
-                                 dest_voxel[VIO_X], dest_voxel[VIO_Y], dest_voxel[VIO_Z],
-                                 label );
-            }
-
-            update_progress_report( &progress, dest_voxel[VIO_X] * sizes[VIO_Y] +
-                                               dest_voxel[VIO_Y] + 1 );
-        }
-    }
-
-    terminate_progress_report( &progress );
+  terminate_progress_report( &progress );
 }
 
+/**
+ * Set a label at a particular voxel position, saving undo information if
+ * requested.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param volume_index The index of the desired volume.
+ * \param voxel The voxel position to set.
+ * \param label The label value for this voxel.
+ */
 void
 set_voxel_label_with_undo(display_struct *slice_window, int volume_index,
                           int voxel[], int label)
@@ -1424,56 +1499,89 @@ set_voxel_label_with_undo(display_struct *slice_window, int volume_index,
                      voxel[VIO_X], voxel[VIO_Y], voxel[VIO_Z], label );
 }
 
+/**
+ * Copy labels from a source slice to a destination slice.
+ */
 void  copy_labels_slice_to_slice(
-    display_struct   *slice_window,
-    int              volume_index,
-    int              axis,
-    int              src_voxel,
-    int              dest_voxel,
-    VIO_Real         min_threshold,
-    VIO_Real         max_threshold )
+  display_struct *slice_window,
+  int            volume_index,
+  int            axis,
+  int            src_voxel,
+  int            dst_voxel,
+  VIO_Real       min_threshold,
+  VIO_Real       max_threshold )
 {
-    int              x, y, a1, a2, value;
-    int              sizes[VIO_N_DIMENSIONS], src_indices[VIO_N_DIMENSIONS];
-    int              dest_indices[VIO_N_DIMENSIONS];
-    VIO_Real         volume_value;
-    VIO_Volume       volume, label_volume;
+  int            x, y, a1, a2, value;
+  int            sizes[VIO_N_DIMENSIONS], src_indices[VIO_N_DIMENSIONS];
+  int            dst_indices[VIO_N_DIMENSIONS];
+  VIO_Real       volume_value;
+  VIO_Volume     volume, label_volume;
 
-    volume = get_nth_volume( slice_window, volume_index );
-    label_volume = get_nth_label_volume( slice_window, volume_index );
+  volume = get_nth_volume( slice_window, volume_index );
+  label_volume = get_nth_label_volume( slice_window, volume_index );
 
-    get_volume_sizes( label_volume, sizes );
-    a1 = (axis + 1) % VIO_N_DIMENSIONS;
-    a2 = (axis + 2) % VIO_N_DIMENSIONS;
+  if ( !volume_is_alloced( label_volume ) )
+  {
+    return;
+  }
 
-    src_indices[axis] = src_voxel;
-    dest_indices[axis] = dest_voxel;
+  get_volume_sizes( label_volume, sizes );
+    
+  /* Use the slice axis index to calculate the row and column axis indices.
+   */
+  a1 = (axis + 1) % VIO_N_DIMENSIONS;
+  a2 = (axis + 2) % VIO_N_DIMENSIONS;
 
-    for_less( x, 0, sizes[a1] )
+  src_indices[axis] = src_voxel;
+  dst_indices[axis] = dst_voxel;
+
+  for_less( x, 0, sizes[a1] )
+  {
+    src_indices[a1] = dst_indices[a1] = x;
+    for_less( y, 0, sizes[a2] )
     {
-        src_indices[a1] = x;
-        dest_indices[a1] = x;
-        for_less( y, 0, sizes[a2] )
+      src_indices[a2] = dst_indices[a2] = y;
+
+      value = get_volume_voxel_value( label_volume,
+                                      src_indices[VIO_X],
+                                      src_indices[VIO_Y],
+                                      src_indices[VIO_Z],
+                                      0, 0 );
+
+      if( min_threshold < max_threshold )
+      {
+        volume_value = get_volume_real_value( volume,
+                                              dst_indices[VIO_X],
+                                              dst_indices[VIO_Y],
+                                              dst_indices[VIO_Z],
+                                              0, 0 );
+        /* If the actual voxel value is outside the range, we CLEAR the
+         * voxel label in the new slice.
+         */
+        if( volume_value < min_threshold || volume_value > max_threshold )
         {
-            src_indices[a2] = y;
-            dest_indices[a2] = y;
-
-            value = get_voxel_label( slice_window, volume_index,
-                                     src_indices[VIO_X], src_indices[VIO_Y],
-                                     src_indices[VIO_Z] );
-
-            if( min_threshold < max_threshold )
-            {
-                volume_value = get_volume_real_value( volume,
-                            dest_indices[VIO_X], dest_indices[VIO_Y], dest_indices[VIO_Z],
-                            0, 0 );
-                if( volume_value < min_threshold ||
-                    volume_value > max_threshold )
-                    value = 0;
-            }
-
-            set_voxel_label_with_undo(slice_window, volume_index,
-                                      dest_indices, value);
+          value = 0;
         }
+      }
+      set_voxel_label_with_undo( slice_window, volume_index, dst_indices,
+                                 value );
     }
+  }
+}
+
+/**
+ * Make the current paint label visible, unconditionally.
+ * \param slice_window A pointer to slice window's display_struct
+ * \param volume_index The index of the selected volume.
+ */
+void
+make_current_label_visible( display_struct *slice_window, int volume_index )
+{
+  /* Make sure the label is visible!! */
+  int label = get_current_paint_label( slice_window );
+  if (!is_label_visible( slice_window, volume_index, label ))
+  {
+    set_label_visible( slice_window, volume_index, label, TRUE );
+    colour_coding_has_changed( slice_window, volume_index, UPDATE_LABELS );
+  }
 }

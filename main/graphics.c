@@ -516,7 +516,7 @@ static  void  display_frame_info(
 
     initialize_text( &frame_text, &origin, WHITE, FIXED_FONT, 0.0 );
 
-    (void) sprintf( buffer, "%d: ", frame_number );
+    snprintf( buffer, sizeof(buffer), "%d: ", frame_number );
 
     frame_time_str = format_time( "%g %s", update_time );
 

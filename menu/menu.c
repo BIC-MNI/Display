@@ -821,7 +821,7 @@ static VIO_BOOL update_menu_help_text(
 
     if (new_value != NULL)
     {
-      strcpy(buffer, new_value);
+      strncpy(buffer, new_value, sizeof( buffer ));
 
       for (i = 0; i < N_HELP_LINES; i++)
       {

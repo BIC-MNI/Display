@@ -381,7 +381,7 @@ static  VIO_STR  get_key_string(
 
     if( lookup_key( key, &desc ) )
     {
-        (void) sprintf( buffer, "%s ", desc->key_name );
+        snprintf( buffer, sizeof(buffer), "%s ", desc->key_name );
         string = create_string( buffer );
     }
     else

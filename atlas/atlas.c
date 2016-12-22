@@ -132,13 +132,15 @@ static  VIO_Volume  convert_pixels_to_volume(
 
     alloc_volume_data( volume );
 
-    for_less( x, 0, pixels->x_size )
-    {
-        for_less( y, 0, pixels->y_size )
-        {
-            int ind = (int) PIXEL_COLOUR_INDEX_8( *pixels, x, y );
+    unsigned char *pixel_ptr = &PIXEL_COLOUR_INDEX_8( *pixels, 0, 0 );
 
-            set_volume_voxel_value( volume, x, y, 0, 0, 0, (VIO_Real) ind );
+    for_less( y, 0, pixels->y_size )
+    {
+        for_less( x, 0, pixels->x_size )
+        {
+            int ind = *pixel_ptr++;
+
+            SET_MULTIDIM_TYPE_3D( volume->array, unsigned char, x, y, 0, ind );
         }
     }
 

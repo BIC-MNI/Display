@@ -90,6 +90,8 @@ static  void  delete_volume_labels(
         slice->volumes[volume_index].labels_filename = NULL;
     }
     FREE( slice->volumes[volume_index].label_colour_table );
+    FREE( slice->volumes[volume_index].label_tags );
+    FREE( slice->volumes[volume_index].label_count );
 }
 
 /**
@@ -120,19 +122,19 @@ void  delete_slice_colour_coding(
     }
 }
 
-static  void  realloc_label_colour_table(
-    display_struct    *slice_window,
-    int               volume_index )
+/**
+ * Label colour table historically used with Display, which repeats itself
+ * after the first 15 or so colours.
+ */
+static void
+classic_colour_table( display_struct *slice_window, int volume_index,
+                      int n_labels )
 {
-    int       n_labels, n_colours, n_around, n_up, u, a;
-    VIO_Colour    col;
-    VIO_Real      r, g, b, hue, sat;
+    int        n_around, n_up, u, a;
+    VIO_Colour col;
+    VIO_Real   r, g, b, hue, sat;
+    int        n_colours = 0;
 
-    n_labels = get_num_labels( slice_window, volume_index );
-    ALLOC( slice_window->slice.volumes[volume_index].label_colour_table,
-           n_labels );
-
-    n_colours = 0;
     set_colour_of_label( slice_window, volume_index, n_colours++,
                          make_rgba_Colour(0,0,0,0) );
     set_colour_of_label( slice_window, volume_index, n_colours++, RED );
@@ -181,6 +183,337 @@ static  void  realloc_label_colour_table(
 
     if( n_labels >= 256 )
         set_colour_of_label( slice_window, volume_index, 255, BLACK );
+}
+
+/**
+ * Label colour table using "standard" colours adapted from other tools
+ * used at the BIC.
+ */
+static void
+standard_colour_table( display_struct *slice_window, int volume_index,
+                       int n_labels )
+{
+  /* Adapted from code provided by Claude Lepage, 2016-07-08.
+   */
+  static  float label_points[][3] = {
+    {1,  1,  1 },
+    {0,  1,  0 },
+    {0,  0,  1 },
+    {1,  0,  0 },
+    {0,  0.96552,  1 },
+    {1,  0.48276,  0.86207 },
+    {1,  0.86207,  0.48276 },
+    {0,  0.55172,  1 },
+    {0,  0.41379,  0.034483 },
+    {0.62069,  0.27586,  0.2069 },
+    {0.24138,  0,  0.41379 },
+    {1,  0.93103,  1 },
+    {0.55172,  1,  0.62069 },
+    {0.89655,  0,  1 },
+    {0.31034,  0.48276,  0.55172 },
+    {0.86207,  1,  0 },
+    {1,  0,  0.41379 },
+    {0.93103,  0.51724,  0 },
+    {0.48276,  0.34483,  0.96552 },
+    {0.55172,  0,  0.34483 },
+    {0.48276,  0.41379,  0 },
+    {0.62069,  0.72414,  0.55172 },
+    {0.55172,  0.41379,  0.68966 },
+    {0.37931,  0.72414,  0 },
+    {1,  0.62069,  0.68966 },
+    {0,  0.17241,  0.37931 },
+    {0.24138,  0.75862,  1 },
+    {0.24138,  0.31034,  0.17241 },
+    {0.65517,  0.034483,  0.65517 },
+    {0.37931,  0.24138,  0.31034 },
+    {0,  0.72414,  0.55172 },
+    {1,  0.82759,  0 },
+    {1,  0.41379,  0.31034 },
+    {0,  0,  0.62069 },
+    {0.27586,  0,  0 },
+    {0.93103,  0.72414,  1 },
+    {0.7931,  0.58621,  0.41379 },
+    {1,  0,  0.65517 },
+    {0.86207,  1,  0.48276 },
+    {0.17241,  0.27586,  0.68966 },
+    {0.62069,  0.65517,  0 },
+    {0.58621,  0.82759,  0.86207 },
+    {0.68966,  0.58621,  0.65517 },
+    {0.7931,  0.51724,  1 },
+    {0,  1,  0.44828 },
+    {0.65517,  0,  0 },
+    {0.51724,  0,  0.89655 },
+    {0.17241,  0,  0.17241 },
+    {1,  1,  0.7931 },
+    {0.89655,  0.31034,  0.55172 },
+    {0.68966,  1,  0.82759 },
+    {0,  0.68966,  0.31034 },
+    {0.34483,  0.2069,  0 },
+    {0,  0.41379,  0.65517 },
+    {0.58621,  0.65517,  0.89655 },
+    {0.55172,  0.75862,  0.37931 },
+    {0.13793,  0.48276,  0.37931 },
+    {0.68966,  0.37931,  0.51724 },
+    {0.68966,  0,  0.24138 },
+    {0.65517,  0.34483,  0 },
+    {1,  0.24138,  0.89655 },
+    {0,  0.24138,  0.27586 },
+    {0.58621,  1,  0.24138 },
+    {0.51724,  0.41379,  0.34483 },
+    {0,  1,  0.7931 },
+    {0.7931,  0.58621,  0.17241 },
+    {1,  0,  0.24138 },
+    {0.41379,  0.51724,  0.24138 },
+    {0,  0.24138,  1 },
+    {0,  0.65517,  0.68966 },
+    {0.7931,  0.34483,  1 },
+    {1,  0.7931,  0.72414 },
+    {0.41379,  0.17241,  0.41379 },
+    {1,  0.62069,  0.37931 },
+    {0.51724,  0.27586,  0.72414 },
+    {0.68966,  0.27586,  0.62069 },
+    {0.58621,  0.58621,  1 },
+    {1,  0.41379,  0.48276 },
+    {0,  0.41379,  1 },
+    {0.44828,  0.034483,  0.68966 },
+    {0.68966,  0.65517,  0.31034 },
+    {0.89655,  0.31034,  0 },
+    {0,  0,  0.27586 },
+    {0.2069,  0.13793,  0.068966 },
+    {0.34483,  0.55172,  0 },
+    {0,  0.13793,  0.034483 },
+    {0.10345,  0.82759,  0.068966 },
+    {0.48276,  0.17241,  0.24138 },
+    {0.34483,  0.34483,  0.51724 },
+    {0.93103,  0.93103,  0.27586 },
+    {0,  0.24138,  0 },
+    {0.82759,  0.89655,  0.82759 },
+    {0.44828,  0,  0 },
+    {0.7931,  0.96552,  0.65517 },
+    {0.65517,  0.82759,  0.034483 },
+    {0.96552,  0.55172,  0.48276 },
+    {0.10345,  0.55172,  0.31034 },
+    {0.44828,  0.55172,  0.48276 },
+    {0.75862,  0,  0.51724 },
+    {0,  0.068966,  0.17241 },
+    {0.41379,  0.86207,  0.7931 },
+    {0.27586,  0.31034,  0 },
+    {0.58621,  0.37931,  0.17241 },
+    {0.72414,  0.44828,  0.41379 },
+    {0,  0.10345,  0.55172 },
+    {0,  1,  0.62069 },
+    {1,  0.68966,  0.034483 },
+    {0.48276,  0.7931,  0.55172 },
+    {0.48276,  0.93103,  0.37931 },
+    {0.31034,  0.34483,  0.34483 },
+    {0.86207,  0.51724,  0.75862 },
+    {0.44828,  0,  0.44828 },
+    {0.82759,  0.75862,  0.55172 },
+    {0.72414,  0.75862,  0.86207 },
+    {0.31034,  0.37931,  0.68966 },
+    {0.34483,  0,  0.2069 },
+    {0.75862,  0.31034,  0.37931 },
+    {0.27586,  0.2069,  0.48276 },
+    {0.86207,  0.75862,  0.2069 },
+    {0.72414,  0.65517,  0.58621 },
+    {0.86207,  0.37931,  0.89655 },
+    {0.55172,  0.48276,  0.27586 },
+    {0,  0.55172,  0.72414 },
+    {0.034483,  0.24138,  0.82759 },
+    {0.44828,  0.41379,  0.89655 },
+    {1,  0.75862,  0.89655 },
+    {0.27586,  0.58621,  0.89655 },
+    {0,  0.58621,  0 },
+    {0.17241,  0.034483,  0.068966 },
+    {0.75862,  0.31034,  0.17241 },
+    {1,  0.75862,  0.51724 },
+    {0.17241,  0.17241,  0.2069 },
+    {0.2069,  0.86207,  1 },
+    {0.82759,  0.2069,  0.24138 },
+    {0.55172,  0.41379,  0.55172 },
+    {0.41379,  0.68966,  0.58621 },
+    {0.13793,  0,  0.7931 },
+    {0.82759,  0.86207,  0.48276 },
+    {0.48276,  0.2069,  0 },
+    {0.65517,  0,  0.82759 },
+    {0.068966,  0.31034,  0.44828 },
+    {0.034483,  0.31034,  0.24138 },
+    {0.96552,  0.62069,  1 },
+    {0.44828,  0.68966,  0.82759 },
+    {0.41379,  0.24138,  0.2069 },
+    {0.2069,  0.41379,  0.2069 },
+    {0.86207,  0.24138,  0.72414 },
+    {0,  0.7931,  0.27586 },
+    {0.24138,  0.17241,  0.31034 },
+    {0.96552,  0.034483,  0.51724 },
+    {0.72414,  0.58621,  0.7931 },
+    {0.86207,  0.068966,  0.068966 },
+    {0.68966,  1,  0.96552 },
+    {0.24138,  0.86207,  0.58621 },
+    {0.65517,  0.7931,  0.27586 },
+    {0.51724,  0.55172,  0.68966 },
+    {0.34483,  0.2069,  0.72414 },
+    {0.75862,  0.58621,  0.93103 },
+    {0.37931,  0.44828,  0 },
+    {1,  0.51724,  0.72414 },
+    {0.72414,  0,  0.37931 },
+    {0.65517,  0.93103,  0.48276 },
+    {1,  0.96552,  0 },
+    {1,  0.75862,  0.31034 },
+    {0.86207,  0.41379,  0.13793 },
+    {0.48276,  0,  0.13793 },
+    {0.75862,  1,  0.34483 },
+    {0.62069,  0.72414,  0.68966 },
+    {0.72414,  0.27586,  0.51724 },
+    {0.7931,  0.48276,  0.27586 },
+    {0.68966,  0.41379,  0.7931 },
+    {0.31034,  0.58621,  0.24138 },
+    {0,  0.24138,  0.55172 },
+    {0.34483,  0.17241,  0.82759 },
+    {0.96552,  0.31034,  0.68966 },
+    {0.62069,  0.55172,  0.034483 },
+    {0.48276,  0.48276,  0.51724 },
+    {0.51724,  0.2069,  0.37931 },
+    {0.41379,  0.62069,  0.41379 },
+    {0.58621,  0.37931,  0.41379 },
+    {0.41379,  0.7931,  0.34483 },
+    {0.82759,  0.62069,  0.62069 },
+    {0.62069,  0.34483,  0.58621 },
+    {0.10345,  0.13793,  0.48276 },
+    {0.24138,  0.034483,  0.31034 },
+    {0.86207,  0.75862,  0.7931 },
+    {0.58621,  0.24138,  0.93103 },
+    {0.65517,  0.37931,  0.93103 },
+    {0.37931,  0.31034,  0.17241 },
+    {0,  0.41379,  0.41379 },
+    {1,  0.96552,  0.48276 },
+    {0.34483,  1,  0.89655 },
+    {0.82759,  0.93103,  1 },
+    {0.37931,  0.13793,  1 },
+    {0.41379,  0.034483,  0.55172 },
+    {0.51724,  0.24138,  0.58621 },
+    {0.41379,  0.44828,  0.31034 },
+    {0.51724,  1,  0.75862 },
+    {0.62069,  0,  0.51724 },
+    {0.37931,  0.62069,  0.62069 },
+    {0.7931,  0,  0.7931 },
+    {0.13793,  0.41379,  0.86207 },
+    {0.13793,  0.17241,  0 },
+    {0.86207,  0.37931,  0.34483 },
+    {0.44828,  0.48276,  0.72414 },
+    {0.58621,  0.068966,  0.27586 },
+    {0.82759,  0.7931,  1 },
+    {0.72414,  0,  1 },
+    {0,  0.62069,  0.55172 },
+    {0.82759,  0.58621,  0.72414 },
+    {0.17241,  0.34483,  0 },
+    {0.37931,  0.13793,  0.034483 },
+    {0.48276,  0.37931,  0.75862 },
+    {1,  0.68966,  0.58621 },
+    {0.51724,  0.62069,  0.24138 },
+    {0.10345,  0.068966,  0.24138 },
+    {0.65517,  0.82759,  1 },
+    {0.37931,  1,  0.31034 },
+    {0.96552,  0.62069,  0.24138 },
+    {0,  0.68966,  0.82759 },
+    {0.24138,  0,  0.55172 },
+    {0.86207,  0.44828,  0.55172 },
+    {0.34483,  0.2069,  0.58621 },
+    {0,  0.44828,  0.7931 },
+    {0.65517,  0.51724,  0.2069 },
+    {0.27586,  0.10345,  0.2069 },
+    {0.27586,  0.41379,  0.34483 },
+    {0.89655,  0.2069,  0.41379 },
+    {0.10345,  0,  0.10345 },
+    {0.62069,  0,  0.10345 },
+    {1,  0.27586,  0.37931 },
+    {0.62069,  0.68966,  0.41379 },
+    {0.62069,  0.86207,  0.75862 },
+    {0.41379,  0.27586,  0.44828 },
+    {0,  0.51724,  0.58621 },
+    {0.82759,  0.96552,  0.7931 },
+    {0.58621,  0.17241,  0 },
+    {0.96552,  0.89655,  0.7931 },
+    {0.58621,  0.86207,  0.27586 },
+    {0.31034,  0.48276,  0.65517 },
+    {0.68966,  0.96552,  0 },
+    {0.65517,  0.62069,  0.44828 },
+    {0.93103,  0.27586,  1 },
+    {0.65517,  0.24138,  0.7931 },
+    {0.96552,  0.89655,  0.62069 },
+    {0.34483,  0.93103,  0.48276 },
+    {0.44828,  0.89655,  0.93103 },
+    {0,  0,  0.37931 },
+    {0.7931,  0.7931,  0.31034 },
+    {0.17241,  0.2069,  0.13793 },
+    {0.82759,  0.24138,  0.13793 },
+    {0.82759,  0.65517,  0.34483 },
+    {0.37931,  0.86207,  0.68966 },
+    {1,  0,  0.75862 },
+    {0.7931,  0.86207,  0.62069 },
+    {0.41379,  0.51724,  0.86207 }
+  };
+  int i;
+
+#define N_COLOURS_STD (sizeof(label_points) / sizeof(label_points[0]))
+
+  set_colour_of_label( slice_window, volume_index, 0,
+                       make_rgba_Colour( 0, 0, 0, 0 ) );
+  for (i = 1; i < n_labels; i++)
+  {
+    float *col = label_points[i % N_COLOURS_STD];
+    set_colour_of_label( slice_window, volume_index, i,
+                         make_Colour_0_1( col[0], col[1], col[2] ) );
+  }
+}
+
+/**
+ * Label colour table using up to several thousand visually-distinct
+ * colours.
+ */
+static void
+distinct_colour_table( display_struct *slice_window, int volume_index,
+                       int n_labels )
+{
+  int i;
+  VIO_Colour *colours;
+
+  ALLOC( colours, n_labels - 1 );
+
+  distinct_colours( n_labels - 1, GREY, colours );
+
+  set_colour_of_label( slice_window, volume_index, 0,
+                       make_rgba_Colour( 0, 0, 0, 0 ) );
+
+  for (i = 1; i < n_labels; i++)
+  {
+    set_colour_of_label( slice_window, volume_index, i, colours[i-1]);
+  }
+
+  FREE( colours );
+}
+
+static  void  realloc_label_colour_table(
+    display_struct    *slice_window,
+    int               volume_index )
+{
+
+    int n_labels = get_num_labels( slice_window, volume_index );
+    ALLOC( slice_window->slice.volumes[volume_index].label_colour_table,
+           n_labels );
+
+    switch ( Initial_label_colour_table )
+    {
+    case 1:
+      standard_colour_table( slice_window, volume_index, n_labels );
+      break;
+    case 2:
+      distinct_colour_table( slice_window, volume_index, n_labels );
+      break;
+    default:
+      classic_colour_table( slice_window, volume_index, n_labels );
+      break;
+    }
 }
 
 /**
@@ -328,10 +661,10 @@ void set_slice_window_number_labels(
     nc_type             old_type;
     VIO_BOOL            signed_flag;
     slice_window_struct *slice;
-    int                 i;
+    int                 i, j;
+    int                 old_n_labels;
 
     slice = &slice_window->slice;
-
     label_volume = get_nth_label_volume( slice_window, volume_index );
     if (label_volume == NULL)
     {
@@ -379,13 +712,26 @@ void set_slice_window_number_labels(
     set_volume_voxel_range( label_volume, 0.0, n_labels - 1.0 );
     set_volume_real_range( label_volume, 0.0, n_labels - 1.0 );
 
+    old_n_labels = get_num_labels( slice_window, volume_index );
+
     for_less( i, 0, slice->n_volumes )
     {
+        loaded_volume_struct *volume_ptr = &slice->volumes[i];
         if (slice->volumes[i].labels == label_volume)
         {
-            FREE( slice->volumes[i].label_colour_table );
+            FREE( volume_ptr->label_colour_table );
 
-            slice->volumes[i].n_labels = n_labels;
+            volume_ptr->n_labels = n_labels;
+
+            /* Reallocate the label counts and label tags.
+             */
+            REALLOC( volume_ptr->label_count, n_labels );
+            REALLOC( volume_ptr->label_tags, n_labels );
+            for (j = old_n_labels; j < n_labels; j++)
+            {
+              volume_ptr->label_count[j] = 0;
+              volume_ptr->label_tags[j] = NULL;
+            }
 
             realloc_label_colour_table( slice_window, i );
         }
@@ -609,6 +955,7 @@ void  initialize_slice_colour_coding(
     loaded_volume_struct *loaded_volume_ptr;
     VIO_Volume         volume;
     VIO_Real           colour_below, colour_above;
+    int                i;
 
     /* For volumes after the first, adopt a different color coding
      * scheme than the default.
@@ -638,6 +985,13 @@ void  initialize_slice_colour_coding(
     loaded_volume_ptr->label_colour_table = NULL;
     loaded_volume_ptr->labels = NULL;
     loaded_volume_ptr->labels_filename = create_string( NULL );
+    ALLOC(loaded_volume_ptr->label_count, loaded_volume_ptr->n_labels);
+    ALLOC(loaded_volume_ptr->label_tags, loaded_volume_ptr->n_labels);
+    for_less( i, 0, loaded_volume_ptr->n_labels )
+    {
+      loaded_volume_ptr->label_count[i] = 0;
+      loaded_volume_ptr->label_tags[i] = NULL;
+    }
 
     alloc_colour_table( slice_window, volume_index );
     rebuild_colour_table( slice_window, volume_index );
@@ -720,7 +1074,7 @@ VIO_BOOL  label_volume_exists(
  * desired view.
  * \returns TRUE if the labels are visible in this volume and view.
  */
-VIO_BOOL  get_label_visibility(
+VIO_BOOL  get_labels_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index )
@@ -874,6 +1228,19 @@ static  void  rebuild_colour_table(
 }
 
 /**
+ * Get the opacity (alpha-value of all of a volume's labels.
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the desired volume.
+ * \returns The current opacity, a floating point number in the range
+ * [0, 1].
+ */
+VIO_Real get_label_opacity( display_struct *slice_window,
+                            int volume_index )
+{
+  return slice_window->slice.volumes[volume_index].label_colour_opacity;
+}
+
+/**
  * Sets the colour associated with a particular label value.
  * \param slice_window A pointer to the slice window's display_struct.
  * \param volume_index The zero-based index of the desired volume.
@@ -886,16 +1253,16 @@ void   set_colour_of_label(
     int               label,
     VIO_Colour        colour )
 {
-    VIO_Real  r, g, b;
-
     if( get_Colour_a(colour) == 255 )
     {
+        VIO_Real  r, g, b, a;
+
         r = get_Colour_r_0_1( colour );
         g = get_Colour_g_0_1( colour );
         b = get_Colour_b_0_1( colour );
+        a = get_label_opacity( slice_window, volume_index );
 
-        colour = make_rgba_Colour_0_1( r, g, b,
-              slice_window->slice.volumes[volume_index].label_colour_opacity );
+        colour = make_rgba_Colour_0_1( r, g, b, a );
     }
 
     slice_window->slice.volumes[volume_index].label_colour_table[label] =colour;
@@ -1315,7 +1682,12 @@ VIO_Status  load_label_colour_map(
             break;
         }
 
-        col = convert_string_to_colour( line );
+        status = string_to_colour( line, &col );
+        if ( status != VIO_OK )
+        {
+            print_error( "Incorrect colour value.\n" );
+            break;
+        }
 
         delete_string( line );
 
@@ -1440,134 +1812,6 @@ int  get_voxel_label(
 
 
 /**
- * If we are auto-generating tags from the labels, this function will
- * update the tags list to reflect the new labels. It is therefore called
- * after each label operation.
- * \param slice_window A pointer to the display_struct for the slice window.
- * \param volume_index The desired volume index.
- * \param x The voxel x coordinate
- * \param y The voxel y coordinate
- * \param z The voxel z coordinate
- * \param label The newly applied label.
- */
-void update_label_tag(
-        display_struct   *slice_window,
-        int              volume_index,
-        int              x,
-        int              y,
-        int              z,
-        int              label)
-{
-    VIO_Volume        label_volume;
-    struct stack_list ** label_stack;
-    object_struct     *object;
-    marker_struct     *marker;
-    model_struct      *current_model;
-    VIO_Real          *world_dyn;
-    display_struct    *marker_window;
-    display_struct    *three_d_window;
-    VIO_Real          world[VIO_MAX_DIMENSIONS];
-    VIO_Real          voxel_real[VIO_MAX_DIMENSIONS];
-    int               value;
-    int               n_labels;
-    loaded_volume_struct *volume_ptr;
-
-    marker_window = get_display_by_type( MARKER_WINDOW );
-    three_d_window = get_display_by_type( THREE_D_WINDOW );
-    label_volume = get_nth_label_volume(slice_window, volume_index);
-    n_labels = get_num_labels( slice_window, volume_index );
-    volume_ptr = &slice_window->slice.volumes[volume_index];
-    label_stack = volume_ptr->label_stack;
-
-    voxel_real[VIO_X] = x;
-    voxel_real[VIO_Y] = y;
-    voxel_real[VIO_Z] = z;
-    convert_voxel_to_world( label_volume, voxel_real,
-                            &world[VIO_X], &world[VIO_Y], &world[VIO_Z] );
-    if ( label > 0 && label < n_labels ) /* add a voxel to a label region */
-    {
-        volume_ptr->label_count[label]++;
-        if (label_stack[label] == NULL)
-        {
-            label_stack[label] = stack_new();
-
-            object = create_object( MARKER );
-            marker = get_marker_ptr( object );
-            fill_Point( marker->position, world[VIO_X], world[VIO_Y], world[VIO_Z]);
-            marker->label = create_string( "" );
-            marker->structure_id = label;
-            marker->patient_id = -1;
-            marker->size = three_d_window->three_d.default_marker_size;
-            marker->colour = get_colour_of_label( slice_window, volume_index,
-                                                  label );
-            marker->type = three_d_window->three_d.default_marker_type;
-
-            current_model = get_current_model( three_d_window );
-            add_object_to_list(&current_model->n_objects,
-                               &current_model->objects, object);
-            rebuild_selected_list(three_d_window, marker_window);
-        }
-        ALLOC( world_dyn, VIO_N_DIMENSIONS );
-        world_dyn[VIO_X] = x;
-        world_dyn[VIO_Y] = y;
-        world_dyn[VIO_Z] = z;
-        label_stack[label] = push(label_stack[label], world_dyn);
-    }
-
-    /* Get the current value of this voxel, if any. If we
-     * are about to change the value, we want to update the
-     * stack of the old label appropriately.
-     */
-    value = get_3D_volume_label_data(label_volume, x, y, z);
-
-    if (value != label && value > 0 && value < n_labels )
-    {
-        struct stack_real *top_s;
-        struct stack_real *prv_s;
-
-        if (volume_ptr->label_count[value] != 0)
-          volume_ptr->label_count[value]--;
-
-        for (prv_s = NULL, top_s = top(label_stack[value]);
-             top_s != NULL;
-             prv_s = top_s, top_s = top_s->next)
-        {
-            if (fabs(top_s->cur[VIO_X] - x) < 1e-10 &&
-                fabs(top_s->cur[VIO_Y] - y) < 1e-10 &&
-                fabs(top_s->cur[VIO_Z] - z) < 1e-10)
-            {
-                if (top_s == label_stack[value]->head)
-                {
-                    label_stack[value]->head = top_s->next;
-                }
-                else
-                {
-                    prv_s->next = top_s->next;
-                }
-                FREE(top_s->cur);
-                FREE(top_s);
-                break;
-            }
-        }
-
-        if (volume_ptr->label_count[value] == 0)
-        {
-            FREE( label_stack[value] );
-            label_stack[value] = NULL;
-
-            update_current_marker( three_d_window, volume_index, voxel_real );
-            get_current_object( three_d_window, &object );
-            if (remove_current_object_from_hierarchy( three_d_window, &object ))
-            {
-              graphics_models_have_changed( three_d_window );
-              delete_object( object );
-              rebuild_selected_list( three_d_window, marker_window );
-            }
-        }
-    }
-}
-
-/**
  * Set the label associated with the given voxel coordinates and the
  * specified volume.
  *
@@ -1586,15 +1830,20 @@ void  set_voxel_label(
     int              z,
     int              label )
 {
+    VIO_Volume volume;
+
     assert( display->window_type == SLICE_WINDOW );
+
+    assert( label >= 0 &&
+            label < display->slice.volumes[volume_index].n_labels );
+
+    volume = get_nth_label_volume( display, volume_index );
 
     tell_surface_extraction_label_changed( display, volume_index, x, y, z );
     if( Tags_from_label )
-        update_label_tag(display, volume_index, x, y, z, label);
+        update_label_tag( display, volume_index, x, y, z, label );
 
-    set_volume_label_data_5d( get_nth_label_volume(display, volume_index),
-            x, y, z, 0, 0, label );
-
+    set_volume_label_data_5d( volume, x, y, z, 0, 0, label );
 }
 
 /**
@@ -1630,4 +1879,52 @@ VIO_Status  load_user_defined_colour_coding(
                          volume_index ].colour_coding, filename );
 
     return( status );
+}
+
+/**
+ * Set the visibility of an individual label.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the volume.
+ * \param label The label whose visibility we want to change.
+ * \param is_visible TRUE if the label should be visible, FALSE if not.
+ */
+void
+set_label_visible( display_struct *slice_window, int volume_index,
+                   int label, VIO_BOOL is_visible)
+{
+  VIO_Colour *table;
+  VIO_Colour col;
+  VIO_Real r, g, b, a;          /*  colour components */
+
+  if ( label >= get_num_labels( slice_window, volume_index ) )
+    return;
+
+  table = slice_window->slice.volumes[volume_index].label_colour_table;
+  col = table[label];
+  r = get_Colour_r_0_1( col );
+  g = get_Colour_g_0_1( col );
+  b = get_Colour_b_0_1( col );
+  a = ( is_visible ) ? get_label_opacity( slice_window, volume_index ) : 0;
+  table[label] = make_rgba_Colour_0_1( r, g, b, a );
+}
+
+/**
+ * Check the visibility of an individual label.
+ *
+ * \param slice_window A pointer to the slice window's display_struct.
+ * \param volume_index The zero-based index of the volume.
+ * \param label The label whose visibility we want to change.
+ * \returns TRUE if the label is currently visible.
+ */
+VIO_BOOL
+is_label_visible( display_struct *slice_window, int volume_index, int label )
+{
+  VIO_Colour *table;
+
+  if ( label >= get_num_labels( slice_window, volume_index ))
+    return FALSE;
+
+  table = slice_window->slice.volumes[volume_index].label_colour_table;
+  return get_Colour_a( table[label] ) > 0;
 }

@@ -165,14 +165,11 @@ typedef struct menu_window
 
 /** Structure that defines the marker window.
  *
- * The marker, or object list window used to be part of the menu window,
+ * The object list window used to be part of the menu window,
  * but is now a separate top-level window.
  */
 typedef struct marker_window
 {
-    int      default_x_size;    /**< Original window width.  */
-    int      default_y_size;    /**< Original window height.  */
-
     /** Defines the position in pixesl of the left side of the selection box.
      */
     VIO_Real selected_x_origin;
@@ -190,6 +187,10 @@ typedef struct marker_window
     VIO_Real selected_y_offset;
 
     VIO_Real font_size;         /**< Desired size of marker window font.  */
+
+    int n_top_index;            /**< The index of the top display object. */
+
+    int n_item_count;           /**< The number of objects displayed. */
 
 } marker_window_struct;
 

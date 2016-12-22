@@ -127,7 +127,7 @@ static  void  create_cursor_pos_text(
 
             get_current_voxel(slice_window, volume_index, voxel);
             world_time = nonspatial_voxel_to_world(volume, VIO_T, voxel[VIO_T]);
-            sprintf(temp, Cursor_time_format, world_time);
+            snprintf(temp, sizeof(temp), Cursor_time_format, world_time);
             strncat(buffer, temp, VIO_EXTREMELY_LARGE_STRING_SIZE);
         }
     }

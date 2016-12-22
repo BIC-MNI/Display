@@ -126,7 +126,7 @@ void create_marker_at_position(
     if( label != NULL )
         replace_string( &marker->label, create_string( label ) );
 
-    add_object_to_current_model( display, object );
+    add_object_to_current_model( display, object, FALSE );
 }
 
 /**
@@ -294,9 +294,9 @@ DEF_MENU_FUNCTION( set_default_marker_structure_id )
     int             id;
     char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    sprintf( prompt, 
-             "The current default marker id is: %d\nEnter the new value: ",
-             display->three_d.default_marker_structure_id );
+    snprintf( prompt, sizeof( prompt ),
+              "The current default marker id is: %d\nEnter the new value: ",
+              display->three_d.default_marker_structure_id );
 
     if( get_user_input( prompt, "d", &id ) == VIO_OK )
     {
@@ -329,9 +329,9 @@ DEF_MENU_FUNCTION( set_default_marker_patient_id )
     int             id;
     char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    sprintf( prompt, 
-             "The current default marker id is: %d\nEnter the new value: ",
-             display->three_d.default_marker_patient_id );
+    snprintf( prompt, sizeof( prompt ),
+              "The current default marker id is: %d\nEnter the new value: ",
+              display->three_d.default_marker_patient_id );
 
     if( get_user_input( prompt, "d", &id ) == VIO_OK )
     {
@@ -364,9 +364,9 @@ DEF_MENU_FUNCTION( set_default_marker_size )
     VIO_Real        size;
     char            prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    sprintf( prompt,
-             "The current default marker size is: %g\nEnter the new value: ",
-             display->three_d.default_marker_size );
+    snprintf( prompt, sizeof( prompt ),
+              "The current default marker size is: %g\nEnter the new value: ",
+              display->three_d.default_marker_size );
 
     if( get_user_input( prompt, "r", &size ) == VIO_OK )
     {
@@ -402,10 +402,10 @@ DEF_MENU_FUNCTION( set_default_marker_colour )
 
     string = convert_colour_to_string( display->three_d.default_marker_colour );
 
-    sprintf( prompt, 
-             "The current default marker colour is: %s\n"
-             "Enter the new colour name or 3 or 4 colour components: ",
-             string );
+    snprintf( prompt, sizeof( prompt ),
+              "The current default marker colour is: %s\n"
+              "Enter the new colour name or 3 or 4 colour components: ",
+              string );
 
     delete_string( string );
 
@@ -413,12 +413,15 @@ DEF_MENU_FUNCTION( set_default_marker_colour )
 
     if( status == VIO_OK )
     {
-        colour = convert_string_to_colour( string );
+        status = string_to_colour( string, &colour );
         delete_string( string );
-        display->three_d.default_marker_colour = colour;
-        string = convert_colour_to_string( colour );
-        print( "The new default marker colour is: %s\n", string );
-        delete_string( string );
+        if (status == VIO_OK )
+        {
+            display->three_d.default_marker_colour = colour;
+            string = convert_colour_to_string( colour );
+            print( "The new default marker colour is: %s\n", string );
+            delete_string( string );
+        }
     }
     return( status );
 }
@@ -488,10 +491,10 @@ DEF_MENU_FUNCTION( set_default_marker_label )
     VIO_STR      label;
     char         prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    sprintf( prompt, 
-             "The current default marker label is: %s\n"
-             "Enter the new default label: ",
-             display->three_d.default_marker_label );
+    snprintf( prompt, sizeof( prompt ),
+              "The current default marker label is: %s\n"
+              "Enter the new default label: ",
+              display->three_d.default_marker_label );
 
     status = get_user_input( prompt, "s", &label );
 
@@ -643,23 +646,26 @@ DEF_MENU_FUNCTION( change_marker_colour )
         VIO_Colour colour;
         VIO_Status status;
 
-        sprintf( prompt, 
-                 "The current marker colour is: %s\n"
-                 "Enter the new colour name or 3 or 4 colour components: ",
-                 string );
+        snprintf( prompt, sizeof( prompt ),
+                  "The current marker colour is: %s\n"
+                  "Enter the new colour name or 3 or 4 colour components: ",
+                  string );
 
         delete_string( string );
 
         status = get_user_input( prompt, "s", &string );
         if( status == VIO_OK )
         {
-            colour = convert_string_to_colour( string );
+            status = string_to_colour( string, &colour );
             delete_string( string );
-            marker->colour = colour;
-            string = convert_colour_to_string( colour );
-            print( "The new colour of this marker is: %s\n", string );
-            delete_string( string );
-            graphics_models_have_changed( display );
+            if ( status == VIO_OK )
+            {
+                marker->colour = colour;
+                string = convert_colour_to_string( colour );
+                print( "The new colour of this marker is: %s\n", string );
+                delete_string( string );
+                graphics_models_have_changed( display );
+            }
         }
     }
     return( VIO_OK );
@@ -686,9 +692,10 @@ DEF_MENU_FUNCTION( change_marker_size )
 
     if( get_current_marker(display, &marker) )
     {
-        sprintf( prompt, "The current size of this marker is: %g\n"
-                 "Enter the new value: ",
-                 marker->size );
+        snprintf( prompt, sizeof( prompt ),
+                  "The current size of this marker is: %g\n"
+                  "Enter the new value: ",
+                  marker->size );
 
         if( get_user_input( prompt, "r", &size ) == VIO_OK && size >= 0.0 )
         {
@@ -755,9 +762,9 @@ DEF_MENU_FUNCTION( change_marker_label )
 
     if( get_current_marker(display,&marker) )
     {
-        sprintf( prompt,
-                 "The current marker label is: %s\nEnter the new label: ",
-                 marker->label );
+        snprintf( prompt, sizeof( prompt ),
+                  "The current marker label is: %s\nEnter the new label: ",
+                  marker->label );
 
         if( get_user_input( prompt, "s", &label ) == VIO_OK )
         {

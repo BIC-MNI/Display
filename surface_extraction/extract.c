@@ -1,5 +1,7 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/**
+ * \file surface_extraction/extract.c
+ * \brief 
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,15 +12,10 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+*/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 #include  <bicpl/marching_cube_data.h>
@@ -516,7 +513,7 @@ static  int   create_surface_point(
     edge_point[1] += (VIO_Real) voxel[1];
     edge_point[2] += (VIO_Real) voxel[2];
 
-    if( *pt_class < 0 )
+    if( *pt_class == (Point_classes) -1 )
     {
         HANDLE_INTERNAL_ERROR( "create_surface_point" );
     }

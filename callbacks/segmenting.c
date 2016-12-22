@@ -19,7 +19,6 @@
 #endif
 
 #include  <display.h>
-#include "stack.h"
 
 static  void  set_slice_labels(
     display_struct     *display,
@@ -99,6 +98,7 @@ maybe_set_single_voxel(display_struct *slice_window,
     }
 
     undo_start(slice_window, volume_index);
+    make_current_label_visible( slice_window, volume_index );
 
     set_voxel_label( slice_window, volume_index,
                      int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z],
@@ -426,7 +426,7 @@ DEF_MENU_FUNCTION(save_label_data)
      * -output-label option, if any.
      */
     if( string_length(Output_label_filename) )
-        filename = Output_label_filename;
+        filename = create_string(Output_label_filename);
     else
     {
         /* Prompt the user for a filename. */
@@ -481,11 +481,7 @@ DEF_MENU_FUNCTION(save_label_data)
         print( "\n" );
     }
 
-    /* If we set a fixed label filename, don't free it here!
-     */
-    if (filename != Output_label_filename)
-        delete_string( filename );
-
+    delete_string( filename );
     return( status );
 }
 
@@ -627,240 +623,6 @@ static  void   save_labels_as_tags(
     delete_string( filename );
 }
 
-/**
- * Create tags from the current label volume.
- *
- * \param display One of the top-level display_struct objects.
- * \param n_tag_points Number of tag points found (one per label value).
- * \param tags_volume1 Tag points for first volume.
- * \param tags_volume2 Tag points for second volume (unused!).
- * \param weights Weights for tag points.
- * \param structure_ids Structure ID's for tag points, default to label values.
- * \param patient_ids Patient ID"s for tag points, default to -1.
- * \param labels String labels for the tag points.
- * \returns VIO_OK if all goes well.
- */
-static VIO_Status tags_from_label(
-    display_struct *display,
-    int       *n_tag_points,
-    VIO_Real  ***tags_volume1,
-    VIO_Real  ***tags_volume2,
-    VIO_Real  **weights,
-    int       **structure_ids,
-    int       **patient_ids,
-    VIO_STR   *labels[] )
-{
-    display_struct *slice_window;
-    VIO_Status     status;
-    VIO_Volume     volume;
-    VIO_Volume     label_volume;
-    int            sizes[VIO_MAX_DIMENSIONS];
-    int            ind[VIO_MAX_DIMENSIONS];
-    VIO_Real       real_ind[VIO_MAX_DIMENSIONS];
-    VIO_Real       tags[VIO_N_DIMENSIONS];
-    int            value;
-    int            structure_id, patient_id;
-    VIO_Real       weight;
-    VIO_STR        label;
-    VIO_Real       *coords;
-    int            i;
-    int            n_labels;
-    int            volume_index;
-    loaded_volume_struct *volume_ptr;
-
-    status = VIO_OK;
-    if (!get_slice_window( display, &slice_window ))
-    {
-        return VIO_ERROR;
-    }
-    volume_index = get_current_volume_index( slice_window );
-    volume_ptr = &slice_window->slice.volumes[volume_index];
-
-    volume = get_volume(slice_window);
-    label_volume = get_label_volume(slice_window);
-    get_volume_sizes( label_volume, sizes );
-    *n_tag_points = 0;
-    label = NULL;
-    weight = 0.0;
-    structure_id = -1;
-    patient_id = -1;
-    n_labels = get_num_labels( slice_window, volume_index );
-
-    SET_ARRAY_SIZE( volume_ptr->label_stack, 0, n_labels,
-                    DEFAULT_CHUNK_SIZE);
-    SET_ARRAY_SIZE( volume_ptr->label_count, 0, n_labels,
-                    DEFAULT_CHUNK_SIZE);
-    for_less(i, 0, n_labels)
-    {
-        volume_ptr->label_stack[i] = NULL;
-        volume_ptr->label_count[i] = 0;
-    }
-
-    for_less (ind[VIO_X], 0, sizes[VIO_X])
-    {
-        real_ind[VIO_X] = (VIO_Real) ind[VIO_X];
-        for_less (ind[VIO_Y], 0, sizes[VIO_Y])
-        {
-            real_ind[VIO_Y] = (VIO_Real) ind[VIO_Y];
-            for_less (ind[VIO_Z], 0, sizes[VIO_Z])
-            {
-                real_ind[VIO_Z] = (VIO_Real) ind[VIO_Z];
-                value = get_volume_label_data( label_volume, ind );
-                if (!value || value >= n_labels )
-                    continue;
-
-                convert_voxel_to_world( volume, real_ind,
-                        &tags[VIO_X], &tags[VIO_Y], &tags[VIO_Z] );
-
-                ALLOC( coords, VIO_N_DIMENSIONS );
-                coords[VIO_X] = ind[VIO_X];
-                coords[VIO_Y] = ind[VIO_Y];
-                coords[VIO_Z] = ind[VIO_Z];
-
-                volume_ptr->label_count[value]++;
-                if (volume_ptr->label_stack[value] == NULL)
-                {
-                    volume_ptr->label_stack[value] = stack_new();
-
-                    SET_ARRAY_SIZE( *tags_volume1, *n_tag_points, *n_tag_points+1,
-                                    DEFAULT_CHUNK_SIZE );
-                    ALLOC( (*tags_volume1)[*n_tag_points], 3 );
-                    (*tags_volume1)[*n_tag_points][VIO_X] = tags[VIO_X];
-                    (*tags_volume1)[*n_tag_points][VIO_Y] = tags[VIO_Y];
-                    (*tags_volume1)[*n_tag_points][VIO_Z] = tags[VIO_Z];
-
-                    if (weights != NULL)
-                    {
-                        SET_ARRAY_SIZE( *weights, *n_tag_points,
-                                        *n_tag_points+1, DEFAULT_CHUNK_SIZE);
-                        (*weights)[*n_tag_points] = weight;
-                    }
-
-                    if (structure_ids != NULL)
-                    {
-                        SET_ARRAY_SIZE( *structure_ids, *n_tag_points,
-                                        *n_tag_points+1, DEFAULT_CHUNK_SIZE);
-                        if (structure_id < 0)
-                        {
-                            (*structure_ids)[*n_tag_points] = value;
-                        }
-                        else
-                        {
-                            (*structure_ids)[*n_tag_points] = structure_id;
-                        }
-                    }
-
-                    if (patient_ids != NULL)
-                    {
-                        SET_ARRAY_SIZE( *patient_ids, *n_tag_points,
-                                        *n_tag_points+1, DEFAULT_CHUNK_SIZE);
-                        (*patient_ids)[*n_tag_points] = patient_id;
-                    }
-
-                    if (labels != NULL)
-                    {
-                        SET_ARRAY_SIZE( *labels, *n_tag_points,
-                                        *n_tag_points+1, DEFAULT_CHUNK_SIZE);
-                        (*labels)[*n_tag_points] = label;
-                    }
-                    else
-                        delete_string(label);
-
-                    ++(*n_tag_points);
-
-                }
-                volume_ptr->label_stack[value] = push(volume_ptr->label_stack[value], coords);
-            }
-        }
-    }
-    return (status);
-}
-
-/**
- * Mimic the function input_tag_objects_file, but for a label image.
- * This function sweeps through all of the labels for the current
- * volume and builds a marker object associated with each of the labels.
- *
- * As of now, the tag point is simply the first point encountered during
- * the sweep.
- *
- * \param display A pointer to any display_struct.
- * \param n_objects The number of objects created.
- *
- */
-
-VIO_Status   input_tag_objects_label(
-    display_struct *display,
-    int            *n_objects,
-    object_struct  **object_list[])
-{
-    VIO_Status         status;
-    object_struct      *object;
-    marker_struct      *marker;
-    int                i, n_tag_points, *structure_ids, *patient_ids;
-    VIO_STR            *labels;
-    double             *weights;
-    double             **tags1, **tags2;
-    display_struct     *slice_window;
-    display_struct     *three_d_window;
-    int                volume_index;
-
-    *n_objects = 0;
-
-    three_d_window = get_three_d_window( display );
-
-    if (!get_slice_window( display, &slice_window ))
-        return VIO_ERROR;
-
-    volume_index = get_current_volume_index( slice_window );
-    if (volume_index < 0)
-        return VIO_ERROR;
-
-    status = tags_from_label( display, &n_tag_points,
-                              &tags1, &tags2, &weights,
-                              &structure_ids, &patient_ids, &labels );
-
-    if( status != VIO_OK )
-        return status;
-
-    for_less( i, 0, n_tag_points )
-    {
-        object = create_object( MARKER );
-        marker = get_marker_ptr( object );
-        fill_Point( marker->position, tags1[i][VIO_X], tags1[i][VIO_Y],tags1[i][VIO_Z]);
-        marker->label = create_string( labels[i] );
-
-        if( structure_ids[i] >= 0 )
-            marker->structure_id = structure_ids[i];
-        else
-            marker->structure_id = -1;
-
-        if( patient_ids[i] >= 0 )
-            marker->patient_id = patient_ids[i];
-        else
-            marker->patient_id = -1;
-
-        if( weights[i] > 0.0 )
-            marker->size = weights[i];
-        else
-            marker->size = three_d_window->three_d.default_marker_size;
-
-        marker->colour = get_colour_of_label( slice_window, volume_index,
-                                              marker->structure_id );
-
-        marker->type = three_d_window->three_d.default_marker_type;
-
-        add_object_to_list( n_objects, object_list, object );
-    }
-
-    free_tag_points( 1, n_tag_points, tags1, tags2, weights,
-                     structure_ids, patient_ids, labels );
-
-    return( VIO_OK );
-
-}
-
-
 /* ARGSUSED */
 
 /**
@@ -903,10 +665,10 @@ DEF_MENU_FUNCTION( save_current_label )
     if( get_slice_window( display, &slice_window ) &&
         get_n_volumes(slice_window) > 0 )
     {
-        if( slice_window->slice.current_paint_label > 0 )
+        int label = get_current_paint_label( display );
+        if( label > 0 )
         {
-            save_labels_as_tags( display, slice_window,
-                                 slice_window->slice.current_paint_label );
+            save_labels_as_tags( display, slice_window, label );
         }
         else
             print( "You first have to set the current label > 0.\n" );
@@ -982,6 +744,7 @@ static  void  set_slice_labels(
                               &x_index, &y_index, &axis_index ) )
     {
         undo_start( slice_window, volume_index );
+        make_current_label_visible( slice_window, volume_index );
 
         convert_real_to_int_voxel( VIO_N_DIMENSIONS, voxel, int_voxel );
         set_labels_on_slice( slice_window, volume_index,
@@ -1100,6 +863,7 @@ static  void   set_connected_labels(
                               &x_index, &y_index, &axis_index ) )
     {
         undo_start(slice_window, volume_index);
+        make_current_label_visible( slice_window, volume_index );
 
         if( use_threshold )
         {
@@ -1135,8 +899,45 @@ static  void   set_connected_labels(
     }
 }
 
+/** Structure used to pass parameters into the voxel setting callback. */
+typedef struct
+{
+  /** A pointer to the slice window. */
+  display_struct *slice_window;
+  /** The index of the volume to modify. */
+  int volume_index;
+} callback_data;
+
+/** 
+ * This callback is used to actually set the label voxel during 3D dilation
+ * and fill operations. It therefore has to have the standard parameter 
+ * types.
+ * \param volume The label volume to modify.
+ * \param x The X voxel coordinate to set.
+ * \param y The Y voxel coordinate to set.
+ * \param z The Z voxel coordinate to set.
+ * \param label The label value for this position.
+ * \param data A pointer to an struct of type callback_data.
+ */
+static void
+set_label_callback( VIO_Volume volume, int x, int y, int z,
+                    int label, void *data)
+{
+  callback_data *ptr = (callback_data *) data;
+  int voxel[VIO_MAX_DIMENSIONS];
+  voxel[VIO_X] = x;
+  voxel[VIO_Y] = y;
+  voxel[VIO_Z] = z;
+  voxel[VIO_T] = 0;
+  voxel[VIO_V] = 0;
+  set_voxel_label_with_undo( ptr->slice_window, ptr->volume_index, voxel,
+                             label );
+}
+
 /**
  * Helper function for clear_label_connected_3d() and label_connected_3d().
+ * \param display A pointer to a slice window.
+ * \param is_erase True if we are clearing labels.
  */
 static void
 do_fill_connected_3d( display_struct *display, VIO_BOOL is_erase )
@@ -1146,7 +947,8 @@ do_fill_connected_3d( display_struct *display, VIO_BOOL is_erase )
     int              view_index, int_voxel[VIO_MAX_DIMENSIONS];
     int              label_under_mouse, desired_label, volume_index;
     display_struct   *slice_window;
-
+    callback_data    data;
+    
     if( get_slice_window( display, &slice_window ) &&
         get_voxel_under_mouse( slice_window, &volume_index, &view_index, voxel))
     {
@@ -1166,15 +968,19 @@ do_fill_connected_3d( display_struct *display, VIO_BOOL is_erase )
                int_voxel[VIO_X], int_voxel[VIO_Y], int_voxel[VIO_Z],
                label_under_mouse, desired_label );
 
-        (void) fill_connected_voxels( get_nth_volume(slice_window,volume_index),
-                               get_nth_label_volume(slice_window,volume_index),
-                               slice_window->slice.segmenting.connectivity,
-                               int_voxel,
-                               label_under_mouse, label_under_mouse,
-                               desired_label,
-                               slice_window->slice.segmenting.min_threshold,
-                               slice_window->slice.segmenting.max_threshold,
-                               range_changed );
+        data.slice_window = slice_window;
+        data.volume_index = volume_index;
+        
+        fill_connected_voxels_callback( get_nth_volume(slice_window,volume_index),
+                                        get_nth_label_volume(slice_window,volume_index),
+                                        slice_window->slice.segmenting.connectivity,
+                                        int_voxel,
+                                        label_under_mouse, label_under_mouse,
+                                        desired_label,
+                                        slice_window->slice.segmenting.min_threshold,
+                                        slice_window->slice.segmenting.max_threshold,
+                                        range_changed,
+                                        set_label_callback, &data );
 
         delete_slice_undo( slice_window, volume_index );
 
@@ -1182,8 +988,8 @@ do_fill_connected_3d( display_struct *display, VIO_BOOL is_erase )
 
         set_slice_window_all_update( slice_window, volume_index, UPDATE_LABELS);
 
-        tell_surface_extraction_range_of_labels_changed( display,
-                                               volume_index, range_changed );
+        tell_surface_extraction_range_of_labels_changed( display, volume_index,
+                                                         range_changed );
     }
 }
 
@@ -1208,7 +1014,82 @@ DEF_MENU_UPDATE(label_connected_3d )
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
+/**
+ * Helper function for 3D dilation or erosion.
+ * \param display A pointer to a window structure.
+ * \param do_erosion TRUE if erosion, FALSE if dilation.
+ */
+static void
+dilation_or_erosion_command(display_struct *display, VIO_BOOL do_erosion )
+{
+  int              min_inside_label, max_inside_label;
+  int              min_outside_label, max_outside_label;
+  int              min_user_label, max_user_label;
+  int              set_label;
+  int              range_changed[2][VIO_N_DIMENSIONS];
+  int              volume_index;
+  display_struct   *slice_window;
+  callback_data    data;
+
+  if( !get_slice_window( display, &slice_window ) )
+    return;
+
+  volume_index = get_current_volume_index( slice_window );
+  if ( volume_index < 0 )
+    return;
+
+  if (get_user_input( "Enter min and max outside label: ", "dd",
+                      &min_user_label, &max_user_label ) != VIO_OK )
+  {
+    print( "Error in input label range.\n");
+    return;
+  }
+
+  if (do_erosion)
+  {
+    set_label = get_current_erase_label( display );
+    if( min_user_label <= max_user_label )
+    {
+      set_label = MAX( min_user_label, set_label );
+    }
+    min_inside_label = min_user_label;
+    max_inside_label = max_user_label;
+    min_outside_label = max_outside_label = get_current_paint_label( display );
+  }
+  else
+  {
+    set_label = get_current_paint_label( display );
+    min_inside_label = max_inside_label = get_current_paint_label( display );
+    min_outside_label = min_user_label;
+    max_outside_label = max_user_label;
+  }
+  
+  data.slice_window = slice_window;
+  data.volume_index = volume_index;
+        
+  undo_start( slice_window, volume_index );
+  dilate_voxels_callback( get_volume( display ),
+                          get_label_volume( display ),
+                          min_inside_label,
+                          max_inside_label,
+                          0.0, -1.0,  /* ignore inside voxel range. */
+                          min_outside_label,
+                          max_outside_label,
+                          slice_window->slice.segmenting.min_threshold,
+                          slice_window->slice.segmenting.max_threshold,
+                          set_label,
+                          slice_window->slice.segmenting.connectivity,
+                          range_changed,
+                          set_label_callback, &data );
+
+  undo_finish( slice_window, volume_index );
+
+  set_slice_window_all_update( slice_window, volume_index, UPDATE_LABELS );
+
+  tell_surface_extraction_range_of_labels_changed( display, volume_index,
+                                                   range_changed );
+  print( "Done\n" );
+}
 
 /**
  * Menu command to dilate a labeled region in 3D.
@@ -1217,46 +1098,8 @@ DEF_MENU_UPDATE(label_connected_3d )
  */
 DEF_MENU_FUNCTION(dilate_labels)
 {
-    int              min_outside_label, max_outside_label;
-    int              range_changed[2][VIO_N_DIMENSIONS];
-    VIO_Volume       volume;
-    display_struct   *slice_window;
-
-    if( get_slice_window( display, &slice_window ) &&
-        get_slice_window_volume( slice_window, &volume) )
-    {
-        if (get_user_input( "Enter min and max outside label: ",
-                            "dd",
-                            &min_outside_label,
-                            &max_outside_label ) == VIO_OK )
-        {
-            (void) dilate_voxels_3d( get_volume(display),
-                                  get_label_volume(display),
-                                  (VIO_Real) get_current_paint_label(display),
-                                  (VIO_Real) get_current_paint_label(display),
-                                  0.0, -1.0,
-                                  (VIO_Real) min_outside_label,
-                                  (VIO_Real) max_outside_label,
-                                  slice_window->slice.segmenting.min_threshold,
-                                  slice_window->slice.segmenting.max_threshold,
-                                  (VIO_Real) get_current_paint_label(display),
-                                  slice_window->slice.segmenting.connectivity,
-                                  range_changed );
-
-            delete_slice_undo( slice_window,
-                               get_current_volume_index(slice_window) );
-
-            print( "Done\n" );
-
-            set_slice_window_all_update( slice_window,
-                     get_current_volume_index(slice_window), UPDATE_LABELS );
-
-            tell_surface_extraction_range_of_labels_changed( display,
-                     get_current_volume_index(slice_window), range_changed );
-        }
-    }
-
-    return( VIO_OK );
+  dilation_or_erosion_command( display, FALSE );
+  return( VIO_OK );
 }
 
 /* ARGSUSED */
@@ -1275,47 +1118,8 @@ DEF_MENU_UPDATE(dilate_labels )
  */
 DEF_MENU_FUNCTION(erode_labels)
 {
-    int              min_outside_label, max_outside_label, set_value;
-    int              range_changed[2][VIO_N_DIMENSIONS];
-    VIO_Volume       volume;
-    display_struct   *slice_window;
-
-    if( get_slice_window( display, &slice_window ) &&
-        get_slice_window_volume( slice_window, &volume) )
-    {
-      if (get_user_input( "Enter min and max outside label: ", "dd",
-                          &min_outside_label,
-                          &max_outside_label ) == VIO_OK )
-        {
-            if( min_outside_label <= max_outside_label )
-                set_value = MAX( min_outside_label, 0 );
-            (void) dilate_voxels_3d( get_volume(display),
-                                  get_label_volume(display),
-                                  (VIO_Real) min_outside_label,
-                                  (VIO_Real) max_outside_label,
-                                  0.0, -1.0,
-                                  (VIO_Real) get_current_paint_label(display),
-                                  (VIO_Real) get_current_paint_label(display),
-                                  slice_window->slice.segmenting.min_threshold,
-                                  slice_window->slice.segmenting.max_threshold,
-                                  (VIO_Real) set_value,
-                                  slice_window->slice.segmenting.connectivity,
-                                  range_changed );
-
-            delete_slice_undo( slice_window,
-                               get_current_volume_index(slice_window) );
-
-            print( "Done\n" );
-
-            set_slice_window_all_update( slice_window,
-                     get_current_volume_index(slice_window), UPDATE_LABELS );
-
-            tell_surface_extraction_range_of_labels_changed( display,
-                     get_current_volume_index(slice_window), range_changed );
-        }
-    }
-
-    return( VIO_OK );
+  dilation_or_erosion_command( display, TRUE );
+  return( VIO_OK );
 }
 
 /* ARGSUSED */

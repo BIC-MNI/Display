@@ -163,8 +163,9 @@ rebuild_slice_rulers( display_struct *slice_window, int view_index )
     /* Unfortunately there is no atomic call to remove an object from
      * the model and delete it. TODO: Add something like this!
      */
-    delete_object( model_ptr->objects[1] );
-    remove_ith_object_from_model( model_ptr, 1 );
+    int object_index = model_ptr->n_objects - 1;
+    delete_object( model_ptr->objects[object_index] );
+    remove_ith_object_from_model( model_ptr, object_index );
   }
   lines_ptr = get_lines_ptr( model_ptr->objects[0] );
 

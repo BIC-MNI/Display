@@ -52,7 +52,7 @@ DEF_MENU_FUNCTION( smooth_current_lines )
 
     if( get_current_lines( display, &lines ) )
     {
-        status = get_user_input( "Enter smoothing distance: ", "r", 
+        status = get_user_input( "Enter smoothing distance: ", "r",
                                  &smooth_distance );
 
         if( status == VIO_OK )
@@ -85,7 +85,7 @@ DEF_MENU_FUNCTION( make_current_line_tube )
 
     if( get_current_lines( display, &lines ) )
     {
-        status = get_user_input( "Enter n_around radius: ", "dr", 
+        status = get_user_input( "Enter n_around radius: ", "dr",
                                  &n_around,
                                  &radius );
 
@@ -124,7 +124,7 @@ DEF_MENU_FUNCTION( convert_line_to_spline_points )
         object = create_object( LINES );
 
         *(get_lines_ptr(object)) = new_lines;
-        add_object_to_current_model( display, object );
+        add_object_to_current_model( display, object, FALSE );
     }
 
     return( VIO_OK );
@@ -136,7 +136,7 @@ DEF_MENU_UPDATE(convert_line_to_spline_points )
 {
     return( current_object_is_this_type( display, LINES ) );
 }
- 
+
 /* ARGSUSED */
 
 DEF_MENU_FUNCTION( make_line_circle )
@@ -146,8 +146,8 @@ DEF_MENU_FUNCTION( make_line_circle )
     int               plane_axis, n_around;
     object_struct     *object;
 
-    
-    if (get_user_input( 
+
+    if (get_user_input(
            "Enter x_centre, y_centre, z_centre, plane_axis, x_size, y_size\n"
            "      n_around: ", "fffdrrd",
            &Point_x(centre),
@@ -170,7 +170,7 @@ DEF_MENU_FUNCTION( make_line_circle )
                                 n_around, get_lines_ptr(object) );
 
             get_lines_ptr(object)->colours[0] = WHITE;
-            add_object_to_current_model( display, object );
+            add_object_to_current_model( display, object, FALSE );
         }
     }
     return( VIO_OK );
@@ -207,6 +207,9 @@ DEF_MENU_UPDATE(subdivide_current_lines )
     return( current_object_is_this_type( display, LINES ) );
 }
 
+/**
+ * Convert any markers contained within the current object to lines.
+ */
 static  void  convert_to_lines(
     display_struct   *display,
     VIO_BOOL          closed )
@@ -345,7 +348,7 @@ static  void  convert_to_lines(
                     lines->points[i] = markers[i];
             }
 
-            add_object_to_current_model( display, object );
+            add_object_to_current_model( display, object, FALSE );
         }
     }
 
@@ -412,4 +415,176 @@ DEF_MENU_FUNCTION( set_line_widths )
 DEF_MENU_UPDATE(set_line_widths )
 {
     return( current_object_is_this_type( display, LINES ) );
+}
+
+VIO_Colour
+points_to_colour( VIO_Point *pt0, VIO_Point *pt1 )
+{
+  VIO_Real dx = fabs( Point_x(*pt0) - Point_x(*pt1) );
+  VIO_Real dy = fabs( Point_y(*pt0) - Point_y(*pt1) );
+  VIO_Real dz = fabs( Point_z(*pt0) - Point_z(*pt1) );
+  VIO_Real scale = dx + dy + dz;
+  return ( scale == 0 ) ? WHITE : make_Colour_0_1( dx / scale,
+                                                   dy / scale,
+                                                   dz / scale );
+}
+
+void
+colourize_lines_by_xyz( lines_struct *lines_ptr, VIO_BOOL per_vertex )
+{
+  int        n_colours = 0;
+  int        item;
+  int        n_vertices;
+  VIO_Colour col;
+  int        a, b;
+
+  if ( per_vertex )
+  {
+    lines_ptr->colour_flag = PER_VERTEX_COLOURS;
+  }
+  else
+  {
+    lines_ptr->colour_flag = PER_ITEM_COLOURS;
+  }
+  FREE( lines_ptr->colours );
+
+  if ( per_vertex )
+  {
+    int vtx;
+
+    for ( item = 0; item < lines_ptr->n_items; item++ )
+    {
+      n_vertices = GET_OBJECT_SIZE( *lines_ptr, item );
+
+      for ( vtx = 0; vtx < n_vertices - 1; vtx++ )
+      {
+        a = lines_ptr->indices[POINT_INDEX( lines_ptr->end_indices, item, vtx + 0 )];
+        b = lines_ptr->indices[POINT_INDEX( lines_ptr->end_indices, item, vtx + 1 )];
+        col = points_to_colour( &lines_ptr->points[a], &lines_ptr->points[b] );
+
+        ADD_ELEMENT_TO_ARRAY( lines_ptr->colours, n_colours, col,
+                              DEFAULT_CHUNK_SIZE );
+      }
+      ADD_ELEMENT_TO_ARRAY( lines_ptr->colours, n_colours, col,
+                            DEFAULT_CHUNK_SIZE );
+    }
+  }
+  else
+  {
+    for ( item = 0; item < lines_ptr->n_items; item++ )
+    {
+      n_vertices = GET_OBJECT_SIZE( *lines_ptr, item );
+      a = lines_ptr->indices[POINT_INDEX( lines_ptr->end_indices, item, 0 )];
+      b = lines_ptr->indices[POINT_INDEX( lines_ptr->end_indices, item, n_vertices - 1 )];
+      col = points_to_colour( &lines_ptr->points[a], &lines_ptr->points[b] );
+      ADD_ELEMENT_TO_ARRAY( lines_ptr->colours, n_colours, col,
+                            DEFAULT_CHUNK_SIZE );
+    }
+  }
+}
+
+DEF_MENU_FUNCTION( menu_colourize_lines )
+{
+  lines_struct *lines_ptr;
+
+  if (get_current_lines( display, &lines_ptr ))
+  {
+    colourize_lines_by_xyz( lines_ptr, TRUE );
+    graphics_models_have_changed( display );
+  }
+  return VIO_OK;
+}
+
+DEF_MENU_UPDATE( menu_colourize_lines )
+{
+  return( current_object_is_this_type( display, LINES ) );
+}
+
+/**
+ * Get the length of a particular line segment.
+ * \param lines_ptr The lines object.
+ * \param item The index of the segment.
+ * \returns The total length of the segment.
+ */
+VIO_Real
+get_segment_length( lines_struct *lines_ptr, int item )
+{
+  VIO_Real len = 0.0;
+
+  if ( item >= 0 && item < lines_ptr->n_items )
+  {
+    int n_vertices = GET_OBJECT_SIZE( *lines_ptr, item );
+    int i, a, b;
+
+    for ( i = 0; i < n_vertices - 1; i++ )
+    {
+      a = lines_ptr->indices[POINT_INDEX(lines_ptr->end_indices, item, i + 0)];
+      b = lines_ptr->indices[POINT_INDEX(lines_ptr->end_indices, item, i + 1)];
+      len += distance_between_points( &lines_ptr->points[a],
+                                      &lines_ptr->points[b] );
+    }
+  }
+  return( len );
+}
+
+/**
+ * Create a new lines object, deleting lines below some fixed length
+ * threshold.
+ *
+ * \param lines_ptr The lines object to copy.
+ * \param min_length The minimum line length to copy.
+ * \returns A new lines object consisting of only the lines over the 
+ * desired threshold.
+ */
+object_struct *
+filter_lines_by_length( lines_struct *lines_ptr, VIO_Real min_length )
+{
+  int           item;
+  object_struct *object_ptr;
+  lines_struct  *new_lines_ptr;
+
+  object_ptr = create_object( LINES );
+  new_lines_ptr = get_lines_ptr( object_ptr );
+  initialize_lines( new_lines_ptr, WHITE );
+
+  for ( item = 0; item < lines_ptr->n_items; item++ )
+  {
+    VIO_Real length = get_segment_length( lines_ptr, item );
+    if ( length >= min_length )
+    {
+      int n = GET_OBJECT_SIZE( *lines_ptr, item );
+      int i, j;
+
+      start_new_line( new_lines_ptr );
+      for ( i = 0; i < n; i++ )
+      {
+        j = lines_ptr->indices[POINT_INDEX(lines_ptr->end_indices, item, i)];
+        add_point_to_line( new_lines_ptr, &lines_ptr->points[j] );
+      }
+    }
+  }
+  return object_ptr;
+}
+
+DEF_MENU_FUNCTION( menu_threshold_lines )
+{
+  lines_struct *lines_ptr;
+  object_struct *object_ptr;
+
+  if (get_current_lines( display, &lines_ptr ))
+  {
+    VIO_Real thresh;
+    if ( get_user_input( "Enter length threshold: ", "r", &thresh ) == VIO_OK )
+    {
+      object_ptr = filter_lines_by_length( lines_ptr,  thresh );
+      add_object_to_current_model( display, object_ptr, FALSE );
+      graphics_models_have_changed( display );
+    }
+  }
+  return VIO_OK;
+}
+
+DEF_MENU_UPDATE( menu_threshold_lines )
+{
+  return( current_object_is_this_type( display, LINES ) );
 }

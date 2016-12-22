@@ -121,11 +121,14 @@ involve core functionality.
 \begin{itemize}
 \item The intersection between a 3D surface and the loaded volume is automatically displayed in the slice window.
 \item Dynamic scans (e.g. DTI, fMRI, and PET) can now be loaded in \display{}.
-\item The ability to read FreeSurfer (.mgz/.mgh) and NIfTI-1 (.nii)
-  volumes.
+\item Support for reading FreeSurfer (.mgz/.mgh), NIfTI-1 (.nii/.hdr), and
+  NRRD (.nrrd/.nhdr) volumes.
 \item Output support for surface formats including Wavefront OBJ,
   Stanford PLY, GIFTI, and X3D.
-\item Input support for surface and geometric formats including Wavefront OBJ, Stanford (\ident{.ply}), GIFTI (\ident{.gii}), BrainSuite surfaces (\ident{.dfs}), BrainSuite tractography (\ident{.dft}), and FreeSurfer surfaces.
+\item Input support for surface and geometric formats including
+  Wavefront OBJ, Stanford (\ident{.ply}), GIFTI (\ident{.gii}),
+  BrainSuite surfaces (\ident{.dfs}), BrainSuite tractography
+  (\ident{.dft}), TrackVis (\ident{.trk}) and FreeSurfer surfaces.
 \item The previous 20 painting operations can be undone.
 \item A user can now load per-vertex data, such as cortical thickness
   measurements, for visualization on 3D surfaces.
@@ -153,11 +156,10 @@ and Mac OS X. You may find that \display{} is already installed on your workstat
 
 \subsection{Installing \display{}}
 If you do not already have \display{} installed, you can install it as
-part of Minc Tools (version 1.0.01 is recommended), following the
-instructions at:
+part of MINC toolkit following the instructions at:
 \url{http://www.bic.mni.mcgill.ca/ServicesSoftware/ServicesSoftwareMincToolKit}.
 
-Alternatively, the source code for MNI-Display is available on Github:
+Alternatively, the source code for \display{} is available on Github:
 \url{https://github.com/BIC-MNI/Display}.
 
 Once you have installed the program, you must also source the
@@ -174,7 +176,7 @@ or
 Change these directories if it you installed the toolkit to a
 different location. Then you should be ready to run the program.
 
-More information about MNI-Display is also available at:
+More information about \display{} is also available at:
 \url{http://www.bic.mni.mcgill.ca/software/Display/Display.html}
 and
 \url{http://www.bic.mni.mcgill.ca/~david/}.
@@ -225,6 +227,10 @@ options include:
 \item \ident{-help} : Print basic usage information and exit.
 \item \ident{-version} : Print program and library version information and exit.
 \item \ident{-label} $filename$ : Load volume labels from the given file in \ident{.mnc} or \ident{.tag} format.
+\item \ident{-vertex} $filename$ : Load per-vertex statistics from the
+  given file and associate it with the most recently loaded
+  surface. Data must be in GIFTI, \ident{.vertstats}, \ident{.csv},
+  \ident{.tsv}, or \ident{.txt} format.
 \item \ident{-skiperror} : Ignore errors encountered when loading files from the command line.
 \item \ident{-ratio} $V_1$,$V_2$ : Display the value of volume number $V_1$
   divided by value of volume number $V_2$ as part of the slice window status. You must load at least two
@@ -990,6 +996,7 @@ volume.
 \item[\menutwo{Slice View}{Make All Visible}] Make all of the volumes visible again.
 \item[\menutwo{Slice View}{Vol Opacity:}]  Prompts the user for an opacity
   value and sets the opacity of the current volume.
+\item[\menutwo{Slice View}{Move to top}] Moves the currently selected volume to the ``top'' of the volume list, so that it will be drawn on top of other loaded volumes.
 \end{description}
 
 \subsection{Volume Config}
@@ -1153,6 +1160,11 @@ mouse button is pressed over a slice in the slice window, the current
 paint label value is painted into the label volume of the most recently
 loaded visible volume.  
 
+The mapping from label values to colours is arbitrary and can
+be configured by loading a discrete colour map \ident{.map} file. The
+default mappings of label values to colours can be configured using the
+{\tt Initial\_label\_colour\_table} command.
+
 \subsubsection{Erasing}
 
 The default value of all labels is zero, which is considered to be the
@@ -1169,6 +1181,19 @@ switching from fine-grained to coarse-grained painting. By default the
 secondary brush is a sphere 3 units in diameter. The Ctrl+B key combination
 is used to toggle between these brushes, and the menu commands to set
 the brush size will set the size of the current brush.
+
+\subsubsection{Label visibility}
+
+The visibility of individual labels can be toggled on or off. There
+are two commands that support this. The first,
+\menutwo{Segmenting}{Show/Hide Labels}, prompts for a specific label
+number. The second, which is accessed by pressing the {\tt 'L'} key
+while in the \menu{Segmenting} menu, affects only the {\em current} paint
+label. In either case, if the label is currently visible, it will be
+made invisible, and if it is currently invisible, it will be made visible.
+
+Note that when painting operations are performed (e.g. with the right
+mouse button), the current label will always be re-enabled.
 
 \begin{description}
 \item[\menutwo{Segmenting}{Clear All Labels}] Sets all labels of the
@@ -1237,18 +1262,16 @@ the brush size will set the size of the current brush.
 \item[\menutwo{Segmenting}{Connectivity}] Toggles between using 8 (or
   26)-neighbour and 4 (or 6)-neighbour connectivity in 2D (3D)
   operations such as fill, dilate, and erode.
-\item[\menutwo{Segmenting}{Erode 3D}] Prompts the user for a label range
-  which corresponds to outside the labels of interest, and erodes
-  regions of the current paint label which are neighbouring the typed-in
-  label range. Typically the user will type in ``0 -1'' to specify all
-  labels which are not equal to the current paint label. {\em Cannot be
-    undone}.
-\item[\menutwo{Segmenting}{Dilate 3D}] Prompts the user for a label
-  range which corresponds to outside the labels of interest, and dilates
-  regions of the current paint label which are neighbouring the typed-in
-  label range. Typically the user will type in ``0 -1'' to specify all
-  labels which are not equal to the current paint label. {\em Cannot be
-    undone}.
+\item[\menutwo{Segmenting}{Erode 3D}] Prompts the user for an integer
+  label range, and erodes regions of the current paint label which are
+  neighbouring this label range. Typically the user will enter
+  ``0 -1'' to specify all labels which are not equal to the current
+  paint label. {\em Cannot be undone}.
+\item[\menutwo{Segmenting}{Dilate 3D}] Prompts the user for an integer
+  label range, and dilates regions of the current paint label which are
+  neighbouring this label range. Typically the user will enter
+  ``0 -1'' to specify all labels which are not equal to the current
+  paint label. {\em Cannot be undone}.
 \item[\menutwo{Segmenting}{Copy from Rt/Sup/Ant}] If the mouse is
   pointing to a slice in the slice window, then the labels of the
   neighbouring slice are copied to this slice.  For transverse slices,
@@ -1279,10 +1302,9 @@ the brush size will set the size of the current brush.
   If the maximum value specified is less than or equal to the minimum value,
   then this range is ignored, and the operation simply changes all
   occurrences of the source label to the destination label.
-\item[\menutwo{Segmenting}{Fast Update}] Toggles between updating only
-  the slice on which the mouse is painting or all slices, in order to
-  provide a speed tradeoff.  By default, fast update is on, which
-  results in fast painting.
+\item[\menutwo{Segmenting}{Show/Hide Label}] Toggles the visibility
+  of a particular label. The command allows you to make specific label
+  values invisible temporarily. The user is prompted for the label value.
 \item[\menutwo{Segmenting}{Cursor Follows}] Toggles the mode where the
   slice cursor follows the mouse during painting.  This results in
   slower update speeds, but all slice views show updated labels as
@@ -1299,8 +1321,8 @@ the brush size will set the size of the current brush.
 
 \subsection{Translate Labels}
 
-This is a menu which may be used to translate position of the all
-labels by integral voxel increments.
+This menu may be used to translate the position of all labels by
+integral voxel increments.
 
 \begin{description}
 \item[\menutwo{Translate Labels}{Trans \textasciicircum }]  Moves all labels one voxel in the
@@ -1313,6 +1335,50 @@ labels by integral voxel increments.
   right direction of the slice pointed to by the mouse.
 \item[\menutwo{Translate Labels}{Big Translate}]  Prompts for 3 voxel
   offsets and moves all labels by this amount.
+\end{description}
+
+\subsection{Lines}
+
+This menu is used to perform various operations on lines objects,
+including tractography data. Lines objects consist of a set of one or
+more curves, each of which is defined by one or more line segments.
+
+\begin{description}
+\item[\menutwo{Lines}{Set Line Width}] Sets the width used for drawing
+ the selected lines object.
+\item[\menutwo{Lines}{Spline Line}] Converts a lines object to a new set of
+ lines using spline interpolation. Each segment is smoothed to contain
+ the number of segments defined using the \menutwo{3D Render}{Set \#
+ Curve Segments} command.
+\item[\menutwo{Lines}{Smooth Lines}] Prompts for a smoothing distance
+  and attempts to smooth the current lines object.
+\item[\menutwo{Lines}{Create Tube}] Create ``tubes'', or quadmeshes,
+ along the tracks of the lines object. Prompts for the number of points
+ in the circumference of the tubes, and the radius of the tubes.
+\item[\menutwo{Lines}{Convert Markers}] Transforms the markers contained
+  within the current model into an open curve. If you specify
+  zero for the number of points, the curve will be created using
+  the markers without interpolation. If you specify two or more for the
+  number of points, cubic interpolation will be used to create a curve
+  containing exactly as many points as requested.
+\item[\menutwo{Lines}{Make Line Circle}] Creates a circle or ellipse
+ using user-supplied parameters consisting of three centre
+ coordinates, an axis index (0=X, 1=Y, or 2=Z), a width and height,
+ and a number of segments.
+\item[\menutwo{Lines}{Subdivide Line}] Doubles the number of points used
+  to define a curve or line segment, by splitting each segment in half.
+\item[\menutwo{Lines}{Convert Closed Marker}] Transforms the markers contained
+  within the current model into a closed, segmented curve. If you specify
+  zero for the number of points, the curve will be created using
+  the markers without interpolation. If you specify two or more for the
+  number of points, cubic interpolation will be used to create a curve
+  containing exactly as many points as requested.
+\item[\menutwo{Lines}{Colourize by XYZ}] Apply colours to the line
+  segments according to their direction, with X=red, Y=green, and
+  Z=blue.
+\item[\menutwo{Lines}{Threshold by length}] Create a new lines object
+  from the current lines object, by removing all lines that are less
+  than a particular value in length.  
 \end{description}
 
 \subsection{Create Surface}
@@ -1528,7 +1594,8 @@ displayed in the 3D view window.
   lights are off, all objects are coloured uniformly.
 \item[\menutwo{3D Render}{2 Sided}]  Not for general use.
 \item[\menutwo{3D Render}{Backface}]  Not for general use.
-\item[\menutwo{3D Render}{Set \# Curve Segments}]  Not for general use.
+\item[\menutwo{3D Render}{Set \# Curve Segments}] Sets the number of
+  curve segments used for spline interpolation.
 \item[\menutwo{3D Render}{Marker Labels: Off or On}] Toggles the
   display of the text labels of the markers in the 3D window.
 \item[\menutwo{3D Render}{Lines as Curves: Off or On}] Toggles whether
@@ -2024,7 +2091,7 @@ right quadrant. The green lines show the intersection of the oblique slice plane
 \end{figure}
 
 \begin{enumerate}
-\item Start MNI-Display as usual with a volume: 
+\item Start \display{} as usual with a volume: 
 \begin{verbatim}
 Display prefix_104_t1_final.mnc 
 \end{verbatim}
@@ -2088,7 +2155,7 @@ not the cerebellum, which is now hidden.}
 
 \subsection{How to Create a Cut-Away View of a Cortical Surface}
 
-Within MNI-Display you can create a cut-away view of the cortical surface to show anatomical features inside. Type the following to open an average model brain and model of brainstem and cerebellum:
+Within \display{} you can create a cut-away view of the cortical surface to show anatomical features inside. Type the following to open an average model brain and model of brainstem and cerebellum:
 
 \begin{verbatim}
 Display ti_final.mnc avg_model.obj brain_stem_model.obj cerebellum_model.obj
@@ -2170,6 +2237,8 @@ brew install homebrew/x11/zenity
 %% \subsection{Object Hierarchy on the Mac}
 
 \input{globals.tex}
+
+\input{menu_file_format.tex}
 
 \input{colour_list.tex}
 

@@ -80,12 +80,6 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Directional_light_colour )
     DEF_GLOBAL3( Light_direction, VIO_Vector, {1.0f, -1.0f, -1.0f} )
 
-    DEF_GLOBAL( Initial_menu_window_x, int, -1 )
-    DEF_GLOBAL( Initial_menu_window_y, int, -1 )
-    DEF_GLOBAL( Initial_menu_window_width, int, 850 )
-    DEF_GLOBAL( Initial_menu_window_height, int, 260 )
-    DEF_GLOBAL( Canonical_menu_window_width, int, 850 )
-    DEF_GLOBAL( Canonical_menu_window_height, int, 260 )
     DEF_GLOBAL( Menu_window_font, int, 1 )
     DEF_GLOBAL( Menu_window_font_size, VIO_Real, 10.0 )
     DEF_GLOBAL( X_menu_origin, VIO_Real, 70.0 )
@@ -317,7 +311,7 @@ START_GLOBALS
 /**
  * If greater or equal to zero, a bintree will be generated automatically
  * for any lines object loaded where the number of segments (n_items) or
- * points (n_points) is greater than this value. This may affect the 
+ * points (n_points) is greater than this value. This may affect the
  * speed of some 3D view operations.
  */
     DEF_GLOBAL( Lines_bintree_threshold, int, 10000 )
@@ -375,9 +369,24 @@ START_GLOBALS
     DEF_GLOBAL( Default_y_brush_radius, VIO_Real, 3.0 )
     DEF_GLOBAL( Default_z_brush_radius, VIO_Real, 0.0 )
     DEF_GLOBAL( Default_paint_label, int, 1 )
+/**
+ * This controls the initial state of the "fast painting" mode that somewhat
+ * improves performance of painting operations.
+ */
     DEF_GLOBAL( Default_fast_painting_flag, VIO_BOOL, TRUE )
+/**
+ * When set, this variable causes the cursor to follow the paintbrush
+ * by default.
+ */
     DEF_GLOBAL( Default_cursor_follows_paintbrush_flag, VIO_BOOL, FALSE )
+/**
+ * This variable is used to set a scaling factor that controls how quickly
+ * the mouse moves over an area during painting.
+ */
     DEF_GLOBAL( Initial_mouse_scale_factor, VIO_Real, 1.0 )
+/**
+ * This variable controls whether or not the brush "outline" is drawn.
+ */
     DEF_GLOBAL( Draw_brush_outline, VIO_BOOL, TRUE )
     DEF_GLOBAL_COLOUR( Brush_outline_colour )
     DEF_GLOBAL( Brush_outline_offset, int, 0 )
@@ -387,6 +396,12 @@ START_GLOBALS
     DEF_GLOBAL( Undo_enabled, VIO_BOOL, TRUE )
 
     DEF_GLOBAL( Volume_continuity, int, 0 )
+
+/**
+ * If true, volumes are converted to byte as they are loaded, which
+ * reduces the possible number of intensities to 256. Set this to
+ * false if you need to visualize a file with a higher precision.
+ */
     DEF_GLOBAL( Convert_volumes_to_byte, VIO_BOOL, TRUE )
 
     DEF_GLOBAL( Move_slice_speed, VIO_Real, 0.25 )
@@ -405,6 +420,9 @@ START_GLOBALS
     DEF_GLOBAL( Menu_name_font, int, 1 )
     DEF_GLOBAL( Menu_name_font_size, VIO_Real, 12.0 )
 
+/** If true, Display relies on OpenGL to do the compositing of multiple
+ * slice images.
+ */
     DEF_GLOBAL( Use_transparency_hardware, VIO_BOOL, TRUE )
 
     DEF_GLOBAL( Crop_volume_command, VIO_STR, "mincreshape -clobber %s %s -start %d,%d,%d -count %d,%d,%d" )
@@ -433,48 +451,118 @@ START_GLOBALS
     DEF_GLOBAL( Crop_label_volumes_threshold, VIO_Real, 0.9 )
     DEF_GLOBAL( Initial_crop_labels_on_output, VIO_BOOL, FALSE )
 
-    DEF_GLOBAL( Duplicate_boundary_vertices, VIO_BOOL, FALSE )
-
+/** Controls whether we are in "freestyle" or straight line drawing mode.
+ */
     DEF_GLOBAL( Toggle_freestyle_painting, VIO_BOOL, TRUE )
-    DEF_GLOBAL( First_straightline_right_mouse_down,VIO_BOOL, TRUE )
 
+/** When set, this name will be used any time we save labels, instead of
+ * prompting the user for a filename each time.
+ */
     DEF_GLOBAL( Output_label_filename, VIO_STR, "" )
+
+/** If true Display will exit when a file specified on the command line 
+ * fails to load.
+ */
     DEF_GLOBAL( Exit_error_load_file, VIO_BOOL, TRUE )
+
+/** This string is used to set the two volumes used when the volume ratio
+ * is displayed. It generally has the form "N,D", where N is the number of
+ * the "numerator" volume and "D" is the number of the denominator volume.
+ */
     DEF_GLOBAL( Ratio_volume_index, VIO_STR, "" )
+
+/** This string defines the format of the Ratio_volume_index string.
+ */
     DEF_GLOBAL( Ratio_volume_index_format, VIO_STR, "%d,%d" )
+
+/** This string defines the format of the volume ratio display.
+ */
     DEF_GLOBAL( Slice_probe_ratio_format, VIO_STR, "%d/%d %6.2f" )
+
+/** This defines the colour of the volume ratio text, when displayed.
+ */
     DEF_GLOBAL_COLOUR( Slice_probe_ratio_colour )
 
+/** If true the 3D view window will be hidden by default. It will be shown
+ * automatically when 3D objects are loaded or created.
+ */
     DEF_GLOBAL( Hide_3D_window, VIO_BOOL, TRUE )
+
+/** If true the object list window will be hidden by default. It will be shown
+ * automatically when 3D objects are loaded or created.
+ */
     DEF_GLOBAL( Hide_marker_window, VIO_BOOL, TRUE )
+
+/** If true the menu (keyboard) window will be hidden. */
     DEF_GLOBAL( Hide_menu_window, VIO_BOOL, FALSE )
+
+/** If true the slice window will be hidden. Why would you do this? */
     DEF_GLOBAL( Show_slice_window, VIO_BOOL, TRUE )
+
+/** Sets the x origin of the items in the object list. */
+    DEF_GLOBAL( Selected_x_origin, VIO_Real, 20.0 )
+    
+/** Sets the colour of the box drawn around the current selected item
+ * in the object list window.
+ */
+    DEF_GLOBAL_COLOUR( Selected_colour )
+
+/** Sets the colour used for visible items on the object list
+ * window. Used only if the object itself has no colour set.
+ */
+    DEF_GLOBAL_COLOUR( Visible_colour )
+
+/** Set the colour used to indicate that an object in the object list
+ * window is currently invisible.
+ */
+    DEF_GLOBAL_COLOUR( Invisible_colour )
+    DEF_GLOBAL( Selected_box_x_offset, VIO_Real, 2.0 )
+    DEF_GLOBAL( Selected_box_y_offset, VIO_Real, 2.0 )
+
+/** Size of font used in the object list window.
+ */
+    DEF_GLOBAL( Object_window_font_size, VIO_Real, 10.0 )
+
+/** Enables the experimental feature that automatically generates
+ * tags (markers) from each label.
+ */
+    DEF_GLOBAL( Tags_from_label, VIO_BOOL, FALSE )
+
+/** Controls whether undo is enabled by default. */
+    DEF_GLOBAL( Initial_undo_feature, VIO_BOOL, TRUE )
+
+/** Sets the number of edit operations that can be undone. */
+    DEF_GLOBAL( Undo_list_length, int, 20 )
+
+/** Sets the line width used for object outlines in the slice window. */
+    DEF_GLOBAL( Object_outline_width, VIO_Real, 1.0 )
+    
+/** Controls whether object outlines are enabled. */
+    DEF_GLOBAL( Object_outline_enabled, VIO_BOOL, TRUE )
+
+/** Sets the tolerance used when deciding to draw the trace of
+ * line objects in the slice plane.
+ */
+    DEF_GLOBAL( Object_outline_distance, VIO_Real, 1e-5 )
+
+/** If True, Display will attempt to use Zenity to display
+ * dialog boxes for input.
+ */
+    DEF_GLOBAL( Use_zenity_for_input, VIO_BOOL, TRUE )
+
+/** If true the old-style field of view calculation will be shown in
+ * the slice view.
+ */
+    DEF_GLOBAL( Show_slice_field_of_view, VIO_BOOL, FALSE )
 
     DEF_GLOBAL( Initial_marker_window_x, int, -1 )
     DEF_GLOBAL( Initial_marker_window_y, int, -1 )
     DEF_GLOBAL( Initial_marker_window_width, int, 250 )
     DEF_GLOBAL( Initial_marker_window_height, int, 500 )
-    DEF_GLOBAL( Canonical_marker_window_width, int, 250 )
-    DEF_GLOBAL( Canonical_marker_window_height, int, 500 )
-
-    DEF_GLOBAL( N_selected_displayed, int, 50 )
-    DEF_GLOBAL( Selected_x_origin, VIO_Real, 20.0 )
-    DEF_GLOBAL_COLOUR( Selected_colour )
-    DEF_GLOBAL_COLOUR( Visible_colour )
-    DEF_GLOBAL_COLOUR( Invisible_colour )
-    DEF_GLOBAL( Selected_box_x_offset, VIO_Real, 2.0 )
-    DEF_GLOBAL( Selected_box_y_offset, VIO_Real, 2.0 )
-    DEF_GLOBAL( Object_window_font_size, VIO_Real, 10.0 )
-    DEF_GLOBAL( Tags_from_label, VIO_BOOL, FALSE )
-
-    DEF_GLOBAL( Initial_undo_feature, VIO_BOOL, TRUE )
-    DEF_GLOBAL( Undo_list_length, int, 20 )
-
-    DEF_GLOBAL( Object_outline_width, VIO_Real, 1.0 )
-    DEF_GLOBAL( Object_outline_enabled, VIO_BOOL, TRUE )
-    DEF_GLOBAL( Object_outline_distance, VIO_Real, 1e-5 )
-    DEF_GLOBAL( Use_zenity_for_input, VIO_BOOL, TRUE )
-    DEF_GLOBAL( Show_slice_field_of_view, VIO_BOOL, FALSE )
+    DEF_GLOBAL( Initial_menu_window_x, int, -1 )
+    DEF_GLOBAL( Initial_menu_window_y, int, -1 )
+    DEF_GLOBAL( Initial_menu_window_width, int, 850 )
+    DEF_GLOBAL( Initial_menu_window_height, int, 260 )
     DEF_GLOBAL( Initial_slice_window_x, int, -1 )
     DEF_GLOBAL( Initial_slice_window_y, int, -1 )
     DEF_GLOBAL( Initial_slice_window_width, int, -1 )
@@ -484,6 +572,11 @@ START_GLOBALS
     DEF_GLOBAL( Initial_3D_window_width, int, -1 )
     DEF_GLOBAL( Initial_3D_window_height, int, -1 )
 
+/** Sets the default width used for the keyboard menu window. */
+    DEF_GLOBAL( Canonical_menu_window_width, int, 850 )
+/** Sets the default height used for the keyboard menu window. */
+    DEF_GLOBAL( Canonical_menu_window_height, int, 260 )
+    
 /** Defines the half-width of the secondary brush in world units. */
     DEF_GLOBAL( Secondary_x_brush_radius, VIO_Real, 3.0 )
 /** Defines the half-height of the secondary brush in world units. */
@@ -505,37 +598,37 @@ START_GLOBALS
     value of the colour coding range. */
     DEF_GLOBAL_COLOUR( Initial_vertex_over_colour )
 
-/** 
+/**
  * Defines the length in pixels of the longest (10's) tick marks in
  * the rulers.
  */
      DEF_GLOBAL( Ruler_big_tick_length, int, 12 )
 
-/** 
+/**
  * Defines the length in pixels of the medium (5's) tick marks in the
  * rulers.
  */
      DEF_GLOBAL( Ruler_medium_tick_length, int, 9 )
 
-/** 
+/**
  * Defines the length in pixels of the small (1's) tick marks in the
  * rulers.
  */
      DEF_GLOBAL( Ruler_small_tick_length, int, 5 )
 
-/** 
+/**
  * Defines the offset in pixels for the Y axis relative to the
  * left-hand side of the slice view.
  */
      DEF_GLOBAL( Ruler_y_axis_x_offset, int, 38 )
 
-/** 
+/**
  * Defines the offset in pixels for the X axis relative to the bottom
  * edge of the slice view.
  */
      DEF_GLOBAL( Ruler_x_axis_y_offset, int, 25 )
 
-/** 
+/**
  * If TRUE, the rulers will be displayed by default.
  */
      DEF_GLOBAL( Ruler_initially_visible, VIO_BOOL, FALSE )
@@ -594,5 +687,70 @@ START_GLOBALS
  */
      DEF_GLOBAL( Zenity_command, VIO_STR, "env -u WINDOWID zenity" )
 
+/**
+ * Select the default label colour table. A value of one selects a
+ * "standard" table used in other tools around the BIC. A value of
+ * two selects a set of perceptually-distinct colours. Any other value
+ * selects the "classic" colour table used for many years.
+ */
+     DEF_GLOBAL( Initial_label_colour_table, int, 0 )
+
+/**
+ * Controls the interpretation of GIFTI vertex data in surface files.
+ * The correct behavior is to define coordinate indices as follows: 0
+ * as -L +R, 1 as -P, +A, and 2 as -I, +S, or what we call "RAS".
+ * However, GIFTI files seem to routinely violate this rule. Each
+ * position in this three-letter string can be set to one of L or R, A
+ * or P, or I or S. The letter specifies the positive direction for
+ * that coordinate index. This allows you to specify the order and
+ * direction of the mapping. For example, setting this to LIP would
+ * specify: 0 as -R, +L, 1 as -S, +I, and 2 as -A, +P.
+ */
+     DEF_GLOBAL( GIFTI_orientation, VIO_STR, "RAS" )
+
+/**
+ * Sets the maximum tolerance for considering vertex data as labels
+ * (as opposed to continuous data).
+ */
+     DEF_GLOBAL( Vertex_label_tolerance, VIO_Real, 0.1 )
+
+/**
+ * If TRUE, scalebar display on the slice view is enabled.
+ */
+     DEF_GLOBAL( Scalebar_enabled, VIO_BOOL, FALSE )
+
+/**
+ * Set the quadrant of the scalebar, one of the following:
+ * 1: upper right, 2: upper left, 3: lower left, 4: lower right
+ */
+     DEF_GLOBAL( Scalebar_quadrant, int, 1 )
+
+/**
+ * Height of the scalebar in pixels.
+ */
+     DEF_GLOBAL( Scalebar_height, int, 8 )
+
+/**
+ * The colour to use for the scalebar.
+ */
+     DEF_GLOBAL_COLOUR( Scalebar_colour )
+
+/**
+ * If TRUE, the 3D view zoom level and position be updated when a new
+ * graphics file is loaded. The advantage of enabling this option is that
+ * the 3D view will always expand to show loaded objects outside the
+ * current viewport. The disadvantage is that it will reset your current
+ * zoom and rotation.
+ */
+     DEF_GLOBAL( Update_3d_view_on_load, VIO_BOOL, TRUE )
+
+/**
+ * If TRUE, the 3D view zoom level and position be updated when a new
+ * graphics object is created. The advantage of enabling this option is that
+ * the 3D view will always expand to show created objects outside the
+ * current viewport. The disadvantage is that it will reset your current
+ * zoom and rotation.
+ */
+     DEF_GLOBAL( Update_3d_view_on_new, VIO_BOOL, TRUE )
 END_GLOBALS
 /** @} */

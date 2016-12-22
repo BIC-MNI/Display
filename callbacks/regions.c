@@ -243,13 +243,14 @@ DEF_MENU_FUNCTION( set_label_colour )
                            "ds", &label, &line) == VIO_OK &&
             label >= 1 && label < get_num_labels(slice_window, volume_index))
         {
-            col = convert_string_to_colour( line );
+            if ( string_to_colour( line, &col ) == VIO_OK )
+            {
+                set_colour_of_label( slice_window, volume_index, label, col );
 
-            set_colour_of_label( slice_window, volume_index, label, col );
-
-            set_slice_window_all_update( slice_window, volume_index, 
-                                         UPDATE_LABELS );
-            delete_string( line );
+                set_slice_window_all_update( slice_window, volume_index, 
+                                             UPDATE_LABELS );
+                delete_string( line );
+            }
         }
     }
 
@@ -292,6 +293,7 @@ static  void  copy_labels_from_adjacent_slice(
         if( int_voxel_is_within_volume( volume, src_index ) )
         {
             undo_start(slice_window, volume_index);
+            make_current_label_visible( slice_window, volume_index );
 
             copy_labels_slice_to_slice(
                          slice_window, volume_index,
@@ -450,46 +452,60 @@ static  void  copy_labels_from_adjacent_slice(
     return( get_n_volumes(display) > 0 );
 }
 
-static  void  calculate_label_volume(
+static  void
+calculate_label_volume(
     display_struct  *slice_window,
     int             volume_index,
     int             label,
     int             *n_voxels,
-    VIO_Real            *cubic_mm )
+    VIO_Real        *cubic_mm )
 {
-    int     x, y, z, sizes[VIO_MAX_DIMENSIONS];
-    int     n_vox;
-    VIO_Real    separations[VIO_MAX_DIMENSIONS];
-    VIO_Volume  label_volume;
+    int        x, y, z, sizes[VIO_MAX_DIMENSIONS];
+    int        n_vox;
+    VIO_Real   separations[VIO_MAX_DIMENSIONS];
+    VIO_Volume label_volume;
+    int        c;
+    VIO_Real   cubic_units_per_voxel;
 
-    label_volume = get_nth_label_volume(slice_window,volume_index);
+    label_volume = get_nth_label_volume( slice_window, volume_index );
 
     get_volume_sizes( label_volume, sizes );
     n_vox = 0;
 
-    for_less( x, 0, sizes[VIO_X] )
-    {
-        for_less( y, 0, sizes[VIO_Y] )
-        {
-            for_less( z, 0, sizes[VIO_Z] )
-            {
-                if( get_voxel_label( slice_window, volume_index,
-                                     x, y, z ) == label )
-                    ++n_vox;
-            }
-        }
-    }
-
     get_volume_separations( label_volume, separations );
 
-    *n_voxels = n_vox;
-    *cubic_mm = (VIO_Real) n_vox * separations[VIO_X] * separations[VIO_Y] * separations[VIO_Z];
-    *cubic_mm = VIO_FABS( *cubic_mm );
+    cubic_units_per_voxel = 1;
+    for (c = 0; c < VIO_N_DIMENSIONS; c++)
+    {
+      separations[c] = VIO_FABS(separations[c]);
+      cubic_units_per_voxel *= separations[c];
+    }
+
+    if ( !volume_is_alloced( label_volume ) )
+    {
+      *n_voxels = 0;
+      *cubic_mm = 0;
+    }
+    else
+    {
+      for_less( x, 0, sizes[VIO_X] )
+      {
+        for_less( y, 0, sizes[VIO_Y] )
+        {
+          for_less( z, 0, sizes[VIO_Z] )
+          {
+            if( get_volume_voxel_value( label_volume, x, y, z, 0, 0 ) == label )
+              ++n_vox;
+          }
+        }
+      }
+
+      *n_voxels = n_vox;
+      *cubic_mm = n_vox * cubic_units_per_voxel;
+    }
 
     print( "Voxel size: %g mm by %g mm by %g mm\n",
-           VIO_FABS( separations[VIO_X] ),
-           VIO_FABS( separations[VIO_Y] ),
-           VIO_FABS( separations[VIO_Z] ) );
+           separations[VIO_X], separations[VIO_Y], separations[VIO_Z] );
 }
 
 /* ARGSUSED */
@@ -527,67 +543,63 @@ static  void  calculate_label_volume(
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( flip_labels_in_x )
+DEF_MENU_FUNCTION( flip_labels_in_x )
 {
-    display_struct  *slice_window;
+  display_struct  *slice_window;
+  int             volume_index;
 
-    if( get_slice_window( display, &slice_window ) &&
-        get_n_volumes(slice_window) > 0 )
-    {
-        flip_labels_around_zero( slice_window );
-        delete_slice_undo( slice_window,
-                           get_current_volume_index(slice_window) );
+  if( get_slice_window( display, &slice_window ) &&
+      ( volume_index = get_current_volume_index( slice_window )) >= 0)
+  {
+    flip_labels_around_zero( slice_window );
+    delete_slice_undo( slice_window, volume_index );
 
-        set_slice_window_all_update( slice_window,
-                        get_current_volume_index(slice_window), UPDATE_LABELS );
-    }
-
-    return( VIO_OK );
+    set_slice_window_all_update( slice_window, volume_index, UPDATE_LABELS );
+  }
+  return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(flip_labels_in_x )
+DEF_MENU_UPDATE(flip_labels_in_x )
 {
-    return( get_n_volumes(display) > 0 );
+  return( get_n_volumes(display) > 0 );
 }
 
-static  void  translate_labels_callback(
-    display_struct   *display,
-    int              x_delta,
-    int              y_delta )
+static void
+translate_labels_callback(
+  display_struct   *display,
+  int              x_delta,
+  int              y_delta )
 {
-    display_struct  *slice_window;
-    int             view_index, axis_index, x_index, y_index;
-    int             delta[VIO_N_DIMENSIONS];
+  display_struct  *slice_window;
+  int             volume_index;
+  int             view_index, axis_index, x_index, y_index;
+  int             delta[VIO_N_DIMENSIONS];
 
-    if( get_slice_window( display, &slice_window ) &&
-        get_n_volumes(slice_window) > 0 &&
-        get_slice_view_index_under_mouse( display, &view_index ) &&
-        slice_has_ortho_axes( slice_window,
-                       get_current_volume_index( slice_window ), view_index,
-                       &x_index, &y_index, &axis_index ) )
-    {
-        delta[VIO_X] = 0;
-        delta[VIO_Y] = 0;
-        delta[VIO_Z] = 0;
+  if( get_slice_window( display, &slice_window ) &&
+      ( volume_index = get_current_volume_index( slice_window )) >= 0 &&
+      get_slice_view_index_under_mouse( display, &view_index ) &&
+      slice_has_ortho_axes( slice_window, volume_index, view_index,
+                            &x_index, &y_index, &axis_index ) )
+  {
+    delta[VIO_X] = 0;
+    delta[VIO_Y] = 0;
+    delta[VIO_Z] = 0;
 
-        delta[x_index] = x_delta;
-        delta[y_index] = y_delta;
+    delta[x_index] = x_delta;
+    delta[y_index] = y_delta;
 
-        translate_labels( slice_window, get_current_volume_index(slice_window),
-                          delta );
-        delete_slice_undo( slice_window,
-                           get_current_volume_index(slice_window) );
+    translate_labels( slice_window, volume_index, delta );
+    delete_slice_undo( slice_window, volume_index );
 
-        set_slice_window_all_update( slice_window,
-                        get_current_volume_index(slice_window), UPDATE_LABELS);
-    }
+    set_slice_window_all_update( slice_window, volume_index, UPDATE_LABELS);
+  }
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( translate_labels_up )
+DEF_MENU_FUNCTION( translate_labels_up )
 {
     translate_labels_callback( display, 0, 1 );
 
@@ -596,14 +608,14 @@ static  void  translate_labels_callback(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(translate_labels_up )
+DEF_MENU_UPDATE(translate_labels_up )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( translate_labels_down )
+DEF_MENU_FUNCTION( translate_labels_down )
 {
     translate_labels_callback( display, 0, -1 );
 
@@ -612,14 +624,14 @@ static  void  translate_labels_callback(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(translate_labels_down )
+DEF_MENU_UPDATE(translate_labels_down )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( translate_labels_left )
+DEF_MENU_FUNCTION( translate_labels_left )
 {
     translate_labels_callback( display, -1, 0 );
 
@@ -628,14 +640,14 @@ static  void  translate_labels_callback(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(translate_labels_left )
+DEF_MENU_UPDATE(translate_labels_left )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( translate_labels_right )
+DEF_MENU_FUNCTION( translate_labels_right )
 {
     translate_labels_callback( display, 1, 0 );
 
@@ -644,14 +656,14 @@ static  void  translate_labels_callback(
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(translate_labels_right )
+DEF_MENU_UPDATE(translate_labels_right )
 {
     return( get_n_volumes(display) > 0 );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( undo_slice_labels )
+DEF_MENU_FUNCTION( undo_slice_labels )
 {
     int   volume_index;
 
@@ -677,26 +689,23 @@ DEF_MENU_UPDATE(undo_slice_labels )
 
 DEF_MENU_FUNCTION( translate_labels_arbitrary )
 {
-    int              delta[VIO_MAX_DIMENSIONS];
-    display_struct   *slice_window;
+  int            delta[VIO_N_DIMENSIONS];
+  display_struct *slice_window;
+  int            volume_index;
 
-    if( get_slice_window( display, &slice_window ) &&
-        get_n_volumes(slice_window) > 0 )
+  if( get_slice_window( display, &slice_window ) &&
+      ( volume_index = get_current_volume_index( slice_window )) >= 0 )
+  {
+    if (get_user_input( "Enter offset to translate for x, y and z: " ,
+                        "ddd", 
+                        &delta[VIO_X], &delta[VIO_Y], &delta[VIO_Z] ) == VIO_OK)
     {
-        if (get_user_input( "Enter offset to translate for x, y and z: " , 
-                            "ddd", 
-                            &delta[VIO_X], 
-                            &delta[VIO_Y], 
-                            &delta[VIO_Z] ) == VIO_OK)
-        {
-            translate_labels( slice_window,
-                              get_current_volume_index(slice_window), delta );
-            set_slice_window_all_update( slice_window,
-                        get_current_volume_index(slice_window), UPDATE_LABELS );
-        }
+      translate_labels( slice_window, volume_index, delta );
+      set_slice_window_all_update( slice_window, volume_index, UPDATE_LABELS );
     }
+  }
 
-    return( VIO_OK );
+  return( VIO_OK );
 }
 
 /* ARGSUSED */

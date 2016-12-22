@@ -94,6 +94,9 @@ MENU_F(slice_rulers_toggle) \
 MENU_F(toggle_intensity_plot_axis) \
 MENU_F(toggle_intensity_plot_enabled) \
 MENU_F(toggle_intensity_plot_scaling) \
+MENU_F(move_to_top) \
+MENU_F(menu_colourize_lines) \
+MENU_F(menu_threshold_lines) \
 MENU_F(make_all_volumes_visible)
 
 #define  MENU2 \
@@ -169,7 +172,9 @@ MENU_F(set_n_paint_polygons) \
 MENU_F(coalesce_current_polygons) \
 MENU_F(separate_current_polygons) \
 MENU_F(save_window_state) \
-MENU_F(save_global_config)
+MENU_F(save_global_config) \
+MENU_F(toggle_label_visibility) \
+MENU_F(toggle_current_label_visibility)
 
 #define MENU3 \
 MENU_F(input_polygons_bintree) \
@@ -324,6 +329,7 @@ MENU_F(set_volume_translation_step) \
 MENU_F(set_volume_scale_step) \
 MENU_F(insert_volume_as_labels) \
 MENU_F(reset_interactions) \
+MENU_F(flip_labels_in_x) \
 MENU_F(save_current_volume_transform)
 
 #define MENU_SEAL \
@@ -490,8 +496,25 @@ static  VIO_Status  input_key_action(
         status = input_quoted_string( file, &action->label );
 
     if( status == VIO_OK )
-        status = input_quoted_string( file, &action->help_text );
-
+    {
+        /* 
+         * Look for the optional help text.
+         */
+        char ch;
+        status = input_nonwhite_character( file, &ch );
+        if ( status == VIO_OK )
+        {
+            unget_character( file, ch );
+            if ( ch == '\'' || ch == '"' )
+            {
+                status = input_quoted_string( file, &action->help_text );
+            }
+            else
+            {
+                action->help_text = create_string("");
+            }
+        }
+    }
     return( status );
 }
 
@@ -810,7 +833,10 @@ static  void  delete_menu_entry(
     delete_string( entry->label );
 
     if( !top_flag )
+    {
         FREE( entry->text_list );
+        delete_string( entry->help_text );
+    }
 
     if( entry->n_children > 0 )
         FREE( entry->children );

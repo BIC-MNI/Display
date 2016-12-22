@@ -1,5 +1,8 @@
-/* ----------------------------------------------------------------------------
-@COPYRIGHT  :
+/** 
+ * \file tubes/convert_lines.c
+ * \brief Convert lines to quadmesh "tubes".
+ *
+ * \copyright
               Copyright 1993,1994,1995 David MacDonald,
               McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
@@ -10,16 +13,11 @@
               make no representations about the suitability of this
               software for any purpose.  It is provided "as is" without
               express or implied warranty.
----------------------------------------------------------------------------- */
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifndef lint
-
-#endif
-
 
 #include  <display.h>
 
@@ -42,7 +40,7 @@
         quadmesh = get_quadmesh_ptr( object );
         *quadmesh = quadmeshes[i];
 
-        add_object_to_model( get_current_model(display), object );
+        add_object_to_current_model( display, object, FALSE );
     }
 
     if( n_quadmeshes > 0 )

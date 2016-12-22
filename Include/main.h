@@ -19,7 +19,6 @@
 #include  <menu.h>
 #include  <slice.h>
 #include  <surface_extract.h>
-#include  <stack.h>
 
 /* for graphics windows */
 enum three_d_models {

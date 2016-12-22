@@ -273,11 +273,13 @@ SET(C_SRC
            slice_window/colour_bar.c 
            slice_window/colour_coding.c 
            slice_window/crop.c 
+           slice_window/distinct_colours.c
            slice_window/draw_slice.c 
            slice_window/histogram.c 
            slice_window/pick_angle.c 
            slice_window/quadmesh.c 
            slice_window/rulers.c
+           slice_window/scalebars.c
            slice_window/slice.c 
            slice_window/slice_3d.c 
            slice_window/slice_events.c 
@@ -285,6 +287,7 @@ SET(C_SRC
            slice_window/view.c 
            slice_window/outline.c
            slice_window/intensity_plot.c
+           slice_window/label_tags.c
            surface_curves/closest_line.c 
            surface_curves/events.c 
            surface_curves/edge_distance.c 
@@ -295,7 +298,6 @@ SET(C_SRC
            structures/render.c 
            structures/view.c 
            structures/window.c
-           stack/stack.c
 )
 
 #message(STATUS "${C_SRC}")

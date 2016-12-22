@@ -1,24 +1,26 @@
 #ifndef  DEF_display_prototypes
 #define  DEF_display_prototypes
 
-  VIO_Status  change_global_variable(
-    VIO_STR   str,
-    VIO_STR   *variable_name,
-    VIO_STR   *new_value );
+/* main/main.c */
+VIO_Status change_global_variable( VIO_STR str, VIO_STR *variable_name,
+                                   VIO_STR *new_value );
 
-  VIO_Status  set_global_variable_value(
-    VIO_STR   variable_name,
-    VIO_STR   new_value );
+VIO_Status set_global_variable_value( VIO_STR variable_name,
+                                      VIO_STR new_value );
 
 VIO_Status get_user_input(const char *prompt, const char *format, ...);
 
 VIO_Status get_user_file(const char *prompt, VIO_BOOL saving,
                          char *extension, VIO_STR *filename);
-VIO_Status get_user_coding_type(const char *prompt, Colour_coding_types *cc_type_ptr);
+VIO_Status get_user_coding_type(const char *prompt,
+                                Colour_coding_types *cc_type_ptr);
 VIO_Status get_user_yes_or_no(const char *prompt);
 
 void write_globals_to_file( const VIO_STR filename );
 
+void initialize_view_to_fit( display_struct  *display );
+
+/* main/display.c */
 #define DISPLAY_OPAQUE 1
 #define DISPLAY_TRANSLUCENT 2
 #define DISPLAY_BOTH (DISPLAY_OPAQUE | DISPLAY_TRANSLUCENT)
@@ -143,7 +145,13 @@ void switch_vertex_data(display_struct *display, object_struct *object);
 
   void  add_object_to_current_model(
     display_struct   *display,
-    object_struct     *object );
+    object_struct    *object,
+    VIO_BOOL         f_update_view );
+
+  void  add_object_to_main_model(
+    display_struct   *display,
+    object_struct    *object,
+    VIO_BOOL         f_update_view );
 
   display_struct  *get_three_d_window(
     display_struct  *display );
@@ -190,25 +198,32 @@ void switch_vertex_data(display_struct *display, object_struct *object);
     VIO_Real          world_x_axis[],
     VIO_Real          world_y_axis[] );
 
-  VIO_Status  load_graphics_file( 
-    display_struct   *display,
-    VIO_STR           filename,
-    VIO_BOOL          is_label_file );
+/*** input_files/input_files.c ***/
+VIO_Status load_graphics_file(
+  display_struct *display,
+  VIO_STR        filename,
+  VIO_BOOL       is_label_file );
 
-VIO_Status
-load_graphics_file_with_colour(
-    display_struct   *display,
-    VIO_STR           filename,
-    VIO_BOOL          is_label_file,
-    VIO_Colour        preferred_colour);
+VIO_Status load_graphics_file_with_colour(
+  display_struct *display,
+  VIO_STR        filename,
+  VIO_BOOL       is_label_file,
+  VIO_Colour     preferred_colour );
 
-  VIO_Status   input_volume_file(
-    VIO_STR         filename,
-    VIO_Volume         *volume_ptr );
+VIO_Real get_volume_transform_determinant( VIO_Volume volume );
+
+VIO_BOOL is_volume_transform_rigid( VIO_Volume volume );
+
+/*** input_files/volume_file.c */
+VIO_Status input_volume_file(
+  VIO_STR         filename,
+  VIO_Volume         *volume_ptr );
 
 /*** input_files/vertex_data.c ***/
 
-vertex_data_struct *input_vertex_data( VIO_STR filename );
+void delete_vertex_data( vertex_data_struct * );
+VIO_Status load_vertex_data_file( display_struct *display,
+                                  object_struct *object, VIO_STR filename );
 
   /** \defgroup Commands Menu command functions
    *
@@ -260,6 +275,7 @@ vertex_data_struct *input_vertex_data( VIO_STR filename );
 
   DEF_MENU_UPDATE(show_memory );
 
+/* callbacks/colour_coding.c */
   DEF_MENU_FUNCTION(set_colour_limits );
 
   DEF_MENU_UPDATE(set_colour_limits );
@@ -356,6 +372,15 @@ vertex_data_struct *input_vertex_data( VIO_STR filename );
 
   DEF_MENU_UPDATE(load_user_defined_colour_scale );
 
+DEF_MENU_FUNCTION( toggle_label_visibility );
+
+DEF_MENU_UPDATE( toggle_label_visibility );
+
+DEF_MENU_FUNCTION( toggle_current_label_visibility );
+
+DEF_MENU_UPDATE( toggle_current_label_visibility );
+
+/**/
 DEF_MENU_FUNCTION( menu_next_vertex_data );
 
 DEF_MENU_UPDATE( menu_next_vertex_data );
@@ -789,7 +814,7 @@ DEF_MENU_UPDATE(save_window_state);
   DEF_MENU_FUNCTION( change_background_colour );
 
   DEF_MENU_UPDATE(change_background_colour );
- 
+
   /* from callbacks/segmenting.c */
 
   DEF_MENU_FUNCTION( label_voxel );
@@ -1445,6 +1470,16 @@ int get_object_index(display_struct *display, object_struct *object_ptr );
   VIO_BOOL  current_object_exists(
     display_struct    *display );
 
+VIO_BOOL  remove_current_object_from_hierarchy(
+    display_struct   *display,
+    object_struct    **object );
+
+VIO_BOOL  remove_given_object_from_hierarchy(
+    display_struct   *display,
+    object_struct    *object );
+
+/* images/images.c */
+
   VIO_Status   save_window_to_file(
     display_struct  *display,
     VIO_STR          filename,
@@ -1461,7 +1496,7 @@ VIO_BOOL  update_current_marker(
 
 VIO_Status  initialize_marker_window(display_struct    *marker_window);
 
-/* surface_extraction/boundary_extraction.c */  
+/* surface_extraction/boundary_extraction.c */
   void  read_voxellation_block(
     surface_extraction_struct   *surf );
 
@@ -1998,32 +2033,31 @@ void  copy_labels_slice_to_slice(
     VIO_Real             min_threshold,
     VIO_Real             max_threshold );
 
+void make_current_label_visible( display_struct *slice_window,
+                                 int volume_index );
+
 /* from segmenting/segmenting.c */
 
-  void  initialize_segmenting(
-    segmenting_struct  *segmenting );
+void clear_all_labels( display_struct    *display );
 
-  void  clear_all_labels(
-    display_struct    *display );
-
-  void  set_labels_on_slice(
+void set_labels_on_slice(
     display_struct  *slice_window,
     int             volume_index,
     int             axis_index,
     int             position,
     int             label );
 
-  void  set_connected_voxels_labels(
-    display_struct    *slice_window,
-    int               volume_index,
-    int               axis_index,
-    int               position[],
-    VIO_Real              min_threshold,
-    VIO_Real              max_threshold,
-    int               label_min_threshold,
-    int               label_max_threshold,
-    Neighbour_types   connectivity,
-    int               label );
+void set_connected_voxels_labels(
+    display_struct  *slice_window,
+    int             volume_index,
+    int             axis_index,
+    int             position[],
+    VIO_Real        min_threshold,
+    VIO_Real        max_threshold,
+    int             label_min_threshold,
+    int             label_max_threshold,
+    Neighbour_types connectivity,
+    int             label );
 
   /* from segmenting/segment_polygons.c */
   void  initialize_surface_edit(
@@ -2078,6 +2112,7 @@ void rebuild_ticks_and_text(colour_bar_struct *colour_bar,
     slice_window_struct   *slice,
     int                   volume_index );
 
+
   void  set_slice_window_number_labels(
     display_struct    *slice_window,
     int               volume_index,
@@ -2097,7 +2132,7 @@ void rebuild_ticks_and_text(colour_bar_struct *colour_bar,
   VIO_BOOL  label_volume_exists(
     display_struct   *display );
 
-  VIO_BOOL  get_label_visibility(
+  VIO_BOOL  get_labels_visibility(
     display_struct    *slice_window,
     int               volume_index,
     int               view_index );
@@ -2176,6 +2211,25 @@ void rebuild_ticks_and_text(colour_bar_struct *colour_bar,
     display_struct   *slice_window,
     VIO_STR           filename );
 
+void set_label_visible( display_struct *slice_window,
+                         int volume_label, int label, VIO_BOOL is_visible );
+
+VIO_BOOL is_label_visible( display_struct *slice_window,
+                           int volume_label, int label );
+
+/* slice_window/label_tags.c */
+void update_label_tag( display_struct *slice_window,
+                       int            volume_index,
+                       int            x,
+                       int            y,
+                       int            z,
+                       int            label );
+
+VIO_Status input_tag_objects_label( display_struct *display,
+                                    int            *n_objects,
+                                    object_struct  **object_list[] );
+
+/* slice_window/crop.c */
   void  initialize_crop_box(
     display_struct   *slice_window );
 
@@ -2207,6 +2261,10 @@ void rebuild_ticks_and_text(colour_bar_struct *colour_bar,
     int               min_voxel[],
     int               max_voxel[] );
 
+/* slice_window/distinct_colours.c */
+void distinct_colours( int n_colours, VIO_Colour bkgd, VIO_Colour colours[] );
+
+/* slice-window/draw_slice.c */
   void  initialize_slice_models(
     display_struct    *slice_window );
 
@@ -2320,6 +2378,7 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
     int            axis_index,
     VIO_Real           voxel_position );
 
+/* slice_window/slice.c */
 void  create_slice_window( display_struct *display, VIO_Volume volume );
 
   void  update_all_slice_models(
@@ -2441,12 +2500,17 @@ void add_slice_window_volume(display_struct *display,
     int              *y_min,
     int              *y_max );
 
-  void  initialize_volume_cross_section(
-    display_struct    *display );
+void move_slice_window_volume(display_struct *display,
+                              int            volume_index);
 
-  void  rebuild_volume_outline(
-    display_struct    *slice_window );
+/* slice_window/outline.c */
+void  initialize_volume_cross_section( display_struct *display );
 
+void  rebuild_volume_outline( display_struct *slice_window );
+
+VIO_Colour get_automatic_colour( int index );
+
+/*** slice_window/slice_3d.c */
   void  rebuild_volume_cross_section(
     display_struct    *display );
 
@@ -2457,6 +2521,7 @@ void add_slice_window_volume(display_struct *display,
   VIO_BOOL  get_volume_cross_section_visibility(
     display_struct    *display );
 
+/*** slice_window/slice_events.c ***/
   void  initialize_slice_window_events(
     display_struct    *slice_window );
 
@@ -2465,6 +2530,8 @@ void add_slice_window_volume(display_struct *display,
 
   void  initialize_slice_undo(
     volume_undo_struct  *undo );
+
+void shutdown_slice_undo( display_struct *slice_window );
 
   void  delete_slice_undo(
     display_struct     *slice_window,
@@ -2487,9 +2554,9 @@ void sparse_array_insert(sparse_array_t *array_ptr, const int *coord,
 void sparse_array_free(sparse_array_t *array_ptr);
 void sparse_array_apply(sparse_array_t *array_ptr, void *data,
                         sparse_apply_func_t func);
-  
+
 /*
- * slice_window/view.c 
+ * slice_window/view.c
  */
   void  initialize_slice_window_view(
     display_struct    *slice_window,
@@ -2906,10 +2973,6 @@ void rebuild_slice_object_outline(display_struct *slice_window, int view_index);
 void initialize_slice_object_outline(display_struct *display);
 
 /* from callbacks/object_ops.c */
-VIO_BOOL  remove_current_object_from_hierarchy(
-    display_struct   *display,
-    object_struct    **object );
-
 VIO_Status change_current_object_opacity(display_struct *display,
                                          VIO_Real delta);
 
@@ -2927,6 +2990,12 @@ VIO_BOOL get_slice_rulers_visibility( display_struct *slice_window,
 void set_slice_rulers_visibility( display_struct *slice_window,
                                   int            view_index,
                                   VIO_BOOL       state );
+
+/* from slice_window/scalebars.c */
+void initialize_slice_scalebar( model_struct *model_ptr );
+void rebuild_slice_scalebar( display_struct *slice_window, int view_index );
+void rebuild_one_scalebar( model_struct *model_ptr, VIO_Real ppm, int quadrant,
+                           int cy_bar, int x_size, int y_size );
 
 /* from slice_window/intensity_plot.c */
 void initialize_intensity_plot(display_struct *display);

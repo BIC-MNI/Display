@@ -458,10 +458,10 @@ DEF_MENU_FUNCTION( set_eye_separation )
     VIO_Real   eye_separation;
     char       prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    sprintf(prompt, 
-            "Current eye separation / perspective distance ratio: %g\n"
-            "Enter new eye separation_ratio: ",
-           display->three_d.view.eye_separation_ratio );
+    snprintf( prompt, sizeof( prompt ),
+              "Current eye separation / perspective distance ratio: %g\n"
+              "Enter new eye separation_ratio: ",
+              display->three_d.view.eye_separation_ratio );
 
     if( get_user_input( prompt, "r", &eye_separation ) == VIO_OK )
     {
@@ -653,8 +653,9 @@ DEF_MENU_FUNCTION(type_in_view_window_width)
     VIO_Real  width, scale;
     char      prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    sprintf( prompt, "Current window width: %g\nEnter window width: ",
-             display->three_d.view.window_width );
+    snprintf( prompt, sizeof( prompt ),
+              "Current window width: %g\nEnter window width: ",
+              display->three_d.view.window_width );
 
     if( get_user_input(prompt, "r", &width ) == VIO_OK &&
         width > 0.0 )
@@ -682,9 +683,9 @@ DEF_MENU_FUNCTION(type_in_view_perspective_distance)
     VIO_Real  dist;
     char      prompt[VIO_EXTREMELY_LARGE_STRING_SIZE];
 
-    sprintf( prompt,
-             "Current perspective distance: %g\nEnter perspective distance: ",
-             display->three_d.view.perspective_distance );
+    snprintf( prompt, sizeof( prompt ),
+              "Current perspective distance: %g\nEnter perspective distance: ",
+              display->three_d.view.perspective_distance );
 
     if( get_user_input( prompt, "r", &dist ) == VIO_OK && dist > 0.0 )
     {

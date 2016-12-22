@@ -1,0 +1,92 @@
+\section{Menu File Format}
+\label{secMenuFmt}
+
+In addition to the global variables, \display{} offers complete control over
+the layout of the keyboard menus.
+
+On startup, \display{} looks for a file named {\tt Display.menu} in the 
+following directories, in order:
+\begin{enumerate}
+\item The current working directory.
+\item The directory where the \display{} application file is located.
+\item The value of the HOME environment variable.
+\item A system directory, {\tt /usr/local/lib}.
+\end{enumerate}
+If the {\tt Display.menu} file is found, it will be read and used for the keyboard layout instead of the default internal command menu. However, 
+if the environment variable {\tt DISABLE\_MENU} is set, the internal
+(hard-coded) menu will always be used.
+
+The {\tt Display.menu} file itself is a text file consisting of a series of {\em menu} definitions, each containing a series of {\em menu entries}. The syntax of a menu is:
+
+{\em menu-name} {\tt '\{'} {\em menu-entry} {\tt '\}'}
+
+and a menu entry has the syntax:
+
+{\em entry-type} {\em key-code} {\em command-or-menu} {\em menu-text} [ {\em help-text} ]
+
+where the {\em entry-type} is either {\tt permanent} or {\tt
+  transient}, the {\em key-code} is a quoted string that names a
+support key on the keyboard, {\em command-or-menu} is the name of
+either a menu or a \display{} menu function, {\em menu-text} is a
+short text to display on the keyboard menu itself, and {\em help-text}
+is an optional longer text which provides further information about
+the menu or command.
+
+The first menu in the file is always the ``root'' or top-level menu.
+
+\subsection{Entry type}
+An entry type of {\tt permanent} makes the command is available throughout the menu hierarchy, whereas {\tt transient} commands are only available in their specific menu.
+
+\subsection{Supported key codes}
+The key code must be enclosed in quotes.
+The supported key codes include all of the standard alphanumeric characters, {\tt 'a'} through {\tt 'z'} and {\tt '0'} through {\tt '9'}. The characters {\tt '+'}, {\tt '-'}, {\tt '='}, {\tt '>'}, {\tt '<'}, {\tt '['}, and {\tt ']'} are also legal command characters.
+
+In addition, the following special key codes are recognized:
+\begin{itemize}
+\item {\tt f1} -- {\tt f12} - Any of the standard function keys.
+\item {\tt left} - The left arrow key.
+\item {\tt right} - The right arrow key.
+\item {\tt up} - The up arrow key.
+\item {\tt down} - The down arrow key.
+\item {\tt escape} - The escape key.
+\item {\tt delete} - The delete (or 'Del') key.
+\item {\tt home} - The home key.
+\item {\tt end} - The end key.
+\item {\tt pageup} - The page up key.
+\item {\tt pagedown} - The page down key.
+\item {\tt insert} - The insert key.
+\item {\tt ctrl-b} - The Ctrl-B key combination.
+\item {\tt ctrl-o} - The Ctrl-O key combination.
+\item {\tt ctrl-s} - The Ctrl-S key combination.
+\item {\tt ctrl-v} - The Ctrl-V key combination.
+\item {\tt ctrl-z} - The Ctrl-Z key combination.
+\end{itemize}
+
+\subsection{The command or menu name}
+Menu names are specified in the syntax of the {\tt Display.menu} file
+itself. Any of these names may be specified as the target of a menu
+command. This means that a particular key will push the context of the
+menu to the specified submenu.
+
+Otherwise, the name must be a known command function name. There are
+many of these commands in \display{}, they are too numerous to list
+here, but the details of many of them can be found the in the internal
+programmer's documentation , under the 'Menu command function' group.
+
+These strings generally do not contain spaces, and do not need to be quoted.
+
+\subsection{Menu text}
+This field provides the short text that will be displayed on the appropriate key
+of the simulated keyboard image. The text must appear in quotes.
+
+Many commands do not modify this text in any way, so it can be freely
+reconfigured. However, some menu items expect to find formatting codes
+(as in { \tt sprintf}) that are used to place values such as current
+parameter settings into the text of the menu. In general it is a good idea to 
+retain the expected formatting codes ('\%s', '\%d', etc.) in the menu text, even if the surrounding text is modified.
+\subsection{Help text}
+
+This optional field specifies a sentence or two which can be displayed
+in the menu window when the user places the mouse cursor over the
+appropriate keyboard image. This is intended to provide some
+additional guidance about the details of each menu or command.
