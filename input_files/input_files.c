@@ -375,6 +375,13 @@ finish_loading_polygons( object_struct *object_ptr,
       polygons_ptr->colours[0] = preferred_colour;
     }
   }
+  else
+  {
+    if ( preferred_colour != TRANSPARENT )
+    {
+      set_object_colour( object_ptr, preferred_colour );
+    }
+  }
 
   if( Polygon_bintree_threshold >= 0 &&
       ( polygons_ptr->n_points > Polygon_bintree_threshold ||
