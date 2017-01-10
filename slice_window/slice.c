@@ -1217,6 +1217,7 @@ static  void  render_more_slices(
     if( slice_window->slice.update_colour_bar_flag )
     {
         rebuild_colour_bar( slice_window );
+        rebuild_volume_cross_section( slice_window );
         slice_window->slice.update_colour_bar_flag = FALSE;
     }
 
