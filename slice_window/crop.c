@@ -73,13 +73,13 @@ VIO_Status  create_cropped_volume_to_file(
     VIO_STR           cropped_filename )
 {
     char                  command[VIO_EXTREMELY_LARGE_STRING_SIZE];
-    VIO_Volume                file_volume, volume;
+    VIO_Volume            file_volume, volume;
     volume_input_struct   volume_input;
-    VIO_Real                  xw, yw, zw;
-    VIO_Real                  voxel[VIO_MAX_DIMENSIONS];
-    VIO_Real                  min_voxel[VIO_MAX_DIMENSIONS];
-    VIO_Real                  max_voxel[VIO_MAX_DIMENSIONS];
-    VIO_BOOL               first;
+    VIO_Real              xw, yw, zw;
+    VIO_Real              voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real              min_voxel[VIO_MAX_DIMENSIONS];
+    VIO_Real              max_voxel[VIO_MAX_DIMENSIONS];
+    VIO_BOOL              first;
     int                   c, limit1, limit2, limit3;
     int                   sizes[VIO_MAX_DIMENSIONS];
     int                   int_min_voxel[VIO_MAX_DIMENSIONS];
@@ -210,7 +210,7 @@ void  toggle_slice_crop_box_visibility(
 void  reset_crop_box_position(
     display_struct   *display )
 {
-    VIO_Volume           volume;
+    VIO_Volume       volume;
     int              c, sizes[VIO_MAX_DIMENSIONS];
     display_struct   *slice_window;
 
@@ -286,8 +286,8 @@ static  DEF_EVENT_FUNCTION( start_picking_box )
     int             view_index, x_index, y_index, axis, x_mouse, y_mouse;
     int             limit_being_moved;
     int             x_min, x_max, y_min, y_max;
-    VIO_Real            x_low, y_low, x_high, y_high;
-    VIO_Real            best_dist, dist_low, dist_high;
+    VIO_Real        x_low, y_low, x_high, y_high;
+    VIO_Real        best_dist, dist_low, dist_high;
     display_struct  *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
