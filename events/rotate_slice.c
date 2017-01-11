@@ -1,7 +1,7 @@
 /**
  * \file rotate_slice.c
  *
- * \brief Support rotation of the oblique slice in the 3D window.
+ * \brief Support rotation of the oblique slice orientation in the 3D window.
  *
  * \copyright
               Copyright 1993,1994,1995 David MacDonald,
@@ -21,16 +21,23 @@
 
 #include  <display.h>
 
-static    DEF_EVENT_FUNCTION( start_rotating_slice );
-static    DEF_EVENT_FUNCTION( handle_update_rotation );
-static    DEF_EVENT_FUNCTION( terminate_rotation );
-static    DEF_EVENT_FUNCTION( terminate_rotating_slice );
+static DEF_EVENT_FUNCTION( start_rotating_slice );
+static DEF_EVENT_FUNCTION( update_rotating_slice );
+static DEF_EVENT_FUNCTION( stop_rotating_slice );
+static DEF_EVENT_FUNCTION( terminate_rotating_slice );
 
-static  VIO_BOOL  perform_rotation(
-    display_struct   *display );
+static void perform_rotation( display_struct *display );
 
-void  initialize_rotating_slice(
-    display_struct   *display )
+/**
+ * Tell the program that the next middle mouse down event should
+ * trigger the rotation of the oblique slice view.
+ *
+ * This is the only public entry point for this file.
+ *
+ * \param display A pointer to the 3D view window.
+ */
+void
+initialize_rotating_slice( display_struct *display )
 {
     if( get_n_volumes(display) == 0 )
         return;
@@ -39,180 +46,169 @@ void  initialize_rotating_slice(
 
     terminate_any_interactions( display );
 
+    push_action_table( &display->action_table, MIDDLE_MOUSE_DOWN_EVENT );
     add_action_table_function( &display->action_table,
                                MIDDLE_MOUSE_DOWN_EVENT,
                                start_rotating_slice );
 
+    push_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT );
     add_action_table_function( &display->action_table,
                                TERMINATE_INTERACTION_EVENT,
                                terminate_rotating_slice );
 }
 
-/* ARGSUSED */
 
-static  DEF_EVENT_FUNCTION( terminate_rotating_slice )
+/**
+ * Puts an end to the entire oblique slice rotation process.
+ *
+ * \param display A pointer to a top-level window.
+ * \param event_type The event code for this event.
+ * \param key_pressed The keyboard code associated with this event, if any.
+ * \returns VIO_OK if event was processed.
+ */
+static DEF_EVENT_FUNCTION( terminate_rotating_slice )
 {
-    remove_action_table_function( &display->action_table,
-                                  MIDDLE_MOUSE_DOWN_EVENT,
-                                  start_rotating_slice );
-
-    remove_action_table_function( &display->action_table,
-                                  TERMINATE_INTERACTION_EVENT,
-                                  terminate_rotating_slice );
-
+    pop_action_table( &display->action_table, MIDDLE_MOUSE_DOWN_EVENT );
+    pop_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT );
     return( VIO_OK );
 }
 
-/* ARGSUSED */
 
+/**
+ * \brief Start rotating the oblique slice plane.
+ *
+ * Generally called when the middle mouse button is pressed.
+ *
+ * \param display A pointer to a top-level window.
+ * \param event_type The event code for this event.
+ * \param key_pressed The keyboard code associated with this event, if any.
+ * \returns VIO_OK if event was processed.
+ */
 static  DEF_EVENT_FUNCTION( start_rotating_slice )
 {
+    push_action_table( &display->action_table, NO_EVENT );
     add_action_table_function( &display->action_table,
-                               NO_EVENT, handle_update_rotation );
+                               NO_EVENT, update_rotating_slice );
 
+    push_action_table(&display->action_table, MIDDLE_MOUSE_UP_EVENT );
     add_action_table_function( &display->action_table,
-                               MIDDLE_MOUSE_UP_EVENT, terminate_rotation );
+                               MIDDLE_MOUSE_UP_EVENT, stop_rotating_slice );
 
+    push_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT );
     add_action_table_function( &display->action_table,
                                TERMINATE_INTERACTION_EVENT,
-                               terminate_rotation );
-
+                               stop_rotating_slice );
     record_mouse_position( display );
-
     return( VIO_OK );
 }
 
-static  void  update_rotation(
-    display_struct   *display )
+/**
+ * \brief Update the rotation of the arbitrary view plane.
+ *
+ * Called in response to NO_EVENT messages (e.g. mouse movement) to
+ * update the arbitrary view plane orientation according to the change
+ * in the mouse position.
+ *
+ * \param display A pointer to a top-level window.
+ * \param event_type The event code for this event.
+ * \param key_pressed The keyboard code associated with this event, if any.
+ * \returns VIO_OK if event was processed.
+ */
+static  DEF_EVENT_FUNCTION( update_rotating_slice )
 {
-    display_struct   *slice_window;
-
-    if( perform_rotation( display ) &&
-        get_slice_window( display, &slice_window ) )
-    {
-        reset_slice_view( slice_window,
-                          get_arbitrary_view_index(slice_window) );
-    }
-}
-
-/* ARGSUSED */
-
-static  DEF_EVENT_FUNCTION( handle_update_rotation )
-{
-    update_rotation( display );
-
+    perform_rotation( display );
     return( VIO_OK );
 }
 
-/* ARGSUSED */
-
-static  DEF_EVENT_FUNCTION( terminate_rotation )
+/**
+ * \brief Stop rotating the arbitrary view plane.
+ *
+ * Generally called in response to a middle mouse up event.
+ *
+ * \param display A pointer to a top-level window.
+ * \param event_type The event code for this event.
+ * \param key_pressed The keyboard code associated with this event, if any.
+ * \returns VIO_OK if event was processed.
+ */
+static  DEF_EVENT_FUNCTION( stop_rotating_slice )
 {
-    update_rotation( display );
-
-    remove_action_table_function( &display->action_table,
-                                  NO_EVENT, handle_update_rotation );
-    remove_action_table_function( &display->action_table,
-                                  MIDDLE_MOUSE_UP_EVENT, terminate_rotation );
-    remove_action_table_function( &display->action_table,
-                                  TERMINATE_INTERACTION_EVENT,
-                                  terminate_rotation );
-
+    perform_rotation( display );
+    pop_action_table( &display->action_table, NO_EVENT );
+    pop_action_table( &display->action_table, MIDDLE_MOUSE_UP_EVENT );
+    pop_action_table( &display->action_table, TERMINATE_INTERACTION_EVENT );
+    terminate_any_interactions( display );
     return( VIO_OK );
 }
 
-static  void  transform_slice_axes(
-    display_struct   *slice_window,
-    VIO_Transform        *transform )
+/**
+ * Apply the given transform to the axes of the arbitrary (oblique) view plane.
+ * \param slice_window A pointer to the slice view window.
+ * \param transform A pointer to the transform to apply to the axes.
+ */
+static void
+transform_slice_axes( display_struct *slice_window, VIO_Transform *transform )
 {
     VIO_Volume  volume;
-    VIO_Real    len;
-    VIO_Real    separations[VIO_MAX_DIMENSIONS];
     VIO_Real    origin[VIO_MAX_DIMENSIONS];
-    VIO_Real    x_axis[VIO_MAX_DIMENSIONS], y_axis[VIO_MAX_DIMENSIONS];
-    VIO_Real    world_x_axis[VIO_MAX_DIMENSIONS], world_y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real    x_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real    y_axis[VIO_MAX_DIMENSIONS];
+    VIO_Real    wx_x, wx_y, wx_z;
+    VIO_Real    wy_x, wy_y, wy_z;
+    int         volume_index;
+    int         view_index;
+
+    volume_index = get_current_volume_index( slice_window );
+    view_index   = get_arbitrary_view_index( slice_window );
 
     volume = get_volume( slice_window );
 
-    get_slice_plane( slice_window,get_current_volume_index( slice_window ),
-                     get_arbitrary_view_index(slice_window),
+    get_slice_plane( slice_window, volume_index, view_index,
                      origin, x_axis, y_axis );
 
-    get_volume_separations( volume, separations );
+    convert_voxel_vector_to_world( volume, x_axis, &wx_x, &wx_y, &wx_z );
+    convert_voxel_vector_to_world( volume, y_axis, &wy_x, &wy_y, &wy_z );
 
-    convert_voxel_vector_to_world( volume, x_axis,
-                        &world_x_axis[VIO_X], &world_x_axis[VIO_Y], &world_x_axis[VIO_Z] );
+    transform_vector( transform, wx_x, wx_y, wx_z, &wx_x, &wx_y, &wx_z );
+    transform_vector( transform, wy_x, wy_y, wy_z, &wy_x, &wy_y, &wy_z );
 
-    convert_voxel_vector_to_world( volume, y_axis,
-                        &world_y_axis[VIO_X], &world_y_axis[VIO_Y], &world_y_axis[VIO_Z] );
+    convert_world_vector_to_voxel( volume, wx_x, wx_y, wx_z, x_axis );
+    convert_world_vector_to_voxel( volume, wy_x, wy_y, wy_z, y_axis );
 
-    transform_vector( transform,
-                      world_x_axis[VIO_X], world_x_axis[VIO_Y], world_x_axis[VIO_Z],
-                      &world_x_axis[VIO_X], &world_x_axis[VIO_Y], &world_x_axis[VIO_Z] );
-    transform_vector( transform,
-                      world_y_axis[VIO_X], world_y_axis[VIO_Y], world_y_axis[VIO_Z],
-                      &world_y_axis[VIO_X], &world_y_axis[VIO_Y], &world_y_axis[VIO_Z] );
+    array_normalize( x_axis, VIO_N_DIMENSIONS );
+    array_normalize( y_axis, VIO_N_DIMENSIONS );
 
-    convert_world_vector_to_voxel( volume,
-                      world_x_axis[VIO_X], world_x_axis[VIO_Y], world_x_axis[VIO_Z],
-                      x_axis );
-
-    convert_world_vector_to_voxel( volume,
-                      world_y_axis[VIO_X], world_y_axis[VIO_Y], world_y_axis[VIO_Z],
-                      y_axis );
-
-    len = sqrt(x_axis[VIO_X]*x_axis[VIO_X] + x_axis[VIO_Y]*x_axis[VIO_Y] + x_axis[VIO_Z]*x_axis[VIO_Z]);
-    if( len > 0.0 )
-    {
-        x_axis[VIO_X] /= len;
-        x_axis[VIO_Y] /= len;
-        x_axis[VIO_Z] /= len;
-    }
-
-    len = sqrt(y_axis[VIO_X]*y_axis[VIO_X] + y_axis[VIO_Y]*y_axis[VIO_Y] + y_axis[VIO_Z]*y_axis[VIO_Z]);
-    if( len > 0.0 )
-    {
-        y_axis[VIO_X] /= len;
-        y_axis[VIO_Y] /= len;
-        y_axis[VIO_Z] /= len;
-    }
-
-    set_slice_plane( slice_window,get_current_volume_index( slice_window ),
-                     get_arbitrary_view_index(slice_window),
-                     x_axis, y_axis );
+    set_slice_plane( slice_window, volume_index, view_index, x_axis, y_axis );
 }
 
-static  VIO_BOOL  perform_rotation(
-    display_struct   *display )
+/**
+ * Translate mouse movements in the 3D view window into rotations of the
+ * arbitrary view plane.
+ * \param display A pointer to the 3D view window.
+ */
+static void
+perform_rotation( display_struct *display )
 {
-    display_struct  *slice_window;
-    VIO_Real            x, y;
-    VIO_Transform       transform, inverse, transform_in_space;
-    VIO_BOOL         moved;
-
-    moved = FALSE;
+    VIO_Real       x, y;        /* Mouse coordinates */
+    VIO_Transform  transform, inverse, transform_in_space;
+    display_struct *slice_window;
 
     if( G_get_mouse_position_0_to_1( display->window, &x, &y ) &&
         get_spaceball_transform( display,
-                                 (VIO_Real) Point_x(display->prev_mouse_position),
-                                 (VIO_Real) Point_y(display->prev_mouse_position),
+                                 Point_x( display->prev_mouse_position ),
+                                 Point_y( display->prev_mouse_position ),
                                  x, y, &transform ) &&
-        get_slice_window( display, &slice_window ) )
+        get_slice_window( display, &slice_window) )
     {
-        (void) compute_transform_inverse(
-                      &display->three_d.view.modeling_transform,
-                      &inverse );
-
+        compute_transform_inverse( &display->three_d.view.modeling_transform,
+                                   &inverse );
         concat_transforms( &transform_in_space,
                            &display->three_d.view.modeling_transform,
                            &transform );
         concat_transforms( &transform_in_space,
                            &transform_in_space, &inverse );
-
         transform_slice_axes( slice_window, &transform_in_space );
         record_mouse_position( display );
-        moved = TRUE;
+        reset_slice_view( slice_window,
+                          get_arbitrary_view_index( slice_window ) );
     }
-
-    return( moved );
 }
