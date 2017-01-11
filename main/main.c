@@ -951,7 +951,7 @@ get_user_file(const char *prompt, VIO_BOOL saving, char *extension,
       return VIO_ERROR;
     }
   }
-  status = input_string(in_fp, filename, ' ');
+  status = input_string(in_fp, filename, '\n');
   if (in_fp != stdin)
   {
     VIO_STR expanded = expand_filename( *filename );
