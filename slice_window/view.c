@@ -41,14 +41,14 @@ static void  slice_view_has_changed(
  * Tiny helper function to take the magnitude of
  * an array (its dot product with itself).
  * \param array The array for which we want the magnitude.
- * \param n The length of the array.
+ * \param length The length of the array.
  * \returns The magnitude of the array.
  */
-static VIO_Real array_magnitude(const VIO_Real array[], int n)
+VIO_Real array_magnitude(const VIO_Real array[], int length)
 {
     VIO_Real sum = 0.0;
     int      i;
-    for_less(i, 0, n)
+    for_less(i, 0, length)
         sum += array[i] * array[i];
     return sqrt(sum);
 }
@@ -58,19 +58,19 @@ static VIO_Real array_magnitude(const VIO_Real array[], int n)
  * its length will be one.
  *
  * \param array The array which we want to normalize.
- * \param n The length of the array.
+ * \param length The length of the array.
  * \returns The magnitude of the array.
  */
-static VIO_Real array_normalize(VIO_Real array[], int n)
+VIO_Real array_normalize(VIO_Real array[], int length)
 {
-    VIO_Real len = array_magnitude(array, n);
-    if (len != 0.0)
+    VIO_Real mag = array_magnitude(array, length);
+    if (mag != 0.0)
     {
         int i;
-        for_less(i, 0, n)
-            array[i] /= len;
+        for_less(i, 0, length)
+            array[i] /= mag;
     }
-    return len;
+    return mag;
 }
 
 /**

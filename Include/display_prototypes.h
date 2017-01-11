@@ -2558,6 +2558,9 @@ void sparse_array_apply(sparse_array_t *array_ptr, void *data,
 /*
  * slice_window/view.c
  */
+VIO_Real array_magnitude( const VIO_Real array[], int length );
+VIO_Real array_normalize( VIO_Real array[], int length );
+
   void  initialize_slice_window_view(
     display_struct    *slice_window,
     int               volume_index );
