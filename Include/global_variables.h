@@ -477,7 +477,7 @@ START_GLOBALS
 
 /** This string defines the format of the volume ratio display.
  */
-    DEF_GLOBAL( Slice_probe_ratio_format, VIO_STR, "%d/%d %6.2f" )
+    DEF_GLOBAL( Slice_probe_ratio_format, VIO_STR, "%d/%d %5.3g" )
 
 /** This defines the colour of the volume ratio text, when displayed.
  */

@@ -335,6 +335,9 @@ calculate_volume_ratio(display_struct *slice_window, VIO_Real voxel[])
     volume_den = get_nth_volume( slice_window,
                                  slice_window->slice.ratio_volume_denominator);
 
+    if ( volume_num == NULL || volume_den == NULL )
+      return 0.0;
+
     evaluate_volume( volume_den, voxel, NULL,
                      slice_window->slice.degrees_continuity,
                      FALSE, 0.0, &value_den, NULL, NULL );
