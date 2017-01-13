@@ -2379,7 +2379,6 @@ void rebuild_slice_field_of_view(display_struct *slice_window, int view_index);
     VIO_Real           voxel_position );
 
 /* slice_window/slice.c */
-void  create_slice_window( display_struct *display, VIO_Volume volume );
 
   void  update_all_slice_models(
     display_struct   *slice_window );
@@ -2448,9 +2447,6 @@ void add_slice_window_volume(display_struct *display,
   void  set_crop_box_update(
     display_struct   *slice_window,
     int              view_index );
-
-  void  set_slice_dividers_update(
-    display_struct   *slice_window );
 
   void  set_probe_update(
     display_struct   *slice_window );

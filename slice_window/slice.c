@@ -26,7 +26,13 @@ static  void  initialize_slice_window(
 
 static void initialize_ratio (display_struct* slice_window);
 
-  void  create_slice_window(
+/**
+ * Create the slice view window.
+ * 
+ * \param display A pointer to the 3D view window.
+ * \param volume The initial volume loaded.
+ */
+static void create_slice_window(
     display_struct   *display,
     VIO_Volume           volume )
 {
@@ -49,20 +55,11 @@ static void initialize_ratio (display_struct* slice_window);
         G_set_transparency_state( slice_window->window, FALSE );
 }
 
-  void  update_all_slice_models(
-    display_struct   *slice_window )
-{
-    set_slice_cursor_update( slice_window, -1 );
-    set_slice_text_update( slice_window, -1 );
-    set_slice_cross_section_update( slice_window, -1 );
-    set_crop_box_update( slice_window, -1 );
-    set_slice_dividers_update( slice_window );
-    set_probe_update( slice_window );
-    set_colour_bar_update( slice_window );
-    set_atlas_update( slice_window, -1 );
-    set_slice_outline_update( slice_window, -1 );
-}
-
+/**
+ * Initialize the slice view window data structures.
+ *
+ * \param slice_window A pointer to the slice view window.
+ */
 static  void  initialize_slice_window(
     display_struct    *slice_window )
 {
@@ -154,6 +151,19 @@ static  void  initialize_slice_window(
     initialize_intensity_plot( slice_window );
 }
 
+/**
+ * \brief Initialize the voxel ratio display, if specified.
+ *
+ * The voxel ratio shows the ratio between two of the loaded volumes
+ * as part of the "probe" text display that shows the coordinates and
+ * values associated with the current mouse position. The ratio is
+ * specified as a comma-separated pair of numbers that correspond to
+ * the zero-based indices of the loaded volumes, so a Ratio_volume_index
+ * value of "1,2" would cause us to display the ratio between a voxel in
+ * the second volume divided by the corresponding voxel in the third volume.
+ *
+ * \param slice_window A pointer to the slice view window.
+ */
 static void initialize_ratio (display_struct* slice_window)
 {
   model_struct      *model;
@@ -180,6 +190,12 @@ static void initialize_ratio (display_struct* slice_window)
   }
 }
 
+/**
+ * Delete all of the data structures associated with a loaded volume.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param volume_index The zero-based index of the volume to remove.
+ */
 static  void  delete_slice_window_volume_stuff(
     display_struct   *slice_window,
     int              volume_index )
@@ -210,7 +226,13 @@ static  void  delete_slice_window_volume_stuff(
     --slice_window->slice.n_volumes;
 }
 
-  void  delete_slice_window_volume(
+/**
+ * Remove a particular volume from the slice view window.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param volume_index The zero-based index of the volume to remove.
+ */
+void  delete_slice_window_volume(
     display_struct   *slice_window,
     int              volume_index )
 {
@@ -226,6 +248,11 @@ static  void  delete_slice_window_volume_stuff(
     set_current_volume_index( slice_window, current_volume_index );
 }
 
+/**
+ * Delete all of the structures associated with the slice window.
+ *
+ * \param slice_window A pointer to the slice view window.
+ */
   void  delete_slice_window(
     display_struct   *slice_window )
 {
@@ -248,6 +275,13 @@ static  void  delete_slice_window_volume_stuff(
 
 /**
  * Get the file name associated with a particular volume index.
+ * 
+ * The stored pointer to the string is returned, so it should not be 
+ * freed or changed without updating the structure.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param volume_index The zero-based index of the volume.
+ * \returns A pointer to the volume file name.
  */
   VIO_STR  get_volume_filename(
     display_struct    *slice_window,
@@ -260,9 +294,9 @@ static  void  delete_slice_window_volume_stuff(
  * Creates the slice window if it does not already exist, then adds a
  * new volume to the slice window.
  * \param display A pointer to a top-level display_struct.
- * \param The file (or path) name of the volume.
- * \param Descriptive text to associate with the volume.
- * \param The loaded volume.
+ * \param filename The file (or path) name of the volume.
+ * \param description Descriptive text to associate with the volume.
+ * \param volume The loaded volume.
  */
   void  add_slice_window_volume(
     display_struct    *display,
@@ -453,13 +487,19 @@ move_slice_window_volume(display_struct *display,
   set_slice_window_all_update( slice_window, -1, UPDATE_BOTH );
 }
 
+/**
+ * Set the currently selected volume. 
+ *
+ * \param slice_window A pointer to the slice window.
+ * \param volume_index The zero-based index of the newly selected volume.
+ */
 void  set_current_volume_index(
     display_struct  *slice_window,
     int             volume_index )
 {
-    VIO_BOOL         first;
+    VIO_BOOL        first;
     int             view;
-    VIO_Real            separations[VIO_MAX_DIMENSIONS];
+    VIO_Real        separations[VIO_MAX_DIMENSIONS];
     display_struct  *display;
 
     if( slice_window->slice.current_volume_index < 0 )
@@ -471,7 +511,7 @@ void  set_current_volume_index(
 
     if( volume_index >= 0 )
     {
-        get_volume_separations( get_nth_volume(slice_window,volume_index),
+        get_volume_separations( get_nth_volume(slice_window, volume_index),
                                 separations );
 
         display = get_three_d_window( slice_window );
@@ -504,7 +544,13 @@ void  set_current_volume_index(
     set_slice_window_all_update( slice_window, volume_index, UPDATE_BOTH );
 }
 
-  int  get_n_volumes(
+/**
+ * Get the number of loaded volumes.
+ *
+ * \param display A pointer to a top-level window.
+ * \returns The number of loaded volumes.
+ */
+int  get_n_volumes(
     display_struct  *display )
 {
     display_struct  *slice_window;
@@ -515,7 +561,13 @@ void  set_current_volume_index(
         return( 0 );
 }
 
-  int   get_current_volume_index(
+/**
+ * Get the zero-based index of the current volume.
+ *
+ * \param display A pointer to a top-level window.
+ * \returns The zero-based index of the current volume or -1 on failure.
+ */
+int   get_current_volume_index(
     display_struct   *display )
 {
     display_struct   *slice_window;
@@ -530,11 +582,19 @@ void  set_current_volume_index(
         return( -1 );
 }
 
+/**
+ * Get a handle to the current loaded volume.
+ *
+ * \param display A pointer to a top-level window.
+ * \param volume  A pointer to a location that will receive the volume
+ * handle.
+ * \returns TRUE if the volume is present.
+ */
   VIO_BOOL   get_slice_window_volume(
     display_struct   *display,
-    VIO_Volume           *volume )
+    VIO_Volume        *volume )
 {
-    VIO_BOOL          volume_exists;
+    VIO_BOOL         volume_exists;
     display_struct   *slice_window;
 
     if( get_slice_window( display, &slice_window ) &&
@@ -553,13 +613,22 @@ void  set_current_volume_index(
     return( volume_exists );
 }
 
-  VIO_Volume  get_nth_volume(
+/**
+ * Get a loaded volume by index, where the first volume is at index zero.
+ *
+ * \param display A pointer to a top-level window.
+ * \param volume_index The zero-based index of the desired volume.
+ * \returns A handle to the volume, or NULL on failure.
+ */
+VIO_Volume  get_nth_volume(
     display_struct   *display,
     int              volume_index )
 {
     display_struct   *slice_window;
 
-    if( get_slice_window( display, &slice_window ) )
+    if( get_slice_window( display, &slice_window ) &&
+        volume_index >= 0 &&
+        volume_index < slice_window->slice.n_volumes )
     {
         return( slice_window->slice.volumes[volume_index].volume );
     }
@@ -567,7 +636,13 @@ void  set_current_volume_index(
         return( (VIO_Volume) NULL );
 }
 
-  VIO_Volume   get_volume(
+/**
+ * Get a handle to the current loaded volume.
+ *
+ * \param display A pointer to a top-level window.
+ * \returns A handle to the volume, or NULL on failure.
+ */
+VIO_Volume   get_volume(
     display_struct   *display )
 {
     VIO_Volume      volume;
@@ -577,13 +652,27 @@ void  set_current_volume_index(
     return( volume );
 }
 
-  VIO_BOOL  slice_window_exists(
+/**
+ * Check whether the slice window was created.
+ *
+ * \param display A pointer to a top-level window.
+ * \returns TRUE if the slice window was created.
+ */
+VIO_BOOL  slice_window_exists(
     display_struct   *display )
 {
     return( get_display_by_type( SLICE_WINDOW ) != NULL );
 }
 
-  VIO_BOOL  get_slice_window(
+/**
+ * Get a pointer to the slice window.
+ * 
+ * \param display A pointer to a top-level window.
+ * \param slice_window A pointer to a location to receive the slice window 
+ * pointer.
+ * \returns TRUE if successful.
+ */
+VIO_BOOL  get_slice_window(
     display_struct   *display,
     display_struct   **slice_window )
 {
@@ -592,6 +681,17 @@ void  set_current_volume_index(
     return( *slice_window != NULL );
 }
 
+/**
+ * Compute the total range of all loaded volumes, in world coordinates.
+ * 
+ * Returns two points corresponding to the minumum and maximum points of the
+ * rectangular prism.
+ *
+ * \param display A pointer to the slice view window.
+ * \param min_limit A point that will contain the minimum coordinate.
+ * \param max_limit A point that will contain the minimum coordinate.
+ * \returns TRUE if the values were computed, FALSE if no volume is loaded.
+ */
   VIO_BOOL  get_range_of_volumes(
     display_struct   *display,
     VIO_Point            *min_limit,
@@ -644,7 +744,15 @@ void  set_current_volume_index(
     return( TRUE );
 }
 
-  void  set_slice_cursor_update(
+/**
+ * Set a flag indicating it's time to redraw the crosshair cursor
+ * for the slice views.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param view_index The view index to update, or -1 if all views should
+ * be updated.
+ */
+void  set_slice_cursor_update(
     display_struct   *slice_window,
     int              view_index )
 {
@@ -659,7 +767,15 @@ void  set_current_volume_index(
     }
 }
 
-  void  set_slice_text_update(
+/**
+ * Set a flag indicating it's time to redraw the text (cursor position)
+ * for the slice views.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param view_index The view index to update, or -1 if all views should
+ * be updated.
+ */
+void  set_slice_text_update(
     display_struct   *slice_window,
     int              view_index )
 {
@@ -676,6 +792,14 @@ void  set_current_volume_index(
     }
 }
 
+/**
+ * Set a flag indicating it's time to redraw the object outlines in 
+ * the slice views.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param view_index The view index to update, or -1 if all views should
+ * be updated.
+ */
 void
 set_slice_outline_update(
                          display_struct   *slice_window,
@@ -694,7 +818,17 @@ set_slice_outline_update(
   }
 }
 
-  void  set_slice_cross_section_update(
+/**
+ * Set a flag indicating it's time to redraw the slice cross section.
+ *
+ * The slice cross section is the projection of the arbitrary (oblique)
+ * plane in the three orthogonal slice views.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param view_index The view index to update, or -1 if all views should
+ * be updated.
+ */
+void  set_slice_cross_section_update(
     display_struct   *slice_window,
     int              view_index )
 {
@@ -713,7 +847,15 @@ set_slice_outline_update(
     }
 }
 
-  void  set_crop_box_update(
+/**
+ * Set a flag indicating it is time to update the crop box drawn in the
+ * slice view window.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param view_index The view index to update, or -1 if all views should
+ * be updated.
+ */
+void  set_crop_box_update(
     display_struct   *slice_window,
     int              view_index )
 {
@@ -730,24 +872,46 @@ set_slice_outline_update(
     }
 }
 
-  void  set_slice_dividers_update(
+/**
+ * Set a flag indicating it's time to redraw the slice dividers.
+ *
+ * \param slice_window A pointer to the slice view window.
+ */
+static void  set_slice_dividers_update(
     display_struct   *slice_window )
 {
     slice_window->slice.update_slice_dividers_flag = TRUE;
 }
 
-  void  set_probe_update(
+/**
+ * Set a flag indicating it's time to redraw the slice view information text.
+ *
+ * \param slice_window A pointer to the slice view window.
+ */
+void  set_probe_update(
     display_struct   *slice_window )
 {
     slice_window->slice.update_probe_flag = TRUE;
 }
 
+/**
+ * Set a flag indicating it's time to redraw the slice view colour bar.
+ *
+ * \param slice_window A pointer to the slice view window.
+ */
   void  set_colour_bar_update(
     display_struct   *slice_window )
 {
     slice_window->slice.update_colour_bar_flag = TRUE;
 }
 
+/**
+ * Set a flag indicating it's time to redraw the slice view atlas.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param view_index The index of the view to update, or -1 if all
+ * visible views should be updated.
+ */
   void  set_atlas_update(
     display_struct   *slice_window,
     int              view_index )
@@ -765,7 +929,36 @@ set_slice_outline_update(
     }
 }
 
-  void  set_slice_window_update(
+/**
+ * Trigger update of each of the slice graphical models.
+ *
+ * \param slice_window A pointer to the slice view window.
+ */
+void  update_all_slice_models(
+    display_struct   *slice_window )
+{
+    set_slice_cursor_update( slice_window, -1 );
+    set_slice_text_update( slice_window, -1 );
+    set_slice_cross_section_update( slice_window, -1 );
+    set_crop_box_update( slice_window, -1 );
+    set_slice_dividers_update( slice_window );
+    set_probe_update( slice_window );
+    set_colour_bar_update( slice_window );
+    set_atlas_update( slice_window, -1 );
+    set_slice_outline_update( slice_window, -1 );
+}
+
+/**
+ * Set a flag indicating it's time to update the overall slice view.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param volume_index The volume for which the update is required, or -1
+ * if all volumes should be updated.
+ * \param view_index The index of the view to update.
+ * \param type Either UPDATE_SLICE, UPDATE_LABELS, or UPDATE_BOTH to
+ * indicate which aspect of the display to update.
+ */
+void  set_slice_window_update(
     display_struct   *slice_window,
     int              volume_index,
     int              view_index,
@@ -804,6 +997,15 @@ set_slice_outline_update(
     }
 }
 
+/**
+ * Set a flag indicating it's time to update all of the slice views.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param volume_index The volume for which the update is required, or -1
+ * if all volumes should be updated.
+ * \param type Either UPDATE_SLICE, UPDATE_LABELS, or UPDATE_BOTH to
+ * indicate which aspect of the display to update.
+ */
   void  set_slice_window_all_update(
     display_struct   *slice_window,
     int              volume_index,
@@ -815,7 +1017,15 @@ set_slice_outline_update(
         set_slice_window_update( slice_window, volume_index, view, type );
 }
 
-  void  set_slice_viewport_update(
+/**
+ * Sets a flag indicating that a particular viewport of the slice view
+ * window should be updated.
+ * \param slice_window A pointer to the slice view window.
+ * \param model_number One of FULL_WINDOW_MODEL, SLICE_READOUT_MODEL, 
+ * COLOUR_BAR_MODEL, INTENSITY_PLOT_MODEL, SLICE_MODEL1, SLICE_MODEL2,
+ * SLICE_MODEL3, or SLICE_MODEL4.
+ */
+void  set_slice_viewport_update(
     display_struct   *slice_window,
     int              model_number )
 {
@@ -841,6 +1051,14 @@ set_slice_outline_update(
                               get_graphics_model(slice_window,model_number)) );
 }
 
+/**
+ * Check whether any aspect of a slice viewport has changed, and therefore
+ * needs to be updated.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param view The index of the view to check.
+ * \returns TRUE if the slice viewport needs to be updated.
+ */
 static  VIO_BOOL  slice_viewport_has_changed(
     display_struct   *slice_window,
     int              view )
@@ -883,6 +1101,14 @@ static  VIO_BOOL  slice_viewport_has_changed(
     return( changed );
 }
 
+/**
+ * Check whether the slice update is continuing (i.e. was previously
+ * interrupted).
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param view The index of the view to check.
+ * \returns TRUE if an update of this view was previously interrupted.
+ */
 static  VIO_BOOL  is_slice_continuing(
     display_struct   *slice_window,
     int              view )
@@ -902,6 +1128,14 @@ static  VIO_BOOL  is_slice_continuing(
     return( continuing );
 }
 
+/**
+ * Check whether the partial redraw of the slice view should be interrupted.
+ * \param end_time The final time allowed for rendering, negative or zero
+ * if unlimited.
+ * \param current_time The current time in seconds.
+ * \returns TRUE if the end_time is positive and the current time is greater
+ * than the end time.
+ */
 static  VIO_BOOL  time_is_up(
     VIO_Real    end_time,
     VIO_Real    current_time )
@@ -909,6 +1143,17 @@ static  VIO_BOOL  time_is_up(
     return( end_time >= 0.0 && current_time > end_time );
 }
 
+/**
+ * Render slice data into the appropriate pixel objects. 
+ * 
+ * Most of the complexity comes from attempts to perform minimal updates,
+ * and allowing the updates to be restarted if they take more than a 
+ * given amount of time.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param viewport_has_changed An array of flags that indicate which
+ * of the four slice viewports have actually changed.
+ */
 static  void  render_more_slices(
     display_struct   *slice_window,
     VIO_BOOL          viewport_has_changed[] )
@@ -1117,7 +1362,14 @@ static  void  render_more_slices(
     }
 }
 
-  void  update_slice_window(
+/**
+ * Actually rebuild the requested parts of the slice window.
+ *
+ * Called from the timer_function() in event_loop.c
+ *
+ * \param slice_window A pointer to the slice view window.
+ */
+void  update_slice_window(
     display_struct   *slice_window )
 {
     VIO_BOOL  viewport_has_changed[N_SLICE_VIEWS];
@@ -1361,6 +1613,22 @@ static  void  render_more_slices(
       rebuild_intensity_plot( slice_window );
 }
 
+/**
+ * Set the subviewport to be updated for a given slice view.
+ *
+ * This is used, for example, when painting requires that we
+ * update a small portion of the overall slice view.
+ *
+ * The coordinates are given in pixel units relative to the
+ * position of the overall slice viewport.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param view_index The index of the view.
+ * \param x_min The minimum x coordinate.
+ * \param x_max The maximum x coordinate.
+ * \param y_min The minimum y coordinate.
+ * \param y_max The maximum y coordinate.
+ */
   void  set_slice_composite_update(
     display_struct   *slice_window,
     int              view_index,
@@ -1389,7 +1657,21 @@ static  void  render_more_slices(
     slice_window->slice.slice_views[view_index].y_max = y_max;
 }
 
-  VIO_BOOL  get_slice_subviewport(
+/**
+ * Get the portion of the slice viewport that is scheduled to be updated.
+ *
+ * The returned coordinates are given in pixel units relative to the
+ * position of the overall slice viewport.
+ *
+ * \param slice_window A pointer to the slice view window.
+ * \param view_index The index of the view.
+ * \param x_min A pointer that will hold the minimum x coordinate.
+ * \param x_max A pointer that will hold the maximum x coordinate.
+ * \param y_min A pointer that will hold the minimum y coordinate.
+ * \param y_max A pointer that will hold the maximum y coordinate.
+ * \returns TRUE if the subviewport is active.
+ */
+VIO_BOOL  get_slice_subviewport(
     display_struct   *slice_window,
     int              view_index,
     int              *x_min,
