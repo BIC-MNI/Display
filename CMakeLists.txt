@@ -205,7 +205,8 @@ SET(C_SRC
            main/main.c 
            main/display.c 
            main/event_loop.c 
-           main/graphics.c 
+           main/graphics.c
+           main/multidim_x.c
            main/three_d.c 
            main/transforms.c 
            atlas/atlas.c 

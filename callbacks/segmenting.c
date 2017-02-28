@@ -19,6 +19,7 @@
 #endif
 
 #include  <display.h>
+#include <multidim_x.h>
 
 static  void  set_slice_labels(
     display_struct     *display,
@@ -399,7 +400,44 @@ DEF_MENU_UPDATE(load_label_data )
     return( get_n_volumes(display) > 0 );
 }
 
-/* ARGSUSED */
+/**
+ * \brief Scan a volume and set the real and voxel ranges to their
+ * true values.
+ *
+ * Normally the label volume is set to have the a voxel minimum of
+ * zero, and a voxel maximum of the currently set largest permitted
+ * label value (255 by default). However, when saving the volume, this
+ * is awkward or even incorrect because label volumes might have only
+ * a few label values set, or in the extreme case of a mask volume,
+ * might just have two possible values.
+ *
+ * To work around this, we save the original settings for the ranges, then
+ * scan the volume to determine the "true" minimum and maximum. We then
+ * temporarily set the voxel and real ranges to the true scanned values.
+ * We will restore it to normal after the save completes.
+ *
+ * \param label_volume The label volume to scan.
+ * \param real_range Will receive the current real range of the volume.
+ * \param voxel_range Will receive the current voxel range of the volume.
+ */
+
+static void
+temporarily_fix_range( VIO_Volume label_volume,
+                       VIO_Real real_range[],
+                       VIO_Real voxel_range[] )
+{
+  VIO_Real voxel_min;
+  VIO_Real voxel_max;
+
+  get_volume_real_range( label_volume, &real_range[0], &real_range[1] );
+  get_volume_voxel_range( label_volume, &voxel_range[0], &voxel_range[1] );
+
+  multidim_scan_range( &label_volume->array, &voxel_min, &voxel_max );
+
+  /* Temporarily reconfigure the volume for saving. */
+  set_volume_voxel_range( label_volume, voxel_min, voxel_max );
+  set_volume_real_range( label_volume, voxel_min, voxel_max );
+}
 
 /**
  * Menu command to save labels to a volumetric (e.g. MINC) file.
@@ -410,6 +448,9 @@ DEF_MENU_FUNCTION(save_label_data)
     VIO_STR          filename, backup_filename;
     display_struct   *slice_window;
     VIO_Real         crop_threshold;
+    VIO_Real         old_real_range[2];
+    VIO_Real         old_voxel_range[2];
+    VIO_Volume       label_volume;
 
     status = VIO_OK;
 
@@ -442,6 +483,10 @@ DEF_MENU_FUNCTION(save_label_data)
     else
         crop_threshold = Crop_label_volumes_threshold;
 
+    label_volume = get_label_volume( slice_window );
+
+    temporarily_fix_range( label_volume, old_real_range, old_voxel_range );
+
     status = make_backup_file( filename, &backup_filename );
     if( status == VIO_OK )
     {
@@ -458,15 +503,24 @@ DEF_MENU_FUNCTION(save_label_data)
 
         status = save_label_volume( filename,
                                     backup_filename,
-                                    get_label_volume(slice_window),
+                                    label_volume,
                                     crop_threshold );
         if ( made_backup )
         {
             /* We made a backup, so clean it up now.
              */
             cleanup_backup_file( filename, backup_filename, status );
+
+            delete_string( backup_filename );
         }
     }
+
+    /* Restore the original voxel and real ranges.
+     */
+    set_volume_voxel_range( label_volume,
+                            old_voxel_range[0], old_voxel_range[1] );
+    set_volume_real_range( label_volume,
+                           old_real_range[0], old_real_range[1] );
 
     if( status == VIO_OK )
         print( "Label saved to %s\n", filename );
@@ -908,9 +962,9 @@ typedef struct
   int volume_index;
 } callback_data;
 
-/** 
+/**
  * This callback is used to actually set the label voxel during 3D dilation
- * and fill operations. It therefore has to have the standard parameter 
+ * and fill operations. It therefore has to have the standard parameter
  * types.
  * \param volume The label volume to modify.
  * \param x The X voxel coordinate to set.
@@ -948,7 +1002,7 @@ do_fill_connected_3d( display_struct *display, VIO_BOOL is_erase )
     int              label_under_mouse, desired_label, volume_index;
     display_struct   *slice_window;
     callback_data    data;
-    
+
     if( get_slice_window( display, &slice_window ) &&
         get_voxel_under_mouse( slice_window, &volume_index, &view_index, voxel))
     {
@@ -970,7 +1024,7 @@ do_fill_connected_3d( display_struct *display, VIO_BOOL is_erase )
 
         data.slice_window = slice_window;
         data.volume_index = volume_index;
-        
+
         fill_connected_voxels_callback( get_nth_volume(slice_window,volume_index),
                                         get_nth_label_volume(slice_window,volume_index),
                                         slice_window->slice.segmenting.connectivity,
@@ -1063,10 +1117,10 @@ dilation_or_erosion_command(display_struct *display, VIO_BOOL do_erosion )
     min_outside_label = min_user_label;
     max_outside_label = max_user_label;
   }
-  
+
   data.slice_window = slice_window;
   data.volume_index = volume_index;
-        
+
   undo_start( slice_window, volume_index );
   dilate_voxels_callback( get_volume( display ),
                           get_label_volume( display ),
