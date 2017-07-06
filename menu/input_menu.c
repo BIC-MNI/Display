@@ -20,6 +20,10 @@
 
 #include  <display.h>
 
+#if HAVE_STRINGS_H
+#include <strings.h>
+#endif 
+
 #define  MENU1 \
 MENU_F(exit_program) \
 MENU_F(show_memory) \

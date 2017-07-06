@@ -61,6 +61,8 @@ SET(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 #----------------------------------------------------------------------
 
 ADD_DEFINITIONS(-DHAVE_CONFIG_H -DHAVE_ZLIB)
+ADD_DEFINITIONS(-D_XOPEN_SOURCE=500)
+
 
 # aliases
 SET(VERSION "${PACKAGE_VERSION}")
