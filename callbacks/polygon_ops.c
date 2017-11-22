@@ -18,13 +18,14 @@
 #include <config.h>
 #endif
 
-#include  <display.h>
+#include <display.h>
+#include <float.h>
 
-  VIO_BOOL  get_current_polygons(
+VIO_BOOL  get_current_polygons(
     display_struct      *display,
     polygons_struct     **polygons )
 {
-    VIO_BOOL                 found;
+    VIO_BOOL                found;
     object_struct           *current_object, *object;
     object_traverse_struct  object_traverse;
 
@@ -48,9 +49,36 @@
     return( found );
 }
 
+VIO_BOOL  get_current_polygons_object(
+    display_struct      *display,
+    object_struct     **object )
+{
+    VIO_BOOL                found;
+    object_struct           *current_object;
+    object_traverse_struct  object_traverse;
+
+    found = FALSE;
+
+    if( get_current_object( display, &current_object ) )
+    {
+        initialize_object_traverse( &object_traverse, FALSE, 1, &current_object);
+
+        while( get_next_object_traverse(&object_traverse, object) )
+        {
+            if( !found && (*object)->object_type == POLYGONS &&
+                get_polygons_ptr(*object)->n_items > 0 )
+            {
+                found = TRUE;
+            }
+        }
+    }
+
+    return( found );
+}
+
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( input_polygons_bintree )
+DEF_MENU_FUNCTION( input_polygons_bintree )
 {
     VIO_Status            status;
     polygons_struct   *polygons;
@@ -97,7 +125,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(input_polygons_bintree )
+DEF_MENU_UPDATE(input_polygons_bintree )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
@@ -105,7 +133,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( save_polygons_bintree )
+DEF_MENU_FUNCTION( save_polygons_bintree )
 {
     VIO_Status            status;
     polygons_struct   *polygons;
@@ -144,7 +172,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(save_polygons_bintree )
+DEF_MENU_UPDATE(save_polygons_bintree )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
@@ -152,7 +180,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( create_bintree_for_polygons )
+DEF_MENU_FUNCTION( create_bintree_for_polygons )
 {
     polygons_struct   *polygons;
 
@@ -171,7 +199,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(create_bintree_for_polygons )
+DEF_MENU_UPDATE(create_bintree_for_polygons )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
@@ -179,7 +207,7 @@
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( create_normals_for_polygon )
+DEF_MENU_FUNCTION( create_normals_for_polygon )
 {
     polygons_struct   *polygons;
 
@@ -262,7 +290,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(smooth_current_polygon )
+DEF_MENU_UPDATE(smooth_current_polygon )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
@@ -270,7 +298,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( reverse_polygons_order )
+DEF_MENU_FUNCTION( reverse_polygons_order )
 {
     polygons_struct   *polygons;
 
@@ -286,7 +314,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(reverse_polygons_order )
+DEF_MENU_UPDATE(reverse_polygons_order )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
@@ -294,7 +322,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( make_polygon_sphere )
+DEF_MENU_FUNCTION( make_polygon_sphere )
 {
     VIO_Point         centre;
     VIO_Real          x_size, y_size, z_size;
@@ -321,17 +349,17 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(make_polygon_sphere )
+DEF_MENU_UPDATE(make_polygon_sphere )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( make_tetrahedral_sphere )
+DEF_MENU_FUNCTION( make_tetrahedral_sphere )
 {
-    VIO_Point             centre;
-    VIO_Real              x_size, y_size, z_size;
+    VIO_Point         centre;
+    VIO_Real          x_size, y_size, z_size;
     int               n_triangles;
     object_struct     *object;
 
@@ -354,20 +382,32 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(make_tetrahedral_sphere )
+DEF_MENU_UPDATE(make_tetrahedral_sphere )
 {
     return( TRUE );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( subdivide_current_polygon )
+DEF_MENU_FUNCTION( subdivide_current_polygon )
 {
     polygons_struct   *polygons;
+    int               *data_indices;
+    int               i;
 
     if( get_current_polygons( display, &polygons ) )
     {
-        subdivide_polygons( polygons );
+        object_struct *object;
+        if (!get_current_polygons_object( display, &object ))
+        {
+            print_error("NO current object?\n");
+            return VIO_ERROR;
+        }
+
+        subdivide_polygons_indices( polygons, &data_indices );
+
+        expand_vertex_data( display, object, polygons->n_points,
+                            data_indices );
 
         compute_polygon_normals( polygons );
 
@@ -379,7 +419,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(subdivide_current_polygon )
+DEF_MENU_UPDATE(subdivide_current_polygon )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
@@ -387,7 +427,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( reset_polygon_neighbours )
+DEF_MENU_FUNCTION( reset_polygon_neighbours )
 {
     polygons_struct   *polygons;
 
@@ -405,7 +445,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(reset_polygon_neighbours )
+DEF_MENU_UPDATE(reset_polygon_neighbours )
 {
     polygons_struct   *polygons;
 
@@ -415,7 +455,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( cut_polygon_neighbours )
+DEF_MENU_FUNCTION( cut_polygon_neighbours )
 {
     polygons_struct   *polygons;
 
@@ -431,7 +471,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(cut_polygon_neighbours )
+DEF_MENU_UPDATE(cut_polygon_neighbours )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
@@ -439,9 +479,9 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( set_polygon_line_thickness )
+DEF_MENU_FUNCTION( set_polygon_line_thickness )
 {
-    VIO_Real              line_thickness;
+    VIO_Real          line_thickness;
     polygons_struct   *polygons;
 
     if( get_current_polygons( display, &polygons ) )
@@ -459,7 +499,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(set_polygon_line_thickness )
+DEF_MENU_UPDATE(set_polygon_line_thickness )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
@@ -467,9 +507,9 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( print_polygons_surface_area )
+DEF_MENU_FUNCTION( print_polygons_surface_area )
 {
-    VIO_Real              surface_area;
+    VIO_Real          surface_area;
     polygons_struct   *polygons;
 
     if( get_current_polygons( display, &polygons ) )
@@ -483,15 +523,15 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(print_polygons_surface_area )
+DEF_MENU_UPDATE(print_polygons_surface_area )
 {
-    return( current_object_is_this_type(display,POLYGONS) ||
-            current_object_is_this_type(display,MODEL) );
+    return( current_object_is_this_type( display, POLYGONS ) ||
+            current_object_is_this_type( display, MODEL ) );
 }
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( coalesce_current_polygons )
+DEF_MENU_FUNCTION( coalesce_current_polygons )
 {
     polygons_struct   *polygons;
 
@@ -522,7 +562,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(coalesce_current_polygons )
+DEF_MENU_UPDATE(coalesce_current_polygons )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
@@ -530,7 +570,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_FUNCTION( separate_current_polygons )
+DEF_MENU_FUNCTION( separate_current_polygons )
 {
     polygons_struct   *polygons;
 
@@ -559,7 +599,7 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-  DEF_MENU_UPDATE(separate_current_polygons )
+DEF_MENU_UPDATE(separate_current_polygons )
 {
     return( current_object_is_this_type(display,POLYGONS) ||
             current_object_is_this_type(display,MODEL) );
@@ -567,46 +607,41 @@ DEF_MENU_FUNCTION( smooth_current_polygon )
 
 /* ARGSUSED */
 
-DEF_MENU_FUNCTION( find_nearest_vertex ) {
-
+DEF_MENU_FUNCTION( find_nearest_vertex )
+{
     int                i;
     polygons_struct   *polygons;
 
-    if( get_current_polygons(display,&polygons) ) {
+    if( get_current_polygons( display, &polygons ) )
+    {
+      VIO_Real x = Point_x( display->three_d.cursor.origin );
+      VIO_Real y = Point_y( display->three_d.cursor.origin );
+      VIO_Real z = Point_z( display->three_d.cursor.origin );
 
-      double x = Point_x(display->three_d.cursor.origin );
-      double y = Point_y(display->three_d.cursor.origin );
-      double z = Point_z(display->three_d.cursor.origin );
-
-      double min_dist = 1.0e10;
+      VIO_Real min_dist = DBL_MAX;
       Nearest_vertex_to_move = -1;
-      for( i = 0; i < polygons->n_points; i++ ) {
-        double dist = ( x - polygons->points[i].coords[0] ) *
-                      ( x - polygons->points[i].coords[0] );
-        if( dist < min_dist ) {
-          dist += ( y - polygons->points[i].coords[1] ) *
-                  ( y - polygons->points[i].coords[1] );
-          if( dist < min_dist ) {
-            dist += ( z - polygons->points[i].coords[2] ) *
-                    ( z - polygons->points[i].coords[2] );
-            if( dist < min_dist ) {
-              min_dist = dist;
-              Nearest_vertex_to_move = i;
-            }
-          }
+      for_less( i, 0, polygons->n_points )
+      {
+        VIO_Real dx = x - Point_x( polygons->points[i] );
+        VIO_Real dy = y - Point_y( polygons->points[i] );
+        VIO_Real dz = z - Point_z( polygons->points[i] );
+        VIO_Real dist = dx * dx + dy * dy + dz * dz;
+        if( dist < min_dist )
+        {
+            min_dist = dist;
+            Nearest_vertex_to_move = i;
         }
       }
-
     }
-
     return( VIO_OK );
 }
 
 /* ARGSUSED */
 
-DEF_MENU_UPDATE( find_nearest_vertex ) {
-    return( current_object_is_this_type(display,POLYGONS) ||
-            current_object_is_this_type(display,MODEL) );
+DEF_MENU_UPDATE( find_nearest_vertex )
+{
+    return( current_object_is_this_type( display, POLYGONS ) ||
+            current_object_is_this_type( display, MODEL ) );
 }
 
 /**
@@ -615,8 +650,8 @@ DEF_MENU_UPDATE( find_nearest_vertex ) {
  */
 VIO_Status get_surface_neighbours( polygons_struct * surface,
                                    int * n_neighbours_return[],
-                                   int ** neighbours_return[] ) {
-
+                                   int ** neighbours_return[] )
+{
   int    i, j, k, jj;
   int  * tri;
   int  * n_ngh;
@@ -624,7 +659,8 @@ VIO_Status get_surface_neighbours( polygons_struct * surface,
   int  * ngh_array;
 
   // Check if all polygons are triangles.
-  if( 3 * surface->n_items != surface->end_indices[surface->n_items-1] ) {
+  if( 3 * surface->n_items != surface->end_indices[surface->n_items-1] )
+  {
     printf( "Surface must contain only triangular polygons.\n" );
     return VIO_ERROR;
   }
@@ -637,15 +673,19 @@ VIO_Status get_surface_neighbours( polygons_struct * surface,
   max_idx = 0;                      // anything small
 
   for( i = 0; i < 3*surface->n_items; i++ ) {
-    if( surface->indices[i] < min_idx ) min_idx = surface->indices[i];
-    if( surface->indices[i] > max_idx ) max_idx = surface->indices[i];
+    if( surface->indices[i] < min_idx )
+      min_idx = surface->indices[i];
+    if( surface->indices[i] > max_idx )
+      max_idx = surface->indices[i];
   }
 
   // Shift numbering to start at zero, for array indexing. Note
   // that we don't care if surface->indices array is modified.
 
-  if( min_idx != 0 ) {
-    for( i = 0; i < 3*surface->n_items; i++ ) {
+  if( min_idx != 0 )
+  {
+    for( i = 0; i < 3*surface->n_items; i++ )
+    {
       surface->indices[i] -= min_idx;
     }
   }
@@ -656,28 +696,33 @@ VIO_Status get_surface_neighbours( polygons_struct * surface,
   ALLOC( ngh, surface->n_points );
   ALLOC( ngh_array, 3*surface->n_items );
 
-  for( i = 0; i < surface->n_points; i++ ) {
+  for( i = 0; i < surface->n_points; i++ )
+  {
     n_ngh[i] = 0;
   }
 
-  for( i = 0; i < 3*surface->n_items; i++ ) {
+  for( i = 0; i < 3*surface->n_items; i++ )
+  {
     n_ngh[surface->indices[i]]++;
     ngh_array[i] = -1;
   }
 
   int max_ngh = 0;
   int sum_ngh = 0;
-  for( i = 0; i < surface->n_points; i++ ) {
+  for( i = 0; i < surface->n_points; i++ )
+  {
     ngh[i] = &(ngh_array[sum_ngh]);
     sum_ngh += n_ngh[i];
     max_ngh = MAX( max_ngh, n_ngh[i] );
   }
 
   // At first, store the indices of the triangles in the neighbours.
-  for( i = 0; i < surface->n_items; i++ ) {
+  for( i = 0; i < surface->n_items; i++ )
+  {
     for( j = 0; j < 3; j++ ) {
       jj = surface->indices[3*i+j];
-      for( k = 0; k < n_ngh[jj]; k++ ) {
+      for( k = 0; k < n_ngh[jj]; k++ )
+      {
         if( ngh[jj][k] == -1 ) {
           ngh[jj][k] = i;
           break;
@@ -747,9 +792,9 @@ DEF_MENU_FUNCTION( move_vertex_to_cursor ) {
 
       if( Nearest_vertex_to_move >= 0 ) {
 
-        double x = Point_x(display->three_d.cursor.origin );
-        double y = Point_y(display->three_d.cursor.origin );
-        double z = Point_z(display->three_d.cursor.origin );
+        VIO_Real x = Point_x(display->three_d.cursor.origin );
+        VIO_Real y = Point_y(display->three_d.cursor.origin );
+        VIO_Real z = Point_z(display->three_d.cursor.origin );
 
         int * n_ngh = NULL;
         int ** ngh = NULL;

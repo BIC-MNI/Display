@@ -237,6 +237,14 @@ DEF_MENU_FUNCTION( save_file )
                     status = VIO_ERROR;
                 }
             }
+            else if (filename_extension_matches(filename, "txt"))
+            {
+                {
+                    print("Saving vertex data in TXT format.\n");
+                    status = save_vertex_data_file( display, object_list[0],
+                                                    filename );
+                }
+            }
             else
             {
                 status = output_graphics_file( filename, 

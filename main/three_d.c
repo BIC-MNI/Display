@@ -35,8 +35,6 @@ static void update_vertex_colour_coding( display_struct *display,
 static void update_vertex_colour_bar( display_struct *display,
                                       vertex_data_struct *vtxd_ptr );
 void set_vertex_colour_bar_visibility(display_struct *display, VIO_BOOL visible);
-static vertex_data_struct *find_vertex_data( display_struct *display,
-                                            object_struct *object);
 static VIO_BOOL get_vertex_value(display_struct *display,
                                  object_struct *object,
                                  int index, VIO_Real *value_ptr,
@@ -137,7 +135,7 @@ void  initialize_three_d_window(
 }
 
 /**
- * \brief Show the 3D and "marker" window if any objects are loaded or created. 
+ * \brief Show the 3D and "marker" window if any objects are loaded or created.
  *
  * This overrides any global settings.
  *
@@ -379,7 +377,7 @@ void  delete_three_d(
 
 /**
  * Add the given object to the main 3D model.
- * Makes the new object the currently selected object, and 
+ * Makes the new object the currently selected object, and
  * shows the 3D and object windows if necessary.
  *
  * \param display The display_struct of the 3D view window.
@@ -389,10 +387,10 @@ void  delete_three_d(
 void  add_object_to_main_model(
     display_struct   *display,
     object_struct    *object,
-    VIO_BOOL         f_update_view ) 
+    VIO_BOOL         f_update_view )
 {
     model_struct   *model = get_graphics_model( display, THREED_MODEL );
-      
+
     add_object_to_model( model, object );
 
     set_current_object( display, object );
@@ -408,13 +406,13 @@ void  add_object_to_main_model(
                                &Default_horizontal );
         update_view( display );
     }
-        
+
     graphics_models_have_changed( display );
 }
 
 /**
  * Add the given object to the currently selected model.
- * Makes the new object the currently selected object, and 
+ * Makes the new object the currently selected object, and
  * shows the 3D and object windows if necessary.
  *
  * \param display The display_struct of the 3D view window.
@@ -424,14 +422,14 @@ void  add_object_to_main_model(
 void  add_object_to_current_model(
     display_struct   *display,
     object_struct    *object,
-    VIO_BOOL         f_update_view ) 
+    VIO_BOOL         f_update_view )
 {
     model_struct   *model;
     VIO_BOOL       is_toplevel;
 
     model = get_current_model( display );
     is_toplevel = ( model == get_graphics_model( display, THREED_MODEL ) );
-      
+
     add_object_to_model( model, object );
 
     set_current_object( display, object );
@@ -447,7 +445,7 @@ void  add_object_to_current_model(
                                &Default_horizontal );
         update_view( display );
     }
-        
+
     graphics_models_have_changed( display );
 }
 
@@ -754,7 +752,7 @@ switch_vertex_data( display_struct *display, object_struct *object )
  * \returns A vertex data pointer, or NULL if no vertex data is associated
  * with the object.
  */
-static vertex_data_struct *
+vertex_data_struct *
 find_vertex_data( display_struct *display, object_struct *object )
 {
     int i;
@@ -966,6 +964,83 @@ update_vertex_colour_coding( display_struct *display,
     set_update_required( display, NORMAL_PLANES );
 }
 
+
+/**
+ * "Resample" vertex data by extending existing data to a new series
+ * of indices.
+ *
+ * \param display The display_struct of the 3D view window.
+ * \param object The object associated with the vertex data.
+ * \param n_points The number of vertices in the new object.
+ * \param indices A table of indices that specifies the translation
+ * from the original list of data values to the new expanded list.
+ */
+void
+expand_vertex_data(display_struct *display,
+                     object_struct *object,
+                     int n_points,
+                     int indices[] )
+{
+  int i, j;
+  vertex_data_struct *vtxd_ptr = find_vertex_data( display, object );
+  if ( vtxd_ptr == NULL )
+  {
+    print_error("No vertex data defined on this object.\n");
+    return;
+  }
+
+  if ( n_points < vtxd_ptr->dims[0] )
+  {
+      print_error("Cannot reduce number of points yet.\n");
+      return;
+  }
+  /* We have to reallocate the entire structure. For now I just copy the whole thing. */
+  VIO_Real *new_data;
+  switch ( vtxd_ptr->ndims )
+  {
+  case 1:
+    new_data = (VIO_Real *) malloc(n_points * sizeof(VIO_Real));
+    if ( new_data == NULL )
+    {
+      print_error("Memory allocation error.\n");
+      return ;
+    }
+    for (i = 0; i < n_points; i++)
+    {
+      int m = i;
+      int n = indices[i];
+
+      new_data[m] = vtxd_ptr->data[n];
+    }
+    break;
+
+  case 2:
+    new_data = (VIO_Real *) malloc(n_points * vtxd_ptr->dims[1] *
+                                   sizeof(VIO_Real));
+    if ( new_data == NULL )
+    {
+      print_error("Memory allocation error.\n");
+      return ;
+    }
+    for (i = 0; i < n_points; i++)
+    {
+      int m = i * vtxd_ptr->dims[1];
+      int n = indices[i] * vtxd_ptr->dims[1];
+
+      for (j = 0; j < vtxd_ptr->dims[1]; j++)
+      {
+        new_data[m + j] = vtxd_ptr->data[n + j];
+      }
+    }
+    break;
+  default:
+    print_error( "Cannot handle dimensionality of %d\n", vtxd_ptr->ndims );
+    return;
+  }
+  FREE( vtxd_ptr->data );
+  vtxd_ptr->data = new_data;
+  vtxd_ptr->dims[0] = n_points;
+}
 
 /**
  * \brief Copy used-defined colour coding from one colour_coding_struct

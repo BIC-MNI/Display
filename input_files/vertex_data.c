@@ -8,6 +8,7 @@
 
 #include <display.h>
 #include <float.h>
+#include <ctype.h>
 
 #if GIFTI_FOUND
 #include <time.h>
@@ -37,6 +38,7 @@ int split_line(char *text_ptr, int sep, char ***argv)
     while (*text_ptr == ' ')
       text_ptr++;
 
+
   for (save_ptr = text_ptr; *text_ptr != '\0'; text_ptr++)
   {
     /* Handle quotes if present.
@@ -57,7 +59,10 @@ int split_line(char *text_ptr, int sep, char ***argv)
     }
     if (*text_ptr == sep || *text_ptr == '\n')
     {
-      ADD_ELEMENT_TO_ARRAY( (*argv), len, save_ptr, 1 );
+      if (text_ptr - save_ptr > 0)
+      {
+          ADD_ELEMENT_TO_ARRAY( (*argv), len, save_ptr, 1 );
+      }
       *text_ptr = 0;
       save_ptr = text_ptr + 1;
     }
@@ -187,7 +192,7 @@ void use_label_colour_map( vertex_data_struct *vtxd_ptr, int len )
     }
 
     /* For experimental purposes, report what we are doing. */
-       
+
     print(" %4s  %8s %4s %3s %3s %3s\n", "#", "Label", "Fr.", "R", "G", "B");
     for (i = 0; i < n_labels; i++)
     {
@@ -327,7 +332,7 @@ input_vertstats_vertex_data( const VIO_STR filename )
         {
           if (sscanf(items[i], "%f", &v) != 1)
           {
-            fprintf(stderr, "Failed to read '%s'\n", filename);
+            fprintf(stderr, "Failed to read '%s', '%s'\n", filename, items[i]);
             FREE(vtxd_ptr->data);
             FREE(vtxd_ptr->dims);
             FREE(vtxd_ptr);
@@ -358,6 +363,64 @@ input_vertstats_vertex_data( const VIO_STR filename )
       print("There are %d items per line.\n", vtxd_ptr->dims[1]);
     fclose(fp);
     return vtxd_ptr;
+}
+
+/**
+ * \brief Write per-vertex data to a text file.
+ *
+ * Data is assumed to be a series of lines with a consistent number of
+ * fields per line. Conceptually, each line corresponds to a vertex,
+ * and each column corresponds to a separate per-vertex statistic or
+ * measurement.  The number of columns is arbitray but this code
+ * probably will fail if there are more then one hundred. If the
+ * initial lines don't contain numeric data, they will be
+ * ignored.
+ *
+ * \param display The top-level display structure.
+ * \param object The object whose vertex data should be saved.
+ * \param filename The name of the file to write.
+ */
+VIO_Status
+save_vertex_data_file( display_struct *display,
+                       object_struct *object,
+                       const VIO_STR filename )
+{
+    FILE *fp;
+    int i, j, k;
+    vertex_data_struct *vtxd_ptr;
+
+    vtxd_ptr = find_vertex_data( display, object );
+    if ( vtxd_ptr == NULL )
+        return VIO_ERROR;
+
+    fp = fopen( filename, "w" );
+    if (fp == NULL)
+        return VIO_ERROR;
+
+    switch ( vtxd_ptr->ndims )
+    {
+    case 1:
+      for_less (i, 0, vtxd_ptr->dims[0] )
+      {
+        fprintf( fp, "%f\n", vtxd_ptr->data[i] );
+      }
+      break;
+
+    case 2:
+      k = 0;
+      for_less (i, 0, vtxd_ptr->dims[0] )
+      {
+        for_less (j, 0, vtxd_ptr->dims[1] )
+        {
+          fprintf( fp, "%f ", vtxd_ptr->data[k++] );
+        }
+        fprintf( fp, "\n");
+      }
+      break;
+
+    }
+    fclose(fp);
+    return VIO_OK;
 }
 
 #if GIFTI_FOUND

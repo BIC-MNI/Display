@@ -140,6 +140,12 @@ void advance_vertex_data(display_struct *display, object_struct *object);
 
 void switch_vertex_data(display_struct *display, object_struct *object);
 
+vertex_data_struct *find_vertex_data( display_struct *display,
+                                      object_struct *object);
+
+void expand_vertex_data(display_struct *display, object_struct *object,
+                        int n_points, int indices[] );
+
   void  delete_three_d(
     display_struct  *display );
 
@@ -224,6 +230,9 @@ VIO_Status input_volume_file(
 void delete_vertex_data( vertex_data_struct * );
 VIO_Status load_vertex_data_file( display_struct *display,
                                   object_struct *object, VIO_STR filename );
+VIO_Status save_vertex_data_file( display_struct *display,
+                                  object_struct * object,
+                                  VIO_STR filename);
 
   /** \defgroup Commands Menu command functions
    *
