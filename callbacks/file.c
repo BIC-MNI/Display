@@ -237,10 +237,12 @@ DEF_MENU_FUNCTION( save_file )
                     status = VIO_ERROR;
                 }
             }
-            else if (filename_extension_matches(filename, "txt"))
+            else if ( filename_extension_matches( filename, "csv" ) ||
+                      filename_extension_matches( filename, "tsv" ) ||
+                      filename_extension_matches( filename, "txt" ) )
             {
                 {
-                    print("Saving vertex data in TXT format.\n");
+                    print("Saving vertex data in text format.\n");
                     status = save_vertex_data_file( display, object_list[0],
                                                     filename );
                 }

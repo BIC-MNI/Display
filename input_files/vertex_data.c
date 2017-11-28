@@ -368,13 +368,10 @@ input_vertstats_vertex_data( const VIO_STR filename )
 /**
  * \brief Write per-vertex data to a text file.
  *
- * Data is assumed to be a series of lines with a consistent number of
+ * Data is written as a series of lines with a consistent number of
  * fields per line. Conceptually, each line corresponds to a vertex,
  * and each column corresponds to a separate per-vertex statistic or
- * measurement.  The number of columns is arbitray but this code
- * probably will fail if there are more then one hundred. If the
- * initial lines don't contain numeric data, they will be
- * ignored.
+ * measurement. The separator is chosen based on the file extension.
  *
  * \param display The top-level display structure.
  * \param object The object whose vertex data should be saved.
@@ -388,19 +385,27 @@ save_vertex_data_file( display_struct *display,
     FILE *fp;
     int i, j, k;
     vertex_data_struct *vtxd_ptr;
+    char sep;
+
+    if ( filename_extension_matches( filename, "csv" ) )
+      sep = ',';
+    else if ( filename_extension_matches( filename, "tsv" ) )
+      sep = '\t';
+    else
+      sep = ' ';
 
     vtxd_ptr = find_vertex_data( display, object );
     if ( vtxd_ptr == NULL )
         return VIO_ERROR;
 
     fp = fopen( filename, "w" );
-    if (fp == NULL)
+    if ( fp == NULL )
         return VIO_ERROR;
 
     switch ( vtxd_ptr->ndims )
     {
     case 1:
-      for_less (i, 0, vtxd_ptr->dims[0] )
+      for_less ( i, 0, vtxd_ptr->dims[0] )
       {
         fprintf( fp, "%f\n", vtxd_ptr->data[i] );
       }
@@ -408,11 +413,13 @@ save_vertex_data_file( display_struct *display,
 
     case 2:
       k = 0;
-      for_less (i, 0, vtxd_ptr->dims[0] )
+      for_less ( i, 0, vtxd_ptr->dims[0] )
       {
-        for_less (j, 0, vtxd_ptr->dims[1] )
+        for_less ( j, 0, vtxd_ptr->dims[1] )
         {
-          fprintf( fp, "%f ", vtxd_ptr->data[k++] );
+          fprintf( fp, "%f", vtxd_ptr->data[k++] );
+          if ( j + 1 < vtxd_ptr->dims[1] )
+            fprintf( fp, "%c", sep );
         }
         fprintf( fp, "\n");
       }

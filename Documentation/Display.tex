@@ -760,10 +760,16 @@ file data of various types.
 
 \item[\menutwo{File}{Save File}]  Prompts for a filename and saves
  the current object, or all objects contained in the current object, if the
- current object is a model object. Files are typically saved in MNI .obj
+ current object is a model object. Files are normally saved in MNI {\tt
+   .obj}
  format, but single polygonal surfaces can also be saved in Stanford
- (.ply), X3D (.x3d), or Wavefront (.wf.obj) format. \display{} will select
-the format based on the extension of the filename you supply.
+ ({\tt .ply}), X3D ({\tt .x3d}), or Wavefront ({\tt .wf.obj}) format. \display{} will select
+ the format based on the extension of the filename you supply.
+
+You can also save the vertex data associated with a polygon object by
+specifying the file extension {\tt .txt}, {\tt .tsv}, or {\tt
+  .csv}. This will save the vertex data in a simple text format using either
+spaces, tabs, or commas as field separators.
  
 This selection {\em cannot} be used to save a volume file.
 
@@ -1707,8 +1713,11 @@ using \menutwo{File}{Save File}.
      longitude and latitude, and rather than specifying the number of items
      composing it, the user specifies the number of intervals around and up
      the ellipsoid.
-\item[\menutwo{Polygons}{Subdivide Polygons}]  Not for general use.
-\item[\menutwo{Polygons}{Create Bintree}]  Not for general use. Creates a ``bintree'', similar to a KD-tree, that can speed up certain operations on polygons.
+\item[\menutwo{Polygons}{Subdivide Polygons}] Subdivides a polygon by
+  splitting each polygonal element into four polygons at the midpoints
+  of the line segments. Will also ``upsample'' any vertex data
+  associated with the polygonal surface.
+\item[\menutwo{Polygons}{Create Bintree}]  Creates a ``bintree'', similar to a KD-tree, that can speed up certain operations on polygons.
 \item[\menutwo{Polygons}{Compute Normals}] Computes normals for the
      current polygon, for use in displaying a smooth lighted surface in
      the 3D window.
