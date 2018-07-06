@@ -340,6 +340,15 @@ add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/checkbox.h
 add_executable (Display  ${C_SRC} checkbox.h )
 add_executable (ppm_to_pixels tools/ppm_to_pixels.c )
 
+
+# make sure we can executte ppm_to_pixels from build directory
+IF(APPLE)
+add_custom_command(TARGET ppm_to_pixels 
+    POST_BUILD COMMAND 
+    ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "${HDF5_LIBRARY_DIR}"
+    $<TARGET_FILE:ppm_to_pixels>)
+ENDIF(APPLE)
+
 # Link all modules to create the executable
 IF(NOT MINC_TOOLKIT_BUILD)
   IF (DISPLAY_BUILD_STATIC)
