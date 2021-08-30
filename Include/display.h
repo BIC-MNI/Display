@@ -19,9 +19,9 @@
 #include  <volume_io.h>
 
 #include  <bicpl/globals.h>
-#include  <main.h>
+#include  "main.h"
 #include  <bicpl/marching_cubes.h>
 #include  <bicpl.h>
-#include  <display_prototypes.h>
+#include  "display_prototypes.h"
 
 #endif

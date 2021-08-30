@@ -15,10 +15,10 @@
               express or implied warranty.
 ---------------------------------------------------------------------------- */
 
-#include  <display_types.h>
-#include  <menu.h>
-#include  <slice.h>
-#include  <surface_extract.h>
+#include  "display_types.h"
+#include  "menu.h"
+#include  "slice.h"
+#include  "surface_extract.h"
 
 /* for graphics windows */
 enum three_d_models {

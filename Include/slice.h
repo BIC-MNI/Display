@@ -19,7 +19,7 @@
 
 #include  <volume_io.h>
 #include  <atlas.h>
-#include  <display_types.h>
+#include  "display_types.h"
 
 /**
  * Total number of slice view panels, one for each spatial axis plus
