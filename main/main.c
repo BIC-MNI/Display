@@ -192,7 +192,7 @@ int  main(
         return( 1 );
     delete_string( title );
 
-    G_set_transparency_state( graphics->window, Graphics_transparency_flag);
+    G_set_transparency_state( graphics->window, Graphics_transparency_flag?NORMAL_TRANSPARENCY:NO_TRANSPARENCY);
     G_set_visibility(graphics->window, !Hide_3D_window);
 
     if( initialize_menu( menu, runtime_directory,

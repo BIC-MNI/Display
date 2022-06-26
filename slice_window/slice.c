@@ -52,7 +52,7 @@ static void create_slice_window(
     initialize_slice_window( slice_window );
 
     if( !Use_transparency_hardware )
-        G_set_transparency_state( slice_window->window, FALSE );
+        G_set_transparency_state( slice_window->window, NO_TRANSPARENCY );
 }
 
 /**
