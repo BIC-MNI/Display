@@ -346,10 +346,21 @@ add_executable (ppm_to_pixels tools/ppm_to_pixels.c )
 
 # make sure we can executte ppm_to_pixels from build directory
 IF(APPLE)
-add_custom_command(TARGET ppm_to_pixels 
-    POST_BUILD COMMAND 
-    ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "${HDF5_LIBRARY_DIR}"
-    $<TARGET_FILE:ppm_to_pixels>)
+
+# HACK
+ IF(NOT HDF5_LIBRARY_DIR)
+   list(GET HDF5_C_LIBRARIES 0 HDF5_C_LIBRARY)
+   get_filename_component(HDF5_LIBRARY_DIR HDF5_C_LIBRARY DIRECTORY )
+ ENDIF()
+
+ message("HDF5_LIBRARY_DIR=${HDF5_LIBRARY_DIR}")
+
+# ?
+#add_custom_command(TARGET ppm_to_pixels 
+#    POST_BUILD COMMAND 
+#    ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "${HDF5_LIBRARY_DIR}"
+#    $<TARGET_FILE:ppm_to_pixels>)
+
 ENDIF(APPLE)
 
 # Link all modules to create the executable
