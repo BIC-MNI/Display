@@ -44,7 +44,7 @@ IF(NOT MINC_TOOLKIT_BUILD)
   SET(CPACK_PACKAGE_VERSION_PATCH ${DISPLAY_PACKAGE_VERSION_PATCH})
   INCLUDE(CPack)
   # Include modules
-  SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
+  SET(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules")
 
 ENDIF(NOT MINC_TOOLKIT_BUILD)
   
@@ -133,6 +133,7 @@ include_directories( Include )
 IF(NOT MINC_TOOLKIT_BUILD)
   # Quick and dirty fix to force static libraries
   option(DISPLAY_BUILD_STATIC "Build the binary with statically linked libraries" OFF)
+
   if (DISPLAY_BUILD_STATIC)
     if(WIN32)
       set(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
@@ -142,8 +143,9 @@ IF(NOT MINC_TOOLKIT_BUILD)
   endif (DISPLAY_BUILD_STATIC)
 
   # NetCDF
-  set(NetCDF_ROOT "/usr/local")
-  find_package(NetCDF REQUIRED)
+  #  set(NetCDF_ROOT "/usr/local")
+  #find_package(NetCDF REQUIRED)
+  FIND_PACKAGE(NETCDF REQUIRED)
 
   # HDF5
   if (DISPLAY_BUILD_STATIC)
@@ -163,6 +165,7 @@ IF(NOT MINC_TOOLKIT_BUILD)
   # LIBM
   #find_package(LibM REQUIRED)
   #include_directories( ${LibM_INCLUDE_DIR} )
+  FIND_PACKAGE(NETPBM QUIET)
 
   # ZLIB
   find_package(ZLIB REQUIRED)
@@ -171,38 +174,53 @@ IF(NOT MINC_TOOLKIT_BUILD)
   find_package(BICPL REQUIRED)
 
   # BICGL
-  find_package(bicgl REQUIRED)
+  find_package(BICGL REQUIRED)
 
   # add_library(bicpl STATIC IMPORTED)
   # set_property(TARGET bicpl PROPERTY IMPORTED_LOCATION ${BICPL_LIBRARY})
 
   # OpenGL
-  find_package(OpenGL REQUIRED)
+  find_package( OpenGL REQUIRED)
 
   # GLUT
   find_package( GLUT REQUIRED )
-  find_package( GIFTI )
+  find_package( GIFTI)
+
+  INCLUDE( ${LIBMINC_USE_FILE} )
+  message("BICGL_INCLUDE_DIRS=${BICGL_INCLUDE_DIRS}")
 ELSE(NOT MINC_TOOLKIT_BUILD)
   INCLUDE( ${LIBMINC_USE_FILE} )
 ENDIF(NOT MINC_TOOLKIT_BUILD)
 
 add_definitions(-DUSE_NIFTI_VERSION_1)
-include_directories( ${BICGL_INCLUDE_DIRS} )
-LINK_DIRECTORIES( ${BICGL_LIBRARY_DIRS} )
 
-include_directories( ${NetCDF_INCLUDE_DIR} )
-include_directories( ${HDF5_INCLUDE_DIRS} )
+include_directories( ${BICGL_INCLUDE_DIRS} 
+    ${BICPL_INCLUDE_DIRS}
+    ${NetCDF_INCLUDE_DIR} 
+    ${HDF5_INCLUDE_DIRS} 
+    ${MINC_INCLUDE_DIR}  
+    ${ZLIB_INCLUDE_DIR} 
+    ${BICPL_INCLUDE_DIR} 
+    ${BICGL_INCLUDE_DIR} 
+    ${OPENGL_INCLUDE_DIR} 
+    ${GLUT_INCLUDE_DIR} 
+    ${NIFTI_INCLUDE_DIR} 
+)
+
+IF(NETPBM_FOUND)
+  SET(HAVE_LIBNETPBM ON)
+  INCLUDE_DIRECTORIES(${NETPBM_INCLUDE_DIR} )
+ENDIF(NETPBM_FOUND)
+
+
+
+LINK_DIRECTORIES( ${BICGL_LIBRARY_DIRS} ${BICPL_LIBRARY_DIRS})
+
 add_definitions( ${HDF5_DEFINITIONS} )
-include_directories( ${MINC_INCLUDE_DIR} )
-include_directories( ${ZLIB_INCLUDE_DIR} )
-include_directories( ${BICPL_INCLUDE_DIR} )
-include_directories( ${BICGL_INCLUDE_DIR} )
-include_directories( ${OPENGL_INCLUDE_DIR} )
-include_directories( ${GLUT_INCLUDE_DIR} )
-include_directories( ${NIFTI_INCLUDE_DIR} )
-include_directories( ${GIFTI_INCLUDE_DIR} )
-#include_directories( ${GLU_INCLUDE_DIR} )
 
+IF(GIFTI_FOUND)
+  include_directories( ${GIFTI_INCLUDE_DIR} )
+ENDIF(GIFTI_FOUND)
 # Look for C source files. Dirty but easy way.
 # file (GLOB_RECURSE C_SRC "./*.c")
 # file (GLOB_RECURSE C_REMOVE "./*.include.c" "./*supports_gl.c" "./*CMakeCCompilerId.c")
@@ -363,6 +381,7 @@ IF(APPLE)
 
 ENDIF(APPLE)
 
+
 # Link all modules to create the executable
 IF(NOT MINC_TOOLKIT_BUILD)
   IF (DISPLAY_BUILD_STATIC)
@@ -371,52 +390,61 @@ IF(NOT MINC_TOOLKIT_BUILD)
         ${NetCDF_C_LIBRARY}
         ${HDF5_C_LIBRARIES} 
         ${ZLIB_LIBRARIES}
-        ${BICPL_LIBRARY}
+        ${BICGL_LIBRARIES}
+        ${BICPL_LIBRARIES}
         ${GLUT_glut_LIBRARY} 
         ${OPENGL_gl_LIBRARY}
         ${OPENGL_opengl_LIBRARY}
-        ${GIFTI_LIBRARY}
         ${NIFTI_LIBRARY}
         m pthread)
   ELSE (DISPLAY_BUILD_STATIC)
     SET (LINK_LIBRARIES   
-        ${MINC_LIBRARIES}
+        ${LIBMINC_LIBRARIES}
         ${NetCDF_C_LIBRARY}
         ${HDF5_C_LIBRARIES}
         ${ZLIB_LIBRARIES}
-        ${BICPL_LIBRARY}
+        ${BICGL_LIBRARIES}
+        ${BICPL_LIBRARIES}
         ${GLUT_glut_LIBRARY} 
         ${OPENGL_gl_LIBRARY}
         ${OPENGL_opengl_LIBRARY}
-        ${GIFTI_LIBRARY}
         ${NIFTI_LIBRARY}
         m pthread)
-  ENDIF (DISPLAY_BUILD_STATIC)
+   ENDIF (DISPLAY_BUILD_STATIC)
 ELSE()
   IF(LIBMINC_STATIC_LIBRARIES AND BICPL_STATIC_LIBRARIES)
     SET (LINK_LIBRARIES
-      ${GLUT_LIBRARIES} 
+      ${GLUT_LIBRARIES}
       ${OPENGL_gl_LIBRARY}
       ${OPENGL_opengl_LIBRARY}
-      ${BICPL_STATIC_LIBRARIES} 
+      ${BICPL_STATIC_LIBRARIES}
+      ${BICGL_LIBRARIES}
       ${LIBMINC_STATIC_LIBRARIES}
-      ${GIFTI_LIBRARY}
       ${NIFTI_LIBRARY}
       m pthread)
   ELSE()
     SET (LINK_LIBRARIES
-      ${GLUT_LIBRARIES}  
+      ${GLUT_LIBRARIES}
       ${OPENGL_gl_LIBRARY}
       ${OPENGL_opengl_LIBRARY}
-      ${BICPL_LIBRARIES} 
+      ${BICPL_LIBRARIES}
+      ${BICGL_LIBRARIES}
       ${LIBMINC_LIBRARIES}
-      ${GIFTI_LIBRARY}
       ${NIFTI_LIBRARY}
       m pthread)
   ENDIF()    
 ENDIF()
 
-target_link_libraries(Display ${BICGL_LIBRARIES} ${LINK_LIBRARIES})
+IF(GIFTI_FOUND)
+  SET (LINK_LIBRARIES ${LINK_LIBRARIES} ${GIFTI_LIBRARY})
+ENDIF(GIFTI_FOUND)
+
+
+IF(NETPBM_FOUND)
+  SET(LINK_LIBRARIES ${LINK_LIBRARIES} ${NETPBM_LIBRARY} )
+ENDIF(NETPBM_FOUND)
+
+target_link_libraries(Display  ${LINK_LIBRARIES})
 
 #IF(BICPL_STATIC_LIBRARIES) # fixing dynamic libraries hell on macosx
 #        target_link_libraries(ppm_to_pixels ${BICGL_LIBRARIES} ${BICPL_STATIC_LIBRARIES})
@@ -424,7 +452,7 @@ target_link_libraries(Display ${BICGL_LIBRARIES} ${LINK_LIBRARIES})
 #        target_link_libraries(ppm_to_pixels ${BICGL_LIBRARIES} ${BICPL_LIBRARIES})
 #ENDIF(BICPL_STATIC_LIBRARIES)
 
-target_link_libraries(ppm_to_pixels ${BICGL_LIBRARIES} ${LINK_LIBRARIES})
+target_link_libraries(ppm_to_pixels ${LINK_LIBRARIES})
         
 # Generate an install target
 install(TARGETS Display RUNTIME DESTINATION bin)
