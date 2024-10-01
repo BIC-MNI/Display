@@ -104,7 +104,7 @@ static  void  create_cursor_pos_text(
                 menu_window->menu.cursor_pos_y_origin -
                 menu_window->menu.character_height, 0.0 );
     
-    (void) snprintf( buffer, VIO_EXTREMELY_LARGE_STRING_SIZE,
+    (void) snprintf( buffer, VIO_EXTREMELY_LARGE_STRING_SIZE-1,
                      Cursor_pos_format,
                      Point_x(cursor_origin),
                      Point_y(cursor_origin),
@@ -127,8 +127,8 @@ static  void  create_cursor_pos_text(
 
             get_current_voxel(slice_window, volume_index, voxel);
             world_time = nonspatial_voxel_to_world(volume, VIO_T, voxel[VIO_T]);
-            snprintf(temp, sizeof(temp), Cursor_time_format, world_time);
-            strncat(buffer, temp, VIO_EXTREMELY_LARGE_STRING_SIZE);
+            snprintf(temp, sizeof(temp)-1, Cursor_time_format, world_time);
+            strncat(buffer, temp, VIO_EXTREMELY_LARGE_STRING_SIZE-1);
         }
     }
     

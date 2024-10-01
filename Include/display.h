@@ -24,4 +24,11 @@
 #include  <bicpl.h>
 #include  "display_prototypes.h"
 
+
+#if HAVE_FREEGLUT_H
+#include <GL/freeglut.h>
+#else
+#include <GL/glut.h>
+#endif
+
 #endif

@@ -63,7 +63,7 @@ VIO_Status   input_volume_file(
     }
     else
     {
-        nc_data_type = NC_UNSPECIFIED;
+        nc_data_type = NC_NAT;
         signed_flag = FALSE;
         voxel_min = 0.0;
         voxel_max = 0.0;

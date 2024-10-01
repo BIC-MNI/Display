@@ -1791,7 +1791,7 @@ DEF_MENU_FUNCTION(insert_volume_as_labels)
         rnd = get_random_int( 1000000000 );
         snprintf( filename, sizeof( filename ), "/tmp/tmp_labels_%d.mnc", rnd );
 
-        if( output_volume( filename, NC_UNSPECIFIED, FALSE, 0.0, 0.0,
+        if( output_volume( filename, NC_NAT, FALSE, 0.0, 0.0,
                            get_nth_volume( slice_window, src_index ),
                            "Label volume\n", NULL ) != VIO_OK )
             return( VIO_ERROR );

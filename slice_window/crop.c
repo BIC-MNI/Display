@@ -93,7 +93,7 @@ VIO_Status  create_cropped_volume_to_file(
 
     if( start_volume_input( slice_window->slice.crop.filename, 3,
                             File_order_dimension_names,
-                            NC_UNSPECIFIED, FALSE, 0.0, 0.0,
+                            NC_NAT, FALSE, 0.0, 0.0,
                             TRUE, &file_volume,
                             (minc_input_options *) NULL,
                             &volume_input ) != VIO_OK )

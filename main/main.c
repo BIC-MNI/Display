@@ -24,6 +24,8 @@
 #include <strings.h>
 #endif
 
+
+
 #define  MAX_TITLE_LENGTH   200
 
 /* These two globals are required for SEAL's LibSul/SULGRAPHDATA */
