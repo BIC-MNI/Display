@@ -2,7 +2,8 @@
 #
 # Project name
 project (Display C)
-cmake_minimum_required(VERSION 3.6)
+
+cmake_minimum_required(VERSION 3.10)
 
 SET(DISPLAY_PACKAGE_VERSION_MAJOR 2)
 SET(DISPLAY_PACKAGE_VERSION_MINOR 0)
