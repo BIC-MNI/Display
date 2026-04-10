@@ -1129,37 +1129,61 @@ static  DEF_EVENT_FUNCTION( update_translation )
 static  DEF_EVENT_FUNCTION( update_probe )
 {
     int  x, y, x_prev, y_prev;
-    int  version;
     if( pixel_mouse_moved(display,&x,&y,&x_prev,&y_prev) )
         set_probe_update( display );
-
-#if !defined(__APPLE__)
-    /* Check the FreeGLUT version and make sure it is later than 2.4.0 
-     * before we try setting the cursor.
-     */
-#ifndef GLUT_VERSION
-#define GLUT_VERSION 0x1FC
-#endif
-    version = glutGet(GLUT_VERSION);
-    if (version <= 20400)
-        return VIO_OK;
-#endif /* !defined(__APPLE__) */
 
     /** TODO: Figure out how to make this generic. DMcD never
      * implemented cursor setting in his graphics library.
      */
-    if (mouse_is_near_low_limit(display)) {
-      glutSetCursor(GLUT_CURSOR_INFO);
+#if defined(BICGL_USE_GLFW)
+    /* GLFW backend — use glfwSetCursor on the native window handle.
+     * WS_graphics.h (included transitively via display_types.h → graphics.h
+     * → GS_graphics.h → WS_graphics.h) already defines GLFW_INCLUDE_NONE
+     * and includes <GLFW/glfw3.h>, so GLFWcursor/GLFWwindow are available. */
+    {
+        static GLFWcursor *s_hand  = NULL;
+        static GLFWcursor *s_cross = NULL;
+        GLFWwindow *gw = display->window->GS_window->WS_window.glfw;
+        if (gw != NULL)
+        {
+            if (!s_hand)
+                s_hand  = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+            if (!s_cross)
+                s_cross = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+            if (mouse_is_near_low_limit(display) ||
+                mouse_is_near_high_limit(display))
+                glfwSetCursor(gw, s_hand);
+            else if (mouse_is_near_slice_dividers(display))
+                glfwSetCursor(gw, s_cross);
+            else
+                glfwSetCursor(gw, NULL);  /* restore default arrow */
+        }
     }
-    else if (mouse_is_near_high_limit(display)) {
-      glutSetCursor(GLUT_CURSOR_INFO);
+#elif !defined(__APPLE__)
+    /* FreeGLUT path — skip on old versions that had a broken implementation */
+    {
+        int  version;
+#ifndef GLUT_VERSION
+#define GLUT_VERSION 0x1FC
+#endif
+        version = glutGet(GLUT_VERSION);
+        if (version > 20400)
+        {
+            if (mouse_is_near_low_limit(display)) {
+                glutSetCursor(GLUT_CURSOR_INFO);
+            }
+            else if (mouse_is_near_high_limit(display)) {
+                glutSetCursor(GLUT_CURSOR_INFO);
+            }
+            else if (mouse_is_near_slice_dividers(display)) {
+                glutSetCursor(GLUT_CURSOR_CROSSHAIR);
+            }
+            else {
+                glutSetCursor(GLUT_CURSOR_INHERIT);
+            }
+        }
     }
-    else if (mouse_is_near_slice_dividers(display)) {
-      glutSetCursor(GLUT_CURSOR_CROSSHAIR);
-    }
-    else {
-      glutSetCursor(GLUT_CURSOR_INHERIT);
-    }
+#endif /* BICGL_USE_GLFW / !__APPLE__ */
 
     return( VIO_OK );
 }

@@ -92,6 +92,11 @@
 /* Define to 1 if you have the <GL/freeglut.h> header file. */
 #cmakedefine HAVE_FREEGLUT_H
 
+/* Defined when bicgl was built with the GLFW backend (BICGL_USE_GLFW=ON).
+ * When set, GLUT is not available; use GLFW APIs directly for any
+ * window-system features not covered by the G_* abstraction layer. */
+#cmakedefine BICGL_USE_GLFW 1
+
 /* Define to 1 if the GIFTI library is present and should be used. */
 #cmakedefine GIFTI_FOUND 1
 

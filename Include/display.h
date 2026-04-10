@@ -25,10 +25,12 @@
 #include  "display_prototypes.h"
 
 
-#ifdef HAVE_FREEGLUT_H
-#include <GL/freeglut.h>
-#else
-#include <GL/glut.h>
+#ifndef BICGL_USE_GLFW
+#  ifdef HAVE_FREEGLUT_H
+#    include <GL/freeglut.h>
+#  else
+#    include <GL/glut.h>
+#  endif
 #endif
 
 #endif

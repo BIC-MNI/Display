@@ -525,22 +525,28 @@ parse_options(int argc, char *argv[], display_struct *graphics)
     }
     else if (equal_strings(filename, "-version"))
     {
+      print("%s %s (built %s) git:%s/%s\n", PROJECT_NAME, PROJECT_VERSION, __DATE__,
+            GIT_BRANCH, GIT_COMMIT );
+#if defined(BICGL_USE_GLFW)
+      /* GLFW backend — GLUT is not available */
+      print("GLFW backend\n");
+#else
 #ifndef GLUT_VERSION
 #define GLUT_VERSION 0x1FC
 #endif
 #ifndef FREEGLUT
 #define FREEGLUT 0
 #endif
-      int glutVersion = glutGet(GLUT_VERSION);
-
-      print("%s %s (built %s) git:%s/%s\n", PROJECT_NAME, PROJECT_VERSION, __DATE__,
-            GIT_BRANCH, GIT_COMMIT );
-      print("%s %d.%d.%d API V%d\n",
-            FREEGLUT ? "FreeGLUT" : "GLUT",
-            glutVersion / 10000,
-            (glutVersion / 100) % 100,
-            glutVersion % 100,
-            GLUT_API_VERSION);
+      {
+        int glutVersion = glutGet(GLUT_VERSION);
+        print("%s %d.%d.%d API V%d\n",
+              FREEGLUT ? "FreeGLUT" : "GLUT",
+              glutVersion / 10000,
+              (glutVersion / 100) % 100,
+              glutVersion % 100,
+              GLUT_API_VERSION);
+      }
+#endif /* BICGL_USE_GLFW */
       print("OpenGL %s\n", glGetString(GL_VERSION));
       exit(EX_OK);
     }
