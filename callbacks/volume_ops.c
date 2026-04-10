@@ -18,6 +18,13 @@
 #include <config.h>
 #endif
 
+/* NC_UNSPECIFIED was defined in older NetCDF/MINC1 headers; in modern
+ * minc2/volume_io it is only defined conditionally inside minc.h.
+ * MI_ORIGINAL_TYPE (== 0) is the modern equivalent defined in volume_io. */
+#ifndef NC_UNSPECIFIED
+#  define NC_UNSPECIFIED MI_ORIGINAL_TYPE
+#endif
+
 #include  <display.h>
 
 

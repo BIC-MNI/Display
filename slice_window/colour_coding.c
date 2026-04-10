@@ -20,6 +20,10 @@
 #include <config.h>
 #endif
 
+/* NC_LONG and nctypelen() are in netcdf.h but not pulled in via volume_io.h
+ * in modern MINC2 builds. Include it directly. */
+#include <netcdf.h>
+
 #include  <display.h>
 #include  <assert.h>
 

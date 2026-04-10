@@ -76,16 +76,19 @@ IF(NOT MINC_TOOLKIT_BUILD)
   find_package(LIBMINC REQUIRED)
   find_package(ZLIB REQUIRED)
   find_package(BICPL REQUIRED)
-  find_package(BICGL REQUIRED)
+
+  # BICGL — skip system find when we are using a local GLFW build
+  if(NOT BICGL_EGL_BUILD_DIR)
+    find_package(BICGL REQUIRED)
+  endif()
 
   # add_library(bicpl STATIC IMPORTED)
   # set_property(TARGET bicpl PROPERTY IMPORTED_LOCATION ${BICPL_LIBRARY})
 
-  FIND_PACKAGE( LIBMINC )
-  FIND_PACKAGE( BICPL )
   FIND_PACKAGE( Threads )
   FIND_PACKAGE( OpenGL REQUIRED )
-  FIND_PACKAGE( GLUT REQUIRED )
+  # GLUT is optional when bicgl was built with the GLFW backend
+  FIND_PACKAGE( GLUT )
   FIND_PACKAGE( X11 QUIET )
 
   find_package( GIFTI )
@@ -177,6 +180,24 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 include_directories( Include )
 
+# Override bicgl paths when building against a locally-built GLFW backend.
+# Pass -DBICGL_EGL_BUILD_DIR=/path/to/bicgl/build_egl to activate.
+# This must come AFTER the INCLUDE() / find_package() calls above because
+# UseLIBMINC.cmake sets normal (non-cache) variables that would otherwise
+# shadow our -D flags.
+if(BICGL_EGL_BUILD_DIR)
+  get_filename_component(_bicgl_src "${BICGL_EGL_BUILD_DIR}/.." ABSOLUTE)
+  set(BICGL_INCLUDE_DIRS
+      "${_bicgl_src}/OpenGL_graphics/Include"
+      "${_bicgl_src}/Include"
+      "${_bicgl_src}/EGL_windows/Include")
+  set(BICGL_LIBRARY_DIRS "${BICGL_EGL_BUILD_DIR}")
+  # GLFW backend: link glfw (GLFW handles EGL/GLX context internally)
+  set(BICGL_LIBRARIES "bicgl;glfw;X11;GL")
+  add_definitions(-DBICGL_USE_GLFW=1)
+  message(STATUS "Using GLFW bicgl from: ${BICGL_EGL_BUILD_DIR}")
+endif()
+
 include_directories( ${BICGL_INCLUDE_DIRS} )
 include_directories( ${BICPL_INCLUDE_DIRS} )
 include_directories( ${BICPL_INCLUDE_DIR} )
@@ -184,6 +205,7 @@ include_directories( ${BICGL_INCLUDE_DIR} )
 
 LINK_DIRECTORIES( ${BICGL_LIBRARY_DIRS} )
 LINK_DIRECTORIES( ${BICPL_LIBRARY_DIRS} )
+LINK_DIRECTORIES( ${LIBMINC_LIBRARY_DIRS} )
 
 include_directories( ${NetCDF_INCLUDE_DIR} )
 include_directories( ${HDF5_INCLUDE_DIRS} )
@@ -191,13 +213,15 @@ add_definitions( ${HDF5_DEFINITIONS} )
 include_directories( ${MINC_INCLUDE_DIR} )
 include_directories( ${ZLIB_INCLUDE_DIR} )
 include_directories( ${OPENGL_INCLUDE_DIRS} )
-include_directories( ${GLUT_INCLUDE_DIRS} )
+IF(GLUT_FOUND)
+  include_directories( ${GLUT_INCLUDE_DIRS} )
+ENDIF(GLUT_FOUND)
 include_directories( ${NIFTI_INCLUDE_DIR} )
-#include_directories( ${GLU_INCLUDE_DIR} )
-
 IF(GIFTI_FOUND)
   include_directories( ${GIFTI_INCLUDE_DIR} )
 ENDIF(GIFTI_FOUND)
+#include_directories( ${GLU_INCLUDE_DIR} )
+
 # Look for C source files. Dirty but easy way.
 # file (GLOB_RECURSE C_SRC "./*.c")
 # file (GLOB_RECURSE C_REMOVE "./*.include.c" "./*supports_gl.c" "./*CMakeCCompilerId.c")
@@ -357,54 +381,72 @@ IF(APPLE)
 #    $<TARGET_FILE:ppm_to_pixels>)
 
 ENDIF(APPLE)
-SET (LINK_LIBRARIES
-  ${NIFTI_LIBRARY}
-  ${NetCDF_C_LIBRARY}
-  ${HDF5_C_LIBRARIES} 
-  ${ZLIB_LIBRARIES}
-  ${GLUT_LIBRARIES} 
-  ${OPENGL_LIBRARIES}
-  m pthread)
 
 # Link all modules to create the executable
 IF(NOT MINC_TOOLKIT_BUILD)
   IF (DISPLAY_BUILD_STATIC)
     SET (LINK_LIBRARIES
-        ${BICPL_STATIC_LIBRARIES}
-        ${VOLUME_IO_STATIC_LIBRARIES} 
-        ${LINK_LIBRARIES}
-  )
+        ${LIBMINC_LIBRARIES}
+        ${NetCDF_C_LIBRARY}
+        ${HDF5_C_LIBRARIES} 
+        ${ZLIB_LIBRARIES}
+        ${BICPL_LIBRARIES}
+        ${OPENGL_gl_LIBRARY}
+        ${OPENGL_opengl_LIBRARY}
+        ${NIFTI_LIBRARY}
+        m pthread)
   ELSE (DISPLAY_BUILD_STATIC)
     SET (LINK_LIBRARIES   
+        ${LIBMINC_LIBRARIES}
+        ${NetCDF_C_LIBRARY}
+        ${HDF5_C_LIBRARIES}
+        ${ZLIB_LIBRARIES}
         ${BICPL_LIBRARIES}
-        ${VOLUME_IO_LIBRARIES} 
-        ${LINK_LIBRARIES})
+        ${OPENGL_gl_LIBRARY}
+        ${OPENGL_opengl_LIBRARY}
+        ${NIFTI_LIBRARY}
+        m pthread)
   ENDIF (DISPLAY_BUILD_STATIC)
+  # Only link GIFTI when it was found
+  IF(GIFTI_FOUND)
+    LIST(APPEND LINK_LIBRARIES ${GIFTI_LIBRARY})
+  ENDIF(GIFTI_FOUND)
+  # Only link GLUT when it was found (not needed for the GLFW backend)
+  IF(GLUT_FOUND)
+    LIST(APPEND LINK_LIBRARIES ${GLUT_glut_LIBRARY})
+  ENDIF(GLUT_FOUND)
 ELSE()
   IF(LIBMINC_STATIC_LIBRARIES AND BICPL_STATIC_LIBRARIES)
     SET (LINK_LIBRARIES
+      ${OPENGL_gl_LIBRARY}
+      ${OPENGL_opengl_LIBRARY}
       ${BICPL_STATIC_LIBRARIES} 
       ${VOLUME_IO_STATIC_LIBRARIES} 
       ${LIBMINC_STATIC_LIBRARIES}
       ${NIFTI_LIBRARY}
-      ${LINK_LIBRARIES})
+      m pthread)
   ELSE()
     SET (LINK_LIBRARIES
+      ${OPENGL_gl_LIBRARY}
+      ${OPENGL_opengl_LIBRARY}
       ${BICPL_LIBRARIES} 
-      ${VOLUME_IO_LIBRARIES} 
-      ${LINK_LIBRARIES})
-  ENDIF()    
+      ${LIBMINC_LIBRARIES}
+      ${NIFTI_LIBRARY}
+      m pthread)
+  ENDIF()
+  # Only link GIFTI when it was found
+  IF(GIFTI_FOUND)
+    LIST(APPEND LINK_LIBRARIES ${GIFTI_LIBRARY})
+  ENDIF(GIFTI_FOUND)
+  # Only link GLUT when it was found (not needed for the GLFW backend)
+  IF(GLUT_FOUND)
+    LIST(APPEND LINK_LIBRARIES ${GLUT_LIBRARIES})
+  ENDIF(GLUT_FOUND)
 ENDIF()
 
 IF(NETPBM_FOUND)
   SET(LINK_LIBRARIES ${LINK_LIBRARIES} ${NETPBM_LIBRARY} )
 ENDIF(NETPBM_FOUND)
-
-
-IF(GIFTI_FOUND)
-  SET (LINK_LIBRARIES ${LINK_LIBRARIES} ${GIFTI_LIBRARY})
-ENDIF(GIFTI_FOUND)
-
 
 message("LINK_LIBRARIES=${LINK_LIBRARIES}")
 message("BICPL_LIBRARIES=${BICPL_LIBRARIES} BICGL_LIBRARIES=${BICGL_LIBRARIES}")
