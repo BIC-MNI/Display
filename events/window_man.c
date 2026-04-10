@@ -56,6 +56,16 @@ static  DEF_EVENT_FUNCTION( handle_redraw )
     set_update_required( display, NORMAL_PLANES );
     set_update_required( display, OVERLAY_PLANES );
 
+    /* For the slice window, set_update_required alone is not enough: it
+     * enables the draw_in_viewports() pass but that pass only redraws
+     * per-model viewports whose viewport_update_flags are set.  After an
+     * expose event (window uncovered, compositor surface loss, etc.) the
+     * back buffer may be undefined/black, so every model must be redrawn.
+     * set_slice_viewport_update(FULL_WINDOW_MODEL) cascades to all
+     * NORMAL_PLANES models and marks both double-buffer slots dirty. */
+    if( display->window_type == SLICE_WINDOW )
+        set_slice_viewport_update( display, FULL_WINDOW_MODEL );
+
     return( VIO_OK );
 }
 
