@@ -25,6 +25,7 @@
 static    DEF_EVENT_FUNCTION( handle_resize );
 static    DEF_EVENT_FUNCTION( handle_redraw );
 static    DEF_EVENT_FUNCTION( handle_redraw_overlay );
+static    DEF_EVENT_FUNCTION( handle_window_quit );
 
   void  initialize_resize_events(
     display_struct   *display )
@@ -35,6 +36,8 @@ static    DEF_EVENT_FUNCTION( handle_redraw_overlay );
                                handle_redraw );
     add_action_table_function( &display->action_table, REDRAW_OVERLAY_EVENT,
                                handle_redraw_overlay );
+    add_action_table_function( &display->action_table, WINDOW_QUIT_EVENT,
+                               handle_window_quit );
 }
 
 /* ARGSUSED */
@@ -64,4 +67,11 @@ static  DEF_EVENT_FUNCTION( handle_resize )
     set_update_required( display, OVERLAY_PLANES );
 
     return( VIO_OK );
+}
+
+/* ARGSUSED */
+
+static  DEF_EVENT_FUNCTION( handle_window_quit )
+{
+    return( VIO_QUIT );
 }
