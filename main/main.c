@@ -37,6 +37,7 @@ static  void   initialize_cache ();
 static  void   parse_options (int argc, char *argv[],
                               display_struct *graphics);
 static  void   create_empty_slice( display_struct *display );
+static  void   scale_ui_geometry( int scale );
 
 /* The first directory is set using compiler flag -D */
 /*#define  HARD_CODED_DISPLAY_DIRECTORY1    "/usr/local/mni/lib"*/
@@ -57,6 +58,62 @@ VIO_Status  change_global_variable(
     return( set_or_get_global_variable(
                    VIO_SIZEOF_STATIC_ARRAY(display_globals),
                    display_globals, str, variable_name, new_value ) );
+}
+
+/**
+ * Scale the fixed-pixel UI-geometry globals by an integer factor.
+ *
+ * bicgl lays out all widgets/menus in framebuffer (physical) pixels and, on a
+ * HiDPI/Retina display, DPI-scales its bitmap fonts by the same factor (see
+ * G_get_window_content_scale).  The pixel-sized geometry globals below are
+ * interpreted directly in that framebuffer space, so to stay consistent with
+ * the scaled fonts they must be scaled by the same factor — otherwise menu
+ * text overflows its (still-tiny) character cells.  On a normal display /
+ * X11 the factor is 1 and this is a no-op, so Linux behaviour is unchanged.
+ *
+ * Window-creation sizes (Initial_*_window_*, Canonical_menu_window_*) are
+ * logical points passed to create_graphics_window and already double via the
+ * framebuffer, so they are deliberately left alone; likewise fractions,
+ * counts, font sizes, world-unit reals, colours, and formats.
+ */
+static  void   scale_ui_geometry( int scale )
+{
+    if( scale <= 1 )
+        return;
+
+    /* NOTE: the MENU window is deliberately NOT scaled here.  It already
+     * scales every metric by the window/canonical size ratio (x_scale/y_scale
+     * in initialize_menu_parameters), which is itself 2x on a Retina
+     * framebuffer — so scaling the menu globals here would double-scale them.
+     * The only menu bug (button text stuck to the top of each cell) is fixed
+     * there, by applying that same ratio to the text offsets. */
+
+    /* Marker window: fixed-pixel selection-box outline offset. */
+    Selected_box_x_offset     *= scale;
+    Selected_box_y_offset     *= scale;
+
+    /* Slice-window panels, dividers, rulers, scalebar (all fixed pixels). */
+    Left_panel_width          *= scale;
+    Text_panel_height         *= scale;
+    Slice_divider_left        *= scale;
+    Slice_divider_right       *= scale;
+    Slice_divider_top         *= scale;
+    Slice_divider_bottom      *= scale;
+    Ruler_y_axis_x_offset     *= scale;
+    Ruler_x_axis_y_offset     *= scale;
+    Scalebar_height           *= scale;
+
+    /* Slice cursor cross-hair, drawn in slice-window pixels. */
+    Cursor_contour_thickness  *= scale;
+    Cursor_axis_size          *= scale;
+    Cursor_hor_start_0        *= scale;   Cursor_hor_end_0  *= scale;
+    Cursor_vert_start_0       *= scale;   Cursor_vert_end_0 *= scale;
+    Cursor_hor_start_1        *= scale;   Cursor_hor_end_1  *= scale;
+    Cursor_vert_start_1       *= scale;   Cursor_vert_end_1 *= scale;
+    Cursor_hor_start_2        *= scale;   Cursor_hor_end_2  *= scale;
+    Cursor_vert_start_2       *= scale;   Cursor_vert_end_2 *= scale;
+    Cursor_hor_start_3        *= scale;   Cursor_hor_end_3  *= scale;
+    Cursor_vert_start_3       *= scale;   Cursor_vert_end_3 *= scale;
 }
 
 VIO_Status  set_global_variable_value(
@@ -167,6 +224,11 @@ int  main(
                                 Initial_menu_window_height ) != VIO_OK )
         return( 1 );
     delete_string( title );
+
+    /* On a HiDPI/Retina display bicgl works in framebuffer pixels and scales
+     * its fonts up; scale the fixed-pixel menu/slice geometry to match, before
+     * the menu and any slice views are laid out.  No-op on normal displays. */
+    scale_ui_geometry( G_get_window_content_scale( menu->window ) );
 
     G_set_visibility(menu->window, !Hide_menu_window);
 

@@ -180,8 +180,14 @@ initialize_menu_parameters(display_struct *menu_window)
     menu->y_dy = y_scale * Y_menu_dy;
 
     menu->n_lines_in_entry = Menu_n_lines_per_entry;
-    menu->x_menu_text_offset = X_menu_text_offset;
-    menu->y_menu_text_offset = Y_menu_text_offset;
+    /* Scale the text offsets by the same window/canonical ratio as every other
+     * menu metric below (x_dx, origins, ...).  These two lines historically
+     * omitted the multiply, which left the menu-button text stuck to the top
+     * of each cell whenever the window was larger than canonical — most
+     * visibly on a HiDPI/Retina display, where the framebuffer (and hence
+     * x_scale/y_scale) is 2x. */
+    menu->x_menu_text_offset = x_scale * X_menu_text_offset;
+    menu->y_menu_text_offset = y_scale * Y_menu_text_offset;
 
     menu->x_menu_origin = x_scale * X_menu_origin;
     menu->y_menu_origin = y_scale * Y_menu_origin;
