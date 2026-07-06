@@ -172,22 +172,17 @@ initialize_menu_parameters(display_struct *menu_window)
 
     scale = MIN( x_scale, y_scale );
 
+    /* Text is rendered at the aspect-preserving MIN scale so glyphs stay
+     * readable and undistorted. */
     menu->font_size = scale * Menu_window_font_size;
 
+    /* Positions scale per-axis so the grid always spans the whole window. */
     menu->x_dx = x_scale * X_menu_dx;
     menu->x_dy = y_scale * X_menu_dy;
     menu->y_dx = x_scale * Y_menu_dx;
     menu->y_dy = y_scale * Y_menu_dy;
 
     menu->n_lines_in_entry = Menu_n_lines_per_entry;
-    /* Scale the text offsets by the same window/canonical ratio as every other
-     * menu metric below (x_dx, origins, ...).  These two lines historically
-     * omitted the multiply, which left the menu-button text stuck to the top
-     * of each cell whenever the window was larger than canonical — most
-     * visibly on a HiDPI/Retina display, where the framebuffer (and hence
-     * x_scale/y_scale) is 2x. */
-    menu->x_menu_text_offset = x_scale * X_menu_text_offset;
-    menu->y_menu_text_offset = y_scale * Y_menu_text_offset;
 
     menu->x_menu_origin = x_scale * X_menu_origin;
     menu->y_menu_origin = y_scale * Y_menu_origin;
@@ -195,12 +190,42 @@ initialize_menu_parameters(display_struct *menu_window)
     menu->x_menu_name = x_scale * Menu_name_x;
     menu->y_menu_name = y_scale * Menu_name_y;
 
-    /* Do this only after setting the font size above.
-     */
-    menu->basic_key_width = get_basic_menu_key_width(menu);
+    /* Box geometry is decoupled from the font so the boxes STRETCH TO FILL the
+     * window (grow in whatever direction it is enlarged) while the text stays
+     * at the readable MIN-scaled font_size, centred inside.  This also side-
+     * steps the macOS stored bitmap font, whose reported height is fixed
+     * regardless of font_size (so box size must not be derived from it).
+     *
+     *  - character_height: the font-based TEXT line height (used only for text
+     *    line spacing, unchanged).
+     *  - basic_key_width : box width per unit length, proportional to x_scale
+     *    (fills width), floored at the font-based width so keys never get
+     *    narrower than their labels.
+     *  - row_height      : box row height, proportional to y_scale (fills
+     *    height), floored at the text line height so text always fits.  Uses
+     *    the (otherwise unused) Menu_character_height global as the canonical
+     *    per-row unit. */
     menu->character_height = G_get_text_height(Menu_window_font,
                                                menu->font_size) * 2.0;
+
+    menu->basic_key_width = MAX( get_basic_menu_key_width(menu),
+                                 13.0 * (3.0 * (x_scale * Menu_window_font_size) / 5.0) );
+
+    menu->row_height = MAX( menu->character_height,
+                            y_scale * Menu_character_height );
+
     menu->character_offset = get_menu_character_offset(menu);
+
+    /* Text offsets.  The box grows upward from its fixed bottom (y1) as
+     * row_height exceeds the text line height, so the text (placed relative to
+     * y1) must be shifted up by half that surplus to stay vertically centred.
+     * The base term (y_scale*Y_menu_text_offset) is the previously-verified
+     * centring at the balanced state where row_height == character_height.
+     * The horizontal offset (indent) scales with the box width. */
+    menu->x_menu_text_offset = x_scale * X_menu_text_offset;
+    menu->y_menu_text_offset = y_scale * Y_menu_text_offset -
+        (VIO_Real) menu->n_lines_in_entry *
+        ( menu->row_height - menu->character_height ) / 2.0;
 
     /* The help text X position is roughly aligned to the right of the
      * menu window.
@@ -210,13 +235,13 @@ initialize_menu_parameters(display_struct *menu_window)
     /* The help text Y position is aligned to the top row of "keys" on the
      * menu window.
      */
-    tmp = menu->n_lines_in_entry * menu->character_height;
+    tmp = menu->n_lines_in_entry * menu->row_height;
     menu->help_y_origin = menu->y_menu_origin + (4.0 * (menu->y_dy + tmp) +
                                                  tmp / 2.0);
 
     menu->cursor_pos_x_origin = menu->x_menu_origin + (2.0 * menu->x_dx +
                                                        4.0 * menu->basic_key_width);
-    menu->cursor_pos_y_origin = menu->y_menu_origin + menu->character_height;
+    menu->cursor_pos_y_origin = menu->y_menu_origin + menu->row_height;
 }
 
 /* ARGSUSED */

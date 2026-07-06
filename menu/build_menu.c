@@ -344,9 +344,9 @@ static  int   compute_key_position(
     else
     {
         x_dx = menu->x_dx + menu->basic_key_width;
-                                                       
+
         y_dy = menu->y_dy + (VIO_Real) menu->n_lines_in_entry *
-               menu->character_height;
+               menu->row_height;
 
         *x1 = menu->x_menu_origin + (VIO_Real) desc->x_pos * x_dx;
         *y1 = menu->y_menu_origin + (VIO_Real) desc->y_pos * y_dy;
@@ -366,7 +366,7 @@ static  int   compute_key_position(
 
         if( y2 != NULL )
         {
-            *y2 = *y1 + (VIO_Real) menu->n_lines_in_entry * menu->character_height;
+            *y2 = *y1 + (VIO_Real) menu->n_lines_in_entry * menu->row_height;
         }
     }
     return found;

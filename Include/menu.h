@@ -127,7 +127,8 @@ typedef struct menu_window
     int               n_lines_in_entry; /**< Text lines per key entry.  */
 
     VIO_Real          basic_key_width; /**< Max. width of text in box.  */
-    VIO_Real          character_height; /**< Height of current font. */
+    VIO_Real          character_height; /**< Text line height (font based). */
+    VIO_Real          row_height;      /**< Box row height (fills window height). */
     VIO_Real          character_offset; /**< Offset for key labels.  */
 
     VIO_Real          x_menu_name; /**< X coordinate for menu name text. */
