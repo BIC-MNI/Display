@@ -453,13 +453,12 @@ message("BICPL_LIBRARIES=${BICPL_LIBRARIES} BICGL_LIBRARIES=${BICGL_LIBRARIES}")
 
 target_link_libraries(Display ${BICGL_LIBRARIES} ${LINK_LIBRARIES})
 
-#IF(BICPL_STATIC_LIBRARIES) # fixing dynamic libraries hell on macosx
-#        target_link_libraries(ppm_to_pixels ${BICGL_LIBRARIES} ${BICPL_STATIC_LIBRARIES})
-#ELSE(BICPL_STATIC_LIBRARIES)
-#        target_link_libraries(ppm_to_pixels ${BICGL_LIBRARIES} ${BICPL_LIBRARIES})
-#ENDIF(BICPL_STATIC_LIBRARIES)
+# ppm_to_pixels is a self-contained build-time code generator (see
+# tools/ppm_to_pixels.c): it depends only on the C standard library. It must NOT
+# link the libminc/bicpl/bicgl stack, because that drags in the shared HDF5
+# dylib which is not on the build-tree rpath and makes the generator abort at
+# build time on macOS (dyld: Library not loaded: @rpath/libhdf5.*.dylib).
+# Intentionally no target_link_libraries() call here.
 
-target_link_libraries(ppm_to_pixels ${BICGL_LIBRARIES} ${LINK_LIBRARIES})
-        
 # Generate an install target
 install(TARGETS Display RUNTIME DESTINATION bin)
