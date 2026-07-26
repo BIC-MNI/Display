@@ -275,7 +275,7 @@ START_GLOBALS
     DEF_GLOBAL_COLOUR( Colour_bar_tick_colour )
     DEF_GLOBAL_COLOUR( Colour_bar_text_colour )
     DEF_GLOBAL( Colour_bar_text_font, int, 1 )
-    DEF_GLOBAL( Colour_bar_text_size, VIO_Real, 15.0 )
+    DEF_GLOBAL( Colour_bar_text_size, VIO_Real, 10.0 )
     DEF_GLOBAL_COLOUR( Colour_bar_min_limit_colour )
     DEF_GLOBAL_COLOUR( Colour_bar_max_limit_colour )
     DEF_GLOBAL_COLOUR( Colour_bar_range_colour )
