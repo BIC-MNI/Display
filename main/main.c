@@ -114,6 +114,33 @@ static  void   scale_ui_geometry( int scale )
     Cursor_vert_start_2       *= scale;   Cursor_vert_end_2 *= scale;
     Cursor_hor_start_3        *= scale;   Cursor_hor_end_3  *= scale;
     Cursor_vert_start_3       *= scale;   Cursor_vert_end_3 *= scale;
+
+    /* Slice-window readout panel ("probe"): row/column pitch between the
+     * stacked voxel/world/value/label/ratio/distance text fields. These are
+     * raw pixel deltas, not derived from any font metric, so unlike the
+     * menu window (which spaces its rows using the font-based
+     * character_height) they must be scaled explicitly here to keep pace
+     * with the DPI-scaled bitmap font -- otherwise rows overlap on Retina. */
+    Probe_x_pos               *= scale;
+    Probe_y_pos               *= scale;
+    Probe_x_delta             *= scale;
+    Probe_y_delta             *= scale;
+
+    /* Colour bar: fixed-pixel geometry and the minimum gap required between
+     * adjacent tick labels before one is skipped as too close. Like the
+     * probe fields above, this threshold is compared directly against the
+     * (now DPI-scaled) rendered text height, so it must scale too or tick
+     * labels that are "far enough apart" at 1x will overlap at 2x. */
+    Colour_bar_top_offset     *= scale;
+    Colour_bar_bottom_offset  *= scale;
+    Colour_bar_left_offset    *= scale;
+    Colour_bar_width          *= scale;
+    Colour_bar_tick_width     *= scale;
+    Colour_bar_closest_text   *= scale;
+
+    /* Slice index / field-of-view text corner offset. */
+    Point_x(Slice_index_offset) *= scale;
+    Point_y(Slice_index_offset) *= scale;
 }
 
 VIO_Status  set_global_variable_value(
