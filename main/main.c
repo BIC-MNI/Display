@@ -574,6 +574,9 @@ parse_options(int argc, char *argv[], display_struct *graphics)
     {
       print("Usage: Display [OPTION1] [FILE1] [OPTION2] [FILE2]...\n"
             "Interactively display and segment three dimensional images.\n"
+            "\n"
+            "FILE may be suffixed with :COLOUR (e.g. surface.obj:red) to set\n"
+            "its default object colour.\n"
             "\n");
       print("  %-25s %s\n", "-version",
             "Output version information and exit.");
@@ -590,11 +593,11 @@ parse_options(int argc, char *argv[], display_struct *graphics)
       print("  %-25s %s\n", "-ratio N1,N2",
             "Display the images ratio of N1/N2. The first image index is 0.");
       print("  %-25s %s\n", "-range MINIMUM MAXIMUM",
-            "Set the absolute contrast range.");
+            "Set the absolute contrast range (values are not bounds-checked).");
       print("  %-25s %s\n", "-hist_range MINIMUM MAXIMUM",
-            "Set the histogram contrast range.");
+            "Set the histogram contrast range (values must be within [0,1]).");
       print("  %-25s %s\n", "-rel_range MINIMUM MAXIMUM",
-            "Set the relative contrast range.");
+            "Set the relative contrast range (values must be within [0,1]).");
       print("  %-25s %s\n", "-gray",
             "Use gray colour map for subsequently loaded volumes.");
       print("  %-25s %s\n", "-hot",
@@ -608,7 +611,11 @@ parse_options(int argc, char *argv[], display_struct *graphics)
       print("  %-25s %s\n", "-green",
             "Use green colour map for subsequently loaded volumes.");
       print("  %-25s %s\n", "-global NAME VALUE",
-            "Set the global variable NAME to VALUE.");
+            "Set the global variable NAME to VALUE (see Display.globals for the");
+      print("  %-25s %s\n", "",
+            "full list of names; some globals only take effect when set via");
+      print("  %-25s %s\n", "",
+            "Display.globals/.mni-displayrc, not this option).");
       print("\nReport bugs to %s\n", PACKAGE_BUGREPORT);
       exit(EX_OK);
     }
@@ -706,7 +713,7 @@ parse_options(int argc, char *argv[], display_struct *graphics)
 
       if (!get_string_argument("", &file_name))
       {
-        print_error("Error in arguments after -output.\n");
+        print_error("Error in arguments after -output-label.\n");
         exit(EX_USAGE);
       }
 
