@@ -150,7 +150,7 @@ START_GLOBALS
     DEF_GLOBAL( Slice_text_font, int, 0 )
     DEF_GLOBAL( Slice_text_font_size, VIO_Real, 18.0 )
     DEF_GLOBAL( Slice_readout_text_font, int, 0 )
-    DEF_GLOBAL( Slice_readout_text_font_size, VIO_Real, 10.0 )
+    DEF_GLOBAL( Slice_readout_text_font_size, VIO_Real, 15.0 )
     DEF_GLOBAL3( Slice_index_offset, VIO_Point, { 2.0f, 2.0f, 0.0f } )
     DEF_GLOBAL( Readout_text_colour, int, 2 )
     DEF_GLOBAL_COLOUR( Readout_text_rgb_colour )
