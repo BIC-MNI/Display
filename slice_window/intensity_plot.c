@@ -173,6 +173,7 @@ create_tick_label(VIO_Real position, const VIO_Point *tick_pt,
   initialize_text( text_ptr, &pt, Colour_bar_text_colour, Colour_bar_text_font,
                    Colour_bar_text_size );
   replace_string(&text_ptr->string, create_string( label ));
+
   return object_ptr;
 }
 
@@ -745,7 +746,102 @@ get_tick_label_width( VIO_Real value )
 {
   char temp[128];
   snprintf( temp, sizeof(temp) - 1, tick_label_format, value );
-  return G_get_text_length( temp, Colour_bar_text_font, Colour_bar_text_size );
+  /* Round up, not down: this width is used to reserve enough margin for
+   * the label. Truncating the fractional pixel width can leave a label
+   * positioned a hair into negative territory, and the renderer appears
+   * to cull a text object outright once its origin goes negative, rather
+   * than just clipping the overhanging pixels -- so under-reserving by
+   * even a fraction of a pixel can make an entire label vanish.
+   */
+  return (int) ceil( G_get_text_length( temp, Colour_bar_text_font,
+                                        Colour_bar_text_size ) );
+}
+
+/**
+ * \brief Decide which "nice" tick values will be used to label an axis.
+ *
+ * Shared by create_tick_lines() (which lays out the ticks) and
+ * compute_max_tick_label_width() (which needs to know the actual tick
+ * values in order to measure how wide their labels will be, before the
+ * axis geometry that depends on that width is computed).
+ *
+ * \param min_value The minimum value along this axis.
+ * \param max_value The maximum value along this axis.
+ * \param n_pixels The number of pixels along this axis.
+ * \param min_tick_pitch The minimum spacing, in pixels, between adjacent
+ * ticks.
+ * \param min_tick The resulting value of the lowest tick (OUTPUT).
+ * \param delta_tick The resulting step between ticks (OUTPUT). May be
+ * negative if \c max_value < \c min_value.
+ */
+static void
+compute_tick_bounds( VIO_Real min_value, VIO_Real max_value, VIO_Real n_pixels,
+                     int min_tick_pitch, VIO_Real *min_tick,
+                     VIO_Real *delta_tick )
+{
+  VIO_Real range = max_value - min_value;
+  int n_digits;
+  const int min_n_ticks = 2;
+
+  int desired_ticks = n_pixels / min_tick_pitch;
+  if (desired_ticks < min_n_ticks)
+    desired_ticks = min_n_ticks;
+
+  *delta_tick = trunc_to_n_digits( range / desired_ticks, 1 );
+  if (fabs(*delta_tick) <= 1e-10)      /* Make sure it's non-zero */
+    *delta_tick = (range < 0) ? -1 : 1;
+
+  /* Calculate a good value to use for the lowest tick mark.
+   * This is done by truncating the minimum value to a fixed
+   * number of significant digits. We don't want the truncated
+   * value to be more than one delta less than the actual
+   * minimum, so we keep increasing the number of significant
+   * digits until we get something good.
+   */
+  for (n_digits = 1; n_digits < 5; n_digits++)
+  {
+    *min_tick = trunc_to_n_digits( min_value, n_digits );
+    if ( fabs(*min_tick - min_value) < *delta_tick )
+      break;
+  }
+}
+
+/**
+ * \brief Find the widest tick label that will be drawn along an axis.
+ *
+ * The axis endpoints are often not the widest labels actually drawn:
+ * the intermediate "nice" tick values produced by compute_tick_bounds()
+ * can pick up decimal points or extra digits (via the "%.4g" label
+ * format) that neither endpoint has. Callers that need to reserve screen
+ * space for these labels (e.g. the Y-axis left margin) must measure
+ * across all of the actual tick values, not just the range endpoints.
+ *
+ * \param min_value The minimum value along this axis.
+ * \param max_value The maximum value along this axis.
+ * \param n_pixels The number of pixels along this axis.
+ * \param min_tick_pitch The minimum spacing, in pixels, between adjacent
+ * ticks.
+ * \returns The width, in pixels, of the widest tick label.
+ */
+static int
+compute_max_tick_label_width( VIO_Real min_value, VIO_Real max_value,
+                              VIO_Real n_pixels, int min_tick_pitch )
+{
+  VIO_Real min_tick, max_tick = max_value, delta_tick, cur_tick;
+  int max_width = 0;
+
+  compute_tick_bounds( min_value, max_value, n_pixels, min_tick_pitch,
+                       &min_tick, &delta_tick );
+
+  for (cur_tick = min_tick;
+       (delta_tick > 0) ? (cur_tick <= max_tick) : (cur_tick >= max_tick);
+       cur_tick += delta_tick)
+  {
+    int width = get_tick_label_width( cur_tick );
+    if (width > max_width)
+      max_width = width;
+  }
+  return max_width;
 }
 
 /**
@@ -759,50 +855,34 @@ get_tick_label_width( VIO_Real value )
  * \param horz_offset The horizontal offset of the plot within the window.
  * \param vert_offset The vertical offset of the plot within the window.
  * \param is_horz_axis TRUE if this is a horizontal axis.
+ * \param min_tick_pitch The minimum spacing, in pixels, between adjacent
+ * ticks. For the horizontal axis this should be based on the actual
+ * rendered width of the tick labels, since labels (unlike tick marks) can
+ * be much wider than a few pixels.
  */
 static void
 create_tick_lines( model_struct *model_ptr, lines_struct *lines_ptr,
                    VIO_Real min_value, VIO_Real max_value, VIO_Real n_pixels,
                    int horz_offset, int vert_offset,
-                   VIO_BOOL is_horz_axis )
+                   VIO_BOOL is_horz_axis, int min_tick_pitch )
 {
-  VIO_Real range = max_value - min_value;
   VIO_Real min_tick;
   VIO_Real max_tick = max_value;
   VIO_Real delta_tick;
+  VIO_Real range = max_value - min_value;
   VIO_Point pt1, pt2;
   VIO_Point pt_label;
   VIO_Real cur_tick;
   object_struct *object_ptr;
-  int n_digits;
-  const int min_tick_width = 30;    /* minimum width of a tick. */
-  const int min_n_ticks = 2;
   const int text_height = G_get_text_height( Colour_bar_text_font,
                                              Colour_bar_text_size );
 
-  int desired_ticks = n_pixels / min_tick_width;
-  if (desired_ticks < min_n_ticks)
-    desired_ticks = min_n_ticks;
+  compute_tick_bounds( min_value, max_value, n_pixels, min_tick_pitch,
+                      &min_tick, &delta_tick );
 
-  delta_tick = trunc_to_n_digits( range / desired_ticks, 1 );
-  if (delta_tick <= 1e-10)      /* Make sure it's positive */
-    delta_tick = 1;
-
-  /* Calculate a good value to use for the lowest tick mark.
-   * This is done by truncating the minimum value to a fixed
-   * number of significant digits. We don't want the truncated
-   * value to be more than one delta less than the actual
-   * minimum, so we keep increasing the number of significant
-   * digits until we get something good.
-   */
-  for (n_digits = 1; n_digits < 5; n_digits++)
-  {
-    min_tick = trunc_to_n_digits( min_value, n_digits );
-    if ( fabs(min_tick - min_value) < delta_tick )
-      break;
-  }
-
-  for (cur_tick = min_tick; cur_tick <= max_tick; cur_tick += delta_tick)
+  for (cur_tick = min_tick;
+       (delta_tick > 0) ? (cur_tick <= max_tick) : (cur_tick >= max_tick);
+       cur_tick += delta_tick)
   {
     VIO_Real tick_pos = (cur_tick - min_value) * n_pixels / range;
 
@@ -991,13 +1071,33 @@ rebuild_intensity_plot( display_struct *display )
   get_slice_model_viewport( display, INTENSITY_PLOT_MODEL,
                             &x_min, &x_max, &y_min, &y_max);
 
-  const int cx_axis = IP_TICK_LENGTH + get_tick_label_width( max_value );
   const int cy_axis = 20;
+  const VIO_Real plot_height = (y_max - y_min) - cy_axis;
+  /* Consecutive Y-axis labels are stacked vertically, so the minimum
+   * spacing needs enough room for a full line of text (plus a visible
+   * gap between rows), not just the bare tick-mark pitch that suffices
+   * for the X axis. This same pitch is reused below for the actual tick
+   * layout, so the margin below is sized for the same set of tick values
+   * that will actually be drawn.
+   */
+  int y_tick_pitch = (int) ceil( G_get_text_height( Colour_bar_text_font,
+                                                    Colour_bar_text_size ) ) * 2;
+  if (y_tick_pitch < 30)
+    y_tick_pitch = 30;
+
+  /* The widest label actually drawn on the Y axis is often not either
+   * endpoint of the range -- the intermediate "nice" tick values can pick
+   * up decimal points or extra digits that the endpoints don't have -- so
+   * the reserved margin has to be based on all of the ticks, not just
+   * min_value/max_value.
+   */
+  const int cx_axis = IP_TICK_LENGTH + 2 +
+      compute_max_tick_label_width( min_value, max_value, plot_height, y_tick_pitch );
   const int horz_offset = cx_axis;
   const int vert_offset = cy_axis;
-  const VIO_Real plot_height = (y_max - y_min) - cy_axis;
   const VIO_Real plot_width = (x_max - x_min) - cx_axis - 8;
   const VIO_Real plot_range = max_value - min_value;
+
   VIO_Point pt;
   int i;
 
@@ -1056,11 +1156,26 @@ rebuild_intensity_plot( display_struct *display )
     x_end = end[horiz_axis_index];
   }
 
-  create_tick_lines( model_ptr, lines_ptr, x_start, x_end, plot_width, horz_offset, vert_offset, TRUE );
+  {
+    /* Ticks on the horizontal axis need to be spaced far enough apart
+     * that the (potentially wide) numeric labels don't overlap each
+     * other, unlike the fixed pixel pitch that suffices for the tick
+     * marks themselves. Get an initial estimate of the ticks with the
+     * default pitch, measure the widest label among them, then use that
+     * width (plus some padding) as the real minimum pitch.
+     */
+    int x_tick_pitch = compute_max_tick_label_width( x_start, x_end,
+                                                     plot_width, 30 ) + 10;
+    if (x_tick_pitch < 30)
+      x_tick_pitch = 30;
 
-  /* Add the Y-axis tick marks.
+    create_tick_lines( model_ptr, lines_ptr, x_start, x_end, plot_width, horz_offset, vert_offset, TRUE, x_tick_pitch );
+  }
+
+  /* Add the Y-axis tick marks, using the same pitch that cx_axis above
+   * was sized against.
    */
-  create_tick_lines( model_ptr, lines_ptr, min_value, max_value, plot_height, horz_offset, vert_offset, FALSE );
+  create_tick_lines( model_ptr, lines_ptr, min_value, max_value, plot_height, horz_offset, vert_offset, FALSE, y_tick_pitch );
 
 
   /*
