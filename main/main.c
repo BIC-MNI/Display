@@ -200,36 +200,15 @@ int  main(
                           getenv("HOME"), DEFAULT_CHUNK_SIZE );
     ADD_ELEMENT_TO_ARRAY( directories, n_directories, ".", DEFAULT_CHUNK_SIZE );
 
-    /* Debug: every one of these directories is checked for a config file,
-     * and each hit is applied on top of whatever loaded before it -- so a
-     * stray Display.globals/.mni-displayrc anywhere in this list silently
-     * overrides the compiled-in defaults (and earlier directories in the
-     * list), with no other indication that it happened. Print the full
-     * search order and exactly what did or didn't get loaded from each,
-     * so a "why isn't my change taking effect" question can be answered
-     * by reading the log instead of guessing. */
-    print( "Display: searching %d config director%s, in override order "
-           "(later entries win), for \"%s\" and \".mni-displayrc\":\n",
-           n_directories, (n_directories == 1) ? "y" : "ies",
-           DISPLAY_GLOBALS_FILENAME );
-
     for_less( i, 0, n_directories )
     {
-        print( "  [%d] %s\n", i,
-               (directories[i] != NULL) ? directories[i] : "(null)" );
-
         globals_filename = get_absolute_filename( DISPLAY_GLOBALS_FILENAME,
                                                   directories[i] );
 
         if( file_exists( globals_filename ) )
         {
-            print( "      FOUND, loading: %s\n", globals_filename );
             (void) input_globals_file( VIO_SIZEOF_STATIC_ARRAY(display_globals),
                                        display_globals, globals_filename );
-        }
-        else
-        {
-            print( "      not present: %s\n", globals_filename );
         }
 
         delete_string( globals_filename );
@@ -238,21 +217,12 @@ int  main(
                                                   directories[i] );
         if( file_exists( globals_filename ) )
         {
-            print( "      FOUND, loading: %s\n", globals_filename );
             (void) input_globals_file( VIO_SIZEOF_STATIC_ARRAY(display_globals),
                                        display_globals, globals_filename );
-        }
-        else
-        {
-            print( "      not present: %s\n", globals_filename );
         }
 
         delete_string( globals_filename );
     }
-
-    print( "Display: after config search, Menu_window_font_size=%g "
-           "Colour_bar_text_size=%g\n",
-           Menu_window_font_size, Colour_bar_text_size );
 
     /* Perform critical initialization of global variables before doing
      * anything else.
