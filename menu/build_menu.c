@@ -240,7 +240,7 @@ static  void   create_menu_text(
 
         initialize_text( text, &origin, Menu_character_colour,
                          (Font_types) Menu_window_font,
-                         menu_window->menu.font_size );
+                         menu_window->menu.text_font_size );
     }
 
     set_menu_text_position( menu_window, menu_entry );
@@ -277,12 +277,12 @@ static  void   set_menu_text_position(
         {
             key_string = get_key_string( menu_entry->key );
             x += G_get_text_length( key_string, (Font_types) Menu_window_font,
-                                    menu_window->menu.font_size );
+                                    menu_window->menu.text_font_size );
             delete_string( key_string );
         }
 
         fill_Point( text->origin, x, y, 0.0 );
-        text->size = menu_window->menu.font_size;
+        text->size = menu_window->menu.text_font_size;
     }
 
     menu_entry->key_text_width = (length * menu_window->menu.basic_key_width) - 
@@ -494,7 +494,7 @@ static  object_struct   *create_menu_character(
 
     initialize_text( text, &origin, Menu_key_colour,
                      (Font_types) Menu_window_font,
-                     menu_window->menu.font_size );
+                     menu_window->menu.text_font_size );
 
     replace_string( &text->string, get_key_string( key ) );
 
@@ -526,7 +526,7 @@ static  void   set_menu_character_position(
                     menu_window->menu.y_menu_text_offset,
                 0.0 );
 
-    text->size = menu_window->menu.font_size;
+    text->size = menu_window->menu.text_font_size;
 }
 
 static  VIO_BOOL   point_within_menu_key_entry(

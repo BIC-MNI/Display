@@ -151,7 +151,7 @@ get_basic_menu_key_width(menu_window_struct *menu)
 static int
 get_menu_character_offset(menu_window_struct *menu)
 {
-  return G_get_text_length("X ", Menu_window_font, menu->font_size);
+  return G_get_text_length("X ", Menu_window_font, menu->text_font_size);
 }
 
 /**
@@ -175,6 +175,22 @@ initialize_menu_parameters(display_struct *menu_window)
     /* Text is rendered at the aspect-preserving MIN scale so glyphs stay
      * readable and undistorted. */
     menu->font_size = scale * Menu_window_font_size;
+
+    /* font_size above is already expressed in framebuffer pixels (via
+     * x_size/y_size, which bicgl always reports as physical/framebuffer
+     * pixels -- see G_get_window_size), matching the rest of this window's
+     * geometry. bicgl's own text renderer, however, independently multiplies
+     * whatever size it's given by the window's HiDPI content scale, so
+     * passing font_size straight into a bicgl text call would apply that
+     * factor twice on a Retina display. text_font_size divides it back out
+     * up front so bicgl's internal scaling restores the intended value; it
+     * is a no-op on non-HiDPI displays where content_scale is always 1. */
+    {
+        int content_scale = G_get_window_content_scale( menu_window->window );
+        if( content_scale < 1 )
+            content_scale = 1;
+        menu->text_font_size = menu->font_size / (VIO_Real) content_scale;
+    }
 
     /* Positions scale per-axis so the grid always spans the whole window. */
     menu->x_dx = x_scale * X_menu_dx;
@@ -206,7 +222,7 @@ initialize_menu_parameters(display_struct *menu_window)
      *    the (otherwise unused) Menu_character_height global as the canonical
      *    per-row unit. */
     menu->character_height = G_get_text_height(Menu_window_font,
-                                               menu->font_size) * 2.0;
+                                               menu->text_font_size) * 2.0;
 
     menu->basic_key_width = MAX( get_basic_menu_key_width(menu),
                                  13.0 * (3.0 * (x_scale * Menu_window_font_size) / 5.0) );
@@ -389,7 +405,7 @@ static VIO_STR default_menu_string =
     fill_Point( position, menu->x_menu_name, menu->y_menu_name, 0.0 );
     initialize_text( get_text_ptr(menu->menu_name_text), &position,
                      Menu_name_colour, (Font_types) Menu_name_font,
-                     menu->font_size );
+                     menu->text_font_size );
 
     add_object_to_model( model, menu->menu_name_text );
 
@@ -401,7 +417,7 @@ static VIO_STR default_menu_string =
       fill_Point( position, menu->help_x_origin, menu->help_y_origin - (i * menu->font_size), 0.0);
       initialize_text( get_text_ptr(menu->menu_help_text[i]), &position,
                        WHITE, (Font_types) Menu_name_font,
-                       menu->font_size );
+                       menu->text_font_size );
       add_object_to_model( model, menu->menu_help_text[i] );
     }
 
@@ -745,7 +761,7 @@ void   set_menu_text(
             part_text_width = ((line == 0) ? menu->character_offset : 0) +
               G_get_text_length(part_text_buffer,
                                 Menu_window_font,
-                                menu->font_size);
+                                menu->text_font_size);
 
             if (part_text_width >= menu_entry->key_text_width)
             {
@@ -812,7 +828,7 @@ static  void  update_menu_name_text(
 
     fill_Point( text->origin, menu_window->menu.x_menu_name,
                 menu_window->menu.y_menu_name, 0.0 );
-    text->size = menu_window->menu.font_size;
+    text->size = menu_window->menu.text_font_size;
 
     new_value = menu_window->menu.stack[menu_window->menu.depth]->label;
 
@@ -892,10 +908,10 @@ static VIO_BOOL update_menu_help_text(
         changed = TRUE;
         fill_Point( text->origin, x, y, 0.0 );
       }
-      if ( text->size != menu->font_size )
+      if ( text->size != menu->text_font_size )
       {
         changed = TRUE;
-        text->size = menu->font_size;
+        text->size = menu->text_font_size;
       }
     }
 

@@ -147,6 +147,8 @@ typedef struct menu_window
     VIO_Real          y_menu_text_offset; /**< Y offset for key text. */
 
     VIO_Real          font_size; /**< Desired font height. */
+    VIO_Real          text_font_size; /**< font_size adjusted so bicgl's own
+                                          DPI scaling isn't double-applied. */
 
     int               n_entries; /**< Total number of menu entries.  */
     menu_entry_struct *entries;  /**< List of all menu entries.  */

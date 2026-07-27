@@ -38,7 +38,7 @@ static  void  create_cursor_pos_text(
                 menu->cursor_pos_y_origin, 0.0 );
 
     initialize_text( text, &origin, Cursor_pos_colour,
-                     (Font_types) Menu_window_font, menu->font_size );
+                     (Font_types) Menu_window_font, menu->text_font_size );
 
     replace_string( &text->string, create_string(Cursor_pos_title) );
 
@@ -54,7 +54,7 @@ static  void  create_cursor_pos_text(
                 menu->cursor_pos_y_origin - menu->character_height, 0.0 );
 
     initialize_text( text, &origin, Cursor_pos_colour,
-                     (Font_types) Menu_window_font, menu->font_size );
+                     (Font_types) Menu_window_font, menu->text_font_size );
 
     replace_string( &text->string, create_string(NULL) );
 
@@ -92,13 +92,13 @@ static  void  create_cursor_pos_text(
         create_cursor_pos_text( &menu_window->menu, cursor_pos_model );
 
     text = get_text_ptr( cursor_pos_model->objects[0] );
-    text->size = menu_window->menu.font_size;
+    text->size = menu_window->menu.text_font_size;
     fill_Point( text->origin,
                 menu_window->menu.cursor_pos_x_origin,
                 menu_window->menu.cursor_pos_y_origin, 0.0 );
 
     text = get_text_ptr( cursor_pos_model->objects[1] );
-    text->size = menu_window->menu.font_size;
+    text->size = menu_window->menu.text_font_size;
     fill_Point( text->origin,
                 menu_window->menu.cursor_pos_x_origin,
                 menu_window->menu.cursor_pos_y_origin -
