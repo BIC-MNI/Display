@@ -561,8 +561,8 @@ START_GLOBALS
     DEF_GLOBAL( Initial_marker_window_height, int, 500 )
     DEF_GLOBAL( Initial_menu_window_x, int, -1 )
     DEF_GLOBAL( Initial_menu_window_y, int, -1 )
-    DEF_GLOBAL( Initial_menu_window_width, int, 850 )
-    DEF_GLOBAL( Initial_menu_window_height, int, 260 )
+    DEF_GLOBAL( Initial_menu_window_width, int, 1200 )
+    DEF_GLOBAL( Initial_menu_window_height, int, 300 )
     DEF_GLOBAL( Initial_slice_window_x, int, -1 )
     DEF_GLOBAL( Initial_slice_window_y, int, -1 )
     DEF_GLOBAL( Initial_slice_window_width, int, -1 )
@@ -573,9 +573,9 @@ START_GLOBALS
     DEF_GLOBAL( Initial_3D_window_height, int, -1 )
 
 /** Sets the default width used for the keyboard menu window. */
-    DEF_GLOBAL( Canonical_menu_window_width, int, 850 )
+    DEF_GLOBAL( Canonical_menu_window_width, int, 1200 )
 /** Sets the default height used for the keyboard menu window. */
-    DEF_GLOBAL( Canonical_menu_window_height, int, 260 )
+    DEF_GLOBAL( Canonical_menu_window_height, int, 300 )
     
 /** Defines the half-width of the secondary brush in world units. */
     DEF_GLOBAL( Secondary_x_brush_radius, VIO_Real, 3.0 )
