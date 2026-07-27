@@ -34,7 +34,7 @@ Menu_window_width = 850.0;
 Menu_window_height = 260.0;
 
 Menu_window_font = 1;
-Menu_window_font_size = 10.0;
+Menu_window_font_size = 15.0;
 Menu_character_height = 20.0;
 Menu_character_width = 7.5;
 Menu_character_colour = Cyan;
@@ -224,7 +224,7 @@ Colour_bar_tick_width = 3.0;
 Colour_bar_tick_colour = BLACK;
 Colour_bar_text_colour = BLACK;
 Colour_bar_text_font = 1;
-Colour_bar_text_size = 15.0;
+Colour_bar_text_size = 18.0;
 Colour_bar_limit_colour = Green;
 Colour_bar_limit_colour = BLACK;
 Colour_bar_desired_intervals = 5;
