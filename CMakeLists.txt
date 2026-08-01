@@ -218,7 +218,13 @@ IF(GLUT_FOUND)
 ENDIF(GLUT_FOUND)
 IF(GIFTI_FOUND)
   # Display touches NIfTI only via gifti_io.h (NIFTI_INTENT_*/NIFTI_TYPE_*),
-  # so nifti is a GIFTI dependency here, not a direct one.
+  # so nifti is a GIFTI dependency here, not a direct one -- it is needed
+  # exactly when GIFTI is. An enclosing superbuild already supplies the target;
+  # standalone we find it ourselves, from the system or from any prefix on
+  # CMAKE_PREFIX_PATH.
+  IF(NOT TARGET NIFTI::niftiio)
+    FIND_PACKAGE(NIFTI CONFIG REQUIRED)
+  ENDIF()
   include_directories( ${GIFTI_INCLUDE_DIR} )
 ENDIF(GIFTI_FOUND)
 #include_directories( ${GLU_INCLUDE_DIR} )
