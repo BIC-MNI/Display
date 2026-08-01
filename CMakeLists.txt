@@ -216,8 +216,9 @@ include_directories( ${OPENGL_INCLUDE_DIRS} )
 IF(GLUT_FOUND)
   include_directories( ${GLUT_INCLUDE_DIRS} )
 ENDIF(GLUT_FOUND)
-include_directories( ${NIFTI_INCLUDE_DIR} )
 IF(GIFTI_FOUND)
+  # Display touches NIfTI only via gifti_io.h (NIFTI_INTENT_*/NIFTI_TYPE_*),
+  # so nifti is a GIFTI dependency here, not a direct one.
   include_directories( ${GIFTI_INCLUDE_DIR} )
 ENDIF(GIFTI_FOUND)
 #include_directories( ${GLU_INCLUDE_DIR} )
@@ -393,7 +394,6 @@ IF(NOT MINC_TOOLKIT_BUILD)
         ${BICPL_LIBRARIES}
         ${OPENGL_gl_LIBRARY}
         ${OPENGL_opengl_LIBRARY}
-        ${NIFTI_LIBRARY}
         m pthread)
   ELSE (DISPLAY_BUILD_STATIC)
     SET (LINK_LIBRARIES   
@@ -404,12 +404,11 @@ IF(NOT MINC_TOOLKIT_BUILD)
         ${BICPL_LIBRARIES}
         ${OPENGL_gl_LIBRARY}
         ${OPENGL_opengl_LIBRARY}
-        ${NIFTI_LIBRARY}
         m pthread)
   ENDIF (DISPLAY_BUILD_STATIC)
   # Only link GIFTI when it was found
   IF(GIFTI_FOUND)
-    LIST(APPEND LINK_LIBRARIES ${GIFTI_LIBRARY})
+    LIST(APPEND LINK_LIBRARIES ${GIFTI_LIBRARY} NIFTI::niftiio)
   ENDIF(GIFTI_FOUND)
   # Only link GLUT when it was found (not needed for the GLFW backend)
   IF(GLUT_FOUND)
@@ -423,7 +422,6 @@ ELSE()
       ${BICPL_STATIC_LIBRARIES} 
       ${VOLUME_IO_STATIC_LIBRARIES} 
       ${LIBMINC_STATIC_LIBRARIES}
-      ${NIFTI_LIBRARY}
       m pthread)
   ELSE()
     SET (LINK_LIBRARIES
@@ -431,12 +429,11 @@ ELSE()
       ${OPENGL_opengl_LIBRARY}
       ${BICPL_LIBRARIES} 
       ${LIBMINC_LIBRARIES}
-      ${NIFTI_LIBRARY}
       m pthread)
   ENDIF()
   # Only link GIFTI when it was found
   IF(GIFTI_FOUND)
-    LIST(APPEND LINK_LIBRARIES ${GIFTI_LIBRARY})
+    LIST(APPEND LINK_LIBRARIES ${GIFTI_LIBRARY} NIFTI::niftiio)
   ENDIF(GIFTI_FOUND)
   # Only link GLUT when it was found (not needed for the GLFW backend)
   IF(GLUT_FOUND)
